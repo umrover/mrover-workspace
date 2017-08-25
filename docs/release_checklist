@@ -1,0 +1,76 @@
+# Build release archive
+
+1.  Reset your working copy to a clean state
+  $ git clean -x -d -f
+2.  Update NEWS (use Markdown syntax)
+3.  Verify that all manpages are up to date.
+4.  Bump the version number in:
+  a. configure.ac at the line AM_INIT_AUTOMAKE(lcm, X.Y.Z)
+  b. lcm-python/setup.py
+  c. lcm/lcm.h
+5.  Update the AGE, REVISION, and CURRENT variables.  See configure.ac
+  comments for details.
+6. Build the release tarball
+  $ autoreconf -i
+  $ ./configure
+  $ make
+  $ make distcheck
+7. Take the resulting tarball, extract it, build it, install it, make sure
+  the basic executables run.
+  $ tar xzvf lcm-X.Y.Z.tar.gz
+  $ cd lcm-X.Y.Z
+  $ ./configure
+  $ make
+  $ make install
+
+# Test
+
+1. Build and run all unit tests.  Verify that they all pass.
+  $ cd ../test
+  $ make clean
+  $ make
+  $ ./run_unit_tests.py
+  $ ./run_client_server_tests.py
+2. Repeat unit tests on:
+  * GNU/Linux
+  * OS X
+3. Test C/C++ library on Windows.  Run lcm-source.exe and lcm-sink.exe
+4. Test on other available platforms
+5. Fix any errors that appear, and repeat as necessary.
+
+# Upload release archive
+
+1. Commit the changes, tag the release, and push to GitHub.
+  $ git commit -a -m "Release X.Y.Z"
+  $ git tag vX.Y.Z
+  $ git push origin master
+  $ git push origin vX.Y.Z
+2. Convert tarball to ZIP file
+  $ tar xzvf lcm-X.Y.Z.tar.gz
+  $ zip -r lcm-X.Y.Z.zip lcm-X.Y.Z
+3. Draft a new release on GitHub
+  a. Associate the release with tag vX.Y.Z
+  b. Name the release title "vX.Y.Z"
+  c. Add release notes from the NEWS file
+  d. Attach lcm-X.Y.Z.zip
+
+# Update documentation
+
+1. Build docs
+  $ cd docs
+  $ ./build-docs.sh
+2. Clone the documentation repository
+  $ cd ../..
+  $ git clone https://github.com/lcm-proj/lcm-proj.github.io
+  $ cd lcm-proj.github.io
+3. Copy the built docs to the lcm.www repository
+  $ cp -r ../lcm/docs/html/* .
+4. Commit the changes, tag the release, and push to origin
+  $ git commit -a -m "Release X.Y.Z"
+  $ git tag vX.Y.Z
+  $ git push origin master
+  $ git push origin vX.Y.Z
+
+# Notify the mailing list
+
+1. Send e-mail to lcm-users@googlegroups.com
