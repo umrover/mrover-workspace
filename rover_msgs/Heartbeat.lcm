@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct Heartbeat {
+    int32_t recv_ack_id;
+    int32_t new_ack_id;
+}

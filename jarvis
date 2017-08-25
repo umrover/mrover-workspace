@@ -1,0 +1,55 @@
+#!/bin/sh
+
+set -eo pipefail
+
+DIR=$(dirname $(realpath "${0}"))
+JARVIS_ROOT=${DIR}/jarvis_files
+JARVIS_VENV=${JARVIS_ROOT}/env
+PRODUCT_ENV=${DIR}/build/env
+
+run_jarvis() {
+    # Runs a Jarvis command using PyInvoke
+    # shellcheck source=/dev/null
+    . "${JARVIS_VENV}/bin/activate"
+    cd "${JARVIS_ROOT}"
+    invoke "$@"
+    return $?
+}
+
+if [ ! -d "${JARVIS_VENV}" ]; then
+    echo -n "Bootstrapping..."
+    # Make virtualenv for Jarvis
+    python3 -m venv "${JARVIS_VENV}"
+    # shellcheck source=/dev/null
+    . "${JARVIS_VENV}/bin/activate"
+    pip install -r "${JARVIS_ROOT}/requirements.txt" >/dev/null
+    echo "Done!"
+fi
+
+if [ "$#" -lt 1 ]; then
+    run_jarvis -l
+    exit 0
+fi
+
+if [ "$1" = "implode" ]; then
+    run_jarvis clean
+    # Delete virtualenv
+    cd ${DIR}
+    rm -rf "${JARVIS_VENV}"
+    exit 0
+fi
+
+if [ "$1" = "exec" ]; then
+    if [ -d "${PRODUCT_ENV}" ]; then
+        # shellcheck source=/dev/null
+        . "${PRODUCT_ENV}/bin/activate"
+        shift
+        exec "$@"
+    else
+        echo "You must build something in order to be able to exec a command."
+    fi
+    exit 0
+fi
+
+run_jarvis "$@"
+

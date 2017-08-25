@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct Odometry {
+    double latitude_deg;
+    double longitude_deg;
+    double bearing_angle_deg;
+}
