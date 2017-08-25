@@ -1,0 +1,152 @@
+This file contains the list of people involved in the development
+of MRPT along its history. If you feel someone is missing, please
+fork and pull-request.
+
+ DEVELOPERS
+==========================================================
+MRPT development started at MAPIR lab, University of Malaga.
+The following list is roughly sorted in reverse cronological order.
+
+* Jose-Luis Blanco-Claraco. Main developer.  http://www.ual.es/~jlblanco/  https://github.com/jlblancoc
+
+* Jesus Briales (University of Malaga, 2014-)  https://github.com/jbriales
+  - Fixes in mrpt::hwdrivers::CImageGrabber_dc1394
+  - MRPT to Matlab (MEX) wrappers.
+
+* Mariano Jaimez Tarifa, University of Malaga (2012-) https://github.com/MarianoJT88
+  - Several improvements and bug fixes in the mrpt-reactivenav library.
+  - Development in octomap classes.
+  - Some improvements and bug fixes in the mrpt-opengl library.
+  - Visual Odometry based on depth images (mrpt::vision::CDifodo) and 2 applications to use it: DifOdometry-Camera and DifOdometry-Datasets
+  - Examples to manage an RGB-D camera with openNI2
+
+* Eduardo Fernandez Moral , University of Malaga (2013-2014), INRIA Sophia-Antipolis (2014-). https://github.com/EduFdez
+  - OpenNI2 classes: COpenNI2Sensor,
+  - The new library: mrpt-pbmap
+  - Driver for Rovio mobile robot with webcam.
+  - Some other functions.
+
+* Javier G. Monroy, University of Malaga (2013-). https://github.com/JGMonroy
+  - Driver for Rovio mobile robot with webcam.
+  - New algorithms in gas maps.
+
+* Hunter (2016-) https://github.com/jolting
+  - Add-ons to 2D range scan observations.
+  - Port towards C++11 for MRPT 2.0
+  - Code clean ups.
+  - Multiple bug fixes.
+
+* Nikos Koukis, National Technical University of Athens, Greece (2016) - https://github.com/bergercookie
+  - Support for executing graphSLAM in graphslam lib/ + Corresponding
+  	graphslam-engine application
+  - Initial version of MRPT logging module - COutputLogger
+
+* Chandra Mangipudi, University of Minnesota (2016) - https://github.com/mangi020
+  - The PnP module in mrpt::vision
+
+* Nikolaus Demmel, Robert Bosch Start-up GmbH (2016)
+  - Additions to python bindings.
+
+* Robert Schattschneider, University of Canterbury (2012)
+  - Patches for bug fixes, serialization of templates.
+
+* Jurica Stanojkovic (IMGTEC, 2014)
+  - Testing and patches for MIPS* architectures.
+
+* Randolph Voorhies, University of Southern California (2014)
+  - Fixes for OS X.
+
+* Yuya Ochiai, (Aichi, Japan) (2014)
+  - Fixes for OS X.
+
+* Kenzaburo Miyawaki (Osaka Institute of Technology, 2014)
+  - Refactoring of OpenNI2 classes in mrpt::hwdrivers
+
+* Francisco-Angel Moreno-Dueñas (2010-). http://www.isa.uma.es/famoreno
+  - Maintainer of vision-related classes (mrpt::vision namespace in libmrpt-core).
+  - Visual odometry for stereo images.
+  - Work in CLandmarksMap for efficiency of visual SLAM.
+  - Many image-related functions.
+  - Many functions in mrpt::topography
+  - mrpt::hwdrivers::CCANBusReader and related classes
+  - mrpt::poses::CPose3DRotVec
+  - mrpt::hwdrivers::CDUO3DCamera for DUO3D cameras
+
+* Emilio Sanjurjo Maroño, LIM, University of Coruña (2013)
+  - Fixed orientation of ENU axes for Geodetic coordinate conversions in mrpt::topography.
+
+* Antonio J. Ortiz de Galisteo, University of Malaga (2007).
+  - Addition of many mathematical functions.
+  - More matrix operations.
+  - Quaternion support.
+  - Mono SLAM classes and the MonoSLAM demo (the first version).
+  - Some classes for hardware interfaces (Sonars, robotic head)
+  - Additions to the graphics renderer CMRPTCanvas.
+  - The first version of the ro-localization application.
+
+* Pablo Moreno Olalla, University of Malaga.
+  - Tons of new code and optimizations in mrpt::math
+  - Work on laser scanner simulation in 3D scenes.
+  - Tons of geometry-related functions and lightweight geometry data types.
+  - Many new classes in mrpt::opengl
+
+* José Raul Ruiz Sarmiento, University of Malaga.
+  - Maintainer of the library mrpt-detectors.
+  - Generic "detector classes" (CDetectableObject, CObjectDetection, ...).
+  - Work on PTU unit integration with Hokuyo laser scanner and 3D point clouds.
+  - Some classes: mrpt::hwdrivers::CPtuDperception, mrpt::utils::md5, and more.
+  - Website documentation.
+
+* Emil Khatib, University of Malaga (2011-2012)
+  - A few new classes to handle WiFi-signal strength receivers and build
+     maps out of such observations: mrpt::slam::CObservationWirelessPower,
+     mrpt::hwdrivers::CWirelessPower and mrpt::slam::CWirelessPowerGridMap2D.
+  - Classes for RFID observations and sensors: mrpt::slam::CObservationRFID,
+     mrpt::hwdrivers::CImpinjRFID.
+  - Interface to PID sensor: mrpt::hwdrivers::CRaePID
+
+* Vicente Arevalo Espejo, University of Malaga.
+  - The application camera-calib.
+  - Some classes: mrpt::opengl::CSetOfTexturedTriangles, etc..
+  - Some minor changes in: 3DSceneViewer and RawlogViewer applications.
+  - Some image-related functions.
+
+* Adrien Barral - Robopec (France).
+  - Driver for SICK LMS100 via ethernet (mrpt::hwdrivers::CLMS100eth)
+  - Driver for Phidget interface boards (see mrpt::hwdrivers::CPhidgetInterfaceKitProximitySensors)
+  - Driver for KVH DSP-3000 Laser Gyro (see mrpt::hwdrivers::CGyroKVHDSP3000)
+
+* Paul Newman, Mobile Robotics Group, University of Oxford.
+  - The Levenberg-Marquardt algorithm implemented in slam::CICP.
+
+* M.A. Amiri Atashgah (MAAA), University of Sharif Technology, Tehran, Iran.
+  - Rewrite of a very old version of "mono-slam" to adapt it to MRPT 0.7.0.
+
+* Philipp Robbel, Massachusetts Institute of Technology, USA.
+  - New CRangeObservation for 3D point clouds.
+  - Many hacks and optimizations in different parts of MRPT.
+
+* Cipriano Galindo Andrades. University of Malaga.
+  - New functionality in HMT maps.
+  - Website documentation.
+
+* mrhemali
+  - SWIG wrappers (Python) for MRPT.
+  - Fixes to build without freeglut, some bug fixes, ...
+
+* Cyril Gerber
+  - Support for Videre stereo camera class: mrpt::hwdrivers::CStereoGrabber_SVS
+
+* Zoltan Gaal
+  - The RANSAC and genetic model fitter: mrpt::math::ModelSearch
+  - Different improvements and bug fixes.
+
+* Jan Girlich, University of Hamburg.
+  - Added mrpt::hwdrivers::CIbeoLuxETH
+
+*  Kasra Khosoussi (K.N.Toosi University, Iran)
+  - Patches to improve the JCBB data association implementation.
+
+
+Several bug reports have been provided from MRPT users world-wide. We kindly thank all of
+them for this valuable feedback, and they are usually mentioned in changelogs.

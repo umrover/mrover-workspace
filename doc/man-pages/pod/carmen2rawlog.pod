@@ -1,0 +1,71 @@
+=head1 NAME
+
+carmen2rawlog - Convert robotic datasets between CARMEN and Rawlog formats
+
+=head1 SYNOPSIS
+
+
+carmen2rawlog  [-z <0: none, 1-9: min-max>] -i I<carmen.log> -o
+          I<dataset_out.rawlog> [-q] [-w] [--] [--version] [-h]
+
+carmen2rawlog --help
+
+=head1 DESCRIPTION
+
+B<carmen2rawlog> is a command-line application to convert CARMEN robotic 
+datasets to the "rawlog" standardized file format.
+
+Arguments:
+
+   -z <0: none, 1-9: min-max>,  --compress-level <0: none, 1-9: min-max>
+     Output GZ-compress level (optional)
+
+   -i <carmen.log>,  --input <carmen.log>
+     (required)  Input dataset (required) (*.log)
+
+   -o <dataset_out.rawlog>,  --output <dataset_out.rawlog>
+     (required)  Output dataset (*.rawlog)
+
+   -q,  --quiet
+     Terse output
+
+   -w,  --overwrite
+     Force overwrite target file without prompting.
+
+   --,  --ignore_rest
+     Ignores the rest of the labeled arguments following this flag.
+
+   --version
+     Displays version information and exits.
+
+   -h,  --help
+     Displays usage information and exits.
+
+
+
+
+=head1 BUGS
+
+Please report bugs at https://github.com/MRPT/mrpt/issues
+
+=head1 SEE ALSO
+
+The application wiki page at http://www.mrpt.org/Applications
+
+=head1 AUTHORS
+
+B<carmen2rawlog> is part of the Mobile Robot Programming Toolkit (MRPT), and 
+was originally written by the MAPIR laboratory (University of Malaga).
+
+This manual page was written by Jose Luis Blanco <joseluisblancoc@gmail.com>.
+
+=head1 COPYRIGHT
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the BSD License.
+
+On Debian GNU/Linux systems, the complete text of the BSD License can be 
+found in `/usr/share/common-licenses/BSD'.
+
+=cut
+

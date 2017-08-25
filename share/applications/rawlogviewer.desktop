@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Name=Rawlog Viewer
+Comment=Robotics dataset IDE
+Exec=RawLogViewer %F
+Icon=rawlogviewer
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+Categories=Science;Robotics;ArtificialIntelligence;
+StartupNotify=true
+MimeType=application/x-mrpt-rawlog;
+Keywords=mrpt;dataset;rawlog;explore;robotics;browse;
+
