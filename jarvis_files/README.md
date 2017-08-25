@@ -69,15 +69,6 @@ executable is generated from the function `main` located in `src/__main__.py`,
 and in C++, executables generated from `meson` are installed into the
 appropriate locations.
 
-Individual phases of the build process can be invoked by passing a `--phases`
-argument to `jarvis <target>`. For example,
-
-```sh
-jarvis rover_common --phases=lint,test
-```
-
-will run only lints and tests against `rover_common`.
-
 ## Technical Documentation
 
 Technical documentation for the Jarvis build system is a work in progress. The
