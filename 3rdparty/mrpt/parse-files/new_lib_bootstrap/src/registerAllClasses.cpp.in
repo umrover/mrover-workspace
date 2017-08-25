@@ -1,0 +1,25 @@
+/* +---------------------------------------------------------------------------+
+   |                     Mobile Robot Programming Toolkit (MRPT)               |
+   |                          http://www.mrpt.org/                             |
+   |                                                                           |
+   | Copyright (c) 2005-2014, Individual contributors, see AUTHORS file        |
+   | See: http://www.mrpt.org/Authors - All rights reserved.                   |
+   | Released under BSD License. See details in http://www.mrpt.org/License    |
+   +---------------------------------------------------------------------------+ */
+
+#include "@name@-precomp.h"
+
+#define MRPT_NO_WARN_BIG_HDR   // In this register file is the only place where it makes sense to include *all* headers.
+#include <mrpt/@name@.h>
+
+#include <mrpt/utils/initializer.h>
+
+
+using namespace mrpt::@name@;
+using namespace mrpt::utils;
+
+MRPT_INITIALIZER(registerAllClasses_mrpt_@name@
+{
+//	registerClass( CLASS_ID( XXXX ) );
+
+}

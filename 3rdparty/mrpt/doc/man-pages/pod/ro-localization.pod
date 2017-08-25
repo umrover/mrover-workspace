@@ -1,0 +1,46 @@
+=head1 NAME
+
+ro-localization - Monte-Carlo localization for beacon range-only measurements
+
+=head1 SYNOPSIS
+
+ro-localization I<config_file.ini>
+
+=head1 DESCRIPTION
+
+B<ro-localization> is a command-line application which processes a rawlog and 
+tracks a mobile robot pose from the sequence of odometry and observations. It can also 
+perform global localization. 
+
+This program is a specialization of pf-localization, with an extended model to 
+cope with unknown, dynamic biases in the beacon ranges. It also shows a real-time 
+visualization in 3D of the particles, the beacons, and the measurements.
+
+=head1 BUGS
+
+Please report bugs at https://github.com/MRPT/mrpt/issues
+
+=head1 SEE ALSO
+
+The application wiki page at http://www.mrpt.org/Applications
+
+B<pf-localization>
+
+
+=head1 AUTHORS
+
+B<ro-localization> is part of the Mobile Robot Programming Toolkit (MRPT), and was originally 
+written by the MAPIR laboratory (University of Malaga).
+
+This manual page was written by Jose Luis Blanco <joseluisblancoc@gmail.com>.
+
+=head1 COPYRIGHT
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the BSD License.
+
+On Debian GNU/Linux systems, the complete text of the BSD License can be 
+found in `/usr/share/common-licenses/BSD'.
+
+=cut
+
