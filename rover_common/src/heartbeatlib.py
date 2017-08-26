@@ -1,5 +1,9 @@
 import os
+import select
+import time
+import lcm
 from rover_msgs import Heartbeat
+from . import defaults
 
 
 def gen_new_id():
@@ -10,9 +14,10 @@ def gen_new_id():
 
 
 class Heartbeater:
-    def __init__(self, lcm_, publish, subscribe):
-        self.lcm_ = lcm_
-        self.is_connected = False
+    def __init__(self, publish, subscribe, callback):
+        self.lcm_ = lcm.LCM(defaults.HEARTBEAT_LCM_GROUP)
+        self.connected = False
+        self.connection_state_changed = callback
         self.where = publish
 
         self.lcm_.subscribe(subscribe, self.heartbeat_handler)
@@ -22,11 +27,27 @@ class Heartbeater:
         hb_message.new_ack_id = gen_new_id()
         self.lcm_.publish(self.where, hb_message.encode())
 
-    def timeout(self):
-        self.is_connected = False
+    def loop(self):
+        timeout = 2.0
+        interval = 0.1
+        while True:
+            rfds, _wfds, _efds = select.select(
+                    [self.lcm_.fileno()], [], [], timeout)
+            if rfds:
+                self.lcm_.handle()
+            else:
+                if self.connected:
+                    self.connection_state_changed(False)
+                self.connected = False
+
+            if not self.connected:
+                self.send_new()
+            time.sleep(interval)
 
     def heartbeat_handler(self, channel, data):
-        self.is_connected = True
+        if not self.connected:
+            self.connection_state_changed(True)
+        self.connected = True
         in_msg = Heartbeat.decode(data)
         ret_msg = Heartbeat()
         ret_msg.recv_ack_id = in_msg.new_ack_id
@@ -35,10 +56,10 @@ class Heartbeater:
 
 
 class OnboardHeartbeater(Heartbeater):
-    def __init__(self, lcm_):
-        super().__init__(lcm_, "/heartbeat/rover", "/heartbeat/bs")
+    def __init__(self, callback):
+        super().__init__("/heartbeat/rover", "/heartbeat/bs", callback)
 
 
 class BaseStationHeartbeater(Heartbeater):
-    def __init__(self, lcm_):
-        super().__init__(lcm_, "/heartbeat/bs", "/heartbeat/rover")
+    def __init__(self, callback):
+        super().__init__("/heartbeat/bs", "/heartbeat/rover", callback)

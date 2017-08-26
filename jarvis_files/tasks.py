@@ -98,6 +98,6 @@ def base_station(ctx):
     """
     Builds the `base_station` executable.
     """
-    # TODO when GUI framework is chosen, we'll need to take it into 
+    # TODO when GUI framework is chosen, we'll need to take it into
     # consideration here.
     buildlib.build_python_package(ctx, 'base_station')

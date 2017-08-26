@@ -1,32 +1,17 @@
-import lcm
-import select
-import time
 from rover_common import heartbeatlib
 
-# TODO refactor this code
+
+def connection_state_changed(c):
+    if c:
+        print("Connection established.")
+    else:
+        print("Disconnected.")
+
+
 def main():
-    lc = lcm.LCM()
-    hb = heartbeatlib.BaseStationHeartbeater(lc)
+    hb = heartbeatlib.BaseStationHeartbeater(connection_state_changed)
 
-    timeout = 2.0
-    period = 0.1
-    times_between_prints = 10
-    i = 0
     try:
-        while True:
-            rfds, _wfds, _efds = select.select([lc.fileno()], [], [], timeout)
-            if rfds:
-                lc.handle()
-            else:
-                hb.timeout()
-                print("Not connected.")
-
-            if i == times_between_prints:
-                if hb.is_connected:
-                    print("Connected to rover.")
-                i = 0
-
-            time.sleep(period)
-            i = i + 1
+        hb.loop()
     except KeyboardInterrupt:
         pass
