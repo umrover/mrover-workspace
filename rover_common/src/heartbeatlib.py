@@ -1,9 +1,7 @@
 import os
-import select
-import time
-import lcm
+import asyncio
 from rover_msgs import Heartbeat
-from . import defaults
+from . import defaults, aiolcm
 
 
 def gen_new_id():
@@ -15,7 +13,7 @@ def gen_new_id():
 
 class Heartbeater:
     def __init__(self, publish, subscribe, callback):
-        self.lcm_ = lcm.LCM(defaults.HEARTBEAT_LCM_GROUP)
+        self.lcm_ = aiolcm.AsyncLCM(defaults.HEARTBEAT_LCM_GROUP)
         self.connected = False
         self.connection_state_changed = callback
         self.where = publish
@@ -27,22 +25,21 @@ class Heartbeater:
         hb_message.new_ack_id = gen_new_id()
         self.lcm_.publish(self.where, hb_message.encode())
 
-    def loop(self):
+    async def loop(self):
         timeout = 2.0
         interval = 0.1
         while True:
-            rfds, _wfds, _efds = select.select(
-                    [self.lcm_.fileno()], [], [], timeout)
-            if rfds:
-                self.lcm_.handle()
-            else:
+            try:
+                await self.lcm_.handle(timeout=timeout)
+            except asyncio.TimeoutError:
                 if self.connected:
                     self.connection_state_changed(False)
                 self.connected = False
 
             if not self.connected:
                 self.send_new()
-            time.sleep(interval)
+
+            await asyncio.sleep(interval)
 
     def heartbeat_handler(self, channel, data):
         if not self.connected:

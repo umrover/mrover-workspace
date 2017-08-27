@@ -94,10 +94,49 @@ def onboard_teleop(ctx):
 
 
 @task(rover_common)
-def base_station(ctx):
+def base_station_bridge(ctx):
     """
-    Builds the `base_station` executable.
+    Builds the `base_station_bridge` executable.
     """
-    # TODO when GUI framework is chosen, we'll need to take it into
-    # consideration here.
-    buildlib.build_python_package(ctx, 'base_station')
+    buildlib.build_python_package(ctx, 'base_station_bridge',
+                                  directory=os.path.join(
+                                      'base_station', 'bridge'))
+
+
+@task(base_station_bridge)
+def base_station_gui(ctx):
+    """
+    Builds the `base_station_gui` executable.
+    """
+    bsgui_root = os.path.join('base_station', 'gui')
+    buildlib.ensure_product_env()
+    with buildlib.build_intermediate_dir(
+            ctx, 'base_station_gui') as intermediate:
+        print("Building `base_station_gui` with yarn...")
+
+        srcdir = os.path.join(config.ROOT, bsgui_root)
+        shutil.copytree(srcdir,
+                        os.path.join(intermediate, 'src_cpy'),
+                        ignore=shutil.ignore_patterns('node_modules'))
+
+        with ctx.cd("src_cpy"):
+            ctx.run("yarn")
+            ctx.run("yarn run build")
+
+        bsgui_dir = os.path.join(config.PRODUCT_ENV, 'share', 'bsgui')
+        if os.path.isdir(bsgui_dir):
+            shutil.rmtree(bsgui_dir)
+        shutil.copytree(os.path.join(intermediate, 'src_cpy', 'dist'),
+                        os.path.join(bsgui_dir, 'dist'))
+        shutil.copyfile(os.path.join(intermediate, 'src_cpy', 'index.html'),
+                        os.path.join(bsgui_dir, 'index.html'))
+
+        # Copy binary
+        bsgui_exec_path = os.path.join(config.PRODUCT_ENV,
+                                       'bin', 'base_station_gui')
+        with open(bsgui_exec_path, 'w') as bsgui_exec:
+            bsgui_exec.write(buildlib.template('base_station_gui',
+                                               bsgui_dir=bsgui_dir))
+        os.chmod(bsgui_exec_path, 0o755)
+
+    print("Done.")

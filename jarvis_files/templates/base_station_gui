@@ -1,0 +1,10 @@
+#!/bin/bash
+
+BROWSER=$(which firefox)
+
+trap "exit" INT TERM ERR
+trap "kill 0" EXIT
+
+base_station_bridge &
+(cd {{ bsgui_dir }} && python -m http.server) &
+${BROWSER} http://localhost:8000/

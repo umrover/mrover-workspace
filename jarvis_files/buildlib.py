@@ -118,10 +118,12 @@ def hash_dir(dir_, suffixes):
     return hasher.hexdigest()
 
 
-def files_changed(component_name, suffixes):
+def files_changed(component_name, suffixes, directory=None):
     """
     Determines whether the directory should be re-built.
     """
+    if directory is None:
+        directory = component_name
     hash_file_path = os.path.join(config.HASH_STORE, component_name)
     saved_hash = b''
     try:
@@ -131,30 +133,40 @@ def files_changed(component_name, suffixes):
         pass
 
     computed_hash = hash_dir(
-            os.path.join(config.ROOT, component_name),
+            os.path.join(config.ROOT, directory),
             suffixes)
 
     return saved_hash == computed_hash
 
 
-def save_build_hash(component_name, suffixes):
+def save_build_hash(component_name, suffixes, directory=None):
     """
     Saves the hash of the directory as a component.
     """
+    if directory is None:
+        directory = component_name
     hash_file_path = os.path.join(config.HASH_STORE, component_name)
     with open(hash_file_path, 'w') as hash_file:
         hash_file.write(
                 hash_dir(
-                    os.path.join(config.ROOT, component_name),
+                    os.path.join(config.ROOT, directory),
                     suffixes))
+
+
+def template(name, **kwargs):
+    """
+    Templates out a file and returns the rendered copy.
+    """
+    tpl = _template_env.get_template(name)
+    return tpl.render(**kwargs)
 
 
 def generate_setup_py(component_name, *, executable=False, src=True):
     """
     Generates a setup.py file for a component.
     """
-    tpl = _template_env.get_template('setup.py')
-    return tpl.render(component=component_name, executable=executable, src=src)
+    return template('setup.py', component=component_name, 
+                    executable=executable, src=src)
 
 
 def _handle_pytest_exits(ctx, command_line):
@@ -196,12 +208,13 @@ def pyinstall(ctx):
     ctx.run("python setup.py install")
 
 
-# TODO simplify by making dir == name
-def build_python_package(ctx, name, executable=True):
+def build_python_package(ctx, name, executable=True, directory=None):
     """
     Builds a Python module.
     """
-    if files_changed(name, ['.py']):
+    if directory is None:
+        directory = name
+    if files_changed(name, ['.py'], directory):
         print("{} unchanged, skipping.".format(name))
         return
 
@@ -209,7 +222,7 @@ def build_python_package(ctx, name, executable=True):
     with build_intermediate_dir(ctx, name) as intermediate:
         print("Generating Python package `{}`...".format(name))
 
-        srcdir = os.path.join(config.ROOT, name, 'src')
+        srcdir = os.path.join(config.ROOT, directory, 'src')
         build_srcdir = os.path.join(intermediate, 'src')
         build_pkgdir = os.path.join(build_srcdir, name)
         ensure_dir(build_srcdir)
@@ -228,7 +241,7 @@ def build_python_package(ctx, name, executable=True):
             pytest(ctx)
             pyinstall(ctx)
 
-    save_build_hash(name, ['.py'])
+    save_build_hash(name, ['.py'], directory)
     print("Done.")
 
 
@@ -260,7 +273,7 @@ def build_intermediate_dir(ctx, name, cleanup=True):
     """
     newdir = os.path.join(config.BUILD_INTERMEDIATE, name)
     ensure_dir(newdir)
-    if os.listdir(newdir):
+    if os.listdir(newdir) and cleanup:
         shutil.rmtree(newdir)
         ensure_dir(newdir)
 
