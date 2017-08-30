@@ -165,7 +165,7 @@ def generate_setup_py(component_name, *, executable=False, src=True):
     """
     Generates a setup.py file for a component.
     """
-    return template('setup.py', component=component_name, 
+    return template('setup.py', component=component_name,
                     executable=executable, src=src)
 
 
@@ -260,7 +260,7 @@ def workspace(ctx, *, subdir=''):
     """
     A context manager for the workspace root directory.
     """
-    with ctx.cd('{}{}'.format(config.ROOT, subdir)):
+    with ctx.cd(os.path.join(config.ROOT, subdir)):
         yield
 
 

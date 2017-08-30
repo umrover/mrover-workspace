@@ -52,12 +52,12 @@ def rover_msgs(ctx):
             for f in os.scandir(config.LCM_TYPES_ROOT)
             if os.path.splitext(f.name)[1] == '.lcm'
     ]
+    lcm_files_cmdline = ' '.join('"{}"'.format(v) for v in lcm_files)
 
     buildlib.ensure_product_env()
     # Generate the Python stuff
     with buildlib.build_intermediate_dir(ctx, 'rover_msgs_py') as intermediate:
         print("Generating Python package `rover_msgs`...")
-        lcm_files_cmdline = ' '.join('"{}"'.format(v) for v in lcm_files)
         ctx.run("lcm-gen --python {} --ppath {}".format(
             lcm_files_cmdline, intermediate))
 
@@ -71,7 +71,19 @@ def rover_msgs(ctx):
 
     print("Finished generating Python package.")
 
-    # TODO Generate C++ and install it
+    # Generate C++ stuff
+    with buildlib.build_intermediate_dir(
+            ctx, 'rover_msgs_cpp') as intermediate:
+        print("Generating C++ package `rover_msgs`...")
+        ctx.run("lcm-gen --cpp {} --cpp-std c++14".format(lcm_files_cmdline))
+
+        # Copy *.hpp to the include dir
+        target_dir = os.path.join(config.PRODUCT_ENV, 'include', 'rover_msgs')
+        if os.path.isdir(target_dir):
+            shutil.rmtree(target_dir)
+        shutil.copytree(os.path.join(intermediate, 'rover_msgs'), target_dir)
+
+    print("Finished generating C++ package.")
 
     buildlib.save_build_hash('rover_msgs', ['.lcm'])
     print("Done.")
@@ -91,6 +103,57 @@ def onboard_teleop(ctx):
     Builds the `onboard_teleop` executable.
     """
     buildlib.build_python_package(ctx, 'onboard_teleop')
+
+
+@task(rover_msgs)
+def nav(ctx):
+    """
+    Builds the `nav` executable.
+    """
+    if buildlib.files_changed('nav', ['.h', '.hpp', '.c', '.cpp']):
+        print("nav unchanged, skipping")
+        return
+
+    buildlib.ensure_product_env()
+    with buildlib.build_intermediate_dir(ctx, 'nav') as intermediate:
+        print("Generating C++ package `nav`...")
+
+        # Get all CPP files
+        cpp_files = [
+                f.path
+                for f in os.scandir(os.path.join(config.ROOT, 'nav'))
+                if os.path.splitext(f.name)[1] in [
+                    '.c', '.cpp'
+                ]
+        ]
+        cpp_files_cmdline = ' '.join('"{}"'.format(v) for v in cpp_files)
+
+        pkg_cfg_path = ctx.run(
+                "pkg-config --variable pc_path pkg-config").stdout.strip()
+        pkg_cfg_path = '{}:{}'.format(
+                os.path.join(config.PRODUCT_ENV, 'lib', 'pkgconfig'),
+                pkg_cfg_path)
+
+        with buildlib.workspace(ctx, subdir='nav'):
+            ctx.run("PKG_CONFIG_PATH={} meson --prefix {} {}".format(
+                pkg_cfg_path, config.PRODUCT_ENV, intermediate))
+
+            # Run clang-tidy
+            print("Linting...")
+            ctx.run("clang-tidy {} -- -I{}".format(
+                cpp_files_cmdline,
+                os.path.join(config.PRODUCT_ENV, 'include')))
+
+        # Run test cases
+        print("Testing...")
+        ctx.run("ninja test")
+
+        # Install
+        print("Installing...")
+        ctx.run("ninja install")
+
+    buildlib.save_build_hash('nav', ['.h', '.hpp', '.c', '.cpp'])
+    print("Done!")
 
 
 @task(rover_common)
@@ -140,3 +203,29 @@ def base_station_gui(ctx):
         os.chmod(bsgui_exec_path, 0o755)
 
     print("Done.")
+
+
+@task(base_station_bridge, base_station_gui)
+def base_station(ctx):
+    """
+    Builds all base station executables.
+    """
+    pass
+
+
+# TODO add hwi_huey
+@task(onboard_teleop, nav)
+def onboard_huey(ctx):
+    """
+    Builds Huey's onboard software stack.
+    """
+    pass
+
+
+# TODO add hwi_18
+@task(onboard_teleop, nav)
+def onboard_18(ctx):
+    """
+    Builds Eighteen's onboard software stack.
+    """
+    pass
