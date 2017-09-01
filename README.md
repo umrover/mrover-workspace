@@ -26,7 +26,7 @@ sudo apt install python3-dev build-essential libglib2.0-dev ninja-build clang-ti
 ```sh
 sudo wget https://dl.yarnpkg.com/rpm/yarn.repo -O /etc/yum.repos.d/yarn.repo
 curl --silent --location https://rpm.nodesource.com/setup_8.x | sudo bash -
-sudo dnf install python3-devel glib2-devel gcc gcc-c++ ninja-build clang-tidy nodejs yarn
+sudo dnf install python3-devel glib2-devel gcc gcc-c++ ninja-build clang clang-tools-extra nodejs yarn
 ```
 
 ## Running the Software
