@@ -4,8 +4,7 @@ Jarvis is a build system optimized for MRover. It is designed to automate many
 tasks in assembling pieces of the rover software stack. It is implemented in
 Python 3 and uses a simple shell script to bootstrap itself.
 
-Today, it is *Linux-only*. This limitation is expected to be removed at some
-point over the next year.
+Jarvis does not currently work on Windows.
 
 ## Quickstart
 
@@ -19,7 +18,7 @@ Jarvis from anywhere in the filesystem.
 Example for `bash`:
 
 ```sh
-# ~/.bashrc
+# ~/.bashrc (~/.bash_profile on macOS)
 alias jarvis='$HOME/mrover-workspace/jarvis'
 ```
 

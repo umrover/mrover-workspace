@@ -1,10 +1,16 @@
 #!/bin/bash
 
-BROWSER=$(which firefox)
+OS=$(uname)
+
+if [ "${OS}" == "Darwin" ]; then
+	BROWSER=open
+elif [ "${OS}" == "Linux" ]; then
+	BROWSER=xdg-open
+fi
 
 trap "exit" INT TERM ERR
 trap "kill 0" EXIT
 
 base_station_bridge &
-(cd {{ bsgui_dir }} && python -m http.server) &
 ${BROWSER} http://localhost:8000/
+(cd {{ bsgui_dir }} && python -m http.server)

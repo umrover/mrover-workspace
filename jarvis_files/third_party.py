@@ -4,6 +4,8 @@ import shutil
 import buildlib
 import config
 
+import platform
+
 
 def check_lcm(ctx):
     """
@@ -15,8 +17,14 @@ def check_lcm(ctx):
         return False
 
     # check for liblcm.so
-    # TODO Linux-only!
-    if not os.path.exists(buildlib.get_product_file('lib', 'liblcm.so')):
+    # TODO: add other OS compatibility
+    os_ = platform.system()
+    if os_ == 'Darwin':
+        libname = 'liblcm.dylib'
+    elif os_ == 'Linux':
+        libname = 'liblcm.so'
+
+    if not os.path.exists(buildlib.get_product_file('lib', libname)):
         return False
 
     # check that lcm can be imported in Python inside product venv
@@ -42,14 +50,14 @@ def ensure_lcm(ctx):
 
     lcmdir = os.path.join(config.THIRD_PARTY_ROOT, 'lcm')
     with buildlib.build_intermediate_dir(ctx, 'lcm'):
-        ctx.run("cp -r {}/* .".format(lcmdir))
+        ctx.run("cp -r {}/* .".format(lcmdir))  # TODO: Use python's own cp
         print("Configuring LCM...")
         ctx.run("./bootstrap.sh")
         ctx.run("./configure --prefix={}".format(config.PRODUCT_ENV))
         print("Building LCM...")
-        ctx.run("make")
+        ctx.run("make", hide='both')
         print("Installing LCM...")
-        ctx.run("make install")
+        ctx.run("make install", hide='both')
         # Copy the lcm-gen binary into the Jarvis venv so it may be accessible
         # for other parts of the build process.
         shutil.copy("{}/bin/lcm-gen".format(config.PRODUCT_ENV),

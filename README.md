@@ -4,6 +4,31 @@ This is the repository for all custom software written for the University of
 Michigan Mars Rover team (MRover). The repository is largely self-contained,
 with the MRover 2017-18 build system `jarvis` contained in the source tree.
 
+## Install System Requirements
+
+### macOS
+```sh
+brew install python3 glib pkg-config ninja llvm yarn
+echo 'PATH="/usr/local/opt/llvm/bin:${PATH}"' >> ~/.bash_profile
+source ~/.bash_profile
+```
+
+### Ubuntu
+```sh
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt update
+sudo apt install python3-dev build-essential libglib2.0-dev ninja-build clang-tidy nodejs yarn
+```
+
+### Fedora
+```sh
+sudo wget https://dl.yarnpkg.com/rpm/yarn.repo -O /etc/yum.repos.d/yarn.repo
+curl --silent --location https://rpm.nodesource.com/setup_8.x | sudo bash -
+sudo dnf install python3-devel glib2-devel gcc gcc-c++ ninja-build clang-tidy nodejs yarn
+```
+
 ## Running the Software
 
 Begin by cloning this `git` repository:
