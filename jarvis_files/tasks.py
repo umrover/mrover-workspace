@@ -213,11 +213,11 @@ def base_station(ctx):
     pass
 
 
-# TODO add hwi_huey
+# TODO add hwi_hughey
 @task(onboard_teleop, nav)
-def onboard_huey(ctx):
+def onboard_hughey(ctx):
     """
-    Builds Huey's onboard software stack.
+    Builds Hughey's onboard software stack.
     """
     pass
 
