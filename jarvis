@@ -10,7 +10,7 @@ PRODUCT_ENV=${DIR}/build/env
 run_jarvis() {
     # Runs a Jarvis command using PyInvoke
     # shellcheck source=/dev/null
-    . "${JARVIS_VENV}/bin/activate"
+    source "${JARVIS_VENV}/bin/activate"
     cd "${JARVIS_ROOT}"
     invoke "$@"
     return $?
@@ -21,7 +21,8 @@ if [ ! -d "${JARVIS_VENV}" ]; then
     # Make virtualenv for Jarvis
     python3 -m venv "${JARVIS_VENV}"
     # shellcheck source=/dev/null
-    . "${JARVIS_VENV}/bin/activate"
+    source "${JARVIS_VENV}/bin/activate"
+	pip install --upgrade pip >/dev/null
     pip install -r "${JARVIS_ROOT}/requirements.txt" >/dev/null
     echo "Done!"
 fi
@@ -42,7 +43,7 @@ fi
 if [ "$1" = "exec" ]; then
     if [ -d "${PRODUCT_ENV}" ]; then
         # shellcheck source=/dev/null
-        . "${PRODUCT_ENV}/bin/activate"
+        source "${PRODUCT_ENV}/bin/activate"
         shift
         exec "$@"
     else

@@ -20,6 +20,7 @@ def dep(ctx):
         ctx.run("pip-compile --output-file external_requirements.txt external_requirements.in")  # noqa
         print("Installing pip dependencies...")
         with buildlib.product_env(ctx):
+            ctx.run("pip install --upgrade pip", hide='out')
             ctx.run("pip install -r external_requirements.txt", hide='out')
             ctx.run("pip install -r {}/requirements.txt".format(
                 config.JARVIS_ROOT), hide='out')

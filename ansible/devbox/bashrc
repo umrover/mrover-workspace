@@ -1,0 +1,11 @@
+if [ -f /etc/bashrc ]; then
+    . /etc/bashrc
+fi
+
+eval "$(fasd --init auto)"
+
+export EDITOR=nano
+
+alias jarvis='/vagrant/jarvis'
+
+cd /vagrant || exit

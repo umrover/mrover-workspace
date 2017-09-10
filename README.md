@@ -4,7 +4,30 @@ This is the repository for all custom software written for the University of
 Michigan Mars Rover team (MRover). The repository is largely self-contained,
 with the MRover 2017-18 build system `jarvis` contained in the source tree.
 
-## Install System Requirements
+## Development
+
+It is recommended that you use our [Vagrant](https://vagrantup.com) box. This
+will set up a virtual machine for development using the Ansible configurations
+that we have to set up the production base station and production onboard
+computer.
+
+It is most convenient to use the `vagrant-gatling-rsync` plugin for Vagrant,
+which can automatically synchronize the files into the VM efficiently.
+
+```sh
+$ vagrant plugin add vagrant-gatling-rsync
+```
+
+Then, to launch the VM:
+
+```sh
+$ vagrant up
+$ vagrant ssh
+```
+
+If you would prefer not to use a virtual machine for development, you may use
+the [Ansible configurations](./ansible/README.md) provided to configure a
+Ubuntu 16.04-based system.
 
 ### macOS
 ```sh
