@@ -29,29 +29,6 @@ If you would prefer not to use a virtual machine for development, you may use
 the [Ansible configurations](./ansible/README.md) provided to configure a
 Ubuntu 16.04-based system.
 
-### macOS
-```sh
-brew install python3 glib pkg-config ninja llvm yarn
-echo 'PATH="/usr/local/opt/llvm/bin:${PATH}"' >> ~/.bash_profile
-source ~/.bash_profile
-```
-
-### Ubuntu
-```sh
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo apt update
-sudo apt install python3-dev build-essential libglib2.0-dev ninja-build clang-tidy nodejs yarn
-```
-
-### Fedora
-```sh
-sudo wget https://dl.yarnpkg.com/rpm/yarn.repo -O /etc/yum.repos.d/yarn.repo
-curl --silent --location https://rpm.nodesource.com/setup_8.x | sudo bash -
-sudo dnf install python3-devel glib2-devel gcc gcc-c++ ninja-build clang clang-tools-extra nodejs yarn
-```
-
 ## Running the Software
 
 Begin by cloning this `git` repository:
