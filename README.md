@@ -27,9 +27,10 @@ $ vagrant ssh
 
 If you would prefer not to use a virtual machine for development, you may use
 the [Ansible configurations](./ansible/README.md) provided to configure a
-Ubuntu 16.04-based system.
+Ubuntu 16.04-based system. **No other development environments will be
+supported.**
 
-## Running the Software
+## Running the Software (Ubuntu only)
 
 Begin by cloning this `git` repository:
 
@@ -51,8 +52,8 @@ the root of this repository.
 Choose some components to build and build them:
 
 ```sh
-$ ./jarvis onboard_teleop
-$ ./jarvis base_station
+$ ./jarvis build.onboard_teleop
+$ ./jarvis build.base_station_gui
 ...
 ```
 
@@ -60,9 +61,19 @@ Once you have built the components, you can run them easily with `jarvis exec`:
 
 ```sh
 $ ./jarvis exec onboard_teleop
-$ ./jarvis exec base_station
+$ ./jarvis exec base_station_gui
 ...
 ```
+
+To build and run the entire onboard software system, run:
+```sh
+$ ./jarvis build.onboard
+$ ./jarvis run.onboard
+```
+
+You may optionally specify the particular rover's onboard stack you wish to run
+(i.e. `hughey` or `18` at this point) using the `--rover` command-line option.
+Currently, Jarvis defaults to `hughey`.
 
 ## Jarvis In-depth Documentation
 
@@ -70,10 +81,9 @@ See [here](jarvis_files/README.md).
 
 ## Contribution Workflow
 
-***Currently requires Linux. A VM is acceptable. WSL is YMMV.***
-
 **Assumption**: You have configured your [SSH keys with GitHub](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/).
-Additionally, you have a working knowledge of the Unix command line.
+Additionally, you have a working knowledge of the Unix command line and have
+set up Git for your operating system.
 
 Begin by forking this repository. This will give you your own workspace in
 which to make contributions.

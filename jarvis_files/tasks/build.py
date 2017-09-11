@@ -4,38 +4,8 @@ import os
 
 import config
 import buildlib
-import third_party
 
-
-@task
-def dep(ctx):
-    """
-    "Pins" external pip dependencies and installs them into the product venv.
-    """
-    buildlib.ensure_product_env()
-    third_party.ensure_lcm(ctx)
-    # TODO add other third_party deps
-    with buildlib.workspace(ctx):
-        print("Pinning pip dependencies...")
-        ctx.run("pip-compile --output-file external_requirements.txt external_requirements.in")  # noqa
-        print("Installing pip dependencies...")
-        with buildlib.product_env(ctx):
-            ctx.run("pip install --upgrade pip", hide='out')
-            ctx.run("pip install -r external_requirements.txt", hide='out')
-            ctx.run("pip install -r {}/requirements.txt".format(
-                config.JARVIS_ROOT), hide='out')
-
-    print("Done.")
-
-
-@task
-def clean(ctx):
-    """
-    Wipes away the product venv and hash store,
-    enabling a completely new build environment.
-    """
-    if os.path.isdir(config.BUILD_ROOT):
-        shutil.rmtree(config.BUILD_ROOT)
+from . import dep
 
 
 @task(dep)
@@ -214,19 +184,10 @@ def base_station(ctx):
     pass
 
 
-# TODO add hwi_hughey
+# TODO add hwi
 @task(onboard_teleop, nav)
-def onboard_hughey(ctx):
+def onboard(ctx, rover='hughey'):
     """
-    Builds Hughey's onboard software stack.
-    """
-    pass
-
-
-# TODO add hwi_18
-@task(onboard_teleop, nav)
-def onboard_18(ctx):
-    """
-    Builds Eighteen's onboard software stack.
+    Builds the onboard software stack. (Defaults to Hughey)
     """
     pass

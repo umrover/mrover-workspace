@@ -4,8 +4,6 @@ Jarvis is a build system optimized for MRover. It is designed to automate many
 tasks in assembling pieces of the rover software stack. It is implemented in
 Python 3 and uses a simple shell script to bootstrap itself.
 
-Jarvis does not currently work on Windows.
-
 ## Quickstart
 
 From the root directory of this repository, run `./jarvis`, which will create
@@ -13,13 +11,15 @@ the Jarvis `venv`, populate it, and display the list of Jarvis tasks.
 
 **NOTE:** It is recommended to add an alias to your `~/.bashrc` or equivalent
 to assist in invoking Jarvis. This has the benefit of being able to invoke
-Jarvis from anywhere in the filesystem.
+Jarvis from anywhere in the filesystem. This step is already done by our
+Vagrant box.
 
 Example for `bash`:
 
 ```sh
-# ~/.bashrc (~/.bash_profile on macOS)
+# ~/.bashrc
 alias jarvis='$HOME/mrover-workspace/jarvis'
+source $HOME/mrover-workspace/jarvis_files/bash_completion.bash
 ```
 
 ## Design
@@ -41,10 +41,10 @@ all parts of build -- C/C++ output executables are installed into the product
 - `jarvis exec <command>` :: Runs a command in the product `venv`.
 - `jarvis clean` :: Wipes away the product `venv`, requiring a full re-build.
 - `jarvis implode` :: Wipes away the Jarvis `venv`, requiring a full re-bootstrap.
-- `jarvis rover_msgs` :: Compiles the LCM descriptions in `rover_msgs/` into
-  both C++ and Python libraries and installs them into the product `venv`.
-- `jarvis <target>` :: Lint, compile, test, then install `<target>` into the
-  product `venv` using the procedure described below.
+- `jarvis build.rover_msgs` :: Compiles the LCM descriptions in `rover_msgs/`
+  into both C++ and Python libraries and installs them into the product `venv`.
+- `jarvis build.<target>` :: Lint, compile, test, then install `<target>` into
+  the product `venv` using the procedure described below.
 
 ### Targets
 
@@ -71,13 +71,11 @@ appropriate locations.
 ## Technical Documentation
 
 Technical documentation for the Jarvis build system is a work in progress. The
-Python docstrings provided for the functions in `buildlib.py` and `tasks.py`
-ought to be moderately useful for anyone who wishes to work on Jarvis, but
-improvements are in the works.
+Python docstrings provided for the functions in `buildlib.py` and the `tasks/`
+directory ought to be moderately useful for anyone who wishes to work on
+Jarvis, but improvements are in the works.
 
 ## Future goals
 
-- Add support for generating `systemd` unit files from MRover components.
-- Add support for setting up the system using Ansible.
-- Add support for non-Linux operating systems.
-
+- Add support for playing Ansible playbooks.
+- Add support for the mbed CLI build system.
