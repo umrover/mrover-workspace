@@ -15,7 +15,7 @@ It is most convenient to use the `vagrant-gatling-rsync` plugin for Vagrant,
 which can automatically synchronize the files into the VM efficiently.
 
 ```sh
-$ vagrant plugin add vagrant-gatling-rsync
+$ vagrant plugin install vagrant-gatling-rsync
 ```
 
 Then, to launch the VM:
