@@ -29,6 +29,6 @@ Vagrant.configure("2") do |config|
 
   # Provision using the devbox playbook
   config.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "ansible/devbox.yml"
+      ansible.playbook = "ansible/vagrant_devbox.yml"
   end
 end

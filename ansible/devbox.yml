@@ -1,56 +1,7 @@
 ---
 - hosts: all
-  become: yes
   vars:
       ubuntu_release: xenial
-      devbox_username: vagrant
-  tasks:
-  - name: Upgrade all packages
-    apt: upgrade=dist update_cache=yes
-
-  - name: Set up NodeSource signing key
-    apt_key:
-        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-        state: present
-  - name: Set up NodeSource repository for Node 8.x
-    apt_repository:
-        repo: "deb https://deb.nodesource.com/node_8.x {{ ubuntu_release }} main"
-        state: present
-
-  - name: Set up Yarn signing key
-    apt_key:
-        url: https://dl.yarnpkg.com/debian/pubkey.gpg
-        state: present
-  - name: Set up Yarn repository
-    apt_repository:
-        repo: deb https://dl.yarnpkg.com/debian/ stable main
-        state: present
-
-  - name: Set up fasd repository
-    apt_repository:
-        repo: 'ppa:aacebedo/fasd'
-
-  - name: Update apt cache
-    apt: update_cache=yes
-
-  - name: Install developer packages
-    apt: name={{ item }} state=present
-    with_items:
-    - build-essential
-    - python3-dev
-    - python3-venv
-    - libglib2.0-dev
-    - ninja-build
-    - clang
-    - clang-tidy
-    - nodejs
-    - yarn
-    - autoconf
-    - libtool
-    - fasd
-
-  - name: Configure bashrc
-    copy:
-        src: devbox/bashrc
-        dest: "/home/{{ devbox_username }}/.bashrc"
-    become: no
+  roles:
+  - devbox
+  - microcontrollers

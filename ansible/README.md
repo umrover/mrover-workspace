@@ -17,6 +17,10 @@ $ ansible-playbook -h localhost <playbook>.yml
 
 ## Development Box
 
-The Ansible machine configuration is in `devbox.yml`. It is intended to be used
-to set up the Vagrant box, but may also be used to set up a development
-environment on any Ubuntu system.
+The Ansible machine configuration is in `devbox.yml`. It may be used to set up
+a development environment on any Ubuntu system.
+
+## Vagrant Box
+
+The Vagrant setup configuration is in `vagrant_devbox.yml`. It should *not* be
+used outside the Vagrant box.

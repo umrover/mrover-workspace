@@ -2,17 +2,18 @@
 
 set -eo pipefail
 
-DIR=$(dirname $(realpath "${0}"))
+FILEPATH=$(realpath "${0}")
+DIR=$(dirname "${FILEPATH}")
 JARVIS_ROOT=${DIR}/jarvis_files
 JARVIS_VENV=${JARVIS_ROOT}/env
+MBED_VENV=${JARVIS_ROOT}/mbed_env
 PRODUCT_ENV=${DIR}/build/env
 
 run_jarvis() {
     # Runs a Jarvis command using PyInvoke
     # shellcheck source=/dev/null
     source "${JARVIS_VENV}/bin/activate"
-    cd "${JARVIS_ROOT}"
-    invoke "$@"
+    jarvis "--root=${DIR}" "$@"
     return $?
 }
 
@@ -24,19 +25,23 @@ if [ ! -d "${JARVIS_VENV}" ]; then
     source "${JARVIS_VENV}/bin/activate"
 	pip install --upgrade pip >/dev/null
     pip install -r "${JARVIS_ROOT}/requirements.txt" >/dev/null
+    pip install "${JARVIS_ROOT}/jarvis_cmd" >/dev/null
     echo "Done!"
 fi
 
 if [ "$#" -lt 1 ]; then
-    run_jarvis -l
+    run_jarvis --help
     exit 0
 fi
 
 if [ "$1" = "implode" ]; then
-    run_jarvis clean
+    if [ -d "${PRODUCT_ENV}" ]; then
+        run_jarvis clean
+    fi
     # Delete virtualenv
-    cd ${DIR}
+    cd "${DIR}"
     rm -rf "${JARVIS_VENV}"
+    rm -rf "${MBED_VENV}"
     exit 0
 fi
 
