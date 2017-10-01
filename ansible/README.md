@@ -12,7 +12,7 @@ $ sudo apt install ansible
 
 Then run the playbook of your choice.
 ```sh
-$ ansible-playbook -h localhost <playbook>.yml
+$ ansible-playbook -K -i "localhost," -c local <playbook>.yml
 ```
 
 ## Development Box

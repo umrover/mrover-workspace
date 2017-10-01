@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  become: yes
   vars:
       ubuntu_release: xenial
   roles:
