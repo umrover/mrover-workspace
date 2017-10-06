@@ -36,3 +36,5 @@
   - yarn
   - autoconf
   - libtool
+  - libftdi-dev
+  - libftdi1-dev
