@@ -71,6 +71,7 @@ def build_deps(ctx):
     ctx.ensure_product_env()
     third_party.ensure_lcm(ctx)
     third_party.ensure_mbed_cli(ctx)
+    third_party.ensure_openocd(ctx)
     # TODO add other third-party deps
     with ctx.cd(ctx.root):
         print("Pinning pip dependencies...")

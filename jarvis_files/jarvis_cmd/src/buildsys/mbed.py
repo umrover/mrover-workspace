@@ -35,6 +35,7 @@ class MbedBuilder(BuildContext):
                 self.run('mbed target DISCO_L476VG')
                 self.run('mbed toolchain GCC_ARM')
                 self.run('mbed compile')
+            print('Compilation successful.')
 
             # Prepare OpenOCD
             with open(
@@ -46,5 +47,10 @@ class MbedBuilder(BuildContext):
 
             # Run OpenOCD
             with self.wksp.inside_mbed_env():
-                self.run(
-                    'openocd -f board/stm32l4discovery.cfg -f flash_code.cfg')
+                try:
+                    self.run(
+                        'openocd -f board/stm32l4discovery.cfg '
+                        '-f flash_code.cfg')
+                    print('Flashed to connected microcontroller.')
+                except:
+                    print('Flash failed.')

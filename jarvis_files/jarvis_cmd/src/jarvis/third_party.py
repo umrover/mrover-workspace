@@ -74,5 +74,16 @@ def ensure_openocd(ctx):
     """
     Installs openocd into the mbed venv.
     """
-    # TODO
-    pass
+    openocd_dir = os.path.join(ctx.third_party_root, 'openocd')
+    ctx.ensure_mbed_env()
+    with ctx.intermediate('openocd'):
+        ctx.run("cp -r {}/* .".format(openocd_dir))
+        print("Configuring OpenOCD...")
+        ctx.run('./bootstrap')
+        ctx.run('./configure --prefix={}'.format(ctx.mbed_env))
+        print("Building OpenOCD...")
+        ctx.run("make")
+        print("Installing OpenOCD...")
+        ctx.run("make install")
+
+    print("Finished installing OpenOCD.")

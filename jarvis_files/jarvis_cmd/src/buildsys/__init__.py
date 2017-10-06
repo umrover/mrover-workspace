@@ -108,7 +108,9 @@ class WorkspaceContext:
         Ensures the mbed venv exitence.
         """
         self.ensure_build_dirs()
-        self.ctx.run('virtualenv --python=python2 {}'.format(self.mbed_env))
+        if not os.path.isdir(self.mbed_env):
+            self.ctx.run('virtualenv --python=python2 {}'.format(
+                self.mbed_env))
 
     @contextmanager
     def inside_product_env(self):
