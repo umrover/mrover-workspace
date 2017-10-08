@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct Motors {
+	//ordering goes top-left to bottom-left, then top-right to bottom-right
+    double power[6];
+}
