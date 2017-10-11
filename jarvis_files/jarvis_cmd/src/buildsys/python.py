@@ -70,6 +70,8 @@ class PythonBuilder(BuildContext):
             srcdir = os.path.join(full_path, 'src')
             build_srcdir = os.path.join(intermediate, 'src')
             build_pkgdir = os.path.join(build_srcdir, self.name)
+            if os.path.exists(build_pkgdir):
+                shutil.rmtree(build_pkgdir)
             self.wksp.ensure_dir(build_srcdir)
             shutil.copytree(srcdir, build_pkgdir)
 
