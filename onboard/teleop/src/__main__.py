@@ -29,6 +29,7 @@ def deadzone(magnitude, threshold):
 def joystick_callback(channel, msg):
     input_data = Joystick.decode(msg)
 
+    print("joystick recieved")
     new_motor = Motors()
 
     magnitude = deadzone(input_data.forward_back, 0.1)
@@ -72,11 +73,18 @@ async def transmit_fake_joystick():
         await asyncio.sleep(0.5)
 
 
+async def lc_handle():
+    try:
+        while True:
+            lcm_.handle()
+    except KeyboardInterrupt:
+        pass
+
+
 def motor_callback(channel, msg):
     input_data = Motors.decode(msg)
 
-    print("Left Motor: {}  Right Motor: {}".format(input_data.left, 
-        input_data.right))
+    print("Left: {}  Right: {}".format(input_data.left, input_data.right))
 
 
 def main():
@@ -84,5 +92,5 @@ def main():
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/joystick", joystick_callback)
     lcm_.subscribe("/motor", motor_callback)
-    run_coroutines(hb.loop(), transmit_fake_odometry(), 
-        transmit_fake_joystick())
+    run_coroutines(hb.loop(), transmit_fake_odometry(),
+                   transmit_fake_joystick(), lc_handle())
