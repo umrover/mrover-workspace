@@ -3,5 +3,5 @@ package rover_msgs;
 struct Joystick {
     double forward_back;
     double left_right;
-    bool kill;
+    boolean kill;
 }
