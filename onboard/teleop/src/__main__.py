@@ -103,6 +103,5 @@ def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed)
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/joystick", joystick_callback)
-    # lcm_.subscribe('/motor', motor_callback)
-    run_coroutines(hb.loop(), transmit_fake_odometry(),
-                   transmit_fake_joystick(), lcm_.loop())
+    lcm_.subscribe('/motor', motor_callback)
+    run_coroutines(hb.loop(), transmit_fake_odometry(), lcm_.loop())

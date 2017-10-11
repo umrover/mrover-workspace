@@ -32,4 +32,4 @@ def dict_to_lcm(message):
             v = dict_to_lcm(v)
         setattr(msg, k, v)
 
-    return msg
+    return msg.encode()

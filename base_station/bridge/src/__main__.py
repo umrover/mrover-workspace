@@ -96,7 +96,7 @@ class Bridge:
         """
         Runs the main loop for a Bridge.
         """
-        bridge_server = websockets.serve(self.chatter, 'localhost', 8001)
+        bridge_server = websockets.serve(self.chatter, '0.0.0.0', 8001)
         await asyncio.gather(
             bridge_server,
             self.hb.loop(),
