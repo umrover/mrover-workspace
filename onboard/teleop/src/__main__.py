@@ -49,8 +49,8 @@ def joystick_callback(channel, msg):
         new_motor.left += theta/2
         new_motor.right -= theta/2
 
-    new_motor.left = round(new_motor.left, 2)
-    new_motor.right = round(new_motor.right, 2)
+    new_motor.left = new_motor.left, 2
+    new_motor.right = new_motor.right, 2
 
     lcm_.publish('/motor', new_motor.encode())
 
@@ -70,8 +70,8 @@ async def transmit_fake_odometry():
 async def transmit_fake_joystick():
     while True:
         new_joystick = Joystick()
-        new_joystick.forward_back = round(random.uniform(-1, 1), 2)
-        new_joystick.left_right = round(random.uniform(-1, 1), 2)
+        new_joystick.forward_back = random.uniform(-1, 1), 2
+        new_joystick.left_right = random.uniform(-1, 1), 2
         lcm_.publish('/joystick', new_joystick.encode())
 
         print("Published new joystick\nfb: {}   lr: {}"
