@@ -29,7 +29,6 @@ def deadzone(magnitude, threshold):
 def joystick_callback(channel, msg):
     input_data = Joystick.decode(msg)
 
-    print("joystick recieved")
     new_motor = Motors()
 
     magnitude = deadzone(input_data.forward_back, 0.1)
@@ -39,13 +38,19 @@ def joystick_callback(channel, msg):
     new_motor.right = new_motor.left
 
     if theta > 0:
-        new_motor.right -= theta/2
+        new_motor.right *= 1 - theta/2
     elif theta < 0:
-        new_motor.left += theta/2
+        new_motor.left *= 1 + theta/2
 
     if magnitude < 0:
         new_motor.left *= -1
         new_motor.right *= -1
+    elif magnitude == 0:
+        new_motor.left += theta/2
+        new_motor.right -= theta/2
+
+    new_motor.left = round(new_motor.left, 2)
+    new_motor.right = round(new_motor.right, 2)
 
     lcm_.publish('/motor', new_motor.encode())
 
@@ -58,39 +63,40 @@ async def transmit_fake_odometry():
         new_odom.bearing_deg = random.uniform(0, 359)
         lcm_.publish('/odom', new_odom.encode())
 
-        print("Published new odometry")
+        # print("Published new odometry")
         await asyncio.sleep(0.5)
 
 
 async def transmit_fake_joystick():
     while True:
         new_joystick = Joystick()
-        new_joystick.forward_back = random.uniform(-1, 1)
-        new_joystick.left_right = random.uniform(-1, 1)
+        new_joystick.forward_back = round(random.uniform(-1, 1), 2)
+        new_joystick.left_right = round(random.uniform(-1, 1), 2)
         lcm_.publish('/joystick', new_joystick.encode())
 
-        print("Published new joystick")
+        print("Published new joystick\nfb: {}   lr: {}"
+              .format(new_joystick.forward_back, new_joystick.left_right))
         await asyncio.sleep(0.5)
 
 
 async def lc_handle():
     try:
         while True:
-            lcm_.handle()
+            await lcm_.handle()
     except KeyboardInterrupt:
         pass
 
 
 def motor_callback(channel, msg):
     input_data = Motors.decode(msg)
-
-    print("Left: {}  Right: {}".format(input_data.left, input_data.right))
+    # This function is for testing the joystick-motor algorithm
+    print("Left: {}  Right: {}\n".format(input_data.left, input_data.right))
 
 
 def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed)
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/joystick", joystick_callback)
-    lcm_.subscribe("/motor", motor_callback)
+    # lcm_.subscribe('/motor', motor_callback)
     run_coroutines(hb.loop(), transmit_fake_odometry(),
-                   transmit_fake_joystick(), lc_handle())
+                   lc_handle())
