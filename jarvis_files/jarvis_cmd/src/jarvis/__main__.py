@@ -3,7 +3,13 @@ import sys
 from buildsys import WorkspaceContext
 from invoke.exceptions import UnexpectedExit
 
-from .build import build_dir, clean, build_deps
+from .build import build_dir, clean, build_deps, debug_dir
+
+
+def clean_dir_name(d):
+    if d[-1] == '/':
+        return d[:-1]
+    return d
 
 
 def main():
@@ -24,6 +30,12 @@ def main():
                                         help="Run one machine's configuration")
     parser_run.add_argument('machine')
 
+    # TODO add C++ projects
+    parser_debug = subcommands.add_parser(
+            'debug',
+            help="Launch an mbed project in debug mode")
+    parser_debug.add_argument('dir', help='The directory to debug')
+
     subcommands.add_parser('clean',
                            help='Removes the product env')
     subcommands.add_parser('dep',
@@ -41,13 +53,17 @@ def main():
         ctx = WorkspaceContext(args.root_dir)
 
         if args.subcommand_name == 'build':
-            # TODO add ensure_deps
-            build_dir(ctx, args.dir)
+            build_deps(ctx)
+            build_dir(ctx, clean_dir_name(args.dir))
         elif args.subcommand_name == 'run':
             # TODO
             print('NOT IMPLEMENTED YET')
         elif args.subcommand_name == 'clean':
             clean(ctx)
+        elif args.subcommand_name == 'debug':
+            build_deps(ctx)
+            build_dir(ctx, clean_dir_name(args.dir))
+            debug_dir(ctx, clean_dir_name(args.dir))
         elif args.subcommand_name == 'dep':
             build_deps(ctx)
         elif args.subcommand_name == 'mbed':

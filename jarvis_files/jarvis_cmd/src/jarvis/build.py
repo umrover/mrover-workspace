@@ -16,10 +16,7 @@ def clean(ctx):
     shutil.rmtree(ctx.build_root)
 
 
-def build_dir(ctx, d):
-    """
-    Builds the project in the given directory
-    """
+def get_builder(ctx, d):
     project = os.path.join(ctx.root, d)
     project_cfg_path = os.path.join(project, 'project.ini')
     project_cfg = configparser.ConfigParser()
@@ -44,22 +41,29 @@ def build_dir(ctx, d):
     if lang == 'python':
         print('Building Python 3 package')
         executable = bool(build_defs.get('executable', 'True'))
-        builder = PythonBuilder(d, ctx, executable)
+        return PythonBuilder(d, ctx, executable)
     elif lang == 'node':
         print('Building Node.js package NOT IMPLEMENTED')
     elif lang == 'cpp':
         print('Building C++ package NOT IMPLEMENTED')
     elif lang == 'lcm':
         print('Building LCM package')
-        builder = LCMBuilder(d, ctx)
+        return LCMBuilder(d, ctx)
     elif lang == 'mbed':
         print('Building mbed OS package')
-        builder = MbedBuilder(d, ctx)
+        board = build_defs.get('board', 'DISCO_L476VG')
+        return MbedBuilder(d, ctx, board)
     else:
         print("error: unrecognized language '{}'".format(lang))
         sys.exit(1)
 
-    builder.build()
+
+def build_dir(ctx, d):
+    """
+    Builds the project in the given directory
+    """
+
+    get_builder(ctx, d).build()
     print("Done")
 
 
@@ -84,3 +88,15 @@ def build_deps(ctx):
                 ctx.jarvis_root), hide='out')
 
     print("Done.")
+
+
+def debug_dir(ctx, d):
+    """
+    Launches an mbed project in debug mode.
+    """
+    builder = get_builder(ctx, d)
+    if not hasattr(builder, 'debug'):
+        print("Project cannot be debugged.")
+        return
+    builder.debug()
+    print("Done")

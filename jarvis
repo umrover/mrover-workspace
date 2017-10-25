@@ -4,10 +4,10 @@ set -eo pipefail
 
 FILEPATH=$(realpath "${0}")
 DIR=$(dirname "${FILEPATH}")
+MROVER_BUILD_ROOT="${HOME}/.mrover"
 JARVIS_ROOT=${DIR}/jarvis_files
-JARVIS_VENV=${JARVIS_ROOT}/env
-MBED_VENV=${JARVIS_ROOT}/mbed_env
-PRODUCT_ENV=${DIR}/build/env
+JARVIS_VENV=${MROVER_BUILD_ROOT}/jarvis_env
+PRODUCT_ENV=${MROVER_BUILD_ROOT}/build_env
 
 run_jarvis() {
     # Runs a Jarvis command using PyInvoke
@@ -17,8 +17,10 @@ run_jarvis() {
     return $?
 }
 
-if [ ! -d "${JARVIS_VENV}" ]; then
+if [ ! -d "${MROVER_BUILD_ROOT}" ]; then
     echo -n "Bootstrapping..."
+    # Make MRover Build Root
+    mkdir -p "${MROVER_BUILD_ROOT}"
     # Make virtualenv for Jarvis
     python3 -m venv "${JARVIS_VENV}"
     # shellcheck source=/dev/null
@@ -35,13 +37,8 @@ if [ "$#" -lt 1 ]; then
 fi
 
 if [ "$1" = "implode" ]; then
-    if [ -d "${PRODUCT_ENV}" ]; then
-        run_jarvis clean
-    fi
-    # Delete virtualenv
-    cd "${DIR}"
-    rm -rf "${JARVIS_VENV}"
-    rm -rf "${MBED_VENV}"
+    # Delete mrover build space
+    rm -rf "${MROVER_BUILD_ROOT}"
     exit 0
 fi
 

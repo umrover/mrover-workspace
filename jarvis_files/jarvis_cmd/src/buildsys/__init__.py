@@ -54,15 +54,17 @@ class BuildError(Exception):
 class WorkspaceContext:
     def __init__(self, root):
         self.root = root
-        self.build_root = os.path.join(root, 'build')
+        self.mrover_build_root = os.path.join(os.path.expanduser('~'),
+                                              '.mrover')
         self.jarvis_root = os.path.join(root, 'jarvis_files')
         self.third_party_root = os.path.join(root, '3rdparty')
-        self.build_intermediate = os.path.join(self.build_root,
-                                               'intermediate')
-        self.product_env = os.path.join(self.build_root, 'env')
-        self.jarvis_env = os.path.join(self.jarvis_root, 'env')
-        self.mbed_env = os.path.join(self.jarvis_root, 'mbed_env')
-        self.hash_store = os.path.join(self.build_root, 'hashes')
+        self.build_intermediate = os.path.join(self.mrover_build_root,
+                                               'scratch')
+        self.product_env = os.path.join(self.mrover_build_root, 'build_env')
+        self.jarvis_env = os.path.join(self.mrover_build_root, 'jarvis_env')
+        self.mbed_env = os.path.join(self.mrover_build_root, 'mbed_env')
+        self.hash_store = os.path.join(self.mrover_build_root,
+                                       'project_hashes')
 
         self.templates = Environment(loader=FileSystemLoader(
             os.path.join(self.jarvis_root, 'templates')))
@@ -90,7 +92,7 @@ class WorkspaceContext:
         """
         Ensures the build directory structure exists.
         """
-        self.ensure_dir(self.build_root)
+        self.ensure_dir(self.mrover_build_root)
         self.ensure_dir(self.hash_store)
 
     def ensure_product_env(self, clear=False):
@@ -151,8 +153,11 @@ class WorkspaceContext:
     def get_jarvis_file(self, *args):
         return os.path.join(self.jarvis_env, *args)
 
+    def get_mbed_file(self, *args):
+        return os.path.join(self.mbed_env, *args)
+
     @contextmanager
-    def intermediate(self, name, cleanup=True):
+    def intermediate(self, name, cleanup=False):
         """
         Create an intermediate build directory, then change directory to it.
         """
@@ -177,8 +182,8 @@ class BuildContext:
         self.suffixes = suffixes
 
     @contextmanager
-    def scratch_space(self, cleanup=True):
-        with self.wksp.intermediate(self.name) as i:
+    def scratch_space(self, cleanup=False):
+        with self.wksp.intermediate(self.name, cleanup) as i:
             yield i
 
     def files_changed(self):

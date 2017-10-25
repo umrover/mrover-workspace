@@ -38,3 +38,4 @@
   - libtool
   - libftdi-dev
   - libftdi1-dev
+  - gdb

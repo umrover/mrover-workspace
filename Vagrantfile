@@ -17,15 +17,7 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 8001, host: 8001
 
   # Set up rsynced folder to automatically sync
-  config.vm.synced_folder ".", "/vagrant", type: "rsync",
-	rsync__exclude: [".git/", "build/", "jarvis_files/env/"]
-
-  # Set up gatling-rsync
-  if Vagrant.has_plugin?("vagrant-gatling-rsync")
-    config.gatling.latency = 1.0
-    config.gatling.time_format = "%H:%M:%S"
-    config.gatling.rsync_on_startup = true
-  end
+  config.vm.synced_folder ".", "/vagrant"
 
   # Provision using the devbox playbook
   config.vm.provision "ansible_local" do |ansible|
