@@ -1,0 +1,194 @@
+<div id="container">
+    <canvas ref:canvas width="600" height="600"></canvas>
+
+    <div class="display" id="odom_display">
+        <h2>Odometry</h2>
+        <p><b>Latitude:</b> {{ latitude_deg }}</p>
+        <p><b>Longitude:</b> {{ longitude_deg }}</p>
+        <p><b>Bearing:</b> {{ bearing_deg }}</p>
+    </div>
+
+    <div class="display" id="joystick_display">
+        <h2>Joystick</h2>
+        {{#if lcm_connected}}
+        <p><b>Translational:</b> {{ forward_back }}</p>
+        <p><b>Rotational:</b> {{ left_right }}</p>
+        {{/if}}
+    </div>
+
+    <div class="display" id="waypoint_display">
+        <h2>Waypoint</h2>
+        {{#if waypoint_selected}}
+        <p><b>Latitude:</b> {{ waypoint_lat }}</p>
+        <p><b>Longitude:</b> {{ waypoint_lon }}</p>
+        {{/if}}
+    </div>
+</div>
+
+<script>
+    import projections from 'projections'
+
+    const CENTER_LAT = 39.4
+    const CENTER_LON = -110.5
+
+    const EARTH_RADIUS = 6371
+
+    const ROVER_SIZE = 25
+    const VECTOR_SIZE = 20
+    const WAYPOINT_SIZE = 10
+
+    const projection_opts = {
+        standardParallel: CENTER_LAT,
+        meridian: CENTER_LON
+    }
+
+    function projection(coords) {
+        return projections.equirectangular(
+            coords, projection_opts)
+    }
+
+    export default {
+        data () {
+            return {
+                latitude_deg: CENTER_LAT,
+                longitude_deg: CENTER_LON,
+                bearing_deg: 0,
+
+                forward_back: 0,
+                left_right: 0,
+
+                waypoint_selected: false,
+                lcm_connected: false
+            }
+        },
+
+        oncreate () {
+            const canvas = this.refs.canvas
+            const ctx = canvas.getContext('2d')
+
+            let running = true
+            this.on('destroy', () => running = false)
+
+            const scale = {
+                x: 2000000,
+                y: 1000000
+            }
+            function to_canvas({x, y}) {
+                return {
+                    x: (x-0.5)*scale.x+canvas.width/2,
+                    y: (y-0.25)*scale.y+canvas.height/2
+                }
+            }
+
+            function from_canvas({x, y}) {
+                return {
+                    x: (x - canvas.width/2)/(scale.x/1.6667) + 0.5,
+                    y: (y - canvas.height/2)/scale.y + 0.25
+                }
+            }
+
+            canvas.addEventListener('click', (e) => {
+                let rect = canvas.getBoundingClientRect()
+                let x = e.clientX - rect.left
+                let y = e.clientY - rect.top
+
+                let coords = projection(from_canvas({x, y}))
+
+                this.set({
+                    waypoint_selected: true,
+                    waypoint_lat: coords.lat,
+                    waypoint_lon: coords.lon
+                })
+            })
+
+            const loop = () => {
+                if (!running) return
+                requestAnimationFrame(loop)
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+                let coords = to_canvas(projection({
+                    lat: this.get('latitude_deg'),
+                    lon: this.get('longitude_deg')
+                }))
+
+                ctx.fillStyle = 'darkred'
+                ctx.fillRect(coords.x - ROVER_SIZE/2,
+                             coords.y - ROVER_SIZE/2,
+                             ROVER_SIZE, ROVER_SIZE)
+
+                ctx.strokeStyle = 'darkred'
+                ctx.lineWidth = 5
+                ctx.beginPath()
+                ctx.moveTo(coords.x, coords.y)
+                const bearing = (90 - this.get('bearing_deg')) * Math.PI / 180
+                ctx.lineTo(coords.x + VECTOR_SIZE*Math.cos(bearing),
+                           coords.y - VECTOR_SIZE*Math.sin(bearing))
+                ctx.stroke()
+
+                if (this.get('waypoint_selected')) {
+                    let wcoords = to_canvas(projection({
+                        lat: this.get('waypoint_lat'),
+                        lon: this.get('waypoint_lon')
+                    }))
+
+                    ctx.fillStyle = 'darkgreen'
+                    ctx.beginPath()
+                    ctx.arc(wcoords.x,
+                            wcoords.y,
+                            WAYPOINT_SIZE, 0, 2*Math.PI, 0)
+                    ctx.fill()
+                }
+            }
+
+            loop()
+        },
+
+        methods: {
+            apply_joystick: function(stick) {
+                this.set({
+                    forward_back: stick.forward_back,
+                    left_right: stick.left_right
+                })
+                
+                // TODO apply the joystick motion to the rover
+
+                this.fire("odom", { latitude, longitude, bearing })
+            }
+        }
+    }
+</script>
+
+<style>
+#container {
+    font-family: sans-serif;
+}
+
+canvas {
+    border: 1px solid black;
+}
+
+div + div {
+    margin-top: 10px;
+}
+
+.display {
+    color: white;
+    padding: 5px;
+}
+
+.display * {
+    margin: 0px;
+}
+
+#odom_display {
+    background-color: darkred;
+}
+
+#joystick_display {
+    background-color: darkblue;
+}
+
+#waypoint_display {
+    background-color: darkgreen
+}
+</style>
