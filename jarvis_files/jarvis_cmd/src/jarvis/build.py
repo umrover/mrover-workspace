@@ -5,6 +5,7 @@ import shutil
 from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
 from buildsys.mbed import MbedBuilder
+from buildsys.rollupjs import RollupJSBuilder
 
 from . import third_party
 
@@ -13,7 +14,7 @@ def clean(ctx):
     """
     Deletes the product venv, requiring a full rebuild.
     """
-    shutil.rmtree(ctx.build_root)
+    shutil.rmtree(ctx.product_env)
 
 
 def get_builder(ctx, d):
@@ -40,10 +41,12 @@ def get_builder(ctx, d):
 
     if lang == 'python':
         print('Building Python 3 package')
-        executable = bool(build_defs.get('executable', 'True'))
+        executable = build_defs.get('executable', 'False') == 'True'
         return PythonBuilder(d, ctx, executable)
-    elif lang == 'node':
-        print('Building Node.js package NOT IMPLEMENTED')
+    elif lang == 'js':
+        print('Building JavaScript package')
+        app = build_defs.get('app', 'False') == 'True'
+        return RollupJSBuilder(d, ctx, deps, app)
     elif lang == 'cpp':
         print('Building C++ package NOT IMPLEMENTED')
     elif lang == 'lcm':

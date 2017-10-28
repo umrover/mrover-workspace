@@ -42,6 +42,8 @@ def main():
                            help='Installs 3rdparty folder into product env')
     subcommands.add_parser('exec',
                            help='Runs a command in the product venv')
+    subcommands.add_parser('upgrade',
+                           help='Re-installs the Jarvis CLI')
 
     parser_mbed = subcommands.add_parser('mbed',
                                          help='Runs the mbed CLI')

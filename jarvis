@@ -17,10 +17,7 @@ run_jarvis() {
     return $?
 }
 
-if [ ! -d "${MROVER_BUILD_ROOT}" ]; then
-    echo -n "Bootstrapping..."
-    # Make MRover Build Root
-    mkdir -p "${MROVER_BUILD_ROOT}"
+make_jarvis_env() {
     # Make virtualenv for Jarvis
     python3 -m venv "${JARVIS_VENV}"
     # shellcheck source=/dev/null
@@ -28,6 +25,13 @@ if [ ! -d "${MROVER_BUILD_ROOT}" ]; then
 	pip install --upgrade pip >/dev/null
     pip install -r "${JARVIS_ROOT}/requirements.txt" >/dev/null
     pip install "${JARVIS_ROOT}/jarvis_cmd" >/dev/null
+}
+
+if [ ! -d "${MROVER_BUILD_ROOT}" ]; then
+    echo -n "Bootstrapping..."
+    # Make MRover Build Root
+    mkdir -p "${MROVER_BUILD_ROOT}"
+    make_jarvis_env
     echo "Done!"
 fi
 
@@ -39,6 +43,14 @@ fi
 if [ "$1" = "implode" ]; then
     # Delete mrover build space
     rm -rf "${MROVER_BUILD_ROOT}"
+    exit 0
+fi
+
+if [ "$1" = "upgrade" ]; then
+    # Delete Jarvis env and rebuild it
+    # shellcheck source=/dev/null
+    source "${JARVIS_VENV}/bin/activate"
+    pip install --upgrade "${JARVIS_ROOT}/jarvis_cmd" >/dev/null
     exit 0
 fi
 
