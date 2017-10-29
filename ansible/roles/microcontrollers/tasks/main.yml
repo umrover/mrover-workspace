@@ -5,3 +5,6 @@
 
 - name: Force udev to reload rules
   shell: udevadm control --reload-rules
+
+- name: Install gcc-arm-embedded
+  apt: name=gcc-arm-none-eabi state=present
