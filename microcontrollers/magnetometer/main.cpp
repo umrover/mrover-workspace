@@ -1,6 +1,6 @@
 #include "mbed.h"
 
-// Access pins on the board by p1, p2... or the onboard LEDs as LED!, LED2...
+// Access pins on the board by p1, p2... or the onboard LEDs as LED1, LED2...
 DigitalIn mag_pin1(p1);
 DigitalOut led(LED1);
 
