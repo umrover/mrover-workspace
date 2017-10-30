@@ -5,7 +5,6 @@ const app = new App({
     target: document.querySelector('main')
 })
 
-// TODO add connected indicators
 const bridge = new LCMBridge("ws://localhost:8001",
     // Is websocket online?
     (online) => {
@@ -36,3 +35,5 @@ app.on("odom", (odom) => {
         bridge.publish('/odom', odom)
     }
 })
+
+app.start_odom_events()

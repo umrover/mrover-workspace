@@ -11,10 +11,10 @@ Vagrant.configure("2") do |config|
 
   config.vm.hostname = "mrover-devbox"
 
-  # Map webpack devserver port and static resources port
-  config.vm.network "forwarded_port", guest: 8000, host: 8000
-  # Map base_station_bridge port
-  config.vm.network "forwarded_port", guest: 8001, host: 8001
+  # Map all ports 8000-8020 for development work
+  (8000...8020).each do |p| 
+    config.vm.network "forwarded_port", guest: p, host: p
+  end
 
   # Set up rsynced folder to automatically sync
   config.vm.synced_folder ".", "/vagrant"

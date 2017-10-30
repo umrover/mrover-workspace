@@ -4,15 +4,16 @@ import shutil
 from . import BuildContext
 
 
-def generate_webapp_start(ctx, app_dir):
-    return ctx.wksp.template('webapp_start', app_dir=app_dir)
+def generate_webapp_start(ctx, app_dir, port):
+    return ctx.wksp.template('webapp_start', app_dir=app_dir, port=port)
 
 
 class RollupJSBuilder(BuildContext):
-    def __init__(self, dir_, wksp, deps, app=True):
+    def __init__(self, dir_, wksp, deps, app=True, port=8010):
         super().__init__(dir_, wksp, ['.js'])
         self.deps = [n.replace('/', '_') for n in deps]
         self.app = app
+        self.port = port
 
     def build(self):
         if not self.files_changed():
@@ -60,7 +61,7 @@ class RollupJSBuilder(BuildContext):
                         self.wksp.product_env, 'bin', self.name)
                 with open(script_path, 'w') as start_script:
                     start_script.write(
-                            generate_webapp_start(self, dist_dir))
+                            generate_webapp_start(self, dist_dir, self.port))
                 os.chmod(script_path, 0o755)
 
             print('Build successful.')

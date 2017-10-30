@@ -15,6 +15,7 @@ def clean(ctx):
     Deletes the product venv, requiring a full rebuild.
     """
     shutil.rmtree(ctx.product_env)
+    shutil.rmtree(ctx.hash_store)
 
 
 def get_builder(ctx, d):
@@ -46,7 +47,8 @@ def get_builder(ctx, d):
     elif lang == 'js':
         print('Building JavaScript package')
         app = build_defs.get('app', 'False') == 'True'
-        return RollupJSBuilder(d, ctx, deps, app)
+        port = build_defs.get('port', None)
+        return RollupJSBuilder(d, ctx, deps, app, port)
     elif lang == 'cpp':
         print('Building C++ package NOT IMPLEMENTED')
     elif lang == 'lcm':
