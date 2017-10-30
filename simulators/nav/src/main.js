@@ -6,7 +6,7 @@ const app = new App({
 })
 
 // TODO add connected indicators
-const bridge = new LCMBridge("ws://localhost:8081",
+const bridge = new LCMBridge("ws://localhost:8001",
     // Is websocket online?
     (online) => {
         if (!online) {

@@ -1,24 +1,26 @@
-import Vue from 'vue'
-import App from './App.vue'
-import store from './store.js'
-import LCMBridge from './bridge.js'
+import App from './components/App.html'
+import LCMBridge from 'bridge'
 
-const WEBSOCKET_URL = 'ws://localhost:8001'
-
-new Vue({
-    el: '#app',
-    store,
-    render: h => h(App)
+const app = new App({
+    target: document.querySelector('main')
 })
 
-var lcm_ = new LCMBridge(
-    WEBSOCKET_URL,
+const lcm_ = new LCMBridge(
+    "ws://localhost:8001",
     // Update WebSocket connection state
-    (c) => store.commit('websocketConnectionState', c),
+    (online) => {
+        app.set({
+            websocket_connected: online
+        })
+    },
     // Update LCM connection state
-    (c) => store.commit('connectionState', c),
+    (online) => {
+        app.set({
+            lcm_connected: online
+        })
+    },
     // Subscribed LCM message received
-    (msg) => store.commit('lcmMessage', msg),
+    (msg) => app.lcm_message_recv(msg),
     // Subscriptions
     [
         { 
@@ -29,20 +31,20 @@ var lcm_ = new LCMBridge(
 )
 
 window.addEventListener("gamepadconnected", function(e) {
-  var gamepad = navigator.getGamepads()[e.gamepad.index];
+  const gamepad = navigator.getGamepads()[e.gamepad.index];
   console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
     e.gamepad.index, e.gamepad.id,
     e.gamepad.buttons.length, e.gamepad.axes.length);
 });
 
 window.setInterval(function(){
-    var gamepads = navigator.getGamepads();
-    var gamepad = gamepads[0];
+    const gamepads = navigator.getGamepads();
+    const gamepad = gamepads[0];
     if(!gamepad)
         return;
 
 
-    var joystickData = {'type' : 'Joystick',
+    const joystickData = {'type' : 'Joystick',
                         'forward_back' : -gamepad.axes[1],
                         'left_right' : gamepad.axes[5],
                         'kill' : gamepad.buttons[10]['pressed']};
