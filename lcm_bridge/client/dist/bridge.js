@@ -27,9 +27,10 @@ export default class LCMBridge {
             this.updateWebsocketState(this.online)
 
             // Make subscriptions
-            for (const { topic, type } of this.subscriptions) {
-                this._subscribe(topic, type)
-            }
+            /*for (const sub in this.subscriptions) {
+                this._subscribe(sub.topic, sub.type)
+            }*/
+            this.subscriptions.forEach(this._subscribe, this)
         }
 
         this.ws.onmessage = (event) => {
@@ -46,7 +47,7 @@ export default class LCMBridge {
         }
     }
 
-    _subscribe (topic, type) {
+    _subscribe ({topic, type}) {
         this.ws.send(JSON.stringify({
             'type': 'lcm_subscribe',
             'topic': topic,

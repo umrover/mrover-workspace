@@ -1,20 +1,23 @@
-<template>
-    <div class="wrapper">
-        <span class="led" :class="{ green: state, red: !state }">
-        </span>
-        <span class="name">
-            {{ name }}
-        </span>
-    </div>
-</template>
+<div class="wrapper">
+    <span class="led {{color}}">
+    </span>
+    <span class="name">{{name}}</span>
+</div>
 
 <script>
 export default {
-    props: ['state', 'name']
+    data() {
+        return {
+            connected: false
+        }
+    },
+    computed: {
+        color: (connected) => connected ? "green" : "red"
+    }
 }
 </script>
 
-<style scoped>
+<style>
 .wrapper {
     display: flex;
     align-items: center;
