@@ -1,11 +1,10 @@
-#import asyncio
-#from rover_common import heartbeatlib, aiolcm
-#from rover_common.aiohelper import run_coroutines
-#from rover_msgs import Motors
+import asyncio
+from rover_common import heartbeatlib, aiolcm
+from rover_msgs import Motors
 import serial
 import time
 
-#lcm_ = aiolcm.AsyncLCM()
+lcm_ = aiolcm.AsyncLCM()
 
 def toTalonValue(amount):
     if amount > -0.1 and amount < 0.1:
@@ -42,8 +41,9 @@ def test():
     print(motor_callback("test", message))
 
 def main():
-    test()
-    #lcm_.subscribe("/motor", motor_callback)
+    # test()
+    lcm_.subscribe("/motor", motor_callback)
+    lcm_.loop()
 
 if __name__ == "__main__":
     main()
