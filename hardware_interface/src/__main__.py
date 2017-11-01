@@ -2,7 +2,6 @@ from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import Motors
 import serial
-import time
 
 lcm_ = aiolcm.AsyncLCM()
 
@@ -31,12 +30,11 @@ def motor_callback(channel, msg):
     for i in range(3, 6):
         sendMsg += "#{} P{} ".format(i, talonValueRight)
     # send the talonValues to each motor with pySerial
-    sendMsg += "T1000\r"
+    sendMsg += "T10\r"
     # Alternative is /dev/tty.usbserial-AI03GJKD
     ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
-    ser.write(sendMsg)
-    time.sleep(5)
-    return sendMsg
+    print(sendMsg)
+    ser.write(sendMsg.encode("utf-8"))
 
 
 def test():
