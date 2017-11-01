@@ -1,23 +1,3 @@
-- name: Set up NodeSource signing key
-  apt_key:
-    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-    state: present
-
-- name: Set up NodeSource repository for Node 8.x
-  apt_repository:
-    repo: "deb https://deb.nodesource.com/node_8.x {{ ubuntu_release }} main"
-    state: present
-
-- name: Set up Yarn signing key
-  apt_key:
-    url: https://dl.yarnpkg.com/debian/pubkey.gpg
-    state: present
-
-- name: Set up Yarn repository
-  apt_repository:
-    repo: deb https://dl.yarnpkg.com/debian/ stable main
-    state: present
-
 - name: Update apt cache
   apt: update_cache=yes
 
