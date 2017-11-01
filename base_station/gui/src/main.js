@@ -30,14 +30,21 @@ const lcm_ = new LCMBridge(
     ]
 )
 
-window.addEventListener("gamepadconnected", function(e) {
+window.addEventListener("gamepadconnected", e => {
   const gamepad = navigator.getGamepads()[e.gamepad.index];
   console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
     e.gamepad.index, e.gamepad.id,
     e.gamepad.buttons.length, e.gamepad.axes.length);
 });
 
-window.setInterval(function(){
+// Go to http://html5gamepad.com/ to check joystick button/axes indices
+const JOYSYTICK_CONFIG = {
+    "forward_back" : 1,
+    "left_right" : 2,
+    "kill" : 10
+};
+
+window.setInterval(() => {
     const gamepads = navigator.getGamepads();
     const gamepad = gamepads[0];
     if(!gamepad)
@@ -45,9 +52,11 @@ window.setInterval(function(){
 
 
     const joystickData = {'type' : 'Joystick',
-                        'forward_back' : -gamepad.axes[1],
-                        'left_right' : gamepad.axes[5],
-                        'kill' : gamepad.buttons[10]['pressed']};
+                        'forward_back' : -gamepad.axes[JOYSYTICK_CONFIG["forward_back"]],
+                        'left_right' : gamepad.axes[JOYSYTICK_CONFIG["left_right"]],
+                        'kill' : gamepad.buttons[JOYSYTICK_CONFIG["kill"]]['pressed']};
+
+    console.log(joystickData[JOYSYTICK_CONFIG["forward_back"]]);
 
     lcm_.publish('/joystick', joystickData);
 
