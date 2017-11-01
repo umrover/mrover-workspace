@@ -1,5 +1,6 @@
 import asyncio
 from rover_common import heartbeatlib, aiolcm
+from rover_common.aiohelper import run_coroutines
 from rover_msgs import Motors
 import serial
 import time
@@ -43,7 +44,7 @@ def test():
 def main():
     # test()
     lcm_.subscribe("/motor", motor_callback)
-    lcm_.loop()
+    run_coroutines(lcm_.loop())
 
 if __name__ == "__main__":
     main()
