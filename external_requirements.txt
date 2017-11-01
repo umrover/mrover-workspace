@@ -5,4 +5,5 @@
 #    pip-compile --output-file external_requirements.txt external_requirements.in
 #
 pynmea2==1.8.0
+pyserial==3.4
 websockets==3.4
