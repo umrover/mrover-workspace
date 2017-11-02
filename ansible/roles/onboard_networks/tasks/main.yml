@@ -1,0 +1,16 @@
+- name: Set up node's network adapter
+  copy:
+      src: files/rover.network
+      dest: /etc/systemd/network/rover.network
+
+- name: Disable NetworkManager for the interface
+  debug: "TODO"
+
+- name: Restart NetworkManager
+  systemd: name=NetworkManager.service state=restarted
+
+- name: Enable systemd-networkd
+  systemd:
+      name: systemd-networkd.service
+      state: started
+      enabled: yes

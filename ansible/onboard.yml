@@ -3,7 +3,8 @@
   become: yes
   vars:
       ubuntu_release: xenial
+      workspace_dir: /home/ubuntu/mrover-workspace
   roles:
   - onboard_dev
-  - microcontrollers_dev
-  - base_station_dev
+  - onboard_networks
+  - onboard_services

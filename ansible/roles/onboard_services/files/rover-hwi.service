@@ -1,0 +1,7 @@
+[Unit]
+Description=MRover Hardware Interface
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+Environment=MROVER_SSC32_PORT=/dev/ssc32
+ExecStart={{ workspace_dir }}/jarvis exec onboard_hwi

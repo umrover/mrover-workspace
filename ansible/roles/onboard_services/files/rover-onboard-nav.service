@@ -1,0 +1,8 @@
+[Unit]
+Description=MRover Onboard Navigation
+Requires=rover-onboard-teleop.service
+After=rover-onboard-teleop.service
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+Exec={{ workspace_dir }}/jarvis exec onboard_nav

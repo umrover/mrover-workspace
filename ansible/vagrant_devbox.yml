@@ -5,9 +5,9 @@
       ubuntu_release: xenial
       devbox_username: vagrant
   roles:
-  - devbox
-  - microcontrollers
-  - nodejs_dev
+  - onboard_dev
+  - microcontrollers_dev
+  - base_station_dev
   tasks:
   - name: Configure bashrc
     copy:
