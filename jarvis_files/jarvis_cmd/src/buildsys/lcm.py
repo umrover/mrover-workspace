@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from . import BuildContext
 from .python import generate_setup_py, pyinstall
@@ -26,17 +27,29 @@ class LCMBuilder(BuildContext):
         lcm_files_cmdline = ' '.join('"{}"'.format(v) for v in lcm_files)
 
         with self.scratch_space() as intermediate:
+            pydir = os.path.join(intermediate, 'python')
+            os.mkdir(pydir)
             print('Generating Python package for LCM project...')
             self.run('lcm-gen --python {} --ppath {}'.format(
-                lcm_files_cmdline, intermediate))
+                lcm_files_cmdline, pydir))
 
-            with open(os.path.join(intermediate, 'setup.py'), 'w') as setup_py:
+            with open(os.path.join(pydir, 'setup.py'), 'w') as setup_py:
                 setup_py.write(generate_setup_py(self, 'rover_msgs',
                                                  src=False))
 
             with self.wksp.inside_product_env():
-                pyinstall(self)
+                with self.cd('python'):
+                    pyinstall(self)
 
-            # TODO build C++ project
+            cppdir = os.path.join(intermediate, 'cpp')
+            os.mkdir(cppdir)
+            with self.cd('cpp'):
+                self.run('lcm-gen --cpp {} --cpp-std=c++14'.format(
+                    lcm_files_cmdline))
+            target_dir = os.path.join(self.wksp.product_env, 'include',
+                                      'rover_msgs')
+            if os.path.isdir(target_dir):
+                shutil.rmtree(target_dir)
+            shutil.copytree(os.path.join(cppdir, 'rover_msgs'), target_dir)
 
         self.save_hash()
