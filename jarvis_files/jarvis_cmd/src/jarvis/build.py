@@ -6,6 +6,7 @@ from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
 from buildsys.mbed import MbedBuilder
 from buildsys.rollupjs import RollupJSBuilder
+from buildsys.meson import MesonBuilder
 
 from . import third_party
 
@@ -50,7 +51,8 @@ def get_builder(ctx, d):
         port = build_defs.get('port', None)
         return RollupJSBuilder(d, ctx, deps, app, port)
     elif lang == 'cpp':
-        print('Building C++ package NOT IMPLEMENTED')
+        print('Building C++ package')
+        return MesonBuilder(d, ctx)
     elif lang == 'lcm':
         print('Building LCM package')
         return LCMBuilder(d, ctx)
