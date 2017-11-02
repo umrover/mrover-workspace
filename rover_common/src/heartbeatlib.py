@@ -13,7 +13,9 @@ def gen_new_id():
 
 class Heartbeater:
     def __init__(self, publish, subscribe, callback):
-        self.lcm_ = aiolcm.AsyncLCM(defaults.HEARTBEAT_LCM_GROUP)
+        heartbeat_group = os.environ.get('MROVER_HEARTBEAT_URL',
+                                         defaults.HEARTBEAT_LCM_GROUP)
+        self.lcm_ = aiolcm.AsyncLCM(heartbeat_group)
         self.connected = False
         self.connection_state_changed = callback
         self.where = publish
