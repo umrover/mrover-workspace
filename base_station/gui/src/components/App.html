@@ -24,7 +24,41 @@
         bearing {{ odom.bearing_deg }}
     </div>
     <div class="box diags">
-        Diagnostics and sensor output go here
+        <div class="box">
+            <p style="text-align:left;">
+                Temperature:
+                <span style="float:right;">{{diags.temperature}}ºC</span>
+            </p>
+            
+        </div>
+        <div class="box">
+            <p style="text-align:left;">
+                Moisture:
+                <span style="float:right;">{{diags.moisture}}</span>
+            </p>
+        </div>
+        <div class="box">
+            <p style="text-align:left;">
+                pH:
+                <span style="float:right;">{{diags.pH}}</span>
+            </p>
+        </div>
+        <div class="box">
+            <p style="text-align:left;">
+                Soil Conductivity:
+                <span style="float:right;">{{diags.soil_conductivity}} μS/cm</span>
+            </p>
+        </div>
+        <div class="box">
+            <p style="text-align:left;">
+                UV:
+                <span style="float:right;">{{diags.uv}} µmoles/m<sup>2</sup>/s</span>
+            </p>
+        
+        </div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
     </div>
     <div class="box map">
         Map goes here
@@ -105,6 +139,11 @@ img {
 
 .diags {
     grid-area: diags;
+
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
 }
 .map {
     grid-area: map;
@@ -133,6 +172,13 @@ export default {
                 latitude_deg: 0,
                 longitude_deg: 0,
                 bearing_deg: 0
+            },
+            diags:{
+                temperature: 200,
+                moisture: -1,
+                pH: 1,
+                soil_conductivity: -10,
+                uv: 8
             }
         }
     },
