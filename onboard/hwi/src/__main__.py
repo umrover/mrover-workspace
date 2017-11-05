@@ -2,8 +2,10 @@ from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import Motors
 import serial
+import os
 
 lcm_ = aiolcm.AsyncLCM()
+ssc32_port = os.environ.get('MROVER_SSC32_PORT', '/dev/ttyUSB0')
 
 
 def toTalonValue(amount):
@@ -43,7 +45,6 @@ def test():
 
 
 def main():
-    # test()
     lcm_.subscribe("/motor", motor_callback)
     run_coroutines(lcm_.loop())
 
