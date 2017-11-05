@@ -14,9 +14,9 @@
         </div>
     </div>
 
-    <div class="box video">
+    <!-- <div class="box video">
         Video goes here
-    </div>
+    </div> -->
 
     <div class="box odom">
         Current odometry reading:
@@ -26,6 +26,18 @@
     <div class="box diags">
         Diagnostics and sensor output go here
     </div>
+    <div class="box map">
+        Map goes here
+    </div>
+    <div class="box waypoints">
+        Manage Waypoints here
+    </div>
+    <div class="box saveGPS">
+        Save current GPS here
+    </div>
+    <div class="box motors">
+        Display motor info here
+    </div>
 </div>
 
 <style>
@@ -33,11 +45,14 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 60px 3fr 2fr;
+    grid-template-rows: 60px 3fr 2fr 3fr 60px 60px;
     grid-template-areas:
         "header header"
-        "video odom"
-        "diags diags";
+        "map diags"
+        "map motors"
+        "map waypoints"
+        "saveGPS waypoints"
+        "odom waypoints";
 
     font-family: Cantarell sans;
     height: 100%;
@@ -85,10 +100,24 @@ img {
 
 .odom {
     grid-area: odom;
+    font-size: 2em;
 }
 
 .diags {
     grid-area: diags;
+}
+.map {
+    grid-area: map;
+}
+.motors {
+    grid-area: motors;
+}
+.waypoints {
+    grid-area: waypoints;
+}
+.saveGPS {
+    grid-area: saveGPS;
+    font-size: 2em;
 }
 </style>
 
