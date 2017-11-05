@@ -28,13 +28,35 @@ def deadzone(magnitude, threshold):
     return math.copysign(temp_mag, magnitude)
 
 
+def joytsick_math(new_motor, magnitude, theta):
+    new_motor.left = abs(magnitude)
+    new_motor.right = new_motor.left
+
+    if theta > 0:
+        new_motor.right *= 1 - theta/2
+    elif theta < 0:
+        new_motor.left *= 1 + theta/2
+
+    if magnitude < 0:
+        new_motor.left *= -1
+        new_motor.right *= -1
+    elif magnitude == 0:
+        new_motor.left += theta/2
+        new_motor.right -= theta/2
+
+
 def joystick_callback(channel, msg):
     global kill_switch
 
-    if kill_switch:
-        return
-
     input_data = Joystick.decode(msg)
+
+    if kill_switch:
+        if input_data.restart:
+            kill_switch = False
+        else:
+            return
+
+    damp = (input_data.dampen - 1)/(-2)
 
     new_motor = Motors()
 
@@ -43,23 +65,13 @@ def joystick_callback(channel, msg):
         new_motor.right = 0
         kill_switch = True
     else:
-        magnitude = deadzone(input_data.forward_back, 0.1)
-        theta = deadzone(input_data.left_right, 0.1)
+        magnitude = deadzone(input_data.forward_back, 0.2)
+        theta = deadzone(input_data.left_right, 0.2)
 
-        new_motor.left = abs(magnitude)
-        new_motor.right = new_motor.left
+        joystick_math(new_motor, magnitude, theta)
 
-        if theta > 0:
-            new_motor.right *= 1 - theta/2
-        elif theta < 0:
-            new_motor.left *= 1 + theta/2
-
-        if magnitude < 0:
-            new_motor.left *= -1
-            new_motor.right *= -1
-        elif magnitude == 0:
-            new_motor.left += theta/2
-            new_motor.right -= theta/2
+        new_motor.left *= damp
+        new_motor.right *= damp
 
     lcm_.publish('/motor', new_motor.encode())
 
@@ -83,7 +95,9 @@ async def transmit_fake_joystick():
         new_joystick = Joystick()
         new_joystick.forward_back = random.uniform(-1, 1)
         new_joystick.left_right = random.uniform(-1, 1)
+        new_joystick.dampen = random.uniform(-1, 1)
         new_joystick.kill = False
+        new_joystick.restart = False
 
         with await lock:
             lcm_.publish('/joystick', new_joystick.encode())
