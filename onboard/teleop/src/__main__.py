@@ -28,7 +28,7 @@ def deadzone(magnitude, threshold):
     return math.copysign(temp_mag, magnitude)
 
 
-def joytsick_math(new_motor, magnitude, theta):
+def joystick_math(new_motor, magnitude, theta):
     new_motor.left = abs(magnitude)
     new_motor.right = new_motor.left
 
@@ -76,6 +76,15 @@ def joystick_callback(channel, msg):
     lcm_.publish('/motor', new_motor.encode())
 
 
+def autonomous_callback(channel, msg):
+    input_data = Joystick.decode(msg)
+    new_motor = Motors()
+
+    joystick_math(new_motor, input_data.forward_back, input_data.left_right)
+
+    lcm_.publish('/motor', new_motor.encode())
+
+
 async def transmit_fake_odometry():
     while True:
         new_odom = Odometry()
@@ -117,5 +126,6 @@ def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed)
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/joystick", joystick_callback)
+    lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/motor', motor_callback)
     run_coroutines(hb.loop(), transmit_fake_odometry(), lcm_.loop())
