@@ -38,10 +38,12 @@ window.addEventListener("gamepadconnected", e => {
 });
 
 // Go to http://html5gamepad.com/ to check joystick button/axes indices
-const JOYSYTICK_CONFIG = {
+const JOYSTICK_CONFIG = {
     "forward_back" : 1,
     "left_right" : 2,
-    "kill" : 10
+    "dampen" : 3,
+    "kill" : 4,
+    "restart" : 5
 };
 
 window.setInterval(() => {
@@ -52,11 +54,13 @@ window.setInterval(() => {
 
 
     const joystickData = {'type' : 'Joystick',
-                        'forward_back' : -gamepad.axes[JOYSYTICK_CONFIG["forward_back"]],
-                        'left_right' : gamepad.axes[JOYSYTICK_CONFIG["left_right"]],
-                        'kill' : gamepad.buttons[JOYSYTICK_CONFIG["kill"]]['pressed']};
+                        'forward_back' : -gamepad.axes[JOYSTICK_CONFIG["forward_back"]],
+                        'left_right' : gamepad.axes[JOYSTICK_CONFIG["left_right"]],
+                        'dampen' : gamepad.axes[JOYSTICK_CONFIG["dampen"]],
+                        'kill' : gamepad.buttons[JOYSTICK_CONFIG["kill"]]['pressed'],
+                        'restart' : gamepad.buttons[JOYSTICK_CONFIG["restart"]]['pressed']};
 
-    console.log(joystickData[JOYSYTICK_CONFIG["forward_back"]]);
+    console.log(joystickData['dampen']);
 
     lcm_.publish('/joystick', joystickData);
 
