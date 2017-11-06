@@ -6,6 +6,7 @@ import os
 
 lcm_ = aiolcm.AsyncLCM()
 ssc32_port = os.environ.get('MROVER_SSC32_PORT', '/dev/ttyUSB0')
+ser = serial.Serial(ssc32_port, 9600, timeout=1)
 
 
 def toTalonValue(amount):
@@ -31,10 +32,7 @@ def motor_callback(channel, msg):
         sendMsg += "#{} P{} ".format(i, talonValueLeft)
     for i in range(3, 6):
         sendMsg += "#{} P{} ".format(i, talonValueRight)
-    # send the talonValues to each motor with pySerial
     sendMsg += "T10\r"
-    # Alternative is /dev/tty.usbserial-AI03GJKD
-    ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     print(sendMsg)
     ser.write(sendMsg.encode("utf-8"))
 
