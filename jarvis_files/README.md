@@ -19,7 +19,6 @@ Example for `bash`:
 ```sh
 # ~/.bashrc
 alias jarvis='$HOME/mrover-workspace/jarvis'
-source $HOME/mrover-workspace/jarvis_files/bash_completion.bash
 ```
 
 ## Design
@@ -33,24 +32,23 @@ all parts of build -- C/C++ output executables are installed into the product
 ## Usage
 
 - `jarvis dep` :: Compile and install 3rd-party C/C++ dependencies (located 
-  in `3rdparty/`) using instructions specified in the
-  `jarvis_files/third_party.py` file.  After installing C/C++ dependencies,
-  Jarvis will run `pip-compile` on the contents of `external_requirements.in`
-  to produce `external_requirements.txt`, which will then be installed into the
-  product `venv`.
+  in `3rdparty/`) using instructions specified in the `third_party.py` file.
+  After installing C/C++ dependencies, Jarvis will run `pip-compile` on the
+  contents of `external_requirements.in` to produce
+  `external_requirements.txt`, which will then be installed into the product
+  `venv`.
 - `jarvis exec <command>` :: Runs a command in the product `venv`.
 - `jarvis clean` :: Wipes away the product `venv`, requiring a full re-build.
 - `jarvis implode` :: Wipes away the Jarvis `venv`, requiring a full re-bootstrap.
-- `jarvis build.rover_msgs` :: Compiles the LCM descriptions in `rover_msgs/`
+- `jarvis build rover_msgs` :: Compiles the LCM descriptions in `rover_msgs/`
   into both C++ and Python libraries and installs them into the product `venv`.
-- `jarvis build.<target>` :: Lint, compile, test, then install `<target>` into
+- `jarvis build <target>` :: Lint, compile, test, then install `<target>` into
   the product `venv` using the procedure described below.
 
 ### Targets
 
-All other Jarvis targets (`rover_common`, `base_station`, `nav`, `hwi`, 
-`onboard_teleop`) execute a lint, then a compile, then a test, then an install
-into the product `venv`. 
+All other Jarvis projects (anything with a `project.ini` file) execute a lint,
+then a compile, then a test, then an install into the product `venv`. 
 
 In Python projects, the lint is carried out by `flake8`, in C++, `clang-tidy` 
 is used.
@@ -71,11 +69,10 @@ appropriate locations.
 ## Technical Documentation
 
 Technical documentation for the Jarvis build system is a work in progress. The
-Python docstrings provided for the functions in `buildlib.py` and the `tasks/`
-directory ought to be moderately useful for anyone who wishes to work on
-Jarvis, but improvements are in the works.
+Python docstrings provided for the functions in `buildsys/` ought to be
+moderately useful for anyone who wishes to work on Jarvis, but improvements are
+in the works.
 
 ## Future goals
 
-- Add support for playing Ansible playbooks.
-- Add support for the mbed CLI build system.
+Quality of life improvements, and a smaller, more orthogonal codebase.
