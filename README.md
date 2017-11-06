@@ -9,16 +9,8 @@ with the MRover 2017-18 build system `jarvis` contained in the source tree.
 It is recommended that you use our [Vagrant](https://vagrantup.com) box. This
 will set up a virtual machine for development using the Ansible configurations
 that we have to set up the production base station and production onboard
-computer.
-
-It is most convenient to use the `vagrant-gatling-rsync` plugin for Vagrant,
-which can automatically synchronize the files into the VM efficiently.
-
-```sh
-$ vagrant plugin install vagrant-gatling-rsync
-```
-
-Then, to launch the VM:
+computer. To run it, clone this repository, then run the following commands in
+the directory provided.
 
 ```sh
 $ vagrant up
@@ -52,12 +44,13 @@ the root of this repository.
 Choose some components to build and build them:
 
 ```sh
-$ ./jarvis build.onboard_teleop
-$ ./jarvis build.base_station_gui
+$ ./jarvis build onboard/teleop
+$ ./jarvis build base_station/gui
 ...
 ```
 
-Once you have built the components, you can run them easily with `jarvis exec`:
+Once you have built the components, you can run them easily with `jarvis exec`.
+Note that the slashes are converted to underscores in the executable name.
 
 ```sh
 $ ./jarvis exec onboard_teleop
@@ -65,15 +58,7 @@ $ ./jarvis exec base_station_gui
 ...
 ```
 
-To build and run the entire onboard software system, run:
-```sh
-$ ./jarvis build.onboard
-$ ./jarvis run.onboard
-```
-
-You may optionally specify the particular rover's onboard stack you wish to run
-(i.e. `hughey` or `18` at this point) using the `--rover` command-line option.
-Currently, Jarvis defaults to `hughey`.
+In the future, it will be easy to compile an entire subtree, such as `onboard`.
 
 ## Jarvis In-depth Documentation
 

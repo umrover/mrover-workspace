@@ -24,3 +24,15 @@ a development environment on any Ubuntu system.
 
 The Vagrant setup configuration is in `vagrant_devbox.yml`. It should *not* be
 used outside the Vagrant box.
+
+## Production MRover systems
+
+The configuration in `onboard.yml` may be used to set up the main on-board
+computer on an actual rover. This script makes several assumptions about the
+system architecture and is not guaranteed to work outside of the Jetson
+TX-series SoC boards.
+
+`onboard.yml` executes roles that configure `systemd` services, `udev` rules,
+and environment files for the onboard components. It is intended that running
+this playbook will configure the Jetson TX-series board we are using such that
+all necessary processes will run on startup.
