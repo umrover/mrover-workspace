@@ -1,152 +1,147 @@
 <div class="wrapper">
-    <div class="box header">
-        <img src="/static/mrover.png"
-             alt="MRover"
-             title="MRover"
-             width="48" height="48"/>
-        <h1>Dashboard</h1>
-        <div class="spacer"></div>
-        <div class="comms">
-            <CommIndicator connected="{{websocket_connected}}"
-                           name="WS"/>
-            <CommIndicator connected="{{lcm_connected}}"
-                           name="LCM"/>
-        </div>
+  <div class="box header">
+    <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
+    <h1>Dashboard</h1>
+    <div class="spacer"></div>
+    <div class="comms">
+      <CommIndicator connected="{{websocket_connected}}" name="WS" />
+      <CommIndicator connected="{{lcm_connected}}" name="LCM" />
     </div>
+  </div>
 
-    <div class="box odom light-bg">
-        Current odometry reading:
-        {{ odom.latitude_deg }} by {{ odom.longitude_deg }}
-        bearing {{ odom.bearing_deg }}
-    </div>
-    <div class="box diags light-bg">
-        <Diagnostics/>
-    </div>
-    <div class="box map light-bg">
-        Map goes here
-    </div>
-    <div class="box waypoints light-bg">
-        <Waypoints/>
-    </div>
-    <div class="box saveGPS light-bg">
-        Save current GPS here
-    </div>
+  <div class="box odom light-bg">
+    Current odometry reading: {{ odom.latitude_deg }} by {{ odom.longitude_deg }} bearing {{ odom.bearing_deg }}
+  </div>
+  <div class="box diags light-bg">
+    <Diagnostics/>
+  </div>
+  <div class="box map light-bg">
+    <RoverMap/>
+  </div>
+  <div class="box waypoints light-bg">
+    <Waypoints/>
+  </div>
+  <div class="box saveGPS light-bg">
+    Save current GPS here
+  </div>
 </div>
 
 <style>
-.wrapper {
+  .wrapper {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 60px 3fr 2fr 3fr 60px 60px;
-    grid-template-areas:
-        "header header"
-        "map diags"
-        "map waypoints"
-        "map waypoints"
-        "saveGPS waypoints"
-        "odom waypoints";
+    grid-template-areas: "header header" "map diags" "map waypoints" "map waypoints" "saveGPS waypoints" "odom waypoints";
 
     font-family: Cantarell sans;
     height: 100%;
-}
+  }
 
-.box {
+  .box {
     border-radius: 5px;
     padding: 10px;
     border: 1px solid black;
-}
+  }
 
-.light-bg{
+  .light-bg {
     background-color: LightGrey;
-}
+  }
 
-img {
+  img {
     border: none;
     border-radius: 0px;
-}
+  }
 
-.header {
+  .header {
     grid-area: header;
     display: flex;
     align-items: center;
-}
+  }
 
-.header h1 {
+  .header h1 {
     margin-left: 5px;
-}
+  }
 
-.spacer {
+  .spacer {
     flex-grow: 1;
-}
+  }
 
-.comms {
+  .comms {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-}
+  }
 
-.comms * {
+  .comms * {
     margin-top: 2px;
     margin-bottom: 2px;
-}
+  }
 
-.video {
+  .video {
     grid-area: video;
-}
+  }
 
-.odom {
+  .odom {
     grid-area: odom;
     font-size: 2em;
-}
+  }
 
-.diags {
+  .diags {
     grid-area: diags;
-}
-.map {
+  }
+
+  .map {
     grid-area: map;
-}
-.waypoints {
+  }
+
+  .waypoints {
     grid-area: waypoints;
-}
-.saveGPS {
+  }
+
+  .saveGPS {
     grid-area: saveGPS;
     font-size: 2em;
-}
+  }
 </style>
 
 <script>
-import CommIndicator from './CommIndicator.html'
-import Diagnostics from './Diagnostics.html'
-import Waypoints from './Waypoints.html'
+  import CommIndicator from './CommIndicator.html'
+  import Diagnostics from './Diagnostics.html'
+  import RoverMap from './RoverMap.html'
+  import Waypoints from './Waypoints.html'
 
-export default {
+  export default {
     data() {
-        return {
-            websocket_connected: false,
-            lcm_connected: false,
-            odom: {
-                latitude_deg: 0,
-                longitude_deg: 0,
-                bearing_deg: 0
-            }
+      return {
+        websocket_connected: false,
+        lcm_connected: false,
+        odom: {
+          latitude_deg: 0,
+          longitude_deg: 0,
+          bearing_deg: 0
         }
+      }
     },
 
     methods: {
-        lcm_message_recv: function({topic, message}) {
-            if (topic === '/odom') {
-                this.set({
-                    odom: message
-                })
-            }
+      lcm_message_recv: function({
+        topic,
+        message
+      }) {
+        if (topic === '/odom') {
+          this.set({
+            odom: message
+          })
         }
+      }
     },
 
     components: {
-        CommIndicator,
-        Diagnostics,
-        Waypoints
+      CommIndicator,
+      Diagnostics,
+      RoverMap,
+      Waypoints
     }
-}
+  }
 </script>

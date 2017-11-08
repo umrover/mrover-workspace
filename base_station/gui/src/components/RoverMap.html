@@ -1,0 +1,35 @@
+<div class="wrapper">
+  <!-- Map goes here -->
+
+  <div class="map" ref:map></div>
+
+</div>
+
+<script>
+  import L from 'leaflet'
+
+  export default {
+    oncreate() {
+      const mymap = L.map(this.refs.map).setView([38.5, -109.5], 13);
+      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18,
+        id: 'mapbox.satellite',
+        accessToken: 'pk.eyJ1IjoiaWFuaHJvYmluc29uIiwiYSI6ImNqOXFlcG01MDM5eWMyd3BnOGwwaDMxNWkifQ.glS9s3q38Ch1qsgNYrZPyw'
+      }).addTo(mymap);
+    }
+  }
+</script>
+
+<style>
+  .map {
+    height: 100%;
+    width: 100%;
+  }
+
+  .wrapper {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+</style>
