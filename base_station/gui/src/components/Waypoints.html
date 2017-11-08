@@ -1,0 +1,63 @@
+<div class="wrapper">
+    <div class="box">
+        <p>
+            <b>Current Goal GPS</b> - {{current.name}}:
+            <span>
+                {{current.n}} N &nbsp;&nbsp;&nbsp; {{current.w}} W
+            </span>
+        </p>
+        
+    </div>
+    <div class="box">
+    	<p style="text-align:left;">
+            <b>Current Goal GPS</b> - {{current.name}}:
+            <span style="float:right;">
+                {{current.n}} N &nbsp;&nbsp;&nbsp; {{current.w}} W
+            </span>
+        </p>
+    </div>
+    <div class="box"></div>
+</div>
+
+<script>
+
+export default {
+    data() {
+        return {
+        	current:{
+	            name: "Waypoint 1",
+	            n: "73º 43’ 6.7823\"",
+	            w: "73º 43’ 6.7823\""
+            }
+        }
+    }
+}
+</script>
+
+<style>
+.wrapper{
+	display: grid;
+
+    grid-gap: 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 6fr;
+    grid-template-areas: unset;
+}
+
+.box{
+    padding: 0px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+p{
+	font-size: 1.25rem;
+	margin-top: 5px;
+	text-align: left;
+}
+
+span{
+	float: right;
+}
+
+</style>
