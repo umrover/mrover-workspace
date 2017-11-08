@@ -50,6 +50,7 @@ if [ "$1" = "upgrade" ]; then
     # Delete Jarvis env and rebuild it
     # shellcheck source=/dev/null
     source "${JARVIS_VENV}/bin/activate"
+    pip install -r "${JARVIS_ROOT}/requirements.txt" >/dev/null
     pip install --upgrade "${JARVIS_ROOT}/jarvis_cmd" >/dev/null
     exit 0
 fi
