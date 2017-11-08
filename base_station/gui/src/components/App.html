@@ -14,63 +14,22 @@
         </div>
     </div>
 
-    <!-- <div class="box video">
-        Video goes here
-    </div> -->
-
-    <div class="box odom">
+    <div class="box odom light-bg">
         Current odometry reading:
         {{ odom.latitude_deg }} by {{ odom.longitude_deg }}
         bearing {{ odom.bearing_deg }}
     </div>
-    <div class="box diags">
-        <div class="box">
-            <p style="text-align:left;">
-                Temperature:
-                <span style="float:right;">{{diags.temperature}}ºC</span>
-            </p>
-            
-        </div>
-        <div class="box">
-            <p style="text-align:left;">
-                Moisture:
-                <span style="float:right;">{{diags.moisture}}</span>
-            </p>
-        </div>
-        <div class="box">
-            <p style="text-align:left;">
-                pH:
-                <span style="float:right;">{{diags.pH}}</span>
-            </p>
-        </div>
-        <div class="box">
-            <p style="text-align:left;">
-                Soil Conductivity:
-                <span style="float:right;">{{diags.soil_conductivity}} μS/cm</span>
-            </p>
-        </div>
-        <div class="box">
-            <p style="text-align:left;">
-                UV:
-                <span style="float:right;">{{diags.uv}} µmoles/m<sup>2</sup>/s</span>
-            </p>
-        
-        </div>
-        <div class="box"></div>
-        <div class="box"></div>
-        <div class="box"></div>
+    <div class="box diags light-bg">
+        <Diagnostics/>
     </div>
-    <div class="box map">
+    <div class="box map light-bg">
         Map goes here
     </div>
-    <div class="box waypoints">
-        Manage Waypoints here
+    <div class="box waypoints light-bg">
+        <Waypoints/>
     </div>
-    <div class="box saveGPS">
+    <div class="box saveGPS light-bg">
         Save current GPS here
-    </div>
-    <div class="box motors">
-        Display motor info here
     </div>
 </div>
 
@@ -83,7 +42,7 @@
     grid-template-areas:
         "header header"
         "map diags"
-        "map motors"
+        "map waypoints"
         "map waypoints"
         "saveGPS waypoints"
         "odom waypoints";
@@ -96,6 +55,10 @@
     border-radius: 5px;
     padding: 10px;
     border: 1px solid black;
+}
+
+.light-bg{
+    background-color: LightGrey;
 }
 
 img {
@@ -139,17 +102,9 @@ img {
 
 .diags {
     grid-area: diags;
-
-    display: grid;
-    grid-gap: 10px;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
 }
 .map {
     grid-area: map;
-}
-.motors {
-    grid-area: motors;
 }
 .waypoints {
     grid-area: waypoints;
@@ -162,6 +117,8 @@ img {
 
 <script>
 import CommIndicator from './CommIndicator.html'
+import Diagnostics from './Diagnostics.html'
+import Waypoints from './Waypoints.html'
 
 export default {
     data() {
@@ -172,13 +129,6 @@ export default {
                 latitude_deg: 0,
                 longitude_deg: 0,
                 bearing_deg: 0
-            },
-            diags:{
-                temperature: 200,
-                moisture: -1,
-                pH: 1,
-                soil_conductivity: -10,
-                uv: 8
             }
         }
     },
@@ -194,7 +144,9 @@ export default {
     },
 
     components: {
-        CommIndicator
+        CommIndicator,
+        Diagnostics,
+        Waypoints
     }
 }
 </script>
