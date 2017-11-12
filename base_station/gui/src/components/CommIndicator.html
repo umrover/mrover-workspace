@@ -1,45 +1,45 @@
 <div class="wrapper">
-    <span class="led {{color}}">
+  <span class="led {{color}}">
     </span>
-    <span class="name">{{name}}</span>
+  <span class="name">{{name}}</span>
 </div>
 
 <script>
-export default {
+  export default {
     data() {
-        return {
-            connected: false
-        }
+      return {
+        connected: false
+      }
     },
     computed: {
-        color: (connected) => connected ? "green" : "red"
+      color: (connected) => connected ? "green" : "red"
     }
-}
+  }
 </script>
 
 <style>
-.wrapper {
+  .wrapper {
     display: flex;
     align-items: center;
     height: 100%;
-}
+  }
 
-.led {
+  .led {
     width: 16px;
     height: 16px;
     border-radius: 8px;
     border: 1px solid;
-}
+  }
 
-.green {
+  .green {
     background-color: lightgreen;
-}
+  }
 
-.red {
+  .red {
     background-color: red;
-}
+  }
 
-.name {
+  .name {
     margin-left: 5px;
-}
+  }
 </style>
