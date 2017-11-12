@@ -29,6 +29,10 @@ const lcm_ = new LCMBridge(
   {
     'topic': '/sensors',
     'type': 'Sensors'
+  },
+  {
+    'topic': '/kill_switch',
+    'type': 'Kill_switches'
   }]
 )
 
