@@ -10,10 +10,10 @@
   </div>
 
   <div class="box odom light-bg">
-    Current odometry reading: {{ odom.latitude_deg }}º {{odom.latitude_min}}' by {{ odom.longitude_deg }}º {{ odom.longitude_min }}' bearing {{ odom.bearing_deg }}
+    Current odometry reading: {{ odom.latitude_deg.toFixed(2) }}º {{ odom.latitude_min.toFixed(2) }}' by {{ odom.longitude_deg.toFixed(2) }}º {{ odom.longitude_min.toFixed(2) }}' bearing {{ odom.bearing_deg.toFixed(2) }}
   </div>
   <div class="box diags light-bg">
-    <Diagnostics/>
+    <Diagnostics sensors="{{sensors}}"/>
   </div>
   <div class="box map light-bg">
     <RoverMap/>
@@ -120,20 +120,32 @@
         odom: {
           latitude_deg: 0,
           longitude_deg: 0,
+          latitude_min: 0,
+          longitude_min: 0,
           bearing_deg: 0
+        },
+        sensors: {
+            temperature: 0,
+            moisture: 0,
+            soil_conductivity: 0,
+            pH: 0,
+            uv: 0
         }
       }
     },
 
     methods: {
-      lcm_message_recv: function({
-        topic,
-        message
-      }) {
+      lcm_message_recv: function({ topic, message }) {
         if (topic === '/odom') {
-          this.set({
-            odom: message
-          })
+            this.set({
+                odom: message
+            })
+        }
+        if (topic === '/sensors') {
+            console.log("sensor msg recieved")
+            this.set({
+                sensors: message
+            })
         }
       }
     },

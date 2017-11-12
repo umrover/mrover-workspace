@@ -25,6 +25,10 @@ const lcm_ = new LCMBridge(
   [{
     'topic': '/odom',
     'type': 'Odometry'
+  },
+  {
+    'topic': '/sensors',
+    'type': 'Sensors'
   }]
 )
 

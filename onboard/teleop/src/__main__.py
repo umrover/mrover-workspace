@@ -3,7 +3,7 @@ import random
 import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import Odometry, Joystick, Motors
+from rover_msgs import Odometry, Joystick, Motors, Sensors
 
 
 lcm_ = aiolcm.AsyncLCM()
@@ -97,7 +97,7 @@ async def transmit_fake_odometry():
         with await lock:
             lcm_.publish('/odom', new_odom.encode())
 
-        # print("Published new odometry")
+        print("Published new odometry")
         await asyncio.sleep(0.5)
 
 
@@ -118,6 +118,26 @@ async def transmit_fake_joystick():
         await asyncio.sleep(0.5)
 
 
+async def transmit_fake_sensors():
+    while True:
+        new_sensors = Sensors()
+        new_sensors.temperature = random.uniform(0, 100)
+        new_sensors.moisture = random.uniform(0, 100)
+        new_sensors.pH = random.uniform(0, 14)
+        new_sensors.soil_conductivity = random.uniform(0, 100)
+        new_sensors.uv = random.uniform(0, 100)
+
+        with await lock:
+            lcm_.publish('/sensors', new_sensors.encode())
+
+        print("Published new fake sensor data")
+        print("temp: {} moisture: {} ph: {} soil: {} uv: "
+              .format(new_sensors.temperature, new_sensors.moisture,
+                      new_sensors.pH, new_sensors.soil_conductivity,
+                      new_sensors.uv))
+        await asyncio.sleep(0.5)
+
+
 def motor_callback(channel, msg):
     input_data = Motors.decode(msg)
     # This function is for testing the joystick-motor algorithm
@@ -130,4 +150,5 @@ def main():
     lcm_.subscribe("/joystick", joystick_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/motor', motor_callback)
-    run_coroutines(hb.loop(), transmit_fake_odometry(), lcm_.loop())
+    run_coroutines(hb.loop(), transmit_fake_odometry(),
+                   transmit_fake_sensors(), lcm_.loop())

@@ -1,0 +1,9 @@
+package rover_msgs;
+
+struct Sensors {
+  double temperature;
+  double moisture;
+  double soil_conductivity;
+  double pH;
+  double uv;
+}
