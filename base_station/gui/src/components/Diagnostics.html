@@ -1,32 +1,32 @@
 <div class="wrapper">
     <div class="box">
-        <p style="text-align:left;">
+        <p>
                 Temperature:
-                <span style="float:right;">{{temperature}}ºC</span>
+                <span>{{temperature}}ºC</span>
         </p>
     </div>
     <div class="box">
         <p style="text-align:left;">
             Moisture:
-            <span style="float:right;">{{moisture}}</span>
+            <span>{{moisture}}</span>
         </p>
     </div>
     <div class="box">
-        <p style="text-align:left;">
+        <p>
             pH:
-            <span style="float:right;">{{pH}}</span>
+            <span>{{pH}}</span>
         </p>
     </div>
     <div class="box">
-        <p style="text-align:left;">
+        <p>
             Soil Conductivity:
-            <span style="float:right;">{{soil_conductivity}} μS/cm</span>
+            <span>{{soil_conductivity}} μS/cm</span>
         </p>
     </div>
     <div class="box">
-        <p style="text-align:left;">
+        <p>
             UV:
-            <span style="float:right;">{{uv}} µmoles/m<sup>2</sup>/s</span>
+            <span>{{uv}} µmoles/m<sup>2</sup>/s</span>
         </p>
     
     </div>
@@ -68,5 +68,12 @@ export default {
 
 p{
     margin: 0px;
+    font-size: 1.25rem;
+    margin-top: 5px;
+    text-align: left;
+}
+
+span{
+    float: right;
 }
 </style>

@@ -1,4 +1,4 @@
-<div class="wrapper">
+<div class="wrapper" id="waypoint-comp">
     <div class="box">
         <p>
             <b>Current Goal GPS</b> - {{current.name}}:
@@ -8,18 +8,45 @@
         </p>
         
     </div>
-    <div class="box">
-    	<p style="text-align:left;">
-            <b>Current Goal GPS</b> - {{current.name}}:
-            <span style="float:right;">
-                {{current.n}} N &nbsp;&nbsp;&nbsp; {{current.w}} W
-            </span>
-        </p>
+    <div class="box" id="gps-input">
+        <div>
+            <p>
+                <b>Set Goal GPS</b>
+            </p>
+        </div>
+        <div class="input-area">
+            <input type="text" id="nDeg" next="nMin">º
+            <input type="text" id="nMin" next="nSec">'
+            <input type="text" id="nSec" next="wDeg">" N
+        </div>
+
+        <div>
+            <input type="text" id="waypointName" next="nDeg">
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="wDeg" next="wMin">º
+            <input type="text" id="wMin" next="wSec">'
+            <input type="text" id="wSec" next="waypointName">" W
+        </div>
+        
     </div>
-    <div class="box"></div>
+    <div class="box">
+
+    </div>
 </div>
 
 <script>
+
+var isChildOfID=function(element, id){
+    while(element.id!="waypoint-comp"){
+        if(element.id===id)
+            return true;
+        else
+            element=element.parentElement;
+    }
+    return false;
+}
 
 export default {
     data() {
@@ -29,6 +56,57 @@ export default {
 	            n: "73º 43’ 6.7823\"",
 	            w: "73º 43’ 6.7823\""
             }
+        }
+    },
+
+    oncreate() {
+        
+        var waypoints=this;
+
+        var myInput = document.getElementById("waypoint-comp");
+        if(myInput.addEventListener) {
+            myInput.addEventListener('keydown', function(e){
+
+                var TABKEY = 9;
+                var ENTER = 13;
+                console.log(e.keyCode);
+                if(e.keyCode == TABKEY) {
+
+                    var currentID=document.activeElement;
+                    if(currentID)
+                        currentID=currentID.id;
+                    else
+                        return;
+
+                    document.getElementById(document.getElementById(currentID)
+                                            .getAttribute("next")).focus();
+                    if(e.preventDefault) {
+                        e.preventDefault();
+                    }
+                    return false;
+                }else if(e.keyCode == ENTER){
+                    if(isChildOfID(document.activeElement, "gps-input")){
+                        var name=document.getElementById("waypointName").value;
+
+                        var nDeg=document.getElementById("nDeg").value;
+                        var nMin=document.getElementById("nMin").value;
+                        var nSec=document.getElementById("nSec").value;
+
+                        var wDeg=document.getElementById("wDeg").value;
+                        var wMin=document.getElementById("wMin").value;
+                        var wSec=document.getElementById("wSec").value;
+
+                        waypoints.set({
+                            current:{
+                                name: name,
+                                n: nDeg+"º "+nMin+"' "+nSec+"\"",
+                                w:wDeg+"º "+wMin+"' "+wSec+"\""
+                            }
+                        });
+                    }
+                }
+
+            } ,false);
         }
     }
 }
@@ -48,6 +126,19 @@ export default {
     padding: 0px;
     padding-left: 5px;
     padding-right: 5px;
+}
+
+#gps-input{
+    padding-top: 5px;
+    display: grid;
+
+    grid-gap: 10px;
+    grid-template-columns: 3fr 5fr;
+    grid-template-rows: 20px 20px;
+}
+
+.input-area{
+    float: right;
 }
 
 p{
