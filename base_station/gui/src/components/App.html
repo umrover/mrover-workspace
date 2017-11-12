@@ -10,7 +10,7 @@
   </div>
 
   <div class="box odom light-bg">
-    Current odometry reading: {{ odom.latitude_deg }} by {{ odom.longitude_deg }} bearing {{ odom.bearing_deg }}
+    Current odometry reading: {{ odom.latitude_deg }}º {{odom.latitude_min}}' by {{ odom.longitude_deg }}º {{ odom.longitude_min }}' bearing {{ odom.bearing_deg }}
   </div>
   <div class="box diags light-bg">
     <Diagnostics/>
@@ -84,7 +84,7 @@
 
   .odom {
     grid-area: odom;
-    font-size: 2em;
+    font-size: 1em;
   }
 
   .diags {

@@ -88,8 +88,10 @@ def autonomous_callback(channel, msg):
 async def transmit_fake_odometry():
     while True:
         new_odom = Odometry()
-        new_odom.latitude_deg = random.uniform(42, 43)
-        new_odom.longitude_deg = random.uniform(-84, -82)
+        new_odom.latitude_deg = random.randint(42, 43)
+        new_odom.longitude_deg = random.randint(-84, -82)
+        new_odom.latitude_min = random.uniform(0, 60)
+        new_odom.longitude_min = random.uniform(0, 60)
         new_odom.bearing_deg = random.uniform(0, 359)
 
         with await lock:
