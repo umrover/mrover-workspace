@@ -3,11 +3,10 @@ import random
 import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import Odometry, Joystick, Motors, Sensors
-
+from rover_msgs import Odometry, Joystick, Motors, Sensors, Kill_switches
 
 lcm_ = aiolcm.AsyncLCM()
-kill_switch = False
+kill_motor = False
 lock = asyncio.Lock()
 
 
@@ -41,18 +40,22 @@ def joystick_math(new_motor, magnitude, theta):
         new_motor.left *= -1
         new_motor.right *= -1
     elif magnitude == 0:
-        new_motor.left += theta/2
-        new_motor.right -= theta/2
+        new_motor.left += theta
+        new_motor.right -= theta
 
 
 def joystick_callback(channel, msg):
-    global kill_switch
+    global kill_motor
 
     input_data = Joystick.decode(msg)
 
-    if kill_switch:
+    new_kill_msg = Kill_switches()
+
+    if kill_motor:
         if input_data.restart:
-            kill_switch = False
+            kill_motor = False
+            new_kill_msg.killed = False
+            lcm_.publish('/kill_switch', new_kill_msg.encode())
         else:
             return
 
@@ -63,10 +66,13 @@ def joystick_callback(channel, msg):
     if input_data.kill:
         new_motor.left = 0
         new_motor.right = 0
-        kill_switch = True
+        kill_motor = True
+        new_kill_msg.killed = True
+        lcm_.publish('/kill_switch', new_kill_msg.encode())
+
     else:
-        magnitude = deadzone(input_data.forward_back, 0.2)
-        theta = deadzone(input_data.left_right, 0.2)
+        magnitude = deadzone(input_data.forward_back, 0.3)
+        theta = deadzone(input_data.left_right, 0.3)
 
         joystick_math(new_motor, magnitude, theta)
 
