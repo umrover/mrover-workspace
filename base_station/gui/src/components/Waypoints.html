@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <div class="wrapper" id="waypoint-comp">
     <div class="box">
         <p>
@@ -50,39 +49,14 @@ var isChildOfID=function(element, id){
 }
 
 export default {
-=======
-<div class="wrapper">
-  <div class="box">
-    <p>
-      <b>Current Goal GPS</b> - {{current.name}}:
-      <span>
-        {{current.n}} N &nbsp;&nbsp;&nbsp; {{current.w}} W
-      </span>
-    </p>
-
-  </div>
-  <div class="box">
-    <p style="text-align:left;">
-      <b>Current Goal GPS</b> - {{current.name}}:
-      <span style="float:right;">
-        {{current.n}} N &nbsp;&nbsp;&nbsp; {{current.w}} W
-      </span>
-    </p>
-  </div>
-  <div class="box"></div>
-</div>
-
-<script>
-  export default {
->>>>>>> [GUI] Added GPS.html
     data() {
-      return {
-        current: {
-          name: "Waypoint 1",
-          n: "73º 43’ 6.7823\"",
-          w: "73º 43’ 6.7823\""
+        return {
+            current: {
+              name: "Waypoint 1",
+              n: "73º 43’ 6.7823\"",
+              w: "73º 43’ 6.7823\""
+            }
         }
-<<<<<<< HEAD
     },
 
     oncreate() {
@@ -134,11 +108,8 @@ export default {
 
             } ,false);
         }
-=======
-      }
->>>>>>> [GUI] Added GPS.html
     }
-  }
+}
 </script>
 
 <style>
@@ -155,7 +126,6 @@ export default {
     padding: 0px;
     padding-left: 5px;
     padding-right: 5px;
-<<<<<<< HEAD
 }
 
 #gps-input{
@@ -182,17 +152,3 @@ span{
 }
 
 </style>
-=======
-  }
-
-  p {
-    font-size: 1.25rem;
-    margin-top: 5px;
-    text-align: left;
-  }
-
-  span {
-    float: right;
-  }
-</style>
->>>>>>> [GUI] Added GPS.html
