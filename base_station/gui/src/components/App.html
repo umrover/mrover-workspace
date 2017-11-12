@@ -4,8 +4,11 @@
     <h1>Dashboard</h1>
     <div class="spacer"></div>
     <div class="comms">
-      <CommIndicator connected="{{websocket_connected}}" name="WS" />
-      <CommIndicator connected="{{lcm_connected}}" name="LCM" />
+      <ul id="vitals">
+        <li><CommIndicator connected="{{websocket_connected}}" name="WS" /></li>
+        <li><CommIndicator connected="{{lcm_connected}}" name="LCM" /></li>
+        <li><CommIndicator connected="{{motors_killed}}" name="Joystick-Motor" /></li>
+      </ul>
     </div>
   </div>
 
@@ -64,7 +67,7 @@
   }
 
   .spacer {
-    flex-grow: 1;
+    flex-grow: 0.8;
   }
 
   .comms {
@@ -103,6 +106,12 @@
     grid-area: saveGPS;
     font-size: 2em;
   }
+
+  ul#vitals li {
+    display: inline;
+    float: left;
+    padding: 0px 10px 0px 0px;
+  }
 </style>
 
 <script>
@@ -117,6 +126,7 @@
       return {
         websocket_connected: false,
         lcm_connected: false,
+        motors_killed: true,
         odom: {
           latitude_deg: 0,
           longitude_deg: 0,
@@ -146,6 +156,18 @@
             this.set({
                 sensors: message
             })
+        }
+        if (topic === '/kill_switch') {
+            console.log("kill switch recieved")
+            if (message.killed) {
+                this.set({
+                    motors_killed: false
+                })
+            } else {
+                this.set({
+                    motors_killed: true
+                })
+            }
         }
       }
     },
