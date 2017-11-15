@@ -3,9 +3,9 @@
       src: "files/{{ item }}.service"
       dest: "/etc/systemd/system/{{ item }}.service"
   with_items:
-      - rover-hwi.service
-      - rover-onboard-teleop.service
-      - rover-onboard-nav.service
+      - rover-hwi
+      - rover-onboard-teleop
+      - rover-onboard-nav
 
 - name: Copy environment variable definitions 
   copy:
