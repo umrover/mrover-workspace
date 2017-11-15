@@ -6,8 +6,14 @@
     <div class="comms">
       <ul id="vitals">
         <li><CommIndicator connected="{{websocket_connected}}" name="WS" /></li>
-        <li><CommIndicator connected="{{lcm_connected}}" name="LCM" /></li>
+        <li><CommIndicator connected="{{connections[0]}}" name="LCM" /></li>
         <li><CommIndicator connected="{{motors_active}}" name="Joystick-Motor" /></li>
+        <li><CommIndicator connected="{{connections[1]}}" name="Pi1" /></li>
+        <li><CommIndicator connected="{{connections[2]}}" name="Pi2" /></li>
+        <li><CommIndicator connected="{{connections[3]}}" name="Pi3" /></li>
+        <li><CommIndicator connected="{{connections[4]}}" name="Pi4" /></li>
+        <li><CommIndicator connected="{{connections[5]}}" name="Pi5" /></li>
+        <li><CommIndicator connected="{{connections[6]}}" name="Pi6" /></li>
       </ul>
     </div>
   </div>
@@ -125,8 +131,8 @@
     data() {
       return {
         websocket_connected: false,
-        lcm_connected: false,
         motors_active: false,
+        connections: [false, false, false, false, false, false, false],
         odom: {
           latitude_deg: 0,
           longitude_deg: 0,
@@ -159,15 +165,9 @@
         }
         if (topic === '/kill_switch') {
             console.log("kill switch recieved")
-            if (message.killed) {
-                this.set({
-                    motors_active: false
-                })
-            } else {
-                this.set({
-                    motors_active: true
-                })
-            }
+            this.set({
+                motors_active: !message.killed
+            })
         }
       }
     },

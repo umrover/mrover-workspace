@@ -15,7 +15,7 @@ export default class LCMBridge {
         this.ws.onclose = (event) => {
             this.online = false
             this.updateWebsocketState(this.online)
-            this.updateConnectedState(false)
+            this.updateConnectedState([false, false])
 
             setTimeout(() => {
                 this._createWebsocket(url)
