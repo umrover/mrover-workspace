@@ -13,10 +13,10 @@ const lcm_ = new LCMBridge(
       websocket_connected: online
     })
   },
-  // Update LCM connection state
+  // Update connection states
   (online) => {
     app.set({
-      lcm_connected: online
+      connections: online
     })
   },
   // Subscribed LCM message received
