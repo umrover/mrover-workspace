@@ -4,7 +4,9 @@
       dest: /etc/systemd/network/rover.network
 
 - name: Disable NetworkManager for the interface
-  debug: "TODO"
+  copy:
+      src: files/disable-eth0.conf
+      dest: /etc/NetworkManager/conf.d/disable-eth0.conf
 
 - name: Restart NetworkManager
   systemd: name=NetworkManager.service state=restarted
