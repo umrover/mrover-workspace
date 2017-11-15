@@ -12,13 +12,14 @@ def gen_new_id():
 
 
 class Heartbeater:
-    def __init__(self, publish, subscribe, callback):
+    def __init__(self, publish, subscribe, callback, index):
         heartbeat_group = os.environ.get('MROVER_HEARTBEAT_URL',
                                          defaults.HEARTBEAT_LCM_GROUP)
         self.lcm_ = aiolcm.AsyncLCM(heartbeat_group)
         self.connected = False
         self.connection_state_changed = callback
         self.where = publish
+        self.index = index
 
         self.lcm_.subscribe(subscribe, self.heartbeat_handler)
 
@@ -35,7 +36,7 @@ class Heartbeater:
                 await self.lcm_.handle(timeout=timeout)
             except asyncio.TimeoutError:
                 if self.connected:
-                    self.connection_state_changed(False)
+                    self.connection_state_changed(False, self.index)
                 self.connected = False
 
             if not self.connected:
@@ -45,7 +46,7 @@ class Heartbeater:
 
     def heartbeat_handler(self, channel, data):
         if not self.connected:
-            self.connection_state_changed(True)
+            self.connection_state_changed(True, self.index)
         self.connected = True
         in_msg = Heartbeat.decode(data)
         ret_msg = Heartbeat()
@@ -55,10 +56,12 @@ class Heartbeater:
 
 
 class OnboardHeartbeater(Heartbeater):
-    def __init__(self, callback):
-        super().__init__("/heartbeat/rover", "/heartbeat/bs", callback)
+    def __init__(self, callback, index):
+        super().__init__("/heartbeat/rover{}".format(index),
+                         "/heartbeat/bs{}".format(index), callback, index)
 
 
 class BaseStationHeartbeater(Heartbeater):
-    def __init__(self, callback):
-        super().__init__("/heartbeat/bs", "/heartbeat/rover", callback)
+    def __init__(self, callback, index):
+        super().__init__("/heartbeat/bs{}".format(index),
+                         "/heartbeat/rover{}".format(index), callback, index)

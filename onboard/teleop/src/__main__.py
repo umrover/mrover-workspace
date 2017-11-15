@@ -10,7 +10,7 @@ kill_motor = False
 lock = asyncio.Lock()
 
 
-def connection_state_changed(c):
+def connection_state_changed(c, _):
     if c:
         print("Connection established.")
     else:
@@ -151,7 +151,7 @@ def motor_callback(channel, msg):
 
 
 def main():
-    hb = heartbeatlib.OnboardHeartbeater(connection_state_changed)
+    hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/joystick", joystick_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
