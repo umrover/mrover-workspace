@@ -156,5 +156,10 @@ def main():
     lcm_.subscribe("/joystick", joystick_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/motor', motor_callback)
+
+    new_kill_msg = Kill_switches()
+    new_kill_msg.killed = False
+    lcm_.publish('/kill_switch', new_kill_msg.encode())
+
     run_coroutines(hb.loop(), transmit_fake_odometry(),
                    transmit_fake_sensors(), lcm_.loop())
