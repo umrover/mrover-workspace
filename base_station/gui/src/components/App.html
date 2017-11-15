@@ -7,7 +7,7 @@
       <ul id="vitals">
         <li><CommIndicator connected="{{websocket_connected}}" name="WS" /></li>
         <li><CommIndicator connected="{{lcm_connected}}" name="LCM" /></li>
-        <li><CommIndicator connected="{{motors_killed}}" name="Joystick-Motor" /></li>
+        <li><CommIndicator connected="{{motors_active}}" name="Joystick-Motor" /></li>
       </ul>
     </div>
   </div>
@@ -126,7 +126,7 @@
       return {
         websocket_connected: false,
         lcm_connected: false,
-        motors_killed: true,
+        motors_active: false,
         odom: {
           latitude_deg: 0,
           longitude_deg: 0,
@@ -161,11 +161,11 @@
             console.log("kill switch recieved")
             if (message.killed) {
                 this.set({
-                    motors_killed: false
+                    motors_active: false
                 })
             } else {
                 this.set({
-                    motors_killed: true
+                    motors_active: true
                 })
             }
         }
