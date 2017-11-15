@@ -14,17 +14,20 @@ class Bridge:
 
         A Bridge consists of a Heartbeater and an AsyncLCM instance.
         """
-        self.hb = heartbeatlib.BaseStationHeartbeater(
-                self.connection_state_changed)
-        self.is_connected = False
+        self.num_hbs = 7
+        self.hbs = []
+        for x in range(0, self.num_hbs):
+            self.hbs.append(heartbeatlib.BaseStationHeartbeater(
+                            self.connection_state_changed, x))
+        self.connections = [False]*self.num_hbs
         self.lcm_ = aiolcm.AsyncLCM()
         self.subscriptions = {}
 
-    def connection_state_changed(self, c):
+    def connection_state_changed(self, c, index):
         """
         Called when we either gain or lose connection.
         """
-        self.is_connected = c
+        self.connections[index] = c
 
     def publish(self, topic, message):
         """
@@ -63,7 +66,7 @@ class Bridge:
         while True:
             await websocket.send(json.dumps({
                 'type': 'connection_state',
-                'state': self.is_connected,
+                'state': self.connections,
             }))
             await asyncio.sleep(2)
 
@@ -99,8 +102,8 @@ class Bridge:
         bridge_server = websockets.serve(self.chatter, '0.0.0.0', 8001)
         await asyncio.gather(
             bridge_server,
-            self.hb.loop(),
-            self.lcm_.loop()
+            self.lcm_.loop(),
+            *(hb.loop() for hb in self.hbs)
         )
 
 
