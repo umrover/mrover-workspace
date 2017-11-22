@@ -1,0 +1,17 @@
+[Desktop Entry]
+
+Type=Application
+
+Name=MRover UI
+
+GenericName=User Interface
+
+Comment=Start the MRover UI
+
+Exec=/usr/bin/chromium-browser --app=http://localhost:8000
+
+Icon={{ workspace_dir }}/base_station/gui/src/static/mrover.png
+
+Categories=Science
+
+StartupNotify=true
