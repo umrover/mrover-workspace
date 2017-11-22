@@ -18,6 +18,7 @@
     "rollup-plugin-uglify": "^2.0.1"
   },
   "dependencies": {
-    "leaflet": "^1.2.0"
+    "leaflet": "^1.2.0",
+    "leaflet-rotatedmarker": "^0.2.0"
   }
 }
