@@ -32,7 +32,10 @@
         
     </div>
     <div class="box">
-
+        <p><b>Previous Waypoints</b></p>
+        {{#each previous_waypoints as previous_waypoint}}
+            <p>{{previous_waypoint.name}}: {{previous_waypoint.n}}, {{previous_waypoint.w}}</p>
+        {{/each}}
     </div>
 </div>
 
@@ -55,7 +58,19 @@ export default {
               name: "Waypoint 1",
               n: "73º 43’ 6.7823\"",
               w: "73º 43’ 6.7823\""
-            }
+            },
+            previous_waypoints: [
+                {
+                    name: "Waypoint 0",
+                    n: "45º 77’ 3.6687\"",
+                    w: "45º 77’ 3.6687\""
+                },
+                {
+                    name: "Waypoint 1",
+                    n: "73º 43’ 6.7823\"",
+                    w: "73º 43’ 6.7823\""
+                }
+            ]
         }
     },
 
@@ -96,12 +111,17 @@ export default {
                         var wMin=document.getElementById("wMin").value;
                         var wSec=document.getElementById("wSec").value;
 
+                        const new_waypoint = {
+                            name: name,
+                            n: nDeg+"º "+nMin+"' "+nSec+"\"",
+                            w:wDeg+"º "+wMin+"' "+wSec+"\""
+                        };
+                        const new_prev = waypoints.get('previous_waypoints');
+                        new_prev.push(new_waypoint);
+                        console.log("new_prev: ", new_prev)
                         waypoints.set({
-                            current:{
-                                name: name,
-                                n: nDeg+"º "+nMin+"' "+nSec+"\"",
-                                w:wDeg+"º "+wMin+"' "+wSec+"\""
-                            }
+                            current: new_waypoint,
+                            previous_waypoints: new_prev,
                         });
                     }
                 }
