@@ -1,13 +1,18 @@
-<div class="wrapper" id="waypoint-comp">
+<div class="wrapper" ref:waypointComp>
     <div class="box">
         <p>
             <b>Current Goal GPS</b> - {{current.name}}:
-            <span>
-                {{current.n}} N &nbsp;&nbsp;&nbsp; {{current.w}} W
-            </span>
+            
+            {{ current["latitude_deg"] }}º 
+            {{ Math.floor(current["latitude_min"]) }}' 
+            {{ ((current["latitude_min"] - Math.floor(current["latitude_min"])) *60).toFixed(4) }}" N
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            {{ current["longitude_deg"] }}º 
+            {{ Math.floor(current["longitude_min"]) }}' 
+            {{ ((current["longitude_min"] - Math.floor(current["longitude_min"])) *60).toFixed(4) }}" W
         </p>
-        
     </div>
+
     <div class="box" id="gps-input">
         <div>
             <p>
@@ -32,22 +37,26 @@
         </div>
         
     </div>
-    <div class="box" id="waypoint-list">
+
+    <div class="box" id="waypoint-list" ref:editor>
+        <input type="text" class="focus-hidden" ref:editorInput>
         <ol>
-        {{#each waypointList as waypoint}}
-            <!-- Easier to store variables -->
-            <div style="display: none;">
-                {{lat_min = waypoint["latitude_min"]}}
-                {{lon_min = waypoint["longitude_min"]}}
-            </div>
-            <li>{{waypoint["name"]}}: {{ waypoint["latitude_deg"] }}º 
-                                      {{ Math.floor(lat_min) }}' 
-                                      {{ ((lat_min-Math.floor(lat_min))*60).toFixed(4) }}" N
-                                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                      {{ waypoint["longitude_deg"] }}º 
-                                      {{ Math.floor(lon_min) }}' 
-                                      {{ ((lon_min-Math.floor(lon_min))*60).toFixed(4) }}" W</li>
-        {{/each}}
+            {{#each previous_waypoints as waypoint}}
+                <li>
+                    <div style="display: none;">
+                        {{lat_min = waypoint["latitude_min"]}}
+                        {{lon_min = waypoint["longitude_min"]}}
+                    </div>
+
+                    {{waypoint["name"]}}: {{ waypoint["latitude_deg"] }}º 
+                                          {{ Math.floor(lat_min) }}' 
+                                          {{ ((lat_min-Math.floor(lat_min))*60).toFixed(4) }}" N
+                                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                          {{ waypoint["longitude_deg"] }}º 
+                                          {{ Math.floor(lon_min) }}' 
+                                          {{ ((lon_min-Math.floor(lon_min))*60).toFixed(4) }}" W
+                </li>
+            {{/each}}
         </ol>
     </div>
 </div>
@@ -55,7 +64,7 @@
 <script>
 
 const isChildOfID=function(element, id){
-    while(element.id!="waypoint-comp"){
+    while(element!=document.body){
         if(element.id===id)
             return true;
         else
@@ -68,17 +77,55 @@ export default {
     data() {
         return {
             current: {
-              name: "Waypoint 1",
-              n: "73º 43’ 6.7823\"",
-              w: "73º 43’ 6.7823\""
+                type: "Odometry",
+                "name": "Waypoint 1",
+                "latitude_deg": 5,
+                "latitude_min": 23.34523445,
+                "longitude_deg": 15,
+                "longitude_min": 12.544364
             },
+            previous_waypoints: [
+                {
+                    type: "Odometry",
+                    "name": "Point 1",
+                    "latitude_deg": 5,
+                    "latitude_min": 23.34523445,
+                    "longitude_deg": 15,
+                    "longitude_min": 12.544364
+                },
 
-            waypointList: []
+                {
+                    type: "Odometry",
+                    "name": "Point 2",
+                    "latitude_deg": 12,
+                    "latitude_min": 1.34523445,
+                    "longitude_deg": 13,
+                    "longitude_min": 5.544364
+                },
+
+                {
+                    type: "Odometry",
+                    "name": "Point 3",
+                    "latitude_deg": 12,
+                    "latitude_min": 1.34523445,
+                    "longitude_deg": 13,
+                    "longitude_min": 5.544364
+                },
+
+                {
+                    type: "Odometry",
+                    "name": "Point 4",
+                    "latitude_deg": 12,
+                    "latitude_min": 1.34523445,
+                    "longitude_deg": 13,
+                    "longitude_min": 5.544364
+                },
+            ]
         }
     },
 
     oncreate() {
-        const myInput = document.getElementById("waypoint-comp");
+        const myInput = this.refs.waypointComp;
         if(myInput.addEventListener) {
             myInput.addEventListener('keydown', (e) => {
 
@@ -98,51 +145,137 @@ export default {
                         e.preventDefault();
                     }
                     return false;
-                }else if(e.keyCode == ENTER){
-                    if(isChildOfID(document.activeElement, "gps-input")){
-                        const name=this.refs.waypointName.value;
-                        const nDeg=this.refs.nDeg.value|0;
-                        const nMin=this.refs.nMin.value|0;
-                        const nSec=+this.refs.nSec.value;
-                        const wDeg=this.refs.wDeg.value|0;
-                        const wMin=this.refs.wMin.value|0;
-                        const wSec=+this.refs.wSec.value;
+                }else if(e.keyCode == ENTER && isChildOfID(document.activeElement, "gps-input")){
+                    const name=this.refs.waypointName.value;
+                    const nDeg=this.refs.nDeg.value|0;
+                    const nMin=this.refs.nMin.value|0;
+                    const nSec=+this.refs.nSec.value;
+                    const wDeg=this.refs.wDeg.value|0;
+                    const wMin=this.refs.wMin.value|0;
+                    const wSec=+this.refs.wSec.value;
 
-                        this.refs.waypointName.value="";
-                        this.refs.nDeg.value="";
-                        this.refs.nMin.value="";
-                        this.refs.nSec.value="";
-                        this.refs.wDeg.value="";
-                        this.refs.wMin.value="";
-                        this.refs.wSec.value="";
-                        this.refs.waypointName.focus();
+                    this.refs.waypointName.value="";
+                    this.refs.nDeg.value="";
+                    this.refs.nMin.value="";
+                    this.refs.nSec.value="";
+                    this.refs.wDeg.value="";
+                    this.refs.wMin.value="";
+                    this.refs.wSec.value="";
+                    this.refs.waypointName.focus();
 
-                        const lcm_message = {type: "Odometry",
-                                             "name": name,
-                                             "latitude_deg": nDeg,
-                                             "latitude_min": nMin+nSec/60.0,
-                                             "longitude_deg": wDeg,
-                                             "longitude_min": wMin+wSec/60.0,
-                                             "bearing_deg": 0};
+                    const lcm_message = {type: "Odometry",
+                                         "name": name,
+                                         "latitude_deg": nDeg,
+                                         "latitude_min": nMin+nSec/60.0,
+                                         "longitude_deg": wDeg,
+                                         "longitude_min": wMin+wSec/60.0};
 
-                        this.set({
-                            current:{
-                                name: name,
-                                n: nDeg+"º "+nMin+"' "+nSec+"\"",
-                                w: wDeg+"º "+wMin+"' "+wSec+"\""
-                            }
-                        });
+                    const new_prev = this.get('previous_waypoints');
+                    new_prev.push(lcm_message);
 
-                        this.set({
-                            waypointList : this.get("waypointList").concat(lcm_message)
-                        });
-                    }
+                    this.set({
+                        current: lcm_message,
+                        previous_waypoints: new_prev,
+                    });
                 }else if(e.keyCode == ESC){
                     document.activeElement.blur();
                 }
 
             } ,false);
         }
+
+        let editID=-1;
+        let grabbing = false;
+        if(this.refs.editor.addEventListener){
+            const ESC = 27;
+            const MOVE_UP=38;
+            const MOVE_DOWN=40;
+            const DELETE=8;
+            const GRAB=32; //Space
+
+            this.refs.editor.addEventListener('keydown', (e) => {
+                const waypoints=this.get('previous_waypoints');
+                if(waypoints.length==0){
+                    editID=-1;
+                    document.activeElement.blur();
+                }
+
+                if(editID!=-1){
+                    if(e.keyCode == MOVE_UP){
+                        if(editID!=0){
+                            this.refs.editor.getElementsByTagName("li")[editID].className="";
+                            if(grabbing){
+                                const temp = waypoints[editID];
+                                waypoints[editID] = waypoints[editID-1];
+                                waypoints[editID-1] = temp;
+                            }
+                            editID-=1
+                            this.refs.editor.getElementsByTagName("li")[editID].className="box";
+                        }
+                        if(grabbing)
+                            this.refs.editor.getElementsByTagName("li")[editID].className+=" grabbed";
+                    }else if(e.keyCode == MOVE_DOWN){
+                        this.refs.editor.getElementsByTagName("li")[editID].className="";
+                        if(editID!=waypoints.length-1){
+                            if(grabbing){
+                                const temp = waypoints[editID];
+                                waypoints[editID] = waypoints[editID+1];
+                                waypoints[editID+1] = temp;
+                            }
+                            editID+=1
+                        }
+                        this.refs.editor.getElementsByTagName("li")[editID].className="box";
+                        if(grabbing)
+                            this.refs.editor.getElementsByTagName("li")[editID].className+=" grabbed";
+                    }else if(e.keyCode == DELETE && !grabbing){       
+                        this.refs.editor.getElementsByTagName("li")[editID].className="";
+                        waypoints.splice(editID, 1);
+
+                        editID-=1;
+                        if(waypoints.length!=0 && editID==-1)
+                            editID=0;
+                        if(editID!=-1)
+                            this.refs.editor.getElementsByTagName("li")[editID].className="box";
+
+                    }else if(e.keyCode == GRAB){
+                        grabbing=!grabbing;
+                        this.refs.editor.getElementsByTagName("li")[editID].className="box"+(grabbing?" grabbed":"");
+                    }else if(e.keyCode == ESC){
+                        grabbing=false;
+                        document.activeElement.blur();
+                    }
+
+                    this.set({
+                        previous_waypoints: waypoints
+                    });
+                }
+            }, false);
+
+        
+            this.refs.editor.addEventListener('focusout', (e) => {
+                if(editID!=-1)
+                    this.refs.editor.getElementsByTagName("li")[editID].className="";
+                editID=-1;
+            }, false);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const FOCUS_EDITOR=78;  //N
+            if(editID==-1 && e.keyCode == FOCUS_EDITOR && (document.activeElement==document.body
+                                            ||document.activeElement==this.refs.editorInput)){
+                grabbing=false;
+                editID=0;
+                this.refs.editorInput.focus();
+                const list = document.getElementById("waypoint-list").getElementsByTagName("li");
+                if(list.length==0){
+                    editID=-1;
+                    document.activeElement.blur();
+                }else{
+                    list[0].className="box";
+                }
+            }
+        }, false);
+
     }
 }
 </script>
@@ -157,10 +290,14 @@ export default {
     grid-template-areas: unset;
   }
 
-  .box {
+.box {
     padding: 0px;
     padding-left: 5px;
     padding-right: 5px;
+}
+
+.grabbed{
+    border: 3px solid black;
 }
 
 #gps-input{
@@ -184,6 +321,18 @@ li{
 
 .input-area{
     float: right;
+}
+
+.highlight{
+    border-radius: 5px;
+    border: 3px solid black;
+}
+
+.focus-hidden{
+    width: 0;
+    overflow: hidden;
+    opacity:0;
+    filter:alpha(opacity=0);
 }
 
 p{

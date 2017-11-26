@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct Kill_switches {
+    boolean killed;
+}

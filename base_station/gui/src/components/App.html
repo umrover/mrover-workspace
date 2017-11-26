@@ -4,16 +4,25 @@
     <h1>Dashboard</h1>
     <div class="spacer"></div>
     <div class="comms">
-      <CommIndicator connected="{{websocket_connected}}" name="WS" />
-      <CommIndicator connected="{{lcm_connected}}" name="LCM" />
+      <ul id="vitals">
+        <li><CommIndicator connected="{{websocket_connected}}" name="WS" /></li>
+        <li><CommIndicator connected="{{connections[0]}}" name="LCM" /></li>
+        <li><CommIndicator connected="{{motors_active}}" name="Joystick-Motor" /></li>
+        <li><CommIndicator connected="{{connections[1]}}" name="Pi1" /></li>
+        <li><CommIndicator connected="{{connections[2]}}" name="Pi2" /></li>
+        <li><CommIndicator connected="{{connections[3]}}" name="Pi3" /></li>
+        <li><CommIndicator connected="{{connections[4]}}" name="Pi4" /></li>
+        <li><CommIndicator connected="{{connections[5]}}" name="Pi5" /></li>
+        <li><CommIndicator connected="{{connections[6]}}" name="Pi6" /></li>
+      </ul>
     </div>
   </div>
 
   <div class="box odom light-bg">
-    Current odometry reading: {{ odom.latitude_deg }}º {{odom.latitude_min}}' by {{ odom.longitude_deg }}º {{ odom.longitude_min }}' bearing {{ odom.bearing_deg }}
+    Current odometry reading: {{ odom.latitude_deg.toFixed(2) }}º {{ odom.latitude_min.toFixed(2) }}' by {{ odom.longitude_deg.toFixed(2) }}º {{ odom.longitude_min.toFixed(2) }}' bearing {{ odom.bearing_deg.toFixed(2) }}
   </div>
   <div class="box diags light-bg">
-    <Diagnostics/>
+    <Diagnostics sensors="{{sensors}}"/>
   </div>
   <div class="box map light-bg">
     <RoverMap/>
@@ -64,7 +73,7 @@
   }
 
   .spacer {
-    flex-grow: 1;
+    flex-grow: 0.8;
   }
 
   .comms {
@@ -103,6 +112,12 @@
     grid-area: saveGPS;
     font-size: 2em;
   }
+
+  ul#vitals li {
+    display: inline;
+    float: left;
+    padding: 0px 10px 0px 0px;
+  }
 </style>
 
 <script>
@@ -116,24 +131,43 @@
     data() {
       return {
         websocket_connected: false,
-        lcm_connected: false,
+        motors_active: false,
+        connections: [false, false, false, false, false, false, false],
         odom: {
           latitude_deg: 0,
           longitude_deg: 0,
+          latitude_min: 0,
+          longitude_min: 0,
           bearing_deg: 0
+        },
+        sensors: {
+            temperature: 0,
+            moisture: 0,
+            soil_conductivity: 0,
+            pH: 0,
+            uv: 0
         }
       }
     },
 
     methods: {
-      lcm_message_recv: function({
-        topic,
-        message
-      }) {
+      lcm_message_recv: function({ topic, message }) {
         if (topic === '/odom') {
-          this.set({
-            odom: message
-          })
+            this.set({
+                odom: message
+            })
+        }
+        if (topic === '/sensors') {
+            console.log("sensor msg recieved")
+            this.set({
+                sensors: message
+            })
+        }
+        if (topic === '/kill_switch') {
+            console.log("kill switch recieved")
+            this.set({
+                motors_active: !message.killed
+            })
         }
       }
     },
