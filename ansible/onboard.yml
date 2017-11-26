@@ -1,6 +1,7 @@
 ---
 - hosts: all
   become: yes
+  gather_facts: False
   vars:
       ubuntu_release: xenial
       workspace_dir: /home/ubuntu/mrover-workspace
