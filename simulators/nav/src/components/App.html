@@ -3,8 +3,8 @@
 
     <div class="display" id="odom_display">
         <h2>Odometry</h2>
-        <p><b>Latitude:</b> {{ latitude_deg }}</p>
-        <p><b>Longitude:</b> {{ longitude_deg }}</p>
+        <p><b>Latitude:</b> {{ latitude_deg }}&#176; {{ latitude_min }}'</p>
+        <p><b>Longitude:</b> {{ longitude_deg }}&#176; {{ longitude_min }}'</p>
         <p><b>Bearing:</b> {{ bearing_deg }}</p>
     </div>
 
@@ -31,8 +31,6 @@
     const CENTER_LAT = 39.4
     const CENTER_LON = -110.5
 
-    const EARTH_RADIUS = 6371
-
     const ROVER_SIZE = 25
     const VECTOR_SIZE = 20
     const WAYPOINT_SIZE = 10
@@ -58,8 +56,10 @@
     export default {
         data () {
             return {
-                latitude_deg: CENTER_LAT,
-                longitude_deg: CENTER_LON,
+                latitude_deg: 39,
+                latitude_min: 24,
+                longitude_deg: -110,
+                longitude_min: -30,
                 bearing_deg: 0,
 
                 forward_back: 0,
@@ -97,8 +97,8 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height)
 
                 let coords = this.to_canvas(projection({
-                    lat: this.get('latitude_deg'),
-                    lon: this.get('longitude_deg')
+                    lat: this.get('latitude_deg') + this.get('latitude_min')/60.0,
+                    lon: this.get('longitude_deg') + this.get('longitude_min')/60.0
                 }))
 
                 ctx.fillStyle = 'darkred'
@@ -155,8 +155,8 @@
                 })
 
                 let {x, y} = this.to_canvas(projection({
-                    lat: this.get('latitude_deg'),
-                    lon: this.get('longitude_deg')
+                    lat: this.get('latitude_deg') + this.get('latitude_min')/60.0,
+                    lon: this.get('longitude_deg') + this.get('longitude_min')/60.0
                 }))
                 let bearing_deg = this.get('bearing_deg')
                 if (Math.abs(stick.left_right) >= 0.1) {
@@ -181,8 +181,10 @@
 
                     let {lat, lon} = projection(this.from_canvas({x, y}))
                     this.set({
-                        latitude_deg: lat,
-                        longitude_deg: lon,
+                        latitude_deg: Math.floor(lat),
+                        latitude_min: (lat % 1)*60,
+                        longitude_deg: Math.floor(lon),
+                        longitude_min: (lon % 1)*60
                     })
                 }
             },
@@ -190,8 +192,10 @@
             start_odom_events: function() {
                 window.setInterval(() => {
                     this.fire("odom", {
-                        latitude_deg: this.get('latitude_deg'),
-                        longitude_deg: this.get('longitude_deg'),
+                        latitude_deg: this.get('latitude_deg')|0,
+                        latitude_min: this.get('latitude_min'),
+                        longitude_deg: this.get('longitude_deg')|0,
+                        longitude_min: this.get('longitude_min'),
                         bearing_deg: this.get('bearing_deg')
                     })
                 }, 100);
