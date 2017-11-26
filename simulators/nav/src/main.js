@@ -36,4 +36,11 @@ app.on("odom", (odom) => {
     }
 })
 
+app.on("goal", (goal) => {
+    if (bridge.online) {
+        goal.type = 'Odometry'
+        bridge.publish('/goal', goal)
+    }
+})
+
 app.start_odom_events()
