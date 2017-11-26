@@ -28,7 +28,7 @@
     <RoverMap/>
   </div>
   <div class="box waypoints light-bg">
-    <Waypoints/>
+    <Waypoints bind:previous_waypoints="previous_waypoints"/>
   </div>
   <div class="box saveGPS light-bg">
     <GPS/>
@@ -146,7 +146,44 @@
             soil_conductivity: 0,
             pH: 0,
             uv: 0
-        }
+        },
+        previous_waypoints: [
+          {
+            type: "Odometry",
+            "name": "Point 1",
+            "latitude_deg": 5,
+            "latitude_min": 23.34523445,
+            "longitude_deg": -15,
+            "longitude_min": -12.544364
+          },
+
+          {
+              type: "Odometry",
+              "name": "Point 2",
+              "latitude_deg": 12,
+              "latitude_min": 1.34523445,
+              "longitude_deg": -13,
+              "longitude_min": -5.544364
+          },
+
+          {
+              type: "Odometry",
+              "name": "Point 3",
+              "latitude_deg": 12,
+              "latitude_min": 1.34523445,
+              "longitude_deg": -13,
+              "longitude_min": -5.544364
+          },
+
+          {
+              type: "Odometry",
+              "name": "Point 4",
+              "latitude_deg": 12,
+              "latitude_min": 1.34523445,
+              "longitude_deg": -13,
+              "longitude_min": -5.544364
+          },
+        ]
       }
     },
 
