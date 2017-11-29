@@ -41,7 +41,7 @@
     const WAYPOINT_SIZE = 10
 
     const TRANSLATIONAL_SCALE = 5
-    const ROTATIONAL_SCALE = 3
+    const ROTATIONAL_SCALE = 10
 
     const scale = {
         x: 8000000,
@@ -183,7 +183,6 @@
                 }
 
                 this.set({ bearing_deg })
-
                 const bearing_rad = (90 - bearing_deg) * Math.PI / 180
 
                 const vel = TRANSLATIONAL_SCALE * stick.forward_back
