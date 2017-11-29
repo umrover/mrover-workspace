@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    ubuntu_release: xenial
+    workspace_dir: /home/mrover/mrover-workspace
+    user: mrover
+  roles:
+  - onboard_dev
+  - base_station_dev
+  - microcontrollers_dev
+  - base_station_networks
+  - base_station_services
+  tasks:
+  - name: Install chromium
+    apt: name=chromium-browser state=present
