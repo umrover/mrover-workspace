@@ -10,6 +10,7 @@
             {{ -current["longitude_deg"] }}º 
             {{ Math.floor(-current["longitude_min"]) }}' 
             {{ ((-current["longitude_min"] - Math.floor(-current["longitude_min"])) *60).toFixed(4) }}" W
+            <br>(This is just the last entered waypoint as of right now)
         </p>
     </div>
 
@@ -40,24 +41,34 @@
 
     <div class="box" id="waypoint-list" ref:editor>
         <input type="text" class="focus-hidden" ref:editorInput>
-        <ol>
-            {{#each previous_waypoints as waypoint}}
-                <li>
-                    <div style="display: none;">
-                        {{lat_min = waypoint["latitude_min"]}}
-                        {{lon_min = -waypoint["longitude_min"]}}
-                    </div>
+        {{#each previous_waypoints as waypoint}}
+            <div style="display: none;">
+                {{lat_min = waypoint["latitude_min"]}}
+                {{lon_min = -waypoint["longitude_min"]}}
+            </div>
 
-                    {{waypoint["name"]}}: {{ waypoint["latitude_deg"] }}º 
-                                          {{ Math.floor(lat_min) }}' 
-                                          {{ ((lat_min-Math.floor(lat_min))*60).toFixed(4) }}" N
-                                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                          {{ -waypoint["longitude_deg"] }}º 
-                                          {{ Math.floor(lon_min) }}' 
-                                          {{ ((lon_min-Math.floor(lon_min))*60).toFixed(4) }}" W
-                </li>
-            {{/each}}
-        </ol>
+            <div class="waypoint-item">
+                <div>
+                    <p>
+                        {{waypoint["name"]}}:
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        {{ waypoint["latitude_deg"] }}º 
+                        {{ Math.floor(lat_min) }}' 
+                        {{ ((lat_min-Math.floor(lat_min))*60).toFixed(4) }}" N
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        {{ -waypoint["longitude_deg"] }}º 
+                        {{ Math.floor(lon_min) }}' 
+                        {{ ((lon_min-Math.floor(lon_min))*60).toFixed(4) }}" W
+                    </p>
+                </div>
+            </div>
+        {{/each}}
     </div>
 </div>
 
@@ -77,7 +88,6 @@ export default {
     data() {
         return {
             current: {
-                type: "Odometry",
                 "name": "Waypoint 1",
                 "latitude_deg": 5,
                 "latitude_min": 23.34523445,
@@ -88,6 +98,18 @@ export default {
     },
 
     oncreate() {
+        const save = (e) => {
+            const jsonString = JSON.stringify(this.get('previous_waypoints'));
+            window.localStorage.setItem("previous_waypoints", jsonString);
+        };
+
+        const data = window.localStorage.getItem("previous_waypoints");
+        if(data!=null){
+            this.set({
+                previous_waypoints: JSON.parse(data)
+            });
+        }
+
         if(this.refs.gpsInput.addEventListener) {
             this.refs.gpsInput.addEventListener('keydown', (e) => {
 
@@ -126,8 +148,7 @@ export default {
                     this.refs.wSec.value="";
                     this.refs.waypointName.focus();
 
-                    const lcm_message = {type: "Odometry",
-                                         "name": name,
+                    const lcm_message = {"name": name,
                                          "latitude_deg": nDeg,
                                          "latitude_min": nMin+nSec/60.0,
                                          "longitude_deg": -wDeg,
@@ -138,13 +159,20 @@ export default {
 
                     this.set({
                         current: lcm_message,
-                        previous_waypoints: new_prev,
+                        previous_waypoints: new_prev
                     });
+
+                    save();
+
                 }else if(e.keyCode == ESC){
                     document.activeElement.blur();
                 }
 
             } ,false);
+        }
+
+        const get_waypoints = (e) => {
+            return this.refs.editor.getElementsByClassName("waypoint-item");
         }
 
         let editID=-1;
@@ -166,19 +194,19 @@ export default {
                 if(editID!=-1){
                     if(e.keyCode == MOVE_UP){
                         if(editID!=0){
-                            this.refs.editor.getElementsByTagName("li")[editID].className="";
+                            get_waypoints()[editID].className="waypoint-item";
                             if(grabbing){
                                 const temp = waypoints[editID];
                                 waypoints[editID] = waypoints[editID-1];
                                 waypoints[editID-1] = temp;
                             }
                             editID-=1
-                            this.refs.editor.getElementsByTagName("li")[editID].className="box";
+                            get_waypoints()[editID].className+=" box";
                         }
                         if(grabbing)
-                            this.refs.editor.getElementsByTagName("li")[editID].className+=" grabbed";
+                            get_waypoints()[editID].className+=" grabbed";
                     }else if(e.keyCode == MOVE_DOWN){
-                        this.refs.editor.getElementsByTagName("li")[editID].className="";
+                        get_waypoints()[editID].className="waypoint-item";
                         if(editID!=waypoints.length-1){
                             if(grabbing){
                                 const temp = waypoints[editID];
@@ -187,22 +215,22 @@ export default {
                             }
                             editID+=1
                         }
-                        this.refs.editor.getElementsByTagName("li")[editID].className="box";
+                        get_waypoints()[editID].className+=" box";
                         if(grabbing)
-                            this.refs.editor.getElementsByTagName("li")[editID].className+=" grabbed";
+                            get_waypoints()[editID].className+=" grabbed";
                     }else if(e.keyCode == DELETE && !grabbing){       
-                        this.refs.editor.getElementsByTagName("li")[editID].className="";
+                        get_waypoints()[editID].className="waypoint-item";
                         waypoints.splice(editID, 1);
 
                         editID-=1;
                         if(waypoints.length!=0 && editID==-1)
                             editID=0;
                         if(editID!=-1)
-                            this.refs.editor.getElementsByTagName("li")[editID].className="box";
+                            get_waypoints()[editID].className+=" box";
 
                     }else if(e.keyCode == GRAB){
                         grabbing=!grabbing;
-                        this.refs.editor.getElementsByTagName("li")[editID].className="box"+(grabbing?" grabbed":"");
+                        get_waypoints()[editID].className="waypoint-item box"+(grabbing?" grabbed":"");
                     }else if(e.keyCode == ESC){
                         grabbing=false;
                         document.activeElement.blur();
@@ -211,13 +239,15 @@ export default {
                     this.set({
                         previous_waypoints: waypoints
                     });
+
+                    save();
                 }
             }, false);
 
         
             this.refs.editor.addEventListener('focusout', (e) => {
                 if(editID!=-1)
-                    this.refs.editor.getElementsByTagName("li")[editID].className="";
+                    get_waypoints()[editID].className="waypoint-item";
                 editID=-1;
             }, false);
         }
@@ -235,12 +265,12 @@ export default {
                     grabbing=false;
                     editID=0;
                     this.refs.editorInput.focus();
-                    const list = this.refs.editor.getElementsByTagName("li");
+                    const list = get_waypoints();
                     if(list.length==0){
                         editID=-1;
                         document.activeElement.blur();
                     }else{
-                        list[0].className="box";
+                        list[0].className="waypoint-item box";
                     }
                 }
             }
@@ -260,6 +290,12 @@ export default {
     grid-template-areas: unset;
   }
 
+.waypoint-item{
+    display: grid;
+
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
 .box {
     padding: 0px;
     padding-left: 5px;
@@ -272,21 +308,17 @@ export default {
 
 #gps-input{
     padding-top: 5px;
+    padding-bottom: 5px;
     display: grid;
 
     grid-gap: 10px;
-    grid-template-columns: 3fr 5fr;
+    grid-template-columns: 2fr 5fr;
     grid-template-rows: 20px 20px;
 }
 
 #waypoint-list{
     overflow-y: scroll;
     overflow-x:hidden;
-}
-
-li{
-    margin: 20px 0;
-    font-size: 1.2rem;
 }
 
 .input-area{
@@ -306,7 +338,7 @@ li{
 }
 
 p{
-	font-size: 1.25rem;
+	font-size: 1rem;
 	margin-top: 5px;
 	text-align: left;
 }
