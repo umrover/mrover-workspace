@@ -6,26 +6,58 @@
 
 Layer1::Layer1 (Auton::System &sys, lcm::LCM &lcm_object) : 
     Auton::Layer(sys),
+    bearing_pid(0.05, 0, 0.0055),
+    distance_pid(0.1, 0, 0),
+    first(false),
+    in_outer_thresh(false),
+    in_inner_thresh(false),
+    outer_thresh(OUTER_MIN),
+    inner_thresh(INNER_MIN),
     lcm_(lcm_object) {
 	// calls the base class constructor
 }
 
 void Layer1::run() {
+    double dist = estimate_noneuclid(cur_odom, goal_odom);
+    double bearing = calc_bearing(cur_odom, goal_odom);
+    std::cout << "target at " << dist << " bearing " << bearing << ", rover heading " << cur_odom.bearing_deg << std::endl;
+    calc_bearing_thresholds(dist, bearing); //recalculates inner and outer bearing thresholds for updated location
+    if (dist < WITHIN_GOAL) {
+        this->pause();
+        std::cout << "found it" << std::endl;
+    } else if (!first) { //turns rover to face target before any motion
+        turn_to_dest();
+        if (in_inner_thresh) {
+            first = true;
+        }
+    }
+    else if (!in_outer_thresh) { //if outside outer threshold, turn rover back to inner threshold
+        turn_to_dest(); 
+    } else {
+        //drives rover forward
+        double effort = distance_pid.update(-1 * dist, 0);
+        rover_msgs::Joystick joy = make_joystick_msg(effort, 0, false);
+        lcm_.publish(JOYSTICK_CHANNEL, &joy);
+    }
+}
+
+void Layer1::calc_bearing_thresholds(const double distance, const double bearing){
+    outer_thresh = atan2(WITHIN_GOAL, distance);
+    if(outer_thresh < OUTER_MIN) outer_thresh = OUTER_MIN; //min outer_thresh value
+
+    inner_thresh = atan2(AT_GOAL, distance);
+    if(inner_thresh < INNER_MIN) inner_thresh = INNER_MIN; //min inner_thresh value
+
+    in_outer_thresh = (abs(cur_odom.bearing_deg - bearing) < outer_thresh);
+    in_inner_thresh = (abs(cur_odom.bearing_deg - bearing) < inner_thresh);
+}
+
+void Layer1::turn_to_dest() {
     double dest_bearing = calc_bearing(cur_odom, goal_odom), cur_bearing = cur_odom.bearing_deg;
-    std::cout << "bearing to target " << dest_bearing << ", current bearing " << cur_bearing << std::endl;
-    double error = dest_bearing - cur_bearing;
-    total_error += error;
-    double prop = kp * error;
-    double integ = ki * total_error;
-    double deriv = kd * last_error;
-    last_error = error;
-    double effort = prop+integ+deriv;
-    if (effort < -1) effort = -1;
-    if (effort > 1) effort = 1;
+    double effort = bearing_pid.update(cur_bearing, dest_bearing);
     rover_msgs::Joystick joy = make_joystick_msg(0, effort, false);
     lcm_.publish(JOYSTICK_CHANNEL, &joy);
 }
-
 
 double Layer1::calc_bearing(const rover_msgs::Odometry &start, 
 							const rover_msgs::Odometry &dest) {
@@ -42,7 +74,11 @@ double Layer1::calc_bearing(const rover_msgs::Odometry &start,
     if (start_long > dest_long) bearing_phi = 2 * PI - bearing_phi;
 
     if(vert_component_dist < 1 && vert_component_dist > -1){
-        dest_long - start_long > 0 ? bearing_phi = degree_to_radian(90, 0) : bearing_phi = degree_to_radian(270, 0);
+        if (start_long < dest_long) {
+            bearing_phi = PI/2.0;
+        } else {
+            bearing_phi = 3.0*PI/2.0;
+        }
     }
 
     return radian_to_degree(bearing_phi);

@@ -64,7 +64,7 @@ namespace Auton {
 
     void Layer::wait_standard() {
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(500ms);
+        std::this_thread::sleep_for(50ms);
     }
 
     detail::GalBlock Layer::no_interrupt() {

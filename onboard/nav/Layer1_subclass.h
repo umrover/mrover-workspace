@@ -6,14 +6,17 @@
 #include "rover_msgs/Odometry.hpp"
 #include "rover_msgs/Joystick.hpp"
 #include "layers.hpp"
+#include "pid.hpp"
 #include <cassert>
+#include <cmath>
 
 #define earthRadiusMeters 6371000
 #define PI 3.141592654
 #define JOYSTICK_CHANNEL "/joystick"
-#define kp 0.02
-#define ki 0.000000001
-#define kd 0.025
+#define WITHIN_GOAL 5 //outer threshold distance
+#define AT_GOAL 0.25 //inner threshold distance
+#define OUTER_MIN 1 //min value for outer threshold
+#define INNER_MIN 0.5 //min value for inner threshold
 
 class Layer1 : public Auton::Layer {
 public:
@@ -30,9 +33,21 @@ public:
 
 private:
 
-	double total_error = 0, last_error = 0;
+	PidLoop bearing_pid;
+	PidLoop distance_pid;
+
+	//bool representing whether first turn has been executed
+	bool first;
+	bool in_outer_thresh;
+	bool in_inner_thresh;
+	double outer_thresh;
+	double inner_thresh;
 
 	lcm::LCM & lcm_;
+
+	void calc_bearing_thresholds(const double distance, const double bearing);
+
+	void turn_to_dest();
 
 	// function to calculate bearing from location 1 to location 2
 	// Odometry latitude_deg and longintude_deg in degrees
