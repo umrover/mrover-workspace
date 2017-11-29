@@ -64,8 +64,11 @@ class MbedBuilder(BuildContext):
                                 entry.name.endswith('.hpp') or
                                 entry.name.endswith('.c') or
                                 entry.name.endswith('.cpp')):
-                            os.symlink(entry.path,
-                                       os.path.join(intermediate, entry.name))
+                            target_path = os.path.join(intermediate,
+                                                       entry.name)
+                            if os.path.exists(target_path):
+                                os.unlink(target_path)
+                            os.symlink(entry.path, target_path)
 
             with self.wksp.inside_mbed_env():
                 self.run('mbed target {}'.format(self.board))
