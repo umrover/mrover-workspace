@@ -44,8 +44,8 @@
     const ROTATIONAL_SCALE = 3
 
     const scale = {
-        x: 2000000,
-        y: 1000000
+        x: 8000000,
+        y: 6000000
     }
 
     const projection_opts = {
@@ -174,36 +174,32 @@
                     lon: this.get('longitude_deg') + this.get('longitude_min')/60.0
                 }))
                 let bearing_deg = this.get('bearing_deg')
-                if (Math.abs(stick.left_right) >= 0.1) {
-                    bearing_deg += ROTATIONAL_SCALE * stick.left_right
-                    if (bearing_deg < 0) {
-                        bearing_deg += 360
-                    }
-                    if (bearing_deg > 360) {
-                        bearing_deg -= 360
-                    }
-
-                    this.set({ bearing_deg })
+                bearing_deg += ROTATIONAL_SCALE * stick.left_right
+                if (bearing_deg < 0) {
+                    bearing_deg += 360
+                }
+                if (bearing_deg > 360) {
+                    bearing_deg -= 360
                 }
 
-                if (Math.abs(stick.forward_back) >= 0.1) {
-                    const bearing_rad = (90 - bearing_deg) * Math.PI / 180
+                this.set({ bearing_deg })
 
-                    const vel = TRANSLATIONAL_SCALE * stick.forward_back
+                const bearing_rad = (90 - bearing_deg) * Math.PI / 180
 
-                    x += vel * Math.cos(bearing_rad)
-                    y -= vel * Math.sin(bearing_rad)
+                const vel = TRANSLATIONAL_SCALE * stick.forward_back
 
-                    let {lat, lon} = projection(this.from_canvas({x, y}))
-                    lat = ensure_in_range(lat, MIN_LAT, MAX_LAT)
-                    lon = ensure_in_range(lon, MIN_LON, MAX_LON)
-                    this.set({
-                        latitude_deg: Math.trunc(lat),
-                        latitude_min: (lat % 1)*60,
-                        longitude_deg: Math.trunc(lon),
-                        longitude_min: (lon % 1)*60
-                    })
-                }
+                x += vel * Math.cos(bearing_rad)
+                y -= vel * Math.sin(bearing_rad)
+
+                let {lat, lon} = projection(this.from_canvas({x, y}))
+                lat = ensure_in_range(lat, MIN_LAT, MAX_LAT)
+                lon = ensure_in_range(lon, MIN_LON, MAX_LON)
+                this.set({
+                    latitude_deg: Math.trunc(lat),
+                    latitude_min: (lat % 1)*60,
+                    longitude_deg: Math.trunc(lon),
+                    longitude_min: (lon % 1)*60
+                })
             },
 
             start_odom_events: function() {
