@@ -18,21 +18,23 @@ Layer1::Layer1 (Auton::System &sys, lcm::LCM &lcm_object) :
 }
 
 void Layer1::run() {
+    rover_msgs::Odometry cur_odom = this->cur_odom.clone();
+    rover_msgs::Odometry goal_odom = this->goal_odom.clone();
     double dist = estimate_noneuclid(cur_odom, goal_odom);
     double bearing = calc_bearing(cur_odom, goal_odom);
     std::cout << "target at " << dist << " bearing " << bearing << ", rover heading " << cur_odom.bearing_deg << std::endl;
-    calc_bearing_thresholds(dist, bearing); //recalculates inner and outer bearing thresholds for updated location
+    calc_bearing_thresholds(cur_odom, dist, bearing); //recalculates inner and outer bearing thresholds for updated location
     if (dist < WITHIN_GOAL) {
         this->pause();
         std::cout << "found it" << std::endl;
     } else if (!first) { //turns rover to face target before any motion
-        turn_to_dest();
+        turn_to_dest(cur_odom, goal_odom);
         if (in_inner_thresh) {
             first = true;
         }
     }
     else if (!in_outer_thresh) { //if outside outer threshold, turn rover back to inner threshold
-        turn_to_dest(); 
+        turn_to_dest(cur_odom, goal_odom); 
     } else {
         //drives rover forward
         double effort = distance_pid.update(-1 * dist, 0);
@@ -41,7 +43,8 @@ void Layer1::run() {
     }
 }
 
-void Layer1::calc_bearing_thresholds(const double distance, const double bearing){
+void Layer1::calc_bearing_thresholds(const rover_msgs::Odometry &cur_odom,
+        const double distance, const double bearing){
     outer_thresh = atan2(WITHIN_GOAL, distance);
     if(outer_thresh < OUTER_MIN) outer_thresh = OUTER_MIN; //min outer_thresh value
 
@@ -52,8 +55,11 @@ void Layer1::calc_bearing_thresholds(const double distance, const double bearing
     in_inner_thresh = (abs(cur_odom.bearing_deg - bearing) < inner_thresh);
 }
 
-void Layer1::turn_to_dest() {
-    double dest_bearing = calc_bearing(cur_odom, goal_odom), cur_bearing = cur_odom.bearing_deg;
+void Layer1::turn_to_dest(
+        const rover_msgs::Odometry &cur_odom,
+        const rover_msgs::Odometry &goal_odom) {
+    double dest_bearing = calc_bearing(cur_odom, goal_odom);
+    double cur_bearing = cur_odom.bearing_deg;
     double effort = bearing_pid.update(cur_bearing, dest_bearing);
     rover_msgs::Joystick joy = make_joystick_msg(0, effort, false);
     lcm_.publish(JOYSTICK_CHANNEL, &joy);

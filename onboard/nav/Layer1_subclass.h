@@ -7,6 +7,7 @@
 #include "rover_msgs/Joystick.hpp"
 #include "layers.hpp"
 #include "pid.hpp"
+#include "thor.hpp"
 #include <cassert>
 #include <cmath>
 
@@ -26,7 +27,8 @@ public:
 
 	~Layer1 () {}
 
-	rover_msgs::Odometry cur_odom, goal_odom;
+    Thor::Volatile<rover_msgs::Odometry> cur_odom;
+    Thor::Volatile<rover_msgs::Odometry> goal_odom;
 
 	// 
 	virtual void run() override;
@@ -45,9 +47,12 @@ private:
 
 	lcm::LCM & lcm_;
 
-	void calc_bearing_thresholds(const double distance, const double bearing);
+	void calc_bearing_thresholds(const rover_msgs::Odometry &cur_odom,
+            const double distance, const double bearing);
 
-	void turn_to_dest();
+	void turn_to_dest(
+            const rover_msgs::Odometry &cur_odom,
+            const rover_msgs::Odometry &goal_odom);
 
 	// function to calculate bearing from location 1 to location 2
 	// Odometry latitude_deg and longintude_deg in degrees
