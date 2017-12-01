@@ -1,182 +1,133 @@
-#include <cmath>
-#include <tgmath.h>
-#include <chrono>
-#include <lcm/lcm-cpp.hpp>
-#include "rover_msgs/Odometry.hpp"
-#include <cassert>
+// November 26, 2017
+// layer1 is a subclass of layer
 
-#define earthRadiusMeters 6371000
-#define PI 3.141592654
-#define JOYSTICK_CHANNEL "/joystick"
+#include "layer1.hpp"
+#include <iostream>
 
-// function to calculate bearing from location 1 to location 2
-// Odometry latitude_deg and longintude_deg in degrees
-// return bearing in degrees
-double calc_bearing(const rover_msgs::Odometry &odom1, const rover_msgs::Odometry &odom2);
+Layer1::Layer1 (Auton::System &sys, lcm::LCM &lcm_object) : 
+    Auton::Layer(sys),
+    bearing_pid(0.05, 0, 0.0055),
+    distance_pid(0.1, 0, 0),
+    first(false),
+    in_outer_thresh(false),
+    in_inner_thresh(false),
+    outer_thresh(OUTER_MIN),
+    inner_thresh(INNER_MIN),
+    lcm_(lcm_object) {
+	// calls the base class constructor
+}
 
-double estimate_noneuclid(const rover_msgs::Odometry &start, const rover_msgs::Odometry &dest);
+void Layer1::run() {
+    rover_msgs::Odometry cur_odom = this->cur_odom.clone();
+    rover_msgs::Odometry goal_odom = this->goal_odom.clone();
+    double dist = estimate_noneuclid(cur_odom, goal_odom);
+    double bearing = calc_bearing(cur_odom, goal_odom);
+    std::cout << "target at " << dist << " bearing " << bearing << ", rover heading " << cur_odom.bearing_deg << std::endl;
+    calc_bearing_thresholds(cur_odom, dist, bearing); //recalculates inner and outer bearing thresholds for updated location
+    if (dist < WITHIN_GOAL) {
+        this->pause();
+        std::cout << "found it" << std::endl;
+    } else if (!first) { //turns rover to face target before any motion
+        turn_to_dest(cur_odom, goal_odom);
+        if (in_inner_thresh) {
+            first = true;
+        }
+    }
+    else if (!in_outer_thresh) { //if outside outer threshold, turn rover back to inner threshold
+        turn_to_dest(cur_odom, goal_odom); 
+    } else {
+        //drives rover forward
+        double effort = distance_pid.update(-1 * dist, 0);
+        rover_msgs::Joystick joy = make_joystick_msg(effort, 0, false);
+        lcm_.publish(JOYSTICK_CHANNEL, &joy);
+    }
+}
 
-// function to turn rover to face destination
-// Odometry latitude_deg and longintude_deg in degrees
-void turn_to_destination(const rover_msgs::Odometry &cur_odom, const rover_msgs::Odometry &dest_odom, const double time, const double threshold);
+void Layer1::calc_bearing_thresholds(const rover_msgs::Odometry &cur_odom,
+        const double distance, const double bearing){
+    outer_thresh = atan2(WITHIN_GOAL, distance);
+    if(outer_thresh < OUTER_MIN) outer_thresh = OUTER_MIN; //min outer_thresh value
 
-// function to drive to destination
-// Odometry latitude_deg and longintude_deg in degrees
-// distance: how much to distance to move in one iteration
-// threshold: to accept and stop moving certain difference within current location and destination
-void go_setpoint(const rover_msgs::Odometry &dest_odom, const double time, const double odom_threshold, const double bearing_threshold);
+    inner_thresh = atan2(AT_GOAL, distance);
+    if(inner_thresh < INNER_MIN) inner_thresh = INNER_MIN; //min inner_thresh value
 
-lcm::LCM lcm;
+    in_outer_thresh = (abs(cur_odom.bearing_deg - bearing) < outer_thresh);
+    in_inner_thresh = (abs(cur_odom.bearing_deg - bearing) < inner_thresh);
+}
 
-Joystick make_joystick_msg(const double forwardesback, const double left_right, const bool kill) {
-    Joystick js;
-    js.forwardesback = forwardesback;
+void Layer1::turn_to_dest(
+        const rover_msgs::Odometry &cur_odom,
+        const rover_msgs::Odometry &goal_odom) {
+    double dest_bearing = calc_bearing(cur_odom, goal_odom);
+    double cur_bearing = cur_odom.bearing_deg;
+    double effort = bearing_pid.update(cur_bearing, dest_bearing);
+    rover_msgs::Joystick joy = make_joystick_msg(0, effort, false);
+    lcm_.publish(JOYSTICK_CHANNEL, &joy);
+}
+
+double Layer1::calc_bearing(const rover_msgs::Odometry &start, 
+							const rover_msgs::Odometry &dest) {
+    double start_lat = degree_to_radian(start.latitude_deg, start.latitude_min);
+    double start_long = degree_to_radian(start.longitude_deg, start.longitude_min); 
+    double dest_lat = degree_to_radian(dest.latitude_deg, dest.latitude_min);
+    double dest_long = degree_to_radian(dest.longitude_deg, dest.longitude_min);
+
+
+    double vert_component_dist = earthRadiusMeters * std::sin(dest_lat - start_lat);
+    double noneuc_dist = estimate_noneuclid(start,dest);
+
+    double bearing_phi = std::acos(vert_component_dist / noneuc_dist);
+    if (start_long > dest_long) bearing_phi = 2 * PI - bearing_phi;
+
+    if(vert_component_dist < 1 && vert_component_dist > -1){
+        if (start_long < dest_long) {
+            bearing_phi = PI/2.0;
+        } else {
+            bearing_phi = 3.0*PI/2.0;
+        }
+    }
+
+    return radian_to_degree(bearing_phi);
+}
+
+double Layer1::estimate_noneuclid(const rover_msgs::Odometry &start, 
+								  const rover_msgs::Odometry &dest){
+    double start_lat = degree_to_radian(start.latitude_deg, start.latitude_min);
+    double start_long = degree_to_radian(start.longitude_deg, start.longitude_min); 
+    double dest_lat = degree_to_radian(dest.latitude_deg, dest.latitude_min);
+    double dest_long = degree_to_radian(dest.longitude_deg, dest.longitude_min);
+
+    double dlon = (dest_long - start_long) * cos((start_lat + dest_lat) / 2);
+    dlon *= dlon;
+    double dlat = (dest_lat - start_lat);
+    dlat *= dlat;
+    return sqrt(dlon + dlat)*earthRadiusMeters;
+}
+
+rover_msgs::Joystick Layer1::make_joystick_msg(const double forward_back, const double left_right,
+								   const bool kill) {
+    rover_msgs::Joystick js;
+    js.forward_back = forward_back;
     js.left_right = left_right;
     js.kill = kill;
     return js;
 }
 
-void publish_joystick_for(const std::chrono::milliseconds ms, const Joystick &js)
-{
-    std::chrono::time_point<std::chrono::system_clock> end;
-    end = std::chrono::system_clock::now() + ms; 
-    while(std::chrono::system_clock::now() < end) 
-    {
-        lcm.publish(JOYSTICK_CHANNEL, &js);
-    }
+inline double Layer1::degree_to_radian(const double x, const double minute) {
+    return (PI / 180) * (x + minute / 60.0);
 }
 
-void publish_zero_joystick() {
-    lcm.publish(make_joystick_msg(0, 0, false));
-}   
-
-// assuming that left is 1
-void turn_left(const double time) {
-    // publish_joystick_for(time, make_joystick_msg(0.5, 0.5, false));
-    publish_joystick_for(time, make_joystick_msg(0, 1, false));
-    publish_zero_joystick();
-}
-
-// assuming that right is -1
-void turn_right(const double time) {
-    // publish_joystick_for(time, make_joystick_msg(0.5, -0.5, false));
-    publish_joystick_for(time, make_joystick_msg(0, -1, false));
-    publish_zero_joystick();
-}
-
-// function tp move rover forward by certain distance
-// send joystick input for certain time
-void drive_forward(const double time) {
-    publish_joystick_for(time, make_joystick_msg(1, 0, false));
-    publish_zero_joystick();
-}
-
-// function tp move rover backward by certain distance
-// send joystick input for certain time
-void drive_backward(const double time) {
-    publish_joystick_for(time, make_joystick_msg(-1, 0, false));
-    publish_zero_joystick();
-}
-
-// convert degree to radian
-inline double degree_to_radian(const double x) {
-    return x * PI / 180;
-}
-
-// convert radian to degree
-inline double radian_to_degree(const double x) {
+inline double Layer1::radian_to_degree(const double x) {
+    //pls fix
     return x * 180 / PI;
 }
 
-// prototypes not implemented
-// just abstraction
-
-// function to get current bearing
-double get_current_bearing() {
-    return 0;
-}
-
-// function to turn rover by this angle
-// angle in degree
-// send joystick input for certain time
-void turn_rover(const double angle, const double time) {
-    if(angle > 0) {
-        turn_left(time);
-    }
-    else if(angle < 0) {
-        turn_right(time);
-    }
-}
-
-double calc_bearing(const rover_msgs::Odometry &start, const rover_msgs::Odometry &dest) {
-    double strt_lat = degree_to_radian(start.latitude_deg);
-    double strt_long = degree_to_radian(start.longintude_deg);
-    double dest_lat = degree_to_radian(dest.latitude_deg);
-    double dest_long = degree_to_radian(dest.longintude_deg);
-
-
-    double vert_component_dist = earthRadiusMeters * std::sin(dest_lat - strt_lat);
-    double noneuc_dist = estimate_noneuclid(start,dest);
-
-    double bearing_phi = std::acos(vert_component_dist / noneuc_dist);
-
-    if(vert_component_dist < 1 && vert_component_dist > -1){
-        dest_long - strt_long > 0 ? bearing_phi = degree_to_radian(90) : bearing_phi = degree_to_radian(270);
-    }
-
-    return bearing_phi;
-  
-}
-
-void turn_to_destination(const rover_msgs::Odometry &cur_odom, const rover_msgs::Odometry &dest_odom, const double time, const double threshold) {
-    double cur_bear = get_current_bearing();
-    double dest_bearing = calc_bearing(cur_odom, dest_odom);
-    while(abs(cur_bear - dest_bearing) > threshold) {
-        turn_rover(dest_bearing - cur_bear, time);
-        cur_bear = get_current_bearing();
-    }
-    return;
-}
-
-double estimate_noneuclid(const rover_msgs::Odometry &start, const rover_msgs::Odometry &dest){
-    double st_lat = degree_to_radian(start.lat);
-    double st_long = degree_to_radian(start.long); 
-    double des_lat = degree_to_radian(dest.lat);
-    double des_long = degree_to_radian(dest.long);
-
-    double dlon = (des_long - st_long) * cos((st_lat + des_lat) / 2);
-    dlon *= dlon;
-    double dlat = (des_lat - st_lat);
-    dlat *= dlat;
-
-    assert(dlon > 0 && dlat > 0);
-    return sqrt(dlon + dlat)*earthRadiusMeters;
-}
-
-bool within_threshold(const rover_msgs::Odometry &odom1, const rover_msgs::Odometry &odom2, const double threshold) {
+bool Layer1::within_threshold(const rover_msgs::Odometry &odom1, 
+							  const rover_msgs::Odometry &odom2, 
+							  const double threshold) {
     return estimate_noneuclid(odom1,odom2) <= threshold;
 }
 
-void go_setpoint(const rover_msgs::Odometry &dest_odom, const double time, const double odom_threshold, const double bearing_threshold) {
-    // current odom location
-    rover_msgs::Odometry cur_odom = get_current_odom();
 
-    // turn rover
-    turn_to_destination(cur_odom, dest_odom, time, bearing_threshold);
 
-    while(!within_threshold(dest_odom, cur_odom, odom_threshold)) {
-        // move rover
-        drive_forward(time);
 
-        // readjust rover bearing
-        cur_odom = get_current_odom();
-
-        turn_to_destination(cur_odom, dest_odom, time, bearing_threshold);
-    }
-
-    return;
-}
-
-int main() {
-    return 0;
-}
