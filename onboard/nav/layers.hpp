@@ -1,10 +1,8 @@
 #pragma once
 
 #include <thread>
-#include <mutex>
-#include <condition_variable>
-
 #include <unordered_map>
+#include "thor.hpp"
 
 namespace Auton {
     class System;
@@ -54,10 +52,7 @@ namespace Auton {
         private:
             System &sys_;
 
-            bool paused_;
-            bool active_;
-
-            std::mutex state_mut_;
-            std::condition_variable paused_cv_;
+            Thor::Volatile<bool> paused_;
+            Thor::Volatile<bool> active_;
     };
 }
