@@ -4,7 +4,7 @@
 #include <lcm/lcm-cpp.hpp>
 #include "rover_msgs/Odometry.hpp"
 #include "layers.hpp"
-#include "Layer1_subclass.h"
+#include "layer1.hpp"
 
 struct LcmHandlers {
   Layer1 & layer1;
