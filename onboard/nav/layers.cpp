@@ -13,7 +13,7 @@ namespace Auton {
     System::~System() {
         std::unique_lock<std::mutex> lock(global_activity_lock_);
         for (auto it = threads_.begin(); it != threads_.end(); ++it) {
-            it->first->active_ = false;
+            it->first->active_.set(false);
             it->second.join();
             delete it->first;
             it = threads_.erase(it);
@@ -47,24 +47,19 @@ namespace Auton {
     Layer::~Layer() {}
 
     bool Layer::active() {
-        std::lock_guard<std::mutex> lock(state_mut_);
-        return active_;
+        return this->active_.clone();
     }
 
     void Layer::pause() {
-        std::lock_guard<std::mutex> lock(state_mut_);
-        paused_ = true;
+        this->paused_.set(true);
     }
 
     void Layer::resume() {
-        std::lock_guard<std::mutex> lock(state_mut_);
-        paused_ = false;
-        paused_cv_.notify_one();
+        this->paused_.set(false);
     }
 
     void Layer::wait_while_paused() {
-        std::unique_lock<std::mutex> lock(state_mut_);
-        paused_cv_.wait(lock, [&]() {return !paused_;});
+        paused_.wait_for([&](bool p) {return !p;});
     }
 
     void Layer::wait_standard() {
