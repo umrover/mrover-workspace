@@ -12,7 +12,7 @@ struct LcmHandlers {
             const lcm::ReceiveBuffer *rbuf,
             const std::string &channel,
             const rover_msgs::Odometry *odom) {
-        layer1.cur_odom = *odom;
+        layer1.cur_odom.set(*odom);
         /*std::cout << "currently at " << odom->latitude_deg << " deg "
                   << odom->latitude_min << " min latitude by "
                   << odom->longitude_deg << " deg " << odom->longitude_min
@@ -24,7 +24,7 @@ struct LcmHandlers {
             const lcm::ReceiveBuffer *rbuf,
             const std::string &channel,
             const rover_msgs::Odometry *odom) {
-        layer1.goal_odom = *odom;
+        layer1.goal_odom.set(*odom);
         layer1.resume();
         /*std::cout << "going to " << odom->latitude_deg << " deg "
                   << odom->latitude_min << " min latitude by "
