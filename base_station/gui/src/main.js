@@ -1,26 +1,46 @@
 import App from './components/App.html'
+import Cameras from './components/Cameras.html'
 import LCMBridge from 'bridge'
 
-const app = new App({
-  target: document.querySelector('main')
-})
+const main = document.querySelector('main')
+let app = null
+let cam = null
+if (main.id == 'dashboard') {
+  app = new App({target: main})
+}
+else if (main.id == 'camera') {
+  cam = new Cameras({target: main})
+}
 
 const lcm_ = new LCMBridge(
   "ws://localhost:8001",
   // Update WebSocket connection state
   (online) => {
-    app.set({
-      websocket_connected: online
-    })
+    if (app != null) {
+      app.set({
+        websocket_connected: online
+      })
+    }
   },
   // Update connection states
   (online) => {
-    app.set({
-      connections: online
-    })
+    if (app != null) {
+      app.set({
+        lcm_connected: online[0]
+      })
+    }
+    if (cam != null) {
+      cam.set({
+        connections: online.slice(1)
+      })
+    }
   },
   // Subscribed LCM message received
-  (msg) => app.lcm_message_recv(msg),
+  (msg) => {
+    if (app != null) {
+      app.lcm_message_recv(msg)
+    }
+  },
   // Subscriptions
   [{
     'topic': '/odom',
