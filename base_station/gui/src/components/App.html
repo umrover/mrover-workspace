@@ -46,7 +46,7 @@
     <RoverMap odom="{{odom}}" previous_waypoints="{{previous_waypoints}}" />
   </div>
   <div class="box waypoints light-bg">
-    <Waypoints bind:previous_waypoints="previous_waypoints" />
+    <Waypoints odom="{{odom}}" bind:previous_waypoints="previous_waypoints" />
   </div>
   <div class="box saveGPS light-bg">
     <GPS/>
