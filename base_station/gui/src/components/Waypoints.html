@@ -243,6 +243,7 @@
       document.addEventListener('keydown', (e) => {
         const FOCUS_EDITOR = 78; //N
         const FOCUS_INPUT_GPS = 83; //S
+        const DROP_WAYPOINT = 68; //D
         if (document.activeElement == document.body) {
           if (e.keyCode == FOCUS_INPUT_GPS) {
             this.refs.waypointName.focus();
@@ -260,6 +261,31 @@
             } else {
               list[0].className = "waypoint-item box";
             }
+          } else if (e.keyCode == DROP_WAYPOINT) {
+            const name = 'Dropped Waypoint';
+            const odom = this.get('odom');
+            const nDeg = odom.latitude_deg;
+            const nMin = odom.latitude_min;
+            const wDeg = odom.longitude_deg;
+            const wMin = odom.longitude_min;
+
+            const lcm_message = {
+              "name": name,
+              "latitude_deg": nDeg,
+              "latitude_min": nMin,
+              "longitude_deg": wDeg,
+              "longitude_min": wMin
+            };
+
+            const new_prev = this.get('previous_waypoints');
+            new_prev.unshift(lcm_message);
+
+            this.set({
+              current: lcm_message,
+              previous_waypoints: new_prev
+            });
+
+            save();
           }
         }
       }, false);
