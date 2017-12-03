@@ -71,13 +71,13 @@ def joystick_callback(channel, msg):
         lcm_.publish('/kill_switch', new_kill_msg.encode())
 
     else:
-        magnitude = deadzone(input_data.forward_back, 0.3)
-        theta = deadzone(input_data.left_right, 0.3)
+        magnitude = deadzone(input_data.forward_back, 0.2)
+        theta = deadzone(input_data.left_right, 0.1)
 
         joystick_math(new_motor, magnitude, theta)
 
-        new_motor.left *= damp
-        new_motor.right *= damp
+        new_motor.left *= new_motor.left*damp
+        new_motor.right *= new_motor.right*damp
 
     lcm_.publish('/motor', new_motor.encode())
 
