@@ -5,21 +5,23 @@ DigitalOut red_led(LED2);
 Serial dbg(USBTX, USBRX, 9600);
 Serial gps_in(PB_6, PB_7, 115200);
 
-enum class ReadState {
-    DataType,
-    Time,
-    Status,
-    LatDeg,
-    LatMin,
-    LatDir,
-    LonDeg,
-    LonMin,
-    LonDir,
-    SpeedKnots,
-    TrackAngle,
-    Waiting,
-    Invalid
-};
+namespace ReadState {
+    enum ReadState {
+        DataType,
+        Time,
+        Status,
+        LatDeg,
+        LatMin,
+        LatDir,
+        LonDeg,
+        LonMin,
+        LonDir,
+        SpeedKnots,
+        TrackAngle,
+        Waiting,
+        Invalid
+    };
+}
 
 class RTK {
 public:
@@ -69,8 +71,8 @@ private:
     double LatMin, LonMin, SpeedKnots, TrackAngle;
     int count = 0;
 
-    ReadState state = ReadState::Invalid;
-    ReadState next_state;
+    ReadState::ReadState state = ReadState::Invalid;
+    ReadState::ReadState next_state;
 
     void wait_until_valid(char c){
         if(c == '$') {
