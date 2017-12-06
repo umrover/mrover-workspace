@@ -18,6 +18,16 @@ namespace Thor {
                 this->val_ = val;
                 this->cv_.notify_all();
             }
+            template <typename Function>
+            bool set_conditionally(const T & val, Function func) {
+                std::unique_lock<std::mutex> lock_(this->mut_);
+                if (func(this->val_)) {
+                    this->val_ = val;
+                    this->cv_.notify_all();
+                    return true;
+                }
+                return false;
+            }
             void unsafe_set_possibly_race(const T & val) {
                 this->val_ = val;
             }
