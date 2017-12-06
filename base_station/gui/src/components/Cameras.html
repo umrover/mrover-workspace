@@ -15,8 +15,7 @@
     </div>
   </div>
 
-  <div class="video">
-  </div>
+  <Video/>
 </div>
 
 
@@ -74,10 +73,6 @@
     display: flex;
   }
 
-  .video {
-    grid-area: video;
-  }
-
   ul#vitals li {
     display: inline;
     float: left;
@@ -87,6 +82,7 @@
 
 <script>
   import CommIndicator from './CommIndicator.html'
+  import Video from './Video.html'
 
   export default {
     data() {
@@ -96,7 +92,8 @@
     },
 
     components: {
-      CommIndicator
+      CommIndicator,
+      Video
     }
   }
 </script>
