@@ -1,0 +1,224 @@
+<div class="wrapper">
+  <video autoplay="" src="" ref:vid />
+</div>
+
+<script>
+
+  export default {
+    oncreate() {
+      const pi_ip = "10.2.0.1";
+      const remoteVideoElement = this.refs.vid;
+      let ws = null;
+      let pc;
+      let datachannel;
+      const pcConfig = {"iceServers": [
+        {"urls": ["stun:stun.l.google.com:19302", "stun:" + pi_ip + ":3478"]}
+      ]};
+      const pcOptions = {
+        optional: [
+          // Deprecated:
+          //{RtpDataChannels: false},
+          //{DtlsSrtpKeyAgreement: true}
+        ]
+      };
+
+      const mediaConstraints = {
+        optional: [],
+        mandatory: {
+          OfferToReceiveAudio: true,
+          OfferToReceiveVideo: true
+        }
+      };
+
+      RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+      RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
+      RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+      navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
+      const URL = window.URL || window.webkitURL;
+
+      function createPeerConnection() {
+        try {
+          let pcConfig_ = pcConfig;
+          console.log(JSON.stringify(pcConfig_));
+          pc = new RTCPeerConnection(pcConfig_, pcOptions);
+          pc.onicecandidate = onIceCandidate;
+          pc.onaddstream = onRemoteStreamAdded;
+          pc.onremovestream = onRemoteStreamRemoved;
+          pc.ondatachannel = onDataChannel;
+          console.log("peer connection successfully created!");
+        } catch (e) {
+          console.error("createPeerConnection() failed");
+        }
+      }
+
+      function onDataChannel(event) {
+        console.log("onDataChannel()");
+        datachannel = event.channel;
+
+        event.channel.onopen = function () {
+          console.log("Data Channel is open!");
+        };
+
+        event.channel.onerror = function (error) {
+          console.error("Data Channel Error:", error);
+        };
+
+        event.channel.onmessage = function (event) {
+          console.log("Got Data Channel Message:", event.data);
+        };
+
+        event.channel.onclose = function () {
+          datachannel = null;
+          console.log("The Data Channel is Closed");
+        };
+      }
+
+      function onIceCandidate(event) {
+        if (event.candidate) {
+          let candidate = {
+            sdpMLineIndex: event.candidate.sdpMLineIndex,
+            sdpMid: event.candidate.sdpMid,
+            candidate: event.candidate.candidate
+          };
+          let request = {
+            what: "addIceCandidate",
+            data: JSON.stringify(candidate)
+          };
+          ws.send(JSON.stringify(request));
+        } else {
+          console.log("End of candidates.");
+        }
+      }
+
+      function onRemoteStreamAdded(event) {
+        console.log("Remote stream added:", URL.createObjectURL(event.stream));
+        remoteVideoElement.src = URL.createObjectURL(event.stream);
+        remoteVideoElement.play();
+      }
+
+      function onRemoteStreamRemoved(event) {
+        remoteVideoElement.src = '';
+      }
+
+      function start() {
+        if ("WebSocket" in window) {
+          document.documentElement.style.cursor = 'wait';
+          let server = pi_ip + ":9000";
+
+          let protocol = location.protocol === "https:" ? "wss:" : "ws:";
+          ws = new WebSocket(protocol + '//' + server + '/stream/webrtc');
+
+          function call() {
+            createPeerConnection();
+            let request = {
+              what: "call",
+              options: {
+                force_hw_vcodec: true,
+                vformat: 60 // 720p, 30fps
+              }
+            };
+            ws.send(JSON.stringify(request));
+            console.log("call(), request=" + JSON.stringify(request));
+          }
+
+          ws.onopen = function () {
+            console.log("onopen()");
+
+            call();
+          };
+
+          ws.onmessage = function (evt) {
+            let msg = JSON.parse(evt.data);
+            if (msg.what !== 'undefined') {
+              let what = msg.what;
+              let data = msg.data;
+            }
+            console.log("message =" + what);
+
+            switch (what) {
+              case "offer":
+                pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)),
+                  function onRemoteSdpSuccess() {
+                    console.log('onRemoteSdpSucces()');
+                    pc.createAnswer(function (sessionDescription) {
+                      pc.setLocalDescription(sessionDescription);
+                      let request = {
+                        what: "answer",
+                        data: JSON.stringify(sessionDescription)
+                      };
+                      ws.send(JSON.stringify(request));
+                      console.log(request);
+
+                    }, function (error) {
+                      alert("Failed to createAnswer: " + error);
+                    }, mediaConstraints);
+                  },
+                  function onRemoteSdpError(event) {
+                    alert('Failed to set remote description (unsupported codec on this browser?): ' + event);
+                  }
+                );
+
+                let request = {
+                  what: "generateIceCandidates"
+                };
+                console.log(request);
+                ws.send(JSON.stringify(request));
+                break;
+
+              case "answer":
+                break;
+
+              case "message":
+                alert(msg.data);
+                break;
+
+              case "iceCandidates":
+                let candidates = JSON.parse(msg.data);
+                for (let i = 0; candidates && i < candidates.length; i++) {
+                  let elt = candidates[i];
+                  let candidate = new RTCIceCandidate({sdpMLineIndex: elt.sdpMLineIndex, candidate: elt.candidate});
+                  pc.addIceCandidate(candidate,
+                    function () {
+                      console.log("IceCandidate added: " + JSON.stringify(candidate));
+                    },
+                    function (error) {
+                      console.error("addIceCandidate error: " + error);
+                    }
+                  );
+                }
+                document.documentElement.style.cursor = 'default';
+                break;
+            }
+          };
+
+          ws.onclose = function (evt) {
+            if (pc) {
+              pc.close();
+              pc = null;
+            }
+            document.documentElement.style.cursor = 'default';
+          };
+
+          ws.onerror = function (evt) {
+            alert("An error has occurred!");
+            ws.close();
+          };
+
+          } else {
+            alert("Sorry, this browser does not support WebSockets.");
+          }
+        }
+
+        start();
+      }
+    }
+</script>
+
+<style>
+  .wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+</style>
