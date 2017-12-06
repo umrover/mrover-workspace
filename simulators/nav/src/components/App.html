@@ -26,10 +26,9 @@
 </div>
 
 <script>
-    import projections from 'projections'
-
     const CENTER_LAT = 39.4
     const CENTER_LON = -110.5
+    const EARTH_RAD = 6371000.0
 
     const MAX_LAT = 39.5
     const MIN_LAT = 39.3
@@ -40,22 +39,69 @@
     const VECTOR_SIZE = 20
     const WAYPOINT_SIZE = 10
 
-    const TRANSLATIONAL_SCALE = 5
+    const TRANSLATIONAL_SCALE = 1
     const ROTATIONAL_SCALE = 10
 
     const scale = {
-        x: 8000000,
-        y: 6000000
+        x: 8,
+        y: 8
     }
 
-    const projection_opts = {
-        standardParallel: CENTER_LAT,
-        meridian: CENTER_LON
+    function inv_projection({x, y}) {
+        const center_lat = CENTER_LAT * (Math.PI / 180)
+        const center_lon = CENTER_LON * (Math.PI / 180)
+        let theta_prime = Math.atan2(y, x)
+        if (theta_prime < 0) {
+            theta_prime += 2.0*Math.PI;
+        }
+        let bearing = Math.PI/2.0 - theta_prime
+        if (bearing < 0) {
+            bearing += 2.0*Math.PI;
+        }
+        const dist = Math.sqrt(x*x + y*y)
+        const dlat_meters = dist * Math.cos(bearing);
+        const dlat = Math.asin(dlat_meters/EARTH_RAD)
+        let dlon = Math.sqrt((dist/EARTH_RAD)*(dist/EARTH_RAD) - dlat*dlat)
+        if (x < 0) {
+            dlon *= -1;
+        }
+
+        const coord_lat = dlat + center_lat
+        const coord_lon = center_lon + dlon/Math.cos((center_lat + coord_lat)/2.0)
+
+        return {
+            lat: coord_lat * (180.0/Math.PI),
+            lon: coord_lon * (180.0/Math.PI)
+        }
     }
 
-    function projection(coords) {
-        return projections.equirectangular(
-            coords, projection_opts)
+    function projection({lat, lon}) {
+        const center_lat = CENTER_LAT * (Math.PI / 180)
+        const center_lon = CENTER_LON * (Math.PI / 180)
+        const coord_lat = lat * (Math.PI / 180)
+        const coord_lon = lon * (Math.PI / 180)
+        const dlat = coord_lat - center_lat
+        const dlon = (coord_lon - center_lon) * Math.cos((center_lat + coord_lat)/2)
+        const dist = Math.sqrt(dlon*dlon + dlat*dlat) * EARTH_RAD
+
+        const dlat_meters = EARTH_RAD * Math.sin(dlat)
+        let bearing = Math.acos(dlat_meters / dist)
+        if (center_lon > coord_lon) {
+            bearing = 2.0 * Math.PI - bearing
+        }
+        if (dlat_meters < 1 && dlat_meters > -1) {
+            if (center_lon < coord_lon) {
+                bearing = Math.PI/2.0
+            } else {
+                bearing = 3.0*Math.PI/2.0
+            }
+        }
+
+        const theta_prime = Math.PI/2.0 - bearing
+        return {
+            x: dist * Math.cos(theta_prime),
+            y: dist * Math.sin(theta_prime)
+        }
     }
 
     function ensure_in_range(x, min, max) {
@@ -92,7 +138,7 @@
                 let x = e.clientX - rect.left
                 let y = e.clientY - rect.top
 
-                let {lat, lon} = projection(this.from_canvas({x, y}))
+                let {lat, lon} = inv_projection(this.from_canvas({x, y}))
 
                 this.set({
                     waypoint_selected: true,
@@ -152,15 +198,15 @@
             to_canvas: function({x, y}) {
                 const canvas = this.refs.canvas
                 return {
-                    x: (x-0.5)*scale.x+canvas.width/2,
-                    y: (y-0.25)*scale.y+canvas.height/2
+                    x: x/scale.x+canvas.width/2,
+                    y: canvas.height/2-y/scale.y
                 }
             },
             from_canvas: function({x, y}) {
                 const canvas = this.refs.canvas
                 return {
-                    x: (x - canvas.width/2)/(scale.x/1.6667) + 0.5,
-                    y: (y - canvas.height/2)/scale.y + 0.25
+                    x: (x - canvas.width/2)*scale.x,
+                    y: (canvas.height/2 - y)*scale.y
                 }
             },
             apply_joystick: function(stick) {
@@ -190,7 +236,7 @@
                 x += vel * Math.cos(bearing_rad)
                 y -= vel * Math.sin(bearing_rad)
 
-                let {lat, lon} = projection(this.from_canvas({x, y}))
+                let {lat, lon} = inv_projection(this.from_canvas({x, y}))
                 lat = ensure_in_range(lat, MIN_LAT, MAX_LAT)
                 lon = ensure_in_range(lon, MIN_LON, MAX_LON)
                 this.set({
