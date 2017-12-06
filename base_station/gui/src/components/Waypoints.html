@@ -33,29 +33,38 @@
   </div>
 
   <div class="box" id="waypoint-list" ref:editor>
-    <input type="text" class="focus-hidden" ref:editorInput> {{#each previous_waypoints as waypoint}}
-    <div style="display: none;">
-      {{lat_min = waypoint["latitude_min"]}} {{lon_min = -waypoint["longitude_min"]}}
-    </div>
+    <input type="text" class="focus-hidden" ref:editorInput>
+    <div class="box" id="waypoint-list" ref:editor>
+        <input type="text" class="focus-hidden" ref:editorInput>
+        {{#each previous_waypoints as waypoint}}
 
-    <div class="waypoint-item">
-      <div>
-        <p>
-          {{waypoint["name"]}}:
-        </p>
-      </div>
-      <div>
-        <p>
-          {{ waypoint["latitude_deg"] }}º {{ Math.floor(lat_min) }}' {{ ((lat_min-Math.floor(lat_min))*60).toFixed(4) }}" N
-        </p>
-      </div>
-      <div>
-        <p>
-          {{ -waypoint["longitude_deg"] }}º {{ Math.floor(lon_min) }}' {{ ((lon_min-Math.floor(lon_min))*60).toFixed(4) }}" W
-        </p>
-      </div>
+            <div class="waypoint-item">
+                <div>
+                    <p>
+                        {{waypoint["name"]}}:
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        {{ waypoint["latitude_deg"] }}º 
+                        {{ Math.floor(waypoint["latitude_min"]) }}' 
+                        {{ ((waypoint["latitude_min"]-Math.floor(waypoint["latitude_min"]))*60).toFixed(4) }}" N
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        {{ -waypoint["longitude_deg"] }}º 
+                        {{ Math.floor(-waypoint["longitude_min"]) }}' 
+                        {{ (((-waypoint["longitude_min"])-Math.floor(-waypoint["longitude_min"]))*60).toFixed(4) }}" W
+                    </p>
+                </div>
+
+                <button on:click='moveUp( waypoint )'>Move Up</button>
+                <button on:click='moveDown( waypoint )'>Move Down</button>
+                <button on:click='deleteWaypoint( waypoint )'>Delete</button>
+            </div>
+        {{/each}}
     </div>
-    {{/each}}
   </div>
 </div>
 
@@ -81,6 +90,43 @@
           "longitude_min": -12.544364
         }
       }
+    },
+
+    methods: {
+        moveUp(waypoint){
+            const waypoints=this.get('previous_waypoints');
+            const index = waypoints.indexOf(waypoint);
+            if(index!=0){
+                const temp = waypoints[index];
+                waypoints[index] = waypoints[index-1];
+                waypoints[index-1]=temp;
+            }
+            this.set({
+                previous_waypoints: waypoints
+            });
+        },
+
+        moveDown(waypoint){
+            const waypoints=this.get('previous_waypoints');
+            const index = waypoints.indexOf(waypoint);
+            if(index!=waypoints.length-1){
+                const temp = waypoints[index];
+                waypoints[index] = waypoints[index+1];
+                waypoints[index+1]=temp;
+            }
+            this.set({
+                previous_waypoints: waypoints
+            });
+        },
+
+        deleteWaypoint(waypoint){
+            const waypoints=this.get('previous_waypoints');
+            const index = waypoints.indexOf(waypoint);
+            waypoints.splice(index, 1);
+            this.set({
+                previous_waypoints: waypoints
+            });
+        }
     },
 
     oncreate() {
