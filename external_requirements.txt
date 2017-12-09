@@ -6,4 +6,5 @@
 #
 pynmea2==1.8.0
 pyserial==3.4
+python-can==1.5.2
 websockets==3.4
