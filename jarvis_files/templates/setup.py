@@ -11,7 +11,7 @@ setup(
 {% if executable %}
     entry_points={
         'console_scripts': [
-            '{{ component }}={{ component }}.__main__:main'
+            '{{ component }}={{ component }}.__main__:main'  # noqa
         ]
     }
 {% endif %}
