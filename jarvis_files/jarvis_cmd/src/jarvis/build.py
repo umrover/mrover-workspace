@@ -74,15 +74,29 @@ def build_dir(ctx, d):
     print("Done")
 
 
+def get_site_cfg():
+    PACKAGE_NAMES = ['lcm', 'mbed']
+    site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
+    site_cfg = configparser.ConfigParser()
+    site_cfg['third_party'] = {}
+    site_cfg.read(site_cfg_path)
+    tpdeps = site_cfg['third_party']
+    return {pkg_name: tpdeps.get(pkg_name, '') != 'False'
+            for pkg_name in PACKAGE_NAMES}
+
+
 def build_deps(ctx):
     """
     Build the dependencies. This is hard-coded for now.
     """
     # TODO make this not hard-coded
+    site_cfg = get_site_cfg()
     ctx.ensure_product_env()
-    third_party.ensure_lcm(ctx)
-    third_party.ensure_mbed_cli(ctx)
-    third_party.ensure_openocd(ctx)
+    if site_cfg['lcm']:
+        third_party.ensure_lcm(ctx)
+    if site_cfg['mbed']:
+        third_party.ensure_mbed_cli(ctx)
+        third_party.ensure_openocd(ctx)
     # TODO add other third-party deps
     with ctx.cd(ctx.root):
         print("Pinning pip dependencies...")

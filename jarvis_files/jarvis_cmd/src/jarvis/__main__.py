@@ -26,11 +26,6 @@ def main():
     parser_build = subcommands.add_parser('build', help='Build a directory')
     parser_build.add_argument('dir', help='The directory to build')
 
-    parser_run = subcommands.add_parser('run',
-                                        help="Run one machine's configuration")
-    parser_run.add_argument('machine')
-
-    # TODO add C++ projects
     parser_debug = subcommands.add_parser(
             'debug',
             help="Launch an mbed project in debug mode")
@@ -57,9 +52,6 @@ def main():
         if args.subcommand_name == 'build':
             build_deps(ctx)
             build_dir(ctx, clean_dir_name(args.dir))
-        elif args.subcommand_name == 'run':
-            # TODO
-            print('NOT IMPLEMENTED YET')
         elif args.subcommand_name == 'clean':
             clean(ctx)
         elif args.subcommand_name == 'debug':
