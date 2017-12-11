@@ -50,7 +50,9 @@ private:
 	void calc_bearing_thresholds(const rover_msgs::Odometry &cur_odom,
             const double distance, const double bearing);
 
-	void turn_to_dest(
+	void throughZero(double &dest_bearing, const double cur_bearing);
+	
+	double turn_to_dest(
             const rover_msgs::Odometry &cur_odom,
             const rover_msgs::Odometry &goal_odom);
 

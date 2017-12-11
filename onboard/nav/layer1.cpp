@@ -12,7 +12,8 @@ Layer1::Layer1 (Auton::System &sys, lcm::LCM &lcm_object) :
     in_outer_thresh(false),
     in_inner_thresh(false),
     outer_thresh(OUTER_MIN),
-    inner_thresh(INNER_MIN),
+    inner_thresh(.00001), //rover somehow functions better with 0.00001 thresh.
+    					  //with small threshold, rover doesn't overshoot
     lcm_(lcm_object) {
 	// calls the base class constructor
 }
@@ -27,19 +28,25 @@ void Layer1::run() {
     if (dist < WITHIN_GOAL) {
         this->pause();
         std::cout << "found it" << std::endl;
+        first = false;
     } else if (!first) { //turns rover to face target before any motion
-        turn_to_dest(cur_odom, goal_odom);
+        rover_msgs::Joystick joy = make_joystick_msg(0, turn_to_dest(cur_odom, goal_odom), false);
+        lcm_.publish(JOYSTICK_CHANNEL, &joy);
         if (in_inner_thresh) {
             first = true;
         }
     }
     else if (!in_outer_thresh) { //if outside outer threshold, turn rover back to inner threshold
-        turn_to_dest(cur_odom, goal_odom); 
+        rover_msgs::Joystick joy = make_joystick_msg(0, turn_to_dest(cur_odom, goal_odom), false);
+        lcm_.publish(JOYSTICK_CHANNEL, &joy);
+        std::cout << "shits fucked up, this should not be happening in this bizach\n";
+         
     } else {
         //drives rover forward
         double effort = distance_pid.update(-1 * dist, 0);
-        rover_msgs::Joystick joy = make_joystick_msg(effort, 0, false);
+        rover_msgs::Joystick joy = make_joystick_msg(effort, turn_to_dest(cur_odom, goal_odom), false);
         lcm_.publish(JOYSTICK_CHANNEL, &joy);
+        
     }
 }
 
@@ -55,16 +62,29 @@ void Layer1::calc_bearing_thresholds(const rover_msgs::Odometry &cur_odom,
     in_inner_thresh = (abs(cur_odom.bearing_deg - bearing) < inner_thresh);
 }
 
-void Layer1::turn_to_dest(
+double Layer1::turn_to_dest(
         const rover_msgs::Odometry &cur_odom,
         const rover_msgs::Odometry &goal_odom) {
     double dest_bearing = calc_bearing(cur_odom, goal_odom);
     double cur_bearing = cur_odom.bearing_deg;
-    double effort = bearing_pid.update(cur_bearing, dest_bearing);
-    rover_msgs::Joystick joy = make_joystick_msg(0, effort, false);
-    lcm_.publish(JOYSTICK_CHANNEL, &joy);
+    std::cout << "before: " << dest_bearing;
+    throughZero(dest_bearing, cur_bearing);
+    std::cout << " after: " << dest_bearing << std::endl;
+    return bearing_pid.update(cur_bearing, dest_bearing);
+    
+    //double effort = bearing_pid.update(cur_bearing, dest_bearing);
+    //rover_msgs::Joystick joy = make_joystick_msg(0, effort, false);
+    //lcm_.publish(JOYSTICK_CHANNEL, &joy);
 }
 
+void Layer1::throughZero(double &dest_bearing, const double cur_bearing) {
+	if(cur_bearing < 0 || cur_bearing > 360) std::cout << "shit's real fucked up\n";
+	if(abs(cur_bearing - dest_bearing) > 180) {
+		if(cur_bearing < 180) dest_bearing = (dest_bearing - 360);
+		else dest_bearing = dest_bearing + 360;
+		}
+	}	
+	
 double Layer1::calc_bearing(const rover_msgs::Odometry &start, 
 							const rover_msgs::Odometry &dest) {
     double start_lat = degree_to_radian(start.latitude_deg, start.latitude_min);
