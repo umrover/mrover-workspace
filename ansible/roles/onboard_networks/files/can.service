@@ -1,0 +1,11 @@
+[Unit]
+Description=can network ip link set
+After=systemd-modules-load.service
+
+[Service]
+Type=oneshot
+ExecStart=/etc/systemd/can_ip_link.sh
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
