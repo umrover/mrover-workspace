@@ -59,7 +59,8 @@ def get_builder(ctx, d):
     elif lang == 'mbed':
         print('Building mbed OS package')
         board = build_defs.get('board', 'DISCO_L476VG')
-        return MbedBuilder(d, ctx, board)
+        app = build_defs.get('app', 'False') == 'True'
+        return MbedBuilder(d, ctx, board, app, deps)
     else:
         print("error: unrecognized language '{}'".format(lang))
         sys.exit(1)
