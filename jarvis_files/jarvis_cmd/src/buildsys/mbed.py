@@ -19,9 +19,11 @@ def generate_ocd_flash(ctx, dir_, name, board):
 
 
 class MbedBuilder(BuildContext):
-    def __init__(self, dir_, wksp, board):
+    def __init__(self, dir_, wksp, board, app=False, deps=[]):
         super().__init__(dir_, wksp, ['.cpp', '.h', '.hpp'])
         self.board = board
+        self.app = app
+        self.deps = deps
 
     def build(self):
         """
@@ -29,6 +31,9 @@ class MbedBuilder(BuildContext):
         """
         if not self.files_changed():
             print("{} unchanged, skipping.".format(self.dir_))
+            return
+
+        if not self.app:
             return
 
         with self.scratch_space() as intermediate:
@@ -49,6 +54,19 @@ class MbedBuilder(BuildContext):
                                                'mbed_settings.py')):
                 self.run("ln -s {}/mbed_settings.py .".format(
                     mbed_project_dir))
+
+            # Symlink dependent library code into the project dir
+            for dep in self.deps:
+                dep_dir = os.path.join(self.wksp.root, dep)
+                with os.scandir(dep_dir) as it:
+                    for entry in it:
+                        if (entry.name.endswith('.h') or
+                                entry.name.endswith('.hpp') or
+                                entry.name.endswith('.c') or
+                                entry.name.endswith('.cpp')):
+                            os.symlink(entry.path,
+                                       os.path.join(intermediate, entry.name))
+
             with self.wksp.inside_mbed_env():
                 self.run('mbed target {}'.format(self.board))
                 self.run('mbed compile')
