@@ -135,6 +135,7 @@
             this.on('destroy', () => running = false)
 
             canvas.addEventListener('click', (e) => {
+                e.preventDefault()
                 let rect = canvas.getBoundingClientRect()
                 let x = e.clientX - rect.left
                 let y = e.clientY - rect.top
@@ -143,7 +144,7 @@
 
                 let waypoints = []
 
-                if (e.ctrlKey) {
+                if (e.ctrlKey || e.metaKey) {
                     waypoints = this.get('waypoints')
                 }
 
