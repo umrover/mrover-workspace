@@ -17,6 +17,7 @@
     "rollup-plugin-uglify": "^2.0.1"
   },
   "dependencies": {
+    "lodash": "^4.17.4",
     "projections": "^1.0.0"
   }
 }

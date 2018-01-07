@@ -43,4 +43,11 @@ app.on("goal", (goal) => {
     }
 })
 
+app.on("course", (course) => {
+    if (bridge.online) {
+        goal.type = 'Course'
+        bridge.publish('/course', course)
+    }
+})
+
 app.start_odom_events()
