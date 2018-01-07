@@ -1,6 +1,7 @@
 import asyncio
 import random
 import math
+import time
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import Odometry, Joystick, Motors, Sensors, Kill_switches
@@ -127,6 +128,7 @@ async def transmit_fake_joystick():
 async def transmit_fake_sensors():
     while True:
         new_sensors = Sensors()
+        new_sensors.timestamp = int(time.time())
         new_sensors.temperature = random.uniform(0, 100)
         new_sensors.moisture = random.uniform(0, 100)
         new_sensors.pH = random.uniform(0, 14)
@@ -141,7 +143,7 @@ async def transmit_fake_sensors():
               .format(new_sensors.temperature, new_sensors.moisture,
                       new_sensors.pH, new_sensors.soil_conductivity,
                       new_sensors.uv))
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
 
 
 def motor_callback(channel, msg):
