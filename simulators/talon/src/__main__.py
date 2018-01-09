@@ -23,7 +23,7 @@ control_types = {
 }
 
 
-def process_param_set_msg(msg):
+def process_param_set_msg(bus, msg, device_id):
     param = talon_srx.Param(msg.data[0])
     raw_bits = struct.unpack('<I', msg.data[1:5])[0]
     val = raw_bits
@@ -37,7 +37,13 @@ def process_param_set_msg(msg):
         val = talon_srx.fxp_10_22_to_float(raw_bits)
     print('setting parameter {} to {}'.format(
         param.name, val))
-    # TODO send a paramresponse message?
+
+    # TODO verify that the PARAM_RESPONSE message is one byte
+    msg = can.Message(
+            arbitration_id=(talon_srx.PARAM_RESPONSE | device_id),
+            extended_id=True,
+            data=[param.value])
+    bus.send(msg)
 
 
 msg_processors = {
@@ -46,6 +52,11 @@ msg_processors = {
 
 
 class Listener(can.Listener):
+    def __init__(self, bus, device_id):
+        super().__init__()
+        self.bus = bus
+        self.device_id = device_id
+
     def on_message_received(self, msg):
         incoming_dev_id = msg.arbitration_id & (~talon_srx.BITMASK)
         if incoming_dev_id == device_id:
@@ -54,7 +65,7 @@ class Listener(can.Listener):
                 print('received {} messsage: {}'.format(
                     control_types[control_type], msg))
                 if control_type in msg_processors:
-                    msg_processors[control_type](msg)
+                    msg_processors[control_type](self.bus, msg, self.device_id)
             elif (control_type >= talon_srx.STATUS_1 and
                     control_type <= (talon_srx.STATUS_11 | 63)):
                 # Ignore status messages
@@ -105,7 +116,7 @@ def main():
     can.rc['channel'] = 'vcan0'
 
     bus = Bus()
-    notifier = can.Notifier(bus, [Listener()])
+    notifier = can.Notifier(bus, [Listener(bus, device_id)])
     status_3_msg = can.Message(
             arbitration_id=(talon_srx.STATUS_3 | device_id),
             extended_id=True,
