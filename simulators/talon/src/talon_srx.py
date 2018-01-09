@@ -1,5 +1,5 @@
-import struct
 from enum import Enum
+from rover_common import bitlib
 
 
 BITMASK = 0xFFFFFFF0
@@ -135,21 +135,14 @@ class Param(Enum):
     SampleVelocityWindow = 148
 
 
-def fxp_10_22_to_float(raw):
+def fxp_10_22_to_float(fxp, signed=False):
     CONVERSION_CONST = 0.0000002384185791015625
-    packed_raw = struct.pack('I', raw)
-    val = struct.unpack('f', packed_raw)[0]
-    return val * CONVERSION_CONST
+    raw = bitlib.bits_to_float(fxp, signed)
+    return raw * CONVERSION_CONST
 
 
-def float_to_fxp_10_22(val):
+def float_to_fxp_10_22(val, signed=False):
     CONVERSION_CONST = 0x400000
-    if val > 1023:
-        val = 1023
-    elif val < 0:
-        val = 0
-    packed_val = struct.pack('f', val)
-    unsigned_raw = struct.unpack('I', packed_val)[0]
-    unsigned_raw = (unsigned_raw * CONVERSION_CONST) % 0xFFFFFFFF
-    packed_unsigned_raw = struct.pack('I', unsigned_raw)
-    return struct.unpack('i', packed_unsigned_raw)[0]
+    raw = bitlib.float_to_bits(val, signed)
+    raw = (raw * CONVERSION_CONST) % 0xFFFFFFFF
+    return raw
