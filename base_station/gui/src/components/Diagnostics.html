@@ -33,24 +33,33 @@
 
   <div class="box"></div>
   <div class="box"></div>
-  <div class="box"></div>
+  <div class="box">
+    <button style='background-color: {{recording?"Green":"Red"}};' on:click='toggle_recording()'>
+        <span>Recording: {{recording}}</span>
+    </button>
+  </div>
 </div>
 
 
 
 <script>
   export default {
-    // data() {
-    //   return {
-    //     sensors: {
-    //         temperature: 0,
-    //         moisture: 0,
-    //         pH: 0,
-    //         soil_conductivity: 0,
-    //         uv: 0
-    //     }
-    //   }
-    // }
+    data(){
+        return{
+            recording: false
+        }
+    },
+
+    methods: {
+        toggle_recording(){
+            const record = !this.get('recording');
+            this.set({
+                recording: record
+            });
+
+            this.fire("sensor_switch", record);
+        }
+    }
   }
 </script>
 

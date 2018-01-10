@@ -16,7 +16,7 @@
     Current odometry reading: {{ odom.latitude_deg.toFixed(2) }}º {{ odom.latitude_min.toFixed(2) }}' by {{ odom.longitude_deg.toFixed(2) }}º {{ odom.longitude_min.toFixed(2) }}' bearing {{ odom.bearing_deg.toFixed(2) }}
   </div>
   <div class="box diags light-bg">
-    <Diagnostics sensors="{{sensors}}" />
+    <Diagnostics ref:diags sensors="{{sensors}}" />
   </div>
   <div class="box map light-bg">
     <RoverMap odom="{{odom}}" previous_waypoints="{{previous_waypoints}}" />
@@ -176,6 +176,12 @@
       }
     },
 
+    oncreate() {
+      this.refs.diags.on("sensor_switch", (should_record) => {
+        this.fire("sensor_switch", should_record);
+      })
+    },
+
     methods: {
       lcm_message_recv: function({
         topic,
@@ -187,9 +193,8 @@
           })
         }
         if (topic === '/sensors') {
-          console.log("sensor msg recieved")
           this.set({
-            sensors: message
+            sensors: message,
           })
         }
         if (topic === '/kill_switch') {

@@ -1,6 +1,6 @@
 package rover_msgs;
 
 struct Waypoint {
-	bool search
+	boolean search;
 	Odometry odom;
 }

@@ -1,6 +1,6 @@
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import Sensors
+from rover_msgs import Sensors, SensorSwitch
 import os
 import csv
 
@@ -10,14 +10,23 @@ print_order = ["timestamp", "temperature", "moisture",
 lcm_ = aiolcm.AsyncLCM()
 outFile = None
 outWriter = None
+should_record = False
+
+
+def switch_callback(channel, msg):
+    global should_record
+    should_record = SensorSwitch.decode(msg).should_record
 
 
 def sensor_callback(channel, msg):
+    global should_record
+    if not should_record:
+        return
+
     global outFile
     global outWriter
 
     data = Sensors.decode(msg)
-
     writeData = [getattr(data, print_order[i]) for i in range(5)]
 
     outWriter.writerow(writeData)
@@ -46,5 +55,6 @@ def main():
         outFile.flush()
         os.fsync(outFile.fileno())
 
+    lcm_.subscribe("/sensor_switch", switch_callback)
     lcm_.subscribe("/sensors", sensor_callback)
     run_coroutines(lcm_.loop())
