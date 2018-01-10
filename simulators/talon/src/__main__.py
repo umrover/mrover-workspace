@@ -3,7 +3,7 @@ import can
 import struct
 import time
 from can.interfaces.interface import Bus
-from . import talon_srx
+from rover_common import talon_srx
 
 
 device_id = None
