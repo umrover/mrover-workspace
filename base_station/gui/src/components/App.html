@@ -179,7 +179,7 @@
     oncreate() {
       this.refs.diags.on("sensor_switch", (should_record) => {
         this.fire("sensor_switch", should_record);
-      })
+      });
     },
 
     methods: {
