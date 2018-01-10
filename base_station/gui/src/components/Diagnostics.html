@@ -50,6 +50,15 @@
         }
     },
 
+    oncreate() {
+        document.body.addEventListener('keydown', (e) => {
+            const R_KEY = 82;
+            if(document.activeElement==document.body && e.keyCode == R_KEY){
+                this.toggle_recording();
+            }
+        });
+    },
+
     methods: {
         toggle_recording(){
             const record = !this.get('recording');
