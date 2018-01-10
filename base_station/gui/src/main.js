@@ -72,6 +72,18 @@ const JOYSTICK_CONFIG = {
   "restart": 5
 };
 
+app.on("sensor_switch", (should_record) => {
+    console.log(should_record);
+    if (lcm_.online) {
+        const msg={
+          'type': 'SensorSwitch',
+          'should_record': should_record
+        }
+
+        lcm_.publish('/sensor_switch', msg)
+    }
+});
+
 window.setInterval(() => {
   const gamepads = navigator.getGamepads();
   const gamepad = gamepads[0];

@@ -28,7 +28,8 @@ class LCMBuilder(BuildContext):
 
         with self.scratch_space() as intermediate:
             pydir = os.path.join(intermediate, 'python')
-            os.mkdir(pydir)
+            if not os.path.exists(pydir):
+                os.mkdir(pydir)
             print('Generating Python package for LCM project...')
             self.run('lcm-gen --python {} --ppath {}'.format(
                 lcm_files_cmdline, pydir))
@@ -42,7 +43,8 @@ class LCMBuilder(BuildContext):
                     pyinstall(self)
 
             cppdir = os.path.join(intermediate, 'cpp')
-            os.mkdir(cppdir)
+            if not os.path.exists(cppdir):
+                os.mkdir(cppdir)
             with self.cd('cpp'):
                 self.run('lcm-gen --cpp {} --cpp-std=c++14'.format(
                     lcm_files_cmdline))
