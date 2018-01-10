@@ -1,5 +1,4 @@
 from enum import Enum
-from rover_common import bitlib
 
 
 BITMASK = 0xFFFFFFF0
@@ -137,12 +136,10 @@ class Param(Enum):
 
 def fxp_10_22_to_float(fxp, signed=False):
     CONVERSION_CONST = 0.0000002384185791015625
-    raw = bitlib.bits_to_float(fxp, signed)
+    raw = float(fxp)
     return raw * CONVERSION_CONST
 
 
 def float_to_fxp_10_22(val, signed=False):
-    CONVERSION_CONST = 0x400000
-    raw = bitlib.float_to_bits(val, signed)
-    raw = (raw * CONVERSION_CONST) % 0xFFFFFFFF
-    return raw
+    CONVERSION_CONST = float(0x400000)
+    return int(val * CONVERSION_CONST)
