@@ -57,15 +57,25 @@
                     </p>
                 </div>
 
-                <button on:click='moveUp( waypoint )'>Move Up</button>
-                <button on:click='moveDown( waypoint )'>Move Down</button>
-                <button on:click='deleteWaypoint( waypoint )'>Delete</button>
+                <div>
+                  <button style='background-color: {{waypoint["search"]?"Green":"Red"}};' on:click='toggleSearch( waypoint )'>
+                    {{waypoint["search"]?"Searching":"Not Searching"}}
+                  </button>
+                </div>
+                <div>
+                  <button on:click='moveUp( waypoint )'>Move Up</button>
+                  <button on:click='moveDown( waypoint )'>Move Down</button>
+                </div>
+                <div>
+                  <button on:click='deleteWaypoint( waypoint )'>Delete</button>
+                </div>
             </div>
         {{/each}}
     </div>
 </div>
 
 <script>
+
   const isChildOfID = function(element, id) {
     while (element != document.body) {
       if (element.id === id)
@@ -84,7 +94,8 @@
           "latitude_deg": 5,
           "latitude_min": 23.34523445,
           "longitude_deg": -15,
-          "longitude_min": -12.544364
+          "longitude_min": -12.544364,
+          "search":false
         }
       }
     },
@@ -101,6 +112,7 @@
             this.set({
                 previous_waypoints: waypoints
             });
+            this.save();
         },
 
         moveDown(waypoint){
@@ -114,6 +126,7 @@
             this.set({
                 previous_waypoints: waypoints
             });
+            this.save();
         },
 
         deleteWaypoint(waypoint){
@@ -123,14 +136,27 @@
             this.set({
                 previous_waypoints: waypoints
             });
+            this.save();
+        },
+
+        toggleSearch(waypoint){
+            const waypoints=this.get('previous_waypoints');
+            const index = waypoints.indexOf(waypoint);
+            waypoints[index]['search'] = !waypoints[index]['search'];
+            this.set({
+                previous_waypoints: waypoints
+            });
+            this.save();
+        },
+
+
+        save(){
+          const jsonString = JSON.stringify(this.get('previous_waypoints'));
+          window.localStorage.setItem("previous_waypoints", jsonString);
         }
     },
 
     oncreate() {
-      const save = (e) => {
-        const jsonString = JSON.stringify(this.get('previous_waypoints'));
-        window.localStorage.setItem("previous_waypoints", jsonString);
-      };
 
       const data = window.localStorage.getItem("previous_waypoints");
       if (data != null) {
@@ -182,7 +208,8 @@
               "latitude_deg": nDeg,
               "latitude_min": nMin + nSec / 60.0,
               "longitude_deg": -wDeg,
-              "longitude_min": -(wMin + wSec / 60.0)
+              "longitude_min": -(wMin + wSec / 60.0),
+              "search":false
             };
 
             const new_prev = this.get('previous_waypoints');
@@ -193,7 +220,7 @@
               previous_waypoints: new_prev
             });
 
-            save();
+            this.save();
 
           } else if (e.keyCode == ESC) {
             document.activeElement.blur();
@@ -271,7 +298,7 @@
               previous_waypoints: waypoints
             });
 
-            save();
+            this.save();
           }
         }, false);
 
@@ -317,7 +344,8 @@
               "latitude_deg": nDeg,
               "latitude_min": nMin,
               "longitude_deg": wDeg,
-              "longitude_min": wMin
+              "longitude_min": wMin,
+              "search":false
             };
 
             const new_prev = this.get('previous_waypoints');
@@ -328,7 +356,7 @@
               previous_waypoints: new_prev
             });
 
-            save();
+            this.save();
           }
         }
       }, false);
