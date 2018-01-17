@@ -314,7 +314,7 @@
         const FOCUS_EDITOR = 78; //N
         const FOCUS_INPUT_GPS = 83; //S
         const DROP_WAYPOINT = 68; //D
-        if (document.activeElement == document.body) {
+        if (document.activeElement == document.body || document.activeElement.className.startsWith("map")) {
           if (e.keyCode == FOCUS_INPUT_GPS) {
             this.refs.waypointName.focus();
             if (e.preventDefault) {
