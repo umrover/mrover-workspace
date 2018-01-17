@@ -63,6 +63,37 @@ window.addEventListener("gamepadconnected", e => {
     e.gamepad.buttons.length, e.gamepad.axes.length);
 });
 
+
+const keysDown=[false, false, false, false];
+
+const servosMessages={
+    'type':'CameraServos',
+    'pan':0,
+    'tilt':0
+};
+
+window.addEventListener('keydown', (e) => {
+  if(e.keyCode==38)//Up
+    keysDown[0]=true;
+  else if(e.keyCode==40)//Down
+    keysDown[1]=true;
+  else if(e.keyCode==37)//Left
+    keysDown[2]=true;
+  else if(e.keyCode==39)//Right
+    keysDown[3]=true;
+});
+
+window.addEventListener('keyup', (e) => {
+  if(e.keyCode==38)//Up
+    keysDown[0]=false;
+  else if(e.keyCode==40)//Down
+    keysDown[1]=false;
+  else if(e.keyCode==37)//Left
+    keysDown[2]=false;
+  else if(e.keyCode==39)//Right
+    keysDown[3]=false;
+});
+
 // Go to http://html5gamepad.com/ to check joystick button/axes indices
 const JOYSTICK_CONFIG = {
   "forward_back": 1,
@@ -87,21 +118,25 @@ app.on("sensor_switch", (should_record) => {
 window.setInterval(() => {
   const gamepads = navigator.getGamepads();
   const gamepad = gamepads[0];
-  if (!gamepad)
-    return;
+  if (gamepad){
+    const joystickData = {
+      'type': 'Joystick',
+      'forward_back': -gamepad.axes[JOYSTICK_CONFIG["forward_back"]],
+      'left_right': gamepad.axes[JOYSTICK_CONFIG["left_right"]],
+      'dampen': gamepad.axes[JOYSTICK_CONFIG["dampen"]],
+      'kill': gamepad.buttons[JOYSTICK_CONFIG["kill"]]['pressed'],
+      'restart': gamepad.buttons[JOYSTICK_CONFIG["restart"]]['pressed']
+    };
+    lcm_.publish('/joystick', joystickData);
+  }
 
+  const pan=(keysDown[2]^keysDown[3] ? (keysDown[2]?-1:1) : 0);
+  const tilt=(keysDown[0]^keysDown[1] ? (keysDown[0]?1:-1) : 0);
 
-  const joystickData = {
-    'type': 'Joystick',
-    'forward_back': -gamepad.axes[JOYSTICK_CONFIG["forward_back"]],
-    'left_right': gamepad.axes[JOYSTICK_CONFIG["left_right"]],
-    'dampen': gamepad.axes[JOYSTICK_CONFIG["dampen"]],
-    'kill': gamepad.buttons[JOYSTICK_CONFIG["kill"]]['pressed'],
-    'restart': gamepad.buttons[JOYSTICK_CONFIG["restart"]]['pressed']
-  };
+  servosMessages['pan']+=pan*0.1;
+  servosMessages['tilt']+=tilt*0.1;
+  lcm_.publish('/carmera_servos', servosMessages);
 
-  console.log(joystickData['dampen']);
-
-  lcm_.publish('/joystick', joystickData);
+  console.log(servosMessages['pan']+", "+servosMessages['tilt']);
 
 }, 100);
