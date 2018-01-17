@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct CameraServos {
+	float pan;
+	float tilt;
+}
