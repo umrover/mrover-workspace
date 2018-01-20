@@ -30,6 +30,10 @@
       <input type="text" ref:wSec next="waypointName">" W
     </div>
 
+    <div>
+      <button on:click='dropWaypoint()'>Drop Waypoint at location</button>
+    </div>
+
   </div>
 
     <div class="box" id="waypoint-list" ref:editor>
@@ -59,7 +63,7 @@
 
                 <div>
                   <button style='background-color: {{waypoint["search"]?"Green":"Red"}};' on:click='toggleSearch( waypoint )'>
-                    {{waypoint["search"]?"Searching":"Not Searching"}}
+                    <span class="white-text">{{waypoint["search"]?"Searching":"Not Searching"}}</span>
                   </button>
                 </div>
                 <div>
@@ -146,6 +150,34 @@
             this.set({
                 previous_waypoints: waypoints
             });
+            this.save();
+        },
+
+        dropWaypoint(){
+            const name = 'Dropped Waypoint';
+            const odom = this.get('odom');
+            const nDeg = odom.latitude_deg;
+            const nMin = odom.latitude_min;
+            const wDeg = odom.longitude_deg;
+            const wMin = odom.longitude_min;
+
+            const lcm_message = {
+              "name": name,
+              "latitude_deg": nDeg,
+              "latitude_min": nMin,
+              "longitude_deg": wDeg,
+              "longitude_min": wMin,
+              "search":false
+            };
+
+            const new_prev = this.get('previous_waypoints');
+            new_prev.unshift(lcm_message);
+
+            this.set({
+              current: lcm_message,
+              previous_waypoints: new_prev
+            });
+
             this.save();
         },
 
@@ -332,31 +364,7 @@
               list[0].className = "waypoint-item box";
             }
           } else if (e.keyCode == DROP_WAYPOINT) {
-            const name = 'Dropped Waypoint';
-            const odom = this.get('odom');
-            const nDeg = odom.latitude_deg;
-            const nMin = odom.latitude_min;
-            const wDeg = odom.longitude_deg;
-            const wMin = odom.longitude_min;
-
-            const lcm_message = {
-              "name": name,
-              "latitude_deg": nDeg,
-              "latitude_min": nMin,
-              "longitude_deg": wDeg,
-              "longitude_min": wMin,
-              "search":false
-            };
-
-            const new_prev = this.get('previous_waypoints');
-            new_prev.unshift(lcm_message);
-
-            this.set({
-              current: lcm_message,
-              previous_waypoints: new_prev
-            });
-
-            this.save();
+            this.dropWaypoint();
           }
         }
       }, false);
@@ -373,6 +381,10 @@
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr 6fr;
     grid-template-areas: unset;
+  }
+
+  .white-text{
+    color: white;
   }
 
   .waypoint-item {

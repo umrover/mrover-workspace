@@ -1,5 +1,11 @@
 <div class="wrapper">
     <div class="box">
+        <button style='background-color: {{recording?"Green":"Red"}};' on:click='toggle_recording()'>
+            <span class='white-text'>Recording: {{recording?'\u2611':'\u2610'}}</span>
+        </button>
+    </div>
+    <div class="box"></div>
+    <div class="box">
         <p>
                 Temperature:
                 <span>{{sensors.temperature.toFixed(2)}}ºC</span>
@@ -30,14 +36,7 @@
         </p>
     
     </div>
-
-  <div class="box"></div>
-  <div class="box"></div>
-  <div class="box">
-    <button style='background-color: {{recording?"Green":"Red"}};' on:click='toggle_recording()'>
-        <span>Recording: {{recording}}</span>
-    </button>
-  </div>
+    <div class="box"></div>
 </div>
 
 
@@ -77,6 +76,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 35px 35px 35px 35px;
+}
+
+.white-text{
+    color: white;
 }
 
 .box {
