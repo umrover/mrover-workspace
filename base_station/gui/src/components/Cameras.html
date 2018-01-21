@@ -14,6 +14,7 @@
       </ul>
     </div>
   </div>
+  <span>Servos pan: {{servosData.pan}}, Servos tilt: {{servosData.tilt}}</span>
 
   <Video/>
 </div>
@@ -87,7 +88,24 @@
   export default {
     data() {
       return {
-        connections: [false, false, false, false, false, false]
+        connections: [false, false, false, false, false, false],
+        servosData: {
+          'pan': 0,
+          'tilt': 0
+        }
+      }
+    },
+
+    methods: {
+      lcm_message_recv: function({
+        topic,
+        message
+      }) {
+        if (topic === '/carmera_servos') {
+          this.set({
+            servosData: message
+          })
+        }
       }
     },
 
