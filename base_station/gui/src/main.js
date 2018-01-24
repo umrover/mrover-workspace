@@ -11,7 +11,6 @@ if (main.id == 'dashboard') {
 else if (main.id == 'camera') {
   cam = new Cameras({target: main})
 }
-
 const lcm_ = new LCMBridge(
   "ws://localhost:8001",
   // Update WebSocket connection state
@@ -95,6 +94,9 @@ if(app !=null ){
       servosSpeed*=0.8;
     else if(e.keyCode==190)//period /greater than
       servosSpeed/=0.8;
+
+    if(e.keyCode>=49 && e.keyCode<=54)  //keys 1 to 6
+      window.localStorage.setItem("last_camera_key", e.keyCode-48);
 
     if(servosSpeed>1)
       servosSpeed=1;
