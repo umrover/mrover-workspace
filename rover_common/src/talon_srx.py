@@ -29,6 +29,17 @@ PARAM_RESPONSE = 0x02041840
 PARAM_SET = 0x02041880
 
 
+class TalonControlMode(Enum):
+    kThrottle = 0
+    kFollowerMode = 5
+    kVoltageMode = 4
+    kPositionMode = 1
+    kSpeedMode = 2
+    kCurrentMode = 3
+    kMotionProfileMode = 6
+    kMotionMagic = 7
+    kDisabled = 15
+
 class Param(Enum):
     ProfileParamSlot0_P = 1
     ProfileParamSlot0_I = 2

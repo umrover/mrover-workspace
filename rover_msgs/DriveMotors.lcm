@@ -1,6 +1,6 @@
 package rover_msgs;
 
-struct Motors {
+struct DriveMotors {
 	double left;
 	double right;
 }
