@@ -96,6 +96,14 @@
       }
     },
 
+    oncreate(){
+      window.addEventListener('storage', (e) => {
+        if(e.key == "last_camera_key"){
+          console.log("Camera "+e.newValue+" selected");  //Call function that switches cameras over here
+        }
+      });
+    },
+
     methods: {
       lcm_message_recv: function({
         topic,
