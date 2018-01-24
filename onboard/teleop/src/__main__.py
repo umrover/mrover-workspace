@@ -4,7 +4,7 @@ import math
 import time
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import Odometry, Joystick, Motors, Sensors, Kill_switches
+from rover_msgs import Odometry, Joystick, DriveMotors, Sensors, Kill_switches
 
 lcm_ = aiolcm.AsyncLCM()
 kill_motor = False
@@ -62,7 +62,7 @@ def joystick_callback(channel, msg):
 
     damp = (input_data.dampen - 1)/(-2)
 
-    new_motor = Motors()
+    new_motor = DriveMotors()
 
     if input_data.kill:
         new_motor.left = 0
@@ -85,7 +85,7 @@ def joystick_callback(channel, msg):
 
 def autonomous_callback(channel, msg):
     input_data = Joystick.decode(msg)
-    new_motor = Motors()
+    new_motor = DriveMotors()
 
     joystick_math(new_motor, input_data.forward_back, input_data.left_right)
 
@@ -147,7 +147,7 @@ async def transmit_fake_sensors():
 
 
 def motor_callback(channel, msg):
-    input_data = Motors.decode(msg)
+    input_data = DriveMotors.decode(msg)
     # This function is for testing the joystick-motor algorithm
     print("Left: {}  Right: {}\n".format(input_data.left, input_data.right))
 
