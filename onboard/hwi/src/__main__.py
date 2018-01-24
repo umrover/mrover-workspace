@@ -1,6 +1,6 @@
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import Motors
+from rover_msgs import DriveMotors
 import serial
 import os
 
@@ -23,7 +23,7 @@ def motor_callback(channel, msg):
     print("Recieving {} bytes from {}".format(len(msg), channel))
     # Message has left and right
     # Calculate talonValue for all left and all right Motors
-    m = Motors.decode(msg)
+    m = DriveMotors.decode(msg)
     talonValueLeft = toTalonValue(m.left)
     talonValueRight = toTalonValue(m.right)
     # Channels 0-2 are left 3-5 are right
