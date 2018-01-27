@@ -1,59 +1,79 @@
 <div class="wrapper">
   <video autoplay="" src="" ref:vid />
+  <div class="buttons">
+      <button id='cam0' on:click='changeIndex(0)'> <span>Camera 1</span> </button>
+      <div class="fixed-spacer"/>
+      <button id='cam1' on:click='changeIndex(1)'> <span>Camera 2</span> </button>
+      <div class="fixed-spacer"/>
+      <button id='cam2' on:click='changeIndex(2)'> <span>Camera 3</span> </button>
+      <div class="fixed-spacer"/>
+      <button id='cam3' on:click='changeIndex(3)'> <span>Camera 4</span> </button>
+      <div class="fixed-spacer"/>
+      <button id='cam4' on:click='changeIndex(4)'> <span>Camera 5</span> </button>
+      <div class="fixed-spacer"/>
+      <button id='cam5' on:click='changeIndex(5)'> <span>Camera 6</span> </button>
+    </div>
 </div>
 
 <script>
 
   export default {
-    oncreate() {
-      const pi_ip = "10.2.0.1";
-      const remoteVideoElement = this.refs.vid;
-      let ws = null;
-      let pc;
-      let datachannel;
-      const pcConfig = {"iceServers": [
-        {"urls": ["stun:stun.l.google.com:19302", "stun:" + pi_ip + ":3478"]}
-      ]};
-      const pcOptions = {
-        optional: [
-          // Deprecated:
-          //{RtpDataChannels: false},
-          //{DtlsSrtpKeyAgreement: true}
-        ]
-      };
-
-      const mediaConstraints = {
-        optional: [],
-        mandatory: {
-          OfferToReceiveAudio: true,
-          OfferToReceiveVideo: true
-        }
-      };
-
-      RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-      RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-      RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
-      navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
-      const URL = window.URL || window.webkitURL;
-
-      function createPeerConnection() {
-        try {
-          let pcConfig_ = pcConfig;
-          console.log(JSON.stringify(pcConfig_));
-          pc = new RTCPeerConnection(pcConfig_, pcOptions);
-          pc.onicecandidate = onIceCandidate;
-          pc.onaddstream = onRemoteStreamAdded;
-          pc.onremovestream = onRemoteStreamRemoved;
-          pc.ondatachannel = onDataChannel;
-          console.log("peer connection successfully created!");
-        } catch (e) {
-          console.error("createPeerConnection() failed");
-        }
+    data() {
+      return {
+        pi_index: 0
       }
+    },
 
-      function onDataChannel(event) {
+    oncreate() {
+      navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
+      this.observe("pi_index", (newIdx, oldIdx) => {
+        for (let i = 0; i < 6; i++) {
+          document.getElementById("cam" + i).disabled = (i == newIdx);
+        }
+        this.switchCamera();
+      });
+    },
+
+    methods: {
+      changeIndex(new_index) {
+        this.set({pi_index: new_index});
+      },
+
+      switchCamera() {
+        this.disconnect();
+        setTimeout(() => {this.connect();}, 1000);
+      },
+
+      createPeerConnection(app, ws) {
+        try {
+          let pcOptions = {
+            optional: [
+              // Deprecated:
+              //{RtpDataChannels: false},
+              //{DtlsSrtpKeyAgreement: true}
+            ]
+          };
+          console.log(JSON.stringify(this.pcConfig));
+          let pc = new RTCPeerConnection(this.pcConfig, pcOptions);
+          pc.ws = ws;
+          pc.vid = this.refs.vid;
+          pc.onicecandidate = app.onIceCandidate;
+          pc.onaddstream = app.onRemoteStreamAdded;
+          pc.onremovestream = app.onRemoteStreamRemoved;
+          pc.ondatachannel = app.onDataChannel;
+
+          console.log("peer connection successfully created!");
+
+          return pc;
+        } catch (e) {
+          console.error("createPeerConnection() failed: " + e);
+        }
+      },
+
+      onDataChannel(event) {
+        this.datachannel = event.channel;
+        console.log(this.datachannel);
         console.log("onDataChannel()");
-        datachannel = event.channel;
 
         event.channel.onopen = function () {
           console.log("Data Channel is open!");
@@ -68,12 +88,11 @@
         };
 
         event.channel.onclose = function () {
-          datachannel = null;
           console.log("The Data Channel is Closed");
         };
-      }
+      },
 
-      function onIceCandidate(event) {
+      onIceCandidate(event) {
         if (event.candidate) {
           let candidate = {
             sdpMLineIndex: event.candidate.sdpMLineIndex,
@@ -84,32 +103,43 @@
             what: "addIceCandidate",
             data: JSON.stringify(candidate)
           };
-          ws.send(JSON.stringify(request));
+          this.ws.send(JSON.stringify(request));
         } else {
           console.log("End of candidates.");
         }
-      }
+      },
 
-      function onRemoteStreamAdded(event) {
-        console.log("Remote stream added:", URL.createObjectURL(event.stream));
-        remoteVideoElement.src = URL.createObjectURL(event.stream);
-        remoteVideoElement.play();
-      }
+      onRemoteStreamAdded(event) {
+        console.log("Remote stream added:", window.URL.createObjectURL(event.stream));
+        this.vid.src = window.URL.createObjectURL(event.stream);
+        this.vid.play();
+      },
 
-      function onRemoteStreamRemoved(event) {
-        remoteVideoElement.src = '';
-      }
+      onRemoteStreamRemoved(event) {
+        this.vid.src = '';
+      },
 
-      function start() {
+      connect() {
+        const pi_ips = ["10.42.0.171", "10.42.0.106"];
+        let pi_ip = pi_ips[this.get("pi_index")];
+
+        this.pcConfig = {"iceServers": [
+          { "urls": ["stun:stun.l.google.com:19302", "stun:" + this.get("pi_ip") + ":3478"]}
+        ]};
+
         if ("WebSocket" in window) {
           document.documentElement.style.cursor = 'wait';
           let server = pi_ip + ":9000";
 
           let protocol = location.protocol === "https:" ? "wss:" : "ws:";
-          ws = new WebSocket(protocol + '//' + server + '/stream/webrtc');
+          let ws = new WebSocket(protocol + '//' + server + '/stream/webrtc');
+          let app = this;
 
-          function call() {
-            createPeerConnection();
+          ws.onopen = () => {
+            console.log("onopen()");
+
+            app.pc = app.createPeerConnection(app, ws);
+
             let request = {
               what: "call",
               options: {
@@ -119,29 +149,33 @@
             };
             ws.send(JSON.stringify(request));
             console.log("call(), request=" + JSON.stringify(request));
-          }
-
-          ws.onopen = function () {
-            console.log("onopen()");
-
-            call();
           };
 
           ws.onmessage = function (evt) {
             let msg = JSON.parse(evt.data);
-            if (msg.what !== 'undefined') {
-              let what = msg.what;
-              let data = msg.data;
+            if (msg.what == 'undefined') {
+              return;
             }
+
+            let what = msg.what;
+            let data = msg.data;
             console.log("message =" + what);
 
             switch (what) {
               case "offer":
-                pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)),
+                let mediaConstraints = {
+                  optional: [],
+                  mandatory: {
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: true
+                  }
+                };
+
+                app.pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)),
                   function onRemoteSdpSuccess() {
                     console.log('onRemoteSdpSucces()');
-                    pc.createAnswer(function (sessionDescription) {
-                      pc.setLocalDescription(sessionDescription);
+                    app.pc.createAnswer(function (sessionDescription) {
+                      app.pc.setLocalDescription(sessionDescription);
                       let request = {
                         what: "answer",
                         data: JSON.stringify(sessionDescription)
@@ -153,6 +187,7 @@
                       alert("Failed to createAnswer: " + error);
                     }, mediaConstraints);
                   },
+                  
                   function onRemoteSdpError(event) {
                     alert('Failed to set remote description (unsupported codec on this browser?): ' + event);
                   }
@@ -177,7 +212,7 @@
                 for (let i = 0; candidates && i < candidates.length; i++) {
                   let elt = candidates[i];
                   let candidate = new RTCIceCandidate({sdpMLineIndex: elt.sdpMLineIndex, candidate: elt.candidate});
-                  pc.addIceCandidate(candidate,
+                  app.pc.addIceCandidate(candidate,
                     function () {
                       console.log("IceCandidate added: " + JSON.stringify(candidate));
                     },
@@ -192,9 +227,9 @@
           };
 
           ws.onclose = function (evt) {
-            if (pc) {
-              pc.close();
-              pc = null;
+            if (app.pc) {
+              app.pc.close();
+              app.pc = null;
             }
             document.documentElement.style.cursor = 'default';
           };
@@ -204,21 +239,60 @@
             ws.close();
           };
 
-          } else {
-            alert("Sorry, this browser does not support WebSockets.");
-          }
+        } else {
+          alert("Sorry, this browser does not support WebSockets.");
         }
+      },
 
-        start();
-      }
+      disconnect() {
+        this.refs.vid.src = "";
+
+        if (this.pc) {
+          if (this.pc.datachannel) {
+            console.log("closing data channels");
+            this.pc.datachannel.close();
+            this.pc.datachannel = null;
+          }
+
+          if (this.pc.ws) {
+            this.pc.ws.close();
+          }
+
+          this.pc.close();
+          this.pc = null;
+        }
+      },
     }
+  }
 </script>
 
 <style>
   .wrapper {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 60px;
+    grid-template-areas: "video" "buttons";
+
+    font-family: sans-serif;
+    height: 100%;
+  }
+
+  video {
+    grid-area: video;
+    margin: auto;
+    width: auto;
+  }
+
+  .buttons {
+    grid-area: buttons;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
+  }
+
+  .fixed-spacer {
+    width:10px;
+    height:auto;
   }
 </style>

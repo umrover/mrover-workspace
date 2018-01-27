@@ -16,7 +16,7 @@
   </div>
   <span>Servos pan: {{servosData.pan}}, Servos tilt: {{servosData.tilt}}</span>
 
-  <Video/>
+  <Video ref:vid/>
 </div>
 
 
@@ -92,7 +92,8 @@
         servosData: {
           'pan': 0,
           'tilt': 0
-        }
+        },
+        pi_index: 0
       }
     },
 
@@ -100,6 +101,7 @@
       window.addEventListener('storage', (e) => {
         if(e.key == "last_camera_key"){
           console.log("Camera "+e.newValue+" selected");  //Call function that switches cameras over here
+          this.refs.vid.set({ pi_index: (parseInt(e.newValue) - 1) });
         }
       });
     },
