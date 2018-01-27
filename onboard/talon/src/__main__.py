@@ -62,7 +62,7 @@ def motor_callback(channel, msg):
 def set_param_callback(channel, msg):
     print("Recieving {} bytes from {}".format(len(msg), channel))
     m = SetParam.decode(msg)
-    rover.set_param(m.paramID, m.value)
+    rover.talons[m.deviceID].set_param(m.paramID, m.value)
 
 
 def set_demand_callback(channel, msg):
