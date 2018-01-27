@@ -29,19 +29,21 @@ class Rover:
         self.talons = []
         for i in range(NUM_TALONS):
             self.talons.append(LowLevel(can.interface.Bus(), i))
+        # make left_back talon follow left_front
+        self.talons[RoverTalons.left_back].set_demand(
+            RoverTalons.left_front, talon_srx.TalonControlMode.kFollower.value)
+        # make right_back talon follow right_front
+        self.talons[RoverTalons.right_back].set_demand(
+            RoverTalons.right_front, talon_srx.TalonControlMode.kFollower.value)
 
     def left_drive(self, speed):
         converted_speed = 1023 * speed
         self.talons[RoverTalons.left_front.value].set_demand(
             converted_speed, talon_srx.TalonControlMode.kThrottle.value)
-        self.talons[RoverTalons.left_back.value].set_demand(
-            converted_speed, talon_srx.TalonControlMode.kThrottle.value)
 
     def right_drive(self, speed):
         converted_speed = 1023 * speed
         self.talons[RoverTalons.right_front.value].set_demand(
-            converted_speed, talon_srx.TalonControlMode.kThrottle.value)
-        self.talons[RoverTalons.right_back.value].set_demand(
             converted_speed, talon_srx.TalonControlMode.kThrottle.value)
 
 
