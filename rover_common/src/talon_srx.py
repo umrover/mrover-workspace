@@ -40,6 +40,7 @@ class TalonControlMode(Enum):
     kMotionMagic = 7
     kDisabled = 15
 
+
 class Param(Enum):
     ProfileParamSlot0_P = 1
     ProfileParamSlot0_I = 2
