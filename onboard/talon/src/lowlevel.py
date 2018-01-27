@@ -84,7 +84,7 @@ class LowLevel(object):
             if msg.data[0] == param_id.value:
                 return
 
-    def read_enc_value(self, param_id):
+    def read_enc_value(self):
         msg = self.status_3_listener.get_message()
         if msg is None:
             return None
@@ -98,8 +98,7 @@ class LowLevel(object):
         raw |= M
         raw <<= 8
         raw |= L
-        raw <<= 8
-        raw >>= 8
+        raw = talon_srx.sign_extend(raw, 24)
         return raw
 
     def set_override_brake_type(self, param):
