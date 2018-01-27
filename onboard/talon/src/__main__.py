@@ -1,6 +1,9 @@
 from rover_common import aiolcm
+import asyncio
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import DriveMotors
+from rover_msgs import SetParam
+from rover_msgs import Encoder
 from .lowlevel import LowLevel
 from enum import Enum
 import can
@@ -9,6 +12,9 @@ from rover_common import talon_srx
 lcm_ = aiolcm.AsyncLCM()
 rover = None
 NUM_TALONS = 4
+can.rc['interface'] = 'socketcan_ctypes'
+can.rc['channel'] = 'can0'
+can.rc['bitrate'] = 500000
 
 
 class RoverTalons(Enum):
@@ -48,8 +54,33 @@ def motor_callback(channel, msg):
     rover.right_drive(m.right)
 
 
+def set_param_callback(channel, msg):
+    print("Recieving {} bytes from {}".format(len(msg), channel))
+    m = SetParam.decode(msg)
+    rover.set_param(m.paramID, m.value)
+
+
+async def publish_response():
+    while True:
+        ec = Encoder()
+        ec.left_front = int(
+            rover.talons[RoverTalons.left_front.value].read_enc_value() or 0)
+        ec.left_back = int(
+            rover.talons[RoverTalons.left_back.value].read_enc_value() or 0)
+        ec.right_front = int(
+            rover.talons[RoverTalons.right_front.value].read_enc_value() or 0)
+        ec.right_back = int(
+            rover.talons[RoverTalons.right_back.value].read_enc_value() or 0)
+
+        lcm_.publish('/encoder', ec.encode())
+
+        print("Published response")
+        await asyncio.sleep(0.1)
+
+
 def main():
     global rover
     rover = Rover()
     lcm_.subscribe("/motor", motor_callback)
-    run_coroutines(lcm_.loop())
+    lcm_.subscribe("/setparam", set_param_callback)
+    run_coroutines(lcm_.loop(), publish_response())
