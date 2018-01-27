@@ -155,3 +155,10 @@ def fxp_10_22_to_float(fxp, signed=False):
 def float_to_fxp_10_22(val, signed=False):
     CONVERSION_CONST = float(0x400000)
     return int(val * CONVERSION_CONST)
+
+
+def sign_extend(x, b):
+    if x >= (1 << (b - 1)):
+        return x - (1 << b)
+    else:
+        return x
