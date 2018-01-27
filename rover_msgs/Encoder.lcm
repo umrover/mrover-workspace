@@ -1,0 +1,8 @@
+package rover_msgs;
+
+struct Encoder {
+  int16_t left_front;
+  int16_t left_back;
+  int16_t right_front;
+  int16_t right_back;
+}
