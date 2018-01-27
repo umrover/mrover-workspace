@@ -3,38 +3,28 @@
 #include <tgmath.h>
 #include <chrono>
 #include <lcm/lcm-cpp.hpp>
+#include "calculations.hpp"
 #include "rover_msgs/Odometry.hpp"
 #include "rover_msgs/Joystick.hpp"
-#include "layers.hpp"
 #include "pid.hpp"
 #include "thor.hpp"
 #include <cassert>
 #include <cmath>
 
-#define earthRadiusMeters 6371000
-#define PI 3.141592654
-#define JOYSTICK_CHANNEL "/joystick"
-#define WITHIN_GOAL 5 //outer threshold distance
-#define AT_GOAL 0.25 //inner threshold distance
-#define OUTER_MIN 1 //min value for outer threshold
-#define INNER_MIN 0.5 //min value for inner threshold
+typedef rover_msgs::Odometry odom;
 
-class Layer1 : public Auton::Layer {
+class Layer1 {
 public:
 
 	// custom constructor for layer1
-	Layer1 (Auton::System &sys, lcm::LCM & lcm_object);
+	Layer1 (lcm::LCM & lcm_object);
 
-	~Layer1 () {}
+	bool translational(const odom & current_odom, const odom & target_odom);
 
-    Thor::Volatile<rover_msgs::Odometry> cur_odom;
-    Thor::Volatile<rover_msgs::Odometry> goal_odom;
-
-	// 
-	virtual void run() override;
+	void turn_to_bearing(const odom & current_position, double desired_bearing);
 
 private:
-
+	
 	PidLoop bearing_pid;
 	PidLoop distance_pid;
 
@@ -45,37 +35,19 @@ private:
 	double outer_thresh;
 	double inner_thresh;
 
-	lcm::LCM & lcm_;
-
-	void calc_bearing_thresholds(const rover_msgs::Odometry &cur_odom,
+	void calc_bearing_thresholds(const odom & cur_odom,
             const double distance, const double bearing);
 
-	void throughZero(double &dest_bearing, const double cur_bearing);
+	lcm::LCM & lcm_;
+
+	void throughZero(double & dest_bearing, const double cur_bearing);
 	
-	double turn_to_dest(
-            const rover_msgs::Odometry &cur_odom,
-            const rover_msgs::Odometry &goal_odom);
+	double turn_to_dest(const odom & cur_odom, const odom & goal_odom);
 
-	// function to calculate bearing from location 1 to location 2
-	// Odometry latitude_deg and longintude_deg in degrees
-	// return bearing in degrees
-	double calc_bearing(const rover_msgs::Odometry &odom1, 
-						const rover_msgs::Odometry &odom2);
+	double turn_to_dest(const odom &cur_odom, const double angle);
 
-	double estimate_noneuclid(const rover_msgs::Odometry &start, 
-							  const rover_msgs::Odometry &dest);
+	//rover_msgs::Joystick make_joystick_msg(const double forward_back, const double left_right, const bool kill);
 
-	rover_msgs::Joystick make_joystick_msg(const double forward_back, const double left_right,
-							   const bool kill);
-
-	// convert degree to radian
-	inline double degree_to_radian(const double x, const double minute);
-
-	// convert radian to degree
-	inline double radian_to_degree(const double x);
-
-	bool within_threshold(const rover_msgs::Odometry &odom1, 
-						  const rover_msgs::Odometry &odom2, 
-						  const double threshold);
+	void make_publish_joystick(const double forward_back, const double left_right, const bool kill);
 
 };
