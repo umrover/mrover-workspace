@@ -31,7 +31,8 @@ class MesonBuilder(BuildContext):
             self.run('ninja')
 
             print('Testing...')
-            self.run('ninja test')
+            self.run('LD_LIBRARY_PATH="{}/lib" ninja test'.format(
+                self.wksp.product_env))
 
             print('Installing...')
             self.run('ninja install')
