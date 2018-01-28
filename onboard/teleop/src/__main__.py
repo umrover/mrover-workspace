@@ -4,7 +4,8 @@ import math
 import time
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import Odometry, Joystick, DriveMotors, Sensors, Kill_switches
+from rover_msgs import (Odometry, Joystick, DriveMotors, Sensors,
+                        Kill_switches, Temperature)
 
 lcm_ = aiolcm.AsyncLCM()
 kill_motor = False
@@ -146,6 +147,25 @@ async def transmit_fake_sensors():
         await asyncio.sleep(1)
 
 
+async def transmit_temperature():
+    while True:
+        new_temps = Temperature()
+        with open("/sys/class/hwmon/hwmon0/temp1_input", "r") as bcpu_file:
+            bcpu_temp = int(bcpu_file.read())
+        with open("/sys/class/hwmon/hwmon2/temp1_input", "r") as gpu_file:
+            gpu_temp = int(gpu_file.read())
+        with open("/sys/class/hwmon/hwmon4/temp1_input", "r") as tboard_file:
+            tboard_temp = int(tboard_file.read())
+
+        with await lock:
+            lcm_.publish('/temperature', new_temps.encode())
+
+        print("Published new tempertues")
+        print("bcpu temp: {} gpu temp: {} tboard temp: {} ".format(
+            bcpu_temp/1000, gpu_temp/1000, tboard_temp/1000))
+        await asyncio.sleep(1)
+
+
 def motor_callback(channel, msg):
     input_data = DriveMotors.decode(msg)
     # This function is for testing the joystick-motor algorithm
@@ -164,4 +184,5 @@ def main():
     lcm_.publish('/kill_switch', new_kill_msg.encode())
 
     run_coroutines(hb.loop(), transmit_fake_odometry(),
-                   transmit_fake_sensors(), lcm_.loop())
+                   transmit_fake_sensors(), lcm_.loop(),
+                   transmit_temperature())

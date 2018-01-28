@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct Temperature {
+    int32_t bcpu_temp;
+    int32_t gpu_temp;
+    int32_t tboard_temp;
+}
