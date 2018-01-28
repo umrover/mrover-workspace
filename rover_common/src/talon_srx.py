@@ -51,7 +51,7 @@ class Param(Enum):
     ProfileParamSlot1_P = 11
     ProfileParamSlot1_I = 12
     ProfileParamSlot1_D = 13
-    ProfileParamSlotI_F = 14
+    ProfileParamSlot1_F = 14
     ProfileParamSlot1_IZone = 15
     ProfileParamSlot1_CloseLoopRampRate = 16
     ProfileParamSoftLimitForThreshold = 21

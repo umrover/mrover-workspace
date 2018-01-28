@@ -73,7 +73,7 @@ class LowLevel(object):
             frame = int(param_val)
 
         frame <<= 8
-        frame |= param_id.value
+        frame |= param_id
         arbId = talon_srx.PARAM_SET | self.device_id
         msg = can.Message(arbitration_id=arbId,
                           data=struct.pack('<Q', frame)[:5],
@@ -81,7 +81,7 @@ class LowLevel(object):
         self.send_one(msg)
         while True:
             msg = self.listener.get_message()
-            if msg.data[0] == param_id.value:
+            if msg.data[0] == param_id:
                 return
 
     def read_enc_value(self):
