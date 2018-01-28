@@ -1,4 +1,4 @@
-<div class="wrapper">
+<div class="wrap">
   <video autoplay="" src="" ref:vid />
   <div class="buttons">
       <button id='cam0' on:click='changeIndex(0)'> <span>Camera 1</span> </button>
@@ -187,7 +187,7 @@
                       alert("Failed to createAnswer: " + error);
                     }, mediaConstraints);
                   },
-                  
+
                   function onRemoteSdpError(event) {
                     alert('Failed to set remote description (unsupported codec on this browser?): ' + event);
                   }
@@ -267,7 +267,7 @@
 </script>
 
 <style>
-  .wrapper {
+  .wrap {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
