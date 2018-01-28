@@ -60,7 +60,7 @@ if [ "$1" = "exec" ]; then
         # shellcheck source=/dev/null
         source "${PRODUCT_ENV}/bin/activate"
         shift
-        LD_LIBRARY_PATH="${PRODUCT_ENV}/lib" exec "$@"
+        exec env LD_LIBRARY_PATH="${PRODUCT_ENV}/lib" "$@"
     else
         echo "You must build something in order to be able to exec a command."
     fi

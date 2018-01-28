@@ -2,6 +2,8 @@ import configparser
 import os
 import sys
 import shutil
+import hashlib
+from buildsys import hash_file
 from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
 from buildsys.mbed import MbedBuilder
@@ -86,6 +88,30 @@ def get_site_cfg():
             for pkg_name in PACKAGE_NAMES}
 
 
+# TODO refactor this
+def pip_deps_changed(ctx):
+    hash_file_path = os.path.join(ctx.hash_store, 'external_requirements')
+    saved_hash = b''
+
+    try:
+        with open(hash_file_path) as f:
+            saved_hash = f.read()
+    except:
+        pass
+
+    full_path = os.path.join(ctx.root, 'external_requirements.txt')
+    computed_hash = hash_file(full_path, hashlib.sha256)
+
+    return saved_hash != computed_hash
+
+
+def save_pip_deps_hash(ctx):
+    full_path = os.path.join(ctx.root, 'external_requirements.txt')
+    hash_file_path = os.path.join(ctx.hash_store, 'external_requirements')
+    with open(hash_file_path, 'w') as f:
+        f.write(hash_file(full_path, hashlib.sha256))
+
+
 def build_deps(ctx):
     """
     Build the dependencies. This is hard-coded for now.
@@ -99,16 +125,18 @@ def build_deps(ctx):
         third_party.ensure_mbed_cli(ctx)
         third_party.ensure_openocd(ctx)
     # TODO add other third-party deps
-    with ctx.cd(ctx.root):
-        print("Pinning pip dependencies...")
-        ctx.run("pip-compile --output-file external_requirements.txt external_requirements.in")  # noqa
-        print("Installing pip dependencies...")
-        with ctx.inside_product_env():
-            ctx.run("pip install --upgrade pip", hide='out')
-            ctx.run("pip install -r external_requirements.txt", hide='out')
-            ctx.run("pip install -r {}/requirements.txt".format(
-                ctx.jarvis_root), hide='out')
+    if pip_deps_changed(ctx):
+        with ctx.cd(ctx.root):
+            print("Installing pip dependencies...")
+            with ctx.inside_product_env():
+                ctx.run("pip install --upgrade pip", hide='out')
+                ctx.run("pip install -r external_requirements.txt", hide='out')
+                ctx.run("pip install -r {}/requirements.txt".format(
+                    ctx.jarvis_root), hide='out')
+    else:
+        print("pip dependencies already installed, skipping.")
 
+    save_pip_deps_hash(ctx)
     print("Done.")
 
 
