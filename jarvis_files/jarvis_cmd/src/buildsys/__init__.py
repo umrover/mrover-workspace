@@ -9,7 +9,7 @@ from invoke.context import Context
 from jinja2 import Environment, FileSystemLoader
 
 
-def _hash_file(filepath, algo):
+def hash_file(filepath, algo):
     hasher = algo()
     blocksize = 64 * 1024  # TODO see if there is a more efficient way
     with open(filepath, 'rb') as fp:
@@ -34,7 +34,7 @@ def hash_dir(dir_, suffixes):
         if not re.search(r'/\.', root):
             intermediate_hashes.extend(
                 [
-                    _hash_file(os.path.join(root, f), hash_algo)
+                    hash_file(os.path.join(root, f), hash_algo)
                     for f in files
                     if not f.startswith('.') and not re.search(r'/\.', f)
                     and os.path.splitext(f)[1] in suffixes
