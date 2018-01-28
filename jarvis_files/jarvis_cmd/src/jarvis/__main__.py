@@ -26,11 +26,6 @@ def main():
     parser_build = subcommands.add_parser('build', help='Build a directory')
     parser_build.add_argument('dir', help='The directory to build')
 
-    parser_debug = subcommands.add_parser(
-            'debug',
-            help="Launch an mbed project in debug mode")
-    parser_debug.add_argument('dir', help='The directory to debug')
-
     subcommands.add_parser('clean',
                            help='Removes the product env')
     subcommands.add_parser('dep',
@@ -54,10 +49,6 @@ def main():
             build_dir(ctx, clean_dir_name(args.dir))
         elif args.subcommand_name == 'clean':
             clean(ctx)
-        elif args.subcommand_name == 'debug':
-            build_deps(ctx)
-            build_dir(ctx, clean_dir_name(args.dir))
-            debug_dir(ctx, clean_dir_name(args.dir))
         elif args.subcommand_name == 'dep':
             build_deps(ctx)
         elif args.subcommand_name == 'mbed':
