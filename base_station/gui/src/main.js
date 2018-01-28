@@ -1,15 +1,19 @@
 import App from './components/App.html'
 import Cameras from './components/Cameras.html'
+import PidTune from './components/PidTune.html'
 import LCMBridge from 'bridge'
 
 const main = document.querySelector('main')
 let app = null
 let cam = null
+let pidTune = null
 if (main.id == 'dashboard') {
   app = new App({target: main})
 }
 else if (main.id == 'camera') {
   cam = new Cameras({target: main})
+}else if (main.id == 'pid-tune'){
+  pidTune = new PidTune({target: main})
 }
 const lcm_ = new LCMBridge(
   "ws://localhost:8001",
@@ -42,6 +46,10 @@ const lcm_ = new LCMBridge(
     if (cam != null){
       cam.lcm_message_recv(msg)
     }
+    if (pidTune != null){
+      console.log(msg);
+      pidTune.lcm_message_recv(msg);
+    }
   },
   // Subscriptions
   [{
@@ -63,6 +71,10 @@ const lcm_ = new LCMBridge(
   {
     'topic': '/carmera_servos',
     'type': 'CameraServos'
+  },
+  {
+    'topic':'/encoder',
+    'type':'Encoder'
   }]
 )
 
@@ -169,8 +181,35 @@ if(app !=null ){
     servosMessages['tilt'] = clamp(servosMessages['tilt'], -1, 1);
 
     lcm_.publish('/carmera_servos', servosMessages);
+  }, 100);
 
-    console.log(servosMessages['pan']+", "+servosMessages['tilt']);
+}else if(pidTune != null){
+  pidTune.on("/set_params", (pidData) => {
+    console.log("Setting Params");
+    
+    const msg={
+      'type':'SetParam',
+      'deviceID': pidData['deviceID'],
+      'paramID': 1,  //talon_srx.Params.ProfileParamSlot0_P
+      'value': pidData['kp']
+    }
+    lcm_.publish('/setparam', msg);
 
-}, 100);
+    msg['paramID'] = 2  //talon_srx.Params.ProfileParamSlot0_I
+    msg['value'] = pidData['ki']
+    lcm_.publish('/setparam', msg);
+
+    msg['paramID'] = 3  //talon_srx.Params.ProfileParamSlot0_D
+    msg['value'] = pidData['kd']
+    lcm_.publish('/setparam', msg);
+
+    msg['paramID'] = 4  //talon_srx.Params.ProfileParamSlot0_F
+    msg['value'] = pidData['kf']
+    lcm_.publish('/setparam', msg);
+  });
+
+  pidTune.on('/set_demand', (demandData)=>{
+    demandData['type'] = 'SetDemand';
+    lcm_.publish('/setdemand', demandData);
+  });
 }
