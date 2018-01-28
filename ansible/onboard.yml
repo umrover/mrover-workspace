@@ -4,6 +4,7 @@
   gather_facts: False
   vars:
       ubuntu_release: xenial
+      running_user: nvidia
       workspace_dir: /home/ubuntu/mrover-workspace
   roles:
   - onboard_dev
