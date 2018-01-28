@@ -53,6 +53,10 @@ const lcm_ = new LCMBridge(
     'type': 'Sensors'
   },
   {
+    'topic': '/temperature',
+    'type': 'Temperature'
+  },
+  {
     'topic': '/kill_switch',
     'type': 'Kill_switches'
   },

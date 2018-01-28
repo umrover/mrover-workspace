@@ -1,4 +1,4 @@
-<div class="wrapper">
+<div class="wrap">
     <div class="box">
         <button style='background-color: {{recording?"Green":"Red"}};' on:click='toggle_recording()'>
             <span class='white-text'>Recording: {{recording?'\u2611':'\u2610'}}</span>
@@ -34,7 +34,7 @@
             UV:
             <span>{{sensors.uv.toFixed(2)}} µmoles/m<sup>2</sup>/s</span>
         </p>
-    
+
     </div>
     <div class="box"></div>
 </div>
@@ -72,7 +72,7 @@
 </script>
 
 <style>
-.wrapper {
+.wrap {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 35px 35px 35px 35px;
