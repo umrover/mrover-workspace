@@ -58,17 +58,19 @@ class MbedBuilder(BuildContext):
             # Symlink dependent library code into the project dir
             for dep in self.deps:
                 dep_dir = os.path.join(self.wksp.root, dep)
-                with os.scandir(dep_dir) as it:
-                    for entry in it:
-                        if (entry.name.endswith('.h') or
-                                entry.name.endswith('.hpp') or
-                                entry.name.endswith('.c') or
-                                entry.name.endswith('.cpp')):
-                            target_path = os.path.join(intermediate,
-                                                       entry.name)
-                            if os.path.exists(target_path):
-                                os.unlink(target_path)
-                            os.symlink(entry.path, target_path)
+                it = os.scandir(dep_dir)
+                for entry in it:
+                    if (entry.name.endswith('.h') or
+                            entry.name.endswith('.hpp') or
+                            entry.name.endswith('.c') or
+                            entry.name.endswith('.cpp')):
+                        target_path = os.path.join(intermediate,
+                                                   entry.name)
+                        if os.path.exists(target_path):
+                            os.unlink(target_path)
+                        os.symlink(entry.path, target_path)
+                if hasattr(it, '__exit__'):
+                    it.__exit__()
 
             with self.wksp.inside_mbed_env():
                 self.run('mbed target {}'.format(self.board))
