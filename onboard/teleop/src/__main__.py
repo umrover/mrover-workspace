@@ -150,12 +150,18 @@ async def transmit_fake_sensors():
 async def transmit_temperature():
     while True:
         new_temps = Temperature()
-        with open("/sys/class/hwmon/hwmon0/temp1_input", "r") as bcpu_file:
-            bcpu_temp = int(bcpu_file.read())
-        with open("/sys/class/hwmon/hwmon2/temp1_input", "r") as gpu_file:
-            gpu_temp = int(gpu_file.read())
-        with open("/sys/class/hwmon/hwmon4/temp1_input", "r") as tboard_file:
-            tboard_temp = int(tboard_file.read())
+
+        try:
+            with open("/sys/class/hwmon/hwmon0/temp1_input", "r") as bcpu_file:
+                bcpu_temp = int(bcpu_file.read())
+            with open("/sys/class/hwmon/hwmon2/temp1_input", "r") as gpu_file:
+                gpu_temp = int(gpu_file.read())
+            with open("/sys/class/hwmon/hwmon4/temp1_input", "r") \
+                    as tboard_file:
+                tboard_temp = int(tboard_file.read())
+        except FileNotFoundError:
+            print("Temperature files not found")
+            return
 
         with await lock:
             lcm_.publish('/temperature', new_temps.encode())
