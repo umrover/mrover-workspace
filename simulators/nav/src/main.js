@@ -36,16 +36,9 @@ app.on("odom", (odom) => {
     }
 })
 
-app.on("goal", (goal) => {
-    if (bridge.online) {
-        goal.type = 'Odometry'
-        bridge.publish('/goal', goal)
-    }
-})
-
 app.on("course", (course) => {
     if (bridge.online) {
-        goal.type = 'Course'
+        course.type = 'Course'
         bridge.publish('/course', course)
     }
 })
