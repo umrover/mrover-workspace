@@ -79,10 +79,10 @@ const lcm_ = new LCMBridge(
 )
 
 window.addEventListener("gamepadconnected", e => {
-  const gamepad = navigator.getGamepads()[e.gamepad.index];
-  console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
-    e.gamepad.index, e.gamepad.id,
-    e.gamepad.buttons.length, e.gamepad.axes.length);
+  // const gamepad = navigator.getGamepads()[e.gamepad.index];
+  // console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+  //  e.gamepad.index, e.gamepad.id,
+  //  e.gamepad.buttons.length, e.gamepad.axes.length);
 });
 
 
@@ -140,6 +140,17 @@ if(app !=null ){
     "restart": 5
   };
 
+  const XBOX_CONFIG = {
+    "shoulder_rotate": 0,
+    "shoulder_tilt": 1,
+    "elbow_tilt_forward": 6,
+    "elbow_tilt_back": 7,
+    "hand_rotate": 2,
+    "hand_tilt": 3,
+    "grip_close": 5,
+    "grip_open": 4
+  };
+
   app.on("sensor_switch", (should_record) => {
       console.log(should_record);
       if (lcm_.online) {
@@ -154,17 +165,36 @@ if(app !=null ){
 
   window.setInterval(() => {
     const gamepads = navigator.getGamepads();
-    const gamepad = gamepads[0];
-    if (gamepad){
-      const joystickData = {
-        'type': 'Joystick',
-        'forward_back': -gamepad.axes[JOYSTICK_CONFIG["forward_back"]],
-        'left_right': gamepad.axes[JOYSTICK_CONFIG["left_right"]],
-        'dampen': gamepad.axes[JOYSTICK_CONFIG["dampen"]],
-        'kill': gamepad.buttons[JOYSTICK_CONFIG["kill"]]['pressed'],
-        'restart': gamepad.buttons[JOYSTICK_CONFIG["restart"]]['pressed']
-      };
-      lcm_.publish('/joystick', joystickData);
+    console.log(gamepads);
+    for (let i = 0; i < 2; i++) {
+      const gamepad = gamepads[i];
+      if (gamepad) {
+        if (gamepad.id.includes("Logitech")) {
+          const joystickData = {
+            'type': 'Joystick',
+            'forward_back': gamepad.axes[JOYSTICK_CONFIG["forward_back"]],
+            'left_right': gamepad.axes[JOYSTICK_CONFIG["left_right"]],
+            'dampen': gamepad.axes[JOYSTICK_CONFIG["dampen"]],
+            'kill': gamepad.buttons[JOYSTICK_CONFIG["kill"]]['pressed'],
+            'restart': gamepad.buttons[JOYSTICK_CONFIG["restart"]]['pressed']
+          };
+          lcm_.publish('/drive_control', joystickData);
+        }
+        else if (gamepad.id.includes("Microsoft")) {
+          const xboxData = {
+            'type': 'Xbox',
+            'shoulder_rotate': gamepad.axes[XBOX_CONFIG["shoulder_rotate"]],
+            'shoulder_tilt': gamepad.axes[XBOX_CONFIG["shoulder_tilt"]],
+            'elbow_tilt_forward': gamepad.buttons[XBOX_CONFIG["elbow_tilt_forward"]]['pressed'],
+            'elbow_tilt_back': gamepad.buttons[XBOX_CONFIG["elbow_tilt_back"]]['pressed'],
+            'hand_rotate': gamepad.axes[XBOX_CONFIG["hand_rotate"]],
+            'hand_tilt': gamepad.axes[XBOX_CONFIG["hand_tilt"]],
+            'grip_close': gamepad.buttons[XBOX_CONFIG["grip_close"]]['pressed'],
+            'grip_open': gamepad.buttons[XBOX_CONFIG["grip_open"]]['pressed']
+          };
+          lcm_.publish('/arm_control', xboxData);
+        }
+      }
     }
 
     const pan=(keysDown[2]^keysDown[3] ? (keysDown[2]?-1:1) : 0);
