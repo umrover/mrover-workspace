@@ -1,18 +1,25 @@
 <div class="wrap">
   <video autoplay="" src="" ref:vid />
-  <div class="buttons">
-      <button id='cam0' on:click='changeIndex(0)'> <span>Camera 1</span> </button>
-      <div class="fixed-spacer"/>
-      <button id='cam1' on:click='changeIndex(1)'> <span>Camera 2</span> </button>
-      <div class="fixed-spacer"/>
-      <button id='cam2' on:click='changeIndex(2)'> <span>Camera 3</span> </button>
-      <div class="fixed-spacer"/>
-      <button id='cam3' on:click='changeIndex(3)'> <span>Camera 4</span> </button>
-      <div class="fixed-spacer"/>
-      <button id='cam4' on:click='changeIndex(4)'> <span>Camera 5</span> </button>
-      <div class="fixed-spacer"/>
-      <button id='cam5' on:click='changeIndex(5)'> <span>Camera 6</span> </button>
-    </div>
+  <div class="buttons" id='cam-buttons'>
+    <button id='cam0' on:click='changeIndex(0)'> <span>Camera 1</span> </button>
+    <div class="fixed-spacer"/>
+    <button id='cam1' on:click='changeIndex(1)'> <span>Camera 2</span> </button>
+    <div class="fixed-spacer"/>
+    <button id='cam2' on:click='changeIndex(2)'> <span>Camera 3</span> </button>
+    <div class="fixed-spacer"/>
+    <button id='cam3' on:click='changeIndex(3)'> <span>Camera 4</span> </button>
+    <div class="fixed-spacer"/>
+    <button id='cam4' on:click='changeIndex(4)'> <span>Camera 5</span> </button>
+    <div class="fixed-spacer"/>
+    <button id='cam5' on:click='changeIndex(5)'> <span>Camera 6</span> </button>
+  </div>
+  <div class="buttons" id='rec-buttons'>
+    <button id='rec-start' on:click='startRecording()'> <span>Start Recording</span> </button>
+    <div class="fixed-spacer"/>
+    <button id='rec-end' on:click='stopRecording()'> <span>Stop Recording</span> </button>
+    <div class="fixed-spacer"/>
+    <button id='screenshot'> <span>Screenshot</span> </button>
+  </div>
 </div>
 
 <script>
@@ -262,6 +269,82 @@
           this.pc = null;
         }
       },
+
+      startRecording() {
+        if (!this.pc) {
+          return;
+        }
+
+        let streams = this.pc.getRemoteStreams();
+        if (streams.length == 0) {
+          return;
+        }
+
+        let stream = streams[0];
+        let options = { mimeType: 'video/webm;codecs=vp9' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          console.log(options.mimeType + ' is not Supported');
+          options = { mimeType: 'video/webm;codecs=vp8' };
+          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            console.log(options.mimeType + ' is not Supported');
+            options = { mimeType: 'video/webm;codecs=h264' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+              console.log(options.mimeType + ' is not Supported');
+              options = { mimeType: 'video/webm' };
+              if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                console.log(options.mimeType + ' is not Supported');
+                options = { mimeType: '' };
+              }
+            }
+          }
+        }
+
+        try {
+          this.pc.recorder = new MediaRecorder(stream, options);
+        } catch (e) {
+          console.error('Exception while creating MediaRecorder: ' + e);
+          alert('Exception while creating MediaRecorder: ' + e + '. mimeType: ' + options.mimeType);
+          return;
+        }
+        console.log('Created MediaRecorder', this.pc.recorder, 'with options', options);
+        //recorder.ignoreMutedMedia = true;
+
+        let recordedBlobs = [];
+
+        this.pc.recorder.ondataavailable = function (event) {
+          recordedBlobs.push(event.data);
+        };
+        
+        this.pc.recorder.onstop = function (event) {
+          console.log('Recorder stopped: ', event);
+          let blob = new Blob(recordedBlobs, { type: 'video/webm' });
+          let url = window.URL.createObjectURL(blob);
+          let a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'video.webm';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          }, 100);
+        }
+
+        this.pc.recorder.onwarning = function (e) {
+          console.log('Warning: ' + e);
+        };
+
+        this.pc.recorder.start();
+        console.log('MediaRecorder started', this.pc.recorder);
+      },
+
+      stopRecording() {
+        if (this.pc.recorder) {
+          this.pc.recorder.stop();
+          console.log("recording stopped");
+        }
+      },
     }
   }
 </script>
@@ -271,8 +354,8 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 60px;
-    grid-template-areas: "video" "buttons";
+    grid-template-rows: 1fr 20px 20px;
+    grid-template-areas: "video" "cam-buttons" "rec-buttons";
 
     font-family: sans-serif;
     height: 100%;
@@ -285,10 +368,17 @@
   }
 
   .buttons {
-    grid-area: buttons;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  #cam-buttons {
+    grid-area: cam-buttons;
+  }
+
+  #rec-buttons {
+    grid-area: rec-buttons;
   }
 
   .fixed-spacer {
