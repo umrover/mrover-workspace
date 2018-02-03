@@ -5,11 +5,12 @@ import time
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Odometry, Joystick, DriveMotors, Sensors,
-                        Kill_switches, Temperature)
+                        Kill_switches, Xbox, Encoder, Temperature)
 
 lcm_ = aiolcm.AsyncLCM()
 kill_motor = False
 lock = asyncio.Lock()
+enc_in = None
 
 
 def connection_state_changed(c, _):
@@ -46,10 +47,12 @@ def joystick_math(new_motor, magnitude, theta):
         new_motor.right -= theta
 
 
-def joystick_callback(channel, msg):
+def drive_control_callback(channel, msg):
     global kill_motor
 
     input_data = Joystick.decode(msg)
+    input_data.forward_back = -math.copysign(input_data.forward_back ** 2,
+                                             input_data.forward_back)
 
     new_kill_msg = Kill_switches()
 
@@ -73,15 +76,44 @@ def joystick_callback(channel, msg):
         lcm_.publish('/kill_switch', new_kill_msg.encode())
 
     else:
-        magnitude = deadzone(input_data.forward_back, 0.2)
+        magnitude = deadzone(input_data.forward_back, 0.04)
         theta = deadzone(input_data.left_right, 0.1)
 
         joystick_math(new_motor, magnitude, theta)
 
-        new_motor.left *= new_motor.left*damp
-        new_motor.right *= new_motor.right*damp
+        new_motor.left *= damp
+        new_motor.right *= damp
 
     lcm_.publish('/motor', new_motor.encode())
+
+
+def encoder_callback(channel, msg):
+    global enc_in
+    enc_in = Encoder.decode(msg)
+
+
+def arm_control_callback(channel, msg):
+    global enc_in
+    xbox = Xbox.decode(msg)
+    new_encoder = Encoder()
+    if enc_in:
+        new_encoder = enc_in
+        new_encoder.joint_a = (enc_in.joint_a +
+                               int(deadzone(xbox.shoulder_rotate, 0.20)*5))
+        new_encoder.joint_b = (enc_in.joint_b -
+                               int(deadzone(xbox.shoulder_tilt, 0.20)*5))
+        new_encoder.joint_c = (enc_in.joint_c +
+                               int((xbox.elbow_tilt_forward -
+                                    xbox.elbow_tilt_back)*2.5))
+        new_encoder.joint_d = (enc_in.joint_d -
+                               int(deadzone(xbox.hand_tilt, 0.20)*5))
+        new_encoder.joint_e = (enc_in.joint_e +
+                               int(deadzone(xbox.hand_rotate, 0.20)*5))
+        new_encoder.joint_f = (enc_in.joint_f +
+                               int((xbox.grip_close -
+                                    xbox.grip_open)*5))
+        enc_in = None
+        lcm_.publish('/arm_demand', new_encoder.encode())
 
 
 def autonomous_callback(channel, msg):
@@ -105,7 +137,7 @@ async def transmit_fake_odometry():
         with await lock:
             lcm_.publish('/odom', new_odom.encode())
 
-        print("Published new odometry")
+        # print("Published new odometry")
         await asyncio.sleep(0.5)
 
 
@@ -119,7 +151,7 @@ async def transmit_fake_joystick():
         new_joystick.restart = False
 
         with await lock:
-            lcm_.publish('/joystick', new_joystick.encode())
+            lcm_.publish('/drive_control', new_joystick.encode())
 
         print("Published new joystick\nfb: {}   lr: {}"
               .format(new_joystick.forward_back, new_joystick.left_right))
@@ -139,11 +171,11 @@ async def transmit_fake_sensors():
         with await lock:
             lcm_.publish('/sensors', new_sensors.encode())
 
-        print("Published new fake sensor data")
-        print("temp: {} moisture: {} ph: {} soil: {} uv: "
-              .format(new_sensors.temperature, new_sensors.moisture,
-                      new_sensors.pH, new_sensors.soil_conductivity,
-                      new_sensors.uv))
+        # print("Published new fake sensor data")
+        # print("temp: {} moisture: {} ph: {} soil: {} uv: "
+        #       .format(new_sensors.temperature, new_sensors.moisture,
+        #               new_sensors.pH, new_sensors.soil_conductivity,
+        #               new_sensors.uv))
         await asyncio.sleep(1)
 
 
@@ -178,16 +210,40 @@ def motor_callback(channel, msg):
     print("Left: {}  Right: {}\n".format(input_data.left, input_data.right))
 
 
+def transmit_fake_encoders(channel, msg):
+    lcm_.publish('/encoder', msg)
+
+
+def enc_out_callback(channel, msg):
+    enc = Encoder.decode(msg)
+    print("Arm:\nA: {}\nB: {}\nC: {}\nD: {}\nE: {}\nF: {}\n"
+          .format(enc.joint_a, enc.joint_b, enc.joint_c,
+                  enc.joint_d, enc.joint_e, enc.joint_f))
+
+
 def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
-    lcm_.subscribe("/joystick", joystick_callback)
+    lcm_.subscribe("/drive_control", drive_control_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/motor', motor_callback)
+    lcm_.subscribe('/arm_control', arm_control_callback)
+    lcm_.subscribe('/encoder', encoder_callback)
+    lcm_.subscribe('/arm_demand', enc_out_callback)
+    lcm_.subscribe('/arm_demand', transmit_fake_encoders)
 
     new_kill_msg = Kill_switches()
     new_kill_msg.killed = False
     lcm_.publish('/kill_switch', new_kill_msg.encode())
+
+    new_encoder = Encoder()
+    new_encoder.joint_a = 0
+    new_encoder.joint_b = 0
+    new_encoder.joint_c = 0
+    new_encoder.joint_d = 0
+    new_encoder.joint_e = 0
+    new_encoder.joint_f = 0
+    lcm_.publish('/encoder', new_encoder.encode())
 
     run_coroutines(hb.loop(), transmit_fake_odometry(),
                    transmit_fake_sensors(), lcm_.loop(),
