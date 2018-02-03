@@ -21,12 +21,17 @@
         <h2>Waypoint {{ i }}</h2>
         <p><b>Latitude:</b> {{ waypoint.latitude_deg }}&#176; {{ waypoint.latitude_min }}'</p>
         <p><b>Longitude:</b> {{ waypoint.longitude_deg }}&#176; {{ waypoint.longitude_min }}'</p>
+        <p>
+        <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
+        <label for="search_checkbox_{{ i }}">Search?</label>
+        </p>
     </div>
     {{/each}}
 </div>
 
 <script>
     import _ from 'lodash'
+    import fnv from 'fnv-plus'
 
     const CENTER_LAT = 39.4
     const CENTER_LON = -110.5
@@ -144,19 +149,16 @@
 
                 let waypoints = []
 
-<<<<<<< HEAD
                 if (e.ctrlKey || e.metaKey) {
-=======
-                if (e.ctrlKey) {
->>>>>>> [GUI] Added locally stored map of URC site
                     waypoints = this.get('waypoints')
                 }
 
                 waypoints.push({
-                        latitude_deg: Math.trunc(lat),
-                        latitude_min: (lat % 1)*60,
-                        longitude_deg: Math.trunc(lon),
-                        longitude_min: (lon % 1)*60
+                    latitude_deg: Math.trunc(lat),
+                    latitude_min: (lat % 1)*60,
+                    longitude_deg: Math.trunc(lon),
+                    longitude_min: (lon % 1)*60,
+                    search: false
                 })
 
                 this.set({ waypoints })
@@ -271,30 +273,26 @@
                         bearing_deg: this.get('bearing_deg')
                     })
                     const waypoints = this.get('waypoints')
-                    if (waypoints.length == 1) {
-                        const waypoint = waypoints[0]
-                        this.fire("goal", {
-                            latitude_deg: waypoint.latitude_deg|0,
-                            latitude_min: waypoint.latitude_min,
-                            longitude_deg: waypoint.longitude_deg|0,
-                            longitude_min: waypoint.longitude_min,
-                            bearing_deg: 0
-                        })
-                    } else if (waypoints.length > 1) {
-                        this.fire("course", {
-                            num_waypoints: waypoints.length,
-                            waypoints: _.map(waypoints, (waypoint) => {
-                                return {
+                    let course = {
+                        num_waypoints: waypoints.length,
+                        waypoints: _.map(waypoints, (waypoint) => {
+                            return {
+                                type: "Waypoint",
+                                search: waypoint.search,
+                                odom: {
                                     latitude_deg: waypoint.latitude_deg|0,
                                     latitude_min: waypoint.latitude_min,
                                     longitude_deg: waypoint.longitude_deg|0,
                                     longitude_min: waypoint.longitude_min,
-                                    bearing_deg: 0
+                                    bearing_deg: 0,
+                                    type: "Odometry"
                                 }
-                            })
+                            }
                         })
                     }
-                }, 100);
+                    course.hash = fnv.fast1a52(JSON.stringify(course))
+                    this.fire("course", course)
+                }, 100)
             }
         }
     }
