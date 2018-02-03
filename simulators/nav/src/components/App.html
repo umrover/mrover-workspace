@@ -30,89 +30,89 @@
 </div>
 
 <script>
-    import _ from 'lodash'
-    import fnv from 'fnv-plus'
+    import _ from 'lodash';
+    import fnv from 'fnv-plus';
 
-    const CENTER_LAT = 39.4
-    const CENTER_LON = -110.5
-    const EARTH_RAD = 6371000.0
+    const CENTER_LAT = 39.4;
+    const CENTER_LON = -110.5;
+    const EARTH_RAD = 6371000.0;
 
-    const MAX_LAT = 39.5
-    const MIN_LAT = 39.3
-    const MAX_LON = -110.4
-    const MIN_LON = -110.6
+    const MAX_LAT = 39.5;
+    const MIN_LAT = 39.3;
+    const MAX_LON = -110.4;
+    const MIN_LON = -110.6;
 
-    const ROVER_SIZE = 25
-    const VECTOR_SIZE = 20
-    const WAYPOINT_SIZE = 10
+    const ROVER_SIZE = 25;
+    const VECTOR_SIZE = 20;
+    const WAYPOINT_SIZE = 10;
 
-    const TRANSLATIONAL_SCALE = 1
-    const ROTATIONAL_SCALE = 10
+    const TRANSLATIONAL_SCALE = 1;
+    const ROTATIONAL_SCALE = 10;
 
     const scale = {
         x: 8,
         y: 8
-    }
+    };
 
     function inv_projection({x, y}) {
-        const center_lat = CENTER_LAT * (Math.PI / 180)
-        const center_lon = CENTER_LON * (Math.PI / 180)
-        let theta_prime = Math.atan2(y, x)
+        const center_lat = CENTER_LAT * (Math.PI / 180);
+        const center_lon = CENTER_LON * (Math.PI / 180);
+        let theta_prime = Math.atan2(y, x);
         if (theta_prime < 0) {
             theta_prime += 2.0*Math.PI;
         }
-        let bearing = Math.PI/2.0 - theta_prime
+        let bearing = Math.PI/2.0 - theta_prime;
         if (bearing < 0) {
             bearing += 2.0*Math.PI;
         }
-        const dist = Math.sqrt(x*x + y*y)
+        const dist = Math.sqrt(x*x + y*y);
         const dlat_meters = dist * Math.cos(bearing);
-        const dlat = Math.asin(dlat_meters/EARTH_RAD)
-        let dlon = Math.sqrt((dist/EARTH_RAD)*(dist/EARTH_RAD) - dlat*dlat)
+        const dlat = Math.asin(dlat_meters/EARTH_RAD);
+        let dlon = Math.sqrt((dist/EARTH_RAD)*(dist/EARTH_RAD) - dlat*dlat);
         if (x < 0) {
             dlon *= -1;
         }
 
-        const coord_lat = dlat + center_lat
-        const coord_lon = center_lon + dlon/Math.cos((center_lat + coord_lat)/2.0)
+        const coord_lat = dlat + center_lat;
+        const coord_lon = center_lon + dlon/Math.cos((center_lat + coord_lat)/2.0);
 
         return {
             lat: coord_lat * (180.0/Math.PI),
             lon: coord_lon * (180.0/Math.PI)
-        }
+        };
     }
 
     function projection({lat, lon}) {
-        const center_lat = CENTER_LAT * (Math.PI / 180)
-        const center_lon = CENTER_LON * (Math.PI / 180)
-        const coord_lat = lat * (Math.PI / 180)
-        const coord_lon = lon * (Math.PI / 180)
-        const dlat = coord_lat - center_lat
-        const dlon = (coord_lon - center_lon) * Math.cos((center_lat + coord_lat)/2)
-        const dist = Math.sqrt(dlon*dlon + dlat*dlat) * EARTH_RAD
+        const center_lat = CENTER_LAT * (Math.PI / 180);
+        const center_lon = CENTER_LON * (Math.PI / 180);
+        const coord_lat = lat * (Math.PI / 180);
+        const coord_lon = lon * (Math.PI / 180);
+        const dlat = coord_lat - center_lat;
+        const dlon = (coord_lon - center_lon) * Math.cos((center_lat + coord_lat)/2);
+        const dist = Math.sqrt(dlon*dlon + dlat*dlat) * EARTH_RAD;
 
-        const dlat_meters = EARTH_RAD * Math.sin(dlat)
-        let bearing = Math.acos(dlat_meters / dist)
+        const dlat_meters = EARTH_RAD * Math.sin(dlat);
+        let bearing = Math.acos(dlat_meters / dist);
         if (center_lon > coord_lon) {
-            bearing = 2.0 * Math.PI - bearing
+            bearing = 2.0 * Math.PI - bearing;
         }
         if (dlat_meters < 1 && dlat_meters > -1) {
             if (center_lon < coord_lon) {
-                bearing = Math.PI/2.0
+                bearing = Math.PI/2.0;
             } else {
-                bearing = 3.0*Math.PI/2.0
+                bearing = 3.0*Math.PI/2.0;
             }
         }
 
-        const theta_prime = Math.PI/2.0 - bearing
+        const theta_prime = Math.PI/2.0 - bearing;
         return {
             x: dist * Math.cos(theta_prime),
             y: dist * Math.sin(theta_prime)
-        }
+        };
     }
 
     function ensure_in_range(x, min, max) {
-        return Math.max(Math.min(x, max), min)
+        return Math.max(Math.min(x, max), min);
     }
 
     export default {
@@ -133,24 +133,24 @@
         },
 
         oncreate () {
-            const canvas = this.refs.canvas
-            const ctx = canvas.getContext('2d')
+            const canvas = this.refs.canvas;
+            const ctx = canvas.getContext('2d');
 
-            let running = true
-            this.on('destroy', () => running = false)
+            let running = true;
+            this.on('destroy', () => running = false);
 
             canvas.addEventListener('click', (e) => {
-                e.preventDefault()
-                let rect = canvas.getBoundingClientRect()
-                let x = e.clientX - rect.left
-                let y = e.clientY - rect.top
+                e.preventDefault();
+                let rect = canvas.getBoundingClientRect();
+                let x = e.clientX - rect.left;
+                let y = e.clientY - rect.top;
 
-                let {lat, lon} = inv_projection(this.from_canvas({x, y}))
+                let {lat, lon} = inv_projection(this.from_canvas({x, y}));
 
-                let waypoints = []
+                let waypoints = [];
 
                 if (e.ctrlKey || e.metaKey) {
-                    waypoints = this.get('waypoints')
+                    waypoints = this.get('waypoints');
                 }
 
                 waypoints.push({
@@ -159,108 +159,108 @@
                     longitude_deg: Math.trunc(lon),
                     longitude_min: (lon % 1)*60,
                     search: false
-                })
+                });
 
-                this.set({ waypoints })
-            })
+                this.set({ waypoints });
+            });
 
             const loop = () => {
-                if (!running) return
-                requestAnimationFrame(loop)
-                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                if (!running) return;
+                requestAnimationFrame(loop);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 let coords = this.to_canvas(projection({
                     lat: this.get('latitude_deg') + this.get('latitude_min')/60.0,
                     lon: this.get('longitude_deg') + this.get('longitude_min')/60.0
-                }))
+                }));
 
-                ctx.fillStyle = 'darkred'
+                ctx.fillStyle = 'darkred';
                 ctx.fillRect(coords.x - ROVER_SIZE/2,
                              coords.y - ROVER_SIZE/2,
-                             ROVER_SIZE, ROVER_SIZE)
+                             ROVER_SIZE, ROVER_SIZE);
 
-                ctx.strokeStyle = 'darkred'
-                ctx.lineWidth = 5
-                ctx.beginPath()
-                ctx.moveTo(coords.x, coords.y)
-                const bearing = (90 - this.get('bearing_deg')) * Math.PI / 180
+                ctx.strokeStyle = 'darkred';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(coords.x, coords.y);
+                const bearing = (90 - this.get('bearing_deg')) * Math.PI / 180;
                 ctx.lineTo(coords.x + VECTOR_SIZE*Math.cos(bearing),
-                           coords.y - VECTOR_SIZE*Math.sin(bearing))
-                ctx.stroke()
+                           coords.y - VECTOR_SIZE*Math.sin(bearing));
+                ctx.stroke();
 
-                const waypoints = this.get('waypoints')
+                const waypoints = this.get('waypoints');
                 if (waypoints.length > 0) {
                     for (let i = 0; i < waypoints.length; i++) {
-                        const waypoint = waypoints[i]
+                        const waypoint = waypoints[i];
                         let wcoords = this.to_canvas(projection({
                             lat: waypoint.latitude_deg + waypoint.latitude_min/60.0,
                             lon: waypoint.longitude_deg + waypoint.longitude_min/60.0
-                        }))
+                        }));
 
-                        ctx.fillStyle = 'darkgreen'
-                        ctx.beginPath()
+                        ctx.fillStyle = 'darkgreen';
+                        ctx.beginPath();
                         ctx.arc(wcoords.x,
                                 wcoords.y,
-                                WAYPOINT_SIZE, 0, 2*Math.PI, 0)
-                        ctx.fill()
+                                WAYPOINT_SIZE, 0, 2*Math.PI, 0);
+                        ctx.fill();
                     }
                 }
             }
 
-            loop()
+            loop();
         },
 
         methods: {
             to_canvas: function({x, y}) {
-                const canvas = this.refs.canvas
+                const canvas = this.refs.canvas;
                 return {
                     x: x/scale.x+canvas.width/2,
                     y: canvas.height/2-y/scale.y
-                }
+                };
             },
             from_canvas: function({x, y}) {
-                const canvas = this.refs.canvas
+                const canvas = this.refs.canvas;
                 return {
                     x: (x - canvas.width/2)*scale.x,
                     y: (canvas.height/2 - y)*scale.y
-                }
+                };
             },
             apply_joystick: function(stick) {
                 this.set({
                     forward_back: stick.forward_back,
                     left_right: stick.left_right
-                })
+                });
 
                 let {x, y} = this.to_canvas(projection({
                     lat: this.get('latitude_deg') + this.get('latitude_min')/60.0,
                     lon: this.get('longitude_deg') + this.get('longitude_min')/60.0
-                }))
-                let bearing_deg = this.get('bearing_deg')
-                bearing_deg += ROTATIONAL_SCALE * stick.left_right
+                }));
+                let bearing_deg = this.get('bearing_deg');
+                bearing_deg += ROTATIONAL_SCALE * stick.left_right;
                 if (bearing_deg < 0) {
-                    bearing_deg += 360
+                    bearing_deg += 360;
                 }
                 if (bearing_deg > 360) {
-                    bearing_deg -= 360
+                    bearing_deg -= 360;
                 }
 
-                this.set({ bearing_deg })
-                const bearing_rad = (90 - bearing_deg) * Math.PI / 180
+                this.set({ bearing_deg });
+                const bearing_rad = (90 - bearing_deg) * Math.PI / 180;
 
-                const vel = TRANSLATIONAL_SCALE * stick.forward_back
+                const vel = TRANSLATIONAL_SCALE * stick.forward_back;
 
-                x += vel * Math.cos(bearing_rad)
-                y -= vel * Math.sin(bearing_rad)
+                x += vel * Math.cos(bearing_rad);
+                y -= vel * Math.sin(bearing_rad);
 
-                let {lat, lon} = inv_projection(this.from_canvas({x, y}))
-                lat = ensure_in_range(lat, MIN_LAT, MAX_LAT)
-                lon = ensure_in_range(lon, MIN_LON, MAX_LON)
+                let {lat, lon} = inv_projection(this.from_canvas({x, y}));
+                lat = ensure_in_range(lat, MIN_LAT, MAX_LAT);
+                lon = ensure_in_range(lon, MIN_LON, MAX_LON);
                 this.set({
                     latitude_deg: Math.trunc(lat),
                     latitude_min: (lat % 1)*60,
                     longitude_deg: Math.trunc(lon),
                     longitude_min: (lon % 1)*60
-                })
+                });
             },
 
             start_odom_events: function() {
@@ -271,8 +271,8 @@
                         longitude_deg: this.get('longitude_deg')|0,
                         longitude_min: this.get('longitude_min'),
                         bearing_deg: this.get('bearing_deg')
-                    })
-                    const waypoints = this.get('waypoints')
+                    });
+                    const waypoints = this.get('waypoints');
                     let course = {
                         num_waypoints: waypoints.length,
                         waypoints: _.map(waypoints, (waypoint) => {
@@ -289,10 +289,10 @@
                                 }
                             }
                         })
-                    }
-                    course.hash = fnv.fast1a52(JSON.stringify(course))
-                    this.fire("course", course)
-                }, 100)
+                    };
+                    course.hash = fnv.fast1a52(JSON.stringify(course));
+                    this.fire("course", course);
+                }, 100);
             }
         }
     }

@@ -1,9 +1,9 @@
-import App from './components/App.html'
-import LCMBridge from 'bridge'
+import App from './components/App.html';
+import LCMBridge from 'bridge';
 
 const app = new App({
     target: document.querySelector('main')
-})
+});
 
 const bridge = new LCMBridge("ws://localhost:8001",
     // Is websocket online?
@@ -11,19 +11,19 @@ const bridge = new LCMBridge("ws://localhost:8001",
         if (!online) {
             app.set({
                 'lcm_connected': false
-            })
+            });
         }
     },
     // Is LCM online?
     (online) => {
         app.set({
             'lcm_connected': online
-        })
+        });
     },
     // Message handler
     ({topic, message}) => {
         if (topic === '/joystick') {
-            app.apply_joystick(message)
+            app.apply_joystick(message);
         }
     },
     // Subscriptions
@@ -31,16 +31,16 @@ const bridge = new LCMBridge("ws://localhost:8001",
 
 app.on("odom", (odom) => {
     if (bridge.online) {
-        odom.type = 'Odometry'
-        bridge.publish('/odom', odom)
+        odom.type = 'Odometry';
+        bridge.publish('/odom', odom);
     }
 })
 
 app.on("course", (course) => {
     if (bridge.online) {
-        course.type = 'Course'
-        bridge.publish('/course', course)
+        course.type = 'Course';
+        bridge.publish('/course', course);
     }
 })
 
-app.start_odom_events()
+app.start_odom_events();
