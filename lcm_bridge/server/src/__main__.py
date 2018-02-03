@@ -33,7 +33,7 @@ class Bridge:
         """
         Publishes a message received from the WebSocket to a topic.
         """
-        self.lcm_.publish(topic, lcmutil.dict_to_lcm(message))
+        self.lcm_.publish(topic, lcmutil.dict_to_lcm(message).encode())
 
     def add_subscription(self, topic, lcm_type, websocket):
         """
