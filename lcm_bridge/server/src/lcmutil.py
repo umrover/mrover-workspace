@@ -26,10 +26,23 @@ def dict_to_lcm(message):
     msg = lcm_type()
 
     for k, v in message.items():
+        """
+        if message['type'] == 'Course':
+            import pdb
+            pdb.set_trace()
+        """
         if k not in msg.__slots__:
             continue
         if isinstance(v, dict):
             v = dict_to_lcm(v)
+        if isinstance(v, list):
+            new_v = []
+            for val in v:
+                if isinstance(val, dict):
+                    val = dict_to_lcm(val)
+                new_v.append(val)
+            v = new_v
+
         setattr(msg, k, v)
 
-    return msg.encode()
+    return msg
