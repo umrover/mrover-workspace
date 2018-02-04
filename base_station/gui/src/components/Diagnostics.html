@@ -5,38 +5,20 @@
         </button>
     </div>
     <div class="box"></div>
-    <div class="box">
-        <p>
-                Temperature:
-                <span>{{sensors.temperature.toFixed(2)}}ºC</span>
-        </p>
-    </div>
-    <div class="box">
-        <p style="text-align:left;">
-            Moisture:
-            <span>{{sensors.moisture.toFixed(2)}}</span>
-        </p>
-    </div>
-    <div class="box">
-        <p>
-            pH:
-            <span>{{sensors.pH.toFixed(2)}}</span>
-        </p>
-    </div>
-    <div class="box">
-        <p>
-            Soil Conductivity:
-            <span>{{sensors.soil_conductivity.toFixed(2)}} μS/cm</span>
-        </p>
-    </div>
-    <div class="box">
-        <p>
-            UV:
-            <span>{{sensors.uv.toFixed(2)}} µmoles/m<sup>2</sup>/s</span>
-        </p>
 
-    </div>
-    <div class="box"></div>
+    {{#each sensor_data as sensor}}
+        <div class="box">
+            <p>
+                {{sensor["name"]}}:
+                <span>{{sensor["value"].toFixed(2)}}{{sensor["unit"]}}</span>
+            </p>
+        </div>
+    {{/each}}
+    
+    {{#if sensor_data.length%2==1}}
+        <div class="box"/>
+    {{/if}}
+
 </div>
 
 
