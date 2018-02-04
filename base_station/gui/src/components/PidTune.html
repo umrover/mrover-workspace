@@ -20,7 +20,19 @@
 
   <div class="box demand">
     <p>Device ID: <input bind:value='deviceID'></p>
-    <p>Control Mode: <input bind:value='controlMode'></p>
+    <p>Control Mode:
+      <select bind:value='controlMode'>
+        <option value='0'>Throttle</option>
+        <option value='5'>Follower Mode</option>
+        <option value='4'>Voltage Mode</option>
+        <option value='1'>Position Mode</option>
+        <option value='2'>Speed Mode</option>
+        <option value='3'>Current Mode</option>
+        <option value='6'>Motion Profile Mode</option>
+        <option value='7'>Motion Magic</option>
+        <option value='15'>Disabled</option>
+      </select>
+    </p>
     <p>Demand: <input bind:value='demand'></p>
     <button on:click='setDemand()'>
       <span class='white-text'>Set Demand</span>
