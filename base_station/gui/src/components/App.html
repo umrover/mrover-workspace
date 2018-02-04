@@ -24,8 +24,8 @@
   <div class="box waypoints light-bg">
     <Waypoints odom="{{odom}}" bind:previous_waypoints="previous_waypoints" />
   </div>
-  <div class="box saveGPS light-bg">
-    <GPS/>
+  <div class="box controls light-bg">
+    <Controls ref:controls/>
   </div>
 </div>
 
@@ -35,8 +35,7 @@
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 60px 2fr 1fr 1fr 4fr 60px 60px;
-    grid-template-areas: "header header" "map diags" "map diags" "map waypoints" "map waypoints" "saveGPS waypoints" "odom waypoints";
-
+    grid-template-areas: "header header" "map diags" "map diags" "map waypoints" "map waypoints" "controls waypoints" "odom waypoints";
     font-family: sans-serif;
     height: 100%;
   }
@@ -102,8 +101,8 @@
     grid-area: waypoints;
   }
 
-  .saveGPS {
-    grid-area: saveGPS;
+  .controls {
+    grid-area: controls;
     font-size: 2em;
   }
 
@@ -117,7 +116,7 @@
 <script>
   import CommIndicator from './CommIndicator.html'
   import Diagnostics from './Diagnostics.html'
-  import GPS from './GPS.html'
+  import Controls from './Controls.html'
   import RoverMap from './RoverMap.html'
   import Waypoints from './Waypoints.html'
 
@@ -242,7 +241,7 @@
     components: {
       CommIndicator,
       Diagnostics,
-      GPS,
+      Controls,
       RoverMap,
       Waypoints
     }
