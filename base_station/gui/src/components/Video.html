@@ -14,12 +14,13 @@
     <button id='cam5' on:click='changeIndex(5)'> <span>Camera 6</span> </button>
   </div>
   <div class="buttons" id='rec-buttons'>
-    <button id='rec-start' on:click='startRecording()'> <span>Start Recording</span> </button>
+    <button id='rec-start' on:click='startRecording()' ref:start> <span>Start Recording</span> </button>
     <div class="fixed-spacer"/>
-    <button id='rec-end' on:click='stopRecording()'> <span>Stop Recording</span> </button>
+    <button id='rec-end' on:click='stopRecording()' disabled ref:stop> <span>Stop Recording</span> </button>
     <div class="fixed-spacer"/>
-    <button id='screenshot'> <span>Screenshot</span> </button>
+    <button id='screenshot' on:click='screenshot()'> <span>Screenshot</span> </button>
   </div>
+  <canvas width="1280" height="720" ref:canvas/>
 </div>
 
 <script>
@@ -322,7 +323,7 @@
           let a = document.createElement('a');
           a.style.display = 'none';
           a.href = url;
-          a.download = 'video.webm';
+          a.download = (new Date).toISOString() + '.webm';
           document.body.appendChild(a);
           a.click();
           setTimeout(function () {
@@ -337,14 +338,34 @@
 
         this.pc.recorder.start();
         console.log('MediaRecorder started', this.pc.recorder);
+        this.refs.start.disabled = true;
+        this.refs.stop.disabled = false;
       },
 
       stopRecording() {
         if (this.pc.recorder) {
           this.pc.recorder.stop();
           console.log("recording stopped");
+          this.refs.start.disabled = false;
+          this.refs.stop.disabled = true;
         }
       },
+
+      screenshot() {
+        let context = this.refs.canvas.getContext('2d');
+        context.drawImage(this.refs.vid, 0, 0, 1280, 720);
+        let url = this.refs.canvas.toDataURL('image/png');
+        let a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = (new Date).toISOString() + '.png';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+      }
     }
   }
 </script>
@@ -359,6 +380,10 @@
 
     font-family: sans-serif;
     height: 100%;
+  }
+
+  canvas {
+    display: none;
   }
 
   video {
