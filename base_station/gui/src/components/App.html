@@ -16,10 +16,7 @@
     Current odometry reading: {{ odom.latitude_deg.toFixed(2) }}º {{ odom.latitude_min.toFixed(2) }}' by {{ odom.longitude_deg.toFixed(2) }}º {{ odom.longitude_min.toFixed(2) }}' bearing {{ odom.bearing_deg.toFixed(2) }}
   </div>
   <div class="box diags light-bg">
-    <Diagnostics ref:diags sensors="{{sensors}}" />
-  </div>
-  <div class="box temp light-bg">
-    <Temperature ref:temp temperature="{{temperature}}" />
+    <Diagnostics ref:diags sensor_data="{{sensor_data}}" />
   </div>
   <div class="box map light-bg">
     <RoverMap odom="{{odom}}" previous_waypoints="{{previous_waypoints}}" />
@@ -38,7 +35,7 @@
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 60px 2fr 1fr 1fr 4fr 60px 60px;
-    grid-template-areas: "header header" "map diags" "map temp" "map waypoints" "map waypoints" "saveGPS waypoints" "odom waypoints";
+    grid-template-areas: "header header" "map diags" "map diags" "map waypoints" "map waypoints" "saveGPS waypoints" "odom waypoints";
 
     font-family: sans-serif;
     height: 100%;
@@ -97,10 +94,6 @@
     grid-area: diags;
   }
 
-  .temp {
-    grid-area: temp;
-  }
-
   .map {
     grid-area: map;
   }
@@ -124,7 +117,6 @@
 <script>
   import CommIndicator from './CommIndicator.html'
   import Diagnostics from './Diagnostics.html'
-  import Temperature from './Temperature.html'
   import GPS from './GPS.html'
   import RoverMap from './RoverMap.html'
   import Waypoints from './Waypoints.html'
@@ -141,7 +133,7 @@
           latitude_min: 0,
           longitude_min: 0,
           bearing_deg: 0
-        },
+        }, 
         sensors: {
           temperature: 0,
           moisture: 0,
@@ -154,6 +146,8 @@
           gpu_temp: 0,
           tboard_temp: 0
         },
+
+        sensor_data: [],
         previous_waypoints: []
       }
     },
@@ -162,6 +156,8 @@
       this.refs.diags.on("sensor_switch", (should_record) => {
         this.fire("sensor_switch", should_record);
       });
+
+      this.update_sensor_data();
     },
 
     methods: {
@@ -177,12 +173,14 @@
         if (topic === '/sensors') {
           this.set({
             sensors: message,
-          })
+          });
+          update_sensor_data();
         }
         if (topic === '/temperature') {
           this.set({
             temperature: message,
-          })
+          });
+          update_sensor_data();
         }
         if (topic === '/kill_switch') {
           console.log("kill switch recieved")
@@ -190,13 +188,60 @@
             motors_active: !message.killed
           })
         }
+      },
+
+      update_sensor_data(){
+        const sensors=this.get("sensors");
+        const temp=this.get("temperature");
+        this.set({"sensor_data":[
+          
+          {
+            name: "Temperature",
+            value: sensors["temperature"],
+            unit: "ºC"
+          },
+          {
+            name: "Moisture",
+            value: sensors["moisture"],
+            unit: ""
+          },
+          {
+            name: "Soil Conductivity",
+            value: sensors["soil_conductivity"],
+            unit: "µS/cm"
+          },
+          {
+            name: "pH",
+            value: sensors["pH"],
+            unit: ""
+          },
+          {
+            name: "UV",
+            value: sensors["uv"],
+            unit: "µmoles/m^2/s"
+          },
+          {
+            name: "CPU Temperature",
+            value: temp["bcpu_temp"],
+            unit: "ºC"
+          },
+          {
+            name: "GPU Temperature",
+            value: temp["gpu_temp"],
+            unit: "ºC"
+          },
+          {
+            name: "Overall Board Temperature",
+            value: temp["tboard_temp"],
+            unit: "ºC"
+          }
+        ]});
       }
     },
 
     components: {
       CommIndicator,
       Diagnostics,
-      Temperature,
       GPS,
       RoverMap,
       Waypoints
