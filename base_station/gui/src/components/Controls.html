@@ -1,0 +1,50 @@
+<div class="wrap">
+  <div class="control_buttons">
+    <button id="arm_set" on:click='setArm()'>Enable Arm Controls</button>
+    <button id="soil_set" on:click='setSoil_Ac()'>Enable Soil Acquisition Controls</button>
+    <button id="disable_both" on:click='disable_both()'>Disable Both</button>
+  </div>
+</div>
+
+<script>
+  export default {
+    data() {
+      return {
+        arm: false,
+        soil_ac: false
+      }
+    },
+    methods: {
+      setArm() {
+        this.set({arm: true, soil_ac: false});
+        document.getElementById("arm_set").disabled = true;
+        document.getElementById("soil_set").disabled = false;
+
+      },
+      setSoil_Ac() {
+        this.set({soil_ac: true, arm: false});
+        document.getElementById("soil_set").disabled = true;
+        document.getElementById("arm_set").disabled = false;
+      },
+      disable_both() {
+        this.set({arm: false, soil_ac: false});
+        document.getElementById("arm_set").disabled = false;
+        document.getElementById("soil_set").disabled = false;
+
+      }
+    }
+  }
+</script>
+
+<style>
+  .wrap {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .control_buttons {
+    align-items: center;
+    justify-content: center;
+  }
+</style>
