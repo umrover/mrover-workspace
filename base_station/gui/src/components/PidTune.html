@@ -15,7 +15,15 @@
     <button on:click='setParams()'>
       <span class='white-text'>Set Parameters</span>
     </button>
+    <br>
 
+    <button on:click='setDefaultPIDs("arm")'>
+      <span class='white-text'>Set Arm PID Values</span>
+    </button>
+
+    <button on:click='setDefaultPIDs("science")'>
+      <span class='white-text'>Set Science PID Values</span>
+    </button>
   </div>
 
   <div class="box demand">
@@ -107,7 +115,87 @@
         Kd: 0.0,
         Kf: 0.0,
         controlMode: 0,
-        demand: 0
+        demand: 0,
+
+        defaultPIDS:{
+          "arm":{
+            "4":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "5":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "6":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "7":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "8":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "9":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            }
+          },
+
+          "science":{
+            "4":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "5":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "6":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "7":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "8":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            },
+            "9":{
+              "kp": 0.0,
+              "ki": 0.0,
+              "kd": 0.0,
+              "kf": 0.0
+            }
+          }
+        }
       }
     },
 
@@ -234,7 +322,20 @@
           'control_mode': parseInt(this.get('controlMode')),
           'value': parseInt(this.get('demand'))
         });
-      }
+      },
+
+      setDefaultPIDs(mode){
+        const pids=this.get('defaultPIDS')[mode];
+        Object.keys(pids).forEach( (id) => {
+          this.fire("/set_params", {
+            'deviceID': parseInt(id),
+            'kp': pids[id]["kp"],
+            'ki': pids[id]["ki"],
+            'kd': pids[id]["kd"],
+            'kf': pids[id]["kf"]
+          });
+        });
+      },
     },
 
     components: {
