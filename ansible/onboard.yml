@@ -5,7 +5,7 @@
   vars:
       ubuntu_release: xenial
       running_user: nvidia
-      workspace_dir: /home/ubuntu/mrover-workspace
+      workspace_dir: /home/nvidia/mrover-workspace
   roles:
   - onboard_dev
   - onboard_networks
