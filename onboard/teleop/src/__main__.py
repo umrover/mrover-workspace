@@ -185,12 +185,12 @@ async def transmit_temperature():
 
         try:
             with open("/sys/class/hwmon/hwmon0/temp1_input", "r") as bcpu_file:
-                bcpu_temp = int(bcpu_file.read())
+                new_temps.bcpu_temp = int(bcpu_file.read())
             with open("/sys/class/hwmon/hwmon2/temp1_input", "r") as gpu_file:
-                gpu_temp = int(gpu_file.read())
+                new_temps.gpu_temp = int(gpu_file.read())
             with open("/sys/class/hwmon/hwmon4/temp1_input", "r") \
                     as tboard_file:
-                tboard_temp = int(tboard_file.read())
+                new_temps.tboard_temp = int(tboard_file.read())
         except FileNotFoundError:
             print("Temperature files not found")
             return
@@ -200,7 +200,8 @@ async def transmit_temperature():
 
         print("Published new tempertues")
         print("bcpu temp: {} gpu temp: {} tboard temp: {} ".format(
-            bcpu_temp/1000, gpu_temp/1000, tboard_temp/1000))
+            new_temps.bcpu_temp/1000, new_temps.gpu_temp/1000,
+            new_temps.tboard_temp/1000))
         await asyncio.sleep(1)
 
 
