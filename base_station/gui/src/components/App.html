@@ -173,13 +173,13 @@
           this.set({
             sensors: message,
           });
-          update_sensor_data();
+          this.update_sensor_data();
         }
         if (topic === '/temperature') {
           this.set({
             temperature: message,
           });
-          update_sensor_data();
+          this.update_sensor_data();
         }
         if (topic === '/kill_switch') {
           console.log("kill switch recieved")
@@ -221,17 +221,17 @@
           },
           {
             name: "CPU Temperature",
-            value: temp["bcpu_temp"],
+            value: temp["bcpu_temp"]/1000,
             unit: "ºC"
           },
           {
             name: "GPU Temperature",
-            value: temp["gpu_temp"],
+            value: temp["gpu_temp"]/1000,
             unit: "ºC"
           },
           {
             name: "Overall Board Temperature",
-            value: temp["tboard_temp"],
+            value: temp["tboard_temp"]/1000,
             unit: "ºC"
           }
         ]});
