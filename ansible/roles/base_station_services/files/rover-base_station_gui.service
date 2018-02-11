@@ -2,6 +2,9 @@
 Description=MRover Base Station GUI
 
 [Service]
-User = {{ user }}
+User={{ user }}
 EnvironmentFile=/etc/default/rover.env
 ExecStart={{ workspace_dir }}/jarvis exec base_station_gui
+
+[Install]
+WantedBy=multi-user.target

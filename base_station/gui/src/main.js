@@ -69,7 +69,7 @@ const lcm_ = new LCMBridge(
     'type': 'Kill_switches'
   },
   {
-    'topic': '/carmera_servos',
+    'topic': '/camera_servos',
     'type': 'CameraServos'
   },
   {
