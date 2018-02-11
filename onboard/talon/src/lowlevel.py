@@ -47,6 +47,8 @@ class LowLevel(object):
                     data=[0 for i in range(0, 8)])
         self.control_5_task = can.send_periodic(
             can.rc['channel'], self.msg_control_5, 0.01)
+        self.set_overide_limit_switches(
+                    talon_srx.kLimitSwitchOverride.EnableFwd_EnableRev.value)
 
     def send_one(self, msg):
         try:
@@ -135,5 +137,13 @@ class LowLevel(object):
             _cache &= ~(1 << 40)
         else:
             _cache |= 1 << 40
+        self.msg_control_5.data = struct.pack('<Q', _cache)[:8]
+        self.control_5_task.modify_data(self.msg_control_5)
+
+    def set_overide_limit_switches(self, param):
+        _cache = struct.unpack('<Q', self.msg_control_5.data)[0]
+        param = param & 0x7
+        _cache &= ~((0x7) << 45)
+        _cache |= param << 45
         self.msg_control_5.data = struct.pack('<Q', _cache)[:8]
         self.control_5_task.modify_data(self.msg_control_5)
