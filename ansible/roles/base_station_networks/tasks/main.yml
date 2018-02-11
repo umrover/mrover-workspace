@@ -5,8 +5,8 @@
 
 - name: Disable NetworkManager for the interface
   copy:
-    src: files/disable-enp7s0.conf
-    dest: /etc/NetworkManager/conf.d/disable-enp7s0.conf
+    src: files/disable-eno1.conf
+    dest: /etc/NetworkManager/conf.d/disable-eno1.conf
 
 - name: Restart NetworkManager
   systemd: name=NetworkManager.service state=restarted

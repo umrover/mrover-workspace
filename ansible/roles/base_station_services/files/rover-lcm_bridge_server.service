@@ -5,3 +5,6 @@ Description=MRover LCM Bridge Server
 User={{ user }}
 EnvironmentFile=/etc/default/rover.env
 ExecStart={{ workspace_dir }}/jarvis exec lcm_bridge_server
+
+[Install]
+WantedBy=multi-user.target
