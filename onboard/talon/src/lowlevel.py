@@ -102,7 +102,7 @@ class LowLevel(object):
         return raw
 
     def set_override_brake_type(self, param):
-        param = param & 0x3
+        param = int(param) & 0x3
         frame = struct.unpack('<Q', self.msg_control_5.data)[0]
         frame &= ~(0x3 << 50)
         frame |= param << 50
@@ -110,6 +110,7 @@ class LowLevel(object):
         self.control_5_task.modify_data(self.msg_control_5)
 
     def set_demand(self, param, controlmode):
+        param = int(param)
         H = (param >> 0x10) & 0xff
         M = (param >> 0x80) & 0xff
         L = (param) & 0xff
