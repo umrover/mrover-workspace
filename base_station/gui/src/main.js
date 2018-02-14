@@ -144,14 +144,14 @@ if(app !=null ){
   };
 
   const XBOX_CONFIG = {
-    "shoulder_rotate": 0,
-    "shoulder_tilt": 1,
-    "elbow_tilt_forward": 6,
-    "elbow_tilt_back": 7,
-    "hand_rotate": 2,
-    "hand_tilt": 3,
-    "grip_close": 5,
-    "grip_open": 4
+    "left_js_x": 0,
+    "left_js_y": 1,
+    "left_trigger": 6,
+    "right_trigger": 7,
+    "right_js_x": 2,
+    "right_js_y": 3,
+    "right_bumper": 5,
+    "left_bumper": 4
   };
 
   app.on("sensor_switch", (should_record) => {
@@ -196,24 +196,27 @@ if(app !=null ){
             'kill': gamepad.buttons[JOYSTICK_CONFIG["kill"]]['pressed'],
             'restart': gamepad.buttons[JOYSTICK_CONFIG["restart"]]['pressed']
           };
+          app.set({
+            dampen: gamepad.axes[JOYSTICK_CONFIG["dampen"]]
+          });
           lcm_.publish('/drive_control', joystickData);
         }
         else if (gamepad.id.includes("Microsoft")) {
+          const xboxData = {
+            'type': 'Xbox',
+            'left_js_x': gamepad.axes[XBOX_CONFIG["left_js_x"]], //shoulder rotate
+            'left_js_y': gamepad.axes[XBOX_CONFIG["left_js_y"]], //shoulder tilt
+            'left_trigger': gamepad.buttons[XBOX_CONFIG["left_trigger"]]['pressed'], //elbow forward
+            'right_trigger': gamepad.buttons[XBOX_CONFIG["right_trigger"]]['pressed'], //elbow back
+            'right_js_x': gamepad.axes[XBOX_CONFIG["right_js_x"]], //hand rotate
+            'right_js_y': gamepad.axes[XBOX_CONFIG["right_js_y"]], //hand tilt
+            'right_bumper': gamepad.buttons[XBOX_CONFIG["right_bumper"]]['pressed'], //grip close
+            'left_bumper': gamepad.buttons[XBOX_CONFIG["left_bumper"]]['pressed'] //grip open
+          };
           if (app.refs.controls.get("arm")) {
-            const xboxData = {
-              'type': 'Xbox',
-              'shoulder_rotate': gamepad.axes[XBOX_CONFIG["shoulder_rotate"]],
-              'shoulder_tilt': gamepad.axes[XBOX_CONFIG["shoulder_tilt"]],
-              'elbow_tilt_forward': gamepad.buttons[XBOX_CONFIG["elbow_tilt_forward"]]['pressed'],
-              'elbow_tilt_back': gamepad.buttons[XBOX_CONFIG["elbow_tilt_back"]]['pressed'],
-              'hand_rotate': gamepad.axes[XBOX_CONFIG["hand_rotate"]],
-              'hand_tilt': gamepad.axes[XBOX_CONFIG["hand_tilt"]],
-              'grip_close': gamepad.buttons[XBOX_CONFIG["grip_close"]]['pressed'],
-              'grip_open': gamepad.buttons[XBOX_CONFIG["grip_open"]]['pressed']
-            };
             lcm_.publish('/arm_control', xboxData);
           } else if (app.refs.controls.get("soil_ac")) {
-            // send soil_ac controls
+            lcm_.publish('/sa_control', xboxData);
           }
         }
       }

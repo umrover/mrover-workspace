@@ -1,0 +1,12 @@
+[Unit]
+Description=Pi Heartbeat
+After=systemd-modules-load.service
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/default/pi.env
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jarvis exec pi_zeroes {{ num }}
+
+[Install]
+WantedBy=multi-user.target
