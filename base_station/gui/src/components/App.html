@@ -25,7 +25,7 @@
     <Waypoints ref:waypoints odom="{{odom}}" bind:previous_waypoints="previous_waypoints" nav_status="{{nav_status}}" />
   </div>
   <div class="box controls light-bg">
-    <Controls ref:controls/>
+    <Controls dampen="{{ dampen }}" ref:controls/>
   </div>
 </div>
 
@@ -103,7 +103,7 @@
 
   .controls {
     grid-area: controls;
-    font-size: 2em;
+    font-size: 1em;
   }
 
   ul#vitals li {
@@ -145,14 +145,14 @@
           gpu_temp: 0,
           tboard_temp: 0
         },
-
         sensor_data: [],
         previous_waypoints: [],
         nav_status: {
           nav_state: -1,
           completed_wps: 0,
           total_wps: 0
-        }
+        },
+        dampen: 0
       }
     },
 
@@ -197,7 +197,7 @@
         if (topic === '/kill_switch') {
           this.set({
             motors_active: !message.killed
-          })
+          });
         }
         if (topic === '/nav_status'){
           this.set({
