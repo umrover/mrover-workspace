@@ -218,7 +218,6 @@ if(app !=null ){
           if (app.refs.controls.get("arm")) {
             lcm_.publish('/arm_control', xboxData);
           } else if (app.refs.controls.get("soil_ac")) {
-            console.log(xboxData);
             lcm_.publish('/sa_control', xboxData);
           }
         }
