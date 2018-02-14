@@ -5,12 +5,14 @@ import time
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Odometry, Joystick, DriveMotors, Sensors,
-                        Kill_switches, Xbox, Encoder, Temperature)
+                        KillSwitch, Xbox, Encoder, Temperature, SAMotors)
 
 lcm_ = aiolcm.AsyncLCM()
 kill_motor = False
 lock = asyncio.Lock()
 enc_in = None
+drill_on = False
+door_open = False
 
 
 def connection_state_changed(c, _):
@@ -54,7 +56,7 @@ def drive_control_callback(channel, msg):
     input_data.forward_back = -math.copysign(input_data.forward_back ** 2,
                                              input_data.forward_back)
 
-    new_kill_msg = Kill_switches()
+    new_kill_msg = KillSwitch()
 
     if kill_motor:
         if input_data.restart:
@@ -99,21 +101,38 @@ def arm_control_callback(channel, msg):
     if enc_in:
         new_encoder = enc_in
         new_encoder.joint_a = (enc_in.joint_a +
-                               int(deadzone(xbox.shoulder_rotate, 0.20)*5))
+                               int(deadzone(xbox.left_js_x, 0.20)*5))
         new_encoder.joint_b = (enc_in.joint_b -
-                               int(deadzone(xbox.shoulder_tilt, 0.20)*5))
+                               int(deadzone(xbox.left_js_y, 0.20)*5))
         new_encoder.joint_c = (enc_in.joint_c +
-                               int((xbox.elbow_tilt_forward -
-                                    xbox.elbow_tilt_back)*2.5))
+                               int((xbox.left_trigger -
+                                    xbox.right_trigger)*2.5))
         new_encoder.joint_d = (enc_in.joint_d -
-                               int(deadzone(xbox.hand_tilt, 0.20)*5))
+                               int(deadzone(xbox.right_js_y, 0.20)*5))
         new_encoder.joint_e = (enc_in.joint_e +
-                               int(deadzone(xbox.hand_rotate, 0.20)*5))
+                               int(deadzone(xbox.right_js_x, 0.20)*5))
         new_encoder.joint_f = (enc_in.joint_f +
-                               int((xbox.grip_close -
-                                    xbox.grip_open)*5))
+                               int((xbox.right_bumper -
+                                    xbox.left_bumper)*5))
         enc_in = None
         lcm_.publish('/arm_demand', new_encoder.encode())
+
+
+def sa_control_callback(channel, msg):
+    global drill_on, door_open
+    xbox = Xbox.decode(msg)
+    new_sa_motors = SAMotors()
+
+    if xbox.right_bumper > 0.5:
+        drill_on = not drill_on
+    new_sa_motors.drill = drill_on
+    new_sa_motors.lead_screw = -deadzone(xbox.left_js_y, 0.2)
+    if door_open > 0.5:
+        door_open = not door_open
+    new_sa_motors.door_actuator = 1.0 if door_open else -1.0
+    new_sa_motors.cache = deadzone(xbox.right_js_x, 0.2)
+
+    lcm_.publish('/sa_motors', new_sa_motors.encode())
 
 
 def autonomous_callback(channel, msg):
@@ -229,11 +248,12 @@ def main():
     lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/motor', motor_callback)
     lcm_.subscribe('/arm_control', arm_control_callback)
+    lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/encoder', encoder_callback)
     lcm_.subscribe('/arm_demand', enc_out_callback)
     lcm_.subscribe('/arm_demand', transmit_fake_encoders)
 
-    new_kill_msg = Kill_switches()
+    new_kill_msg = KillSwitch()
     new_kill_msg.killed = False
     lcm_.publish('/kill_switch', new_kill_msg.encode())
 

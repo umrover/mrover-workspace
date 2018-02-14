@@ -1,12 +1,12 @@
 package rover_msgs;
 
 struct Xbox {
-    double shoulder_rotate;
-    double shoulder_tilt;
-    double elbow_tilt_forward;
-    double elbow_tilt_back;
-    double hand_rotate;
-    double hand_tilt;
-    double grip_close;
-    double grip_open;
+    double left_js_x;
+    double left_js_y;
+    double left_trigger;
+    double right_trigger;
+    double right_js_x;
+    double right_js_y;
+    double right_bumper;
+    double left_bumper;
 }

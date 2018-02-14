@@ -4,6 +4,12 @@
     <button id="soil_set" on:click='setSoil_Ac()'>Enable Soil Acquisition Controls</button>
     <button id="disable_both" on:click='disable_both()'>Disable Both</button>
   </div>
+  <div id="speed_limiter">
+  <p>
+    Speed Limiter:
+    <span>{{ (dampen*-50 + 50).toFixed(2) }}%</span>   
+  </p>
+  </div>
 </div>
 
 <script>
@@ -21,16 +27,17 @@
         document.getElementById("soil_set").disabled = false;
 
       },
+
       setSoil_Ac() {
         this.set({soil_ac: true, arm: false});
         document.getElementById("soil_set").disabled = true;
         document.getElementById("arm_set").disabled = false;
       },
+
       disable_both() {
         this.set({arm: false, soil_ac: false});
         document.getElementById("arm_set").disabled = false;
         document.getElementById("soil_set").disabled = false;
-
       }
     }
   }
@@ -38,12 +45,18 @@
 
 <style>
   .wrap {
-    display: flex;
+    display: grid;
+    grid-template-areas: "control_buttons speed_limiter";
     align-items: center;
     height: 100%;
   }
 
   .control_buttons {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .speed_limiter {
     align-items: center;
     justify-content: center;
   }
