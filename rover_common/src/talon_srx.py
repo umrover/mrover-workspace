@@ -29,6 +29,14 @@ PARAM_RESPONSE = 0x02041840
 PARAM_SET = 0x02041880
 
 
+class kLimitSwitchOverride(Enum):
+    UseDefaultsFromFlash = 1
+    DisableFwd_DisableRev = 4
+    DisableFwd_EnableRev = 5
+    EnableFwd_DisableRev = 6
+    EnableFwd_EnableRev = 7
+
+
 class TalonControlMode(Enum):
     kThrottle = 0
     kFollowerMode = 5
