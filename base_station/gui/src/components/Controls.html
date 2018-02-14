@@ -22,6 +22,12 @@
   </div>
   {{/if}}
   </div>
+  <div id="speed_limiter">
+  <p>
+    Speed Limiter:
+    <span>{{ (dampen*-50 + 50).toFixed(2) }}%</span>   
+  </p>
+  </div>
 </div>
 
 <script>

@@ -7,7 +7,6 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Odometry, Joystick, DriveMotors, Sensors,
                         KillSwitch, Xbox, Encoder, Temperature, SAMotors)
 
-
 class Toggle:
     def __init__(self, toggle):
         self.toggle = toggle
@@ -27,7 +26,6 @@ class Toggle:
 
         self.previous = reading
         return self.toggle
-
 
 lcm_ = aiolcm.AsyncLCM()
 kill_motor = False
