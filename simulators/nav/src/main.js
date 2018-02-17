@@ -24,10 +24,20 @@ const bridge = new LCMBridge("ws://localhost:8001",
     ({topic, message}) => {
         if (topic === '/joystick') {
             app.apply_joystick(message);
+        } else if (topic === '/nav_status') {
+            app.set(message);
         }
     },
     // Subscriptions
-    [ { topic: '/joystick', type: 'Joystick' } ])
+    [{ 
+        'topic': '/joystick', 
+        'type': 'Joystick'
+    },
+    {
+        'topic': '/nav_status',
+        'type': 'NavStatus'
+    }]
+)
 
 app.on("odom", (odom) => {
     if (bridge.online) {
@@ -40,6 +50,13 @@ app.on("course", (course) => {
     if (bridge.online) {
         course.type = 'Course';
         bridge.publish('/course', course);
+    }
+})
+
+app.on("auton", (auton) => {
+    if (bridge.online) {
+        auton.type = 'AutonState';
+        bridge.publish('/auton', auton);
     }
 })
 
