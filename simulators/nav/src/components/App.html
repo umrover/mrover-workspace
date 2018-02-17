@@ -16,14 +16,26 @@
         {{/if}}
     </div>
 
+    <div class="display" id="controls">
+        <p>
+            <input type="checkbox" id="auton_enable" bind:checked="enabled">
+            <label for="auton_enable">Autonomy On?</label>
+        </p>
+        {{#if lcm_connected}}
+        Put the nav status
+        <p><b>Navigation State:</b> {{ nav_state_textual }}</p>
+        <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
+        {{/if}}
+    </div>
+
     {{#each waypoints as waypoint, i}}
     <div class="display" id="waypoint_display">
         <h2>Waypoint {{ i }}</h2>
         <p><b>Latitude:</b> {{ waypoint.latitude_deg }}&#176; {{ waypoint.latitude_min }}'</p>
         <p><b>Longitude:</b> {{ waypoint.longitude_deg }}&#176; {{ waypoint.longitude_min }}'</p>
         <p>
-        <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
-        <label for="search_checkbox_{{ i }}">Search?</label>
+            <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
+            <label for="search_checkbox_{{ i }}">Search?</label>
         </p>
     </div>
     {{/each}}
@@ -128,7 +140,26 @@
                 left_right: 0,
 
                 waypoints: [],
-                lcm_connected: false
+                lcm_connected: false,
+
+                nav_state: 0,
+                completed_wps: 0,
+                total_wps: 0,
+
+                enabled: false,
+            }
+        },
+
+        computed: {
+            nav_state_textual: (nav_state) => {
+                // 
+                switch(nav_state) {
+                case 0: return 'TRANSLATIONAL';
+                case 1: return 'SEARCH';
+                case 2: return 'ROTATIONAL';
+                case 8: return 'DONE';
+                default: return 'UNKNOWN';
+                }
             }
         },
 
@@ -265,6 +296,9 @@
 
             start_odom_events: function() {
                 window.setInterval(() => {
+                    this.fire("auton", {
+                        is_auton: this.get('enabled')
+                    });
                     this.fire("odom", {
                         latitude_deg: this.get('latitude_deg')|0,
                         latitude_min: this.get('latitude_min'),
@@ -330,5 +364,9 @@ div + div {
 
 #waypoint_display {
     background-color: darkgreen
+}
+
+#controls {
+    background-color: black;
 }
 </style>
