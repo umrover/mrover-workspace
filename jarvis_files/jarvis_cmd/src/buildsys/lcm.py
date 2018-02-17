@@ -46,7 +46,7 @@ class LCMBuilder(BuildContext):
             if not os.path.exists(cppdir):
                 os.mkdir(cppdir)
             with self.cd('cpp'):
-                self.run('lcm-gen --cpp {} --cpp-std=c++14'.format(
+                self.run('lcm-gen --cpp {} --cpp-std=c++11'.format(
                     lcm_files_cmdline))
             target_dir = os.path.join(self.wksp.product_env, 'include',
                                       'rover_msgs')
