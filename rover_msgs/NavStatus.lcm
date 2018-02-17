@@ -1,0 +1,12 @@
+package rover_msgs;
+
+struct NavStatus {
+	const int8_t TRANSLATIONAL = 0;
+	const int8_t SEARCH = 1;
+	const int8_t ROTATIONAL = 2;
+	const int8_t DONE = 8;
+
+	int8_t nav_state;
+	int32_t completed_wps;
+	int32_t total_wps;
+}
