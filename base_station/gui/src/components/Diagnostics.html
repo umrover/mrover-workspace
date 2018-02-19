@@ -1,8 +1,6 @@
 <div class="wrap">
     <div class="box">
-        <button style='background-color: {{recording?"Green":"Red"}};' on:click='toggle_recording()'>
-            <span class='white-text'>Recording: {{recording?'\u2611':'\u2610'}}</span>
-        </button>
+        <Checkbox name="Recording" key=82 ref:recordingBox/>
     </div>
     <div class="box"></div>
 
@@ -24,31 +22,17 @@
 
 
 <script>
-  export default {
-    data(){
-        return{
-            recording: false
-        }
-    },
+  import Checkbox from './Checkbox.html'
 
+  export default {
     oncreate() {
-        document.body.addEventListener('keydown', (e) => {
-            const R_KEY = 82;
-            if(document.activeElement==document.body && e.keyCode == R_KEY){
-                this.toggle_recording();
-            }
+        this.refs.recordingBox.observe('toggled', (isToggled)=>{
+            this.fire("sensor_switch", isToggled);
         });
     },
 
-    methods: {
-        toggle_recording(){
-            const record = !this.get('recording');
-            this.set({
-                recording: record
-            });
-
-            this.fire("sensor_switch", record);
-        }
+    components: {
+      Checkbox
     }
   }
 </script>

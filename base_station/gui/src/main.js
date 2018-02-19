@@ -47,7 +47,6 @@ const lcm_ = new LCMBridge(
       cam.lcm_message_recv(msg)
     }
     if (pidTune != null){
-      console.log(msg);
       pidTune.lcm_message_recv(msg);
     }
   },
@@ -75,6 +74,10 @@ const lcm_ = new LCMBridge(
   {
     'topic':'/encoder',
     'type':'Encoder'
+  },
+  {
+    'topic':'/nav_status',
+    'type':'NavStatus'
   }]
 )
 
@@ -157,10 +160,25 @@ if(app !=null ){
           const msg={
             'type': 'SensorSwitch',
             'should_record': should_record
-          }
+          };
 
-          lcm_.publish('/sensor_switch', msg)
+          lcm_.publish('/sensor_switch', msg);
       }
+  });
+
+  app.on("auton", (msg) => {
+    if(lcm_.online){
+      msg['type']='AutonState'
+      lcm_.publish('/auton', msg);
+    }
+  });
+
+  app.on('course', (course) => {
+    if(lcm_.online){
+      course['type'] = 'Course';
+      console.log(course);
+      lcm_.publish('/course', course);
+    } 
   });
 
   window.setInterval(() => {

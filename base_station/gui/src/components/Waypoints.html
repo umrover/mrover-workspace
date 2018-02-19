@@ -1,9 +1,9 @@
 <div class="wrapper" ref:waypointComp>
   <div class="box">
     <p>
-      <b>Current Goal GPS</b> - {{current.name}}: {{ current["latitude_deg"] }}º {{ Math.floor(current["latitude_min"]) }}' {{ ((current["latitude_min"] - Math.floor(current["latitude_min"])) *60).toFixed(4) }}" N &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{ -current["longitude_deg"]
-      }}º {{ Math.floor(-current["longitude_min"]) }}' {{ ((-current["longitude_min"] - Math.floor(-current["longitude_min"])) *60).toFixed(4) }}" W
-      <br>(This is just the last entered waypoint as of right now)
+      <Checkbox name="Autonomy Mode" bind:toggled="auton_enabled"/><br>
+      Navagation State: {{nav_state}}<br>
+      Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}
     </p>
   </div>
 
@@ -79,6 +79,9 @@
 </div>
 
 <script>
+  import Checkbox from './Checkbox.html';
+  import _ from 'lodash';
+  import fnvPlus from 'fnv-plus';
 
   const isChildOfID = function(element, id) {
     while (element != document.body) {
@@ -93,18 +96,32 @@
   export default {
     data() {
       return {
-        current: {
-          "name": "Waypoint 1",
-          "latitude_deg": 5,
-          "latitude_min": 23.34523445,
-          "longitude_deg": -15,
-          "longitude_min": -12.544364,
-          "search":false
-        }
+        auton_enabled: false
       }
     },
 
+    computed:{
+      nav_state: (nav_status) => {
+        switch(nav_status.nav_state){
+            case 0:
+              return "Translational";
+            case 1:
+              return "Search";
+            case 2:
+              return "Rotational";
+            case 8:
+              return "Done";
+        }
+        return "???";
+      }
+    },
+
+    components: {
+      Checkbox
+    },
+
     methods: {
+
         moveUp(waypoint){
             const waypoints=this.get('previous_waypoints');
             const index = waypoints.indexOf(waypoint);
@@ -174,7 +191,6 @@
             new_prev.unshift(lcm_message);
 
             this.set({
-              current: lcm_message,
               previous_waypoints: new_prev
             });
 
@@ -189,6 +205,41 @@
     },
 
     oncreate() {
+      const app = this;
+      window.setInterval(() => {
+          if(app.get('auton_enabled') && app.get('nav_state')==='Done'){
+            app.set({
+              auton_enabled: false
+            });
+          }
+
+          app.fire("auton", {
+              is_auton: app.get('auton_enabled')
+          });
+
+          const waypoints = app.get('previous_waypoints');
+          let course = {
+              num_waypoints: waypoints.length,
+              waypoints: _.map(waypoints, (waypoint) => {
+                  return {
+                      type: "Waypoint",
+                      search: waypoint.search,
+                      odom: {
+                          latitude_deg: waypoint.latitude_deg|0,
+                          latitude_min: waypoint.latitude_min,
+                          longitude_deg: waypoint.longitude_deg|0,
+                          longitude_min: waypoint.longitude_min,
+                          bearing_deg: 0,
+                          type: "Odometry"
+                      }
+                  }
+              })
+          };
+
+          course.hash = fnvPlus.fast1a52(JSON.stringify(course));
+          app.fire("course", course);
+
+      }, 100);
 
       const data = window.localStorage.getItem("previous_waypoints");
       if (data != null) {
@@ -248,7 +299,6 @@
             new_prev.push(lcm_message);
 
             this.set({
-              current: lcm_message,
               previous_waypoints: new_prev
             });
 
