@@ -22,7 +22,7 @@
     <RoverMap odom="{{odom}}" previous_waypoints="{{previous_waypoints}}" />
   </div>
   <div class="box waypoints light-bg">
-    <Waypoints odom="{{odom}}" bind:previous_waypoints="previous_waypoints" />
+    <Waypoints ref:waypoints odom="{{odom}}" bind:previous_waypoints="previous_waypoints" nav_status="{{nav_status}}" />
   </div>
   <div class="box controls light-bg">
     <Controls ref:controls/>
@@ -147,13 +147,26 @@
         },
 
         sensor_data: [],
-        previous_waypoints: []
+        previous_waypoints: [],
+        nav_status: {
+          nav_state: -1,
+          completed_wps: 0,
+          total_wps: 0
+        }
       }
     },
 
     oncreate() {
       this.refs.diags.on("sensor_switch", (should_record) => {
         this.fire("sensor_switch", should_record);
+      });
+
+      this.refs.waypoints.on("auton", (data) => {
+        this.fire("auton", data);
+      });
+
+      this.refs.waypoints.on("course", (course) => {
+        this.fire("course", course);
       });
 
       this.update_sensor_data();
@@ -182,9 +195,13 @@
           this.update_sensor_data();
         }
         if (topic === '/kill_switch') {
-          console.log("kill switch recieved")
           this.set({
             motors_active: !message.killed
+          })
+        }
+        if (topic === '/nav_status'){
+          this.set({
+            nav_status: message
           })
         }
       },
