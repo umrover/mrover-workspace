@@ -1,0 +1,17 @@
+- name: Set up node's network adapter
+  template:
+      src: files/pi.network
+      dest: /etc/systemd/network/pi.network
+
+- name: Update apt cache
+  apt: update_cache=yes
+
+- name: Install developer packages
+  apt: name={{ item }} state=present
+  with_items:
+  - ansible
+
+- name: Enable systemd-networkd
+  systemd:
+      name: systemd-networkd.service
+      enabled: yes
