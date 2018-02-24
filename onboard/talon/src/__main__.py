@@ -12,17 +12,17 @@ from rover_common import talon_srx
 
 lcm_ = aiolcm.AsyncLCM()
 rover = None
-NUM_TALONS = 4
+NUM_TALONS = 10
 can.rc['interface'] = 'socketcan_ctypes'
 can.rc['channel'] = 'can0'
 can.rc['bitrate'] = 500000
 
 
 class RoverTalons(Enum):
-    left_front = 0
-    left_back = 1
-    right_front = 2
-    right_back = 3
+    left_front = 2
+    left_back = 7
+    right_front = 4
+    right_back = 8
 
 
 class Rover:
@@ -30,6 +30,8 @@ class Rover:
         self.talons = []
         for i in range(NUM_TALONS):
             self.talons.append(LowLevel(can.interface.Bus(), i))
+            self.talons[i].set_param(
+                talon_srx.Param.NominalBatteryVoltage.value, 0)
         # make left_back talon follow left_front
         self.talons[RoverTalons.left_back.value].set_demand(
             RoverTalons.left_front.value,
@@ -86,7 +88,7 @@ async def publish_response():
         lcm_.publish('/encoder', ec.encode())
 
         print("Published response")
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.5)
 
 
 def main():
