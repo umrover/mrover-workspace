@@ -1,4 +1,5 @@
 import can
+import time
 import struct
 import queue
 from rover_common import talon_srx
@@ -81,10 +82,13 @@ class LowLevel(object):
                           data=struct.pack('<Q', frame)[:5],
                           extended_id=True)
         self.send_one(msg)
+        time.sleep(0.5)
+        '''
         while True:
             msg = self.listener.get_message()
             if msg.data[0] == param_id:
                 return
+        '''
 
     def read_enc_value(self):
         msg = self.status_3_listener.get_message()
@@ -113,8 +117,8 @@ class LowLevel(object):
 
     def set_demand(self, param, controlmode):
         param = int(param)
-        H = (param >> 0x10) & 0xff
-        M = (param >> 0x80) & 0xff
+        H = (param >> 16) & 0xff
+        M = (param >> 8) & 0xff
         L = (param) & 0xff
 
         _cache = struct.unpack('<Q', self.msg_control_5.data)[0]
