@@ -1,64 +1,73 @@
-import can
-import time
 import struct
-import queue
-from rover_common import talon_srx
+import asyncio
+from rover_common.aiohelper import wait_for
+from rover_common import talon_srx, aiocan
 
 
-class BufferedListener(can.Listener):
-    def __init__(self, bus, device_id, arb_id, maxsize=0):
-        super().__init__()
-        self.bus = bus
-        self.device_id = device_id
+class MessageBuffer:
+    def __init__(self, arb_id, maxsize=0):
         self.arb_id = arb_id
-        self.buffer = queue.Queue(maxsize)
+        self.buffer = asyncio.Queue(maxsize)
 
-    def on_message_received(self, msg):
-        if msg.arbitration_id == self.arb_id:
-            self.buffer.put(msg)
+    def __call__(self, msg):
+        assert msg.arb_id == self.arb_id
+        self.buffer.put_nowait(msg)
 
-    def get_message(self, timeout=0.5):
-        try:
-            return self.buffer.get(block=True, timeout=timeout)
-        except queue.Empty:
-            return None
+    async def get(self, timeout=0.5):
+        return await asyncio.wait_for(self.buffer.get(), timeout=timeout)
+
+
+class SingleMessageBuffer:
+    def __init__(self, arb_id):
+        self.arb_id = arb_id
+        self.evt = asyncio.Event()
+        self.evt.clear()
+        self.msg = None
+
+    def __call__(self, msg):
+        assert msg.arb_id == self.arb_id
+        self.msg = msg
+        self.evt.set()
+
+    async def get(self):
+        await self.evt.wait()
+        return self.msg
 
 
 class LowLevel(object):
-    def __init__(self, bus, device_id):
-        self.bus = bus
+    def __init__(self, iface, device_id):
         self.device_id = device_id
-        self.listener = BufferedListener(bus, device_id,
-                                         talon_srx.PARAM_RESPONSE | device_id)
-        self.status_3_listener = BufferedListener(bus, device_id,
-                                                  (talon_srx.STATUS_3 |
-                                                   device_id), 1)
-        self.notifier = can.Notifier(bus, [self.listener,
-                                           self.status_3_listener])
+        self.bus = aiocan.AsyncBCM(iface)
+        self.param_response_buffer = MessageBuffer(
+                talon_srx.PARAM_RESPONSE | device_id)
+        self.status_3_buffer = SingleMessageBuffer(
+                talon_srx.STATUS_3 | device_id)
+        wait_for(self._setup())
+
+    async def _setup(self):
+        await self.bus.subscribe(
+                talon_srx.PARAM_RESPONSE | self.device_id,
+                self.param_response_buffer, extended=True)
+        await self.bus.subscribe(
+                talon_srx.STATUS_3 | self.device_id,
+                self.status_3_buffer, extended=True)
         # for externalenable being false, control_1 is needed
-        self.msg_control_1 = can.Message(
-                    arbitration_id=talon_srx.CONTROL_1 | device_id,
+        self.msg_control_1 = aiocan.Message(
+                    arb_id=talon_srx.CONTROL_1 | self.device_id,
                     extended_id=True,
                     data=[0 for i in range(0, 2)])
-        self.control_1_task = can.send_periodic(
-           can.rc['channel'], self.msg_control_1, 0.05)
-        self.msg_control_5 = can.Message(
-                    arbitration_id=talon_srx.CONTROL_5 | device_id,
+        self.control_1_task = await self.bus.send_periodic(
+                self.msg_control_1, 0.05)
+        self.msg_control_5 = aiocan.Message(
+                    arb_id=talon_srx.CONTROL_5 | self.device_id,
                     extended_id=True,
                     data=[0 for i in range(0, 8)])
-        self.control_5_task = can.send_periodic(
-            can.rc['channel'], self.msg_control_5, 0.01)
-        self.set_overide_limit_switches(
-                    talon_srx.kLimitSwitchOverride.EnableFwd_EnableRev.value)
+        self.control_5_task = await self.bus.send_periodic(
+                self.msg_control_5, 0.01)
+        await self.set_override_limit_switches(
+                talon_srx.kLimitSwitchOverride.EnableFwd_EnableRev.value)
 
-    def send_one(self, msg):
-        try:
-            self.bus.send(msg)
-            print("Message sent on {}".format(self.bus.channel_info))
-        except can.CanError:
-            print("Message NOT sent")
-
-    def set_param(self, param_id, param_val):
+    async def set_param(self, param_id, param_val):
         frame = 0
         if param_id in [
                 talon_srx.Param.ProfileParamSlot0_P,
@@ -78,20 +87,17 @@ class LowLevel(object):
         frame <<= 8
         frame |= param_id
         arbId = talon_srx.PARAM_SET | self.device_id
-        msg = can.Message(arbitration_id=arbId,
-                          data=struct.pack('<Q', frame)[:5],
-                          extended_id=True)
-        self.send_one(msg)
-        time.sleep(0.5)
-        '''
+        msg = aiocan.Message(arb_id=arbId,
+                             extended_id=True,
+                             data=struct.pack('<Q', frame)[:5])
+        await self.bus.send(msg)
         while True:
-            msg = self.listener.get_message()
+            msg = await self.param_response_buffer.get(timeout=None)
             if msg.data[0] == param_id:
                 return
-        '''
 
-    def read_enc_value(self):
-        msg = self.status_3_listener.get_message()
+    async def read_enc_value(self):
+        msg = await self.status_3_buffer.get()
         if msg is None:
             return None
         _cache = struct.unpack('<Q', msg.data)[0]
@@ -107,15 +113,15 @@ class LowLevel(object):
         raw = talon_srx.sign_extend(raw, 24)
         return raw
 
-    def set_override_brake_type(self, param):
+    async def set_override_brake_type(self, param):
         param = int(param) & 0x3
         frame = struct.unpack('<Q', self.msg_control_5.data)[0]
         frame &= ~(0x3 << 50)
         frame |= param << 50
         self.msg_control_5.data = struct.pack('<Q', frame)[:8]
-        self.control_5_task.modify_data(self.msg_control_5)
+        await self.control_5_task.modify(self.msg_control_5)
 
-    def set_demand(self, param, controlmode):
+    async def set_demand(self, param, controlmode):
         param = int(param)
         H = (param >> 16) & 0xff
         M = (param >> 8) & 0xff
@@ -133,21 +139,24 @@ class LowLevel(object):
         _cache &= ~((0xf) << 52)
         _cache |= controlmode << 52
         self.msg_control_5.data = struct.pack('<Q', _cache)[:8]
-        self.control_5_task.modify_data(self.msg_control_5)
+        await self.control_5_task.modify(self.msg_control_5)
 
-    def set_profile_slot_select(self, param):
+    async def set_profile_slot_select(self, param):
         _cache = struct.unpack('<Q', self.msg_control_5.data)[0]
         if param == 0:
             _cache &= ~(1 << 40)
         else:
             _cache |= 1 << 40
         self.msg_control_5.data = struct.pack('<Q', _cache)[:8]
-        self.control_5_task.modify_data(self.msg_control_5)
+        await self.control_5_task.modify(self.msg_control_5)
 
-    def set_overide_limit_switches(self, param):
+    async def set_override_limit_switches(self, param):
         _cache = struct.unpack('<Q', self.msg_control_5.data)[0]
         param = param & 0x7
         _cache &= ~((0x7) << 45)
         _cache |= param << 45
         self.msg_control_5.data = struct.pack('<Q', _cache)[:8]
-        self.control_5_task.modify_data(self.msg_control_5)
+        await self.control_5_task.modify(self.msg_control_5)
+
+    async def loop(self):
+        await self.bus.loop()
