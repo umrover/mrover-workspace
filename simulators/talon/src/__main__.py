@@ -1,12 +1,11 @@
 import sys
-import can
+import asyncio
 import struct
-import time
-from can.interfaces.interface import Bus
-from rover_common import talon_srx
+import os
+from rover_common.aiohelper import exec_later, run_coroutines, wait_for
+from rover_common import talon_srx, aiocan
 
 
-device_id = None
 encoder_vel = 0
 encoder_pos = 0
 
@@ -38,12 +37,11 @@ def process_param_set_msg(bus, msg, device_id):
     print('setting parameter {} to {}'.format(
         param.name, val))
 
-    # TODO verify that the PARAM_RESPONSE message is one byte
-    msg = can.Message(
-            arbitration_id=(talon_srx.PARAM_RESPONSE | device_id),
+    msg = aiocan.Message(
+            arb_id=(talon_srx.PARAM_RESPONSE | device_id),
             extended_id=True,
-            data=[param.value])
-    bus.send(msg)
+            data=msg.data)
+    exec_later(bus.send(msg))
 
 
 msg_processors = {
@@ -51,16 +49,16 @@ msg_processors = {
 }
 
 
-class Listener(can.Listener):
+class Listener:
     def __init__(self, bus, device_id):
         super().__init__()
         self.bus = bus
         self.device_id = device_id
 
-    def on_message_received(self, msg):
-        incoming_dev_id = msg.arbitration_id & (~talon_srx.BITMASK)
-        if incoming_dev_id == device_id:
-            control_type = msg.arbitration_id & talon_srx.BITMASK
+    def __call__(self, msg):
+        incoming_dev_id = msg.arb_id & (~talon_srx.BITMASK)
+        if incoming_dev_id == self.device_id:
+            control_type = msg.arb_id & talon_srx.BITMASK
             if control_type in control_types:
                 print('received {} messsage: {}'.format(
                     control_types[control_type], msg))
@@ -76,7 +74,6 @@ class Listener(can.Listener):
 
 def make_status_3_msg():
     one_byte_bitmask = 0xFF
-    # TODO check this later
     # encoder position
     msg_data = [
         ((encoder_pos >> 16) & one_byte_bitmask),
@@ -100,8 +97,31 @@ def usage():
     print('\twhere 0 <= ID < 63', file=sys.stderr)
 
 
+async def status_3(bus, device_id):
+    status_3_msg = aiocan.Message(
+            arb_id=(talon_srx.STATUS_3 | device_id),
+            extended_id=True,
+            data=make_status_3_msg())
+    status_3_task = await bus.send_periodic(status_3_msg, 0.1)
+    while True:
+        status_3_msg.data = make_status_3_msg()
+        await status_3_task.modify(status_3_msg)
+        await asyncio.sleep(0.05)
+
+
+async def setup_bus(bus, device_id):
+    l = Listener(bus, device_id)
+    await bus.subscribe(talon_srx.CONTROL_1 | device_id, l, extended=True)
+    await bus.subscribe(talon_srx.CONTROL_2 | device_id, l, extended=True)
+    await bus.subscribe(talon_srx.CONTROL_3 | device_id, l, extended=True)
+    await bus.subscribe(talon_srx.CONTROL_5 | device_id, l, extended=True)
+    await bus.subscribe(talon_srx.CONTROL_6 | device_id, l, extended=True)
+    await bus.subscribe(talon_srx.PARAM_SET | device_id, l, extended=True)
+    await bus.subscribe(talon_srx.PARAM_REQUEST | device_id, l, extended=True)
+    await bus.subscribe(talon_srx.PARAM_RESPONSE | device_id, l, extended=True)
+
+
 def main():
-    global device_id
     global encoder_value_send_task
     if len(sys.argv) != 2:
         usage()
@@ -112,19 +132,8 @@ def main():
         usage()
         sys.exit(1)
 
-    can.rc['interface'] = 'socketcan_ctypes'
-    can.rc['channel'] = 'vcan0'
+    iface = os.environ.get('MROVER_TALON_CAN_IFACE', 'vcan0')
 
-    bus = Bus()
-    notifier = can.Notifier(bus, [Listener(bus, device_id)])
-    status_3_msg = can.Message(
-            arbitration_id=(talon_srx.STATUS_3 | device_id),
-            extended_id=True,
-            data=make_status_3_msg())
-    status_3_task = can.send_periodic(
-            can.rc['channel'], status_3_msg, 0.1)
-    while True:
-        status_3_msg.data = make_status_3_msg()
-        status_3_task.modify_data(status_3_msg)
-        time.sleep(0.05)
-    notifier.stop()
+    bus = aiocan.AsyncBCM(iface)
+    wait_for(setup_bus(bus, device_id))
+    run_coroutines(bus.loop(), status_3(bus, device_id))
