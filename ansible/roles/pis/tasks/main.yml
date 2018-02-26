@@ -3,15 +3,60 @@
       src: files/pi.network
       dest: /etc/systemd/network/pi.network
 
+- name: Add uv4l apt key
+  apt_key:
+    url: http://www.linux-projects.org/listing/uv4l_repo/lpkey.asc
+    state: present
+
+- apt_repository:
+    repo: deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main
+    state: present
+
 - name: Update apt cache
   apt: update_cache=yes
 
 - name: Install developer packages
   apt: name={{ item }} state=present
   with_items:
-  - ansible
+  - uv4l
+  - uv4l-raspicam
+  - uv4l-server
+  - uv4l-webrtc-armv6
+  - python3-venv
+  - autoconf
+  - libtool
+  - libglib2.0-dev
+  - libpython3.5-dev
+  - virtualenv
+
+- name: Copy systemd service files
+  template:
+      src: "files/{{ item }}.service"
+      dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+      - uv4l
+      - pi-heartbeat
+
+- name: Disable Mbed compilation
+  copy:
+      src: files/mrover.site
+      dest: /home/{{ user }}/mrover.site
+
+- name: Set Environment Variables
+  copy:
+      src: files/pi.env
+      dest: /etc/default/pi.env
 
 - name: Enable systemd-networkd
   systemd:
       name: systemd-networkd.service
       enabled: yes
+
+- name: Reload systemd
+  systemd: daemon_reload=yes
+
+- name: Enable services
+  systemd: name={{ item }} enabled=yes
+  with_items:
+      - uv4l.service
+      - pi-heartbeat.service
