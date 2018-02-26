@@ -70,16 +70,16 @@ class LowLevel(object):
     async def set_param(self, param_id, param_val):
         frame = 0
         if param_id in [
-                talon_srx.Param.ProfileParamSlot0_P,
-                talon_srx.Param.ProfileParamSlot0_I,
-                talon_srx.Param.ProfileParamSlot0_D,
-                talon_srx.Param.ProfileParamSlot1_P,
-                talon_srx.Param.ProfileParamSlot1_I,
-                talon_srx.Param.ProfileParamSlot1_D]:
+                talon_srx.Param.ProfileParamSlot0_P.value,
+                talon_srx.Param.ProfileParamSlot0_I.value,
+                talon_srx.Param.ProfileParamSlot0_D.value,
+                talon_srx.Param.ProfileParamSlot1_P.value,
+                talon_srx.Param.ProfileParamSlot1_I.value,
+                talon_srx.Param.ProfileParamSlot1_D.value]:
             frame = talon_srx.float_to_fxp_10_22(param_val) & 0xFFFFFFFF
         elif param_id in [
-                talon_srx.Param.ProfileParamSlot0_F,
-                talon_srx.Param.ProfileParamSlot1_F]:
+                talon_srx.Param.ProfileParamSlot0_F.value,
+                talon_srx.Param.ProfileParamSlot1_F.value]:
             param_val = min(max(param_val, -255), 255)
         else:
             frame = int(param_val)
