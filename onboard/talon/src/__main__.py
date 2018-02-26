@@ -22,6 +22,10 @@ class RoverTalons(Enum):
     right_front = 4
     right_back = 8
     arm_joint_a = 5
+    arm_joint_b = 6
+    arm_joint_c = 9
+    arm_joint_d = 3
+    arm_joint_e = 1
 
 
 class Rover:
@@ -39,6 +43,15 @@ class Rover:
         await self.talons[RoverTalons.right_back.value].set_demand(
             RoverTalons.right_front.value,
             talon_srx.TalonControlMode.kFollowerMode.value)
+        # set up joint_d to use PID profile 0
+        await self.talons[
+            RoverTalons.arm_joint_d.value].set_profile_slot_select(0)
+        await self.talons[
+            RoverTalons.arm_joint_d.value].set_param(
+                talon_srx.Param.ClearPositionOnLimitF.value, 1)
+        await self.talons[
+            RoverTalons.arm_joint_d.value].set_param(
+                talon_srx.Param.ClearPositionOnLimitR.value, 1)
         print('configured talons')
 
     async def left_drive(self, speed):
@@ -78,18 +91,26 @@ def set_demand_callback(channel, msg):
 async def publish_response():
     while True:
         ec = Encoder()
+        '''
         ec.joint_a = int(
-            await rover.talons[RoverTalons.left_front.value].read_enc_value()
+            await rover.talons[RoverTalons.arm_joint_a.value].read_enc_value()
             or 0)
         ec.joint_b = int(
-            await rover.talons[RoverTalons.left_back.value].read_enc_value()
+            await rover.talons[RoverTalons.arm_joint_b.value].read_enc_value()
             or 0)
         ec.joint_c = int(
-            await rover.talons[RoverTalons.right_front.value].read_enc_value()
+            await rover.talons[RoverTalons.arm_joint_c.value].read_enc_value()
             or 0)
-        ec.joint_d = int(
-            await rover.talons[RoverTalons.right_back.value].read_enc_value()
+        '''
+        val = await rover.talons[
+            RoverTalons.arm_joint_d.value].read_enc_value() or 0
+        val = max(min(val, 32767), -32768)
+        ec.joint_d = int(val)
+        '''
+        ec.joint_e = int(
+            await rover.talons[RoverTalons.arm_joint_e.value].read_enc_value()
             or 0)
+        '''
 
         lcm_.publish('/encoder', ec.encode())
 
