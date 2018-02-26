@@ -7,12 +7,34 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Odometry, Joystick, DriveMotors, Sensors,
                         KillSwitch, Xbox, Encoder, Temperature, SAMotors)
 
+
+class Toggle:
+    def __init__(self, toggle):
+        self.toggle = toggle
+        self.previous = False
+        self.input = False
+        self.last_input = False
+
+    def new_reading(self, reading):
+        self.input = reading
+        if self.input and not self.last_input:
+            # just pushed
+            self.last_input = True
+            self.toggle = not self.toggle
+        elif not self.input and self.last_input:
+            # just released
+            self.last_input = False
+
+        self.previous = reading
+        return self.toggle
+
+
 lcm_ = aiolcm.AsyncLCM()
 kill_motor = False
 lock = asyncio.Lock()
 enc_in = None
-drill_on = False
-door_open = False
+drill_on = Toggle(False)
+door_open = Toggle(False)
 
 
 def connection_state_changed(c, _):
@@ -123,14 +145,19 @@ def sa_control_callback(channel, msg):
     xbox = Xbox.decode(msg)
     new_sa_motors = SAMotors()
 
-    if xbox.right_bumper > 0.5:
-        drill_on = not drill_on
-    new_sa_motors.drill = drill_on
-    new_sa_motors.lead_screw = -deadzone(xbox.left_js_y, 0.2)
-    if door_open > 0.5:
-        door_open = not door_open
-    new_sa_motors.door_actuator = 1.0 if door_open else -1.0
+    val = drill_on.new_reading(xbox.right_bumper > 0.5)
+    new_sa_motors.drill = -0.6 if val else 0.0
+    if deadzone(xbox.left_js_y, 0.5) > 0.5:
+        new_sa_motors.lead_screw = 0.4
+    if deadzone(xbox.left_js_y, 0.5) < -0.5:
+        new_sa_motors.lead_screw = -0.4
+    val = door_open.new_reading(xbox.left_bumper > 0.5)
+    new_sa_motors.door_actuator = 0.50 if val else -0.50
     new_sa_motors.cache = deadzone(xbox.right_js_x, 0.2)
+
+    print('drill? {} door: {} lead-screw: {}'.format(
+        drill_on.toggle, new_sa_motors.door_actuator,
+        new_sa_motors.lead_screw))
 
     lcm_.publish('/sa_motors', new_sa_motors.encode())
 
@@ -251,7 +278,7 @@ def main():
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/encoder', encoder_callback)
     lcm_.subscribe('/arm_demand', enc_out_callback)
-    lcm_.subscribe('/arm_demand', transmit_fake_encoders)
+    # lcm_.subscribe('/arm_demand', transmit_fake_encoders)
 
     new_kill_msg = KillSwitch()
     new_kill_msg.killed = False
