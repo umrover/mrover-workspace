@@ -37,10 +37,12 @@ void Layer2::run()
 
 	while (true)
 	{
-		while ( !auton_state.is_auton ) 
+		while ( !auton_state.is_auton )
 			auton_state = this->auton_state_.clone();
 
 		d = this->course_data_.clone();
+		this->completed_wps = 0;
+		this->total_wps = d.overall.size();
 
 	    while ( !d.overall.empty() && auton_state.is_auton ) 
 	    {
@@ -57,20 +59,18 @@ void Layer2::run()
 			make_and_publish_nav_status(0);
 			cur_odom = this->cur_odom_.clone_when_changed();
 			auton_state = this->auton_state_.clone();
-			
-		} // while(!overall.empty && in_auton mode)
 
-		// if a course(){waypoints} was previously traversed in auton mode: clear/reset
-		if ( prev_entered_auton && !d.overall.empty() ) {
+		} //while(!empty && auton)
+
+		// if main loop prev entered and course{} empty ==> DONE, clear/reset
+		if ( prev_entered_auton && d.overall.empty() ) {
 			make_and_publish_nav_status(8); //pubish DONE navStatus
-			this->completed_wps = 0;
-			this->total_wps = 0;
-			d.overall.clear();
-			d.hash = 0;
+			d.hash = 0; //required for transactional --> clone_when_changed()
 			prev_entered_auton = false;
+			d = this->course_data_.clone_when_changed();
 		}
 
-		else d = this->course_data_.clone_when_changed();
+		//else if ( ANYTHING && !empty() ) ==> (DO NOTHING) auton off, wait @ top of loop for it to turn on)
 
 	} //while(true)
 }
@@ -150,8 +150,8 @@ void Layer2::init_search_multipliers(){
     search_point_multipliers.push_back(std::pair<short,short> (1,-1));
 }
 
-void Layer2::add_four_points_to_search(const waypoint & origin_way){
-    
+void Layer2::add_four_points_to_search(const waypoint & origin_way)
+{    
     for ( int i = 0; i < 4 ; ++i ){
         std::pair<short,short> & lead_pat = search_point_multipliers[i];
     
@@ -186,7 +186,8 @@ void Layer2::make_and_publish_nav_status(const int8_t state)
 	lcm_.publish(NAV_STATUS_CHANNEL, &nav_status_);	
 }
 
-inline bool Layer2::waypoint_eq(const waypoint & way1, const waypoint & way2) {
+inline bool Layer2::waypoint_eq(const waypoint & way1, const waypoint & way2)
+{
 	if (way1.search != way2.search) return false;
 	if (abs(way1.odom.latitude_min - way2.odom.latitude_min) > 0.0001) return false;
 	if (abs(way1.odom.longitude_min - way2.odom.longitude_min) > 0.0001) return false;
@@ -195,7 +196,8 @@ inline bool Layer2::waypoint_eq(const waypoint & way1, const waypoint & way2) {
 	return true;
 }
 
-inline void Layer2::waypoint_assign(waypoint & way1, const waypoint & way2) {
+inline void Layer2::waypoint_assign(waypoint & way1, const waypoint & way2)
+{
 	way1.search = way2.search;
 	way1.odom.latitude_deg = way2.odom.latitude_deg;
 	way1.odom.longitude_deg = way2.odom.longitude_deg;

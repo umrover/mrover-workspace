@@ -1,44 +1,46 @@
 <div id="container">
     <canvas ref:canvas width="600" height="600"></canvas>
 
-    <div class="display" id="odom_display">
-        <h2>Odometry</h2>
-        <p><b>Latitude:</b> {{ latitude_deg }}&#176; {{ latitude_min }}'</p>
-        <p><b>Longitude:</b> {{ longitude_deg }}&#176; {{ longitude_min }}'</p>
-        <p><b>Bearing:</b> {{ bearing_deg }}</p>
-    </div>
+    <div id="sidebar">
+        <div class="display" id="odom_display">
+            <h2>Odometry</h2>
+            <p><b>Latitude:</b> {{ latitude_deg }}&#176; {{ latitude_min }}'</p>
+            <p><b>Longitude:</b> {{ longitude_deg }}&#176; {{ longitude_min }}'</p>
+            <p><b>Bearing:</b> {{ bearing_deg }}</p>
+        </div>
 
-    <div class="display" id="joystick_display">
-        <h2>Joystick</h2>
-        {{#if lcm_connected}}
-        <p><b>Translational:</b> {{ forward_back }}</p>
-        <p><b>Rotational:</b> {{ left_right }}</p>
-        {{/if}}
-    </div>
+        <div class="display" id="joystick_display">
+            <h2>Joystick</h2>
+            {{#if lcm_connected}}
+            <p><b>Translational:</b> {{ forward_back }}</p>
+            <p><b>Rotational:</b> {{ left_right }}</p>
+            {{/if}}
+        </div>
 
-    <div class="display" id="controls">
-        <p>
-            <input type="checkbox" id="auton_enable" bind:checked="enabled">
-            <label for="auton_enable">Autonomy On?</label>
-        </p>
-        {{#if lcm_connected}}
-        Put the nav status
-        <p><b>Navigation State:</b> {{ nav_state_textual }}</p>
-        <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
-        {{/if}}
-    </div>
+        <div class="display" id="controls">
+            <p>
+                <input type="checkbox" id="auton_enable" bind:checked="enabled">
+                <label for="auton_enable">Autonomy On?</label>
+            </p>
+            {{#if lcm_connected}}
+            Put the nav status
+            <p><b>Navigation State:</b> {{ nav_state_textual }}</p>
+            <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
+            {{/if}}
+        </div>
 
-    {{#each waypoints as waypoint, i}}
-    <div class="display" id="waypoint_display">
-        <h2>Waypoint {{ i }}</h2>
-        <p><b>Latitude:</b> {{ waypoint.latitude_deg }}&#176; {{ waypoint.latitude_min }}'</p>
-        <p><b>Longitude:</b> {{ waypoint.longitude_deg }}&#176; {{ waypoint.longitude_min }}'</p>
-        <p>
-            <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
-            <label for="search_checkbox_{{ i }}">Search?</label>
-        </p>
+        {{#each waypoints as waypoint, i}}
+        <div class="display" id="waypoint_display">
+            <h2>Waypoint {{ i }}</h2>
+            <p><b>Latitude:</b> {{ waypoint.latitude_deg }}&#176; {{ waypoint.latitude_min }}'</p>
+            <p><b>Longitude:</b> {{ waypoint.longitude_deg }}&#176; {{ waypoint.longitude_min }}'</p>
+            <p>
+                <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
+                <label for="search_checkbox_{{ i }}">Search?</label>
+            </p>
+        </div>
+        {{/each}}
     </div>
-    {{/each}}
 </div>
 
 <script>
@@ -335,10 +337,18 @@
 <style>
 #container {
     font-family: sans-serif;
+    display: grid;
+    grid-template-columns: 600px 1fr;
+    grid-template-areas: "canvas sidebar";
 }
 
 canvas {
     border: 1px solid black;
+    grid-area: "canvas";
+}
+
+#sidebar {
+    grid-area: "sidebar";
 }
 
 div + div {
