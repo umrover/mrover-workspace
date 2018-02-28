@@ -35,6 +35,8 @@ void Layer2::run()
 	rover_msgs::AutonState auton_state = this->auton_state_.clone();
 	bool prev_entered_auton = false;
 
+	long_meter_in_minutes = long_meter_mins(cur_odom);
+
 	while (true)
 	{
 		while ( !auton_state.is_auton )
@@ -44,11 +46,17 @@ void Layer2::run()
 		this->completed_wps = 0;
 		this->total_wps = d.overall.size();
 
+		rover_msgs::Obstacle obs = this->obstacle_.clone();
+
 	    while ( !d.overall.empty() && auton_state.is_auton ) 
 	    {
 	    	prev_entered_auton = true;
 			waypoint target = d.overall.front();
 			cur_odom = this->cur_odom_.clone();
+
+			if (obs.detected) {
+				obstacle_avoidance(obs.bearing);
+			}
 
 			if ( layer1.translational(cur_odom, target.odom) ) {
 				++this->completed_wps;
@@ -59,6 +67,9 @@ void Layer2::run()
 			make_and_publish_nav_status(0);
 			cur_odom = this->cur_odom_.clone_when_changed();
 			auton_state = this->auton_state_.clone();
+			this->obstacle_.clone_conditional([&](const Obstacle & new_obs) {
+				return new_obs.detected != obs.detected;
+			}, &obs);
 
 		} //while(!empty && auton)
 
@@ -104,6 +115,9 @@ void Layer2::search_func(const waypoint & search_origin) {
 		search.pop_front();		//once @ point, pop it off
 		ball_detected = this->ball_detected_.clone();
 	}
+
+	make_and_publish_nav_status(4);
+	turn_to_bearing(ball.bea)
 
 	search.clear();
 }
@@ -158,8 +172,10 @@ void Layer2::add_four_points_to_search(const waypoint & origin_way)
         rover_msgs::Waypoint next_search_way = origin_way;
         next_search_way.search = false;
    
-   		double total_lat_min = next_search_way.odom.latitude_min + ((lead_pat.first * PATH_WIDTH) * METER_IN_MINUTES);
-        double total_long_min = next_search_way.odom.longitude_min + ((lead_pat.second * PATH_WIDTH) * METER_IN_MINUTES);
+   		double total_lat_min = next_search_way.odom.latitude_min + 
+   				((lead_pat.first * PATH_WIDTH) * LAT_METER_IN_MINUTES);
+        double total_long_min = next_search_way.odom.longitude_min + 
+        		((lead_pat.second * PATH_WIDTH) * long_meter_in_minutes);
 
   		int added_lat_deg = total_lat_min / 60;
         int added_long_deg = total_long_min / 60;
@@ -203,4 +219,13 @@ inline void Layer2::waypoint_assign(waypoint & way1, const waypoint & way2)
 	way1.odom.longitude_deg = way2.odom.longitude_deg;
 	way1.odom.latitude_min = way2.odom.latitude_min;
 	way1.odom.longitude_min = way2.odom.longitude_min;
+}
+
+void long_meter_mins(const odom & cur_odom) {
+	long_meter_in_minutes = 60 / (EARTH_CIRCUM * 
+		cos(degree_to_radian(cur_odom.latitude_deg, cur_odom.latitude_min)) / 360);
+}
+
+void obstacle_avoidance(double bearing) {
+
 }

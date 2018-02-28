@@ -13,7 +13,7 @@ Layer1::Layer1 (lcm::LCM & lcm_object) :
     // calls the base class constructor
 
 //public methods -- called by layer2
-bool Layer1::translational(const odom & current_odom, const odom & target_odom)
+bool Layer1::translational(const odom & current_odom, const odom & target_odom/*, TennisBall & tennisBall, Obstacle & obstacle*/)
 {
     double dist = estimate_noneuclid(current_odom, target_odom);
     double bearing = calc_bearing(current_odom, target_odom);
@@ -91,6 +91,11 @@ void Layer1::throughZero(double & dest_bearing, const double cur_bearing)
         else dest_bearing = dest_bearing + 360;
     }
 }   
+
+void drive_forward(const double dist_to_target) {
+    double forward_effort = distance_pid.update(-1 * dist_to_target, 0);
+    make_publish_joystick(forward_effort, 0, false);
+}
 
 // rover_msgs::Joystick Layer1::make_joystick_msg(const double forward_back, const double left_right, const bool kill) {}
 

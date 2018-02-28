@@ -11,7 +11,10 @@
 #include <cassert>
 #include <cmath>
 
-typedef rover_msgs::Odometry odom;
+// typedef rover_msgs::Odometry odom;
+using odom = rover_msgs::Odometry;
+using TennisBall = rover_msgs::TennisBall;
+using Obstacle = rover_msgs::Obstacle;
 
 class Layer1 {
 public:
@@ -45,6 +48,8 @@ private:
 	double turn_to_dest(const odom & cur_odom, const odom & goal_odom);
 
 	double turn_to_dest(const odom &cur_odom, const double angle);
+
+	void drive_forward(const double dist_to_target);
 
 	//rover_msgs::Joystick make_joystick_msg(const double forward_back, const double left_right, const bool kill);
 
