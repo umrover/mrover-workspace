@@ -144,11 +144,11 @@ def sa_control_callback(channel, msg):
     new_sa_motors = SAMotors()
 
     val = drill_on.new_reading(xbox.right_bumper > 0.5)
-    new_sa_motors.drill = -0.6 if val else 0.0
-    if deadzone(xbox.left_js_y, 0.5) > 0.5:
-        new_sa_motors.lead_screw = 0.4
-    if deadzone(xbox.left_js_y, 0.5) < -0.5:
-        new_sa_motors.lead_screw = -0.4
+    new_sa_motors.drill = -0.7 if val else 0.0
+    new_sa_motors.lead_screw = deadzone(xbox.left_js_y, 0.1)
+    new_sa_motors.lead_screw = math.copysign(
+        new_sa_motors.lead_screw ** 2,
+        new_sa_motors.lead_screw)
     val = door_open.new_reading(xbox.left_bumper > 0.5)
     new_sa_motors.door_actuator = 0.50 if val else -0.50
     new_sa_motors.cache = deadzone(xbox.right_js_x, 0.2)
