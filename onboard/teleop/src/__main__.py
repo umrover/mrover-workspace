@@ -150,11 +150,6 @@ def sa_control_callback(channel, msg):
     new_sa_motors.lead_screw = math.copysign(
         new_sa_motors.lead_screw ** 2,
         new_sa_motors.lead_screw)
-    new_sa_motors.drill = -0.6 if val else 0.0
-    if deadzone(xbox.left_js_y, 0.5) > 0.5:
-        new_sa_motors.lead_screw = 0.4
-    if deadzone(xbox.left_js_y, 0.5) < -0.5:
-        new_sa_motors.lead_screw = -0.4
     if xbox.d_pad_up:
         new_sa_motors.door_actuator = 0.5
     elif xbox.d_pad_down:
