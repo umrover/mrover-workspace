@@ -13,8 +13,9 @@
 
 #include "thor.hpp"
 
-const double METER_IN_MINUTES = 0.0005389625;
-const int PATH_WIDTH = 200;
+const double EARTH_CIRCUM = 40075000; // meters
+const double LAT_METER_IN_MINUTES = 0.0005389625; // meters/minute
+const int PATH_WIDTH = 50; // meters
 const double DIRECTION_THRESH = 1.0;
 const double INNER_SEARCH_THRESH = .0001;
 #define NAV_STATUS_CHANNEL "/nav_status"
@@ -42,6 +43,9 @@ public:
 
 	Thor::Volatile<rover_msgs::AutonState> auton_state_;
 
+	Thor::Volatile<TennisBall> tennis_ball_;
+	Thor::Volatile<Obstacle> obstacle_;
+
 	void run();
 
 	void set_course(const rover_msgs::Course * course);
@@ -56,6 +60,7 @@ private:
   	lcm::LCM & lcm_;
   	Layer1 layer1;
 
+  	double long_meter_in_minutes;
 	int32_t total_wps; //fjul : original # wps in course
 	int32_t completed_wps; //fjul
 	int8_t nav_state; //fjul
@@ -79,5 +84,9 @@ private:
 	void waypoint_assign(waypoint & way1, const waypoint & way2);
 
 	void make_and_publish_nav_status(const int8_t state);
+
+	double long_meters_mins(int latitude_deg, double latitude_min);
+
+	void obstacle_avoidance(const double bearing);
 
 };
