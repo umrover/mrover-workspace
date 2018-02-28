@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct Obstacle {
+	bool detected;
+	double bearing; // from straight ahead	
+};

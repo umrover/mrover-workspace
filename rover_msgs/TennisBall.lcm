@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct TennisBall {
+	bool found;
+	double bearing; // from straight ahead
+	double distance;	
+};
