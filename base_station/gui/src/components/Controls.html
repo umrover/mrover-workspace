@@ -1,37 +1,30 @@
 <div class="wrap">
   <div class="control_buttons">
-    <button id="arm_set" on:click='setArm()'>Enable Arm Controls</button>
-    <button id="soil_set" on:click='setSoil_Ac()'>Enable Soil Acquisition Controls</button>
-    <button id="debug_mode" on:click='log_data()'>Debug Mode</button>
-    <button id="disable_both" on:click='disable_both()'>Disable All</button>
+    <Checkbox name="Arm Controls" bind:toggled="arm"/>
+    <Checkbox name="Soil Acquisition" bind:toggled="soil_ac"/>
+    <Checkbox name="Debug Mode" bind:toggled="debug"/>
   </div>
   <div id="speed_limiter">
   {{#if !debug}}
-  <p>
-    Speed Limiter:
-    <span>{{ (dampen*-50 + 50).toFixed(2) }}%</span>   
-  </p>
+    <p>
+      Speed Limiter:
+      <span>{{ (dampen*-50 + 50).toFixed(2) }}%</span>   
+    </p>
   {{elseif soil_ac}}
-  <div class="wrap">
-    <span class="led {{ sa_motor.drill != 0 ? 'green' : 'red' }}"></span>
-    <span class="name">Drill</span>
-  </div>
-  <div class="wrap">
-    <span class="led {{ sa_motor.door_actuator > 0 ? 'green' : 'red' }}"></span>
-    <span class="name">Door</span>
-  </div>
+    <div class="wrap">
+      <span class="led {{ sa_motor.drill != 0 ? 'green' : 'red' }}"></span>
+      <span class="name">Drill</span>
+     </div>
+    <div class="wrap">
+      <span class="led {{ sa_motor.door_actuator > 0 ? 'green' : (sa_motor.door_actuator < 0 ? 'red' : 'orange') }}"></span>
+      <span class="name">Door</span>
+    </div>
   {{/if}}
-  </div>
-  <div id="speed_limiter">
-  <p>
-    Speed Limiter:
-    <span>{{ (dampen*-50 + 50).toFixed(2) }}%</span>   
-  </p>
   </div>
 </div>
 
 <script>
-  import CommIndicator from './CommIndicator.html'
+  import Checkbox from './Checkbox.html'
 
   export default {
     data() {
@@ -41,30 +34,8 @@
         debug: false
       }
     },
-    methods: {
-      setArm() {
-        this.set({arm: true, soil_ac: false});
-        document.getElementById("arm_set").disabled = true;
-        document.getElementById("soil_set").disabled = false;
-
-      },
-
-      setSoil_Ac() {
-        this.set({soil_ac: true, arm: false});
-        document.getElementById("soil_set").disabled = true;
-        document.getElementById("arm_set").disabled = false;
-      },
-
-      disable_both() {
-        this.set({arm: false, soil_ac: false, debug: false});
-        document.getElementById("arm_set").disabled = false;
-        document.getElementById("soil_set").disabled = false;
-        document.getElementById("debug_mode").disabled = false;
-      },
-      log_data() {
-        this.set({debug: true});
-        document.getElementById("debug_mode").disabled = true;
-      }  
+    components: {
+      Checkbox
     }
   }
 </script>
@@ -81,6 +52,8 @@
   .control_buttons {
     align-items: center;
     justify-content: center;
+    display: inline-flex;
+    padding: 0px 10px 0px 0px;
   }
 
   .speed_limiter {
@@ -107,6 +80,10 @@
 
   .red {
     background-color: red;
+  }
+
+  .orange {
+    background-color: orange;
   }
 
   .name {
