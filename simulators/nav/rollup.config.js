@@ -21,6 +21,7 @@ export default {
         commonjs(),
         svelte({
             include: 'src/components/**/*.html',
+            cascade: false,
             css: (css) => {
                 css.write('dist/site.css')
             }

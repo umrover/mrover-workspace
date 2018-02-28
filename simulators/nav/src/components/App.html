@@ -1,12 +1,24 @@
 <div id="container">
-    <canvas ref:canvas width="600" height="600"></canvas>
+    <div id="field">
+        <SimulatorField 
+            ref:field
+            bind:odom
+            bind:waypoints
+            bind:tennis_balls
+            bind:rocks
+            mode="{{draw_mode}}"/>
+    </div>
+
+    <div id="drawmode">
+        <DrawModeSelector bind:mode="draw_mode"/>
+    </div>
 
     <div id="sidebar">
         <div class="display" id="odom_display">
             <h2>Odometry</h2>
-            <p><b>Latitude:</b> {{ latitude_deg }}&#176; {{ latitude_min }}'</p>
-            <p><b>Longitude:</b> {{ longitude_deg }}&#176; {{ longitude_min }}'</p>
-            <p><b>Bearing:</b> {{ bearing_deg }}</p>
+            <p><b>Latitude:</b> {{ odom.latitude_deg }}&#176; {{ odom.latitude_min }}'</p>
+            <p><b>Longitude:</b> {{ odom.longitude_deg }}&#176; {{ odom.longitude_min }}'</p>
+            <p><b>Bearing:</b> {{ odom.bearing_deg }}</p>
         </div>
 
         <div class="display" id="joystick_display">
@@ -23,21 +35,48 @@
                 <label for="auton_enable">Autonomy On?</label>
             </p>
             {{#if lcm_connected}}
-            Put the nav status
             <p><b>Navigation State:</b> {{ nav_state_textual }}</p>
             <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
+            {{else}}
+            <p>LCM not connected.</p>
             {{/if}}
         </div>
 
         {{#each waypoints as waypoint, i}}
-        <div class="display" id="waypoint_display">
-            <h2>Waypoint {{ i }}</h2>
-            <p><b>Latitude:</b> {{ waypoint.latitude_deg }}&#176; {{ waypoint.latitude_min }}'</p>
-            <p><b>Longitude:</b> {{ waypoint.longitude_deg }}&#176; {{ waypoint.longitude_min }}'</p>
-            <p>
-                <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
-                <label for="search_checkbox_{{ i }}">Search?</label>
-            </p>
+        <div class="display waypoint_display">
+            <SimulatedItemDisplay 
+                           title="Waypoint {{ i }}"
+                           item="{{ waypoint }}"
+                           on:click='splice("waypoints", i, 1)'>
+                <p>
+                    <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
+                    <label for="search_checkbox_{{ i }}">Search?</label>
+                </p>
+            </SimulatedItemDisplay>
+        </div>
+        {{/each}}
+
+        {{#each tennis_balls as tennis_ball, i}}
+        <div class="display tennis_ball_display">
+            <SimulatedItemDisplay
+                            title="Ball {{ i }}"
+                            item="{{ tennis_ball }}"
+                            on:click='splice("tennis_balls", i, 1)'/>
+        </div>
+        {{/each}}
+
+        {{#each rocks as rock, i}}
+        <div class="display rock_display">
+            <SimulatedItemDisplay
+                            title="Rock {{ i }}"
+                            item="{{ rock }}"
+                            on:click='splice("rocks", i, 1)'>
+                <p>
+                    <button on:click="invert_rock(i)">
+                        Flip
+                    </button>
+                </p>
+            </SimulatedItemDisplay>
         </div>
         {{/each}}
     </div>
@@ -46,102 +85,30 @@
 <script>
     import _ from 'lodash';
     import fnv from 'fnv-plus';
-
-    const CENTER_LAT = 39.4;
-    const CENTER_LON = -110.5;
-    const EARTH_RAD = 6371000.0;
-
-    const MAX_LAT = 39.5;
-    const MIN_LAT = 39.3;
-    const MAX_LON = -110.4;
-    const MIN_LON = -110.6;
-
-    const ROVER_SIZE = 25;
-    const VECTOR_SIZE = 20;
-    const WAYPOINT_SIZE = 10;
-
-    const TRANSLATIONAL_SCALE = 1;
-    const ROTATIONAL_SCALE = 10;
-
-    const scale = {
-        x: 8,
-        y: 8
-    };
-
-    function inv_projection({x, y}) {
-        const center_lat = CENTER_LAT * (Math.PI / 180);
-        const center_lon = CENTER_LON * (Math.PI / 180);
-        let theta_prime = Math.atan2(y, x);
-        if (theta_prime < 0) {
-            theta_prime += 2.0*Math.PI;
-        }
-        let bearing = Math.PI/2.0 - theta_prime;
-        if (bearing < 0) {
-            bearing += 2.0*Math.PI;
-        }
-        const dist = Math.sqrt(x*x + y*y);
-        const dlat_meters = dist * Math.cos(bearing);
-        const dlat = Math.asin(dlat_meters/EARTH_RAD);
-        let dlon = Math.sqrt((dist/EARTH_RAD)*(dist/EARTH_RAD) - dlat*dlat);
-        if (x < 0) {
-            dlon *= -1;
-        }
-
-        const coord_lat = dlat + center_lat;
-        const coord_lon = center_lon + dlon/Math.cos((center_lat + coord_lat)/2.0);
-
-        return {
-            lat: coord_lat * (180.0/Math.PI),
-            lon: coord_lon * (180.0/Math.PI)
-        };
-    }
-
-    function projection({lat, lon}) {
-        const center_lat = CENTER_LAT * (Math.PI / 180);
-        const center_lon = CENTER_LON * (Math.PI / 180);
-        const coord_lat = lat * (Math.PI / 180);
-        const coord_lon = lon * (Math.PI / 180);
-        const dlat = coord_lat - center_lat;
-        const dlon = (coord_lon - center_lon) * Math.cos((center_lat + coord_lat)/2);
-        const dist = Math.sqrt(dlon*dlon + dlat*dlat) * EARTH_RAD;
-
-        const dlat_meters = EARTH_RAD * Math.sin(dlat);
-        let bearing = Math.acos(dlat_meters / dist);
-        if (center_lon > coord_lon) {
-            bearing = 2.0 * Math.PI - bearing;
-        }
-        if (dlat_meters < 1 && dlat_meters > -1) {
-            if (center_lon < coord_lon) {
-                bearing = Math.PI/2.0;
-            } else {
-                bearing = 3.0*Math.PI/2.0;
-            }
-        }
-
-        const theta_prime = Math.PI/2.0 - bearing;
-        return {
-            x: dist * Math.cos(theta_prime),
-            y: dist * Math.sin(theta_prime)
-        };
-    }
-
-    function ensure_in_range(x, min, max) {
-        return Math.max(Math.min(x, max), min);
-    }
+    import { splice } from 'svelte-extras';
+    import SimulatorField from './SimulatorField.html';
+    import DrawModeSelector from './DrawModeSelector.html';
+    import SimulatedItemDisplay from './SimulatedItemDisplay.html';
+    import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
+    import { to_dms } from '../geography.js';
 
     export default {
         data () {
             return {
-                latitude_deg: 39,
-                latitude_min: 24,
-                longitude_deg: -110,
-                longitude_min: -30,
-                bearing_deg: 0,
+                draw_mode: WAYPOINT_MODE,
+
+                odom: Object.assign({}, to_dms({
+                    lat: 39.4,
+                    lon: -110.5
+                }), { bearing_deg: 0 }),
 
                 forward_back: 0,
                 left_right: 0,
 
                 waypoints: [],
+                tennis_balls: [],
+                rocks: [],
+
                 lcm_connected: false,
 
                 nav_state: 0,
@@ -165,135 +132,14 @@
             }
         },
 
-        oncreate () {
-            const canvas = this.refs.canvas;
-            const ctx = canvas.getContext('2d');
-
-            let running = true;
-            this.on('destroy', () => running = false);
-
-            canvas.addEventListener('click', (e) => {
-                e.preventDefault();
-                let rect = canvas.getBoundingClientRect();
-                let x = e.clientX - rect.left;
-                let y = e.clientY - rect.top;
-
-                let {lat, lon} = inv_projection(this.from_canvas({x, y}));
-
-                let waypoints = [];
-
-                if (e.ctrlKey || e.metaKey) {
-                    waypoints = this.get('waypoints');
-                }
-
-                waypoints.push({
-                    latitude_deg: Math.trunc(lat),
-                    latitude_min: (lat % 1)*60,
-                    longitude_deg: Math.trunc(lon),
-                    longitude_min: (lon % 1)*60,
-                    search: false
-                });
-
-                this.set({ waypoints });
-            });
-
-            const loop = () => {
-                if (!running) return;
-                requestAnimationFrame(loop);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                let coords = this.to_canvas(projection({
-                    lat: this.get('latitude_deg') + this.get('latitude_min')/60.0,
-                    lon: this.get('longitude_deg') + this.get('longitude_min')/60.0
-                }));
-
-                ctx.fillStyle = 'darkred';
-                ctx.fillRect(coords.x - ROVER_SIZE/2,
-                             coords.y - ROVER_SIZE/2,
-                             ROVER_SIZE, ROVER_SIZE);
-
-                ctx.strokeStyle = 'darkred';
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.moveTo(coords.x, coords.y);
-                const bearing = (90 - this.get('bearing_deg')) * Math.PI / 180;
-                ctx.lineTo(coords.x + VECTOR_SIZE*Math.cos(bearing),
-                           coords.y - VECTOR_SIZE*Math.sin(bearing));
-                ctx.stroke();
-
-                const waypoints = this.get('waypoints');
-                if (waypoints.length > 0) {
-                    for (let i = 0; i < waypoints.length; i++) {
-                        const waypoint = waypoints[i];
-                        let wcoords = this.to_canvas(projection({
-                            lat: waypoint.latitude_deg + waypoint.latitude_min/60.0,
-                            lon: waypoint.longitude_deg + waypoint.longitude_min/60.0
-                        }));
-
-                        ctx.fillStyle = 'darkgreen';
-                        ctx.beginPath();
-                        ctx.arc(wcoords.x,
-                                wcoords.y,
-                                WAYPOINT_SIZE, 0, 2*Math.PI, 0);
-                        ctx.fill();
-                    }
-                }
-            }
-
-            loop();
-        },
-
         methods: {
-            to_canvas: function({x, y}) {
-                const canvas = this.refs.canvas;
-                return {
-                    x: x/scale.x+canvas.width/2,
-                    y: canvas.height/2-y/scale.y
-                };
-            },
-            from_canvas: function({x, y}) {
-                const canvas = this.refs.canvas;
-                return {
-                    x: (x - canvas.width/2)*scale.x,
-                    y: (canvas.height/2 - y)*scale.y
-                };
-            },
             apply_joystick: function(stick) {
                 this.set({
                     forward_back: stick.forward_back,
                     left_right: stick.left_right
                 });
 
-                let {x, y} = this.to_canvas(projection({
-                    lat: this.get('latitude_deg') + this.get('latitude_min')/60.0,
-                    lon: this.get('longitude_deg') + this.get('longitude_min')/60.0
-                }));
-                let bearing_deg = this.get('bearing_deg');
-                bearing_deg += ROTATIONAL_SCALE * stick.left_right;
-                if (bearing_deg < 0) {
-                    bearing_deg += 360;
-                }
-                if (bearing_deg > 360) {
-                    bearing_deg -= 360;
-                }
-
-                this.set({ bearing_deg });
-                const bearing_rad = (90 - bearing_deg) * Math.PI / 180;
-
-                const vel = TRANSLATIONAL_SCALE * stick.forward_back;
-
-                x += vel * Math.cos(bearing_rad);
-                y -= vel * Math.sin(bearing_rad);
-
-                let {lat, lon} = inv_projection(this.from_canvas({x, y}));
-                lat = ensure_in_range(lat, MIN_LAT, MAX_LAT);
-                lon = ensure_in_range(lon, MIN_LON, MAX_LON);
-                this.set({
-                    latitude_deg: Math.trunc(lat),
-                    latitude_min: (lat % 1)*60,
-                    longitude_deg: Math.trunc(lon),
-                    longitude_min: (lon % 1)*60
-                });
+                this.refs.field.apply_joystick(stick);
             },
 
             start_odom_events: function() {
@@ -301,12 +147,13 @@
                     this.fire("auton", {
                         is_auton: this.get('enabled')
                     });
+                    const odom = this.get("odom");
                     this.fire("odom", {
-                        latitude_deg: this.get('latitude_deg')|0,
-                        latitude_min: this.get('latitude_min'),
-                        longitude_deg: this.get('longitude_deg')|0,
-                        longitude_min: this.get('longitude_min'),
-                        bearing_deg: this.get('bearing_deg')
+                        latitude_deg: odom.latitude_deg|0,
+                        latitude_min: odom.latitude_min,
+                        longitude_deg: odom.longitude_deg|0,
+                        longitude_min: odom.longitude_min,
+                        bearing_deg: odom.bearing_deg
                     });
                     const waypoints = this.get('waypoints');
                     let course = {
@@ -329,7 +176,18 @@
                     course.hash = fnv.fast1a52(JSON.stringify(course));
                     this.fire("course", course);
                 }, 100);
-            }
+            },
+            invert_rock: function(i) {
+                let rocks = this.get("rocks");
+                rocks[i].direction *= -1;
+                this.set({ rocks });
+            },
+            splice
+        },
+        components: {
+            SimulatorField,
+            DrawModeSelector,
+            SimulatedItemDisplay
         }
     }
 </script>
@@ -339,16 +197,22 @@
     font-family: sans-serif;
     display: grid;
     grid-template-columns: 600px 1fr;
-    grid-template-areas: "canvas sidebar";
+    grid-template-rows: 600px 1fr;
+    grid-template-areas: "canvas sidebar"
+                         "drawmode sidebar";
+    grid-gap: 5px;                    
 }
 
-canvas {
-    border: 1px solid black;
-    grid-area: "canvas";
+#field {
+    grid-area: canvas;
 }
 
 #sidebar {
-    grid-area: "sidebar";
+    grid-area: sidebar;
+}
+
+#drawmode {
+    grid-area: drawmode;
 }
 
 div + div {
@@ -372,8 +236,17 @@ div + div {
     background-color: darkblue;
 }
 
-#waypoint_display {
-    background-color: darkgreen
+.waypoint_display {
+    background-color: darkgreen;
+}
+
+.tennis_ball_display {
+    color: black;
+    background-color: lightgreen;
+}
+
+.rock_display {
+    background-color: brown;
 }
 
 #controls {
