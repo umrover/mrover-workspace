@@ -25,7 +25,7 @@
     <Waypoints ref:waypoints odom="{{odom}}" bind:previous_waypoints="previous_waypoints" nav_status="{{nav_status}}" />
   </div>
   <div class="box controls light-bg">
-    <Controls dampen="{{ dampen }}" ref:controls/>
+    <Controls dampen="{{ dampen }}" sa_motor="{{ sa_motor }}" ref:controls/>
   </div>
 </div>
 
@@ -152,6 +152,12 @@
           completed_wps: 0,
           total_wps: 0
         },
+        sa_motor: {
+          drill: 0,
+          lead_screw: 0,
+          door_actuator: 0,
+          cache: 0
+        },
         dampen: 0
       }
     },
@@ -202,6 +208,11 @@
         if (topic === '/nav_status'){
           this.set({
             nav_status: message
+          })
+        }
+        if (topic === '/sa_motors'){
+          this.set({
+            sa_motor: message
           })
         }
       },

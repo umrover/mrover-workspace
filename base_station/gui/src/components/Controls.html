@@ -2,22 +2,37 @@
   <div class="control_buttons">
     <button id="arm_set" on:click='setArm()'>Enable Arm Controls</button>
     <button id="soil_set" on:click='setSoil_Ac()'>Enable Soil Acquisition Controls</button>
-    <button id="disable_both" on:click='disable_both()'>Disable Both</button>
+    <button id="debug_mode" on:click='log_data()'>Debug Mode</button>
+    <button id="disable_both" on:click='disable_both()'>Disable All</button>
   </div>
   <div id="speed_limiter">
+  {{#if !debug}}
   <p>
     Speed Limiter:
     <span>{{ (dampen*-50 + 50).toFixed(2) }}%</span>   
   </p>
+  {{elseif soil_ac}}
+  <div class="wrap">
+    <span class="led {{ sa_motor.drill != 0 ? 'green' : 'red' }}"></span>
+    <span class="name">Drill</span>
+  </div>
+  <div class="wrap">
+    <span class="led {{ sa_motor.door_actuator > 0 ? 'green' : 'red' }}"></span>
+    <span class="name">Door</span>
+  </div>
+  {{/if}}
   </div>
 </div>
 
 <script>
+  import CommIndicator from './CommIndicator.html'
+
   export default {
     data() {
       return {
         arm: false,
-        soil_ac: false
+        soil_ac: false,
+        debug: false
       }
     },
     methods: {
@@ -35,10 +50,15 @@
       },
 
       disable_both() {
-        this.set({arm: false, soil_ac: false});
+        this.set({arm: false, soil_ac: false, debug: false});
         document.getElementById("arm_set").disabled = false;
         document.getElementById("soil_set").disabled = false;
-      }
+        document.getElementById("debug_mode").disabled = false;
+      },
+      log_data() {
+        this.set({debug: true});
+        document.getElementById("debug_mode").disabled = true;
+      }  
     }
   }
 </script>
@@ -49,6 +69,7 @@
     grid-template-areas: "control_buttons speed_limiter";
     align-items: center;
     height: 100%;
+    padding: 0px 0px 0px 20px
   }
 
   .control_buttons {
@@ -59,5 +80,30 @@
   .speed_limiter {
     align-items: center;
     justify-content: center;
+  }
+
+  .wrap {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .led {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    border: 1px solid;
+  }
+
+  .green {
+    background-color: lightgreen;
+  }
+
+  .red {
+    background-color: red;
+  }
+
+  .name {
+    margin-left: 5px;
   }
 </style>

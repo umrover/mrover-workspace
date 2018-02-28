@@ -65,7 +65,7 @@ const lcm_ = new LCMBridge(
   },
   {
     'topic': '/kill_switch',
-    'type': 'Kill_switches'
+    'type': 'KillSwitch'
   },
   {
     'topic': '/camera_servos',
@@ -78,6 +78,10 @@ const lcm_ = new LCMBridge(
   {
     'topic':'/nav_status',
     'type':'NavStatus'
+  },
+  {
+    'topic': '/sa_motors',
+    'type': 'SAMotors'
   }]
 )
 
