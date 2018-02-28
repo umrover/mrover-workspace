@@ -9,4 +9,6 @@ struct Xbox {
     double right_js_y;
     double right_bumper;
     double left_bumper;
+    double d_pad_up;
+    double d_pad_down;
 }
