@@ -1,0 +1,59 @@
+<div class="simulated-item-display">
+    <h2>{{ title }}</h2>
+    <button class="close" on:click="clicked()">x</button>
+    <div>
+        <p>
+            <b>Latitude:</b>
+            {{ item.latitude_deg }}&#176; 
+            {{ item.latitude_min }}'
+        </p>
+        <p>
+            <b>Longitude:</b>
+            {{ item.longitude_deg }}&#176; 
+            {{ item.longitude_min }}'
+        </p>
+        <slot/>
+    </div>
+</div>
+
+<style>
+.simulated-item-display {
+    display: grid;
+    grid-template-columns: 1fr 25px;
+    grid-template-areas: "heading close"
+        "body body";
+}
+
+.simulated-item-display h2 {
+    grid-area: heading;
+}
+
+.simulated-item-display button.close {
+    grid-area: close;
+    border: none;
+    padding: 5px;
+    background-color: #f44336;
+    color: white;
+    -webkit-transition-duration: 0.1s;
+    transition-duration: 0.1s;
+}
+
+.simulated-item-display button.close:hover {
+    color: black;
+    background-color: white;
+}
+
+.simulated-item-display div {
+    grid-area: body;
+}
+</style>
+
+<script>
+export default {
+    methods: {
+        clicked: function() {
+            this.fire('click');
+        }
+    }
+};
+</script>

@@ -1,0 +1,34 @@
+<div>
+    <button disabled="{{ !wp_enabled }}" on:click="selected(WAYPOINT_MODE)">Waypoint</button>
+    <button disabled="{{ !rock_enabled }}" on:click="selected(ROCK_MODE)">Rock</button>
+    <button disabled="{{ !ball_enabled }}" on:click="selected(TENNIS_BALL_MODE)">Tennis Ball</button>
+</div>
+
+<style>
+</style>
+
+<script>
+import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
+
+export default {
+    data () {
+        return {
+            mode: WAYPOINT_MODE,
+
+            WAYPOINT_MODE,
+            ROCK_MODE,
+            TENNIS_BALL_MODE
+        };
+    },
+    computed: {
+        wp_enabled: mode => mode != WAYPOINT_MODE,
+        rock_enabled: mode => mode != ROCK_MODE,
+        ball_enabled: mode => mode != TENNIS_BALL_MODE
+    },
+    methods: {
+        selected: function(mode) {
+            this.set({ mode });
+        }
+    }
+}
+</script>
