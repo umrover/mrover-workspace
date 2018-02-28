@@ -176,14 +176,12 @@ if(app !=null ){
   app.on('course', (course) => {
     if(lcm_.online){
       course['type'] = 'Course';
-      console.log(course);
       lcm_.publish('/course', course);
     } 
   });
 
   window.setInterval(() => {
     const gamepads = navigator.getGamepads();
-    console.log(gamepads);
     for (let i = 0; i < 2; i++) {
       const gamepad = gamepads[i];
       if (gamepad) {
@@ -216,6 +214,7 @@ if(app !=null ){
           if (app.refs.controls.get("arm")) {
             lcm_.publish('/arm_control', xboxData);
           } else if (app.refs.controls.get("soil_ac")) {
+            console.log(xboxData);
             lcm_.publish('/sa_control', xboxData);
           }
         }
