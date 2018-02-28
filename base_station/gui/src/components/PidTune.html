@@ -271,23 +271,20 @@
 
           let val=0;
           switch(parseInt(this.get('deviceID'))){
-            case 0:
+            case 5:
               val=message.joint_a;
               break;
-            case 1:
+            case 6:
               val=message.joint_b;
               break;
-            case 2:
+            case 9:
               val=message.joint_c;
               break;
             case 3:
               val=message.joint_d;
               break;
-            case 4:
+            case 1:
               val=message.joint_e;
-              break;
-            case 5:
-              val=message.joint_f;
               break;
           }
 
