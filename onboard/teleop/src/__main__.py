@@ -7,6 +7,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Odometry, Joystick, DriveMotors, Sensors,
                         KillSwitch, Xbox, Encoder, Temperature, SAMotors)
 
+
 class Toggle:
     def __init__(self, toggle):
         self.toggle = toggle
@@ -27,12 +28,12 @@ class Toggle:
         self.previous = reading
         return self.toggle
 
+
 lcm_ = aiolcm.AsyncLCM()
 kill_motor = False
 lock = asyncio.Lock()
 enc_in = None
 drill_on = Toggle(False)
-door_open = Toggle(False)
 
 
 def connection_state_changed(c, _):
@@ -149,8 +150,12 @@ def sa_control_callback(channel, msg):
         new_sa_motors.lead_screw = 0.4
     if deadzone(xbox.left_js_y, 0.5) < -0.5:
         new_sa_motors.lead_screw = -0.4
-    val = door_open.new_reading(xbox.left_bumper > 0.5)
-    new_sa_motors.door_actuator = 0.50 if val else -0.50
+    if xbox.d_pad_up:
+        new_sa_motors.door_actuator = 0.5
+    elif xbox.d_pad_down:
+        new_sa_motors.door_actuator = -0.5
+    else:
+        new_sa_motors.door_actuator = 0
     new_sa_motors.cache = deadzone(xbox.right_js_x, 0.2)
 
     print('drill? {} door: {} lead-screw: {}'.format(

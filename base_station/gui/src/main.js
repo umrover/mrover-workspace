@@ -155,7 +155,9 @@ if(app !=null ){
     "right_js_x": 2,
     "right_js_y": 3,
     "right_bumper": 5,
-    "left_bumper": 4
+    "left_bumper": 4,
+    "d_pad_up": 12,
+    "d_pad_down": 13
   };
 
   app.on("sensor_switch", (should_record) => {
@@ -213,7 +215,9 @@ if(app !=null ){
             'right_js_x': gamepad.axes[XBOX_CONFIG["right_js_x"]], //hand rotate
             'right_js_y': gamepad.axes[XBOX_CONFIG["right_js_y"]], //hand tilt
             'right_bumper': gamepad.buttons[XBOX_CONFIG["right_bumper"]]['pressed'], //grip close
-            'left_bumper': gamepad.buttons[XBOX_CONFIG["left_bumper"]]['pressed'] //grip open
+            'left_bumper': gamepad.buttons[XBOX_CONFIG["left_bumper"]]['pressed'], //grip open
+            'd_pad_up': gamepad.buttons[XBOX_CONFIG["d_pad_up"]]['pressed'],
+            'd_pad_down': gamepad.buttons[XBOX_CONFIG["d_pad_down"]]['pressed']
           };
           if (app.refs.controls.get("arm")) {
             lcm_.publish('/arm_control', xboxData);
