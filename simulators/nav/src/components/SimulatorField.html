@@ -1,0 +1,237 @@
+<canvas ref:canvas width="600" height="600">
+</canvas>
+
+<style>
+canvas {
+    border: 1px solid black;
+}
+</style>
+
+<script>
+import { 
+    to_dms,
+    to_decimal,
+    inv_projection as inv_projection_,
+    projection as projection_
+} from "../geography.js";
+import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
+
+const EARTH_RAD = 6371000.0;
+const ROVER_SIZE = 25;
+const VECTOR_SIZE = 20;
+const WAYPOINT_SIZE = 10;
+const TENNIS_BALL_SIZE = 4;
+const ROCK_SIZE = 45;
+
+const TRANSLATIONAL_SCALE = 1;
+const ROTATIONAL_SCALE = 10;
+
+const SCALE = {
+    x: 8,
+    y: 8,
+};
+
+function ensure_in_range(x, min, max) {
+    return Math.max(Math.min(x, max), min);
+}
+
+export default {
+    data() {
+        return {
+            center_lat: 39.4,
+            center_lon: -110.5,
+
+            max_lat: 39.5,
+            min_lat: 39.3,
+
+            max_lon: -110.4,
+            min_lon: -110.6,
+
+            odom: null,
+
+            waypoints: [],
+            tennis_balls: [],
+            rocks: [],
+
+            mode: WAYPOINT_MODE
+        };
+    },
+
+    oncreate () {
+        const canvas = this.refs.canvas;
+        const ctx = canvas.getContext('2d');
+
+        const draw = () => {
+            const odom = this.get("odom");
+            if (!odom) { return; }
+            const waypoints = this.get("waypoints");
+            const tennis_balls = this.get("tennis_balls");
+            const rocks = this.get("rocks");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const coords = this.to_canvas(this.projection(to_decimal(odom)));
+
+            ctx.fillStyle = 'darkred';
+            ctx.fillRect(coords.x - ROVER_SIZE/2,
+                         coords.y - ROVER_SIZE/2,
+                         ROVER_SIZE, ROVER_SIZE);
+
+            ctx.strokeStyle = 'darkred';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
+            const bearing = (90 - odom.bearing_deg) * Math.PI / 180;
+            ctx.lineTo(coords.x + VECTOR_SIZE*Math.cos(bearing),
+                       coords.y - VECTOR_SIZE*Math.sin(bearing));
+            ctx.stroke();
+
+            for (let i = 0; i < waypoints.length; i++) {
+                const waypoint = waypoints[i];
+                const wcoords = this.to_canvas(this.projection(to_decimal(waypoint)));
+
+                ctx.fillStyle = 'darkgreen';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(wcoords.x,
+                        wcoords.y,
+                        WAYPOINT_SIZE, 0, 2*Math.PI, 0);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            for (let i = 0; i < tennis_balls.length; i++) {
+                const ball = tennis_balls[i];
+                const bcoords = this.to_canvas(this.projection(to_decimal(ball)));
+
+                ctx.fillStyle = 'lightgreen';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(bcoords.x,
+                        bcoords.y,
+                        TENNIS_BALL_SIZE, 0, 2*Math.PI, 0);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            for (let i = 0; i < rocks.length; i++) {
+                const rock = rocks[i];
+                const rcoords = this.to_canvas(this.projection(to_decimal(rock)));
+
+                ctx.fillStyle = 'brown';
+                ctx.beginPath();
+                ctx.arc(
+                    rcoords.x, rcoords.y-(ROCK_SIZE/4),
+                    ROCK_SIZE/2, 0, 2*Math.PI, 0);
+                ctx.fill();
+                ctx.arc(
+                    rcoords.x-((ROCK_SIZE/4)*rock.direction), rcoords.y,
+                    ROCK_SIZE/2, 0, 2*Math.PI, 0);
+                ctx.fill();
+            }
+        };
+
+        canvas.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const draw_mode = this.get("mode");
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const {lat, lon} = this.inv_projection(this.from_canvas({x, y}));
+
+            if (draw_mode === WAYPOINT_MODE) {
+                let waypoints = this.get("waypoints");
+                waypoints.push(
+                    Object.assign({}, to_dms({lat, lon}), { search: false })
+                );
+
+                this.set({ waypoints });
+            } else if (draw_mode === TENNIS_BALL_MODE) {
+                let tennis_balls = this.get("tennis_balls");
+                tennis_balls.push(to_dms({lat, lon}));
+
+                this.set({ tennis_balls });
+            } else if (draw_mode === ROCK_MODE) {
+                let rocks = this.get("rocks");
+                let direction = 1;
+                if (e.ctrlKey || e.metaKey) {
+                    direction = -1;
+                }
+                rocks.push(Object.assign({}, to_dms({lat, lon}), { direction }));
+
+                this.set({ rocks });
+            }
+        });
+
+        this.observe("odom", draw);
+        this.observe("waypoints", draw);
+        this.observe("tennis_balls", draw);
+        this.observe("rocks", draw);
+
+        draw();
+    },
+
+    methods: {
+        to_canvas: function({x, y}) {
+            const canvas = this.refs.canvas;
+            return {
+                x: x/SCALE.x + canvas.width/2,
+                y: canvas.height/2 - y/SCALE.y
+            };
+        },
+
+        from_canvas: function({x, y}) {
+            const canvas = this.refs.canvas;
+            return {
+                x: (x - canvas.width/2)*SCALE.x,
+                y: (canvas.height/2 - y)*SCALE.y
+            };
+        },
+
+        projection: function(coords) {
+            return projection_({
+                center_lat: this.get("center_lat"),
+                center_lon: this.get("center_lon")
+            }, coords);
+        },
+
+        inv_projection: function(coords) {
+            return inv_projection_({
+                center_lat: this.get("center_lat"),
+                center_lon: this.get("center_lon")
+            }, coords);
+        },
+
+        apply_joystick: function(stick) {
+            let odom = this.get("odom");
+            let {x, y} = this.to_canvas(this.projection(to_decimal(odom)));
+            let bearing_deg = odom.bearing_deg;
+            bearing_deg += ROTATIONAL_SCALE * stick.left_right;
+            if (bearing_deg < 0) {
+                bearing_deg += 360;
+            }
+            if (bearing_deg > 360) {
+                bearing_deg -= 360;
+            }
+
+            const bearing_rad = (90 - bearing_deg) * Math.PI / 180;
+
+            const vel = TRANSLATIONAL_SCALE * stick.forward_back;
+
+            x += vel * Math.cos(bearing_rad);
+            y -= vel * Math.sin(bearing_rad);
+
+            let {lat, lon} = this.inv_projection(this.from_canvas({x, y}));
+            lat = ensure_in_range(lat, this.get("min_lat"), this.get("max_lat"));
+            lon = ensure_in_range(lon, this.get("min_lon"), this.get("max_lon"));
+
+            odom = Object.assign({}, to_dms({lat, lon}), { bearing_deg });
+            this.set({ odom });
+        }
+    }
+}
+</script>
