@@ -153,7 +153,7 @@ async def publish_arm_encoders():
 def main():
     global rover
     rover = Rover()
-    # lcm_.subscribe("/motor", drive_motor_callback)
+    lcm_.subscribe("/motor", drive_motor_callback)
     lcm_.subscribe("/setparam", set_param_callback)
     lcm_.subscribe("/setdemand", set_demand_callback)
     lcm_.subscribe("/sa_motors", sa_motor_callback)
