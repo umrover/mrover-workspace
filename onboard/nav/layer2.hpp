@@ -9,6 +9,8 @@
 #include "rover_msgs/Joystick.hpp"
 #include "rover_msgs/AutonState.hpp"
 #include "rover_msgs/NavStatus.hpp"
+#include "rover_msgs/Obstacle.hpp"
+#include "rover_msgs/TennisBall.hpp"
 #include <deque>
 
 #include "thor.hpp"
@@ -18,10 +20,13 @@ const double LAT_METER_IN_MINUTES = 0.0005389625; // meters/minute
 const int PATH_WIDTH = 50; // meters
 const double DIRECTION_THRESH = 1.0;
 const double INNER_SEARCH_THRESH = .0001;
+const double BALL_THRESH = 2; // meters
+const double CV_THRESH = 3; // meters
 #define NAV_STATUS_CHANNEL "/nav_status"
 
 //typedef rover_msgs::Odometry odom;
-typedef rover_msgs::Waypoint waypoint;
+// typedef rover_msgs::Waypoint waypoint;
+using waypoint = rover_msgs::Waypoint;
 
 enum class State {
 	translational, 
@@ -39,7 +44,7 @@ public:
 	~Layer2() {}
 
 	Thor::Volatile<rover_msgs::Odometry> cur_odom_;
-	Thor::Volatile<bool> ball_detected_;
+	// Thor::Volatile<bool> ball_detected_;
 
 	Thor::Volatile<rover_msgs::AutonState> auton_state_;
 
@@ -85,8 +90,15 @@ private:
 
 	void make_and_publish_nav_status(const int8_t state);
 
-	double long_meters_mins(int latitude_deg, double latitude_min);
+	void long_meter_mins(const odom & cur_odom);
+  
+  void go_to_ball(odom & cur_odom, TennisBall & ball);
 
-	void obstacle_avoidance(const double bearing);
+	void obstacle_avoidance(odom & cur_odom, Obstacle & obs);
+  
+  void turn(odom & cur_odom, double bearing_offset);
+  
+  void obstacle_dummy_odom(odom & new_odom, const double cur_bearing,
+                           const double dist);
 
 };

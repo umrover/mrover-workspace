@@ -64,8 +64,8 @@ namespace Thor {
             template <typename Function>
             bool clone_conditional(Function pred, T *t) const {
                 std::unique_lock<std::mutex> lock_(this->mut_);
-                if (pred(this->val)) {
-                    *t = T(this->val);
+                if (pred(this->val_)) {
+                    *t = T(this->val_);
                     this->changed_ = false;
                     return true;
                 }

@@ -13,17 +13,13 @@ Layer1::Layer1 (lcm::LCM & lcm_object) :
     // calls the base class constructor
 
 //public methods -- called by layer2
-bool Layer1::translational(const odom & current_odom, const odom & target_odom/*, TennisBall & tennisBall, Obstacle & obstacle*/)
+bool Layer1::translational(const odom & current_odom, const odom & target_odom)
 {
     double dist = estimate_noneuclid(current_odom, target_odom);
     double bearing = calc_bearing(current_odom, target_odom);
 
-    std::cout << "current bearing: " << bearing << " || target bearing: " << 
-    current_odom.bearing_deg << " || target at distance of: " << dist << " m\n";
-
     calc_bearing_thresholds(current_odom, dist, bearing); //recalculates inner and outer bearing thresholds for updated location
     if (dist < WITHIN_GOAL) {
-        std::cout << "reached [intermediate] target" << std::endl;
         this->first = false;
         return true;
     } 
@@ -49,6 +45,11 @@ void Layer1::turn_to_bearing(const odom & curnt_odom, double desired_bearing)
     make_publish_joystick(0, turn_to_dest(curnt_odom, desired_bearing), false);
 }
 
+void Layer1::drive_forward(const odom & cur_odom, const double bearing_offset, const double dist_to_target) {
+    double turn_effort = turn_to_dest(cur_odom, cur_odom.bearing_deg + bearing_offset);
+    double forward_effort = distance_pid.update(-1 * dist_to_target, 0);
+    make_publish_joystick(forward_effort, turn_effort, false);
+}
 
 //private methods implemented below
 void Layer1::calc_bearing_thresholds(const odom & cur_odom,
@@ -68,18 +69,14 @@ double Layer1::turn_to_dest(const odom & cur_odom, const odom &goal_odom)
 {
     double dest_bearing = calc_bearing(cur_odom, goal_odom);
     double cur_bearing = cur_odom.bearing_deg;
-    std::cout << "before: " << dest_bearing;
     throughZero(dest_bearing, cur_bearing);
-    std::cout << " after: " << dest_bearing << std::endl;
     return bearing_pid.update(cur_bearing, dest_bearing);
 }
 
 double Layer1::turn_to_dest(const odom & cur_odom, double angle )
 {
     double cur_bearing = cur_odom.bearing_deg;
-    std::cout << "before: " << angle;
     throughZero(angle, cur_bearing);
-    std::cout << " after: " << angle << std::endl;
     return bearing_pid.update(cur_bearing, angle);
 }
 
@@ -91,11 +88,6 @@ void Layer1::throughZero(double & dest_bearing, const double cur_bearing)
         else dest_bearing = dest_bearing + 360;
     }
 }   
-
-void drive_forward(const double dist_to_target) {
-    double forward_effort = distance_pid.update(-1 * dist_to_target, 0);
-    make_publish_joystick(forward_effort, 0, false);
-}
 
 // rover_msgs::Joystick Layer1::make_joystick_msg(const double forward_back, const double left_right, const bool kill) {}
 
