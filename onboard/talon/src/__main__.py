@@ -7,6 +7,7 @@ from rover_msgs import SetParam
 from rover_msgs import Encoder
 from rover_msgs import SetDemand
 from rover_msgs import SAMotors
+from rover_msgs import OpenLoopRAMotors
 from .lowlevel import LowLevel
 from enum import Enum
 from rover_common import talon_srx
@@ -24,10 +25,10 @@ class Talons(Enum):
     right_back = 8
     arm_joint_a = 5
     arm_joint_b = 6
-    arm_joint_c = 9
+    arm_joint_c = 0
     arm_joint_d = 3
     arm_joint_e = 1
-    arm_joint_f = 0
+    arm_joint_f = 9
     drill = 0
     lead_screw = 1
     door_actuator = 9
@@ -49,15 +50,6 @@ class Rover:
         await self.talons[Talons.right_back.value].set_demand(
             Talons.right_front.value,
             talon_srx.TalonControlMode.kFollowerMode.value)
-        # set up joint_d to use PID profile 0
-        await self.talons[
-            Talons.arm_joint_d.value].set_profile_slot_select(0)
-        await self.talons[
-            Talons.arm_joint_d.value].set_param(
-                talon_srx.Param.ClearPositionOnLimitF.value, 1)
-        await self.talons[
-            Talons.arm_joint_d.value].set_param(
-                talon_srx.Param.ClearPositionOnLimitR.value, 1)
         print('configured talons')
 
     async def percent_vbus_drive(self, talon, speed):
@@ -111,6 +103,22 @@ def arm_demand_callback(channel, msg):
         rover.position_pid_drive(Talons.arm_joint_f.value, m.joint_f))
 
 
+def open_loop_arm_callback(channel, msg):
+    m = OpenLoopRAMotors.decode(msg)
+    exec_later(
+        rover.percentage_vbus_drive(Talons.arm_joint_a.value, m.joint_a))
+    exec_later(
+        rover.percentage_vbus_drive(Talons.arm_joint_b.value, m.joint_b))
+    exec_later(
+        rover.percentage_vbus_drive(Talons.arm_joint_c.value, m.joint_c))
+    exec_later(
+        rover.percentage_vbus_drive(Talons.arm_joint_d.value, m.joint_d))
+    exec_later(
+        rover.percentage_vbus_drive(Talons.arm_joint_e.value, m.joint_e))
+    exec_later(
+        rover.percentage_vbus_drive(Talons.arm_joint_f.value, m.joint_f))
+
+
 def set_param_callback(channel, msg):
     m = SetParam.decode(msg)
     exec_later(rover.talons[m.deviceID].set_param(m.paramID, m.value))
@@ -157,5 +165,6 @@ def main():
     lcm_.subscribe("/setparam", set_param_callback)
     lcm_.subscribe("/setdemand", set_demand_callback)
     lcm_.subscribe("/sa_motors", sa_motor_callback)
-    lcm_.subscribe("/arm_demand", arm_demand_callback)
+    # lcm_.subscribe("/arm_demand", arm_demand_callback)
+    lcm_.subscribe("/arm_motors", open_loop_arm_callback)
     run_coroutines(lcm_.loop(), rover.run_all())
