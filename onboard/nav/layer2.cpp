@@ -6,7 +6,7 @@
 
 // custom constructor for layer2
 Layer2::Layer2(lcm::LCM &lcm_object) : 
-    ball_detected_(false), state(State::translational), lcm_(lcm_object), layer1(lcm_), 
+    state(State::translational), lcm_(lcm_object), layer1(lcm_), 
     total_wps (-1), completed_wps(-1), nav_state(-1) {}
 
 void Layer2::set_course(const rover_msgs::Course * course)
@@ -35,12 +35,14 @@ void Layer2::run()
 	rover_msgs::AutonState auton_state = this->auton_state_.clone();
 	bool prev_entered_auton = false;
 
-	long_meter_in_minutes = long_meter_mins(cur_odom);
+	long_meter_mins(cur_odom);
 
 	while (true)
 	{
-		while ( !auton_state.is_auton )
-			auton_state = this->auton_state_.clone();
+		while ( !auton_state.is_auton ) {
+			make_and_publish_nav_status(6);
+			auton_state = this->auton_state_.clone_when_changed();
+		}
 
 		d = this->course_data_.clone();
 		this->completed_wps = 0;
@@ -55,7 +57,7 @@ void Layer2::run()
 			cur_odom = this->cur_odom_.clone();
 
 			if (obs.detected) {
-				obstacle_avoidance(obs.bearing);
+				obstacle_avoidance(cur_odom, obs);
 			}
 
 			if ( layer1.translational(cur_odom, target.odom) ) {
@@ -81,6 +83,11 @@ void Layer2::run()
 			d = this->course_data_.clone_when_changed();
 		}
 
+		// else if(!prev_entered_auton) {
+		// 	make_and_publish_nav_status(7);
+		// 	d = this->course_data_.clone_when_changed();
+		// }
+
 		//else if ( ANYTHING && !empty() ) ==> (DO NOTHING) auton off, wait @ top of loop for it to turn on)
 
 	} //while(true)
@@ -91,33 +98,44 @@ void Layer2::search_func(const waypoint & search_origin) {
 	this->state = State::faceN;
 
 	rover_msgs::Odometry cur_odom = this->cur_odom_.clone();
-	make_and_publish_nav_status(2);
+	make_and_publish_nav_status(1);
 
 	while ( state != State::translational ) {
 		this->search_rotation(cur_odom);
 		cur_odom = this->cur_odom_.clone_when_changed();
 	}
 
-	make_and_publish_nav_status(1);
-	bool ball_detected = this->ball_detected_.clone();
+	TennisBall ball = this->tennis_ball_.clone();
 
 	this->init_search_multipliers();
 	this->add_four_points_to_search(search_origin); //arbitrary addition of waypoints to search
 	// this->add_four_points_to_search(search_origin);
 	// this->add_four_points_to_search(search_origin);
 
-	while (!ball_detected && !search.empty() ) {
+	while (!ball.found && !search.empty() ) {
 		auto target = search.front();
 
-		while ( !layer1.translational(cur_odom, target.odom) )
+		Obstacle obs = this->obstacle_.clone();
+		if (obs.detected) obstacle_avoidance(cur_odom, obs);
+		while ( !layer1.translational(cur_odom, target.odom) ) {
 			cur_odom = this->cur_odom_.clone_when_changed();
+			this->obstacle_.clone_conditional( [&](const Obstacle & new_obs) {
+				return new_obs.detected != obs.detected;
+			}, &obs);
+			if (obs.detected) obstacle_avoidance(cur_odom, obs);
+		}
 		
 		search.pop_front();		//once @ point, pop it off
-		ball_detected = this->ball_detected_.clone();
+		this->tennis_ball_.clone_conditional([&](const TennisBall & new_ball) {
+			return new_ball.found != ball.found;
+		}, &ball);
 	}
 
+
+	make_and_publish_nav_status(3);
+	// cur_odom = this->cur_odom_.clone();
+	go_to_ball(cur_odom, ball);
 	make_and_publish_nav_status(4);
-	turn_to_bearing(ball.bea)
 
 	search.clear();
 }
@@ -221,11 +239,59 @@ inline void Layer2::waypoint_assign(waypoint & way1, const waypoint & way2)
 	way1.odom.longitude_min = way2.odom.longitude_min;
 }
 
-void long_meter_mins(const odom & cur_odom) {
+void Layer2::long_meter_mins(const odom & cur_odom) {
 	long_meter_in_minutes = 60 / (EARTH_CIRCUM * 
 		cos(degree_to_radian(cur_odom.latitude_deg, cur_odom.latitude_min)) / 360);
 }
 
-void obstacle_avoidance(double bearing) {
+void Layer2::go_to_ball(odom & cur_odom, TennisBall & ball) {
+	// while ( ball.distance > BALL_THRESH) {
+		while (ball.found && abs(ball.bearing) > DIRECTION_THRESH) {
+			turn(cur_odom, ball.bearing);
+			ball = this->tennis_ball_.clone();
+		}
 
-}
+		while (ball.distance > BALL_THRESH) {
+			layer1.drive_forward(cur_odom, ball.bearing, ball.distance);
+			cur_odom = this->cur_odom_.clone_when_changed();
+			ball = this->tennis_ball_.clone();
+		}
+	// }
+} // go_to_ball()
+
+// REQUIRES: obstacle_dummy_odom != location of an obstacle
+	// assuming CV gives us a valid angle to drive to
+void Layer2::obstacle_avoidance(odom & cur_odom, Obstacle & obs) {
+	while (obs.detected) {
+		turn(cur_odom, obs.bearing);
+		obs = this->obstacle_.clone();
+	}
+
+	double dist_around_obs = CV_THRESH * sin(degree_to_radian(obs.bearing));
+	// obstacle_layer1(lcm_);
+	rover_msgs::Odometry around_obs = cur_odom;
+	obstacle_dummy_odom(around_obs, cur_odom.bearing_deg, dist_around_obs);
+
+	while(layer1.translational(cur_odom, around_obs)) {
+		cur_odom = this->cur_odom_.clone_when_changed();
+		this->obstacle_.clone_conditional( [&](const Obstacle & new_obs) {
+			return new_obs.detected != obs.detected;
+		}, &obs);
+		if (obs.detected) obstacle_avoidance(cur_odom, obs);
+	}
+
+} // obstacle_avoidance()
+
+// EFFECTS: turns rover by the bearing offset amount, then drives forward the given distance
+void Layer2::turn(odom & cur_odom, double bearing_offset) {
+	double desired_bearing = cur_odom.bearing_deg + bearing_offset;
+	while (abs(cur_odom.bearing_deg - desired_bearing) > DIRECTION_THRESH) {
+		layer1.turn_to_bearing(cur_odom, cur_odom.bearing_deg + bearing_offset);
+		cur_odom = this->cur_odom_.clone_when_changed();
+	}
+} // turn()
+
+void Layer2::obstacle_dummy_odom(odom & new_odom, const double cur_bearing, const double dist) {
+	new_odom.latitude_min += sin(degree_to_radian(cur_bearing)) * dist * LAT_METER_IN_MINUTES;
+	new_odom.longitude_min += sin(degree_to_radian(cur_bearing)) * dist * long_meter_in_minutes;
+} // obstacle_dummy_odom()

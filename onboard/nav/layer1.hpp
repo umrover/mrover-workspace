@@ -6,6 +6,8 @@
 #include "calculations.hpp"
 #include "rover_msgs/Odometry.hpp"
 #include "rover_msgs/Joystick.hpp"
+#include "rover_msgs/TennisBall.hpp"
+#include "rover_msgs/Obstacle.hpp"
 #include "pid.hpp"
 #include "thor.hpp"
 #include <cassert>
@@ -25,6 +27,8 @@ public:
 	bool translational(const odom & current_odom, const odom & target_odom);
 
 	void turn_to_bearing(const odom & current_position, double desired_bearing);
+
+	void drive_forward(const odom & cur_odom, const double bearing_offset, const double dist_to_target);
 
 private:
 	
@@ -48,8 +52,6 @@ private:
 	double turn_to_dest(const odom & cur_odom, const odom & goal_odom);
 
 	double turn_to_dest(const odom &cur_odom, const double angle);
-
-	void drive_forward(const double dist_to_target);
 
 	//rover_msgs::Joystick make_joystick_msg(const double forward_back, const double left_right, const bool kill);
 

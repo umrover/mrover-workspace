@@ -4,6 +4,10 @@ struct NavStatus {
 	const int8_t TRANSLATIONAL = 0;
 	const int8_t SEARCH = 1;
 	const int8_t ROTATIONAL = 2;
+	const int8_t BALL_SPOTTED = 3;
+	const int8_t BALL_FOUND = 4;
+	const int8_t OFF = 6;
+	const int8_t NO_WAYPOINTS = 7;
 	const int8_t DONE = 8;
 
 	int8_t nav_state;
