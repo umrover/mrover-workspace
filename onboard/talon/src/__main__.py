@@ -106,17 +106,17 @@ def arm_demand_callback(channel, msg):
 def open_loop_arm_callback(channel, msg):
     m = OpenLoopRAMotors.decode(msg)
     exec_later(
-        rover.percentage_vbus_drive(Talons.arm_joint_a.value, m.joint_a))
+        rover.percent_vbus_drive(Talons.arm_joint_a.value, m.joint_a))
     exec_later(
-        rover.percentage_vbus_drive(Talons.arm_joint_b.value, m.joint_b))
+        rover.percent_vbus_drive(Talons.arm_joint_b.value, m.joint_b))
     exec_later(
-        rover.percentage_vbus_drive(Talons.arm_joint_c.value, m.joint_c))
+        rover.percent_vbus_drive(Talons.arm_joint_c.value, m.joint_c))
     exec_later(
-        rover.percentage_vbus_drive(Talons.arm_joint_d.value, m.joint_d))
+        rover.percent_vbus_drive(Talons.arm_joint_d.value, m.joint_d))
     exec_later(
-        rover.percentage_vbus_drive(Talons.arm_joint_e.value, m.joint_e))
+        rover.percent_vbus_drive(Talons.arm_joint_e.value, m.joint_e))
     exec_later(
-        rover.percentage_vbus_drive(Talons.arm_joint_f.value, m.joint_f))
+        rover.percent_vbus_drive(Talons.arm_joint_f.value, m.joint_f))
 
 
 def set_param_callback(channel, msg):

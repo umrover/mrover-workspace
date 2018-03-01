@@ -5,7 +5,8 @@ import time
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Odometry, Joystick, DriveMotors, Sensors,
-                        KillSwitch, Xbox, Encoder, Temperature, SAMotors)
+                        KillSwitch, Xbox, Encoder, Temperature, SAMotors,
+                        OpenLoopRAMotors)
 
 
 class Toggle:
@@ -116,8 +117,22 @@ def encoder_callback(channel, msg):
 
 
 def arm_control_callback(channel, msg):
-    global enc_in
+    # global enc_in
     xbox = Xbox.decode(msg)
+    new_arm = OpenLoopRAMotors()
+    new_arm.joint_a = deadzone(xbox.left_js_x, 0.3)/4
+    new_arm.joint_b = -deadzone(xbox.left_js_y, 0.3)/4
+    new_arm.joint_c = (xbox.left_trigger - xbox.right_trigger)*.60
+    new_arm.joint_d = -deadzone(xbox.right_js_y, 0.3)*.75
+    new_arm.joint_e = deadzone(xbox.right_js_x, 0.3)/4
+    new_arm.joint_f = (xbox.right_bumper - xbox.left_bumper)*.5
+
+    print("Arm:\nA: {}\nB: {}\nC: {}\nD: {}\nE: {}\nF: {}\n"
+          .format(new_arm.joint_a, new_arm.joint_b, new_arm.joint_c,
+                  new_arm.joint_d, new_arm.joint_e, new_arm.joint_f))
+
+    lcm_.publish('/arm_motors', new_arm.encode())
+    '''
     new_encoder = Encoder()
     if enc_in:
         new_encoder = enc_in
@@ -137,6 +152,7 @@ def arm_control_callback(channel, msg):
                                     xbox.left_bumper)*5))
         enc_in = None
         lcm_.publish('/arm_demand', new_encoder.encode())
+    '''
 
 
 def sa_control_callback(channel, msg):
