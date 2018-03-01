@@ -78,9 +78,9 @@ class Rover:
 def drive_motor_callback(channel, msg):
     m = DriveMotors.decode(msg)
     exec_later(
-        rover.percent_vbus_drive(Talons.left_front.value), m.left)
+        rover.percent_vbus_drive(Talons.left_front.value, m.left))
     exec_later(
-        rover.percent_vbus_drive(Talons.right_front.value), m.right)
+        rover.percent_vbus_drive(Talons.right_front.value, m.right))
 
 
 def sa_motor_callback(channel, msg):
