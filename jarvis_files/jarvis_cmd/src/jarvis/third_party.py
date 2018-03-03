@@ -123,3 +123,35 @@ def ensure_openocd(ctx):
         ctx.run("make install", hide='both')
 
     print("Finished installing OpenOCD.")
+
+
+def check_gzweb(ctx):
+    """
+    Checks for the existence of GzWeb in the product venv.
+    """
+    return os.path.exists(ctx.get_product_file('bin', 'gzweb'))
+
+
+def ensure_gzweb(ctx):
+    """
+    Installs GzWeb into the product venv.
+    """
+    if check_gzweb(ctx):
+        print("GzWeb already installed, skipping.")
+        return
+
+    gzweb_dir = os.path.join(ctx.third_party_root, 'gzweb')
+    ctx.ensure_product_env()
+    with ctx.intermediate('gzweb') as gzweb_build:
+        ctx.run("cp -r {}/* .".format(gzweb_dir))
+        print("Deploying GzWeb...")
+        with ctx.ctx.prefix('source /usr/share/gazebo/setup.sh'):
+            ctx.run('./deploy.sh -m', hide='both')
+        print("Creating script to run GzWeb...")
+        script_path = os.path.join(
+                ctx.product_env, 'bin', 'gzweb')
+        with open(script_path, 'w') as start_script:
+            start_script.write(
+                ctx.template('gzweb_start', app_dir=gzweb_build, port=8011))
+        os.chmod(script_path, 0o755)
+        print("Done")
