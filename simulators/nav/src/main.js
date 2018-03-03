@@ -60,4 +60,11 @@ app.on("auton", (auton) => {
     }
 })
 
+app.on("tennis_ball", (tennis_ball) => {
+    if (bridge.online) {
+        tennis_ball.type = 'TennisBall';
+        bridge.publish("/tennis_ball", tennis_ball);
+    }
+})
+
 app.start_odom_events();
