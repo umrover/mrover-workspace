@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source /usr/share/gazebo/setup.sh
+APP_DIR="{{app_dir}}"
+cd ${APP_DIR} && env npm_config_port={{port}} yarn start

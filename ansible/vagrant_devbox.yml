@@ -8,6 +8,7 @@
   - onboard_dev
   - microcontrollers_dev
   - base_station_dev
+  - cv_dev
   tasks:
   - name: Configure bashrc
     copy:

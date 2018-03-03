@@ -78,7 +78,7 @@ def build_dir(ctx, d):
 
 
 def get_site_cfg():
-    PACKAGE_NAMES = ['lcm', 'mbed']
+    PACKAGE_NAMES = ['lcm', 'mbed', 'gzweb']
     site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
     site_cfg = configparser.ConfigParser()
     site_cfg['third_party'] = {}
@@ -116,7 +116,6 @@ def build_deps(ctx):
     """
     Build the dependencies. This is hard-coded for now.
     """
-    # TODO make this not hard-coded
     site_cfg = get_site_cfg()
     ctx.ensure_product_env()
     if site_cfg['lcm']:
@@ -124,7 +123,8 @@ def build_deps(ctx):
     if site_cfg['mbed']:
         third_party.ensure_mbed_cli(ctx)
         third_party.ensure_openocd(ctx)
-    # TODO add other third-party deps
+    if site_cfg['gzweb']:
+        third_party.ensure_gzweb(ctx)
     if pip_deps_changed(ctx):
         with ctx.cd(ctx.root):
             print("Installing pip dependencies...")
