@@ -125,6 +125,7 @@ def build_deps(ctx):
         third_party.ensure_openocd(ctx)
     if site_cfg['gzweb']:
         third_party.ensure_gzweb(ctx)
+        third_party.ensure_nanomsg(ctx)
     if pip_deps_changed(ctx):
         with ctx.cd(ctx.root):
             print("Installing pip dependencies...")
