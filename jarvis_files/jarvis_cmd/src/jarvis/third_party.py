@@ -155,3 +155,34 @@ def ensure_gzweb(ctx):
                 ctx.template('gzweb_start', app_dir=gzweb_build, port=8011))
         os.chmod(script_path, 0o755)
         print("Done")
+
+
+def check_nanomsg(ctx):
+    """
+    Checks for the existence of Nanomsg in the product venv.
+    """
+    return os.path.exists(ctx.get_product_file('lib', 'libnanomsg.so'))
+
+
+def ensure_nanomsg(ctx):
+    """
+    Installs Nanomsg into the product venv.
+    """
+    if check_nanomsg(ctx):
+        print("Nanomsg already installed, skipping.")
+        return
+
+    nanomsg_dir = os.path.join(ctx.third_party_root, 'nanomsg')
+    ctx.ensure_product_env()
+    with ctx.intermediate('nanomsg'):
+        ctx.run("cp -r {}/* .".format(nanomsg_dir))
+        print("Configuring nanomsg...")
+        ctx.run("mkdir build")
+        with ctx.cd("build"):
+            ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} ..".format(
+                ctx.product_env), hide='both')
+            print("Building nanomsg...")
+            ctx.run("cmake --build .", hide='both')
+            print("Installing nanomsg...")
+            ctx.run("cmake --build . --target install", hide='both')
+            print("Done")
