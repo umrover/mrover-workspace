@@ -16,6 +16,32 @@ export function to_decimal({latitude_deg, latitude_min, longitude_deg, longitude
     }
 };
 
+export function dist_and_bearing(from, to) {
+    const from_lat = from.lat*Math.PI/180;
+    const from_lon = from.lon*Math.PI/180;
+    const to_lat = to.lat*Math.PI/180;
+    const to_lon = to.lon*Math.PI/180;
+
+    const dlat = to_lat - from_lat;
+    const dlon = (to_lon - from_lon)*Math.cos((to_lat + from_lat)/2);
+    const dist = Math.sqrt(dlon*dlon + dlat*dlat) * EARTH_RAD;
+
+    const dlat_meters = EARTH_RAD*Math.sin(dlat);
+    let bearing = Math.acos(dlat_meters / dist);
+    if (from_lon > to_lon) {
+        bearing = 2.0*Math.PI - bearing;
+    }
+    if (dlat_meters < 1 && dlat_meters > -1) {
+        if (from_lon < to_lon) {
+            bearing = Math.PI/2.0;
+        } else {
+            bearing = 3.0*Math.PI/2.0;
+        }
+    }
+
+    return { dist, bearing };
+};
+
 export function inv_projection({center_lat, center_lon}, {x, y}) {
     const center_lat_r = center_lat * (Math.PI / 180);
     const center_lon_r = center_lon * (Math.PI / 180);
@@ -44,27 +70,11 @@ export function inv_projection({center_lat, center_lon}, {x, y}) {
     };
 };
 
-export function projection({center_lat, center_lon}, {lat, lon}) {
-    const center_lat_r = center_lat * (Math.PI / 180);
-    const center_lon_r = center_lon * (Math.PI / 180);
-    const coord_lat = lat * (Math.PI / 180);
-    const coord_lon = lon * (Math.PI / 180);
-    const dlat = coord_lat - center_lat_r;
-    const dlon = (coord_lon - center_lon_r) * Math.cos((center_lat_r + coord_lat)/2);
-    const dist = Math.sqrt(dlon*dlon + dlat*dlat) * EARTH_RAD;
-
-    const dlat_meters = EARTH_RAD * Math.sin(dlat);
-    let bearing = Math.acos(dlat_meters / dist);
-    if (center_lon_r > coord_lon) {
-        bearing = 2.0 * Math.PI - bearing;
-    }
-    if (dlat_meters < 1 && dlat_meters > -1) {
-        if (center_lon_r < coord_lon) {
-            bearing = Math.PI/2.0;
-        } else {
-            bearing = 3.0*Math.PI/2.0;
-        }
-    }
+export function projection({center_lat, center_lon}, pt) {
+    const { dist, bearing } = dist_and_bearing({ 
+        lat: center_lat,
+        lon: center_lon
+    }, pt);
 
     const theta_prime = Math.PI/2.0 - bearing;
     return {

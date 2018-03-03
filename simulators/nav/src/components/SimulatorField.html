@@ -11,6 +11,7 @@ canvas {
 import { 
     to_dms,
     to_decimal,
+    dist_and_bearing,
     inv_projection as inv_projection_,
     projection as projection_
 } from "../geography.js";
@@ -22,14 +23,13 @@ const VECTOR_SIZE = 20;
 const WAYPOINT_SIZE = 10;
 const TENNIS_BALL_SIZE = 4;
 const ROCK_SIZE = 45;
+const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
+const ROVER_DEPTH_OF_VIEW = 10;
 
 const TRANSLATIONAL_SCALE = 1;
 const ROTATIONAL_SCALE = 10;
 
-const SCALE = {
-    x: 8,
-    y: 8,
-};
+const SCALE = 800;
 
 function ensure_in_range(x, min, max) {
     return Math.max(Math.min(x, max), min);
@@ -41,11 +41,7 @@ export default {
             center_lat: 39.4,
             center_lon: -110.5,
 
-            max_lat: 39.5,
-            min_lat: 39.3,
-
-            max_lon: -110.4,
-            min_lon: -110.6,
+            radius_meters: 100,
 
             odom: null,
 
@@ -53,13 +49,77 @@ export default {
             tennis_balls: [],
             rocks: [],
 
+            tennis_ball_state: {
+                found: false,
+                bearing: 0,
+                distance: 0
+            },
+
             mode: WAYPOINT_MODE
         };
+    },
+
+    computed: {
+        max_lat: (center_lat, center_lon, meters_in_direction_scaled) => {
+            return inv_projection_({ center_lat, center_lon }, {
+                x: 0,
+                y: meters_in_direction_scaled
+            }).lat;
+        },
+        min_lat: (center_lat, center_lon, meters_in_direction_scaled) => {
+            return inv_projection_({ center_lat, center_lon }, {
+                x: 0,
+                y: -meters_in_direction_scaled
+            }).lat;
+        },
+
+        max_lon: (center_lat, center_lon, meters_in_direction_scaled) => {
+            return inv_projection_({ center_lat, center_lon }, {
+                x: meters_in_direction_scaled,
+                y: 0
+            }).lon;
+        },
+        min_lon: (center_lat, center_lon, meters_in_direction_scaled) => {
+            return inv_projection_({ center_lat, center_lon }, {
+                x: -meters_in_direction_scaled,
+                y: 0
+            }).lon;
+        }
     },
 
     oncreate () {
         const canvas = this.refs.canvas;
         const ctx = canvas.getContext('2d');
+
+        const recompute_tennis_ball_visibility = () => {
+            const odom = this.get("odom");
+            const scale = this.get("meters_in_direction_scaled");
+            const x_scale = canvas.width/(2*scale);
+            const y_scale = canvas.height/(2*scale);
+            if (!odom) { return; }
+            let tennis_balls = this.get("tennis_balls");
+
+            for (let i = 0; i < tennis_balls.length; i++) {
+                tennis_balls[i].detected = false;
+
+                const { dist, bearing } = dist_and_bearing(
+                    to_decimal(odom), to_decimal(tennis_balls[i]));
+
+                console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
+                if (bearing < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
+                    tennis_balls[i].detected = true;
+
+                    const tennis_ball_state = {
+                        found: true,
+                        bearing: bearing * 180/Math.PI,
+                        distance: dist
+                    };
+                    this.set({ tennis_ball_state });
+                }
+            }
+
+            this.set({ tennis_balls });
+        };
 
         const draw = () => {
             const odom = this.get("odom");
@@ -167,28 +227,39 @@ export default {
             }
         });
 
-        this.observe("odom", draw);
-        this.observe("waypoints", draw);
-        this.observe("tennis_balls", draw);
-        this.observe("rocks", draw);
+        const update = () => {
+            recompute_tennis_ball_visibility();
+            draw();
+        };
 
-        draw();
+        this.observe("odom", update);
+        this.observe("waypoints", update);
+        this.observe("tennis_balls", update);
+        this.observe("rocks", update);
+
+        update();
     },
 
     methods: {
         to_canvas: function({x, y}) {
             const canvas = this.refs.canvas;
+            const radius = this.get("radius_meters");
+            const x_scale = (canvas.width/2)/radius;
+            const y_scale = (canvas.height/2)/radius;
             return {
-                x: x/SCALE.x + canvas.width/2,
-                y: canvas.height/2 - y/SCALE.y
+                x: x*x_scale + canvas.width/2,
+                y: canvas.height/2 - y*y_scale
             };
         },
 
         from_canvas: function({x, y}) {
             const canvas = this.refs.canvas;
+            const radius = this.get("radius_meters");
+            const x_scale = (canvas.width/2)/radius;
+            const y_scale = (canvas.height/2)/radius;
             return {
-                x: (x - canvas.width/2)*SCALE.x,
-                y: (canvas.height/2 - y)*SCALE.y
+                x: (x - canvas.width/2)/x_scale,
+                y: (canvas.height/2 - y)/y_scale
             };
         },
 
