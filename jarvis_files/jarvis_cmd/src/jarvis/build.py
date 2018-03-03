@@ -9,6 +9,7 @@ from buildsys.lcm import LCMBuilder
 from buildsys.mbed import MbedBuilder
 from buildsys.rollupjs import RollupJSBuilder
 from buildsys.meson import MesonBuilder
+from buildsys.shell import ShellBuilder
 
 from . import third_party
 
@@ -63,6 +64,9 @@ def get_builder(ctx, d):
         board = build_defs.get('board', 'DISCO_L476VG')
         app = build_defs.get('app', 'False') == 'True'
         return MbedBuilder(d, ctx, board, app, deps)
+    elif lang == 'shell':
+        print('Building shell package')
+        return ShellBuilder(d, ctx)
     else:
         print("error: unrecognized language '{}'".format(lang))
         sys.exit(1)
