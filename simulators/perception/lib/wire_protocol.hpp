@@ -12,11 +12,9 @@ namespace Protocol {
 
         int32_t image_type;
         int32_t depth_type;
-        int32_t pointcloud_type;
 
         uint32_t image_size;
         uint32_t depth_size;
-        uint32_t pointcloud_size;
         uint8_t data[0];
     };
 }
