@@ -3,8 +3,8 @@
 #include <cstdint>
 
 namespace Protocol {
-    struct Request {
-    };
+    /*struct Request {
+    };*/
 
     struct Reply {
         uint16_t width;
