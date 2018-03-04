@@ -43,6 +43,33 @@ def connection_state_changed(c, _):
     else:
         print("Disconnected.")
 
+        # Kill drive motors
+        drive_motor = DriveMotors()
+        drive_motor.left = 0.0
+        drive_motor.right = 0.0
+
+        lcm_.publish('/motor', drive_motor.encode())
+
+        # Kill arm motors
+        arm_motor = OpenLoopRAMotors()
+        arm_motor.joint_a = 0.0
+        arm_motor.joint_b = 0.0
+        arm_motor.joint_c = 0.0
+        arm_motor.joint_d = 0.0
+        arm_motor.joint_e = 0.0
+        arm_motor.joint_f = 0.0
+
+        lcm_.publish('/arm_motors', arm_motor.encode())
+
+        # Kill SA motors
+        sa_motor = SAMotors()
+        sa_motor.drill = 0.0
+        sa_motor.lead_screw = 0.0
+        sa_motor.door_actuator = 0.0
+        sa_motor.cache = 0.0
+
+        lcm_.publish('/sa_motors', sa_motor.encode())
+
 
 def deadzone(magnitude, threshold):
     temp_mag = abs(magnitude)
