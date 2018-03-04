@@ -87,7 +87,6 @@ void gazebo::PercepSimDepthCamera::Load(sensors::SensorPtr parent, sdf::ElementP
 
 void gazebo::PercepSimDepthCamera::publish_if_ready() {
     if (this->publish_ready_ == PUBLISH_READY) {
-        std::cerr << "[percepsim] publishing\n";
         this->sim_.publish(this->image_, this->depth_);
         this->publish_ready_ = 0;
     }
@@ -96,8 +95,6 @@ void gazebo::PercepSimDepthCamera::publish_if_ready() {
 void gazebo::PercepSimDepthCamera::OnNewDepthFrame(const float *image,
         unsigned int width, unsigned int height, unsigned int depth, const std::string &format) {
     if (this->parentSensor->IsActive()) {
-        std::cerr << "[percepsim] got depth frame! format " << format << std::endl;
-
         if (this->depth_.cols != width || this->depth_.rows != height) {
             int type = this->depth_.type();
             this->depth_.create(height, width, type);
@@ -126,7 +123,6 @@ void gazebo::PercepSimDepthCamera::OnNewDepthFrame(const float *image,
 void gazebo::PercepSimDepthCamera::OnNewImageFrame(const unsigned char *image,
         unsigned int width, unsigned int height, unsigned int depth, const std::string &format) {
     if (this->parentSensor->IsActive()) {
-        std::cerr << "[percepsim] got image frame! format " << format << std::endl;
         size_t index = 0;
 
         if (this->image_.cols != width || this->image_.rows != height) {
