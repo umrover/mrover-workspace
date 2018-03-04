@@ -31,9 +31,8 @@ int main() {
 
         cv::Mat img = cv::Mat::ones(height, width, CV_32F);
         cv::Mat depth = cv::Mat::zeros(height, width, CV_8UC1);
-        cv::Mat point_cloud(height, width, CV_8UC1, cv::Scalar(255));
 
-        sim.publish(img, depth, point_cloud);
+        sim.publish(img, depth);
         std::cerr << "published image" << std::endl;
 
         {
@@ -53,17 +52,14 @@ int main() {
         assert(cam.grab());
         cv::Mat img = cam.retrieve_image();
         cv::Mat depth = cam.retrieve_depth();
-        cv::Mat point_cloud = cam.retrieve_pointcloud();
 
         assert(img.cols == width && img.rows == height && img.type() == CV_32F);
         assert(depth.cols == width && depth.rows == height && depth.type() == CV_8UC1);
-        assert(point_cloud.cols == width && point_cloud.rows == height && point_cloud.type() == CV_8UC1);
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 assert(img.at<float>(y, x) == 1.0f);
                 assert(depth.at<uchar>(y, x) == 0);
-                assert(point_cloud.at<uchar>(y, x) == 255);
             }
         }
 

@@ -16,13 +16,11 @@ namespace Perception {
 
             cv::Mat retrieve_image() noexcept;
             cv::Mat retrieve_depth() noexcept;
-            cv::Mat retrieve_pointcloud() noexcept;
         private:
             nn::socket sock_;
 
             cv::Mat image_;
             cv::Mat depth_;
-            cv::Mat point_cloud_;
     };
 
     class Simulator {
@@ -30,7 +28,7 @@ namespace Perception {
             Simulator();
             ~Simulator();
 
-            void publish(cv::Mat image, cv::Mat depth, cv::Mat point_cloud);
+            void publish(cv::Mat image, cv::Mat depth);
         private:
             nn::socket sock_;
             int endpt_;

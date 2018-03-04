@@ -8,10 +8,11 @@ lib = shared_library('percepsim',
                      dependencies : [opencv, nanomsg],
                      install : true)
 
-install_headers('percepsim.hpp', subdir : 'percepsim')
+install_headers('percepsim.hpp', 'nn.hpp', 'wire_protocol.hpp', subdir : 'percepsim')
 
 pkg = import('pkgconfig')
 pkg.generate(name : 'percepsim', description : 'Perception Simulator Library',
+             libraries : [lib],
              version : meson.project_version())
 
 threads = dependency('threads')

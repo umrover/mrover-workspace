@@ -1,4 +1,5 @@
 #include <nanomsg/reqrep.h>
+#include <iostream>
 
 #include "percepsim.hpp"
 #include "wire_protocol.hpp"
@@ -8,6 +9,8 @@
 Perception::SimulatedCamera::SimulatedCamera() :
     sock_(AF_SP, NN_REQ)
 {
+    const int resend_interval = 100;
+    this->sock_.setsockopt(NN_REQ, NN_REQ_RESEND_IVL, &resend_interval, sizeof(int));
     this->sock_.connect(SOCKET);
 }
 
@@ -17,17 +20,16 @@ bool Perception::SimulatedCamera::grab() noexcept {
         this->sock_.send(&req, sizeof(req), 0);
 
         void *reply_buf;
+        std::cerr << "waiting on a message\n";
         this->sock_.recv(&reply_buf, NN_MSG, 0);
+        std::cerr << "received a messsage\n";
         Protocol::Reply *rep = reinterpret_cast<Protocol::Reply *>(reply_buf);
 
         this->image_.create(rep->height, rep->width, rep->image_type);
         this->depth_.create(rep->height, rep->width, rep->depth_type);
-        this->point_cloud_.create(rep->height, rep->width, rep->pointcloud_type);
 
         std::memcpy(this->image_.data, rep->data, rep->image_size);
         std::memcpy(this->depth_.data, &rep->data[rep->image_size], rep->depth_size);
-        std::memcpy(this->point_cloud_.data, &rep->data[rep->image_size+rep->depth_size],
-                    rep->pointcloud_size);
 
         nn::freemsg(reply_buf);
         rep = nullptr;
@@ -45,10 +47,6 @@ cv::Mat Perception::SimulatedCamera::retrieve_depth() noexcept {
     return this->depth_;
 }
 
-cv::Mat Perception::SimulatedCamera::retrieve_pointcloud() noexcept {
-    return this->point_cloud_;
-}
-
 Perception::Simulator::Simulator() :
     sock_(AF_SP, NN_REP)
 {
@@ -59,7 +57,7 @@ Perception::Simulator::~Simulator() {
     this->sock_.shutdown(this->endpt_);
 }
 
-void Perception::Simulator::publish(cv::Mat image, cv::Mat depth, cv::Mat point_cloud) {
+void Perception::Simulator::publish(cv::Mat image, cv::Mat depth) {
     // Wait for request
     Protocol::Request req;
     this->sock_.recv(&req, sizeof(req), 0);
@@ -70,13 +68,11 @@ void Perception::Simulator::publish(cv::Mat image, cv::Mat depth, cv::Mat point_
 
     image = (image.reshape(0, 1));
     depth = (depth.reshape(0, 1));
-    point_cloud = (point_cloud.reshape(0, 1));
 
     size_t image_size = image.total()*image.elemSize();
     size_t depth_size = depth.total()*depth.elemSize();
-    size_t pointcloud_size = point_cloud.total()*point_cloud.elemSize();
 
-    size_t message_size = sizeof(Protocol::Reply) + image_size + depth_size + pointcloud_size;
+    size_t message_size = sizeof(Protocol::Reply) + image_size + depth_size;
     void *msgbuf = nn::allocmsg(message_size, 0);
     Protocol::Reply * rep = reinterpret_cast<Protocol::Reply *>(msgbuf);
 
@@ -85,16 +81,13 @@ void Perception::Simulator::publish(cv::Mat image, cv::Mat depth, cv::Mat point_
 
     rep->image_type = image.type();
     rep->depth_type = depth.type();
-    rep->pointcloud_type = point_cloud.type();
 
     rep->image_size = image_size;
     rep->depth_size = depth_size;
-    rep->pointcloud_size = pointcloud_size;
 
     std::memcpy(rep->data, image.data, rep->image_size);
     std::memcpy(&rep->data[rep->image_size], depth.data, rep->depth_size);
-    std::memcpy(&rep->data[rep->image_size+rep->depth_size],
-                point_cloud.data, rep->pointcloud_size);
 
+    std::cerr << "sending " << message_size << " bytes\n";
     this->sock_.send(&msgbuf, NN_MSG, 0);
 }
