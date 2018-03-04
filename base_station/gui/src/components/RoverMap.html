@@ -83,6 +83,9 @@
         popupAnchor: [0, -32]
       });
 
+      const maxOdomCount = 1000;
+      const drawFrequency = 10;
+      let odomCount = 0;
       this.observe('odom', odom => {
         // Trigger every time rover odom is changed
 
@@ -101,7 +104,16 @@
             marker.setLatLng(L.latLng(lat, lng));
 
             // Update the rover path
-            roverPath.addLatLng(L.latLng(lat, lng));
+            odomCount++;
+            if (odomCount % drawFrequency == 0) {
+              if (odomCount > maxOdomCount * drawFrequency) {
+                let latLongs = roverPath.getLatLngs();
+                latLongs.splice(0, 1);
+                roverPath.setLatLngs(latLongs);
+              }
+
+              roverPath.addLatLng(L.latLng(lat, lng));
+            }
 
             if (waypointMarkers.length) {
               // Update the waypoint path
