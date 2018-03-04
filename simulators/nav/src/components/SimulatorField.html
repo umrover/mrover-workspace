@@ -26,10 +26,8 @@ const ROCK_SIZE = 45;
 const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
 const ROVER_DEPTH_OF_VIEW = 10;
 
-const TRANSLATIONAL_SCALE = 1;
+const TRANSLATIONAL_SCALE = 5;
 const ROTATIONAL_SCALE = 10;
-
-const SCALE = 800;
 
 function ensure_in_range(x, min, max) {
     return Math.max(Math.min(x, max), min);
@@ -59,41 +57,13 @@ export default {
         };
     },
 
-    computed: {
-        max_lat: (center_lat, center_lon, meters_in_direction_scaled) => {
-            return inv_projection_({ center_lat, center_lon }, {
-                x: 0,
-                y: meters_in_direction_scaled
-            }).lat;
-        },
-        min_lat: (center_lat, center_lon, meters_in_direction_scaled) => {
-            return inv_projection_({ center_lat, center_lon }, {
-                x: 0,
-                y: -meters_in_direction_scaled
-            }).lat;
-        },
-
-        max_lon: (center_lat, center_lon, meters_in_direction_scaled) => {
-            return inv_projection_({ center_lat, center_lon }, {
-                x: meters_in_direction_scaled,
-                y: 0
-            }).lon;
-        },
-        min_lon: (center_lat, center_lon, meters_in_direction_scaled) => {
-            return inv_projection_({ center_lat, center_lon }, {
-                x: -meters_in_direction_scaled,
-                y: 0
-            }).lon;
-        }
-    },
-
     oncreate () {
         const canvas = this.refs.canvas;
         const ctx = canvas.getContext('2d');
 
         const recompute_tennis_ball_visibility = () => {
             const odom = this.get("odom");
-            const scale = this.get("meters_in_direction_scaled");
+            const scale = this.get("radius_meters");
             const x_scale = canvas.width/(2*scale);
             const y_scale = canvas.height/(2*scale);
             if (!odom) { return; }
@@ -277,6 +247,16 @@ export default {
             }, coords);
         },
 
+        bounds: function() {
+            const dist = this.get("radius_meters");
+            return {
+                max_lat: this.inv_projection({x: 0, y: dist}).lat,
+                min_lat: this.inv_projection({x: 0, y: -dist}).lat,
+                max_lon: this.inv_projection({x: dist, y:0}).lon,
+                min_lon: this.inv_projection({x: -dist, y:0}).lon
+            };
+        },
+
         apply_joystick: function(stick) {
             let odom = this.get("odom");
             let {x, y} = this.to_canvas(this.projection(to_decimal(odom)));
@@ -296,9 +276,11 @@ export default {
             x += vel * Math.cos(bearing_rad);
             y -= vel * Math.sin(bearing_rad);
 
+            const {min_lat, max_lat, min_lon, max_lon} = this.bounds();
+
             let {lat, lon} = this.inv_projection(this.from_canvas({x, y}));
-            lat = ensure_in_range(lat, this.get("min_lat"), this.get("max_lat"));
-            lon = ensure_in_range(lon, this.get("min_lon"), this.get("max_lon"));
+            lat = ensure_in_range(lat, min_lat, max_lat);
+            lon = ensure_in_range(lon, min_lon, max_lon);
 
             odom = Object.assign({}, to_dms({lat, lon}), { bearing_deg });
             this.set({ odom });
