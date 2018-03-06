@@ -1,22 +1,30 @@
 <div class="wrap">
   <div class="control_buttons">
-    <Checkbox name="Arm Controls" bind:toggled="arm"/>
-    <Checkbox name="Soil Acquisition" bind:toggled="soil_ac"/>
-    <Checkbox name="Debug Mode" bind:toggled="debug"/>
+    <div on:click='turn_off_sa()'>
+      <Checkbox name="Arm Controls" bind:toggled="arm"/>
+    </div>
+    <div on:click='turn_off_arm()'>
+      <Checkbox name="Soil Acquisition" bind:toggled="soil_ac"/>
+    </div>
   </div>
-  <div id="speed_limiter">
-  {{#if !debug}}
+  <div id="speed_limiter" class="wrap">
     <p>
       Speed Limiter:
       <span>{{ (dampen*-50 + 50).toFixed(2) }}%</span>   
     </p>
+  </div>
+  <div id="mode_info">
+  {{#if arm}}
+    <div class="wrap">
+      <p>arm</p>
+    </div>
   {{elseif soil_ac}}
     <div class="wrap">
-      <span class="led {{ sa_motor.drill != 0 ? 'green' : 'red' }}"></span>
+      <span class="led {{ sa_motor.drill != 0 ? 'lightgreen' : 'red' }}"></span>
       <span class="name">Drill</span>
-     </div>
+    </div>
     <div class="wrap">
-      <span class="led {{ sa_motor.door_actuator > 0 ? 'green' : (sa_motor.door_actuator < 0 ? 'red' : 'orange') }}"></span>
+      <span class="led {{ sa_motor.door_actuator > 0 ? 'lightgreen' : (sa_motor.door_actuator < 0 ? 'red' : 'orange') }}"></span>
       <span class="name">Door</span>
     </div>
   {{/if}}
@@ -30,12 +38,19 @@
     data() {
       return {
         arm: false,
-        soil_ac: false,
-        debug: false
+        soil_ac: false
       }
     },
     components: {
       Checkbox
+    },
+    methods: {
+      turn_off_sa() {
+        this.set({soil_ac: false});
+      },
+      turn_off_arm() {
+        this.set({arm: false});
+      }
     }
   }
 </script>
@@ -43,7 +58,7 @@
 <style>
   .wrap {
     display: grid;
-    grid-template-areas: "control_buttons speed_limiter";
+    grid-template-areas: "control_buttons speed_limiter mode_info";
     align-items: center;
     height: 100%;
     padding: 0px 0px 0px 20px
@@ -74,7 +89,7 @@
     border: 1px solid;
   }
 
-  .green {
+  .lightgreen {
     background-color: lightgreen;
   }
 
