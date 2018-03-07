@@ -21,3 +21,4 @@
   - build-essential
   - nodejs
   - yarn
+  - mercurial
