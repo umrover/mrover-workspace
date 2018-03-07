@@ -18,7 +18,8 @@ class MesonBuilder(BuildContext):
             print("Compiling C++ project...")
             pkg_cfg_path = self.run(
                     'pkg-config --variable pc_path pkg-config').stdout.strip()
-            pkg_cfg_path = '{}:{}'.format(
+            pkg_cfg_path = '{}:{}:{}'.format(
+                    os.path.join(self.wksp.product_env, 'lib', 'x86_64-linux-gnu', 'pkgconfig'),  # noqa XXX
                     os.path.join(self.wksp.product_env, 'lib', 'pkgconfig'),
                     pkg_cfg_path)
 

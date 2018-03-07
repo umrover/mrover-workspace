@@ -1,10 +1,8 @@
 #pragma once
 
 #include <string>
-#include <opencv2/core.hpp>
+#include <opencv2/opencv.hpp>
 #include <nanomsg/nn.h>
-
-//#include "nn.hpp"
 
 #include "wire_protocol.hpp"
 
