@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <cstring>
 
 #include "percepsim.hpp"
 #include "wire_protocol.hpp"
