@@ -22,3 +22,4 @@
   - nodejs
   - yarn
   - mercurial
+  - libopencv-dev
