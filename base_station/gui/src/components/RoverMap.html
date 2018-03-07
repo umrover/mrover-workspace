@@ -105,15 +105,16 @@
 
             // Update the rover path
             odomCount++;
+            let latLongs = roverPath.getLatLngs();
             if (odomCount % drawFrequency == 0) {
               if (odomCount > maxOdomCount * drawFrequency) {
-                let latLongs = roverPath.getLatLngs();
                 latLongs.splice(0, 1);
-                roverPath.setLatLngs(latLongs);
               }
-
-              roverPath.addLatLng(L.latLng(lat, lng));
+              latLongs.push(L.latLng(lat, lng));
             }
+
+            latLongs[latLongs.length - 1] = L.latLng(lat, lng);
+            roverPath.setLatLngs(latLongs);
 
             if (waypointMarkers.length) {
               // Update the waypoint path
