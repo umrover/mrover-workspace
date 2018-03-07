@@ -1,6 +1,6 @@
 #include "percepsim.hpp"
 
-#include <opencv2/core.hpp>
+#include <opencv2/opencv.hpp>
 
 #include <iostream>
 #include <cassert>
