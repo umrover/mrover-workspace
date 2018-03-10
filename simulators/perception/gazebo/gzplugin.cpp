@@ -136,9 +136,9 @@ void gazebo::PercepSimDepthCamera::OnNewImageFrame(const unsigned char *image,
                     this->image_.at<uchar>(j, i) = image[index++];
                 } else {
                     cv::Vec3b val;
-                    val[0] = image[index++];
-                    val[1] = image[index++];
                     val[2] = image[index++];
+                    val[1] = image[index++];
+                    val[0] = image[index++];
                     this->image_.at<cv::Vec3b>(j, i) = val;
                 }
             }
