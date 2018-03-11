@@ -1,0 +1,35 @@
+<div class="waypoint">
+    <div>
+        <p>
+            {{item["name"]}}:
+        </p>
+    </div>
+    <div>
+        <p>
+            {{ item["latitude_deg"] }}º 
+            {{ Math.floor(item["latitude_min"]) }}' 
+            {{ ((item["latitude_min"]-Math.floor(item["latitude_min"]))*60).toFixed(4) }}" N
+        </p>
+    </div>
+    <div>
+        <p>
+            {{ -item["longitude_deg"] }}º 
+            {{ Math.floor(-item["longitude_min"]) }}' 
+            {{ (((-item["longitude_min"])-Math.floor(-item["longitude_min"]))*60).toFixed(4) }}" W
+        </p>
+    </div>   
+</div>
+
+<style>
+.waypoint {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+p {
+    font-size: 1rem;
+    margin-top: 5px;
+    text-align: left;
+}
+</style>

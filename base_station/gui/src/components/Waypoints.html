@@ -38,50 +38,33 @@
 
     <div class="box" id="waypoint-list" ref:editor>
         <input type="text" class="focus-hidden" ref:editorInput>
-        {{#each previous_waypoints as waypoint}}
+        {{#each previous_waypoints as waypoint, i}}
+
+            <WaypointItem item="{{waypoint}}"/>
 
             <div class="waypoint-item">
-                <div>
-                    <p>
-                        {{waypoint["name"]}}:
-                    </p>
-                </div>
-                <div>
-                    <p>
-                        {{ waypoint["latitude_deg"] }}º 
-                        {{ Math.floor(waypoint["latitude_min"]) }}' 
-                        {{ ((waypoint["latitude_min"]-Math.floor(waypoint["latitude_min"]))*60).toFixed(4) }}" N
-                    </p>
-                </div>
-                <div>
-                    <p>
-                        {{ -waypoint["longitude_deg"] }}º 
-                        {{ Math.floor(-waypoint["longitude_min"]) }}' 
-                        {{ (((-waypoint["longitude_min"])-Math.floor(-waypoint["longitude_min"]))*60).toFixed(4) }}" W
-                    </p>
-                </div>
-
-                <div>
-                  <button style='background-color: {{waypoint["search"]?"Green":"Red"}};' on:click='toggleSearch( waypoint )'>
-                    <span class="white-text">{{waypoint["search"]?"Searching":"Not Searching"}}</span>
-                  </button>
-                </div>
-                <div>
-                  <button on:click='moveUp( waypoint )'>Move Up</button>
-                  <button on:click='moveDown( waypoint )'>Move Down</button>
-                </div>
-                <div>
-                  <button on:click='deleteWaypoint( waypoint )'>Delete</button>
-                </div>
+              <div on:click="delaySave()">
+                  <Checkbox name="Search?" bind:toggled="waypoint.search"/>
+              </div>
+              <div>
+                <button on:click='moveUp(i)'>Move Up</button>
+                <button on:click='moveDown(i)'>Move Down</button>
+              </div>
+              <div>
+                <button on:click='deleteWaypoint(i)'>Delete</button>
+              </div>
             </div>
+            
         {{/each}}
     </div>
 </div>
 
 <script>
   import Checkbox from './Checkbox.html';
+  import WaypointItem from './WaypointItem.html';
   import _ from 'lodash';
   import fnvPlus from 'fnv-plus';
+  import { splice, push, unshift } from 'svelte-extras';
 
   const isChildOfID = function(element, id) {
     while (element != document.body) {
@@ -96,6 +79,7 @@
   export default {
     data() {
       return {
+        previous_waypoints: [], 
         auton_enabled: false
       }
     },
@@ -117,91 +101,68 @@
     },
 
     components: {
-      Checkbox
+      Checkbox,
+      WaypointItem
     },
 
     methods: {
-
-        moveUp(waypoint){
-            const waypoints=this.get('previous_waypoints');
-            const index = waypoints.indexOf(waypoint);
-            if(index!=0){
-                const temp = waypoints[index];
-                waypoints[index] = waypoints[index-1];
-                waypoints[index-1]=temp;
-            }
-            this.set({
-                previous_waypoints: waypoints
-            });
-            this.save();
-        },
-
-        moveDown(waypoint){
-            const waypoints=this.get('previous_waypoints');
-            const index = waypoints.indexOf(waypoint);
-            if(index!=waypoints.length-1){
-                const temp = waypoints[index];
-                waypoints[index] = waypoints[index+1];
-                waypoints[index+1]=temp;
-            }
-            this.set({
-                previous_waypoints: waypoints
-            });
-            this.save();
-        },
-
-        deleteWaypoint(waypoint){
-            const waypoints=this.get('previous_waypoints');
-            const index = waypoints.indexOf(waypoint);
-            waypoints.splice(index, 1);
-            this.set({
-                previous_waypoints: waypoints
-            });
-            this.save();
-        },
-
-        toggleSearch(waypoint){
-            const waypoints=this.get('previous_waypoints');
-            const index = waypoints.indexOf(waypoint);
-            waypoints[index]['search'] = !waypoints[index]['search'];
-            this.set({
-                previous_waypoints: waypoints
-            });
-            this.save();
-        },
-
-        dropWaypoint(){
-            const name = 'Dropped Waypoint';
-            const odom = this.get('odom');
-            const nDeg = odom.latitude_deg;
-            const nMin = odom.latitude_min;
-            const wDeg = odom.longitude_deg;
-            const wMin = odom.longitude_min;
-
-            const lcm_message = {
-              "name": name,
-              "latitude_deg": nDeg,
-              "latitude_min": nMin,
-              "longitude_deg": wDeg,
-              "longitude_min": wMin,
-              "search":false
-            };
-
-            const new_prev = this.get('previous_waypoints');
-            new_prev.unshift(lcm_message);
-
-            this.set({
-              previous_waypoints: new_prev
-            });
-
-            this.save();
-        },
-
-
-        save(){
-          const jsonString = JSON.stringify(this.get('previous_waypoints'));
-          window.localStorage.setItem("previous_waypoints", jsonString);
+      moveUp(i){
+        if(i != 0){
+          const moved=this.splice("previous_waypoints", i, 1)[0];
+          const item=this.splice("previous_waypoints", i-1, 0, moved);
         }
+        this.save();
+      },
+
+      moveDown(i){
+        if(i != this.get('previous_waypoints').length-1){
+          const moved=this.splice("previous_waypoints", i, 1)[0];
+          const item=this.splice("previous_waypoints", i+1, 0, moved);
+        }
+        this.save();
+      },
+
+      deleteWaypoint(i){
+        this.splice("previous_waypoints", i, 1);
+        this.save();
+      },
+
+      dropWaypoint(){
+          const name = 'Dropped Waypoint';
+          const odom = this.get('odom');
+          const nDeg = odom.latitude_deg;
+          const nMin = odom.latitude_min;
+          const wDeg = odom.longitude_deg;
+          const wMin = odom.longitude_min;
+
+          const lcm_message = {
+            "name": name,
+            "latitude_deg": nDeg,
+            "latitude_min": nMin,
+            "longitude_deg": wDeg,
+            "longitude_min": wMin,
+            "search":false
+          };
+
+          this.unshift("previous_waypoints", lcm_message);
+
+          this.save();
+      },
+
+      delaySave(){
+        console.log("HERE");
+        setTimeout( () => {
+          this.save();
+        }, 200);
+      },
+
+      save(){
+        const jsonString = JSON.stringify(this.get('previous_waypoints'));
+        window.localStorage.setItem("previous_waypoints", jsonString);
+      },
+      splice,
+      push,
+      unshift
     },
 
     oncreate() {
@@ -243,7 +204,7 @@
 
       const data = window.localStorage.getItem("previous_waypoints");
       if (data != null) {
-        this.set({
+        app.set({
           previous_waypoints: JSON.parse(data)
         });
       }
@@ -295,12 +256,7 @@
               "search":false
             };
 
-            const new_prev = this.get('previous_waypoints');
-            new_prev.push(lcm_message);
-
-            this.set({
-              previous_waypoints: new_prev
-            });
+            this.push("previous_waypoints", lcm_message);
 
             this.save();
 
@@ -311,89 +267,7 @@
         }, false);
       }
 
-      const get_waypoints = (e) => {
-        return this.refs.editor.getElementsByClassName("waypoint-item");
-      }
-
-      let editID = -1;
-      let grabbing = false;
-      if (this.refs.editor.addEventListener) {
-        const ESC = 27;
-        const MOVE_UP = 38;
-        const MOVE_DOWN = 40;
-        const DELETE = 8;
-        const GRAB = 32; //Space
-
-        this.refs.editor.addEventListener('keydown', (e) => {
-          const waypoints = this.get('previous_waypoints');
-          if (waypoints.length == 0) {
-            editID = -1;
-            document.activeElement.blur();
-          }
-
-          if (editID != -1) {
-            if (e.keyCode == MOVE_UP) {
-              if (editID != 0) {
-                get_waypoints()[editID].className = "waypoint-item";
-                if (grabbing) {
-                  const temp = waypoints[editID];
-                  waypoints[editID] = waypoints[editID - 1];
-                  waypoints[editID - 1] = temp;
-                }
-                editID -= 1
-                get_waypoints()[editID].className += " box";
-              }
-              if (grabbing)
-                get_waypoints()[editID].className += " grabbed";
-            } else if (e.keyCode == MOVE_DOWN) {
-              get_waypoints()[editID].className = "waypoint-item";
-              if (editID != waypoints.length - 1) {
-                if (grabbing) {
-                  const temp = waypoints[editID];
-                  waypoints[editID] = waypoints[editID + 1];
-                  waypoints[editID + 1] = temp;
-                }
-                editID += 1
-              }
-              get_waypoints()[editID].className += " box";
-              if (grabbing)
-                get_waypoints()[editID].className += " grabbed";
-            } else if (e.keyCode == DELETE && !grabbing) {
-              get_waypoints()[editID].className = "waypoint-item";
-              waypoints.splice(editID, 1);
-
-              editID -= 1;
-              if (waypoints.length != 0 && editID == -1)
-                editID = 0;
-              if (editID != -1)
-                get_waypoints()[editID].className += " box";
-
-            } else if (e.keyCode == GRAB) {
-              grabbing = !grabbing;
-              get_waypoints()[editID].className = "waypoint-item box" + (grabbing ? " grabbed" : "");
-            } else if (e.keyCode == ESC) {
-              grabbing = false;
-              document.activeElement.blur();
-            }
-
-            this.set({
-              previous_waypoints: waypoints
-            });
-
-            this.save();
-          }
-        }, false);
-
-
-        this.refs.editor.addEventListener('focusout', (e) => {
-          if (editID != -1)
-            get_waypoints()[editID].className = "waypoint-item";
-          editID = -1;
-        }, false);
-      }
-
       document.addEventListener('keydown', (e) => {
-        const FOCUS_EDITOR = 78; //N
         const FOCUS_INPUT_GPS = 83; //S
         const DROP_WAYPOINT = 68; //D
         if (document.activeElement == document.body || document.activeElement.className.startsWith("map")) {
@@ -401,17 +275,6 @@
             this.refs.waypointName.focus();
             if (e.preventDefault) {
               e.preventDefault();
-            }
-          } else if (editID == -1 && e.keyCode == FOCUS_EDITOR) {
-            grabbing = false;
-            editID = 0;
-            this.refs.editorInput.focus();
-            const list = get_waypoints();
-            if (list.length == 0) {
-              editID = -1;
-              document.activeElement.blur();
-            } else {
-              list[0].className = "waypoint-item box";
             }
           } else if (e.keyCode == DROP_WAYPOINT) {
             this.dropWaypoint();
