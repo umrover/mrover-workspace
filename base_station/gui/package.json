@@ -22,6 +22,7 @@
     "fnv-plus": "git+https://git@github.com/tjwebb/fnv-plus#1.3.0",
     "leaflet": "^1.2.0",
     "leaflet-rotatedmarker": "^0.2.0",
-    "lodash": "^4.17.5"
+    "lodash": "^4.17.5",
+    "svelte-extras": "^1.6.0"
   }
 }
