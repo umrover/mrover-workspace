@@ -174,8 +174,6 @@
       this.refs.waypoints.on("course", (course) => {
         this.fire("course", course);
       });
-
-      this.update_sensor_data();
     },
 
     methods: {
@@ -192,13 +190,11 @@
           this.set({
             sensors: message,
           });
-          this.update_sensor_data();
         }
         if (topic === '/temperature') {
           this.set({
             temperature: message,
           });
-          this.update_sensor_data();
         }
         if (topic === '/kill_switch') {
           this.set({
@@ -216,54 +212,51 @@
           })
         }
       },
+    },
 
-      update_sensor_data(){
-        const sensors=this.get("sensors");
-        const temp=this.get("temperature");
-        this.set({"sensor_data":[
-          
-          {
-            name: "Temperature",
-            value: sensors["temperature"],
-            unit: "ºC"
-          },
-          {
-            name: "Moisture",
-            value: sensors["moisture"],
-            unit: ""
-          },
-          {
-            name: "Soil Conductivity",
-            value: sensors["soil_conductivity"],
-            unit: "µS/cm"
-          },
-          {
-            name: "pH",
-            value: sensors["pH"],
-            unit: ""
-          },
-          {
-            name: "UV",
-            value: sensors["uv"],
-            unit: "µmoles/m^2/s"
-          },
-          {
-            name: "CPU Temperature",
-            value: temp["bcpu_temp"]/1000,
-            unit: "ºC"
-          },
-          {
-            name: "GPU Temperature",
-            value: temp["gpu_temp"]/1000,
-            unit: "ºC"
-          },
-          {
-            name: "Overall Board Temperature",
-            value: temp["tboard_temp"]/1000,
-            unit: "ºC"
-          }
-        ]});
-      }
+    computed:{
+      sensor_data: (sensors, temperature) => [
+        {
+          name: "Temperature",
+          value: sensors["temperature"],
+          unit: "ºC"
+        },
+        {
+          name: "Moisture",
+          value: sensors["moisture"],
+          unit: ""
+        },
+        {
+          name: "Soil Conductivity",
+          value: sensors["soil_conductivity"],
+          unit: "µS/cm"
+        },
+        {
+          name: "pH",
+          value: sensors["pH"],
+          unit: ""
+        },
+        {
+          name: "UV",
+          value: sensors["uv"],
+          unit: "µmoles/m^2/s"
+        },
+        {
+          name: "CPU Temperature",
+          value: temperature["bcpu_temp"]/1000,
+          unit: "ºC"
+        },
+        {
+          name: "GPU Temperature",
+          value: temperature["gpu_temp"]/1000,
+          unit: "ºC"
+        },
+        {
+          name: "Overall Board Temperature",
+          value: temperature["tboard_temp"]/1000,
+          unit: "ºC"
+        }
+      ]
     },
 
     components: {
