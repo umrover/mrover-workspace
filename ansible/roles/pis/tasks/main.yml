@@ -28,6 +28,7 @@
   - libglib2.0-dev
   - libpython3.5-dev
   - virtualenv
+  - git
 
 - name: Copy systemd service files
   template:
@@ -61,3 +62,7 @@
       - uv4l.service
       - pi-heartbeat.service
 
+- name: Clone git repository
+  git:
+    repo: https://github.com/umrover/mrover-workspace.git
+    dest: /home/pi/mrover-workspace
