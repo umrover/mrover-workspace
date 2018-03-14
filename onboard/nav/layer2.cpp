@@ -1,13 +1,11 @@
 #include "layer2.hpp"
-#include <iostream>
-#include <cassert>
-#include <iomanip>
-// TODO latitude vs longitude calc minutes to meters
+// TODO latitude vs longitude calc minutes to meters -- done??
 
 // custom constructor for layer2
 Layer2::Layer2(lcm::LCM &lcm_object) : 
-    state(State::translational), lcm_(lcm_object), layer1(lcm_), 
+    state(State::off), lcm_(lcm_object), layer1(lcm_), 
     total_wps (-1), completed_wps(-1), nav_state(-1) {}
+
 
 void Layer2::set_course(const rover_msgs::Course * course)
 {
@@ -23,155 +21,14 @@ void Layer2::set_course(const rover_msgs::Course * course)
 		this->total_wps = d.overall.size();
 		this->completed_wps = 0;
 		d.hash = course->hash;
-		state = State::translational;
+		state = State::off;
 		return true;
 	});	
-}
-
-void Layer2::run()
-{
-	CourseData d = this->course_data_.clone();
-	rover_msgs::Odometry cur_odom = this->cur_odom_.clone();
-	rover_msgs::AutonState auton_state = this->auton_state_.clone();
-	bool prev_entered_auton = false;
-
-	long_meter_mins(cur_odom);
-
-	while (true)
-	{
-		while ( !auton_state.is_auton ) {
-			make_and_publish_nav_status(6);
-			auton_state = this->auton_state_.clone_when_changed();
-		}
-
-		d = this->course_data_.clone();
-		this->completed_wps = 0;
-		this->total_wps = d.overall.size();
-
-		rover_msgs::Obstacle obs = this->obstacle_.clone();
-
-	    while ( !d.overall.empty() && auton_state.is_auton ) 
-	    {
-	    	prev_entered_auton = true;
-			waypoint target = d.overall.front();
-			cur_odom = this->cur_odom_.clone();
-
-			if (obs.detected) {
-				obstacle_avoidance(cur_odom, obs);
-			}
-
-			if ( layer1.translational(cur_odom, target.odom) ) {
-				++this->completed_wps;
-				d.overall.pop_front();
-				if ( target.search ) search_func(target);
-			}
-
-			make_and_publish_nav_status(0);
-			cur_odom = this->cur_odom_.clone_when_changed();
-			auton_state = this->auton_state_.clone();
-			this->obstacle_.clone_conditional([&](const Obstacle & new_obs) {
-				return new_obs.detected != obs.detected;
-			}, &obs);
-
-		} //while(!empty && auton)
-
-		// if main loop prev entered and course{} empty ==> DONE, clear/reset
-		if ( prev_entered_auton && d.overall.empty() ) {
-			make_and_publish_nav_status(8); //pubish DONE navStatus
-			d.hash = 0; //required for transactional --> clone_when_changed()
-			prev_entered_auton = false;
-			d = this->course_data_.clone_when_changed();
-		}
-
-		// else if(!prev_entered_auton) {
-		// 	make_and_publish_nav_status(7);
-		// 	d = this->course_data_.clone_when_changed();
-		// }
-
-		//else if ( ANYTHING && !empty() ) ==> (DO NOTHING) auton off, wait @ top of loop for it to turn on)
-
-	} //while(true)
-}
-
-void Layer2::search_func(const waypoint & search_origin) {
-
-	this->state = State::faceN;
-
-	rover_msgs::Odometry cur_odom = this->cur_odom_.clone();
-	make_and_publish_nav_status(1);
-
-	while ( state != State::translational ) {
-		this->search_rotation(cur_odom);
-		cur_odom = this->cur_odom_.clone_when_changed();
-	}
-
-	TennisBall ball = this->tennis_ball_.clone();
-
-	this->init_search_multipliers();
-	this->add_four_points_to_search(search_origin); //arbitrary addition of waypoints to search
-	// this->add_four_points_to_search(search_origin);
-	// this->add_four_points_to_search(search_origin);
-
-	while (!ball.found && !search.empty() ) {
-		auto target = search.front();
-
-		Obstacle obs = this->obstacle_.clone();
-		if (obs.detected) obstacle_avoidance(cur_odom, obs);
-		while ( !layer1.translational(cur_odom, target.odom) ) {
-			cur_odom = this->cur_odom_.clone_when_changed();
-			this->obstacle_.clone_conditional( [&](const Obstacle & new_obs) {
-				return new_obs.detected != obs.detected;
-			}, &obs);
-			if (obs.detected) obstacle_avoidance(cur_odom, obs);
-		}
-		
-		search.pop_front();		//once @ point, pop it off
-		this->tennis_ball_.clone_conditional([&](const TennisBall & new_ball) {
-			return new_ball.found != ball.found;
-		}, &ball);
-	}
-
-
-	make_and_publish_nav_status(3);
-	// cur_odom = this->cur_odom_.clone();
-	go_to_ball(cur_odom, ball);
-	make_and_publish_nav_status(4);
-
-	search.clear();
 }
 
 bool Layer2::rotation_pred(const odom & cur_odom, const double theta1, const double theta2){
 	return (abs(cur_odom.bearing_deg - theta1) < INNER_SEARCH_THRESH || 
 			abs(cur_odom.bearing_deg - theta2) < INNER_SEARCH_THRESH);
-}
-
-void Layer2::search_rotation(const odom & cur_odom) {
-	State next_state = state;
-
-	if (state == State::faceN) {
-		layer1.turn_to_bearing(cur_odom, 0);
-		if (rotation_pred(cur_odom, 0, 360))
-       		next_state = State::rotation120;
-	}
-	else if (state == State::rotation120) {
-		layer1.turn_to_bearing(cur_odom, 120);
-		if (rotation_pred(cur_odom, 120, 120))
-        	next_state = State::rotation240; 
-    }
-	else if (state == State::rotation240) {
-	    layer1.turn_to_bearing(cur_odom, 240);
-	 	if (rotation_pred(cur_odom, 240, 240))
-        	next_state = State::rotationN;
-    }
-    else if (state == State::rotationN) {
-        layer1.turn_to_bearing(cur_odom, 0);
-        if (rotation_pred(cur_odom, 0, 360))
-        	next_state = State::translational;
-    }
-
-    else abort();
-    
-    state = next_state;
 }
 
 void Layer2::init_search_multipliers(){
@@ -244,54 +101,398 @@ void Layer2::long_meter_mins(const odom & cur_odom) {
 		cos(degree_to_radian(cur_odom.latitude_deg, cur_odom.latitude_min)) / 360);
 }
 
-void Layer2::go_to_ball(odom & cur_odom, TennisBall & ball) {
-	// while ( ball.distance > BALL_THRESH) {
-		while (ball.found && abs(ball.bearing) > DIRECTION_THRESH) {
-			turn(cur_odom, ball.bearing);
-			ball = this->tennis_ball_.clone();
-		}
-
-		while (ball.distance > BALL_THRESH) {
-			layer1.drive_forward(cur_odom, ball.bearing, ball.distance);
-			cur_odom = this->cur_odom_.clone_when_changed();
-			ball = this->tennis_ball_.clone();
-		}
-	// }
-} // go_to_ball()
-
-// REQUIRES: obstacle_dummy_odom != location of an obstacle
-	// assuming CV gives us a valid angle to drive to
-void Layer2::obstacle_avoidance(odom & cur_odom, Obstacle & obs) {
-	while (obs.detected) {
-		turn(cur_odom, obs.bearing);
-		obs = this->obstacle_.clone();
-	}
-
-	double dist_around_obs = CV_THRESH * sin(degree_to_radian(obs.bearing));
-	// obstacle_layer1(lcm_);
-	rover_msgs::Odometry around_obs = cur_odom;
-	obstacle_dummy_odom(around_obs, cur_odom.bearing_deg, dist_around_obs);
-
-	while(layer1.translational(cur_odom, around_obs)) {
-		cur_odom = this->cur_odom_.clone_when_changed();
-		this->obstacle_.clone_conditional( [&](const Obstacle & new_obs) {
-			return new_obs.detected != obs.detected;
-		}, &obs);
-		if (obs.detected) obstacle_avoidance(cur_odom, obs);
-	}
-
-} // obstacle_avoidance()
-
 // EFFECTS: turns rover by the bearing offset amount, then drives forward the given distance
 void Layer2::turn(odom & cur_odom, double bearing_offset) {
 	double desired_bearing = cur_odom.bearing_deg + bearing_offset;
 	while (abs(cur_odom.bearing_deg - desired_bearing) > DIRECTION_THRESH) {
 		layer1.turn_to_bearing(cur_odom, cur_odom.bearing_deg + bearing_offset);
 		cur_odom = this->cur_odom_.clone_when_changed();
-	}
+	} // while
 } // turn()
+
 
 void Layer2::obstacle_dummy_odom(odom & new_odom, const double cur_bearing, const double dist) {
 	new_odom.latitude_min += sin(degree_to_radian(cur_bearing)) * dist * LAT_METER_IN_MINUTES;
 	new_odom.longitude_min += sin(degree_to_radian(cur_bearing)) * dist * long_meter_in_minutes;
 } // obstacle_dummy_odom()
+
+void Layer2::updateRover() {
+	rover_cur_odom = this->cur_odom_.clone_when_changed();
+	BallUpdate updateBall(&rover_ball);
+	this->tennis_ball_.clone_conditional(updateBall, &rover_ball);
+	ObstacleUpdate updateObs(&rover_obstacle);
+	this->obstacle_.clone_conditional(updateObs, &rover_obstacle);
+	AutonStateUpdate updateAuton(&rover_auton_state);
+	this->auton_state_.clone_conditional(updateAuton, &rover_auton_state);
+} // updateRover()
+
+void Layer2::updateRover_ballUnconditional() {
+	rover_cur_odom = this->cur_odom_.clone_when_changed();
+	BallUpdate updateBall(&rover_ball);
+	this->tennis_ball_.clone();
+	ObstacleUpdate updateObs(&rover_obstacle);
+	this->obstacle_.clone_conditional(updateObs, &rover_obstacle);
+	AutonStateUpdate updateAuton(&rover_auton_state);
+	this->auton_state_.clone_conditional(updateAuton, &rover_auton_state);
+} // updateRover_ballUnconditional()
+
+void Layer2::updateRover_obsUnconditional() {
+	rover_cur_odom = this->cur_odom_.clone_when_changed();
+	BallUpdate updateBall(&rover_ball);
+	this->tennis_ball_.clone_conditional(updateBall, &rover_ball);
+	ObstacleUpdate updateObs(&rover_obstacle);
+	this->obstacle_.clone();
+	AutonStateUpdate updateAuton(&rover_auton_state);
+	this->auton_state_.clone_conditional(updateAuton, &rover_auton_state);
+} // updateRover_ballUnconditional()
+
+void Layer2::run() {
+	State state = State::off;
+	while (true) {
+		State nextState = state;
+		switch (state) {
+			case State::off: {
+				make_and_publish_nav_status(0);
+				rover_auton_state = this->auton_state_.clone();
+
+				if (!rover_auton_state.is_auton) {
+					rover_auton_state = this->auton_state_.clone_when_changed();
+				} // if auton state is off
+
+				// rover_course.overall.clear(); ???
+				rover_course = this->course_data_.clone();
+				rover_cur_odom = this->cur_odom_.clone();
+				rover_ball = this->tennis_ball_.clone();
+				rover_obstacle = this->obstacle_.clone();
+				// based on current location, determine the longitude conversion
+				long_meter_mins(rover_cur_odom);
+				// initialize course information
+				this->completed_wps = 0;
+				this->total_wps = rover_course.overall.size();
+
+				if (rover_ball.found) {
+					nextState = State::turn_to_ball;
+				} // if ball found
+
+				else if (rover_obstacle.detected) {
+					nextState = State::turn_around_obs;
+				} // else if obstacle detected
+
+				else if (rover_course.overall.empty()) {
+					nextState = State::done;
+				} // else if no more waypoints to go to
+				
+				else {
+					nextState = State::turn_and_drive;
+				} // else turn to face the next waypoint
+				break;
+			} // state = off
+
+			case State::turn_and_drive: {
+				make_and_publish_nav_status(10);
+				const waypoint& goal = rover_course.overall.front(); // caution: reference vs value
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+					break;
+				} // if rover turned off
+
+				else if (rover_course.overall.empty()) {
+					nextState = State::done;
+					break;
+				} // if no more waypoints
+
+				/*
+				// if put back in, caution with case of getting to a ball then coming to this state
+				else if (rover_ball.found) {
+					nextState = turn_to_ball;
+					break;
+				} // if ball found
+				*/
+
+				else if (rover_obstacle.detected) {
+					nextState = State::turn_around_obs;
+					break;
+				} // else if obstacle detected
+
+				// drive and update rover
+				bool arrived = layer1.translational(rover_cur_odom, goal.odom);
+				updateRover();
+
+				if (!arrived) {
+					nextState = state;
+				} // if at goal odom
+
+				else {
+					rover_course.overall.pop_front();
+
+					if (goal.search) {
+						nextState = State::search_face0;
+					} // if the current waypoint is a search point
+
+					else {
+						nextState = state;
+					} // else go to next waypoint
+				} // else if at goal odom
+				break;
+			} // state = turn_and_drive
+
+			case State::search_face0: {
+				make_and_publish_nav_status(20);
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+				} // if rover turned off
+
+				else if (rover_ball.found) {
+					nextState = State::turn_to_ball;
+				} // if ball found
+
+				else if (rotation_pred(rover_cur_odom, 90, 90)) {
+       				nextState = State::search_turn120;
+				} // if facing 90 (90 + 0) within threshold
+
+				else {
+					layer1.turn_to_bearing(rover_cur_odom, 90);
+					updateRover();
+					nextState = state;
+				} // else
+				break;
+			} // state = search_face0
+
+			case State::search_turn120: {
+				make_and_publish_nav_status(21);
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+				} // if rover turned off
+
+				else if (rover_ball.found) {
+					nextState = State::turn_to_ball;
+				} // if ball found
+
+				else if (rotation_pred(rover_cur_odom, 210, 210)) {
+       				nextState = State::search_turn240;
+				} // if facing 210 (90 + 120) within threshold
+
+				else {
+					layer1.turn_to_bearing(rover_cur_odom, 210);
+					updateRover();
+					nextState = state;
+				} // else
+				break;
+			} // state = search_turn120
+
+			case State::search_turn240: {
+				make_and_publish_nav_status(22);
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+				} // if rover turned off
+
+				else if (rover_ball.found) {
+					nextState = State::turn_to_ball;
+				} // if ball found
+
+				else if (rotation_pred(rover_cur_odom, 330, 330)) {
+       				nextState = State::search_turn360;
+				} // if facing 330 (90 + 240) within threshold
+
+				else {
+					layer1.turn_to_bearing(rover_cur_odom, 330);
+					updateRover();
+					nextState = state;
+				} // else
+				break;
+			} // state = search_turn240
+
+			case State::search_turn360: {
+				make_and_publish_nav_status(23);
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+				} // if rover turned off
+
+				else if (rover_ball.found) {
+					nextState = State::turn_to_ball;
+				} // if ball found
+
+				else if (rotation_pred(rover_cur_odom, 90, 90)) {
+       				nextState = State::search_turn_and_drive;
+       				init_search_multipliers();
+       				search_center.odom = rover_cur_odom;
+       				search_center.search = false;
+				} // if facing 90 (90 + 0) within threshold
+
+				else {
+					layer1.turn_to_bearing(rover_cur_odom, 90);
+					updateRover();
+					nextState = state;
+				} // else
+				break;
+			} // state = search_turn360
+
+			case State::search_turn_and_drive: {
+				make_and_publish_nav_status(24);
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+				} // if rover turned off
+
+				else if (rover_ball.found) {
+					nextState = State::turn_to_ball;
+				} // if ball found
+
+				else if (rover_obstacle.detected) {
+					nextState = State::search_turn_around_obs;
+				} // else if obstacle detected
+
+				else {
+					if (search.empty()) add_four_points_to_search(search_center);
+					const odom& goal = search.front().odom;
+					layer1.translational(rover_cur_odom, goal);
+					nextState = state;
+				} // else keep searching
+				break;
+			} // state = search_turn_and_drive
+
+			case State::turn_to_ball: {
+				make_and_publish_nav_status(28);
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+					break;
+				} // if rover turned off
+
+				// TODO: if lost ball
+				assert(rover_ball.found);
+
+				if (abs(rover_ball.bearing) > DIRECTION_THRESH) {
+					turn(rover_cur_odom, rover_ball.bearing);
+					updateRover_ballUnconditional();
+					nextState = state;
+					break;
+				} // else if bearing relative to ball != 0 within threshold
+
+				else {
+					nextState = State::drive_to_ball;
+					break;
+				} // else we are facing the ball
+			} // state = turn_to_ball
+
+			case State::drive_to_ball: {
+				make_and_publish_nav_status(29);
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+					break;
+				} // if rover turned off
+
+				// TODO: if ball lost
+				assert(rover_ball.found);
+
+				/*
+				if (rover_obstacle.detected) {
+					dummy_obs_way.search = ????????
+					nextState = search_turn_around_obs;
+					break;
+				} // else if obstacle detected
+				*/
+
+				if (rover_ball.distance > BALL_THRESH) {
+					layer1.drive_forward(rover_cur_odom, rover_ball.bearing, rover_ball.distance);
+					updateRover_ballUnconditional();
+					nextState = state;
+				} // else if distance to ball is not withing threshold
+
+				else {
+					nextState = State::turn_and_drive;
+				} // else if we are at the ball
+				break;
+			} // state = drive_to_ball
+
+			case State::turn_around_obs: 
+			case State::search_turn_around_obs: {
+				make_and_publish_nav_status(30);
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+				} // if rover turned off
+				
+				else if (!rover_obstacle.detected) {
+					if (state == State::search_turn_around_obs) {
+						nextState = State::search_drive_around_obs;
+					} // if in search mode
+					else {
+						nextState = State::drive_around_obs;
+					}
+					double dist_around_obs = CV_THRESH * sin(degree_to_radian(rover_obstacle.bearing));
+					dummy_obs_odom = rover_cur_odom;
+					obstacle_dummy_odom(dummy_obs_odom, rover_cur_odom.bearing_deg, dist_around_obs);
+				} // else if we are facing a clear path
+
+				else {
+					double desired_bearing = rover_cur_odom.bearing_deg + rover_obstacle.bearing;
+					if (desired_bearing > 360) desired_bearing -= 360;
+					else if (desired_bearing < 0) desired_bearing += 360;
+					layer1.turn_to_bearing(rover_cur_odom, desired_bearing);
+					updateRover_obsUnconditional();
+					nextState = state;
+				} // else there is still an obstacle in front of rover
+				break;
+			} // state = turn_around_obs
+
+			case State::drive_around_obs: 
+			case State::search_drive_around_obs: {
+				make_and_publish_nav_status(31);
+
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+					break;
+				} // if rover turned off
+
+				else if (rover_obstacle.detected) {
+					nextState = State::turn_around_obs;
+					break;
+				} // else if obstacle detected
+
+				bool arrived = layer1.translational(rover_cur_odom, dummy_obs_odom);
+				updateRover();
+
+				if (!arrived) {
+					nextState = state;
+				} // if not at dummy odom
+
+				else {
+					// if in search mode, return to search
+					if (state == State::search_drive_around_obs) nextState = State::search_turn_and_drive; // TODO
+					else nextState = State::turn_and_drive;
+				} // if at dummy odom
+			} // state = drive_around_obs
+
+			case State::done: {
+				make_and_publish_nav_status(1);
+				if (!rover_auton_state.is_auton) {
+					nextState = State::off;
+				} // if rover turned off
+
+				else {
+					rover_auton_state = this->auton_state_.clone_when_changed();
+					nextState = state;
+				} // else done
+				break;
+			} // state = done
+		} // switch
+		state = nextState;
+	} // while
+} // run()
+
+/* Future TODOs
+two states for one, remove bool search_mode;
+fix setting goal waypoint at beginning of turn_and_drive and search_turn_and_drive
+separate translational into turning state and driving state
+fix turn_and_drive to use a reference to goal not a copy (pop would invalidate goal if it was a reference as is)
+clean up cloning at the end of states
+if we see an object while turning in turn and drive, will we try to avoid it?
+obs/ball update clone when changed
+*/
