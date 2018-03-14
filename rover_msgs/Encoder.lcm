@@ -1,10 +1,10 @@
 package rover_msgs;
 
 struct Encoder {
-    int16_t joint_a;
-    int16_t joint_b;
-    int16_t joint_c;
-    int16_t joint_d;
-    int16_t joint_e;
-    int16_t joint_f;
+    int32_t joint_a;
+    int32_t joint_b;
+    int32_t joint_c;
+    int32_t joint_d;
+    int32_t joint_e;
+    int32_t joint_f;
 }
