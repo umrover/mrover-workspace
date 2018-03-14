@@ -252,9 +252,9 @@
               type: 'linear',
               id: 'y-axis',
               ticks:{
-                min: -1024,
-                max: 1024,
-                stepSize: 64
+                min: -10240,
+                max: 10240,
+                stepSize: 640
               }
             }]
           }
@@ -290,7 +290,7 @@
 
           console.log(val);
 
-          
+
           const data=chart.data.datasets[0].data;
           for (let i = 1; i < data.length; i++) {
             data[i-1].y=data[i].y;
