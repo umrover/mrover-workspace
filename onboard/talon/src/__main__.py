@@ -159,4 +159,4 @@ def main():
     lcm_.subscribe("/sa_motors", sa_motor_callback)
     # lcm_.subscribe("/arm_demand", arm_demand_callback)
     lcm_.subscribe("/arm_motors", open_loop_arm_callback)
-    run_coroutines(lcm_.loop(), rover.run_all())
+    run_coroutines(publish_arm_encoders(), lcm_.loop(), rover.run_all())
