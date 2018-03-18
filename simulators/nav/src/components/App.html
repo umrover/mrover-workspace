@@ -136,10 +136,20 @@
             nav_state_textual: (nav_state) => {
                 // 
                 switch(nav_state) {
-                case 0: return 'TRANSLATIONAL';
-                case 1: return 'SEARCH';
-                case 2: return 'ROTATIONAL';
-                case 8: return 'DONE';
+                case 0: return 'OFF';
+                case 1: return 'DONE';
+                case 10: return 'TURN_AND_DRIVE';
+                case 20: return 'SEARCH_FACE0';
+                case 21: return 'SEARCH_FACE120';
+                case 22: return 'SEARCH_FACE240';
+                case 23: return 'SEARCH_FACE360';
+                case 24: return 'SEARCH_TURN_AND_DRIVE';
+                case 28: return 'TURN_TO_BALL';
+                case 29: return 'DRIVE_TO_BALL';
+                case 30: return 'TURN_AROUND_OBS';
+                case 31: return 'DRIVE_AROUND_OBS';
+                case 32: return 'SEARCH_TURN_AROUND_OBS';
+                case 33: return 'SEARCH_DRIVE_AROUND_OBS';
                 default: return 'UNKNOWN';
                 }
             }

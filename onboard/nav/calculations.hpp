@@ -12,7 +12,7 @@
 #define INNER_MIN 0.5 //min value for inner threshold
 
 // convert degree to radian
-inline double degree_to_radian(const double x, const double minute);
+inline double degree_to_radian(const double x, const double minute = 0);
 
 inline double radian_to_degree(const double x);
 

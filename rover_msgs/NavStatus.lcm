@@ -1,10 +1,20 @@
 package rover_msgs;
 
 struct NavStatus {
-	const int8_t TRANSLATIONAL = 0;
-	const int8_t SEARCH = 1;
-	const int8_t ROTATIONAL = 2;
-	const int8_t DONE = 8;
+	const int8_t OFF = 0;
+	const int8_t DONE = 1;
+	const int8_t TURN_AND_DRIVE = 10;
+	const int8_t SEARCH_FACE0 = 20;
+	const int8_t SEARCH_FACE120 = 21;
+	const int8_t SEARCH_FACE240 = 22;
+	const int8_t SEARCH_FACE360 = 23;
+	const int8_t SEARCH_TURN_AND_DRIVE= 24;
+	const int8_t TURN_TO_BALL = 28;
+	const int8_t DRIVE_TO_BALL = 29;
+	const int8_t TURN_AROUND_OBS = 30;
+	const int8_t DRIVE_AROUND_OBS = 31;
+	const int8_t SEARCH_TURN_AROUND_OBS = 32;
+	const int8_t SEARCH_DRIVE_AROUND_OBS = 33;
 
 	int8_t nav_state;
 	int32_t completed_wps;

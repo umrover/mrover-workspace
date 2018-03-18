@@ -6,12 +6,17 @@
 #include "calculations.hpp"
 #include "rover_msgs/Odometry.hpp"
 #include "rover_msgs/Joystick.hpp"
+#include "rover_msgs/TennisBall.hpp"
+#include "rover_msgs/Obstacle.hpp"
 #include "pid.hpp"
 #include "thor.hpp"
 #include <cassert>
 #include <cmath>
 
-typedef rover_msgs::Odometry odom;
+// typedef rover_msgs::Odometry odom;
+using odom = rover_msgs::Odometry;
+using TennisBall = rover_msgs::TennisBall;
+using Obstacle = rover_msgs::Obstacle;
 
 class Layer1 {
 public:
@@ -22,6 +27,8 @@ public:
 	bool translational(const odom & current_odom, const odom & target_odom);
 
 	void turn_to_bearing(const odom & current_position, double desired_bearing);
+
+	void drive_forward(const odom & cur_odom, const double bearing_offset, const double dist_to_target);
 
 private:
 	
