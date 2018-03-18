@@ -98,10 +98,13 @@ class Bridge:
         """
         Multiplexes the various WebSocket coroutines.
         """
-        await asyncio.gather(
-            self.conn_state_pusher(websocket, path),
-            self.lcm_bridge(websocket, path)
-        )
+        try:
+            await asyncio.gather(
+                self.conn_state_pusher(websocket, path),
+                self.lcm_bridge(websocket, path)
+            )
+        except websockets.exceptions.ConnectionClosed as e:
+            print('Websocket connection lost')
 
     async def main_loop(self):
         """
