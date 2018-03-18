@@ -17,45 +17,72 @@ Mat greenFilter(const Mat& src){
     return greenOnly;
 }
 
+struct obstacle_return {
+  float center_distance; // distance to the center of the camera                                                                  
+  float bearing; // [-50 degree, 50 degree]                                                                                       
+};
 
-const int  WIDTH_ROVER = 500;
+obstacle_return avoid_obstacle_sliding_window(Mat &depth_img , int num_windows);
 
-float avoid_obstacle_sliding_window(cv::Mat &depth_img, int num_windows ) {
+
+int  WIDTH_ROVER = 500;
+int THRESHOLD_NO_WAY = 500000;
+int center_point_height = 360;
+
+obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, int num_windows ) {
 
   // filter out nan values                                                                                                        
-  depth_img = cv::max(depth_img, 0);
+  depth_img = max(depth_img, 0.7);
+  depth_img = min(depth_img, 20.0);
 
-  cv::Size size = depth_img.size();
+  Size size = depth_img.size();
   int type = depth_img.type();
-  cv::Mat diff_img = cv::Mat::zeros(size, type);
+  Mat diff_img = Mat::zeros(size, type);
   int height = size.height;
   int width = size.width;
 
-  cv::Mat mean_row_vec = cv::Mat::zeros(1, width, type);
+
+  float center_point_depth = (float) depth_img.at<float>(  center_point_height, 640);
+
+  Mat mean_row_vec = Mat::zeros(1, width, type);
   reduce(depth_img, mean_row_vec, 0, CV_REDUCE_SUM);
 
   // 720p, sw stands for "sliding window"                                                                                         
   int step_size = (width-WIDTH_ROVER)/(num_windows-1);
-  int num_sw =(int)( width *2 / WIDTH_ROVER ) -1;
+  //int num_sw =(int)( width *2 / WIDTH_ROVER ) -1;                                                                               
   float max_sum_sw = FLT_MIN ;
   int final_start_col = -1;
-  for (int i = 0; i!= num_sw; i++) {
-    int curr_col = i *  (int)WIDTH_ROVER/2;
-    const cv::Mat sub_col =  mean_row_vec.colRange(curr_col, curr_col+WIDTH_ROVER-1 );
-    double window_sum = sum( sub_col )[0];
-    std::cout<<"[col "<<curr_col<<"], window sub_col sum is "<<window_sum<<std::endl;
+  float left_sum =0, right_sum = 0;
+  for (int i = 0; i!= num_windows; i++) {
+    int curr_col = i * step_size;  //i *  (int)WIDTH_ROVER/2;                                                                     
+    const Mat sub_col =  mean_row_vec.colRange(curr_col, curr_col+WIDTH_ROVER-1 );
+    float window_sum = sum( sub_col )[0];
+    if (i == 0) left_sum = window_sum;
+    if (i == num_windows - 1) right_sum = window_sum;
+    cout<<"[col "<<curr_col<<"], window sub_col sum is "<<window_sum<<endl;
     if (window_sum > max_sum_sw) {
       max_sum_sw = window_sum;
       final_start_col = curr_col;
     }
   }
-  std::cout<<"final_start_col: "<<final_start_col<<std::endl;
-  cv::rectangle(depth_img, cv::Point( final_start_col, 0), cv::Point( final_start_col+WIDTH_ROVER, 720), cv::Scalar(0, 0, 255),3)\
-;
-  return (float)((final_start_col + WIDTH_ROVER / 2 - width/2 )/width*2);
+
+  obstacle_return rt_val;
+  rt_val.center_distance = center_point_depth;
+
+  if (max_sum_sw > THRESHOLD_NO_WAY) {
+    cout<<"final_start_col: "<<final_start_col<<endl;
+    rectangle(depth_img, Point( final_start_col, 0), Point( final_start_col+WIDTH_ROVER, 720), Scalar(0, 0, 255),\
+3);
+    float direction_center_diff =  ((float)(final_start_col + WIDTH_ROVER / 2) - (float)width/2 ) ;
+    rt_val.bearing = direction_center_diff / (float)(width/2) * (50.0);
+
+  } else {
+    cout<<"Big obstacle in the front. Need to escape from one side!\n";
+    rt_val.bearing =  (left_sum > right_sum)? (-45.0): (45.0);
+  }
+  return rt_val;
 
 }
-
 
 
 bool findTennisBall(Mat &src){
@@ -107,6 +134,10 @@ int main() {
 
         auto start = chrono::high_resolution_clock::now();
         Mat src = cam.image();
+
+	// assume rover width to be 500 . TO TEST
+	// TODO: write to LCM
+	obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(src, 10 );
 
         if(findTennisBall(src)){
             cout<<"tennis ball detected.\n";
