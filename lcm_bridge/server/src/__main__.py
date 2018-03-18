@@ -8,6 +8,7 @@ from . import lcmutil
 
 
 class Bridge:
+
     def __init__(self):
         """
         Creates a Bridge.
@@ -75,16 +76,23 @@ class Bridge:
         Handles LCM commands from the client.
         """
         while True:
-            command = json.loads(await websocket.recv())
-            if command['type'] == 'lcm_publish':
-                self.publish(command['topic'], command['message'])
-            elif command['type'] == 'lcm_subscribe':
-                self.add_subscription(
+            try:
+                command = json.loads(await websocket.recv())
+                if command['type'] == 'lcm_publish':
+                    self.publish(command['topic'], command['message'])
+                elif command['type'] == 'lcm_subscribe':
+                    self.add_subscription(
                         command['topic'], command['lcm_type'], websocket)
-            elif command['type'] == 'lcm_unsubscribe':
-                self.remove_subscription(command['topic'])
-            else:
-                print('Invalid message type: {}'.format(command['type']))
+                elif command['type'] == 'lcm_unsubscribe':
+                    self.remove_subscription(command['topic'])
+                else:
+                    print('Invalid message type: {}'.format(command['type']))
+            except Exception as e:
+                await websocket.send(json.dumps({
+                    'type': 'error_message',
+                    'message': "Error when sending command: {}\n{}"
+                    .format(str(command), str(e))
+                }))
 
     async def chatter(self, websocket, path):
         """
