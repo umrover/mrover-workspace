@@ -17,6 +17,47 @@ Mat greenFilter(const Mat& src){
     return greenOnly;
 }
 
+
+const int  WIDTH_ROVER = 500;
+
+float avoid_obstacle_sliding_window(cv::Mat &depth_img, int num_windows ) {
+
+  // filter out nan values                                                                                                        
+  depth_img = cv::max(depth_img, 0);
+
+  cv::Size size = depth_img.size();
+  int type = depth_img.type();
+  cv::Mat diff_img = cv::Mat::zeros(size, type);
+  int height = size.height;
+  int width = size.width;
+
+  cv::Mat mean_row_vec = cv::Mat::zeros(1, width, type);
+  reduce(depth_img, mean_row_vec, 0, CV_REDUCE_SUM);
+
+  // 720p, sw stands for "sliding window"                                                                                         
+  int step_size = (width-WIDTH_ROVER)/(num_windows-1);
+  int num_sw =(int)( width *2 / WIDTH_ROVER ) -1;
+  float max_sum_sw = FLT_MIN ;
+  int final_start_col = -1;
+  for (int i = 0; i!= num_sw; i++) {
+    int curr_col = i *  (int)WIDTH_ROVER/2;
+    const cv::Mat sub_col =  mean_row_vec.colRange(curr_col, curr_col+WIDTH_ROVER-1 );
+    double window_sum = sum( sub_col )[0];
+    std::cout<<"[col "<<curr_col<<"], window sub_col sum is "<<window_sum<<std::endl;
+    if (window_sum > max_sum_sw) {
+      max_sum_sw = window_sum;
+      final_start_col = curr_col;
+    }
+  }
+  std::cout<<"final_start_col: "<<final_start_col<<std::endl;
+  cv::rectangle(depth_img, cv::Point( final_start_col, 0), cv::Point( final_start_col+WIDTH_ROVER, 720), cv::Scalar(0, 0, 255),3)\
+;
+  return (float)((final_start_col + WIDTH_ROVER / 2 - width/2 )/width*2);
+
+}
+
+
+
 bool findTennisBall(Mat &src){
     Mat hsv;
     cvtColor(src, hsv, COLOR_BGR2HSV);
