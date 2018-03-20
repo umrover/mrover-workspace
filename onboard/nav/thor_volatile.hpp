@@ -24,6 +24,7 @@ namespace Thor {
                 return false;
             }
             void unsafe_set_possibly_race(const T & val) {
+                // this->changed_ = (val != this->val_);
                 this->val_ = val;
                 this->changed_ = true;
                 this->cv_.notify_all();
