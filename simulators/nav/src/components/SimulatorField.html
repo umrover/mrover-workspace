@@ -26,8 +26,8 @@ const ROCK_SIZE = 45;
 const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
 const ROVER_DEPTH_OF_VIEW = 10;
 
-const TRANSLATIONAL_SCALE = 5;
-const ROTATIONAL_SCALE = 10;
+const TRANSLATIONAL_SCALE = 2.5;
+const ROTATIONAL_SCALE = 5;
 
 function ensure_in_range(x, min, max) {
     return Math.max(Math.min(x, max), min);
@@ -74,14 +74,15 @@ export default {
 
                 const { dist, bearing } = dist_and_bearing(
                     to_decimal(odom), to_decimal(tennis_balls[i]));
+                const rover_bearing = odom.bearing_deg * Math.PI/180;
 
-                console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
-                if (bearing < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
+                // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
+                if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
                     tennis_balls[i].detected = true;
 
                     const tennis_ball_state = {
                         found: true,
-                        bearing: bearing * 180/Math.PI,
+                        bearing: (bearing - rover_bearing) * 180/Math.PI,
                         distance: dist
                     };
                     this.set({ tennis_ball_state });
@@ -260,7 +261,7 @@ export default {
 
         apply_joystick: function(stick) {
             let odom = this.get("odom");
-            let {x, y} = this.to_canvas(this.projection(to_decimal(odom)));
+            let {x, y} = this.projection(to_decimal(odom));
             let bearing_deg = odom.bearing_deg;
             bearing_deg += ROTATIONAL_SCALE * stick.left_right;
             if (bearing_deg < 0) {
@@ -272,14 +273,16 @@ export default {
 
             const bearing_rad = (90 - bearing_deg) * Math.PI / 180;
 
+            console.log(`moving in the direction ${bearing_rad} radians`);
+
             const vel = TRANSLATIONAL_SCALE * stick.forward_back;
 
             x += vel * Math.cos(bearing_rad);
-            y -= vel * Math.sin(bearing_rad);
+            y += vel * Math.sin(bearing_rad);
 
             const {min_lat, max_lat, min_lon, max_lon} = this.bounds();
 
-            let {lat, lon} = this.inv_projection(this.from_canvas({x, y}));
+            let {lat, lon} = this.inv_projection({x, y});
             lat = ensure_in_range(lat, min_lat, max_lat);
             lon = ensure_in_range(lon, min_lon, max_lon);
 

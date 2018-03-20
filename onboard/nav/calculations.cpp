@@ -36,7 +36,7 @@ double calc_bearing(const rover_msgs::Odometry & start,
     double bearing_phi = std::acos(vert_component_dist / noneuc_dist);
     if (start_long > dest_long) bearing_phi = 2 * PI - bearing_phi;
 
-    if(vert_component_dist < 1 && vert_component_dist > -1){
+    if(vert_component_dist < 0.001 && vert_component_dist > -0.001){
         if (start_long < dest_long) {
             bearing_phi = PI / 2.0;
         } else {
