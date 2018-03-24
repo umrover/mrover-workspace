@@ -5,12 +5,16 @@
         <p>
             <b>Latitude:</b>
             {{ item.latitude_deg }}&#176; 
-            {{ item.latitude_min }}'
+            {{ latitude_min_display }}'
         </p>
         <p>
             <b>Longitude:</b>
             {{ item.longitude_deg }}&#176; 
-            {{ item.longitude_min }}'
+            {{ longitude_min_display }}'
+        </p>
+        <p>
+            <b>Distance from Rover:</b>
+            {{ distance }}
         </p>
         <slot/>
     </div>
@@ -49,7 +53,22 @@
 </style>
 
 <script>
+import {
+    to_decimal,
+    dist_and_bearing
+} from "../geography.js";
+const NUM_DIGITS = 7;
 export default {
+    computed: {
+        latitude_min_display: (item) => item.latitude_min.toFixed(NUM_DIGITS),
+        longitude_min_display: (item) => item.longitude_min.toFixed(NUM_DIGITS),
+
+        distance: (rover, item) => {
+            const { dist } = dist_and_bearing(
+                to_decimal(rover), to_decimal(item));
+            return dist.toFixed(3);
+        }
+    },
     methods: {
         clicked: function() {
             this.fire('click');

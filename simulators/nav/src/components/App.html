@@ -7,18 +7,23 @@
             bind:tennis_balls
             bind:rocks
             bind:tennis_ball_state
+            radius_meters="{{radius}}"
             mode="{{draw_mode}}"/>
     </div>
 
     <div id="drawmode">
         <DrawModeSelector bind:mode="draw_mode"/>
+        <label>
+            Field Radius (meters):
+            <input type="number" bind:value="radius"/>
+        </label>
     </div>
 
     <div id="sidebar">
         <div class="display" id="odom_display">
             <h2>Odometry</h2>
-            <p><b>Latitude:</b> {{ odom.latitude_deg }}&#176; {{ odom.latitude_min }}'</p>
-            <p><b>Longitude:</b> {{ odom.longitude_deg }}&#176; {{ odom.longitude_min }}'</p>
+            <p><b>Latitude:</b> {{ odom.latitude_deg }}&#176; {{ latitude_min_display }}'</p>
+            <p><b>Longitude:</b> {{ odom.longitude_deg }}&#176; {{ longitude_min_display }}'</p>
             <p><b>Bearing:</b> {{ odom.bearing_deg }}</p>
         </div>
 
@@ -48,6 +53,7 @@
             <SimulatedItemDisplay 
                            title="Waypoint {{ i }}"
                            item="{{ waypoint }}"
+                           rover="{{ odom }}"
                            on:click='splice("waypoints", i, 1)'>
                 <p>
                     <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
@@ -62,6 +68,7 @@
             <SimulatedItemDisplay
                             title="Ball {{ i }}"
                             item="{{ tennis_ball }}"
+                            rover="{{ odom }}"
                             on:click='splice("tennis_balls", i, 1)'>
                 {{#if tennis_ball.detected}}
                 <b>
@@ -77,6 +84,7 @@
             <SimulatedItemDisplay
                             title="Rock {{ i }}"
                             item="{{ rock }}"
+                            rover="{{ odom }}"
                             on:click='splice("rocks", i, 1)'>
                 <p>
                     <button on:click="invert_rock(i)">
@@ -99,6 +107,8 @@
     import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
     import { to_dms } from '../geography.js';
 
+    const NUM_DIGITS = 7;
+
     export default {
         data () {
             return {
@@ -115,6 +125,8 @@
                 waypoints: [],
                 tennis_balls: [],
                 rocks: [],
+
+                radius: 100,
 
                 tennis_ball_state: {
                     found: false,
@@ -152,7 +164,10 @@
                 case 33: return 'SEARCH_DRIVE_AROUND_OBS';
                 default: return 'UNKNOWN';
                 }
-            }
+            },
+
+            latitude_min_display: (odom) => odom.latitude_min.toFixed(NUM_DIGITS),
+            longitude_min_display: (odom) => odom.longitude_min.toFixed(NUM_DIGITS),
         },
 
         methods: {
