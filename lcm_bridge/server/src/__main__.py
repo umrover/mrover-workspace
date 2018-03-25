@@ -11,6 +11,7 @@ class Connection:
 
     def __init__(self, lcm_, websocket):
         self.websocket = websocket
+        self.lcm_ = lcm_
         self.subscriptions = {}
 
     def subscribe(self, topic, lcm_type):
