@@ -23,6 +23,8 @@ const lcm_ = new LCMBridge(
       app.set({
         websocket_connected: online
       })
+      console.log("Connecting");
+      lcm_.setHomePage();
     }
   },
   // Update connection states
@@ -161,7 +163,6 @@ if(app !=null ){
   };
 
   app.on("sensor_switch", (should_record) => {
-      console.log(should_record);
       if (lcm_.online) {
           const msg={
             'type': 'SensorSwitch',

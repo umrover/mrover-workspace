@@ -69,4 +69,12 @@ export default class LCMBridge {
             console.error("LCM Bridge not connected")
         }
     }
+
+    setHomePage(){
+        if(this.online){
+            this.ws.send(JSON.stringify({
+                'type':'home_page_set'
+            }))
+        }
+    }
 }
