@@ -86,9 +86,9 @@ def joystick_math(new_motor, magnitude, theta):
     new_motor.right = new_motor.left
 
     if theta > 0:
-        new_motor.right *= 1 - theta/2
+        new_motor.right *= 1 - (theta * 0.75)
     elif theta < 0:
-        new_motor.left *= 1 + theta/2
+        new_motor.left *= 1 + (theta * 0.75)
 
     if magnitude < 0:
         new_motor.left *= -1
