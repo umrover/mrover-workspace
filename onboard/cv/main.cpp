@@ -18,18 +18,18 @@ Mat greenFilter(const Mat& src){
 }
 
 struct obstacle_return {
-  float center_distance; // distance to the center of the camera                                                                  
+  float center_distance; // distance to anything in front of the center of the camera                                                                 
   float bearing; // [-50 degree, 50 degree]                                                                                       
 };
 
-obstacle_return avoid_obstacle_sliding_window(Mat &depth_img , int num_windows);
+obstacle_return avoid_obstacle_sliding_window(Mat &depth_img , Mat&rgb_img, int num_windows);
 
 
 int  WIDTH_ROVER = 500;
 int THRESHOLD_NO_WAY = 500000;
 int center_point_height = 360;
 
-obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, int num_windows ) {
+obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, Mat &rgb_img, int num_windows ) {
 
   // filter out nan values                                                                                                        
   depth_img = max(depth_img, 0.7);
@@ -73,6 +73,7 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, int num_windows ) 
     cout<<"final_start_col: "<<final_start_col<<endl;
     rectangle(depth_img, Point( final_start_col, 0), Point( final_start_col+WIDTH_ROVER, 720), Scalar(0, 0, 255),\
 3);
+    rectangle(rgb_img, Point( final_start_col, 0), Point( final_start_col+WIDTH_ROVER, 720), Scalar(0, 0, 255), \
     float direction_center_diff =  ((float)(final_start_col + WIDTH_ROVER / 2) - (float)width/2 ) ;
     rt_val.bearing = direction_center_diff / (float)(width/2) * (50.0);
 
@@ -137,14 +138,16 @@ int main() {
 
 	// assume rover width to be 500 . TO TEST
 	// TODO: write to LCM
-	obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(src, 10 );
+	Mat depth_img = cam.depth();
+	obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  10 );
 
         if(findTennisBall(src)){
             cout<<"tennis ball detected.\n";
         }else{
             cout << "tennis ball not detected.\n";
         }
-        
+
+	imshow("depth", depth_img);
         imshow("camera", src);
         auto end = chrono::high_resolution_clock::now();
 
