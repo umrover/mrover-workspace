@@ -7,6 +7,29 @@ from rover_common.aiohelper import run_coroutines
 from . import lcmutil
 
 
+class Connection:
+
+    def __init__(self, lcm_, websocket):
+        self.websocket = websocket
+        self.subscriptions = {}
+
+    def subscribe(self, topic, lcm_type):
+        loop = asyncio.get_event_loop()
+
+        def callback(topic, data):
+            msg = lcmutil.decode(lcm_type, data)
+            loop.create_task(self.websocket.send(json.dumps({
+                'type': 'lcm_message',
+                'topic': topic,
+                'message': lcmutil.lcm_to_dict(msg)
+            })))
+        self.subscriptions[topic] = self.lcm_.subscribe(topic, callback)
+
+    def close(self):
+        for subscription in self.subscriptions.values():
+            self.lcm_.unsubscribe(subscription)
+
+
 class Bridge:
 
     def __init__(self):
@@ -22,7 +45,8 @@ class Bridge:
                             self.connection_state_changed, x))
         self.connections = [False]*self.num_hbs
         self.lcm_ = aiolcm.AsyncLCM()
-        self.subscriptions = {}
+        self.socket_connections = []
+        self.home_page_connection = None
 
     def connection_state_changed(self, c, index):
         """
@@ -36,29 +60,6 @@ class Bridge:
         """
         self.lcm_.publish(topic, lcmutil.dict_to_lcm(message).encode())
 
-    def add_subscription(self, topic, lcm_type, websocket):
-        """
-        Creates a subscription to a topic, which echoes over the
-        WebSocket.
-        """
-        loop = asyncio.get_event_loop()
-
-        def callback(topic, data):
-            msg = lcmutil.decode(lcm_type, data)
-            loop.create_task(websocket.send(json.dumps({
-                'type': 'lcm_message',
-                'topic': topic,
-                'message': lcmutil.lcm_to_dict(msg)
-            })))
-        self.subscriptions[topic] = self.lcm_.subscribe(topic, callback)
-
-    def remove_subscription(self, topic):
-        """
-        Removes a previously-created subscription.
-        """
-        self.lcm_.unsubscribe(self.subscriptions[topic])
-        del self.subscriptions[topic]
-
     async def conn_state_pusher(self, websocket, path):
         """
         Coroutine that pushes changes in the connection state over the
@@ -71,24 +72,24 @@ class Bridge:
             }))
             await asyncio.sleep(2)
 
-    async def lcm_bridge(self, websocket, path):
+    async def lcm_bridge(self, connection, path):
         """
         Handles LCM commands from the client.
         """
         while True:
             try:
-                command = json.loads(await websocket.recv())
+                command = json.loads(await connection.websocket.recv())
                 if command['type'] == 'lcm_publish':
                     self.publish(command['topic'], command['message'])
                 elif command['type'] == 'lcm_subscribe':
-                    self.add_subscription(
-                        command['topic'], command['lcm_type'], websocket)
-                elif command['type'] == 'lcm_unsubscribe':
-                    self.remove_subscription(command['topic'])
+                    connection.subscribe(
+                        command['topic'], command['lcm_type'])
+                elif command['type'] == 'home_page_set':
+                    self.home_page_connection = connection
                 else:
                     print('Invalid message type: {}'.format(command['type']))
             except Exception as e:
-                await websocket.send(json.dumps({
+                await connection.websocket.send(json.dumps({
                     'type': 'error_message',
                     'message': "Error when sending command: {}\n{}"
                     .format(str(command), str(e))
@@ -99,12 +100,24 @@ class Bridge:
         Multiplexes the various WebSocket coroutines.
         """
         try:
+            connection = Connection(self.lcm_, websocket)
+            self.socket_connections.append(connection)
+
             await asyncio.gather(
                 self.conn_state_pusher(websocket, path),
-                self.lcm_bridge(websocket, path)
+                self.lcm_bridge(connection, path)
             )
         except websockets.exceptions.ConnectionClosed as e:
-            print('Websocket connection lost')
+            connection = None
+            for i in range(len(self.socket_connections)):
+                if self.socket_connections[i].websocket == websocket:
+                    connection = self.socket_connections[i]
+                    del self.socket_connections[i]
+                    break
+
+            connection.close()
+            if self.home_page_connection == connection:
+                self.home_page_connection = None
 
     async def main_loop(self):
         """
@@ -117,7 +130,15 @@ class Bridge:
             *(hb.loop() for hb in self.hbs)
         )
 
+    async def send_kills(self):
+        while True:
+            if self.home_page_connection is None:
+                self.publish("/kill_switch",
+                             {'killed': False, 'type': 'KillSwitch'})
+
+            await asyncio.sleep(0.5)
+
 
 def main():
     bridge = Bridge()
-    run_coroutines(bridge.main_loop())
+    run_coroutines(bridge.main_loop(), bridge.send_kills())
