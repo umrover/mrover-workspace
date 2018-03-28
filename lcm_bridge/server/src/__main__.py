@@ -2,6 +2,7 @@ import asyncio
 import websockets
 import json
 
+from rover_msgs import Joystick
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from . import lcmutil
@@ -134,8 +135,12 @@ class Bridge:
     async def send_kills(self):
         while True:
             if self.home_page_connection is None:
-                self.publish("/kill_switch",
-                             {'killed': False, 'type': 'KillSwitch'})
+                js = Joystick()
+                js.kill = True
+                js.forward_back = 0
+                js.left_right = 0
+                self.lcm_.publish("/drive_control", js.encode())
+                print("Sending")
 
             await asyncio.sleep(0.5)
 
