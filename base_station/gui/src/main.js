@@ -1,12 +1,14 @@
 import App from './components/App.html'
 import Cameras from './components/Cameras.html'
 import PidTune from './components/PidTune.html'
+import Diagnostics from './components/Diagnostics.html'
 import LCMBridge from 'bridge'
 
 const main = document.querySelector('main')
 let app = null
 let cam = null
 let pidTune = null
+let diagnostics = null
 if (main.id == 'dashboard') {
   app = new App({target: main})
 }
@@ -14,6 +16,8 @@ else if (main.id == 'camera') {
   cam = new Cameras({target: main})
 }else if (main.id == 'pid-tune'){
   pidTune = new PidTune({target: main})
+}else if (main.id == 'diagnostics'){
+  diagnostics = new Diagnostics({target: main})
 }
 const lcm_ = new LCMBridge(
   "ws://localhost:8001",
@@ -47,8 +51,10 @@ const lcm_ = new LCMBridge(
       cam.lcm_message_recv(msg)
     }
     if (pidTune != null){
-      console.log(msg);
       pidTune.lcm_message_recv(msg);
+    }
+    if (diagnostics != null){
+      diagnostics.lcm_message_recv(msg);
     }
   },
   // Subscriptions
