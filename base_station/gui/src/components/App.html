@@ -10,6 +10,19 @@
         <li><CommIndicator connected="{{motors_active}}" name="Driving" /></li>
       </ul>
     </div>
+    <div class="spacer"></div>
+    <div class="help">
+      <img src="/static/help.png" alt="Help" title="Help" width="48" height="48" />
+    </div>
+    <div class="helpscreen"></div>
+    <div class="helpimages" style="display: flex; align-items: center; justify-content: space-evenly">
+      {{#if arm}}
+      <img src="/static/arm.png" alt="Robot Arm" title="Robot Arm Controls" style="width: auto; height: 70%; display: inline-block" />
+      {{elseif soil_ac}}
+      <img src="/static/soil_ac.png" alt="Soil Acquisition" title="Soil Acquisition Controls" style="width: auto; height: 70%; display: inline-block" />
+      {{/if}}
+      <img src="/static/joystick.png" alt="Joystick" title="Joystick Controls" style="width: auto; height: 70%; display: inline-block" />
+    </div>
   </div>
 
   <div class="box odom light-bg">
@@ -22,10 +35,10 @@
     <RoverMap odom="{{odom}}" previous_waypoints="{{previous_waypoints}}" />
   </div>
   <div class="box waypoints light-bg">
-    <Waypoints ref:waypoints odom="{{odom}}" bind:previous_waypoints="previous_waypoints" nav_status="{{nav_status}}" />
+    <Waypoints ref:waypoints odom="{{odom}}" bind:previous_waypoints nav_status="{{nav_status}}" />
   </div>
   <div class="box controls light-bg">
-    <Controls dampen="{{ dampen }}" sa_motor="{{ sa_motor }}" ref:controls/>
+    <Controls dampen="{{ dampen }}" sa_motor="{{ sa_motor }}" bind:arm bind:soil_ac ref:controls/>
   </div>
 </div>
 
@@ -80,6 +93,46 @@
     margin-bottom: 2px;
   }
 
+  .helpscreen {
+    z-index: 1000000000;
+    display: block;
+    visibility: hidden;
+    background-color: black;
+    opacity: 0.8;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .helpimages {
+    z-index: 1000000001;
+    visibility: hidden;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .help {
+    z-index: 1000000002;
+    display: flex;
+    float: right;
+    opacity: 0.8;
+    cursor: auto;
+  }
+
+  .help:hover {
+    opacity: 1.0;
+    cursor: pointer;
+  }
+
+  .help:hover ~ .helpscreen, .help:hover ~ .helpimages {
+    visibility: visible;
+  }
+
   .odom {
     grid-area: odom;
     font-size: 1em;
@@ -128,7 +181,7 @@
           latitude_min: 0,
           longitude_min: 0,
           bearing_deg: 0
-        }, 
+        },
         sensors: {
           temperature: 0,
           moisture: 0,
@@ -154,7 +207,8 @@
           door_actuator: 0,
           cache: 0
         },
-        dampen: 0
+        dampen: 0,
+        arm: false,
       }
     },
 
