@@ -156,7 +156,7 @@ private:
 
 	// void obstacle_avoidance(odom & cur_odom, Obstacle & obs);
   
-  	void turn(odom & cur_odom, double bearing_offset);
+  	// void turn(odom & cur_odom, double bearing_offset);
   
   	void obstacle_dummy_odom(odom & new_odom, const double cur_bearing,
                              const double dist);

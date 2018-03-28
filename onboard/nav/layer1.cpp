@@ -21,6 +21,7 @@ bool Layer1::turn(const odom & current_odom, const odom & target_odom) {
 
     // turns rover to face target before any motion
     make_publish_joystick(0, turn_to_dest(current_odom, target_odom), false);
+
     // if within inner threshold, done initial turn
     if (in_inner_thresh) return true;
     return false;
