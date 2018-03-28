@@ -30,6 +30,7 @@ export default {
       'src/index.html': 'dist/index.html',
       'src/cam.html': 'dist/cam.html',
       'src/pidTune.html': 'dist/pidTune.html',
+      'src/diagnostics.html': 'dist/diagnostics.html',
       'src/static': 'dist/static',
       'node_modules/leaflet/dist/leaflet.css': 'dist/leaflet.css'
     }),
