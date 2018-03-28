@@ -1,0 +1,10 @@
+package rover_msgs;
+
+struct CurrentDraw {
+    double current_a;
+    double current_b;
+    double current_c;
+    double current_d;
+    double current_e;
+    double current_f;
+}
