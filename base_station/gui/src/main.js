@@ -184,7 +184,7 @@ if(app !=null ){
     if(lcm_.online){
       course['type'] = 'Course';
       lcm_.publish('/course', course);
-    } 
+    }
   });
 
   window.setInterval(() => {
@@ -248,7 +248,7 @@ if(app !=null ){
 }else if(pidTune != null){
   pidTune.on("/set_params", (pidData) => {
     console.log("Setting Params");
-    
+
     const msg={
       'type':'SetParam',
       'deviceID': pidData['deviceID'],
