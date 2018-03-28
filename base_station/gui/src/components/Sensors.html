@@ -1,0 +1,84 @@
+<div class="wrap">
+    <div class="box">
+        <button style='background-color: {{recording?"Green":"Red"}};' on:click='toggle_recording()'>
+            <span class='white-text'>Recording: {{recording?'\u2611':'\u2610'}}</span>
+        </button>
+    </div>
+    <div class="box"></div>
+
+    {{#each sensor_data as sensor}}
+        <div class="box">
+            <p>
+                {{sensor["name"]}}:
+                <span>{{sensor["value"].toFixed(2)}}{{sensor["unit"]}}</span>
+            </p>
+        </div>
+    {{/each}}
+    
+    {{#if sensor_data.length%2==1}}
+        <div class="box"/>
+    {{/if}}
+
+</div>
+
+
+
+<script>
+  export default {
+    data(){
+        return{
+            recording: false
+        }
+    },
+
+    oncreate() {
+        document.body.addEventListener('keydown', (e) => {
+            const R_KEY = 82;
+            if(document.activeElement==document.body && e.keyCode == R_KEY){
+                this.toggle_recording();
+            }
+        });
+    },
+
+    methods: {
+        toggle_recording(){
+            const record = !this.get('recording');
+            this.set({
+                recording: record
+            });
+
+            this.fire("sensor_switch", record);
+        }
+    }
+  }
+</script>
+
+<style>
+.wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 35px 35px 35px 35px;
+}
+
+.white-text{
+    color: white;
+}
+
+.box {
+    padding: 0px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: none;
+}
+
+p {
+    margin: 0px;
+    font-size: 1rem;
+    margin-top: 5px;
+    text-align: left;
+}
+
+span{
+    float: right;
+}
+</style>

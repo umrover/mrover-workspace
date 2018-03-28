@@ -29,7 +29,7 @@
     Current odometry reading: {{ odom.latitude_deg.toFixed(2) }}º {{ odom.latitude_min.toFixed(2) }}' by {{ odom.longitude_deg.toFixed(2) }}º {{ odom.longitude_min.toFixed(2) }}' bearing {{ odom.bearing_deg.toFixed(2) }}
   </div>
   <div class="box diags light-bg">
-    <Diagnostics ref:diags sensor_data="{{sensor_data}}" />
+    <Sensors ref:diags sensor_data="{{sensor_data}}" />
   </div>
   <div class="box map light-bg">
     <RoverMap odom="{{odom}}" previous_waypoints="{{previous_waypoints}}" />
@@ -164,7 +164,7 @@
 
 <script>
   import CommIndicator from './CommIndicator.html'
-  import Diagnostics from './Diagnostics.html'
+  import Sensors from './Sensors.html'
   import Controls from './Controls.html'
   import RoverMap from './RoverMap.html'
   import Waypoints from './Waypoints.html'
@@ -311,7 +311,7 @@
 
     components: {
       CommIndicator,
-      Diagnostics,
+      Sensors,
       Controls,
       RoverMap,
       Waypoints
