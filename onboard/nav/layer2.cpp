@@ -101,6 +101,7 @@ void Layer2::long_meter_mins(const odom & cur_odom) {
 		cos(degree_to_radian(cur_odom.latitude_deg, cur_odom.latitude_min)) / 360);
 }
 
+/*
 // EFFECTS: turns rover by the bearing offset amount, then drives forward the given distance
 void Layer2::turn(odom & cur_odom, double bearing_offset) {
 	double desired_bearing = cur_odom.bearing_deg + bearing_offset;
@@ -108,7 +109,7 @@ void Layer2::turn(odom & cur_odom, double bearing_offset) {
 		layer1.turn_to_bearing(cur_odom, cur_odom.bearing_deg + bearing_offset);
 		cur_odom = this->cur_odom_.clone_when_changed();
 	} // while
-} // turn()
+} // turn()*/
 
 
 void Layer2::obstacle_dummy_odom(odom & new_odom, const double cur_bearing, const double dist) {
@@ -432,6 +433,8 @@ void Layer2::run() {
 			case State::turn_to_ball: {
 				make_and_publish_nav_status(28);
 
+				std::cout << "turn_to_ball\n";
+
 				if (!rover_auton_state.is_auton) {
 					nextState = State::off;
 					break;
@@ -441,7 +444,7 @@ void Layer2::run() {
 				assert(rover_ball.found);
 
 				if (abs(rover_ball.bearing) > DIRECTION_THRESH) {
-					turn(rover_cur_odom, rover_ball.bearing);
+					layer1.turn_to_bearing(rover_cur_odom, rover_ball.bearing);
 					std::cout << "before: " << rover_ball.bearing << "\n";
 					updateRover_ballUnconditional();
 					std::cout << "after: " << rover_ball.bearing << "\n";
