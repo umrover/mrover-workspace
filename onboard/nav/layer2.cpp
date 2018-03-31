@@ -129,8 +129,8 @@ void Layer2::updateRover() {
 
 void Layer2::updateRover_ballUnconditional() {
 	rover_cur_odom = this->cur_odom_.clone_when_changed();
-	BallUpdate updateBall(&rover_ball);
-	this->tennis_ball_.clone();
+	// BallUpdate updateBall(&rover_ball);
+	this->rover_ball = this->tennis_ball_.clone();
 	ObstacleUpdate updateObs(&rover_obstacle);
 	this->obstacle_.clone_conditional(updateObs, &rover_obstacle);
 	AutonStateUpdate updateAuton(&rover_auton_state);
@@ -141,8 +141,8 @@ void Layer2::updateRover_obsUnconditional() {
 	rover_cur_odom = this->cur_odom_.clone_when_changed();
 	BallUpdate updateBall(&rover_ball);
 	this->tennis_ball_.clone_conditional(updateBall, &rover_ball);
-	ObstacleUpdate updateObs(&rover_obstacle);
-	this->obstacle_.clone();
+	// ObstacleUpdate updateObs(&rover_obstacle);
+	this->rover_obstacle = this->obstacle_.clone();
 	AutonStateUpdate updateAuton(&rover_auton_state);
 	this->auton_state_.clone_conditional(updateAuton, &rover_auton_state);
 } // updateRover_ballUnconditional()
@@ -180,7 +180,7 @@ void Layer2::run() {
 				this->total_wps = rover_course.overall.size();
 
 				if (rover_ball.found) {
-					std::cout << "ball seen\n";
+					std::cout << "ball seen from off\n";
 					nextState = State::turn_to_ball;
 				} // if ball found
 
@@ -275,12 +275,21 @@ void Layer2::run() {
 			case State::search_face0: {
 				make_and_publish_nav_status(20);
 
+				/*
+				rover_ball = this->tennis_ball_.clone();
+				int i = rover_ball.found ? 1 : 0;
+				std::cout << i << "\n";
+				*/
+
+
+
+
 				if (!rover_auton_state.is_auton) {
 					nextState = State::off;
 				} // if rover turned off
 
 				else if (rover_ball.found) {
-					std::cout << "ball seen\n";
+					std::cout << "ball seen from face0\n";
 					nextState = State::turn_to_ball;
 				} // if ball found
 
@@ -433,8 +442,6 @@ void Layer2::run() {
 			case State::turn_to_ball: {
 				make_and_publish_nav_status(28);
 
-				std::cout << "turn_to_ball\n";
-
 				if (!rover_auton_state.is_auton) {
 					nextState = State::off;
 					break;
@@ -444,10 +451,9 @@ void Layer2::run() {
 				assert(rover_ball.found);
 
 				if (abs(rover_ball.bearing) > DIRECTION_THRESH) {
-					layer1.turn_to_bearing(rover_cur_odom, rover_ball.bearing);
-					std::cout << "before: " << rover_ball.bearing << "\n";
+					std::cout << rover_ball.bearing << "\n";
+					layer1.turn_to_bearing(rover_cur_odom, rover_cur_odom.bearing_deg + rover_ball.bearing);
 					updateRover_ballUnconditional();
-					std::cout << "after: " << rover_ball.bearing << "\n";
 					nextState = state;
 					break;
 				} // else if bearing relative to ball != 0 within threshold
@@ -535,7 +541,7 @@ void Layer2::run() {
 					break;
 				} // else if obstacle detected
 
-				bool arrived = layer1./*translational*/drive(rover_cur_odom, dummy_obs_odom);
+				bool arrived = layer1.drive(rover_cur_odom, dummy_obs_odom);
 				updateRover();
 
 				if (!arrived) {

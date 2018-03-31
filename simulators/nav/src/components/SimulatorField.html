@@ -69,6 +69,12 @@ export default {
             if (!odom) { return; }
             let tennis_balls = this.get("tennis_balls");
 
+            let ball_detected_idx = -1;
+            let tennis_ball_state = {
+                found: false,
+                bearing: 0,
+                distance: 0
+            };
             for (let i = 0; i < tennis_balls.length; i++) {
                 tennis_balls[i].detected = false;
 
@@ -79,17 +85,17 @@ export default {
                 // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
                 if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
                     tennis_balls[i].detected = true;
-
-                    const tennis_ball_state = {
+                    ball_detected_idx = i;
+                    tennis_ball_state = {
                         found: true,
                         bearing: (bearing - rover_bearing) * 180/Math.PI,
                         distance: dist
                     };
-                    this.set({ tennis_ball_state });
+
+                    break;
                 }
             }
-
-            this.set({ tennis_balls });
+            this.set({ tennis_ball_state, tennis_balls });
         };
 
         const draw = () => {
