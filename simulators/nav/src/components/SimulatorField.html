@@ -16,18 +16,20 @@ import {
     projection as projection_
 } from "../geography.js";
 import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
+import _ from 'lodash';
 
 const EARTH_RAD = 6371000.0;
 const ROVER_SIZE = 25;
 const VECTOR_SIZE = 20;
 const WAYPOINT_SIZE = 10;
 const TENNIS_BALL_SIZE = 4;
-const ROCK_SIZE = 45;
+const ROCK_SIZE = 25;
 const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
 const ROVER_DEPTH_OF_VIEW = 10;
+const CV_DEPTH = 5;
 
-const TRANSLATIONAL_SCALE = 2.5;
-const ROTATIONAL_SCALE = 5;
+const TRANSLATIONAL_SCALE = 1;
+const ROTATIONAL_SCALE = 2;
 
 function ensure_in_range(x, min, max) {
     return Math.max(Math.min(x, max), min);
@@ -98,6 +100,148 @@ export default {
             this.set({ tennis_ball_state, tennis_balls });
         };
 
+        const point_in_triangle = (point, crossbar, coords) => {
+            const sign = (point, end0, end1) => {
+                return (point.x - end1.x) * (end0.y - end1.y) - (end0.x - end1.x) * (point.y - end1.y);
+            };
+
+            const b0 = sign(point, {x: crossbar.x1, y: crossbar.y1}, {x: crossbar.x2, y: crossbar.y2}) < 0;
+            const b1 = sign(point, {x: crossbar.x2, y: crossbar.y2}, coords) < 0;
+            const b2 = sign(point, coords, {x: crossbar.x1, y: crossbar.y1}) < 0;
+
+            return (b0 == b1) && (b1 == b2);
+        };
+
+        const get_triangle = (scale, odom) => {
+            const rock_radius = ROCK_SIZE/scale;
+            const coords = this.projection(to_decimal(odom));
+            // const root_2 = Math.sqrt(2);
+            const h =  rock_radius * Math.sin(Math.PI - ROVER_FIELD_OF_VIEW) / Math.sin(ROVER_FIELD_OF_VIEW / 2);
+            const theta_r = odom.bearing_deg * Math.PI / 180;
+            const x_0 = coords.x - h * Math.sin(theta_r); // switched sign
+            const y_0 = coords.y - h * Math.cos(theta_r); // switched sign
+            const x_c = coords.x + (CV_DEPTH + rock_radius) * Math.sin(theta_r);
+            const y_c = coords.y + (CV_DEPTH + rock_radius) * Math.cos(theta_r);
+            // d = smaller triangle d + extension
+            let d = CV_DEPTH * Math.tan(ROVER_FIELD_OF_VIEW / 2);
+            const alpha = (180 - ROVER_FIELD_OF_VIEW) / 2;
+            const h_prime = rock_radius * Math.sin(Math.PI - alpha) / Math.sin(alpha / 2);
+            const delta_d = Math.sqrt(h_prime * h_prime - rock_radius * rock_radius);
+            d += delta_d;
+            const crossbar = {
+                x1: x_c - d * Math.cos(theta_r),
+                y1: y_c + d * Math.sin(theta_r),
+                x2: x_c + d * Math.cos(theta_r),
+                y2: y_c - d * Math.sin(theta_r)
+            };
+
+            return { x_0, y_0, crossbar, x_c, y_c };
+        };
+
+        const find_occupied = (odom, rcoords, occupied_angles, rock_radius) => {
+            const pos = this.projection(to_decimal(odom));
+            const delta_x = rcoords.x - pos.x;
+            const delta_y = rcoords.y - pos.y;
+            const d = Math.sqrt(delta_x * delta_x + delta_y * delta_y);
+            const beta = Math.atan2(Math.abs(delta_y), Math.abs(delta_x)) * 180 / Math.PI;
+            const gamma = Math.atan2(rock_radius, d) * 180 / Math.PI;
+            let alpha;
+
+            if (delta_x > 0 && delta_y > 0) {
+                alpha = beta - odom.bearing_deg;
+            } // quadrant I
+
+            else if (delta_x < 0 && delta_y > 0) {
+                alpha = (360 - odom.bearing_deg) - beta;
+            } // quadrant II
+
+            else if (delta_x < 0 && delta_y < 0) {
+                alpha = beta - (odom.bearing_deg - 180);
+            } // quadrant III
+
+            else if (delta_x > 0 && delta_y < 0) {
+                alpha = (180 - odom.bearing_deg) - beta;
+            } // quadrant IV
+
+            else if (!delta_x) {
+                alpha = beta;
+            } // y-axis (or origin)
+
+            else {
+                alpha = 90 - beta;
+            } // x-axis
+
+            const phi_1 = alpha - gamma + ROVER_FIELD_OF_VIEW / 2;
+            const phi_2 = alpha + gamma + ROVER_FIELD_OF_VIEW / 2;
+            occupied_angles.fill(true, phi_1, phi_2);
+            console.log(`occupied_angles delta_x delta_y odom.x rcoords.x: ${delta_x} ${delta_y} ${pos.x} ${rcoords.x}`);
+            console.log(`occupied_angles odom_deg beta alpha and gamma: ${odom.bearing_deg} ${beta} ${alpha} ${gamma}`);
+            console.log(`occupied_angles ends: ${phi_1} ${phi_2}`);
+        };
+
+        const recompute_obstacle_visibility = () => {
+            const odom = this.get("odom");
+            const scale = this.get("radius_meters");
+            const rock_radius = ROCK_SIZE / scale;
+            const x_scale = canvas.width/(2*scale);
+            const y_scale = canvas.height/(2*scale);
+            if (!odom) { return; }
+            let rocks = this.get("rocks");
+            const {x_0, y_0, crossbar} = get_triangle(scale, odom);
+            // Filter out objects outside the "larger triangle"
+            const filtered_rocks = _.filter(rocks, (rock) => {
+                const rcoords = this.projection(to_decimal(rock));
+                return point_in_triangle(rcoords, crossbar, {x: x_0, y: y_0});
+            });
+
+            console.log(`Can see ${filtered_rocks.length} rocks`);
+            if (filtered_rocks.length > 0) {
+                console.log(filtered_rocks);
+            }
+
+            let occupied_angles = new Array(120);
+            occupied_angles.fill(false);
+            for (let i = 0; i < filtered_rocks.length; i++) {
+                find_occupied(odom, this.projection(to_decimal(filtered_rocks[i])), occupied_angles, rock_radius);
+            }
+
+            // can we move straight ahead
+            const rover_width = ROVER_SIZE / scale;
+            const path_clear = (rover_width) => {
+                const clearance_angle = Math.atan2(rover_width, CV_DEPTH) * 180 / Math.PI;
+                console.log(`clearance_angle: ${clearance_angle}`);
+                for (let i = 60 - clearance_angle; i < 60 + clearance_angle; ++i) {
+                    if (occupied_angles[i]) return false;
+                }
+                return true;
+            }
+
+            // debugger;
+            console.log(`path clear: ${path_clear(rover_width)}`);
+
+
+            // TODO sliding window
+
+        };
+
+        const draw_triangle = (odom) => {
+            // TODO temporary debug code
+            const {x_0, y_0, crossbar, x_c, y_c} = get_triangle(this.get("radius_meters"), odom);
+            const va = this.to_canvas({x: x_0, y: y_0});
+            const vb = this.to_canvas({x: crossbar.x1, y: crossbar.y1});
+            const vc = this.to_canvas({x: crossbar.x2, y: crossbar.y2});
+            const center = this.to_canvas({x: x_c, y: y_c});
+
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(va.x, va.y);
+            ctx.lineTo(vb.x, vb.y);
+            ctx.lineTo(vc.x, vc.y);
+            ctx.lineTo(va.x, va.y);
+            ctx.lineTo(center.x, center.y);
+            ctx.stroke();
+        };
+
         const draw = () => {
             const odom = this.get("odom");
             if (!odom) { return; }
@@ -121,6 +265,8 @@ export default {
             ctx.lineTo(coords.x + VECTOR_SIZE*Math.cos(bearing),
                        coords.y - VECTOR_SIZE*Math.sin(bearing));
             ctx.stroke();
+
+            draw_triangle(odom);
 
             for (let i = 0; i < waypoints.length; i++) {
                 const waypoint = waypoints[i];
@@ -161,12 +307,8 @@ export default {
                 ctx.fillStyle = 'brown';
                 ctx.beginPath();
                 ctx.arc(
-                    rcoords.x, rcoords.y-(ROCK_SIZE/4),
-                    ROCK_SIZE/2, 0, 2*Math.PI, 0);
-                ctx.fill();
-                ctx.arc(
-                    rcoords.x-((ROCK_SIZE/4)*rock.direction), rcoords.y,
-                    ROCK_SIZE/2, 0, 2*Math.PI, 0);
+                    rcoords.x, rcoords.y,
+                    ROCK_SIZE, 0, 2*Math.PI, 0);
                 ctx.fill();
             }
         };
@@ -196,11 +338,7 @@ export default {
                 this.set({ tennis_balls });
             } else if (draw_mode === ROCK_MODE) {
                 let rocks = this.get("rocks");
-                let direction = 1;
-                if (e.ctrlKey || e.metaKey) {
-                    direction = -1;
-                }
-                rocks.push(Object.assign({}, to_dms({lat, lon}), { direction }));
+                rocks.push(to_dms({lat, lon}));
 
                 this.set({ rocks });
             }
@@ -208,6 +346,7 @@ export default {
 
         const update = () => {
             recompute_tennis_ball_visibility();
+            recompute_obstacle_visibility();
             draw();
         };
 

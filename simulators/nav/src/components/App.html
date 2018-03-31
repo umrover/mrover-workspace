@@ -86,11 +86,6 @@
                             item="{{ rock }}"
                             rover="{{ odom }}"
                             on:click='splice("rocks", i, 1)'>
-                <p>
-                    <button on:click="invert_rock(i)">
-                        Flip
-                    </button>
-                </p>
             </SimulatedItemDisplay>
         </div>
         {{/each}}
@@ -219,11 +214,6 @@
                     let tennis_ball_state = this.get("tennis_ball_state");
                     this.fire("tennis_ball", tennis_ball_state);
                 }, 100);
-            },
-            invert_rock: function(i) {
-                let rocks = this.get("rocks");
-                rocks[i].direction *= -1;
-                this.set({ rocks });
             },
             splice
         },
