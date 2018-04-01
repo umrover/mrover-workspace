@@ -38,12 +38,14 @@ drill_on = Toggle(False)
 
 
 def connection_state_changed(c, _):
+    global kill_motor
     if c:
         print("Connection established.")
     else:
         print("Disconnected.")
 
         # Kill drive motors
+        kill_motor = True
         drive_motor = DriveMotors()
         drive_motor.left = 0.0
         drive_motor.right = 0.0
@@ -105,26 +107,16 @@ def drive_control_callback(channel, msg):
     input_data.forward_back = -math.copysign(input_data.forward_back ** 2,
                                              input_data.forward_back)
 
-    new_kill_msg = KillSwitch()
-
-    if kill_motor:
-        if input_data.restart:
-            kill_motor = False
-            new_kill_msg.killed = False
-            lcm_.publish('/kill_switch', new_kill_msg.encode())
-        else:
-            return
-
-    damp = (input_data.dampen - 1)/(-2)
+    if input_data.kill:
+        kill_motor = True
+    elif input_data.restart:
+        kill_motor = False
 
     new_motor = DriveMotors()
 
-    if input_data.kill:
+    if kill_motor:
         new_motor.left = 0
         new_motor.right = 0
-        kill_motor = True
-        new_kill_msg.killed = True
-        lcm_.publish('/kill_switch', new_kill_msg.encode())
 
     else:
         magnitude = deadzone(input_data.forward_back, 0.04)
@@ -132,6 +124,7 @@ def drive_control_callback(channel, msg):
 
         joystick_math(new_motor, magnitude, theta)
 
+        damp = (input_data.dampen - 1)/(-2)
         new_motor.left *= damp
         new_motor.right *= damp
 
@@ -297,6 +290,17 @@ async def transmit_temperature():
         await asyncio.sleep(1)
 
 
+async def transmit_drive_status():
+    global kill_motor
+    while True:
+        new_kill = KillSwitch()
+        new_kill.killed = kill_motor
+        with await lock:
+            lcm_.publish('/kill_switch', new_kill.encode())
+        # print("Published new kill message: {}".format(kill_motor))
+        await asyncio.sleep(1)
+
+
 def motor_callback(channel, msg):
     input_data = DriveMotors.decode(msg)
     # This function is for testing the joystick-motor algorithm
@@ -326,10 +330,6 @@ def main():
     lcm_.subscribe('/arm_demand', enc_out_callback)
     # lcm_.subscribe('/arm_demand', transmit_fake_encoders)
 
-    new_kill_msg = KillSwitch()
-    new_kill_msg.killed = False
-    lcm_.publish('/kill_switch', new_kill_msg.encode())
-
     new_encoder = Encoder()
     new_encoder.joint_a = 0
     new_encoder.joint_b = 0
@@ -341,4 +341,4 @@ def main():
 
     run_coroutines(hb.loop(), transmit_fake_odometry(),
                    transmit_fake_sensors(), lcm_.loop(),
-                   transmit_temperature())
+                   transmit_temperature(), transmit_drive_status())
