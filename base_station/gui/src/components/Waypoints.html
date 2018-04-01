@@ -40,7 +40,7 @@
         <input type="text" class="focus-hidden" ref:editorInput>
         {{#each previous_waypoints as waypoint, i}}
 
-            <WaypointItem item="{{waypoint}}"/>
+            <WaypointItem item="{{waypoint}}" odom="{{odom}}"/>
 
             <div class="waypoint-item">
               <div on:click="delaySave()">
@@ -54,7 +54,7 @@
                 <button on:click='deleteWaypoint(i)'>Delete</button>
               </div>
             </div>
-            
+
         {{/each}}
     </div>
 </div>
@@ -79,8 +79,9 @@
   export default {
     data() {
       return {
-        previous_waypoints: [], 
-        auton_enabled: false
+        previous_waypoints: [],
+        auton_enabled: false,
+        odom: null,
       }
     },
 
