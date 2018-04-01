@@ -7,7 +7,7 @@
       <ul id="vitals">
         <li><CommIndicator connected="{{websocket_connected}}" name="Web Socket" /></li>
         <li><CommIndicator connected="{{lcm_connected}}" name="Rover Connection Status" /></li>
-        <li><CommIndicator connected="{{motors_active}}" name="Driving" /></li>
+        <li><CommIndicator connected="{{motors_active && lcm_connected}}" name="Driving" /></li>
       </ul>
     </div>
     <div class="spacer"></div>
