@@ -274,6 +274,7 @@ void Layer2::run() {
 
 			case State::search_face0: {
 				make_and_publish_nav_status(20);
+				std::cout << "face0\n";
 
 				/*
 				rover_ball = this->tennis_ball_.clone();
@@ -454,7 +455,6 @@ void Layer2::run() {
 					std::cout << rover_ball.bearing << "\n";
 					layer1.turn_to_bearing(rover_cur_odom, rover_cur_odom.bearing_deg + rover_ball.bearing);
 					updateRover_ballUnconditional();
-					nextState = state;
 					break;
 				} // else if bearing relative to ball != 0 within threshold
 
