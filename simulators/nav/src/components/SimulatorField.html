@@ -135,6 +135,8 @@ export default {
                         WAYPOINT_SIZE, 0, 2*Math.PI, 0);
                 ctx.fill();
                 ctx.stroke();
+                ctx.fillStyle = 'white';
+                ctx.fillText(`${i}`, wcoords.x, wcoords.y);
             }
 
             for (let i = 0; i < tennis_balls.length; i++) {
