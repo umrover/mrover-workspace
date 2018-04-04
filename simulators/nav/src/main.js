@@ -12,6 +12,8 @@ const bridge = new LCMBridge("ws://localhost:8001",
             app.set({
                 'lcm_connected': false
             });
+        } else {
+            bridge.setHomePage();
         }
     },
     // Is LCM online?
