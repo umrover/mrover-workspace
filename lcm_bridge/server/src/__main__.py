@@ -100,7 +100,6 @@ class Bridge:
             self.lcm_.unsubscribe(sub)
         self.subscriptions.clear()
 
->>>>>>> 5855d8e... [bridge] attempt to resolve bug
     async def conn_state_pusher(self, websocket, path):
         """
         Coroutine that pushes changes in the connection state over the
@@ -182,7 +181,6 @@ class Bridge:
                 js.forward_back = 0
                 js.left_right = 0
                 self.lcm_.publish("/drive_control", js.encode())
-                print("Sending")
 
             await asyncio.sleep(0.5)
 
