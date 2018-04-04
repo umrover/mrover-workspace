@@ -18,11 +18,11 @@
 #include <iomanip>
 
 const double EARTH_CIRCUM = 40075000; // meters
-const double LAT_METER_IN_MINUTES = 0.0005389625; // meters/minute
-const int PATH_WIDTH = 2; // meters
-const double DIRECTION_THRESH = 1.0;
-const double INNER_SEARCH_THRESH = .0001;
-const double BALL_THRESH = 2; // meters
+const double LAT_METER_IN_MINUTES = 0.0005389625; // minutes/meter
+const int PATH_WIDTH = 5; // meters
+const double DIRECTION_THRESH = 1.0; // degrees
+const double INNER_SEARCH_THRESH = .0001; // degrees
+const double BALL_THRESH = 1; // meters
 const double CV_THRESH = 10; // meters
 
 #define NAV_STATUS_CHANNEL "/nav_status"
@@ -34,12 +34,14 @@ using AutonState = rover_msgs::AutonState;
 
 enum class State {
 	off,						// 0
-	turn_and_drive,				// 10
+	turn,						// 10
+	drive,						// 11
 	search_face0,				// 20
 	search_turn120,				// 21
 	search_turn240,				// 22
 	search_turn360,				// 23
-	search_turn_and_drive,		// 24 
+	search_turn,				// 24
+	search_drive, 				// 25
 	turn_to_ball,				// 28
 	drive_to_ball,				// 29
 	turn_around_obs,			// 30
@@ -128,7 +130,7 @@ private:
 	int8_t nav_state; //fjul
 	Thor::Volatile<CourseData> course_data_;
 
-	std::deque <waypoint> search;
+	std::deque <waypoint> rover_search; // TODO make odom
 	std::vector<std::pair<short,short>> search_point_multipliers;
 
 	void init_search_multipliers();
@@ -154,7 +156,7 @@ private:
 
 	// void obstacle_avoidance(odom & cur_odom, Obstacle & obs);
   
-  	void turn(odom & cur_odom, double bearing_offset);
+  	// void turn(odom & cur_odom, double bearing_offset);
   
   	void obstacle_dummy_odom(odom & new_odom, const double cur_bearing,
                              const double dist);

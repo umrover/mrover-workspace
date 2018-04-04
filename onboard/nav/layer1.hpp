@@ -24,7 +24,11 @@ public:
 	// custom constructor for layer1
 	Layer1 (lcm::LCM & lcm_object);
 
-	bool translational(const odom & current_odom, const odom & target_odom);
+	bool turn(const odom & current_odom, const odom & target_odom);
+
+	bool drive(const odom & current_odom, const odom & target_odom);
+
+	// bool translational(const odom & current_odom, const odom & target_odom);
 
 	void turn_to_bearing(const odom & current_position, double desired_bearing);
 
