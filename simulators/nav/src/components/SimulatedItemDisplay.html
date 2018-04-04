@@ -16,6 +16,10 @@
             <b>Distance from Rover:</b>
             {{ distance }}
         </p>
+        <p>
+            <b>Bearing from Rover:</b>
+            {{ bearing }}
+        </p>
         <slot/>
     </div>
 </div>
@@ -67,6 +71,16 @@ export default {
             const { dist } = dist_and_bearing(
                 to_decimal(rover), to_decimal(item));
             return dist.toFixed(3);
+        },
+
+        bearing: (rover, item) => {
+            const { bearing } = dist_and_bearing(
+                to_decimal(rover), to_decimal(item));
+            let bearing_from_rover = 180 * bearing / Math.PI;
+            bearing_from_rover -= rover.bearing_deg;
+            if (bearing_from_rover > 180) bearing_from_rover -= 360;
+            if (bearing_from_rover < -180) bearing_from_rover += 360;
+            return bearing_from_rover.toFixed(3);
         }
     },
     methods: {

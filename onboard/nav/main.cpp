@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
     lcm_.subscribe("/odom", &LcmHandlers::odom, &handlers);
     lcm_.subscribe("/course", &LcmHandlers::course, &handlers);
     lcm_.subscribe("/auton", &LcmHandlers::auton, &handlers);
+    lcm_.subscribe("/tennis_ball", &LcmHandlers::ball, &handlers);
 
     std::thread l2_thread(&Layer2::run, layer2);
 
