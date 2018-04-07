@@ -6,9 +6,10 @@ lcm = dependency('lcm')
 all_deps = [opencv, lcm]
 
 # TODO Jarvis will need to be smartened up to build this properly
-with_zed = get_option('with_zed')
+#get_option('with_zed')
+with_zed = true
 if with_zed
-	zed_include_dirs = include_directories('/usr/local/zed/include')
+	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
 	zed = declare_dependency(
 		include_directories : zed_include_dirs,
 		link_args : [
