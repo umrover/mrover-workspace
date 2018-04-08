@@ -22,7 +22,7 @@ def clean(ctx):
     shutil.rmtree(ctx.hash_store)
 
 
-def get_builder(ctx, d):
+def get_builder(ctx, d, opt=None):
     project = os.path.join(ctx.root, d)
     project_cfg_path = os.path.join(project, 'project.ini')
     project_cfg = configparser.ConfigParser()
@@ -55,7 +55,7 @@ def get_builder(ctx, d):
         return RollupJSBuilder(d, ctx, deps, app, port)
     elif lang == 'cpp':
         print('Building C++ package')
-        return MesonBuilder(d, ctx)
+        return MesonBuilder(d, ctx, opt)
     elif lang == 'lcm':
         print('Building LCM package')
         return LCMBuilder(d, ctx)
@@ -72,12 +72,12 @@ def get_builder(ctx, d):
         sys.exit(1)
 
 
-def build_dir(ctx, d):
+def build_dir(ctx, d, opt=None):
     """
     Builds the project in the given directory
     """
 
-    get_builder(ctx, d).build()
+    get_builder(ctx, d, opt).build()
     print("Done")
 
 

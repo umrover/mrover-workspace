@@ -25,6 +25,9 @@ def main():
             dest='subcommand_name')
     parser_build = subcommands.add_parser('build', help='Build a directory')
     parser_build.add_argument('dir', help='The directory to build')
+    parser_build.add_argument('-o', '--option', dest='build_opt',
+                              help='A build option to pass to the underlying '
+                              'build system')
 
     subcommands.add_parser('clean',
                            help='Removes the product env')
@@ -46,7 +49,11 @@ def main():
 
         if args.subcommand_name == 'build':
             build_deps(ctx)
-            build_dir(ctx, clean_dir_name(args.dir))
+            opt = None
+            if args.build_opt:
+                opt = args.build_opt.split('=')[0:2]
+                print('option is {}'.format(opt))
+            build_dir(ctx, clean_dir_name(args.dir), opt)
         elif args.subcommand_name == 'clean':
             clean(ctx)
         elif args.subcommand_name == 'dep':

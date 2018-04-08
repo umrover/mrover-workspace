@@ -4,8 +4,9 @@ from . import BuildContext
 
 
 class MesonBuilder(BuildContext):
-    def __init__(self, dir_, wksp):
+    def __init__(self, dir_, wksp, opt):
         super().__init__(dir_, wksp, ['.h', '.hpp', '.cpp'])
+        self.opt = opt
 
     def build(self):
         if not self.files_changed():
@@ -28,6 +29,9 @@ class MesonBuilder(BuildContext):
                     pkg_cfg_path,
                     self.wksp.product_env,
                     intermediate))
+
+            if self.opt is not None:
+                self.run("meson configure -D{}={}".format(*self.opt))
 
             self.run('ninja')
 
