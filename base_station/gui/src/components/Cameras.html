@@ -2,7 +2,7 @@
   <div class="box header">
     <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
     <h1>Cameras</h1>
-    <div class="spacer"></div>
+    <div class="spacer"/>
     <div class="comms">
       <ul id="vitals">
         <li><CommIndicator connected="{{connections[0]}}" name="Pi1" /></li>
@@ -14,9 +14,25 @@
       </ul>
     </div>
   </div>
-  <span>Servos pan: {{servosData.pan}}, Servos tilt: {{servosData.tilt}}</span>
 
-  <Video ref:vid/>
+  <div class="servos">
+    <span>Servos pan: {{servosData.pan}}, Servos tilt: {{servosData.tilt}}</span>
+  </div>
+
+  <div class="video">
+      <Video bind:resolution ref:vid1 on:cam_switch="switch_camera(event.new_idx, event.old_idx)"/>
+      {{#if resolution=="480"}}
+      <div class="fixed-spacer"/>
+      <Video bind:resolution ref:vid2 on:cam_switch="switch_camera(event.new_idx, event.old_idx)"/>
+      {{/if}}
+  </div>
+  
+
+  <div class="buttons">
+    <button on:click="set_one_cam()">One 720p Camera</button>
+    <div class="fixed-spacer"/>
+    <button on:click="set_two_cams()">Two 480p Cameras</button>
+  </div>
 </div>
 
 
@@ -26,8 +42,8 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
-    grid-template-rows: 60px 1fr;
-    grid-template-areas: "header" "video";
+    grid-template-rows: 60px 20px 1fr 60px;
+    grid-template-areas: "header" "servos" "video" "buttons";
 
     font-family: sans-serif;
     height: 100%;
@@ -42,6 +58,11 @@
   img {
     border: none;
     border-radius: 0px;
+  }
+
+  .servos {
+    grid-area: servos;
+    margin: auto;
   }
 
   .header {
@@ -70,9 +91,27 @@
     display: flex;
   }
 
+  .fixed-spacer {
+    width:10px;
+    height:auto;
+  }
+
+  .video {
+    grid-area: video;
+    display: flex;
+    align-items: center;
+    margin: auto;
+  }
+
+  .buttons {
+    grid-area: buttons;
+    display: flex;
+    align-items: center;
+    margin: auto;
+  }
+
   ul#vitals li {
     display: inline;
-    float: left;
     padding: 0px 10px 0px 0px;
   }
 </style>
@@ -89,7 +128,9 @@
           'pan': 0,
           'tilt': 0
         },
-        pi_index: 0
+        pi_index: 0,
+        resolution: '720',
+        cam_active: [false, false, false, false, false, false],
       }
     },
 
@@ -97,7 +138,7 @@
       window.addEventListener('storage', (e) => {
         if(e.key == "last_camera_key"){
           console.log("Camera "+e.newValue+" selected");  //Call function that switches cameras over here
-          this.refs.vid.set({ pi_index: (parseInt(e.newValue) - 1) });
+          this.refs.vid1.set({ pi_index: parseInt(e.newValue) });
         }
       });
     },
@@ -111,6 +152,46 @@
           this.set({
             servosData: message
           })
+        }
+      },
+
+      set_one_cam() {
+        this.refs.vid2.set({'pi_index': -1});
+        this.set({'resolution': '720'});
+        this.update_buttons();
+      },
+
+      set_two_cams() {
+        this.set({'resolution': '480'});
+        this.update_buttons();
+      },
+
+      switch_camera(newIdx, oldIdx) {
+
+        let new_active = this.get("cam_active");
+
+        if (oldIdx >= 0) {
+          new_active[oldIdx] = false;
+        }
+
+        if (newIdx >= 0) {
+          new_active[newIdx] = true;
+        }
+
+        this.set({cam_active: new_active});
+
+        this.update_buttons();
+      },
+
+      update_buttons() {
+        let cam_active = this.get("cam_active");
+
+        for (let i = 0; i < 6; i++) {
+          let disabled = cam_active[i];
+          var buttons = document.getElementsByClassName("cam" + i);
+          for(let j = 0; j < buttons.length; j++) {
+              buttons[j].disabled = disabled;
+          }
         }
       }
     },

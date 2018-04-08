@@ -1,17 +1,20 @@
 <div class="wrap">
-  <video poster="/static/switching.png" width="1280" height="720" ref:vid />
-  <div class="buttons" id='cam-buttons'>
-    <button id='cam0' on:click='changeIndex(0)'> <span>Camera 1</span> </button>
+  <video poster="/static/switching.png" ref:vid />
+  {{#if pi_index >= 0}}
+  <span class="title">Current Camera: {{pi_index}}</span>
+  {{/if}}
+  <div class="buttons" id='cam-buttons' ref:buttons >
+    <button class='cam1' on:click='changeIndex(1)'> <span>Camera 1</span> </button>
     <div class="fixed-spacer"/>
-    <button id='cam1' on:click='changeIndex(1)'> <span>Camera 2</span> </button>
+    <button class='cam2' on:click='changeIndex(2)'> <span>Camera 2</span> </button>
     <div class="fixed-spacer"/>
-    <button id='cam2' on:click='changeIndex(2)'> <span>Camera 3</span> </button>
+    <button class='cam3' on:click='changeIndex(3)'> <span>Camera 3</span> </button>
     <div class="fixed-spacer"/>
-    <button id='cam3' on:click='changeIndex(3)'> <span>Camera 4</span> </button>
+    <button class='cam4' on:click='changeIndex(4)'> <span>Camera 4</span> </button>
     <div class="fixed-spacer"/>
-    <button id='cam4' on:click='changeIndex(4)'> <span>Camera 5</span> </button>
+    <button class='cam5' on:click='changeIndex(5)'> <span>Camera 5</span> </button>
     <div class="fixed-spacer"/>
-    <button id='cam5' on:click='changeIndex(5)'> <span>Camera 6</span> </button>
+    <button class='cam6' on:click='changeIndex(6)'> <span>Camera 6</span> </button>
   </div>
   <div class="buttons" id='rec-buttons'>
     <button id='rec-start' on:click='startRecording()' ref:start> <span>Start Recording</span> </button>
@@ -28,17 +31,26 @@
   export default {
     data() {
       return {
-        pi_index: 0
+        pi_index: -1,
+        resolution: '720',
       }
     },
 
     oncreate() {
       navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
       this.observe("pi_index", (newIdx, oldIdx) => {
-        for (let i = 0; i < 6; i++) {
-          document.getElementById("cam" + i).disabled = (i == newIdx);
+        this.fire("cam_switch", {new_idx: newIdx, old_idx: oldIdx});
+
+        if (newIdx < 0) {
+          return;
         }
+
         this.switchCamera();
+      });
+
+      this.observe("resolution", (newRes, oldRes) => {
+        this.refs.vid.setAttribute("width", (newRes == "480") ? "640" : "1280");
+        this.refs.vid.setAttribute("height", newRes);
       });
     },
 
@@ -55,11 +67,7 @@
       createPeerConnection(app, ws) {
         try {
           let pcOptions = {
-            optional: [
-              // Deprecated:
-              //{RtpDataChannels: false},
-              //{DtlsSrtpKeyAgreement: true}
-            ]
+            optional: []
           };
           console.log(JSON.stringify(this.pcConfig));
           let pc = new RTCPeerConnection(this.pcConfig, pcOptions);
@@ -68,7 +76,6 @@
           pc.onicecandidate = app.onIceCandidate;
           pc.onaddstream = app.onRemoteStreamAdded;
           pc.onremovestream = app.onRemoteStreamRemoved;
-          pc.ondatachannel = app.onDataChannel;
 
           console.log("peer connection successfully created!");
 
@@ -76,28 +83,6 @@
         } catch (e) {
           console.error("createPeerConnection() failed: " + e);
         }
-      },
-
-      onDataChannel(event) {
-        this.datachannel = event.channel;
-        console.log(this.datachannel);
-        console.log("onDataChannel()");
-
-        event.channel.onopen = function () {
-          console.log("Data Channel is open!");
-        };
-
-        event.channel.onerror = function (error) {
-          console.error("Data Channel Error:", error);
-        };
-
-        event.channel.onmessage = function (event) {
-          console.log("Got Data Channel Message:", event.data);
-        };
-
-        event.channel.onclose = function () {
-          console.log("The Data Channel is Closed");
-        };
       },
 
       onIceCandidate(event) {
@@ -128,11 +113,10 @@
       },
 
       connect() {
-        const pi_ips = ["10.42.0.171", "10.42.0.106"];
-        let pi_ip = pi_ips[this.get("pi_index")];
+        let pi_ip = "10.2.0." + this.get("pi_index");
 
         this.pcConfig = {"iceServers": [
-          { "urls": ["stun:stun.l.google.com:19302", "stun:" + this.get("pi_ip") + ":3478"]}
+          { "urls": []}
         ]};
 
         if ("WebSocket" in window) {
@@ -152,7 +136,7 @@
               what: "call",
               options: {
                 force_hw_vcodec: true,
-                vformat: 60 // 720p, 30fps
+                vformat: (resolution == '480') ? 30 : 55
               }
             };
             ws.send(JSON.stringify(request));
@@ -256,11 +240,6 @@
         this.refs.vid.src = "";
 
         if (this.pc) {
-          if (this.pc.datachannel) {
-            console.log("closing data channels");
-            this.pc.datachannel.close();
-            this.pc.datachannel = null;
-          }
 
           if (this.pc.ws) {
             this.pc.ws.close();
@@ -375,8 +354,8 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 20px 20px;
-    grid-template-areas: "video" "cam-buttons" "rec-buttons";
+    grid-template-rows: 1fr 20px 20px 20px;
+    grid-template-areas: "video" "title" "cam-buttons" "rec-buttons";
 
     font-family: sans-serif;
     height: 100%;
@@ -384,6 +363,12 @@
 
   canvas {
     display: none;
+  }
+
+  .title {
+    grid-area: title;
+    margin: auto;
+    width: auto;
   }
 
   video {
