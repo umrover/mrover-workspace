@@ -27,7 +27,6 @@ const lcm_ = new LCMBridge(
       app.set({
         websocket_connected: online
       })
-      console.log("Connecting");
       lcm_.setHomePage();
     }
   },
@@ -57,6 +56,14 @@ const lcm_ = new LCMBridge(
     }
     if (diagnostics != null){
       diagnostics.lcm_message_recv(msg);
+    }
+
+    //Displays debug
+    if(msg['topic'] == '/debugMessage'){
+      if(msg['message']['isError'])
+        console.error(msg['message']['message'])
+      else
+        console.log(msg['message']['message'])
     }
   },
   // Subscriptions
@@ -91,6 +98,10 @@ const lcm_ = new LCMBridge(
   {
     'topic': '/sa_motors',
     'type': 'SAMotors'
+  },
+  {
+    'topic': '/debugMessage',
+    'type': 'DebugMessage'
   }]
 )
 
