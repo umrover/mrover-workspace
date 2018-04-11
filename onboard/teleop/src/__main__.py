@@ -73,6 +73,10 @@ def connection_state_changed(c, _):
         lcm_.publish('/sa_motors', sa_motor.encode())
 
 
+def quadratic(val):
+    return math.copysign(val**2, val)
+
+
 def deadzone(magnitude, threshold):
     temp_mag = abs(magnitude)
     if temp_mag <= threshold:
@@ -104,8 +108,7 @@ def drive_control_callback(channel, msg):
     global kill_motor
 
     input_data = Joystick.decode(msg)
-    input_data.forward_back = -math.copysign(input_data.forward_back ** 2,
-                                             input_data.forward_back)
+    input_data.forward_back = -quadratic(input_data.forward_back)
 
     if input_data.kill:
         kill_motor = True
@@ -140,11 +143,11 @@ def arm_control_callback(channel, msg):
     # global enc_in
     xbox = Xbox.decode(msg)
     new_arm = OpenLoopRAMotors()
-    new_arm.joint_a = deadzone(xbox.left_js_x, 0.3)/4
-    new_arm.joint_b = -deadzone(xbox.left_js_y, 0.3)/4
-    new_arm.joint_c = (xbox.left_trigger - xbox.right_trigger)*.60
-    new_arm.joint_d = -deadzone(xbox.right_js_y, 0.3)*.75
-    new_arm.joint_e = deadzone(xbox.right_js_x, 0.3)/4
+    new_arm.joint_a = deadzone(quadratic(xbox.left_js_x), 0.09)*.25
+    new_arm.joint_b = -deadzone(quadratic(xbox.left_js_y), 0.09)*.25
+    new_arm.joint_c = quadratic(xbox.left_trigger - xbox.right_trigger)*.60
+    new_arm.joint_d = -deadzone(quadratic(xbox.right_js_y), 0.09)*.75
+    new_arm.joint_e = deadzone(quadratic(xbox.right_js_x), 0.09)*.25
     new_arm.joint_f = (xbox.right_bumper - xbox.left_bumper)*.5
 
     print("Arm:\nA: {}\nB: {}\nC: {}\nD: {}\nE: {}\nF: {}\n"
