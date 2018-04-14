@@ -19,11 +19,14 @@ import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
 import _ from 'lodash';
 
 const EARTH_RAD = 6371000.0;
-const ROVER_SIZE = 25;
-const VECTOR_SIZE = 20;
+// const ROVER_SIZE = 25;
+const ROVER_SIZE_M = 1;
+// const VECTOR_SIZE = 20;
+const VECTOR_SIZE_M = .75;
 const WAYPOINT_SIZE = 10;
 const TENNIS_BALL_SIZE = 4;
-const ROCK_SIZE = 25;
+// const ROCK_SIZE = 25;
+const ROCK_SIZE_M = 1.2;
 const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
 const ROVER_DEPTH_OF_VIEW = 10;
 const CV_DEPTH = 5;
@@ -53,6 +56,11 @@ export default {
                 found: false,
                 bearing: 0,
                 distance: 0
+            },
+
+            obstacle_state: {
+                detected: false,
+                bearing: 0
             },
 
             mode: WAYPOINT_MODE
@@ -113,7 +121,8 @@ export default {
         };
 
         const get_triangle = (scale, odom) => {
-            const rock_radius = ROCK_SIZE/scale;
+            // const rock_radius = ROCK_SIZE/scale;
+            const rock_radius = ROCK_SIZE_M;
             const coords = this.projection(to_decimal(odom));
             // const root_2 = Math.sqrt(2);
             const h =  rock_radius * Math.sin(Math.PI - ROVER_FIELD_OF_VIEW) / Math.sin(ROVER_FIELD_OF_VIEW / 2);
@@ -143,7 +152,7 @@ export default {
             const delta_x = rcoords.x - pos.x;
             const delta_y = rcoords.y - pos.y;
             const d = Math.sqrt(delta_x * delta_x + delta_y * delta_y);
-            const beta = Math.atan2(Math.abs(delta_y), Math.abs(delta_x)) * 180 / Math.PI;
+            const beta = Math.atan2(Math.abs(delta_x), Math.abs(delta_y)) * 180 / Math.PI;
             const gamma = Math.atan2(rock_radius, d) * 180 / Math.PI;
             let alpha;
 
@@ -171,8 +180,8 @@ export default {
                 alpha = 90 - beta;
             } // x-axis
 
-            const phi_1 = alpha - gamma + ROVER_FIELD_OF_VIEW / 2;
-            const phi_2 = alpha + gamma + ROVER_FIELD_OF_VIEW / 2;
+            const phi_1 = alpha - gamma + ROVER_FIELD_OF_VIEW / 2 * 180 / Math.PI;
+            const phi_2 = alpha + gamma + ROVER_FIELD_OF_VIEW / 2 * 180 / Math.PI;
             occupied_angles.fill(true, phi_1, phi_2);
             console.log(`occupied_angles delta_x delta_y odom.x rcoords.x: ${delta_x} ${delta_y} ${pos.x} ${rcoords.x}`);
             console.log(`occupied_angles odom_deg beta alpha and gamma: ${odom.bearing_deg} ${beta} ${alpha} ${gamma}`);
@@ -182,9 +191,9 @@ export default {
         const recompute_obstacle_visibility = () => {
             const odom = this.get("odom");
             const scale = this.get("radius_meters");
-            const rock_radius = ROCK_SIZE / scale;
+            /*const rock_radius = ROCK_SIZE / scale;
             const x_scale = canvas.width/(2*scale);
-            const y_scale = canvas.height/(2*scale);
+            const y_scale = canvas.height/(2*scale);*/
             if (!odom) { return; }
             let rocks = this.get("rocks");
             const {x_0, y_0, crossbar} = get_triangle(scale, odom);
@@ -202,25 +211,34 @@ export default {
             let occupied_angles = new Array(120);
             occupied_angles.fill(false);
             for (let i = 0; i < filtered_rocks.length; i++) {
-                find_occupied(odom, this.projection(to_decimal(filtered_rocks[i])), occupied_angles, rock_radius);
+                find_occupied(odom, this.projection(to_decimal(filtered_rocks[i])), occupied_angles, ROCK_SIZE_M);
             }
 
             // can we move straight ahead
-            const rover_width = ROVER_SIZE / scale;
-            const path_clear = (rover_width) => {
-                const clearance_angle = Math.atan2(rover_width, CV_DEPTH) * 180 / Math.PI;
-                console.log(`clearance_angle: ${clearance_angle}`);
-                for (let i = 60 - clearance_angle; i < 60 + clearance_angle; ++i) {
-                    if (occupied_angles[i]) return false;
-                }
-                return true;
+            // const rover_width = ROVER_SIZE / scale;
+            const rover_width = ROVER_SIZE_M;
+            let path_clear = true;
+            const clearance_angle = Math.atan2(rover_width, CV_DEPTH) * 180 / Math.PI;
+            console.log(`clearance_angle: ${clearance_angle}`);
+            for (let i = 60 - clearance_angle|0; i < 60 + clearance_angle|0; ++i) {
+            // for (let i = 0; i < 120; ++i) {
+                if (occupied_angles[i]) path_clear = false;
             }
 
             // debugger;
-            console.log(`path clear: ${path_clear(rover_width)}`);
+            console.log(`path clear: ${path_clear}`);
+            let obstacle_state = {
+                detected: false,
+                bearing: 0
+            };
+            if (!path_clear) {
+                obstacle_state = {
+                    detected: true,
+                    bearing: 45
+                };
+            }
 
-
-            // TODO sliding window
+            this.set({ obstacle_state });
 
         };
 
@@ -232,13 +250,14 @@ export default {
             const vc = this.to_canvas({x: crossbar.x2, y: crossbar.y2});
             const center = this.to_canvas({x: x_c, y: y_c});
 
+            ctx.strokeStyle = 'lightblue';
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(va.x, va.y);
             ctx.lineTo(vb.x, vb.y);
             ctx.lineTo(vc.x, vc.y);
             ctx.lineTo(va.x, va.y);
-            ctx.lineTo(center.x, center.y);
+            // ctx.lineTo(center.x, center.y);
             ctx.stroke();
         };
 
@@ -248,22 +267,28 @@ export default {
             const waypoints = this.get("waypoints");
             const tennis_balls = this.get("tennis_balls");
             const rocks = this.get("rocks");
+            const radius = this.get("radius_meters");
+            const x_scale = (canvas.width/2)/radius;
+            const y_scale = (canvas.height/2)/radius;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const coords = this.to_canvas(this.projection(to_decimal(odom)));
 
+            const rover_size_x = ROVER_SIZE_M*x_scale;
+            const rover_size_y = ROVER_SIZE_M*y_scale;
+
             ctx.fillStyle = 'darkred';
-            ctx.fillRect(coords.x - ROVER_SIZE/2,
-                         coords.y - ROVER_SIZE/2,
-                         ROVER_SIZE, ROVER_SIZE);
+            ctx.fillRect(coords.x - rover_size_x/2,
+                         coords.y - rover_size_y/2,
+                         rover_size_x, rover_size_y);
 
             ctx.strokeStyle = 'darkred';
             ctx.lineWidth = 5;
             ctx.beginPath();
             ctx.moveTo(coords.x, coords.y);
             const bearing = (90 - odom.bearing_deg) * Math.PI / 180;
-            ctx.lineTo(coords.x + VECTOR_SIZE*Math.cos(bearing),
-                       coords.y - VECTOR_SIZE*Math.sin(bearing));
+            ctx.lineTo(coords.x + VECTOR_SIZE_M*x_scale*Math.cos(bearing),
+                       coords.y - VECTOR_SIZE_M*y_scale*Math.sin(bearing));
             ctx.stroke();
 
             draw_triangle(odom);
@@ -304,11 +329,12 @@ export default {
                 const rock = rocks[i];
                 const rcoords = this.to_canvas(this.projection(to_decimal(rock)));
 
+
                 ctx.fillStyle = 'brown';
                 ctx.beginPath();
                 ctx.arc(
                     rcoords.x, rcoords.y,
-                    ROCK_SIZE, 0, 2*Math.PI, 0);
+                    ROCK_SIZE_M * x_scale, 0, 2*Math.PI, 0);
                 ctx.fill();
             }
         };
