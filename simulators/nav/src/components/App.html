@@ -7,6 +7,7 @@
             bind:tennis_balls
             bind:rocks
             bind:tennis_ball_state
+            bind:obstacle_state
             radius_meters="{{radius}}"
             mode="{{draw_mode}}"/>
     </div>
@@ -37,9 +38,19 @@
 
         <div class="display" id="controls">
             <p>
-                <input type="checkbox" id="auton_enable" bind:checked="enabled">
-                <label for="auton_enable">Autonomy On?</label>
+                <label>
+                    <input type="checkbox" bind:checked="enabled">
+                    Autonomy On?
+                </label>
             </p>
+
+            <p>
+                <label>
+                    <input type="checkbox" bind:checked="cv_enabled">
+                    Computer Vision?
+                </label>
+            </p>
+
             {{#if lcm_connected}}
             <p><b>Navigation State:</b> {{ nav_state_textual }}</p>
             <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
@@ -129,6 +140,11 @@
                     distance: 0
                 },
 
+                obstacle_state: {
+                    detected: false,
+                    bearing: 0
+                },
+
                 lcm_connected: false,
 
                 nav_state: 0,
@@ -136,6 +152,7 @@
                 total_wps: 0,
 
                 enabled: false,
+                cv_enabled: true,
             }
         },
 
@@ -211,8 +228,13 @@
                     course.hash = fnv.fast1a52(JSON.stringify(course));
                     this.fire("course", course);
 
-                    let tennis_ball_state = this.get("tennis_ball_state");
-                    this.fire("tennis_ball", tennis_ball_state);
+                    if (this.get("cv_enabled")) {
+                        let tennis_ball_state = this.get("tennis_ball_state");
+                        this.fire("tennis_ball", tennis_ball_state);
+
+                        let obstacle_state = this.get("obstacle_state");
+                        this.fire("obstacle", obstacle_state);
+                    }
                 }, 100);
             },
             splice

@@ -23,7 +23,9 @@ const int PATH_WIDTH = 5; // meters
 const double DIRECTION_THRESH = 1.0; // degrees
 const double INNER_SEARCH_THRESH = .0001; // degrees
 const double BALL_THRESH = 1; // meters
-const double CV_THRESH = 10; // meters
+const double CV_THRESH = 5; // meters
+const double AVOIDANCE_SCALE = 2;
+const int CV_FOV = 120;
 
 #define NAV_STATUS_CHANNEL "/nav_status"
 using waypoint = rover_msgs::Waypoint;
@@ -117,8 +119,9 @@ private:
 	Obstacle rover_obstacle;
 	CourseData rover_course;
 	AutonState rover_auton_state;
-	odom dummy_obs_odom;
 	waypoint search_center;
+	odom dummy_obs_odom;
+	double original_obs_angle;
 
   	State state;
   	lcm::LCM & lcm_;
@@ -160,6 +163,10 @@ private:
   
   	void obstacle_dummy_odom(odom & new_odom, const double cur_bearing,
                              const double dist);
+
+  	double calc_dist_obs_way(const odom & way, const double obs_angle) const;
+
+  	// double calc_bearing_from_rover(const odom & goal) const;
 
 	void updateRover();
 

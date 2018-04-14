@@ -80,8 +80,8 @@ void Layer2::make_and_publish_nav_status(const int8_t state)
 inline bool Layer2::waypoint_eq(const waypoint & way1, const waypoint & way2)
 {
 	if (way1.search != way2.search) return false;
-	if (abs(way1.odom.latitude_min - way2.odom.latitude_min) > 0.0001) return false;
-	if (abs(way1.odom.longitude_min - way2.odom.longitude_min) > 0.0001) return false;
+	if (fabs(way1.odom.latitude_min - way2.odom.latitude_min) > 0.0001) return false;
+	if (fabs(way1.odom.longitude_min - way2.odom.longitude_min) > 0.0001) return false;
 	if (way1.odom.latitude_deg != way2.odom.latitude_deg) return false;
 	if (way1.odom.longitude_deg != way2.odom.longitude_deg) return false;
 	return true;
@@ -109,12 +109,41 @@ void Layer2::turn(odom & cur_odom, double bearing_offset) {
 		layer1.turn_to_bearing(cur_odom, cur_odom.bearing_deg + bearing_offset);
 		cur_odom = this->cur_odom_.clone_when_changed();
 	} // while
-} // turn()*/
+} // turn()
+*/
+
+// CAUTION: Using an obs_angle of 0° to eliminate looping around a waypoint.
+//			This relies on using a path width no larger than what we can 
+//			confidentally see to the side.
+// EFFECTS: Returns the distance between a detected obstacle and a waypoint.
+double Layer2::calc_dist_obs_way(const odom & way, const double obs_angle) const {
+	double way_dist = estimate_noneuclid(rover_cur_odom, way);
+	double dist = way_dist * way_dist + CV_THRESH * CV_THRESH;
+	// double angle = obs_angle - calc_bearing_from_rover(way);
+	dist -= 2 * way_dist * CV_THRESH * cos(degree_to_radian(0));
+	std::cout << "dist: " << sqrt(dist) << " obsang: " << 0 << "\n";
+	// std::cout << angle << " " << obs_angle << " " << calc_bearing_from_rover(way) << "\n";
+	return sqrt(dist);
+}
+
+/*
+// CAUTION: funtion not verified
+double Layer2::calc_bearing_from_rover(const odom & goal) const {
+	double bearing_from_rover = 180 * calc_bearing(rover_cur_odom, goal) / PI;
+	bearing_from_rover -= rover_cur_odom.bearing_deg;
+	if (bearing_from_rover > 180) bearing_from_rover -= 360;
+	if (bearing_from_rover < -180) bearing_from_rover += 360;
+	return bearing_from_rover;
+}
+*/
 
 
 void Layer2::obstacle_dummy_odom(odom & new_odom, const double cur_bearing, const double dist) {
-	new_odom.latitude_min += sin(degree_to_radian(cur_bearing)) * dist * LAT_METER_IN_MINUTES;
+	std::cout << new_odom.longitude_min << " ";
+	std::cout << long_meter_in_minutes << " ";
+	new_odom.latitude_min += cos(degree_to_radian(cur_bearing)) * dist * LAT_METER_IN_MINUTES; // check signs and sins(cos)
 	new_odom.longitude_min += sin(degree_to_radian(cur_bearing)) * dist * long_meter_in_minutes;
+	std::cout << new_odom.longitude_min << "\n";
 } // obstacle_dummy_odom()
 
 void Layer2::updateRover() {
@@ -147,9 +176,35 @@ void Layer2::updateRover_obsUnconditional() {
 	this->auton_state_.clone_conditional(updateAuton, &rover_auton_state);
 } // updateRover_ballUnconditional()
 
+std::string print_state(State state) {
+	switch(state) {
+		case State::turn:
+			return "turn";
+
+		case State::drive_around_obs:
+			return "drive_around_obs";
+
+		case State::turn_around_obs:
+			return "turn_around_obs";
+
+		case State::search_turn_around_obs:
+			return "search_turn_around_obs";
+
+		case State::search_drive_around_obs:
+			return "search_drive_around_obs";
+
+		default:
+			return "unknown";
+	}
+}
+
 void Layer2::run() {
 	State state = State::off;
 	while (true) {
+		if (print_state(state) != "unknown") {
+			// std::cout << "state: " << print_state(state) << "\n";
+		}
+		
 		State nextState = state;
 		switch (state) {
 			case State::off: {
@@ -185,6 +240,7 @@ void Layer2::run() {
 				} // if ball found
 
 				else if (rover_obstacle.detected) {
+					original_obs_angle = rover_obstacle.bearing;
 					nextState = State::turn_around_obs;
 				} // else if obstacle detected
 
@@ -244,6 +300,7 @@ void Layer2::run() {
 				} // if rover turned off
 
 				else if (rover_obstacle.detected) {
+					original_obs_angle = rover_obstacle.bearing;
 					nextState = State::turn_around_obs;
 					break;
 				} // else if obstacle detected
@@ -274,7 +331,6 @@ void Layer2::run() {
 
 			case State::search_face0: {
 				make_and_publish_nav_status(20);
-				std::cout << "face0\n";
 
 				/*
 				rover_ball = this->tennis_ball_.clone();
@@ -282,15 +338,11 @@ void Layer2::run() {
 				std::cout << i << "\n";
 				*/
 
-
-
-
 				if (!rover_auton_state.is_auton) {
 					nextState = State::off;
 				} // if rover turned off
 
 				else if (rover_ball.found) {
-					std::cout << "ball seen from face0\n";
 					nextState = State::turn_to_ball;
 				} // if ball found
 
@@ -314,7 +366,6 @@ void Layer2::run() {
 				} // if rover turned off
 
 				else if (rover_ball.found) {
-					std::cout << "ball seen\n";
 					nextState = State::turn_to_ball;
 				} // if ball found
 
@@ -338,7 +389,6 @@ void Layer2::run() {
 				} // if rover turned off
 
 				else if (rover_ball.found) {
-					std::cout << "ball seen\n";
 					nextState = State::turn_to_ball;
 				} // if ball found
 
@@ -362,7 +412,6 @@ void Layer2::run() {
 				} // if rover turned off
 
 				else if (rover_ball.found) {
-					std::cout << "ball seen\n";
 					nextState = State::turn_to_ball;
 				} // if ball found
 
@@ -390,7 +439,6 @@ void Layer2::run() {
 				} // if rover turned off
 
 				else if (rover_ball.found) {
-					std::cout << "ball seen\n";
 					nextState = State::turn_to_ball;
 				} // if ball found
 
@@ -418,11 +466,11 @@ void Layer2::run() {
 				} // if rover turned off
 
 				else if (rover_ball.found) {
-					std::cout << "ball seen\n";
 					nextState = State::turn_to_ball;
 				} // if ball found
 
 				else if (rover_obstacle.detected) {
+					original_obs_angle = rover_obstacle.bearing;
 					nextState = State::search_turn_around_obs;
 				} // else if obstacle detected
 
@@ -451,8 +499,7 @@ void Layer2::run() {
 				// TODO: if lost ball
 				assert(rover_ball.found);
 
-				if (abs(rover_ball.bearing) > DIRECTION_THRESH) {
-					std::cout << rover_ball.bearing << "\n";
+				if (fabs(rover_ball.bearing) > DIRECTION_THRESH) {
 					layer1.turn_to_bearing(rover_cur_odom, rover_cur_odom.bearing_deg + rover_ball.bearing);
 					updateRover_ballUnconditional();
 					break;
@@ -503,6 +550,24 @@ void Layer2::run() {
 				if (!rover_auton_state.is_auton) {
 					nextState = State::off;
 				} // if rover turned off
+
+				// ASSUMPTION: To avoid an infinite loop, we assume that the obstacle is straight ahead of us,
+				//			   therefore we produce an underestimate for how close the waypoint is to the 
+				//			   obstacle. This relies on using a path width no larger than what we can 
+				//			   confidentally see to the side.
+				else if (state == State::turn_around_obs && 
+					estimate_noneuclid(rover_course.overall.front().odom, way) < 2 * CV_THRESH) {
+					// TODO move on to next point
+					rover_course.overall.pop_front();
+					++completed_wps;
+					nextState = State::turn;
+				} // if waypoint is within CV_THRESH of rock
+
+				else if (state == State::search_turn_around_obs && 
+					estimate_noneuclid(rover_search.front().odom, way) < 2 * CV_THRESH) {
+					rover_search.pop_front();
+					nextState = State::search_turn;
+				} // if search waypoint is within CV_THRESH of rock
 				
 				else if (!rover_obstacle.detected) {
 					if (state == State::search_turn_around_obs) {
@@ -511,9 +576,13 @@ void Layer2::run() {
 					else {
 						nextState = State::drive_around_obs;
 					}
-					double dist_around_obs = CV_THRESH * sin(degree_to_radian(rover_obstacle.bearing));
+
+					double dist_around_obs = CV_THRESH / sin(fabs(degree_to_radian(original_obs_angle)));
+					// std::cout << "angle: " << original_obs_angle << " CV_THRESH: " << CV_THRESH << "\n";
 					dummy_obs_odom = rover_cur_odom;
 					obstacle_dummy_odom(dummy_obs_odom, rover_cur_odom.bearing_deg, dist_around_obs);
+					// std::cout << "dist to dummy way " << estimate_noneuclid(rover_cur_odom, dummy_obs_odom) << "... anticipated: " << dist_around_obs <<std::endl;
+					// std::cout << "angle to dummy way " << calc_bearing(rover_cur_odom, dummy_obs_odom) - rover_cur_odom.bearing_deg << " ... anticipated: 0\n";
 				} // else if we are facing a clear path
 
 				else {
@@ -531,13 +600,22 @@ void Layer2::run() {
 			case State::search_drive_around_obs: {
 				make_and_publish_nav_status(31);
 
+				std::cout << "in drive around \n";
+
 				if (!rover_auton_state.is_auton) {
 					nextState = State::off;
 					break;
 				} // if rover turned off
 
 				else if (rover_obstacle.detected) {
-					nextState = State::turn_around_obs;
+					std::cout << "saw another object\n";
+					original_obs_angle = rover_obstacle.bearing;
+					if (state == State::search_drive_around_obs) {
+						nextState = State::search_turn_around_obs;
+					}
+					else {
+						nextState = State::turn_around_obs;
+					}
 					break;
 				} // else if obstacle detected
 
@@ -549,10 +627,12 @@ void Layer2::run() {
 				} // if not at dummy odom
 
 				else {
+					std::cout << "arrived at dummy\n";
 					// if in search mode, return to search
 					if (state == State::search_drive_around_obs) nextState = State::search_turn; // TODO
 					else nextState = State::turn;
 				} // if at dummy odom
+				break;
 			} // state = drive_around_obs
 
 			case State::done: {
