@@ -5,12 +5,9 @@
     <div class="spacer"/>
     <div class="comms">
       <ul id="vitals">
-        <li><CommIndicator connected="{{connections[0]}}" name="Pi1" /></li>
-        <li><CommIndicator connected="{{connections[1]}}" name="Pi2" /></li>
-        <li><CommIndicator connected="{{connections[2]}}" name="Pi3" /></li>
-        <li><CommIndicator connected="{{connections[3]}}" name="Pi4" /></li>
-        <li><CommIndicator connected="{{connections[4]}}" name="Pi5" /></li>
-        <li><CommIndicator connected="{{connections[5]}}" name="Pi6" /></li>
+        {{#each connections as connection, i}}
+          <li><CommIndicator connected="{{connection}}" name="Pi{{i}}" /></li>
+        {{/each}}
       </ul>
     </div>
   </div>
@@ -26,7 +23,7 @@
       <Video bind:resolution ref:vid2 on:cam_switch="switch_camera(event.new_idx, event.old_idx)"/>
       {{/if}}
   </div>
-  
+
 
   <div class="buttons">
     <button on:click="set_one_cam()">One 720p Camera</button>
