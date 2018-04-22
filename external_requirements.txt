@@ -1,2 +1,4 @@
 pyserial==3.4
 websockets==3.4
+pycairo==1.17.0
+pygobject==3.28.2
