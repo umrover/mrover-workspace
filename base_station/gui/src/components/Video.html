@@ -1,5 +1,4 @@
 <div class="wrap">
-  <video poster="/static/switching.png" ref:vid />
   {{#if pi_index >= 0}}
   <span class="title">Current Camera: {{pi_index}}</span>
   {{/if}}
@@ -16,14 +15,6 @@
     <div class="fixed-spacer"/>
     <button class='cam6' on:click='changeIndex(6)'> <span>Camera 6</span> </button>
   </div>
-  <div class="buttons" id='rec-buttons'>
-    <button id='rec-start' on:click='startRecording()' ref:start> <span>Start Recording</span> </button>
-    <div class="fixed-spacer"/>
-    <button id='rec-end' on:click='stopRecording()' disabled ref:stop> <span>Stop Recording</span> </button>
-    <div class="fixed-spacer"/>
-    <button id='screenshot' on:click='screenshot()'> <span>Screenshot</span> </button>
-  </div>
-  <canvas width="1280" height="720" ref:canvas/>
 </div>
 
 <script>
@@ -32,319 +23,13 @@
     data() {
       return {
         pi_index: -1,
-        resolution: '720',
       }
-    },
-
-    oncreate() {
-      navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
-      this.observe("pi_index", (newIdx, oldIdx) => {
-        this.fire("cam_switch", {new_idx: newIdx, old_idx: oldIdx});
-
-        if (newIdx < 0) {
-          return;
-        }
-
-        this.switchCamera();
-      });
-
-      this.observe("resolution", (newRes, oldRes) => {
-        this.refs.vid.setAttribute("width", (newRes == "480") ? "640" : "1280");
-        this.refs.vid.setAttribute("height", newRes);
-      });
     },
 
     methods: {
-      changeIndex(new_index) {
+      changeIndex: function(new_index) {
         this.set({pi_index: new_index});
       },
-
-      switchCamera() {
-        this.disconnect();
-        setTimeout(() => {this.connect();}, 1000);
-      },
-
-      createPeerConnection(app, ws) {
-        try {
-          let pcOptions = {
-            optional: []
-          };
-          console.log(JSON.stringify(this.pcConfig));
-          let pc = new RTCPeerConnection(this.pcConfig, pcOptions);
-          pc.ws = ws;
-          pc.vid = this.refs.vid;
-          pc.onicecandidate = app.onIceCandidate;
-          pc.onaddstream = app.onRemoteStreamAdded;
-          pc.onremovestream = app.onRemoteStreamRemoved;
-
-          console.log("peer connection successfully created!");
-
-          return pc;
-        } catch (e) {
-          console.error("createPeerConnection() failed: " + e);
-        }
-      },
-
-      onIceCandidate(event) {
-        if (event.candidate) {
-          let candidate = {
-            sdpMLineIndex: event.candidate.sdpMLineIndex,
-            sdpMid: event.candidate.sdpMid,
-            candidate: event.candidate.candidate
-          };
-          let request = {
-            what: "addIceCandidate",
-            data: JSON.stringify(candidate)
-          };
-          this.ws.send(JSON.stringify(request));
-        } else {
-          console.log("End of candidates.");
-        }
-      },
-
-      onRemoteStreamAdded(event) {
-        console.log("Remote stream added:", window.URL.createObjectURL(event.stream));
-        this.vid.src = window.URL.createObjectURL(event.stream);
-        this.vid.play();
-      },
-
-      onRemoteStreamRemoved(event) {
-        this.vid.src = '';
-      },
-
-      connect() {
-        let pi_ip = "10.2.0." + this.get("pi_index");
-
-        this.pcConfig = {"iceServers": [
-          { "urls": []}
-        ]};
-
-        if ("WebSocket" in window) {
-          document.documentElement.style.cursor = 'wait';
-          let server = pi_ip + ":9000";
-
-          let protocol = location.protocol === "https:" ? "wss:" : "ws:";
-          let ws = new WebSocket(protocol + '//' + server + '/stream/webrtc');
-          let app = this;
-
-          ws.onopen = () => {
-            console.log("onopen()");
-
-            app.pc = app.createPeerConnection(app, ws);
-
-            let request = {
-              what: "call",
-              options: {
-                force_hw_vcodec: true,
-                vformat: (resolution == '480') ? 30 : 55
-              }
-            };
-            ws.send(JSON.stringify(request));
-            console.log("call(), request=" + JSON.stringify(request));
-          };
-
-          ws.onmessage = function (evt) {
-            let msg = JSON.parse(evt.data);
-            if (msg.what == 'undefined') {
-              return;
-            }
-
-            let what = msg.what;
-            let data = msg.data;
-            console.log("message =" + what);
-
-            switch (what) {
-              case "offer":
-                let mediaConstraints = {
-                  optional: [],
-                  mandatory: {
-                    OfferToReceiveAudio: true,
-                    OfferToReceiveVideo: true
-                  }
-                };
-
-                app.pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)),
-                  function onRemoteSdpSuccess() {
-                    console.log('onRemoteSdpSucces()');
-                    app.pc.createAnswer(function (sessionDescription) {
-                      app.pc.setLocalDescription(sessionDescription);
-                      let request = {
-                        what: "answer",
-                        data: JSON.stringify(sessionDescription)
-                      };
-                      ws.send(JSON.stringify(request));
-                      console.log(request);
-
-                    }, function (error) {
-                      alert("Failed to createAnswer: " + error);
-                    }, mediaConstraints);
-                  },
-
-                  function onRemoteSdpError(event) {
-                    alert('Failed to set remote description (unsupported codec on this browser?): ' + event);
-                  }
-                );
-
-                let request = {
-                  what: "generateIceCandidates"
-                };
-                console.log(request);
-                ws.send(JSON.stringify(request));
-                break;
-
-              case "answer":
-                break;
-
-              case "message":
-                alert(msg.data);
-                break;
-
-              case "iceCandidates":
-                let candidates = JSON.parse(msg.data);
-                for (let i = 0; candidates && i < candidates.length; i++) {
-                  let elt = candidates[i];
-                  let candidate = new RTCIceCandidate({sdpMLineIndex: elt.sdpMLineIndex, candidate: elt.candidate});
-                  app.pc.addIceCandidate(candidate,
-                    function () {
-                      console.log("IceCandidate added: " + JSON.stringify(candidate));
-                    },
-                    function (error) {
-                      console.error("addIceCandidate error: " + error);
-                    }
-                  );
-                }
-                document.documentElement.style.cursor = 'default';
-                break;
-            }
-          };
-
-          ws.onclose = function (evt) {
-            if (app.pc) {
-              app.pc.close();
-              app.pc = null;
-            }
-            document.documentElement.style.cursor = 'default';
-          };
-
-          ws.onerror = function (evt) {
-            alert("An error has occurred!");
-            ws.close();
-          };
-
-        } else {
-          alert("Sorry, this browser does not support WebSockets.");
-        }
-      },
-
-      disconnect() {
-        this.refs.vid.src = "";
-
-        if (this.pc) {
-
-          if (this.pc.ws) {
-            this.pc.ws.close();
-          }
-
-          this.pc.close();
-          this.pc = null;
-        }
-      },
-
-      startRecording() {
-        if (!this.pc) {
-          return;
-        }
-
-        let streams = this.pc.getRemoteStreams();
-        if (streams.length == 0) {
-          return;
-        }
-
-        let stream = streams[0];
-        let options = { mimeType: 'video/webm;codecs=vp9' };
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-          console.log(options.mimeType + ' is not Supported');
-          options = { mimeType: 'video/webm;codecs=vp8' };
-          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-            console.log(options.mimeType + ' is not Supported');
-            options = { mimeType: 'video/webm;codecs=h264' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-              console.log(options.mimeType + ' is not Supported');
-              options = { mimeType: 'video/webm' };
-              if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                console.log(options.mimeType + ' is not Supported');
-                options = { mimeType: '' };
-              }
-            }
-          }
-        }
-
-        try {
-          this.pc.recorder = new MediaRecorder(stream, options);
-        } catch (e) {
-          console.error('Exception while creating MediaRecorder: ' + e);
-          alert('Exception while creating MediaRecorder: ' + e + '. mimeType: ' + options.mimeType);
-          return;
-        }
-        console.log('Created MediaRecorder', this.pc.recorder, 'with options', options);
-        //recorder.ignoreMutedMedia = true;
-
-        let recordedBlobs = [];
-
-        this.pc.recorder.ondataavailable = function (event) {
-          recordedBlobs.push(event.data);
-        };
-        
-        this.pc.recorder.onstop = function (event) {
-          console.log('Recorder stopped: ', event);
-          let blob = new Blob(recordedBlobs, { type: 'video/webm' });
-          let url = window.URL.createObjectURL(blob);
-          let a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = (new Date).toISOString() + '.webm';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(function () {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-          }, 100);
-        }
-
-        this.pc.recorder.onwarning = function (e) {
-          console.log('Warning: ' + e);
-        };
-
-        this.pc.recorder.start();
-        console.log('MediaRecorder started', this.pc.recorder);
-        this.refs.start.disabled = true;
-        this.refs.stop.disabled = false;
-      },
-
-      stopRecording() {
-        if (this.pc.recorder) {
-          this.pc.recorder.stop();
-          console.log("recording stopped");
-          this.refs.start.disabled = false;
-          this.refs.stop.disabled = true;
-        }
-      },
-
-      screenshot() {
-        let context = this.refs.canvas.getContext('2d');
-        context.drawImage(this.refs.vid, 0, 0, 1280, 720);
-        let url = this.refs.canvas.toDataURL('image/png');
-        let a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = (new Date).toISOString() + '.png';
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function () {
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-        }, 100);
-      }
     }
   }
 </script>
@@ -354,25 +39,15 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 20px 20px 20px;
-    grid-template-areas: "video" "title" "cam-buttons" "rec-buttons";
+    grid-template-rows: 20px 20px;
+    grid-template-areas: "title" "cam-buttons";
 
     font-family: sans-serif;
     height: 100%;
   }
 
-  canvas {
-    display: none;
-  }
-
   .title {
     grid-area: title;
-    margin: auto;
-    width: auto;
-  }
-
-  video {
-    grid-area: video;
     margin: auto;
     width: auto;
   }
@@ -385,10 +60,6 @@
 
   #cam-buttons {
     grid-area: cam-buttons;
-  }
-
-  #rec-buttons {
-    grid-area: rec-buttons;
   }
 
   .fixed-spacer {
