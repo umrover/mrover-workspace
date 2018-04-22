@@ -1,15 +1,13 @@
 import asyncio
-import random
 import math
-import time
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import (Odometry, Joystick, DriveMotors, Sensors,
-                        KillSwitch, Xbox, Encoder, Temperature, SAMotors,
-                        OpenLoopRAMotors)
+from rover_msgs import (Joystick, DriveMotors, KillSwitch,
+                        Xbox, Encoder, Temperature, SAMotors, OpenLoopRAMotors)
 
 
 class Toggle:
+
     def __init__(self, toggle):
         self.toggle = toggle
         self.previous = False
@@ -210,60 +208,6 @@ def autonomous_callback(channel, msg):
     lcm_.publish('/motor', new_motor.encode())
 
 
-async def transmit_fake_odometry():
-    while True:
-        new_odom = Odometry()
-        new_odom.latitude_deg = random.randint(42, 43)
-        new_odom.longitude_deg = random.randint(-84, -82)
-        new_odom.latitude_min = random.uniform(0, 60)
-        new_odom.longitude_min = random.uniform(0, 60)
-        new_odom.bearing_deg = random.uniform(0, 359)
-
-        with await lock:
-            lcm_.publish('/odom', new_odom.encode())
-
-        # print("Published new odometry")
-        await asyncio.sleep(0.5)
-
-
-async def transmit_fake_joystick():
-    while True:
-        new_joystick = Joystick()
-        new_joystick.forward_back = random.uniform(-1, 1)
-        new_joystick.left_right = random.uniform(-1, 1)
-        new_joystick.dampen = random.uniform(-1, 1)
-        new_joystick.kill = False
-        new_joystick.restart = False
-
-        with await lock:
-            lcm_.publish('/drive_control', new_joystick.encode())
-
-        print("Published new joystick\nfb: {}   lr: {}"
-              .format(new_joystick.forward_back, new_joystick.left_right))
-        await asyncio.sleep(0.5)
-
-
-async def transmit_fake_sensors():
-    while True:
-        new_sensors = Sensors()
-        new_sensors.timestamp = int(time.time())
-        new_sensors.temperature = random.uniform(0, 100)
-        new_sensors.moisture = random.uniform(0, 100)
-        new_sensors.pH = random.uniform(0, 14)
-        new_sensors.soil_conductivity = random.uniform(0, 100)
-        new_sensors.uv = random.uniform(0, 100)
-
-        with await lock:
-            lcm_.publish('/sensors', new_sensors.encode())
-
-        # print("Published new fake sensor data")
-        # print("temp: {} moisture: {} ph: {} soil: {} uv: "
-        #       .format(new_sensors.temperature, new_sensors.moisture,
-        #               new_sensors.pH, new_sensors.soil_conductivity,
-        #               new_sensors.uv))
-        await asyncio.sleep(1)
-
-
 async def transmit_temperature():
     while True:
         new_temps = Temperature()
@@ -307,10 +251,6 @@ def motor_callback(channel, msg):
     print("Left: {}  Right: {}\n".format(input_data.left, input_data.right))
 
 
-def transmit_fake_encoders(channel, msg):
-    lcm_.publish('/encoder', msg)
-
-
 def enc_out_callback(channel, msg):
     enc = Encoder.decode(msg)
     print("Arm:\nA: {}\nB: {}\nC: {}\nD: {}\nE: {}\nF: {}\n"
@@ -328,7 +268,6 @@ def main():
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/encoder', encoder_callback)
     lcm_.subscribe('/arm_demand', enc_out_callback)
-    # lcm_.subscribe('/arm_demand', transmit_fake_encoders)
 
     new_encoder = Encoder()
     new_encoder.joint_a = 0
@@ -339,6 +278,5 @@ def main():
     new_encoder.joint_f = 0
     lcm_.publish('/encoder', new_encoder.encode())
 
-    run_coroutines(hb.loop(), transmit_fake_odometry(),
-                   transmit_fake_sensors(), lcm_.loop(),
+    run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())
