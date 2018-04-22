@@ -9,6 +9,7 @@ from rover_msgs import PiCamera # noqa
 lcm_ = aiolcm.AsyncLCM()
 
 pipeline = None
+pipeline_state = Gst.State.READY
 pipeline_string = ("v4l2src device=/dev/video0"
                    " ! image/jpeg, width=1280, height=720, framerate=30/1"
                    " ! jpegdec ! videoconvert ! queue ! x264enc ! queue"
@@ -27,15 +28,18 @@ def init_pipeline():
 
 def camera_callback(channel, msg):
     global pipeline
+    global pipeline_state
     global index
 
     cam_info = PiCamera.decode(msg)
 
-    if cam_info.active_index == index:
-        pipeline.set_state(Gst.State.PLAYING)
+    if cam_info.active_index == index and pipeline_state != Gst.State.PLAYING:
+        pipeline_state = Gst.State.PLAYING
+        pipeline.set_state(pipeline_state)
         print("Playing pipeline.")
-    else:
-        pipeline.set_state(Gst.State.READY)
+    elif cam_info.active_index != index and pipeline_state != Gst.State.READY:
+        pipeline_state = Gst.State.READY
+        pipeline.set_state(pipeline_state)
         print("Pausing pipeline.")
 
 

@@ -292,4 +292,15 @@ if(app !=null ){
     demandData['type'] = 'SetDemand';
     lcm_.publish('/setdemand', demandData);
   });
+}else if(cam != null){
+  window.setInterval(() => {
+    let index = cam.get('pi_index');
+
+    let camData = {
+      'type': 'PiCamera',
+      'active_index': index,
+    };
+
+    lcm_.publish("/pi_camera", camData);
+  }, 250);
 }
