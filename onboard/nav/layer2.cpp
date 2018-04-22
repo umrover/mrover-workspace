@@ -301,6 +301,7 @@ void Layer2::run() {
 					} // if the current waypoint is a search point
 
 					else {
+						std::cout << "here1\n";
 						nextState = State::turn;
 						this->completed_wps++;
 					} // else go to next waypoint

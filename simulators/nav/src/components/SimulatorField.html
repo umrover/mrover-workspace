@@ -31,8 +31,8 @@ const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
 const ROVER_DEPTH_OF_VIEW = 10;
 const CV_DEPTH = 5;
 
-const TRANSLATIONAL_SCALE = 3;
-const ROTATIONAL_SCALE = 4;
+const TRANSLATIONAL_SCALE = 1;
+const ROTATIONAL_SCALE = 2;
 
 function ensure_in_range(x, min, max) {
     return Math.max(Math.min(x, max), min);
@@ -232,10 +232,31 @@ export default {
                 bearing: 0
             };
             if (!path_clear) {
-                obstacle_state = {
-                    detected: true,
-                    bearing: 45
+                // Returns 1 if the rover should turn right, 0 if it should turn left to avoid the obstacle.
+                const turn_direction = (occupied_angles) => {
+                    let occupied_right = 0;
+                    let occupied_left = 0;
+                    for (let i = 0; i < occupied_angles.length/2; ++i) {
+                        if (occupied_angles[i]) ++occupied_left;
+                    }
+                    for (let i = occupied_angles.length/2; i < occupied_angles.length; ++i) {
+                        if (occupied_angles[i]) ++occupied_right;
+                    }
+                    return occupied_right > occupied_left ? false : true;
                 };
+
+                if (turn_direction(occupied_angles)) {
+                    obstacle_state = {
+                        detected: true,
+                        bearing: 45
+                    };
+                }
+                else {
+                    obstacle_state = {
+                        detected: true,
+                        bearing: -45
+                    };
+                }
             }
 
             this.set({ obstacle_state });
