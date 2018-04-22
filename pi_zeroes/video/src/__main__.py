@@ -11,16 +11,22 @@ lcm_ = aiolcm.AsyncLCM()
 
 pipeline = None
 pipeline_state = Gst.State.READY
-pipeline_string = ("gst-launch-1.0 v4l2src device=/dev/video0"
-                   " ! video/x-h264, width=1280, height=720"
-                   " ! h264parse ! queue"
-                   " ! rtph264pay ! udpsink host=10.0.0.1 port=5000")
 index = -1
 
 
 def init_pipeline():
     global pipeline
-    global pipeline_string
+
+    vid_process = Popen(["raspivid", "-t", "0", "-h", "720", "-w", "1280",
+                         "-hf", "-b", "2000000", "-o", "-"], stdout=PIPE)
+
+    fd = vid_process.stdout.fileno()
+
+    pipeline_string = ("fdsrc fd=" + str(fd) +
+                       " ! video/x-h264, width=1280, height=720"
+                       " ! h264parse ! rtph264pay"
+                       " ! udpsink host=10.0.0.1 port=5000")
+
     Gst.init(None)
     pipeline = Gst.parse_launch(pipeline_string)
 
