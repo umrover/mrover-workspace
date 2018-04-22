@@ -229,8 +229,8 @@ if(app !=null ){
             'type': 'Xbox',
             'left_js_x': gamepad.axes[XBOX_CONFIG["left_js_x"]], //shoulder rotate
             'left_js_y': gamepad.axes[XBOX_CONFIG["left_js_y"]], //shoulder tilt
-            'left_trigger': gamepad.buttons[XBOX_CONFIG["left_trigger"]]['pressed'], //elbow forward
-            'right_trigger': gamepad.buttons[XBOX_CONFIG["right_trigger"]]['pressed'], //elbow back
+            'left_trigger': gamepad.buttons[XBOX_CONFIG["left_trigger"]]['value'], //elbow forward
+            'right_trigger': gamepad.buttons[XBOX_CONFIG["right_trigger"]]['value'], //elbow back
             'right_js_x': gamepad.axes[XBOX_CONFIG["right_js_x"]], //hand rotate
             'right_js_y': gamepad.axes[XBOX_CONFIG["right_js_y"]], //hand tilt
             'right_bumper': gamepad.buttons[XBOX_CONFIG["right_bumper"]]['pressed'], //grip close
