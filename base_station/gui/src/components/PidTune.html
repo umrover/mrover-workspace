@@ -12,18 +12,10 @@
     <p>K<sub>D</sub>: <input bind:value='Kd'></p>
     <p>K<sub>F</sub>: <input bind:value='Kf'></p>
 
-    <button on:click='setParams()'>
-      <span class='white-text'>Set Parameters</span>
-    </button>
+    <button on:click='setParams()'>Set Parameters</button>
     <br>
-
-    <button on:click='setDefaultPIDs("arm")'>
-      <span class='white-text'>Set Arm PID Values</span>
-    </button>
-
-    <button on:click='setDefaultPIDs("science")'>
-      <span class='white-text'>Set Science PID Values</span>
-    </button>
+    <button on:click='setDefaultPIDs("arm")'>Set Arm PID Values</button>
+    <button on:click='setDefaultPIDs("science")'>Set Science PID Values</button>
   </div>
 
   <div class="box demand">
@@ -42,9 +34,7 @@
       </select>
     </p>
     <p>Demand: <input bind:value='demand'></p>
-    <button on:click='setDemand()'>
-      <span class='white-text'>Set Demand</span>
-    </button>
+    <button on:click='setDemand()'>Set Demand</button>
   </div>
 
   <div class="box graph">
@@ -252,9 +242,9 @@
               type: 'linear',
               id: 'y-axis',
               ticks:{
-                min: -1024,
-                max: 1024,
-                stepSize: 64
+                min: -10240,
+                max: 10240,
+                stepSize: 640
               }
             }]
           }
@@ -290,7 +280,7 @@
 
           console.log(val);
 
-          
+
           const data=chart.data.datasets[0].data;
           for (let i = 1; i < data.length; i++) {
             data[i-1].y=data[i].y;

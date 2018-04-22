@@ -1,12 +1,14 @@
 import App from './components/App.html'
 import Cameras from './components/Cameras.html'
 import PidTune from './components/PidTune.html'
+import Diagnostics from './components/Diagnostics.html'
 import LCMBridge from 'bridge'
 
 const main = document.querySelector('main')
 let app = null
 let cam = null
 let pidTune = null
+let diagnostics = null
 if (main.id == 'dashboard') {
   app = new App({target: main})
 }
@@ -14,6 +16,8 @@ else if (main.id == 'camera') {
   cam = new Cameras({target: main})
 }else if (main.id == 'pid-tune'){
   pidTune = new PidTune({target: main})
+}else if (main.id == 'diagnostics'){
+  diagnostics = new Diagnostics({target: main})
 }
 const lcm_ = new LCMBridge(
   "ws://localhost:8001",
@@ -23,6 +27,8 @@ const lcm_ = new LCMBridge(
       app.set({
         websocket_connected: online
       })
+      console.log("Connecting");
+      lcm_.setHomePage();
     }
   },
   // Update connection states
@@ -48,6 +54,9 @@ const lcm_ = new LCMBridge(
     }
     if (pidTune != null){
       pidTune.lcm_message_recv(msg);
+    }
+    if (diagnostics != null){
+      diagnostics.lcm_message_recv(msg);
     }
   },
   // Subscriptions
@@ -161,7 +170,6 @@ if(app !=null ){
   };
 
   app.on("sensor_switch", (should_record) => {
-      console.log(should_record);
       if (lcm_.online) {
           const msg={
             'type': 'SensorSwitch',
@@ -183,7 +191,7 @@ if(app !=null ){
     if(lcm_.online){
       course['type'] = 'Course';
       lcm_.publish('/course', course);
-    } 
+    }
   });
 
   window.setInterval(() => {
@@ -247,7 +255,7 @@ if(app !=null ){
 }else if(pidTune != null){
   pidTune.on("/set_params", (pidData) => {
     console.log("Setting Params");
-    
+
     const msg={
       'type':'SetParam',
       'deviceID': pidData['deviceID'],

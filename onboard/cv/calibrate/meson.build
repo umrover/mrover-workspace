@@ -1,4 +1,4 @@
-project('onboard_cv', 'cpp', default_options : ['cpp_std=c++14'])
+project('onboard_cv_calibrate', 'cpp', default_options : ['cpp_std=c++14'])
 
 opencv = dependency('opencv')
 lcm = dependency('lcm')
@@ -39,7 +39,7 @@ configure_file(
 	output: 'config.h',
 	configuration: conf_data)
 
-executable('onboard_cv',
-		   'main.cpp', 'camera.cpp',
+executable('onboard_cv_calibrate',
+		   'calibrate_tools.cpp', 'camera.cpp',
 		   dependencies : all_deps,
 		   install : true)

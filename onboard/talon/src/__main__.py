@@ -132,26 +132,18 @@ def set_demand_callback(channel, msg):
 async def publish_arm_encoders():
     while True:
         ec = Encoder()
-        '''
         ec.joint_a = int(
-            await rover.talons[Talons.arm_joint_a.value].read_enc_value()
-            or 0)
+            await rover.talons[Talons.arm_joint_a.value].read_enc_value() or 0)
         ec.joint_b = int(
-            await rover.talons[Talons.arm_joint_b.value].read_enc_value()
-            or 0)
+            await rover.talons[Talons.arm_joint_b.value].read_enc_value() or 0)
         ec.joint_c = int(
-            await rover.talons[Talons.arm_joint_c.value].read_enc_value()
-            or 0)
-        '''
-        val = await rover.talons[
-            Talons.arm_joint_d.value].read_enc_value() or 0
-        val = max(min(val, 32767), -32768)
-        ec.joint_d = int(val)
-        '''
+            await rover.talons[Talons.arm_joint_c.value].read_enc_value() or 0)
+        ec.joint_d = int(
+            await rover.talons[Talons.arm_joint_d.value].read_enc_value() or 0)
         ec.joint_e = int(
-            await rover.talons[Talons.arm_joint_e.value].read_enc_value()
-            or 0)
-        '''
+            await rover.talons[Talons.arm_joint_e.value].read_enc_value() or 0)
+        ec.joint_f = int(
+            await rover.talons[Talons.arm_joint_f.value].read_enc_value() or 0)
 
         lcm_.publish('/encoder', ec.encode())
 
@@ -167,4 +159,4 @@ def main():
     lcm_.subscribe("/sa_motors", sa_motor_callback)
     # lcm_.subscribe("/arm_demand", arm_demand_callback)
     lcm_.subscribe("/arm_motors", open_loop_arm_callback)
-    run_coroutines(lcm_.loop(), rover.run_all())
+    run_coroutines(publish_arm_encoders(), lcm_.loop(), rover.run_all())

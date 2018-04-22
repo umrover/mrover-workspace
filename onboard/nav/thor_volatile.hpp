@@ -24,6 +24,7 @@ namespace Thor {
                 return false;
             }
             void unsafe_set_possibly_race(const T & val) {
+                // this->changed_ = (val != this->val_);
                 this->val_ = val;
                 this->changed_ = true;
                 this->cv_.notify_all();
@@ -59,6 +60,17 @@ namespace Thor {
                 std::unique_lock<std::mutex> lock_(this->mut_);
                 this->changed_ = false;
                 return T(this->val_);
+            }
+
+            template <typename Function>
+            bool clone_conditional(Function pred, T *t) const {
+                std::unique_lock<std::mutex> lock_(this->mut_);
+                if (pred(this->val_)) {
+                    *t = T(this->val_);
+                    this->changed_ = false;
+                    return true;
+                }
+                return false;
             }
 
         private:

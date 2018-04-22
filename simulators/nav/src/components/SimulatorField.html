@@ -26,8 +26,8 @@ const ROCK_SIZE = 45;
 const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
 const ROVER_DEPTH_OF_VIEW = 10;
 
-const TRANSLATIONAL_SCALE = 5;
-const ROTATIONAL_SCALE = 10;
+const TRANSLATIONAL_SCALE = 2.5;
+const ROTATIONAL_SCALE = 5;
 
 function ensure_in_range(x, min, max) {
     return Math.max(Math.min(x, max), min);
@@ -69,26 +69,33 @@ export default {
             if (!odom) { return; }
             let tennis_balls = this.get("tennis_balls");
 
+            let ball_detected_idx = -1;
+            let tennis_ball_state = {
+                found: false,
+                bearing: 0,
+                distance: 0
+            };
             for (let i = 0; i < tennis_balls.length; i++) {
                 tennis_balls[i].detected = false;
 
                 const { dist, bearing } = dist_and_bearing(
                     to_decimal(odom), to_decimal(tennis_balls[i]));
+                const rover_bearing = odom.bearing_deg * Math.PI/180;
 
-                console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
-                if (bearing < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
+                // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
+                if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
                     tennis_balls[i].detected = true;
-
-                    const tennis_ball_state = {
+                    ball_detected_idx = i;
+                    tennis_ball_state = {
                         found: true,
-                        bearing: bearing * 180/Math.PI,
+                        bearing: (bearing - rover_bearing) * 180/Math.PI,
                         distance: dist
                     };
-                    this.set({ tennis_ball_state });
+
+                    break;
                 }
             }
-
-            this.set({ tennis_balls });
+            this.set({ tennis_ball_state, tennis_balls });
         };
 
         const draw = () => {
@@ -128,6 +135,8 @@ export default {
                         WAYPOINT_SIZE, 0, 2*Math.PI, 0);
                 ctx.fill();
                 ctx.stroke();
+                ctx.fillStyle = 'white';
+                ctx.fillText(`${i}`, wcoords.x, wcoords.y);
             }
 
             for (let i = 0; i < tennis_balls.length; i++) {
@@ -206,6 +215,7 @@ export default {
         this.observe("waypoints", update);
         this.observe("tennis_balls", update);
         this.observe("rocks", update);
+        this.observe("radius_meters", update);
 
         update();
     },
@@ -259,7 +269,7 @@ export default {
 
         apply_joystick: function(stick) {
             let odom = this.get("odom");
-            let {x, y} = this.to_canvas(this.projection(to_decimal(odom)));
+            let {x, y} = this.projection(to_decimal(odom));
             let bearing_deg = odom.bearing_deg;
             bearing_deg += ROTATIONAL_SCALE * stick.left_right;
             if (bearing_deg < 0) {
@@ -271,14 +281,16 @@ export default {
 
             const bearing_rad = (90 - bearing_deg) * Math.PI / 180;
 
+            console.log(`moving in the direction ${bearing_rad} radians`);
+
             const vel = TRANSLATIONAL_SCALE * stick.forward_back;
 
             x += vel * Math.cos(bearing_rad);
-            y -= vel * Math.sin(bearing_rad);
+            y += vel * Math.sin(bearing_rad);
 
             const {min_lat, max_lat, min_lon, max_lon} = this.bounds();
 
-            let {lat, lon} = this.inv_projection(this.from_canvas({x, y}));
+            let {lat, lon} = this.inv_projection({x, y});
             lat = ensure_in_range(lat, min_lat, max_lat);
             lon = ensure_in_range(lon, min_lon, max_lon);
 

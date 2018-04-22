@@ -44,6 +44,9 @@ export default class LCMBridge {
                     'message': event_data['message']
                 })
             }
+            if (event_data['type'] === 'error_message'){
+                console.error(event_data['message']);
+            }
         }
     }
 
@@ -64,6 +67,14 @@ export default class LCMBridge {
             }))
         } else {
             console.error("LCM Bridge not connected")
+        }
+    }
+
+    setHomePage(){
+        if(this.online){
+            this.ws.send(JSON.stringify({
+                'type':'home_page_set'
+            }))
         }
     }
 }

@@ -6,13 +6,13 @@
 #define earthRadiusMeters 6371000
 #define PI 3.141592654
 #define JOYSTICK_CHANNEL "/joystick"
-#define WITHIN_GOAL 5 //outer threshold distance
-#define AT_GOAL 0.25 //inner threshold distance
+#define WITHIN_GOAL 4 //outer threshold distance
+#define AT_GOAL 1 //inner threshold distance
 #define OUTER_MIN 1 //min value for outer threshold
 #define INNER_MIN 0.5 //min value for inner threshold
 
 // convert degree to radian
-inline double degree_to_radian(const double x, const double minute);
+inline double degree_to_radian(const double x, const double minute = 0);
 
 inline double radian_to_degree(const double x);
 

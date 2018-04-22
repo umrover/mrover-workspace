@@ -54,6 +54,20 @@ struct LcmHandlers {
             const rover_msgs::AutonState *state) {
         layer2->auton_state_.set(*state);
     }
+
+    void ball(
+            const lcm::ReceiveBuffer *rbuf,
+            const std::string &channel,
+            const rover_msgs::TennisBall *ball) {
+        layer2->tennis_ball_.set(*ball);
+    }
+
+    void obstacle(
+            const lcm::ReceiveBuffer *rbuf,
+            const std::string &channel,
+            const rover_msgs::Obstacle *obstacle) {
+        layer2->obstacle_.set(*obstacle);
+    }
 };
 
 int main(int argc, char **argv) {
@@ -69,6 +83,7 @@ int main(int argc, char **argv) {
     lcm_.subscribe("/odom", &LcmHandlers::odom, &handlers);
     lcm_.subscribe("/course", &LcmHandlers::course, &handlers);
     lcm_.subscribe("/auton", &LcmHandlers::auton, &handlers);
+    lcm_.subscribe("/tennis_ball", &LcmHandlers::ball, &handlers);
 
     std::thread l2_thread(&Layer2::run, layer2);
 

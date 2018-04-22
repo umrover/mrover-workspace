@@ -23,7 +23,7 @@ export function dist_and_bearing(from, to) {
     const to_lon = to.lon*Math.PI/180;
 
     const dlat = to_lat - from_lat;
-    const dlon = (to_lon - from_lon)*Math.cos((to_lat + from_lat)/2);
+    const dlon = (to_lon - from_lon)*Math.cos((to_lat + from_lat)/2.0);
     const dist = Math.sqrt(dlon*dlon + dlat*dlat) * EARTH_RAD;
 
     const dlat_meters = EARTH_RAD*Math.sin(dlat);
@@ -31,7 +31,7 @@ export function dist_and_bearing(from, to) {
     if (from_lon > to_lon) {
         bearing = 2.0*Math.PI - bearing;
     }
-    if (dlat_meters < 1 && dlat_meters > -1) {
+    if (dlat_meters < 0.001 && dlat_meters > -0.001) {
         if (from_lon < to_lon) {
             bearing = Math.PI/2.0;
         } else {
@@ -46,16 +46,9 @@ export function inv_projection({center_lat, center_lon}, {x, y}) {
     const center_lat_r = center_lat * (Math.PI / 180);
     const center_lon_r = center_lon * (Math.PI / 180);
     let theta_prime = Math.atan2(y, x);
-    if (theta_prime < 0) {
-        theta_prime += 2.0*Math.PI;
-    }
     let bearing = Math.PI/2.0 - theta_prime;
-    if (bearing < 0) {
-        bearing += 2.0*Math.PI;
-    }
     const dist = Math.sqrt(x*x + y*y);
-    const dlat_meters = dist * Math.cos(bearing);
-    const dlat = Math.asin(dlat_meters/EARTH_RAD);
+    const dlat = Math.asin(y/EARTH_RAD);
     let dlon = Math.sqrt((dist/EARTH_RAD)*(dist/EARTH_RAD) - dlat*dlat);
     if (x < 0) {
         dlon *= -1;

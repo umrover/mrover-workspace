@@ -61,12 +61,6 @@ cv::Mat Camera::Impl::image() {
 }
 
 cv::Mat Camera::Impl::depth() {
-<<<<<<< HEAD
-       //question:  this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE_DEPTH, sl::MEM_CPU,  this->image_size_.width, this->image_size_.new_height);??
-  
-	this->zed_.retrieveImage(this->depth_zed_, sl::VIEW_DEPTH, sl::MEM_CPU,
-							 this->image_size_.width, this->image_size_.height);
-=======
 
     this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE_DEPTH,  sl::MEM_CPU,  this->image_size_.width, 
     	 this->image_size_.height);
@@ -74,7 +68,6 @@ cv::Mat Camera::Impl::depth() {
 
 	//this->zed_.retrieveImage(this->depth_zed_, sl::VIEW_DEPTH, sl::MEM_CPU,
 //							 this->image_size_.width, this->image_size_.height);
->>>>>>> 99726c2a8e3b9b3f00299390e33552ea15a63476
 	return this->depth_;
 }
 

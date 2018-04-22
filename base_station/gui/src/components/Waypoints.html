@@ -40,7 +40,7 @@
         <input type="text" class="focus-hidden" ref:editorInput>
         {{#each previous_waypoints as waypoint, i}}
 
-            <WaypointItem item="{{waypoint}}"/>
+            <WaypointItem item="{{waypoint}}" odom="{{odom}}"/>
 
             <div class="waypoint-item">
               <div on:click="delaySave()">
@@ -54,7 +54,7 @@
                 <button on:click='deleteWaypoint(i)'>Delete</button>
               </div>
             </div>
-            
+
         {{/each}}
     </div>
 </div>
@@ -79,22 +79,31 @@
   export default {
     data() {
       return {
-        previous_waypoints: [], 
-        auton_enabled: false
+        previous_waypoints: [],
+        auton_enabled: false,
+        odom: null,
       }
     },
 
     computed:{
       nav_state: (nav_status) => {
         switch(nav_status.nav_state){
-            case 0:
-              return "Translational";
-            case 1:
-              return "Search";
-            case 2:
-              return "Rotational";
-            case 8:
-              return "Done";
+            case 0: return 'OFF';
+            case 1: return 'DONE';
+            case 10: return 'TURN';
+            case 11: return 'DRIVE';
+            case 20: return 'SEARCH_FACE0';
+            case 21: return 'SEARCH_FACE120';
+            case 22: return 'SEARCH_FACE240';
+            case 23: return 'SEARCH_FACE360';
+            case 24: return 'SEARCH_TURN_AND_DRIVE';
+            case 28: return 'TURN_TO_BALL';
+            case 29: return 'DRIVE_TO_BALL';
+            case 30: return 'TURN_AROUND_OBS';
+            case 31: return 'DRIVE_AROUND_OBS';
+            case 32: return 'SEARCH_TURN_AROUND_OBS';
+            case 33: return 'SEARCH_DRIVE_AROUND_OBS';
+            default: return 'UNKNOWN';
         }
         return "???";
       }
@@ -293,11 +302,8 @@
     grid-gap: 10px;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr 6fr;
-    grid-template-areas: unset;
-  }
 
-  .white-text{
-    color: white;
+    height: 100%;
   }
 
   .waypoint-item {
@@ -307,13 +313,9 @@
   }
 
   .box {
-    padding: 0px;
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
-  .grabbed {
-    border: 3px solid black;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid black;
   }
 
   #gps-input {
@@ -335,11 +337,6 @@
     float: right;
   }
 
-  .highlight {
-    border-radius: 5px;
-    border: 3px solid black;
-  }
-
   .focus-hidden {
     width: 0;
     overflow: hidden;
@@ -351,9 +348,5 @@
     font-size: 1rem;
     margin-top: 5px;
     text-align: left;
-  }
-
-  span {
-    float: right;
   }
 </style>
