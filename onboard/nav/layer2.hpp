@@ -19,7 +19,8 @@
 
 const double EARTH_CIRCUM = 40075000; // meters
 const double LAT_METER_IN_MINUTES = 0.0005389625; // minutes/meter
-const int PATH_WIDTH = 5; // meters
+const int PATH_WIDTH = 2; // meters
+const int SEARCH_BAIL_THRESH = 10; // meters
 const double DIRECTION_THRESH = 1.0; // degrees
 const double INNER_SEARCH_THRESH = .0001; // degrees
 const double BALL_THRESH = 1; // meters
@@ -130,6 +131,7 @@ private:
   	double long_meter_in_minutes;
 	int32_t total_wps; //fjul : original # wps in course
 	int32_t completed_wps; //fjul
+	int32_t missed_wps;
 	int8_t nav_state; //fjul
 	Thor::Volatile<CourseData> course_data_;
 
@@ -138,7 +140,7 @@ private:
 
 	void init_search_multipliers();
 
-	void add_four_points_to_search(const waypoint & origin_way);
+	bool add_four_points_to_search(const waypoint & origin_way);
 
 	// void search_func(const waypoint & search_origin);
 
@@ -158,8 +160,6 @@ private:
   	// void go_to_ball(odom & cur_odom, TennisBall & ball);
 
 	// void obstacle_avoidance(odom & cur_odom, Obstacle & obs);
-  
-  	// void turn(odom & cur_odom, double bearing_offset);
   
   	void obstacle_dummy_odom(odom & new_odom, const double cur_bearing,
                              const double dist);

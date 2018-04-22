@@ -54,6 +54,7 @@
             {{#if lcm_connected}}
             <p><b>Navigation State:</b> {{ nav_state_textual }}</p>
             <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
+            <p><b>Missed Waypoints:</b> {{ missed_wps }}/{{ total_wps }}</p>
             {{else}}
             <p>LCM not connected.</p>
             {{/if}}
@@ -149,6 +150,7 @@
 
                 nav_state: 0,
                 completed_wps: 0,
+                missed_wps: 0,
                 total_wps: 0,
 
                 enabled: false,
