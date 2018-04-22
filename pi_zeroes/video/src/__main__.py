@@ -1,19 +1,20 @@
 import sys
+from subprocess import Popen, PIPE
+from rover_common import aiolcm
+from rover_common.aiohelper import run_coroutines
+from rover_msgs import PiCamera
 import gi
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst # noqa
-from rover_common import aiolcm # noqa
-from rover_common.aiohelper import run_coroutines # noqa
-from rover_msgs import PiCamera # noqa
 
 lcm_ = aiolcm.AsyncLCM()
 
 pipeline = None
 pipeline_state = Gst.State.READY
-pipeline_string = ("v4l2src device=/dev/video0"
-                   " ! image/jpeg, width=1280, height=720, framerate=30/1"
-                   " ! jpegdec ! videoconvert ! queue ! x264enc ! queue"
-                   " ! rtph264pay ! udpsink host=192.168.0.98 port=5000")
+pipeline_string = ("gst-launch-1.0 v4l2src device=/dev/video0"
+                   " ! video/x-h264, width=1280, height=720"
+                   " ! h264parse ! queue"
+                   " ! rtph264pay ! udpsink host=10.0.0.1 port=5000")
 index = -1
 
 
