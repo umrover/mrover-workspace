@@ -69,4 +69,11 @@ app.on("tennis_ball", (tennis_ball) => {
     }
 })
 
+app.on("obstacle", (obstacle) => {
+    if (bridge.online) {
+        obstacle.type = 'Obstacle';
+        bridge.publish("/obstacle", obstacle);
+    }
+})
+
 app.start_odom_events();
