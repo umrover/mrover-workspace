@@ -117,7 +117,7 @@ double Layer1::turn_to_dest(const odom & cur_odom, double angle ) {
 
 void Layer1::throughZero(double & dest_bearing, const double cur_bearing) {
     assert(cur_bearing >= 0 && cur_bearing <= 360);
-    if (abs(cur_bearing - dest_bearing) > 180) {
+    if (fabs(cur_bearing - dest_bearing) > 180) {
         if (cur_bearing < 180) dest_bearing = (dest_bearing - 360);
         else dest_bearing = dest_bearing + 360;
     }

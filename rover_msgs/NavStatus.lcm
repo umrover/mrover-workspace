@@ -20,5 +20,6 @@ struct NavStatus {
 
 	int8_t nav_state;
 	int32_t completed_wps;
+	int32_t missed_wps;
 	int32_t total_wps;
 }
