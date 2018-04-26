@@ -13,7 +13,7 @@
   </div>
 
   <div class="servos">
-    <span>Servos pan: {{servosData.pan}}, Servos tilt: {{servosData.tilt}}</span>
+    <span>Servos pan: {{servosData.pan.toFixed(2)}}, Servos tilt: {{servosData.tilt.toFixed(2)}}</span>
   </div>
 
   <div class="video">
@@ -145,7 +145,7 @@
         topic,
         message
       }) {
-        if (topic === '/carmera_servos') {
+        if (topic === '/camera_servos') {
           this.set({
             servosData: message
           })

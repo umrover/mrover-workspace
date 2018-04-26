@@ -141,12 +141,12 @@ def arm_control_callback(channel, msg):
     # global enc_in
     xbox = Xbox.decode(msg)
     new_arm = OpenLoopRAMotors()
-    new_arm.joint_a = deadzone(quadratic(xbox.left_js_x), 0.09)*.25
-    new_arm.joint_b = -deadzone(quadratic(xbox.left_js_y), 0.09)*.25
+    new_arm.joint_a = -deadzone(quadratic(xbox.left_js_x), 0.09)*.25
+    new_arm.joint_b = -deadzone(quadratic(xbox.left_js_y), 0.09)*.5
     new_arm.joint_c = quadratic(xbox.left_trigger - xbox.right_trigger)*.60
-    new_arm.joint_d = -deadzone(quadratic(xbox.right_js_y), 0.09)*.75
+    new_arm.joint_d = deadzone(quadratic(xbox.right_js_y), 0.09)*.75
     new_arm.joint_e = deadzone(quadratic(xbox.right_js_x), 0.09)*.25
-    new_arm.joint_f = (xbox.right_bumper - xbox.left_bumper)*.5
+    new_arm.joint_f = (xbox.right_bumper - xbox.left_bumper)
 
     print("Arm:\nA: {}\nB: {}\nC: {}\nD: {}\nE: {}\nF: {}\n"
           .format(new_arm.joint_a, new_arm.joint_b, new_arm.joint_c,
@@ -182,7 +182,7 @@ def sa_control_callback(channel, msg):
     new_sa_motors = SAMotors()
 
     val = drill_on.new_reading(xbox.right_bumper > 0.5)
-    new_sa_motors.drill = -0.7 if val else 0.0
+    new_sa_motors.drill = -0.9 if val else 0.0
     new_sa_motors.lead_screw = deadzone(xbox.left_js_y, 0.1)
     new_sa_motors.lead_screw = math.copysign(
         new_sa_motors.lead_screw ** 2,
