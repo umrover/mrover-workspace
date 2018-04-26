@@ -10,6 +10,8 @@ from gi.repository import Gst # noqa
 
 lcm_ = aiolcm.AsyncLCM()
 
+settings_path = "/home/pi/mrover-workspace/settings.ini"
+
 settings = None
 vid_process = None
 pipeline = None
@@ -57,9 +59,10 @@ def stop_pipeline():
 
 def read_settings():
     global settings
+    global settings_path
 
     config = ConfigParser()
-    config.read("settings.ini")
+    config.read(settings_path)
 
     settings = PiSettings()
     settings.shutter_speed = int(config["cam_settings"]["shutter_speed"])
@@ -68,13 +71,14 @@ def read_settings():
 
 def write_settings():
     global settings
+    global settings_path
 
     config = ConfigParser()
     config["cam_settings"] = {}
     config["cam_settings"]["shutter_speed"] = str(settings.shutter_speed)
     config["cam_settings"]["vflip"] = str(settings.vflip)
 
-    with open('settings.ini', 'w') as config_file:
+    with open(settings_path, "w") as config_file:
         config.write(config_file)
 
 
