@@ -294,13 +294,16 @@ if(app !=null ){
   });
 }else if(cam != null){
   window.setInterval(() => {
-    let index = cam.get('pi_index');
-
     let camData = {
       'type': 'PiCamera',
-      'active_index': index,
+      'active_index': cam.get('pi_index'),
     };
 
     lcm_.publish("/pi_camera", camData);
   }, 250);
+
+  cam.refs.vid.on('/pi_settings', (settings)=>{
+    settings['type'] = 'PiSettings';
+    lcm_.publish('/pi_settings', settings);
+  });
 }
