@@ -118,12 +118,6 @@ if(app !=null ){
   let servosSpeed = 1;
   const keysDown=[false, false, false, false];
 
-  const servosMessages={
-      'type':'CameraServos',
-      'pan':0,
-      'tilt':0
-  };
-
   window.addEventListener('keydown', (e) => {
     if(e.keyCode==38)//Up
       keysDown[0]=true;
@@ -164,7 +158,9 @@ if(app !=null ){
     "left_right": 2,
     "dampen": 3,
     "kill": 4,
-    "restart": 5
+    "restart": 5,
+    "pan": 4,
+    "tilt": 5
   };
 
   const XBOX_CONFIG = {
@@ -206,6 +202,7 @@ if(app !=null ){
   });
 
   window.setInterval(() => {
+
     const gamepads = navigator.getGamepads();
     for (let i = 0; i < 2; i++) {
       const gamepad = gamepads[i];
@@ -223,6 +220,18 @@ if(app !=null ){
             dampen: gamepad.axes[JOYSTICK_CONFIG["dampen"]]
           });
           lcm_.publish('/drive_control', joystickData);
+
+          const clamp = function(num, min, max) {
+            return num <= min ? min : num >= max ? max : num;
+          };
+
+          const servosData = {
+            'type': 'CameraServos',
+            'pan': clamp(gamepad.axes[JOYSTICK_CONFIG["pan"]]*servosSpeed/10, -1, 1),
+            'tilt': clamp(-gamepad.axes[JOYSTICK_CONFIG["tilt"]]*servosSpeed/10, -1, 1)
+          };
+
+          lcm_.publish('/camera_servos', servosData);
         }
         else if (gamepad.id.includes("Microsoft")) {
           const xboxData = {
@@ -246,21 +255,6 @@ if(app !=null ){
         }
       }
     }
-
-    const pan=(keysDown[2]^keysDown[3] ? (keysDown[2]?-1:1) : 0);
-    const tilt=(keysDown[0]^keysDown[1] ? (keysDown[0]?1:-1) : 0);
-
-    servosMessages['pan']+=pan*servosSpeed/10;
-    servosMessages['tilt']+=tilt*servosSpeed/10;
-
-    const clamp = function(num, min, max) {
-      return num <= min ? min : num >= max ? max : num;
-    };
-
-    servosMessages['pan'] = clamp(servosMessages['pan'], -1, 1);
-    servosMessages['tilt'] = clamp(servosMessages['tilt'], -1, 1);
-
-    lcm_.publish('/carmera_servos', servosMessages);
   }, 100);
 
 }else if(pidTune != null){
