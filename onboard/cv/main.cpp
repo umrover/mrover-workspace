@@ -3,6 +3,7 @@
 #include "camera.hpp"
 #include "rover_msgs/TennisBall.hpp"
 #include "rover_msgs/Obstacle.hpp"
+#include "rover_msgs/AutonState.hpp"
 #include <chrono>
 #include <cmath>
 #include <lcm/lcm-cpp.hpp>
@@ -14,7 +15,7 @@ using namespace std;
 const float fieldofView = 110 * PI/180;
 const float inf = -std::numeric_limits<float>::infinity();
 
-int THRESHOLD_NO_WAY = 0;//500000; //how will we calibrate if the rover width changes
+int THRESHOLD_NO_WAY = 280000;//500000; //how will we calibrate if the rover width changes
 int center_point_height = 360;  //not sure
 
 const float zedHeight = 17 * 0.0254; //inches to meters off the ground
@@ -23,7 +24,7 @@ const float angleOffset = 10 * PI/180;    //angle offset of the rover
 
 const float focalLength = 2.8; //zed focal length in mm
 
-const float distThreshold = 6;    //meters, used to calculate rover pixels
+const float distThreshold = 4;    //meters, used to calculate rover pixels
 const float obstacleThreshold = 5 * 0.0254; //inches to meters
 
 float minDepth = 1; //need to set
@@ -148,7 +149,7 @@ Mat greenFilter(const Mat& src){
     assert(src.type() == CV_8UC3);
 
     Mat greenOnly;
-    Scalar lowerb = Scalar(71, 210, 90);
+    Scalar lowerb = Scalar(52, 110, 70);
     Scalar upperb = Scalar(74, 255, 147);
     inRange(src, lowerb, upperb, greenOnly);
 
@@ -193,7 +194,6 @@ vector<Point2f> findTennisBall(Mat &src){
     return center;
 }
 
-
 int main() {
     /*initialize values*/
 
@@ -221,8 +221,13 @@ int main() {
         imshow("orginal", src);
         Mat depth_img = cam.depth();
 
-        /*initialize lcm messages*/
+        /*auton on/off*/
+        //rover_msgs::AutonState autonSwitch;
         lcm::LCM lcm_;
+        //lcm_.subscribe("/auton", &autonSwitch);
+        //bool rover_auton_state = auton_state_.clone();
+
+        /*initialize lcm messages*/
         rover_msgs::TennisBall tennisMessage;
         rover_msgs::Obstacle obstacleMessage;
         tennisMessage.found = false;
