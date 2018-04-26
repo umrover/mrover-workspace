@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct PiSettings {
+	int32_t shutter_speed;
+	boolean vflip;
+}

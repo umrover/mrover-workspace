@@ -2,7 +2,7 @@
   {{#if pi_index >= 0}}
   <span class="title">Current Camera: {{pi_index}}</span>
   {{/if}}
-  <div class="buttons" id='cam-buttons' ref:buttons >
+  <div class="buttons" ref:buttons >
     <button class='cam1' on:click='changeIndex(1)'> <span>Camera 1</span> </button>
     <div class="fixed-spacer"/>
     <button class='cam2' on:click='changeIndex(2)'> <span>Camera 2</span> </button>
@@ -15,21 +15,43 @@
     <div class="fixed-spacer"/>
     <button class='cam6' on:click='changeIndex(6)'> <span>Camera 6</span> </button>
   </div>
+
+  <div class="options">
+    <Checkbox name="Vertical Flip" bind:toggled="vflip"/>
+    <div class="fixed-spacer"/>
+    <span>Shutter Speed:</span>
+    <input type="number" value=10000 ref:sspeed>
+    <div class="fixed-spacer"/>
+    <button on:click='sendSettings()'>Update</button>
+  </div>
 </div>
 
 <script>
+  import Checkbox from "./Checkbox.html"
 
   export default {
     data() {
       return {
         pi_index: -1,
+        vflip: false,
       }
+    },
+
+    components: {
+      Checkbox
     },
 
     methods: {
       changeIndex: function(new_index) {
         this.set({pi_index: new_index});
       },
+
+      sendSettings: function() {
+        this.fire("/pi_settings", {
+          'shutter_speed': parseInt(this.refs.sspeed.value),
+          'vflip': this.get('vflip'),
+        });
+      }
     }
   }
 </script>
@@ -39,8 +61,8 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
-    grid-template-rows: 20px 20px;
-    grid-template-areas: "title" "cam-buttons";
+    grid-template-rows: 20px 20px 20px;
+    grid-template-areas: "title" "buttons" "options";
 
     font-family: sans-serif;
     height: 100%;
@@ -56,10 +78,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    grid-area: buttons;
   }
 
-  #cam-buttons {
-    grid-area: cam-buttons;
+  .options {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-area: options;
   }
 
   .fixed-spacer {

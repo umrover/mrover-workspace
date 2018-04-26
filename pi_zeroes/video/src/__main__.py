@@ -1,24 +1,32 @@
 import sys
+from configparser import ConfigParser
 from subprocess import Popen, PIPE
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import PiCamera
+from rover_msgs import PiCamera, PiSettings
 import gi
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst # noqa
 
 lcm_ = aiolcm.AsyncLCM()
 
+settings = None
+vid_process = None
 pipeline = None
-pipeline_state = Gst.State.READY
 index = -1
 
 
-def init_pipeline():
+def start_pipeline():
     global pipeline
+    global vid_process
+    global settings
 
-    vid_process = Popen(["raspivid", "-t", "0", "-h", "720", "-w", "1280",
-                         "-hf", "-b", "2000000", "-o", "-"], stdout=PIPE)
+    vid_args = ["raspivid", "-t", "0", "-h", "720", "-w", "1280",
+                "-b", "2000000", "-ss", str(settings.shutter_speed), "-o", "-"]
+    if settings.vflip:
+        vid_args.append("-vf")
+
+    vid_process = Popen(vid_args, stdout=PIPE)
 
     fd = vid_process.stdout.fileno()
 
@@ -27,35 +35,85 @@ def init_pipeline():
                        " ! h264parse ! rtph264pay"
                        " ! udpsink host=10.0.0.1 port=5000")
 
-    Gst.init(None)
     pipeline = Gst.parse_launch(pipeline_string)
 
-    print("Initialized gstreamer pipeline.")
+    pipeline.set_state(Gst.State.PLAYING)
+
+    print("Playing pipeline.")
+
+
+def stop_pipeline():
+    global pipeline
+    global vid_process
+
+    vid_process.kill()
+    vid_process = None
+
+    pipeline.set_state(Gst.State.READY)
+    pipeline = None
+
+    print("Stopping pipeline.")
+
+
+def read_settings():
+    global settings
+
+    config = ConfigParser()
+    config.read("settings.ini")
+
+    settings = PiSettings()
+    settings.shutter_speed = int(config["cam_settings"]["shutter_speed"])
+    settings.vflip = config["cam_settings"].getboolean("vflip")
+
+
+def write_settings():
+    global settings
+
+    config = ConfigParser()
+    config["cam_settings"] = {}
+    config["cam_settings"]["shutter_speed"] = str(settings.shutter_speed)
+    config["cam_settings"]["vflip"] = str(settings.vflip)
+
+    with open('settings.ini', 'w') as config_file:
+        config.write(config_file)
 
 
 def camera_callback(channel, msg):
     global pipeline
-    global pipeline_state
     global index
 
     cam_info = PiCamera.decode(msg)
 
-    if cam_info.active_index == index and pipeline_state != Gst.State.PLAYING:
-        pipeline_state = Gst.State.PLAYING
-        pipeline.set_state(pipeline_state)
-        print("Playing pipeline.")
-    elif cam_info.active_index != index and pipeline_state != Gst.State.READY:
-        pipeline_state = Gst.State.READY
-        pipeline.set_state(pipeline_state)
-        print("Pausing pipeline.")
+    if cam_info.active_index == index and pipeline is None:
+        start_pipeline()
+    elif cam_info.active_index != index and pipeline is not None:
+        stop_pipeline()
+
+
+def settings_callback(channel, msg):
+    global settings
+    global pipeline
+
+    if pipeline is None:
+        return
+
+    settings = PiSettings.decode(msg)
+    print("Settings changed.")
+
+    stop_pipeline()
+    start_pipeline()
+
+    write_settings()
 
 
 def main():
     global index
     index = int(sys.argv[1])
+    Gst.init(None)
 
-    init_pipeline()
+    read_settings()
 
     lcm_.subscribe("/pi_camera", camera_callback)
+    lcm_.subscribe("/pi_settings", settings_callback)
 
     run_coroutines(lcm_.loop())
