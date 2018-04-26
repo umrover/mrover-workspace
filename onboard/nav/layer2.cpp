@@ -215,11 +215,11 @@ void Layer2::run() {
 				this->missed_wps = 0;
 				this->total_wps = rover_course.overall.size();
 
-				if (rover_ball.found) {
-					nextState = State::turn_to_ball;
-				} // if ball found
+				// if (rover_ball.found) {
+				// 	nextState = State::turn_to_ball;
+				// } // if ball found
 
-				else if (rover_obstacle.detected) {
+				if (rover_obstacle.detected) {
 					original_obs_angle = rover_obstacle.bearing;
 					nextState = State::turn_around_obs;
 				} // else if obstacle detected
@@ -301,7 +301,6 @@ void Layer2::run() {
 					} // if the current waypoint is a search point
 
 					else {
-						std::cout << "here1\n";
 						nextState = State::turn;
 						this->completed_wps++;
 					} // else go to next waypoint
@@ -478,7 +477,7 @@ void Layer2::run() {
 				} // if rover turned off
 
 				// TODO: if lost ball
-				assert(rover_ball.found);
+				// assert(rover_ball.found);
 
 				if (fabs(rover_ball.bearing) > DIRECTION_THRESH) {
 					layer1.turn_to_bearing(rover_cur_odom, rover_cur_odom.bearing_deg + rover_ball.bearing);
@@ -501,7 +500,7 @@ void Layer2::run() {
 				} // if rover turned off
 
 				// TODO: if ball lost
-				assert(rover_ball.found);
+				// assert(rover_ball.found);
 
 				/*
 				if (rover_obstacle.detected) {
@@ -537,7 +536,7 @@ void Layer2::run() {
 				//			   obstacle. This relies on using a path width no larger than what we can 
 				//			   confidentally see to the side.
 				else if (state == State::turn_around_obs && 
-					estimate_noneuclid(rover_course.overall.front().odom, way) < 2 * CV_THRESH) {
+					estimate_noneuclid(rover_course.overall.front().odom, rover_cur_odom) < 2 * CV_THRESH) {
 					// TODO move on to next point
 					rover_course.overall.pop_front();
 					++completed_wps;
@@ -545,7 +544,7 @@ void Layer2::run() {
 				} // if waypoint is within CV_THRESH of rock
 
 				else if (state == State::search_turn_around_obs && 
-					estimate_noneuclid(rover_search.front().odom, way) < 2 * CV_THRESH) {
+					estimate_noneuclid(rover_search.front().odom, rover_cur_odom) < 2 * CV_THRESH) {
 					rover_search.pop_front();
 					nextState = State::search_turn;
 				} // if search waypoint is within CV_THRESH of rock

@@ -4,7 +4,6 @@
 #include <chrono>
 #include <cmath>
 #include <getopt.h>
-#include <lcm/lcm-cpp.hpp>
 
 using namespace cv;
 using namespace std;
@@ -67,7 +66,7 @@ int main(){
 			imshow("video", src);
 		}
 	}else if(choice == 'o'){
-		int hold;
+		int hold = 0;
 	    Mat src;
 	    Mat depth_img;
 
@@ -81,23 +80,26 @@ int main(){
 		cout << "Enter Distance Threshold (meters): ";
 		cin >> distThreshold;
 
-    	cout << "Place minumum obstacle at desired distance. Hold esc to calibrate. (15 frames to setup, 25 frames to calibrate)\n";
+    	cout << "Place minumum obstacle at desired distance. Hold esc to calibrate. Hold space to run video (15 frames to setup, 25 frames to calibrate)\n";
 
 	    float meanSum;
-	    float min = 800000000;
+	    float minSum = 800000000;
 
-    	while(waitKey(30)){
+    	while(waitKey(30)){// && hold < 40){
     		cam.grab();
 	        src = cam.image();
 	        depth_img = cam.depth();
+	        depth_img = max(depth_img, 0.7);
+			depth_img = min(depth_img, 20.0);
 		    const int pixelWidth = depth_img.cols;
 		    const int pixelHeight = depth_img.rows;
 		    int type = depth_img.type();
 
 	        imshow("image", src);
 
-	        if( (char)cv::waitKey(0) == 27 && hold > 15){
+	        if( (char)cv::waitKey(0) == 27){
 		        Mat mean_row_vec = Mat::zeros(1, pixelWidth, type);
+		        reduce(depth_img, mean_row_vec, 0, CV_REDUCE_SUM);
 
 		    	const float roverWidthSensor = roverWidth * focalLength/(distThreshold * 1000);
 		    	const int roverPixWidth = roverWidthSensor*(pixelWidth/2)/(tan(fieldofView/2) * focalLength);
@@ -108,13 +110,14 @@ int main(){
 				rectangle(src, Point( startScan.x, 0), Point( endScan.x, 720), Scalar(0, 0, 255), 3);
 			    cout<<"[middle], window sub_col sum is "<<window_sum<<endl;
 
-			    if(window_sum < min) min = window_sum;
+			    if(window_sum < minSum) minSum = window_sum;
 			    meanSum+=window_sum;
-			}
-			hold++;
+				hold++;
+			}			
+			if(hold > 30) break;
 		}
 
-		cout << "Minimun sum: " << min << endl;
+		cout << "Minimun sum: " << minSum << endl;
 		cout << "Mean sum: " << meanSum/25 << endl;
 
 	}
