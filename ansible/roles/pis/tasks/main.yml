@@ -3,40 +3,55 @@
       src: files/pi.network
       dest: /etc/systemd/network/pi.network
 
-- name: Add uv4l apt key
-  apt_key:
-    url: http://www.linux-projects.org/listing/uv4l_repo/lpkey.asc
-    state: present
-
-- apt_repository:
-    repo: deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/stretch stretch main
-    state: present
-
 - name: Update apt cache
   apt: update_cache=yes
 
 - name: Install developer packages
   apt: name={{ item }} state=present
   with_items:
-  - uv4l
-  - uv4l-raspicam
-  - uv4l-server
-  - uv4l-webrtc-armv6
+  - python-gi
+  - python-gi-cairo
+  - python3-gi
+  - python3-gi-cairo
+  - gir1.2-gtk-3.0
   - python3-venv
+  - python3-wheel
+  - python3-dev
+  - libgirepository1.0-dev
+  - build-essential
+  - libbz2-dev
+  - libreadline-dev
+  - libssl-dev
+  - zlib1g-dev
+  - libsqlite3-dev
+  - wget
+  - curl
+  - llvm
+  - libncurses5-dev
+  - libncursesw5-dev
+  - xz-utils
+  - tk-dev
+  - libcairo2-dev
   - autoconf
   - libtool
   - libglib2.0-dev
   - libpython3.5-dev
   - virtualenv
   - git
+  - python3-gst-1.0
+  - gstreamer1.0-tools
+  - gstreamer1.0-plugins-bad
+  - gstreamer1.0-plugins-good
+  - gstreamer1.0-plugins-ugly
 
 - name: Copy systemd service files
   template:
       src: "files/{{ item }}.service"
       dest: "/etc/systemd/system/{{ item }}.service"
   with_items:
-      - uv4l
+      - gstreamer
       - pi-heartbeat
+      - promiscuous
 
 - name: Disable Mbed compilation
   copy:
@@ -47,6 +62,11 @@
   copy:
       src: files/pi.env
       dest: /etc/default/pi.env
+
+- name: Set NIC MAC Address
+  copy:
+      src: files/pi.link
+      dest: /etc/default/pi.link
 
 - name: Enable systemd-networkd
   systemd:
@@ -59,10 +79,16 @@
 - name: Enable services
   systemd: name={{ item }} enabled=yes
   with_items:
-      - uv4l.service
+      - gstreamer.service
       - pi-heartbeat.service
+      - promiscuous.service
 
 - name: Clone git repository
   git:
     repo: https://github.com/umrover/mrover-workspace.git
     dest: /home/pi/mrover-workspace
+
+- name: Set default camera settings
+  copy:
+      src: files/settings.ini
+      dest: /home/pi/mrover-workspace/settings.ini
