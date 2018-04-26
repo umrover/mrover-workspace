@@ -87,8 +87,10 @@
   git:
     repo: https://github.com/umrover/mrover-workspace.git
     dest: /home/pi/mrover-workspace
+  become: false
 
 - name: Set default camera settings
   copy:
       src: files/settings.ini
       dest: /home/pi/mrover-workspace/settings.ini
+  become: false
