@@ -537,7 +537,7 @@ void Layer2::run() {
 				//			   obstacle. This relies on using a path width no larger than what we can 
 				//			   confidentally see to the side.
 				else if (state == State::turn_around_obs && 
-					estimate_noneuclid(rover_course.overall.front().odom, way) < 2 * CV_THRESH) {
+					estimate_noneuclid(rover_course.overall.front().odom, rover_cur_odom) < 2 * CV_THRESH) {
 					// TODO move on to next point
 					rover_course.overall.pop_front();
 					++completed_wps;
@@ -545,7 +545,7 @@ void Layer2::run() {
 				} // if waypoint is within CV_THRESH of rock
 
 				else if (state == State::search_turn_around_obs && 
-					estimate_noneuclid(rover_search.front().odom, way) < 2 * CV_THRESH) {
+					estimate_noneuclid(rover_search.front().odom, rover_cur_odom) < 2 * CV_THRESH) {
 					rover_search.pop_front();
 					nextState = State::search_turn;
 				} // if search waypoint is within CV_THRESH of rock
