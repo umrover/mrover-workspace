@@ -6,7 +6,7 @@ After=network-online.target
 [Service]
 EnvironmentFile=/etc/default/pi.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec pi_zeroes {{ num }}
+ExecStart={{ workspace_dir }}/jarvis exec pi_zeroes_heartbeat {{ num }}
 
 [Install]
 WantedBy=multi-user.target
