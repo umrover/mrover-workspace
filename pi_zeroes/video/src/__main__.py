@@ -27,6 +27,7 @@ def start_pipeline():
                 "-b", "2000000", "-ss", str(settings.shutter_speed), "-o", "-"]
     if settings.vflip:
         vid_args.append("-vf")
+        vid_args.append("-hf")
 
     vid_process = Popen(vid_args, stdout=PIPE)
 
