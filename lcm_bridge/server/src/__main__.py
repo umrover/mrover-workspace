@@ -5,7 +5,7 @@ import json
 from rover_msgs import Joystick
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from . import lcmutil
+from lcm_tools_common import lcmutil
 
 
 class Connection:
