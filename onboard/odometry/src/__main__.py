@@ -1,13 +1,18 @@
 import serial
+import struct
+from rover_common import aiolcm
+from rover_msgs import Odometry
+
+
+lcm_ = aiolcm.AsyncLCM()
+
+START = b'\x12'
+END = b'\x13'
 
 
 class Status():
     WaitHeader = 0
     InMsg = 1
-
-
-START = b'\x12'
-END = b'\x13'
 
 
 class Reader():
@@ -39,4 +44,15 @@ def main():
     while True:
         c = ser.read()
         if r.feed(c):
-            print(r.buffer)
+            try:
+                roll, pitch, bearing, lat_deg, lat_min, lon_deg, \
+                    lon_min = struct.unpack('<fffffff', b''.join(r.buffer))
+                msg = Odometry()
+                msg.latitude_deg = int(lat_deg)
+                msg.latitude_min = lat_min
+                msg.longitude_deg = int(lon_deg)
+                msg.longitude_min = lon_min
+                msg.bearing_deg = bearing
+                lcm_.publish('/odom', msg.encode())
+            except struct.error:
+                print("Incomplete data")
