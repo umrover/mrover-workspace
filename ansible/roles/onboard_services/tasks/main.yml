@@ -6,6 +6,7 @@
       - rover-hwi
       - rover-onboard-teleop
       - rover-onboard-nav
+      - rover-onboard-servo
 
 - name: Copy environment variable definitions 
   copy:
@@ -20,3 +21,4 @@
   with_items:
       - rover-hwi.service
       - rover-onboard-teleop.service
+      - rover-onboard-servo
