@@ -15,7 +15,7 @@ def usage():
 def recv_message(type, channel, data):
     msg = lcmutil.decode(type, data)
     now = datetime.datetime.now()
-    print('----- {}'.format(now.isoformat()))
+    print('----- {}'.format(now.strftime('%Y-%m-%d %H:%M:%S.%f')))
     pprint.pprint(lcmutil.lcm_to_dict(msg))
     print()
 
