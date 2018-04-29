@@ -8,6 +8,10 @@ all_deps = [opencv, lcm]
 # TODO Jarvis will need to be smartened up to build this properly
 #get_option('with_zed')
 with_zed = true
+
+# set this flag when you want to use an existing folder for testing
+# offline_test = true
+
 if with_zed
 	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
 	zed = declare_dependency(

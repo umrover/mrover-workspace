@@ -155,81 +155,9 @@ Mat greenFilter(const Mat& src){
     return greenOnly;
 }
 
-<<<<<<< HEAD
-struct obstacle_return {
-  float center_distance; // distance to anything in front of the center of the camera                                                                 
-  float bearing; // [-50 degree, 50 degree]                                                                                       
-};
-
-obstacle_return avoid_obstacle_sliding_window(Mat &depth_img , Mat&rgb_img, int num_windows);
-
-
-int  WIDTH_ROVER = 500;
-int THRESHOLD_NO_WAY = 500000;
-int center_point_height = 360;
-
-obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, Mat &rgb_img, int num_windows ) {
-
-  // filter out nan values                                                                                                        
-  depth_img = max(depth_img, 0.7);
-  depth_img = min(depth_img, 20.0);
-
-  Size size = depth_img.size();
-  int type = depth_img.type();
-  Mat diff_img = Mat::zeros(size, type);
-  int height = size.height;
-  int width = size.width;
-
-
-  float center_point_depth = (float) depth_img.at<float>(  center_point_height, 640);
-
-  Mat mean_row_vec = Mat::zeros(1, width, type);
-  reduce(depth_img, mean_row_vec, 0, CV_REDUCE_SUM);
-
-  // 720p, sw stands for "sliding window"                                                                                         
-  int step_size = (width-WIDTH_ROVER)/(num_windows-1);
-  //int num_sw =(int)( width *2 / WIDTH_ROVER ) -1;                                                                               
-  float max_sum_sw = FLT_MIN ;
-  int final_start_col = -1;
-  float left_sum =0, right_sum = 0;
-  for (int i = 0; i!= num_windows; i++) {
-    int curr_col = i * step_size;  //i *  (int)WIDTH_ROVER/2;                                                                     
-    const Mat sub_col =  mean_row_vec.colRange(curr_col, curr_col+WIDTH_ROVER-1 );
-    float window_sum = sum( sub_col )[0];
-    if (i == 0) left_sum = window_sum;
-    if (i == num_windows - 1) right_sum = window_sum;
-    cout<<"[col "<<curr_col<<"], window sub_col sum is "<<window_sum<<endl;
-    if (window_sum > max_sum_sw) {
-      max_sum_sw = window_sum;
-      final_start_col = curr_col;
-    }
-  }
-
-  obstacle_return rt_val;
-  rt_val.center_distance = center_point_depth;
-
-  if (max_sum_sw > THRESHOLD_NO_WAY) {
-    cout<<"final_start_col: "<<final_start_col<<endl;
-    rectangle(depth_img, Point( final_start_col, 0), Point( final_start_col+WIDTH_ROVER, 720), Scalar(0, 0, 255),\
-3);
-    rectangle(rgb_img, Point( final_start_col, 0), Point( final_start_col+WIDTH_ROVER, 720), Scalar(0, 0, 255), \
-    float direction_center_diff =  ((float)(final_start_col + WIDTH_ROVER / 2) - (float)width/2 ) ;
-    rt_val.bearing = direction_center_diff / (float)(width/2) * (50.0);
-
-  } else {
-    cout<<"Big obstacle in the front. Need to escape from one side!\n";
-    rt_val.bearing =  (left_sum > right_sum)? (-45.0): (45.0);
-  }
-  return rt_val;
-
-}
-
-
-bool findTennisBall(Mat &src){
-=======
 
 vector<Point2f> findTennisBall(Mat &src){
->>>>>>> 99726c2a8e3b9b3f00299390e33552ea15a63476
+
     Mat hsv;
     cvtColor(src, hsv, COLOR_BGR2HSV);
 
