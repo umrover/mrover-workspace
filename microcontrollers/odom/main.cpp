@@ -1,6 +1,7 @@
 #include <mbed.h>
 #include "math_3d.hpp"
 #include "imu.hpp"
+#include "nmea.hpp"
 #include "pins.hpp"
 #include "frame_serial.hpp"
 
@@ -9,16 +10,20 @@ DigitalOut led(LED1_PROD);
 Serial serial(RTK_UART_TX1_PROD, RTK_UART_RX1_PROD, 115200);
 Serial gps_in(RTK_UART_TX2_PROD, RTK_UART_RX2_PROD, 115200);
 Imu imu(IMU_I2C_SDA_PROD, IMU_I2C_SCL_PROD);
-Thread thread1, thread2;
+Thread thread1;
 Mutex mutex;
+RMCParser parser;
 
-float roll = 0;
-float pitch = 0;
-float bearing = 0;
-float LatDeg = 0;
-float LatMin = 0;
-float LonDeg = 0;
-float LonMin = 0;
+struct __attribute__((__packed__)) {
+    float roll;
+    float pitch;
+    float bearing;
+    int lat_deg;
+    float lat_min;
+    int lon_deg;
+    float lon_min;
+    bool gps_read;
+} g_message;
 
 namespace ReadState {
     enum ReadState {
@@ -229,10 +234,10 @@ private:
 
     void update_globals() {
         mutex.lock();
-        ::LatDeg = LatDeg;
-        ::LatMin = LatMin;
-        ::LonDeg = LonDeg;
-        ::LonMin = LonMin;
+        g_message.lat_deg = LatDeg;
+        g_message.lat_min = LatMin;
+        g_message.lon_deg = LonDeg;
+        g_message.lon_min = LonMin;
         mutex.unlock();
     }
 };
@@ -267,17 +272,16 @@ void get_IMU() {
             m.y -= V.y;
             m.z -= V.z;
 
-            mutex.lock();
-            roll = atan2(a.y, a.z);
+            float roll = atan2(a.y, a.z);
             float By = m.y*cosf(roll) - m.z*sinf(roll);
             float Mz = m.z*cosf(roll) + m.y*sinf(roll);
             float Az = a.y*sinf(roll) + a.z*cosf(roll);
 
-            pitch = atan2(-a.x, Az);
+            float pitch = atan2(-a.x, Az);
             float Bz = m.x*cosf(pitch) + m.z*sinf(pitch);
 
             float yaw = atan2(-By, Bz);
-            bearing = yaw * (180.0f/M_PI);
+            float bearing = yaw * (180.0f/M_PI);
             if (bearing < 0) {
                 bearing += 360.0f;
             }
@@ -291,6 +295,10 @@ void get_IMU() {
             if (pitch < 0) {
                 pitch += 360.0f;
             }
+            mutex.lock();
+            g_message.roll = roll;
+            g_message.pitch = pitch;
+            g_message.bearing = bearing;
             mutex.unlock();
 
             // dbg.printf("Orientation: (roll=%.4f, pitch=%.4f)\r\n", roll*(180.0f/M_PI), pitch*(180.0f/M_PI));
@@ -300,10 +308,28 @@ void get_IMU() {
     }
 }
 
-void send_msg() {
+void gps_callback() {
+    char c = gps_in.getc();
+    if (parser.feed(c)) {
+        mutex.lock();
+        g_message.gps_read = true;
+        g_message.lat_deg = parser.latitude_deg();
+        g_message.lat_min = parser.latitude_min();
+        g_message.lon_deg = parser.longitude_deg();
+        g_message.lon_min = parser.longitude_min();
+        mutex.unlock();
+    }
+}
+
+int main() {
+
+    thread1.start(get_IMU);
+    
+    gps_in.attach(&gps_callback);
+
     while(true) {
         mutex.lock();
-        uint8_t msg[28] = {0};
+        /*uint8_t msg[28] = {0};
         memcpy(&msg[0], ((uint8_t *) &roll), sizeof(float));
         memcpy(&msg[4], ((uint8_t *) &pitch), sizeof(float));
         memcpy(&msg[8], ((uint8_t *) &bearing), sizeof(float));
@@ -311,24 +337,10 @@ void send_msg() {
         memcpy(&msg[16], ((uint8_t *) &LatMin), sizeof(float));
         memcpy(&msg[20], ((uint8_t *) &LonDeg), sizeof(float));
         memcpy(&msg[24], ((uint8_t *) &LonMin), sizeof(float));
-        write_frame(serial, msg, 28);
+        write_frame(serial, msg, 28);*/
+        write_frame(serial, (uint8_t *) &g_message, sizeof(g_message));
+        g_message.gps_read = false;
         mutex.unlock();
         wait(0.1);
-    }
-}
-
-
-int main() {
-
-    RTK rtk;
-
-    thread1.start(get_IMU);
-    thread2.start(send_msg);
-
-    while(true) {
-        while (gps_in.readable()) {
-            char c = gps_in.getc();
-            rtk.read_char(c);
-        }
     }
 }
