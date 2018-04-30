@@ -11,8 +11,8 @@ ser = serial.Serial(ssc32_port, 9600, timeout=1)
 
 
 class Servos(Enum):
-    CAMERA_PAN = 0
-    CAMERA_TILT = 1
+    CAMERA_PAN = 1
+    CAMERA_TILT = 0
 
 
 def to_servo_value(amount):

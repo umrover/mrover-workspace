@@ -1,0 +1,12 @@
+[Unit]
+Description=MRover Onboard Servo
+Requires=rover-hwi.service
+After=rover-hwi.service
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jarvis exec onboard_servo
+
+[Install]
+WantedBy=multi-user.target
