@@ -1,10 +1,12 @@
 import serial
 import struct
+import os
 from rover_common import aiolcm, frame_serial
 from rover_msgs import Odometry
 
 
 lcm_ = aiolcm.AsyncLCM()
+odom_port = os.environ.get('MROVER_ODOM_PORT', '/dev/ttyUSB0')
 
 
 class OdomFrame:
@@ -22,7 +24,7 @@ class OdomFrame:
 
 
 def main():
-    ser = serial.Serial('/dev/ttyUSB0', timeout=1)
+    ser = serial.Serial(odom_port, timeout=1)
     ser.baudrate = 115200
     r = frame_serial.Reader()
     counter = 0
