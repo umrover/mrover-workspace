@@ -118,6 +118,12 @@ if(app !=null ){
   let servosSpeed = 1;
   const keysDown=[false, false, false, false];
 
+  const servosMessage={
+      'type': 'CameraServos',
+      'pan': 0,
+      'tilt': 0
+  };
+
   window.addEventListener('keydown', (e) => {
     if(e.keyCode==38)//Up
       keysDown[0]=true;
@@ -221,17 +227,8 @@ if(app !=null ){
           });
           lcm_.publish('/drive_control', joystickData);
 
-          const clamp = function(num, min, max) {
-            return num <= min ? min : num >= max ? max : num;
-          };
-
-          const servosData = {
-            'type': 'CameraServos',
-            'pan': clamp(gamepad.axes[JOYSTICK_CONFIG["pan"]]*servosSpeed/10, -1, 1),
-            'tilt': clamp(-gamepad.axes[JOYSTICK_CONFIG["tilt"]]*servosSpeed/10, -1, 1)
-          };
-
-          lcm_.publish('/camera_servos', servosData);
+          servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG["pan"]]*servosSpeed/10;
+          servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG["tilt"]]*servosSpeed/10;
         }
         else if (gamepad.id.includes("Microsoft")) {
           const xboxData = {
@@ -255,6 +252,15 @@ if(app !=null ){
         }
       }
     }
+
+    const clamp = function(num, min, max) {
+      return num <= min ? min : num >= max ? max : num;
+    };
+
+    servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1);
+    servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1);
+
+    lcm_.publish('/camera_servos', servosMessage);
   }, 100);
 
 }else if(pidTune != null){
