@@ -1,45 +1,15 @@
 import serial
 import struct
-from rover_common import aiolcm
+from rover_common import aiolcm, frame_serial
 from rover_msgs import Odometry
 
 
 lcm_ = aiolcm.AsyncLCM()
 
-START = b'\x12'
-END = b'\x13'
-
-
-class Status():
-    WaitHeader = 0
-    InMsg = 1
-
-
-class Reader():
-
-    def __init__(self):
-        self.state = Status.WaitHeader
-        self.buffer = []
-
-    def feed(self, c):
-        next_state = self.state
-        if self.state == Status.WaitHeader:
-            if c == START:
-                next_state = Status.InMsg
-                self.buffer = []
-        elif self.state == Status.InMsg:
-            if c == END:
-                next_state = Status.WaitHeader
-                self.state = next_state
-                return True
-            self.buffer.append(c)
-        self.state = next_state
-        return False
-
 
 class OdomFrame:
     def __init__(self, buf):
-        data = struct.unpack('<fffIfIf?', buf)
+        data = struct.unpack('<fffIfIf??', buf)
         self.roll = data[0]
         self.pitch = data[1]
         self.bearing = data[2]
@@ -48,12 +18,13 @@ class OdomFrame:
         self.lon_deg = data[5]
         self.lon_min = data[6]
         self.gps_read = data[7]
+        self.imu_read = data[8]
 
 
 def main():
     ser = serial.Serial('/dev/ttyUSB0', timeout=1)
     ser.baudrate = 115200
-    r = Reader()
+    r = frame_serial.Reader()
     counter = 0
     while True:
         c = ser.read()
@@ -62,6 +33,9 @@ def main():
                 frame = OdomFrame(b''.join(r.buffer))
                 if not frame.gps_read:
                     print('{}: Could not read a complete GPS frame'.format(
+                        counter))
+                if not frame.imu_read:
+                    print('{}: Could not read a complete IMU frame'.format(
                         counter))
                 counter += 1
                 msg = Odometry()
