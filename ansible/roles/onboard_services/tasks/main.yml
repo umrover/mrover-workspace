@@ -21,4 +21,4 @@
   with_items:
       - rover-hwi.service
       - rover-onboard-teleop.service
-      - rover-onboard-servo
+      - rover-onboard-servo.service

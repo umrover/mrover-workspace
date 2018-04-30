@@ -141,11 +141,11 @@ def arm_control_callback(channel, msg):
     # global enc_in
     xbox = Xbox.decode(msg)
     new_arm = OpenLoopRAMotors()
-    new_arm.joint_a = -deadzone(quadratic(xbox.left_js_x), 0.09)*.25
+    new_arm.joint_a = -deadzone(quadratic(xbox.left_js_x), 0.09)*.5
     new_arm.joint_b = -deadzone(quadratic(xbox.left_js_y), 0.09)*.5
     new_arm.joint_c = quadratic(xbox.left_trigger - xbox.right_trigger)*.60
     new_arm.joint_d = deadzone(quadratic(xbox.right_js_y), 0.09)*.75
-    new_arm.joint_e = deadzone(quadratic(xbox.right_js_x), 0.09)*.25
+    new_arm.joint_e = deadzone(quadratic(xbox.right_js_x), 0.09)*.75
     new_arm.joint_f = (xbox.right_bumper - xbox.left_bumper)
 
     print("Arm:\nA: {}\nB: {}\nC: {}\nD: {}\nE: {}\nF: {}\n"
