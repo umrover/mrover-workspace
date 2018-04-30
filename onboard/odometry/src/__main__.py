@@ -9,7 +9,7 @@ lcm_ = aiolcm.AsyncLCM()
 
 class OdomFrame:
     def __init__(self, buf):
-        data = struct.unpack('<fffIfIf??', buf)
+        data = struct.unpack('<fffifif??', buf)
         self.roll = data[0]
         self.pitch = data[1]
         self.bearing = data[2]
