@@ -7,9 +7,9 @@
 
 DigitalOut led(LED1_PROD);
 // Serial dbg(USBTX, USBRX, 9600);
-Serial serial(RTK_UART_TX1_PROD, RTK_UART_RX1_PROD, 115200);
-Serial gps_in(RTK_UART_TX2_PROD, RTK_UART_RX2_PROD, 115200);
-Imu imu(IMU_I2C_SDA_PROD, IMU_I2C_SCL_PROD);
+Serial serial(UART_TX1_PROD, UART_RX1_PROD, 115200);
+Serial gps_in(UART_TX2_PROD, UART_RX2_PROD, 115200);
+Imu imu(I2C_SDA_PROD, I2C_SCL_PROD);
 Thread thread1;
 Mutex mutex;
 RMCParser parser;
