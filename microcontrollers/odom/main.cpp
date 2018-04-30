@@ -28,7 +28,8 @@ struct __attribute__((__packed__)) {
 
 void get_IMU() {
     while(true) {
-        Math::Vector3f V = { 0 };
+        // Math::Vector3f V = { 0 };
+        Math::Vector3f V = { 30, 20, 110 };
         while (!imu.valid()) {
             led = false;
             // dbg.printf("invalid IMU, check connection\r\n");
@@ -60,10 +61,10 @@ void get_IMU() {
             float Mz = m.z*cosf(roll) + m.y*sinf(roll);
             float Az = a.y*sinf(roll) + a.z*cosf(roll);
 
-            float pitch = atan2(-a.x, Az);
-            float Bz = m.x*cosf(pitch) + m.z*sinf(pitch);
+            float pitch = atan(-a.x / Az);
+            float Bx = m.x*cosf(pitch) + m.z*sinf(pitch);
 
-            float yaw = atan2(-By, Bz);
+            float yaw = atan2(-By, Bx);
             float bearing = yaw * (180.0f/M_PI);
             if (bearing < 0) {
                 bearing += 360.0f;
@@ -81,7 +82,7 @@ void get_IMU() {
             mutex.lock();
             g_message.roll = roll;
             g_message.pitch = pitch;
-            g_message.bearing = bearing;
+            g_message.bearing = 360.0f - bearing; // empirically derived hack
             g_message.imu_read = true;
             mutex.unlock();
 
