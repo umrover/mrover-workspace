@@ -4,7 +4,8 @@ struct Sensors {
   int64_t timestamp;
   double temperature;
   double moisture;
-  double soil_conductivity;
+  double conductivity;
   double pH;
-  double uv;
+  double O2;
+  double CO2;
 }
