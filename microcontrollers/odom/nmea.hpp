@@ -7,7 +7,7 @@ using std::size_t;
 
 class RMCParser {
     public:
-        RMCParser();
+        RMCParser() throw ();
         bool feed(char c);
 
         int latitude_deg() const { return this->lat_deg_; }
