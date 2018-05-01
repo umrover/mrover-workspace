@@ -7,11 +7,17 @@
       - rover-onboard-teleop
       - rover-onboard-nav
       - rover-onboard-servo
+      - rover-onboard-odometry
 
 - name: Copy environment variable definitions 
   copy:
       src: files/rover.env
       dest: /etc/default/rover.env
+
+- name: Install udev rules
+  copy:
+      src: files/rover.rules
+      dest: /etc/udev/rules.d/10-rover.rules
 
 - name: Reload systemd
   systemd: daemon_reload=yes
@@ -22,3 +28,4 @@
       - rover-hwi.service
       - rover-onboard-teleop.service
       - rover-onboard-servo.service
+      - rover-onboard-odometry.service
