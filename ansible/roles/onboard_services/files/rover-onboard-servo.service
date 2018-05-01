@@ -1,10 +1,9 @@
 [Unit]
 Description=MRover Onboard Servo
-Requires=rover-hwi.service
-After=rover-hwi.service
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
+Environment=MROVER_SSC32_PORT=/dev/ssc32
 User={{ running_user }}
 ExecStart={{ workspace_dir }}/jarvis exec onboard_servo
 
