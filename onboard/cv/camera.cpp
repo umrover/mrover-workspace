@@ -163,7 +163,8 @@ cv::Mat Camera::Impl::depth() {
   std::string rgb_name = img_names[idx_curr_img];
   std::string full_path = depth_path + std::string("/") +
                           rgb_name.substr(0, rgb_name.size()-4) + std::string(".exr");
-  cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_GRAYSCALE );
+  std::cout<<full_path<<std::endl;
+  cv::Mat img = cv::imread(full_path.c_str(), cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
   if (!img.data){
     std::cerr<<"Load image "<<full_path<< " error\n";
   }
