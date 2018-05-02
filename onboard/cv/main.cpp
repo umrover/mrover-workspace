@@ -14,8 +14,9 @@ using namespace std;
 const float fieldofView = 110 * PI/180;
 const float inf = -std::numeric_limits<float>::infinity();
 
-int THRESHOLD_NO_WAY = 0;//500000; //how will we calibrate if the rover width changes
+int THRESHOLD_NO_WAY = 300000;//500000; //how will we calibrate if the rover width changes
 int center_point_height = 360;  //not sure
+int THRESHOLD_NO_OBSTACLE_CENTER = 600000;
 
 const float zedHeight = 17 * 0.0254; //inches to meters off the ground
 const float realWidth = 46 * 25.4; //rover width , rover is 46 inches wide TODO make a little longer to be safe
@@ -23,7 +24,7 @@ const float angleOffset = 10 * PI/180;    //angle offset of the rover
 
 const float focalLength = 2.8; //zed focal length in mm
 
-const float distThreshold = 6;    //meters, used to calculate rover pixels
+const float distThreshold = 4;    //meters, used to calculate rover pixels
 const float obstacleThreshold = 5 * 0.0254; //inches to meters
 
 float minDepth = 1; //need to set
@@ -51,8 +52,8 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, Mat &rgb_img, int 
 
   float center_point_depth = (float) depth_img.at<float>(  center_point_height, 640);
 
-  Mat mean_row_vec = Mat::zeros(1, width, type);
-  reduce(depth_img, mean_row_vec, 0, CV_REDUCE_SUM);
+  Mat mean_row_vec = Mat::zeros(1, width, CV_32F);
+  reduce(depth_img, mean_row_vec, 0, CV_REDUCE_SUM, CV_32F);
 
   // 720p, sw stands for "sliding window"                                                                                         
   int step_size = (width-roverPixWidth)/(num_windows-1);
@@ -70,13 +71,13 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, Mat &rgb_img, int 
   //line(rgb_img, startScan, endScan, Scalar(0, 0, 255), 2, 8, 0);
   const Mat sub_col =  mean_row_vec.colRange(curr_col, curr_col+roverPixWidth-1 );
   float window_sum = sum( sub_col )[0]; 
-  if(window_sum > THRESHOLD_NO_WAY){
+  if(window_sum > THRESHOLD_NO_OBSTACLE_CENTER){
     rectangle(rgb_img, Point( startScan.x, 0), Point( endScan.x, 720), Scalar(0, 0, 255), 3);
-    cout<<"[middle], window sub_col sum is "<<window_sum<<endl;
+    cout<<"middle: window sub_col sum is "<<window_sum<<endl;
     return noTurn;
   }
-
-  for (int i = 0; i!= num_windows; i++) {
+  
+  for (int i = 1; i < num_windows-1; i++) {
     int curr_col = i * step_size;  //i *  (int)WIDTH_ROVER/2;                                                                     
     const Mat sub_col =  mean_row_vec.colRange(curr_col, curr_col+roverPixWidth-1 );
     float window_sum = sum( sub_col )[0];
@@ -265,7 +266,7 @@ int main() {
             cout << "framerate: " << 1.0f/(frame_time/j) << endl;
         }   
         j++;
-        waitKey(5);
+        waitKey(0);
     }
 
     //cam.deleteZed();

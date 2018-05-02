@@ -6,11 +6,8 @@ lcm = dependency('lcm')
 all_deps = [opencv, lcm]
 
 # TODO Jarvis will need to be smartened up to build this properly
-#get_option('with_zed')
-with_zed = true
-
-# set this flag when you want to use an existing folder for testing
-# offline_test = true
+with_zed = get_option('with_zed')
+offline_test = get_option('offline_test')
 
 if with_zed
 	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
@@ -30,7 +27,7 @@ if with_zed
 			'-lnppist', '-lnppitc'
 		])
 	all_deps += [zed]
-else
+elif not offline_test
 	percepsim = dependency('percepsim')
 	nanomsg = dependency('nanomsg')
 	all_deps += [percepsim, nanomsg]
@@ -38,6 +35,7 @@ endif
 
 conf_data = configuration_data()
 conf_data.set10('ZED_SDK_PRESENT', with_zed)
+conf_data.set10('OFFLINE_TEST', offline_test)
 configure_file(
 	input: 'config.h.in',
 	output: 'config.h',

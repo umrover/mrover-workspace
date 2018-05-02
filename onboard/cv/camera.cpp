@@ -112,26 +112,30 @@ Camera::Impl::Impl() {
   rgb_dir = opendir(rgb_path.c_str() );
   depth_dir = opendir(depth_path.c_str() );
   if ( NULL==rgb_dir || NULL==depth_dir ) {
-    cerr<<"Input folder not exist\n";    
+    std::cerr<<"Input folder not exist\n";    
     return;
   }
 
-  // get the vector of image names, jpg/png files
+  // get the vector of image names, jpg/png for rgb files, .exr for depth files
   // we only read the rgb folder, and assume that the depth folder's images have the same name
   struct dirent *dp = NULL;
-  std::unordered_set<std::string> img_tails({".jpg", ".png"});
+  std::unordered_set<std::string> img_tails({".exr", ".jpg", ".exr"});
   int img_tail_str_len = 4;
+  std::cout<<"Read image names\n";
   do {
     errno = 0;
     if ((dp = readdir(rgb_dir)) != NULL) {
       std::string file_name(dp->d_name);
+      std::cout<<"file_name is "<<file_name<<std::endl;
+      if (file_name.size() < 5) continue; // the lengh of the tail str is at least 4
       std::string tail = file_name.substr(file_name.size()-4, 4);
+      std::string head = file_name.substr(0, file_name.size()-4);
       if (img_tails.find(tail)!= img_tails.end()) {
-	img_names.push_back(file_name);
+	img_names.push_back(head);
       }
     }
   } while  (dp != NULL);
-  
+  std::cout<<"Read image names complete\n";
   idx_curr_img = 0;
 }
 
@@ -144,22 +148,24 @@ bool Camera::Impl::grab() {
     return true;
 }
 
-cv::Mat load_img(std::string full_path) {
+
+cv::Mat Camera::Impl::image() {
+  std::string full_path = rgb_path + std::string("/") + (img_names[idx_curr_img]);
+
   cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_COLOR);
   if (!img.data){
-    cerr<<"Load image "<<file_name<< " error\n";
+    std::cerr<<"Load image "<<full_path<< " error\n";
   }
   return img;
 }
 
-cv::Mat Camera::Impl::image() {
-  std::string full_path = rgb_path + string("/") + std::to_string(img_names[idx_curr_img]);
-  return load_img(full_path);
-}
-
 cv::Mat Camera::Impl::depth() {
-  std::string full_path = depth_path + string("/") + std::to_string(img_names[idx_curr_img]);
-  return load_img(full_path);
+  std::string full_path = depth_path + std::string("/") + img_names[idx_curr_img];
+  cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_GRAYSCALE );
+  if (!img.data){
+    std::cerr<<"Load image "<<full_path<< " error\n";
+  }
+  return img;
 }
 
 
