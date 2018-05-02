@@ -119,7 +119,7 @@ Camera::Impl::Impl() {
   // get the vector of image names, jpg/png for rgb files, .exr for depth files
   // we only read the rgb folder, and assume that the depth folder's images have the same name
   struct dirent *dp = NULL;
-  std::unordered_set<std::string> img_tails({".exr", ".jpg", ".exr"});
+  std::unordered_set<std::string> img_tails({".exr", ".jpg"}); // for rgb
   int img_tail_str_len = 4;
   std::cout<<"Read image names\n";
   do {
@@ -131,7 +131,7 @@ Camera::Impl::Impl() {
       std::string tail = file_name.substr(file_name.size()-4, 4);
       std::string head = file_name.substr(0, file_name.size()-4);
       if (img_tails.find(tail)!= img_tails.end()) {
-	img_names.push_back(head);
+	img_names.push_back(file_name);
       }
     }
   } while  (dp != NULL);
@@ -160,7 +160,9 @@ cv::Mat Camera::Impl::image() {
 }
 
 cv::Mat Camera::Impl::depth() {
-  std::string full_path = depth_path + std::string("/") + img_names[idx_curr_img];
+  std::string rgb_name = img_names[idx_curr_img];
+  std::string full_path = depth_path + std::string("/") +
+                          rgb_name.substr(0, rgb_name.size()-4) + std::string(".exr");
   cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_GRAYSCALE );
   if (!img.data){
     std::cerr<<"Load image "<<full_path<< " error\n";
