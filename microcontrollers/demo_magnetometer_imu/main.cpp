@@ -3,7 +3,7 @@
 #include "imu.hpp"
 //#include "madgwick.hpp"
 
-#define DT 2.0
+#define DT 1.0
 
 DigitalOut green_led(LED1);
 DigitalOut red_led(LED2);
@@ -22,9 +22,11 @@ int main() {
         wait(1.0);
     }
 
-    Math::Vector3f V = { 0 };
-    Math::Vector3f maxV = { 0 };
-    Math::Vector3f minV = { 0 };
+    const float DECLINATION = -4.0f; // For Ann Arbor
+    //Math::Vector3f V = { 27.451f, 14.048f, 8.852f };
+    //Math::Vector3f V = { 29.448f, -1.122f, -23.356f };
+    Math::Vector3f maxB = { 0 };
+    Math::Vector3f minB = { 0 };
     while (true) {
         dbg.printf("Calibrate magnetometer...\r\n");
         dbg.printf("Roll the board in all orientations for 5 seconds.\r\n");
@@ -33,36 +35,33 @@ int main() {
             imu.read();
             Math::Vector3f m = imu.magnetometer();
             if (i == 0) {
-                maxV.x = minV.x = m.x;
-                maxV.y = minV.y = m.y;
-                maxV.z = minV.z = m.z;
+                maxB.x = minB.x = m.x;
+                maxB.y = minB.y = m.y;
+                maxB.z = minB.z = m.z;
             }
 
-            if (m.x > maxV.x) {
-                maxV.x = m.x;
+            if (m.x > maxB.x) {
+                maxB.x = m.x;
             }
-            if (m.y > maxV.y) {
-                maxV.y = m.y;
+            if (m.y > maxB.y) {
+                maxB.y = m.y;
             }
-            if (m.z > maxV.z) {
-                maxV.z = m.z;
+            if (m.z > maxB.z) {
+                maxB.z = m.z;
             }
-            if (m.x < minV.x) {
-                minV.x = m.x;
+            if (m.x < minB.x) {
+                minB.x = m.x;
             }
-            if (m.y < minV.y) {
-                minV.y = m.y;
+            if (m.y < minB.y) {
+                minB.y = m.y;
             }
-            if (m.z < minV.z) {
-                minV.z = m.z;
+            if (m.z < minB.z) {
+                minB.z = m.z;
             }
             wait(0.001);
         }
 
-        if (maxV.x > minV.x + 50 && maxV.y > minV.y + 50 && maxV.z > minV.z + 50) {
-            V.x = (maxV.x + minV.x)/2.0f;
-            V.y = (maxV.y + minV.y)/2.0f;
-            V.z = (maxV.z + minV.z)/2.0f;
+        if (maxB.x > minB.x + 50 && maxB.y > minB.y + 50 && maxB.z > minB.z + 50) {
             dbg.printf("Calibration succeeded\r\n");
             break;
         } else {
@@ -76,40 +75,71 @@ int main() {
         Math::Vector3f a = imu.accelerometer();
         Math::Vector3f m = imu.magnetometer();
         Math::Vector3f g = imu.gyroscope();
+
         dbg.printf("-----------RAW VALUES------------\r\n");
         dbg.printf("A: (x=%.4f, y=%.4f, z=%.4f) m/s^2\r\n", a.x, a.y, a.z);
         dbg.printf("M: (x=%.4f, y=%.4f, z=%.4f) uT\r\n", m.x, m.y, m.z);
-        //dbg.printf("G: (x=%.4f, y=%.4f, z=%.4f) deg/s\r\n", g.x, g.y, g.z);
-        dbg.printf("\r\n");
+        dbg.printf("Magnetic field strength: %.4f uT\r\n", sqrtf(m.x*m.x + m.y*m.y + m.z*m.z));
 
-        /*float roll = atan2f(a.y, a.z);
-        float pitch = atan2f(-a.x, a.y*sinf(roll) + a.z*cosf(roll));
-
-        float yaw = atan2f(
-                (m.z - V.z)*sinf(roll) - (m.y - V.y)*cosf(roll),
-                (m.x - V.x)*cosf(pitch) + (m.y - V.y)*sinf(pitch)*sinf(roll) + (m.z - V.z)*sinf(pitch)*cosf(roll));
-        float bearing = yaw * (180.0f/M_PI);*/
-
-        m.x -= V.x;
-        m.y -= V.y;
-        m.z -= V.z;
-
-        float roll = atan2(a.y, a.z);
-        float By = m.y*cosf(roll) - m.z*sinf(roll);
-        float Mz = m.z*cosf(roll) + m.y*sinf(roll);
-        float Az = a.y*sinf(roll) + a.z*cosf(roll);
-
-        float pitch = atan2(-a.x, Az);
-        float Bz = m.x*cosf(pitch) + m.z*sinf(pitch);
-
-        float yaw = atan2(-By, Bz);
-        float bearing = yaw * (180.0f/M_PI);
-        if (bearing < 0) {
-            bearing += 360.0f;
+        /*bool hasUpdated = false;
+        if (m.x > maxB.x) {
+            maxB.x = m.x;
+            hasUpdated = true;
+        }
+        if (m.x < minB.x) {
+            minB.x = m.x;
+            hasUpdated = true;
+        }
+        if (m.y > maxB.y) {
+            maxB.y = m.y;
+            hasUpdated = true;
+        }
+        if (m.y < minB.y) {
+            minB.y = m.y;
+            hasUpdated = true;
+        }
+        if (m.z > maxB.z) {
+            maxB.z = m.z;
+            hasUpdated = true;
+        }
+        if (m.z < minB.z) {
+            minB.z = m.z;
+            hasUpdated = true;
         }
 
-        dbg.printf("Orientation: (roll=%.4f, pitch=%.4f)\r\n", roll*(180.0f/M_PI), pitch*(180.0f/M_PI));
-        dbg.printf("Yaw (bearing): %.4f\r\n", bearing);
+        if (hasUpdated) {
+            dbg.printf("UPDATED CALIBRATION!\r\n");
+        }*/
+
+        Math::normalize_vec(a);
+        float pitch = asin(-a.x);
+        float roll = asin(a.y/cos(pitch));
+
+        if (maxB.x - minB.x == 0 || maxB.y - minB.y == 0 || maxB.z - minB.z == 0) {
+            dbg.printf("needs more calibration, rotate magnetometer more\r\n");
+            continue;
+        }
+
+        float Bxc = (m.x - minB.x) / (maxB.x - minB.x) * 2 - 1;
+        float Byc = (m.y - minB.y) / (maxB.y - minB.y) * 2 - 1;
+        float Bzc = (m.z - minB.z) / (maxB.z - minB.z) * 2 - 1;
+
+        dbg.printf("Calibrated magnetometer: (x=%.4f, y=%.4f, z=%.4f)\r\n", Bxc, Byc, Bzc);
+
+        float Bx = Bxc*cos(pitch) + Bzc*sin(pitch);
+        float By = Bxc*sin(roll)*sin(pitch) + Byc*cos(roll) - Bzc*sin(roll)*cos(pitch);
+
+        dbg.printf("Projected: (x=%.4f, y=%.4f)\r\n", Bx, By);
+
+        float yaw = 90.0f - atan2(Bx, By) * (180.0f/M_PI);
+        yaw += DECLINATION;
+
+        if (yaw < 0) {
+            yaw += 360.0f;
+        }
+
+        dbg.printf("\r\nOrientation: (roll=%.4f, pitch=%.4f)\r\n", roll*(180.0f/M_PI), pitch*(180.0f/M_PI));
+        dbg.printf("Yaw: %.4f\r\n", yaw);
         dbg.printf("\r\n");
 
         wait(DT);
