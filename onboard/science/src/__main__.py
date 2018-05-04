@@ -31,7 +31,7 @@ def main():
             try:
                 frame = ScienceFrame(b''.join(r.buffer))
                 msg = Sensors()
-                msg.timestamp = time.time()
+                msg.timestamp = int(time.time())
                 msg.temperature = frame.temperature
                 msg.moisture = frame.moisture
                 msg.conductivity = frame.conductivity
@@ -39,5 +39,6 @@ def main():
                 msg.O2 = frame.O2
                 msg.CO2 = frame.CO2
                 lcm_.publish('/sensors', msg.encode())
-            except struct.error:
-                print("Incomplete data, only {} bytes".format(len(r.buffer)))
+            except struct.error as e:
+                print(e)
+                # print("Incomplete data, only {} bytes".format(len(r.buffer)))
