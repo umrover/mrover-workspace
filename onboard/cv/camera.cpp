@@ -28,7 +28,7 @@ private:
 
 Camera::Impl::Impl() {
 	sl::InitParameters init_params;
-	init_params.camera_resolution = sl::RESOLUTION_HD720;
+	init_params.camera_resolution = sl::RESOLUTION_HD720; // default: 720p
 	init_params.depth_mode = sl::DEPTH_MODE_PERFORMANCE;
 	init_params.coordinate_units = sl::UNIT_METER;
 	init_params.camera_fps = 60;
