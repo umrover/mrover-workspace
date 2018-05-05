@@ -19,20 +19,20 @@ CHANNEL = os.environ.get('MROVER_TALON_CAN_IFACE', 'vcan0')
 
 
 class Talons(Enum):
-    left_front = 2
-    left_back = 7
-    right_front = 4
-    right_back = 8
-    arm_joint_a = 5
-    arm_joint_b = 6
-    arm_joint_c = 0
-    arm_joint_d = 3
-    arm_joint_e = 1
+    left_front = 0
+    left_back = 1
+    right_front = 2
+    right_back = 3
+    arm_joint_a = 4
+    arm_joint_b = 5
+    arm_joint_c = 6
+    arm_joint_d = 7
+    arm_joint_e = 8
     arm_joint_f = 9
-    drill = 0
-    lead_screw = 1
+    drill = 4
+    lead_screw = 5
     door_actuator = 9
-    cache = 3
+    cache = 6
 
 
 class Rover:
