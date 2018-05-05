@@ -225,7 +225,11 @@ if(app !=null ){
           app.set({
             dampen: gamepad.axes[JOYSTICK_CONFIG["dampen"]]
           });
-          lcm_.publish('/drive_control', joystickData);
+
+          const auton_enabled = app.refs.waypoints.get("auton_enabled");
+          if (!auton_enabled) {
+            lcm_.publish('/drive_control', joystickData);
+          }
 
           servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG["pan"]]*servosSpeed/10;
           servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG["tilt"]]*servosSpeed/10;
