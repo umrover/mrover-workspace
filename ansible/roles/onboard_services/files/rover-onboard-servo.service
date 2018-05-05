@@ -1,5 +1,7 @@
 [Unit]
 Description=MRover Onboard Servo
+Requires=dev-ssc32.device
+After=dev-ssc32.device
 
 [Service]
 EnvironmentFile=/etc/default/rover.env

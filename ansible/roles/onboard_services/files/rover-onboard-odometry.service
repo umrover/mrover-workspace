@@ -1,5 +1,7 @@
 [Unit]
 Description=MRover Onboard Odometry
+Requires=dev-odom.device
+After=dev-odom.device
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
