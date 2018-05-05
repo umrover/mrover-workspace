@@ -63,6 +63,8 @@ int main() {
 
         if (maxB.x > minB.x + 50 && maxB.y > minB.y + 50 && maxB.z > minB.z + 50) {
             dbg.printf("Calibration succeeded\r\n");
+            dbg.printf("minB: (x=%.4f, y=%.4f, z=%.4f)\r\n", minB.x, minB.y, minB.z);
+            dbg.printf("maxB: (x=%.4f, y=%.4f, z=%.4f)\r\n", maxB.x, maxB.y, maxB.z);
             break;
         } else {
             dbg.printf("Calibration failed\r\n");
