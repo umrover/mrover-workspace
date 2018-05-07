@@ -6,4 +6,5 @@ struct Odometry {
     int32_t longitude_deg;
     double longitude_min;
     double bearing_deg;
+    int16_t num_satellites;
 }
