@@ -12,7 +12,8 @@ Serial gps_in(UART_TX2_PROD, UART_RX2_PROD, 115200);
 Imu imu(I2C_SDA_PROD, I2C_SCL_PROD);
 Thread thread1;
 Mutex mutex;
-RMCParser parser;
+RMCParser rmc_parser;
+GSVParser gsv_parser;
 
 struct __attribute__((__packed__)) {
     float roll;
@@ -22,6 +23,7 @@ struct __attribute__((__packed__)) {
     float lat_min;
     int lon_deg;
     float lon_min;
+    int num_satellites;
     bool gps_read;
     bool imu_read;
 } g_message;
@@ -78,13 +80,18 @@ void get_IMU() {
 
 void gps_callback() {
     char c = gps_in.getc();
-    if (parser.feed(c)) {
+    if (rmc_parser.feed(c)) {
         mutex.lock();
         g_message.gps_read = true;
-        g_message.lat_deg = parser.latitude_deg();
-        g_message.lat_min = parser.latitude_min();
-        g_message.lon_deg = parser.longitude_deg();
-        g_message.lon_min = parser.longitude_min();
+        g_message.lat_deg = rmc_parser.latitude_deg();
+        g_message.lat_min = rmc_parser.latitude_min();
+        g_message.lon_deg = rmc_parser.longitude_deg();
+        g_message.lon_min = rmc_parser.longitude_min();
+        mutex.unlock();
+    }
+    if (gsv_parser.feed(c)) {
+        mutex.lock();
+        g_message.num_satellites = gsv_parser.num_satellites();
         mutex.unlock();
     }
 }

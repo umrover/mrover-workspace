@@ -7,7 +7,7 @@ using std::size_t;
 
 class RMCParser {
     public:
-        RMCParser() throw ();
+        RMCParser();
         bool feed(char c);
 
         int latitude_deg() const { return this->lat_deg_; }
@@ -45,9 +45,34 @@ class RMCParser {
         int lon_deg_mult_;
         float lon_min_mult_;
 
-        bool digit(char c) const;
-        bool alpha(char c) const;
         State add_to_deg(char c, int * deg_val, int * mult, float * min_mult, State next);
         State add_to_min(char c, float * min_val, float * mult, State next);
         State add_dir(char c, int * deg_val, float * min_val, State next);
+};
+
+
+class GSVParser {
+    public:
+        GSVParser();
+        bool feed(char c);
+
+        int num_satellites() { return this->num_sats_; }
+
+        enum State {
+            WaitForHeader,
+            ReadingHeader,
+            NumMessages,
+            MessageIndex,
+            NumSatellites
+        };
+
+        State state_;
+    private:
+        static const size_t HEADER_TYPE_LEN = 7;
+        char header_type_[HEADER_TYPE_LEN];
+        size_t header_type_offset_;
+
+        int num_sats_;
+
+        int num_sats_mult_;
 };

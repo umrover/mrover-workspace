@@ -8,6 +8,14 @@ using std::size_t;
 #endif
 #include "nmea.hpp"
 
+static bool digit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+static bool alpha(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
 RMCParser::RMCParser() : 
     state_(WaitForHeader),
     header_type_offset_(0),
@@ -103,14 +111,6 @@ bool RMCParser::feed(char c) {
     return completed;
 }
 
-bool RMCParser::digit(char c) const {
-    return c >= '0' && c <= '9';
-}
-
-bool RMCParser::alpha(char c) const {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
-
 RMCParser::State RMCParser::add_to_deg(char c, int * deg_val, int * mult, float * min_mult, RMCParser::State next) {
     if (!digit(c)) {
         // Invalid
@@ -154,4 +154,86 @@ RMCParser::State RMCParser::add_dir(char c, int * deg_val, float * min_val, RMCP
         return next;
     }
     return this->state_;
+}
+
+
+GSVParser::GSVParser() :
+    state_(WaitForHeader),
+    header_type_offset_(0),
+    num_sats_(0)
+{
+}
+
+// TODO we can totally factor out most of these states
+bool GSVParser::feed(char c) {
+    State next_state = this->state_;
+    bool completed = false;
+    switch (this->state_) {
+        case WaitForHeader:
+            if (c == '$') {
+                this->header_type_offset_ = 0;
+                memset(this->header_type_, 0, sizeof(this->header_type_));
+                this->num_sats_ = 0;
+                next_state = ReadingHeader;
+            }
+            break;
+        case ReadingHeader:
+            if (c == ',' || this->header_type_offset_ >= 5) {
+                if (this->header_type_offset_ < 5) {
+                    // Invalid, wait for another message.
+                    next_state = WaitForHeader;
+                } else if (this->header_type_[2] == 'G' &&
+                        this->header_type_[3] == 'S' &&
+                        this->header_type_[4] == 'V') {
+                    next_state = NumMessages;
+                } else {
+                    next_state = WaitForHeader;
+                }
+            } else if (alpha(c)) {
+                if (this->header_type_offset_ >= HEADER_TYPE_LEN) {
+                    // Invalid
+                    next_state = WaitForHeader;
+                } else {
+                    this->header_type_[this->header_type_offset_++] = c;
+                }
+            } else {
+                next_state = WaitForHeader;
+            }
+            break;
+        case NumMessages:
+            if (c == ',') {
+                next_state = MessageIndex;
+            } else {
+                if (!digit(c)) {
+                    // Invalid
+                    next_state = WaitForHeader;
+                }
+            }
+            break;
+        case MessageIndex:
+            if (c == ',') {
+                this->num_sats_mult_ = 10;
+                next_state = NumSatellites;
+            } else {
+                if (!digit(c)) {
+                    // Invalid
+                    next_state = WaitForHeader;
+                }
+            }
+            break;
+        case NumSatellites:
+            if (c == ',') {
+                next_state = WaitForHeader;
+                completed = true;
+            } else if (digit(c)) {
+                this->num_sats_ += (c - '0') * this->num_sats_mult_;
+                this->num_sats_mult_ /= 10;
+            } else {
+                // Invalid
+                next_state = WaitForHeader;
+            }
+            break;
+    }
+    this->state_ = next_state;
+    return completed;
 }
