@@ -9,7 +9,7 @@
 #include <cmath>
 #include <lcm/lcm-cpp.hpp>
 #include <vector>
-
+#include <sys/stat.h> // for disk writing
 #ifdef PERCEPTION_DEBUG
 #include <opencv2/highgui/highgui.hpp>
 #include <cstdlib>
@@ -43,6 +43,9 @@ struct obstacle_return {
   float bearing; // [-50 degree, 50 degree]
 };
 
+// these are for online data collection
+extern bool WRITE_CURR_FRAME_TO_DISK;
+const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/mrover/auton_data/");
 
 std::vector<cv::Point2f> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width );

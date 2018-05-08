@@ -3,6 +3,9 @@
 using namespace cv;
 using namespace std;
 
+
+bool WRITE_CURR_FRAME_TO_DISK = false;
+
 float minDepth = 1; //need to set
 float pixelWidth = 1; //need to set
 float pixelHeight = 1;
@@ -43,6 +46,34 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
   return true;
 }
 
+static string rgb_foldername, depth_foldername;
+void disk_record_init() {
+  if (WRITE_CURR_FRAME_TO_DISK) {
+    // write images colleted to the folder
+    // absolute path
+    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER + "rgb/"; 
+    depth_foldername = DEFAULT_ONLINE_DATA_FOLDER + "depth/" ;
+    string mkdir_rgb =  std::string("mkdir -p ") + rgb_foldername;
+    string mkdir_depth =  std::string("mkdir -p ") + depth_foldername;
+    int dir_err_rgb = system( mkdir_rgb.c_str() );
+    int dir_err_depth = system(mkdir_depth.c_str());
+    if (-1 == dir_err_rgb || -1 == dir_err_depth) {
+      printf("Error creating directory!\n");
+      exit(1);
+    }
+  }
+
+}
+
+void write_curr_frame_to_disk(Mat &rgb, Mat & depth, int counter ) {
+  if (WRITE_CURR_FRAME_TO_DISK) {
+      cv::imwrite(rgb_foldername +  std::to_string(counter) + std::string(".jpg"), rgb );
+      //std::string file_str = std::string("depth_") + std::to_string(counter);// + std::string(".jpg");
+      
+      cv::imwrite(depth_foldername +  std::to_string(counter) + std::string(".exr"), depth );
+  }
+}
+
 int main() {
     /*initialize camera*/
     Camera cam;
@@ -53,6 +84,8 @@ int main() {
     namedWindow("image",1);
     namedWindow("depth",2);
     #endif
+    disk_record_init();
+   
     while (true) {
         if (!cam_grab_succeed(cam, counter_fail)) break;
       
@@ -60,6 +93,9 @@ int main() {
         Mat src = cam.image();
         imshow("image", src);
         Mat depth_img = cam.depth();
+
+	// write to disk if permitted
+	write_curr_frame_to_disk(src, depth_img, j );
 
         /*initialize lcm messages*/
         lcm::LCM lcm_;
