@@ -10,11 +10,18 @@
 #include <lcm/lcm-cpp.hpp>
 #include <vector>
 
+#ifdef PERCEPTION_DEBUG
+#include <opencv2/highgui/highgui.hpp>
+#include <cstdlib>
+#endif
+
+
+
 #define PERCEPTION_DEBUG
 #define THRESHOLD_NO_WAY  300000 //how will we calibrate if the rover width changes
-#define THRESHOLD_NO_OBSTACLE_CENTER  400000
+#define THRESHOLD_NO_OBSTACLE_CENTER  500000
 #define SKY_START_ROW 200
-
+#define BALL_DETECTION_MAX_DIST 3.50  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
 
 #define PI 3.14159265
 #define FRAME_WAITKEY 0 // for cv::imshow
@@ -37,5 +44,5 @@ struct obstacle_return {
 };
 
 
-std::vector<cv::Point2f> findTennisBall(cv::Mat &src);
+std::vector<cv::Point2f> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width );

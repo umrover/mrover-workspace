@@ -72,9 +72,12 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, Mat &rgb_img, int 
     #endif
 
     // compute bearing
-    float direction_center_diff =  ((float)(final_start_col + rover_width / 2) - (float)size.width/2 ) ;
-    rt_val.bearing = direction_center_diff / (float)(size.width/2) * (50.0);
-
+    if (size.width /2 > final_start_col && size.width/2 < final_start_col + rover_width-1) {
+      rt_val.bearing = 0;
+    } else {
+      float direction_center_diff =  ((float)(final_start_col + rover_width / 2) - (float)size.width/2 ) ;
+      rt_val.bearing = direction_center_diff / (float)(size.width/2) * (50.0);
+    }
   } else {
     cout<<"Big obstacle in the front. Need to escape from one side!\n";
     rt_val.bearing =  (left_sum > right_sum)? (-45.0): (45.0);

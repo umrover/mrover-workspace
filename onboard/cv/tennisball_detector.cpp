@@ -1,31 +1,73 @@
 #include "perception.hpp"
+
+
 using namespace std;
 using namespace cv;
+
+#ifdef PERCEPTION_DEBUG
+struct mouse_data {
+  Mat * hsv;
+  Mat * depth;
+};
+static mouse_data m_data;
+static Mat hsv;
+/* For debug use: print the HSV values at mouseclick locations */
+void onMouse(int event, int x, int y, int flags, void* param)
+{
+  if (event != EVENT_LBUTTONDOWN) return;
+  
+  //char text[100];
+  mouse_data * m_d =  (mouse_data *) param;
+  float d = m_d->depth->at<float>(y,x);
+  Vec3b p = m_d->hsv->at<Vec3b>(y,x);
+  
+  printf("Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, depth is %.2f meters \n", y, x,
+	 p.val[0], p.val[1], p.val[2], d);
+
+  //sprintf(text, "Depth=%.2f meters at (%d,%d)", p, y, x);
+
+  //putText(img2, text, Point(10,20), FONT_HERSHEY_PLAIN, 2.0, CV_RGB(0,255,0));
+}
+#endif
+
+
 
 Mat greenFilter(const Mat& src){
     assert(src.type() == CV_8UC3);
 
     Mat greenOnly;
-    Scalar lowerb = Scalar(71, 210, 90);
-    Scalar upperb = Scalar(74, 255, 147);
+    // 36 170 80
+    Scalar lowerb = Scalar(36, 170, 80);
+    Scalar upperb = Scalar(43, 226, 196);
     inRange(src, lowerb, upperb, greenOnly);
 
     return greenOnly;
 }
 
 
-vector<Point2f> findTennisBall(Mat &src){
-
+vector<Point2f> findTennisBall(Mat &src, Mat & depth_src){
+  
+    #ifndef PERCEPTION_DEBUG
     Mat hsv;
+    #endif
+
     cvtColor(src, hsv, COLOR_BGR2HSV);
 
     Mat mask = greenFilter(hsv);
 
     #ifdef PERCEPTION_DEBUG
+    mouse_data * m_d = & m_data;
+    m_d->hsv = &hsv;
+    m_d->depth = &depth_src;
+    imshow("hsv", hsv);
+    setMouseCallback("image", onMouse, (void *)m_d);    
     imshow("mask", mask);
     #endif
-    
-    medianBlur(mask, mask, 11);
+
+    // smoothing
+    //medianBlur(mask, mask, 11);
+    Size ksize(5,5);
+    GaussianBlur(mask, mask, ksize, 1, 1, BORDER_DEFAULT );
 
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;

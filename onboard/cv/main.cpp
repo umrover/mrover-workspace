@@ -29,7 +29,19 @@ float getObstacleMin(float expected){
     return expected - obstacleThreshold/sin(angleOffset);
 }
 
+bool cam_grab_succeed(Camera &cam, int & counter_fail) {
+  while (!cam.grab()) {
+    cerr << "grab failed once\n";
+    counter_fail++;
+    if (counter_fail > 1000000) {
+      cerr<<"camera failed\n";
+      return false;
+    }
+  }
 
+  counter_fail = 0;
+  return true;
+}
 
 int main() {
     /*initialize camera*/
@@ -37,23 +49,16 @@ int main() {
     int j = 0;
     double frame_time = 0;
     int counter_fail = 0;
+    #ifdef PERCEPTION_DEBUG
+    namedWindow("image",1);
+    namedWindow("depth",2);
+    #endif
     while (true) {
-        while (!cam.grab()) {
-            cerr << "grab failed.\n";
-            counter_fail++;
-            if (counter_fail > 1000000) break;
-        }
-
-        if (counter_fail  ) {
-
-            cerr<< "camera fails\n"; 
-            break;
-        }
-        else counter_fail = 0;
-
+        if (!cam_grab_succeed(cam, counter_fail)) break;
+      
         auto start = chrono::high_resolution_clock::now();
         Mat src = cam.image();
-        imshow("orginal", src);
+        imshow("image", src);
         Mat depth_img = cam.depth();
 
         /*initialize lcm messages*/
@@ -77,22 +82,26 @@ int main() {
         cout << "Turn " << obstacle_detection.bearing << endl;
 
 	/* Tennis ball detection*/
-        vector<Point2f> centers = findTennisBall(src);
+        vector<Point2f> centers = findTennisBall(src, depth_img);
         if(centers.size() != 0){
-            tennisMessage.found = true;
-            tennisMessage.distance = depth_img.at<float>(centers[0].x, centers[0].y);
-            tennisMessage.bearing = getAngle((int)centers[0].x, src.cols);
-            cout << centers.size() << " tennis ball(s) detected: " << tennisMessage.distance 
+	    float dist = depth_img.at<float>(centers[0].y, centers[0].x);
+	    if (dist < BALL_DETECTION_MAX_DIST) {
+	      tennisMessage.distance = dist;
+	      tennisMessage.bearing = getAngle((int)centers[0].x, src.cols);
+
+	      tennisMessage.found = true;
+	      cout << centers.size() << " tennis ball(s) detected: " << tennisMessage.distance 
                                                         << "m, " << tennisMessage.bearing << "degrees\n";
-        }else{
-            //cout << "tennis ball not detected.\n";
+	    } else
+	      tennisMessage.found = false;
         }
+
         lcm_.publish("/tennis_ball", &tennisMessage);
         lcm_.publish("/obstacle", &obstacleMessage);
 
 	#ifdef PERCEPTION_DEBUG
     	imshow("depth", depth_img);
-        imshow("camera", src);
+        imshow("image", src);
 	#endif
         auto end = chrono::high_resolution_clock::now();
 
