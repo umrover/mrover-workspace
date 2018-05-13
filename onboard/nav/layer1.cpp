@@ -30,6 +30,8 @@ bool Layer1::turn(const odom & current_odom, const odom & target_odom) {
 bool Layer1::drive(const odom & current_odom, const odom & target_odom) {
     // calculate distance to the goal
     double dist = estimate_noneuclid(current_odom, target_odom);
+    double bearing = calc_bearing(current_odom, target_odom);
+    calc_bearing_thresholds(current_odom, dist, bearing);
 
     if (dist < AT_GOAL) {
         return true;
@@ -38,6 +40,7 @@ bool Layer1::drive(const odom & current_odom, const odom & target_odom) {
         make_publish_joystick(0, turn_to_dest(current_odom, target_odom), false);
         std::cout << "shits fucked up, this should not be happening in this bizach\n";
         // TODO throw exception to go back to big turn
+        throw 1;
     } // if outside out threshold, turn rover back to inner threshold
 
     else {
