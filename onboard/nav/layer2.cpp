@@ -286,7 +286,18 @@ void Layer2::run() {
 				} // else if obstacle detected
 
 				// drive and update rover
-				bool arrived = layer1.drive(rover_cur_odom, goal.odom);
+				bool arrived;
+				try
+				{
+					arrived = layer1.drive(rover_cur_odom, goal.odom);
+				}
+				catch (int i)
+				{
+					std::cout << "outside outter thresh\n";
+					nextState = State::turn;
+					break;
+				}
+
 				updateRover();
 
 				if (!arrived) {
@@ -593,7 +604,25 @@ void Layer2::run() {
 					break;
 				} // else if obstacle detected
 
-				bool arrived = layer1.drive(rover_cur_odom, dummy_obs_odom);
+				bool arrived = false;
+
+				try {
+					arrived = layer1.drive(rover_cur_odom, dummy_obs_odom);
+				}
+				catch (int i)
+				{
+					std::cout << "outside outter thresh\n";
+					if (state == State::drive_around_obs)
+					{
+						nextState = State::turn_around_obs;
+					}
+					else
+					{
+						nextState = State::search_turn_around_obs;
+					}
+					break;
+				}
+
 				updateRover();
 
 				if (!arrived) {
