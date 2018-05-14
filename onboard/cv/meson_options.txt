@@ -1,1 +1,3 @@
 option('with_zed', type: 'boolean', value : false)
+option('offline_test', type: 'boolean', value: true)
+option('perception_debug', type: 'boolean', value: true)
