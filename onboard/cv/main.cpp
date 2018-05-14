@@ -58,7 +58,6 @@ void disk_record_init() {
     int dir_err_rgb = system( mkdir_rgb.c_str() );
     int dir_err_depth = system(mkdir_depth.c_str());
     if (-1 == dir_err_rgb || -1 == dir_err_depth) {
-      printf("Error creating directory!\n");
       exit(1);
     }
   }
@@ -91,7 +90,9 @@ int main() {
       
         auto start = chrono::high_resolution_clock::now();
         Mat src = cam.image();
+	#ifdef PERCEPTION_DEBUG
         imshow("image", src);
+	#endif
         Mat depth_img = cam.depth();
 
 	// write to disk if permitted
@@ -115,8 +116,9 @@ int main() {
         obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
         if(obstacle_detection.bearing != 0) obstacleMessage.detected = true;    //if an obstacle is detected in front
         obstacleMessage.bearing = obstacle_detection.bearing;
+	#ifdef PERCEPTION_DEBUG
         cout << "Turn " << obstacle_detection.bearing << endl;
-
+	#endif
 	/* Tennis ball detection*/
         vector<Point2f> centers = findTennisBall(src, depth_img);
         if(centers.size() != 0){
@@ -126,8 +128,10 @@ int main() {
 	      tennisMessage.bearing = getAngle((int)centers[0].x, src.cols);
 
 	      tennisMessage.found = true;
+	      #ifdef PERCEPTION_DEBUG
 	      cout << centers.size() << " tennis ball(s) detected: " << tennisMessage.distance 
                                                         << "m, " << tennisMessage.bearing << "degrees\n";
+	      #endif
 	    } else
 	      tennisMessage.found = false;
         }
@@ -143,9 +147,11 @@ int main() {
 
         auto delta = chrono::duration_cast<chrono::duration<double>>(end - start);
         frame_time += delta.count();
+	#ifdef PERCEPTION_DEBUG
         if(j % 100 == 0){
             cout << "framerate: " << 1.0f/(frame_time/j) << endl;
-        }   
+        }
+	#endif
         j++;
         waitKey(FRAME_WAITKEY);
     }

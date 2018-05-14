@@ -79,7 +79,9 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, Mat &rgb_img, int 
       rt_val.bearing = direction_center_diff / (float)(size.width/2) * (50.0);
     }
   } else {
+    #ifdef PERCEPTION_DEBUG
     cout<<"Big obstacle in the front. Need to escape from one side!\n";
+    #endif
     rt_val.bearing =  (left_sum > right_sum)? (-45.0): (45.0);
   }
   return rt_val;
