@@ -142,6 +142,7 @@ int main() {
 	#ifdef PERCEPTION_DEBUG
     	imshow("depth", depth_img);
         imshow("image", src);
+	waitKey(FRAME_WAITKEY);
 	#endif
         auto end = chrono::high_resolution_clock::now();
 
@@ -153,7 +154,6 @@ int main() {
         }
 	#endif
         j++;
-        waitKey(FRAME_WAITKEY);
     }
 
     //cam.deleteZed();
