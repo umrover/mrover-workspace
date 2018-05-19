@@ -1,5 +1,4 @@
 #include "layer2.hpp"
-// TODO latitude vs longitude calc minutes to meters -- done??
 
 // custom constructor for layer2
 Layer2::Layer2(lcm::LCM &lcm_object) : 
@@ -27,12 +26,14 @@ void Layer2::set_course(const rover_msgs::Course * course)
 	});	
 }
 
-bool Layer2::rotation_pred(const odom & cur_odom, const double theta1, const double theta2){
+bool Layer2::rotation_pred(const odom & cur_odom, const double theta1, const double theta2)
+{
 	return (abs(cur_odom.bearing_deg - theta1) < INNER_SEARCH_THRESH || 
 			abs(cur_odom.bearing_deg - theta2) < INNER_SEARCH_THRESH);
 }
 
-void Layer2::init_search_multipliers(){
+void Layer2::init_search_multipliers()
+{
 	search_point_multipliers.clear();
 	search_point_multipliers.push_back(std::pair<short,short> (0,1));
     search_point_multipliers.push_back(std::pair<short,short> (-1,1));
@@ -40,10 +41,12 @@ void Layer2::init_search_multipliers(){
     search_point_multipliers.push_back(std::pair<short,short> (1,-1));
 }
 
-bool Layer2::add_four_points_to_search(const waypoint & origin_way) {  
+bool Layer2::add_four_points_to_search(const waypoint & origin_way) 
+{  
 	if (search_point_multipliers[0].second * PATH_WIDTH > SEARCH_BAIL_THRESH) return false;
 
-    for ( int i = 0; i < 4 ; ++i ){
+    for ( int i = 0; i < 4 ; ++i )
+    {
         std::pair<short,short> & lead_pat = search_point_multipliers[i];
     
         rover_msgs::Waypoint next_search_way = origin_way;
@@ -100,7 +103,8 @@ inline void Layer2::waypoint_assign(waypoint & way1, const waypoint & way2)
 	way1.odom.longitude_min = way2.odom.longitude_min;
 }
 
-void Layer2::long_meter_mins(const odom & cur_odom) {
+void Layer2::long_meter_mins(const odom & cur_odom)
+{
 	long_meter_in_minutes = 60 / (EARTH_CIRCUM * 
 		cos(degree_to_radian(cur_odom.latitude_deg, cur_odom.latitude_min)) / 360);
 }
@@ -109,7 +113,8 @@ void Layer2::long_meter_mins(const odom & cur_odom) {
 //			This relies on using a path width no larger than what we can 
 //			confidentally see to the side.
 // EFFECTS: Returns the distance between a detected obstacle and a waypoint.
-double Layer2::calc_dist_obs_way(const odom & way, const double obs_angle) const {
+double Layer2::calc_dist_obs_way(const odom & way, const double obs_angle) const 
+{
 	double way_dist = estimate_noneuclid(rover_cur_odom, way);
 	double dist = way_dist * way_dist + CV_THRESH * CV_THRESH;
 	dist -= 2 * way_dist * CV_THRESH * cos(degree_to_radian(0));
@@ -128,12 +133,14 @@ double Layer2::calc_bearing_from_rover(const odom & goal) const {
 */
 
 
-void Layer2::obstacle_dummy_odom(odom & new_odom, const double cur_bearing, const double dist) {
-	new_odom.latitude_min += cos(degree_to_radian(cur_bearing)) * dist * LAT_METER_IN_MINUTES; // check signs and sins(cos)
+void Layer2::obstacle_dummy_odom(odom & new_odom, const double cur_bearing, const double dist) 
+{
+	new_odom.latitude_min += cos(degree_to_radian(cur_bearing)) * dist * LAT_METER_IN_MINUTES;
 	new_odom.longitude_min += sin(degree_to_radian(cur_bearing)) * dist * long_meter_in_minutes;
 } // obstacle_dummy_odom()
 
-void Layer2::updateRover() {
+void Layer2::updateRover() 
+{
 	rover_cur_odom = this->cur_odom_.clone_when_changed();
 	BallUpdate updateBall(&rover_ball);
 	this->tennis_ball_.clone_conditional(updateBall, &rover_ball);
@@ -143,7 +150,8 @@ void Layer2::updateRover() {
 	this->auton_state_.clone_conditional(updateAuton, &rover_auton_state);
 } // updateRover()
 
-void Layer2::updateRover_ballUnconditional() {
+void Layer2::updateRover_ballUnconditional() 
+{
 	rover_cur_odom = this->cur_odom_.clone_when_changed();
 	// BallUpdate updateBall(&rover_ball);
 	this->rover_ball = this->tennis_ball_.clone();
@@ -153,7 +161,8 @@ void Layer2::updateRover_ballUnconditional() {
 	this->auton_state_.clone_conditional(updateAuton, &rover_auton_state);
 } // updateRover_ballUnconditional()
 
-void Layer2::updateRover_obsUnconditional() {
+void Layer2::updateRover_obsUnconditional() 
+{
 	rover_cur_odom = this->cur_odom_.clone_when_changed();
 	BallUpdate updateBall(&rover_ball);
 	this->tennis_ball_.clone_conditional(updateBall, &rover_ball);
@@ -163,8 +172,10 @@ void Layer2::updateRover_obsUnconditional() {
 	this->auton_state_.clone_conditional(updateAuton, &rover_auton_state);
 } // updateRover_ballUnconditional()
 
-std::string print_state(State state) {
-	switch(state) {
+std::string print_state(State state) 
+{
+	switch(state) 
+	{
 		case State::turn:
 			return "turn";
 
@@ -568,7 +579,7 @@ void Layer2::run() {
 						nextState = State::drive_around_obs;
 					}
 
-					double dist_around_obs = CV_THRESH / sin(fabs(degree_to_radian(original_obs_angle)));
+					double dist_around_obs = CV_THRESH / cos(fabs(degree_to_radian(original_obs_angle)));
 					dummy_obs_odom = rover_cur_odom;
 					obstacle_dummy_odom(dummy_obs_odom, rover_cur_odom.bearing_deg, dist_around_obs);
 				} // else if we are facing a clear path
@@ -606,12 +617,12 @@ void Layer2::run() {
 
 				bool arrived = false;
 
-				try {
+				try 
+				{
 					arrived = layer1.drive(rover_cur_odom, dummy_obs_odom);
 				}
 				catch (int i)
 				{
-					std::cout << "outside outter thresh\n";
 					if (state == State::drive_around_obs)
 					{
 						nextState = State::turn_around_obs;
@@ -644,6 +655,7 @@ void Layer2::run() {
 				} // if rover turned off
 
 				else {
+					layer1.make_publish_joystick(0, 0, false);
 					rover_auton_state = this->auton_state_.clone();
 					nextState = state;
 				} // else done
@@ -651,11 +663,11 @@ void Layer2::run() {
 			} // state = done
 		} // switch
 		state = nextState;
+		usleep(50000);
 	} // while
 } // run()
 
 /* Future TODOs
-separate translational into turning state and driving state
 fix turn_and_drive to use a reference to goal not a copy (pop would invalidate goal if it was a reference as is)
 clean up cloning at the end of states
 if we see an object while turning in turn and drive, will we try to avoid it?

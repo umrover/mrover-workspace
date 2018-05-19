@@ -16,17 +16,18 @@
 #include <iostream>
 #include <cassert>
 #include <iomanip>
+#include <unistd.h>
 
 const double EARTH_CIRCUM = 40075000; // meters
 const double LAT_METER_IN_MINUTES = 0.0005389625; // minutes/meter
 const int PATH_WIDTH = 2; // meters
 const int SEARCH_BAIL_THRESH = 10; // meters
-const double DIRECTION_THRESH = 1.0; // degrees
-const double INNER_SEARCH_THRESH = .0001; // degrees
+const double DIRECTION_THRESH = 5; // degrees
+const double INNER_SEARCH_THRESH = 5; // degrees
 const double BALL_THRESH = 1; // meters
 const double CV_THRESH = 5; // meters
 const double AVOIDANCE_SCALE = 2;
-const int CV_FOV = 120;
+const int CV_FOV = 110;
 
 #define NAV_STATUS_CHANNEL "/nav_status"
 using waypoint = rover_msgs::Waypoint;
