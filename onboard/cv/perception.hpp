@@ -16,13 +16,14 @@
 #endif
 
 
-#define THRESHOLD_NO_WAY  300000 //how will we calibrate if the rover width changes
-#define THRESHOLD_NO_OBSTACLE_CENTER  500000
+#define PERCEPTION_DEBUG
+#define THRESHOLD_NO_WAY  200000 //how will we calibrate if the rover width changes
+#define THRESHOLD_NO_OBSTACLE_CENTER  350000
 #define SKY_START_ROW 200
 #define BALL_DETECTION_MAX_DIST 3.50  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
 
 #define PI 3.14159265
-#define FRAME_WAITKEY 2 // for cv::imshow
+#define FRAME_WAITKEY 0 // for cv::imshow
 
 const int RESOLUTION_HEIGHT = 720; // 720p
 const float fieldofView = 110 * PI/180;
@@ -33,7 +34,7 @@ const float angleOffset = 10 * PI/180;    //angle offset of the rover
 const int num_sliding_windows = 10;
 const float focalLength = 2.8; //zed focal length in mm
 
-const float distThreshold = 4;    //meters, used to calculate rover pixels
+const float distThreshold = 2.5;    //meters, used to calculate rover pixels
 const float obstacleThreshold = 5 * 0.0254; //inches to meters
 
 struct obstacle_return {
