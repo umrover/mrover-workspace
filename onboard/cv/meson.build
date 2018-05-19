@@ -15,9 +15,7 @@ if with_zed
 		link_args : [
 			# ZED SDK
 			'-L/usr/local/zed/lib',
-			'-lsl_zed', '-lsl_depthcore', '-lsl_calibration',
-			'-lsl_tracking', '-lsl_disparityFusion', '-lsl_svorw',
-			'-lsl_scanning', '-lsl_core',
+			'-lsl_input', '-lsl_core', '-lsl_zed',
 
 			# CUDA 
 			'-L/usr/local/cuda/lib64',
