@@ -15,7 +15,7 @@ int calcFocalWidth(){   //mm
 }
 
 int calcRoverPix(float dist){   //pix
-    float roverWidthSensor = realWidth * focalLength/(dist * 1000);
+    float roverWidthSensor = realWidth * 1.2  * focalLength/(dist * 1000);
     return roverWidthSensor*(pixelWidth/2)/calcFocalWidth();
 }
 
@@ -114,11 +114,19 @@ int main() {
 
 	/* obstacle detection */
         obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
-        if(obstacle_detection.bearing != 0) obstacleMessage.detected = true;    //if an obstacle is detected in front
+        if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
+	  cout<< "bearning not zero!\n";
+	  obstacleMessage.detected = true;    //if an obstacle is detected in front
+	} else {
+	  cout<<"bearing zero\n";
+	  obstacleMessage.detected = false;
+	}
         obstacleMessage.bearing = obstacle_detection.bearing;
+
 	#ifdef PERCEPTION_DEBUG
-        cout << "Turn " << obstacle_detection.bearing << endl;
+	cout << "Turn " << obstacleMessage.bearing << ", detected " << obstacleMessage.detected<< endl;
 	#endif
+
 	/* Tennis ball detection*/
         vector<Point2f> centers = findTennisBall(src, depth_img);
         if(centers.size() != 0){
