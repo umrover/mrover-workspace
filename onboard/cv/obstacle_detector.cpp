@@ -26,11 +26,12 @@ obstacle_return scan_middle(Mat & rgb_img, float center_point_depth,  int rover_
   return noTurn;
 }
 
-obstacle_return avoid_obstacle_sliding_window(Mat &depth_img, Mat &rgb_img, int num_windows, int rover_width ) {
+obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, int num_windows, int rover_width ) {
   // filter out nan values. 0.7 and 20 are ZED stero's limits
+  Mat depth_img = depth_img_src.clone();
   depth_img = max(depth_img, 0.7);
   depth_img = min(depth_img, 20.0);
-
+  depth_img = depth_img(Rect( 0, 300,  1280, 400));
   Size size = depth_img.size();
   float center_point_depth = (float) depth_img.at<float>(  size.height/2, size.width/2);
 
