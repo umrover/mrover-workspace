@@ -17,13 +17,13 @@
 
 
 #define PERCEPTION_DEBUG
-#define THRESHOLD_NO_WAY  200000 //how will we calibrate if the rover width changes
-#define THRESHOLD_NO_OBSTACLE_CENTER  350000
+#define THRESHOLD_NO_WAY  230000 //how will we calibrate if the rover width changes
+#define THRESHOLD_NO_OBSTACLE_CENTER  260000
 #define SKY_START_ROW 200
 #define BALL_DETECTION_MAX_DIST 3.50  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
 
 #define PI 3.14159265
-#define FRAME_WAITKEY 0 // for cv::imshow
+#define FRAME_WAITKEY 2 // for cv::imshow
 
 const int RESOLUTION_HEIGHT = 720; // 720p
 const float fieldofView = 110 * PI/180;
@@ -44,7 +44,7 @@ struct obstacle_return {
 
 // these are for online data collection
 extern bool WRITE_CURR_FRAME_TO_DISK;
-const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/mrover/auton_data/");
+const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/jessica/auton_data/");
 
 std::vector<cv::Point2f> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width );

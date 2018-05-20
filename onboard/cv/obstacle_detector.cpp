@@ -31,7 +31,8 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
   Mat depth_img = depth_img_src.clone();
   depth_img = max(depth_img, 0.7);
   depth_img = min(depth_img, 20.0);
-  depth_img = depth_img(Rect( 0, 300,  1280, 400));
+  depth_img = depth_img(Rect( 0, 350,  1280, 350));
+  cv::blur(depth_img, depth_img, cv::Size(5, 5), cv::Point(-1,-1));
   Size size = depth_img.size();
   float center_point_depth = (float) depth_img.at<float>(  size.height/2, size.width/2);
 
