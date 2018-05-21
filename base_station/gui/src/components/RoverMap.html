@@ -22,6 +22,7 @@
         tms: true,
         bounds: [[38.3720427981, -110.746207438], [38.4404345486, -110.816260212]],
       }).addTo(mymap);
+      L.control.scale({imperial: false}).addTo(mymap);
 
       // Fit to overlay bounds (SW and NE points with (lat, lon))
       mymap.fitBounds([[38.3720427981, -110.746207438], [38.4404345486, -110.816260212]]);

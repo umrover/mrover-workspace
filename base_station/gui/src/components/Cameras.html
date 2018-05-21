@@ -6,7 +6,7 @@
     <div class="comms">
       <ul id="vitals">
         {{#each connections as connection, i}}
-          <li><CommIndicator connected="{{connection}}" name="Pi{{i}}" /></li>
+          <li><CommIndicator connected="{{connection}}" name="Pi{{i+1}}" /></li>
         {{/each}}
       </ul>
     </div>

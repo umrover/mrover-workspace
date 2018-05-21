@@ -3,7 +3,7 @@ import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveMotors, KillSwitch,
-                        Xbox, Encoder, Temperature, SAMotors, OpenLoopRAMotors)
+                        Xbox, Temperature, SAMotors, OpenLoopRAMotors)
 
 
 class Toggle:
@@ -31,7 +31,6 @@ class Toggle:
 lcm_ = aiolcm.AsyncLCM()
 kill_motor = False
 lock = asyncio.Lock()
-enc_in = None
 drill_on = Toggle(False)
 
 
@@ -132,13 +131,7 @@ def drive_control_callback(channel, msg):
     lcm_.publish('/motor', new_motor.encode())
 
 
-def encoder_callback(channel, msg):
-    global enc_in
-    enc_in = Encoder.decode(msg)
-
-
 def arm_control_callback(channel, msg):
-    # global enc_in
     xbox = Xbox.decode(msg)
     new_arm = OpenLoopRAMotors()
     new_arm.joint_a = -deadzone(quadratic(xbox.left_js_x), 0.09)*.5
@@ -148,32 +141,7 @@ def arm_control_callback(channel, msg):
     new_arm.joint_e = deadzone(quadratic(xbox.right_js_x), 0.09)*.75
     new_arm.joint_f = (xbox.right_bumper - xbox.left_bumper)
 
-    print("Arm:\nA: {}\nB: {}\nC: {}\nD: {}\nE: {}\nF: {}\n"
-          .format(new_arm.joint_a, new_arm.joint_b, new_arm.joint_c,
-                  new_arm.joint_d, new_arm.joint_e, new_arm.joint_f))
-
     lcm_.publish('/arm_motors', new_arm.encode())
-    '''
-    new_encoder = Encoder()
-    if enc_in:
-        new_encoder = enc_in
-        new_encoder.joint_a = (enc_in.joint_a +
-                               int(deadzone(xbox.left_js_x, 0.20)*5))
-        new_encoder.joint_b = (enc_in.joint_b -
-                               int(deadzone(xbox.left_js_y, 0.20)*5))
-        new_encoder.joint_c = (enc_in.joint_c +
-                               int((xbox.left_trigger -
-                                    xbox.right_trigger)*2.5))
-        new_encoder.joint_d = (enc_in.joint_d -
-                               int(deadzone(xbox.right_js_y, 0.20)*5))
-        new_encoder.joint_e = (enc_in.joint_e +
-                               int(deadzone(xbox.right_js_x, 0.20)*5))
-        new_encoder.joint_f = (enc_in.joint_f +
-                               int((xbox.right_bumper -
-                                    xbox.left_bumper)*5))
-        enc_in = None
-        lcm_.publish('/arm_demand', new_encoder.encode())
-    '''
 
 
 def sa_control_callback(channel, msg):
@@ -194,10 +162,6 @@ def sa_control_callback(channel, msg):
     else:
         new_sa_motors.door_actuator = 0
     new_sa_motors.cache = deadzone(xbox.right_js_x, 0.2)
-
-    print('drill? {} door: {} lead-screw: {}'.format(
-        drill_on.toggle, new_sa_motors.door_actuator,
-        new_sa_motors.lead_screw))
 
     lcm_.publish('/sa_motors', new_sa_motors.encode())
 
@@ -230,10 +194,10 @@ async def transmit_temperature():
         with await lock:
             lcm_.publish('/temperature', new_temps.encode())
 
-        print("Published new tempertues")
-        print("bcpu temp: {} gpu temp: {} tboard temp: {} ".format(
-            new_temps.bcpu_temp/1000, new_temps.gpu_temp/1000,
-            new_temps.tboard_temp/1000))
+        # print("Published new tempertues")
+        # print("bcpu temp: {} gpu temp: {} tboard temp: {} ".format(
+        #     new_temps.bcpu_temp/1000, new_temps.gpu_temp/1000,
+        #     new_temps.tboard_temp/1000))
         await asyncio.sleep(1)
 
 
@@ -248,38 +212,13 @@ async def transmit_drive_status():
         await asyncio.sleep(1)
 
 
-def motor_callback(channel, msg):
-    input_data = DriveMotors.decode(msg)
-    # This function is for testing the joystick-motor algorithm
-    print("Left: {}  Right: {}\n".format(input_data.left, input_data.right))
-
-
-def enc_out_callback(channel, msg):
-    enc = Encoder.decode(msg)
-    print("Arm:\nA: {}\nB: {}\nC: {}\nD: {}\nE: {}\nF: {}\n"
-          .format(enc.joint_a, enc.joint_b, enc.joint_c,
-                  enc.joint_d, enc.joint_e, enc.joint_f))
-
-
 def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/drive_control", drive_control_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
-    lcm_.subscribe('/motor', motor_callback)
     lcm_.subscribe('/arm_control', arm_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
-    lcm_.subscribe('/encoder', encoder_callback)
-    lcm_.subscribe('/arm_demand', enc_out_callback)
-
-    new_encoder = Encoder()
-    new_encoder.joint_a = 0
-    new_encoder.joint_b = 0
-    new_encoder.joint_c = 0
-    new_encoder.joint_d = 0
-    new_encoder.joint_e = 0
-    new_encoder.joint_f = 0
-    lcm_.publish('/encoder', new_encoder.encode())
 
     run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())
