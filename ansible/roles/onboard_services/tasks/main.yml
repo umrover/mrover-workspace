@@ -7,6 +7,7 @@
       - rover-onboard-teleop
       - rover-onboard-nav
       - rover-onboard-servo
+      - rover-onboard-science
       - rover-onboard-odometry
 
 - name: Copy environment variable definitions 
@@ -28,4 +29,5 @@
       - rover-hwi.service
       - rover-onboard-teleop.service
       - rover-onboard-servo.service
+      - rover-onboard-science.service
       - rover-onboard-odometry.service
