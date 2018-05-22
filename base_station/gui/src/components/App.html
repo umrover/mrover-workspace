@@ -185,16 +185,16 @@
         sensors: {
           temperature: 0,
           moisture: 0,
-          soil_conductivity: 0,
+          conductivity: 0,
           pH: 0,
-          uv: 0
+          O2: 0,
+          CO2: 0,
         },
         temperature: {
           bcpu_temp: 0,
           gpu_temp: 0,
           tboard_temp: 0
         },
-        sensor_data: [],
         previous_waypoints: [],
         nav_status: {
           nav_state: -1,
@@ -279,7 +279,7 @@
         },
         {
           name: "Soil Conductivity",
-          value: sensors["soil_conductivity"],
+          value: sensors["conductivity"],
           unit: "µS/cm"
         },
         {
@@ -288,9 +288,14 @@
           unit: ""
         },
         {
-          name: "UV",
-          value: sensors["uv"],
-          unit: "µmoles/m^2/s"
+            name: "Oxygen",
+            value: sensors["O2"],
+            unit: "ppm"
+        },
+        {
+            name: "Carbon Dioxide",
+            value: sensors["CO2"],
+            unit: "ppm"
         },
         {
           name: "CPU Temperature",
