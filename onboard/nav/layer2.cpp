@@ -226,16 +226,7 @@ void Layer2::run() {
 				this->missed_wps = 0;
 				this->total_wps = rover_course.overall.size();
 
-				// if (rover_ball.found) {
-				// 	nextState = State::turn_to_ball;
-				// } // if ball found
-
-				if (rover_obstacle.detected) {
-					original_obs_angle = rover_obstacle.bearing;
-					nextState = State::turn_around_obs;
-				} // else if obstacle detected
-
-				else if (rover_course.overall.empty()) {
+				if (rover_course.overall.empty()) {
 					nextState = State::done;
 				} // else if no more waypoints to go to
 				
@@ -258,14 +249,6 @@ void Layer2::run() {
 					nextState = State::done;
 					break;
 				} // if no more waypoints
-
-				/*
-				// if put back in, caution with case of getting to a ball then coming to this state
-				else if (rover_ball.found) {
-					nextState = turn_to_ball;
-					break;
-				} // if ball found
-				*/
 
 				// drive and update rover
 				bool turned = layer1.turn(rover_cur_odom, goal.odom);
@@ -304,7 +287,6 @@ void Layer2::run() {
 				}
 				catch (int i)
 				{
-					std::cout << "outside outter thresh\n";
 					nextState = State::turn;
 					break;
 				}
@@ -523,14 +505,6 @@ void Layer2::run() {
 
 				// TODO: if ball lost
 				// assert(rover_ball.found);
-
-				/*
-				if (rover_obstacle.detected) {
-					dummy_obs_way.search = ????????
-					nextState = search_turn_around_obs;
-					break;
-				} // else if obstacle detected
-				*/
 
 				if (rover_ball.distance > BALL_THRESH) {
 					layer1.drive_forward(rover_cur_odom, rover_ball.bearing, rover_ball.distance);
