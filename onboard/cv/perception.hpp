@@ -44,7 +44,7 @@ struct obstacle_return {
 
 // these are for online data collection
 extern bool WRITE_CURR_FRAME_TO_DISK;
-const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/jessica/auton_data/");
+const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/nvidia/auton_data/");
 
 std::vector<cv::Point2f> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width );
