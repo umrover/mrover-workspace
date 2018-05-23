@@ -4,7 +4,7 @@ using namespace cv;
 using namespace std;
 
 
-bool WRITE_CURR_FRAME_TO_DISK = false;
+
 float minDepth = 1; //need to set
 float pixelWidth = 1; //need to set
 float pixelHeight = 1;
