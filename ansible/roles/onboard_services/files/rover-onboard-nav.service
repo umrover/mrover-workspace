@@ -7,3 +7,6 @@ After=rover-onboard-teleop.service
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
 ExecStart={{ workspace_dir }}/jarvis exec onboard_nav
+
+[Install]
+WantedBy=multi-user.target

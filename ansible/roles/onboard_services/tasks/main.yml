@@ -28,6 +28,7 @@
   with_items:
       - rover-hwi.service
       - rover-onboard-teleop.service
+      - rover-onboard-nav.service
       - rover-onboard-servo.service
       - rover-onboard-science.service
       - rover-onboard-odometry.service
