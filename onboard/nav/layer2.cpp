@@ -482,6 +482,11 @@ void Layer2::run() {
 
 				// TODO: if lost ball
 				// assert(rover_ball.found);
+				if(!rover_ball.found)
+				{
+					nextState = State::search_face0;
+					break;
+				}
 
 				if (fabs(rover_ball.bearing) > DIRECTION_THRESH) {
 					layer1.turn_to_bearing(rover_cur_odom, rover_cur_odom.bearing_deg + rover_ball.bearing);
@@ -505,6 +510,11 @@ void Layer2::run() {
 
 				// TODO: if ball lost
 				// assert(rover_ball.found);
+				if(!rover_ball.found)
+				{
+					nextState = State::search_face0;
+					break;
+				}
 
 				if (rover_ball.distance > BALL_THRESH) {
 					layer1.drive_forward(rover_cur_odom, rover_ball.bearing, rover_ball.distance);
@@ -636,6 +646,11 @@ void Layer2::run() {
 				break;
 			} // state = done
 		} // switch
+		if(state != nextState)
+		{
+			layer1.bearing_pid.reset();
+			layer1.distance_pid.reset();
+		}
 		state = nextState;
 		usleep(50000);
 	} // while
