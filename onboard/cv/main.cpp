@@ -1,4 +1,5 @@
 #include "perception.hpp"
+#include <unistd.h>
 
 using namespace cv;
 using namespace std;
@@ -36,6 +37,7 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
   while (!cam.grab()) {
     cerr << "grab failed once\n";
     counter_fail++;
+    usleep(1000);
     if (counter_fail > 1000000) {
       cerr<<"camera failed\n";
       return false;

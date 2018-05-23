@@ -1,5 +1,4 @@
 #pragma once
-#define PERCEPTION_DEBUG
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "camera.hpp"
