@@ -6,7 +6,7 @@ import csv
 
 
 print_order = ["timestamp", "temperature", "moisture",
-               "soil_conductivity", "pH", "uv"]
+               "conductivity", "pH", "O2", "CO2"]
 lcm_ = aiolcm.AsyncLCM()
 outFile = None
 outWriter = None
@@ -27,7 +27,7 @@ def sensor_callback(channel, msg):
     global outWriter
 
     data = Sensors.decode(msg)
-    writeData = [getattr(data, print_order[i]) for i in range(5)]
+    writeData = [getattr(data, name) for name in print_order]
 
     outWriter.writerow(writeData)
 

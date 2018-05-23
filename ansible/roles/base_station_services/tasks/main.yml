@@ -11,6 +11,7 @@
   with_items:
     - rover-base_station_gui
     - rover-base_station_gstreamer
+    - rover-base_station_logging_server
     - rover-lcm_bridge_server
 
 - name: Copy environment variable definitions
@@ -26,4 +27,5 @@
   with_items:
     - rover-base_station_gui.service
     - rover-base_station_gstreamer.service
+    - rover-base_station_logging_server.service
     - rover-lcm_bridge_server.service
