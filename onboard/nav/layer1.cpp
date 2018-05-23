@@ -2,7 +2,7 @@
 #include <iostream>
 
 Layer1::Layer1 (lcm::LCM & lcm_object) : 
-    bearing_pid(0.1, 0.01, 0.0055),
+    bearing_pid(0.1, 0.00001, 0.0055),
     distance_pid(0.2, 0, 0),
     first(false),
     in_outer_thresh(false),

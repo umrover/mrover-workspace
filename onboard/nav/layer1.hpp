@@ -35,10 +35,11 @@ public:
 	void drive_forward(const odom & cur_odom, const double bearing_offset, const double dist_to_target);
 
 	void make_publish_joystick(const double forward_back, const double left_right, const bool kill);
-private:
-	
+
 	PidLoop bearing_pid;
 	PidLoop distance_pid;
+	
+private:
 
 	//bool representing whether first turn has been executed
 	bool first;
