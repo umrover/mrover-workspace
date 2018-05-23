@@ -2,13 +2,13 @@
 #include <iostream>
 
 Layer1::Layer1 (lcm::LCM & lcm_object) : 
-    bearing_pid(0.05, 0, 0.0055),
-    distance_pid(0.1, 0, 0),
+    bearing_pid(0.1, 0.00001, 0.0055),
+    distance_pid(0.2, 0, 0),
     first(false),
     in_outer_thresh(false),
     in_inner_thresh(false),
     outer_thresh(OUTER_MIN),
-    inner_thresh(.00001), //rover somehow functions better with 0.00001 thresh. with small threshold, rover doesn't overshoot
+    inner_thresh(3), //rover somehow functions better with 0.00001 thresh. with small threshold, rover doesn't overshoot
     lcm_(lcm_object) {}
     // calls the base class constructor
 
@@ -17,6 +17,7 @@ bool Layer1::turn(const odom & current_odom, const odom & target_odom) {
     // calculate bearing threshold for turning to face target
     double dist = estimate_noneuclid(current_odom, target_odom);
     double bearing = calc_bearing(current_odom, target_odom);
+    std::cout << "bearing to target: " << bearing << " deg" << std::endl;
     calc_bearing_thresholds(current_odom, dist, bearing);
 
     // turns rover to face target before any motion
@@ -30,6 +31,8 @@ bool Layer1::turn(const odom & current_odom, const odom & target_odom) {
 bool Layer1::drive(const odom & current_odom, const odom & target_odom) {
     // calculate distance to the goal
     double dist = estimate_noneuclid(current_odom, target_odom);
+    double bearing = calc_bearing(current_odom, target_odom);
+    calc_bearing_thresholds(current_odom, dist, bearing);
 
     if (dist < AT_GOAL) {
         return true;
@@ -38,6 +41,7 @@ bool Layer1::drive(const odom & current_odom, const odom & target_odom) {
         make_publish_joystick(0, turn_to_dest(current_odom, target_odom), false);
         std::cout << "shits fucked up, this should not be happening in this bizach\n";
         // TODO throw exception to go back to big turn
+        throw 1;
     } // if outside out threshold, turn rover back to inner threshold
 
     else {
@@ -127,7 +131,8 @@ void Layer1::throughZero(double & dest_bearing, const double cur_bearing) {
 
 void Layer1::make_publish_joystick(const double forward_back, const double left_right, const bool kill) {
     rover_msgs::Joystick joys;
-    joys.forward_back = forward_back;
+    joys.dampen = -1.0; // power limit (0 = 50%, 1 = 0%, -1 = 100% power)
+    joys.forward_back = -forward_back;
     joys.left_right = left_right;
     joys.kill = kill;
     lcm_.publish(JOYSTICK_CHANNEL, &joys);
