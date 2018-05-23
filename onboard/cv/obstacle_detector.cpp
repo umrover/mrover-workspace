@@ -6,16 +6,6 @@ using namespace std;
 static int last_center;
 
 
-// try to pick the middle window, then compute the stepwise slop along the line.
-// If the slope abs value exceed a threshold, we decide that we have a problem
-//obstacle_return scan_middle_slope(Mat & rgb_img, Mat &mid_window, int rover_width) {
-//
-//}
-
-// d1>d2 only if the difference is significant
-bool compare_col_depth(float depth1, float depth2) {
-
-}
 
 // Goal: if ahead is safe zone, keep going straight
 // try to go straigh as much as possible
@@ -121,9 +111,11 @@ obstacle_return refine_rt(obstacle_return rt_val, pair<int, float> candidate, Si
 obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, int num_windows, int rover_width ) {
   // filter out nan values. 0.7 and 20 are ZED stero's limits
   Mat depth_img = depth_img_src.clone();
+  patchNaNs(depth_img, 0.0);
   depth_img = max(depth_img, 0.7);
   depth_img = min(depth_img, 20.0);
   depth_img = depth_img(Rect( 0, 450,  1280, 250));
+  
   blur( depth_img, depth_img, Size( 7, 7 ), Point(-1,-1) );
   Size size = depth_img.size();
   float center_point_depth = (float) depth_img.at<float>(  size.height/2, size.width/2);

@@ -31,7 +31,7 @@ Camera::Impl::Impl() {
 	init_params.camera_resolution = sl::RESOLUTION_HD720; // default: 720p
 	init_params.depth_mode = sl::DEPTH_MODE_PERFORMANCE;
 	init_params.coordinate_units = sl::UNIT_METER;
-	init_params.camera_fps = 60;
+	init_params.camera_fps = 15;
 	// TODO change this below?
 	assert(this->zed_.open(init_params) == sl::SUCCESS);
 	std::cout<<"ZED init success\n";
