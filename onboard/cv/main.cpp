@@ -4,7 +4,7 @@ using namespace cv;
 using namespace std;
 
 
-bool WRITE_CURR_FRAME_TO_DISK = false;
+
 float minDepth = 1; //need to set
 float pixelWidth = 1; //need to set
 float pixelHeight = 1;
@@ -124,7 +124,7 @@ int main() {
         obstacleMessage.bearing = obstacle_detection.bearing;
 
 	#ifdef PERCEPTION_DEBUG
-	cout << "Turn " << obstacleMessage.bearing << ", detected " << obstacleMessage.detected<< endl;
+	cout << "Turn " << obstacleMessage.bearing << ", detected " << (int)obstacleMessage.detected<< endl;
 	#endif
 
 	/* Tennis ball detection*/
