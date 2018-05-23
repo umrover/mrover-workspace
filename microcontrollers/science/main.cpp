@@ -10,8 +10,8 @@ AnalogIn O2_probe(ANALOGIN1_PROD);
 AnalogIn CO2_probe(ANALOGIN2_PROD);
 AnalogIn moisture_probe(ANALOGIN3_PROD);
 Serial pH_probe(UART_TX2_PROD, UART_RX2_PROD);
-Serial temperature_probe(UART_TX3_PROD, UART_RX3_PROD);
-Serial conductivity_probe(UART_TX1_PROD, UART_RX1_PROD);
+Serial temperature_probe(UART_TX1_PROD, UART_RX1_PROD);
+Serial conductivity_probe(UART_TX3_PROD, UART_RX3_PROD);
 Serial serial(UART_TX5_PROD, UART_RX5_PROD, 115200);
 
 char temp_buffer[256];
