@@ -4,6 +4,7 @@
 #include <chrono>
 #include <cmath>
 #include <getopt.h>
+#include <lcm/lcm-cpp.hpp>
 
 using namespace cv;
 using namespace std;
@@ -110,6 +111,7 @@ int main(){
 				rectangle(src, Point( startScan.x, 0), Point( endScan.x, 720), Scalar(0, 0, 255), 3);
 			    cout<<"[middle], window sub_col sum is "<<window_sum<<endl;
 
+
 			    if(window_sum < minSum) minSum = window_sum;
 			    meanSum+=window_sum;
 				hold++;
@@ -118,7 +120,6 @@ int main(){
 		}
 
 		cout << "Minimun sum: " << minSum << endl;
-		cout << "Mean sum: " << meanSum/25 << endl;
 
 	}
 
