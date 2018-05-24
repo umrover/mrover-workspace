@@ -23,8 +23,12 @@ def start_pipeline():
     global vid_process
     global settings
 
-    vid_args = ["raspivid", "-t", "0", "-h", "720", "-w", "1280",
-                "-b", "2000000", "-ss", str(settings.shutter_speed), "-o", "-"]
+    height = str(settings.height)
+    width = str(settings.width)
+
+    vid_args = ["raspivid", "-t", "0", "-h", height,
+                "-w", width, "-b", "2000000",
+                "-ss", str(settings.shutter_speed), "-o", "-"]
     if settings.vflip:
         vid_args.append("-vf")
         vid_args.append("-hf")
@@ -34,7 +38,8 @@ def start_pipeline():
     fd = vid_process.stdout.fileno()
 
     pipeline_string = ("fdsrc fd=" + str(fd) +
-                       " ! video/x-h264, width=1280, height=720"
+                       " ! video/x-h264, width=" + width +
+                       ", height=" + height +
                        " ! h264parse ! rtph264pay"
                        " ! udpsink host=10.0.0.1 port=5000")
 
@@ -68,6 +73,8 @@ def read_settings():
     settings = PiSettings()
     settings.shutter_speed = int(config["cam_settings"]["shutter_speed"])
     settings.vflip = config["cam_settings"].getboolean("vflip")
+    settings.height = int(config["cam_settings"]["height"])
+    settings.width = int(config["cam_settings"]["width"])
 
 
 def write_settings():
@@ -78,6 +85,8 @@ def write_settings():
     config["cam_settings"] = {}
     config["cam_settings"]["shutter_speed"] = str(settings.shutter_speed)
     config["cam_settings"]["vflip"] = str(settings.vflip)
+    config["cam_settings"]["height"] = str(settings.height)
+    config["cam_settings"]["width"] = str(settings.width)
 
     with open(settings_path, "w") as config_file:
         config.write(config_file)
