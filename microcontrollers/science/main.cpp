@@ -120,7 +120,7 @@ int main() {
     }
 
     thread1.start(get_gas);
-    //thread2.start(get_moisture);
+    thread2.start(get_moisture);
 
     pH_probe.attach(&pH_callback);
     temperature_probe.attach(&temperature_callback);

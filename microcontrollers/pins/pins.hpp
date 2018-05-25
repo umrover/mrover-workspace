@@ -36,7 +36,7 @@ const PinName UART_RX5_PROD = PinName(PD_2);    // p83
 
 const PinName ANALOGIN1_PROD = PinName(PC_0);   // p15
 const PinName ANALOGIN2_PROD = PinName(PC_1);   // p16
-const PinName ANALOGIN3_PROD = PinName();       // Fill this in
+const PinName ANALOGIN3_PROD = PinName(PB_0);   // p35
 
 const PinName CAN_TX_PROD = PinName(PA_12);     // p71
 const PinName CAN_RX_PROD = PinName(PA_11);     // p70
