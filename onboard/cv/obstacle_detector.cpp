@@ -6,6 +6,24 @@ using namespace std;
 static int last_center;
 
 
+bool check_divided_window(Mat & rgb_img, int num_splits, Mat & mean_row_vec, int start_col, int end_col){
+  int split_size = (end_col - start_col)/num_splits;
+  for(int i = 0; i < num_splits; i++){  //check each sub window
+    Mat sub_col = mean_row_vec.colRange(start_col, start_col + split_size);
+    float window_sum = sum(sub_col)[0];
+    #ifdef PERCEPTION_DEBUG
+      cout << "Sub[" <<i << "] sum = " << window_sum <<endl;
+    #endif
+    if(window_sum < THRESHOLD_NO_SUBWINDOW){ 
+      #ifdef PERCEPTION_DEBUG
+        rectangle(rgb_img, Point( start_col, SKY_START_ROW), Point( start_col+split_size, RESOLUTION_HEIGHT), Scalar(50, 50, 255), 3);
+      #endif
+        return false;
+    }
+    start_col+=split_size;  //update the start col
+  }
+  return true; //all good 
+}
 
 // Goal: if ahead is safe zone, keep going straight
 // try to go straigh as much as possible
@@ -21,13 +39,15 @@ obstacle_return scan_middle(Mat & rgb_img, float center_point_depth,  int rover_
   int center_start_col = (img_shape.width - rover_width )/2;
   Mat sub_col =  mean_row_vec.colRange(center_start_col, center_start_col+rover_width-1 );
   middle_sum = sum( sub_col )[0];
-  
+
   if(middle_sum > THRESHOLD_NO_OBSTACLE_CENTER){
-    #ifdef PERCEPTION_DEBUG
-    rectangle(rgb_img, Point( center_start_col, 0), Point( center_start_col+rover_width-1, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
-    cout<<"No turn: center window sub_col sum is "<<middle_sum<<endl;
-    #endif
-    noTurn.bearing = 0;
+    if(check_divided_window(rgb_img, 4, mean_row_vec, center_start_col, center_start_col+rover_width-1)){
+      #ifdef PERCEPTION_DEBUG
+      rectangle(rgb_img, Point( center_start_col, 0), Point( center_start_col+rover_width-1, RESOLUTION_HEIGHT), Scalar(0, 255, 0), 3);
+      cout<<"No turn: center window sub_col sum is "<<middle_sum<<endl;
+      #endif
+      noTurn.bearing = 0;
+    }
   }
   return noTurn;
 }
@@ -42,7 +62,7 @@ pair<int, float> get_final_col(vector<pair<int, float> > & sorted_sums, float mi
   float max_sum_threshold = sorted_sums[0].second - SIMILARITY_THRESHOLD;
   // go straight if possible
   #ifdef PERCEPTION_DEBUG
-  cout<<"middle col sum is "<<middle_sum<<endl;
+    cout<<"middle col sum is "<<middle_sum<<endl;
   #endif
 
   if (max_sum_threshold < middle_sum) {
@@ -51,8 +71,8 @@ pair<int, float> get_final_col(vector<pair<int, float> > & sorted_sums, float mi
   
   vector<pair<int, float> >::iterator final = lower_bound( sorted_sums.begin(), sorted_sums.end(), make_pair(0, max_sum_threshold), compare_second );
   #ifdef PERCEPTION_DEBUG
-  for (vector<pair<int, float> >::iterator it=sorted_sums.begin(); it!=final; it++) cout<<"("<<it->first<<", "<<it->second<<")";
-  cout<<endl;
+    for (vector<pair<int, float> >::iterator it=sorted_sums.begin(); it!=final; it++) cout<<"("<<it->first<<", "<<it->second<<")";
+    cout<<endl;
   #endif
   
   if (final == sorted_sums.end()) {
@@ -66,8 +86,8 @@ pair<int, float> get_final_col(vector<pair<int, float> > & sorted_sums, float mi
     for (vector<pair<int, float> >::iterator it=sorted_sums.begin(); it!= final; it++ ) {
       int curr_diff = abs(it->first - last_center);
       if ( curr_diff < smallest_diff ) {
-	smallest_diff = curr_diff;
-	smallest_dist_pair = *it;
+        smallest_diff = curr_diff;
+        smallest_dist_pair = *it;
       }
     }
     return smallest_dist_pair;
@@ -84,12 +104,12 @@ obstacle_return refine_rt(obstacle_return rt_val, pair<int, float> candidate, Si
   if (max_sum_sw > THRESHOLD_NO_WAY) {
     #ifdef PERCEPTION_DEBUG
     cout<<"max_sum_sw "<<max_sum_sw<<", col start at "<<final_start_col<<endl;
-    rectangle(rgb_img, Point( final_start_col, 0), Point( final_start_col+rover_width, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
+    rectangle(rgb_img, Point( final_start_col, 0), Point( final_start_col+rover_width, RESOLUTION_HEIGHT), Scalar(255, 0, 0), 3);
     #endif
 
     // compute bearing
     if (size.width /2 > final_start_col  + (rover_width * 2 / 5) &&
-	size.width /2 < final_start_col  + (rover_width* 3 / 5 )) {
+          size.width /2 < final_start_col  + (rover_width* 3 / 5 )) {
       last_center = RESOLUTION_WIDTH / 2;
       rt_val.bearing = 0;
     } else {
@@ -156,11 +176,11 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
 
   // try to reduce noise
   // 0 for middle
-  pair<int, float> final_window = get_final_col(sums, middle_sum);
+  pair<int, float> final_window = get_final_col(sums, middle_sum); //may add split window check
   if (final_window.first == -1) {
     #ifdef PERCEPTION_DEBUG
-    cout<<"max_sum_sw "<<final_window.second<<" at center\n";
-    rectangle(rgb_img, Point( size.width / 2 - rover_width/2, 0), Point( size.width/2 + rover_width/2, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
+      cout<<"max_sum_sw "<<final_window.second<<" at center\n";
+      rectangle(rgb_img, Point( size.width / 2 - rover_width/2, 0), Point( size.width/2 + rover_width/2, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
     #endif
 
     last_center = RESOLUTION_WIDTH/2;
