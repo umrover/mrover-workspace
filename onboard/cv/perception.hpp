@@ -14,17 +14,16 @@
 #include <cstdlib>
 #endif
 
-
-#define THRESHOLD_NO_WAY   85000 //how will we calibrate if the rover width changes
-#define THRESHOLD_NO_OBSTACLE_CENTER  120000
+#define THRESHOLD_NO_WAY  100000 //how will we calibrate if the rover width changes
+#define THRESHOLD_NO_OBSTACLE_CENTER  100000
+#define THRESHOLD_NO_SUBWINDOW 40000
 #define SKY_START_ROW 200
 #define BALL_DETECTION_MAX_DIST 3.50  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
 
 #define SIMILARITY_THRESHOLD 8000
 
 #define PI 3.14159265
-#define FRAME_WAITKEY 1 // for cv::imshow
-
+#define FRAME_WAITKEY 0 // for cv::imshow
 
 const int RESOLUTION_WIDTH = 1280;
 const int RESOLUTION_HEIGHT = 720; // 720p
@@ -46,7 +45,7 @@ struct obstacle_return {
 
 // these are for online data collection
 const bool  WRITE_CURR_FRAME_TO_DISK = false;
-const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/mrover/auton_data/");
+const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/jessica/auton_data/");
 
 std::vector<cv::Point2f> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width );
