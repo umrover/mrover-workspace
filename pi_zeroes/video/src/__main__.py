@@ -25,7 +25,7 @@ def start_pipeline():
 
     height = str(settings.height)
     width = str(settings.width)
-    bitrate = (settings.height * settings.width) / 0.4608
+    bitrate = int((settings.height * settings.width) / 0.4608)
 
     vid_args = ["raspivid", "-t", "0", "-h", height,
                 "-w", width, "-b", str(bitrate),
