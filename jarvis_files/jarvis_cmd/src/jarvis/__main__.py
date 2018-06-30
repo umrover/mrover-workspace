@@ -3,7 +3,7 @@ import sys
 from buildsys import WorkspaceContext
 from invoke.exceptions import UnexpectedExit
 
-from .build import build_dir, clean, build_deps, debug_dir
+from .build import build_dir, clean, build_deps, debug_dir, build_all
 
 
 def clean_dir_name(d):
@@ -28,6 +28,9 @@ def main():
     parser_build.add_argument('-o', '--option', dest='build_opt',
                               help='A build option to pass to the underlying '
                               'build system')
+    parser_build.add_argument('-a', '--all', action='store_true', help='Build all')
+    parser_build.add_argument('-n','--not-projects', nargs='+',
+                              help='Don\'t build these projects when building all (-a).')
 
     subcommands.add_parser('clean',
                            help='Removes the product env')
@@ -53,7 +56,10 @@ def main():
             if args.build_opt:
                 opt = args.build_opt.split('=')[0:2]
                 print('option is {}'.format(opt))
-            build_dir(ctx, clean_dir_name(args.dir), opt)
+            if args.all:
+                return build_all(ctx, clean_dir_name(args.dir), opt, args.not_projects)
+            else:
+                build_dir(ctx, clean_dir_name(args.dir), opt)
         elif args.subcommand_name == 'clean':
             clean(ctx)
         elif args.subcommand_name == 'dep':
