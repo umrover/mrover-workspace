@@ -2,3 +2,7 @@
 build/
 .vagrant/
 *.out
+.bash_history
+.cache
+.mrover
+.node-gyp

@@ -76,7 +76,8 @@ def build_dir(ctx, d, opt=None):
     """
     Builds the project in the given directory
     """
-
+    if "./" == d[:2]:
+        d = d[2:]
     get_builder(ctx, d, opt).build()
     print("Done")
 
@@ -155,3 +156,31 @@ def debug_dir(ctx, d):
         return
     builder.debug()
     print("Done")
+
+
+def build_all(ctx, d, opt, not_build):
+    num_projects = 0
+    failed_projects = []
+    for root, dirs, files in os.walk(d):
+        dirs[:] = list(filter(lambda x: ".mrover" != x, dirs))
+        if "project.ini" in files and ".mrover" not in root \
+            and len([i for i in not_build if i in root]) == 0:
+            num_projects += 1
+            print("Building: ", root)
+            try:
+                build_dir(ctx, root, opt)
+            except Exception as e:
+                failed_projects.append((root, e))
+    if len(not_build):
+        print("Did not build project(s):")
+        for i in not_build:
+            print(i)
+    if len(failed_projects):
+        print("Failed on project(s):")
+        for prj in failed_projects:
+            print(prj[0])
+            print("Exception: {}",format(prj[1]))
+    print("Successfully built: {} of {} project(s).".format(
+        num_projects - len(failed_projects), num_projects))
+    return len(failed_projects)
+
