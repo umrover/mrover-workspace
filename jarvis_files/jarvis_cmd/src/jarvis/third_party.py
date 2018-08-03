@@ -177,7 +177,7 @@ def ensure_nanomsg(ctx):
     with ctx.intermediate('nanomsg'):
         ctx.run("cp -r {}/* .".format(nanomsg_dir))
         print("Configuring nanomsg...")
-        ctx.run("mkdir build")
+        ctx.run("mkdir -p build")
         with ctx.cd("build"):
             ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} ..".format(
                 ctx.product_env), hide='both')
