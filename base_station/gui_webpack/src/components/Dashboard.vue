@@ -51,7 +51,7 @@ import Sensors from './Sensors.vue'
 import Controls from './Controls.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import L from '../leafletRover.js'
-import LCMBridge from 'lcm_bridge_client/dist'
+import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 
 export default {
   name: 'Dashboard',
