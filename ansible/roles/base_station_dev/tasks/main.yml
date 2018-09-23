@@ -3,9 +3,9 @@
     url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
     state: present
 
-- name: Set up NodeSource repository for Node 8.x
+- name: Set up NodeSource repository for Node 10.x
   apt_repository:
-    repo: "deb https://deb.nodesource.com/node_8.x {{ ubuntu_release }} main"
+    repo: "deb https://deb.nodesource.com/node_10.x {{ ubuntu_release }} main"
     state: present
 
 - name: Set up Yarn signing key
