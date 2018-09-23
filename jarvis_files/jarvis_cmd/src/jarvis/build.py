@@ -83,7 +83,7 @@ def build_dir(ctx, d, opt=None):
 
 
 def get_site_cfg():
-    PACKAGE_NAMES = ['lcm', 'mbed', 'gzweb']
+    PACKAGE_NAMES = ['lcm', 'mbed', 'gzweb', 'rapidjson']
     site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
     site_cfg = configparser.ConfigParser()
     site_cfg['third_party'] = {}
@@ -123,6 +123,8 @@ def build_deps(ctx):
     """
     site_cfg = get_site_cfg()
     ctx.ensure_product_env()
+    if site_cfg['rapidjson']:
+        third_party.ensure_rapidjson(ctx)
     if site_cfg['lcm']:
         third_party.ensure_lcm(ctx)
     if site_cfg['mbed']:
@@ -183,4 +185,3 @@ def build_all(ctx, d, opt, not_build):
     print("Successfully built: {} of {} project(s).".format(
         num_projects - len(failed_projects), num_projects))
     return len(failed_projects)
-

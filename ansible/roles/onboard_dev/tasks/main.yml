@@ -17,3 +17,4 @@
   - libftdi-dev
   - libftdi1-dev
   - gdb
+  - cmake
