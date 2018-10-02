@@ -29,12 +29,14 @@
     <div class="box diags light-bg">
       <Sensors v-on:toggle-recording="onToggleRecording($event)" v-bind:rawData="sensors"/>
     </div>
+    <div class="box cameras light-bg">
+      <Cameras v-bind:servosData="lastServosMessage"/>
+    </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor/>
-      <!-- <Waypoints ref:waypoints odom="{{odom}}" bind:previous_waypoints nav_status="{{nav_status}}" /> -->
+      <WaypointEditor v-bind:odom="odom" v-bind:nav_status="nav_status"/>
     </div>
     <div class="box controls light-bg">
       <Controls v-bind:dampen="dampen" v-bind:saMotor="saMotors"/>
@@ -43,7 +45,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
+import Cameras from './Cameras.vue'
 import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
@@ -62,6 +65,11 @@ export default {
       controls: '',
       saMotors: {},
       dampen: 0,
+
+      lastServosMessage: {
+        pan: 0,
+        tilt: 0
+      },
 
       sensors: {
         temperature: 0,
@@ -87,17 +95,19 @@ export default {
         websocket: false,
         lcm: false,
         motors: false
+      },
+
+      nav_status: {
+        completed_wps: 0,
+        missed_wps: 0,
+        total_wps: 0
       }
     }
   },
 
   methods: {
-    onToggleRecording: function (record) {
-      const msg = {
-        'type': 'SensorSwitch',
-        'should_record': record
-      }
-      this.lcm_.publish('/sensor_switch', msg)
+    publish(channel, payload){
+      this.lcm_.publish(channel, payload)
     }
   },
 
@@ -240,6 +250,7 @@ export default {
 
       servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
       servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
+      this.lastServosMessage = servosMessage
 
       this.lcm_.publish('/camera_servos', servosMessage)
     }, 100)
@@ -247,6 +258,7 @@ export default {
 
   components: {
     RoverMap,
+    Cameras,
     CommIndicator,
     Sensors,
     Controls,
@@ -263,7 +275,7 @@ export default {
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 60px 2fr 1fr 1fr 2fr 70px 60px;
-    grid-template-areas: "header header" "map diags" "map diags" "map waypoints" "map waypoints" "controls waypoints" "odom waypoints";
+    grid-template-areas: "header header" "map diags" "map cameras" "map waypoints" "map waypoints" "controls waypoints" "odom waypoints";
     font-family: sans-serif;
     height: 98vh;
   }
