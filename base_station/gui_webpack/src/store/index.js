@@ -12,5 +12,6 @@ export default new Vuex.Store({
     autonomy,
     controls
   },
+
   strict: debug
 })
