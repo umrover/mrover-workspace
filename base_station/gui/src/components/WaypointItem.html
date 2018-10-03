@@ -1,0 +1,64 @@
+<div class="waypoint">
+    <div>
+        <p>
+            {{item["name"]}}:
+        </p>
+    </div>
+    <div>
+        <p>
+            Distance: {{ distance > 9999 ? '>9999' : Math.floor(distance) }} m
+        </p>
+    </div>
+    <div>
+        <p>
+            {{ item["latitude_deg"] }}º
+            {{ Math.floor(item["latitude_min"]) }}'
+            {{ ((item["latitude_min"]-Math.floor(item["latitude_min"]))*60).toFixed(4) }}" N
+        </p>
+    </div>
+    <div>
+        <p>
+            {{ -item["longitude_deg"] }}º
+            {{ Math.floor(-item["longitude_min"]) }}'
+            {{ (((-item["longitude_min"])-Math.floor(-item["longitude_min"]))*60).toFixed(4) }}" W
+        </p>
+    </div>
+</div>
+
+<script>
+
+export default {
+  computed: {
+    distance: (item, odom) => {
+      const EARTH_RAD = 6371000.0;
+
+      const from_lat = (odom["latitude_deg"] + odom["latitude_min"]/60)*Math.PI/180;
+      const from_lon = (odom["longitude_deg"] + odom["longitude_min"]/60)*Math.PI/180;
+      const to_lat = (item["latitude_deg"] + item["latitude_min"]/60)*Math.PI/180;
+      const to_lon = (item["longitude_deg"] + item["longitude_min"]/60)*Math.PI/180;
+
+      const dlat = to_lat - from_lat;
+      const dlon = (to_lon - from_lon)*Math.cos((to_lat + from_lat)/2);
+      const dist = Math.sqrt(dlon*dlon + dlat*dlat) * EARTH_RAD;
+
+      return dist;
+    }
+
+  }
+}
+
+</script>
+
+<style>
+.waypoint {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+p {
+    font-size: 1rem;
+    margin-top: 5px;
+    text-align: left;
+}
+</style>

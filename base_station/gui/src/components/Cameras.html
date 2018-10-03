@@ -1,0 +1,146 @@
+<div class="wrap">
+  <div class="box header">
+    <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
+    <h1>Cameras</h1>
+    <div class="spacer"/>
+    <div class="comms">
+      <ul id="vitals">
+        {{#each connections as connection, i}}
+          <li><CommIndicator connected="{{connection}}" name="Pi{{i+1}}" /></li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+
+  <div class="servos">
+    <span>Servos pan: {{servosData.pan.toFixed(2)}}, Servos tilt: {{servosData.tilt.toFixed(2)}}</span>
+  </div>
+
+  <div class="video">
+    <Video bind:resolution ref:vid bind:pi_index/>
+  </div>
+</div>
+
+
+
+<style>
+  .wrap {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 60px 20px 1fr;
+    grid-template-areas: "header" "servos" "video";
+
+    font-family: sans-serif;
+    height: 100%;
+  }
+
+  .box {
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid black;
+  }
+
+  img {
+    border: none;
+    border-radius: 0px;
+  }
+
+  .servos {
+    grid-area: servos;
+    margin: auto;
+  }
+
+  .header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+  }
+
+  .header h1 {
+    margin-left: 5px;
+  }
+
+  .spacer {
+    flex-grow: 0.8;
+  }
+
+  .comms {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .comms * {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    display: flex;
+  }
+
+  .video {
+    grid-area: video;
+    display: flex;
+    align-items: center;
+    margin: auto;
+  }
+
+  ul#vitals li {
+    display: inline;
+    padding: 0px 10px 0px 0px;
+  }
+</style>
+
+<script>
+  import CommIndicator from './CommIndicator.html'
+  import Video from './Video.html'
+
+  export default {
+    data() {
+      return {
+        connections: [false, false, false, false, false, false],
+        servosData: {
+          'pan': 0,
+          'tilt': 0
+        },
+        pi_index: -1,
+      }
+    },
+
+    oncreate(){
+      window.addEventListener('storage', (e) => {
+        if(e.key == "last_camera_key"){
+          console.log("Camera "+e.newValue+" selected");  //Call function that switches cameras over here
+          this.refs.vid.set({ pi_index: parseInt(e.newValue) });
+        }
+      });
+
+      this.observe("pi_index", (newIdx, oldIdx) => {
+        for (let i = 1; i <= 6; i++) {
+          let disabled = (i == newIdx);
+          let buttons = document.getElementsByClassName("cam" + i);
+          for(let j = 0; j < buttons.length; j++) {
+              buttons[j].disabled = disabled;
+          }
+        }
+      });
+    },
+
+    methods: {
+      lcm_message_recv: function({
+        topic,
+        message
+      }) {
+        if (topic === '/camera_servos') {
+          this.set({
+            servosData: message
+          })
+        }
+      },
+    },
+
+    components: {
+      CommIndicator,
+      Video
+    }
+  }
+</script>

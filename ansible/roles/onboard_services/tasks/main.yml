@@ -1,0 +1,34 @@
+- name: Copy systemd service files
+  template:
+      src: "files/{{ item }}.service"
+      dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+      - rover-hwi
+      - rover-onboard-teleop
+      - rover-onboard-nav
+      - rover-onboard-servo
+      - rover-onboard-science
+      - rover-onboard-odometry
+
+- name: Copy environment variable definitions 
+  copy:
+      src: files/rover.env
+      dest: /etc/default/rover.env
+
+- name: Install udev rules
+  copy:
+      src: files/rover.rules
+      dest: /etc/udev/rules.d/10-rover.rules
+
+- name: Reload systemd
+  systemd: daemon_reload=yes
+
+- name: Enable services
+  systemd: name={{item}} enabled=yes
+  with_items:
+      - rover-hwi.service
+      - rover-onboard-teleop.service
+      - rover-onboard-nav.service
+      - rover-onboard-servo.service
+      - rover-onboard-science.service
+      - rover-onboard-odometry.service

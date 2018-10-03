@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct Course {
+    int32_t num_waypoints;
+    int64_t hash;
+    Waypoint waypoints[num_waypoints];
+}

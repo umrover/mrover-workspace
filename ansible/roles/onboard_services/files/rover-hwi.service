@@ -1,0 +1,13 @@
+[Unit]
+Description=MRover Hardware Interface
+Requires=can.service
+After=can.service
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+Environment=MROVER_TALON_CAN_IFACE=can0
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jarvis exec onboard_talon
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,130 @@
+<div class="wrapper">
+    <div class="box header">
+      <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
+      <h1>Diagnostics</h1>
+    </div>
+    <div class="box light-bg">
+        <p>Joint a: {{encoder.joint_a}}</p>
+        <p>Joint b: {{encoder.joint_b}}</p>
+        <p>Joint c: {{encoder.joint_c}}</p>
+        <p>Joint d: {{encoder.joint_d}}</p>
+        <p>Joint e: {{encoder.joint_e}}</p>
+        <p>Joint f: {{encoder.joint_f}}</p>
+    </div>
+    <div class="box light-bg">
+        <p>Current a: {{current.current_a}} A</p>
+        <p>Current b: {{current.current_b}} A</p>
+        <p>Current c: {{current.current_c}} A</p>
+        <p>Current d: {{current.current_d}} A</p>
+        <p>Current e: {{current.current_e}} A</p>
+        <p>Current f: {{current.current_f}} A</p>
+    </div>
+    <div class="box light-bg">
+        <p>Temperature: {{sensors.temperature}} ºC</p>
+        <p>Soil Conductivity: {{sensors.soil_conductivity}} µS/cm</p>
+        <p>Moisture: {{sensors.moisture}}</p>
+        <p>pH: {{sensors.pH}}</p>
+        <p>UV: {{sensors.uv}} µmoles/m^2/s</p>
+        <p>CPU Temperature: {{temperature.bcpu_temp}} ºC</p>
+        <p>GPU Temperature: {{temperature.gpu_temp}} ºC</p>
+        <p>Overall Board Temperature: {{temperature.tboard_temp}} ºC</p>
+     </div>
+     <div class="box light-bg">
+        <p>Left: {{drivemotors.left}} RPM</p>
+        <p>Right: {{drivemotors.right}} RPM</p>
+     </div>
+</div>
+<style>
+    .wrapper {
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 60px 3fr 2fr;
+      grid-template-areas: "header header";
+  
+      font-family: sans-serif;
+      height: 100%;
+    }
+    
+    .light-bg {
+    background-color: LightGrey;
+    }
+
+    .header{
+      grid-area: header;
+      display: flex;
+      align-items: center;
+    }
+    .box{
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid black;
+    }
+</style>
+<script>
+    export default{
+        data(){
+            return {
+                encoder:{
+                    joint_a: 0,
+                    joint_b: 0,
+                    joint_c: 0,
+                    joint_d: 0,
+                    joint_e: 0,
+                    joint_f: 0
+                },
+                sensors:{
+                    temperature: 0,
+                    moisture: 0,
+                    soil_conductivity: 0,
+                    pH: 0,
+                    uv: 0
+                },
+                current:{
+                    current_a: 0,
+                    current_b: 0,
+                    current_c: 0,
+                    current_d: 0,
+                    current_e: 0,
+                    current_f: 0
+                },
+                temperature:{
+                    bcpu_temp: 0,
+                    gpu_temp: 0,
+                    tboard_temp: 0
+                },
+                drivemotors:{
+                    left: 0,
+                    right: 0
+                }
+            }
+        },
+        methods:{
+            lcm_message_recv: function({
+            topic,
+            message
+            }) {
+                if (topic === '/encoder'){
+                    this.set({
+                        encoder: message
+                    })
+                }
+                if (topic === '/sensors'){
+                    this.set({
+                        sensors: messages
+                    })
+                }
+                if (topic === '/temperature'){
+                    this.set({
+                        temperature: messages
+                    })   
+                }
+                if (topic === '/drivemotors'){
+                    this.set({
+                        drivemotors: messages
+                    })   
+                }
+            }   
+        }
+    }
+</script>

@@ -1,0 +1,59 @@
+<!-- In order to listen to the toggle event, use component.observe('toggled', e) -->
+<div class="wrap">
+  <button class="{{color}}" on:click='toggle()'>
+    <span class='white-text'>{{name}}: {{toggled?'\u2611':'\u2610'}}</span>
+  </button>
+</div>
+
+<script>
+  export default {
+    data() {
+      return {
+        toggled: false
+      }
+    },
+    computed: {
+      color: (toggled) => toggled ? "green" : "red"
+    },
+
+    oncreate() {
+      if(typeof this.get('key') !== 'undefined'){
+        document.body.addEventListener('keydown', (e) => {
+            if(document.activeElement==document.body && e.keyCode == this.get('key')){
+                this.toggle();
+            }
+        });
+      }
+    },
+
+    methods: {
+      toggle(){
+          const toggle = !this.get('toggled');
+          this.set({
+              toggled: toggle
+          });
+      }
+    }
+  }
+</script>
+
+<style>
+  .wrap {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .green {
+    background-color: green;
+  }
+
+  .red {
+    background-color: red;
+  }
+
+  .white-text{
+      color: white;
+  }
+
+</style>
