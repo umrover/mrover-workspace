@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct SetDemand {
+  int8_t deviceID;
+  int8_t control_mode;
+  int16_t value;
+}

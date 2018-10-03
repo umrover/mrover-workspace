@@ -1,0 +1,19 @@
+- name: Update apt cache
+  apt: update_cache=yes
+
+- name: Install developer packages
+  apt: name={{ item }} state=present
+  with_items:
+  - build-essential
+  - python3-dev
+  - python3-venv
+  - python-virtualenv
+  - libglib2.0-dev
+  - ninja-build
+  - clang
+  - clang-tidy
+  - autoconf
+  - libtool
+  - libftdi-dev
+  - libftdi1-dev
+  - gdb

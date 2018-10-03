@@ -1,7 +1,9 @@
 package rover_msgs;
 
 struct Joystick {
-	//Axis 0 - foward/backwards, Axis 1 - left/right rotate
-    double axes[2];
-    bool buttons[4];
+    double forward_back;
+    double left_right;
+    double dampen;
+    boolean kill;
+    boolean restart;
 }

@@ -1,3 +1,9 @@
 .vscode/
 build/
 .vagrant/
+*.out
+.bash_history
+.cache
+.mrover
+.node-gyp
+**/node_modules/

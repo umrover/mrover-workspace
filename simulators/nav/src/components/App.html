@@ -1,0 +1,312 @@
+<div id="container">
+    <div id="field">
+        <SimulatorField 
+            ref:field
+            bind:odom
+            bind:waypoints
+            bind:tennis_balls
+            bind:rocks
+            bind:tennis_ball_state
+            bind:obstacle_state
+            radius_meters="{{radius}}"
+            mode="{{draw_mode}}"/>
+    </div>
+
+    <div id="drawmode">
+        <DrawModeSelector bind:mode="draw_mode"/>
+        <label>
+            Field Radius (meters):
+            <input type="number" bind:value="radius"/>
+        </label>
+    </div>
+
+    <div id="sidebar">
+        <div class="display" id="odom_display">
+            <h2>Odometry</h2>
+            <p><b>Latitude:</b> {{ odom.latitude_deg }}&#176; {{ latitude_min_display }}'</p>
+            <p><b>Longitude:</b> {{ odom.longitude_deg }}&#176; {{ longitude_min_display }}'</p>
+            <p><b>Bearing:</b> {{ odom.bearing_deg }}</p>
+        </div>
+
+        <div class="display" id="joystick_display">
+            <h2>Joystick</h2>
+            {{#if lcm_connected}}
+            <p><b>Translational:</b> {{ forward_back }}</p>
+            <p><b>Rotational:</b> {{ left_right }}</p>
+            {{/if}}
+        </div>
+
+        <div class="display" id="controls">
+            <p>
+                <label>
+                    <input type="checkbox" bind:checked="enabled">
+                    Autonomy On?
+                </label>
+            </p>
+
+            <p>
+                <label>
+                    <input type="checkbox" bind:checked="cv_enabled">
+                    Computer Vision?
+                </label>
+            </p>
+
+            {{#if lcm_connected}}
+            <p><b>Navigation State:</b> {{ nav_state_textual }}</p>
+            <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
+            <p><b>Missed Waypoints:</b> {{ missed_wps }}/{{ total_wps }}</p>
+            {{else}}
+            <p>LCM not connected.</p>
+            {{/if}}
+        </div>
+
+        {{#each waypoints as waypoint, i}}
+        <div class="display waypoint_display">
+            <SimulatedItemDisplay 
+                           title="Waypoint {{ i }}"
+                           item="{{ waypoint }}"
+                           rover="{{ odom }}"
+                           on:click='splice("waypoints", i, 1)'>
+                <p>
+                    <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
+                    <label for="search_checkbox_{{ i }}">Search?</label>
+                </p>
+            </SimulatedItemDisplay>
+        </div>
+        {{/each}}
+
+        {{#each tennis_balls as tennis_ball, i}}
+        <div class="display tennis_ball_display">
+            <SimulatedItemDisplay
+                            title="Ball {{ i }}"
+                            item="{{ tennis_ball }}"
+                            rover="{{ odom }}"
+                            on:click='splice("tennis_balls", i, 1)'>
+                {{#if tennis_ball.detected}}
+                <b>
+                Found the ball!
+                </b>
+                {{/if}}
+            </SimulatedItemDisplay>
+        </div>
+        {{/each}}
+
+        {{#each rocks as rock, i}}
+        <div class="display rock_display">
+            <SimulatedItemDisplay
+                            title="Rock {{ i }}"
+                            item="{{ rock }}"
+                            rover="{{ odom }}"
+                            on:click='splice("rocks", i, 1)'>
+            </SimulatedItemDisplay>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+<script>
+    import _ from 'lodash';
+    import fnv from 'fnv-plus';
+    import { splice } from 'svelte-extras';
+    import SimulatorField from './SimulatorField.html';
+    import DrawModeSelector from './DrawModeSelector.html';
+    import SimulatedItemDisplay from './SimulatedItemDisplay.html';
+    import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
+    import { to_dms } from '../geography.js';
+
+    const NUM_DIGITS = 7;
+
+    export default {
+        data () {
+            return {
+                draw_mode: WAYPOINT_MODE,
+
+                odom: Object.assign({}, to_dms({
+                    lat: 39.4,
+                    lon: -110.5
+                }), { bearing_deg: 0 }),
+
+                forward_back: 0,
+                left_right: 0,
+
+                waypoints: [],
+                tennis_balls: [],
+                rocks: [],
+
+                radius: 100,
+
+                tennis_ball_state: {
+                    found: false,
+                    bearing: 0,
+                    distance: 0
+                },
+
+                obstacle_state: {
+                    detected: false,
+                    bearing: 0
+                },
+
+                lcm_connected: false,
+
+                nav_state: 0,
+                completed_wps: 0,
+                missed_wps: 0,
+                total_wps: 0,
+
+                enabled: false,
+                cv_enabled: true,
+            }
+        },
+
+        computed: {
+            nav_state_textual: (nav_state) => {
+                // 
+                switch(nav_state) {
+                case 0: return 'OFF';
+                case 1: return 'DONE';
+                case 10: return 'TURN';
+                case 11: return 'DRIVE';
+                case 20: return 'SEARCH_FACE0';
+                case 21: return 'SEARCH_FACE120';
+                case 22: return 'SEARCH_FACE240';
+                case 23: return 'SEARCH_FACE360';
+                case 24: return 'SEARCH_TURN';
+                case 25: return 'SEARCH_DRIVE';
+                case 28: return 'TURN_TO_BALL';
+                case 29: return 'DRIVE_TO_BALL';
+                case 30: return 'TURN_AROUND_OBS';
+                case 31: return 'DRIVE_AROUND_OBS';
+                case 32: return 'SEARCH_TURN_AROUND_OBS';
+                case 33: return 'SEARCH_DRIVE_AROUND_OBS';
+                default: return 'UNKNOWN';
+                }
+            },
+
+            latitude_min_display: (odom) => odom.latitude_min.toFixed(NUM_DIGITS),
+            longitude_min_display: (odom) => odom.longitude_min.toFixed(NUM_DIGITS),
+        },
+
+        methods: {
+            apply_joystick: function(stick) {
+                this.set({
+                    forward_back: stick.forward_back,
+                    left_right: stick.left_right
+                });
+
+                this.refs.field.apply_joystick(stick);
+            },
+
+            start_odom_events: function() {
+                window.setInterval(() => {
+                    this.fire("auton", {
+                        is_auton: this.get('enabled')
+                    });
+                    const odom = this.get("odom");
+                    this.fire("odom", {
+                        latitude_deg: odom.latitude_deg|0,
+                        latitude_min: odom.latitude_min,
+                        longitude_deg: odom.longitude_deg|0,
+                        longitude_min: odom.longitude_min,
+                        bearing_deg: odom.bearing_deg
+                    });
+                    const waypoints = this.get('waypoints');
+                    let course = {
+                        num_waypoints: waypoints.length,
+                        waypoints: _.map(waypoints, (waypoint) => {
+                            return {
+                                type: "Waypoint",
+                                search: waypoint.search,
+                                odom: {
+                                    latitude_deg: waypoint.latitude_deg|0,
+                                    latitude_min: waypoint.latitude_min,
+                                    longitude_deg: waypoint.longitude_deg|0,
+                                    longitude_min: waypoint.longitude_min,
+                                    bearing_deg: 0,
+                                    type: "Odometry"
+                                }
+                            }
+                        })
+                    };
+                    course.hash = fnv.fast1a52(JSON.stringify(course));
+                    this.fire("course", course);
+
+                    if (this.get("cv_enabled")) {
+                        let tennis_ball_state = this.get("tennis_ball_state");
+                        this.fire("tennis_ball", tennis_ball_state);
+
+                        let obstacle_state = this.get("obstacle_state");
+                        this.fire("obstacle", obstacle_state);
+                    }
+                }, 100);
+            },
+            splice
+        },
+        components: {
+            SimulatorField,
+            DrawModeSelector,
+            SimulatedItemDisplay
+        }
+    }
+</script>
+
+<style>
+#container {
+    font-family: sans-serif;
+    display: grid;
+    grid-template-columns: 600px 1fr;
+    grid-template-rows: 600px 1fr;
+    grid-template-areas: "canvas sidebar"
+                         "drawmode sidebar";
+    grid-gap: 5px;                    
+}
+
+#field {
+    grid-area: canvas;
+}
+
+#sidebar {
+    grid-area: sidebar;
+}
+
+#drawmode {
+    grid-area: drawmode;
+}
+
+div + div {
+    margin-top: 10px;
+}
+
+.display {
+    color: white;
+    padding: 5px;
+}
+
+.display * {
+    margin: 0px;
+}
+
+#odom_display {
+    background-color: darkred;
+}
+
+#joystick_display {
+    background-color: darkblue;
+}
+
+.waypoint_display {
+    background-color: darkgreen;
+}
+
+.tennis_ball_display {
+    color: black;
+    background-color: lightgreen;
+}
+
+.rock_display {
+    background-color: brown;
+}
+
+#controls {
+    background-color: black;
+}
+</style>

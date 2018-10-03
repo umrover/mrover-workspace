@@ -1,0 +1,8 @@
+package rover_msgs;
+
+struct SAMotors {
+    double drill;
+    double lead_screw;
+    double door_actuator;
+    double cache;
+}

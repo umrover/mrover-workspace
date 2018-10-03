@@ -1,0 +1,14 @@
+package rover_msgs;
+
+struct Xbox {
+    double left_js_x;
+    double left_js_y;
+    double left_trigger;
+    double right_trigger;
+    double right_js_x;
+    double right_js_y;
+    double right_bumper;
+    double left_bumper;
+    double d_pad_up;
+    double d_pad_down;
+}

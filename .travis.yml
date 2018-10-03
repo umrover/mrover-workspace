@@ -1,0 +1,10 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+- docker build -t mrover .
+
+script:
+- docker run --rm -it -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro mrover jarvis build -a . -n onboard/cv onboard/cv/calibrate 

@@ -1,0 +1,48 @@
+- name: Set up node's network adapter
+  copy:
+      src: files/rover.network
+      dest: /etc/systemd/network/rover.network
+
+- name: Disable NetworkManager for the interface
+  copy:
+      src: files/disable-eth0.conf
+      dest: /etc/NetworkManager/conf.d/disable-eth0.conf
+
+- name: Restart NetworkManager
+  systemd: name=NetworkManager.service state=restarted
+
+- name: Enable systemd-networkd
+  systemd:
+      name: systemd-networkd.service
+      state: started
+      enabled: yes
+
+- name: Delete blacklist-mttcan.conf
+  file:
+      path: /etc/modprobe.d/blacklist-mttcan.conf
+      state: absent
+
+- name: Enable can
+  copy:
+      src: files/can.conf
+      dest: /etc/modules-load.d/can.conf
+
+- name: Copy can_ip_link.sh file
+  copy:
+      src: files/can_ip_link.sh
+      dest: /etc/systemd/can_ip_link.sh
+      mode: 0755
+
+- name: Copy service file
+  copy:
+      src: files/can.service
+      dest: /etc/systemd/system/can.service
+
+- name: Reload systemd
+  systemd: 
+      daemon_reload: yes
+
+- name: Enable can service
+  systemd: 
+      name: can.service
+      enabled: yes

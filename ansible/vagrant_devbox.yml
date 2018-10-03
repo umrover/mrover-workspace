@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: yes
+  vars:
+      ubuntu_release: xenial
+      devbox_username: vagrant
+  roles:
+  - onboard_dev
+  - microcontrollers_dev
+  - base_station_dev
+  - cv_dev
+  tasks:
+  - name: Configure bashrc
+    copy:
+        src: files/devbox/bashrc
+        dest: "/home/{{ devbox_username }}/.bashrc"
+    become: no
+  - name: Set up groups
+    user:
+        name: "{{ devbox_username }}"
+        groups: plugdev
+        append: yes

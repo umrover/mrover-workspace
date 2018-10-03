@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct DebugMessage {
+	boolean isError;
+	string message;
+}

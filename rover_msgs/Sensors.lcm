@@ -1,0 +1,11 @@
+package rover_msgs;
+
+struct Sensors {
+  int64_t timestamp;
+  double temperature;
+  double moisture;
+  double conductivity;
+  double pH;
+  double O2;
+  double CO2;
+}

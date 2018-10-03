@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct PiCamera {
+	int8_t active_index;
+}

@@ -1,0 +1,107 @@
+<div class="wrap">
+  <div class="control_buttons">
+    <div on:click='turn_off_sa()'>
+      <Checkbox name="Arm Controls" bind:toggled="arm"/>
+    </div>
+    <div on:click='turn_off_arm()'>
+      <Checkbox name="Soil Acquisition" bind:toggled="soil_ac"/>
+    </div>
+  </div>
+  <div id="speed_limiter" class="wrap">
+    <p>
+      Speed Limiter:
+      <span>{{ (dampen*-50 + 50).toFixed(2) }}%</span>   
+    </p>
+  </div>
+  <div id="mode_info">
+  {{#if arm}}
+    <div class="wrap">
+      <p>arm</p>
+    </div>
+  {{elseif soil_ac}}
+    <div class="wrap">
+      <span class="led {{ sa_motor.drill != 0 ? 'lightgreen' : 'red' }}"></span>
+      <span class="name">Drill</span>
+    </div>
+    <div class="wrap">
+      <span class="led {{ sa_motor.door_actuator > 0 ? 'lightgreen' : (sa_motor.door_actuator < 0 ? 'red' : 'orange') }}"></span>
+      <span class="name">Door</span>
+    </div>
+  {{/if}}
+  </div>
+</div>
+
+<script>
+  import Checkbox from './Checkbox.html'
+
+  export default {
+    data() {
+      return {
+        arm: false,
+        soil_ac: false
+      }
+    },
+    components: {
+      Checkbox
+    },
+    methods: {
+      turn_off_sa() {
+        this.set({soil_ac: false});
+      },
+      turn_off_arm() {
+        this.set({arm: false});
+      }
+    }
+  }
+</script>
+
+<style>
+  .wrap {
+    display: grid;
+    grid-template-areas: "control_buttons speed_limiter mode_info";
+    align-items: center;
+    height: 100%;
+    padding: 0px 0px 0px 20px
+  }
+
+  .control_buttons {
+    align-items: center;
+    justify-content: center;
+    display: inline-flex;
+    padding: 0px 10px 0px 0px;
+  }
+
+  .speed_limiter {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wrap {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .led {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    border: 1px solid;
+  }
+
+  .lightgreen {
+    background-color: lightgreen;
+  }
+
+  .red {
+    background-color: red;
+  }
+
+  .orange {
+    background-color: orange;
+  }
+
+  .name {
+    margin-left: 5px;
+  }
+</style>

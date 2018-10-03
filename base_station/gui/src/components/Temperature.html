@@ -1,0 +1,46 @@
+<div class="wrap">
+    <div class="box">
+        <p>
+            CPU Temperature:
+            <span>{{(temperature.bcpu_temp/1000).toFixed(2)}}ºC</span>
+        </p>
+    </div>
+    <div class="box">
+        <p>
+            GPU Temperature:
+            <span>{{(temperature.gpu_temp/1000).toFixed(2)}}ºC</span>
+        </p>
+    </div>
+    <div class="box">
+        <p>
+            Board Temperature:
+            <span>{{(temperature.tboard_temp/1000).toFixed(2)}}ºC</span>
+        </p>
+    </div>
+</div>
+
+<style>
+.wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 35px 35px;
+}
+
+.box {
+    padding: 0px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: none;
+}
+
+p {
+    margin: 0px;
+    font-size: 1rem;
+    margin-top: 5px;
+    text-align: left;
+}
+
+span{
+    float: right;
+}
+</style>

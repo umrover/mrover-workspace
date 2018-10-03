@@ -2,41 +2,56 @@
 
 set -eo pipefail
 
-DIR=$(dirname $(realpath "${0}"))
+FILEPATH=$(realpath "${0}")
+DIR=$(dirname "${FILEPATH}")
+MROVER_BUILD_ROOT="${HOME}/.mrover"
 JARVIS_ROOT=${DIR}/jarvis_files
-JARVIS_VENV=${JARVIS_ROOT}/env
-PRODUCT_ENV=${DIR}/build/env
+JARVIS_VENV=${MROVER_BUILD_ROOT}/jarvis_env
+PRODUCT_ENV=${MROVER_BUILD_ROOT}/build_env
 
 run_jarvis() {
     # Runs a Jarvis command using PyInvoke
     # shellcheck source=/dev/null
     source "${JARVIS_VENV}/bin/activate"
-    cd "${JARVIS_ROOT}"
-    invoke "$@"
+    jarvis "--root=${DIR}" "$@"
     return $?
 }
 
-if [ ! -d "${JARVIS_VENV}" ]; then
-    echo -n "Bootstrapping..."
+make_jarvis_env() {
     # Make virtualenv for Jarvis
     python3 -m venv "${JARVIS_VENV}"
     # shellcheck source=/dev/null
     source "${JARVIS_VENV}/bin/activate"
 	pip install --upgrade pip >/dev/null
     pip install -r "${JARVIS_ROOT}/requirements.txt" >/dev/null
+    pip install "${JARVIS_ROOT}/jarvis_cmd" >/dev/null
+}
+
+if [ ! -d "${MROVER_BUILD_ROOT}" ]; then
+    echo -n "Bootstrapping..."
+    # Make MRover Build Root
+    mkdir -p "${MROVER_BUILD_ROOT}"
+    make_jarvis_env
     echo "Done!"
 fi
 
 if [ "$#" -lt 1 ]; then
-    run_jarvis -l
+    run_jarvis --help
     exit 0
 fi
 
 if [ "$1" = "implode" ]; then
-    run_jarvis clean
-    # Delete virtualenv
-    cd ${DIR}
-    rm -rf "${JARVIS_VENV}"
+    # Delete mrover build space
+    rm -rf "${MROVER_BUILD_ROOT}"
+    exit 0
+fi
+
+if [ "$1" = "upgrade" ]; then
+    # Delete Jarvis env and rebuild it
+    # shellcheck source=/dev/null
+    source "${JARVIS_VENV}/bin/activate"
+    pip install -r "${JARVIS_ROOT}/requirements.txt" >/dev/null
+    pip install --upgrade "${JARVIS_ROOT}/jarvis_cmd" >/dev/null
     exit 0
 fi
 
@@ -45,7 +60,7 @@ if [ "$1" = "exec" ]; then
         # shellcheck source=/dev/null
         source "${PRODUCT_ENV}/bin/activate"
         shift
-        exec "$@"
+        exec env LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu" "$@"
     else
         echo "You must build something in order to be able to exec a command."
     fi

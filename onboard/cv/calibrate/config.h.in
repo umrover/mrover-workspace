@@ -1,0 +1,3 @@
+#pragma once
+
+#mesondefine ZED_SDK_PRESENT

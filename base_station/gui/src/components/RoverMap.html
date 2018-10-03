@@ -1,0 +1,179 @@
+<div class="wrap">
+  <!-- Map goes here -->
+
+  <div class="map" ref:map></div>
+
+</div>
+
+<script>
+  import L from '../leafletRover.js';
+  export default {
+    oncreate() {
+
+      const mymap = L.map(this.refs.map, {
+            center: [38.4062386734, -110.781233825],
+            zoom: 10,
+            minZoom: 1,
+            maxZoom: 18
+        }).setView([38.4062386734, -110.781233825], 10);
+      L.tileLayer('/static/map/{z}/{x}/{y}.png', {
+        minZoom: 1,
+        maxZoom: 18,
+        tms: true,
+        bounds: [[38.3720427981, -110.746207438], [38.4404345486, -110.816260212]],
+      }).addTo(mymap);
+      L.control.scale({imperial: false}).addTo(mymap);
+
+      // Fit to overlay bounds (SW and NE points with (lat, lon))
+      mymap.fitBounds([[38.3720427981, -110.746207438], [38.4404345486, -110.816260212]]);
+
+      const waypointMarkers = [];
+
+      let marker;
+      let roverPath;
+      let waypointPath;
+      let lastLat;
+      let lastLng;
+
+      let setupDone = false;
+      const setup = (lat, lng, angle) => {
+        // Create the rover marker
+        marker = L.marker(L.latLng(lat, lng), {
+          icon: locationIcon
+        }).addTo(mymap);
+        marker.setRotationAngle(angle);
+
+        // Start the rover path
+
+        roverPath = L.polyline(marker.getLatLng(), {
+          color: '#00ff00'
+        }).addTo(mymap);
+
+        // Start the waypoint path
+
+        waypointPath = L.polyline(marker.getLatLng(), {
+          color: 'red',
+          dashArray: '5, 5'
+        }).addTo(mymap);
+
+        lastLat = lat;
+        lastLng = lng;
+
+        setupDone = true;
+      };
+
+      const zoom = () => {
+        let featureGroup;
+        if (waypointMarkers.length) {
+          featureGroup = L.featureGroup([marker, roverPath, waypointMarkers[0]]).addTo(mymap);
+        } else {
+          featureGroup = L.featureGroup([marker, roverPath]).addTo(mymap);
+        }
+        mymap.fitBounds(featureGroup.getBounds());
+      }
+
+      const locationIcon = L.icon({
+        iconUrl: '/static/location_marker_icon.png',
+        iconSize: [64, 64],
+        iconAnchor: [32, 32]
+      });
+      const waypointIcon = L.icon({
+        iconUrl: '/static/map_marker.png',
+        iconSize: [64, 64],
+        iconAnchor: [32, 64],
+        popupAnchor: [0, -32]
+      });
+
+      const maxOdomCount = 1000;
+      const drawFrequency = 10;
+      let odomCount = 0;
+      this.observe('odom', odom => {
+        // Trigger every time rover odom is changed
+
+        const lat = odom.latitude_deg + odom.latitude_min / 60;
+        const lng = odom.longitude_deg + odom.longitude_min / 60;
+        const angle = odom.bearing_deg;
+
+        if (setupDone) {
+          // Update the rover marker
+          marker.setRotationAngle(angle);
+
+          if (lat != lastLat && lng != lastLng) {
+            lastLat = lat;
+            lastLng = lng;
+
+            marker.setLatLng(L.latLng(lat, lng));
+
+            // Update the rover path
+            odomCount++;
+            let latLongs = roverPath.getLatLngs();
+            if (odomCount % drawFrequency == 0) {
+              if (odomCount > maxOdomCount * drawFrequency) {
+                latLongs.splice(0, 1);
+              }
+              latLongs.push(L.latLng(lat, lng));
+            }
+
+            latLongs[latLongs.length - 1] = L.latLng(lat, lng);
+            roverPath.setLatLngs(latLongs);
+
+            if (waypointMarkers.length) {
+              // Update the waypoint path
+              let theLatLngs = waypointPath.getLatLngs();
+              theLatLngs[0] = marker.getLatLng();
+              waypointPath.setLatLngs(theLatLngs);
+            }
+
+          }
+        } else setup(lat, lng, angle);
+
+        //Zoom to fit rover, rover path, first waypoint
+        zoom();
+      });
+
+      // Observe all waypoints
+
+      this.observe('previous_waypoints', waypoints => {
+        // Trigger every time waypoints are changed
+
+        // Delete waypoint markers
+        for (let i = 0; i < waypointMarkers.length; i += 1) {
+          mymap.removeLayer(waypointMarkers[i]);
+        }
+        waypointMarkers.length = 0;
+
+        // Reset waypoint path
+        waypointPath.setLatLngs([marker.getLatLng()]);
+
+        // Set waypoint markers
+        for (let i = 0; i < waypoints.length; i += 1) {
+          const lat = waypoints[i].latitude_deg + waypoints[i].latitude_min / 60;
+          const lng = waypoints[i].longitude_deg + waypoints[i].longitude_min / 60;
+          const waypointMarker = new L.marker([lat, lng], {
+            icon: waypointIcon
+          });
+          // Expand waypoint path
+          waypointPath.addLatLng(L.latLng(lat, lng));
+
+          waypointMarker.bindPopup(`<b>${waypoints[i].name}</b>`).openPopup();
+          waypointMarkers.push(waypointMarker);
+          mymap.addLayer(waypointMarker);
+        }
+        zoom();
+      });
+    }
+  }
+</script>
+
+<style>
+  .map {
+    height: 100%;
+    width: 100%;
+  }
+
+  .wrap {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+</style>

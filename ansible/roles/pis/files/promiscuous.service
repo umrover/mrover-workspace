@@ -1,0 +1,11 @@
+[Unit]
+Description=Set eth0 interface in promiscuous mode
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/ip link set dev eth0 promisc on
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

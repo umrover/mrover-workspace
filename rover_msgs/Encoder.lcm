@@ -1,0 +1,10 @@
+package rover_msgs;
+
+struct Encoder {
+    int32_t joint_a;
+    int32_t joint_b;
+    int32_t joint_c;
+    int32_t joint_d;
+    int32_t joint_e;
+    int32_t joint_f;
+}
