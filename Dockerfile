@@ -18,8 +18,9 @@ RUN set -x && \
     wget \
     && apt-add-repository ppa:ansible/ansible && \
     apt-get update && \
-    apt-get install -y ansible && \
-    ansible-playbook -i "localhost," -c local /tmp/ansible/devbox.yml 
+    apt-get install -y ansible
+
+RUN ansible-playbook -i "localhost," -c local /tmp/ansible/devbox.yml 
 
 ENV ANSIBLE_GATHERING smart
 ENV ANSIBLE_HOST_KEY_CHECKING false
