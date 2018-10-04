@@ -7,7 +7,7 @@
       <button v-on:click="addWaypoint(lat, lon)">Add Waypoint</button>
     </div>
     <div class="box">
-      <Checkbox name="Autonomy Mode" bind:toggled="auton_enabled"/><br>
+      <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/><br>
       <span>
         Navigation State: {{nav_state}}<br>
         Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
@@ -28,16 +28,23 @@
 </template>
 
 <script>
+import Checkbox from './Checkbox.vue'
 import draggable from 'vuedraggable'
 import WaypointItem from './WaypointItem.vue'
 import {mapMutations} from 'vuex'
+import _ from 'lodash';
+import fnvPlus from 'fnv-plus';
 
 export default {
 
   data () {
     return {
+      name: "",
       lon: "",
       lat: "",
+
+      auton_enabled: false,
+      nav_state: "None",
 
       storedWaypoints: [
         {
@@ -93,6 +100,45 @@ export default {
     }
   },
 
+  props: {
+    nav_status: {
+      type: Object,
+      required: true
+    }
+  },
+
+  created: function () {
+    window.setInterval(() => {
+        if(this.auton_enabled && this.nav_state === 'Done'){
+          this.$refs.checkbox.toggleAndEmit()
+        }
+
+        this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.auton_enabled})
+
+        let course = {
+            num_waypoints: this.route.length,
+            waypoints: _.map(this.route, (waypoint) => {
+                return {
+                    type: "Waypoint",
+                    search: waypoint.search,
+                    odom: {
+                        latitude_deg: waypoint.latitude_deg|0,
+                        latitude_min: waypoint.latitude_min,
+                        longitude_deg: waypoint.longitude_deg|0,
+                        longitude_min: waypoint.longitude_min,
+                        bearing_deg: 0,
+                        type: "Odometry"
+                    }
+                }
+            })
+        };
+        course.hash = fnvPlus.fast1a52(JSON.stringify(course));
+        course.type = 'Course'
+        this.$parent.publish('/course', course)
+
+    }, 100);
+  },
+
   methods: {
     ...mapMutations('autonomy',{
       setRoute: 'setRoute'
@@ -125,6 +171,10 @@ export default {
         name: name,
         latLng: L.latLng(parseCoordinate(lat), -parseCoordinate(lon))
       })
+    },
+
+    toggleAutonMode(val){
+      this.auton_mode = val
     }
   },
 
@@ -136,7 +186,8 @@ export default {
 
   components: {
     draggable,
-    WaypointItem
+    WaypointItem,
+    Checkbox
   }
 
 }
@@ -147,7 +198,7 @@ export default {
   .wrap {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 5rem 1fr;
+    grid-template-rows: 7rem 1fr;
     grid-gap: 6px;
     height: 100%;
   }

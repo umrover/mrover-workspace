@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
     <div class="box">
-      <Checkbox v-bind:name="'Recording'" v-on:toggle="$emit('toggle-recording', $event)"/>
+      <Checkbox v-bind:name="'Recording'" v-on:toggle="toggleRecording($event)"/>
     </div>
     <div class='box'></div>
 
@@ -13,6 +13,7 @@
 <script>
 import SensorItem from './SensorItem.vue'
 import Checkbox from './Checkbox.vue'
+import {mapMutations} from 'vuex'
 
 export default {
   name: 'Sensors',
@@ -68,6 +69,16 @@ export default {
         }
       ]
     }
+  },
+
+  methods: {
+    toggleRecording: function (record) {
+      const msg = {
+        'type': 'SensorSwitch',
+        'should_record': record
+      }
+      this.$parent.publish('/sensor_switch', msg)
+    },
   },
 
   props: {

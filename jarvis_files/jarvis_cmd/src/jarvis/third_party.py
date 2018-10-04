@@ -186,3 +186,33 @@ def ensure_nanomsg(ctx):
             print("Installing nanomsg...")
             ctx.run("cmake --build . --target install", hide='both')
             print("Done")
+
+
+def check_rapidjson(ctx):
+    """
+    Checks for the existence of RapidJson in the product venv.
+    """
+    return os.path.exists(ctx.get_product_file('lib', 'rapidjson'))
+
+def ensure_rapidjson(ctx):
+    """
+    Installs RapidJson into the product venv.
+    """
+    if check_nanomsg(ctx):
+        print("RapidJson already installed, skipping.")
+        return
+
+    rapidjson_dir = os.path.join(ctx.third_party_root, 'rapidjson')
+    ctx.ensure_product_env()
+    with ctx.intermediate('rapidjson'):
+        ctx.run("cp -r {}/* .".format(rapidjson_dir))
+        print("Configuring rapidjson...")
+        #ctx.run("mkdir -p build")
+        #with ctx.cd("build"):
+        ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} .".format(
+            ctx.product_env))
+        print("Building rapidjson...")
+        ctx.run("cmake --build .")
+        print("Installing rapidjson...")
+        ctx.run("cmake --build . --target install")
+        print("Done")
