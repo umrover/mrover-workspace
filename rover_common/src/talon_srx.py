@@ -49,6 +49,17 @@ class TalonControlMode(Enum):
     kDisabled = 15
 
 
+class FeedbackDevice(Enum):
+    QuadEncoder = 0
+    AnalogPot = 2
+    AnalogEncoder = 3
+    EncRising = 4
+    EncFalling = 5
+    CtreMagEncoder_Relative = 6
+    CtreMagEncoder_Absolute = 7
+    PulseWidth = 8
+
+
 class Param(Enum):
     ProfileParamSlot0_P = 1
     ProfileParamSlot0_I = 2
