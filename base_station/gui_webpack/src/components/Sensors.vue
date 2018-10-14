@@ -18,6 +18,22 @@ import {mapMutations} from 'vuex'
 export default {
   name: 'Sensors',
 
+  data() {
+    return {
+      rawData: {
+        temperature: 0,
+        moisture: 0,
+        conductivity: 0,
+        pH: 0,
+        O2: 0,
+        CO2: 0,
+        bcpu_temp: 0,
+        gpu_temp: 0,
+        tboard_temp: 0
+      }
+    }
+  },
+
   computed: {
     color: function () {
       return this.recording ? 'green' : 'red'
@@ -81,11 +97,14 @@ export default {
     },
   },
 
-  props: {
-    rawData: {
-      type: Object,
-      required: true
-    }
+  created: function() {
+    this.$parent.subscribe('/sensors', (msg) => {
+      this.rawData = Object.assign(this.rawData, msg)
+    })
+
+    this.$parent.subscribe('/temperature', (msg) => {
+      this.rawData = Object.assign(this.rawData, msg)
+    })
   },
 
   components: {

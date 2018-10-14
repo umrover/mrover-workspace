@@ -7,6 +7,7 @@ export default class LCMBridge {
         this.updateConnectedState = updateConnectedState
         this.lcmMessage = lcmMessage
         this._createWebsocket(url)
+        this.callbacks = {}
     }
 
     _createWebsocket (url) {
@@ -43,6 +44,12 @@ export default class LCMBridge {
                     'topic': event_data['topic'],
                     'message': event_data['message']
                 })
+
+                if(this.callbacks[event_data['topic']] !== undefined) {
+                    this.callbacks[event_data['topic']].forEach(function(fn){
+                        fn(event_data['message'])
+                    })
+                }
             }
             if (event_data['type'] === 'error_message'){
                 console.error(event_data['message']);
@@ -67,6 +74,14 @@ export default class LCMBridge {
             }))
         } else {
             console.error("LCM Bridge not connected")
+        }
+    }
+
+    subscribe(channel, callbackFn) {
+        if(this.callbacks[channel] === undefined){
+            this.callbacks[channel] = [callbackFn]
+        }else{
+            this.callbacks[channel].push(callbackFn)
         }
     }
 

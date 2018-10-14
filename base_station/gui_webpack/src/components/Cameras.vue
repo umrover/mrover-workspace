@@ -88,8 +88,7 @@
   export default {
     data() {
       return {
-        connections: [false, false, false, false, false, false],
-        pi_index: -1,
+        pi_index: -1
       }
     },
 
@@ -113,6 +112,11 @@
     },
 
     props: {
+      connections: {
+        type: Array,
+        required: true
+      },
+
       servosData: {
         type: Object,
         required: true

@@ -46,56 +46,7 @@ export default {
       auton_enabled: false,
       nav_state: "None",
 
-      storedWaypoints: [
-        {
-          name: 'Waypoint 1',
-          latLng: L.latLng(38.416371, -110.791954)
-        },
-        {
-          name: 'Waypoint 2',
-          latLng: L.latLng(38.406371, -110.781954)
-        },
-        {
-          name: 'Waypoint 3',
-          latLng: L.latLng(38.416371, -110.781954)
-        },
-        {
-          name: 'Waypoint 4',
-          latLng: L.latLng(38.416371, -110.791954)
-        },
-        {
-          name: 'Waypoint 5',
-          latLng: L.latLng(38.406371, -110.781954)
-        },
-        {
-          name: 'Waypoint 6',
-          latLng: L.latLng(38.416371, -110.781954)
-        },
-        {
-          name: 'Waypoint 7',
-          latLng: L.latLng(38.416371, -110.791954)
-        },
-        {
-          name: 'Waypoint 8',
-          latLng: L.latLng(38.406371, -110.781954)
-        },
-        {
-          name: 'Waypoint 9',
-          latLng: L.latLng(38.416371, -110.781954)
-        },
-        {
-          name: 'Waypoint 10',
-          latLng: L.latLng(38.416371, -110.791954)
-        },
-        {
-          name: 'Waypoint 11',
-          latLng: L.latLng(38.406371, -110.781954)
-        },
-        {
-          name: 'Waypoint 12',
-          latLng: L.latLng(38.416371, -110.781954)
-        }
-      ],
+      storedWaypoints: [],
       route: []
     }
   },
@@ -141,7 +92,8 @@ export default {
 
   methods: {
     ...mapMutations('autonomy',{
-      setRoute: 'setRoute'
+      setRoute: 'setRoute',
+      setWaypointList: 'setWaypointList'
     }),
 
     deleteItem: function (payload) {
@@ -181,6 +133,10 @@ export default {
   watch: {
     route: function (newRoute) {
       this.setRoute(newRoute)
+    },
+
+    storedWaypoints: function (newList) {
+      this.setWaypointList(newList)
     }
   },
 
