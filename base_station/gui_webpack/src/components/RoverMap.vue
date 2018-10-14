@@ -9,6 +9,11 @@
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in route" :key="waypoint.id">
         <l-tooltip :content="waypoint.name" />
       </l-marker>
+
+      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in list" :key="waypoint.id">
+        <l-tooltip :content="waypoint.name" />
+      </l-marker>
+      
       <l-polyline :lat-lngs="polylinePath" :color="'red'" :dash-array="'5, 5'"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
     </l-map>
@@ -53,7 +58,8 @@ export default {
 
   computed: {
     ...mapGetters('autonomy', {
-      route: 'route'
+      route: 'route',
+      list: 'waypointList'
     }),
 
     odomLatLng: function () {

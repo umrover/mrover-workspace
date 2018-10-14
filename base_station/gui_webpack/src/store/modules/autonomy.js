@@ -3,12 +3,15 @@ import L from '../../leafletRover.js'
 // initial state
 const state = {
   route: [],
+  waypointList: [],
   autonEnabled: false
 }
 
 // getters
 const getters = {
-  route: state => state.route
+  route: state => state.route,
+  waypointList: state => state.waypointList,
+  autonEnabled: state => state.autonEnabled
 }
 
 // mutations
@@ -19,6 +22,10 @@ const mutations = {
 
   setAutonMode (commit, newAutonEnabled) {
     state.autonEnabled = newAutonEnabled
+  },
+
+  setWaypointList (commit, newList) {
+    state.waypointList = newList
   }
 }
 
