@@ -27,10 +27,10 @@
       <OdometryReading v-bind:odom="odom"/>
     </div>
     <div class="box diags light-bg">
-      <Sensors v-on:toggle-recording="onToggleRecording($event)" v-bind:rawData="sensors"/>
+      <Sensors/>
     </div>
     <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage"/>
+      <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
@@ -71,18 +71,6 @@ export default {
         tilt: 0
       },
 
-      sensors: {
-        temperature: 0,
-        moisture: 0,
-        conductivity: 0,
-        pH: 0,
-        O2: 0,
-        CO2: 0,
-        bcpu_temp: 0,
-        gpu_temp: 0,
-        tboard_temp: 0
-      },
-
       odom: {
         latitude_deg: 38,
         latitude_min: 24.38226,
@@ -94,7 +82,8 @@ export default {
       connections: {
         websocket: false,
         lcm: false,
-        motors: false
+        motors: false,
+        cameras: [false, false, false, false, false, false]
       },
 
       nav_status: {
@@ -106,8 +95,15 @@ export default {
   },
 
   methods: {
-    publish(channel, payload){
+    publish: function (channel, payload) {
       this.lcm_.publish(channel, payload)
+    },
+
+    subscribe: function (channel, callbackFn) {
+      if( (typeof callbackFn !== "function") || (callbackFn.length !== 1)) {
+        console.error("Callback Function is invalid (should take 1 parameter)")
+      }
+      this.lcm_.subscribe(channel, callbackFn)
     }
   },
 
@@ -131,18 +127,15 @@ export default {
       },
       // Update connection states
       (online) => {
-        this.connections.lcm = online[0]
+        this.connections.lcm = online[0],
+        this.connections.cameras = online.slice(1)
       },
       // Subscribed LCM message received
       (msg) => {
         if (msg.topic === '/odom') {
           this.odom = msg.message
-        } else if (msg.topic === '/sensors') {
-          this.sensors = Object.assign(this.sensors, msg.message)
-        } else if (msg.topic === '/temperature') {
-          this.sensors = Object.assign(this.sensors, msg.message)
         } else if (msg.topic === '/kill_switch') {
-          this.motors_active = !msg.message.killed
+          this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/nav_status') {
           this.nav_status = msg.message
         } else if (msg.topic === '/sa_motors') {
