@@ -39,7 +39,7 @@
       <WaypointEditor v-bind:odom="odom" v-bind:nav_status="nav_status"/>
     </div>
     <div class="box controls light-bg">
-      <Controls v-bind:dampen="dampen" v-bind:saMotor="saMotors"/>
+      <Controls v-bind:saMotor="saMotors" />
     </div>
   </div>
 </template>
@@ -62,9 +62,7 @@ export default {
     return {
       lcm_: null,
 
-      controls: '',
       saMotors: {},
-      dampen: 0,
 
       lastServosMessage: {
         pan: 0,
@@ -178,61 +176,15 @@ export default {
       'tilt': 5
     }
 
-    const XBOX_CONFIG = {
-      'left_js_x': 0,
-      'left_js_y': 1,
-      'left_trigger': 6,
-      'right_trigger': 7,
-      'right_js_x': 2,
-      'right_js_y': 3,
-      'right_bumper': 5,
-      'left_bumper': 4,
-      'd_pad_up': 12,
-      'd_pad_down': 13
-    }
-
     window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 2; i++) {
         const gamepad = gamepads[i]
         if (gamepad) {
           if (gamepad.id.includes('Logitech')) {
-            const joystickData = {
-              'type': 'Joystick',
-              'forward_back': gamepad.axes[JOYSTICK_CONFIG['forward_back']],
-              'left_right': gamepad.axes[JOYSTICK_CONFIG['left_right']],
-              'dampen': gamepad.axes[JOYSTICK_CONFIG['dampen']],
-              'kill': gamepad.buttons[JOYSTICK_CONFIG['kill']]['pressed'],
-              'restart': gamepad.buttons[JOYSTICK_CONFIG['restart']]['pressed']
-            }
-            this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']]
-
-            if (!this.autonEnabled) {
-              this.lcm_.publish('/drive_control', joystickData)
-            }
-
             const servosSpeed = 0.8
             servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG['pan']] * servosSpeed / 10
             servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG['tilt']] * servosSpeed / 10
-          } else if (gamepad.id.includes('Microsoft')) {
-            const xboxData = {
-              'type': 'Xbox',
-              'left_js_x': gamepad.axes[XBOX_CONFIG['left_js_x']], // shoulder rotate
-              'left_js_y': gamepad.axes[XBOX_CONFIG['left_js_y']], // shoulder tilt
-              'left_trigger': gamepad.buttons[XBOX_CONFIG['left_trigger']]['value'], // elbow forward
-              'right_trigger': gamepad.buttons[XBOX_CONFIG['right_trigger']]['value'], // elbow back
-              'right_js_x': gamepad.axes[XBOX_CONFIG['right_js_x']], // hand rotate
-              'right_js_y': gamepad.axes[XBOX_CONFIG['right_js_y']], // hand tilt
-              'right_bumper': gamepad.buttons[XBOX_CONFIG['right_bumper']]['pressed'], // grip close
-              'left_bumper': gamepad.buttons[XBOX_CONFIG['left_bumper']]['pressed'], // grip open
-              'd_pad_up': gamepad.buttons[XBOX_CONFIG['d_pad_up']]['pressed'],
-              'd_pad_down': gamepad.buttons[XBOX_CONFIG['d_pad_down']]['pressed']
-            }
-            if (this.controlMode === 'arm') {
-              this.lcm_.publish('/arm_control', xboxData)
-            } else if (this.controlMode === 'soil_ac') {
-              this.lcm_.publish('/sa_control', xboxData)
-            }
           }
         }
       }
