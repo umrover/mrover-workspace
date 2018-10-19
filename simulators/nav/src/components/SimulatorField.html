@@ -8,7 +8,7 @@ canvas {
 </style>
 
 <script>
-import { 
+import {
     to_dms,
     to_decimal,
     dist_and_bearing,
@@ -31,7 +31,7 @@ const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
 const ROVER_DEPTH_OF_VIEW = 10;
 const CV_DEPTH = 5;
 
-const TRANSLATIONAL_SCALE = 1;
+const TRANSLATIONAL_SCALE = -1;
 const ROTATIONAL_SCALE = 2;
 
 function ensure_in_range(x, min, max) {
@@ -44,7 +44,7 @@ export default {
             center_lat: 39.4,
             center_lon: -110.5,
 
-            radius_meters: 100,
+            radius_meters: 25,
 
             odom: null,
 
