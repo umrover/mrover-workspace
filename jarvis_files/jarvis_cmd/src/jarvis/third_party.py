@@ -192,13 +192,13 @@ def check_rapidjson(ctx):
     """
     Checks for the existence of RapidJson in the product venv.
     """
-    return os.path.exists(ctx.get_product_file('lib', 'rapidjson'))
+    return os.path.exists(ctx.get_product_file('include', 'rapidjson'))
 
 def ensure_rapidjson(ctx):
     """
     Installs RapidJson into the product venv.
     """
-    if check_nanomsg(ctx):
+    if check_rapidjson(ctx):
         print("RapidJson already installed, skipping.")
         return
 
