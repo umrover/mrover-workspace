@@ -29,12 +29,12 @@ import Checkbox from './Checkbox.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
+  data () {
+    return {
+      dampen: 0
+    }
+  },
   props: {
-    dampen: {
-      type: Number,
-      required: true
-    },
-
     saMotor: {
       type: Object,
       required: true
@@ -63,6 +63,79 @@ export default {
     ...mapGetters('controls', {
       controlMode: 'controlMode'
     }),
+
+    ...mapGetters('autonomy', {
+      autonEnabled: 'autonEnabled'
+    }),
+  },
+
+  created: function () {
+
+    const JOYSTICK_CONFIG = {
+      'forward_back': 1,
+      'left_right': 2,
+      'dampen': 3,
+      'kill': 4,
+      'restart': 5,
+      'pan': 4,
+      'tilt': 5
+    }
+
+    const XBOX_CONFIG = {
+      'left_js_x': 0,
+      'left_js_y': 1,
+      'left_trigger': 6,
+      'right_trigger': 7,
+      'right_js_x': 2,
+      'right_js_y': 3,
+      'right_bumper': 5,
+      'left_bumper': 4,
+      'd_pad_up': 12,
+      'd_pad_down': 13
+    }
+
+    window.setInterval(() => {
+      const gamepads = navigator.getGamepads()
+      for (let i = 0; i < 2; i++) {
+        const gamepad = gamepads[i]
+        if (gamepad) {
+          if (gamepad.id.includes('Logitech')) {
+            const joystickData = {
+              'type': 'Joystick',
+              'forward_back': gamepad.axes[JOYSTICK_CONFIG['forward_back']],
+              'left_right': gamepad.axes[JOYSTICK_CONFIG['left_right']],
+              'dampen': gamepad.axes[JOYSTICK_CONFIG['dampen']],
+              'kill': gamepad.buttons[JOYSTICK_CONFIG['kill']]['pressed'],
+              'restart': gamepad.buttons[JOYSTICK_CONFIG['restart']]['pressed']
+            }
+            this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']]
+
+            if (!this.autonEnabled) {
+              this.$parent.publish('/drive_control', joystickData)
+            }
+          } else if (gamepad.id.includes('Microsoft')) {
+            const xboxData = {
+              'type': 'Xbox',
+              'left_js_x': gamepad.axes[XBOX_CONFIG['left_js_x']], // shoulder rotate
+              'left_js_y': gamepad.axes[XBOX_CONFIG['left_js_y']], // shoulder tilt
+              'left_trigger': gamepad.buttons[XBOX_CONFIG['left_trigger']]['value'], // elbow forward
+              'right_trigger': gamepad.buttons[XBOX_CONFIG['right_trigger']]['value'], // elbow back
+              'right_js_x': gamepad.axes[XBOX_CONFIG['right_js_x']], // hand rotate
+              'right_js_y': gamepad.axes[XBOX_CONFIG['right_js_y']], // hand tilt
+              'right_bumper': gamepad.buttons[XBOX_CONFIG['right_bumper']]['pressed'], // grip close
+              'left_bumper': gamepad.buttons[XBOX_CONFIG['left_bumper']]['pressed'], // grip open
+              'd_pad_up': gamepad.buttons[XBOX_CONFIG['d_pad_up']]['pressed'],
+              'd_pad_down': gamepad.buttons[XBOX_CONFIG['d_pad_down']]['pressed']
+            }
+            if (this.controlMode === 'arm') {
+              this.$parent.publish('/arm_control', xboxData)
+            } else if (this.controlMode === 'soil_ac') {
+              this.$parent.publish('/sa_control', xboxData)
+            }
+          }
+        }
+      }
+    }, 100)
   },
 
   methods: {
