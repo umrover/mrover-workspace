@@ -1,0 +1,27 @@
+{
+	"bearingPid":
+	{
+		"kP": 0.1,
+		"kI": 0.00001,
+		"kD": 0.0055
+	},
+
+	"distancePid":
+	{
+		"kP": 0.2,
+		"kI": 0,
+		"kD": 0
+	},
+
+	"turningBearingThresh": 20,
+	"drivingBearingThresh": 50,
+
+	"atGoalDistanceThresh": 2,
+
+	"pathWidth": 2,
+	"searchBailThresh": 10,
+	"cvThresh": 3,
+
+	"navStatusChannel": "/nav_status",
+	"joystickChannel": "/drive_control"
+}

@@ -1,93 +1,98 @@
 #include <iostream>
-#include <thread>
-#include <chrono>
-#include <memory>
-#include <functional>
 #include <lcm/lcm-cpp.hpp>
-#include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/AutonState.hpp"
-#include "layer1.hpp"
-#include "layer2.hpp"
-#include "calculations.hpp"
+#include "stateMachine.hpp"
 
-std::ostream & operator<< (std::ostream & out, const rover_msgs::Odometry & odom) {
-    out << "odom set: " << odom.latitude_deg << "-" << odom.latitude_min << ", ";
-    out << odom.longitude_deg << "-" << odom.longitude_min;
-    return out;
-}
+using namespace rover_msgs;
+using namespace std;
 
-std::ostream & operator<< (std::ostream & out, const rover_msgs::Waypoint & waypoint) {
-    out << waypoint.odom;
-    if(waypoint.search) out << " - search";
-    else out << " - do not search";
-    return out;
-}
+// This class handles all incoming LCM messages for the autonomous
+// navigation of the rover.
+class LcmHandlers
+{
+public:
+	// Constructs an LcmHandler with the given state machine to work
+	// with.
+	LcmHandlers( StateMachine* stateMachine )
+		: mStateMachine( stateMachine )
+	{}
 
-std::ostream & operator<< (std::ostream & out, const rover_msgs::Course & course) {
-    for (int i = 0; i < course.num_waypoints; ++i) {
-        out << course.waypoints[i] << "\n";
-    }
-    return out;
-}
+	// Sends the auton state lcm message to the state machine.
+	void autonState(
+		const lcm::ReceiveBuffer* recieveBuffer,
+		const string& channel,
+		const AutonState* autonState
+		)
+	{
+		mStateMachine->updateRoverStatus( *autonState );
+	}
 
-struct LcmHandlers {
-    std::shared_ptr<Layer2> layer2;
-    void odom(
-            const lcm::ReceiveBuffer *rbuf,
-            const std::string &channel,
-            const rover_msgs::Odometry *odom) {
-        layer2->cur_odom_.set(*odom);
-       // std::cout << *odom << "\n";
-    }
+	// Sends the course lcm message to the state machine.
+	void course(
+		const lcm::ReceiveBuffer* recieveBuffer,
+		const string& channel,
+		const Course* course
+		)
+	{
+		mStateMachine->updateRoverStatus( *course );
+	}
 
-    void course(
-            const lcm::ReceiveBuffer *rbuf,
-            const std::string &channel,
-            const rover_msgs::Course *course) {
-        layer2->set_course(course);
-        //std::cout << "course set: " << *course;
-    }
+	// Sends the obstacle lcm message to the state machine.
+	void obstacle(
+		const lcm::ReceiveBuffer* receiveBuffer,
+		const string& channel,
+		const Obstacle* obstacle
+		)
+	{
+		mStateMachine->updateRoverStatus( *obstacle );
+	}
 
-    void auton(
-            const lcm::ReceiveBuffer *rbuf,
-            const std::string &channel,
-            const rover_msgs::AutonState *state) {
-        layer2->auton_state_.set(*state);
-    }
+	// Sends the odometry lcm message to the state machine.
+	void odometry(
+		const lcm::ReceiveBuffer* recieveBuffer,
+		const string& channel,
+		const Odometry* odometry
+		)
+	{
+		mStateMachine->updateRoverStatus( *odometry );
+	}
 
-    void ball(
-            const lcm::ReceiveBuffer *rbuf,
-            const std::string &channel,
-            const rover_msgs::TennisBall *ball) {
-        layer2->tennis_ball_.set(*ball);
-    }
+	// Sends the tennis ball lcm message to the state machine.
+	void tennisBall(
+		const lcm::ReceiveBuffer* receiveBuffer,
+		const string& channel,
+		const TennisBall* tennisBall
+		)
+	{
+		mStateMachine->updateRoverStatus( *tennisBall );
+	}
 
-    void obstacle(
-            const lcm::ReceiveBuffer *rbuf,
-            const std::string &channel,
-            const rover_msgs::Obstacle *obstacle) {
-        layer2->obstacle_.set(*obstacle);
-    }
+private:
+	// The state machine to send the lcm messages to.
+	StateMachine* mStateMachine;
 };
 
-int main(int argc, char **argv) {
-    using namespace std::chrono_literals;
-    lcm::LCM lcm_;
-    if (!lcm_.good()) {
-        std::cerr << "error: cannot create LCM" << std::endl;
-        return 1;
-    }
+// Runs the autonomous navigation of the rover.
+int main()
+{
+	lcm::LCM lcmObject;
+	if( !lcmObject.good() )
+	{
+		cerr << "Error: cannot create LCM\n";
+		return 1;
+	}
 
-    auto layer2 = std::make_shared<Layer2>(std::ref(lcm_));
-    LcmHandlers handlers{ layer2 };
-    lcm_.subscribe("/odom", &LcmHandlers::odom, &handlers);
-    lcm_.subscribe("/course", &LcmHandlers::course, &handlers);
-    lcm_.subscribe("/auton", &LcmHandlers::auton, &handlers);
-    lcm_.subscribe("/tennis_ball", &LcmHandlers::ball, &handlers);
-    lcm_.subscribe("/obstacle", &LcmHandlers::obstacle, &handlers);
+	StateMachine roverStateMachine( lcmObject );
+	LcmHandlers lcmHandlers( &roverStateMachine );
 
-    std::thread l2_thread(&Layer2::run, layer2);
+	lcmObject.subscribe( "/auton", &LcmHandlers::autonState, &lcmHandlers );
+	lcmObject.subscribe( "/course", &LcmHandlers::course, &lcmHandlers );
+	lcmObject.subscribe( "/obstacle", &LcmHandlers::obstacle, &lcmHandlers );
+	lcmObject.subscribe( "/odometry", &LcmHandlers::odometry, &lcmHandlers );
+	lcmObject.subscribe( "/tennis_ball", &LcmHandlers::tennisBall, &lcmHandlers );
 
-    while (lcm_.handle() == 0);
-    return 0;
-}
+	while( lcmObject.handle() == 0 )
+	{
+		roverStateMachine.run();
+	}
+	return 0;
+} // main()
