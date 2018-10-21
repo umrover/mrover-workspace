@@ -31,7 +31,7 @@
 import Checkbox from './Checkbox.vue'
 import draggable from 'vuedraggable'
 import WaypointItem from './WaypointItem.vue'
-import {mapMutations} from 'vuex'
+import {mapMutations, mapGetters} from 'vuex'
 import _ from 'lodash';
 import fnvPlus from 'fnv-plus';
 
@@ -43,7 +43,6 @@ export default {
       lon: "",
       lat: "",
 
-      auton_enabled: false,
       nav_state: "None",
 
       storedWaypoints: [],
@@ -93,7 +92,8 @@ export default {
   methods: {
     ...mapMutations('autonomy',{
       setRoute: 'setRoute',
-      setWaypointList: 'setWaypointList'
+      setWaypointList: 'setWaypointList',
+      setAutonMode: 'setAutonMode'
     }),
 
     deleteItem: function (payload) {
@@ -126,7 +126,7 @@ export default {
     },
 
     toggleAutonMode(val){
-      this.auton_mode = val
+      this.setAutonMode(val)
     }
   },
 
@@ -138,6 +138,12 @@ export default {
     storedWaypoints: function (newList) {
       this.setWaypointList(newList)
     }
+  },
+
+  computed: {
+    ...mapGetters('autonomy', {
+      auton_enabled: 'autonEnabled',
+    })
   },
 
   components: {
