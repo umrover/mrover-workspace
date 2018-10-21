@@ -4,20 +4,13 @@
 using namespace cv;
 using namespace std;
 
-
-
-float minDepth = 1; //need to set
-float pixelWidth = 1; //need to set
-float pixelHeight = 1;
-int roverPixWidth = 1; //initialize
-
 int calcFocalWidth(){   //mm
     return tan(fieldofView/2) * focalLength;
 }
 
-int calcRoverPix(float dist){   //pix
+int calcRoverPix(float dist, float pixWidth){   //pix
     float roverWidthSensor = realWidth * 1.2  * focalLength/(dist * 1000);
-    return roverWidthSensor*(pixelWidth/2)/calcFocalWidth();
+    return roverWidthSensor*(pixWidth/2)/calcFocalWidth();
 }
 
 float getGroundDist(float angleOffset){  // the expected distance if no obstacles
@@ -76,96 +69,103 @@ void write_curr_frame_to_disk(Mat &rgb, Mat & depth, int counter ) {
 }
 
 int main() {
-    /*initialize camera*/
-    Camera cam;
-    int j = 0;
-    double frame_time = 0;
-    int counter_fail = 0;
-    #ifdef PERCEPTION_DEBUG
+
+  /*initialize camera*/
+  Camera cam;
+  int j = 0;
+  double frame_time = 0;
+  int counter_fail = 0;
+  #ifdef PERCEPTION_DEBUG
     namedWindow("image",1);
     namedWindow("depth",2);
+  #endif
+  disk_record_init();
+
+  /*initialize lcm messages*/
+  lcm::LCM lcm_;
+  rover_msgs::TennisBall tennisMessage;
+  rover_msgs::Obstacle obstacleMessage;
+  tennisMessage.found = false;
+  obstacleMessage.detected = false;
+
+  int tennisBuffer = 0;
+
+  
+  while (true) {
+    if (!cam_grab_succeed(cam, counter_fail)) break;
+  
+    auto start = chrono::high_resolution_clock::now();
+    Mat src = cam.image();
+    
+    #ifdef PERCEPTION_DEBUG
+          imshow("image", src);
     #endif
-    disk_record_init();
-   
-    while (true) {
-        if (!cam_grab_succeed(cam, counter_fail)) break;
-      
-        auto start = chrono::high_resolution_clock::now();
-        Mat src = cam.image();
-	#ifdef PERCEPTION_DEBUG
-        imshow("image", src);
-	#endif
-        Mat depth_img = cam.depth();
+          Mat depth_img = cam.depth();
 
-	// write to disk if permitted
-	write_curr_frame_to_disk(src, depth_img, j );
+    // write to disk if permitted
+    //write_curr_frame_to_disk(src, depth_img, j );
 
-        /*initialize lcm messages*/
-        lcm::LCM lcm_;
-        rover_msgs::TennisBall tennisMessage;
-        rover_msgs::Obstacle obstacleMessage;
-        tennisMessage.found = false;
-        obstacleMessage.detected = false;
+    /*initialize obstacle detection*/
+    float pixelWidth = src.cols;
+    //float pixelHeight = src.rows;
+    int roverPixWidth = calcRoverPix(distThreshold, pixelWidth);
 
-        /*initialize obstacle detection*/
-        pixelWidth = src.cols;
-        pixelHeight = src.rows;
-        roverPixWidth = calcRoverPix(distThreshold);
-        float expectedDist = getGroundDist(angleOffset);
-        minDepth = getObstacleMin(expectedDist);
+    /* obstacle detection */
+    obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
+    if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
+      cout<< "bearing not zero!\n";
+      obstacleMessage.detected = true;    //if an obstacle is detected in front
+    } else {
+      cout<<"bearing zero\n";
+      obstacleMessage.detected = false;
+    }
+    obstacleMessage.bearing = obstacle_detection.bearing;
 
-	/* obstacle detection */
-        obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
-        if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
-	  cout<< "bearning not zero!\n";
-	  obstacleMessage.detected = true;    //if an obstacle is detected in front
-	} else {
-	  cout<<"bearing zero\n";
-	  obstacleMessage.detected = false;
-	}
-        obstacleMessage.bearing = obstacle_detection.bearing;
+    #ifdef PERCEPTION_DEBUG
+    cout << "Turn " << obstacleMessage.bearing << ", detected " << (bool)obstacleMessage.detected<< endl;
+    #endif
 
-	#ifdef PERCEPTION_DEBUG
-	cout << "Turn " << obstacleMessage.bearing << ", detected " << (bool)obstacleMessage.detected<< endl;
-	#endif
+    /* Tennis ball detection*/
+    vector<Point2f> centers = findTennisBall(src, depth_img);
+    if(centers.size() != 0){
+      float dist = depth_img.at<float>(centers[0].y, centers[0].x);
+      if (dist < BALL_DETECTION_MAX_DIST) {
+        tennisMessage.distance = dist;
+        tennisMessage.bearing = getAngle((int)centers[0].x, src.cols);
 
-	/* Tennis ball detection*/
-        vector<Point2f> centers = findTennisBall(src, depth_img);
-        if(centers.size() != 0){
-	    float dist = depth_img.at<float>(centers[0].y, centers[0].x);
-	    if (dist < BALL_DETECTION_MAX_DIST) {
-	      tennisMessage.distance = dist;
-	      tennisMessage.bearing = getAngle((int)centers[0].x, src.cols);
+        tennisMessage.found = true;
+        tennisBuffer = 0;
 
-	      tennisMessage.found = true;
-	      #ifdef PERCEPTION_DEBUG
-	      cout << centers.size() << " tennis ball(s) detected: " << tennisMessage.distance 
+        #ifdef PERCEPTION_DEBUG
+        cout << centers.size() << " tennis ball(s) detected: " << tennisMessage.distance 
                                                         << "m, " << tennisMessage.bearing << "degrees\n";
-	      #endif
-	    } else
-	      tennisMessage.found = false;
-        }
+        #endif
 
-        lcm_.publish("/tennis_ball", &tennisMessage);
-        lcm_.publish("/obstacle", &obstacleMessage);
+      }else if(tennisBuffer < 5){   //give 5 frames to recover if tennisball lost due to noise
+        tennisBuffer++;
+      }else
+        tennisMessage.found = false;
+    }
 
-	#ifdef PERCEPTION_DEBUG
-    	imshow("depth", depth_img);
-        imshow("image", src);
-	waitKey(FRAME_WAITKEY);
-	#endif
-        auto end = chrono::high_resolution_clock::now();
+    lcm_.publish("/tennis_ball", &tennisMessage);
+    lcm_.publish("/obstacle", &obstacleMessage);
 
-        auto delta = chrono::duration_cast<chrono::duration<double>>(end - start);
-        frame_time += delta.count();
-	#ifdef PERCEPTION_DEBUG
+    #ifdef PERCEPTION_DEBUG
+      imshow("depth", depth_img);
+      imshow("image", src);
+      waitKey(FRAME_WAITKEY);
+    #endif
+    auto end = chrono::high_resolution_clock::now();
+
+    auto delta = chrono::duration_cast<chrono::duration<double>>(end - start);
+    frame_time += delta.count();
+    #ifdef PERCEPTION_DEBUG
         if(j % 100 == 0){
             cout << "framerate: " << 1.0f/(frame_time/j) << endl;
         }
-	#endif
-        j++;
-    }
+    #endif
+    j++;
+  }
 
-    //cam.deleteZed();
-    return 0;
+  return 0;
 }
