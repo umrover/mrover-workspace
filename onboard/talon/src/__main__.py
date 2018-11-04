@@ -42,24 +42,48 @@ class Rover:
             self.talons.append(LowLevel(CHANNEL, i))
 
     async def configure_talons(self):
-        # make left_back talon follow left_front
-        # make right_back talon follow right_front
+        # make left_back talon follow left_front (Follower Mode)
         await self.talons[Talons.left_back.value].set_demand(
             Talons.left_front.value,
             talon_srx.TalonControlMode.kFollowerMode.value)
+        # make right_back talon follow right_front (Follower Mode)
         await self.talons[Talons.right_back.value].set_demand(
             Talons.right_front.value,
             talon_srx.TalonControlMode.kFollowerMode.value)
         print('configured talons')
 
+    # This function drives a talon at percent speed
+    #
+    # talon:  Talon SRX to drive
+    # speed:  [-1.0, 1.0]
     async def percent_vbus_drive(self, talon, speed):
         converted_speed = 1023 * speed
         await self.talons[talon].set_demand(
             converted_speed, talon_srx.TalonControlMode.kThrottle.value)
 
+    # This function drives a talon to a target position.
+    #
+    # talon:  Talon SRX to drive
+    # pos:    target encoder position
     async def position_pid_drive(self, talon, pos):
         await self.talons[talon].set_demand(
             pos, talon_srx.TalonControlMode.kPositionMode.value)
+
+    # This function sets the current limit for a talon.
+    #
+    # talon:  Talon SRX to set current limit on
+    # amps:   current limit in amps
+    async def set_current_lim(self, talon, amps):
+        await self.talons[talon].set_param(
+            talon_srx.Param.CurrentLimThreshold.value, amps)
+
+    # Configures the encoder counts per revolution for a talon.
+    #
+    # talon:          Talon SRX to configure
+    # codes_per_rev:  encoder ticks per revolution
+    async def config_encoder_codes_per_rev(self, talon, codes_per_rev):
+        await self.talons[talon].set_param(
+            talon_srx.Param.NumberEncoderCPR.value, codes_per_rev)
 
     async def run_all(self):
         asyncio.ensure_future(
@@ -67,6 +91,7 @@ class Rover:
         await self.configure_talons()
 
 
+# Callback for DriveMotors LCM message
 def drive_motor_callback(channel, msg):
     m = DriveMotors.decode(msg)
     exec_later(
@@ -75,6 +100,7 @@ def drive_motor_callback(channel, msg):
         rover.percent_vbus_drive(Talons.right_front.value, m.right))
 
 
+# Callback for SAMotors LCM Message
 def sa_motor_callback(channel, msg):
     m = SAMotors.decode(msg)
     exec_later(
@@ -87,6 +113,7 @@ def sa_motor_callback(channel, msg):
         rover.percent_vbus_drive(Talons.cache.value, m.cache))
 
 
+# Callback for Encoder LCM message (driving arm to position)
 def arm_demand_callback(channel, msg):
     m = Encoder.decode(msg)
     exec_later(
@@ -103,6 +130,7 @@ def arm_demand_callback(channel, msg):
         rover.position_pid_drive(Talons.arm_joint_f.value, m.joint_f))
 
 
+# Callback for OpenLoopRA LCM Message (drive arm with percent drive)
 def open_loop_arm_callback(channel, msg):
     m = OpenLoopRAMotors.decode(msg)
     exec_later(
@@ -119,31 +147,34 @@ def open_loop_arm_callback(channel, msg):
         rover.percent_vbus_drive(Talons.arm_joint_f.value, m.joint_f))
 
 
+# Callback for SetParam LCM Message
 def set_param_callback(channel, msg):
     m = SetParam.decode(msg)
     exec_later(rover.talons[m.deviceID].set_param(m.paramID, m.value))
 
 
+# Callback for SetDemand LCM Message
 def set_demand_callback(channel, msg):
     m = SetDemand.decode(msg)
     exec_later(rover.talons[m.deviceID].set_demand(m.value, m.control_mode))
 
 
+# Publish encoder positions for each RA motor.
 async def publish_arm_encoders():
     while True:
         ec = Encoder()
         ec.joint_a = int(
-            await rover.talons[Talons.arm_joint_a.value].read_enc_value() or 0)
+            await rover.talons[Talons.arm_joint_a.value].get_enc_pos() or 0)
         ec.joint_b = int(
-            await rover.talons[Talons.arm_joint_b.value].read_enc_value() or 0)
+            await rover.talons[Talons.arm_joint_b.value].get_enc_pos() or 0)
         ec.joint_c = int(
-            await rover.talons[Talons.arm_joint_c.value].read_enc_value() or 0)
+            await rover.talons[Talons.arm_joint_c.value].get_enc_pos() or 0)
         ec.joint_d = int(
-            await rover.talons[Talons.arm_joint_d.value].read_enc_value() or 0)
+            await rover.talons[Talons.arm_joint_d.value].get_enc_pos() or 0)
         ec.joint_e = int(
-            await rover.talons[Talons.arm_joint_e.value].read_enc_value() or 0)
+            await rover.talons[Talons.arm_joint_e.value].get_enc_pos() or 0)
         ec.joint_f = int(
-            await rover.talons[Talons.arm_joint_f.value].read_enc_value() or 0)
+            await rover.talons[Talons.arm_joint_f.value].get_enc_pos() or 0)
 
         lcm_.publish('/encoder', ec.encode())
 
