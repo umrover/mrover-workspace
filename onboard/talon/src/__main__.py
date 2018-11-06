@@ -185,9 +185,9 @@ def main():
     global rover
     rover = Rover()
     lcm_.subscribe("/motor", drive_motor_callback)
-    lcm_.subscribe("/setparam", set_param_callback)
-    lcm_.subscribe("/setdemand", set_demand_callback)
+    lcm_.subscribe("/set_param", set_param_callback)
+    lcm_.subscribe("/set_demand", set_demand_callback)
     lcm_.subscribe("/sa_motors", sa_motor_callback)
-    # lcm_.subscribe("/arm_demand", arm_demand_callback)
+    lcm_.subscribe("/arm_demand", arm_demand_callback)
     lcm_.subscribe("/arm_motors", open_loop_arm_callback)
     run_coroutines(publish_arm_encoders(), lcm_.loop(), rover.run_all())
