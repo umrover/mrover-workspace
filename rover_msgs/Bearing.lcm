@@ -1,5 +1,5 @@
 package rover_msgs;
 
 struct Bearing {
-	double bearing;
+    double bearing;
 }
