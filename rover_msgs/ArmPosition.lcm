@@ -1,0 +1,9 @@
+package rover_msgs;
+
+struct ArmPosition {
+    double joint_a;
+    double joint_b;
+    double joint_c;
+    double joint_d;
+    double joint_e;
+}
