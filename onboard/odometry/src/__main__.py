@@ -4,7 +4,7 @@ import time
 import sys
 import traceback
 from rover_common import aiolcm
-from rover_msgs import Odometry
+from rover_msgs import Odometry, Bearing
 
 from .android_usb_comm import Android
 
@@ -42,18 +42,24 @@ def main():
             time.sleep(1)
             with get_android() as android:
                 print('connected to Samsung GS3')
-                msg = Odometry()
+
                 while True:
                     raw_data = android.read()
                     if raw_data:
                         frame = AndroidFrame(raw_data)
-                        msg.latitude_deg = int(frame.lat_deg)
-                        msg.latitude_min = frame.lat_min
-                        msg.longitude_deg = int(frame.lon_deg)
-                        msg.longitude_min = frame.lon_min
-                        msg.bearing_deg = frame.azimuth_deg
-                        msg.num_satellites = frame.num_sats
-                        lcm_.publish('/odometry', msg.encode())
+
+                        odom_msg = Odometry()
+                        odom_msg.latitude_deg = int(frame.lat_deg)
+                        odom_msg.latitude_min = frame.lat_min
+                        odom_msg.longitude_deg = int(frame.lon_deg)
+                        odom_msg.longitude_min = frame.lon_min
+                        odom_msg.bearing_deg = frame.azimuth_deg
+                        odom_msg.speed = 0
+                        lcm_.publish('/odometry', odom_msg.encode())
+
+                        bearing_msg = Bearing()
+                        bearing_msg.bearing = frame.azimuth_deg
+                        lcm_.publish('/bearing', bearing_msg.encode())
                     else:
                         print('read timed out, retrying the connection')
                         break
