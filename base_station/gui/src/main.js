@@ -68,7 +68,7 @@ const lcm_ = new LCMBridge(
   },
   // Subscriptions
   [{
-    'topic': '/odom',
+    'topic': '/odometry',
     'type': 'Odometry'
   },
   {
