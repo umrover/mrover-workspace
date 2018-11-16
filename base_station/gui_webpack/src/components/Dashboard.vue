@@ -130,7 +130,7 @@ export default {
       },
       // Subscribed LCM message received
       (msg) => {
-        if (msg.topic === '/odom') {
+        if (msg.topic === '/odometry') {
           this.odom = msg.message
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
@@ -148,7 +148,7 @@ export default {
       },
       // Subscriptions
       [
-        {'topic': '/odom', 'type': 'Odometry'},
+        {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},

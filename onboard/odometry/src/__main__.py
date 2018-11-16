@@ -53,7 +53,7 @@ def main():
                         msg.longitude_min = frame.lon_min
                         msg.bearing_deg = frame.azimuth_deg
                         msg.num_satellites = frame.num_sats
-                        lcm_.publish('/odom', msg.encode())
+                        lcm_.publish('/odometry', msg.encode())
                     else:
                         print('read timed out, retrying the connection')
                         break
