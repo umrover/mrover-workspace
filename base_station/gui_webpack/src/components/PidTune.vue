@@ -182,19 +182,19 @@
           'paramID': 1,  //talon_srx.Params.ProfileParamSlot0_P
           'value': constants['kp']
         }
-        this.lcm_.publish('/setparam', msg);
+        this.lcm_.publish('/set_param', msg);
 
         msg['paramID'] = 2  //talon_srx.Params.ProfileParamSlot0_I
         msg['value'] = constants['ki']
-        this.lcm_.publish('/setparam', msg);
+        this.lcm_.publish('/set_param', msg);
 
         msg['paramID'] = 3  //talon_srx.Params.ProfileParamSlot0_D
         msg['value'] = constants['kd']
-        this.lcm_.publish('/setparam', msg);
+        this.lcm_.publish('/set_param', msg);
 
         msg['paramID'] = 4  //talon_srx.Params.ProfileParamSlot0_F
         msg['value'] = constants['kf']
-        this.lcm_.publish('/setparam', msg);
+        this.lcm_.publish('/set_param', msg);
       },
 
       setParams(){
