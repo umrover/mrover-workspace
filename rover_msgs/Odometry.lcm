@@ -1,10 +1,10 @@
 package rover_msgs;
 
 struct Odometry {
-	int32_t latitude_deg;
+    int32_t latitude_deg;
     double latitude_min;
     int32_t longitude_deg;
     double longitude_min;
     double bearing_deg;
-    int16_t num_satellites;
+    double speed;
 }
