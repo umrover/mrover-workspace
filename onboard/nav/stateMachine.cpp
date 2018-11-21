@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <cmath>
+#include <cstdlib>
 
 #include "rover_msgs/NavStatus.hpp"
 #include "utilities.hpp"
@@ -23,7 +24,9 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
 	, mStateChanged( true )
 {
 	ifstream configFile;
-	configFile.open( "/vagrant/onboard/nav/config.json" );
+	string configPath = getenv("MROVER_CONFIG");
+	configPath += "/config_nav/config.json";
+	configFile.open( configPath );
 	string config = "";
 	string setting;
 	while( configFile >> setting )
