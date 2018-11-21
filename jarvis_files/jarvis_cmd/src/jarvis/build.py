@@ -10,6 +10,7 @@ from buildsys.mbed import MbedBuilder
 from buildsys.rollupjs import RollupJSBuilder
 from buildsys.meson import MesonBuilder
 from buildsys.shell import ShellBuilder
+from buildsys.config import ConfigBuilder
 
 from . import third_party
 
@@ -67,6 +68,9 @@ def get_builder(ctx, d, opt=None):
     elif lang == 'shell':
         print('Building shell package')
         return ShellBuilder(d, ctx)
+    elif lang == 'config':
+        print('Building config package')
+        return ConfigBuilder(d, ctx)
     else:
         print("error: unrecognized language '{}'".format(lang))
         sys.exit(1)
