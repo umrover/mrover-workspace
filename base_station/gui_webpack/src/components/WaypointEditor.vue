@@ -45,19 +45,23 @@ export default {
 
       nav_state: "None",
 
+      nav_status: {
+        completed_wps: 0,
+        total_wps: 0,
+        missed_wps: 0
+      },
+
       storedWaypoints: [],
       route: []
     }
   },
 
-  props: {
-    nav_status: {
-      type: Object,
-      required: true
-    }
-  },
-
   created: function () {
+
+    this.$parent.subscribe('/nav_status', (msg) => {
+      this.nav_status = msg.message
+    })
+
     window.setInterval(() => {
         if(this.auton_enabled && this.nav_state === 'Done'){
           this.$refs.checkbox.toggleAndEmit()
