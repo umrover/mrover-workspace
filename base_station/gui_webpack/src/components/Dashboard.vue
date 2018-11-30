@@ -36,10 +36,10 @@
       <RoverMap v-bind:odom="odom"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" v-bind:nav_status="nav_status"/>
+      <WaypointEditor v-bind:odom="odom" />
     </div>
     <div class="box controls light-bg">
-      <Controls v-bind:saMotor="saMotors" />
+      <Controls/>
     </div>
   </div>
 </template>
@@ -61,8 +61,6 @@ export default {
   data () {
     return {
       lcm_: null,
-
-      saMotors: {},
 
       lastServosMessage: {
         pan: 0,
@@ -130,14 +128,10 @@ export default {
       },
       // Subscribed LCM message received
       (msg) => {
-        if (msg.topic === '/odom') {
+        if (msg.topic === '/odometry') {
           this.odom = msg.message
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
-        } else if (msg.topic === '/nav_status') {
-          this.nav_status = msg.message
-        } else if (msg.topic === '/sa_motors') {
-          this.saMotors = msg.message
         } else if (msg.topic === '/debugMessage') {
           if (msg['message']['isError']) {
             console.error(msg['message']['message'])
@@ -148,7 +142,7 @@ export default {
       },
       // Subscriptions
       [
-        {'topic': '/odom', 'type': 'Odometry'},
+        {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
