@@ -3,6 +3,7 @@
     <div class="control_buttons">
         <Checkbox ref="arm" v-bind:name="'Arm Controls'" v-on:toggle="updateControlMode('arm', $event)"/>
         <Checkbox ref="soil_ac" v-bind:name="'Soil Acquisition'" v-on:toggle="updateControlMode('soil_ac', $event)"/>
+        <Checkbox ref="arm_ik" v-bind:name="'Inverse Kinematics'" v-on:toggle="updateControlMode('arm_ik', $event)"/>
     </div>
     <div class="speed_limiter">
       <p>
@@ -31,15 +32,15 @@ import { mapGetters, mapMutations } from 'vuex'
 export default {
   data () {
     return {
+      saMotor: {
+        drill: 0,
+        door_actuator: 0
+      },
       dampen: 0
     }
   },
-  props: {
-    saMotor: {
-      type: Object,
-      required: true
-    }
-  },
+
+
 
   computed: {
     saDrillColor: function () {
@@ -96,7 +97,7 @@ export default {
 
     window.setInterval(() => {
       const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 2; i++) {
+      for (let i = 0; i < 4; i++) {
         const gamepad = gamepads[i]
         if (gamepad) {
           if (gamepad.id.includes('Logitech')) {
@@ -136,6 +137,10 @@ export default {
         }
       }
     }, 100)
+
+    this.$parent.subscribe('/sa_motors', (msg) => {
+      this.saMotor = msg.message
+    })
   },
 
   methods: {
