@@ -61,20 +61,16 @@ double calcBearing( const Odometry& current, const Odometry& dest )
 	return radianToDegree( bearing );
 } // calcBearing()
 
-// Calculates the modulo of degree with the given modulus.
+// // Calculates the modulo of degree with the given modulus.
 double mod( const double degree, const int modulus )
 {
-	if( degree >= 0 && degree < modulus )
-	{
-		return degree;
-	}
-	if( degree >= modulus )
-	{
-		return mod( degree - modulus, modulus );
-	}
-	// if degree < 0
-	return mod( degree + modulus, modulus );
-} // mod()
+	double mod = fmod(degree, modulus);
+	
+	if(mod < 0)
+		return mod + modulus;
+
+	return mod;
+}
 
 // Corrects the destination bearing to account for the ability to turn
 // through zero degrees.

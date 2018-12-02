@@ -6,4 +6,5 @@ build/
 .cache
 .mrover
 .node-gyp
+.DS_Store
 **/node_modules/
