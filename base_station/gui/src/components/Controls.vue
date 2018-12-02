@@ -95,6 +95,7 @@ export default {
       'd_pad_down': 13
     }
 
+    const updateRate = 0.1;
     window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 4; i++) {
@@ -132,11 +133,20 @@ export default {
               this.$parent.publish('/arm_control', xboxData)
             } else if (this.controlMode === 'soil_ac') {
               this.$parent.publish('/sa_control', xboxData)
+            } else if(this.controlMode === 'arm_ik') {
+              let speed = 1;
+              const deltaPos = {
+                'type': 'IkArmControl',
+                'deltaX': xboxData['left_js_x']*speed*updateRate,
+                'deltaY': xboxData['left_js_y']*speed*updateRate,
+                'deltaZ': xboxData['right_js_y']*speed*updateRate
+              }
+              this.$parent.publish('/ik_arm_control', deltaPos);
             }
           }
         }
       }
-    }, 100)
+    }, updateRate*1000)
 
     this.$parent.subscribe('/sa_motors', (msg) => {
       this.saMotor = msg.message

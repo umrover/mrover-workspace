@@ -108,7 +108,7 @@ export default {
       }
     },
 
-    addWaypoint: function (lat, lon) {
+    addWaypoint: function () {
       const parseCoordinate = function (input) {
         const nums = input.split(" ")
         switch (nums.length) {
@@ -124,8 +124,8 @@ export default {
       }
 
       this.storedWaypoints.push({
-        name: name,
-        latLng: L.latLng(parseCoordinate(lat), -parseCoordinate(lon))
+        name: this.name,
+        latLng: L.latLng(parseCoordinate(this.lat), -parseCoordinate(this.lon))
       })
     },
 
