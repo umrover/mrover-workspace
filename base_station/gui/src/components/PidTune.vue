@@ -249,19 +249,19 @@
           if (msg.topic === '/encoder') {
             let val=0;
             switch(parseInt(this.deviceID)){
-              case 5:
+              case 4:
                 val=msg.message.joint_a;
                 break;
-              case 6:
+              case 5:
                 val=msg.message.joint_b;
                 break;
-              case 9:
+              case 6:
                 val=msg.message.joint_c;
                 break;
-              case 3:
+              case 7:
                 val=msg.message.joint_d;
                 break;
-              case 1:
+              case 8:
                 val=msg.message.joint_e;
                 break;
             }
