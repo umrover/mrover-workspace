@@ -41,6 +41,13 @@ const bridge = new LCMBridge("ws://localhost:8001",
     }]
 )
 
+app.on("bearing", (bearing) => {
+    if (bridge.online) {
+        bearing.type = 'Bearing';
+        bridge.publish('/bearing', bearing)
+    }
+})
+
 app.on("odom", (odom) => {
     if (bridge.online) {
         odom.type = 'Odometry';

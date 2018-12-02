@@ -17,13 +17,9 @@ double degreeToRadian( const double degree, const double minute = 0 );
 
 double radianToDegree( const double radian );
 
-double estimateNoneuclid(
-	const Odometry& start,
-	const Odometry& dest );
+double estimateNoneuclid( const Odometry& start, const Odometry& dest );
 
-double calcBearing(
-	const Odometry& start,
-	const Odometry& dest );
+double calcBearing( const Odometry& start, const Odometry& dest );
 
 double mod( const double degree, const int modulus );
 
