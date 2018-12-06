@@ -5,28 +5,46 @@
 
 enum class SearchType
 {
-	SPIRAL,
-	LAWNMOWER,
-	UNKNOWN
+    SPIRALOUT,
+    LAWNMOWER,
+    SPIRALIN,
+    UNKNOWN
 };
 
 Searcher* SearchFactory( StateMachine* stateMachine, SearchType type );
 
 /*************************************************************************/
-/* Spiral Search */
+/* SpiralOut Search */
 /*************************************************************************/
-class Spiral : public Searcher 
+class SpiralOut : public Searcher 
 {
 public:
-	Spiral( StateMachine* stateMachine_ ) 
-	: Searcher(stateMachine_) {}
+    SpiralOut( StateMachine* stateMachine_ ) 
+    : Searcher(stateMachine_) {}
 
-	~Spiral();
+    ~SpiralOut();
 
-	// Initializes the search ponit multipliers to be the intermost loop
- 	// of the search.
-	void initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig );
-	
+    // Initializes the search ponit multipliers to be the intermost loop
+    // of the search.
+    void initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, const double pathWidth );
+    
+};
+
+/*************************************************************************/
+/* SpiralIn Search */
+/*************************************************************************/
+class SpiralIn : public Searcher 
+{
+public:
+    SpiralIn( StateMachine* stateMachine_ ) 
+    : Searcher(stateMachine_) {}
+
+    ~SpiralIn();
+
+    // Initializes the search ponit multipliers to be the intermost loop
+    // of the search.
+    void initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, const double pathWidth );
+    
 };
 
 /*************************************************************************/
@@ -35,15 +53,20 @@ public:
 class LawnMower : public Searcher 
 {
 public:
-	LawnMower( StateMachine* stateMachine_ ) 
-	: Searcher(stateMachine_) {}
+    LawnMower( StateMachine* stateMachine_ ) 
+    : Searcher(stateMachine_) {}
 
-	~LawnMower();
+    ~LawnMower();
 
-	// Initializes the search ponit multipliers to be the intermost loop
- 	// of the search.
-	void initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig );
+    // Initializes the search ponit multipliers to be the intermost loop
+    // of the search.
+    void initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, const double pathWidth );
 
 };
 
 #endif //SEARCHES_HPP
+
+/*************************************************************************/
+/* TODO */
+/*************************************************************************/
+

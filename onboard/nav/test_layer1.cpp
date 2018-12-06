@@ -1,6 +1,6 @@
 #include <cassert>
 
 int main() {
-	assert(false);
-	return 0;
+    assert(false);
+    return 0;
 }
