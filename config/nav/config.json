@@ -2,7 +2,7 @@
 	"bearingPid":
 	{
 		"kP": 0.1,
-		"kI": 0.00001,
+		"kI": 0.01,
 		"kD": 0.0055
 	},
 
@@ -23,5 +23,8 @@
 	"cvThresh": 3,
 
 	"navStatusChannel": "/nav_status",
-	"joystickChannel": "/drive_control"
+	"joystickChannel": "/drive_control",
+
+	"searchOrder":[0,1],
+	"searchOrderSize": 2
 }
