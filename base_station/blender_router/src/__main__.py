@@ -4,7 +4,7 @@ import json
 
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import ArmPosition, Xbox
+from rover_msgs import ArmPosition, IkArmControl
 
 lcm_ = aiolcm.AsyncLCM()
 
@@ -39,14 +39,15 @@ def listen_blender():
 
 def ik_callback(channel, msg):
     # print("recv xbox msg")
-    xbox = Xbox.decode(msg)
+    deltas = IkArmControl.decode(msg)
     data = {
-        "left_js_x": xbox.left_js_x,
-        "right_js_x": xbox.right_js_x
+        "deltaX": deltas.deltaX,
+        "deltaY": deltas.deltaY,
+        "deltaZ": deltas.deltaZ
     }
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(("localhost", 6000))
+        sock.connect(("10.0.2.2", 8018))
         sock.send(json.dumps(data).encode())
     except socket.error as exc:
         # print(exc)
