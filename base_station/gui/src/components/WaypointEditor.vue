@@ -60,29 +60,6 @@ export default {
 
     this.$parent.subscribe('/nav_status', (msg) => {
       this.nav_status = msg.message
-      
-      nav_state_textual: (nav_state) => {
-          switch(nav_state) {
-              case 0: return 'Off';
-              case 1: return 'Done';
-              case 10: return 'Turn';
-              case 11: return 'Drive';
-              case 20: return 'Search Face North';
-              case 21: return 'Search Face 120';
-              case 22: return 'Search Face 240';
-              case 23: return 'Search Face 360';
-              case 24: return 'Search Turn';
-              case 25: return 'Search Drive';
-              case 28: return 'Turn To Ball';
-              case 29: return 'Drive To Ball';
-              case 30: return 'Turn Around Obstacle';
-              case 31: return 'Drive Around Obstacle';
-              case 32: return 'Search Turn Around Obstacle';
-              case 33: return 'Search Drive Around Obstacle';
-              default: return 'Unknown';
-          }
-      },
-      this.nav_state = nav_state_textual(msg.nav_state);
     })
 
     window.setInterval(() => {
