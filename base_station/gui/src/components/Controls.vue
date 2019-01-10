@@ -95,7 +95,7 @@ export default {
       'd_pad_down': 13
     }
 
-    const updateRate = 0.1;
+    const updateRate = 0.05;
     window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 4; i++) {
@@ -137,9 +137,19 @@ export default {
               let speed = 1;
               const deltaPos = {
                 'type': 'IkArmControl',
-                'deltaX': xboxData['left_js_x']*speed*updateRate,
-                'deltaY': xboxData['left_js_y']*speed*updateRate,
-                'deltaZ': xboxData['right_js_y']*speed*updateRate
+                'deltaX': (xboxData['left_js_x']**2)*speed*updateRate*(xboxData['left_js_x']<0 ? -1 : 1),
+                'deltaY': (xboxData['left_js_y']**2)*speed*updateRate*(xboxData['left_js_y']>0 ? -1 : 1),
+                'deltaZ': (xboxData['right_js_y']**2)*speed*updateRate*(xboxData['right_js_y']>0 ? -1 : 1),
+              }
+
+              if(Math.abs(deltaPos.deltaX) < 0.1){
+                deltaPos.deltaX=0;
+              }
+              if(Math.abs(deltaPos.deltaY) < 0.1){
+                deltaPos.deltaY=0;
+              }
+              if(Math.abs(deltaPos.deltaZ) < 0.1){
+                deltaPos.deltaZ=0;
               }
               this.$parent.publish('/ik_arm_control', deltaPos);
             }
