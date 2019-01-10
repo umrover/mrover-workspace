@@ -19,12 +19,8 @@
             <input type="number" bind:value="radius"/>
         </label></p>
         <p>
-            <label>
-                Test Case:
-                <input type="text" bind:value="test"/>
-            </label>
-            <button  type="button" onclick="uploadFile()">Upload</button>
-
+            <label>Test Case: </label>
+            <input id="files" name="files[]" type="file"/>
         </p>
     </div>
 
@@ -63,8 +59,6 @@
             <p><b>Navigation State:</b> {{ nav_state_textual }}</p>
             <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
             <p><b>Missed Waypoints:</b> {{ missed_wps }}/{{ total_wps }}</p>
-            <p><b>Current Test Case:</b> {{ current_test_name }}</p>
-            <p><b>Test Case:</b> {{ test }}</p>
             {{else}}
             <p>LCM not connected.</p>
             {{/if}}
@@ -112,12 +106,6 @@
         </div>
         {{/each}}
     </div>
-
-    <script>
-        function uploadFile() {
-            current_test: test
-        }
-    </script>
 </div>
 
 <script>
@@ -131,8 +119,14 @@
     import { to_dms } from '../geography.js';
 
     const NUM_DIGITS = 7;
+    let app;
 
     export default {
+        oncreate() {
+            document.getElementById('files').addEventListener('change', this.handleFileSelect);
+            app = this;
+        },
+
         data () {
             return {
                 draw_mode: WAYPOINT_MODE,
@@ -202,25 +196,28 @@
                 }
             },
 
-            // search_state_textual: (search_state) => {
-            //     switch(search_state) {
-            //         case 0: return 'N/A'
-            //         case 1: return 'Face North';
-            //         case 2: return 'Face 120';
-            //         case 3: return 'Face 240';
-            //         case 4: return 'Face 360';
-            //         case 5: return 'Turn';
-            //         case 6: return 'Drive';
-            //         case 7: return 'Turn to Ball';
-            //         case 8: return 'Drive to Ball';
-            //     }
-            // },
-
             latitude_min_display: (odom) => odom.latitude_min.toFixed(NUM_DIGITS),
             longitude_min_display: (odom) => odom.longitude_min.toFixed(NUM_DIGITS),
         },
 
         methods: {
+            handleFileSelect: function(event) {
+                var files = event.target.files;
+                var fname = files[0].name;
+                console.log(fname);
+                var reader = new FileReader();
+                reader.readAsText(files[0]);
+                reader.onload = ((theFile) => {
+                    return (e) => {
+                        var inputData = e.target.result;
+                        console.log(inputData);
+                        var testCaseData = JSON.parse(inputData);
+                        app.set(testCaseData);
+                        console.log(app)
+                    };
+                })(files[0]);
+            },
+
             apply_joystick: function(stick) {
                 this.set({
                     forward_back: stick.forward_back,
