@@ -106,6 +106,12 @@
         </div>
         {{/each}}
     </div>
+
+    <script>
+        function uploadFile() {
+            current_test: test
+        }
+    </script>
 </div>
 
 <script>
@@ -192,10 +198,11 @@
                     case 31: return 'Drive Around Obstacle';
                     case 32: return 'Search Turn Around Obstacle';
                     case 33: return 'Search Drive Around Obstacle';
+                    case 34: return 'Change Search Type';
                     default: return 'Unknown';
                 }
             },
-
+            
             latitude_min_display: (odom) => odom.latitude_min.toFixed(NUM_DIGITS),
             longitude_min_display: (odom) => odom.longitude_min.toFixed(NUM_DIGITS),
         },
