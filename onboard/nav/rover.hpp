@@ -20,32 +20,32 @@ using namespace std;
 // This class is the representation of the navigation states.
 enum class NavState
 {
-	Off = 0,
-	Done = 1,
-	Turn = 10,
-	Drive = 11,
-	SearchFaceNorth = 20,
-	SearchFace120 = 21,
-	SearchFace240 = 22,
-	SearchFace360 = 23,
-	SearchTurn = 24,
-	SearchDrive = 25,
-	TurnToBall = 28,
-	DriveToBall = 29,
-	TurnAroundObs = 30,
-	DriveAroundObs = 31,
-	SearchTurnAroundObs = 32,
-	SearchDriveAroundObs = 33,
-	ChangeSearchAlg = 40,
-	Unknown = 255
+    Off = 0,
+    Done = 1,
+    Turn = 10,
+    Drive = 11,
+    SearchFaceNorth = 20,
+    SearchFace120 = 21,
+    SearchFace240 = 22,
+    SearchFace360 = 23,
+    SearchTurn = 24,
+    SearchDrive = 25,
+    TurnToBall = 28,
+    DriveToBall = 29,
+    TurnAroundObs = 30,
+    DriveAroundObs = 31,
+    SearchTurnAroundObs = 32,
+    SearchDriveAroundObs = 33,
+    ChangeSearchAlg = 34,
+    Unknown = 255
 }; // AutonState
 
 // This class is the representation of the drive status.
 enum class DriveStatus
 {
-	Arrived,
-	OnCourse,
-	OffCourse
+    Arrived,
+    OnCourse,
+    OffCourse
 }; // DriveStatus
 
 // This class creates a Rover object which can perform operations that
@@ -53,129 +53,129 @@ enum class DriveStatus
 class Rover
 {
 public:
-	// This class holds all the status informatin of the rover.
-	class RoverStatus
-	{
-	public:
-		RoverStatus();
+    // This class holds all the status informatin of the rover.
+    class RoverStatus
+    {
+    public:
+        RoverStatus();
 
-		RoverStatus(
-			NavState navState,
-			AutonState autonStateIn,
-			Bearing bearingIn,
-			Course courseIn,
-			Obstacle obstacleIn,
-			Odometry odometryIn,
-			TennisBall tennisBallIn
-			);
+        RoverStatus(
+            NavState navState,
+            AutonState autonStateIn,
+            Bearing bearingIn,
+            Course courseIn,
+            Obstacle obstacleIn,
+            Odometry odometryIn,
+            TennisBall tennisBallIn
+            );
 
-		NavState& currentState();
+        NavState& currentState();
 
-		AutonState& autonState();
+        AutonState& autonState();
 
-		Bearing& bearing();
+        Bearing& bearing();
 
-		Course& course();
+        Course& course();
 
-		queue<Waypoint>& path();
+        queue<Waypoint>& path();
 
-		Obstacle& obstacle();
+        Obstacle& obstacle();
 
-		Odometry& odometry();
+        Odometry& odometry();
 
-		TennisBall& tennisBall();
+        TennisBall& tennisBall();
 
-		RoverStatus& operator=( RoverStatus& newRoverStatus );
+        RoverStatus& operator=( RoverStatus& newRoverStatus );
 
-	private:
-		// The rover's current navigation state.
-		NavState mCurrentState;
+    private:
+        // The rover's current navigation state.
+        NavState mCurrentState;
 
-		// The rover's current auton state.
-		AutonState mAutonState;
+        // The rover's current auton state.
+        AutonState mAutonState;
 
-		// The rover's current bearing.
-		Bearing mBearing;
+        // The rover's current bearing.
+        Bearing mBearing;
 
-		// The rover's overall course.
-		Course mCourse;
+        // The rover's overall course.
+        Course mCourse;
 
-		// The rover's current path. The path is initially the same as
-		// the rover's course, however, as waypoints are visited, the
-		// are removed from the path but not the course.
-		queue<Waypoint> mPath;
+        // The rover's current path. The path is initially the same as
+        // the rover's course, however, as waypoints are visited, the
+        // are removed from the path but not the course.
+        queue<Waypoint> mPath;
 
-		// The rover's current obstacle information from computer
-		// vision.
-		Obstacle mObstacle;
+        // The rover's current obstacle information from computer
+        // vision.
+        Obstacle mObstacle;
 
-		// The rover's current odometry information.
-		Odometry mOdometry;
+        // The rover's current odometry information.
+        Odometry mOdometry;
 
-		// The rover's current tennis ball information from computer
-		// vision.
-		TennisBall mTennisBall;
-	};
+        // The rover's current tennis ball information from computer
+        // vision.
+        TennisBall mTennisBall;
+    };
 
-	Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
+    Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
 
-	DriveStatus drive( const Odometry& destination );
+    DriveStatus drive( const Odometry& destination );
 
-	DriveStatus drive( const double distance, const double bearing );
+    DriveStatus drive( const double distance, const double bearing );
 
-	bool turn( Odometry& destination );
+    bool turn( Odometry& destination );
 
-	bool turn( double bearing );
+    bool turn( double bearing );
 
-	void stop();
+    void stop();
 
-	bool updateRover( RoverStatus newRoverStatus );
+    bool updateRover( RoverStatus newRoverStatus );
 
-	RoverStatus& roverStatus();
+    RoverStatus& roverStatus();
 
-	PidLoop& distancePid();
+    PidLoop& distancePid();
 
-	PidLoop& bearingPid();
+    PidLoop& bearingPid();
 
-	const double longMeterInMinutes() const;
+    const double longMeterInMinutes() const;
 
 private:
-	/*************************************************************************/
-	/* Private Member Functions */
-	/*************************************************************************/
-	void publishJoystick( const double forwardBack, const double leftRight, const bool kill );
+    /*************************************************************************/
+    /* Private Member Functions */
+    /*************************************************************************/
+    void publishJoystick( const double forwardBack, const double leftRight, const bool kill );
 
-	bool isEqual( const Bearing& bearing1, const Bearing& bearing2 ) const;
+    bool isEqual( const Bearing& bearing1, const Bearing& bearing2 ) const;
 
-	bool isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const;
+    bool isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const;
 
-	bool isEqual( const Odometry& odometry1, const Odometry& odometry2 ) const;
+    bool isEqual( const Odometry& odometry1, const Odometry& odometry2 ) const;
 
-	bool isEqual( const TennisBall& tennisBall1, const TennisBall& tennisBall2 ) const;
+    bool isEqual( const TennisBall& tennisBall1, const TennisBall& tennisBall2 ) const;
 
-	/*************************************************************************/
-	/* Private Member Variables */
-	/*************************************************************************/
+    /*************************************************************************/
+    /* Private Member Variables */
+    /*************************************************************************/
 
-	// The rover's current status.
-	RoverStatus mRoverStatus;
+    // The rover's current status.
+    RoverStatus mRoverStatus;
 
-	// A reference to the configuration file.
-	const rapidjson::Document& mRoverConfig;
+    // A reference to the configuration file.
+    const rapidjson::Document& mRoverConfig;
 
-	// A reference to the lcm object that will be used for
-	// communicating with the actual rover and the base station.
-	lcm::LCM& mLcmObject;
+    // A reference to the lcm object that will be used for
+    // communicating with the actual rover and the base station.
+    lcm::LCM& mLcmObject;
 
-	// The pid loop for driving.
-	PidLoop mDistancePid;
+    // The pid loop for driving.
+    PidLoop mDistancePid;
 
-	// The pid loop for turning.
-	PidLoop mBearingPid;
+    // The pid loop for turning.
+    PidLoop mBearingPid;
 
-	// The conversion factor from arcminutes to meters. This is based
-	// on the rover's current latitude.
-	double mLongMeterInMinutes;
+    // The conversion factor from arcminutes to meters. This is based
+    // on the rover's current latitude.
+    double mLongMeterInMinutes;
 };
 
 #endif // ROVER_HPP
