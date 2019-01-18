@@ -1,7 +1,5 @@
 #include "camera.hpp"
-#include "config.h"
 
-#if ZED_SDK_PRESENT
 #include <sl/Camera.hpp>
 #include <cassert>
 
@@ -79,32 +77,6 @@ Camera::Impl::~Impl() {
 /*void Camera::Impl::deleteZed(){
 	delete this;
 }*/
-
-#else
-#include <percepsim/percepsim.hpp>
-
-class Camera::Impl {
-public:
-	bool grab();
-
-	cv::Mat image();
-	cv::Mat depth();
-private:
-	Perception::SimulatedCamera cam_;
-};
-
-bool Camera::Impl::grab() {
-	return this->cam_.grab();
-}
-
-cv::Mat Camera::Impl::image() {
-	return this->cam_.retrieve_image();
-}
-
-cv::Mat Camera::Impl::depth() {
-	return this->cam_.retrieve_depth();
-}
-#endif
 
 Camera::Camera() : impl_(new Camera::Impl) {
 }
