@@ -1,18 +1,6 @@
-- name: Set up Gazebo signing key
-  apt_key:
-      url: http://packages.osrfoundation.org/gazebo.key
-      state: present
-
-- name: Set up Gazebo repository for Ubuntu
-  apt_repository:
-      repo: "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable {{ ubuntu_release }} main"
-      state: present
-
-- name: Install Gazebo packages
+- name: Install CV packages
   apt: name={{ item }} state=present
   with_items:
-  - gazebo8
-  - libgazebo8-dev
   - libjansson-dev
   - libboost-dev
   - imagemagick
