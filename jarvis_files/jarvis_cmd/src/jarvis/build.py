@@ -87,7 +87,7 @@ def build_dir(ctx, d, opt=None):
 
 
 def get_site_cfg():
-    PACKAGE_NAMES = ['lcm', 'mbed', 'gzweb', 'rapidjson']
+    PACKAGE_NAMES = ['lcm', 'mbed', 'rapidjson']
     site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
     site_cfg = configparser.ConfigParser()
     site_cfg['third_party'] = {}
@@ -134,9 +134,6 @@ def build_deps(ctx):
     if site_cfg['mbed']:
         third_party.ensure_mbed_cli(ctx)
         third_party.ensure_openocd(ctx)
-    if site_cfg['gzweb']:
-        third_party.ensure_gzweb(ctx)
-        third_party.ensure_nanomsg(ctx)
     if pip_deps_changed(ctx):
         with ctx.cd(ctx.root):
             print("Installing pip dependencies...")

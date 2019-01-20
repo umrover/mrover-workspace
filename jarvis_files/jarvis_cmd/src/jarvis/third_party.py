@@ -125,69 +125,6 @@ def ensure_openocd(ctx):
     print("Finished installing OpenOCD.")
 
 
-def check_gzweb(ctx):
-    """
-    Checks for the existence of GzWeb in the product venv.
-    """
-    return os.path.exists(ctx.get_product_file('bin', 'gzweb'))
-
-
-def ensure_gzweb(ctx):
-    """
-    Installs GzWeb into the product venv.
-    """
-    if check_gzweb(ctx):
-        print("GzWeb already installed, skipping.")
-        return
-
-    gzweb_dir = os.path.join(ctx.third_party_root, 'gzweb')
-    ctx.ensure_product_env()
-    with ctx.intermediate('gzweb') as gzweb_build:
-        ctx.run("cp -r {}/* .".format(gzweb_dir))
-        print("Deploying GzWeb...")
-        with ctx.ctx.prefix('source /usr/share/gazebo/setup.sh'):
-            ctx.run('./deploy.sh -m', hide='both')
-        print("Creating script to run GzWeb...")
-        script_path = os.path.join(
-                ctx.product_env, 'bin', 'gzweb')
-        with open(script_path, 'w') as start_script:
-            start_script.write(
-                ctx.template('gzweb_start', app_dir=gzweb_build, port=8011))
-        os.chmod(script_path, 0o755)
-        print("Done")
-
-
-def check_nanomsg(ctx):
-    """
-    Checks for the existence of Nanomsg in the product venv.
-    """
-    return os.path.exists(ctx.get_product_file('lib', 'libnanomsg.so'))
-
-
-def ensure_nanomsg(ctx):
-    """
-    Installs Nanomsg into the product venv.
-    """
-    if check_nanomsg(ctx):
-        print("Nanomsg already installed, skipping.")
-        return
-
-    nanomsg_dir = os.path.join(ctx.third_party_root, 'nanomsg')
-    ctx.ensure_product_env()
-    with ctx.intermediate('nanomsg'):
-        ctx.run("cp -r {}/* .".format(nanomsg_dir))
-        print("Configuring nanomsg...")
-        ctx.run("mkdir -p build")
-        with ctx.cd("build"):
-            ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} ..".format(
-                ctx.product_env), hide='both')
-            print("Building nanomsg...")
-            ctx.run("cmake --build .", hide='both')
-            print("Installing nanomsg...")
-            ctx.run("cmake --build . --target install", hide='both')
-            print("Done")
-
-
 def check_rapidjson(ctx):
     """
     Checks for the existence of RapidJson in the product venv.
