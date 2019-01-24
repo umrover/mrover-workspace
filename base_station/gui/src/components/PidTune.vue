@@ -296,7 +296,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .wrapper {
     display: grid;
     grid-gap: 10px;
