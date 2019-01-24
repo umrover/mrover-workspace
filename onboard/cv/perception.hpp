@@ -9,10 +9,10 @@
 #include <lcm/lcm-cpp.hpp>
 #include <vector>
 #include <sys/stat.h> // for disk writing
-#ifdef PERCEPTION_DEBUG
+//#ifdef PERCEPTION_DEBUG
 #include <opencv2/highgui/highgui.hpp>
 #include <cstdlib>
-#endif
+//#endif
 
 #define THRESHOLD_NO_WAY  100000 //how will we calibrate if the rover width changes
 #define THRESHOLD_NO_OBSTACLE_CENTER  100000
@@ -23,7 +23,7 @@
 #define SIMILARITY_THRESHOLD 8000
 
 #define PI 3.14159265
-#define FRAME_WAITKEY 0 // for cv::imshow
+#define FRAME_WAITKEY 1 // for cv::imshow
 
 const int RESOLUTION_WIDTH = 1280;
 const int RESOLUTION_HEIGHT = 720; // 720p
