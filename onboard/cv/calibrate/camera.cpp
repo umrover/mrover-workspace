@@ -26,14 +26,17 @@ private:
 
 Camera::Impl::Impl() {
 	sl::InitParameters init_params;
+	if (argc == 2) init_params.svo_input_filename = argv[1];
 	init_params.camera_resolution = sl::RESOLUTION_HD720;
 	init_params.depth_mode = sl::DEPTH_MODE_PERFORMANCE;
+	//initParameters.coordinate_system = COORDINATE_SYSTEM_RIGHT_HANDED_Y_UP; // OpenGL's coordinate system is right_handed
 	init_params.coordinate_units = sl::UNIT_METER;
-	init_params.camera_fps = 60;
+	//init_params.camera_fps = 60;
+
 	// TODO change this below?
 	assert(this->zed_.open(init_params) == sl::SUCCESS);
 	std::cout<<"ZED init success\n";
-	this->runtime_params_.sensing_mode = sl::SENSING_MODE_STANDARD;
+	/*this->runtime_params_.sensing_mode = sl::SENSING_MODE_STANDARD;
 
 	this->image_size_ = this->zed_.getResolution();
 	this->image_zed_.alloc(this->image_size_.width, this->image_size_.height,
@@ -46,6 +49,7 @@ Camera::Impl::Impl() {
 	this->depth_ = cv::Mat(
 		this->image_size_.height, this->image_size_.width, CV_32FC1,
 		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM_CPU));
+		*/
 }
 
 bool Camera::Impl::grab() {

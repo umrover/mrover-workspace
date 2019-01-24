@@ -74,6 +74,104 @@ Camera::Impl::~Impl() {
 /*void Camera::Impl::deleteZed(){
 	delete this;
 }*/
+#if OFFLINE_TEST
+#include <sys/types.h>
+#include <dirent.h>
+#include <string>
+#include <errno.h>
+#include <vector>
+#include <unordered_set>
+class Camera::Impl {
+public:
+  Impl();
+  ~Impl();
+  bool grab();
+  cv::Mat image();
+  cv::Mat depth();
+private:
+  std::vector<std::string> img_names;
+  int idx_curr_img;
+
+  std::string path;
+  std::string rgb_path;
+  DIR * rgb_dir;
+  std::string depth_path;
+  DIR * depth_dir;
+};
+
+Camera::Impl::~Impl() {
+  closedir(rgb_dir);
+  closedir(depth_dir);
+}
+
+Camera::Impl::Impl() {
+  std::cout<<"Please input the folder path (there should be a rgb and depth existing in this folder): ";
+  std::cin>>path;
+  rgb_path = path + "/rgb";
+  depth_path = path + "/depth";
+  rgb_dir = opendir(rgb_path.c_str() );
+  depth_dir = opendir(depth_path.c_str() );
+  if ( NULL==rgb_dir || NULL==depth_dir ) {
+    std::cerr<<"Input folder not exist\n";    
+    return;
+  }
+
+  // get the vector of image names, jpg/png for rgb files, .exr for depth files
+  // we only read the rgb folder, and assume that the depth folder's images have the same name
+  struct dirent *dp = NULL;
+  std::unordered_set<std::string> img_tails({".exr", ".jpg"}); // for rgb
+  int img_tail_str_len = 4;
+  std::cout<<"Read image names\n";
+  do {
+    errno = 0;
+    if ((dp = readdir(rgb_dir)) != NULL) {
+      std::string file_name(dp->d_name);
+      std::cout<<"file_name is "<<file_name<<std::endl;
+      if (file_name.size() < 5) continue; // the lengh of the tail str is at least 4
+      std::string tail = file_name.substr(file_name.size()-4, 4);
+      std::string head = file_name.substr(0, file_name.size()-4);
+      if (img_tails.find(tail)!= img_tails.end()) {
+	img_names.push_back(file_name);
+      }
+    }
+  } while  (dp != NULL);
+  std::cout<<"Read image names complete\n";
+  idx_curr_img = 0;
+}
+
+bool Camera::Impl::grab() {
+  idx_curr_img++;
+  if (idx_curr_img > img_names.size()-1) {
+    std::cout<<"Running out of images\n";
+    return false;
+  } else
+    return true;
+}
+
+
+cv::Mat Camera::Impl::image() {
+  std::string full_path = rgb_path + std::string("/") + (img_names[idx_curr_img]);
+
+  cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_COLOR);
+  if (!img.data){
+    std::cerr<<"Load image "<<full_path<< " error\n";
+  }
+  return img;
+}
+
+cv::Mat Camera::Impl::depth() {
+  std::string rgb_name = img_names[idx_curr_img];
+  std::string full_path = depth_path + std::string("/") +
+                          rgb_name.substr(0, rgb_name.size()-4) + std::string(".exr");
+  std::cout<<full_path<<std::endl;
+  cv::Mat img = cv::imread(full_path.c_str(), cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
+  if (!img.data){
+    std::cerr<<"Load image "<<full_path<< " error\n";
+  }
+  return img;
+}
+
+#endif
 
 Camera::Camera() : impl_(new Camera::Impl) {
 }
