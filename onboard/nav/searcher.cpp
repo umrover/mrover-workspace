@@ -14,7 +14,7 @@ Odometry Searcher::frontSearchPoint( )
 
 void Searcher::popSearchPoint( )
 {
-    mSearchPoints.pop();
+    mSearchPoints.pop_front();
     return;
 }
 
@@ -84,6 +84,7 @@ NavState Searcher::executeSearchFaceNorth( Rover * mPhoebe )
 {
     if( mPhoebe->roverStatus().tennisBall().found )
     {
+        mSearchPoints.push_front( mPhoebe->roverStatus().odometry() );
         return NavState::TurnToBall;
     }
     if( mPhoebe->turn( 90 ) )
@@ -101,6 +102,7 @@ NavState Searcher::executeSearchFace120( Rover * mPhoebe )
 {
     if( mPhoebe->roverStatus().tennisBall().found )
     {
+        mSearchPoints.push_front( mPhoebe->roverStatus().odometry() );
         return NavState::TurnToBall;
     }
     if( mPhoebe->turn( 210 ) )
@@ -118,6 +120,7 @@ NavState Searcher::executeSearchFace240( Rover * mPhoebe )
 {
     if( mPhoebe->roverStatus().tennisBall().found )
     {
+        mSearchPoints.push_front( mPhoebe->roverStatus().odometry() );
         return NavState::TurnToBall;
     }
     if( mPhoebe->turn( 330 ) )
@@ -135,6 +138,7 @@ NavState Searcher::executeSearchFace360( Rover* mPhoebe )
 {
     if( mPhoebe->roverStatus().tennisBall().found )
     {
+        mSearchPoints.push_front( mPhoebe->roverStatus().odometry() );
         return NavState::TurnToBall;
     }
     if( mPhoebe->turn( 90 ) )
@@ -157,6 +161,7 @@ NavState Searcher::executeSearchTurn( Rover* mPhoebe, const rapidjson::Document&
     }
     if( mPhoebe->roverStatus().tennisBall().found )
     {
+        mSearchPoints.push_front( mPhoebe->roverStatus().odometry() );
         return NavState::TurnToBall;
     }
     Odometry& nextSearchPoint = mSearchPoints.front();
@@ -177,6 +182,7 @@ NavState Searcher::executeSearchDrive( Rover * mPhoebe )
 {
     if( mPhoebe->roverStatus().tennisBall().found )
     {
+        mSearchPoints.push_front( mPhoebe->roverStatus().odometry() );
         return NavState::TurnToBall;
     }
     if( mPhoebe->roverStatus().obstacle().detected )
@@ -189,7 +195,7 @@ NavState Searcher::executeSearchDrive( Rover * mPhoebe )
     
     if( driveStatus == DriveStatus::Arrived )
     {
-        mSearchPoints.pop();
+        mSearchPoints.pop_front();
         return NavState::SearchTurn;
     }
     if( driveStatus == DriveStatus::OnCourse )
@@ -234,6 +240,7 @@ NavState Searcher::executeDriveToBall( Rover * mPhoebe )
         stateMachine->updateObstacleAngle( mPhoebe->roverStatus().obstacle().bearing );
         return NavState::SearchTurnAroundObs;
     }
+
     DriveStatus driveStatus = mPhoebe->drive( mPhoebe->roverStatus().tennisBall().distance,
                                               mPhoebe->roverStatus().tennisBall().bearing +
                                               mPhoebe->roverStatus().bearing().bearing );

@@ -90,8 +90,8 @@ void throughZero( double& destinationBearing, const double currentBearing )
 } // throughZero()
 
 // Clears the queue.
-void clear( queue<Odometry>& aQueue )
+void clear( queue<Waypoint>& aQueue )
 {
-    queue<Odometry> emptyQueue;
+    queue<Waypoint> emptyQueue;
     swap( aQueue, emptyQueue );
 } // clear()
