@@ -5,21 +5,35 @@ lcm = dependency('lcm')
 
 all_deps = [opencv, lcm]
 
-zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
-zed = declare_dependency(
-	include_directories : zed_include_dirs,
-	link_args : [
-		# ZED SDK
-		'-L/usr/local/zed/lib',
-		'-lsl_input', '-lsl_core', '-lsl_zed',
+with_zed = get_option('with_zed')
+offline_test = get_option('offline_test')
+perception_debug = get_option('perception_debug')
 
-		# CUDA 
-		'-L/usr/local/cuda/lib64',
-		'-lnppial', '-lnppisu', '-lnppicc', '-lnppicom',
-		'-lnppidei', '-lnppif', '-lnppig', '-lnppim',
-		'-lnppist', '-lnppitc'
-	])
-all_deps += [zed]
+if with_zed
+	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
+	zed = declare_dependency(
+		include_directories : zed_include_dirs,
+		link_args : [
+			# ZED SDK
+			'-L/usr/local/zed/lib',
+			'-lsl_input', '-lsl_core', '-lsl_zed',
+
+			# CUDA 
+			'-L/usr/local/cuda/lib64',
+			'-lnppial', '-lnppisu', '-lnppicc', '-lnppicom',
+			'-lnppidei', '-lnppif', '-lnppig', '-lnppim',
+			'-lnppist', '-lnppitc'
+		])
+	all_deps += [zed]
+endif
+
+conf_data = configuration_data()
+conf_data.set10('ZED_SDK_PRESENT', with_zed)
+conf_data.set10('OFFLINE_TEST', offline_test)
+configure_file(
+	input: 'config.h.in',
+	output: 'config.h',
+	configuration: conf_data)
 
 executable('onboard_cv',
 		   'main.cpp', 'camera.cpp', 'tennisball_detector.cpp', 'obstacle_detector.cpp',
