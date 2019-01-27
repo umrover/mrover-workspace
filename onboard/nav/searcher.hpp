@@ -53,13 +53,11 @@ protected:  // TODO
     vector< pair<short, short> > mSearchPointMultipliers;
 
     // Queue of search points.
-    queue<Odometry> mSearchPoints;
+    deque<Odometry> mSearchPoints;
 
 };
 
 #endif //SEARCHER_HPP
-
-
 
 
 /*************************************************************************/

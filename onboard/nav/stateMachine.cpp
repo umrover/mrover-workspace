@@ -81,6 +81,7 @@ void StateMachine::run()
         if( !mPhoebe->roverStatus().autonState().is_auton )
         {
             nextState = NavState::Off;
+            clear( mPhoebe->roverStatus().path() );
             if( nextState != mPhoebe->roverStatus().currentState() )
             {
                 mPhoebe->roverStatus().currentState() = nextState;

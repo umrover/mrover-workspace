@@ -58,7 +58,7 @@ SpiralOut::~SpiralOut() {}
 // of the search.
 void SpiralOut::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, const double pathWidth )
 {
-    clear( mSearchPoints );
+    mSearchPoints.clear();
 
     mSearchPointMultipliers.clear();
     mSearchPointMultipliers.push_back( pair<short, short> (  0,  1 ) );
@@ -80,7 +80,7 @@ void SpiralOut::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
             nextSearchPoint.longitude_deg += totalLongitudeMinutes / 60;
             nextSearchPoint.longitude_min = ( totalLongitudeMinutes - ( ( (int) totalLongitudeMinutes) / 60 ) * 60 );
 
-            mSearchPoints.push( nextSearchPoint );
+            mSearchPoints.push_back( nextSearchPoint );
 
             mSearchPointMultiplier.first < 0 ? --mSearchPointMultiplier.first : ++mSearchPointMultiplier.first;
             mSearchPointMultiplier.second < 0 ? --mSearchPointMultiplier.second : ++mSearchPointMultiplier.second;
@@ -90,7 +90,7 @@ void SpiralOut::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
 } // initializeSearch()
 
 /*************************************************************************/
-/* Spiral Search */
+/* Spiral Search */ 
 /*************************************************************************/
 SpiralIn::~SpiralIn() {}
 
@@ -98,7 +98,7 @@ SpiralIn::~SpiralIn() {}
 // of the search.
 void SpiralIn::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, const double pathWidth )
 {
-    clear( mSearchPoints );
+    mSearchPoints.clear();
 
     mSearchPointMultipliers.clear();
     mSearchPointMultipliers.push_back( pair<short, short> ( -1,  0 ) );
@@ -120,13 +120,13 @@ void SpiralIn::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRov
             nextSearchPoint.longitude_deg += totalLongitudeMinutes / 60;
             nextSearchPoint.longitude_min = ( totalLongitudeMinutes - ( ( (int) totalLongitudeMinutes) / 60 ) * 60 );
 
-            mSearchPoints.push( nextSearchPoint );
+            mSearchPoints.push_back( nextSearchPoint );
 
             mSearchPointMultiplier.first < 0 ? --mSearchPointMultiplier.first : ++mSearchPointMultiplier.first;
             mSearchPointMultiplier.second < 0 ? --mSearchPointMultiplier.second : ++mSearchPointMultiplier.second;
         }
     }
-    reverseQueue(mSearchPoints);
+    //TODO Reverse Deque. Not using this search though...
 } // initializeSearch()
 
 /*************************************************************************/
@@ -138,7 +138,7 @@ void LawnMower::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
 {
     const double searchBailThresh = mRoverConfig[ "searchBailThresh" ].GetDouble();
 
-    clear( mSearchPoints );
+    mSearchPoints.clear();
     
     mSearchPointMultipliers.clear();
     // mSearchPointMultipliers.push_back( pair<short, short> (  0, 0 ) );
@@ -165,7 +165,7 @@ void LawnMower::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
             nextSearchPoint.longitude_min = ( totalLongitudeMinutes - ( ( (int) totalLongitudeMinutes) / 60 ) * 60 );
 
             mSearchPointMultiplier.first -= 2;
-            mSearchPoints.push( nextSearchPoint );
+            mSearchPoints.push_back( nextSearchPoint );
         }
     }
 } // initializeSearch()
