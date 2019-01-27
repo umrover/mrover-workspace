@@ -1,9 +1,8 @@
 #ifndef NAV_UTILITES
 #define NAV_UTILITES
 
-#include "rover_msgs/Odometry.hpp"
-
 #include <queue>
+#include "rover_msgs/Waypoint.hpp"
 
 using namespace std;
 using namespace rover_msgs;
@@ -25,6 +24,6 @@ double mod( const double degree, const int modulus );
 
 void throughZero( double& destinationBearing, const double currentBearing );
 
-void clear( queue<Odometry>& aQueue );
+void clear( queue<Waypoint>& aQueue );
 
 #endif // NAV_UTILITES
