@@ -1,5 +1,6 @@
 #include "camera.hpp"
 
+#if ZED_SDK_PRESENT
 #include <sl/Camera.hpp>
 #include <cassert>
 
@@ -74,7 +75,7 @@ Camera::Impl::~Impl() {
 /*void Camera::Impl::deleteZed(){
 	delete this;
 }*/
-#if OFFLINE_TEST
+#else //if OFFLINE_TEST
 #include <sys/types.h>
 #include <dirent.h>
 #include <string>
