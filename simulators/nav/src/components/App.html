@@ -19,9 +19,16 @@
             <input type="number" bind:value="radius"/>
         </label></p>
         <p>
-            <label>Test Case: </label>
+            <label>Upload: </label>
             <input id="files" name="files[]" type="file"/>
         </p>
+        <p>
+            <label>Download: </label>
+            <!-- <label for="input-fileName"></label> -->
+            <input type="text" class="form-control" id="input-filename" value="textFile" placeholder="Enter file name">
+            <input type="button" id="dwn-btn" value="Download"/>
+        </p>
+
     </div>
 
     <div id="sidebar">
@@ -98,19 +105,26 @@
         {{#each rocks as rock, i}}
         <div class="display rock_display">
             <SimulatedItemDisplay
-                            title="Rock {{ i }}"
-                            item="{{ rock }}"
-                            rover="{{ odom }}"
-                            on:click='splice("rocks", i, 1)'>
+                title="Rock {{ i }}"
+                item="{{ rock }}"
+                rover="{{ odom }}"
+                on:click='splice("rocks", i, 1)'>
             </SimulatedItemDisplay>
         </div>
         {{/each}}
     </div>
 
     <script>
-        function uploadFile() {
-            current_test: test
+        function download(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
         }
+
     </script>
 </div>
 
@@ -130,6 +144,7 @@
     export default {
         oncreate() {
             document.getElementById('files').addEventListener('change', this.handleFileSelect);
+            document.getElementById('dwn-btn').addEventListener('click', this.handleDownloadTest);
             app = this;
         },
 
@@ -202,7 +217,7 @@
                     default: return 'Unknown';
                 }
             },
-            
+
             latitude_min_display: (odom) => odom.latitude_min.toFixed(NUM_DIGITS),
             longitude_min_display: (odom) => odom.longitude_min.toFixed(NUM_DIGITS),
         },
@@ -223,6 +238,16 @@
                         console.log(app)
                     };
                 })(files[0]);
+            },
+
+            handleDownloadTest: function(event) {
+                var test_case_data = JSON.stringify({ waypoints: app._state.waypoints,
+                                                      rocks: app._state.rocks,
+                                                      tennis_balls: app._state.tennis_balls },
+                                                    null,
+                                                    4)
+                var filename = document.getElementById('input-filename').value + ".json";
+                download(filename, test_case_data);
             },
 
             apply_joystick: function(stick) {
