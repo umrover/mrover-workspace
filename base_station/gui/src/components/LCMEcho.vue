@@ -74,7 +74,8 @@
           '/temperature': false,
           '/tennis_ball': false,
           '/sa_control': false,
-          '/arm_control': false
+          '/arm_control': false,
+          '/imu': false
         },
         subscriptions: [
           {'topic': '/ik_ra_control', 'type': 'ArmPosition', 'checked': false},
@@ -105,7 +106,8 @@
           {'topic': '/temperature', 'type': 'Temperature', 'checked': false},
           {'topic': '/tennis_ball', 'type': 'TennisBall', 'checked': false},
           {'topic': '/sa_control', 'type': 'Xbox', 'checked': false},
-          {'topic': '/arm_control', 'type': 'Xbox', 'checked': false}
+          {'topic': '/arm_control', 'type': 'Xbox', 'checked': false},
+          {'topic': '/imu', 'type': 'IMU', 'checked': false}
         ]
       }
     },
