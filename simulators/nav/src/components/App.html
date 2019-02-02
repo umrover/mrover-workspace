@@ -265,10 +265,10 @@
                         is_auton: this.get('enabled')
                     });
                     const odom = this.get("odom");
-                    this.fire("bearing", {
+                    this.fire("imu", {
                         bearing: odom.bearing_deg
                     });
-                    this.fire("odom", {
+                    this.fire("gps", {
                         latitude_deg: odom.latitude_deg|0,
                         latitude_min: odom.latitude_min,
                         longitude_deg: odom.longitude_deg|0,
