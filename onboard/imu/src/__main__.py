@@ -2,7 +2,11 @@ import os
 from serial import Serial
 from configparser import ConfigParser
 from rover_common import aiolcm
-from rover_msgs import Bearing
+from rover_msgs import IMU
+
+
+def read_value(serial_port, delimiter=b','):
+    return float(serial_port.read_until(delimiter)[:-1])
 
 
 def main():
@@ -26,9 +30,21 @@ def main():
     print('Calibrating...')
 
     while (True):
-        serial_port.read_until(b',')  # angle_x
-        serial_port.read_until(b',')  # angle_y
-        angle_z = float(serial_port.read_until(b'\r'))
+        accel_x = read_value(serial_port)
+        accel_y = read_value(serial_port)
+        accel_z = read_value(serial_port)
+
+        gyro_x = read_value(serial_port)
+        gyro_y = read_value(serial_port)
+        gyro_z = read_value(serial_port)
+
+        mag_x = read_value(serial_port)
+        mag_y = read_value(serial_port)
+        mag_z = read_value(serial_port)
+
+        read_value(serial_port)  # angle_x
+        read_value(serial_port)  # angle_y
+        angle_z = read_value(serial_port, b'\r')
 
         if num_readings == 0:
             calibrate_start = angle_z
@@ -41,9 +57,18 @@ def main():
         num_readings += 1
 
         if calibrated:
-            bearing_msg = Bearing()
-            bearing_msg.bearing = (angle_z - (drift * num_readings)) % 360
-            lcm.publish('/bearing', bearing_msg.encode())
+            imu_msg = IMU()
+            imu_msg.accel_x = accel_x
+            imu_msg.accel_y = accel_y
+            imu_msg.accel_z = accel_z
+            imu_msg.gyro_x = gyro_x
+            imu_msg.gyro_y = gyro_y
+            imu_msg.gyro_z = gyro_z
+            imu_msg.mag_x = mag_x
+            imu_msg.mag_y = mag_y
+            imu_msg.mag_z = mag_z
+            imu_msg.bearing = (angle_z - (drift * num_readings)) % 360
+            lcm.publish('/imu', imu_msg.encode())
 
 
 if __name__ == "__main__":

@@ -1,0 +1,14 @@
+package rover_msgs;
+
+struct IMU {
+    double accel_x;
+    double accel_y;
+    double accel_z;
+    double gyro_x;
+    double gyro_y;
+    double gyro_z;
+    double mag_x;
+    double mag_y;
+    double mag_z;
+    double bearing;
+}
