@@ -1,73 +1,97 @@
 import time
-from rover_msgs import OdometryF  # filtered odometry
-UNDEFINED = 0
+from rover_msgs import Odometry  # filtered odometry
 
 
 class clean_odom:
     def __init__(self):
-        self.speed = UNDEFINED
-        self.latitude_deg = UNDEFINED
-        self.latitude_min = UNDEFINED
-        self.longitude_deg = UNDEFINED
-        self.longitude_min = UNDEFINED
-        self.bearing_deg = UNDEFINED
-        self.speed = UNDEFINED
+        self._latitude_deg = None
+        self._latitude_min = None
+        self._longitude_deg = None
+        self._longitude_min = None
+        self._bearing_deg = None
+        self._speed = None
 
     def create_lcm(self):
-        msg = OdometryF()
-        msg.latitude_deg = self.latitude_deg
-        msg.latitude_min = self.latitude_min
-        msg.longitude_deg = self.longitude_deg
-        msg.longitude_min = self.longitude_min
-        msg.bearing_deg = self.bearing_deg
-        msg.speed = self.speed
+        # If some part of Odom is uninitialized, return None
+        if not (self._latitude_deg and
+                self._latitude_min and
+                self._longitude_deg and
+                self._longitude_min and
+                self._bearing_deg):
+            return None
+
+        msg = Odometry()
+        msg.latitude_deg = self._latitude_deg
+        msg.latitude_min = self._latitude_min
+        msg.longitude_deg = self._longitude_deg
+        msg.longitude_min = self._longitude_min
+        msg.bearing_deg = self._bearing_deg
+        msg.speed = -1
         return msg
 
     def copy_gps(self, gps):
-        self.latitude_deg = gps.lat_deg
-        self.latitude_min = gps.lat_min
-        self.longitude_deg = gps.long_deg
-        self.longitude_min = gps.long_min
-        self.bearing_deg = gps.track_theta
-        self.speed = gps.ground_speed
+        self._latitude_deg = gps._lat_deg
+        self._latitude_min = gps._lat_min
+        self._longitude_deg = gps._long_deg
+        self._longitude_min = gps._long_min
+        self._bearing_deg = gps._track_theta
+        self._speed = gps._ground_speed
         return None
 
 
-class mag_bearing:
+class raw_imu:
     def __init__(self):
-        self.mbearing = UNDEFINED
-        self.time_of_IMU = time.clock()
+        self._acc_x = None
+        self._acc_y = None
+        self._acc_z = None
+        self._gyro_x = None
+        self._gyro_y = None
+        self._gyro_z = None
+        self._mag_x = None
+        self._mag_y = None
+        self._mag_z = None
+        self._bearing = None
+        self._time_of_IMU = time.clock()
 
-    def update_mag_bearing(self, message):
-        self.mbearing = message.bearing
-        self.time_of_IMU = time.clock()
+    def update_imu_bearing(self, message):
+        self._acc_x = message.accel_x
+        self._acc_y = message.accel_y
+        self._acc_z = message.accel_z
+        self._gyro_x = message.gyro_x
+        self._gyro_y = message.gyro_y
+        self._gyro_z = message.gyro_z
+        self._mag_x = message.mag_x
+        self._mag_y = message.mag_y
+        self._mag_z = message.mag_z
+        self._bearing = message.bearing
+        self._time_of_IMU = time.clock()
 
 
 class raw_gps:
     def __init__(self):
-        self.lat_deg = UNDEFINED
-        self.lat_min = UNDEFINED
-        self.long_deg = UNDEFINED
-        self.long_min = UNDEFINED
-        self.track_theta = UNDEFINED
-        self.ground_speed = UNDEFINED
-        self.time_of_GPS = time.clock()
+        self._lat_deg = None
+        self._lat_min = None
+        self._long_deg = None
+        self._long_min = None
+        self._track_theta = None
+        self._ground_speed = None
+        self._time_of_GPS = time.clock()
 
     def updateGPS(self, message):
-        self.lat_deg = message.latitude_deg
-        self.lat_min = message.latitude_min
-        self.long_deg = message.longitude_deg
-        self.long_min = message.longitude_min
-        self.track_theta = message.bearing_deg
-        self.ground_speed = message.speed
-        self.time_of_GPS = time.clock()
+        self._lat_deg = message.latitude_deg
+        self._lat_min = message.latitude_min
+        self._long_deg = message.longitude_deg
+        self._long_min = message.longitude_min
+        self._track_theta = message.bearing_deg
+        self._ground_speed = message.speed
+        self._time_of_GPS = time.clock()
 
 
 class nav_status:
     def __init__(self):
-        self.navState = UNDEFINED
-        self.time_of_status = time.clock()
+        self._navState = None
+        self._time_of_status = time.clock()
 
     def update_nav_status(self, message):
-        self.navState = message.nav_state
-        self.time_of_IMU = time.clock()
+        self._navState = message.nav_state
+        self._time_of_IMU = time.clock()

@@ -1,6 +1,6 @@
 package rover_msgs;
 
-struct OdometryF {
+struct GPS {
     int32_t latitude_deg;
     double latitude_min;
     int32_t longitude_deg;
