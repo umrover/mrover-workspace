@@ -25,11 +25,6 @@ AutonState& Rover::RoverStatus::autonState()
     return mAutonState;
 } // autonState()
 
-Bearing& Rover::RoverStatus::bearing()
-{
-    return mBearing;
-}
-
 // Gets a reference to the rover's course.
 Course& Rover::RoverStatus::course()
 {
@@ -120,14 +115,14 @@ DriveStatus Rover::drive( const double distance, const double bearing )
     {
         return DriveStatus::Arrived;
     }
-    
+
     double destinationBearing = mod( bearing, 360 );
-    throughZero( destinationBearing, mRoverStatus.bearing().bearing ); // will go off course if inside if because through zero not calculated 
-    
-    if( fabs( destinationBearing - mRoverStatus.bearing().bearing ) < mRoverConfig[ "drivingBearingThresh" ].GetDouble() )
+    throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg ); // will go off course if inside if because through zero not calculated
+
+    if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "drivingBearingThresh" ].GetDouble() )
     {
         double distanceEffort = mDistancePid.update( -1 * distance, 0 );
-        double turningEffort = mBearingPid.update( mRoverStatus.bearing().bearing, destinationBearing );
+        double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
         publishJoystick( distanceEffort, turningEffort, false );
         return DriveStatus::OnCourse;
     }
@@ -150,12 +145,12 @@ bool Rover::turn( Odometry& destination )
 // otherwise.
 bool Rover::turn( double bearing )
 {
-    throughZero( bearing, mRoverStatus.bearing().bearing );
-    if( fabs( bearing - mRoverStatus.bearing().bearing ) < mRoverConfig[ "turningBearingThresh" ].GetDouble() )
+    throughZero( bearing, mRoverStatus.odometry().bearing_deg );
+    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "turningBearingThresh" ].GetDouble() )
     {
         return true;
     }
-    double turningEffort = mBearingPid.update( mRoverStatus.bearing().bearing, bearing );
+    double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, bearing );
     publishJoystick( 0, turningEffort, false );
     return false;
 } // turn()
@@ -186,7 +181,6 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
               mRoverStatus.currentState() == NavState::DriveToBall ) &&
             !isEqual( mRoverStatus.tennisBall(), newRoverStatus.tennisBall() ) )
         {
-            mRoverStatus.bearing() = newRoverStatus.bearing();
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.tennisBall() = newRoverStatus.tennisBall();
@@ -196,21 +190,18 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
         if( ( mRoverStatus.currentState() == NavState::TurnAroundObs ||
                    mRoverStatus.currentState() == NavState::SearchTurnAroundObs ) &&
                  ( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() )
-                    || !isEqual(mRoverStatus.bearing(), newRoverStatus.bearing() ) ) )
+                    || !isEqual(mRoverStatus.odometry(), newRoverStatus.odometry() ) ) )
         {
-            mRoverStatus.bearing() = newRoverStatus.bearing();
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.tennisBall() = newRoverStatus.tennisBall();
             return true;
         }
 
-        if( !isEqual( mRoverStatus.bearing(), newRoverStatus.bearing() ) ||
-            !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
+        if( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
             !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ||
             !isEqual( mRoverStatus.tennisBall(), newRoverStatus.tennisBall() ) )
         {
-            mRoverStatus.bearing() = newRoverStatus.bearing();
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.tennisBall() = newRoverStatus.tennisBall();
@@ -273,13 +264,6 @@ void Rover::publishJoystick( const double forwardBack, const double leftRight, c
     mLcmObject.publish( joystickChannel, &joystick );
 } // publishJoystick()
 
-// Returns true if the two bearing messages are equal, false
-// otherwise.
-bool Rover::isEqual( const Bearing& bearing1, const Bearing& bearing2 ) const
-{
-    return (bearing1.bearing == bearing2.bearing );
-} // isEqual( bearing )
-
 // Returns true if the two obstacle messages are equal, false
 // otherwise.
 bool Rover::isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const
@@ -299,7 +283,8 @@ bool Rover::isEqual( const Odometry& odometry1, const Odometry& odometry2 ) cons
     if( odometry1.latitude_deg == odometry2.latitude_deg &&
         odometry1.latitude_min == odometry2.latitude_min &&
         odometry1.longitude_deg == odometry2.longitude_deg &&
-        odometry1.longitude_min == odometry2.longitude_min )
+        odometry1.longitude_min == odometry2.longitude_min &&
+        odometry1.bearing_deg == odometry2.bearing_deg )
     {
         return true;
     }
@@ -322,4 +307,3 @@ bool Rover::isEqual( const TennisBall& tennisBall1, const TennisBall& tennisBall
 /*************************************************************************/
 /* TODOS */
 /*************************************************************************/
-

@@ -76,9 +76,9 @@ NavState Searcher::run( Rover * mPhoebe, const rapidjson::Document& mRoverConfig
 /* Helpers */
 /*****************************************************/
 
-// Executes the logic for turning to face north to orient itself for a search. 
-// If the rover detects the tennis ball, it proceeds to the ball 
-// If the rover finishes turning, it proceeds to SearchFace120. 
+// Executes the logic for turning to face north to orient itself for a search.
+// If the rover detects the tennis ball, it proceeds to the ball
+// If the rover finishes turning, it proceeds to SearchFace120.
 // Else the rover keeps turning to north.
 NavState Searcher::executeSearchFaceNorth( Rover * mPhoebe )
 {
@@ -94,8 +94,8 @@ NavState Searcher::executeSearchFaceNorth( Rover * mPhoebe )
     return NavState::SearchFaceNorth;
 } // executeSearchFaceNorth
 
-// Executes the logic for the first third of the initial 360 degree turn of the search. 
-// If the rover detects the tennis ball, it proceeds to the ball. 
+// Executes the logic for the first third of the initial 360 degree turn of the search.
+// If the rover detects the tennis ball, it proceeds to the ball.
 // If the rover finishes turning, it proceeds to SearchFace240.
 // Else the rover keeps turning to 120 degrees.
 NavState Searcher::executeSearchFace120( Rover * mPhoebe )
@@ -112,8 +112,8 @@ NavState Searcher::executeSearchFace120( Rover * mPhoebe )
     return NavState::SearchFace120;
 } // executeSearchFace120()
 
-// Executes the logic for the second third of the initial 360 degree turn of the search. 
-// If the rover detects the tennis ball, it proceeds to the ball. 
+// Executes the logic for the second third of the initial 360 degree turn of the search.
+// If the rover detects the tennis ball, it proceeds to the ball.
 // If the rover finishes turning, it proceeds to SearchFace360.
 // Else the rover keeps turning to 240 degrees.
 NavState Searcher::executeSearchFace240( Rover * mPhoebe )
@@ -130,8 +130,8 @@ NavState Searcher::executeSearchFace240( Rover * mPhoebe )
     return NavState::SearchFace240;
 } // executeSearchFace240
 
-// Executes the logic for the final third of the initial 360 degree turn of the search. 
-// If the rover detects the tennis ball, it proceeds to the ball. 
+// Executes the logic for the final third of the initial 360 degree turn of the search.
+// If the rover detects the tennis ball, it proceeds to the ball.
 // If the rover finishes turning, the next state is SearchDrive.
 // Else the rover keeps turning to 360 degrees.
 NavState Searcher::executeSearchFace360( Rover* mPhoebe )
@@ -148,15 +148,15 @@ NavState Searcher::executeSearchFace360( Rover* mPhoebe )
     return NavState::SearchFace360;
 } // executeSearchFace360()
 
-// Executes the logic for turning while searching. 
-// If no remaining search points, it proceeds to change search algorithms. 
-// If the rover detects the tennis ball, it proceeds to the ball. 
-// If the rover finishes turning, it proceeds to driving while searching. 
+// Executes the logic for turning while searching.
+// If no remaining search points, it proceeds to change search algorithms.
+// If the rover detects the tennis ball, it proceeds to the ball.
+// If the rover finishes turning, it proceeds to driving while searching.
 // Else the rover keeps turning to the next Waypoint.
 NavState Searcher::executeSearchTurn( Rover* mPhoebe, const rapidjson::Document& mRoverConfig )
 {
     if( mSearchPoints.empty() )
-    {   
+    {
         return NavState::ChangeSearchAlg;
     }
     if( mPhoebe->roverStatus().tennisBall().found )
@@ -172,10 +172,10 @@ NavState Searcher::executeSearchTurn( Rover* mPhoebe, const rapidjson::Document&
     return NavState::SearchTurn;
 } // executeSearchTurn()
 
-// Executes the logic for driving while searching. 
-// If the rover detects the tennis ball, it proceeds to the ball. 
-// If the rover detects an obstacle, it proceeds to obstacle avoidance. 
-// If the rover finishes driving, it proceeds to turning to the next Waypoint. 
+// Executes the logic for driving while searching.
+// If the rover detects the tennis ball, it proceeds to the ball.
+// If the rover detects an obstacle, it proceeds to obstacle avoidance.
+// If the rover finishes driving, it proceeds to turning to the next Waypoint.
 // If the rover is still on course, it keeps driving to the next Waypoint.
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
 NavState Searcher::executeSearchDrive( Rover * mPhoebe )
@@ -192,7 +192,7 @@ NavState Searcher::executeSearchDrive( Rover * mPhoebe )
     }
     const Odometry& nextSearchPoint = mSearchPoints.front();
     DriveStatus driveStatus = mPhoebe->drive( nextSearchPoint );
-    
+
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.pop_front();
@@ -205,9 +205,9 @@ NavState Searcher::executeSearchDrive( Rover * mPhoebe )
     return NavState::SearchTurn;
 } // executeSearchDrive()
 
-// Executes the logic for turning to the tennis ball. 
-// If the rover loses the ball, it starts to search again. 
-// If the rover finishes turning to the ball, it drives to the ball. 
+// Executes the logic for turning to the tennis ball.
+// If the rover loses the ball, it starts to search again.
+// If the rover finishes turning to the ball, it drives to the ball.
 // Else the rover continues to turn to to the ball.
 NavState Searcher::executeTurnToBall( Rover * mPhoebe )
 {
@@ -216,17 +216,17 @@ NavState Searcher::executeTurnToBall( Rover * mPhoebe )
         return NavState::SearchFaceNorth;
     }
     if( mPhoebe->turn( mPhoebe->roverStatus().tennisBall().bearing +
-                       mPhoebe->roverStatus().bearing().bearing ) )
+                       mPhoebe->roverStatus().odometry().bearing_deg ) )
     {
         return NavState::DriveToBall;
     }
     return NavState::TurnToBall;
 } // executeTurnToBall()
 
-// Executes the logic for driving to the tennis ball. 
-// If the rover loses the ball, it starts the search again. 
-// If the rover detects an obstacle, it proceeds to go around the obstacle. 
-// If the rover finishes driving to the ball, it moves on to the next Waypoint. 
+// Executes the logic for driving to the tennis ball.
+// If the rover loses the ball, it starts the search again.
+// If the rover detects an obstacle, it proceeds to go around the obstacle.
+// If the rover finishes driving to the ball, it moves on to the next Waypoint.
 // If the rover is on course, it keeps driving to the ball.
 // Else, it turns back to face the ball.
 NavState Searcher::executeDriveToBall( Rover * mPhoebe )
@@ -243,7 +243,7 @@ NavState Searcher::executeDriveToBall( Rover * mPhoebe )
 
     DriveStatus driveStatus = mPhoebe->drive( mPhoebe->roverStatus().tennisBall().distance,
                                               mPhoebe->roverStatus().tennisBall().bearing +
-                                              mPhoebe->roverStatus().bearing().bearing );
+                                              mPhoebe->roverStatus().odometry().bearing_deg );
     if( driveStatus == DriveStatus::Arrived )
     {
         mPhoebe->roverStatus().path().pop();

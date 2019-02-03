@@ -26,16 +26,6 @@ public:
         mStateMachine->updateRoverStatus( *autonState );
     }
 
-    // Sends the magnetometer/accelerometer/gyro data to the state machine.
-    void bearing(
-        const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
-        const Bearing* bearing
-        )
-    {
-        mStateMachine->updateRoverStatus( *bearing );
-    }
-
     // Sends the course lcm message to the state machine.
     void course(
         const lcm::ReceiveBuffer* recieveBuffer,
@@ -95,7 +85,6 @@ int main()
     LcmHandlers lcmHandlers( &roverStateMachine );
 
     lcmObject.subscribe( "/auton", &LcmHandlers::autonState, &lcmHandlers );
-    lcmObject.subscribe( "/bearing", &LcmHandlers::bearing, &lcmHandlers );
     lcmObject.subscribe( "/course", &LcmHandlers::course, &lcmHandlers );
     lcmObject.subscribe( "/obstacle", &LcmHandlers::obstacle, &lcmHandlers );
     lcmObject.subscribe( "/odometry", &LcmHandlers::odometry, &lcmHandlers );
