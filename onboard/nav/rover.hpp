@@ -73,8 +73,6 @@ public:
 
         AutonState& autonState();
 
-        Bearing& bearing();
-
         Course& course();
 
         queue<Waypoint>& path();
@@ -93,9 +91,6 @@ public:
 
         // The rover's current auton state.
         AutonState mAutonState;
-
-        // The rover's current bearing.
-        Bearing mBearing;
 
         // The rover's overall course.
         Course mCourse;
@@ -144,8 +139,6 @@ private:
     /* Private Member Functions */
     /*************************************************************************/
     void publishJoystick( const double forwardBack, const double leftRight, const bool kill );
-
-    bool isEqual( const Bearing& bearing1, const Bearing& bearing2 ) const;
 
     bool isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const;
 

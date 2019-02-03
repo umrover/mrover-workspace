@@ -41,17 +41,17 @@ const bridge = new LCMBridge("ws://localhost:8001",
     }]
 )
 
-app.on("bearing", (bearing) => {
+app.on("imu", (imu) => {
     if (bridge.online) {
-        bearing.type = 'Bearing';
-        bridge.publish('/bearing', bearing)
+        imu.type = 'IMU';
+        bridge.publish('/imu', imu)
     }
 })
 
-app.on("odom", (odom) => {
+app.on("gps", (gps) => {
     if (bridge.online) {
-        odom.type = 'Odometry';
-        bridge.publish('/odometry', odom);
+        gps.type = 'GPS';
+        bridge.publish('/gps', gps);
     }
 })
 

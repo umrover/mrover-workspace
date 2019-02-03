@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct Wheelenc {
+    double rev_per_sec;
+    int8_t wheel_num;
+}
