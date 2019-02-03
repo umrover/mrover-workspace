@@ -72,7 +72,8 @@ export default {
         latitude_min: 24.38226,
         longitude_deg: 110,
         longitude_min: 47.51724,
-        bearing_deg: 0
+        bearing_deg: 0,
+        speed: 0
       },
 
       connections: {
