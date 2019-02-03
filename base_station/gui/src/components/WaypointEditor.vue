@@ -4,7 +4,8 @@
       Name: <input v-model="name"><br>
       <input v-model="lat">ºN
       <input v-model="lon">ºW
-      <button v-on:click="addWaypoint(lat, lon)">Add Waypoint</button>
+      <button v-on:click="parseWaypoint()">Add Waypoint</button>
+      <button v-on:click="dropWaypoint()">Drop Waypoint</button>
     </div>
     <div class="box">
       <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/><br>
@@ -36,6 +37,13 @@ import _ from 'lodash';
 import fnvPlus from 'fnv-plus';
 
 export default {
+
+  props: {
+    odom: {
+      type: Object,
+      required: true
+    },
+  },
 
   data () {
     return {
@@ -131,7 +139,20 @@ export default {
       }
     },
 
-    addWaypoint: function () {
+    addWaypoint: function (lat, lon) {
+      this.storedWaypoints.push({
+        name: this.name,
+        latLng: L.latLng(lat, -lon)
+      })
+    },
+
+    dropWaypoint: function () {
+      let lat = this.odom.latitude_deg + this.odom.latitude_min/60
+      let lon = this.odom.longitude_deg + this.odom.longitude_min/60
+      this.addWaypoint(lat, lon)
+    },
+
+    parseWaypoint: function () {
       const parseCoordinate = function (input) {
         const nums = input.split(" ")
         switch (nums.length) {
@@ -146,10 +167,7 @@ export default {
         }
       }
 
-      this.storedWaypoints.push({
-        name: this.name,
-        latLng: L.latLng(parseCoordinate(this.lat), -parseCoordinate(this.lon))
-      })
+      this.addWaypoint(parseCoordinate(this.lat), parseCoordinate(this.lon))
     },
 
     toggleAutonMode(val){
