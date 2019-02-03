@@ -39,6 +39,8 @@ public:
 
     void updateCompletedPoints( );
 
+    void updateFoundBalls( );
+
     void updateObstacleAngle( double angle );
 
     void setSearcher(SearchType type);
@@ -106,6 +108,12 @@ private:
 
     // Number of waypoints missed.
     unsigned mMissedWaypoints;
+
+    // Number of tennis balls found.
+    unsigned mFoundTennisBalls;
+
+    // Number of tennis balls in course.
+    unsigned mTotalTennisBalls;
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;

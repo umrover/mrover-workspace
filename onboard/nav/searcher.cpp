@@ -251,6 +251,7 @@ NavState Searcher::executeDriveToBall( Rover * phoebe )
     {
         phoebe->roverStatus().path().pop();
         stateMachine->updateCompletedPoints();
+        stateMachine->updateFoundBalls();
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
