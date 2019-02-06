@@ -6,7 +6,6 @@
       devbox_username: vagrant
   roles:
   - onboard_dev
-  - microcontrollers_dev
   - base_station_dev
   - cv_dev
   tasks:

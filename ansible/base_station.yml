@@ -8,7 +8,6 @@
   roles:
   - onboard_dev
   - base_station_dev
-  - microcontrollers_dev
   - base_station_networks
   - base_station_services
   tasks:

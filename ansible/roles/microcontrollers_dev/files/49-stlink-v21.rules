@@ -1,3 +1,0 @@
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="374b", \
-    GROUP:="plugdev", \
-    SYMLINK+="stlinkv21_%n"
