@@ -62,7 +62,6 @@ class WorkspaceContext:
                                                'scratch')
         self.product_env = os.path.join(self.mrover_build_root, 'build_env')
         self.jarvis_env = os.path.join(self.mrover_build_root, 'jarvis_env')
-        self.mbed_env = os.path.join(self.mrover_build_root, 'mbed_env')
         self.hash_store = os.path.join(self.mrover_build_root,
                                        'project_hashes')
 
@@ -105,15 +104,6 @@ class WorkspaceContext:
             venv.create(self.product_env, clear=clear,
                         symlinks=True, with_pip=True)
 
-    def ensure_mbed_env(self):
-        """
-        Ensures the mbed venv exitence.
-        """
-        self.ensure_build_dirs()
-        if not os.path.isdir(self.mbed_env):
-            self.ctx.run('virtualenv --python=python2 {}'.format(
-                self.mbed_env))
-
     @contextmanager
     def inside_product_env(self):
         """
@@ -121,15 +111,6 @@ class WorkspaceContext:
         """
         with self.ctx.prefix("source {}/bin/activate".format(
                 self.product_env)):
-            yield
-
-    @contextmanager
-    def inside_mbed_env(self):
-        """
-        A context manager for activating the mbed venv.
-        """
-        with self.ctx.prefix("source {}/bin/activate".format(
-                self.mbed_env)):
             yield
 
     def template(self, name, **kwargs):
@@ -152,9 +133,6 @@ class WorkspaceContext:
 
     def get_jarvis_file(self, *args):
         return os.path.join(self.jarvis_env, *args)
-
-    def get_mbed_file(self, *args):
-        return os.path.join(self.mbed_env, *args)
 
     @contextmanager
     def intermediate(self, name, cleanup=False):
