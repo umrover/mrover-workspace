@@ -1,3 +1,0 @@
-option('with_zed', type: 'boolean', value: true)
-option('offline_test', type: 'boolean', value: true)
-option('perception_debug', type: 'boolean', value: true)

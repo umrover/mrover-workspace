@@ -28,7 +28,7 @@ float getObstacleMin(float expected){
 
 bool cam_grab_succeed(Camera &cam, int & counter_fail) {
   while (!cam.grab()) {
-    cerr << "grab failed once\n";
+    //cerr << "grab failed once\n"; 
     counter_fail++;
     usleep(1000);
     if (counter_fail > 1000000) {
@@ -74,7 +74,6 @@ int main() {
   double frame_time = 0;
   int counter_fail = 0;
   #ifdef PERCEPTION_DEBUG
-    cout << "aonejvdzkfjgejrkngvlefjdkngejrka" << endl;
     namedWindow("image",1);
     namedWindow("depth",2);
   #endif
