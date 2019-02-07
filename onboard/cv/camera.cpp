@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include "perception.hpp"
 
 #if ZED_SDK_PRESENT
 #include <sl/Camera.hpp>
