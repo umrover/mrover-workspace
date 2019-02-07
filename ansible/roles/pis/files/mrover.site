@@ -1,3 +1,2 @@
 [third_party]
-mbed=False
 rapidjson=False

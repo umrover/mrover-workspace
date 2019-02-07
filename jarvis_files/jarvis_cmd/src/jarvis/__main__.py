@@ -3,7 +3,7 @@ import sys
 from buildsys import WorkspaceContext
 from invoke.exceptions import UnexpectedExit
 
-from .build import build_dir, clean, build_deps, debug_dir, build_all
+from .build import build_dir, clean, build_deps, build_all
 
 
 def clean_dir_name(d):
@@ -41,10 +41,6 @@ def main():
     subcommands.add_parser('upgrade',
                            help='Re-installs the Jarvis CLI')
 
-    parser_mbed = subcommands.add_parser('mbed',
-                                         help='Runs the mbed CLI')
-    parser_mbed.add_argument('mbed_args', nargs='+')
-
     args = parser.parse_args()
 
     try:
@@ -64,10 +60,6 @@ def main():
             clean(ctx)
         elif args.subcommand_name == 'dep':
             build_deps(ctx)
-        elif args.subcommand_name == 'mbed':
-            with ctx.inside_mbed_env():
-                ctx.run('mbed {}'.format(
-                    ' '.join('"{}"'.format(arg) for arg in args.mbed_args)))
     except UnexpectedExit as e:
         sys.exit(e.result.exited)
 
