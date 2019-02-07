@@ -103,8 +103,8 @@ obstacle_return refine_rt(obstacle_return rt_val, pair<int, float> candidate, Si
   
   if (max_sum_sw > THRESHOLD_NO_WAY) {
     #ifdef PERCEPTION_DEBUG
-    cout<<"max_sum_sw "<<max_sum_sw<<", col start at "<<final_start_col<<endl;
-    rectangle(rgb_img, Point( final_start_col, 0), Point( final_start_col+rover_width, RESOLUTION_HEIGHT), Scalar(255, 0, 0), 3);
+      cout<<"max_sum_sw "<<max_sum_sw<<", col start at "<<final_start_col<<endl;
+      rectangle(rgb_img, Point( final_start_col, 0), Point( final_start_col+rover_width, RESOLUTION_HEIGHT), Scalar(255, 0, 0), 3);
     #endif
 
     // compute bearing
@@ -119,7 +119,7 @@ obstacle_return refine_rt(obstacle_return rt_val, pair<int, float> candidate, Si
     }
   } else {
     #ifdef PERCEPTION_DEBUG
-    cout<<"Big obstacle in the front. Need to escape from one side!\n";
+      cout<<"Big obstacle in the front. Need to escape from one side!\n";
     #endif
     last_center = (left_sum>right_sum)? 0:RESOLUTION_WIDTH;
     rt_val.bearing =  (left_sum > right_sum)? (-45.0): (45.0);
@@ -144,7 +144,7 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
   reduce(depth_img, mean_row_vec, 0, CV_REDUCE_SUM, CV_32F);
 
   #ifdef PERCEPTION_DEBUG
-  cout<<"last center "<<last_center<<endl;
+    cout<<"last center "<<last_center<<endl;
   #endif
 
   // check middel col first. If there is no close obstacle in the middle, go straight
@@ -168,7 +168,7 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
     if (i == 1) left_sum = window_sum;
     if (i == num_windows - 1) right_sum = window_sum;
     #ifdef PERCEPTION_DEBUG
-    cout<<"[col "<<curr_col<<"], window sub_col sum is "<<window_sum<<endl;
+      cout<<"[col "<<curr_col<<"], window sub_col sum is "<<window_sum<<endl;
     #endif
     sums[i] = (make_pair(curr_col,window_sum));
   }

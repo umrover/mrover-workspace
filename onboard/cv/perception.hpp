@@ -9,21 +9,30 @@
 #include <lcm/lcm-cpp.hpp>
 #include <vector>
 #include <sys/stat.h> // for disk writing
-//#ifdef PERCEPTION_DEBUG
-#include <opencv2/highgui/highgui.hpp>
-#include <cstdlib>
-//#endif
+#if PERCEPTION_DEBUG
+  #include <opencv2/highgui/highgui.hpp>
+  #include <cstdlib>
+#endif
+
+#define ZED_SDK_PRESENT true
+#define OFFLINE_TEST false
+#define PERCEPTION_DEBUG true
 
 #define THRESHOLD_NO_WAY  100000 //how will we calibrate if the rover width changes
 #define THRESHOLD_NO_OBSTACLE_CENTER  100000
 #define THRESHOLD_NO_SUBWINDOW 40000
 #define SKY_START_ROW 200
-#define BALL_DETECTION_MAX_DIST 3.50  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
+#define BALL_DETECTION_MAX_DIST 6.0  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
 
 #define SIMILARITY_THRESHOLD 8000
 
 #define PI 3.14159265
-#define FRAME_WAITKEY 1 // for cv::imshow
+
+#if ZED_SDK_PRESENT
+  const int FRAME_WAITKEY = 1; // for cv::imshow, set to 1 if using zed, set to 0 if offline test
+#else
+  const int FRAME_WAITKEY = 0;
+#endif
 
 const int RESOLUTION_WIDTH = 1280;
 const int RESOLUTION_HEIGHT = 720; // 720p
