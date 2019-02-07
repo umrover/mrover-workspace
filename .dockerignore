@@ -3,7 +3,6 @@
 .git/
 .gitignore
 .ignore
-.mbed/
 .mrover/
 .node-gyp/
 .travis.yml
@@ -13,13 +12,11 @@ Dockerfile
 README.md
 Vagrantfile
 base_station/
-e2e_tests/
 external_requirements.txt
 jarvis*
 jarvis_files/
 lcm_bridge/
 lcm_tools/
-microcontrollers/
 onboard/
 pi_zeroes/
 rover_common/

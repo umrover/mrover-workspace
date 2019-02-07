@@ -6,7 +6,6 @@ import hashlib
 from buildsys import hash_file
 from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
-from buildsys.mbed import MbedBuilder
 from buildsys.rollupjs import RollupJSBuilder
 from buildsys.meson import MesonBuilder
 from buildsys.shell import ShellBuilder
@@ -60,11 +59,6 @@ def get_builder(ctx, d, opt=None):
     elif lang == 'lcm':
         print('Building LCM package')
         return LCMBuilder(d, ctx)
-    elif lang == 'mbed':
-        print('Building mbed OS package')
-        board = build_defs.get('board', 'DISCO_L476VG')
-        app = build_defs.get('app', 'False') == 'True'
-        return MbedBuilder(d, ctx, board, app, deps)
     elif lang == 'shell':
         print('Building shell package')
         return ShellBuilder(d, ctx)
@@ -87,7 +81,7 @@ def build_dir(ctx, d, opt=None):
 
 
 def get_site_cfg():
-    PACKAGE_NAMES = ['lcm', 'mbed', 'rapidjson']
+    PACKAGE_NAMES = ['lcm', 'rapidjson']
     site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
     site_cfg = configparser.ConfigParser()
     site_cfg['third_party'] = {}
@@ -131,9 +125,6 @@ def build_deps(ctx):
         third_party.ensure_rapidjson(ctx)
     if site_cfg['lcm']:
         third_party.ensure_lcm(ctx)
-    if site_cfg['mbed']:
-        third_party.ensure_mbed_cli(ctx)
-        third_party.ensure_openocd(ctx)
     if pip_deps_changed(ctx):
         with ctx.cd(ctx.root):
             print("Installing pip dependencies...")
@@ -149,21 +140,13 @@ def build_deps(ctx):
     print("Done.")
 
 
-def debug_dir(ctx, d):
-    """
-    Launches an mbed project in debug mode.
-    """
-    builder = get_builder(ctx, d)
-    if not hasattr(builder, 'debug'):
-        print("Project cannot be debugged.")
-        return
-    builder.debug()
-    print("Done")
-
-
 def build_all(ctx, d, opt, not_build):
     num_projects = 0
     failed_projects = []
+
+    if not_build is None:
+        not_build = []
+
     for root, dirs, files in os.walk(d):
         dirs[:] = list(filter(lambda x: ".mrover" != x, dirs))
         if "project.ini" in files and ".mrover" not in root \
