@@ -26,7 +26,7 @@ class LCMBuilder(BuildContext):
         ]
         lcm_files_cmdline = ' '.join('"{}"'.format(v) for v in lcm_files)
 
-        with self.scratch_space() as intermediate:
+        with self.scratch_space(True) as intermediate:
             pydir = os.path.join(intermediate, 'python')
             if not os.path.exists(pydir):
                 os.mkdir(pydir)
