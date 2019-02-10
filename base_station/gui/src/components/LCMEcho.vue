@@ -65,6 +65,7 @@
           '/ik_ra_control': false,
           '/imu': false,
           '/kill_switch': false,
+          '/microscope': false,
           '/motor': false,
           '/nav_status': false,
           '/obstacle': false,
@@ -112,7 +113,8 @@
           {'topic': '/sa_control', 'type': 'Xbox'},
           {'topic': '/arm_control', 'type': 'Xbox'},
           {'topic': '/imu', 'type': 'IMU'},
-          {'topic': '/gps', 'type': 'GPS'}
+          {'topic': '/gps', 'type': 'GPS'},
+          {'topic': '/microscope', 'type': 'Microscope'}
         ]
       }
     },

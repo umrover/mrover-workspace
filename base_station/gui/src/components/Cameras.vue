@@ -12,6 +12,7 @@
 
     <div class="servos">
       <span>Servos pan: {{servosData.pan.toFixed(2)}}, Servos tilt: {{servosData.tilt.toFixed(2)}}</span>
+      <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscope()"/>
     </div>
 
     <div class="video">
@@ -84,11 +85,13 @@
 <script>
   import CommIndicator from './CommIndicator.vue'
   import Video from './Video.vue'
+  import Checkbox from "./Checkbox.vue"
 
   export default {
     data() {
       return {
-        pi_index: -1
+        pi_index: -1,
+        microscope_streaming: false
       }
     },
 
@@ -148,6 +151,7 @@
           }
         }
         this.$parent.publish('/pi_camera', {type: "PiCamera", active_index: this.pi_index})
+        this.$parent.publish('/microscope', {type: "Microscope", streaming: this.microscope_streaming})
       }, 250)
     },
 
@@ -166,12 +170,17 @@
     methods: {
       setPiIndex: function (new_index) {
         this.pi_index = new_index
+      },
+
+      toggleMicroscope: function () {
+        this.microscope_streaming = !this.microscope_streaming
       }
     },
 
     components: {
       CommIndicator,
-      Video
+      Video,
+      Checkbox
     }
   }
 </script>
