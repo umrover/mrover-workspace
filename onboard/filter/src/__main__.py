@@ -32,10 +32,20 @@ class NavState(enum.Enum):
     Unknown = 255
 
 
+class Odom:
+    def __init__(self):
+        self._lat_deg = None
+        self._lat_min = None
+        self._long_deg = None
+        self._long_min = None
+        self._bearing = None
+
+
 class FilterClass:
     def __init__(self):
         self._gps = raw_gps()
         self._imu = raw_imu()
+        self._odom = Odom()
         self._navstat = nav_status()
 
     def gps_callback(self, channel, msg):
@@ -100,29 +110,29 @@ class FilterClass:
         return False
 
     def filter_bearing(self):
-        self._bearing = self._imu._bearing
+        self._odom._bearing = self._imu._bearing
 
     def filter_location(self):
-        self._lat_deg = self._gps._lat_deg
-        self._lat_min = self._gps._lat_min
-        self._long_deg = self._gps._long_deg
-        self._long_min = self._gps._long_min
+        self._odom._lat_deg = self._gps._lat_deg
+        self._odom._lat_min = self._gps._lat_min
+        self._odom._long_deg = self._gps._long_deg
+        self._odom._long_min = self._gps._long_min
 
     def create_odom_lcm(self):
         # If some part of Odom is uninitialized, return None
-        if self._lat_deg is None or \
-           self._lat_min is None or \
-           self._long_deg is None or \
-           self._long_min is None or \
-           self._bearing is None:
+        if self._odom._lat_deg is None or \
+           self._odom._lat_min is None or \
+           self._odom._long_deg is None or \
+           self._odom._long_min is None or \
+           self._odom._bearing is None:
             return None
 
         msg = Odometry()
-        msg.latitude_deg = self._lat_deg
-        msg.latitude_min = self._lat_min
-        msg.longitude_deg = self._long_deg
-        msg.longitude_min = self._long_min
-        msg.bearing_deg = self._bearing
+        msg.latitude_deg = self._odom._lat_deg
+        msg.latitude_min = self._odom._lat_min
+        msg.longitude_deg = self._odom._long_deg
+        msg.longitude_min = self._odom._long_min
+        msg.bearing_deg = self._odom._bearing
         msg.speed = -1
         return msg
 
