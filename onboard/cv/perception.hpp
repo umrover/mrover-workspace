@@ -14,7 +14,7 @@
   #include <cstdlib>
 #endif
 
-#define ZED_SDK_PRESENT true
+#define ZED_SDK_PRESENT false
 // #define OFFLINE_TEST true
 #define PERCEPTION_DEBUG true
 
@@ -48,7 +48,7 @@ const float distThreshold = 2.5;    //meters, used to calculate rover pixels
 const float obstacleThreshold = 5 * 0.0254; //inches to meters
 
 struct obstacle_return {
-  float center_distance; // distance to anything in front of the center of the camera                                       
+  float center_distance; // distance to anything in front of the center of the camera
   float bearing; // [-50 degree, 50 degree]
 };
 
