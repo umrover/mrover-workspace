@@ -46,7 +46,7 @@ void disk_record_init() {
   if (WRITE_CURR_FRAME_TO_DISK) {
     // write images colleted to the folder
     // absolute path
-    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER + "rgb/"; 
+    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER + "rgb/";
     depth_foldername = DEFAULT_ONLINE_DATA_FOLDER + "depth/" ;
     string mkdir_rgb =  std::string("mkdir -p ") + rgb_foldername;
     string mkdir_depth =  std::string("mkdir -p ") + depth_foldername;
@@ -88,10 +88,10 @@ int main() {
 
   int tennisBuffer = 0;
 
-  
+
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
-  
+
     auto start = chrono::high_resolution_clock::now();
     Mat src = cam.image();
     
@@ -126,6 +126,7 @@ int main() {
     #endif
 
     /* Tennis ball detection*/
+    
     vector<Point2f> centers = findTennisBall(src, depth_img);
     if(centers.size() != 0){
       float dist = depth_img.at<float>(centers[0].y, centers[0].x);
