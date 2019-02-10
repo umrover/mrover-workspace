@@ -29,3 +29,4 @@
     - rover-base_station_logging_server.service
     - rover-base_station_gstreamer.service
     - rover-lcm_bridge_server.service
+    - rover-base_station_microscope.service
