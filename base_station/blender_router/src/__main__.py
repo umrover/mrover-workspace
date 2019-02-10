@@ -30,10 +30,11 @@ def listen_blender():
             msg.joint_d = data['D']
             msg.joint_e = data['E']
 
+            # print(msg)
             lcm_.publish('/ik_ra_control', msg.encode())
 
         except socket.error as exc:
-            # print(exc)
+            print(exc)
             pass
 
 
@@ -41,9 +42,32 @@ def ik_callback(channel, msg):
     # print("recv xbox msg")
     deltas = IkArmControl.decode(msg)
     data = {
+        "type": "IK",
         "deltaX": deltas.deltaX,
         "deltaY": deltas.deltaY,
-        "deltaZ": deltas.deltaZ
+        "deltaZ": deltas.deltaZ,
+        "deltaTilt": deltas.deltaTilt,
+        "deltaJointE": deltas.deltaJointE
+    }
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(("10.0.2.2", 8018))
+        sock.send(json.dumps(data).encode())
+    except socket.error as exc:
+        print(exc)
+        pass
+
+
+def fk_callback(channel, msg):
+    # print("recv xbox msg")
+    angles = ArmPosition.decode(msg)
+    data = {
+        "type": "FK",
+        "joint_a": angles.joint_a,
+        "joint_b": angles.joint_b,
+        "joint_c": angles.joint_c,
+        "joint_d": angles.joint_d,
+        "joint_e": angles.joint_e,
     }
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -56,6 +80,7 @@ def ik_callback(channel, msg):
 
 def main():
     lcm_.subscribe("/ik_arm_control", ik_callback)
+    lcm_.subscribe("/fk_arm_control", fk_callback)
     thread = threading.Thread(target=listen_blender)
     thread.start()
     run_coroutines(lcm_.loop())

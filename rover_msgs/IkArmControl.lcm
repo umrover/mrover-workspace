@@ -4,4 +4,6 @@ struct IkArmControl {
 	double deltaX;
 	double deltaY;
 	double deltaZ;
+	double deltaTilt;
+	double deltaJointE;
 }
