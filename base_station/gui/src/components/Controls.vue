@@ -115,7 +115,7 @@ export default {
             if (!this.autonEnabled) {
               this.$parent.publish('/drive_control', joystickData)
             }
-          } else if (gamepad.id.includes('Microsoft')) {
+          } else if (gamepad.id.includes('Microsoft') || gamepad.id.includes('Xbox')) {
             const xboxData = {
               'type': 'Xbox',
               'left_js_x': gamepad.axes[XBOX_CONFIG['left_js_x']], // shoulder rotate
@@ -138,18 +138,24 @@ export default {
               const deltaPos = {
                 'type': 'IkArmControl',
                 'deltaX': (xboxData['left_js_x']**2)*speed*updateRate*(xboxData['left_js_x']<0 ? -1 : 1),
-                'deltaY': (xboxData['left_js_y']**2)*speed*updateRate*(xboxData['left_js_y']>0 ? -1 : 1),
-                'deltaZ': (xboxData['right_js_y']**2)*speed*updateRate*(xboxData['right_js_y']>0 ? -1 : 1),
+                'deltaZ': (xboxData['left_js_y']**2)*speed*updateRate*(xboxData['left_js_y']>0 ? 1 : -1),
+                'deltaJointE': (xboxData['right_js_x']**2)*1*updateRate*(xboxData['right_js_x']>0 ? -1 : 1),
+                'deltaTilt': (xboxData['right_js_y']**2)*1*updateRate*(xboxData['right_js_y']<0 ? -1 : 1)
               }
 
-              if(Math.abs(deltaPos.deltaX) < 0.1){
+              deltaPos.deltaY = (xboxData['d_pad_up'] ? 1 : (xboxData['d_pad_down'] ? -1 : 0)) * speed * updateRate
+
+              if(Math.abs(deltaPos.deltaX) < 0.001){
                 deltaPos.deltaX=0;
               }
-              if(Math.abs(deltaPos.deltaY) < 0.1){
-                deltaPos.deltaY=0;
-              }
-              if(Math.abs(deltaPos.deltaZ) < 0.1){
+              if(Math.abs(deltaPos.deltaZ) < 0.001){
                 deltaPos.deltaZ=0;
+              }
+              if(Math.abs(deltaPos.deltaJointE) < 0.001){
+                deltaPos.deltaJointE=0;
+              }
+              if(Math.abs(deltaPos.deltaTilt) < 0.001){
+                deltaPos.deltaTilt=0;
               }
               this.$parent.publish('/ik_arm_control', deltaPos);
             }
