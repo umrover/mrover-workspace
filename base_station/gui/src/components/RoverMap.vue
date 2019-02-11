@@ -24,7 +24,6 @@
 <script>
 import { LMap, LTileLayer, LMarker, LPolyline, LPopup, LTooltip, LControlScale } from 'vue2-leaflet'
 import { mapGetters } from 'vuex'
-import L from '../leafletRover.js'
 
 const MAX_ODOM_COUNT = 1000
 const DRAW_FREQUENCY = 10
@@ -63,7 +62,7 @@ export default {
     }),
 
     odomLatLng: function () {
-      return L.latLng(this.odom.latitude_deg + this.odom.latitude_min/60, -(this.odom.longitude_deg + this.odom.longitude_min/60))
+      return L.latLng(this.odom.latitude_deg + this.odom.latitude_min/60, this.odom.longitude_deg + this.odom.longitude_min/60)
     },
 
     polylinePath: function () {
@@ -116,20 +115,6 @@ export default {
       }
 
       this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
-
-      this.zoom()
-    }
-  },
-
-  methods: {
-    zoom: function () {
-      let featureGroup = L.featureGroup([this.roverMarker, this.route])
-      // if (this.route.length > 0) {
-      //   featureGroup = L.featureGroup([this.roverMarker, this.route, this.route[0]])
-      // } else {
-      //   featureGroup = L.featureGroup([this.roverMarker, this.route])
-      // }
-      this.map.fitBounds(featureGroup.getBounds())
     }
   },
 

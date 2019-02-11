@@ -1,5 +1,3 @@
-import L from '../../leafletRover.js'
-
 // initial state
 const state = {
   route: [],
