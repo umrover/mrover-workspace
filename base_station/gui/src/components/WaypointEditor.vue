@@ -142,7 +142,7 @@ export default {
     addWaypoint: function (lat, lon) {
       this.storedWaypoints.push({
         name: this.name,
-        latLng: L.latLng(lat, -lon)
+        latLng: L.latLng(lat, lon)
       })
     },
 
@@ -167,7 +167,7 @@ export default {
         }
       }
 
-      this.addWaypoint(parseCoordinate(this.lat), parseCoordinate(this.lon))
+      this.addWaypoint(parseCoordinate(this.lat), -parseCoordinate(this.lon))
     },
 
     toggleAutonMode(val){

@@ -53,7 +53,6 @@ import OdometryReading from './OdometryReading.vue'
 import Sensors from './Sensors.vue'
 import Controls from './Controls.vue'
 import WaypointEditor from './WaypointEditor.vue'
-import L from '../leafletRover.js'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 
 export default {
@@ -70,8 +69,8 @@ export default {
       odom: {
         latitude_deg: 38,
         latitude_min: 24.38226,
-        longitude_deg: 110,
-        longitude_min: 47.51724,
+        longitude_deg: -110,
+        longitude_min: -47.51724,
         bearing_deg: 0,
         speed: 0
       },
