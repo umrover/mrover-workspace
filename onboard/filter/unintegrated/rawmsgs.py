@@ -10,9 +10,9 @@ class raw_imu:
         self.gx = UNDEFINED
         self.gy = UNDEFINED
         self.gz = UNDEFINED
-        self.accx = UNDEFINED 
-        self.accy = UNDEFINED 
-        self.accz = UNDEFINED  
+        self.accx = UNDEFINED
+        self.accy = UNDEFINED
+        self.accz = UNDEFINED
         self.time_of_IMU = time()
 
     # def updateIMU(mbearing,GX,GY,GZ,AX,AY,AZ):
@@ -35,7 +35,7 @@ class raw_gps:
         self.lat_min = UNDEFINED
         self.long_deg = UNDEFINED
         self.long_min = UNDEFINED
-        self.track_theta = UNDEFINED
+        self.track_angle = UNDEFINED
         self.ground_speed = UNDEFINED
         self.time_of_GPS = time()
 
@@ -45,7 +45,7 @@ class raw_gps:
         self.lat_min = message.latitude_min
         self.long_deg = message.longitude_deg
         self.long_min = message.longitude_min
-        self.track_theta = message.bearing_deg
+        self.track_angle = message.bearing_deg
         self.ground_speed = message.groundspeed
         self.time_of_GPS = time()
 

@@ -1,42 +1,4 @@
 import time
-from rover_msgs import Odometry  # filtered odometry
-
-
-class clean_odom:
-    def __init__(self):
-        self._latitude_deg = None
-        self._latitude_min = None
-        self._longitude_deg = None
-        self._longitude_min = None
-        self._bearing_deg = None
-        self._speed = None
-
-    def create_lcm(self):
-        # If some part of Odom is uninitialized, return None
-        if not (self._latitude_deg and
-                self._latitude_min and
-                self._longitude_deg and
-                self._longitude_min and
-                self._bearing_deg):
-            return None
-
-        msg = Odometry()
-        msg.latitude_deg = self._latitude_deg
-        msg.latitude_min = self._latitude_min
-        msg.longitude_deg = self._longitude_deg
-        msg.longitude_min = self._longitude_min
-        msg.bearing_deg = self._bearing_deg
-        msg.speed = -1
-        return msg
-
-    def copy_gps(self, gps):
-        self._latitude_deg = gps._lat_deg
-        self._latitude_min = gps._lat_min
-        self._longitude_deg = gps._long_deg
-        self._longitude_min = gps._long_min
-        self._bearing_deg = gps._track_theta
-        self._speed = gps._ground_speed
-        return None
 
 
 class raw_imu:
@@ -73,7 +35,7 @@ class raw_gps:
         self._lat_min = None
         self._long_deg = None
         self._long_min = None
-        self._track_theta = None
+        self._track_angle = None
         self._ground_speed = None
         self._time_of_GPS = time.clock()
 
@@ -82,7 +44,7 @@ class raw_gps:
         self._lat_min = message.latitude_min
         self._long_deg = message.longitude_deg
         self._long_min = message.longitude_min
-        self._track_theta = message.bearing_deg
+        self._track_angle = message.bearing_deg
         self._ground_speed = message.speed
         self._time_of_GPS = time.clock()
 
