@@ -1,0 +1,9 @@
+package rover_msgs;
+
+struct PIDConstants {
+    int8_t deviceID;
+    double kP;
+    double kI;
+    double kD;
+    double kF;
+}
