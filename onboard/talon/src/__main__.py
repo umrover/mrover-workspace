@@ -7,7 +7,7 @@ from rover_msgs import SetParam
 from rover_msgs import Encoder
 from rover_msgs import SetDemand
 from rover_msgs import SAMotors
-from rover_msgs import OpenLoopRAMotors
+# from rover_msgs import OpenLoopRAMotors
 from .lowlevel import LowLevel
 from enum import Enum
 from rover_common import talon_srx
@@ -132,19 +132,20 @@ def arm_demand_callback(channel, msg):
 
 # Callback for OpenLoopRA LCM Message (drive arm with percent drive)
 def open_loop_arm_callback(channel, msg):
-    m = OpenLoopRAMotors.decode(msg)
-    exec_later(
-        rover.percent_vbus_drive(Talons.arm_joint_a.value, m.joint_a))
-    exec_later(
-        rover.percent_vbus_drive(Talons.arm_joint_b.value, m.joint_b))
-    exec_later(
-        rover.percent_vbus_drive(Talons.arm_joint_c.value, m.joint_c))
-    exec_later(
-        rover.percent_vbus_drive(Talons.arm_joint_d.value, m.joint_d))
-    exec_later(
-        rover.percent_vbus_drive(Talons.arm_joint_e.value, m.joint_e))
-    exec_later(
-        rover.percent_vbus_drive(Talons.arm_joint_f.value, m.joint_f))
+    pass
+#     m = OpenLoopRAMotors.decode(msg)
+#     exec_later(
+#         rover.percent_vbus_drive(Talons.arm_joint_a.value, m.joint_a))
+#     exec_later(
+#         rover.percent_vbus_drive(Talons.arm_joint_b.value, m.joint_b))
+#     exec_later(
+#         rover.percent_vbus_drive(Talons.arm_joint_c.value, m.joint_c))
+#     exec_later(
+#         rover.percent_vbus_drive(Talons.arm_joint_d.value, m.joint_d))
+#     exec_later(
+#         rover.percent_vbus_drive(Talons.arm_joint_e.value, m.joint_e))
+#     exec_later(
+#         rover.percent_vbus_drive(Talons.arm_joint_f.value, m.joint_f))
 
 
 # Callback for SetParam LCM Message
