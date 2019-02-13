@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct OpenLoopRAMotor {
+	int8_t joint_id;
+	double speed;
+}

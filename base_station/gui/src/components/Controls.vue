@@ -92,7 +92,9 @@ export default {
       'right_bumper': 5,
       'left_bumper': 4,
       'd_pad_up': 12,
-      'd_pad_down': 13
+      'd_pad_down': 13,
+      'd_pad_right': 14,
+      'd_pad_left': 15,
     }
 
     const updateRate = 0.05;
@@ -127,20 +129,22 @@ export default {
               'right_bumper': gamepad.buttons[XBOX_CONFIG['right_bumper']]['pressed'], // grip close
               'left_bumper': gamepad.buttons[XBOX_CONFIG['left_bumper']]['pressed'], // grip open
               'd_pad_up': gamepad.buttons[XBOX_CONFIG['d_pad_up']]['pressed'],
-              'd_pad_down': gamepad.buttons[XBOX_CONFIG['d_pad_down']]['pressed']
+              'd_pad_down': gamepad.buttons[XBOX_CONFIG['d_pad_down']]['pressed'],
+              'd_pad_right': gamepad.buttons[XBOX_CONFIG['d_pad_right']]['pressed'],
+              'd_pad_left': gamepad.buttons[XBOX_CONFIG['d_pad_left']]['pressed']
             }
             if (this.controlMode === 'arm') {
               this.$parent.publish('/arm_control', xboxData)
             } else if (this.controlMode === 'soil_ac') {
               this.$parent.publish('/sa_control', xboxData)
             } else if(this.controlMode === 'arm_ik') {
-              let speed = 1;
+              let speed = 0.25;
               const deltaPos = {
                 'type': 'IkArmControl',
                 'deltaX': (xboxData['left_js_x']**2)*speed*updateRate*(xboxData['left_js_x']<0 ? -1 : 1),
                 'deltaZ': (xboxData['left_js_y']**2)*speed*updateRate*(xboxData['left_js_y']>0 ? 1 : -1),
-                'deltaJointE': (xboxData['right_js_x']**2)*1*updateRate*(xboxData['right_js_x']>0 ? -1 : 1),
-                'deltaTilt': (xboxData['right_js_y']**2)*1*updateRate*(xboxData['right_js_y']<0 ? -1 : 1)
+                'deltaJointE': (xboxData['right_js_x']**2)*0.1*updateRate*(xboxData['right_js_x']>0 ? -1 : 1),
+                'deltaTilt': (xboxData['right_js_y']**2)*0.1*updateRate*(xboxData['right_js_y']<0 ? -1 : 1)
               }
 
               deltaPos.deltaY = (xboxData['d_pad_up'] ? 1 : (xboxData['d_pad_down'] ? -1 : 0)) * speed * updateRate

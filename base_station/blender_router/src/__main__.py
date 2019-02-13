@@ -8,6 +8,8 @@ from rover_msgs import ArmPosition, IkArmControl
 
 lcm_ = aiolcm.AsyncLCM()
 
+VAGRANT = True
+
 
 def listen_blender():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -51,7 +53,10 @@ def ik_callback(channel, msg):
     }
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(("10.0.2.2", 8018))
+        if VAGRANT:
+            sock.connect(("10.0.2.2", 8018))
+        else:
+            sock.connect(("127.0.0.1", 8018))
         sock.send(json.dumps(data).encode())
     except socket.error as exc:
         print(exc)
@@ -71,7 +76,10 @@ def fk_callback(channel, msg):
     }
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(("10.0.2.2", 8018))
+        if VAGRANT:
+            sock.connect(("10.0.2.2", 8018))
+        else:
+            sock.connect(("127.0.0.1", 8018))
         sock.send(json.dumps(data).encode())
     except socket.error as exc:
         # print(exc)
