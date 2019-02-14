@@ -3,7 +3,7 @@ import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveMotors, KillSwitch,
-                        Xbox, Temperature, SAMotors, OpenLoopRAMotors)
+                        Xbox, Temperature, SAMotors, OpenLoopRAMotor)
 
 
 class Toggle:
@@ -50,15 +50,11 @@ def connection_state_changed(c, _):
         lcm_.publish('/motor', drive_motor.encode())
 
         # Kill arm motors
-        arm_motor = OpenLoopRAMotors()
-        arm_motor.joint_a = 0.0
-        arm_motor.joint_b = 0.0
-        arm_motor.joint_c = 0.0
-        arm_motor.joint_d = 0.0
-        arm_motor.joint_e = 0.0
-        arm_motor.joint_f = 0.0
-
-        lcm_.publish('/arm_motors', arm_motor.encode())
+        for i in range(7):
+            arm_motor = OpenLoopRAMotor()
+            arm_motor.joint_id = i
+            arm_motor.speed = 0.0
+            lcm_.publish('/arm_motors', arm_motor.encode())
 
         # Kill SA motors
         sa_motor = SAMotors()
@@ -133,15 +129,19 @@ def drive_control_callback(channel, msg):
 
 def arm_control_callback(channel, msg):
     xbox = Xbox.decode(msg)
-    new_arm = OpenLoopRAMotors()
-    new_arm.joint_a = -deadzone(quadratic(xbox.left_js_x), 0.09)*.5
-    new_arm.joint_b = -deadzone(quadratic(xbox.left_js_y), 0.09)*.5
-    new_arm.joint_c = quadratic(xbox.left_trigger - xbox.right_trigger)*.60
-    new_arm.joint_d = deadzone(quadratic(xbox.right_js_y), 0.09)*.75
-    new_arm.joint_e = deadzone(quadratic(xbox.right_js_x), 0.09)*.75
-    new_arm.joint_f = (xbox.right_bumper - xbox.left_bumper)
+    motorSpeeds = [-deadzone(quadratic(xbox.left_js_x), 0.09)*.5,
+                   -deadzone(quadratic(xbox.left_js_y), 0.09)*.5,
+                   quadratic(xbox.left_trigger - xbox.right_trigger)*.60,
+                   deadzone(quadratic(xbox.right_js_y), 0.09)*.75,
+                   deadzone(quadratic(xbox.right_js_x), 0.09)*.75,
+                   (xbox.d_pad_right - xbox.d_pad_left)*0.60,
+                   (xbox.right_bumper - xbox.left_bumper)]
 
-    lcm_.publish('/arm_motors', new_arm.encode())
+    for i in range(7):
+        openLoopMsg = OpenLoopRAMotor()
+        openLoopMsg.joint_id = i
+        openLoopMsg.speed = motorSpeeds[i]
+        lcm_.publish('/arm_motors', openLoopMsg.encode())
 
 
 def sa_control_callback(channel, msg):
