@@ -11,4 +11,6 @@ struct Xbox {
     double left_bumper;
     double d_pad_up;
     double d_pad_down;
+    double d_pad_left;
+    double d_pad_right;
 }
