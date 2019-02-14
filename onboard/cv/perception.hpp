@@ -14,8 +14,8 @@
   #include <cstdlib>
 #endif
 
-#define ZED_SDK_PRESENT true
-#define OFFLINE_TEST false
+#define ZED_SDK_PRESENT false
+#define OFFLINE_TEST true
 #define PERCEPTION_DEBUG true
 
 #define THRESHOLD_NO_WAY  100000 //how will we calibrate if the rover width changes

@@ -65,7 +65,7 @@ vector<Point2f> findTennisBall(Mat &src) { //}, Mat & depth_src) {
         circle(src, center[i], (int)radius[i], color, 2, 8, 0);
     }
     
-    imshow("Image", mask);
+    imshow("Image", src);
     waitKey(0);
     
     return center;
@@ -74,75 +74,83 @@ vector<Point2f> findTennisBall(Mat &src) { //}, Mat & depth_src) {
 vector<TestCase> parse_file(vector<string> & fileList) {
     
     vector<TestCase> testCases;
-    for (unsigned i = 0; i < fileList.size(); ++i) {
+    for (unsigned i = 2; i < fileList.size(); ++i) {
         size_t position = 0;
         
-        if (fileList[i][0] != '.') {
+       // if (fileList[i][0] != '.') {
           //  cout << "File name: " << fileList[i] << "\n";
             TestCase t;
-            string name("test/" + fileList[i]);
-            t.img = imread(name, CV_LOAD_IMAGE_COLOR);
-            
+		string s = "stuff/" + fileList[i];
+	//	cout << s << endl;
+            string name(s);
+            t.img = imread(name, CV_LOAD_IMAGE_COLOR);       
             int count = 0;
             
             while ((position = fileList[i].find("_")) != string::npos) {
                 switch (count) {
                     case 0:
                      //   t.hasTennisBall = boost::lexical_cast<bool>(fileList[i].substr(0, position));
-                        t.num = (fileList[i].substr(0, position));
-                        break;
+                        t.num = (unsigned)stoll(fileList[i].substr(0, position));
+          //             cout << t.num << endl; //DELETE LATER
+			 break;
                     case 1:
                       //  cout << "x:" << fileList[i].substr(0, position) << "\n";
                         t.x = (unsigned)stoll(fileList[i].substr(0, position));
-                        break;
+            //           cout << t.x << endl; //DELETE LATER
+			 break;
                     case 2:
                      //   cout << "y:" << fileList[i].substr(0, position) << "\n";
                         t.y = (unsigned)stoll(fileList[i].substr(0, position));
-                        break;
-                   // case 3:
-                     //   t.depth = stod(fileList[i].substr(0, position));
-                       // break;
-                    default:
-                        break;
+              //         cout << t.y << endl; //DELETE LATER
+			 break;
+                   case 3:
+                   t.depth = stod(fileList[i].substr(0, position));
+                //   cout << t.depth << endl;
+			 break;
+                   default:
+                   break;
                 }
                 fileList[i].erase(0, position + 1);
                 ++count;
             }
-		if (fileList[i] == "none")
+		if (fileList[i].find("none.jpg") != string::npos || fileList[i].find("none.jpeg") != string::npos) 
 		{
 			t.hasTennisBall = false;
 			t.x = 0;
 			t.y = 0;
 			t.depth = 0;
-			
-		} else {
-			t.hasTennisBall = true;
-			position = fileList[i].find(".");
-			t.depth = stod(fileList[i].substr(0, position);
-		}
+		//	int position = fileList[i].find(".");
+	//	cout << fileList[i] << endl;	
+		}// else {
+	//	t.hasTennisBall = true;
+	//	position = fileList[i].find(".");
+	//	cout << fileList[i] << endl;		
+	  //      t.depth = stod(fileList[i].substr(0, position)); // .substr(0, position));
+	//	}
             testCases.push_back(t);
         }
-    }
+   // }
     
     return testCases;
 }
 
 int main(int argc, char * argv[]) {
-    
+    cout << endl;
     DIR           *d;
     struct dirent *dir;
     vector<string> fileList;
-    if (argc != 2) {
-        cerr << "\nTesting Error: Must Provide a Directory\n" << endl;
-        exit(0);
-    }
-    string directory_name = argv[1];
-    
+   // if (argc != 2) {
+     //   cerr << "\nTesting Error: Must Provide a Directory\n" << endl;
+       // exit(0);
+   // }
+    //string directory_name = argv[3];
+    string directory_name = "stuff";
     int i = 0;
     
-    d = opendir(directory_name.c_str());
-    
-    if (d) {
+    //d = opendir(directory_name.c_str());
+    d= opendir(directory_name.c_str());
+   // cout << directory_name << endl;    
+if (d) {
 
         while ((dir = readdir(d)) != NULL) {
             ++i;
@@ -153,23 +161,38 @@ int main(int argc, char * argv[]) {
         vector<string> successRates;
 
         for (unsigned i = 0; i < testCases.size(); i++) {
-            vector<Point2f> ball = findTennisBall(testCases[i].img);
-	    string result = "test number: " + testCases[i].num + "-- ";
+//	o = imread("none.jpg", CV_LOAD_IMAGE_COLOR);
+  //      vector<Point2f> willitwork = findTennisBall(poo);
+//	cout << "ass" << endl;
+	    vector<Point2f> ball = findTennisBall(testCases[i].img);
+	//	cout << ball[0] << endl;
+	//	cout << ball[1] << endl;
+	    ostringstream result;
+	    result << "test number: " << testCases[i].num <<  "----- ";
 	    if (ball.size() == 0)
 	    {
-		result += "predicted: no tennis ball, real: "
+		result << "predicted: no tennis ball, real: ";
 		if (testCases[i].hasTennisBall == true)
 		{
-			result += "ball found";
+			result << "ball found";
 		} else
 		{
-			result += "no ball found";
+			result << "no ball found";
 		}
 	    } else 
-		{	
-	    string result = "predicted: x =  " + ball[0] + ", y =  " + ball[1] + ", real: x = " + testCases[i].x + ", y = " + testCases[i].y;
-	        }
-  		 successRates.push_back(result);
+		{
+		int count = 1;
+		while (ball.size() != 0)
+		{
+			result << "center " << count << ": x = " << ball[0].x << ", y = " << ball[0].y << " ... ";
+ball.erase(ball.begin());
+++count;  
+		}	
+	    // result << "predicted: x =  " << ball[0] << ", y =  " << ball[1] << ", real: x = " << testCases[i].x << ", y = " << testCases[i].y;
+	result << count << " CENTERS FOUND//////  " << "real: x = " << testCases[i].x << ", y = " << testCases[i].y;        
+	}
+		string s(result.str());
+  		 successRates.push_back(s);
            // imshow("Test " + to_string(i + 1), testCases[i].img);
            // waitKey(0);
         }
@@ -177,7 +200,7 @@ int main(int argc, char * argv[]) {
         closedir(d);
         
         for (unsigned i = 0; i < successRates.size(); ++i) {
-            cout << successRates[i] << endl;
+            cout << successRates[i] << endl << endl;
         }
         
         // if more than one tennis ball detected, return false

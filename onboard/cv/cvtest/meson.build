@@ -5,23 +5,18 @@ lcm = dependency('lcm')
 
 all_deps = [opencv, lcm]
 
-zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
-zed = declare_dependency(
-	include_directories : zed_include_dirs,
-	link_args : [
-		# ZED SDK
-		'-L/usr/local/zed/lib',
-		'-lsl_zed', '-lsl_depthcore', '-lsl_calibration',
-		'-lsl_tracking', '-lsl_disparityFusion', '-lsl_svorw',
-		'-lsl_scanning', '-lsl_core',
+with_zed = false 			#get_option('with_zed')
+offline_test = true		#get_option('offline_test')
+perception_debug = true		#get_option('perception_debug')
 
-		# CUDA 
-		'-L/usr/local/cuda/lib64',
-		'-lnppial', '-lnppisu', '-lnppicc', '-lnppicom',
-		'-lnppidei', '-lnppif', '-lnppig', '-lnppim',
-		'-lnppist', '-lnppitc'
-	])
-all_deps += [zed]
+conf_data = configuration_data()
+conf_data.set10('ZED_SDK_PRESENT', with_zed)
+conf_data.set10('OFFLINE_TEST', offline_test)
+#conf_data.set10('PERCEPTION_DEBUG', perception_debug)
+configure_file(
+	input: 'config.h.in',
+	output: 'config.h',
+	configuration: conf_data)
 
 executable('onboard_cv_cvtest',
 		   'automated_test.cpp',
