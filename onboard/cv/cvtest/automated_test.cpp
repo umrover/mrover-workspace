@@ -84,12 +84,22 @@ vector<TestCase> parse_file(vector<string> & fileList) {
 	//	cout << s << endl;
             string name(s);
             t.img = imread(name, CV_LOAD_IMAGE_COLOR);       
+    for (unsigned i = 0; i < fileList.size(); ++i) {
+        size_t position = 0;
+        
+        if (fileList[i][0] != '.') {
+          //  cout << "File name: " << fileList[i] << "\n";
+            TestCase t;
+            string name("test/" + fileList[i]);
+            t.img = imread(name, CV_LOAD_IMAGE_COLOR);
+            
             int count = 0;
             
             while ((position = fileList[i].find("_")) != string::npos) {
                 switch (count) {
                     case 0:
                      //   t.hasTennisBall = boost::lexical_cast<bool>(fileList[i].substr(0, position));
+
                         t.num = (unsigned)stoll(fileList[i].substr(0, position));
           //             cout << t.num << endl; //DELETE LATER
 			 break;
@@ -109,6 +119,7 @@ vector<TestCase> parse_file(vector<string> & fileList) {
 			 break;
                    default:
                    break;
+                
                 }
                 fileList[i].erase(0, position + 1);
                 ++count;
@@ -119,22 +130,17 @@ vector<TestCase> parse_file(vector<string> & fileList) {
 			t.x = 0;
 			t.y = 0;
 			t.depth = 0;
-		//	int position = fileList[i].find(".");
-	//	cout << fileList[i] << endl;	
-		}// else {
-	//	t.hasTennisBall = true;
-	//	position = fileList[i].find(".");
-	//	cout << fileList[i] << endl;		
-	  //      t.depth = stod(fileList[i].substr(0, position)); // .substr(0, position));
-	//	}
+}
             testCases.push_back(t);
         }
-   // }
+    }
+>>>>>>> 43cba54670228d90faed93168f048e4dd243ef0b
     
     return testCases;
 }
 
 int main(int argc, char * argv[]) {
+
     cout << endl;
     DIR           *d;
     struct dirent *dir;
@@ -151,6 +157,8 @@ int main(int argc, char * argv[]) {
     d= opendir(directory_name.c_str());
    // cout << directory_name << endl;    
 if (d) {
+    
+    int i = 0;
 
         while ((dir = readdir(d)) != NULL) {
             ++i;
@@ -161,6 +169,7 @@ if (d) {
         vector<string> successRates;
 
         for (unsigned i = 0; i < testCases.size(); i++) {
+
 //	o = imread("none.jpg", CV_LOAD_IMAGE_COLOR);
   //      vector<Point2f> willitwork = findTennisBall(poo);
 //	cout << "ass" << endl;
@@ -193,9 +202,8 @@ ball.erase(ball.begin());
 	}
 		string s(result.str());
   		 successRates.push_back(s);
-           // imshow("Test " + to_string(i + 1), testCases[i].img);
-           // waitKey(0);
-        }
+	}
+}
      
         closedir(d);
         
