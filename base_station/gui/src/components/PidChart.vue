@@ -44,9 +44,9 @@
               type: 'linear',
               id: 'y-axis',
               ticks:{
-                min: -10240,
-                max: 10240,
-                stepSize: 640
+                min: -5000,
+                max: 5000,
+                stepSize: 312.5
               }
             }]
           }
