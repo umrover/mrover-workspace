@@ -1,0 +1,8 @@
+libdir=@LIB_INSTALL_DIR@
+includedir=@INCLUDE_INSTALL_DIR@
+
+Name: phoenix
+Description: CTRE Phoenix Library
+Version: 1.0.0
+Libs: -L${libdir} -lCTRE_Phoenix -lCTRE_PhoenixCanutils -lCTRE_PhoenixCCI -lCTRE_PhoenixPlatform_socketcan
+Cflags: -I${includedir}

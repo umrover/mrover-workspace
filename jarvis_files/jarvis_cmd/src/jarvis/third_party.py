@@ -89,3 +89,28 @@ def ensure_rapidjson(ctx):
         print("Installing rapidjson...")
         ctx.run("cmake --build . --target install")
         print("Done")
+
+def check_phoenix(ctx):
+    """
+    Checks for the existence of Phoenix in the product venv.
+    """
+    return os.path.exists(ctx.get_product_file('include', 'ctre'))
+
+def ensure_phoenix(ctx):
+    """
+    Installs Phoenix into the product venv.
+    """
+    if check_phoenix(ctx):
+        print("Phoenix already installed, skipping.")
+        return
+
+    phoenix_dir = os.path.join(ctx.third_party_root, 'phoenix')
+    ctx.ensure_product_env()
+    with ctx.intermediate('phoenix'):
+        ctx.run("cp -r {}/* .".format(phoenix_dir))
+        print("Configuring phoenix...")
+        ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} .".format(
+            ctx.product_env))
+        print("Installing phoenix...")
+        ctx.run("cmake --build . --target install")
+        print("Done")
