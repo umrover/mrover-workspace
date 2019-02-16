@@ -95,6 +95,9 @@ export default {
       'd_pad_down': 13,
       'd_pad_right': 14,
       'd_pad_left': 15,
+      'a': 0,
+      'b': 1,
+      'y': 3
     }
 
     const updateRate = 0.05;
@@ -133,11 +136,23 @@ export default {
               'd_pad_right': gamepad.buttons[XBOX_CONFIG['d_pad_right']]['pressed'],
               'd_pad_left': gamepad.buttons[XBOX_CONFIG['d_pad_left']]['pressed']
             }
+
+            const arm_toggles = {
+              'type': 'ArmToggles',
+              'solenoid': gamepad.buttons[XBOX_CONFIG['a']]['pressed'],
+              'electromagnet': gamepad.buttons[XBOX_CONFIG['b']]['pressed'],
+              'laser': gamepad.buttons[XBOX_CONFIG['y']]['pressed'],
+            }
+
             if (this.controlMode === 'arm') {
               this.$parent.publish('/arm_control', xboxData)
+              this.$parent.publish('/arm_toggles_button_data', arm_toggles)
+
             } else if (this.controlMode === 'soil_ac') {
               this.$parent.publish('/sa_control', xboxData)
+
             } else if(this.controlMode === 'arm_ik') {
+              this.$parent.publish('/arm_toggles_button_data', arm_toggles)
               let speed = 0.25;
               const deltaPos = {
                 'type': 'IkArmControl',
