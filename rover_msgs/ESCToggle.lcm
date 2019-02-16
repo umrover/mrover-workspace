@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct ESCToggle {
+    int8_t esc_id;
+    boolean enable;
+}
