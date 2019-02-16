@@ -1,6 +1,6 @@
 import serial
 from rover_common import aiolcm
-from rover_msgs import Odometry
+from rover_msgs import GPS
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
         if fiveBytes != b'GPRMC':
             continue
 
-        odometry = Odometry()
+        gps = GPS()
         serialPort.read_until(b',')[:-1]
         serialPort.read_until(b',')[:-1]
 
@@ -35,15 +35,15 @@ def main():
         speed = float(serialPort.read_until(b',')[:-1])
         bearing = float(serialPort.read_until(b',')[:-1])
 
-        odometry.latitude_deg = int(latitude/100)
-        odometry.longitude_deg = int(longitude/100)
-        odometry.latitude_min = latitude - (
-            odometry.latitude_deg * 100)
-        odometry.longitude_min = longitude - (
-            odometry.longitude_deg * 100)
-        odometry.bearing_deg = bearing
-        odometry.speed = speed
-        lcm.publish('/odometry', odometry.encode())
+        gps.latitude_deg = int(latitude/100)
+        gps.longitude_deg = int(longitude/100)
+        gps.latitude_min = latitude - (
+            gps.latitude_deg * 100)
+        gps.longitude_min = longitude - (
+            gps.longitude_deg * 100)
+        gps.bearing_deg = bearing
+        gps.speed = speed
+        lcm.publish('/gps', gps.encode())
 
 
 if __name__ == "__main__":
