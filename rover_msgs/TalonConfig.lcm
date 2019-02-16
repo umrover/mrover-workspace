@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct TalonConfig {
+	boolean enable_arm;
+    boolean enable_sa;
+}
