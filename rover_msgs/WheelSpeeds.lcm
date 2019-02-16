@@ -1,0 +1,8 @@
+package rover_msgs;
+
+struct WheelSpeeds {
+    double left_front;
+    double left_back;
+    double right_front;
+    double right_back;
+}
