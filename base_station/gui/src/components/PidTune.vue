@@ -175,7 +175,6 @@
     },
 
     methods: {
-
       configPID(){
         const msg = {
           'type':'PIDConstants',
