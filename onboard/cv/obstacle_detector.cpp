@@ -11,11 +11,11 @@ bool check_divided_window(Mat & rgb_img, int num_splits, Mat & mean_row_vec, int
   for(int i = 0; i < num_splits; i++){  //check each sub window
     Mat sub_col = mean_row_vec.colRange(start_col, start_col + split_size);
     float window_sum = sum(sub_col)[0];
-    #ifdef PERCEPTION_DEBUG
+    #if PERCEPTION_DEBUG
       cout << "Sub[" <<i << "] sum = " << window_sum <<endl;
     #endif
     if(window_sum < THRESHOLD_NO_SUBWINDOW){
-      #ifdef PERCEPTION_DEBUG
+      #if PERCEPTION_DEBUG
         rectangle(rgb_img, Point( start_col, SKY_START_ROW), Point( start_col+split_size, RESOLUTION_HEIGHT), Scalar(50, 50, 255), 3);
       #endif
         return false;
@@ -42,7 +42,7 @@ obstacle_return scan_middle(Mat & rgb_img, float center_point_depth,  int rover_
 
   if(middle_sum > THRESHOLD_NO_OBSTACLE_CENTER){
     if(check_divided_window(rgb_img, 4, mean_row_vec, center_start_col, center_start_col+rover_width-1)){
-      #ifdef PERCEPTION_DEBUG
+      #if PERCEPTION_DEBUG
       rectangle(rgb_img, Point( center_start_col, 0), Point( center_start_col+rover_width-1, RESOLUTION_HEIGHT), Scalar(0, 255, 0), 3);
       cout<<"No turn: center window sub_col sum is "<<middle_sum<<endl;
       #endif
@@ -61,7 +61,7 @@ bool compare_second(pair<int, float> p1, pair<int, float> p2)
 pair<int, float> get_final_col(vector<pair<int, float> > & sorted_sums, float middle_sum ) {
   float max_sum_threshold = sorted_sums[0].second - SIMILARITY_THRESHOLD;
   // go straight if possible
-  #ifdef PERCEPTION_DEBUG
+  #if PERCEPTION_DEBUG
     cout<<"middle col sum is "<<middle_sum<<endl;
   #endif
 
@@ -70,7 +70,7 @@ pair<int, float> get_final_col(vector<pair<int, float> > & sorted_sums, float mi
   }
 
   vector<pair<int, float> >::iterator final = lower_bound( sorted_sums.begin(), sorted_sums.end(), make_pair(0, max_sum_threshold), compare_second );
-  #ifdef PERCEPTION_DEBUG
+  #if PERCEPTION_DEBUG
     for (vector<pair<int, float> >::iterator it=sorted_sums.begin(); it!=final; it++) cout<<"("<<it->first<<", "<<it->second<<")";
     cout<<endl;
   #endif
@@ -102,7 +102,7 @@ obstacle_return refine_rt(obstacle_return rt_val, pair<int, float> candidate, Si
   int final_start_col = candidate.first;
 
   if (max_sum_sw > THRESHOLD_NO_WAY) {
-    #ifdef PERCEPTION_DEBUG
+    #if PERCEPTION_DEBUG
       cout<<"max_sum_sw "<<max_sum_sw<<", col start at "<<final_start_col<<endl;
       rectangle(rgb_img, Point( final_start_col, 0), Point( final_start_col+rover_width, RESOLUTION_HEIGHT), Scalar(255, 0, 0), 3);
     #endif
@@ -118,7 +118,7 @@ obstacle_return refine_rt(obstacle_return rt_val, pair<int, float> candidate, Si
       last_center = final_start_col + rover_width /2;
     }
   } else {
-    #ifdef PERCEPTION_DEBUG
+    #if PERCEPTION_DEBUG
       cout<<"Big obstacle in the front. Need to escape from one side!\n";
     #endif
     last_center = (left_sum>right_sum)? 0:RESOLUTION_WIDTH;
@@ -143,7 +143,7 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
   Mat mean_row_vec = Mat::zeros(1, size.width, CV_32F);
   reduce(depth_img, mean_row_vec, 0, CV_REDUCE_SUM, CV_32F);
 
-  #ifdef PERCEPTION_DEBUG
+  #if PERCEPTION_DEBUG
     cout<<"last center "<<last_center<<endl;
   #endif
 
@@ -167,7 +167,7 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
     float window_sum = sum( sub_col )[0];
     if (i == 1) left_sum = window_sum;
     if (i == num_windows - 1) right_sum = window_sum;
-    #ifdef PERCEPTION_DEBUG
+    #if PERCEPTION_DEBUG
       cout<<"[col "<<curr_col<<"], window sub_col sum is "<<window_sum<<endl;
     #endif
     sums[i] = (make_pair(curr_col,window_sum));
@@ -178,7 +178,7 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
   // 0 for middle
   pair<int, float> final_window = get_final_col(sums, middle_sum); //may add split window check
   if (final_window.first == -1) {
-    #ifdef PERCEPTION_DEBUG
+    #if PERCEPTION_DEBUG
       cout<<"max_sum_sw "<<final_window.second<<" at center\n";
       rectangle(rgb_img, Point( size.width / 2 - rover_width/2, 0), Point( size.width/2 + rover_width/2, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
     #endif
