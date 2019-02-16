@@ -8,6 +8,7 @@
 #include "rover_msgs/PIDConstants.hpp"
 #include "rover_msgs/SetDemand.hpp"
 #include "rover_msgs/Encoder.hpp"
+#include "rover_msgs/WheelSpeeds.hpp"
 #include <string>
 #include <deque>
 #include <iostream>
@@ -21,6 +22,7 @@ using namespace rover_msgs;
 
 const string INTERFACE = "can0";
 const int NUM_TALONS = 11;
+const double WHEEL_ENC_CPR = 1024.0;
 const double ABS_ENC_CPR = 4096.0;
 const double PI = 3.14159;
 
@@ -55,6 +57,11 @@ double encoderUnitsToRadians(int units, int cpr, int offset) {
 int radiansToEncoderUnits(double angle, int cpr, int offset) {
     double x = angle / (2 * PI);
     return (x * cpr) + offset;
+}
+
+double encoderSpeedToRPS(int speed, int cpr) {
+    double rotationsPerMs = static_cast<double>(speed) / 100;
+    return (rotationsPerMs * 1000) / cpr;
 }
 
 class LCMHandlers {
@@ -236,14 +243,19 @@ void publishEncoderData(lcm::LCM &lcm) {
         lcm.publish("/arm_position", &arm_msg);
         lcm.publish("/encoder", &enc_msg);
 
+        WheelSpeeds wheel_msg;
         // Get mobility encoder velocities
         int lfEncVel = talons[Talons::leftFront].GetSelectedSensorVelocity();
         int lbEncVel = talons[Talons::leftBack].GetSelectedSensorVelocity();
         int rfEncVel = talons[Talons::rightFront].GetSelectedSensorVelocity();
         int rbEncVel = talons[Talons::rightBack].GetSelectedSensorVelocity();
-        
-        
-        // TODO: Publish LCM Messages
+        // Convert raw encoder speeds to RPS
+        wheel_msg.left_front = encoderSpeedToRPS(lfEncVel, WHEEL_ENC_CPR);
+        wheel_msg.left_back = encoderSpeedToRPS(lbEncVel, WHEEL_ENC_CPR);
+        wheel_msg.right_front = encoderSpeedToRPS(rfEncVel, WHEEL_ENC_CPR);
+        wheel_msg.right_back = encoderSpeedToRPS(rbEncVel, WHEEL_ENC_CPR);
+        // Publish
+        lcm.publish("/wheel_speeds", &wheel_msg);
     }
 }
 
