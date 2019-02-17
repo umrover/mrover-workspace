@@ -80,7 +80,7 @@ def readU16Rev(reg):
 
 def write8(reg, value):
     return bus.write_byte_data(TCS34725_ADDRESS, TCS34725_COMMAND_BIT
-                                | reg, value & 0xff)
+                               | reg, value & 0xff)
 
 
 def enable():
