@@ -81,7 +81,7 @@ vector<TestCase> parse_file(vector<string> & fileList) {
         
         if (fileList[i][0] != '.') {
             TestCase t;
-	    string s = "cv_test_images/" + fileList[i];
+	    string s = "onboard/cv/cvtest/cv_test_images/" + fileList[i];
             t.img = imread(s, CV_LOAD_IMAGE_COLOR);       
             int count = 0;
 
@@ -131,7 +131,7 @@ int main(int argc, char * argv[]) {
     DIR           *d;
     struct dirent *dir;
     vector<string> fileList;
-    string directory_name = "cv_test_images";
+    string directory_name = "onboard/cv/cvtest/cv_test_images";
     int i = 0;
     d = opendir(directory_name.c_str());  
    
