@@ -80,7 +80,7 @@ def readU16Rev(reg):
 
 def write8(reg, value):
     return bus.write_byte_data(TCS34725_ADDRESS, TCS34725_COMMAND_BIT
-        | reg, value & 0xff)
+            | reg, value & 0xff)
 
 
 def enable():
@@ -89,15 +89,16 @@ def enable():
     write8(TCS34725_ENABLE, (TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN))
 
 # returns red, blue, and green values divided by clear
+
 def getData():
     red = readU16Rev(TCS34725_RDATAL) * 1.00
     blue = readU16Rev(TCS34725_BDATAL) * 1.00
     green = readU16Rev(TCS34725_GDATAL) * 1.00
     clear = readU16Rev(TCS34725_CDATAL) * 1.00
-    
+
     while(clear == 0):
         clear = readU16Rev(TCS34725_CDATAL) * 1.00
-    
+
     red = red/clear
     blue = blue/clear
     green = green/clear
@@ -107,6 +108,7 @@ def getData():
 # Modifies : Light of current light you are connected to.
 #           If i is true, we turn on the light
 #           If i is false, the light turns off
+
 def light(i):
     r = readU8(TCS34725_ENABLE)
     if(i):
