@@ -3,7 +3,8 @@ import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveMotors, KillSwitch,
-                        Xbox, Temperature, SAMotors, OpenLoopRAMotor)
+                        Xbox, Temperature, SAMotors, OpenLoopRAMotor,
+                        ArmToggles)
 
 
 class Toggle:
@@ -166,6 +167,20 @@ def sa_control_callback(channel, msg):
     lcm_.publish('/sa_motors', new_sa_motors.encode())
 
 
+solenoid_on = Toggle(False)
+electromagnet_on = Toggle(False)
+laser_on = Toggle(False)
+
+
+def arm_toggles_button_callback(channel, msg):
+    arm_toggles = ArmToggles.decode(msg)
+    arm_toggles.solenoid = solenoid_on.new_reading(arm_toggles.solenoid)
+    elec_value = electromagnet_on.new_reading(arm_toggles.electromagnet)
+    arm_toggles.electromagnet = elec_value
+    arm_toggles.laser = laser_on.new_reading(arm_toggles.laser)
+    lcm_.publish('/arm_toggles_toggle_data', arm_toggles.encode())
+
+
 def autonomous_callback(channel, msg):
     input_data = Joystick.decode(msg)
     new_motor = DriveMotors()
@@ -219,6 +234,7 @@ def main():
     lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/arm_control', arm_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
+    lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())

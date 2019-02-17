@@ -50,6 +50,8 @@
         viewing: {
           '/arm_control': false,
           '/arm_motors': false,
+          '/arm_toggles_button_data': false,
+          '/arm_toggles_toggle_data': false,
           '/auton': false,
           '/autonomous': false,
           '/camera_servos': false,
@@ -76,8 +78,11 @@
           '/set_demand': false,
           '/temperature': false,
           '/tennis_ball': false
+
         },
         subscriptions: [
+          {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
+          {'topic': '/arm_toggles_toggle_data', 'type': 'ArmToggles'},
           {'topic': '/ik_ra_control', 'type': 'ArmPosition'},
           {'topic': '/auton', 'type': 'AutonState'},
           {'topic': '/camera_servos', 'type': 'CameraServos'},
