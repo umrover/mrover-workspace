@@ -1,20 +1,20 @@
- # RGB sensor
+# RGB sensor
 import time
 import smbus
 bus = smbus.SMBus(2)
 
- # Relevant Addresses for the RGB Sensor
-TCS34725_ADDRESS = 0x29  #Address of RGB Sensor
+# Relevant Addresses for the RGB Sensor
+TCS34725_ADDRESS = 0x29  # Address of RGB Sensor
 TCS34725_ID = 0x44  # 0x44 0x12 = TCS34721/TCS34725, 0x4D = TCS34723/TCS34727
 TCS34725_COMMAND_BIT = 0x80
 
 TCS34725_ENABLE = 0x00
 TCS34725_ENABLE_AIEN = 0x10  # RGBC Interrupt Enable
 TCS34725_ENABLE_WEN = 0x08  # Wait enable-Writing 1 activates the wait timer
- # RGBC Enable - Writing 1 actives the ADC, 0 disables it
+# RGBC Enable - Writing 1 actives the ADC, 0 disables it
 TCS34725_ENABLE_AEN = 0x02
- # Power on - Writing 1 activates the internal oscillator, 0 disables it
-TCS34725_ENABLE_PO = 0x01
+# Power on - Writing 1 activates the internal oscillator, 0 disables it
+TCS34725_ENABLE_PON = 0x01
 TCS34725_ATIME = 0x01  # Integration time
 TCS34725_WTIME = 0x03  # Wait time (if TCS34725_ENABLE_WEN is asserted)
 TCS34725_WTIME_2_4MS = 0xFF  # WLONG0 = 2.4ms   WLONG1 = 0.029s
@@ -42,11 +42,11 @@ TCS34725_PERS_50_CYCLE = 0b1101
 TCS34725_PERS_55_CYCLE = 0b1110
 TCS34725_PERS_60_CYCLE = 0b1111
 TCS34725_CONFIG = 0x0D
-TCS34725_CONFIG_WLONG = 0x02  # Choose between short and long (12x) wait times via TCS34725_WTIME
+TCS34725_CONFIG_WLONG = 0x02
 TCS34725_CONTROL = 0x0F  # Set the gain level for the sensor
 TCS34725_STATUS = 0x13
 TCS34725_STATUS_AINT = 0x10  # RGBC Clean channel interrupt
-TCS34725_STATUS_AVALID = 0x01  # Indicates that the RGBC channels have completed an integration cycle
+TCS34725_STATUS_AVALID = 0x01
 
 TCS34725_CDATAL = 0x14  # Clear channel data
 TCS34725_CDATAH = 0x15
@@ -64,10 +64,10 @@ TCS34725_INTEGRATIONTIME_101MS = 0xD5  # 101ms - 42 cycles  - Max Count: 43008
 TCS34725_INTEGRATIONTIME_154MS = 0xC0  # 154ms - 64 cycles  - Max Count: 65535
 TCS34725_INTEGRATIONTIME_700MS = 0x00  # 700ms - 256 cycles - Max Count: 65535
 
-TCS34725_GAIN_1X = 0x00  #  No gain
-TCS34725_GAIN_4X = 0x01  #  2x gain
-TCS34725_GAIN_16X = 0x02  #  16x gain
-TCS34725_GAIN_60X = 0x03  #  60x gain
+TCS34725_GAIN_1X = 0x00  # No gain
+TCS34725_GAIN_4X = 0x01  # 2x gain
+TCS34725_GAIN_16X = 0x02  # 16x gain
+TCS34725_GAIN_60X = 0x03  # 60x gain
 
 
 def readU8(reg):
@@ -79,8 +79,8 @@ def readU16Rev(reg):
 
 
 def write8(reg, value):
-    return bus.write_byte_data(TCS34725_ADDRESS, TCS34725_COMMAND_BIT\
-    | reg, value & 0xff)
+    return bus.write_byte_data(TCS34725_ADDRESS, TCS34725_COMMAND_BIT
+        | reg, value & 0xff)
 
 
 def enable():
@@ -88,8 +88,7 @@ def enable():
     time.sleep(0.01)
     write8(TCS34725_ENABLE, (TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN))
 
-
- # returns red, blue, and green values divided by clear
+# returns red, blue, and green values divided by clear
 def getData():
     red = readU16Rev(TCS34725_RDATAL) * 1.00
     blue = readU16Rev(TCS34725_BDATAL) * 1.00
@@ -104,11 +103,10 @@ def getData():
     green = green/clear
     return red, green, blue
 
-
- # Requires : i is a boolean value (t/f)
- # Modifies : Light of current light you are connected to.
- #           If i is true, we turn on the light
- #           If i is false, the light turns off
+# Requires : i is a boolean value (t/f)
+# Modifies : Light of current light you are connected to.
+#           If i is true, we turn on the light
+#           If i is false, the light turns off
 def light(i):
     r = readU8(TCS34725_ENABLE)
     if(i):
