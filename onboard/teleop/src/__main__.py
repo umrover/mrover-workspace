@@ -32,7 +32,10 @@ class Toggle:
 lcm_ = aiolcm.AsyncLCM()
 kill_motor = False
 lock = asyncio.Lock()
-drill_on = Toggle(False)
+front_drill_on = Toggle(False)
+back_drill_on = Toggle(False)
+# front_drone_on = Toggle(False)
+# back_drone_on = Toggle(False)
 
 
 def connection_state_changed(c, _):
@@ -59,10 +62,15 @@ def connection_state_changed(c, _):
 
         # Kill SA motors
         sa_motor = SAMotors()
-        sa_motor.drill = 0.0
-        sa_motor.lead_screw = 0.0
-        sa_motor.door_actuator = 0.0
-        sa_motor.cache = 0.0
+        sa_motor.carriage = 0.0
+        sa_motor.four_bar = 0.0
+        sa_motor.front_drill = 0.0
+        sa_motor.back_drill = 0.0
+        sa_motor.micro_x = 0.0
+        sa_motor.micro_y = 0.0
+        sa_motor.micro_z = 0.0
+        # sa_motor.front_drone = 0.0
+        # sa_motor.back_drone = 0.0
 
         lcm_.publish('/sa_motors', sa_motor.encode())
 
@@ -146,25 +154,32 @@ def arm_control_callback(channel, msg):
 
 
 def sa_control_callback(channel, msg):
-    global drill_on, door_open
+    global front_drill_on, back_drill_on  # , front_drone_on, back_drone_on
     xbox = Xbox.decode(msg)
-    new_sa_motors = SAMotors()
+    sa_motor = SAMotors()
 
-    val = drill_on.new_reading(xbox.right_bumper > 0.5)
-    new_sa_motors.drill = -0.9 if val else 0.0
-    new_sa_motors.lead_screw = deadzone(xbox.left_js_y, 0.1)
-    new_sa_motors.lead_screw = math.copysign(
-        new_sa_motors.lead_screw ** 2,
-        new_sa_motors.lead_screw)
-    if xbox.d_pad_up:
-        new_sa_motors.door_actuator = 0.5
-    elif xbox.d_pad_down:
-        new_sa_motors.door_actuator = -0.5
-    else:
-        new_sa_motors.door_actuator = 0
-    new_sa_motors.cache = deadzone(xbox.right_js_x, 0.2)
+    # Linear Actuators
+    sa_motor.carriage = deadzone(xbox.right_js_y, 0.3)
+    sa_motor.four_bar = xbox.d_pad_left - xbox.d_pad_right
 
-    lcm_.publish('/sa_motors', new_sa_motors.encode())
+    # Drills
+    cond = front_drill_on.new_reading(xbox.right_bumper > 0.5)
+    sa_motor.front_drill = 0.25 if cond else 0.0
+    cond = back_drill_on.new_reading(xbox.left_bumper > 0.5)
+    sa_motor.back_drill = 0.25 if cond else 0.0
+
+    # Microscope controls
+    sa_motor.micro_x = deadzone(xbox.left_js_x, 0.3)
+    sa_motor.micro_y = deadzone(xbox.left_js_y, 0.3)
+    sa_motor.micro_z = xbox.right_trigger - xbox.left_trigger
+
+    # Drone Motors
+    # cond = front_drone_on.new_reading(xbox.y > 0.5)
+    # sa_motor.front_drone = 0.25 if cond else 0.0
+    # cond = back_drone_on.new_reading(xbox.a > 0.5)
+    # sa_motor.back_drone = 0.25 if cond else 0.0
+
+    lcm_.publish('/sa_motors', sa_motor.encode())
 
 
 solenoid_on = Toggle(False)
@@ -233,7 +248,7 @@ def main():
     lcm_.subscribe("/drive_control", drive_control_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/arm_control', arm_control_callback)
-    lcm_.subscribe('/sa_control', sa_control_callback)
+    lcm_.subscribe('/sa_controls', sa_control_callback)
     lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),

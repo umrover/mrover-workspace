@@ -13,4 +13,8 @@ struct Xbox {
     double d_pad_down;
     double d_pad_left;
     double d_pad_right;
+    double a;
+    double b;
+    double x;
+    double y;
 }

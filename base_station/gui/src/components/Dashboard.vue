@@ -149,7 +149,6 @@ export default {
         {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
-        {'topic': '/sa_motors', 'type': 'SAMotors'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'}
       ]
     )
