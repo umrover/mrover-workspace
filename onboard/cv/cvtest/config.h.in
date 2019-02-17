@@ -1,0 +1,3 @@
+#pragma once
+#mesondefine OFFLINE_TEST
+#mesondefine ZED_SDK_PRESENT
