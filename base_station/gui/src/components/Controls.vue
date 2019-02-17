@@ -2,7 +2,6 @@
   <div class="wrap">
     <div class="control_buttons">
         <Checkbox ref="arm" v-bind:name="'Arm Controls'" v-on:toggle="updateControlMode('arm', $event)"/>
-        <Checkbox ref="soil_ac" v-bind:name="'Soil Acquisition'" v-on:toggle="updateControlMode('soil_ac', $event)"/>
         <Checkbox ref="arm_ik" v-bind:name="'Inverse Kinematics'" v-on:toggle="updateControlMode('arm_ik', $event)"/>
     </div>
     <div class="speed_limiter">
@@ -15,12 +14,6 @@
       <div v-if="controlMode === 'arm'">
         <p>arm</p>
       </div>
-      <template v-else-if="controlMode === 'soil_ac'">
-          <span v-bind:class="['led', saDrillColor]"/>
-          <span style="padding-right: 10px;" class="name">Drill</span>
-          <span v-bind:class="['led', saDoorColor]"/>
-          <span class="name">Door</span>
-      </template>
     </div>
   </div>
 </template>
@@ -32,30 +25,11 @@ import { mapGetters, mapMutations } from 'vuex'
 export default {
   data () {
     return {
-      saMotor: {
-        drill: 0,
-        door_actuator: 0
-      },
       dampen: 0
     }
   },
 
-
-
   computed: {
-    saDrillColor: function () {
-      return this.saMotor.drill !== 0 ? 'lightgreen' : 'red'
-    },
-
-    saDoorColor: function () {
-      if (this.saMotor.door_actuator > 0) {
-        return 'lightgreen'
-      } else if (this.saMotor.door_actuator < 0) {
-        return 'red'
-      } else {
-        return 'orange'
-      }
-    },
 
     dampenDisplay: function () {
       return (this.dampen * -50 + 50).toFixed(2)
@@ -147,10 +121,6 @@ export default {
             if (this.controlMode === 'arm') {
               this.$parent.publish('/arm_control', xboxData)
               this.$parent.publish('/arm_toggles_button_data', arm_toggles)
-
-            } else if (this.controlMode === 'soil_ac') {
-              this.$parent.publish('/sa_control', xboxData)
-
             } else if(this.controlMode === 'arm_ik') {
               this.$parent.publish('/arm_toggles_button_data', arm_toggles)
               let speed = 0.25;
@@ -192,11 +162,14 @@ export default {
           }
         }
       }
-    }, updateRate*1000)
+      const talonConfig = {
+        'type': 'TalonConfig',
+        'enable_arm': (this.controlMode === 'arm' || this.controlMode === 'arm_ik'),
+        'enable_sa': false
+      }
 
-    this.$parent.subscribe('/sa_motors', (msg) => {
-      this.saMotor = msg.message
-    })
+      this.$parent.publish('/talon_config', talonConfig)
+    }, updateRate*1000)
   },
 
   methods: {

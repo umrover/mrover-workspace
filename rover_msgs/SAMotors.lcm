@@ -1,8 +1,11 @@
 package rover_msgs;
 
 struct SAMotors {
-    double drill;
-    double lead_screw;
-    double door_actuator;
-    double cache;
+    double carriage;
+    double four_bar;
+    double front_drill;
+    double back_drill;
+    double micro_x;
+    double micro_y;
+    double micro_z;
 }
