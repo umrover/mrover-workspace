@@ -143,8 +143,8 @@ export default {
                 'type': 'IkArmControl',
                 'deltaX': (xboxData['left_js_x']**2)*speed*updateRate*(xboxData['left_js_x']<0 ? -1 : 1),
                 'deltaZ': (xboxData['left_js_y']**2)*speed*updateRate*(xboxData['left_js_y']>0 ? 1 : -1),
-                'deltaJointE': (xboxData['right_js_x']**2)*0.1*updateRate*(xboxData['right_js_x']>0 ? -1 : 1),
-                'deltaTilt': (xboxData['right_js_y']**2)*0.1*updateRate*(xboxData['right_js_y']<0 ? -1 : 1)
+                'deltaJointE': (xboxData['right_js_x']**2)*0.4*updateRate*(xboxData['right_js_x']>0 ? -1 : 1),
+                'deltaTilt': (xboxData['right_js_y']**2)*0.4*updateRate*(xboxData['right_js_y']<0 ? -1 : 1)
               }
 
               deltaPos.deltaY = (xboxData['d_pad_up'] ? 1 : (xboxData['d_pad_down'] ? -1 : 0)) * speed * updateRate
