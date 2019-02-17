@@ -11,6 +11,7 @@
 #include <string>
 #include <cstring>
 #include <iostream>
+#include <map>
 //#include "tennis_ball_detection.h"
 
 
@@ -37,7 +38,7 @@ Mat greenFilter(const Mat& src){
 vector<Point2f> findTennisBall(Mat &src) { //}, Mat & depth_src) {
     
     Mat hsv;
-    
+  
     cvtColor(src, hsv, COLOR_BGR2HSV);
     
     Mat mask = greenFilter(hsv);
@@ -65,8 +66,9 @@ vector<Point2f> findTennisBall(Mat &src) { //}, Mat & depth_src) {
         circle(src, center[i], (int)radius[i], color, 2, 8, 0);
     }
     
-    imshow("Image", src);
-    waitKey(0);
+   //displaying image
+   //imshow("Image", src);
+   //waitKey(0);
     
     return center;
 }
@@ -74,140 +76,151 @@ vector<Point2f> findTennisBall(Mat &src) { //}, Mat & depth_src) {
 vector<TestCase> parse_file(vector<string> & fileList) {
     
     vector<TestCase> testCases;
-    for (unsigned i = 2; i < fileList.size(); ++i) {
+    for (unsigned i = 0; i < fileList.size(); ++i) {
         size_t position = 0;
         
-       // if (fileList[i][0] != '.') {
-          //  cout << "File name: " << fileList[i] << "\n";
+        if (fileList[i][0] != '.') {
             TestCase t;
-		string s = "stuff/" + fileList[i];
-	//	cout << s << endl;
-            string name(s);
-            t.img = imread(name, CV_LOAD_IMAGE_COLOR);       
+	    string s = "cv_test_images/" + fileList[i];
+            t.img = imread(s, CV_LOAD_IMAGE_COLOR);       
             int count = 0;
-            
+
+            //PARSING FILE
+
+            t.hasTennisBall = true;
             while ((position = fileList[i].find("_")) != string::npos) {
                 switch (count) {
                     case 0:
-                     //   t.hasTennisBall = boost::lexical_cast<bool>(fileList[i].substr(0, position));
                         t.num = (unsigned)stoll(fileList[i].substr(0, position));
-          //             cout << t.num << endl; //DELETE LATER
 			 break;
                     case 1:
-                      //  cout << "x:" << fileList[i].substr(0, position) << "\n";
                         t.x = (unsigned)stoll(fileList[i].substr(0, position));
-            //           cout << t.x << endl; //DELETE LATER
-			 break;
+			break;
                     case 2:
-                     //   cout << "y:" << fileList[i].substr(0, position) << "\n";
                         t.y = (unsigned)stoll(fileList[i].substr(0, position));
-              //         cout << t.y << endl; //DELETE LATER
-			 break;
+			break;
                    case 3:
-                   t.depth = stod(fileList[i].substr(0, position));
-                //   cout << t.depth << endl;
+                         t.depth = stod(fileList[i].substr(0, position));
 			 break;
                    default:
-                   break;
+                         break;
                 }
                 fileList[i].erase(0, position + 1);
                 ++count;
             }
+
+	        //in the case where there is no ball:
+
 		if (fileList[i].find("none.jpg") != string::npos || fileList[i].find("none.jpeg") != string::npos) 
 		{
 			t.hasTennisBall = false;
 			t.x = 0;
 			t.y = 0;
-			t.depth = 0;
-		//	int position = fileList[i].find(".");
-	//	cout << fileList[i] << endl;	
-		}// else {
-	//	t.hasTennisBall = true;
-	//	position = fileList[i].find(".");
-	//	cout << fileList[i] << endl;		
-	  //      t.depth = stod(fileList[i].substr(0, position)); // .substr(0, position));
-	//	}
+			t.depth = 0;	
+		}
             testCases.push_back(t);
         }
-   // }
+    }
     
     return testCases;
 }
 
 int main(int argc, char * argv[]) {
+
     cout << endl;
     DIR           *d;
     struct dirent *dir;
     vector<string> fileList;
-   // if (argc != 2) {
-     //   cerr << "\nTesting Error: Must Provide a Directory\n" << endl;
-       // exit(0);
-   // }
-    //string directory_name = argv[3];
-    string directory_name = "stuff";
+    string directory_name = "cv_test_images";
     int i = 0;
-    
-    //d = opendir(directory_name.c_str());
-    d= opendir(directory_name.c_str());
-   // cout << directory_name << endl;    
+    d = opendir(directory_name.c_str());  
+   
+    //floats to be stored for calculating differences
+    float minDiffX, minDiffY;
+    float offBy;   
 if (d) {
-
+	
+	//CREATING FILE LIST
         while ((dir = readdir(d)) != NULL) {
             ++i;
             fileList.push_back(dir->d_name);
         }
         
-        vector<TestCase> testCases = parse_file(fileList);
+        vector<TestCase> tc = parse_file(fileList);
+	map<int, TestCase> testCases;
+	for (unsigned p = 0; p < tc.size(); ++p)
+	{
+		testCases[tc[p].num] = tc[p];
+	}
         vector<string> successRates;
+	
+	//cycling through test cases and creating output
 
-        for (unsigned i = 0; i < testCases.size(); i++) {
-//	o = imread("none.jpg", CV_LOAD_IMAGE_COLOR);
-  //      vector<Point2f> willitwork = findTennisBall(poo);
-//	cout << "ass" << endl;
-	    vector<Point2f> ball = findTennisBall(testCases[i].img);
-	//	cout << ball[0] << endl;
-	//	cout << ball[1] << endl;
+        for (auto it : testCases)
+	{
+	    vector<Point2f> ball = findTennisBall((it.second).img);
 	    ostringstream result;
-	    result << "test number: " << testCases[i].num <<  "----- ";
+	    result << "test number: " << (it.second).num;
 	    if (ball.size() == 0)
 	    {
-		result << "predicted: no tennis ball, real: ";
-		if (testCases[i].hasTennisBall == true)
+	        if ((it.second).hasTennisBall == false)
 		{
-			result << "ball found";
-		} else
+			result << " (PASSED)" << endl;
+			result << "predicted:" << endl << "  no ball found" << endl << "real: " << endl;
+			result << "  no ball found" << endl;
+		} else 
 		{
-			result << "no ball found";
+			result << " (FAILED)" << endl;
+			result << "predicted:" << endl << "  no ball found" << endl << "real: " << endl;
+			result << "  x = " << (it.second).x << endl << "  y = " << (it.second).y;
 		}
 	    } else 
 		{
+		if ((ball[0].x - (it.second).x) <= 5 && (ball[0].y - (it.second).y) <= 5)
+		{
+			result << " (PASSED)" << endl;
+		} else 
+		{
+			result << " (FAILED)" << endl;
+		}
+		minDiffX = abs(ball[0].x - (it.second).x);
+		minDiffY = abs(ball[0].y - (it.second).y);
+		offBy = minDiffX + minDiffY;
+
 		int count = 1;
+		result << "predicted:" << endl;
 		while (ball.size() != 0)
 		{
-			result << "center " << count << ": x = " << ball[0].x << ", y = " << ball[0].y << " ... ";
-ball.erase(ball.begin());
-++count;  
+		result << "center " << count << ":" << endl << "  x = " << ball[0].x << endl << "  y = " << ball[0].y << endl;
+		float xDiff = abs(ball[0].x - (it.second).x);
+		float yDiff = abs(ball[0].y - (it.second).y);
+		float offByNew = xDiff + yDiff;
+		if (offByNew < offBy)
+		{
+			minDiffX = xDiff;
+			minDiffY = yDiff;
+		}		
+
+		ball.erase(ball.begin());
+			++count;  
 		}	
-	    // result << "predicted: x =  " << ball[0] << ", y =  " << ball[1] << ", real: x = " << testCases[i].x << ", y = " << testCases[i].y;
-	result << count << " CENTERS FOUND//////  " << "real: x = " << testCases[i].x << ", y = " << testCases[i].y;        
+		count -= 1;    
+		result << "(" << count << " centers found)" << endl;
+		result << "real:" << endl << "  x = " << (it.second).x << endl <<  "  y = " << (it.second).y << endl;
+		result << "x-diff: " << minDiffX << endl << "y-diff: " << minDiffY;        
 	}
 		string s(result.str());
-  		 successRates.push_back(s);
-           // imshow("Test " + to_string(i + 1), testCases[i].img);
-           // waitKey(0);
+  		successRates.push_back(s);
         }
-     
+        
+	//closing directory
+    
         closedir(d);
         
         for (unsigned i = 0; i < successRates.size(); ++i) {
             cout << successRates[i] << endl << endl;
         }
-        
-        // if more than one tennis ball detected, return false
-        // improve validation
-        // create file names
-    
-    }
+   }
     else {
         cerr << "\nTesting Error: Invalid Directory\n" << endl;
         exit(0);
