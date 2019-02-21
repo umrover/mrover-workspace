@@ -9,9 +9,11 @@ import time
 
 class Android:
     def __init__(self,
-                 vendor_id, uncfg_product_id, cfg_product_id,
+                 uncfg_vendor_id, cfg_vendor_id,
+                 uncfg_product_id, cfg_product_id,
                  manufacturer, model, description, version, uri, serial):
-        self.vendor_id = int(vendor_id)
+        self.uncfg_vendor_id = int(uncfg_vendor_id)
+        self.cfg_vendor_id = int(cfg_vendor_id)
         self.uncfg_product_id = int(uncfg_product_id)
         self.cfg_product_id = int(cfg_product_id)
         self.device = self._configure_and_open(
@@ -27,9 +29,9 @@ class Android:
 
     def _detect_device(self, attempts_left=5):
         unconfigured_device = usb.core.find(
-            idVendor=self.vendor_id, idProduct=self.uncfg_product_id)
+            idVendor=self.uncfg_vendor_id, idProduct=self.uncfg_product_id)
         configured_device = usb.core.find(
-            idVendor=self.vendor_id, idProduct=self.cfg_product_id)
+            idVendor=self.cfg_vendor_id, idProduct=self.cfg_product_id)
         if configured_device:
             return configured_device, True
         elif unconfigured_device:
