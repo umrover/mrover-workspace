@@ -24,7 +24,7 @@ const bridge = new LCMBridge("ws://localhost:8001",
     },
     // Message handler
     ({topic, message}) => {
-        if (topic === '/drive_control') {
+        if (topic === '/autonomous') {
             app.apply_joystick(message);
         } else if (topic === '/nav_status') {
             app.set(message);
@@ -32,7 +32,7 @@ const bridge = new LCMBridge("ws://localhost:8001",
     },
     // Subscriptions
     [{
-        'topic': '/drive_control',
+        'topic': '/autonomous',
         'type': 'Joystick'
     },
     {
