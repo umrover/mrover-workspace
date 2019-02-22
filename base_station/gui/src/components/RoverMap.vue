@@ -24,6 +24,7 @@
 <script>
 import { LMap, LTileLayer, LMarker, LPolyline, LPopup, LTooltip, LControlScale } from 'vue2-leaflet'
 import { mapGetters } from 'vuex'
+import L from '../leaflet-rotatedmarker.js'
 
 const MAX_ODOM_COUNT = 1000
 const DRAW_FREQUENCY = 10
