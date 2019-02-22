@@ -35,6 +35,7 @@ import WaypointItem from './WaypointItem.vue'
 import {mapMutations, mapGetters} from 'vuex'
 import _ from 'lodash';
 import fnvPlus from 'fnv-plus';
+import L from 'leaflet'
 
 export default {
 
@@ -54,9 +55,10 @@ export default {
       nav_state: "None",
 
       nav_status: {
+        nav_state: 0,
         completed_wps: 0,
-        total_wps: 0,
-        missed_wps: 0
+        missed_wps: 0,
+        total_wps: 0
       },
 
       storedWaypoints: [],
@@ -67,30 +69,8 @@ export default {
   created: function () {
 
     this.$parent.subscribe('/nav_status', (msg) => {
-      this.nav_status = msg.message
-      
-      nav_state_textual: (nav_state) => {
-          switch(nav_state) {
-              case 0: return 'Off';
-              case 1: return 'Done';
-              case 10: return 'Turn';
-              case 11: return 'Drive';
-              case 20: return 'Search Face North';
-              case 21: return 'Search Face 120';
-              case 22: return 'Search Face 240';
-              case 23: return 'Search Face 360';
-              case 24: return 'Search Turn';
-              case 25: return 'Search Drive';
-              case 28: return 'Turn To Ball';
-              case 29: return 'Drive To Ball';
-              case 30: return 'Turn Around Obstacle';
-              case 31: return 'Drive Around Obstacle';
-              case 32: return 'Search Turn Around Obstacle';
-              case 33: return 'Search Drive Around Obstacle';
-              default: return 'Unknown';
-          }
-      },
-      this.nav_state = nav_state_textual(msg.nav_state);
+      this.nav_status = msg
+      this.nav_state = this.getStateString(msg.nav_state)
     })
 
     window.setInterval(() => {
@@ -103,18 +83,24 @@ export default {
         let course = {
             num_waypoints: this.route.length,
             waypoints: _.map(this.route, (waypoint) => {
-                return {
-                    type: "Waypoint",
-                    search: waypoint.search,
-                    odom: {
-                        latitude_deg: waypoint.latitude_deg|0,
-                        latitude_min: waypoint.latitude_min,
-                        longitude_deg: waypoint.longitude_deg|0,
-                        longitude_min: waypoint.longitude_min,
-                        bearing_deg: 0,
-                        type: "Odometry"
-                    }
-                }
+              let lat = waypoint.latLng.lat
+              let lng = waypoint.latLng.lng
+              let latitude_deg = Math.trunc(lat)
+              let latitude_min = (lat - latitude_deg) * 60
+              let longitude_deg = Math.trunc(lng)
+              let longitude_min = (lng - longitude_deg) * 60
+              return {
+                  type: "Waypoint",
+                  search: false,
+                  odom: {
+                      latitude_deg: latitude_deg,
+                      latitude_min: latitude_min,
+                      longitude_deg: longitude_deg,
+                      longitude_min: longitude_min,
+                      bearing_deg: 0,
+                      type: "Odometry"
+                  }
+              }
             })
         };
         course.hash = fnvPlus.fast1a52(JSON.stringify(course));
@@ -170,8 +156,30 @@ export default {
       this.addWaypoint(parseCoordinate(this.lat), -parseCoordinate(this.lon))
     },
 
-    toggleAutonMode(val){
+    toggleAutonMode: function (val) {
       this.setAutonMode(val)
+    },
+
+    getStateString: function (state) {
+      switch(state) {
+        case 0: return 'Off';
+        case 1: return 'Done';
+        case 10: return 'Turn';
+        case 11: return 'Drive';
+        case 20: return 'Search Face North';
+        case 21: return 'Search Face 120';
+        case 22: return 'Search Face 240';
+        case 23: return 'Search Face 360';
+        case 24: return 'Search Turn';
+        case 25: return 'Search Drive';
+        case 28: return 'Turn To Ball';
+        case 29: return 'Drive To Ball';
+        case 30: return 'Turn Around Obstacle';
+        case 31: return 'Drive Around Obstacle';
+        case 32: return 'Search Turn Around Obstacle';
+        case 33: return 'Search Drive Around Obstacle';
+        default: return 'Unknown';
+      }
     }
   },
 
@@ -219,6 +227,6 @@ export default {
     padding: 10px;
     border: 1px solid black;
 
-    overflow: scroll;
+    overflow: auto;
   }
 </style>
