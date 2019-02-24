@@ -7,9 +7,8 @@
       <p>{{waypoint.latLng.lat}}ºN, {{-waypoint.latLng.lng}}ºW</p>
     </div>
     <div class="buttons">
-      <button v-on:click="$emit('delete', {'list': list, 'index': index})">
-        
-      </button>
+      <button v-bind:class="[waypoint.search ? 'green' : 'red']" v-on:click="$emit('toggleSearch', {'list': list, 'index': index})"></button>
+      <button class="red" v-on:click="$emit('delete', {'list': list, 'index': index})">X</button>
     </div>
   </div>
 </template>
@@ -66,8 +65,15 @@ export default {
     justify-self: center;
   }
 
-  button {
+  .red {
     background-color: red;
+  }
+
+  .green {
+    background-color: green;
+  }
+
+  button {
     width: 20px;
     height: 20px;
     padding: 0px;
