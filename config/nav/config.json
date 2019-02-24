@@ -13,6 +13,9 @@
 		"kD": 0
 	},
 
+	"bearingPower": 0.5,
+	"drivingPower": 1.0,
+
 	"turningBearingThresh": 20,
 	"drivingBearingThresh": 50,
 
