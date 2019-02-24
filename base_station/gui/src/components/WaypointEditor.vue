@@ -17,12 +17,12 @@
     </div>
     <div class="box">
       <draggable v-model="storedWaypoints" class="dragArea" :options="{scroll: true, group: 'waypoints'}">
-        <WaypointItem v-for="waypoint, i in storedWaypoints" :key="i" v-bind:waypoint="waypoint" v-bind:list="0" v-bind:index="i" v-on:delete="deleteItem($event)"/>
+        <WaypointItem v-for="waypoint, i in storedWaypoints" :key="i" v-bind:waypoint="waypoint" v-bind:list="0" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)"/>
       </draggable>
     </div>
     <div class="box">
       <draggable v-model="route" class="dragArea" :options="{scroll: true, group: 'waypoints'}">
-        <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-on:delete="deleteItem($event)"/>
+        <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)"/>
       </draggable>
     </div>
   </div>
@@ -91,7 +91,7 @@ export default {
               let longitude_min = (lng - longitude_deg) * 60
               return {
                   type: "Waypoint",
-                  search: false,
+                  search: waypoint.search,
                   odom: {
                       latitude_deg: latitude_deg,
                       latitude_min: latitude_min,
@@ -125,10 +125,19 @@ export default {
       }
     },
 
+    toggleSearch: function (payload) {
+      if(payload.list === 0) {
+        this.storedWaypoints[payload.index].search = !this.storedWaypoints[payload.index].search
+      } else if(payload.list === 1) {
+        this.route[payload.index].search = !this.route[payload.index].search
+      }
+    },
+
     addWaypoint: function (lat, lon) {
       this.storedWaypoints.push({
         name: this.name,
-        latLng: L.latLng(lat, lon)
+        latLng: L.latLng(lat, lon),
+        search: false
       })
     },
 
