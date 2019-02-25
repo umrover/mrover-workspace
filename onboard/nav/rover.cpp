@@ -257,8 +257,10 @@ void Rover::publishJoystick( const double forwardBack, const double leftRight, c
 {
     Joystick joystick;
     joystick.dampen = -1.0; // power limit (0 = 50%, 1 = 0%, -1 = 100% power)
-    joystick.forward_back = -forwardBack;
-    joystick.left_right = leftRight;
+    double drivingPower = mRoverConfig[ "drivingPower" ].GetDouble();
+    joystick.forward_back = drivingPower = forwardBack;
+    double bearingPower = mRoverConfig[ "bearingPower" ].GetDouble();
+    joystick.left_right = bearingPower * leftRight;
     joystick.kill = kill;
     string joystickChannel = mRoverConfig[ "joystickChannel" ].GetString();
     mLcmObject.publish( joystickChannel, &joystick );
