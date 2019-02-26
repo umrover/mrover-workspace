@@ -256,13 +256,14 @@ PidLoop& Rover::bearingPid()
 void Rover::publishJoystick( const double forwardBack, const double leftRight, const bool kill )
 {
     Joystick joystick;
-    joystick.dampen = -1.0; // power limit (0 = 50%, 1 = 0%, -1 = 100% power)
-    double drivingPower = mRoverConfig[ "drivingPower" ].GetDouble();
-    joystick.forward_back = drivingPower = forwardBack;
-    double bearingPower = mRoverConfig[ "bearingPower" ].GetDouble();
+    // power limit (0 = 50%, 1 = 0%, -1 = 100% power)
+    joystick.dampen = mRoverConfig[ "joystick" ][ "dampen" ].GetDouble();
+    double drivingPower = mRoverConfig[ "joystick" ][ "drivingPower" ].GetDouble();
+    joystick.forward_back = drivingPower * forwardBack;
+    double bearingPower = mRoverConfig[ "joystick" ][ "bearingPower" ].GetDouble();
     joystick.left_right = bearingPower * leftRight;
     joystick.kill = kill;
-    string joystickChannel = mRoverConfig[ "joystickChannel" ].GetString();
+    string joystickChannel = mRoverConfig[ "lcmChannels" ][ "joystickChannel" ].GetString();
     mLcmObject.publish( joystickChannel, &joystick );
 } // publishJoystick()
 
