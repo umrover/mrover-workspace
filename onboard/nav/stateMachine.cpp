@@ -239,7 +239,7 @@ void StateMachine::publishNavState() const
     navStatus.completed_wps = mCompletedWaypoints;
     navStatus.missed_wps = mMissedWaypoints;
     navStatus.total_wps = mTotalWaypoints;
-    const string& navStatusChannel = mRoverConfig[ "navStatusChannel" ].GetString();
+    const string& navStatusChannel = mRoverConfig[ "lcmChannels" ][ "navStatusChannel" ].GetString();
     mLcmObject.publish( navStatusChannel, &navStatus );
 } // publishNavState()
 
