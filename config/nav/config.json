@@ -13,8 +13,12 @@
 		"kD": 0
 	},
 
-	"bearingPower": 0.5,
-	"drivingPower": 1.0,
+	"joystick":
+	{
+		"bearingPower": 0.5,
+		"drivingPower": 1.0,
+		"dampen": -1.0
+	},
 
 	"turningBearingThresh": 20,
 	"drivingBearingThresh": 50,
@@ -25,8 +29,11 @@
 	"searchBailThresh": 10,
 	"cvThresh": 3,
 
-	"navStatusChannel": "/nav_status",
-	"joystickChannel": "/autonomous",
+	"lcmChannels":
+	{
+		"navStatusChannel": "/nav_status",
+		"joystickChannel": "/autonomous"
+	},
 
 	"searchOrder":[0,1],
 	"searchOrderSize": 2
