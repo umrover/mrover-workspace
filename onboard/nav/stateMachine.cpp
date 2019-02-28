@@ -72,7 +72,7 @@ void StateMachine::updateObstacleAngle( double angle )
 // Will call the corresponding function based on the current state.
 void StateMachine::run()
 {
-    if( mStateChanged || mPhoebe->updateRover( mNewRoverStatus ) )
+    if( isRoverReady() )
     {
         // todo print state, add to publish nav state
         publishNavState();
@@ -118,9 +118,8 @@ void StateMachine::run()
             }
 
             case NavState::SearchFaceNorth:
-            case NavState::SearchFace120:
-            case NavState::SearchFace240:
-            case NavState::SearchFace360:
+            case NavState::SearchSpin:
+            case NavState::SearchSpinWait:
             case NavState::SearchTurn:
             case NavState::SearchDrive:
             case NavState::TurnToBall:
@@ -147,9 +146,9 @@ void StateMachine::run()
             case NavState::ChangeSearchAlg:
             {
                 static int searchFails = 0;
-                static double nPathWidth = mRoverConfig["pathWidth"].GetDouble();
+                static double pathWidth = mRoverConfig[ "computerVision" ][ "pathWidth" ].GetDouble();
 
-                switch( mRoverConfig[ "searchOrder" ][ searchFails % mRoverConfig[ "searchOrderSize" ].GetInt() ].GetInt() )
+                switch( mRoverConfig[ "search" ][ "order" ][ searchFails % mRoverConfig[ "search" ][ "numSearches" ].GetInt() ].GetInt() )
                 {
                     case 0:
                     {
@@ -172,10 +171,10 @@ void StateMachine::run()
                         break;
                     }
                 }
-                mSearcher->initializeSearch( mPhoebe, mRoverConfig, nPathWidth );
-                if( searchFails % 2 == 1 && nPathWidth > 0.5 )
+                mSearcher->initializeSearch( mPhoebe, mRoverConfig, pathWidth );
+                if( searchFails % 2 == 1 && pathWidth > 0.5 )
                 {
-                    nPathWidth *= 0.5;
+                    pathWidth *= 0.5;
                 }
                 searchFails += 1;
                 nextState = NavState::SearchTurn;
@@ -196,6 +195,7 @@ void StateMachine::run()
             mPhoebe->distancePid().reset();
             mPhoebe->bearingPid().reset();
         }
+        cout << flush;
     } // if
 } // run()
 
@@ -231,6 +231,15 @@ void StateMachine::updateRoverStatus( TennisBall tennisBall )
 {
     mNewRoverStatus.tennisBall() = tennisBall;
 } // updateRoverStatus( TennisBall )
+
+// Return true if we want to execute a loop in the state machine, false
+// otherwise.
+bool StateMachine::isRoverReady() const
+{
+    return mStateChanged || // internal data has changed
+           mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
+           mPhoebe->roverStatus().currentState() == NavState::SearchSpinWait; // continue even if no data has changed
+} // isRoverReady()
 
 // Publishes the current navigation state to the nav status lcm channel.
 void StateMachine::publishNavState() const
@@ -344,7 +353,7 @@ NavState StateMachine::executeTurnAroundObs()
         // return NavState::Search; // todo
     }
 
-    double cvThresh = mRoverConfig[ "cvThresh" ].GetDouble();
+    double cvThresh = mRoverConfig[ "computerVision" ][ "obstacleThresh" ].GetDouble();
     if( ( mPhoebe->roverStatus().currentState() == NavState::TurnAroundObs ) &&
         ( estimateNoneuclid( mPhoebe->roverStatus().path().front().odom,
                              mPhoebe->roverStatus().odometry() ) < 2 * cvThresh ) )
@@ -445,19 +454,18 @@ string StateMachine::stringifyNavState() const
             { NavState::Done, "Done" },
             { NavState::Turn, "Turn" },
             { NavState::Drive, "Drive" },
-            { NavState::SearchFaceNorth, "SearchFaceNorth" },
-            { NavState::SearchFace120, "SearchFace120" },
-            { NavState::SearchFace240, "SearchFace240" },
-            { NavState::SearchFace360 , "SearchFace360" },
-            { NavState::SearchTurn, "SearchTurn" },
-            { NavState::SearchDrive, "SearchDrive" },
-            { NavState::TurnToBall, "TurnToBall" },
-            { NavState::DriveToBall, "DriveToBall" },
-            { NavState::TurnAroundObs, "TurnAroundObs"},
-            { NavState::DriveAroundObs, "DriveAroundObs" },
-            { NavState::SearchTurnAroundObs, "SearchTurnAroundObs" },
-            { NavState::SearchDriveAroundObs, "SearchDriveAroundObs" },
-            { NavState::ChangeSearchAlg, "ChangeSearchAlg" },
+            { NavState::SearchFaceNorth, "Search Face North" },
+            { NavState::SearchSpin, "Search Spin" },
+            { NavState::SearchSpinWait, "Search Spin Wait" },
+            { NavState::ChangeSearchAlg, "Change Search Algorithm" },
+            { NavState::SearchTurn, "Search Turn" },
+            { NavState::SearchDrive, "Search Drive" },
+            { NavState::TurnToBall, "Turn to Ball" },
+            { NavState::DriveToBall, "Drive to Ball" },
+            { NavState::TurnAroundObs, "Turn Around Obstacle"},
+            { NavState::DriveAroundObs, "Drive Around Obstacle" },
+            { NavState::SearchTurnAroundObs, "Search Turn Around Obstacle" },
+            { NavState::SearchDriveAroundObs, "Search Drive Around Obstacle" },
             { NavState::Unknown, "Unknown" }
         };
 
@@ -469,8 +477,6 @@ string StateMachine::stringifyNavState() const
 // set distance to go around obstacles?
 // set threshold for when to skip a point?
 
-
 // TODOS:
-// [turn to ball | drive to ball] if ball lost, restart search a better way??
 // [drive to ball] obstacle and ball
 // all of code, what to do in cases of both ball and obstacle

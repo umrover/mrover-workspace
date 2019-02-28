@@ -10,7 +10,7 @@
     <div class="box">
       <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/><br>
       <span>
-        Navigation State: {{nav_state}}<br>
+        Navigation State: {{nav_status.nav_state_name}}<br>
         Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
         Missed Waypoints: {{nav_status.missed_wps}}/{{nav_status.total_wps}}
       </span>
@@ -52,8 +52,6 @@ export default {
       lon: "",
       lat: "",
 
-      nav_state: "None",
-
       nav_status: {
         nav_state_name: "Off",
         completed_wps: 0,
@@ -70,11 +68,10 @@ export default {
 
     this.$parent.subscribe('/nav_status', (msg) => {
       this.nav_status = msg
-      this.nav_state = this.nav_status.nav_state_name
     })
 
     window.setInterval(() => {
-        if(this.auton_enabled && this.nav_state === 'Done'){
+        if(this.auton_enabled && this.nav_status.nav_state_name === 'Done'){
           this.$refs.checkbox.toggleAndEmit()
         }
 
