@@ -25,18 +25,17 @@ enum class NavState
     Turn = 10,
     Drive = 11,
     SearchFaceNorth = 20,
-    SearchFace120 = 21,
-    SearchFace240 = 22,
-    SearchFace360 = 23,
+    SearchSpin = 21,
+    SearchSpinWait = 22,
     SearchTurn = 24,
     SearchDrive = 25,
+    ChangeSearchAlg = 27,
     TurnToBall = 28,
     DriveToBall = 29,
     TurnAroundObs = 30,
     DriveAroundObs = 31,
     SearchTurnAroundObs = 32,
     SearchDriveAroundObs = 33,
-    ChangeSearchAlg = 34,
     Unknown = 255
 }; // AutonState
 
