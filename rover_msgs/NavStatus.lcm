@@ -20,7 +20,7 @@ struct NavStatus {
 	const int8_t SEARCH_DRIVE_AROUND_OBS = 33;
 
 	int8_t nav_state;
-	// int8_t search_state;
+	string nav_state_name;
 	int32_t completed_wps;
 	int32_t missed_wps;
 	int32_t total_wps;

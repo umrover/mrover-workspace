@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cmath>
 #include <cstdlib>
+#include <map>
 
 #include "rover_msgs/NavStatus.hpp"
 #include "utilities.hpp"
@@ -236,6 +237,7 @@ void StateMachine::publishNavState() const
 {
     NavStatus navStatus;
     navStatus.nav_state = static_cast<int8_t>( mPhoebe->roverStatus().currentState() );
+    navStatus.nav_state_name = stringifyNavState();
     navStatus.completed_wps = mCompletedWaypoints;
     navStatus.missed_wps = mMissedWaypoints;
     navStatus.total_wps = mTotalWaypoints;
@@ -433,6 +435,35 @@ Odometry StateMachine::createAvoidancePoint( const double distance )
     avoidancePoint.longitude_min = ( totalLongitudeMinutes - ( ( (int) totalLongitudeMinutes) / 60 ) * 60 );
     return avoidancePoint;
 }
+
+// Gets the string representation of a nav state.
+string StateMachine::stringifyNavState() const
+{
+    static const map<NavState, std::string> navStateNames =
+        {
+            { NavState::Off, "Off" },
+            { NavState::Done, "Done" },
+            { NavState::Turn, "Turn" },
+            { NavState::Drive, "Drive" },
+            { NavState::SearchFaceNorth, "SearchFaceNorth" },
+            { NavState::SearchFace120, "SearchFace120" },
+            { NavState::SearchFace240, "SearchFace240" },
+            { NavState::SearchFace360 , "SearchFace360" },
+            { NavState::SearchTurn, "SearchTurn" },
+            { NavState::SearchDrive, "SearchDrive" },
+            { NavState::TurnToBall, "TurnToBall" },
+            { NavState::DriveToBall, "DriveToBall" },
+            { NavState::TurnAroundObs, "TurnAroundObs"},
+            { NavState::DriveAroundObs, "DriveAroundObs" },
+            { NavState::SearchTurnAroundObs, "SearchTurnAroundObs" },
+            { NavState::SearchDriveAroundObs, "SearchDriveAroundObs" },
+            { NavState::ChangeSearchAlg, "ChangeSearchAlg" },
+            { NavState::Unknown, "Unknown" }
+        };
+
+    return navStateNames.at( mPhoebe->roverStatus().currentState() );
+} // stringifyNavState()
+
 
 // thresholds based on state? waypoint vs ball
 // set distance to go around obstacles?

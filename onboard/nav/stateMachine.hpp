@@ -69,6 +69,8 @@ private:
 
     Odometry createAvoidancePoint( const double distance );
 
+    string stringifyNavState() const;
+
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
