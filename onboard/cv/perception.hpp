@@ -26,6 +26,7 @@
 #define SIMILARITY_THRESHOLD 8000
 
 #define PI 3.14159265
+const float inf = -std::numeric_limits<float>::infinity();
 
 #if ZED_SDK_PRESENT
   const int FRAME_WAITKEY = 1; // for cv::imshow, set to 1 if using zed, set to 0 if offline test
@@ -33,16 +34,19 @@
   const int FRAME_WAITKEY = 0;
 #endif
 
+//Zed Specs
 const int RESOLUTION_WIDTH = 1280;
 const int RESOLUTION_HEIGHT = 720; // 720p
 const float fieldofView = 110 * PI/180;
-const float inf = -std::numeric_limits<float>::infinity();
+const float focalLength = 2.8; //zed focal length in mm
+
+//Rover Specs
 const float zedHeight = 17 * 0.0254; //inches to meters off the ground
 const float realWidth = 46 * 25.4; //rover width , rover is 46 inches wide TODO make a little longer to be safe
 const float angleOffset = 10 * PI/180;    //angle offset of the rover
-const int num_sliding_windows = 20;
-const float focalLength = 2.8; //zed focal length in mm
 
+//Obstacle Detection variables
+const int num_sliding_windows = 20;
 const float distThreshold = 2.5;    //meters, used to calculate rover pixels
 const float obstacleThreshold = 5 * 0.0254; //inches to meters
 
@@ -55,5 +59,6 @@ struct obstacle_return {
 const bool  WRITE_CURR_FRAME_TO_DISK = false;
 const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/jessica/auton_data/");
 
+//functions
 std::vector<cv::Point2f> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
-obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width );
+obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width);

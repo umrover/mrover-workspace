@@ -4,24 +4,20 @@
 using namespace std;
 using namespace cv;
 
-#ifdef PERCEPTION_DEBUG
-
-static Mat hsv;
-static Mat depth;
+static Mat HSV;
+static Mat DEPTH;
 /* For debug use: print the HSV values at mouseclick locations */
 void onMouse(int event, int x, int y, int flags, void* userdata){
   
 
     if(event == EVENT_LBUTTONUP){
 
-        Vec3b p = hsv.at<Vec3b>(y,x);
-        float d = depth.at<float>(y,x);
+        Vec3b p = HSV.at<Vec3b>(y,x);
+        float d = DEPTH.at<float>(y,x);
         printf("Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, depth is %.2f meters \n", y, x,
 	    p.val[0], p.val[1], p.val[2], d);
     }
 }
-#endif
-
 
 
 Mat greenFilter(const Mat& src){
@@ -39,18 +35,16 @@ Mat greenFilter(const Mat& src){
 
 vector<Point2f> findTennisBall(Mat &src, Mat & depth_src){
   
-    #ifndef PERCEPTION_DEBUG
     Mat hsv;
-    #endif
 
     cvtColor(src, hsv, COLOR_BGR2HSV);
 
     Mat mask = greenFilter(hsv);
 
-    depth = depth_src;
-    #ifdef PERCEPTION_DEBUG
-
-    imshow("hsv", hsv);
+    #if PERCEPTION_DEBUG
+    DEPTH = depth_src;
+    HSV = hsv;
+    DEPTH = depth_src;
     setMouseCallback("image", onMouse);    
     imshow("mask", mask);
     #endif
@@ -76,7 +70,7 @@ vector<Point2f> findTennisBall(Mat &src, Mat & depth_src){
     }
 
     
-    #ifdef PERCEPTION_DEBUG
+    #if PERCEPTION_DEBUG
     /// Draw polygonal contour + bonding rects + circles
     //Mat drawing = Mat::zeros( mask.size(), CV_8UC3);
     for( unsigned i = 0; i< contours.size(); i++ ){
