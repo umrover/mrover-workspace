@@ -111,7 +111,7 @@ DriveStatus Rover::drive( const Odometry& destination )
 // on-course or off-course.
 DriveStatus Rover::drive( const double distance, const double bearing )
 {
-    if( distance < mRoverConfig[ "atGoalDistanceThresh" ].GetDouble() )
+    if( distance < mRoverConfig[ "navThresholds" ][ "atGoalDistanceThresh" ].GetDouble() )
     {
         return DriveStatus::Arrived;
     }
@@ -119,14 +119,14 @@ DriveStatus Rover::drive( const double distance, const double bearing )
     double destinationBearing = mod( bearing, 360 );
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg ); // will go off course if inside if because through zero not calculated
 
-    if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "drivingBearingThresh" ].GetDouble() )
+    if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearingThresh" ].GetDouble() )
     {
         double distanceEffort = mDistancePid.update( -1 * distance, 0 );
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
         publishJoystick( distanceEffort, turningEffort, false );
         return DriveStatus::OnCourse;
     }
-    printf("offcourse\n");
+    cerr << "offcourse\n";
     return DriveStatus::OffCourse;
 } // drive()
 
@@ -146,7 +146,7 @@ bool Rover::turn( Odometry& destination )
 bool Rover::turn( double bearing )
 {
     throughZero( bearing, mRoverStatus.odometry().bearing_deg );
-    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "turningBearingThresh" ].GetDouble() )
+    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "turningBearingThresh" ].GetDouble() )
     {
         return true;
     }

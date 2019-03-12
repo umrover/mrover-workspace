@@ -66,7 +66,7 @@ void SpiralOut::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
     mSearchPointMultipliers.push_back( pair<short, short> ( -1, -1 ) );
     mSearchPointMultipliers.push_back( pair<short, short> (  1, -1 ) );
 
-    while( mSearchPointMultipliers[ 0 ].second * pathWidth < mRoverConfig[ "searchBailThresh" ].GetDouble() ) {
+    while( mSearchPointMultipliers[ 0 ].second * pathWidth < mRoverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
             Odometry nextSearchPoint = mPhoebe->roverStatus().path().front().odom;
@@ -90,7 +90,7 @@ void SpiralOut::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
 } // initializeSearch()
 
 /*************************************************************************/
-/* Spiral Search */ 
+/* Spiral Search */
 /*************************************************************************/
 SpiralIn::~SpiralIn() {}
 
@@ -106,7 +106,7 @@ void SpiralIn::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRov
     mSearchPointMultipliers.push_back( pair<short, short> (  1,  1 ) );
     mSearchPointMultipliers.push_back( pair<short, short> (  1, -1 ) );
 
-    while( mSearchPointMultipliers[ 0 ].second * pathWidth < mRoverConfig[ "searchBailThresh" ].GetDouble() ) {
+    while( mSearchPointMultipliers[ 0 ].second * pathWidth < mRoverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
             Odometry nextSearchPoint = mPhoebe->roverStatus().path().front().odom;
@@ -136,10 +136,10 @@ LawnMower::~LawnMower() {}
 
 void LawnMower::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, const double pathWidth )
 {
-    const double searchBailThresh = mRoverConfig[ "searchBailThresh" ].GetDouble();
+    const double searchBailThresh = mRoverConfig[ "search" ][ "bailThresh" ].GetDouble();
 
     mSearchPoints.clear();
-    
+
     mSearchPointMultipliers.clear();
     // mSearchPointMultipliers.push_back( pair<short, short> (  0, 0 ) );
     mSearchPointMultipliers.push_back( pair<short, short> (  0, 1 ) );
@@ -176,7 +176,7 @@ void LawnMower::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
 /* TODO */
 /*************/
 // TODO: Incorporate this into the StateMachine Function?
-//       Currently seems like a swiss-army knife function. Too abstracted. No reason for it to be here. 
+//       Currently seems like a swiss-army knife function. Too abstracted. No reason for it to be here.
 // TODO: More efficient spiral in than reversing the whole queue?
 
 
