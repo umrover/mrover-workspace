@@ -15,33 +15,31 @@ public:
 
     virtual ~Searcher() {}
 
-    NavState run( Rover * mPhoebe, const rapidjson::Document& mRoverConfig );
+    NavState run( Rover * phoebe, const rapidjson::Document& roverConfig );
 
     Odometry frontSearchPoint();
 
     void popSearchPoint();
 
-    virtual void initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, double pathWidth ) = 0; // TODO
+    virtual void initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
 
 private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    NavState executeSearchFaceNorth( Rover* mPhoebe );
+    NavState executeSearchFaceNorth( Rover* phoebe );
 
-    NavState executeSearchFace120( Rover* mPhoebe );
+    NavState executeSearchSpin( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    NavState executeSearchFace240( Rover* mPhoebe );
+    NavState executeSearchSpinWait( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    NavState executeSearchFace360( Rover* mPhoebe );
+    NavState executeSearchTurn( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    NavState executeSearchTurn( Rover* mPhoebe, const rapidjson::Document& mRoverConfig );
+    NavState executeSearchDrive( Rover* phoebe );
 
-    NavState executeSearchDrive( Rover* mPhoebe );
+    NavState executeTurnToBall( Rover* phoebe );
 
-    NavState executeTurnToBall( Rover* mPhoebe );
-
-    NavState executeDriveToBall( Rover* mPhoebe );
+    NavState executeDriveToBall( Rover* phoebe );
 
 protected:  // TODO
     /*************************************************************************/
@@ -64,5 +62,5 @@ protected:  // TODO
 /* TODO */
 /*************************************************************************/
 // TODO: Attempt to remove protected member variables ( private? )
-// TODO: move initializeSearch back to private function 
+// TODO: move initializeSearch back to private function
 

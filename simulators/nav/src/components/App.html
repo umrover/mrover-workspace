@@ -63,7 +63,7 @@
             </p>
 
             {{#if lcm_connected}}
-            <p><b>Navigation State:</b> {{ nav_state_textual }}</p>
+            <p><b>Navigation State:</b> {{ nav_state_name }}</p>
             <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
             <p><b>Missed Waypoints:</b> {{ missed_wps }}/{{ total_wps }}</p>
             {{else}}
@@ -183,8 +183,7 @@
 
                 lcm_connected: false,
 
-                nav_state: 0,
-                search_state: 0,
+                nav_state_name: "Off",
                 completed_wps: 0,
                 missed_wps: 0,
                 total_wps: 0,
@@ -195,29 +194,6 @@
         },
 
         computed: {
-            nav_state_textual: (nav_state) => {
-                switch(nav_state) {
-                    case 0: return 'Off';
-                    case 1: return 'Done';
-                    case 10: return 'Turn';
-                    case 11: return 'Drive';
-                    case 20: return 'Search Face North';
-                    case 21: return 'Search Face 120';
-                    case 22: return 'Search Face 240';
-                    case 23: return 'Search Face 360';
-                    case 24: return 'Search Turn';
-                    case 25: return 'Search Drive';
-                    case 28: return 'Turn To Ball';
-                    case 29: return 'Drive To Ball';
-                    case 30: return 'Turn Around Obstacle';
-                    case 31: return 'Drive Around Obstacle';
-                    case 32: return 'Search Turn Around Obstacle';
-                    case 33: return 'Search Drive Around Obstacle';
-                    case 34: return 'Change Search Type';
-                    default: return 'Unknown';
-                }
-            },
-
             latitude_min_display: (odom) => odom.latitude_min.toFixed(NUM_DIGITS),
             longitude_min_display: (odom) => odom.longitude_min.toFixed(NUM_DIGITS),
         },

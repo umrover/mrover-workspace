@@ -18,11 +18,11 @@ class NavState(enum.Enum):
     Turn = 10
     Drive = 11
     SearchFaceNorth = 20
-    SearchFace120 = 21
-    SearchFace240 = 22
-    SearchFace360 = 23
+    SearchSpin = 21
+    SearchSpinWait = 22
     SearchTurn = 24
     SearchDrive = 25
+    ChangeSearchAlg = 27
     TurnToBall = 28
     DriveToBall = 29
     TurnAroundObs = 30
@@ -79,7 +79,9 @@ class FilterClass:
     def stationary(self):
         """Determine if rover is stationary."""
         if self._navstat._navState == NavState.Off or \
-           self._navstat._navState == NavState.Done:
+           self._navstat._navState == NavState.Done or \
+           self._navstat._navState == NavState.SearchSpinWait or \
+           self._navstat._navState == NavState.ChangeSearchAlg:
             return True
         return False
 
@@ -88,9 +90,7 @@ class FilterClass:
         if self._navstat._navState == NavState.Turn or \
            self._navstat._navState == NavState.SearchTurn or \
            self._navstat._navState == NavState.SearchFaceNorth or \
-           self._navstat._navState == NavState.SearchFace120 or \
-           self._navstat._navState == NavState.SearchFace240 or \
-           self._navstat._navState == NavState.SearchFace360 or \
+           self._navstat._navState == NavState.SearchSpin or \
            self._navstat._navState == NavState.TurnToBall or \
            self._navstat._navState == NavState.TurnAroundObs or \
            self._navstat._navState == NavState.SearchTurnAroundObs:

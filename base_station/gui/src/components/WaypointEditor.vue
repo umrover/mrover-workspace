@@ -10,7 +10,7 @@
     <div class="box">
       <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/><br>
       <span>
-        Navigation State: {{nav_state}}<br>
+        Navigation State: {{nav_status.nav_state_name}}<br>
         Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
         Missed Waypoints: {{nav_status.missed_wps}}/{{nav_status.total_wps}}
       </span>
@@ -52,10 +52,8 @@ export default {
       lon: "",
       lat: "",
 
-      nav_state: "None",
-
       nav_status: {
-        nav_state: 0,
+        nav_state_name: "Off",
         completed_wps: 0,
         missed_wps: 0,
         total_wps: 0
@@ -70,11 +68,10 @@ export default {
 
     this.$parent.subscribe('/nav_status', (msg) => {
       this.nav_status = msg
-      this.nav_state = this.getStateString(msg.nav_state)
     })
 
     window.setInterval(() => {
-        if(this.auton_enabled && this.nav_state === 'Done'){
+        if(this.auton_enabled && this.nav_status.nav_state_name === 'Done'){
           this.$refs.checkbox.toggleAndEmit()
         }
 
@@ -168,28 +165,6 @@ export default {
     toggleAutonMode: function (val) {
       this.setAutonMode(val)
     },
-
-    getStateString: function (state) {
-      switch(state) {
-        case 0: return 'Off';
-        case 1: return 'Done';
-        case 10: return 'Turn';
-        case 11: return 'Drive';
-        case 20: return 'Search Face North';
-        case 21: return 'Search Face 120';
-        case 22: return 'Search Face 240';
-        case 23: return 'Search Face 360';
-        case 24: return 'Search Turn';
-        case 25: return 'Search Drive';
-        case 28: return 'Turn To Ball';
-        case 29: return 'Drive To Ball';
-        case 30: return 'Turn Around Obstacle';
-        case 31: return 'Drive Around Obstacle';
-        case 32: return 'Search Turn Around Obstacle';
-        case 33: return 'Search Drive Around Obstacle';
-        default: return 'Unknown';
-      }
-    }
   },
 
   watch: {
@@ -218,7 +193,7 @@ export default {
 </script>
 
 <style scoped>
-  
+
   .wrap {
     display: grid;
     grid-template-columns: 1fr 1fr;

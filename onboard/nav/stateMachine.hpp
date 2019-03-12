@@ -47,7 +47,9 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    void publishNavState() const; // todo check if lcm const member
+    bool isRoverReady() const;
+
+    void publishNavState() const;
 
     NavState executeOff();
 
@@ -68,6 +70,8 @@ private:
     bool addFourPointsToSearch();
 
     Odometry createAvoidancePoint( const double distance );
+
+    string stringifyNavState() const;
 
     /*************************************************************************/
     /* Private Member Variables */

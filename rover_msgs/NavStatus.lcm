@@ -5,13 +5,12 @@ struct NavStatus {
 	const int8_t DONE = 1;
 	const int8_t TURN = 10;
 	const int8_t DRIVE = 11;
-	const int8_t SEARCH = 20;
-	const int8_t SEARCH_FACE0 = 21;
-	const int8_t SEARCH_FACE120 = 22;
-	const int8_t SEARCH_FACE240 = 23;
-	const int8_t SEARCH_FACE360 = 24;
-	const int8_t SEARCH_TURN = 25;
-	const int8_t SEARCH_DRIVE = 26;
+	const int8_t SEARCH_FACE_NORTH = 20;
+	const int8_t SEARCH_SPIN = 21;
+	const int8_t SEARCH_SPIN_WAIT = 22;
+	const int8_t SEARCH_TURN = 24;
+	const int8_t SEARCH_DRIVE = 25;
+	const int8_t CHANGE_SEARCH_ALG = 27;
 	const int8_t TURN_TO_BALL = 28;
 	const int8_t DRIVE_TO_BALL = 29;
 	const int8_t TURN_AROUND_OBS = 30;
@@ -20,7 +19,7 @@ struct NavStatus {
 	const int8_t SEARCH_DRIVE_AROUND_OBS = 33;
 
 	int8_t nav_state;
-	// int8_t search_state;
+	string nav_state_name;
 	int32_t completed_wps;
 	int32_t missed_wps;
 	int32_t total_wps;
