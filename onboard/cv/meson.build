@@ -5,7 +5,7 @@ lcm = dependency('lcm')
 
 all_deps = [opencv, lcm]
 
-with_zed = false
+with_zed = true
 
 if with_zed
 	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')

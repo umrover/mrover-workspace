@@ -15,7 +15,7 @@ void onMouse(int event, int x, int y, int flags, void* userdata){
         Vec3b p = HSV.at<Vec3b>(y,x);
         float d = DEPTH.at<float>(y,x);
         printf("Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, depth is %.2f meters \n", y, x,
-	    p.val[0], p.val[1], p.val[2], d);
+	                        p.val[0], p.val[1], p.val[2], d);
     }
 }
 
@@ -25,8 +25,8 @@ Mat greenFilter(const Mat& src){
 
     Mat greenOnly;
     // 36 170 80
-    Scalar lowerb = Scalar(36, 170, 80);
-    Scalar upperb = Scalar(43, 226, 196);
+    Scalar lowerb = Scalar(30, 170, 80);
+    Scalar upperb = Scalar(43, 226, 220);
     inRange(src, lowerb, upperb, greenOnly);
 
     return greenOnly;
@@ -71,14 +71,31 @@ vector<Point2f> findTennisBall(Mat &src, Mat & depth_src){
 
     
     #if PERCEPTION_DEBUG
-    /// Draw polygonal contour + bonding rects + circles
-    //Mat drawing = Mat::zeros( mask.size(), CV_8UC3);
+    // Draw polygonal contour + bonding rects + circles
+    Mat drawing = Mat::zeros( mask.size(), CV_8UC3);
     for( unsigned i = 0; i< contours.size(); i++ ){
         Scalar color = Scalar(0, 0, 255);
         drawContours( src, contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
-        circle( src, center[i], (int)radius[i], color, 2, 8, 0 );
+        //circle( src, center[i], (int)radius[i], color, 2, 8, 0 );
     }
     #endif
     
+    if(center.size() > 0){
+        vector<Point2f>biggestCircle( 1 );
+        double biggestRadius =0;
+        unsigned index= 0;
+        
+        for(unsigned i = 0; i< center.size(); i++ ){
+            if(radius[i] > biggestRadius){
+                biggestRadius = radius[i];
+                biggestCircle[0] =center[i];
+                index = i;
+            }
+        }
+                Scalar color = Scalar(0, 0, 255);
+
+        circle( src, center[index], (int)radius[index], color, 2, 8, 0 );
+        return biggestCircle;
+    }
     return center;
 }
