@@ -73,6 +73,10 @@ private:
 
     string stringifyNavState() const;
 
+    bool isObstacleDetected() const;
+
+    double getOptimalAvoidanceAngle() const;
+
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
