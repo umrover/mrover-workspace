@@ -17,9 +17,9 @@
 #define ZED_SDK_PRESENT false
 #define PERCEPTION_DEBUG true
 
-#define THRESHOLD_NO_WAY  100000 //how will we calibrate if the rover width changes
-#define THRESHOLD_NO_OBSTACLE_CENTER  100000
-#define THRESHOLD_NO_SUBWINDOW 40000
+#define THRESHOLD_NO_WAY  80000 //how will we calibrate if the rover width changes
+#define THRESHOLD_NO_OBSTACLE_CENTER  80000
+#define THRESHOLD_NO_SUBWINDOW 27000
 #define SKY_START_ROW 200
 #define BALL_DETECTION_MAX_DIST 6.0  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
 
