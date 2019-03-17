@@ -1,0 +1,8 @@
+package rover_msgs;
+
+struct ProximitySensors {
+    boolean detected;
+    double bearing;
+    int32_t numDepths;
+    double depths[numDepths];
+}

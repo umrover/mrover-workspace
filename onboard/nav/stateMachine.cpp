@@ -309,9 +309,9 @@ NavState StateMachine::executeTurn()
 // keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive()
 {
-    if( mPhoebe->roverStatus().obstacle().detected )
+    if( isObstacleDetected() )
     {
-        mOriginalObstacleAngle = mPhoebe->roverStatus().obstacle().bearing;
+        mOriginalObstacleAngle = getOptimalAvoidanceAngle();
         return NavState::TurnAroundObs;
     }
 
@@ -370,7 +370,7 @@ NavState StateMachine::executeTurnAroundObs()
         return NavState::SearchTurn;
         // return NavState::Search; // todo
     }
-    if( !mPhoebe->roverStatus().obstacle().detected )
+    if( !isObstacleDetected() )
     {
         double distanceAroundObs = cvThresh / cos( fabs( degreeToRadian( mOriginalObstacleAngle ) ) );
         mObstacleAvoidancePoint = createAvoidancePoint( distanceAroundObs );
@@ -382,7 +382,7 @@ NavState StateMachine::executeTurnAroundObs()
     }
 
     double desiredBearing = mod( mPhoebe->roverStatus().odometry().bearing_deg
-                               + mPhoebe->roverStatus().obstacle().bearing, 360 );
+                               + getOptimalAvoidanceAngle(), 360 );
     mPhoebe->turn( desiredBearing );
     return mPhoebe->roverStatus().currentState();
 } // executeTurnAroundObs()
@@ -395,9 +395,9 @@ NavState StateMachine::executeTurnAroundObs()
 // TODO: fix the case about when the obstacle gets off course.
 NavState StateMachine::executeDriveAroundObs()
 {
-    if( mPhoebe->roverStatus().obstacle().detected )
+    if( isObstacleDetected() )
     {
-        mOriginalObstacleAngle = mPhoebe->roverStatus().obstacle().bearing;
+        mOriginalObstacleAngle = getOptimalAvoidanceAngle();
         if( mPhoebe->roverStatus().currentState() == NavState::DriveAroundObs )
         {
             return NavState::TurnAroundObs;
@@ -471,6 +471,18 @@ string StateMachine::stringifyNavState() const
 
     return navStateNames.at( mPhoebe->roverStatus().currentState() );
 } // stringifyNavState()
+
+// Returns true if an obstacle is detected, false otherwise.
+bool StateMachine::isObstacleDetected() const
+{
+    return mPhoebe->roverStatus().obstacle().detected;
+} // isObstacleDetected()
+
+// Returns the optimal angle to avoid the detected obstacle.
+double StateMachine::getOptimalAvoidanceAngle() const
+{
+    return mPhoebe->roverStatus().obstacle().bearing;
+} // optimalAvoidanceAngle()
 
 
 // thresholds based on state? waypoint vs ball
