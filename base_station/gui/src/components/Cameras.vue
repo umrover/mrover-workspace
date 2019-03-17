@@ -12,11 +12,13 @@
 
     <div class="servos">
       <span>Servos pan: {{servosData.pan.toFixed(2)}}, Servos tilt: {{servosData.tilt.toFixed(2)}}</span>
-      <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscope()"/>
     </div>
 
     <div class="video">
-      <Video v-bind:pi_index="pi_index" v-on:pi_index="setPiIndex($event)"/>
+      <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscope()" ref="microscope"/>
+      <Checkbox v-bind:name="'Dual Stream'" v-on:toggle="toggleDualStream()" ref="dualstream"/>
+      <Video v-bind:pi_index="pi_index_1" v-bind:dual_stream="dual_stream" v-on:pi_index="setPiIndex($event, 1)"/>
+      <Video v-show="dual_stream" v-bind:pi_index="pi_index_2" v-bind:dual_stream="dual_stream" v-on:pi_index="setPiIndex($event, 2)"/>
     </div>
   </div>
 </template>
@@ -93,7 +95,9 @@
   export default {
     data() {
       return {
-        pi_index: -1,
+        dual_stream: false,
+        pi_index_1: -1,
+        pi_index_2: -1,
         microscope_streaming: false
       }
     },
@@ -131,7 +135,7 @@
         }
 
         if(e.keyCode>=49 && e.keyCode<=54)  //keys 1 to 6
-          this.pi_index = e.keyCode-48
+          this.pi_index_1 = e.keyCode-48
       })
 
       // Change PI index based on joystick button
@@ -142,22 +146,22 @@
           if (gamepad) {
             if (gamepad.id.includes('Logitech')) {
               if (gamepad.buttons[JOYSTICK_CONFIG['down_left_button']]['pressed']) {
-              this.pi_index = CAMERA_NUM['down_left_button']
+                this.pi_index_1 = CAMERA_NUM['down_left_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['up_left_button']]['pressed']) {
-                this.pi_index = CAMERA_NUM['up_left_button']
+                this.pi_index_1 = CAMERA_NUM['up_left_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['down_middle_button']]['pressed']) {
-                this.pi_index = CAMERA_NUM['down_middle_button']
+                this.pi_index_1 = CAMERA_NUM['down_middle_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['up_middle_button']]['pressed']) {
-                this.pi_index = CAMERA_NUM['up_middle_button']
+                this.pi_index_1 = CAMERA_NUM['up_middle_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['down_right_button']]['pressed']) {
-                this.pi_index = CAMERA_NUM['down_right_button']
+                this.pi_index_1 = CAMERA_NUM['down_right_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['up_right_button']]['pressed']) {
-                this.pi_index = CAMERA_NUM['up_right_button']
+                this.pi_index_1 = CAMERA_NUM['up_right_button']
               }
             }
           }
         }
-        this.$parent.publish('/pi_camera', {type: "PiCamera", active_index: this.pi_index})
+        this.$parent.publish('/pi_camera', {type: "PiCamera", active_index_1: this.pi_index_1, active_index_2: this.pi_index_2, dual_stream: this.dual_stream})
         this.$parent.publish('/microscope', {type: "Microscope", streaming: this.microscope_streaming})
       }, 250)
     },
@@ -175,12 +179,33 @@
     },
 
     methods: {
-      setPiIndex: function (new_index) {
-        this.pi_index = new_index
+      setPiIndex: function (new_index, stream) {
+        if (stream === 1 && new_index !== this.pi_index_2) {
+          this.pi_index_1 = new_index
+        } else if (stream === 2 && new_index !== this.pi_index_1) {
+          this.pi_index_2 = new_index
+        }
       },
 
       toggleMicroscope: function () {
         this.microscope_streaming = !this.microscope_streaming
+        if (this.dual_stream) {
+          this.$refs.dualstream.toggle()
+          this.dual_stream = !this.dual_stream
+          this.pi_index_1 = -1
+          this.pi_index_2 = -1
+        }
+      },
+
+      toggleDualStream: function () {
+        this.dual_stream = !this.dual_stream
+        if (this.microscope_streaming) {
+          this.$refs.microscope.toggle()
+          this.microscope_streaming = !this.microscope_streaming
+        }
+        if (!this.dual_stream) {
+          this.pi_index_2 = -1
+        }
       }
     },
 
