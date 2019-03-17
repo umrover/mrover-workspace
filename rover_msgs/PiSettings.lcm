@@ -1,6 +1,7 @@
 package rover_msgs;
 
 struct PiSettings {
+	int8_t pi_index;
 	int32_t shutter_speed;
 	boolean vflip;
 	int32_t height;

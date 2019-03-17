@@ -37,6 +37,10 @@
       pi_index: {
         type: Number,
         required: true
+      },
+      dual_stream: {
+        type: Boolean,
+        required: true
       }
     },
 
@@ -56,10 +60,11 @@
       sendSettings: function() {
         this.$parent.$parent.publish("/pi_settings", {
           type: 'PiSettings',
+          pi_index: this.pi_index,
           shutter_speed: parseInt(this.sspeed),
           vflip: this.vflip,
-          height: this.high_quality ? 720 : 480,
-          width: this.high_quality ? 1280 : 854
+          height: this.high_quality && !this.dual_stream ? 720 : 480,
+          width: this.high_quality && !this.dual_stream ? 1280 : 854
         });
       },
 
@@ -84,6 +89,7 @@
 
     font-family: sans-serif;
     height: 100%;
+    padding: 10px 0px 10px 0px;
   }
 
   .title {

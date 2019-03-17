@@ -10,9 +10,11 @@
     dest: "/etc/systemd/system/{{ item }}.service"
   with_items:
     - rover-base_station_gui
-    - rover-base_station_gstreamer
     - rover-base_station_logging_server
+    - rover-base_station_gstreamer
+    - rover-base_station_gstreamer_2
     - rover-lcm_bridge_server
+    - rover-base_station_microscope
 
 - name: Copy environment variable definitions
   copy:
@@ -28,5 +30,6 @@
     - rover-base_station_gui.service
     - rover-base_station_logging_server.service
     - rover-base_station_gstreamer.service
+    - rover-base_station_gstreamer_2.service
     - rover-lcm_bridge_server.service
     - rover-base_station_microscope.service

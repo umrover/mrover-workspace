@@ -44,6 +44,7 @@ export default {
   .wrap-button {
     display: flex;
     align-items: center;
+    padding: 1px;
   }
 
   .green {
