@@ -126,28 +126,27 @@ int main() {
     #endif
 
     
-
     /*initialize obstacle detection*/
-    float pixelWidth = src.cols;
-    //float pixelHeight = src.rows;
-    int roverPixWidth = calcRoverPix(distThreshold, pixelWidth);
+    obstacleMessage.detected = false;
+    #if OBSTACLE_DETECTION
+      float pixelWidth = src.cols;
+      //float pixelHeight = src.rows;
+      int roverPixWidth = calcRoverPix(distThreshold, pixelWidth);
 
-    /* obstacle detection */
-    obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
-    if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
-      // cout<< "bearing not zero!\n";
-      obstacleMessage.detected = true;    //if an obstacle is detected in front
-    } else {
-      // cout<<"bearing zero\n";
-      obstacleMessage.detected = false;
-    }
-    obstacleMessage.bearing = obstacle_detection.bearing;
+      /* obstacle detection */
+      obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
+      if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
+        // cout<< "bearing not zero!\n";
+        obstacleMessage.detected = true;    //if an obstacle is detected in front
+      }
+      obstacleMessage.bearing = obstacle_detection.bearing;
 
-    #if PERCEPTION_DEBUG
-    // cout << "Turn " << obstacleMessage.bearing << ", detected " << (bool)obstacleMessage.detected<< endl;
+      #if PERCEPTION_DEBUG
+      // cout << "Turn " << obstacleMessage.bearing << ", detected " << (bool)obstacleMessage.detected<< endl;
+      #endif
+
     #endif
   
-
 
     lcm_.publish("/tennis_ball", &tennisMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
@@ -157,10 +156,7 @@ int main() {
       imshow("image", src);
       waitKey(FRAME_WAITKEY);
     #endif
-<<<<<<< f44feaea8f09e136dd404e7654fc9f76ca30699c
-=======
 
->>>>>>> [cv] cleaned up code
     auto end = chrono::high_resolution_clock::now();
 
     auto delta = chrono::duration_cast<chrono::duration<double>>(end - start);
