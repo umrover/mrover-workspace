@@ -24,11 +24,11 @@ const int NUM_TALONS = 11;
 const double ABS_ENC_CPR = 4096.0;
 const double PI = 3.14159;
 
-const int JOINT_A_OFFSET = 0; // TODO
-const int JOINT_B_OFFSET = -2100;
-const int JOINT_C_OFFSET = -3000;
-const int JOINT_D_OFFSET = -824;
-const int JOINT_E_OFFSET = -753;
+const int JOINT_A_OFFSET = 3820;
+const int JOINT_B_OFFSET = -4604;
+const int JOINT_C_OFFSET = -3310;
+const int JOINT_D_OFFSET = -2850;
+const int JOINT_E_OFFSET = -2170;
 
 enum Talons {
     leftFront = 0,
@@ -123,15 +123,17 @@ void configFollowerMode() {
 }
 
 void configPIDConstants() {
-    // TODO: Configure Joint A
+    talons[Talons::armJointA].Config_kP(0, 4.0);
+    talons[Talons::armJointA].Config_kI(0, 0.0001);
+    talons[Talons::armJointA].ConfigAllowableClosedloopError(0, 40);
     talons[Talons::armJointB].Config_kP(0, 2.0);
-    talons[Talons::armJointB].Config_kI(0, 0.0005);
-    talons[Talons::armJointC].Config_kP(0, 2.7);
-    talons[Talons::armJointC].Config_kI(0, 0.0005);
-    talons[Talons::armJointD].Config_kP(0, 1.7);
-    talons[Talons::armJointD].Config_kI(0, 0.0002);
-    talons[Talons::armJointE].Config_kP(0, 2.2);
-    talons[Talons::armJointE].Config_kI(0, 0.0005);
+    talons[Talons::armJointB].Config_kI(0, 0.00002);
+    talons[Talons::armJointC].Config_kP(0, 1.9);
+    talons[Talons::armJointC].Config_kI(0, 0.00008);
+    talons[Talons::armJointD].Config_kP(0, 1.5);
+    talons[Talons::armJointD].Config_kI(0, 0.00002);
+    talons[Talons::armJointE].Config_kP(0, 1.5);
+    talons[Talons::armJointE].Config_kI(0, 0.00001);
 }
 
 void configCurrentLimits() {
@@ -142,7 +144,7 @@ void configVoltageCompensation() {
     // Arm Joints B,C,F,G have 12V motors
     talons[Talons::armJointB].ConfigVoltageCompSaturation(12.0);
     talons[Talons::armJointC].ConfigVoltageCompSaturation(12.0);
-    talons[Talons::armJointF].ConfigVoltageCompSaturation(12.0);
+    talons[Talons::armJointF].ConfigVoltageCompSaturation(5.0);
     talons[Talons::armJointG].ConfigVoltageCompSaturation(12.0);
     talons[Talons::armJointB].EnableVoltageCompensation(true);
     talons[Talons::armJointC].EnableVoltageCompensation(true);
@@ -163,7 +165,7 @@ void configFeedbackDevices() {
     // Arm Joints A-E: CTRE Absolute Encoders
     talons[Talons::armJointA].ConfigSelectedFeedbackSensor(
         FeedbackDevice::CTRE_MagEncoder_Absolute);
-    // TODO: Check Joint A sensor phase
+    talons[Talons::armJointA].SetSensorPhase(false);
     talons[Talons::armJointB].ConfigSelectedFeedbackSensor(
         FeedbackDevice::CTRE_MagEncoder_Absolute);
     talons[Talons::armJointB].SetSensorPhase(true);
