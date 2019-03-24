@@ -153,35 +153,6 @@ def arm_control_callback(channel, msg):
         lcm_.publish('/arm_motors', openLoopMsg.encode())
 
 
-def sa_control_callback(channel, msg):
-    global front_drill_on, back_drill_on  # , front_drone_on, back_drone_on
-    xbox = Xbox.decode(msg)
-    sa_motor = SAMotors()
-
-    # Linear Actuators
-    sa_motor.carriage = deadzone(xbox.right_js_y, 0.3)
-    sa_motor.four_bar = xbox.d_pad_left - xbox.d_pad_right
-
-    # Drills
-    cond = front_drill_on.new_reading(xbox.right_bumper > 0.5)
-    sa_motor.front_drill = 0.25 if cond else 0.0
-    cond = back_drill_on.new_reading(xbox.left_bumper > 0.5)
-    sa_motor.back_drill = 0.25 if cond else 0.0
-
-    # Microscope controls
-    sa_motor.micro_x = deadzone(xbox.left_js_x, 0.3)
-    sa_motor.micro_y = deadzone(xbox.left_js_y, 0.3)
-    sa_motor.micro_z = xbox.right_trigger - xbox.left_trigger
-
-    # Drone Motors
-    # cond = front_drone_on.new_reading(xbox.y > 0.5)
-    # sa_motor.front_drone = 0.25 if cond else 0.0
-    # cond = back_drone_on.new_reading(xbox.a > 0.5)
-    # sa_motor.back_drone = 0.25 if cond else 0.0
-
-    lcm_.publish('/sa_motors', sa_motor.encode())
-
-
 solenoid_on = Toggle(False)
 electromagnet_on = Toggle(False)
 laser_on = Toggle(False)
@@ -248,7 +219,7 @@ def main():
     lcm_.subscribe("/drive_control", drive_control_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/arm_control', arm_control_callback)
-    lcm_.subscribe('/sa_controls', sa_control_callback)
+    # lcm_.subscribe('/sa_controls', sa_control_callback)
     lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),
