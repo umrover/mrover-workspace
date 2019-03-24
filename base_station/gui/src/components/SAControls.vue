@@ -1,7 +1,11 @@
 <template>
     <div class="wrap">
-        <div class="control_buttons">
+        <!-- <div class="control_buttons">
             <Checkbox ref="soil_ac" v-bind:name="'Soil Acquisition'" v-on:toggle="updateControlMode('soil_ac', $event)" />
+        </div> -->
+        <div class="toggle_drill">
+            <Checkbox ref="front_drill" v-bind:name="'Front Drill Active'" v-on:toggle="updateControlMode('front_drill', $event)" />
+            <Checkbox ref="back_drill" v-bind:name="'Back Drill Active'" v-on:toggle="updateControlMode('back_drill', $event)" />
         </div>
         <div class="speed_limiter">
             <p>
@@ -13,7 +17,7 @@
             <div v-if="controlMode === 'arm'">
                 <p>arm</p>
             </div>
-            <template v-else-if="controlMode === 'soil_ac'">
+            <template>
                 <span v-bind:class="['led', saFrontDrillColor]" />
                 <span class="name">Front Drill</span>
                 <span v-bind:class="['led', saBackDrillColor]" />
@@ -104,7 +108,45 @@ export default {
       'y': 3
     }
 
+    const deadzone = function(magnitude, threshold) {
+      let temp_mag = Math.abs(magnitude)
+      if (temp_mag <= threshold) {
+        temp_mag = 0
+      } else {
+        temp_mag = (temp_mag - threshold)/(1 - threshold)
+      }
+      return temp_mag * (magnitude > 0 ? 1 : -1)
+    }
+
+    class Toggle {
+      constructor(init_state) {
+          this.toggle = init_state
+          this.previous = false
+          this.input = false
+          this.last_input = false
+      }
+
+      new_reading(reading) {
+          this.input = reading
+          if (this.input && !this.last_input) {
+              //Just pushed
+              this.last_input = true
+              this.toggle = !this.toggle
+          } else if (!this.input && this.last_input) {
+              //Just released
+              this.last_input = false;
+          }
+          this.previous = reading;
+          return this.toggle;
+      }
+    }
+    
     const updateRate = 0.05;
+    const front_drill_on = new Toggle(false)
+    const back_drill_on = new Toggle(false)
+    const front_drone_on = new Toggle(false)
+    const back_drone_on = new Toggle(false)
+
     window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 4; i++) {
@@ -124,7 +166,7 @@ export default {
             if (!this.autonEnabled) {
               this.$parent.publish('/drive_control', joystickData)
             }
-          } else if (gamepad.id.includes('Microsoft')) {
+          } else if (gamepad.id.includes('Microsoft') || gamepad.id.includes('xinput')) {
             const xboxData = {
               'type': 'Xbox',
               'left_js_x': gamepad.axes[XBOX_CONFIG['left_js_x']], // actuator 1
@@ -145,9 +187,22 @@ export default {
               'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
               //one of the buttoms to turn on drone motor, servos
             }
-            if (this.controlMode === 'soil_ac') {
-              this.$parent.publish('/sa_controls', xboxData)
-              }
+            
+
+            const saMotorsData = {
+              'type': 'SAMotors',
+              'carriage': deadzone(xboxData['right_js_y'], 0.3),
+              'four_bar': xboxData['d_pad_left'] - xboxData['d_pad_right'],
+              'front_drill': front_drill_on.new_reading(xboxData['right_bumper'] > 0.5) ? 0.25 : 0.0,
+              'back_drill': back_drill_on.new_reading(xboxData['left_bumper'] > 0.5) ? 0.25 : 0.0,
+              'micro_x': deadzone(xboxData['left_js_x'], 0.3),
+              'micro_y': deadzone(xboxData['left_js_y'], 0.3),
+              'micro_z': xboxData['right_trigger'] - xboxData['left_trigger'],
+              'front_drone': front_drone_on.new_reading(xboxData['y'] > 0.5) ? 0.25 : 0.0,
+              'back_drone': back_drone_on.new_reading(xboxData['a'] > 0.5) ? 0.25 : 0.0
+            }
+
+            this.$parent.publish('/sa_motors', saMotorsData)
           }
         }
       }

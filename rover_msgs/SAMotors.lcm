@@ -8,4 +8,6 @@ struct SAMotors {
     double micro_x;
     double micro_y;
     double micro_z;
+    double front_drone;
+    double back_drone;
 }
