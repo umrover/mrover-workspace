@@ -26,10 +26,12 @@ NavState Searcher::run( Rover * phoebe, const rapidjson::Document& roverConfig )
 {
     switch ( phoebe->roverStatus().currentState() )
     {
+        /*
         case NavState::SearchFaceNorth:
         {
             return executeSearchFaceNorth( phoebe );
         }
+        */
 
         case NavState::SearchSpin:
         {
@@ -72,23 +74,6 @@ NavState Searcher::run( Rover * phoebe, const rapidjson::Document& roverConfig )
 /* Helpers */
 /*****************************************************/
 
-// Executes the logic for turning to face north to orient itself for a search.
-// If the rover detects the tennis ball, it proceeds to the ball.
-// If the rover finishes turning, it proceeds to SearchSpin.
-// Else the rover keeps turning to north.
-NavState Searcher::executeSearchFaceNorth( Rover * phoebe )
-{
-    if( phoebe->roverStatus().tennisBall().found )
-    {
-        mSearchPoints.push_front( phoebe->roverStatus().odometry() );
-        return NavState::TurnToBall;
-    }
-    if( phoebe->turn( 0 ) )
-    {
-        return NavState::SearchSpin;
-    }
-    return NavState::SearchFaceNorth;
-} // executeSearchFaceNorth
 
 // Executes the logic for a search spin. If at a multiple of
 // waitStepSize, the rover will go to SearchSpinWait. If the rover
@@ -99,15 +84,23 @@ NavState Searcher::executeSearchSpin( Rover* phoebe, const rapidjson::Document& 
 {
     // degrees to turn to before performing a search wait.
     double waitStepSize = roverConfig[ "computerVision" ][ "searchWaitStepSize" ].GetDouble();
-    static int nextStop = 0; // to force the rover to wait initially
+    static double nextStop = 0; // to force the rover to wait initially
+    static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
+
     if( phoebe->roverStatus().tennisBall().found )
     {
         mSearchPoints.push_front( phoebe->roverStatus().odometry() );
         return NavState::TurnToBall;
     }
+    if ( nextStop == 0 )
+    {
+        //get current angle and set as origAngle
+        mOriginalSpinAngle = phoebe->roverStatus().odometry().bearing_deg; //doublecheck
+        nextStop = mOriginalSpinAngle;
+    }
     if( phoebe->turn( nextStop ) )
     {
-        if( nextStop >= 360 )
+        if( nextStop - mOriginalSpinAngle >= 360 )
         {
             nextStop = 0;
             return NavState::SearchTurn;
@@ -197,7 +190,7 @@ NavState Searcher::executeSearchDrive( Rover * phoebe )
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.pop_front();
-        return NavState::SearchTurn;
+        return NavState::SearchSpin;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
@@ -215,7 +208,7 @@ NavState Searcher::executeTurnToBall( Rover * phoebe )
     if( !phoebe->roverStatus().tennisBall().found )
     {
         cerr << "Lost the tennis ball\n";
-        return NavState::SearchFaceNorth;
+        return NavState::SearchSpin;
     }
     if( phoebe->turn( phoebe->roverStatus().tennisBall().bearing +
                        phoebe->roverStatus().odometry().bearing_deg ) )
@@ -236,7 +229,7 @@ NavState Searcher::executeDriveToBall( Rover * phoebe )
     if( !phoebe->roverStatus().tennisBall().found )
     {
         cerr << "Lost the tennis ball\n";
-        return NavState::SearchFaceNorth;
+        return NavState::SearchSpin;
     }
     if( phoebe->roverStatus().obstacle().detected )
     {

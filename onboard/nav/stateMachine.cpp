@@ -333,7 +333,7 @@ NavState StateMachine::executeDrive()
     {
         if( nextWaypoint.search )
         {
-            return NavState::SearchFaceNorth;
+            return NavState::SearchSpin;
         }
         mPhoebe->roverStatus().path().pop();
         ++mCompletedWaypoints;
