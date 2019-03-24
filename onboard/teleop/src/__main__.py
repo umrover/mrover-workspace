@@ -30,49 +30,60 @@ class Toggle:
 
 
 lcm_ = aiolcm.AsyncLCM()
+prev_killed = False
 kill_motor = False
 lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
+connection = None
 # front_drone_on = Toggle(False)
 # back_drone_on = Toggle(False)
 
 
+def send_drive_kill():
+    drive_motor = DriveMotors()
+    drive_motor.left = 0.0
+    drive_motor.right = 0.0
+
+    lcm_.publish('/motor', drive_motor.encode())
+
+
+def send_arm_kill():
+    for i in range(7):
+        arm_motor = OpenLoopRAMotor()
+        arm_motor.joint_id = i
+        arm_motor.speed = 0.0
+        lcm_.publish('/arm_motors', arm_motor.encode())
+
+
+def send_sa_kill():
+    sa_motor = SAMotors()
+    sa_motor.carriage = 0.0
+    sa_motor.four_bar = 0.0
+    sa_motor.front_drill = 0.0
+    sa_motor.back_drill = 0.0
+    sa_motor.micro_x = 0.0
+    sa_motor.micro_y = 0.0
+    sa_motor.micro_z = 0.0
+    # sa_motor.front_drone = 0.0
+    # sa_motor.back_drone = 0.0
+
+    lcm_.publish('/sa_motors', sa_motor.encode())
+
+
 def connection_state_changed(c, _):
-    global kill_motor
+    global kill_motor, prev_killed, connection
     if c:
         print("Connection established.")
+        kill_motor = prev_killed
+        connection = True
     else:
+        connection = False
         print("Disconnected.")
-
-        # Kill drive motors
-        kill_motor = True
-        drive_motor = DriveMotors()
-        drive_motor.left = 0.0
-        drive_motor.right = 0.0
-
-        lcm_.publish('/motor', drive_motor.encode())
-
-        # Kill arm motors
-        for i in range(7):
-            arm_motor = OpenLoopRAMotor()
-            arm_motor.joint_id = i
-            arm_motor.speed = 0.0
-            lcm_.publish('/arm_motors', arm_motor.encode())
-
-        # Kill SA motors
-        sa_motor = SAMotors()
-        sa_motor.carriage = 0.0
-        sa_motor.four_bar = 0.0
-        sa_motor.front_drill = 0.0
-        sa_motor.back_drill = 0.0
-        sa_motor.micro_x = 0.0
-        sa_motor.micro_y = 0.0
-        sa_motor.micro_z = 0.0
-        # sa_motor.front_drone = 0.0
-        # sa_motor.back_drone = 0.0
-
-        lcm_.publish('/sa_motors', sa_motor.encode())
+        prev_killed = kill_motor
+        send_drive_kill()
+        send_arm_kill()
+        send_sa_kill()
 
 
 def quadratic(val):
@@ -107,23 +118,23 @@ def joystick_math(new_motor, magnitude, theta):
 
 
 def drive_control_callback(channel, msg):
-    global kill_motor
+    global kill_motor, connection
+
+    if not connection:
+        return
 
     input_data = Joystick.decode(msg)
-    input_data.forward_back = -quadratic(input_data.forward_back)
 
     if input_data.kill:
         kill_motor = True
     elif input_data.restart:
         kill_motor = False
 
-    new_motor = DriveMotors()
-
     if kill_motor:
-        new_motor.left = 0
-        new_motor.right = 0
-
+        send_drive_kill()
     else:
+        new_motor = DriveMotors()
+        input_data.forward_back = -quadratic(input_data.forward_back)
         magnitude = deadzone(input_data.forward_back, 0.04)
         theta = deadzone(input_data.left_right, 0.1)
 
@@ -133,7 +144,7 @@ def drive_control_callback(channel, msg):
         new_motor.left *= damp
         new_motor.right *= damp
 
-    lcm_.publish('/motor', new_motor.encode())
+        lcm_.publish('/motor', new_motor.encode())
 
 
 def arm_control_callback(channel, msg):
