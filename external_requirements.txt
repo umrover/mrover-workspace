@@ -2,5 +2,4 @@ pyserial==3.4
 websockets==3.4
 pycairo==1.17.0
 pygobject==3.28.2
-pynmea2==1.12.0
 pyusb==1.0.2
