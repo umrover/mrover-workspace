@@ -9,6 +9,8 @@
 #include "rover_msgs/SetDemand.hpp"
 #include "rover_msgs/Encoder.hpp"
 #include "rover_msgs/WheelSpeeds.hpp"
+#include "rover_msgs/TalonConfig.hpp"
+#include "rover_msgs/SAMotors.hpp"
 #include <string>
 #include <deque>
 #include <iostream>
@@ -32,6 +34,9 @@ const int JOINT_C_OFFSET = -3310;
 const int JOINT_D_OFFSET = -2850;
 const int JOINT_E_OFFSET = -2170;
 
+bool ARM_ENABLED = 0;
+bool SA_ENABLED = 0;
+
 enum Talons {
     leftFront = 0,
     leftBack = 1,
@@ -43,7 +48,14 @@ enum Talons {
     armJointD = 7,
     armJointE = 8,
     armJointF = 9,
-    armJointG = 10
+    armJointG = 10,
+    saCarriage = 4,
+    saFourBar = 5,
+    saDrillFront = 6,
+    saDrillBack = 7,
+    saMicroX = 8,
+    saMicroY = 9,
+    saMicroZ = 10
 };
 
 mutex canLock;
@@ -64,30 +76,46 @@ double encoderSpeedToRPS(int speed, int cpr) {
     return (rotationsPerMs * 1000) / cpr;
 }
 
+bool isDriveMotor(int id) {
+    return id < 4;
+}
+
+int jointIDtoTalonID(int id) {
+    return id + 4;
+}
+
 class LCMHandlers {
 public:
     // Drive mobility motors
-    void drive(const lcm::ReceiveBuffer* recieveBuffer,
+    void drive(const lcm::ReceiveBuffer* receiveBuffer,
                const string& channel,
                const DriveMotors* msg) {
         lock_guard<mutex> scopedLock(canLock);
+
         talons[Talons::leftFront].Set(ControlMode::PercentOutput, msg->left);
         talons[Talons::rightFront].Set(ControlMode::PercentOutput, msg->right);
     }
 
     // Drive arm motor via open-loop throttle demands
-    void armDrive(const lcm::ReceiveBuffer* recieveBuffer,
+    void armDrive(const lcm::ReceiveBuffer* receiveBuffer,
                    const string& channel,
                    const OpenLoopRAMotor* msg) {
         lock_guard<mutex> scopedLock(canLock);
-        talons[msg->joint_id + 4].Set(ControlMode::PercentOutput, msg->speed);
+
+        if(!ARM_ENABLED)
+            return;
+        
+        talons[jointIDtoTalonID(msg->joint_id)].Set(ControlMode::PercentOutput, msg->speed);
     }
 
     // Drive arm motors via closed-loop position demands
-    void armIKDrive(const lcm::ReceiveBuffer* recieveBuffer,
+    void armIKDrive(const lcm::ReceiveBuffer* receiveBuffer,
                     const string& channel,
                     const ArmPosition* msg) {
         lock_guard<mutex> scopedLock(canLock);
+
+        if(!ARM_ENABLED)
+            return;
         
         int aUnits = radiansToEncoderUnits(msg->joint_a, ABS_ENC_CPR, JOINT_A_OFFSET);
         int bUnits = radiansToEncoderUnits(msg->joint_b, 2* ABS_ENC_CPR, JOINT_B_OFFSET);
@@ -103,22 +131,95 @@ public:
     }
 
     // Configure a talon's PID constants
-    void configPID(const lcm::ReceiveBuffer* recieveBuffer,
+    void configPID(const lcm::ReceiveBuffer* receiveBuffer,
                     const string& channel,
                     const PIDConstants* msg) {
         lock_guard<mutex> scopedLock(canLock);
+
         talons[msg->deviceID].Config_kP(0, msg->kP);
         talons[msg->deviceID].Config_kI(0, msg->kI);
         talons[msg->deviceID].Config_kD(0, msg->kD);
     }
 
     // Set output demand of an individual talon
-    void setDemand(const lcm::ReceiveBuffer* recieveBuffer,
+    void setDemand(const lcm::ReceiveBuffer* receiveBuffer,
                     const string& channel,
                     const SetDemand* msg) {
         lock_guard<mutex> scopedLock(canLock);
+
+        if(!isDriveMotor(msg->deviceID) && !ARM_ENABLED)
+            return;
+
         ControlMode controlMode = static_cast<ControlMode>(msg->control_mode);
         talons[msg->deviceID].Set(controlMode, msg->value);
+    }
+
+    // Set SA/Arm talon configuration
+    void talonConfig(const lcm::ReceiveBuffer* receiveBuffer,
+                      const string& channel,
+                      const TalonConfig* msg) {
+        lock_guard<mutex> scopedLock(canLock);
+
+        // Error case: Both configs requested on
+        if(msg->enable_arm && msg->enable_sa) {
+            cout << "Error: Arm and SA cannot be enabled together." << endl;
+            return;
+        }
+        // Arm Configuration
+        else if(!ARM_ENABLED && msg->enable_arm) {
+            talons[Talons::saCarriage].EnableVoltageCompensation(false);
+            talons[Talons::saFourBar].EnableVoltageCompensation(false);
+            talons[Talons::saMicroX].EnableVoltageCompensation(false);
+            talons[Talons::saMicroY].EnableVoltageCompensation(false);
+            talons[Talons::saMicroZ].EnableVoltageCompensation(false);
+            SA_ENABLED = 0;
+            talons[Talons::armJointB].ConfigVoltageCompSaturation(12.0);
+            talons[Talons::armJointC].ConfigVoltageCompSaturation(12.0);
+            talons[Talons::armJointF].ConfigVoltageCompSaturation(5.0);
+            talons[Talons::armJointG].ConfigVoltageCompSaturation(12.0);
+            talons[Talons::armJointB].EnableVoltageCompensation(true);
+            talons[Talons::armJointC].EnableVoltageCompensation(true);
+            talons[Talons::armJointF].EnableVoltageCompensation(true);
+            talons[Talons::armJointG].EnableVoltageCompensation(true);
+            ARM_ENABLED = 1;
+        } 
+        // SA Configuration
+        else if (!SA_ENABLED && msg->enable_sa) {
+            talons[Talons::armJointB].EnableVoltageCompensation(false);
+            talons[Talons::armJointC].EnableVoltageCompensation(false);
+            talons[Talons::armJointF].EnableVoltageCompensation(false);
+            talons[Talons::armJointG].EnableVoltageCompensation(false);
+            ARM_ENABLED = 0;
+            talons[Talons::saCarriage].ConfigVoltageCompSaturation(12.0);
+            talons[Talons::saFourBar].ConfigVoltageCompSaturation(12.0);
+            talons[Talons::saMicroX].ConfigVoltageCompSaturation(12.0);
+            talons[Talons::saMicroY].ConfigVoltageCompSaturation(12.0);
+            talons[Talons::saMicroZ].ConfigVoltageCompSaturation(12.0);
+            talons[Talons::saCarriage].EnableVoltageCompensation(true);
+            talons[Talons::saFourBar].EnableVoltageCompensation(true);
+            talons[Talons::saMicroX].EnableVoltageCompensation(true);
+            talons[Talons::saMicroY].EnableVoltageCompensation(true);
+            talons[Talons::saMicroZ].EnableVoltageCompensation(true);
+            SA_ENABLED = 1;
+        }
+    }
+
+    // Drive SA Motors
+    void saMotors(const lcm::ReceiveBuffer* receiveBuffer,
+                   const string& channel,
+                   const SAMotors* msg) {
+        lock_guard<mutex> scopedLock(canLock);
+
+        if(!SA_ENABLED)
+            return;
+
+        talons[Talons::saCarriage].Set(ControlMode::PercentOutput, msg->carriage);
+        talons[Talons::saFourBar].Set(ControlMode::PercentOutput, msg->four_bar);
+        talons[Talons::saDrillFront].Set(ControlMode::PercentOutput, msg->front_drill);
+        talons[Talons::saDrillBack].Set(ControlMode::PercentOutput, msg->back_drill);
+        talons[Talons::saMicroX].Set(ControlMode::PercentOutput, msg->micro_x);
+        talons[Talons::saMicroY].Set(ControlMode::PercentOutput, msg->micro_y);
+        talons[Talons::saMicroZ].Set(ControlMode::PercentOutput, msg->micro_z);
     }
 };
 
@@ -145,18 +246,6 @@ void configPIDConstants() {
 
 void configCurrentLimits() {
     // TODO (not SAR-Critical)
-}
-
-void configVoltageCompensation() {
-    // Arm Joints B,C,F,G have 12V motors
-    talons[Talons::armJointB].ConfigVoltageCompSaturation(12.0);
-    talons[Talons::armJointC].ConfigVoltageCompSaturation(12.0);
-    talons[Talons::armJointF].ConfigVoltageCompSaturation(5.0);
-    talons[Talons::armJointG].ConfigVoltageCompSaturation(12.0);
-    talons[Talons::armJointB].EnableVoltageCompensation(true);
-    talons[Talons::armJointC].EnableVoltageCompensation(true);
-    talons[Talons::armJointF].EnableVoltageCompensation(true);
-    talons[Talons::armJointG].EnableVoltageCompensation(true);
 }
 
 void configFeedbackDevices() {
@@ -200,7 +289,6 @@ void configTalons() {
     configFollowerMode();
     configPIDConstants();
     configCurrentLimits();
-    configVoltageCompensation();
     configFeedbackDevices();
     configLimitSwitches();
 }
@@ -279,6 +367,8 @@ int main() {
     lcm.subscribe("/set_demand", &LCMHandlers::setDemand, &lcmHandlers);
     lcm.subscribe("/arm_motors", &LCMHandlers::armDrive, &lcmHandlers);
     lcm.subscribe("/ik_ra_control", &LCMHandlers::armIKDrive, &lcmHandlers);
+    lcm.subscribe("/talon_config", &LCMHandlers::talonConfig, &lcmHandlers);
+    lcm.subscribe("/sa_motors", &LCMHandlers::saMotors, &lcmHandlers);
 
     thread enableFrameThread(sendEnableFrames);
     thread encoderThread(publishEncoderData, ref(lcm));
