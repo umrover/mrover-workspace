@@ -53,16 +53,13 @@ def pyinstall(ctx):
 
 class PythonBuilder(BuildContext):
     def __init__(self, dir_, wksp, executable=True):
-        super().__init__(dir_, wksp, ['.py'])
+        super().__init__(dir_, wksp)
         self.executable = executable
 
     def build(self):
         """
         Builds a Python module.
         """
-        if not self.files_changed():
-            print("{} unchanged, skipping.".format(self.dir_))
-            return
 
         self.wksp.ensure_product_env()
         full_path = os.path.join(self.wksp.root, self.dir_)
@@ -90,4 +87,3 @@ class PythonBuilder(BuildContext):
                 pytest(self)
                 pyinstall(self)
 
-        self.save_hash()
