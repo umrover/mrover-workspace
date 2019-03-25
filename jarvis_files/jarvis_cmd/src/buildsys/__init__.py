@@ -2,49 +2,10 @@ import venv
 import os
 import re
 import shutil
-import hashlib
 from contextlib import contextmanager
 
 from invoke.context import Context
 from jinja2 import Environment, FileSystemLoader
-
-
-def hash_file(filepath, algo):
-    hasher = algo()
-    blocksize = 64 * 1024  # TODO see if there is a more efficient way
-    with open(filepath, 'rb') as fp:
-        while True:
-            data = fp.read(blocksize)
-            if not data:
-                break
-            hasher.update(data)
-
-    return hasher.hexdigest()
-
-
-def hash_dir(dir_, suffixes):
-    """
-    Computes the SHA-256 hash of all files with the given suffixes.
-    """
-    hash_algo = hashlib.sha256
-    if not os.path.isdir(dir_):
-        raise BuildError('{} is not a directory.'.format(dir_))
-    intermediate_hashes = []
-    for root, dirs, files in os.walk(dir_, topdown=True, followlinks=False):
-        if not re.search(r'/\.', root):
-            intermediate_hashes.extend(
-                [
-                    hash_file(os.path.join(root, f), hash_algo)
-                    for f in files
-                    if not f.startswith('.') and not re.search(r'/\.', f)
-                    and os.path.splitext(f)[1] in suffixes
-                ]
-            )
-
-    hasher = hash_algo()
-    for hashvalue in sorted(intermediate_hashes):
-        hasher.update(hashvalue.encode('utf-8'))
-    return hasher.hexdigest()
 
 
 class BuildError(Exception):
@@ -135,60 +96,30 @@ class WorkspaceContext:
         return os.path.join(self.jarvis_env, *args)
 
     @contextmanager
-    def intermediate(self, name, cleanup=False):
+    def intermediate(self, name):
         """
         Create an intermediate build directory, then change directory to it.
         """
         intermediate = os.path.join(self.build_intermediate, name)
         self.ensure_dir(intermediate)
-        if os.listdir(intermediate) and cleanup:
+        if os.listdir(intermediate):
             shutil.rmtree(intermediate)
             self.ensure_dir(intermediate)
 
         with self.cd(intermediate):
             yield intermediate
 
-        if cleanup:
-            shutil.rmtree(intermediate)
-
 
 class BuildContext:
-    def __init__(self, dir_, wksp, suffixes):
+    def __init__(self, dir_, wksp):
         self.dir_ = dir_
         self.name = dir_.replace('/', '_')
         self.wksp = wksp
-        self.suffixes = suffixes
 
     @contextmanager
-    def scratch_space(self, cleanup=False):
-        with self.wksp.intermediate(self.name, cleanup) as i:
+    def scratch_space(self):
+        with self.wksp.intermediate(self.name) as i:
             yield i
-
-    def files_changed(self):
-        """
-        Determines whether the directory should be re-built.
-        """
-        hash_file_path = os.path.join(self.wksp.hash_store, self.name)
-        saved_hash = b''
-        try:
-            with open(hash_file_path) as hash_file:
-                saved_hash = hash_file.read()
-        except:
-            pass
-
-        full_path = os.path.join(self.wksp.root, self.dir_)
-        computed_hash = hash_dir(full_path, self.suffixes)
-
-        return saved_hash != computed_hash
-
-    def save_hash(self):
-        """
-        Saves the hash of the build directory.
-        """
-        full_path = os.path.join(self.wksp.root, self.dir_)
-        hash_file_path = os.path.join(self.wksp.hash_store, self.name)
-        with open(hash_file_path, 'w') as hash_file:
-            hash_file.write(hash_dir(full_path, self.suffixes))
 
     @contextmanager
     def cd(self, *args):

@@ -6,16 +6,10 @@ from .python import generate_setup_py, pyinstall
 
 
 class LCMBuilder(BuildContext):
-    def __init__(self, dir_, wksp):
-        super().__init__(dir_, wksp, ['.lcm'])
-
     def build(self):
         """
         Builds an LCM module into Python and C++ modules.
         """
-        if not self.files_changed():
-            print("{} unchanged, skipping.".format(self.dir_))
-            return
 
         self.wksp.ensure_product_env()
         full_path = os.path.join(self.wksp.root, self.dir_)
@@ -26,7 +20,7 @@ class LCMBuilder(BuildContext):
         ]
         lcm_files_cmdline = ' '.join('"{}"'.format(v) for v in lcm_files)
 
-        with self.scratch_space(True) as intermediate:
+        with self.scratch_space() as intermediate:
             pydir = os.path.join(intermediate, 'python')
             if not os.path.exists(pydir):
                 os.mkdir(pydir)
@@ -54,4 +48,3 @@ class LCMBuilder(BuildContext):
                 shutil.rmtree(target_dir)
             shutil.copytree(os.path.join(cppdir, 'rover_msgs'), target_dir)
 
-        self.save_hash()
