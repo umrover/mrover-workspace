@@ -44,6 +44,11 @@ class RawIMU:
         self._roll = None
         self._yaw = None
 
+    def __str__(self):
+        return "acc_x: {} acc_y:{} acc_z:{}".format(self._acc_x,
+                                                    self._acc_y,
+                                                    self._acc_z)
+
     def update_imu(self, new_imu):
         """Updates IMU data with new IMU lcm message."""
         self._acc_x = new_imu.accel_x
