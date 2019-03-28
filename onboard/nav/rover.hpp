@@ -82,6 +82,8 @@ public:
 
         TennisBall& tennisBall();
 
+        unsigned getPathTennisBalls();
+
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
     private:
@@ -109,6 +111,10 @@ public:
         // The rover's current tennis ball information from computer
         // vision.
         TennisBall mTennisBall;
+
+        // Total tennis balls to seach for in the course
+        unsigned mPathTennisBalls;
+
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
