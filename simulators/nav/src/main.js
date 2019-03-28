@@ -55,6 +55,13 @@ app.on("gps", (gps) => {
     }
 })
 
+app.on("sensorPackage", (sensorPackage) => {
+    if (bridge.online) {
+        sensorPackage.type = 'SensorPackage';
+        bridge.publish('/sensor_package', sensorPackage);
+    }
+})
+
 app.on("course", (course) => {
     if (bridge.online) {
         course.type = 'Course';

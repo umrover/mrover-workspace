@@ -4,7 +4,7 @@ import time
 import sys
 import traceback
 from rover_common import aiolcm
-from rover_msgs import IMU, GPS
+from rover_msgs import SensorPackage
 
 from .android_usb_comm import Android
 
@@ -48,18 +48,14 @@ def main():
                     if raw_data:
                         frame = AndroidFrame(raw_data)
 
-                        imu_msg = IMU()
-                        imu_msg.bearing = frame.azimuth_deg
-                        lcm_.publish('/imu', imu_msg.encode())
-
-                        gps_msg = GPS()
-                        gps_msg.latitude_deg = int(frame.lat_deg)
-                        gps_msg.latitude_min = frame.lat_min
-                        gps_msg.longitude_deg = int(frame.lon_deg)
-                        gps_msg.longitude_min = frame.lon_min
-                        gps_msg.bearing_deg = frame.azimuth_deg
-                        gps_msg.speed = 0
-                        lcm_.publish('/gps', gps_msg.encode())
+                        snsr_pkg_msg = SensorPackage()
+                        snsr_pkg_msg.bearing = frame.azimuth_deg
+                        snsr_pkg_msg.latitude_deg = int(frame.lat_deg)
+                        snsr_pkg_msg.latitude_min = frame.lat_min
+                        snsr_pkg_msg.longitude_deg = int(frame.lon_deg)
+                        snsr_pkg_msg.longitude_min = frame.lon_min
+                        snsr_pkg_msg.speed = 0
+                        lcm_.publish('/sensor_package', snsr_pkg_msg.encode())
                     else:
                         print('read timed out, retrying the connection')
                         break
