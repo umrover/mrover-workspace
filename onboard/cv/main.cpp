@@ -40,11 +40,11 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
 
 static string rgb_foldername, depth_foldername;
 void disk_record_init() {
-  if (WRITE_CURR_FRAME_TO_DISK) {
+  #if WRITE_CURR_FRAME_TO_DISK
     // write images colleted to the folder
     // absolute path
-    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER + "rgb/";
-    depth_foldername = DEFAULT_ONLINE_DATA_FOLDER + "depth/" ;
+    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER "rgb/";
+    depth_foldername = DEFAULT_ONLINE_DATA_FOLDER "depth/";
     string mkdir_rgb =  std::string("mkdir -p ") + rgb_foldername;
     string mkdir_depth =  std::string("mkdir -p ") + depth_foldername;
     int dir_err_rgb = system( mkdir_rgb.c_str() );
@@ -52,7 +52,7 @@ void disk_record_init() {
     if (-1 == dir_err_rgb || -1 == dir_err_depth) {
       exit(1);
     }
-  }
+  #endif
 }
 
 void write_curr_frame_to_disk(Mat &rgb, Mat & depth, int counter ) {
@@ -95,9 +95,9 @@ int main() {
           Mat depth_img = cam.depth();
 
     // write to disk if permitted
-    if(WRITE_CURR_FRAME_TO_DISK){
+    #if WRITE_CURR_FRAME_TO_DISK
       write_curr_frame_to_disk(src, depth_img, j );
-    }
+    #endif
 
 
 

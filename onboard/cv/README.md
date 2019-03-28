@@ -1,18 +1,22 @@
+## To build with meson options.
+    jarvis build onboard/cv -o [options]
+
+For example:
+
+    jarvis build onboard/cv -o with_zed=true perception_debug=true write_frame=true data_folder='/home/jessica/auton_data/'
+
 ## To run with the ZED:
-    perception.hpp ->       define ZED_SDK_PRESENT true 
-    meson.build ->          set with_zed to true
+    with_zed=true
 
 ## To run with data (if you don't have the ZED or nvidia):
-    perception.hpp ->       define ZED_SDK_PRESENT false 
-    meson.build ->          set with_zed to false    
+    with_zed=false
 
 ## To run in competition (no output):
-    perception.hpp ->       define ZED_SDK_PRESENT true 
-                            define PERCEPTION_DEBUG false 
-    meson.build ->          set with_zed to true
+    with_zed=true
+    perception_debug=false
 
 ## To collect data:
-    perception.hpp ->       define ZED_SDK_PRESENT true 
-                            set WRITE_CURR_FRAME_TO_DISK = true
-                            replace DEFAULT_ONLINE_DATA_FOLDER("/home/jessica/auton_data/") with the path where you want the data saved
-    meson.build ->          set with_zed to true
+    with_zed=true
+    write_frame=true
+    data_folder='/home/jessica/auton_data/' (replace with path where you want the data saved)
+
