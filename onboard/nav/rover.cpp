@@ -55,19 +55,30 @@ TennisBall& Rover::RoverStatus::tennisBall()
     return mTennisBall;
 } // tennisBall()
 
+unsigned Rover::RoverStatus::getPathTennisBalls()
+{
+  return mPathTennisBalls;
+} // getPathTennisBalls()
+
 // Assignment operator for the rover status object. Does a "deep" copy
 // where necessary.
 Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverStatus )
 {
     mAutonState = newRoverStatus.autonState();
     mCourse = newRoverStatus.course();
+    mPathTennisBalls = 0;
+
     while( !mPath.empty() )
     {
         mPath.pop();
     }
     for( int courseIndex = 0; courseIndex < mCourse.num_waypoints; ++courseIndex )
     {
-        mPath.push( mCourse.waypoints[ courseIndex ] );
+        auto &wp = mCourse.waypoints[ courseIndex ];
+        mPath.push( wp );
+        if (wp.search) {
+            ++mPathTennisBalls;
+        }
     }
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();

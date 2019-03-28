@@ -23,6 +23,8 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     , mTotalWaypoints( 0 )
     , mCompletedWaypoints( 0 )
     , mMissedWaypoints( 0 )
+    , mFoundTennisBalls( 0 )
+    , mTotalTennisBalls( 0 )
     , mStateChanged( true )
 {
     ifstream configFile;
@@ -58,6 +60,12 @@ void StateMachine::setSearcher( SearchType type )
 void StateMachine::updateCompletedPoints( )
 {
     mCompletedWaypoints += 1;
+    return;
+}
+
+void StateMachine::updateFoundBalls( )
+{
+    mFoundTennisBalls += 1;
     return;
 }
 
@@ -250,6 +258,8 @@ void StateMachine::publishNavState() const
     navStatus.completed_wps = mCompletedWaypoints;
     navStatus.missed_wps = mMissedWaypoints;
     navStatus.total_wps = mTotalWaypoints;
+    navStatus.found_tbs = mFoundTennisBalls;
+    navStatus.total_tbs = mTotalTennisBalls;
     const string& navStatusChannel = mRoverConfig[ "lcmChannels" ][ "navStatusChannel" ].GetString();
     mLcmObject.publish( navStatusChannel, &navStatus );
 } // publishNavState()
@@ -264,7 +274,9 @@ NavState StateMachine::executeOff()
     {
         mCompletedWaypoints = 0;
         mMissedWaypoints = 0;
+        mFoundTennisBalls = 0;
         mTotalWaypoints = mPhoebe->roverStatus().course().num_waypoints;
+        mTotalTennisBalls = mPhoebe->roverStatus().getPathTennisBalls();
 
         if( !mTotalWaypoints )
         {

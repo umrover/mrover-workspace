@@ -12,7 +12,8 @@
       <span>
         Navigation State: {{nav_status.nav_state_name}}<br>
         Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
-        Missed Waypoints: {{nav_status.missed_wps}}/{{nav_status.total_wps}}
+        Missed Waypoints: {{nav_status.missed_wps}}/{{nav_status.total_wps}}<br>
+        Tennis Balls: {{nav_status.found_tbs}}/{{nav_status.total_tbs}}
       </span>
     </div>
     <div class="box">

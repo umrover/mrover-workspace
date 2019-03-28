@@ -66,6 +66,7 @@
             <p><b>Navigation State:</b> {{ nav_state_name }}</p>
             <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
             <p><b>Missed Waypoints:</b> {{ missed_wps }}/{{ total_wps }}</p>
+            <p><b>Tennis Balls:</b> {{ found_tbs }}/{{ total_tbs }}</p>
             {{else}}
             <p>LCM not connected.</p>
             {{/if}}
@@ -187,6 +188,8 @@
                 completed_wps: 0,
                 missed_wps: 0,
                 total_wps: 0,
+                found_tbs: 0,
+                total_tbs: 0,
 
                 enabled: false,
                 cv_enabled: true,
