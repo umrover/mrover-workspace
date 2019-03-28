@@ -15,10 +15,18 @@
   #include <cstdlib>
 #endif
 
+<<<<<<< f44feaea8f09e136dd404e7654fc9f76ca30699c
+=======
+#define ZED_SDK_PRESENT true
+#define PERCEPTION_DEBUG true
+#define OBSTACLE_DETECTION true
+#define TB_DETECTION true
+
+>>>>>>> [cv] cleaned up code
 #define THRESHOLD_NO_WAY  80000 //how will we calibrate if the rover width changes
 #define THRESHOLD_NO_OBSTACLE_CENTER  80000
 #define THRESHOLD_NO_SUBWINDOW 27000
-#define SKY_START_ROW 200
+#define SKY_START_ROW 400
 #define BALL_DETECTION_MAX_DIST 6.0  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
 
 #define SIMILARITY_THRESHOLD 8000
@@ -53,6 +61,13 @@ struct obstacle_return {
   float bearing; // [-50 degree, 50 degree]
 };
 
+<<<<<<< f44feaea8f09e136dd404e7654fc9f76ca30699c
+=======
+// these are for online data collection
+const bool  WRITE_CURR_FRAME_TO_DISK = true;
+const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/jessica/auton_depth_test_data/");
+
+>>>>>>> [cv] cleaned up code
 //functions
 std::vector<cv::Point2f> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width);

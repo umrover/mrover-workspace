@@ -102,26 +102,28 @@ int main() {
 
 
     /* Tennis ball detection*/
-    
-    vector<Point2f> centers = findTennisBall(src, depth_img);
-    if(centers.size() != 0){
-      float dist = depth_img.at<float>(centers[0].y, centers[0].x);
-      if (dist < BALL_DETECTION_MAX_DIST) {
-        tennisMessage.distance = dist;
-        tennisMessage.bearing = getAngle((int)centers[0].x, src.cols);
+    tennisMessage.found = false;
+    #if TB_DETECTION
+      vector<Point2f> centers = findTennisBall(src, depth_img);
+      if(centers.size() != 0){
+        float dist = depth_img.at<float>(centers[0].y, centers[0].x);
+        if (dist < BALL_DETECTION_MAX_DIST) {
+          tennisMessage.distance = dist;
+          tennisMessage.bearing = getAngle((int)centers[0].x, src.cols);
 
-        tennisMessage.found = true;
-        tennisBuffer = 0;
+          tennisMessage.found = true;
+          tennisBuffer = 0;
 
-        #if PERCEPTION_DEBUG
-        // cout << centers.size() << " tennis ball(s) detected: " << tennisMessage.distance << "m, " << tennisMessage.bearing << "degrees\n";
-        #endif
+          #if PERCEPTION_DEBUG
+          // cout << centers.size() << " tennis ball(s) detected: " << tennisMessage.distance << "m, " << tennisMessage.bearing << "degrees\n";
+          #endif
 
-      }else if(tennisBuffer < 5){   //give 5 frames to recover if tennisball lost due to noise
-        tennisBuffer++;
-      }else
-        tennisMessage.found = false;
-    }
+        }else if(tennisBuffer < 5){   //give 5 frames to recover if tennisball lost due to noise
+          tennisBuffer++;
+          tennisMessage.found = true;
+        }
+      }
+    #endif
 
     
 
@@ -144,7 +146,7 @@ int main() {
     #if PERCEPTION_DEBUG
     // cout << "Turn " << obstacleMessage.bearing << ", detected " << (bool)obstacleMessage.detected<< endl;
     #endif
-
+  
 
 
     lcm_.publish("/tennis_ball", &tennisMessage);
@@ -155,6 +157,10 @@ int main() {
       imshow("image", src);
       waitKey(FRAME_WAITKEY);
     #endif
+<<<<<<< f44feaea8f09e136dd404e7654fc9f76ca30699c
+=======
+
+>>>>>>> [cv] cleaned up code
     auto end = chrono::high_resolution_clock::now();
 
     auto delta = chrono::duration_cast<chrono::duration<double>>(end - start);
