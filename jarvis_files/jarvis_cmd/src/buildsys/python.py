@@ -52,8 +52,9 @@ def pyinstall(ctx):
 
 
 class PythonBuilder(BuildContext):
-    def __init__(self, dir_, wksp, executable=True):
+    def __init__(self, dir_, wksp, lint, executable):
         super().__init__(dir_, wksp)
+        self.lint = lint
         self.executable = executable
 
     def build(self):
@@ -82,7 +83,9 @@ class PythonBuilder(BuildContext):
                         generate_setup_py(self, self.name,
                                           executable=self.executable))
 
-            pylint(self)
+            if self.lint:
+                pylint(self)
+
             with self.wksp.inside_product_env():
                 pytest(self)
                 pyinstall(self)

@@ -41,6 +41,13 @@ class Hasher:
             self.hasher.update(opt.encode('UTF-8'))
 
 
+    def hash_lint(self, lint):
+        """
+        Hashes the given linting status.
+        """
+        self.hasher.update(str(lint).encode('UTF-8'))
+
+
     def has_changed(self):
         """
         Checks if the hash matches the saved version.

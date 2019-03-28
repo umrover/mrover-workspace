@@ -20,7 +20,7 @@ def clean(ctx):
     shutil.rmtree(ctx.hash_store)
 
 
-def get_builder(ctx, d, opts=None):
+def get_builder(ctx, d, lint, opts=None):
     project = os.path.join(ctx.root, d)
     project_cfg_path = os.path.join(project, 'project.ini')
     project_cfg = configparser.ConfigParser()
@@ -38,14 +38,14 @@ def get_builder(ctx, d, opts=None):
 
     for dep in deps:
         print('- building dependency {}'.format(dep))
-        build_dir(ctx, dep)
+        build_dir(ctx, dep, lint)
 
     lang = build_defs.get('lang', '')
 
     if lang == 'python':
         print('Building Python 3 package')
         executable = build_defs.get('executable', 'False') == 'True'
-        return PythonBuilder(d, ctx, executable)
+        return PythonBuilder(d, ctx, lint, executable)
     elif lang == 'js':
         print('Building JavaScript package')
         app = build_defs.get('app', 'False') == 'True'
@@ -68,18 +68,19 @@ def get_builder(ctx, d, opts=None):
         sys.exit(1)
 
 
-def build_dir(ctx, d, opts=None):
+def build_dir(ctx, d, lint, opts=None):
     """
     Builds the project in the given directory
     """
     if "./" == d[:2]:
         d = d[2:]
 
-    builder = get_builder(ctx, d, opts)
+    builder = get_builder(ctx, d, lint, opts)
 
     build_hasher = Hasher(ctx.hash_store, builder.name)
     build_hasher.hash_modification_time(d)
     build_hasher.hash_build_options(opts)
+    build_hasher.hash_lint(lint)
 
     if build_hasher.has_changed():
         builder.build()
@@ -131,7 +132,7 @@ def build_deps(ctx):
     print("Done.")
 
 
-def build_all(ctx, d, opts, not_build):
+def build_all(ctx, d, lint, opts, not_build):
     num_projects = 0
     failed_projects = []
 
@@ -145,7 +146,7 @@ def build_all(ctx, d, opts, not_build):
             num_projects += 1
             print("Building: ", root)
             try:
-                build_dir(ctx, root, opts)
+                build_dir(ctx, root, lint, opts)
             except Exception as e:
                 failed_projects.append((root, e))
     if len(not_build):
