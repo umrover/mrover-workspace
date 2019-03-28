@@ -10,14 +10,12 @@ def generate_webapp_start(ctx, app_dir, port):
 
 class RollupJSBuilder(BuildContext):
     def __init__(self, dir_, wksp, deps, app=True, port=8010):
-        super().__init__(dir_, wksp, ['.js'])
+        super().__init__(dir_, wksp)
         self.deps = [n.replace('/', '_') for n in deps]
         self.app = app
         self.port = port
 
     def build(self):
-        if not self.files_changed():
-            print("{} unchanged, skipping.".format(self.dir_))
 
         self.wksp.ensure_product_env()
         full_path = os.path.join(self.wksp.root, self.dir_)

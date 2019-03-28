@@ -2,8 +2,6 @@ import configparser
 import os
 import sys
 import shutil
-import hashlib
-from buildsys import hash_file
 from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
 from buildsys.rollupjs import RollupJSBuilder
@@ -12,7 +10,7 @@ from buildsys.shell import ShellBuilder
 from buildsys.config import ConfigBuilder
 
 from . import third_party
-
+from .hash import Hasher
 
 def clean(ctx):
     """
@@ -22,7 +20,7 @@ def clean(ctx):
     shutil.rmtree(ctx.hash_store)
 
 
-def get_builder(ctx, d, opt=None):
+def get_builder(ctx, d, opts=None):
     project = os.path.join(ctx.root, d)
     project_cfg_path = os.path.join(project, 'project.ini')
     project_cfg = configparser.ConfigParser()
@@ -55,7 +53,7 @@ def get_builder(ctx, d, opt=None):
         return RollupJSBuilder(d, ctx, deps, app, port)
     elif lang == 'cpp':
         print('Building C++ package')
-        return MesonBuilder(d, ctx, opt)
+        return MesonBuilder(d, ctx, opts)
     elif lang == 'lcm':
         print('Building LCM package')
         return LCMBuilder(d, ctx)
@@ -70,13 +68,25 @@ def get_builder(ctx, d, opt=None):
         sys.exit(1)
 
 
-def build_dir(ctx, d, opt=None):
+def build_dir(ctx, d, opts=None):
     """
     Builds the project in the given directory
     """
     if "./" == d[:2]:
         d = d[2:]
-    get_builder(ctx, d, opt).build()
+
+    builder = get_builder(ctx, d, opts)
+
+    build_hasher = Hasher(ctx.hash_store, builder.name)
+    build_hasher.hash_modification_time(d)
+    build_hasher.hash_build_options(opts)
+
+    if build_hasher.has_changed():
+        builder.build()
+        build_hasher.save()
+    else:
+        print("{} unchanged, skipping.".format(d))
+
     print("Done")
 
 
@@ -91,30 +101,6 @@ def get_site_cfg():
             for pkg_name in PACKAGE_NAMES}
 
 
-# TODO refactor this
-def pip_deps_changed(ctx):
-    hash_file_path = os.path.join(ctx.hash_store, 'external_requirements')
-    saved_hash = b''
-
-    try:
-        with open(hash_file_path) as f:
-            saved_hash = f.read()
-    except:
-        pass
-
-    full_path = os.path.join(ctx.root, 'external_requirements.txt')
-    computed_hash = hash_file(full_path, hashlib.sha256)
-
-    return saved_hash != computed_hash
-
-
-def save_pip_deps_hash(ctx):
-    full_path = os.path.join(ctx.root, 'external_requirements.txt')
-    hash_file_path = os.path.join(ctx.hash_store, 'external_requirements')
-    with open(hash_file_path, 'w') as f:
-        f.write(hash_file(full_path, hashlib.sha256))
-
-
 def build_deps(ctx):
     """
     Build the dependencies. This is hard-coded for now.
@@ -127,7 +113,10 @@ def build_deps(ctx):
         third_party.ensure_rapidjson(ctx)
     if site_cfg['lcm']:
         third_party.ensure_lcm(ctx)
-    if pip_deps_changed(ctx):
+    
+    pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
+    pip_hasher.hash_modification_time('external_requirements.txt')
+    if pip_hasher.has_changed():
         with ctx.cd(ctx.root):
             print("Installing pip dependencies...")
             with ctx.inside_product_env():
@@ -135,14 +124,14 @@ def build_deps(ctx):
                 ctx.run("pip install -r external_requirements.txt", hide='out')
                 ctx.run("pip install -r {}/requirements.txt".format(
                     ctx.jarvis_root), hide='out')
+        pip_hasher.save()
     else:
         print("pip dependencies already installed, skipping.")
 
-    save_pip_deps_hash(ctx)
     print("Done.")
 
 
-def build_all(ctx, d, opt, not_build):
+def build_all(ctx, d, opts, not_build):
     num_projects = 0
     failed_projects = []
 
@@ -156,7 +145,7 @@ def build_all(ctx, d, opt, not_build):
             num_projects += 1
             print("Building: ", root)
             try:
-                build_dir(ctx, root, opt)
+                build_dir(ctx, root, opts)
             except Exception as e:
                 failed_projects.append((root, e))
     if len(not_build):

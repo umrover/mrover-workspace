@@ -25,7 +25,7 @@ def main():
             dest='subcommand_name')
     parser_build = subcommands.add_parser('build', help='Build a directory')
     parser_build.add_argument('dir', help='The directory to build')
-    parser_build.add_argument('-o', '--option', dest='build_opt',
+    parser_build.add_argument('-o', '--option', nargs='+', dest='build_opts',
                               help='A build option to pass to the underlying '
                               'build system')
     parser_build.add_argument('-a', '--all', action='store_true', help='Build all')
@@ -48,14 +48,10 @@ def main():
 
         if args.subcommand_name == 'build':
             build_deps(ctx)
-            opt = None
-            if args.build_opt:
-                opt = args.build_opt.split('=')[0:2]
-                print('option is {}'.format(opt))
             if args.all:
-                return build_all(ctx, clean_dir_name(args.dir), opt, args.not_projects)
+                return build_all(ctx, clean_dir_name(args.dir), args.build_opts, args.not_projects)
             else:
-                build_dir(ctx, clean_dir_name(args.dir), opt)
+                build_dir(ctx, clean_dir_name(args.dir), args.build_opts)
         elif args.subcommand_name == 'clean':
             clean(ctx)
         elif args.subcommand_name == 'dep':

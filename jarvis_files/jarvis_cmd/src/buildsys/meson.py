@@ -1,17 +1,15 @@
 import os
+import time
 
 from . import BuildContext
 
 
 class MesonBuilder(BuildContext):
-    def __init__(self, dir_, wksp, opt):
-        super().__init__(dir_, wksp, ['.h', '.hpp', '.cpp'])
-        self.opt = opt
+    def __init__(self, dir_, wksp, opts):
+        super().__init__(dir_, wksp)
+        self.opts = opts
 
     def build(self):
-        if not self.files_changed():
-            print("{} unchanged, skipping.".format(self.dir_))
-            return
 
         self.wksp.ensure_product_env()
         full_dir = os.path.join(self.wksp.root, self.dir_)
@@ -30,8 +28,13 @@ class MesonBuilder(BuildContext):
                     self.wksp.product_env,
                     intermediate))
 
-            if self.opt is not None:
-                self.run("meson configure -D{}={}".format(*self.opt))
+            if self.opts is not None:
+                time.sleep(1) # XXX config file not properly regenerated without this
+                config_string = 'meson configure'
+                for opt in self.opts:
+                    config_string += ' -D{}'.format(opt)
+
+                self.run(config_string)
 
             self.run('ninja')
 
@@ -42,4 +45,3 @@ class MesonBuilder(BuildContext):
             print('Installing...')
             self.run('ninja install')
 
-        self.save_hash()
