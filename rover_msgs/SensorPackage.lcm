@@ -1,0 +1,10 @@
+package rover_msgs;
+
+struct SensorPackage {
+    double bearing;
+    int32_t latitude_deg;
+    double latitude_min;
+    int32_t longitude_deg;
+    double longitude_min;
+    double speed;
+}

@@ -1,0 +1,58 @@
+{
+    "filterWeights":
+    {
+        "location":
+        {
+            "gps": 0,
+            "sensorPackage": 1,
+            "filter1": 0
+        },
+        "bearing":
+        {
+            "imu": 0,
+            "imuYaw": 0,
+            "sensorPackage": 1,
+            "trackAngleGyro": 0
+        }
+    },
+
+
+    "__COMMENT__": "below this point is for internal use only",
+
+    "bearingWeights":
+    {
+        "trackAngleWeight": 0.5,
+        "imuMagWeight": 0.5,
+        "phoneMagWeight": 0.5,
+        "gyroWeight": 0.5
+    },
+
+    "driveWeights":
+    {
+        "IMU":
+        {
+            "accel": 0.5,
+            "gyro": 0.5
+        },
+        "GPS":
+        {
+            "loc": 0.5,
+            "calcVel": 0.5,
+            "groundSpeed": 0.5,
+            "phone": 0.5,
+            "raw_lat": 0.5,
+            "raw_long": 0.5,
+            "calc_lat": 0.5,
+            "calc_long": 0.5
+        }
+    },
+
+    "constants":
+    {
+        "imuDeltaTime": 0.01,
+        "updateRate": 0.1,
+        "metersToLatMin": 0.0005389625,
+        "earthRad": 6371000,
+        "earthCirc": 40075000
+    }
+}
