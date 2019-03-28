@@ -5,7 +5,7 @@ lcm = dependency('lcm')
 
 all_deps = [opencv, lcm]
 
-with_zed = true
+with_zed = get_option('with_zed')
 
 if with_zed
 	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
@@ -25,8 +25,15 @@ if with_zed
 	all_deps += [zed]
 endif
 
+perception_debug = get_option('perception_debug')
+write_frame = get_option('write_frame')
+data_folder = get_option('data_folder')
+
 conf_data = configuration_data()
 conf_data.set10('ZED_SDK_PRESENT', with_zed)
+conf_data.set10('PERCEPTION_DEBUG', perception_debug)
+conf_data.set10('WRITE_CURR_FRAME_TO_DISK', write_frame)
+conf_data.set_quoted('DEFAULT_ONLINE_DATA_FOLDER', data_folder)
 configure_file(
 	input: 'config.h.in',
 	output: 'config.h',

@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include "config.h"
 #include "camera.hpp"
 #include "rover_msgs/TennisBall.hpp"
 #include "rover_msgs/Obstacle.hpp"
@@ -13,9 +14,6 @@
   #include <opencv2/highgui/highgui.hpp>
   #include <cstdlib>
 #endif
-
-#define ZED_SDK_PRESENT true
-#define PERCEPTION_DEBUG true
 
 #define THRESHOLD_NO_WAY  80000 //how will we calibrate if the rover width changes
 #define THRESHOLD_NO_OBSTACLE_CENTER  80000
@@ -54,10 +52,6 @@ struct obstacle_return {
   float center_distance; // distance to anything in front of the center of the camera
   float bearing; // [-50 degree, 50 degree]
 };
-
-// these are for online data collection
-const bool  WRITE_CURR_FRAME_TO_DISK = false;
-const std::string DEFAULT_ONLINE_DATA_FOLDER("/home/jessica/auton_data/");
 
 //functions
 std::vector<cv::Point2f> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
