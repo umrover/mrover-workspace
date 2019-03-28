@@ -1,6 +1,6 @@
 import json
 import math
-import time
+# import time
 from os import getenv
 
 from rover_common import aiolcm
@@ -24,6 +24,9 @@ class SensorFusion:
         self._velocity = Velocity(0, 0, 0)
         self._nav_status = RawNavStatus()
         self._bearing_calibrator = 0
+        self._gps_started = False
+        self._sensor_package_started = False
+        self._imu_started = False
         configPath = getenv('MROVER_CONFIG')
         configPath += "/config_filter/config.json"
         with open(configPath, "r") as read_file:
@@ -37,40 +40,39 @@ class SensorFusion:
 
     def gps_callback(self, channel, msg):
         """Process new gps data."""
-        print('gps callback')
-        print('-------------- @time : ' + str(time.clock()))
+        # print('gps callback')
+        # print('-------------- @time : ' + str(time.clock()))
         new_gps = GPS.decode(msg)
         self._gps.update_gps(new_gps)
-        print('gps track angle: ' + str(self._gps._track_angle))
-        return None
+        # print('gps track angle: ' + str(self._gps._track_angle))
+        self._gps_started = True
 
     def sensor_package_callback(self, channel, msg):
         """Process new sensor package data."""
-        print('sensor_package callback')
-        print('-------------- @time : ' + str(time.clock()))
+        # print('sensor_package callback')
+        # print('-------------- @time : ' + str(time.clock()))
         new_sensor_package = SensorPackage.decode(msg)
         self._sensor_package.update(new_sensor_package)
-        bear = self._sensor_package._bearing
-        print('sensor package bearing: {}'.format(bear))
-        return None
+        # bear = self._sensor_package._bearing
+        # print('sensor package bearing: {}'.format(bear))
+        self._sensor_package_started = True
 
     def imu_callback(self, channel, msg):
         """Process new imu data."""
-        print('imu callback')
-        print('-------------- @time : ' + str(time.clock()))
+        # print('imu callback')
+        # print('-------------- @time : ' + str(time.clock()))
         new_imu = IMU.decode(msg)
         self._imu.update_imu(new_imu)
-        print('mag bearing: ' + str(self._imu._bearing))
-        return None
+        # print('mag bearing: ' + str(self._imu._bearing))
+        self._imu_started = True
 
     def nav_status_callback(self, channel, msg):
         """Process new nav status data."""
-        print('nav_status callback')
-        print('-------------- @time : ' + str(time.clock()))
+        # print('nav_status callback')
+        # print('-------------- @time : ' + str(time.clock()))
         new_nav_status = NavStatus.decode(msg)
         self._nav_status.update_nav_status(new_nav_status)
-        print('nav status: ' + str(self._nav_status._navState))
-        return None
+        # print('nav status: ' + str(self._nav_status._navState))
 
     def stationary(self):
         """Determine if rover is stationary."""
@@ -89,6 +91,11 @@ class SensorFusion:
         if self._nav_status._navState in NavState.TranslationalStates:
             return True
         return False
+
+    def sensors_started(self):
+        return self._gps_started and \
+               self._sensor_package_started and \
+               self._imu_started
 
     """
     ================================================================
@@ -160,7 +167,7 @@ class SensorFusion:
         lat_vel = (old_position._lat_deg, vel_lat_minutes,
                    self.filterConfig["driveWeights"]["GPS"]["calcVel"])
 
-        vel_long_minutes = old_position._lat_min + velocity.north \
+        vel_long_minutes = old_position._long_min + velocity.north \
             * self.filterConfig["constants"]["imuDeltaTime"] \
             * meters_to_longitude_minutes
 
@@ -233,7 +240,7 @@ class SensorFusion:
             if loc is not None:
                 totalWeight += loc._weight
                 validLocations.append(loc)
-        if totalWeight == 0:
+        if totalWeight == 0 and self.sensors_started():
             print('valid location weights totalled 0')
             return []
         for loc in validLocations:
@@ -251,7 +258,8 @@ class SensorFusion:
         pitch = self._imu._pitch
         raw_imu = self._imu
 
-        if bearing is None or pitch is None or raw_imu is None:
+        # Assumption: if acc_x is not None, acc_y and acc_z are not None either
+        if bearing is None or pitch is None or raw_imu._acc_x is None:
             return None
 
         north_acc = raw_imu._acc_x * math.cos(pitch) * math.sin(90 - bearing)
@@ -272,6 +280,7 @@ class SensorFusion:
         if ground_speed is None or bearing is None:
             return None
 
+        ground_speed = max(0, ground_speed)
         vel_East = ground_speed * math.cos(90 - bearing)
         vel_North = ground_speed * math.sin(90 - bearing)
         return Velocity(vel_East, vel_North, 0)
@@ -338,11 +347,9 @@ class SensorFusion:
         # Raw IMU bearing
         imuWeight = bearingWeights['imu']
         imu = BearingEstimate(self._imu._bearing, imuWeight)
-        # print(imu)
         # IMU yaw calculation
         imuYawWeight = bearingWeights['imuYaw']
         imuYaw = BearingEstimate(self._imu._yaw, imuYawWeight)
-        # print(imuYaw)
         # Raw sensor package
         spWeight = bearingWeights['sensorPackage']
         sp = BearingEstimate(self._sensor_package._bearing, spWeight)
@@ -416,7 +423,7 @@ class SensorFusion:
             if bearing is not None:
                 totalWeight += bearing._weight
                 validBearings.append(bearing)
-        if totalWeight == 0:
+        if totalWeight == 0 and self.sensors_started():
             print('bearing weights totalled 0')
             return []
         for bearing in validBearings:
@@ -439,13 +446,13 @@ class SensorFusion:
             self.filter_location()
             odom = self.create_odom_lcm()
             if odom:
-                print('ODOM MESSAGE:')
-                print('....lat deg', odom.latitude_deg)
-                print('....lat min', odom.latitude_min)
-                print('....long deg', odom.longitude_deg)
-                print('....long min', odom.longitude_min)
-                print('....bearing', odom.bearing_deg)
-                print('....speed', odom.speed)
+                # print('ODOM MESSAGE:')
+                # print('....lat deg', odom.latitude_deg)
+                # print('....lat min', odom.latitude_min)
+                # print('....long deg', odom.longitude_deg)
+                # print('....long min', odom.longitude_min)
+                # print('....bearing', odom.bearing_deg)
+                # print('....speed', odom.speed)
                 lcm_.publish('/odometry', odom.encode())
             await asyncio.sleep(self.filterConfig["constants"]["updateRate"])
 
