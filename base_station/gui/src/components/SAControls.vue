@@ -32,7 +32,9 @@
 </template>
 <script>import Checkbox from './Checkbox.vue'
 import { mapGetters, mapMutations } from 'vuex'
+import {Toggle, quadratic, deadzone, joystick_math} from '../utils.js'
 
+let interval;
 export default {
   data () {
     return {
@@ -77,6 +79,10 @@ export default {
     }),
   },
 
+  beforeDestroy: function () {
+    window.clearInterval(interval);
+  },
+
   created: function () {
 
     const JOYSTICK_CONFIG = {
@@ -107,39 +113,6 @@ export default {
       'x': 2,
       'y': 3
     }
-
-    const deadzone = function(magnitude, threshold) {
-      let temp_mag = Math.abs(magnitude)
-      if (temp_mag <= threshold) {
-        temp_mag = 0
-      } else {
-        temp_mag = (temp_mag - threshold)/(1 - threshold)
-      }
-      return temp_mag * (magnitude > 0 ? 1 : -1)
-    }
-
-    class Toggle {
-      constructor(init_state) {
-          this.toggle = init_state
-          this.previous = false
-          this.input = false
-          this.last_input = false
-      }
-
-      new_reading(reading) {
-          this.input = reading
-          if (this.input && !this.last_input) {
-              //Just pushed
-              this.last_input = true
-              this.toggle = !this.toggle
-          } else if (!this.input && this.last_input) {
-              //Just released
-              this.last_input = false;
-          }
-          this.previous = reading;
-          return this.toggle;
-      }
-    }
     
     const updateRate = 0.05;
     const front_drill_on = new Toggle(false)
@@ -147,7 +120,7 @@ export default {
     const front_drone_on = new Toggle(false)
     const back_drone_on = new Toggle(false)
 
-    window.setInterval(() => {
+    interval = window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 4; i++) {
         const gamepad = gamepads[i]
