@@ -31,6 +31,7 @@ def main():
     parser_build.add_argument('-a', '--all', action='store_true', help='Build all')
     parser_build.add_argument('-n','--not-projects', nargs='+',
                               help='Don\'t build these projects when building all (-a).')
+    parser_build.add_argument('-l', '--no-lint', action='store_false', help='Disable linting.')
 
     subcommands.add_parser('clean',
                            help='Removes the product env')
@@ -49,9 +50,9 @@ def main():
         if args.subcommand_name == 'build':
             build_deps(ctx)
             if args.all:
-                return build_all(ctx, clean_dir_name(args.dir), args.build_opts, args.not_projects)
+                return build_all(ctx, clean_dir_name(args.dir), args.no_lint, args.build_opts, args.not_projects)
             else:
-                build_dir(ctx, clean_dir_name(args.dir), args.build_opts)
+                build_dir(ctx, clean_dir_name(args.dir),  args.no_lint, args.build_opts)
         elif args.subcommand_name == 'clean':
             clean(ctx)
         elif args.subcommand_name == 'dep':
