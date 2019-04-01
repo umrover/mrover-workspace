@@ -22,9 +22,10 @@
 
 	"navThresholds":
 	{
-		"turningBearingThresh": 20,
-		"drivingBearingThresh": 50,
-		"atGoalDistanceThresh": 2.0
+		"turningBearing": 20,
+		"drivingBearing": 50,
+		"waypointDistance": 2.0,
+		"tennisBallDistance": 1.0
 	},
 
 	"computerVision":

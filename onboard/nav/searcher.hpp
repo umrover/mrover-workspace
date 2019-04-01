@@ -27,8 +27,6 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    NavState executeSearchFaceNorth( Rover* phoebe );
-
     NavState executeSearchSpin( Rover* phoebe, const rapidjson::Document& roverConfig );
 
     NavState executeSearchSpinWait( Rover* phoebe, const rapidjson::Document& roverConfig );

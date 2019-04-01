@@ -121,7 +121,7 @@ public:
 
     DriveStatus drive( const Odometry& destination );
 
-    DriveStatus drive( const double distance, const double bearing );
+    DriveStatus drive( const double distance, const double bearing, const bool tennisBall = false );
 
     bool turn( Odometry& destination );
 
