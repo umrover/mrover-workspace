@@ -26,13 +26,6 @@ NavState Searcher::run( Rover * phoebe, const rapidjson::Document& roverConfig )
 {
     switch ( phoebe->roverStatus().currentState() )
     {
-        /*
-        case NavState::SearchFaceNorth:
-        {
-            return executeSearchFaceNorth( phoebe );
-        }
-        */
-
         case NavState::SearchSpin:
         {
             return executeSearchSpin( phoebe, roverConfig );
@@ -68,7 +61,7 @@ NavState Searcher::run( Rover * phoebe, const rapidjson::Document& roverConfig )
             return NavState::Unknown;
         }
     } // switch
-}
+} // run()
 
 /*****************************************************/
 /* Helpers */
@@ -238,8 +231,9 @@ NavState Searcher::executeDriveToBall( Rover * phoebe )
     }
 
     DriveStatus driveStatus = phoebe->drive( phoebe->roverStatus().tennisBall().distance,
-                                              phoebe->roverStatus().tennisBall().bearing +
-                                              phoebe->roverStatus().odometry().bearing_deg );
+                                             phoebe->roverStatus().tennisBall().bearing +
+                                             phoebe->roverStatus().odometry().bearing_deg,
+                                             true );
     if( driveStatus == DriveStatus::Arrived )
     {
         phoebe->roverStatus().path().pop();
