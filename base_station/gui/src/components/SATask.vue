@@ -55,6 +55,8 @@ import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import SAControls from './SAControls.vue'
 
+let interval;
+
 export default {
   name: 'Dashboard',
   data () {
@@ -110,6 +112,10 @@ export default {
     ...mapGetters('controls', {
       controlMode: 'controlMode'
     }),
+  },
+
+  beforeDestroy: function () {
+    window.clearInterval(interval);
   },
 
   created: function () {
@@ -169,7 +175,7 @@ export default {
       'tilt': 5
     }
 
-    window.setInterval(() => {
+    interval = window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 2; i++) {
         const gamepad = gamepads[i]

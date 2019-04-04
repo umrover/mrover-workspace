@@ -87,12 +87,19 @@
   import Video from './Video.vue'
   import Checkbox from "./Checkbox.vue"
 
+
+  let interval;
+
   export default {
     data() {
       return {
         pi_index: -1,
         microscope_streaming: false
       }
+    },
+
+    beforeDestroy: function () {
+      window.clearInterval(interval);
     },
 
     created: function () {
@@ -128,7 +135,7 @@
       })
 
       // Change PI index based on joystick button
-      window.setInterval(() => {
+      interval = window.setInterval(() => {
         const gamepads = navigator.getGamepads()
         for (let i = 0; i < 2; i++) {
           const gamepad = gamepads[i]

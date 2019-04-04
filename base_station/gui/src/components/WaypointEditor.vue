@@ -38,6 +38,8 @@ import _ from 'lodash';
 import fnvPlus from 'fnv-plus';
 import L from 'leaflet'
 
+let interval;
+
 export default {
 
   props: {
@@ -65,13 +67,17 @@ export default {
     }
   },
 
+  beforeDestroy: function () {
+    window.clearInterval(interval);
+  },
+
   created: function () {
 
     this.$parent.subscribe('/nav_status', (msg) => {
       this.nav_status = msg
     })
 
-    window.setInterval(() => {
+    interval = window.setInterval(() => {
         if(this.auton_enabled && this.nav_status.nav_state_name === 'Done'){
           this.$refs.checkbox.toggleAndEmit()
         }
