@@ -39,7 +39,8 @@
       <WaypointEditor v-bind:odom="odom" />
     </div>
     <div class="box controls light-bg">
-      <Controls/>
+      <ArmControls/>
+      <DriveControls/>
     </div>
   </div>
 </template>
@@ -51,12 +52,15 @@ import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
 import Sensors from './Sensors.vue'
-import Controls from './Controls.vue'
+import ArmControls from './ArmControls.vue'
+import DriveControls from './DriveControls.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 
+let interval;
+
 export default {
-  name: 'Dashboard',
+  name: 'RATask',
   data () {
     return {
       lcm_: null,
@@ -169,7 +173,7 @@ export default {
       'tilt': 5
     }
 
-    window.setInterval(() => {
+    interval = window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 2; i++) {
         const gamepad = gamepads[i]
@@ -199,7 +203,8 @@ export default {
     Cameras,
     CommIndicator,
     Sensors,
-    Controls,
+    ArmControls,
+    DriveControls,
     OdometryReading,
     WaypointEditor
   }
