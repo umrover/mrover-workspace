@@ -136,10 +136,23 @@ class LocationEstimate:
 
     def derive_location(self):
         """Fix location data after calculations."""
+        sign_lat = 1 if self._lat_deg > 0 else -1
+        sign_long = 1 if self._long_deg > 0 else -1
+
+        self._lat_deg = abs(self._lat_deg)
+        self._lat_min = abs(self._lat_min)
+        self._long_deg = abs(self._long_deg)
+        self._long_min = abs(self._long_min)
+
         self._lat_deg += self._lat_min // 60
         self._lat_min %= 60
         self._long_deg += self._long_min // 60
         self._long_min %= 60
+
+        self._lat_deg *= sign_lat
+        self._lat_min *= sign_lat
+        self._long_deg *= sign_long
+        self._long_min *= sign_long
 
 
 class BearingEstimate:
