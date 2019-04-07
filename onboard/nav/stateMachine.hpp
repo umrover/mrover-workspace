@@ -1,12 +1,11 @@
 #ifndef STATE_MACHINE_HPP
 #define STATE_MACHINE_HPP
 
-#include "rover.hpp"
-#include "searches.hpp"
-
 #include <lcm/lcm-cpp.hpp>
-#include <queue>
 #include "rapidjson/document.h"
+#include "rover.hpp"
+#include "search/searchStateMachine.hpp"
+#include "obstacle_avoidance/simpleAvoidance.hpp"
 
 using namespace std;
 using namespace rover_msgs;
@@ -39,9 +38,13 @@ public:
 
     void updateCompletedPoints( );
 
-    void updateFoundBalls( );
+    void updateObstacleAngle( double bearing );
 
-    void updateObstacleAngle( double angle );
+    void updateObstacleDistance( double distance ); 
+
+    void updateObstacleElements( double bearing, double distance );
+
+    void updateFoundBalls( );
 
     void setSearcher(SearchType type);
 
@@ -63,21 +66,19 @@ private:
 
     NavState executeSearch();
 
-    NavState executeTurnAroundObs();
-
-    NavState executeDriveAroundObs();
-
     void initializeSearch();
 
     bool addFourPointsToSearch();
-
-    Odometry createAvoidancePoint( const double distance );
 
     string stringifyNavState() const;
 
     bool isObstacleDetected() const;
 
     double getOptimalAvoidanceAngle() const;
+
+    double getOptimalAvoidanceDistance() const;
+
+    bool isWaypointReachable( double distance, double bearing );
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -96,9 +97,6 @@ private:
 
     // Odometry point used when avoiding obstacles.
     Odometry mObstacleAvoidancePoint;
-
-    // Initial angle to go around obstacle upon detection.
-    double mOriginalObstacleAngle;
 
     // Number of waypoints in course.
     unsigned mTotalWaypoints;
@@ -119,7 +117,10 @@ private:
     bool mStateChanged;
 
     // Search pointer to control search states
-    Searcher* mSearcher;
+    SearchStateMachine* mSearchStateMachine;
+
+    // Avoidance pointer to control obstacle avoidance states
+    ObstacleAvoidanceStateMachine* mObstacleAvoidanceStateMachine;
 
 }; // StateMachine
 

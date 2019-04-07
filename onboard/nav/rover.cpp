@@ -158,9 +158,15 @@ bool Rover::turn( Odometry& destination )
 // otherwise.
 bool Rover::turn( double bearing )
 {
+    double turningBearingThreshold = mRoverConfig[ "navThresholds" ][ "turningBearing" ].GetDouble();
     bearing = mod(bearing, 360);
     throughZero( bearing, mRoverStatus.odometry().bearing_deg );
-    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "turningBearing" ].GetDouble() )
+    if ( mRoverStatus.currentState() == NavState::TurnAroundObs ||
+         mRoverStatus.currentState() == NavState::SearchTurnAroundObs ) 
+    {
+        turningBearingThreshold = mRoverConfig[ "navThresholds" ][ "turningAroundObstacleBearing" ].GetDouble();
+    }
+    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) < turningBearingThreshold )
     {
         return true;
     }
