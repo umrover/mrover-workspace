@@ -119,6 +119,8 @@ export default {
     const back_drill_on = new Toggle(false)
     const front_drone_on = new Toggle(false)
     const back_drone_on = new Toggle(false)
+    const esc_0_on = new Toggle(false)
+    const esc_1_on = new Toggle(false)
 
     interval = window.setInterval(() => {
       const gamepads = navigator.getGamepads()
@@ -139,7 +141,7 @@ export default {
             if (!this.autonEnabled) {
               this.$parent.publish('/drive_control', joystickData)
             }
-          } else if (gamepad.id.includes('Microsoft') || gamepad.id.includes('xinput')) {
+          } else if (gamepad.id.includes('Microsoft') || gamepad.id.includes('xinput') || gamepad.id.includes('Xbox')) {
             const xboxData = {
               'type': 'Xbox',
               'left_js_x': gamepad.axes[XBOX_CONFIG['left_js_x']], // actuator 1
@@ -182,8 +184,19 @@ export default {
               'front_drone': front_drone_on.new_reading(xboxData['y'] > 0.5) ? 0.25 : 0.0,
               'back_drone': back_drone_on.new_reading(xboxData['a'] > 0.5) ? 0.25 : 0.0
             }
-
             this.$parent.publish('/sa_motors', saMotorsData)
+
+            this.$parent.publish('/esc_toggle', {
+              'type': 'ESCToggle',
+              'esc_id': 0,
+              'enable': esc_0_on.new_reading(xboxData['x'] > 0.5)
+            })
+
+            this.$parent.publish('/esc_toggle', {
+              'type': 'ESCToggle',
+              'esc_id': 1,
+              'enable': esc_1_on.new_reading(xboxData['b'] > 0.5)
+            })
           }
         }
       }
