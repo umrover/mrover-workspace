@@ -114,7 +114,7 @@ export default {
       'y': 3
     }
     
-    const updateRate = 0.05;
+    const updateRate = 0.05
     const front_drill_on = new Toggle(false)
     const back_drill_on = new Toggle(false)
     const front_drone_on = new Toggle(false)
@@ -161,13 +161,21 @@ export default {
               //one of the buttoms to turn on drone motor, servos
             }
             
+            // Can only toggle either front or back drill
+            let front_drill_input = 0.0
+            let back_drill_input = 0.0
+            if (this.controlMode === 'front_drill') {
+              front_drill_input = front_drill_on.new_reading(xboxData['right_bumper'] > 0.5) ? 0.25 : 0.0
+            } else if (this.controlMode === 'back_drill') {
+              back_drill_input = back_drill_on.new_reading(xboxData['right_bumper'] > 0.5) ? 0.25 : 0.0
+            }
 
             const saMotorsData = {
               'type': 'SAMotors',
               'carriage': deadzone(xboxData['right_js_y'], 0.3),
               'four_bar': xboxData['d_pad_left'] - xboxData['d_pad_right'],
-              'front_drill': front_drill_on.new_reading(xboxData['right_bumper'] > 0.5) ? 0.25 : 0.0,
-              'back_drill': back_drill_on.new_reading(xboxData['left_bumper'] > 0.5) ? 0.25 : 0.0,
+              'front_drill': front_drill_input,
+              'back_drill': back_drill_input,
               'micro_x': deadzone(xboxData['left_js_x'], 0.3),
               'micro_y': deadzone(xboxData['left_js_y'], 0.3),
               'micro_z': xboxData['right_trigger'] - xboxData['left_trigger'],
@@ -179,10 +187,11 @@ export default {
           }
         }
       }
+
       const talonConfig = {
         'type': 'TalonConfig',
         'enable_arm': false,
-        'enable_sa': this.controlMode === 'soil_ac'
+        'enable_sa': this.controlMode !== ''
       }
 
       this.$parent.publish('/talon_config', talonConfig)
