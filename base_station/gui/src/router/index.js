@@ -5,6 +5,7 @@ import RATask from '../components/RATask.vue'
 import PidTune from '../components/PidTune.vue'
 import LCMEcho from '../components/LCMEcho.vue'
 import SATask from '../components/SATask.vue'
+import ESCTest from '../components/ESCTest.vue'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/SATask',
       name: 'SATask',
       component: SATask
+    },
+    {
+      path: '/ESCTest',
+      name: 'ESCTest',
+      component: ESCTest
     }
   ]
 })
