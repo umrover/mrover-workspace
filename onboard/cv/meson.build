@@ -25,11 +25,15 @@ if with_zed
 	all_deps += [zed]
 endif
 
+tb_detection = get_option('tb_detection')
+obs_detection = get_option('obs_detection')
 perception_debug = get_option('perception_debug')
 write_frame = get_option('write_frame')
 data_folder = get_option('data_folder')
 
 conf_data = configuration_data()
+conf_data.set10('TB_DETECTION', tb_detection)
+conf_data.set10('OBSTACLE_DETECTION', obs_detection)
 conf_data.set10('ZED_SDK_PRESENT', with_zed)
 conf_data.set10('PERCEPTION_DEBUG', perception_debug)
 conf_data.set10('WRITE_CURR_FRAME_TO_DISK', write_frame)

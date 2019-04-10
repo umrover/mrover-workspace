@@ -1,4 +1,6 @@
 #pragma once
+#mesondefine TB_DETECTION
+#mesondefine OBSTACLE_DETECTION
 #mesondefine ZED_SDK_PRESENT
 #mesondefine PERCEPTION_DEBUG
 #mesondefine WRITE_CURR_FRAME_TO_DISK
