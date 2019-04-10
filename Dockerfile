@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 
+FROM nvidia/cuda:9.0-devel-ubuntu16.04
 
 MAINTAINER Milo Hartsoe <hartsoe@umich.edu>
 
@@ -18,7 +18,10 @@ RUN set -x && \
     wget \
     && apt-add-repository ppa:ansible/ansible && \
     apt-get update && \
-    apt-get install -y ansible
+    apt-get install -y ansible && \
+    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections && \
+    wget -O ZED_SDK_Linux_Ubuntu16.run https://download.stereolabs.com/zedsdk/2.7/ubuntu16_cuda9 && \
+    chmod +x ZED_SDK_Linux_Ubuntu16.run ; ./ZED_SDK_Linux_Ubuntu16.run silent
 
 RUN ansible-playbook -i "localhost," -c local /tmp/ansible/devbox.yml 
 
