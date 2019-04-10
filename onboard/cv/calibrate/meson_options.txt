@@ -1,1 +1,1 @@
-option('with_zed', type: 'boolean', value : false)
+option('with_zed', type: 'boolean', value : true)
