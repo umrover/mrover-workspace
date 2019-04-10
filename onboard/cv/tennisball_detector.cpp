@@ -1,6 +1,5 @@
 #include "perception.hpp"
 
-
 using namespace std;
 using namespace cv;
 
@@ -9,7 +8,6 @@ static Mat DEPTH;
 /* For debug use: print the HSV values at mouseclick locations */
 void onMouse(int event, int x, int y, int flags, void* userdata){
   
-
     if(event == EVENT_LBUTTONUP){
 
         Vec3b p = HSV.at<Vec3b>(y,x);
@@ -69,7 +67,6 @@ vector<Point2f> findTennisBall(Mat &src, Mat & depth_src){
         minEnclosingCircle( (Mat)contours_poly[i], center[i], radius[i] );
     }
 
-    
     #if PERCEPTION_DEBUG
     // Draw polygonal contour + bonding rects + circles
     Mat drawing = Mat::zeros( mask.size(), CV_8UC3);
