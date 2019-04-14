@@ -32,8 +32,8 @@
 	{
 		"searchWaitStepSize": 90.0,
 		"searchWaitTime": 1.0,
-		"pathWidth": 2.0,
-		"obstacleThresh": 3.0
+		"obstacleThresh": 3.0,
+		"visionDistance": 4.0
 	},
 
 	"lcmChannels":

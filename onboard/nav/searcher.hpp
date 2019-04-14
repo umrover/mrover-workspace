@@ -2,6 +2,7 @@
 #define SEARCHER_HPP
 
 #include "rover.hpp"
+#include "utilities.hpp"
 
 class StateMachine;
 
@@ -40,6 +41,12 @@ private:
     NavState executeDriveToBall( Rover* phoebe );
 
 protected:  // TODO
+    /*************************************************************************/
+    /* Protected Member Functions */
+    /*************************************************************************/
+
+    void insertIntermediatePoints( Rover * phoebe, const rapidjson::Document& roverConfig );
+
     /*************************************************************************/
     /* Protected Member Variables */
     /*************************************************************************/
