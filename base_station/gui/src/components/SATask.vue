@@ -26,9 +26,6 @@
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
     </div>
-    <div class="box diags light-bg">
-      <Sensors/>
-    </div>
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
     </div>
@@ -50,7 +47,6 @@ import Cameras from './Cameras.vue'
 import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
-import Sensors from './Sensors.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import SAControls from './SAControls.vue'
@@ -204,7 +200,6 @@ export default {
     RoverMap,
     Cameras,
     CommIndicator,
-    Sensors,
     OdometryReading,
     WaypointEditor,
     SAControls
@@ -217,8 +212,8 @@ export default {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: 60px 2fr 1fr 1fr 2fr 70px 60px;
-        grid-template-areas: "header header" "map diags" "map cameras" "map waypoints" "map waypoints" "controls waypoints" "odom waypoints";
+        grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
+        grid-template-areas: "header header" "map cameras" "map waypoints" "map waypoints" "controls waypoints" "odom waypoints";
         font-family: sans-serif;
         height: 98vh;
     }
