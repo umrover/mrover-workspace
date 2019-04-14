@@ -29,9 +29,11 @@ def main():
             continue
 
         latitude = float(serialPort.read_until(b',')[:-1])
-        serialPort.read_until(b',')[:-1]
+        ns = serialPort.read_until(b',')[:-1]
+        latitude = latitude * -1 if ns is b'S' else latitude
         longitude = float(serialPort.read_until(b',')[:-1])
-        serialPort.read_until(b',')[:-1]
+        ew = serialPort.read_until(b',')[:-1]
+        longitude = longitude * -1 if ew is b'W' else longitude
         speed = float(serialPort.read_until(b',')[:-1])
         bearing = float(serialPort.read_until(b',')[:-1])
 
