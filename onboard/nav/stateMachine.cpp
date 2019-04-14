@@ -154,7 +154,7 @@ void StateMachine::run()
             case NavState::ChangeSearchAlg:
             {
                 static int searchFails = 0;
-                static double pathWidth = mRoverConfig[ "computerVision" ][ "pathWidth" ].GetDouble();
+                static double visionDistance = mRoverConfig[ "computerVision" ][ "visionDistance" ].GetDouble();
 
                 switch( mRoverConfig[ "search" ][ "order" ][ searchFails % mRoverConfig[ "search" ][ "numSearches" ].GetInt() ].GetInt() )
                 {
@@ -179,10 +179,10 @@ void StateMachine::run()
                         break;
                     }
                 }
-                mSearcher->initializeSearch( mPhoebe, mRoverConfig, pathWidth );
-                if( searchFails % 2 == 1 && pathWidth > 0.5 )
+                mSearcher->initializeSearch( mPhoebe, mRoverConfig, visionDistance );
+                if( searchFails % 2 == 1 && visionDistance > 0.5 )
                 {
-                    pathWidth *= 0.5;
+                    visionDistance *= 0.5;
                 }
                 searchFails += 1;
                 nextState = NavState::SearchTurn;
