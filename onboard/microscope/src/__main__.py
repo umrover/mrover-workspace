@@ -17,7 +17,7 @@ def start_pipeline():
                        "Camera_USB2.0_Digital_Camera-video-index0 ! "
                        "videoscale ! videoconvert ! x264enc tune=zerolatency "
                        "bitrate=500 speed-preset=superfast ! rtph264pay ! "
-                       "udpsink host=10.0.0.1 port=5001")
+                       "udpsink host=10.0.0.1 port=5002")
 
     if pipeline is None:
         pipeline = Gst.parse_launch(pipeline_string)

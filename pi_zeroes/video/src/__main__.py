@@ -16,16 +16,18 @@ settings = None
 vid_process = None
 pipeline = None
 index = -1
+dual_stream = False
+secondary = False
 
 
 def start_pipeline():
-    global pipeline
-    global vid_process
-    global settings
+    global pipeline, vid_process, settings, dual_stream, secondary
 
-    height = str(settings.height)
-    width = str(settings.width)
+    height = '480' if dual_stream else str(settings.height)
+    width = '854' if dual_stream else str(settings.width)
+
     bitrate = int((settings.height * settings.width) / 0.4608)
+    port = '5001' if secondary else '5000'
 
     vid_args = ["raspivid", "-t", "0", "-h", height,
                 "-w", width, "-b", str(bitrate),
@@ -42,7 +44,7 @@ def start_pipeline():
                        " ! video/x-h264, width=" + width +
                        ", height=" + height +
                        " ! h264parse ! rtph264pay"
-                       " ! udpsink host=10.0.0.1 port=5000")
+                       " ! udpsink host=10.0.0.1 port=" + port)
 
     pipeline = Gst.parse_launch(pipeline_string)
 
@@ -52,8 +54,7 @@ def start_pipeline():
 
 
 def stop_pipeline():
-    global pipeline
-    global vid_process
+    global pipeline, vid_process
 
     vid_process.kill()
     vid_process = None
@@ -65,8 +66,7 @@ def stop_pipeline():
 
 
 def read_settings():
-    global settings
-    global settings_path
+    global settings, settings_path
 
     config = ConfigParser()
     config.read(settings_path)
@@ -79,8 +79,7 @@ def read_settings():
 
 
 def write_settings():
-    global settings
-    global settings_path
+    global settings, settings_path
 
     config = ConfigParser()
     config["cam_settings"] = {}
@@ -94,25 +93,31 @@ def write_settings():
 
 
 def camera_callback(channel, msg):
-    global pipeline
-    global index
+    global pipeline, index, dual_stream, secondary
 
-    cam_info = PiCamera.decode(msg)
+    cam = PiCamera.decode(msg)
+    dual_stream = cam.dual_stream
 
-    if cam_info.active_index == index and pipeline is None:
-        start_pipeline()
-    elif cam_info.active_index != index and pipeline is not None:
-        stop_pipeline()
+    if pipeline is None:
+        if cam.active_index_1 == index:
+            secondary = False
+            start_pipeline()
+        elif cam.active_index_2 == index:
+            secondary = True
+            start_pipeline()
+    else:
+        if cam.active_index_1 != index and cam.active_index_2 != index:
+            secondary = False
+            stop_pipeline()
 
 
 def settings_callback(channel, msg):
-    global settings
-    global pipeline
+    global settings, pipeline, index
 
-    if pipeline is None:
+    new_settings = PiSettings.decode(msg)
+    if new_settings.pi_index != index:
         return
-
-    settings = PiSettings.decode(msg)
+    settings = new_settings
     print("Settings changed.")
 
     stop_pipeline()
