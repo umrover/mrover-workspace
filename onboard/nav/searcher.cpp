@@ -27,7 +27,7 @@ void Searcher::insertIntermediatePoints( Rover * phoebe, const rapidjson::Docume
     double visionDistance = roverConfig[ "computerVision" ][ "visionDistance" ].GetDouble();
     const double maxDifference = 2 * visionDistance;
 
-    for( int i = 0; i < int( mSearchPoints.size() )-1; ++i )
+    for( int i = 0; i < int( mSearchPoints.size() ) - 1; ++i )
     {
         Odometry point1 = mSearchPoints.at( i );
         Odometry point2 = mSearchPoints.at( i + 1 );
