@@ -3,6 +3,8 @@
 
 #include <queue>
 #include "rover_msgs/Waypoint.hpp"
+#include "rover_msgs/Odometry.hpp"
+#include "rover.hpp"
 
 using namespace std;
 using namespace rover_msgs;
@@ -16,7 +18,11 @@ double degreeToRadian( const double degree, const double minute = 0 );
 
 double radianToDegree( const double radian );
 
+Odometry addMinToDegrees( const Odometry & current, const double lat_minutes = 0, const double lon_minutes = 0 );
+
 double estimateNoneuclid( const Odometry& start, const Odometry& dest );
+
+Odometry createOdom ( const Odometry & current, const double bearing, const double distance, Rover * phoebe );
 
 double calcBearing( const Odometry& start, const Odometry& dest );
 

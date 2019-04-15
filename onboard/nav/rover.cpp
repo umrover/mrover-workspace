@@ -110,19 +110,21 @@ DriveStatus Rover::drive( const Odometry& destination )
 {
     double distance = estimateNoneuclid( mRoverStatus.odometry(), destination );
     double bearing = calcBearing( mRoverStatus.odometry(), destination );
-
-    return drive( distance, bearing );
+    return drive( distance, bearing, false );
 } // drive()
 
 // Sends a joystick command to drive forward from the current odometry
 // in the direction of bearing. The distance is used to determine how
 // quickly to drive forward. This joystick command will also turn the
-// rover small amounts as "course corrections".
+// rover small amounts as "course corrections". tennisBall indicates
+// if the rover is driving to a tennisBall rather than a waypoint and
+// determines which distance threshold to use.
 // The return value indicates if the rover has arrived or if it is
 // on-course or off-course.
-DriveStatus Rover::drive( const double distance, const double bearing )
+DriveStatus Rover::drive( const double distance, const double bearing, const bool tennisBall )
 {
-    if( distance < mRoverConfig[ "navThresholds" ][ "atGoalDistanceThresh" ].GetDouble() )
+    if( (!tennisBall && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble()) ||
+        (tennisBall && distance < mRoverConfig[ "navThresholds" ][ "tennisBallDistance" ].GetDouble()) )
     {
         return DriveStatus::Arrived;
     }
@@ -130,7 +132,7 @@ DriveStatus Rover::drive( const double distance, const double bearing )
     double destinationBearing = mod( bearing, 360 );
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg ); // will go off course if inside if because through zero not calculated
 
-    if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearingThresh" ].GetDouble() )
+    if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() )
     {
         double distanceEffort = mDistancePid.update( -1 * distance, 0 );
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
@@ -156,8 +158,9 @@ bool Rover::turn( Odometry& destination )
 // otherwise.
 bool Rover::turn( double bearing )
 {
+    bearing = mod(bearing, 360);
     throughZero( bearing, mRoverStatus.odometry().bearing_deg );
-    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "turningBearingThresh" ].GetDouble() )
+    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "turningBearing" ].GetDouble() )
     {
         return true;
     }

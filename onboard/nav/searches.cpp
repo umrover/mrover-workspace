@@ -56,7 +56,7 @@ SpiralOut::~SpiralOut() {}
 
 // Initializes the search ponit multipliers to be the intermost loop
 // of the search.
-void SpiralOut::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, const double pathWidth )
+void SpiralOut::initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, const double visionDistance )
 {
     mSearchPoints.clear();
 
@@ -66,14 +66,14 @@ void SpiralOut::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
     mSearchPointMultipliers.push_back( pair<short, short> ( -1, -1 ) );
     mSearchPointMultipliers.push_back( pair<short, short> (  1, -1 ) );
 
-    while( mSearchPointMultipliers[ 0 ].second * pathWidth < mRoverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
+    while( mSearchPointMultipliers[ 0 ].second * visionDistance < roverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
-            Odometry nextSearchPoint = mPhoebe->roverStatus().path().front().odom;
+            Odometry nextSearchPoint = phoebe->roverStatus().path().front().odom;
             double totalLatitudeMinutes = nextSearchPoint.latitude_min +
-                ( mSearchPointMultiplier.first * pathWidth  * LAT_METER_IN_MINUTES );
+                ( mSearchPointMultiplier.first * visionDistance  * LAT_METER_IN_MINUTES );
             double totalLongitudeMinutes = nextSearchPoint.longitude_min +
-                ( mSearchPointMultiplier.second * pathWidth * mPhoebe->longMeterInMinutes() );
+                ( mSearchPointMultiplier.second * visionDistance * phoebe->longMeterInMinutes() );
 
             nextSearchPoint.latitude_deg += totalLatitudeMinutes / 60;
             nextSearchPoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes ) / 60 ) * 60 );
@@ -87,6 +87,7 @@ void SpiralOut::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
 
         }
     }
+    insertIntermediatePoints( phoebe, roverConfig );
 } // initializeSearch()
 
 /*************************************************************************/
@@ -96,7 +97,7 @@ SpiralIn::~SpiralIn() {}
 
 // Initializes the search ponit multipliers to be the intermost loop
 // of the search.
-void SpiralIn::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, const double pathWidth )
+void SpiralIn::initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, const double visionDistance )
 {
     mSearchPoints.clear();
 
@@ -106,14 +107,14 @@ void SpiralIn::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRov
     mSearchPointMultipliers.push_back( pair<short, short> (  1,  1 ) );
     mSearchPointMultipliers.push_back( pair<short, short> (  1, -1 ) );
 
-    while( mSearchPointMultipliers[ 0 ].second * pathWidth < mRoverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
+    while( mSearchPointMultipliers[ 0 ].second * visionDistance < roverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
-            Odometry nextSearchPoint = mPhoebe->roverStatus().path().front().odom;
+            Odometry nextSearchPoint = phoebe->roverStatus().path().front().odom;
             double totalLatitudeMinutes = nextSearchPoint.latitude_min +
-                ( mSearchPointMultiplier.first * pathWidth  * LAT_METER_IN_MINUTES );
+                ( mSearchPointMultiplier.first * visionDistance  * LAT_METER_IN_MINUTES );
             double totalLongitudeMinutes = nextSearchPoint.longitude_min +
-                ( mSearchPointMultiplier.second * pathWidth * mPhoebe->longMeterInMinutes() );
+                ( mSearchPointMultiplier.second * visionDistance * phoebe->longMeterInMinutes() );
 
             nextSearchPoint.latitude_deg += totalLatitudeMinutes / 60;
             nextSearchPoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes ) / 60 ) * 60 );
@@ -126,6 +127,7 @@ void SpiralIn::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRov
             mSearchPointMultiplier.second < 0 ? --mSearchPointMultiplier.second : ++mSearchPointMultiplier.second;
         }
     }
+    insertIntermediatePoints( phoebe, roverConfig );
     //TODO Reverse Deque. Not using this search though...
 } // initializeSearch()
 
@@ -134,9 +136,9 @@ void SpiralIn::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRov
 /*************************************************************************/
 LawnMower::~LawnMower() {}
 
-void LawnMower::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRoverConfig, const double pathWidth )
+void LawnMower::initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, const double visionDistance )
 {
-    const double searchBailThresh = mRoverConfig[ "search" ][ "bailThresh" ].GetDouble();
+    const double searchBailThresh = roverConfig[ "search" ][ "bailThresh" ].GetDouble();
 
     mSearchPoints.clear();
 
@@ -148,16 +150,16 @@ void LawnMower::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
     mSearchPointMultipliers.push_back( pair<short, short> ( -2, 0 ) );
 
 
-    while( fabs(mSearchPointMultipliers[ 0 ].first * pathWidth) < searchBailThresh )
+    while( fabs(mSearchPointMultipliers[ 0 ].first * visionDistance) < searchBailThresh )
     {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
-            Odometry nextSearchPoint = mPhoebe->roverStatus().odometry();
+            Odometry nextSearchPoint = phoebe->roverStatus().odometry();
 
             double totalLatitudeMinutes = nextSearchPoint.latitude_min +
-                ( mSearchPointMultiplier.first * pathWidth  * LAT_METER_IN_MINUTES );
+                ( mSearchPointMultiplier.first * visionDistance  * LAT_METER_IN_MINUTES );
             double totalLongitudeMinutes = nextSearchPoint.longitude_min +
-                ( mSearchPointMultiplier.second * (2 * searchBailThresh) * mPhoebe->longMeterInMinutes() );
+                ( mSearchPointMultiplier.second * (2 * searchBailThresh) * phoebe->longMeterInMinutes() );
 
             nextSearchPoint.latitude_deg += totalLatitudeMinutes / 60;
             nextSearchPoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes ) / 60 ) * 60 );
@@ -168,6 +170,7 @@ void LawnMower::initializeSearch( Rover* mPhoebe, const rapidjson::Document& mRo
             mSearchPoints.push_back( nextSearchPoint );
         }
     }
+    insertIntermediatePoints( phoebe, roverConfig );
 } // initializeSearch()
 
 
