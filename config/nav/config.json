@@ -22,17 +22,18 @@
 
 	"navThresholds":
 	{
-		"turningBearingThresh": 20,
-		"drivingBearingThresh": 50,
-		"atGoalDistanceThresh": 2.0
+		"turningBearing": 20,
+		"drivingBearing": 50,
+		"waypointDistance": 2.0,
+		"tennisBallDistance": 1.0
 	},
 
 	"computerVision":
 	{
 		"searchWaitStepSize": 90.0,
 		"searchWaitTime": 1.0,
-		"pathWidth": 2.0,
-		"obstacleThresh": 3.0
+		"obstacleThresh": 3.0,
+		"visionDistance": 4.0
 	},
 
 	"lcmChannels":
