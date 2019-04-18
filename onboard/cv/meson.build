@@ -18,9 +18,9 @@ if with_zed
 
 			# CUDA 
 			'-L/usr/local/cuda/lib64',
-			'-lnppial', '-lnppisu', '-lnppicc', '-lnppicom',
-			'-lnppidei', '-lnppif', '-lnppig', '-lnppim',
-			'-lnppist', '-lnppitc'
+			'-lcuda', '-lnppial', '-lnppisu', '-lnppicc',
+			'-lnppicom', '-lnppidei', '-lnppif', '-lnppig',
+			'-lnppim', '-lnppist', '-lnppitc'
 		])
 	all_deps += [zed]
 endif
