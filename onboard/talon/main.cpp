@@ -235,6 +235,11 @@ void configFollowerMode() {
     talons[Talons::rightBack].Follow(talons[Talons::rightFront]);
 }
 
+void configOpenLoopRamp() {
+    talons[Talons::leftFront].ConfigOpenloopRamp(0.5);
+    talons[Talons::rightFront].ConfigOpenloopRamp(0.5);
+}
+
 void configPIDConstants() {
     talons[Talons::armJointA].Config_kP(0, 4.0);
     talons[Talons::armJointA].Config_kI(0, 0.0001);
@@ -292,6 +297,7 @@ void configLimitSwitches() {
 
 void configTalons() {
     configFollowerMode();
+    configOpenLoopRamp();
     configPIDConstants();
     configCurrentLimits();
     configFeedbackDevices();
