@@ -28,11 +28,11 @@ const double WHEEL_ENC_CPR = 1024.0;
 const double ABS_ENC_CPR = 4096.0;
 const double PI = 3.14159;
 
-const int JOINT_A_OFFSET = 3820;
-const int JOINT_B_OFFSET = -4604;
-const int JOINT_C_OFFSET = -3310;
-const int JOINT_D_OFFSET = -2850;
-const int JOINT_E_OFFSET = -2170;
+const int JOINT_A_OFFSET = -330;
+const int JOINT_B_OFFSET = -1925;
+const int JOINT_C_OFFSET = -569;
+const int JOINT_D_OFFSET = -4448;
+const int JOINT_E_OFFSET = -3729;
 
 bool ARM_ENABLED = 0;
 bool SA_ENABLED = 0;
@@ -63,6 +63,11 @@ deque<TalonSRX> talons; // Use deque because TalonSRX has no move constructor.
 
 double encoderUnitsToRadians(int units, int cpr, int offset) {
     int x = units - offset;
+    // Handle encoders modding on power cycle
+    if(x > cpr / 2.0)
+        x -= cpr;
+    else if(x < -cpr / 2.0)
+        x += cpr;
     return (x / static_cast<double>(cpr)) * 2 * PI;
 }
 
