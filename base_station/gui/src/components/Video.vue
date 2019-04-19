@@ -9,6 +9,8 @@
     </div>
 
     <div class="options">
+      <button v-on:click='takePicture()'>Take Picture</button>
+      <div class="fixed-spacer"></div>
       <Checkbox v-bind:name="'Vertical Flip'" v-on:toggle="toggleVFlip()"/>
       <div class="fixed-spacer"></div>
       <Checkbox v-bind:name="'High Quality'" v-on:toggle="toggleHQ()"/>
@@ -74,6 +76,13 @@
 
       toggleVFlip: function () {
         this.vflip = !this.vflip
+      },
+
+      takePicture: function () {
+        this.$parent.$parent.publish("/pi_picture", {
+          type: 'PiPicture',
+          index: this.pi_index
+        })
       }
     }
   }
