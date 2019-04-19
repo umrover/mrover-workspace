@@ -1,5 +1,5 @@
 [Match]
-Name=eno1
+Name=enp0s25
 
 [Network]
 Address=10.0.0.1/8

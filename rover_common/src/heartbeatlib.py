@@ -1,7 +1,7 @@
 import os
 import asyncio
 from rover_msgs import Heartbeat
-from . import defaults, aiolcm
+from . import aiolcm
 
 
 def gen_new_id():
@@ -13,9 +13,7 @@ def gen_new_id():
 
 class Heartbeater:
     def __init__(self, publish, subscribe, callback, index):
-        heartbeat_group = os.environ.get('MROVER_HEARTBEAT_URL',
-                                         defaults.HEARTBEAT_LCM_GROUP)
-        self.lcm_ = aiolcm.AsyncLCM(heartbeat_group)
+        self.lcm_ = aiolcm.AsyncLCM()
         self.connected = False
         self.connection_state_changed = callback
         self.where = publish
