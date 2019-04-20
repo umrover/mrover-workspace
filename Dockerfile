@@ -20,8 +20,8 @@ RUN set -x && \
     apt-get update && \
     apt-get install -y ansible && \
     echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections && \
-    wget -O ZED_SDK_Linux_Ubuntu16.run https://download.stereolabs.com/zedsdk/2.7/ubuntu16_cuda9 && \
-    chmod +x ZED_SDK_Linux_Ubuntu16.run ; ./ZED_SDK_Linux_Ubuntu16.run silent
+    wget -O ZED_SDK_Linux_Ubuntu16.run https://www.stereolabs.com/developers/downloads/ZED_SDK_Ubuntu16_CUDA9_v2.8.0.run && \
+    chmod +x ZED_SDK_Linux_Ubuntu16.run ; bash ZED_SDK_Linux_Ubuntu16.run silent
 
 RUN ansible-playbook -i "localhost," -c local /tmp/ansible/devbox.yml 
 
