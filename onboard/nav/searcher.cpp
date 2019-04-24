@@ -9,12 +9,12 @@
 /*****************************************************/
 /* Funtions for StateMachine to access Search points */
 /*****************************************************/
-Odometry Searcher::frontSearchPoint( )
+Odometry Searcher::frontSearchPoint()
 {
     return mSearchPoints.front();
 }
 
-void Searcher::popSearchPoint( )
+void Searcher::popSearchPoint()
 {
     mSearchPoints.pop_front();
     return;
@@ -150,6 +150,7 @@ NavState Searcher::executeSearchSpinWait( Rover* phoebe, const rapidjson::Docume
     }
     if( !started )
     {
+        phoebe->stop();
         startTime = time( nullptr );
         started = true;
     }
