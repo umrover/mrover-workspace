@@ -82,7 +82,6 @@ void StateMachine::run()
 {
     if( isRoverReady() )
     {
-        // todo print state, add to publish nav state
         publishNavState();
         mStateChanged = false;
         NavState nextState = NavState::Unknown;
@@ -90,6 +89,8 @@ void StateMachine::run()
         if( !mPhoebe->roverStatus().autonState().is_auton )
         {
             nextState = NavState::Off;
+            mPhoebe->roverStatus().currentState() = executeOff(); // turn off immediately
+            publishNavState();
             clear( mPhoebe->roverStatus().path() );
             if( nextState != mPhoebe->roverStatus().currentState() )
             {
@@ -284,6 +285,7 @@ NavState StateMachine::executeOff()
         }
         return NavState::Turn;
     }
+    mPhoebe->stop();
     return NavState::Off;
 } // executeOff()
 
