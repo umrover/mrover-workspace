@@ -40,7 +40,7 @@ class Bridge:
 
         A Bridge consists of a Heartbeater and an AsyncLCM instance.
         """
-        self.num_hbs = 7
+        self.num_hbs = 9
         self.hbs = []
         for x in range(0, self.num_hbs):
             self.hbs.append(heartbeatlib.BaseStationHeartbeater(
