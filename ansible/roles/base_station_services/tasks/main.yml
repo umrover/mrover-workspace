@@ -4,17 +4,19 @@
     dest: /usr/share/applications/MRover_UI.desktop
     mode: 0755
 
-- name: Copy systemd services files
+- name: Copy systemd service and timer files
   template:
-    src: "files/{{ item }}.service"
-    dest: "/etc/systemd/system/{{ item }}.service"
+    src: "files/{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
   with_items:
-    - rover-base_station_gui
-    - rover-base_station_logging_server
-    - rover-base_station_gstreamer
-    - rover-base_station_gstreamer_2
-    - rover-lcm_bridge_server
-    - rover-base_station_microscope
+    - rover-base_station_gui.service
+    - rover-base_station_logging_server.service
+    - rover-base_station_gstreamer.service
+    - rover-base_station_gstreamer_2.service
+    - rover-lcm_bridge_server.service
+    - rover-base_station_microscope.service
+    - rover-base_station_gstreamer.timer
+    - rover-base_station_gstreamer_2.timer
 
 - name: Copy environment variable definitions
   copy:
@@ -24,12 +26,12 @@
 - name: Reload systemd
   systemd: daemon_reload=yes
 
-- name: Enable services
+- name: Enable services and timers
   systemd: name={{item}} enabled=yes
   with_items:
     - rover-base_station_gui.service
     - rover-base_station_logging_server.service
-    - rover-base_station_gstreamer.service
-    - rover-base_station_gstreamer_2.service
     - rover-lcm_bridge_server.service
     - rover-base_station_microscope.service
+    - rover-base_station_gstreamer.timer
+    - rover-base_station_gstreamer_2.timer
