@@ -76,7 +76,7 @@ export default {
         websocket: false,
         lcm: false,
         motors: false,
-        cameras: [false, false, false, false, false, false]
+        cameras: [false, false, false, false, false, false, false, false]
       },
 
       nav_status: {

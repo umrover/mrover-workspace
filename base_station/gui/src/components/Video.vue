@@ -2,7 +2,7 @@
   <div class="wrap2">
     <span v-if="pi_index >= 0" class="title">Current Camera: {{pi_index}}</span>
     <div class="buttons">
-      <template v-for="i in 6">
+      <template v-for="i in 8">
         <button ref="cams" v-on:click="$emit('pi_index', i)"> <span>Camera {{i}}</span> </button>
         <div class="fixed-spacer"></div>
       </template>
@@ -52,7 +52,7 @@
 
     watch: {
       pi_index: function (newIdx) {
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= 8; i++) {
           this.$refs["cams"][i-1].disabled = (i == newIdx)
         }
       }
