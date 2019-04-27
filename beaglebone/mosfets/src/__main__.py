@@ -4,7 +4,7 @@ import lcm
 
 lcm_ = lcm.LCM()
 
-mosfets = ["P8_21", "P8_23", "P8_25"]
+mosfets = ["P8_14", "P8_16", "P8_18"]
 
 
 def mosfet_callback(channel, msg):
