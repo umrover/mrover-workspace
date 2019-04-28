@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct StartTest {
+	string test;
+	int8_t site;
+}
