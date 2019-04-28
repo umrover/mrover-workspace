@@ -14,24 +14,44 @@ def main():
     mux.tca_select(0xff)
     rgb_sensor.enable()
 
+    rgb = RGB()
+
     while(True):
-        # Read data from channel 1
+        # Read data from channel 1 (Ammonia, Site 1)
         mux.tca_select(0x02)
         r, g, b = rgb_sensor.getData()
 
-        rgb = RGB()
-        rgb.mux_channel = 1
+        rgb.id = "rgb_ammonia_1"
         rgb.r = r
         rgb.g = g
         rgb.b = b
         lcm_.publish('/rgb', rgb.encode())
 
-        # Read data from channel 2
+        # Read data from channel 2 (Buret, Site 1)
         mux.tca_select(0x04)
         r, g, b = rgb_sensor.getData()
 
-        rgb = RGB()
-        rgb.mux_channel = 2
+        rgb.id = "rgb_buret_1"
+        rgb.r = r
+        rgb.g = g
+        rgb.b = b
+        lcm_.publish('/rgb', rgb.encode())
+
+        # Read data from channel 3 (Ammonia, Site 2)
+        mux.tca_select(0x08)
+        r, g, b = rgb_sensor.getData()
+
+        rgb.id = "rgb_ammonia_2"
+        rgb.r = r
+        rgb.g = g
+        rgb.b = b
+        lcm_.publish('/rgb', rgb.encode())
+
+        # Read data from channel 4 (Buret, Site 2)
+        mux.tca_select(0x10)
+        r, g, b = rgb_sensor.getData()
+
+        rgb.id = "rgb_buret_2"
         rgb.r = r
         rgb.g = g
         rgb.b = b
