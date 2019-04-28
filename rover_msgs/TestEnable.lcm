@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct TestEnable {
+	int8_t site;
+	boolean enabled;
+}

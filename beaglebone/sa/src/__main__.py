@@ -9,16 +9,16 @@ SERVO_MIN_DC = 4.0
 ESC_MAX_DC = 10.0
 ESC_MIN_DC = 5.0
 
-ESC_ON_PERCENT = 20.0
+ESC_ON_PERCENT = 80.0
 ESC_OFF_PERCENT = 0.0
 
-BISCOTTI_L = "P9_14"
-BISCOTTI_R = "P9_16"
-servos = [BISCOTTI_L, BISCOTTI_R]
+SERVO_AMMONIA_1 = "P9_14"
+SERVO_AMMONIA_2 = "P9_16"
+servos = [SERVO_AMMONIA_1, SERVO_AMMONIA_2]
 
-VACUUM_L = "P8_13"
-VACUUM_R = "P8_19"
-escs = [VACUUM_L, VACUUM_R]
+VACUUM_1 = "P8_13"
+VACUUM_2 = "P8_19"
+escs = [VACUUM_1, VACUUM_2]
 
 lcm_ = lcm.LCM()
 
@@ -61,7 +61,12 @@ def servo_init(pin, degrees):
 
 def servo_callback(channel, msg):
     servo = Servo.decode(msg)
-    run_servo(servos[servo.servo_id], servo.degrees)
+    if servo.id == "servo_1":
+        run_servo(servos[0], servo.degrees)
+    elif servo.id == "servo_2":
+        run_servo(servos[1], servo.degrees)
+    else:
+        print("Invalid servo ID.")
 
 
 def esc_toggle_callback(channel, msg):
@@ -70,12 +75,23 @@ def esc_toggle_callback(channel, msg):
         percent = ESC_ON_PERCENT
     else:
         percent = ESC_OFF_PERCENT
-    run_esc(escs[esc.esc_id], percent)
+
+    if esc.id == "vacuum_1":
+        run_esc(escs[0], percent)
+    elif esc.id == "vacuum_2":
+        run_esc(escs[1], percent)
+    else:
+        print("Invalid ESC ID.")
 
 
 def esc_throttle_callback(channel, msg):
     esc = ESCThrottle.decode(msg)
-    run_esc(escs[esc.esc_id], esc.percent)
+    if esc.id == "vacuum_1":
+        run_esc(escs[0], esc.percent)
+    elif esc.id == "vacuum_2":
+        run_esc(escs[1], esc.percent)
+    else:
+        print("Invalid ESC ID.")
 
 
 def main():

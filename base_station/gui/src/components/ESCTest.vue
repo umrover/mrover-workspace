@@ -39,7 +39,7 @@ export default {
     set: function(i) {
       this.publish("/esc_throttle", {
         'type': 'ESCThrottle',
-        'esc_id': i,
+        'esc_id': (i==0 ? "vacuum_1" : "vacuum_2"),
         'percent': parseFloat(this.throttles[i])
       })
     },
