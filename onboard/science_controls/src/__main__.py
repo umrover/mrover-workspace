@@ -34,8 +34,8 @@ async def run_test(site, test):
 
         cam = MicroCam()
         cam.id = MICRO_CAM_IDS[site]
-        lcm_.publish("/micro_cam", cam.encode())
-        await asyncio.sleep(3)
+        lcm_.publish("/microcam", cam.encode())
+        await asyncio.sleep(10)
 
         mosfet.enable = False
         lcm_.publish("/mosfet", mosfet.encode())
