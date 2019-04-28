@@ -65,8 +65,6 @@ def send_sa_kill():
     sa_motor.micro_x = 0.0
     sa_motor.micro_y = 0.0
     sa_motor.micro_z = 0.0
-    # sa_motor.front_drone = 0.0
-    # sa_motor.back_drone = 0.0
 
     lcm_.publish('/sa_motors', sa_motor.encode())
 
