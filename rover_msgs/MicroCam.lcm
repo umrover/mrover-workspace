@@ -1,4 +1,5 @@
 package rover_msgs;
 
 struct MicroCam {
+    string id;
 }
