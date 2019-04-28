@@ -2,6 +2,7 @@ import serial
 import time
 import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.UART as UART
+from datetime import datetime
 
 
 class Camera:
@@ -103,7 +104,7 @@ class Camera:
 
         imageBuffer = result
 
-        self.__filePicture("image.jpeg", imageBuffer)
+        self.__filePicture(imageBuffer)
 
         self.__flush()
 
@@ -475,9 +476,15 @@ class Camera:
         # print("FAILURE =CONFIG\n")
         return False
 
-    def __filePicture(self, name, data):
+    def __filePicture(self, data):
         # print("OPERATION =FILEPICTURE ..." + name + "\n")
-        file = open(name, "wb")
+        stamp = datetime.now()
+        name = "beaglebone/uCamIII/" + \
+               str(stamp.year) + "-" + str(stamp.month) + "-" + \
+               str(stamp.day) + "+" + str(stamp.hour) + ":" + \
+               str(stamp.minute) + ":" + str(stamp.second) + ".jpeg"
+
+        file = open(name, "w+b")
         for i in range(len(data)):
             # print(data[i], end='')
             file.write(data[i])

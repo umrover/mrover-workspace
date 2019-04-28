@@ -1,7 +1,13 @@
 from . import MicroCam3_BBB
+import lcm
+
+
+camera = None
 
 
 def main():
+
+    global camera
     camera = MicroCam3_BBB.Camera()
 
     camera.SERIAL_PORT = "/dev/ttyO4"
@@ -24,11 +30,27 @@ def main():
         print("Sync Failed")
         exit(1)
 
-    camera.imageRoutine()
+    print("Synced")
+
+    lcm_ = lcm.LCM()
+
+    lcm_.subscribe("/microcam", image_callback)
+
+    while True:
+        lcm_.handle()
 
     camera.stopRoutine()
 
     exit()
+
+
+def image_callback(channel, msg):
+    global camera
+
+    print("Say cheese!")
+    camera.imageRoutine()
+
+    print("Done")
 
 
 if __name__ == "__main__":
