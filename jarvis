@@ -61,12 +61,7 @@ if [ "$1" = "exec" ]; then
         source "${PRODUCT_ENV}/bin/activate"
         export MROVER_CONFIG="${PRODUCT_ENV}/config"
         shift
-        # Convert forward slashes to underscore
-        arg_no_slash=${@//"/"/"_"}
-        # Remove trailing underscore
-        clean_arg=${arg_no_slash%_}
-        exec env LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu"\
-         "$clean_arg"
+        exec env LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu" "$@"
     else
         echo "You must build something in order to be able to exec a command."
     fi
