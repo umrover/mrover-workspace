@@ -14,11 +14,12 @@
       <span>Servos pan: {{servosData.pan.toFixed(2)}}, Servos tilt: {{servosData.tilt.toFixed(2)}}</span>
     </div>
 
-    <div class="video">
-      <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscope()" ref="microscope"/>
+    <div class="cameraselection">
       <Checkbox v-bind:name="'Dual Stream'" v-on:toggle="toggleDualStream()" ref="dualstream"/>
-      <Video v-bind:pi_index="pi_index_1" v-bind:dual_stream="dual_stream" v-on:pi_index="setPiIndex($event, 1)"/>
-      <Video v-show="dual_stream" v-bind:pi_index="pi_index_2" v-bind:dual_stream="dual_stream" v-on:pi_index="setPiIndex($event, 2)"/>
+      <!-- For formatting... -->
+      <div></div>
+      <CameraSelection class="cameraspace1" v-bind:pi_index="pi_index_1" v-bind:dual_stream="dual_stream" v-on:pi_index="setPiIndex($event, 1)"/>
+      <CameraSelection class="cameraspace2" v-show="dual_stream" v-bind:pi_index="pi_index_2" v-bind:dual_stream="dual_stream" v-on:pi_index="setPiIndex($event, 2)"/>
     </div>
   </div>
 </template>
@@ -31,9 +32,14 @@
     grid-template-columns: 1fr;
     grid-template-rows: 60px 20px;
     grid-template-areas: "header" "servos";
-
     font-family: sans-serif;
     height: 100%;
+  }
+
+  .cameraselection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "cameraspace1 cameraspace2"
   }
 
   .box {
@@ -85,8 +91,14 @@
 </style>
 
 <script>
+  // TODO: 
+  // Rename pi_index to switchCameraText
+  // Set slider label instead of text to side
+  // Get conf.json working
+  // Add take picture button in class options
+  // Set watchers for everything in options except take pic (used to have button to set)
   import CommIndicator from './CommIndicator.vue'
-  import Video from './Video.vue'
+  import CameraSelection from './CameraSelection.vue'
   import Checkbox from "./Checkbox.vue"
 
 
@@ -211,7 +223,7 @@
 
     components: {
       CommIndicator,
-      Video,
+      CameraSelection,
       Checkbox
     }
   }
