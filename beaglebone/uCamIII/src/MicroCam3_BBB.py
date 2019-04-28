@@ -3,6 +3,7 @@ import time
 import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.UART as UART
 from datetime import datetime
+import os
 
 
 class Camera:
@@ -490,6 +491,9 @@ class Camera:
             file.write(data[i])
 
         file.close()
+
+        os.system('scp -l 2000 {} mrover@10.0.0.1:{}_micro_cam.jpg'
+                  .format(name, round(time.time() * 1000)))
 
         # print("\nSUCCESS = FILEPICTURE ..." + name + "\n")
 
