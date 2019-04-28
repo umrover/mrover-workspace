@@ -1,6 +1,6 @@
 package rover_msgs;
 
 struct ESCThrottle {
-    int8_t esc_id;
+    string id;
     float percent;
 }
