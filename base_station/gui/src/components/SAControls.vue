@@ -180,21 +180,19 @@ export default {
               'back_drill': back_drill_input,
               'micro_x': deadzone(xboxData['left_js_x'], 0.3),
               'micro_y': deadzone(xboxData['left_js_y'], 0.3),
-              'micro_z': xboxData['right_trigger'] - xboxData['left_trigger'],
-              'front_drone': front_drone_on.new_reading(xboxData['y'] > 0.5) ? 0.25 : 0.0,
-              'back_drone': back_drone_on.new_reading(xboxData['a'] > 0.5) ? 0.25 : 0.0
+              'micro_z': xboxData['right_trigger'] - xboxData['left_trigger']
             }
             this.$parent.publish('/sa_motors', saMotorsData)
 
             this.$parent.publish('/esc_toggle', {
               'type': 'ESCToggle',
-              'esc_id': 0,
+              'esc_id': 'vacuum_1',
               'enable': esc_0_on.new_reading(xboxData['x'] > 0.5)
             })
 
             this.$parent.publish('/esc_toggle', {
               'type': 'ESCToggle',
-              'esc_id': 1,
+              'esc_id': 'vacuum_2',
               'enable': esc_1_on.new_reading(xboxData['b'] > 0.5)
             })
           }

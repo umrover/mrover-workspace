@@ -1,6 +1,6 @@
 package rover_msgs;
 
 struct Servo {
-    int8_t servo_id;
+    string id;
     double degrees;
 }

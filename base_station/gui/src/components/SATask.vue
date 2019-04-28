@@ -32,6 +32,9 @@
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
     </div>
+    <div class="box sa_testing light-bg">
+      <SATestingControls/>
+    </div>
     <div class="box waypoints light-bg">
       <WaypointEditor v-bind:odom="odom" />
     </div>
@@ -50,6 +53,7 @@ import OdometryReading from './OdometryReading.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import SAControls from './SAControls.vue'
+import SATestingControls from './SATestingControls.vue'
 
 let interval;
 
@@ -151,6 +155,7 @@ export default {
         {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/sa_motors', 'type': 'SAMotors'},
+        {'topic': '/test_enable', 'type': 'TestEnable'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'}
       ]
     )
@@ -202,10 +207,11 @@ export default {
     CommIndicator,
     OdometryReading,
     WaypointEditor,
-    SAControls
+    SAControls,
+    SATestingControls
   }
 }</script>
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+
 <style scoped>
 
     .wrapper {
@@ -213,7 +219,7 @@ export default {
         grid-gap: 10px;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
-        grid-template-areas: "header header" "map cameras" "map waypoints" "map waypoints" "controls waypoints" "odom waypoints";
+        grid-template-areas: "header header" "map cameras" "map sa_testing" "map waypoints" "controls waypoints" "odom waypoints";
         font-family: sans-serif;
         height: 98vh;
     }
