@@ -1,6 +1,5 @@
 package rover_msgs;
 
-struct Servo {
+struct MicroCam {
     string id;
-    double degrees;
 }

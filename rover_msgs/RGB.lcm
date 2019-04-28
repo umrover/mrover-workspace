@@ -1,7 +1,7 @@
 package rover_msgs;
 
 struct RGB {
-	int8_t mux_channel;
+	string id;
 	float r;
 	float g;
 	float b;
