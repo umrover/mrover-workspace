@@ -51,7 +51,7 @@ export default {
     const electromagnet_toggle = new Toggle(false)
     const laser_toggle = new Toggle(false)
 
-    const updateRate = 0.05
+    const updateRate = 0.1
     interval = window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 4; i++) {
@@ -101,16 +101,13 @@ export default {
             } else if(this.controlMode === 'arm_ik') {
               send_arm_toggles = true
 
-              let speed = 0.25;
+              let speed = 0.05;
               const deltaPos = {
                 'type': 'IkArmControl',
-                'deltaX': deadzone(quadratic(xboxData['left_js_x']), 0.08)*speed*updateRate,
-                'deltaZ': deadzone(quadratic(xboxData['left_js_y']), 0.08)*speed*updateRate,
-                'deltaJointE': -deadzone(quadratic(xboxData['right_js_x']), 0.08)*0.4*updateRate,
-                'deltaTilt': deadzone(quadratic(xboxData['right_js_y']), 0.08)*0.4*updateRate
+                'deltaX': -deadzone(quadratic(xboxData.left_js_y), 0.08)*speed*updateRate,
+                'deltaY': -deadzone(quadratic(xboxData.left_js_x), 0.08)*speed*updateRate,
+                'deltaZ': -deadzone(quadratic(xboxData.right_js_y), 0.08)*speed*updateRate
               }
-
-              deltaPos.deltaY = (xboxData['d_pad_up'] ? 1 : (xboxData['d_pad_down'] ? -1 : 0)) * speed * updateRate
 
               this.$parent.publish('/ik_arm_control', deltaPos);
 
@@ -146,15 +143,24 @@ export default {
 
   methods: {
     updateControlMode: function (mode, checked) {
+      let ikEnabled = false
       if (checked) {
         if (this.controlMode !== ''){
           this.$refs[this.controlMode].toggle()
         }
 
+        ikEnabled = (mode === 'arm_ik')
         this.setControlMode(mode)
       } else {
         this.setControlMode('')
       }
+
+      const ikEnabledMsg = {
+        'type': 'IkEnabled',
+        'enabled': ikEnabled
+      }
+
+      this.$parent.publish('/ik_enabled', ikEnabledMsg)
     },
 
     ...mapMutations('controls', {
