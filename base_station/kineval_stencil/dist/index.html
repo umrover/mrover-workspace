@@ -1,0 +1,164 @@
+<!--|\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/|
+|\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/|
+||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/
+/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\
+
+    KinEval | Kinematic Evaluator | HTML example
+
+    Implementation of robot kinematics, control, decision making, and dynamics
+        in HTML5/JavaScript and threejs
+
+    @author ohseejay / https://github.com/ohseejay
+                     / https://bitbucket.org/ohseejay
+
+    Chad Jenkins
+    Laboratory for Perception RObotics and Grounded REasoning Systems
+    University of Michigan
+
+    License: Michigan Honor License
+
+|\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/|
+||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/
+/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\
+\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\/||\-->
+
+<html>
+
+<head>
+    <!-- Math library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js" type="text/javascript"></script>
+    <meta charset="utf-8"/>
+</head>
+
+<body style="overflow: hidden">
+
+<!-- //////////////////////////////////////////////////
+     /////     JAVASCRIPT INCLUDES
+     ////////////////////////////////////////////////// -->
+
+<!-- threejs r73 (https://github.com/mrdoob/three.js/) for 3D rendering
+<script src="js/three.js"></script>
+<script src="js/three_73.min.js"></script>
+-->
+<script src="js/three_92.min.js"></script>
+
+<!-- threejs camera controls helpers -->
+<script src="js/OrbitControls.js"></script>
+
+<!-- threejs keyboard input helper -->
+<script src="js/THREEx.KeyboardState.js"></script>
+
+<!-- threejs geometry loading helpers -->
+<script src="js/STLLoader_92.js"></script>
+<script src="js/ColladaLoader_92.js"></script>
+<!--
+<script src="js/STLLoader.js"></script>
+<script src="js/ColladaLoader2.js"></script>
+<script src="js/ColladaLoader.js"></script>
+-->
+
+<!-- numericjs (https://github.com/sloisel/numeric) for matrix routines -->
+<script src="js/numeric-1.2.6.js"></script>
+
+<!-- dat GUI helper -->
+<script src="js/dat.gui.min.js"></script>
+
+<!-- kineval includes -->
+<script src="kineval/kineval.js"></script>
+<script src="kineval/kineval_startingpoint.js"></script>
+<script src="kineval/kineval_robot_init.js"></script>
+<script src="kineval/kineval_threejs.js"></script>
+<script src="kineval/kineval_userinput.js"></script>
+
+<!-- kineval FK/drawing -->
+<script src="kineval/kineval_forward_kinematics.js"></script>
+<script src="kineval/kineval_matrix.js"></script>
+<script src="kineval/kineval_quaternion.js"></script>
+
+<!-- KE: not supported point cloud as JSON version of PCD format -->
+<!--
+<script src="experimental/point_clouds/three_objects.pcd.js"></script>
+<script src="experimental/point_clouds/eight_objects.pcd.js"></script>
+-->
+
+<script>
+
+//////////////////////////////////////////////////
+/////     HANDLE USER PARAMETERS
+//////////////////////////////////////////////////
+
+// set KinEval user parameter defaults
+var url_params = {
+    // load robot data object from given source file name
+    robot:"robots/fetch/fetch.urdf.js",
+    // load world data object from given source file name
+    world:"worlds/world_empty.js",
+    // specify floor/map image from given image file name
+    map_filename: "maps/Cam_Prep-VFX-checkerboard-lens_distortion-1in.jpg"
+};
+
+// preload default robot and world
+kineval.loadJSFile("robots/mrover_arm/mrover_arm_urdf.js", "robot");
+kineval.loadJSFile("worlds/world_empty.js","world");
+//kineval.loadJSFile("worlds/world_empty.js","world");
+
+// parse KinEval parameters from document URL and set defaults
+var url_parsed = window.location.href.split("?");
+var i;
+for (i=1;i<url_parsed.length;i++) {
+    var param_parsed = url_parsed[i].split("=");
+    url_params[param_parsed[0]] = param_parsed[1];
+    if ((param_parsed[0] === "world")||(param_parsed[0] === "robot"))
+        kineval.loadJSFile(param_parsed[1],param_parsed[0]);
+    if (param_parsed[0] === "map")
+        kineval.params.map_filename = param_parsed[1];
+}
+
+//////////////////////////////////////////////////
+/////     MAIN FUNCTION CALLS
+//////////////////////////////////////////////////
+
+// start KinEval execution once the page and its resources are loaded
+//window.onload = kineval.start;
+document.body.onload = kineval.start;
+
+// STUDENT: my_animate is where your robot's controls and movement are updated over time
+function my_init() {
+
+    kineval.startingPlaceholderInit(); // a quick and dirty JavaScript tutorial
+
+}
+
+
+//////////////////////////////////////////////////
+/////     ANIMATION AND INTERACTION LOOP
+//////////////////////////////////////////////////
+
+// STUDENT: my_animate is where your robot's controls and movement are updated over time
+function my_animate() {
+
+    // set to starting point mode is true as default (initialized in kineval.js)
+    //   set to false once starting forward kinematics project
+    //kineval.params.just_starting = false;
+
+    if (kineval.params.just_starting) {
+        kineval.params.just_starting = false
+        //kineval.publish_joint_angles();
+        startingPlaceholderAnimate();
+        //kineval.robotDraw();
+        return;
+    }
+
+    // HANDLE USER CONTROLS
+    // handle user input
+    kineval.handleUserInput();
+
+    // render robot and world in 3D scene
+    kineval.robotDraw();
+}
+
+</script>
+</body>
+</html>
+
+
