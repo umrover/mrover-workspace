@@ -5,7 +5,9 @@ phoenix = dependency('phoenix')
 
 all_deps = [lcm, phoenix]
 
+install_headers('rover.hpp')
+
 executable('onboard_talon',
-           'main.cpp',
+           'main.cpp', 'rover.cpp',
            dependencies : all_deps,
            install : true)
