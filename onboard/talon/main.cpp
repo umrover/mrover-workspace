@@ -235,9 +235,17 @@ void configFollowerMode() {
     talons[Talons::rightBack].Follow(talons[Talons::rightFront]);
 }
 
+void configBrakeMode() {
+    talons[Talons::armJointA].SetNeutralMode(NeutralMode::Brake);
+    talons[Talons::armJointB].SetNeutralMode(NeutralMode::Brake);
+    talons[Talons::armJointC].SetNeutralMode(NeutralMode::Brake);
+    talons[Talons::armJointD].SetNeutralMode(NeutralMode::Brake);
+    talons[Talons::armJointE].SetNeutralMode(NeutralMode::Brake);
+}
+
 void configOpenLoopRamp() {
-    talons[Talons::leftFront].ConfigOpenloopRamp(0.5);
-    talons[Talons::rightFront].ConfigOpenloopRamp(0.5);
+    // talons[Talons::leftFront].ConfigOpenloopRamp(0.5);
+    // talons[Talons::rightFront].ConfigOpenloopRamp(0.5);
 }
 
 void configPIDConstants() {
@@ -297,6 +305,7 @@ void configLimitSwitches() {
 
 void configTalons() {
     configFollowerMode();
+    configBrakeMode();
     configOpenLoopRamp();
     configPIDConstants();
     configCurrentLimits();
