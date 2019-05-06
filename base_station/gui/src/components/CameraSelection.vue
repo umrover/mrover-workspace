@@ -25,7 +25,7 @@
       <button v-on:click="takePicture()"><span>Take Pic</span></button>
       <Checkbox v-bind:name="'Vertical Flip'" v-on:toggle="toggleVFlip()"/>
       <div class="fixed-spacer"></div>
-      <input type="range" name="shutterslider" v-model="sspeed" v-on:click="sendSettings()" min="100" max="10000" step="100">
+      <input type="range" name="shutterslider" v-model="sspeed" min="8" max="16" step="1">
       <label for="shutterslider">Shutter Speed</label>
     </div>
   </div>
@@ -39,7 +39,7 @@
     data() {
       return {
         vflip: false,
-        sspeed: "6000",
+        sspeed: "12",
         cameras: jsonconfig["default"]["cameras"]
       }
     },
@@ -78,7 +78,7 @@
         this.$parent.$parent.publish("/pi_settings", {
           type: 'PiSettings',
           pi_index: this.pi_index,
-          shutter_speed: parseInt(this.sspeed),
+          shutter_speed: Math.round(Math.pow(10, parseInt(this.sspeed)/4)),
           vflip: this.vflip,
           height: 480,
           width: 854

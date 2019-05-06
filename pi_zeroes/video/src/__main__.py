@@ -18,15 +18,14 @@ settings = None
 vid_process = None
 pipeline = None
 index = -1
-dual_stream = False
 secondary = False
 
 
 def start_pipeline():
-    global pipeline, vid_process, settings, dual_stream, secondary
+    global pipeline, vid_process, settings, secondary
 
-    height = '480' if dual_stream else str(settings.height)
-    width = '854' if dual_stream else str(settings.width)
+    height = str(settings.height)
+    width = str(settings.width)
 
     bitrate = int((settings.height * settings.width) / 0.4608)
     port = '5001' if secondary else '5000'
@@ -95,10 +94,9 @@ def write_settings():
 
 
 def camera_callback(channel, msg):
-    global pipeline, index, dual_stream, secondary
+    global pipeline, index, secondary
 
     cam = PiCamera.decode(msg)
-    dual_stream = cam.dual_stream
 
     if pipeline is None:
         if cam.active_index_1 == index:
@@ -119,7 +117,8 @@ def settings_callback(channel, msg):
     new_settings = PiSettings.decode(msg)
     if new_settings.pi_index != index:
         return
-    settings = new_settings
+    settings.vflip = new_settings.vflip
+    settings.shutter_speed = new_settings.shutter_speed
     print("Settings changed.")
 
     stop_pipeline()
