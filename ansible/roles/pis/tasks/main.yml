@@ -50,7 +50,6 @@
       dest: "/etc/systemd/system/{{ item }}.service"
   with_items:
       - gstreamer
-      - pi-heartbeat
       - promiscuous
 
 - name: Disable Mbed compilation
@@ -80,7 +79,6 @@
   systemd: name={{ item }} enabled=yes
   with_items:
       - gstreamer.service
-      - pi-heartbeat.service
       - promiscuous.service
 
 - name: Clone git repository
