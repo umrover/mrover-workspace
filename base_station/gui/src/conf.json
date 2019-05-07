@@ -1,0 +1,14 @@
+{
+	"cameras":
+	{
+		"0": "Microscope",
+		"1": "Camera 1",
+        "2": "Camera 2",
+        "3": "Camera 3",
+        "4": "Camera 4",
+        "5": "Camera 5",
+        "6": "Camera 6",
+        "7": "Camera 7",
+        "8": "Camera 8"
+	}
+}

@@ -2,36 +2,45 @@
   <div class="wrap2">
     <span v-if="pi_index >= 0" class="title">Current Camera: {{pi_index}}</span>
     <div class="buttons">
-      <template v-for="i in 8">
-        <button ref="cams" v-on:click="$emit('pi_index', i)"> <span>Camera {{i}}</span> </button>
+      <template v-for="i in 3">
+        <button class="pi_buttons" ref="cams" v-on:click="$emit('pi_index', i-1)"> <span>{{cameras[i-1]}}</span> </button>
+        <div class="fixed-spacer"></div>
+      </template>
+    </div>
+    <div class="buttons">
+      <template v-for="i in 3">
+        <button class="pi_buttons" ref="cams" v-on:click="$emit('pi_index', i+2)"> <span>{{cameras[i+2]}}</span> </button>
+        <div class="fixed-spacer"></div>
+      </template>
+    </div>
+    <div class="buttons">
+      <template v-for="i in 3">
+        <button class="pi_buttons" ref="cams" v-on:click="$emit('pi_index', i+5)"> <span>{{cameras[i+5]}}</span> </button>
         <div class="fixed-spacer"></div>
       </template>
     </div>
 
+
     <div class="options">
-      <button v-on:click='takePicture()'>Take Picture</button>
-      <div class="fixed-spacer"></div>
+      <button v-on:click="takePicture()"><span>Take Pic</span></button>
       <Checkbox v-bind:name="'Vertical Flip'" v-on:toggle="toggleVFlip()"/>
       <div class="fixed-spacer"></div>
-      <Checkbox v-bind:name="'High Quality'" v-on:toggle="toggleHQ()"/>
-      <div class="fixed-spacer"></div>
-      <span>Shutter Speed:</span>
-      <input type="number" v-model="sspeed">
-      <div class="fixed-spacer"></div>
-      <button v-on:click='sendSettings()'>Update</button>
+      <input type="range" name="shutterslider" v-model="sspeed" v-on:click="sendSettings()" min="2000" max="10000" step="2000">
+      <label for="shutterslider">Shutter Speed</label>
     </div>
   </div>
 </template>
 
 <script>
   import Checkbox from "./Checkbox.vue"
+  import * as jsonconfig from "./../conf.json"
 
   export default {
     data() {
       return {
         vflip: false,
-        high_quality: false,
-        sspeed: "10000"
+        sspeed: "6000",
+        cameras: jsonconfig["default"]["cameras"]
       }
     },
 
@@ -39,7 +48,7 @@
       pi_index: {
         type: Number,
         required: true
-      },
+        },
       dual_stream: {
         type: Boolean,
         required: true
@@ -52,9 +61,15 @@
 
     watch: {
       pi_index: function (newIdx) {
-        for (let i = 1; i <= 8; i++) {
-          this.$refs["cams"][i-1].disabled = (i == newIdx)
+        for (let i = 0; i <= 8; i++) {
+          this.$refs["cams"][i].disabled = (i == newIdx)
         }
+      },
+      vflip: function(newFlip) {
+        this.sendSettings()
+      },
+      sspeed: function(newSpeed) {
+        this.sendSettings()
       }
     },
 
@@ -65,13 +80,9 @@
           pi_index: this.pi_index,
           shutter_speed: parseInt(this.sspeed),
           vflip: this.vflip,
-          height: this.high_quality && !this.dual_stream ? 720 : 480,
-          width: this.high_quality && !this.dual_stream ? 1280 : 854
+          height: 480,
+          width: 854
         });
-      },
-
-      toggleHQ: function () {
-        this.high_quality = !this.high_quality
       },
 
       toggleVFlip: function () {
@@ -89,7 +100,17 @@
 </script>
 
 <style>
-  .wrap2 {
+  /* .wrap2 {
+    grid-gap: 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: "title" "microscope" "cameras1" "cameras2" "options";
+
+    font-family: sans-serif;
+    height: 100%;
+  } */
+
+  /* .wrap2 {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
@@ -99,7 +120,7 @@
     font-family: sans-serif;
     height: 100%;
     padding: 10px 0px 10px 0px;
-  }
+  } */
 
   .title {
     grid-area: title;
@@ -112,6 +133,11 @@
     align-items: center;
     justify-content: center;
     grid-area: buttons;
+  }
+
+  .pi_buttons {
+    height:20px;
+    width:100px;
   }
 
   .options {
