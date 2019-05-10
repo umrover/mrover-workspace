@@ -7,9 +7,9 @@ using namespace rover_msgs;
 Rover::Rover(int numTalons, int _wheelCPR, int _armCPR) : armEnabled(0), 
     saEnabled(0), wheelCPR(_wheelCPR), armCPR(_armCPR) {
     // Offsets for arm joints A-E, feed forward constants
-    offsets = {-330, -1925, -569, -4448, -3729};
-    posfeeds = {0.34, 2 * 0.09, 2 * 0.09, 2 * 0.05, 2 * 0.07};
-    negfeeds = {-0.34, -0.13, -0.09, -0.08, -0.07};
+    offsets = {820, -2672, -1936, -769, 407};
+    posfeeds = {0.1, 0.18, 0.18, 0.05, 0.07};
+    negfeeds = {-0.1, -0.13, -0.09, -0.04, -0.03};
 
     // Initialize current encoder counts, joint angles
     for(int i = 0; i < 5; ++i) {
@@ -51,6 +51,16 @@ void Rover::publishEncoderData(lcm::LCM &lcm) {
     arm_msg.joint_c = angles[2] = encoderUnitsToRadians(cPosRaw, armCPR, offsets[2]);
     arm_msg.joint_d = angles[3] = encoderUnitsToRadians(dPosRaw, armCPR, offsets[3]);
     arm_msg.joint_e = angles[4] = encoderUnitsToRadians(ePosRaw, armCPR, offsets[4]);
+
+    // Handle jumping for Joint B's encoder
+    if(arm_msg.joint_b < -PI / 4) {
+        arm_msg.joint_b += PI;
+        angles[1] += PI;
+    }
+    if(arm_msg.joint_b > 3*PI / 4) {
+        arm_msg.joint_b -= PI;
+        angles[1] -= PI;
+    }
 
     // Get mobility encoder velocities
     int lfEncVel = talons[Talons::leftFront].GetSelectedSensorVelocity();
@@ -186,10 +196,10 @@ void Rover::talonConfig(const lcm::ReceiveBuffer* receiveBuffer,
         talons[Talons::saMicroY].EnableVoltageCompensation(false);
         talons[Talons::saMicroZ].EnableVoltageCompensation(false);
         saEnabled = 0;
-        talons[Talons::armJointB].ConfigVoltageCompSaturation(12.0);
+        talons[Talons::armJointB].ConfigVoltageCompSaturation(24.0);
         talons[Talons::armJointC].ConfigVoltageCompSaturation(12.0);
-        talons[Talons::armJointF].ConfigVoltageCompSaturation(5.0);
-        talons[Talons::armJointG].ConfigVoltageCompSaturation(12.0);
+        talons[Talons::armJointF].ConfigVoltageCompSaturation(9.0);
+        talons[Talons::armJointG].ConfigVoltageCompSaturation(24.0);
         talons[Talons::armJointB].EnableVoltageCompensation(true);
         talons[Talons::armJointC].EnableVoltageCompensation(true);
         talons[Talons::armJointF].EnableVoltageCompensation(true);
@@ -239,6 +249,7 @@ void Rover::configBrakeMode() {
     talons[Talons::armJointC].SetNeutralMode(NeutralMode::Brake);
     talons[Talons::armJointD].SetNeutralMode(NeutralMode::Brake);
     talons[Talons::armJointE].SetNeutralMode(NeutralMode::Brake);
+    talons[Talons::armJointF].SetNeutralMode(NeutralMode::Brake);
 }
 
 void Rover::configOpenLoopRamp() {
@@ -249,14 +260,14 @@ void Rover::configOpenLoopRamp() {
 void Rover::configPIDConstants() {
     talons[Talons::armJointA].Config_kP(0, 4.0);
     talons[Talons::armJointA].Config_kI(0, 0.0001);
-    talons[Talons::armJointA].ConfigAllowableClosedloopError(0, 40);
-    talons[Talons::armJointB].Config_kP(0, 2.0);
+    talons[Talons::armJointA].ConfigAllowableClosedloopError(0, 5);
+    talons[Talons::armJointB].Config_kP(0, 3.0);
     talons[Talons::armJointB].Config_kI(0, 0.00002);
-    talons[Talons::armJointC].Config_kP(0, 1.9);
+    talons[Talons::armJointC].Config_kP(0, 4.0);
     talons[Talons::armJointC].Config_kI(0, 0.00008);
-    talons[Talons::armJointD].Config_kP(0, 1.5);
+    talons[Talons::armJointD].Config_kP(0, 2.0);
     talons[Talons::armJointD].Config_kI(0, 0.00002);
-    talons[Talons::armJointE].Config_kP(0, 1.5);
+    talons[Talons::armJointE].Config_kP(0, 2.0);
     talons[Talons::armJointE].Config_kI(0, 0.00001);
 }
 
