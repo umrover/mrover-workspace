@@ -3,12 +3,14 @@
     <div class="control_buttons">
         <Checkbox ref="arm" v-bind:name="'Arm Controls'" v-on:toggle="updateControlMode('arm', $event)"/>
         <Checkbox ref="arm_ik" v-bind:name="'Inverse Kinematics'" v-on:toggle="updateControlMode('arm_ik', $event)"/>
+        <EncoderCounts/>
     </div>
   </div>
 </template>
 
 <script>
 import Checkbox from './Checkbox.vue'
+import EncoderCounts from './EncoderCounts.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
 import {Toggle, quadratic, deadzone, joystick_math} from '../utils.js'
@@ -167,7 +169,8 @@ export default {
   },
 
   components: {
-    Checkbox
+    Checkbox,
+    EncoderCounts
   }
 }
 </script>
@@ -179,7 +182,7 @@ export default {
   grid-template-columns: 1fr;
   align-items: center;
   height: 100%;
-  padding: 0px 0px 0px 20px;
+  padding: 0px 0px 10px 20px;
 }
 
 .control_buttons {
