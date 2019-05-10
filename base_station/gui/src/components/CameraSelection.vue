@@ -25,7 +25,7 @@
       <button v-on:click="takePicture()"><span>Take Pic</span></button>
       <Checkbox v-bind:name="'Vertical Flip'" v-on:toggle="toggleVFlip()"/>
       <div class="fixed-spacer"></div>
-      <input type="range" name="shutterslider" v-model="sspeed" v-on:click="sendSettings()" min="2000" max="10000" step="2000">
+      <input type="range" name="shutterslider" v-model="sspeed" v-on:click="sendSettings()" min="100" max="10000" step="100">
       <label for="shutterslider">Shutter Speed</label>
     </div>
   </div>
