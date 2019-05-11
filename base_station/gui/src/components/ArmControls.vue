@@ -80,9 +80,8 @@ export default {
 
             const arm_toggles = {
               'type': 'ArmToggles',
-              'solenoid': gamepad.buttons[XBOX_CONFIG['a']]['pressed'],
-              'electromagnet': gamepad.buttons[XBOX_CONFIG['b']]['pressed'],
-              'laser': gamepad.buttons[XBOX_CONFIG['y']]['pressed'],
+              'solenoid': gamepad.buttons[XBOX_CONFIG['b']]['pressed'],
+              'electromagnet': gamepad.buttons[XBOX_CONFIG['a']]['pressed'],
             }
 
             let send_arm_toggles = false
@@ -134,7 +133,6 @@ export default {
             if(send_arm_toggles) {
               arm_toggles.solenoid = solenoid_toggle.new_reading(arm_toggles.solenoid)
               arm_toggles.electromagnet = electromagnet_toggle.new_reading(arm_toggles.electromagnet)
-              arm_toggles.laser = laser_toggle.new_reading(arm_toggles.laser)
               this.$parent.publish('/arm_toggles_toggle_data', arm_toggles)
             }
           }
