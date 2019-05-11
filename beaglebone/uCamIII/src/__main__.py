@@ -55,7 +55,7 @@ def main():
     synced1 = camera1.setupRoutine()
     synced2 = camera2.setupRoutine()
 
-    if not synced1 and synced2:
+    if not synced1 and not synced2:
         print("Sync failed with both cameras.")
         exit(1)
     if not synced1:
