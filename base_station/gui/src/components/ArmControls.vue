@@ -129,7 +129,7 @@ export default {
             if(send_arm_toggles) {
               arm_toggles.solenoid = solenoid_toggle.new_reading(arm_toggles.solenoid)
               arm_toggles.electromagnet = electromagnet_toggle.new_reading(arm_toggles.electromagnet)
-              this.$parent.publish('/arm_toggles_toggle_data', arm_toggles)
+              this.$parent.publish('/arm_toggles', arm_toggles)
             }
           }
         }
