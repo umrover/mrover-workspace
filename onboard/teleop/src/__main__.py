@@ -229,7 +229,7 @@ def main():
     lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/arm_control', arm_control_callback)
     # lcm_.subscribe('/sa_controls', sa_control_callback)
-    lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
+    # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())
