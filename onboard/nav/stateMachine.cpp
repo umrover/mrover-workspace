@@ -10,7 +10,10 @@
 
 #include "rover_msgs/NavStatus.hpp"
 #include "utilities.hpp"
-#include "searches.hpp"
+#include "search/spiralOutSearch.hpp"
+#include "search/spiralInSearch.hpp"
+#include "search/lawnMowerSearch.hpp"
+#include "obstacle_avoidance/simpleAvoidance.hpp"
 
 // Constructs a StateMachine object with the input lcm object.
 // Reads the configuartion file and constructs a Rover objet with this
@@ -19,7 +22,6 @@
 StateMachine::StateMachine( lcm::LCM& lcmObject )
     : mPhoebe( nullptr )
     , mLcmObject( lcmObject )
-    , mOriginalObstacleAngle( 0 )
     , mTotalWaypoints( 0 )
     , mCompletedWaypoints( 0 )
     , mMissedWaypoints( 0 )
@@ -40,7 +42,8 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     configFile.close();
     mRoverConfig.Parse( config.c_str() );
     mPhoebe = new Rover( mRoverConfig, lcmObject );
-    mSearcher = SearchFactory( this, SearchType::SPIRALOUT );
+    mSearchStateMachine = SearchFactory( this, SearchType::SPIRALOUT );
+    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( this, ObstacleAvoidanceAlgorithm::SimpleAvoidance );
 } // StateMachine()
 
 // Destructs the StateMachine object. Deallocates memory for the Rover
@@ -52,9 +55,9 @@ StateMachine::~StateMachine( )
 
 void StateMachine::setSearcher( SearchType type )
 {
-    assert( mSearcher );
-    delete mSearcher;
-    mSearcher = SearchFactory( this, type );
+    assert( mSearchStateMachine );
+    delete mSearchStateMachine;
+    mSearchStateMachine = SearchFactory( this, type );
 }
 
 void StateMachine::updateCompletedPoints( )
@@ -69,10 +72,26 @@ void StateMachine::updateFoundBalls( )
     return;
 }
 
-void StateMachine::updateObstacleAngle( double angle )
+// Allows outside objects to set the original obstacle angle
+// This will allow the variable to be set before the rover turns
+void StateMachine::updateObstacleAngle( double bearing ) 
 {
-    mOriginalObstacleAngle = angle;
-    return;
+    mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing );
+}
+
+// Allows outside objects to set the original obstacle angle
+// This will allow the variable to be set before the rover turns
+void StateMachine::updateObstacleDistance( double distance ) 
+{
+    mObstacleAvoidanceStateMachine->updateObstacleDistance( distance );
+}
+
+// Allows outside objects to set the original obstacle angle
+// This will allow the variable to be set before the rover turns
+void StateMachine::updateObstacleElements( double bearing, double distance ) 
+{
+    updateObstacleAngle( bearing );
+    updateObstacleDistance( distance );
 }
 
 // Runs the state machine through one iteration. The state machine will
@@ -132,23 +151,19 @@ void StateMachine::run()
             case NavState::SearchTurn:
             case NavState::SearchDrive:
             case NavState::TurnToBall:
+            case NavState::TurnedToBallWait:
             case NavState::DriveToBall:
             {
-                nextState = mSearcher->run( mPhoebe, mRoverConfig );
+                nextState = mSearchStateMachine->run( mPhoebe, mRoverConfig );
                 break;
             }
 
             case NavState::TurnAroundObs:
             case NavState::SearchTurnAroundObs:
-            {
-                nextState = executeTurnAroundObs();
-                break;
-            }
-
             case NavState::DriveAroundObs:
             case NavState::SearchDriveAroundObs:
             {
-                nextState = executeDriveAroundObs();
+                nextState = mObstacleAvoidanceStateMachine->run( mPhoebe, mRoverConfig );
                 break;
             }
 
@@ -180,7 +195,7 @@ void StateMachine::run()
                         break;
                     }
                 }
-                mSearcher->initializeSearch( mPhoebe, mRoverConfig, visionDistance );
+                mSearchStateMachine->initializeSearch( mPhoebe, mRoverConfig, visionDistance );
                 if( searchFails % 2 == 1 && visionDistance > 0.5 )
                 {
                     visionDistance *= 0.5;
@@ -247,7 +262,8 @@ bool StateMachine::isRoverReady() const
 {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
-           mPhoebe->roverStatus().currentState() == NavState::SearchSpinWait; // continue even if no data has changed
+           mPhoebe->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
+           mPhoebe->roverStatus().currentState() == NavState::TurnedToBallWait; // continue even if no data has changed
 } // isRoverReady()
 
 // Publishes the current navigation state to the nav status lcm channel.
@@ -323,13 +339,15 @@ NavState StateMachine::executeTurn()
 // keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive()
 {
-    if( isObstacleDetected() )
+    const Waypoint& nextWaypoint = mPhoebe->roverStatus().path().front();
+    double distance = estimateNoneuclid( mPhoebe->roverStatus().odometry(), nextWaypoint.odom );    
+    double bearing = calcBearing( mPhoebe->roverStatus().odometry(), nextWaypoint.odom );
+
+    if( isObstacleDetected() && isWaypointReachable( distance, bearing ) )
     {
-        mOriginalObstacleAngle = getOptimalAvoidanceAngle();
+        mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(), getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
     }
-
-    const Waypoint& nextWaypoint = mPhoebe->roverStatus().path().front();
     DriveStatus driveStatus = mPhoebe->drive( nextWaypoint.odom );
     if( driveStatus == DriveStatus::Arrived )
     {
@@ -349,115 +367,6 @@ NavState StateMachine::executeDrive()
     return NavState::Turn;
 } // executeDrive()
 
-// Executes the logic for turning around an obstacle. If the rover is
-// turned off, it proceeds to Off. If the tennis ball is detected, the
-// rover proceeds to it. If the Waypopint and obstacle are in similar
-// locations, assume that we would have seen the ball and move on. If
-// the obstacle is no longer detcted, proceed to drive around the
-// obstacle. Else continue turning around the obstacle.
-// ASSUMPTION: To avoid an infinite loop, we assume that the obstacle is straight ahead of us,
-//             therefore we produce an underestimate for how close the waypoint is to the
-//             obstacle. This relies on using a path width no larger than what we can
-//             confidentally see to the side.
-NavState StateMachine::executeTurnAroundObs()
-{
-    if( mPhoebe->roverStatus().tennisBall().found )
-    {
-        return NavState::TurnToBall;
-        // return NavState::Search; // todo
-    }
-
-    double cvThresh = mRoverConfig[ "computerVision" ][ "obstacleThresh" ].GetDouble();
-    if( ( mPhoebe->roverStatus().currentState() == NavState::TurnAroundObs ) &&
-        ( estimateNoneuclid( mPhoebe->roverStatus().path().front().odom,
-                             mPhoebe->roverStatus().odometry() ) < 2 * cvThresh ) )
-    {
-        mPhoebe->roverStatus().path().pop();
-        mMissedWaypoints += 1;
-        return NavState::Turn;
-    }
-    if( ( mPhoebe->roverStatus().currentState() == NavState::SearchTurnAroundObs ) &&
-        ( estimateNoneuclid( mSearcher->frontSearchPoint(), mPhoebe->roverStatus().odometry() )
-          < 2 * cvThresh ) )
-    {
-        mSearcher->popSearchPoint();
-        return NavState::SearchTurn;
-        // return NavState::Search; // todo
-    }
-    if( !isObstacleDetected() )
-    {
-        double distanceAroundObs = cvThresh / cos( fabs( degreeToRadian( mOriginalObstacleAngle ) ) );
-        mObstacleAvoidancePoint = createAvoidancePoint( distanceAroundObs );
-        if( mPhoebe->roverStatus().currentState() == NavState::TurnAroundObs )
-        {
-            return NavState::DriveAroundObs;
-        }
-        return NavState::SearchDriveAroundObs;
-    }
-
-    double desiredBearing = mod( mPhoebe->roverStatus().odometry().bearing_deg
-                               + getOptimalAvoidanceAngle(), 360 );
-    mPhoebe->turn( desiredBearing );
-    return mPhoebe->roverStatus().currentState();
-} // executeTurnAroundObs()
-
-// Executes the logic for driving around an obstacle. If the rover is
-// turned off, proceed to Off. If another obstacle is detected, proceed
-// to go around it. If the rover finished going around the obstacle, it
-// proceeds to turning to the Waypoint that was being driven to when the
-// obstacle was spotted. Else, continue driving around the obstacle.
-// TODO: fix the case about when the obstacle gets off course.
-NavState StateMachine::executeDriveAroundObs()
-{
-    if( isObstacleDetected() )
-    {
-        mOriginalObstacleAngle = getOptimalAvoidanceAngle();
-        if( mPhoebe->roverStatus().currentState() == NavState::DriveAroundObs )
-        {
-            return NavState::TurnAroundObs;
-        }
-        return NavState::SearchTurnAroundObs;
-    }
-
-    DriveStatus driveStatus = mPhoebe->drive( mObstacleAvoidancePoint );
-    if( driveStatus == DriveStatus::Arrived )
-    {
-        if( mPhoebe->roverStatus().currentState() == NavState::DriveAroundObs )
-        {
-            return NavState::Turn;
-        }
-        return NavState::SearchTurn;
-    }
-    if( driveStatus == DriveStatus::OnCourse )
-    {
-        return mPhoebe->roverStatus().currentState();
-    }
-    // if driveStatus == DriveStatus::OffCourse
-    if( mPhoebe->roverStatus().currentState() == NavState::DriveAroundObs )
-    {
-        return NavState::TurnAroundObs;
-    }
-    return NavState::SearchTurnAroundObs;
-} // executeDriveAroundObs()
-
-
-// Creates the odometry point to use to drive around in obstacle
-// avoidance.
-Odometry StateMachine::createAvoidancePoint( const double distance )
-{
-    Odometry avoidancePoint = mPhoebe->roverStatus().odometry();
-    double totalLatitudeMinutes = avoidancePoint.latitude_min +
-        cos( degreeToRadian( avoidancePoint.bearing_deg ) ) * distance * LAT_METER_IN_MINUTES;
-    double totalLongitudeMinutes = avoidancePoint.longitude_min +
-        sin( degreeToRadian( avoidancePoint.bearing_deg ) ) * distance * mPhoebe->longMeterInMinutes();
-    avoidancePoint.latitude_deg += totalLatitudeMinutes / 60;
-    // avoidancePoint.latitude_min = mod( totalLatitudeMinutes, 60 );
-    avoidancePoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes) / 60 ) * 60 );
-    avoidancePoint.longitude_deg += totalLongitudeMinutes / 60;
-    // avoidancePoint.longitude_min = mod( totalLatitudeMinutes, 60 );
-    avoidancePoint.longitude_min = ( totalLongitudeMinutes - ( ( (int) totalLongitudeMinutes) / 60 ) * 60 );
-    return avoidancePoint;
-}
 
 // Gets the string representation of a nav state.
 string StateMachine::stringifyNavState() const
@@ -475,6 +384,7 @@ string StateMachine::stringifyNavState() const
             { NavState::SearchTurn, "Search Turn" },
             { NavState::SearchDrive, "Search Drive" },
             { NavState::TurnToBall, "Turn to Ball" },
+            { NavState::TurnedToBallWait, "Turned to Ball Wait" },
             { NavState::DriveToBall, "Drive to Ball" },
             { NavState::TurnAroundObs, "Turn Around Obstacle"},
             { NavState::DriveAroundObs, "Drive Around Obstacle" },
@@ -498,11 +408,22 @@ double StateMachine::getOptimalAvoidanceAngle() const
     return mPhoebe->roverStatus().obstacle().bearing;
 } // optimalAvoidanceAngle()
 
+// Returns the optimal angle to avoid the detected obstacle.
+double StateMachine::getOptimalAvoidanceDistance() const
+{
+    return mPhoebe->roverStatus().obstacle().distance;
+} // optimalAvoidanceAngle()
 
-// thresholds based on state? waypoint vs ball
-// set distance to go around obstacles?
-// set threshold for when to skip a point?
+bool StateMachine::isWaypointReachable( double distance, double bearing ) 
+{
+    return ( ( mPhoebe->roverStatus().obstacle().distance < distance - 1 ) ||
+     ( ( bearing - mPhoebe->roverStatus().odometry().bearing_deg ) < 0 
+                        && mPhoebe->roverStatus().obstacle().bearing > 0 ) ||
+     ( ( bearing - mPhoebe->roverStatus().odometry().bearing_deg ) > 0 
+                        && mPhoebe->roverStatus().obstacle().bearing < 0 ) );
+} // isWaypointReachable
 
 // TODOS:
 // [drive to ball] obstacle and ball
 // all of code, what to do in cases of both ball and obstacle
+// thresholds based on state? waypoint vs ball

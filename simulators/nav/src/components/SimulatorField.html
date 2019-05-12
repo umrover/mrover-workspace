@@ -60,7 +60,8 @@ export default {
 
             obstacle_state: {
                 detected: false,
-                bearing: 0
+                bearing: 0,
+                distance: 0
             },
 
             mode: WAYPOINT_MODE
@@ -229,7 +230,8 @@ export default {
             console.log(`path clear: ${path_clear}`);
             let obstacle_state = {
                 detected: false,
-                bearing: 0
+                bearing: 0,
+                distance: 0
             };
             if (!path_clear) {
                 // Returns 1 if the rover should turn right, 0 if it should turn left to avoid the obstacle.
@@ -245,16 +247,22 @@ export default {
                     return occupied_right > occupied_left ? false : true;
                 };
 
+                const { dist, bearing } = dist_and_bearing(
+                    to_decimal(odom), to_decimal(filtered_rocks[0]));
+                const rover_bearing = odom.bearing_deg * Math.PI/180;
+
                 if (turn_direction(occupied_angles)) {
                     obstacle_state = {
                         detected: true,
-                        bearing: 45
+                        bearing: 45,
+                        distance: dist
                     };
                 }
                 else {
                     obstacle_state = {
                         detected: true,
-                        bearing: -45
+                        bearing: -45,
+                        distance: dist
                     };
                 }
             }

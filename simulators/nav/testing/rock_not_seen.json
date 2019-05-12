@@ -1,0 +1,20 @@
+{
+    "waypoints": [
+        {
+            "latitude_deg": 39,
+            "latitude_min": 24.007689199730606,
+            "longitude_deg": -110,
+            "longitude_min": -30.00052371879292,
+            "search": false
+        }
+    ],
+    "rocks": [
+        {
+            "latitude_deg": 39,
+            "latitude_min": 24.005440895715964,
+            "longitude_deg": -110,
+            "longitude_min": -30.0002909548067
+        }
+    ],
+    "tennis_balls": []
+}

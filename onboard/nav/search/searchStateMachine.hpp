@@ -1,27 +1,33 @@
-#ifndef SEARCHER_HPP
-#define SEARCHER_HPP
+#ifndef SEARCH_STATE_MACHINE_HPP
+#define SEARCH_STATE_MACHINE_HPP
 
 #include "rover.hpp"
 #include "utilities.hpp"
 
 class StateMachine;
 
-class Searcher {
+// This class is the representation of different 
+// search algorithms
+enum class SearchType
+{
+    SPIRALOUT,
+    LAWNMOWER,
+    SPIRALIN
+};
+
+class SearchStateMachine {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    Searcher(StateMachine* stateMachine_)
-    : stateMachine(stateMachine_) {}
+    SearchStateMachine(StateMachine* stateMachine_);
 
-    virtual ~Searcher() {}
+    virtual ~SearchStateMachine() {}
 
     NavState run( Rover * phoebe, const rapidjson::Document& roverConfig );
 
-    Odometry frontSearchPoint();
-
-    void popSearchPoint();
-
+    bool tennisBallReachable( Rover* phoebe, double distance, double bearing );
+    
     virtual void initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
 
 private:
@@ -30,7 +36,7 @@ private:
     /*************************************************************************/
     NavState executeSearchSpin( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    NavState executeSearchSpinWait( Rover* phoebe, const rapidjson::Document& roverConfig );
+    NavState executeRoverWait( Rover* phoebe, const rapidjson::Document& roverConfig );
 
     NavState executeSearchTurn( Rover* phoebe, const rapidjson::Document& roverConfig );
 
@@ -38,9 +44,27 @@ private:
 
     NavState executeTurnToBall( Rover* phoebe );
 
-    NavState executeDriveToBall( Rover* phoebe );
+    NavState executeDriveToBall( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-protected:  // TODO
+    bool isTennisBallReachable( Rover* phoebe, double distance, double bearing );
+
+    void updateTennisBallAngle( double bearing );
+
+    void updateTurnToBallRoverAngle( double bearing );
+
+    void updateTennisBallDetectionElements( double ball_bearing, double rover_bearing );
+
+    /*************************************************************************/
+    /* Private Member Variables */
+    /*************************************************************************/
+
+    // Last known angle to turn to tennis ball.
+    double mTennisBallAngle;
+
+    // Last known angle of rover from turn to tennis ball.
+    double mTurnToBallRoverAngle;
+
+protected:
     /*************************************************************************/
     /* Protected Member Functions */
     /*************************************************************************/
@@ -50,7 +74,9 @@ protected:  // TODO
     /*************************************************************************/
     /* Protected Member Variables */
     /*************************************************************************/
-    StateMachine* stateMachine;
+    
+    // Pointer to rover State Machine to access member functions
+    StateMachine* roverStateMachine;
 
     // Vector of search point multipliers used as a base for the search points.
     vector< pair<short, short> > mSearchPointMultipliers;
@@ -60,12 +86,9 @@ protected:  // TODO
 
 };
 
-#endif //SEARCHER_HPP
+// Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle 
+// avoidance algorithm. This allows for an an ease of transition between obstacle 
+// avoidance algorithms
+SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type );
 
-
-/*************************************************************************/
-/* TODO */
-/*************************************************************************/
-// TODO: Attempt to remove protected member variables ( private? )
-// TODO: move initializeSearch back to private function
-
+#endif //SEARCH_STATE_MACHINE_HPP
