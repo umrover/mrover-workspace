@@ -6,7 +6,7 @@
 
 class StateMachine;
 
-// This class is the representation of different 
+// This class is the representation of different
 // search algorithms
 enum class SearchType
 {
@@ -27,7 +27,7 @@ public:
     NavState run( Rover * phoebe, const rapidjson::Document& roverConfig );
 
     bool tennisBallReachable( Rover* phoebe, double distance, double bearing );
-    
+
     virtual void initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
 
 private:
@@ -46,7 +46,9 @@ private:
 
     NavState executeDriveToBall( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    bool isTennisBallReachable( Rover* phoebe, double distance, double bearing );
+    bool isObstacleDetected( Rover* phoebe ) const;
+
+    bool isTennisBallReachable( Rover* phoebe, const rapidjson::Document& roverConfig ) const;
 
     void updateTennisBallAngle( double bearing );
 
@@ -74,7 +76,7 @@ protected:
     /*************************************************************************/
     /* Protected Member Variables */
     /*************************************************************************/
-    
+
     // Pointer to rover State Machine to access member functions
     StateMachine* roverStateMachine;
 
@@ -86,8 +88,8 @@ protected:
 
 };
 
-// Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle 
-// avoidance algorithm. This allows for an an ease of transition between obstacle 
+// Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle
+// avoidance algorithm. This allows for an an ease of transition between obstacle
 // avoidance algorithms
 SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type );
 
