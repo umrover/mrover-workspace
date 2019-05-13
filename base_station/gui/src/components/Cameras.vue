@@ -109,8 +109,7 @@
       return {
         dual_stream: false,
         pi_index_1: -1,
-        pi_index_2: -1,
-        microscope_streaming: false
+        pi_index_2: -1
       }
     },
 
@@ -174,7 +173,7 @@
           }
         }
         this.$parent.publish('/pi_camera', {type: "PiCamera", active_index_1: this.pi_index_1, active_index_2: this.pi_index_2, dual_stream: this.dual_stream})
-        this.$parent.publish('/microscope', {type: "Microscope", streaming: this.microscope_streaming})
+        this.$parent.publish('/microscope', {type: "Microscope", streaming: this.pi_index_1 === 0 || this.pi_index_2 === 0})
       }, 250)
     },
 
@@ -199,22 +198,8 @@
         }
       },
 
-      toggleMicroscope: function () {
-        this.microscope_streaming = !this.microscope_streaming
-        if (this.dual_stream) {
-          this.$refs.dualstream.toggle()
-          this.dual_stream = !this.dual_stream
-          this.pi_index_1 = -1
-          this.pi_index_2 = -1
-        }
-      },
-
       toggleDualStream: function () {
         this.dual_stream = !this.dual_stream
-        if (this.microscope_streaming) {
-          this.$refs.microscope.toggle()
-          this.microscope_streaming = !this.microscope_streaming
-        }
         if (!this.dual_stream) {
           this.pi_index_2 = -1
         }
