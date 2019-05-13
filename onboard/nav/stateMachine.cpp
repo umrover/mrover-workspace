@@ -74,21 +74,21 @@ void StateMachine::updateFoundBalls( )
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleAngle( double bearing ) 
+void StateMachine::updateObstacleAngle( double bearing )
 {
     mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing );
 }
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleDistance( double distance ) 
+void StateMachine::updateObstacleDistance( double distance )
 {
     mObstacleAvoidanceStateMachine->updateObstacleDistance( distance );
 }
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleElements( double bearing, double distance ) 
+void StateMachine::updateObstacleElements( double bearing, double distance )
 {
     updateObstacleAngle( bearing );
     updateObstacleDistance( distance );
@@ -340,7 +340,7 @@ NavState StateMachine::executeTurn()
 NavState StateMachine::executeDrive()
 {
     const Waypoint& nextWaypoint = mPhoebe->roverStatus().path().front();
-    double distance = estimateNoneuclid( mPhoebe->roverStatus().odometry(), nextWaypoint.odom );    
+    double distance = estimateNoneuclid( mPhoebe->roverStatus().odometry(), nextWaypoint.odom );
     double bearing = calcBearing( mPhoebe->roverStatus().odometry(), nextWaypoint.odom );
 
     if( isObstacleDetected() && isWaypointReachable( distance, bearing ) )
@@ -411,15 +411,15 @@ double StateMachine::getOptimalAvoidanceAngle() const
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceDistance() const
 {
-    return mPhoebe->roverStatus().obstacle().distance;
+    return mPhoebe->roverStatus().obstacle().distance + mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble();
 } // optimalAvoidanceAngle()
 
-bool StateMachine::isWaypointReachable( double distance, double bearing ) 
+bool StateMachine::isWaypointReachable( double distance, double bearing )
 {
     return ( ( mPhoebe->roverStatus().obstacle().distance < distance - 1 ) ||
-     ( ( bearing - mPhoebe->roverStatus().odometry().bearing_deg ) < 0 
+     ( ( bearing - mPhoebe->roverStatus().odometry().bearing_deg ) < 0
                         && mPhoebe->roverStatus().obstacle().bearing > 0 ) ||
-     ( ( bearing - mPhoebe->roverStatus().odometry().bearing_deg ) > 0 
+     ( ( bearing - mPhoebe->roverStatus().odometry().bearing_deg ) > 0
                         && mPhoebe->roverStatus().obstacle().bearing < 0 ) );
 } // isWaypointReachable
 

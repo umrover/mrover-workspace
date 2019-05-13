@@ -158,19 +158,27 @@ bool Rover::turn( Odometry& destination )
 // otherwise.
 bool Rover::turn( double bearing )
 {
-    double turningBearingThreshold = mRoverConfig[ "navThresholds" ][ "turningBearing" ].GetDouble();
     bearing = mod(bearing, 360);
     throughZero( bearing, mRoverStatus.odometry().bearing_deg );
-    if ( mRoverStatus.currentState() == NavState::TurnAroundObs ||
-         mRoverStatus.currentState() == NavState::SearchTurnAroundObs ) 
+    double turningBearingThreshold;
+    if( isTurningAroundObstacle( mRoverStatus.currentState() ) )
     {
-        turningBearingThreshold = mRoverConfig[ "navThresholds" ][ "turningAroundObstacleBearing" ].GetDouble();
+        turningBearingThreshold = 0;
     }
-    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) < turningBearingThreshold )
+    else
+    {
+        turningBearingThreshold = mRoverConfig[ "navThresholds" ][ "turningBearing" ].GetDouble();
+    }
+    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) <= turningBearingThreshold )
     {
         return true;
     }
     double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, bearing );
+    double minTurningEffort = mRoverConfig[ "navThresholds" ][ "minTurningEffort" ].GetDouble() * (turningEffort < 0 ? -1 : 1);
+    if( isTurningAroundObstacle( mRoverStatus.currentState() ) && fabs(turningEffort) < minTurningEffort )
+    {
+        turningEffort = minTurningEffort;
+    }
     publishJoystick( 0, turningEffort, false );
     return false;
 } // turn()
@@ -207,10 +215,9 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             return true;
         }
 
-        if( ( mRoverStatus.currentState() == NavState::TurnAroundObs ||
-                   mRoverStatus.currentState() == NavState::SearchTurnAroundObs ) &&
-                 ( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() )
-                    || !isEqual(mRoverStatus.odometry(), newRoverStatus.odometry() ) ) )
+        if( isTurningAroundObstacle( mRoverStatus.currentState() ) &&
+            ( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
+              !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ) )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
@@ -326,6 +333,18 @@ bool Rover::isEqual( const TennisBall& tennisBall1, const TennisBall& tennisBall
     }
     return false;
 } // isEqual( TennisBall )
+
+// Return true if the current state is TurnAroundObs or SearchTurnAroundObs,
+// false otherwise.
+bool Rover::isTurningAroundObstacle( const NavState currentState ) const
+{
+    if( currentState == NavState::TurnAroundObs ||
+        currentState == NavState::SearchTurnAroundObs )
+    {
+        return true;
+    }
+    return false;
+} // isTurningAroundObstacle()
 
 /*************************************************************************/
 /* TODOS */
