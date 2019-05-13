@@ -17,6 +17,7 @@
     - rover-base_station_microscope.service
     - rover-base_station_gstreamer.timer
     - rover-base_station_gstreamer_2.timer
+    - rover-base_station_microscope.timer
 
 - name: Copy environment variable definitions
   copy:
@@ -32,6 +33,6 @@
     - rover-base_station_gui.service
     - rover-base_station_logging_server.service
     - rover-lcm_bridge_server.service
-    - rover-base_station_microscope.service
+    - rover-base_station_microscope.timer
     - rover-base_station_gstreamer.timer
     - rover-base_station_gstreamer_2.timer
