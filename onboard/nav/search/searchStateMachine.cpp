@@ -74,8 +74,7 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
 
     if( phoebe->roverStatus().tennisBall().found )
     {
-        mSearchPoints.push_front( phoebe->roverStatus().odometry() );
-        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing,
+        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing, 
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToBall;
     }
@@ -110,14 +109,9 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
 
     if( phoebe->roverStatus().tennisBall().found )
     {
-        if ( phoebe->roverStatus().currentState() == NavState::SearchSpinWait )
-        {
-            mSearchPoints.push_front( phoebe->roverStatus().odometry() );
-            updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing,
-                                           phoebe->roverStatus().odometry().bearing_deg );
-            return NavState::TurnToBall;
-        }
-        return NavState::DriveToBall;
+        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing, 
+                                              phoebe->roverStatus().odometry().bearing_deg );
+        return NavState::TurnToBall;
     }
     if( !started )
     {
@@ -133,7 +127,7 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
         {
             return NavState::SearchSpin;
         }
-        return NavState::DriveToBall;
+        return NavState::SearchTurn;
     }
     else
     {
@@ -158,8 +152,7 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
     }
     if( phoebe->roverStatus().tennisBall().found )
     {
-        mSearchPoints.push_front( phoebe->roverStatus().odometry() );
-        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing,
+        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing, 
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToBall;
     }
@@ -181,8 +174,7 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
 {
     if( phoebe->roverStatus().tennisBall().found )
     {
-        mSearchPoints.push_front( phoebe->roverStatus().odometry() );
-        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing,
+        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing, 
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToBall;
     }
@@ -226,7 +218,7 @@ NavState SearchStateMachine::executeTurnToBall( Rover* phoebe )
     if( phoebe->turn( phoebe->roverStatus().tennisBall().bearing +
                       phoebe->roverStatus().odometry().bearing_deg ) )
     {
-        return NavState::TurnedToBallWait;
+        return NavState::DriveToBall;
     }
     updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing,
                                        phoebe->roverStatus().odometry().bearing_deg );
