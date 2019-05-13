@@ -26,14 +26,11 @@
 		"drivingBearing": 50,
 		"waypointDistance": 2.0,
 		"tennisBallDistance": 1.0,
-		"turningAroundObstacleBearing": 10
+		"minTurningEffort": 0.25
 	},
 
 	"computerVision":
 	{
-		"searchWaitStepSize": 90.0,
-		"searchWaitTime": 1.0,
-		"obstacleThresh": 3.0,
 		"visionDistance": 4.0
 	},
 
@@ -47,6 +44,8 @@
 	{
 		"order": [0, 1],
 		"numSearches": 2,
-		"bailThresh": 10.0
+		"bailThresh": 10.0,
+		"searchWaitStepSize": 90.0,
+		"searchWaitTime": 1.0
 	}
 }

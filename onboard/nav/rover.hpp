@@ -152,6 +152,8 @@ private:
 
     bool isEqual( const TennisBall& tennisBall1, const TennisBall& tennisBall2 ) const;
 
+    bool isTurningAroundObstacle( const NavState currentState ) const;
+
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/

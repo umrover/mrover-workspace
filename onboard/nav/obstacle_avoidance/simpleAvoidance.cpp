@@ -7,19 +7,19 @@
 #include <cmath>
 
 // Constructs a SimpleAvoidance object with the input roverStateMachine.
-// SimpleAvoidance is abstacted from ObstacleAvoidanceStateMachine object so it creates an 
-// ObstacleAvoidanceStateMachine object with the roverStateMachine. The SimpleAvoidance object will 
+// SimpleAvoidance is abstacted from ObstacleAvoidanceStateMachine object so it creates an
+// ObstacleAvoidanceStateMachine object with the roverStateMachine. The SimpleAvoidance object will
 // execute the logic for the simple avoidance algorithm
-SimpleAvoidance::SimpleAvoidance( StateMachine* roverStateMachine ) 
+SimpleAvoidance::SimpleAvoidance( StateMachine* roverStateMachine )
     : ObstacleAvoidanceStateMachine( roverStateMachine ) {}
 
-// Destructs the SimpleAvoidance object. 
+// Destructs the SimpleAvoidance object.
 SimpleAvoidance::~SimpleAvoidance() {}
 
 // Turn away from obstacle until it is no longer detected.
 // If in search state and tennis ball is both detected and reachable, return NavState TurnToBall.
 // ASSUMPTION: There is no rock that is more than 8 meters (pathWidth * 2) in diameter
-NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe, 
+NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
                                                 const rapidjson::Document& roverConfig )
 {
     if( isTennisBallDetected ( phoebe ) &&
@@ -27,7 +27,7 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
                              phoebe->roverStatus().tennisBall().bearing ) )
     {
         return NavState::TurnToBall;
-    } 
+    }
     if( !phoebe->roverStatus().obstacle().detected )
     {
         double distanceAroundObs = mOriginalObstacleDistance /
@@ -40,10 +40,10 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
         mJustDetectedObstacle = false;
         return NavState::SearchDriveAroundObs;
     }
-    
+
     double obstacleBearing = phoebe->roverStatus().obstacle().bearing;
-    if ( mJustDetectedObstacle && 
-            ( (obstacleBearing < 0) ? (mLastObstacleAngle >= 0) : (mLastObstacleAngle < 0) ) ) {
+    if( mJustDetectedObstacle &&
+        ( obstacleBearing < 0 ? mLastObstacleAngle >= 0 : mLastObstacleAngle < 0 ) ) {
         obstacleBearing *= -1;
     }
 
@@ -54,7 +54,7 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
     return phoebe->roverStatus().currentState();
 } // executeTurnAroundObs()
 
-// Drives to dummy waypoint. Once arrived, rover will drive to original waypoint 
+// Drives to dummy waypoint. Once arrived, rover will drive to original waypoint
 // ( original waypoint is the waypoint before obstacle avoidance was triggered )
 NavState SimpleAvoidance::executeDriveAroundObs( Rover* phoebe )
 {
@@ -99,7 +99,7 @@ Odometry SimpleAvoidance::createAvoidancePoint( Rover* phoebe, const double dist
     avoidancePoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes) / 60 ) * 60 );
     avoidancePoint.longitude_deg += totalLongitudeMinutes / 60;
     avoidancePoint.longitude_min = ( totalLongitudeMinutes - ( ( (int) totalLongitudeMinutes) / 60 ) * 60 );
-    
+
     return avoidancePoint;
 
 
