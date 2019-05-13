@@ -68,7 +68,7 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
 NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     // degrees to turn to before performing a search wait.
-    double waitStepSize = roverConfig[ "computerVision" ][ "searchWaitStepSize" ].GetDouble();
+    double waitStepSize = roverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
 
@@ -119,7 +119,7 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
         startTime = time( nullptr );
         started = true;
     }
-    double waitTime = roverConfig[ "computerVision" ][ "searchWaitTime" ].GetDouble();
+    double waitTime = roverConfig[ "search" ][ "searchWaitTime" ].GetDouble();
     if( difftime( time( nullptr ), startTime ) > waitTime )
     {
         started = false;
@@ -253,6 +253,7 @@ NavState SearchStateMachine::executeDriveToBall( Rover* phoebe, const rapidjson:
                                              true );
     if( driveStatus == DriveStatus::Arrived )
     {
+        mSearchPoints.clear();
         phoebe->roverStatus().path().pop();
         roverStateMachine->updateCompletedPoints();
         roverStateMachine->updateFoundBalls();
