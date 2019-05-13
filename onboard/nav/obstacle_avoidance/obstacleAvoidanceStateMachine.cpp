@@ -70,12 +70,20 @@ bool ObstacleAvoidanceStateMachine::isTennisBallDetected ( Rover* phoebe )
 // Checks to see if tennis ball is reachable before hitting obstacle
 // Tennis ball must be closer than obstacle and must be in same direction ( in other words,
 // the rover should be turning the same way to go around the obstacle as to get to the ball )
-bool ObstacleAvoidanceStateMachine::isTennisBallReachable( Rover* phoebe, double distance,
-                                                         double bearing )
+bool ObstacleAvoidanceStateMachine::isTennisBallReachable( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    return ( ( phoebe->roverStatus().obstacle().distance > distance - 1 ) ||
-           ( bearing < 0 && phoebe->roverStatus().obstacle().bearing < 0 ) ||
-           ( bearing > 0 && phoebe->roverStatus().obstacle().bearing > 0 ) );
+    double distanceToBall = phoebe->roverStatus().tennisBall().distance;
+    double bearingToBall = phoebe->roverStatus().tennisBall().bearing;
+    double distanceToObstacle = phoebe->roverStatus().obstacle().distance;
+    double bearingToObstacle = phoebe->roverStatus().obstacle().bearing;
+    double tennisBallThreshold = roverConfig[ "navThresholds" ][ "tennisBallDistance" ].GetDouble();
+    double bearingThreshold = roverConfig[ "navThresholds" ][ "bearingThreshold" ].GetDouble();
+
+
+    return distanceToObstacle > distanceToBall - tennisBallThreshold ||
+                ( bearingToBall < 0 && bearingToObstacle < 0 ) ||
+                ( bearingToBall > 0 && bearingToObstacle > 0 ) ||
+                fabs(bearingToObstacle) < fabs(bearingToBall) - bearingThreshold;
 }
 
 // The obstacle avoidance factory allows for the creation of obstacle avoidance objects and
