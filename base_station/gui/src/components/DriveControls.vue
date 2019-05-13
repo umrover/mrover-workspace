@@ -1,11 +1,6 @@
 <template>
   <div class="wrap">
-    <div class="speed_limiter">
-      <p>
-        Speed Limiter:
-        <span>{{ dampenDisplay }}%</span>
-      </p>
-    </div>
+    <span>Speed Limiter: {{ dampenDisplay }}%</span>
   </div>
 </template>
 
@@ -80,16 +75,10 @@ export default {
 </script>
 
 <style scoped>
-.wrap {
-  display: grid;
-  align-items: center;
-  height: 100%;
-  padding: 0px 0px 0px 20px;
-}
 
-.speed_limiter {
+.wrap {
   display: flex;
   align-items: center;
-  justify-content: center;
 }
+
 </style>
