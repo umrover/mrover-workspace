@@ -136,7 +136,7 @@ export default {
       }
       const talonConfig = {
         'type': 'TalonConfig',
-        'enable_arm': (this.controlMode === 'arm' || this.controlMode === 'arm_ik'),
+        'enable_arm': true,
         'enable_sa': false
       }
 
