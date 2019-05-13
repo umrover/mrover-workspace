@@ -1,16 +1,12 @@
  <template>
-    <div class="wrap">
-        <div>
-            <span>joint a: {{encoderCounts.joint_a}}</span>
-            <span>joint b: {{encoderCounts.joint_b}}</span>
-            <span>joint c: {{encoderCounts.joint_c}}</span>
-        </div>
-        <div>
-            <span>joint d: {{encoderCounts.joint_d}}</span>
-            <span>joint e: {{encoderCounts.joint_e}}</span>
-            <span>joint f: {{encoderCounts.joint_f}}</span>
-        </div>
-    </div>
+  <div class="encoders">
+    <div>joint a: {{encoderCounts.joint_a}}</div>
+    <div>joint b: {{encoderCounts.joint_b}}</div>
+    <div>joint c: {{encoderCounts.joint_c}}</div>
+    <div>joint d: {{encoderCounts.joint_d}}</div>
+    <div>joint e: {{encoderCounts.joint_e}}</div>
+    <div>joint f: {{encoderCounts.joint_f}}</div>
+  </div>
 </template>
 
 <script>
@@ -29,18 +25,19 @@ export default {
   },
 
   created: function () {
-    this.$parent.$parent.subscribe('/encoder', (msg) => {
+    this.$parent.subscribe('/encoder', (msg) => {
       this.encoderCounts = msg
     })
   }
 }
 </script>
 
-<style>
-    .wrap {
-        display: grid;
-        align-items: center;
-        grid-template-rows: 1fr 1fr;
-        height: 100%;
-    }
+<style scoped>
+
+.encoders {
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-auto-flow: column;
+}
+
 </style>

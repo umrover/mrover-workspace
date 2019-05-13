@@ -1,16 +1,12 @@
 <template>
   <div class="wrap">
-    <div class="control_buttons">
-        <Checkbox ref="arm" v-bind:name="'Arm Controls'" v-on:toggle="updateControlMode('arm', $event)"/>
-        <Checkbox ref="arm_ik" v-bind:name="'Inverse Kinematics'" v-on:toggle="updateControlMode('arm_ik', $event)"/>
-        <EncoderCounts/>
-    </div>
+      <Checkbox ref="arm" v-bind:name="'Arm Controls'" v-on:toggle="updateControlMode('arm', $event)"/>
+      <Checkbox ref="arm_ik" v-bind:name="'Inverse Kinematics'" v-on:toggle="updateControlMode('arm_ik', $event)"/>
   </div>
 </template>
 
 <script>
 import Checkbox from './Checkbox.vue'
-import EncoderCounts from './EncoderCounts.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
 import {Toggle, quadratic, deadzone, joystick_math} from '../utils.js'
@@ -167,50 +163,16 @@ export default {
   },
 
   components: {
-    Checkbox,
-    EncoderCounts
+    Checkbox
   }
 }
 </script>
 
 <style scoped>
+
 .wrap {
-  display: grid;
-  grid-template-areas: "control_buttons";
-  grid-template-columns: 1fr;
-  align-items: center;
-  height: 100%;
-  padding: 0px 0px 10px 20px;
-}
-
-.control_buttons {
-  grid-area: control_buttons;
-  grid-template-areas: none;
   display: flex;
-  padding: 0px 0px 0px 0px;
-  height: 100%;
+  align-items: center;
 }
 
-.led {
-  width: 16px;
-  height: 16px;
-  border-radius: 8px;
-  border: 1px solid;
-}
-
-.lightgreen {
-  background-color: lightgreen;
-}
-
-.red {
-  background-color: red;
-}
-
-.orange {
-  background-color: orange;
-}
-
-.name {
-  margin-left: 5px;
-}
 </style>
