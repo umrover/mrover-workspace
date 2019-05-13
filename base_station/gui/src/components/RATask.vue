@@ -37,6 +37,7 @@
     </div>
     <div class="box controls light-bg">
       <ArmControls/>
+      <EncoderCounts/>
       <DriveControls/>
     </div>
   </div>
@@ -50,6 +51,7 @@ import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
+import EncoderCounts from './EncoderCounts.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 
@@ -200,6 +202,7 @@ export default {
     CommIndicator,
     ArmControls,
     DriveControls,
+    EncoderCounts,
     OdometryReading,
     WaypointEditor
   }
@@ -318,6 +321,8 @@ export default {
   .controls {
     grid-area: controls;
     font-size: 1em;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   ul#vitals li {
