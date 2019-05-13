@@ -1,8 +1,5 @@
 <template>
     <div class="wrap">
-        <!-- <div class="control_buttons">
-            <Checkbox ref="soil_ac" v-bind:name="'Soil Acquisition'" v-on:toggle="updateControlMode('soil_ac', $event)" />
-        </div> -->
         <div class="toggle_drill">
             <Checkbox ref="front_drill" v-bind:name="'Front Drill Active'" v-on:toggle="updateControlMode('front_drill', $event)" />
             <Checkbox ref="back_drill" v-bind:name="'Back Drill Active'" v-on:toggle="updateControlMode('back_drill', $event)" />
@@ -202,7 +199,7 @@ export default {
       const talonConfig = {
         'type': 'TalonConfig',
         'enable_arm': false,
-        'enable_sa': this.controlMode !== ''
+        'enable_sa': true,
       }
 
       this.$parent.publish('/talon_config', talonConfig)
