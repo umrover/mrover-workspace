@@ -22,9 +22,7 @@ SimpleAvoidance::~SimpleAvoidance() {}
 NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
                                                 const rapidjson::Document& roverConfig )
 {
-    if( isTennisBallDetected ( phoebe ) &&
-        isTennisBallReachable( phoebe, phoebe->roverStatus().tennisBall().distance,
-                             phoebe->roverStatus().tennisBall().bearing ) )
+    if( isTennisBallDetected ( phoebe ) && isTennisBallReachable( phoebe, roverConfig ) )
     {
         return NavState::TurnToBall;
     }
