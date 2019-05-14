@@ -161,13 +161,8 @@ export default {
             }
             
             // Can only toggle either front or back drill
-            let front_drill_input = 0.0
-            let back_drill_input = 0.0
-            if (this.controlMode === 'front_drill') {
-              front_drill_input = front_drill_on.new_reading(xboxData['right_bumper'] > 0.5) ? 0.25 : 0.0
-            } else if (this.controlMode === 'back_drill') {
-              back_drill_input = back_drill_on.new_reading(xboxData['right_bumper'] > 0.5) ? 0.25 : 0.0
-            }
+            let front_drill_input = this.controlMode === 'front_drill' && xboxData['right_bumper']
+            let back_drill_input = this.controlMode === 'back_drill' && xboxData['right_bumper']
 
             const saMotorsData = {
               'type': 'SAMotors',
