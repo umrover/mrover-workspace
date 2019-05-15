@@ -8,3 +8,4 @@ build/
 .node-gyp
 .DS_Store
 **/node_modules/
+*.dat
