@@ -244,12 +244,9 @@ void Rover::configFollowerMode() {
 }
 
 void Rover::configBrakeMode() {
-    talons[Talons::armJointA].SetNeutralMode(NeutralMode::Brake);
-    talons[Talons::armJointB].SetNeutralMode(NeutralMode::Brake);
-    talons[Talons::armJointC].SetNeutralMode(NeutralMode::Brake);
-    talons[Talons::armJointD].SetNeutralMode(NeutralMode::Brake);
-    talons[Talons::armJointE].SetNeutralMode(NeutralMode::Brake);
-    talons[Talons::armJointF].SetNeutralMode(NeutralMode::Brake);
+    for (TalonSRX &talon : talons) {
+        talon.SetNeutralMode(NeutralMode::Brake);
+    }
 }
 
 void Rover::configOpenLoopRamp() {
