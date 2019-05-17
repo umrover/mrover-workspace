@@ -17,8 +17,8 @@ def main():
     rgb = RGB()
 
     while(True):
-        # Read data from channel 1 (Ammonia, Site 1)
-        mux.tca_select(0x02)
+        # Read data from channel 0 (Ammonia, Site 1)
+        mux.tca_select(0x01)
         r, g, b = rgb_sensor.getData()
 
         rgb.id = "rgb_ammonia_1"
@@ -27,8 +27,8 @@ def main():
         rgb.b = b
         lcm_.publish('/rgb', rgb.encode())
 
-        # Read data from channel 2 (Buret, Site 1)
-        mux.tca_select(0x04)
+        # Read data from channel 1 (Buret, Site 1)
+        mux.tca_select(0x02)
         r, g, b = rgb_sensor.getData()
 
         rgb.id = "rgb_buret_1"
@@ -37,8 +37,8 @@ def main():
         rgb.b = b
         lcm_.publish('/rgb', rgb.encode())
 
-        # Read data from channel 3 (Ammonia, Site 2)
-        mux.tca_select(0x08)
+        # Read data from channel 2 (Ammonia, Site 2)
+        mux.tca_select(0x04)
         r, g, b = rgb_sensor.getData()
 
         rgb.id = "rgb_ammonia_2"
@@ -47,8 +47,8 @@ def main():
         rgb.b = b
         lcm_.publish('/rgb', rgb.encode())
 
-        # Read data from channel 4 (Buret, Site 2)
-        mux.tca_select(0x10)
+        # Read data from channel 3 (Buret, Site 2)
+        mux.tca_select(0x08)
         r, g, b = rgb_sensor.getData()
 
         rgb.id = "rgb_buret_2"
