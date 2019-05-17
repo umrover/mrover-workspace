@@ -10,6 +10,7 @@
       - rover-onboard-microscope
       - rover-onboard-nav
       - rover-onboard-raman
+      - rover-onboard-science-controls
       - rover-onboard-sensor-package
       - rover-onboard-talon
       - rover-onboard-teleop
@@ -37,6 +38,7 @@
       - rover-onboard-microscope.service
       - rover-onboard-nav.service
       - rover-onboard-raman.service
+      - rover-onboard-science-controls.service
       - rover-onboard-sensor-package.service
       - rover-onboard-talon.service
       - rover-onboard-teleop.service
