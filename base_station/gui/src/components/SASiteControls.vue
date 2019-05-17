@@ -4,13 +4,13 @@
       <h4>Site {{site}}</h4>
     </div>
     <div class="horizontal-buttons">
-      <Checkbox v-if="site==0" v-bind:name="'Toggle Main LED'" v-on:toggle="setPart('backlights', $event)"/>
-      <Checkbox v-bind:name="'Toggle Solenoid'" v-on:toggle="setPart(site==0?'solenoid_1':'solenoid_2', $event)"></Checkbox>
-    </div>
-    <div class="horizontal-buttons">
       <button v-on:click="startTest('Flouresence')" :disabled="!enable_tests">Flouresence Test</button>
       <button v-on:click="startTest('Biuret')" :disabled="!enable_tests">Biuret Test</button>
       <button v-on:click="startTest('Ammonia')" :disabled="!enable_tests">Ammonia Test</button>
+    </div>
+    <div class="servo">
+      <input type="number" v-model="degrees">
+      <button v-on:click='sendServo()'>Update</button>
     </div>
   </div>
 </template>
@@ -46,7 +46,8 @@
   export default {
     data() {
       return {
-        enable_tests: true
+        enable_tests: true,
+        degrees: 0.0
       }
     },
 
@@ -74,11 +75,11 @@
         })
       },
 
-      setPart: function(id, enabled) {
-        this.$parent.$parent.publish("/mosfet", {
-          'type': 'Mosfet',
-          'id': id,
-          'enable': enabled
+      sendServo: function() {
+        this.$parent.$parent.publish("/servo", {
+          'type': 'Servo',
+          'id': 'servo_' + (this.site + 1),
+          'degrees': parseFloat(this.degrees)
         })
       }
     },
