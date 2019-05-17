@@ -67,7 +67,7 @@ def rgb_frame_callback(channel, msg):
                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
         if needsHeader:
             outWriter.writerow(ammonia_print if rgb_frame.id in a_id_stores
-                               else ammonia_print)
+                               else biuret_print)
             outFile.flush()
             os.fsync(outFile.fileno())
 
