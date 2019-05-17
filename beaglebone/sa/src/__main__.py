@@ -9,7 +9,7 @@ SERVO_MIN_DC = 4.0
 ESC_MAX_DC = 10.0
 ESC_MIN_DC = 5.0
 
-ESC_ON_PERCENT = 80.0
+ESC_ON_PERCENT = 100.0
 ESC_OFF_PERCENT = 0.0
 
 SERVO_AMMONIA_1 = "P9_14"
@@ -19,6 +19,7 @@ servos = [SERVO_AMMONIA_1, SERVO_AMMONIA_2]
 VACUUM_1 = "P8_13"
 VACUUM_2 = "P8_19"
 escs = [VACUUM_1, VACUUM_2]
+escs_on = [False, False]
 
 lcm_ = lcm.LCM()
 
@@ -71,17 +72,22 @@ def servo_callback(channel, msg):
 
 def esc_toggle_callback(channel, msg):
     esc = ESCToggle.decode(msg)
-    if esc.enable:
-        percent = ESC_ON_PERCENT
-    else:
-        percent = ESC_OFF_PERCENT
 
-    if esc.id == "vacuum_1":
-        run_esc(escs[0], percent)
-    elif esc.id == "vacuum_2":
-        run_esc(escs[1], percent)
+    vacuum = 0 if esc.id == "vacuum_1" else 1
+    if escs_on[vacuum] == esc.enable:
+        return
     else:
-        print("Invalid ESC ID.")
+        escs_on[vacuum] = esc.enable
+
+    percent = 0
+    if not esc.enable:
+        run_esc(escs[vacuum], percent)
+        return
+    else:
+        for i in range(10):
+            percent += 10
+            run_esc(escs[vacuum], percent)
+            time.sleep(0.25)
 
 
 def esc_throttle_callback(channel, msg):
