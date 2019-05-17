@@ -4,9 +4,6 @@
             <Checkbox ref="front_drill" v-bind:name="'Front Drill Active'" v-on:toggle="updateControlMode('front_drill', $event)" />
             <Checkbox ref="back_drill" v-bind:name="'Back Drill Active'" v-on:toggle="updateControlMode('back_drill', $event)" />
         </div>
-        <div class="raman_button">
-            <button ref="raman" class="button" v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>
-        </div>
         <div class="speed_limiter">
             <p>
                 Speed Limiter:
@@ -181,13 +178,13 @@ export default {
 
             this.$parent.publish('/esc_toggle', {
               'type': 'ESCToggle',
-              'esc_id': 'vacuum_1',
+              'id': 'vacuum_1',
               'enable': esc_0_on.new_reading(xboxData['x'] > 0.5)
             })
 
             this.$parent.publish('/esc_toggle', {
               'type': 'ESCToggle',
-              'esc_id': 'vacuum_2',
+              'id': 'vacuum_2',
               'enable': esc_1_on.new_reading(xboxData['b'] > 0.5)
             })
           }
@@ -221,15 +218,6 @@ export default {
       }
     },
 
-    sendCollect: function (button) {
-      this.$parent.publish("/raman_collect", {"type": "Signal"})
-      let obj = this.$refs["raman"]
-      obj.disabled = true
-      setTimeout(function() {
-        obj.disabled = false;
-      }, 2000);
-    },
-
     ...mapMutations('controls', {
       setControlMode: 'setControlMode'
     })
@@ -243,8 +231,8 @@ export default {
 
     .wrap {
         display: grid;
-        grid-template-areas: "control_buttons raman_button speed_limiter mode_info";
-        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-areas: "control_buttons speed_limiter mode_info";
+        grid-template-columns: 1fr 1fr 1fr;
         align-items: center;
         height: 100%;
         padding: 0px 0px 0px 20px;
@@ -261,13 +249,6 @@ export default {
     .button {
         height:20px;
         width:100px;
-    }
-
-    .raman_button {
-        display: flex;
-        grid-area: raman_button;
-        align-items: center;
-        justify-content: center;
     }
 
     .speed_limiter {
