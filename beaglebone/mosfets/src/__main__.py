@@ -1,15 +1,18 @@
 import Adafruit_BBIO.GPIO as GPIO
 from rover_msgs import Mosfet
+from rover_msgs import ArmToggles
 import lcm
 
 lcm_ = lcm.LCM()
 
-LED_BACKLIGHTS = "P8_11"
+LED_BACKLIGHTS = "P8_14"
 LED_UV = "P8_12"
-SOLENOID_1 = "P8_14"
-SOLENOID_2 = "P8_16"
 
-mosfets = [LED_BACKLIGHTS, LED_UV, SOLENOID_1, SOLENOID_2]
+ARM_SOLENOID = "P8_11"
+ARM_MAGNET = "P8_14"
+
+sa_mosfets = [LED_BACKLIGHTS, LED_UV]
+arm_mosfets = [ARM_SOLENOID, ARM_MAGNET]
 
 
 def mosfet_callback(channel, msg):
@@ -21,22 +24,34 @@ def mosfet_callback(channel, msg):
         out = GPIO.LOW
 
     if cmd.id == "backlights":
-        GPIO.output(mosfets[0], out)
+        GPIO.output(sa_mosfets[0], out)
     elif cmd.id == "uv_leds":
-        GPIO.output(mosfets[1], out)
-    elif cmd.id == "solenoid_1":
-        GPIO.output(mosfets[2], out)
-    elif cmd.id == "solenoid_2":
-        GPIO.output(mosfets[3], out)
+        GPIO.output(sa_mosfets[1], out)
     else:
         print("Invalid mosfet ID.")
 
 
+def arm_callback(channel, msg):
+    cmd = ArmToggles.decode(msg)
+
+    if cmd.solenoid:
+        GPIO.output(arm_mosfets[0], GPIO.HIGH)
+    else:
+        GPIO.output(arm_mosfets[0], GPIO.LOW)
+
+    if cmd.electromagnet:
+        GPIO.output(arm_mosfets[1], GPIO.HIGH)
+    else:
+        GPIO.output(arm_mosfets[1], GPIO.LOW)
+
+
 def main():
-    for pin in mosfets:
-        GPIO.setup(pin, GPIO.OUT)
+    GPIO.setup("P8_11", GPIO.OUT)
+    GPIO.setup("P8_12", GPIO.OUT)
+    GPIO.setup("P8_14", GPIO.OUT)
 
     lcm_.subscribe("/mosfet", mosfet_callback)
+    lcm_.subscribe("/arm_toggles", arm_callback)
 
     while True:
         lcm_.handle()
