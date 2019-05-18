@@ -133,9 +133,10 @@ def picture_callback(channel, msg):
     if index != data.index:
         return
     stop_pipeline()
-    os.system('raspistill -t 1500 -o /home/pi/out{}.jpg'.format(index))
+    os.system('raspistill -t 1500 -o /home/pi/out_{}.jpg'.format(index))
     start_pipeline()
-    os.system('scp -l 2000 /home/pi/out{}.jpg mrover@10.0.0.1:{}.jpg'
+    os.system('scp -l 2000 /home/pi/out_{}.jpg ' +
+              'mrover@10.0.0.2:science-data/PiPictures/{}.jpg'
               .format(index, round(time.time() * 1000)))
 
 

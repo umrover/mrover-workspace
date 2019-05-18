@@ -492,7 +492,7 @@ class Camera:
 
         file.close()
 
-        os.system('scp -l 2000 {} mrover@10.0.0.1:{}_micro_cam.jpg'
+        os.system('scp -l 2000 {} mrover@10.0.0.2:science-data/MicroCam/{}.jpg'
                   .format(name, round(time.time() * 1000)))
 
         # print("\nSUCCESS = FILEPICTURE ..." + name + "\n")
