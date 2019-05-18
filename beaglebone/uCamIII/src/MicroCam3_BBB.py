@@ -459,8 +459,8 @@ class Camera:
                     index += 1
 
         messageRaw = self.__getCommand("ACK_PACKAGE")
-        messageRaw[5] = b'\x0F'
-        messageRaw[4] = b'\x0F'
+        messageRaw[5] = b'\xF0'
+        messageRaw[4] = b'\xF0'
         self.__sendRaw(messageRaw)
 
         # print("SUCCESS =DATA_DUMP\n")
