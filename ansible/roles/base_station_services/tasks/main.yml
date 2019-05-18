@@ -10,7 +10,6 @@
     dest: "/etc/systemd/system/{{ item }}"
   with_items:
     - rover-base_station_gui.service
-    - rover-base_station_logging_server.service
     - rover-base_station_gstreamer.service
     - rover-base_station_gstreamer_2.service
     - rover-lcm_bridge_server.service
@@ -31,7 +30,6 @@
   systemd: name={{item}} enabled=yes
   with_items:
     - rover-base_station_gui.service
-    - rover-base_station_logging_server.service
     - rover-lcm_bridge_server.service
     - rover-base_station_microscope.timer
     - rover-base_station_gstreamer.timer

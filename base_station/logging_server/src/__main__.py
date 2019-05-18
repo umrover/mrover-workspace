@@ -102,14 +102,31 @@ def rgb_frame_callback(channel, msg):
     os.fsync(outFile.fileno())
 
 
-def main():
-    global out_data
+def make_science_directories():
     global parent_dir
 
-    parent_dir = os.path.join(os.environ['HOME'], 'mrover-data')
+    parent_dir = os.path.join(os.environ['HOME'], 'science-data/Tests')
     if not os.path.exists(parent_dir):
         os.makedirs(parent_dir)
-    print(parent_dir)
+    microscope_dir = os.path.join(os.environ['HOME'],
+                                  'science-data/Microscope')
+    if not os.path.exists(microscope_dir):
+        os.makedirs(microscope_dir)
+    microcam_dir = os.path.join(os.environ['HOME'], 'science-data/Microcam')
+    if not os.path.exists(microcam_dir):
+        os.makedirs(microcam_dir)
+    pi_dir = os.path.join(os.environ['HOME'], 'science-data/PiPictures')
+    if not os.path.exists(pi_dir):
+        os.makedirs(pi_dir)
+    raman_dir = os.path.join(os.environ['HOME'], 'science-data/Raman')
+    if not os.path.exists(raman_dir):
+        os.makedirs(raman_dir)
+
+
+def main():
+    global out_data
+
+    make_science_directories()
 
     lcm_.subscribe("/rgb_frame", rgb_frame_callback)
     lcm_.subscribe("/rgb", rgb_callback)

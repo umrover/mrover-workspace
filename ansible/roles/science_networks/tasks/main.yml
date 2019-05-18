@@ -1,0 +1,18 @@
+- name: Set up node's network adapter
+  copy:
+    src: files/rover.network
+    dest: /etc/systemd/network/rover.network
+
+- name: Disable NetworkManager for the interface
+  copy:
+    src: files/disable-enp0s25.conf
+    dest: /etc/NetworkManager/conf.d/disable-enp0s25.conf
+
+- name: Restart NetworkManager
+  systemd: name=NetworkManager.service state=restarted
+
+- name: Enable systemd-networkd
+  systemd:
+    name: systemd-networkd.service
+    state: started
+    enabled: yes
