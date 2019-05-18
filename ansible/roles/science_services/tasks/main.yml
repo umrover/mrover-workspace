@@ -1,0 +1,19 @@
+- name: Copy systemd service and timer files
+  template:
+    src: "files/{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+  with_items:
+    - rover-science_logging_server.service
+
+- name: Copy environment variable definitions
+  copy:
+    src: files/rover.env
+    dest: /etc/default/rover.env
+
+- name: Reload systemd
+  systemd: daemon_reload=yes
+
+- name: Enable services and timers
+  systemd: name={{item}} enabled=yes
+  with_items:
+    - rover-science_logging_server.service

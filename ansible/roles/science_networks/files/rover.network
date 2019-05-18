@@ -1,0 +1,9 @@
+[Match]
+Name=enp0s25
+
+[Network]
+Address=10.0.0.2/8
+
+[Route]
+Destination=224.0.0.0/4
+Scope=link

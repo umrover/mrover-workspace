@@ -17,7 +17,7 @@ def collect_callback(channel, msg):
     SerQueue = queue.Queue()
     rxtxonce(SerQueue, config)
     savefile(config)
-    os.system('scp -l 2000 RAW.dat mrover@10.0.0.1:raman_{}.dat'
+    os.system('scp -l 2000 RAW.dat mrover@10.0.0.2:science-data/Raman/{}.dat'
               .format(round(time.time() * 1000)))
 
 
