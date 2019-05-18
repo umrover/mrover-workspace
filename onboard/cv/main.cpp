@@ -92,7 +92,8 @@ int main() {
     #if PERCEPTION_DEBUG
           // imshow("image", src);
     #endif
-          Mat depth_img = cam.depth();
+
+    Mat depth_img = cam.depth();
 
     // write to disk if permitted
     #if WRITE_CURR_FRAME_TO_DISK
@@ -104,19 +105,20 @@ int main() {
     /* Tennis ball detection*/
     tennisMessage.found = false;
     #if TB_DETECTION
-      vector<Point2f> centers = findTennisBall(src, depth_img);
-      if(centers.size() != 0){
-        float dist = depth_img.at<float>(centers[0].y, centers[0].x);
+      pair<Point2f, double> tennisBall = findTennisBall(src, depth_img);
+      if(tennisBall.second >= 0){
+        Point2f center = tennisBall.first;
+        float dist = depth_img.at<float>(center.y, center.x);
+        if (!isnormal(dist)) {
+          dist = (TENNIS_BALL_PIXEL_SIZE / tennisBall.second);
+        }
+
         if (dist < BALL_DETECTION_MAX_DIST) {
           tennisMessage.distance = dist;
-          tennisMessage.bearing = getAngle((int)centers[0].x, src.cols);
+          tennisMessage.bearing = getAngle((int)center.x, src.cols);
 
           tennisMessage.found = true;
           tennisBuffer = 0;
-
-          #if PERCEPTION_DEBUG
-          // cout << centers.size() << " tennis ball(s) detected: " << tennisMessage.distance << "m, " << tennisMessage.bearing << "degrees\n";
-          #endif
 
         }else if(tennisBuffer < 5){   //give 5 frames to recover if tennisball lost due to noise
           tennisBuffer++;

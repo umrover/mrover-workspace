@@ -1,4 +1,5 @@
 #include "perception.hpp"
+#include <vector>
 
 using namespace std;
 using namespace cv;
@@ -22,16 +23,19 @@ Mat greenFilter(const Mat& src){
     assert(src.type() == CV_8UC3);
 
     Mat greenOnly;
-    // 36 170 80
-    Scalar lowerb = Scalar(30, 170, 80);
-    Scalar upperb = Scalar(43, 226, 220);
+    // green 36 170 80
+    Scalar lowerb = Scalar(20, 60, 40);
+    Scalar upperb = Scalar(50, 150, 220);
+    // pink
+    //Scalar lowerb = Scalar(175, 120, 120);
+    //Scalar upperb = Scalar(185, 190, 255);
     inRange(src, lowerb, upperb, greenOnly);
 
     return greenOnly;
 }
 
 
-vector<Point2f> findTennisBall(Mat &src, Mat & depth_src){
+pair<Point2f, double> findTennisBall(Mat &src, Mat & depth_src){
   
     Mat hsv;
 
@@ -59,8 +63,8 @@ vector<Point2f> findTennisBall(Mat &src, Mat & depth_src){
     findContours( mask, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
 
     vector<vector<Point> > contours_poly( contours.size() );
-    vector<Point2f>center( contours.size() );
-    vector<float>radius( contours.size() );
+    vector<Point2f> center( contours.size() );
+    vector<float> radius( contours.size() );
 
     for( unsigned i = 0; i < contours.size(); i++ ){
         approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
@@ -77,22 +81,20 @@ vector<Point2f> findTennisBall(Mat &src, Mat & depth_src){
     }
     #endif
     
-    if(center.size() > 0){
-        vector<Point2f>biggestCircle( 1 );
-        double biggestRadius =0;
-        unsigned index= 0;
-        
-        for(unsigned i = 0; i< center.size(); i++ ){
-            if(radius[i] > biggestRadius){
-                biggestRadius = radius[i];
-                biggestCircle[0] =center[i];
-                index = i;
-            }
+    Point2f biggestCircle;
+    double biggestRadius = -1;
+    
+    for(unsigned i = 0; i < center.size(); i++ ){
+        double rad = radius[i];
+        if(rad > biggestRadius && rad >= BALL_DETECTION_MIN_RAD && rad <= BALL_DETECTION_MAX_RAD){
+            biggestRadius = rad;
+            biggestCircle = center[i];
         }
-                Scalar color = Scalar(0, 0, 255);
-
-        circle( src, center[index], (int)radius[index], color, 2, 8, 0 );
-        return biggestCircle;
     }
-    return center;
+
+    if (biggestRadius >= 0) {
+        circle( src, biggestCircle, (int) biggestRadius, {0, 0, 255}, 2, 8, 0 );
+    }
+
+    return make_pair(biggestCircle, biggestRadius);
 }
