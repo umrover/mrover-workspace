@@ -47,7 +47,6 @@ export default {
       'y': 3
     }
 
-    const solenoid_toggle = new Toggle(false)
     const electromagnet_toggle = new Toggle(false)
     const laser_toggle = new Toggle(false)
 
@@ -127,7 +126,6 @@ export default {
             }
 
             if(send_arm_toggles) {
-              arm_toggles.solenoid = solenoid_toggle.new_reading(arm_toggles.solenoid)
               arm_toggles.electromagnet = electromagnet_toggle.new_reading(arm_toggles.electromagnet)
               this.$parent.publish('/arm_toggles', arm_toggles)
             }
