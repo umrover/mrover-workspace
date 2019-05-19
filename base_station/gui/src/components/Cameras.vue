@@ -172,8 +172,8 @@
             }
           }
         }
-        this.$parent.publish('/pi_camera', {type: "PiCamera", active_index_1: this.pi_index_1, active_index_2: this.pi_index_2, dual_stream: this.dual_stream})
         this.$parent.publish('/microscope', {type: "Microscope", streaming: this.pi_index_1 === 0 || this.pi_index_2 === 0})
+        this.$parent.publish('/pi_camera', {type: "PiCamera", active_index_1: this.pi_index_1, active_index_2: this.pi_index_2})
       }, 250)
     },
 
