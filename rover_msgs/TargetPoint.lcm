@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct TargetPoint {
+    float x;
+    float y;
+    float z;
+}
