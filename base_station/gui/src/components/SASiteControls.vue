@@ -7,10 +7,11 @@
       <button v-on:click="startTest('Flouresence')" :disabled="!enable_tests">Flouresence Test</button>
       <button v-on:click="startTest('Biuret')" :disabled="!enable_tests">Biuret Test</button>
       <button v-on:click="startTest('Ammonia')" :disabled="!enable_tests">Ammonia Test</button>
+      <button v-on:click="sendMicroCam()">MicroCam</button>
     </div>
     <div class="servo">
       <input type="number" v-model="degrees">
-      <button v-on:click='sendServo()'>Update</button>
+      <button v-on:click='sendServo()'>Update Servo Degrees</button>
     </div>
   </div>
 </template>
@@ -80,6 +81,13 @@
           'type': 'Servo',
           'id': 'servo_' + (this.site + 1),
           'degrees': parseFloat(this.degrees)
+        })
+      },
+
+      sendMicroCam: function() {
+        this.$parent.$parent.publish("/microcam", {
+          'type': 'MicroCam',
+          'id': 'camera_' + (this.site + 1)
         })
       }
     },
