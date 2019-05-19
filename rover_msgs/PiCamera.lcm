@@ -3,5 +3,4 @@ package rover_msgs;
 struct PiCamera {
 	int8_t active_index_1;
 	int8_t active_index_2;
-	boolean dual_stream;
 }
