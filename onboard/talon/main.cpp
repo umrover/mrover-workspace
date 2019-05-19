@@ -48,6 +48,7 @@ int main() {
     lcm.subscribe("/ik_ra_control", &Rover::armIKDrive, &rover);
     lcm.subscribe("/talon_config", &Rover::talonConfig, &rover);
     lcm.subscribe("/sa_motors", &Rover::saMotors, &rover);
+    lcm.subscribe("/auton", &Rover::autonState, &rover);
 
     thread enableFrameThread(sendEnableFrames, ref(rover));
     thread encoderThread(publishEncoderData, ref(rover), ref(lcm));

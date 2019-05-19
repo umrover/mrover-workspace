@@ -13,6 +13,7 @@
 #include "rover_msgs/TalonConfig.hpp"
 #include "rover_msgs/Encoder.hpp"
 #include "rover_msgs/WheelSpeeds.hpp"
+#include "rover_msgs/AutonState.hpp"
 
 #include <string>
 #include <deque>
@@ -58,6 +59,7 @@ private:
     vector<double> negfeeds;
     bool armEnabled;
     bool saEnabled;
+    bool autonomous;
     int wheelCPR;
     int armCPR;
     mutex canLock;
@@ -103,6 +105,9 @@ public:
     void talonConfig(const lcm::ReceiveBuffer* receiveBuffer,
                       const string& channel, const TalonConfig* msg);
 
+    // Configure throttle ramping based on autonomy mode.
+    void autonState(const lcm::ReceiveBuffer* receiveBuffer,
+                      const string& channel, const AutonState* msg);
 
 private:
     /* Configuration Functions */

@@ -4,8 +4,8 @@ using namespace std;
 using namespace rover_msgs;
 
 // Instantiates and configures rover's Talon SRX motor controllers.
-Rover::Rover(int numTalons, int _wheelCPR, int _armCPR) : armEnabled(0), 
-    saEnabled(0), wheelCPR(_wheelCPR), armCPR(_armCPR) {
+Rover::Rover(int numTalons, int _wheelCPR, int _armCPR) : armEnabled(false), 
+    saEnabled(false), autonomous(false), wheelCPR(_wheelCPR), armCPR(_armCPR) {
     // Offsets for arm joints A-E, feed forward constants
     offsets = {820, -2672, -1936, -769, 407};
     posfeeds = {0.1, 0.18, 0.18, 0.05, 0.07};
@@ -227,6 +227,22 @@ void Rover::talonConfig(const lcm::ReceiveBuffer* receiveBuffer,
     }
 }
 
+// Configure throttle ramping based on autonomy mode.
+void Rover::autonState(const lcm::ReceiveBuffer* receiveBuffer,
+                        const string& channel, const AutonState* msg) {
+    lock_guard<mutex> scopedLock(canLock);
+
+    if (msg->is_auton && !autonomous) {
+        talons[Talons::leftFront].ConfigOpenloopRamp(0.25);
+        talons[Talons::rightFront].ConfigOpenloopRamp(0.25);
+        autonomous = true;
+    } else if (!msg->is_auton && autonomous) {
+        talons[Talons::leftFront].ConfigOpenloopRamp(0.0);
+        talons[Talons::rightFront].ConfigOpenloopRamp(0.0);
+        autonomous = false;
+    }
+}
+
 /* Configuration Functions */
 void Rover::configTalons() {
     configFollowerMode();
@@ -250,8 +266,8 @@ void Rover::configBrakeMode() {
 }
 
 void Rover::configOpenLoopRamp() {
-    talons[Talons::leftFront].ConfigOpenloopRamp(0.0);  // currently off
-    talons[Talons::rightFront].ConfigOpenloopRamp(0.0); // currently off
+    talons[Talons::leftFront].ConfigOpenloopRamp(0.0);
+    talons[Talons::rightFront].ConfigOpenloopRamp(0.0);
 }
 
 void Rover::configPIDConstants() {
