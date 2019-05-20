@@ -62,11 +62,6 @@
       src: files/pi.env
       dest: /etc/default/pi.env
 
-- name: Set NIC MAC Address
-  copy:
-      src: files/pi.link
-      dest: /etc/default/pi.link
-
 - name: Enable systemd-networkd
   systemd:
       name: systemd-networkd.service

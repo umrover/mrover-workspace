@@ -1,6 +1,0 @@
-[Match]
-Name=eth0
-
-[Link]
-MACAddress=00:e0:4c:53:44:5{{num}}
-NamePolicy=kernel database onboard slot path
