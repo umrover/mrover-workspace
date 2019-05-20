@@ -480,7 +480,7 @@ class Camera:
     def __filePicture(self, data):
         # print("OPERATION =FILEPICTURE ..." + name + "\n")
         stamp = datetime.now()
-        name = "beaglebone/uCamIII/" + \
+        name = "/home/debian/mrover-workspace/beaglebone/uCamIII/" + \
                str(stamp.year) + "-" + str(stamp.month) + "-" + \
                str(stamp.day) + "+" + str(stamp.hour) + ":" + \
                str(stamp.minute) + ":" + str(stamp.second) + ".jpeg"
