@@ -8,7 +8,6 @@
 #include <chrono>
 #include <cmath>
 #include <lcm/lcm-cpp.hpp>
-#include <vector>
 #include <sys/stat.h> // for disk writing
 #if PERCEPTION_DEBUG
   #include <opencv2/highgui/highgui.hpp>
@@ -18,8 +17,11 @@
 #define THRESHOLD_NO_WAY  80000 //how will we calibrate if the rover width changes
 #define THRESHOLD_NO_OBSTACLE_CENTER  80000
 #define THRESHOLD_NO_SUBWINDOW 27000
+#define THRESHOLD_CONFIDENCE 50
 #define SKY_START_ROW 400
 #define BALL_DETECTION_MAX_DIST 6.0  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
+#define BALL_DETECTION_MIN_RAD 5
+#define BALL_DETECTION_MAX_RAD 300
 
 #define SIMILARITY_THRESHOLD 8000
 
@@ -35,6 +37,7 @@ const float inf = -std::numeric_limits<float>::infinity();
 //Zed Specs
 const int RESOLUTION_WIDTH = 1280;
 const int RESOLUTION_HEIGHT = 720; // 720p
+const float TENNIS_BALL_PIXEL_SIZE = 25; // Pixel radius of tennis ball at 1m distance
 const float fieldofView = 110 * PI/180;
 const float focalLength = 2.8; //zed focal length in mm
 
@@ -54,5 +57,5 @@ struct obstacle_return {
 };
 
 //functions
-std::vector<cv::Point2f> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
+std::pair<cv::Point2f, double> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width);
