@@ -1,0 +1,13 @@
+[Unit]
+Description=Beaglebone RGB
+After=systemd-modules-load.service
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/default/beaglebone.env
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jarvis exec beaglebone_rgb
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

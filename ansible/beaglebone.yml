@@ -3,6 +3,7 @@
   become: yes
   vars:
       debian_release: stretch
+      running_user: debian
       workspace_dir: /home/debian/mrover-workspace
   roles:
   - beaglebones

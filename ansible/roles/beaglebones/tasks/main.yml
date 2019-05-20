@@ -1,3 +1,8 @@
+- name: Set up node's network adapter
+  template:
+      src: files/interfaces
+      dest: /etc/network/interfaces
+
 - name: Update apt cache
   apt: update_cache=yes
 
@@ -16,3 +21,31 @@
   - python3-gi-cairo
   - gir1.2-gtk-3.0
   - libgirepository1.0-dev
+
+- name: Disable unused libraries
+  copy:
+      src: files/mrover.site
+      dest: /home/{{ running_user }}/mrover.site
+
+- name: Set Environment Variables
+  copy:
+      src: files/beaglebone.env
+      dest: /etc/default/beaglebone.env
+
+- name: Copy systemd service files
+  template:
+      src: "files/{{ item }}.service"
+      dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+      - rover-beaglebone-mosfets
+      - rover-beaglebone-rgb
+      - rover-beaglebone-sa
+      - rover-beaglebone-uCamIII
+
+- name: Enable services
+  systemd: name={{ item }} enabled=yes
+  with_items:
+      - rover-beaglebone-mosfets.service
+      - rover-beaglebone-rgb.service
+      - rover-beaglebone-sa.service
+      - rover-beaglebone-uCamIII.service
