@@ -10,3 +10,4 @@ build/
 **/node_modules/
 *.dat
 output.log
+base_station/gui/src/static/map
