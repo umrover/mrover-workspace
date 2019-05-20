@@ -134,18 +134,20 @@ Camera::Impl::Impl() {
       std::string tail = file_name.substr(file_name.size()-4, 4);
       std::string head = file_name.substr(0, file_name.size()-4);
       if (img_tails.find(tail)!= img_tails.end()) {
-	img_names.push_back(file_name);
+        img_names.push_back(file_name);
       }
     }
   } while  (dp != NULL);
+  std::sort(img_names.begin(), img_names.end());
   std::cout<<"Read image names complete\n";
   idx_curr_img = 0;
 }
 
 bool Camera::Impl::grab() {
   idx_curr_img++;
-  if (idx_curr_img > img_names.size()-1) {
-    std::cout<<"Running out of images\n";
+  if (idx_curr_img >= img_names.size()-2) {
+    std::cout<<"Ran out of images\n";
+    exit(1);
     return false;
   } else
     return true;
