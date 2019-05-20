@@ -142,11 +142,8 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
   patchNaNs(depth_img, 0.0);
   depth_img = max(depth_img, 0.7);
   depth_img = min(depth_img, 20.0);
-  imshow("before", depth_img);
   depth_img = depth_img(cropped);
   //depth_img = depth_img(Rect( 0, 450,  1280, 250));
-
-  imshow("after", depth_img);
 
   blur( depth_img, depth_img, Size( 7, 7 ), Point(-1,-1) );
   Size size = depth_img.size();

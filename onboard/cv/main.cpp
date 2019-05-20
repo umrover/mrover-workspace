@@ -109,7 +109,7 @@ int main() {
       if(tennisBall.second >= 0){
         Point2f center = tennisBall.first;
         float dist = depth_img.at<float>(center.y, center.x);
-        if (!isnormal(dist)) {
+        if (!isnormal(dist) || dist > 5.0) {
           dist = (TENNIS_BALL_PIXEL_SIZE / tennisBall.second);
         }
 

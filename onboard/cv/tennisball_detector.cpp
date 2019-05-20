@@ -24,8 +24,8 @@ Mat greenFilter(const Mat& src){
 
     Mat greenOnly;
     // green 36 170 80
-    Scalar lowerb = Scalar(20, 60, 40);
-    Scalar upperb = Scalar(50, 150, 220);
+    Scalar lowerb = Scalar(34, 110, 120);
+    Scalar upperb = Scalar(42, 170, 255);
     // pink
     //Scalar lowerb = Scalar(175, 120, 120);
     //Scalar upperb = Scalar(185, 190, 255);
@@ -48,7 +48,7 @@ pair<Point2f, double> findTennisBall(Mat &src, Mat & depth_src){
     HSV = hsv;
     DEPTH = depth_src;
     setMouseCallback("image", onMouse);    
-    imshow("mask", mask);
+    // imshow("mask", mask);
     #endif
     
     // smoothing
