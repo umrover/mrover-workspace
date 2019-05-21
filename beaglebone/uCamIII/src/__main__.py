@@ -56,14 +56,14 @@ def main():
     synced2 = camera2.setupRoutine()
 
     if not synced1 and not synced2:
-        print("Sync failed with both cameras.")
+        print("Sync failed with both cameras.", flush=True)
         exit(1)
     if not synced1:
         print("Sync Failed with Camera 1")
     if not synced2:
         print("Sync Failed with Camera 2")
 
-    print("Synced")
+    print("Synced", flush=True)
 
     lcm_ = lcm.LCM()
 
