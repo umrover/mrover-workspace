@@ -56,10 +56,14 @@ void disk_record_init() {
 }
 
 void write_curr_frame_to_disk(Mat &rgb, Mat & depth, int counter ) {
-    cv::imwrite(rgb_foldername +  std::to_string(counter) + std::string(".jpg"), rgb );
+    string fileName = to_string(counter);
+    while(fileName.length() < 4){
+      fileName = '0'+fileName;
+    }
+    cv::imwrite(rgb_foldername +  fileName + std::string(".jpg"), rgb );
     //std::string file_str = std::string("depth_") + std::to_string(counter);// + std::string(".jpg");
     
-    cv::imwrite(depth_foldername +  std::to_string(counter) + std::string(".exr"), depth );
+    cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
 }
 
 int main() {
