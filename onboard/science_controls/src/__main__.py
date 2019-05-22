@@ -11,12 +11,11 @@ sites_busy = [False, False]
 
 UV_LEDS_ID = "uv_leds"
 AMMONIA_SERVO_IDS = ["servo_1", "servo_2"]
+AMMONIA_SERVO_INACTIVE_DEGREES = [0, 0]
+AMMONIA_SERVO_ACTIVE_DEGREES = [45, 45]
 AMMONIA_RGB_IDS = ["rgb_ammonia_1", "rgb_ammonia_2"]
 BIRUET_RGB_IDS = ["rgb_buret_1", "rgb_buret_2"]
 MICRO_CAM_IDS = ["camera_1", "camera_2"]
-
-AMMONIA_SERVO_INACTIVE = 0
-AMMONIA_SERVO_ACTIVE = 45
 
 
 async def run_test(site, test):
@@ -56,11 +55,11 @@ async def run_test(site, test):
 
         servo = Servo()
         servo.id = AMMONIA_SERVO_IDS[site]
-        servo.degrees = AMMONIA_SERVO_ACTIVE
+        servo.degrees = AMMONIA_SERVO_ACTIVE_DEGREES[site]
         lcm_.publish("/servo", servo.encode())
         await asyncio.sleep(2.5)
 
-        servo.degrees = AMMONIA_SERVO_INACTIVE
+        servo.degrees = AMMONIA_SERVO_INACTIVE_DEGREES[site]
         lcm_.publish("/servo", servo.encode())
         await asyncio.sleep(1.6)
 
