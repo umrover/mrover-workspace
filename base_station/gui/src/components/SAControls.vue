@@ -176,16 +176,26 @@ export default {
             }
             this.$parent.publish('/sa_motors', saMotorsData)
 
+            esc_0_on.new_reading(xboxData['x'])
+            if (esc_0_on.toggle && esc_1_on.toggle) {
+              esc_1_on.toggle = false
+            }
+
+            esc_1_on.new_reading(xboxData['b'])
+            if (esc_0_on.toggle && esc_1_on.toggle) {
+              esc_0_on.toggle = false
+            }
+
             this.$parent.publish('/esc_toggle', {
               'type': 'ESCToggle',
               'id': 'vacuum_1',
-              'enable': esc_0_on.new_reading(xboxData['x'] > 0.5)
+              'enable': esc_0_on.toggle
             })
 
             this.$parent.publish('/esc_toggle', {
               'type': 'ESCToggle',
               'id': 'vacuum_2',
-              'enable': esc_1_on.new_reading(xboxData['b'] > 0.5)
+              'enable': esc_1_on.toggle
             })
           }
         }
