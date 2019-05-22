@@ -1,7 +1,9 @@
-import Adafruit_BBIO.PWM as PWM
-import lcm
-from rover_msgs import Servo, ESCToggle, ESCThrottle
+import asyncio
 import time
+import Adafruit_BBIO.PWM as PWM
+from rover_common import aiolcm
+from rover_common.aiohelper import run_coroutines
+from rover_msgs import Servo, ESCToggle, ESCThrottle
 
 SERVO_MAX_DC = 10.0
 SERVO_MIN_DC = 4.0
@@ -12,6 +14,10 @@ ESC_MIN_DC = 5.0
 ESC_ON_PERCENT = 100.0
 ESC_OFF_PERCENT = 0.0
 
+ESC_RAMP_RATE = 25
+ESC_EXECUTE_DELAY = 0.1
+ESC_RAMP_PERCENT = ESC_RAMP_RATE * ESC_EXECUTE_DELAY
+
 SERVO_AMMONIA_1 = "P9_14"
 SERVO_AMMONIA_2 = "P9_16"
 servos = [SERVO_AMMONIA_1, SERVO_AMMONIA_2]
@@ -20,8 +26,9 @@ VACUUM_1 = "P8_13"
 VACUUM_2 = "P8_19"
 escs = [VACUUM_1, VACUUM_2]
 escs_on = [False, False]
+escs_percent = [0, 0]
 
-lcm_ = lcm.LCM()
+lcm_ = aiolcm.AsyncLCM()
 
 
 def angle_to_dc(degrees):
@@ -55,6 +62,22 @@ def esc_arm(pin):
     run_esc(pin, 0.0)
 
 
+async def escs_execute():
+    while True:
+        for index, pin in enumerate(escs):
+            percent = escs_percent[index]
+            target_percent = ESC_OFF_PERCENT
+            if escs_on[index]:
+                target_percent = min(percent + ESC_RAMP_PERCENT,
+                                     ESC_ON_PERCENT)
+
+            if percent != target_percent:
+                run_esc(pin, target_percent)
+                escs_percent[index] = target_percent
+
+        await asyncio.sleep(ESC_EXECUTE_DELAY)
+
+
 def servo_init(pin, degrees):
     dc = angle_to_dc(degrees)
     PWM.start(pin, dc, 50)
@@ -74,20 +97,7 @@ def esc_toggle_callback(channel, msg):
     esc = ESCToggle.decode(msg)
 
     vacuum = 0 if esc.id == "vacuum_1" else 1
-    if escs_on[vacuum] == esc.enable:
-        return
-    else:
-        escs_on[vacuum] = esc.enable
-
-    percent = 0
-    if not esc.enable:
-        run_esc(escs[vacuum], percent)
-        return
-    else:
-        for i in range(10):
-            percent += 10
-            run_esc(escs[vacuum], percent)
-            time.sleep(0.25)
+    escs_on[vacuum] = esc.enable
 
 
 def esc_throttle_callback(channel, msg):
@@ -113,9 +123,4 @@ def main():
     lcm_.subscribe("/esc_toggle", esc_toggle_callback)
     lcm_.subscribe("/esc_throttle", esc_throttle_callback)
 
-    while True:
-        lcm_.handle()
-
-
-if __name__ == "__main__":
-    main()
+    run_coroutines(escs_execute(), lcm_.loop())
