@@ -2,7 +2,7 @@ import asyncio
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (StartTest, TestEnable, Mosfet,
-                        MicroCam, RGBFrame, Servo)
+                        MicroCam, RGBFrame)
 
 
 lcm_ = aiolcm.AsyncLCM()
@@ -10,13 +10,9 @@ lcm_ = aiolcm.AsyncLCM()
 sites_busy = [False, False]
 
 UV_LEDS_ID = "uv_leds"
-AMMONIA_SERVO_IDS = ["servo_1", "servo_2"]
 AMMONIA_RGB_IDS = ["rgb_ammonia_1", "rgb_ammonia_2"]
 BIRUET_RGB_IDS = ["rgb_buret_1", "rgb_buret_2"]
 MICRO_CAM_IDS = ["camera_1", "camera_2"]
-
-AMMONIA_SERVO_INACTIVE = 0
-AMMONIA_SERVO_ACTIVE = 45
 
 
 async def run_test(site, test):
@@ -49,23 +45,10 @@ async def run_test(site, test):
         lcm_.publish("/rgb_frame", rgb_frame.encode())
 
     elif test == "Ammonia":
+        await asyncio.sleep(1)
         rgb_frame = RGBFrame()
         rgb_frame.id = AMMONIA_RGB_IDS[site]
         lcm_.publish("/rgb_frame", rgb_frame.encode())
-        await asyncio.sleep(1.2)
-
-        servo = Servo()
-        servo.id = AMMONIA_SERVO_IDS[site]
-        servo.degrees = AMMONIA_SERVO_ACTIVE
-        lcm_.publish("/servo", servo.encode())
-        await asyncio.sleep(2.5)
-
-        servo.degrees = AMMONIA_SERVO_INACTIVE
-        lcm_.publish("/servo", servo.encode())
-        await asyncio.sleep(1.6)
-
-        lcm_.publish("/rgb_frame", rgb_frame.encode())
-        await asyncio.sleep(0.6)
 
     test_disable.enabled = True
     lcm_.publish("/test_enable", test_disable.encode())
