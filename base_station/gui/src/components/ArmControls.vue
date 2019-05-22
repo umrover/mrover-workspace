@@ -44,6 +44,7 @@ export default {
       'd_pad_left': 15,
       'a': 0,
       'b': 1,
+      'x': 2,
       'y': 3
     }
 
@@ -70,13 +71,18 @@ export default {
               'd_pad_up': gamepad.buttons[XBOX_CONFIG['d_pad_up']]['pressed'],
               'd_pad_down': gamepad.buttons[XBOX_CONFIG['d_pad_down']]['pressed'],
               'd_pad_right': gamepad.buttons[XBOX_CONFIG['d_pad_right']]['pressed'],
-              'd_pad_left': gamepad.buttons[XBOX_CONFIG['d_pad_left']]['pressed']
+              'd_pad_left': gamepad.buttons[XBOX_CONFIG['d_pad_left']]['pressed'],
+              'a': gamepad.buttons[XBOX_CONFIG['a']]['pressed'],
+              'b': gamepad.buttons[XBOX_CONFIG['b']]['pressed'],
+              'x': gamepad.buttons[XBOX_CONFIG['x']]['pressed'],
+              'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
             }
 
             const arm_toggles = {
               'type': 'ArmToggles',
-              'solenoid': gamepad.buttons[XBOX_CONFIG['b']]['pressed'],
-              'electromagnet': gamepad.buttons[XBOX_CONFIG['a']]['pressed'],
+              'solenoid': xboxData['b'],
+              'electromagnet': electromagnet_toggle.new_reading(xboxData['a']),
+              'laser': laser_toggle.new_reading(xboxData['x'])
             }
 
             let send_arm_toggles = false
@@ -123,7 +129,6 @@ export default {
             }
 
             if(send_arm_toggles) {
-              arm_toggles.electromagnet = electromagnet_toggle.new_reading(arm_toggles.electromagnet)
               this.$parent.publish('/arm_toggles', arm_toggles)
             }
           }
