@@ -285,7 +285,14 @@ void Rover::configPIDConstants() {
 }
 
 void Rover::configCurrentLimits() {
-    // TODO (not SAR-Critical)
+    talons[Talons::leftFront].ConfigContinuousCurrentLimit(10);
+    talons[Talons::leftFront].ConfigPeakCurrentLimit(0);
+    talons[Talons::leftBack].ConfigContinuousCurrentLimit(10);
+    talons[Talons::leftBack].ConfigPeakCurrentLimit(0);
+    talons[Talons::rightFront].ConfigContinuousCurrentLimit(10);
+    talons[Talons::rightFront].ConfigPeakCurrentLimit(0);
+    talons[Talons::rightBack].ConfigContinuousCurrentLimit(10);
+    talons[Talons::rightBack].ConfigPeakCurrentLimit(0);
 }
 
 void Rover::configFeedbackDevices() {
