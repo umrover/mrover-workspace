@@ -1,16 +1,17 @@
 <template>
   <div class="wrap">
-    <div class="led-toggles">
-      <Checkbox  v-bind:name="'Toggle Backlights'" v-on:toggle="setPart('backlights', $event)"/>
-      <Checkbox v-bind:name="'Toggle UV Lights'" v-on:toggle="setPart('uv_leds', $event)"/>
-    </div>
-    <div class="site-0">
+    <div class="flex">
       <SASiteControls v-bind:site="1"/>
     </div>
-    <div class="site-1">
+    <div class="led-toggles">
+      <Checkbox v-bind:name="'Toggle Backlights'" v-on:toggle="setPart('backlights', $event)"/>
+      <Checkbox v-bind:name="'Toggle UV Lights'" v-on:toggle="setPart('uv_leds', $event)"/>
+      <Checkbox v-bind:name="'Toggle RGB Sensor Lights'" v-on:toggle="setRGBLeds($event)"/>
+    </div>
+    <div class="flex">
       <SASiteControls v-bind:site="2"/>
     </div>
-    <div class="raman_button">
+    <div class="flex">
       <button ref="raman" class="button" v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>
     </div>
   </div>
@@ -22,10 +23,6 @@
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
-    grid-template-areas: "site_0 led_toggles" "site_1 raman_button";
-
-    font-family: sans-serif;
-    height: 100%;
   }
 
   .box {
@@ -34,32 +31,16 @@
     border: 1px solid black;
   }
 
-  .site-0 {
+  .flex {
     display: flex;
-    grid-area: site_0;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .site-1 {
-    display: flex;
-    grid-area: site_1;
     align-items: center;
     justify-content: center;
   }
 
   .led-toggles {
-    display: flex;
-    grid-area: led_toggles;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .raman_button {
-    display: flex;
-    grid-area: raman_button;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    justify-items: center;
   }
 
 </style>
@@ -93,6 +74,13 @@
           'type': 'Mosfet',
           'id': id,
           'enable': enabled
+        })
+      },
+
+      setRGBLeds: function(enabled) {
+        this.$parent.publish("/rgb_leds", {
+          'type': 'RGBLED',
+          'on': enabled
         })
       },
 
