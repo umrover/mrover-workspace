@@ -5,10 +5,10 @@
       <Checkbox v-bind:name="'Toggle UV Lights'" v-on:toggle="setPart('uv_leds', $event)"/>
     </div>
     <div class="site-0">
-      <SASiteControls v-bind:site="0"/>
+      <SASiteControls v-bind:site="1"/>
     </div>
     <div class="site-1">
-      <SASiteControls v-bind:site="1"/>
+      <SASiteControls v-bind:site="2"/>
     </div>
     <div class="raman_button">
       <button ref="raman" class="button" v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>

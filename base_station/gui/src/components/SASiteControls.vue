@@ -79,7 +79,7 @@
       sendServo: function() {
         this.$parent.$parent.publish("/servo", {
           'type': 'Servo',
-          'id': 'servo_' + (this.site + 1),
+          'id': 'servo_' + this.site,
           'degrees': parseFloat(this.degrees)
         })
       },
@@ -87,7 +87,7 @@
       sendMicroCam: function() {
         this.$parent.$parent.publish("/microcam", {
           'type': 'MicroCam',
-          'id': 'camera_' + (this.site + 1)
+          'id': 'camera_' + this.site
         })
       }
     },
