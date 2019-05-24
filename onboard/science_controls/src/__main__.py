@@ -21,6 +21,8 @@ async def run_test(site, test):
     test_disable.site = site
     lcm_.publish("/test_enable", test_disable.encode())
 
+    site_index = site - 1
+
     mosfet = Mosfet()
     if test == "Flouresence":
         mosfet.id = UV_LEDS_ID
@@ -29,7 +31,7 @@ async def run_test(site, test):
         await asyncio.sleep(0.4)
 
         cam = MicroCam()
-        cam.id = MICRO_CAM_IDS[site]
+        cam.id = MICRO_CAM_IDS[site_index]
         lcm_.publish("/microcam", cam.encode())
         await asyncio.sleep(10)
 
@@ -41,29 +43,31 @@ async def run_test(site, test):
 
         await asyncio.sleep(1)
         rgb_frame = RGBFrame()
-        rgb_frame.id = BIRUET_RGB_IDS[site]
+        rgb_frame.id = BIRUET_RGB_IDS[site_index]
         lcm_.publish("/rgb_frame", rgb_frame.encode())
 
     elif test == "Ammonia":
         await asyncio.sleep(1)
         rgb_frame = RGBFrame()
-        rgb_frame.id = AMMONIA_RGB_IDS[site]
+        rgb_frame.id = AMMONIA_RGB_IDS[site_index]
         lcm_.publish("/rgb_frame", rgb_frame.encode())
 
     test_disable.enabled = True
     lcm_.publish("/test_enable", test_disable.encode())
-    sites_busy[site] = False
+    sites_busy[site_index] = False
 
 
 def start_test_callback(channel, msg):
     start_test = StartTest.decode(msg)
+    site = start_test.site
+    test = start_test.test
 
-    if sites_busy[start_test.site]:
+    site_index = start_test.site - 1
+    if sites_busy[site_index]:
         return
 
-    sites_busy[start_test.site] = True
-    asyncio.get_event_loop().create_task(run_test(start_test.site,
-                                                  start_test.test))
+    sites_busy[site_index] = True
+    asyncio.get_event_loop().create_task(run_test(site, test))
 
 
 def main():
