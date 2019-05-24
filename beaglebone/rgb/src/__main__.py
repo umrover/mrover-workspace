@@ -20,8 +20,8 @@ async def publish_rgb_readings():
     rgb = RGB()
 
     while(True):
-        # Read data from channel 0 (Ammonia, Site 1)
-        mux.tca_select(0x01)
+        # Read data from channel 1 (Ammonia, Site 1)
+        mux.tca_select(0x02)
         r, g, b = rgb_sensor.getData()
 
         rgb.id = "rgb_ammonia_1"
@@ -30,8 +30,8 @@ async def publish_rgb_readings():
         rgb.b = b
         lcm_.publish('/rgb', rgb.encode())
 
-        # Read data from channel 1 (Buret, Site 1)
-        mux.tca_select(0x02)
+        # Read data from channel 0 (Buret, Site 1)
+        mux.tca_select(0x01)
         r, g, b = rgb_sensor.getData()
 
         rgb.id = "rgb_buret_1"
