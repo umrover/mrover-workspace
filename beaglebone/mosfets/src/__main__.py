@@ -10,9 +10,10 @@ LED_UV = "P8_12"
 
 ARM_SOLENOID = "P8_11"
 ARM_MAGNET = "P8_14"
+ARM_LASER = "P8_12"
 
 sa_mosfets = [LED_BACKLIGHTS, LED_UV]
-arm_mosfets = [ARM_SOLENOID, ARM_MAGNET]
+arm_mosfets = [ARM_SOLENOID, ARM_MAGNET, ARM_LASER]
 
 
 def mosfet_callback(channel, msg):
@@ -43,6 +44,11 @@ def arm_callback(channel, msg):
         GPIO.output(arm_mosfets[1], GPIO.HIGH)
     else:
         GPIO.output(arm_mosfets[1], GPIO.LOW)
+
+    if cmd.laser:
+        GPIO.output(arm_mosfets[2], GPIO.HIGH)
+    else:
+        GPIO.output(arm_mosfets[2], GPIO.LOW)
 
 
 def main():
