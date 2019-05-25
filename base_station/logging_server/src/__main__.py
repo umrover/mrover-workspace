@@ -6,18 +6,12 @@ import csv
 import time
 
 
-biuret_print = ["timestamp", "r", "g", "b"]
-ammonia_print = ["timestamp", "r_cal", "g_cal", "b_cal", "r", "g", "b"]
+header = ["timestamp", "r", "g", "b"]
 lcm_ = aiolcm.AsyncLCM()
 
 
 parent_dir = None
 out_data = {}
-
-a_id_stores = {
-    "rgb_ammonia_1": None,
-    "rgb_ammonia_2": None
-}
 
 last_rgb_vals = {
     "rgb_ammonia_1": {
@@ -55,7 +49,6 @@ def rgb_callback(channel, msg):
 
 def rgb_frame_callback(channel, msg):
     global out_data
-    global a_id_stores
 
     rgb_frame = RGBFrame.decode(msg)
     if rgb_frame.id not in out_data:
@@ -66,8 +59,7 @@ def rgb_frame_callback(channel, msg):
         outWriter = csv.writer(outFile, delimiter=',',
                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
         if needsHeader:
-            outWriter.writerow(ammonia_print if rgb_frame.id in a_id_stores
-                               else biuret_print)
+            outWriter.writerow(header)
             outFile.flush()
             os.fsync(outFile.fileno())
 
@@ -75,28 +67,12 @@ def rgb_frame_callback(channel, msg):
 
     outFile, outWriter = out_data[rgb_frame.id]
 
-    if rgb_frame.id in a_id_stores:
-        if a_id_stores[rgb_frame.id] is None:
-            a_id_stores[rgb_frame.id] = last_rgb_vals[rgb_frame.id]
-            return
-        else:
-            outWriter.writerow(
-                [int(time.time()),
-                 a_id_stores[rgb_frame.id]['r'],
-                 a_id_stores[rgb_frame.id]['g'],
-                 a_id_stores[rgb_frame.id]['b'],
-                 last_rgb_vals[rgb_frame.id]['r'],
-                 last_rgb_vals[rgb_frame.id]['g'],
-                 last_rgb_vals[rgb_frame.id]['b']]
-            )
-            a_id_stores[rgb_frame.id] = None
-    else:
-        outWriter.writerow(
-            [int(time.time()),
-             last_rgb_vals[rgb_frame.id]['r'],
-             last_rgb_vals[rgb_frame.id]['g'],
-             last_rgb_vals[rgb_frame.id]['b']]
-        )
+    outWriter.writerow(
+        [int(time.time()),
+         last_rgb_vals[rgb_frame.id]['r'],
+         last_rgb_vals[rgb_frame.id]['g'],
+         last_rgb_vals[rgb_frame.id]['b']]
+    )
 
     outFile.flush()
     os.fsync(outFile.fileno())
