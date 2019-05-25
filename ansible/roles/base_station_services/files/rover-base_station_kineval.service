@@ -1,0 +1,10 @@
+[Unit]
+Description=MRover Base Station Kineval Stencil
+
+[Service]
+User={{ user }}
+EnvironmentFile=/etc/default/rover.env
+ExecStart={{ workspace_dir }}/jarvis exec base_station_kineval_stencil
+
+[Install]
+WantedBy=multi-user.target
