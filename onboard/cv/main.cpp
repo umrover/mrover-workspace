@@ -1,5 +1,6 @@
 #include "perception.hpp"
 #include <unistd.h>
+#include <thread>
 
 using namespace cv;
 using namespace std;
@@ -55,14 +56,12 @@ void disk_record_init() {
   #endif
 }
 
-void write_curr_frame_to_disk(Mat &rgb, Mat & depth, int counter ) {
-    string fileName = to_string(counter);
+void write_curr_frame_to_disk(Mat rgb, Mat depth, int counter) {
+    string fileName = to_string(counter / FRAME_WRITE_INTERVAL);
     while(fileName.length() < 4){
       fileName = '0'+fileName;
     }
     cv::imwrite(rgb_foldername +  fileName + std::string(".jpg"), rgb );
-    //std::string file_str = std::string("depth_") + std::to_string(counter);// + std::string(".jpg");
-    
     cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
 }
 
@@ -86,25 +85,20 @@ int main() {
   obstacleMessage.detected = false;
 
   int tennisBuffer = 0;
-  
+
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
 
-    auto start = chrono::high_resolution_clock::now();
     Mat src = cam.image();
-    
-    #if PERCEPTION_DEBUG
-          // imshow("image", src);
-    #endif
-
     Mat depth_img = cam.depth();
-
     // write to disk if permitted
     #if WRITE_CURR_FRAME_TO_DISK
-      write_curr_frame_to_disk(src, depth_img, j );
+      if (j % FRAME_WRITE_INTERVAL == 0) {
+        Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
+        thread write_thread(write_curr_frame_to_disk, rgb_copy, depth_copy, j);
+        write_thread.detach();
+      }
     #endif
-
-
 
     /* Tennis ball detection*/
     tennisMessage.found = false;
@@ -163,15 +157,6 @@ int main() {
       waitKey(FRAME_WAITKEY);
     #endif
 
-    auto end = chrono::high_resolution_clock::now();
-
-    auto delta = chrono::duration_cast<chrono::duration<double>>(end - start);
-    frame_time += delta.count();
-    #if PERCEPTION_DEBUG
-        if(j % 100 == 0){
-            // cout << "framerate: " << 1.0f/(frame_time/j) << endl;
-        }
-    #endif
     j++;
   }
 
