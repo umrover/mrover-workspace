@@ -3,10 +3,12 @@
       src: "files/{{ item }}.service"
       dest: "/etc/systemd/system/{{ item }}.service"
   with_items:
+      - rover-onboard-auton-light
       - rover-onboard-cv
       - rover-onboard-filter
       - rover-onboard-gps
       - rover-onboard-imu
+      - rover-onboard-kinematics
       - rover-onboard-microscope
       - rover-onboard-nav
       - rover-onboard-raman
@@ -31,10 +33,12 @@
 - name: Enable services
   systemd: name={{item}} enabled=yes
   with_items:
+      - rover-onboard-auton-light.service
       - rover-onboard-cv.service
       - rover-onboard-filter.service
       - rover-onboard-gps.service
       - rover-onboard-imu.service
+      - rover-onboard-kinematics.service
       - rover-onboard-microscope.service
       - rover-onboard-nav.service
       - rover-onboard-raman.service
