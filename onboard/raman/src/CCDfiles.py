@@ -33,7 +33,7 @@ ADCDark = 4096
 
 
 def savefile(config):
-    filename = "RAW.dat"
+    filename = "/tmp/RAW.dat"
     try:
         with open(filename,  mode='w') as csvfile:
             writeCSV = csv.writer(csvfile,  delimiter=' ')
