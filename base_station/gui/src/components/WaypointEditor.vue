@@ -160,7 +160,7 @@ export default {
           case 2:
             return parseFloat(nums[0]) + parseFloat(nums[1])/60
           case 3:
-            return parseFloat(nums[0]) + parseFloat(nums[1])/60 + parseFloat(nums[2])/360
+            return parseFloat(nums[0]) + parseFloat(nums[1])/60 + parseFloat(nums[2])/3600
           default:
             return 0
         }
