@@ -6,7 +6,7 @@
     <div class="led-toggles">
       <Checkbox v-bind:name="'Toggle Backlights'" v-on:toggle="setPart('backlights', $event)"/>
       <Checkbox v-bind:name="'Toggle UV Lights'" v-on:toggle="setPart('uv_leds', $event)"/>
-      <Checkbox v-bind:name="'Toggle RGB Sensor Lights'" v-on:toggle="setRGBLeds($event)"/>
+      <Checkbox ref="rgb" v-bind:name="'Toggle RGB Sensor Lights'" v-on:toggle="setRGBLeds($event)"/>
     </div>
     <div class="flex">
       <SASiteControls v-bind:site="2"/>
@@ -60,8 +60,8 @@
 
     },
 
-    created: function () {
-
+    mounted: function () {
+      this.$refs["rgb"].active = true
     },
 
     props: {
