@@ -50,7 +50,7 @@ def savefile(config):
             for i in range(3694):
                 if i > 32 & i < 3679:
                     writeCSV.writerow([str(i+1), str(config.rxData16[i])])
-        filename1 = "INT.dat"
+        filename1 = "/tmp/INT.dat"
         with open(filename1,  mode='w') as csvfile:
             writeCSV = csv.writer(csvfile,  delimiter=' ')
             writeCSV.writerow(["#Data", "from", "the", "TCD1304",

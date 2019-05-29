@@ -4,7 +4,7 @@ import numpy as np
 class Config():
     def __init__(self):
         # serial definitions
-        self.port = '/dev/ttyACM0'
+        self.port = '/dev/ttyACM2'
         self.baudrate = 115200
 
         # Data as the program handles
