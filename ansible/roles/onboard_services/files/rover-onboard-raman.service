@@ -3,7 +3,7 @@ Description=MRover Onboard Raman Spectroscope
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
-User={{ running_user }}
+Environment=HOME={{ home_dir }}
 ExecStart={{ workspace_dir }}/jarvis exec onboard_raman
 Restart=always
 RestartSec=10

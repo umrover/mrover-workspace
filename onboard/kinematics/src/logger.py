@@ -1,7 +1,7 @@
 import logging
 
 
-logging.basicConfig(filename='output.log', level=logging.DEBUG)
+logging.basicConfig(filename='/tmp/mrover-kinematics.log', level=logging.DEBUG)
 
 logging.getLogger("imported_module").setLevel(logging.WARNING)
 # create logger
