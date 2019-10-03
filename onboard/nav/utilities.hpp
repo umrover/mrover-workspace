@@ -32,4 +32,6 @@ void throughZero( double& destinationBearing, const double currentBearing );
 
 void clear( queue<Waypoint>& aQueue );
 
+bool isTargetReachable( Rover* phoebe, const rapidjson::Document& roverConfig );
+
 #endif // NAV_UTILITES

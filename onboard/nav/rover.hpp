@@ -9,7 +9,7 @@
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/TennisBall.hpp"
+#include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
@@ -30,9 +30,9 @@ enum class NavState
     SearchTurn = 24,
     SearchDrive = 25,
     ChangeSearchAlg = 26,
-    TurnToBall = 27,
-    TurnedToBallWait = 28,
-    DriveToBall = 29,
+    TurnToTarget = 27,
+    TurnedToTargetWait = 28,
+    DriveToTarget = 29,
     TurnAroundObs = 30,
     DriveAroundObs = 31,
     SearchTurnAroundObs = 32,
@@ -66,7 +66,8 @@ public:
             Course courseIn,
             Obstacle obstacleIn,
             Odometry odometryIn,
-            TennisBall tennisBallIn
+            Target targetIn,
+            Target target2In
             );
 
         NavState& currentState();
@@ -81,9 +82,11 @@ public:
 
         Odometry& odometry();
 
-        TennisBall& tennisBall();
+        Target& target();
 
-        unsigned getPathTennisBalls();
+        Target& target2();
+
+        unsigned getPathTargets();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
@@ -109,12 +112,14 @@ public:
         // The rover's current odometry information.
         Odometry mOdometry;
 
-        // The rover's current tennis ball information from computer
+        // The rover's current target information from computer
         // vision.
-        TennisBall mTennisBall;
+        Target mTarget1;
 
-        // Total tennis balls to seach for in the course
-        unsigned mPathTennisBalls;
+        Target mTarget2;
+
+        // Total targets to seach for in the course
+        unsigned mPathTargets;
 
     };
 
@@ -122,7 +127,7 @@ public:
 
     DriveStatus drive( const Odometry& destination );
 
-    DriveStatus drive( const double distance, const double bearing, const bool tennisBall = false );
+    DriveStatus drive( const double distance, const double bearing, const bool target = false );
 
     bool turn( Odometry& destination );
 
@@ -150,7 +155,7 @@ private:
 
     bool isEqual( const Odometry& odometry1, const Odometry& odometry2 ) const;
 
-    bool isEqual( const TennisBall& tennisBall1, const TennisBall& tennisBall2 ) const;
+    bool isEqual( const Target& target1, const Target& target2 ) const;
 
     bool isTurningAroundObstacle( const NavState currentState ) const;
 

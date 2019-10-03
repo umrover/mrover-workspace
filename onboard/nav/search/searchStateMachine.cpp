@@ -27,7 +27,7 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
         }
 
         case NavState::SearchSpinWait:
-        case NavState::TurnedToBallWait:
+        case NavState::TurnedToTargetWait:
         {
             return executeRoverWait( phoebe, roverConfig );
         }
@@ -42,14 +42,14 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
             return executeSearchDrive( phoebe );
         }
 
-        case NavState::TurnToBall:
+        case NavState::TurnToTarget:
         {
-            return executeTurnToBall( phoebe );
+            return executeTurnToTarget( phoebe );
         }
 
-        case NavState::DriveToBall:
+        case NavState::DriveToTarget:
         {
-            return executeDriveToBall( phoebe, roverConfig );
+            return executeDriveToTarget( phoebe, roverConfig );
         }
 
         default:
@@ -62,7 +62,7 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
 
 // Executes the logic for a search spin. If at a multiple of
 // waitStepSize, the rover will go to SearchSpinWait. If the rover
-// detects the ball, it proceeds to the ball. If finished with a 360,
+// detects the target, it proceeds to the target. If finished with a 360,
 // the rover moves on to the next phase of the search. Else continues
 // to search spin.
 NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::Document& roverConfig )
@@ -72,11 +72,11 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
 
-    if( phoebe->roverStatus().tennisBall().found )
+    if( phoebe->roverStatus().target().distance != -1 )
     {
-        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing, 
+        updateTargetDetectionElements( phoebe->roverStatus().target().bearing, 
                                            phoebe->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToBall;
+        return NavState::TurnToTarget;
     }
     if ( nextStop == 0 )
     {
@@ -99,19 +99,19 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
 
 
 // Executes the logic for waiting during a search spin so that CV can
-// look for the tennis ball. If the rover detects the ball, it proceeds
-// to the ball. If the rover is done waiting, it continues the search
+// look for the target. If the rover detects the target, it proceeds
+// to the target. If the rover is done waiting, it continues the search
 // spin. Else the rover keeps waiting.
 NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     static bool started = false;
     static time_t startTime;
 
-    if( phoebe->roverStatus().tennisBall().found )
+    if( phoebe->roverStatus().target().distance != -1 )
     {
-        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing, 
+        updateTargetDetectionElements( phoebe->roverStatus().target().bearing, 
                                               phoebe->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToBall;
+        return NavState::TurnToTarget;
     }
     if( !started )
     {
@@ -135,13 +135,13 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
         {
             return NavState::SearchSpinWait;
         }
-        return NavState::TurnedToBallWait;
+        return NavState::TurnedToTargetWait;
     }
 }
 
 // Executes the logic for turning while searching.
 // If no remaining search points, it proceeds to change search algorithms.
-// If the rover detects the tennis ball, it proceeds to the ball.
+// If the rover detects the target, it proceeds to the target.
 // If the rover finishes turning, it proceeds to driving while searching.
 // Else the rover keeps turning to the next Waypoint.
 NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::Document& roverConfig )
@@ -150,11 +150,11 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
     {
         return NavState::ChangeSearchAlg;
     }
-    if( phoebe->roverStatus().tennisBall().found )
+    if( phoebe->roverStatus().target().distance != -1 )
     {
-        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing, 
+        updateTargetDetectionElements( phoebe->roverStatus().target().bearing, 
                                            phoebe->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToBall;
+        return NavState::TurnToTarget;
     }
     Odometry& nextSearchPoint = mSearchPoints.front();
     if( phoebe->turn( nextSearchPoint ) )
@@ -165,18 +165,18 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
 } // executeSearchTurn()
 
 // Executes the logic for driving while searching.
-// If the rover detects the tennis ball, it proceeds to the ball.
+// If the rover detects the target, it proceeds to the target.
 // If the rover detects an obstacle, it proceeds to obstacle avoidance.
 // If the rover finishes driving, it proceeds to turning to the next Waypoint.
 // If the rover is still on course, it keeps driving to the next Waypoint.
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
 NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
 {
-    if( phoebe->roverStatus().tennisBall().found )
+    if( phoebe->roverStatus().target().distance != -1 )
     {
-        updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing, 
+        updateTargetDetectionElements( phoebe->roverStatus().target().bearing, 
                                            phoebe->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToBall;
+        return NavState::TurnToTarget;
     }
     if( isObstacleDetected( phoebe ) )
     {
@@ -199,56 +199,56 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
     return NavState::SearchTurn;
 } // executeSearchDrive()
 
-// Executes the logic for turning to the tennis ball.
-// If the rover loses the ball, will continue to turn using last known angles.
-// If the rover finishes turning to the ball, it goes into waiting state to
-// give CV time to relocate the ball
-// Else the rover continues to turn to to the ball.
-NavState SearchStateMachine::executeTurnToBall( Rover* phoebe )
+// Executes the logic for turning to the target.
+// If the rover loses the target, will continue to turn using last known angles.
+// If the rover finishes turning to the target, it goes into waiting state to
+// give CV time to relocate the target
+// Else the rover continues to turn to to the target.
+NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
 {
-    if( !phoebe->roverStatus().tennisBall().found )
+    if( phoebe->roverStatus().target().distance < 0 )
     {
-        cerr << "Lost the tennis ball. Continuing to turn to last known angle\n";
-        if( phoebe->turn( mTennisBallAngle + mTurnToBallRoverAngle ) )
+        cerr << "Lost the target. Continuing to turn to last known angle\n";
+        if( phoebe->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
         {
-            return NavState::TurnedToBallWait;
+            return NavState::TurnedToTargetWait;
         }
-        return NavState::TurnToBall;
+        return NavState::TurnToTarget;
     }
-    if( phoebe->turn( phoebe->roverStatus().tennisBall().bearing +
+    if( phoebe->turn( phoebe->roverStatus().target().bearing +
                       phoebe->roverStatus().odometry().bearing_deg ) )
     {
-        return NavState::DriveToBall;
+        return NavState::DriveToTarget;
     }
-    updateTennisBallDetectionElements( phoebe->roverStatus().tennisBall().bearing,
+    updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
                                        phoebe->roverStatus().odometry().bearing_deg );
-    return NavState::TurnToBall;
-} // executeTurnToBall()
+    return NavState::TurnToTarget;
+} // executeTurnToTarget()
 
-// Executes the logic for driving to the tennis ball.
-// If the rover loses the ball, it continues with search by going to
-// the last point before the rover turned to the ball
+// Executes the logic for driving to the target.
+// If the rover loses the target, it continues with search by going to
+// the last point before the rover turned to the target
 // If the rover detects an obstacle, it proceeds to go around the obstacle.
-// If the rover finishes driving to the ball, it moves on to the next Waypoint.
-// If the rover is on course, it keeps driving to the ball.
-// Else, it turns back to face the ball.
-NavState SearchStateMachine::executeDriveToBall( Rover* phoebe, const rapidjson::Document& roverConfig )
+// If the rover finishes driving to the target, it moves on to the next Waypoint.
+// If the rover is on course, it keeps driving to the target.
+// Else, it turns back to face the target.
+NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    if( !phoebe->roverStatus().tennisBall().found )
+    if( phoebe->roverStatus().target().distance < 0 )
     {
-        cerr << "Lost the tennis ball\n";
+        cerr << "Lost the target\n";
         return NavState::SearchTurn; //NavState::SearchSpin
     }
     if( isObstacleDetected( phoebe ) &&
-        isTennisBallReachable( phoebe, roverConfig ) )
+        !isTargetReachable( phoebe, roverConfig ) )
     {
         roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
         roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
 
-    DriveStatus driveStatus = phoebe->drive( phoebe->roverStatus().tennisBall().distance,
-                                             phoebe->roverStatus().tennisBall().bearing +
+    DriveStatus driveStatus = phoebe->drive( phoebe->roverStatus().target().distance,
+                                             phoebe->roverStatus().target().bearing +
                                              phoebe->roverStatus().odometry().bearing_deg,
                                              true );
     if( driveStatus == DriveStatus::Arrived )
@@ -256,15 +256,15 @@ NavState SearchStateMachine::executeDriveToBall( Rover* phoebe, const rapidjson:
         mSearchPoints.clear();
         phoebe->roverStatus().path().pop();
         roverStateMachine->updateCompletedPoints();
-        roverStateMachine->updateFoundBalls();
+        roverStateMachine->updateFoundTargets();
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
-        return NavState::DriveToBall;
+        return NavState::DriveToTarget;
     }
-    return NavState::TurnToBall;
-} // executeDriveToBall()
+    return NavState::TurnToTarget;
+} // executeDriveToTarget()
 
 // Returns true if an obstacle is detected, false otherwise.
 bool SearchStateMachine::isObstacleDetected( Rover* phoebe ) const
@@ -272,44 +272,28 @@ bool SearchStateMachine::isObstacleDetected( Rover* phoebe ) const
     return phoebe->roverStatus().obstacle().detected;
 } // isObstacleDetected()
 
-// Checks to see if tennis ball is reachable before hitting obstacle
-// Tennis ball must be closer than obstacle and must be in  the opposite direction
-bool SearchStateMachine::isTennisBallReachable( Rover* phoebe, const rapidjson::Document& roverConfig ) const
-{
-    double distanceToBall = phoebe->roverStatus().tennisBall().distance;
-    double distanceToObstacle = phoebe->roverStatus().obstacle().distance;
-    double tennisBallThreshold = roverConfig[ "navThresholds" ][ "tennisBallDistance" ].GetDouble();
-    double bearingToBall = phoebe->roverStatus().tennisBall().bearing;
-    double bearingToObstacle = phoebe->roverStatus().obstacle().bearing;
-    double bearingThreshold = roverConfig[ "navThresholds" ][ "bearingThreshold" ].GetDouble();
-    return distanceToObstacle > distanceToBall - tennisBallThreshold ||
-           ( bearingToBall < 0 && bearingToObstacle > 0 ) ||
-           ( bearingToBall > 0 && bearingToObstacle < 0 ) ||
-           fabs(bearingToObstacle) < fabs(bearingToBall) - bearingThreshold;
-} // isTennisballReachable()
-
-// Sets last known tennis ball angle, so if tennis ball is lost, we
+// Sets last known target angle, so if target is lost, we
 // continue to turn to that angle
-void SearchStateMachine::updateTennisBallAngle( double bearing )
+void SearchStateMachine::updateTargetAngle( double bearing )
 {
-    mTennisBallAngle = bearing;
-} // updateTennisBallAngle
+    mTargetAngle = bearing;
+} // updateTargetAngle
 
-// Sets last known rover angle while it is turning to the tennis ball
-// in case tennis ball is lost while turning
-void SearchStateMachine::updateTurnToBallRoverAngle( double bearing )
+// Sets last known rover angle while it is turning to the target
+// in case target is lost while turning
+void SearchStateMachine::updateTurnToTargetRoverAngle( double bearing )
 {
-    mTurnToBallRoverAngle = bearing;
-} // updateTurnToBallRoverAngle
+    mTurnToTargetRoverAngle = bearing;
+} // updateTurnToTargetRoverAngle
 
-// Sets last known angles for both the tennis ball and the rover
-// these bearings are used to turn towards the ball in case tennis ball
+// Sets last known angles for both the target and the rover
+// these bearings are used to turn towards the target in case target
 // is lost while turning
-void SearchStateMachine::updateTennisBallDetectionElements( double ball_bearing, double rover_bearing )
+void SearchStateMachine::updateTargetDetectionElements( double target_bearing, double rover_bearing )
 {
-    updateTennisBallAngle( ball_bearing );
-    updateTurnToBallRoverAngle( rover_bearing );
-} // updateTennisBallDetectionElements
+    updateTargetAngle( target_bearing );
+    updateTurnToTargetRoverAngle( rover_bearing );
+} // updateTargetDetectionElements
 
 // add intermediate points between the existing search points in a path generated by a search algorithm.
 // The maximum separation between any points in the search point list is determined by the rover's sight distance.
@@ -370,5 +354,5 @@ SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type )
 /******************/
 /* TODOS */
 /******************/
-// save location of ball then go around object? ( Execute drive to ball )
-// look into removing the waiting when turning to tennis ball or at least doing this a better way. This should at very least be it's own state
+// save location of target then go around object? ( Execute drive to target )
+// look into removing the waiting when turning to target or at least doing this a better way. This should at very least be it's own state

@@ -26,7 +26,7 @@ public:
 
     NavState run( Rover * phoebe, const rapidjson::Document& roverConfig );
 
-    bool tennisBallReachable( Rover* phoebe, double distance, double bearing );
+    bool targetReachable( Rover* phoebe, double distance, double bearing );
 
     virtual void initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
 
@@ -42,29 +42,27 @@ private:
 
     NavState executeSearchDrive( Rover* phoebe );
 
-    NavState executeTurnToBall( Rover* phoebe );
+    NavState executeTurnToTarget( Rover* phoebe );
 
-    NavState executeDriveToBall( Rover* phoebe, const rapidjson::Document& roverConfig );
+    NavState executeDriveToTarget( Rover* phoebe, const rapidjson::Document& roverConfig );
 
     bool isObstacleDetected( Rover* phoebe ) const;
 
-    bool isTennisBallReachable( Rover* phoebe, const rapidjson::Document& roverConfig ) const;
+    void updateTargetAngle( double bearing );
 
-    void updateTennisBallAngle( double bearing );
+    void updateTurnToTargetRoverAngle( double bearing );
 
-    void updateTurnToBallRoverAngle( double bearing );
-
-    void updateTennisBallDetectionElements( double ball_bearing, double rover_bearing );
+    void updateTargetDetectionElements( double target_bearing, double rover_bearing );
 
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
 
-    // Last known angle to turn to tennis ball.
-    double mTennisBallAngle;
+    // Last known angle to turn to target.
+    double mTargetAngle;
 
-    // Last known angle of rover from turn to tennis ball.
-    double mTurnToBallRoverAngle;
+    // Last known angle of rover from turn to target.
+    double mTurnToTargetRoverAngle;
 
 protected:
     /*************************************************************************/

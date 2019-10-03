@@ -31,9 +31,7 @@ public:
 
     NavState run( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    bool isTennisBallDetected( Rover* phoebe );
-
-    bool isTennisBallReachable( Rover* phoebe, const rapidjson::Document& roverConfig );
+    bool isTargetDetected( Rover* phoebe );
 
     virtual Odometry createAvoidancePoint( Rover* phoebe, const double distance ) = 0;
 

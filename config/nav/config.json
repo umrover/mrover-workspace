@@ -25,8 +25,14 @@
 		"turningBearing": 20,
 		"drivingBearing": 50,
 		"waypointDistance": 2.0,
-		"tennisBallDistance": 1.0,
+		"targetDistance": 1.0,
 		"minTurningEffort": 0.25
+	},
+
+	"roverMeasurements":
+	{
+		"width": 3,
+		"halfOfWidth": 1.5
 	},
 
 	"computerVision":

@@ -17,14 +17,14 @@ SimpleAvoidance::SimpleAvoidance( StateMachine* roverStateMachine )
 SimpleAvoidance::~SimpleAvoidance() {}
 
 // Turn away from obstacle until it is no longer detected.
-// If in search state and tennis ball is both detected and reachable, return NavState TurnToBall.
+// If in search state and target is both detected and reachable, return NavState TurnToTarget.
 // ASSUMPTION: There is no rock that is more than 8 meters (pathWidth * 2) in diameter
 NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
                                                 const rapidjson::Document& roverConfig )
 {
-    if( isTennisBallDetected ( phoebe ) && isTennisBallReachable( phoebe, roverConfig ) )
+    if( isTargetDetected ( phoebe ) && isTargetReachable( phoebe, roverConfig ) )
     {
-        return NavState::TurnToBall;
+        return NavState::TurnToTarget;
     }
     if( !phoebe->roverStatus().obstacle().detected )
     {

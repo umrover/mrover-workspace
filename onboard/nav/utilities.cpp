@@ -120,3 +120,24 @@ void clear( queue<Waypoint>& aQueue )
     queue<Waypoint> emptyQueue;
     swap( aQueue, emptyQueue );
 } // clear()
+
+
+// Checks to see if target is reachable before hitting obstacle
+// If the x component of the distance to obstacle is greater than 
+// half the width of the rover the obstacle if reachable
+bool isTargetReachable( Rover* phoebe, const rapidjson::Document& roverConfig )
+{
+    double distanceToObstacle = phoebe->roverStatus().obstacle().distance;
+    double bearingToObstacle = phoebe->roverStatus().obstacle().bearing;
+
+    bool isReachable = false;
+
+    double bearingToObstacleComplement = 90 - bearingToObstacle;
+    double xComponentOfDistanceToObstacle = distanceToObstacle * cos(bearingToObstacleComplement);
+
+    if (xComponentOfDistanceToObstacle > roverConfig["roverMeasurements"]["halfOfWidth"].GetDouble()) 
+    {
+        isReachable = true;
+    }
+    return isReachable;
+} // istargetReachable()

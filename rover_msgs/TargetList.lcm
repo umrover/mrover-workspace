@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct TargetList {
+	Target targetList[2];
+}
