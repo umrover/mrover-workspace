@@ -78,6 +78,7 @@
           '/sensor_switch': false,
           '/sensors': false,
           '/set_demand': false,
+          '/target_list': false,
           '/temperature': false,
           '/tennis_ball': false
 
@@ -109,6 +110,7 @@
           {'topic': '/sensor_switch', 'type': 'SensorSwitch'},
           {'topic': '/set_demand', 'type': 'SetDemand'},
           {'topic': '/config_pid', 'type': 'PIDConstants'},
+          {'topic': '/target_list', 'type': 'TargetList'},
           {'topic': '/temperature', 'type': 'Temperature'},
           {'topic': '/tennis_ball', 'type': 'TennisBall'},
           {'topic': '/sa_controls', 'type': 'Xbox'},

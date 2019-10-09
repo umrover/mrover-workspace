@@ -1,7 +1,6 @@
 package rover_msgs;
 
-struct TennisBall {
-	boolean found;
+struct Target {
+	double distance;
 	double bearing; // from straight ahead
-	double distance;	
 }

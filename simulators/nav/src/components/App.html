@@ -4,9 +4,9 @@
             ref:field
             bind:odom
             bind:waypoints
-            bind:tennis_balls
+            bind:ar_tags
             bind:rocks
-            bind:tennis_ball_state
+            bind:ar_tag_state
             bind:obstacle_state
             radius_meters="{{radius}}"
             mode="{{draw_mode}}"/>
@@ -66,7 +66,7 @@
             <p><b>Navigation State:</b> {{ nav_state_name }}</p>
             <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
             <p><b>Missed Waypoints:</b> {{ missed_wps }}/{{ total_wps }}</p>
-            <p><b>Tennis Balls:</b> {{ found_tbs }}/{{ total_tbs }}</p>
+            <p><b>Ar Tags:</b> {{ found_ar_tags }}/{{ total_ar_tags }}</p>
             {{else}}
             <p>LCM not connected.</p>
             {{/if}}
@@ -87,16 +87,16 @@
         </div>
         {{/each}}
 
-        {{#each tennis_balls as tennis_ball, i}}
-        <div class="display tennis_ball_display">
+        {{#each ar_tags as ar_tag, i}}
+        <div class="display ar_tag_display">
             <SimulatedItemDisplay
-                            title="Ball {{ i }}"
-                            item="{{ tennis_ball }}"
+                            title="Tag {{ i }}"
+                            item="{{ ar_tag }}"
                             rover="{{ odom }}"
-                            on:click='splice("tennis_balls", i, 1)'>
-                {{#if tennis_ball.detected}}
+                            on:click='splice("ar_tags", i, 1)'>
+                {{#if ar_tag.detected}}
                 <b>
-                Found the ball!
+                Found the Tag!
                 </b>
                 {{/if}}
             </SimulatedItemDisplay>
@@ -136,7 +136,7 @@
     import SimulatorField from './SimulatorField.html';
     import DrawModeSelector from './DrawModeSelector.html';
     import SimulatedItemDisplay from './SimulatedItemDisplay.html';
-    import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
+    import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE } from "../constants.js";
     import { to_dms } from '../geography.js';
 
     const NUM_DIGITS = 7;
@@ -162,7 +162,7 @@
                 left_right: 0,
 
                 waypoints: [],
-                tennis_balls: [],
+                ar_tags: [],
                 rocks: [],
 
                 radius: 25,
@@ -171,10 +171,10 @@
 
                 current_test: "None",
 
-                tennis_ball_state: {
-                    found: false,
+                ar_tag_state: {
+                    detected: false,
+                    distance: -1,
                     bearing: 0,
-                    distance: 0
                 },
 
                 obstacle_state: {
@@ -189,8 +189,8 @@
                 completed_wps: 0,
                 missed_wps: 0,
                 total_wps: 0,
-                found_tbs: 0,
-                total_tbs: 0,
+                found_ar_tags: 0,
+                total_ar_tags: 0,
 
                 enabled: false,
                 cv_enabled: true,
@@ -223,7 +223,7 @@
             handleDownloadTest: function(event) {
                 var test_case_data = JSON.stringify({ waypoints: app._state.waypoints,
                                                       rocks: app._state.rocks,
-                                                      tennis_balls: app._state.tennis_balls },
+                                                      ar_tags: app._state.ar_tags },
                                                     null,
                                                     4)
                 var filename = document.getElementById('input-filename').value + ".json";
@@ -285,8 +285,21 @@
                     this.fire("course", course);
 
                     if (this.get("cv_enabled")) {
-                        let tennis_ball_state = this.get("tennis_ball_state");
-                        this.fire("tennis_ball", tennis_ball_state);
+                        const target1 = this.get("ar_tag_state");
+                        const target2 = {
+                            bearing: 0,
+                            distance: -1,
+                        };
+                        let target_list = {
+                            targetList: _.map({target1, target2}, (target) => {
+                                return {
+                                    type: "Target",
+                                    bearing: target.bearing,
+                                    distance: target.distance,
+                                }
+                            })
+                        };
+                        this.fire("target_list", target_list);
 
                         let obstacle_state = this.get("obstacle_state");
                         this.fire("obstacle", obstacle_state);
@@ -316,6 +329,7 @@
 
 #field {
     grid-area: canvas;
+    background-color: tan;
 }
 
 #sidebar {
@@ -351,7 +365,7 @@ div + div {
     background-color: darkgreen;
 }
 
-.tennis_ball_display {
+.ar_tag_display {
     color: black;
     background-color: lightgreen;
 }
