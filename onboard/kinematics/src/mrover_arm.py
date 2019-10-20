@@ -13,6 +13,18 @@ from .logger import logger
 from .arm_state import ArmState
 from .kinematics import KinematicsSolver
 from .motion_planner import MotionPlanner
+from .utils import ypr_to_euler_angs
+
+masses = {
+    "Chassis Interace": 0.46,
+    "Joint A": 0.69,
+    "Joint/Seg BC": 1.48,
+    "Joint C": 1.11,
+    "Joint/Seg DE": 1.21,
+    "Joint/Seg EF": 1.08,
+    "Joint F": 0.16,
+    "End Effector": 0.5
+}
 
 
 class MRoverArm:
@@ -83,11 +95,17 @@ class MRoverArm:
         self.enable_execute = False
         logger.info('Got a target point.')
 
-        point = np.array([point_msg.x, point_msg.y, point_msg.z])
-        print('Point: {}'.format(point))
-        print(self.state.angles)
+        euler_angles = ypr_to_euler_angs(np.pi/2, np.pi/2, np.pi)
+        alpha_euler = euler_angles[0]
+        beta_euler = euler_angles[1]
+        gamma_euler = euler_angles[2]
+
+        point = np.array([point_msg.x, point_msg.y, point_msg.z,
+                          alpha_euler, beta_euler, gamma_euler])
+        # print('Point: {}'.format(point))
+        # print(self.state.angles)
         success = False
-        joint_angles, success = self.solver.IK(point, False)
+        joint_angles, success = self.solver.IK(point, False, False)
 
         ik_message = DebugMessage()
         ik_message.isError = False
@@ -98,7 +116,7 @@ class MRoverArm:
                 break
             print("attempting new IK solution...")
             print(i)
-            joint_angles, success = self.solver.IK(point, True)
+            joint_angles, success = self.solver.IK(point, True, False)
 
         if not success:
             ik_message.message = "No IK solution"
@@ -166,7 +184,7 @@ class MRoverArm:
     def simulation_mode_callback(self, channel, msg):
         simulation_mode_msg = SimulationMode.decode(msg)
         self.sim_mode = simulation_mode_msg.sim_mode
-        print(self.sim_mode)
+        # print(self.sim_mode)
         self.publish_transforms(self.state)
 
     def cartesian_control_callback(self, channel, msg):
@@ -205,7 +223,7 @@ class MRoverArm:
                 # target_a = self.current_spline(self.spline_t, 2)
                 cur_c = self.state.get_angles()[:-1]
                 c_dist = LA.norm(np.array(target_c - cur_c))
-                print(c_dist)
+                # print(c_dist)
 
                 target_c[-1] *= -1
                 if not self.sim_mode:
@@ -229,7 +247,7 @@ class MRoverArm:
         preview_robot = copy.deepcopy(self.state)
         num_steps = 500
         t = 0
-        print(self.current_spline(1))
+        # print(self.current_spline(1))
         while t < 1:
             target = self.current_spline(t)
             target_pos = ArmPosition()
@@ -238,14 +256,14 @@ class MRoverArm:
             target_pos.joint_c = target[2]
             target_pos.joint_d = target[3]
             target_pos.joint_e = -target[4]
-            print(target)
+            # print(target)
             preview_robot.set_angles(target_pos)
 
             self.solver.FK(preview_robot)
-            print(preview_robot.angles)
+            # print(preview_robot.angles)
 
             self.publish_transforms(preview_robot)
-            print(t)
+            # print(t)
             time.sleep(0.002)
             t += 1/num_steps
         path_message = DebugMessage()

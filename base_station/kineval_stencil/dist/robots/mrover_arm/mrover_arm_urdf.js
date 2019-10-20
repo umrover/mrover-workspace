@@ -26,7 +26,8 @@ robot.links = {
         visual : { 
             origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
             geometry : { mesh : { filename : "chassis-a.stl" } },
-            material : { color : { rgba : [0.356, 0.361, 0.376, 1] } }
+            material : { color : { rgba : [1, 0, 0, 1] } }
+            //Red
         }
     },
     "a-b": {
@@ -34,7 +35,8 @@ robot.links = {
             origin : { xyz: [0.0,0.0,0.2721*scale_factor_neg], rpy:[0,0,0] },
             //origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
             geometry : { mesh : { filename : "a-b.stl" } },
-            material : { color : { rgba : [0.356, 0.361, 0.376, 1] } }
+            material : { color : { rgba : [1, .43, 0, 1] } }
+            //Orange
         }
     },
     "b-c": {
@@ -42,7 +44,8 @@ robot.links = {
             origin : { xyz: [0.000,-1.4234*scale_factor_neg,1.8571*scale_factor_neg], rpy:[0,0,0] },
             //origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
             geometry : { mesh : { filename : "b-c.stl" } },
-            material : { color : { rgba : [0.356, 0.361, 0.376, 1] } }
+            material : { color : { rgba : [1, 1, 0, 1] } }
+            //Yellow
         }
     },
     "c-d": {
@@ -50,7 +53,8 @@ robot.links = {
             origin : { xyz: [0.000,-0.5393*scale_factor_neg,12.9821*scale_factor_neg], rpy:[0,0,0] },
             //origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
             geometry : { mesh : { filename : "c-d.stl" } },
-            material : { color : { rgba : [0.356, 0.361, 0.376, 1] } }
+            material : { color : { rgba : [0.43, 1, 0, 1] } }
+            //Green
         }
     },
     "d-e": {
@@ -58,7 +62,8 @@ robot.links = {
             origin : { xyz: [0.000,1.7249*scale_factor_neg,22.1071*scale_factor_neg], rpy:[0,0,0] },
             //origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
             geometry : { mesh : { filename : "d-e.stl" } },
-            material : { color : { rgba : [0.356, 0.361, 0.376, 1] } }
+            material : { color : { rgba : [0, 0, 1, 1] } }
+            //Blue
         }
     },
     "e-f": {
@@ -66,7 +71,8 @@ robot.links = {
             origin : { xyz: [-1.002*scale_factor_neg,2.7240*scale_factor_neg,22.6051*scale_factor_neg], rpy:[0,0,0] },
             origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
             geometry : { mesh : { filename : "e-f.stl" } },
-            material : { color : { rgba : [0.356, 0.361, 0.376, 1] } }
+            material : { color : { rgba : [.5, 0, 1, 1] } }
+            //Violet
         }
     },
     "hand": {
@@ -74,7 +80,8 @@ robot.links = {
             origin : { xyz: [-2.5166*scale_factor_neg,2.7226*scale_factor_neg,34.3566*scale_factor_neg], rpy:[0,0,0] },
             //origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
             geometry : { mesh : { filename : "hand.stl" } },
-            material : { color : { rgba : [0.356, 0.361, 0.376, 1] } }
+            material : { color : { rgba : [1, 0, 1, 1] } }
+            //Pink
         }
     }
 };
@@ -108,13 +115,13 @@ robot.joints.joint_a.type = "continuous";
 
 robot.joints.joint_b = {parent:"a-b", child:"b-c"};
 robot.joints.joint_b.origin = {xyz: [0.0,-1.4234*scale_factor,1.585*scale_factor], rpy:[0,0,0]};
-robot.joints.joint_b.axis = [0.0,1.0,0];   
+robot.joints.joint_b.axis = [1.0,0.0,0];   
 robot.joints.joint_b.type = "revolute";
 robot.joints.joint_b.limit = {lower:-2.0, upper:2.0};
 
 robot.joints.joint_c = {parent:"b-c", child:"c-d"};
 robot.joints.joint_c.origin = {xyz: [0.0,0.8841*scale_factor,11.125*scale_factor], rpy:[0,0,0]};
-robot.joints.joint_c.axis = [0.0,1.0,0];   
+robot.joints.joint_c.axis = [1.0,0.0,0];   
 robot.joints.joint_c.type = "revolute";
 robot.joints.joint_c.limit = {lower:-2.0, upper:2.0};
 
