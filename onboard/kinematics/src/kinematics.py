@@ -159,8 +159,6 @@ class KinematicsSolver:
         '''
         print("RUNNING IK")
 
-        print(target_point)
-
         num_iterations = 0
         self.target_pos_world = target_point[:3]
         self.target_ang_world = target_point[3:]
