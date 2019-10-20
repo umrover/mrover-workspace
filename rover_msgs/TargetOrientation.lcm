@@ -7,4 +7,5 @@ struct TargetOrientation {
     float alpha;
     float beta;
     float gamma;
+    boolean use_orientation;
 }

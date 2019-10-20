@@ -1,5 +1,7 @@
 import os
 from .mrover_arm import MRoverArm
+from .configuration_space_test import ConfigurationSpaceTest
+# from .kinematics_tester import KinematicsTester
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 
@@ -14,6 +16,14 @@ def main():
 
     arm = MRoverArm(args, lcm_)
 
+    config = ConfigurationSpaceTest(arm)
+    config.straight_up_torque_test()
+
+    # config.write_file()
+    # config.read_file()
+    # tester = KinematicsTester(arm)
+    # tester.kinematics_test()
+
     lcm_.subscribe("/arm_position", arm.arm_position_callback)
     lcm_.subscribe("/target_orientation", arm.target_orientation_callback)
     lcm_.subscribe("/target_angles", arm.target_angles_callback)
@@ -25,7 +35,3 @@ def main():
     lcm_.subscribe("/ik_enabled", arm.ik_enabled_callback)
 
     run_coroutines(lcm_.loop(), arm.execute_spline())
-
-
-if __name__ == "__main__":
-    main()

@@ -28,7 +28,7 @@ class MotionPlanner:
         self.lcm_ = lcm
         self.robot = robot_state
         self.solver = solver
-        print(self.robot.all_joints)
+        # print(self.robot.all_joints)
         self.all_limits = []
         for joint in self.robot.all_joints:
             limit = self.robot.get_joint_limit(joint)
@@ -160,18 +160,18 @@ class MotionPlanner:
         return path
 
     def extend(self, tree, z_rand):
-        print(self.i)
+        # print(self.i)
         self.i += 1
 
         z_nearest = self.nearest(tree, z_rand)
         z_new = self.steer(z_nearest, z_rand)
 
         # blocked by obstacle/self collision
-        print("checking safety")
+        # print("checking safety")
         if not self.solver.safe(np.radians(z_new)):
-            print("not safe")
+            # print("not safe")
             return Node(None)
-        print("safe")
+        # print("safe")
 
         new_node = Node(z_new)
         new_node.parent = z_nearest

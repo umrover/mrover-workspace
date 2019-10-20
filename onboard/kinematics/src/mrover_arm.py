@@ -79,15 +79,24 @@ class MRoverArm:
         return None
 
     def target_orientation_callback(self, channel, msg):
+        print("target orientation callback")
         point_msg = TargetOrientation.decode(msg)
         self.enable_execute = False
         logger.info('Got a target point.')
 
-        point = np.array([point_msg.x, point_msg.y, point_msg.z])
-        print('Point: {}'.format(point))
-        print(self.state.angles)
+        print("alpha beta gamma")
+        print()
+        print(point_msg.alpha, " , ", point_msg.beta, " , ", point_msg.gamma)
+        print()
+        use_orientation = point_msg.use_orientation
+        print(use_orientation)
+
+        point = np.array([point_msg.x, point_msg.y, point_msg.z,
+                          point_msg.alpha, point_msg.beta, point_msg.gamma])
+        # print('Point: {}'.format(point))
+        # print(self.state.angles)
         success = False
-        joint_angles, success = self.solver.IK(point, False)
+        joint_angles, success = self.solver.IK(point, False, use_orientation)
 
         ik_message = DebugMessage()
         ik_message.isError = False
@@ -98,7 +107,7 @@ class MRoverArm:
                 break
             print("attempting new IK solution...")
             print(i)
-            joint_angles, success = self.solver.IK(point, True)
+            joint_angles, success = self.solver.IK(point, True, use_orientation)
 
         if not success:
             ik_message.message = "No IK solution"
@@ -166,7 +175,7 @@ class MRoverArm:
     def simulation_mode_callback(self, channel, msg):
         simulation_mode_msg = SimulationMode.decode(msg)
         self.sim_mode = simulation_mode_msg.sim_mode
-        print(self.sim_mode)
+        # print(self.sim_mode)
         self.publish_transforms(self.state)
 
     def cartesian_control_callback(self, channel, msg):
@@ -205,7 +214,7 @@ class MRoverArm:
                 # target_a = self.current_spline(self.spline_t, 2)
                 cur_c = self.state.get_angles()[:-1]
                 c_dist = LA.norm(np.array(target_c - cur_c))
-                print(c_dist)
+                # print(c_dist)
 
                 target_c[-1] *= -1
                 if not self.sim_mode:
@@ -229,7 +238,7 @@ class MRoverArm:
         preview_robot = copy.deepcopy(self.state)
         num_steps = 500
         t = 0
-        print(self.current_spline(1))
+        # print(self.current_spline(1))
         while t < 1:
             target = self.current_spline(t)
             target_pos = ArmPosition()
@@ -238,14 +247,14 @@ class MRoverArm:
             target_pos.joint_c = target[2]
             target_pos.joint_d = target[3]
             target_pos.joint_e = -target[4]
-            print(target)
+            # print(target)
             preview_robot.set_angles(target_pos)
 
             self.solver.FK(preview_robot)
-            print(preview_robot.angles)
+            # print(preview_robot.angles)
 
             self.publish_transforms(preview_robot)
-            print(t)
+            # print(t)
             time.sleep(0.002)
             t += 1/num_steps
         path_message = DebugMessage()
