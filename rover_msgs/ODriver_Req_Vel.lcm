@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct odrive_drive {
+	char serialid [20];
+    float vel;
+}

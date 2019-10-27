@@ -1,0 +1,12 @@
+package rover_msgs;
+
+struct odrive_state {
+	char serialid [20];
+    int state;
+	// 1 Boot
+	// 2 Disarmed
+	// 3 Armed
+	// 4 Error
+	// 5 Calibrating
+	// 6 Exit
+}
