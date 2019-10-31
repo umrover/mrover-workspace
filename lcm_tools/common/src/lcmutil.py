@@ -14,7 +14,10 @@ def lcm_to_dict(message):
     res = {}
     for slot in message.__slots__:
         val = getattr(message, slot)
-        if is_lcm_object(val):
+        if isinstance(val, list):
+            res[slot] = [lcm_to_dict(elt) if is_lcm_object(elt) else elt
+                         for elt in val]
+        elif is_lcm_object(val):
             res[slot] = lcm_to_dict(val)
         else:
             res[slot] = val
