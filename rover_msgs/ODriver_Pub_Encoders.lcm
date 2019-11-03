@@ -4,4 +4,5 @@ struct odrive_data {
 	char serialid [20];
     float measuredCurrent;
     float estvel;
+    char axis; //l or r
 }

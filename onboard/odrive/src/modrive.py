@@ -45,7 +45,7 @@ class Modrive:
 	def get_iq_measured(axis):
     if (axis == "LEFT"):
       return self.left_axis.motor.current_control.Iq_measured
-    elif(axis == "RIGHT":
+    elif(axis == "RIGHT"):
       return self.right_axis.motor.current_control.Iq_measured
     else:
     	print("ERROR: cant get the measured iq for both motors at once")
@@ -55,7 +55,7 @@ class Modrive:
   def get_vel_estimate(axis):
     if (axis == "LEFT"):
       return self.left_axis.encoder.vel_estimate
-    elif(axis == "RIGHT":
+    elif(axis == "RIGHT"):
       return self.right_axis.encoder.vel_estimate
     else:
     	print("ERROR: cant get the velocity estimate for both motors at once")
@@ -103,11 +103,4 @@ class Modrive:
     else:
          print("cant get current state of both axes at once")
          return 0
-         
-         
-         
-         
-         
-         
-         
          
