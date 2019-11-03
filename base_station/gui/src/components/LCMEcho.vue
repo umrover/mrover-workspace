@@ -13,6 +13,7 @@
       <div class="spacer"></div>
     </div>
     <div class="box checklist">
+      <button id="clear-button" @click="clearFeed()">Clear Feed</button>
       <ul id="channels">
         <li v-for="(checked, channel) in viewing" :key="channel">
           <input type="checkbox" :id="channel" v-model="viewing[channel]">
@@ -125,6 +126,10 @@
     methods: {
       updateScroll: function () {
         this.$refs.messagefeed.scrollTop = this.$refs.messagefeed.scrollHeight
+      },
+
+      clearFeed: function() {
+        this.messages = []
       }
     },
 
@@ -224,5 +229,19 @@
     display: inline;
     float: left;
     padding: 0px 10px 0px 0px;
+  }
+
+  #clear-button {
+    font-size: 16px;
+    text-decoration: none;
+    padding: 10px;
+    background: #ffcb05;
+    color: #00274c;
+    border-radius: 8px;
+    border: none;
+  }
+
+  #clear-button:active {
+    background: #f0c000;
   }
 </style>
