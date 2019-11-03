@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Menu from '../components/Menu.vue'
 import RATask from '../components/RATask.vue'
+import AutonTask from '../components/AutonTask.vue'
 import PidTune from '../components/PidTune.vue'
 import LCMEcho from '../components/LCMEcho.vue'
 import SATask from '../components/SATask.vue'
@@ -36,6 +37,11 @@ export default new Router({
       path: '/SATask',
       name: 'SATask',
       component: SATask
+    },
+    {
+      path: '/AutonTask',
+      name: 'AutonTask',
+      component: AutonTask
     },
     {
       path: '/ESCTest',
