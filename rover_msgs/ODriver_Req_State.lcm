@@ -1,8 +1,8 @@
 package rover_msgs;
 
-struct ODriver_Req_State{
-	char serialid [20];
-	int requestState;
+struct ODriver_Req_State {
+	char serialid[20];
+	int8_t requestState;
 	// 1 Boot
 	// 2 Disarmed
 	// 3 Armed

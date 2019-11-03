@@ -2,7 +2,7 @@ package rover_msgs;
 
 struct odrive_state {
 	char serialid [20];
-    int state;
+    int8_t state;
 	// 1 Boot
 	// 2 Disarmed
 	// 3 Armed
