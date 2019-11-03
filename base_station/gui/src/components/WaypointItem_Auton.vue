@@ -1,14 +1,16 @@
 <template>
   <div class="waypoint-item">
+    <div class="buttons">
+      <button class="red" v-on:click="$emit('add', {'list': list, 'index': index})">Add</button>
+      <button v-bind:class="[waypoint.search ? 'green' : 'red']" v-on:click="$emit('toggleSearch', {'list': list, 'index': index})">Search</button>
+      <button v-bind:class="[waypoint.gate ? 'green' : 'red']" v-on:click="$emit('toggleGate', {'list': list, 'index': index})">Gate</button>
+      <button class="red" v-on:click="$emit('delete', {'list': list, 'index': index})">Delete</button>
+    </div>
     <div class="name">
       <p>{{waypoint.name}}</p>
     </div>
     <div class="location">
-      <p>{{waypoint.latLng.lat}}ºN, {{-waypoint.latLng.lng}}ºW</p>
-    </div>
-    <div class="buttons">
-      <button v-bind:class="[waypoint.search ? 'green' : 'red']" v-on:click="$emit('toggleSearch', {'list': list, 'index': index})"></button>
-      <button class="red" v-on:click="$emit('delete', {'list': list, 'index': index})">X</button>
+      <p>{{waypoint.latLng.lat}}ºN {{waypoint.lat_min}}' {{waypoint.lat_sec}}", {{-waypoint.latLng.lng}}ºW {{waypoint.lon_min}}' {{waypoint.lon_sec}}"</p>
     </div>
   </div>
 </template>
@@ -30,24 +32,13 @@ export default {
     index: {
       type: Number,
       required: true
-    },
-
-    gate: {
-      type: Boolean,
-      required: true
     }
-  }
-
+  },
 }
 </script>
 
 <style scoped>
   .waypoint-item {
-    display: grid;
-    grid-template-columns: 4fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    grid-template-areas: "name buttons" "location buttons";
-
     background-color: rgb(180, 180, 180);
     border-radius: 5px;
     padding: 10px;
@@ -55,11 +46,6 @@ export default {
 
     margin: 5px;
   }
-
-  .name {
-    grid-area: name;
-  }
-
   .location {
     grid-area: location;
   }
@@ -68,6 +54,7 @@ export default {
     grid-area: buttons;
     align-self: center;
     justify-self: center;
+    display: block;
   }
 
   .red {
@@ -79,12 +66,13 @@ export default {
   }
 
   button {
-    width: 20px;
-    height: 20px;
-    padding: 0px;
+    width: auto;
+    height: auto;
+    padding: 7px;
+    font-weight: bold;
   }
 
   p {
-    margin: 0px
+    margin: 5px
   }
 </style>
