@@ -1,6 +1,6 @@
 package rover_msgs;
 
-struct odrive_drive {
-	char serialid [20];
+struct ODriver_Req_Vel {
+	string serialid;
     float vel;
 }

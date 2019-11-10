@@ -11,7 +11,7 @@ from rover_msgs import ODriver_Req_State, ODriver_Req_Vel, \
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
     CTRL_MODE_VELOCITY_CONTROL, AXIS_STATE_FULL_CALIBRATION_SEQUENCE, \
     AXIS_STATE_IDLE
-import modrive as Modrive
+from . import modrive as Modrive
 
 
 def main():
