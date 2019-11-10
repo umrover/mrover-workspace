@@ -180,7 +180,8 @@ def nextState():
                 modrive.set_control_mode(legalAxis, CTRL_MODE_VELOCITY_CONTROL)
         elif legalAxis == "BOTH":
             if modrive.get_current_state("LEFT") == AXIS_STATE_IDLE \
-                        and modrive.get_current_state("RIGHT") == AXIS_STATE_IDLE:
+                        and modrive.get_current_state(
+                            "RIGHT") == AXIS_STATE_IDLE:
                 modrive.set_current_lim(legalAxis, 100)
                 modrive.set_control_mode(legalAxis, CTRL_MODE_VELOCITY_CONTROL)
 
@@ -195,8 +196,8 @@ def odriver_req_state_callback(channel, msg):
     # TODO: check which axis are legal
     if requestedState == "EXIT":
         if legalAxis == "LEFT":
-             if modrive.get_vel_estimate("LEFT") == 0 and \
-                    modrive.get_current_state("LEFT") == AXIS_STATE_IDLE
+            if modrive.get_vel_estimate("LEFT") == 0 and \
+                    modrive.get_current_state("LEFT") == AXIS_STATE_IDLE:
                 sys.exit()
             else:
                 modrive.set_vel(legalAxis, 0)
@@ -204,7 +205,7 @@ def odriver_req_state_callback(channel, msg):
                 sys.exit()
         elif legalAxis == "RIGHT":
             if modrive.get_vel_estimate("RIGHT") == 0 and \
-                    modrive.get_current_state("RIGHT") == AXIS_STATE_IDLE \
+                    modrive.get_current_state("RIGHT") == AXIS_STATE_IDLE:
                 sys.exit()
             else:
                 modrive.set_vel(legalAxis, 0)
