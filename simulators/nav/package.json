@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "fnv-plus": "git+https://git@github.com/tjwebb/fnv-plus#1.3.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.13",
     "svelte-extras": "^1.6.0"
   }
 }
