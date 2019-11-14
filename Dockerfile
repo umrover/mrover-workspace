@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.0-devel-ubuntu16.04
+FROM nvidia/cuda:10.0-devel-ubuntu16.04
 
 MAINTAINER Milo Hartsoe <hartsoe@umich.edu>
 
@@ -28,7 +28,7 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -y && \
-    wget -O ZED_SDK_Linux_Ubuntu16.run https://download.stereolabs.com/zedsdk/2.3/ubuntu && \
+    wget -O ZED_SDK_Linux_Ubuntu16.run https://download.stereolabs.com/zedsdk/2.8/ubuntu16 && \
     chmod +x ZED_SDK_Linux_Ubuntu16.run ; ./ZED_SDK_Linux_Ubuntu16.run silent && \
     rm ZED_SDK_Linux_Ubuntu16.run && \
     rm -rf /var/lib/apt/lists/*
