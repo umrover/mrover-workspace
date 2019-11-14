@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.0-devel-ubuntu16.04
+FROM nvidia/cuda:10.0-devel-ubuntu16.04
 
 MAINTAINER Milo Hartsoe <hartsoe@umich.edu>
 
@@ -19,11 +19,21 @@ RUN set -x && \
     && apt-add-repository ppa:ansible/ansible && \
     apt-get update && \
     apt-get install -y ansible && \
-    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections && \
-    wget -O ZED_SDK_Linux_Ubuntu16.run https://www.stereolabs.com/developers/downloads/ZED_SDK_Ubuntu16_CUDA9_v2.8.0.run && \
-    chmod +x ZED_SDK_Linux_Ubuntu16.run ; bash ZED_SDK_Linux_Ubuntu16.run silent
+    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
 
-RUN ansible-playbook -i "localhost," -c local /tmp/ansible/devbox.yml 
+# Setup the ZED SDK
+RUN apt-get update -y && apt-get upgrade -y && apt-get autoremove -y && \
+    apt-get install --no-install-recommends lsb-release wget less udev sudo apt-transport-https -y && \
+    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update -y && \
+    wget -O ZED_SDK_Linux_Ubuntu16.run https://download.stereolabs.com/zedsdk/2.8/ubuntu16 && \
+    chmod +x ZED_SDK_Linux_Ubuntu16.run ; ./ZED_SDK_Linux_Ubuntu16.run silent && \
+    rm ZED_SDK_Linux_Ubuntu16.run && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN ansible-playbook -i "localhost," -c local /tmp/ansible/devbox.yml
 
 ENV ANSIBLE_GATHERING smart
 ENV ANSIBLE_HOST_KEY_CHECKING false
@@ -33,7 +43,7 @@ ENV ANSIBLE_SSH_PIPELINING True
 ENV PYTHONPATH /ansible/lib
 ENV PATH /ansible/bin:$PATH
 ENV ANSIBLE_LIBRARY /ansible/library
- 
+
 WORKDIR /root
 
 ENTRYPOINT ["/bin/bash"]
