@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct ServoCmd {
+	string id;
+	double position; //degrees
+}

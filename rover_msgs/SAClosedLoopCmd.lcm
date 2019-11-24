@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct SAClosedLoopCmd {
+	double torque [3]; //N*m
+	double angle [3]; //radians, [-pi, pi]
+}

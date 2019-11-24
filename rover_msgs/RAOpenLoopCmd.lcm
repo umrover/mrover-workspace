@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct RAOpenLoopCmd {
+	double throttle[6]; //[-1.0,1.0]
+}

@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct RAClosedLoopCmd {
+	double torque [6]; //N*m
+	double angle [6]; //radians, [-pi, pi]
+}

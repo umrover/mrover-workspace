@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct DriveVelCmd {
+	int8_t axis; //0 = frontLeft, 1 = frontRight, 2 = backLeft, 3 = backRight
+	float vel; //[-1.0,1.0]
+}
