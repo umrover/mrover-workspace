@@ -40,7 +40,7 @@ public:
 
     void updateObstacleAngle( double bearing );
 
-    void updateObstacleDistance( double distance ); 
+    void updateObstacleDistance( double distance );
 
     void updateObstacleElements( double bearing, double distance );
 
@@ -78,7 +78,7 @@ private:
 
     double getOptimalAvoidanceDistance() const;
 
-    bool isWaypointReachable( double distance, double bearing );
+    bool isWaypointReachable( double distance );
 
     /*************************************************************************/
     /* Private Member Variables */

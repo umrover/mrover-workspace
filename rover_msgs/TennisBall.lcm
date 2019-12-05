@@ -1,8 +1,0 @@
-package rover_msgs;
-
-struct TennisBall {
-	boolean found;
-	boolean frontBack;
-	double bearing; // from straight ahead
-	double distance;	
-}

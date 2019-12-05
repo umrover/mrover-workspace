@@ -123,21 +123,32 @@ void clear( queue<Waypoint>& aQueue )
 
 
 // Checks to see if target is reachable before hitting obstacle
-// If the x component of the distance to obstacle is greater than 
+// If the x component of the distance to obstacle is greater than
 // half the width of the rover the obstacle if reachable
 bool isTargetReachable( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    double distanceToObstacle = phoebe->roverStatus().obstacle().distance;
-    double bearingToObstacle = phoebe->roverStatus().obstacle().bearing;
+    double distToTarget = phoebe->roverStatus().target().distance;
+    double distThresh = roverConfig["navThresholds"]["targetDistance"].GetDouble();
+    return isLocationReachable( phoebe, roverConfig, distToTarget, distThresh );
+} // istargetReachable()
+
+// Returns true if the rover can reach the input location without hitting the obstacle.
+// ASSUMPTION: There is an obstacle detected.
+// ASSUMPTION: The rover is driving straight.
+bool isLocationReachable( Rover* phoebe, const rapidjson::Document& roverConfig, const double locDist, const double distThresh )
+{
+    double distToObs = phoebe->roverStatus().obstacle().distance;
+    double bearToObs = phoebe->roverStatus().obstacle().bearing;
+    double bearToObsComplement = 90 - bearToObs;
+    double xComponentOfDistToObs = distToObs * cos(bearToObsComplement);
 
     bool isReachable = false;
 
-    double bearingToObstacleComplement = 90 - bearingToObstacle;
-    double xComponentOfDistanceToObstacle = distanceToObstacle * cos(bearingToObstacleComplement);
+    // if location - distThresh is closer than the obstacle, it's reachable
+    isReachable |= distToObs > locDist - distThresh;
 
-    if (xComponentOfDistanceToObstacle > roverConfig["roverMeasurements"]["halfOfWidth"].GetDouble()) 
-    {
-        isReachable = true;
-    }
+    // if obstacle is farther away in "x direction" than rover's width, it's reachable
+    isReachable |= xComponentOfDistToObs > roverConfig["roverMeasurements"]["halfOfWidth"].GetDouble();
+
     return isReachable;
-} // istargetReachable()
+} // isLocationReachable()

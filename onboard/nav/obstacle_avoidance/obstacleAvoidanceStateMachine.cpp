@@ -64,7 +64,7 @@ NavState ObstacleAvoidanceStateMachine::run( Rover* phoebe, const rapidjson::Doc
 bool ObstacleAvoidanceStateMachine::isTargetDetected ( Rover* phoebe )
 {
     return ( phoebe->roverStatus().currentState() == NavState::SearchTurnAroundObs &&
-             phoebe->roverStatus().target().distance != -1 );
+             phoebe->roverStatus().target().distance >= 0 );
 }
 
 // The obstacle avoidance factory allows for the creation of obstacle avoidance objects and

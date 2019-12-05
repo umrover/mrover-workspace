@@ -72,9 +72,9 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
 
-    if( phoebe->roverStatus().target().distance != -1 )
+    if( phoebe->roverStatus().target().distance >= 0 )
     {
-        updateTargetDetectionElements( phoebe->roverStatus().target().bearing, 
+        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
@@ -107,9 +107,9 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
     static bool started = false;
     static time_t startTime;
 
-    if( phoebe->roverStatus().target().distance != -1 )
+    if( phoebe->roverStatus().target().distance >= 0 )
     {
-        updateTargetDetectionElements( phoebe->roverStatus().target().bearing, 
+        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
                                               phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
@@ -150,9 +150,9 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
     {
         return NavState::ChangeSearchAlg;
     }
-    if( phoebe->roverStatus().target().distance != -1 )
+    if( phoebe->roverStatus().target().distance >= 0 )
     {
-        updateTargetDetectionElements( phoebe->roverStatus().target().bearing, 
+        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
@@ -172,9 +172,9 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
 NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
 {
-    if( phoebe->roverStatus().target().distance != -1 )
+    if( phoebe->roverStatus().target().distance >= 0 )
     {
-        updateTargetDetectionElements( phoebe->roverStatus().target().bearing, 
+        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
