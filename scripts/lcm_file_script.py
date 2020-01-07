@@ -5,14 +5,16 @@ import json
 lcm_dict = {}
 lcm_dict['message_types'] = []
 
-json_file = open('../base_station/gui/src/rover_msgs.json', 'w+')
+json_file = open('../base_station/gui/src/static/rover_msgs.json', 'w+')
 
 for filename in os.listdir('../rover_msgs'):
     if filename.endswith('.lcm'):
         with open(os.path.join('../rover_msgs/' + filename), 'r') as f:
+            #TODO: Consider replacing this with reading until we see 'struct'
             f.readline()
             f.readline()
             message_type_name = f.readline()[7:-3]
+            print(message_type_name + "|")
 
             lcm_dict['message_types'].append(message_type_name)
             message_type_dict = []
@@ -37,4 +39,4 @@ for filename in os.listdir('../rover_msgs'):
 
             lcm_dict[message_type_name] = message_type_dict
             
-json.dump(lcm_dict, json_file)
+json.dump(lcm_dict, json_file, indent=4, sort_keys=True)
