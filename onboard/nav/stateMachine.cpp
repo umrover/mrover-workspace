@@ -25,8 +25,8 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     , mTotalWaypoints( 0 )
     , mCompletedWaypoints( 0 )
     , mMissedWaypoints( 0 )
-    , mFoundTennisBalls( 0 )
-    , mTotalTennisBalls( 0 )
+    , mFoundTargets( 0 )
+    , mTotalTargets( 0 )
     , mStateChanged( true )
 {
     ifstream configFile;
@@ -66,9 +66,9 @@ void StateMachine::updateCompletedPoints( )
     return;
 }
 
-void StateMachine::updateFoundBalls( )
+void StateMachine::updateFoundTargets( )
 {
-    mFoundTennisBalls += 1;
+    mFoundTargets += 1;
     return;
 }
 
@@ -150,9 +150,9 @@ void StateMachine::run()
             case NavState::SearchSpinWait:
             case NavState::SearchTurn:
             case NavState::SearchDrive:
-            case NavState::TurnToBall:
-            case NavState::TurnedToBallWait:
-            case NavState::DriveToBall:
+            case NavState::TurnToTarget:
+            case NavState::TurnedToTargetWait:
+            case NavState::DriveToTarget:
             {
                 nextState = mSearchStateMachine->run( mPhoebe, mRoverConfig );
                 break;
@@ -250,11 +250,14 @@ void StateMachine::updateRoverStatus( Odometry odometry )
     mNewRoverStatus.odometry() = odometry;
 } // updateRoverStatus( Odometry )
 
-// Updates the tennis ball information of the rover's status.
-void StateMachine::updateRoverStatus( TennisBall tennisBall )
+// Updates the target information of the rover's status.
+void StateMachine::updateRoverStatus( TargetList targetList )
 {
-    mNewRoverStatus.tennisBall() = tennisBall;
-} // updateRoverStatus( TennisBall )
+    Target target1 = targetList.targetList[0];
+    Target target2 = targetList.targetList[1];
+    mNewRoverStatus.target() = target1;
+    mNewRoverStatus.target2() = target2;
+} // updateRoverStatus( Target )
 
 // Return true if we want to execute a loop in the state machine, false
 // otherwise.
@@ -263,7 +266,7 @@ bool StateMachine::isRoverReady() const
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
            mPhoebe->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
-           mPhoebe->roverStatus().currentState() == NavState::TurnedToBallWait; // continue even if no data has changed
+           mPhoebe->roverStatus().currentState() == NavState::TurnedToTargetWait; // continue even if no data has changed
 } // isRoverReady()
 
 // Publishes the current navigation state to the nav status lcm channel.
@@ -275,8 +278,8 @@ void StateMachine::publishNavState() const
     navStatus.completed_wps = mCompletedWaypoints;
     navStatus.missed_wps = mMissedWaypoints;
     navStatus.total_wps = mTotalWaypoints;
-    navStatus.found_tbs = mFoundTennisBalls;
-    navStatus.total_tbs = mTotalTennisBalls;
+    navStatus.found_tbs = mFoundTargets;
+    navStatus.total_tbs = mTotalTargets;
     const string& navStatusChannel = mRoverConfig[ "lcmChannels" ][ "navStatusChannel" ].GetString();
     mLcmObject.publish( navStatusChannel, &navStatus );
 } // publishNavState()
@@ -291,9 +294,9 @@ NavState StateMachine::executeOff()
     {
         mCompletedWaypoints = 0;
         mMissedWaypoints = 0;
-        mFoundTennisBalls = 0;
+        mFoundTargets = 0;
         mTotalWaypoints = mPhoebe->roverStatus().course().num_waypoints;
-        mTotalTennisBalls = mPhoebe->roverStatus().getPathTennisBalls();
+        mTotalTargets = mPhoebe->roverStatus().getPathTargets();
 
         if( !mTotalWaypoints )
         {
@@ -333,7 +336,7 @@ NavState StateMachine::executeTurn()
 
 // Executes the logic for driving. If the rover is turned off, it
 // proceeds to Off. If the rover finishes driving, it either starts
-// searching for a tennis ball (dependent the search parameter of
+// searching for a target (dependent the search parameter of
 // the Waypoint) or it turns to the next Waypoint. If the rover
 // detects an obstacle, it goes to turn around it. Else the rover
 // keeps driving to the next Waypoint.
@@ -341,9 +344,8 @@ NavState StateMachine::executeDrive()
 {
     const Waypoint& nextWaypoint = mPhoebe->roverStatus().path().front();
     double distance = estimateNoneuclid( mPhoebe->roverStatus().odometry(), nextWaypoint.odom );
-    double bearing = calcBearing( mPhoebe->roverStatus().odometry(), nextWaypoint.odom );
 
-    if( isObstacleDetected() && isWaypointReachable( distance, bearing ) )
+    if( isObstacleDetected() && !isWaypointReachable( distance ) )
     {
         mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(), getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
@@ -383,9 +385,9 @@ string StateMachine::stringifyNavState() const
             { NavState::ChangeSearchAlg, "Change Search Algorithm" },
             { NavState::SearchTurn, "Search Turn" },
             { NavState::SearchDrive, "Search Drive" },
-            { NavState::TurnToBall, "Turn to Ball" },
-            { NavState::TurnedToBallWait, "Turned to Ball Wait" },
-            { NavState::DriveToBall, "Drive to Ball" },
+            { NavState::TurnToTarget, "Turn to Target" },
+            { NavState::TurnedToTargetWait, "Turned to Target Wait" },
+            { NavState::DriveToTarget, "Drive to Target" },
             { NavState::TurnAroundObs, "Turn Around Obstacle"},
             { NavState::DriveAroundObs, "Drive Around Obstacle" },
             { NavState::SearchTurnAroundObs, "Search Turn Around Obstacle" },
@@ -414,16 +416,12 @@ double StateMachine::getOptimalAvoidanceDistance() const
     return mPhoebe->roverStatus().obstacle().distance + mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble();
 } // optimalAvoidanceAngle()
 
-bool StateMachine::isWaypointReachable( double distance, double bearing )
+bool StateMachine::isWaypointReachable( double distance )
 {
-    return ( ( mPhoebe->roverStatus().obstacle().distance < distance - 1 ) ||
-     ( ( bearing - mPhoebe->roverStatus().odometry().bearing_deg ) < 0
-                        && mPhoebe->roverStatus().obstacle().bearing > 0 ) ||
-     ( ( bearing - mPhoebe->roverStatus().odometry().bearing_deg ) > 0
-                        && mPhoebe->roverStatus().obstacle().bearing < 0 ) );
+    return isLocationReachable( mPhoebe, mRoverConfig, distance, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
 } // isWaypointReachable
 
 // TODOS:
-// [drive to ball] obstacle and ball
-// all of code, what to do in cases of both ball and obstacle
-// thresholds based on state? waypoint vs ball
+// [drive to target] obstacle and target
+// all of code, what to do in cases of both target and obstacle
+// thresholds based on state? waypoint vs target

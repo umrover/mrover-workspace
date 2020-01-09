@@ -49,16 +49,20 @@ Odometry& Rover::RoverStatus::odometry()
     return mOdometry;
 } // odometry()
 
-// Gets a reference to the rover's current tennis ball information.
-TennisBall& Rover::RoverStatus::tennisBall()
+// Gets a reference to the rover's first target's current information.
+Target& Rover::RoverStatus::target()
 {
-    return mTennisBall;
-} // tennisBall()
+    return mTarget1;
+} // target()
 
-unsigned Rover::RoverStatus::getPathTennisBalls()
+Target& Rover::RoverStatus::target2() {
+    return mTarget2;
+}
+
+unsigned Rover::RoverStatus::getPathTargets()
 {
-  return mPathTennisBalls;
-} // getPathTennisBalls()
+  return mPathTargets;
+} // getPathTargets()
 
 // Assignment operator for the rover status object. Does a "deep" copy
 // where necessary.
@@ -66,7 +70,7 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
 {
     mAutonState = newRoverStatus.autonState();
     mCourse = newRoverStatus.course();
-    mPathTennisBalls = 0;
+    mPathTargets = 0;
 
     while( !mPath.empty() )
     {
@@ -77,12 +81,13 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
         auto &wp = mCourse.waypoints[ courseIndex ];
         mPath.push( wp );
         if (wp.search) {
-            ++mPathTennisBalls;
+            ++mPathTargets;
         }
     }
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();
-    mTennisBall = newRoverStatus.tennisBall();
+    mTarget1 = newRoverStatus.target();
+    mTarget2 = newRoverStatus.target2();
     return *this;
 } // operator=
 
@@ -116,15 +121,15 @@ DriveStatus Rover::drive( const Odometry& destination )
 // Sends a joystick command to drive forward from the current odometry
 // in the direction of bearing. The distance is used to determine how
 // quickly to drive forward. This joystick command will also turn the
-// rover small amounts as "course corrections". tennisBall indicates
-// if the rover is driving to a tennisBall rather than a waypoint and
+// rover small amounts as "course corrections". target indicates
+// if the rover is driving to a target rather than a waypoint and
 // determines which distance threshold to use.
 // The return value indicates if the rover has arrived or if it is
 // on-course or off-course.
-DriveStatus Rover::drive( const double distance, const double bearing, const bool tennisBall )
+DriveStatus Rover::drive( const double distance, const double bearing, const bool target )
 {
-    if( (!tennisBall && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble()) ||
-        (tennisBall && distance < mRoverConfig[ "navThresholds" ][ "tennisBallDistance" ].GetDouble()) )
+    if( (!target && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble()) ||
+        (target && distance < mRoverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble()) )
     {
         return DriveStatus::Arrived;
     }
@@ -193,7 +198,7 @@ void Rover::stop()
 // the rover's status has changed. Returns true if the rover was
 // updated, false otherwise.
 // TODO: unconditionally update everygthing. When abstracting search class
-// we got rid of NavStates TurnToBall and DriveToBall (oops) fix this soon :P
+// we got rid of NavStates TurnToTarget and DriveToTarget (oops) fix this soon :P
 bool Rover::updateRover( RoverStatus newRoverStatus )
 {
     // Rover currently on.
@@ -205,13 +210,13 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.autonState() = newRoverStatus.autonState();
             return true;
         }
-        if( ( mRoverStatus.currentState() == NavState::TurnToBall ||
-              mRoverStatus.currentState() == NavState::DriveToBall ) &&
-            !isEqual( mRoverStatus.tennisBall(), newRoverStatus.tennisBall() ) )
+        if( ( mRoverStatus.currentState() == NavState::TurnToTarget ||
+              mRoverStatus.currentState() == NavState::DriveToTarget ) &&
+            !isEqual( mRoverStatus.target(), newRoverStatus.target() ) )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
-            mRoverStatus.tennisBall() = newRoverStatus.tennisBall();
+            mRoverStatus.target() = newRoverStatus.target();
             return true;
         }
 
@@ -221,17 +226,17 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
-            mRoverStatus.tennisBall() = newRoverStatus.tennisBall();
+            mRoverStatus.target() = newRoverStatus.target();
             return true;
         }
 
         if( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
             !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ||
-            !isEqual( mRoverStatus.tennisBall(), newRoverStatus.tennisBall() ) )
+            !isEqual( mRoverStatus.target(), newRoverStatus.target() ) )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
-            mRoverStatus.tennisBall() = newRoverStatus.tennisBall();
+            mRoverStatus.target() = newRoverStatus.target();
             return true;
         }
         return false;
@@ -321,18 +326,17 @@ bool Rover::isEqual( const Odometry& odometry1, const Odometry& odometry2 ) cons
     return false;
 } // isEqual( Odometry )
 
-// Returns true if the two tennis ball messages are equal, false
+// Returns true if the two target messages are equal, false
 // otherwise.
-bool Rover::isEqual( const TennisBall& tennisBall1, const TennisBall& tennisBall2 ) const
+bool Rover::isEqual( const Target& target1, const Target& target2 ) const
 {
-    if( tennisBall1.found == tennisBall2.found &&
-        tennisBall1.bearing == tennisBall2.bearing &&
-        tennisBall1.distance == tennisBall2.distance )
+    if( target1.distance == target2.distance &&
+        target1.bearing == target2.bearing )
     {
         return true;
     }
     return false;
-} // isEqual( TennisBall )
+} // isEqual( Target )
 
 // Return true if the current state is TurnAroundObs or SearchTurnAroundObs,
 // false otherwise.

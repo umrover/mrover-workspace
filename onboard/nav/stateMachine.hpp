@@ -34,17 +34,17 @@ public:
 
     void updateRoverStatus( Odometry odometry );
 
-    void updateRoverStatus( TennisBall tennisBall );
+    void updateRoverStatus( TargetList targetList );
 
     void updateCompletedPoints( );
 
     void updateObstacleAngle( double bearing );
 
-    void updateObstacleDistance( double distance ); 
+    void updateObstacleDistance( double distance );
 
     void updateObstacleElements( double bearing, double distance );
 
-    void updateFoundBalls( );
+    void updateFoundTargets( );
 
     void setSearcher(SearchType type);
 
@@ -78,7 +78,7 @@ private:
 
     double getOptimalAvoidanceDistance() const;
 
-    bool isWaypointReachable( double distance, double bearing );
+    bool isWaypointReachable( double distance );
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -107,11 +107,11 @@ private:
     // Number of waypoints missed.
     unsigned mMissedWaypoints;
 
-    // Number of tennis balls found.
-    unsigned mFoundTennisBalls;
+    // Number of targets found.
+    unsigned mFoundTargets;
 
-    // Number of tennis balls in course.
-    unsigned mTotalTennisBalls;
+    // Number of targets in course.
+    unsigned mTotalTargets;
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;

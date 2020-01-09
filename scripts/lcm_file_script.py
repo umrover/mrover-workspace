@@ -38,5 +38,5 @@ for filename in os.listdir('../rover_msgs'):
                 line = f.readline()
 
             lcm_dict[message_type_name] = message_type_dict
-            
+
 json.dump(lcm_dict, json_file, indent=4, sort_keys=True)

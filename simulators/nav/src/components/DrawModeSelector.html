@@ -1,14 +1,14 @@
 <div>
     <button disabled="{{ !wp_enabled }}" on:click="selected(WAYPOINT_MODE)">Waypoint</button>
     <button disabled="{{ !rock_enabled }}" on:click="selected(ROCK_MODE)">Rock</button>
-    <button disabled="{{ !ball_enabled }}" on:click="selected(TENNIS_BALL_MODE)">Tennis Ball</button>
+    <button disabled="{{ !tag_enabled }}" on:click="selected(AR_TAG_MODE)">AR Tag </button>
 </div>
 
 <style>
 </style>
 
 <script>
-import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
+import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE } from "../constants.js";
 
 export default {
     data () {
@@ -17,13 +17,13 @@ export default {
 
             WAYPOINT_MODE,
             ROCK_MODE,
-            TENNIS_BALL_MODE
+            AR_TAG_MODE
         };
     },
     computed: {
         wp_enabled: mode => mode != WAYPOINT_MODE,
         rock_enabled: mode => mode != ROCK_MODE,
-        ball_enabled: mode => mode != TENNIS_BALL_MODE
+        tag_enabled: mode => mode != AR_TAG_MODE
     },
     methods: {
         selected: function(mode) {

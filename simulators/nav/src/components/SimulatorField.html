@@ -15,7 +15,7 @@ import {
     inv_projection as inv_projection_,
     projection as projection_
 } from "../geography.js";
-import { WAYPOINT_MODE, ROCK_MODE, TENNIS_BALL_MODE } from "../constants.js";
+import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE } from "../constants.js";
 import _ from 'lodash';
 
 const EARTH_RAD = 6371000.0;
@@ -49,13 +49,13 @@ export default {
             odom: null,
 
             waypoints: [],
-            tennis_balls: [],
+            ar_tags: [],
             rocks: [],
 
-            tennis_ball_state: {
-                found: false,
-                bearing: 0,
-                distance: 0
+            ar_tag_state: {
+                detected: false,
+                distance: -1,
+                bearing: 0
             },
 
             obstacle_state: {
@@ -72,41 +72,39 @@ export default {
         const canvas = this.refs.canvas;
         const ctx = canvas.getContext('2d');
 
-        const recompute_tennis_ball_visibility = () => {
+        const recompute_ar_tag_visibility = () => {
             const odom = this.get("odom");
             const scale = this.get("radius_meters");
             const x_scale = canvas.width/(2*scale);
             const y_scale = canvas.height/(2*scale);
             if (!odom) { return; }
-            let tennis_balls = this.get("tennis_balls");
+            let ar_tags = this.get("ar_tags");
 
-            let ball_detected_idx = -1;
-            let tennis_ball_state = {
-                found: false,
-                bearing: 0,
-                distance: 0
+            let tag_detected_idx = -1;
+            let ar_tag_state = {
+                detected: false,
+                distance: -1,
+                bearing: 0
             };
-            for (let i = 0; i < tennis_balls.length; i++) {
-                tennis_balls[i].detected = false;
+            for (let i = 0; i < ar_tags.length; i++) {
+                ar_tags[i].detected = false;
 
                 const { dist, bearing } = dist_and_bearing(
-                    to_decimal(odom), to_decimal(tennis_balls[i]));
+                    to_decimal(odom), to_decimal(ar_tags[i]));
                 const rover_bearing = odom.bearing_deg * Math.PI/180;
 
                 // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
                 if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
-                    tennis_balls[i].detected = true;
-                    ball_detected_idx = i;
-                    tennis_ball_state = {
-                        found: true,
-                        bearing: (bearing - rover_bearing) * 180/Math.PI,
-                        distance: dist
+                    ar_tags[i].detected = true;
+                    tag_detected_idx = i;
+                    ar_tag_state = {
+                        distance: dist,
+                        bearing: (bearing - rover_bearing) * 180/Math.PI
                     };
-
                     break;
                 }
             }
-            this.set({ tennis_ball_state, tennis_balls });
+            this.set({ ar_tag_state, ar_tags });
         };
 
         const point_in_triangle = (point, crossbar, coords) => {
@@ -294,7 +292,7 @@ export default {
             const odom = this.get("odom");
             if (!odom) { return; }
             const waypoints = this.get("waypoints");
-            const tennis_balls = this.get("tennis_balls");
+            const ar_tags = this.get("ar_tags");
             const rocks = this.get("rocks");
             const radius = this.get("radius_meters");
             const x_scale = (canvas.width/2)/radius;
@@ -339,19 +337,27 @@ export default {
                 ctx.fillText(`${i}`, wcoords.x, wcoords.y);
             }
 
-            for (let i = 0; i < tennis_balls.length; i++) {
-                const ball = tennis_balls[i];
-                const bcoords = this.to_canvas(this.projection(to_decimal(ball)));
+            for (let i = 0; i < ar_tags.length; i++) {
+                const tag = ar_tags[i];
+                const bcoords = this.to_canvas(this.projection(to_decimal(tag)));
 
-                ctx.fillStyle = 'lightgreen';
+                ctx.fillStyle = 'pink';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 1;
+
+                const bearing = 0; //(-tag.tag_direction) * Math.PI / 180;
+                const side = 12;
+                const h = side * (Math.sqrt(3)/2);
+
                 ctx.beginPath();
-                ctx.arc(bcoords.x,
-                        bcoords.y,
-                        TENNIS_BALL_SIZE, 0, 2*Math.PI, 0);
+                ctx.moveTo(bcoords.x, -h / 2 + bcoords.y);
+                ctx.lineTo( -side / 2 + bcoords.x , h / 2 + bcoords.y);
+                ctx.lineTo(side / 2 + bcoords.x, h / 2 + bcoords.y);
+                ctx.lineTo(bcoords.x, -h / 2 + bcoords.y);
+
                 ctx.fill();
                 ctx.stroke();
+                ctx.closePath();
             }
 
             for (let i = 0; i < rocks.length; i++) {
@@ -386,11 +392,11 @@ export default {
                 );
 
                 this.set({ waypoints });
-            } else if (draw_mode === TENNIS_BALL_MODE) {
-                let tennis_balls = this.get("tennis_balls");
-                tennis_balls.push(to_dms({lat, lon}));
+            } else if (draw_mode === AR_TAG_MODE) {
+                let ar_tags = this.get("ar_tags");
+                ar_tags.push(to_dms({lat, lon}));
 
-                this.set({ tennis_balls });
+                this.set({ ar_tags });
             } else if (draw_mode === ROCK_MODE) {
                 let rocks = this.get("rocks");
                 rocks.push(to_dms({lat, lon}));
@@ -400,14 +406,14 @@ export default {
         });
 
         const update = () => {
-            recompute_tennis_ball_visibility();
+            recompute_ar_tag_visibility();
             recompute_obstacle_visibility();
             draw();
         };
 
         this.observe("odom", update);
         this.observe("waypoints", update);
-        this.observe("tennis_balls", update);
+        this.observe("ar_tags", update);
         this.observe("rocks", update);
         this.observe("radius_meters", update);
 

@@ -76,10 +76,10 @@ app.on("auton", (auton) => {
     }
 })
 
-app.on("tennis_ball", (tennis_ball) => {
+app.on("target_list", (target_list) => {
     if (bridge.online) {
-        tennis_ball.type = 'TennisBall';
-        bridge.publish("/tennis_ball", tennis_ball);
+        target_list.type = 'TargetList';
+        bridge.publish("/target_list", target_list);
     }
 })
 

@@ -1,4 +1,6 @@
 #include "perception.hpp"
+#include "rover_msgs/Target.hpp"
+#include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
 #include <thread>
 
@@ -79,9 +81,11 @@ int main() {
 
   /*initialize lcm messages*/
   lcm::LCM lcm_;
-  rover_msgs::TennisBall tennisMessage;
+  rover_msgs::TargetList arTagsMessage;
+  rover_msgs::Target* arTags = arTagsMessage.targetList;
   rover_msgs::Obstacle obstacleMessage;
-  tennisMessage.found = false;
+  arTags[0].distance = -1;
+  arTags[1].distance = -1;
   obstacleMessage.detected = false;
 
   int tennisBuffer = 0;
@@ -101,7 +105,8 @@ int main() {
     #endif
 
     /* Tennis ball detection*/
-    tennisMessage.found = false;
+    arTags[0].distance = -1;
+    arTags[1].distance = -1;
     #if TB_DETECTION
       pair<Point2f, double> tennisBall = findTennisBall(src, depth_img);
       if(tennisBall.second >= 0){
@@ -112,20 +117,21 @@ int main() {
         }
 
         if (dist < BALL_DETECTION_MAX_DIST) {
-          tennisMessage.distance = dist;
-          tennisMessage.bearing = getAngle((int)center.x, src.cols);
+          arTags[0].distance = dist;
+          arTags[0].bearing = getAngle((int)center.x, src.cols);
+          // TODO: calculate and send real second AR tag values,
+          //       currently always sending distance of -1 in order
+          //       allow Auton to work properly
 
-          tennisMessage.found = true;
           tennisBuffer = 0;
 
         }else if(tennisBuffer < 5){   //give 5 frames to recover if tennisball lost due to noise
           tennisBuffer++;
-          tennisMessage.found = true;
         }
       }
     #endif
 
-    
+
     /*initialize obstacle detection*/
     obstacleMessage.detected = false;
     #if OBSTACLE_DETECTION
@@ -146,9 +152,9 @@ int main() {
       #endif
 
     #endif
-  
 
-    lcm_.publish("/tennis_ball", &tennisMessage);
+
+    lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
     #if PERCEPTION_DEBUG

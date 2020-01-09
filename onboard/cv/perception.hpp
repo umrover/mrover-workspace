@@ -3,7 +3,6 @@
 #include <opencv2/opencv.hpp>
 #include "config.h"
 #include "camera.hpp"
-#include "rover_msgs/TennisBall.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include <chrono>
 #include <cmath>
