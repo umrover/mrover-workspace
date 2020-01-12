@@ -15,7 +15,7 @@ import {
     inv_projection as inv_projection_,
     projection as projection_
 } from "../geography.js";
-import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE } from "../constants.js";
+import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE, GATE_MODE } from "../constants.js";
 import _ from 'lodash';
 
 const EARTH_RAD = 6371000.0;
@@ -45,18 +45,27 @@ export default {
             center_lon: -110.5,
 
             radius_meters: 25,
+            angle: 0,
 
             odom: null,
 
             waypoints: [],
             ar_tags: [],
+            gates: [],
             rocks: [],
 
-            ar_tag_state: {
-                detected: false,
-                distance: -1,
-                bearing: 0
-            },
+            ar_tag_state: [
+                {
+                    detected: false,
+                    distance: -1,
+                    bearing: 0
+                },
+                {
+                    detected: false,
+                    distance: -1,
+                    bearing: 0
+                }
+            ],
 
             obstacle_state: {
                 detected: false,
@@ -81,23 +90,33 @@ export default {
             let ar_tags = this.get("ar_tags");
 
             let tag_detected_idx = -1;
-            let ar_tag_state = {
-                detected: false,
-                distance: -1,
-                bearing: 0
-            };
+            let ar_tag_state = [
+                {
+                    detected: false,
+                    distance: -1,
+                    bearing: 0
+                },
+                {
+                    detected: false,
+                    distance: -1,
+                    bearing: 0
+                }
+            ];
+
             for (let i = 0; i < ar_tags.length; i++) {
-                ar_tags[i].detected = false;
+                let tag = ar_tags[i][0];
+                tag.detected = false;
 
                 const { dist, bearing } = dist_and_bearing(
-                    to_decimal(odom), to_decimal(ar_tags[i]));
+                    to_decimal(odom), to_decimal(tag));
                 const rover_bearing = odom.bearing_deg * Math.PI/180;
 
                 // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
                 if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
-                    ar_tags[i].detected = true;
+                    console.log("should be seen")
+                    tag.detected = true;
                     tag_detected_idx = i;
-                    ar_tag_state = {
+                    ar_tag_state[0] = {
                         distance: dist,
                         bearing: (bearing - rover_bearing) * 180/Math.PI
                     };
@@ -105,6 +124,79 @@ export default {
                 }
             }
             this.set({ ar_tag_state, ar_tags });
+        };
+
+        const recompute_gate_visibility = () => {
+            const odom = this.get("odom");
+            const scale = this.get("radius_meters");
+            const x_scale = canvas.width/(2*scale);
+            const y_scale = canvas.height/(2*scale);
+            if (!odom) { return; }
+            let gates = this.get("gates");
+
+            let gate_detected_idx = -1;
+            let ar_tag_state = [
+                {
+                    detected: false,
+                    distance: -1,
+                    bearing: 0
+                },
+                {
+                    detected: false,
+                    distance: -1,
+                    bearing: 0
+                }
+            ];
+
+            for (let i = 0; i < gates.length; i++) {
+
+                gates[i][0].detected = false;
+                gates[i][1].detected = false;
+
+                const rover_bearing = odom.bearing_deg * Math.PI/180;
+
+                const { dist:dist, bearing:bearing } = dist_and_bearing(
+                    to_decimal(odom), to_decimal(gates[i][0]));
+
+                const { dist:dist1, bearing:bearing_1 } = dist_and_bearing(
+                    to_decimal(odom), to_decimal(gates[i][1]));
+
+                if ((dist1) < (dist)) {
+                    console.log("SWITCHING!!!")
+                    let post = gates[i][0];
+                    gates[i][0] = gates[i][1];
+                    gates[i][1] = post;
+                }
+
+                console.log("post 0");
+                // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
+                if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
+                    gates[i][0].detected = true;
+                    gate_detected_idx = i;
+
+                    ar_tag_state[0] = {
+                        distance: dist,
+                        bearing: (bearing - rover_bearing) * 180/Math.PI
+                    };
+                }
+
+                console.log("post 1");
+                // console.log(Math.abs(bearing_1 - rover_bearing) < ROVER_FIELD_OF_VIEW/2);
+                // console.log(dist_1 < ROVER_DEPTH_OF_VIEW);
+                // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
+                if (Math.abs(bearing_1 - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist1 < ROVER_DEPTH_OF_VIEW) {
+                    gates[i][1].detected = true;
+
+                    ar_tag_state[1] = {
+                        distance: dist1,
+                        bearing: (bearing_1 - rover_bearing) * 180/Math.PI
+                    };
+                }
+
+                if (gate_detected_idx != -1)
+                    break;
+            }
+            this.set({ ar_tag_state, gates });
         };
 
         const point_in_triangle = (point, crossbar, coords) => {
@@ -293,8 +385,10 @@ export default {
             if (!odom) { return; }
             const waypoints = this.get("waypoints");
             const ar_tags = this.get("ar_tags");
+            const gates = this.get("gates");
             const rocks = this.get("rocks");
             const radius = this.get("radius_meters");
+
             const x_scale = (canvas.width/2)/radius;
             const y_scale = (canvas.height/2)/radius;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -338,7 +432,7 @@ export default {
             }
 
             for (let i = 0; i < ar_tags.length; i++) {
-                const tag = ar_tags[i];
+                const tag = ar_tags[i][0];
                 const bcoords = this.to_canvas(this.projection(to_decimal(tag)));
 
                 ctx.fillStyle = 'pink';
@@ -354,6 +448,46 @@ export default {
                 ctx.lineTo( -side / 2 + bcoords.x , h / 2 + bcoords.y);
                 ctx.lineTo(side / 2 + bcoords.x, h / 2 + bcoords.y);
                 ctx.lineTo(bcoords.x, -h / 2 + bcoords.y);
+
+                ctx.fill();
+                ctx.stroke();
+                ctx.closePath();
+            }
+
+            for (let i = 0; i < gates.length; i++) {
+                console.log(i, gates[i]);
+                const posts = gates[i];
+                const bcoords_1 = this.to_canvas(this.projection(to_decimal(posts[0])));
+
+                ctx.fillStyle = 'lightblue';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
+
+                const bearing = 0; //(-tag.tag_direction) * Math.PI / 180;
+                const side = 12;
+                const h = side * (Math.sqrt(3)/2);
+
+                ctx.beginPath();
+                ctx.moveTo(bcoords_1.x, -h / 2 + bcoords_1.y);
+                ctx.lineTo( -side / 2 + bcoords_1.x , h / 2 + bcoords_1.y);
+                ctx.lineTo(side / 2 + bcoords_1.x, h / 2 + bcoords_1.y);
+                ctx.lineTo(bcoords_1.x, -h / 2 + bcoords_1.y);
+
+                ctx.fill();
+                ctx.stroke();
+                ctx.closePath();
+
+                const bcoords_2 = this.to_canvas(this.projection(to_decimal(posts[1])));
+
+                ctx.fillStyle = 'lightblue';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
+
+                ctx.beginPath();
+                ctx.moveTo(bcoords_2.x, -h / 2 + bcoords_2.y);
+                ctx.lineTo( -side / 2 + bcoords_2.x , h / 2 + bcoords_2.y);
+                ctx.lineTo(side / 2 + bcoords_2.x, h / 2 + bcoords_2.y);
+                ctx.lineTo(bcoords_2.x, -h / 2 + bcoords_2.y);
 
                 ctx.fill();
                 ctx.stroke();
@@ -388,16 +522,40 @@ export default {
             if (draw_mode === WAYPOINT_MODE) {
                 let waypoints = this.get("waypoints");
                 waypoints.push(
-                    Object.assign({}, to_dms({lat, lon}), { search: false })
+                    Object.assign({}, to_dms({lat, lon}), { search: false }, { gate: false })
                 );
 
                 this.set({ waypoints });
-            } else if (draw_mode === AR_TAG_MODE) {
+            }
+
+            else if (draw_mode === AR_TAG_MODE) {
                 let ar_tags = this.get("ar_tags");
-                ar_tags.push(to_dms({lat, lon}));
+
+                let tag1 = to_dms({lat, lon});
+                tag1.detected = false;
+                let tag2 = to_dms({lat, lon});
+                tag2.detected = false;
+
+                ar_tags.push([tag1, tag2]);
 
                 this.set({ ar_tags });
-            } else if (draw_mode === ROCK_MODE) {
+            }
+
+            else if (draw_mode === GATE_MODE) {
+                let gates = this.get("gates");
+                let angle = this.get("angle");
+
+                console.log("add gate");
+
+                let post_1 = to_dms({lat, lon});
+                post_1.detected = false;
+
+                let post_2 = this.shift_x_meters({lat, lon}, 3, angle);
+                gates.push([post_1, post_2]);
+                this.set({ gates });
+            }
+
+            else if (draw_mode === ROCK_MODE) {
                 let rocks = this.get("rocks");
                 rocks.push(to_dms({lat, lon}));
 
@@ -407,6 +565,11 @@ export default {
 
         const update = () => {
             recompute_ar_tag_visibility();
+            let ar_tag_state = this.get("ar_tag_state");
+
+            if (ar_tag_state[0].distance === -1){
+                recompute_gate_visibility();
+            }
             recompute_obstacle_visibility();
             draw();
         };
@@ -414,8 +577,10 @@ export default {
         this.observe("odom", update);
         this.observe("waypoints", update);
         this.observe("ar_tags", update);
+        this.observe("gates", update);
         this.observe("rocks", update);
         this.observe("radius_meters", update);
+        this.observe("angle", update);
 
         update();
     },
@@ -455,6 +620,32 @@ export default {
                 center_lat: this.get("center_lat"),
                 center_lon: this.get("center_lon")
             }, coords);
+        },
+
+    // let lat2 = asin(sin(lat1) * cos(distRadians) + cos(lat1) * sin(distRadians) * cos(bearing))
+    // let lon2 = lon1 + atan2(sin(bearing) * sin(distRadians) * cos(lat1), cos(distRadians) - sin(lat1) * sin(lat2))
+
+        shift_x_meters: function({lat, lon}, shift, bearing) {
+
+            let lat1 = lat * Math.PI / 180
+            let lon1 = lon * Math.PI / 180
+
+            var rbearing = bearing * Math.PI / 180.0
+
+            let distRadians = shift / EARTH_RAD;
+
+            let lat2 = Math.asin(Math.sin(lat1) * Math.cos(distRadians) + Math.cos(lat1) * Math.sin(distRadians) * Math.cos(rbearing));
+            let lon2 = lon1 + Math.atan2(Math.sin(rbearing) * Math.sin(distRadians) * Math.cos(lat1), Math.cos(distRadians) - Math.sin(lat1) * Math.sin(lat2));
+            lat2 *= 180 / Math.PI;
+            lon2 *= 180 / Math.PI;
+
+            return {
+                detected: false,
+                latitude_deg: Math.trunc(lat2),
+                latitude_min: (lat2 % 1)*60,
+                longitude_deg: Math.trunc(lon2),
+                longitude_min: (lon2 % 1)*60
+            };
         },
 
         bounds: function() {

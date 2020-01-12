@@ -5,7 +5,9 @@
             bind:odom
             bind:waypoints
             bind:ar_tags
+            bind:gates
             bind:rocks
+            bind:angle
             bind:ar_tag_state
             bind:obstacle_state
             radius_meters="{{radius}}"
@@ -17,6 +19,10 @@
         <p><label>
             Field Radius (meters):
             <input type="number" bind:value="radius"/>
+        </label></p>
+        <p><label>
+            Gate Angle (meters):
+            <input type="number" bind:value="angle"/>
         </label></p>
         <p>
             <label>Upload: </label>
@@ -82,6 +88,8 @@
                 <p>
                     <input type="checkbox" id="search_checkbox_{{ i }}" bind:checked="waypoint.search">
                     <label for="search_checkbox_{{ i }}">Search?</label>
+                    <input type="checkbox" id="gate_checkbox_{{ i }}" bind:checked="waypoint.gate">
+                    <label for="gate_checkbox_{{ i }}">Gate?</label>
                 </p>
             </SimulatedItemDisplay>
         </div>
@@ -91,15 +99,44 @@
         <div class="display ar_tag_display">
             <SimulatedItemDisplay
                             title="Tag {{ i }}"
-                            item="{{ ar_tag }}"
+                            item="{{ ar_tag[0] }}"
                             rover="{{ odom }}"
                             on:click='splice("ar_tags", i, 1)'>
-                {{#if ar_tag.detected}}
+                {{#if ar_tag[0].detected}}
                 <b>
                 Found the Tag!
                 </b>
                 {{/if}}
             </SimulatedItemDisplay>
+        </div>
+        {{/each}}
+
+        {{#each gates as gate, i}}
+        <div class="display ar_tag_display">
+            <SimulatedItemDisplay
+                            title="Post {{ i }}, 0"
+                            item="{{ gate[0] }}"
+                            rover="{{ odom }}"
+                            on:click='splice("gates", i, 1)'>
+                {{#if gate[0].detected}}
+                <b>
+                Found the Post!
+                </b>
+                {{/if}}
+            </SimulatedItemDisplay>
+
+            <SimulatedItemDisplay
+                            title="Post {{ i }}, 1"
+                            item="{{ gate[1] }}"
+                            rover="{{ odom }}"
+                            on:click='splice("gates", i, 1)'>
+                {{#if gate[1].detected}}
+                <b>
+                Found the Gate!
+                </b>
+                {{/if}}
+            </SimulatedItemDisplay>
+
         </div>
         {{/each}}
 
@@ -136,7 +173,7 @@
     import SimulatorField from './SimulatorField.html';
     import DrawModeSelector from './DrawModeSelector.html';
     import SimulatedItemDisplay from './SimulatedItemDisplay.html';
-    import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE } from "../constants.js";
+    import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE, GATE_MODE } from "../constants.js";
     import { to_dms } from '../geography.js';
 
     const NUM_DIGITS = 7;
@@ -163,9 +200,11 @@
 
                 waypoints: [],
                 ar_tags: [],
+                gates: [],
                 rocks: [],
 
                 radius: 25,
+                angle: 0,
 
                 test: "<name>",
 
@@ -223,7 +262,8 @@
             handleDownloadTest: function(event) {
                 var test_case_data = JSON.stringify({ waypoints: app._state.waypoints,
                                                       rocks: app._state.rocks,
-                                                      ar_tags: app._state.ar_tags },
+                                                      ar_tags: app._state.ar_tags,
+                                                      gates: app._state.gates },
                                                     null,
                                                     4)
                 var filename = document.getElementById('input-filename').value + ".json";
@@ -270,6 +310,7 @@
                             return {
                                 type: "Waypoint",
                                 search: waypoint.search,
+                                gate: waypoint.gate,
                                 odom: {
                                     latitude_deg: waypoint.latitude_deg|0,
                                     latitude_min: waypoint.latitude_min,
@@ -281,17 +322,16 @@
                             }
                         })
                     };
+
                     course.hash = fnv.fast1a52(JSON.stringify(course));
                     this.fire("course", course);
 
                     if (this.get("cv_enabled")) {
-                        const target1 = this.get("ar_tag_state");
-                        const target2 = {
-                            bearing: 0,
-                            distance: -1,
-                        };
+                        const targets = this.get("ar_tag_state");
+                        console.log("targets fire", targets);
+
                         let target_list = {
-                            targetList: _.map({target1, target2}, (target) => {
+                            targetList: _.map(targets, (target) => {
                                 return {
                                     type: "Target",
                                     bearing: target.bearing,
