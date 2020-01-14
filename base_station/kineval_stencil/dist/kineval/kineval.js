@@ -466,7 +466,7 @@ kineval.robotDraw = function drawRobot() {
     if (kineval.params.ik_orientation_included) {
         var endeffector_mat = robot.joints[robot.endeffector.frame].xform
         // var b = generate_translation_matrix(robot.endeffector.position[0],robot.endeffector.position[1],robot.endeffector.position[2])
-        var ef_pos = robot.endeffector.position
+        var ef_pos = new THREE.Vector4().fromArray(robot.endeffector.position)
         var translation_mat = THREE.Matrix4().makeTranslation(ef_pos[0],ef_pos[1],ef_pos[2])
         endeffector_mat.multiply(translation_mat)
         // endeffector_mat = matrix_mathjs_to_threejs(matrix_multiply(robot.joints[robot.endeffector.frame].xform,generate_translation_matrix(robot.endeffector.position[0],robot.endeffector.position[1],robot.endeffector.position[2])));
@@ -486,44 +486,39 @@ kineval.robotDraw = function drawRobot() {
         endeffector_mat = new THREE.Matrix4().setPosition(ef_pos)
 
     }
-    simpleApplyMatrix(endeffector_geom,endeffector_mat);
+    //simpleApplyMatrix(endeffector_geom,endeffector_mat);
+    simpleApplyMatrix(endeffector_geom,robot.links.hand.xform);
     cart_controller_x_pos.position.setFromMatrixPosition(endeffector_mat)
     cart_controller_y_pos.position.setFromMatrixPosition(endeffector_mat)
     cart_controller_z_pos.position.setFromMatrixPosition(endeffector_mat)
-    cart_controller_x_neg.position.setFromMatrixPosition(endeffector_mat)
-    cart_controller_y_neg.position.setFromMatrixPosition(endeffector_mat)
-    cart_controller_z_neg.position.setFromMatrixPosition(endeffector_mat)
+    // cart_controller_x_neg.position.setFromMatrixPosition(endeffector_mat)
+    // cart_controller_y_neg.position.setFromMatrixPosition(endeffector_mat)
+    // cart_controller_z_neg.position.setFromMatrixPosition(endeffector_mat)
+    simpleApplyMatrix(cart_controller_x_pos,robot.links.hand.xform);
+    simpleApplyMatrix(cart_controller_y_pos,robot.links.hand.xform);
+    simpleApplyMatrix(cart_controller_z_pos,robot.links.hand.xform);
 
     // display endeffector target
-    if (kineval.params.ik_orientation_included) {
-        
-        var three_d_rot = new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[0])
-        three_d_rot.multiply(THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[1]))
-        three_d_rot.multiply(THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[2]))
+    var three_d_rot = new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[0])
+    three_d_rot.multiply(new THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[1]))
+    three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[2]))
 
-        var trans = new THREE.Matrix4().makeTranslation(kineval.params.ik_target.position[0][0],
-                                                    kineval.params.ik_target.position[1][0],
-                                                    kineval.params.ik_target.position[2][0])
+    var trans = new THREE.Matrix4().makeTranslation(kineval.params.ik_target.position[0][0],
+                                                kineval.params.ik_target.position[1][0],
+                                                kineval.params.ik_target.position[2][0])
 
-        var target_mat = new THREE.Matrix4().multiplyMatrices(trans, three_d_rot)
+    var target_mat = new THREE.Matrix4().multiplyMatrices(trans, three_d_rot)
+    simpleApplyMatrix(target_geom,target_mat); // moving AND orienting green cube
+    simpleApplyMatrix(cart_controller_x1_pos,target_mat);
+    simpleApplyMatrix(cart_controller_y1_pos,target_mat);
+    simpleApplyMatrix(cart_controller_z1_pos,target_mat);
 
-    } else {
-        // var target_mat = matrix_mathjs_to_threejs(
-        //                     generate_translation_matrix(
-        //                         kineval.params.ik_target.position[0][0],
-        //                         kineval.params.ik_target.position[1][0],
-        //                         kineval.params.ik_target.position[2][0]));
-
-        var target_mat = new THREE.Matrix4().makeTranslation(kineval.params.ik_target.position[0][0],
-                                                            kineval.params.ik_target.position[1][0],
-                                                            kineval.params.ik_target.position[2][0]);
-        simpleApplyMatrix(target_geom,target_mat);
-
-    }
-    
     textbar.innerHTML = kineval.params.ik_target.position[0][0].toString()
     textbar.innerHTML += " " + kineval.params.ik_target.position[1][0].toString()
     textbar.innerHTML += " " + kineval.params.ik_target.position[2][0].toString()
+    textbar.innerHTML += " (" + kineval.params.ik_target.orientation[0].toString()
+    textbar.innerHTML += ", " + kineval.params.ik_target.orientation[1].toString()
+    textbar.innerHTML += ", " + kineval.params.ik_target.orientation[2].toString() + ")"
     
     } // hacked for stencil
 
@@ -708,12 +703,12 @@ kineval.initScene = function initScene() {
 
     // create geometry for endeffector and Cartesian target indicators
     var temp_geom = new THREE.CubeGeometry(0.1, 0.1, 0.1);
-    var temp_material = new THREE.MeshBasicMaterial( {color: 0x0088ff} )
+    var temp_material = new THREE.MeshBasicMaterial( {color: 0x0088ff} ) // blue cube
     endeffector_geom = new THREE.Mesh(temp_geom, temp_material); // comment this for coolness
     scene.add(endeffector_geom);
     endeffector_geom.visible = false;
     temp_geom = new THREE.CubeGeometry(0.1, 0.1, 0.1);
-    temp_material = new THREE.MeshBasicMaterial( {color: 0x00ff00} )
+    temp_material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ) // green cube
     target_geom = new THREE.Mesh(temp_geom, temp_material); // comment this for coolness
     scene.add(target_geom);
     target_geom.visible = false;
@@ -742,6 +737,11 @@ kineval.initScene = function initScene() {
     cart_lines.push(cart_controller_x_pos);
     cart_controller_x_pos.visible = true;
 
+    cart_controller_x1_pos = new THREE.Line(cart_controller_x_pos_geom, red)
+    scene.add(cart_controller_x1_pos);
+    cart_lines.push(cart_controller_x1_pos);
+    cart_controller_x1_pos.visible = true;
+
     var cart_controller_y_pos_geom = new THREE.Geometry();
     cart_controller_y_pos_geom.vertices.push(
         new THREE.Vector3(0,0,0),
@@ -751,6 +751,11 @@ kineval.initScene = function initScene() {
     scene.add(cart_controller_y_pos);
     cart_lines.push(cart_controller_y_pos);
     cart_controller_y_pos.visible = true;
+
+    cart_controller_y1_pos = new THREE.Line(cart_controller_y_pos_geom, grn)
+    scene.add(cart_controller_y1_pos);
+    cart_lines.push(cart_controller_y1_pos);
+    cart_controller_y1_pos.visible = true;
 
     var cart_controller_z_pos_geom = new THREE.Geometry();
     cart_controller_z_pos_geom.vertices.push(
@@ -762,35 +767,40 @@ kineval.initScene = function initScene() {
     cart_lines.push(cart_controller_z_pos);
     cart_controller_z_pos.visible = true;
 
-    var cart_controller_x_neg_geom = new THREE.Geometry();
-    cart_controller_x_neg_geom.vertices.push(
-        new THREE.Vector3(0,0,0),
-        new THREE.Vector3(-0.3,0,0)
-    );
-    cart_controller_x_neg = new THREE.Line(cart_controller_x_neg_geom, red)
-    scene.add(cart_controller_x_neg);
-    cart_lines.push(cart_controller_x_neg);
-    cart_controller_x_neg.visible = true;
+    cart_controller_z1_pos = new THREE.Line(cart_controller_z_pos_geom, blu)
+    scene.add(cart_controller_z1_pos);
+    cart_lines.push(cart_controller_z1_pos);
+    cart_controller_z1_pos.visible = true;
 
-    var cart_controller_y_neg_geom = new THREE.Geometry();
-    cart_controller_y_neg_geom.vertices.push(
-        new THREE.Vector3(0,0,0),
-        new THREE.Vector3(0,-0.3,0)
-    );
-    cart_controller_y_neg = new THREE.Line(cart_controller_y_neg_geom, grn)
-    scene.add(cart_controller_x_neg);
-    cart_lines.push(cart_controller_y_neg);
-    cart_controller_y_neg.visible = true;
+    // var cart_controller_x_neg_geom = new THREE.Geometry();
+    // cart_controller_x_neg_geom.vertices.push(
+    //     new THREE.Vector3(0,0,0),
+    //     new THREE.Vector3(-0.3,0,0)
+    // );
+    // cart_controller_x_neg = new THREE.Line(cart_controller_x_neg_geom, red)
+    // scene.add(cart_controller_x_neg);
+    // cart_lines.push(cart_controller_x_neg);
+    // cart_controller_x_neg.visible = true;
 
-    var cart_controller_z_neg_geom = new THREE.Geometry();
-    cart_controller_z_neg_geom.vertices.push(
-        new THREE.Vector3(0,0,0),
-        new THREE.Vector3(0,0,-0.3)
-    );
-    cart_controller_z_neg = new THREE.Line(cart_controller_z_neg_geom, blu)
-    scene.add(cart_controller_z_neg);
-    cart_lines.push(cart_controller_z_neg);
-    cart_controller_z_neg.visible = true;
+    // var cart_controller_y_neg_geom = new THREE.Geometry();
+    // cart_controller_y_neg_geom.vertices.push(
+    //     new THREE.Vector3(0,0,0),
+    //     new THREE.Vector3(0,-0.3,0)
+    // );
+    // cart_controller_y_neg = new THREE.Line(cart_controller_y_neg_geom, grn)
+    // scene.add(cart_controller_x_neg);
+    // cart_lines.push(cart_controller_y_neg);
+    // cart_controller_y_neg.visible = true;
+
+    // var cart_controller_z_neg_geom = new THREE.Geometry();
+    // cart_controller_z_neg_geom.vertices.push(
+    //     new THREE.Vector3(0,0,0),
+    //     new THREE.Vector3(0,0,-0.3)
+    // );
+    // cart_controller_z_neg = new THREE.Line(cart_controller_z_neg_geom, blu)
+    // scene.add(cart_controller_z_neg);
+    // cart_lines.push(cart_controller_z_neg);
+    // cart_controller_z_neg.visible = true;
 
     var geometry = new THREE.SphereBufferGeometry( 0.02 );
     var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
@@ -842,28 +852,58 @@ kineval.initGUIDisplay = function initGUIDisplay () {
     });
 
     var dummy_object = {};
-    dummy_object.send_target_point = function() {
+    dummy_object.send_target_orientation = function() {
+        
+        var three_d_rot = new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[0])
+        three_d_rot.multiply(new THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[1]))
+        three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[2]))
 
-        var TargetPointMsg =  {
-            'type': 'TargetPoint',
+        var alph = Math.atan2(three_d_rot.elements[2], -(three_d_rot.elements[6]));
+        var bet = Math.acos(three_d_rot.elements[10]);
+        var gam = Math.atan2(three_d_rot.elements[8], three_d_rot.elements[9]);
+
+        var TargetOrientationMsg =  {
+            'type': 'TargetOrientation',
             'x': kineval.params.ik_target.position[0][0],
             'y': -1 * kineval.params.ik_target.position[2][0],
             'z': kineval.params.ik_target.position[1][0],
+            // 'alpha': alph,
+            // 'beta': bet,
+            // 'gamma': gam,
+            'alpha': 0,
+            'beta': 0,
+            'gamma': 0,
         }
 
-        kineval.publish('/target_point', TargetPointMsg)
+        kineval.publish('/target_orientation', TargetOrientationMsg)
         kineval.params.update_motion_plan = true; 
         console.log("sent point")
     }
 
     dummy_object.target_angle_neutral = function() {
-        const goal = [0.0, 0.5, 1.0, 0.1, 0.0, 0.0]
-        kineval.publish_target_angles(goal)
+        var TargetOrientationMsg =  {
+            'type': 'TargetOrientation',
+            'x': 0.0,
+            'y': 0.5,
+            'z': 1.0,
+            'alpha': 0.1,
+            'beta': 0.0,
+            'gamma': 0.0,
+        }
+        kineval.publish('/target_orientation', TargetOrientationMsg)
     }
 
     dummy_object.target_angle_down = function() {
-        const goal = [0.0, 0.3, 1.5, 1.3, 0.0, 0.0]
-        kineval.publish_target_angles(goal)
+        var TargetOrientationMsg =  {
+            'type': 'TargetOrientation',
+            'x': 0.0,
+            'y': 0.3,
+            'z': 1.5,
+            'alpha': 1.3,
+            'beta': 0.0,
+            'gamma': 0.0,
+        }
+        kineval.publish('/target_orientation', TargetOrientationMsg)
     }
 
     dummy_object.preview_plan = function() {
@@ -888,7 +928,7 @@ kineval.initGUIDisplay = function initGUIDisplay () {
     // 1. send point
     // 2. preview 
     // 3. execute 
-    gui.add(dummy_object, 'send_target_point');
+    gui.add(dummy_object, 'send_target_orientation');
     gui.add(dummy_object, 'target_angle_neutral');
     gui.add(dummy_object, 'target_angle_down');
     gui.add(dummy_object, 'preview_plan');

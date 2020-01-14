@@ -50,14 +50,14 @@ kineval.handleKeydown = function handle_keydown(keycode) {
         console.log('trying to grasp');
         break;
     case 49: // send IK target with '1' key
-        var TargetPointMsg =  {
-            'type': 'TargetPoint',
+        var TargetOrientationMsg =  {
+            'type': 'TargetOrientation',
             'x': kineval.params.ik_target.position[0][0],
             'y': -1 * kineval.params.ik_target.position[2][0],
-            'z': kineval.params.ik_target.position[1][0],
+            'z': kineval.params.ik_target.position[1][0],  
         }
 
-        kineval.publish('/target_point', TargetPointMsg)
+        kineval.publish('/target_orientation', TargetOrientationMsg)
         break;
     case 50: // send preview command with '2' key
         var MotionExecuteMsg = {
@@ -167,7 +167,7 @@ kineval.handleUserInput = function user_input() {
     }
 
     if ( keyboard.pressed("shift+r") ) {
-        kineval.params.ik_target.orientation[0] += 0.01;
+        kineval.params.ik_target.orientation[0] += Math.PI / 24;
         textbar.innerHTML = "ik orient: " + kineval.params.ik_target.orientation[0];
     }
     else if ( keyboard.pressed("r") ) {
@@ -175,26 +175,38 @@ kineval.handleUserInput = function user_input() {
         kineval.params.ik_target.position[1][0] += 0.01;
     }
     if ( keyboard.pressed("shift+f") ) {
-        kineval.params.ik_target.orientation[0] -= 0.01;
+        kineval.params.ik_target.orientation[0] -= Math.PI / 24;
         textbar.innerHTML = "ik orient: " + kineval.params.ik_target.orientation[0];
     }
     else if ( keyboard.pressed("f") ) {
         textbar.innerHTML = "moving IK target down";
         kineval.params.ik_target.position[1][0] -= 0.01;
     }
-    if ( keyboard.pressed("a") ) {
+    if ( keyboard.pressed("shift+a") ) {
+        kineval.params.ik_target.orientation[1] += Math.PI / 24;
+    }
+    else if ( keyboard.pressed("a") ) {
         textbar.innerHTML = "moving IK target left";
         kineval.params.ik_target.position[0][0] -= 0.02;
     }
-    if ( keyboard.pressed("d") ) {
+    if (keyboard.pressed("shift+d") ) {
+        kineval.params.ik_target.orientation[1] -= Math.PI / 24;
+    }
+    else if ( keyboard.pressed("d") ) {
         textbar.innerHTML = "moving IK target right";
         kineval.params.ik_target.position[0][0] += 0.02;
     }
-    if ( keyboard.pressed("w") ) {
+    if ( keyboard.pressed("shift+w") ) {
+        kineval.params.ik_target.orientation[2] += Math.PI / 24;
+    }
+    else if ( keyboard.pressed("w") ) {
         textbar.innerHTML = "moving IK target forward";
         kineval.params.ik_target.position[2][0] -= 0.02;
     }
-    if ( keyboard.pressed("s") ) {
+    if (keyboard.pressed("shift+s") ) {
+        kineval.params.ik_target.orientation[2] -= Math.PI / 24;
+    }
+    else if ( keyboard.pressed("s") ) {
         textbar.innerHTML = "moving IK target backward";
         kineval.params.ik_target.position[2][0] += 0.02;
     }
