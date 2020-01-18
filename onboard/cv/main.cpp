@@ -88,7 +88,11 @@ int main() {
   arTags[1].distance = -1;
   obstacleMessage.detected = false;
 
-  int tennisBuffer = 0;
+  //tag detection stuff
+  TagDetector detector;
+  pair<Tag, Tag> tagPair;
+  int left_tag_buffer = 0;
+  int right_tag_buffer = 0;
 
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
@@ -108,28 +112,44 @@ int main() {
     arTags[0].distance = -1;
     arTags[1].distance = -1;
     #if TB_DETECTION
-      pair<Point2f, double> tennisBall = findTennisBall(src, depth_img);
-      if(tennisBall.second >= 0){
-        Point2f center = tennisBall.first;
-        float dist = depth_img.at<float>(center.y, center.x);
-        if (!isnormal(dist) || dist > 5.0) {
-          dist = (TENNIS_BALL_PIXEL_SIZE / tennisBall.second);
+      tagPair = detector.findARTags(src, depth_img);
+
+      //update both tags in LCM message
+      //first tag
+      if(tagPair.first.id == -1){//no tag found
+        if(left_tag_buffer <= 5){//send the buffered tag
+          ++left_tag_buffer;
+        } else {//we probably actually lost the tag
+          arTags[0].distance = -1;
+          arTags[0].bearing = -1;
+          arTags[0].id = -1;
         }
-
-        if (dist < BALL_DETECTION_MAX_DIST) {
-          arTags[0].distance = dist;
-          arTags[0].bearing = getAngle((int)center.x, src.cols);
-          // TODO: calculate and send real second AR tag values,
-          //       currently always sending distance of -1 in order
-          //       allow Auton to work properly
-
-          tennisBuffer = 0;
-
-        }else if(tennisBuffer < 5){   //give 5 frames to recover if tennisball lost due to noise
-          tennisBuffer++;
-        }
+      } else { //one tag found
+        arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
+        arTags[0].bearing = getAngle((int)tagPair.first.loc.x, src.cols);
+        arTags[0].id = tagPair.first.id;
+        left_tag_buffer = 0;
       }
+      
+      //first tag
+      if(tagPair.second.id == -1){//no tag found
+        if(right_tag_buffer <= 5){//send the buffered tag
+          ++right_tag_buffer;
+        } else {//we probably actually lost the tag
+          arTags[1].distance = -1;
+          arTags[1].bearing = -1;
+          arTags[1].id = -1;
+        }
+      } else { //one tag found
+        arTags[1].distance = depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x);
+        arTags[1].bearing = getAngle((int)tagPair.second.loc.x, src.cols);
+        arTags[1].id = tagPair.second.id;
+        right_tag_buffer = 0;
+      }
+
+
     #endif
+
 
 
     /*initialize obstacle detection*/
@@ -152,7 +172,6 @@ int main() {
       #endif
 
     #endif
-
 
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
