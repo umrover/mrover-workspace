@@ -15,7 +15,7 @@ def main():
     arm = MRoverArm(args, lcm_)
 
     lcm_.subscribe("/arm_position", arm.arm_position_callback)
-    lcm_.subscribe("/target_point", arm.target_point_callback)
+    lcm_.subscribe("/target_orientation", arm.target_orientation_callback)
     lcm_.subscribe("/target_angles", arm.target_angles_callback)
     lcm_.subscribe("/confirmation", arm.arm_position_callback)
     lcm_.subscribe("/motion_execute", arm.motion_execute_callback)

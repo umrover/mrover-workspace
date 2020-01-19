@@ -2,7 +2,7 @@ import json
 import copy
 from collections import OrderedDict
 from rover_msgs import (FKTransform, ArmPosition, DebugMessage,
-                        TargetPoint, TargetAngles, MotionExecute,
+                        TargetOrientation, TargetAngles, MotionExecute,
                         SimulationMode, IkArmControl, LockJointE,
                         IkEnabled)
 import numpy as np
@@ -78,8 +78,8 @@ class MRoverArm:
         self.lcm_.publish('/fk_transform', tm.encode())
         return None
 
-    def target_point_callback(self, channel, msg):
-        point_msg = TargetPoint.decode(msg)
+    def target_orientation_callback(self, channel, msg):
+        point_msg = TargetOrientation.decode(msg)
         self.enable_execute = False
         logger.info('Got a target point.')
 

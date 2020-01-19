@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
   config.vm.hostname = "mrover-devbox"
 
   # Map all ports 8000-8020 for development work
-  (8000...8020).each do |p| 
+  (8000...8021).each do |p| 
     config.vm.network "forwarded_port", guest: p, host: p
   end
 

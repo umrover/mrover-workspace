@@ -93,7 +93,7 @@ class KinematicsSolver:
         cur_robot.ef_pos_world = ef_pos_world[:-1]
         return ef_pos_world[:-1]
 
-    def IK(self, target_point, set_random_angles):
+    def IK(self, target_orientation, set_random_angles):
         '''
             Inverse kinematics for MRover arm using cyclic
             coordinate descent (CCD)
@@ -116,7 +116,7 @@ class KinematicsSolver:
 
         '''
         num_iterations = 0
-        self.target_pos_world = target_point
+        self.target_pos_world = target_orientation[:3]
         self.FK(self.robot_state)
         self.robot_ik = copy.deepcopy(self.robot_state)
         links = self.robot_ik.all_links
