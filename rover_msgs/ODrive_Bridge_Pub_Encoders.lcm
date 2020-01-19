@@ -1,0 +1,9 @@
+package rover_msgs;
+
+struct ODrive_Bridge_Pub_Encoders {
+	string controller;
+    //front or back
+    float measuredCurrent;
+    float estvel;
+    string axis; //l or r
+}

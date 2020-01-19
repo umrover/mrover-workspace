@@ -1,0 +1,8 @@
+package rover_msgs;
+
+struct ODrive_Bridge_Req_Vel {
+	string controller;
+    //front or back
+    string motor;
+    float vel;
+}
