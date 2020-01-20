@@ -20,7 +20,7 @@ if with_zed
 			'-L/usr/local/cuda/lib64',
 			'-lcuda', '-lnppial', '-lnppisu', '-lnppicc',
 			'-lnppicom', '-lnppidei', '-lnppif', '-lnppig',
-			'-lnppim', '-lnppist', '-lnppitc'
+			'-lnppim', '-lnppist', '-lnppitc', '-lnppc'
 		])
 	all_deps += [zed]
 endif
