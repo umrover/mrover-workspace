@@ -1,0 +1,13 @@
+package rover_msgs;
+
+struct ODrive_Bridge_Pub_State {
+	string controller;
+	//front or back
+    int8_t state;
+	// 1 Boot
+	// 2 Disarmed
+	// 3 Armed
+	// 4 Error
+	// 5 Calibrating
+	// 6 Exit
+}
