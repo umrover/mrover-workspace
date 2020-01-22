@@ -1,15 +1,17 @@
 <div class="simulated-item-display">
     <h2>{{ title }}</h2>
-    <button class="close" on:click="clicked()">x</button>
+    {{#if closable}}
+        <button class="close" on:click="clicked()">x</button>
+    {{/if}}
     <div>
         <p>
             <b>Latitude:</b>
-            {{ item.latitude_deg }}&#176; 
+            {{ item.latitude_deg }}&#176;
             {{ latitude_min_display }}'
         </p>
         <p>
             <b>Longitude:</b>
-            {{ item.longitude_deg }}&#176; 
+            {{ item.longitude_deg }}&#176;
             {{ longitude_min_display }}'
         </p>
         <p>
@@ -89,7 +91,9 @@ export default {
             if (bearing_from_rover > 180) bearing_from_rover -= 360;
             if (bearing_from_rover < -180) bearing_from_rover += 360;
             return bearing_from_rover.toFixed(3);
-        }
+        },
+
+        closable: title => title.match('Gate Post .*, 1') == null
     },
     methods: {
         clicked: function() {
