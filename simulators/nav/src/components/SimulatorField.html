@@ -111,9 +111,7 @@ export default {
                     to_decimal(odom), to_decimal(tag));
                 const rover_bearing = odom.bearing_deg * Math.PI/180;
 
-                // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
                 if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
-                    console.log("should be seen")
                     tag.detected = true;
                     tag_detected_idx = i;
                     ar_tag_state[0] = {
@@ -162,14 +160,11 @@ export default {
                     to_decimal(odom), to_decimal(gates[i][1]));
 
                 if ((dist1) < (dist)) {
-                    console.log("SWITCHING!!!")
                     let post = gates[i][0];
                     gates[i][0] = gates[i][1];
                     gates[i][1] = post;
                 }
 
-                console.log("post 0");
-                // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
                 if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
                     gates[i][0].detected = true;
                     gate_detected_idx = i;
@@ -180,10 +175,6 @@ export default {
                     };
                 }
 
-                console.log("post 1");
-                // console.log(Math.abs(bearing_1 - rover_bearing) < ROVER_FIELD_OF_VIEW/2);
-                // console.log(dist_1 < ROVER_DEPTH_OF_VIEW);
-                // console.log(`testing a ball at ${dist} meters by ${bearing} radians`);
                 if (Math.abs(bearing_1 - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist1 < ROVER_DEPTH_OF_VIEW) {
                     gates[i][1].detected = true;
 
@@ -274,17 +265,11 @@ export default {
             const phi_1 = alpha - gamma + ROVER_FIELD_OF_VIEW / 2 * 180 / Math.PI;
             const phi_2 = alpha + gamma + ROVER_FIELD_OF_VIEW / 2 * 180 / Math.PI;
             occupied_angles.fill(true, phi_1, phi_2);
-            console.log(`occupied_angles delta_x delta_y odom.x rcoords.x: ${delta_x} ${delta_y} ${pos.x} ${rcoords.x}`);
-            console.log(`occupied_angles odom_deg beta alpha and gamma: ${odom.bearing_deg} ${beta} ${alpha} ${gamma}`);
-            console.log(`occupied_angles ends: ${phi_1} ${phi_2}`);
         };
 
         const recompute_obstacle_visibility = () => {
             const odom = this.get("odom");
             const scale = this.get("radius_meters");
-            /*const rock_radius = ROCK_SIZE / scale;
-            const x_scale = canvas.width/(2*scale);
-            const y_scale = canvas.height/(2*scale);*/
             if (!odom) { return; }
             let rocks = this.get("rocks");
             const {x_0, y_0, crossbar} = get_triangle(scale, odom);
@@ -294,11 +279,6 @@ export default {
                 return point_in_triangle(rcoords, crossbar, {x: x_0, y: y_0});
             });
 
-            console.log(`Can see ${filtered_rocks.length} rocks`);
-            if (filtered_rocks.length > 0) {
-                console.log(filtered_rocks);
-            }
-
             let occupied_angles = new Array(120);
             occupied_angles.fill(false);
             for (let i = 0; i < filtered_rocks.length; i++) {
@@ -306,18 +286,13 @@ export default {
             }
 
             // can we move straight ahead
-            // const rover_width = ROVER_SIZE / scale;
             const rover_width = ROVER_SIZE_M;
             let path_clear = true;
             const clearance_angle = Math.atan2(rover_width, CV_DEPTH) * 180 / Math.PI;
-            console.log(`clearance_angle: ${clearance_angle}`);
             for (let i = 60 - clearance_angle|0; i < 60 + clearance_angle|0; ++i) {
-            // for (let i = 0; i < 120; ++i) {
                 if (occupied_angles[i]) path_clear = false;
             }
 
-            // debugger;
-            console.log(`path clear: ${path_clear}`);
             let obstacle_state = {
                 detected: false,
                 bearing: 0,
@@ -412,99 +387,115 @@ export default {
                        coords.y - VECTOR_SIZE_M*y_scale*Math.sin(bearing));
             ctx.stroke();
 
+            // Uncomment this code in to draw the rover's triangle of visibility
             // draw_triangle(odom);
 
             for (let i = 0; i < waypoints.length; i++) {
                 const waypoint = waypoints[i];
-                const wcoords = this.to_canvas(this.projection(to_decimal(waypoint)));
+                const way_coords = this.to_canvas(this.projection(to_decimal(waypoint)));
 
                 ctx.fillStyle = 'darkgreen';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.arc(wcoords.x,
-                        wcoords.y,
+                ctx.arc(way_coords.x,
+                        way_coords.y,
                         WAYPOINT_SIZE, 0, 2*Math.PI, 0);
                 ctx.fill();
                 ctx.stroke();
+
+                const text_offset = -3;
                 ctx.fillStyle = 'white';
-                ctx.fillText(`${i}`, wcoords.x, wcoords.y);
+                ctx.fillText(`${i}`, way_coords.x + text_offset, way_coords.y - text_offset);
             }
 
             for (let i = 0; i < ar_tags.length; i++) {
                 const tag = ar_tags[i][0];
-                const bcoords = this.to_canvas(this.projection(to_decimal(tag)));
+                const target_coords = this.to_canvas(this.projection(to_decimal(tag)));
 
-                ctx.fillStyle = 'pink';
+                ctx.fillStyle = 'lightgreen';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 1;
 
-                const bearing = 0; //(-tag.tag_direction) * Math.PI / 180;
+                const bearing = 0;
                 const side = 12;
                 const h = side * (Math.sqrt(3)/2);
 
                 ctx.beginPath();
-                ctx.moveTo(bcoords.x, -h / 2 + bcoords.y);
-                ctx.lineTo( -side / 2 + bcoords.x , h / 2 + bcoords.y);
-                ctx.lineTo(side / 2 + bcoords.x, h / 2 + bcoords.y);
-                ctx.lineTo(bcoords.x, -h / 2 + bcoords.y);
+                ctx.moveTo(target_coords.x, -h / 2 + target_coords.y);
+                ctx.lineTo( -side / 2 + target_coords.x , h / 2 + target_coords.y);
+                ctx.lineTo(side / 2 + target_coords.x, h / 2 + target_coords.y);
+                ctx.lineTo(target_coords.x, -h / 2 + target_coords.y);
 
                 ctx.fill();
                 ctx.stroke();
                 ctx.closePath();
+
+                const text_offset = 5;
+                ctx.fillStyle = 'black';
+                ctx.fillText(`${i}`, target_coords.x + text_offset, target_coords.y - text_offset);
             }
 
             for (let i = 0; i < gates.length; i++) {
-                console.log(i, gates[i]);
                 const posts = gates[i];
-                const bcoords_1 = this.to_canvas(this.projection(to_decimal(posts[0])));
+                const gate_coords_1 = this.to_canvas(this.projection(to_decimal(posts[0])));
 
                 ctx.fillStyle = 'lightblue';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 1;
 
-                const bearing = 0; //(-tag.tag_direction) * Math.PI / 180;
+                const bearing = 0;
                 const side = 12;
                 const h = side * (Math.sqrt(3)/2);
 
                 ctx.beginPath();
-                ctx.moveTo(bcoords_1.x, -h / 2 + bcoords_1.y);
-                ctx.lineTo( -side / 2 + bcoords_1.x , h / 2 + bcoords_1.y);
-                ctx.lineTo(side / 2 + bcoords_1.x, h / 2 + bcoords_1.y);
-                ctx.lineTo(bcoords_1.x, -h / 2 + bcoords_1.y);
+                ctx.moveTo(gate_coords_1.x, -h / 2 + gate_coords_1.y);
+                ctx.lineTo( -side / 2 + gate_coords_1.x , h / 2 + gate_coords_1.y);
+                ctx.lineTo(side / 2 + gate_coords_1.x, h / 2 + gate_coords_1.y);
+                ctx.lineTo(gate_coords_1.x, -h / 2 + gate_coords_1.y);
 
                 ctx.fill();
                 ctx.stroke();
                 ctx.closePath();
 
-                const bcoords_2 = this.to_canvas(this.projection(to_decimal(posts[1])));
+                const gate_coords_2 = this.to_canvas(this.projection(to_decimal(posts[1])));
 
-                ctx.fillStyle = 'lightblue';
+                ctx.fillStyle = 'yellow';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 1;
 
                 ctx.beginPath();
-                ctx.moveTo(bcoords_2.x, -h / 2 + bcoords_2.y);
-                ctx.lineTo( -side / 2 + bcoords_2.x , h / 2 + bcoords_2.y);
-                ctx.lineTo(side / 2 + bcoords_2.x, h / 2 + bcoords_2.y);
-                ctx.lineTo(bcoords_2.x, -h / 2 + bcoords_2.y);
+                ctx.moveTo(gate_coords_2.x, -h / 2 + gate_coords_2.y);
+                ctx.lineTo( -side / 2 + gate_coords_2.x , h / 2 + gate_coords_2.y);
+                ctx.lineTo(side / 2 + gate_coords_2.x, h / 2 + gate_coords_2.y);
+                ctx.lineTo(gate_coords_2.x, -h / 2 + gate_coords_2.y);
 
                 ctx.fill();
                 ctx.stroke();
                 ctx.closePath();
+
+                let gate_coords_c = gate_coords_1;
+                const text_offset = -2;
+                gate_coords_c.x = (gate_coords_1.x + gate_coords_2.x) / 2;
+                gate_coords_c.y = (gate_coords_1.y + gate_coords_2.y) / 2;
+                ctx.fillStyle = 'black';
+                ctx.fillText(`${i}`, gate_coords_c.x + text_offset, gate_coords_c.y - text_offset);
             }
 
             for (let i = 0; i < rocks.length; i++) {
                 const rock = rocks[i];
-                const rcoords = this.to_canvas(this.projection(to_decimal(rock)));
-
+                const rock_coords = this.to_canvas(this.projection(to_decimal(rock)));
 
                 ctx.fillStyle = 'brown';
                 ctx.beginPath();
                 ctx.arc(
-                    rcoords.x, rcoords.y,
+                    rock_coords.x, rock_coords.y,
                     ROCK_SIZE_M * x_scale, 0, 2*Math.PI, 0);
                 ctx.fill();
+
+                const text_offset = -3;
+                ctx.fillStyle = 'white';
+                ctx.fillText(`${i}`, rock_coords.x + text_offset, rock_coords.y - text_offset);
             }
         };
 
@@ -526,9 +517,7 @@ export default {
                 );
 
                 this.set({ waypoints });
-            }
-
-            else if (draw_mode === AR_TAG_MODE) {
+            } else if (draw_mode === AR_TAG_MODE) {
                 let ar_tags = this.get("ar_tags");
 
                 let tag1 = to_dms({lat, lon});
@@ -539,13 +528,9 @@ export default {
                 ar_tags.push([tag1, tag2]);
 
                 this.set({ ar_tags });
-            }
-
-            else if (draw_mode === GATE_MODE) {
+            } else if (draw_mode === GATE_MODE) {
                 let gates = this.get("gates");
                 let angle = this.get("angle");
-
-                console.log("add gate");
 
                 let post_1 = to_dms({lat, lon});
                 post_1.detected = false;
@@ -553,9 +538,7 @@ export default {
                 let post_2 = this.shift_x_meters({lat, lon}, 3, angle);
                 gates.push([post_1, post_2]);
                 this.set({ gates });
-            }
-
-            else if (draw_mode === ROCK_MODE) {
+            } else if (draw_mode === ROCK_MODE) {
                 let rocks = this.get("rocks");
                 rocks.push(to_dms({lat, lon}));
 
@@ -622,29 +605,26 @@ export default {
             }, coords);
         },
 
-    // let lat2 = asin(sin(lat1) * cos(distRadians) + cos(lat1) * sin(distRadians) * cos(bearing))
-    // let lon2 = lon1 + atan2(sin(bearing) * sin(distRadians) * cos(lat1), cos(distRadians) - sin(lat1) * sin(lat2))
-
         shift_x_meters: function({lat, lon}, shift, bearing) {
 
-            let lat1 = lat * Math.PI / 180
-            let lon1 = lon * Math.PI / 180
+            let lat_orig = lat * Math.PI / 180
+            let lon_orig = lon * Math.PI / 180
 
-            var rbearing = bearing * Math.PI / 180.0
+            var bearing_rad = bearing * Math.PI / 180.0
 
-            let distRadians = shift / EARTH_RAD;
+            let dist_radians = shift / EARTH_RAD;
 
-            let lat2 = Math.asin(Math.sin(lat1) * Math.cos(distRadians) + Math.cos(lat1) * Math.sin(distRadians) * Math.cos(rbearing));
-            let lon2 = lon1 + Math.atan2(Math.sin(rbearing) * Math.sin(distRadians) * Math.cos(lat1), Math.cos(distRadians) - Math.sin(lat1) * Math.sin(lat2));
-            lat2 *= 180 / Math.PI;
-            lon2 *= 180 / Math.PI;
+            let lat_shift = Math.asin(Math.sin(lat_orig) * Math.cos(dist_radians) + Math.cos(lat_orig) * Math.sin(dist_radians) * Math.cos(bearing_rad));
+            let lon_shift = lon_orig + Math.atan2(Math.sin(bearing_rad) * Math.sin(dist_radians) * Math.cos(lat_orig), Math.cos(dist_radians) - Math.sin(lat_orig) * Math.sin(lat_shift));
+            lat_shift *= 180 / Math.PI;
+            lon_shift *= 180 / Math.PI;
 
             return {
                 detected: false,
-                latitude_deg: Math.trunc(lat2),
-                latitude_min: (lat2 % 1)*60,
-                longitude_deg: Math.trunc(lon2),
-                longitude_min: (lon2 % 1)*60
+                latitude_deg: Math.trunc(lat_shift),
+                latitude_min: (lat_shift % 1)*60,
+                longitude_deg: Math.trunc(lon_shift),
+                longitude_min: (lon_shift % 1)*60
             };
         },
 
@@ -671,8 +651,6 @@ export default {
             }
 
             const bearing_rad = (90 - bearing_deg) * Math.PI / 180;
-
-            console.log(`moving in the direction ${bearing_rad} radians`);
 
             const vel = TRANSLATIONAL_SCALE * stick.forward_back;
 

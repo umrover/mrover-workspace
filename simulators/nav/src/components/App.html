@@ -16,13 +16,15 @@
 
     <div id="drawmode">
         <DrawModeSelector bind:mode="draw_mode"/>
+        {{#if draw_mode == 3}} <!-- GATE_MODE -->
+            <p><label>
+                Gate Angle (degrees):
+                <input type="number" bind:value="angle"/>
+            </label></p>
+        {{/if}}
         <p><label>
             Field Radius (meters):
             <input type="number" bind:value="radius"/>
-        </label></p>
-        <p><label>
-            Gate Angle (meters):
-            <input type="number" bind:value="angle"/>
         </label></p>
         <p>
             <label>Upload: </label>
@@ -30,7 +32,6 @@
         </p>
         <p>
             <label>Download: </label>
-            <!-- <label for="input-fileName"></label> -->
             <input type="text" class="form-control" id="input-filename" value="textFile" placeholder="Enter file name">
             <input type="button" id="dwn-btn" value="Download"/>
         </p>
@@ -96,15 +97,15 @@
         {{/each}}
 
         {{#each ar_tags as ar_tag, i}}
-        <div class="display ar_tag_display">
+        <div class="display target_display">
             <SimulatedItemDisplay
-                            title="Tag {{ i }}"
+                            title="Target {{ i }}"
                             item="{{ ar_tag[0] }}"
                             rover="{{ odom }}"
                             on:click='splice("ar_tags", i, 1)'>
                 {{#if ar_tag[0].detected}}
                 <b>
-                Found the Tag!
+                Found the Target!
                 </b>
                 {{/if}}
             </SimulatedItemDisplay>
@@ -112,30 +113,44 @@
         {{/each}}
 
         {{#each gates as gate, i}}
-        <div class="display ar_tag_display">
+        <div class="display gate_display">
+            <div class="gate1_display">
             <SimulatedItemDisplay
-                            title="Post {{ i }}, 0"
+                            title="Gate Post {{ i }}, 0"
                             item="{{ gate[0] }}"
                             rover="{{ odom }}"
                             on:click='splice("gates", i, 1)'>
-                {{#if gate[0].detected}}
+                {{#if gate[0].detected && gate[1].detected}}
                 <b>
-                Found the Post!
+                    Found the Gate!
+                </b>
+                {{/if}}
+                {{#if gate[0].detected && !gate[1].detected}}
+                <b>
+                    Found the Post!
                 </b>
                 {{/if}}
             </SimulatedItemDisplay>
+            </div>
 
+            <div class="gate2_display">
             <SimulatedItemDisplay
-                            title="Post {{ i }}, 1"
+                            title="Gate Post {{ i }}, 1"
                             item="{{ gate[1] }}"
                             rover="{{ odom }}"
                             on:click='splice("gates", i, 1)'>
-                {{#if gate[1].detected}}
+                {{#if gate[0].detected && gate[1].detected}}
                 <b>
-                Found the Gate!
+                    Found the Gate!
+                </b>
+                {{/if}}
+                {{#if !gate[0].detected && gate[1].detected}}
+                <b>
+                    Found the Post!
                 </b>
                 {{/if}}
             </SimulatedItemDisplay>
+            </div>
 
         </div>
         {{/each}}
@@ -245,16 +260,13 @@
             handleFileSelect: function(event) {
                 var files = event.target.files;
                 var fname = files[0].name;
-                console.log(fname);
                 var reader = new FileReader();
                 reader.readAsText(files[0]);
                 reader.onload = ((theFile) => {
                     return (e) => {
                         var inputData = e.target.result;
-                        console.log(inputData);
                         var testCaseData = JSON.parse(inputData);
                         app.set(testCaseData);
-                        console.log(app)
                     };
                 })(files[0]);
             },
@@ -328,7 +340,6 @@
 
                     if (this.get("cv_enabled")) {
                         const targets = this.get("ar_tag_state");
-                        console.log("targets fire", targets);
 
                         let target_list = {
                             targetList: _.map(targets, (target) => {
@@ -405,9 +416,25 @@ div + div {
     background-color: darkgreen;
 }
 
-.ar_tag_display {
+.target_display {
     color: black;
     background-color: lightgreen;
+}
+
+.gate_display {
+    padding: 0;
+}
+
+.gate1_display {
+    color: black;
+    background: lightblue;
+    padding: 5px;
+}
+
+.gate2_display {
+    color: black;
+    background: yellow;
+    padding: 5px;
 }
 
 .rock_display {
