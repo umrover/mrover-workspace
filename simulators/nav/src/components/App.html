@@ -15,7 +15,11 @@
     </div>
 
     <div id="drawmode">
-        <DrawModeSelector bind:mode="draw_mode"/>
+        <div id="sim-field-btns">
+            <DrawModeSelector bind:mode="draw_mode"/>
+            <button on:click="reset_rover()" id="rover-reset">Reset Rover</button>
+        </div>
+
         {{#if draw_mode == 3}} <!-- GATE_MODE -->
             <p><label>
                 Gate Angle (degrees):
@@ -185,11 +189,15 @@
     import _ from 'lodash';
     import fnv from 'fnv-plus';
     import { splice } from 'svelte-extras';
-    import SimulatorField from './SimulatorField.html';
-    import DrawModeSelector from './DrawModeSelector.html';
-    import SimulatedItemDisplay from './SimulatedItemDisplay.html';
+
+    // Import custom logic
     import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE, GATE_MODE } from "../constants.js";
     import { to_dms } from '../geography.js';
+
+    // Import custom components
+    import DrawModeSelector from './DrawModeSelector.html';
+    import SimulatedItemDisplay from './SimulatedItemDisplay.html';
+    import SimulatorField from './SimulatorField.html';
 
     const NUM_DIGITS = 7;
     let app;
@@ -289,6 +297,17 @@
                 });
 
                 this.refs.field.apply_joystick(stick);
+            },
+
+            reset_rover: function() {
+                this.set({
+                    odom: Object.assign({}, to_dms({
+                            lat: 39.4,
+                            lon: -110.5
+                        }),
+                        { bearing_deg: 0 }),
+                    enabled: false
+                });
             },
 
             start_odom_events: function() {
@@ -443,5 +462,14 @@ div + div {
 
 #controls {
     background-color: black;
+}
+
+#rover-reset {
+    float: right;
+}
+
+#sim-field-btns {
+    display: inline-block;
+    width: 100%;
 }
 </style>

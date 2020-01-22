@@ -1,4 +1,4 @@
-<div>
+<div id="draw-mode-selector">
     <button disabled="{{ !wp_enabled }}" on:click="selected(WAYPOINT_MODE)">Waypoint</button>
     <button disabled="{{ !rock_enabled }}" on:click="selected(ROCK_MODE)">Rock</button>
     <button disabled="{{ !tag_enabled }}" on:click="selected(AR_TAG_MODE)">AR Tag </button>
@@ -6,6 +6,9 @@
 </div>
 
 <style>
+#draw-mode-selector {
+    float: left;
+}
 </style>
 
 <script>
