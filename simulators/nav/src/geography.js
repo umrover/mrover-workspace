@@ -16,6 +16,9 @@ export function to_decimal({latitude_deg, latitude_min, longitude_deg, longitude
     }
 };
 
+// Finds the distance between two odom objects and the bearing between
+// them from north. Note: this does not take into account the direction
+// that an object (e.g. the rover) is facing.
 export function dist_and_bearing(from, to) {
     const from_lat = from.lat*Math.PI/180;
     const from_lon = from.lon*Math.PI/180;
@@ -64,7 +67,7 @@ export function inv_projection({center_lat, center_lon}, {x, y}) {
 };
 
 export function projection({center_lat, center_lon}, pt) {
-    const { dist, bearing } = dist_and_bearing({ 
+    const { dist, bearing } = dist_and_bearing({
         lat: center_lat,
         lon: center_lon
     }, pt);
