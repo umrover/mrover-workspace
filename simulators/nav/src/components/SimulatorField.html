@@ -30,6 +30,7 @@ const ROCK_SIZE_M = 1.2;
 const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
 const ROVER_DEPTH_OF_VIEW = 10;
 const CV_DEPTH = 5;
+const POST_BLOCKING_ANGLE = 15 * Math.PI/180; // A post behind another post must be at least 15 degrees offset to be visible
 
 const TRANSLATIONAL_SCALE = 1;
 const ROTATIONAL_SCALE = 2;
@@ -94,12 +95,14 @@ export default {
                 {
                     detected: false,
                     distance: -1,
-                    bearing: 0
+                    bearing: 0,
+                    id: -1
                 },
                 {
                     detected: false,
                     distance: -1,
-                    bearing: 0
+                    bearing: 0,
+                    id: -1
                 }
             ];
 
@@ -132,60 +135,97 @@ export default {
             if (!odom) { return; }
             let gates = this.get("gates");
 
-            let gate_detected_idx = -1;
+            // by default we have seen no gates
             let ar_tag_state = [
                 {
                     detected: false,
                     distance: -1,
-                    bearing: 0
+                    bearing: 0,
+                    id: -1
                 },
                 {
                     detected: false,
                     distance: -1,
-                    bearing: 0
+                    bearing: 0,
+                    id: -1
                 }
             ];
 
+            // check to see if any gates are within the our view
             for (let i = 0; i < gates.length; i++) {
-
                 gates[i][0].detected = false;
                 gates[i][1].detected = false;
 
                 const rover_bearing = odom.bearing_deg * Math.PI/180;
 
-                const { dist:dist, bearing:bearing } = dist_and_bearing(
+                // find dist and bearing to first post in gate i
+                let { dist:post1_dist, bearing:post1_bearing } = dist_and_bearing(
                     to_decimal(odom), to_decimal(gates[i][0]));
 
-                const { dist:dist1, bearing:bearing_1 } = dist_and_bearing(
+                // find dist and bearing to second post in gate i
+                let { dist:post2_dist, bearing:post2_bearing } = dist_and_bearing(
                     to_decimal(odom), to_decimal(gates[i][1]));
 
-                if ((dist1) < (dist)) {
-                    let post = gates[i][0];
+                // put the closer post in the first position in gates[i]
+                if (post2_dist < post1_dist) {
+                    const post = gates[i][0];
                     gates[i][0] = gates[i][1];
                     gates[i][1] = post;
+
+                    const dist = post1_dist;
+                    post1_dist = post2_dist;
+                    post2_dist = dist;
+
+                    const bear = post1_bearing;
+                    post1_bearing = post2_bearing;
+                    post2_bearing = bear;
                 }
 
-                if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
+                // Check if the close post is visible (withing field of view and close enough)
+                if (Math.abs(this.calc_rel_bearing(rover_bearing, post1_bearing)) < ROVER_FIELD_OF_VIEW/2 &&
+                        post1_dist < ROVER_DEPTH_OF_VIEW) {
                     gates[i][0].detected = true;
-                    gate_detected_idx = i;
 
                     ar_tag_state[0] = {
-                        distance: dist,
-                        bearing: (bearing - rover_bearing) * 180/Math.PI
+                        distance: post1_dist,
+                        bearing: this.calc_rel_bearing(rover_bearing, post1_bearing) * 180/Math.PI
                     };
                 }
 
-                if (Math.abs(bearing_1 - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist1 < ROVER_DEPTH_OF_VIEW) {
+                // Check if the far post is visible (withing field of view, close enough, and not blocked by the first post)
+                if (Math.abs(this.calc_rel_bearing(rover_bearing, post2_bearing)) < ROVER_FIELD_OF_VIEW/2 &&
+                        post2_dist < ROVER_DEPTH_OF_VIEW &&
+                        Math.abs(this.calc_rel_bearing(post2_bearing, post1_bearing)) > POST_BLOCKING_ANGLE) {
                     gates[i][1].detected = true;
 
                     ar_tag_state[1] = {
-                        distance: dist1,
-                        bearing: (bearing_1 - rover_bearing) * 180/Math.PI
+                        distance: post2_dist,
+                        bearing: this.calc_rel_bearing(rover_bearing, post2_bearing) * 180/Math.PI
                     };
                 }
 
-                if (gate_detected_idx != -1)
-                    break;
+                // If neither post is visible, move on to checking the next gate
+                if (!gates[i][0].detected && !gates[i][1].detected) {
+                    continue;
+                }
+
+                // Swap the order of the posts in ar_tag_state
+                // Case 1: If only the second post is visible because the
+                //         visible post should be in the first position the
+                //         target list lcm
+                // Case 2: If both posts are visible and the left post is in
+                //         the seond position because we need the left to
+                //         appear first in the target list lcm
+                if (!gates[i][0].detected ||
+                    this.calc_rel_bearing(rover_bearing, post2_bearing) < this.calc_rel_bearing(rover_bearing, post1_bearing)) {
+                    const post = ar_tag_state[0];
+                    ar_tag_state[0] = ar_tag_state[1];
+                    ar_tag_state[1] = post;
+                }
+
+                // After finding the first gate, don't bother looking for
+                // any others because we only send one to Nav.
+                break;
             }
             this.set({ ar_tag_state, gates });
         };
@@ -665,6 +705,19 @@ export default {
 
             odom = Object.assign({}, to_dms({lat, lon}), { bearing_deg });
             this.set({ odom });
+        },
+
+        // Calculate the bearing to an object relative to the rover given
+        // the direction the rover is facing and the absolute bearing between
+        // the rover and the object.
+        calc_rel_bearing: function(rover_bearing, absolute_bearing) {
+            let relative_bearing = absolute_bearing - rover_bearing;
+            if (relative_bearing > Math.PI) {
+                relative_bearing -= 2 * Math.PI;
+            } else if (relative_bearing < -Math.PI) {
+                relative_bearing += 2 * Math.PI;
+            }
+            return relative_bearing;
         }
     }
 }
