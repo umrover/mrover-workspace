@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./radio_setup.tcl mrover mrover 10.9.0.3 5 907 -4 station
