@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct DriveVelData {
+	int8_t axis; //0 = frontLeft, 1 = frontRight, 2 = backLeft, 3 = backRight
+	float measuredCurrent; //Amps
+	float estimatedVel; //Encoder Counts per second
+}

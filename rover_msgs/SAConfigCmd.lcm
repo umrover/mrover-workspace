@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct SAConfigCmd {
+	double Kp [3];
+	double Ki [3];
+	double Kd [3];
+}

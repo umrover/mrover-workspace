@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct DriveStateData {
+	int8_t controller; //0 = left, 1 = right
+    int8_t state; //0="Boot", 1="Disarmed", 2="Armed", 3="Calibrating", 4="Error", or 5="Exit"
+}

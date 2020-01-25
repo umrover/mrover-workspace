@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct HandCmd {
+	double finger; //[-1.0,1.0]
+	double grip; //[-1.0,1.0]
+}

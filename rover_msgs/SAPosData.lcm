@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct SAPosData {
+	double angle [3]; //radians
+}

@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct RAPosData {
+	double angle [6];
+}
