@@ -1,5 +1,5 @@
 <div class="simulated-item-display">
-    <h2>{{ title }}</h2>
+    <h2>{{ name }}</h2>
     {{#if closable}}
         <button class="close" on:click="clicked()">x</button>
     {{/if}}
@@ -93,7 +93,9 @@ export default {
             return bearing_from_rover.toFixed(3);
         },
 
-        closable: title => title.match('Gate Post .*, 1') == null
+        closable: title => !title.startsWith('2'),
+
+        name: (title) => title.startsWith('2') ? title.slice(1) : title
     },
     methods: {
         clicked: function() {

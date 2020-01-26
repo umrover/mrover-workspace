@@ -78,3 +78,13 @@ export function projection({center_lat, center_lon}, pt) {
         y: dist * Math.sin(theta_prime)
     };
 };
+
+// Convert an angle from radians on a compass to the
+// equivalent on the simulator field which.
+export function compass_to_computer(angle) {
+    angle -= Math.PI / 2;
+    angle *= -1;
+    angle += 2 * Math.PI;
+    angle %= 2 * Math.PI;
+    return angle;
+};
