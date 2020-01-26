@@ -8,6 +8,8 @@
             bind:gates
             bind:rocks
             bind:angle
+            bind:target1_id
+            bind:target2_id
             bind:ar_tag_state
             bind:obstacle_state
             radius_meters="{{radius}}"
@@ -16,16 +18,14 @@
 
     <div id="drawmode">
         <div id="sim-field-btns">
-            <DrawModeSelector bind:mode="draw_mode"/>
+            <DrawModeModule
+                bind:mode="draw_mode"
+                bind:angle
+                bind:target1_id
+                bind:target2_id/>
             <button on:click="reset_rover()" id="rover-reset">Reset Rover</button>
         </div>
 
-        {{#if draw_mode == 3}} <!-- GATE_MODE -->
-            <p><label>
-                Gate Angle (degrees):
-                <input type="number" bind:value="angle"/>
-            </label></p>
-        {{/if}}
         <p><label>
             Field Radius (meters):
             <input type="number" bind:value="radius"/>
@@ -103,7 +103,7 @@
         {{#each ar_tags as ar_tag, i}}
         <div class="display target_display">
             <SimulatedItemDisplay
-                            title="Target {{ i }}"
+                            title="Target {{ ar_tag[0].id }}"
                             item="{{ ar_tag[0] }}"
                             rover="{{ odom }}"
                             on:click='splice("ar_tags", i, 1)'>
@@ -120,7 +120,7 @@
         <div class="display gate_display">
             <div class="gate1_display">
             <SimulatedItemDisplay
-                            title="Gate Post {{ i }}, 0"
+                            title="Gate Post {{ gate[0].id }}"
                             item="{{ gate[0] }}"
                             rover="{{ odom }}"
                             on:click='splice("gates", i, 1)'>
@@ -139,7 +139,7 @@
 
             <div class="gate2_display">
             <SimulatedItemDisplay
-                            title="Gate Post {{ i }}, 1"
+                            title="2Gate Post {{ gate[1].id }}"
                             item="{{ gate[1] }}"
                             rover="{{ odom }}"
                             on:click='splice("gates", i, 1)'>
@@ -195,7 +195,7 @@
     import { to_dms } from '../geography.js';
 
     // Import custom components
-    import DrawModeSelector from './DrawModeSelector.html';
+    import DrawModeModule from './DrawModeModule.html';
     import SimulatedItemDisplay from './SimulatedItemDisplay.html';
     import SimulatorField from './SimulatorField.html';
 
@@ -227,10 +227,12 @@
                 rocks: [],
 
                 radius: 25,
+
                 angle: 0,
+                target1_id: 1,
+                target2_id: 2,
 
                 test: "<name>",
-
                 current_test: "None",
 
                 ar_tag_state: {
@@ -380,7 +382,7 @@
         },
         components: {
             SimulatorField,
-            DrawModeSelector,
+            DrawModeModule,
             SimulatedItemDisplay
         }
     }

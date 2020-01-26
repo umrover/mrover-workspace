@@ -13,7 +13,8 @@ import {
     to_decimal,
     dist_and_bearing,
     inv_projection as inv_projection_,
-    projection as projection_
+    projection as projection_,
+    compass_to_computer
 } from "../geography.js";
 import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE, GATE_MODE } from "../constants.js";
 import _ from 'lodash';
@@ -395,6 +396,38 @@ export default {
             ctx.stroke();
         };
 
+        // Draw arrow indicating directionality of a gate.
+        const draw_gate_direction_arrow = (tip_loc, posts) => {
+            let { dist:_, bearing:angle } = dist_and_bearing(to_decimal(posts[0]), to_decimal(posts[1]));
+            // Angle should be 90 degrees offset from angle between posts.
+            angle -= Math.PI / 2;
+            // If left post is odd, flip the arrow 180 degrees
+            if (posts[1].id % 2) {
+                angle += Math.PI;
+            }
+            angle %= 2 * Math.PI;
+            // Convert angle from compass to simulator field angle.
+            angle = compass_to_computer(angle);
+
+            // Draw lines to make arrow.
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            // main line
+            const arrow_len = 20;
+            ctx.moveTo(tip_loc.x, tip_loc.y);
+            ctx.lineTo(tip_loc.x + arrow_len * Math.cos(angle), tip_loc.y - arrow_len * Math.sin(angle));
+            // arrow head first half
+            angle += Math.PI / 4;
+            ctx.moveTo(tip_loc.x, tip_loc.y);
+            ctx.lineTo(tip_loc.x + arrow_len / 2 * Math.cos(angle), tip_loc.y - arrow_len / 2 * Math.sin(angle));
+            // arrow head second half
+            angle -= Math.PI / 2;
+            ctx.moveTo(tip_loc.x, tip_loc.y);
+            ctx.lineTo(tip_loc.x + arrow_len / 2 * Math.cos(angle), tip_loc.y - arrow_len / 2 * Math.sin(angle));
+            ctx.stroke();
+        };
+
         const draw = () => {
             const odom = this.get("odom");
             if (!odom) { return; }
@@ -430,6 +463,7 @@ export default {
             // Uncomment this code in to draw the rover's triangle of visibility
             // draw_triangle(odom);
 
+            // Draw waypoints
             for (let i = 0; i < waypoints.length; i++) {
                 const waypoint = waypoints[i];
                 const way_coords = this.to_canvas(this.projection(to_decimal(waypoint)));
@@ -449,6 +483,7 @@ export default {
                 ctx.fillText(`${i}`, way_coords.x + text_offset, way_coords.y - text_offset);
             }
 
+            // Draw targets
             for (let i = 0; i < ar_tags.length; i++) {
                 const tag = ar_tags[i][0];
                 const target_coords = this.to_canvas(this.projection(to_decimal(tag)));
@@ -471,57 +506,59 @@ export default {
                 ctx.stroke();
                 ctx.closePath();
 
+                // Label with ID of target
                 const text_offset = 5;
                 ctx.fillStyle = 'black';
-                ctx.fillText(`${i}`, target_coords.x + text_offset, target_coords.y - text_offset);
+                ctx.fillText(`${tag.id}`, target_coords.x + text_offset, target_coords.y - text_offset);
             }
 
+            // Draw gates
             for (let i = 0; i < gates.length; i++) {
                 const posts = gates[i];
-                const gate_coords_1 = this.to_canvas(this.projection(to_decimal(posts[0])));
-
-                ctx.fillStyle = 'lightblue';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 1;
-
                 const bearing = 0;
                 const side = 12;
                 const h = side * (Math.sqrt(3)/2);
+                ctx.fillStyle = 'lightblue'; /* for the first post */
 
-                ctx.beginPath();
-                ctx.moveTo(gate_coords_1.x, -h / 2 + gate_coords_1.y);
-                ctx.lineTo( -side / 2 + gate_coords_1.x , h / 2 + gate_coords_1.y);
-                ctx.lineTo(side / 2 + gate_coords_1.x, h / 2 + gate_coords_1.y);
-                ctx.lineTo(gate_coords_1.x, -h / 2 + gate_coords_1.y);
+                let arrow_coords = {x: 0, y: 0};
 
-                ctx.fill();
-                ctx.stroke();
-                ctx.closePath();
+                for( let j = 0; j < 2; j++ ) {
+                    const gate_coords = this.to_canvas(this.projection(to_decimal(posts[j])));
+                    arrow_coords.x += gate_coords.x;
+                    arrow_coords.y += gate_coords.y;
 
-                const gate_coords_2 = this.to_canvas(this.projection(to_decimal(posts[1])));
+                    const bearing = 0;
+                    const side = 12;
+                    const h = side * (Math.sqrt(3)/2);
 
-                ctx.fillStyle = 'yellow';
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(gate_coords.x, -h / 2 + gate_coords.y);
+                    ctx.lineTo( -side / 2 + gate_coords.x , h / 2 + gate_coords.y);
+                    ctx.lineTo(side / 2 + gate_coords.x, h / 2 + gate_coords.y);
+                    ctx.lineTo(gate_coords.x, -h / 2 + gate_coords.y);
 
-                ctx.beginPath();
-                ctx.moveTo(gate_coords_2.x, -h / 2 + gate_coords_2.y);
-                ctx.lineTo( -side / 2 + gate_coords_2.x , h / 2 + gate_coords_2.y);
-                ctx.lineTo(side / 2 + gate_coords_2.x, h / 2 + gate_coords_2.y);
-                ctx.lineTo(gate_coords_2.x, -h / 2 + gate_coords_2.y);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.closePath();
 
-                ctx.fill();
-                ctx.stroke();
-                ctx.closePath();
+                    // Label with ID of first
+                    const text_offset = 5;
+                    ctx.fillStyle = 'black';
+                    ctx.fillText(`${posts[j].id}`, gate_coords.x + text_offset, gate_coords.y - text_offset);
 
-                let gate_coords_c = gate_coords_1;
-                const text_offset = -2;
-                gate_coords_c.x = (gate_coords_1.x + gate_coords_2.x) / 2;
-                gate_coords_c.y = (gate_coords_1.y + gate_coords_2.y) / 2;
-                ctx.fillStyle = 'black';
-                ctx.fillText(`${i}`, gate_coords_c.x + text_offset, gate_coords_c.y - text_offset);
+                    ctx.fillStyle = 'yellow'; /* set for the second post */
+                }
+
+                // Draw arrow to indicate the correct direction.
+                // Note that this is only based on the even/odd-ness of the first post
+                arrow_coords.x /= 2;
+                arrow_coords.y /= 2;
+                draw_gate_direction_arrow(arrow_coords, posts);
             }
 
+            // Draw rocks
             for (let i = 0; i < rocks.length; i++) {
                 const rock = rocks[i];
                 const rock_coords = this.to_canvas(this.projection(to_decimal(rock)));
@@ -562,6 +599,7 @@ export default {
 
                 let tag1 = to_dms({lat, lon});
                 tag1.detected = false;
+                tag1.id = this.get("target1_id");
                 let tag2 = to_dms({lat, lon});
                 tag2.detected = false;
 
@@ -570,13 +608,16 @@ export default {
                 this.set({ ar_tags });
             } else if (draw_mode === GATE_MODE) {
                 let gates = this.get("gates");
-                let angle = this.get("angle");
+                const angle = this.get("angle");
 
-                let post_1 = to_dms({lat, lon});
-                post_1.detected = false;
+                let post1 = to_dms({lat, lon});
+                post1.detected = false;
+                post1.id = this.get("target1_id");
 
-                let post_2 = this.shift_x_meters({lat, lon}, 3, angle);
-                gates.push([post_1, post_2]);
+                let post2 = this.shift_x_meters({lat, lon}, 3, angle);
+                post2.id = this.get("target2_id");
+
+                gates.push([post1, post2]);
                 this.set({ gates });
             } else if (draw_mode === ROCK_MODE) {
                 let rocks = this.get("rocks");
@@ -718,7 +759,7 @@ export default {
                 relative_bearing += 2 * Math.PI;
             }
             return relative_bearing;
-        }
+        },
     }
 }
 </script>
