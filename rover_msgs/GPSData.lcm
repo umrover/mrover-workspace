@@ -1,0 +1,14 @@
+package rover_msgs;
+
+struct GPSData {
+	double timeStamp;
+	double latitude;
+	byte latitudeDirection;
+	double longitude;
+	byte longitudeDirection;
+	int32_t quality;
+	double altitude;
+	double groundSpeed;
+	double trackAngle;
+	int16_t satellitesInView;
+}
