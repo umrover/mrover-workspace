@@ -488,7 +488,7 @@ export default {
                 const tag = ar_tags[i][0];
                 const target_coords = this.to_canvas(this.projection(to_decimal(tag)));
 
-                ctx.fillStyle = 'lightgreen';
+                ctx.fillStyle = 'violet';
                 ctx.strokeStyle = 'black';
                 ctx.lineWidth = 1;
 
@@ -563,7 +563,7 @@ export default {
                 const rock = rocks[i];
                 const rock_coords = this.to_canvas(this.projection(to_decimal(rock)));
 
-                ctx.fillStyle = 'brown';
+                ctx.fillStyle = 'sienna';
                 ctx.beginPath();
                 ctx.arc(
                     rock_coords.x, rock_coords.y,

@@ -26,6 +26,15 @@
             <button on:click="reset_rover()" id="rover-reset">Reset Rover</button>
         </div>
 
+        <div class="radio-signal {{get_radio_strength_class(radio_signal)}}">
+            <p id="radio-signal-value">Radio Signal Strength: {{radio_signal}}</p>
+            <input type="number" bind:value="radio_signal_input"
+                   on:change="valid_signal_strength()"/>
+            <button disabled="{{ !is_valid_signal_strength }}" on:click="update_signal_strength()">
+                Update Signal Strength
+            </button>
+        </div>
+
         <p><label>
             Field Radius (meters):
             <input type="number" bind:value="radius"/>
@@ -191,7 +200,9 @@
     import { splice } from 'svelte-extras';
 
     // Import custom logic
-    import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE, GATE_MODE } from "../constants.js";
+    import { WAYPOINT_MODE,
+             MIN_RADIO_SIGNAL_STRENGTH, MAX_RADIO_SIGNAL_STRENGTH,
+             RADIO_REPEATER_THRESHOLD } from "../constants.js";
     import { to_dms } from '../geography.js';
 
     // Import custom components
@@ -226,6 +237,9 @@
                 gates: [],
                 rocks: [],
 
+                radio_signal: 100,
+                radio_signal_input: 100,
+                is_valid_signal_strength: true,
                 radius: 25,
 
                 angle: 0,
@@ -233,7 +247,6 @@
                 target2_id: 2,
 
                 test: "<name>",
-                current_test: "None",
 
                 ar_tag_state: {
                     detected: false,
@@ -312,6 +325,19 @@
                 });
             },
 
+            update_signal_strength: function() {
+                this.set({
+                    radio_signal: this.get("radio_signal_input")
+                });
+            },
+
+            valid_signal_strength: function() {
+                this.set({
+                    is_valid_signal_strength: this.get("radio_signal_input") >= MIN_RADIO_SIGNAL_STRENGTH &&
+                                              this.get("radio_signal_input") <= MAX_RADIO_SIGNAL_STRENGTH
+                });
+            },
+
             start_odom_events: function() {
                 window.setInterval(() => {
                     this.fire("auton", {
@@ -359,6 +385,10 @@
                     course.hash = fnv.fast1a52(JSON.stringify(course));
                     this.fire("course", course);
 
+                    this.fire("radio", {
+                        signal_strength: this.get('radio_signal').toFixed(2)
+                    });
+
                     if (this.get("cv_enabled")) {
                         const targets = this.get("ar_tag_state");
 
@@ -380,6 +410,16 @@
             },
             splice
         },
+
+        helpers: {
+            get_radio_strength_class: function(radio_signal) {
+                if (radio_signal < RADIO_REPEATER_THRESHOLD) {
+                    return 'radio-signal-weak';
+                }
+                return 'radio-signal-strong';
+            }
+        },
+
         components: {
             SimulatorField,
             DrawModeModule,
@@ -439,7 +479,7 @@ div + div {
 
 .target_display {
     color: black;
-    background-color: lightgreen;
+    background-color: violet;
 }
 
 .gate_display {
@@ -459,7 +499,7 @@ div + div {
 }
 
 .rock_display {
-    background-color: brown;
+    background-color: sienna;
 }
 
 #controls {
@@ -473,5 +513,21 @@ div + div {
 #sim-field-btns {
     display: inline-block;
     width: 100%;
+}
+
+.radio-signal * {
+    display: inline-block;
+}
+
+#radio-signal-value {
+    width: 200px;
+}
+
+.radio-signal-weak {
+    background: salmon;
+}
+
+.radio-signal-strong {
+    background: lightgreen;
 }
 </style>
