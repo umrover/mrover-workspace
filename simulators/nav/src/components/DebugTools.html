@@ -1,0 +1,62 @@
+<div id="debug-tools">
+    <button on:click="reset_rover()" id="rover-reset">Reset Rover</button>
+    <br>
+    <button on:click="play_pause()" id="play-pause">
+        {{#if paused}}Play{{else}}Pause{{/if}}
+    </button>
+    <br>
+    <button on:click="take_step()" disabled="{{!paused}}">Step</button>
+</div>
+
+<style type="text/css">
+#debug-tools {
+    float: right;
+}
+
+button {
+    width: 80px;
+}
+</style>
+
+<script type="text/javascript">
+    import { to_dms } from '../geography.js';
+
+    export default {
+        methods: {
+            reset_rover: function() {
+                this.set({
+                    odom: Object.assign({}, to_dms({
+                            lat: 39.4,
+                            lon: -110.5
+                        }),
+                        { bearing_deg: 0 }),
+                    enabled: false
+                });
+            },
+
+            play_pause: function() {
+                let odom = this.get("odom");
+                // Force the state machine to start again
+                // CUATION: This is based on how the state machine
+                // decided to run a loop when odom data has changed
+                odom.latitude_min += 0.000000001;
+                this.set({
+                    paused: !this.get('paused'),
+                    odom: odom
+                });
+            },
+
+            take_step: function() {
+                let odom = this.get("odom");
+                // Force the state machine to start again
+                // CUATION: This is based on how the state machine
+                // decided to run a loop when odom data has changed
+                odom.latitude_min += 0.000000001;
+                this.set({
+                    take_step: true,
+                    odom: odom
+                });
+            }
+        },
+    }
+</script>
