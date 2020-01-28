@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct RadioSignalStrength {
+    float signal_strength;
+}

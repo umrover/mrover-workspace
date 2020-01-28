@@ -90,4 +90,11 @@ app.on("obstacle", (obstacle) => {
     }
 })
 
+app.on("radio", (signal) => {
+    if (bridge.online) {
+        signal.type = 'RadioSignalStrength';
+        bridge.publish("/radio", signal);
+    }
+})
+
 app.start_odom_events();
