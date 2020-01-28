@@ -23,7 +23,7 @@
                 bind:angle
                 bind:target1_id
                 bind:target2_id/>
-            <button on:click="reset_rover()" id="rover-reset">Reset Rover</button>
+            <DebugTools bind:enabled bind:odom bind:paused bind:take_step/>
         </div>
 
         <div class="radio-signal {{get_radio_strength_class(radio_signal)}}">
@@ -206,6 +206,7 @@
     import { to_dms } from '../geography.js';
 
     // Import custom components
+    import DebugTools from './DebugTools.html'
     import DrawModeModule from './DrawModeModule.html';
     import SimulatedItemDisplay from './SimulatedItemDisplay.html';
     import SimulatorField from './SimulatorField.html';
@@ -271,6 +272,9 @@
 
                 enabled: false,
                 cv_enabled: true,
+
+                paused: false,
+                take_step: false
             }
         },
 
@@ -306,23 +310,15 @@
             },
 
             apply_joystick: function(stick) {
-                this.set({
-                    forward_back: stick.forward_back,
-                    left_right: stick.left_right
-                });
+                if (!this.get('paused') || this.get('take_step')) {
+                    this.set({
+                        take_step: false,
+                        forward_back: stick.forward_back,
+                        left_right: stick.left_right,
+                    });
 
-                this.refs.field.apply_joystick(stick);
-            },
-
-            reset_rover: function() {
-                this.set({
-                    odom: Object.assign({}, to_dms({
-                            lat: 39.4,
-                            lon: -110.5
-                        }),
-                        { bearing_deg: 0 }),
-                    enabled: false
-                });
+                    this.refs.field.apply_joystick(stick);
+                }
             },
 
             update_signal_strength: function() {
@@ -386,7 +382,7 @@
                     this.fire("course", course);
 
                     this.fire("radio", {
-                        signal_strength: this.get('radio_signal').toFixed(2)
+                        signal_strength: this.get('radio_signal')
                     });
 
                     if (this.get("cv_enabled")) {
@@ -422,6 +418,7 @@
 
         components: {
             SimulatorField,
+            DebugTools,
             DrawModeModule,
             SimulatedItemDisplay
         }
@@ -504,10 +501,6 @@ div + div {
 
 #controls {
     background-color: black;
-}
-
-#rover-reset {
-    float: right;
 }
 
 #sim-field-btns {
