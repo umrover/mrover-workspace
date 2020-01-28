@@ -110,7 +110,7 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
     if( phoebe->roverStatus().target().distance >= 0 )
     {
         updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
-                                              phoebe->roverStatus().odometry().bearing_deg );
+                                       phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
     if( !started )
@@ -254,7 +254,7 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.clear();
-        phoebe->roverStatus().path().pop();
+        phoebe->roverStatus().path().pop_front();
         roverStateMachine->updateCompletedPoints();
         return NavState::Turn;
     }

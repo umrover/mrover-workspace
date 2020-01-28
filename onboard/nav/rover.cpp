@@ -32,7 +32,7 @@ Course& Rover::RoverStatus::course()
 } // course()
 
 // Gets a reference to the rover's path.
-queue<Waypoint>& Rover::RoverStatus::path()
+deque<Waypoint>& Rover::RoverStatus::path()
 {
     return mPath;
 } // path()
@@ -59,6 +59,10 @@ Target& Rover::RoverStatus::target2() {
     return mTarget2;
 }
 
+RadioSignalStrength& Rover::RoverStatus::radio() {
+    return mSignal;
+}
+
 unsigned Rover::RoverStatus::getPathTargets()
 {
   return mPathTargets;
@@ -74,12 +78,12 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
 
     while( !mPath.empty() )
     {
-        mPath.pop();
+        mPath.pop_front();
     }
     for( int courseIndex = 0; courseIndex < mCourse.num_waypoints; ++courseIndex )
     {
         auto &wp = mCourse.waypoints[ courseIndex ];
-        mPath.push( wp );
+        mPath.push_back( wp );
         if (wp.search) {
             ++mPathTargets;
         }
@@ -88,6 +92,7 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     mOdometry = newRoverStatus.odometry();
     mTarget1 = newRoverStatus.target();
     mTarget2 = newRoverStatus.target2();
+    mSignal = newRoverStatus.radio();
     return *this;
 } // operator=
 
@@ -237,8 +242,11 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.target() = newRoverStatus.target();
+            mRoverStatus.radio() = newRoverStatus.radio();
+            updateRepeater(mRoverStatus.radio());
             return true;
         }
+
         return false;
     }
 
@@ -263,6 +271,39 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
 const double Rover::longMeterInMinutes() const
 {
     return mLongMeterInMinutes;
+}
+
+// Executes the logic starting the clock to time how long it's been
+// since the rover has gotten a strong radio signal. If the signal drops
+// below the signalStrengthCutOff and the timer hasn't started, begin the clock.
+// Otherwise, the signal is good so the timer should be stopped.
+void Rover::updateRepeater(RadioSignalStrength& radioSignal)
+{
+    static bool started = false;
+    static time_t startTime;
+
+    if( !started &&
+        radioSignal.signal_strength <=
+        mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble())
+    {
+        startTime = time( nullptr );
+        started = true;
+    }
+
+    double waitTime = mRoverConfig[ "radioRepeaterThresholds" ][ "lowSignalWaitTime" ].GetDouble();
+    if( difftime( time( nullptr ), startTime ) > waitTime )
+    {
+        started = false;
+        mTimeToDropRepeater = true;
+    }
+}
+
+// Returns whether or not enough time has passed to drop a radio repeater.
+// If it has been longer than the lowSignalWaitTime since a good signal strength,
+// return true. Otherwise, it is not time yet and we should keep waiting and return false.
+bool Rover::isTimeToDropRepeater()
+{
+    return mTimeToDropRepeater;
 }
 
 // Gets the rover's status object.

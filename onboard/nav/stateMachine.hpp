@@ -36,6 +36,8 @@ public:
 
     void updateRoverStatus( TargetList targetList );
 
+    void updateRoverStatus( RadioSignalStrength radioSignalStrength );
+
     void updateCompletedPoints( );
 
     void updateObstacleAngle( double bearing );
@@ -43,6 +45,8 @@ public:
     void updateObstacleDistance( double distance );
 
     void updateObstacleElements( double bearing, double distance );
+
+    void updateRepeaterComplete( );
 
     void setSearcher(SearchType type);
 
@@ -62,6 +66,8 @@ private:
 
     NavState executeDrive();
 
+    NavState executeRepeaterDropWait();
+
     NavState executeSearch();
 
     void initializeSearch();
@@ -77,6 +83,10 @@ private:
     double getOptimalAvoidanceDistance() const;
 
     bool isWaypointReachable( double distance );
+
+    bool isAddRepeaterDropPoint() const;
+
+    void AddRepeaterDropPoint();
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -98,6 +108,9 @@ private:
 
     // Number of waypoints completed.
     unsigned mCompletedWaypoints;
+
+    // Bool of whether radio repeater has been dropped.
+    bool mRepeaterDropComplete = false;
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;
