@@ -115,10 +115,10 @@ void throughZero( double& destinationBearing, const double currentBearing )
 } // throughZero()
 
 // Clears the queue.
-void clear( queue<Waypoint>& aQueue )
+void clear( deque<Waypoint>& aDeque )
 {
-    queue<Waypoint> emptyQueue;
-    swap( aQueue, emptyQueue );
+    deque<Waypoint> emptyDeque;
+    swap( aDeque, emptyDeque );
 } // clear()
 
 

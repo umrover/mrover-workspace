@@ -1,7 +1,7 @@
 #ifndef NAV_UTILITES
 #define NAV_UTILITES
 
-#include <queue>
+#include <deque>
 #include "rover_msgs/Waypoint.hpp"
 #include "rover_msgs/Odometry.hpp"
 #include "rover.hpp"
@@ -30,7 +30,7 @@ double mod( const double degree, const int modulus );
 
 void throughZero( double& destinationBearing, const double currentBearing );
 
-void clear( queue<Waypoint>& aQueue );
+void clear( deque<Waypoint>& aDeque );
 
 bool isTargetReachable( Rover* phoebe, const rapidjson::Document& roverConfig );
 
