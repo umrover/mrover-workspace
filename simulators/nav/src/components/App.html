@@ -15,7 +15,10 @@
             radius_meters="{{radius}}"
             mode="{{draw_mode}}"
             bind:repeater_dropped
-            bind:repeater_loc/>
+            bind:repeater_loc
+            bind:translational_speed
+            bind:rotational_speed
+            bind:gate_width/>
     </div>
 
     <div id="drawmode">
@@ -24,8 +27,19 @@
                 bind:mode="draw_mode"
                 bind:angle
                 bind:target1_id
-                bind:target2_id/>
-            <DebugTools bind:enabled bind:odom bind:paused bind:take_step/>
+                bind:target2_id
+                bind:gate_width/>
+            <DebugTools bind:enabled
+                        bind:odom
+                        bind:paused
+                        bind:take_step
+                        bind:translational_speed
+                        bind:rotational_speed
+                        bind:waypoints
+                        bind:ar_tags
+                        bind:gates
+                        bind:rocks
+                        bind:repeater_dropped/>
         </div>
 
         <div class="radio-signal {{get_radio_strength_class(radio_signal)}}">
@@ -259,6 +273,7 @@
                 angle: 0,
                 target1_id: 1,
                 target2_id: 2,
+                gate_width: 3, // meters
 
                 test: "<name>",
 
@@ -287,7 +302,9 @@
                 cv_enabled: true,
 
                 paused: false,
-                take_step: false
+                take_step: false,
+                translational_speed: 1,
+                rotational_speed: 2
             }
         },
 

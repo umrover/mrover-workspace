@@ -36,7 +36,10 @@
         <button disabled="{{gate_enabled}}" on:click="flip_target_ids()">
             Flip Target IDs
         </button>
-        <br>
+        <div class="{{gate_enabled ? 'disabled' : '' }}">
+            <label>Gate Width: {{gate_width}} meters</label>
+            <input type="range" disabled="{{gate_enabled}}" bind:value="gate_width" min="2" max="3">
+        </div>
         <div class="{{gate_enabled ? 'disabled' : '' }} tooltip-container">
             <label class="tooltip">
             Gate Angle (degrees):

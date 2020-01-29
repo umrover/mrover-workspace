@@ -1,16 +1,39 @@
-<div id="debug-tools">
+<fieldset id="debug-tools">
+    <legend>Debug Tools</legend>
     <button on:click="reset_rover()" id="rover-reset">Reset Rover</button>
+    <button on:click="clear_field()">Clear Field</button>
     <br>
     <button on:click="play_pause()" id="play-pause">
         {{#if paused}}Play{{else}}Pause{{/if}}
     </button>
-    <br>
     <button on:click="take_step()" disabled="{{!paused}}">Step</button>
-</div>
+    <br>
+    <div>
+        <label>Translational Speed: {{translational_speed}}</label>
+        <br>
+        <input id="transl-slider" type="range" bind:value="translational_speed" min="0" step="0.5" max="5"/>
+    </div>
+    <br>
+    <div>
+        <label>Rotational Speed: {{rotational_speed}}</label>
+        <br>
+        <input id="rotate-slider" type="range" bind:value="rotational_speed" min="0" step="0.5" max="5"/>
+    </div>
+</fieldset>
 
 <style type="text/css">
 #debug-tools {
     float: right;
+    border-radius: 10px;
+    width: 200px;
+}
+
+#rotate-slider {
+    width: 100%;
+}
+
+#transl-slider {
+    width: 100%;
 }
 
 button {
@@ -31,6 +54,16 @@ button {
                         }),
                         { bearing_deg: 0 }),
                     enabled: false
+                });
+            },
+
+            clear_field: function() {
+                this.set({
+                    waypoints: [],
+                    ar_tags: [],
+                    gates: [],
+                    rocks: [],
+                    repeater_dropped: false
                 });
             },
 
