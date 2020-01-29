@@ -8,6 +8,8 @@
             bind:gates
             bind:rocks
             bind:angle
+            bind:target1_id
+            bind:target2_id
             bind:ar_tag_state
             bind:obstacle_state
             radius_meters="{{radius}}"
@@ -15,13 +17,24 @@
     </div>
 
     <div id="drawmode">
-        <DrawModeSelector bind:mode="draw_mode"/>
-        {{#if draw_mode == 3}} <!-- GATE_MODE -->
-            <p><label>
-                Gate Angle (degrees):
-                <input type="number" bind:value="angle"/>
-            </label></p>
-        {{/if}}
+        <div id="sim-field-btns">
+            <DrawModeModule
+                bind:mode="draw_mode"
+                bind:angle
+                bind:target1_id
+                bind:target2_id/>
+            <DebugTools bind:enabled bind:odom bind:paused bind:take_step/>
+        </div>
+
+        <div class="radio-signal {{get_radio_strength_class(radio_signal)}}">
+            <p id="radio-signal-value">Radio Signal Strength: {{radio_signal}}</p>
+            <input type="number" bind:value="radio_signal_input"
+                   on:change="valid_signal_strength()"/>
+            <button disabled="{{ !is_valid_signal_strength }}" on:click="update_signal_strength()">
+                Update Signal Strength
+            </button>
+        </div>
+
         <p><label>
             Field Radius (meters):
             <input type="number" bind:value="radius"/>
@@ -99,7 +112,7 @@
         {{#each ar_tags as ar_tag, i}}
         <div class="display target_display">
             <SimulatedItemDisplay
-                            title="Target {{ i }}"
+                            title="Target {{ ar_tag[0].id }}"
                             item="{{ ar_tag[0] }}"
                             rover="{{ odom }}"
                             on:click='splice("ar_tags", i, 1)'>
@@ -116,7 +129,7 @@
         <div class="display gate_display">
             <div class="gate1_display">
             <SimulatedItemDisplay
-                            title="Gate Post {{ i }}, 0"
+                            title="Gate Post {{ gate[0].id }}"
                             item="{{ gate[0] }}"
                             rover="{{ odom }}"
                             on:click='splice("gates", i, 1)'>
@@ -135,7 +148,7 @@
 
             <div class="gate2_display">
             <SimulatedItemDisplay
-                            title="Gate Post {{ i }}, 1"
+                            title="2Gate Post {{ gate[1].id }}"
                             item="{{ gate[1] }}"
                             rover="{{ odom }}"
                             on:click='splice("gates", i, 1)'>
@@ -185,11 +198,18 @@
     import _ from 'lodash';
     import fnv from 'fnv-plus';
     import { splice } from 'svelte-extras';
-    import SimulatorField from './SimulatorField.html';
-    import DrawModeSelector from './DrawModeSelector.html';
-    import SimulatedItemDisplay from './SimulatedItemDisplay.html';
-    import { WAYPOINT_MODE, ROCK_MODE, AR_TAG_MODE, GATE_MODE } from "../constants.js";
+
+    // Import custom logic
+    import { WAYPOINT_MODE,
+             MIN_RADIO_SIGNAL_STRENGTH, MAX_RADIO_SIGNAL_STRENGTH,
+             RADIO_REPEATER_THRESHOLD } from "../constants.js";
     import { to_dms } from '../geography.js';
+
+    // Import custom components
+    import DebugTools from './DebugTools.html'
+    import DrawModeModule from './DrawModeModule.html';
+    import SimulatedItemDisplay from './SimulatedItemDisplay.html';
+    import SimulatorField from './SimulatorField.html';
 
     const NUM_DIGITS = 7;
     let app;
@@ -218,12 +238,16 @@
                 gates: [],
                 rocks: [],
 
+                radio_signal: 100,
+                radio_signal_input: 100,
+                is_valid_signal_strength: true,
                 radius: 25,
+
                 angle: 0,
+                target1_id: 1,
+                target2_id: 2,
 
                 test: "<name>",
-
-                current_test: "None",
 
                 ar_tag_state: {
                     detected: false,
@@ -248,6 +272,9 @@
 
                 enabled: false,
                 cv_enabled: true,
+
+                paused: false,
+                take_step: false
             }
         },
 
@@ -283,12 +310,28 @@
             },
 
             apply_joystick: function(stick) {
-                this.set({
-                    forward_back: stick.forward_back,
-                    left_right: stick.left_right
-                });
+                if (!this.get('paused') || this.get('take_step')) {
+                    this.set({
+                        take_step: false,
+                        forward_back: stick.forward_back,
+                        left_right: stick.left_right,
+                    });
 
-                this.refs.field.apply_joystick(stick);
+                    this.refs.field.apply_joystick(stick);
+                }
+            },
+
+            update_signal_strength: function() {
+                this.set({
+                    radio_signal: this.get("radio_signal_input")
+                });
+            },
+
+            valid_signal_strength: function() {
+                this.set({
+                    is_valid_signal_strength: this.get("radio_signal_input") >= MIN_RADIO_SIGNAL_STRENGTH &&
+                                              this.get("radio_signal_input") <= MAX_RADIO_SIGNAL_STRENGTH
+                });
             },
 
             start_odom_events: function() {
@@ -338,6 +381,10 @@
                     course.hash = fnv.fast1a52(JSON.stringify(course));
                     this.fire("course", course);
 
+                    this.fire("radio", {
+                        signal_strength: this.get('radio_signal')
+                    });
+
                     if (this.get("cv_enabled")) {
                         const targets = this.get("ar_tag_state");
 
@@ -359,9 +406,20 @@
             },
             splice
         },
+
+        helpers: {
+            get_radio_strength_class: function(radio_signal) {
+                if (radio_signal < RADIO_REPEATER_THRESHOLD) {
+                    return 'radio-signal-weak';
+                }
+                return 'radio-signal-strong';
+            }
+        },
+
         components: {
             SimulatorField,
-            DrawModeSelector,
+            DebugTools,
+            DrawModeModule,
             SimulatedItemDisplay
         }
     }
@@ -418,7 +476,7 @@ div + div {
 
 .target_display {
     color: black;
-    background-color: lightgreen;
+    background-color: violet;
 }
 
 .gate_display {
@@ -438,10 +496,31 @@ div + div {
 }
 
 .rock_display {
-    background-color: brown;
+    background-color: sienna;
 }
 
 #controls {
     background-color: black;
+}
+
+#sim-field-btns {
+    display: inline-block;
+    width: 100%;
+}
+
+.radio-signal * {
+    display: inline-block;
+}
+
+#radio-signal-value {
+    width: 200px;
+}
+
+.radio-signal-weak {
+    background: salmon;
+}
+
+.radio-signal-strong {
+    background: lightgreen;
 }
 </style>
