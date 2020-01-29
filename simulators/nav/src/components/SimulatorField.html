@@ -520,7 +520,6 @@ export default {
                 const bearing = 0;
                 const side = 12;
                 const h = side * (Math.sqrt(3)/2);
-                ctx.fillStyle = 'lightblue'; /* for the first post */
 
                 let arrow_coords = {x: 0, y: 0};
 
@@ -533,6 +532,11 @@ export default {
                     const side = 12;
                     const h = side * (Math.sqrt(3)/2);
 
+                    if (posts[j].id % 2) {
+                        ctx.fillStyle = 'yellow';
+                    } else  {
+                        ctx.fillStyle = 'lightblue';
+                    }
                     ctx.beginPath();
                     ctx.moveTo(gate_coords.x, -h / 2 + gate_coords.y);
                     ctx.lineTo( -side / 2 + gate_coords.x , h / 2 + gate_coords.y);
@@ -547,8 +551,6 @@ export default {
                     const text_offset = 5;
                     ctx.fillStyle = 'black';
                     ctx.fillText(`${posts[j].id}`, gate_coords.x + text_offset, gate_coords.y - text_offset);
-
-                    ctx.fillStyle = 'yellow'; /* set for the second post */
                 }
 
                 // Draw arrow to indicate the correct direction.

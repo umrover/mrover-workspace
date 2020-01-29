@@ -134,7 +134,7 @@
 
         {{#each gates as gate, i}}
         <div class="display gate_display">
-            <div class="gate1_display">
+            <div class="{{get_gate_post_class(gate[0].id)}}">
             <SimulatedItemDisplay
                             title="Gate Post {{ gate[0].id }}"
                             item="{{ gate[0] }}"
@@ -153,7 +153,7 @@
             </SimulatedItemDisplay>
             </div>
 
-            <div class="gate2_display">
+            <div class="{{get_gate_post_class(gate[1].id)}}">
             <SimulatedItemDisplay
                             title="2Gate Post {{ gate[1].id }}"
                             item="{{ gate[1] }}"
@@ -444,6 +444,13 @@
                     return 'radio-signal-weak';
                 }
                 return 'radio-signal-strong';
+            },
+
+            get_gate_post_class: function(id) {
+                if (id % 2) {
+                    return 'gate2_display';
+                }
+                return 'gate1_display';
             }
         },
 
@@ -512,16 +519,15 @@ div + div {
 
 .gate_display {
     padding: 0;
+    color: black;
 }
 
 .gate1_display {
-    color: black;
     background: lightblue;
     padding: 5px;
 }
 
 .gate2_display {
-    color: black;
     background: yellow;
     padding: 5px;
 }

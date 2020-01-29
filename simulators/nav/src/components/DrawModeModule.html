@@ -8,38 +8,43 @@
     </div>
     <br>
     <div id="draw-mode-options">
-        <div class="{{mode != GATE_MODE && mode != AR_TAG_MODE ? 'disabled' : '' }} tooltip-container">
-            <label class="tooltip">
-            Target 1 ID:
-                {{#if mode == GATE_MODE}}
-                <span class="tooltiptext tooltiptext-below">
-                    Even and odd numbered tags correspond to the left and right sides of a gate respectively.
-                </span>
-                {{/if}}
-            </label>
-            <input disabled="{{mode != GATE_MODE && mode != AR_TAG_MODE}}" type="number" bind:value="target1_id" min="0"/>
+        <div class="target-ids">
+            <div class="{{gate_enabled && tag_enabled ? 'disabled' : '' }} tooltip-container">
+                <label class="tooltip">
+                Target 1 ID:
+                    {{#if !gate_enabled}}
+                    <span class="tooltiptext tooltiptext-below">
+                        Even and odd numbered tags correspond to the left and right sides of a gate respectively.
+                    </span>
+                    {{/if}}
+                </label>
+                <input disabled="{{gate_enabled && tag_enabled}}" type="number" bind:value="target1_id" min="0"/>
+            </div>
+            <br>
+            <div class="{{gate_enabled ? 'disabled' : '' }} tooltip-container">
+                <label class="tooltip">
+                Target 2 ID:
+                    {{#if !gate_enabled}}
+                    <span class="tooltiptext tooltiptext-below">
+                        Even and odd numbered tags correspond to the left and right sides of a gate respectively.
+                    </span>
+                    {{/if}}
+                </label>
+                <input disabled="{{gate_enabled}}" type="number" bind:value="target2_id" min="0"/>
+            </div>
         </div>
+        <button disabled="{{gate_enabled}}" on:click="flip_target_ids()">
+            Flip Target IDs
+        </button>
         <br>
-        <div class="{{mode != GATE_MODE ? 'disabled' : '' }} tooltip-container">
-            <label class="tooltip">
-            Target 2 ID:
-                {{#if mode == GATE_MODE}}
-                <span class="tooltiptext tooltiptext-below">
-                    Even and odd numbered tags correspond to the left and right sides of a gate respectively.
-                </span>
-                {{/if}}
-            </label>
-            <input disabled="{{mode != GATE_MODE}}" type="number" bind:value="target2_id" min="0"/>
-        </div>
-        <br>
-        <div class="{{mode != GATE_MODE ? 'disabled' : '' }} tooltip-container">
+        <div class="{{gate_enabled ? 'disabled' : '' }} tooltip-container">
             <label class="tooltip">
             Gate Angle (degrees):
-                {{#if mode == GATE_MODE}}
+                {{#if !gate_enabled}}
                 <span class="tooltiptext tooltiptext-below">Angle from North</span>
                 {{/if}}
             </label>
-            <input disabled="{{mode != GATE_MODE}}" type="number" bind:value="angle" min="-180" max="360"/>
+            <input disabled="{{gate_enabled}}" type="number" bind:value="angle" min="-180" max="360"/>
         </div>
     </div>
 </fieldset>
@@ -110,6 +115,13 @@ export default {
     methods: {
         selected: function(mode) {
             this.set({ mode });
+        },
+
+        flip_target_ids: function() {
+            this.set({
+                target1_id: this.get('target2_id'),
+                target2_id: this.get('target1_id')
+            });
         }
     }
 }
