@@ -1,0 +1,4 @@
+package rover_msgs;
+
+struct RepeaterDropComplete {
+}

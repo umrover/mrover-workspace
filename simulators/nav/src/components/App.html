@@ -13,7 +13,9 @@
             bind:ar_tag_state
             bind:obstacle_state
             radius_meters="{{radius}}"
-            mode="{{draw_mode}}"/>
+            mode="{{draw_mode}}"
+            bind:repeater_dropped
+            bind:repeater_loc/>
     </div>
 
     <div id="drawmode">
@@ -27,7 +29,12 @@
         </div>
 
         <div class="radio-signal {{get_radio_strength_class(radio_signal)}}">
-            <p id="radio-signal-value">Radio Signal Strength: {{radio_signal}}</p>
+            <label id="radio-signal-value" class="tooltip">
+                Radio Signal Strength: {{radio_signal}}
+                <span class="tooltiptext tooltiptext-below">
+                    Between {{RR_MIN}} and {{RR_MAX}}. The threshold for dropping the radio repeater is {{RR_THRESH}}.
+                </span>
+            </label>
             <input type="number" bind:value="radio_signal_input"
                    on:change="valid_signal_strength()"/>
             <button disabled="{{ !is_valid_signal_strength }}" on:click="update_signal_strength()">
@@ -238,9 +245,15 @@
                 gates: [],
                 rocks: [],
 
-                radio_signal: 100,
-                radio_signal_input: 100,
+                radio_signal: MAX_RADIO_SIGNAL_STRENGTH,
+                radio_signal_input: RADIO_REPEATER_THRESHOLD - 1,
                 is_valid_signal_strength: true,
+                repeater_dropped: false,
+                repeater_loc: {},
+                RR_MIN: MIN_RADIO_SIGNAL_STRENGTH,
+                RR_MAX: MAX_RADIO_SIGNAL_STRENGTH,
+                RR_THRESH: RADIO_REPEATER_THRESHOLD,
+
                 radius: 25,
 
                 angle: 0,
@@ -332,6 +345,24 @@
                     is_valid_signal_strength: this.get("radio_signal_input") >= MIN_RADIO_SIGNAL_STRENGTH &&
                                               this.get("radio_signal_input") <= MAX_RADIO_SIGNAL_STRENGTH
                 });
+            },
+
+            drop_radio_repeater: function() {
+                if (!this.get('repeater_dropped')) {
+                    // Wait 2 seconds, then 'drop' repeater
+                    setTimeout(function() {
+                        app.set({
+                            radio_signal: MAX_RADIO_SIGNAL_STRENGTH,
+                            repeater_dropped: true,
+                            repeater_loc: app.get('odom')
+                        });
+
+                        // start firing drop complete LCM
+                        setInterval(() => {
+                            app.fire("rr_drop_complete", {});
+                        }, 100);
+                    } , 2000);
+                }
             },
 
             start_odom_events: function() {
@@ -522,5 +553,32 @@ div + div {
 
 .radio-signal-strong {
     background: lightgreen;
+}
+
+.tooltip {
+    position: relative;
+    padding: 10px 0;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 100%;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltiptext-below {
+    top: 75%;
+    left: 50%;
+    margin-left: -50%; /* Half of the width, to center the tooltip */
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }
 </style>

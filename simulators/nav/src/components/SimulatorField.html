@@ -574,6 +574,25 @@ export default {
                 ctx.fillStyle = 'white';
                 ctx.fillText(`${i}`, rock_coords.x + text_offset, rock_coords.y - text_offset);
             }
+
+            // If the radio repeater has been dropped, draw it
+            if (this.get('repeater_dropped')) {
+                const repeater_coords = this.to_canvas(this.projection(to_decimal(this.get('repeater_loc'))));
+                const repeater_size = [10, 5];
+                const repeater_len = 9;
+                ctx.fillStyle = 'black';
+                ctx.fillRect(repeater_coords.x - repeater_size[0]/2,
+                             repeater_coords.y - repeater_size[1]/2,
+                             repeater_size[0], repeater_size[1]);
+                ctx.strokeStyle = 'black';
+                ctx.beginPath();
+                ctx.lineWidth = 1.5;
+                ctx.moveTo(repeater_coords.x, repeater_coords.y);
+                ctx.lineTo(repeater_coords.x + repeater_len * Math.cos(3*Math.PI/8), repeater_coords.y - repeater_len * Math.sin(3*Math.PI/8));
+                ctx.moveTo(repeater_coords.x, repeater_coords.y);
+                ctx.lineTo(repeater_coords.x - repeater_len * Math.cos(3*Math.PI/8), repeater_coords.y - repeater_len * Math.sin(3*Math.PI/8));
+                ctx.stroke();
+            }
         };
 
         canvas.addEventListener('click', (e) => {
@@ -638,6 +657,7 @@ export default {
             draw();
         };
 
+        // Update when the following variables change
         this.observe("odom", update);
         this.observe("waypoints", update);
         this.observe("ar_tags", update);
@@ -645,6 +665,7 @@ export default {
         this.observe("rocks", update);
         this.observe("radius_meters", update);
         this.observe("angle", update);
+        this.observe('repeater_dropped', update);
 
         update();
     },
