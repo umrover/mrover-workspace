@@ -44,6 +44,6 @@ configure_file(
 	configuration: conf_data)
 
 executable('onboard_cv',
-		   'main.cpp', 'camera.cpp', 'tennisball_detector.cpp', 'obstacle_detector.cpp',
+		   'main.cpp', 'camera.cpp', 'artag_detector.cpp', 'obstacle_detector.cpp',
 		   dependencies : all_deps,
 		   install : true)

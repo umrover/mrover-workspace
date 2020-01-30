@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include "opencv2/aruco.hpp"
 #include "config.h"
 #include "camera.hpp"
 #include "rover_msgs/Obstacle.hpp"
@@ -60,3 +61,6 @@ struct obstacle_return {
 //functions
 std::pair<cv::Point2f, double> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width);
+
+//ar tag detector class
+#include "artag_detector.hpp"
