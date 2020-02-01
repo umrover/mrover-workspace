@@ -28,6 +28,8 @@ const bridge = new LCMBridge("ws://localhost:8001",
             app.apply_joystick(message);
         } else if (topic === '/nav_status') {
             app.set(message);
+        } else if (topic === '/rr_drop_init') {
+            app.drop_radio_repeater();
         }
     },
     // Subscriptions
@@ -38,6 +40,10 @@ const bridge = new LCMBridge("ws://localhost:8001",
     {
         'topic': '/nav_status',
         'type': 'NavStatus'
+    },
+    {
+        'topic': '/rr_drop_init',
+        'type': 'RepeaterDropInit'
     }]
 )
 
@@ -94,6 +100,13 @@ app.on("radio", (signal) => {
     if (bridge.online) {
         signal.type = 'RadioSignalStrength';
         bridge.publish("/radio", signal);
+    }
+})
+
+app.on('rr_drop_complete', (drop) => {
+    if (bridge.online) {
+        drop.type = 'RepeaterDropComplete';
+        bridge.publish('/rr_drop_complete', drop);
     }
 })
 

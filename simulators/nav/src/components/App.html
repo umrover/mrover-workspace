@@ -13,7 +13,12 @@
             bind:ar_tag_state
             bind:obstacle_state
             radius_meters="{{radius}}"
-            mode="{{draw_mode}}"/>
+            mode="{{draw_mode}}"
+            bind:repeater_dropped
+            bind:repeater_loc
+            bind:translational_speed
+            bind:rotational_speed
+            bind:gate_width/>
     </div>
 
     <div id="drawmode">
@@ -22,12 +27,28 @@
                 bind:mode="draw_mode"
                 bind:angle
                 bind:target1_id
-                bind:target2_id/>
-            <DebugTools bind:enabled bind:odom bind:paused bind:take_step/>
+                bind:target2_id
+                bind:gate_width/>
+            <DebugTools bind:enabled
+                        bind:odom
+                        bind:paused
+                        bind:take_step
+                        bind:translational_speed
+                        bind:rotational_speed
+                        bind:waypoints
+                        bind:ar_tags
+                        bind:gates
+                        bind:rocks
+                        bind:repeater_dropped/>
         </div>
 
         <div class="radio-signal {{get_radio_strength_class(radio_signal)}}">
-            <p id="radio-signal-value">Radio Signal Strength: {{radio_signal}}</p>
+            <label id="radio-signal-value" class="tooltip">
+                Radio Signal Strength: {{radio_signal}}
+                <span class="tooltiptext tooltiptext-below">
+                    Between {{RR_MIN}} and {{RR_MAX}}. The threshold for dropping the radio repeater is {{RR_THRESH}}.
+                </span>
+            </label>
             <input type="number" bind:value="radio_signal_input"
                    on:change="valid_signal_strength()"/>
             <button disabled="{{ !is_valid_signal_strength }}" on:click="update_signal_strength()">
@@ -127,7 +148,7 @@
 
         {{#each gates as gate, i}}
         <div class="display gate_display">
-            <div class="gate1_display">
+            <div class="{{get_gate_post_class(gate[0].id)}}">
             <SimulatedItemDisplay
                             title="Gate Post {{ gate[0].id }}"
                             item="{{ gate[0] }}"
@@ -146,7 +167,7 @@
             </SimulatedItemDisplay>
             </div>
 
-            <div class="gate2_display">
+            <div class="{{get_gate_post_class(gate[1].id)}}">
             <SimulatedItemDisplay
                             title="2Gate Post {{ gate[1].id }}"
                             item="{{ gate[1] }}"
@@ -238,14 +259,21 @@
                 gates: [],
                 rocks: [],
 
-                radio_signal: 100,
-                radio_signal_input: 100,
+                radio_signal: MAX_RADIO_SIGNAL_STRENGTH,
+                radio_signal_input: RADIO_REPEATER_THRESHOLD - 1,
                 is_valid_signal_strength: true,
+                repeater_dropped: false,
+                repeater_loc: {},
+                RR_MIN: MIN_RADIO_SIGNAL_STRENGTH,
+                RR_MAX: MAX_RADIO_SIGNAL_STRENGTH,
+                RR_THRESH: RADIO_REPEATER_THRESHOLD,
+
                 radius: 25,
 
                 angle: 0,
                 target1_id: 1,
                 target2_id: 2,
+                gate_width: 3, // meters
 
                 test: "<name>",
 
@@ -274,7 +302,9 @@
                 cv_enabled: true,
 
                 paused: false,
-                take_step: false
+                take_step: false,
+                translational_speed: 1,
+                rotational_speed: 2
             }
         },
 
@@ -332,6 +362,24 @@
                     is_valid_signal_strength: this.get("radio_signal_input") >= MIN_RADIO_SIGNAL_STRENGTH &&
                                               this.get("radio_signal_input") <= MAX_RADIO_SIGNAL_STRENGTH
                 });
+            },
+
+            drop_radio_repeater: function() {
+                if (!this.get('repeater_dropped')) {
+                    // Wait 2 seconds, then 'drop' repeater
+                    setTimeout(function() {
+                        app.set({
+                            radio_signal: MAX_RADIO_SIGNAL_STRENGTH,
+                            repeater_dropped: true,
+                            repeater_loc: app.get('odom')
+                        });
+
+                        // start firing drop complete LCM
+                        setInterval(() => {
+                            app.fire("rr_drop_complete", {});
+                        }, 100);
+                    } , 2000);
+                }
             },
 
             start_odom_events: function() {
@@ -413,6 +461,13 @@
                     return 'radio-signal-weak';
                 }
                 return 'radio-signal-strong';
+            },
+
+            get_gate_post_class: function(id) {
+                if (id % 2) {
+                    return 'gate2_display';
+                }
+                return 'gate1_display';
             }
         },
 
@@ -481,16 +536,15 @@ div + div {
 
 .gate_display {
     padding: 0;
+    color: black;
 }
 
 .gate1_display {
-    color: black;
     background: lightblue;
     padding: 5px;
 }
 
 .gate2_display {
-    color: black;
     background: yellow;
     padding: 5px;
 }
@@ -522,5 +576,32 @@ div + div {
 
 .radio-signal-strong {
     background: lightgreen;
+}
+
+.tooltip {
+    position: relative;
+    padding: 10px 0;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 100%;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltiptext-below {
+    top: 75%;
+    left: 50%;
+    margin-left: -50%; /* Half of the width, to center the tooltip */
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }
 </style>

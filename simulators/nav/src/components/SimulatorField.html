@@ -21,20 +21,16 @@ import _ from 'lodash';
 
 const EARTH_RAD = 6371000.0;
 // const ROVER_SIZE = 25;
-const ROVER_SIZE_M = 1;
+const ROVER_SIZE_M = 1; // meters
 // const VECTOR_SIZE = 20;
-const VECTOR_SIZE_M = .75;
+const VECTOR_SIZE_M = .75; // meters
 const WAYPOINT_SIZE = 10;
 const TENNIS_BALL_SIZE = 4;
 // const ROCK_SIZE = 25;
-const ROCK_SIZE_M = 1.2;
+const ROCK_SIZE_M = 1.2; // meters
 const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
-const ROVER_DEPTH_OF_VIEW = 10;
-const CV_DEPTH = 5;
+const ROVER_DEPTH_OF_VIEW = 5;
 const POST_BLOCKING_ANGLE = 15 * Math.PI/180; // A post behind another post must be at least 15 degrees offset to be visible
-
-const TRANSLATIONAL_SCALE = 1;
-const ROTATIONAL_SCALE = 2;
 
 function ensure_in_range(x, min, max) {
     return Math.max(Math.min(x, max), min);
@@ -252,10 +248,10 @@ export default {
             const theta_r = odom.bearing_deg * Math.PI / 180;
             const x_0 = coords.x - h * Math.sin(theta_r); // switched sign
             const y_0 = coords.y - h * Math.cos(theta_r); // switched sign
-            const x_c = coords.x + (CV_DEPTH + rock_radius) * Math.sin(theta_r);
-            const y_c = coords.y + (CV_DEPTH + rock_radius) * Math.cos(theta_r);
+            const x_c = coords.x + (ROVER_DEPTH_OF_VIEW + rock_radius) * Math.sin(theta_r);
+            const y_c = coords.y + (ROVER_DEPTH_OF_VIEW + rock_radius) * Math.cos(theta_r);
             // d = smaller triangle d + extension
-            let d = CV_DEPTH * Math.tan(ROVER_FIELD_OF_VIEW / 2);
+            let d = ROVER_DEPTH_OF_VIEW * Math.tan(ROVER_FIELD_OF_VIEW / 2);
             const alpha = (180 - ROVER_FIELD_OF_VIEW) / 2;
             const h_prime = rock_radius * Math.sin(Math.PI - alpha) / Math.sin(alpha / 2);
             const delta_d = Math.sqrt(h_prime * h_prime - rock_radius * rock_radius);
@@ -329,7 +325,7 @@ export default {
             // can we move straight ahead
             const rover_width = ROVER_SIZE_M;
             let path_clear = true;
-            const clearance_angle = Math.atan2(rover_width, CV_DEPTH) * 180 / Math.PI;
+            const clearance_angle = Math.atan2(rover_width, ROVER_DEPTH_OF_VIEW) * 180 / Math.PI;
             for (let i = 60 - clearance_angle|0; i < 60 + clearance_angle|0; ++i) {
                 if (occupied_angles[i]) path_clear = false;
             }
@@ -520,7 +516,6 @@ export default {
                 const bearing = 0;
                 const side = 12;
                 const h = side * (Math.sqrt(3)/2);
-                ctx.fillStyle = 'lightblue'; /* for the first post */
 
                 let arrow_coords = {x: 0, y: 0};
 
@@ -533,6 +528,11 @@ export default {
                     const side = 12;
                     const h = side * (Math.sqrt(3)/2);
 
+                    if (posts[j].id % 2) {
+                        ctx.fillStyle = 'yellow';
+                    } else  {
+                        ctx.fillStyle = 'lightblue';
+                    }
                     ctx.beginPath();
                     ctx.moveTo(gate_coords.x, -h / 2 + gate_coords.y);
                     ctx.lineTo( -side / 2 + gate_coords.x , h / 2 + gate_coords.y);
@@ -547,8 +547,6 @@ export default {
                     const text_offset = 5;
                     ctx.fillStyle = 'black';
                     ctx.fillText(`${posts[j].id}`, gate_coords.x + text_offset, gate_coords.y - text_offset);
-
-                    ctx.fillStyle = 'yellow'; /* set for the second post */
                 }
 
                 // Draw arrow to indicate the correct direction.
@@ -573,6 +571,25 @@ export default {
                 const text_offset = -3;
                 ctx.fillStyle = 'white';
                 ctx.fillText(`${i}`, rock_coords.x + text_offset, rock_coords.y - text_offset);
+            }
+
+            // If the radio repeater has been dropped, draw it
+            if (this.get('repeater_dropped')) {
+                const repeater_coords = this.to_canvas(this.projection(to_decimal(this.get('repeater_loc'))));
+                const repeater_size = [10, 5];
+                const repeater_len = 9;
+                ctx.fillStyle = 'black';
+                ctx.fillRect(repeater_coords.x - repeater_size[0]/2,
+                             repeater_coords.y - repeater_size[1]/2,
+                             repeater_size[0], repeater_size[1]);
+                ctx.strokeStyle = 'black';
+                ctx.beginPath();
+                ctx.lineWidth = 1.5;
+                ctx.moveTo(repeater_coords.x, repeater_coords.y);
+                ctx.lineTo(repeater_coords.x + repeater_len * Math.cos(3*Math.PI/8), repeater_coords.y - repeater_len * Math.sin(3*Math.PI/8));
+                ctx.moveTo(repeater_coords.x, repeater_coords.y);
+                ctx.lineTo(repeater_coords.x - repeater_len * Math.cos(3*Math.PI/8), repeater_coords.y - repeater_len * Math.sin(3*Math.PI/8));
+                ctx.stroke();
             }
         };
 
@@ -614,7 +631,9 @@ export default {
                 post1.detected = false;
                 post1.id = this.get("target1_id");
 
-                let post2 = this.shift_x_meters({lat, lon}, 3, angle);
+                console.log(this.get('gate_width'));
+                console.log(this.get('gate_width') === 3);
+                let post2 = this.shift_x_meters({lat, lon}, this.get('gate_width'), angle);
                 post2.id = this.get("target2_id");
 
                 gates.push([post1, post2]);
@@ -638,6 +657,7 @@ export default {
             draw();
         };
 
+        // Update when the following variables change
         this.observe("odom", update);
         this.observe("waypoints", update);
         this.observe("ar_tags", update);
@@ -645,6 +665,7 @@ export default {
         this.observe("rocks", update);
         this.observe("radius_meters", update);
         this.observe("angle", update);
+        this.observe('repeater_dropped', update);
 
         update();
     },
@@ -723,7 +744,7 @@ export default {
             let odom = this.get("odom");
             let {x, y} = this.projection(to_decimal(odom));
             let bearing_deg = odom.bearing_deg;
-            bearing_deg += ROTATIONAL_SCALE * stick.left_right;
+            bearing_deg += this.get('rotational_speed') * stick.left_right;
             if (bearing_deg < 0) {
                 bearing_deg += 360;
             }
@@ -733,7 +754,7 @@ export default {
 
             const bearing_rad = (90 - bearing_deg) * Math.PI / 180;
 
-            const vel = TRANSLATIONAL_SCALE * stick.forward_back;
+            const vel = this.get('translational_speed') * stick.forward_back;
 
             x += vel * Math.cos(bearing_rad);
             y += vel * Math.sin(bearing_rad);
