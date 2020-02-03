@@ -241,33 +241,6 @@ export default {
             return (b0 == b1) && (b1 == b2);
         };
 
-        const get_triangle = (scale, odom) => {
-            // const rock_radius = ROCK_SIZE/scale;
-            const rock_radius = ROCK_SIZE_M;
-            const coords = this.projection(to_decimal(odom));
-            // const root_2 = Math.sqrt(2);
-            const h =  rock_radius * Math.sin(Math.PI - this.get('field_of_view_rad')) / Math.sin(this.get('field_of_view_rad') / 2);
-            const theta_r = odom.bearing_deg * Math.PI / 180;
-            const x_0 = coords.x - h * Math.sin(theta_r); // switched sign
-            const y_0 = coords.y - h * Math.cos(theta_r); // switched sign
-            const x_c = coords.x + (this.get('depth_of_view') + rock_radius) * Math.sin(theta_r);
-            const y_c = coords.y + (this.get('depth_of_view') + rock_radius) * Math.cos(theta_r);
-            // d = smaller triangle d + extension
-            let d = this.get('depth_of_view') * Math.tan(this.get('field_of_view_rad') / 2);
-            const alpha = (180 - this.get('field_of_view_rad')) / 2;
-            const h_prime = rock_radius * Math.sin(Math.PI - alpha) / Math.sin(alpha / 2);
-            const delta_d = Math.sqrt(h_prime * h_prime - rock_radius * rock_radius);
-            d += delta_d;
-            const crossbar = {
-                x1: x_c - d * Math.cos(theta_r),
-                y1: y_c + d * Math.sin(theta_r),
-                x2: x_c + d * Math.cos(theta_r),
-                y2: y_c - d * Math.sin(theta_r)
-            };
-
-            return { x_0, y_0, crossbar, x_c, y_c };
-        };
-
         const find_occupied = (odom, rcoords, occupied_angles, rock_radius) => {
             const pos = this.projection(to_decimal(odom));
             const delta_x = rcoords.x - pos.x;
@@ -308,14 +281,16 @@ export default {
 
         const recompute_obstacle_visibility = () => {
             const odom = this.get("odom");
-            const scale = this.get("radius_meters");
             if (!odom) { return; }
             let rocks = this.get("rocks");
-            const {x_0, y_0, crossbar} = get_triangle(scale, odom);
             // Filter out objects outside the "larger triangle"
             const filtered_rocks = _.filter(rocks, (rock) => {
-                const rcoords = this.projection(to_decimal(rock));
-                return point_in_triangle(rcoords, crossbar, {x: x_0, y: y_0});
+                const { dist, bearing } = dist_and_bearing(to_decimal(odom), to_decimal(rock));
+                let bear_to_rock = Math.abs(bearing - odom.bearing_deg * Math.PI/180);
+                if (bear_to_rock > 180) {
+                    bear_to_rock = 2 * Math.PI - bear_to_rock;
+                }
+                return dist - ROCK_SIZE_M <= this.get('depth_of_view') && bear_to_rock <= this.get('field_of_view_rad');
             });
 
             let occupied_angles = new Array(120);
@@ -375,22 +350,31 @@ export default {
 
         };
 
-        const draw_triangle = (odom) => {
-            // TODO temporary debug code
-            const {x_0, y_0, crossbar, x_c, y_c} = get_triangle(this.get("radius_meters"), odom);
-            const va = this.to_canvas({x: x_0, y: y_0});
-            const vb = this.to_canvas({x: crossbar.x1, y: crossbar.y1});
-            const vc = this.to_canvas({x: crossbar.x2, y: crossbar.y2});
-            const center = this.to_canvas({x: x_c, y: y_c});
+        const draw_visibility = (odom) => {
+            const rover_loc = this.projection(to_decimal(odom));
+            const depth = this.get('depth_of_view')
+            const scale = canvas.width/(2*this.get('radius_meters'));
+            const bearing_rad = compass_to_computer(odom.bearing_deg * Math.PI / 180);
+            const half_fov = this.get('field_of_view_rad') / 2;
+            const center_vert = this.to_canvas(rover_loc);
+            const left_angle = bearing_rad - half_fov;
+            const right_angle = bearing_rad + half_fov;
+            const left_vert = this.to_canvas({
+                x: rover_loc.x + Math.cos(left_angle) * depth,
+                y: rover_loc.y - Math.sin(left_angle) * depth
+            });
+            const right_vert = this.to_canvas({
+                x: rover_loc.x + Math.cos(right_angle) * depth,
+                y: rover_loc.y - Math.sin(right_angle) * depth
+            });
 
-            ctx.strokeStyle = 'lightblue';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.moveTo(va.x, va.y);
-            ctx.lineTo(vb.x, vb.y);
-            ctx.lineTo(vc.x, vc.y);
-            ctx.lineTo(va.x, va.y);
-            // ctx.lineTo(center.x, center.y);
+            ctx.moveTo(right_vert.x, right_vert.y);
+            ctx.lineTo(center_vert.x, center_vert.y);
+            ctx.lineTo(left_vert.x, left_vert.y);
+            ctx.arc(center_vert.x, center_vert.y, depth * scale, left_angle, right_angle);
             ctx.stroke();
         };
 
@@ -459,7 +443,7 @@ export default {
             ctx.stroke();
 
             if (this.get('field_of_view_visible')) {
-                draw_triangle(odom);
+                draw_visibility(odom);
             }
 
             // Draw waypoints
@@ -634,8 +618,6 @@ export default {
                 post1.detected = false;
                 post1.id = this.get("target1_id");
 
-                console.log(this.get('gate_width'));
-                console.log(this.get('gate_width') === 3);
                 let post2 = this.shift_x_meters({lat, lon}, this.get('gate_width'), angle);
                 post2.id = this.get("target2_id");
 
