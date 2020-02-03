@@ -18,7 +18,10 @@
             bind:repeater_loc
             bind:translational_speed
             bind:rotational_speed
-            bind:gate_width/>
+            bind:gate_width
+            bind:field_of_view
+            bind:depth_of_view
+            bind:field_of_view_visible/>
     </div>
 
     <div id="drawmode">
@@ -39,7 +42,10 @@
                         bind:ar_tags
                         bind:gates
                         bind:rocks
-                        bind:repeater_dropped/>
+                        bind:repeater_dropped
+                        bind:field_of_view
+                        bind:depth_of_view
+                        bind:field_of_view_visible/>
         </div>
 
         <div class="radio-signal {{get_radio_strength_class(radio_signal)}}">
@@ -304,7 +310,10 @@
                 paused: false,
                 take_step: false,
                 translational_speed: 1,
-                rotational_speed: 2
+                rotational_speed: 2,
+                field_of_view: 110,
+                depth_of_view: 3,
+                field_of_view_visible: false
             }
         },
 

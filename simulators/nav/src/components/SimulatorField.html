@@ -28,8 +28,6 @@ const WAYPOINT_SIZE = 10;
 const TENNIS_BALL_SIZE = 4;
 // const ROCK_SIZE = 25;
 const ROCK_SIZE_M = 1.2; // meters
-const ROVER_FIELD_OF_VIEW = 2*Math.PI/3;
-const ROVER_DEPTH_OF_VIEW = 5;
 const POST_BLOCKING_ANGLE = 15 * Math.PI/180; // A post behind another post must be at least 15 degrees offset to be visible
 
 function ensure_in_range(x, min, max) {
@@ -37,6 +35,10 @@ function ensure_in_range(x, min, max) {
 }
 
 export default {
+    computed: {
+        field_of_view_rad: (field_of_view) => field_of_view * Math.PI / 180,
+    },
+
     data() {
         return {
             center_lat: 39.4,
@@ -111,7 +113,7 @@ export default {
                     to_decimal(odom), to_decimal(tag));
                 const rover_bearing = odom.bearing_deg * Math.PI/180;
 
-                if (Math.abs(bearing - rover_bearing) < ROVER_FIELD_OF_VIEW/2 && dist < ROVER_DEPTH_OF_VIEW) {
+                if (Math.abs(bearing - rover_bearing) < this.get('field_of_view_rad')/2 && dist < this.get('depth_of_view')) {
                     tag.detected = true;
                     tag_detected_idx = i;
                     ar_tag_state[0] = {
@@ -179,8 +181,8 @@ export default {
                 }
 
                 // Check if the close post is visible (withing field of view and close enough)
-                if (Math.abs(this.calc_rel_bearing(rover_bearing, post1_bearing)) < ROVER_FIELD_OF_VIEW/2 &&
-                        post1_dist < ROVER_DEPTH_OF_VIEW) {
+                if (Math.abs(this.calc_rel_bearing(rover_bearing, post1_bearing)) < this.get('field_of_view_rad')/2 &&
+                        post1_dist < this.get('depth_of_view')) {
                     gates[i][0].detected = true;
 
                     ar_tag_state[0] = {
@@ -190,8 +192,8 @@ export default {
                 }
 
                 // Check if the far post is visible (withing field of view, close enough, and not blocked by the first post)
-                if (Math.abs(this.calc_rel_bearing(rover_bearing, post2_bearing)) < ROVER_FIELD_OF_VIEW/2 &&
-                        post2_dist < ROVER_DEPTH_OF_VIEW &&
+                if (Math.abs(this.calc_rel_bearing(rover_bearing, post2_bearing)) < this.get('field_of_view_rad')/2 &&
+                        post2_dist < this.get('depth_of_view') &&
                         Math.abs(this.calc_rel_bearing(post2_bearing, post1_bearing)) > POST_BLOCKING_ANGLE) {
                     gates[i][1].detected = true;
 
@@ -244,15 +246,15 @@ export default {
             const rock_radius = ROCK_SIZE_M;
             const coords = this.projection(to_decimal(odom));
             // const root_2 = Math.sqrt(2);
-            const h =  rock_radius * Math.sin(Math.PI - ROVER_FIELD_OF_VIEW) / Math.sin(ROVER_FIELD_OF_VIEW / 2);
+            const h =  rock_radius * Math.sin(Math.PI - this.get('field_of_view_rad')) / Math.sin(this.get('field_of_view_rad') / 2);
             const theta_r = odom.bearing_deg * Math.PI / 180;
             const x_0 = coords.x - h * Math.sin(theta_r); // switched sign
             const y_0 = coords.y - h * Math.cos(theta_r); // switched sign
-            const x_c = coords.x + (ROVER_DEPTH_OF_VIEW + rock_radius) * Math.sin(theta_r);
-            const y_c = coords.y + (ROVER_DEPTH_OF_VIEW + rock_radius) * Math.cos(theta_r);
+            const x_c = coords.x + (this.get('depth_of_view') + rock_radius) * Math.sin(theta_r);
+            const y_c = coords.y + (this.get('depth_of_view') + rock_radius) * Math.cos(theta_r);
             // d = smaller triangle d + extension
-            let d = ROVER_DEPTH_OF_VIEW * Math.tan(ROVER_FIELD_OF_VIEW / 2);
-            const alpha = (180 - ROVER_FIELD_OF_VIEW) / 2;
+            let d = this.get('depth_of_view') * Math.tan(this.get('field_of_view_rad') / 2);
+            const alpha = (180 - this.get('field_of_view_rad')) / 2;
             const h_prime = rock_radius * Math.sin(Math.PI - alpha) / Math.sin(alpha / 2);
             const delta_d = Math.sqrt(h_prime * h_prime - rock_radius * rock_radius);
             d += delta_d;
@@ -299,8 +301,8 @@ export default {
                 alpha = 90 - beta;
             } // x-axis
 
-            const phi_1 = alpha - gamma + ROVER_FIELD_OF_VIEW / 2 * 180 / Math.PI;
-            const phi_2 = alpha + gamma + ROVER_FIELD_OF_VIEW / 2 * 180 / Math.PI;
+            const phi_1 = alpha - gamma + this.get('field_of_view_rad') / 2 * 180 / Math.PI;
+            const phi_2 = alpha + gamma + this.get('field_of_view_rad') / 2 * 180 / Math.PI;
             occupied_angles.fill(true, phi_1, phi_2);
         };
 
@@ -325,7 +327,7 @@ export default {
             // can we move straight ahead
             const rover_width = ROVER_SIZE_M;
             let path_clear = true;
-            const clearance_angle = Math.atan2(rover_width, ROVER_DEPTH_OF_VIEW) * 180 / Math.PI;
+            const clearance_angle = Math.atan2(rover_width, this.get('depth_of_view')) * 180 / Math.PI;
             for (let i = 60 - clearance_angle|0; i < 60 + clearance_angle|0; ++i) {
                 if (occupied_angles[i]) path_clear = false;
             }
@@ -456,8 +458,9 @@ export default {
                        coords.y - VECTOR_SIZE_M*y_scale*Math.sin(bearing));
             ctx.stroke();
 
-            // Uncomment this code in to draw the rover's triangle of visibility
-            // draw_triangle(odom);
+            if (this.get('field_of_view_visible')) {
+                draw_triangle(odom);
+            }
 
             // Draw waypoints
             for (let i = 0; i < waypoints.length; i++) {
@@ -666,6 +669,9 @@ export default {
         this.observe("radius_meters", update);
         this.observe("angle", update);
         this.observe('repeater_dropped', update);
+        this.observe('field_of_view', update);
+        this.observe('depth_of_view', update);
+        this.observe('field_of_view_visible', update);
 
         update();
     },
