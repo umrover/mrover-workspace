@@ -131,6 +131,7 @@
                     <label for="search_checkbox_{{ i }}">Search?</label>
                     <input type="checkbox" id="gate_checkbox_{{ i }}" bind:checked="waypoint.gate">
                     <label for="gate_checkbox_{{ i }}">Gate?</label>
+                    <label>ID: {{waypoint.id}}</label>
                 </p>
             </SimulatedItemDisplay>
         </div>
@@ -277,8 +278,8 @@
                 radius: 25,
 
                 angle: 0,
-                target1_id: 1,
-                target2_id: 2,
+                target1_id: -1,
+                target2_id: 5,
                 gate_width: 3, // meters
 
                 test: "<name>",
@@ -423,6 +424,7 @@
                                 type: "Waypoint",
                                 search: waypoint.search,
                                 gate: waypoint.gate,
+                                id: waypoint.id,
                                 odom: {
                                     latitude_deg: waypoint.latitude_deg|0,
                                     latitude_min: waypoint.latitude_min,

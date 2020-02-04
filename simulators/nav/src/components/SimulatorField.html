@@ -594,7 +594,12 @@ export default {
             if (draw_mode === WAYPOINT_MODE) {
                 let waypoints = this.get("waypoints");
                 waypoints.push(
-                    Object.assign({}, to_dms({lat, lon}), { search: false }, { gate: false })
+                    Object.assign({},
+                        to_dms({lat, lon}),
+                        { search: false },
+                        { gate: false },
+                        { id: this.get("target1_id") }
+                    )
                 );
 
                 this.set({ waypoints });
