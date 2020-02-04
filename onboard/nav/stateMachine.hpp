@@ -44,8 +44,6 @@ public:
 
     void updateObstacleElements( double bearing, double distance );
 
-    void updateFoundTargets( );
-
     void setSearcher(SearchType type);
 
 private:
@@ -103,15 +101,6 @@ private:
 
     // Number of waypoints completed.
     unsigned mCompletedWaypoints;
-
-    // Number of waypoints missed.
-    unsigned mMissedWaypoints;
-
-    // Number of targets found.
-    unsigned mFoundTargets;
-
-    // Number of targets in course.
-    unsigned mTotalTargets;
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;

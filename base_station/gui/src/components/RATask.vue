@@ -86,7 +86,6 @@ export default {
 
       nav_status: {
         completed_wps: 0,
-        missed_wps: 0,
         total_wps: 0
       }
     }

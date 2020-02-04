@@ -12,11 +12,11 @@
         <input type="radio" v-model="convert_fields" value="convertD" class="checkbox"><font size="2">Convert to Degrees</font><br>
         <input type="radio" v-model="convert_fields" value="convertDM" class="checkbox"><font size="2">Convert to Degrees Minutes</font><br>
         <input type="radio" v-model="convert_fields" value="convertDMS" class="checkbox"><font size="2">Convert to Degrees Minutes Seconds</font><br>
-        <input v-model="lat" size="15">ºN 
-        <input v-model="lat_mins" size="15">' 
+        <input v-model="lat" size="15">ºN
+        <input v-model="lat_mins" size="15">'
         <input v-model="lat_sec" size="15">"<br>
-        <input v-model="lon" size="15">ºW 
-        <input v-model="lon_mins" size="15">' 
+        <input v-model="lon" size="15">ºW
+        <input v-model="lon_mins" size="15">'
         <input v-model="lon_sec" size="15">"<br>
       <button v-on:click="parseWaypoint()">Add Waypoint</button>
       <button v-on:click="dropWaypoint()">Drop Waypoint</button>
@@ -26,8 +26,6 @@
       <span>
         Navigation State: {{nav_status.nav_state_name}}<br>
         Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
-        Missed Waypoints: {{nav_status.missed_wps}}/{{nav_status.total_wps}}<br>
-        Tennis Balls: {{nav_status.found_tbs}}/{{nav_status.total_tbs}}
       </span>
     </div>
     <div class="box1">
@@ -81,7 +79,6 @@ export default {
       nav_status: {
         nav_state_name: "Off",
         completed_wps: 0,
-        missed_wps: 0,
         total_wps: 0
       },
 
@@ -160,7 +157,7 @@ export default {
       } else if(payload.list === 1) {
         this.storedWaypoints.push(this.route[payload.index])
       }
-      
+
 
     },
 
