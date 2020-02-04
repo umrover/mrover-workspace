@@ -123,6 +123,7 @@ export default {
                       longitude_deg: longitude_deg,
                       longitude_min: longitude_min,
                       bearing_deg: 0,
+                      speed: -1,
                       type: "Odometry"
                   },
               }
