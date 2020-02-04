@@ -93,9 +93,6 @@ private:
     // Configuration file for the rover.
     rapidjson::Document mRoverConfig;
 
-    // Odometry point used when avoiding obstacles.
-    Odometry mObstacleAvoidancePoint;
-
     // Number of waypoints in course.
     unsigned mTotalWaypoints;
 
