@@ -1,13 +1,13 @@
 <template>
   <div class="waypoint-item">
+    <div class="identification">
+      <p>{{waypoint.name}}, ID: {{waypoint.id}}</p>
+    </div>
     <div class="buttons">
       <button class="red" v-on:click="$emit('add', {'list': list, 'index': index})">Add</button>
       <button v-bind:class="[waypoint.search ? 'green' : 'red']" v-on:click="$emit('toggleSearch', {'list': list, 'index': index})">Search</button>
       <button v-bind:class="[waypoint.gate ? 'green' : 'red']" v-on:click="$emit('toggleGate', {'list': list, 'index': index})">Gate</button>
       <button class="red" v-on:click="$emit('delete', {'list': list, 'index': index})">Delete</button>
-    </div>
-    <div class="name">
-      <p>{{waypoint.name}}</p>
     </div>
     <div class="location">
       <p>{{waypoint.latLng.lat}}ºN {{waypoint.lat_min}}' {{waypoint.lat_sec}}", {{-waypoint.latLng.lng}}ºW {{waypoint.lon_min}}' {{waypoint.lon_sec}}"</p>

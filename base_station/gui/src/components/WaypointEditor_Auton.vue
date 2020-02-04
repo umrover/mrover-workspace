@@ -3,6 +3,7 @@
     <div class="box">
       <div class="top">
         Name: <input v-model="name">
+        ID: <input v-model="id" type="number" max="249" min="-1" step="1">
         <input type="checkbox" v-model="convert" value="yes" class="checkbox"><font size="2">Convert</font><br>
       </div>
       <br>
@@ -37,7 +38,7 @@
     <div class="box1">
       <h3>Current Course</h3>
       <draggable v-model="route" class="dragArea" draggable=".item'">
-        <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
+        <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-bind:name="name" v-bind:id="id" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
       </draggable>
     </div>
   </div>
@@ -67,6 +68,7 @@ export default {
   data () {
     return {
       name: "",
+      id: -1,
       lon: "",
       lon_mins: "",
       lon_sec: "",
@@ -117,6 +119,7 @@ export default {
                   type: "Waypoint",
                   search: waypoint.search,
                   gate: waypoint.gate,
+                  id: Math.trunc(waypoint.id),
                   odom: {
                       latitude_deg: latitude_deg,
                       latitude_min: latitude_min,
@@ -181,6 +184,7 @@ export default {
     addWaypoint: function (lat, lat_mins, lat_sec, lon, lon_mins, lon_sec) {
         this.storedWaypoints.push({
           name: this.name,
+          id: this.id,
           latLng: L.latLng(lat, lon),
           lat_min: lat_mins,
           lat_sec: lat_sec,
