@@ -431,6 +431,7 @@
                                     longitude_deg: waypoint.longitude_deg|0,
                                     longitude_min: waypoint.longitude_min,
                                     bearing_deg: 0,
+                                    speed: -1,
                                     type: "Odometry"
                                 }
                             }
@@ -453,6 +454,7 @@
                                     type: "Target",
                                     bearing: target.bearing,
                                     distance: target.distance,
+                                    id: target.id,
                                 }
                             })
                         };
