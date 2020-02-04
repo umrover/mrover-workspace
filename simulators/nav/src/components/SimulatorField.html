@@ -216,7 +216,8 @@ export default {
                 //         the seond position because we need the left to
                 //         appear first in the target list lcm
                 if (!gates[i][0].detected ||
-                    this.calc_rel_bearing(rover_bearing, post2_bearing) < this.calc_rel_bearing(rover_bearing, post1_bearing)) {
+                    (gates[i][1].detected && this.calc_rel_bearing(rover_bearing, post2_bearing) <
+                                             this.calc_rel_bearing(rover_bearing, post1_bearing))) {
                     const post = ar_tag_state[0];
                     ar_tag_state[0] = ar_tag_state[1];
                     ar_tag_state[1] = post;
