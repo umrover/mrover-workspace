@@ -13,7 +13,7 @@
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in list" :key="waypoint.id">
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
       </l-marker>
-      
+
       <l-polyline :lat-lngs="polylinePath" :color="'red'" :dash-array="'5, 5'"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
     </l-map>
