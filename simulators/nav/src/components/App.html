@@ -18,7 +18,10 @@
             bind:repeater_loc
             bind:translational_speed
             bind:rotational_speed
-            bind:gate_width/>
+            bind:gate_width
+            bind:field_of_view
+            bind:depth_of_view
+            bind:field_of_view_visible/>
     </div>
 
     <div id="drawmode">
@@ -39,7 +42,10 @@
                         bind:ar_tags
                         bind:gates
                         bind:rocks
-                        bind:repeater_dropped/>
+                        bind:repeater_dropped
+                        bind:field_of_view
+                        bind:depth_of_view
+                        bind:field_of_view_visible/>
         </div>
 
         <div class="radio-signal {{get_radio_strength_class(radio_signal)}}">
@@ -106,8 +112,6 @@
             {{#if lcm_connected}}
             <p><b>Navigation State:</b> {{ nav_state_name }}</p>
             <p><b>Completed Waypoints:</b> {{ completed_wps }}/{{ total_wps }}</p>
-            <p><b>Missed Waypoints:</b> {{ missed_wps }}/{{ total_wps }}</p>
-            <p><b>Ar Tags:</b> {{ found_ar_tags }}/{{ total_ar_tags }}</p>
             {{else}}
             <p>LCM not connected.</p>
             {{/if}}
@@ -125,6 +129,7 @@
                     <label for="search_checkbox_{{ i }}">Search?</label>
                     <input type="checkbox" id="gate_checkbox_{{ i }}" bind:checked="waypoint.gate">
                     <label for="gate_checkbox_{{ i }}">Gate?</label>
+                    <label>ID: {{waypoint.id}}</label>
                 </p>
             </SimulatedItemDisplay>
         </div>
@@ -271,8 +276,8 @@
                 radius: 25,
 
                 angle: 0,
-                target1_id: 1,
-                target2_id: 2,
+                target1_id: -1,
+                target2_id: 5,
                 gate_width: 3, // meters
 
                 test: "<name>",
@@ -293,10 +298,7 @@
 
                 nav_state_name: "Off",
                 completed_wps: 0,
-                missed_wps: 0,
                 total_wps: 0,
-                found_ar_tags: 0,
-                total_ar_tags: 0,
 
                 enabled: false,
                 cv_enabled: true,
@@ -304,7 +306,10 @@
                 paused: false,
                 take_step: false,
                 translational_speed: 1,
-                rotational_speed: 2
+                rotational_speed: 2,
+                field_of_view: 110,
+                depth_of_view: 3,
+                field_of_view_visible: false
             }
         },
 
@@ -414,12 +419,14 @@
                                 type: "Waypoint",
                                 search: waypoint.search,
                                 gate: waypoint.gate,
+                                id: waypoint.id,
                                 odom: {
                                     latitude_deg: waypoint.latitude_deg|0,
                                     latitude_min: waypoint.latitude_min,
                                     longitude_deg: waypoint.longitude_deg|0,
                                     longitude_min: waypoint.longitude_min,
                                     bearing_deg: 0,
+                                    speed: -1,
                                     type: "Odometry"
                                 }
                             }
@@ -442,6 +449,7 @@
                                     type: "Target",
                                     bearing: target.bearing,
                                     distance: target.distance,
+                                    id: target.id,
                                 }
                             })
                         };

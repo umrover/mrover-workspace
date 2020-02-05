@@ -1,33 +1,35 @@
 <template>
   <div class="wrap">
     <div class="box">
-      <div class="top">
-        Name: <input v-model="name">
-        <input type="checkbox" v-model="convert" value="yes" class="checkbox"><font size="2">Convert</font><br>
+      <div class="identification">
+        Name: <input v-model="name" v-on:click="select($event)">
+        ID: <input v-model="id" type="number" max="249" min="-1" step="1">
       </div>
       <br>
-      <input type="radio" v-model="input_fields" value="D" class="checkbox"><font size="2">In Degrees</font><br>
-      <input type="radio" v-model="input_fields" value="DM" class="checkbox"><font size="2">In Degree Minutes</font><br>
-        <input type="radio" v-model="input_fields" value="DMS" class="checkbox"><font size="2">In Degree Minutes Seconds</font><br>
-        <input type="radio" v-model="convert_fields" value="convertD" class="checkbox"><font size="2">Convert to Degrees</font><br>
-        <input type="radio" v-model="convert_fields" value="convertDM" class="checkbox"><font size="2">Convert to Degrees Minutes</font><br>
-        <input type="radio" v-model="convert_fields" value="convertDMS" class="checkbox"><font size="2">Convert to Degrees Minutes Seconds</font><br>
-        <input v-model="lat" size="15">ºN 
-        <input v-model="lat_mins" size="15">' 
-        <input v-model="lat_sec" size="15">"<br>
-        <input v-model="lon" size="15">ºW 
-        <input v-model="lon_mins" size="15">' 
-        <input v-model="lon_sec" size="15">"<br>
-      <button v-on:click="parseWaypoint()">Add Waypoint</button>
-      <button v-on:click="dropWaypoint()">Drop Waypoint</button>
+      <input type="radio" v-model="odom_format_in" value="D" class="checkbox"><font size="2">D</font>
+      <input type="radio" v-model="odom_format_in" value="DM" class="checkbox"><font size="2">DM</font>
+      <input type="radio" v-model="odom_format_in" value="DMS" class="checkbox"><font size="2">DMS</font><br>
+      <div class="wp-input">
+        <p><input v-model.number="input.lat.d" size="13" v-on:click="select($event)">º</p>
+        <p v-if="this.min_enabled"><input v-model.number="input.lat.m" size="13" v-on:click="select($event)">'</p>
+        <p  v-if="this.sec_enabled"><input v-model.number="input.lat.s" size="13" v-on:click="select($event)">"</p>
+        N
+      </div>
+      <div class="wp-input">
+        <p><input v-model.number="input.lon.d" size="13" v-on:click="select($event)">º</p>
+        <p v-if="this.min_enabled"><input v-model.number="input.lon.m" size="13" v-on:click="select($event)">'</p>
+        <p  v-if="this.sec_enabled"><input v-model.number="input.lon.s" size="13" v-on:click="select($event)">"</p>
+        W
+      </div>
+      <br>
+      <button v-on:click="addWaypoint(input)">Add Waypoint</button>
+      <button v-on:click="addWaypoint(formatted_odom)">Drop Waypoint</button>
     </div>
     <div class="box">
       <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/><br>
       <span>
         Navigation State: {{nav_status.nav_state_name}}<br>
         Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
-        Missed Waypoints: {{nav_status.missed_wps}}/{{nav_status.total_wps}}<br>
-        Tennis Balls: {{nav_status.found_tbs}}/{{nav_status.total_tbs}}
       </span>
     </div>
     <div class="box1">
@@ -39,7 +41,7 @@
     <div class="box1">
       <h3>Current Course</h3>
       <draggable v-model="route" class="dragArea" draggable=".item'">
-        <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
+        <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-bind:name="name" v-bind:id="id" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
       </draggable>
     </div>
   </div>
@@ -48,6 +50,7 @@
 <script>
 import Checkbox from './Checkbox.vue'
 import draggable from 'vuedraggable'
+import {convertDMS} from '../utils.js';
 import WaypointItem from './WaypointItem_Auton.vue'
 import {mapMutations, mapGetters} from 'vuex'
 import _ from 'lodash';
@@ -63,25 +66,29 @@ export default {
       type: Object,
       required: true
     },
-
   },
 
   data () {
     return {
-      name: "",
-      lon: "",
-      lon_mins: "",
-      lon_sec: "",
-      lat: "",
-      lat_mins: "",
-      lat_sec: "",
-      convert_fields: "convertD",
-      input_fields: "D",
+      name: "Waypoint",
+      id: -1,
+      odom_format_in: 'DM',
+      input: {
+        lat: {
+          d: 0,
+          m: 0,
+          s: 0
+        },
+        lon: {
+          d: 0,
+          m: 0,
+          s: 0
+        }
+      },
 
       nav_status: {
         nav_state_name: "Off",
         completed_wps: 0,
-        missed_wps: 0,
         total_wps: 0
       },
 
@@ -110,22 +117,22 @@ export default {
         let course = {
             num_waypoints: this.route.length,
             waypoints: _.map(this.route, (waypoint) => {
-              let lat = waypoint.latLng.lat
-              let lng = waypoint.latLng.lng
-              let latitude_deg = Math.trunc(lat)
-              let latitude_min = (lat - latitude_deg) * 60
-              let longitude_deg = Math.trunc(lng)
-              let longitude_min = (lng - longitude_deg) * 60
+              const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
+              const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
+              const latitude_deg = Math.trunc(lat)
+              const longitude_deg = Math.trunc(lon)
               return {
                   type: "Waypoint",
                   search: waypoint.search,
                   gate: waypoint.gate,
+                  id: Math.trunc(waypoint.id),
                   odom: {
                       latitude_deg: latitude_deg,
-                      latitude_min: latitude_min,
-                      longitude_deg: longitude_deg,
-                      longitude_min: longitude_min,
+                      latitude_min: (lat - latitude_deg) * 60,
+                      longitude_deg: -longitude_deg,
+                      longitude_min: (lon - longitude_deg) * 60,
                       bearing_deg: 0,
+                      speed: -1,
                       type: "Odometry"
                   },
               }
@@ -142,7 +149,8 @@ export default {
     ...mapMutations('autonomy',{
       setRoute: 'setRoute',
       setWaypointList: 'setWaypointList',
-      setAutonMode: 'setAutonMode'
+      setAutonMode: 'setAutonMode',
+      setOdomFormat: 'setOdomFormat'
     }),
 
     deleteItem: function (payload) {
@@ -160,8 +168,6 @@ export default {
       } else if(payload.list === 1) {
         this.storedWaypoints.push(this.route[payload.index])
       }
-      
-
     },
 
     toggleSearch: function (payload) {
@@ -172,7 +178,7 @@ export default {
       }
     },
 
-     toggleGate: function (payload) {
+    toggleGate: function (payload) {
       if(payload.list === 0) {
         this.storedWaypoints[payload.index].gate = !this.storedWaypoints[payload.index].gate
       } else if(payload.list === 1) {
@@ -180,91 +186,83 @@ export default {
       }
     },
 
-    addWaypoint: function (lat, lat_mins, lat_sec, lon, lon_mins, lon_sec) {
-        this.storedWaypoints.push({
-          name: this.name,
-          latLng: L.latLng(lat, lon),
-          lat_min: lat_mins,
-          lat_sec: lat_sec,
-          lon_min: lon_mins,
-          lon_sec: lon_sec,
-          search: false,
-          gate: false,
-        })
-
+    addWaypoint: function (coord) {
+      this.storedWaypoints.push({
+        name: this.name,
+        id: this.id,
+        lat: Object.assign({}, coord.lat),
+        lon: Object.assign({}, coord.lon),
+        search: false,
+        gate: false
+      });
     },
 
-    dropWaypoint: function () {
-      if(this.input_fields == "D"){ // given and want in degrees
-        this.addWaypoint(this.odom.latitude_deg+(this.odom.latitude_min/60), 0, 0, this.odom.longitude_deg+(this.odom.longitude_min/60),0,0)
-      }
-      else if(this.input_fields == "DM"){ // given and want in degrees minutes
-        this.addWaypoint(this.odom.latitude_deg, this.odom.latitude_min, 0, this.odom.longitude_deg, -this.odom.longitude_min, 0)
-      }
-      else if(this.input_fields == "DMS"){ // given and want in degrees minutes seconds
-        this.addWaypoint(this.odom.latitude_deg, Math.floor(this.odom.latitude_min), ((this.odom.latitude_min%1)*60).toFixed(4), this.odom.longitude_deg, Math.floor(-this.odom.longitude_min), ((-this.odom.longitude_min%1)*60).toFixed(4))
-      }
-
+    select: function(payload) {
+      console.log(payload.toElement);
+      payload.toElement.select();
     },
 
-    parseWaypoint: function () {
-
-      const parseCoordinate = function (input) {
-        const nums = input.split(" ")
-        switch (nums.length) {
-          case 1:
-             return parseFloat(nums[0])
-          case 2:
-            return parseFloat(nums[0]) + parseFloat(nums[1])/60
-          case 3:
-            return parseFloat(nums[0]) + parseFloat(nums[1])/60 + parseFloat(nums[2])/3600
-          default:
-            return 0
-        }
-      }
-
-      if(this.input_fields == "D"){ // in degrees
-         this.addWaypoint(parseCoordinate(this.lat), 0, 0, -parseCoordinate(this.lon), 0, 0)
-      }
-      else if(this.input_fields == "DM"){ // in degrees
-         this.addWaypoint(parseCoordinate(this.lat), parseCoordinate(this.lat_mins), 0, -parseCoordinate(this.lon), parseCoordinate(this.lon_mins), 0)
-      }
-      else if(this.input_fields == "DMS"){ // in degrees
-         this.addWaypoint(parseCoordinate(this.lat), parseCoordinate(this.lat_mins), parseCoordinate(this.lat_sec), -parseCoordinate(this.lon), parseCoordinate(this.lon_mins), parseCoordinate(this.lon_sec))
-      }
-
-      if(this.convert.checked == true){
-        if(this.convert_fields == "convertD"){ // convert to degrees
-         this.addWaypoint(parseCoordinate(this.lat) + parseCoordinate(this.lat_mins)/60 + parseCoordinate(this.lat_sec)/3600, 0, 0, -parseCoordinate(this.lon) + -parseCoordinate(this.lon_mins)/60 + -parseCoordinate(this.lon_sec)/3600, 0, 0)
-        }
-        else if(this.convert_fields == "convertDM"){ // convert to degrees
-          this.addWaypoint(parseCoordinate(this.lat) + parseCoordinate(this.lat_mins)/60 + parseCoordinate(this.lat_sec)/3600, 0, 0, -parseCoordinate(this.lon) + -parseCoordinate(this.lon_mins)/60 + -parseCoordinate(this.lon_sec)/3600, 0, 0)
-        }
-        else if(this.convert_fields == "convertDMS"){ // convert to degrees
-          this.addWaypoint(parseCoordinate(this.lat) + parseCoordinate(this.lat_mins)/60 + parseCoordinate(this.lat_sec)/3600, 0, 0, -parseCoordinate(this.lon) + -parseCoordinate(this.lon_mins)/60 + -parseCoordinate(this.lon_sec)/3600, 0, 0)
-        }
-      }
-    },
-
-   toggleAutonMode: function (val) {
+    toggleAutonMode: function (val) {
       this.setAutonMode(val)
-    },
-   },
+    }
+  },
 
   watch: {
     route: function (newRoute) {
-      this.setRoute(newRoute)
+      const waypoints = newRoute.map((waypoint) => {
+        const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
+        const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
+        return { latLng: L.latLng(lat, lon) };
+      });
+      this.setRoute(waypoints);
     },
 
     storedWaypoints: function (newList) {
-      this.setWaypointList(newList)
+      const waypoints = newList.map((waypoint) => {
+        const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
+        const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
+        return { latLng: L.latLng(lat, lon) };
+      });
+      this.setWaypointList(waypoints);
+    },
+
+    odom_format_in: function (newOdomFormat) {
+      this.setOdomFormat(newOdomFormat);
+      this.input.lat = convertDMS(this.input.lat, newOdomFormat);
+      this.input.lon = convertDMS(this.input.lon, newOdomFormat);
+      this.storedWaypoints.map((waypoint) => {
+        waypoint.lat = convertDMS(waypoint.lat, newOdomFormat);
+        waypoint.lon = convertDMS(waypoint.lon, newOdomFormat);
+        return waypoint;
+      });
+      this.route.map((waypoint) => {
+        waypoint.lat = convertDMS(waypoint.lat, newOdomFormat);
+        waypoint.lon = convertDMS(waypoint.lon, newOdomFormat);
+        return waypoint;
+      });
     }
   },
 
   computed: {
     ...mapGetters('autonomy', {
       auton_enabled: 'autonEnabled',
-    })
+      odom_format: 'odomFormat'
+    }),
+
+    formatted_odom: function() {
+      return {
+        lat: convertDMS({d: this.odom.latitude_deg, m: this.odom.latitude_min, s: 0}, this.odom_format),
+        lon: convertDMS({d: -this.odom.longitude_deg, m: -this.odom.longitude_min, s: 0}, this.odom_format)
+      }
+    },
+
+    min_enabled: function() {
+      return this.odom_format != 'D';
+    },
+
+    sec_enabled: function() {
+      return this.odom_format == 'DMS';
+    }
   },
 
   components: {
@@ -290,7 +288,7 @@ export default {
     height: 100%;
   }
 
-  .top{
+  .identification{
     display: inline-block;
   }
 
@@ -306,6 +304,10 @@ export default {
     padding: 10px;
     border: 1px solid black;
     overflow: auto;
+  }
+
+  .wp-input p {
+    display: inline;
   }
 
 </style>

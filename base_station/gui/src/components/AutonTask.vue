@@ -40,7 +40,7 @@
       <RoverMap v-bind:odom="odom"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" />
+      <WaypointEditor v-bind:odom="odom"/>
     </div>
      <div class="box raw_sensors light-bg">
       <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
@@ -94,7 +94,6 @@ export default {
 
       nav_status: {
         completed_wps: 0,
-        missed_wps: 0,
         total_wps: 0
       },
 

@@ -81,10 +81,11 @@ export function projection({center_lat, center_lon}, pt) {
 
 // Convert an angle from radians on a compass to the
 // equivalent on the simulator field which.
+// The computer has 0 at "3 o'clock" and goes clockwise
 export function compass_to_computer(angle) {
     angle -= Math.PI / 2;
     angle *= -1;
     angle += 2 * Math.PI;
     angle %= 2 * Math.PI;
-    return angle;
+    return -1 * angle;
 };

@@ -24,9 +24,6 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     , mLcmObject( lcmObject )
     , mTotalWaypoints( 0 )
     , mCompletedWaypoints( 0 )
-    , mMissedWaypoints( 0 )
-    , mFoundTargets( 0 )
-    , mTotalTargets( 0 )
     , mStateChanged( true )
 {
     ifstream configFile;
@@ -63,12 +60,6 @@ void StateMachine::setSearcher( SearchType type )
 void StateMachine::updateCompletedPoints( )
 {
     mCompletedWaypoints += 1;
-    return;
-}
-
-void StateMachine::updateFoundTargets( )
-{
-    mFoundTargets += 1;
     return;
 }
 
@@ -273,13 +264,9 @@ bool StateMachine::isRoverReady() const
 void StateMachine::publishNavState() const
 {
     NavStatus navStatus;
-    navStatus.nav_state = static_cast<int8_t>( mPhoebe->roverStatus().currentState() );
     navStatus.nav_state_name = stringifyNavState();
     navStatus.completed_wps = mCompletedWaypoints;
-    navStatus.missed_wps = mMissedWaypoints;
     navStatus.total_wps = mTotalWaypoints;
-    navStatus.found_tbs = mFoundTargets;
-    navStatus.total_tbs = mTotalTargets;
     const string& navStatusChannel = mRoverConfig[ "lcmChannels" ][ "navStatusChannel" ].GetString();
     mLcmObject.publish( navStatusChannel, &navStatus );
 } // publishNavState()
@@ -293,10 +280,7 @@ NavState StateMachine::executeOff()
     if( mPhoebe->roverStatus().autonState().is_auton )
     {
         mCompletedWaypoints = 0;
-        mMissedWaypoints = 0;
-        mFoundTargets = 0;
         mTotalWaypoints = mPhoebe->roverStatus().course().num_waypoints;
-        mTotalTargets = mPhoebe->roverStatus().getPathTargets();
 
         if( !mTotalWaypoints )
         {

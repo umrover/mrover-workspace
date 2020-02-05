@@ -44,8 +44,6 @@ public:
 
     void updateObstacleElements( double bearing, double distance );
 
-    void updateFoundTargets( );
-
     void setSearcher(SearchType type);
 
 private:
@@ -95,23 +93,11 @@ private:
     // Configuration file for the rover.
     rapidjson::Document mRoverConfig;
 
-    // Odometry point used when avoiding obstacles.
-    Odometry mObstacleAvoidancePoint;
-
     // Number of waypoints in course.
     unsigned mTotalWaypoints;
 
     // Number of waypoints completed.
     unsigned mCompletedWaypoints;
-
-    // Number of waypoints missed.
-    unsigned mMissedWaypoints;
-
-    // Number of targets found.
-    unsigned mFoundTargets;
-
-    // Number of targets in course.
-    unsigned mTotalTargets;
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;

@@ -3,10 +3,11 @@
   become: yes
   gather_facts: False
   vars:
-      ubuntu_release: xenial
-      running_user: nvidia
-      home_dir: /home/nvidia
-      workspace_dir: /home/nvidia/mrover-workspace
+      ubuntu_release: bionic
+      running_user: mrover
+      home_dir: /home/mrover
+      workspace_dir: /home/mrover/mrover-workspace
+      ansible_python_interpreter: /usr/bin/python3
   roles:
   - onboard_dev
   - onboard_networks

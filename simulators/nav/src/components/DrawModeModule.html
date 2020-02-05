@@ -9,7 +9,7 @@
     <br>
     <div id="draw-mode-options">
         <div class="target-ids">
-            <div class="{{gate_enabled && tag_enabled ? 'disabled' : '' }} tooltip-container">
+            <div class="{{gate_enabled && tag_enabled && wp_enabled ? 'disabled' : '' }} tooltip-container">
                 <label class="tooltip">
                 Target 1 ID:
                     {{#if !gate_enabled}}
@@ -17,8 +17,13 @@
                         Even and odd numbered tags correspond to the left and right sides of a gate respectively.
                     </span>
                     {{/if}}
+                    {{#if !wp_enabled}}
+                    <span class="tooltiptext tooltiptext-below">
+                        The specific target id to search for at the waypoint.
+                    </span>
+                    {{/if}}
                 </label>
-                <input disabled="{{gate_enabled && tag_enabled}}" type="number" bind:value="target1_id" min="0"/>
+                <input disabled="{{gate_enabled && tag_enabled && wp_enabled}}" type="number" bind:value="target1_id" min="0"/>
             </div>
             <br>
             <div class="{{gate_enabled ? 'disabled' : '' }} tooltip-container">
@@ -117,7 +122,13 @@ export default {
     },
     methods: {
         selected: function(mode) {
-            this.set({ mode });
+            let target1_id = -1;
+            if (mode == AR_TAG_MODE) {
+                target1_id = 1;
+            } else if (mode == GATE_MODE) {
+                target1_id = 4;
+            }
+            this.set({ mode,  target1_id});
         },
 
         flip_target_ids: function() {

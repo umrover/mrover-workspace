@@ -2,12 +2,14 @@
 - hosts: all
   become: yes
   vars:
-      ubuntu_release: xenial
+      ubuntu_release: bionic
       devbox_username: vagrant
+      ansible_python_interpreter: /usr/bin/python3
   roles:
   - onboard_dev
   - base_station_dev
   - cv_dev
+  - pis_dev
   tasks:
   - name: Configure bashrc
     copy:

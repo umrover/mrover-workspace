@@ -2,14 +2,16 @@
 const state = {
   route: [],
   waypointList: [],
-  autonEnabled: false
+  autonEnabled: false,
+  odomFormat: "DM",
 }
 
 // getters
 const getters = {
   route: state => state.route,
   waypointList: state => state.waypointList,
-  autonEnabled: state => state.autonEnabled
+  autonEnabled: state => state.autonEnabled,
+  odomFormat: state => state.odomFormat
 }
 
 // mutations
@@ -24,6 +26,10 @@ const mutations = {
 
   setWaypointList (commit, newList) {
     state.waypointList = newList
+  },
+
+  setOdomFormat (commit, newOdomFormat) {
+    state.odomFormat = newOdomFormat
   }
 }
 

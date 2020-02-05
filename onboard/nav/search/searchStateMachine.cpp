@@ -256,7 +256,6 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
         mSearchPoints.clear();
         phoebe->roverStatus().path().pop();
         roverStateMachine->updateCompletedPoints();
-        roverStateMachine->updateFoundTargets();
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
