@@ -57,10 +57,6 @@ function startingPlaceholderAnimate() {
     // get the current in deciseconds from the global Date object
     var cur_time = Date.now()/100;
 
-    // HANDLE USER KEY INTERACTION
-
-    kineval.startingPlaceholderUserInput();
-
     // CREATE TRANSFORMATION MATRIX
 
     // jsmat is the matrix data structure used to separately transform each 
@@ -306,15 +302,12 @@ kineval.tutorialJavaScript = function tutorialJSCoding() {
     textbar.style.left = 10 + 'px';
     textbar.style["font-family"] = "Monospace";
     textbar.style.color = "#00ff00";
-    textbar.style.height = 20;
+    textbar.style.height = 40;
     // Note: window.innerWidth current width of the window viewport 
     textbar.style.width = window.innerWidth-10; 
     
     // if you do not see the textbar, try uncommenting this
     //textbar.style.zIndex = 1; 
-
-    // add text into the created div HTML element
-    textbar.innerHTML = "autorob.github.io";
 
     // assign an identifier to the created div element
     textbar.id = "textbar";
@@ -322,15 +315,22 @@ kineval.tutorialJavaScript = function tutorialJSCoding() {
     // attach the div element to the DOM under the body of the HTML document
     document.body.appendChild(textbar);  
 
+    posText = document.createElement('div');
+    angText = document.createElement('div');
+    textbar.appendChild(posText);
+    textbar.appendChild(angText);
+    posText.id = "posText";
+    angText.id = "angText";
+    posRef = document.getElementById("posText");
+    angRef = document.getElementById("angText");
+    
+
     /* The document.getElementById() method returns a reference to an object
          in the DOM that has the id specified in the input parameter
     */
 
     // get a reference to the textbar element in the DOM
     textbarReference = document.getElementById("textbar");
-
-    // modify the text of the textbar
-    textbarReference.innerHTML = "AutoRob KinEval - autorob.online";
 }
 
 
@@ -371,66 +371,3 @@ kineval.printRobotInfo = function printRobotStuff() {
     console.log(robot.joints[robot.links[robot.base].children[0]].axis); 
 
 }
-
-kineval.startingPlaceholderUserInput = function startingPlaceholderUserInput() {
-
-    /* keyboard is a threejs helper object for reading keyboard state.  
-         keyboard.pressed() will return true if a particular key is being
-         pressed, without the need for a callback event handler 
-    */
-    if (keyboard.pressed("shift+x")) {
-        textbar.innerHTML = "come on down";  // make the objects move down
-    // STENCIL: update the vertical offset variable
-    }
-    else if (keyboard.pressed("x")) {
-        textbar.innerHTML = "moving on up";  // make the objects move up
-    // STENCIL: update the vertical offset variable
-    }
-    else if (keyboard.pressed("shift+z")) {
-        // increase the jittering of the objects
-        textbar.innerHTML = "its time for the percolator";  
-    // STENCIL: update the radius of the jittering
-    }
-    else if (keyboard.pressed("z")) {
-        // decrease the jittering of the objects
-        textbar.innerHTML = "relax your mind, let your conscience be free";  
-    // STENCIL: update the radius of the jittering
-    }
-    else if (keyboard.pressed("shift+1")) { 
-        // increase spacing along the x-axis between the objects
-        textbar.innerHTML = "sail away"; 
-    // STENCIL: update the global spacing variable
-    }
-    else if (keyboard.pressed("1")) {
-        // decrease spacing along the x-axis between the objects
-        textbar.innerHTML = "come together"; 
-    // STENCIL: update the global spacing variable
-    }
-    else if (keyboard.pressed("shift+2")) { 
-        // increase the amplitude of the animating sine wave
-        textbar.innerHTML = "ain't no mountain high enough"; 
-    // STENCIL: update the wave amplitude variable
-    }
-    else if (keyboard.pressed("2")) {
-        // decrease the amplitude of the animating sine wave
-        textbar.innerHTML = "got 'til it's gone"; 
-    // STENCIL: update the wave amplitude variable
-    }
-    else if (keyboard.pressed("shift+3")) { 
-        // increase the frequency of the animating sine wave
-        textbar.innerHTML = "good vibrations"; 
-    // STENCIL: update the global spacing variable
-    }
-    else if (keyboard.pressed("3")) {
-        // decrease the frequency of the animating sine wave
-        textbar.innerHTML = "friends in low(er) places"; 
-    // STENCIL: update the global spacing variable
-    }
-    else {
-        // STENCIL: say something more interesting in the textbar element
-        textbar.innerHTML = "Welcome to KinEval"; 
-    }
-}
-
-
-

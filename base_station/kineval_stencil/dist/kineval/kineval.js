@@ -179,15 +179,12 @@ kineval.initlcmbridge = function initlcmbridge() {
                     console.log(msg['message']['message'])
                 }
                 if (msg['message']['message'] === 'Solved IK') {
-                    textbar.innerHTML = 'Solved IK. Planning Path'
                     target_geom.color = 0x00ff00
                 }
                 else if (msg['message']['message'] === 'No IK solution') {
-                    textbar.innerHTML = 'No Ik solution, using closest Config' 
                     target_geom.color = 0xff3300
                 }
                 else if (msg['message']['message'].includes("Planned path")) {
-                    textbar.innerHTML = msg['message']['message']
                     shouldPreview = window.confirm("Planned Path. View Path?");
                     if (shouldPreview) {
                         var MotionPreviewMsg = {
@@ -195,7 +192,6 @@ kineval.initlcmbridge = function initlcmbridge() {
                             'preview': true,
                         }
                         console.log('Previewing plan')
-                        // textbar.innerHTML = "execute preview";
                         kineval.publish('/motion_execute', MotionPreviewMsg)
                     }
                 }
@@ -206,7 +202,6 @@ kineval.initlcmbridge = function initlcmbridge() {
                             'type': 'MotionExecute',
                             'preview': false,
                         }
-                        // textbar.innerHTML = "execute preview";
                         kineval.publish('/motion_execute', MotionPreviewMsg)
                     }
                 }
@@ -336,12 +331,12 @@ kineval.publish_joint_angles = function publish_joint_angles() {
 kineval.publish_target_angles = function publish_target_angles(goal) {
     var TargetAngleMsg = {
         'type': 'TargetAngles',
-        'a': goal[0],
-        'b': goal[1],
-        'c': goal[2],
-        'd': goal[3],
-        'e': goal[4],
-        'f': goal[5]
+        'joint_a': goal[0],
+        'joint_b': goal[1],
+        'joint_c': goal[2],
+        'joint_d': goal[3],
+        'joint_e': goal[4],
+        'joint_f': goal[5]
     }
     kineval.publish('/target_angles', TargetAngleMsg)
 }
@@ -513,12 +508,12 @@ kineval.robotDraw = function drawRobot() {
     simpleApplyMatrix(cart_controller_y1_pos,target_mat);
     simpleApplyMatrix(cart_controller_z1_pos,target_mat);
 
-    textbar.innerHTML = kineval.params.ik_target.position[0][0].toString()
-    textbar.innerHTML += " " + kineval.params.ik_target.position[1][0].toString()
-    textbar.innerHTML += " " + kineval.params.ik_target.position[2][0].toString()
-    textbar.innerHTML += " (" + kineval.params.ik_target.orientation[0].toString()
-    textbar.innerHTML += ", " + kineval.params.ik_target.orientation[1].toString()
-    textbar.innerHTML += ", " + kineval.params.ik_target.orientation[2].toString() + ")"
+    posRef.innerHTML = kineval.params.ik_target.position[0][0].toFixed(2).toString()
+    posRef.innerHTML += " " + kineval.params.ik_target.position[1][0].toFixed(2).toString()
+    posRef.innerHTML += " " + kineval.params.ik_target.position[2][0].toFixed(2).toString()
+    angRef.innerHTML = " (" + kineval.params.ik_target.orientation[0].toFixed(3).toString()
+    angRef.innerHTML += ", " + kineval.params.ik_target.orientation[1].toFixed(3).toString()
+    angRef.innerHTML += ", " + kineval.params.ik_target.orientation[2].toFixed(3).toString() + ")"
     
     } // hacked for stencil
 
@@ -677,8 +672,8 @@ kineval.initScene = function initScene() {
     document.body.appendChild( renderer.domElement );
 
     // instantiate threejs camera controls
-    camera_controls = new THREE.OrbitControls( camera );
-    camera_controls.addEventListener( 'change', renderer );
+    camera_controls = new THREE.OrbitControls( camera, renderer.domElement );
+    //camera_controls.addEventListener( 'change', renderer );
 
     // create world floor
     // KE T creates error : "TypeError: n.x is undefined"
@@ -809,6 +804,23 @@ kineval.initScene = function initScene() {
     scene.add( sphereInter );
 }
 
+var angles = function() {
+    this.x = 0.0;
+    this.y = 0.0;
+    this.z = 0.0;
+    this.alpha = 0.0;
+    this.beta = 0.0;
+    this.gamma = 0.0;
+    this.submit = function() {
+        kineval.params.ik_target.position[0][0] = this.x;
+        kineval.params.ik_target.position[1][0] = this.y;
+        kineval.params.ik_target.position[2][0] = this.z;
+        kineval.params.ik_target.orientation[0] = this.alpha;
+        kineval.params.ik_target.orientation[1] = this.beta;
+        kineval.params.ik_target.orientation[2] = this.gamma;
+    }
+};
+
 kineval.initGUIDisplay = function initGUIDisplay () {
 
     var gui = new dat.GUI();
@@ -881,29 +893,13 @@ kineval.initGUIDisplay = function initGUIDisplay () {
     }
 
     dummy_object.target_angle_neutral = function() {
-        var TargetOrientationMsg =  {
-            'type': 'TargetOrientation',
-            'x': 0.0,
-            'y': 0.5,
-            'z': 1.0,
-            'alpha': 0.1,
-            'beta': 0.0,
-            'gamma': 0.0,
-        }
-        kineval.publish('/target_orientation', TargetOrientationMsg)
+        const goal = [0.0, 0.5, 1.0, 0.1, 0.0, 0.0]
+        kineval.publish_target_angles(goal)
     }
 
     dummy_object.target_angle_down = function() {
-        var TargetOrientationMsg =  {
-            'type': 'TargetOrientation',
-            'x': 0.0,
-            'y': 0.3,
-            'z': 1.5,
-            'alpha': 1.3,
-            'beta': 0.0,
-            'gamma': 0.0,
-        }
-        kineval.publish('/target_orientation', TargetOrientationMsg)
+        const goal = [0.0, 0.3, 1.5, 1.3, 0.0, 0.0]
+        kineval.publish_target_angles(goal)
     }
 
     dummy_object.preview_plan = function() {
@@ -912,7 +908,6 @@ kineval.initGUIDisplay = function initGUIDisplay () {
             'preview': true,
         }
         console.log('Previewing plan')
-        // textbar.innerHTML = "execute preview";
         kineval.publish('/motion_execute', MotionPreviewMsg)
     }
 
@@ -921,7 +916,6 @@ kineval.initGUIDisplay = function initGUIDisplay () {
             'type': 'MotionExecute',
             'preview': false,
         }
-        // textbar.innerHTML = "execute motor controls";
         kineval.publish('/motion_execute', MotionExecuteMsg)
     }
 
@@ -934,7 +928,17 @@ kineval.initGUIDisplay = function initGUIDisplay () {
     gui.add(dummy_object, 'preview_plan');
     gui.add(dummy_object, 'execute_plan')
 
-
+    
+    var text = new angles();
+    var gui2 = new dat.GUI();
+    gui2.close();
+    gui2.add(text, 'x');
+    gui2.add(text, 'y');
+    gui2.add(text, 'z');
+    gui2.add(text, 'alpha');
+    gui2.add(text, 'beta');
+    gui2.add(text, 'gamma');
+    gui2.add(text, 'submit');
 }
 
 kineval.initRobotLinksGeoms = function initRobotLinksGeoms() {
@@ -1189,10 +1193,6 @@ kineval.initWorldPlanningScene = function initWorldPlanningScene() {
 //////////////////////////////////////////////////
 
 kineval.setPoseSetpoint = function set_pose_setpoint (pose_id) {
-    if (pose_id < 1)
-        textbar.innerHTML = "setpoint is preset zero pose";
-    else
-        textbar.innerHTML = "setpoint is user defined pose "+pose_id;
     kineval.params.setpoint_id = pose_id;
     for (x in robot.joints) {
         kineval.params.setpoint_target[x] = kineval.setpoints[pose_id][x];
@@ -1202,8 +1202,6 @@ kineval.setPoseSetpoint = function set_pose_setpoint (pose_id) {
 kineval.assignPoseSetpoint = function assign_pose_setpoint (pose_id) {
     if ((pose_id < 1)||(pose_id>9))
         console.warn("kineval: setpoint id must be between 1 and 9 inclusive");
-    else
-        textbar.innerHTML = "assigning current pose to setpoint "+pose_id;
     for (x in robot.joints) {
         kineval.setpoints[pose_id][x] = robot.joints[x].angle;
     }

@@ -18,7 +18,6 @@
 
 kineval.robotForwardKinematics = function robotForwardKinematics () {
     if (typeof kineval.buildFKTransforms === 'undefined') {
-        textbar.innerHTML = "forward kinematics not implemented";
         return;
     }
 

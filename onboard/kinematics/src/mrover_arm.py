@@ -121,13 +121,13 @@ class MRoverArm:
     def target_angles_callback(self, channel, msg):
         self.enable_execute = False
         target_angles = TargetAngles.decode(msg)
-        goal = [target_angles.a,
-                target_angles.b,
-                target_angles.c,
-                target_angles.d,
-                target_angles.e,
-                target_angles.f]
-
+        goal = [target_angles.joint_a,
+                target_angles.joint_b,
+                target_angles.joint_c,
+                target_angles.joint_d,
+                target_angles.joint_e,
+                target_angles.joint_f]
+        print(goal)
         self.plan_path(goal)
 
     def plan_path(self, goal):
