@@ -7,7 +7,7 @@
 # you're doing.
 Vagrant.configure("2") do |config|
   # Use Ubuntu 16.04 box
-  config.vm.box = "bento/ubuntu-16.04"
+  config.vm.box = "bento/ubuntu-18.04"
 
   config.vm.hostname = "mrover-devbox"
 

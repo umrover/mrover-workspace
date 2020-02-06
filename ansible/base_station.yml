@@ -2,7 +2,7 @@
 - hosts: all
   become: yes
   vars:
-    ubuntu_release: xenial
+    ubuntu_release: bionic
     workspace_dir: /home/mrover/mrover-workspace
     user: mrover
   roles:
