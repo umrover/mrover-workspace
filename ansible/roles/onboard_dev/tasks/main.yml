@@ -18,3 +18,5 @@
   - libftdi1-dev
   - gdb
   - cmake
+  - libcairo2-dev
+  - libgirepository1.0-dev
