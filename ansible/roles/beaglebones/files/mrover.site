@@ -1,3 +1,6 @@
 [third_party]
 rapidjson=False
 phoenix=False
+
+[pip_deps]
+onboard=False
