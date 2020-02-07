@@ -3,6 +3,7 @@
   become: yes
   vars:
       ubuntu_release: bionic
+      ansible_python_interpreter: /usr/bin/python3
   roles:
   - onboard_dev
   - base_station_dev
