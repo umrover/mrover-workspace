@@ -13,18 +13,6 @@ from .logger import logger
 from .arm_state import ArmState
 from .kinematics import KinematicsSolver
 from .motion_planner import MotionPlanner
-from .utils import ypr_to_euler_angs
-
-masses = {
-    "Chassis Interace": 0.46,
-    "Joint A": 0.69,
-    "Joint/Seg BC": 1.48,
-    "Joint C": 1.11,
-    "Joint/Seg DE": 1.21,
-    "Joint/Seg EF": 1.08,
-    "Joint F": 0.16,
-    "End Effector": 0.5
-}
 
 
 class MRoverArm:
