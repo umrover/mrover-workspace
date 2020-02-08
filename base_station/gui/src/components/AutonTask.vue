@@ -40,7 +40,7 @@
       <RoverMap v-bind:odom="odom"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom"/>
+      <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped"/>
     </div>
      <div class="box raw_sensors light-bg">
       <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
@@ -174,7 +174,9 @@ export default {
         } else if (msg.topic === '/imu') {
           this.IMU = msg.message
         } else if (msg.topic === '/autonomous') {
-        this.Joystick = msg.message
+          this.Joystick = msg.message
+        } else if (msg.topic === '/rr_drop_complete') {
+          this.repeater_dropped = true
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/debugMessage') {
@@ -197,6 +199,7 @@ export default {
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu', 'type': 'IMU'},
+        {'topic': '/rr_drop_complete', 'type': 'RepeaterDropComplete'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'}
       ]
     )
@@ -402,6 +405,11 @@ export default {
 
   .IMU{
     grid-area: imu;
+  }
+
+  .radio_repeater {
+    font-size: 1em;
+    height: 100px;
   }
 
   .controls {
