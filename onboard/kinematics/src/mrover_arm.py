@@ -13,18 +13,6 @@ from .logger import logger
 from .arm_state import ArmState
 from .kinematics import KinematicsSolver
 from .motion_planner import MotionPlanner
-from .utils import ypr_to_euler_angs
-
-masses = {
-    "Chassis Interace": 0.46,
-    "Joint A": 0.69,
-    "Joint/Seg BC": 1.48,
-    "Joint C": 1.11,
-    "Joint/Seg DE": 1.21,
-    "Joint/Seg EF": 1.08,
-    "Joint F": 0.16,
-    "End Effector": 0.5
-}
 
 
 class MRoverArm:
@@ -91,21 +79,24 @@ class MRoverArm:
         return None
 
     def target_orientation_callback(self, channel, msg):
+        print("target orientation callback")
         point_msg = TargetOrientation.decode(msg)
         self.enable_execute = False
         logger.info('Got a target point.')
 
-        euler_angles = ypr_to_euler_angs(np.pi/2, np.pi/2, np.pi)
-        alpha_euler = euler_angles[0]
-        beta_euler = euler_angles[1]
-        gamma_euler = euler_angles[2]
+        print("alpha beta gamma")
+        print()
+        print(point_msg.alpha, " , ", point_msg.beta, " , ", point_msg.gamma)
+        print()
+        use_orientation = point_msg.use_orientation
+        print(use_orientation)
 
         point = np.array([point_msg.x, point_msg.y, point_msg.z,
-                          alpha_euler, beta_euler, gamma_euler])
+                          point_msg.alpha, point_msg.beta, point_msg.gamma])
         # print('Point: {}'.format(point))
         # print(self.state.angles)
         success = False
-        joint_angles, success = self.solver.IK(point, False, False)
+        joint_angles, success = self.solver.IK(point, False, use_orientation)
 
         ik_message = DebugMessage()
         ik_message.isError = False
@@ -116,7 +107,7 @@ class MRoverArm:
                 break
             print("attempting new IK solution...")
             print(i)
-            joint_angles, success = self.solver.IK(point, True, False)
+            joint_angles, success = self.solver.IK(point, True, use_orientation)
 
         if not success:
             ik_message.message = "No IK solution"
