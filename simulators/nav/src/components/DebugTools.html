@@ -19,6 +19,28 @@
         <br>
         <input id="rotate-slider" type="range" bind:value="rotational_speed" min="0" step="0.5" max="5"/>
     </div>
+    <div class="tooltip-container">
+        <label class="tooltip">
+            Field of View:
+            <span class="tooltiptext tooltiptext-below">
+                Degrees
+            </span>
+        </label>
+        <input type="number" bind:value="field_of_view" min="0" max="360" step="1"/>
+    </div>
+    <div class="tooltip-container">
+        <label class="tooltip">
+            Depth of View:
+            <span class="tooltiptext tooltiptext-below">
+                Meters
+            </span>
+        </label>
+        <input type="number" bind:value="depth_of_view" min="0" max="15" step="0.5"/>
+    </div>
+    <div class="tool">
+        <input type="checkbox" id="rover-visibility" bind:checked="field_of_view_visible">
+        <label for="rover-visibility">Draw Rover Visibility</label>
+    </div>
 </fieldset>
 
 <style type="text/css">
@@ -34,6 +56,38 @@
 
 #transl-slider {
     width: 100%;
+}
+
+.tool {
+    display: inline-block;
+}
+
+.tooltip-container {
+    position: relative;
+    float: left;
+    padding: 10px 0;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 100%;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltiptext-below {
+    top: 75%;
+    left: 50%;
+    margin-left: -50%; /* Half of the width, to center the tooltip */
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }
 
 button {

@@ -12,8 +12,6 @@
       <span>
         Navigation State: {{nav_status.nav_state_name}}<br>
         Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
-        Missed Waypoints: {{nav_status.missed_wps}}/{{nav_status.total_wps}}<br>
-        Tennis Balls: {{nav_status.found_tbs}}/{{nav_status.total_tbs}}
       </span>
     </div>
     <div class="box">
@@ -58,7 +56,6 @@ export default {
       nav_status: {
         nav_state_name: "Off",
         completed_wps: 0,
-        missed_wps: 0,
         total_wps: 0
       },
 
@@ -102,6 +99,7 @@ export default {
                       longitude_deg: longitude_deg,
                       longitude_min: longitude_min,
                       bearing_deg: 0,
+                      speed: -1,
                       type: "Odometry"
                   }
               }
