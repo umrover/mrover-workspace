@@ -5,5 +5,3 @@ pygobject==3.28.2
 pyusb==1.0.2
 Adafruit_BBIO==1.1.1
 smbus-cffi==0.5.1
-numpy==1.16.2
-scipy==1.2.1

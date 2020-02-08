@@ -92,13 +92,15 @@ def build_dir(ctx, d, lint, opts=None):
 
 
 def get_site_cfg():
-    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix']
+    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix', 'onboard']
     site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
     site_cfg = configparser.ConfigParser()
     site_cfg['third_party'] = {}
+    site_cfg['pip_deps'] = {}
     site_cfg.read(site_cfg_path)
-    tpdeps = site_cfg['third_party']
-    return {pkg_name: tpdeps.get(pkg_name, '') != 'False'
+    deps = site_cfg['third_party']
+    deps.update(site_cfg['pip_deps'])
+    return {pkg_name: deps.get(pkg_name, '') != 'False'
             for pkg_name in PACKAGE_NAMES}
 
 
@@ -116,15 +118,21 @@ def build_deps(ctx):
         third_party.ensure_lcm(ctx)
     
     pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
-    pip_hasher.hash_modification_time('external_requirements.txt')
+    pip_hasher.hash_modification_time('pip_deps/')
     if pip_hasher.has_changed():
         with ctx.cd(ctx.root):
-            print("Installing pip dependencies...")
             with ctx.inside_product_env():
+                print("Installing pip dependencies...")
                 ctx.run("pip install --upgrade pip", hide='out')
-                ctx.run("pip install -r external_requirements.txt", hide='out')
+                # Jarvis dependencies
                 ctx.run("pip install -r {}/requirements.txt".format(
                     ctx.jarvis_root), hide='out')
+                # Workspace dependencies
+                ctx.run("pip install -r pip_deps/requirements.txt", hide='out')
+                if site_cfg['onboard']:
+                    print("Installing onboard pip dependencies...")
+                    ctx.run("pip install -r pip_deps/onboard_requirements.txt",
+                        hide='out')
         pip_hasher.save()
     else:
         print("pip dependencies already installed, skipping.")
