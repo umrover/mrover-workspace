@@ -14,7 +14,7 @@
                 Target 1 ID:
                     {{#if !gate_enabled}}
                     <span class="tooltiptext tooltiptext-below">
-                        Even and odd numbered tags correspond to the left and right sides of a gate respectively.
+                        Odd and even numbered tags correspond to the left and right sides of a gate respectively.
                     </span>
                     {{/if}}
                     {{#if !wp_enabled}}
@@ -31,7 +31,7 @@
                 Target 2 ID:
                     {{#if !gate_enabled}}
                     <span class="tooltiptext tooltiptext-below">
-                        Even and odd numbered tags correspond to the left and right sides of a gate respectively.
+                        Odd and even numbered tags correspond to the left and right sides of a gate respectively.
                     </span>
                     {{/if}}
                 </label>
@@ -124,9 +124,9 @@ export default {
         selected: function(mode) {
             let target1_id = -1;
             if (mode == AR_TAG_MODE) {
-                target1_id = 1;
+                target1_id = 0;
             } else if (mode == GATE_MODE) {
-                target1_id = 4;
+                target1_id = 3;
             }
             this.set({ mode,  target1_id});
         },

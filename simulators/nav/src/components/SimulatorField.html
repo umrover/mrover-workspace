@@ -383,8 +383,8 @@ export default {
         const draw_gate_direction_arrow = (tip_loc, posts) => {
             let { dist:_, bearing:angle } = dist_and_bearing(to_decimal(posts[0]), to_decimal(posts[1]));
             // Angle should be 90 degrees offset from angle between posts.
-            angle -= Math.PI / 2;
-            // If left post is odd, flip the arrow 180 degrees
+            angle += Math.PI / 2;
+            // If left post is even, flip the arrow 180 degrees
             if (posts[1].id % 2) {
                 angle += Math.PI;
             }
@@ -399,15 +399,15 @@ export default {
             // main line
             const arrow_len = 20;
             ctx.moveTo(tip_loc.x, tip_loc.y);
-            ctx.lineTo(tip_loc.x + arrow_len * Math.cos(angle), tip_loc.y - arrow_len * Math.sin(angle));
+            ctx.lineTo(tip_loc.x + arrow_len * Math.cos(angle), tip_loc.y + arrow_len * Math.sin(angle));
             // arrow head first half
             angle += Math.PI / 4;
             ctx.moveTo(tip_loc.x, tip_loc.y);
-            ctx.lineTo(tip_loc.x + arrow_len / 2 * Math.cos(angle), tip_loc.y - arrow_len / 2 * Math.sin(angle));
+            ctx.lineTo(tip_loc.x + arrow_len / 2 * Math.cos(angle), tip_loc.y + arrow_len / 2 * Math.sin(angle));
             // arrow head second half
             angle -= Math.PI / 2;
             ctx.moveTo(tip_loc.x, tip_loc.y);
-            ctx.lineTo(tip_loc.x + arrow_len / 2 * Math.cos(angle), tip_loc.y - arrow_len / 2 * Math.sin(angle));
+            ctx.lineTo(tip_loc.x + arrow_len / 2 * Math.cos(angle), tip_loc.y + arrow_len / 2 * Math.sin(angle));
             ctx.stroke();
         };
 
