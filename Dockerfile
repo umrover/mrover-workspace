@@ -1,8 +1,8 @@
-FROM nvidia/cuda:10.0-devel-ubuntu16.04
+FROM nvidia/cuda:10.0-devel-ubuntu18.04
 
-MAINTAINER Milo Hartsoe <hartsoe@umich.edu>
+MAINTAINER Justin Beemer <jubeemer@umich.edu>
 
-ENV ANSIBLE_VERSION 2.6.0
+ENV ANSIBLE_VERSION 2.9.4
 
 COPY ansible /tmp/ansible
 
@@ -21,10 +21,14 @@ RUN set -x && \
     apt-get install -y ansible && \
     echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
 
+ENV DEBIAN_FRONTEND noninteractive
+
 # Install OpenCV 3.2
-RUN apt-get update -y && apt-get upgrade -y && apt-get autoremove -y && \
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get autoremove -y && \
     apt-get install -y --no-install-recommends cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev \ 
-    libswscale-dev python3.5-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev libjasper-dev \
+    libswscale-dev python3.6-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev jasper \
     libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev \
     yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev \
     libavutil-dev libavfilter-dev libavresample-dev
@@ -58,9 +62,9 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -y && \
-    wget -O ZED_SDK_Linux_Ubuntu16.run https://download.stereolabs.com/zedsdk/2.8/ubuntu16 && \
-    chmod +x ZED_SDK_Linux_Ubuntu16.run ; ./ZED_SDK_Linux_Ubuntu16.run silent && \
-    rm ZED_SDK_Linux_Ubuntu16.run && \
+    wget -O ZED_SDK_Linux_Ubuntu18.run https://download.stereolabs.com/zedsdk/2.8/ubuntu18 && \
+    chmod +x ZED_SDK_Linux_Ubuntu18.run ; ./ZED_SDK_Linux_Ubuntu18.run silent && \
+    rm ZED_SDK_Linux_Ubuntu18.run && \
     rm -rf /var/lib/apt/lists/*
 
 RUN ansible-playbook -i "localhost," -c local /tmp/ansible/devbox.yml

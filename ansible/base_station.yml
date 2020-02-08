@@ -2,9 +2,10 @@
 - hosts: all
   become: yes
   vars:
-    ubuntu_release: xenial
+    ubuntu_release: bionic
     workspace_dir: /home/mrover/mrover-workspace
     user: mrover
+    ansible_python_interpreter: /usr/bin/python3
   roles:
   - onboard_dev
   - base_station_dev

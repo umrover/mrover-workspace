@@ -5,6 +5,7 @@
       debian_release: stretch
       running_user: debian
       workspace_dir: /home/debian/mrover-workspace
+      ansible_python_interpreter: /usr/bin/python3
   roles:
   - beaglebones
       
