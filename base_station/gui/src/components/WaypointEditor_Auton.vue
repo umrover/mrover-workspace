@@ -31,6 +31,7 @@
       <span>
         Navigation State: {{nav_status.nav_state_name}}<br>
         Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
+        Radio Repeater Dropped: {{repeater_dropped}}
       </span>
     </div>
     <div class="box1">
@@ -93,6 +94,8 @@ export default {
         completed_wps: 0,
         total_wps: 0
       },
+
+      repeater_dropped: false,
 
       storedWaypoints: [],
       route: []

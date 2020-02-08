@@ -51,7 +51,7 @@
 	"radioRepeaterThresholds":
 	{
 		"signalStrengthCutOff": 30.0,
-		"lowSignalWaitTime": 5
+		"lowSignalWaitTime": 3
 	},
 
 	"search":

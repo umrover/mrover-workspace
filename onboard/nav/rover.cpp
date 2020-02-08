@@ -282,7 +282,10 @@ void Rover::updateRepeater(RadioSignalStrength& radioSignal)
     static bool started = false;
     static time_t startTime;
 
-    if( !started &&
+    // If we haven't already dropped a repeater, the time hasn't already started
+    // and our signal is below the threshold, start the timer
+    if( !mTimeToDropRepeater &&
+        !started &&
         radioSignal.signal_strength <=
         mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble())
     {
@@ -291,7 +294,7 @@ void Rover::updateRepeater(RadioSignalStrength& radioSignal)
     }
 
     double waitTime = mRoverConfig[ "radioRepeaterThresholds" ][ "lowSignalWaitTime" ].GetDouble();
-    if( difftime( time( nullptr ), startTime ) > waitTime )
+    if( started && difftime( time( nullptr ), startTime ) > waitTime )
     {
         started = false;
         mTimeToDropRepeater = true;
@@ -299,8 +302,6 @@ void Rover::updateRepeater(RadioSignalStrength& radioSignal)
 }
 
 // Returns whether or not enough time has passed to drop a radio repeater.
-// If it has been longer than the lowSignalWaitTime since a good signal strength,
-// return true. Otherwise, it is not time yet and we should keep waiting and return false.
 bool Rover::isTimeToDropRepeater()
 {
     return mTimeToDropRepeater;
