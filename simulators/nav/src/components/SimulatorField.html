@@ -54,19 +54,6 @@ export default {
             gates: [],
             rocks: [],
 
-            ar_tag_state: [
-                {
-                    detected: false,
-                    distance: -1,
-                    bearing: 0
-                },
-                {
-                    detected: false,
-                    distance: -1,
-                    bearing: 0
-                }
-            ],
-
             obstacle_state: {
                 detected: false,
                 bearing: 0,
@@ -92,13 +79,11 @@ export default {
             let tag_detected_idx = -1;
             let ar_tag_state = [
                 {
-                    detected: false,
                     distance: -1,
                     bearing: 0,
                     id: -1
                 },
                 {
-                    detected: false,
                     distance: -1,
                     bearing: 0,
                     id: -1
@@ -107,18 +92,17 @@ export default {
 
             for (let i = 0; i < ar_tags.length; i++) {
                 let tag = ar_tags[i][0];
-                tag.detected = false;
 
                 const { dist, bearing } = dist_and_bearing(
                     to_decimal(odom), to_decimal(tag));
                 const rover_bearing = odom.bearing_deg * Math.PI/180;
 
                 if (Math.abs(bearing - rover_bearing) < this.get('field_of_view_rad')/2 && dist < this.get('depth_of_view')) {
-                    tag.detected = true;
                     tag_detected_idx = i;
                     ar_tag_state[0] = {
                         distance: dist,
-                        bearing: (bearing - rover_bearing) * 180/Math.PI
+                        bearing: (bearing - rover_bearing) * 180/Math.PI,
+                        id: tag.id
                     };
                     break;
                 }
@@ -137,13 +121,11 @@ export default {
             // by default we have seen no gates
             let ar_tag_state = [
                 {
-                    detected: false,
                     distance: -1,
                     bearing: 0,
                     id: -1
                 },
                 {
-                    detected: false,
                     distance: -1,
                     bearing: 0,
                     id: -1
@@ -152,9 +134,6 @@ export default {
 
             // check to see if any gates are within the our view
             for (let i = 0; i < gates.length; i++) {
-                gates[i][0].detected = false;
-                gates[i][1].detected = false;
-
                 const rover_bearing = odom.bearing_deg * Math.PI/180;
 
                 // find dist and bearing to first post in gate i
@@ -183,11 +162,10 @@ export default {
                 // Check if the close post is visible (withing field of view and close enough)
                 if (Math.abs(this.calc_rel_bearing(rover_bearing, post1_bearing)) < this.get('field_of_view_rad')/2 &&
                         post1_dist < this.get('depth_of_view')) {
-                    gates[i][0].detected = true;
-
                     ar_tag_state[0] = {
                         distance: post1_dist,
-                        bearing: this.calc_rel_bearing(rover_bearing, post1_bearing) * 180/Math.PI
+                        bearing: this.calc_rel_bearing(rover_bearing, post1_bearing) * 180/Math.PI,
+                        id: gates[i][0].id
                     };
                 }
 
@@ -195,11 +173,10 @@ export default {
                 if (Math.abs(this.calc_rel_bearing(rover_bearing, post2_bearing)) < this.get('field_of_view_rad')/2 &&
                         post2_dist < this.get('depth_of_view') &&
                         Math.abs(this.calc_rel_bearing(post2_bearing, post1_bearing)) > POST_BLOCKING_ANGLE) {
-                    gates[i][1].detected = true;
-
                     ar_tag_state[1] = {
                         distance: post2_dist,
-                        bearing: this.calc_rel_bearing(rover_bearing, post2_bearing) * 180/Math.PI
+                        bearing: this.calc_rel_bearing(rover_bearing, post2_bearing) * 180/Math.PI,
+                        id: gates[i][1].id
                     };
                 }
 
