@@ -60,14 +60,6 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src) {  //detects AR
     ids.clear();
     corners.clear();
 
-#if PERCEPTION_DEBUG
-    // on click debugging for color
-    DEPTH = depth_src;
-    cvtColor(rgb, HSV, COLOR_RGB2HSV);
-    DEPTH = depth_src;
-    setMouseCallback("image", onMouse);
-#endif
-
     /// Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
 
@@ -75,6 +67,11 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src) {  //detects AR
     // Draw detected tags
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     cv::imshow("AR Tags", rgb);
+
+    // on click debugging for color
+    DEPTH = depth_src;
+    cvtColor(rgb, HSV, COLOR_RGB2HSV);
+    setMouseCallback("image", onMouse);
 #endif
 
     // create Tag objects for the detected tags and return them
