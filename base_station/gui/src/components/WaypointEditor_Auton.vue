@@ -2,8 +2,9 @@
   <div class="wrap">
     <div class="box">
       <div class="identification">
-        Name: <input v-model="name" v-on:click="select($event)">
+        Name: <input v-model="name" v-on:click="select($event)" size="15">
         ID: <input v-model="id" type="number" max="249" min="-1" step="1">
+        Gate Width: <input v-model="gate_width" type="number" max="3" min="2" step="1">
       </div>
       <br>
       <input type="radio" v-model="odom_format_in" value="D" class="checkbox"><font size="2">D</font>
@@ -71,7 +72,8 @@ export default {
   data () {
     return {
       name: "Waypoint",
-      id: -1,
+      id: "-1",
+      gate_width: "3",
       odom_format_in: 'DM',
       input: {
         lat: {
@@ -119,13 +121,15 @@ export default {
             waypoints: _.map(this.route, (waypoint) => {
               const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
               const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
-              const latitude_deg = Math.trunc(lat)
-              const longitude_deg = Math.trunc(lon)
+              const latitude_deg = Math.trunc(lat);
+              const longitude_deg = Math.trunc(lon);
+
               return {
                   type: "Waypoint",
                   search: waypoint.search,
                   gate: waypoint.gate,
-                  id: Math.trunc(waypoint.id),
+                  gate_width: parseFloat(waypoint.gate_width),
+                  id: parseFloat(waypoint.id),
                   odom: {
                       latitude_deg: latitude_deg,
                       latitude_min: (lat - latitude_deg) * 60,
@@ -193,7 +197,8 @@ export default {
         lat: Object.assign({}, coord.lat),
         lon: Object.assign({}, coord.lon),
         search: false,
-        gate: false
+        gate: false,
+        gate_width: this.gate_width
       });
     },
 

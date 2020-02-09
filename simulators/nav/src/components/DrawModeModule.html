@@ -11,10 +11,10 @@
         <div class="target-ids">
             <div class="{{gate_enabled && tag_enabled && wp_enabled ? 'disabled' : '' }} tooltip-container">
                 <label class="tooltip">
-                Target 1 ID:
+                    Target 1 ID:
                     {{#if !gate_enabled}}
                     <span class="tooltiptext tooltiptext-below">
-                        Even and odd numbered tags correspond to the left and right sides of a gate respectively.
+                        Odd and even numbered tags correspond to the left and right sides of a gate respectively.
                     </span>
                     {{/if}}
                     {{#if !wp_enabled}}
@@ -28,10 +28,10 @@
             <br>
             <div class="{{gate_enabled ? 'disabled' : '' }} tooltip-container">
                 <label class="tooltip">
-                Target 2 ID:
+                    Target 2 ID:
                     {{#if !gate_enabled}}
                     <span class="tooltiptext tooltiptext-below">
-                        Even and odd numbered tags correspond to the left and right sides of a gate respectively.
+                        Odd and even numbered tags correspond to the left and right sides of a gate respectively.
                     </span>
                     {{/if}}
                 </label>
@@ -41,13 +41,22 @@
         <button disabled="{{gate_enabled}}" on:click="flip_target_ids()">
             Flip Target IDs
         </button>
-        <div class="{{gate_enabled ? 'disabled' : '' }}">
-            <label>Gate Width: {{gate_width}} meters</label>
-            <input type="range" disabled="{{gate_enabled}}" bind:value="gate_width" min="2" max="3">
+        <br>
+        <div class="{{gate_enabled && wp_enabled ? 'disabled' : '' }} tooltip-container">
+            <label class="tooltip">
+                Gate Width: {{gate_width}} meters
+                {{#if !wp_enabled}}
+                <span class="tooltiptext tooltiptext-below">
+                    The size of the gate associated with this waypoint.
+                </span>
+                {{/if}}
+            </label>
+            <input type="range" disabled="{{gate_enabled && wp_enabled}}" bind:value="gate_width" min="2" max="3">
         </div>
+        <br>
         <div class="{{gate_enabled ? 'disabled' : '' }} tooltip-container">
             <label class="tooltip">
-            Gate Angle (degrees):
+                Gate Angle (degrees):
                 {{#if !gate_enabled}}
                 <span class="tooltiptext tooltiptext-below">Angle from North</span>
                 {{/if}}
@@ -124,9 +133,9 @@ export default {
         selected: function(mode) {
             let target1_id = -1;
             if (mode == AR_TAG_MODE) {
-                target1_id = 1;
+                target1_id = 0;
             } else if (mode == GATE_MODE) {
-                target1_id = 4;
+                target1_id = 3;
             }
             this.set({ mode,  target1_id});
         },
