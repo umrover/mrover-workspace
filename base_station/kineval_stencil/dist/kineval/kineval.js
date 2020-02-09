@@ -494,9 +494,9 @@ kineval.robotDraw = function drawRobot() {
     simpleApplyMatrix(cart_controller_z_pos,robot.links.hand.xform);
 
     // display endeffector target
-    var three_d_rot = new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[0])
+    var three_d_rot = new THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[0])
     three_d_rot.multiply(new THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[1]))
-    three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[2]))
+    three_d_rot.multiply(new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[2]))
 
     var trans = new THREE.Matrix4().makeTranslation(kineval.params.ik_target.position[0][0],
                                                 kineval.params.ik_target.position[1][0],

@@ -2,7 +2,7 @@ import asyncio
 import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import (Joystick, DriveMotors, KillSwitch,
+from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, SAMotors, OpenLoopRAMotor,
                         ArmToggles)
 
@@ -41,11 +41,11 @@ connection = None
 
 
 def send_drive_kill():
-    drive_motor = DriveMotors()
+    drive_motor = DriveVelCmd()
     drive_motor.left = 0.0
     drive_motor.right = 0.0
 
-    lcm_.publish('/motor', drive_motor.encode())
+    lcm_.publish('/drive_vel_cmd', drive_motor.encode())
 
 
 def send_arm_kill():
@@ -131,7 +131,7 @@ def drive_control_callback(channel, msg):
     if kill_motor:
         send_drive_kill()
     else:
-        new_motor = DriveMotors()
+        new_motor = DriveVelCmd()
         input_data.forward_back = -quadratic(input_data.forward_back)
         magnitude = deadzone(input_data.forward_back, 0.04)
         theta = deadzone(input_data.left_right, 0.1)
@@ -142,7 +142,7 @@ def drive_control_callback(channel, msg):
         new_motor.left *= damp
         new_motor.right *= damp
 
-        lcm_.publish('/motor', new_motor.encode())
+        lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
 def arm_control_callback(channel, msg):
@@ -178,11 +178,11 @@ def arm_toggles_button_callback(channel, msg):
 
 def autonomous_callback(channel, msg):
     input_data = Joystick.decode(msg)
-    new_motor = DriveMotors()
+    new_motor = DriveVelCmd()
 
     joystick_math(new_motor, input_data.forward_back, input_data.left_right)
 
-    lcm_.publish('/motor', new_motor.encode())
+    lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
 async def transmit_temperature():
