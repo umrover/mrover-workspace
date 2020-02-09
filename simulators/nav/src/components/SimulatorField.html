@@ -92,12 +92,14 @@ export default {
 
             for (let i = 0; i < ar_tags.length; i++) {
                 let tag = ar_tags[i][0];
+                tag.detected = false;
 
                 const { dist, bearing } = dist_and_bearing(
                     to_decimal(odom), to_decimal(tag));
                 const rover_bearing = odom.bearing_deg * Math.PI/180;
 
                 if (Math.abs(bearing - rover_bearing) < this.get('field_of_view_rad')/2 && dist < this.get('depth_of_view')) {
+                    tag.detected = true;
                     tag_detected_idx = i;
                     ar_tag_state[0] = {
                         distance: dist,
@@ -135,20 +137,23 @@ export default {
             // check to see if any gates are within the our view
             for (let i = 0; i < gates.length; i++) {
                 const rover_bearing = odom.bearing_deg * Math.PI/180;
+                let gate = gates[i];
+                gate[0].detected = false;
+                gate[1].detected = false;
 
                 // find dist and bearing to first post in gate i
                 let { dist:post1_dist, bearing:post1_bearing } = dist_and_bearing(
-                    to_decimal(odom), to_decimal(gates[i][0]));
+                    to_decimal(odom), to_decimal(gate[0]));
 
                 // find dist and bearing to second post in gate i
                 let { dist:post2_dist, bearing:post2_bearing } = dist_and_bearing(
-                    to_decimal(odom), to_decimal(gates[i][1]));
+                    to_decimal(odom), to_decimal(gate[1]));
 
                 // put the closer post in the first position in gates[i]
                 if (post2_dist < post1_dist) {
-                    const post = gates[i][0];
-                    gates[i][0] = gates[i][1];
-                    gates[i][1] = post;
+                    const post = gate[0];
+                    gate[0] = gate[1];
+                    gate[1] = post;
 
                     const dist = post1_dist;
                     post1_dist = post2_dist;
@@ -162,10 +167,11 @@ export default {
                 // Check if the close post is visible (withing field of view and close enough)
                 if (Math.abs(this.calc_rel_bearing(rover_bearing, post1_bearing)) < this.get('field_of_view_rad')/2 &&
                         post1_dist < this.get('depth_of_view')) {
+                    gate[0].detected = true;
                     ar_tag_state[0] = {
                         distance: post1_dist,
                         bearing: this.calc_rel_bearing(rover_bearing, post1_bearing) * 180/Math.PI,
-                        id: gates[i][0].id
+                        id: gate[0].id
                     };
                 }
 
@@ -173,15 +179,16 @@ export default {
                 if (Math.abs(this.calc_rel_bearing(rover_bearing, post2_bearing)) < this.get('field_of_view_rad')/2 &&
                         post2_dist < this.get('depth_of_view') &&
                         Math.abs(this.calc_rel_bearing(post2_bearing, post1_bearing)) > POST_BLOCKING_ANGLE) {
+                    gate[1].detected = true;
                     ar_tag_state[1] = {
                         distance: post2_dist,
                         bearing: this.calc_rel_bearing(rover_bearing, post2_bearing) * 180/Math.PI,
-                        id: gates[i][1].id
+                        id: gate[1].id
                     };
                 }
 
                 // If neither post is visible, move on to checking the next gate
-                if (!gates[i][0].detected && !gates[i][1].detected) {
+                if (!gate[0].detected && !gate[1].detected) {
                     continue;
                 }
 
@@ -192,9 +199,9 @@ export default {
                 // Case 2: If both posts are visible and the left post is in
                 //         the seond position because we need the left to
                 //         appear first in the target list lcm
-                if (!gates[i][0].detected ||
-                    (gates[i][1].detected && this.calc_rel_bearing(rover_bearing, post2_bearing) <
-                                             this.calc_rel_bearing(rover_bearing, post1_bearing))) {
+                if (!gate[0].detected ||
+                    (gate[1].detected && this.calc_rel_bearing(rover_bearing, post2_bearing) <
+                                         this.calc_rel_bearing(rover_bearing, post1_bearing))) {
                     const post = ar_tag_state[0];
                     ar_tag_state[0] = ar_tag_state[1];
                     ar_tag_state[1] = post;
@@ -576,7 +583,8 @@ export default {
                         to_dms({lat, lon}),
                         { search: false },
                         { gate: false },
-                        { id: this.get("target1_id") }
+                        { id: this.get("target1_id") },
+                        { gate_width: this.get('gate_width') }
                     )
                 );
 

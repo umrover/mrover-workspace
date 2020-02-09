@@ -130,6 +130,7 @@
                     <input type="checkbox" id="gate_checkbox_{{ i }}" bind:checked="waypoint.gate">
                     <label for="gate_checkbox_{{ i }}">Gate?</label>
                     <label>ID: {{waypoint.id}}</label>
+                    <label>Gate Width: {{waypoint.gate ? waypoint.gate_width : 'n/a'}}</label>
                 </p>
             </SimulatedItemDisplay>
         </div>
@@ -419,6 +420,7 @@
                                 type: "Waypoint",
                                 search: waypoint.search,
                                 gate: waypoint.gate,
+                                gate_width: waypoint.gate_width,
                                 id: waypoint.id,
                                 odom: {
                                     latitude_deg: waypoint.latitude_deg|0,
