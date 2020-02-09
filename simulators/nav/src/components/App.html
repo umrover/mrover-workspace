@@ -139,11 +139,11 @@
         {{#each ar_tags as ar_tag, i}}
         <div class="display target_display">
             <SimulatedItemDisplay
-                            title="Target {{ ar_tag[0].id }}"
-                            item="{{ ar_tag[0] }}"
+                            title="Target {{ ar_tag.id }}"
+                            item="{{ ar_tag }}"
                             rover="{{ odom }}"
                             on:click='splice("ar_tags", i, 1)'>
-                {{#if ar_tag[0].detected}}
+                {{#if ar_tag.detected}}
                 <b>
                 Found the Target!
                 </b>

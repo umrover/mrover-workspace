@@ -11,7 +11,7 @@
         <div class="target-ids">
             <div class="{{gate_enabled && tag_enabled && wp_enabled ? 'disabled' : '' }} tooltip-container">
                 <label class="tooltip">
-                Target 1 ID:
+                    Target 1 ID:
                     {{#if !gate_enabled}}
                     <span class="tooltiptext tooltiptext-below">
                         Odd and even numbered tags correspond to the left and right sides of a gate respectively.
@@ -28,7 +28,7 @@
             <br>
             <div class="{{gate_enabled ? 'disabled' : '' }} tooltip-container">
                 <label class="tooltip">
-                Target 2 ID:
+                    Target 2 ID:
                     {{#if !gate_enabled}}
                     <span class="tooltiptext tooltiptext-below">
                         Odd and even numbered tags correspond to the left and right sides of a gate respectively.
@@ -41,13 +41,22 @@
         <button disabled="{{gate_enabled}}" on:click="flip_target_ids()">
             Flip Target IDs
         </button>
-        <div class="{{gate_enabled && wp_enabled ? 'disabled' : '' }}">
-            <label>Gate Width: {{gate_width}} meters</label>
+        <br>
+        <div class="{{gate_enabled && wp_enabled ? 'disabled' : '' }} tooltip-container">
+            <label class="tooltip">
+                Gate Width: {{gate_width}} meters
+                {{#if !wp_enabled}}
+                <span class="tooltiptext tooltiptext-below">
+                    The size of the gate associated with this waypoint.
+                </span>
+                {{/if}}
+            </label>
             <input type="range" disabled="{{gate_enabled && wp_enabled}}" bind:value="gate_width" min="2" max="3">
         </div>
+        <br>
         <div class="{{gate_enabled ? 'disabled' : '' }} tooltip-container">
             <label class="tooltip">
-            Gate Angle (degrees):
+                Gate Angle (degrees):
                 {{#if !gate_enabled}}
                 <span class="tooltiptext tooltiptext-below">Angle from North</span>
                 {{/if}}

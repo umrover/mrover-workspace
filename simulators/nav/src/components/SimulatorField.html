@@ -76,7 +76,7 @@ export default {
             if (!odom) { return; }
             let ar_tags = this.get("ar_tags");
 
-            let tag_detected_idx = -1;
+            let ar_tag_state_idx = 0;
             let ar_tag_state = [
                 {
                     distance: -1,
@@ -91,22 +91,32 @@ export default {
             ];
 
             for (let i = 0; i < ar_tags.length; i++) {
-                let tag = ar_tags[i][0];
+                let tag = ar_tags[i];
                 tag.detected = false;
 
                 const { dist, bearing } = dist_and_bearing(
                     to_decimal(odom), to_decimal(tag));
-                const rover_bearing = odom.bearing_deg * Math.PI/180;
 
-                if (Math.abs(bearing - rover_bearing) < this.get('field_of_view_rad')/2 && dist < this.get('depth_of_view')) {
+                const rover_bearing = odom.bearing_deg * Math.PI/180;
+                let rel_bearing = this.calc_rel_bearing(rover_bearing, bearing);
+
+                if (rel_bearing < this.get('field_of_view_rad')/2 && dist < this.get('depth_of_view')) {
                     tag.detected = true;
-                    tag_detected_idx = i;
-                    ar_tag_state[0] = {
+                    ar_tag_state[ar_tag_state_idx] = {
                         distance: dist,
-                        bearing: (bearing - rover_bearing) * 180/Math.PI,
+                        bearing: rel_bearing * 180/Math.PI,
                         id: tag.id
                     };
-                    break;
+                    if (ar_tag_state_idx) {
+                        // Ensure left tag comes first in list
+                        if (ar_tag_state[0].bearing > ar_tag_state[1].bearing) {
+                            const temp_target = ar_tag_state[0];
+                            ar_tag_state[0] = ar_tag_state[1];
+                            ar_tag_state[1] = temp_target;
+                        }
+                        break;
+                    }
+                    ar_tag_state_idx = 1;
                 }
             }
             this.set({ ar_tag_state, ar_tags });
@@ -453,7 +463,7 @@ export default {
 
             // Draw targets
             for (let i = 0; i < ar_tags.length; i++) {
-                const tag = ar_tags[i][0];
+                const tag = ar_tags[i];
                 const target_coords = this.to_canvas(this.projection(to_decimal(tag)));
 
                 ctx.fillStyle = 'violet';
@@ -592,13 +602,11 @@ export default {
             } else if (draw_mode === AR_TAG_MODE) {
                 let ar_tags = this.get("ar_tags");
 
-                let tag1 = to_dms({lat, lon});
-                tag1.detected = false;
-                tag1.id = this.get("target1_id");
-                let tag2 = to_dms({lat, lon});
-                tag2.detected = false;
+                let tag = to_dms({lat, lon});
+                tag.detected = false;
+                tag.id = this.get("target1_id");
 
-                ar_tags.push([tag1, tag2]);
+                ar_tags.push(tag);
 
                 this.set({ ar_tags });
             } else if (draw_mode === GATE_MODE) {
