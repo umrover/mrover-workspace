@@ -1,5 +1,6 @@
 import os
 from .mrover_arm import MRoverArm
+from .sa_kinematics import SAKinematics
 from .configuration_space_test import ConfigurationSpaceTest
 # from .kinematics_tester import KinematicsTester
 from rover_common.aiohelper import run_coroutines
@@ -15,6 +16,8 @@ def main():
     lcm_ = aiolcm.AsyncLCM()
 
     arm = MRoverArm(args, lcm_)
+    sa = SAKinematics(lcm_)
+    sa.plan_return_to_origin([4, 12, 17])
 
     config = ConfigurationSpaceTest(arm)
     config.straight_up_torque_test()

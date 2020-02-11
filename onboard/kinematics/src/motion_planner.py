@@ -220,6 +220,8 @@ class MotionPlanner:
                     if not i % 2:
                         path.reverse()
 
+                    print("Finished path: ", path)
+
                     cs = self.spline_fitting(path)
                     # return path
                     return cs

@@ -517,7 +517,7 @@ kineval.robotDraw = function drawRobot() {
     
     } // hacked for stencil
 
-    endeffector_geom.visible = true;
+    endeffector_geom.visible = false;
     target_geom.visible = true;
 
 }
