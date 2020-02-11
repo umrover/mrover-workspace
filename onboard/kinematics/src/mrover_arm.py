@@ -172,6 +172,9 @@ class MRoverArm:
         else:
             self.enable_execute = True
 
+    def sa_set_spline(self, spline):
+        self.current_spline = spline
+
     def simulation_mode_callback(self, channel, msg):
         simulation_mode_msg = SimulationMode.decode(msg)
         self.sim_mode = simulation_mode_msg.sim_mode

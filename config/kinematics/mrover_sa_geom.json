@@ -57,7 +57,8 @@
                 "z": 0
             }
         },
-        "joint_e":{
+
+        "end_effector":{
             "origin": {
                 "x": 0.025654,
                 "y": 0,
