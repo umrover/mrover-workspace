@@ -627,6 +627,7 @@ kineval.initParameters = function initParameters() {
     kineval.params.simulation_mode = true;
 
     kineval.params.lock_joint_e = true;
+    kineval.params.use_orientation = false;
 }
 var cart_lines = []
 
@@ -863,6 +864,8 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         kineval.publish('/lock_joint_e', LockJointEMsg)
     });
 
+    gui.add(kineval.params, 'use_orientation').onChange(function () {});
+
     var dummy_object = {};
     dummy_object.send_target_orientation = function() {
         
@@ -879,17 +882,16 @@ kineval.initGUIDisplay = function initGUIDisplay () {
             'x': kineval.params.ik_target.position[0][0],
             'y': -1 * kineval.params.ik_target.position[2][0],
             'z': kineval.params.ik_target.position[1][0],
-            // 'alpha': alph,
-            // 'beta': bet,
-            // 'gamma': gam,
-            'alpha': 0,
-            'beta': 0,
-            'gamma': 0,
+            'alpha': alph,
+            'beta': bet,
+            'gamma': gam,
+            'use_orientation': kineval.params.use_orientation,
         }
 
         kineval.publish('/target_orientation', TargetOrientationMsg)
         kineval.params.update_motion_plan = true; 
         console.log("sent point")
+        console.log(kineval.params.use_orientation)
     }
 
     dummy_object.target_angle_neutral = function() {
