@@ -3,8 +3,9 @@ from scipy.interpolate import CubicSpline
 
 
 class SAKinematics:
-    def __init__(self, lcm):
+    def __init__(self, lcm, arm):
         self.lcm_ = lcm
+        self.arm_ = arm
 
     def plan_return_to_origin(self, cur_pos):
         translator = cur_pos[0]

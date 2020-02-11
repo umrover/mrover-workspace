@@ -192,12 +192,13 @@ class MotionPlanner:
                  self.robot.angles["joint_b"],
                  self.robot.angles["joint_c"],
                  self.robot.angles["joint_d"],
-                 self.robot.angles["joint_e"]]
+                 self.robot.angles["joint_e"]],
+                 self.robot.angles["joint_f"]
         start = [math.degrees(float(angle)) for angle in start]
         print("start root")
         print(start)
         self.start_root = Node(np.array(start))
-        target = [math.degrees(float(angle)) for angle in target][:-1]
+        target = [math.degrees(float(angle)) for angle in target]
         self.goal_root = Node(np.array(target))
 
         for i in range(self.max_iterations):
