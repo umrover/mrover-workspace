@@ -209,7 +209,7 @@ private:
     PidLoop mBearingPid;
 
     // If it is time to drop a radio repeater
-    bool mTimeToDropRepeater = false;
+    bool mTimeToDropRepeater;
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.

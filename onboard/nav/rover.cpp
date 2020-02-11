@@ -107,6 +107,7 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
+    , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
 {
 } // Rover()

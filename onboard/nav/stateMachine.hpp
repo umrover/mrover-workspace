@@ -86,7 +86,7 @@ private:
 
     bool isAddRepeaterDropPoint() const;
 
-    void AddRepeaterDropPoint();
+    void addRepeaterDropPoint();
 
     /*************************************************************************/
     /* Private Member Variables */

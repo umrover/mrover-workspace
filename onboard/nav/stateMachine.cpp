@@ -213,7 +213,7 @@ void StateMachine::run()
 
             case NavState::Unknown:
             {
-                cout << "Entered unknown state.\n";
+                cerr << "Entered unknown state.\n";
                 exit(1);
             }
         } // switch
@@ -225,7 +225,7 @@ void StateMachine::run()
             mPhoebe->distancePid().reset();
             mPhoebe->bearingPid().reset();
         }
-        cout << flush;
+        cerr << flush;
     } // if
 } // run()
 
@@ -336,8 +336,7 @@ NavState StateMachine::executeTurn()
     // point where connection was good to front of path and turn
     if ( isAddRepeaterDropPoint() )
     {
-        // TODO: signal drops before first completed waypoint
-        AddRepeaterDropPoint();
+        addRepeaterDropPoint();
         return NavState::RadioRepeaterTurn;
     }
 
@@ -373,8 +372,7 @@ NavState StateMachine::executeDrive()
     // point where connection was good to front of path and turn
     if ( isAddRepeaterDropPoint() )
     {
-        // TODO: signal drops before first completed waypoint
-        AddRepeaterDropPoint();
+        addRepeaterDropPoint();
         return NavState::RadioRepeaterTurn;
     }
 
@@ -501,17 +499,17 @@ bool StateMachine::isAddRepeaterDropPoint() const
 } //isAddRepeaterDropPoint
 
 // Returns whether or not to enter RadioRepeaterTurn state.
-void StateMachine::AddRepeaterDropPoint()
+void StateMachine::addRepeaterDropPoint()
 {
-        // Get last waypoint in path (where signal was good) and set search and gate
-        // to false in order to not repeat search
-        Waypoint way = (mPhoebe->roverStatus().course().waypoints)[mCompletedWaypoints-1];
-        way.search = false;
-        way.gate = false;
+    // TODO: signal drops before first completed waypoint
+    // Get last waypoint in path (where signal was good) and set search and gate
+    // to false in order to not repeat search
+    Waypoint way = (mPhoebe->roverStatus().course().waypoints)[mCompletedWaypoints-1];
+    way.search = false;
+    way.gate = false;
 
-        mPhoebe->roverStatus().path().push_front(way);
-}
-// AddRepeaterDropPoint
+    mPhoebe->roverStatus().path().push_front(way);
+} // addRepeaterDropPoint
 
 
 // TODOS:
