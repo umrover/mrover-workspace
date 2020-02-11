@@ -198,8 +198,10 @@ class MRoverArm:
             self.solver.FK(self.state)
             self.publish_transforms(self.state)
             if self.sim_mode:
+                print("printing sim_mode")
                 self.lcm_.publish('/arm_position', arm_position.encode())
             else:
+                print("printing")
                 self.lcm_.publish('/ik_ra_control', arm_position.encode())
 
     async def execute_spline(self):
