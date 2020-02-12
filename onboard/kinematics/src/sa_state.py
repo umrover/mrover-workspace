@@ -46,9 +46,6 @@ class SAState:
         z = self.geom['joints'][joint]['rot_axis']["z"]
         return [x,y,z]
 
-    def get_joint_xyz(self, joint):
-        return self.geom['joints'][joint]['origin']['xyz']
-
     def get_joint_rel_xyz(self, joint):
         x = self.geom['joints'][joint]['origin']['x']
         y = self.geom['joints'][joint]['origin']['y']
@@ -87,7 +84,6 @@ class SAState:
         self.angles['joint_b'] = arm_position.joint_b
         self.angles['joint_c'] = arm_position.joint_c
         self.angles['joint_d'] = arm_position.joint_d
-        self.angles['joint_e'] = -arm_position.joint_e
         # TODO: add time tracking
         self.angle_time = time.time()
 
@@ -96,16 +92,12 @@ class SAState:
                 self.angles['joint_b'],
                 self.angles['joint_c'],
                 self.angles['joint_d'],
-                self.angles['joint_e'],
-                self.angles['joint_f']]
 
     def get_prev_angles(self):
         return [self.prev_angles['joint_a'],
                 self.prev_angles['joint_b'],
                 self.prev_angles['joint_c'],
                 self.prev_angles['joint_d'],
-                self.prev_angles['joint_e'],
-                self.prev_angles['joint_f']]
 
     def set_angles_list(self, arm_position):
         self.prev_angles = copy.deepcopy(self.angles)
@@ -114,6 +106,5 @@ class SAState:
         self.angles['joint_b'] = arm_position[1]
         self.angles['joint_c'] = arm_position[2]
         self.angles['joint_d'] = arm_position[3]
-        self.angles['joint_e'] = arm_position[4]
         # TODO: add time tracking
         self.angle_time = time.time()
