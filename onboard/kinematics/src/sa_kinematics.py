@@ -7,6 +7,8 @@ class SAKinematics:
         self.lcm_ = lcm
         self.arm_ = arm
 
+    def FK(self, )
+
     def plan_return_to_origin(self, cur_pos):
         translator = cur_pos[0]
         joint_a = cur_pos[1]
