@@ -260,6 +260,7 @@ class ArmState:
         self.angles['joint_c'] = arm_position.joint_c
         self.angles['joint_d'] = arm_position.joint_d
         self.angles['joint_e'] = -arm_position.joint_e
+        self.angles['joint_f'] = arm_position.joint_f
         # TODO: add time tracking
         self.angle_time = time.time()
 
@@ -287,6 +288,7 @@ class ArmState:
         self.angles['joint_c'] = arm_position[2]
         self.angles['joint_d'] = arm_position[3]
         self.angles['joint_e'] = arm_position[4]
+        self.angles['joint_f'] = arm_position[5]
         # TODO: add time tracking
         self.angle_time = time.time()
 
