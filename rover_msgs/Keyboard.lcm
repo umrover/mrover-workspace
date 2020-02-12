@@ -1,0 +1,12 @@
+package rover_msgs;
+
+struct Keyboard {
+    boolean w;
+    boolean a;
+    boolean s;
+    boolean d;
+    boolean i;
+    boolean j;
+    boolean k;
+    boolean l;
+}
