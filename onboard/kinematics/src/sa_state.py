@@ -5,6 +5,7 @@ import time
 from collections import OrderedDict
 from .utils import apply_transformation, closest_dist_bet_lines
 from .utils import point_line_distance
+from .utils import apply_transformation
 
 
 class SAState:
@@ -25,6 +26,15 @@ class SAState:
     @property
     def all_joints(self):
         return list(self.geom['joints'].keys())
+    
+    def set_joint_transform(self, joint, transform):
+        self.geom['joints'][joint]['matrix'] = transform
+
+    def get_joint_transform(self, joint):
+        return self.geom['joints'][joint]['matrix']
+
+    def get_child(self, joint):
+        return self.geom['joints'][joint]['child']
 
     def get_joint_com(self, joint):
         transform = self.get_joint_transform(joint)
@@ -91,13 +101,13 @@ class SAState:
         return [self.angles['joint_a'],
                 self.angles['joint_b'],
                 self.angles['joint_c'],
-                self.angles['joint_d'],
+                self.angles['joint_d']]
 
     def get_prev_angles(self):
         return [self.prev_angles['joint_a'],
                 self.prev_angles['joint_b'],
                 self.prev_angles['joint_c'],
-                self.prev_angles['joint_d'],
+                self.prev_angles['joint_d']]
 
     def set_angles_list(self, arm_position):
         self.prev_angles = copy.deepcopy(self.angles)
@@ -108,3 +118,8 @@ class SAState:
         self.angles['joint_d'] = arm_position[3]
         # TODO: add time tracking
         self.angle_time = time.time()
+
+    def get_joint_axis_world(self, joint):
+        xform = self.get_joint_transform(joint)
+        axis_local = self.get_joint_axis(joint)
+        return apply_transformation(xform, axis_local)
