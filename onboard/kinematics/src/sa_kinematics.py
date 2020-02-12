@@ -1,6 +1,6 @@
 import numpy as np
-from scipy.interpolate import CubicSpline
-from rover_msgs import SAClosedLoopCmd
+from scipy.interpolate import interp1d
+from rover_msgs import (SAClosedLoopCmd, ArmPosition)
 import asyncio
 from .logger import logger
 
@@ -109,10 +109,9 @@ class SAKinematics:
 
     def spline_fitting(self, path):
         x_ = np.linspace(0, 1, len(path))
-        return CubicSpline(x_, path)
+        return interp1d(x_, np.transpose(path))
 
     def execute_callback(self, channel, msg):
-        print("is this being called?")
         self.enable_execute = True
 
     def publish_config(self, angles, torques, channel):
@@ -131,9 +130,18 @@ class SAKinematics:
                 logger.info('spline time: {}'.format(self.spline_t))
 
                 target_angs = self.current_spline(self.spline_t)
+                target_angs = np.append(target_angs, [0, 0, 0])
                 torques = [0, 0, 0]
 
                 self.publish_config(target_angs, torques, '/sa_closedloop_cmd')
+
+                targ = ArmPosition()
+                targ.joint_a = target_angs[0]
+                targ.joint_b = target_angs[1]
+                targ.joint_c = target_angs[2]
+
+                self.lcm_.publish('/arm_position', targ.encode())
+
                 print(target_angs)
                 self.spline_t += 0.01
 
