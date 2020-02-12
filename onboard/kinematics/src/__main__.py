@@ -16,7 +16,7 @@ def main():
     lcm_ = aiolcm.AsyncLCM()
 
     arm = MRoverArm(args, lcm_)
-    sa = SAKinematics(lcm_)
+    sa = SAKinematics(lcm_, arm)
     sa.plan_return_to_origin([4, 12, 17])
 
     config = ConfigurationSpaceTest(arm)
@@ -34,7 +34,8 @@ def main():
     lcm_.subscribe("/motion_execute", arm.motion_execute_callback)
     lcm_.subscribe("/simulation_mode", arm.simulation_mode_callback)
     lcm_.subscribe("/ik_arm_control", arm.cartesian_control_callback)
-    lcm_.subscribe("/lock_joint_e", arm.lock_e_callback)
+    # lcm_.subscribe("/lock_joint_e", arm.lock_e_callback)
     lcm_.subscribe("/ik_enabled", arm.ik_enabled_callback)
+    lcm_.subscribe("/lock_joint_e", sa.execute_callback)
 
-    run_coroutines(lcm_.loop(), arm.execute_spline())
+    run_coroutines(lcm_.loop(), arm.execute_spline(), sa.execute_spline())

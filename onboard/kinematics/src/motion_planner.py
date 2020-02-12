@@ -35,9 +35,9 @@ class MotionPlanner:
             limit['lower'] = math.degrees(limit['lower'])
             limit['upper'] = math.degrees(limit['upper'])
             self.all_limits.append(limit)
-        self.all_limits.pop()
+        # self.all_limits.pop()
 
-        self.step_limits = [1, 1, 2, 3, 5]  # in degrees
+        self.step_limits = [1, 1, 2, 3, 5, 1]  # in degrees
         self.neighbor_dist = 3
         self.max_iterations = 1000
         self.i = 0
@@ -192,8 +192,8 @@ class MotionPlanner:
                  self.robot.angles["joint_b"],
                  self.robot.angles["joint_c"],
                  self.robot.angles["joint_d"],
-                 self.robot.angles["joint_e"]],
-                 self.robot.angles["joint_f"]
+                 self.robot.angles["joint_e"],
+                 self.robot.angles["joint_f"]]
         start = [math.degrees(float(angle)) for angle in start]
         print("start root")
         print(start)
@@ -221,7 +221,7 @@ class MotionPlanner:
                     if not i % 2:
                         path.reverse()
 
-                    print("Finished path: ", path)
+                    # print("Finished path: ", path)
 
                     cs = self.spline_fitting(path)
                     # return path
