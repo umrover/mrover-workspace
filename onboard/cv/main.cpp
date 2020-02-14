@@ -94,6 +94,14 @@ int main() {
   int left_tag_buffer = 0;
   int right_tag_buffer = 0;
 
+  #if PERCEPTION_DEBUG
+    //Make trackbars
+    int thresh1 = 300000;
+    int thresh2 = 70000;
+    createTrackbar("Main Window", "image", &thresh1, 500000);
+    createTrackbar("Sub Window", "image", &thresh2, 120000);
+  #endif
+  
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
 
@@ -179,6 +187,7 @@ int main() {
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);
       imshow("image", src);
+      updateThresholds(thresh1,thresh2);
       waitKey(FRAME_WAITKEY);
     #endif
 
