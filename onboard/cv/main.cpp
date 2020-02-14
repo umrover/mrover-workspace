@@ -238,7 +238,7 @@ int main() {
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);
-      imshow("TAG FINDER", src);
+      imshow("image", src);
       updateThresholds(thresh1,thresh2);
       waitKey(FRAME_WAITKEY);
     #endif
