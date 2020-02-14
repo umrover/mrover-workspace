@@ -2,9 +2,19 @@
 using namespace cv;
 using namespace std;
 
+//Global Variables 
+int THRESHOLD_NO_OBSTACLE_CENTER = 300000;
+int THRESHOLD_NO_SUBWINDOW = 70000;
 // record the last direction
 static int last_center;
 Rect cropped = Rect( 20, SKY_START_ROW, 1240, 300 ); // (x, y, width, height) 
+
+void updateThresholds(int in1, int in2)
+{
+  THRESHOLD_NO_OBSTACLE_CENTER = in1;
+  THRESHOLD_NO_SUBWINDOW = in2;
+}
+
 
 bool check_divided_window(Mat & rgb_img, int num_splits, Mat & mean_row_vec, int start_col, int end_col){
   int split_size = (end_col - start_col)/num_splits;
