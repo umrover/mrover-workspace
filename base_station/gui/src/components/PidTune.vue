@@ -6,12 +6,13 @@
     </div>
 
     <div class="box pid">
-      <h2>Set PID constant</h2><br>
+      <h2>Set PID constant</h2>
+      <Checkbox ref="pidconfig" v-bind:name="(pidConfig === 1) ? 'Sample Acquisition' : 'Robotic Arm'" v-on:toggle="updatePIDConfig($event)"/>
+      <br>
       <p>Device ID: <input v-model="deviceID"></p>
       <p>K<sub>P</sub>: <input v-model="Kp"></p>
       <p>K<sub>I</sub>: <input v-model="Ki"></p>
       <p>K<sub>D</sub>: <input v-model="Kd"></p>
-      <p>K<sub>F</sub>: <input v-model="Kf"></p>
 
       <button v-on:click='configPID()'>Set Parameters</button>
       <br>
@@ -47,6 +48,7 @@
 <script>
   import LCMBridge from 'lcm_bridge_client/dist/bridge.js';
   import PidChart from './PidChart.vue'
+  import Checkbox from './Checkbox.vue'
 
   const time=10;
   const refresh=0.1;
@@ -63,7 +65,7 @@
         Kp: 0.0,
         Ki: 0.0,
         Kd: 0.0,
-        Kf: 0.0,
+        pidConfig: 0,
         controlMode: 0,
         demand: 0,
         chartData: [
@@ -87,38 +89,32 @@
             "4":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "5":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "6":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "7":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "8":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "9":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             }
           },
 
@@ -126,38 +122,32 @@
             "4":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "5":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "6":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "7":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "8":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             },
             "9":{
               "kp": 0.0,
               "ki": 0.0,
-              "kd": 0.0,
-              "kf": 0.0
+              "kd": 0.0
             }
           }
         }
@@ -181,10 +171,14 @@
           'deviceID': parseInt(this.deviceID),
           'kP': parseFloat(this.Kp),
           'kI': parseFloat(this.Ki),
-          'kD': parseFloat(this.Kd),
-          'kF': parseFloat(this.Kf)
+          'kD': parseFloat(this.Kd)
         }
-        this.lcm_.publish('/config_pid', msg);
+
+        if (this.pidConfig === 1) {
+          this.lcm_.publish('/sa_pidconfig_cmd', msg);
+        } else {
+          this.lcm_.publish('/ra_pidconfig_cmd', msg);
+        }
       },
 
       setDemand(){
@@ -204,11 +198,18 @@
           const constants = {
             'kp': pids[id]["kp"],
             'ki': pids[id]["ki"],
-            'kd': pids[id]["kd"],
-            'kf': pids[id]["kf"]
+            'kd': pids[id]["kd"]
           }
           this.sendPIDs(id, constants)
         });
+      },
+
+      updatePIDConfig: function (checked) {
+        if (checked) {
+          this.pidConfig = 1
+        } else {
+          this.pidConfig = 0
+        }
       },
     },
 
@@ -271,7 +272,8 @@
     },
 
     components: {
-      PidChart
+      PidChart,
+      Checkbox
     }
   }
 </script>

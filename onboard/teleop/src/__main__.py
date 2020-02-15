@@ -3,8 +3,9 @@ import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
-                        Xbox, Temperature, SAMotors, OpenLoopRAMotor,
-                        ArmToggles)
+                        Xbox, Temperature, RAOpenLoopCmd,
+                        SAOpenLoopCmd, GimbalCmd, HandCmd,
+                        Keyboard)
 
 
 class Toggle:
@@ -36,8 +37,6 @@ lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
 connection = None
-# front_drone_on = Toggle(False)
-# back_drone_on = Toggle(False)
 
 
 def send_drive_kill():
@@ -49,24 +48,16 @@ def send_drive_kill():
 
 
 def send_arm_kill():
-    for i in range(7):
-        arm_motor = OpenLoopRAMotor()
-        arm_motor.joint_id = i
-        arm_motor.speed = 0.0
-        lcm_.publish('/arm_motors', arm_motor.encode())
+    arm_motor = RAOpenLoopCmd()
+    arm_motor.throttle = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    lcm_.publish('/ra_openloop_cmd', arm_motor.encode())
 
 
 def send_sa_kill():
-    sa_motor = SAMotors()
-    sa_motor.carriage = 0.0
-    sa_motor.four_bar = 0.0
-    sa_motor.front_drill = 0.0
-    sa_motor.back_drill = 0.0
-    sa_motor.micro_x = 0.0
-    sa_motor.micro_y = 0.0
-    sa_motor.micro_z = 0.0
+    sa_motor = SAOpenLoopCmd()
+    sa_motor.throttle = [0.0, 0.0, 0.0]
 
-    lcm_.publish('/sa_motors', sa_motor.encode())
+    lcm_.publish('/sa_openloop_cmd', sa_motor.encode())
 
 
 def connection_state_changed(c, _):
@@ -145,35 +136,27 @@ def drive_control_callback(channel, msg):
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
-def arm_control_callback(channel, msg):
-    xbox = Xbox.decode(msg)
-    motorSpeeds = [-deadzone(quadratic(xbox.left_js_x), 0.09)*.5,
-                   -deadzone(quadratic(xbox.left_js_y), 0.09)*.5,
-                   quadratic(xbox.left_trigger - xbox.right_trigger)*.60,
-                   deadzone(quadratic(xbox.right_js_y), 0.09)*.75,
-                   deadzone(quadratic(xbox.right_js_x), 0.09)*.75,
-                   (xbox.d_pad_right - xbox.d_pad_left)*0.60,
-                   (xbox.right_bumper - xbox.left_bumper)]
+def ra_control_callback(channel, msg):
+    xboxData = Xbox.decode(msg)
 
-    for i in range(7):
-        openLoopMsg = OpenLoopRAMotor()
-        openLoopMsg.joint_id = i
-        openLoopMsg.speed = motorSpeeds[i]
-        lcm_.publish('/arm_motors', openLoopMsg.encode())
+    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
+                    -deadzone(quadratic(xboxData.left_js_y), 0.09),
+                    quadratic(xboxData.left_trigger -
+                              xboxData.right_trigger),
+                    deadzone(quadratic(xboxData.right_js_y), 0.09),
+                    deadzone(quadratic(xboxData.right_js_x), 0.09),
+                    (xboxData.d_pad_right-xboxData.d_pad_left)]
 
+    openloop_msg = RAOpenLoopCmd()
+    openloop_msg.throttle = motor_speeds
 
-solenoid_on = Toggle(False)
-electromagnet_on = Toggle(False)
-laser_on = Toggle(False)
+    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
 
+    hand_msg = HandCmd()
+    hand_msg.finger = xboxData.y - xboxData.a
+    hand_msg.grip = xboxData.b - xboxData.x
 
-def arm_toggles_button_callback(channel, msg):
-    arm_toggles = ArmToggles.decode(msg)
-    arm_toggles.solenoid = solenoid_on.new_reading(arm_toggles.solenoid)
-    elec_value = electromagnet_on.new_reading(arm_toggles.electromagnet)
-    arm_toggles.electromagnet = elec_value
-    arm_toggles.laser = laser_on.new_reading(arm_toggles.laser)
-    lcm_.publish('/arm_toggles_toggle_data', arm_toggles.encode())
+    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
 
 def autonomous_callback(channel, msg):
@@ -222,13 +205,44 @@ async def transmit_drive_status():
         await asyncio.sleep(1)
 
 
+def sa_control_callback(channel, msg):
+    xboxData = Xbox.decode(msg)
+
+    saMotorsData = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
+                    -deadzone(quadratic(xboxData.left_js_y), 0.09),
+                    quadratic(xboxData.left_trigger -
+                              xboxData.right_trigger)]
+
+    openloop_msg = SAOpenLoopCmd()
+    openloop_msg.throttle = saMotorsData
+
+    lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
+
+
+def gimbal_control_callback(channel, msg):
+    keyboardData = Keyboard.decode(msg)
+
+    pitchData = [keyboardData.w - keyboardData.s,
+                 keyboardData.i - keyboardData.k]
+
+    yawData = [keyboardData.a - keyboardData.d,
+               keyboardData.j - keyboardData.l]
+
+    gimbal_msg = GimbalCmd()
+    gimbal_msg.pitch = pitchData
+    gimbal_msg.yaw = yawData
+
+    lcm_.publish('/gimbal_openloop_cmd', gimbal_msg.encode())
+
+
 def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/drive_control", drive_control_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
-    lcm_.subscribe('/arm_control', arm_control_callback)
-    # lcm_.subscribe('/sa_controls', sa_control_callback)
+    lcm_.subscribe('/ra_control', ra_control_callback)
+    lcm_.subscribe('/sa_control', sa_control_callback)
+    lcm_.subscribe('/gimbal_control', gimbal_control_callback)
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),

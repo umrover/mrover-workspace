@@ -2,6 +2,9 @@
   <div class="wrap">
       <Checkbox ref="arm" v-bind:name="'Arm Controls'" v-on:toggle="updateControlMode('arm', $event)"/>
       <Checkbox ref="arm_ik" v-bind:name="'Inverse Kinematics'" v-on:toggle="updateControlMode('arm_ik', $event)"/>
+      <div class="keyboard">
+        <GimbalControls/>
+      </div>
   </div>
 </template>
 
@@ -10,11 +13,11 @@ import Checkbox from './Checkbox.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
 import {Toggle, quadratic, deadzone, joystick_math} from '../utils.js'
+import GimbalControls from './GimbalControls.vue'
 
 let interval;
 
 export default {
-
   computed: {
 
     ...mapGetters('controls', {
@@ -51,6 +54,7 @@ export default {
     const electromagnet_toggle = new Toggle(false)
     const laser_toggle = new Toggle(false)
 
+
     const updateRate = 0.1
     interval = window.setInterval(() => {
       const gamepads = navigator.getGamepads()
@@ -78,59 +82,7 @@ export default {
               'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
             }
 
-            const arm_toggles = {
-              'type': 'ArmToggles',
-              'solenoid': xboxData['b'],
-              'electromagnet': electromagnet_toggle.new_reading(xboxData['a']),
-              'laser': laser_toggle.new_reading(xboxData['x'])
-            }
-
-            let send_arm_toggles = false
-            if (this.controlMode === 'arm') {
-              send_arm_toggles = true
-              let motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)*0.5,
-                              -deadzone(quadratic(xboxData.left_js_y), 0.09)*0.5,
-                              quadratic(xboxData.left_trigger-xboxData.right_trigger)*0.6,
-                              deadzone(quadratic(xboxData.right_js_y), 0.09)*0.75,
-                              deadzone(quadratic(xboxData.right_js_x), 0.09)*0.75,
-                              (xboxData.d_pad_right-xboxData.d_pad_left)*0.6,
-                              xboxData.right_bumper - xboxData.left_bumper]
-              for(let i=0; i<7; i++) {
-                const openloop_msg = {
-                  'type': 'OpenLoopRAMotor',
-                  'joint_id': i,
-                  'speed': motor_speeds[i]
-                }
-                this.$parent.publish('/arm_motors', openloop_msg)
-              }
-            } else if(this.controlMode === 'arm_ik') {
-              send_arm_toggles = true
-
-              let speed = 0.05;
-              const deltaPos = {
-                'type': 'IkArmControl',
-                'deltaX': -deadzone(quadratic(xboxData.left_js_y), 0.08)*speed*updateRate,
-                'deltaY': -deadzone(quadratic(xboxData.left_js_x), 0.08)*speed*updateRate,
-                'deltaZ': -deadzone(quadratic(xboxData.right_js_y), 0.08)*speed*updateRate
-              }
-
-              this.$parent.publish('/ik_arm_control', deltaPos);
-
-              let openloop = {
-                'type': 'OpenLoopRAMotor',
-                'joint_id': 5,
-                'speed': (xboxData['d_pad_right'] - xboxData['d_pad_left'])*0.60,
-              }
-              this.$parent.publish('/arm_motors', openloop)
-
-              openloop.joint_id = 6
-              openloop.speed = (xboxData['right_bumper'] - xboxData['left_bumper'])
-              this.$parent.publish('/arm_motors', openloop)
-            }
-
-            if(send_arm_toggles) {
-              this.$parent.publish('/arm_toggles', arm_toggles)
-            }
+            this.$parent.publish('/ra_control', xboxData)
           }
         }
       }
@@ -172,7 +124,8 @@ export default {
   },
 
   components: {
-    Checkbox
+    Checkbox,
+    GimbalControls
   }
 }
 </script>
