@@ -1,0 +1,12 @@
+[Unit]
+Description=MRover Onboard ODrive Bridge
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jarvis exec onboard_odrive_bridge ${%i} BOTH
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
