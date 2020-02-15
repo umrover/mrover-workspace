@@ -37,6 +37,10 @@ class SAKinematics:
             if (np.array_equal(rot_axis_child, [1, 0, 0])):
                 rot_theta[1:3, 1:3] = [[ctheta, -stheta],
                                        [stheta, ctheta]]
+            # Account for translation in the first joint:
+            elif (joint == "joint_a"):
+                # Translation along the x-axis:
+                rot_theta[0, 0] = 1
             elif (np.array_equal(rot_axis_child, [0, 1, 0])):
                 rot_theta[0, 0] = ctheta
                 rot_theta[2, 0] = -1 * stheta
