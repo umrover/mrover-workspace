@@ -6,15 +6,13 @@
       - rover-onboard-auton-light
       - rover-onboard-cv
       - rover-onboard-filter
-      - rover-onboard-gps
-      - rover-onboard-imu
       - rover-onboard-kinematics
       - rover-onboard-microscope
       - rover-onboard-nav
+      - rover-onboard-odrive-bridge@
       - rover-onboard-raman
       - rover-onboard-science-controls
       - rover-onboard-sensor-package
-      - rover-onboard-talon
       - rover-onboard-teleop
 
 - name: Copy environment variable definitions 
@@ -36,13 +34,12 @@
       - rover-onboard-auton-light.service
       - rover-onboard-cv.service
       - rover-onboard-filter.service
-      - rover-onboard-gps.service
-      - rover-onboard-imu.service
       - rover-onboard-kinematics.service
       - rover-onboard-microscope.service
       - rover-onboard-nav.service
+      - rover-onboard-odrive-bridge@FRONT_MOTORS.service
+      - rover-onboard-odrive-bridge@BACK_MOTORS.service
       - rover-onboard-raman.service
       - rover-onboard-science-controls.service
       - rover-onboard-sensor-package.service
-      - rover-onboard-talon.service
       - rover-onboard-teleop.service
