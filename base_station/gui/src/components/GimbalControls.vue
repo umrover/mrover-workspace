@@ -1,7 +1,8 @@
 <template>
     <div class="wrap">
         <div v-show='false' id="key">
-          <input v-on:keyup="keymonitor">
+          <input v-on:keydown="keymonitor">
+          <input v-on:keyup="keyzero">
       </div>
     </div>
 </template>
@@ -20,7 +21,23 @@ export default {
           "i": event.keyCode === 73,
           "j": event.keyCode === 74,
           "k": event.keyCode === 75,
-          "l": event.keyCode === 76,
+          "l": event.keyCode === 76
+        }
+
+        this.$parent.$parent.publish('/gimbal_control', keyboardData)
+      },
+
+      keyzero: (event) => {
+        const keyboardData = {
+          "type": "Keyboard",
+          "w": 0,
+          "a": 0,
+          "s": 0,
+          "d": 0,
+          "i": 0,
+          "j": 0,
+          "k": 0,
+          "l": 0
         }
 
         this.$parent.$parent.publish('/gimbal_control', keyboardData)
@@ -29,11 +46,13 @@ export default {
   },
 
   beforeDestroy: function () {
-    document.removeEventListener('keyup', this.keymonitor);
+    document.removeEventListener('keydown', this.keymonitor);
+    document.removeEventListener('keyup', this.keyzero);
   },
 
   created: function () {
-    document.addEventListener('keyup', this.keymonitor);
+    document.addEventListener('keydown', this.keymonitor);
+    document.addEventListener('keyup', this.keyzero);
   }
 }
 </script>
