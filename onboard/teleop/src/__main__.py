@@ -5,7 +5,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
                         SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard)
+                        Keyboard, SAEndEffectorCmd)
 
 
 class Toggle:
@@ -217,6 +217,11 @@ def sa_control_callback(channel, msg):
     openloop_msg.throttle = saMotorsData
 
     lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
+
+    endeffector_msg = SAEndEffectorCmd()
+    endeffector_msg.linear_actuator = xboxData.right_bumper - xboxData.left_bumper
+
+    lcm_.publish('/sa_endeffector_cmd', endeffector_msg.encode())
 
 
 def gimbal_control_callback(channel, msg):
