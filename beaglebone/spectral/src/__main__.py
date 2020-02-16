@@ -16,7 +16,8 @@ def read(channel):
 def write(channel):
     bus.write_byte_data(I2C_MUX_ADDRESS, MUX_READ_WRITE_REG, channel)    
 
-ADDRESSES = [ 't': 0x1, '0': 0x2, '1': 0x4, '2': 0x8 ]
+ADDRESSES = { 't': 0x1, '0': 0x2, '1': 0x4, '2': 0x8 }
+
 def enable():
     for i in addresses:
         write(i[0])
@@ -25,7 +26,7 @@ def enable():
 def main():
     while 1:
         mode = input("select mode: t (triad), 0 (normal 0), 1 (normal 1), 2 (normal 2)")
-        write(ADDRESSES[mode][0])
+        write(ADDRESSES[mode])
         spectral.get_spectral_data(mode)
 
 

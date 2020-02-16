@@ -1,9 +1,9 @@
 import smbus
 import numpy as np
 import time as t
-from rover_msgs import SpectralData
-#will add another soon 
-import lcm
+# from rover_msgs import SpectralData
+# will add another soon 
+# import lcm
 
 # 0x00: Select master data -- AS72651
 # 0x01: Select first slave data -- AS72652
@@ -11,7 +11,7 @@ import lcm
 DEV_SEL  = 0x4F
 
 bus = smbus.SMBus(2)
-lcm_ = lcm.LCM()
+# lcm_ = lcm.LCM()
 
 I2C_AS72XX_SLAVE_STATUS_REG = 0x00
 I2C_AS72XX_SLAVE_WRITE_REG = 0x01
@@ -54,7 +54,7 @@ U_LOW = 0x0F  # Channel U Low Data Byte
 V_HIGH = 0x10  # Channel V High Data Byte
 V_LOW = 0x11  # Channel V Low Data Byte
 W_HIGH = 0x12  # Channel W High Data Byte
-W_Low = 0x13  # Channel W Low Data Byte
+W_LOW = 0x13  # Channel W Low Data Byte
 
 #combines MSB and LSB data
 def get_decimal(virtual_reg_L, virtual_reg_H):  
@@ -119,13 +119,20 @@ def virtual_write(virtual_reg, data):
                 I2C_AS72XX_SLAVE_WRITE_REG, data)
     
 
-def get_triad_data(msg):
-    colors = SpectralData.decode(msg)
+def get_triad_data():
+    #colors = SpectralData.decode(msg)
+    # dev_channels = {
+    #                0x00: {"R": colors.r, "S": colors.s, "T": colors.t, "U": colors.u, "V": colors.v, "W": colors.w },
+    #                0x01: {"G": colors.g, "H": colors.h, "I": colors.i, "J": colors.j, "K": colors.k, "L": colors.l },
+    #                0x02: {"A": colors.a, "B": colors.b, "C": colors.c, "D": colors.d, "E": colors.e, "F": colors.f }
+    #                }
+
     dev_channels = {
-                    0x00: {"R": colors.r, "S": colors.s, "T": colors.t, "U": colors.u, "V": colors.v, "W": colors.w },
-                    0x01: {"G": colors.g, "H": colors.h, "I": colors.i, "J": colors.j, "K": colors.k, "L": colors.l },
-                    0x02: {"A": colors.a, "B": colors.b, "C": colors.c, "D": colors.d, "E": colors.e, "F": colors.f }
-                    }
+                   0x00: {"R": 0, "S": 0, "T": 0, "U": 0, "V": 0, "W": 0 },
+                   0x01: {"G": 0, "H": 0, "I": 0, "J": 0, "K": 0, "L": 0 },
+                   0x02: {"A": 0, "B": 0, "C": 0, "D": 0, "E": 0, "F": 0 }
+                   }
+
     channel_registers = [[RAW_VALUE_RGA_LOW, RAW_VALUE_RGA_HIGH], [RAW_VALUE_SHB_LOW, RAW_VALUE_SHB_HIGH],
                      [RAW_VALUE_TIC_LOW, RAW_VALUE_TIC_HIGH], [RAW_VALUE_UJD_LOW, RAW_VALUE_UJD_HIGH],
                      [RAW_VALUE_VKE_LOW, RAW_VALUE_VKE_HIGH], [RAW_VALUE_WLF_LOW, RAW_VALUE_WLF_HIGH]]
@@ -149,8 +156,8 @@ def get_data():
                     [ T_LOW, T_HIGH ], [ U_LOW, U_HIGH ],
                     [ V_LOW, V_HIGH ], [ W_LOW, W_HIGH ] 
                     ]
-
-    for i in dev_channels[i]:
+    channel = 0
+    for i in dev_channels:
         dev_channels[i] = get_decimal(channel_registers[channel][0], channel_registers[channel][1])
         channel += 1
     return dev_channels
@@ -175,30 +182,30 @@ def get_spectral_data(mode):
     if ((virtual_read(0x04) & 0x02) == 2):
         print("DATA READY TO READ")
         if (mode == 't'):
-            data = get_spectral_data()
+            data = get_triad_data()
             for i in range(0, 3):
                 [print(key, value) for key, value in data[i].items()] 
         else:
             data = get_data()
-            [print(key, value) for key, value in data[i].items()]    
+            [print(key, value) for key, value in data.items()]    
     
 
-def main():
-    mode = input("select mode: s (spectral) or n (normal)")
+# def main():
+#    mode = input("select mode: s (spectral) or n (normal)")
 
-    while True:
-        lcm_.handle() 
-        if ((virtual_read(0x04) & 0x02) == 2):
-            print("DATA READY TO READ")
-            if (mode == 't'):
-                data = get_spectral_data()
-                for i in range(0, 3):
-                    [print(key, value) for key, value in data[i].items()] 
-            else:
-                data = get_data()
-                [print(key, value) for key, value in data[i].items()]
+#    while True:
+#        # lcm_.handle() 
+#        if ((virtual_read(0x04) & 0x02) == 2):
+#            print("DATA READY TO READ")
+#            if (mode == 't'):
+#                data = get_spectral_data()
+#                for i in range(0, 3):
+#                    [print(key, value) for key, value in data[i].items()] 
+#            else:
+#                data = get_data()
+#                [print(key, value) for key, value in data.items()]
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#    main()
 
         
