@@ -18,13 +18,14 @@ class SAState:
         self.z_limit = 0
         self.ef_pos_world = np.array([0, 0, 0])
         self.ef_xform = np.eye(4)
-        print(self.all_joints)
         self.coms = np.array(np.size(self.all_joints))
         self.torques = OrderedDict()
 
+        for joint in self.all_joints:
+            self.angles[joint] = 0.0
+
     @property
     def all_joints(self):
-        print(self.geom['name'])
         return list(self.geom['joints'].keys())
 
     def read_geometry_from_JSON(self, file):
@@ -118,8 +119,8 @@ class SAState:
                 self.prev_angles['joint_d']]
 
     def set_angles_list(self, arm_position):
-        self.prev_angles = copy.deepcopy(self.angles)
-        self.prev_angle_time = copy.deepcopy(self.angle_time)
+        # self.prev_angles = copy.deepcopy(self.angles)
+        # self.prev_angle_time = copy.deepcopy(self.angle_time)
         self.angles['joint_a'] = arm_position[0]
         self.angles['joint_b'] = arm_position[1]
         self.angles['joint_c'] = arm_position[2]

@@ -20,11 +20,14 @@ class SAKinematics:
         joints = cur_robot.all_joints
         global_transform = np.eye(4)
         # set the base to be at the origin:
-        cur_robot.set_joint_transform(cur_robot.geom['joint']['joint_a'], np.eye(4))
+        cur_robot.set_joint_transform('joint_a', np.eye(4))
         parent_mat = np.eye(4)
 
         # Iterate through each joint updating position:
         for joint in joints:
+            if joint == 'end_effector':
+                break
+
             xyz = copy.deepcopy(np.array(cur_robot.get_joint_rel_xyz(joint)))
             rot_axis_child = np.array(cur_robot.get_joint_axis(joint))
 
@@ -38,8 +41,7 @@ class SAKinematics:
             # Account for translation in the first joint:
             if (joint == "joint_a"):
                 # Translation along the x-axis:
-                rot_theta[0, 3] = 1
-                continue
+                rot_theta[0, 3] = theta
 
             elif (np.array_equal(rot_axis_child, [1, 0, 0])):
                 rot_theta[1:3, 1:3] = [[ctheta, -stheta],
@@ -74,6 +76,8 @@ class SAKinematics:
         total_mass = 0
 
         for joint in reversed(joints):
+            if joint == 'end_effector':
+                break
             joint_pos = cur_robot.get_joint_pos_world(joint)
             com_cur_link = cur_robot.get_joint_com(joint)
             cur_link_mass = cur_robot.get_joint_mass(joint)
@@ -93,7 +97,7 @@ class SAKinematics:
             cur_robot.torques[joint] = torque
             prev_com = curr_com
 
-        # print(cur_robot.torques)
+        print(ef_pos_world)
 
         return ef_pos_world[:-1]
 
@@ -107,13 +111,13 @@ class SAKinematics:
         path.append([0, 0, 0])
 
         cs = self.spline_fitting(path)
-        print(path)
-        print(cs)
+        # print(path)
+        # print(cs)
 
         self.current_spline = cs
 
         return cs
-    
+
     def set_angles(self, angles):
         self.arm_.set_angles_list(angles)
 
