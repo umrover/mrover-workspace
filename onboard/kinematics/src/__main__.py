@@ -1,6 +1,7 @@
 import os
 from .mrover_arm import MRoverArm
 from .sa_kinematics import SAKinematics
+from .sa_state import SAState
 from .configuration_space_test import ConfigurationSpaceTest
 # from .kinematics_tester import KinematicsTester
 from rover_common.aiohelper import run_coroutines
@@ -10,13 +11,19 @@ from rover_common import aiolcm
 def main():
     config_path = os.environ['MROVER_CONFIG']
     geom_file = config_path + '/config_kinematics/mrover_arm_geom.json'
+    sa_geom_file = config_path + '/config_kinematics/mrover_sa_geom.json'
     args = {
         'geom_file': geom_file,
     }
     lcm_ = aiolcm.AsyncLCM()
 
+    sa_geom = {
+        'geom_file': sa_geom_file,
+    }
+
     arm = MRoverArm(args, lcm_)
-    sa = SAKinematics(lcm_, arm)
+    sa_arm = SAState(sa_geom, lcm_)
+    sa = SAKinematics(lcm_, sa_arm)
     sa.plan_return_to_origin([4, 12, 17])
 
     config = ConfigurationSpaceTest(arm)

@@ -1,17 +1,15 @@
+import json
 import numpy as np
-import numpy.linalg as LA
 import copy
 import time
 from collections import OrderedDict
-from .utils import apply_transformation, closest_dist_bet_lines
-from .utils import point_line_distance
 from .utils import apply_transformation
 
 
 class SAState:
-    def __init__(self, geom):
+    def __init__(self, geom, lcm):
         super(SAState, self).__init__()
-        self.geom = geom
+        self.geom = self.read_geometry_from_JSON(geom)
         self.angles = OrderedDict()
         self.lcm_ = lcm
         self.angle_time = 0
@@ -20,13 +18,23 @@ class SAState:
         self.z_limit = 0
         self.ef_pos_world = np.array([0, 0, 0])
         self.ef_xform = np.eye(4)
+        print(self.all_joints)
         self.coms = np.array(np.size(self.all_joints))
         self.torques = OrderedDict()
 
     @property
     def all_joints(self):
+        print(self.geom['name'])
         return list(self.geom['joints'].keys())
-    
+
+    def read_geometry_from_JSON(self, file):
+        geom_file = file['geom_file']
+
+        with open(geom_file) as f:
+            geom = json.load(f, object_pairs_hook=OrderedDict)
+
+        return geom
+
     def set_joint_transform(self, joint, transform):
         self.geom['joints'][joint]['matrix'] = transform
 
@@ -54,13 +62,13 @@ class SAState:
         x = self.geom['joints'][joint]['rot_axis']["x"]
         y = self.geom['joints'][joint]['rot_axis']["y"]
         z = self.geom['joints'][joint]['rot_axis']["z"]
-        return [x,y,z]
+        return [x, y, z]
 
     def get_joint_rel_xyz(self, joint):
         x = self.geom['joints'][joint]['origin']['x']
         y = self.geom['joints'][joint]['origin']['y']
         z = self.geom['joints'][joint]['origin']['z']
-        return [x,y,z]
+        return [x, y, z]
 
     def get_joint_pos_world(self, joint):
         transform_matrix = self.get_joint_transform(joint)
@@ -115,7 +123,6 @@ class SAState:
         self.angles['joint_a'] = arm_position[0]
         self.angles['joint_b'] = arm_position[1]
         self.angles['joint_c'] = arm_position[2]
-        self.angles['joint_d'] = arm_position[3]
         # TODO: add time tracking
         self.angle_time = time.time()
 
