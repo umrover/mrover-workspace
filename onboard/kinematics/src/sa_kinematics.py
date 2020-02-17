@@ -1,11 +1,11 @@
 import numpy as np
-from scipy.interpolate import interp1d
 from rover_msgs import (SAClosedLoopCmd, ArmPosition)
 import asyncio
 from .logger import logger
-
-from numpy import linalg as LA
+from scipy.interpolate import interp1d
+import copy
 from.utils import calculate_torque
+
 
 class SAKinematics:
     def __init__(self, lcm, arm):
@@ -15,7 +15,8 @@ class SAKinematics:
         self.current_spline = []
         self.enable_execute = False
 
-    def FK(self, cur_robot):
+    def FK(self):
+        cur_robot = self.arm_
         joints = cur_robot.all_joints
         global_transform = np.eye(4)
         # set the base to be at the origin:
@@ -112,12 +113,19 @@ class SAKinematics:
         self.current_spline = cs
 
         return cs
+    
+    def set_angles(self, angles):
+        self.arm_.set_angles_list(angles)
 
     def spline_fitting(self, path):
         x_ = np.linspace(0, 1, len(path))
         return interp1d(x_, np.transpose(path))
 
     def execute_callback(self, channel, msg):
+        # pos = self.arm_.get_ef_pos_world()
+        pos = [4, 12, 17]
+        self.spline_t = 0
+        self.current_spline = self.plan_return_to_origin(pos)
         self.enable_execute = True
 
     def publish_config(self, angles, torques, channel):
