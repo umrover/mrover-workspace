@@ -25,6 +25,9 @@ def main():
     sa_arm = SAState(sa_geom, lcm_)
     sa = SAKinematics(lcm_, sa_arm)
     sa.plan_return_to_origin([4, 12, 17])
+    sa.set_angles([2, 0, 0])
+
+    sa.FK()
 
     config = ConfigurationSpaceTest(arm)
     config.straight_up_torque_test()
