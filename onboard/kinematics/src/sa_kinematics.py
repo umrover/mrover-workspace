@@ -106,12 +106,13 @@ class SAKinematics:
         translator = cur_pos[0]
         joint_a = cur_pos[1]
         joint_b = cur_pos[2]
+        xyz_target = self.arm_.get_deposit_pos()
         path = [[translator, joint_a, joint_b]]
-        path.append([0, joint_a, joint_b])
-        path.append([0, 0, 0])
+        path.append([xyz_target[0], joint_a, joint_b])
+        path.append(xyz_target)
 
         cs = self.spline_fitting(path)
-        # print(path)
+        print(path)
         # print(cs)
 
         self.current_spline = cs
