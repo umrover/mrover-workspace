@@ -45,6 +45,10 @@ class SAState:
     def get_child(self, joint):
         return self.geom['joints'][joint]['child']
 
+    def get_deposit_pos(self):
+        xyz = self.geom['deposit']
+        return [xyz['x'], xyz['y'], xyz['z']]
+
     def get_joint_com(self, joint):
         transform = self.get_joint_transform(joint)
         translation = np.eye(4)

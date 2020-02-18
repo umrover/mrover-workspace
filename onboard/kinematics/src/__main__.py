@@ -22,6 +22,7 @@ def main():
     }
 
     arm = MRoverArm(args, lcm_)
+
     sa_arm = SAState(sa_geom, lcm_)
     sa = SAKinematics(lcm_, sa_arm)
     sa.plan_return_to_origin([4, 12, 17])
