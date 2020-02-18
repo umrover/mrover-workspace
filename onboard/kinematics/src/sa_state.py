@@ -1,6 +1,5 @@
 import json
 import numpy as np
-import copy
 import time
 from collections import OrderedDict
 from .utils import apply_transformation
@@ -101,26 +100,15 @@ class SAState:
         self.ef_xform = xform
 
     def set_angles(self, arm_position):
-        self.prev_angles = copy.deepcopy(self.angles)
-        self.prev_angle_time = copy.deepcopy(self.angle_time)
-        self.angles['joint_a'] = arm_position.joint_a
-        self.angles['joint_b'] = arm_position.joint_b
-        self.angles['joint_c'] = arm_position.joint_c
-        self.angles['joint_d'] = arm_position.joint_d
-        # TODO: add time tracking
-        self.angle_time = time.time()
+        self.angles['joint_a'] = arm_position[0]
+        self.angles['joint_b'] = arm_position[1]
+        self.angles['joint_c'] = arm_position[2]
+        print(arm_position)
 
     def get_angles(self):
         return [self.angles['joint_a'],
                 self.angles['joint_b'],
-                self.angles['joint_c'],
-                self.angles['joint_d']]
-
-    def get_prev_angles(self):
-        return [self.prev_angles['joint_a'],
-                self.prev_angles['joint_b'],
-                self.prev_angles['joint_c'],
-                self.prev_angles['joint_d']]
+                self.angles['joint_c']]
 
     def set_angles_list(self, arm_position):
         # self.prev_angles = copy.deepcopy(self.angles)
