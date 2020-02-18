@@ -1,5 +1,6 @@
 import numpy as np
-from rover_msgs import (SAClosedLoopCmd, ArmPosition)
+import numpy.linalg as LA
+from rover_msgs import (SAClosedLoopCmd, SAPosData, SimulationMode)
 import asyncio
 from .logger import logger
 from scipy.interpolate import interp1d
@@ -14,6 +15,7 @@ class SAKinematics:
         self.spline_t = 0
         self.current_spline = []
         self.enable_execute = False
+        self.sim_mode = True
 
     def FK(self):
         cur_robot = self.arm_
@@ -101,8 +103,7 @@ class SAKinematics:
 
         return ef_pos_world[:-1]
 
-
-    def plan_return_to_origin(self, cur_pos):
+    def plan_return_to_deposit(self, cur_pos):
         translator = cur_pos[0]
         joint_a = cur_pos[1]
         joint_b = cur_pos[2]
@@ -123,14 +124,25 @@ class SAKinematics:
         self.arm_.set_angles_list(angles)
 
     def spline_fitting(self, path):
-        x_ = np.linspace(0, 1, len(path))
+        step = len(path)
+        x_ = np.linspace(0, 1, step)
         return interp1d(x_, np.transpose(path))
+
+    def arm_position_callback(self, channel, msg):
+        arm_pos = SAPosData.decode(msg)
+
+        self.arm_.set_angles(arm_pos)
+        self.FK()
+
+    def simulation_mode_callback(self, channel, msg):
+        simulation_mode_msg = SimulationMode.decode(msg)
+        self.sim_mode = simulation_mode_msg.sim_mode
 
     def execute_callback(self, channel, msg):
         # pos = self.arm_.get_ef_pos_world()
-        pos = [4, 12, 17]
+        pos = self.arm_.get_angles()
         self.spline_t = 0
-        self.current_spline = self.plan_return_to_origin(pos)
+        self.current_spline = self.plan_return_to_deposit(pos)
         self.enable_execute = True
 
     def publish_config(self, angles, torques, channel):
@@ -149,22 +161,24 @@ class SAKinematics:
                 logger.info('spline time: {}'.format(self.spline_t))
 
                 target_angs = self.current_spline(self.spline_t)
-                target_angs = np.append(target_angs, [0, 0, 0])
-                torques = [0, 0, 0]
+
+                cur_angs = self.arm_.get_angles()
+                ang_dist = LA.norm(np.array(target_angs - cur_angs))
+
+                torques = [0, 0, 0]  # add in real torques later
 
                 self.publish_config(target_angs, torques, '/sa_closedloop_cmd')
 
-                targ = ArmPosition()
-                targ.joint_a = target_angs[0]
-                targ.joint_b = target_angs[1]
-                targ.joint_c = target_angs[2]
-
-                self.lcm_.publish('/arm_position', targ.encode())
-
                 print(target_angs)
-                self.spline_t += 0.01
 
-                if self.spline_t >= 1:
+                if not self.sim_mode:
+                    self.spline_t += min(0.01, 0.0005/ang_dist)
+                elif self.sim_mode:
+                    self.spline_t += 0.01
+
+                self.spline_t = min(self.spline_t, 1)
+
+                if self.spline_t >= 1 and (ang_dist < 0.07 or self.sim_mode):
                     self.enable_execute = False
             await asyncio.sleep(0.001)
         return

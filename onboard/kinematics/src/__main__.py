@@ -25,7 +25,7 @@ def main():
 
     sa_arm = SAState(sa_geom, lcm_)
     sa = SAKinematics(lcm_, sa_arm)
-    sa.plan_return_to_origin([4, 12, 17])
+    sa.plan_return_to_deposit([4, 12, 17])
     sa.set_angles([2, 0, 0])
 
     sa.FK()
@@ -47,6 +47,7 @@ def main():
     lcm_.subscribe("/ik_arm_control", arm.cartesian_control_callback)
     # lcm_.subscribe("/lock_joint_e", arm.lock_e_callback)
     lcm_.subscribe("/ik_enabled", arm.ik_enabled_callback)
-    lcm_.subscribe("/lock_joint_e", sa.execute_callback)
+    lcm_.subscribe("/sa_depositpos_trig", sa.execute_callback)
+    lcm_.subscribe("/sa_pos_data", sa.arm_position_callback)
 
     run_coroutines(lcm_.loop(), arm.execute_spline(), sa.execute_spline())
