@@ -26,7 +26,7 @@ def main():
     sa_arm = SAState(sa_geom, lcm_)
     sa = SAKinematics(lcm_, sa_arm)
     sa.plan_return_to_deposit([4, 12, 17])
-    sa.set_angles([2, 0, 0])
+    sa.set_angles([0, -0.9523458877, -1.437446191])
 
     sa.FK()
 

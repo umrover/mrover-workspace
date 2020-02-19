@@ -25,6 +25,8 @@ class SAKinematics:
         cur_robot.set_joint_transform('joint_a', np.eye(4))
         parent_mat = np.eye(4)
 
+        prevasdf = [0, 0, 0]
+
         # Iterate through each joint updating position:
         for joint in joints:
             if joint == 'end_effector':
@@ -64,6 +66,9 @@ class SAKinematics:
             global_transform = np.matmul(parent_mat, T)
             cur_robot.set_joint_transform(joint, global_transform)
             parent_mat = copy.deepcopy(global_transform)
+
+            print(joint, cur_robot.get_joint_pos_world(joint) - prevasdf)
+            prevasdf = cur_robot.get_joint_pos_world(joint)
 
         ef_xyz = copy.deepcopy(np.array(cur_robot.get_joint_rel_xyz('end_effector')))
         T = np.eye(4)

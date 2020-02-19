@@ -163,9 +163,9 @@ class ConfigurationSpaceTest:
         for joint in self.arm.state.all_joints:
             self.arm.state.angles[joint] = 0
             if (joint == 'joint_c'):
-                self.arm.state.angles[joint] = np.pi / 2
+                self.arm.state.angles[joint] = 0
             if (joint == 'joint_b'):
-                self.arm.state.angles[joint] = np.pi / 2
+                self.arm.state.angles[joint] = 0
 
         self.arm.solver.FK(self.arm.state)
         for joint in self.arm.state.all_joints:
