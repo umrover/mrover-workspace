@@ -116,8 +116,8 @@ class MRoverArm:
             print("NO IK SOLUTION FOUND, using closest configuration...")
 
         self.lcm_.publish('/debugMessage', ik_message.encode())
-        if not success:
-            return
+        # if not success:
+        #     return
 
         self.publish_transforms(self.state)
         goal = [joint_angles["joint_a"],

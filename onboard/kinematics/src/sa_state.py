@@ -47,7 +47,7 @@ class SAState:
 
     def get_deposit_pos(self):
         xyz = self.geom['deposit']
-        return [xyz['x'], xyz['y'], xyz['z']]
+        return [xyz['angle_0'], xyz['angle_1'], xyz['angle_2']]
 
     def get_joint_com(self, joint):
         transform = self.get_joint_transform(joint)
