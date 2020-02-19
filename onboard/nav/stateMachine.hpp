@@ -5,6 +5,7 @@
 #include "rapidjson/document.h"
 #include "rover.hpp"
 #include "search/searchStateMachine.hpp"
+#include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 
 using namespace std;
@@ -49,6 +50,12 @@ public:
     void updateRepeaterComplete( );
 
     void setSearcher(SearchType type);
+
+    /*************************************************************************/
+    /* Public Member Variables */
+    /*************************************************************************/
+    // Gate State Machine instance
+    GateStateMachine* mGateStateMachine;
 
 private:
     /*************************************************************************/

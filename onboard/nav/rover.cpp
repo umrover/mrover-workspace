@@ -216,29 +216,12 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.autonState() = newRoverStatus.autonState();
             return true;
         }
-        if( ( mRoverStatus.currentState() == NavState::TurnToTarget ||
-              mRoverStatus.currentState() == NavState::DriveToTarget ) &&
-            !isEqual( mRoverStatus.target(), newRoverStatus.target() ) )
-        {
-            mRoverStatus.obstacle() = newRoverStatus.obstacle();
-            mRoverStatus.odometry() = newRoverStatus.odometry();
-            mRoverStatus.target() = newRoverStatus.target();
-            return true;
-        }
 
-        if( isTurningAroundObstacle( mRoverStatus.currentState() ) &&
-            ( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
-              !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ) )
-        {
-            mRoverStatus.obstacle() = newRoverStatus.obstacle();
-            mRoverStatus.odometry() = newRoverStatus.odometry();
-            mRoverStatus.target() = newRoverStatus.target();
-            return true;
-        }
-
+        // If any data has changed, update all data
         if( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
             !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ||
-            !isEqual( mRoverStatus.target(), newRoverStatus.target() ) )
+            !isEqual( mRoverStatus.target(), newRoverStatus.target()) ||
+            !isEqual( mRoverStatus.target2(), newRoverStatus.target2()) )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();

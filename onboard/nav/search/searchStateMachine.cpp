@@ -153,7 +153,7 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
     if( phoebe->roverStatus().target().distance >= 0 )
     {
         updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
-                                           phoebe->roverStatus().odometry().bearing_deg );
+                                       phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
     Odometry& nextSearchPoint = mSearchPoints.front();
@@ -254,6 +254,16 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.clear();
+        if( phoebe->roverStatus().path().front().gate )
+        {
+            roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
+            roverStateMachine->mGateStateMachine->lastKnownPost1.id = phoebe->roverStatus().target().id;
+            roverStateMachine->mGateStateMachine->lastKnownPost1.odom = createOdom( phoebe->roverStatus().odometry(),
+                                                                                    phoebe->roverStatus().target().bearing,
+                                                                                    phoebe->roverStatus().target().distance,
+                                                                                    phoebe );
+            return NavState::GateSpin;
+        }
         phoebe->roverStatus().path().pop_front();
         roverStateMachine->updateCompletedPoints();
         return NavState::Turn;

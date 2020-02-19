@@ -50,6 +50,17 @@ enum class NavState
     SearchTurnAroundObs = 32,
     SearchDriveAroundObs = 33,
 
+    // Gate Search States
+    GateSpin = 40,
+    GateSpinWait = 41,
+    GateTurn = 42,
+    GateDrive = 43,
+    GateTurnToCentPoint = 44,
+    GateDriveToCentPoint = 45,
+    GateFace = 46,
+    GateShimmy = 47,
+    GateDriveThrough = 48,
+
     // Radio Repeater States
     RadioRepeaterTurn = 50,
     RadioRepeaterDrive = 51,

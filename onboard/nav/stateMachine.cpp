@@ -14,6 +14,7 @@
 #include "search/spiralInSearch.hpp"
 #include "search/lawnMowerSearch.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
+#include "gate_search/diamondGateSearch.hpp"
 
 // Constructs a StateMachine object with the input lcm object.
 // Reads the configuartion file and constructs a Rover objet with this
@@ -41,6 +42,7 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     mRoverConfig.Parse( config.c_str() );
     mPhoebe = new Rover( mRoverConfig, lcmObject );
     mSearchStateMachine = SearchFactory( this, SearchType::SPIRALOUT );
+    mGateStateMachine = GateFactory( this, mPhoebe, mRoverConfig );
     mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( this, ObstacleAvoidanceAlgorithm::SimpleAvoidance );
 } // StateMachine()
 
@@ -116,7 +118,6 @@ void StateMachine::run()
             }
             return;
         }
-
         switch( mPhoebe->roverStatus().currentState() )
         {
             case NavState::Off:
@@ -211,6 +212,20 @@ void StateMachine::run()
                 break;
             }
 
+            case NavState::GateSpin:
+            case NavState::GateSpinWait:
+            case NavState::GateTurn:
+            case NavState::GateDrive:
+            case NavState::GateTurnToCentPoint:
+            case NavState::GateDriveToCentPoint:
+            case NavState::GateFace:
+            case NavState::GateShimmy:
+            case NavState::GateDriveThrough:
+            {
+                nextState = mGateStateMachine->run();
+                break;
+            }
+
             case NavState::Unknown:
             {
                 cerr << "Entered unknown state.\n";
@@ -279,7 +294,8 @@ bool StateMachine::isRoverReady() const
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
            mPhoebe->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
            mPhoebe->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
-           mPhoebe->roverStatus().currentState() == NavState::RepeaterDropWait; // continue even if no data has changed
+           mPhoebe->roverStatus().currentState() == NavState::RepeaterDropWait ||
+           mPhoebe->roverStatus().currentState() == NavState::GateSpinWait;
 
 } // isRoverReady()
 
@@ -453,6 +469,15 @@ string StateMachine::stringifyNavState() const
             { NavState::DriveAroundObs, "Drive Around Obstacle" },
             { NavState::SearchTurnAroundObs, "Search Turn Around Obstacle" },
             { NavState::SearchDriveAroundObs, "Search Drive Around Obstacle" },
+            { NavState::GateSpin, "Gate Spin" },
+            { NavState::GateSpinWait, "Gate Spin Wait" },
+            { NavState::GateTurn, "Gate Turn" },
+            { NavState::GateDrive, "Gate Drive" },
+            { NavState::GateTurnToCentPoint, "Gate Turn to Center Point" },
+            { NavState::GateDriveToCentPoint, "Gate Drive to Center Point" },
+            { NavState::GateFace, "Gate Face" },
+            { NavState::GateShimmy, "Gate Shimmy" },
+            { NavState::GateDriveThrough, "Gate Drive Through" },
             { NavState::RadioRepeaterTurn, "Radio Repeater Turn" },
             { NavState::RadioRepeaterDrive, "Radio Repeater Drive" },
             { NavState::RepeaterDropWait, "Radio Repeater Drop" },
