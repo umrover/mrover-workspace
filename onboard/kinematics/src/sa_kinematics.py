@@ -105,11 +105,11 @@ class SAKinematics:
 
     def plan_return_to_deposit(self, cur_pos):
         translator = cur_pos[0]
-        joint_a = cur_pos[1]
-        joint_b = cur_pos[2]
+        joint_b = cur_pos[1]
+        joint_c = cur_pos[2]
         xyz_target = self.arm_.get_deposit_pos()
-        path = [[translator, joint_a, joint_b]]
-        path.append([xyz_target[0], joint_a, joint_b])
+        path = [[translator, joint_b, joint_c]]
+        path.append([xyz_target[0], joint_b, joint_c])
         path.append(xyz_target)
 
         cs = self.spline_fitting(path)
@@ -140,6 +140,7 @@ class SAKinematics:
 
     def execute_callback(self, channel, msg):
         # pos = self.arm_.get_ef_pos_world()
+        print("return to deposit callback")
         pos = self.arm_.get_angles()
         self.spline_t = 0
         self.current_spline = self.plan_return_to_deposit(pos)
@@ -166,6 +167,7 @@ class SAKinematics:
                 ang_dist = LA.norm(np.array(target_angs - cur_angs))
 
                 torques = [0, 0, 0]  # add in real torques later
+                torques = self.arm_.get_torques()
 
                 self.publish_config(target_angs, torques, '/sa_closedloop_cmd')
 

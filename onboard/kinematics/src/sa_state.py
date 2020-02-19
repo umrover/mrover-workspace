@@ -22,6 +22,7 @@ class SAState:
 
         for joint in self.all_joints:
             self.angles[joint] = 0.0
+            self.torques[joint] = 0.0
 
     @property
     def all_joints(self):
@@ -95,6 +96,10 @@ class SAState:
 
     def set_coms(self, center_of_masses):
         self.coms = center_of_masses
+
+    def get_torques(self):
+        return [self.torques['joint_a'],
+                self.torques['joint_b'], self.torques['joint_c']]
 
     def set_ef_xform(self, xform):
         self.ef_xform = xform
