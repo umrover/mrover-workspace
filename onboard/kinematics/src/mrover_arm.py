@@ -7,7 +7,7 @@ from rover_msgs import (FKTransform, ArmPosition, DebugMessage,
                         IkEnabled)
 import numpy as np
 from numpy import linalg as LA
-import asyncio  
+import asyncio
 import time
 from .logger import logger
 from .arm_state import ArmState
