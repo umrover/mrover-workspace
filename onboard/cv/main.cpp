@@ -117,7 +117,7 @@ int main() {
       //update both tags in LCM message
       //first tag
       if(tagPair.first.id == -1){//no tag found
-        if(left_tag_buffer <= 5){//send the buffered tag
+        if(left_tag_buffer <= 20){//send the buffered tag
           ++left_tag_buffer;
         } else {//we probably actually lost the tag
           arTags[0].distance = -1;
@@ -133,7 +133,7 @@ int main() {
       
       //first tag
       if(tagPair.second.id == -1){//no tag found
-        if(right_tag_buffer <= 5){//send the buffered tag
+        if(right_tag_buffer <= 20){//send the buffered tag
           ++right_tag_buffer;
         } else {//we probably actually lost the tag
           arTags[1].distance = -1;

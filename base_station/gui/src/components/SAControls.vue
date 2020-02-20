@@ -1,35 +1,17 @@
 <template>
     <div class="wrap">
-        <div class="toggle_drill">
-            <Checkbox ref="front_drill" v-bind:name="'Front Drill Active'" v-on:toggle="updateControlMode('front_drill', $event)" />
-            <Checkbox ref="back_drill" v-bind:name="'Back Drill Active'" v-on:toggle="updateControlMode('back_drill', $event)" />
+        <div class="zero_encoders">
+          <button v-on:click='zeroEncoders()'>Zero Encoders</button>
         </div>
-        <div class="speed_limiter">
-            <p>
-                Speed Limiter:
-                <span>{{ dampenDisplay }}%</span>
-            </p>
-        </div>
-        <div class="mode_info">
-            <div v-if="controlMode === 'arm'">
-                <p>arm</p>
-            </div>
-            <template>
-                <span v-bind:class="['led', saFrontDrillColor]" />
-                <span class="name">Front Drill</span>
-                <span v-bind:class="['led', saBackDrillColor]" />
-                <span class="name">Back Drill</span>
-                <!-- <span v-bind:class="['led', saFrontDroneColor]" />
-                <span class="name">Front Drone</span>
-                <span v-bind:class="['led', saBackDroneColor]" />
-                <span class="name">Back Drone</span> -->
-            </template>
+        <div class="keyboard">
+          <GimbalControls/>
         </div>
     </div>
 </template>
 <script>import Checkbox from './Checkbox.vue'
 import { mapGetters, mapMutations } from 'vuex'
 import {Toggle, quadratic, deadzone, joystick_math} from '../utils.js'
+import GimbalControls from './GimbalControls.vue'
 
 let interval;
 export default {
@@ -46,7 +28,7 @@ export default {
         // front_drone: 0,
         // back_drone: 0
       },
-      dampen: 0
+      dampen: 0,
     }
   },
 
@@ -119,6 +101,7 @@ export default {
     const esc_0_on = new Toggle(false)
     const esc_1_on = new Toggle(false)
 
+
     interval = window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 4; i++) {
@@ -159,22 +142,8 @@ export default {
               'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
               //one of the buttoms to turn on drone motor, servos
             }
-            
-            // Can only toggle either front or back drill
-            let front_drill_input = this.controlMode === 'front_drill' && xboxData['right_bumper']
-            let back_drill_input = this.controlMode === 'back_drill' && xboxData['right_bumper']
 
-            const saMotorsData = {
-              'type': 'SAMotors',
-              'carriage': deadzone(xboxData['right_js_y'], 0.3),
-              'four_bar': xboxData['d_pad_left'] - xboxData['d_pad_right'],
-              'front_drill': front_drill_input,
-              'back_drill': back_drill_input,
-              'micro_x': deadzone(xboxData['left_js_x'], 0.3),
-              'micro_y': deadzone(xboxData['left_js_y'], 0.3),
-              'micro_z': xboxData['right_trigger'] - xboxData['left_trigger']
-            }
-            this.$parent.publish('/sa_motors', saMotorsData)
+            this.$parent.publish('/sa_control', xboxData)
 
             esc_0_on.new_reading(xboxData['x'])
             if (esc_0_on.toggle && esc_1_on.toggle) {
@@ -228,13 +197,18 @@ export default {
       }
     },
 
+    zeroEncoders: function() {
+      this.$parent.publish('/sa_zero_trigger', {'type': 'Signal'})
+    },
+
     ...mapMutations('controls', {
       setControlMode: 'setControlMode'
     })
   },
 
   components: {
-    Checkbox
+    Checkbox,
+    GimbalControls
   }
 }</script>
 <style scoped>
