@@ -41,8 +41,27 @@ NavState GateStateMachine::run()
 
         case NavState::GateTurnToCentPoint:
         {
-            cout << "turn to cent\n";
-            return NavState::GateTurnToCentPoint;
+            return executeGateTurnToCentPoint();
+        }
+
+        case NavState::GateDriveToCentPoint:
+        {
+            return executeGateDriveToCentPoint();
+        }
+
+        case NavState::GateFace:
+        {
+            return executeGateFace();
+        }
+
+        case NavState::GateShimmy:
+        {
+            return executeGateShimmy();
+        }
+
+        case NavState::GateDriveThrough:
+        {
+            return executeGateDriveThrough();
         }
 
         default:
@@ -174,6 +193,72 @@ NavState GateStateMachine::executeGateDrive()
     return NavState::GateTurn;
 } // executeGateDrive()
 
+NavState GateStateMachine::executeGateTurnToCentPoint()
+{
+    if( mPhoebe->turn( centerPoint1 ) )
+    {
+        return NavState::GateDriveToCentPoint;
+    }
+    return NavState::GateTurnToCentPoint;
+} // executeGateTurnToCentPoint()
+
+NavState GateStateMachine::executeGateDriveToCentPoint()
+{
+    // TODO: Obstacle Avoidance?
+    DriveStatus driveStatus = mPhoebe->drive( centerPoint1 );
+
+    if( driveStatus == DriveStatus::Arrived )
+    {
+        return NavState::GateFace;
+    }
+    if( driveStatus == DriveStatus::OnCourse )
+    {
+        return NavState::GateDriveToCentPoint;
+    }
+    return NavState::GateTurnToCentPoint;
+} // executeGateDriveToCentPoint()
+
+NavState GateStateMachine::executeGateFace()
+{
+    if( mPhoebe->turn( centerPoint2 ) )
+    {
+        return NavState::GateShimmy;
+    }
+    return NavState::GateFace;
+} // executeGateFace()
+
+NavState GateStateMachine::executeGateShimmy()
+{
+    return NavState::GateDriveThrough;
+} // executeGateShimmy()
+
+NavState GateStateMachine::executeGateDriveThrough()
+{
+    // TODO: Obstacle Avoidance?
+    DriveStatus driveStatus = mPhoebe->drive( centerPoint2 );
+
+    if( driveStatus == DriveStatus::Arrived )
+    {
+        if(!CP1ToCP2CorrectDir)
+        {
+            Odometry temp = centerPoint1;
+            centerPoint1 = centerPoint2;
+            centerPoint2 = temp;
+            CP1ToCP2CorrectDir = true;
+            return NavState::GateFace;
+        }
+        mPhoebe->roverStatus().path().pop_front();
+        mRoverStateMachine->updateCompletedPoints();
+        return NavState::Turn;
+    }
+    if( driveStatus == DriveStatus::OnCourse )
+    {
+        // TODO
+        return NavState::GateDriveThrough;
+    }
+    return NavState::GateDriveThrough;
+} // executeGateDriveThrough()
+
 // Update stored location and id for second post.
 void GateStateMachine::updatePost2Info()
 {
@@ -213,6 +298,26 @@ void GateStateMachine::updatePost2Info()
 // through it in the correct direction.
 void GateStateMachine::calcCenterPoint()
 {
+    const double distFromGate = 3;
+    const double gateWidth = mPhoebe->roverStatus().path().front().gate_width;
+    const double tagToPointAngle = atan2(distFromGate, gateWidth / 2) * 180/PI;
+    const double gateAngle = calcBearing(lastKnownPost1.odom, lastKnownPost2.odom);
+    const double absAngle1 = mod(gateAngle + tagToPointAngle, 360);
+    const double absAngle2 = mod(absAngle1 + 180, 360);
+    const double tagToPointDist = sqrt(pow(gateWidth / 2, 2) + pow(distFromGate, 2));
+    // Assuming that CV works well enough that we don't pass through the gate before
+    // finding the second post. Thus, centerPoint1 will always be closer.
+    // TODO: verify this
+    centerPoint1 = createOdom(lastKnownPost1.odom, absAngle1, tagToPointDist, mPhoebe);
+    centerPoint2 = createOdom(lastKnownPost2.odom, absAngle2, tagToPointDist, mPhoebe);
+    if(lastKnownPost1.id % 2)
+    {
+        CP1ToCP2CorrectDir = true;
+    }
+    else
+    {
+        CP1ToCP2CorrectDir = false;
+    }
 
 } // calcCenterPoint()
 

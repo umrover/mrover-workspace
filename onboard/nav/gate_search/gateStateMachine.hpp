@@ -47,6 +47,16 @@ private:
 
     NavState executeGateDrive();
 
+    NavState executeGateTurnToCentPoint();
+
+    NavState executeGateDriveToCentPoint();
+
+    NavState executeGateFace();
+
+    NavState executeGateShimmy();
+
+    NavState executeGateDriveThrough();
+
     void updatePost2Info();
 
     void calcCenterPoint();
@@ -60,8 +70,12 @@ private:
     // Reference to config variables
     const rapidjson::Document& mRoverConfig;
 
-    // Point in frnot of center of gate
-    Odometry centerPoint;
+    // Points in frnot of center of gate
+    Odometry centerPoint1;
+    Odometry centerPoint2;
+
+    //
+    bool CP1ToCP2CorrectDir;
 
 protected:
     /*************************************************************************/
