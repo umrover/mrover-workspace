@@ -12,6 +12,8 @@ GateStateMachine::GateStateMachine( StateMachine* stateMachine, Rover* rover, co
     , mRoverConfig( roverConfig )
     , mPhoebe( rover ) {}
 
+GateStateMachine::~GateStateMachine() {}
+
 // Execute loop through gate state machine.
 NavState GateStateMachine::run()
 {
@@ -64,7 +66,7 @@ NavState GateStateMachine::executeGateSpin()
     {
         updatePost2Info();
         calcCenterPoint();
-        // return NavState::GateTurnToCentPoint;
+        return NavState::GateTurnToCentPoint;
     }
 
     if ( nextStop == 0 )
@@ -97,7 +99,7 @@ NavState GateStateMachine::executeGateSpinWait()
     {
         updatePost2Info();
         calcCenterPoint();
-        // return NavState::GateTurnToCentPoint;
+        return NavState::GateTurnToCentPoint;
     }
 
     if( !started )
@@ -114,6 +116,63 @@ NavState GateStateMachine::executeGateSpinWait()
     }
     return NavState::GateSpinWait;
 } // executeGateSpinWait()
+
+//
+NavState GateStateMachine::executeGateTurn()
+{
+    if( mGateSearchPoints.empty() )
+    {
+        initializeSearch();
+    }
+
+    if( mPhoebe->roverStatus().target2().distance >= 0 ||
+        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    {
+        updatePost2Info();
+        calcCenterPoint();
+        return NavState::GateTurnToCentPoint;
+    }
+
+    Odometry& nextSearchPoint = mGateSearchPoints.front();
+    if( mPhoebe->turn( nextSearchPoint ) )
+    {
+        return NavState::GateDrive;
+    }
+    return NavState::GateTurn;
+} // executeGateTurn()
+
+//
+NavState GateStateMachine::executeGateDrive()
+{
+    if( mPhoebe->roverStatus().target2().distance >= 0 ||
+        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    {
+        updatePost2Info();
+        calcCenterPoint();
+        return NavState::GateTurnToCentPoint;
+    }
+
+    // TODO
+    // if( isObstacleDetected( phoebe ) )
+    // {
+    //     roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
+    //     roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
+    //     return NavState::SearchTurnAroundObs;
+    // }
+    const Odometry& nextSearchPoint = mGateSearchPoints.front();
+    DriveStatus driveStatus = mPhoebe->drive( nextSearchPoint );
+
+    if( driveStatus == DriveStatus::Arrived )
+    {
+        mGateSearchPoints.pop_front();
+        return NavState::GateSpin;
+    }
+    if( driveStatus == DriveStatus::OnCourse )
+    {
+        return NavState::GateDrive;
+    }
+    return NavState::GateTurn;
+} // executeGateDrive()
 
 // Update stored location and id for second post.
 void GateStateMachine::updatePost2Info()

@@ -11,11 +11,11 @@ class DiamondGateSearch : public GateStateMachine
 public:
     DiamondGateSearch( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig );
 
-    ~DiamondGateSearch();
+    virtual ~DiamondGateSearch() override;
 
     // Initializes the search ponit multipliers to be the intermost loop
     // of the search.
-    void initializeSearch();
+    virtual void initializeSearch() override;
 };
 
 #endif // DIAMOND_GATE_SEARCH_HPP

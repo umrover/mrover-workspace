@@ -43,6 +43,10 @@ private:
 
     NavState executeGateSpinWait();
 
+    NavState executeGateTurn();
+
+    NavState executeGateDrive();
+
     void updatePost2Info();
 
     void calcCenterPoint();
