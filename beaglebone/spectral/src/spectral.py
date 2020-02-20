@@ -74,13 +74,14 @@ def virtual_read(virtual_reg):
 
     while(1):
         status = bus.read_byte_data(DEVICE_SLAVE_ADDRESS, I2C_AS72XX_SLAVE_STATUS_REG)
-
+        print('waiting..')
         if((status & I2C_AS72XX_SLAVE_RX_VALID) != 0):
             # read data is ready
             break
         t.sleep(0.005)
 
     d = bus.read_byte_data(DEVICE_SLAVE_ADDRESS, I2C_AS72XX_SLAVE_READ_REG)
+    print('end of VR function')
     return d
 
 
@@ -101,17 +102,17 @@ def virtual_write(virtual_reg, data):
         if ((status & I2C_AS72XX_SLAVE_TX_VALID) == 0):
             break
         t.sleep(0.005)  # amount of ms to wait between checking virtual register changes
-
     bus.write_byte_data(DEVICE_SLAVE_ADDRESS,
                         I2C_AS72XX_SLAVE_WRITE_REG, data)
 
 
 def get_data():
+    print('get data function call')
     colors = SpectralData()
     dev_channels = {
-                   0x00: {"R": colors.r, "S": colors.s, "T": colors.t, "U": colors.u, "V": colors.v, "W": colors.w},
-                   0x01: {"G": colors.g, "H": colors.h, "I": colors.i, "J": colors.j, "K": colors.k, "L": colors.l},
-                   0x02: {"A": colors.a, "B": colors.b, "C": colors.c, "D": colors.d, "E": colors.e, "F": colors.f}
+                   0x00: {"r": colors.r, "s": colors.s, "t": colors.t, "u": colors.u, "v": colors.v, "w": colors.w},
+                   0x01: {"g": colors.g, "h": colors.h, "i": colors.i, "j": colors.j, "k": colors.k, "l": colors.l},
+                   0x02: {"a": colors.a, "b": colors.b, "c": colors.c, "d": colors.d, "e": colors.e, "f": colors.f}
                    }
 
     channel_registers = [
@@ -128,7 +129,7 @@ def get_data():
         print("device number:", virtual_read(DEV_SEL), i)
         channel = 0
         for j in dev_channels[i]:
-            dev_channels[i][j] = get_decimal(channel_registers[channel][0], channel_registers[channel][1])
+            setattr(colors, j, get_decimal(channel_registers[channel][0], channel_registers[channel][1]))
             channel += 1
 
         global SENSOR
@@ -146,8 +147,12 @@ def spectral_cmd_callback(channel, msg):
 
 
 def publish_spectral_data():
+    print('publish function')
     if ((virtual_read(0x04) & 0x02) == 2):
+        print('publishing...', get_data())
         lcm_.publish('/spectral_data_publish', get_data().encode())
+    else:
+        print('unable to publish')
 
 
 def enableLED():
