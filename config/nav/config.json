@@ -31,8 +31,7 @@
 
 	"roverMeasurements":
 	{
-		"width": 3,
-		"halfOfWidth": 1.5
+		"width": 1.5
 	},
 
 	"computerVision":

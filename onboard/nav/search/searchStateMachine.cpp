@@ -257,11 +257,14 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
         if( phoebe->roverStatus().path().front().gate )
         {
             roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
-            roverStateMachine->mGateStateMachine->lastKnownPost1.id = phoebe->roverStatus().target().id;
+            const double absAngle = mod(phoebe->roverStatus().odometry().bearing_deg +
+                                        phoebe->roverStatus().target().bearing,
+                                        360);
             roverStateMachine->mGateStateMachine->lastKnownPost1.odom = createOdom( phoebe->roverStatus().odometry(),
-                                                                                    phoebe->roverStatus().target().bearing,
+                                                                                    absAngle,
                                                                                     phoebe->roverStatus().target().distance,
                                                                                     phoebe );
+            roverStateMachine->mGateStateMachine->lastKnownPost1.id = phoebe->roverStatus().target().id;
             return NavState::GateSpin;
         }
         phoebe->roverStatus().path().pop_front();

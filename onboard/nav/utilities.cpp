@@ -45,6 +45,7 @@ double estimateNoneuclid( const Odometry& current, const Odometry& dest )
 }
 
 // create a new Odometry point at a bearing and distance from a given odometry point
+// Note this uses the absolute bearing not a bearing relative to the rover.
 Odometry createOdom( const Odometry & current, double bearing, const double distance, Rover * phoebe )
 {
     bearing = degreeToRadian( bearing );
@@ -148,7 +149,7 @@ bool isLocationReachable( Rover* phoebe, const rapidjson::Document& roverConfig,
     isReachable |= distToObs > locDist - distThresh;
 
     // if obstacle is farther away in "x direction" than rover's width, it's reachable
-    isReachable |= xComponentOfDistToObs > roverConfig["roverMeasurements"]["halfOfWidth"].GetDouble();
+    isReachable |= xComponentOfDistToObs > roverConfig["roverMeasurements"]["width"].GetDouble() / 2;
 
     return isReachable;
 } // isLocationReachable()
