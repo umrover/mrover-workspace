@@ -97,17 +97,27 @@ button {
 
 <script type="text/javascript">
     import { to_dms } from '../geography.js';
+    import { MAX_RADIO_SIGNAL_STRENGTH, RADIO_REPEATER_THRESHOLD } from "../constants.js";
 
     export default {
         methods: {
             reset_rover: function() {
+                let drop_complete_sender = this.get('drop_complete_sender');
+                if (drop_complete_sender !== null) {
+                    clearInterval(drop_complete_sender);
+                }
                 this.set({
                     odom: Object.assign({}, to_dms({
                             lat: 39.4,
                             lon: -110.5
                         }),
                         { bearing_deg: 0 }),
-                    enabled: false
+                    enabled: false,
+                    repeater_dropped: false,
+                    repeater_drop_initiated: false,
+                    drop_complete_sender: null,
+                    radio_signal: MAX_RADIO_SIGNAL_STRENGTH,
+                    radio_signal_input: RADIO_REPEATER_THRESHOLD - 1
                 });
             },
 

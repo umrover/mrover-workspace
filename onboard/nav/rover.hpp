@@ -9,6 +9,9 @@
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
+#include "rover_msgs/RepeaterDropInit.hpp"
+#include "rover_msgs/RepeaterDropComplete.hpp"
+#include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
@@ -20,24 +23,52 @@ using namespace std;
 // This class is the representation of the navigation states.
 enum class NavState
 {
+    // Base States
     Off = 0,
     Done = 1,
+
+    // Simple Movement
     Turn = 10,
     Drive = 11,
+
+    // Search States
     SearchFaceNorth = 20,
     SearchSpin = 21,
     SearchSpinWait = 22,
     SearchTurn = 24,
     SearchDrive = 25,
     ChangeSearchAlg = 26,
+
+    // Target Found States
     TurnToTarget = 27,
     TurnedToTargetWait = 28,
     DriveToTarget = 29,
+
+    // Obstacle Avoidance States
     TurnAroundObs = 30,
     DriveAroundObs = 31,
     SearchTurnAroundObs = 32,
     SearchDriveAroundObs = 33,
+
+    // Gate Search States
+    GateSpin = 40,
+    GateSpinWait = 41,
+    GateTurn = 42,
+    GateDrive = 43,
+    GateTurnToCentPoint = 44,
+    GateDriveToCentPoint = 45,
+    GateFace = 46,
+    GateShimmy = 47,
+    GateDriveThrough = 48,
+
+    // Radio Repeater States
+    RadioRepeaterTurn = 50,
+    RadioRepeaterDrive = 51,
+    RepeaterDropWait = 52,
+
+    // Unknown State
     Unknown = 255
+
 }; // AutonState
 
 // This class is the representation of the drive status.
@@ -67,7 +98,8 @@ public:
             Obstacle obstacleIn,
             Odometry odometryIn,
             Target targetIn,
-            Target target2In
+            Target target2In,
+            RadioSignalStrength signalIn
             );
 
         NavState& currentState();
@@ -76,7 +108,7 @@ public:
 
         Course& course();
 
-        queue<Waypoint>& path();
+        deque<Waypoint>& path();
 
         Obstacle& obstacle();
 
@@ -85,6 +117,8 @@ public:
         Target& target();
 
         Target& target2();
+
+        RadioSignalStrength& radio();
 
         unsigned getPathTargets();
 
@@ -103,7 +137,7 @@ public:
         // The rover's current path. The path is initially the same as
         // the rover's course, however, as waypoints are visited, the
         // are removed from the path but not the course.
-        queue<Waypoint> mPath;
+        deque<Waypoint> mPath;
 
         // The rover's current obstacle information from computer
         // vision.
@@ -118,9 +152,11 @@ public:
 
         Target mTarget2;
 
+        // the rover's current signal strength to the base station
+        RadioSignalStrength mSignal;
+
         // Total targets to seach for in the course
         unsigned mPathTargets;
-
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
@@ -128,6 +164,8 @@ public:
     DriveStatus drive( const Odometry& destination );
 
     DriveStatus drive( const double distance, const double bearing, const bool target = false );
+
+    void drive(const int direction, const double bearing);
 
     bool turn( Odometry& destination );
 
@@ -144,6 +182,10 @@ public:
     PidLoop& bearingPid();
 
     const double longMeterInMinutes() const;
+
+    void updateRepeater( RadioSignalStrength& signal);
+
+    bool isTimeToDropRepeater();
 
 private:
     /*************************************************************************/
@@ -178,6 +220,9 @@ private:
 
     // The pid loop for turning.
     PidLoop mBearingPid;
+
+    // If it is time to drop a radio repeater
+    bool mTimeToDropRepeater;
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.

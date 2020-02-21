@@ -21,14 +21,19 @@ class NavState:
     DriveAroundObs = "Drive Around Obstacle"
     SearchTurnAroundObs = "Search Turn Around Obstacle"
     SearchDriveAroundObs = "Search Drive Around Obstacle"
+    RadioRepeaterTurn = "Radio Repeater Turn"
+    RadioRepeaterDrive = "Radio Repeater Drive"
+    RepeaterDropWait = "Repeater Drop Wait"
     Unknown = "Unknown"
 
-    StationaryStates = [Off, Done, SearchSpinWait, ChangeSearchAlg]
+    StationaryStates = [Off, Done, SearchSpinWait, ChangeSearchAlg,
+                        RepeaterDropWait]
     RotationalStates = [Turn, SearchFaceNorth, SearchSpin,
                         SearchTurn, TurnToBall, TurnAroundObs,
-                        SearchTurnAroundObs]
+                        SearchTurnAroundObs, RadioRepeaterTurn]
     TranslationalStates = [Drive, SearchDrive, DriveToBall,
-                           DriveAroundObs, SearchDriveAroundObs]
+                           DriveAroundObs, SearchDriveAroundObs,
+                           RadioRepeaterDrive]
 
 
 class Odom:

@@ -5,6 +5,7 @@
 #include "rapidjson/document.h"
 #include "rover.hpp"
 #include "search/searchStateMachine.hpp"
+#include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 
 using namespace std;
@@ -36,6 +37,8 @@ public:
 
     void updateRoverStatus( TargetList targetList );
 
+    void updateRoverStatus( RadioSignalStrength radioSignalStrength );
+
     void updateCompletedPoints( );
 
     void updateObstacleAngle( double bearing );
@@ -44,7 +47,15 @@ public:
 
     void updateObstacleElements( double bearing, double distance );
 
+    void updateRepeaterComplete( );
+
     void setSearcher(SearchType type);
+
+    /*************************************************************************/
+    /* Public Member Variables */
+    /*************************************************************************/
+    // Gate State Machine instance
+    GateStateMachine* mGateStateMachine;
 
 private:
     /*************************************************************************/
@@ -62,6 +73,8 @@ private:
 
     NavState executeDrive();
 
+    NavState executeRepeaterDropWait();
+
     NavState executeSearch();
 
     void initializeSearch();
@@ -77,6 +90,10 @@ private:
     double getOptimalAvoidanceDistance() const;
 
     bool isWaypointReachable( double distance );
+
+    bool isAddRepeaterDropPoint() const;
+
+    void addRepeaterDropPoint();
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -98,6 +115,9 @@ private:
 
     // Number of waypoints completed.
     unsigned mCompletedWaypoints;
+
+    // Bool of whether radio repeater has been dropped.
+    bool mRepeaterDropComplete = false;
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;
