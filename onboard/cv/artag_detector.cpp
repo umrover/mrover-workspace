@@ -50,7 +50,7 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
-pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
+pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
     // RETURN:
     // pair of target objects- each object has an x and y for the center,
     // and the tag ID number return them such that the "leftmost" (x
