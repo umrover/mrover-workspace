@@ -84,42 +84,17 @@ int main() {
   TagDetector d1;
   pair<Tag, Tag> tp;
 
-  //initializing ar tag videostream object
+  //initializing videostream object
   Mat src = cam.image();
   Mat depth_img = cam.depth();
   Mat rgb;
   tp = d1.findARTags(src, depth_img, rgb);
 
   Size fsize = rgb.size();
-  int whatNum = rand() % 10000;
-  string s = "artag_number_" + to_string(whatNum) + ".avi";
 
-  VideoWriter vidWrite(s, VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, fsize, true);
+  VideoWriter vidWrite("newvid.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, fsize, true);
 
   if (vidWrite.isOpened() == false)
-  {
-    cout << "didn't open";
-    exit(1);
-  }
-
-  //initializing obstacle object
-  src = cam.image();
-  Mat bigD = cam.depth();
-  float pw = src.cols;
-      //float pixelHeight = src.rows;
-  int roverpw = calcRoverPix(distThreshold, pw);
-
-      /* obstacle detection */
-  obstacle_return od =  avoid_obstacle_sliding_window(bigD, src,  num_sliding_windows , roverpw);
-  Mat used;
-
-  Size fs = src.size();
-  whatNum = rand() % 10000;
-  s = "obs_number_" + to_string(whatNum) + ".avi";
-
-  VideoWriter vidWriteObs(s, VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, fs, true);
-
-  if (vidWriteObs.isOpened() == false)
   {
     cout << "didn't open";
     exit(1);
@@ -238,7 +213,7 @@ int main() {
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);
-      imshow("image", src);
+      imshow("TAG FINDER", src);
       updateThresholds(thresh1,thresh2);
       waitKey(FRAME_WAITKEY);
     #endif
@@ -247,7 +222,6 @@ int main() {
   }
 
   vidWrite.release();
-  vidWriteObs.release();
 
   return 0;
 }
