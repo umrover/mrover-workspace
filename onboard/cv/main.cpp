@@ -70,6 +70,7 @@ void write_curr_frame_to_disk(Mat rgb, Mat depth, int counter) {
 int main() {
   /*initialize camera*/
   Camera cam;
+  cam.grab();
   int j = 0;
   double frame_time = 0;
   int counter_fail = 0;
@@ -78,6 +79,25 @@ int main() {
     namedWindow("depth", 2);
   #endif
   disk_record_init();
+
+  TagDetector d1;
+  pair<Tag, Tag> tp;
+
+  //initializing videostream object
+  Mat src = cam.image();
+  Mat depth_img = cam.depth();
+  Mat rgb;
+  tp = d1.findARTags(src, depth_img, rgb);
+
+  Size fsize = rgb.size();
+
+  VideoWriter vidWrite("newvid.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, fsize, true);
+
+  if (vidWrite.isOpened() == false)
+  {
+    cout << "didn't open";
+    exit(1);
+  }
 
   /*initialize lcm messages*/
   lcm::LCM lcm_;
@@ -107,6 +127,11 @@ int main() {
 
     Mat src = cam.image();
     Mat depth_img = cam.depth();
+
+    Mat rgb;
+    //cvtColor(src, rgb, COLOR_RGBA2RGB);
+
+
     // write to disk if permitted
     #if WRITE_CURR_FRAME_TO_DISK
       if (j % FRAME_WRITE_INTERVAL == 0) {
@@ -120,8 +145,8 @@ int main() {
     arTags[0].distance = -1;
     arTags[1].distance = -1;
     #if TB_DETECTION
-      tagPair = detector.findARTags(src, depth_img);
-
+      tagPair = detector.findARTags(src, depth_img, rgb);
+      vidWrite.write(rgb);
       //update both tags in LCM message
       //first tag
       if(tagPair.first.id == -1){//no tag found
@@ -186,13 +211,15 @@ int main() {
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);
-      imshow("image", src);
+      imshow("TAG FINDER", src);
       updateThresholds(thresh1,thresh2);
       waitKey(FRAME_WAITKEY);
     #endif
 
     j++;
   }
+
+  vidWrite.release();
 
   return 0;
 }
