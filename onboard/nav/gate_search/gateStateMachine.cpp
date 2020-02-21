@@ -229,7 +229,39 @@ NavState GateStateMachine::executeGateFace()
 
 NavState GateStateMachine::executeGateShimmy()
 {
-    return NavState::GateDriveThrough;
+    static int direction = 1; // 1 = forward, -1 = backwards
+    const double fovDepth = mRoverConfig["computerVision"]["visionDistance"].GetDouble();
+    const double fovAngle = mRoverConfig["computerVision"]["fieldOfViewSafeAngle"].GetDouble();
+    const Odometry currOdom = mPhoebe->roverStatus().odometry();
+
+    // If we are centered
+    const double targetAnglesDiff = mPhoebe->roverStatus().target().bearing +
+                                    mPhoebe->roverStatus().target2().bearing;
+    if(targetAnglesDiff < mRoverConfig["navThresholds"]["gateCenteredAngleDiff"].GetDouble())
+    {
+        direction = 1;
+        return NavState::GateDriveThrough;
+    }
+
+    // If we need to switch directions
+    const bool visibleTargetAngles = mPhoebe->roverStatus().target().bearing > fovAngle / 2 &&
+                                     mPhoebe->roverStatus().target2().bearing < fovAngle / 2;
+    const bool visibleTargetDists = mPhoebe->roverStatus().target().distance < fovDepth &&
+                                    mPhoebe->roverStatus().target2().distance < fovDepth;
+    if(!visibleTargetAngles || !visibleTargetDists)
+    {
+        mPhoebe->stop();
+        direction = direction == 1 ? -1 : 1;
+        return NavState::GateFace;
+    }
+
+    // Otherwise keep driving
+    const double gateWidth = mPhoebe->roverStatus().path().front().gate_width;
+    const double gateAngle = calcBearing(lastKnownPost1.odom, lastKnownPost2.odom); // Angle from post 1 to post 2
+    const Odometry gateCent = createOdom(lastKnownPost1.odom, gateAngle, gateWidth / 2, mPhoebe);
+    const double roverToGateCentAngle = calcBearing(currOdom, gateCent); // ablsolute angle
+    mPhoebe->drive(direction, roverToGateCentAngle);
+    return NavState::GateShimmy;
 } // executeGateShimmy()
 
 NavState GateStateMachine::executeGateDriveThrough()

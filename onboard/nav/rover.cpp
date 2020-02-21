@@ -154,6 +154,19 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
     return DriveStatus::OffCourse;
 } // drive()
 
+// Sends a joystick command to drive in the given direction and to
+// turn in the direction of bearing. Note that this version of drive
+// does not calculate if you have arrive at a specific location and
+// this must be handled outside of this function.
+// The input bearing is an absolute bearing.
+void Rover::drive(const int direction, const double bearing)
+{
+    double destinationBearing = mod(bearing, 360);
+    throughZero(destinationBearing, mRoverStatus.odometry().bearing_deg);
+    const double distanceEffort = mDistancePid.update(-1 * direction, 0);
+    const double turningEffort = mBearingPid.update(mRoverStatus.odometry().bearing_deg, destinationBearing);
+    publishJoystick(distanceEffort, turningEffort, false);
+} // drive()
 
 // Sends a joystick command to turn the rover toward the destination
 // odometry. Returns true if the rover has finished turning, false

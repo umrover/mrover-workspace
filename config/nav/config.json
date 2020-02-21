@@ -26,7 +26,8 @@
 		"drivingBearing": 50,
 		"waypointDistance": 2.0,
 		"targetDistance": 1.0,
-		"minTurningEffort": 0.25
+		"minTurningEffort": 0.25,
+		"gateCenteredAngleDiff": 20
 	},
 
 	"roverMeasurements":
@@ -36,7 +37,9 @@
 
 	"computerVision":
 	{
-		"visionDistance": 4.0
+		"visionDistance": 3.0,
+		"fieldOfViewAngle": 110,
+		"fieldOfViewSafeAngle": 100
 	},
 
 	"lcmChannels":

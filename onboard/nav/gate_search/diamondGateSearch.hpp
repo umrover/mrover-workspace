@@ -3,9 +3,6 @@
 
 #include "gateStateMachine.hpp"
 
-/*************************************************************************/
-/* LawnMower Search */
-/*************************************************************************/
 class DiamondGateSearch : public GateStateMachine
 {
 public:
