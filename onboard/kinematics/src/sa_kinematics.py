@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.linalg as LA
+from datetime import datetime
 from rover_msgs import (SAClosedLoopCmd, SAPosData, SimulationMode)
 import asyncio
 from .logger import logger
@@ -162,6 +163,7 @@ class SAKinematics:
         logger.info("Executing path on SA Arm")
         self.spline_t = 0
         while True:
+            # start = datetime.now()
             if self.enable_execute:
 
                 logger.info('spline time: {}'.format(self.spline_t))
@@ -188,4 +190,5 @@ class SAKinematics:
                 if self.spline_t >= 1 and (ang_dist < 0.07 or self.sim_mode):
                     self.enable_execute = False
             await asyncio.sleep(0.001)
+            # print(datetime.now() - start)
         return
