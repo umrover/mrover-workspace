@@ -200,16 +200,15 @@ export default {
       }
     },
 
-<<<<<<< HEAD
     zeroEncoders: function() {
       this.$parent.publish('/sa_zero_trigger', {'type': 'Signal'})
-=======
+    },
+    
     retDeposit: function (button) {
       this.$parent.publish("/sa_depositpos_trig", {"type": "Signal"})
       // let obj = this.$refs["deposit_ret"]
       // obj.disabled = true
       console.log("lcm message sent")
->>>>>>> Added button for deposit
     },
 
     ...mapMutations('controls', {
