@@ -260,7 +260,7 @@ NavState GateStateMachine::executeGateShimmy()
     const double gateAngle = calcBearing(lastKnownPost1.odom, lastKnownPost2.odom); // Angle from post 1 to post 2
     const Odometry gateCent = createOdom(lastKnownPost1.odom, gateAngle, gateWidth / 2, mPhoebe);
     const double roverToGateCentAngle = calcBearing(currOdom, gateCent); // ablsolute angle
-    mPhoebe->drive(direction, roverToGateCentAngle);
+    mPhoebe->drive(direction, roverToGateCentAngle); // TODO: drive straight when going backwards
     return NavState::GateShimmy;
 } // executeGateShimmy()
 
@@ -273,7 +273,7 @@ NavState GateStateMachine::executeGateDriveThrough()
     {
         if(!CP1ToCP2CorrectDir)
         {
-            Odometry temp = centerPoint1;
+            const Odometry temp = centerPoint1;
             centerPoint1 = centerPoint2;
             centerPoint2 = temp;
             CP1ToCP2CorrectDir = true;
@@ -324,6 +324,7 @@ void GateStateMachine::updatePost2Info()
 // through it in the correct direction.
 void GateStateMachine::calcCenterPoint()
 {
+    const Odometry& currOdom = mPhoebe->roverStatus().odometry();
     const double distFromGate = 3;
     const double gateWidth = mPhoebe->roverStatus().path().front().gate_width;
     const double tagToPointAngle = radianToDegree(atan2(distFromGate, gateWidth / 2));
@@ -336,6 +337,8 @@ void GateStateMachine::calcCenterPoint()
     // TODO: verify this
     centerPoint1 = createOdom(lastKnownPost1.odom, absAngle1, tagToPointDist, mPhoebe);
     centerPoint2 = createOdom(lastKnownPost2.odom, absAngle2, tagToPointDist, mPhoebe);
+    const double cp1Dist = estimateNoneuclid(currOdom, centerPoint1);
+    const double cp2Dist = estimateNoneuclid(currOdom, centerPoint2);
     if(lastKnownPost1.id % 2)
     {
         CP1ToCP2CorrectDir = true;
@@ -343,6 +346,13 @@ void GateStateMachine::calcCenterPoint()
     else
     {
         CP1ToCP2CorrectDir = false;
+    }
+    if(cp1Dist > cp2Dist)
+    {
+        const Odometry temp = centerPoint1;
+        centerPoint1 = centerPoint2;
+        centerPoint2 = temp;
+        CP1ToCP2CorrectDir = !CP1ToCP2CorrectDir;
     }
 
 } // calcCenterPoint()

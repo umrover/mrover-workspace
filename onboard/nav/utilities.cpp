@@ -57,15 +57,15 @@ Odometry createOdom( const Odometry & current, double bearing, const double dist
 
 // Caclulates the bearing between the current odometry and the
 // destination odometry.
-double calcBearing( const Odometry& current, const Odometry& dest )
+double calcBearing( const Odometry& start, const Odometry& dest )
 {
-    double currentLat = degreeToRadian( current.latitude_deg, current.latitude_min );
-    double currentLon = degreeToRadian( current.longitude_deg, current.longitude_min );
+    double currentLat = degreeToRadian( start.latitude_deg, start.latitude_min );
+    double currentLon = degreeToRadian( start.longitude_deg, start.longitude_min );
     double destLat = degreeToRadian( dest.latitude_deg, dest.latitude_min );
     double destLon = degreeToRadian( dest.longitude_deg, dest.longitude_min );
 
     double verticleComponentDist = EARTH_RADIUS * sin( destLat - currentLat );
-    double noneuclidDist = estimateNoneuclid( current, dest );
+    double noneuclidDist = estimateNoneuclid( start, dest );
 
     double bearing = acos( verticleComponentDist / noneuclidDist );
     if( currentLon > destLon )
