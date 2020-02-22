@@ -37,6 +37,7 @@ def main():
     # config.read_file()
     # tester = KinematicsTester(arm)
     # tester.kinematics_test()
+    # sa.execute_spline()
 
     lcm_.subscribe("/arm_position", arm.arm_position_callback)
     lcm_.subscribe("/target_orientation", arm.target_orientation_callback)
