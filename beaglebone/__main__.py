@@ -27,19 +27,17 @@ def enable():
 
 
 def main():
-    # enable()
-    spectral.enable_spectral()  # enables the single spectral sensor 
+    enable()
     spectral.lcm_.subscribe("/spectral_cmd", spectral.spectral_cmd_callback)
     while 1:
         spectral.lcm_.handle()
-        # if (spectral.SENSOR != 'none'):
-        #     print('publishing, sensor=', spectral.SENSOR)
-        #     write(ADDRESSES[spectral.SENSOR])
-        #     spectral.publish_spectral_data()
-        # else:
-        #     print('unable to publish, sensor=', spectral.SENSOR)
-        # spectral.SENSOR = 'none'
-        spectral.publish_spectral_data()
+        if (spectral.SENSOR != 'none'):
+            print('publishing, sensor=', spectral.SENSOR)
+            write(ADDRESSES[spectral.SENSOR])
+            spectral.publish_spectral_data()
+        else:
+            print('unable to publish, sensor=', spectral.SENSOR)
+        spectral.SENSOR = 'none'
 
 
 if __name__ == "__main__":
