@@ -51,8 +51,8 @@ def main():
     while True:
         try:
             odrive_bridge.update()
-
         except fibre.protocol.ChannelBrokenException:
+            print("odrive has been unplugged")
             lock.acquire()
             odrive_bridge.on_event("disconnected odrive")
             lock.release()
@@ -66,6 +66,12 @@ def lcmThreaderMan():
     lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
     while True:
         lcm_1.handle()
+        try:
+            publish_encoder_msg()
+        except NameError:
+            pass
+        except AttributeError:
+            pass
 
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "calibrate cmd", "odrive error"]
@@ -222,16 +228,10 @@ class OdriveBridge(object):
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
     def update(self):
-        if (str(self.state) == "DisarmedState"):
-            if (t.time() - self.encoder_time > 0.1):  # order is flipped? why?
-                self.encoder_time = publish_encoder_msg(vel_msg)
-
-        elif (str(self.state) == "ArmedState"):
+        if (str(self.state) == "ArmedState"):
             global speedlock
             global left_speed
             global right_speed
-            if (self.encoder_time - t.time() > 0.1):
-                self.encoder_time = publish_encoder_msg(vel_msg)
 
             speedlock.acquire()
             modrive.set_vel("LEFT", left_speed)
@@ -271,9 +271,10 @@ def publish_state_msg(msg, state):
     print("changed state to " + state)
 
 
-def publish_encoder_helper(msg, axis):
+def publish_encoder_helper(axis):
     global modrive
     global legal_controller
+    msg = DriveVelData()
     msg.measuredCurrent = modrive.get_iq_measured(axis)
     msg.estimatedVel = modrive.get_vel_estimate(axis)
 
@@ -284,10 +285,9 @@ def publish_encoder_helper(msg, axis):
     lcm_.publish("/drive_vel_data", msg.encode())
 
 
-def publish_encoder_msg(msg):
-    publish_encoder_helper(msg, "LEFT")
-    publish_encoder_helper(msg, "RIGHT")
-    return t.time()
+def publish_encoder_msg():
+    publish_encoder_helper("LEFT")
+    publish_encoder_helper("RIGHT")
 
 
 def drive_state_cmd_callback(channel, msg):
@@ -392,6 +392,7 @@ class Modrive:
         self._set_control_mode(CTRL_MODE_VELOCITY_CONTROL)
 
     def get_iq_measured(self, axis):
+        # measured current [Amps]
         if (axis == "LEFT"):
             return self.front_axis.motor.current_control.Iq_measured
         elif(axis == "RIGHT"):
@@ -416,9 +417,9 @@ class Modrive:
 
     def set_vel(self, axis, vel):
         if (axis == "LEFT"):
-            self.front_axis.controller.vel_setpoint = vel * 300
+            self.front_axis.controller.vel_setpoint = vel * 205
         elif axis == "RIGHT":
-            self.back_axis.controller.vel_setpoint = vel * -300
+            self.back_axis.controller.vel_setpoint = vel * -205
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
