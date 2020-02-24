@@ -68,9 +68,9 @@ def lcmThreaderMan():
     while True:
         lcm_1.handle()
         try:
-            print('last pub', last_pub, t.time())
-            if (last_pub - t.time() > 0.1):
-                publish_encoder_msg()
+            publish_encoder_msg()
+        except NameError:
+            pass
         except AttributeError:
             pass
 
@@ -393,6 +393,7 @@ class Modrive:
         self._set_control_mode(CTRL_MODE_VELOCITY_CONTROL)
 
     def get_iq_measured(self, axis):
+        # measured current [Amps]
         if (axis == "LEFT"):
             return self.front_axis.motor.current_control.Iq_measured
         elif(axis == "RIGHT"):
@@ -417,9 +418,9 @@ class Modrive:
 
     def set_vel(self, axis, vel):
         if (axis == "LEFT"):
-            self.front_axis.controller.vel_setpoint = vel * 300
+            self.front_axis.controller.vel_setpoint = vel * 205
         elif axis == "RIGHT":
-            self.back_axis.controller.vel_setpoint = vel * -300
+            self.back_axis.controller.vel_setpoint = vel * -205
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
