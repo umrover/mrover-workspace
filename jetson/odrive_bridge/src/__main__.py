@@ -78,6 +78,7 @@ def lcmThreaderMan():
     last_pub = t.time()
     while True:
         lcm_1.handle()
+
         global start_time
         start_time = t.clock()
         try:
@@ -94,7 +95,6 @@ def lcmThreaderMan():
             print("lost comms")
             odrive_bridge.on_event("disarm cmd")
             lock.release()
-            
 
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "calibrating cmd", "odrive error"]
