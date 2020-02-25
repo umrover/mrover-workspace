@@ -73,6 +73,8 @@ def lcmThreaderMan():
             pass
         except AttributeError:
             pass
+        except fibre.protocol.ChannelBrokenException:
+            pass
 
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "calibrate cmd", "odrive error"]
