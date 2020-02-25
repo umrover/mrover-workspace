@@ -160,28 +160,3 @@ def enable_spectral():
     virtual_write(0x04, 0x28)  # converts data bank to 2
     virtual_write(0x05, 0xFF)  # increases integration time
 
-
-# def get_spectral_data():
-#     if ((virtual_read(0x04) & 0x02) == 2):
-#         print("DATA READY TO READ")
-#         for i in range(0, 3):
-#             [print(key, value) for key, value in data[i].items()]
-
-
-# def main():
-#    mode = input("select mode: s (spectral) or n (normal)")
-
-#    while True:
-#        # lcm_.handle()
-#        if ((virtual_read(0x04) & 0x02) == 2):
-#            print("DATA READY TO READ")
-#            if (mode == 't'):
-#                data = get_spectral_data()
-#                for i in range(0, 3):
-#                    [print(key, value) for key, value in data[i].items()]
-#            else:
-#                data = get_data()
-#                [print(key, value) for key, value in data.items()]
-
-# if __name__ == "__main__":
-#    main()
