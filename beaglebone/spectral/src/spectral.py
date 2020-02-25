@@ -74,19 +74,16 @@ def virtual_read(virtual_reg):
 
     while(1):
         status = bus.read_byte_data(DEVICE_SLAVE_ADDRESS, I2C_AS72XX_SLAVE_STATUS_REG)
-        print('waiting..')
         if((status & I2C_AS72XX_SLAVE_RX_VALID) != 0):
             # read data is ready
             break
         t.sleep(0.005)
 
     d = bus.read_byte_data(DEVICE_SLAVE_ADDRESS, I2C_AS72XX_SLAVE_READ_REG)
-    print('end of VR function')
     return d
 
 
 def virtual_write(virtual_reg, data):
-    print("data sent:", data)
     status = None
     while(1):
         status = bus.read_byte_data(DEVICE_SLAVE_ADDRESS, I2C_AS72XX_SLAVE_STATUS_REG)
@@ -106,42 +103,12 @@ def virtual_write(virtual_reg, data):
                         I2C_AS72XX_SLAVE_WRITE_REG, data)
 
 
-# def get_data():
-#     print('get data function call')
-#     colors = SpectralData()
-#     dev_channels = {
-#                    0x00: {"r": colors.r, "s": colors.s, "t": colors.t, "u": colors.u, "v": colors.v, "w": colors.w},
-#                    0x01: {"g": colors.g, "h": colors.h, "i": colors.i, "j": colors.j, "k": colors.k, "l": colors.l},
-#                    0x02: {"a": colors.a, "b": colors.b, "c": colors.c, "d": colors.d, "e": colors.e, "f": colors.f}
-#                    }
-
-#     channel_registers = [
-#                         [RAW_VALUE_RGA_LOW, RAW_VALUE_RGA_HIGH],
-#                         [RAW_VALUE_SHB_LOW, RAW_VALUE_SHB_HIGH],
-#                         [RAW_VALUE_TIC_LOW, RAW_VALUE_TIC_HIGH],
-#                         [RAW_VALUE_UJD_LOW, RAW_VALUE_UJD_HIGH],
-#                         [RAW_VALUE_VKE_LOW, RAW_VALUE_VKE_HIGH],
-#                         [RAW_VALUE_WLF_LOW, RAW_VALUE_WLF_HIGH]
-#                         ]
-
-#     for i in dev_channels:
-#         virtual_write(DEV_SEL, i)
-#         print("device number:", virtual_read(DEV_SEL), i)
-#         channel = 0
-#         for j in dev_channels[i]:
-#             setattr(colors, j, get_decimal(channel_registers[channel][0], channel_registers[channel][1]))
-#             channel += 1
-
-#         global SENSOR
-#         if (SENSOR != 'triad'):
-#             break
-#     return colors
-
 def get_data():
-    print('get data function call')
     colors = SpectralData()
     dev_channels = {
                    0x00: {"r": colors.r, "s": colors.s, "t": colors.t, "u": colors.u, "v": colors.v, "w": colors.w},
+                   0x01: {"g": colors.g, "h": colors.h, "i": colors.i, "j": colors.j, "k": colors.k, "l": colors.l},
+                   0x02: {"a": colors.a, "b": colors.b, "c": colors.c, "d": colors.d, "e": colors.e, "f": colors.f}
                    }
 
     channel_registers = [
@@ -152,15 +119,18 @@ def get_data():
                         [RAW_VALUE_VKE_LOW, RAW_VALUE_VKE_HIGH],
                         [RAW_VALUE_WLF_LOW, RAW_VALUE_WLF_HIGH]
                         ]
-
+    global SENSOR
     for i in dev_channels:
-        virtual_write(DEV_SEL, i)
-        print("device number:", virtual_read(DEV_SEL), i)
+        if (SENSOR == 'traid'):
+            virtual_write(DEV_SEL, i)
+            print("device number:", virtual_read(DEV_SEL), i)
         channel = 0
         for j in dev_channels[i]:
             setattr(colors, j, get_decimal(channel_registers[channel][0], channel_registers[channel][1]))
             channel += 1
 
+        if (SENSOR != 'triad'):
+            break
     return colors
 
 
@@ -173,12 +143,8 @@ def spectral_cmd_callback(channel, msg):
 
 
 def publish_spectral_data():
-    print('publish function')
     if ((virtual_read(0x04) & 0x02) == 2):
-        print('publishing...', get_data())
         lcm_.publish('/spectral_data_publish', get_data().encode())
-    else:
-        print('unable to publish')
 
 
 def enableLED():
