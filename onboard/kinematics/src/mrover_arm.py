@@ -235,7 +235,7 @@ class MRoverArm:
                 self.spline_t = min(self.spline_t, 1)
                 if self.spline_t >= 1 and c_dist < 0.07:
                     self.enable_execute = False
-            await asyncio.sleep(0.001)
+            await asyncio.sleep(0.01)
         return
 
     def preview(self):

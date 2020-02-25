@@ -335,6 +335,9 @@ class KinematicsSolver:
             # print(joint)
             if self.e_locked and joint == 'joint_e':
                 jacobian[:, joint_idx] = [0, 0, 0, 0, 0, 0]
+            elif joint == 'joint_a':
+                # print("joint a locked")
+                jacobian[:, joint_idx] = [0, 0, 0, 0, 0, 0]
             else:
                 rot_axis_local = self.robot_ik.get_joint_axis(joint)
                 joint_xform = self.robot_ik.get_joint_transform(joint)

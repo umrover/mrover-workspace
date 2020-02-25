@@ -642,8 +642,8 @@
             ],
             "type": "continuous",
             "limit": {
-                "lower": -3.14,
-                "upper": 3.14
+                "lower": 0,
+                "upper": 0
             },
             "mass_data":{
                 "mass": 0.69,
