@@ -3,7 +3,7 @@
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
 #include <thread>
-#include <cstdlib>
+#include <ctime>
 
 using namespace cv;
 using namespace std;
@@ -81,50 +81,52 @@ int main() {
   #endif
   disk_record_init();
 
+  //Video Stuff
   TagDetector d1;
   pair<Tag, Tag> tp;
+
+  //Create time value
+  time_t now = time(0);
+  char* ltm = ctime(&now);
+  string timeStamp(ltm);
 
   //initializing ar tag videostream object
   Mat src = cam.image();
   Mat depth_img = cam.depth();
   Mat rgb;
   tp = d1.findARTags(src, depth_img, rgb);
-
+  
   Size fsize = rgb.size();
-  int whatNum = rand() % 10000;
-  string s = "artag_number_" + to_string(whatNum) + ".avi";
+  string s = "artag_number_" + timeStamp + ".avi";
 
-  VideoWriter vidWrite(s, VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, fsize, true);
+  VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
 
-  if (vidWrite.isOpened() == false)
+  if(vidWrite.isOpened() == false)
   {
-    cout << "didn't open";
-    exit(1);
+	  cout << "didn't open";
+	  exit(1);
   }
 
-  //initializing obstacle object
+ //initializing obstacle detection
   src = cam.image();
   Mat bigD = cam.depth();
   float pw = src.cols;
-      //float pixelHeight = src.rows;
   int roverpw = calcRoverPix(distThreshold, pw);
 
-      /* obstacle detection */
-  obstacle_return od =  avoid_obstacle_sliding_window(bigD, src,  num_sliding_windows , roverpw);
-  Mat used;
+  obstacle_return od = avoid_obstacle_sliding_window(bigD, src, num_sliding_windows, roverpw);
+  
+  s = "obs_number_" + timeStamp + ".avi";
 
-  Size fs = src.size();
-  whatNum = rand() % 10000;
-  s = "obs_number_" + to_string(whatNum) + ".avi";
+  VideoWriter vidWriteObs(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
 
-  VideoWriter vidWriteObs(s, VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, fs, true);
-
-  if (vidWriteObs.isOpened() == false)
+  if(vidWrite.isOpened() == false)
   {
-    cout << "didn't open";
-    exit(1);
+	  cout << "didn't open";
+	  exit(1);
   }
 
+
+  
   /*initialize lcm messages*/
   lcm::LCM lcm_;
   rover_msgs::TargetList arTagsMessage;
@@ -151,6 +153,7 @@ int main() {
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
 
+    Mat rgb;
     Mat src = cam.image();
     Mat depth_img = cam.depth();
 
@@ -248,6 +251,5 @@ int main() {
 
   vidWrite.release();
   vidWriteObs.release();
-
   return 0;
 }
