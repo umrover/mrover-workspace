@@ -335,7 +335,7 @@ class KinematicsSolver:
             # print(joint)
             if self.e_locked and joint == 'joint_e':
                 jacobian[:, joint_idx] = [0, 0, 0, 0, 0, 0]
-            elif joint == 'joint_a':
+            elif joint == 'joint_a' or joint == 'joint_b':
                 # print("joint a locked")
                 jacobian[:, joint_idx] = [0, 0, 0, 0, 0, 0]
             else:
