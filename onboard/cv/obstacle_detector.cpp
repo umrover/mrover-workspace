@@ -29,6 +29,11 @@ bool check_divided_window(Mat & rgb_img, int num_splits, Mat & mean_row_vec, int
         putText(rgb_img, "Obstacle Detected", Point( start_col, SKY_START_ROW), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(50, 50, 255), 2);
         rectangle(rgb_img, Point( start_col, SKY_START_ROW), Point( start_col+split_size, RESOLUTION_HEIGHT), Scalar(50, 50, 255), 3);
       #endif
+      #if OBS_RECORD
+        putText(rgb_img, "Obstacle Detected", Point( start_col, SKY_START_ROW), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(50, 50, 255), 2);
+        rectangle(rgb_img, Point( start_col, SKY_START_ROW), Point( start_col+split_size, RESOLUTION_HEIGHT), Scalar(50, 50, 255), 3);
+      #endif
+      
         return false;
     }
     start_col+=split_size;  //update the start col
@@ -58,11 +63,17 @@ obstacle_return scan_middle(Mat & rgb_img, float center_point_depth,  int rover_
       rectangle(rgb_img, Point( center_start_col, SKY_START_ROW), Point( center_start_col+rover_width-1, RESOLUTION_HEIGHT), Scalar(0, 255, 0), 3);
       //cout<<"No turn: center window sub_col sum is "<<middle_sum<<endl;
       #endif
+      #if OBS_RECORD
+      putText(rgb_img, "Path Clear", Point( center_start_col+5, SKY_START_ROW+50), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 255, 0), 2);
+      rectangle(rgb_img, Point( center_start_col, SKY_START_ROW), Point( center_start_col+rover_width-1, RESOLUTION_HEIGHT), Scalar(0, 255, 0), 3);
+      #endif
       noTurn.bearing = 0;
     }
   }else{
+    #if OBS_RECORD
     putText(rgb_img, "Center Path Obstructed", Point( center_start_col+5, SKY_START_ROW+50), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 255), 2);
     rectangle(rgb_img, Point( center_start_col, SKY_START_ROW), Point( center_start_col+rover_width-1, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
+    #endif
   }
 
 
@@ -120,6 +131,12 @@ obstacle_return refine_rt(obstacle_return rt_val, pair<int, float> candidate, Si
 
   if (max_sum_sw > THRESHOLD_NO_WAY) {
     #if PERCEPTION_DEBUG
+      //cout<<"max_sum_sw "<<max_sum_sw<<", col start at "<<final_start_col<<endl;
+      putText(rgb_img, "New Clear Path", Point( final_start_col, SKY_START_ROW-60), CV_FONT_HERSHEY_SIMPLEX, 1, cvScalar(255, 0, 0), 2);
+      rectangle(rgb_img, Point( final_start_col, SKY_START_ROW), Point( final_start_col+rover_width, RESOLUTION_HEIGHT), Scalar(255, 0, 0), 3);
+    #endif
+
+    #if OBS_RECORD
       //cout<<"max_sum_sw "<<max_sum_sw<<", col start at "<<final_start_col<<endl;
       putText(rgb_img, "New Clear Path", Point( final_start_col, SKY_START_ROW-60), CV_FONT_HERSHEY_SIMPLEX, 1, cvScalar(255, 0, 0), 2);
       rectangle(rgb_img, Point( final_start_col, SKY_START_ROW), Point( final_start_col+rover_width, RESOLUTION_HEIGHT), Scalar(255, 0, 0), 3);
@@ -198,6 +215,12 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
   pair<int, float> final_window = get_final_col(sums, middle_sum); //may add split window check
   if (final_window.first == -1) {
     #if PERCEPTION_DEBUG
+      //cout<<"max_sum_sw "<<final_window.second<<" at center\n";
+      putText(rgb_img, "No Clear Path", Point( size.width / 2 - rover_width/2, SKY_START_ROW-60), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 255), 2);
+      rectangle(rgb_img, Point( size.width / 2 - rover_width/2, SKY_START_ROW), Point( size.width/2 + rover_width/2, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
+    #endif
+
+    #if OBS_RECORD
       //cout<<"max_sum_sw "<<final_window.second<<" at center\n";
       putText(rgb_img, "No Clear Path", Point( size.width / 2 - rover_width/2, SKY_START_ROW-60), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 255), 2);
       rectangle(rgb_img, Point( size.width / 2 - rover_width/2, SKY_START_ROW), Point( size.width/2 + rover_width/2, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
