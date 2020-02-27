@@ -89,14 +89,17 @@ int main() {
   time_t now = time(0);
   char* ltm = ctime(&now);
   string timeStamp(ltm);
-
-  //initializing ar tag videostream object
-  Mat src = cam.image();
-  Mat depth_img = cam.depth();
   Mat rgb;
-  tp = d1.findARTags(src, depth_img, rgb);
+  Mat src = cam.image();
   
+
+  #if AR_RECORD
+  //initializing ar tag videostream object
+  
+  Mat depth_img = cam.depth();
+  tp = d1.findARTags(src, depth_img, rgb);
   Size fsize = rgb.size();
+  
   string s = "artag_number_" + timeStamp + ".avi";
 
   VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
@@ -106,7 +109,9 @@ int main() {
 	  cout << "didn't open";
 	  exit(1);
   }
+  #endif
 
+  #if OBS_RECORD
  //initializing obstacle detection
   src = cam.image();
   Mat bigD = cam.depth();
@@ -114,19 +119,18 @@ int main() {
   int roverpw = calcRoverPix(distThreshold, pw);
 
   obstacle_return od = avoid_obstacle_sliding_window(bigD, src, num_sliding_windows, roverpw);
-  
-  s = "obs_number_" + timeStamp + ".avi";
+  Size fs = src.size();
+  string name = "obs_number_" + timeStamp + ".avi";
 
-  VideoWriter vidWriteObs(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
+  VideoWriter vidWriteObs(name, VideoWriter::fourcc('M','J','P','G'),10,fs,true);
 
-  if(vidWrite.isOpened() == false)
+  if(vidWriteObs.isOpened() == false)
   {
 	  cout << "didn't open";
 	  exit(1);
   }
+  #endif
 
-
-  
   /*initialize lcm messages*/
   lcm::LCM lcm_;
   rover_msgs::TargetList arTagsMessage;
@@ -157,10 +161,6 @@ int main() {
     Mat src = cam.image();
     Mat depth_img = cam.depth();
 
-    Mat rgb;
-    //cvtColor(src, rgb, COLOR_RGBA2RGB);
-
-
     // write to disk if permitted
     #if WRITE_CURR_FRAME_TO_DISK
       if (j % FRAME_WRITE_INTERVAL == 0) {
@@ -175,7 +175,9 @@ int main() {
     arTags[1].distance = -1;
     #if TB_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
+      #if AR_RECORD
       vidWrite.write(rgb);
+      #endif
       //update both tags in LCM message
       //first tag
       if(tagPair.first.id == -1){//no tag found
@@ -219,10 +221,13 @@ int main() {
     #if OBSTACLE_DETECTION
       float pixelWidth = src.cols;
       int roverPixWidth = calcRoverPix(distThreshold, pixelWidth);
-
+      
       /* obstacle detection */
       obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
+      #if OBS_RECORD
       vidWriteObs.write(src);
+      #endif
+
       if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
         // cout<< "bearing not zero!\n";
         obstacleMessage.detected = true;    //if an obstacle is detected in front
@@ -247,8 +252,11 @@ int main() {
 
     j++;
   }
-
+  #if AR_RECORD
   vidWrite.release();
+  #endif
+  #if OBS_RECORD
   vidWriteObs.release();
+  #endif
   return 0;
 }
