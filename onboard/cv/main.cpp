@@ -76,7 +76,7 @@ int main() {
   double frame_time = 0;
   int counter_fail = 0;
   #if PERCEPTION_DEBUG
-    namedWindow("image", 1);
+    namedWindow("Obstacle");
     namedWindow("depth", 2);
   #endif
   disk_record_init();
@@ -150,8 +150,8 @@ int main() {
     //Make trackbars
     int thresh1 = 300000;
     int thresh2 = 70000;
-    createTrackbar("Main Window", "image", &thresh1, 500000);
-    createTrackbar("Sub Window", "image", &thresh2, 120000);
+    createTrackbar("Main Window", "Obstacle", &thresh1, 500000);
+    createTrackbar("Sub Window", "Obstacle", &thresh2, 120000);
   #endif
   
   while (true) {
@@ -246,7 +246,7 @@ int main() {
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);
-      imshow("TAG FINDER", src);
+      imshow("Obstacle", src);
       updateThresholds(thresh1,thresh2);
       waitKey(FRAME_WAITKEY);
     #endif
