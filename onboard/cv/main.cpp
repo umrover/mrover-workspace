@@ -73,7 +73,6 @@ int main() {
   Camera cam;
   cam.grab();
   int j = 0;
-  double frame_time = 0;
   int counter_fail = 0;
   #if PERCEPTION_DEBUG
     namedWindow("Obstacle");
@@ -189,13 +188,14 @@ int main() {
           arTags[0].id = -1;
         }
       } else { //one tag found
-        arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
+        if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
+          arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
         arTags[0].bearing = getAngle((int)tagPair.first.loc.x, src.cols);
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
       }
       
-      //first tag
+      //second tag
       if(tagPair.second.id == -1){//no tag found
         if(right_tag_buffer <= 20){//send the buffered tag
           ++right_tag_buffer;
@@ -205,7 +205,8 @@ int main() {
           arTags[1].id = -1;
         }
       } else { //one tag found
-        arTags[1].distance = depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x);
+        if(!isnan(depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x)))
+          arTags[1].distance = depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x);
         arTags[1].bearing = getAngle((int)tagPair.second.loc.x, src.cols);
         arTags[1].id = tagPair.second.id;
         right_tag_buffer = 0;
