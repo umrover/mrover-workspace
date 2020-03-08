@@ -169,7 +169,7 @@ int main() {
       }
     #endif
 
-    /* Tennis ball detection*/
+    /* AR Tag Detection*/
     arTags[0].distance = -1;
     arTags[1].distance = -1;
     #if TB_DETECTION
