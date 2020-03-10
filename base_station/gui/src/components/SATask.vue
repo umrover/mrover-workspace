@@ -155,7 +155,10 @@ export default {
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/sa_motors', 'type': 'SAMotors'},
         {'topic': '/test_enable', 'type': 'TestEnable'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'}
+        {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/spectral_data', 'type': 'SpectralData'},
+        {'topic': '/thermistor_data', 'type': 'ThermistorData'},
+        {'topic': '/gps_data', 'type': 'GPS'}
       ]
     )
 

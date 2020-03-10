@@ -1,918 +1,1444 @@
 {
     "ArmPosition": [
         [
-            "double",
+            "double", 
             "joint_a"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "joint_b"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "joint_c"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "joint_d"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "joint_e"
         ]
-    ],
+    ], 
     "ArmToggles": [
         [
-            "boolean",
+            "boolean", 
             "solenoid"
-        ],
+        ], 
         [
-            "boolean",
+            "boolean", 
             "electromagnet"
-        ],
+        ], 
         [
-            "boolean",
+            "boolean", 
             "laser"
         ]
-    ],
+    ], 
     "AutonState": [
         [
-            "boolean",
+            "boolean", 
             "is_auton"
         ]
-    ],
+    ], 
     "Bearing": [
         [
-            "double",
+            "double", 
             "bearing"
         ]
-    ],
+    ], 
     "CameraServos": [
         [
-            "float",
+            "float", 
             "pan"
-        ],
+        ], 
         [
-            "float",
+            "float", 
             "tilt"
         ]
-    ],
+    ], 
     "Course": [
         [
-            "int32_t",
+            "int32_t", 
             "num_waypoints"
-        ],
+        ], 
         [
-            "int64_t",
+            "int64_t", 
             "hash"
-        ],
+        ], 
         [
-            "Waypoint",
+            "Waypoint", 
             "waypoints[num_waypoints]"
         ]
-    ],
+    ], 
     "CurrentDraw": [
         [
-            "double",
+            "double", 
             "current_a"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "current_b"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "current_c"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "current_d"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "current_e"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "current_f"
         ]
-    ],
+    ], 
     "DebugMessage": [
         [
-            "boolean",
+            "boolean", 
             "isError"
-        ],
+        ], 
         [
-            "string",
+            "string", 
             "message"
         ]
-    ],
+    ], 
     "DriveMotors": [
         [
-            "double",
+            "double", 
             "left"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "right"
         ]
-    ],
+    ], 
+    "DriveStateCmd ": [
+        [
+            "int8_t", 
+            "controller", 
+            ""
+        ], 
+        [
+            "int8_t", 
+            "state", 
+            ""
+        ]
+    ], 
+    "DriveStateData": [
+        [
+            "int8_t", 
+            "controller", 
+            ""
+        ], 
+        [
+            "int8_t", 
+            "state", 
+            ""
+        ]
+    ], 
+    "DriveVelCmd": [
+        [
+            "double", 
+            "left"
+        ], 
+        [
+            "double", 
+            "right"
+        ]
+    ], 
+    "DriveVelData": [
+        [
+            "int8_t", 
+            "axis", 
+            ""
+        ], 
+        [
+            "float", 
+            "measuredCurrent", 
+            ""
+        ], 
+        [
+            "float", 
+            "estimatedVel", 
+            ""
+        ]
+    ], 
     "ESCThrottle": [
         [
-            "string",
+            "string", 
             "id"
-        ],
+        ], 
         [
-            "float",
+            "float", 
             "percent"
         ]
-    ],
+    ], 
     "ESCToggle": [
         [
-            "string",
+            "string", 
             "id"
-        ],
+        ], 
         [
-            "boolean",
+            "boolean", 
             "enable"
         ]
-    ],
+    ], 
     "Encoder": [
         [
-            "int32_t",
+            "int32_t", 
             "joint_a"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "joint_b"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "joint_c"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "joint_d"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "joint_e"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "joint_f"
         ]
-    ],
+    ], 
     "FKTransform": [
         [
-            "double",
+            "double", 
             "transform_a[4][4]"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "transform_b[4][4]"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "transform_c[4][4]"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "transform_d[4][4]"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "transform_e[4][4]"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "transform_f[4][4]"
         ]
-    ],
+    ], 
     "GPS": [
         [
-            "int32_t",
+            "int32_t", 
             "latitude_deg"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "latitude_min"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "longitude_deg"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "longitude_min"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "bearing_deg"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "speed"
         ]
-    ],
+    ], 
+    "GPSData": [
+        [
+            "double", 
+            "timeStamp"
+        ], 
+        [
+            "double", 
+            "latitude"
+        ], 
+        [
+            "byte", 
+            "latitudeDirection"
+        ], 
+        [
+            "double", 
+            "longitude"
+        ], 
+        [
+            "byte", 
+            "longitudeDirection"
+        ], 
+        [
+            "int32_t", 
+            "quality"
+        ], 
+        [
+            "double", 
+            "altitude"
+        ], 
+        [
+            "double", 
+            "groundSpeed"
+        ], 
+        [
+            "double", 
+            "trackAngle"
+        ], 
+        [
+            "int16_t", 
+            "satellitesInView"
+        ]
+    ], 
+    "GimbalCmd": [
+        [
+            "double", 
+            "pitch[2]", 
+            ""
+        ], 
+        [
+            "double", 
+            "yaw[2]", 
+            ""
+        ]
+    ], 
+    "HandCmd": [
+        [
+            "double", 
+            "finger", 
+            ""
+        ], 
+        [
+            "double", 
+            "grip", 
+            ""
+        ]
+    ], 
     "Heartbeat": [
         [
-            "int32_t",
+            "int32_t", 
             "recv_ack_id"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "new_ack_id"
         ]
-    ],
+    ], 
     "IMU": [
         [
-            "double",
+            "double", 
             "accel_x"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "accel_y"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "accel_z"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "gyro_x"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "gyro_y"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "gyro_z"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "mag_x"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "mag_y"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "mag_z"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "bearing"
         ]
-    ],
+    ], 
     "IkArmControl": [
         [
-            "double",
+            "double", 
             "deltaX"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "deltaY"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "deltaZ"
         ]
-    ],
+    ], 
     "IkEnabled": [
         [
-            "boolean",
+            "boolean", 
             "enabled"
         ]
-    ],
+    ], 
     "Joystick": [
         [
-            "double",
+            "double", 
             "forward_back"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "left_right"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "dampen"
-        ],
+        ], 
         [
-            "boolean",
+            "boolean", 
             "kill"
-        ],
+        ], 
         [
-            "boolean",
+            "boolean", 
             "restart"
         ]
-    ],
+    ], 
+    "Keyboard": [
+        [
+            "boolean", 
+            "w"
+        ], 
+        [
+            "boolean", 
+            "a"
+        ], 
+        [
+            "boolean", 
+            "s"
+        ], 
+        [
+            "boolean", 
+            "d"
+        ], 
+        [
+            "boolean", 
+            "i"
+        ], 
+        [
+            "boolean", 
+            "j"
+        ], 
+        [
+            "boolean", 
+            "k"
+        ], 
+        [
+            "boolean", 
+            "l"
+        ]
+    ], 
     "KillSwitch": [
         [
-            "boolean",
+            "boolean", 
             "killed"
         ]
-    ],
+    ], 
     "LockJointE": [
         [
-            "boolean",
+            "boolean", 
             "locked"
         ]
-    ],
+    ], 
     "MicroCam": [
         [
-            "string",
+            "string", 
             "id"
         ]
-    ],
+    ], 
     "Microscope": [
         [
-            "boolean",
+            "boolean", 
             "streaming"
         ]
-    ],
+    ], 
     "Mosfet": [
         [
-            "string",
+            "string", 
             "id"
-        ],
+        ], 
         [
-            "boolean",
+            "boolean", 
             "enable"
         ]
-    ],
+    ], 
+    "MosfetCmd": [
+        [
+            ""
+        ], 
+        [
+            ""
+        ], 
+        [
+            "int8_t", 
+            "device"
+        ], 
+        [
+            "boolean", 
+            "enable"
+        ]
+    ], 
     "MotionExecute": [
         [
-            "boolean",
+            "boolean", 
             "preview"
         ]
-    ],
+    ], 
     "NavStatus": [
         [
-            ""
-        ],
-        [
-            "int8_t",
-            "nav_state"
-        ],
-        [
-            "string",
+            "string", 
             "nav_state_name"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "completed_wps"
-        ],
+        ], 
         [
-            "int32_t",
-            "missed_wps"
-        ],
-        [
-            "int32_t",
+            "int32_t", 
             "total_wps"
-        ],
-        [
-            "int32_t",
-            "found_tbs"
-        ],
-        [
-            "int32_t",
-            "total_tbs"
         ]
-    ],
+    ], 
+    "ODrive_Bridge_Pub_Encoders": [
+        [
+            "string", 
+            "controller"
+        ], 
+        [
+            ""
+        ], 
+        [
+            "float", 
+            "measuredCurrent"
+        ], 
+        [
+            "float", 
+            "estvel"
+        ], 
+        [
+            "string", 
+            "axis", 
+            ""
+        ]
+    ], 
+    "ODrive_Bridge_Pub_State": [
+        [
+            "string", 
+            "controller"
+        ], 
+        [
+            ""
+        ], 
+        [
+            "int8_t", 
+            "state"
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ]
+    ], 
+    "ODrive_Bridge_Req_State ": [
+        [
+            "string", 
+            "controller"
+        ], 
+        [
+            ""
+        ], 
+        [
+            "int8_t", 
+            "requestState"
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ], 
+        [
+            ""
+        ]
+    ], 
+    "ODrive_Bridge_Req_Vel": [
+        [
+            "string", 
+            "controller"
+        ], 
+        [
+            ""
+        ], 
+        [
+            "string", 
+            "motor"
+        ], 
+        [
+            "float", 
+            "vel"
+        ]
+    ], 
     "Obstacle": [
         [
-            "boolean",
+            "boolean", 
             "detected"
-        ],
+        ], 
         [
-            "double",
-            "bearing",
+            "double", 
+            "bearing", 
             ""
-        ],
+        ], 
         [
-            "double",
-            "distance",
+            "double", 
+            "distance", 
             ""
         ]
-    ],
+    ], 
     "Odometry": [
         [
-            "int32_t",
+            "int32_t", 
             "latitude_deg"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "latitude_min"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "longitude_deg"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "longitude_min"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "bearing_deg"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "speed"
         ]
-    ],
+    ], 
     "OpenLoopRAMotor": [
         [
-            "int8_t",
+            "int8_t", 
             "joint_id"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "speed"
         ]
-    ],
+    ], 
     "PIDConstants": [
         [
-            "int8_t",
+            "int8_t", 
             "deviceID"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "kP"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "kI"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "kD"
-        ],
-        [
-            "double",
-            "kF"
         ]
-    ],
+    ], 
     "PiCamera": [
         [
-            "int8_t",
+            "int8_t", 
             "active_index_1"
-        ],
+        ], 
         [
-            "int8_t",
+            "int8_t", 
             "active_index_2"
         ]
-    ],
+    ], 
     "PiPicture": [
         [
-            "int8_t",
+            "int8_t", 
             "index"
         ]
-    ],
+    ], 
     "PiSettings": [
         [
-            "int8_t",
+            "int8_t", 
             "pi_index"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "shutter_speed"
-        ],
+        ], 
         [
-            "boolean",
+            "boolean", 
             "vflip"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "height"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "width"
         ]
-    ],
+    ], 
     "ProximitySensors": [
         [
-            "boolean",
+            "boolean", 
             "detected"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "bearing"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "numDepths"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "depths[numDepths]"
         ]
-    ],
+    ], 
+    "RAClosedLoopCmd": [
+        [
+            "double", 
+            "torque", 
+            "[6]", 
+            ""
+        ], 
+        [
+            "double", 
+            "angle", 
+            "[6]", 
+            ""
+        ]
+    ], 
+    "RAConfigCmd": [
+        [
+            "double", 
+            "Kp", 
+            "[6]"
+        ], 
+        [
+            "double", 
+            "Ki", 
+            "[6]"
+        ], 
+        [
+            "double", 
+            "Kd", 
+            "[6]"
+        ]
+    ], 
+    "RAOpenLoopCmd": [
+        [
+            "double", 
+            "throttle[6]", 
+            ""
+        ]
+    ], 
+    "RAPosData": [
+        [
+            "double", 
+            "angle", 
+            "[6]"
+        ]
+    ], 
     "RGB": [
         [
-            "string",
+            "string", 
             "id"
-        ],
+        ], 
         [
-            "float",
+            "float", 
             "r"
-        ],
+        ], 
         [
-            "float",
+            "float", 
             "g"
-        ],
+        ], 
         [
-            "float",
+            "float", 
             "b"
         ]
-    ],
+    ], 
     "RGBFrame": [
         [
-            "string",
+            "string", 
             "id"
         ]
-    ],
+    ], 
     "RGBLED": [
         [
-            "boolean",
+            "boolean", 
             "on"
         ]
-    ],
-    "SAMotors": [
+    ], 
+    "RadioMessage": [
         [
-            "double",
+            "string", 
+            "signal_strength"
+        ]
+    ], 
+    "RadioSignalStrength": [
+        [
+            "float", 
+            "signal_strength"
+        ]
+    ], 
+    "RepeaterDropComplete": [], 
+    "RepeaterDropInit": [], 
+    "SAClosedLoopCmd": [
+        [
+            "double", 
+            "torque", 
+            "[3]", 
+            ""
+        ], 
+        [
+            "double", 
+            "angle", 
+            "[3]", 
+            ""
+        ]
+    ], 
+    "SAConfigCmd": [
+        [
+            "double", 
+            "Kp", 
+            "[3]"
+        ], 
+        [
+            "double", 
+            "Ki", 
+            "[3]"
+        ], 
+        [
+            "double", 
+            "Kd", 
+            "[3]"
+        ]
+    ], 
+    "SAEndEffectorCmd": [
+        [
+            "double", 
+            "linear_actuator", 
+            ""
+        ]
+    ], 
+    "SAMotors ": [
+        [
+            "double", 
             "carriage"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "four_bar"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "front_drill"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "back_drill"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "micro_x"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "micro_y"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "micro_z"
         ]
-    ],
+    ], 
+    "SAOpenLoopCmd": [
+        [
+            "double", 
+            "throttle[3]", 
+            ""
+        ]
+    ], 
+    "SAPosData": [
+        [
+            "double", 
+            "angle", 
+            "[3]", 
+            ""
+        ]
+    ], 
+    "SAZeroTrigger": [
+        [
+            ""
+        ]
+    ], 
     "SensorPackage": [
         [
-            "double",
+            "double", 
             "bearing"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "latitude_deg"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "latitude_min"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "longitude_deg"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "longitude_min"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "speed"
         ]
-    ],
+    ], 
     "SensorSwitch": [
         [
-            "boolean",
+            "boolean", 
             "should_record"
         ]
-    ],
+    ], 
     "Sensors": [
         [
-            "int64_t",
+            "int64_t", 
             "timestamp"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "temperature"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "moisture"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "conductivity"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "pH"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "O2"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "CO2"
         ]
-    ],
+    ], 
     "Servo": [
         [
-            "string",
+            "string", 
             "id"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "degrees"
         ]
-    ],
+    ], 
+    "ServoCmd": [
+        [
+            "string", 
+            "id"
+        ], 
+        [
+            "double", 
+            "position", 
+            ""
+        ]
+    ], 
     "SetDemand": [
         [
-            "int8_t",
+            "int8_t", 
             "deviceID"
-        ],
+        ], 
         [
-            "int8_t",
+            "int8_t", 
             "control_mode"
-        ],
+        ], 
         [
-            "int16_t",
+            "int16_t", 
             "value"
         ]
-    ],
-    "Signal": [],
+    ], 
+    "Signal": [], 
     "SimulationMode": [
         [
-            "boolean",
+            "boolean", 
             "sim_mode"
         ]
-    ],
-    "StartTest": [
+    ], 
+    "SpectralCmd": [
         [
-            "string",
-            "test"
-        ],
-        [
-            "int8_t",
-            "site"
+            "int8_t", 
+            "id"
         ]
-    ],
-    "TalonConfig": [
+    ], 
+    "SpectralData": [
         [
-            "boolean",
-            "enable_arm"
-        ],
+            "int16_t", 
+            "r"
+        ], 
         [
-            "boolean",
-            "enable_sa"
-        ]
-    ],
-    "TargetAngles": [
+            "int16_t", 
+            "g"
+        ], 
         [
-            "float",
+            "int16_t", 
             "a"
-        ],
+        ], 
         [
-            "float",
+            "int16_t", 
+            "s"
+        ], 
+        [
+            "int16_t", 
+            "h"
+        ], 
+        [
+            "int16_t", 
             "b"
-        ],
+        ], 
         [
-            "float",
+            "int16_t", 
+            "t"
+        ], 
+        [
+            "int16_t", 
+            "i"
+        ], 
+        [
+            "int16_t", 
             "c"
-        ],
+        ], 
         [
-            "float",
+            "int16_t", 
+            "u"
+        ], 
+        [
+            "int16_t", 
+            "j"
+        ], 
+        [
+            "int16_t", 
             "d"
-        ],
+        ], 
         [
-            "float",
+            "int16_t", 
+            "v"
+        ], 
+        [
+            "int16_t", 
+            "k"
+        ], 
+        [
+            "int16_t", 
             "e"
-        ],
+        ], 
         [
-            "float",
+            "int16_t", 
+            "w"
+        ], 
+        [
+            "int16_t", 
+            "l"
+        ], 
+        [
+            "int16_t", 
             "f"
         ]
-    ],
-    "TargetPoint": [
+    ], 
+    "StartTest": [
         [
-            "float",
-            "x"
-        ],
+            "string", 
+            "test"
+        ], 
         [
-            "float",
-            "y"
-        ],
-        [
-            "float",
-            "z"
+            "int8_t", 
+            "site"
         ]
-    ],
+    ], 
+    "TalonConfig": [
+        [
+            "boolean", 
+            "enable_arm"
+        ], 
+        [
+            "boolean", 
+            "enable_sa"
+        ]
+    ], 
+    "Target": [
+        [
+            "double", 
+            "distance"
+        ], 
+        [
+            "double", 
+            "bearing", 
+            ""
+        ], 
+        [
+            "int32_t", 
+            "id"
+        ]
+    ], 
+    "TargetAngles": [
+        [
+            "float", 
+            "joint_a"
+        ], 
+        [
+            "float", 
+            "joint_b"
+        ], 
+        [
+            "float", 
+            "joint_c"
+        ], 
+        [
+            "float", 
+            "joint_d"
+        ], 
+        [
+            "float", 
+            "joint_e"
+        ], 
+        [
+            "float", 
+            "joint_f"
+        ]
+    ], 
+    "TargetList": [
+        [
+            "Target", 
+            "targetList[2]"
+        ]
+    ], 
+    "TargetOrientation": [
+        [
+            "float", 
+            "x"
+        ], 
+        [
+            "float", 
+            "y"
+        ], 
+        [
+            "float", 
+            "z"
+        ], 
+        [
+            "float", 
+            "alpha"
+        ], 
+        [
+            "float", 
+            "beta"
+        ], 
+        [
+            "float", 
+            "gamma"
+        ], 
+        [
+            "boolean", 
+            "use_orientation"
+        ]
+    ], 
     "Temperature": [
         [
-            "int32_t",
+            "int32_t", 
             "bcpu_temp"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "gpu_temp"
-        ],
+        ], 
         [
-            "int32_t",
+            "int32_t", 
             "tboard_temp"
         ]
-    ],
-    "TennisBall": [
-        [
-            "boolean",
-            "found"
-        ],
-        [
-            "double",
-            "bearing",
-            ""
-        ],
-        [
-            "double",
-            "distance"
-        ]
-    ],
+    ], 
     "TestEnable": [
         [
-            "int8_t",
+            "int8_t", 
             "site"
-        ],
+        ], 
         [
-            "boolean",
+            "boolean", 
             "enabled"
         ]
-    ],
+    ], 
+    "ThermistorData": [
+        [
+            "double", 
+            "temperature", 
+            ""
+        ]
+    ], 
     "Waypoint": [
         [
-            "boolean",
+            "boolean", 
             "search"
-        ],
+        ], 
         [
-            "Odometry",
+            "boolean", 
+            "gate"
+        ], 
+        [
+            "float", 
+            "gate_width"
+        ], 
+        [
+            "int16_t", 
+            "id"
+        ], 
+        [
+            "Odometry", 
             "odom"
         ]
-    ],
+    ], 
     "WheelSpeeds": [
         [
-            "double",
+            "double", 
             "left_front"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "left_back"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "right_front"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "right_back"
         ]
-    ],
-    "Xbox": [
+    ], 
+    "Xbox ": [
         [
-            "double",
+            "double", 
             "left_js_x"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "left_js_y"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "left_trigger"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "right_trigger"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "right_js_x"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "right_js_y"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "right_bumper"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "left_bumper"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "d_pad_up"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "d_pad_down"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "d_pad_left"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "d_pad_right"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "a"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "b"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "x"
-        ],
+        ], 
         [
-            "double",
+            "double", 
             "y"
         ]
-    ],
+    ], 
     "message_types": [
-        "ArmPosition",
-        "ArmToggles",
-        "AutonState",
-        "Bearing",
-        "CameraServos",
-        "Course",
-        "CurrentDraw",
-        "DebugMessage",
-        "DriveMotors",
-        "Encoder",
-        "ESCThrottle",
-        "ESCToggle",
-        "FKTransform",
-        "GPS",
-        "Heartbeat",
-        "IkArmControl",
-        "IkEnabled",
-        "IMU",
-        "Joystick",
-        "KillSwitch",
-        "LockJointE",
-        "MicroCam",
-        "Microscope",
-        "Mosfet",
-        "MotionExecute",
-        "NavStatus",
-        "Obstacle",
-        "Odometry",
-        "OpenLoopRAMotor",
-        "PiCamera",
-        "PIDConstants",
-        "PiPicture",
-        "PiSettings",
-        "ProximitySensors",
-        "RGB",
-        "RGBFrame",
-        "RGBLED",
-        "SAMotors",
-        "SensorPackage",
-        "Sensors",
-        "SensorSwitch",
-        "Servo",
-        "SetDemand",
-        "Signal",
-        "SimulationMode",
-        "StartTest",
-        "TalonConfig",
-        "TargetAngles",
-        "TargetPoint",
-        "Temperature",
-        "TennisBall",
-        "TestEnable",
-        "Waypoint",
-        "WheelSpeeds",
-        "Xbox"
+        "ArmPosition", 
+        "ArmToggles", 
+        "AutonState", 
+        "Bearing", 
+        "CameraServos", 
+        "Course", 
+        "CurrentDraw", 
+        "DebugMessage", 
+        "DriveMotors", 
+        "DriveStateCmd ", 
+        "DriveStateData", 
+        "DriveVelCmd", 
+        "DriveVelData", 
+        "Encoder", 
+        "ESCThrottle", 
+        "ESCToggle", 
+        "FKTransform", 
+        "GimbalCmd", 
+        "GPS", 
+        "GPSData", 
+        "HandCmd", 
+        "Heartbeat", 
+        "IkArmControl", 
+        "IkEnabled", 
+        "IMU", 
+        "Joystick", 
+        "Keyboard", 
+        "KillSwitch", 
+        "LockJointE", 
+        "MicroCam", 
+        "Microscope", 
+        "Mosfet", 
+        "MosfetCmd", 
+        "MotionExecute", 
+        "NavStatus", 
+        "Obstacle", 
+        "Odometry", 
+        "ODrive_Bridge_Pub_Encoders", 
+        "ODrive_Bridge_Pub_State", 
+        "ODrive_Bridge_Req_State ", 
+        "ODrive_Bridge_Req_Vel", 
+        "OpenLoopRAMotor", 
+        "PiCamera", 
+        "PIDConstants", 
+        "PiPicture", 
+        "PiSettings", 
+        "ProximitySensors", 
+        "RAClosedLoopCmd", 
+        "RAConfigCmd", 
+        "RadioMessage", 
+        "RadioSignalStrength", 
+        "RAOpenLoopCmd", 
+        "RAPosData", 
+        "RepeaterDropComplete", 
+        "RepeaterDropInit", 
+        "RGB", 
+        "RGBFrame", 
+        "RGBLED", 
+        "SAClosedLoopCmd", 
+        "SAConfigCmd", 
+        "SAEndEffectorCmd", 
+        "SAMotors ", 
+        "SAOpenLoopCmd", 
+        "SAPosData", 
+        "SAZeroTrigger", 
+        "SensorPackage", 
+        "Sensors", 
+        "SensorSwitch", 
+        "Servo", 
+        "ServoCmd", 
+        "SetDemand", 
+        "Signal", 
+        "SimulationMode", 
+        "SpectralCmd", 
+        "SpectralData", 
+        "StartTest", 
+        "TalonConfig", 
+        "Target", 
+        "TargetAngles", 
+        "TargetList", 
+        "TargetOrientation", 
+        "Temperature", 
+        "TestEnable", 
+        "ThermistorData", 
+        "Waypoint", 
+        "WheelSpeeds", 
+        "Xbox "
     ]
 }

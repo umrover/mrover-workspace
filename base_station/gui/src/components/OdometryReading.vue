@@ -1,17 +1,19 @@
 <template>
   <div class="wrap">
     <p>Current odometry reading:</p>
-    <div>
-      <p>{{formatted_odom.lat.d}}º</p>
-      <p v-if="this.min_enabled">{{formatted_odom.lat.m}}'</p>
-      <p  v-if="this.sec_enabled">{{formatted_odom.lat.s}}"</p>
-      N
-    </div>
-    <div>
-      <p>{{formatted_odom.lon.d}}º</p>
-      <p v-if="this.min_enabled">{{formatted_odom.lon.m}}'</p>
-      <p  v-if="this.sec_enabled">{{formatted_odom.lon.s}}"</p>
-      W
+    <div class="reading">
+      <div>
+        <p>{{formatted_odom.lat.d}}º</p>
+        <p v-if="this.min_enabled">{{formatted_odom.lat.m}}'</p>
+        <p  v-if="this.sec_enabled">{{formatted_odom.lat.s}}"</p>
+        N
+      </div>
+      <div>
+        <p>{{formatted_odom.lon.d}}º</p>
+        <p v-if="this.min_enabled">{{formatted_odom.lon.m}}'</p>
+        <p  v-if="this.sec_enabled">{{formatted_odom.lon.s}}"</p>
+        W
+      </div>
     </div>
   </div>
 </template>
@@ -57,9 +59,15 @@ export default {
       padding-left: 5px;
       padding-right: 5px;
       border: none;
+      display: flex;
   }
 
   .wrap p {
     display: inline;
+  }
+
+  .reading {
+    display: block;
+    padding: 6px 10px;
   }
 </style>
