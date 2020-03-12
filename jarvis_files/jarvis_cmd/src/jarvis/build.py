@@ -119,13 +119,14 @@ def build_deps(ctx):
 
     pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
     pip_hasher.hash_modification_time('pip_deps/')
+    """
     if pip_hasher.has_changed():
         with ctx.cd(ctx.root):
             with ctx.inside_product_env():
                 print("Installing pip dependencies...")
-                ctx.run("pip install --upgrade pip", hide='out')
+                # ctx.run("pip install --upgrade pip", hide='out')
                 # Jarvis dependencies
-                ctx.run("pip install -r {}/requirements.txt".format(
+                # ctx.run("pip install -r {}/requirements.txt".format(
                     ctx.jarvis_root), hide='out')
                 # Workspace dependencies
                 ctx.run("pip install -r pip_deps/requirements.txt", hide='out')
@@ -136,6 +137,7 @@ def build_deps(ctx):
         pip_hasher.save()
     else:
         print("pip dependencies already installed, skipping.")
+    """
 
     print("Done.")
 
