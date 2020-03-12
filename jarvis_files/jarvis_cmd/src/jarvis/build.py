@@ -129,6 +129,7 @@ def build_deps(ctx):
                 # ctx.run("pip install -r {}/requirements.txt".format(
                     ctx.jarvis_root), hide='out')
                 # Workspace dependencies
+
                 ctx.run("pip install -r pip_deps/requirements.txt", hide='out')
                 if site_cfg['jetson']:
                     print("Installing jetson pip dependencies...")
