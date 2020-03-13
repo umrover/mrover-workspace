@@ -77,9 +77,9 @@ def lcmThreaderMan():
 
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "calibrate cmd", "odrive error"]
-states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
-# Program states possible - BOOT,  DISARMED, ARMED, ERROR
-# 							1		 2	      3	      4
+states = ["DisconnectedState", "DisarmedState", "ArmedState", "CalibrateState", "ErrorState"]
+# Program states possible - BOOT,  DISARMED, ARMED, CALIBRATE ERROR
+# 							1		 2	      3	       4        5
 
 
 class State(object):
@@ -141,9 +141,6 @@ class DisarmedState(State):
 
         elif (event == "calibrating cmd"):
             # sequence can be moved to armed ?
-            modrive.calibrate()
-            print("done calibrating")
-            modrive.disarm()
             return DisarmedState()
 
         elif (event == "odrive error"):
@@ -169,7 +166,20 @@ class ArmedState(State):
         elif (event == "odrive error"):
             return ErrorState()
 
+        elif (event == "calibrate cmd"):
+            modrive.reset()
+            return CalibrateState()
+
+
         return self
+
+class CalibrateState(State):
+    def on_event(self, event):
+        global modrive
+
+        if (event == "arm cmd"):
+            modrive.arm()
+            return ArmedState()
 
 
 class ErrorState(State):
@@ -230,6 +240,9 @@ class OdriveBridge(object):
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
     def update(self):
+        modrive.watchdog()
+        # if the watch dog isn't fed it will throw an error
+
         if (str(self.state) == "ArmedState"):
             global speedlock
             global left_speed
@@ -242,6 +255,16 @@ class OdriveBridge(object):
 
         elif (str(self.state) == "DisconnectedState"):
             self.connect()
+            lock.acquire()
+            self.on_event("arm cmd")
+            lock.release()
+
+        elif (str(self.state) == "CalibrateState"):
+            self.connect()
+            self.calibrate()
+            self.connect()
+            print("done calibrating")
+
             lock.acquire()
             self.on_event("arm cmd")
             lock.release()
@@ -345,12 +368,15 @@ class Modrive:
             return getattr(self, attr)
         return getattr(self.odrive, attr)
 
-    def calibrate(self):
+    def reset(self):
         self._reset(self.front_axis)
         self._reset(self.back_axis)
         self.odrive.save_configuration()
         # the guide says to reboot here...
 
+
+    def calibrate(self):
+        dump_errors(self.odrive, True)  # clears all odrive encoder errors
         self._requested_state("LEFT", AXIS_STATE_FULL_CALIBRATION_SEQUENCE)
         while (self.get_current_state("RIGHT") != AXIS_STATE_IDLE):
             pass
@@ -381,6 +407,11 @@ class Modrive:
     def arm(self):
         self.closed_loop_ctrl()
         self.set_velocity_ctrl()
+
+    def watchdog(self):
+        self.front_axis.watchdog_feed()
+        self.back_axis.watchdog_feed()
+        # watchdog.check is called in odrive 
 
     def set_current_lim(self, lim):
         self.front_axis.motor.config.current_lim = lim
@@ -425,6 +456,10 @@ class Modrive:
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
+
+    def _init_watchdog(self):
+        self.front_axis.config.watchdog = 1.0
+        self.back_axis.config.watchdog = 1.0
 
     def _reset(self, m_axis):
         m_axis.motor.config.pole_pairs = 15
