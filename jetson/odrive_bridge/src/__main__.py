@@ -256,16 +256,12 @@ class OdriveBridge(object):
         global modrive
         global legal_controller
         print("looking for odrive")
-<<<<<<< HEAD:jetson/odrive_bridge/src/__main__.py
 
         # odrive 0 --> front motors
         # odrive 1 --> middle motors
         # odrive 2 --> back motors
 
         odrives = ["205F3883304E", "2091358E524B", "2084399C4D4D"]
-=======
-        odrives = ["205F3883304E", "20563591524B"]
->>>>>>> 3ef6edf2... changed odrive ID:onboard/odrive_bridge/src/__main__.py
         id = odrives[legal_controller]
 
         print(id)
