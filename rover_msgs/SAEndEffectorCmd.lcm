@@ -1,5 +1,0 @@
-package rover_msgs;
-
-struct SAEndEffectorCmd {
-    double linear_actuator; // [-1.0, 1.0]
-}
