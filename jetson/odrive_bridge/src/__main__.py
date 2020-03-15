@@ -246,11 +246,6 @@ class OdriveBridge(object):
         self.state = self.state.on_event(event)
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
-    def watchdog(self):
-        global modrive
-        modrive.watchdog()
-        # feeds the watchdog
-
     def update(self):
         if (str(self.state) == "ArmedState"):
             global speedlock
@@ -281,6 +276,8 @@ class OdriveBridge(object):
         errors = modrive.check_errors()
 
         if errors:
+            if (errors == 0x800 or erros == 0x1000):
+
             lock.acquire()
             self.on_event("odrive error")
             lock.release()
@@ -354,7 +351,7 @@ def drive_vel_cmd_callback(channel, msg):
             right_speed = cmd.right
             speedlock.release()
     except NameError:
-        print("waiting to find odrive")
+        pass
 
 
 if __name__ == "__main__":
@@ -369,7 +366,7 @@ class Modrive:
         self.front_axis = self.odrive.axis0
         self.back_axis = self.odrive.axis1
         self.set_current_lim(self.CURRENT_LIM)
-        # self._init_watchdog()
+        self._init_watchdog()
 
     # viable to set initial state to idle?
 
