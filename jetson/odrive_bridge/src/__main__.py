@@ -201,6 +201,7 @@ class CalibrateState(State):
 
         return self
 
+
 class CalibrateState(State):
     def on_event(self, event):
         global modrive
@@ -208,6 +209,12 @@ class CalibrateState(State):
         if (event == "arm cmd"):
             modrive.arm()
             return ArmedState()
+
+        if(modrive.check_errors()):
+            print("clearing calibration errors")
+            dump_errors(modrive.odrive, True)
+
+        return self
 
 
 class ErrorState(State):
@@ -272,10 +279,12 @@ class OdriveBridge(object):
         self.state = self.state.on_event(event)
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
-    def update(self):
+    def watchdog(self):
+        global modrive
         modrive.watchdog()
-        # if the watch dog isn't fed it will throw an error
+        # feeds the watchdog
 
+    def update(self):
         if (str(self.state) == "ArmedState"):
             global speedlock
             global left_speed
@@ -397,6 +406,7 @@ class Modrive:
         self.front_axis = self.odrive.axis0
         self.back_axis = self.odrive.axis1
         self.set_current_lim(self.CURRENT_LIM)
+        # self._init_watchdog()
 
     # viable to set initial state to idle?
 
@@ -413,12 +423,7 @@ class Modrive:
 
     def calibrate(self):
         dump_errors(self.odrive, True)  # clears all odrive encoder errors
-        self._requested_state("LEFT", AXIS_STATE_FULL_CALIBRATION_SEQUENCE)
-        while (self.get_current_state("RIGHT") != AXIS_STATE_IDLE):
-            pass
-        self._requested_state("LEFT", AXIS_STATE_FULL_CALIBRATION_SEQUENCE)
-        while (self.get_current_state("RIGHT") != AXIS_STATE_IDLE):
-            pass
+        self._requested_state(AXIS_STATE_FULL_CALIBRATION_SEQUENCE)
 
         front_state, back_state = self.get_current_state()
 
@@ -450,7 +455,7 @@ class Modrive:
     def watchdog(self):
         self.front_axis.watchdog_feed()
         self.back_axis.watchdog_feed()
-        # watchdog.check is called in odrive 
+        # watchdog.check is called in odrive
 
     def set_current_lim(self, lim):
         self.front_axis.motor.config.current_lim = lim
@@ -497,8 +502,8 @@ class Modrive:
         return (self.front_axis.current_state, self.back_axis.current_state)
 
     def _init_watchdog(self):
-        self.front_axis.config.watchdog = 1.0
-        self.back_axis.config.watchdog = 1.0
+        self.front_axis.config.watchdog_timeout = 1.0
+        self.back_axis.config.watchdog_timeout = 1.0
 
     def _reset(self, m_axis):
         m_axis.motor.config.pole_pairs = 15
