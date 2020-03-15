@@ -279,11 +279,6 @@ class OdriveBridge(object):
         self.state = self.state.on_event(event)
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
-    def watchdog(self):
-        global modrive
-        modrive.watchdog()
-        # feeds the watchdog
-
     def update(self):
         if (str(self.state) == "ArmedState"):
             global speedlock
@@ -406,7 +401,7 @@ class Modrive:
         self.front_axis = self.odrive.axis0
         self.back_axis = self.odrive.axis1
         self.set_current_lim(self.CURRENT_LIM)
-        # self._init_watchdog()
+        self._init_watchdog()
 
     # viable to set initial state to idle?
 
