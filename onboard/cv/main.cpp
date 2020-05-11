@@ -172,7 +172,7 @@ int main() {
     /* AR Tag Detection*/
     arTags[0].distance = -1;
     arTags[1].distance = -1;
-    #if TB_DETECTION
+    #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
       vidWrite.write(rgb);
@@ -242,8 +242,8 @@ int main() {
 
     #endif
 
-    lcm_.publish("/target_list", &arTagsMessage);
-    lcm_.publish("/obstacle", &obstacleMessage);
+    //lcm_.publish("/target_list", &arTagsMessage);
+    //lcm_.publish("/obstacle", &obstacleMessage);
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);

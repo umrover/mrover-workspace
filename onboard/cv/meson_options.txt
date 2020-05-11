@@ -1,4 +1,4 @@
-option('tb_detection', type: 'boolean', value : true)
+option('ar_detection', type: 'boolean', value : true)
 option('obs_detection', type: 'boolean', value: true)
 option('with_zed', type: 'boolean', value : true)
 option('perception_debug', type: 'boolean', value: true)
