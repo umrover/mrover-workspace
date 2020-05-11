@@ -14,7 +14,7 @@ if with_zed
 		link_args : [
 			# ZED SDK
 			'-L/usr/local/zed/lib',
-			'-lsl_input', '-lsl_core', '-lsl_zed',
+			'-lsl_zed',
 
 			# CUDA 
 			'-L/usr/local/cuda/lib64',
@@ -25,7 +25,7 @@ if with_zed
 	all_deps += [zed]
 endif
 
-tb_detection = get_option('tb_detection')
+ar_detection = get_option('ar_detection')
 obs_detection = get_option('obs_detection')
 perception_debug = get_option('perception_debug')
 write_frame = get_option('write_frame')
@@ -34,7 +34,7 @@ obs_record = get_option('obs_record')
 ar_record = get_option('ar_record')
 
 conf_data = configuration_data()
-conf_data.set10('TB_DETECTION', tb_detection)
+conf_data.set10('AR_DETECTION', ar_detection)
 conf_data.set10('OBSTACLE_DETECTION', obs_detection)
 conf_data.set10('ZED_SDK_PRESENT', with_zed)
 conf_data.set10('PERCEPTION_DEBUG', perception_debug)
