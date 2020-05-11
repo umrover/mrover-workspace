@@ -15,6 +15,12 @@ For example:
     with_zed=true
     perception_debug=false
 
+## To not run ar
+    ar_detection=false
+
+## To not run obstacle
+    obs_detection=false
+    
 ## To record ar video
     ar_record=true
 

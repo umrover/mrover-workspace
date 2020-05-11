@@ -39,7 +39,7 @@ Camera::Impl::Impl() {
 	init_params.camera_fps = 30;
 	// TODO change this below?
 
-	assert(this->zed_.open(init_params) == sl::ERROR_CODE::SUCCESS);
+	assert(this->zed_.open() == sl::ERROR_CODE::SUCCESS);
   
   //Parameters for Positional Tracking
   init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
@@ -67,7 +67,7 @@ Camera::Impl::Impl() {
 }
 
 bool Camera::Impl::grab() {
-  return this->zed_.grab(init_params) == sl::ERROR_CODE::SUCCESS;
+  return this->zed_.grab() == sl::ERROR_CODE::SUCCESS;
 }
 
 cv::Mat Camera::Impl::image() {
