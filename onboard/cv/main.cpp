@@ -242,8 +242,8 @@ int main() {
 
     #endif
 
-    //lcm_.publish("/target_list", &arTagsMessage);
-    //lcm_.publish("/obstacle", &obstacleMessage);
+    lcm_.publish("/target_list", &arTagsMessage);
+    lcm_.publish("/obstacle", &obstacleMessage);
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);

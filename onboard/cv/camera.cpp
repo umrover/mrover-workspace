@@ -2,9 +2,13 @@
 #include "perception.hpp"
 
 #if ZED_SDK_PRESENT
+
+#pragma GCC diagnostic ignored "-Wreorder" //Turns off warning checking for sl lib files
+
 #include <sl/Camera.hpp>
 #include <cassert>
 
+#pragma GCC diagnostic pop
 //Class created to implement all Camera class' functions
 //Abstracts away details of using Stereolab's camera interface
 //so we can just use a simple custom one
