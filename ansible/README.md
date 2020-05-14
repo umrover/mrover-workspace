@@ -12,7 +12,7 @@ $ sudo apt install ansible
 
 Then run the playbook of your choice.
 ```sh
-$ ansible-playbook -K -i "localhost," -c local <playbook>.ymlP
+$ ansible-playbook -K -i "localhost," -c local <playbook>.yml
 ```
 If you need to define extra variables add --extra-vars "<variable definition>"
 example
