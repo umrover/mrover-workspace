@@ -40,7 +40,7 @@ Camera::Impl::Impl() {
 	init_params.camera_resolution = sl::RESOLUTION::HD720; // default: 720p
 	init_params.depth_mode = sl::DEPTH_MODE::PERFORMANCE;
 	init_params.coordinate_units = sl::UNIT::METER;
-	init_params.camera_fps = 30;
+	init_params.camera_fps = 15;
 	// TODO change this below?
 
 	assert(this->zed_.open() == sl::ERROR_CODE::SUCCESS);
