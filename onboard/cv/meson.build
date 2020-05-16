@@ -7,8 +7,12 @@ all_deps = [opencv, lcm]
 
 with_zed = get_option('with_zed')
 
+# PCL Dependencies:
+# https://pcl-tutorials.readthedocs.io/en/master/compiling_pcl_posix.html#compiling-pcl-posix
+
 if with_zed
-	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
+	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include', '/usr/include/pcl-1.8', 
+	'/usr/include/eigen3', '/usr/include/boost', '/usr/include/vtk-6.3', '/usr/include/flann')
 	zed = declare_dependency(
 		include_directories : zed_include_dirs,
 		link_args : [
@@ -20,7 +24,12 @@ if with_zed
 			'-L/usr/local/cuda/lib64',
 			'-lcuda', '-lnppial', '-lnppisu', '-lnppicc',
 			'-lnppicom', '-lnppidei', '-lnppif', '-lnppig',
-			'-lnppim', '-lnppist', '-lnppitc', '-lnppc'
+			'-lnppim', '-lnppist', '-lnppitc', '-lnppc',
+
+			# PCL
+			'-lpcl_common', '-lpcl_visualization', '-lboost_system',
+			'-lvtksys-6.3', '-lvtkRenderingCore-6.3', '-lvtkCommonCore-6.3',
+			'-lvtkCommonDataModel-6.3', '-lvtkCommonMath-6.3'
 		])
 	all_deps += [zed]
 endif

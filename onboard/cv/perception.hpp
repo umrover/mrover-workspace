@@ -9,6 +9,15 @@
 #include <cmath>
 #include <lcm/lcm-cpp.hpp>
 #include <sys/stat.h> // for disk writing
+#include <pcl/common/common_headers.h>
+#include <pcl/visualization/pcl_visualizer.h>
+
+#pragma GCC diagnostic ignored "-Wreorder"
+
+#include <sl/Camera.hpp>
+
+#pragma GCC diagnostic pop
+
 #if PERCEPTION_DEBUG
   #include <opencv2/highgui/highgui.hpp>
   #include <cstdlib>
@@ -44,7 +53,7 @@ const float fieldofView = 110 * PI/180;
 const float focalLength = 2.8; //zed focal length in mm
 
 //Rover Specs
-const float zedHeight = 17 * 0.0254; //inches to meters off the ground
+const float zedHeight = 17 * 0.0254; //uinches to meters off the ground
 const float realWidth = 46 * 25.4; //rover width , rover is 46 inches wide TODO make a little longer to be safe
 const float angleOffset = 10 * PI/180;    //angle offset of the rover
 

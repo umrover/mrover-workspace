@@ -42,6 +42,19 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
   return true;
 }
 
+//Creates a PCL Visualizer
+shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer(pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr cloud) {
+    // Open 3D viewer and add point cloud
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer"));
+    viewer->setBackgroundColor(0.12, 0.12, 0.12);
+    pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
+    viewer->addPointCloud<pcl::PointXYZRGB>(cloud, rgb);
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1.5);
+    viewer->addCoordinateSystem(1.0);
+    viewer->initCameraParameters();
+    return (viewer);
+}
+
 static string rgb_foldername, depth_foldername;
 void disk_record_init() {
   #if WRITE_CURR_FRAME_TO_DISK
@@ -145,12 +158,20 @@ int main() {
   int left_tag_buffer = 0;
   int right_tag_buffer = 0;
 
+  //Dynamically Allocate Point Cloud
+  sl::Resolution cloud_res = sl::Resolution(640,360);
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+  point_cloud_ptr->points.resize(cloud_res.area());
+
   #if PERCEPTION_DEBUG
     //Make trackbars
     int thresh1 = 300000;
     int thresh2 = 70000;
     createTrackbar("Main Window", "Obstacle", &thresh1, 500000);
     createTrackbar("Sub Window", "Obstacle", &thresh2, 120000);
+
+    //Create PCL Visualizer
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer = createRGBVisualizer(point_cloud_ptr);
   #endif
   
   while (true) {
@@ -212,7 +233,6 @@ int main() {
         right_tag_buffer = 0;
       }
 
-
     #endif
 
 
@@ -237,6 +257,20 @@ int main() {
       obstacleMessage.bearing = obstacle_detection.bearing;
 
     #endif
+    
+    
+    /*run PCL Stuff*/
+    cam.getDataCloud(point_cloud_ptr);
+
+    #if PERCEPTION_DEBUG
+    // Update PCL Visulizer
+    viewer->updatePointCloud(point_cloud_ptr);
+    viewer->spinOnce(10);
+    #endif
+
+
+
+
 
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
@@ -250,6 +284,9 @@ int main() {
 
     j++;
   }
+  #if PERCEPTION_DEBUG
+  viewer->close();
+  #endif
   #if AR_RECORD
   vidWrite.release();
   #endif
@@ -258,3 +295,4 @@ int main() {
   #endif
   return 0;
 }
+

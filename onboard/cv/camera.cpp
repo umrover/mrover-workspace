@@ -7,6 +7,7 @@
 
 #include <sl/Camera.hpp>
 #include <cassert>
+#include <pcl/common/common_headers.h>
 
 #pragma GCC diagnostic pop
 //Class created to implement all Camera class' functions
@@ -23,6 +24,7 @@ public:
 
 	cv::Mat image();
 	cv::Mat depth();
+  void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
 private:
 	sl::RuntimeParameters runtime_params_;
 	sl::Resolution image_size_;
@@ -86,14 +88,48 @@ cv::Mat Camera::Impl::depth() {
 	return this->depth_;
 }
 
+//This function convert a RGBA color packed into a packed RGBA PCL compatible format
+inline float convertColor(float colorIn) {
+    uint32_t color_uint = *(uint32_t *) & colorIn;
+    unsigned char *color_uchar = (unsigned char *) &color_uint;
+    color_uint = ((uint32_t) color_uchar[0] << 16 | (uint32_t) color_uchar[1] << 8 | (uint32_t) color_uchar[2]);
+    return *reinterpret_cast<float *> (&color_uint);
+}
+
+void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & p_pcl_point_cloud) {
+  //Might need an overloaded assignment operator
+  
+  //Grab ZED Depth Image
+  sl::Resolution cloud_res(p_pcl_point_cloud->width, p_pcl_point_cloud->height);
+  sl::Mat data_cloud;
+  this->zed_.retrieveMeasure(data_cloud, sl::MEASURE::XYZRGBA, sl::MEM::CPU, cloud_res);
+  
+  //Populate Point Cloud
+  float *p_data_cloud = data_cloud.getPtr<float>();
+  int index = 0;
+  for (auto &it : p_pcl_point_cloud->points) {
+    float X = p_data_cloud[index];
+    if (!isValidMeasure(X)) // Checking if it's a valid point
+        it.x = it.y = it.z = it.rgb = 0;
+    else {
+        it.x = X;
+        it.y = p_data_cloud[index + 1];
+        it.z = p_data_cloud[index + 2];
+        it.rgb = convertColor(p_data_cloud[index + 3]); // Convert a 32bits float into a pcl .rgb format
+    }
+    index += 4;
+  }
+
+} 
+
 Camera::Impl::~Impl() {
+  this->depth_zed_.free(sl::MEM::CPU);
+  this->image_zed_.free(sl::MEM::CPU);
 	this->zed_.close();
 
 }
 
-/*void Camera::Impl::deleteZed(){
-	delete this;
-}*/
+
 #else //if OFFLINE_TEST
 #include <sys/types.h>
 #include <dirent.h>
@@ -212,4 +248,8 @@ cv::Mat Camera::image() {
 
 cv::Mat Camera::depth() {
 	return this->impl_->depth();
+}
+
+void Camera::getDataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud) {
+  this->impl_->dataCloud(p_pcl_point_cloud);
 }
