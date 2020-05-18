@@ -9,7 +9,8 @@ Required electrical components: \
 1 TCA9548A multiplex \
 1 beaglebone green/back board 
 
-Wire up the sensors to the multiplex so that the triad is in SDA/SCL port 0, and the spectral sensors are in ports 1, 2, and 3. 
+Wire up the sensors to the multiplex so that the triad is in SDA/SCL port 0, and the spectral sensors are in ports 1, 2, and 3. Connect the multiplex to the i2c port on the beaglebone. 
+
 Open up a terminal window and type \
 ```$ cd ~/mrover-workspace/```  to move to the mrover-workspace directory \
 ```$ ./jarvis build beaglebone/spectral```  to build the spectral program \
@@ -21,6 +22,8 @@ In order to get readings from the sensor open up another terminal and type
 In the original terminal type \
 ```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/spectral_cmd" "{'type': 'SpedtralCmd', 'sensor': $SENSOR_NUM } ``` \
 where $SENSOR_NUM is either 0 to get readings from the triad, or 1 - 3 to get readings from the respective single spectral sensors connected to the multiplex ports 1, 2, and 3
+
+### To Do
 
 ### Notes
 If you have any issues building the code, this is likely a result of not having the 
