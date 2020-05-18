@@ -25,6 +25,9 @@ where $SENSOR_NUM is either 0 to get readings from the triad, or 1 - 3 to get re
 
 ### To Do
 
+### Common Errors
+
 ### Notes
-If you have any issues building the code, this is likely a result of not having the 
+This code has been tested with python 3.7 on a beaglebone black. \
+If you have any issues building the code, this is likely a result of not having the
 [correct packages installed](https://github.com/umrover/mrover-workspace/wiki/Jarvis-Build-System#trouble) or [not being connected to the internet](https://docs.google.com/document/d/1jvlgHowy4Wunztz6Fqz8K6ajLKeHnPeXIuHctarIlso/edit#heading=h.renhpmsh260w). 
