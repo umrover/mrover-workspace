@@ -20,7 +20,7 @@ In order to get readings from the sensor open up another terminal and type
 ```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo SpectralData "/spectral_data_publish"```
 
 In the original terminal type \
-```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/spectral_cmd" "{'type': 'SpedtralCmd', 'sensor': $SENSOR_NUM } ``` \
+```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/spectral_cmd" "{'type': 'SpectralCmd', 'sensor': $SENSOR_NUM } ``` \
 where $SENSOR_NUM is either 0 to get readings from the triad, or 1 - 3 to get readings from the respective single spectral sensors connected to the multiplex ports 1, 2, and 3
 
 ### To Do
