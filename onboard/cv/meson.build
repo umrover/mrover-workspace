@@ -11,8 +11,8 @@ with_zed = get_option('with_zed')
 # https://pcl-tutorials.readthedocs.io/en/master/compiling_pcl_posix.html#compiling-pcl-posix
 
 if with_zed
-	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include', '/usr/include/pcl-1.8', 
-	'/usr/include/eigen3', '/usr/include/boost', '/usr/include/vtk-6.3', '/usr/include/flann')
+	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include', 
+	'/usr/include/pcl-1.8', '/usr/include/eigen3', '/usr/include/boost', '/usr/include/vtk-6.3', '/usr/include/flann')
 	zed = declare_dependency(
 		include_directories : zed_include_dirs,
 		link_args : [
@@ -57,6 +57,6 @@ configure_file(
 	configuration: conf_data)
 
 executable('onboard_cv',
-		   'main.cpp', 'camera.cpp', 'artag_detector.cpp', 'obstacle_detector.cpp',
+		   'main.cpp', 'camera.cpp', 'artag_detector.cpp', 'obstacle_detector.cpp', 'pcl.cpp',
 		   dependencies : all_deps,
 		   install : true)

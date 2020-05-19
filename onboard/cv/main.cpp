@@ -104,7 +104,6 @@ int main() {
   Mat rgb;
   Mat src = cam.image();
   
-
   #if AR_RECORD
   //initializing ar tag videostream object
   
@@ -158,8 +157,8 @@ int main() {
   int left_tag_buffer = 0;
   int right_tag_buffer = 0;
 
-  //Dynamically Allocate Point Cloud
-  sl::Resolution cloud_res = sl::Resolution(640,360);
+  /* --- Dynamically Allocate Point Cloud --- */
+  sl::Resolution cloud_res = sl::Resolution(1280,720);
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
   point_cloud_ptr->points.resize(cloud_res.area());
 
@@ -259,19 +258,17 @@ int main() {
     #endif
     
     
-    /*run PCL Stuff*/
+    /* -- Run PCL Stuff --- */
     cam.getDataCloud(point_cloud_ptr);
+    pcl_obstacle_detection(point_cloud_ptr, roverPixWidth);
 
+    /* --- Update PCL Visualizer --- */
     #if PERCEPTION_DEBUG
-    // Update PCL Visulizer
     viewer->updatePointCloud(point_cloud_ptr);
     viewer->spinOnce(10);
     #endif
 
-
-
-
-
+    /* --- Publish LCMs --- */
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 

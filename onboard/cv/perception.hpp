@@ -10,18 +10,20 @@
 #include <lcm/lcm-cpp.hpp>
 #include <sys/stat.h> // for disk writing
 #include <pcl/common/common_headers.h>
-#include <pcl/visualization/pcl_visualizer.h>
 
+/* --- Ignore Error Checking for 3rd Part Header Files --- */
 #pragma GCC diagnostic ignored "-Wreorder"
+#pragma GCC diagnostic ignored "-Wcomment"
 
 #include <sl/Camera.hpp>
-
-#pragma GCC diagnostic pop
 
 #if PERCEPTION_DEBUG
   #include <opencv2/highgui/highgui.hpp>
   #include <cstdlib>
+  #include <pcl/visualization/pcl_visualizer.h>
 #endif
+
+#pragma GCC diagnostic pop
 
 #define THRESHOLD_NO_WAY  80000 //how will we calibrate if the rover width changes
 //#define THRESHOLD_NO_OBSTACLE_CENTER  80000
@@ -67,10 +69,14 @@ struct obstacle_return {
   float bearing; // [-50 degree, 50 degree]
 };
 
+struct advanced_obstacle_return {
+  float bearing;
+};
+
 //functions
-std::pair<cv::Point2f, double> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width);
 void updateThresholds(int in1, int in2);
+advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr, int rover_width);
 
 //ar tag detector class
 #include "artag_detector.hpp"
