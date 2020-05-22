@@ -158,9 +158,8 @@ int main() {
   int right_tag_buffer = 0;
 
   /* --- Dynamically Allocate Point Cloud --- */
-  sl::Resolution cloud_res = sl::Resolution(1280,720);
+  sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
-  point_cloud_ptr->points.resize(cloud_res.area());
 
   #if PERCEPTION_DEBUG
     //Make trackbars
@@ -171,6 +170,7 @@ int main() {
 
     //Create PCL Visualizer
     shared_ptr<pcl::visualization::PCLVisualizer> viewer = createRGBVisualizer(point_cloud_ptr);
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = createRGBVisualizer(point_cloud_ptr);
   #endif
   
   while (true) {
@@ -191,7 +191,7 @@ int main() {
 
     /* AR Tag Detection*/
     arTags[0].distance = -1;
-    arTags[1].distance = -1;
+    arTags[1].distance = -1;cerr<<"Grab Cloud"<<endl;
     #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
@@ -256,16 +256,28 @@ int main() {
       obstacleMessage.bearing = obstacle_detection.bearing;
 
     #endif
-    
-    
+
     /* -- Run PCL Stuff --- */
+    point_cloud_ptr->clear();
+    point_cloud_ptr->points.resize(cloud_res.area());
+    point_cloud_ptr->width = PT_CLOUD_WIDTH;
+    point_cloud_ptr->height = PT_CLOUD_HEIGHT;
     cam.getDataCloud(point_cloud_ptr);
+
+    #if PERCEPTION_DEBUG
+    viewer_original->updatePointCloud(point_cloud_ptr);
+    viewer_original->spinOnce(10);
+    cerr<<"Original W: " <<point_cloud_ptr->width<<" Original H: "<<point_cloud_ptr->height<<endl;
+    #endif
+
     pcl_obstacle_detection(point_cloud_ptr, roverPixWidth);
 
     /* --- Update PCL Visualizer --- */
     #if PERCEPTION_DEBUG
+    
     viewer->updatePointCloud(point_cloud_ptr);
     viewer->spinOnce(10);
+    cerr<<"Downsampled W: " <<point_cloud_ptr->width<<" Downsampled H: "<<point_cloud_ptr->height<<endl;
     #endif
 
     /* --- Publish LCMs --- */

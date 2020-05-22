@@ -37,6 +37,11 @@
 #define SIMILARITY_THRESHOLD 8000
 
 #define PI 3.14159265
+
+/* --- Point Cloud Definitions --- */
+#define PT_CLOUD_WIDTH 320
+#define PT_CLOUD_HEIGHT 180
+
 const float inf = -std::numeric_limits<float>::infinity();
 
 const int FRAME_WRITE_INTERVAL = 10; // How many frames between writing to disk
@@ -76,7 +81,7 @@ struct advanced_obstacle_return {
 //functions
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width);
 void updateThresholds(int in1, int in2);
-advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr, int rover_width);
+advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, int rover_width);
 
 //ar tag detector class
 #include "artag_detector.hpp"
