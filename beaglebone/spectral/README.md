@@ -26,6 +26,9 @@ where $SENSOR_NUM is either 0 to get readings from the triad, or 1 - 3 to get re
 ### To Do
 
 ### Common Errors
+If get an error message from jarvis saying lcm_tools_echo or lcm_tools_send does not exist, in the terminal type \
+```$ ./jarvis build lcm_tools/echo``` \
+```$ ./jarvis build lcm_tools/send``` 
 
 ### Notes
 This code has been tested with python 3.7 on a beaglebone black. \
