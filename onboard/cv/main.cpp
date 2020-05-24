@@ -45,7 +45,8 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
 //Creates a PCL Visualizer
 shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer(pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr cloud) {
     // Open 3D viewer and add point cloud
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer"));
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer(
+      new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer")); //This is a smart pointer so no need to worry ab deleteing it
     viewer->setBackgroundColor(0.12, 0.12, 0.12);
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
     viewer->addPointCloud<pcl::PointXYZRGB>(cloud, rgb);
@@ -159,11 +160,12 @@ int main() {
 
   /* --- Dynamically Allocate Point Cloud --- */
   sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(
+    new pcl::PointCloud<pcl::PointXYZRGB>); //This is a smart pointer so no need to worry ab deleteing it
 
   #if PERCEPTION_DEBUG
     //Make trackbars
-    int thresh1 = 300000;
+    int thresh1 = 300000;//This is a smart pointer so no need to worry ab deleteing it
     int thresh2 = 70000;
     createTrackbar("Main Window", "Obstacle", &thresh1, 500000);
     createTrackbar("Sub Window", "Obstacle", &thresh2, 120000);

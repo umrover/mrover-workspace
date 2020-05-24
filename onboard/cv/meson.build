@@ -27,8 +27,8 @@ if with_zed
 			'-lnppim', '-lnppist', '-lnppitc', '-lnppc',
 
 			# PCL
-			'-lpcl_common', '-lpcl_visualization', '-lpcl_filters', '-lboost_system',
-			'-lvtksys-6.3', '-lvtkRenderingCore-6.3', '-lvtkCommonCore-6.3',
+			'-lpcl_common', '-lpcl_visualization', '-lpcl_filters', '-lpcl_segmentation', 
+			'-lboost_system','-lvtksys-6.3', '-lvtkRenderingCore-6.3', '-lvtkCommonCore-6.3',
 			'-lvtkCommonDataModel-6.3', '-lvtkCommonMath-6.3'
 		])
 	all_deps += [zed]
