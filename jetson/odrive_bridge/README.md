@@ -240,7 +240,7 @@ If the service is not running, type \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-teleop`
 
 #### Other Errors
-<font size="4"> Find Carmen, Raymond, or Justin. Or just go ahead and contact madcowswe himself. </font>
+<font size="4"> Find Carmen, Raymond, or Justin. Or just go ahead and contact madcowswe himself! </font>
 
 ### ToDo 
 As of right now we are unsure whether or not we are using odrives for the 2021 Rover, or what/if testing still needs to be done with the 2020 rover for system validation. 
