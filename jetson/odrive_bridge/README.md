@@ -136,7 +136,7 @@ device. Type \
 `$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[idVendor]", ATTRS{idProduct}=="[idProduct]", GROUP="vagrant", MODE="[mode]" ` \
  Restart the VM. </font>
  
-#### `ENCODER_HALL_ERROR`
+#### ENCODER_HALL_ERROR
 <font size="4"> Type \
   `$ dump_errors(odrvX, True)` \
   If the error persists, electrical fucked up. Tell them to recheck the wires\connectors. </font>
