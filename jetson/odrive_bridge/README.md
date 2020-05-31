@@ -192,7 +192,7 @@ In order to see if there are any odrive errors, \
 `$ source bin/activate` \
 `$ odrivetool` \
 `$ dump_errors(odrv0)` \
-`$ dump_errors(odrv1)` \
+`$ dump_errors(odrv1)` 
 
 ### ToDo 
 As of right now we are unsure whether or not we are using odrives for the 2021 Rover, or what/if testing still needs to be done with the 2020 rover for system validation. 
