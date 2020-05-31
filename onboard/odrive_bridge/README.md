@@ -82,7 +82,7 @@ Make sure the odrive is connected via USB and type \
 `$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics
 device. Type \
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
-`$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[idVendor]", ATTRS{idProduct}=="[idProduct]", GROUP="mrover", MODE="[mode]" ` \
+`$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="mrover", MODE="[__MODE__]" ` \
  Restart the jetson.
 </font>
 
