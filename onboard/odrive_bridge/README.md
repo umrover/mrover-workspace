@@ -38,7 +38,7 @@ otherwise or errors out.
 
 
 ### Usage 
-This code is meant to be run on the rover. For external testing follow the wiring up guidelines specified [here](https://docs.odriverobotics.com/#wiring-up-the-odrive)
+This code is meant to be run on the NVIDIA Jetson TX2. For external testing follow the wiring up guidelines specified [here](https://docs.odriverobotics.com/#wiring-up-the-odrive)
 on the odrive webite. \
 The program automatically starts up upon connecting to the rover. \
 In order to drive the rover, use the joystick, making sure its connected to the base station, you have communications, and no odrive errors are showing up. \
@@ -139,7 +139,7 @@ device. Type \
 #### ERROR_ILLEGAL_HALL_STATE
 <font size="4"> Type \
   `$ dump_errors(odrvX, True)` \
-  If the error persists, electrical fucked up. Tell them to recheck the wires\connectors. </font>
+  If the error persists, the encoder wires are probaby disconnected. Tell electrical to recheck the wires\connectors. </font>
 
 #### Suddenly No Resposne 
 <font size="4">  In this case, stop and restart the odrive program. The problem is still being investigated \
