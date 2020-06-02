@@ -2,23 +2,22 @@ Code to control the Drive Train Motors using the Odrive Brushless Motor Controll
 ----
 
 ### About
-For the 2019 Mars Rover we used two onboard odrive motor controllers to drive the wheels. Odrive_bridge is the program \
-responsible for handling odrive control LCM messages recieved from the basestation. Upon connecting to the basestation \
+For the 2020 Mars Rover we used two onboard odrive motor controllers to drive the wheels. Odrive_bridge is the program \
+responsible for handling odrive LCM messages recieved from the base station. Upon connecting to the base station \
 the program begins running automatically. 
 
 The program can handle velocity and state LCM commands. The states of the odrive are **DisconnectedState**,\
 **DisarmedState**, **ArmedState**, **CalibrateState**, and **ErrorState.** \
-From the basestation commands to Arm, Disarm, and Calibrate are possible, as well as requests to view encoder and current
-draw data, and velocity commands. 
+From the base station, commands to Arm, Disarm, and Calibrate can be sent, as well as requests to view velocity estimate and current draw data, and speed commands. 
 
-When the odrive is Armed it controlls the speed of the motors in the closed-loop velocity control mode, getting data about 
+When the odrive is Armed it controlls the speed of the motors in its closed-loop velocity control mode, getting data about 
 the motors' current speed via the encoders integrated into the controller. 
 
-Within in the program most commands that can be found on the [odrive website](https://odriverobotics.com/) have been abstracted 
+Within in the program, most commands that can be found on the [odrive website](https://odriverobotics.com/) have been abstracted 
 by the Modrive class. Each state is its own class, and is instantiated and used by the OdriveBridge state machine. 
 The main function then updates the state machine. 
 
-The program uses multi-threading and locks so that it can handle encoder/current draw data commands as well as speed/state
+The program uses multi-threading so that it can handle vel estimate/current draw data commands as well as speed/state
 commands at the same time. Threading locks are used within the code to prevent the threads from running parts of the code 
 simultaneously. 
 
@@ -32,7 +31,7 @@ the odrive the state will immediately change to Armed.
 **DisarmedState** - In this state the odrive is on, however will not respond to any velocity commands until instructed 
 otherwise or errors out. 
 
-**CalibrateState** - In this state the odrive will be no responsive as it calibrates the motors connected to it. It goes immediately to ArmedState upon completion of calibration. 
+**CalibrateState** - In this state the odrive will be none responsive as it calibrates the motors connected to it. It goes immediately to ArmedState upon completion of calibration. 
 
 **ErrorState** - In this state the odrive has detected a system error and will reset, going from Disconnected to Armed immediately.
 
@@ -41,12 +40,12 @@ otherwise or errors out.
 This code is meant to be run on the NVIDIA Jetson TX2. For external testing follow the wiring up guidelines specified [here](https://docs.odriverobotics.com/#wiring-up-the-odrive)
 on the odrive webite. \
 The program automatically starts up upon connecting to the rover. \
-In order to drive the rover, use the joystick, making sure its connected to the base station, you have communications, and no odrive errors are showing up. \
-In order to get drive data make sure that you are in the mrover-workspace folder on the base station \
+In order to drive the rover, use the joystick - making sure its connected to the base station, you have communications, and no odrive errors are showing up. \
+In order to get drive data, make sure that you are in the mrover-workspace folder on the base station \
 `$ cd ~/mrover-workspace` \
-To get the current state of the odrive type \
+To get the current state of the odrive  \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo DriveStateData "./drive_state_data"` \
-To get velocity estimates and current draw data type \
+To get velocity estimates and current draw data \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo DriveVelData "./drive_vel_data"` 
 
 ### Setting Up A New Odrive 
