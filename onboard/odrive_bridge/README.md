@@ -115,7 +115,7 @@ A ChannelBrokenExceptionError will be thrown however in a few minutes the odrive
 `$ odrvX.reboot()` 
 
 Go to the ~/mrover-workspace folder and re-enable the odrive_bridge program. \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  (i think) 
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  
 </font>
 
 ### Common Errors 
@@ -166,7 +166,7 @@ If the service is not running, type \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-teleop`
 
 #### Other Errors
-<font size="4"> Find Carmen, Raymond, or Justin. Or just go ahead and contact madcowswe himself! </font>
+<font size="4"> Find Carmen, Raymond, or Justin. Or just go ahead and contact madcowswe himself. </font>
 
 ### Debugging on the Jetson 
 Usually being able to arm/disarm manually is needed. To do so stop the program from running on the basestation. \
@@ -195,6 +195,14 @@ In order to see if there are any odrive errors, \
 
 ### ToDo 
 As of right now we are unsure whether or not we are using odrives for the 2021 Rover, or what/if testing still needs to be done with the 2020 rover for system validation. 
+
+- [ ] Validate this guide
+- [ ] Test CalibrateState
+- [ ] Implement watchdog
+- [ ] Switch from threading to async 
+- [ ] Odrive through UART/CAN research
+- [ ] Potential rewrite
+
 
 ### Notes
 I fucking hate odrives 
