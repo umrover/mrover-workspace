@@ -240,7 +240,7 @@ If the service is not running, type \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-teleop`
 
 #### Other Errors
-<font size="4"> Find Carmen, Raymond, or Justin. Or just go ahead and contact madcowswe himself! </font>
+<font size="4"> Find Carmen, Raymond, or Justin. Or just go ahead and contact madcowswe himself. </font>
 
 ### Debugging on the Jetson 
 Usually being able to arm/disarm manually is needed. To do so stop the program from running on the basestation. \
