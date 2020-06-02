@@ -8,7 +8,7 @@ the program begins running automatically.
 
 The program can handle velocity and state LCM commands. The states of the odrive are **DisconnectedState**,\
 **DisarmedState**, **ArmedState**, **CalibrateState**, and **ErrorState.** \
-From the base station, commands to Arm, Disarm, and Calibrate can be sent, as well as requests to view velocity estimate and current draw data, and speed commands. 
+From the base station, velocity commands  and commands to Arm, Disarm, and Calibrate can be sent, as well as requests to view velocity estimate and current draw data. 
 
 When the odrive is Armed it controlls the speed of the motors in its closed-loop velocity control mode, getting data about 
 the motors' current speed via the encoders integrated into the controller. 
@@ -23,7 +23,7 @@ simultaneously.
 
 ### States
 
-**DisconnectedState** - In this state the program is searching for the odrive via its ID number. Once it has found 
+**DisconnectedState** - In this state the program is searching for the odrive by its ID number. Once it has found 
 the odrive the state will immediately change to Armed. 
 
 **ArmedState** - In this state the odrive will respond to velocity commands until instructed otherwise or errors out. 
@@ -31,9 +31,9 @@ the odrive the state will immediately change to Armed.
 **DisarmedState** - In this state the odrive is on, however will not respond to any velocity commands until instructed 
 otherwise or errors out. 
 
-**CalibrateState** - In this state the odrive will be none responsive as it calibrates the motors connected to it. It goes immediately to ArmedState upon completion of calibration. 
+**CalibrateState** - In this state the odrive will be nonresponsive as it calibrates the motors connected to it. It goes immediately to ArmedState upon completion of calibration. 
 
-**ErrorState** - In this state the odrive has detected a system error and will reset, going from Disconnected to Armed immediately.
+**ErrorState** - In this state the odrive has detected a system error and will reboot, going from Disconnected to Armed immediately.
 
 
 ### Usage 
@@ -64,12 +64,12 @@ before doing this though, and make sure the odrive_bridge program on the jetson 
 `$ cd ~/.mrover` \
 `$ source bin/activate` \
 `$ odrivetool` \
-This will start up odrivetool, and after a few seconds *Connected to [ID number] as odrvX* should appear on the screen. \
+This will start up odrivetool, and after a few seconds *Connected to Odrive [ID number] as odrvX* should appear on the screen. \
 Type \
 `$ quit()` \
 `$ deactivate` \
 to get out of this state. \
-In the odrive_bridge program, go to the connect function in the OdriveBridge class, and look at the line that sets the IDs. 
+In the odrive_bridge program, go to the **connect** function in the OdriveBridge class, and look at the line that sets the IDs. 
 Depending on which odrive you replaced, change its ID to the new one. The first ID on the 2020 rover controls the back motors
 and the seconds controls the front. Rebuild the program. \
 `$ ./jarvis build onboard/odrive_bridge`
@@ -79,7 +79,7 @@ and the seconds controls the front. Rebuild the program. \
 <font size="4"> USB permissions when connecting the odrive to the jetson have to be modified before you can successfully communicate with the odrive. This only has to be done once. \
 Make sure the odrive is connected via USB and type \
 `$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics
-device. Type \
+device. \
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
 `$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="mrover", MODE="[__MODE__]" ` \
  Restart the jetson.
@@ -105,7 +105,7 @@ The odrives should automatically connect. Using the odrvX.axisY (0 or 1 dependin
 `$ m_axis.controller.config.vel_limit = 1000 `\
 `$ m_axis.controller.config.control_mode = CTRL_MODE_VELOCITY_CONTROL `\
 `$ odrvX.reboot()` \
-A ChannelBrokenExceptionError will be thrown however in a few minutes the odrive will reconnect. Upon reconnection type \ 
+A ChannelBrokenExceptionError will be thrown however in a few minutes the odrive will reconnect. Upon reconnection type \
 `$ odrvX.axis0.requestedstate = AXIS_STATE_FULL_CALIBRATION_SEQUENCE ` \
  The motor should beep and start calibrating now. If it does not go to the **Errors** section below. 
  Once it has finished, type \
@@ -121,7 +121,7 @@ Go to the ~/mrover-workspace folder and re-enable the odrive_bridge program. \
 ### Common Errors 
 
 #### ODrive is not responding to calibration 
-<font size="4"> At this point you should be in odrivetool, if not, follow steps above to get there. Type \
+<font size="4"> At this point you should be in odrivetool, if not, follow steps above to get there. \
   `$ dump_errors(odrvX, True)` \
   `$ dump_errors(odrvX, True)` \
   If an `ENCODER_HALL_ERROR` shows up only the first time, you are good to try calibration again. If no errors show up at all,
@@ -130,15 +130,14 @@ Go to the ~/mrover-workspace folder and re-enable the odrive_bridge program. \
 #### USB Forwarding on VM 
 <font size="4">  Make sure the odrive is connected via USB and type \
 `$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics
-device. Type \
+device. 
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
 `$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="vagrant", MODE="[__MODE__]" ` \
  Restart the VM. </font>
  
 #### ERROR_ILLEGAL_HALL_STATE
-<font size="4"> Type \
-  `$ dump_errors(odrvX, True)` \
-  If the error persists, the encoder wires are probaby disconnected. Tell electrical to recheck the wires\connectors. </font>
+<font size="4"> `dump_errors(odrvX, True)` \
+ If the error persists, the encoder wires are probaby disconnected. Tell electrical to recheck the wires\connectors. </font>
 
 #### Suddenly No Resposne 
 <font size="4">  In this case, stop and restart the odrive program. The problem is still being investigated \
@@ -151,7 +150,7 @@ device. Type \
   `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  </font>
   
 #### No LCM Tools Echo/Send 
-<font size="4"> Type `$ ./jarvis build lcm_tools/{echo|send}` </font>
+<font size="4"> `$ ./jarvis build lcm_tools/{echo|send}` </font>
 
 #### No Odrive Module
 <font size="4"> Make sure you are connected to wifi. \
@@ -200,6 +199,8 @@ As of right now we are unsure whether or not we are using odrives for the 2021 R
 - [ ] Test CalibrateState
 - [ ] Implement watchdog
 - [ ] Switch from threading to async 
+- [ ] Update current limit
+- [ ] Test other control modes? 
 - [ ] Odrive through UART/CAN research
 - [ ] Potential rewrite
 
