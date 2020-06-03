@@ -203,6 +203,7 @@ As of right now we are unsure whether or not we are using odrives for the 2021 R
 - [ ] Test other control modes? 
 - [ ] Odrive through UART/CAN research
 - [ ] Potential rewrite
+- [ ] Add Off Nominal Behavior Section
 
 
 ### Notes
