@@ -4,9 +4,8 @@
 
 <!------------------------------------------- Template -------------------------------------------->
 <template>
-  <div>
-    <!-- Render nothing. -->
-  </div>
+  <!-- Render nothing. -->
+  <div />
 </template>
 
 
@@ -56,7 +55,7 @@ export default class Perception extends Vue {
   private readonly obstacles!:Obstacle[];
 
   @Getter
-  private readonly simulatePerception!:boolean;
+  private readonly simulatePercep!:boolean;
 
   /************************************************************************************************
    * Vuex Mutations
@@ -188,13 +187,13 @@ export default class Perception extends Vue {
      targets. We intentionally only update when starting simulating because
      when we stop simulating perception, the last LCM messages are what nav
      will still see (i.e. we don't send a "blank" message. */
-  @Watch('simulatePerception')
-  private onSimulatePerceptionChange():void {
-    if (this.simulatePerception) {
+  @Watch('simulatePercep')
+  private onsimulatePercepChange():void {
+    if (this.simulatePercep) {
       this.computeVisibleObstacles();
       this.computeVisibleTargets();
     }
-  } /* onSimulatePerceptionChange() */
+  } /* onsimulatePercepChange() */
 
   /************************************************************************************************
    * Private Methods
@@ -202,7 +201,7 @@ export default class Perception extends Vue {
   /* Compute the obstacles that are visible to the rover. */
   private computeVisibleObstacles():void {
     /* If not simulating perception */
-    if (!this.simulatePerception) {
+    if (!this.simulatePercep) {
       return;
     }
 
@@ -219,7 +218,7 @@ export default class Perception extends Vue {
   /* Compute the targets that are visible to the rover. */
   private computeVisibleTargets():void {
     /* If not simulating perception */
-    if (!this.simulatePerception) {
+    if (!this.simulatePercep) {
       return;
     }
 

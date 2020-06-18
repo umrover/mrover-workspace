@@ -49,25 +49,23 @@ const state:SimulatorState = {
   },
 
   lcmConnections: {
-    auton: false,
     lcmBridge: false,
     localization: false,
+    nav: false,
     perception: false
   },
 
   odomFormat: OdomFormat.DM,
 
   simSettings: {
-    simulateLocalization: true,
-    simulatePerception: true
+    simulateLoc: true,
+    simulatePercep: true
   }
 };
 
 
 const getters = {
   arTagDrawOptions: (simState:SimulatorState):ArTagDrawOptions => simState.drawOptions.arTag,
-
-  autonConnected: (simState:SimulatorState):boolean => simState.lcmConnections.auton,
 
   autonOn: (simState:SimulatorState):boolean => simState.autonOn,
 
@@ -80,7 +78,9 @@ const getters = {
 
   lcmConnected: (simState:SimulatorState):boolean => simState.lcmConnections.lcmBridge,
 
-  localizationConnected: (simState:SimulatorState):boolean => simState.lcmConnections.localization,
+  locConnected: (simState:SimulatorState):boolean => simState.lcmConnections.localization,
+
+  navConnected: (simState:SimulatorState):boolean => simState.lcmConnections.nav,
 
   obstacleDrawOptions: (simState:SimulatorState):ObstacleDrawOptions => simState.drawOptions.
       obstacle,
@@ -89,12 +89,11 @@ const getters = {
 
   paused: (simState:SimulatorState):boolean => simState.debugOptions.paused,
 
-  perceptionConnected: (simState:SimulatorState):boolean => simState.lcmConnections.perception,
+  percepConnected: (simState:SimulatorState):boolean => simState.lcmConnections.perception,
 
-  simulateLocalization: (simState:SimulatorState):boolean => simState.simSettings.
-      simulateLocalization,
+  simulateLoc: (simState:SimulatorState):boolean => simState.simSettings.simulateLoc,
 
-  simulatePerception: (simState:SimulatorState):boolean => simState.simSettings.simulatePerception,
+  simulatePercep: (simState:SimulatorState):boolean => simState.simSettings.simulatePercep,
 
   takeStep: (simState:SimulatorState):boolean => simState.debugOptions.takeStep,
 
@@ -104,28 +103,28 @@ const getters = {
 
 
 const mutations = {
-  flipAutonConnected: (simState:SimulatorState, onOff:boolean):void => {
-    simState.lcmConnections.auton = onOff;
-  },
-
   flipLcmConnected: (simState:SimulatorState, onOff:boolean):void => {
     simState.lcmConnections.lcmBridge = onOff;
   },
 
-  flipLocalizationConnected: (simState:SimulatorState, onOff:boolean):void => {
+  flipLocConnected: (simState:SimulatorState, onOff:boolean):void => {
     simState.lcmConnections.localization = onOff;
   },
 
-  flipPerceptionConnected: (simState:SimulatorState, onOff:boolean):void => {
+  flipNavConnected: (simState:SimulatorState, onOff:boolean):void => {
+    simState.lcmConnections.nav = onOff;
+  },
+
+  flipPercepConnected: (simState:SimulatorState, onOff:boolean):void => {
     simState.lcmConnections.perception = onOff;
   },
 
-  flipSimulateLocalization: (simState:SimulatorState, onOff:boolean):void => {
-    simState.simSettings.simulateLocalization = onOff;
+  flipSimulateLoc: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.simulateLoc = onOff;
   },
 
-  flipSimulatePerception: (simState:SimulatorState, onOff:boolean):void => {
-    simState.simSettings.simulatePerception = onOff;
+  flipSimulatePercep: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.simulatePercep = onOff;
   },
 
   setArTagDrawOptions: (simState:SimulatorState, options:ArTagDrawOptions):void => {

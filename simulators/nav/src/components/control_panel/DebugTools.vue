@@ -9,19 +9,19 @@
     <div class="ide-features">
       <Button
         name="Reset Rover"
-        :disabled="!simulateLocalization"
+        :disabled="!simulateLoc"
         @clicked="resetRover"
       />
       <Checkbox
         class="play-pause"
         :on="!paused"
         :name="playPauseDisplay"
-        :disabled="!simulateLocalization"
+        :disabled="!simulateLoc"
         @clicked="playPause"
       />
       <Button
         name="Step"
-        :disabled="!paused || !simulateLocalization"
+        :disabled="!paused || !simulateLoc"
         @clicked="step"
       />
       <Checkbox
@@ -124,7 +124,7 @@ export default class DebugTools extends Vue {
   private readonly paused!:boolean;
 
   @Getter
-  private readonly simulateLocalization!:boolean;
+  private readonly simulateLoc!:boolean;
 
   @Getter
   private readonly takeStep!:boolean;
