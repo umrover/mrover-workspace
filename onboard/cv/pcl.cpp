@@ -88,7 +88,8 @@ void RANSACSegmentation(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, s
 //Use this tree to traverse point cloud and create vector of clusters
 //Return vector of clusters
 //Source: https://rb.gy/qvjati
-void EuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
+void EuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,  
+                                    std::vector<pcl::PointIndices> &cluster_indices) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Cluster Extraction");
     #endif
@@ -98,7 +99,6 @@ void EuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_clou
     tree->setInputCloud (pt_cloud_ptr);
     
     //Extracts clusters using nearet neighbors search
-    std::vector<pcl::PointIndices> cluster_indices; //PointIndices holds all indices in one cluster
     pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
     ec.setClusterTolerance (40); // 40 mm radius per point
     ec.setMinClusterSize (20);
@@ -108,7 +108,7 @@ void EuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_clou
     ec.extract (cluster_indices);
 
     //Colors all clusters
-    #if PERCEPTION DEBUG
+    #if PERCEPTION_DEBUG
         std::cout << "Number of clusters: " << cluster_indices.size() << std::endl;
         int j = 0;
         for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
@@ -134,8 +134,75 @@ void EuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_clou
             j++;
         }
     #endif
+}
+
+/* --- Calculate Centroid --- */
+//Calculates the center point of 4 points in space
+std::pair<double, double> calcCentroid (int p1, int p2, int p3, int p4, pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
+    std::pair<double, double> center;
+    double centroid1x = (pt_cloud_ptr->points[p1].x + pt_cloud_ptr->points[p2].x +
+                        pt_cloud_ptr->points[p4].x)/3;
+    double centroid2x = (pt_cloud_ptr->points[p2].x + pt_cloud_ptr->points[p3].x +
+                        pt_cloud_ptr->points[p4].x)/3;
+    center.first = (centroid1x+centroid2x)/2;
+    
+    double centroid1y = (pt_cloud_ptr->points[p1].y + pt_cloud_ptr->points[p2].y +
+                        pt_cloud_ptr->points[p4].y)/3;
+    double centroid2y = (pt_cloud_ptr->points[p2].y + pt_cloud_ptr->points[p3].y +
+                        pt_cloud_ptr->points[p4].y)/3;
+    center.second = (centroid1x+centroid2x)/2;
+
+    return center;
+}
+
+/* --- Find Interest Points --- */
+//Finds the edges of each cluster by comparing x and y
+//values of all points in the cluster to find desired ones
+void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, 
+                        pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
+                        std::vector<std::vector<int>> &interest_points) {
+
+    #if PERCEPTION_DEBUG
+        pcl::ScopeTime t ("Find Interest Points");
+    #endif
+
+    for (int i = 0; i < cluster_indices.size(); ++i)
+    {
+        std::vector<int>* curr_cluster = &interest_points[i];
+
+        //Initialize interest points
+        std::fill(curr_cluster->begin(), curr_cluster->end(), cluster_indices[i].indices[0]);
+        
+        //Order of interest points: 0=Up Left 1=Up Right 2=Low Right 3=Low Left
+        for (auto index : cluster_indices[i].indices)
+        {
+            auto curr_point = pt_cloud_ptr->points[index];
+            
+            //Upper Left
+            if(curr_point.x < pt_cloud_ptr->points[curr_cluster->at(0)].x && curr_point.y > pt_cloud_ptr->points[curr_cluster->at(0)].y)
+                curr_cluster->at(0) = index;
+            //Upper Right
+            else if(curr_point.x > pt_cloud_ptr->points[curr_cluster->at(1)].x && curr_point.y > pt_cloud_ptr->points[curr_cluster->at(1)].y)
+                curr_cluster->at(1) = index;
+            //Low Left
+            else if(curr_point.x < pt_cloud_ptr->points[curr_cluster->at(2)].x && curr_point.y < pt_cloud_ptr->points[curr_cluster->at(2)].y)
+                curr_cluster->at(2) = index;
+            //Low Right
+            else if(curr_point.x > pt_cloud_ptr->points[curr_cluster->at(3)].x && curr_point.y < pt_cloud_ptr->points[curr_cluster->at(3)].y)
+                curr_cluster->at(3) = index;
+        }
+    #if PERCEPTION_DEBUG
+        for(auto interest_point : *curr_cluster)
+        {
+            pt_cloud_ptr->points[interest_point].r = 255;
+            pt_cloud_ptr->points[interest_point].g = 255;
+            pt_cloud_ptr->points[interest_point].b = 255;
+        }
+    #endif
+    }
 
 }
+
 
 /* --- Main --- */
 //This is the main point cloud processing function
@@ -147,6 +214,9 @@ advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB
     PassThroughFilter(pt_cloud_ptr);
     DownsampleVoxelFilter(pt_cloud_ptr);
     RANSACSegmentation(pt_cloud_ptr, "remove");
-    EuclidianClusterExtraction(pt_cloud_ptr);
+    std::vector<pcl::PointIndices> cluster_indices;
+    EuclidianClusterExtraction(pt_cloud_ptr, cluster_indices);
+    std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
+    FindInterestPoints(cluster_indices, pt_cloud_ptr, interest_points);
     return result;
 }

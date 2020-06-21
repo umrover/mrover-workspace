@@ -9,6 +9,8 @@
 #include <cmath>
 #include <lcm/lcm-cpp.hpp>
 #include <sys/stat.h> // for disk writing
+#include <algorithm>
+
 
 /* --- PCL Includes --- */
 #include <iostream>
