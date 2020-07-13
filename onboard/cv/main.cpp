@@ -53,6 +53,7 @@ shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer(pcl::PointClou
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1.5);
     viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
+    viewer->setCameraPosition(0,0,-800,0,-1,0);
     return (viewer);
 }
 
@@ -165,13 +166,13 @@ int main() {
 
   #if PERCEPTION_DEBUG
     //Make trackbars
-    int thresh1 = 300000;//This is a smart pointer so no need to worry ab deleteing it
+    int thresh1 = 300000;
     int thresh2 = 70000;
     createTrackbar("Main Window", "Obstacle", &thresh1, 500000);
     createTrackbar("Sub Window", "Obstacle", &thresh2, 120000);
 
     //Create PCL Visualizer
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer = createRGBVisualizer(point_cloud_ptr);
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer = createRGBVisualizer(point_cloud_ptr); //This is a smart pointer so no need to worry ab deleteing it
     shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = createRGBVisualizer(point_cloud_ptr);
   #endif
   
@@ -260,6 +261,8 @@ int main() {
     #endif
 
     /* -- Run PCL Stuff --- */
+
+    //Update Point Cloud
     point_cloud_ptr->clear();
     point_cloud_ptr->points.resize(cloud_res.area());
     point_cloud_ptr->width = PT_CLOUD_WIDTH;
@@ -267,18 +270,19 @@ int main() {
     cam.getDataCloud(point_cloud_ptr);
 
     #if PERCEPTION_DEBUG
+    //Update Original 3D Viewer
     viewer_original->updatePointCloud(point_cloud_ptr);
     viewer_original->spinOnce(10);
     cerr<<"Original W: " <<point_cloud_ptr->width<<" Original H: "<<point_cloud_ptr->height<<endl;
     #endif
 
-    pcl_obstacle_detection(point_cloud_ptr, roverPixWidth);
-
-    /* --- Update PCL Visualizer --- */
+    //Run Obstacle Detection
+    advanced_obstacle_return info = pcl_obstacle_detection(point_cloud_ptr, viewer);  
+        
     #if PERCEPTION_DEBUG
-    
+    //Update Processed 3D Viewer
     viewer->updatePointCloud(point_cloud_ptr);
-    viewer->spinOnce(10);
+    viewer->spinOnce(20);
     cerr<<"Downsampled W: " <<point_cloud_ptr->width<<" Downsampled H: "<<point_cloud_ptr->height<<endl;
     #endif
 

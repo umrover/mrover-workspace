@@ -13,7 +13,7 @@ void PassThroughFilter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
     pass.setInputCloud(pt_cloud_ptr);
     pass.setFilterFieldName("z");
     //The z values for depth are in mm
-    pass.setFilterLimits(0.0,7000.0);
+    pass.setFilterLimits(0.0,4500.0);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -136,25 +136,6 @@ void EuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_clou
     #endif
 }
 
-/* --- Calculate Centroid --- */
-//Calculates the center point of 4 points in space
-std::pair<double, double> calcCentroid (int p1, int p2, int p3, int p4, pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
-    std::pair<double, double> center;
-    double centroid1x = (pt_cloud_ptr->points[p1].x + pt_cloud_ptr->points[p2].x +
-                        pt_cloud_ptr->points[p4].x)/3;
-    double centroid2x = (pt_cloud_ptr->points[p2].x + pt_cloud_ptr->points[p3].x +
-                        pt_cloud_ptr->points[p4].x)/3;
-    center.first = (centroid1x+centroid2x)/2;
-    
-    double centroid1y = (pt_cloud_ptr->points[p1].y + pt_cloud_ptr->points[p2].y +
-                        pt_cloud_ptr->points[p4].y)/3;
-    double centroid2y = (pt_cloud_ptr->points[p2].y + pt_cloud_ptr->points[p3].y +
-                        pt_cloud_ptr->points[p4].y)/3;
-    center.second = (centroid1x+centroid2x)/2;
-
-    return center;
-}
-
 /* --- Find Interest Points --- */
 //Finds the edges of each cluster by comparing x and y
 //values of all points in the cluster to find desired ones
@@ -203,14 +184,74 @@ void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 
 }
 
+/* --- Check Center Path --- */
+//Returns T or F based on whether or not the center path is obstructed
+//If it is obstructed returns false
+bool CheckCenterPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
+                              std::vector<std::vector<int>> interest_points,
+                      shared_ptr<pcl::visualization::PCLVisualizer> viewer){
+     #if PERCEPTION_DEBUG
+        pcl::ScopeTime t ("Check Center Path");
+    #endif
+
+    bool end = true;
+    int centerx = PT_CLOUD_WIDTH/2;
+    int halfRover = ROVER_W_MM/2;
+    //Iterate through interest points
+    for(auto cluster : interest_points) {
+        for (auto index : cluster) {
+            if(centerx-halfRover < pt_cloud_ptr->points[index].x && centerx+halfRover > pt_cloud_ptr->points[index].x){
+                end = false;
+                
+                #if PERCEPTION_DEBUG
+                //Make interest points orange if they are within rover path
+                pt_cloud_ptr->points[index].r = 255;
+                pt_cloud_ptr->points[index].g = 69;
+                pt_cloud_ptr->points[index].b = 0;
+                #endif
+            }
+        }
+    }
+
+    #if PERCEPTION_DEBUG
+    //Project path in viewer
+    pcl::PointXYZRGB pt1;
+    pt1.x = centerx+halfRover;
+    pt1.y = 0;
+    pt1.z = 1000;
+    pcl::PointXYZRGB pt2;
+    pt2.x = centerx-halfRover;
+    pt2.y = 0;
+    pt2.z = 1000;
+    pcl::PointXYZRGB pt3(pt1);
+    pt3.z=7000;
+    pcl::PointXYZRGB pt4(pt2);
+    pt4.z=7000;
+    
+    if(end) {
+        viewer->removeShape("l1");
+        viewer->removeShape("l2");
+        viewer->addLine(pt1,pt3,0,255,0,"l1");
+        viewer->addLine(pt2,pt4,0,255,0,"l2");
+    }
+    else {
+        viewer->removeShape("l1");
+        viewer->removeShape("l2");
+        viewer->addLine(pt1,pt3,255,0,0,"l1");
+        viewer->addLine(pt2,pt4,255,0,0,"l2");
+    }
+    #endif
+    
+    return end;
+}
 
 /* --- Main --- */
 //This is the main point cloud processing function
 //It returns the bearing the rover should traverse
 //This function is called in main.cpp
 advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
-                                                                                int rover_width) {
-    advanced_obstacle_return result {0};
+                                                shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
+    advanced_obstacle_return result;
     PassThroughFilter(pt_cloud_ptr);
     DownsampleVoxelFilter(pt_cloud_ptr);
     RANSACSegmentation(pt_cloud_ptr, "remove");
@@ -218,5 +259,45 @@ advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB
     EuclidianClusterExtraction(pt_cloud_ptr, cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
     FindInterestPoints(cluster_indices, pt_cloud_ptr, interest_points);
-    return result;
+    if( CheckCenterPath(pt_cloud_ptr, interest_points, viewer))
+        return result;
+    else {
+        return result;    
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* --- Calculate Centroid --- */
+//Calculates the center point of 4 points in space
+std::pair<double, double> calcCentroid (int p1, int p2, int p3, int p4, pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
+    std::pair<double, double> center;
+    double centroid1x = (pt_cloud_ptr->points[p1].x + pt_cloud_ptr->points[p2].x +
+                        pt_cloud_ptr->points[p4].x)/3;
+    double centroid2x = (pt_cloud_ptr->points[p2].x + pt_cloud_ptr->points[p3].x +
+                        pt_cloud_ptr->points[p4].x)/3;
+    center.first = (centroid1x+centroid2x)/2;
+    
+    double centroid1y = (pt_cloud_ptr->points[p1].y + pt_cloud_ptr->points[p2].y +
+                        pt_cloud_ptr->points[p4].y)/3;
+    double centroid2y = (pt_cloud_ptr->points[p2].y + pt_cloud_ptr->points[p3].y +
+                        pt_cloud_ptr->points[p4].y)/3;
+    center.second = (centroid1x+centroid2x)/2;
+
+    return center;
+}
+
+//Experimentation shows that all points are plotted in mm even in visualizer, so no need to calculate rover pix at a point
+//46 inch = 1168.4mm

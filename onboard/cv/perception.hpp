@@ -24,7 +24,6 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/PointIndices.h>
 #include <pcl/ModelCoefficients.h>
-//#include <pcl/features/normal_3d.h>
 #include <pcl/kdtree/kdtree.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
@@ -60,6 +59,7 @@
 /* --- Point Cloud Definitions --- */
 #define PT_CLOUD_WIDTH 320
 #define PT_CLOUD_HEIGHT 180
+#define ROVER_W_MM 1168
 
 const float inf = -std::numeric_limits<float>::infinity();
 
@@ -93,14 +93,33 @@ struct obstacle_return {
   float bearing; // [-50 degree, 50 degree]
 };
 
-struct advanced_obstacle_return {
+class advanced_obstacle_return {
+  public:
   float bearing;
+  std::vector<pcl::PointXYZRGB> points;
+  
+  advanced_obstacle_return() {
+    bearing = 0;
+  }
+
+  advanced_obstacle_return& operator=(advanced_obstacle_return & in){
+    if(this == &in){
+      return *this;
+    }
+    for(auto point : in.points){
+      points.push_back(point);
+    }
+    
+    bearing = in.bearing;
+    return *this;
+  }
+
 };
 
 //functions
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width);
 void updateThresholds(int in1, int in2);
-advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, int rover_width);
+advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, std::shared_ptr<pcl::visualization::PCLVisualizer> viewer);
 
 //ar tag detector class
 #include "artag_detector.hpp"
