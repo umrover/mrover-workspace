@@ -190,8 +190,8 @@ In order to see if there are any odrive errors, \
 
 #### USB Forwarding on VM 
 <font size="4">  Make sure the odrive is connected via USB and type \
-`$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics \
-device. 
+`$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics 
+device. \
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
 `$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="vagrant", MODE="[__MODE__]" ` \
  Restart the VM. </font>
