@@ -242,31 +242,6 @@ If the service is not running, type \
 #### Other Errors
 <font size="4"> Find Carmen, Raymond, or Justin. Or just go ahead and contact madcowswe himself. </font>
 
-### Debugging on the Jetson 
-Usually being able to arm/disarm manually is needed. To do so stop the program from running on the basestation. \
-`$ cd ~/mrover-workspace` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@FRONT_MOTOR ` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@BACK_MOTOR ` \
-To restart the programs manually type \
-`$ start0 ` \
-`$ start1 ` \
-If these are unrecognized, type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec onboard_odrive_bridge 0 BACK ` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec onboard_odrive_bridge 1 FRONT ` \
-By default the odrives are armed \
-In order to see the joystick outputs type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo DriveVelData "/drive_vel_data"` \
-In order to Arm/Disarm the odrives manually type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/drive_state_cmd" "{'type': 'DriveStateCmd', 'controller': X, 'state': Y }" `\
-X is the odrive, either 0 or 1, and Y is the state. 1 is DisarmedState, 2 is ArmedState, and 3 is CalibrateState
-(not usable at the moment). \
-In order to see if there are any odrive errors, \
-`$ cd ~/.mrover` \
-`$ source bin/activate` \
-`$ odrivetool` \
-`$ dump_errors(odrv0)` \
-`$ dump_errors(odrv1)` 
-
 ### ToDo 
 As of right now we are unsure whether or not we are using odrives for the 2021 Rover, or what/if testing still needs to be done with the 2020 rover for system validation. 
 
