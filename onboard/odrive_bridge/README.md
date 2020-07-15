@@ -24,7 +24,7 @@ simultaneously.
 #### LCM Channels Publishing/Subscribed To 
 Drive Velocity Command [subscriber] \
 Messages: [ DriveVelCmd.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/DriveVelCmd.lcm) “/drive_vel_cmd” \
-Publishers: onboard/teleop ]
+Publishers: onboard/teleop \
 Subscribers: onboard/odrive_bridge
 
 Drive State Command [subscriber] \
