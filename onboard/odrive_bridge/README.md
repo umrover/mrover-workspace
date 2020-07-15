@@ -21,7 +21,33 @@ The program uses multi-threading so that it can handle vel estimate/current draw
 commands at the same time. Threading locks are used within the code to prevent the threads from running parts of the code 
 simultaneously. 
 
-### States
+#### LCM Channels Publishing/Subscribed To 
+Drive Velocity Command [subscriber] \
+Messages: [ DriveVelCmd.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/DriveVelCmd.lcm) “/drive_vel_cmd” \
+Publishers: onboard/teleop ]
+Subscribers: onboard/odrive_bridge
+
+Drive State Command [subscriber] \
+Messages: [DriveStateCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/DriveStateCmd.lcm) "/drive_state_cmd" \
+Publishers: onboard/teleop \
+Subscribers: onboard/odrive_bridge 
+
+Drive Velocity Data [publisher] \
+Messages: [ DriveVelData.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/DriveVelData.lcm) "/drive_vel_data" \
+Publishers: onboard/odrive_bridge \
+Subscribers: onboard/teleop
+
+Drive State Data [publisher] \
+Messages: [DriveStateData.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/DriveStateData.lcm) "/drive_state_data" \
+Publishers: onboard/odrive_bridge \
+Subscribers: onboard/teleop
+
+#### Watchdog Timeout Period 
+To be implemented later 
+
+
+
+#### States
 
 **DisconnectedState** - In this state the program is searching for the odrive by its ID number. Once it has found 
 the odrive the state will immediately change to Armed. 
@@ -41,6 +67,8 @@ This code is meant to be run on the NVIDIA Jetson TX2. For external testing foll
 on the odrive webite. \
 The program automatically starts up upon connecting to the rover. \
 In order to drive the rover, use the joystick - making sure its connected to the base station, you have communications, and no odrive errors are showing up. \
+
+#### LCM Commands
 In order to get drive data, make sure that you are in the mrover-workspace folder on the base station \
 `$ cd ~/mrover-workspace` \
 To get the current state of the odrive  \
@@ -118,6 +146,39 @@ Go to the ~/mrover-workspace folder and re-enable the odrive_bridge program. \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  
 </font>
 
+### Off Nominal Behavior Handling
+
+#### Odrive Errors 
+<font size="4"> If the odrive throws an error, odrive_bridge will tell it to reboot. The error will be displayed in the terminal and the state will be displayed as ErrorState. Depending on which odrive this happens on, either the front or back motors will be unresponsive for a minute until the odrive finishes rebooting. The state will automatically change from DisconnectedState to Armed upon completion.
+
+#### USB Disconnection 
+ <font size="4">If the odrive is disconnected from the USB port, odrive_bridge will print "odrive has been unplugged" to the terminal, and will change the state to DisconnectedState until the connection is reestablished. At that point the state will automantically change to Armed.  
+ 
+### Debugging (on the jetson)
+Usually being able to arm/disarm manually is needed. To do so stop the program from running on the basestation. \
+`$ cd ~/mrover-workspace` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@FRONT_MOTOR ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@BACK_MOTOR ` \
+To restart the programs manually type \
+`$ start0 ` \
+`$ start1 ` \
+If these are unrecognized, type \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec onboard_odrive_bridge 0 BACK ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec onboard_odrive_bridge 1 FRONT ` \
+By default the odrives are armed \
+In order to see the joystick outputs type \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo DriveVelData "/drive_vel_data"` \
+In order to Arm/Disarm the odrives manually type \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/drive_state_cmd" "{'type': 'DriveStateCmd', 'controller': X, 'state': Y }" `\
+X is the odrive, either 0 or 1, and Y is the state. 1 is DisarmedState, 2 is ArmedState, and 3 is CalibrateState
+(not usable at the moment). \
+In order to see if there are any odrive errors, \
+`$ cd ~/.mrover` \
+`$ source bin/activate` \
+`$ odrivetool` \
+`$ dump_errors(odrv0)` \
+`$ dump_errors(odrv1)` 
+
 ### Common Errors 
 
 #### ODrive is not responding to calibration 
@@ -167,43 +228,18 @@ If the service is not running, type \
 #### Other Errors
 <font size="4"> Find Carmen, Raymond, or Justin. Or just go ahead and contact madcowswe himself. </font>
 
-### Debugging on the Jetson 
-Usually being able to arm/disarm manually is needed. To do so stop the program from running on the basestation. \
-`$ cd ~/mrover-workspace` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@FRONT_MOTOR ` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@BACK_MOTOR ` \
-To restart the programs manually type \
-`$ start0 ` \
-`$ start1 ` \
-If these are unrecognized, type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec onboard_odrive_bridge 0 BACK ` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec onboard_odrive_bridge 1 FRONT ` \
-By default the odrives are armed \
-In order to see the joystick outputs type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo DriveVelData "/drive_vel_data"` \
-In order to Arm/Disarm the odrives manually type \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/drive_state_cmd" "{'type': 'DriveStateCmd', 'controller': X, 'state': Y }" `\
-X is the odrive, either 0 or 1, and Y is the state. 1 is DisarmedState, 2 is ArmedState, and 3 is CalibrateState
-(not usable at the moment). \
-In order to see if there are any odrive errors, \
-`$ cd ~/.mrover` \
-`$ source bin/activate` \
-`$ odrivetool` \
-`$ dump_errors(odrv0)` \
-`$ dump_errors(odrv1)` 
-
 ### ToDo 
 As of right now we are unsure whether or not we are using odrives for the 2021 Rover, or what/if testing still needs to be done with the 2020 rover for system validation. 
 
 - [ ] Validate this guide
 - [ ] Test CalibrateState
-- [ ] Implement watchdog
+- [ ] Implement watchdog timer
 - [ ] Switch from threading to async 
 - [ ] Update current limit
 - [ ] Test other control modes? 
 - [ ] Odrive through UART/CAN research
 - [ ] Potential rewrite
-- [ ] Add Off Nominal Behavior Section
+- [x] Add Off Nominal Behavior Section
 
 
 ### Notes
