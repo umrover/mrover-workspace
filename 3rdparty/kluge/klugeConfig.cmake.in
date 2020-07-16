@@ -1,0 +1,15 @@
+################################################################################
+# kluge source dir
+set( kluge_SOURCE_DIR "@CONFIG_SOURCE_DIR@")
+
+################################################################################
+# kluge build dir
+set( kluge_DIR "@CONFIG_DIR@")
+
+################################################################################
+# Compute paths
+get_filename_component(kluge_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+set( kluge_INCLUDE_DIR  "@kluge_INCLUDE_DIR@" )
+set( kluge_INCLUDE_DIRS  "@kluge_INCLUDE_DIR@" )
+message(STATUS "kluge found. Headers: ${kluge_INCLUDE_DIRS}")
