@@ -16,6 +16,8 @@ private:
         Joint(string name_in) : name(name_in) {}
 
         string name;
+        double angle;
+        vector<double> pos_world;
     };
 
 public:

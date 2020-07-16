@@ -7,7 +7,7 @@ all: test
 test: arm_state_tests.exe
 
 
-arm_state_tests.exe: test/arm_state_tests.cpp arm_state.cpp
+arm_state_tests.exe: test/arm_state_tests.cpp arm_state.cpp utils.cpp
 	$(CXX) $(CXXFLAGS) $^ -o test/executables/$@
 	./test/executables/$@
 
