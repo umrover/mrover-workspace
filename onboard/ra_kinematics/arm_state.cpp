@@ -1,13 +1,11 @@
 #include "arm_state.h"
 #include "json.hpp"
 #include <iostream>
-#include <ostream>
-
 
 using namespace nlohmann;
 using namespace std;
 
-ArmState::ArmState() {
+ArmState::ArmState(json &geom) {
     cout << "new ArmState object created" << '\n';
 }
 

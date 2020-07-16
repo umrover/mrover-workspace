@@ -13,7 +13,7 @@ int main()
     lcm::LCM lcmObject;
     json geom;
 
-    ArmState arm = ArmState();
+    ArmState arm = ArmState(geom);
 
     string joint = "joint_a";
     arm.get_joint_axis(joint);

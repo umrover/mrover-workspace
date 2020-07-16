@@ -19,7 +19,7 @@ private:
     };
 
 public:
-    ArmState();
+    ArmState(json &geom);
 
     // vector<string> get_all_joints();
 
