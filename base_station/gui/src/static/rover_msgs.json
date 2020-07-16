@@ -494,6 +494,12 @@
             "width"
         ]
     ],
+    "PresetAngles": [
+        [
+            "string",
+            "preset"
+        ]
+    ],
     "ProximitySensors": [
         [
             "boolean",
@@ -712,6 +718,36 @@
             "f"
         ]
     ],
+    "TargetOrientation": [
+        [
+            "float",
+            "x"
+        ],
+        [
+            "float",
+            "y"
+        ],
+        [
+            "float",
+            "z"
+        ],
+        [
+            "float",
+            "alpha"
+        ],
+        [
+            "float",
+            "beta"
+        ],
+        [
+            "float",
+            "gamma"
+        ],
+        [
+            "boolean",
+            "use_orientation"
+        ]
+    ],
     "TargetPoint": [
         [
             "float",
@@ -899,6 +935,7 @@
         "PIDConstants",
         "PiPicture",
         "PiSettings",
+        "PresetAngles",
         "ProximitySensors",
         "RepeaterDrop",
         "RGB",
@@ -915,6 +952,7 @@
         "StartTest",
         "TalonConfig",
         "TargetAngles",
+        "TargetOrientation",
         "TargetPoint",
         "Temperature",
         "TennisBall",

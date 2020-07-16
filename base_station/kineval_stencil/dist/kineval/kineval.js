@@ -37,6 +37,7 @@ kineval.start = function kinevalExecute() {
     var x;
     for (x in robot.links) {
         if (typeof links_geom[x] === 'undefined') {
+            console.log(JSON.stringify(x))
             console.log("waiting for robot geometries to load");
             //requestAnimationFrame(kineval.start);
             setTimeout(kineval.start,1000);
@@ -124,7 +125,7 @@ kineval.initlcmbridge = function initlcmbridge() {
             kineval.connections.cameras = online.slice(1)
         },
         // Subscribed LCM message received
-        (msg) => {
+        async (msg) => {
             if (msg.topic == '/arm_position') {
                 var all_joints = Object.keys(robot.joints).slice(0, Object.keys(robot.joints).length - 1)
                 for (var joint_idx in all_joints) {
@@ -171,7 +172,7 @@ kineval.initlcmbridge = function initlcmbridge() {
                     matrix.multiplyMatrices(csys_fix, matrix)
                     robot.joints[joint_name].xform = matrix
                 }
-            } else if (msg.topic === '/debugMessage') {
+            } else if (msg.topic === '/debug_message') {
                 
                 if (msg['message']['isError']) {
                     console.error(msg['message']['message'])
@@ -183,6 +184,7 @@ kineval.initlcmbridge = function initlcmbridge() {
                 }
                 else if (msg['message']['message'] === 'No IK solution') {
                     target_geom.color = 0xff3300
+                    window.alert("No IK solution found. Please try a different configuration.")
                 }
                 else if (msg['message']['message'].includes("Planned path")) {
                     shouldPreview = window.confirm("Planned Path. View Path?");
@@ -196,23 +198,40 @@ kineval.initlcmbridge = function initlcmbridge() {
                     }
                 }
                 else if (msg['message']['message'].includes("Preview")) {
-                    shouldExecute = window.confirm("Previewed path. Execute Path?");
+
+                    // focus window to ensure popup appears
+                    while (!document.hasFocus()) {
+                        await new Promise(r => setTimeout(r, 200))
+                    }
+
+                    // send popup to user
+                    shouldExecute = window.confirm("Previewed path. Execute path?");
+
+                    // send lcm accordingly
                     if (shouldExecute) {
+                        console.log("confirmed path execution")
                         var MotionPreviewMsg = {
                             'type': 'MotionExecute',
                             'preview': false,
                         }
                         kineval.publish('/motion_execute', MotionPreviewMsg)
                     }
+                    else {
+                        console.log("declined path execution")
+                        var IKenabled = {
+                            'type': 'IkEnabled',
+                            'enabled': false,
+                        }
+                        kineval.publish('/ik_enabled', IKenabled)
+                    }
                 }
-            
 
             }
 
         },
         // Subscriptions
         [
-            {'topic': '/debugMessage', 'type': 'DebugMessage'},
+            {'topic': '/debug_message', 'type': 'DebugMessage'},
             {'topic': '/arm_position', 'type': 'ArmPosition'},
             {'topic': '/fk_transform', 'type': 'FKTransform'}
         ]
@@ -822,33 +841,39 @@ var angles = function() {
     }
 };
 
+var presetAngles = function() {
+    this.presetToggles = {};
+    this.actual_JSON = {};
+    this.size = 0;
+
+    this.submit = function() {
+
+        for (i = 0; i < this.size; i++) {
+            // if key i is toggled
+            if (this.presetToggles[Object.keys(this.actual_JSON)[i]]) {
+                var msg = {
+                    'type': 'ArmPosition',
+                    'joint_a': this.actual_JSON[Object.keys(this.actual_JSON)[i]][0],
+                    'joint_b': this.actual_JSON[Object.keys(this.actual_JSON)[i]][1],
+                    'joint_c': this.actual_JSON[Object.keys(this.actual_JSON)[i]][2],
+                    'joint_d': this.actual_JSON[Object.keys(this.actual_JSON)[i]][3],
+                    'joint_e': this.actual_JSON[Object.keys(this.actual_JSON)[i]][4],
+                    'joint_f': this.actual_JSON[Object.keys(this.actual_JSON)[i]][5]
+                }
+
+                // send message to kinematics and exit loop
+                kineval.publish('/preset_angles', msg);
+                break;
+            }
+        }
+   }
+};
+
 kineval.initGUIDisplay = function initGUIDisplay () {
 
-    var gui = new dat.GUI();
+    var primary_gui = new dat.GUI();
 
-    dummy_display = {};
-    dummy_display['kineval'] = function() {kineval.displayHelp};
-    gui.add(dummy_display, 'kineval');
-
-    gui.add(kineval.params, 'arm_enabled').onChange(function () {
-        var TalonConfigMsg =  {
-            'type': 'TalonConfig',
-            'enable_arm': kineval.params.arm_enabled,
-            'enable_sa': false,
-        }
-        kineval.publish('/talon_config', TalonConfigMsg)
-
-        for (var i = 1; i <= 6; i++) {
-            var OpenLoopMsg = {
-                'type': 'OpenLoopRAMotor',
-                'joint_id': i,
-                'speed': 0
-            }
-            kineval.publish('/arm_motors', OpenLoopMsg)
-        }
-    });
-
-    gui.add(kineval.params, 'simulation_mode').onChange(function () {
+    primary_gui.add(kineval.params, 'simulation_mode').onChange(function () {
         var SimulationModeMsg = {
             'type': 'SimulationMode',
             'sim_mode': kineval.params.simulation_mode
@@ -856,7 +881,7 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         kineval.publish('/simulation_mode', SimulationModeMsg)
     });
 
-    gui.add(kineval.params, 'lock_joint_e').onChange(function () {
+    primary_gui.add(kineval.params, 'lock_joint_e').onChange(function () {
         var LockJointEMsg = {
             'type': 'LockJointE',
             'locked': kineval.params.lock_joint_e
@@ -864,14 +889,15 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         kineval.publish('/lock_joint_e', LockJointEMsg)
     });
 
-    gui.add(kineval.params, 'use_orientation').onChange(function () {});
+    primary_gui.add(kineval.params, 'use_orientation').onChange(function () {});
 
-    var dummy_object = {};
-    dummy_object.send_target_orientation = function() {
+    var primary_display = {};
+    primary_display.send_target_orientation = function() {
         
         var three_d_rot = new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[0])
         three_d_rot.multiply(new THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[1]))
         three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[2]))
+        three_d_rot.multiply(new THREE.Matrix4().makeRotationX(-Math.PI / 2))
 
         var alph = Math.atan2(three_d_rot.elements[2], -(three_d_rot.elements[6]));
         var bet = Math.acos(three_d_rot.elements[10]);
@@ -889,58 +915,40 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         }
 
         kineval.publish('/target_orientation', TargetOrientationMsg)
-        kineval.params.update_motion_plan = true; 
+        //kineval.params.update_motion_plan = true;
         console.log("sent point")
         console.log(kineval.params.use_orientation)
     }
 
-    dummy_object.target_angle_neutral = function() {
-        const goal = [0.0, 0.5, 1.0, 0.1, 0.0, 0.0]
-        kineval.publish_target_angles(goal)
-    }
-
-    dummy_object.target_angle_down = function() {
-        const goal = [0.0, 0.3, 1.5, 1.3, 0.0, 0.0]
-        kineval.publish_target_angles(goal)
-    }
-
-    dummy_object.preview_plan = function() {
-        var MotionPreviewMsg = {
-            'type': 'MotionExecute',
-            'preview': true,
+    primary_display.halt_motion = function() {
+        var IkEnabledMsg = {
+            'type': 'IkEnabled',
+            'enabled': false,
         }
-        console.log('Previewing plan')
-        kineval.publish('/motion_execute', MotionPreviewMsg)
-    }
-
-    dummy_object.execute_plan = function() {
-        var MotionExecuteMsg = { 
-            'type': 'MotionExecute',
-            'preview': false,
-        }
-        kineval.publish('/motion_execute', MotionExecuteMsg)
+        kineval.publish('/ik_enabled', IkEnabledMsg)
     }
 
     // 1. send point
     // 2. preview 
     // 3. execute 
-    gui.add(dummy_object, 'send_target_orientation');
-    gui.add(dummy_object, 'target_angle_neutral');
-    gui.add(dummy_object, 'target_angle_down');
-    gui.add(dummy_object, 'preview_plan');
-    gui.add(dummy_object, 'execute_plan')
+    primary_gui.add(primary_display, 'send_target_orientation');
+    primary_gui.add(primary_display, 'halt_motion');
 
     
     var text = new angles();
-    var gui2 = new dat.GUI();
-    gui2.close();
-    gui2.add(text, 'x');
-    gui2.add(text, 'y');
-    gui2.add(text, 'z');
-    gui2.add(text, 'alpha');
-    gui2.add(text, 'beta');
-    gui2.add(text, 'gamma');
-    gui2.add(text, 'submit');
+    var target_gui = new dat.GUI();
+    target_gui.add(text, 'x');
+    target_gui.add(text, 'y');
+    target_gui.add(text, 'z');
+    target_gui.add(text, 'alpha');
+    target_gui.add(text, 'beta');
+    target_gui.add(text, 'gamma');
+    target_gui.add(text, 'submit');
+
+    //../config/kinematics/mrover_arm_presets.json
+
+    var preset_gui = new dat.GUI();
+    presets_init(preset_gui);
 }
 
 kineval.initRobotLinksGeoms = function initRobotLinksGeoms() {
@@ -1236,4 +1244,49 @@ kineval.loadJSFile = function loadJSFile(filename,kineval_object) {
     if (kineval_object!=="robot" && kineval_object!=="world" && kineval_object!=="floor")
         console.warn("kineval: JS file loaded, object type "+kineval_object+" not recognized");
 
+}
+
+function loadJSON(callback) {
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+
+    // open json preset file
+    xobj.open('GET', 'mrover_arm_presets.json', true);
+
+    // once file is loaded
+    xobj.onreadystatechange = function () {
+        if (xobj.readyState == 4 && xobj.status == "200") {
+            console.log('Loaded presets json');
+            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+            callback(xobj.responseText);
+        }
+        else {
+            console.log('Could not load presets json');
+        }
+    };
+    xobj.send(null);  
+}
+
+// create menu for presets
+function presets_init(gui) {
+
+    // pass callback to loadJSON to be called when it gets data from json file
+    loadJSON(function(response) {
+        // Parse JSON string into object
+        actual_JSON = JSON.parse(response);
+        console.log("presets json =" + JSON.stringify(actual_JSON));
+
+        var size = Object.keys(actual_JSON).length;
+        var presetToggles = { };
+        for(i = 0; i < size; i++) {
+            presetToggles[Object.keys(actual_JSON)[i]] = false;
+            gui.add(presetToggles, Object.keys(actual_JSON)[i]);
+        }
+
+        var submit = new presetAngles();
+        submit.presetToggles = presetToggles;
+        submit.actual_JSON = actual_JSON;
+        submit.size = size;
+        gui.add(submit, "submit");
+    });
 }
