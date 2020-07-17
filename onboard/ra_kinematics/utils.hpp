@@ -10,6 +10,4 @@ using namespace nlohmann;
 
 json read_json_from_file(string filepath);
 
-void poop();
-
 #endif
