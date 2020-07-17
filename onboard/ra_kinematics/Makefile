@@ -1,4 +1,4 @@
-all: tests
+all: build_run
 
 build :
 	cp test/main_build.txt meson.build
