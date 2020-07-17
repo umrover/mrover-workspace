@@ -14,7 +14,3 @@ json read_json_from_file(string filepath) {
     file >> config;
     return config;
 }
-
-void poop() {
-    cout << "I hate c++";
-}
