@@ -1,18 +1,17 @@
-CXX = g++
+all: tests
 
-CXXFLAGS = -Wall -Werror -pedantic --std=c++11 -g
+build :
+	cp test/main_build.txt meson.build
+	cd ../.. && pwd && ./jarvis build onboard/ra_kinematics/
 
-all: test
+build_run:
+	cp test/main_build.txt meson.build
+	cd ../.. && pwd && ./jarvis build onboard/ra_kinematics/ && ./jarvis exec onboard/ra_kinematics/
 
-test: arm_state_tests.exe
+tests :
+	cp test/test_build.txt meson.build
+	cd ../.. && pwd && ./jarvis build onboard/ra_kinematics/ && ./jarvis exec onboard/ra_kinematics/
+	cp test/main_build.txt meson.build
 
-
-arm_state_tests.exe: test/arm_state_tests.cpp arm_state.cpp utils.cpp
-	$(CXX) $(CXXFLAGS) $^ -o test/executables/$@
-	./test/executables/$@
-
-.SUFFIXES:
-
-.PHONY: clean
-clean:
-	rm -rvf test/executables/*.out test/executables/*.exe test/executables/*.dSYM test/executables/*.stackdump
+exec :
+	cd ../.. && ./jarvis exec onboard_ra_kinematics

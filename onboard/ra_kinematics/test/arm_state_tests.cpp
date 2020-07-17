@@ -8,10 +8,6 @@
 using namespace nlohmann;
 using namespace std;
 
-// int main() {
-//     cout << "c++ fucking sucks";
-// }
-
 TEST(initialization_test) {
     json geom;
     ArmState arm = ArmState(geom);
@@ -20,8 +16,10 @@ TEST(initialization_test) {
 }
 
 TEST(read_geom_file) {
-    string config_path = "../../config";
-    string geom_file = config_path + "/kinematics/mrover_arm_geom.json";
+    // string config_path = "../../config";
+    // string geom_file = config_path + "/kinematics/mrover_arm_geom.json";
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
 
