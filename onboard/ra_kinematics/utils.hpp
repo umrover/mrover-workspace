@@ -26,7 +26,7 @@ Vector3d calculate_midpoint(Vector3d point1, Vector3d point2);
 
 Vector3d calculate_center_of_mass(Vector3d joint1, Vector3d joint2, double percent_length);
 
-Vector3d calculate_torque(double r, double mass, Vector3d rot_axis);
+Vector3d calculate_torque(Vector3d r, double mass, Vector3d rot_axis);
 
 
 #endif
