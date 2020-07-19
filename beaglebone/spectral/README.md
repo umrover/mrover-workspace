@@ -1,7 +1,19 @@
 Code for the AS7265x Spectral Triad Sensor and for the AS7263 Single Spectral Sensors
 ======================================================================================
 ### About
-This is the code for running the AS7265x spectral traid sensor and three AS7263 single spectral sensors that are muxed to a TCA9548A i2c switch multiplex sensor. Upon receiving an LCM command it will output the channel readings of the specified spectral sensor
+This is the code for running the AS7265x spectral traid sensor and three AS7263 single spectral sensors that are muxed to a TCA9548A i2c switch multiplex sensor. Upon receiving an LCM command it will output the channel readings of the specified spectral sensor. The triad will output data for 18 channels, each single sensor will output data for 6 channels and 0s for the rest.  
+
+#### LCM Channels Publishing/Subscribed To 
+Spectral Data [publisher] \
+Messages: [SpectralData.lcm](https://github.com/cgiger00/mrover-workspace/blob/spectral/rover_msgs/SpectralData.lcm) "/spectral_data_publish" \
+Publishers: beaglebone/spectral \
+Subscribers: base_station/gui
+
+Spectral Command [subscriber] \
+Messages: [SpectralCmd.lcm](https://github.com/cgiger00/mrover-workspace/blob/spectral/rover_msgs/SpectralCmd.lcm) "/spectral_cmd" \
+Publishers: base_station/gui \
+Subscribers: beaglebone/spectral 
+
 ### Usage
 Required electrical components: \
 1 AS7265x spectral traid sensor \
@@ -11,24 +23,32 @@ Required electrical components: \
 
 Wire up the sensors to the multiplex so that the triad is in SDA/SCL port 0, and the spectral sensors are in ports 1, 2, and 3. Connect the multiplex to the i2c port on the beaglebone. 
 
-Open up a terminal window and type \
+To execute: \
 ```$ cd ~/mrover-workspace/```  to move to the mrover-workspace directory \
 ```$ ./jarvis build beaglebone/spectral```  to build the spectral program \
-```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec beaglebone/spectral```  to run the spectral program \
-In order to get readings from the sensor open up another terminal and type 
+```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec beaglebone/spectral``` 
 
+### LCM Commands
+To get readings from the sensor: \
+In a new terminal \
 ```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo SpectralData "/spectral_data_publish"```
 
-In the original terminal type \
+In the original terminal \
 ```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/spectral_cmd" "{'type': 'SpectralCmd', 'sensor': $SENSOR_NUM } ``` \
 where $SENSOR_NUM is either 0 to get readings from the triad, or 1 - 3 to get readings from the respective single spectral sensors connected to the multiplex ports 1, 2, and 3
 
-### To Do
+### Off Nominal Behavior Handling
+None
 
 ### Common Errors
-If get an error message from jarvis saying lcm_tools_echo or lcm_tools_send does not exist, in the terminal type \
+#### lcm_tools_echo or lcm_tools_send does not exist
+In the terminal: \
 ```$ ./jarvis build lcm_tools/echo``` \
 ```$ ./jarvis build lcm_tools/send``` 
+
+### To Do
+- [ ] Validate that the spectral data being output is correct 
+- [ ] Run this code connected to the Jetson TX2
 
 ### Notes
 This code has been tested with python 3.7 on a beaglebone black. \
