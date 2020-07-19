@@ -1,5 +1,27 @@
 #include "perception.hpp"
 
+/* --- Compare Line Class --- */
+//Functor that indicates where a point is in
+//relation to a line in 2D space
+class compareLine {
+public:
+    double m;
+    int b;
+    
+    compareLine(double slope_in, int b_in) : m(slope_in), b(b_in){}
+
+    //Returns 1 if point is above line, 0 if on, -1 if below
+    int operator()(int x, int y) {
+        double yc = x*m+b;
+        if(y > yc)
+            return 1;
+        else if (y == yc)
+            return 0;
+        else
+            return -1; 
+    }
+};
+
 /* --- Pass Through Filter --- */
 //Filters out all points with z values that aren't within a threshold
 //Z values are depth values in mm
@@ -13,7 +35,7 @@ void PassThroughFilter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
     pass.setInputCloud(pt_cloud_ptr);
     pass.setFilterFieldName("z");
     //The z values for depth are in mm
-    pass.setFilterLimits(0.0,4500.0);
+    pass.setFilterLimits(0.0,2000.0);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -184,25 +206,40 @@ void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 
 }
 
-/* --- Check Center Path --- */
-//Returns T or F based on whether or not the center path is obstructed
+/* --- Check Path --- */
+//Returns T or F based on whether or not the input path is obstructed
 //If it is obstructed returns false
-bool CheckCenterPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
-                              std::vector<std::vector<int>> interest_points,
-                      shared_ptr<pcl::visualization::PCLVisualizer> viewer){
-     #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("Check Center Path");
+//The path is constructed using the left x value and right x value of
+//the furthest points on the path
+bool CheckPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
+                        std::vector<std::vector<int>> interest_points,
+                      shared_ptr<pcl::visualization::PCLVisualizer> viewer,
+    std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine){
+    #if PERCEPTION_DEBUG
+        pcl::ScopeTime t ("Check Path");
     #endif
 
     bool end = true;
-    int centerx = PT_CLOUD_WIDTH/2;
-    int halfRover = ROVER_W_MM/2;
+    
     //Iterate through interest points
     for(auto cluster : interest_points) {
         for (auto index : cluster) {
-            if(centerx-halfRover < pt_cloud_ptr->points[index].x && centerx+halfRover > pt_cloud_ptr->points[index].x){
+            if(leftLine(pt_cloud_ptr->points[index].z,pt_cloud_ptr->points[index].x) >= 0  && 
+               rightLine(pt_cloud_ptr->points[index].z,pt_cloud_ptr->points[index].x) <=0){
                 end = false;
-                
+            
+                //Check if obstacles is initialized
+                if(obstacles.size() == 0){
+                    obstacles.push_back(index);
+                    obstacles.push_back(index);
+                }
+                //Check if leftmost interest point in rover path
+                else if(pt_cloud_ptr->points[index].x < pt_cloud_ptr->points[obstacles.at(0)].x)
+                    obstacles.at(0) = index;
+                //Check if rightmost interest point in rover path
+                else if(pt_cloud_ptr->points[index].x > pt_cloud_ptr->points[obstacles.at(1)].x)
+                    obstacles.at(1) = index;
+
                 #if PERCEPTION_DEBUG
                 //Make interest points orange if they are within rover path
                 pt_cloud_ptr->points[index].r = 255;
@@ -216,17 +253,20 @@ bool CheckCenterPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
     #if PERCEPTION_DEBUG
     //Project path in viewer
     pcl::PointXYZRGB pt1;
-    pt1.x = centerx+halfRover;
+    pt1.x = leftLine.b;
     pt1.y = 0;
-    pt1.z = 1000;
+    pt1.z = 0;
     pcl::PointXYZRGB pt2;
-    pt2.x = centerx-halfRover;
+    pt2.x = rightLine.b;
     pt2.y = 0;
-    pt2.z = 1000;
+    pt2.z = 0;
     pcl::PointXYZRGB pt3(pt1);
     pt3.z=7000;
+    pt3.x=leftLine.m*pt3.z+leftLine.b;
     pcl::PointXYZRGB pt4(pt2);
     pt4.z=7000;
+    pt4.x=rightLine.m*pt4.z+rightLine.b;
+    
     
     if(end) {
         viewer->removeShape("l1");
@@ -245,6 +285,161 @@ bool CheckCenterPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
     return end;
 }
 
+/* --- Find Clear Path --- */
+//Returns the angle to a clear path
+double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
+                            std::vector<std::vector<int>> interest_points,
+                      shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
+    #if PERCEPTION_DEBUG
+        pcl::ScopeTime t ("Find Clear Path");
+    #endif
+
+    int buffer = 50;
+
+    std::vector<int> obstacles; //X and Y values of the left and rightmost obstacles in path
+
+    //Check Center Path
+    if(CheckPath(pt_cloud_ptr, interest_points, viewer, obstacles, 
+        compareLine(0,CENTERX-HALF_ROVER), compareLine(0,CENTERX+HALF_ROVER))){
+        return 0;
+    }
+    
+    //Initialize base cases outside of scope
+    vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
+    double newAngle = 0;
+    double newSlope = 0;
+
+    //If Center Path is blocked check left until have to turn too far
+    while(newAngle > -50 && newSlope <= 0){
+        
+        //Declare Stuff
+        double x = pt_cloud_ptr->points[obstacles.at(0)].x;
+        double z = pt_cloud_ptr->points[obstacles.at(0)].z;
+        double zOffset = 0;
+        double xOffset = 0;
+        
+        if(x <= 0){
+            //Calculate angle from X axis, slope of line, and length of line to left obstacle
+            double slope = x/z;
+            double length = sqrt(x*x+z*z);
+            double angleOffset = acos(z/length)*180/PI;
+
+            //Calculate angle from X axis and length of line that is half rover distance from obstacle
+            double interior = asin((HALF_ROVER+buffer)/length)*180/PI;
+            double adjacent = 90-fabs(interior)-fabs(angleOffset);
+            double key = 90-fabs(adjacent);
+            zOffset = sin(key*PI/180)*(HALF_ROVER+buffer);
+            xOffset = cos(key*PI/180)*(HALF_ROVER+buffer);
+        }
+
+        else{
+            //Calculate angle from X axis, slope of line, and length of line to left obstacle
+            double slope = x/z;
+            double length = sqrt(x*x+z*z);
+            double angleOffset = acos(z/length)*180/PI;
+
+            //Calculate angle new point will be from X axis
+            double interior = asin((HALF_ROVER+buffer)/length)*180/PI;
+            double key = 90-(fabs(interior)-fabs(angleOffset));
+            xOffset = sin(key*PI/180)*(HALF_ROVER+buffer);
+            zOffset = cos(key*PI/180)*(HALF_ROVER+buffer);
+        }
+
+        //Find points on line of new path
+        double newPathz = z-fabs(zOffset);
+        double newPathx = x-fabs(xOffset);
+        newSlope = newPathx/newPathz;
+        newAngle = atan(newPathx/newPathz)*180/PI;
+
+        //Create left and right lines based on new path
+        double shiftX = HALF_ROVER/sin((90-newAngle)*PI/180);
+
+        compareLine leftLine (newSlope,-shiftX);
+        compareLine rightLine (newSlope, shiftX);
+
+        obstacles.clear();
+        if(CheckPath(pt_cloud_ptr, interest_points, viewer, obstacles, leftLine, rightLine))
+        {
+            #if PERCEPTION_DEBUG
+            std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
+            #endif
+            return newAngle;
+        }
+            
+    }
+
+    //Reset global variables
+    obstacles.at(0) = centerObstacles.at(0);
+    obstacles.at(1) = centerObstacles.at(1);
+    newAngle = 0;
+    newSlope = 0;
+    
+    int i = 0; //Sets max iterations
+    //If have to turn too far left check right
+    while(newAngle < 70 && newSlope >= 0 && i < 10){
+        i++;
+       
+       //Declare Stuff
+        double x = pt_cloud_ptr->points[obstacles.at(1)].x;
+        double z = pt_cloud_ptr->points[obstacles.at(1)].z;
+        double zOffset = 0;
+        double xOffset = 0;
+        
+        if(x >= 0){
+            //Calculate angle from X axis, slope of line, and length of line to left obstacle
+            double slope = x/z;
+            double length = sqrt(x*x+z*z);
+            double angleOffset = acos(z/length)*180/PI;
+            
+            //Calculate angle from X axis and length of line that is half rover distance from obstacle
+            double interior = asin((HALF_ROVER+buffer)/length)*180/PI;
+            double adjacent = 90-fabs(interior)-fabs(angleOffset);
+            double compliment = 90-fabs(interior);
+            double key = 180-adjacent-compliment-fabs(interior);
+            zOffset = sin(key*PI/180)*(HALF_ROVER+buffer);
+            xOffset = cos(key*PI/180)*(HALF_ROVER+buffer);
+            }
+
+        else{
+            //Calculate angle from X axis, slope of line, and length of line to left obstacle
+            double slope = x/z;
+            double length = sqrt(x*x+z*z);
+            double angleOffset = acos(z/length)*180/PI;
+
+            //Calculate angle new point will be from X axis
+            double interior = asin((HALF_ROVER+buffer)/length)*180/PI;
+            double key = 90-(fabs(interior)-fabs(angleOffset));
+            xOffset = sin(key*PI/180)*(HALF_ROVER+buffer);
+            zOffset = cos(key*PI/180)*(HALF_ROVER+buffer);
+        }
+        
+        //Find points on line of new path
+        double newPathz = z-fabs(zOffset);
+        double newPathx = x+fabs(xOffset);
+        newSlope = newPathx/newPathz;
+        newAngle = atan(newPathx/newPathz)*180/PI;
+
+        //Create left and right lines based on new path
+        double shiftX = HALF_ROVER/sin((90-newAngle)*PI/180);
+
+        compareLine leftLine (newSlope,-shiftX);
+        compareLine rightLine (newSlope, shiftX);
+
+        obstacles.clear();
+        if(CheckPath(pt_cloud_ptr, interest_points, viewer, obstacles, leftLine, rightLine)){
+            #if PERCEPTION_DEBUG
+            std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
+            #endif
+            return newAngle;
+        }
+
+    }
+    
+    //If have checked max direction both ways there is no clear path return impossible number
+    return 360;
+
+}
+
 /* --- Main --- */
 //This is the main point cloud processing function
 //It returns the bearing the rover should traverse
@@ -259,45 +454,6 @@ advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB
     EuclidianClusterExtraction(pt_cloud_ptr, cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
     FindInterestPoints(cluster_indices, pt_cloud_ptr, interest_points);
-    if( CheckCenterPath(pt_cloud_ptr, interest_points, viewer))
-        return result;
-    else {
-        return result;    
-    }
+    result.bearing = FindClearPath(pt_cloud_ptr, interest_points, viewer);  
+    return result;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* --- Calculate Centroid --- */
-//Calculates the center point of 4 points in space
-std::pair<double, double> calcCentroid (int p1, int p2, int p3, int p4, pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
-    std::pair<double, double> center;
-    double centroid1x = (pt_cloud_ptr->points[p1].x + pt_cloud_ptr->points[p2].x +
-                        pt_cloud_ptr->points[p4].x)/3;
-    double centroid2x = (pt_cloud_ptr->points[p2].x + pt_cloud_ptr->points[p3].x +
-                        pt_cloud_ptr->points[p4].x)/3;
-    center.first = (centroid1x+centroid2x)/2;
-    
-    double centroid1y = (pt_cloud_ptr->points[p1].y + pt_cloud_ptr->points[p2].y +
-                        pt_cloud_ptr->points[p4].y)/3;
-    double centroid2y = (pt_cloud_ptr->points[p2].y + pt_cloud_ptr->points[p3].y +
-                        pt_cloud_ptr->points[p4].y)/3;
-    center.second = (centroid1x+centroid2x)/2;
-
-    return center;
-}
-
-//Experimentation shows that all points are plotted in mm even in visualizer, so no need to calculate rover pix at a point
-//46 inch = 1168.4mm

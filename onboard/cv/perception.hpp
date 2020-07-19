@@ -10,7 +10,7 @@
 #include <lcm/lcm-cpp.hpp>
 #include <sys/stat.h> // for disk writing
 #include <algorithm>
-
+#include <ctime>
 
 /* --- PCL Includes --- */
 #include <iostream>
@@ -60,6 +60,8 @@
 #define PT_CLOUD_WIDTH 320
 #define PT_CLOUD_HEIGHT 180
 #define ROVER_W_MM 1168
+#define HALF_ROVER 584
+#define CENTERX 0
 
 const float inf = -std::numeric_limits<float>::infinity();
 
