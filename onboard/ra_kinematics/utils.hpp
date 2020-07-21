@@ -4,8 +4,7 @@
 #include "json.hpp"
 #include <Eigen/Dense>
 
-using Eigen::Vector3d;
-using Eigen::Matrix4d;
+using namespace Eigen;
 using namespace std;
 using namespace nlohmann;
 
