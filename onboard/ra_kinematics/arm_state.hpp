@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <Eigen/Dense>
+#include <iostream>
 
 using namespace Eigen;
 using namespace nlohmann;
@@ -32,7 +33,6 @@ private:
               }
 
         string name;
-        string type;
         double angle;
         Vector3d pos_world;
         Matrix4d global_transform;
@@ -41,21 +41,51 @@ private:
         Vector3d local_center_of_mass;
         Vector3d rot_axis;
         Vector3d joint_axis_world;
-        vector<Vector3d> points;
-        double radius;
-        Vector3d center;
         map<string, double> joint_limits;
     };
 
+    struct Avoidance_Link {
+
+        Avoidance_Link(int link_num_in, string joint_origin_name, json &link_json) : 
+                           link_num(link_num_in), joint_origin(joint_origin_name) {
+            type = link_json["type"];
+            radius = link_json["radius"];
+            
+            if (type == "sphere") {
+                Vector3d p1(link_json["center"]["x1"], link_json["center"]["x1"], link_json["center"]["x1"]);
+                points.push_back(p1);
+            }
+            else if (type == "capsule") {
+                Vector3d p1(link_json["point_1"]["x1"], link_json["point_1"]["y1"], link_json["point_1"]["z1"]);
+                Vector3d p2(link_json["point_2"]["x2"], link_json["point_2"]["y2"], link_json["point_2"]["z2"]);
+                points.push_back(p1);
+                points.push_back(p2);
+            }
+        }
+
+        int link_num;
+        string joint_origin;
+        string type;
+        vector<Vector3d> points;
+        double radius;
+    };
+
     map<string, Joint *> joints;
+    vector<string> joint_names;
+
+    vector<Avoidance_Link *> collision_avoidance_links; // could make this an array
+
+    // TODO: Change this value as necessary
     static const int num_collision_parts = 23;
     Vector3d ef_pos_world;
     Matrix4d ef_xform;
     Matrix<double, num_collision_parts, num_collision_parts> collision_mat;
 
-    void transform_parts();
+    void add_joint(string joint, json &joint_geom);
 
-    void link_link_check();
+    void add_avoidance_link(int link_num, string joint_origin_name, json &link_json);
+
+    void transform_parts();
 
     void delete_joints();
 
@@ -64,13 +94,7 @@ public:
     
     ~ArmState();
 
-    void add_joint(string joint, json &joint_geom);
-
     vector<string> get_all_joints();
-
-    // vector<string> get_all_links();
-
-    Matrix<double, num_collision_parts, num_collision_parts> get_collision_mat();
 
     Vector3d get_joint_com(string joint);
 
@@ -100,11 +124,13 @@ public:
 
     Vector6d get_ef_pos_and_euler_angles();
 
-    map<string, double> get_angles();
+    map<string, double> get_joint_angles();
 
     void set_joint_angles(vector<double> angles);
 
-    bool link_link_check(map<string, Joint*>::iterator it, map<string, Joint*>::iterator jt);
+    void transform_avoidance_links();
+
+    bool link_link_check(vector<Avoidance_Link *>::iterator it, vector<Avoidance_Link *>::iterator jt);
 
     bool obstacle_free();
 

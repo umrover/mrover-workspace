@@ -27,6 +27,6 @@ Vector3d calculate_center_of_mass(Vector3d joint1, Vector3d joint2, double perce
 
 Vector3d calculate_torque(Vector3d r, double mass, Vector3d rot_axis);
 
-Vector3d apply_transformation(Matrix4d transform, Vector3d point);
+Vector3d apply_transformation(const Matrix4d &transform, const Vector3d &point);
 
 #endif

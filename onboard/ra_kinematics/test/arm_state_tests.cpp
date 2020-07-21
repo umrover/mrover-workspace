@@ -49,4 +49,16 @@ TEST(joint_creation_test) {
     ASSERT_EQUAL(joint_c_upper_limit, arm.get_joint_limits("joint_c")["upper"]);
 }
 
+TEST(avoidance_link_creation_test) {
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+
+    json geom = read_json_from_file(geom_file);
+
+    json joint_a_json = geom["joints"]["joint_a"];
+
+    ArmState arm = ArmState(geom);
+
+}
+
 TEST_MAIN()
