@@ -292,7 +292,7 @@ class ArmState:
                 if (shape['type'] == 'capsule'):
                     cp1 = list(shape['point_1'].values())
                     cp2 = list(shape['point_2'].values())
-                    cp1 = apply_transformation(transform, cp1)
+                    cp1 = mation(transform, cp1)
                     cp2 = apply_transformation(transform, cp2)
                     transformed_part['points'] = [cp1, cp2]
                 elif (shape['type'] == 'sphere'):

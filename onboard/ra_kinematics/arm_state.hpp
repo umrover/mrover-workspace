@@ -32,6 +32,7 @@ private:
               }
 
         string name;
+        string type;
         double angle;
         Vector3d pos_world;
         Matrix4d global_transform;
@@ -39,6 +40,10 @@ private:
         Vector3d pos_local;
         Vector3d local_center_of_mass;
         Vector3d rot_axis;
+        Vector3d joint_axis_world;
+        vector<Vector3d> points;
+        double radius;
+        Vector3d center;
         map<string, double> joint_limits;
     };
 
@@ -98,6 +103,8 @@ public:
     map<string, double> get_angles();
 
     void set_joint_angles(vector<double> angles);
+
+    bool link_link_check(map<string, Joint*>::iterator it, map<string, Joint*>::iterator jt);
 
     bool obstacle_free();
 

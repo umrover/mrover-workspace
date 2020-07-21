@@ -135,3 +135,8 @@ Vector3d calculate_torque(Vector3d r, double mass, Vector3d rot_axis){
     Vector3d force = {0, 0, g * mass};
     return r.cross(force);
 }
+
+Vector3d apply_transformation(Matrix4d transform, Vector3d point) {
+    Vector4d four_d = {point[0], point[1], point[2], 1};
+    return transform * four_d;
+}
