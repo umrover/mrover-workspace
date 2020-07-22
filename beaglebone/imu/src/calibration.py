@@ -1,6 +1,8 @@
 import smbus
 import time as t
 import numpy as np
+import struct
+from madgwickahrs import MadgwickAHRS
 
 I2C_IMU_ADDRESS = 0x69
 I2C_ADDR = 0x68
@@ -39,13 +41,16 @@ def read_data(num):
     return a
 
 
+
+
+
 def set_bank(bank):
     newbank = (bank << 4)
-    bus.write_byte_data(I2C_IMU_ADDRESS, 0x7f, newbank)
-
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x7f,newbank)
 
 def get_data():
-
+    elapsed_time = t.process_time()
+    
     accel_x = get_decimal(0x2E, 0x2D)
     accel_y = get_decimal(0x30, 0x2F)
     accel_z = get_decimal(0x32, 0x31)
@@ -58,9 +63,7 @@ def get_data():
 
 #     print("mag x: ", mag_x,"mag y: ",mag_y,"mag z: ",mag_z)
     return np.array([accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z])
-
-
-def set_offset(xav, yav, zav):
+def set_offset(xav,yav,zav):
     xav /= 10
     yav /= 10
     zav /= -10

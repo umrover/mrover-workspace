@@ -48,9 +48,10 @@ This section should have a list of the remaining items needed to be finished for
 -   [ ] Calibration for all three sensors needs more testing
 
 -   [ ] LCM implementation
-- [ ] Test jarvis implementation for calibration script
 
 ### Notes
+
+Due to the timing of when this project was being worked on much of the code is still rough and shallow in depth. The magnetometer was tested very lightly before quarantine but its unknown if the values given were correct. Come September, more of this should be polished, tested and integrated into our systems.
 
 --
 
