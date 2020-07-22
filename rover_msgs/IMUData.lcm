@@ -1,6 +1,6 @@
 package rover_msgs;
 
-struct IMU {
+struct IMUData {
     double accel_x;
     double accel_y;
     double accel_z;
@@ -10,5 +10,8 @@ struct IMU {
     double mag_x;
     double mag_y;
     double mag_z;
+    double roll;
+    double pitch;
+    double yaw;
     double bearing;
 }
