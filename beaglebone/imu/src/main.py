@@ -216,6 +216,21 @@ def main():
         imudata.mag_y = data[7]
         imudata.mag_z = data[8]
 
+        # Calculations for bearing are done here
+
+        # First turn teslas into gauss = teslas*10,000
+        gaussx = data[6]*10000
+        gaussy = data[7]*10000
+        # Only depends on x/y
+        if gaussy > 0:
+            imudata.bearing = 90 - (np.arctan(gaussx/gaussy))*180/3.14159265
+        elif gaussy < 0:
+            imudata.bearing = 270 - (np.arctan(gaussx/gaussy))*180/3.14159265
+        elif gaussy =0 and gaussx < 0:
+            imudata.bearing = 180
+        elif gaussy =0 and gaussx > 0:
+            imudata.bearing = 0
+
 
         acc = np.array([data[0], data[1], data[2]])
         gyr = np.array([data[3], data[4], data[5]])
