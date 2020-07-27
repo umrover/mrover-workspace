@@ -5,9 +5,15 @@
 The IMU is intended to read out accelerometer, gyroscope and magnetometer readings and translate them into pitch, roll, yaw and bearing for use in Auton's systems. First, the calibration script is run while the sensor is stable and not moving.  Data is taken for 10 seconds and averaged out. This is to account for any natural drift. This is followed by the main driver which utilizes the calibrated values in order to produce accurate data by subtracting the calibrated values.
 
 ### LCM Channels Publishing/Subscribed To
+<<<<<<< HEAD
 **IMU Data**[publisher] \
 Messages:  [IMUData.lcm](https://github.com/jjtom34/mrover-workspace/blob/master/rover_msgs/IMUData.lcm) "/imu_data" \
 Publishers: beaglebone/imu \
+=======
+**IMU Data**[Publisher]
+Messages:  [IMUData.lcm](https://github.com/jjtom34/mrover-workspace/blob/master/rover_msgs/IMUData.lcm) "/imu_data"
+Publishers: beaglebone/imu
+>>>>>>> fe084827... Updated IMU with changes to LCM and function
 Subscribers: onboard/filter, onboard/sensor_logging
 
 
@@ -32,10 +38,13 @@ Current usage is to run the calibration script followed by the driver script. Th
   
 
 #### LCM Commands
-To get readings from the sensor:
-In a new terminal \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo IMUData "/imu_data"` \
+All Publishes of data should be done by the program. In order to test data sent through LCM use the command
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo IMUData /imu_data`
   while the program is running.
+
+### Off Nominal Behavior Handling
+
+Repeated attempts at startup should warrant checks to wiring
 
 ### To Do
 
@@ -50,8 +59,6 @@ This section should have a list of the remaining items needed to be finished for
 -   [ ] LCM implementation
 
 ### Notes
-
-Due to the timing of when this project was being worked on much of the code is still rough and shallow in depth. The magnetometer was tested very lightly before quarantine but its unknown if the values given were correct. Come September, more of this should be polished, tested and integrated into our systems.
 
 --
 
