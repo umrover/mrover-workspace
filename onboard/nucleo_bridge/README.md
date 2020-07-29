@@ -85,15 +85,15 @@ from the mrover-workspace directory.
 The CLI will only show errors, since printing output to the console is expensive in terms of time. A blank CLI is a good thing.
 
 To control the RA/SA through open-loop
-*Ensure onboard/teleop is running on the same platform
-*Ensure base_station/gui is running on the base station
-*Operate the joysticks with the RA/SA Task page open on the base station GUI
+* Ensure onboard/teleop is running on the same platform
+* Ensure base_station/gui is running on the base station
+* Operate the joysticks with the RA/SA Task page open on the base station GUI
 
 To control the RA/SA through closed-loop
-*Ensure onboard/teleop is running on the same platform
-*Ensure onboard/kinematics is running on the same platform
-*Ensure base_station/kineval is running on the base station
-*Input commands into the arm control page on the base station GUI
+* Ensure onboard/teleop is running on the same platform
+* Ensure onboard/kinematics is running on the same platform
+* Ensure base_station/kineval is running on the base station
+* Input commands into the arm control page on the base station GUI
 
 ### Common Errors
 
@@ -105,8 +105,8 @@ These communication errors can be caused by a failure anywhere on the i2c bus, s
 
 ### Todo
 
-- [] Re-enable disabled arm joints and lcm messages.
-- [] Hardcode the encoder configurations, PID constants, and other miscellanious variables for each arm joint.
-- [] Test predictive torques.
+- [ ] Re-enable disabled arm joints and lcm messages.
+- [ ] Hardcode the encoder configurations, PID constants, and other miscellanious variables for each arm joint.
+- [ ] Test predictive torques.
 
 
