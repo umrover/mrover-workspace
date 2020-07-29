@@ -103,6 +103,10 @@ The Nucleo that is unresponsive is the first digit of the channel minus 1. For e
 
 These communication errors can be caused by a failure anywhere on the i2c bus, so it is not unlikely that issues with only one Nucleo will cause the all the Nucleos to fail to communicate properly. 
 
+### Notes
+
+To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/raytitan/NucleoHAL/tree/master/Core). A README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.
+
 ### Todo
 
 - [ ] Re-enable disabled arm joints and lcm messages.
