@@ -7,52 +7,19 @@ from madgwickahrs import MadgwickAHRS
 from rover_msgs import IMUdata
 
 I2C_IMU_ADDRESS = 0x69
-I2C_ADDR = 0x68
-I2C_ADDR_ALT = 0x69
 
-ICM20948_I2C_MST_CTRL = 0x01
-ICM20948_I2C_MST_DELAY_CTRL = 0x02
 ICM20948_I2C_SLV0_ADDR = 0x03
 ICM20948_I2C_SLV0_REG = 0x04
 ICM20948_I2C_SLV0_CTRL = 0x05
 ICM20948_I2C_SLV0_DO = 0x06
 ICM20948_EXT_SLV_SENS_DATA_00 = 0x3B
 # Bank 0
-ICM20948_WHO_AM_I = 0x00
 ICM20948_USER_CTRL = 0x03
 ICM20948_PWR_MGMT_1 = 0x06
 ICM20948_PWR_MGMT_2 = 0x07
 ICM20948_INT_PIN_CFG = 0x0F
 
-ICM20948_ACCEL_SMPLRT_DIV_1 = 0x10
-ICM20948_ACCEL_SMPLRT_DIV_2 = 0x11
-ICM20948_ACCEL_INTEL_CTRL = 0x12
-ICM20948_ACCEL_WOM_THR = 0x13
-ICM20948_ACCEL_CONFIG = 0x14
-ICM20948_ACCEL_XOUT_H = 0x2D
-ICM20948_GRYO_XOUT_H = 0x33
-
 AK09916_I2C_ADDR = 0x0c
-AK09916_CHIP_ID = 0x09
-AK09916_WIA = 0x01
-AK09916_ST1 = 0x10
-AK09916_ST1_DOR = 0b00000010   # Data overflow bit
-AK09916_ST1_DRDY = 0b00000001  # Data self.ready bit
-AK09916_HXL = 0x11
-AK09916_ST2 = 0x18
-AK09916_ST2_HOFL = 0b00001000  # Magnetic sensor overflow bit
-AK09916_CNTL2 = 0x31
-AK09916_CNTL2_MODE = 0b00001111
-AK09916_CNTL2_MODE_OFF = 0
-AK09916_CNTL2_MODE_SINGLE = 1
-AK09916_CNTL2_MODE_CONT1 = 2
-AK09916_CNTL2_MODE_CONT2 = 4
-AK09916_CNTL2_MODE_CONT3 = 6
-AK09916_CNTL2_MODE_CONT4 = 8
-AK09916_CNTL2_MODE_TEST = 16
-AK09916_CNTL3 = 0x32
-
-
 bus = smbus.SMBus(2)
 
 filter = MadgwickAHRS()
@@ -114,18 +81,14 @@ def get_data(xav,yav,zav,xgyr,ygyr,zgyr):
     accel_y = get_decimal(0x30, 0x2F) + yav
     accel_z = get_decimal(0x32, 0x31) + zav
 
-    # print("accel x: ", accel_x,"accel y: ",accel_y,"accel z: ",accel_z)
     gyro_x = get_decimal(0x34, 0x33) + xgyr
     gyro_y = get_decimal(0x36, 0x35) + ygyr
     gyro_z = get_decimal(0x38, 0x37) + zgyr
     
-    # TODO Insert in Magnetometer calibration
-    mag_x = read_mag_data(0x11,0x12) #get_mag_decimal(0x3C, 0x3B)
-    mag_y = read_mag_data(0x13,0x14) #get_mag_decimal(0x3E, 0x3D)
-    mag_z = read_mag_data(0x15,0x16) #get_mag_decimal(0x40, 0x3D)
-    # print("mag x: ", mag_x,"mag y: ",mag_y,"mag z: ",mag_z)
+    mag_x = read_mag_data(0x11,0x12) 
+    mag_y = read_mag_data(0x13,0x14) 
+    mag_z = read_mag_data(0x15,0x16) 
 
-    # TODO Check the 3rd bit to see if magnetic overflow occurs?
     bus.read_byte_data(0x0c,0x18)
     return np.array([accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, mag_x, mag_y, mag_z])
 
@@ -181,11 +144,6 @@ def main():
             bus.write_byte_data(I2C_IMU_ADDRESS, 0x14,0b00000110)
             set_bank(0)
             set_offset(0,0,0) # clear any inbuilt offset, we handle that in our code
-
-            # set_bank(3) # Change to bank 3
-            # bus.write_byte_data(I2C_IMU_ADDRESS,ICM20948_I2C_MST_CTRL,0x4d) # Set i2c control for magnetometer. Multimaster capability, and i2c clockspeed of 7, recommended
-            # bus.write_byte_data(I2C_IMU_ADDRESS,ICM20948_I2C_MST_DELAY_CTRL,0x01) # Set slave 0 to only be accessed every x samples
-            # mag_write(AK09916_CNTL3, 0x01) # soft reset the magnetometer
             success = True
             
         except:
@@ -205,16 +163,18 @@ def main():
         print("Gyro: ", data[3]/2000, ",", data[4]/2000, ",", data[5]/2000)
         print("Mag: ", data[6], ",", data[7], ",", data[8])
 
-        # Not sure what the divisions were for so excluded for now
-        imudata.accel_x = data[0]
-        imudata.accel_y = data[1]
-        imudata.accel_z = data[2]
-        imudata.gyro_x = data[3]
-        imudata.gyro_y = data[4]
-        imudata.gyro_z = data[5]
-        imudata.mag_x = data[6]
-        imudata.mag_y = data[7]
-        imudata.mag_z = data[8]
+        #Accel measures in 2048 LSB/g and Gyro in 2000 LSB/dps so we divide the register value by that
+        imudata.accel_x_g = data[0]/2048
+        imudata.accel_y_g = data[1]/2048
+        imudata.accel_z_g = data[2]/2048
+
+        imudata.gyro_x_dps = data[3]/2000
+        imudata.gyro_y_dps = data[4]/2000
+        imudata.gyro_z_dps = data[5]/2000
+        #Magnetometer is in 0.15 microTeslas/LSB so we multiply instead but also divide by 1,000,000 to go to regular teslas
+        imudata.mag_x_T = data[6]*0.15/1000000
+        imudata.mag_y_T = data[7]*0.15/1000000
+        imudata.mag_z_T = data[8]*0.15/1000000
 
         # Calculations for bearing are done here
 
@@ -223,13 +183,13 @@ def main():
         gaussy = data[7]*10000
         # Only depends on x/y
         if gaussy > 0:
-            imudata.bearing = 90 - (np.arctan(gaussx/gaussy))*180/3.14159265
+            imudata.bearing_deg = 90 - (np.arctan(gaussx/gaussy))*180/3.14159265
         elif gaussy < 0:
-            imudata.bearing = 270 - (np.arctan(gaussx/gaussy))*180/3.14159265
+            imudata.bearing_deg = 270 - (np.arctan(gaussx/gaussy))*180/3.14159265
         elif gaussy =0 and gaussx < 0:
-            imudata.bearing = 180
+            imudata.bearing_deg = 180
         elif gaussy =0 and gaussx > 0:
-            imudata.bearing = 0
+            imudata.bearing_deg = 0
 
 
         acc = np.array([data[0], data[1], data[2]])
@@ -251,9 +211,9 @@ def main():
         print("Roll: ", curRoll, " Pitch: ", curPitch, " Yaw: ", curYaw)
 
 
-        imudata.roll = curRoll
-        imudata.pitch = curPitch
-        imudata.yaw = curYaw
+        imudata.roll_rad = curRoll
+        imudata.pitch_rad = curPitch
+        imudata.yaw_rad = curYaw
 
 
         lcm_.publish('/imu_data',imudata.encode())
