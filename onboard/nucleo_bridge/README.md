@@ -51,7 +51,7 @@ Publisher: onboard/teleop \
 Subscriber: onboard/nucleo_bridge
 
 #### Foot Open Loop \[Subscriber\] "/foot_openloop_cmd"
-Message: [FootCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/FootCmd.lcm) \
+Message: [FootCmd.lcm](https://github.com/raytitan/mrover-workspace/blob/rnucleo/rover_msgs/FootCmd.lcm) \
 Publisher: onboard/teleop \
 Subscriber: onboard/nucleo_bridge
 
