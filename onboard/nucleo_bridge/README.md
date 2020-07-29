@@ -35,7 +35,7 @@ Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/mast
 Publisher: onboard/kinematics \
 Subscriber: onboard/nucleo_bridge
 
-#### SA Closed Loop \[Subscriber\] "/sa_openloop_cmd"
+#### SA Closed Loop \[Subscriber\] "/sa_closedloop_cmd"
 Message: [SAClosedLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAClosedLoopCmd.lcm) \
 Publisher: onboard/kinematics \
 Subscriber: onboard/nucleo_bridge
