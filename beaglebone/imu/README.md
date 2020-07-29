@@ -12,11 +12,10 @@ Subscribers: onboard/filter, onboard/sensor_logging
 
 
 ### Usage
-* add a required electronic components part \
-Required Electronic Components: \
-1 ICM 20948 sensor \
-1 beaglebone black board \
-etc 
+#### Require Electronic Components:
+- 1 ICM 20948 Sensor
+- 1 Beaglebone Black board or similar board
+- At least 4 male-female jumper wires for connecting the sensor to the Beaglebone Black
 
 #### Wiring
 When wiring, only the set of pins related to i2c should be used. The top left corner should indicate the correct side and the pins right below it should be used.
@@ -25,10 +24,11 @@ VIN,GND and DA, CL should be wired to your power, ground, SDA, and SCL respectiv
 #### Running
 Before running, the calibration script should be run in order to obtain proper calibration values before normal operation. This should be done while stable and level. \
 `$ ~/cd mrover-workspace`
-* jarvis build what??? \
-`$ /jarvis build` \
-`$ /jarvis exec` \
-Current usage is to run the calibration script followed by the driver script
+`$ /jarvis build beaglebone/imu` \
+`$ /jarvis exec beaglebone_imu` \
+Current usage is to run the calibration script followed by the driver script. This should only be needed once as the values are saved to a seperate text file. It should be run without Jarvis through once navigating to the appropriate directory 
+`$ ~/cd mrover-workspace/beaglebone/imu/src`\
+`$ python3 calibration.py` 
   
 
 #### LCM Commands
