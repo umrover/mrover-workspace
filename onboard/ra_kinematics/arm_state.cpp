@@ -71,6 +71,7 @@ Vector3d ArmState::get_joint_com(string joint) {
 double ArmState::get_joint_mass(string joint) {
     cout << "joint mass for joint: " << joint << "\n";
     cout << "end effector position: \n" << ef_pos_world << "\n";
+    // TODO: Consider adding mass to the joint struct?
     return 0;
 }
 
@@ -136,6 +137,8 @@ map<string, double> ArmState::get_joint_angles() {
     }
     return angles;
 }
+
+// TODO: Do we need to implement the below function?
 
 // void ArmState::transform_avoidance_links() {
 //     for (size_t i = 0; i < collision_avoidance_links.size(); ++i) {

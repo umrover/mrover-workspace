@@ -58,7 +58,8 @@ TEST(avoidance_link_creation_test) {
     json joint_a_json = geom["joints"]["joint_a"];
 
     ArmState arm = ArmState(geom);
-
 }
+
+
 
 TEST_MAIN()

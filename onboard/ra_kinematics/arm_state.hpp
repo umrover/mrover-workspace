@@ -74,7 +74,6 @@ private:
     vector<string> joint_names;
 
     vector<Avoidance_Link *> collision_avoidance_links; // could make this an array
-
     // TODO: Change this value as necessary
     static const int num_collision_parts = 23;
     Vector3d ef_pos_world;
