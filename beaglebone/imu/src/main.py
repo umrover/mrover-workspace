@@ -164,17 +164,17 @@ def main():
         print("Mag: ", data[6], ",", data[7], ",", data[8])
 
         #Accel measures in 2048 LSB/g and Gyro in 2000 LSB/dps so we divide the register value by that
-        imudata.accel_x_g = data[0]/2048
-        imudata.accel_y_g = data[1]/2048
-        imudata.accel_z_g = data[2]/2048
+        imudata.accel_x<g> = data[0]/2048
+        imudata.accel_y<g> = data[1]/2048
+        imudata.accel_z<g> = data[2]/2048
 
-        imudata.gyro_x_dps = data[3]/2000
-        imudata.gyro_y_dps = data[4]/2000
-        imudata.gyro_z_dps = data[5]/2000
+        imudata.gyro_x<dps> = data[3]/2000
+        imudata.gyro_y<dps> = data[4]/2000
+        imudata.gyro_z<dps> = data[5]/2000
         #Magnetometer is in 0.15 microTeslas/LSB so we multiply instead but also divide by 1,000,000 to go to regular teslas
-        imudata.mag_x_T = data[6]*0.15/1000000
-        imudata.mag_y_T = data[7]*0.15/1000000
-        imudata.mag_z_T = data[8]*0.15/1000000
+        imudata.mag_x<T> = data[6]*0.15/1000000
+        imudata.mag_y<T> = data[7]*0.15/1000000
+        imudata.mag_z<T> = data[8]*0.15/1000000
 
         # Calculations for bearing are done here
 
@@ -183,13 +183,13 @@ def main():
         gaussy = data[7]*10000
         # Only depends on x/y
         if gaussy > 0:
-            imudata.bearing_deg = 90 - (np.arctan(gaussx/gaussy))*180/3.14159265
+            imudata.bearing<deg> = 90 - (np.arctan(gaussx/gaussy))*180/3.14159265
         elif gaussy < 0:
-            imudata.bearing_deg = 270 - (np.arctan(gaussx/gaussy))*180/3.14159265
+            imudata.bearing<deg> = 270 - (np.arctan(gaussx/gaussy))*180/3.14159265
         elif gaussy =0 and gaussx < 0:
-            imudata.bearing_deg = 180
+            imudata.bearing<deg> = 180
         elif gaussy =0 and gaussx > 0:
-            imudata.bearing_deg = 0
+            imudata.bearing<deg> = 0
 
 
         acc = np.array([data[0], data[1], data[2]])
@@ -211,9 +211,9 @@ def main():
         print("Roll: ", curRoll, " Pitch: ", curPitch, " Yaw: ", curYaw)
 
 
-        imudata.roll_rad = curRoll
-        imudata.pitch_rad = curPitch
-        imudata.yaw_rad = curYaw
+        imudata.roll<rad> = curRoll
+        imudata.pitch<rad> = curPitch
+        imudata.yaw<rad> = curYaw
 
 
         lcm_.publish('/imu_data',imudata.encode())
