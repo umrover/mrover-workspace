@@ -4,10 +4,10 @@ Code for the RL0503-5820-97-MS Thermistor
 ### About
 This code assumes the use of a voltage divider connected in series with the thermistor
 
-### LCM Channels
-Messages: [ThermistorData.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorData.lcm) "/thermistor_temp"
-Publishers: beaglebone/thermistor
-Subscribers: unsure
+#### LCM Channels
+Messages: [ThermistorData.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorData.lcm) "/thermistor_temp" \
+Publishers: beaglebone/thermistor \
+Subscribers: base_station/gui \
 
 ### Usage
 At the top of the code there are alot of global variables that can dictate how the code works
@@ -20,16 +20,17 @@ The code also supports changing the ADC pin that is used very simply.  There is 
 
 The constantsArray is given on page 69 of [this](https://www.amphenol-sensors.com/en/component/edocman/292-thermometrics-temperature-resistance-curves-reference-guide/download) pdf.  This pdf contains all the resistance curves for \ all the different thermistors this company offers.  We are using the second table since we want temp \ from resistance.
 
-###LCM Commands
+#### LCM Commands
 Todo
 
-###Off Nominal Behavior Handling
-Todo
+### Off Nominal Behavior Handling
+If a temp out of range is detected, it will print out a message and exit
 
-###ToDo
-- [] Make sure using correct A,B,C,D values
+### ToDo
+- [x] Make sure using correct A,B,C,D values
+- [] Correct error handling
 - [] Make sure using correct read function from BBIO library
 - [] Test on beaglebone with thermistor
 
-###Notes
+### Notes
 Todo

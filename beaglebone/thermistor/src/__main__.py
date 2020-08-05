@@ -12,7 +12,7 @@ from rover_msgs import ThermistorData
 global LCM_INTERVAL, publishChannel
 LCM_INTERVAL = .05
 # FIXME channel name may be wrong
-publishChannel = "/thermistor_temp"
+publishChannel = "/thermistor_data"
 
 # setting ADC pin
 # FIXME change to desired pin
