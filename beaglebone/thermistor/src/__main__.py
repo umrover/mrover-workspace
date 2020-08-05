@@ -25,13 +25,12 @@ R1 = 10000
 V1 = 3.3
 
 # constants depending on the thermistor
-# FIXME unsure if these are correct, 
-# given by a random 90 page pdf unsure if picked right ones
-global A,B,C,D,R25
-A = 0.003357042
-B = 0.00025143
-C = 3.37742e-06
-D = -6.54336e-08
+# see readme for explanation of constants
+global constantArray, R25
+constantArray = [[0.003357042, 0.000252143, 3.37742e-06, -6.54336e-08],\
+                [00.003354016, 0.000256173, 2.13941e-06, -7.25325e-08],\
+                [0.003353045, 0.0002542, 1.14261e-06, -6.93803e-08],\
+                [0.0033533609, 0.000253768, 8.53411e-07, -8.7962e-08]]
 # Given by the spec of the specific thermistor
 R25 = 10000
 
@@ -57,13 +56,29 @@ def main():
         # calculating R2 (resistance of thermistor)
         Rt = V2 / I
 
+        # Determine which set of constants should be used
+        if(Rt/R25 < 69.26 & Rt/R25 >= 3.277):
+            constantSet = 0
+        elif(Rt/R25 < 3.277 & Rt/R25 >= 0.3599):
+            constantSet = 1
+        elif(Rt/R25 < 0.3599 & Rt/R25 >= 0.06816):
+            constantSet = 2
+        elif(Rt/R25 < 0.06816 & Rt/R25 >= 0.0187):
+            constantSet = 3
+        else:
+            # TODO proper error handling (out of bounds temp)
+            print("OOB temp")
+            exit()
+
+
         # Using the Rt/R25 range to determine actual temp
         lnRtoverR25 = ln(Rt/R25)
-        IoverT = A + (B * lnRtoverR25) + (C *  lnRtoverR25 * lnRtoverR25) \
-            + (D * lnRtoverR25 * lnRtoverR25 * lnRtoverR25)
+        IoverT = constantArray[constantSet][0] + (constantArray[constantSet][1] * lnRtoverR25) \
+            + (constantArray[constantSet][2] *  lnRtoverR25 * lnRtoverR25) \
+            + (constantArray[constantSet][3] * lnRtoverR25 * lnRtoverR25 * lnRtoverR25)
 
         # calc actual temp from the IoverT value the formula gives
-        currTemp = 1 / (IoverT / I)
+        currTemp = 1 / (IoverT / I) + 272.15 # + 273 to convert to C
 
         # publishing message and waiting desired interval
         publishMessage(currTemp)

@@ -18,7 +18,7 @@ This code assumes the usage of a simple voltage divider to figure out what the r
 
 The code also supports changing the ADC pin that is used very simply.  There is a variable called \ "adcPin" at the top which can be changed to the desired pin.
 
-The A, B, C, D, and Rt values are given from a datasheet on the [digikey website](https://www.digikey.com/product-detail/en/amphenol-advanced-sensors/RL0503-5820-97-MS/KC003T-ND/136365), which is also where \ the datasheet is found.  These should not need to be changed unless the thermistor is changed. 
+The constantsArray is given on page 69 of [this](https://www.amphenol-sensors.com/en/component/edocman/292-thermometrics-temperature-resistance-curves-reference-guide/download) pdf.  This pdf contains all the resistance curves for \ all the different thermistors this company offers.  We are using the second table since we want temp \ from resistance.
 
 ###LCM Commands
 Todo
