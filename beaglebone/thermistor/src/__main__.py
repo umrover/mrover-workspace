@@ -71,7 +71,7 @@ def main():
         
 def publishMessage(currTemp):
     global msg
-    msg = Thermistor()
+    msg = ThermistorData()
     msg.temperature = currTemp
     lcm.publish(publishChannel, msg.encode())
 
