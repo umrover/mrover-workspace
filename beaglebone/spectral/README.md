@@ -28,7 +28,7 @@ To execute: \
 ```$ ./jarvis build beaglebone/spectral```  to build the spectral program \
 ```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec beaglebone/spectral``` 
 
-### LCM Commands
+#### LCM Commands
 To get readings from the sensor: \
 In a new terminal \
 ```$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo SpectralData "/spectral_data_publish"```
