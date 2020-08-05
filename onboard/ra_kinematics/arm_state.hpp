@@ -74,7 +74,7 @@ private:
     vector<string> joint_names;
 
     vector<Avoidance_Link *> collision_avoidance_links; // could make this an array
-    // TODO: Change this value as necessary
+    // TODO: Change num_collision_parts value as necessary
     static const int num_collision_parts = 23;
     Vector3d ef_pos_world;
     Matrix4d ef_xform;
@@ -132,6 +132,8 @@ public:
     bool link_link_check(vector<Avoidance_Link *>::iterator it, vector<Avoidance_Link *>::iterator jt);
 
     bool obstacle_free();
+
+    int num_joints();
 
 };
 

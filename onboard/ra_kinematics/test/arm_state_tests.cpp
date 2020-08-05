@@ -25,6 +25,7 @@ TEST(read_geom_file) {
 }
 
 TEST(joint_creation_test) {
+    // TODO: Change configuration paths as needed.
     string config_path = getenv("MROVER_CONFIG");
     string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
 
@@ -58,6 +59,56 @@ TEST(avoidance_link_creation_test) {
     json joint_a_json = geom["joints"]["joint_a"];
 
     ArmState arm = ArmState(geom);
+}
+
+TEST(delete_joints_test) {
+    // TODO: Change the configuration path as needed
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+
+    json geom = read_json_from_file(geom_file);
+    ArmState* arm = new ArmState(geom);
+
+    // Todo: Change the number of joints as needed
+    ASSERT_EQUAL(6, arm->num_joints());
+    delete arm;
+    // Just tests to make sure there's no bugs in the destructor
+}
+
+TEST(set_joint_angles_test) {
+    // Create the angles vector that will be used to test
+    // TODO: Modify the length of set_angles as necessary
+    vector<double> set_angles{1.1, 0.9, -0.5, 0.1, 0.01, -1.2};
+    
+    // Create the arm object:
+    // TODO: Modify the configuration path as necessary
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+
+    json geom = read_json_from_file(geom_file);
+
+    ArmState arm = ArmState(geom);
+
+    // Set the angles on the arm to be from the set_angles vector
+    arm.set_joint_angles(set_angles);
+    // Retrieve the new arm angles and make sure they are identical to set_angles
+    map<string, double> return_angles_map = arm.get_joint_angles();
+    vector<double> return_angles_vec;
+    for (auto it = return_angles_map.begin(); it != return_angles_map.end(); ++it) {
+        return_angles_vec.push_back(it->second);
+    }
+    ASSERT_EQUAL(set_angles, return_angles_vec);
+}
+
+TEST(link_link_check_test) {
+    // TODO: Modify the configuration paths as necessary
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+
+    json geom = read_json_from_file(geom_file);
+    ArmState arm = ArmState(geom);
+    // Links and joints automatically initialized at onset of arm creation
+    ASSERT_EQUAL(arm.obstacle_free(), 0);
 }
 
 

@@ -8,7 +8,7 @@ using namespace Eigen;
 using namespace nlohmann;
 using namespace std;
 
-
+// Tested in joint creation test
 ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix4d::Identity()) {
     // Create all Joint instances from mrover_arm json
     json joints_json = geom["joints"];
@@ -30,27 +30,29 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
         }
     }
 }
-
+// Tested in delete_joints_test
 ArmState::~ArmState() {
     delete_joints();
 }
-
+// Tested in joint_creation_test
 void ArmState::add_joint(string name, json &joint_geom) {
     // Add joint with given configuration to map of joints - used during initialization
-    joints[name] = new Joint(name, joint_geom);
+    Joint* new_joint = new Joint(name, joint_geom);
+    joints[name] = new_joint;
     joint_names.push_back(name);
 }
-
+// Tested in avoidance_link_creation_test
 void ArmState::add_avoidance_link(int link_num, string joint_origin_name, json &link_json) {
     collision_avoidance_links.push_back(new Avoidance_Link(link_num, joint_origin_name, link_json));
 }
-
+// Tested in delete_joints_test
 void ArmState::delete_joints() {
     // Delete all instances of Joint struct when we're done with this ArmState object
     map<string, Joint *>::iterator it;
     for (auto it = joints.begin(); it != joints.end(); it++) {
         delete it->second;
     }
+    joints.clear();
 }
 
 Vector3d ArmState::get_joint_pos_local(string joint) {
@@ -80,7 +82,7 @@ map<string, double> ArmState::get_joint_limits(string joint) {
     // Map should have a "lower" value and "upper" value.
     return joints[joint]->joint_limits;
 }
-
+// Tested in set_joint_angles_test
 void ArmState::set_joint_angles(vector<double> angles) {
     // Iterate through all angles and joints adding the angles to each corresponding joint.
     // angles vector should be same size as internal joints map.
@@ -128,8 +130,10 @@ Vector3d ArmState::get_ef_pos_world() {
     return ef_pos_world;
 }
 
+// TODO: Do we need to implement this function?
 // Vector6d ArmState::get_ef_pos_and_euler_angles() {}
 
+// Tested in set_joint_angles_test
 map<string, double> ArmState::get_joint_angles() {
     map<string, double> angles;
     for (auto it = joints.begin(); it != joints.end(); ++it) {
@@ -138,7 +142,7 @@ map<string, double> ArmState::get_joint_angles() {
     return angles;
 }
 
-// TODO: Do we need to implement the below function?
+// TODO: Do we need to implement this function?
 
 // void ArmState::transform_avoidance_links() {
 //     for (size_t i = 0; i < collision_avoidance_links.size(); ++i) {
@@ -150,7 +154,7 @@ map<string, double> ArmState::get_joint_angles() {
 //     }
 // }
 
-
+// Tested in link_link_check_test
 bool ArmState::link_link_check(vector<Avoidance_Link *>::iterator it, vector<Avoidance_Link *>::iterator jt) {
     double closest_dist;
     Avoidance_Link * link_1 = *it;
@@ -181,7 +185,7 @@ bool ArmState::link_link_check(vector<Avoidance_Link *>::iterator it, vector<Avo
     }
     return closest_dist < (link_1->radius + link_2->radius);
 }
-
+// Tested in link_link_check_test
 bool ArmState::obstacle_free() {
     auto it = collision_avoidance_links.begin();
     for (size_t i = 0; i < ArmState::num_collision_parts; ++i) {
@@ -200,3 +204,7 @@ bool ArmState::obstacle_free() {
     return true;
 }
 
+// Used for testing ArmState functions
+int ArmState::num_joints() {
+    return joints.size();
+}
