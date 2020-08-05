@@ -28,9 +28,9 @@ If a temp out of range is detected, it will print out a message and exit
 
 ### ToDo
 - [x] Make sure using correct A,B,C,D values
-- [] Correct error handling
-- [] Make sure using correct read function from BBIO library
-- [] Test on beaglebone with thermistor
+- [ ] Correct error handling
+- [ ] Make sure using correct read function from BBIO library
+- [ ] Test on beaglebone with thermistor
 
 ### Notes
 Todo
