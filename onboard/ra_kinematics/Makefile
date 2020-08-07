@@ -9,7 +9,9 @@ build_run:
 	cd ../.. && pwd && ./jarvis build onboard/ra_kinematics/ && ./jarvis exec onboard/ra_kinematics/
 
 tests :
-	cp test/test_build.txt meson.build
+	cp test/arm_state_test_build.txt meson.build
+	cd ../.. && pwd && ./jarvis build onboard/ra_kinematics/ && ./jarvis exec onboard/ra_kinematics/
+	cp test/kinematics_test_build.txt meson.build
 	cd ../.. && pwd && ./jarvis build onboard/ra_kinematics/ && ./jarvis exec onboard/ra_kinematics/
 	cp test/main_build.txt meson.build
 
