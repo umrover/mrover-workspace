@@ -26,12 +26,20 @@
             :disabled="waypoints.length === 0"
             @clicked="clearWps"
           />
-          <Button
-            name="Clear Field"
-            :invert-color="true"
-            :disabled="clearFieldDisabled"
-            @clicked="clearField"
-          />
+          <div class="field-item-btns">
+            <Button
+              name="Clear Path"
+              :invert-color="true"
+              :disabled="roverPath.length <= 1"
+              @clicked="clearRoverPath"
+            />
+            <Button
+              name="Clear Field"
+              :invert-color="true"
+              :disabled="clearFieldDisabled"
+              @clicked="clearField"
+            />
+          </div>
         </div>
       </legend>
       <div
@@ -300,11 +308,17 @@ export default class FieldItems extends Vue {
   private readonly repeaterLoc!:Odom|null;
 
   @Getter
+  private readonly roverPath!:Odom[];
+
+  @Getter
   private readonly waypoints!:Waypoint[];
 
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
+  @Mutation
+  private readonly clearRoverPath!:()=>void;
+
   @Mutation
   private readonly removeArTag!:(index:number)=>void;
 
@@ -391,7 +405,8 @@ export default class FieldItems extends Vue {
   /* Whether or not the clear field button is disabled. */
   private get clearFieldDisabled():boolean {
     return this.arTags.length === 0 && this.gates.length === 0 &&
-           this.obstacles.length === 0 && this.waypoints.length === 0;
+           this.obstacles.length === 0 && this.waypoints.length === 0 &&
+           this.roverPath.length <= 1;
   }
 
   /************************************************************************************************
@@ -418,6 +433,7 @@ export default class FieldItems extends Vue {
     this.clearGates();
     this.clearObs();
     this.clearWps();
+    this.clearRoverPath();
   } /* clearField() */
 
   /* Delete all gate field items. */

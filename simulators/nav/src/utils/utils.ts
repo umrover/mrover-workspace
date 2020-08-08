@@ -211,6 +211,23 @@ export function radToDeg(angle:number):number {
 } /* radToDeg() */
 
 
+/* Find location of point after rotating around origin. */
+export function rotatePoint(
+    point:Point2D /* pixels */,
+    origin:Point2D /* pixels */,
+    angle:number /* degrees of rotation on compass */
+):Point2D {
+  /* Multiply by -1 because compass and canvas rotate opposite directions */
+  const angleRad:number = -1 * degToRad(angle);
+  return {
+    x: ((point.x - origin.x) * Math.cos(angleRad)) +
+        ((origin.y - point.y) * Math.sin(angleRad)) + origin.x,
+    y: origin.y - (((point.x - origin.x) * Math.sin(angleRad)) -
+        ((origin.y - point.y) * Math.cos(angleRad)))
+  };
+} /* rotatePoint() */
+
+
 /* Convert latitude or longitude into a string. */
 export function stringifyLatLon(
     deg:number,
@@ -413,23 +430,6 @@ function radToDeg2D(coords:Point2D):Point2D {
     y: radToDeg(coords.y)
   };
 } /* radToDeg2D() */
-
-
-/* Find location of point after rotating around origin. */
-function rotatePoint(
-    point:Point2D /* pixels */,
-    origin:Point2D /* pixels */,
-    angle:number /* degrees of rotation on compass */
-):Point2D {
-  /* Multiply by -1 because compass and canvas rotate opposite directions */
-  const angleRad:number = -1 * degToRad(angle);
-  return {
-    x: ((point.x - origin.x) * Math.cos(angleRad)) +
-        ((origin.y - point.y) * Math.sin(angleRad)) + origin.x,
-    y: origin.y - (((point.x - origin.x) * Math.sin(angleRad)) -
-        ((origin.y - point.y) * Math.cos(angleRad)))
-  };
-} /* rotatePoint() */
 
 
 /* Translate a point from the origin (0, 0) to the input origin. Return the
