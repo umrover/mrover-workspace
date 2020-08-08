@@ -26,8 +26,13 @@
       />
       <Checkbox
         :on="drawFovIn"
-        name="Draw Rover Visibility"
+        name="Draw Visibility"
         @clicked="toggleDrawFov"
+      />
+      <Checkbox
+        :on="drawPathIn"
+        name="Draw Path"
+        @clicked="toggleDrawPath"
       />
     </div>
 
@@ -124,6 +129,12 @@ export default class DebugTools extends Vue {
   private readonly paused!:boolean;
 
   @Getter
+  private readonly roverPath!:Odom[];
+
+  @Getter
+  private readonly roverPathVisible!:boolean;
+
+  @Getter
   private readonly simulateLoc!:boolean;
 
   @Getter
@@ -132,6 +143,9 @@ export default class DebugTools extends Vue {
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
+  @Mutation
+  private readonly clearRoverPath!:()=>void;
+
   @Mutation
   private readonly setAutonState!:(onOff:boolean)=>void;
 
@@ -151,6 +165,9 @@ export default class DebugTools extends Vue {
   private readonly setRepeaterLoc!:(newRepeaterLoc:Odom|null)=>void;
 
   @Mutation
+  private readonly setRoverPathVisible!:(onOff:boolean)=>void;
+
+  @Mutation
   private readonly setTakeStep!:(takeStep:boolean)=>void;
 
   /************************************************************************************************
@@ -166,6 +183,14 @@ export default class DebugTools extends Vue {
       depth: this.fovDepthIn,
       visible: newVisible
     });
+  }
+
+  /* Displayed whether or not to draw the rover's path. */
+  private get drawPathIn():boolean {
+    return this.roverPathVisible;
+  }
+  private set drawPathIn(newVisible:boolean) {
+    this.setRoverPathVisible(newVisible);
   }
 
   /* Displayed field of view angle. */
@@ -251,6 +276,7 @@ export default class DebugTools extends Vue {
     this.setCurrOdom(this.fieldCenterOdom);
     this.setAutonState(false);
     this.setPaused(false);
+    this.clearRoverPath();
   } /* resetRover() */
 
   /* When paused, execute a single joystick command. */
@@ -262,6 +288,11 @@ export default class DebugTools extends Vue {
   private toggleDrawFov():void {
     this.drawFovIn = !this.drawFovIn;
   } /* toggleDrawFov() */
+
+  /* Flip on/off drawing the rover's path. */
+  private toggleDrawPath():void {
+    this.drawPathIn = !this.drawPathIn;
+  } /* toggleDrawPath() */
 }
 </script>
 
