@@ -32,19 +32,21 @@ def servo_init(pin, degrees):
 
 
 def ammoniaservo_callback(channel, msg):
-    servo = Servo.decode(msg)
-    
-    run_servo(pin, 0)
-    time.sleep(2)
-    run_servo(pin, 90)
-    time.sleep(4)
+    # Probably unneeded considering the struct is empty
+    servo = ServoCMD.decode(msg)
+    if (servo.id == "left"):
+        run_servo(leftpin, servo.position)
+        time.sleep(4)
+    else if (servo.id == "right"):
+        run_servo(rightpin, servo.position)
+        time.sleep(4)
 
 
 def main():
 
-    # Change pin to actual pin on beaglebone once we know what pin
-    servo_init(pin, 0)
-    
+    # Change pins to actual pin on beaglebone once we know what pin
+    servo_init(leftpin, 0)
+    servo_init(rightpin, 0)
 
     lcm_.subscribe("/ammoniaservo", ammoniaservo_callback)
 

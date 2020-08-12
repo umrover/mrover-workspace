@@ -1,12 +1,12 @@
-﻿Code for Servos for Ammonia Test
+﻿Code for Servos
  ---
 ### About
 
-This code is intended to run the servos for the ammonia test at certain angles in order to drop the ammonia ??? idk what this is for exactly
+This code is intended to run the servos in order to lower the beaker for science testing. The beaker should stay in place until an empty LCM struct is sent where it will lower the beaker.
 
 ### LCM Channels Publishing/Subscribed To
-**Ammonia Servo**[subscriber] \
-Messages:  [AmmoniaServo.lcm](https://github.com/jjtom34/mrover-workspace/blob/AmmoniaServo/rover_msgs/AmmoniaServo.lcm) "/ammoniaservo" \
+**ServoCMD**[subscriber] \
+Messages:  [ServoCMD.lcm](https://github.com/jjtom34/mrover-workspace/blob/AmmoniaServo/rover_msgs/ServoCmd.lcm) "/servocmd" \
 Publishers: tbd
 Subscribers: tbd
 
@@ -17,25 +17,26 @@ Subscribers: tbd
 - 1 Beaglebone Black board or similar board
 
 
-#### Running
-When the servo is set up, the program should be set up as follows
+#### Setup
+When the servo is set up with the beaker, the program should be run as follows
 `$ ~/cd mrover-workspace`
 `$ /jarvis build beaglebone/ammoniaservo` \
-`$ /jarvis exec beaglebone/ammoniaservo` \
+`$ /jarvis exec beaglebone_ammoniaservo` \
 
 
 #### LCM Commands
 When the test wants to be run the following command should send an empty lcm message triggering the drop.
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send “/ammoniaservo” “{}”`
-I'm guessing this is how an empty lcm message is formatted  
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send “/servocmd” “{‘type’: ‘ServoCMD’, ‘id’: ‘<id>’, ‘degrees’: 90}”`
+Replace `<id>` with the appropriate servo, `'left'` or `'right'` .  
 
-This should set the servo angle to 0 and then 90 degrees after a short delay, effectively dropping the material.  
-
+This triggers the callback and should set the angle to 0 and then 90 degrees after a short delay.  
 
 ### To Do
 -   [x] Base Code
+
+-   [ ] Find out Specific Beaglebone pin and max/min dc for the servo
     
--   [ ] Tested LCM implementation
+-   [ ] Test LCM implementation
 -   [ ] Testing on the Rover
 
 ### Notes
