@@ -31,8 +31,7 @@ def servo_init(pin, degrees):
     PWM.start(pin, dc, 50)
 
 
-def ammoniaservo_callback(channel, msg):
-    # Probably unneeded considering the struct is empty
+def servocmd_callback(channel, msg):
     servo = ServoCMD.decode(msg)
     if (servo.id == "left"):
         run_servo(leftpin, servo.position)
@@ -47,8 +46,9 @@ def main():
     # Change pins to actual pin on beaglebone once we know what pin
     servo_init(leftpin, 0)
     servo_init(rightpin, 0)
+    # Might need a manual set to 0, not sure if init sets to angle 0 initially
 
-    lcm_.subscribe("/ammoniaservo", ammoniaservo_callback)
+    lcm_.subscribe("/servocmd", servocmd_callback)
 
 
 
