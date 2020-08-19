@@ -11,7 +11,6 @@ from rover_msgs import ThermistorData
 # time between temperature sends
 global LCM_INTERVAL, publishChannel
 LCM_INTERVAL = .05
-# FIXME channel name may be wrong
 publishChannel = "/thermistor_data"
 
 # setting ADC pin
@@ -57,13 +56,13 @@ def main():
         Rt = V2 / I
 
         # Determine which set of constants should be used
-        if(Rt/R25 < 69.26 & Rt/R25 >= 3.277):
+        if(Rt/R25 < 69.26 and Rt/R25 >= 3.277):
             constantSet = 0
-        elif(Rt/R25 < 3.277 & Rt/R25 >= 0.3599):
+        elif(Rt/R25 < 3.277 and Rt/R25 >= 0.3599):
             constantSet = 1
-        elif(Rt/R25 < 0.3599 & Rt/R25 >= 0.06816):
+        elif(Rt/R25 < 0.3599 and Rt/R25 >= 0.06816):
             constantSet = 2
-        elif(Rt/R25 < 0.06816 & Rt/R25 >= 0.0187):
+        elif(Rt/R25 < 0.06816 and Rt/R25 >= 0.0187):
             constantSet = 3
         else:
             # TODO proper error handling (out of bounds temp)

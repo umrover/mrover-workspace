@@ -11,7 +11,7 @@ The code also supports changing the ADC pin that is used very simply.  There is 
 The constantsArray is given on page 69 of [this](https://www.amphenol-sensors.com/en/component/edocman/292-thermometrics-temperature-resistance-curves-reference-guide/download) pdf.  This pdf contains all the resistance curves for all the different thermistors this company offers.  We are using the second table since we want temp from resistance.
 
 #### LCM Channels
-Messages: [ThermistorData.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorData.lcm) "/thermistor_temp" \
+Messages: [ThermistorData.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorData.lcm) "/thermistor_data" \
 Publishers: beaglebone/thermistor \
 Subscribers: base_station/gui 
 
