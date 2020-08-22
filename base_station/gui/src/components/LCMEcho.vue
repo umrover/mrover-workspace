@@ -82,6 +82,7 @@
           '/ra_pidconfig_cmd': false,
           '/rr_drop_complete': false,
           '/rr_drop_init': false,
+          '/rtcm': false,
           '/sa_control': false,
           '/sa_endeffector_cmd': false,
           '/sa_openloop_cmd': false,
@@ -142,6 +143,7 @@
           {'topic': '/tennis_ball', 'type': 'TennisBall'},
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
+          {'topic': '/rtcm', 'type': 'RTCM'},
           {'topic': '/microscope', 'type': 'Microscope'}
         ]
       }
