@@ -6,5 +6,14 @@ struct GPS {
     int32_t longitude_deg;
     double longitude_min;
     double bearing_deg;
+    // units: degrees from true
+    // 999: Invalid/Nonexistent measurement
     double speed;
+    // units: m/s
+    int32_t quality;
+    // 0: Fix not valid
+    // 1: GPS fix
+    // 2: Differential GPS fix, OmniSTAR VBS
+    // 4: Real-Time Kinematic, fixed integers
+    // 5: Real-Time Kinematic, float integers, OmniSTAR XP/HP or Location RTK
 }

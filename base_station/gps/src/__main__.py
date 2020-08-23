@@ -4,9 +4,8 @@ from rover_common import aiolcm
 from rover_msgs import RTCM
 
 # To be moved to config
-_BAUDRATE = 38400
+_BAUDRATE = 115200
 _FILENAME = '/dev/ttyACM0'
-_TIMEOUT = 1
 
 
 def main():
