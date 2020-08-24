@@ -16,7 +16,8 @@ class GPS_Manager():
     def __init__(self):
         self.NMEA_TAGS_MAPPER = {
             "GGA": self.gga_handler,
-            "VTG": self.vtg_handler
+            "VTG": self.vtg_handler,
+            "TXT": self.txt_handler
         }
 
     def __enter__(self):
@@ -80,10 +81,14 @@ class GPS_Manager():
         gps_struct.bearing_deg = track_made_good
         gps_struct.speed = speed_over_ground
 
+    def txt_handler(self, msg, gps_struct):
+        print(msg)
+
     async def recieve(self, lcm):
         gps_struct = GPS()
         error_counter = 0
-        seen_tags = {tag: False for tag in self.NMEA_TAGS_MAPPER.keys()}
+        seen_tags = {tag: False if not tag == 'TXT' else True
+                     for tag in self.NMEA_TAGS_MAPPER.keys()}
         while True:
             # Wait for all tags to be seen
             while (not all(seen_tags.values())):
@@ -106,13 +111,14 @@ class GPS_Manager():
                             func(msg, gps_struct)
                             seen_tags[tag] = True
                         except Exception as e:
+                            print(msg)
                             print(e)
                         break
 
                 if not match_found:
-                    print('Error decoding message stream')
-                    raise ValueError('Unrecognized NMEA string: {}'
-                                     .format(msg))
+                    print('Error decoding message stream: {}'.format(msg))
+                    # raise ValueError('Unrecognized NMEA string: {}'
+                    #                  .format(msg))
 
             # Skip publish if fix is invalid
             if gps_struct.quality == 0:
@@ -121,12 +127,14 @@ class GPS_Manager():
                 continue
 
             lcm.publish('/gps', gps_struct.encode())
-            seen_tags = {tag: False for tag in self.NMEA_TAGS_MAPPER.keys()}
+            seen_tags = {tag: False if not tag == 'TXT' else True
+                         for tag in self.NMEA_TAGS_MAPPER.keys()}
             await asyncio.sleep(_SLEEP)
 
     def transmit(self, channel, msg):
         struct = RTCM.decode(msg)
-        print(self.ser.write(struct.msg.encode('ascii')))
+        print('Recieved: ', bytes(struct.data))
+        print(self.ser.write(bytes(struct.data)))
 
 
 def main():

@@ -1,5 +1,6 @@
 package rover_msgs;
 
 struct RTCM {
-    string msg;
+    int32_t size;
+    int32_t data[size];
 }
