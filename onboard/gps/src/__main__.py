@@ -1,19 +1,27 @@
 import serial
 import asyncio
+import json
+import numpy as np
+from os import getenv
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import GPS, RTCM
-
-# To be moved to config
-_BAUDRATE = 115200
-_FILENAME = '/dev/ttyACM1'
-_MAX_ERROR_COUNT = 5
-_SLEEP = 0.1
 
 
 class GPS_Manager():
 
     def __init__(self):
+
+        # Dynamically loading config
+        configPath = getenv('MROVER_CONFIG')
+        configPath += "/config_gps/config.json"
+        with open(configPath, "r") as read_file:
+            self.config = json.load(read_file)['onboard']
+
+        for key, val in self.config.items():
+            self.__setattr__(str(key), val)
+
+        # Mapping NMEA messages to their handlers
         self.NMEA_TAGS_MAPPER = {
             "GGA": self.gga_handler,
             "VTG": self.vtg_handler,
@@ -21,7 +29,7 @@ class GPS_Manager():
         }
 
     def __enter__(self):
-        self.ser = serial.Serial(_FILENAME, _BAUDRATE)
+        self.ser = serial.Serial(self.filename, self.baudrate)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -29,6 +37,10 @@ class GPS_Manager():
 
     def gga_handler(self, msg, gps_struct):
         fields = msg.split(',')
+
+        # Handles empty messages while finding fix
+        if not fields[2] or not fields[4]:
+            raise ValueError('No Satelite Fix: {}'.format(msg))
 
         raw_lat = float(fields[2])
         lat_dir = fields[3]
@@ -56,7 +68,7 @@ class GPS_Manager():
         gps_struct.latitude_min = lat_min
         gps_struct.longitude_deg = int(lon_deg)
         gps_struct.longitude_min = lon_min
-        gps_struct.quality = int(quality)
+        gps_struct.quality = np.uint8(quality)
 
         if quality == 0:
             print('Warning: Fix Quality Invalid')
@@ -68,20 +80,21 @@ class GPS_Manager():
         try:
             track_made_good = float(fields[1])
         except Exception as e:
-            # print(e)
             track_made_good = float(999)
 
         # kilometers / hour
         try:
             speed_over_ground = float(fields[7])
         except Exception as e:
-            # print(e)
             speed_over_ground = float(0)
 
         gps_struct.bearing_deg = track_made_good
         gps_struct.speed = speed_over_ground
 
     def txt_handler(self, msg, gps_struct):
+        '''
+        Prints info messages revieved from GPS to screen
+        '''
         print(msg)
 
     async def recieve(self, lcm):
@@ -94,11 +107,13 @@ class GPS_Manager():
             while (not all(seen_tags.values())):
                 try:
                     msg = str(self.ser.readline())
+                    print(msg)
                     error_counter = 0
                 except Exception as e:
-                    if error_counter < _MAX_ERROR_COUNT:
+                    if error_counter < self.max_error_count:
                         error_counter += 1
                         print(e)
+                        await asyncio.sleep(self.sleep)
                         continue
                     else:
                         raise e
@@ -111,7 +126,6 @@ class GPS_Manager():
                             func(msg, gps_struct)
                             seen_tags[tag] = True
                         except Exception as e:
-                            print(msg)
                             print(e)
                         break
 
@@ -123,18 +137,18 @@ class GPS_Manager():
             # Skip publish if fix is invalid
             if gps_struct.quality == 0:
                 print('Waiting for GPS Fix')
-                await(asyncio.sleep(_SLEEP))
+                await(asyncio.sleep(self.sleep))
                 continue
 
             lcm.publish('/gps', gps_struct.encode())
             seen_tags = {tag: False if not tag == 'TXT' else True
                          for tag in self.NMEA_TAGS_MAPPER.keys()}
-            await asyncio.sleep(_SLEEP)
+            await asyncio.sleep(self.sleep)
 
     def transmit(self, channel, msg):
         struct = RTCM.decode(msg)
-        print('Recieved: ', bytes(struct.data))
-        print(self.ser.write(bytes(struct.data)))
+        print('Recieved: {} bytes'.format(len(bytes(struct.data))))
+        self.ser.write(bytes(struct.data))
 
 
 def main():
