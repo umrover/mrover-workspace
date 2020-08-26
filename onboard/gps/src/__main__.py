@@ -89,7 +89,7 @@ class GPS_Manager():
             speed_over_ground = float(0)
 
         gps_struct.bearing_deg = track_made_good
-        gps_struct.speed = speed_over_ground
+        gps_struct.speed = speed_over_ground * 1000 / 60
 
     def txt_handler(self, msg, gps_struct):
         '''

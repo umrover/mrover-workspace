@@ -1,1 +1,0 @@
-str2str -in serial://ttyACM0:115200:8:n:1: -out tcpsvr://:2222
