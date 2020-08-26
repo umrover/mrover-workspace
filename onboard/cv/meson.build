@@ -12,7 +12,7 @@ with_zed = get_option('with_zed')
 
 if with_zed
 	zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include', 
-	'/usr/include/pcl-1.8', '/usr/include/eigen3', '/usr/include/boost', '/usr/include/vtk-6.3', '/usr/include/flann')
+	'/usr/local/include/pcl-1.11', '/usr/local/include/eigen3', '/usr/include/boost', '/usr/local/include/vtk-8.2', '/usr/include/flann')
 	zed = declare_dependency(
 		include_directories : zed_include_dirs,
 		link_args : [
@@ -28,8 +28,8 @@ if with_zed
 
 			# PCL
 			'-lpcl_common', '-lpcl_visualization', '-lpcl_filters', '-lpcl_segmentation', '-lpcl_search', '-lpcl_kdtree', '-lpcl_sample_consensus',
-			'-lboost_system','-lvtksys-6.3', '-lvtkRenderingCore-6.3', '-lvtkCommonCore-6.3',
-			'-lvtkCommonDataModel-6.3', '-lvtkCommonMath-6.3', '-lvtkFiltersCore-6.3', '-lvtkCommonExecutionModel-6.3', '-lvtkFiltersGeometry-6.3'
+			'-lboost_system','-lvtksys-8.2', '-lvtkRenderingCore-8.2', '-lvtkCommonCore-8.2',
+			'-lvtkCommonDataModel-8.2', '-lvtkCommonMath-8.2', '-lvtkFiltersCore-8.2', '-lvtkCommonExecutionModel-8.2', '-lvtkFiltersGeometry-8.2'
 		])
 	all_deps += [zed]
 endif
@@ -58,5 +58,5 @@ configure_file(
 
 executable('onboard_cv',
 		   'main.cpp', 'camera.cpp', 'artag_detector.cpp', 'obstacle_detector.cpp', 'pcl.cpp',
-		   dependencies : all_deps,
+		   dependencies : all_deps, cpp_args : '-mavx',
 		   install : true)
