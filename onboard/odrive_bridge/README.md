@@ -88,7 +88,9 @@ our usage of it. Six 47nF capacitors will have to be soldered on to the odrive a
 [this](https://docs.odriverobotics.com/#downloading-and-installing-tools)  
 odrive webiste page to get odrivetool on your own computer or connect the 
 odrive to the jetson and follow the steps below to get it. You must change the USB permissions (how to in the next section)
-before doing this though, and make sure the odrive_bridge program on the jetson is deactivated. \
+before doing this though, and make sure the odrive_bridge program on the jetson is [deactivated](Debugging). \
+`$ ssh mrover@10.0.0.1` \
+`$ mrover` \
 `$ cd ~/.mrover` \
 `$ source bin/activate` \
 `$ odrivetool` \
@@ -105,7 +107,7 @@ and the seconds controls the front. Rebuild the program. \
 
 #### Changing The USB Permissions
 <font size="4"> USB permissions when connecting the odrive to the jetson have to be modified before you can successfully communicate with the odrive. This only has to be done once. \
-Make sure the odrive is connected via USB and type \
+Make sure the odrive is connected via USB and ssh into the jetson. Type \
 `$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics
 device. \
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
@@ -114,8 +116,10 @@ device. \
 </font>
 
 #### Calibrating The Odrive 
-<font size="4"> Since the CalibrateState has not been tested, it must be done manually. Once again go to the .mrover folder 
+<font size="4"> Since the CalibrateState has not been tested, it must be done manually. Once again ssh into the jetson and go to the .mrover folder 
 and start running odrivetool. \
+`$ ssh mrover@10.0.0.1` \
+`$ mrover` \
 `$ cd ~/.mrover` \
 `$ source bin/activate` \
 `$ odrivetool` \
@@ -142,7 +146,7 @@ A ChannelBrokenExceptionError will be thrown however in a few minutes the odrive
  Repeat these three commands for axis1 as well. Then type \
 `$ odrvX.reboot()` 
 
-Go to the ~/mrover-workspace folder and re-enable the odrive_bridge program. \
+Go to the ~/mrover-workspace folder on the base station and re-enable the odrive_bridge program. \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  
 </font>
 
@@ -172,7 +176,10 @@ In order to Arm/Disarm the odrives manually type \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/drive_state_cmd" "{'type': 'DriveStateCmd', 'controller': X, 'state': Y }" `\
 X is the odrive, either 0 or 1, and Y is the state. 1 is DisarmedState, 2 is ArmedState, and 3 is CalibrateState
 (not usable at the moment). \
-In order to see if there are any odrive errors, \
+In order to see if there are any odrive errors, ssh into the jetson \
+`$ ssh mrover@10.0.0.1` \
+`$ mrover` \
+The terminal should now display that you are in mrover@mrover-jetson  \
 `$ cd ~/.mrover` \
 `$ source bin/activate` \
 `$ odrivetool` \
