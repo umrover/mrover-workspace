@@ -1,3 +1,7 @@
+'''
+Reads RTCM messages from the base station gps and sends them
+over LCM (/rtcm) to the onboard gps.
+'''
 import serial
 import time
 import json

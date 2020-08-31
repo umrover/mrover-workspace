@@ -1,3 +1,9 @@
+'''
+Reads and parses NMEA messages from the onboard GPS to provide
+location data to the rover over LCM (/gps). Subscribes to
+/rtcm and passes RTCM messages to the onboard gps to
+acquire an RTK fix.
+'''
 import serial
 import asyncio
 import json

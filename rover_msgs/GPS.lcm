@@ -5,11 +5,14 @@ struct GPS {
     double latitude_min;
     int32_t longitude_deg;
     double longitude_min;
+
     double bearing_deg;
     // Units: degrees from true
     // 999: Invalid/Nonexistent measurement
+
     double speed;
     // units: m/s
+
     int8_t quality;
     // 0: Fix not valid
     // 1: GPS fix
