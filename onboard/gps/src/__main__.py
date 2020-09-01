@@ -35,13 +35,23 @@ class GPS_Manager():
         }
 
     def __enter__(self):
+        '''
+        Opens a serial connection to the GPS
+        '''
         self.ser = serial.Serial(self.filename, self.baudrate)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        '''
+        Closes serial connection to GPS
+        '''
         self.ser.close()
 
     def gga_handler(self, msg, gps_struct):
+        '''
+        Handles NMEA statments that follow the **GGA pattern.
+        These statements hold the lat, lon, and quality of connection
+        '''
         fields = msg.split(',')
 
         # Handles empty messages while finding fix
@@ -80,6 +90,10 @@ class GPS_Manager():
             print('Warning: Fix Quality Invalid')
 
     def vtg_handler(self, msg, gps_struct):
+        '''
+        Handles NMEA messages that follow the **VTG pattern.
+        These messages hold the ground speed and bearing
+        '''
         fields = msg.split(',')
 
         # degrees relative to true north
@@ -104,8 +118,18 @@ class GPS_Manager():
         print(msg)
 
     async def recieve(self, lcm):
+        '''
+        Reads from the rover GPS over serial connection.
+        Attempts to read and proccess all supported NMEA tags
+        at least once before publishing a new LCM message.
+        Will skip publishing if the GPS quality is 0 (no fix).
+        Will complain (but not crash) if encountering an
+        unsupported message. Sleeps after publishing to
+        allow time for handling incoming LCM messages
+        '''
         gps_struct = GPS()
         error_counter = 0
+        # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
                      for tag in self.NMEA_TAGS_MAPPER.keys()}
         while True:
@@ -152,12 +176,17 @@ class GPS_Manager():
             await asyncio.sleep(self.sleep)
 
     def transmit(self, channel, msg):
+        '''
+        Recieves binary RTCM messages from /rtcm LCM and
+        writes them directly to the rover GPS
+        '''
         struct = RTCM.decode(msg)
         print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         self.ser.write(bytes(struct.data))
 
 
 def main():
+    # Uses a context manager to ensure serial port released
     with GPS_Manager() as manager:
         lcm = aiolcm.AsyncLCM()
         lcm.subscribe("/rtcm", manager.transmit)
