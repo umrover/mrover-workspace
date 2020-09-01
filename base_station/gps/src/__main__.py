@@ -24,13 +24,25 @@ class GPS_Base_Station():
             self.__setattr__(str(key), val)
 
     def __enter__(self):
+        '''
+        Opens a serial connection to the GPS
+        '''
         self.ser = serial.Serial(self.filename, self.baudrate)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        '''
+        Closes serial connection to GPS
+        '''
         self.ser.close()
 
     def run(self):
+        '''
+        Reads a chunk of serial data from the base station GPS
+        and sends it over LCM to the rover GPS. The RTCM messages
+        are not being interpreted, merely chunked into bytes so they
+        can be packaged up.
+        '''
         lcm = aiolcm.AsyncLCM()
         rtcm = RTCM()
         while (self.ser.is_open):
@@ -47,6 +59,7 @@ class GPS_Base_Station():
 
 
 def main():
+    # Use of a context manager ensures proper release of serial port
     with GPS_Base_Station() as base_station:
         base_station.run()
 
