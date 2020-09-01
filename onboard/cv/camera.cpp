@@ -34,6 +34,12 @@ Camera::Impl::Impl() {
 	init_params.camera_fps = 15;
 	// TODO change this below?
 	assert(this->zed_.open(init_params) == sl::SUCCESS);
+  
+  //weird zed shit
+  // this->zed_.setCameraSettings(sl::CAMERA_SETTINGS_EXPOSURE, 100, true);
+  
+  this->zed_.setCameraSettings(sl::CAMERA_SETTINGS_BRIGHTNESS, 1, true);
+
 	this->zed_.setConfidenceThreshold(THRESHOLD_CONFIDENCE);
 	std::cout<<"ZED init success\n";
 	this->runtime_params_.sensing_mode = sl::SENSING_MODE_STANDARD;
