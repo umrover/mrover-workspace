@@ -73,10 +73,9 @@ int main() {
   Camera cam;
   cam.grab();
   int j = 0;
-  double frame_time = 0;
   int counter_fail = 0;
   #if PERCEPTION_DEBUG
-    namedWindow("image", 1);
+    namedWindow("Obstacle");
     namedWindow("depth", 2);
   #endif
   disk_record_init();
@@ -144,8 +143,8 @@ int main() {
     //Make trackbars
     int thresh1 = 300000;
     int thresh2 = 70000;
-    createTrackbar("Main Window", "image", &thresh1, 500000);
-    createTrackbar("Sub Window", "image", &thresh2, 120000);
+    createTrackbar("Main Window", "Obstacle", &thresh1, 500000);
+    createTrackbar("Sub Window", "Obstacle", &thresh2, 120000);
   #endif
   
   while (true) {
@@ -167,10 +166,10 @@ int main() {
       }
     #endif
 
-    /* Tennis ball detection*/
+    /* AR Tag Detection*/
     arTags[0].distance = -1;
     arTags[1].distance = -1;
-    #if TB_DETECTION
+    #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       vidWrite.write(rgb);
       //update both tags in LCM message
@@ -184,13 +183,14 @@ int main() {
           arTags[0].id = -1;
         }
       } else { //one tag found
-        arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
+        if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
+          arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
         arTags[0].bearing = getAngle((int)tagPair.first.loc.x, src.cols);
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
       }
       
-      //first tag
+      //second tag
       if(tagPair.second.id == -1){//no tag found
         if(right_tag_buffer <= 20){//send the buffered tag
           ++right_tag_buffer;
@@ -200,7 +200,8 @@ int main() {
           arTags[1].id = -1;
         }
       } else { //one tag found
-        arTags[1].distance = depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x);
+        if(!isnan(depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x)))
+          arTags[1].distance = depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x);
         arTags[1].bearing = getAngle((int)tagPair.second.loc.x, src.cols);
         arTags[1].id = tagPair.second.id;
         right_tag_buffer = 0;
@@ -232,12 +233,12 @@ int main() {
 
     #endif
 
-    lcm_.publish("/target_list", &arTagsMessage);
-    lcm_.publish("/obstacle", &obstacleMessage);
+    //lcm_.publish("/target_list", &arTagsMessage);
+    //lcm_.publish("/obstacle", &obstacleMessage);
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);
-      imshow("TAG FINDER", src);
+      imshow("Obstacle", src);
       updateThresholds(thresh1,thresh2);
       waitKey(FRAME_WAITKEY);
     #endif

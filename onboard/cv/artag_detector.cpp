@@ -73,7 +73,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     // on click debugging for color
     DEPTH = depth_src;
     cvtColor(rgb, HSV, COLOR_RGB2HSV);
-    setMouseCallback("image", onMouse);
+    setMouseCallback("Obstacle", onMouse);
 #endif
 
     // create Tag objects for the detected tags and return them

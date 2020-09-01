@@ -5,6 +5,11 @@
 #include <sl/Camera.hpp>
 #include <cassert>
 
+//Class created to implement all Camera class' functions
+//Abstracts away details of using Stereolab's camera interface
+//so we can just use a simple custom one
+//Also allows us to not be restricted to using the ZED for testing,
+//but can use sample images for testing
 class Camera::Impl {
 public:
 	Impl();
@@ -28,50 +33,67 @@ private:
 
 Camera::Impl::Impl() {
 	sl::InitParameters init_params;
-	init_params.camera_resolution = sl::RESOLUTION_HD720; // default: 720p
-	init_params.depth_mode = sl::DEPTH_MODE_PERFORMANCE;
-	init_params.coordinate_units = sl::UNIT_METER;
-	init_params.camera_fps = 15;
+	init_params.camera_resolution = sl::RESOLUTION::HD720; // default: 720p
+	init_params.depth_mode = sl::DEPTH_MODE::PERFORMANCE;
+	init_params.coordinate_units = sl::UNIT::METER;
+	init_params.camera_fps = 30;
 	// TODO change this below?
-	assert(this->zed_.open(init_params) == sl::SUCCESS);
+
+	assert(this->zed_.open(init_params) == sl::ERROR_CODE::SUCCESS);
+  
+  //Parameters for Positional Tracking
+  init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
   
   //weird zed shit
   // this->zed_.setCameraSettings(sl::CAMERA_SETTINGS_EXPOSURE, 100, true);
   
-  this->zed_.setCameraSettings(sl::CAMERA_SETTINGS_BRIGHTNESS, 1, true);
+  this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
 
-	this->zed_.setConfidenceThreshold(THRESHOLD_CONFIDENCE);
+	this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
 	std::cout<<"ZED init success\n";
-	this->runtime_params_.sensing_mode = sl::SENSING_MODE_STANDARD;
+	this->runtime_params_.sensing_mode = sl::SENSING_MODE::STANDARD;
 
-	this->image_size_ = this->zed_.getResolution();
+	this->image_size_ = this->zed_.getCameraInformation().camera_resolution;
 	this->image_zed_.alloc(this->image_size_.width, this->image_size_.height,
-						   sl::MAT_TYPE_8U_C4);
+						   sl::MAT_TYPE::U8_C4);
 	this->image_ = cv::Mat(
 		this->image_size_.height, this->image_size_.width, CV_8UC4,
-		this->image_zed_.getPtr<sl::uchar1>(sl::MEM_CPU));
+		this->image_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
 	this->depth_zed_.alloc(this->image_size_.width, this->image_size_.height,
-		                   sl::MAT_TYPE_32F_C1);
+		                   sl::MAT_TYPE::F32_C1);
 	this->depth_ = cv::Mat(
 		this->image_size_.height, this->image_size_.width, CV_32FC1,
-		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM_CPU));
+		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
+  
+  sl::PositionalTrackingParameters tracking_parameters;
+  this->zed_.enablePositionalTracking(tracking_parameters);
 }
 
 bool Camera::Impl::grab() {
-	return this->zed_.grab(this->runtime_params_) == sl::SUCCESS;
+  sl::Pose zed_pose;
+  if(this->zed_.grab() == sl::ERROR_CODE::SUCCESS) {
+    // Get the pose of the camera relative to the world frame
+        sl::POSITIONAL_TRACKING_STATE state = zed_.getPosition(zed_pose, sl::REFERENCE_FRAME::WORLD);
+        // Display translation and timestamp
+        printf("Translation: tx: %.3f, ty:  %.3f, tz:  %.3f, ox: %.3f, oy:  %.3f, oz:  %.3f, ow: %.3f\r",
+        zed_pose.getTranslation().tx, zed_pose.getTranslation().ty, zed_pose.getTranslation().tz, zed_pose.getOrientation().ox, zed_pose.getOrientation().oy, zed_pose.getOrientation().oz, zed_pose.getOrientation().ow);
+        // Display orientation quaternion
+        //printf(\r",
+        //zed_pose.getOrientation().ox, zed_pose.getOrientation().oy, zed_pose.getOrientation().oz, zed_pose.getOrientation().ow);
+        return true;
+  }
+	return false;
 }
 
 cv::Mat Camera::Impl::image() {
-	this->zed_.retrieveImage(this->image_zed_, sl::VIEW_LEFT, sl::MEM_CPU,
-							 this->image_size_.width, this->image_size_.height);
+	this->zed_.retrieveImage(this->image_zed_, sl::VIEW::LEFT, sl::MEM::CPU,
+							 this->image_size_);
 	return this->image_;
 }
 
 cv::Mat Camera::Impl::depth() {
 
-    this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE_DEPTH,  sl::MEM_CPU,  this->image_size_.width, 
-    	 this->image_size_.height);
-
+    this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE::DEPTH,  sl::MEM::CPU,  this->image_size_);
 	return this->depth_;
 }
 

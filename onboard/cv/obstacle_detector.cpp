@@ -96,7 +96,8 @@ pair<int, float> get_final_col(vector<pair<int, float> > & sorted_sums, float mi
     // go straight if each direction has similar value
     return make_pair(-1, middle_sum);
 
-  } else {
+  } 
+  
     // otherwise, return the one that is cloesest with last time
     int smallest_diff = abs(last_center - (sorted_sums[0].first));
     pair<int, float> smallest_dist_pair = sorted_sums[0];
@@ -108,7 +109,6 @@ pair<int, float> get_final_col(vector<pair<int, float> > & sorted_sums, float mi
       }
     }
     return smallest_dist_pair;
-  }
 
 }
 

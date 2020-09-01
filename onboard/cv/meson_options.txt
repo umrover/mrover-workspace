@@ -1,5 +1,5 @@
-option('tb_detection', type: 'boolean', value : true)
-option('obs_detection', type: 'boolean', value: false)
+option('ar_detection', type: 'boolean', value : true)
+option('obs_detection', type: 'boolean', value: true)
 option('with_zed', type: 'boolean', value : true)
 option('perception_debug', type: 'boolean', value: true)
 option('write_frame', type: 'boolean', value: false)
