@@ -1,0 +1,84 @@
+Phoenix already installed, skipping.
+RapidJson already installed, skipping.
+LCM already installed, skipping.
+pip dependencies already installed, skipping.
+Done.
+- building dependency rover_msgs
+Building LCM package
+rover_msgs unchanged, skipping.
+Done
+Building C++ package
+Compiling C++ project...
+/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+The Meson build system
+Version: 0.43.0
+Source dir: /mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep
+Build dir: /home/mmartin/.mrover/scratch/jetson_percep
+Build type: native build
+Project name: jetson_percep
+Native C++ compiler: c++ (gcc 7.5.0)
+Build machine cpu family: x86_64
+Build machine cpu: x86_64
+Found pkg-config: /usr/bin/pkg-config (0.29.1)
+Native dependency opencv found: YES 3.2.0
+Native dependency lcm found: YES 1.3.1
+Configuring config.h using configuration
+Build targets in project: 1
+Found ninja-1.8.2 at /usr/bin/ninja
+[0/1] Regenerating build files.
+The Meson build system
+WARNING: PKG_CONFIG_PATH has changed between invocations from "/home/mmartin/.mrover/build_env/lib/x86_64-linux-gnu/pkgconfig:/home/mmartin/.mrover/build_env/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" to "".
+Version: 0.43.0
+Source dir: /mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep
+Build dir: /home/mmartin/.mrover/scratch/jetson_percep
+Build type: native build
+Project name: jetson_percep
+Native C++ compiler: c++ (gcc 7.5.0)
+Build machine cpu family: x86_64
+Build machine cpu: x86_64
+Configuring config.h using configuration
+Build targets in project: 1
+Found ninja-1.8.2 at /usr/bin/ninja
+[1/5] Compiling C++ object 'jetson_percep@exe/artag_detector.cpp.o'.
+[2/5] Compiling C++ object 'jetson_percep@exe/camera.cpp.o'.
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/camera.cpp: In constructor ‘Camera::Impl::Impl()’:
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/camera.cpp:218:7: warning: unused variable ‘img_tail_str_len’ [-Wunused-variable]
+   int img_tail_str_len = 4;
+       ^~~~~~~~~~~~~~~~
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/camera.cpp: In member function ‘bool Camera::Impl::grab()’:
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/camera.cpp:273:20: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   if (idx_curr_img >= img_names.size()) {
+       ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/camera.cpp:281:24: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+   if (idx_curr_pcd_img >= pcd_names.size()-2) {
+       ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
+[3/5] Compiling C++ object 'jetson_percep@exe/main.cpp.o'.
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/main.cpp: In function ‘int main()’:
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/main.cpp:16:7: warning: unused variable ‘counter_fail’ [-Wunused-variable]
+   int counter_fail = 0;
+       ^~~~~~~~~~~~
+[4/5] Compiling C++ object 'jetson_percep@exe/pcl.cpp.o'.
+In file included from ../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/pcl.cpp:519:0:
+/usr/local/include/pcl-1.11/pcl/gpu/segmentation/gpu_extract_clusters.h:65:11: warning: ‘class pcl::gpu::EuclideanClusterExtraction’ has virtual functions and accessible non-virtual destructor [-Wnon-virtual-dtor]
+     class EuclideanClusterExtraction
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/pcl.cpp: In member function ‘double PCL::FindClearPath(std::vector<std::vector<int> >, std::shared_ptr<pcl::visualization::PCLVisualizer>)’:
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/pcl.cpp:583:75: warning: no return statement in function returning non-void [-Wreturn-type]
+                     shared_ptr<pcl::visualization::PCLVisualizer> viewer){}
+                                                                           ^
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/pcl.cpp: In member function ‘bool PCL::CheckPath(std::vector<std::vector<int> >, std::shared_ptr<pcl::visualization::PCLVisualizer>, std::vector<int>&, compareLine, compareLine)’:
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/pcl.cpp:588:83: warning: no return statement in function returning non-void [-Wreturn-type]
+         std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine){}
+                                                                                   ^
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/pcl.cpp: In member function ‘obstacle_return PCL::pcl_obstacle_detection(std::shared_ptr<pcl::visualization::PCLVisualizer>)’:
+../../../../../mnt/c/Users/mmart/Downloads/Programming/mrover-workspace/jetson/percep/pcl.cpp:591:99: warning: no return statement in function returning non-void [-Wreturn-type]
+ obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer){}
+                                                                                                   ^
+[5/5] Linking target jetson_percep.
+Testing...
+[0/1] Running all tests.
+No tests defined.
+Installing...
+[0/1] Installing files.
+Installing jetson_percep to /home/mmartin/.mrover/build_env/bin/jetson_percep
+Done
