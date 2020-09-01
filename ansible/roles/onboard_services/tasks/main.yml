@@ -37,8 +37,8 @@
       - rover-onboard-kinematics.service
       - rover-onboard-microscope.service
       - rover-onboard-nav.service
-      - rover-onboard-odrive-bridge@FRONT_MOTORS.service
-      - rover-onboard-odrive-bridge@BACK_MOTORS.service
+      - rover-onboard-odrive-bridge@0.service
+      - rover-onboard-odrive-bridge@1.service
       - rover-onboard-raman.service
       - rover-onboard-science-controls.service
       - rover-onboard-sensor-package.service
