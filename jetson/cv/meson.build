@@ -47,7 +47,7 @@ configure_file(
 	output: 'config.h',
 	configuration: conf_data)
 
-executable('onboard_cv',
+executable('jetson_cv',
 		   'main.cpp', 'camera.cpp', 'artag_detector.cpp', 'obstacle_detector.cpp',
 		   dependencies : all_deps,
 		   install : true)

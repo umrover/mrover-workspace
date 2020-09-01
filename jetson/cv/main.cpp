@@ -99,13 +99,13 @@ int main() {
   tp = d1.findARTags(src, depth_img, rgb);
   Size fsize = rgb.size();
   
-  string s = "artag_" + timeStamp + ".avi";
+  string s = "artag_number_" + timeStamp + ".avi";
 
   VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
 
   if(vidWrite.isOpened() == false)
   {
-	  cout << "didn't open";
+	  cerr << "ar record didn't open\n";
 	  exit(1);
   }
   #endif
@@ -117,15 +117,15 @@ int main() {
   float pw = src.cols;
   int roverpw = calcRoverPix(distThreshold, pw);
 
-  avoid_obstacle_sliding_window(bigD, src, num_sliding_windows, roverpw);
+  obstacle_return od = avoid_obstacle_sliding_window(bigD, src, num_sliding_windows, roverpw);
   Size fs = src.size();
-  string name = "obs_" + timeStamp + ".avi";
+  string name = "obs_number_" + timeStamp + ".avi";
 
   VideoWriter vidWriteObs(name, VideoWriter::fourcc('M','J','P','G'),10,fs,true);
 
   if(vidWriteObs.isOpened() == false)
   {
-	  cout << "didn't open";
+	  cerr << " osbtacle record didn't open\n";
 	  exit(1);
   }
   #endif
