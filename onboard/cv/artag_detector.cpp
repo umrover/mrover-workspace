@@ -34,7 +34,7 @@ TagDetector::TagDetector() {  //initializes detector object with pre-generated d
     // initialize other special parameters that we need to properly detect the URC (Alvar) tags
     alvarParams = new cv::aruco::DetectorParameters();
     alvarParams->markerBorderBits = 2;
-    alvarParams->doCornerRefinement = false; //change 1
+    alvarParams->doCornerRefinement = false;
     alvarParams->polygonalApproxAccuracyRate = 0.08;
 }
 

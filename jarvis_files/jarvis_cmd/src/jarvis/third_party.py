@@ -45,9 +45,9 @@ def ensure_lcm(ctx):
         ctx.run("./bootstrap.sh", hide='both')
         ctx.run("./configure --prefix={}".format(ctx.product_env), hide='both')
         print("Building LCM...")
-        ctx.run("make", hide='both')
+        ctx.run("make -j12")
         print("Installing LCM...")
-        ctx.run("make install", hide='both')
+        ctx.run("make -j12 install")
         # Copy the lcm-gen binary into the Jarvis venv so it may be accessible
         # for other parts of the build process.
         shutil.copy("{}/bin/lcm-gen".format(ctx.product_env),

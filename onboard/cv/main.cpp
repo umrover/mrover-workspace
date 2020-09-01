@@ -99,7 +99,7 @@ int main() {
   tp = d1.findARTags(src, depth_img, rgb);
   Size fsize = rgb.size();
   
-  string s = "artag_number_" + timeStamp + ".avi";
+  string s = "artag_" + timeStamp + ".avi";
 
   VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
 
@@ -117,9 +117,9 @@ int main() {
   float pw = src.cols;
   int roverpw = calcRoverPix(distThreshold, pw);
 
-  obstacle_return od = avoid_obstacle_sliding_window(bigD, src, num_sliding_windows, roverpw);
+  avoid_obstacle_sliding_window(bigD, src, num_sliding_windows, roverpw);
   Size fs = src.size();
-  string name = "obs_number_" + timeStamp + ".avi";
+  string name = "obs_" + timeStamp + ".avi";
 
   VideoWriter vidWriteObs(name, VideoWriter::fourcc('M','J','P','G'),10,fs,true);
 
@@ -188,8 +188,9 @@ int main() {
           arTags[0].id = -1;
         }
       } else { //one tag found
-        if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
+        if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x))){
           arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
+        }
         arTags[0].bearing = getAngle((int)tagPair.first.loc.x, src.cols);
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
@@ -236,14 +237,10 @@ int main() {
       }
       obstacleMessage.bearing = obstacle_detection.bearing;
 
-      #if PERCEPTION_DEBUG
-      // cout << "Turn " << obstacleMessage.bearing << ", detected " << (bool)obstacleMessage.detected<< endl;
-      #endif
-
     #endif
 
-    //lcm_.publish("/target_list", &arTagsMessage);
-    //lcm_.publish("/obstacle", &obstacleMessage);
+    lcm_.publish("/target_list", &arTagsMessage);
+    lcm_.publish("/obstacle", &obstacleMessage);
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);
