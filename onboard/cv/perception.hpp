@@ -15,8 +15,8 @@
 #endif
 
 #define THRESHOLD_NO_WAY  80000 //how will we calibrate if the rover width changes
-#define THRESHOLD_NO_OBSTACLE_CENTER  80000
-#define THRESHOLD_NO_SUBWINDOW 27000
+//#define THRESHOLD_NO_OBSTACLE_CENTER  80000
+//#define THRESHOLD_NO_SUBWINDOW 27000
 #define THRESHOLD_CONFIDENCE 90
 #define SKY_START_ROW 400
 #define BALL_DETECTION_MAX_DIST 6.0  // this number is obtained from experiment. if the distance of the detected ball is greater than this number, false detection, we should ignore
@@ -61,6 +61,7 @@ struct obstacle_return {
 //functions
 std::pair<cv::Point2f, double> findTennisBall(cv::Mat &src, cv::Mat &depth_src);
 obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width);
+void updateThresholds(int in1, int in2);
 
 //ar tag detector class
 #include "artag_detector.hpp"
