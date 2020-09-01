@@ -64,7 +64,9 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
 
     /// Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
-
+#if AR_RECORD
+cv::aruco::drawDetectedMarkers(rgb, corners, ids);
+#endif
 #if PERCEPTION_DEBUG
     // Draw detected tags
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);

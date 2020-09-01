@@ -3,7 +3,7 @@
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
 #include <thread>
-#include <cstdlib>
+#include <ctime>
 
 using namespace cv;
 using namespace std;
@@ -80,49 +80,55 @@ int main() {
   #endif
   disk_record_init();
 
+  //Video Stuff
   TagDetector d1;
   pair<Tag, Tag> tp;
 
-  //initializing ar tag videostream object
-  Mat src = cam.image();
-  Mat depth_img = cam.depth();
+  //Create time value
+  time_t now = time(0);
+  char* ltm = ctime(&now);
+  string timeStamp(ltm);
   Mat rgb;
+  Mat src = cam.image();
+  
+
+  #if AR_RECORD
+  //initializing ar tag videostream object
+  
+  Mat depth_img = cam.depth();
   tp = d1.findARTags(src, depth_img, rgb);
-
   Size fsize = rgb.size();
-  int whatNum = rand() % 10000;
-  string s = "artag_number_" + to_string(whatNum) + ".avi";
+  
+  string s = "artag_number_" + timeStamp + ".avi";
 
-  VideoWriter vidWrite(s, VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, fsize, true);
+  VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
 
-  if (vidWrite.isOpened() == false)
+  if(vidWrite.isOpened() == false)
   {
-    cout << "didn't open";
-    exit(1);
+	  cout << "didn't open";
+	  exit(1);
   }
+  #endif
 
-  //initializing obstacle object
+  #if OBS_RECORD
+ //initializing obstacle detection
   src = cam.image();
   Mat bigD = cam.depth();
   float pw = src.cols;
-      //float pixelHeight = src.rows;
   int roverpw = calcRoverPix(distThreshold, pw);
 
-      /* obstacle detection */
-  obstacle_return od =  avoid_obstacle_sliding_window(bigD, src,  num_sliding_windows , roverpw);
-  Mat used;
-
+  obstacle_return od = avoid_obstacle_sliding_window(bigD, src, num_sliding_windows, roverpw);
   Size fs = src.size();
-  whatNum = rand() % 10000;
-  s = "obs_number_" + to_string(whatNum) + ".avi";
+  string name = "obs_number_" + timeStamp + ".avi";
 
-  VideoWriter vidWriteObs(s, VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, fs, true);
+  VideoWriter vidWriteObs(name, VideoWriter::fourcc('M','J','P','G'),10,fs,true);
 
-  if (vidWriteObs.isOpened() == false)
+  if(vidWriteObs.isOpened() == false)
   {
-    cout << "didn't open";
-    exit(1);
+	  cout << "didn't open";
+	  exit(1);
   }
+  #endif
 
   /*initialize lcm messages*/
   lcm::LCM lcm_;
@@ -150,12 +156,9 @@ int main() {
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
 
+    Mat rgb;
     Mat src = cam.image();
     Mat depth_img = cam.depth();
-
-    Mat rgb;
-    //cvtColor(src, rgb, COLOR_RGBA2RGB);
-
 
     // write to disk if permitted
     #if WRITE_CURR_FRAME_TO_DISK
@@ -171,7 +174,9 @@ int main() {
     arTags[1].distance = -1;
     #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
+      #if AR_RECORD
       vidWrite.write(rgb);
+      #endif
       //update both tags in LCM message
       //first tag
       if(tagPair.first.id == -1){//no tag found
@@ -217,13 +222,17 @@ int main() {
     #if OBSTACLE_DETECTION
       float pixelWidth = src.cols;
       int roverPixWidth = calcRoverPix(distThreshold, pixelWidth);
-
+      
       /* obstacle detection */
       obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
+      #if OBS_RECORD
       vidWriteObs.write(src);
+      #endif
+
       if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
         // cout<< "bearing not zero!\n";
         obstacleMessage.detected = true;    //if an obstacle is detected in front
+        obstacleMessage.distance = obstacle_detection.center_distance; //update LCM distance field
       }
       obstacleMessage.bearing = obstacle_detection.bearing;
 
@@ -245,9 +254,11 @@ int main() {
 
     j++;
   }
-
+  #if AR_RECORD
   vidWrite.release();
+  #endif
+  #if OBS_RECORD
   vidWriteObs.release();
-
+  #endif
   return 0;
 }

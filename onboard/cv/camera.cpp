@@ -39,7 +39,7 @@ Camera::Impl::Impl() {
 	init_params.camera_fps = 30;
 	// TODO change this below?
 
-	assert(this->zed_.open(init_params) == sl::ERROR_CODE::SUCCESS);
+	assert(this->zed_.open() == sl::ERROR_CODE::SUCCESS);
   
   //Parameters for Positional Tracking
   init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
@@ -64,25 +64,10 @@ Camera::Impl::Impl() {
 	this->depth_ = cv::Mat(
 		this->image_size_.height, this->image_size_.width, CV_32FC1,
 		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
-  
-  sl::PositionalTrackingParameters tracking_parameters;
-  this->zed_.enablePositionalTracking(tracking_parameters);
 }
 
 bool Camera::Impl::grab() {
-  sl::Pose zed_pose;
-  if(this->zed_.grab() == sl::ERROR_CODE::SUCCESS) {
-    // Get the pose of the camera relative to the world frame
-        sl::POSITIONAL_TRACKING_STATE state = zed_.getPosition(zed_pose, sl::REFERENCE_FRAME::WORLD);
-        // Display translation and timestamp
-        printf("Translation: tx: %.3f, ty:  %.3f, tz:  %.3f, ox: %.3f, oy:  %.3f, oz:  %.3f, ow: %.3f\r",
-        zed_pose.getTranslation().tx, zed_pose.getTranslation().ty, zed_pose.getTranslation().tz, zed_pose.getOrientation().ox, zed_pose.getOrientation().oy, zed_pose.getOrientation().oz, zed_pose.getOrientation().ow);
-        // Display orientation quaternion
-        //printf(\r",
-        //zed_pose.getOrientation().ox, zed_pose.getOrientation().oy, zed_pose.getOrientation().oz, zed_pose.getOrientation().ow);
-        return true;
-  }
-	return false;
+  return this->zed_.grab() == sl::ERROR_CODE::SUCCESS;
 }
 
 cv::Mat Camera::Impl::image() {
