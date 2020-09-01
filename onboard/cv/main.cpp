@@ -164,7 +164,6 @@ int main() {
       if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
         // cout<< "bearing not zero!\n";
         obstacleMessage.detected = true;    //if an obstacle is detected in front
-        obstacleMessage.distance = obstacle_detection.center_distance; //update LCM distance field
       }
       obstacleMessage.bearing = obstacle_detection.bearing;
 
