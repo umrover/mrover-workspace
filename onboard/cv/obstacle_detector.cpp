@@ -1,3 +1,4 @@
+#pragma once
 #include "perception.hpp"
 using namespace cv;
 using namespace std;

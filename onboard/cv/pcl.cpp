@@ -1,4 +1,10 @@
+#pragma once
 #include "perception.hpp"
+/* --- PCL GPU Includes --- */
+#include <pcl/gpu/octree/octree.hpp>
+#include <pcl/gpu/containers/device_array.hpp>
+#include <pcl/gpu/segmentation/gpu_extract_clusters.h>
+#include <pcl/gpu/segmentation/impl/gpu_extract_clusters.hpp>
 
 /* --- Compare Line Class --- */
 //Functor that indicates where a point is in
@@ -110,10 +116,10 @@ void RANSACSegmentation(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, s
 //Use this tree to traverse point cloud and create vector of clusters
 //Return vector of clusters
 //Source: https://rb.gy/qvjati
-void EuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,  
+void CPUEuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,  
                                     std::vector<pcl::PointIndices> &cluster_indices) {
     #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("Cluster Extraction");
+        pcl::ScopeTime t ("CPU Cluster Extraction");
     #endif
 
     // Creating the KdTree object for the search method of the extraction
@@ -158,6 +164,50 @@ void EuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_clou
     #endif
 }
 
+/* --- Copy Point Cloud --- */
+//Converts a point cloud from point XYZRGB to XYZ
+void copyPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & from, pcl::PointCloud<pcl::PointXYZ>::Ptr & to){
+    auto toit = to->points.begin();
+    for( auto fromit : from->points){
+        toit->x = fromit.x;
+        toit->y = fromit.y;
+        toit->z = fromit.z;
+        toit++;
+    }
+    to->width = from->width;
+    to->height = from->height;
+    to->is_dense = from->is_dense;
+}
+
+/* --- GPU Euclidian Cluster Extraction --- */
+//Creates a KdTree structure from point cloud
+//Use this tree to traverse point cloud and create vector of clusters
+//Return vector of clusters
+//Code based on example from: https://tinyurl.com/y62jxrz8
+//Source: https://rb.gy/qvjati
+void GPUEuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr_in,  
+                                    std::vector<pcl::PointIndices> &cluster_indices) {
+    #if PERCEPTION_DEBUG
+        pcl::ScopeTime t ("GPU Cluster Extraction");
+    #endif
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pt_cloud_ptr (new pcl::PointCloud<pcl::PointXYZ>);
+    copyPointCloud(pt_cloud_ptr_in, pt_cloud_ptr);
+    pcl::gpu::Octree::PointCloud cloud_device;
+    cloud_device.upload(pt_cloud_ptr->points);
+
+    pcl::gpu::Octree::Ptr octree_device (new pcl::gpu::Octree);
+    octree_device->setCloud(cloud_device);
+    octree_device->build();
+
+    pcl::gpu::EuclideanClusterExtraction gec;
+    gec.setClusterTolerance (0.02); // 2cm
+    gec.setMinClusterSize (100);
+    gec.setMaxClusterSize (25000);
+    gec.setSearchMethod (octree_device);
+    gec.setHostCloud( pt_cloud_ptr);
+    gec.extract (cluster_indices);
+
+}
 /* --- Find Interest Points --- */
 //Finds the edges of each cluster by comparing x and y
 //values of all points in the cluster to find desired ones
@@ -451,7 +501,7 @@ advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB
     DownsampleVoxelFilter(pt_cloud_ptr);
     RANSACSegmentation(pt_cloud_ptr, "remove");
     std::vector<pcl::PointIndices> cluster_indices;
-    EuclidianClusterExtraction(pt_cloud_ptr, cluster_indices);
+    GPUEuclidianClusterExtraction(pt_cloud_ptr, cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
     FindInterestPoints(cluster_indices, pt_cloud_ptr, interest_points);
     result.bearing = FindClearPath(pt_cloud_ptr, interest_points, viewer);  

@@ -1,3 +1,4 @@
+#pragma once
 #include "perception.hpp"
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"

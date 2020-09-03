@@ -1,3 +1,4 @@
+#pragma once
 #include "camera.hpp"
 #include "perception.hpp"
 
@@ -49,9 +50,6 @@ Camera::Impl::Impl() {
   
   //Parameters for Positional Tracking
   init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
-  
-  //weird zed shit
-  // this->zed_.setCameraSettings(sl::CAMERA_SETTINGS_EXPOSURE, 100, true);
   
   this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
 
