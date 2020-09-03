@@ -17,7 +17,7 @@ $ ansible-playbook -K -i "localhost," -c local <playbook>.yml
 If you need to define extra variables add --extra-vars "<variable definition>"
 example
 ```
-$ ansible-playbook -K -i "localhost," -c local <playbook>.yml --extra-vars "num = 2"
+$ ansible-playbook -K -i "localhost," -c local <playbook>.yml --extra-vars "num=2"
 ```
 
 ## Development Box
