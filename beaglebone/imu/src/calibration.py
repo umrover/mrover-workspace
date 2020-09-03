@@ -1,8 +1,6 @@
 import smbus
 import time as t
 import numpy as np
-import struct
-from madgwickahrs import MadgwickAHRS
 
 I2C_IMU_ADDRESS = 0x69
 I2C_ADDR = 0x68
@@ -17,19 +15,23 @@ ICM20948_PWR_MGMT_1 = 0x06
 ICM20948_PWR_MGMT_2 = 0x07
 
 
-
 AK09916_CNTL3 = 0x32
 
 bus = smbus.SMBus(2)
 
+
 def get_decimal(ls, ms):
     high = read_data(ms) << 8
     low = read_data(ls) & 0xff
-    return np.int16((high | ls))
-def get_mag_decimal(ls,ms):
-    high = bus.read_byte_data(0x0c,ms) << 8 # little endian so ls is right 8 bits
-    low = bus.read_byte_data(0x0c,ls) & 0xff
     return np.int16((high | low))
+
+
+def get_mag_decimal(ls, ms):
+    # little endian so ls is right 8 bits
+    high = bus.read_byte_data(0x0c, ms) << 8
+    low = bus.read_byte_data(0x0c, ls) & 0xff
+    return np.int16((high | low))
+
 
 def read_data(num):
     a = bus.read_byte_data(I2C_IMU_ADDRESS, num)
@@ -37,16 +39,13 @@ def read_data(num):
     return a
 
 
-
-
-
 def set_bank(bank):
     newbank = (bank << 4)
-    bus.write_byte_data(I2C_IMU_ADDRESS, 0x7f,newbank)
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x7f, newbank)
+
 
 def get_data():
-    elapsed_time = t.process_time()
-    
+
     accel_x = get_decimal(0x2E, 0x2D)
     accel_y = get_decimal(0x30, 0x2F)
     accel_z = get_decimal(0x32, 0x31)
@@ -59,57 +58,60 @@ def get_data():
 
 #     print("mag x: ", mag_x,"mag y: ",mag_y,"mag z: ",mag_z)
     return np.array([accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z])
-def set_offset(xav,yav,zav):
+
+
+def set_offset(xav, yav, zav):
     xav /= 10
     yav /= 10
     zav /= -10
     set_bank(1)
     zavlower = (int(zav) & 0b000000001111111) << 1
     zavupper = (int(zav) & 0b111111110000000) >> 7
-
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x1B,zavlower) # Set lower bits of z offset
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x1A,zavupper) # Set upper bits of z offset
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x14,zavupper)
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x15,zavupper)
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x17,zavupper)
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x18,zavupper)
+    # Set lower bits of z offset
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x1B, zavlower)
+    # Set upper bits of z offset
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x1A, zavupper)
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x14, zavupper)
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x15, zavupper)
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x17, zavupper)
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x18, zavupper)
     set_bank(2)
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x03,zavlower) # Set lower bits of z offset
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x04,zavupper) # Set upper bits of z offset
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x05,zavupper)
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x06,zavupper)
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x07,zavupper)
-    bus.write_byte_data(I2C_IMU_ADDRESS,0x08,zavupper)
-    set_bank(0)    
-       
+    # Set lower bits of z offset
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x03, zavlower)
+    # Set upper bits of z offset
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x04, zavupper)
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x05, zavupper)
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x06, zavupper)
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x07, zavupper)
+    bus.write_byte_data(I2C_IMU_ADDRESS, 0x08, zavupper)
+    set_bank(0)
+
+
 def main():
     success = False
-    calibration = 0 
+    calibration = 0
     calibrationtime = 0
     xav = 0
     yav = 0
-    zav = 0 
+    zav = 0
     xgyr = 0
     ygyr = 0
     zgyr = 0
     while not success:
         try:
             print("Attempting Startup")
-            bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_1, 0x01) # wake up imu from sleep, try until works 
-            bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_2, 0x00) # Set accelerometer and gyroscope to on
+            bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_1, 0x01)
+            # wake up imu from sleep, try until works
+            bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_2, 0x00)
+            # Set accelerometer and gyroscope to on
             set_bank(2)
-            bus.write_byte_data(I2C_IMU_ADDRESS, 0x01,0b00000110)
-            bus.write_byte_data(I2C_IMU_ADDRESS, 0x14,0b00000110)
+            bus.write_byte_data(I2C_IMU_ADDRESS, 0x01, 0b00000110)
+            bus.write_byte_data(I2C_IMU_ADDRESS, 0x14, 0b00000110)
             set_bank(0)
-            set_offset(0,0,0) #Clear any offset, we just want the raw data
+            set_offset(0, 0, 0)  # Clear any offset, we just want the raw data
             t.sleep(1)
-            # set_bank(3) # Change to bank 3
-            # bus.write_byte_data(I2C_IMU_ADDRESS,ICM20948_I2C_MST_CTRL,0x4d) # Set i2c control for magnetometer. Multimaster capability, and i2c clockspeed of 7, recommended
-            # bus.write_byte_data(I2C_IMU_ADDRESS,ICM20948_I2C_MST_DELAY_CTRL,0x01) # Set slave 0 to only be accessed every x samples
-            # mag_write(AK09916_CNTL3, 0x01) # soft reset the magnetometer
             success = True
-            
-        except:
+        except Exception:
             t.sleep(1)
             pass
 
@@ -125,17 +127,16 @@ def main():
                 zgyr += data[5]
                 calibrationtime += 1
 
-                
-        except:
+        except Exception:
             print("Connection Lost")
-            t.sleep(1) 
-        if (calibration == 0 and calibrationtime >=10):
-            xav/= -10
-            yav/= -10
-            zav/= -10
-            xgyr/= -10
-            ygyr/= -10
-            zgyr/= -10
+            t.sleep(1)
+        if (calibration == 0 and calibrationtime >= 10):
+            xav /= -10
+            yav /= -10
+            zav /= -10
+            xgyr /= -10
+            ygyr /= -10
+            zgyr /= -10
             calibration = 1
             print(xav)
             print(yav)
@@ -150,8 +151,6 @@ def main():
     f.write("%d\n" % zgyr)
     f.close
 
-
-        
 
 if(__name__ == '__main__'):
     main()
