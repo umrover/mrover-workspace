@@ -127,7 +127,11 @@ class Quaternion:
 
     def __array__(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self._q
 =======
         return self._q
 >>>>>>> 7b41edd9... Initial commit for IMU Code
+=======
+        return self._q
+>>>>>>> 9a1cce29... [IMU] Lint Lint
