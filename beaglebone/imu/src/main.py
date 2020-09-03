@@ -1,8 +1,6 @@
+import numpy as np
 import lcm
 import smbus
-import time as t
-import numpy as np
-import struct
 from madgwickahrs import MadgwickAHRS
 from rover_msgs import IMUdata
 
@@ -29,7 +27,7 @@ filter = MadgwickAHRS()
 def get_decimal(ls, ms):
     high = read_data(ms) << 8
     low = read_data(ls) & 0xff
-    return np.int16((high | ls))
+    return np.int16((high | low))
 
 
 # Magnetometer has a different format so seperate function required
@@ -53,7 +51,7 @@ def read_mag_data(ls, ms):
     bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_USER_CTRL, 0b00000000)
     # while (ready != 1): # Wait until data is ready
     # time.sleep(0.00001)
-    bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_INT_PIN_CFG, 0b00000010)  
+    bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_INT_PIN_CFG, 0b00000010)
     # puts the i2c master into bypass mode
     bus.write_byte_data(0x0c, 0x32, 0b00010)
     # 0c holds the address of the magnetometer
@@ -69,7 +67,7 @@ def set_bank(bank):
 
 
 def get_data(xav, yav, zav, xgyr, ygyr, zgyr):
-    elapsed_time = t.process_time()
+
     accel_x = get_decimal(0x2E, 0x2D) + xav
     accel_y = get_decimal(0x30, 0x2F) + yav
     accel_z = get_decimal(0x32, 0x31) + zav
@@ -148,7 +146,7 @@ def main():
             # clear any inbuilt offset, we handle that in our code
             set_offset(0, 0, 0)
             success = True
-            
+
         except Exception:
 
             pass
@@ -167,19 +165,19 @@ def main():
 
         # Accel measures in 2048 LSB/g and Gyro in 2000 LSB/dps
         # so we divide the register value by that
-        imudata.accel_x{g} = data[0]/2048
-        imudata.accel_y{g} = data[1]/2048
-        imudata.accel_z{g} = data[2]/2048
+        imudata.accel_x_g = data[0]/2048
+        imudata.accel_y_g = data[1]/2048
+        imudata.accel_z_g = data[2]/2048
 
-        imudata.gyro_x{dps} = data[3]/2000
-        imudata.gyro_y{dps} = data[4]/2000
-        imudata.gyro_z{dps} = data[5]/2000
+        imudata.gyro_x_dps = data[3]/2000
+        imudata.gyro_y_dps = data[4]/2000
+        imudata.gyro_z_dps = data[5]/2000
         # Magnetometer is in 0.15 microTeslas/LSB
         # so we multiply instead but also divide
         # by 1,000,000 to go to regular teslas
-        imudata.mag_x{T} = data[6]*0.15/1000000
-        imudata.mag_y{T} = data[7]*0.15/1000000
-        imudata.mag_z{T} = data[8]*0.15/1000000
+        imudata.mag_x_T = data[6]*0.15/1000000
+        imudata.mag_y_T = data[7]*0.15/1000000
+        imudata.mag_z_T = data[8]*0.15/1000000
 
         # Calculations for bearing are done here
 
@@ -188,23 +186,22 @@ def main():
         gaussy = data[7]*10000
         # Only depends on x/y
         if gaussy > 0:
-            imudata.bearing{deg} = 90 - (np.arctan(gaussx
+            imudata.bearing_deg = 90 - (np.arctan(gaussx
+                                                  / gaussy))*180/3.14159265
+        elif gaussy < 0:
+            imudata.bearing_deg = 270 - (np.arctan(gaussx
                                                    / gaussy))*180/3.14159265
-        elif gaussy { 0:
-            imudata.bearing{deg} = 270 - (np.arctan(gaussx
-                                                    / gaussy))*180/3.14159265
-        elif gaussy =0 and gaussx { 0:
-            imudata.bearing{deg} = 180
-        elif gaussy =0 and gaussx > 0:
-            imudata.bearing{deg} = 0
-
+        elif gaussy == 0 and gaussx < 0:
+            imudata.bearing_deg = 180
+        elif gaussy == 0 and gaussx > 0:
+            imudata.bearing_deg = 0
 
         acc = np.array([data[0], data[1], data[2]])
         gyr = np.array([data[3], data[4], data[5]])
         mag = np.array([data[6], data[7], data[8]])
         gyr_rad = gyr * (np.pi/180)
         # Everything Past here is Auton stuff
-        filter.update(gyr_rad,acc,mag)
+        filter.update(gyr_rad, acc, mag)
         # aboves update method can be run instead of update_imu
         # if the magnetometer problem is fixed
         # filter.update_imu(gyr_rad,acc)
@@ -216,16 +213,14 @@ def main():
         curPitch = ahrs[1]
         curYaw = ahrs[2]
 
-        #Remove prints after testing
+        # Remove prints after testing
         print("Roll: ", curRoll, " Pitch: ", curPitch, " Yaw: ", curYaw)
 
+        imudata.roll_rad = curRoll
+        imudata.pitch_rad = curPitch
+        imudata.yaw_rad = curYaw
 
-        imudata.roll{rad} = curRoll
-        imudata.pitch{rad} = curPitch
-        imudata.yaw{rad} = curYaw
-
-
-        lcm_.publish('/imu_data',imudata.encode())
+        lcm_.publish('/imu_data', imudata.encode())
 
 
 if(__name__ == '__main__'):
