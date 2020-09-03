@@ -1,17 +1,17 @@
 package rover_msgs;
 
 struct IMUData {
-    double accel_x<g>;
-    double accel_y<g>;
-    double accel_z<g>;
-    double gyro_x<dps>;
-    double gyro_y<dps>;
-    double gyro_z<dps>;
-    double mag_x<T>;
-    double mag_y<T>;
-    double mag_z<T>;
-    double roll<rad>;
-    double pitch<rad>;
-    double yaw<rad>;
-    double bearing<deg>;
+    double accel_x{g};
+    double accel_y{g};
+    double accel_z{g};
+    double gyro_x{dps};
+    double gyro_y{dps};
+    double gyro_z{dps};
+    double mag_x{T};
+    double mag_y{T};
+    double mag_z{T};
+    double roll{rad};
+    double pitch{rad};
+    double yaw{rad};
+    double bearing{deg};
 }
