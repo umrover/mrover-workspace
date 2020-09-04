@@ -118,7 +118,6 @@ def main():
 
     global lcm_
     lcm_ = lcm.LCM()
-    lcm_.subscribe("/imu_data")
 
     success = False
 
