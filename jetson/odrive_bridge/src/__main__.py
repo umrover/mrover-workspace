@@ -88,6 +88,13 @@ def lcmThreaderMan():
             pass
         except fibre.protocol.ChannelBrokenException:
             pass
+        except ValueError:
+            global odrive_bridge
+            lock.acquire()
+            print("lost comms")
+            odrive_bridge.on_event("disarm cmd")
+            lock.release()
+            
 
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "calibrating cmd", "odrive error"]
