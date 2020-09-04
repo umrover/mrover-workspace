@@ -1,12 +1,12 @@
 import warnings
 import numpy as np
 from numpy.linalg import norm
-from quaternion import Quaternion
+from . import quaternion as Quaternion
 
 
 class MadgwickAHRS:
     samplePeriod = 1/256
-    quaternion = Quaternion(1, 0, 0, 0)
+    quaternion = Quaternion.Quaternion(1, 0, 0, 0)
     beta = 1
 
     def __init__(self, sampleperiod=None, quaternion=None, beta=None):
@@ -52,7 +52,7 @@ class MadgwickAHRS:
             return
         magnetometer /= norm(magnetometer)
 
-        h = q * (Quaternion(0, magnetometer[0], magnetometer[1], magnetometer[2]) * q.conj())
+        h = q * (Quaternion.Quaternion(0, magnetometer[0], magnetometer[1], magnetometer[2]) * q.conj())
         b = np.array([0, norm(h[1:3]), 0, h[3]])
 
         # Gradient descent algorithm corrective step
@@ -76,11 +76,11 @@ class MadgwickAHRS:
         step /= norm(step)  # normalise step magnitude
 
         # Compute rate of change of quaternion
-        qdot = (q * Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * 0.5 - self.beta * step.T
+        qdot = (q * Quaternion.Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * 0.5 - self.beta * step.T
 
         # Integrate to yield quaternion
         q += qdot * self.samplePeriod
-        self.quaternion = Quaternion(q / norm(q))  # normalise quaternion
+        self.quaternion = Quaternion.Quaternion(q / norm(q))  # normalise quaternion
 
     def update_imu(self, gyroscope, accelerometer):
         """
@@ -116,8 +116,8 @@ class MadgwickAHRS:
         step /= norm(step)  # normalise step magnitude
 
         # Compute rate of change of quaternion
-        qdot = (q * Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * 0.5 - self.beta * step.T
+        qdot = (q * Quaternion.Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * 0.5 - self.beta * step.T
 
         # Integrate to yield quaternion
         q += qdot * self.samplePeriod
-        self.quaternion = Quaternion(q / norm(q))  # normalise quaternion
+        self.quaternion = Quaternion.Quaternion(q / norm(q))  # normalise quaternion

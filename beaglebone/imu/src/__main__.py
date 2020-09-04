@@ -1,8 +1,8 @@
 import numpy as np
 import lcm
 import smbus
-from madgwickahrs import MadgwickAHRS
-from rover_msgs import IMUdata
+from . import madgwickahrs as MadgwickAHRS
+from rover_msgs import IMUData
 
 I2C_IMU_ADDRESS = 0x69
 
@@ -20,7 +20,7 @@ ICM20948_INT_PIN_CFG = 0x0F
 AK09916_I2C_ADDR = 0x0c
 bus = smbus.SMBus(2)
 
-filter = MadgwickAHRS()
+filter = MadgwickAHRS.MadgwickAHRS()
 
 
 # Combines data for a accel/gyro reading
@@ -122,7 +122,7 @@ def main():
 
     success = False
 
-    imudata = IMUdata()
+    imudata = IMUData()
 
     f = open("calibvalues.txt", "r")  # Calibration done outside/before
     if f.mode == 'r':
