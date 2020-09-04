@@ -167,7 +167,6 @@ def main():
         imudata.accel_x_g = data[0]/2048
         imudata.accel_y_g = data[1]/2048
         imudata.accel_z_g = data[2]/2048 + 1
-
         imudata.gyro_x_dps = data[3]/2000
         imudata.gyro_y_dps = data[4]/2000
         imudata.gyro_z_dps = data[5]/2000
