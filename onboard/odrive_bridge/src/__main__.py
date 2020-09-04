@@ -66,7 +66,7 @@ def lcmThreaderMan():
     lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
     last_pub = t.time()
     while True:
-        lcm_1.handle()
+        lcm_1.handle_timeout(1000)
         try:
             publish_encoder_msg()
         except NameError:
@@ -75,6 +75,13 @@ def lcmThreaderMan():
             pass
         except fibre.protocol.ChannelBrokenException:
             pass
+        except ValueError:
+            global odrive_bridge
+            lock.acquire()
+            print("lost comms")
+            odrive_bridge.on_event("disarm cmd")
+            lock.release()
+            
 
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "calibrating cmd", "odrive error"]
@@ -276,7 +283,7 @@ class OdriveBridge(object):
         errors = modrive.check_errors()
 
         if errors:
-            if (errors == 0x800 or erros == 0x1000):
+            # if (errors == 0x800 or erros == 0x1000):
 
             lock.acquire()
             self.on_event("odrive error")
