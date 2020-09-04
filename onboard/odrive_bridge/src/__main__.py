@@ -55,7 +55,7 @@ def main():
 
     while True:
         watchdog = t.clock() - start_time
-        if (watchdog > 0.5):
+        if (watchdog > 1.0):
             print("loss of comms")
             left_speed = 0
             right_speed = 0
