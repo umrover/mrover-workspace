@@ -118,6 +118,7 @@ def main():
 
     global lcm_
     lcm_ = lcm.LCM()
+    lcm_.subscribe("/imu_data")
 
     success = False
 
@@ -158,7 +159,7 @@ def main():
             print("Connection Lost")
 
         # Remove these prints after testing
-        print("Accel: ", data[0]/2048, ",", data[1]/2048, ",", data[2]/2048 + 1)
+        print("Accel: ", data[0]/2048, ",", data[1]/2048, ",", data[2]/2048)
         print("Gyro: ", data[3]/2000, ",", data[4]/2000, ",", data[5]/2000)
         print("Mag: ", data[6], ",", data[7], ",", data[8])
 
@@ -166,7 +167,7 @@ def main():
         # so we divide the register value by that
         imudata.accel_x_g = data[0]/2048
         imudata.accel_y_g = data[1]/2048
-        imudata.accel_z_g = data[2]/2048 + 1
+        imudata.accel_z_g = data[2]/2048
 
         imudata.gyro_x_dps = data[3]/2000
         imudata.gyro_y_dps = data[4]/2000
@@ -178,27 +179,25 @@ def main():
         imudata.mag_y_T = data[7]*0.15/1000000
         imudata.mag_z_T = data[8]*0.15/1000000
 
-        # Calculations for bearing. are done here
+        # Calculations for bearing are done here
 
         # First turn teslas into gauss = teslas*10,000
-        gaussx = imudata.mag_x_T*10000
-        gaussy = imudata.mag_y_T*10000
+        gaussx = data[6]*10000
+        gaussy = data[7]*10000
         # Only depends on x/y
-        #
-        # if gaussy > 0:
-        #    imudata.bearing_deg = 90 - (np.arctan2(gaussx,
-        #                                           gaussy))*180/3.14159265
-        # elif gaussy < 0:
-        #    imudata.bearing_deg = 270 - (np.arctan2(gaussx,
-        #                                            gaussy))*180/3.14159265
-        # elif gaussy == 0 and gaussx < 0:
-        #    imudata.bearing_deg = 180
-        # elif gaussy == 0 and gaussx > 0:
-        #    imudata.bearing_deg = 0
-        imudata.bearing_deg = np.arctan2(gaussx, gaussy) * 180/np.pi
-        print("Bearing: ", imudata.bearing_deg)
-        acc = np.array([data[0]/2048, data[1]/2048, (data[2]/2048 + 1)])
-        gyr = np.array([data[3]/2000, data[4]/2000, data[5]/2000])
+        if gaussy > 0:
+            imudata.bearing_deg = 90 - (np.arctan(gaussx
+                                                  / gaussy))*180/3.14159265
+        elif gaussy < 0:
+            imudata.bearing_deg = 270 - (np.arctan(gaussx
+                                                   / gaussy))*180/3.14159265
+        elif gaussy == 0 and gaussx < 0:
+            imudata.bearing_deg = 180
+        elif gaussy == 0 and gaussx > 0:
+            imudata.bearing_deg = 0
+
+        acc = np.array([data[0], data[1], data[2]])
+        gyr = np.array([data[3], data[4], data[5]])
         mag = np.array([data[6], data[7], data[8]])
         gyr_rad = gyr * (np.pi/180)
         # Everything Past here is Auton stuff
