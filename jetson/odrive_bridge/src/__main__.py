@@ -299,11 +299,7 @@ class OdriveBridge(object):
         errors = modrive.check_errors()
 
         if errors:
-<<<<<<< HEAD:jetson/odrive_bridge/src/__main__.py
-            # if (errors == 0x800 or erros == 0x1000):
-=======
             if (errors == 0x800 or erros == 0x1000):
->>>>>>> 3885c2b2... changes:onboard/odrive_bridge/src/__main__.py
 
             lock.acquire()
             self.on_event("odrive error")
