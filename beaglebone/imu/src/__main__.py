@@ -75,7 +75,7 @@ def get_data(xav, yav, zav, xgyr, ygyr, zgyr):
     gyro_x = get_decimal(0x34, 0x33) + xgyr
     gyro_y = get_decimal(0x36, 0x35) + ygyr
     gyro_z = get_decimal(0x38, 0x37) + zgyr
-
+    # No Calibration for Mag as that would be near impossible unless you know magnetometer readings
     mag_x = read_mag_data(0x11, 0x12)
     mag_y = read_mag_data(0x13, 0x14)
     mag_z = read_mag_data(0x15, 0x16)
@@ -93,7 +93,8 @@ def set_offset(xav, yav, zav):
     set_bank(1)
     zavlower = (int(zav) & 0b000000001111111) << 1
     zavupper = (int(zav) & 0b111111110000000) >> 7
-
+    
+    # This function is only ever used to 0 out offsets so its fine if they're the same
     # Set lower bits of z offset
     bus.write_byte_data(I2C_IMU_ADDRESS, 0x1B, zavlower)
     # Set upper bits of z offset
@@ -124,6 +125,8 @@ def main():
     imudata = IMUData()
 
     f = open("calibvalues.txt", "r")  # Calibration done outside/before
+    # Get this file by running calibration.py and moving the file to the main workspace dir
+    # This really only needs to be done once
     if f.mode == 'r':
         xav = int(f.readline())
         yav = int(f.readline())
@@ -157,17 +160,17 @@ def main():
         except Exception:
             print("Connection Lost")
 
-        # Remove these prints after testing
-        print("Accel: ", data[0]/2048, ",", data[1]/2048, ",", data[2]/2048)
+        # Raw Data
+        print("Accel: ", data[0]/2048, ",", data[1]/2048, ",", data[2]/2048 + 1)
         print("Gyro: ", data[3]/2000, ",", data[4]/2000, ",", data[5]/2000)
         print("Mag: ", data[6], ",", data[7], ",", data[8])
 
         # Accel measures in 2048 LSB/g and Gyro in 2000 LSB/dps
-        # so we divide the register value by that
+        # so we divide the register value by that to get the unit
         imudata.accel_x_g = data[0]/2048
         imudata.accel_y_g = data[1]/2048
-        imudata.accel_z_g = data[2]/2048
-
+        # This is +1 so calibration doesn't mess with regular gravity
+        imudata.accel_z_g = data[2]/2048 + 1
         imudata.gyro_x_dps = data[3]/2000
         imudata.gyro_y_dps = data[4]/2000
         imudata.gyro_z_dps = data[5]/2000
@@ -178,25 +181,31 @@ def main():
         imudata.mag_y_T = data[7]*0.15/1000000
         imudata.mag_z_T = data[8]*0.15/1000000
 
-        # Calculations for bearing are done here
+        # Bearing Calculation
 
         # First turn teslas into gauss = teslas*10,000
         gaussx = data[6]*10000
         gaussy = data[7]*10000
         # Only depends on x/y
-        if gaussy > 0:
-            imudata.bearing_deg = 90 - (np.arctan(gaussx
-                                                  / gaussy))*180/3.14159265
-        elif gaussy < 0:
-            imudata.bearing_deg = 270 - (np.arctan(gaussx
-                                                   / gaussy))*180/3.14159265
-        elif gaussy == 0 and gaussx < 0:
-            imudata.bearing_deg = 180
-        elif gaussy == 0 and gaussx > 0:
-            imudata.bearing_deg = 0
-
-        acc = np.array([data[0], data[1], data[2]])
-        gyr = np.array([data[3], data[4], data[5]])
+        #
+        # if gaussy > 0:
+        #    imudata.bearing_deg = 90 - (np.arctan2(gaussx,
+        #                                           gaussy))*180/3.14159265
+        # elif gaussy < 0:
+        #    imudata.bearing_deg = 270 - (np.arctan2(gaussx,
+        #                                            gaussy))*180/3.14159265
+        # elif gaussy == 0 and gaussx < 0:
+        #    imudata.bearing_deg = 180
+        # elif gaussy == 0 and gaussx > 0:
+        #    imudata.bearing_deg = 0
+        
+        # Easier version of above, measures from about -180 to 180
+        imudata.bearing_deg = np.arctan2(gaussx, gaussy) * 180/np.pi
+        print("Bearing: ", imudata.bearing_deg)
+        
+        #Roll, Pitch, yaw calc
+        acc = np.array([data[0]/2048, data[1]/2048, (data[2]/2048 + 1)])
+        gyr = np.array([data[3]/2000, data[4]/2000, data[5]/2000])
         mag = np.array([data[6], data[7], data[8]])
         gyr_rad = gyr * (np.pi/180)
         # Everything Past here is Auton stuff
