@@ -55,7 +55,7 @@ def main():
 
     while True:
         watchdog = t.clock() - start_time
-        if (watchdog > 1):
+        if (watchdog > 0.5):
             print("loss of comms")
             left_speed = 0
             right_speed = 0
@@ -78,7 +78,7 @@ def lcmThreaderMan():
     while True:
         lcm_1.handle()
         global start_time
-        start_time  = t.clock()
+        start_time = t.clock()
         try:
             publish_encoder_msg()
         except NameError:
