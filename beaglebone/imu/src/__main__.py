@@ -1,6 +1,7 @@
 import numpy as np
 import lcm
 import smbus
+# import time as t
 from . import madgwickahrs as MadgwickAHRS
 from rover_msgs import IMUData
 
@@ -66,14 +67,18 @@ def set_bank(bank):
     bus.write_byte_data(I2C_IMU_ADDRESS, 0x7f, newbank)
 
 
-def get_data(xav, yav, zav, xgyr, ygyr, zgyr):
-
+def get_data(xav, yav, zav):
+    set_bank(0)
+    # print(bus.read_byte_data(I2C_IMU_ADDRESS, 0x1A))
+    # if((bus.read_byte_data(I2C_IMU_ADDRESS, 0x1A) & 0b00000001) == 0b00000001):
+    #    print("Data Ready")
+    #    t.sleep(0.1)
     accel_x = get_decimal(0x2E, 0x2D) + xav
     accel_y = get_decimal(0x30, 0x2F) + yav
     accel_z = get_decimal(0x32, 0x31) + zav
-    gyro_x = get_decimal(0x34, 0x33) + xgyr
-    gyro_y = get_decimal(0x36, 0x35) + ygyr
-    gyro_z = get_decimal(0x38, 0x37) + zgyr
+    gyro_x = get_decimal(0x34, 0x33)
+    gyro_y = get_decimal(0x36, 0x35)
+    gyro_z = get_decimal(0x38, 0x37)
     # No Calibration for Mag as that would be near impossible unless you know magnetometer readings
     mag_x = read_mag_data(0x11, 0x12)
     mag_y = read_mag_data(0x13, 0x14)
@@ -130,12 +135,14 @@ def main():
         xav = int(f.readline())
         yav = int(f.readline())
         zav = int(f.readline())
-        xgyr = int(f.readline())
-        ygyr = int(f.readline())
-        zgyr = int(f.readline())
+        # xgyr = int(f.readline())
+        # ygyr = int(f.readline())
+        # zgyr = int(f.readline())
     while not success:
         try:
             print("Attempting Startup")
+            set_bank(0)
+            bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_2, 0x7f)
             # wake up imu from sleep, try until works
             bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_1, 0x01)
             # Set accelerometer and gyroscope to on
@@ -154,7 +161,7 @@ def main():
 
     while(True):
         try:
-            data = get_data(xav, yav, zav, xgyr, ygyr, zgyr)
+            data = get_data(xav, yav, zav)
 
         except Exception:
             print("Connection Lost")
@@ -203,7 +210,8 @@ def main():
         print("Bearing: ", imudata.bearing_deg)
 
         # Roll, Pitch, yaw calc
-        acc = np.array([data[0]/2048, data[1]/2048, (data[2]/2048 - 1)])
+        # Including gravity in calib (-1) gives different results from not accounting for gravity
+        acc = np.array([data[0]/2048, data[1]/2048, (data[2]/2048) -1])
         gyr = np.array([data[3]/16.4, data[4]/16.4, data[5]/16.4])
         mag = np.array([data[6], data[7], data[8]])
         gyr_rad = gyr * (np.pi/180)

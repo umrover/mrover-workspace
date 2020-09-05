@@ -45,7 +45,8 @@ def set_bank(bank):
 
 
 def get_data():
-
+    while ((bus.read_byte_data(I2C_IMU_ADDRESS, 0x1A) & 0b00000001) != 0b00000001):
+        t.sleep
     accel_x = get_decimal(0x2E, 0x2D)
     accel_y = get_decimal(0x30, 0x2F)
     accel_z = get_decimal(0x32, 0x31)
