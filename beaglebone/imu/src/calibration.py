@@ -64,7 +64,7 @@ def get_data():
 def set_offset(xav, yav, zav):
     xav /= 10
     yav /= 10
-    zav /= -10
+    zav /= 10
     set_bank(1)
     zavlower = (int(zav) & 0b000000001111111) << 1
     zavupper = (int(zav) & 0b111111110000000) >> 7

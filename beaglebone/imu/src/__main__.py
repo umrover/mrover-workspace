@@ -76,9 +76,21 @@ def get_data(xav, yav, zav):
     accel_x = get_decimal(0x2E, 0x2D) + xav
     accel_y = get_decimal(0x30, 0x2F) + yav
     accel_z = get_decimal(0x32, 0x31) + zav
-    gyro_x = get_decimal(0x34, 0x33)
-    gyro_y = get_decimal(0x36, 0x35)
-    gyro_z = get_decimal(0x38, 0x37)
+
+    block = bus.read_i2c_block_data(I2C_IMU_ADDRESS, 0x33, 2)
+    high = block[0] << 8
+    low = block[1] & 0xff
+    gyro_x = np.int16(high | low)
+
+    block = bus.read_i2c_block_data(I2C_IMU_ADDRESS, 0x35, 2)
+    high = block[0] << 8
+    low = block[1] & 0xff
+    gyro_y = np.int16(high | low)
+
+    block = bus.read_i2c_block_data(I2C_IMU_ADDRESS, 0x37, 2)
+    high = block[0] << 8
+    low = block[1] & 0xff
+    gyro_z = np.int16(high | low)
     # No Calibration for Mag as that would be near impossible unless you know magnetometer readings
     mag_x = read_mag_data(0x11, 0x12)
     mag_y = read_mag_data(0x13, 0x14)
@@ -211,7 +223,7 @@ def main():
 
         # Roll, Pitch, yaw calc
         # Including gravity in calib (-1) gives different results from not accounting for gravity
-        acc = np.array([data[0]/2048, data[1]/2048, (data[2]/2048) -1])
+        acc = np.array([data[0]/2048, data[1]/2048, (data[2]/2048) - 1])
         gyr = np.array([data[3]/16.4, data[4]/16.4, data[5]/16.4])
         mag = np.array([data[6], data[7], data[8]])
         gyr_rad = gyr * (np.pi/180)
