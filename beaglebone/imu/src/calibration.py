@@ -130,13 +130,13 @@ def main():
         except Exception:
             print("Connection Lost")
             t.sleep(1)
-        if (calibration == 0 and calibrationtime >= 10):
-            xav /= -10
-            yav /= -10
-            zav /= -10
-            xgyr /= -10
-            ygyr /= -10
-            zgyr /= -10
+        if (calibration == 0 and calibrationtime >= 50):
+            xav /= -50
+            yav /= -50
+            zav /= -50
+            xgyr /= -50
+            ygyr /= -50
+            zgyr /= -50
             calibration = 1
             print(xav)
             print(yav)

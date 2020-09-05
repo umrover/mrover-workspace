@@ -71,7 +71,6 @@ def get_data(xav, yav, zav, xgyr, ygyr, zgyr):
     accel_x = get_decimal(0x2E, 0x2D) + xav
     accel_y = get_decimal(0x30, 0x2F) + yav
     accel_z = get_decimal(0x32, 0x31) + zav
-
     gyro_x = get_decimal(0x34, 0x33) + xgyr
     gyro_y = get_decimal(0x36, 0x35) + ygyr
     gyro_z = get_decimal(0x38, 0x37) + zgyr
@@ -93,7 +92,7 @@ def set_offset(xav, yav, zav):
     set_bank(1)
     zavlower = (int(zav) & 0b000000001111111) << 1
     zavupper = (int(zav) & 0b111111110000000) >> 7
-    
+
     # This function is only ever used to 0 out offsets so its fine if they're the same
     # Set lower bits of z offset
     bus.write_byte_data(I2C_IMU_ADDRESS, 0x1B, zavlower)
@@ -161,19 +160,19 @@ def main():
             print("Connection Lost")
 
         # Raw Data
-        print("Accel: ", data[0]/2048, ",", data[1]/2048, ",", data[2]/2048 + 1)
-        print("Gyro: ", data[3]/2000, ",", data[4]/2000, ",", data[5]/2000)
+        print("Accel: ", data[0]/2048, ",", data[1]/2048, ",", data[2]/2048 - 1)
+        print("Gyro: ", data[3]/16.4, ",", data[4]/16.4, ",", data[5]/16.4)
         print("Mag: ", data[6], ",", data[7], ",", data[8])
 
         # Accel measures in 2048 LSB/g and Gyro in 2000 LSB/dps
         # so we divide the register value by that to get the unit
         imudata.accel_x_g = data[0]/2048
         imudata.accel_y_g = data[1]/2048
-        # This is +1 so calibration doesn't mess with regular gravity
-        imudata.accel_z_g = data[2]/2048 + 1
-        imudata.gyro_x_dps = data[3]/2000
-        imudata.gyro_y_dps = data[4]/2000
-        imudata.gyro_z_dps = data[5]/2000
+        # This is -1 so calibration doesn't mess with regular gravity
+        imudata.accel_z_g = data[2]/2048 - 1
+        imudata.gyro_x_dps = data[3]/16.4
+        imudata.gyro_y_dps = data[4]/16.4
+        imudata.gyro_z_dps = data[5]/16.4
         # Magnetometer is in 0.15 microTeslas/LSB
         # so we multiply instead but also divide
         # by 1,000,000 to go to regular teslas
@@ -198,14 +197,14 @@ def main():
         #    imudata.bearing_deg = 180
         # elif gaussy == 0 and gaussx > 0:
         #    imudata.bearing_deg = 0
-        
+
         # Easier version of above, measures from about -180 to 180
         imudata.bearing_deg = np.arctan2(gaussx, gaussy) * 180/np.pi
         print("Bearing: ", imudata.bearing_deg)
-        
-        #Roll, Pitch, yaw calc
-        acc = np.array([data[0]/2048, data[1]/2048, (data[2]/2048 + 1)])
-        gyr = np.array([data[3]/2000, data[4]/2000, data[5]/2000])
+
+        # Roll, Pitch, yaw calc
+        acc = np.array([data[0]/2048, data[1]/2048, (data[2]/2048 - 1)])
+        gyr = np.array([data[3]/16.4, data[4]/16.4, data[5]/16.4])
         mag = np.array([data[6], data[7], data[8]])
         gyr_rad = gyr * (np.pi/180)
         # Everything Past here is Auton stuff
