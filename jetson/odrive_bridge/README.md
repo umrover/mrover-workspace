@@ -209,8 +209,8 @@ device. \
 
 #### Suddenly No Resposne 
 <font size="4">  In this case, stop and restart the odrive program. The problem is still being investigated \
-  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  \
-  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  </font>
+  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop rover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR.service `  \
+  `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start rover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR.service `  </font>
   
 #### Unknown ACK and Failure 
 <font size="4">  In this case, stop and restart the odrive program. The problem is also still being investigated \
