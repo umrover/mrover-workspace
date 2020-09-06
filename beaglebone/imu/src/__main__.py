@@ -25,18 +25,42 @@ filter = MadgwickAHRS.MadgwickAHRS()
 
 
 # Combines data for a accel/gyro reading
-def get_decimal(ls, ms):
-    high = read_data(ms) << 8
-    low = read_data(ls) & 0xff
-    return np.int16((high | low))
+def get_accelgyro_data(addr):
+    block = bus.read_i2c_block_data(I2C_IMU_ADDRESS, addr, 12)
+    high = block[0] << 8
+    low = block[1] & 0xff
+    x_accel = np.int16((high | low))
+    high = block[2] << 8
+    low = block[3] & 0xff
+    y_accel = np.int16((high | low))
+    high = block[4] << 8
+    low = block[5] & 0xff
+    z_accel = np.int16((high | low))
+    high = block[6] << 8
+    low = block[7] & 0xff
+    x_gyro = np.int16((high | low))
+    high = block[8] << 8
+    low = block[9] & 0xff
+    y_gyro = np.int16((high | low))
+    high = block[10] << 8
+    low = block[11] & 0xff
+    z_gyro = np.int16((high | low))
+    return np.array([x_accel, y_accel, z_accel, x_gyro, y_gyro, z_gyro])
 
 
 # Magnetometer has a different format so seperate function required
-def get_mag_decimal(ls, ms):
-    # little endian so ls is right 8 bits
-    high = bus.read_byte_data(0x0c, ms) << 8
-    low = bus.read_byte_data(0x0c, ls) & 0xff
-    return np.int16((high | low))
+def get_mag_decimal(addr):
+    block = bus.read_i2c_block_data(0x0c, addr, 12)
+    high = block[1] << 8
+    low = block[0] & 0xff
+    x_mag = np.int16((high | low))
+    high = block[3] << 8
+    low = block[2] & 0xff
+    y_mag = np.int16((high | low))
+    high = block[5] << 8
+    low = block[4] & 0xff
+    z_mag = np.int16((high | low))
+    return np.array([x_mag, y_mag, z_mag])
 
 
 # Gets data from a certain address
@@ -47,7 +71,7 @@ def read_data(num):
 
 
 # Sets up Magnetometer Data
-def read_mag_data(ls, ms):
+def read_mag_data(addr):
     # mag_write(AK09916_CNTL2, 0x01) Set magnetometer to singlemeasurementmode
     bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_USER_CTRL, 0b00000000)
     # while (ready != 1): # Wait until data is ready
@@ -58,7 +82,7 @@ def read_mag_data(ls, ms):
     # 0c holds the address of the magnetometer
     bus.write_byte_data(0x0c, 0x31, 0b00010)
     # These are settings for the magnetometer
-    return get_mag_decimal(ls, ms)
+    return get_mag_decimal(addr)
 
 
 # Changes the bank of commands to access
@@ -73,28 +97,19 @@ def get_data(xav, yav, zav):
     # if((bus.read_byte_data(I2C_IMU_ADDRESS, 0x1A) & 0b00000001) == 0b00000001):
     #    print("Data Ready")
     #    t.sleep(0.1)
-    accel_x = get_decimal(0x2E, 0x2D) + xav
-    accel_y = get_decimal(0x30, 0x2F) + yav
-    accel_z = get_decimal(0x32, 0x31) + zav
+    AG_Data = get_accelgyro_data(0x2d)
+    accel_x = AG_Data[0]
+    accel_y = AG_Data[1]
+    accel_z = AG_Data[2]
 
-    block = bus.read_i2c_block_data(I2C_IMU_ADDRESS, 0x33, 2)
-    high = block[0] << 8
-    low = block[1] & 0xff
-    gyro_x = np.int16(high | low)
-
-    block = bus.read_i2c_block_data(I2C_IMU_ADDRESS, 0x35, 2)
-    high = block[0] << 8
-    low = block[1] & 0xff
-    gyro_y = np.int16(high | low)
-
-    block = bus.read_i2c_block_data(I2C_IMU_ADDRESS, 0x37, 2)
-    high = block[0] << 8
-    low = block[1] & 0xff
-    gyro_z = np.int16(high | low)
+    gyro_x = AG_Data[3]
+    gyro_y = AG_Data[4]
+    gyro_z = AG_Data[5]
     # No Calibration for Mag as that would be near impossible unless you know magnetometer readings
-    mag_x = read_mag_data(0x11, 0x12)
-    mag_y = read_mag_data(0x13, 0x14)
-    mag_z = read_mag_data(0x15, 0x16)
+    magdata = read_mag_data(0x11)
+    mag_x = magdata[0]
+    mag_y = magdata[1]
+    mag_z = magdata[2]
 
     bus.read_byte_data(0x0c, 0x18)
     return np.array([accel_x, accel_y, accel_z, gyro_x,
