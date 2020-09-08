@@ -52,8 +52,6 @@ def get_accelgyro_data(addr):
 # Magnetometer has a different format so seperate function required
 def get_mag_decimal(addr):
     # Data Ready Check
-    while(bus.read_byte_data(0x0c, 0x10) & 0b00000010 != 0b00000010):
-        t.sleep(0.0001)
     block = bus.read_i2c_block_data(0x0c, addr, 6)
     high = block[1] << 8
     low = block[0] & 0xff
@@ -209,7 +207,7 @@ def main():
         imudata.accel_x_g = data[0]/2048
         imudata.accel_y_g = data[1]/2048
         # This is -1 so calibration doesn't mess with regular gravity
-        imudata.accel_z_g = data[2]/2048
+        imudata.accel_z_g = data[2]/2048 - 1
         imudata.gyro_x_dps = data[3]/16.4
         imudata.gyro_y_dps = data[4]/16.4
         imudata.gyro_z_dps = data[5]/16.4
@@ -258,8 +256,8 @@ def main():
 
         # values are between -pi and pi
         curRoll = ahrs[0]
-        curPitch = ahrs[1]
-        curYaw = ahrs[2]
+        curPitch = ahrs[2]
+        curYaw = ahrs[1]
 
         # Remove prints after testing
         print("Roll: ", curRoll, " Pitch: ", curPitch, " Yaw: ", curYaw)
