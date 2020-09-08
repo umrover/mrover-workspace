@@ -4,7 +4,7 @@ services:
 before_install:
 - docker build -t mrover .
 script:
-- docker run --rm -it -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro -v /dev/tty:/dev/i2c-0 -v /dev/tty:/dev/i2c-1 -v /dev/tty:/dev/i2c-2
+- docker run --gpus 'all,"capabilities=compute,utility"' --rm -it -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro -v /dev/tty:/dev/i2c-0 -v /dev/tty:/dev/i2c-1 -v /dev/tty:/dev/i2c-2
   mrover jarvis build -a .
 notifications:
   slack:
