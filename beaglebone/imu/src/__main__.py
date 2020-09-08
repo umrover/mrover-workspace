@@ -51,6 +51,9 @@ def get_accelgyro_data(addr):
 
 # Magnetometer has a different format so seperate function required
 def get_mag_decimal(addr):
+    # Data Ready Check
+    while(bus.read_byte_data(0x0c, 0x10) & 0b00000010 != 0b00000010):
+        t.sleep(0.0001)
     block = bus.read_i2c_block_data(0x0c, addr, 6)
     high = block[1] << 8
     low = block[0] & 0xff
@@ -199,7 +202,7 @@ def main():
         # Raw Data
         print("Accel: ", data[0]/2048, ",", data[1]/2048, ",", (data[2]/2048 - 1))
         print("Gyro: ", data[3]/16.4, ",", data[4]/16.4, ",", data[5]/16.4)
-        print("Mag: ", data[6] * 0.15 / 1000000, ",", data[7] * 0.15 / 1000000, ",", data[8] * 0.15 / 1000000)
+        print("Mag: ", data[6] * 0.15, ",", data[7] * 0.15, ",", data[8] * 0.15)
 
         # Accel measures in 2048 LSB/g and Gyro in 2000 LSB/dps
         # so we divide the register value by that to get the unit
