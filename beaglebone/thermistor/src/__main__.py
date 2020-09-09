@@ -20,16 +20,16 @@ adcPin = "P9_33"
 
 # voltage divider constants
 global R1, V1
-R1 = 10000
+R1 = 9760
 V1 = 3.3
 
 # constants depending on the thermistor
 # see readme for explanation of constants
 global constantArray, R25
-constantArray = [[0.003357042, 0.000252143, 3.37742e-06, -6.54336e-08],\
-                [00.003354016, 0.000256173, 2.13941e-06, -7.25325e-08],\
-                [0.003353045, 0.0002542, 1.14261e-06, -6.93803e-08],\
-                [0.0033533609, 0.000253768, 8.53411e-07, -8.7962e-08]]
+constantArray = [[3.3570420E-03,2.5214848E-04, 3.3743283E-06, -6.4957311E-08 ],\
+                [3.3540170E-03,2.5617244E-04, 2.1400943E-06, -7.2405219E-08 ],\
+                [3.3530481E-03, 2.5420230E-04, 1.1431163E-06, -6.9383563E-08],\
+                [3.3536166E-03,2.5377200E-04,8.5433271E-07, -8.7912262E-08]]
 # Given by the spec of the specific thermistor
 R25 = 10000
 
@@ -56,13 +56,13 @@ def main():
         Rt = V2 / I
 
         # Determine which set of constants should be used
-        if(Rt/R25 < 69.26 and Rt/R25 >= 3.277):
+        if(Rt < 692600 and Rt >= 32770):
             constantSet = 0
-        elif(Rt/R25 < 3.277 and Rt/R25 >= 0.3599):
+        elif(Rt < 32770 and Rt >= 3599):
             constantSet = 1
-        elif(Rt/R25 < 0.3599 and Rt/R25 >= 0.06816):
+        elif(Rt < 3599 and Rt >= 681.6):
             constantSet = 2
-        elif(Rt/R25 < 0.06816 and Rt/R25 >= 0.0187):
+        elif(Rt < 681.6 and Rt >= 187):
             constantSet = 3
         else:
             # TODO proper error handling (out of bounds temp)
@@ -72,12 +72,12 @@ def main():
 
         # Using the Rt/R25 range to determine actual temp
         lnRtoverR25 = ln(Rt/R25)
-        IoverT = constantArray[constantSet][0] + (constantArray[constantSet][1] * lnRtoverR25) \
+        oneOverT = constantArray[constantSet][0] + (constantArray[constantSet][1] * lnRtoverR25) \
             + (constantArray[constantSet][2] *  lnRtoverR25 * lnRtoverR25) \
             + (constantArray[constantSet][3] * lnRtoverR25 * lnRtoverR25 * lnRtoverR25)
 
         # calc actual temp from the IoverT value the formula gives
-        currTemp = 1 / (IoverT / I) + 272.15 # + 273 to convert to C
+        currTemp = (1 / oneOverT) + 272.15 # + 273 to convert to C
 
         # publishing message and waiting desired interval
         publishMessage(currTemp)
