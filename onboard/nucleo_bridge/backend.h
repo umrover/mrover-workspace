@@ -10,48 +10,72 @@
 #include <unistd.h>
 #include <exception>
 
-struct IOFailure : public std::exception {};
+struct IOFailure : public std::exception
+{
+};
 
-class BackEnd {
+class BackEnd
+{
 private:
-	int file;
-	std::mutex i2cMutex;
-	std::mutex hardwaresMutex;
-	std::unordered_map<uint8_t, std::string> hardwares;
+    int file;
+    std::mutex i2cMutex;
+    std::mutex hardwaresMutex;
+    std::unordered_map<uint8_t, std::string> hardwares;
 
 public:
-	BackEnd(){
-		file = open("/dev/i2c-1", O_RDWR);
-		if (file == -1){ printf("failed to open i2c bus"); /*exit(1);*/ }
-	}
 
-	std::string getHardwares(uint8_t address) {
-		return hardwares[address];
-	}
+    //Abstraction for I2C/Hardware related functions
+    BackEnd()
+    {
+        file = open("/dev/i2c-1", O_RDWR);
+        if (file == -1)
+        {
+            printf("failed to open i2c bus"); 
+            exit(1);
+        }
+    }
 
-	void setHardwares(uint8_t address, std::string value) {
-		std::scoped_lock hardwaresLock(hardwaresMutex);
-		hardwares[address] = value;
-	}
+    //returns what Controller is supposed to be at a specific i2c address
+    std::string getHardwares(uint8_t address)
+    {
+        return hardwares[address];
+    }
 
-	void i2c_transact(uint8_t addr, uint8_t cmd, uint8_t writeNum, uint8_t readNum, uint8_t *writeBuf, uint8_t *readBuf ){
-		std::scoped_lock i2cLock(i2cMutex);
-		uint8_t buffer[32];
-		
-		buffer[0] = cmd;
-		memcpy(buffer + 1, writeBuf, writeNum);
+    //sets what Controller is supposed to be at a specific i2c address
+    void setHardwares(uint8_t address, std::string value)
+    {
+        std::scoped_lock hardwaresLock(hardwaresMutex);
+        hardwares[address] = value;
+    }
 
-		ioctl(file, I2C_SLAVE, addr);
-		
-		if (writeNum + 1 != 0) {
-			if ( write(file, buffer, writeNum + 1) != writeNum + 1) { throw IOFailure();}
-		}
-		if (readNum != 0) {
-			if ( read(file, buffer, readNum) != readNum ) { throw IOFailure(); }
-		}
+    //Performs an i2c transaction
+    void i2c_transact(uint8_t addr, uint8_t cmd, uint8_t writeNum, uint8_t readNum, uint8_t *writeBuf, uint8_t *readBuf)
+    {
+        std::scoped_lock i2cLock(i2cMutex);
+        uint8_t buffer[32];
 
-		memcpy(readBuf, buffer, readNum);
-	}
+        buffer[0] = cmd;
+        memcpy(buffer + 1, writeBuf, writeNum);
+
+        ioctl(file, I2C_SLAVE, addr);
+
+        if (writeNum + 1 != 0)
+        {
+            if (write(file, buffer, writeNum + 1) != writeNum + 1)
+            {
+                throw IOFailure();
+            }
+        }
+        if (readNum != 0)
+        {
+            if (read(file, buffer, readNum) != readNum)
+            {
+                throw IOFailure();
+            }
+        }
+
+        memcpy(readBuf, buffer, readNum);
+    }
 };
 
 #endif
