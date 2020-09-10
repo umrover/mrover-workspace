@@ -10,15 +10,19 @@
 #include "frontend.h"
 #include "backend.h"
 
-int main(){
-    std::unordered_map<std::string, Controller *> controllers;
-    
+//Handles instantiation of Controller objects, FrontEnd, and BackEnd classes
+int main()
+{
     BackEnd backEnd = BackEnd();
+    
+    //Named map of Controller objects
+    //Configuration done here for visibility
+    std::unordered_map<std::string, Controller *> controllers;
 
     controllers["HAND_FINGER_POS"] = new Controller(0, 2, Hardware(HBridgePos));
     controllers["HAND_FINGER_NEG"] = new Controller(0, 3, Hardware(HBridgeNeg));
     controllers["HAND_GRIP_POS"] = new Controller(0, 4, Hardware(HBridgePos));
-    controllers["HAND_GRIP_NEG" ] = new Controller(0, 5, Hardware(HBridgeNeg));
+    controllers["HAND_GRIP_NEG"] = new Controller(0, 5, Hardware(HBridgeNeg));
     controllers["FOOT_CLAW"] = new Controller(2, 0, Hardware(Talon12V));
     controllers["FOOT_SENSOR"] = new Controller(1, 1, Hardware(Talon12V));
     controllers["GIMBAL_PITCH_0_POS"] = new Controller(1, 2, Hardware(HBridgePos));
@@ -39,41 +43,49 @@ int main(){
     controllers["RA_4"] = new Controller(2, 0, Hardware(Talon24V));
     controllers["RA_5"] = new Controller(2, 1, Hardware(Talon12V));
 
-	controllers["SA_0"]->quadCPR = 464.64;
-	controllers["SA_1"]->quadCPR = 23945.84;
-	controllers["SA_2"]->quadCPR = 23945.84;
+    controllers["SA_0"]->quadCPR = 464.64;
+    controllers["SA_1"]->quadCPR = 23945.84;
+    controllers["SA_2"]->quadCPR = 23945.84;
 
-	controllers["RA_0"]->quadCPR = 100;
-	controllers["RA_1"]->quadCPR = 1;
-	controllers["RA_2"]->quadCPR = 342506.67;
-	controllers["RA_3"]->quadCPR = 180266.67;
-	controllers["RA_4"]->quadCPR = 180266.67;
-	controllers["RA_5"]->quadCPR = 18144;
+    controllers["RA_0"]->quadCPR = 100;
+    controllers["RA_1"]->quadCPR = 1;
+    controllers["RA_2"]->quadCPR = 342506.67;
+    controllers["RA_3"]->quadCPR = 180266.67;
+    controllers["RA_4"]->quadCPR = 180266.67;
+    controllers["RA_5"]->quadCPR = 18144;
 
-	controllers["RA_0"]->kP = 0;
-	controllers["RA_1"]->kP = 0;
-	controllers["RA_2"]->kP = 0.001;
-	controllers["RA_3"]->kP = 0.001;
-	controllers["RA_4"]->kP = -0.001;
-	controllers["RA_5"]->kP = 0.005;
-	
-	//controllers["RA_1"]->kI = 0.0002;
-	controllers["RA_2"]->kI = 0.00005;
-	controllers["RA_3"]->kI = 0.00005;
-	controllers["RA_4"]->kI = -0.00005;
-	controllers["RA_5"]->kI = 0.00005;
+    controllers["RA_0"]->kP = 0;
+    controllers["RA_1"]->kP = 0;
+    controllers["RA_2"]->kP = 0.001;
+    controllers["RA_3"]->kP = 0.001;
+    controllers["RA_4"]->kP = -0.001;
+    controllers["RA_5"]->kP = 0.005;
 
-    for (auto element : controllers) {
+    //controllers["RA_1"]->kI = 0.0002;
+    controllers["RA_2"]->kI = 0.00005;
+    controllers["RA_3"]->kI = 0.00005;
+    controllers["RA_4"]->kI = -0.00005;
+    controllers["RA_5"]->kI = 0.00005;
+
+    //Passes Controller name and reference to BackEnd to every controller
+    for (auto element : controllers)
+    {
         element.second->name = element.first;
         element.second->backEnd = &backEnd;
     }
 
+    //Passes Controller Map to FrontEnd
     FrontEnd frontEnd = FrontEnd(&controllers);
 
+    //Creation of lcm bus
     lcm::LCM lcmBus = lcm::LCM();
+    if (!lcmBus.good())
+    {
+        printf("LCM Bus not created");
+        exit(1);
+    }
 
-    if(!lcmBus.good()) {printf("LCM Bus not created"); exit(1);}
-
+    //Subscription to lcm channels 
     lcmBus.subscribe("/ik_ra_control", &FrontEnd::ra_closed_loop_cmd, &frontEnd);
     lcmBus.subscribe("/sa_closedloop_cmd", &FrontEnd::sa_closed_loop_cmd, &frontEnd);
 
@@ -90,5 +102,6 @@ int main(){
     //lcmBus.subscribe("/ra_zero_trigger", &FrontEnd::ra_zero_trigger, &frontEnd);
     lcmBus.subscribe("/sa_zero_trigger", &FrontEnd::sa_zero_trigger, &frontEnd);
 
+    //Pass flow control to FrontEnd
     frontEnd.run(&lcmBus);
 }
