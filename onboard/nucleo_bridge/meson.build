@@ -1,12 +1,14 @@
 project('onboard_nucleo_bridge', 'cpp', default_options : ['cpp_std=c++1z'])
 
 lcm = dependency('lcm')
+rapidjson = dependency('RapidJSON')
 
-all_deps = [lcm]
+all_deps = [lcm, rapidjson]
 
-install_headers('backend.h','frontend.h','hardware.h','controller.h')
+install_headers('Controller.h', 'ControllerMap.h', 'I2C.h', 'LCMHandler.h', 'hardware.h')
+src = ['main.cpp', 'ControllerMap.cpp', 'I2C.cpp', 'LCMHandler.cpp']
 
 executable('onboard_nucleo_bridge',
-           'main.cpp',
+           sources: src,
            dependencies : all_deps,
            install : true)
