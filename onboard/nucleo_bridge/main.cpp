@@ -11,6 +11,22 @@
 #include "I2C.h"
 
 //Handles instantiation of Controller objects, FrontEnd, and BackEnd classes
+
+void outgoing() {
+    while (true)
+    {
+        LCMHandler::handle_outgoing();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
+
+void incoming() {
+    while (true)
+    {
+        LCMHandler::handle_incoming();
+    }
+}
+
 int main()
 {
     I2C::init();
@@ -74,34 +90,11 @@ int main()
         element.second->name = element.first;
     }
 
-    //Passes Controller Map to LCMHandler
-    LCMHandler lcm_handler = LCMHandler(&controllers);
+    LCMHandler::init(&controllers);
 
-    //Creation of lcm bus
-    lcm::LCM lcmBus = lcm::LCM();
-    if (!lcmBus.good())
-    {
-        printf("LCM Bus not created");
-        exit(1);
-    }
+    std::thread outThread(&outgoing);
+    std::thread inThread(&incoming);
 
-    //Subscription to lcm channels 
-    lcmBus.subscribe("/ik_ra_control", &LCMHandler::ra_closed_loop_cmd, &lcm_handler);
-    lcmBus.subscribe("/sa_closedloop_cmd", &LCMHandler::sa_closed_loop_cmd, &lcm_handler);
-
-    lcmBus.subscribe("/ra_openloop_cmd", &LCMHandler::ra_open_loop_cmd, &lcm_handler);
-    lcmBus.subscribe("/sa_openloop_cmd", &LCMHandler::sa_open_loop_cmd, &lcm_handler);
-
-    //lcmBus.subscribe("/ra_config_cmd", &LCMHandler::ra_config_cmd, &lcm_handler);
-    lcmBus.subscribe("/sa_config_cmd", &LCMHandler::sa_config_cmd, &lcm_handler);
-
-    lcmBus.subscribe("/gimbal_openloop_cmd", &LCMHandler::gimbal_cmd, &lcm_handler);
-    lcmBus.subscribe("/hand_openloop_cmd", &LCMHandler::hand_openloop_cmd, &lcm_handler);
-    lcmBus.subscribe("/foot_openloop_cmd", &LCMHandler::foot_openloop_cmd, &lcm_handler);
-
-    //lcmBus.subscribe("/ra_zero_trigger", &LCMHandler::ra_zero_trigger, &lcm_handler);
-    lcmBus.subscribe("/sa_zero_trigger", &LCMHandler::sa_zero_trigger, &lcm_handler);
-
-    //Pass flow control to LCMHandler
-    lcm_handler.run(&lcmBus);
+    outThread.join();
+    inThread.join();
 }
