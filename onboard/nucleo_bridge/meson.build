@@ -6,7 +6,7 @@ rapidjson = dependency('RapidJSON')
 all_deps = [lcm, rapidjson]
 
 install_headers('Controller.h', 'ControllerMap.h', 'I2C.h', 'LCMHandler.h', 'hardware.h')
-src = ['main.cpp', 'ControllerMap.cpp', 'I2C.cpp', 'LCMHandler.cpp']
+src = ['main.cpp', 'ControllerMap.cpp', 'I2C.cpp', 'LCMHandler.cpp', 'Controller.cpp']
 
 executable('onboard_nucleo_bridge',
            sources: src,
