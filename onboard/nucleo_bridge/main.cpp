@@ -90,6 +90,7 @@ int main()
         element.second->name = element.first;
     }
 
+    //Initialize the LCM Handler
     LCMHandler::init(&controllers);
 
     std::thread outThread(&outgoing);
@@ -97,4 +98,6 @@ int main()
 
     outThread.join();
     inThread.join();
+
+    return 0;
 }
