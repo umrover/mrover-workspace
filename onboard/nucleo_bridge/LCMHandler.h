@@ -1,8 +1,6 @@
 #ifndef LCMHANDLER_H
 #define LCMHANDLER_H
 
-//#define MULTITHREADING
-
 #include "controller.h"
 #include "hardware.h"
 
@@ -31,25 +29,31 @@
 #define NOW std::chrono::high_resolution_clock::now()
 using namespace rover_msgs;
 
+//This class handles all LCM related functions - subscribing, handling, and publishing to channels
 class LCMHandler
 {
 private:
-    std::unordered_map<std::string, Controller *> *controllers;
-    std::chrono::high_resolution_clock::time_point lastTime = NOW;
+    inline static std::chrono::high_resolution_clock::time_point last_output_time = NOW;
 
-    lcm::LCM *lcmBus;
+    inline static std::unordered_map<std::string, Controller *> *controllers = nullptr;
 
-    //Publish RA/SA position data as it arrives, or at least every 100 milliseconds
-    void outgoing();
+    inline static lcm::LCM lcm_bus = 0;
 
-    //Handle new commands as they arrive
-    void incoming();
+    //Empty object to pass to lcm subscribe
+    inline static LCMHandler *internal_object = nullptr;
 
 public:
-    LCMHandler(std::unordered_map<std::string, Controller *> *input) : controllers(input) {}
+    //Initialize the lcm bus and subscribe to relevant channels with message handlers defined below
+    static void init(std::unordered_map<std::string, Controller *> *input1);
 
-    //Entry point. Creates two threads, one to run incoming() and one to run outgoing()
-    void run(lcm::LCM *in);
+    //Handles a single incoming lcm message
+    static void handle_incoming();
+
+    //Decide whether outgoing messages need to be sent, and if so, send them
+    static void handle_outgoing();
+
+    //Empty object to pass to lcm subscribe
+    LCMHandler();
 
     //The following functions are handlers for the corresponding lcm messages
     void ra_closed_loop_cmd(LCM_INPUT, const ArmPosition *msg);
@@ -77,6 +81,7 @@ public:
     void sa_zero_trigger(LCM_INPUT, const SAZeroTrigger *msg);
 
     //void ra_zero_trigger(LCM_INPUT, const RAZeroTrigger *msg);
+
     void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
 };
 
