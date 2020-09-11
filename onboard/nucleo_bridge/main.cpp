@@ -5,43 +5,44 @@
 #include <chrono>
 
 #include "lcm/lcm-cpp.hpp"
-#include "controller.h"
+#include "Controller.h"
 #include "hardware.h"
-#include "frontend.h"
-#include "backend.h"
+#include "LCMHandler.h"
+#include "I2C.h"
 
 //Handles instantiation of Controller objects, FrontEnd, and BackEnd classes
 int main()
 {
-    BackEnd backEnd = BackEnd();
-    
+    I2C::init();
+    ControllerMap::init();
+
     //Named map of Controller objects
     //Configuration done here for visibility
     std::unordered_map<std::string, Controller *> controllers;
 
-    controllers["HAND_FINGER_POS"] = new Controller(0, 2, Hardware(HBridgePos));
-    controllers["HAND_FINGER_NEG"] = new Controller(0, 3, Hardware(HBridgeNeg));
-    controllers["HAND_GRIP_POS"] = new Controller(0, 4, Hardware(HBridgePos));
-    controllers["HAND_GRIP_NEG"] = new Controller(0, 5, Hardware(HBridgeNeg));
-    controllers["FOOT_CLAW"] = new Controller(2, 0, Hardware(Talon12V));
-    controllers["FOOT_SENSOR"] = new Controller(1, 1, Hardware(Talon12V));
-    controllers["GIMBAL_PITCH_0_POS"] = new Controller(1, 2, Hardware(HBridgePos));
-    controllers["GIMBAL_PITCH_0_NEG"] = new Controller(1, 3, Hardware(HBridgeNeg));
-    controllers["GIMBAL_PITCH_1_POS"] = new Controller(2, 2, Hardware(HBridgePos));
-    controllers["GIMBAL_PITCH_1_NEG"] = new Controller(2, 3, Hardware(HBridgeNeg));
-    controllers["GIMBAL_YAW_0_POS"] = new Controller(1, 4, Hardware(HBridgePos));
-    controllers["GIMBAL_YAW_0_NEG"] = new Controller(1, 5, Hardware(HBridgeNeg));
-    controllers["GIMBAL_YAW_1_POS"] = new Controller(2, 4, Hardware(HBridgePos));
-    controllers["GIMBAL_YAW_1_NEG"] = new Controller(2, 5, Hardware(HBridgeNeg));
-    controllers["SA_0"] = new Controller(0, 0, Hardware(Talon12V));
-    controllers["SA_1"] = new Controller(0, 1, Hardware(Talon24V));
-    controllers["SA_2"] = new Controller(1, 0, Hardware(Talon12V));
-    controllers["RA_0"] = new Controller(0, 0, Hardware(Talon24V));
-    controllers["RA_1"] = new Controller(0, 1, Hardware(Talon12V));
-    controllers["RA_2"] = new Controller(1, 0, Hardware(Talon12V));
-    controllers["RA_3"] = new Controller(1, 1, Hardware(Talon24V));
-    controllers["RA_4"] = new Controller(2, 0, Hardware(Talon24V));
-    controllers["RA_5"] = new Controller(2, 1, Hardware(Talon12V));
+    controllers["HAND_FINGER_POS"] = new Controller(Hardware(HBridgePos));
+    controllers["HAND_FINGER_NEG"] = new Controller(Hardware(HBridgeNeg));
+    controllers["HAND_GRIP_POS"] = new Controller(Hardware(HBridgePos));
+    controllers["HAND_GRIP_NEG"] = new Controller(Hardware(HBridgeNeg));
+    controllers["FOOT_CLAW"] = new Controller(Hardware(Talon12V));
+    controllers["FOOT_SENSOR"] = new Controller(Hardware(Talon12V));
+    controllers["GIMBAL_PITCH_0_POS"] = new Controller(Hardware(HBridgePos));
+    controllers["GIMBAL_PITCH_0_NEG"] = new Controller(Hardware(HBridgeNeg));
+    controllers["GIMBAL_PITCH_1_POS"] = new Controller(Hardware(HBridgePos));
+    controllers["GIMBAL_PITCH_1_NEG"] = new Controller(Hardware(HBridgeNeg));
+    controllers["GIMBAL_YAW_0_POS"] = new Controller(Hardware(HBridgePos));
+    controllers["GIMBAL_YAW_0_NEG"] = new Controller(Hardware(HBridgeNeg));
+    controllers["GIMBAL_YAW_1_POS"] = new Controller(Hardware(HBridgePos));
+    controllers["GIMBAL_YAW_1_NEG"] = new Controller(Hardware(HBridgeNeg));
+    controllers["SA_0"] = new Controller(Hardware(Talon12V));
+    controllers["SA_1"] = new Controller(Hardware(Talon24V));
+    controllers["SA_2"] = new Controller(Hardware(Talon12V));
+    controllers["RA_0"] = new Controller(Hardware(Talon24V));
+    controllers["RA_1"] = new Controller(Hardware(Talon12V));
+    controllers["RA_2"] = new Controller(Hardware(Talon12V));
+    controllers["RA_3"] = new Controller(Hardware(Talon24V));
+    controllers["RA_4"] = new Controller(Hardware(Talon24V));
+    controllers["RA_5"] = new Controller(Hardware(Talon12V));
 
     controllers["SA_0"]->quadCPR = 464.64;
     controllers["SA_1"]->quadCPR = 23945.84;
@@ -67,15 +68,14 @@ int main()
     controllers["RA_4"]->kI = -0.00005;
     controllers["RA_5"]->kI = 0.00005;
 
-    //Passes Controller name and reference to BackEnd to every controller
+    //Passes Controller to every controller
     for (auto element : controllers)
     {
         element.second->name = element.first;
-        element.second->backEnd = &backEnd;
     }
 
-    //Passes Controller Map to FrontEnd
-    FrontEnd frontEnd = FrontEnd(&controllers);
+    //Passes Controller Map to LCMHandler
+    LCMHandler lcm_handler = LCMHandler(&controllers);
 
     //Creation of lcm bus
     lcm::LCM lcmBus = lcm::LCM();
@@ -86,22 +86,22 @@ int main()
     }
 
     //Subscription to lcm channels 
-    lcmBus.subscribe("/ik_ra_control", &FrontEnd::ra_closed_loop_cmd, &frontEnd);
-    lcmBus.subscribe("/sa_closedloop_cmd", &FrontEnd::sa_closed_loop_cmd, &frontEnd);
+    lcmBus.subscribe("/ik_ra_control", &LCMHandler::ra_closed_loop_cmd, &lcm_handler);
+    lcmBus.subscribe("/sa_closedloop_cmd", &LCMHandler::sa_closed_loop_cmd, &lcm_handler);
 
-    lcmBus.subscribe("/ra_openloop_cmd", &FrontEnd::ra_open_loop_cmd, &frontEnd);
-    lcmBus.subscribe("/sa_openloop_cmd", &FrontEnd::sa_open_loop_cmd, &frontEnd);
+    lcmBus.subscribe("/ra_openloop_cmd", &LCMHandler::ra_open_loop_cmd, &lcm_handler);
+    lcmBus.subscribe("/sa_openloop_cmd", &LCMHandler::sa_open_loop_cmd, &lcm_handler);
 
-    //lcmBus.subscribe("/ra_config_cmd", &FrontEnd::ra_config_cmd, &frontEnd);
-    lcmBus.subscribe("/sa_config_cmd", &FrontEnd::sa_config_cmd, &frontEnd);
+    //lcmBus.subscribe("/ra_config_cmd", &LCMHandler::ra_config_cmd, &lcm_handler);
+    lcmBus.subscribe("/sa_config_cmd", &LCMHandler::sa_config_cmd, &lcm_handler);
 
-    lcmBus.subscribe("/gimbal_openloop_cmd", &FrontEnd::gimbal_cmd, &frontEnd);
-    lcmBus.subscribe("/hand_openloop_cmd", &FrontEnd::hand_openloop_cmd, &frontEnd);
-    lcmBus.subscribe("/foot_openloop_cmd", &FrontEnd::foot_openloop_cmd, &frontEnd);
+    lcmBus.subscribe("/gimbal_openloop_cmd", &LCMHandler::gimbal_cmd, &lcm_handler);
+    lcmBus.subscribe("/hand_openloop_cmd", &LCMHandler::hand_openloop_cmd, &lcm_handler);
+    lcmBus.subscribe("/foot_openloop_cmd", &LCMHandler::foot_openloop_cmd, &lcm_handler);
 
-    //lcmBus.subscribe("/ra_zero_trigger", &FrontEnd::ra_zero_trigger, &frontEnd);
-    lcmBus.subscribe("/sa_zero_trigger", &FrontEnd::sa_zero_trigger, &frontEnd);
+    //lcmBus.subscribe("/ra_zero_trigger", &LCMHandler::ra_zero_trigger, &lcm_handler);
+    lcmBus.subscribe("/sa_zero_trigger", &LCMHandler::sa_zero_trigger, &lcm_handler);
 
-    //Pass flow control to FrontEnd
-    frontEnd.run(&lcmBus);
+    //Pass flow control to LCMHandler
+    lcm_handler.run(&lcmBus);
 }

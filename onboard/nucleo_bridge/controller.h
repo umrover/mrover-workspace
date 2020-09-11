@@ -7,7 +7,8 @@
 #include <mutex>
 #include <limits>
 #include "hardware.h"
-#include "backend.h"
+#include "I2C.h"
+#include "ControllerMap.h"
 
 #define OFF 0x00, 0, 0
 #define ON 0x0F, 0, 0
@@ -34,30 +35,22 @@ public:
     float currentAngle = 0.0;
     float kP, kI, kD = 0.0;
 
-    BackEnd *backEnd;
     std::string name;
 
 private:
     uint8_t address;
     Hardware hardware;
-    std::mutex controllerMutex;
-
-    //Returns true if the Controller is active or not
-    bool active()
-    {
-        return name == backEnd->getHardwares(address);
-    }
 
     //Wrapper for backend->i2c_transact, autofilling the i2c address of the Controller
     void transact(uint8_t cmd, uint8_t writeNum, uint8_t readNum, uint8_t *writeBuf, uint8_t *readBuf)
     {
-        backEnd->i2c_transact(address, cmd, writeNum, readNum, writeBuf, readBuf);
+        I2C::transact(ControllerMap::get_i2c_address(name), cmd, writeNum, readNum, writeBuf, readBuf);
     }
 
-    //If this Controller is not active, activate it by configuring the real controller
-    void activate()
+    //If this Controller is not live, make it live by configuring the real controller
+    void make_live()
     {
-        if (active())
+        if (ControllerMap::check_if_live(name))
         {
             return;
         };
@@ -83,11 +76,11 @@ private:
 
             transact(ON, nullptr, nullptr);
 
-            backEnd->setHardwares(address, name);
+            ControllerMap::make_live(name);
         }
         catch (IOFailure &e)
         {
-            printf("activate failed on %x\n", address);
+            printf("activate failed on %s\n", name.c_str());
             throw IOFailure();
         }
     }
@@ -105,18 +98,14 @@ private:
 
 public:
     //Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use
-    Controller(uint8_t nucleo, uint8_t channel, Hardware inHardware) : hardware(inHardware)
-    {
-        address = ((nucleo + 1) << 4) | channel;
-    }
+    Controller(Hardware inHardware) : hardware(inHardware){};
 
     //Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
     void open_loop(float input)
     {
-        std::scoped_lock controllerLock(controllerMutex);
         try
         {
-            activate();
+            make_live();
 
             uint16_t throttle = hardware.throttle(input);
             int32_t angle;
@@ -126,17 +115,16 @@ public:
         }
         catch (IOFailure &e)
         {
-            printf("open loop failed on %x\n", address);
+            printf("open loop failed on %s\n", name.c_str());
         }
     }
 
     //Sends a closed loop command with target angle in radians and optional precalculated torque in Nm
     void closed_loop(float torque, float angle)
     {
-        std::scoped_lock controllerLock(controllerMutex);
         try
         {
-            activate();
+            make_live();
 
             float feedForward = 0; //torque * torqueScale;
             int32_t closedSetpoint = static_cast<int32_t>((angle / (2.0 * M_PI)) * quadCPR);
@@ -150,20 +138,18 @@ public:
         }
         catch (IOFailure &e)
         {
-            printf("closed loop failed on %x\n", address);
+            printf("closed loop failed on %s\n", name.c_str());
         }
     }
 
     //Sends a config command with PID inputs
     void config(float KP, float KI, float KD)
     {
-        std::scoped_lock controllerLock(controllerMutex);
-
         for (int attempts = 0; attempts < 100; ++attempts)
         {
             try
             {
-                activate();
+                make_live();
 
                 uint8_t buffer[32];
                 memcpy(buffer, POINTER(&KP), 4);
@@ -175,7 +161,7 @@ public:
             }
             catch (IOFailure &e)
             {
-                printf("config failed on %x\n", address);
+                printf("config failed on %s\n", name.c_str());
             }
         }
     }
@@ -183,13 +169,11 @@ public:
     //Sends a zero command
     void zero()
     {
-        std::scoped_lock controllerLock(controllerMutex);
-
         for (int attempts = 0; attempts < 100; ++attempts)
         {
             try
             {
-                activate();
+                make_live();
 
                 int32_t zero = 0;
                 transact(ADJUST, POINTER(&zero), nullptr);
@@ -198,7 +182,7 @@ public:
             }
             catch (IOFailure &e)
             {
-                printf("zero failed on %x\n", address);
+                printf("zero failed on %s\n", name.c_str());
             }
         }
     }
@@ -206,8 +190,7 @@ public:
     //Sends a get angle command
     void angle()
     {
-        std::scoped_lock controllerLock(controllerMutex);
-        if (!active())
+        if (!ControllerMap::check_if_live(name))
         {
             return;
         }
@@ -220,7 +203,7 @@ public:
         }
         catch (IOFailure &e)
         {
-            printf("angle failed on %x\n", address);
+            printf("angle failed on %s\n", name.c_str());
         }
     }
 };
