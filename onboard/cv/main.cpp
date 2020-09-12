@@ -1,10 +1,8 @@
-#pragma once
 #include "perception.hpp"
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
 #include <thread>
-
 
 using namespace cv;
 using namespace std;
@@ -91,7 +89,6 @@ int main() {
   int j = 0;
   int counter_fail = 0;
   #if PERCEPTION_DEBUG
-    namedWindow("Obstacle");
     namedWindow("depth", 2);
   #endif
   disk_record_init();
@@ -125,26 +122,6 @@ int main() {
   }
   #endif
 
-  #if OBS_RECORD
- //initializing obstacle detection
-  src = cam.image();
-  Mat bigD = cam.depth();
-  float pw = src.cols;
-  int roverpw = calcRoverPix(distThreshold, pw);
-
-  avoid_obstacle_sliding_window(bigD, src, num_sliding_windows, roverpw);
-  Size fs = src.size();
-  string name = "obs_" + timeStamp + ".avi";
-
-  VideoWriter vidWriteObs(name, VideoWriter::fourcc('M','J','P','G'),10,fs,true);
-
-  if(vidWriteObs.isOpened() == false)
-  {
-	  cout << "didn't open";
-	  exit(1);
-  }
-  #endif
-
   /*initialize lcm messages*/
   lcm::LCM lcm_;
   rover_msgs::TargetList arTagsMessage;
@@ -162,16 +139,9 @@ int main() {
 
   /* --- Dynamically Allocate Point Cloud --- */
   sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(
-    new pcl::PointCloud<pcl::PointXYZRGB>); //This is a smart pointer so no need to worry ab deleteing it
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>); //This is a smart pointer so no need to worry ab deleteing it
 
   #if PERCEPTION_DEBUG
-    //Make trackbars
-    int thresh1 = 300000;
-    int thresh2 = 70000;
-    createTrackbar("Main Window", "Obstacle", &thresh1, 500000);
-    createTrackbar("Sub Window", "Obstacle", &thresh2, 120000);
-
     //Create PCL Visualizer
     shared_ptr<pcl::visualization::PCLVisualizer> viewer = createRGBVisualizer(point_cloud_ptr); //This is a smart pointer so no need to worry ab deleteing it
     shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = createRGBVisualizer(point_cloud_ptr);
@@ -180,6 +150,7 @@ int main() {
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
 
+    //Grab initial images from cameras
     Mat rgb;
     Mat src = cam.image();
     Mat depth_img = cam.depth();
@@ -238,30 +209,8 @@ int main() {
 
     #endif
 
-
-
-    /*initialize obstacle detection*/
-    obstacleMessage.detected = false;
-    #if OBSTACLE_DETECTION
-      float pixelWidth = src.cols;
-      int roverPixWidth = calcRoverPix(distThreshold, pixelWidth);
-      
-      /* obstacle detection */
-      obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
-      #if OBS_RECORD
-      vidWriteObs.write(src);
-      #endif
-
-      if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
-        // cout<< "bearing not zero!\n";
-        obstacleMessage.detected = true;    //if an obstacle is detected in front
-        obstacleMessage.distance = obstacle_detection.center_distance; //update LCM distance field
-      }
-      obstacleMessage.bearing = obstacle_detection.bearing;
-
-    #endif
-
     /* -- Run PCL Stuff --- */
+    #if OBSTACLE_DETECTION
 
     //Update Point Cloud
     point_cloud_ptr->clear();
@@ -278,23 +227,28 @@ int main() {
     #endif
 
     //Run Obstacle Detection
-    advanced_obstacle_return info = pcl_obstacle_detection(point_cloud_ptr, viewer);  
-        
+    obstacle_return obstacle_detection = pcl_obstacle_detection(point_cloud_ptr, viewer);  
+    if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
+        obstacleMessage.detected = true;    //if an obstacle is detected in front
+        obstacleMessage.distance = obstacle_detection.distance; //update LCM distance field
+      }
+    obstacleMessage.bearing = obstacle_detection.bearing;
+
     #if PERCEPTION_DEBUG
     //Update Processed 3D Viewer
     viewer->updatePointCloud(point_cloud_ptr);
     viewer->spinOnce(20);
     cerr<<"Downsampled W: " <<point_cloud_ptr->width<<" Downsampled H: "<<point_cloud_ptr->height<<endl;
     #endif
-
+    
+    #endif
+    
     /* --- Publish LCMs --- */
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);
-      imshow("Obstacle", src);
-      updateThresholds(thresh1,thresh2);
       waitKey(FRAME_WAITKEY);
     #endif
 
@@ -305,9 +259,6 @@ int main() {
   #endif
   #if AR_RECORD
   vidWrite.release();
-  #endif
-  #if OBS_RECORD
-  vidWriteObs.release();
   #endif
   return 0;
 }

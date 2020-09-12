@@ -1,4 +1,3 @@
-#pragma once
 #include "perception.hpp"
 
 static Mat HSV;

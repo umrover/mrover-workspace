@@ -90,21 +90,18 @@ const int num_sliding_windows = 20;
 const float distThreshold = 2.5;    //meters, used to calculate rover pixels
 const float obstacleThreshold = 5 * 0.0254; //inches to meters
 
-struct obstacle_return {
-  float center_distance; // distance to anything in front of the center of the camera
-  float bearing; // [-50 degree, 50 degree]
-};
-
-class advanced_obstacle_return {
+class obstacle_return {
   public:
   float bearing;
+  float distance; //Distance to nearest obstacle
   std::vector<pcl::PointXYZRGB> points;
   
-  advanced_obstacle_return() {
+  obstacle_return() {
     bearing = 0;
+    distance = 0;
   }
 
-  advanced_obstacle_return& operator=(advanced_obstacle_return & in){
+  obstacle_return& operator=(obstacle_return & in){
     if(this == &in){
       return *this;
     }
@@ -119,9 +116,7 @@ class advanced_obstacle_return {
 };
 
 //functions
-obstacle_return avoid_obstacle_sliding_window(cv::Mat &depth_img, cv::Mat &rgb_img, int num_windows, int rover_width);
-void updateThresholds(int in1, int in2);
-advanced_obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, std::shared_ptr<pcl::visualization::PCLVisualizer> viewer);
+obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, std::shared_ptr<pcl::visualization::PCLVisualizer> viewer);
 
 //ar tag detector class
 #include "artag_detector.hpp"
