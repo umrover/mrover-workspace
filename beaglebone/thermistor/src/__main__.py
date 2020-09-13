@@ -6,7 +6,8 @@ import Adafruit_BBIO.ADC as adc
 from math import log as ln
 from time import sleep
 import lcm as lcm_
-from rover_msgs import ThermistorData
+import threading
+from rover_msgs import ThermistorData, ThermistorRequest
 
 # time between temperature sends
 global LCM_INTERVAL, publishChannel
@@ -14,13 +15,15 @@ LCM_INTERVAL = .05
 publishChannel = "/thermistor_data"
 
 # setting ADC pin
-# FIXME change to desired pin
+# FIXME set pin to the corresponding thermistor
 global adcPin
-adcPin = "P9_33"
+adcPin = ["P9_33", "P9_33", "P9_33"]
+
 
 # voltage divider constants
 global R1, V1
-R1 = 9760
+# Input the three resistor values here
+R1 = [9760, 9760, 9760]
 V1 = 3.3
 
 # constants depending on the thermistor
@@ -33,27 +36,36 @@ constantArray = [[3.3570420E-03,2.5214848E-04, 3.3743283E-06, -6.4957311E-08 ],\
 # Given by the spec of the specific thermistor
 R25 = 10000
 
-def main():
-    # Start the LCM
-    global lcm
-    lcm = lcm_.LCM
+def publishMessage(currTemp, num):
+    global msg
+    msg = ThermistorData()
+    msg.temperature_C = currTemp
+    msg.thermistorNum = num
+    lcm.publish(publishChannel, msg.encode())
 
-    # init the ADC
-    adc.setup()
+def request_callback(channel, msg):
+    for i in range(3):
+        myThread = threads[i].local()
+        myThread.outputting = False;
+    whichThread = ThermistorRequest.decode(msg)    
+    myThread = threads[whichThread].local()
+    myThread.outputting = True
 
+def readFromThermistor(num):
+
+    outputting = False
     # main while loop
     while True:
         # reading voltage from ADC
         # Documentation says need to read twice due to bug in the library
-        # FIXME I believe we want to use read_raw, since read is between 0 and 1
-        V2 = adc.read_raw(adcPin)
-        V2 = adc.read_raw(adcPin)
+        V2 = adc.read(adcPin[num])
+        V2 = adc.read(adcPin[num])
 
-        # calc the current flowing through circuit
-        I =  (V1 - V2) / R1
+        # Adjusting V2 to actual Voltage (Multiply by 1.8V since that is max ADC can handle)
+        V2 *= 1.8
 
         # calculating R2 (resistance of thermistor)
-        Rt = V2 / I
+        Rt = ((R1[num]*V1)/(V2))-(R1[num])
 
         # Determine which set of constants should be used
         if(Rt < 692600 and Rt >= 32770):
@@ -67,7 +79,6 @@ def main():
         else:
             # TODO proper error handling (out of bounds temp)
             print("OOB temp")
-            exit()
 
 
         # Using the Rt/R25 range to determine actual temp
@@ -77,18 +88,29 @@ def main():
             + (constantArray[constantSet][3] * lnRtoverR25 * lnRtoverR25 * lnRtoverR25)
 
         # calc actual temp from the IoverT value the formula gives
-        currTemp = (1 / oneOverT) + 272.15 # + 273 to convert to C
+        currTemp = (1 / oneOverT)
 
         # publishing message and waiting desired interval
-        publishMessage(currTemp)
-        sleep(LCM_INTERVAL)   
-        
-def publishMessage(currTemp):
-    global msg
-    msg = ThermistorData()
-    msg.temperature = currTemp
-    lcm.publish(publishChannel, msg.encode())
+        print(currTemp)
+        # if outputting:
+        #     publishMessage(currTemp, num)
+        sleep(LCM_INTERVAL) 
 
+def main():
+    # Start the LCM
+    global lcm
+    lcm = lcm_.LCM
+
+    global threads
+    threads = []
+    for i in range(3):
+        t = threading.Thread(target=readFromThermistor, args=i)
+        threads.append(t)
+        t.start()
+
+    # init the ADC
+    adc.setup()
+
+    lcm.subscribe("/thermistor_request", request_callback)
 
 main()
-
