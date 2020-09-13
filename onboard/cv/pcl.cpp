@@ -310,8 +310,12 @@ double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
     double newAngle = 0;
     double newSlope = 0;
 
+    // create left and right angle vlaue that default at 360 degrees
+    double leftAngle = 360;
+    double rightAngle = 360;
+
     //If Center Path is blocked check left until have to turn too far
-    while(newAngle > -50 && newSlope <= 0){
+    while(newAngle > -70 && newSlope <= 0){
         
         //Declare Stuff
         double x = pt_cloud_ptr->points[obstacles.at(0)].x;
@@ -364,12 +368,14 @@ double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
             #if PERCEPTION_DEBUG
             std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
             #endif
-            return newAngle;
+            leftAngle = newAngle;
+            break;
         }
             
     }
 
     //Reset global variables
+    obstacles = {0, 0};
     obstacles.at(0) = centerObstacles.at(0);
     obstacles.at(1) = centerObstacles.at(1);
     newAngle = 0;
@@ -431,14 +437,26 @@ double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
             #if PERCEPTION_DEBUG
             std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
             #endif
-            return newAngle;
+            rightAngle =  newAngle;
+            break;
         }
 
     }
-    
-    //If have checked max direction both ways there is no clear path return impossible number
-    return 360;
 
+    //If there is no clear path both ways return an impossible number
+    if(rightAngle == 360 && leftAngle == 360) {
+        return 360;
+    }
+
+    //Take the absolute value of the left angle to compare
+    double leftAngleAbs = abs(leftAngle);
+
+    //Return the smallest angle (left if equal)
+    if(rightAngle < leftAngleAbs) {
+        return rightAngle;
+    }
+        
+    return leftAngle;
 }
 
 /* --- Main --- */
