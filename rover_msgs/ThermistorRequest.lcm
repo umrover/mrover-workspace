@@ -1,5 +1,5 @@
 package rover_msgs;
 
 struct ThermistorRequest {
-	int thermistorNum; // Either thermistor 1 2 or 3
+	int8_t thermistorNum; // Either thermistor 1 2 or 3
 }

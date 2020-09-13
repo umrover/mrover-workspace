@@ -1,6 +1,6 @@
 package rover_msgs;
 
 struct ThermistorData {
-	double temperature_C; //Celsius
-	int thermistorNum; // Either thermistor 1 2 or 3
+	double temperature_C; // Celsius
+	int8_t thermistorNum; // Either thermistor 1 2 or 3
 }
