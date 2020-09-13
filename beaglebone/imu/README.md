@@ -30,8 +30,8 @@ Make sure you have the arduino IDE downloaded as well. This can be downloaded [h
 Open up calibration.ino in the arduino IDE. Make sure that the correct board is selected in the `tools\board` menu and that the `tools\port` selected is COMX (with X being an integer). \
 Upload the script to the arduino by pressing the upload button. Open up the serial monitor with a baudrate of 115200 selected to check that data is being printed. If not, recheck your wires. \
 Close the serial monitor. Open up the Motion Sensor Calibration Tool and change the port to COMX. A red dot should appear in the tool. Begin to move the IMU in a figure 8 motion. As you move the IMU around more read dots will start showing up. Continue this motion in different directions until the tool shows a sphere of red dots that looks similar to the one in this image. \
-![](https://github.com/jjtom34/mrover-workspace/tree/imu/beaglebone/imu/IMU.PNG) \
-Copy the values in the left column into the calibration.txt file that can be found in the IMU src code. \
+![image](https://github.com/jjtom34/mrover-workspace/tree/imu/beaglebone/imu/IMU.PNG) \
+Copy the values displayed in the right column of the tool into the `calibration.txt` file that can be found in the src file. \
 The Magnetic Offset values go on the first line. \
 The Magnetic Mapping values go on the second line, in the order of first left to right then down. \
 The Magnetic Field value goes on the third line. \
@@ -40,10 +40,9 @@ After this you are done calibrating!
 
 #### Running
 `$ ~/cd mrover-workspace`
-`$ /jarvis build beaglebone/imu` \
-`$ /jarvis exec beaglebone_imu` \
+`$ ./jarvis build beaglebone/imu` \
+`$ ./jarvis exec beaglebone_imu` 
   
-
 #### LCM Commands
 To get readings from the sensor:
 In a new terminal \
