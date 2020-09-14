@@ -145,6 +145,13 @@ A ChannelBrokenExceptionError will be thrown however in a few minutes the odrive
 `$ odrvX.axis0.encoder.config.pre_calibrated = True ` \
  Repeat these three commands for axis1 as well. Then type \
 `$ odrvX.reboot()` 
+ 
+ *ALTERNATE METHOD* \
+ Make sure the .mrover virtual environment is active. \
+ Clone the umrover/embedded-testbench repo, and go to the motor_testing branch \
+ Open the run.py folder and change the odrive and axis you want to calibrate in the program. \
+ Run the run.py file found in the odriver folder \
+ If you enter 'r' into the cmd line and the 'c' the motor will begin calibration. 
 
 Go to the ~/mrover-workspace folder on the base station and re-enable the odrive_bridge program. \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  
