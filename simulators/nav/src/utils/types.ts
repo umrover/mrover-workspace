@@ -44,7 +44,8 @@ export enum FieldItemType {
   WAYPOINT,
   OBSTACLE,
   AR_TAG,
-  GATE
+  GATE,
+  REFERENCE_POINT
 }
 
 
@@ -65,6 +66,7 @@ export interface FieldState {
   centerOdom:Odom;
   gates:Gate[];
   obstacles:Obstacle[];
+  referencePoints:Odom[];
   repeaterLoc:Odom|null;
   size:number;
   waypoints:Waypoint[];

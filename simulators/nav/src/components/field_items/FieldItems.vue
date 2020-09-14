@@ -251,6 +251,53 @@
         </div>
       </div>
     </fieldset>
+
+    <!-- Reference Points -->
+    <fieldset>
+      <legend>
+        <div
+          class="collapse-click-area"
+          @click="collapseRefPts"
+        >
+          <div
+            :class="{ 'collapsed': refPtsCollapsed, 'minimized': refPtsMinimized }"
+            class="collapse-arrow"
+          >
+            <span>&#9662;</span>
+          </div>
+          <p><u>Reference Points</u> ({{ referencePoints.length }})</p>
+        </div>
+        <Button
+          class="clear-btn-area"
+          name="Clear Reference Points"
+          :invert-color="true"
+          :disabled="referencePoints.length === 0"
+          @clicked="clearRefPts"
+        />
+      </legend>
+      <div
+        class="collapsible"
+        :style="{ 'height': refPtsContainerHeight }"
+      >
+        <div
+          ref="refPtsContainer"
+          class="field-item-group"
+        >
+          <div
+            v-for="referencePoint, i in referencePoints"
+            :key="`refPt-${i}`"
+            ref="refPts"
+            class="field-item-container"
+          >
+            <ReferencePointItem
+              class="field-item"
+              :loc="referencePoint"
+              :index="i"
+            />
+          </div>
+        </div>
+      </div>
+    </fieldset>
   </div>
 </template>
 
@@ -276,6 +323,7 @@ import Button from '../common/Button.vue';
 import GateItem from './GateItem.vue';
 import ObstacleItem from './ObstacleItem.vue';
 import RadioRepeaterItem from './RadioRepeaterItem.vue';
+import ReferencePointItem from './ReferencePointItem.vue';
 import WaypointItem from './WaypointItem.vue';
 
 @Component({
@@ -285,6 +333,7 @@ import WaypointItem from './WaypointItem.vue';
     GateItem,
     ObstacleItem,
     RadioRepeaterItem,
+    ReferencePointItem,
     WaypointItem
   }
 })
@@ -303,6 +352,9 @@ export default class FieldItems extends Vue {
 
   @Getter
   private readonly odomFormat!:OdomFormat;
+
+  @Getter
+  private readonly referencePoints!:Odom[];
 
   @Getter
   private readonly repeaterLoc!:Odom|null;
@@ -327,6 +379,9 @@ export default class FieldItems extends Vue {
 
   @Mutation
   private readonly removeObstacle!:(index:number)=>void;
+
+  @Mutation
+  private readonly removeReferencePoint!:(index:number)=>void;
 
   @Mutation
   private readonly removeWaypoint!:(index:number)=>void;
@@ -361,6 +416,14 @@ export default class FieldItems extends Vue {
   @Ref('obsContainer')
   private obsHtmlContainer!:HTMLDivElement;
 
+  /* List of ReferencePointItem elements. */
+  @Ref('refPts')
+  private refPtsHtml!:HTMLDivElement[];
+
+  /* Div element wrapping list of ReferencePointItem elements. */
+  @Ref('refPtsContainer')
+  private refPtsHtmlContainer!:HTMLDivElement;
+
   /* RadioRepeaterItem element. */
   @Ref('rr')
   private rrHtml!:HTMLDivElement;
@@ -371,7 +434,7 @@ export default class FieldItems extends Vue {
 
   /* List of WaypointItem elements. */
   @Ref('wps')
-  private  wpsHtml!:HTMLDivElement[];
+  private wpsHtml!:HTMLDivElement[];
 
   /* Div element wrapping list of WaypointItem elements. */
   @Ref('wpsContainer')
@@ -391,6 +454,10 @@ export default class FieldItems extends Vue {
   private obsCollapsed = false; /* true <-> collapsed */
   private obsMinimized = false; /* true <-> minimized */
   private obsContainerHeight = '0px';
+
+  private refPtsCollapsed = false; /* true <-> collapsed */
+  private refPtsMinimized = false; /* true <-> minimized */
+  private refPtsContainerHeight = '0px';
 
   private rrCollapsed = false; /* true <-> collapsed */
   private rrContainerHeight = '0px';
@@ -434,6 +501,7 @@ export default class FieldItems extends Vue {
     this.clearObs();
     this.clearWps();
     this.clearRoverPath();
+    this.clearRefPts();
   } /* clearField() */
 
   /* Delete all gate field items. */
@@ -449,6 +517,13 @@ export default class FieldItems extends Vue {
       this.removeObstacle(0);
     }
   } /* clearObs() */
+
+  /* Delete all reference point field items. */
+  private clearRefPts():void {
+    while (this.referencePoints.length) {
+      this.removeReferencePoint(0);
+    }
+  } /* clearRefPts() */
 
   /* Delete all waypoint field items. */
   private clearWps():void {
@@ -520,6 +595,27 @@ export default class FieldItems extends Vue {
     this.updateObsHeight();
   } /* collapseObs() */
 
+  /* Collapse, minimize, or expand reference points list. */
+  private collapseRefPts():void {
+    /* collapse */
+    if (this.refPtsMinimized) {
+      this.refPtsMinimized = false;
+      this.refPtsCollapsed = true;
+    }
+
+    /* expand */
+    else if (this.refPtsCollapsed) {
+      this.refPtsHtmlContainer.scrollIntoView();
+      this.refPtsCollapsed = false;
+    }
+
+    /* minimize */
+    else {
+      this.refPtsMinimized = true;
+    }
+    this.updateRefPtsHeight();
+  } /* collapseRefPts() */
+
   /* Collapse or expanse radio repeater item display. */
   private collapseRr():void {
     this.rrCollapsed = !this.rrCollapsed;
@@ -555,6 +651,7 @@ export default class FieldItems extends Vue {
     this.updateObsHeight();
     this.updateRrHeight();
     this.updateWpsHeight();
+    this.updateRefPtsHeight();
   } /* onUpdate() */
 
   /* Reset/pick-up radio repeater. */
@@ -612,6 +709,23 @@ export default class FieldItems extends Vue {
     }
     this.obsContainerHeight = `${height}px`;
   } /* updateObsHeight() */
+
+  /* Update the height of the reference points container. */
+  private updateRefPtsHeight():void {
+    let height = 0;
+    if (this.referencePoints.length) {
+      if (this.refPtsMinimized) {
+        height = this.refPtsHtml[0].scrollHeight;
+      }
+      else if (!this.refPtsCollapsed) {
+        height = this.refPtsHtmlContainer.scrollHeight;
+      }
+      this.refPtsHtml.forEach((obstacle, i) => {
+        this.refPtsHtml[i].style.height = `${obstacle.children[0].scrollHeight}px`;
+      });
+    }
+    this.refPtsContainerHeight = `${height}px`;
+  } /* updateRefPtsHeight() */
 
   /* Update the height of the radio repeater container. */
   private updateRrHeight():void {
