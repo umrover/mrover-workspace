@@ -43,7 +43,7 @@ Publishers: onboard/odrive_bridge \
 Subscribers: onboard/teleop
 
 #### Watchdog Timeout Period 
-To be implemented later 
+1 second
 
 
 
@@ -89,7 +89,7 @@ our usage of it. Six 47nF capacitors will have to be soldered on to the odrive a
 odrive webiste page to get odrivetool on your own computer or connect the 
 odrive to the jetson and follow the steps below to get it. You must change the USB permissions (how to in the next section)
 before doing this though, and make sure the odrive_bridge program on the jetson is [deactivated](Debugging). \
-`$ ssh mrover@10.0.0.1` \
+`$ ssh mrover@10.1.0.1` \
 `$ mrover` \
 `$ cd ~/.mrover` \
 `$ source bin/activate` \
@@ -118,7 +118,7 @@ device. \
 #### Calibrating The Odrive 
 <font size="4"> Since the CalibrateState has not been tested, it must be done manually. Once again ssh into the jetson and go to the .mrover folder 
 and start running odrivetool. \
-`$ ssh mrover@10.0.0.1` \
+`$ ssh mrover@10.1.0.1` \
 `$ mrover` \
 `$ cd ~/.mrover` \
 `$ source bin/activate` \
@@ -161,8 +161,8 @@ Go to the ~/mrover-workspace folder on the base station and re-enable the odrive
 ### Debugging (on the jetson)
 Usually being able to arm/disarm manually is needed. To do so stop the program from running on the basestation. \
 `$ cd ~/mrover-workspace` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@FRONT_MOTOR ` \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop service.mrover-onboard-odrive_bridge@BACK_MOTOR ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop rover-onboard-odrive_bridge@0.service ` \
+`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl stop rover-onboard-odrive_bridge@1.service ` \
 To restart the programs manually type \
 `$ start0 ` \
 `$ start1 ` \
@@ -177,7 +177,7 @@ In order to Arm/Disarm the odrives manually type \
 X is the odrive, either 0 or 1, and Y is the state. 1 is DisarmedState, 2 is ArmedState, and 3 is CalibrateState
 (not usable at the moment). \
 In order to see if there are any odrive errors, ssh into the jetson \
-`$ ssh mrover@10.0.0.1` \
+`$ ssh mrover@10.1.0.1` \
 `$ mrover` \
 The terminal should now display that you are in mrover@mrover-jetson  \
 `$ cd ~/.mrover` \
@@ -240,7 +240,7 @@ As of right now we are unsure whether or not we are using odrives for the 2021 R
 
 - [ ] Validate this guide
 - [ ] Test CalibrateState
-- [ ] Implement watchdog timer
+- [x] Implement watchdog timer
 - [ ] Switch from threading to async 
 - [ ] Update current limit
 - [ ] Test other control modes? 
