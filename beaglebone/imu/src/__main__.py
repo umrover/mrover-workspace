@@ -23,33 +23,35 @@ AK09916_I2C_ADDR = 0x0c
 bus = smbus.SMBus(2)
 
 # Offsets applied to raw x/y/z mag values
-mag_offsets = [ 0, 0, 0 ]
+mag_offsets = [0, 0, 0]
 
 # Soft iron error compensation matrix
-mag_softiron_matrix = [ [  0, 0, 0 ],
-                        [  0, 0, 0 ],
-                        [  0, 0, 0 ] ]
+mag_softiron_matrix = [[0, 0, 0],
+                       [0, 0, 0],
+                       [0, 0, 0]]
 
 mag_field_strength = 0
 
 filter = MadgwickAHRS.MadgwickAHRS()
+
 
 def get_decimal(high, low):
     high = high << 8
     low = low & 0xff
     return np.int16((high | low))
 
+
 # Combines data for a accel/gyro reading
 def get_accelgyro_data(addr):
-    block   = bus.read_i2c_block_data(I2C_IMU_ADDRESS, addr, 12)
+    block = bus.read_i2c_block_data(I2C_IMU_ADDRESS, addr, 12)
 
     x_accel = get_decimal(block[0], block[1])
     y_accel = get_decimal(block[2], block[3])
     z_accel = get_decimal(block[4], block[5])
 
-    x_gyro  = get_decimal(block[6], block[7])
-    y_gyro  = get_decimal(block[8], block[9])
-    z_gyro  = get_decimal(block[10], block[11])
+    x_gyro = get_decimal(block[6], block[7])
+    y_gyro = get_decimal(block[8], block[9])
+    z_gyro = get_decimal(block[10], block[11])
 
     return np.array([x_accel, y_accel, z_accel, x_gyro, y_gyro, z_gyro])
 
@@ -66,11 +68,11 @@ def get_mag_data(addr):
     bus.write_byte_data(AK09916_I2C_ADDR, 0x31, 0b00000010)
     # These are settings for the magnetometer
 
-    block   = bus.read_i2c_block_data(AK09916_I2C_ADDR, addr, 6)
+    block = bus.read_i2c_block_data(AK09916_I2C_ADDR, addr, 6)
 
-    x_mag   = get_decimal(block[1], block[0])
-    y_mag   = get_decimal(block[3], block[2])
-    z_mag   = get_decimal(block[5], block[4])
+    x_mag = get_decimal(block[1], block[0])
+    y_mag = get_decimal(block[3], block[2])
+    z_mag = get_decimal(block[5], block[4])
 
     # Check for Measure overflow and wait until its updated
     while (bus.read_byte_data(AK09916_I2C_ADDR, 0x18) & 0b00001000 == 0b00001000):
@@ -86,7 +88,7 @@ def set_bank(bank):
 
 def get_data():
     set_bank(0)
-    accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z  = get_accelgyro_data(0x2d)
+    accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z = get_accelgyro_data(0x2d)
     mag_x, mag_y, mag_z = get_mag_data(0x11)
 
     # not sure why this is here
@@ -97,7 +99,7 @@ def get_data():
 
 
 # Removes any inbuilt offset b/c we do that ourselves
-# Don't believe we need this after figuring out the calibration 
+# Don't believe we need this after figuring out the calibration
 def set_offset(xav, yav, zav):
     xav /= 10
     yav /= 10
@@ -162,9 +164,8 @@ def main():
         lines = calibration.readlines()
         mag_offsets = [float(x) for x in lines[0].split()]
         mag_softiron_matrix = np.reshape([float(x) for x in lines[1].split()], (3, 3))
-        mag_field_strength = [float(x) for x in lines[3].split()][0]
+        # mag_field_strength = [float(x) for x in lines[3].split()][0]
 
-    
     while(True):
         try:
             data = get_data()
@@ -181,7 +182,7 @@ def main():
         # so we divide the register value by that to get the unit
         imudata.accel_x_g = data[0] / 2048
         imudata.accel_y_g = data[1] / 2048
-        imudata.accel_z_g = data[2] / 2048 
+        imudata.accel_z_g = data[2] / 2048
 
         imudata.gyro_x_dps = data[3] / 16.4
         imudata.gyro_y_dps = data[4] / 16.4
@@ -193,9 +194,12 @@ def main():
         mag_z = (data[8] * 0.15) - mag_offsets[2]
 
         # Apply mag soft iron error compensation
-        imudata.mag_x_uT = mag_x * mag_softiron_matrix[0][0] + mag_y * mag_softiron_matrix[0][1] + mag_z * mag_softiron_matrix[0][2]
-        imudata.mag_y_uT = mag_x * mag_softiron_matrix[1][0] + mag_y * mag_softiron_matrix[1][1] + mag_z * mag_softiron_matrix[1][2]
-        imudata.mag_z_uT = mag_x * mag_softiron_matrix[2][0] + mag_y * mag_softiron_matrix[2][1] + mag_z * mag_softiron_matrix[2][2]
+        imudata.mag_x_uT = mag_x * mag_softiron_matrix[0][0] + mag_y * mag_softiron_matrix[0][1] + \
+            mag_z * mag_softiron_matrix[0][2]
+        imudata.mag_y_uT = mag_x * mag_softiron_matrix[1][0] + mag_y * mag_softiron_matrix[1][1] + \
+            mag_z * mag_softiron_matrix[1][2]
+        imudata.mag_z_uT = mag_x * mag_softiron_matrix[2][0] + mag_y * mag_softiron_matrix[2][1] + \
+            mag_z * mag_softiron_matrix[2][2]
 
         # Bearing Calculation
 
@@ -204,9 +208,10 @@ def main():
 
         # Roll, Pitch, yaw calc
         # Dividing the mag data by 100000 to get units to be Teslas
-        acc = np.array([ imudata.accel_x_g, imudata.accel_y_g, imudata.accel_z_g ])
-        gyr = np.array([ imudata.gyro_x_dps, imudata.gyro_y_dps, imudata.gyro_z_dps ])
-        mag = np.array([ imudata.mag_x_uT / 1000000.0, imudata.mag_y_uT / 1000000.0, imudata.mag_z_uT / 1000000.0 ])
+        acc = np.array([imudata.accel_x_g, imudata.accel_y_g, imudata.accel_z_g])
+        gyr = np.array([imudata.gyro_x_dps, imudata.gyro_y_dps, imudata.gyro_z_dps])
+        mag = np.array([imudata.mag_x_uT / 1000000.0, imudata.mag_y_uT / 1000000.0,
+                        imudata.mag_z_uT / 1000000.0])
         gyr_rad = gyr * (np.pi/180)
 
         # Everything Past here is Auton stuff

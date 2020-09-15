@@ -162,7 +162,8 @@ def main():
 
     while(True):
         try:
-            data = get_data(xav, yav, zav)
+            # data = get_data(xav, yav, zav)
+            data = get_data(0, 0, 0)
 
         except Exception:
             print("Connection Lost")

@@ -5,7 +5,7 @@ import numpy as np
 from os import getenv
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import IMU, GPS, Odometry
+from rover_msgs import IMUData, GPS, Odometry
 from .inputs import Gps, Imu
 from .linearKalman import LinearKalmanFilter, QDiscreteWhiteNoise
 from .conversions import meters2lat, meters2long, lat2meters, long2meters, \
@@ -148,7 +148,7 @@ class SensorFusion:
             self.gps.fresh = False
 
     def _imuCallback(self, channel, msg):
-        new_imu = IMU.decode(msg)
+        new_imu = IMUData.decode(msg)
         self.imu.update(new_imu)
 
     def _constructFilter(self):
