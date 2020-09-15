@@ -23,6 +23,7 @@ export default class BinaryIndicator extends Vue {
   @Prop({ required: true, type: Boolean })
   private readonly val!:boolean;
 
+  /* name to display next to indicator */
   @Prop({ required: true, type: String })
   private readonly name!:string;
 
