@@ -15,6 +15,18 @@ For example:
     with_zed=true
     perception_debug=false
 
+## To not run ar
+    ar_detection=false
+
+## To not run obstacle
+    obs_detection=false
+    
+## To record ar video
+    ar_record=true
+
+## To record obs video
+    obs_record=true
+
 ## To collect data:
     with_zed=true
     write_frame=true

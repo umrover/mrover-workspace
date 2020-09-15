@@ -2,9 +2,19 @@
 #include "perception.hpp"
 
 #if ZED_SDK_PRESENT
+
+#pragma GCC diagnostic ignored "-Wreorder" //Turns off warning checking for sl lib files
+
 #include <sl/Camera.hpp>
 #include <cassert>
+#include <pcl/common/common_headers.h>
 
+#pragma GCC diagnostic pop
+//Class created to implement all Camera class' functions
+//Abstracts away details of using Stereolab's camera interface
+//so we can just use a simple custom one
+//Also allows us to not be restricted to using the ZED for testing,
+//but can use sample images for testing
 class Camera::Impl {
 public:
 	Impl();
@@ -14,6 +24,7 @@ public:
 
 	cv::Mat image();
 	cv::Mat depth();
+  void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
 private:
 	sl::RuntimeParameters runtime_params_;
 	sl::Resolution image_size_;
@@ -28,55 +39,94 @@ private:
 
 Camera::Impl::Impl() {
 	sl::InitParameters init_params;
-	init_params.camera_resolution = sl::RESOLUTION_HD720; // default: 720p
-	init_params.depth_mode = sl::DEPTH_MODE_PERFORMANCE;
-	init_params.coordinate_units = sl::UNIT_METER;
+	init_params.camera_resolution = sl::RESOLUTION::HD720; // default: 720p
+	init_params.depth_mode = sl::DEPTH_MODE::PERFORMANCE;
+	init_params.coordinate_units = sl::UNIT::METER;
 	init_params.camera_fps = 15;
 	// TODO change this below?
-	assert(this->zed_.open(init_params) == sl::SUCCESS);
-	this->zed_.setConfidenceThreshold(THRESHOLD_CONFIDENCE);
-	std::cout<<"ZED init success\n";
-	this->runtime_params_.sensing_mode = sl::SENSING_MODE_STANDARD;
 
-	this->image_size_ = this->zed_.getResolution();
+	assert(this->zed_.open() == sl::ERROR_CODE::SUCCESS);
+  
+  //Parameters for Positional Tracking
+  init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
+  
+  this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
+
+	this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
+	std::cout<<"ZED init success\n";
+	this->runtime_params_.sensing_mode = sl::SENSING_MODE::STANDARD;
+
+	this->image_size_ = this->zed_.getCameraInformation().camera_resolution;
 	this->image_zed_.alloc(this->image_size_.width, this->image_size_.height,
-						   sl::MAT_TYPE_8U_C4);
+						   sl::MAT_TYPE::U8_C4);
 	this->image_ = cv::Mat(
 		this->image_size_.height, this->image_size_.width, CV_8UC4,
-		this->image_zed_.getPtr<sl::uchar1>(sl::MEM_CPU));
+		this->image_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
 	this->depth_zed_.alloc(this->image_size_.width, this->image_size_.height,
-		                   sl::MAT_TYPE_32F_C1);
+		                   sl::MAT_TYPE::F32_C1);
 	this->depth_ = cv::Mat(
 		this->image_size_.height, this->image_size_.width, CV_32FC1,
-		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM_CPU));
+		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
 }
 
 bool Camera::Impl::grab() {
-	return this->zed_.grab(this->runtime_params_) == sl::SUCCESS;
+  return this->zed_.grab() == sl::ERROR_CODE::SUCCESS;
 }
 
 cv::Mat Camera::Impl::image() {
-	this->zed_.retrieveImage(this->image_zed_, sl::VIEW_LEFT, sl::MEM_CPU,
-							 this->image_size_.width, this->image_size_.height);
+	this->zed_.retrieveImage(this->image_zed_, sl::VIEW::LEFT, sl::MEM::CPU,
+							 this->image_size_);
 	return this->image_;
 }
 
 cv::Mat Camera::Impl::depth() {
 
-    this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE_DEPTH,  sl::MEM_CPU,  this->image_size_.width, 
-    	 this->image_size_.height);
-
+    this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE::DEPTH,  sl::MEM::CPU,  this->image_size_);
 	return this->depth_;
 }
 
+//This function convert a RGBA color packed into a packed RGBA PCL compatible format
+inline float convertColor(float colorIn) {
+    uint32_t color_uint = *(uint32_t *) & colorIn;
+    unsigned char *color_uchar = (unsigned char *) &color_uint;
+    color_uint = ((uint32_t) color_uchar[0] << 16 | (uint32_t) color_uchar[1] << 8 | (uint32_t) color_uchar[2]);
+    return *reinterpret_cast<float *> (&color_uint);
+}
+
+void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & p_pcl_point_cloud) {
+  //Might need an overloaded assignment operator
+  
+  //Grab ZED Depth Image
+  sl::Resolution cloud_res(p_pcl_point_cloud->width, p_pcl_point_cloud->height);
+  sl::Mat data_cloud;
+  this->zed_.retrieveMeasure(data_cloud, sl::MEASURE::XYZRGBA, sl::MEM::CPU, cloud_res);
+  
+  //Populate Point Cloud
+  float *p_data_cloud = data_cloud.getPtr<float>();
+  int index = 0;
+  for (auto &it : p_pcl_point_cloud->points) {
+    float X = p_data_cloud[index];
+    if (!isValidMeasure(X)) // Checking if it's a valid point
+        it.x = it.y = it.z = it.rgb = 0;
+    else {
+        it.x = X;
+        it.y = p_data_cloud[index + 1];
+        it.z = p_data_cloud[index + 2];
+        it.rgb = convertColor(p_data_cloud[index + 3]); // Convert a 32bits float into a pcl .rgb format
+    }
+    index += 4;
+  }
+
+} 
+
 Camera::Impl::~Impl() {
+  this->depth_zed_.free(sl::MEM::CPU);
+  this->image_zed_.free(sl::MEM::CPU);
 	this->zed_.close();
 
 }
 
-/*void Camera::Impl::deleteZed(){
-	delete this;
-}*/
+
 #else //if OFFLINE_TEST
 #include <sys/types.h>
 #include <dirent.h>
@@ -195,4 +245,8 @@ cv::Mat Camera::image() {
 
 cv::Mat Camera::depth() {
 	return this->impl_->depth();
+}
+
+void Camera::getDataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud) {
+  this->impl_->dataCloud(p_pcl_point_cloud);
 }
