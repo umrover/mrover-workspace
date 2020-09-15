@@ -3,7 +3,10 @@
 
 <!------------------------------------------- Template -------------------------------------------->
 <template>
-  <fieldset class="box draw-module">
+  <fieldset
+    v-hotkey.prevent="keymap"
+    class="box draw-module"
+  >
     <legend>Draw Module</legend>
     <RadioSelector
       :options="drawModeOptions"
@@ -390,6 +393,14 @@ export default class DrawModeModule extends Vue {
       gate_width: this.waypointGateWidthIn,
       search: newIsSearch
     });
+  }
+
+  /* Mapping of hotkeys to functions. */
+  get keymap():Record<string, ()=>void> {
+    return {
+      'shift+s': this.toggleIsSearchPoint,
+      'shift+g': this.toggleIsGateSearchPoint
+    };
   }
 
   /************************************************************************************************
