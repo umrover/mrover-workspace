@@ -10,6 +10,7 @@
   >
     <Header />
     <Perception />
+    <HotKeys />
     <div class="flex-grid">
       <!-- left half -->
       <div class="col left">
@@ -61,6 +62,7 @@ import Field from './field/Field.vue';
 import FieldItems from './field_items/FieldItems.vue';
 import Header from './header/Header.vue';
 import HeartbeatMonitor from './common/HeartbeatMonitor.vue';
+import HotKeys from './HotKeys.vue';
 import LCMBridge from '../../deps/lcm_bridge_client/dist/bridge.js';
 import LCMCenter from './lcm_center/LCMCenter.vue';
 import Perception from './perception/Perception.vue';
@@ -84,6 +86,7 @@ const TWO_SECOND_MILLI = 2000;
     FieldItems,
     Header,
     HeartbeatMonitor,
+    HotKeys,
     LCMCenter,
     Perception
   }
