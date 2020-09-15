@@ -12,7 +12,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { FieldItemType, Joystick, OdomFormat } from '../utils/types';
+import { FieldItemType, OdomFormat } from '../utils/types';
 
 @Component({})
 export default class HotKeys extends Vue {
@@ -42,9 +42,6 @@ export default class HotKeys extends Vue {
 
   @Mutation
   private readonly setDrawMode!:(mode:FieldItemType)=>void;
-
-  @Mutation
-  private readonly setJoystick!:(newJoystick:Joystick)=>void;
 
   @Mutation
   private readonly setOdomFormat!:(newOdomFormat:OdomFormat)=>void;
@@ -81,11 +78,7 @@ export default class HotKeys extends Vue {
       'shift+p': this.flipSimPercep,
       'shift+alt+d': this.setToDFormat,
       'shift+alt+m': this.setToDMFormat,
-      'shift+alt+s': this.setToDMSFormat,
-      'shift+up': this.manualDriveForward,
-      'shift+down': this.manualDriveBackward,
-      'shift+left': this.manualDriveLeft,
-      'shift+right': this.manualDriveRight
+      'shift+alt+s': this.setToDMSFormat
     };
   }
 
@@ -106,37 +99,6 @@ export default class HotKeys extends Vue {
   private flipSimPercep():void {
     this.flipSimulatePercep(!this.simulatePercep);
   } /* flipSimPercep() */
-
-  /* Apply one joystick command based on "manual" input. */
-  private manaulDrive(forwardBack:number, leftRight:number):void {
-    if (!this.autonOn || this.paused) {
-      this.setJoystick({
-        forward_back: forwardBack,
-        left_right: leftRight
-      });
-      this.setTakeStep(true);
-    }
-  } /* manaulDrive() */
-
-  /* Apply one joystick command to drive backward based on "manual" input. */
-  private manualDriveBackward():void {
-    this.manaulDrive(-1, 0);
-  } /* manualDriveBackward() */
-
-  /* Apply one joystick command to drive forward based on "manual" input. */
-  private manualDriveForward():void {
-    this.manaulDrive(1, 0);
-  } /* manualDriveForward() */
-
-  /* Apply one joystick command to turn left based on "manual" input. */
-  private manualDriveLeft():void {
-    this.manaulDrive(0, -1);
-  } /* manualDriveLeft() */
-
-  /* Apply one joystick command to turn right based on "manual" input. */
-  private manualDriveRight():void {
-    this.manaulDrive(0, 1);
-  } /* manualDriveRight() */
 
   /* Pause and play the rover. */
   private pausePlay():void {
