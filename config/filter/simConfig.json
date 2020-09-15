@@ -1,0 +1,22 @@
+{
+    "gps_lat_stdev_meters" : 1,
+    "gps_long_stdev_meters" : 1,
+    "gps_vel_stdev_meters" : 0.2,
+    "gps_bearing_stdev_degs" : 30,
+    "gps_update_rate_millis" : 50,
+
+    "imu_accel_stdev_meters" : 0.05,
+    "imu_bearing_stdev_degs" : 2,
+    "imu_pitch_stdev_degs" : 1,
+    "imu_update_rate_millis" : 10,
+
+    "max_jerk" : 0.1,
+    "max_accel" : 1.5,
+    "min_accel" : -1.5,
+    "max_rot_vel_rads" : 2.5,
+    "max_pitch_vel_rads" : 0.5,
+    "dt_s" : 0.01,
+    "end_time" : 100,
+
+    "csv_mode" : "a"
+}
