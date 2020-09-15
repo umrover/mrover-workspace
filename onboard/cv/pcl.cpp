@@ -290,7 +290,8 @@ bool CheckPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
 //Returns the angle to a clear path
 double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
                             std::vector<std::vector<int>> interest_points,
-                      shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
+                      shared_ptr<pcl::visualization::PCLVisualizer> viewer, 
+                      obstacle_return & result) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Find Clear Path");
     #endif
@@ -320,6 +321,7 @@ double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
         //Declare Stuff
         double x = pt_cloud_ptr->points[obstacles.at(0)].x;
         double z = pt_cloud_ptr->points[obstacles.at(0)].z;
+        result.distance = z;
         double zOffset = 0;
         double xOffset = 0;
         
@@ -473,6 +475,6 @@ obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & 
     CPUEuclidianClusterExtraction(pt_cloud_ptr, cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
     FindInterestPoints(cluster_indices, pt_cloud_ptr, interest_points);
-    result.bearing = FindClearPath(pt_cloud_ptr, interest_points, viewer);  
+    result.bearing = FindClearPath(pt_cloud_ptr, interest_points, viewer, result);  
     return result;
 }
