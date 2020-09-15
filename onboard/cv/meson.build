@@ -38,7 +38,7 @@ if obs_detection
 	link_args : [
 		# PCL
 			'-lpcl_common', '-lpcl_visualization', '-lpcl_filters', '-lpcl_segmentation', '-lpcl_search', '-lpcl_kdtree', '-lpcl_sample_consensus',
-			'-lpcl_gpu_octree', '-lpcl_gpu_segmentation', '-lpcl_gpu_containers', 
+			'-lpcl_gpu_octree', '-lpcl_gpu_segmentation', '-lpcl_gpu_containers', '-lpcl_io',
 			'-lboost_system','-lvtksys-8.2', '-lvtkRenderingCore-8.2', '-lvtkCommonCore-8.2',
 			'-lvtkCommonDataModel-8.2', '-lvtkCommonMath-8.2', '-lvtkFiltersCore-8.2', '-lvtkCommonExecutionModel-8.2', '-lvtkFiltersGeometry-8.2'
 	])
@@ -46,19 +46,22 @@ if obs_detection
 endif
 
 ar_detection = get_option('ar_detection')
+ar_record = get_option('ar_record')
 obs_detection = get_option('obs_detection')
+obs_record = get_option('obs_record')
 perception_debug = get_option('perception_debug')
 write_frame = get_option('write_frame')
 data_folder = get_option('data_folder')
-ar_record = get_option('ar_record')
+
 
 conf_data = configuration_data()
 conf_data.set10('AR_DETECTION', ar_detection)
+conf_data.set10('AR_RECORD', ar_record)
 conf_data.set10('OBSTACLE_DETECTION', obs_detection)
+conf_data.set10('OBSTACLE_RECORD', obs_record)
 conf_data.set10('ZED_SDK_PRESENT', with_zed)
 conf_data.set10('PERCEPTION_DEBUG', perception_debug)
 conf_data.set10('WRITE_CURR_FRAME_TO_DISK', write_frame)
-conf_data.set10('AR_RECORD', ar_record)
 conf_data.set_quoted('DEFAULT_ONLINE_DATA_FOLDER', data_folder)
 configure_file(
 	input: 'config.h.in',

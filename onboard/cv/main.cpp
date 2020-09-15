@@ -166,7 +166,7 @@ int main() {
 
     /* AR Tag Detection*/
     arTags[0].distance = -1;
-    arTags[1].distance = -1;cerr<<"Grab Cloud"<<endl;
+    arTags[1].distance = -1;
     #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
@@ -217,8 +217,24 @@ int main() {
     point_cloud_ptr->points.resize(cloud_res.area());
     point_cloud_ptr->width = PT_CLOUD_WIDTH;
     point_cloud_ptr->height = PT_CLOUD_HEIGHT;
-    cam.getDataCloud(point_cloud_ptr);
+    
 
+    cam.getDataCloud(point_cloud_ptr);
+    /*
+    string name = ("pcl" + to_string(j) + ".pcd");
+    if (pcl::io::loadPCDFile<pcl::PointXYZRGB> (name, *point_cloud_ptr) == -1) //* load the file
+  {
+    PCL_ERROR ("Couldn't read file test_pcd.pcd \n");
+    return (-1);
+  }
+  
+    #if OBSTACLE_RECORD
+    string name = ("pcl" + to_string(j) + ".pcd");
+    cerr<<name<<"\n";
+    pcl::io::savePCDFileASCII (name, *point_cloud_ptr);
+    std::cerr << "Saved " << point_cloud_ptr->size () << " data points to test_pcd.pcd." << std::endl;
+    #endif
+*/
     #if PERCEPTION_DEBUG
     //Update Original 3D Viewer
     viewer_original->updatePointCloud(point_cloud_ptr);

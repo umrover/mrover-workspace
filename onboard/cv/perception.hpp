@@ -11,6 +11,7 @@
 #include <sys/stat.h> // for disk writing
 #include <algorithm>
 #include <ctime>
+#include <string>
 
 /* --- PCL Includes --- */
 #include <iostream>
@@ -28,6 +29,8 @@
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/extract_clusters.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
 
 /* --- Ignore Error Checking for 3rd Part Header Files --- */
 #pragma GCC diagnostic ignored "-Wreorder"
