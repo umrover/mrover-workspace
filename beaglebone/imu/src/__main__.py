@@ -203,7 +203,9 @@ def main():
 
         # Bearing Calculation
 
-        imudata.bearing_deg = np.arctan2(imudata.mag_y_uT, imudata.mag_x_uT) * (180.0 / np.pi) + 180
+        imudata.bearing_deg = -(np.arctan2(imudata.mag_y_uT, imudata.mag_x_uT) * (180.0 / np.pi))
+        if imudata.bearing_deg < 0:
+            imudata.bearing_deg += 360
         print("Bearing: ", imudata.bearing_deg)
 
         # Roll, Pitch, yaw calc
