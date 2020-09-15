@@ -137,7 +137,7 @@ export default {
                       latitude_deg: latitude_deg,
                       latitude_min: (lat - latitude_deg) * 60,
                       longitude_deg: -longitude_deg,
-                      longitude_min: (lon - longitude_deg) * 60,
+                      longitude_min: -1 * (lon - longitude_deg) * 60,
                       bearing_deg: 0,
                       speed: -1,
                       type: "Odometry"

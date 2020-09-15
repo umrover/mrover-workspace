@@ -3,7 +3,10 @@
 
 <!------------------------------------------- Template -------------------------------------------->
 <template>
-  <div class="container field-items">
+  <div
+    v-hotkey.prevent="keymap"
+    class="container field-items"
+  >
     <!-- Waypoint Items -->
     <fieldset>
       <legend>
@@ -474,6 +477,13 @@ export default class FieldItems extends Vue {
     return this.arTags.length === 0 && this.gates.length === 0 &&
            this.obstacles.length === 0 && this.waypoints.length === 0 &&
            this.roverPath.length <= 1;
+  }
+
+  /* Mapping of hotkeys to functions. */
+  get keymap():Record<string, ()=>void> {
+    return {
+      'shift+backspace': this.clearField
+    };
   }
 
   /************************************************************************************************
