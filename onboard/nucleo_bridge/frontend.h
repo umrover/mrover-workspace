@@ -150,8 +150,8 @@ public:
 
 	void ra_pos_data(){
 		ArmPosition msg;
-	    msg.joint_a = 0;//angle[0] = (*controllers)["RA_0"]->currentAngle;
-	    msg.joint_b = 0;// (*controllers)["RA_1"]->currentAngle;
+	    msg.joint_a = (*controllers)["RA_0"]->currentAngle;
+	    msg.joint_b = (*controllers)["RA_1"]->currentAngle;
 	    msg.joint_c = (*controllers)["RA_2"]->currentAngle;
 	    msg.joint_d = (*controllers)["RA_3"]->currentAngle;
 	    msg.joint_e = (*controllers)["RA_4"]->currentAngle;

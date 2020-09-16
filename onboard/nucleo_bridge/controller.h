@@ -83,7 +83,7 @@ private:
     void recordAngle(int32_t angle) {
 
 	float otherAngle = (static_cast<float>(angle)/quadCPR)*2.0*M_PI;
-	if (std::abs(otherAngle - currentAngle) >= M_PI/16.0) {
+	if (std::abs(otherAngle - currentAngle) >= M_PI/2.0) {
 		return;
 	}
 	currentAngle = otherAngle;

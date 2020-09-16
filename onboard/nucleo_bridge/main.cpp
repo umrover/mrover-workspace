@@ -43,7 +43,7 @@ int main(){
 	controllers["SA_1"]->quadCPR = 23945.84;
 	controllers["SA_2"]->quadCPR = 23945.84;
 
-	controllers["RA_0"]->quadCPR = 100;
+	controllers["RA_0"]->quadCPR = 994;
 	controllers["RA_1"]->quadCPR = 1;
 	controllers["RA_2"]->quadCPR = 342506.67;
 	controllers["RA_3"]->quadCPR = 180266.67;
