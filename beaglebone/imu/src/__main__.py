@@ -198,8 +198,11 @@ def main():
         imudata.mag_z_uT = mag_x * mag_softiron_matrix[2][0] + mag_y * mag_softiron_matrix[2][1] + mag_z * mag_softiron_matrix[2][2]
 
         # Bearing Calculation
+        bearing = -np.arctan2(imudata.mag_y_uT, imudata.mag_x_uT) * (180.0 / np.pi)
+        if (bearing < 0):
+            bearing +=360
 
-        imudata.bearing_deg = np.arctan2(imudata.mag_y_uT, imudata.mag_x_uT) * (180.0 / np.pi)
+        imudata.bearing_deg = bearing
         print("Bearing: ", imudata.bearing_deg)
 
         # Roll, Pitch, yaw calc
