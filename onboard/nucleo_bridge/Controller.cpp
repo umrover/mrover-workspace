@@ -56,7 +56,7 @@ void Controller::recordAngle(int32_t angle)
 }
 
 //Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use
-Controller::Controller(Hardware inHardware) : hardware(inHardware){}
+Controller::Controller(std::string name, std::string type) : name(name), hardware(Hardware(type)){}
 
 //Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
 void Controller::open_loop(float input)
