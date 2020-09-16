@@ -29,70 +29,16 @@ void incoming() {
 
 int main()
 {
-    I2C::init();
+    printf("Initializing virtual controllers\n");
     ControllerMap::init();
 
-    //Named map of Controller objects
-    //Configuration done here for visibility
-    std::unordered_map<std::string, Controller *> controllers;
+    printf("Initializing LCM bus\n");
+    LCMHandler::init();
 
-    controllers["HAND_FINGER_POS"] = new Controller(Hardware(HBridgePos));
-    controllers["HAND_FINGER_NEG"] = new Controller(Hardware(HBridgeNeg));
-    controllers["HAND_GRIP_POS"] = new Controller(Hardware(HBridgePos));
-    controllers["HAND_GRIP_NEG"] = new Controller(Hardware(HBridgeNeg));
-    controllers["FOOT_CLAW"] = new Controller(Hardware(Talon12V));
-    controllers["FOOT_SENSOR"] = new Controller(Hardware(Talon12V));
-    controllers["GIMBAL_PITCH_0_POS"] = new Controller(Hardware(HBridgePos));
-    controllers["GIMBAL_PITCH_0_NEG"] = new Controller(Hardware(HBridgeNeg));
-    controllers["GIMBAL_PITCH_1_POS"] = new Controller(Hardware(HBridgePos));
-    controllers["GIMBAL_PITCH_1_NEG"] = new Controller(Hardware(HBridgeNeg));
-    controllers["GIMBAL_YAW_0_POS"] = new Controller(Hardware(HBridgePos));
-    controllers["GIMBAL_YAW_0_NEG"] = new Controller(Hardware(HBridgeNeg));
-    controllers["GIMBAL_YAW_1_POS"] = new Controller(Hardware(HBridgePos));
-    controllers["GIMBAL_YAW_1_NEG"] = new Controller(Hardware(HBridgeNeg));
-    controllers["SA_0"] = new Controller(Hardware(Talon12V));
-    controllers["SA_1"] = new Controller(Hardware(Talon24V));
-    controllers["SA_2"] = new Controller(Hardware(Talon12V));
-    controllers["RA_0"] = new Controller(Hardware(Talon24V));
-    controllers["RA_1"] = new Controller(Hardware(Talon12V));
-    controllers["RA_2"] = new Controller(Hardware(Talon12V));
-    controllers["RA_3"] = new Controller(Hardware(Talon24V));
-    controllers["RA_4"] = new Controller(Hardware(Talon24V));
-    controllers["RA_5"] = new Controller(Hardware(Talon12V));
+    printf("Initializing I2C bus\n");
+    I2C::init();
 
-    controllers["SA_0"]->quadCPR = 464.64;
-    controllers["SA_1"]->quadCPR = 23945.84;
-    controllers["SA_2"]->quadCPR = 23945.84;
-
-    controllers["RA_0"]->quadCPR = 100;
-    controllers["RA_1"]->quadCPR = 1;
-    controllers["RA_2"]->quadCPR = 342506.67;
-    controllers["RA_3"]->quadCPR = 180266.67;
-    controllers["RA_4"]->quadCPR = 180266.67;
-    controllers["RA_5"]->quadCPR = 18144;
-
-    controllers["RA_0"]->kP = 0;
-    controllers["RA_1"]->kP = 0;
-    controllers["RA_2"]->kP = 0.001;
-    controllers["RA_3"]->kP = 0.001;
-    controllers["RA_4"]->kP = -0.001;
-    controllers["RA_5"]->kP = 0.005;
-
-    //controllers["RA_1"]->kI = 0.0002;
-    controllers["RA_2"]->kI = 0.00005;
-    controllers["RA_3"]->kI = 0.00005;
-    controllers["RA_4"]->kI = -0.00005;
-    controllers["RA_5"]->kI = 0.00005;
-
-    //Passes Controller to every controller
-    for (auto element : controllers)
-    {
-        element.second->name = element.first;
-    }
-
-    //Initialize the LCM Handler
-    LCMHandler::init(&controllers);
-
+    printf("Initialization Done. Looping. Reduced output for program speed.\n");
     std::thread outThread(&outgoing);
     std::thread inThread(&incoming);
 

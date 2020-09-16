@@ -1,18 +1,26 @@
 #ifndef CONTROLLER_MAP_H
 #define CONTROLLER_MAP_H
 #include <stdint.h>
+#include <fstream>
 #include <string>
 #include <unordered_map>
+#include "rapidjson/document.h"
+
+class Controller;
 
 class ControllerMap
 {
 private:
     inline static std::unordered_map<uint8_t, std::string> live_map = std::unordered_map<uint8_t, std::string>();
     inline static std::unordered_map<std::string, uint8_t> name_map = std::unordered_map<std::string, uint8_t>();
+    
+    static std::string get_config();
 
-    static uint8_t get_i2c_address(uint8_t nucleo, uint8_t channel);
+    static uint8_t calculate_i2c_address(uint8_t nucleo, uint8_t channel);
 
 public:
+    inline static std::unordered_map<std::string, Controller *> controllers = std::unordered_map<std::string, Controller *>();
+
     static void init();
 
     static uint8_t get_i2c_address(std::string name);

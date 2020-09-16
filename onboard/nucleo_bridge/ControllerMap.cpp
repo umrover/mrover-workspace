@@ -1,36 +1,66 @@
 #include "ControllerMap.h"
+#include "Controller.h"
 
-
-uint8_t ControllerMap::get_i2c_address(uint8_t nucleo, uint8_t channel) {
+uint8_t ControllerMap::calculate_i2c_address(uint8_t nucleo, uint8_t channel) {
     return ((nucleo + 1) << 4) | channel;
 }
 
-void ControllerMap::init() {
-    name_map["HAND_FINGER_POS"] = get_i2c_address(0, 2);
-    name_map["HAND_FINGER_NEG"] = get_i2c_address(0, 3);
-    name_map["HAND_GRIP_POS"] = get_i2c_address(0, 4);
-    name_map["HAND_GRIP_NEG"] = get_i2c_address(0, 5);
-    name_map["FOOT_CLAW"] = get_i2c_address(2, 0);
-    name_map["FOOT_SENSOR"] = get_i2c_address(1, 1);
-    name_map["GIMBAL_PITCH_0_POS"] = get_i2c_address(1, 2);
-    name_map["GIMBAL_PITCH_0_NEG"] = get_i2c_address(1, 3);
-    name_map["GIMBAL_PITCH_1_POS"] = get_i2c_address(2, 2);
-    name_map["GIMBAL_PITCH_1_NEG"] = get_i2c_address(2, 3);
-    name_map["GIMBAL_YAW_0_POS"] = get_i2c_address(1, 4);
-    name_map["GIMBAL_YAW_0_NEG"] = get_i2c_address(1, 5);
-    name_map["GIMBAL_YAW_1_POS"] = get_i2c_address(2, 4);
-    name_map["GIMBAL_YAW_1_NEG"] = get_i2c_address(2, 5);
-    name_map["SA_0"] = get_i2c_address(0, 0);
-    name_map["SA_1"] = get_i2c_address(0, 1);
-    name_map["SA_2"] = get_i2c_address(1, 0);
-    name_map["RA_0"] = get_i2c_address(0, 0);
-    name_map["RA_1"] = get_i2c_address(0, 1);
-    name_map["RA_2"] = get_i2c_address(1, 0);
-    name_map["RA_3"] = get_i2c_address(1, 1);
-    name_map["RA_4"] = get_i2c_address(2, 0);
-    name_map["RA_5"] = get_i2c_address(2, 1);
+std::string ControllerMap::get_config(){
+    std::string configPath = getenv("MROVER_CONFIG");
+    configPath += "/config_nucleo_bridge/controller_config.json";
+    std::ifstream configFile;
+    configFile.open(configPath);
+    
+    std::string config = "";
+    std::string line;
+    while (configFile >> line) {
+        config += line;
+    }
+
+    return config;
 }
 
+void ControllerMap::init() {
+    rapidjson::Document document;
+    document.Parse(get_config().c_str());
+
+    rapidjson::Value& root = document;
+    assert(root.IsArray());
+
+    for (rapidjson::SizeType i = 0; i < root.Size(); ++i) {
+        assert(root[i].HasMember("name") && root[i]["name"].IsString());
+        std::string name = root[i]["name"].GetString();
+
+        assert(root[i].HasMember("type") && root[i]["type"].IsString());
+        std::string type = root[i]["type"].GetString();
+        
+        assert(root[i].HasMember("nucleo") && root[i]["nucleo"].IsInt());
+        uint8_t nucleo = root[i]["nucleo"].GetInt();
+
+        assert(root[i].HasMember("channel") && root[i]["channel"].IsInt());
+        uint8_t channel = root[i]["channel"].GetInt();
+
+        controllers[name] = new Controller(name, type);
+        name_map[name] = calculate_i2c_address(nucleo, channel);
+
+        if (root[i].HasMember("quadCPR") && root[i]["quadCPR"].IsFloat()){
+            controllers[name]->quadCPR = root[i]["quadCPR"].GetFloat();
+        }
+        if (root[i].HasMember("spiCPR") && root[i]["spiCPR"].IsFloat()){
+            controllers[name]->spiCPR = root[i]["spiCPR"].GetFloat();
+        }
+        if (root[i].HasMember("kP") && root[i]["kP"].IsFloat()){
+            controllers[name]->kP = root[i]["kP"].GetFloat();
+        }
+        if (root[i].HasMember("kI") && root[i]["kI"].IsFloat()){
+            controllers[name]->kI = root[i]["kI"].GetFloat();
+        }
+        if (root[i].HasMember("kD") && root[i]["kD"].IsFloat()){
+            controllers[name]->kD = root[i]["kD"].GetFloat();
+        }
+        printf("Virtual Controller %s of type %s on Nucleo %i channel %i \n", name.c_str(), type.c_str(), nucleo, channel);
+    }
+}
 
 uint8_t ControllerMap::get_i2c_address(std::string name) {
     return name_map[name];

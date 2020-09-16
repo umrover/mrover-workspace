@@ -50,7 +50,7 @@ private:
 
 public:
     //Initialize the Controller. Need to know which type of hardware to use
-    Controller(Hardware inHardware);
+    Controller(std::string name, std::string type);
 
     //Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
     void open_loop(float input);

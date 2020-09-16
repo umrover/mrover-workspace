@@ -35,8 +35,6 @@ class LCMHandler
 private:
     inline static std::chrono::high_resolution_clock::time_point last_output_time = NOW;
 
-    inline static std::unordered_map<std::string, Controller *> *controllers = nullptr;
-
     inline static lcm::LCM lcm_bus = 0;
 
     //Empty object to pass to lcm subscribe
@@ -44,7 +42,7 @@ private:
 
 public:
     //Initialize the lcm bus and subscribe to relevant channels with message handlers defined below
-    static void init(std::unordered_map<std::string, Controller *> *input1);
+    static void init();
 
     //Handles a single incoming lcm message
     static void handle_incoming();
