@@ -26,7 +26,7 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
     {
         return NavState::TurnToTarget;
     }
-    if( !phoebe->roverStatus().obstacle().detected )
+    if( isObstacleDetected( phoebe ) )
     {
         double distanceAroundObs = mOriginalObstacleDistance /
                                    cos( fabs( degreeToRadian( mOriginalObstacleAngle ) ) );
@@ -56,7 +56,7 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
 // ( original waypoint is the waypoint before obstacle avoidance was triggered )
 NavState SimpleAvoidance::executeDriveAroundObs( Rover* phoebe )
 {
-    if( phoebe->roverStatus().obstacle().detected )
+    if( isObstacleDetected( phoebe ) )
     {
         if( phoebe->roverStatus().currentState() == NavState::DriveAroundObs )
         {
@@ -102,3 +102,9 @@ Odometry SimpleAvoidance::createAvoidancePoint( Rover* phoebe, const double dist
 
 
 } // createAvoidancePoint()
+
+// Returns true if an obstacle is detected, false otherwise.
+bool SimpleAvoidance::isObstacleDetected(Rover * phoebe) const
+{
+    return phoebe->roverStatus().obstacle().distance >= 0;
+} // isObstacleDetected()

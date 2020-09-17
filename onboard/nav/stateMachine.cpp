@@ -490,7 +490,7 @@ string StateMachine::stringifyNavState() const
 // Returns true if an obstacle is detected, false otherwise.
 bool StateMachine::isObstacleDetected() const
 {
-    return mPhoebe->roverStatus().obstacle().detected;
+    return mPhoebe->roverStatus().obstacle().distance >= 0;
 } // isObstacleDetected()
 
 // Returns the optimal angle to avoid the detected obstacle.

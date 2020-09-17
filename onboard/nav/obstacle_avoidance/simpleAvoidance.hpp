@@ -4,9 +4,9 @@
 #include "obstacleAvoidanceStateMachine.hpp"
 
 // This class implements the logic for the simple obstacle avoidance algorithm.
-// If an obstacle is seen, create an avoidance point using trigonometry with the angle turned and 
+// If an obstacle is seen, create an avoidance point using trigonometry with the angle turned and
 // distance from obstacle.
-class SimpleAvoidance : public ObstacleAvoidanceStateMachine 
+class SimpleAvoidance : public ObstacleAvoidanceStateMachine
 {
 public:
     SimpleAvoidance( StateMachine* roverStateMachine );
@@ -18,6 +18,9 @@ public:
     NavState executeDriveAroundObs( Rover* phoebe );
 
     Odometry createAvoidancePoint( Rover* phoebe, const double distance );
+
+    // Returns true if an obstacle is detected, false otherwise.
+    bool isObstacleDetected(Rover * phoebe) const;
 };
 
 #endif //SIMPLE_AVOIDANCE_HPP
