@@ -1,6 +1,5 @@
 # This code assumes the use of a voltage divider
-# The R1 value needs to be set to whatever resistor is being used
-# change the ADC pin to whatever one is being used, I just chose a random ADC pin
+# The R1 value needs to be set to whatever resistors is being used
 
 import Adafruit_BBIO.ADC as adc
 from math import log as ln
@@ -17,7 +16,7 @@ publishChannel = "/thermistor_data"
 # setting ADC pin
 # FIXME set pin to the corresponding thermistor
 global adcPin
-adcPin = ["P9_33", "P9_34", "P9_35"]
+adcPin = ["P9_38", "P9_39", "P9_40"]
 
 
 # voltage divider constants
@@ -63,6 +62,7 @@ def calcRTherm(V2):
     Rt = [0,0,0]
     for i in range(3):
         Rt[i] = ((R1[i]*V1)/(V2[i]))-(R1[i])
+    return Rt
 
 
 def readTherms():
@@ -89,7 +89,7 @@ def readTherms():
             print("OOB temp")
 
         # Using the Rt/R25 range to determine actual temp
-        lnRtoverR25 = ln(Rt/R25)
+        lnRtoverR25 = ln(Rt[i]/R25)
         oneOverT = constantArray[constantSet][0] + (constantArray[constantSet][1] * lnRtoverR25) \
             + (constantArray[constantSet][2] *  lnRtoverR25 * lnRtoverR25) \
             + (constantArray[constantSet][3] * lnRtoverR25 * lnRtoverR25 * lnRtoverR25)
@@ -106,8 +106,6 @@ def runTherms():
     outputting = 0
     # main while loop
     while True:
-        lcm.handle()
-        
         currTemp = readTherms()
 
         # FIXME DELETE FOR DEBUGGNG PURPOSE
@@ -123,7 +121,7 @@ def runTherms():
 def main():
     # Start the LCM
     global lcm
-    lcm = lcm_.LCM
+    lcm = lcm_.LCM()
 
     #receiveMsg = ThermistorRequest()
 

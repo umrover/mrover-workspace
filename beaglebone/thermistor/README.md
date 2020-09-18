@@ -1,19 +1,25 @@
-Code for the RL0503-5820-97-MS Thermistor
+Code for the TH10K Thermistor
 ---
 
 ### About
 This code assumes the use of a voltage divider connected in series with the thermistor.  At the top of the code there are alot of global variables that can dictate how the code works.  They all have comments that describe what they do and where they were gotten from.
 
-This code assumes the usage of a simple voltage divider to figure out what the resistance of the thermistor is.  The R1 value in the code is the resistor that is in series with the thermistor (this resistor should be BEFORE the thermistor).  The V1 value is the source voltage that the whole circuit is hooked up to, this will be either 3.3V or 5V depending on what pin on the beaglebone the circuit is connected to.
+This code assumes the usage of a simple voltage divider to figure out what the resistance of the thermistor is.  The R1 value in the code is the resistor that is in series with the thermistor (this resistor should be AFTER the thermistor).  The V1 value is the source voltage that the whole circuit is hooked up to, this should be 3.3V as the beaglebone's adc pin can only read as high as 1.8V.
 
-The code also supports changing the ADC pin that is used very simply.  There is a variable called "adcPin" at the top which can be changed to the desired pin.
+The code also supports changing the ADC pin that is used very simply.  There is a variable called "adcPin" at the top which can be changed to the desired pin.  This is a list of three different adc pins, as the program supports 3 different thermistors.
 
-The constantsArray is given on page 69 of [this](https://www.amphenol-sensors.com/en/component/edocman/292-thermometrics-temperature-resistance-curves-reference-guide/download) pdf.  This pdf contains all the resistance curves for all the different thermistors this company offers.  We are using the second table since we want temp from resistance.
+[this](https://www.thorlabs.com/thorproduct.cfm?partnumber=TH10K) is the link to the product page where the link to the data sheet can be found.  Linking directly to the pdf doesn't work for some reason, so you will have to find the data sheet and then all the data about the thermistor and where all the constants come from can be found within there.
 
 #### LCM Channels
+Thermistor Data \[publisher\]
 Messages: [ThermistorData.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorData.lcm) "/thermistor_data" \
 Publishers: beaglebone/thermistor \
-Subscribers: base_station/gui 
+Subscribers: base_station/gui
+
+Thermistor Request \[subscriber\]
+Messages: [ThermistorData.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorRequest.lcm) "/thermistor_request" \
+Publishers: base_station/gui \
+Subscribers: beaglebone/thermistor
 
 ### Usage
 
@@ -43,8 +49,8 @@ This is not how it will be working on the rover
 ### ToDo
 - [x] Make sure using correct A,B,C,D values
 - [ ] Correct error handling
-- [ ] Make sure using correct read function from BBIO library
-- [ ] Determine what value of resistor to use
+- [x] Make sure using correct read function from BBIO library
+- [x] Determine what value of resistor to use
 - [ ] Test on beaglebone with thermistor
 
 ### Notes
