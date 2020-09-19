@@ -1,19 +1,32 @@
 sudo: required
-services:
-- docker
 install:
-  - sudo apt-get install ubuntu-drivers-common && sudo ubuntu-drivers autoinstall
-  - curl -s -L https://nvidia.github.io/nvidia-container-runtime/gpgkey | \
-  - sudo apt-key add -
-  - distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-  - curl -s -L https://nvidia.github.io/nvidia-container-runtime/$distribution/nvidia-container-runtime.list | \
-  - sudo tee /etc/apt/sources.list.d/nvidia-container-runtime.list
-  - sudo apt-get update
-  - apt-get install nvidia-container-runtime
-before_install:
+- sudo wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
+- sudo apt-get -y install dpkg
+- sudo dpkg -i cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
+- sudo apt install gnupg-curl
+- sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+- sudo apt-get update
+- sudo add-apt-repository universe
+- sudo apt-get update
+- sudo apt-get install freeglut3 freeglut3-dev libxi-dev libxmu-dev
+- sudo apt-get auot-install aptitude
+- sudo apt-get auto-install cuda-runtime-10-0
+- sudo apt-get auto-nstall cuda-demo-suite-10-0
+- sudo apt-get auto-install cuda-10-0
+- curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey |   sudo apt-key add -
+- curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu18.04/amd64/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+- sudo apt-get update
+- sudo apt-get remove docker docker-engine docker.io
+- curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+- sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+- sudo apt-get update
+- sudo apt install docker-ce
+- sudo apt-get install -y nvidia-docker2
+- sudo pkill -SIGHUP dockerd
+- sudo docker run --runtime=nvidia --rm nvidia/cuda:10.0-base nvidia-smi
 - docker build -t mrover .
 script:
-- docker run --gpus all ubuntu nvidia-smi --rm -it -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro -v /dev/tty:/dev/i2c-0 -v /dev/tty:/dev/i2c-1 -v /dev/tty:/dev/i2c-2
+- docker run --rm --runtime=nvidia -it -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro -v /dev/tty:/dev/i2c-0 -v /dev/tty:/dev/i2c-1 -v /dev/tty:/dev/i2c-2
   mrover jarvis build -a .
 notifications:
   slack:

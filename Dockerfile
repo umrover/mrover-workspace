@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.0-devel-ubuntu18.04
+FROM stereolabs/zed:3.2-devel-cuda10.0-ubuntu18.04
 
 MAINTAINER Justin Beemer <jubeemer@umich.edu>
 
