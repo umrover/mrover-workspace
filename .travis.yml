@@ -2,17 +2,19 @@ sudo: required
 services:
 - docker
 install:
-- sudo apt-get install ubuntu-drivers-common && sudo ubuntu-drivers autoinstall
-- curl -s -L https://nvidia.github.io/nvidia-container-runtime/gpgkey
-- sudo apt-key add - distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-- curl -s -L https://nvidia.github.io/nvidia-container-runtime/$distribution/nvidia-container-runtime.list
-- sudo tee /etc/apt/sources.list.d/nvidia-container-runtime.list
-- sudo apt-get update
-- apt-get install nvidia-container-runtime
-before_install:
-- docker build -t mrover .
+  - sudo apt-get install ubuntu-drivers-common && sudo ubuntu-drivers autoinstall
+  - curl -s -L https://nvidia.github.io/nvidia-container-runtime/gpgkey | sudo apt-key add - 
+  - curl -s -L https://nvidia.github.io/nvidia-container-runtime/ubuntu18.04/nvidia-container-runtime.list | sudo tee /etc/apt/sources.list.d/nvidia-container-runtime.list
+  - sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+  - sudo sh -c 'echo "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list'
+  - sudo apt-get update
+  - sudo apt-get install -y cuda-toolkit-10-0 libc6-dev-amd64
+  - sudo apt-get install -y libnvidia-container1 libnvidia-container-tools nvidia-container-toolkit  
+  - sudo apt-get -y install nvidia-container-runtime
+  - docker run --help | grep -i gpus
+  - docker build -t mrover .
 script:
-- docker run --gpus all ubuntu nvidia-smi --rm -it -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro -v /dev/tty:/dev/i2c-0 -v /dev/tty:/dev/i2c-1 -v /dev/tty:/dev/i2c-2
+- docker run --rm -it --gpus all -e NVIDIA_DRIVER_CAPABILITIES=all --privileged -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro -v /dev/tty:/dev/i2c-0 -v /dev/tty:/dev/i2c-1 -v /dev/tty:/dev/i2c-2
   mrover jarvis build -a .
 notifications:
   slack:
