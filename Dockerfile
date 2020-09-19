@@ -1,8 +1,9 @@
 FROM nvidia/cuda:10.0-devel-ubuntu18.04
-CMD nvidia-smi
 
 MAINTAINER Justin Beemer <jubeemer@umich.edu>
 
+ENV NVIDIA_DRIVER_CAPABILITIES \
+    ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}compute,video,utility
 ENV ANSIBLE_VERSION 2.9.4
 
 COPY ansible /tmp/ansible
@@ -62,9 +63,10 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get autoremove -y && \
     echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections && \
     rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update -y && \
+# Setup the ZED SDK
+RUN apt-get update -y && apt-get install --no-install-recommends lsb-release wget less udev sudo  build-essential cmake -y && \
     wget -O ZED_SDK_Linux_Ubuntu18.run https://download.stereolabs.com/zedsdk/3.2/cu100/ubuntu18 && \
-    chmod +x ZED_SDK_Linux_Ubuntu18.run ; ./ZED_SDK_Linux_Ubuntu18.run silent && \
+    chmod +x ZED_SDK_Linux_Ubuntu18.run ; ./ZED_SDK_Linux_Ubuntu18.run -- silent skip_tools && \
     rm ZED_SDK_Linux_Ubuntu18.run && \
     rm -rf /var/lib/apt/lists/*
 
