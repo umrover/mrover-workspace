@@ -51,7 +51,6 @@ This is not how it will be working on the rover
 - [ ] Correct error handling
 - [x] Make sure using correct read function from BBIO library
 - [x] Determine what value of resistor to use
-- [ ] Update correct Resistor and Thermistor values for yellow thermistor
 - [ ] Check if need to get R25 of each therm
 - [ ] Test on beaglebone with thermistor
 - [ ] Weird divide by zero error when circuit gets unplugged

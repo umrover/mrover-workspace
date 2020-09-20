@@ -26,7 +26,7 @@ outputting = -1
 global R1, V1
 # Input the three resistor values here
 # 0 = White, 1 = Blue, 2 = Yellow
-R1 = [9820, 10020, 10000]
+R1 = [9820, 10020, 9830]
 V1 = 3.3
 
 # constants depending on the thermistor
@@ -37,6 +37,8 @@ constantArray = [[3.3570420E-03, 2.5214848E-04, 3.3743283E-06, -6.4957311E-08],
                  [3.3530481E-03, 2.5420230E-04, 1.1431163E-06, -6.9383563E-08],
                  [3.3536166E-03, 2.5377200E-04, 8.5433271E-07, -8.7912262E-08]]
 # Given by the spec of the specific thermistors
+# Measured Room Temp valus in comment, they might not be exactly 25C
+# R25 = [11100, 11400, 11120]
 R25 = 10000
 
 
