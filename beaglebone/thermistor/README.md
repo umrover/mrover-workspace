@@ -11,12 +11,12 @@ The code also supports changing the ADC pin that is used very simply.  There is 
 [this](https://www.thorlabs.com/thorproduct.cfm?partnumber=TH10K) is the link to the product page where the link to the data sheet can be found.  Linking directly to the pdf doesn't work for some reason, so you will have to find the data sheet and then all the data about the thermistor and where all the constants come from can be found within there.
 
 #### LCM Channels
-Thermistor Data \[publisher\]
+Thermistor Data \[publisher\] \
 Messages: [ThermistorData.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorData.lcm) "/thermistor_data" \
 Publishers: beaglebone/thermistor \
 Subscribers: base_station/gui
 
-Thermistor Request \[subscriber\]
+Thermistor Request \[subscriber\] \
 Messages: [ThermistorData.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorRequest.lcm) "/thermistor_request" \
 Publishers: base_station/gui \
 Subscribers: beaglebone/thermistor
@@ -51,7 +51,10 @@ This is not how it will be working on the rover
 - [ ] Correct error handling
 - [x] Make sure using correct read function from BBIO library
 - [x] Determine what value of resistor to use
+- [ ] Update correct Resistor and Thermistor values for yellow thermistor
+- [ ] Check if need to get R25 of each therm
 - [ ] Test on beaglebone with thermistor
+- [ ] Weird divide by zero error when circuit gets unplugged
 
 ### Notes
 Todo

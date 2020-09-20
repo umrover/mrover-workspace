@@ -18,50 +18,70 @@ publishChannel = "/thermistor_data"
 global adcPin
 adcPin = ["P9_38", "P9_39", "P9_40"]
 
+# Global outputting var
+# Defaulting to -1 so that the program starts non ouputting
+outputting = -1
 
 # voltage divider constants
 global R1, V1
 # Input the three resistor values here
-R1 = [9760, 9760, 9760]
+# 0 = White, 1 = Blue, 2 = Yellow
+R1 = [9820, 10020, 10000]
 V1 = 3.3
 
 # constants depending on the thermistor
 # see readme for explanation of constants
 global constantArray, R25
-constantArray = [[3.3570420E-03, 2.5214848E-04, 3.3743283E-06, -6.4957311E-08 ],\
-                [3.3540170E-03, 2.5617244E-04, 2.1400943E-06, -7.2405219E-08 ],\
-                [3.3530481E-03, 2.5420230E-04, 1.1431163E-06, -6.9383563E-08 ],\
-                [3.3536166E-03, 2.5377200E-04, 8.5433271E-07, -8.7912262E-08 ] ]
-# Given by the spec of the specific thermistor
+constantArray = [[3.3570420E-03, 2.5214848E-04, 3.3743283E-06, -6.4957311E-08],
+                 [3.3540170E-03, 2.5617244E-04, 2.1400943E-06, -7.2405219E-08],
+                 [3.3530481E-03, 2.5420230E-04, 1.1431163E-06, -6.9383563E-08],
+                 [3.3536166E-03, 2.5377200E-04, 8.5433271E-07, -8.7912262E-08]]
+# Given by the spec of the specific thermistors
 R25 = 10000
+
 
 def publishMessage(currTemp, num):
     msgSend = ThermistorData()
     msgSend.temperature_C = currTemp
-    msgSend.thermistorNum = num
+    if num == 0:
+        msgSend.thermistor = "white"
+    elif num == 1:
+        msgSend.thermistor = "blue"
+    elif num == 2:
+        msgSend.thermistor = "yellow"
+    global publishChannel
     lcm.publish(publishChannel, msgSend.encode())
 
 
 def request_callback(channel, msg):
-    whichTherm = ThermistorRequest.decode(msg)    
-    outputting = whichTherm
+    global outLock
+    with outLock:
+        whichTherm = ThermistorRequest.decode(msg)
+        global outputting
+        if whichTherm.thermistor == "white":
+            outputting = 0
+        elif whichTherm.thermistor == "blue":
+            outputting = 1
+        elif whichTherm.thermistor == "yellow":
+            outputting = 2
 
 
 def readVolt():
-    V2 = [0,0,0]
+    V2 = []
     for i in range(3):
         # Documentation says need to read twice due to bug in the library
-        V2[i] = adc.read(adcPin[i])
-        V2[i] = adc.read(adcPin[i])
+        temp = adc.read(adcPin[i])
+        temp = adc.read(adcPin[i])
         # Adjusting V2 to actual Voltage (Multiply by 1.8V since that is max ADC can handle)
-        V2[i] *= 1.8
+        temp *= 1.8
+        V2.append(temp)
     return V2
 
 
 def calcRTherm(V2):
-    Rt = [0,0,0]
+    Rt = []
     for i in range(3):
-        Rt[i] = ((R1[i]*V1)/(V2[i]))-(R1[i])
+        Rt.append(((R1[i]*V1)/(V2[i]))-(R1[i]))
     return Rt
 
 
@@ -72,7 +92,7 @@ def readTherms():
     # calculating R2 (resistance of thermistor)
     Rt = calcRTherm(V2)
 
-    currTemp = [0,0,0]
+    currTemp = []
 
     for i in range(3):
         # Determine which set of constants should be used
@@ -91,31 +111,31 @@ def readTherms():
         # Using the Rt/R25 range to determine actual temp
         lnRtoverR25 = ln(Rt[i]/R25)
         oneOverT = constantArray[constantSet][0] + (constantArray[constantSet][1] * lnRtoverR25) \
-            + (constantArray[constantSet][2] *  lnRtoverR25 * lnRtoverR25) \
+            + (constantArray[constantSet][2] * lnRtoverR25 * lnRtoverR25) \
             + (constantArray[constantSet][3] * lnRtoverR25 * lnRtoverR25 * lnRtoverR25)
 
         # calc actual temp from the IoverT value the formula gives
-        currTemp[i] = (1 / oneOverT)
+        currTemp.append((1 / oneOverT) - 272.15)  # -272.15 for K to C
 
     return currTemp
 
 
-def runTherms():
+# All this function does is LCM handle on its own thread
+def handleLCM():
+    while True:
+        lcm.handle()
 
-    global outputting
-    outputting = 0
+
+def runTherms():
     # main while loop
     while True:
         currTemp = readTherms()
 
-        # FIXME DELETE FOR DEBUGGNG PURPOSE
-        print(currTemp[0])
-        print("\n")
-
         # publishing message and waiting desired interval
-        if outputting != 0:
+        global outputting
+        if outputting != -1:
             publishMessage(currTemp[outputting], outputting)
-        sleep(LCM_INTERVAL) 
+        sleep(LCM_INTERVAL)
 
 
 def main():
@@ -123,14 +143,22 @@ def main():
     global lcm
     lcm = lcm_.LCM()
 
-    #receiveMsg = ThermistorRequest()
-
     # init the ADC
     adc.setup()
 
     lcm.subscribe("/thermistor_request", request_callback)
 
+    # Setting up lock for outputting
+    global outLock
+    outLock = threading.Lock()
+
+    # Creating Thread and running it
+    listenThread = threading.Thread(target=handleLCM)
+    listenThread.start()
+
+    # Running main data reading loop
     runTherms()
+
 
 if __name__ == "__main__":
     main()
