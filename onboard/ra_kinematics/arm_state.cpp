@@ -11,13 +11,13 @@ using namespace std;
 // Tested in joint creation test
 ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix4d::Identity()) {
     // Create all Joint instances from mrover_arm json
-    json joints_json = geom["joints"];
+    joints_json = geom["joints"];
     for (json::iterator it = joints_json.begin(); it != joints_json.end(); it++) {
         add_joint(it.key(), it.value());
     }
 
     // Create all Avoidance_Link instances from mrover_arm json (for collision avoidance)
-    json links_json = geom["links"];
+    links_json = geom["links"];
     int link_num = 0;
     for (json::iterator it = links_json.begin(); it != links_json.end(); it++) {
         string joint_origin = it.value()["visual"]["origin"]["joint_origin"];
@@ -108,6 +108,10 @@ Matrix4d ArmState::get_joint_transform(string joint) {
 
 void ArmState::set_joint_transform(string joint, Matrix4d xform) {
     joints[joint]->global_transform = xform;
+}
+
+void ArmState::set_link_transform(string link, Matrix4d xform) {
+    links[link]->global_transform = xform;
 }
 
 Matrix4d ArmState::get_ef_transform() {

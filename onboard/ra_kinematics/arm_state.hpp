@@ -17,6 +17,11 @@ typedef Matrix<double, 6, 1> Vector6d;
 class ArmState{
 
 private:
+    struct Link {
+        string name;
+        Matrix4d global_transform;
+    };
+
     struct Joint {
         
         Joint(string name_in, json joint_geom)
@@ -71,6 +76,7 @@ private:
     };
 
     map<string, Joint *> joints;
+    map<string, Link *> links;
     vector<string> joint_names;
 
     vector<Avoidance_Link *> collision_avoidance_links; // could make this an array
@@ -89,6 +95,7 @@ private:
     void delete_joints();
 
 public:
+    json joints_json, links_json;
     ArmState(json &geom);
     
     ~ArmState();
@@ -108,6 +115,8 @@ public:
     Matrix4d get_joint_transform(string joint);
 
     void set_joint_transform(string joint, Matrix4d xform);
+
+    void set_link_transform(string link, Matrix4d xform);
 
     Matrix4d get_ef_transform();
 
