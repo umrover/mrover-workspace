@@ -25,6 +25,7 @@ outputting = -1
 # voltage divider constants
 global R1, V1
 # Input the three resistor values here
+# FIXME Carment the test resistor is 9860
 # 0 = White, 1 = Blue, 2 = Yellow
 R1 = [9820, 10020, 9830]
 V1 = 3.3
