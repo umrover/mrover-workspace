@@ -121,7 +121,7 @@ def get_data():
                         ]
     global SENSOR
     for i in dev_channels:
-        if (SENSOR == 'traid'):
+        if (SENSOR == 't'):
             virtual_write(DEV_SEL, i)
             print("device number:", virtual_read(DEV_SEL), i)
         channel = 0
@@ -129,17 +129,16 @@ def get_data():
             setattr(colors, j, get_decimal(channel_registers[channel][0], channel_registers[channel][1]))
             channel += 1
 
-        if (SENSOR != 'triad'):
+        if (SENSOR != 't'):
             break
     return colors
 
 
 def spectral_cmd_callback(channel, msg):
-    sensors = ['triad', 'single_0', 'single_1', 'single_2']
     cmd = SpectralCmd.decode(msg)
 
     global SENSOR
-    SENSOR = sensors[cmd.sensor]
+    SENSOR = cmd.sensor
 
 
 def publish_spectral_data():
