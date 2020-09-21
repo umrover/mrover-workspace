@@ -1,12 +1,10 @@
 [Unit]
-Description=MRover Onboard Talon Interface
-Requires=can.service
-After=can.service
+Description=MRover Onboard Odometry Filter
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec onboard_talon
+ExecStart={{ workspace_dir }}/jarvis exec jetson_filter
 Restart=always
 RestartSec=10
 

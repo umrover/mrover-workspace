@@ -1,10 +1,10 @@
 [Unit]
-Description=MRover Onboard Autonomy Light
+Description=MRover Onboard Raman Spectroscope
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 Environment=HOME={{ home_dir }}
-ExecStart={{ workspace_dir }}/jarvis exec onboard_auton_light
+ExecStart={{ workspace_dir }}/jarvis exec jetson_raman
 Restart=always
 RestartSec=10
 

@@ -1,4 +1,4 @@
-project('onboard_cv_cvtest', 'cpp', default_options : ['cpp_std=c++14'])
+project('jetson_cv_cvtest', 'cpp', default_options : ['cpp_std=c++14'])
 
 opencv = dependency('opencv')
 lcm = dependency('lcm')
@@ -11,7 +11,7 @@ configure_file(
 	output: 'config.h',
 	configuration: conf_data)
 
-executable('onboard_cv_cvtest',
+executable('jetson_cv_cvtest',
 		   'automated_test.cpp',
 		   dependencies : all_deps,
 		   install : true)

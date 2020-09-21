@@ -9,6 +9,6 @@
       workspace_dir: /home/mrover/mrover-workspace
       ansible_python_interpreter: /usr/bin/python3
   roles:
-  - onboard_dev
-  - onboard_networks
-  - onboard_services
+  - jetson_dev
+  - jetson_networks
+  - jetson_services

@@ -1,4 +1,4 @@
-project('onboard_cv', 'cpp', default_options : ['cpp_std=c++14'])
+project('jetson_cv', 'cpp', default_options : ['cpp_std=c++14'])
 
 opencv = dependency('opencv')
 lcm = dependency('lcm')
@@ -16,7 +16,7 @@ if with_zed
 			'-L/usr/local/zed/lib',
 			'-lsl_input', '-lsl_core', '-lsl_zed',
 
-			# CUDA 
+			# CUDA
 			'-L/usr/local/cuda/lib64',
 			'-lnppial', '-lnppisu', '-lnppicc', '-lnppicom',
 			'-lnppidei', '-lnppif', '-lnppig', '-lnppim',
@@ -32,7 +32,7 @@ configure_file(
 	output: 'config.h',
 	configuration: conf_data)
 
-executable('onboard_cv_calibrate',
+executable('jetson_cv_calibrate',
 		   'main.cpp', 'camera.cpp',
 		   dependencies : all_deps,
 		   install : true)

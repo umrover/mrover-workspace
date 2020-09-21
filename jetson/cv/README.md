@@ -1,9 +1,9 @@
 ## To build with meson options.
-    jarvis build onboard/cv -o [options]
+    jarvis build jetson/cv -o [options]
 
 For example:
 
-    jarvis build onboard/cv -o with_zed=true perception_debug=true write_frame=true data_folder='/home/jessica/auton_data/'
+    jarvis build jetson/cv -o with_zed=true perception_debug=true write_frame=true data_folder='/home/jessica/auton_data/'
 
 ## To run with the ZED:
     with_zed=true

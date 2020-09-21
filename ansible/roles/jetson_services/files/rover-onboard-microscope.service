@@ -1,10 +1,10 @@
 [Unit]
-Description=MRover Onboard Odometry Filter
+Description=MRover Onboard Microscope Stream
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec onboard_filter
+ExecStart={{ workspace_dir }}/jarvis exec jetson_microscope
 Restart=always
 RestartSec=10
 
