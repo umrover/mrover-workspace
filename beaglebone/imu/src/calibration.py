@@ -45,8 +45,7 @@
 
 
 # def get_data():
-#     while ((bus.read_byte_data(I2C_IMU_ADDRESS, 0x1A) & 0b00000001) != 0b00000001):
-#         t.sleep
+
 #     accel_x = get_decimal(0x2E, 0x2D)
 #     accel_y = get_decimal(0x30, 0x2F)
 #     accel_z = get_decimal(0x32, 0x31)
@@ -64,7 +63,7 @@
 # def set_offset(xav, yav, zav):
 #     xav /= 10
 #     yav /= 10
-#     zav /= 10
+#     zav /= -10
 #     set_bank(1)
 #     zavlower = (int(zav) & 0b000000001111111) << 1
 #     zavupper = (int(zav) & 0b111111110000000) >> 7
@@ -131,13 +130,13 @@
 #         except Exception:
 #             print("Connection Lost")
 #             t.sleep(1)
-#         if (calibration == 0 and calibrationtime >= 50):
-#             xav /= -50
-#             yav /= -50
-#             zav /= -50
-#             xgyr /= -50
-#             ygyr /= -50
-#             zgyr /= -50
+#         if (calibration == 0 and calibrationtime >= 10):
+#             xav /= -10
+#             yav /= -10
+#             zav /= -10
+#             xgyr /= -10
+#             ygyr /= -10
+#             zgyr /= -10
 #             calibration = 1
 #             print(xav)
 #             print(yav)
