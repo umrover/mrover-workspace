@@ -26,38 +26,38 @@ struct TestCase {
 };
 
 Mat greenFilter(const Mat& src){
-    
+
     Mat greenOnly;
     Scalar lowerb = Scalar(36, 170, 80);
     Scalar upperb = Scalar(43, 226, 196);
     inRange(src, lowerb, upperb, greenOnly);
     return greenOnly;
-    
+
 }
 
 vector<Point2f> findTennisBall(Mat &src) { //}, Mat & depth_src) {
-    
+
     Mat hsv;
-  
+
     cvtColor(src, hsv, COLOR_BGR2HSV);
-    
+
     Mat mask = greenFilter(hsv);
-    
+
     // smoothing
     // medianBlur(mask, mask, 11);
     Size ksize(5,5);
     GaussianBlur(mask, mask, ksize, 1, 1, BORDER_DEFAULT );
-    
+
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
-    
+
     /// Find contours
     findContours(mask, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-    
+
     vector<vector<Point> > contours_poly( contours.size());
     vector<Point2f>center( contours.size() );
     vector<float>radius( contours.size() );
-    
+
     for( unsigned i = 0; i < contours.size(); i++ ){
         approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
         minEnclosingCircle( (Mat)contours_poly[i], center[i], radius[i] );
@@ -65,24 +65,24 @@ vector<Point2f> findTennisBall(Mat &src) { //}, Mat & depth_src) {
         drawContours(src, contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point());
         circle(src, center[i], (int)radius[i], color, 2, 8, 0);
     }
-    
+
    //displaying image
    //imshow("Image", src);
    //waitKey(0);
-    
+
     return center;
 }
 
 vector<TestCase> parse_file(vector<string> & fileList) {
-    
+
     vector<TestCase> testCases;
     for (unsigned i = 0; i < fileList.size(); ++i) {
         size_t position = 0;
-        
+
         if (fileList[i][0] != '.') {
             TestCase t;
-	    string s = "onboard/cv/cvtest/cv_test_images/" + fileList[i];
-            t.img = imread(s, CV_LOAD_IMAGE_COLOR);       
+	    string s = "jetson/cv/cvtest/cv_test_images/" + fileList[i];
+            t.img = imread(s, CV_LOAD_IMAGE_COLOR);
             int count = 0;
 
             //PARSING FILE
@@ -111,17 +111,17 @@ vector<TestCase> parse_file(vector<string> & fileList) {
 
 	        //in the case where there is no ball:
 
-		if (fileList[i].find("none.jpg") != string::npos || fileList[i].find("none.jpeg") != string::npos) 
+		if (fileList[i].find("none.jpg") != string::npos || fileList[i].find("none.jpeg") != string::npos)
 		{
 			t.hasTennisBall = false;
 			t.x = 0;
 			t.y = 0;
-			t.depth = 0;	
+			t.depth = 0;
 		}
             testCases.push_back(t);
         }
     }
-    
+
     return testCases;
 }
 
@@ -131,21 +131,21 @@ int main(int argc, char * argv[]) {
     DIR           *d;
     struct dirent *dir;
     vector<string> fileList;
-    string directory_name = "onboard/cv/cvtest/cv_test_images";
+    string directory_name = "jetson/cv/cvtest/cv_test_images";
     int i = 0;
-    d = opendir(directory_name.c_str());  
-   
+    d = opendir(directory_name.c_str());
+
     //floats to be stored for calculating differences
     float minDiffX, minDiffY;
-    float offBy;   
+    float offBy;
 if (d) {
-	
+
 	//CREATING FILE LIST
         while ((dir = readdir(d)) != NULL) {
             ++i;
             fileList.push_back(dir->d_name);
         }
-        
+
         vector<TestCase> tc = parse_file(fileList);
 	map<int, TestCase> testCases;
 	for (unsigned p = 0; p < tc.size(); ++p)
@@ -153,7 +153,7 @@ if (d) {
 		testCases[tc[p].num] = tc[p];
 	}
         vector<string> successRates;
-	
+
 	//cycling through test cases and creating output
 
         for (auto it : testCases)
@@ -168,18 +168,18 @@ if (d) {
 			result << " (PASSED)" << endl;
 			result << "predicted:" << endl << "  no ball found" << endl << "real: " << endl;
 			result << "  no ball found" << endl;
-		} else 
+		} else
 		{
 			result << " (FAILED)" << endl;
 			result << "predicted:" << endl << "  no ball found" << endl << "real: " << endl;
 			result << "  x = " << (it.second).x << endl << "  y = " << (it.second).y;
 		}
-	    } else 
+	    } else
 		{
 		if ((ball[0].x - (it.second).x) <= 5 && (ball[0].y - (it.second).y) <= 5)
 		{
 			result << " (PASSED)" << endl;
-		} else 
+		} else
 		{
 			result << " (FAILED)" << endl;
 		}
@@ -199,24 +199,24 @@ if (d) {
 		{
 			minDiffX = xDiff;
 			minDiffY = yDiff;
-		}		
+		}
 
 		ball.erase(ball.begin());
-			++count;  
-		}	
-		count -= 1;    
+			++count;
+		}
+		count -= 1;
 		result << "(" << count << " centers found)" << endl;
 		result << "real:" << endl << "  x = " << (it.second).x << endl <<  "  y = " << (it.second).y << endl;
-		result << "x-diff: " << minDiffX << endl << "y-diff: " << minDiffY;        
+		result << "x-diff: " << minDiffX << endl << "y-diff: " << minDiffY;
 	}
 		string s(result.str());
   		successRates.push_back(s);
         }
-        
+
 	//closing directory
-    
+
         closedir(d);
-        
+
         for (unsigned i = 0; i < successRates.size(); ++i) {
             cout << successRates[i] << endl << endl;
         }
@@ -225,9 +225,9 @@ if (d) {
         cerr << "\nTesting Error: Invalid Directory\n" << endl;
         exit(0);
     }
-    
-    
-    
+
+
+
     return 0;
 }
 #endif

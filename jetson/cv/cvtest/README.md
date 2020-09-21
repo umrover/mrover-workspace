@@ -2,11 +2,11 @@
 
 ## Setup
 
-Images taken outside in the GBBL parking lot and labeled with center coordinates and depth data are contained in cv_test_images. Any additional images must be named in the format: imgnumber_xcoordinate_ycoordinate_depth_.jpg. 
+Images taken outside in the GBBL parking lot and labeled with center coordinates and depth data are contained in cv_test_images. Any additional images must be named in the format: imgnumber_xcoordinate_ycoordinate_depth_.jpg.
 
 ## Building and Executing
 
-Navigate to mrover-workspace and run ./jarvis build onboard/cv/cvtest to build the test. Then, run ./jarvis exec onboard_cv_cvtest to execute it
+Navigate to mrover-workspace and run ./jarvis build jetson/cv/cvtest to build the test. Then, run ./jarvis exec jetson_cv_cvtest to execute it
 
 ## Output
 

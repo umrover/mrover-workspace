@@ -1,10 +1,10 @@
 [Unit]
-Description=MRover Onboard GPS Interface
+Description=MRover Onboard Science Controls
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec onboard_gps
+ExecStart={{ workspace_dir }}/jarvis exec jetson_science_controls
 Restart=always
 RestartSec=10
 

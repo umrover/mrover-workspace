@@ -1,10 +1,10 @@
 [Unit]
-Description=MRover Onboard Sensor Package Interface
+Description=MRover Onboard Autonomy Light
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 Environment=HOME={{ home_dir }}
-ExecStart={{ workspace_dir }}/jarvis exec onboard_sensor_package
+ExecStart={{ workspace_dir }}/jarvis exec jetson_auton_light
 Restart=always
 RestartSec=10
 
