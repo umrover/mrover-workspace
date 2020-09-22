@@ -109,7 +109,7 @@
         "type":"Talon24V",
         "nucleo": 0,
         "channel": 0,
-        "quadCPR": 100.0
+        "quadCPR": 994.0
     },
     {
         "name":"RA_1",
