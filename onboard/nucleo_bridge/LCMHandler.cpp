@@ -53,8 +53,8 @@ LCMHandler::LCMHandler() {};
 //The following functions are handlers for the corresponding lcm messages
 void LCMHandler::ra_closed_loop_cmd(LCM_INPUT, const ArmPosition *msg)
 {
-    //ControllerMap::controllers["RA_0"]->closed_loop(msg->torque[0], msg->angle[0]);
-    //ControllerMap::controllers["RA_1"]->closed_loop(msg->joint_b);
+    ControllerMap::controllers["RA_0"]->closed_loop(msg->torque[0], msg->angle[0]);
+    ControllerMap::controllers["RA_1"]->closed_loop(msg->joint_b);
     ControllerMap::controllers["RA_2"]->closed_loop(0, msg->joint_c);
     ControllerMap::controllers["RA_3"]->closed_loop(0, msg->joint_d);
     ControllerMap::controllers["RA_4"]->closed_loop(0, msg->joint_e);
@@ -142,8 +142,8 @@ void LCMHandler::refreshAngles()
 void LCMHandler::ra_pos_data()
 {
     ArmPosition msg;
-    msg.joint_a = 0; //angle[0] = ControllerMap::controllers["RA_0"]->currentAngle;
-    msg.joint_b = 0; // ControllerMap::controllers["RA_1"]->currentAngle;
+    msg.joint_a = ControllerMap::controllers["RA_0"]->currentAngle;
+    msg.joint_b = ControllerMap::controllers["RA_1"]->currentAngle;
     msg.joint_c = ControllerMap::controllers["RA_2"]->currentAngle;
     msg.joint_d = ControllerMap::controllers["RA_3"]->currentAngle;
     msg.joint_e = ControllerMap::controllers["RA_4"]->currentAngle;
