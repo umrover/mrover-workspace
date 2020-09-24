@@ -26,7 +26,7 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
     {
         return NavState::TurnToTarget;
     }
-    if( isObstacleDetected( phoebe ) )
+    if( !isObstacleDetected( phoebe ) )
     {
         double distanceAroundObs = mOriginalObstacleDistance /
                                    cos( fabs( degreeToRadian( mOriginalObstacleAngle ) ) );
