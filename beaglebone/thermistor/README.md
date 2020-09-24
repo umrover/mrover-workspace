@@ -17,7 +17,7 @@ Publishers: beaglebone/thermistor \
 Subscribers: base_station/gui
 
 Thermistor Request \[subscriber\] \
-Messages: [ThermistorData.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorRequest.lcm) "/thermistor_request" \
+Messages: [ThermistorCmd.lcm](https://github.com/nkr101/mrover-workspace/blob/thermistor/rover_msgs/ThermistorCmd.lcm) "/thermistor_cmd" \
 Publishers: base_station/gui \
 Subscribers: beaglebone/thermistor
 

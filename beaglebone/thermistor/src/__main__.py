@@ -6,7 +6,7 @@ from math import log as ln
 from time import sleep
 import lcm as lcm_
 import threading
-from rover_msgs import ThermistorData, ThermistorRequest
+from rover_msgs import ThermistorData, ThermistorCmd
 
 # time between temperature sends
 global LCM_INTERVAL, publishChannel
@@ -59,7 +59,7 @@ def publishMessage(currTemp, num):
 def request_callback(channel, msg):
     global outLock
     with outLock:
-        whichTherm = ThermistorRequest.decode(msg)
+        whichTherm = ThermistorCmd.decode(msg)
         global outputting
         if whichTherm.thermistor == "white":
             outputting = 0
@@ -149,7 +149,7 @@ def main():
     # init the ADC
     adc.setup()
 
-    lcm.subscribe("/thermistor_request", request_callback)
+    lcm.subscribe("/thermistor_cmd", request_callback)
 
     # Setting up lock for outputting
     global outLock
