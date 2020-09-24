@@ -10,6 +10,8 @@ from rover_msgs import ServoCMD
 SERVO_MAX_DC = 10.0
 SERVO_MIN_DC = 4.0
 
+Amino = "P9_14"
+Ammonia = "P9_16"
 
 
 lcm_ = lcm.LCM()
@@ -33,19 +35,19 @@ def servo_init(pin, degrees):
 
 def servocmd_callback(channel, msg):
     servo = ServoCMD.decode(msg)
-    if (servo.id == "left"):
-        run_servo(leftpin, servo.position)
+    if (servo.id == "amino_blue"):
+        run_servo(Amino, servo.position)
         time.sleep(4)
-    else if (servo.id == "right"):
-        run_servo(rightpin, servo.position)
+    elif (servo.id == "ammonia_blue"):
+        run_servo(Ammonia, servo.position)
         time.sleep(4)
 
 
 def main():
 
     # Change pins to actual pin on beaglebone once we know what pin
-    servo_init(leftpin, 0)
-    servo_init(rightpin, 0)
+    servo_init(Amino, 0)
+    servo_init(Ammonia, 0)
     # Might need a manual set to 0, not sure if init sets to angle 0 initially
 
     lcm_.subscribe("/servocmd", servocmd_callback)
