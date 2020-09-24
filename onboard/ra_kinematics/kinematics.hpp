@@ -43,7 +43,7 @@ public:
 
     bool is_safe(vector<double> angles);
 
-    bool limit_check(vector<double> angles);
+    bool limit_check(const vector<double> &angles, const vector<string> &joints);
 
 };
 
