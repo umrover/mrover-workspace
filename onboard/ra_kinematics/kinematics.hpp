@@ -41,8 +41,18 @@ public:
 
     void IK_step(Vector6d d_ef, bool use_euler_angles);
 
+    /**
+     * @param angles the set of angles for a theoretical arm position
+     * @return true if all angles are within bounds and don't cause collisions
+     * */
     bool is_safe(vector<double> angles);
 
+    /**
+     * called by is_safe to check that angles are within bounds
+     * @param angles the set of angles for a theoretical arm position
+     * @param joints the set of joint names on the current MRover arm
+     * @return true if all angles are within bounds
+     * */
     bool limit_check(const vector<double> &angles, const vector<string> &joints);
 
 };

@@ -25,12 +25,20 @@ Matrix4d KinematicsSolver::apply_joint_xform(string joint, double theta) {}
 
 pair<vector<double>, bool> KinematicsSolver::IK() {}
 
-void KinematicsSolver::IK_step(Vector6d d_ef, bool use_euler_angles) {}
+void KinematicsSolver::IK_step(Vector6d d_ef, bool use_euler_angles) {
+
+    // TODO vector<string> links = robot_ik.get_all_links()??
+    vector<string> joints = robot_ik.get_all_joints();
+    // TODO other declarations
+    Vector3d ef_pos_world = robot_ik.get_ef_pos_world();
+
+}
 
 bool KinematicsSolver::is_safe(vector<double> angles) {
     vector<string> joints = robot_ik.get_all_joints();
     
     // if any angles are outside bounds
+    // TODO check if we need to run FK before returning, regardless of limit_check
     if (!limit_check(angles, joints)) {
         return false;
     }
@@ -46,7 +54,6 @@ bool KinematicsSolver::is_safe(vector<double> angles) {
     return robot_safety.obstacle_free();
 }
 
-// returns true if all angles are within bounds
 bool KinematicsSolver::limit_check(const vector<double> &angles, const vector<string> &joints) {
 
     // TODO check that we should actually use all values of joint
@@ -58,5 +65,6 @@ bool KinematicsSolver::limit_check(const vector<double> &angles, const vector<st
             return false;
         }
     }
+    // if all angles are in bounds
     return true;
 }
