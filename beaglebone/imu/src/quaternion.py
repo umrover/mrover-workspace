@@ -42,8 +42,7 @@ class Quaternion:
     def to_angle_axis(self):
         """
         Returns the quaternion's rotation represented by an Euler angle and axis.
-        If the quaternion is the identity quaternion (1, 0, 0, 0), a rotation along the x axis with angle 0
-        is returned.
+        If the quaternion is the identity quaternion (1, 0, 0, 0), a rotation along the x axis with angle 0 is returned.
         :return: rad, x, y, z
         """
         if self[0] == 1 and self[1] == 0 and self[2] == 0 and self[3] == 0:

@@ -63,8 +63,7 @@ If the SDA and SCL wires are disconnected while running the IMU script a 'Connec
 -   [ ] LCM implementation
 
 ### Notes
-
---
+Link to the [Datasheet](https://invensense.tdk.com/wp-content/uploads/2016/06/DS-000189-ICM-20948-v1.3.pdf)
 
   
 

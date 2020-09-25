@@ -26,9 +26,7 @@ bus = smbus.SMBus(2)
 mag_offsets = [0, 0, 0]
 
 # Soft iron error compensation matrix
-mag_softiron_matrix = [[0, 0, 0],
-                       [0, 0, 0],
-                       [0, 0, 0]]
+mag_softiron_matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
 
 mag_field_strength = 0
 
@@ -165,6 +163,11 @@ def main():
         mag_offsets = [float(x) for x in lines[0].split()]
         mag_softiron_matrix = np.reshape([float(x) for x in lines[1].split()], (3, 3))
         # mag_field_strength = [float(x) for x in lines[3].split()][0]
+    
+    with open('accgyrocalib.txt', 'r') as accgyrocalib:
+        xav, yav, zav, xgyr, ygyr, zgyr = accgyrocalib.readlines()
+        
+
 
     while(True):
         try:
@@ -173,16 +176,24 @@ def main():
         except Exception:
             print("Connection Lost")
 
+        # Apply accel/gyro calibration
+        data[0] += xav
+        data[1] += yav
+        data[2] += zav
+        data[3] += xgyr
+        data[4] += ygyr
+        data[5] += zgyr
         # Raw Data
-        print("Accel Raw: ", data[0] / 2048, ",", data[1] / 2048, ",", data[2] / 2048)
+        print("Accel Raw: ", data[0] / 2048, ",", data[1] / 2048, ",", (data[2] / 2048) + 1)
         print("Gyro Raw: ", data[3] / 16.4, ",", data[4] / 16.4, ",", data[5] / 16.4)
         print("Mag Raw: ", data[6] * 0.15, ",", data[7] * 0.15, ",", data[8] * 0.15)
 
         # Accel measures in 2048 LSB/g and Gyro in 2000 LSB/dps
         # so we divide the register value by that to get the unit
-        imudata.accel_x_g = data[0] / 2048
+        imudata.accel_x_g = data[0] / 2048 
         imudata.accel_y_g = data[1] / 2048
-        imudata.accel_z_g = data[2] / 2048
+        # +1 to account for calibration
+        imudata.accel_z_g = (data[2] / 2048) + 1
 
         imudata.gyro_x_dps = data[3] / 16.4
         imudata.gyro_y_dps = data[4] / 16.4
@@ -194,26 +205,28 @@ def main():
         mag_z = (data[8] * 0.15) - mag_offsets[2]
 
         # Apply mag soft iron error compensation
-        imudata.mag_x_uT = mag_x * mag_softiron_matrix[0][0] + mag_y * mag_softiron_matrix[0][1] + \
-            mag_z * mag_softiron_matrix[0][2]
-        imudata.mag_y_uT = mag_x * mag_softiron_matrix[1][0] + mag_y * mag_softiron_matrix[1][1] + \
-            mag_z * mag_softiron_matrix[1][2]
-        imudata.mag_z_uT = mag_x * mag_softiron_matrix[2][0] + mag_y * mag_softiron_matrix[2][1] + \
-            mag_z * mag_softiron_matrix[2][2]
+        imudata.mag_x_uT = mag_x * mag_softiron_matrix[0][0] + \
+            mag_y * mag_softiron_matrix[0][1] + mag_z * mag_softiron_matrix[0][2]
+
+        imudata.mag_y_uT = mag_x * mag_softiron_matrix[1][0] + \
+            mag_y * mag_softiron_matrix[1][1] + mag_z * mag_softiron_matrix[1][2]
+
+        imudata.mag_z_uT = mag_x * mag_softiron_matrix[2][0] + \
+            mag_y * mag_softiron_matrix[2][1] + mag_z * mag_softiron_matrix[2][2]
 
         # Bearing Calculation
+        bearing = -(np.arctan2(imudata.mag_y_uT, imudata.mag_x_uT) * (180.0 / np.pi))
+        if (bearing < 0):
+            bearing += 360
 
-        imudata.bearing_deg = -(np.arctan2(imudata.mag_y_uT, imudata.mag_x_uT) * (180.0 / np.pi))
-        if imudata.bearing_deg < 0:
-            imudata.bearing_deg += 360
+        imudata.bearing_deg = bearing
         print("Bearing: ", imudata.bearing_deg)
 
         # Roll, Pitch, yaw calc
         # Dividing the mag data by 100000 to get units to be Teslas
         acc = np.array([imudata.accel_x_g, imudata.accel_y_g, imudata.accel_z_g])
         gyr = np.array([imudata.gyro_x_dps, imudata.gyro_y_dps, imudata.gyro_z_dps])
-        mag = np.array([imudata.mag_x_uT / 1000000.0, imudata.mag_y_uT / 1000000.0,
-                        imudata.mag_z_uT / 1000000.0])
+        mag = np.array([imudata.mag_x_uT / 1000000.0, imudata.mag_y_uT / 1000000.0, imudata.mag_z_uT / 1000000.0])
         gyr_rad = gyr * (np.pi/180)
 
         # Everything Past here is Auton stuff
