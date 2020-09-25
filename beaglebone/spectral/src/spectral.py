@@ -158,4 +158,3 @@ def enable_spectral():
     virtual_write(0x04, 0x28)  # runs twice to account for status miss
     virtual_write(0x04, 0x28)  # converts data bank to 2
     virtual_write(0x05, 0xFF)  # increases integration time
-
