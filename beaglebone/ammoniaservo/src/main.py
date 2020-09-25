@@ -10,9 +10,14 @@ from rover_msgs import ServoCMD
 SERVO_MAX_DC = 10.0
 SERVO_MIN_DC = 4.0
 
-Amino = "P9_14"
-Ammonia = "P9_16"
+amino_blue = "P9_14"
+ammonia_blue = "P9_16"
 
+amino_white = "P8_13"
+ammonia_white = "P8_19"
+
+amino_yellow = "P9_21"
+ammonia_yellow = "P9_22"
 
 lcm_ = lcm.LCM()
 
@@ -35,19 +40,39 @@ def servo_init(pin, degrees):
 
 def servocmd_callback(channel, msg):
     servo = ServoCMD.decode(msg)
+    # Blue callback
     if (servo.id == "amino_blue"):
-        run_servo(Amino, servo.position)
+        run_servo(amino_blue, servo.position)
         time.sleep(4)
     elif (servo.id == "ammonia_blue"):
-        run_servo(Ammonia, servo.position)
+        run_servo(ammonia_blue, servo.position)
+        time.sleep(4)
+    # White callback
+    elif (servo.id == "amino_white"):
+        run_servo(amino_white, servo.position)
+        time.sleep(4)
+    elif (servo.id == "ammonia_white"):
+        run_servo(ammonia_white, servo.position)
+        time.sleep(4)
+    # Yellow callback
+    elif (servo.id == "amino_yellow"):
+        run_servo(amino_yellow, servo.position)
+        time.sleep(4)
+    elif (servo.id == "ammonia_yellow"):
+        run_servo(ammonia_yellow, servo.position)
         time.sleep(4)
 
 
 def main():
 
-    # Change pins to actual pin on beaglebone once we know what pin
-    servo_init(Amino, 0)
-    servo_init(Ammonia, 0)
+    servo_init(amino_blue, 0)
+    servo_init(ammonia_blue, 0)
+
+    servo_init(amino_white, 0)
+    servo_init(ammonia_white, 0)
+
+    servo_init(amino_yellow, 0)
+    servo_init(ammonia_yellow, 0)
     # Might need a manual set to 0, not sure if init sets to angle 0 initially
 
     lcm_.subscribe("/servocmd", servocmd_callback)
