@@ -74,3 +74,6 @@ def main():
     # Might need a manual set to 0, not sure if init sets to angle 0 initially
 
     lcm_.subscribe("/servocmd", servocmd_callback)
+
+    while(1):
+        lcm_.handle()
