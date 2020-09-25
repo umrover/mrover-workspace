@@ -1,5 +1,5 @@
 package rover_msgs;
 
-struct ThermistorRequest {
+struct ThermistorCmd {
 	string thermistor; // Either thermistor white, blue, yellow
 }
