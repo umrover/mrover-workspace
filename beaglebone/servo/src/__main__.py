@@ -1,7 +1,7 @@
 import time
 import Adafruit_BBIO.PWM as PWM
 import lcm
-from rover_msgs import ServoCMD
+from rover_msgs import ServoCmd
 
 
 # Don't know if this is the same for the servo we're using
@@ -37,7 +37,7 @@ def servo_init(pin, degrees):
 
 
 def servocmd_callback(channel, msg):
-    servo = ServoCMD.decode(msg)
+    servo = ServoCmd.decode(msg)
     # Blue callback
     if (servo.id == "amino_blue"):
         run_servo(amino_blue, servo.position)
@@ -73,7 +73,7 @@ def main():
     servo_init(ammonia_yellow, 0)
     # Might need a manual set to 0, not sure if init sets to angle 0 initially
 
-    lcm_.subscribe("/servocmd", servocmd_callback)
+    lcm_.subscribe("/servo_cmd", servocmd_callback)
 
     while(1):
         lcm_.handle()
