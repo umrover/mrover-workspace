@@ -163,6 +163,11 @@ def main():
         mag_offsets = [float(x) for x in lines[0].split()]
         mag_softiron_matrix = np.reshape([float(x) for x in lines[1].split()], (3, 3))
         # mag_field_strength = [float(x) for x in lines[3].split()][0]
+    
+    with open('accgyrocalib.txt', 'r') as accgyrocalib:
+        xav, yav, zav, xgyr, ygyr, zgyr = accgyrocalib.readlines()
+        
+
 
     while(True):
         try:
@@ -171,16 +176,24 @@ def main():
         except Exception:
             print("Connection Lost")
 
+        # Apply accel/gyro calibration
+        data[0] += xav
+        data[1] += yav
+        data[2] += zav
+        data[3] += xgyr
+        data[4] += ygyr
+        data[5] += zgyr
         # Raw Data
-        print("Accel Raw: ", data[0] / 2048, ",", data[1] / 2048, ",", data[2] / 2048)
+        print("Accel Raw: ", data[0] / 2048, ",", data[1] / 2048, ",", (data[2] / 2048) + 1)
         print("Gyro Raw: ", data[3] / 16.4, ",", data[4] / 16.4, ",", data[5] / 16.4)
         print("Mag Raw: ", data[6] * 0.15, ",", data[7] * 0.15, ",", data[8] * 0.15)
 
         # Accel measures in 2048 LSB/g and Gyro in 2000 LSB/dps
         # so we divide the register value by that to get the unit
-        imudata.accel_x_g = data[0] / 2048
+        imudata.accel_x_g = data[0] / 2048 
         imudata.accel_y_g = data[1] / 2048
-        imudata.accel_z_g = data[2] / 2048
+        # +1 to account for calibration
+        imudata.accel_z_g = (data[2] / 2048) + 1
 
         imudata.gyro_x_dps = data[3] / 16.4
         imudata.gyro_y_dps = data[4] / 16.4
