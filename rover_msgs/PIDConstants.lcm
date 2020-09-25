@@ -5,5 +5,4 @@ struct PIDConstants {
     double kP;
     double kI;
     double kD;
-    double kF;
 }

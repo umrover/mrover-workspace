@@ -42,7 +42,11 @@
                         bind:ar_tags
                         bind:gates
                         bind:rocks
+                        bind:radio_signal
+                        bind:radio_signal_input
                         bind:repeater_dropped
+                        bind:repeater_drop_initiated
+                        bind:drop_complete_sender
                         bind:field_of_view
                         bind:depth_of_view
                         bind:field_of_view_visible/>
@@ -269,6 +273,8 @@
                 radio_signal_input: RADIO_REPEATER_THRESHOLD - 1,
                 is_valid_signal_strength: true,
                 repeater_dropped: false,
+                repeater_drop_initiated: false,
+                drop_complete_sender: null,
                 repeater_loc: {},
                 RR_MIN: MIN_RADIO_SIGNAL_STRENGTH,
                 RR_MAX: MAX_RADIO_SIGNAL_STRENGTH,
@@ -371,19 +377,21 @@
             },
 
             drop_radio_repeater: function() {
-                if (!this.get('repeater_dropped')) {
+                if (!this.get('repeater_drop_initiated')) {
+                    this.set({
+                        repeater_drop_initiated: true,
+                    });
                     // Wait 2 seconds, then 'drop' repeater
                     setTimeout(function() {
+                        console.log('here');
                         app.set({
                             radio_signal: MAX_RADIO_SIGNAL_STRENGTH,
                             repeater_dropped: true,
-                            repeater_loc: app.get('odom')
+                            repeater_loc: app.get('odom'),
+                            drop_complete_sender: setInterval(() => {
+                                    app.fire("rr_drop_complete", {});
+                                }, 100)
                         });
-
-                        // start firing drop complete LCM
-                        setInterval(() => {
-                            app.fire("rr_drop_complete", {});
-                        }, 100);
                     } , 2000);
                 }
             },

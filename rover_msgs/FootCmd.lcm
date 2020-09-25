@@ -4,3 +4,4 @@ struct FootCmd {
 	double sensor; // [-1.0, 1.0]
     double claw; // [-1.0, 1.0]
 }
+

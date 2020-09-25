@@ -66,6 +66,26 @@ public:
         mStateMachine->updateRoverStatus( *targetListIn );
     }
 
+    // Sends the radio lcm message to the state machine.
+    void radioSignalStrength(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const RadioSignalStrength* signalIn
+        )
+    {
+        mStateMachine->updateRoverStatus( *signalIn );
+    }
+
+    // Updates Radio Repeater bool in state machine.
+    void repeaterDropComplete(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const RepeaterDropComplete* completeIn
+        )
+    {
+        mStateMachine->updateRepeaterComplete( );
+    }
+
 private:
     // The state machine to send the lcm messages to.
     StateMachine* mStateMachine;
@@ -88,6 +108,8 @@ int main()
     lcmObject.subscribe( "/course", &LcmHandlers::course, &lcmHandlers );
     lcmObject.subscribe( "/obstacle", &LcmHandlers::obstacle, &lcmHandlers );
     lcmObject.subscribe( "/odometry", &LcmHandlers::odometry, &lcmHandlers );
+    lcmObject.subscribe( "/radio", &LcmHandlers::radioSignalStrength, &lcmHandlers );
+    lcmObject.subscribe( "/rr_drop_complete", &LcmHandlers::repeaterDropComplete, &lcmHandlers );
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
 
     while( lcmObject.handle() == 0 )

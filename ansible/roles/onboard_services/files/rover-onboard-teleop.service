@@ -1,7 +1,5 @@
 [Unit]
 Description=MRover Onboard Teleop
-Requires=rover-onboard-talon.service
-After=rover-onboard-talon.service
 
 [Service]
 EnvironmentFile=/etc/default/rover.env

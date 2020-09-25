@@ -110,7 +110,7 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
     if( phoebe->roverStatus().target().distance >= 0 )
     {
         updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
-                                              phoebe->roverStatus().odometry().bearing_deg );
+                                       phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
     if( !started )
@@ -153,7 +153,7 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
     if( phoebe->roverStatus().target().distance >= 0 )
     {
         updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
-                                           phoebe->roverStatus().odometry().bearing_deg );
+                                       phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
     Odometry& nextSearchPoint = mSearchPoints.front();
@@ -254,7 +254,20 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.clear();
-        phoebe->roverStatus().path().pop();
+        if( phoebe->roverStatus().path().front().gate )
+        {
+            roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
+            const double absAngle = mod(phoebe->roverStatus().odometry().bearing_deg +
+                                        phoebe->roverStatus().target().bearing,
+                                        360);
+            roverStateMachine->mGateStateMachine->lastKnownPost1.odom = createOdom( phoebe->roverStatus().odometry(),
+                                                                                    absAngle,
+                                                                                    phoebe->roverStatus().target().distance,
+                                                                                    phoebe );
+            roverStateMachine->mGateStateMachine->lastKnownPost1.id = phoebe->roverStatus().target().id;
+            return NavState::GateSpin;
+        }
+        phoebe->roverStatus().path().pop_front();
         roverStateMachine->updateCompletedPoints();
         return NavState::Turn;
     }
