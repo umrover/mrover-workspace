@@ -1,8 +1,6 @@
-import asyncio
 import time
 import Adafruit_BBIO.PWM as PWM
 import lcm
-from rover_common.aiohelper import run_coroutines
 from rover_msgs import ServoCMD
 
 
@@ -76,11 +74,3 @@ def main():
     # Might need a manual set to 0, not sure if init sets to angle 0 initially
 
     lcm_.subscribe("/servocmd", servocmd_callback)
-
-
-
-
-
-
-
-
