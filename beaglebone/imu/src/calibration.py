@@ -1,6 +1,7 @@
-import smbus
-import time as t
 import numpy as np
+import time as t
+import smbus
+# import time as t
 
 I2C_IMU_ADDRESS = 0x69
 
@@ -17,6 +18,18 @@ ICM20948_INT_PIN_CFG = 0x0F
 
 AK09916_I2C_ADDR = 0x0c
 bus = smbus.SMBus(2)
+
+XACCEL = 0
+YACCEL = 1
+ZACCEL = 2
+
+XGYRO = 3
+YGYRO = 4
+ZGYRO = 5
+
+XMAG = 6
+YMAG = 7
+ZMAG = 8
 
 
 def get_decimal(high, low):
@@ -64,6 +77,7 @@ def get_mag_data(addr):
     return np.array([x_mag, y_mag, z_mag])
 
 
+# Changes the bank of commands to access
 def set_bank(bank):
     newbank = (bank << 4)
     bus.write_byte_data(I2C_IMU_ADDRESS, 0x7f, newbank)
@@ -81,6 +95,8 @@ def get_data():
                     gyro_y, gyro_z, mag_x, mag_y, mag_z])
 
 
+# Removes any inbuilt offset b/c we do that ourselves
+# Don't believe we need this after figuring out the calibration
 def set_offset(xav, yav, zav):
     xav /= 10
     yav /= 10
@@ -88,6 +104,8 @@ def set_offset(xav, yav, zav):
     set_bank(1)
     zavlower = (int(zav) & 0b000000001111111) << 1
     zavupper = (int(zav) & 0b111111110000000) >> 7
+
+    # This function is only ever used to 0 out offsets so its fine if they're the same
     # Set lower bits of z offset
     bus.write_byte_data(I2C_IMU_ADDRESS, 0x1B, zavlower)
     # Set upper bits of z offset
@@ -108,68 +126,60 @@ def set_offset(xav, yav, zav):
     set_bank(0)
 
 
-def main():
-    success = False
-    calibration = 0
-    calibrationtime = 0
-    xav = 0
-    yav = 0
-    zav = 0
-    xgyr = 0
-    ygyr = 0
-    zgyr = 0
-    while not success:
-        try:
-            set_bank(0)
-            bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_2, 0x7f)
-            # wake up imu from sleep, try until works
-            bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_1, 0x01)
-            # Set accelerometer and gyroscope to on
-            bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_2, 0x00)
-            set_bank(2)
-            bus.write_byte_data(I2C_IMU_ADDRESS, 0x01, 0b00000110)
-            bus.write_byte_data(I2C_IMU_ADDRESS, 0x14, 0b00000110)
-            set_bank(0)
-            success = True
-        except Exception:
-            t.sleep(1)
-            pass
+def start_up():
+    try:
+        set_bank(0)
+        bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_2, 0x7f)
+        # wake up imu from sleep, try until works
+        bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_1, 0x01)
+        # Set accelerometer and gyroscope to on
+        bus.write_byte_data(I2C_IMU_ADDRESS, ICM20948_PWR_MGMT_2, 0x00)
+        set_bank(2)
+        bus.write_byte_data(I2C_IMU_ADDRESS, 0x01, 0b00000110)
+        bus.write_byte_data(I2C_IMU_ADDRESS, 0x14, 0b00000110)
+        set_bank(0)
 
-    while(True):
+        # clear any inbuilt offset, we handle that in our code
+        # set_offset(0, 0, 0)
+        return True
+
+    except Exception:
+        return False
+
+
+def main():
+
+    offsets = [0, 0, 0, 0, 0, 0, 0]
+
+    while not start_up():
+        pass
+
+    # averages first 50 samples of the accel and gyro data
+    for _ in range(50):
         try:
             data = get_data()
-            if (calibrationtime < 50):
-                xav += data[0]
-                yav += data[1]
-                zav += data[2]
-                xgyr += data[3]
-                ygyr += data[4]
-                zgyr += data[5]
-                calibrationtime += 1
+
+            # could just be a for loop, using constants for readbility
+            offsets[XACCEL] += data[XACCEL]
+            offsets[YACCEL] += data[YACCEL]
+
+            # in the z direction acceleration should be 1, so the offset is the difference
+            offsets[ZACCEL] += (data[ZACCEL] - 1)
+
+            offsets[XGYRO] += data[XGYRO]
+            offsets[YGYRO] += data[YGYRO]
+            offsets[ZGYRO] += data[ZGYRO]
 
         except Exception:
             print("Connection Lost")
             t.sleep(1)
-        if (calibration == 0 and calibrationtime >= 50):
-            xav /= -50
-            yav /= -50
-            zav /= -50
-            xgyr /= -50
-            ygyr /= -50
-            zgyr /= -50
-            calibration = 1
-            print(xav)
-            print(yav)
-            print(zav)
-            break
-    f = open("calibvalues.txt", "w+")
-    f.write("%d\n" % xav)
-    f.write("%d\n" % yav)
-    f.write("%d\n" % zav)
-    f.write("%d\n" % xgyr)
-    f.write("%d\n" % ygyr)
-    f.write("%d\n" % zgyr)
-    f.close
+
+    for i in range(len(offsets)):
+        offsets[i] = offsets[i] / -50
+
+    with open('ag_calibration.txt', 'w') as f:
+        f.write("{} {} {} \n".format(offsets[XACCEL], offsets[YACCEL], offsets[ZACCEL]))
+        f.write("{} {} {} \n".format(offsets[XGYRO], offsets[YGYRO], offsets[ZGYRO]))
 
 
 if(__name__ == '__main__'):
