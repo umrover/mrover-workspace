@@ -1,13 +1,13 @@
 {
     "COMMENT" : "ALL VALUES IN METERS",
 
-    "Q": 0.125,
+    "Q": 0.013,
 
     "FilterType": "LinearKalman",
 
-    "P_initial": [1, 3, 1, 3],
+    "P_initial": [2, 10, 2, 10],
 
-    "R": [1, 0.5, 1, 0.5],
+    "R": [2, 1, 2, 1],
 
     "dt" : 0.01,
 
@@ -15,6 +15,8 @@
 
     "IMU_fresh_timeout" : 5,
     "GPS_fresh_timeout" : 1,
+    "IMU_accel_filter_bias" : 0.75,
+    "IMU_accel_threshold": 0.05,
 
     "RefCoords": {"lat": 42.2766, "long": -83.7382}
 }

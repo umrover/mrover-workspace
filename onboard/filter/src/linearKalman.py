@@ -114,6 +114,11 @@ class LinearKalmanFilter:
 
         # State prediction: x = Fx + Bu
         if B is not None and u is not None:
+            u = np.atleast_2d(u)
+            if u.shape == (1, self.dim_u):
+                u = u.T
+            if u.shape != (self.dim_u, 1):
+                raise ValueError("u dimension mismatch")
             self.x = np.dot(F, self.x) + np.dot(B, u)
         else:
             self.x = np.dot(F, self.x)

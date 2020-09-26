@@ -76,16 +76,44 @@ class AccelComponent(SensorComponent):
     @attribute float accel_z: relative acceleration (m/s^2) in z
     '''
 
-    def __init__(self):
+    def __init__(self, filter_bias=1.0, threshold=0.0):
         self.accel_x = None
         self.accel_y = None
         self.accel_z = None
+        self.filter_bias = filter_bias
+        self.threshold_value = threshold
+    
+    def lowPass(self, new, old, bias):
+        '''
+        Returns the new value run through a low-pass filter
+
+        @param float new: new value
+        @param float old: old value
+        @param float filter_bias: bias towards new value
+        @return float: filtered new value
+        '''
+        if old is None:
+            return new
+        return new * bias + old * (1 - bias)
+    
+    def threshold(self, value, threshold_value):
+        '''
+        Returns value if |value| > threshold, else threshold
+
+        @param float value: value to threshold
+        @param float threshold: threshold value
+        @return float: thresholded value
+        '''
+        return value if abs(value) > threshold_value else 0.0
 
     def update(self, new_accel_sensor):
         if hasattr(new_accel_sensor, "accel_x_g"):
-            self.accel_x = new_accel_sensor.accel_x_g * 9.8
-            self.accel_y = new_accel_sensor.accel_y_g * 9.8
-            self.accel_z = new_accel_sensor.accel_z_g * 9.8
+            self.accel_x = self.lowPass(new_accel_sensor.accel_x_g * 9.8, self.accel_x, self.filter_bias)
+            self.accel_x = self.threshold(self.accel_x, self.threshold_value)
+            self.accel_y = self.lowPass(new_accel_sensor.accel_y_g * 9.8, self.accel_y, self.filter_bias)
+            self.accel_y = self.threshold(self.accel_y, self.threshold_value)
+            self.accel_z = self.lowPass(new_accel_sensor.accel_z_g * 9.8, self.accel_z, self.filter_bias)
+            self.accel_z = self.threshold(self.accel_z, self.threshold_value)
         else:
             raise AttributeError("No acceleration attributes found")
 
@@ -212,7 +240,8 @@ class BearingComponent(SensorComponent):
         if hasattr(new_bearing_sensor, "bearing"):
             self.bearing_deg = new_bearing_sensor.bearing
         elif hasattr(new_bearing_sensor, "bearing_deg"):
-            self.bearing_deg = new_bearing_sensor.bearing_deg
+            if new_bearing_sensor.bearing_deg != 999.:
+                self.bearing_deg = new_bearing_sensor.bearing_deg
         else:
             raise AttributeError("No bearing attributes found")
 
@@ -284,9 +313,9 @@ class Imu(Sensor):
     @attribute float yaw_deg: absolute yaw (decimal degrees)
     '''
 
-    def __init__(self):
+    def __init__(self, accel_filter_bias=1.0, accel_threshold=0.0):
         super().__init__()
-        self.accel = AccelComponent()
+        self.accel = AccelComponent(accel_filter_bias, accel_threshold)
         self.bearing = BearingComponent()
         self.gyro = AngVelComponent()
         self.mag = MagComponent()
@@ -372,4 +401,4 @@ class Gps(Sensor):
             self.fresh = False
 
     def ready(self):
-        return self.vel.ready() and self.pos.ready() and self.bearing.ready()
+        return self.vel.ready() and self.pos.ready()

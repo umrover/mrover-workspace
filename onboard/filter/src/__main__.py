@@ -118,7 +118,7 @@ class SensorFusion:
             self.config = json.load(config)
 
         self.gps = Gps()
-        self.imu = Imu()
+        self.imu = Imu(self.config["IMU_accel_filter_bias"], self.config["IMU_accel_threshold"])
 
         self.filter = None
         self.state_estimate = StateEstimate(ref_lat=self.config["RefCoords"]["lat"],
@@ -134,10 +134,12 @@ class SensorFusion:
 
         # Construct filter on first GPS message
         if self.filter is None and self.gps.ready():
-            ref_bearing = self.imu.bearing.bearing_deg if self.imu.ready() \
-                else self.gps.bearing.bearing_deg
+            ref_bearing = self._getFreshBearing()
+            if ref_bearing is None:
+                return
             pos = self.gps.pos.asMinutes()
-            vel = self.gps.vel.absolutify(ref_bearing)
+            # vel = self.gps.vel.absolutify(ref_bearing)
+            vel = {"north": 0, "east": 0}
 
             self.state_estimate = StateEstimate(pos["lat_deg"], pos["lat_min"], vel["north"],
                                                 pos["long_deg"], pos["long_min"], vel["east"],
@@ -243,7 +245,8 @@ class SensorFusion:
             if self.filter is not None:
                 bearing = self._getFreshBearing()
                 pos = self._getFreshPos()
-                vel = self._getFreshVel(bearing)
+                # vel = self._getFreshVel(bearing)
+                vel = None
                 accel = self._getFreshAccel(bearing)
 
                 u = np.array([accel["north"], accel["east"]]) if accel is not None else None
