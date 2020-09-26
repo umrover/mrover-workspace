@@ -140,7 +140,7 @@ def start_up():
         set_bank(0)
 
         # clear any inbuilt offset, we handle that in our code
-        # set_offset(0, 0, 0)
+        set_offset(0, 0, 0)
         return True
 
     except Exception:
