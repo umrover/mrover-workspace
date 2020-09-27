@@ -90,7 +90,7 @@ def get_data():
     set_bank(0)
 
     # waits for the data to be ready 
-    while not (bus.read_byte_data(I2C_IMU_ADDRESS, RAW_DATA_0_RDY_INT) & 0xFE):
+    while not (bus.read_byte_data(I2C_IMU_ADDRESS, RAW_DATA_0_RDY_INT) & 0x1):
         print("data not ready")
         t.sleep(0.001)
 
