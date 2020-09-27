@@ -1,6 +1,0 @@
-package rover_msgs;
-
-struct ThermistorCmd {
-	double temperature_C; // Celsius
-	string thermistor; // Either thermistor white, blue, or yellow
-}
