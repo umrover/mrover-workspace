@@ -349,11 +349,11 @@ NavState StateMachine::executeTurn()
     }
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
-    {
-        addRepeaterDropPoint();
-        return NavState::RadioRepeaterTurn;
-    }
+    // if ( isAddRepeaterDropPoint() )
+    // {
+    //     addRepeaterDropPoint();
+    //     return NavState::RadioRepeaterTurn;
+    // }
 
     Odometry& nextPoint = mPhoebe->roverStatus().path().front().odom;
     if( mPhoebe->turn( nextPoint ) )
@@ -385,11 +385,11 @@ NavState StateMachine::executeDrive()
 
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
-    {
-        addRepeaterDropPoint();
-        return NavState::RadioRepeaterTurn;
-    }
+    // if ( isAddRepeaterDropPoint() )
+    // {
+    //     addRepeaterDropPoint();
+    //     return NavState::RadioRepeaterTurn;
+    // }
 
     if( isObstacleDetected() && !isWaypointReachable( distance ) )
     {
