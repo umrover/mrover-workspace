@@ -118,7 +118,7 @@ class SensorFusion:
             self.config = json.load(config)
 
         self.gps = Gps()
-        self.imu = Imu()
+        self.imu = Imu(self.config["IMU_accel_filter_bias"], self.config["IMU_accel_threshold"])
 
         self.filter = None
         self.state_estimate = StateEstimate(ref_lat=self.config["RefCoords"]["lat"],
@@ -134,10 +134,12 @@ class SensorFusion:
 
         # Construct filter on first GPS message
         if self.filter is None and self.gps.ready():
-            ref_bearing = self.imu.bearing.bearing_deg if self.imu.ready() \
-                else self.gps.bearing.bearing_deg
+            ref_bearing = self._getFreshBearing()
+            if ref_bearing is None:
+                return
             pos = self.gps.pos.asMinutes()
-            vel = self.gps.vel.absolutify(ref_bearing)
+            # vel = self.gps.vel.absolutify(ref_bearing)
+            vel = {"north": 0, "east": 0}
 
             self.state_estimate = StateEstimate(pos["lat_deg"], pos["lat_min"], vel["north"],
                                                 pos["long_deg"], pos["long_min"], vel["east"],
@@ -150,6 +152,9 @@ class SensorFusion:
     def _imuCallback(self, channel, msg):
         new_imu = IMUData.decode(msg)
         self.imu.update(new_imu)
+        # DEBUG
+        with open("odom_accel_log.json", 'a') as out:
+            out.write('{"accel_x_g": ' + str(self.imu.accel.accel_x / 9.8) + '},\n')
 
     def _constructFilter(self):
         '''
@@ -243,7 +248,8 @@ class SensorFusion:
             if self.filter is not None:
                 bearing = self._getFreshBearing()
                 pos = self._getFreshPos()
-                vel = self._getFreshVel(bearing)
+                # vel = self._getFreshVel(bearing)
+                vel = None
                 accel = self._getFreshAccel(bearing)
 
                 u = np.array([accel["north"], accel["east"]]) if accel is not None else None
@@ -251,6 +257,7 @@ class SensorFusion:
 
                 z = None
                 H = None
+                # vel = {"north": np.asscalar(self.filter.x[1]), "east": np.asscalar(self.filter.x[3])}
                 if pos is not None:
                     pos_meters = {}
                     pos_meters["long"] = long2meters(pos["long"], pos["lat"],
@@ -272,6 +279,7 @@ class SensorFusion:
                         z = np.array([0, vel["north"], 0, vel["east"]])
                         H = np.diag([0, 1, 0, 1])
                 self.filter.update(z, H=H)
+                print(self.filter.x)
 
                 self.state_estimate.updateFromLKF(self.filter.x)
                 if bearing is not None:

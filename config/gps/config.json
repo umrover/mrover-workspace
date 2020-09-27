@@ -2,7 +2,7 @@
     "onboard":
     {
         "baudrate": 115200,
-        "filename": "/dev/ttyACM1",
+        "filename": "/dev/ttyACM0",
         "max_error_count": 5,
         "sleep": 0.1
     },
