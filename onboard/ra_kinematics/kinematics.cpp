@@ -1,4 +1,5 @@
 #include "kinematics.hpp"
+#include <cmath>
 
 
 using namespace Eigen;
@@ -23,7 +24,46 @@ void KinematicsSolver::FK(ArmState &robot_state) {
         Vector3d xyz = robot_state.get_joint_pos_world(it->first);
         // PB: Check if this should be get_joint_axis or get_joint_axis_world:
         Vector3d rot_axis_child = robot_state.get_joint_axis(it->first);
-        // double theta = robot_state.angles[it->first];
+        double theta = it->second->angle;
+
+        Matrix4d rot_theta = Matrix4d::Identity();
+        Matrix4d trans = Matrix4d::Identity();
+
+        double ctheta = cos(theta);
+        double stheta = sin(theta);
+
+        // PB: This needs to be tested for correct indice manipulation
+        trans.block(0,3,3,1) = xyz;
+
+        // Make rotation about rot axis by theta:
+        if (rot_axis_child(0) == 1) {
+            rot_theta(1,1) = ctheta;
+            rot_theta(2,1) = stheta;
+            rot_theta(1,2) = -1*stheta;
+            rot_theta(2,2) = ctheta;
+        }
+        else if(rot_axis_child(1) == 1) {
+            rot_theta(0,0) = ctheta;
+            rot_theta(2,0) = -1*stheta;
+            rot_theta(0,2) = stheta;
+            rot_theta(2,2) = ctheta;
+        }
+        else if(rot_axis_child(2) == 1) {
+            rot_theta(0,0) = ctheta;
+            rot_theta(1,0) = stheta;
+            rot_theta(0,1) = -1*stheta;
+            rot_theta(1,1) = ctheta;
+        }
+        else if (rot_axis_child(2) == -1) {
+            rot_theta(0,0) = ctheta;
+            rot_theta(0,1) = stheta;
+            rot_theta(1,0) = -1*stheta;
+            rot_theta(1,1) = ctheta;
+        }
+        Matrix4d T = trans*rot_theta;
+        Matrix4d global_transform = parent_mat*T;
+
+        
     }
 }
 
