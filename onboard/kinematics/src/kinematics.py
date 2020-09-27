@@ -43,6 +43,7 @@ class KinematicsSolver:
         # links = self.robot_state.all_links
 
         global_transform = np.eye(4)
+        # print(global_transform)
         # rot_axis_parent = np.array([0, 0, 1])
 
         cur_robot.set_link_transform(cur_robot.geom['base'], np.eye(4))

@@ -75,7 +75,6 @@ private:
         double radius;
     };
 
-    map<string, Joint *> joints;
     map<string, Link *> links;
     vector<string> joint_names;
 
@@ -96,6 +95,7 @@ private:
 
 public:
     json joints_json, links_json;
+    map<string, Joint *> joints;
     ArmState(json &geom);
     
     ~ArmState();
