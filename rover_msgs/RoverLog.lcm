@@ -1,10 +1,12 @@
 package rover_msgs;
 
 struct RoverStatus {
+
+    uint8_t CRITICAL = 0; //Requires operator action. Provide basic recovery steps in <message>
+    uint8_t WARNING = 1; //Requires operator attention. Program should attempt self recovery
+    uint8_t DEBUG = 2; //Basic, useful information. No action necessary
+
+    uint8_t priority; //Set this to RoverStatus.CRITICAL, .WARNING, or .DEBUG
     string source; //The name of the program sending the message, e.g. "jetson/teleop"
     string message; //The message.
-
-    //Send this in the "/debug" lcm channel for standard messages (status updates, etc...)
-    //Send this in the "/warning" lcm channel for low priority errors that will resolve themselves, but the operator should be aware of
-    //Send this in the "/error" lcm channel for high priority errors that cannot be resolved automatically. Include recovery instructions for operators.
 }
