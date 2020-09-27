@@ -110,6 +110,26 @@ Matrix4d KinematicsSolver::apply_joint_xform(string joint, double theta) {}
 
 pair<vector<double>, bool> KinematicsSolver::IK() {}
 
+pair<Vector3d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
+    FK(robot_state);
+    robot_ik = robot_state;
+    // Use link maps to represent links:
+    auto links = robot_ik.links;
+    // Create an iterator to point to the last link.
+    auto it = links.rbegin();
+    // Create start and target positions:
+    Vector3d start_pos = robot_ik.get_link_point_world(it->first);
+    Vector3d target_pos(start_pos(0) + delta, start_pos(1) + delta, start_pos(2)+ delta);
+    if (target_pos.norm() > 0.82){
+        return pair<Vector3d, bool>(robot_ik.get_joint_angles(), true);
+    }
+    for (int i = 0; i < iterations; ++i) {
+        Vector3d original_pos = robot_ik.get_link_point_world(it->first);
+        IK_step(delta, true);
+        Vector3d new_pos = robot_ik.get_link_point_world(it->first);
+    }
+}
+
 void KinematicsSolver::IK_step(Vector6d d_ef, bool use_euler_angles) {
 
     // TODO vector<string> links = robot_ik.get_all_links()??

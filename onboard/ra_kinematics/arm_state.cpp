@@ -234,3 +234,11 @@ Vector3d ArmState::get_joint_torque(string joint){
 void ArmState::set_joint_torque(string joint, Vector3d torque){
     joints[joint]->torque = torque;
 }
+
+Vector3d ArmState::get_link_point_world(string link){
+    Vector3d link_point_world;
+    link_point_world(0) = links[link]->global_transform(0,3);
+    link_point_world(1) = links[link]->global_transform(1,3);
+    link_point_world(2) = links[link]->global_transform(2,3);
+    return link_point_world;
+}

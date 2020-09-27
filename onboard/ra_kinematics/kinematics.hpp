@@ -41,6 +41,9 @@ public:
 
     void IK_step(Vector6d d_ef, bool use_euler_angles);
 
+    pair<Vector3d, bool> IK_delta(Vector6d delta, int iterations);
+
+
     /**
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds and don't cause collisions
