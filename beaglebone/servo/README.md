@@ -6,7 +6,7 @@ This code is intended to run the servos in order to lower the beaker for science
 
 ### LCM Channels Publishing/Subscribed To
 **ServoCMD**[subscriber] \
-Messages:  [ServoCMD.lcm](https://github.com/jjtom34/mrover-workspace/blob/AmmoniaServo/rover_msgs/ServoCmd.lcm) "/servocmd" \
+Messages:  [ServoCmd.lcm](https://github.com/jjtom34/mrover-workspace/blob/AmmoniaServo/rover_msgs/ServoCmd.lcm) "/servo_cmd" \
 Publishers: tbd
 Subscribers: tbd
 
@@ -20,8 +20,8 @@ Subscribers: tbd
 #### Setup
 When the servo is set up with the beaker, the program should be run as follows
 `$ ~/cd mrover-workspace`
-`$ /jarvis build beaglebone/ammoniaservo` \
-`$ /jarvis exec beaglebone_ammoniaservo` \
+`$ /jarvis build beaglebone/servo` \
+`$ /jarvis exec beaglebone_servo` \
 
 
 #### LCM Commands
