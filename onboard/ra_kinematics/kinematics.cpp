@@ -1,4 +1,5 @@
 #include "kinematics.hpp"
+#include "utils.hpp"
 #include <cmath>
 
 
@@ -14,7 +15,7 @@ KinematicsSolver::KinematicsSolver(ArmState robot_state_in) : robot_state(robot_
     e_locked = false;
 }
 
-void KinematicsSolver::FK(ArmState &robot_state) {
+Vector3d KinematicsSolver::FK(ArmState &robot_state) {
     // Set global transfprm as identity
     Matrix4d global_transform = Matrix4d::Identity();
     robot_state.set_link_transform(robot_state.links_json['base'], Matrix4d::Identity());
@@ -63,8 +64,46 @@ void KinematicsSolver::FK(ArmState &robot_state) {
         Matrix4d T = trans*rot_theta;
         Matrix4d global_transform = parent_mat*T;
 
-        
+        string link = robot_state.get_child_link(it->first);
+
+        robot_state.set_joint_transform(it->first, global_transform);
+        robot_state.set_link_transform(link, global_transform);
+
+        Matrix4d parent_mat = global_transform;
     }
+    // Set ef position and orientation:
+    Vector3d ef_xyz = robot_state.get_ef_pos_world();
+    Matrix4d T = Matrix4d::Identity();
+    T.block(0,3,3,1) = ef_xyz;
+    Matrix4d global_transform = parent_mat*T;
+    robot_state.set_ef_transform(global_transform);
+    Vector4d mult(0,0,0,1);
+    Vector4d ef_pos_world = global_transform*mult;
+    Vector3d set_ef_pos (ef_pos_world(0), ef_pos_world(1), ef_pos_world(2));
+    robot_state.set_ef_pos_world(set_ef_pos);
+
+    Vector3d prev_com(0,0,0);
+    double total_mass = 0;
+
+    for (auto it = robot_state.joints.rbegin(); it != robot_state.joints.rend(); ++it) {
+        Vector3d joint_pos = robot_state.get_joint_pos_world(it->first);
+        Vector3d com_cur_link = robot_state.get_joint_com(it->first);
+        double cur_link_mass = robot_state.get_joint_mass(it->first);
+
+        // Calculate center of mass of current link:
+        Vector3d curr_com = prev_com * total_mass + com_cur_link * cur_link_mass;
+        total_mass += cur_link_mass;
+        curr_com /= total_mass;
+
+        // Calculate torque for current joint:
+        Vector3d r = curr_com - joint_pos;
+        Vector3d rot_axis_world = robot_state.get_joint_axis_world(it->first);
+        Vector3d torque = calculate_torque(r, total_mass, rot_axis_world);
+        robot_state.set_joint_torque(it->first, torque);
+        prev_com = curr_com;
+    }
+    Vector3d return_vec(ef_pos_world(0), ef_pos_world(1), ef_pos_world(2));
+    return return_vec;
 }
 
 Matrix4d KinematicsSolver::apply_joint_xform(string joint, double theta) {}

@@ -33,7 +33,7 @@ public:
 
     KinematicsSolver(ArmState robot_state_in);
 
-    void FK(ArmState &robot_state);
+    Vector3d FK(ArmState &robot_state);
 
     Matrix4d apply_joint_xform(string joint, double theta);
 
