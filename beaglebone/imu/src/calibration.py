@@ -164,7 +164,8 @@ def main():
             offsets[YACCEL] += data[YACCEL]
 
             # in the z direction acceleration should be 1, so the offset is the difference
-            offsets[ZACCEL] += (data[ZACCEL] - 1)
+            # accel units at 2048 LSB/g 
+            offsets[ZACCEL] += (data[ZACCEL] - 2048)
 
             offsets[XGYRO] += data[XGYRO]
             offsets[YGYRO] += data[YGYRO]
