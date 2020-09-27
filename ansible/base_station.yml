@@ -7,7 +7,7 @@
     user: mrover
     ansible_python_interpreter: /usr/bin/python3
   roles:
-  - onboard_dev
+  - jetson_dev
   - base_station_dev
   - base_station_networks
   - base_station_services
