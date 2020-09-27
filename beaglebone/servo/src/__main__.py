@@ -1,4 +1,3 @@
-import time
 import Adafruit_BBIO.PWM as PWM
 import lcm
 from rover_msgs import ServoCmd
