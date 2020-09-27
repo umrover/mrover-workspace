@@ -152,6 +152,9 @@ class SensorFusion:
     def _imuCallback(self, channel, msg):
         new_imu = IMUData.decode(msg)
         self.imu.update(new_imu)
+        # DEBUG
+        with open("odom_accel_log.json", 'a') as out:
+            out.write('{"accel_x_g": ' + str(self.imu.accel.accel_x / 9.8) + '},\n')
 
     def _constructFilter(self):
         '''
@@ -254,6 +257,7 @@ class SensorFusion:
 
                 z = None
                 H = None
+                # vel = {"north": np.asscalar(self.filter.x[1]), "east": np.asscalar(self.filter.x[3])}
                 if pos is not None:
                     pos_meters = {}
                     pos_meters["long"] = long2meters(pos["long"], pos["lat"],
@@ -275,6 +279,7 @@ class SensorFusion:
                         z = np.array([0, vel["north"], 0, vel["east"]])
                         H = np.diag([0, 1, 0, 1])
                 self.filter.update(z, H=H)
+                print(self.filter.x)
 
                 self.state_estimate.updateFromLKF(self.filter.x)
                 if bearing is not None:

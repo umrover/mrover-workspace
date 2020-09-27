@@ -340,9 +340,15 @@ class Imu(Sensor):
             self.mag.update(new_imu)
 
             if hasattr(new_imu, "roll_rad"):
-                self.roll_deg = np.degrees(new_imu.roll_rad)
-                self.pitch_deg = np.degrees(new_imu.pitch_rad)
-                self.yaw_deg = np.degrees(new_imu.yaw_rad)
+                if np.isnan(new_imu.roll_rad):
+                    print("IMU RPY NaN, setting to zero")
+                    self.roll_deg = 0
+                    self.pitch_deg = 0
+                    self.yaw_deg = 0
+                else:
+                    self.roll_deg = np.degrees(new_imu.roll_rad)
+                    self.pitch_deg = np.degrees(new_imu.pitch_rad)
+                    self.yaw_deg = np.degrees(new_imu.yaw_rad)
             else:
                 raise AttributeError("No roll/pitch/yaw attributes found")
             self.fresh = True
