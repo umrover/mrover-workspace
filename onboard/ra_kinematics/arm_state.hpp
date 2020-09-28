@@ -154,6 +154,8 @@ public:
 
     void set_joint_torque(string joint, Vector3d torque);
 
+    Vector3d get_link_point_world(string link);
+
 };
 
 #endif
