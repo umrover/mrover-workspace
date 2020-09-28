@@ -39,8 +39,10 @@ private:
 
         string name;
         double angle;
+        double mass;
         Vector3d pos_world;
         Matrix4d global_transform;
+        string child_link;
         Vector3d torque;
         Vector3d pos_local;
         Vector3d local_center_of_mass;
@@ -75,8 +77,6 @@ private:
         double radius;
     };
 
-    map<string, Joint *> joints;
-    map<string, Link *> links;
     vector<string> joint_names;
 
     vector<Avoidance_Link *> collision_avoidance_links; // could make this an array
@@ -96,6 +96,8 @@ private:
 
 public:
     json joints_json, links_json;
+    map<string, Joint *> joints;
+    map<string, Link *> links;
     ArmState(json &geom);
     
     ~ArmState();
@@ -130,6 +132,8 @@ public:
 
     Vector3d get_ef_pos_world();
 
+    void set_ef_pos_world(Vector3d ef_pos);
+
     Vector6d get_ef_pos_and_euler_angles();
 
     map<string, double> get_joint_angles();
@@ -143,6 +147,14 @@ public:
     bool obstacle_free();
 
     int num_joints();
+
+    string get_child_link(string joint);
+
+    Vector3d get_joint_torque(string joint);
+
+    void set_joint_torque(string joint, Vector3d torque);
+
+    Vector3d get_link_point_world(string link);
 
 };
 

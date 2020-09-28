@@ -34,6 +34,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
 ArmState::~ArmState() {
     delete_joints();
 }
+
 // Tested in joint_creation_test
 void ArmState::add_joint(string name, json &joint_geom) {
     // Add joint with given configuration to map of joints - used during initialization
@@ -67,14 +68,19 @@ Vector3d ArmState::get_joint_axis(string joint) {
 
 Vector3d ArmState::get_joint_com(string joint) {
     // Return center of mass of specific link relative to the joint origin
-    return joints[joint]->local_center_of_mass;
+    Matrix4d transform = get_joint_transform(joint);
+    Matrix4d translation = Matrix4d::Identity();
+    translation.block(0,3,3,1) = joints[joint]->local_center_of_mass;
+    Matrix4d output = transform*translation;
+    Vector3d out_vec(output(0,3), output(1,3), output(2,3));
+    return out_vec;
 }
 
 double ArmState::get_joint_mass(string joint) {
-    cout << "joint mass for joint: " << joint << "\n";
-    cout << "end effector position: \n" << ef_pos_world << "\n";
+    // cout << "joint mass for joint: " << joint << "\n";
+    // cout << "end effector position: \n" << ef_pos_world << "\n";
     // TODO: Consider adding mass to the joint struct?
-    return 0;
+    return joints[joint]->mass;
 }
 
 map<string, double> ArmState::get_joint_limits(string joint) {
@@ -211,4 +217,28 @@ bool ArmState::obstacle_free() {
 // Used for testing ArmState functions
 int ArmState::num_joints() {
     return joints.size();
+}
+
+string ArmState::get_child_link(string joint){
+    return joints[joint]->child_link;
+}
+
+void ArmState::set_ef_pos_world(Vector3d ef_pos){
+    ef_pos_world = ef_pos;
+}
+
+Vector3d ArmState::get_joint_torque(string joint){
+    return joints[joint]->torque;
+}
+
+void ArmState::set_joint_torque(string joint, Vector3d torque){
+    joints[joint]->torque = torque;
+}
+
+Vector3d ArmState::get_link_point_world(string link){
+    Vector3d link_point_world;
+    link_point_world(0) = links[link]->global_transform(0,3);
+    link_point_world(1) = links[link]->global_transform(1,3);
+    link_point_world(2) = links[link]->global_transform(2,3);
+    return link_point_world;
 }

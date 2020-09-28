@@ -33,7 +33,7 @@ public:
 
     KinematicsSolver(ArmState robot_state_in);
 
-    void FK(ArmState &robot_state);
+    Vector3d FK(ArmState &robot_state);
 
     Matrix4d apply_joint_xform(string joint, double theta);
 
@@ -41,9 +41,22 @@ public:
 
     void IK_step(Vector6d d_ef, bool use_euler_angles);
 
+    pair<Vector3d, bool> IK_delta(Vector6d delta, int iterations);
+
+
+    /**
+     * @param angles the set of angles for a theoretical arm position
+     * @return true if all angles are within bounds and don't cause collisions
+     * */
     bool is_safe(vector<double> angles);
 
-    bool limit_check(vector<double> angles);
+    /**
+     * called by is_safe to check that angles are within bounds
+     * @param angles the set of angles for a theoretical arm position
+     * @param joints the set of joint names on the current MRover arm
+     * @return true if all angles are within bounds
+     * */
+    bool limit_check(const vector<double> &angles, const vector<string> &joints);
 
 };
 
