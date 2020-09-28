@@ -3,7 +3,6 @@
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
 #include <thread>
-#include <ctime>
 
 using namespace cv;
 using namespace std;
@@ -42,6 +41,23 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
   return true;
 }
 
+#if OBSTACLE_DETECTION
+//Creates a PCL Visualizer
+shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer(pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr cloud) {
+    // Open 3D viewer and add point cloud
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer(
+      new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer")); //This is a smart pointer so no need to worry ab deleteing it
+    viewer->setBackgroundColor(0.12, 0.12, 0.12);
+    pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
+    viewer->addPointCloud<pcl::PointXYZRGB>(cloud, rgb);
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1.5);
+    viewer->addCoordinateSystem(1.0);
+    viewer->initCameraParameters();
+    viewer->setCameraPosition(0,0,-800,0,-1,0);
+    return (viewer);
+}
+#endif
+
 static string rgb_foldername, depth_foldername;
 void disk_record_init() {
   #if WRITE_CURR_FRAME_TO_DISK
@@ -75,7 +91,6 @@ int main() {
   int j = 0;
   int counter_fail = 0;
   #if PERCEPTION_DEBUG
-    namedWindow("Obstacle");
     namedWindow("depth", 2);
   #endif
   disk_record_init();
@@ -91,7 +106,6 @@ int main() {
   Mat rgb;
   Mat src = cam.image();
   
-
   #if AR_RECORD
   //initializing ar tag videostream object
   
@@ -99,33 +113,13 @@ int main() {
   tp = d1.findARTags(src, depth_img, rgb);
   Size fsize = rgb.size();
   
-  string s = "artag_number_" + timeStamp + ".avi";
+  string s = "artag_" + timeStamp + ".avi";
 
   VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
 
   if(vidWrite.isOpened() == false)
   {
-	  cerr << "ar record didn't open\n";
-	  exit(1);
-  }
-  #endif
-
-  #if OBS_RECORD
- //initializing obstacle detection
-  src = cam.image();
-  Mat bigD = cam.depth();
-  float pw = src.cols;
-  int roverpw = calcRoverPix(distThreshold, pw);
-
-  obstacle_return od = avoid_obstacle_sliding_window(bigD, src, num_sliding_windows, roverpw);
-  Size fs = src.size();
-  string name = "obs_number_" + timeStamp + ".avi";
-
-  VideoWriter vidWriteObs(name, VideoWriter::fourcc('M','J','P','G'),10,fs,true);
-
-  if(vidWriteObs.isOpened() == false)
-  {
-	  cerr << " osbtacle record didn't open\n";
+	  cout << "didn't open";
 	  exit(1);
   }
   #endif
@@ -145,17 +139,23 @@ int main() {
   int left_tag_buffer = 0;
   int right_tag_buffer = 0;
 
+  #if OBSTACLE_DETECTION
+  /* --- Dynamically Allocate Point Cloud --- */
+  sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>); //This is a smart pointer so no need to worry ab deleteing it
+ 
   #if PERCEPTION_DEBUG
-    //Make trackbars
-    int thresh1 = 300000;
-    int thresh2 = 70000;
-    createTrackbar("Main Window", "Obstacle", &thresh1, 500000);
-    createTrackbar("Sub Window", "Obstacle", &thresh2, 120000);
+    //Create PCL Visualizer
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer = createRGBVisualizer(point_cloud_ptr); //This is a smart pointer so no need to worry ab deleteing it
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = createRGBVisualizer(point_cloud_ptr);
+  #endif
+
   #endif
   
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
 
+    //Grab initial images from cameras
     Mat rgb;
     Mat src = cam.image();
     Mat depth_img = cam.depth();
@@ -188,9 +188,8 @@ int main() {
           arTags[0].id = -1;
         }
       } else { //one tag found
-        if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x))){
+        if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
           arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
-        }
         arTags[0].bearing = getAngle((int)tagPair.first.loc.x, src.cols);
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
@@ -213,49 +212,66 @@ int main() {
         right_tag_buffer = 0;
       }
 
-
     #endif
 
-
-
-    /*initialize obstacle detection*/
-    obstacleMessage.detected = false;
+    /* -- Run PCL Stuff --- */
     #if OBSTACLE_DETECTION
-      float pixelWidth = src.cols;
-      int roverPixWidth = calcRoverPix(distThreshold, pixelWidth);
-      
-      /* obstacle detection */
-      obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
-      #if OBS_RECORD
-      vidWriteObs.write(src);
-      #endif
 
-      if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
-        // cout<< "bearing not zero!\n";
-        obstacleMessage.detected = true;    //if an obstacle is detected in front
-        obstacleMessage.distance = obstacle_detection.center_distance; //update LCM distance field
-      }
-      obstacleMessage.bearing = obstacle_detection.bearing;
+    //Update Point Cloud
+    point_cloud_ptr->clear();
+    point_cloud_ptr->points.resize(cloud_res.area());
+    point_cloud_ptr->width = PT_CLOUD_WIDTH;
+    point_cloud_ptr->height = PT_CLOUD_HEIGHT;
+    
+    cam.getDataCloud(point_cloud_ptr);
 
+    #if PERCEPTION_DEBUG
+    //Update Original 3D Viewer
+    viewer_original->updatePointCloud(point_cloud_ptr);
+    viewer_original->spinOnce(10);
+    cerr<<"Original W: " <<point_cloud_ptr->width<<" Original H: "<<point_cloud_ptr->height<<endl;
     #endif
 
+    //Run Obstacle Detection
+    obstacle_return obstacle_detection = pcl_obstacle_detection(point_cloud_ptr, viewer);  
+    if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
+        obstacleMessage.detected = true;    //if an obstacle is detected in front
+        obstacleMessage.distance = obstacle_detection.distance; //update LCM distance field
+    }
+    else 
+      obstacleMessage.detected = false;
+
+    obstacleMessage.bearing = obstacle_detection.bearing;
+
+    #if PERCEPTION_DEBUG
+    //Update Processed 3D Viewer
+    viewer->updatePointCloud(point_cloud_ptr);
+    viewer->spinOnce(20);
+    cerr<<"Downsampled W: " <<point_cloud_ptr->width<<" Downsampled H: "<<point_cloud_ptr->height<<endl;
+    #endif
+    
+    #endif
+    
+    /* --- Publish LCMs --- */
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
     #if PERCEPTION_DEBUG
       imshow("depth", depth_img);
-      imshow("Obstacle", src);
-      updateThresholds(thresh1,thresh2);
       waitKey(FRAME_WAITKEY);
     #endif
 
     j++;
   }
+  #if OBSTACLE_DETECTION
+  #if PERCEPTION_DEBUG
+  viewer->close();
+  #endif
+  #endif
+  
   #if AR_RECORD
   vidWrite.release();
   #endif
-  #if OBS_RECORD
-  vidWriteObs.release();
-  #endif
   return 0;
 }
+
