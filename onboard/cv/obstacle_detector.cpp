@@ -2,9 +2,19 @@
 using namespace cv;
 using namespace std;
 
+//Global Variables 
+int THRESHOLD_NO_OBSTACLE_CENTER = 300000;
+int THRESHOLD_NO_SUBWINDOW = 70000;
 // record the last direction
 static int last_center;
 Rect cropped = Rect( 20, SKY_START_ROW, 1240, 300 ); // (x, y, width, height) 
+
+void updateThresholds(int in1, int in2)
+{
+  THRESHOLD_NO_OBSTACLE_CENTER = in1;
+  THRESHOLD_NO_SUBWINDOW = in2;
+}
+
 
 bool check_divided_window(Mat & rgb_img, int num_splits, Mat & mean_row_vec, int start_col, int end_col){
   int split_size = (end_col - start_col)/num_splits;
@@ -19,6 +29,11 @@ bool check_divided_window(Mat & rgb_img, int num_splits, Mat & mean_row_vec, int
         putText(rgb_img, "Obstacle Detected", Point( start_col, SKY_START_ROW), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(50, 50, 255), 2);
         rectangle(rgb_img, Point( start_col, SKY_START_ROW), Point( start_col+split_size, RESOLUTION_HEIGHT), Scalar(50, 50, 255), 3);
       #endif
+      #if OBS_RECORD
+        putText(rgb_img, "Obstacle Detected", Point( start_col, SKY_START_ROW), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(50, 50, 255), 2);
+        rectangle(rgb_img, Point( start_col, SKY_START_ROW), Point( start_col+split_size, RESOLUTION_HEIGHT), Scalar(50, 50, 255), 3);
+      #endif
+      
         return false;
     }
     start_col+=split_size;  //update the start col
@@ -48,11 +63,17 @@ obstacle_return scan_middle(Mat & rgb_img, float center_point_depth,  int rover_
       rectangle(rgb_img, Point( center_start_col, SKY_START_ROW), Point( center_start_col+rover_width-1, RESOLUTION_HEIGHT), Scalar(0, 255, 0), 3);
       //cout<<"No turn: center window sub_col sum is "<<middle_sum<<endl;
       #endif
+      #if OBS_RECORD
+      putText(rgb_img, "Path Clear", Point( center_start_col+5, SKY_START_ROW+50), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 255, 0), 2);
+      rectangle(rgb_img, Point( center_start_col, SKY_START_ROW), Point( center_start_col+rover_width-1, RESOLUTION_HEIGHT), Scalar(0, 255, 0), 3);
+      #endif
       noTurn.bearing = 0;
     }
   }else{
+    #if OBS_RECORD
     putText(rgb_img, "Center Path Obstructed", Point( center_start_col+5, SKY_START_ROW+50), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 255), 2);
     rectangle(rgb_img, Point( center_start_col, SKY_START_ROW), Point( center_start_col+rover_width-1, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
+    #endif
   }
 
 
@@ -86,7 +107,8 @@ pair<int, float> get_final_col(vector<pair<int, float> > & sorted_sums, float mi
     // go straight if each direction has similar value
     return make_pair(-1, middle_sum);
 
-  } else {
+  } 
+  
     // otherwise, return the one that is cloesest with last time
     int smallest_diff = abs(last_center - (sorted_sums[0].first));
     pair<int, float> smallest_dist_pair = sorted_sums[0];
@@ -98,7 +120,6 @@ pair<int, float> get_final_col(vector<pair<int, float> > & sorted_sums, float mi
       }
     }
     return smallest_dist_pair;
-  }
 
 }
 
@@ -110,6 +131,12 @@ obstacle_return refine_rt(obstacle_return rt_val, pair<int, float> candidate, Si
 
   if (max_sum_sw > THRESHOLD_NO_WAY) {
     #if PERCEPTION_DEBUG
+      //cout<<"max_sum_sw "<<max_sum_sw<<", col start at "<<final_start_col<<endl;
+      putText(rgb_img, "New Clear Path", Point( final_start_col, SKY_START_ROW-60), CV_FONT_HERSHEY_SIMPLEX, 1, cvScalar(255, 0, 0), 2);
+      rectangle(rgb_img, Point( final_start_col, SKY_START_ROW), Point( final_start_col+rover_width, RESOLUTION_HEIGHT), Scalar(255, 0, 0), 3);
+    #endif
+
+    #if OBS_RECORD
       //cout<<"max_sum_sw "<<max_sum_sw<<", col start at "<<final_start_col<<endl;
       putText(rgb_img, "New Clear Path", Point( final_start_col, SKY_START_ROW-60), CV_FONT_HERSHEY_SIMPLEX, 1, cvScalar(255, 0, 0), 2);
       rectangle(rgb_img, Point( final_start_col, SKY_START_ROW), Point( final_start_col+rover_width, RESOLUTION_HEIGHT), Scalar(255, 0, 0), 3);
@@ -188,6 +215,12 @@ obstacle_return avoid_obstacle_sliding_window(Mat &depth_img_src, Mat &rgb_img, 
   pair<int, float> final_window = get_final_col(sums, middle_sum); //may add split window check
   if (final_window.first == -1) {
     #if PERCEPTION_DEBUG
+      //cout<<"max_sum_sw "<<final_window.second<<" at center\n";
+      putText(rgb_img, "No Clear Path", Point( size.width / 2 - rover_width/2, SKY_START_ROW-60), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 255), 2);
+      rectangle(rgb_img, Point( size.width / 2 - rover_width/2, SKY_START_ROW), Point( size.width/2 + rover_width/2, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
+    #endif
+
+    #if OBS_RECORD
       //cout<<"max_sum_sw "<<final_window.second<<" at center\n";
       putText(rgb_img, "No Clear Path", Point( size.width / 2 - rover_width/2, SKY_START_ROW-60), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 255), 2);
       rectangle(rgb_img, Point( size.width / 2 - rover_width/2, SKY_START_ROW), Point( size.width/2 + rover_width/2, RESOLUTION_HEIGHT), Scalar(0, 0, 255), 3);
