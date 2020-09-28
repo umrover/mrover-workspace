@@ -6,7 +6,7 @@ bus = smbus.SMBus(2)
 I2C_MUX_ADDRESS = 0x70
 MUX_READ_WRITE_REG = 0xCC  # filler address
 DEVICE_SLAVE_ADDRESS = 0x49
-ADDRESSES = {'t': 0x1, 'b': 0x2, 'y': 0x4, 'w': 0x8}
+ADDRESSES = {'t': 0x8, 'b': 0x2, 'y': 0x4, 'w': 0x1}
 # ADDRESSES = {'triad': 0x1, 'single_0': 0x2}
 
 
@@ -19,7 +19,7 @@ def write(channel):
 
 
 def enable():
-    for (key, value) in ADDRESSES.items():
+    for (_, value) in ADDRESSES.items():
         write(value)
         spectral.enable_spectral()
 
