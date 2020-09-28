@@ -112,11 +112,54 @@ pair<vector<double>, bool> KinematicsSolver::IK() {}
 
 void KinematicsSolver::IK_step(Vector6d d_ef, bool use_euler_angles) {
 
-    // TODO vector<string> links = robot_ik.get_all_links()??
+    // may cause issue creating a type that refers to private member Link
+    auto links = robot_ik.links;
     vector<string> joints = robot_ik.get_all_joints();
-    // TODO other declarations
+    Vector6d ef_world = robot_ik.get_ef_pos_and_euler_angles();
     Vector3d ef_pos_world = robot_ik.get_ef_pos_world();
+    Vector3d ef_euler_world(ef_world(3), ef_world(4), ef_world(5));
 
+    MatrixXd jacobian(6, 6);
+    jacobian.setZero();
+
+    for (int i = 0; i < joints.size(); ++i) {
+
+        if (e_locked && joints[i] == "joint_e") {
+            jacobian(0, i) = 0;
+            jacobian(1, i) = 0;
+            jacobian(2, i) = 0;
+            jacobian(3, i) = 0;
+            jacobian(4, i) = 0;
+            jacobian(5, i) = 0;
+        }
+        else {
+            Vector3d rot_axis_local = robot_ik.get_joint_axis(joints[i]);
+            Matrix4d joint_xform = robot_ik.get_joint_transform(joints[i]);
+            Vector3d joint_pos_world = robot_ik.get_joint_pos_world(robot_ik.get_child_link(joints[i]));
+
+            Vector3d rot_axis_world = apply_transformation(joint_xform, rot_axis_local);
+
+            Vector3d joint_to_ef_vec_world = ef_pos_world - joint_pos_world;
+
+            Transpose<Vector3d> joint_col_xyz = (rot_axis_world.cross(joint_to_ef_vec_world)).transpose();
+
+            if (use_euler_angles) {
+                Matrix4d n_xform = apply_joint_xform(joints[i], delta_theta);
+
+                Vector3d euler_angles = compute_euler_angles(n_xform);
+
+                Vector3d diff_angs = euler_angles - ef_euler_world;
+                Vector3d delta_angs = diff_angs / delta_theta;
+
+                joint_col_xyz = joint_col_xyz.transpose();
+
+                Transpose<Vector3d> joint_col_euler = delta_angs.transpose();
+
+                // TODO start with append (and declare joint_col)
+
+            }
+        }
+    }
 }
 
 bool KinematicsSolver::is_safe(vector<double> angles) {
@@ -124,9 +167,7 @@ bool KinematicsSolver::is_safe(vector<double> angles) {
     
     // if any angles are outside bounds
     // TODO check if we need to run FK before returning, regardless of limit_check
-    if (!limit_check(angles, joints)) {
-        return false;
-    }
+    bool limit = limit_check(angles, joints);
     
     // TODO check if we need to exclude joint f from angles
     /*for (int i = 0; i < joints.size(); ++i) {
