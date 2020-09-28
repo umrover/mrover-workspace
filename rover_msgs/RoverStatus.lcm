@@ -1,0 +1,12 @@
+package rover_msgs;
+
+struct RoverStatus {
+
+    const int8_t CRITICAL = 0; //Requires operator action. Provide basic recovery steps in <message>
+    const int8_t WARNING = 1; //Requires operator attention. Program should attempt self recovery
+    const int8_t DEBUG = 2; //Basic, useful information. No action necessary
+
+    int8_t priority; //Set this to RoverStatus.CRITICAL, .WARNING, or .DEBUG
+    string source; //The name of the program sending the message, e.g. "jetson/teleop"
+    string message; //The message.
+}
