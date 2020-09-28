@@ -4,12 +4,12 @@ Code for the AS7265x Spectral Triad Sensor and for the AS7263 Single Spectral Se
 This is the code for running the AS7265x spectral traid sensor and three AS7263 single spectral sensors that are muxed to a TCA9548A i2c switch multiplex sensor. Upon receiving an LCM command it will output the channel readings of the specified spectral sensor. The triad will output data for 18 channels, each single sensor will output data for 6 channels and 0s for the rest.  
 
 #### LCM Channels Publishing/Subscribed To 
-Spectral Data [publisher] \
+**Spectral Data [publisher]** \
 Messages: [SpectralData.lcm](https://github.com/cgiger00/mrover-workspace/blob/spectral/rover_msgs/SpectralData.lcm) "/spectral_data_publish" \
 Publishers: beaglebone/spectral \
 Subscribers: base_station/gui
 
-Spectral Command [subscriber] \
+**Spectral Command [subscriber]** \
 Messages: [SpectralCmd.lcm](https://github.com/cgiger00/mrover-workspace/blob/spectral/rover_msgs/SpectralCmd.lcm) "/spectral_cmd" \
 Publishers: base_station/gui \
 Subscribers: beaglebone/spectral 
