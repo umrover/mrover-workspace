@@ -103,7 +103,8 @@ public:
             int32_t angle;
             transact(OPEN_PLUS, POINTER(&throttle), POINTER(&angle));
 
-            recordAngle(angle);
+            printf("%x : %i\n",address, angle);
+	    recordAngle(angle);
 
         }
         catch (IOFailure &e) { printf("open loop failed on %x\n", address); }
