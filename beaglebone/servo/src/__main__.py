@@ -7,14 +7,14 @@ from rover_msgs import ServoCmd
 SERVO_MAX_DC = 10.0
 SERVO_MIN_DC = 4.0
 
-ammonia_blue  = "P9_14"
+ammonia_blue = "P9_14"
 amino_blue = "P9_16"
 
 ammonia_white = "P8_13"
 amino_white = "P8_19"
 
 ammonia_yellow = "P9_21"
-amino_white = "P9_22"
+amino_yellow = "P9_22"
 
 lcm_ = lcm.LCM()
 
