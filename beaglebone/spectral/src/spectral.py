@@ -143,7 +143,7 @@ def spectral_cmd_callback(channel, msg):
 
 def publish_spectral_data():
     if ((virtual_read(0x04) & 0x02) == 2):
-        lcm_.publish('/spectral_data_publish', get_data().encode())
+        lcm_.publish('/spectral_data', get_data().encode())
 
 
 def enableLED():
