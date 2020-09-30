@@ -3,7 +3,9 @@ import lcm
 from . import madgwickahrs as MadgwickAHRS
 from rover_msgs import IMUData
 
-from . import calibration as imu
+from . import imu
+from . import mux
+
 
 # Offsets applied to raw x/y/z mag values
 gyro_offsets = [0, 0, 0]
@@ -22,6 +24,8 @@ def main():
     global lcm_
     lcm_ = lcm.LCM()
     imudata = IMUData()
+
+    mux.enable(0x1)
 
     while not imu.start_up():
             pass
