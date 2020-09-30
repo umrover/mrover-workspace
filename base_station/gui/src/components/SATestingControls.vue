@@ -1,15 +1,13 @@
 <template>
   <div class="wrap">
     <div class="flex">
-      <SASiteControls v-bind:site="1"/>
-    </div>
-    <div class="led-toggles">
-      <Checkbox v-bind:name="'Toggle Backlights'" v-on:toggle="setPart('backlights', $event)"/>
-      <Checkbox v-bind:name="'Toggle UV Lights'" v-on:toggle="setPart('uv_leds', $event)"/>
-      <Checkbox ref="rgb" v-bind:name="'Toggle RGB Sensor Lights'" v-on:toggle="setRGBLeds($event)"/>
+      <SASiteControls v-bind:site="'White'"/>
     </div>
     <div class="flex">
-      <SASiteControls v-bind:site="2"/>
+      <SASiteControls v-bind:site="'Yellow'"/>
+    </div>
+    <div class="flex">
+      <SASiteControls v-bind:site="'Blue'"/>
     </div>
     <div class="flex">
       <button ref="raman" class="button" v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>
