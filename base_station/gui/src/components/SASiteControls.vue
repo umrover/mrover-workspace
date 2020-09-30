@@ -4,9 +4,13 @@
       <h4>{{ site }}</h4>
     </div>
     <div class="horizontal-buttons">
-      <button v-on:click="startTest('Chlorophyll')" :disabled="!enable_tests">Chlorophyll Test</button>
-      <button v-on:click="startTest('Ammonia')" :disabled="!enable_tests">Ammonia Test</button>
-      <button v-on:click="startTest('Amino')" :disabled="!enable_tests">Amino Test</button>
+      <div id="toReplace">
+        <div :is="currentComponent"></div>
+        <div v-show="!currentComponent" v-for="component in componentsArray">
+          <button @click="swapComponent(component)">{{component}} Test</button>
+        </div>
+      </div>
+      <button @click="swapComponent(null)">Close</button>
     </div>
   </div>
 </template>
@@ -43,7 +47,9 @@
     data() {
       return {
         enable_tests: true,
-        degrees: 0.0
+        degrees: 0.0,
+        currentComponent: null,
+        componentsArray: ['Chlorophyll', 'Ammonia', 'Amino']
       }
     },
 
@@ -84,11 +90,70 @@
           'type': 'MicroCam',
           'id': 'camera_' + this.site
         })
+      },
+      swapComponent: function(component)
+      {
+        this.currentComponent = component;
       }
     },
 
     components: {
-      Checkbox
+      Checkbox,
+      'Chlorophyll': {
+        template: '<div><p>Turn off White LEDs</p><button @click="swapComponent(\'WhiteLEDsOff\')">Execute</button></div>',
+        methods: {
+          swapComponent: function(component)
+          {
+            this.$parent.$parent.publish("/mosfet_cmd", {
+              'type': 'MicroCam',
+              'id': 'camera_' + this.site
+            })
+            this.$emit("click", this.$parent.swapComponent(component))
+          }
+        }
+      },
+      'Ammonia': {
+        template: '<p>Ammonia Test</p>'
+      },
+      'Amino': {
+        template: '<p>Amino Test</p>'
+      },
+      'WhiteLEDsOff': {
+        template: '<div><p>Turn on UV LED</p><button @click="swapComponent(\'UVLEDOn\')">Execute</button></div>',
+        methods: {
+          swapComponent: function(component)
+          {
+            this.$emit("click", this.$parent.swapComponent(component))
+          }
+        }
+      },
+      'UVLEDOn': {
+        template: '<div><p>Turn off UV LED</p><button @click="swapComponent(\'UVLEDOff\')">Execute</button></div>',
+        methods: {
+          swapComponent: function(component)
+          {
+            this.$emit("click", this.$parent.swapComponent(component))
+          }
+        }
+      },
+      'UVLEDOff': {
+        template: '<div><p>Turn on White LEDs</p><button @click="swapComponent(\'WhiteLEDsOn\')">Execute</button></div>',
+        methods: {
+          swapComponent: function(component)
+          {
+            this.$emit("click", this.$parent.swapComponent(component))
+          }
+        }
+      },
+      'WhiteLEDsOn': {
+        template: '<div><p>Finish</p><button @click="swapComponent(null)">Execute</button></div>',
+        methods: {
+          swapComponent: function(component)
+          {
+            this.$emit("click", this.$parent.swapComponent(component))
+          }
+        }
+      }
     }
   }
 </script>
