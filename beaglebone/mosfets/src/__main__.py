@@ -3,6 +3,7 @@ from rover_msgs import MosfetCmd
 import lcm
 
 lcm_ = lcm.LCM()
+global out
 
 pins = {
     MosfetCmd.HEAT_W_12V:    "P8_7",
@@ -17,6 +18,7 @@ pins = {
 def mosfet_callback(channel, msg):
     cmd = MosfetCmd.decode(msg)
 
+    global out
     if cmd.enable:
         out = GPIO.HIGH
     else:
@@ -27,7 +29,7 @@ def mosfet_callback(channel, msg):
 
 def main():
     for device in pins:
-        GPIO.setup(pins[device], GPIO.out)
+        GPIO.setup(pins[device], GPIO.OUT)
 
     lcm_.subscribe("/mosfet_cmd", mosfet_callback)
 
