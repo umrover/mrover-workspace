@@ -1,11 +1,13 @@
 #include "camera.hpp"
 #include "perception.hpp"
 
+#if OBSTACLE_DETECTION
+  #include <pcl/common/common_headers.h>
+#endif
+
 #if ZED_SDK_PRESENT
 
-#pragma GCC diagnostic ignored "-Wreorder" 
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#pragma GCC diagnostic ignored "-Wcpp" //Turns off warning checking for sl lib files
+#pragma GCC diagnostic ignored "-Wreorder" //Turns off warning checking for sl lib files
 
 #include <sl/Camera.hpp>
 #include <cassert>
@@ -19,12 +21,17 @@
 class Camera::Impl {
 public:
 	Impl();
-    ~Impl();
+  ~Impl();
 	bool grab();
-	//void deleteZed();
 
 	cv::Mat image();
 	cv::Mat depth();
+
+  void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
+  #if OBSTACLE_DETECTION
+  
+  #endif
+  
 private:
 	sl::RuntimeParameters runtime_params_;
 	sl::Resolution image_size_;
@@ -56,7 +63,7 @@ Camera::Impl::Impl() {
 	std::cout<<"ZED init success\n";
 	this->runtime_params_.sensing_mode = sl::SENSING_MODE::STANDARD;
 
-	this->image_size_ = this->zed_.Camera::getCameraInformation().camera_resolution;
+	this->image_size_ = this->zed_.getCameraInformation().camera_resolution;
 	this->image_zed_.alloc(this->image_size_.width, this->image_size_.height,
 						   sl::MAT_TYPE::U8_C4);
 	this->image_ = cv::Mat(
@@ -85,14 +92,50 @@ cv::Mat Camera::Impl::depth() {
 	return this->depth_;
 }
 
+//This function convert a RGBA color packed into a packed RGBA PCL compatible format
+inline float convertColor(float colorIn) {
+    uint32_t color_uint = *(uint32_t *) & colorIn;
+    unsigned char *color_uchar = (unsigned char *) &color_uint;
+    color_uint = ((uint32_t) color_uchar[0] << 16 | (uint32_t) color_uchar[1] << 8 | (uint32_t) color_uchar[2]);
+    return *reinterpret_cast<float *> (&color_uint);
+}
+
+#if OBSTACLE_DETECTION
+void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & p_pcl_point_cloud) {
+  //Might need an overloaded assignment operator
+  
+  //Grab ZED Depth Image
+  sl::Resolution cloud_res(p_pcl_point_cloud->width, p_pcl_point_cloud->height);
+  sl::Mat data_cloud;
+  this->zed_.retrieveMeasure(data_cloud, sl::MEASURE::XYZRGBA, sl::MEM::CPU, cloud_res);
+  
+  //Populate Point Cloud
+  float *p_data_cloud = data_cloud.getPtr<float>();
+  int index = 0;
+  for (auto &it : p_pcl_point_cloud->points) {
+    float X = p_data_cloud[index];
+    if (!isValidMeasure(X)) // Checking if it's a valid point
+        it.x = it.y = it.z = it.rgb = 0;
+    else {
+        it.x = X;
+        it.y = p_data_cloud[index + 1];
+        it.z = p_data_cloud[index + 2];
+        it.rgb = convertColor(p_data_cloud[index + 3]); // Convert a 32bits float into a pcl .rgb format
+    }
+    index += 4;
+  }
+
+} 
+#endif
+
 Camera::Impl::~Impl() {
+  this->depth_zed_.free(sl::MEM::CPU);
+  this->image_zed_.free(sl::MEM::CPU);
 	this->zed_.close();
 
 }
 
-/*void Camera::Impl::deleteZed(){
-	delete this;
-}*/
+
 #else //if OFFLINE_TEST
 #include <sys/types.h>
 #include <dirent.h>
@@ -212,3 +255,8 @@ cv::Mat Camera::image() {
 cv::Mat Camera::depth() {
 	return this->impl_->depth();
 }
+#if OBSTACLE_DETECTION
+void Camera::getDataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud) {
+  this->impl_->dataCloud(p_pcl_point_cloud);
+}
+#endif
