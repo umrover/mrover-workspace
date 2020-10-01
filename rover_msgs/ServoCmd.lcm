@@ -1,6 +1,6 @@
 package rover_msgs;
 
 struct ServoCmd {
-	string id;
+	string id; // <test>_<color>
 	double position; //degrees
 }
