@@ -198,6 +198,7 @@ Camera::Camera() : impl_(new Camera::Impl) {
 }
 
 Camera::~Camera() {
+  vidWrite.release();
 	delete this->impl_;
 }
 
@@ -212,3 +213,33 @@ cv::Mat Camera::image() {
 cv::Mat Camera::depth() {
 	return this->impl_->depth();
 }
+
+Camera::record_ar_init() {
+  //initializing ar tag videostream object
+  
+  Mat depth_img = depth();
+  Mat rgb;
+  Mat src = image();
+
+  tp = d1.findARTags(src, depth_img, rgb);
+  Size fsize = rgb.size();
+  
+  time_t now = time(0);
+  char* ltm = ctime(&now);
+  string timeStamp(ltm);
+
+  string s = "artag_number_" + timeStamp + ".avi";
+
+  VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
+
+  if(vidWrite.isOpened() == false)
+  {
+	  cerr << "ar record didn't open\n";
+	  exit(1);
+  }
+}
+
+Camera::record_ar(Mat rgb) {
+  vidWrite.write(rgb);
+}
+

@@ -80,34 +80,17 @@ int main() {
   #endif
   disk_record_init();
 
-  //Video Stuff
-  TagDetector d1;
-  pair<Tag, Tag> tp;
 
   //Create time value
   time_t now = time(0);
   char* ltm = ctime(&now);
   string timeStamp(ltm);
-  Mat rgb;
   Mat src = cam.image();
   
 
   #if AR_RECORD
   //initializing ar tag videostream object
-  
-  Mat depth_img = cam.depth();
-  tp = d1.findARTags(src, depth_img, rgb);
-  Size fsize = rgb.size();
-  
-  string s = "artag_number_" + timeStamp + ".avi";
-
-  VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
-
-  if(vidWrite.isOpened() == false)
-  {
-	  cerr << "ar record didn't open\n";
-	  exit(1);
-  }
+    cam.record_ar_init();
   #endif
 
   #if OBS_RECORD
@@ -175,7 +158,7 @@ int main() {
     #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
-      vidWrite.write(rgb);
+        camera.record_ar(rgb);
       #endif
       //update both tags in LCM message
       //first tag
@@ -252,7 +235,7 @@ int main() {
     j++;
   }
   #if AR_RECORD
-  vidWrite.release();
+  camera.record_ar_finish();
   #endif
   #if OBS_RECORD
   vidWriteObs.release();

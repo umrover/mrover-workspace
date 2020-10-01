@@ -15,6 +15,14 @@ public:
 	cv::Mat image();
 	cv::Mat depth();
 
+	void record_ar_init();
+	void record_ar(Mat rgb);
+
 private:
 	Impl *impl_;
+
+  	//Video Stuff
+  	pair<Tag, Tag> tp;
+  	TagDetector d1;
+
 };
