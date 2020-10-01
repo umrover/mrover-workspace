@@ -135,7 +135,7 @@
             this.$parent.$parent.$parent.publish("/mosfet_cmd", {
               'type': 'MosfetCmd',
               'device': 1,
-              'enable': true
+              'enable': false
             })
             this.$emit("click", this.$parent.swapComponent(component))
           }
@@ -162,14 +162,15 @@
              this.$parent.$parent.$parent.publish('/servo_cmd', {
                 'type': 'ServoCmd',
                 'id': 'ammonia_' + this.$parent.site,
-                'degree': 0
+                'position': 0
              }),
              setTimeout(() => {
                this.$parent.$parent.$parent.publish('/servo_cmd', {
                  'type': 'ServoCmd',
                  'id': 'ammonia_' + this.$parent.site,
                  'position': 90
-               })
+               },
+               this.$emit("click", this.$parent.swapComponent(component)))
                }, 5000);
             }
         }
@@ -181,7 +182,7 @@
             this.$parent.$parent.$parent.publish("/servo_cmd", {
               'type': 'ServoCmd',
               'id': 'amino_' + this.$parent.site,
-              'degree': 90
+              'position': 90
             })
             var device = 0;
             if (this.$parent.site == 'White') {

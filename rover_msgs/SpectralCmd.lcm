@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct SpectralCmd {
+	string sensor; // t = triad, b = single blue, y = single y, w = single white
+}
