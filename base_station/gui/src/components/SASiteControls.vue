@@ -49,7 +49,27 @@
         enable_tests: true,
         degrees: 0.0,
         currentComponent: null,
-        componentsArray: ['Chlorophyll', 'Ammonia', 'Amino']
+        componentsArray: ['Chlorophyll', 'Ammonia', 'Amino'],
+        spectral_data: {
+          r: 0,
+          g: 0,
+          a: 0,
+          s: 0,
+          h: 0,
+          b: 0,
+          t: 0,
+          i: 0,
+          c: 0,
+          u: 0,
+          j: 0,
+          d: 0,
+          v: 0,
+          k: 0,
+          e: 0,
+          w: 0,
+          l: 0,
+          f: 0
+        }
       }
     },
 
@@ -104,9 +124,10 @@
         methods: {
           swapComponent: function(component)
           {
-            this.$parent.$parent.publish("/mosfet_cmd", {
-              'type': 'MicroCam',
-              'id': 'camera_' + this.site
+            this.$parent.$parent.$parent.publish("/mosfet_cmd", {
+              'type': 'MosfetCmd',
+              'device': 2,
+              'enable': false
             })
             this.$emit("click", this.$parent.swapComponent(component))
           }
@@ -123,6 +144,14 @@
         methods: {
           swapComponent: function(component)
           {
+            this.$parent.$parent.$parent.publish("/mosfet_cmd", {
+              'type': 'MosfetCmd',
+              'device': 1,
+              'enable': true
+            })
+            this.$parent.$parent.$parent.subscribe("/spectral_data", (msg) => {
+              this.spectral_data = msg
+            })
             this.$emit("click", this.$parent.swapComponent(component))
           }
         }
@@ -132,6 +161,11 @@
         methods: {
           swapComponent: function(component)
           {
+            this.$parent.$parent.$parent.publish("/mosfet_cmd", {
+              'type': 'MosfetCmd',
+              'device': 1,
+              'enable': true
+            })
             this.$emit("click", this.$parent.swapComponent(component))
           }
         }
@@ -141,6 +175,11 @@
         methods: {
           swapComponent: function(component)
           {
+            this.$parent.$parent.$parent.publish("/mosfet_cmd", {
+              'type': 'MosfetCmd',
+              'device': 2,
+              'enable': false
+            })
             this.$emit("click", this.$parent.swapComponent(component))
           }
         }
