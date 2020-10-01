@@ -205,6 +205,11 @@
               'device': device,
               'enable': true
             })
+            this.$parent.$parent.$parent.publish("/mosfet_cmd", {
+              'type': 'MosfetCmd',
+              'device': device,
+              'enable': true
+            })
             this.$emit("click", this.$parent.swapComponent(component))
           }
         }
