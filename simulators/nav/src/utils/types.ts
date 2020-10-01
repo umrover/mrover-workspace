@@ -22,6 +22,7 @@ export interface ArTagDrawOptions {
 export interface DebugOptions {
   fieldOfView:FieldOfViewOptions;
   paused:boolean;
+  roverPathVisible:boolean;
   takeStep:boolean;
 }
 
@@ -43,7 +44,8 @@ export enum FieldItemType {
   WAYPOINT,
   OBSTACLE,
   AR_TAG,
-  GATE
+  GATE,
+  REFERENCE_POINT
 }
 
 
@@ -64,6 +66,7 @@ export interface FieldState {
   centerOdom:Odom;
   gates:Gate[];
   obstacles:Obstacle[];
+  referencePoints:Odom[];
   repeaterLoc:Odom|null;
   size:number;
   waypoints:Waypoint[];
@@ -101,9 +104,9 @@ export interface Joystick {
 /* Interface representing the statuses of the various LCM connections of the
    simulator to other rover programs. */
 export interface LCMConnections {
-  auton:boolean;
   lcmBridge:boolean;
   localization:boolean;
+  nav:boolean;
   perception:boolean;
 }
 
@@ -160,6 +163,18 @@ export enum OdomFormat {
 }
 
 
+// /* Data structure storing the information needed to draw the rover's path. */
+// export interface Path {
+//   // fullPath:Point2D[]; /* list of canvas locations */
+//   path:PathSnapshot[]; /* list of sets of 4 canvas locations */
+// }
+
+
+//  Data structure representing a single instance of the path
+// export interface PathSnapshot {
+//   loc:Odom
+// }
+
 /* Interface representing a point in 2D space for use on the canvas and various
    field calculations. */
 export interface Point2D {
@@ -199,20 +214,20 @@ export interface RepeaterConstants {
 }
 
 
+/* Interface representing the constant values used to define the size of the
+   rover. */
+export interface RoverConstants {
+  length:number; /* meters */
+  width:number; /* meters */
+}
+
+
 /* Enum representing the different source locations for measuring distance from
    the rover. This is used in measuring distances from objects like the ZED and
    GPS differently. */
 export enum RoverLocationSource {
   GPS,
   ZED
-}
-
-
-/* Interface representing the constant values used to define the size of the
-   rover. */
-export interface RoverConstants {
-  length:number; /* meters */
-  width:number; /* meters */
 }
 
 
@@ -232,8 +247,8 @@ export interface RoverState {
 /* Interface representing the different settings related to simulating different
    aspects of the environment that can be turned on and off. */
 export interface SimulationSettings {
-  simulateLocalization:boolean;
-  simulatePerception:boolean;
+  simulateLoc:boolean;
+  simulatePercep:boolean;
 }
 
 
@@ -245,6 +260,7 @@ export interface SimulatorState {
   drawOptions:DrawOptions;
   lcmConnections:LCMConnections;
   odomFormat:OdomFormat;
+  path:Odom[];
   simSettings:SimulationSettings;
 }
 
@@ -289,4 +305,21 @@ export interface WaypointDrawOptions {
   gate_width:number; /* associated gate width, meters */
   search:boolean; /* is this is a search point */
   targetId:number; /* associated target id */
+}
+
+
+/* Type representing a set of wheel locations */
+export type WheelLocs = [
+  Point2D, /* front left */
+  Point2D, /* front right */
+  Point2D, /* back left */
+  Point2D  /* back right */
+];
+
+/* Enum representing the wheel positions */
+export enum WheelPositions {
+  FrontLeft,
+  FrontRight,
+  BackLeft,
+  BackRight
 }

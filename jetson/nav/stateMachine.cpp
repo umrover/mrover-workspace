@@ -99,9 +99,9 @@ void StateMachine::updateObstacleElements( double bearing, double distance )
 // Will call the corresponding function based on the current state.
 void StateMachine::run()
 {
+    publishNavState();
     if( isRoverReady() )
     {
-        publishNavState();
         mStateChanged = false;
         NavState nextState = NavState::Unknown;
 
@@ -109,7 +109,6 @@ void StateMachine::run()
         {
             nextState = NavState::Off;
             mPhoebe->roverStatus().currentState() = executeOff(); // turn off immediately
-            publishNavState();
             clear( mPhoebe->roverStatus().path() );
             if( nextState != mPhoebe->roverStatus().currentState() )
             {
