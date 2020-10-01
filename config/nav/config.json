@@ -6,6 +6,13 @@
 		"kD": 0.0055
 	},
 
+	"gimbalPid":
+	{
+		"kP":0.0,
+		"kI":0.0,
+		"kD":0.0
+	},
+
 	"distancePid":
 	{
 		"kP": 0.2,
@@ -38,6 +45,12 @@
 	"roverMeasurements":
 	{
 		"width": 1.5
+	},
+
+	"gimbalRange":
+	{
+		"min":0,
+		"max":120
 	},
 
 	"computerVision":
