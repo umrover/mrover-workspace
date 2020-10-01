@@ -22,7 +22,8 @@
     grid-template-rows: 60px 1fr 1fr;
 
     font-family: sans-serif;
-    height: 100%;
+    height: 75%;
+    width: 75%;
   }
 
   .box {
@@ -100,7 +101,7 @@
     components: {
       Checkbox,
       'Chlorophyll': {
-        template: '<div><p>Turn off White LEDs</p><button @click="swapComponent(\'WhiteLEDsOff\')">Execute</button></div>',
+        template: '<div><p>Turn off White LEDs</p><button id="execute" @click="swapComponent(\'WhiteLEDsOff\')">Execute</button></div>',
         methods: {
           swapComponent: function(component)
           {
@@ -109,12 +110,24 @@
               'device': 2,
               'enable': false
             })
+            var site_letter = 'b';
+            if (this.$parent.site == "White") {
+              site_letter = 'w';
+            }
+            else if (this.$parent.site == "Yellow") {
+              site_letter = 'y';
+            }
+            // alert(site_letter);
+            this.$parent.$parent.$parent.publish("/spectral_cmd", {
+              'type': 'SpectralCmd',
+              'sensor': site_letter
+            })
             this.$emit("click", this.$parent.swapComponent(component))
           }
         }
       },
       'WhiteLEDsOff': {
-        template: '<div><p>Turn on UV LED</p><button @click="swapComponent(\'UVLEDOn\')">Execute</button></div>',
+        template: '<div><p>Turn on UV LED</p><button id="execute" @click="swapComponent(\'UVLEDOn\')">Execute</button></div>',
         methods: {
           swapComponent: function(component)
           {
@@ -128,7 +141,7 @@
         }
       },
       'UVLEDOn': {
-        template: '<div><p>Turn off UV LED</p><button @click="swapComponent(\'UVLEDOff\')">Execute</button></div>',
+        template: '<div><p>Turn off UV LED</p><button id="execute" @click="swapComponent(\'UVLEDOff\')">Execute</button></div>',
         methods: {
           swapComponent: function(component)
           {
@@ -142,23 +155,24 @@
         }
       },
       'UVLEDOff': {
-        template: '<div><p>Turn on White LEDs</p><button @click="swapComponent(null)">Execute</button></div>',
+        template: '<div><p>Turn on White LEDs</p><button id="execute" @click="swapComponent(null)">Execute</button></div>',
         methods: {
           swapComponent: function(component)
           {
             this.$parent.$parent.$parent.publish("/mosfet_cmd", {
               'type': 'MosfetCmd',
               'device': 2,
-              'enable': false
+              'enable': true
             })
             this.$emit("click", this.$parent.swapComponent(component))
           }
         }
       },
       'Ammonia': {
-        template: '<div><p>Run Ammonia Servo Script</p><button @click="swapComponent(null)">Execute</button></div>',
+        template: '<div><p>Run Ammonia Servo Script</p><button id="execute" @click="swapComponent(null)">Execute</button></div>',
         methods: {
            swapComponent: function(component) {
+             document.getElementById("execute").textContent = "Running . . . ";
              this.$parent.$parent.$parent.publish('/servo_cmd', {
                 'type': 'ServoCmd',
                 'id': 'ammonia_' + this.$parent.site,
@@ -176,7 +190,7 @@
         }
       },
       'Amino': {
-        template: '<div><p>Start Amino Test</p><button @click="swapComponent(\'StartAmino\')">Execute</button></div>',
+        template: '<div><p>Start Amino Test</p><button id="execute" @click="swapComponent(\'StartAmino\')">Execute</button></div>',
         methods: {
           swapComponent: function(component) {
             this.$parent.$parent.$parent.publish("/servo_cmd", {
@@ -206,7 +220,7 @@
         }
       },
       'StartAmino': {
-        template: '<div><p>Turn off heating element</p><button @click="swapComponent(null)">Execute</button></div>',
+        template: '<div><p>Turn off heating element</p><button id="execute" @click="swapComponent(null)">Execute</button></div>',
         methods: {
           swapComponent: function(component) {
             var device = 0;

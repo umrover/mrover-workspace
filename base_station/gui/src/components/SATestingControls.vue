@@ -10,18 +10,21 @@
       <SASiteControls v-bind:site="'Blue'"/>
     </div>
     <div class="flex">
+      <div>
       <button ref="raman" class="button" v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>
-      <p>Spectral Data</p>
+      </div>
+      <div style="margin-left: 5px; width: 150px">
+      <p style="margin-bottom: 2px">Spectral Data</p>
       r: {{spectral_data.r}}, g: {{spectral_data.g}}, a: {{spectral_data.a}}<br>
       s: {{spectral_data.s}}, h: {{spectral_data.h}}, b: {{spectral_data.b}}<br>
       t: {{spectral_data.t}}, i: {{spectral_data.i}}, c: {{spectral_data.c}}<br>
       u: {{spectral_data.u}}, j: {{spectral_data.j}}. d: {{spectral_data.d}}<br>
       v: {{spectral_data.v}}, k: {{spectral_data.k}}, e: {{spectral_data.e}}<br>
       w: {{spectral_data.w}}, l: {{spectral_data.l}}, f: {{spectral_data.f}}<br>
-      <div class="flex">
-        <span>
-          Temperature: {{thermistor_data.temperature_C}}&deg;C, thermistor {{thermistor_data.thermistor}}
-        </span>
+      </div>
+      <div>
+        <p>Thermistor: {{thermistor_data.thermistor}}</p>
+          Temperature: {{thermistor_data.temperature_C}}&deg;C<br>
     </div>
     </div>
   </div>
@@ -32,6 +35,7 @@
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
+    /* height: 300px; */
   }
   .box {
     border-radius: 5px;
@@ -42,6 +46,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 200px;
   }
   .led-toggles {
     display: grid;

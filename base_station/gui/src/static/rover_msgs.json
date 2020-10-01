@@ -876,6 +876,18 @@
             "right_back"
         ]
     ],
+    "ThermistorCmd": [
+        [
+            "string",
+            "thermistor"
+        ]
+    ],
+    "SpectralCmd": [
+        [
+            "string",
+            "sensor"
+        ]
+    ],
     "Xbox": [
         [
             "double",
@@ -993,10 +1005,13 @@
         "TargetAngles",
         "TargetPoint",
         "Temperature",
+        "ThermistorCmd",
         "TennisBall",
         "TestEnable",
         "Waypoint",
         "WheelSpeeds",
-        "Xbox"
+        "Xbox",
+        "SpectralData",
+        "SpectralCmd"
     ]
 }
