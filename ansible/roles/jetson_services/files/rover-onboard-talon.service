@@ -1,0 +1,14 @@
+[Unit]
+Description=MRover Onboard Talon Interface
+Requires=can.service
+After=can.service
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jarvis exec jetson_talon
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
