@@ -175,13 +175,13 @@
              document.getElementById("execute").textContent = "Running . . . ";
              this.$parent.$parent.$parent.publish('/servo_cmd', {
                 'type': 'ServoCmd',
-                'id': 'ammonia_' + this.$parent.site,
+                'id': 'ammonia_' + this.$parent.site.toLowerCase(),
                 'position': 0
              }),
              setTimeout(() => {
                this.$parent.$parent.$parent.publish('/servo_cmd', {
                  'type': 'ServoCmd',
-                 'id': 'ammonia_' + this.$parent.site,
+                 'id': 'ammonia_' + this.$parent.site.toLowerCase(),
                  'position': 90
                },
                this.$emit("click", this.$parent.swapComponent(component)))
@@ -195,7 +195,7 @@
           swapComponent: function(component) {
             this.$parent.$parent.$parent.publish("/servo_cmd", {
               'type': 'ServoCmd',
-              'id': 'amino_' + this.$parent.site,
+              'id': 'amino_' + this.$parent.site.toLowerCase(),
               'position': 90
             })
             var device = 0;
@@ -213,7 +213,7 @@
             })
             this.$parent.$parent.$parent.publish("/thermistor_cmd", {
               'type': 'ThermistorCmd',
-              'thermistor': this.$parent.site
+              'thermistor': this.$parent.site.toLowerCase()
             })
             this.$emit("click", this.$parent.swapComponent(component))
           }
