@@ -12,12 +12,17 @@
     <div class="flex">
       <button ref="raman" class="button" v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>
       <p>Spectral Data</p>
-      r: {{SpectralData.r}}, g: {{SpectralData.g}}, a: {{SpectralData.a}}<br>
-      s: {{SpectralData.s}}, h: {{SpectralData.h}}, b: {{SpectralData.b}}<br>
-      t: {{SpectralData.t}}, i: {{SpectralData.i}}, c: {{SpectralData.c}}<br>
-      u: {{SpectralData.u}}, j: {{SpectralData.j}}. d: {{SpectralData.d}}<br>
-      v: {{SpectralData.v}}, k: {{SpectralData.k}}, e: {{SpectralData.e}}<br>
-      w: {{SpectralData.w}}, l: {{SpectralData.l}}, f: {{SpectralData.f}}<br>
+      r: {{spectral_data.r}}, g: {{spectral_data.g}}, a: {{spectral_data.a}}<br>
+      s: {{spectral_data.s}}, h: {{spectral_data.h}}, b: {{spectral_data.b}}<br>
+      t: {{spectral_data.t}}, i: {{spectral_data.i}}, c: {{spectral_data.c}}<br>
+      u: {{spectral_data.u}}, j: {{spectral_data.j}}. d: {{spectral_data.d}}<br>
+      v: {{spectral_data.v}}, k: {{spectral_data.k}}, e: {{spectral_data.e}}<br>
+      w: {{spectral_data.w}}, l: {{spectral_data.l}}, f: {{spectral_data.f}}<br>
+      <div class="flex">
+        <span>
+          Temperature: {{thermistor_data.temperature_C}}&deg;C, thermistor {{thermistor_data.thermistor}}
+        </span>
+    </div>
     </div>
   </div>
 </template>
@@ -50,7 +55,7 @@
   export default {
     data() {
       return {
-        SpectralData: {
+        spectral_data: {
           r: 0,
           g: 0,
           a: 0,
@@ -69,6 +74,10 @@
           w: 0,
           l: 0,
           f: 0
+        },
+        thermistor_data: {
+          temperature_C: 0,
+          thermistor: ""
         }
       }
     },
@@ -81,9 +90,10 @@
     },
     created: function () {
       this.$parent.subscribe('/spectral_data', (msg) => {
-        if(msg.site == this.site) {
-          this.SpectralData = msg
-        }
+        this.spectral_data = msg
+      }),
+      this.$parent.subscribe('/thermistor_data', (msg) => {
+        this.thermistor_data = msg
       })
     },
     methods: {
