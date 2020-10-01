@@ -239,7 +239,6 @@ export default class ObstacleDetector {
     }
 
     return {
-      detected: false,
       distance: this.obsDist,
       bearing: angle
     };
@@ -281,7 +280,6 @@ export default class ObstacleDetector {
     }
 
     return {
-      detected: false, /* deprecated so always false */
       distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
       bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle)
     };
