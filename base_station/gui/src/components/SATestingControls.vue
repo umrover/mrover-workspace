@@ -1,17 +1,17 @@
 <template>
-  <div class=“wrap”>
-    <div class=“flex”>
+  <div class="wrap">
+    <div class="flex">
       <SASiteControls v-bind:site="'White'"/>
     </div>
-    <div class=“flex”>
+    <div class="flex">
       <SASiteControls v-bind:site="'Yellow'"/>
     </div>
-    <div class=“flex”>
+    <div class="flex">
       <SASiteControls v-bind:site="'Blue'"/>
     </div>
-    <div class=“flex”>
+    <div class="flex">
       <button ref="raman" class="button" v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>
-      <p>Spectral Data<p>
+      <p>Spectral Data</p>
       r: {{SpectralData.r}}, g: {{SpectralData.g}}, a: {{SpectralData.a}}<br>
       s: {{SpectralData.s}}, h: {{SpectralData.h}}, b: {{SpectralData.b}}<br>
       t: {{SpectralData.t}}, i: {{SpectralData.i}}, c: {{SpectralData.c}}<br>
@@ -50,6 +50,26 @@
   export default {
     data() {
       return {
+        SpectralData: {
+          r: 0,
+          g: 0,
+          a: 0,
+          s: 0,
+          h: 0,
+          b: 0,
+          t: 0,
+          i: 0,
+          c: 0,
+          u: 0,
+          j: 0,
+          d: 0,
+          v: 0,
+          k: 0,
+          e: 0,
+          w: 0,
+          l: 0,
+          f: 0
+        }
       }
     },
     beforeDestroy: function () {
@@ -60,7 +80,7 @@
     props: {
     },
     created: function () {
-      this.$parent.$parent.subscribe('/spectral_data', (msg) => {
+      this.$parent.subscribe('/spectral_data', (msg) => {
         if(msg.site == this.site) {
           this.SpectralData = msg
         }

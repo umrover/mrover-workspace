@@ -96,7 +96,9 @@
           '/spectral_data': false,
           '/target_list': false,
           '/temperature': false,
-          '/tennis_ball': false
+          '/tennis_ball': false,
+          '/thermistor_cmd': false,
+          '/thermistor_data': false,
 
         },
         subscriptions: [
@@ -149,6 +151,8 @@
           {'topic': '/gps', 'type': 'GPS'},
           {'topic': '/microscope', 'type': 'Microscope'},
           {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
+          {'topic': '/thermistor_cmd', 'type': 'ThermistorCmd'},
+          {'topic': '/thermistor_data', 'type': 'ThermistorData'},
         ]
       }
     },

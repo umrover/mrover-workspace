@@ -142,7 +142,7 @@
         }
       },
       'UVLEDOff': {
-        template: '<div><p>Turn on White LEDs</p><button @click="swapComponent(\'WhiteLEDsOn\')">Execute</button></div>',
+        template: '<div><p>Turn on White LEDs</p><button @click="swapComponent(null)">Execute</button></div>',
         methods: {
           swapComponent: function(component)
           {
@@ -151,15 +151,6 @@
               'device': 2,
               'enable': false
             })
-            this.$emit("click", this.$parent.swapComponent(component))
-          }
-        }
-      },
-      'WhiteLEDsOn': {
-        template: '<div><p>Finish</p><button @click="swapComponent(null)">Execute</button></div>',
-        methods: {
-          swapComponent: function(component)
-          {
             this.$emit("click", this.$parent.swapComponent(component))
           }
         }
@@ -205,17 +196,34 @@
               'device': device,
               'enable': true
             })
-            this.$parent.$parent.$parent.publish("/mosfet_cmd", {
-              'type': 'MosfetCmd',
-              'device': device,
-              'enable': true
+            this.$parent.$parent.$parent.publish("/thermistor_cmd", {
+              'type': 'ThermistorCmd',
+              'thermistor': this.$parent.site
             })
             this.$emit("click", this.$parent.swapComponent(component))
           }
         }
       },
       'StartAmino': {
-
+        template: '<div><p>Turn off heating element</p><button @click="swapComponent(null)">Execute</button></div>',
+        methods: {
+          swapComponent: function(component) {
+            var device = 0;
+            if (this.$parent.site == 'White') {
+              device = 0
+            } else if (this.$parent.site == 'Blue') {
+              device = 3
+            } else if (this.$parent.site == 'Yellow') {
+              device = 4
+            }
+            this.$parent.$parent.$parent.publish("/mosfet_cmd", {
+              'type': 'MosfetCmd',
+              'device': device,
+              'enable': false
+            })
+            this.$emit("click", this.$parent.swapComponent(component))
+          }
+        }
       }
     }
   }
