@@ -49,27 +49,7 @@
         enable_tests: true,
         degrees: 0.0,
         currentComponent: null,
-        componentsArray: ['Chlorophyll', 'Ammonia', 'Amino'],
-        spectral_data: {
-          r: 0,
-          g: 0,
-          a: 0,
-          s: 0,
-          h: 0,
-          b: 0,
-          t: 0,
-          i: 0,
-          c: 0,
-          u: 0,
-          j: 0,
-          d: 0,
-          v: 0,
-          k: 0,
-          e: 0,
-          w: 0,
-          l: 0,
-          f: 0
-        }
+        componentsArray: ['Chlorophyll', 'Ammonia', 'Amino']
       }
     },
 
@@ -133,12 +113,6 @@
           }
         }
       },
-      'Ammonia': {
-        template: '<p>Ammonia Test</p>'
-      },
-      'Amino': {
-        template: '<p>Amino Test</p>'
-      },
       'WhiteLEDsOff': {
         template: '<div><p>Turn on UV LED</p><button @click="swapComponent(\'UVLEDOn\')">Execute</button></div>',
         methods: {
@@ -148,9 +122,6 @@
               'type': 'MosfetCmd',
               'device': 1,
               'enable': true
-            })
-            this.$parent.$parent.$parent.subscribe("/spectral_data", (msg) => {
-              this.spectral_data = msg
             })
             this.$emit("click", this.$parent.swapComponent(component))
           }
@@ -192,6 +163,54 @@
             this.$emit("click", this.$parent.swapComponent(component))
           }
         }
+      },
+      'Ammonia': {
+        template: '<div><p>Run Ammonia Servo Script</p><button @click="swapComponent(null)">Execute</button></div>',
+        methods: {
+           swapComponent: function(component) {
+             this.$parent.$parent.$parent.publish('/servo_cmd', {
+                'type': 'ServoCmd',
+                'id': 'ammonia_' + this.$parent.site,
+                'degree': 0
+             }),
+             setTimeout(() => {
+               this.$parent.$parent.$parent.publish('/servo_cmd', {
+                 'type': 'ServoCmd',
+                 'id': 'ammonia_' + this.$parent.site,
+                 'position': 90
+               })
+               }, 5000);
+            }
+        }
+      },
+      'Amino': {
+        template: '<div><p>Start Amino Test</p><button @click="swapComponent(\'StartAmino\')">Execute</button></div>',
+        methods: {
+          swapComponent: function(component) {
+            this.$parent.$parent.$parent.publish("/servo_cmd", {
+              'type': 'ServoCmd',
+              'id': 'amino_' + this.$parent.site,
+              'degree': 90
+            })
+            var device = 0;
+            if (this.$parent.site == 'White') {
+              device = 0
+            } else if (this.$parent.site == 'Blue') {
+              device = 3
+            } else if (this.$parent.site == 'Yellow') {
+              device = 4
+            }
+            this.$parent.$parent.$parent.publish("/mosfet_cmd", {
+              'type': 'MosfetCmd',
+              'device': device,
+              'enable': true
+            })
+            this.$emit("click", this.$parent.swapComponent(component))
+          }
+        }
+      },
+      'StartAmino': {
+
       }
     }
   }
