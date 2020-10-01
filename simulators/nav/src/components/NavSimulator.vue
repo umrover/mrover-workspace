@@ -21,6 +21,20 @@
         <ControlPanel />
         <FieldItems />
       </div>
+
+      <!-- LCM Connection Statuses -->
+      <HeartbeatMonitor
+        :is-alive.sync="isNavAlive"
+        :has-pulse.sync="navPulse"
+      />
+      <HeartbeatMonitor
+        :is-alive.sync="isLocAlive"
+        :has-pulse.sync="locPulse"
+      />
+      <HeartbeatMonitor
+        :is-alive.sync="isPercepAlive"
+        :has-pulse.sync="percepPulse"
+      />
     </div>
   </div>
 </template>
@@ -46,6 +60,7 @@ import ControlPanel from './control_panel/ControlPanel.vue';
 import Field from './field/Field.vue';
 import FieldItems from './field_items/FieldItems.vue';
 import Header from './header/Header.vue';
+import HeartbeatMonitor from './common/HeartbeatMonitor.vue';
 import LCMBridge from '../../deps/lcm_bridge_client/dist/bridge.js';
 import LCMCenter from './lcm_center/LCMCenter.vue';
 import Perception from './perception/Perception.vue';
@@ -68,6 +83,7 @@ const TWO_SECOND_MILLI = 2000;
     Field,
     FieldItems,
     Header,
+    HeartbeatMonitor,
     LCMCenter,
     Perception
   }
@@ -83,13 +99,19 @@ export default class NavSimulator extends Vue {
   private readonly currOdom!:Odom;
 
   @Getter
+  private readonly currSpeed!:Speeds;
+
+  @Getter
   private readonly fieldCenterOdom!:Odom;
 
   @Getter
   private readonly joystick!:Joystick;
 
   @Getter
-  private readonly currSpeed!:Speeds;
+  private readonly locConnected!:boolean;
+
+  @Getter
+  private readonly navConnected!:boolean;
 
   @Getter
   private readonly obstacleMessage!:ObstacleMessage;
@@ -98,16 +120,19 @@ export default class NavSimulator extends Vue {
   private readonly paused!:boolean;
 
   @Getter
+  private readonly percepConnected!:boolean;
+
+  @Getter
   private readonly radioStrength!:number;
 
   @Getter
   private readonly repeaterLoc!:Odom|null;
 
   @Getter
-  private readonly simulateLocalization!:boolean;
+  private readonly simulateLoc!:boolean;
 
   @Getter
-  private readonly simulatePerception!:boolean;
+  private readonly simulatePercep!:boolean;
 
   @Getter
   private readonly takeStep!:boolean;
@@ -123,6 +148,15 @@ export default class NavSimulator extends Vue {
    ************************************************************************************************/
   @Mutation
   private readonly flipLcmConnected!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipLocConnected!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipNavConnected!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipPercepConnected!:(onOff:boolean)=>void;
 
   @Mutation
   private readonly setCurrOdom!:(newOdom:Odom)=>void;
@@ -151,14 +185,50 @@ export default class NavSimulator extends Vue {
   /************************************************************************************************
    * Private Members
    ************************************************************************************************/
-  /* LCM Bridge Client for LCM communications in and out of simulator. */
-  private lcmBridge!:LCMBridge;
+  /* Whether or not we are in the process of dropping the repeater. */
+  private droppingRepeater = false;
 
   /* Interval to publish outgoing LCM messages with. */
   private intervalLcmPublish!:number;
 
-  /* Whether or not we are in the process of dropping the repeater. */
-  private droppingRepeater = false;
+  /* LCM Bridge Client for LCM communications in and out of simulator. */
+  private lcmBridge!:LCMBridge;
+
+  /* Has there been a sign of life from the localization program. */
+  private locPulse = false;
+
+  /* Has there been a sign of life from the navigation program. */
+  private navPulse = false;
+
+  /* Has there been a sign of life from the perception program. */
+  private percepPulse = false;
+
+  /************************************************************************************************
+   * Local Getters/Setters
+   ************************************************************************************************/
+  /* Are we receiving lcm messages from the localization program */
+  private get isLocAlive():boolean {
+    return this.locConnected;
+  }
+  private set isLocAlive(newLocConnected:boolean) {
+    this.flipLocConnected(newLocConnected);
+  }
+
+  /* Are we receiving lcm messages from the navigation program */
+  private get isNavAlive():boolean {
+    return this.navConnected;
+  }
+  private set isNavAlive(newNavConnected:boolean) {
+    this.flipNavConnected(newNavConnected);
+  }
+
+  /* Are we receiving lcm messages from the perception program */
+  private get isPercepAlive():boolean {
+    return this.percepConnected;
+  }
+  private set isPercepAlive(newPercepConnected:boolean) {
+    this.flipPercepConnected(newPercepConnected);
+  }
 
   /************************************************************************************************
    * Watchers
@@ -183,7 +253,7 @@ export default class NavSimulator extends Vue {
      odometry based on this movement. */
   private applyJoystick():void {
     /* if not simulating localization, nothing to do */
-    if (!this.simulateLocalization) {
+    if (!this.simulateLoc) {
       return;
     }
 
@@ -250,15 +320,18 @@ export default class NavSimulator extends Vue {
           }
         }
         else if (msg.topic === '/nav_status') {
+          this.navPulse = true;
           this.setNavStatus(msg.message);
         }
         else if (msg.topic === '/obstacle') {
-          if (!this.simulatePerception) {
+          if (!this.simulatePercep) {
+            this.percepPulse = true;
             this.setObstacleMessage(msg.message);
           }
         }
         else if (msg.topic === '/odometry') {
-          if (!this.simulateLocalization) {
+          if (!this.simulateLoc) {
+            this.locPulse = true;
             this.setCurrOdom(msg.message);
           }
         }
@@ -266,7 +339,8 @@ export default class NavSimulator extends Vue {
           this.dropRepeater();
         }
         else if (msg.topic === '/target_list') {
-          if (!this.simulatePerception) {
+          if (!this.simulatePercep) {
+            this.percepPulse = true;
             this.setTargetList(msg.message.targetList);
           }
         }
@@ -296,12 +370,12 @@ export default class NavSimulator extends Vue {
     this.intervalLcmPublish = window.setInterval(() => {
       this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn });
 
-      if (this.simulateLocalization) {
+      if (this.simulateLoc) {
         const odom:any = Object.assign(this.currOdom, { type: 'Odometry' });
         this.publish('/odometry', odom);
       }
 
-      if (this.simulatePerception) {
+      if (this.simulatePercep) {
         const obs:any = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
         this.publish('/obstacle', obs);
 
