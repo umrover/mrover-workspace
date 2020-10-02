@@ -54,7 +54,7 @@ RUN cd /opt && \
     -D BUILD_opencv_structured_light=OFF -D BUILD_opencv_surface_matching=OFF -D BUILD_opencv_text=OFF \
     -D BUILD_opencv_tracking=OFF -D BUILD_opencv_xfeatures2d=OFF -D BUILD_opencv_ximgproc=OFF \
     -D BUILD_opencv_xobjdetect=OFF -D BUILD_opencv_xphoto=OFF /opt/opencv-3.2.0/ && make -j4 && make install && ldconfig
-
+# Download PCL
 # Setup the ZED SDK
 RUN apt-get update -y && apt-get upgrade -y && apt-get autoremove -y && \
     apt-get install --no-install-recommends lsb-release wget less udev sudo apt-transport-https -y && \
