@@ -110,7 +110,7 @@ Matrix4d KinematicsSolver::apply_joint_xform(string joint, double theta) {}
 
 pair<vector<double>, bool> KinematicsSolver::IK() {}
 
-pair<Vector3d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
+pair<vector<double>, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
     FK(robot_state);
     robot_ik = robot_state;
     // Use link maps to represent links:
@@ -121,15 +121,27 @@ pair<Vector3d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
     Vector3d start_pos = robot_ik.get_link_point_world(it->first);
     Vector3d target_pos(start_pos(0) + delta(0), start_pos(1) + delta(1), start_pos(2)+ delta(2));
     if (target_pos.norm() > 0.82){
-        return pair<Vector3d, bool>(robot_ik.get_joint_angles(), true);
+        map<string, double> joint_angles = robot_ik.get_joint_angles();
+        vector<double> joint_angles_vec;
+        for (auto it = joint_angles.begin(); it != joint_angles.end(); ++it) {
+            joint_angles_vec.push_back(it->second);
+        }
+        return pair<vector<double>, bool>(joint_angles_vec, true);
     }
     for (int i = 0; i < iterations; ++i) {
         Vector3d original_pos = robot_ik.get_link_point_world(it->first);
-        IK_step(delta, true);
+        IK_step(delta, true, true);
         Vector3d new_pos = robot_ik.get_link_point_world(it->first);
         Vector3d true_delta = new_pos - original_pos;
-
+        Vector3d delta3d(delta(0)-true_delta(0), delta(1)-true_delta(1), delta(2)-true_delta(2));
     }
+    map<string, double> joint_angles = robot_ik.get_joint_angles();
+    vector<double> joint_angles_vec;
+    for (auto it = joint_angles.begin(); it != joint_angles.end(); ++it) {
+        joint_angles_vec.push_back(it->second);
+    }
+    bool angles_safe = is_safe(joint_angles_vec);
+    return pair<vector<double>, bool>(joint_angles_vec, angles_safe);
 }
 
 void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles) {

@@ -41,7 +41,7 @@ public:
 
     void IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles);
 
-    pair<Vector3d, bool> IK_delta(Vector6d delta, int iterations);
+    pair<vector<double>, bool> IK_delta(Vector6d delta, int iterations);
 
 
     /**
