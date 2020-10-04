@@ -119,7 +119,7 @@ pair<Vector3d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
     auto it = links.rbegin();
     // Create start and target positions:
     Vector3d start_pos = robot_ik.get_link_point_world(it->first);
-    Vector3d target_pos(start_pos(0) + delta, start_pos(1) + delta, start_pos(2)+ delta);
+    Vector3d target_pos(start_pos(0) + delta(0), start_pos(1) + delta(1), start_pos(2)+ delta(2));
     if (target_pos.norm() > 0.82){
         return pair<Vector3d, bool>(robot_ik.get_joint_angles(), true);
     }
@@ -127,6 +127,8 @@ pair<Vector3d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
         Vector3d original_pos = robot_ik.get_link_point_world(it->first);
         IK_step(delta, true);
         Vector3d new_pos = robot_ik.get_link_point_world(it->first);
+        Vector3d true_delta = new_pos - original_pos;
+
     }
 }
 
