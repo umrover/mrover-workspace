@@ -1,17 +1,25 @@
 
-#include "rover_msgs/GimbalCmd"
+#include "rover_msgs/GimbalCmd.lcm"
+#include "pid.hpp"
+#include "rapidjson/document.h"
+
+#include <lcm/lcm-cpp.hpp>
 
 class Gimbal{
     private:
-        double yaw_power, pitch_power;
-        double cur_yaw, cur_pitch;
-        double target_yaw, target_pitch;
-        const double MAX_YAW, MIN_YAW, MAX_PITCH, MIN_PITCH;
+        double cur_yaw;
+        double target_yaw;
+        double yaw_command;
+        const double MAX_YAW, MIN_YAW;
+        PidLoop yaw_PID;
+        GimbalCmd signal;
     public:
         //sets the target yaw of the gimbal
         void setTargetYaw(double target);
-        //sets the target pitch of the gimbal
-        void setTargetPitch(double target);
-        //returns the LCM message to be sent
-        void publishControlSignal();
+
+        //returns the current yaw of the gimbal
+        double getYaw() const;
+
+        //returns the LCM message to be sent. Takes in a reference to the LCM object that sends it
+        void publishControlSignal(lcm::LCM &lcmObj, const rapidjson::Document& mRoverConfig) const;
 };
