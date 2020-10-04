@@ -457,6 +457,7 @@ string StateMachine::stringifyNavState() const
             { NavState::Drive, "Drive" },
             { NavState::SearchFaceNorth, "Search Face North" },
             { NavState::SearchSpin, "Search Spin" },
+            { NavState::SearchGimbal, "Search Gimbal" },
             { NavState::SearchSpinWait, "Search Spin Wait" },
             { NavState::ChangeSearchAlg, "Change Search Algorithm" },
             { NavState::SearchTurn, "Search Turn" },

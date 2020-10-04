@@ -26,6 +26,11 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
             return executeSearchSpin( phoebe, roverConfig );
         }
 
+        case NavState::SearchGimbal:
+        {
+            return executeSearchGimbal( phoebe, roverConfig );
+        }
+
         case NavState::SearchSpinWait:
         case NavState::TurnedToTargetWait:
         {
@@ -96,6 +101,43 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
     }
     return NavState::SearchSpin;
 } // executeSearchSpin()
+
+NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig )
+{
+    // TODO: Values sent to the gimbal are angles in degrees! This might be wrong, given that we don't know
+    // whether the gimabl uses degrees/power/radians etc..
+
+    // degrees to turn to before performing a search wait.
+    double waitStepSize = 69; // TODO: add to config // roverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
+
+    static double nextStop = 0; // to force the rover to wait initially
+    static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
+
+    if( phoebe->roverStatus().target().distance >= 0 )
+    {
+        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
+                                           phoebe->roverStatus().odometry().bearing_deg );
+        return NavState::TurnToTarget;
+    }
+    if ( nextStop == 0 )
+    {
+        //get current angle and set as origAngle
+        mOriginalSpinAngle = phoebe->gimbal.getYaw(); //phoebe->roverStatus().odometry().bearing_deg; //doublecheck
+        nextStop = mOriginalSpinAngle;
+    }
+    if( phoebe->gimbal.setTargetYaw(nextStop) )
+    {
+        if( nextStop - mOriginalSpinAngle >= 360 )
+        {
+            nextStop = 0;
+            return NavState::SearchTurn;
+        }
+        nextStop += waitStepSize;
+        return NavState::SearchSpinWait;
+    }
+
+    return NavState::SearchGimbal;
+}
 
 
 // Executes the logic for waiting during a search spin so that CV can
