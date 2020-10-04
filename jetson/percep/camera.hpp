@@ -34,5 +34,6 @@ private:
   	//Video Stuff
   	std::pair<Tag, Tag> tp;
   	TagDetector d1;
+	cv::VideoWriter vidWrite;
 
 };

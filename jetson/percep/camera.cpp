@@ -257,7 +257,7 @@ cv::Mat Camera::depth() {
 	return this->impl_->depth();
 }
 
-Camera::record_ar_init() {
+void Camera::record_ar_init() {
   //initializing ar tag videostream object
   
   Mat depth_img = depth();
@@ -273,7 +273,7 @@ Camera::record_ar_init() {
 
   string s = "artag_number_" + timeStamp + ".avi";
 
-  VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
+  vidWrite =  VideoWriter(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
 
   if(vidWrite.isOpened() == false)
   {
@@ -282,7 +282,7 @@ Camera::record_ar_init() {
   }
 }
 
-Camera::record_ar(Mat rgb) {
+void Camera::record_ar(Mat rgb) {
   vidWrite.write(rgb);
 }
 
