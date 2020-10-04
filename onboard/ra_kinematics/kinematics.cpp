@@ -132,7 +132,7 @@ pair<Vector3d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
     }
 }
 
-void KinematicsSolver::IK_step(Vector6d d_ef, bool use_euler_angles) {
+void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles) {
 
     // may cause issue creating a type that refers to private member Link
     auto links = robot_ik.links;
@@ -144,17 +144,21 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_euler_angles) {
     MatrixXd jacobian(6, 6);
     jacobian.setZero();
 
+    // 6-D matrix
+    MatrixXd jacobian_inverse;
+
     for (int i = 0; i < joints.size(); ++i) {
 
+        // don't move joint e if it's locked
         if (e_locked && joints[i] == "joint_e") {
-            jacobian(0, i) = 0;
-            jacobian(1, i) = 0;
-            jacobian(2, i) = 0;
-            jacobian(3, i) = 0;
-            jacobian(4, i) = 0;
-            jacobian(5, i) = 0;
+
+            for (int j = 0; j < 6; ++j) {
+                jacobian(j, i) = 0;
+            }
         }
-        else {
+
+        // otherwise, calculate the jacobian
+        else {    
             Vector3d rot_axis_local = robot_ik.get_joint_axis(joints[i]);
             Matrix4d joint_xform = robot_ik.get_joint_transform(joints[i]);
             Vector3d joint_pos_world = robot_ik.get_joint_pos_world(robot_ik.get_child_link(joints[i]));
@@ -165,6 +169,9 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_euler_angles) {
 
             Transpose<Vector3d> joint_col_xyz = (rot_axis_world.cross(joint_to_ef_vec_world)).transpose();
 
+            Vector6d joint_col;
+
+            // calculate end effector orientation jacobian values
             if (use_euler_angles) {
                 Matrix4d n_xform = apply_joint_xform(joints[i], delta_theta);
 
@@ -177,11 +184,50 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_euler_angles) {
 
                 Transpose<Vector3d> joint_col_euler = delta_angs.transpose();
 
-                // TODO start with append (and declare joint_col)
+                joint_col << joint_col_xyz, joint_col_euler;
+            }
+            else {
+                joint_col << joint_col_xyz, Vector3d();
+            }
 
+            for (size_t j = 0; j < 6; ++j) {
+                jacobian(j, i) = joint_col[j];
             }
         }
     }
+
+    // if using pseudo inverse (usually corresponds to using euler angles)
+    if (use_pi) {
+        jacobian_inverse = (MatrixXd) jacobian.completeOrthogonalDecomposition();
+    }
+
+    // otherwise, simply transpose the vector
+    else {
+        jacobian_inverse = jacobian.transpose();
+    }
+
+    Vector6d d_theta = jacobian_inverse * d_ef;
+
+    vector<double> angle_vec;
+    angle_vec.resize(joints.size());
+
+    // find the angle of each joint
+    for (int i = 0; i < joints.size(); ++i) {
+        angle_vec[i] = robot_ik.get_joint_angles()[joints[i]] + d_theta[i];
+
+        map<string, double> limits = robot_safety.get_joint_limits(joints[i]);
+
+        if (angle_vec[i] < limits["lower"]) {
+            angle_vec[i] = limits["lower"];
+        }
+        else if (angle_vec[i] < limits["upper"]) {
+            angle_vec[i] = limits["upper"];
+        }
+    }
+
+    // run forward kinematics
+    robot_ik.set_joint_angles(angle_vec);
+    FK(robot_ik);
 }
 
 bool KinematicsSolver::is_safe(vector<double> angles) {
@@ -209,7 +255,7 @@ bool KinematicsSolver::limit_check(const vector<double> &angles, const vector<st
         map<string, double> limits = robot_safety.get_joint_limits(joints[i]);
         
         // if any angle is outside of bounds
-        if (! (limits["lower"] <= angles[i] && angles[i] < limits["upper"])) {
+        if (!(limits["lower"] <= angles[i] && angles[i] < limits["upper"])) {
             return false;
         }
     }
