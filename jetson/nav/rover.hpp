@@ -15,6 +15,7 @@
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
+#include "gimbal.hpp"
 
 using namespace rover_msgs;
 using namespace std;
@@ -33,7 +34,8 @@ enum class NavState
     // Search States
     SearchFaceNorth = 20,
     SearchSpin = 21,
-    SearchSpinWait = 22,
+    SearchGimbal = 22,
+    SearchSpinWait = 23,
     SearchTurn = 24,
     SearchDrive = 25,
     ChangeSearchAlg = 26,
@@ -121,9 +123,13 @@ public:
 
         RadioSignalStrength& radio();
 
+        Gimbal& gimbal();
+
         unsigned getPathTargets();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
+
+        
 
     private:
         // The rover's current navigation state.
