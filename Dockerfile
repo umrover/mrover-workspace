@@ -54,7 +54,43 @@ RUN cd /opt && \
     -D BUILD_opencv_structured_light=OFF -D BUILD_opencv_surface_matching=OFF -D BUILD_opencv_text=OFF \
     -D BUILD_opencv_tracking=OFF -D BUILD_opencv_xfeatures2d=OFF -D BUILD_opencv_ximgproc=OFF \
     -D BUILD_opencv_xobjdetect=OFF -D BUILD_opencv_xphoto=OFF /opt/opencv-3.2.0/ && make -j4 && make install && ldconfig
-# Download PCL
+
+# Install VTK
+RUN apt-get install -y libboost-all-dev curl cmake libxt-dev && \
+    apt-get install -y --no-install-recommends cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3.6-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev jasper libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libavresample-dev && \
+    curl https://vtk.org/files/release/8.2/VTK-8.2.0.tar.gz --output VTK-8.2.0.tar.gz && \
+    tar -xvzf VTK-8.2.0.tar.gz && \
+    mv VTK-8.2.0 /usr/local && \
+    rm VTK-8.2.0.tar.gz && \
+    cd /usr/local/VTK-8.2.0/ && \
+    mkdir VTK-Release-build && \
+    cd VTK-Release-build/ && \
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release /usr/local/VTK-8.2.0/ -DVTK_USE_SYSTEM_PNG=ON && \
+    sudo make install
+
+# Install EIGEN
+RUN cd /usr/local && \
+    wget -qO- https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.gz | sudo tar xz && \
+    apt install -y libblas-dev && \
+    cd eigen-3.3.7 && sudo mkdir build && cd build && \
+    cmake .. && \
+    make install && \
+    cd ../.. && sudo rm -rf eigen-3.3.7/ && sudo rm -f eigen-3.3.7.tar.gz
+
+# Install PCL
+RUN apt-get install -y libflann-dev libgtest-dev libboost-all-dev && \
+    cd /usr/local && \
+    curl https://codeload.github.com/PointCloudLibrary/pcl/tar.gz/pcl-1.11.1 --output pcl-pcl-1.11.1.tar.gz && \
+    tar -xvzf pcl-pcl-1.11.1.tar.gz && \
+    rm pcl-pcl-1.11.1.tar.gz && \
+    cd pcl-pcl-1.11.1 && \
+    mkdir build && cd build && \
+    cmake .. && \
+    make -j1 && \
+    make install && \
+    ldconfig
+#rm -rf pcl-pcl-1.11.1
+
 # Setup the ZED SDK
 RUN apt-get update -y && apt-get upgrade -y && apt-get autoremove -y && \
     apt-get install --no-install-recommends lsb-release wget less udev sudo apt-transport-https -y && \
