@@ -10,12 +10,13 @@ class Gimbal{
         double cur_yaw;
         double target_yaw;
         double yaw_command;
-        const double MAX_YAW, MIN_YAW;
-        PidLoop yaw_PID;
+        double MAX_YAW, MIN_YAW;
         GimbalCmd signal;
+        double TOLERANCE;
     public:
+        Gimbal(const rapidjson::Document& mRoverConfig);
         //sets the target yaw of the gimbal
-        void setTargetYaw(double target);
+        bool setTargetYaw(double target);
 
         //returns the current yaw of the gimbal
         double getYaw() const;

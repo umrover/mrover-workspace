@@ -1,8 +1,17 @@
 #include <gimbal.hpp>
 
 using namespace std;
-void Gimbal::setTargetYaw(double target){
+
+Gimbal::Gimbal(const rapidjson::Document& mRoverConfig){
+    this->MAX_YAW = mRoverConfig["gimbal"]["maxRange"].GetDouble();
+    this->MIN_YAW = mRoverConfig["gimbal"]["minRange"].GetDouble();
+    this->TOLERANCE = mRoverConfig["gimbal"]["tolerance"].GetDouble();
+}
+
+
+bool Gimbal::setTargetYaw(double target){
     this->target_yaw = target;
+    return abs((this->target_yaw - this->cur_yaw) <= this->TOLERANCE);
 }
 
 double Gimbal::getYaw() const {
