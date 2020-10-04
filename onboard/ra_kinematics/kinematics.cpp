@@ -106,7 +106,65 @@ Vector3d KinematicsSolver::FK(ArmState &robot_state) {
     return return_vec;
 }
 
-Matrix4d KinematicsSolver::apply_joint_xform(string joint, double theta) {}
+Matrix4d KinematicsSolver::apply_joint_xform(string joint, double theta) {
+
+    // deep copy position of joint
+    double xyz[3];
+    double *data = robot_ik.get_joint_pos_world(joint).data();
+    for (size_t i = 0; i < 3; ++i) {
+        xyz[i] = data[i];
+    }
+
+    // get intended direction of rotation
+    double *rot_axis_child = robot_ik.get_joint_axis(joint).data();
+
+    Matrix4d rot_theta = Matrix4d::Identity();
+    Matrix4d trans = Matrix4d::Identity();
+
+    double ctheta = cos(theta);
+    double stheta = sin(theta);
+
+    // copy trans from position
+    trans(0, 3) = xyz[0];
+    trans(1, 3) = xyz[1];
+    trans(2, 3) = xyz[2];
+
+    double rot_arr_one[] = {1, 0, 0};
+    double rot_arr_two[] = {0, 1, 0};
+    double rot_arr_three[] = {0, 0, 1};
+    double rot_arr_four[] = {0, 0, -1};
+
+
+    // make rotation around rot_axis by theta
+    if (rot_axis_child == rot_arr_one) {
+        rot_theta(1, 1) = ctheta;
+        rot_theta(1, 2) = -stheta;
+        rot_theta(2, 1) = stheta;
+        rot_theta(2, 2) = ctheta;
+    }
+    else if (rot_axis_child == rot_arr_two) {
+        rot_theta(0, 0) = ctheta;
+        rot_theta(2, 0) = -stheta;
+        rot_theta(0, 2) = stheta;
+        rot_theta(2, 2) = ctheta;
+    }
+    else if (rot_axis_child == rot_arr_three) {
+        rot_theta(0, 0) = ctheta;
+        rot_theta(0, 1) = -stheta;
+        rot_theta(1, 0) = stheta;
+        rot_theta(1, 1) = ctheta;
+    }
+    else if (rot_axis_child == rot_arr_four) {
+        rot_theta(0, 0) = ctheta;
+        rot_theta(0, 1) = stheta;
+        rot_theta(1, 0) = -stheta;
+        rot_theta(1, 1) = ctheta;
+    }
+
+    Matrix4d parent_mat = robot_ik.get_ef_transform();
+    Matrix4d T = trans * rot_theta;
+    return parent_mat * T;
+}
 
 pair<vector<double>, bool> KinematicsSolver::IK() {}
 
