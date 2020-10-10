@@ -278,12 +278,6 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     return NavState::TurnToTarget;
 } // executeDriveToTarget()
 
-// Returns true if an obstacle is detected, false otherwise.
-bool SearchStateMachine::isObstacleDetected( Rover* phoebe ) const
-{
-    return phoebe->roverStatus().obstacle().detected;
-} // isObstacleDetected()
-
 // Sets last known target angle, so if target is lost, we
 // continue to turn to that angle
 void SearchStateMachine::updateTargetAngle( double bearing )
