@@ -39,7 +39,6 @@ const state:RoverState = {
   },
 
   obstacleMessage: {
-    detected: false, /* this will be deprecated so don't use */
     distance: -1,
     bearing: 0
   },
