@@ -391,7 +391,7 @@ NavState StateMachine::executeDrive()
     //     return NavState::RadioRepeaterTurn;
     // }
 
-    if( isObstacleDetected() && !isWaypointReachable( distance ) )
+    if( isObstacleDetected( mPhoebe ) && !isWaypointReachable( distance ) )
     {
         mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
                                                                 getOptimalAvoidanceDistance() );
@@ -486,12 +486,6 @@ string StateMachine::stringifyNavState() const
     return navStateNames.at( mPhoebe->roverStatus().currentState() );
 } // stringifyNavState()
 
-// Returns true if an obstacle is detected, false otherwise.
-bool StateMachine::isObstacleDetected() const
-{
-    return mPhoebe->roverStatus().obstacle().detected;
-} // isObstacleDetected()
-
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceAngle() const
 {
@@ -534,7 +528,6 @@ void StateMachine::addRepeaterDropPoint()
 
     mPhoebe->roverStatus().path().push_front(way);
 } // addRepeaterDropPoint
-
 
 // TODOS:
 // [drive to target] obstacle and target

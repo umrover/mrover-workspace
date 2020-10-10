@@ -129,7 +129,7 @@ int main() {
   rover_msgs::Obstacle obstacleMessage;
   arTags[0].distance = -1;
   arTags[1].distance = -1;
-  obstacleMessage.detected = false;
+  obstacleMessage.distance = -1;
 
   //tag detection stuff
   TagDetector detector;
@@ -189,8 +189,8 @@ int main() {
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
       }
-      
-      //second tag
+
+      //first tag
       if(tagPair.second.id == -1){//no tag found
         if(right_tag_buffer <= 20){//send the buffered tag
           ++right_tag_buffer;
@@ -219,36 +219,24 @@ int main() {
     point_cloud_ptr->height = PT_CLOUD_HEIGHT;
     
 
-    cam.getDataCloud(point_cloud_ptr);
-    /*
-    string name = ("pcl" + to_string(j) + ".pcd");
-    if (pcl::io::loadPCDFile<pcl::PointXYZRGB> (name, *point_cloud_ptr) == -1) //* load the file
-  {
-    PCL_ERROR ("Couldn't read file test_pcd.pcd \n");
-    return (-1);
-  }
-  
-    #if OBSTACLE_RECORD
-    string name = ("pcl" + to_string(j) + ".pcd");
-    cerr<<name<<"\n";
-    pcl::io::savePCDFileASCII (name, *point_cloud_ptr);
-    std::cerr << "Saved " << point_cloud_ptr->size () << " data points to test_pcd.pcd." << std::endl;
-    #endif
-*/
-    #if PERCEPTION_DEBUG
-    //Update Original 3D Viewer
-    viewer_original->updatePointCloud(point_cloud_ptr);
-    viewer_original->spinOnce(10);
-    cerr<<"Original W: " <<point_cloud_ptr->width<<" Original H: "<<point_cloud_ptr->height<<endl;
-    #endif
+    /*initialize obstacle detection*/
+    obstacleMessage.distance = -1;
+    #if OBSTACLE_DETECTION
+      float pixelWidth = src.cols;
+      //float pixelHeight = src.rows;
+      int roverPixWidth = calcRoverPix(distThreshold, pixelWidth);
 
-    //Run Obstacle Detection
-    obstacle_return obstacle_detection = pcl_obstacle_detection(point_cloud_ptr, viewer);  
-    if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
-        obstacleMessage.detected = true;    //if an obstacle is detected in front
-        obstacleMessage.distance = obstacle_detection.distance; //update LCM distance field
+      /* obstacle detection */
+      obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
+      if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
+        // cout<< "bearing not zero!\n";
+        obstacleMessage.distance = obstacle_detection.center_distance; //update LCM distance field
       }
-    obstacleMessage.bearing = obstacle_detection.bearing;
+      obstacleMessage.bearing = obstacle_detection.bearing;
+
+      #if PERCEPTION_DEBUG
+      // cout << "Turn " << obstacleMessage.bearing << ", distance " << (bool)obstacleMessage.distance << endl;
+      #endif
 
     #if PERCEPTION_DEBUG
     //Update Processed 3D Viewer
