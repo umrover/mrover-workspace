@@ -13,7 +13,7 @@ void PassThroughFilter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
     pass.setInputCloud(pt_cloud_ptr);
     pass.setFilterFieldName("z");
     //The z values for depth are in mm
-    pass.setFilterLimits(0.0,2000.0);
+    pass.setFilterLimits(0.0,7000.0);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -102,7 +102,7 @@ void CPUEuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_c
     pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
     ec.setClusterTolerance (40); // 40 mm radius per point
     ec.setMinClusterSize (20);
-    ec.setMaxClusterSize (1000);
+    ec.setMaxClusterSize (100000);
     ec.setSearchMethod (tree);
     ec.setInputCloud (pt_cloud_ptr);
     ec.extract (cluster_indices);

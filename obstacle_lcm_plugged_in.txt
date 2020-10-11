@@ -1,0 +1,4600 @@
+----- 2020-10-11 18:46:21.512869
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:21.586594
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:21.689176
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:21.765693
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:21.839160
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:21.909160
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:21.982002
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.055522
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.126767
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.198780
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.269982
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.342905
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.414214
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.484717
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.554509
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.625531
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.695270
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.768031
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.838680
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.908318
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:22.979577
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.050738
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.120479
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.191862
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.263972
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.335900
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.409576
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.482250
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.552632
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.622403
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.693031
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.764361
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.836728
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.907788
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:23.979994
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.049842
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.121243
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.191465
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.261050
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.331647
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.401447
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.472518
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.541975
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.611343
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.681531
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.750542
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.820199
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.889393
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:24.959542
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.059696
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.159358
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.229244
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.300507
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.396087
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.467415
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.536982
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.608784
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.705589
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.777464
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.873278
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:25.943356
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:26.013589
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:26.082604
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:26.151847
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:26.223424
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:26.294999
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:26.362079
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.227036
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.297976
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.399104
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.470450
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.540443
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.613082
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.683950
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.753675
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.824996
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.895490
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:27.966190
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.037493
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.107667
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.178165
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.248354
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.317838
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.388191
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.456958
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.526864
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.597018
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.666702
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.736123
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.806285
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.875799
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:28.944322
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.013424
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.082537
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.153219
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.224681
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.294106
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.364117
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.436252
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.506255
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.578160
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.649175
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.720701
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.789919
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.861537
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:29.931702
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.027634
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.122918
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.193200
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.267856
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.340479
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.436665
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.508855
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.579790
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.651275
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.746369
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.843146
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.914565
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:30.984414
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.055382
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.153975
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.224461
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.295230
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.367363
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.440929
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.512124
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.582227
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.655679
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.727238
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.797867
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.869765
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:31.940717
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.009529
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.080013
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.151323
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.221843
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.292066
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.362110
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.433425
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.505980
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.577504
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.646371
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.716946
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.786696
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.858057
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:32.928915
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.001122
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.072687
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.145070
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.214215
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.285479
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.356752
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.427131
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.496543
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.567055
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.637952
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.707744
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.778953
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.849848
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.921657
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:33.991818
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.061827
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.131012
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.200823
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.272778
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.342815
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.411057
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.480911
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.550302
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.619875
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.690761
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.759929
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.829026
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.899713
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:34.972027
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.041334
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.111045
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.183320
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.252664
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.323947
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.392893
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.462891
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.531370
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.601065
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.670126
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.738345
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.805823
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.875177
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:35.971061
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.040958
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.110182
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.204361
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.275026
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.344963
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.410480
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.480715
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.549684
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.620368
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.692187
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.765057
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.837914
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.911965
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:36.981358
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.050620
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.120434
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.194153
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.263901
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.332631
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.402493
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.473106
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.542713
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.611787
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.681133
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.749540
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.820704
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.890940
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:37.960002
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.030021
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.100593
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.170418
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.240187
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.314968
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.387237
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.456120
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.525011
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.594560
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.663928
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.734768
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.804287
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.874683
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:38.947659
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.018036
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.090014
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.160183
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.230847
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.303280
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.372171
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.442800
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.512029
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.582902
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.653926
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.725973
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.797306
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.870052
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:39.939658
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.010052
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.080792
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.151713
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.229629
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.299331
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.368661
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.439226
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.509097
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.580590
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.650608
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.720888
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.792050
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.861910
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:40.933593
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.030510
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.102708
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.171275
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.240785
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.312995
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.382554
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.447704
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.518227
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.586987
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.657376
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.726729
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.799040
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.868180
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:41.937509
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.008706
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.076897
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.147303
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.216585
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.284513
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.354000
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.425208
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.496110
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.569086
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.640838
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.736419
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.805452
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.875054
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:42.942889
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.012056
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.083964
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.154161
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.225204
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.298691
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.373202
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.443297
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.513952
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.582623
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.651775
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.720231
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.789146
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.862724
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:43.935493
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.006171
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.075423
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.145673
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.218446
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.288498
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.359247
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.428913
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.497085
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.566755
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.635207
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.704872
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.774101
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.841672
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.909435
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:44.979613
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.047347
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.115816
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.184186
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.253021
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.324127
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.396472
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.468413
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.537900
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.606480
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.678791
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.750620
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.820538
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.888482
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:45.957665
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.027029
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.094695
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.165085
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.235156
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.305870
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.376211
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.445504
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.510257
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.582951
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.653209
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.725903
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.796474
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.869906
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:46.943845
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.013156
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.083480
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.191376
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.262082
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.332228
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.402182
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.472540
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.543673
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.612940
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.683460
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.753908
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.822578
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.893291
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:47.963300
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.034943
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.104932
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.177753
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.245439
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.314560
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.383419
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.452070
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.521492
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.591781
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.659641
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.727524
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.796331
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.866736
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:48.936192
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.006994
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.078861
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.147306
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.215424
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.285405
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.353709
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.425910
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.495436
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.564149
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.633374
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.702792
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.773610
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.842074
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.911730
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:49.981264
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.050329
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.119304
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.188779
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.259309
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.327803
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.396449
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.466207
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.536415
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.606380
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.676278
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.744857
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.815744
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.885155
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:50.955039
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.024197
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.094680
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.163252
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.232124
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.301966
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.370949
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.443416
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.514264
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.577099
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.647999
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.719257
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.789568
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.859143
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.930251
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:51.999569
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.068169
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.138447
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.209124
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.278216
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.348540
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.419226
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.515287
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.611552
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.682583
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.752603
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.823884
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.920926
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:52.989649
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:53.062005
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:53.131603
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:53.201938
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:53.272816
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:53.345643
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:53.418669
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:53.490326
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:53.559410
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:53.631282
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:55.426583
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:55.537380
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:55.606476
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:55.677012
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:55.745831
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:55.814526
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:55.882856
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:55.952908
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.023297
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.092944
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.162739
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.230708
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.297560
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.367501
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.437808
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.508027
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.579142
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.638883
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.706392
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.778071
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.875080
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:56.970580
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.068642
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.137806
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.207878
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.278163
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.347420
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.415597
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.484486
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.551368
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.619699
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.689526
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.759834
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.827239
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.895469
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:57.963641
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.031974
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.099431
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.170527
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.238604
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.306473
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.374251
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.446840
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.514588
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.583783
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.654944
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.724154
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.794062
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.864468
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:58.934800
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.005882
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.074089
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.142280
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.213463
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.283436
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.351537
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.420762
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.491666
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.563063
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.632806
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.701645
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.769943
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.838248
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.906787
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:46:59.975509
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.044730
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.113100
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.182303
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.253341
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.323545
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.394379
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.464463
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.532957
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.602626
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.700479
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.769729
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.838738
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.907760
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:00.978942
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.048714
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.122518
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.195587
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.293650
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.364524
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.434623
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.504919
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.600030
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.663159
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.733657
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.807288
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:01.902370
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.000142
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.070008
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.133724
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.199632
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.268483
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.334943
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.399935
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.469245
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.537470
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.607533
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.678346
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.747956
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.818578
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.889351
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:02.959810
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.032411
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.102554
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.170732
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.242430
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.315835
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.386860
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.456421
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.525828
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.595150
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.664557
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.734711
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.804119
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.873570
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:03.943128
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.012325
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.082139
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.151842
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.225399
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.320949
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.392397
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.462191
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.531613
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.601758
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.671196
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.741452
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.812044
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.879570
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:04.947729
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.018824
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.089956
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.161027
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.232197
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.304217
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.375373
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.453809
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.524989
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.621774
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.719018
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.813312
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:05.910650
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.008024
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.103697
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.199568
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.301043
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.396893
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.495962
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.594429
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.693800
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.793797
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.894900
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:06.992731
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.093187
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.192025
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.290374
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.388658
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.487868
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.588921
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.689154
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.794098
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.895713
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:07.997434
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:08.099901
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:08.200437
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:08.302961
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:08.403286
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:08.507735
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:08.609876
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:08.714622
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:08.822142
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:08.926638
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.027499
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.126350
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.227062
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.329321
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.429264
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.528820
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.636246
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.742120
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.843448
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:09.941395
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:10.013134
+{'bearing': 0.0, 'detected': False, 'distance': 5e-324}
+
+----- 2020-10-11 18:47:10.115019
+{'bearing': -17.832313537597656, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:10.211965
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:10.312814
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:10.412997
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:10.510734
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:10.607706
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:10.706987
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:10.802425
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:10.897453
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:10.968457
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.039711
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.111421
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.185022
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.256648
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.327741
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.400372
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.472216
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.545956
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.644824
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.710473
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.806020
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.881132
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:11.951678
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.026477
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.101410
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.173384
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.246265
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.317159
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.390576
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.493849
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.565249
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.636173
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.707150
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.782682
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.853501
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.924616
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:12.995447
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.066724
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.138780
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.210157
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.282232
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.353477
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.427349
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.503895
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.599801
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.699621
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.775113
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.846090
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.921028
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:13.993136
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.064831
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.137503
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.237869
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.337585
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.408900
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.481574
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.554333
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.624750
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.697532
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.767938
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.840511
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.913603
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:14.985649
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.057788
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.130415
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.205043
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.276885
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.347688
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.420741
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.518376
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.591124
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.664022
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.736909
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.810541
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.880473
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:15.951618
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.024371
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.099722
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.171014
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.244874
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.316500
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.413680
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.484799
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.557875
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.656130
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.724654
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.797635
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.870605
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:16.943220
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.015864
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.088827
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.162422
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.235191
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.304124
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.374952
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.447409
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.543472
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.637824
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.734295
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.806324
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.876446
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:17.975626
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.073939
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.170870
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.244667
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.341715
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.439402
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.510962
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.584265
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.656547
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.729010
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.800711
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.876623
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:18.949956
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.046878
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.145598
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.243800
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.341001
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.438446
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.540638
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.638923
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.739273
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.813258
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.888244
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:19.965603
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.037493
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.109735
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.184243
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.260586
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.334176
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.405353
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.475756
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.550243
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.622038
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.692913
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.766444
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.838929
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.914059
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:20.985799
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.057627
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.131359
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.207189
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.282788
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.359441
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.459814
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.532277
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.604174
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.676738
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.742300
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.816554
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.888599
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:21.959731
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.032985
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.103721
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.174880
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.247707
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.319914
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.394212
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.493949
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.592749
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.691717
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.789356
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.888291
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:22.988296
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.061802
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.135356
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.210075
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.280909
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.355466
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.427246
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.501539
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.606090
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.705461
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.801638
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.900762
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:23.973984
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.047827
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.120497
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.192232
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.290995
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.391554
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.489877
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.590107
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.663605
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.738107
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.839319
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:24.937903
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.012032
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.085936
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.159442
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.235022
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.308778
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.380601
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.455193
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.528701
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.602643
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.701046
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.798156
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.897774
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:25.970012
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.042861
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.114868
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.186400
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.258104
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.332195
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.404268
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.476422
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.548774
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.621176
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.695052
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.759189
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.831364
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.904059
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:26.974711
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.048487
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.122662
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.196469
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.268903
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.343250
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.415898
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.513458
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.612675
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.715481
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.816012
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:27.912954
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.010858
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.108735
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.182003
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.254713
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.328489
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.427796
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.499631
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.573559
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.647413
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.744865
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.818004
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:28.919846
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.015836
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.088782
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.162648
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.237113
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.336351
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.434741
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.531695
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.628502
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.699401
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.773981
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.852559
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.923525
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:29.996045
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.070344
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.141375
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.239140
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.338571
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.413026
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.485295
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.558967
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.658282
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.731207
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.804281
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.876795
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:30.949585
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.047626
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.147494
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.218716
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.291063
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.366527
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.438793
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.514462
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.587138
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.661078
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.759385
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.856400
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:31.958573
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.030248
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.104054
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.178691
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.251195
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.321304
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.393475
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.466246
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.538411
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.611037
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.686249
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.786267
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.885610
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:32.986411
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.086131
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.182675
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.279903
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.378990
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.452096
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.549363
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.649634
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.749276
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.823032
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.897178
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:33.994032
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.092417
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.193383
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.291260
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.392727
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.489501
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.588495
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.690036
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.791655
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.888070
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:34.986618
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.086309
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.184020
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.290133
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.390646
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.488918
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.588587
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.686974
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.785579
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.884091
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:35.981288
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.080032
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.178719
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.277902
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.375836
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.473455
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.569813
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.669642
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.768874
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.863816
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:36.963269
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.060328
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.158816
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.256677
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.353000
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.452896
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.550806
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.648380
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.747688
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.844660
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:37.918001
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.017215
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.116680
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.215768
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.315161
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.413104
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.510006
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.608311
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.705163
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.805085
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.902333
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:38.999795
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.098065
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.196414
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.295667
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.392984
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.489991
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.588767
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.689651
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.788386
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.886805
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:39.984445
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.082567
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.181565
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.281292
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.378933
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.477814
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.577314
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.677499
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.775954
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.875408
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:40.974149
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.072291
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.170836
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.269044
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.367544
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.466023
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.563802
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.661689
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.761143
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.860329
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:41.959497
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.056967
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.156597
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.254738
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.353499
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.449533
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.550858
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.648815
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.747249
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.848280
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:42.955048
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.059001
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.162928
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.263370
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.366501
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.468705
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.567261
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.668517
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.767460
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.866386
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:43.968291
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.068066
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.168897
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.268164
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.365340
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.463197
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.561806
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.659822
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.765198
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.865818
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:44.968918
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.074442
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.179708
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.282361
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.383904
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.485687
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.587132
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.685054
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.783547
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.882133
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:45.981947
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.082205
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.183372
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.283921
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.380937
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.478491
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.579365
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.681919
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.782627
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.884535
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:46.986393
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.084086
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.183511
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.283848
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.384749
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.484612
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.584798
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.687844
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.795242
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.895982
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:47.995395
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.096766
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.195693
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.294865
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.394621
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.495432
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.594957
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.696611
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.795668
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.896649
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:48.997928
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.095640
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.195117
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.293783
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.393369
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.494746
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.594694
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.695314
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.796355
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.899121
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:49.998293
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:50.099107
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:50.201345
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:50.301575
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:50.401947
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:50.501340
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:50.603952
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:50.704861
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:50.811732
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:50.913522
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.011576
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.110518
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.211622
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.315155
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.413612
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.514094
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.613838
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.714112
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.788051
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.888383
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:51.991975
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.095608
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.199068
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.297699
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.396682
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.494568
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.594440
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.691946
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.791999
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.895295
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:52.995485
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:53.098566
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:53.199992
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:53.301582
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:53.405196
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:53.505230
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:53.607911
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:53.708150
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:53.808196
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:53.913062
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.016374
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.116546
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.217027
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.319623
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.424350
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.528896
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.632576
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.734872
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.834198
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:54.932754
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.033608
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.133486
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.234783
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.334169
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.433710
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.531981
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.633489
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.734802
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.835806
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:55.934704
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.035207
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.138446
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.242138
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.346315
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.444963
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.543066
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.643937
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.743895
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.813665
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:56.916223
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.017015
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.116686
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.216470
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.314465
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.417289
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.515840
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.616916
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.716695
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.816939
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:57.919971
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.024080
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.126561
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.226710
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.329372
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.429499
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.530133
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.628651
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.732094
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.833308
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:58.932538
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:59.032252
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:59.134048
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:59.231603
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:59.330640
+{'bearing': 0.0, 'detected': True, 'distance': 4094.8935546875}
+
+----- 2020-10-11 18:47:59.430874
+{'bearing': 7.820943832397461, 'detected': True, 'distance': 897.32470703125}
+
+----- 2020-10-11 18:47:59.533122
+{'bearing': 6.335097312927246, 'detected': True, 'distance': 925.1422119140625}
+
+----- 2020-10-11 18:47:59.638691
+{'bearing': 6.351430892944336, 'detected': True, 'distance': 1037.7545166015625}
+
+----- 2020-10-11 18:47:59.741560
+{'bearing': 5.9746994972229, 'detected': True, 'distance': 1071.109375}
+
+----- 2020-10-11 18:47:59.846203
+{'bearing': 5.658200263977051, 'detected': True, 'distance': 1302.0113525390625}
+
+----- 2020-10-11 18:47:59.952122
+{'bearing': 9.654319763183594, 'detected': True, 'distance': 1057.7235107421875}
+
+----- 2020-10-11 18:48:00.054934
+{'bearing': 10.725837707519531, 'detected': True, 'distance': 1012.459716796875}
+
+----- 2020-10-11 18:48:00.159893
+{'bearing': 13.755077362060547, 'detected': True, 'distance': 1059.428955078125}
+
+----- 2020-10-11 18:48:00.264933
+{'bearing': 13.447351455688477, 'detected': True, 'distance': 1336.779052734375}
+
+----- 2020-10-11 18:48:00.375413
+{'bearing': 18.23085594177246, 'detected': True, 'distance': 3847.421875}
+
+----- 2020-10-11 18:48:00.482349
+{'bearing': 25.900634765625, 'detected': True, 'distance': 1666.80810546875}
+
+----- 2020-10-11 18:48:00.593680
+{'bearing': 27.525489807128906, 'detected': True, 'distance': 1661.775390625}
+
+----- 2020-10-11 18:48:00.700523
+{'bearing': 25.862924575805664, 'detected': True, 'distance': 4110.6826171875}
+
+----- 2020-10-11 18:48:00.808601
+{'bearing': 25.87152862548828, 'detected': True, 'distance': 3982.56396484375}
+
+----- 2020-10-11 18:48:00.915790
+{'bearing': -27.038311004638672, 'detected': True, 'distance': 1758.98974609375}
+
+----- 2020-10-11 18:48:01.022077
+{'bearing': -24.484439849853516,
+ 'detected': True,
+ 'distance': 1808.2803955078125}
+
+----- 2020-10-11 18:48:01.129382
+{'bearing': -24.91009521484375,
+ 'detected': True,
+ 'distance': 1828.0072021484375}
+
+----- 2020-10-11 18:48:01.237156
+{'bearing': -23.307191848754883,
+ 'detected': True,
+ 'distance': 1853.1158447265625}
+
+----- 2020-10-11 18:48:01.347008
+{'bearing': -23.3292236328125, 'detected': True, 'distance': 1740.52734375}
+
+----- 2020-10-11 18:48:01.456591
+{'bearing': -22.89020538330078, 'detected': True, 'distance': 1748.64697265625}
+
+----- 2020-10-11 18:48:01.567938
+{'bearing': -21.05438232421875, 'detected': True, 'distance': 1875.511962890625}
+
+----- 2020-10-11 18:48:01.676561
+{'bearing': -20.70679473876953, 'detected': True, 'distance': 1923.82958984375}
+
+----- 2020-10-11 18:48:01.788705
+{'bearing': -20.57444190979004, 'detected': True, 'distance': 1920.376708984375}
+
+----- 2020-10-11 18:48:01.891758
+{'bearing': -20.834836959838867,
+ 'detected': True,
+ 'distance': 1960.7064208984375}
+
+----- 2020-10-11 18:48:02.001709
+{'bearing': -20.939029693603516,
+ 'detected': True,
+ 'distance': 1995.6563720703125}
+
+----- 2020-10-11 18:48:02.112273
+{'bearing': -21.585174560546875,
+ 'detected': True,
+ 'distance': 1986.2657470703125}
+
+----- 2020-10-11 18:48:02.220967
+{'bearing': -20.312469482421875,
+ 'detected': True,
+ 'distance': 1968.2452392578125}
+
+----- 2020-10-11 18:48:02.327723
+{'bearing': -21.054636001586914,
+ 'detected': True,
+ 'distance': 2042.593505859375}
+
+----- 2020-10-11 18:48:02.435905
+{'bearing': -18.314754486083984,
+ 'detected': True,
+ 'distance': 1909.3858642578125}
+
+----- 2020-10-11 18:48:02.548997
+{'bearing': -18.303544998168945,
+ 'detected': True,
+ 'distance': 1910.4478759765625}
+
+----- 2020-10-11 18:48:02.658219
+{'bearing': -18.302824020385742,
+ 'detected': True,
+ 'distance': 1910.5162353515625}
+
+----- 2020-10-11 18:48:02.769052
+{'bearing': -18.266016006469727, 'detected': True, 'distance': 1914.0126953125}
+
+----- 2020-10-11 18:48:02.878786
+{'bearing': -17.756044387817383,
+ 'detected': True,
+ 'distance': 1963.8917236328125}
+
+----- 2020-10-11 18:48:02.987852
+{'bearing': -18.116239547729492,
+ 'detected': True,
+ 'distance': 1895.8983154296875}
+
+----- 2020-10-11 18:48:03.094992
+{'bearing': -18.317153930664062, 'detected': True, 'distance': 1909.15869140625}
+
+----- 2020-10-11 18:48:03.202932
+{'bearing': -18.41494369506836, 'detected': True, 'distance': 1899.948974609375}
+
+----- 2020-10-11 18:48:03.308550
+{'bearing': -17.805267333984375,
+ 'detected': True,
+ 'distance': 1958.9573974609375}
+
+----- 2020-10-11 18:48:03.417922
+{'bearing': -17.77748680114746, 'detected': True, 'distance': 1961.739013671875}
+
+----- 2020-10-11 18:48:03.526722
+{'bearing': -18.29983901977539, 'detected': True, 'distance': 1910.79931640625}
+
+----- 2020-10-11 18:48:03.635030
+{'bearing': -19.477474212646484,
+ 'detected': True,
+ 'distance': 1961.7435302734375}
+
+----- 2020-10-11 18:48:03.745724
+{'bearing': -18.6098575592041, 'detected': True, 'distance': 2016.3394775390625}
+
+----- 2020-10-11 18:48:03.853570
+{'bearing': -18.537199020385742,
+ 'detected': True,
+ 'distance': 2024.0904541015625}
+
+----- 2020-10-11 18:48:03.963334
+{'bearing': -17.71012306213379, 'detected': True, 'distance': 1968.518798828125}
+
+----- 2020-10-11 18:48:04.074711
+{'bearing': -17.778520584106445,
+ 'detected': True,
+ 'distance': 1961.6353759765625}
+
+----- 2020-10-11 18:48:04.182900
+{'bearing': -18.501951217651367,
+ 'detected': True,
+ 'distance': 1891.833740234375}
+
+----- 2020-10-11 18:48:04.294204
+{'bearing': -18.441055297851562,
+ 'detected': True,
+ 'distance': 1897.5057373046875}
+
+----- 2020-10-11 18:48:04.403690
+{'bearing': -17.746347427368164,
+ 'detected': True,
+ 'distance': 1964.866943359375}
+
+----- 2020-10-11 18:48:04.511547
+{'bearing': -17.774105072021484,
+ 'detected': True,
+ 'distance': 1962.0782470703125}
+
+----- 2020-10-11 18:48:04.624678
+{'bearing': -18.199607849121094,
+ 'detected': True,
+ 'distance': 1920.3553466796875}
+
+----- 2020-10-11 18:48:04.733426
+{'bearing': -18.449172973632812, 'detected': True, 'distance': 1896.74755859375}
+
+----- 2020-10-11 18:48:04.841823
+{'bearing': -17.810333251953125,
+ 'detected': True,
+ 'distance': 1958.4510498046875}
+
+----- 2020-10-11 18:48:04.952377
+{'bearing': -18.311302185058594,
+ 'detected': True,
+ 'distance': 1909.7127685546875}
+
+----- 2020-10-11 18:48:05.061946
+{'bearing': -18.13534164428711, 'detected': True, 'distance': 1878.305908203125}
+
+----- 2020-10-11 18:48:05.172887
+{'bearing': -17.697261810302734,
+ 'detected': True,
+ 'distance': 1969.8187255859375}
+
+----- 2020-10-11 18:48:05.281599
+{'bearing': -16.84845542907715, 'detected': True, 'distance': 2223.75146484375}
+
+----- 2020-10-11 18:48:05.391151
+{'bearing': -18.25986671447754,
+ 'detected': True,
+ 'distance': 1914.5982666015625}
+
+----- 2020-10-11 18:48:05.496700
+{'bearing': -19.614633560180664, 'detected': True, 'distance': 2017.30419921875}
+
+----- 2020-10-11 18:48:05.606820
+{'bearing': -20.43732452392578,
+ 'detected': True,
+ 'distance': 2037.1322021484375}
+
+----- 2020-10-11 18:48:05.717956
+{'bearing': -20.457136154174805,
+ 'detected': True,
+ 'distance': 2034.9818115234375}
+
+----- 2020-10-11 18:48:05.823427
+{'bearing': -18.925642013549805, 'detected': True, 'distance': 2093.52001953125}
+
+----- 2020-10-11 18:48:05.929036
+{'bearing': -20.356538772583008,
+ 'detected': True,
+ 'distance': 2083.307861328125}
+
+----- 2020-10-11 18:48:06.042053
+{'bearing': 23.653228759765625, 'detected': True, 'distance': 2579.119873046875}
+
+----- 2020-10-11 18:48:06.150508
+{'bearing': -19.05791664123535, 'detected': True, 'distance': 2311.93212890625}
+
+----- 2020-10-11 18:48:06.258052
+{'bearing': -18.038095474243164, 'detected': True, 'distance': 2314.32177734375}
+
+----- 2020-10-11 18:48:06.365978
+{'bearing': -17.095991134643555,
+ 'detected': True,
+ 'distance': 2378.249755859375}
+
+----- 2020-10-11 18:48:06.472609
+{'bearing': -17.583187103271484,
+ 'detected': True,
+ 'distance': 2571.773193359375}
+
+----- 2020-10-11 18:48:06.577923
+{'bearing': -17.718387603759766,
+ 'detected': True,
+ 'distance': 2669.231201171875}
+
+----- 2020-10-11 18:48:06.684504
+{'bearing': -18.440826416015625,
+ 'detected': True,
+ 'distance': 2657.863525390625}
+
+----- 2020-10-11 18:48:06.789915
+{'bearing': -18.947460174560547, 'detected': True, 'distance': 2401.8544921875}
+
+----- 2020-10-11 18:48:06.894948
+{'bearing': -16.225942611694336, 'detected': True, 'distance': 2699.73193359375}
+
+----- 2020-10-11 18:48:07.005415
+{'bearing': -15.341750144958496,
+ 'detected': True,
+ 'distance': 2884.530029296875}
+
+----- 2020-10-11 18:48:07.110798
+{'bearing': -14.078547477722168, 'detected': True, 'distance': 3108.4833984375}
+
+----- 2020-10-11 18:48:07.217521
+{'bearing': -15.705307960510254, 'detected': True, 'distance': 2954.6806640625}
+
+----- 2020-10-11 18:48:07.323288
+{'bearing': -15.471993446350098, 'detected': True, 'distance': 3183.29541015625}
+
+----- 2020-10-11 18:48:07.431182
+{'bearing': 16.84628677368164, 'detected': True, 'distance': 2777.054931640625}
+
+----- 2020-10-11 18:48:07.537478
+{'bearing': -17.122560501098633, 'detected': True, 'distance': 2788.27099609375}
+
+----- 2020-10-11 18:48:07.641909
+{'bearing': -16.259418487548828, 'detected': True, 'distance': 2903.76171875}
+
+----- 2020-10-11 18:48:07.750304
+{'bearing': -15.419636726379395,
+ 'detected': True,
+ 'distance': 3108.143798828125}
+
+----- 2020-10-11 18:48:07.855935
+{'bearing': -15.531449317932129, 'detected': True, 'distance': 2917.421875}
+
+----- 2020-10-11 18:48:07.960095
+{'bearing': -15.527056694030762, 'detected': True, 'distance': 2918.42822265625}
+
+----- 2020-10-11 18:48:08.064378
+{'bearing': -15.48823070526123, 'detected': True, 'distance': 2927.35498046875}
+
+----- 2020-10-11 18:48:08.168303
+{'bearing': -15.079214096069336, 'detected': True, 'distance': 3024.90966796875}
+
+----- 2020-10-11 18:48:08.275818
+{'bearing': -14.947589874267578,
+ 'detected': True,
+ 'distance': 3057.735107421875}
+
+----- 2020-10-11 18:48:08.377728
+{'bearing': -14.410191535949707, 'detected': True, 'distance': 3109.5859375}
+
+----- 2020-10-11 18:48:08.482803
+{'bearing': -14.461882591247559,
+ 'detected': True,
+ 'distance': 3096.159423828125}
+
+----- 2020-10-11 18:48:08.585945
+{'bearing': -13.593949317932129, 'detected': True, 'distance': 3554.18212890625}
+
+----- 2020-10-11 18:48:08.689751
+{'bearing': -14.076294898986816,
+ 'detected': True,
+ 'distance': 3199.262939453125}
+
+----- 2020-10-11 18:48:08.793463
+{'bearing': -14.141132354736328,
+ 'detected': True,
+ 'distance': 3275.914306640625}
+
+----- 2020-10-11 18:48:08.899831
+{'bearing': -12.329570770263672,
+ 'detected': True,
+ 'distance': 3417.081298828125}
+
+----- 2020-10-11 18:48:09.003699
+{'bearing': 12.882549285888672, 'detected': True, 'distance': 3219.135986328125}
+
+----- 2020-10-11 18:48:09.106456
+{'bearing': -12.964417457580566, 'detected': True, 'distance': 3429.47705078125}
+
+----- 2020-10-11 18:48:09.209763
+{'bearing': -11.74770450592041, 'detected': True, 'distance': 3496.034912109375}
+
+----- 2020-10-11 18:48:09.312404
+{'bearing': 12.44415283203125, 'detected': True, 'distance': 3663.32763671875}
+
+----- 2020-10-11 18:48:09.417196
+{'bearing': -11.839691162109375,
+ 'detected': True,
+ 'distance': 3579.359619140625}
+
+----- 2020-10-11 18:48:09.519510
+{'bearing': 12.113629341125488, 'detected': True, 'distance': 3675.927001953125}
+
+----- 2020-10-11 18:48:09.623708
+{'bearing': 11.500774383544922, 'detected': True, 'distance': 3675.793701171875}
+
+----- 2020-10-11 18:48:09.728317
+{'bearing': -11.95267105102539, 'detected': True, 'distance': 3785.724365234375}
+
+----- 2020-10-11 18:48:09.834040
+{'bearing': 12.239057540893555, 'detected': True, 'distance': 3676.016357421875}
+
+----- 2020-10-11 18:48:09.939590
+{'bearing': -12.614075660705566, 'detected': True, 'distance': 3663.33447265625}
+
+----- 2020-10-11 18:48:10.041405
+{'bearing': 11.083045959472656, 'detected': True, 'distance': 3709.94287109375}
+
+----- 2020-10-11 18:48:10.144067
+{'bearing': 10.809462547302246, 'detected': True, 'distance': 3675.856689453125}
+
+----- 2020-10-11 18:48:10.244649
+{'bearing': 11.715982437133789, 'detected': True, 'distance': 3692.168701171875}
+
+----- 2020-10-11 18:48:10.346187
+{'bearing': -11.009894371032715,
+ 'detected': True,
+ 'distance': 3758.896240234375}
+
+----- 2020-10-11 18:48:10.448151
+{'bearing': -11.154645919799805, 'detected': True, 'distance': 3704.20458984375}
+
+----- 2020-10-11 18:48:10.554391
+{'bearing': -11.13539981842041, 'detected': True, 'distance': 3711.383056640625}
+
+----- 2020-10-11 18:48:10.657285
+{'bearing': -11.427093505859375, 'detected': True, 'distance': 3728.71435546875}
+
+----- 2020-10-11 18:48:10.762466
+{'bearing': -11.016522407531738, 'detected': True, 'distance': 3756.35595703125}
+
+----- 2020-10-11 18:48:10.867313
+{'bearing': -11.560572624206543,
+ 'detected': True,
+ 'distance': 3944.873291015625}
+
+----- 2020-10-11 18:48:10.973175
+{'bearing': -11.313299179077148,
+ 'detected': True,
+ 'distance': 3646.086181640625}
+
+----- 2020-10-11 18:48:11.078647
+{'bearing': -12.0588960647583, 'detected': True, 'distance': 3744.8251953125}
+
+----- 2020-10-11 18:48:11.180427
+{'bearing': -11.50682544708252, 'detected': True, 'distance': 3828.59814453125}
+
+----- 2020-10-11 18:48:11.286383
+{'bearing': -11.328877449035645, 'detected': True, 'distance': 3766.15185546875}
+
+----- 2020-10-11 18:48:11.389753
+{'bearing': -11.236174583435059,
+ 'detected': True,
+ 'distance': 3674.105712890625}
+
+----- 2020-10-11 18:48:11.494925
+{'bearing': -11.253859519958496, 'detected': True, 'distance': 3667.64208984375}
+
+----- 2020-10-11 18:48:11.596692
+{'bearing': -11.447196960449219, 'detected': True, 'distance': 3721.14453125}
+
+----- 2020-10-11 18:48:11.698785
+{'bearing': -11.420890808105469,
+ 'detected': True,
+ 'distance': 3731.056396484375}
+
+----- 2020-10-11 18:48:11.798659
+{'bearing': -11.626420021057129,
+ 'detected': True,
+ 'distance': 3781.569091796875}
+
+----- 2020-10-11 18:48:11.899138
+{'bearing': -11.647492408752441, 'detected': True, 'distance': 3647.392578125}
+
+----- 2020-10-11 18:48:12.001398
+{'bearing': -11.844669342041016,
+ 'detected': True,
+ 'distance': 3698.699462890625}
+
+----- 2020-10-11 18:48:12.103708
+{'bearing': -11.749555587768555, 'detected': True, 'distance': 3734.35693359375}
+
+----- 2020-10-11 18:48:12.206468
+{'bearing': -11.666647911071777, 'detected': True, 'distance': 3640.49462890625}
+
+----- 2020-10-11 18:48:12.309936
+{'bearing': -11.752899169921875,
+ 'detected': True,
+ 'distance': 3733.091552734375}
+
+----- 2020-10-11 18:48:12.411018
+{'bearing': -11.366525650024414,
+ 'detected': True,
+ 'distance': 3751.711669921875}
+
+----- 2020-10-11 18:48:12.517546
+{'bearing': -11.720555305480957,
+ 'detected': True,
+ 'distance': 3745.367919921875}
+
+----- 2020-10-11 18:48:12.621136
+{'bearing': -11.472733497619629, 'detected': True, 'distance': 3711.57373046875}
+
+----- 2020-10-11 18:48:12.728166
+{'bearing': -11.546311378479004,
+ 'detected': True,
+ 'distance': 3684.274169921875}
+
+----- 2020-10-11 18:48:12.829618
+{'bearing': -11.701428413391113, 'detected': True, 'distance': 3752.66650390625}
+
+----- 2020-10-11 18:48:12.935487
+{'bearing': -11.451083183288574, 'detected': True, 'distance': 3719.6845703125}
+
+----- 2020-10-11 18:48:13.043628
+{'bearing': -11.454032897949219,
+ 'detected': True,
+ 'distance': 3718.577392578125}
+
+----- 2020-10-11 18:48:13.148416
+{'bearing': -11.568472862243652,
+ 'detected': True,
+ 'distance': 3676.131591796875}
+
+----- 2020-10-11 18:48:13.248150
+{'bearing': -11.348937034606934,
+ 'detected': True,
+ 'distance': 3633.284912109375}
+
+----- 2020-10-11 18:48:13.350942
+{'bearing': -11.634627342224121, 'detected': True, 'distance': 3652.04052734375}
+
+----- 2020-10-11 18:48:13.472973
+{'bearing': -11.590592384338379,
+ 'detected': True,
+ 'distance': 3668.040771484375}
+
+----- 2020-10-11 18:48:13.577318
+{'bearing': -11.649253845214844, 'detected': True, 'distance': 3646.75732421875}
+
+----- 2020-10-11 18:48:13.681981
+{'bearing': -10.961502075195312, 'detected': True, 'distance': 3650.9716796875}
+
+----- 2020-10-11 18:48:13.782599
+{'bearing': -11.550044059753418, 'detected': True, 'distance': 3682.900390625}
+
+----- 2020-10-11 18:48:13.885180
+{'bearing': -11.524767875671387,
+ 'detected': True,
+ 'distance': 3692.225341796875}
+
+----- 2020-10-11 18:48:13.990294
+{'bearing': -11.957895278930664, 'detected': True, 'distance': 3783.69189453125}
+
+----- 2020-10-11 18:48:14.091068
+{'bearing': -11.0331449508667, 'detected': True, 'distance': 3625.26318359375}
+
+----- 2020-10-11 18:48:14.192434
+{'bearing': -10.944771766662598,
+ 'detected': True,
+ 'distance': 3657.028564453125}
+
+----- 2020-10-11 18:48:14.297069
+{'bearing': -11.401664733886719, 'detected': True, 'distance': 3738.33447265625}
+
+----- 2020-10-11 18:48:14.399184
+{'bearing': -11.352139472961426,
+ 'detected': True,
+ 'distance': 3757.216064453125}
+
+----- 2020-10-11 18:48:14.500907
+{'bearing': -10.6743745803833, 'detected': True, 'distance': 3892.1943359375}
+
+----- 2020-10-11 18:48:14.604936
+{'bearing': -11.00948429107666, 'detected': True, 'distance': 3893.349609375}
+
+----- 2020-10-11 18:48:14.708724
+{'bearing': -10.816084861755371,
+ 'detected': True,
+ 'distance': 3974.696044921875}
+
+----- 2020-10-11 18:48:14.813703
+{'bearing': -10.75879192352295, 'detected': True, 'distance': 3999.459716796875}
+
+----- 2020-10-11 18:48:14.915716
+{'bearing': -10.671435356140137, 'detected': True, 'distance': 4037.8251953125}
+
+----- 2020-10-11 18:48:15.015964
+{'bearing': -10.220320701599121, 'detected': True, 'distance': 4088.63134765625}
+
+----- 2020-10-11 18:48:15.118266
+{'bearing': -9.27758502960205, 'detected': True, 'distance': 4383.478515625}
+
+----- 2020-10-11 18:48:15.218747
+{'bearing': -9.189536094665527, 'detected': True, 'distance': 4430.0654296875}
+
+----- 2020-10-11 18:48:15.319365
+{'bearing': 10.01880168914795, 'detected': True, 'distance': 4453.615234375}
+
+----- 2020-10-11 18:48:15.420896
+{'bearing': 7.935426235198975, 'detected': True, 'distance': 4593.4140625}
+
+----- 2020-10-11 18:48:15.520380
+{'bearing': -7.447019577026367, 'detected': True, 'distance': 4855.33837890625}
+
+----- 2020-10-11 18:48:15.623516
+{'bearing': -7.352800369262695, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:15.721644
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:15.820460
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:15.920226
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.021949
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.122265
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.225384
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.323136
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.422055
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.520878
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.621062
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.721894
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.820829
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:16.922620
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.023255
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.121672
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.222290
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.324705
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.425549
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.527006
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.626668
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.726140
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.827724
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:17.926545
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:18.026390
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:18.124920
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:18.222625
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:18.322659
+{'bearing': 0.0, 'detected': True, 'distance': 4916.73388671875}
+
+----- 2020-10-11 18:48:18.425197
+{'bearing': 7.7260589599609375, 'detected': True, 'distance': 5082.71728515625}
+
+----- 2020-10-11 18:48:18.526314
+{'bearing': 0.0, 'detected': True, 'distance': 5082.71728515625}
+
+----- 2020-10-11 18:48:18.623845
+{'bearing': 0.0, 'detected': True, 'distance': 5082.71728515625}
+
+----- 2020-10-11 18:48:18.724550
+{'bearing': 7.509191036224365, 'detected': True, 'distance': 4728.15087890625}
+
+----- 2020-10-11 18:48:18.827216
+{'bearing': 8.235424041748047, 'detected': True, 'distance': 4698.75537109375}
+
+----- 2020-10-11 18:48:18.928653
+{'bearing': 8.618548393249512, 'detected': True, 'distance': 4596.48779296875}
+
+----- 2020-10-11 18:48:19.031524
+{'bearing': 8.44202995300293, 'detected': True, 'distance': 4484.0859375}
+
+----- 2020-10-11 18:48:19.133107
+{'bearing': 8.60204792022705, 'detected': True, 'distance': 4390.15771484375}
+
+----- 2020-10-11 18:48:19.233784
+{'bearing': 8.771490097045898, 'detected': True, 'distance': 4258.59521484375}
+
+----- 2020-10-11 18:48:19.338146
+{'bearing': 8.531389236450195, 'detected': True, 'distance': 4273.80126953125}
+
+----- 2020-10-11 18:48:19.438946
+{'bearing': 8.883026123046875, 'detected': True, 'distance': 4215.2333984375}
+
+----- 2020-10-11 18:48:19.542514
+{'bearing': 9.343510627746582, 'detected': True, 'distance': 4210.58740234375}
+
+----- 2020-10-11 18:48:19.645795
+{'bearing': 9.791356086730957, 'detected': True, 'distance': 4144.49462890625}
+
+----- 2020-10-11 18:48:19.749640
+{'bearing': 10.8562593460083, 'detected': True, 'distance': 4104.20166015625}
+
+----- 2020-10-11 18:48:19.853637
+{'bearing': 10.04328727722168, 'detected': True, 'distance': 4156.43310546875}
+
+----- 2020-10-11 18:48:19.955087
+{'bearing': 10.548497200012207, 'detected': True, 'distance': 4148.59375}
+
+----- 2020-10-11 18:48:20.055245
+{'bearing': 10.470296859741211, 'detected': True, 'distance': 4094.384521484375}
+
+----- 2020-10-11 18:48:20.156405
+{'bearing': -10.61334228515625, 'detected': True, 'distance': 4063.75439453125}
+
+----- 2020-10-11 18:48:20.258127
+{'bearing': -10.036849975585938, 'detected': True, 'distance': 4173.82470703125}
+
+----- 2020-10-11 18:48:20.361618
+{'bearing': -10.584329605102539,
+ 'detected': True,
+ 'distance': 4076.830322265625}
+
+----- 2020-10-11 18:48:20.462548
+{'bearing': -10.464156150817871, 'detected': True, 'distance': 4131.912109375}
+
+----- 2020-10-11 18:48:20.562900
+{'bearing': -10.57254409790039, 'detected': True, 'distance': 4082.166259765625}
+
+----- 2020-10-11 18:48:20.666774
+{'bearing': -9.132779121398926, 'detected': True, 'distance': 3970.258056640625}
+
+----- 2020-10-11 18:48:20.768231
+{'bearing': -10.148965835571289, 'detected': True, 'distance': 4121.3427734375}
+
+----- 2020-10-11 18:48:20.870498
+{'bearing': -10.540943145751953, 'detected': True, 'distance': 4096.54443359375}
+
+----- 2020-10-11 18:48:20.972385
+{'bearing': -10.557562828063965, 'detected': True, 'distance': 4088.9697265625}
+
+----- 2020-10-11 18:48:21.075937
+{'bearing': -10.579232215881348,
+ 'detected': True,
+ 'distance': 4079.136474609375}
+
+----- 2020-10-11 18:48:21.176859
+{'bearing': -10.80001163482666, 'detected': True, 'distance': 4132.71142578125}
+
+----- 2020-10-11 18:48:21.279520
+{'bearing': -10.540326118469238, 'detected': True, 'distance': 4096.826171875}
+
+----- 2020-10-11 18:48:21.382177
+{'bearing': -10.54047966003418, 'detected': True, 'distance': 4096.755859375}
+
+----- 2020-10-11 18:48:21.487224
+{'bearing': -10.2489652633667, 'detected': True, 'distance': 4075.64697265625}
+
+----- 2020-10-11 18:48:21.588997
+{'bearing': -10.25545597076416, 'detected': True, 'distance': 4072.716552734375}
+
+----- 2020-10-11 18:48:21.689768
+{'bearing': -10.243934631347656,
+ 'detected': True,
+ 'distance': 4077.921142578125}
+
+----- 2020-10-11 18:48:21.793449
+{'bearing': -10.595358848571777,
+ 'detected': True,
+ 'distance': 4071.849365234375}
+
+----- 2020-10-11 18:48:21.895276
+{'bearing': -10.553438186645508, 'detected': True, 'distance': 4090.84716796875}
+
+----- 2020-10-11 18:48:21.964700
+{'bearing': -10.532269477844238, 'detected': True, 'distance': 4100.5087890625}
+
+----- 2020-10-11 18:48:22.065995
+{'bearing': -10.42285442352295, 'detected': True, 'distance': 4151.1923828125}
+
+----- 2020-10-11 18:48:22.170120
+{'bearing': -10.49725341796875, 'detected': True, 'distance': 4116.59228515625}
+
+----- 2020-10-11 18:48:22.270591
+{'bearing': -10.503705978393555, 'detected': True, 'distance': 4113.61865234375}
+
+----- 2020-10-11 18:48:22.370759
+{'bearing': -10.5621976852417, 'detected': True, 'distance': 4086.862548828125}
+
+----- 2020-10-11 18:48:22.470934
+{'bearing': -10.24870491027832, 'detected': True, 'distance': 4075.7646484375}
+
+----- 2020-10-11 18:48:22.572947
+{'bearing': -10.24311351776123, 'detected': True, 'distance': 4078.29296875}
+
+----- 2020-10-11 18:48:22.676660
+{'bearing': -10.258416175842285, 'detected': True, 'distance': 4071.38134765625}
+
+----- 2020-10-11 18:48:22.777529
+{'bearing': -10.537081718444824, 'detected': True, 'distance': 4098.30810546875}
+
+----- 2020-10-11 18:48:22.880262
+{'bearing': -10.64197826385498, 'detected': True, 'distance': 4050.93115234375}
+
+----- 2020-10-11 18:48:22.979759
+{'bearing': -10.55027961730957, 'detected': True, 'distance': 4092.28564453125}
+
+----- 2020-10-11 18:48:23.085174
+{'bearing': -10.755918502807617,
+ 'detected': True,
+ 'distance': 4000.710205078125}
+
+----- 2020-10-11 18:48:23.185302
+{'bearing': -10.595248222351074,
+ 'detected': True,
+ 'distance': 4071.899169921875}
+
+----- 2020-10-11 18:48:23.285992
+{'bearing': -10.234049797058105, 'detected': True, 'distance': 4082.3974609375}
+
+----- 2020-10-11 18:48:23.387133
+{'bearing': -10.746715545654297,
+ 'detected': True,
+ 'distance': 4004.719482421875}
+
+----- 2020-10-11 18:48:23.490125
+{'bearing': -9.770118713378906, 'detected': True, 'distance': 3988.009765625}
+
+----- 2020-10-11 18:48:23.590769
+{'bearing': -10.637188911437988, 'detected': True, 'distance': 4053.0703125}
+
+----- 2020-10-11 18:48:23.690414
+{'bearing': -9.957537651062012, 'detected': True, 'distance': 4054.541748046875}
+
+----- 2020-10-11 18:48:23.789630
+{'bearing': -10.628741264343262,
+ 'detected': True,
+ 'distance': 4056.848388671875}
+
+----- 2020-10-11 18:48:23.892116
+{'bearing': -10.733881950378418,
+ 'detected': True,
+ 'distance': 4010.324462890625}
+
+----- 2020-10-11 18:48:23.992389
+{'bearing': -10.579009056091309,
+ 'detected': True,
+ 'distance': 4079.237548828125}
+
+----- 2020-10-11 18:48:24.095445
+{'bearing': -10.39536190032959, 'detected': True, 'distance': 4010.569580078125}
+
+----- 2020-10-11 18:48:24.196373
+{'bearing': -10.601278305053711,
+ 'detected': True,
+ 'distance': 4069.181396484375}
+
+----- 2020-10-11 18:48:24.297188
+{'bearing': -10.211138725280762, 'detected': True, 'distance': 4092.81103515625}
+
+----- 2020-10-11 18:48:24.398563
+{'bearing': -10.195387840270996, 'detected': True, 'distance': 4100.00146484375}
+
+----- 2020-10-11 18:48:24.504097
+{'bearing': -9.607457160949707, 'detected': True, 'distance': 4059.604248046875}
+
+----- 2020-10-11 18:48:24.604160
+{'bearing': -10.23603343963623, 'detected': True, 'distance': 4081.49853515625}
+
+----- 2020-10-11 18:48:24.707410
+{'bearing': -10.688495635986328, 'detected': True, 'distance': 4030.2744140625}
+
+----- 2020-10-11 18:48:24.810347
+{'bearing': -10.678287506103516,
+ 'detected': True,
+ 'distance': 4034.789306640625}
+
+----- 2020-10-11 18:48:24.913812
+{'bearing': -10.253549575805664,
+ 'detected': True,
+ 'distance': 4073.576904296875}
+
+----- 2020-10-11 18:48:25.017869
+{'bearing': -10.590977668762207, 'detected': True, 'distance': 4073.82666015625}
+
+----- 2020-10-11 18:48:25.120170
+{'bearing': -10.604970932006836, 'detected': True, 'distance': 4067.5185546875}
+
+----- 2020-10-11 18:48:25.223512
+{'bearing': -10.24532413482666, 'detected': True, 'distance': 4077.292724609375}
+
+----- 2020-10-11 18:48:25.323664
+{'bearing': -10.596017837524414, 'detected': True, 'distance': 4071.55224609375}
+
+----- 2020-10-11 18:48:25.427218
+{'bearing': -10.710082054138184,
+ 'detected': True,
+ 'distance': 4020.760986328125}
+
+----- 2020-10-11 18:48:25.529742
+{'bearing': -10.599686622619629, 'detected': True, 'distance': 4069.8984375}
+
+----- 2020-10-11 18:48:25.630888
+{'bearing': -10.732489585876465,
+ 'detected': True,
+ 'distance': 4010.933349609375}
+
+----- 2020-10-11 18:48:25.734061
+{'bearing': -10.382795333862305,
+ 'detected': True,
+ 'distance': 4016.072998046875}
+
+----- 2020-10-11 18:48:25.836019
+{'bearing': -10.054523468017578, 'detected': True, 'distance': 3868.7900390625}
+
+----- 2020-10-11 18:48:25.936168
+{'bearing': 11.514846801757812, 'detected': True, 'distance': 3641.49560546875}
+
+----- 2020-10-11 18:48:26.036257
+{'bearing': 12.04765796661377, 'detected': True, 'distance': 3446.342529296875}
+
+----- 2020-10-11 18:48:26.142860
+{'bearing': -11.313029289245605, 'detected': True, 'distance': 3772.26416015625}
+
+----- 2020-10-11 18:48:26.243832
+{'bearing': 11.341343879699707, 'detected': True, 'distance': 3707.334228515625}
+
+----- 2020-10-11 18:48:26.348181
+{'bearing': -11.269063949584961, 'detected': True, 'distance': 3662.103515625}
+
+----- 2020-10-11 18:48:26.449831
+{'bearing': -12.323726654052734, 'detected': True, 'distance': 3646.6591796875}
+
+----- 2020-10-11 18:48:26.554645
+{'bearing': -12.101028442382812, 'detected': True, 'distance': 3605.94677734375}
+
+----- 2020-10-11 18:48:26.659587
+{'bearing': -12.09249210357666, 'detected': True, 'distance': 3608.959228515625}
+
+----- 2020-10-11 18:48:26.763915
+{'bearing': -13.110236167907715,
+ 'detected': True,
+ 'distance': 3491.223876953125}
+
+----- 2020-10-11 18:48:26.867641
+{'bearing': 13.2972993850708, 'detected': True, 'distance': 3418.28125}
+
+----- 2020-10-11 18:48:26.975794
+{'bearing': -13.472376823425293,
+ 'detected': True,
+ 'distance': 3375.627685546875}
+
+----- 2020-10-11 18:48:27.079047
+{'bearing': 13.978679656982422, 'detected': True, 'distance': 2886.94189453125}
+
+----- 2020-10-11 18:48:27.183578
+{'bearing': 16.170574188232422, 'detected': True, 'distance': 2564.13525390625}
+
+----- 2020-10-11 18:48:27.288883
+{'bearing': 17.609798431396484, 'detected': True, 'distance': 2393.758056640625}
+
+----- 2020-10-11 18:48:27.396262
+{'bearing': 16.679462432861328, 'detected': True, 'distance': 2763.943359375}
+
+----- 2020-10-11 18:48:27.502076
+{'bearing': 17.55740737915039, 'detected': True, 'distance': 2855.51220703125}
+
+----- 2020-10-11 18:48:27.608106
+{'bearing': 17.967172622680664, 'detected': True, 'distance': 2650.843505859375}
+
+----- 2020-10-11 18:48:27.715019
+{'bearing': 18.95136070251465, 'detected': True, 'distance': 2593.166259765625}
+
+----- 2020-10-11 18:48:27.828982
+{'bearing': 23.184717178344727, 'detected': True, 'distance': 2454.27734375}
+
+----- 2020-10-11 18:48:27.934471
+{'bearing': 23.568002700805664, 'detected': True, 'distance': 2192.2333984375}
+
+----- 2020-10-11 18:48:28.040396
+{'bearing': 22.110673904418945, 'detected': True, 'distance': 2234.546875}
+
+----- 2020-10-11 18:48:28.146007
+{'bearing': 24.413301467895508, 'detected': True, 'distance': 1903.719970703125}
+
+----- 2020-10-11 18:48:28.257130
+{'bearing': 26.169780731201172, 'detected': True, 'distance': 4818.0693359375}
+
+----- 2020-10-11 18:48:28.367261
+{'bearing': 23.200077056884766, 'detected': True, 'distance': 4447.1337890625}
+
+----- 2020-10-11 18:48:28.478483
+{'bearing': 27.868959426879883,
+ 'detected': True,
+ 'distance': 1176.0828857421875}
+
+----- 2020-10-11 18:48:28.592499
+{'bearing': 31.09993553161621, 'detected': True, 'distance': 3577.2783203125}
+
+----- 2020-10-11 18:48:28.700278
+{'bearing': 27.473058700561523, 'detected': True, 'distance': 5238.3935546875}
+
+----- 2020-10-11 18:48:28.807820
+{'bearing': -47.14990997314453, 'detected': True, 'distance': 5233.90283203125}
+
+----- 2020-10-11 18:48:28.913220
+{'bearing': -44.923606872558594,
+ 'detected': True,
+ 'distance': 1286.4322509765625}
+
+----- 2020-10-11 18:48:29.023456
+{'bearing': 50.3292350769043, 'detected': True, 'distance': 824.0816650390625}
+
+----- 2020-10-11 18:48:29.129957
+{'bearing': 50.15842819213867, 'detected': True, 'distance': 779.996826171875}
+
+----- 2020-10-11 18:48:29.233060
+{'bearing': 44.802635192871094, 'detected': True, 'distance': 872.0960083007812}
+
+----- 2020-10-11 18:48:29.332278
+{'bearing': 56.62845230102539, 'detected': True, 'distance': 813.4767456054688}
+
+----- 2020-10-11 18:48:29.432544
+{'bearing': 50.12295150756836, 'detected': True, 'distance': 704.2120361328125}
+
+----- 2020-10-11 18:48:29.532885
+{'bearing': 30.585115432739258, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:29.631058
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:29.732446
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:29.828897
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:29.928634
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:30.031262
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:30.132941
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:30.233688
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:30.331611
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:30.430814
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:30.532526
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:30.633204
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:30.732100
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+
+----- 2020-10-11 18:48:30.830163
+{'bearing': 0.0, 'detected': True, 'distance': 699.9962158203125}
+

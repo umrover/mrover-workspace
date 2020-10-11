@@ -132,7 +132,7 @@ class SensorFusion:
         self.lcm = aiolcm.AsyncLCM()
         self.lcm.subscribe("/gps", self._gpsCallback)
         self.lcm.subscribe("/imu_data", self._imuCallback)
-        self.lcm.subscribe("/nav_status", self._imuCallback)
+        self.lcm.subscribe("/nav_status", self._navStatusCallback)
 
     def _gpsCallback(self, channel, msg):
         new_gps = GPS.decode(msg)
@@ -142,6 +142,18 @@ class SensorFusion:
         if self.filter is None and self.gps.ready():
             self._constructFilter()
             self.gps.fresh = False
+        # if self.gps.ready() and self.imu.ready():
+        #     odom = Odometry()
+        #     pos = self.gps.pos.asMinutes()
+        #     odom.latitude_deg = pos["lat_deg"]
+        #     odom.latitude_min = pos["lat_min"]
+        #     odom.longitude_deg = pos["long_deg"]
+        #     odom.longitude_min = pos["long_min"]
+        #     odom.bearing_deg = self.imu.bearing.bearing_deg
+        #     vel = self.gps.vel.absolutify(0)
+        #     odom.speed = np.hypot(vel["north"], vel["east"])
+        #     self.lcm.publish('/odometry', odom.encode())
+
 
     def _imuCallback(self, channel, msg):
         new_imu = IMUData.decode(msg)
@@ -335,6 +347,7 @@ class SensorFusion:
 def main():
     fuser = SensorFusion()
     run_coroutines(fuser.lcm.loop(), fuser.run())
+    # run_coroutines(fuser.lcm.loop())
 
 
 if __name__ == '__main__':
