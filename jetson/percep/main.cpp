@@ -2,30 +2,13 @@
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
-#include <thread>
 
 using namespace cv;
 using namespace std;
-
-int calcFocalWidth(){   //mm
-    return tan(fieldofView/2) * focalLength;
-}
-
-int calcRoverPix(float dist, float pixWidth){   //pix
-    float roverWidthSensor = realWidth * 1.2  * focalLength/(dist * 1000);
-    return roverWidthSensor*(pixWidth/2)/calcFocalWidth();
-}
-
-float getGroundDist(float angleOffset){  // the expected distance if no obstacles
-    return zedHeight/sin(angleOffset);
-}
+using namespace std::chrono_literals;
 
 double getAngle(float xPixel, float wPixel){
     return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
-}
-
-float getObstacleMin(float expected){
-    return expected - obstacleThreshold/sin(angleOffset);
 }
 
 bool cam_grab_succeed(Camera &cam, int & counter_fail) {
@@ -94,7 +77,6 @@ int main() {
     namedWindow("depth", 2);
   #endif
   disk_record_init();
-
   //Video Stuff
   TagDetector d1;
   pair<Tag, Tag> tp;
@@ -103,9 +85,12 @@ int main() {
   time_t now = time(0);
   char* ltm = ctime(&now);
   string timeStamp(ltm);
+  
+  #if AR_DETECTION
   Mat rgb;
   Mat src = cam.image();
-  
+  #endif
+
   #if AR_RECORD
   //initializing ar tag videostream object
   
@@ -141,7 +126,15 @@ int main() {
 
   #if OBSTACLE_DETECTION
   /* --- Dynamically Allocate Point Cloud --- */
+  int cloudArea = 0;
+  
+  #if ZED_SDK_PRESENT
   sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
+  cloudArea = cloud_res.area();
+  #else
+  cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
+  #endif
+  
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>); //This is a smart pointer so no need to worry ab deleteing it
  
   #if PERCEPTION_DEBUG
@@ -155,10 +148,13 @@ int main() {
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
 
+    #if AR_DETECTION
     //Grab initial images from cameras
     Mat rgb;
     Mat src = cam.image();
     Mat depth_img = cam.depth();
+    #endif
+    
 
     // write to disk if permitted
     #if WRITE_CURR_FRAME_TO_DISK
@@ -219,7 +215,7 @@ int main() {
 
     //Update Point Cloud
     point_cloud_ptr->clear();
-    point_cloud_ptr->points.resize(cloud_res.area());
+    point_cloud_ptr->points.resize(cloudArea);
     point_cloud_ptr->width = PT_CLOUD_WIDTH;
     point_cloud_ptr->height = PT_CLOUD_HEIGHT;
     
@@ -256,17 +252,17 @@ int main() {
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
-    #if PERCEPTION_DEBUG
-      imshow("depth", depth_img);
-      waitKey(FRAME_WAITKEY);
+    #if PERCEPTION_DEBUG && AR_DETECTION
+      imshow("depth", src);
+      waitKey(1);
+      auto start = std::chrono::high_resolution_clock::now();
+      std::this_thread::sleep_for(0.2s);
+      auto end = std::chrono::high_resolution_clock::now();    
     #endif
-
-    j++;
+    ++j;
   }
-  #if OBSTACLE_DETECTION
-  #if PERCEPTION_DEBUG
+  #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
   viewer->close();
-  #endif
   #endif
   
   #if AR_RECORD

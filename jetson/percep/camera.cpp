@@ -27,9 +27,8 @@ public:
 	cv::Mat image();
 	cv::Mat depth();
 
-  void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
   #if OBSTACLE_DETECTION
-  
+  void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
   #endif
   
 private:
@@ -148,39 +147,68 @@ public:
   Impl();
   ~Impl();
   bool grab();
+
+  #if AR_DETECTION
   cv::Mat image();
   cv::Mat depth();
+  #endif
+
+  #if OBSTACLE_DETECTION
+  void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
+  #endif
 private:
   std::vector<std::string> img_names;
-  int idx_curr_img;
+  std::vector<std::string> pcd_names;
+
+	int idx_curr_img;
+  int idx_curr_pcd_img;
 
   std::string path;
   std::string rgb_path;
   DIR * rgb_dir;
   std::string depth_path;
   DIR * depth_dir;
+  std::string pcd_path;
+  DIR * pcd_dir;
 };
 
 Camera::Impl::~Impl() {
   closedir(rgb_dir);
   closedir(depth_dir);
+  closedir(pcd_dir);
 }
 
 Camera::Impl::Impl() {
+  
   std::cout<<"Please input the folder path (there should be a rgb and depth existing in this folder): ";
   std::cin>>path;
+  
+  #if AR_DETECTION
   rgb_path = path + "/rgb";
   depth_path = path + "/depth";
   rgb_dir = opendir(rgb_path.c_str() );
   depth_dir = opendir(depth_path.c_str() );
-  if ( NULL==rgb_dir || NULL==depth_dir ) {
+  if ( NULL==rgb_dir || NULL==depth_dir) {
     std::cerr<<"Input folder not exist\n";    
     return;
   }
 
+  #endif
+  #if OBSTACLE_DETECTION
+  pcd_path = path + "/pcl";
+  pcd_dir = opendir(pcd_path.c_str() );
+  if (NULL==pcd_dir) {
+    std::cerr<<"Input folder not exist\n";    
+    return;
+  }
+  #endif
+  
+
   // get the vector of image names, jpg/png for rgb files, .exr for depth files
   // we only read the rgb folder, and assume that the depth folder's images have the same name
   struct dirent *dp = NULL;
+  #if AR_DETECTION
+  
   std::unordered_set<std::string> img_tails({".exr", ".jpg"}); // for rgb
   int img_tail_str_len = 4;
   std::cout<<"Read image names\n";
@@ -192,7 +220,7 @@ Camera::Impl::Impl() {
       if (file_name.size() < 5) continue; // the lengh of the tail str is at least 4
       std::string tail = file_name.substr(file_name.size()-4, 4);
       std::string head = file_name.substr(0, file_name.size()-4);
-      if (img_tails.find(tail)!= img_tails.end()) {
+      if (img_tails.find(tail) != img_tails.end()) {
         img_names.push_back(file_name);
       }
     }
@@ -200,22 +228,67 @@ Camera::Impl::Impl() {
   std::sort(img_names.begin(), img_names.end());
   std::cout<<"Read image names complete\n";
   idx_curr_img = 0;
+
+#endif
+
+#if OBSTACLE_DETECTION
+ dp = NULL;
+
+ std::cout<<"Read PCL image names\n";
+  
+  do{
+    
+    if ((dp = readdir(pcd_dir)) != NULL) {
+      
+      std::string file_name(dp->d_name);
+      std::cout<<"file_name is "<<file_name<<std::endl;
+      
+      // the lengh of the tail str is at least 4
+      if (file_name.size() < 5) continue;
+
+      pcd_names.push_back(file_name);
+      
+    }
+
+ } while (dp != NULL);
+
+  std::sort(pcd_names.begin(), pcd_names.end());
+  std::cout<<"Read .pcd image names complete\n";
+  idx_curr_pcd_img = 0;
+
+#endif
 }
 
 bool Camera::Impl::grab() {
+
+  bool end = true;
+
+  #if AR_DETECTION
   idx_curr_img++;
-  if (idx_curr_img >= img_names.size()-2) {
+  if (idx_curr_img >= img_names.size()) {
     std::cout<<"Ran out of images\n";
+    end = false;
+  }
+  #endif
+
+  #if OBSTACLE_DETECTION
+  idx_curr_pcd_img++;
+  if (idx_curr_pcd_img >= pcd_names.size()-2) {
+    std::cout<<"Ran out of images\n";
+    end = false;  
+  }
+  #endif
+  if(!end){
     exit(1);
-    return false;
-  } else
-    return true;
+  }
+  return end;
 }
 
-
+#if AR_DETECTION
 cv::Mat Camera::Impl::image() {
   std::string full_path = rgb_path + std::string("/") + (img_names[idx_curr_img]);
-
+cerr << img_names[idx_curr_img] << "\n";
+cerr << full_path << "\n";
   cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_COLOR);
   if (!img.data){
     std::cerr<<"Load image "<<full_path<< " error\n";
@@ -234,6 +307,30 @@ cv::Mat Camera::Impl::depth() {
   }
   return img;
 }
+#endif
+
+#if OBSTACLE_DETECTION
+void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud){
+ 
+ //Read in image names
+ std::string pcd_name = pcd_names[idx_curr_pcd_img];
+ std::string full_path = pcd_path + std::string("/") + pcd_name;
+
+  //Load in the file  
+  if (pcl::io::loadPCDFile<pcl::PointXYZRGB> (full_path, *p_pcl_point_cloud) == -1){ //* load the file 
+    PCL_ERROR ("Couldn't read file test_pcd.pcd \n"); 
+  }
+}
+#endif
+
+/*
+void Camera::Impl::writeDataCloud(int j){
+  string name = ("pcl" + to_string(j) + ".pcd"); 
+  cerr<<name<<"\n"; 
+  pcl::io::savePCDFileASCII (name, *point_cloud_ptr); 
+  std::cerr << "Saved " << point_cloud_ptr->size () << " data points to test_pcd.pcd." << std::endl;
+}
+*/
 
 #endif
 
@@ -248,6 +345,7 @@ bool Camera::grab() {
 	return this->impl_->grab();
 }
 
+#if AR_DETECTION
 cv::Mat Camera::image() {
 	return this->impl_->image();
 }
@@ -255,6 +353,8 @@ cv::Mat Camera::image() {
 cv::Mat Camera::depth() {
 	return this->impl_->depth();
 }
+#endif
+
 #if OBSTACLE_DETECTION
 void Camera::getDataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud) {
   this->impl_->dataCloud(p_pcl_point_cloud);

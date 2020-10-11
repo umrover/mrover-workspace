@@ -2,7 +2,7 @@
 #include <opencv2/opencv.hpp>
 
 #if OBSTACLE_DETECTION
-	#include <pcl/common/common_headers.h>
+#include <pcl/common/common_headers.h>
 #endif
 
 
