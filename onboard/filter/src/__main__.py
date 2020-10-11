@@ -2,10 +2,11 @@ import json
 import time
 import asyncio
 import numpy as np
+from copy import deepcopy
 from os import getenv
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import IMUData, GPS, Odometry
+from rover_msgs import IMUData, GPS, Odometry, NavStatus
 from .inputs import Gps, Imu
 from .linearKalman import LinearKalmanFilter, QDiscreteWhiteNoise
 from .conversions import meters2lat, meters2long, lat2meters, long2meters, \
@@ -80,8 +81,8 @@ class StateEstimate:
         self.pos["lat_deg"], self.pos["lat_min"] = decimal2min(lat_decimal_deg)
         long_decimal_deg = meters2long(lkf_out[2], lat_decimal_deg, ref_long=self.ref_long)
         self.pos["long_deg"], self.pos["long_min"] = decimal2min(long_decimal_deg)
-        self.vel["north"] = lkf_out[1]
-        self.vel["east"] = lkf_out[3]
+        self.vel["north"] = np.asscalar(lkf_out[1])
+        self.vel["east"] = np.asscalar(lkf_out[3])
 
     def asOdom(self):
         '''
@@ -106,6 +107,8 @@ class SensorFusion:
     @attribute dict config: user-configured parameters found in config/filter/config.json
     @attribute Gps gps: GPS sensor
     @attribute Imu imu: IMU sensor
+    @attribute str nav_state: current nav state
+    @attribute set static_nav_states: nav states where rover is known to be static
     @attribute Filter filter: filter used to perform sensor fusion
     @attribute StateEstimate state_estimate: current state estimate
     @attribute AsyncLCM lcm: LCM driver
@@ -119,6 +122,8 @@ class SensorFusion:
 
         self.gps = Gps()
         self.imu = Imu(self.config["IMU_accel_filter_bias"], self.config["IMU_accel_threshold"])
+        self.nav_state = None
+        self.static_nav_states = {None, "Off", "Done", "Search Spin Wait", "Turned to Target Wait", "Gate Spin Wait"}
 
         self.filter = None
         self.state_estimate = StateEstimate(ref_lat=self.config["RefCoords"]["lat"],
@@ -127,25 +132,14 @@ class SensorFusion:
         self.lcm = aiolcm.AsyncLCM()
         self.lcm.subscribe("/gps", self._gpsCallback)
         self.lcm.subscribe("/imu_data", self._imuCallback)
+        self.lcm.subscribe("/nav_status", self._imuCallback)
 
     def _gpsCallback(self, channel, msg):
         new_gps = GPS.decode(msg)
         self.gps.update(new_gps)
 
-        # Construct filter on first GPS message
+        # Attempt to filter on first GPS message
         if self.filter is None and self.gps.ready():
-            ref_bearing = self._getFreshBearing()
-            if ref_bearing is None:
-                return
-            pos = self.gps.pos.asMinutes()
-            # vel = self.gps.vel.absolutify(ref_bearing)
-            vel = {"north": 0, "east": 0}
-
-            self.state_estimate = StateEstimate(pos["lat_deg"], pos["lat_min"], vel["north"],
-                                                pos["long_deg"], pos["long_min"], vel["east"],
-                                                ref_bearing,
-                                                ref_lat=self.config["RefCoords"]["lat"],
-                                                ref_long=self.config["RefCoords"]["long"])
             self._constructFilter()
             self.gps.fresh = False
 
@@ -153,19 +147,35 @@ class SensorFusion:
         new_imu = IMUData.decode(msg)
         self.imu.update(new_imu)
         # DEBUG
-        with open("odom_accel_log.json", 'a') as out:
-            out.write('{"accel_x_g": ' + str(self.imu.accel.accel_x / 9.8) + '},\n')
+        # with open("odom_accel_log.json", 'a') as out:
+        #     out.write('{"accel_x_g": ' + str(self.imu.accel.accel_x / 9.8) + '},\n')
+
+    def _navStatusCallback(self, channel, msg):
+        new_nav_status = NavStatus.decode(msg)
+        self.nav_state = new_nav_status.nav_state_name
 
     def _constructFilter(self):
         '''
         Constructs filter depending on filter type
         '''
+        ref_bearing = self._getFreshBearing()
+        if ref_bearing is None:
+            return
+
         dt = self.config['dt']
 
+        pos = self.gps.pos.asMinutes()
+        # vel = self.gps.vel.absolutify(ref_bearing)
+        vel = {"north": 0, "east": 0}
+        self.state_estimate = StateEstimate(pos["lat_deg"], pos["lat_min"], vel["north"],
+                                            pos["long_deg"], pos["long_min"], vel["east"],
+                                            ref_bearing,
+                                            ref_lat=self.config["RefCoords"]["lat"],
+                                            ref_long=self.config["RefCoords"]["long"])
+
         if self.config['FilterType'] == 'LinearKalman':
-            x_initial = self.state_estimate
             P_initial = self.config['P_initial']
-            R = self.config['R']
+            R = self.config['R_Dynamic']
 
             F = np.array([[1., dt, 0., 0.],
                           [0., 1., 0., 0.],
@@ -179,10 +189,10 @@ class SensorFusion:
 
             H = np.eye(4)
 
-            Q = QDiscreteWhiteNoise(2, dt, self.config["Q"], 2)
+            Q = QDiscreteWhiteNoise(2, dt, self.config["Q_Dynamic"], 2)
 
             self.filter = LinearKalmanFilter(4, 4, dim_u=2)
-            self.filter.construct(x_initial, P_initial, F, H, Q, R, B=B)
+            self.filter.construct(self.state_estimate, P_initial, F, H, Q, R, B=B)
         else:
             raise ValueError("Invalid filter type!")
 
@@ -240,6 +250,15 @@ class SensorFusion:
         else:
             return None
 
+    def _zeroVel(self):
+        '''
+        Zeros velocity and variance in velocity
+        '''
+        self.filter.x[1] = 0.0
+        self.filter.x[3] = 0.0
+        self.filter.P[1,:] = 0.0
+        self.filter.P[3,:] = 0.0
+
     async def run(self):
         '''
         Runs main loop for filtering data and publishing state estimates
@@ -253,7 +272,14 @@ class SensorFusion:
                 accel = self._getFreshAccel(bearing)
 
                 u = np.array([accel["north"], accel["east"]]) if accel is not None else None
-                self.filter.predict(u=u)
+                Q = None
+                if self.nav_state in self.static_nav_states:
+                    Q = QDiscreteWhiteNoise(2, self.config["dt"], self.config["Q_Static"], 2)
+                self.filter.predict(u=u, Q=Q)
+
+                # Zero velocity if in a static nav state
+                if self.nav_state in self.static_nav_states:
+                    self._zeroVel()
 
                 z = None
                 H = None
@@ -271,14 +297,27 @@ class SensorFusion:
                         H = np.eye(4)
                     else:
                         # If only position is available, zero out the velocity residual
-                        z = np.array([pos_meters["lat"], 0, pos_meters["long"], 0])
-                        H = np.diag([1, 0, 1, 0])
+                        vel = self.state_estimate.vel
+                        z = np.array([pos_meters["lat"], vel["north"], pos_meters["long"], vel["east"]])
+                        # z = np.array([pos_meters["lat"], 0, pos_meters["long"], 0])
+                        # H = np.diag([1, 0, 1, 0])
+                        H = np.eye(4)
                 else:
                     if vel is not None:
                         # If only velocity is availble, zero out the position residual
                         z = np.array([0, vel["north"], 0, vel["east"]])
                         H = np.diag([0, 1, 0, 1])
-                self.filter.update(z, H=H)
+
+                # Full faith in velocity measurement if static
+                R = None
+                if self.nav_state in self.static_nav_states:
+                    R = self.config["R_Static"]
+                self.filter.update(z, H=H, R=R)
+
+                # Zero velocity if in a static nav state
+                if self.nav_state in self.static_nav_states:
+                    self._zeroVel()
+
                 print(self.filter.x)
 
                 self.state_estimate.updateFromLKF(self.filter.x)

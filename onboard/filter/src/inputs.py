@@ -109,7 +109,11 @@ class AccelComponent(SensorComponent):
     def update(self, new_accel_sensor):
         if hasattr(new_accel_sensor, "accel_x_g"):
             self.accel_x = self.lowPass(new_accel_sensor.accel_x_g * 9.8, self.accel_x, self.filter_bias)
+            # if abs(self.accel_x) > self.threshold_value:
+            #     print("----- YUUUUGE -----")
+            #     print(self.accel_x)
             self.accel_x = self.threshold(self.accel_x, self.threshold_value)
+            # print(self.accel_x)
             self.accel_y = self.lowPass(new_accel_sensor.accel_y_g * 9.8, self.accel_y, self.filter_bias)
             self.accel_y = self.threshold(self.accel_y, self.threshold_value)
             self.accel_z = self.lowPass(new_accel_sensor.accel_z_g * 9.8, self.accel_z, self.filter_bias)
