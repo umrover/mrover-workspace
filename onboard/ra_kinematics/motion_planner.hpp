@@ -7,6 +7,8 @@
 #include "kinematics.hpp"
 #include <map>
 
+#include <lcm/lcm-cpp.hpp>
+
 using namespace Eigen;
 using namespace std;
 
@@ -23,13 +25,15 @@ private:
     ArmState robot;
     KinematicsSolver solver;
 
-    map<string, double> joint_limits;
+    vector< map<string, double> > all_limits;
 
     vector<int> step_limits;
 
-    int deighbor_dist;
+    int neighbor_dist;
     int max_iterations;
     int i;
+
+    lcm::LCM& lcm;
 
 public:
 
@@ -48,7 +52,7 @@ public:
     }; // Node class
 
     // What type is lcm?
-    MotionPlanner(ArmState robot_state_in, KinematicsSolver solver_in);
+    MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in);
 
     /**
      * Generate a random config based on the joint limits
