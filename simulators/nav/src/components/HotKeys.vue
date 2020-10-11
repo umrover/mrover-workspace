@@ -12,7 +12,12 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { FieldItemType, OdomFormat } from '../utils/types';
+import {
+  FieldItemType,
+  Joystick,
+  Odom,
+  OdomFormat
+} from '../utils/types';
 
 @Component({})
 export default class HotKeys extends Vue {
@@ -23,7 +28,13 @@ export default class HotKeys extends Vue {
   private readonly autonOn!:boolean;
 
   @Getter
+  private readonly currOdom!:Odom;
+
+  @Getter
   private readonly drawMode!:FieldItemType;
+
+  @Getter
+  private readonly fieldCenterOdom!:Odom;
 
   @Getter
   private readonly paused!:boolean;
@@ -38,7 +49,13 @@ export default class HotKeys extends Vue {
    * Vuex Mutations
    ************************************************************************************************/
   @Mutation
+  private readonly clearRoverPath!:()=>void;
+
+  @Mutation
   private readonly setAutonState!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly setCurrOdom!:(newOdom:Odom)=>void;
 
   @Mutation
   private readonly setDrawMode!:(mode:FieldItemType)=>void;
@@ -50,6 +67,9 @@ export default class HotKeys extends Vue {
   private readonly setPaused!:(paused:boolean)=>void;
 
   @Mutation
+  private readonly setStartLoc!:(newStartLoc:Odom)=>void;
+
+  @Mutation
   private readonly setTakeStep!:(takeStep:boolean)=>void;
 
   @Mutation
@@ -59,10 +79,16 @@ export default class HotKeys extends Vue {
   private readonly flipSimulatePercep!:(onOff:boolean)=>void;
 
   /************************************************************************************************
+   * Private Members
+   ************************************************************************************************/
+  /* Whether or not clicking on the field recenters the field. */
+  private prevDrawMode:FieldItemType|null = null;
+
+  /************************************************************************************************
    * Local Getters/Setters
    ************************************************************************************************/
   /* Mapping of hotkeys to functions. */
-  get keymap():Record<string, ()=>void> {
+  get keymap():Record<string, (()=>void)|(Record<string, ()=>void>)> {
     return {
       'shift+enter': this.flipAutonState,
       'shift+space': this.pausePlay,
@@ -74,6 +100,12 @@ export default class HotKeys extends Vue {
       'shift+3': this.setToGateDrawMode,
       'shift+4': this.setToObstacleDrawMode,
       'shift+5': this.setToReferencePointDrawMode,
+      'shift+c': {
+        keydown: this.toggleMoveRoverModeOn,
+        keyup: this.toggleMoveRoverModeOff
+      },
+      'shift+alt+c': this.updateStartLoc,
+      'shift+ctrl+c': this.resetStartLoc,
       'shift+l': this.flipSimLoc,
       'shift+p': this.flipSimPercep,
       'shift+alt+d': this.setToDFormat,
@@ -104,6 +136,15 @@ export default class HotKeys extends Vue {
   private pausePlay():void {
     this.setPaused(!this.paused);
   } /* pausePlay() */
+
+  /* Move the rover's starting location back to the field center. */
+  private resetStartLoc():void {
+    if (!this.autonOn) {
+      this.setStartLoc(this.fieldCenterOdom);
+      this.setCurrOdom(this.fieldCenterOdom);
+      this.clearRoverPath();
+    }
+  } /* resetStartLoc() */
 
   /* Rotate through the draw modes in the forwards direction. */
   private setToNextDrawMode():void {
@@ -215,5 +256,31 @@ export default class HotKeys extends Vue {
       this.setTakeStep(true);
     }
   } /* takeStep() */
+
+  /* Switch from MOVE_ROVER draw mode back to previous draw mode. */
+  private toggleMoveRoverModeOff():void {
+    if (this.prevDrawMode === null) {
+      console.log('ERROR: Previous Draw Mode is null.');
+      return;
+    }
+    this.setDrawMode(this.prevDrawMode);
+    this.prevDrawMode = null;
+  } /* toggleMoveRoverModeOff() */
+
+  /* Switch to MOVE_ROVER draw mode and save previous draw mode. */
+  private toggleMoveRoverModeOn():void {
+    if (this.drawMode !== FieldItemType.MOVE_ROVER) {
+      this.prevDrawMode = this.drawMode;
+      this.setDrawMode(FieldItemType.MOVE_ROVER);
+    }
+  } /* toggleMoveRoverModeOn() */
+
+  /* Make the current odom the new start location. */
+  private updateStartLoc():void {
+    if (!this.autonOn) {
+      this.setStartLoc(this.currOdom);
+      this.clearRoverPath();
+    }
+  } /* updateStartLoc() */
 }
 </script>
