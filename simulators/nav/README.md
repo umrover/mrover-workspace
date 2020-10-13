@@ -1,12 +1,12 @@
 # <img src="src/static/mrover.png" alt="MRover Logo" width="30"/> MRover Navigation Simulator
 
 ## Table of Contents
-[Project Overview](#project-overview)  
-[Running the Simulator](#running-the-simulator)  
-[Code Overview](#code-overview)  
-[Recommended Knowledge](#recommended-knowledge)  
-[Styling](#styling)  
-[Related Documents](#related-documents)  
+[Project Overview](#project-overview)
+[Running the Simulator](#running-the-simulator)
+[Code Overview](#code-overview)
+[Recommended Knowledge](#recommended-knowledge)
+[Styling](#styling)
+[Related Documents](#related-documents)
 
 ---
 
@@ -18,7 +18,7 @@ The Navigation Simulator (also referred to as `simulators/nav`) is a web applica
 
 <!-------------------------- Running the simulator -------------------------->
 ## Running the Simulator
-In order to run the simulator you need to build and run `simulators/nav`. In order to test the Navigation code with the simulator you need to also build and run `onboard/nav` and `lcm_bridge/server`. You can also choose to use `onboard/cv` and/or `onboard/filter` if you want to test nav with either of these systems which is a good way to do some manual integration testing. If you do this make sure to also uncheck the corresponding Simulate Perception and/or Simulator Localization buttons.
+In order to run the simulator you need to build and run `simulators/nav`. In order to test the Navigation code with the simulator you need to also build and run `jetson/nav` and `lcm_bridge/server`. You can also choose to use `jetson/cv` and/or `jetson/filter` if you want to test nav with either of these systems which is a good way to do some manual integration testing. If you do this make sure to also uncheck the corresponding Simulate Perception and/or Simulator Localization buttons.
 
 As a reminder, you can build a program by running the command `./jarvis build <service name>` (e.g. `./jarvis build simulator/nav`) and you can run a program by running the command `./jarvis exec <service name>` (e.g. `./jarvis exec simulator/nav`). Note that you may be able to use `jarvis` instead of `./jarvis` on your local machine.
 
@@ -41,7 +41,7 @@ The `package.json` file specifies the dependencies which are packages to be down
 `tsconfig.json` specifies various typescript compiler options.
 
 #### `webpack.config.dev.js`
-`webpack.config.dev.js` specifies how to build the project. For example it says our entry point or where the root of our project is and it says to run the linter before compiling. See this [Beginner's Guide to Webpack](https://medium.com/javascript-training/beginner-s-guide-to-webpack-b1f1a3638460){target="_blank" rel="noopener noreferrer"} for more information on Webpack. 
+`webpack.config.dev.js` specifies how to build the project. For example it says our entry point or where the root of our project is and it says to run the linter before compiling. See this [Beginner's Guide to Webpack](https://medium.com/javascript-training/beginner-s-guide-to-webpack-b1f1a3638460){target="_blank" rel="noopener noreferrer"} for more information on Webpack.
 
 ---
 
@@ -143,9 +143,9 @@ Documentation for the [ESLint rules](https://eslint.org/docs/rules/){target="_bl
 Below is a list of styling guidelines that we ask you to adhere to when developing. These are things that we could not have the linter do for us. We also ask that as a reviewer, you enforece the following guidelines.
 
 * Do not change the linting rules without good cause. By "good cause" we mean that it would be a bad coding practice to find another solution that satisfies the linter.
-* Do not use `disable-eslint` or `@ts-ignore` unless it is truly necessary (which it almost never is. We concede that we have done the former (and at one point in development did the latter) in the `NavSimulator` component, but they are the exception, not the standard.  
+* Do not use `disable-eslint` or `@ts-ignore` unless it is truly necessary (which it almost never is. We concede that we have done the former (and at one point in development did the latter) in the `NavSimulator` component, but they are the exception, not the standard.
     * The reason we used `disable-eslint` is because we were interacting with `LCM` messages (the rest of the project uses the data in the `LCM` messages and has the same structure for the data but that's just for convenience). `LCM` messages are required to have a `type` attribute in order to specify the LCM type (e.g. TargetList or Odometry). An alternative would have been to create additional `Types` (see [`src/utils/types.ts`](./src/utils/types.ts)) but we felt this would have added unnecessary confusion and the `type` attribute is a constant which is not something we could have encoded in a `Type` (i.e. the `type` attribute of the `Odometry` `LCM` message is always `Odometry` but we can't enforce that outside of getting runtime errors from the `LCMBridge`).
-    * The reason we temporarily used `@ts-ignore` is because we are interacting with the `LCMBridge` using the `LCMBridgeClient`. `LCMBridge` is a program that allows us to use `LCM` in our JavaScript programs. A quick aside: `LCM` is not a common library for JavaScript like it is for C++ and Python so we had to build a custom library to do it for use (see [`/lcm_bridge`](/lcm_bridge)). The `LCMBridge` is composed of `LCMBridgeClient`s and an `LCMBridgeServer`. JavaScript programs create an instance of `LCMBridgeClient` in order to communicate with the instance of the `LCMBridgeServer` which you run using `jarvis`. If you don't `jarvis exec lcm_bridge/server` then the JavaScript programs will not be able to communicate with the other programs in our code base and vice versa (e.g. `onboard/nav` won't be able to communicate with `simulators/nav`). However, non-JavaScript programs will be able to communicate with each other without an instance of `LCMBridgeServer` (e.g. `onboard/filter` will be able to communicate with `onboard/nav`). Even though we didn't end up using `@ts-ignore`, we are noting this because the rest is still true and is something to be aware of. However, you should still stay away from `@ts-ignore`.
+    * The reason we temporarily used `@ts-ignore` is because we are interacting with the `LCMBridge` using the `LCMBridgeClient`. `LCMBridge` is a program that allows us to use `LCM` in our JavaScript programs. A quick aside: `LCM` is not a common library for JavaScript like it is for C++ and Python so we had to build a custom library to do it for use (see [`/lcm_bridge`](/lcm_bridge)). The `LCMBridge` is composed of `LCMBridgeClient`s and an `LCMBridgeServer`. JavaScript programs create an instance of `LCMBridgeClient` in order to communicate with the instance of the `LCMBridgeServer` which you run using `jarvis`. If you don't `jarvis exec lcm_bridge/server` then the JavaScript programs will not be able to communicate with the other programs in our code base and vice versa (e.g. `jetson/nav` won't be able to communicate with `simulators/nav`). However, non-JavaScript programs will be able to communicate with each other without an instance of `LCMBridgeServer` (e.g. `jetson/filter` will be able to communicate with `jetson/nav`). Even though we didn't end up using `@ts-ignore`, we are noting this because the rest is still true and is something to be aware of. However, you should still stay away from `@ts-ignore`.
 * Keep the maximum line length to 80 characters or less for comments. The only comments that are allowed to be longer are the comments that denote the different sections of the code (e.g. `<!-- Template -->` or `/* Private Methods */`). This practice allows us to easily spot the different sections of the code when we are quickly scanning the code. An easy way to do this is to have your text editor display a line at 80 characters and quickly check that no code goes beyond this line.
 * The linter usually catches lines that are over 100 characters but we have found some cases where it doesn't so still make a quick check for this. Similar to above, an easy way to do this is to have your text editor display a line at 100 characters and quickly check that no code goes beyond this line. You can also use the section header comments as a guide since they are at 100 characters.
 * The major sections of Vue files should be the following in order (leaving out ones that are empty in a file):
