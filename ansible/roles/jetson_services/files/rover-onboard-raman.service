@@ -1,0 +1,12 @@
+[Unit]
+Description=MRover Onboard Raman Spectroscope
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+Environment=HOME={{ home_dir }}
+ExecStart={{ workspace_dir }}/jarvis exec jetson_raman
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
