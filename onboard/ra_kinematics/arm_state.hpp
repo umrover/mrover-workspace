@@ -78,6 +78,7 @@ private:
     };
 
     vector<string> joint_names;
+    vector<string> link_names;
 
     vector<Avoidance_Link *> collision_avoidance_links; // could make this an array
     // TODO: Change num_collision_parts value as necessary
@@ -103,6 +104,8 @@ public:
     ~ArmState();
 
     vector<string> get_all_joints();
+
+    vector<string> get_all_links();
 
     Vector3d get_joint_com(string joint);
 
@@ -131,6 +134,8 @@ public:
     Vector3d get_joint_pos_local(string joint);
 
     Vector3d get_ef_pos_world();
+
+    Vector3d get_ef_ang_world();
 
     void set_ef_pos_world(Vector3d ef_pos);
 

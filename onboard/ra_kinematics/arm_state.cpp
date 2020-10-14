@@ -104,6 +104,14 @@ vector<string> ArmState::get_all_joints() {
     return joint_names;
 }
 
+vector<string> ArmState::get_all_links() {
+    vector<string> link_vec;
+    for (auto it = links.begin(); it != links.end(); ++it) {
+        link_vec.push_back(it->first);
+    }
+    return link_vec;
+}
+
 Vector3d ArmState::get_joint_axis_world(string joint) {
     return joints[joint]->joint_axis_world;
 }
@@ -119,6 +127,7 @@ void ArmState::set_joint_transform(string joint, Matrix4d xform) {
 void ArmState::set_link_transform(string link, Matrix4d xform) {
     links[link]->global_transform = xform;
 }
+
 
 Matrix4d ArmState::get_ef_transform() {
     return ef_xform;
@@ -138,6 +147,11 @@ Vector3d ArmState::get_joint_pos_world(string joint) {
 
 Vector3d ArmState::get_ef_pos_world() {
     return ef_pos_world;
+}
+
+Vector3d ArmState::get_ef_ang_world() {
+    Matrix3d ang_xform = ef_xform.block(0,0,3,3);
+    return compute_euler_angles(ang_xform);
 }
 
 // TODO: Do we need to implement this function?

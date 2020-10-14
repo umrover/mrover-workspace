@@ -1,6 +1,11 @@
 #include "kinematics.hpp"
 #include "utils.hpp"
 #include <cmath>
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <math.h>
+#include <vector>
 
 
 using namespace Eigen;
@@ -108,7 +113,135 @@ Vector3d KinematicsSolver::FK(ArmState &robot_state) {
 
 Matrix4d KinematicsSolver::apply_joint_xform(string joint, double theta) {}
 
-pair<vector<double>, bool> KinematicsSolver::IK() {}
+pair<vector<double>, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random_angles, bool use_euler_angles) {
+    /*
+        Inverse kinematics for MRover arm using cyclic
+        coordinate descent (CCD)
+
+        Params:
+            target_point (np.array([x, y, z, alpha, beta, gamma])):
+            target point in 3d space
+                for end effector
+            set_random_angles: asks solver to set joint angles to random
+                angles. Used to escape local minima
+
+        Returns:
+            joint_angles (list)
+            bool : whether the robot arm was able to find
+                joint angles that allow it to reach within a threshold
+                of the target location
+
+        Reference:
+            http://www.cs.cmu.edu/~15464-s13/assignments/assignment2/jlander_gamedev_nov98.pdf
+            http://www.cs.cmu.edu/~15464-s13/lectures/lecture6/IK.pdf
+    */
+    cout << "Running IK!" << endl;
+    cout << "target point: " << target_point(0) << " " <<  target_point(1) << " " <<  target_point(2)
+         << " " <<  target_point(3) << " " <<  target_point(4) << " " <<  target_point(5) << "\n";
+
+    int num_iterations = 0;
+    Vector3d target_pos_world = target_point.head(3);
+    Vector3d target_ang_world = target_point.tail(3);
+
+    FK(robot_state);
+    cout << "FK RAN!!\n";
+
+    robot_ik = robot_state;
+    vector<string> joints_vec = robot_ik.get_all_joints();
+    vector<string> links_vec = robot_ik.get_all_links();
+    if (set_random_angles) {
+        // ((double) rand() / (RAND_MAX)) yields random number [0,1)
+        double rand_a = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
+        double rand_b = ((double) rand() / (RAND_MAX))*0.25*M_PI;
+        double rand_c = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
+        double rand_d = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
+        double rand_e = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
+        double rand_f = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
+        vector<double> rand_angs{rand_a, rand_b, rand_c, rand_d, rand_e, rand_f};
+        int j_idx = 0;
+        for (auto it = robot_ik.joints.begin(); it != robot_ik.joints.end(); ++it) {
+            it->second->angle = rand_angs[j_idx];
+            ++j_idx;
+        }
+        // Update transforms using FK:
+        FK(robot_ik);
+    }
+    // Get position the end effector:
+    Vector3d ef_ang_world = robot_ik.get_ef_ang_world();
+    Vector3d ef_pos_world = robot_ik.get_ef_pos_world();
+    Vector6d ef_vec_world(ef_pos_world(0), ef_pos_world(1), ef_pos_world(2)
+                        ef_ang_world(0), ef_ang_world(1), ef_ang_world(2));
+
+    double dist = (ef_pos_world - target_pos_world).norm();
+    double angle_dist = (ef_ang_world - target_ang_world);
+
+    double ef_v = 0;
+
+    cout << "Current EF position: ";
+    for (int i = 0; i < 3; ++i) {
+        cout << ef_pos_world(i) << " ";
+    }
+    for (int i = 0; i < 3; ++i) {
+        cout << ef_ang_world(i) << " ";
+    }
+    cout << "\n";
+    cout << "Current Joint Angles: ";
+    for (auto it = robot_ik.joints.begin(); it != robot_ik.joints.end(); ++it) {
+        cout << it->second->angle << " ";
+    }
+    cout << "\n";
+
+    while (dist > POS_THRESHOLD or dist > ANGLE_THRESHOLD) {
+        if (num_iterations > MAX_ITERATIONS) {
+            cout << "Max ik iterations hit\n";
+            Vector6d ef_pos = robot_ik.get_ef_pos_and_euler_angles();
+            cout << "position reached: ";
+            for (int i = 0; i < 6; ++i) {
+                cout << ef_pos(i) << " ";
+            }
+            cout << "\n";
+            for (int i = 0; i < 6; ++i) {
+                cout << target_point(i) << " ";
+            }
+            cout << "\n";
+            vector<double> joint_angles;
+            for (auto it = robot_ik.joints.begin(); it != robot_ik.joints.end(); ++it) {
+                joint_angles.push_back(it->second->angle);
+            }
+            return pair<vector<double>, bool> (joint_angles, false);
+        }
+        Vector6d ef_to_target_b_weights = target_point - ef_vec_world;
+        Vector3d ef_to_tar_xyz = ef_to_target_b_weights.head(3) * get_pos_weight();
+        Vector3d ef_to_tar_ang = ef_to_target_b_weights.tail(3);
+        Vector6d ef_to_target_vec_world(ef_to_tar_xyz(0), ef_to_tar_xyz(1), ef_to_tar_xyz(2),
+                                        ef_to_tar_ang(0), ef_to_tar_ang(1), ef_to_tar_ang(2));
+        // d_ef is the vector we want the ef to move in this step 
+        // d_ef is a 6d vector:
+        Vector6d d_ef = j_kp * ef_to_target_b_weights - j_kd * (ef_v * (ef_to_target_vec_world)/ef_to_target_vec_world.norm());
+        IK_step(d_ef, true, use_euler_angles);
+        // Iterate:
+        // ef_vec_world is a 6d vector:
+        Vector6d ef_vec_world = robot_ik.get_ef_pos_and_euler_angles();
+        Vector3d ef_ang_world = ef_vec_world.tail(3);
+
+        double dist = (ef_pos_world - target_pos_world).norm();
+        double angle_dist = (ef_ang_world - target_ang_world).norm();
+
+        ++num_iterations;
+    }
+    cout << "AHH, safe checking!!!\n";
+    vector<double> angles_vec;
+    auto joint_angs = robot_ik.get_joint_angles();
+    for (auto it = joint_angs.begin(); it != joint_angs.end(); ++it) {
+        angles_vec.emplace_back(it->second);
+    }
+    if (!is_safe(angles_vec)){
+        cout << "ik not safe\n";
+        return pair<vector<double>, bool> (angles_vec, false);
+    }
+    cout << "ik safe about to return\n";
+    return pair<vector<double>, bool> (angles_vec, false);
+}
 
 pair<vector<double>, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
     FK(robot_state);

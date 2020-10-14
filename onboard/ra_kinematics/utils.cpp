@@ -105,7 +105,7 @@ double closest_dist_bet_lines(Vector3d a0, Vector3d a1, Vector3d b0, Vector3d b1
     return dP.norm();
 }
 
-Vector3d compute_euler_angles(Matrix4d xform_mat) {
+Vector3d compute_euler_angles(Matrix3d xform_mat) {
     double alpha = atan2((double)xform_mat(0,2), -(double)xform_mat(1,2));
     double beta = acos((double)xform_mat(2,2));
     double gamma = atan2((double)xform_mat(2,0), (double)xform_mat(2,1));
