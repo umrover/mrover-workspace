@@ -84,7 +84,7 @@ enum class DriveStatus
 class Rover
 {
 public:
-    // This class holds all the status informatin of the rover.
+    // This class holds all the status information of the rover.
     class RoverStatus
     {
     public:
