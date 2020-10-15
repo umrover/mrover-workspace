@@ -24,7 +24,7 @@
 	{
 		"turningBearing": 20,
 		"drivingBearing": 50,
-		"waypointDistance": 100.0,
+		"waypointDistance": 2.0,
 		"targetDistance": 1.0,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20
