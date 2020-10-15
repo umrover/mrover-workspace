@@ -83,8 +83,6 @@ private:
 
     string stringifyNavState() const;
 
-    bool isObstacleDetected() const;
-
     double getOptimalAvoidanceAngle() const;
 
     double getOptimalAvoidanceDistance() const;

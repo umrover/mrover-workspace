@@ -7,11 +7,19 @@ import {
   FieldOfViewOptions,
   GateDrawOptions,
   ObstacleDrawOptions,
+  Odom,
   OdomFormat,
   SimulatorState,
   WaypointDrawOptions
 } from '../../utils/types';
 
+
+/**************************************************************************************************
+ * Constants
+ **************************************************************************************************/
+// const MAX_RECENT_PATH_LEN = 100;
+const BEARING_DIFF_THRESHOLD = 0.1;
+const MINUTE_DIFF_THRESHOLD = 0.00000001;
 
 const state:SimulatorState = {
   autonOn: false,
@@ -23,6 +31,7 @@ const state:SimulatorState = {
       visible: true
     },
     paused: false,
+    roverPathVisible: true,
     takeStep: false
   },
 
@@ -49,25 +58,34 @@ const state:SimulatorState = {
   },
 
   lcmConnections: {
-    auton: false,
     lcmBridge: false,
     localization: false,
+    nav: false,
     perception: false
   },
 
   odomFormat: OdomFormat.DM,
 
+  path: [],
+
   simSettings: {
-    simulateLocalization: true,
-    simulatePerception: true
+    simulateLoc: true,
+    simulatePercep: true
+  },
+
+  startLoc: {
+    latitude_deg: 38,
+    latitude_min: 24.38,
+    longitude_deg: -110,
+    longitude_min: -47.51,
+    bearing_deg: 0,
+    speed: -1
   }
 };
 
 
 const getters = {
   arTagDrawOptions: (simState:SimulatorState):ArTagDrawOptions => simState.drawOptions.arTag,
-
-  autonConnected: (simState:SimulatorState):boolean => simState.lcmConnections.auton,
 
   autonOn: (simState:SimulatorState):boolean => simState.autonOn,
 
@@ -80,7 +98,9 @@ const getters = {
 
   lcmConnected: (simState:SimulatorState):boolean => simState.lcmConnections.lcmBridge,
 
-  localizationConnected: (simState:SimulatorState):boolean => simState.lcmConnections.localization,
+  locConnected: (simState:SimulatorState):boolean => simState.lcmConnections.localization,
+
+  navConnected: (simState:SimulatorState):boolean => simState.lcmConnections.nav,
 
   obstacleDrawOptions: (simState:SimulatorState):ObstacleDrawOptions => simState.drawOptions.
       obstacle,
@@ -89,12 +109,17 @@ const getters = {
 
   paused: (simState:SimulatorState):boolean => simState.debugOptions.paused,
 
-  perceptionConnected: (simState:SimulatorState):boolean => simState.lcmConnections.perception,
+  percepConnected: (simState:SimulatorState):boolean => simState.lcmConnections.perception,
 
-  simulateLocalization: (simState:SimulatorState):boolean => simState.simSettings.
-      simulateLocalization,
+  roverPath: (simState:SimulatorState):Odom[] => simState.path,
 
-  simulatePerception: (simState:SimulatorState):boolean => simState.simSettings.simulatePerception,
+  roverPathVisible: (simState:SimulatorState):boolean => simState.debugOptions.roverPathVisible,
+
+  simulateLoc: (simState:SimulatorState):boolean => simState.simSettings.simulateLoc,
+
+  simulatePercep: (simState:SimulatorState):boolean => simState.simSettings.simulatePercep,
+
+  startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
   takeStep: (simState:SimulatorState):boolean => simState.debugOptions.takeStep,
 
@@ -104,28 +129,48 @@ const getters = {
 
 
 const mutations = {
-  flipAutonConnected: (simState:SimulatorState, onOff:boolean):void => {
-    simState.lcmConnections.auton = onOff;
+  clearRoverPath: (simState:SimulatorState):void => {
+    simState.path = [];
   },
 
   flipLcmConnected: (simState:SimulatorState, onOff:boolean):void => {
     simState.lcmConnections.lcmBridge = onOff;
   },
 
-  flipLocalizationConnected: (simState:SimulatorState, onOff:boolean):void => {
+  flipLocConnected: (simState:SimulatorState, onOff:boolean):void => {
     simState.lcmConnections.localization = onOff;
   },
 
-  flipPerceptionConnected: (simState:SimulatorState, onOff:boolean):void => {
+  flipNavConnected: (simState:SimulatorState, onOff:boolean):void => {
+    simState.lcmConnections.nav = onOff;
+  },
+
+  flipPercepConnected: (simState:SimulatorState, onOff:boolean):void => {
     simState.lcmConnections.perception = onOff;
   },
 
-  flipSimulateLocalization: (simState:SimulatorState, onOff:boolean):void => {
-    simState.simSettings.simulateLocalization = onOff;
+  flipSimulateLoc: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.simulateLoc = onOff;
   },
 
-  flipSimulatePerception: (simState:SimulatorState, onOff:boolean):void => {
-    simState.simSettings.simulatePerception = onOff;
+  flipSimulatePercep: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.simulatePercep = onOff;
+  },
+
+  pushToRoverPath: (simState:SimulatorState, currLoc:Odom):void => {
+    if (simState.path.length === 0) {
+      simState.path.push(JSON.parse(JSON.stringify(currLoc)));
+      return;
+    }
+
+    const prevLoc:Odom = simState.path[simState.path.length - 1];
+    if (Math.abs(prevLoc.bearing_deg - currLoc.bearing_deg) > BEARING_DIFF_THRESHOLD ||
+        prevLoc.latitude_deg !== currLoc.latitude_deg ||
+        Math.abs(prevLoc.latitude_min - currLoc.latitude_min) > MINUTE_DIFF_THRESHOLD ||
+        prevLoc.longitude_deg !== currLoc.longitude_deg ||
+        Math.abs(prevLoc.longitude_min - currLoc.longitude_min) > MINUTE_DIFF_THRESHOLD) {
+      simState.path.push(JSON.parse(JSON.stringify(currLoc)));
+    }
   },
 
   setArTagDrawOptions: (simState:SimulatorState, options:ArTagDrawOptions):void => {
@@ -160,6 +205,14 @@ const mutations = {
     simState.debugOptions.paused = paused;
   },
 
+  setRoverPathVisible: (simState:SimulatorState, onOff:boolean):void => {
+    simState.debugOptions.roverPathVisible = onOff;
+  },
+
+  setStartLoc: (simState:SimulatorState, newStartLoc:Odom):void => {
+    Object.assign(simState.startLoc, newStartLoc);
+  },
+
   setTakeStep: (simState:SimulatorState, takeStep:boolean):void => {
     simState.debugOptions.takeStep = takeStep;
   },
@@ -175,3 +228,10 @@ export default {
   getters,
   mutations
 };
+
+/**************************************************************************************************
+ * Private Helper Functions
+ **************************************************************************************************/
+// /* Performs a list push operation specific to paths. This is the same as a
+//    normal push operation except that it will not push duplicate
+// function pathPush()

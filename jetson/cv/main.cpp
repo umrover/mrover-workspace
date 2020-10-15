@@ -86,7 +86,7 @@ int main() {
   rover_msgs::Obstacle obstacleMessage;
   arTags[0].distance = -1;
   arTags[1].distance = -1;
-  obstacleMessage.detected = false;
+  obstacleMessage.distance = -1;
 
   //tag detection stuff
   TagDetector detector;
@@ -130,7 +130,7 @@ int main() {
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
       }
-      
+
       //first tag
       if(tagPair.second.id == -1){//no tag found
         if(right_tag_buffer <= 20){//send the buffered tag
@@ -153,7 +153,7 @@ int main() {
 
 
     /*initialize obstacle detection*/
-    obstacleMessage.detected = false;
+    obstacleMessage.distance = -1;
     #if OBSTACLE_DETECTION
       float pixelWidth = src.cols;
       //float pixelHeight = src.rows;
@@ -163,13 +163,12 @@ int main() {
       obstacle_return obstacle_detection =  avoid_obstacle_sliding_window(depth_img, src,  num_sliding_windows , roverPixWidth);
       if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
         // cout<< "bearing not zero!\n";
-        obstacleMessage.detected = true;    //if an obstacle is detected in front
         obstacleMessage.distance = obstacle_detection.center_distance; //update LCM distance field
       }
       obstacleMessage.bearing = obstacle_detection.bearing;
 
       #if PERCEPTION_DEBUG
-      // cout << "Turn " << obstacleMessage.bearing << ", detected " << (bool)obstacleMessage.detected<< endl;
+      // cout << "Turn " << obstacleMessage.bearing << ", distance " << (bool)obstacleMessage.distance << endl;
       #endif
 
     #endif
