@@ -24,8 +24,25 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
   return true;
 }
 
-static string rgb_foldername, depth_foldername;
-void disk_record_init() {
+#if OBSTACLE_DETECTION
+//Creates a PCL Visualizer
+shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer(pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr cloud) {
+    // Open 3D viewer and add point cloud
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer(
+      new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer")); //This is a smart pointer so no need to worry ab deleteing it
+    viewer->setBackgroundColor(0.12, 0.12, 0.12);
+    pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
+    viewer->addPointCloud<pcl::PointXYZRGB>(cloud, rgb);
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1.5);
+    viewer->addCoordinateSystem(1.0);
+    viewer->initCameraParameters();
+    viewer->setCameraPosition(0,0,-800,0,-1,0);
+    return (viewer);
+}
+#endif
+
+//static string rgb_foldername, depth_foldername;
+/*void disk_record_init() {
   #if WRITE_CURR_FRAME_TO_DISK
     // write images colleted to the folder
     // absolute path
@@ -39,27 +56,28 @@ void disk_record_init() {
       exit(1);
     }
   #endif
-}
+} 
+*/
 
-void write_curr_frame_to_disk(Mat rgb, Mat depth, int counter) {
+/*void write_curr_frame_to_disk(Mat rgb, Mat depth, int counter) {
     string fileName = to_string(counter / FRAME_WRITE_INTERVAL);
     while(fileName.length() < 4){
       fileName = '0'+fileName;
     }
     cv::imwrite(rgb_foldername +  fileName + std::string(".jpg"), rgb );
     cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
-}
+}*/
 
 int main() {
   /* --- Initialize Camera --- */
   Camera cam;
   cam.grab();
-  int j = 0;
+  int iterations = 0;
   int counter_fail = 0;
   #if PERCEPTION_DEBUG
     namedWindow("depth", 2);
   #endif
-  disk_record_init();
+  cam.disk_record_init();
   //Video Stuff
   TagDetector d1;
   pair<Tag, Tag> tp;
@@ -128,16 +146,18 @@ int main() {
     //Grab initial images from cameras
     Mat rgb;
     Mat src = cam.image();
+    cout << "Read in rbg" << endl;
     Mat depth_img = cam.depth();
+    cout << "Read in depth" << endl;
     #endif
     
 
     // write to disk if permitted
     #if WRITE_CURR_FRAME_TO_DISK
-      if (j % FRAME_WRITE_INTERVAL == 0) {
+      if (iterations % FRAME_WRITE_INTERVAL == 0) {
         Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
-        thread write_thread(write_curr_frame_to_disk, rgb_copy, depth_copy, j);
-        write_thread.detach();
+        cerr << "Copied correctly" << endl;
+        cam.write_curr_frame_to_disk(rgb_copy, depth_copy, iterations);
       }
     #endif
 
@@ -230,7 +250,7 @@ int main() {
       waitKey(1);
       std::this_thread::sleep_for(0.2s);   
     #endif
-    ++j;
+    ++iterations;
   }
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
   viewer->close();
