@@ -102,7 +102,9 @@ int main() {
     //Grab initial images from cameras
     Mat rgb;
     Mat src = cam.image();
+    cout << "Read in rbg" << endl;
     Mat depth_img = cam.depth();
+    cout << "Read in depth" << endl;
     #endif
     
 
