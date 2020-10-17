@@ -1,10 +1,12 @@
+
+#include "pcl.hpp"
 #include "perception.hpp"
-#if OBSTACLE_DETECTION
+
 /* --- Pass Through Filter --- */
 //Filters out all points with z values that aren't within a threshold
 //Z values are depth values in mm
 //Source: https://rb.gy/kkyi80
-void PassThroughFilter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
+void PCL::PassThroughFilter() {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("PassThroughFilter");
     #endif
@@ -22,7 +24,7 @@ void PassThroughFilter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
 //All points in a cluster are then reduced to a single point
 //This point is the centroid of the cluster
 //Source: https://rb.gy/2ybg8n
-void DownsampleVoxelFilter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr) {
+void PCL::DownsampleVoxelFilter() {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("VoxelFilter");
     #endif
@@ -41,7 +43,7 @@ void DownsampleVoxelFilter(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr
 //Colors all points in this plane blue or
 //removes points completely from point cloud
 //Source: https://rb.gy/zx6ojh
-void RANSACSegmentation(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, string type) {
+void PCL::RANSACSegmentation(string type) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("RANSACSegmentation");
     #endif
@@ -88,8 +90,7 @@ void RANSACSegmentation(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, s
 //Use this tree to traverse point cloud and create vector of clusters
 //Return vector of clusters
 //Source: https://rb.gy/qvjati
-void CPUEuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,  
-                                    std::vector<pcl::PointIndices> &cluster_indices) {
+void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_indices) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("CPU Cluster Extraction");
     #endif
@@ -139,9 +140,8 @@ void CPUEuclidianClusterExtraction(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_c
 /* --- Find Interest Points --- */
 //Finds the edges of each cluster by comparing x and y
 //values of all points in the cluster to find desired ones
-void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, 
-                        pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
-                        std::vector<std::vector<int>> &interest_points) {
+void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,  
+                             std::vector<std::vector<int>> &interest_points) {
 
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Find Interest Points");
@@ -184,114 +184,10 @@ void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 
 }
 
-/* --- Compare Line Class --- */
-//Functor that indicates where a point is in
-//relation to a line in 2D space
-class compareLine {
-public:
-    double m;
-    int b;
-    
-    compareLine(double slope_in, int b_in) : m(slope_in), b(b_in){}
-
-    //Returns 1 if point is above line, 0 if on, -1 if below
-    int operator()(int x, int y) {
-        double yc = x*m+b;
-        if(y > yc)
-            return 1;
-        else if (y == yc)
-            return 0;
-        else
-            return -1; 
-    }
-};
-
-
-/* --- Check Path --- */
-//Returns T or F based on whether or not the input path is obstructed
-//If it is obstructed returns false
-//The path is constructed using the left x value and right x value of
-//the furthest points on the path
-bool CheckPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
-                        std::vector<std::vector<int>> interest_points,
-                      shared_ptr<pcl::visualization::PCLVisualizer> viewer,
-    std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine){
-    #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("Check Path");
-    #endif
-
-    bool end = true;
-    
-    //Iterate through interest points
-    for(auto cluster : interest_points) {
-        for (auto index : cluster) {
-            if(leftLine(pt_cloud_ptr->points[index].z,pt_cloud_ptr->points[index].x) >= 0  && 
-               rightLine(pt_cloud_ptr->points[index].z,pt_cloud_ptr->points[index].x) <=0){
-                end = false;
-            
-                //Check if obstacles is initialized
-                if(obstacles.size() == 0){
-                    obstacles.push_back(index);
-                    obstacles.push_back(index);
-                }
-                //Check if leftmost interest point in rover path
-                else if(pt_cloud_ptr->points[index].x < pt_cloud_ptr->points[obstacles.at(0)].x)
-                    obstacles.at(0) = index;
-                //Check if rightmost interest point in rover path
-                else if(pt_cloud_ptr->points[index].x > pt_cloud_ptr->points[obstacles.at(1)].x)
-                    obstacles.at(1) = index;
-
-                #if PERCEPTION_DEBUG
-                //Make interest points orange if they are within rover path
-                pt_cloud_ptr->points[index].r = 255;
-                pt_cloud_ptr->points[index].g = 69;
-                pt_cloud_ptr->points[index].b = 0;
-                #endif
-            }
-        }
-    }
-
-    #if PERCEPTION_DEBUG
-    //Project path in viewer
-    pcl::PointXYZRGB pt1;
-    pt1.x = leftLine.b;
-    pt1.y = 0;
-    pt1.z = 0;
-    pcl::PointXYZRGB pt2;
-    pt2.x = rightLine.b;
-    pt2.y = 0;
-    pt2.z = 0;
-    pcl::PointXYZRGB pt3(pt1);
-    pt3.z=7000;
-    pt3.x=leftLine.m*pt3.z+leftLine.b;
-    pcl::PointXYZRGB pt4(pt2);
-    pt4.z=7000;
-    pt4.x=rightLine.m*pt4.z+rightLine.b;
-    
-    
-    if(end) {
-        viewer->removeShape("l1");
-        viewer->removeShape("l2");
-        viewer->addLine(pt1,pt3,0,255,0,"l1");
-        viewer->addLine(pt2,pt4,0,255,0,"l2");
-    }
-    else {
-        viewer->removeShape("l1");
-        viewer->removeShape("l2");
-        viewer->addLine(pt1,pt3,255,0,0,"l1");
-        viewer->addLine(pt2,pt4,255,0,0,"l2");
-    }
-    #endif
-    
-    return end;
-}
-
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
-                            std::vector<std::vector<int>> interest_points,
-                      shared_ptr<pcl::visualization::PCLVisualizer> viewer, 
-                      obstacle_return & result) {
+bool PCL::FindClearPath(std::vector<std::vector<int>> interest_points,
+                        shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Find Clear Path");
     #endif
@@ -301,7 +197,7 @@ double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
     std::vector<int> obstacles; //X and Y values of the left and rightmost obstacles in path
 
     //Check Center Path
-    if(CheckPath(pt_cloud_ptr, interest_points, viewer, obstacles, 
+    if(CheckPath(interest_points, viewer, obstacles, 
         compareLine(0,CENTERX-HALF_ROVER), compareLine(0,CENTERX+HALF_ROVER))){
         return 0;
     }
@@ -321,7 +217,7 @@ double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
         //Declare Stuff
         double x = pt_cloud_ptr->points[obstacles.at(0)].x;
         double z = pt_cloud_ptr->points[obstacles.at(0)].z;
-        result.distance = z;
+        distance = z;
         double zOffset = 0;
         double xOffset = 0;
         
@@ -365,7 +261,7 @@ double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
         compareLine rightLine (newSlope, shiftX);
 
         obstacles.clear();
-        if(CheckPath(pt_cloud_ptr, interest_points, viewer, obstacles, leftLine, rightLine))
+        if(CheckPath(interest_points, viewer, obstacles, leftLine, rightLine))
         {
             #if PERCEPTION_DEBUG
             std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
@@ -435,7 +331,7 @@ double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
         compareLine rightLine (newSlope, shiftX);
 
         obstacles.clear();
-        if(CheckPath(pt_cloud_ptr, interest_points, viewer, obstacles, leftLine, rightLine)){
+        if(CheckPath(interest_points, viewer, obstacles, leftLine, rightLine)){
             #if PERCEPTION_DEBUG
             std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
             #endif
@@ -461,21 +357,124 @@ double FindClearPath(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr,
     return leftAngle;
 }
 
+/* --- Check Path --- */
+//Returns T or F based on whether or not the input path is obstructed
+//If it is obstructed returns false
+//The path is constructed using the left x value and right x value of
+//the furthest points on the path
+bool PCL::CheckPath(std::vector<std::vector<int>> interest_points,
+               shared_ptr<pcl::visualization::PCLVisualizer> viewer,
+               std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine){
+    #if PERCEPTION_DEBUG
+        pcl::ScopeTime t ("Check Path");
+    #endif
+
+    bool end = true;
+    
+    //Iterate through interest points
+    for(auto cluster : interest_points) {
+        for (auto index : cluster) {
+            if(leftLine(pt_cloud_ptr->points[index].z,PCL::pt_cloud_ptr->points[index].x) >= 0  && 
+               rightLine(pt_cloud_ptr->points[index].z,PCL::pt_cloud_ptr->points[index].x) <=0){
+                end = false;
+            
+                //Check if obstacles is initialized
+                if(obstacles.size() == 0){
+                    obstacles.push_back(index);
+                    obstacles.push_back(index);
+                }
+                //Check if leftmost interest point in rover path
+                else if(pt_cloud_ptr->points[index].x < pt_cloud_ptr->points[obstacles.at(0)].x)
+                    obstacles.at(0) = index;
+                //Check if rightmost interest point in rover path
+                else if(pt_cloud_ptr->points[index].x > pt_cloud_ptr->points[obstacles.at(1)].x)
+                    obstacles.at(1) = index;
+
+                #if PERCEPTION_DEBUG
+                //Make interest points orange if they are within rover path
+                pt_cloud_ptr->points[index].r = 255;
+                pt_cloud_ptr->points[index].g = 69;
+                pt_cloud_ptr->points[index].b = 0;
+                #endif
+            }
+        }
+    }
+
+    #if PERCEPTION_DEBUG
+    //Project path in viewer
+    pcl::PointXYZRGB pt1;
+    pt1.x = leftLine.b;
+    pt1.y = 0;
+    pt1.z = 0;
+    pcl::PointXYZRGB pt2;
+    pt2.x = rightLine.b;
+    pt2.y = 0;
+    pt2.z = 0;
+    pcl::PointXYZRGB pt3(pt1);
+    pt3.z=7000;
+    pt3.x=leftLine.m*pt3.z+leftLine.b;
+    pcl::PointXYZRGB pt4(pt2);
+    pt4.z=7000;
+    pt4.x=rightLine.m*pt4.z+rightLine.b;
+    
+    
+    if(end) {
+        viewer->removeShape("l1");
+        viewer->removeShape("l2");
+        viewer->addLine(pt1,pt3,0,255,0,"l1");
+        viewer->addLine(pt2,pt4,0,255,0,"l2");
+    }
+    else {
+        viewer->removeShape("l1");
+        viewer->removeShape("l2");
+        viewer->addLine(pt1,pt3,255,0,0,"l1");
+        viewer->addLine(pt2,pt4,255,0,0,"l2");
+    }
+    #endif
+    
+    return end;
+}
+
+/* --- Create Visualizer --- */
+//Creates a point cloud visualizer
+shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
+    // Open 3D viewer and add point cloud
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer(
+      new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer")); //This is a smart pointer so no need to worry ab deleteing it
+    viewer->setBackgroundColor(0.12, 0.12, 0.12);
+    pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(pt_cloud_ptr);
+    viewer->addPointCloud<pcl::PointXYZRGB>(pt_cloud_ptr, rgb);
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1.5);
+    viewer->addCoordinateSystem(1.0);
+    viewer->initCameraParameters();
+    viewer->setCameraPosition(0,0,-800,0,-1,0);
+    return (viewer);
+}
+
 /* --- Main --- */
 //This is the main point cloud processing function
 //It returns the bearing the rover should traverse
 //This function is called in main.cpp
-obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, 
-                                                shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
+obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
     obstacle_return result;
-    PassThroughFilter(pt_cloud_ptr);
-    DownsampleVoxelFilter(pt_cloud_ptr);
-    RANSACSegmentation(pt_cloud_ptr, "remove");
+    PassThroughFilter();
+    DownsampleVoxelFilter();
+    RANSACSegmentation("remove");
     std::vector<pcl::PointIndices> cluster_indices;
-    CPUEuclidianClusterExtraction(pt_cloud_ptr, cluster_indices);
+    CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
-    FindInterestPoints(cluster_indices, pt_cloud_ptr, interest_points);
-    result.bearing = FindClearPath(pt_cloud_ptr, interest_points, viewer, result);  
-    return result;
+    FindInterestPoints(cluster_indices, interest_points);
+    bearing = FindClearPath(interest_points, viewer);  
 }
-#endif
+
+
+/* --- Update --- */
+//Cleares and resizes cloud for new data
+void PCL::update() {
+    pt_cloud_ptr->clear();
+    pt_cloud_ptr->points.resize(cloudArea);
+    pt_cloud_ptr->width = PT_CLOUD_WIDTH;
+    pt_cloud_ptr->height = PT_CLOUD_HEIGHT;
+    std::cerr << "Width: " << pt_cloud_ptr->width<<std::endl;
+    std::cerr << "Height: "<< pt_cloud_ptr->height<<"\n";
+}

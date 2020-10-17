@@ -24,23 +24,6 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
   return true;
 }
 
-#if OBSTACLE_DETECTION
-//Creates a PCL Visualizer
-shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer(pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr cloud) {
-    // Open 3D viewer and add point cloud
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer(
-      new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer")); //This is a smart pointer so no need to worry ab deleteing it
-    viewer->setBackgroundColor(0.12, 0.12, 0.12);
-    pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
-    viewer->addPointCloud<pcl::PointXYZRGB>(cloud, rgb);
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1.5);
-    viewer->addCoordinateSystem(1.0);
-    viewer->initCameraParameters();
-    viewer->setCameraPosition(0,0,-800,0,-1,0);
-    return (viewer);
-}
-#endif
-
 static string rgb_foldername, depth_foldername;
 void disk_record_init() {
   #if WRITE_CURR_FRAME_TO_DISK
@@ -68,7 +51,7 @@ void write_curr_frame_to_disk(Mat rgb, Mat depth, int counter) {
 }
 
 int main() {
-  /*initialize camera*/
+  /* --- Initialize Camera --- */
   Camera cam;
   cam.grab();
   int j = 0;
@@ -109,7 +92,7 @@ int main() {
   }
   #endif
 
-  /*initialize lcm messages*/
+  /* - Initialize LCM Messages - */
   lcm::LCM lcm_;
   rover_msgs::TargetList arTagsMessage;
   rover_msgs::Target* arTags = arTagsMessage.targetList;
@@ -125,22 +108,16 @@ int main() {
   int right_tag_buffer = 0;
 
   #if OBSTACLE_DETECTION
-  /* --- Dynamically Allocate Point Cloud --- */
-  int cloudArea = 0;
   
-  #if ZED_SDK_PRESENT
-  sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
-  cloudArea = cloud_res.area();
-  #else
-  cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
-  #endif
+
+  //Generate point cloud and put in point cloud object
+  //This is a smart pointer so no need to worry ab deleteing it
+  PCL pointcloud;
   
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>); //This is a smart pointer so no need to worry ab deleteing it
- 
   #if PERCEPTION_DEBUG
-    //Create PCL Visualizer
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer = createRGBVisualizer(point_cloud_ptr); //This is a smart pointer so no need to worry ab deleteing it
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = createRGBVisualizer(point_cloud_ptr);
+    /* --- Create PCL Visualizer --- */
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
   #endif
 
   #endif
@@ -165,7 +142,7 @@ int main() {
       }
     #endif
 
-    /* AR Tag Detection*/
+    /* --- AR Tag Detection --- */
     arTags[0].distance = -1;
     arTags[1].distance = -1;
     #if AR_DETECTION
@@ -210,40 +187,37 @@ int main() {
 
     #endif
 
-    /* -- Run PCL Stuff --- */
+    /* --- Run PCL Stuff --- */
     #if OBSTACLE_DETECTION
 
     //Update Point Cloud
-    point_cloud_ptr->clear();
-    point_cloud_ptr->points.resize(cloudArea);
-    point_cloud_ptr->width = PT_CLOUD_WIDTH;
-    point_cloud_ptr->height = PT_CLOUD_HEIGHT;
-    
-    cam.getDataCloud(point_cloud_ptr);
+    pointcloud.update();
+    cam.getDataCloud(pointcloud.pt_cloud_ptr);
 
     #if PERCEPTION_DEBUG
     //Update Original 3D Viewer
-    viewer_original->updatePointCloud(point_cloud_ptr);
+    viewer_original->updatePointCloud(pointcloud.pt_cloud_ptr);
     viewer_original->spinOnce(10);
-    cerr<<"Original W: " <<point_cloud_ptr->width<<" Original H: "<<point_cloud_ptr->height<<endl;
+    cerr<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
     #endif
 
     //Run Obstacle Detection
-    obstacle_return obstacle_detection = pcl_obstacle_detection(point_cloud_ptr, viewer);  
-    if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
+    pointcloud.pcl_obstacle_detection(viewer);
+
+    if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05) {
         obstacleMessage.detected = true;    //if an obstacle is detected in front
-        obstacleMessage.distance = obstacle_detection.distance; //update LCM distance field
+        obstacleMessage.distance = pointcloud.distance; //update LCM distance field
     }
     else 
       obstacleMessage.detected = false;
 
-    obstacleMessage.bearing = obstacle_detection.bearing;
+    obstacleMessage.bearing = pointcloud.bearing;
 
     #if PERCEPTION_DEBUG
     //Update Processed 3D Viewer
-    viewer->updatePointCloud(point_cloud_ptr);
+    viewer->updatePointCloud(pointcloud.pt_cloud_ptr);
     viewer->spinOnce(20);
-    cerr<<"Downsampled W: " <<point_cloud_ptr->width<<" Downsampled H: "<<point_cloud_ptr->height<<endl;
+    cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
     #endif
     
     #endif
@@ -256,7 +230,7 @@ int main() {
       imshow("depth", src);
       waitKey(1);
       auto start = std::chrono::high_resolution_clock::now();
-      std::this_thread::sleep_for(0.2s);
+      std::this_thread::sleep_for(10s);
       auto end = std::chrono::high_resolution_clock::now();    
     #endif
     ++j;
