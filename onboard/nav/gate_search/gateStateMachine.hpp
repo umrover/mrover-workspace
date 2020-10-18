@@ -53,6 +53,12 @@ private:
 
     NavState executeGateFace();
 
+    NavState executeGateTurnToFarPost();
+
+    NavState executeGateDriveToFarPost();
+
+    NavState executeGateTurnToGateCenter();
+
     NavState executeGateShimmy();
 
     NavState executeGateDriveThrough();

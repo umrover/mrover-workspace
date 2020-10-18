@@ -54,6 +54,23 @@ NavState GateStateMachine::run()
             return executeGateFace();
         }
 
+        // new
+        case NavState::GateTurnToFarPost:
+        {
+            return executeGateTurnToFarPost();
+        }
+
+        case NavState::GateDriveToFarPost:
+        {
+            return executeGateDriveToFarPost();
+        }
+
+        case NavState::GateTurnToGateCenter:
+        {
+            return executeGateTurnToGateCenter();
+        }
+        // end of new
+
         case NavState::GateShimmy:
         {
             return executeGateShimmy();
@@ -193,6 +210,10 @@ NavState GateStateMachine::executeGateDrive()
     return NavState::GateTurn;
 } // executeGateDrive()
 
+
+
+
+
 NavState GateStateMachine::executeGateTurnToCentPoint()
 {
     if( mPhoebe->turn( centerPoint1 ) )
@@ -218,15 +239,69 @@ NavState GateStateMachine::executeGateDriveToCentPoint()
     return NavState::GateTurnToCentPoint;
 } // executeGateDriveToCentPoint()
 
+
 NavState GateStateMachine::executeGateFace()
 {
     if( mPhoebe->turn( centerPoint2 ) )
     {
-        return NavState::GateShimmy;
+        return NavState::GateTurnToFarPost;
     }
     return NavState::GateFace;
 } // executeGateFace()
 
+
+
+// Make separate State for it and replace all GateFace Instances
+NavState GateStateMachine::executeGateTurnToFarPost()
+{
+    if( mPhoebe->roverStatus().target().distance >= mPhoebe->roverStatus().target2().distance ) {
+        if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing) ) {
+            return NavState::GateDriveToFarPost;
+        }
+    }
+    else {
+        if( mPhoebe->turn(mPhoebe->roverStatus().target2().bearing) ) {
+            return NavState::GateDriveToFarPost;
+        }
+    }
+    return NavState::GateTurnToFarPost;
+} // executeGateTurnToFarPost()
+
+NavState GateStateMachine::executeGateDriveToFarPost()
+{
+    DriveStatus driveStatus;
+    if( mPhoebe->roverStatus().target().distance > mPhoebe->roverStatus().target2().distance ) {
+        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance, mPhoebe->roverStatus().target().bearing  );
+    }  
+    else {
+        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target2().distance, mPhoebe->roverStatus().target2().bearing );
+    }
+
+    if( driveStatus == DriveStatus::Arrived )
+    {
+        return NavState::GateTurnToGateCenter; // Turn to center of gate
+    }
+    if( driveStatus == DriveStatus::OnCourse )
+    {
+        return NavState::GateDriveToFarPost;
+    }
+    return NavState::GateDriveToFarPost;
+} // executeGateDriveToFarPost
+
+
+NavState GateStateMachine::executeGateTurnToGateCenter()
+{
+
+    if ( mPhoebe->turn( centerPoint2 )) {
+        std::cout << "YES BABY" << endl;
+        return NavState::GateDriveThrough;
+        // Return something here!
+    }
+
+    return NavState::GateTurnToGateCenter;
+}
+
+//[[deprecated("Kept here for legacy sake, now relying on 1 post method")]]]
 NavState GateStateMachine::executeGateShimmy()
 {
     static int direction = 1; // 1 = forward, -1 = backwards
