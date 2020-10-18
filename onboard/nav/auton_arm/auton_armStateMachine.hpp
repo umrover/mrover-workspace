@@ -21,23 +21,25 @@ public:
 
     void updateRoverStatus( TargetList targetList );
     
-    bool StateMachine::isRoverReady() const;
+    bool isRoverReady() const;
 
 
 private:
     bool isRoverReady() const;
 
-    NavState executeOff();
+    AutonArmState executeOff();
 
-    NavState executeDone();
+    AutonArmState executeDone();
 
-    NavState executeTagValidation();
+    AutonArmState executeWaitingForTag();
 
-    NavState executeRequestTag();
+    AutonArmState executeEvaluateTag();
 
-    NavState requestCoordinates();
+    AutonArmState executeRequestTag();
 
-    NavState sendCoordinates();
+    AutonArmState executeRequestCoordinates();
+
+    AutonArmState executeSendCoordinates();
 
     /*************************************************************************/
     /* Private Member Variables */

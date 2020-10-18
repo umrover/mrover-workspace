@@ -4,23 +4,23 @@ Rover::RoverStatus::RoverStatus() : mCurrentState(NavState::Off){
     mAutonState.is_auton = false;
 }
 
-NavState& Rover::RoverStatus::currentState() {
+AutonArmState& Rover::RoverStatus::currentState() {
     return mCurrentState;
-}
+} //currentState()
 
 AutonState& Rover::RoverStatus::autonState() {
     return mAutonState;
-}
+} //autonState()
 
 Target& Rover::RoverStatus::target() {
     return mTarget;
-}
+} //target()
 
 Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcm_in) : mRoverConfig(config), mLcmObject(mLcmObject) {}
 
 void Rover::stop() {
     publishJoystick( 0, 0, false );
-}
+} //stop()
 
 bool Rover::updateRover(RoverStatus newRoverStatus) {
     // Rover currently on.
@@ -55,7 +55,7 @@ bool Rover::updateRover(RoverStatus newRoverStatus) {
         return false;
     }
     return false;
-}
+} //updateRover(newRoverStatus)
 
 Rover::RoverStatus& Rover::roverStatus(){
     return mRoverStatus;

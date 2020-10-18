@@ -52,13 +52,13 @@ public:
         RoverStatus();
 
         RoverStatus(
-            NavState navState,
+            AutonArmState navState,
             AutonState autonStateIn,
             Target targetIn,
             RadioSignalStrength signalIn
             );
 
-        NavState& currentState();
+        AutonArmState& currentState();
 
         AutonState& autonState();
 
@@ -66,7 +66,7 @@ public:
 
     private:
         // The rover's current navigation state.
-        NavState mCurrentState;
+        AutonArmState mCurrentState;
 
         // The rover's current auton state.
         AutonState mAutonState;
