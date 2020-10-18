@@ -227,7 +227,7 @@ pair<vector<double>, bool> KinematicsSolver::IK(Vector6d target_point, bool set_
     // Get position the end effector:
     Vector3d ef_ang_world = robot_ik.get_ef_ang_world();
     Vector3d ef_pos_world = robot_ik.get_ef_pos_world();
-    Vector6d ef_vec_world(ef_pos_world(0), ef_pos_world(1), ef_pos_world(2)
+    Vector6d ef_vec_world(ef_pos_world(0), ef_pos_world(1), ef_pos_world(2),
                         ef_ang_world(0), ef_ang_world(1), ef_ang_world(2));
 
     double dist = (ef_pos_world - target_pos_world).norm();
