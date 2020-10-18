@@ -8,6 +8,7 @@
 #include <map>
 
 #include <lcm/lcm-cpp.hpp>
+#include "spline.h"
 
 using namespace Eigen;
 using namespace std;
@@ -39,7 +40,7 @@ private:
     class Node {
     friend class MotionPlanner;
     private:
-        Vector3d config;
+        Vector6d config;
         
         Node* parent;
         vector<Node*> children;
@@ -54,6 +55,11 @@ public:
     
     MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in);
 
+    tk::spline rrt_connect(vector<double> target);
+
+
+private:
+
     /**
      * Generate a random config based on the joint limits
      * */
@@ -62,28 +68,9 @@ public:
     /**
      * Find nearest node in tree to a given random node in config space
      * */
-    Node* nearest(Node* tree_root, Node* rand);
-
-    /**
-     * Find neighbors of rand
-     * */
-    vector<Node*> near(Vector3d z_new);
+    Node* nearest(Node* tree_root, Vector6d rand);
 
     vector<Node*> steer(Node* start, Node* end);
-
-    /**
-     * Finds best parent, which has least (cost + distance to rand).
-     * Connects new node to the chosen parent.
-     * 
-     * Calls rewire to find shortest path optimization for rrt*
-     * */
-    Node* choose_parent(vector<Node*> z_near, Node* z_nearest, vector<Node*> z_new);
-
-
-    /**
-     * Finds shortest path optimization for rrt*
-     * */
-    void rewire(vector<Node*> z_near, vector<Node*> z_new);
 
     vector<double> backtrace_path(Node* end, Node* root);
 
@@ -91,15 +78,8 @@ public:
 
     Node* connect(Node* tree, Node* a_new);
 
+    tk::spline spline_fitting(vector<double> path);
 
-    // TODO Should return a cubic spline
-    void rrt_connect(vector<double> target);
-
-    // What object are we using for a cubic spline?
-    // TODO Should return a cubic spline
-    void spline_fitting(vector<double> path);
-
-private:
 
     Node* root;
 

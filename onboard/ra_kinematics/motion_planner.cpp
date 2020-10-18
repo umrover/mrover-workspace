@@ -45,32 +45,29 @@ vector<double> MotionPlanner::sample() {
     return z_rand;
 }
 
-MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, MotionPlanner::Node* rand) {
+MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vector6d rand) {
 
     deque<Node*> q;
     q.push_back(tree_root);
+
+    double min_dist = numeric_limits<double>::max();
+    Node* min_node = nullptr;
 
     while (!q.empty()) {
         Node* node = q.front();
         q.pop_front();
 
-        //node->config
+        double dist = (node->config - rand).norm();
+
+        if (dist < min_dist) {
+          min_dist = dist;
+          min_node = node;
+        }
+
+        for (Node* child : node->children) {
+          q.push_back(child);
+        }
     }
 
-    return nullptr;
-}
-
-vector<MotionPlanner::Node *> MotionPlanner::near(Vector3d z_new) {
-
-    deque<Node*> q;
-    q.push_back(root);
-
-    while (!q.empty()) {
-        Node* node_ptr = q.front();
-        q.pop_front();
-
-        double dist = (node_ptr->config - z_new).norm();
-    }
-
-
+    return min_node;
 }
