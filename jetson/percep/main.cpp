@@ -2,6 +2,7 @@
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
+#include <deque>
 
 using namespace cv;
 using namespace std;
@@ -145,6 +146,16 @@ int main() {
 
   #endif
   
+  // Vector of obstacle detection true/false 
+  // Vector is boolean and contains x amount of values so we can compare against other obstale detection
+  // Used for outliers  
+  int numChecks = 3;
+  deque <bool> outliers;
+  outliers.resize(numChecks, true); //initializes outliers vector
+  deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
+  deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
+  obstacle_return lastObstacle;
+
   while (true) {
     if (!cam_grab_succeed(cam, counter_fail)) break;
 
@@ -230,15 +241,24 @@ int main() {
 
     //Run Obstacle Detection
     obstacle_return obstacle_detection = pcl_obstacle_detection(point_cloud_ptr, viewer);  
-    if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05) {
-        obstacleMessage.detected = true;    //if an obstacle is detected in front
-        obstacleMessage.distance = obstacle_detection.distance; //update LCM distance field
-    }
+    
+    //Remove outdated outlier value
+    outliers.pop_back();
+
+    if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05)
+        outliers.push_front(true);//if an obstacle is detected in front
     else 
-      obstacleMessage.detected = false;
+        outliers.push_front(false); //obstacle is not detected
 
-    obstacleMessage.bearing = obstacle_detection.bearing;
-
+    //If past iterations see obstacles
+    if(outliers == checkTrue)
+      lastObstacle = obstacle_detection;
+    else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
+      lastObstacle = obstacle_detection;
+      
+    obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
+    obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
+    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
     #if PERCEPTION_DEBUG
     //Update Processed 3D Viewer
     viewer->updatePointCloud(point_cloud_ptr);
@@ -256,7 +276,7 @@ int main() {
       imshow("depth", src);
       waitKey(1);
       auto start = std::chrono::high_resolution_clock::now();
-      std::this_thread::sleep_for(0.2s);
+      std::this_thread::sleep_for(2s);
       auto end = std::chrono::high_resolution_clock::now();    
     #endif
     ++j;
