@@ -64,8 +64,6 @@ public:
 
         Target& target();
 
-        RoverStatus& operator=( RoverStatus& newRoverStatus );
-
     private:
         // The rover's current navigation state.
         NavState mCurrentState;
