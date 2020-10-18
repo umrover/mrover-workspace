@@ -1,5 +1,8 @@
 #include "motion_planner.hpp"
 #include <random>
+#include <deque>
+
+using namespace eigen;
 
 MotionPlanner::MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in) :
         robot(robot_state_in),
@@ -30,14 +33,44 @@ MotionPlanner::MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, Kinemati
 
 vector<double> MotionPlanner::sample() {
 
-  vector<double> z_rand;
+    vector<double> z_rand;
 
-  for (int i = 0; i < all_limits.size(); ++i) {
-    std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
-    std::default_random_engine eng;
+    for (int i = 0; i < all_limits.size(); ++i) {
+        std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
+        std::default_random_engine eng;
 
-    z_rand.push_back(distr(eng));
-  }
+        z_rand.push_back(distr(eng));
+    }
 
-  return z_rand;
+    return z_rand;
+}
+
+MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, MotionPlanner::Node* rand) {
+
+    deque<Node*> q;
+    q.push_back(tree_root);
+
+    while (!q.empty()) {
+        Node* node = q.front();
+        q.pop_front();
+
+        //node->config
+    }
+
+    return nullptr;
+}
+
+vector<MotionPlanner::Node *> MotionPlanner::near(Vector3d z_new) {
+
+    deque<Node*> q;
+    q.push_back(root);
+
+    while (!q.empty()) {
+        Node* node_ptr = q.front();
+        q.pop_front();
+
+        double dist = (node_ptr->config - z_new).norm();
+    }
+
+
 }

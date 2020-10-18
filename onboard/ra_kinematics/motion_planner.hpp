@@ -35,13 +35,11 @@ private:
 
     lcm::LCM& lcm;
 
-public:
-
     // Should Node be outside the MotionPlanner class
     class Node {
+    friend class MotionPlanner;
     private:
-        // Is config just a vector of doubles?
-        vector<double> config;
+        Vector3d config;
         
         Node* parent;
         vector<Node*> children;
@@ -50,6 +48,8 @@ public:
     public:
         Node(vector<double> config_in) : config(config_in), cost(0) { }
     }; // Node class
+
+public:
 
     
     MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in);
@@ -67,7 +67,7 @@ public:
     /**
      * Find neighbors of rand
      * */
-    vector<Node*> near(vector<double> z_new);
+    vector<Node*> near(Vector3d z_new);
 
     vector<Node*> steer(Node* start, Node* end);
 
@@ -99,7 +99,9 @@ public:
     // TODO Should return a cubic spline
     void spline_fitting(vector<double> path);
 
+private:
 
+    Node* root;
 
 };
 
