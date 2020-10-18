@@ -51,7 +51,7 @@ public:
         Node(vector<double> config_in) : config(config_in), cost(0) { }
     }; // Node class
 
-    // What type is lcm?
+    
     MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in);
 
     /**
