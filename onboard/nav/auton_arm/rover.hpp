@@ -30,13 +30,14 @@ enum class AutonArmState
     // Nav-perception states
     WaitingForTag = 10,
     EvaluateTag = 11,
-    RequestNextTag = 12,
+    RequestTag = 12,
 
     // Coordinates 
     RequestCoordinates = 20,
+    WaitingForCoordinates = 21,
     
     // Nav-teleop
-    SendCoordinates = 30
+    SendCoordinates = 30,
 
     // Unknown State
     Unknown = 255

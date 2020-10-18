@@ -19,7 +19,7 @@ Target& Rover::RoverStatus::target() {
 Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcm_in) : mRoverConfig(config), mLcmObject(mLcmObject) {}
 
 void Rover::stop() {
-    publishJoystick( 0, 0, false );
+    publishJoystick( 0, 0, false ); //TODO Double Check
 } //stop()
 
 bool Rover::updateRover(RoverStatus newRoverStatus) {

@@ -39,6 +39,8 @@ private:
 
     AutonArmState executeRequestCoordinates();
 
+    AutonArmState executeWaitingForCoordinates();
+
     AutonArmState executeSendCoordinates();
 
     /*************************************************************************/

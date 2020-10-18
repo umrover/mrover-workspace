@@ -49,7 +49,7 @@ void AutonArmStateMachine::updateRoverStatus( TargetList targetList )
     mNewRoverStatus.target() = target1;
 } // updateRoverStatus( Target )
 
-void AutonArmStateMachine::run(){
+void AutonArmStateMachine::run() {
     publishNavState();
     if( isRoverReady() )
     {
@@ -93,7 +93,7 @@ void AutonArmStateMachine::run(){
                 nextState = executeEvaluateTag();
             }
 
-            case AutonArmState::RequestNextTag:
+            case AutonArmState::RequestTag:
             {
                 nextState = executeRequestTag();
                 break;
@@ -128,22 +128,22 @@ void AutonArmStateMachine::run(){
 } //run()
 
 // Updates the auton state (on/off) of the rover's status.
-void AutonArmStateMachine::updateRoverStatus(AutonState autonState){
+void AutonArmStateMachine::updateRoverStatus(AutonState autonState) {
     mNewRoverStatus.autonState() = autonState;
 } //updateRoverStatus(AutonState autonState)
 
 // Updates the target information of the rover's status.
-void AutonArmStateMachine::updateRoverStatus(TargetList targetList){
+void AutonArmStateMachine::updateRoverStatus(TargetList targetList) {
     Target target1 = targetList.targetList[0];
     mNewRoverStatus.target() = target1;
 } //updateRoverStatus(TargetList targetList)
 
-bool AutonArmStateMachine::isRoverReady() const{
+bool AutonArmStateMachine::isRoverReady() const {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ); // external data has changed
 } //isRoverReady()
 
-AutonArmState AutonArmStateMachine::executeOff(){
+AutonArmState AutonArmStateMachine::executeOff() { 
     if( mPhoebe->roverStatus().autonState().is_auton )
     {
         //TODO add what we want here
@@ -152,27 +152,42 @@ AutonArmState AutonArmStateMachine::executeOff(){
     return AutonArmState::Off;
 }
 
-AutonArmState AutonArmStateMachine::executeDone(){
+AutonArmState AutonArmStateMachine::executeDone() {
     mPhoebe->stop();
     return AutonArmState::Done;
 }
 
-AutonArmState AutonArmStateMachine::executeWaitingForTag(){
+AutonArmState AutonArmStateMachine::executeWaitingForTag() {
+    // If statement to check if tag recieved
 
+    return AutonArmState::WaitingForTag;
 }
 
-AutonArmState AutonArmStateMachine::executeEvaluateTag(){
-
+AutonArmState AutonArmStateMachine::executeEvaluateTag() {
+    //If statement to check if right tag is recieved
+    return AutonArmState::RequestCoordinates;
+    // Else request another tag
+    return AutonArmState::RequestTag;
 }
 
-AutonArmState AutonArmStateMachine::executeRequestTag(){
-
+AutonArmState AutonArmStateMachine::executeRequestTag() {
+    // Send request for tag
+    return AutonArmState::WaitingForTag;
 }
 
-AutonArmState AutonArmStateMachine::executeRequestCoordinates(){
-
+AutonArmState AutonArmStateMachine::executeRequestCoordinates() {
+    // Send request for coordinates 
+    return AutonArmState::WaitingForCoordinates;
 }
 
-AutonArmState AutonArmStateMachine::executeSendCoordinates(TargetList targetList){
-    
+AutonArmState AutonArmStateMachine::executeWaitingForCoordinates(){
+    // If coordinates have been recieved
+    return AutonArmState::SendCoordinates;
+    // Else continue waiting
+    return AutonArmState::WaitingForCoordinates;
+}
+
+AutonArmState AutonArmStateMachine::executeSendCoordinates(TargetList targetList) {
+    // send coordinates
+    return AutonArmState::Done;
 }
