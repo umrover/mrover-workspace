@@ -1,5 +1,5 @@
 #include "motion_planner.hpp"
-#include <cmath>
+#include <random>
 
 MotionPlanner::MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in) :
         robot(robot_state_in),
@@ -26,4 +26,18 @@ MotionPlanner::MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, Kinemati
     neighbor_dist = 3;
     max_iterations = 1000;
     i = 0;
+}
+
+vector<double> MotionPlanner::sample() {
+
+  vector<double> z_rand;
+
+  for (int i = 0; i < all_limits.size(); ++i) {
+    std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
+    std::default_random_engine eng;
+
+    z_rand.push_back(distr(eng));
+  }
+
+  return z_rand;
 }
