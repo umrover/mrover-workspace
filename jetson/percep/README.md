@@ -1,34 +1,65 @@
-## To build with meson options.
-    jarvis build onboard/cv -o [options]
+## Build
+    ./jarvis build jetson/percep
 
-For example:
+## Build with Options
+    ./jarvis build jetson/percep -o [options]
 
-    jarvis build onboard/cv -o with_zed=true perception_debug=true write_frame=true data_folder='/home/jessica/auton_data/'
+## Execute
+    ./jarvis exec jetson/percep
 
-## To run with the ZED:
-    with_zed=true
+## Configuration Options:
+    with_zed
+    perception_debug
+    obs_detection
+    ar_detection
+    ar_record
+    vm_config
+    write_frame
+    data_folder
 
-## To run with data (if you don't have the ZED or nvidia):
-    with_zed=false
+## Option Descriptions:
 
-## To run in competition (no output):
-    with_zed=true
-    perception_debug=false
+### with_zed
+    [true] will grab images from zed
+    [false] will grab images from folder
 
-## To not run ar
-    ar_detection=false
+### perception_debug
+    [true] will print debug output
+    [false] will run in silent mode
 
-## To not run obstacle
-    obs_detection=false
-    
-## To record ar video
-    ar_record=true
+### obs_detection
+    [true] will run obstacle detection
+    [false] will not run obstacle detection
 
-## To record obs video
-    obs_record=true
+### ar_detection
+    [true] will run ar detection
+    [false] won't run ar detection
 
-## To collect data:
-    with_zed=true
-    write_frame=true
-    data_folder='/home/jessica/auton_data/' (replace with path where you want the data saved)
+### ar_record
+    [true] will create video of ar detection output
+    [false] will not create video
 
+### vm_config
+    [true] will run obstacle detection with VTK 6.3
+    [false] will run obstacle detection with VTK 8.2
+
+### write_frame
+    [true] will write input frames to a file
+    [false] will not write frames to file
+
+### data_folder
+    ['<path to folder>'] takes path to folder to write images in
+
+## Handy Configurations:
+
+### Record Data from ZED
+    ./jarvis build jetson/percep -o with_zed=true write_frame=true data_folder='/home/<username>/folder/'
+
+### Obstacle Detection Only
+    ./jarvis build jetson/percep -o with_zed=false ar_detection=false obs_detection=true
+
+### AR Detection Only
+    ./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=false
+
+### VirtualBox
+    ./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true vm_config=true
