@@ -2,9 +2,18 @@
 #include "perception.hpp"
 
 #if ZED_SDK_PRESENT
+
+#pragma GCC diagnostic ignored "-Wreorder" //Turns off warning checking for sl lib files
+
 #include <sl/Camera.hpp>
 #include <cassert>
 
+#pragma GCC diagnostic pop
+//Class created to implement all Camera class' functions
+//Abstracts away details of using Stereolab's camera interface
+//so we can just use a simple custom one
+//Also allows us to not be restricted to using the ZED for testing,
+//but can use sample images for testing
 class Camera::Impl {
 public:
 	Impl();
@@ -28,44 +37,52 @@ private:
 
 Camera::Impl::Impl() {
 	sl::InitParameters init_params;
-	init_params.camera_resolution = sl::RESOLUTION_HD720; // default: 720p
-	init_params.depth_mode = sl::DEPTH_MODE_PERFORMANCE;
-	init_params.coordinate_units = sl::UNIT_METER;
+	init_params.camera_resolution = sl::RESOLUTION::HD720; // default: 720p
+	init_params.depth_mode = sl::DEPTH_MODE::PERFORMANCE;
+	init_params.coordinate_units = sl::UNIT::METER;
 	init_params.camera_fps = 15;
 	// TODO change this below?
-	assert(this->zed_.open(init_params) == sl::SUCCESS);
-	this->zed_.setConfidenceThreshold(THRESHOLD_CONFIDENCE);
-	std::cout<<"ZED init success\n";
-	this->runtime_params_.sensing_mode = sl::SENSING_MODE_STANDARD;
 
-	this->image_size_ = this->zed_.getResolution();
+	assert(this->zed_.open() == sl::ERROR_CODE::SUCCESS);
+  
+  //Parameters for Positional Tracking
+  init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
+  
+  //weird zed shit
+  // this->zed_.setCameraSettings(sl::CAMERA_SETTINGS_EXPOSURE, 100, true);
+  
+  this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
+
+	this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
+	std::cout<<"ZED init success\n";
+	this->runtime_params_.sensing_mode = sl::SENSING_MODE::STANDARD;
+
+	this->image_size_ = this->zed_.getCameraInformation().camera_resolution;
 	this->image_zed_.alloc(this->image_size_.width, this->image_size_.height,
-						   sl::MAT_TYPE_8U_C4);
+						   sl::MAT_TYPE::U8_C4);
 	this->image_ = cv::Mat(
 		this->image_size_.height, this->image_size_.width, CV_8UC4,
-		this->image_zed_.getPtr<sl::uchar1>(sl::MEM_CPU));
+		this->image_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
 	this->depth_zed_.alloc(this->image_size_.width, this->image_size_.height,
-		                   sl::MAT_TYPE_32F_C1);
+		                   sl::MAT_TYPE::F32_C1);
 	this->depth_ = cv::Mat(
 		this->image_size_.height, this->image_size_.width, CV_32FC1,
-		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM_CPU));
+		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
 }
 
 bool Camera::Impl::grab() {
-	return this->zed_.grab(this->runtime_params_) == sl::SUCCESS;
+  return this->zed_.grab() == sl::ERROR_CODE::SUCCESS;
 }
 
 cv::Mat Camera::Impl::image() {
-	this->zed_.retrieveImage(this->image_zed_, sl::VIEW_LEFT, sl::MEM_CPU,
-							 this->image_size_.width, this->image_size_.height);
+	this->zed_.retrieveImage(this->image_zed_, sl::VIEW::LEFT, sl::MEM::CPU,
+							 this->image_size_);
 	return this->image_;
 }
 
 cv::Mat Camera::Impl::depth() {
 
-    this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE_DEPTH,  sl::MEM_CPU,  this->image_size_.width, 
-    	 this->image_size_.height);
-
+    this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE::DEPTH,  sl::MEM::CPU,  this->image_size_);
 	return this->depth_;
 }
 

@@ -6,6 +6,9 @@
         <div class="keyboard">
           <GimbalControls/>
         </div>
+        <div class="deposit">
+            <button ref="deposit_ret" class="button" v-on:click="retDeposit($event)"> <span>Deposit</span> </button>
+        </div>
     </div>
 </template>
 <script>import Checkbox from './Checkbox.vue'
@@ -199,6 +202,13 @@ export default {
 
     zeroEncoders: function() {
       this.$parent.publish('/sa_zero_trigger', {'type': 'Signal'})
+    },
+    
+    retDeposit: function (button) {
+      this.$parent.publish("/sa_depositpos_trig", {"type": "Signal"})
+      // let obj = this.$refs["deposit_ret"]
+      // obj.disabled = true
+      console.log("lcm message sent")
     },
 
     ...mapMutations('controls', {

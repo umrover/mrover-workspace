@@ -1,7 +1,7 @@
 %YAML:1.0
 ---
 MarkerSize: 5
-MaxCorrectionBits: 8
+MaxCorrectionBits: 4
 ByteList: !!opencv-matrix
    rows: 11
    cols: 4

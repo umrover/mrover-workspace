@@ -517,7 +517,7 @@ kineval.robotDraw = function drawRobot() {
     
     } // hacked for stencil
 
-    endeffector_geom.visible = true;
+    endeffector_geom.visible = false;
     target_geom.visible = true;
 
 }
@@ -872,6 +872,7 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         var three_d_rot = new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[0])
         three_d_rot.multiply(new THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[1]))
         three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[2]))
+        three_d_rot.multiply(new THREE.Matrix4().makeRotationX(-Math.PI / 2))
 
         var alph = Math.atan2(three_d_rot.elements[2], -(three_d_rot.elements[6]));
         var bet = Math.acos(three_d_rot.elements[10]);

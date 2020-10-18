@@ -64,6 +64,7 @@ class MRoverArm:
         arm_position.joint_c = config[2]
         arm_position.joint_d = config[3]
         arm_position.joint_e = config[4]
+        arm_position.joint_f = config[5]
 
         self.lcm_.publish(channel, arm_position.encode())
 
@@ -172,6 +173,9 @@ class MRoverArm:
         else:
             self.enable_execute = True
 
+    def sa_set_spline(self, spline):
+        self.current_spline = spline
+
     def simulation_mode_callback(self, channel, msg):
         simulation_mode_msg = SimulationMode.decode(msg)
         self.sim_mode = simulation_mode_msg.sim_mode
@@ -194,12 +198,15 @@ class MRoverArm:
             arm_position.joint_c = joint_angles["joint_c"]
             arm_position.joint_d = joint_angles["joint_d"]
             arm_position.joint_e = -joint_angles["joint_e"]
+            arm_position.joint_f = joint_angles["joint_f"]
             self.state.set_angles(arm_position)
             self.solver.FK(self.state)
             self.publish_transforms(self.state)
             if self.sim_mode:
+                print("printing sim_mode")
                 self.lcm_.publish('/arm_position', arm_position.encode())
             else:
+                print("printing")
                 self.lcm_.publish('/ik_ra_control', arm_position.encode())
 
     async def execute_spline(self):
@@ -212,11 +219,9 @@ class MRoverArm:
                 target_c = self.current_spline(self.spline_t)
                 # target_v = self.current_spline(self.spline_t, 1)
                 # target_a = self.current_spline(self.spline_t, 2)
-                cur_c = self.state.get_angles()[:-1]
+                cur_c = self.state.get_angles()
                 c_dist = LA.norm(np.array(target_c - cur_c))
-                # print(c_dist)
-
-                target_c[-1] *= -1
+                target_c[-2] *= -1
                 if not self.sim_mode:
                     self.publish_config(target_c, '/ik_ra_control')
                     self.spline_t += min(0.0005/c_dist, 0.01)
@@ -247,6 +252,7 @@ class MRoverArm:
             target_pos.joint_c = target[2]
             target_pos.joint_d = target[3]
             target_pos.joint_e = -target[4]
+            target_pos.joint_f = target[5]
             # print(target)
             preview_robot.set_angles(target_pos)
 
@@ -263,6 +269,7 @@ class MRoverArm:
         self.lcm_.publish('/debugMessage', path_message.encode())
 
     def lock_e_callback(self, channel, msg):
+        print("joint e locked")
         lock_msg = LockJointE.decode(msg)
         self.solver.lock_joint_e(lock_msg.locked)
 

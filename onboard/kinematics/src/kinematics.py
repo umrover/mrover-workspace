@@ -43,6 +43,7 @@ class KinematicsSolver:
         # links = self.robot_state.all_links
 
         global_transform = np.eye(4)
+        # print(global_transform)
         # rot_axis_parent = np.array([0, 0, 1])
 
         cur_robot.set_link_transform(cur_robot.geom['base'], np.eye(4))
@@ -159,7 +160,7 @@ class KinematicsSolver:
         '''
         print("RUNNING IK")
 
-        print(target_point)
+        print("Target Point: ", target_point)
 
         num_iterations = 0
         self.target_pos_world = target_point[:3]
@@ -170,6 +171,8 @@ class KinematicsSolver:
         self.robot_ik = copy.deepcopy(self.robot_state)
         links = self.robot_ik.all_links
         joints = self.robot_ik.all_joints
+        # print("links: ")
+        # print(links)
 
         if (set_random_angles):
             # set random joint angles (should be used to deal with
@@ -233,7 +236,6 @@ class KinematicsSolver:
             d_ef = self.j_kp * ef_to_target_b_weights\
                 - self.j_kd * (ef_v * (ef_to_target_vec_world /
                                        LA.norm(ef_to_target_vec_world)))
-
             # print("made d_ef")
             # print("About to Run IK Step")
             self.IK_step(d_ef, True, use_euler_angles)
@@ -241,6 +243,8 @@ class KinematicsSolver:
 
             # iterate
             ef_vec_world = self.robot_ik.get_world_point_angles(links[-1])
+            print("ef_vec_world: ")
+            print(ef_vec_world)
             # print(ef_vec_world)
             ef_pos_world = self.robot_ik.get_ef_pos_world()
             ef_ang_world = ef_vec_world[3:]

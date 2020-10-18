@@ -29,8 +29,6 @@ class ArmState:
         self.coms = np.array(np.size(self.all_joints))
         self.torques = OrderedDict()
         self.num_total_collision_parts = 23
-        # self.f_to_ef = self.geom['endeffector']['origin']['xyz'] -
-        #                             self.get_world_point('joint_f')
 
         for joint in self.all_joints:
             self.angles[joint] = 0.0
@@ -108,23 +106,8 @@ class ArmState:
         z = self.geom['joints'][joint]['mass_data']['com']['z']
 
         translation[0:3][:, 3] = np.array([x, y, z])
-        # print("Joint Com Calculation: ")
-        # print()
-        # print()
-        # print("translation:")
-        # print(translation)
-        # print()
-        # print("transformation:")
-        # print(transform)
-        # print()
-        # print("output:")
         output = np.matmul(transform, translation)
-        # print(output)
-        # print()
-        # print("joint xyz:")
-        # print(self.get_joint_pos_world(joint))
-        # print()
-        # print()
+
         return output[0:3][:, 3]
 
     def get_joint_mass(self, joint):
@@ -198,10 +181,6 @@ class ArmState:
         z = transform_matrix[2][3]
         return np.array([x, y, z])
 
-    # def get_jf_to_ef(self){
-    #     return self.f_to_ef
-    # }
-
     def get_ef_pos_world(self):
         transform_matrix = self.ef_xform
         # 4 x 4 homogeneous
@@ -209,12 +188,6 @@ class ArmState:
         y = transform_matrix[1][3]
         z = transform_matrix[2][3]
         return np.array([x, y, z])
-
-    # def set_end_effector_pos(self, xyz):
-    #     self.ef_pos_world = xyz
-
-    # def get_ef_xform(self):
-    #     return self.ef_xform
 
     def set_ef_xform(self, xform):
         self.ef_xform = xform
@@ -260,6 +233,7 @@ class ArmState:
         self.angles['joint_c'] = arm_position.joint_c
         self.angles['joint_d'] = arm_position.joint_d
         self.angles['joint_e'] = -arm_position.joint_e
+        self.angles['joint_f'] = arm_position.joint_f
         # TODO: add time tracking
         self.angle_time = time.time()
 
@@ -287,154 +261,9 @@ class ArmState:
         self.angles['joint_c'] = arm_position[2]
         self.angles['joint_d'] = arm_position[3]
         self.angles['joint_e'] = arm_position[4]
+        self.angles['joint_f'] = arm_position[5]
         # TODO: add time tracking
         self.angle_time = time.time()
-
-    def capsule_zcheck(self, endpoint1, endpoint2):
-        return endpoint1[2] > self.z_limit and endpoint2[2] > self.z_limit
-
-    def sphere_zcheck(self, center, radius):
-        return (center[2] - radius) > self.z_limit
-
-    def capsule_capsule_check(self, link_1, link_2, part_1, part_2):
-        '''
-            Checks two capsules to see if they intersect each other
-            Args:
-                link_1 (str)
-                link_2 (str)
-                part_1 (str): ACT or LINK
-                part_2 (str): ACT or LINK
-
-            Returns:
-                bool: do they collide?
-        '''
-        if part_1 == 'ACT':
-            capsule_1 = self.get_actuator_shape(link_1)
-        else:
-            capsule_1 = self.get_link_shape(link_1)
-
-        if part_2 == 'ACT':
-            capsule_2 = self.get_actuator_shape(link_2)
-        else:
-            capsule_2 = self.get_link_shape(link_2)
-
-        transform_1 = self.get_link_transform(link_1)
-        transform_2 = self.get_link_transform(link_2)
-
-        # Get endpoints for each capsule
-        c1_link_p1 = list(capsule_1['point_1'].values())
-        c1_link_p2 = list(capsule_1['point_2'].values())
-
-        c2_link_p1 = list(capsule_2['point_1'].values())
-        c2_link_p2 = list(capsule_2['point_2'].values())
-
-        # Transform endpoints into world frame
-        c1_link_p1 = apply_transformation(transform_1, c1_link_p1)
-        c1_link_p2 = apply_transformation(transform_1, c1_link_p2)
-
-        c2_link_p1 = apply_transformation(transform_2, c2_link_p1)
-        c2_link_p2 = apply_transformation(transform_2, c2_link_p2)
-
-        # note you might still have issues depending on angle of arm
-
-        """
-        if not self.capsule_zcheck(c1_link_p1, c1_link_p2):
-            return True
-        if not self.capsule_zcheck(c2_link_p1, c2_link_p2):
-            return True
-        """
-        c1_rad = capsule_1['radius']
-        c2_rad = capsule_2['radius']
-
-        closest_dist = closest_dist_bet_lines(c1_link_p1,
-                                              c1_link_p2, c2_link_p1,
-                                              c2_link_p2, clampAll=True)
-
-        return closest_dist < (c1_rad + c2_rad)
-
-    def sphere_sphere_check(self, link_1, link_2):
-        '''
-            Checks if sphere and capsule intersect one another
-            Args:
-                link_1 (str)
-                link_2 (str)
-            Returns:
-                bool: do they collide?
-        '''
-        sphere_1 = self.get_link_shape(link_1)
-        sphere_2 = self.get_link_shape(link_2)
-
-        if link_1 == 'hand':
-            link_1 = 'e-f'
-        if link_2 == 'hand':
-            link_2 = 'e-f'
-        transform_1 = self.get_link_transform(link_1)
-        transform_2 = self.get_link_transform(link_2)
-
-        sphere_1_c = list(sphere_1['center'].values())
-        sphere_2_c = list(sphere_2['center'].values())
-
-        sphere_1_c = apply_transformation(transform_1, sphere_1_c)
-        sphere_2_c = apply_transformation(transform_2, sphere_2_c)
-
-        sphere_1_rad = sphere_1['radius']
-        sphere_2_rad = sphere_2['radius']
-
-        """"
-        if not self.sphere_zcheck(sphere_1_c, sphere_1_rad):
-            return True
-        if not self.sphere_zcheck(sphere_2_c, sphere_2_rad):
-            return True
-        """
-        closest_dist = np.linalg.norm(np.array(sphere_1_c)
-                                      - np.array(sphere_2_c))
-
-        return closest_dist < sphere_1_rad + sphere_2_rad
-
-    # def sphere_capsule_check(self, link_1, link_2, part_1, part_2):
-    #     '''
-    #         Checks if sphere and capsule intersect one another
-    #         Args:
-    #             link_1 (str)
-    #             link_2 (str)
-    #             part_1 (str): SPHERE
-    #             part_2 (str): ACT OR LINK
-
-    #         Returns:
-    #             bool: do they collide?
-    #     '''
-    #     sphere = self.get_link_shape(link_1)
-
-    #     if part_2 == 'ACT':
-    #         capsule = self.get_actuator_shape(link_2)
-    #     else:
-    #         capsule = self.get_link_shape(link_2)
-
-    #     transform_1 = self.get_link_transform(link_1)
-    #     transform_2 = self.get_link_transform(link_2)
-
-    #     sphere_c = list(sphere['center'].values())
-    #     cp1 = list(capsule['point_1'].values())
-    #     cp2 = list(capsule['point_2'].values())
-
-    #     sphere_c = apply_transformation(transform_1, sphere_c)
-    #     cp1 = apply_transformation(transform_2, cp1)
-    #     cp2 = apply_transformation(transform_2, cp2)
-
-    #     c_rad = capsule['radius']
-    #     sphere_rad = sphere['radius']
-    #     """
-    #     if not self.capsule_zcheck(cp1, cp2):
-    #         return True
-    #     if not self.sphere_zcheck(sphere_c, sphere_rad):
-    #         return True
-    #     """
-    #     eps = 0.0001
-    #     temp = sphere_c + np.array([eps, eps, eps])
-    #     closest_dist = closest_dist_bet_lines(cp1, cp2,
-    #                                           sphere_c, temp, clampAll=True)
-
-    #     return closest_dist < c_rad + sphere_rad
 
     def transform_parts(self):
         transformed_parts = []
@@ -475,10 +304,7 @@ class ArmState:
         return transformed_parts
 
     def obstacle_free(self):
-        # get a list of all the transformed parts
-        # print("or before?")
         transformed_parts = self.transform_parts()
-        # print("does it fail after transformed parts?")
 
         # check all parts against each other if they need to be checked
         for i in range(1, len(transformed_parts) - 1):
