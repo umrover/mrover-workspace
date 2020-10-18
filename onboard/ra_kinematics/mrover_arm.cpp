@@ -1,4 +1,7 @@
 #include "mrover_arm.hpp"
+#include "arm_state.hpp"
+#include "motion_planner.hpp"
+#include "kinematics.hpp"
 
 using namespace Eigen;
 
