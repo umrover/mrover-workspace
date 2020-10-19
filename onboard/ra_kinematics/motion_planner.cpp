@@ -2,7 +2,6 @@
 #include <random>
 #include <deque>
 
-using namespace eigen;
 
 MotionPlanner::MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in) :
         robot(robot_state_in),
@@ -70,4 +69,35 @@ MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vect
     }
 
     return min_node;
+}
+
+
+Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d end) {
+    Vector6d line_vec = end - start->config;
+
+    for (int i = 0; i < step_limits.size(); ++i) {
+        if (step_limits[i] - abs(line_vec(i)) >= 0) {
+            return end;
+        }
+    }
+
+    double min_t = numeric_limits<double>::max();
+
+    Vector6d new_config = start->config;
+
+    //parametrize the line
+    for (int i = 0; i < line_vec.size(); ++i) {
+      
+        // TODO can line_vec[i] be 0?
+        double t = step_limits[i] / abs(line_vec[i]);
+        if (t < min_t) {
+            min_t = t;
+        }
+    }
+
+    for (int i = 0; i < line_vec.size(); ++i) {
+        new_config(i) += min_t * line_vec[i];
+    }
+
+    return new_config;
 }

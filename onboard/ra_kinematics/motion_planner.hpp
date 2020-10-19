@@ -70,7 +70,7 @@ private:
      * */
     Node* nearest(Node* tree_root, Vector6d rand);
 
-    vector<Node*> steer(Node* start, Node* end);
+    Vector6d steer(Node* start, Vector6d end);
 
     vector<double> backtrace_path(Node* end, Node* root);
 
