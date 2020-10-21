@@ -72,7 +72,7 @@ private:
 
     Vector6d steer(Node* start, Vector6d end);
 
-    vector<double> backtrace_path(Node* end, Node* root);
+    vector<vector<double>> backtrace_path(Node* end, Node* root);
 
     Node* extend(Node* tree, Node* z_rand);
 
@@ -80,9 +80,11 @@ private:
 
     tk::spline spline_fitting(vector<double> path);
 
-
     Node* root;
 
+    void inc_i(){
+        ++i;
+    }
 };
 
 

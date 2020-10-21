@@ -101,3 +101,55 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d end) {
 
     return new_config;
 }
+
+vector<vector<double>> MotionPlanner::backtrace_path(Node* end, Node* root){
+    vector<vector<double>> path;
+    Node* node = end;
+    while (node != root) {
+        Vector6d config = node->config;
+        vector<double> node_path;
+        for (int i = 0; i < 6; ++i) {
+            // Convert angle to radians
+            config(i) = M_PI*config(i)/180;
+            node_path.push_back(config[i]);
+        }
+        path.push_back(node_path);
+        node = node->parent;
+    }
+    Vector6d root_config = root->config;
+    vector<double> root_path;
+    for (int i = 0; i < 6; ++i) {
+        // Convert angle to radians
+        root_config(i) = M_PI*root_config(i)/180;
+        root_path.push_back(root_config[i]);
+    }
+    path.push_back(root_path);
+    return path;
+}
+
+MotionPlanner::Node* MotionPlanner::extend(Node* tree, Node* z_rand){
+    inc_i();
+    Node* z_nearest = nearest(tree, z_rand);
+    Vector6d z_new = steer(z_nearest, z_rand);
+
+    vector<double> z_new_angs;
+    for (int i = 0; i < 6; ++i) {
+        z_new_angs.push_back(z_new(i));
+    }
+    if (!solver.is_safe(z_new_angs)){
+        // Can we use return NULL?
+        return NULL;
+    }
+    Node* new_node = MotionPlanner::Node(z_new);
+    new_node->parent = z_nearest;
+    z_nearest->children.push_back(new_node);
+    new_node->cost = z_nearest->cost + (z_nearest->config - z_new).norm();
+    return new_node;
+}
+
+MotionPlanner::Node* MotionPlanner::connect(Node* tree, Node* a_new){
+
+}
+
+// How do we substitute scipy for this method?
+// tk::spline MotionPlanner::spline_fitting(vector<double> path){}
