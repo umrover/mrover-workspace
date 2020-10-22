@@ -101,3 +101,39 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d end) {
 
     return new_config;
 }
+
+vector<Vector6d> MotionPlanner::backtrace_path(MotionPlanner::Node* end, MotionPlanner::Node* root) {
+    vector<Vector6d> path;
+
+    // starting at end, add each position config to path
+    while (end != root) {
+        path.push_back(get_radians(end->config));
+        end = end->parent;
+    }
+
+    // include the config for the root node
+    path.push_back(get_radians(end->config));
+    
+    return path;
+}
+
+Vector6d MotionPlanner::get_radians(Vector6d config) {
+    for (int i = 0; i < 6; ++i) {
+        config(i) *= (M_PI / 180);
+    }
+
+    return config;
+}
+
+// Currently struggling with dealing between vector<double> and Vector6d
+MotionPlanner::Node* MotionPlanner::extend(MotionPlanner::Node* tree, Vector6d z_rand) {
+    
+    ++i;
+
+    Node* z_nearest = nearest(tree, z_rand);
+    Vector6d z_new = steer(z_nearest, z_rand);
+
+    //if (!solver.is_safe())
+
+    return nullptr;
+}

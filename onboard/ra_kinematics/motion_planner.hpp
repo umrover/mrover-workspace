@@ -72,9 +72,11 @@ private:
 
     Vector6d steer(Node* start, Vector6d end);
 
-    vector<double> backtrace_path(Node* end, Node* root);
+    vector<Vector6d> backtrace_path(Node* end, Node* root);
 
-    Node* extend(Node* tree, Node* z_rand);
+    Vector6d get_radians(Vector6d config);
+
+    Node* extend(Node* tree, Vector6d z_rand);
 
     Node* connect(Node* tree, Node* a_new);
 
