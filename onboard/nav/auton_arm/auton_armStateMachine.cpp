@@ -19,6 +19,8 @@ AutonArmStateMachine::AutonArmStateMachine( lcm::LCM& lcmObject )
     : mPhoebe( nullptr )
     , mLcmObject( lcmObject )
     , mStateChanged( true )
+    , is_tag_received ( false )
+    , is_coordinates_received ( false )
 {
     ifstream configFile;
     string configPath = getenv("MROVER_CONFIG");
@@ -136,7 +138,13 @@ void AutonArmStateMachine::updateRoverStatus(AutonState autonState) {
 void AutonArmStateMachine::updateRoverStatus(TargetList targetList) {
     Target target1 = targetList.targetList[0];
     mNewRoverStatus.target() = target1;
+    is_tag_received = true;
 } //updateRoverStatus(TargetList targetList)
+
+void AutonArmStateMachine::updateRoverStatus(Pos position){
+    received_position = position;
+        is_coordinates_received = true;
+}
 
 bool AutonArmStateMachine::isRoverReady() const {
     return mStateChanged || // internal data has changed
@@ -159,12 +167,14 @@ AutonArmState AutonArmStateMachine::executeDone() {
 
 AutonArmState AutonArmStateMachine::executeWaitingForTag() {
     // If statement to check if tag recieved
-
-    return AutonArmState::WaitingForTag;
+    if(!recieved_tag)
+        return AutonArmState::WaitingForTag;
+    is_tag_received = false;
+    return AutonArmState::EvaluateTag;
 }
 
 AutonArmState AutonArmStateMachine::executeEvaluateTag() {
-    //If statement to check if right tag is recieved
+    //If statement to check if right tag is recieved //target.id
     return AutonArmState::RequestCoordinates;
     // Else request another tag
     return AutonArmState::RequestTag;
@@ -172,22 +182,30 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
 
 AutonArmState AutonArmStateMachine::executeRequestTag() {
     // Send request for tag
+    LCM_message message = {"Request_Tag", PERCEPTION_PACKAGE};
+    mLcmObject.publish(LCM_CHANNEL_NAME, &message);
     return AutonArmState::WaitingForTag;
 }
 
 AutonArmState AutonArmStateMachine::executeRequestCoordinates() {
     // Send request for coordinates 
+    LCM_message message = {"Request_Coordinates", PERCEPTION_PACKAGE};
+    mLcmObject.publish(LCM_CHANNEL_NAME, &message);
     return AutonArmState::WaitingForCoordinates;
 }
 
 AutonArmState AutonArmStateMachine::executeWaitingForCoordinates(){
-    // If coordinates have been recieved
+    // If coordinates have not been recieved
+    if(!is_coordinates_received)
+        return AutonArmState::WaitingForCoordinates;
+    // Else send coordinates
+    is_coordinates_received = false;
     return AutonArmState::SendCoordinates;
-    // Else continue waiting
-    return AutonArmState::WaitingForCoordinates;
 }
 
 AutonArmState AutonArmStateMachine::executeSendCoordinates(TargetList targetList) {
     // send coordinates
+    LCM_Coordinates coords = {received_position, TELEOP_PACKAGE};
+    mLcmObject.publish(LCM_CHANNEL_NAME, &coords);
     return AutonArmState::Done;
 }

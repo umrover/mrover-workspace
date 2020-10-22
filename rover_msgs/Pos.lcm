@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct Pos {
+    double x;
+    double y;
+    double z;
+}

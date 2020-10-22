@@ -20,8 +20,12 @@ public:
     void updateRoverStatus( AutonState autonState );
 
     void updateRoverStatus( TargetList targetList );
+
+    void updateRoverStatus ( Pos position );
     
     bool isRoverReady() const;
+
+    static const string LCM_CHANNEL_NAME = "/autonomous_arm";
 
 
 private:
@@ -60,6 +64,27 @@ private:
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;
+
+    // Coordinates recieved from teleop after identifying correct tag
+    Pos received_position;
+
+    bool is_tag_received;
+
+    bool is_coordinates_received;
+
+    struct LCM_message {
+        string message
+        int packageNum
+    };
+
+    struct LCM_coordinates {
+        Pos position,
+        int packageNum;
+    };
+
+    static const int NAV_PACKAGE = 1;
+    static const int TELEOP_PACKAGE = 2;
+    static const int PERCEPTION_PACKAGE = 3;
 }
 
 #endif
