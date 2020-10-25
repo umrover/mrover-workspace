@@ -52,11 +52,12 @@ export function applyJoystick(
      * circumference = 2 * PI * radius
      * arc_length = circumference * arc_angle / 360
      * [DERIVED]: radius = arc_length / arc_angle */
-  const radius:number = deltaBear !== 0 ? Math.abs(dist) / deltaBearRad : 0;
+  const radius:number = deltaBear !== 0 ? Math.abs(dist) / deltaBearRad : Infinity;
 
   /* Find chord length using law of sines. */
-  const chordLen:number =  Math.sin(deltaBearRad) * radius /
-                           Math.sin((Math.PI / 2) - (deltaBearRad / 2)) * (dist > 0 ? 1 : -1);
+  const chordLen:number =  radius === Infinity ? dist :
+    Math.sin(deltaBearRad) * radius /
+    Math.sin((Math.PI / 2) - (deltaBearRad / 2)) * (dist > 0 ? 1 : -1);
 
   /* Calculate new location */
   let halfwayBear:number = degToRad(currOdom.bearing_deg + (deltaBear / 2));
@@ -67,7 +68,6 @@ export function applyJoystick(
   const nextOdom:Odom = metersToOdom(nextPointMeters, canvasCent);
 
   /* Calculate new bearing */
-  nextOdom.bearing_deg = deltaBear;
   nextOdom.bearing_deg = compassModDeg(currOdom.bearing_deg + deltaBear);
 
   return nextOdom;
@@ -209,6 +209,23 @@ export function odomToCanvas(
 export function radToDeg(angle:number):number {
   return angle * 180 / Math.PI;
 } /* radToDeg() */
+
+
+/* Find location of point after rotating around origin. */
+export function rotatePoint(
+    point:Point2D /* pixels */,
+    origin:Point2D /* pixels */,
+    angle:number /* degrees of rotation on compass */
+):Point2D {
+  /* Multiply by -1 because compass and canvas rotate opposite directions */
+  const angleRad:number = -1 * degToRad(angle);
+  return {
+    x: ((point.x - origin.x) * Math.cos(angleRad)) +
+        ((origin.y - point.y) * Math.sin(angleRad)) + origin.x,
+    y: origin.y - (((point.x - origin.x) * Math.sin(angleRad)) -
+        ((origin.y - point.y) * Math.cos(angleRad)))
+  };
+} /* rotatePoint() */
 
 
 /* Convert latitude or longitude into a string. */
@@ -413,23 +430,6 @@ function radToDeg2D(coords:Point2D):Point2D {
     y: radToDeg(coords.y)
   };
 } /* radToDeg2D() */
-
-
-/* Find location of point after rotating around origin. */
-function rotatePoint(
-    point:Point2D /* pixels */,
-    origin:Point2D /* pixels */,
-    angle:number /* degrees of rotation on compass */
-):Point2D {
-  /* Multiply by -1 because compass and canvas rotate opposite directions */
-  const angleRad:number = -1 * degToRad(angle);
-  return {
-    x: ((point.x - origin.x) * Math.cos(angleRad)) +
-        ((origin.y - point.y) * Math.sin(angleRad)) + origin.x,
-    y: origin.y - (((point.x - origin.x) * Math.sin(angleRad)) -
-        ((origin.y - point.y) * Math.cos(angleRad)))
-  };
-} /* rotatePoint() */
 
 
 /* Translate a point from the origin (0, 0) to the input origin. Return the

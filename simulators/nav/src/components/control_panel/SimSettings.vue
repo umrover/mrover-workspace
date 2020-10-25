@@ -26,16 +26,16 @@
 
       <div class="setting">
         <Checkbox
-          :on="simulateLocalization"
+          :on="simulateLoc"
           name="Simulate Localization"
-          @clicked="flipSimulateLocalization(!simulateLocalization)"
+          @clicked="flipSimulateLoc(!simulateLoc)"
         />
       </div>
       <div class="setting">
         <Checkbox
-          :on="simulatePerception"
+          :on="simulatePercep"
           name="Simulate Perception"
-          @clicked="flipSimulatePerception(!simulatePerception)"
+          @clicked="flipSimulatePercep(!simulatePercep)"
         />
       </div>
     </div>
@@ -70,10 +70,10 @@ export default class SimSettings extends Vue {
   private readonly odomFormat!:OdomFormat;
 
   @Getter
-  private readonly simulateLocalization!:boolean;
+  private readonly simulateLoc!:boolean;
 
   @Getter
-  private readonly simulatePerception!:boolean;
+  private readonly simulatePercep!:boolean;
 
   /************************************************************************************************
    * Vuex Mutations
@@ -85,10 +85,10 @@ export default class SimSettings extends Vue {
   private readonly setOdomFormat!:(newOdomFormat:OdomFormat)=>void;
 
   @Mutation
-  private readonly flipSimulateLocalization!:(onOff:boolean)=>void;
+  private readonly flipSimulateLoc!:(onOff:boolean)=>void;
 
   @Mutation
-  private readonly flipSimulatePerception!:(onOff:boolean)=>void;
+  private readonly flipSimulatePercep!:(onOff:boolean)=>void;
 
   /************************************************************************************************
    * Private Members
