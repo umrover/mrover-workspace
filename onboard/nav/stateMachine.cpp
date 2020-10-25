@@ -219,7 +219,7 @@ void StateMachine::run()
             case NavState::GateTurnToCentPoint:
             case NavState::GateDriveToCentPoint:
             case NavState::GateFace:
-            case NavState::GateShimmy:
+            //case NavState::GateShimmy:
             case NavState::GateDriveThrough:
             case NavState::GateTurnToFarPost: //new
             case NavState::GateDriveToFarPost: //new
@@ -479,7 +479,7 @@ string StateMachine::stringifyNavState() const
             { NavState::GateTurnToCentPoint, "Gate Turn to Center Point" },
             { NavState::GateDriveToCentPoint, "Gate Drive to Center Point" },
             { NavState::GateFace, "Gate Face" },
-            { NavState::GateShimmy, "Gate Shimmy" },
+            //{ NavState::GateShimmy, "Gate Shimmy" },
             { NavState::GateTurnToFarPost, "Gate Turn to Far Post"}, // new
             { NavState::GateDriveToFarPost, "Gate Drive to Far Post"}, // new
             { NavState::GateTurnToGateCenter, "Gate Turn to Gate Center"}, // new
