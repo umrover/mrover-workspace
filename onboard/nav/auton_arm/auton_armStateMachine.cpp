@@ -6,12 +6,13 @@
 #include <cmath>
 #include <cstdlib>
 #include <map>
-#include "rover_msgs/NavStatus.hpp"
+#include "rover_msgs/Pos.hpp"
+#include "rover_msgs/Message.hpp"
+#include "rover_msgs/Target.hpp"
 #include "utilities.hpp"
 //***include other stuff
 
-
-// Constructs a StateMachine object with the input lcm object.
+// Constructs an AutonArmStateMachine object with the input lcm object.
 // Reads the configuartion file and constructs a Rover objet with this
 // and the lcmObject. Sets mStateChanged to true so that on the first
 // iteration of run the rover is updated.
@@ -44,25 +45,17 @@ AutonArmStateMachine::~AutonArmStateMachine( )
     delete mPhoebe;
 }
 
-// Updates the target information of the rover's status.
-void AutonArmStateMachine::updateRoverStatus( TargetList targetList )
-{
-    Target target1 = targetList.targetList[0];
-    mNewRoverStatus.target() = target1;
-} // updateRoverStatus( Target )
-
 void AutonArmStateMachine::run() {
     publishNavState();
     if( isRoverReady() )
     {
         mStateChanged = false;
-        NavState nextState = NavState::Unknown;
+        AutonArmState nextState = AutonArmState::Unknown;
 
         if( !mPhoebe->roverStatus().autonState().is_auton )
         {
-            nextState = NavState::Off;
+            nextState = AutonArmState::Off;
             mPhoebe->roverStatus().currentState() = executeOff(); // turn off immediately
-            clear( mPhoebe->roverStatus().path() );
             if( nextState != mPhoebe->roverStatus().currentState() )
             {
                 mPhoebe->roverStatus().currentState() = nextState;
@@ -88,6 +81,12 @@ void AutonArmStateMachine::run() {
             {
                 nextState = executeWaitingForTag();
                 break;
+            }
+
+            case AutonArmState::WaitingForCoordinates:
+            {
+                nextState = executeWaitingForCoordinates();
+                break;  
             }
 
             case AutonArmState::EvaluateTag: 
@@ -141,15 +140,20 @@ void AutonArmStateMachine::updateRoverStatus(TargetList targetList) {
     is_tag_received = true;
 } //updateRoverStatus(TargetList targetList)
 
-void AutonArmStateMachine::updateRoverStatus(Pos position){
+void AutonArmStateMachine::updateRoverStatus(Pos position) {
     received_position = position;
-        is_coordinates_received = true;
+    is_coordinates_received = true;
 }
 
 bool AutonArmStateMachine::isRoverReady() const {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ); // external data has changed
 } //isRoverReady()
+
+void AutonArmStateMachine::publishNavState() const
+{
+    //TODO implement if we want
+} // publishNavState()
 
 AutonArmState AutonArmStateMachine::executeOff() { 
     if( mPhoebe->roverStatus().autonState().is_auton )
@@ -167,29 +171,30 @@ AutonArmState AutonArmStateMachine::executeDone() {
 
 AutonArmState AutonArmStateMachine::executeWaitingForTag() {
     // If statement to check if tag recieved
-    if(!recieved_tag)
+    if(!is_tag_received)
         return AutonArmState::WaitingForTag;
     is_tag_received = false;
     return AutonArmState::EvaluateTag;
 }
 
 AutonArmState AutonArmStateMachine::executeEvaluateTag() {
-    //If statement to check if right tag is recieved //target.id
-    return AutonArmState::RequestCoordinates;
+    // Check if tag matches correct tag
+    if(mNewRoverStatus.target().id == CORRECT_TAG_ID)
+        return AutonArmState::RequestCoordinates;
     // Else request another tag
     return AutonArmState::RequestTag;
 }
 
 AutonArmState AutonArmStateMachine::executeRequestTag() {
     // Send request for tag
-    LCM_message message = {"Request_Tag", PERCEPTION_PACKAGE};
+    Message message = {"request_tag", PERCEPTION_PACKAGE};
     mLcmObject.publish(LCM_CHANNEL_NAME, &message);
     return AutonArmState::WaitingForTag;
 }
 
 AutonArmState AutonArmStateMachine::executeRequestCoordinates() {
     // Send request for coordinates 
-    LCM_message message = {"Request_Coordinates", PERCEPTION_PACKAGE};
+    Message message = {"request_coordinates", PERCEPTION_PACKAGE};
     mLcmObject.publish(LCM_CHANNEL_NAME, &message);
     return AutonArmState::WaitingForCoordinates;
 }
@@ -203,9 +208,9 @@ AutonArmState AutonArmStateMachine::executeWaitingForCoordinates(){
     return AutonArmState::SendCoordinates;
 }
 
-AutonArmState AutonArmStateMachine::executeSendCoordinates(TargetList targetList) {
+AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     // send coordinates
-    LCM_Coordinates coords = {received_position, TELEOP_PACKAGE};
-    mLcmObject.publish(LCM_CHANNEL_NAME, &coords);
+    received_position.target_package = TELEOP_PACKAGE;
+    mLcmObject.publish(LCM_CHANNEL_NAME, &received_position);
     return AutonArmState::Done;
 }

@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct Message {
+    string message;
+    int32_t target_package;
+}

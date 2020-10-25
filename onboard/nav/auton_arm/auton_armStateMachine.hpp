@@ -23,13 +23,13 @@ public:
 
     void updateRoverStatus ( Pos position );
     
-    bool isRoverReady() const;
-
-    static const string LCM_CHANNEL_NAME = "/autonomous_arm";
+    const string LCM_CHANNEL_NAME = "/autonomous_arm";
 
 
 private:
     bool isRoverReady() const;
+
+    void publishNavState() const;
 
     AutonArmState executeOff();
 
@@ -72,19 +72,11 @@ private:
 
     bool is_coordinates_received;
 
-    struct LCM_message {
-        string message
-        int packageNum
-    };
+    static const int32_t CORRECT_TAG_ID = 4;
 
-    struct LCM_coordinates {
-        Pos position,
-        int packageNum;
-    };
-
-    static const int NAV_PACKAGE = 1;
-    static const int TELEOP_PACKAGE = 2;
-    static const int PERCEPTION_PACKAGE = 3;
-}
+    static const int32_t NAV_PACKAGE = 1;
+    static const int32_t TELEOP_PACKAGE = 2;
+    static const int32_t PERCEPTION_PACKAGE = 3;
+};
 
 #endif

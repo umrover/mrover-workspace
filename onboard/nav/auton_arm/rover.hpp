@@ -5,17 +5,9 @@
 #include <queue>
 
 #include "rover_msgs/AutonState.hpp"
-#include "rover_msgs/Bearing.hpp"
-#include "rover_msgs/Course.hpp"
-#include "rover_msgs/Obstacle.hpp"
-#include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/RepeaterDropInit.hpp"
-#include "rover_msgs/RepeaterDropComplete.hpp"
-#include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
-#include "..rover_msgs/Waypoint.hpp"
+#include "rover_msgs/Pos.hpp"
 #include "rapidjson/document.h"
-#include "pid.hpp"
 
 using namespace rover_msgs;
 using namespace std;
@@ -55,8 +47,7 @@ public:
         RoverStatus(
             AutonArmState navState,
             AutonState autonStateIn,
-            Target targetIn,
-            RadioSignalStrength signalIn
+            Target targetIn
             );
 
         AutonArmState& currentState();
