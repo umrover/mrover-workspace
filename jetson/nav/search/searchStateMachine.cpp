@@ -108,10 +108,12 @@ NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverCon
     // whether the gimabl uses degrees/power/radians etc..
 
     // degrees to turn to before performing a search wait.
-    double waitStepSize = 69; // TODO: add to config // roverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
+    double waitStepSize = roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
 
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
+    static double phase = 0; // if 0, go to -150. if 1 go to +150, if 2 go to 0
+    static double target = -150;
 
     if( phoebe->roverStatus().target().distance >= 0 )
     {
@@ -127,8 +129,24 @@ NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverCon
     }
     if( phoebe->gimbal.setTargetYaw(nextStop) )
     {
-        if( nextStop - mOriginalSpinAngle >= 360 )
+        if (nextStop == target){
+            if (phase <= 2){
+                ++phase;
+            }
+            if (phase == 1){
+                waitStepSize *= -1;
+                target = 150;
+            }
+            else if (phase == 2){
+                waitStepSize *= -1;
+                target = 0;
+            }
+        }
+        
+        if( phase == 3 )
         {
+            phase = 0;
+            taarget = -150;
             nextStop = 0;
             return NavState::SearchTurn;
         }

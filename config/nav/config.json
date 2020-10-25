@@ -83,6 +83,7 @@
 		"numSearches": 2,
 		"bailThresh": 10.0,
 		"searchWaitStepSize": 90.0,
+		"gimbalSearchWaitStepSize": 30.0,
 		"searchWaitTime": 1.0
 	}
 }
