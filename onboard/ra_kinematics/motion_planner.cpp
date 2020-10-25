@@ -125,15 +125,29 @@ Vector6d MotionPlanner::get_radians(Vector6d config) {
     return config;
 }
 
-// Currently struggling with dealing between vector<double> and Vector6d
-MotionPlanner::Node* MotionPlanner::extend(MotionPlanner::Node* tree, Vector6d z_rand) {
-    
-    ++i;
-
+MotionPlanner::Node* MotionPlanner::extend(Node* tree, Node* z_rand){
+    inc_i();
     Node* z_nearest = nearest(tree, z_rand);
     Vector6d z_new = steer(z_nearest, z_rand);
 
-    //if (!solver.is_safe())
-
-    return nullptr;
+    vector<double> z_new_angs;
+    for (int i = 0; i < 6; ++i) {
+        z_new_angs.push_back(z_new(i));
+    }
+    if (!solver.is_safe(z_new_angs)){
+        // Can we use return NULL?
+        return NULL;
+    }
+    Node* new_node = MotionPlanner::Node(z_new);
+    new_node->parent = z_nearest;
+    z_nearest->children.push_back(new_node);
+    new_node->cost = z_nearest->cost + (z_nearest->config - z_new).norm();
+    return new_node;
 }
+
+MotionPlanner::Node* MotionPlanner::connect(Node* tree, Node* a_new){
+
+}
+
+// How do we substitute scipy for this method?
+// tk::spline MotionPlanner::spline_fitting(vector<double> path){}

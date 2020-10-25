@@ -82,9 +82,11 @@ private:
 
     tk::spline spline_fitting(vector<double> path);
 
-
     Node* root;
 
+    void inc_i(){
+        ++i;
+    }
 };
 
 
