@@ -36,7 +36,6 @@ private:
 
     lcm::LCM& lcm;
 
-    // Should Node be outside the MotionPlanner class
     class Node {
     friend class MotionPlanner;
     private:
@@ -47,7 +46,7 @@ private:
         double cost;
 
     public:
-        Node(vector<double> config_in) : config(config_in), cost(0) { }
+        Node(Vector6d config_in) : config(config_in), cost(0) { }
     }; // Node class
 
 public:
@@ -63,7 +62,7 @@ private:
     /**
      * Generate a random config based on the joint limits
      * */
-    vector<double> sample();
+    Vector6d sample();
 
     /**
      * Find nearest node in tree to a given random node in config space
@@ -78,9 +77,9 @@ private:
 
     Node* extend(Node* tree, Vector6d z_rand);
 
-    Node* connect(Node* tree, Node* a_new);
+    Node* connect(Node* tree, Vector6d a_new);
 
-    tk::spline spline_fitting(vector<double> path);
+    tk::spline spline_fitting(Vector6d path);
 
     Node* root;
 

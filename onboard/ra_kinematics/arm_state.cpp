@@ -89,13 +89,13 @@ map<string, double> ArmState::get_joint_limits(string joint) {
     return joints[joint]->joint_limits;
 }
 // Tested in set_joint_angles_test
-void ArmState::set_joint_angles(vector<double> angles) {
+void ArmState::set_joint_angles(Vector6d angles) {
     // Iterate through all angles and joints adding the angles to each corresponding joint.
     // angles vector should be same size as internal joints map.
-    auto angle_it = angles.begin();
-    for (auto it = joints.begin(); it != joints.end() && angle_it != angles.end(); ++it) {
-        it->second->angle = *angle_it;
-        ++angle_it;
+    int i = 0;
+    for (auto it = joints.begin(); it != joints.end(); ++it) {
+        it->second->angle = angles(i);
+        ++i;
     }
 }
 

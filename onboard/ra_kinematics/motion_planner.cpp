@@ -30,15 +30,15 @@ MotionPlanner::MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, Kinemati
     i = 0;
 }
 
-vector<double> MotionPlanner::sample() {
+Vector6d MotionPlanner::sample() {
 
-    vector<double> z_rand;
+    Vector6d z_rand;
 
     for (int i = 0; i < all_limits.size(); ++i) {
         std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
         std::default_random_engine eng;
 
-        z_rand.push_back(distr(eng));
+        z_rand(i) = (distr(eng));
     }
 
     return z_rand;
@@ -125,7 +125,7 @@ Vector6d MotionPlanner::get_radians(Vector6d config) {
     return config;
 }
 
-MotionPlanner::Node* MotionPlanner::extend(Node* tree, Node* z_rand){
+MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d z_rand) {
     inc_i();
     Node* z_nearest = nearest(tree, z_rand);
     Vector6d z_new = steer(z_nearest, z_rand);
@@ -138,15 +138,18 @@ MotionPlanner::Node* MotionPlanner::extend(Node* tree, Node* z_rand){
         // Can we use return NULL?
         return NULL;
     }
-    Node* new_node = MotionPlanner::Node(z_new);
+    Node* new_node = &Node(z_new);
     new_node->parent = z_nearest;
     z_nearest->children.push_back(new_node);
     new_node->cost = z_nearest->cost + (z_nearest->config - z_new).norm();
     return new_node;
 }
 
-MotionPlanner::Node* MotionPlanner::connect(Node* tree, Node* a_new){
+MotionPlanner::Node* MotionPlanner::connect(Node* tree, Vector6d a_new) {
+    Node* extension = extend(tree, a_new);
+    Vector6d config = extension->config;
 
+    while (config)
 }
 
 // How do we substitute scipy for this method?
