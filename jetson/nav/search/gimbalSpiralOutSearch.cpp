@@ -12,10 +12,10 @@ void GimbalSpiralOut::GimbalSpiralOut( Rover* phoebe, const rapidjson::Document&
     mSearchPoints.clear();
 
     mSearchPointMultipliers.clear();
-    mSearchPointMultipliers.push_back( pair<short, short> (  1,  0 ) );
     mSearchPointMultipliers.push_back( pair<short, short> (  0,  1 ) );
-    mSearchPointMultipliers.push_back( pair<short, short> ( -1,  0 ) );
-    mSearchPointMultipliers.push_back( pair<short, short> (  0, -1 ) );
+    mSearchPointMultipliers.push_back( pair<short, short> ( -1,  1 ) );
+    mSearchPointMultipliers.push_back( pair<short, short> ( -1,  -1 ) );
+    mSearchPointMultipliers.push_back( pair<short, short> (  1, -1 ) );
 
     while( mSearchPointMultipliers[ 0 ].second * visionDistance < roverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )

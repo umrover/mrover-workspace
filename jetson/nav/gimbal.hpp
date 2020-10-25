@@ -13,6 +13,9 @@ class Gimbal{
         double MAX_YAW, MIN_YAW;
         GimbalCmd signal;
         double TOLERANCE;
+        PidLoop pid;
+
+        void calculateControlSignal();
     public:
         Gimbal(const rapidjson::Document& mRoverConfig);
         //sets the target yaw of the gimbal
