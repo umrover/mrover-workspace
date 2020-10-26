@@ -226,6 +226,33 @@ vector<tk::spline> MotionPlanner::rrt_connect(Vector6d target) {
 // TODO translate line space and create 6 splines
 vector<tk::spline> spline_fitting(vector<Vector6d> path) {
 
+    // six vectors, each with the path of a single component
+    vector< vector<double> > separate_paths;
+    separate_paths.resize(6, vector<double>(path.size()));
+
+    // convert path to vectors
+    for (int i = 0; i < path.size(); ++i) {
+        for (int j = 0; j < 6; ++j) {
+            separate_paths[j][i] = path[i](j);
+        }
+    }
+
+    // create a linear space betwee 0 and 1 with path.size() increments
+    vector<double> x_;
+    x_.reserve(path.size() + 1);
+    double step = path.size() <= 1 ? 1 : 1 / (path.size() - 1);
+    for (int i = 0; i <= 1; i += step) {
+        x_.push_back(i);
+    }
+
+    // use tk to create six different splines, representing a spline in 6 dimensions
+    vector<tk::spline> splines;
+    splines.resize(6);
+    for (int i = 0; i < 6; ++i) {
+        splines[i].set_points(x_, separate_paths[i]);
+    }
+
+    return splines;
 }
 
 // How do we substitute scipy for this method?
