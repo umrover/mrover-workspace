@@ -37,7 +37,7 @@ private:
     lcm::LCM& lcm;
 
     class Node {
-    friend class MotionPlanner;
+        friend class MotionPlanner;
     private:
         Vector6d config;
         
@@ -49,12 +49,15 @@ private:
         Node(Vector6d config_in) : config(config_in), cost(0) { }
     }; // Node class
 
+    Node* start_root;
+    Node* goal_root;
+
 public:
 
     
     MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in);
 
-    tk::spline rrt_connect(vector<double> target);
+    vector<tk::spline> rrt_connect(Vector6d target);
 
 
 private:
@@ -79,7 +82,7 @@ private:
 
     Node* connect(Node* tree, Vector6d a_new);
 
-    tk::spline spline_fitting(Vector6d path);
+    vector<tk::spline> spline_fitting(vector<Vector6d> path);
 
     Node* root;
 
