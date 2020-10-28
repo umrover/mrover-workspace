@@ -1,7 +1,7 @@
-
 #include "pcl.hpp"
 #include "perception.hpp"
 
+#if OBSTACLE_DETECTION
 /* --- Pass Through Filter --- */
 //Filters out all points with z values that aren't within a threshold
 //Z values are depth values in mm
@@ -478,3 +478,5 @@ void PCL::update() {
     std::cerr << "Width: " << pt_cloud_ptr->width<<std::endl;
     std::cerr << "Height: "<< pt_cloud_ptr->height<<"\n";
 }
+
+#endif

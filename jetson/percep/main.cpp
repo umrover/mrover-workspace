@@ -108,7 +108,6 @@ int main() {
   int right_tag_buffer = 0;
 
   #if OBSTACLE_DETECTION
-  
 
   //Generate point cloud and put in point cloud object
   //This is a smart pointer so no need to worry ab deleteing it
@@ -229,9 +228,7 @@ int main() {
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
       waitKey(1);
-      auto start = std::chrono::high_resolution_clock::now();
-      std::this_thread::sleep_for(10s);
-      auto end = std::chrono::high_resolution_clock::now();    
+      std::this_thread::sleep_for(0.2s);   
     #endif
     ++j;
   }

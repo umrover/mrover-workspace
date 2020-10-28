@@ -187,7 +187,7 @@ Camera::Impl::Impl() {
   rgb_path = path + "/rgb";
   depth_path = path + "/depth";
   rgb_dir = opendir(rgb_path.c_str() );
-  depth_dir = opendir(path.c_str() );
+  depth_dir = opendir(depth_path.c_str() );
   if ( NULL==rgb_dir || NULL==depth_dir) {
     std::cerr<<"Input folder not exist\n";    
     return;
