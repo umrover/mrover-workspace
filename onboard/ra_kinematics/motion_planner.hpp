@@ -55,9 +55,9 @@ private:
 public:
 
     
-    MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in);
+    MotionPlanner(ArmState& robot_state_in, lcm::LCM& lcm_in, KinematicsSolver& solver_in);
 
-    vector<tk::spline> rrt_connect(Vector6d target);
+    vector<tk::spline> rrt_connect(Vector6d& target);
 
 
 private:
@@ -70,19 +70,19 @@ private:
     /**
      * Find nearest node in tree to a given random node in config space
      * */
-    Node* nearest(Node* tree_root, Vector6d rand);
+    Node* nearest(Node* tree_root, Vector6d& rand);
 
-    Vector6d steer(Node* start, Vector6d end);
+    Vector6d steer(Node* start, Vector6d& end);
 
     vector<Vector6d> backtrace_path(Node* end, Node* root);
 
-    Vector6d get_radians(Vector6d config);
+    Vector6d get_radians(Vector6d& config);
 
-    Node* extend(Node* tree, Vector6d z_rand);
+    Node* extend(Node* tree, Vector6d& z_rand);
 
-    Node* connect(Node* tree, Vector6d a_new);
+    Node* connect(Node* tree, Vector6d& a_new);
 
-    vector<tk::spline> spline_fitting(vector<Vector6d> path);
+    vector<tk::spline> spline_fitting(vector<Vector6d>& path);
 
     Node* root;
 
