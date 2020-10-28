@@ -43,18 +43,18 @@ public:
 
     Matrix4d apply_joint_xform(string joint, double theta);
 
-    pair<vector<double>, bool> IK(Vector6d target_point, bool set_random_angles, bool use_euler_angles);
+    pair<Vector6d, bool> IK(Vector6d target_point, bool set_random_angles, bool use_euler_angles);
 
     void IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles);
 
-    pair<vector<double>, bool> IK_delta(Vector6d delta, int iterations);
+    pair<Vector6d, bool> IK_delta(Vector6d delta, int iterations);
 
 
     /**
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds and don't cause collisions
      * */
-    bool is_safe(vector<double> angles);
+    bool is_safe(Vector6d angles);
 
     /**
      * called by is_safe to check that angles are within bounds
@@ -62,7 +62,7 @@ public:
      * @param joints the set of joint names on the current MRover arm
      * @return true if all angles are within bounds
      * */
-    bool limit_check(const vector<double> &angles, const vector<string> &joints);
+    bool limit_check(const Vector6d &angles, const vector<string> &joints);
 
 };
 

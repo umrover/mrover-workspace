@@ -143,7 +143,7 @@ public:
 
     map<string, double> get_joint_angles();
 
-    void set_joint_angles(vector<double> angles);
+    void set_joint_angles(Vector6d angles);
 
     void transform_avoidance_links();
 

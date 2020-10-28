@@ -171,7 +171,7 @@ Matrix4d KinematicsSolver::apply_joint_xform(string joint, double theta) {
     return parent_mat * T;
 }
 
-pair<vector<double>, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random_angles, bool use_euler_angles) {
+pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random_angles, bool use_euler_angles) {
     /*
         Inverse kinematics for MRover arm using cyclic
         coordinate descent (CCD)
@@ -209,16 +209,17 @@ pair<vector<double>, bool> KinematicsSolver::IK(Vector6d target_point, bool set_
     vector<string> links_vec = robot_ik.get_all_links();
     if (set_random_angles) {
         // ((double) rand() / (RAND_MAX)) yields random number [0,1)
-        double rand_a = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
-        double rand_b = ((double) rand() / (RAND_MAX))*0.25*M_PI;
-        double rand_c = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
-        double rand_d = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
-        double rand_e = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
-        double rand_f = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
-        vector<double> rand_angs{rand_a, rand_b, rand_c, rand_d, rand_e, rand_f};
+        Vector6d rand_angs;
+        rand_angs(0) = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
+        rand_angs(1) = ((double) rand() / (RAND_MAX))*0.25*M_PI;
+        rand_angs(2) = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
+        rand_angs(3) = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;;
+        rand_angs(4) = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
+        rand_angs(5) = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
+
         int j_idx = 0;
         for (auto it = robot_ik.joints.begin(); it != robot_ik.joints.end(); ++it) {
-            it->second->angle = rand_angs[j_idx];
+            it->second->angle = rand_angs(j_idx);
             ++j_idx;
         }
         // Update transforms using FK:
@@ -227,11 +228,13 @@ pair<vector<double>, bool> KinematicsSolver::IK(Vector6d target_point, bool set_
     // Get position the end effector:
     Vector3d ef_ang_world = robot_ik.get_ef_ang_world();
     Vector3d ef_pos_world = robot_ik.get_ef_pos_world();
-    Vector6d ef_vec_world(ef_pos_world(0), ef_pos_world(1), ef_pos_world(2),
-                        ef_ang_world(0), ef_ang_world(1), ef_ang_world(2));
+    
+    Vector6d ef_vec_world;
+    ef_vec_world.head(3) = ef_pos_world;
+    ef_vec_world.tail(3) = ef_ang_world;
 
     double dist = (ef_pos_world - target_pos_world).norm();
-    double angle_dist = (ef_ang_world - target_ang_world);
+    double angle_dist = (ef_ang_world - target_ang_world).norm();
 
     double ef_v = 0;
 
@@ -249,7 +252,11 @@ pair<vector<double>, bool> KinematicsSolver::IK(Vector6d target_point, bool set_
     }
     cout << "\n";
 
+<<<<<<< HEAD
     while (dist > POS_THRESHOLD || dist > ANGLE_THRESHOLD) {
+=======
+    while (dist > POS_THRESHOLD or angle_dist > ANGLE_THRESHOLD) {
+>>>>>>> bfa371d79c41e982e6a126fbf21604283239dc1c
         if (num_iterations > MAX_ITERATIONS) {
             cout << "Max ik iterations hit\n";
             Vector6d ef_pos = robot_ik.get_ef_pos_and_euler_angles();
@@ -262,46 +269,49 @@ pair<vector<double>, bool> KinematicsSolver::IK(Vector6d target_point, bool set_
                 cout << target_point(i) << " ";
             }
             cout << "\n";
-            vector<double> joint_angles;
+            Vector6d joint_angles;
+            int index = 0;
             for (auto it = robot_ik.joints.begin(); it != robot_ik.joints.end(); ++it) {
-                joint_angles.push_back(it->second->angle);
+                joint_angles(index++) = it->second->angle;
             }
-            return pair<vector<double>, bool> (joint_angles, false);
+            return pair<Vector6d, bool> (joint_angles, false);
         }
         Vector6d ef_to_target_b_weights = target_point - ef_vec_world;
-        Vector3d ef_to_tar_xyz = ef_to_target_b_weights.head(3) * get_pos_weight();
-        Vector3d ef_to_tar_ang = ef_to_target_b_weights.tail(3);
-        Vector6d ef_to_target_vec_world(ef_to_tar_xyz(0), ef_to_tar_xyz(1), ef_to_tar_xyz(2),
-                                        ef_to_tar_ang(0), ef_to_tar_ang(1), ef_to_tar_ang(2));
+        Vector6d ef_to_target_vec_world;
+        ef_to_target_vec_world.head(3) = ef_to_target_b_weights.head(3) * get_pos_weight();
+        ef_to_target_vec_world.tail(3) = ef_to_target_b_weights.tail(3);
+
         // d_ef is the vector we want the ef to move in this step 
         // d_ef is a 6d vector:
         Vector6d d_ef = j_kp * ef_to_target_b_weights - j_kd * (ef_v * (ef_to_target_vec_world)/ef_to_target_vec_world.norm());
         IK_step(d_ef, true, use_euler_angles);
         // Iterate:
         // ef_vec_world is a 6d vector:
-        Vector6d ef_vec_world = robot_ik.get_ef_pos_and_euler_angles();
-        Vector3d ef_ang_world = ef_vec_world.tail(3);
+        ef_vec_world = robot_ik.get_ef_pos_and_euler_angles();
+        ef_ang_world = ef_vec_world.tail(3);
 
-        double dist = (ef_pos_world - target_pos_world).norm();
-        double angle_dist = (ef_ang_world - target_ang_world).norm();
+        dist = (ef_pos_world - target_pos_world).norm();
+        angle_dist = (ef_ang_world - target_ang_world).norm();
 
         ++num_iterations;
     }
     cout << "AHH, safe checking!!!\n";
-    vector<double> angles_vec;
+
+    Vector6d angles_vec;
+    int index = 0;
     auto joint_angs = robot_ik.get_joint_angles();
     for (auto it = joint_angs.begin(); it != joint_angs.end(); ++it) {
-        angles_vec.emplace_back(it->second);
+        angles_vec(index++) = it->second;
     }
     if (!is_safe(angles_vec)){
         cout << "ik not safe\n";
-        return pair<vector<double>, bool> (angles_vec, false);
+        return pair<Vector6d, bool> (angles_vec, false);
     }
     cout << "ik safe about to return\n";
-    return pair<vector<double>, bool> (angles_vec, false);
+    return pair<Vector6d, bool> (angles_vec, false);
 }
 
-pair<vector<double>, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
+pair<Vector6d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
     FK(robot_state);
     robot_ik = robot_state;
     // Use link maps to represent links:
@@ -311,14 +321,19 @@ pair<vector<double>, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterat
     // Create start and target positions:
     Vector3d start_pos = robot_ik.get_link_point_world(it->first);
     Vector3d target_pos(start_pos(0) + delta(0), start_pos(1) + delta(1), start_pos(2)+ delta(2));
+
+    // vector to be returned
+    Vector6d joint_angles_vec;
+
     if (target_pos.norm() > 0.82){
         map<string, double> joint_angles = robot_ik.get_joint_angles();
-        vector<double> joint_angles_vec;
+        int index = 0;
         for (auto it = joint_angles.begin(); it != joint_angles.end(); ++it) {
-            joint_angles_vec.push_back(it->second);
+            joint_angles_vec(index++) = it->second;
         }
-        return pair<vector<double>, bool>(joint_angles_vec, true);
+        return pair<Vector6d, bool>(joint_angles_vec, true);
     }
+
     for (int i = 0; i < iterations; ++i) {
         Vector3d original_pos = robot_ik.get_link_point_world(it->first);
         IK_step(delta, true, true);
@@ -327,12 +342,12 @@ pair<vector<double>, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterat
         Vector3d delta3d(delta(0)-true_delta(0), delta(1)-true_delta(1), delta(2)-true_delta(2));
     }
     map<string, double> joint_angles = robot_ik.get_joint_angles();
-    vector<double> joint_angles_vec;
+    int index = 0;
     for (auto it = joint_angles.begin(); it != joint_angles.end(); ++it) {
-        joint_angles_vec.push_back(it->second);
+        joint_angles_vec(index++) = it->second;
     }
     bool angles_safe = is_safe(joint_angles_vec);
-    return pair<vector<double>, bool>(joint_angles_vec, angles_safe);
+    return pair<Vector6d, bool>(joint_angles_vec, angles_safe);
 }
 
 void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles) {
@@ -411,12 +426,11 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
 
     Vector6d d_theta = jacobian_inverse * d_ef;
 
-    vector<double> angle_vec;
-    angle_vec.resize(joints.size());
-
+    Vector6d angle_vec;
+    
     // find the angle of each joint
     for (int i = 0; i < joints.size(); ++i) {
-        angle_vec[i] = robot_ik.get_joint_angles()[joints[i]] + d_theta[i];
+        angle_vec(i) = robot_ik.get_joint_angles()[joints[i]] + d_theta[i];
 
         map<string, double> limits = robot_safety.get_joint_limits(joints[i]);
 
@@ -433,7 +447,7 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
     FK(robot_ik);
 }
 
-bool KinematicsSolver::is_safe(vector<double> angles) {
+bool KinematicsSolver::is_safe(Vector6d angles) {
     vector<string> joints = robot_ik.get_all_joints();
     
     // if any angles are outside bounds
@@ -451,14 +465,14 @@ bool KinematicsSolver::is_safe(vector<double> angles) {
     return robot_safety.obstacle_free();
 }
 
-bool KinematicsSolver::limit_check(const vector<double> &angles, const vector<string> &joints) {
+bool KinematicsSolver::limit_check(const Vector6d &angles, const vector<string> &joints) {
 
     // TODO check that we should actually use all values of joint
     for (int i = 0; i < joints.size(); ++i) {
         map<string, double> limits = robot_safety.get_joint_limits(joints[i]);
         
         // if any angle is outside of bounds
-        if (!(limits["lower"] <= angles[i] && angles[i] < limits["upper"])) {
+        if (!(limits["lower"] <= angles(i) && angles(i) < limits["upper"])) {
             return false;
         }
     }

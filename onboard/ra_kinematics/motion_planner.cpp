@@ -30,15 +30,15 @@ MotionPlanner::MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, Kinemati
     i = 0;
 }
 
-vector<double> MotionPlanner::sample() {
+Vector6d MotionPlanner::sample() {
 
-    vector<double> z_rand;
+    Vector6d z_rand;
 
     for (int i = 0; i < all_limits.size(); ++i) {
         std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
         std::default_random_engine eng;
 
-        z_rand.push_back(distr(eng));
+        z_rand(i) = (distr(eng));
     }
 
     return z_rand;
@@ -125,28 +125,139 @@ Vector6d MotionPlanner::get_radians(Vector6d config) {
     return config;
 }
 
-MotionPlanner::Node* MotionPlanner::extend(Node* tree, Node* z_rand){
+MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d z_rand) {
     inc_i();
     Node* z_nearest = nearest(tree, z_rand);
     Vector6d z_new = steer(z_nearest, z_rand);
 
-    vector<double> z_new_angs;
+    Vector6d z_new_angs;
     for (int i = 0; i < 6; ++i) {
-        z_new_angs.push_back(z_new(i));
+        z_new_angs(i) = z_new(i);
     }
     if (!solver.is_safe(z_new_angs)){
         // Can we use return NULL?
         return NULL;
     }
-    Node* new_node = MotionPlanner::Node(z_new);
+    Node* new_node = &Node(z_new);
     new_node->parent = z_nearest;
     z_nearest->children.push_back(new_node);
     new_node->cost = z_nearest->cost + (z_nearest->config - z_new).norm();
     return new_node;
 }
 
+<<<<<<< HEAD
 MotionPlanner::Node* MotionPlanner::connect(Node* tree, Node* a_new){
     
+=======
+MotionPlanner::Node* MotionPlanner::connect(Node* tree, Vector6d a_new) {
+    Node* extension = extend(tree, a_new);
+    Vector6d config = extension->config;
+
+    // TODO should we be changing tree or a_new?
+    while (extension && !(config == a_new)) {
+        extension = extend(tree, a_new);
+        config = extension->config;
+    }
+
+    return extension;
+}
+
+vector<tk::spline> MotionPlanner::rrt_connect(Vector6d target) {
+    Vector6d start;
+    start(0) = robot.get_joint_angles()["joint_a"];
+    start(1) = robot.get_joint_angles()["joint_b"];
+    start(2) = robot.get_joint_angles()["joint_c"];
+    start(3) = robot.get_joint_angles()["joint_d"];
+    start(4) = robot.get_joint_angles()["joint_e"];
+    start(5) = robot.get_joint_angles()["joint_f"];
+
+    for (int i = 0; i < target.size(); ++i) {
+        target(i) = target(i) * 180 / M_PI;
+        start(i) = start(i) * 180 / M_PI;
+    }
+
+    start_root = &Node(start);
+    goal_root = &Node(target);
+
+    for (int i = 0; i < max_iterations; ++i) {
+        Node* a_root = i % 2 == 0 ? start_root : goal_root;
+        Node* b_root = i % 2 == 0 ? goal_root : start_root;
+        Vector6d z_rand = sample();
+
+        Node* a_new = extend(a_root, z_rand);
+
+        if (a_new) {
+            Node* b_new = connect(b_root, a_new->config);
+
+            // if the trees are connected
+            if (a_new->config == b_new->config) {
+                vector<Vector6d> a_path = backtrace_path(a_new, a_root);
+                vector<Vector6d> b_path = backtrace_path(b_new, b_root);
+
+                // reverse a_path
+                for (int j = 0; j < a_path.size() / 2; ++j) {
+                    swap(a_path[j], a_path[a_path.size() - 1 - j]);
+                }
+
+                Vector6d middle;
+                for (int j = 0; j < 6; ++j) {
+                    middle(j) = a_new->config(j) * M_PI / 180;
+                }
+
+                a_path.push_back(middle);
+                a_path.reserve(a_path.size() + b_path.size());
+
+                for (Vector6d b : b_path) {
+                    a_path.push_back(b);
+                }
+
+                if (i % 2) {
+                    for (int j = 0; j < a_path.size() / 2; ++j) {
+                        swap(a_path[j], a_path[a_path.size() - 1 - j]);
+                    }
+                }
+
+                return spline_fitting(a_path);
+            }
+        }
+    }// for loop
+
+    // if no path found, return an empty vector
+    return vector<tk::spline>();
+
+}
+
+// TODO translate line space and create 6 splines
+vector<tk::spline> spline_fitting(vector<Vector6d> path) {
+
+    // six vectors, each with the path of a single component
+    vector< vector<double> > separate_paths;
+    separate_paths.resize(6, vector<double>(path.size()));
+
+    // convert path to vectors
+    for (int i = 0; i < path.size(); ++i) {
+        for (int j = 0; j < 6; ++j) {
+            separate_paths[j][i] = path[i](j);
+        }
+    }
+
+    // create a linear space betwee 0 and 1 with path.size() increments
+    vector<double> x_;
+    x_.reserve(path.size() + 1);
+    double step = path.size() <= 1 ? 1 : 1 / (path.size() - 1);
+    for (int i = 0; i <= 1; i += step) {
+        x_.push_back(i);
+    }
+
+    // use tk to create six different splines, representing a spline in 6 dimensions
+    vector<tk::spline> splines;
+    splines.resize(6);
+    for (int i = 0; i < 6; ++i) {
+        splines[i].set_points(x_, separate_paths[i]);
+    }
+
+    return splines;
+>>>>>>> bfa371d79c41e982e6a126fbf21604283239dc1c
 }
 
 // How do we substitute scipy for this method?
