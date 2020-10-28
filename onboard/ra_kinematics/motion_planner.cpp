@@ -146,7 +146,7 @@ MotionPlanner::Node* MotionPlanner::extend(Node* tree, Node* z_rand){
 }
 
 MotionPlanner::Node* MotionPlanner::connect(Node* tree, Node* a_new){
-
+    
 }
 
 // How do we substitute scipy for this method?

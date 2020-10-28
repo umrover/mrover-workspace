@@ -249,7 +249,7 @@ pair<vector<double>, bool> KinematicsSolver::IK(Vector6d target_point, bool set_
     }
     cout << "\n";
 
-    while (dist > POS_THRESHOLD or dist > ANGLE_THRESHOLD) {
+    while (dist > POS_THRESHOLD || dist > ANGLE_THRESHOLD) {
         if (num_iterations > MAX_ITERATIONS) {
             cout << "Max ik iterations hit\n";
             Vector6d ef_pos = robot_ik.get_ef_pos_and_euler_angles();

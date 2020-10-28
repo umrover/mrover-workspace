@@ -162,6 +162,8 @@ class MotionPlanner:
     def extend(self, tree, z_rand):
         # print(self.i)
         self.i += 1
+        # print("z_rand: ")
+        # print(z_rand)
 
         z_nearest = self.nearest(tree, z_rand)
         z_new = self.steer(z_nearest, z_rand)
