@@ -145,10 +145,6 @@ MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d z_rand) {
     return new_node;
 }
 
-<<<<<<< HEAD
-MotionPlanner::Node* MotionPlanner::connect(Node* tree, Node* a_new){
-    
-=======
 MotionPlanner::Node* MotionPlanner::connect(Node* tree, Vector6d a_new) {
     Node* extension = extend(tree, a_new);
     Vector6d config = extension->config;
@@ -257,8 +253,4 @@ vector<tk::spline> spline_fitting(vector<Vector6d> path) {
     }
 
     return splines;
->>>>>>> bfa371d79c41e982e6a126fbf21604283239dc1c
 }
-
-// How do we substitute scipy for this method?
-// tk::spline MotionPlanner::spline_fitting(vector<double> path){}
