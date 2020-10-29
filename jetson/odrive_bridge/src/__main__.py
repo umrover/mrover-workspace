@@ -3,7 +3,7 @@ import sys
 import time as t
 import odrive as odv
 import threading
-import fibre 
+import fibre
 from rover_msgs import DriveStateCmd, DriveVelCmd, \
     DriveStateData, DriveVelData
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
@@ -75,7 +75,6 @@ def lcmThreaderMan():
     lcm_1 = lcm.LCM()
     lcm_1.subscribe("/drive_state_cmd", drive_state_cmd_callback)
     lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
-    last_pub = t.time()
     while True:
         lcm_1.handle()
         global start_time
