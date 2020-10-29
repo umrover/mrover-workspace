@@ -3,7 +3,7 @@ import sys
 import time as t
 import odrive as odv
 import threading
-import fibre 
+import fibre
 from rover_msgs import DriveStateCmd, DriveVelCmd, \
     DriveStateData, DriveVelData
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
@@ -49,6 +49,12 @@ def main():
     # start up sequence is called, disconnected-->disarm-->arm
 
     while True:
+        watchdog = t.clock() - start_time
+        if (watchdog > 1.0):
+            print("loss of comms")
+            left_speed = 0
+            right_speed = 0
+
         try:
             odrive_bridge.update()
         except fibre.protocol.ChannelBrokenException:
@@ -64,9 +70,10 @@ def lcmThreaderMan():
     lcm_1 = lcm.LCM()
     lcm_1.subscribe("/drive_state_cmd", drive_state_cmd_callback)
     lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
-    last_pub = t.time()
     while True:
         lcm_1.handle()
+        global start_time
+        start_time = t.clock()
         try:
             publish_encoder_msg()
         except NameError:
@@ -205,7 +212,7 @@ class OdriveBridge(object):
     def connect(self):
         global modrive
         global legal_controller
-        print("looking for odrive")s
+        print("looking for odrive")
         # TODO fill in 3rd odrive id
         odrives = ["205F3883304E", "2091358E524B", "2084399C4D4D"]
         id = odrives[legal_controller]
@@ -223,7 +230,7 @@ class OdriveBridge(object):
         Incoming events are
         delegated to the given states which then handle the event.
         The result is then assigned as the new state.
-        The events we can send are disarm cmd, arm cmd, and calibrate cmd.
+        The events we can send are disarm cmd, arm cmd, and calibrating cmd.
         """
 
         print("on event called, event:", event)
@@ -363,8 +370,8 @@ class Modrive:
         front_state, back_state = self.get_current_state()
 
         # if both axes are idle it means its done calibrating
-        while(front_state != AXIS_STATE_IDLE \
-                or  back_state != AXIS_STATE_IDLE):
+        while(front_state != AXIS_STATE_IDLE
+                or back_state != AXIS_STATE_IDLE):
             front_state, back_state = self.get_current_state()
             pass
 
