@@ -35,21 +35,22 @@ enum class NavState
     SearchFaceNorth = 20,
     SearchSpin = 21,
     SearchGimbal = 22,
-    SearchSpinWait = 23,
-    SearchTurn = 24,
-    SearchDrive = 25,
-    ChangeSearchAlg = 26,
+    SearchGimbalWait = 23,
+    SearchSpinWait = 24,
+    SearchTurn = 25,
+    SearchDrive = 26,
+    ChangeSearchAlg = 27,
 
     // Target Found States
-    TurnToTarget = 27,
-    TurnedToTargetWait = 28,
-    DriveToTarget = 29,
+    TurnToTarget = 28,
+    TurnedToTargetWait = 29,
+    DriveToTarget = 30,
 
     // Obstacle Avoidance States
-    TurnAroundObs = 30,
-    DriveAroundObs = 31,
-    SearchTurnAroundObs = 32,
-    SearchDriveAroundObs = 33,
+    TurnAroundObs = 31,
+    DriveAroundObs = 32,
+    SearchTurnAroundObs = 33,
+    SearchDriveAroundObs = 34,
 
     // Gate Search States
     GateSpin = 40,
