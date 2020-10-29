@@ -33,6 +33,11 @@ def main():
     global lock
     global speedlock
 
+    global start_time
+    global watchdog
+
+    start_time = t.clock()
+
     legal_controller = int(sys.argv[1])
     legal_axis = sys.argv[2]
 
@@ -49,6 +54,12 @@ def main():
     # start up sequence is called, disconnected-->disarm-->arm
 
     while True:
+        watchdog = t.clock() - start_time
+        if (watchdog > 1):
+            print("loss of comms")
+            left_speed = 0
+            right_speed = 0
+
         try:
             odrive_bridge.update()
         except fibre.protocol.ChannelBrokenException:
@@ -65,7 +76,10 @@ def lcmThreaderMan():
     lcm_1.subscribe("/drive_state_cmd", drive_state_cmd_callback)
     lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
     while True:
-        lcm_1.handle_timeout(1000)
+        lcm_1.handle()
+        global start_time
+        start_time = t.clock()
+
         try:
             publish_encoder_msg()
         except NameError:
