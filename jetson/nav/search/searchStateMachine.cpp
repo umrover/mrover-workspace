@@ -256,7 +256,8 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.pop_front();
-        return NavState::SearchSpin;
+        return NavState::SearchGimbal;
+        //return NavState::SearchSpin;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
