@@ -1,6 +1,6 @@
 #include "rover.hpp"
 
-Rover::RoverStatus::RoverStatus() : mCurrentState(NavState::Off){
+Rover::RoverStatus::RoverStatus() : mCurrentState(AutonArmState::Off) {
     mAutonState.is_auton = false;
 }
 
@@ -16,11 +16,7 @@ Target& Rover::RoverStatus::target() {
     return mTarget;
 } //target()
 
-Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcm_in) : mRoverConfig(config), mLcmObject(mLcmObject) {}
-
-void Rover::stop() {
-    publishJoystick( 0, 0, false ); //TODO Double Check
-} //stop()
+Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject) : mRoverConfig(config), mLcmObject(lcmObject) {}
 
 bool Rover::updateRover(RoverStatus newRoverStatus) {
     // Rover currently on.
@@ -60,3 +56,8 @@ bool Rover::updateRover(RoverStatus newRoverStatus) {
 Rover::RoverStatus& Rover::roverStatus(){
     return mRoverStatus;
 }
+
+bool Rover::isEqual( const Target& target1, const Target& target2 ) const
+{
+    return (target1.distance == target2.distance && target1.bearing == target2.bearing);
+} // isEqual( Target )

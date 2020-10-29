@@ -9,7 +9,6 @@
 #include "rover_msgs/Pos.hpp"
 #include "rover_msgs/Message.hpp"
 #include "rover_msgs/Target.hpp"
-#include "utilities.hpp"
 //***include other stuff
 
 // Constructs an AutonArmStateMachine object with the input lcm object.
@@ -152,7 +151,7 @@ bool AutonArmStateMachine::isRoverReady() const {
 
 void AutonArmStateMachine::publishNavState() const
 {
-    //TODO implement if we want
+    //TODO implement if we want 
 } // publishNavState()
 
 AutonArmState AutonArmStateMachine::executeOff() { 
@@ -160,12 +159,10 @@ AutonArmState AutonArmStateMachine::executeOff() {
     {
         //TODO add what we want here
     }
-    mPhoebe->stop();
     return AutonArmState::Off;
 }
 
 AutonArmState AutonArmStateMachine::executeDone() {
-    mPhoebe->stop();
     return AutonArmState::Done;
 }
 
