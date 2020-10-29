@@ -24,7 +24,6 @@ private:
 
     ArmState robot_state;
     ArmState robot_ik;
-    ArmState new_state;
     ArmState robot_safety;
     bool e_locked;
 
