@@ -3,7 +3,7 @@
 #include <deque>
 
 
-MotionPlanner::MotionPlanner(ArmState robot_state_in, lcm::LCM& lcm_in, KinematicsSolver solver_in) :
+MotionPlanner::MotionPlanner(ArmState& robot_state_in, lcm::LCM& lcm_in, KinematicsSolver& solver_in) :
         robot(robot_state_in),
         lcm(lcm_in),
         solver(solver_in) {
@@ -44,7 +44,7 @@ Vector6d MotionPlanner::sample() {
     return z_rand;
 }
 
-MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vector6d rand) {
+MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vector6d& rand) {
 
     deque<Node*> q;
     q.push_back(tree_root);
@@ -72,7 +72,7 @@ MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vect
 }
 
 
-Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d end) {
+Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d& end) {
     Vector6d line_vec = end - start->config;
 
     for (int i = 0; i < step_limits.size(); ++i) {
@@ -117,7 +117,7 @@ vector<Vector6d> MotionPlanner::backtrace_path(MotionPlanner::Node* end, MotionP
     return path;
 }
 
-Vector6d MotionPlanner::get_radians(Vector6d config) {
+Vector6d MotionPlanner::get_radians(Vector6d& config) {
     for (int i = 0; i < 6; ++i) {
         config(i) *= (M_PI / 180);
     }
@@ -125,7 +125,7 @@ Vector6d MotionPlanner::get_radians(Vector6d config) {
     return config;
 }
 
-MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d z_rand) {
+MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d& z_rand) {
     inc_i();
     Node* z_nearest = nearest(tree, z_rand);
     Vector6d z_new = steer(z_nearest, z_rand);
@@ -145,7 +145,7 @@ MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d z_rand) {
     return new_node;
 }
 
-MotionPlanner::Node* MotionPlanner::connect(Node* tree, Vector6d a_new) {
+MotionPlanner::Node* MotionPlanner::connect(Node* tree, Vector6d& a_new) {
     Node* extension = extend(tree, a_new);
     Vector6d config = extension->config;
 
@@ -158,7 +158,7 @@ MotionPlanner::Node* MotionPlanner::connect(Node* tree, Vector6d a_new) {
     return extension;
 }
 
-vector<tk::spline> MotionPlanner::rrt_connect(Vector6d target) {
+vector<tk::spline> MotionPlanner::rrt_connect(Vector6d& target) {
     Vector6d start;
     start(0) = robot.get_joint_angles()["joint_a"];
     start(1) = robot.get_joint_angles()["joint_b"];
@@ -224,7 +224,7 @@ vector<tk::spline> MotionPlanner::rrt_connect(Vector6d target) {
 }
 
 // TODO translate line space and create 6 splines
-vector<tk::spline> spline_fitting(vector<Vector6d> path) {
+vector<tk::spline> spline_fitting(vector<Vector6d>& path) {
 
     // six vectors, each with the path of a single component
     vector< vector<double> > separate_paths;
