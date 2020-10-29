@@ -78,7 +78,10 @@ def lcmThreaderMan():
     last_pub = t.time()
     while True:
         lcm_1.handle()
+<<<<<<< HEAD:jetson/odrive_bridge/src/__main__.py
 
+=======
+>>>>>>> a94e644b... added watch dog back in...had been added directly to the mock_comp branch not mine earlier:onboard/odrive_bridge/src/__main__.py
         global start_time
         start_time = t.clock()
         try:
