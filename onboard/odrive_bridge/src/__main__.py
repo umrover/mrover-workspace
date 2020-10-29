@@ -228,7 +228,8 @@ class OdriveBridge(object):
         global modrive
         global legal_controller
         print("looking for odrive")
-        odrives = ["205F3883304E", "2091358E524B"]
+        # TODO fill in 3rd odrive id
+        odrives = ["205F3883304E", "2091358E524B", "odrive3_id"]
         id = odrives[legal_controller]
 
         print(id)
@@ -316,7 +317,9 @@ def publish_encoder_helper(axis):
     msg.estimatedVel = modrive.get_vel_estimate(axis)
 
     motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
-                 ("LEFT", 1): 2, ("RIGHT", 1): 3}
+                 ("LEFT", 1): 2, ("RIGHT", 1): 3,
+                 ("LEFT", 2): 4, ("RIGHT", 2): 5}
+
     msg.axis = motor_map[(axis, legal_controller)]
 
     lcm_.publish("/drive_vel_data", msg.encode())
@@ -393,7 +396,7 @@ class Modrive:
 
         front_state, back_state = self.get_current_state()
 
-        # if both are idle it means its done calibrating
+        # if both axes are idle it means its done calibrating
         while(front_state != AXIS_STATE_IDLE \
                 or  back_state != AXIS_STATE_IDLE):
             front_state, back_state = self.get_current_state()
