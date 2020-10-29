@@ -12,7 +12,6 @@ using namespace Eigen;
 
 KinematicsSolver::KinematicsSolver(ArmState robot_state_in) : robot_state(robot_state_in), e_locked(false) {
     robot_ik = robot_state_in;
-    new_state = robot_state_in;
     robot_safety = robot_state_in;
     // Try robot fk:
     FK(robot_state);
@@ -447,13 +446,9 @@ bool KinematicsSolver::is_safe(Vector6d angles) {
     vector<string> joints = robot_ik.get_all_joints();
     
     // if any angles are outside bounds
-    // TODO check if we need to run FK before returning, regardless of limit_check
-    bool limit = limit_check(angles, joints);
-    
-    // TODO check if we need to exclude joint f from angles
-    /*for (int i = 0; i < joints.size(); ++i) {
-        if (joints[i] != "joint_f") {}
-    }*/
+    if (!limit_check(angles, joints)) {
+        return false;
+    }
 
     // run FK algorithm to determine if there is a collision
     robot_safety.set_joint_angles(angles);
@@ -463,7 +458,6 @@ bool KinematicsSolver::is_safe(Vector6d angles) {
 
 bool KinematicsSolver::limit_check(const Vector6d &angles, const vector<string> &joints) {
 
-    // TODO check that we should actually use all values of joint
     for (int i = 0; i < joints.size(); ++i) {
         map<string, double> limits = robot_safety.get_joint_limits(joints[i]);
         
