@@ -120,10 +120,10 @@ class obstacle_return {
 
 };
 
-#if OBSTACLE_DETECTION
-//functions
-obstacle_return pcl_obstacle_detection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pt_cloud_ptr, std::shared_ptr<pcl::visualization::PCLVisualizer> viewer);
-#endif
+
 
 //ar tag detector class
 #include "artag_detector.hpp"
+
+//pcl class
+#include "pcl.hpp"
