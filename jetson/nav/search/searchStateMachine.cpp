@@ -30,7 +30,7 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
         {
             return executeSearchGimbal( phoebe, roverConfig );
         }
-
+        case NavState::SearchGimbalWait:
         case NavState::SearchSpinWait:
         case NavState::TurnedToTargetWait:
         {
@@ -151,7 +151,7 @@ NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverCon
             return NavState::SearchTurn;
         }
         nextStop += waitStepSize;
-        return NavState::SearchSpinWait;
+        return NavState::SearchGimbalWait;
     }
 
     return NavState::SearchGimbal;
@@ -187,6 +187,9 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
         {
             return NavState::SearchSpin;
         }
+        else if (phoebe->roverStatus().currentState() == NavState::SearchGimbalWait){
+            return NavState::SearchGimbal;
+        }
         return NavState::SearchTurn;
     }
     else
@@ -194,6 +197,9 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
         if ( phoebe->roverStatus().currentState() == NavState::SearchSpinWait )
         {
             return NavState::SearchSpinWait;
+        }
+        else if (phoebe->roverStatus().currentState() == NavState::SearchGimbalWait){
+            return NavState::SearchGimbal;
         }
         return NavState::TurnedToTargetWait;
     }
