@@ -52,10 +52,17 @@ class ScienceBridge():
         pass
 
     def thermistor_handler(self, msg, thermistor_struct):
+        # msg format: <"$THERMISTOR,temperature">
+        try:
+            arr = msg.split(,)
+            thermistor_struct.temp0 = arr[1]
+            thermistor_struct.temp1 = arr[2]
+            thermistor_struct.temp2 = arr[3]
+        except:
+            pass
         # parse the thermistor UART msg
         # adding relevant error handling 
         # set the struct variables
-        pass
 
 
     def txt_handler(self, msg, struct):
