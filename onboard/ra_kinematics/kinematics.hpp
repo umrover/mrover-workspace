@@ -27,6 +27,8 @@ private:
     ArmState robot_safety;
     bool e_locked;
 
+    Vector6d arm_state_backup;
+
 public:
 
     Vector3d target_pos_world;
@@ -62,6 +64,10 @@ public:
      * @return true if all angles are within bounds
      * */
     bool limit_check(const Vector6d &angles, const vector<string> &joints);
+
+
+    void perform_backup();
+    void recover_from_backup();
 
 };
 

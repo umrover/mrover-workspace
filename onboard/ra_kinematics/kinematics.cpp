@@ -469,3 +469,16 @@ bool KinematicsSolver::limit_check(const Vector6d &angles, const vector<string> 
     // if all angles are in bounds
     return true;
 }
+
+void KinematicsSolver::perform_backup() {
+    int i = 0;
+
+    for (auto const& pair : robot_state.get_joint_angles()) {
+        arm_state_backup(i++) = pair.second;
+    }
+}
+
+void KinematicsSolver::recover_from_backup() {
+    robot_state.set_joint_angles(arm_state_backup);
+    FK(robot_state);
+}
