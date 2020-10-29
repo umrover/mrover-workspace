@@ -243,9 +243,14 @@ class OdriveBridge(object):
         global modrive
         global legal_controller
         print("looking for odrive")
+<<<<<<< HEAD:jetson/odrive_bridge/src/__main__.py
 
         # TODO fill in 3rd odrive id
         odrives = ["205F3883304E", "2091358E524B", "2084399C4D4D"]
+=======
+        # TODO fill in 3rd odrive id
+        odrives = ["205F3883304E", "2091358E524B", "odrive3_id"]
+>>>>>>> acdf014d... updated odrive code to support 3 odrives and 6 motors:onboard/odrive_bridge/src/__main__.py
         id = odrives[legal_controller]
 
         print(id)
@@ -412,7 +417,7 @@ class Modrive:
 
         front_state, back_state = self.get_current_state()
 
-        # if both are idle it means its done calibrating
+        # if both axes are idle it means its done calibrating
         while(front_state != AXIS_STATE_IDLE \
                 or  back_state != AXIS_STATE_IDLE):
             front_state, back_state = self.get_current_state()
