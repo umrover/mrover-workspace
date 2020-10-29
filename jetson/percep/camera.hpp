@@ -1,9 +1,10 @@
 #pragma once
 #include <opencv2/opencv.hpp>
+#include "perception.hpp"
 
-//#if OBSTACLE_DETECTION
-#include <pcl/common/common_headers.h>
-//#endif
+#if OBSTACLE_DETECTION
+	#include <pcl/common/common_headers.h>
+#endif
 
 
 class Camera {
