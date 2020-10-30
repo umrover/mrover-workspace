@@ -22,22 +22,22 @@ commands at the same time. Threading locks are used within the code to prevent t
 simultaneously. 
 
 #### LCM Channels Publishing/Subscribed To 
-Drive Velocity Command [subscriber] \
+**Drive Velocity Command [subscriber]** \
 Messages: [ DriveVelCmd.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/DriveVelCmd.lcm) “/drive_vel_cmd” \
 Publishers: onboard/teleop \
 Subscribers: onboard/odrive_bridge
 
-Drive State Command [subscriber] \
+**Drive State Command [subscriber]** \
 Messages: [DriveStateCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/DriveStateCmd.lcm) "/drive_state_cmd" \
 Publishers: onboard/teleop \
 Subscribers: onboard/odrive_bridge 
 
-Drive Velocity Data [publisher] \
+**Drive Velocity Data [publisher]** \
 Messages: [ DriveVelData.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/DriveVelData.lcm) "/drive_vel_data" \
 Publishers: onboard/odrive_bridge \
 Subscribers: onboard/teleop
 
-Drive State Data [publisher] \
+**Drive State Data [publisher]** \
 Messages: [DriveStateData.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/DriveStateData.lcm) "/drive_state_data" \
 Publishers: onboard/odrive_bridge \
 Subscribers: onboard/teleop
@@ -245,19 +245,14 @@ If the service is not running, type \
 ### ToDo 
 As of right now we are unsure whether or not we are using odrives for the 2021 Rover, or what/if testing still needs to be done with the 2020 rover for system validation. 
 
-- [ ] Validate this guide
-- [ ] Test CalibrateState
+- [x] Validate this guide
 - [x] Implement watchdog timer
-- [ ] Switch from threading to async 
-- [ ] Update current limit
-- [ ] Test other control modes? 
-- [ ] Odrive through UART/CAN research
-- [ ] Potential rewrite
 - [x] Add Off Nominal Behavior Section
+- [x] Make functional for 2021
 
 
 ### Notes
-I fucking hate odrives 
+The odrive code has been modified to work for 3 odrives on the 2021 rover for SAR. We do not plan on using odrives for URC.
 
 
 
