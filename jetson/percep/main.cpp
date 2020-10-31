@@ -24,50 +24,6 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
   return true;
 }
 
-#if OBSTACLE_DETECTION
-//Creates a PCL Visualizer
-shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer(pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr cloud) {
-    // Open 3D viewer and add point cloud
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer(
-      new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer")); //This is a smart pointer so no need to worry ab deleteing it
-    viewer->setBackgroundColor(0.12, 0.12, 0.12);
-    pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
-    viewer->addPointCloud<pcl::PointXYZRGB>(cloud, rgb);
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1.5);
-    viewer->addCoordinateSystem(1.0);
-    viewer->initCameraParameters();
-    viewer->setCameraPosition(0,0,-800,0,-1,0);
-    return (viewer);
-}
-#endif
-
-//static string rgb_foldername, depth_foldername;
-/*void disk_record_init() {
-  #if WRITE_CURR_FRAME_TO_DISK
-    // write images colleted to the folder
-    // absolute path
-    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER "rgb/";
-    depth_foldername = DEFAULT_ONLINE_DATA_FOLDER "depth/";
-    string mkdir_rgb =  std::string("mkdir -p ") + rgb_foldername;
-    string mkdir_depth =  std::string("mkdir -p ") + depth_foldername;
-    int dir_err_rgb = system( mkdir_rgb.c_str() );
-    int dir_err_depth = system(mkdir_depth.c_str());
-    if (-1 == dir_err_rgb || -1 == dir_err_depth) {
-      exit(1);
-    }
-  #endif
-} 
-*/
-
-/*void write_curr_frame_to_disk(Mat rgb, Mat depth, int counter) {
-    string fileName = to_string(counter / FRAME_WRITE_INTERVAL);
-    while(fileName.length() < 4){
-      fileName = '0'+fileName;
-    }
-    cv::imwrite(rgb_foldername +  fileName + std::string(".jpg"), rgb );
-    cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
-}*/
-
 int main() {
   /* --- Initialize Camera --- */
   Camera cam;
@@ -146,9 +102,7 @@ int main() {
     //Grab initial images from cameras
     Mat rgb;
     Mat src = cam.image();
-    cout << "Read in rbg" << endl;
     Mat depth_img = cam.depth();
-    cout << "Read in depth" << endl;
     #endif
     
 

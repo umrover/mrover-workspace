@@ -4,7 +4,7 @@
 
 
 #if OBSTACLE_DETECTION
-#include <pcl/common/common_headers.h>
+	#include <pcl/common/common_headers.h>
 #endif
 
 
@@ -31,7 +31,6 @@ public:
 private:
 	Impl *impl_;
 	std::string rgb_foldername;
-    std::string depth_foldername;
+	std::string depth_foldername;
 };
 
-//Huge Chnage
