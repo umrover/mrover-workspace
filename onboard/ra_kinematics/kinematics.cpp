@@ -10,9 +10,10 @@
 
 using namespace Eigen;
 
-KinematicsSolver::KinematicsSolver(ArmState robot_state_in) : robot_state(robot_state_in), e_locked(false) {
-    robot_ik = robot_state_in;
-    robot_safety = robot_state_in;
+KinematicsSolver::KinematicsSolver(ArmState robot_state_in) :   robot_state(robot_state_in),
+                                                                robot_ik(robot_state_in),
+                                                                robot_safety(robot_state_in),
+                                                                e_locked(false) {
     // Try robot fk:
     FK(robot_state);
     Vector3d target_pos_world(0, 0, 0);
