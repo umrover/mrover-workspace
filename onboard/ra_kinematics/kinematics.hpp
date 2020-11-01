@@ -36,7 +36,7 @@ public:
         return POS_WEIGHT;
     }
 
-    KinematicsSolver(ArmState robot_state_in);
+    KinematicsSolver(const ArmState& robot_state_in);
 
     Vector3d FK(ArmState &robot_state);
 
