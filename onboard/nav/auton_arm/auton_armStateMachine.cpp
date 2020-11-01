@@ -134,8 +134,7 @@ void AutonArmStateMachine::updateRoverStatus(AutonState autonState) {
 
 // Updates the target information of the rover's status.
 void AutonArmStateMachine::updateRoverStatus(TargetList targetList) {
-    Target target1 = targetList.targetList[0];
-    mNewRoverStatus.target() = target1;
+    mNewRoverStatus.target() = targetList.targetList[0];
     is_tag_received = true;
 } //updateRoverStatus(TargetList targetList)
 
