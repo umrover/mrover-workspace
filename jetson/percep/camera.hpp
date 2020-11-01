@@ -7,10 +7,13 @@
 	#include <pcl/common/common_headers.h>
 #endif
 
-
 class Camera {
 private:
 	class Impl;
+	Impl *impl_;
+	std::string rgb_foldername;
+	std::string depth_foldername;
+	
 public:
 	Camera();
 	~Camera();
@@ -20,7 +23,6 @@ public:
 	cv::Mat image();
 	cv::Mat depth();
 	
-	
 	#if OBSTACLE_DETECTION
 	void getDataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
 	#endif
@@ -28,9 +30,5 @@ public:
 	void disk_record_init();
 	void write_curr_frame_to_disk(cv::Mat rgb, cv::Mat depth, int counter);
 
-private:
-	Impl *impl_;
-	std::string rgb_foldername;
-	std::string depth_foldername;
 };
 

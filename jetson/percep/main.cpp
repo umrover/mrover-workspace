@@ -8,46 +8,82 @@ using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
 
-double getAngle(float xPixel, float wPixel){
-    return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
-}
-
-bool cam_grab_succeed(Camera &cam, int & counter_fail) {
-  while (!cam.grab()) {
-    counter_fail++;
-    usleep(1000);
-    if (counter_fail > 1000000) {
-      cerr<<"camera failed\n";
-      return false;
-    }
-  }
-  counter_fail = 0;
-  return true;
-}
-
 int main() {
-  /* --- Initialize Camera --- */
+  
+  /* --- Camera Initializations --- */
   Camera cam;
-  cam.grab();
   int iterations = 0;
   int counter_fail = 0;
+   cam.grab();
+
   #if PERCEPTION_DEBUG
     namedWindow("depth", 2);
   #endif
-  cam.disk_record_init();
-  //Video Stuff
-  TagDetector d1;
-  pair<Tag, Tag> tp;
-
-  //Create time value
-  time_t now = time(0);
-  char* ltm = ctime(&now);
-  string timeStamp(ltm);
   
   #if AR_DETECTION
   Mat rgb;
   Mat src = cam.image();
   #endif
+
+  #if WRITE_CURR_FRAME_TO_DISK
+    cam.disk_record_init();
+  #endif
+
+  /* -- LCM Messages Initializations -- */
+  lcm::LCM lcm_;
+  rover_msgs::TargetList arTagsMessage;
+  rover_msgs::Target* arTags = arTagsMessage.targetList;
+  rover_msgs::Obstacle obstacleMessage;
+  arTags[0].distance = -1;
+  arTags[1].distance = -1;
+  obstacleMessage.detected = false;
+
+  /* --- AR Tag Initializations --- */
+  TagDetector detector;
+  pair<Tag, Tag> tagPair;
+  int left_tag_buffer = 0;
+  int right_tag_buffer = 0;
+  
+  /* --- Point Cloud Initializations --- */
+  #if OBSTACLE_DETECTION
+
+  PCL pointcloud;
+  
+  #if PERCEPTION_DEBUG
+    /* --- Create PCL Visualizer --- */
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
+  #endif
+
+  /* --- Outlier Detection --- */
+  int numChecks = 3;
+  deque <bool> outliers;
+  outliers.resize(numChecks, true); //initializes outliers vector
+  deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
+  deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
+  obstacle_return lastObstacle;
+
+  #endif
+
+  /* --- AR Recording Initializations and Implementation--- */ 
+  TagDetector d1;
+  pair<Tag, Tag> tp;
+  
+<<<<<<< HEAD
+  // Vector of obstacle detection true/false 
+  // Vector is boolean and contains x amount of values so we can compare against other obstale detection
+  // Used for outliers  
+  int numChecks = 3;
+  deque <bool> outliers;
+  outliers.resize(numChecks, true); //initializes outliers vector
+  deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
+  deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
+  obstacle_return lastObstacle;
+
+=======
+  time_t now = time(0);
+  char* ltm = ctime(&now);
+  string timeStamp(ltm);
 
   #if AR_RECORD
   //initializing ar tag videostream object
@@ -67,47 +103,13 @@ int main() {
   }
   #endif
 
-  /* - Initialize LCM Messages - */
-  lcm::LCM lcm_;
-  rover_msgs::TargetList arTagsMessage;
-  rover_msgs::Target* arTags = arTagsMessage.targetList;
-  rover_msgs::Obstacle obstacleMessage;
-  arTags[0].distance = -1;
-  arTags[1].distance = -1;
-  obstacleMessage.detected = false;
 
-  //tag detection stuff
-  TagDetector detector;
-  pair<Tag, Tag> tagPair;
-  int left_tag_buffer = 0;
-  int right_tag_buffer = 0;
-
-  #if OBSTACLE_DETECTION
-
-  //Generate point cloud and put in point cloud object
-  //This is a smart pointer so no need to worry ab deleteing it
-  PCL pointcloud;
-  
-  #if PERCEPTION_DEBUG
-    /* --- Create PCL Visualizer --- */
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
-  #endif
-
-  #endif
-  
-  // Vector of obstacle detection true/false 
-  // Vector is boolean and contains x amount of values so we can compare against other obstale detection
-  // Used for outliers  
-  int numChecks = 3;
-  deque <bool> outliers;
-  outliers.resize(numChecks, true); //initializes outliers vector
-  deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
-  deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
-  obstacle_return lastObstacle;
-
+/* --- Main Processing Stuff --- */
+>>>>>>> [percep] created FP filter and made code look beautiful resolves #419 (#467)
   while (true) {
-    if (!cam_grab_succeed(cam, counter_fail)) break;
+
+    //Check to see if we were able to grab the frame
+    if (!cam.grab()) break;
 
     #if AR_DETECTION
     //Grab initial images from cameras
@@ -126,7 +128,7 @@ int main() {
       }
     #endif
 
-    /* --- AR Tag Detection --- */
+/* --- AR Tag Processing --- */
     arTags[0].distance = -1;
     arTags[1].distance = -1;
     #if AR_DETECTION
@@ -147,7 +149,7 @@ int main() {
       } else { //one tag found
         if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
           arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
-        arTags[0].bearing = getAngle((int)tagPair.first.loc.x, src.cols);
+        arTags[0].bearing = detector.getAngle((int)tagPair.first.loc.x, src.cols);
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
       }
@@ -164,14 +166,18 @@ int main() {
       } else { //one tag found
         if(!isnan(depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x)))
           arTags[1].distance = depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x);
-        arTags[1].bearing = getAngle((int)tagPair.second.loc.x, src.cols);
+        arTags[1].bearing = detector.getAngle((int)tagPair.second.loc.x, src.cols);
         arTags[1].id = tagPair.second.id;
         right_tag_buffer = 0;
       }
+    #if PERCEPTION_DEBUG && AR_DETECTION
+      imshow("depth", src);
+      waitKey(1);  
+    #endif
 
     #endif
 
-    /* --- Run PCL Stuff --- */
+/* --- Point Cloud Processing --- */
     #if OBSTACLE_DETECTION
 
     //Update Point Cloud
@@ -206,25 +212,23 @@ int main() {
     obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
     cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
     #if PERCEPTION_DEBUG
-    //Update Processed 3D Viewer
-    viewer->updatePointCloud(pointcloud.pt_cloud_ptr);
-    viewer->spinOnce(20);
-    cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
+      //Update Processed 3D Viewer
+      viewer->updatePointCloud(pointcloud.pt_cloud_ptr);
+      viewer->spinOnce(20);
+      cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
     #endif
     
     #endif
     
-    /* --- Publish LCMs --- */
+/* --- Publish LCMs --- */
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
-    #if PERCEPTION_DEBUG && AR_DETECTION
-      imshow("depth", src);
-      waitKey(1);
-      std::this_thread::sleep_for(0.2s);   
-    #endif
+    std::this_thread::sleep_for(0.2s); // Iteration speed control 
     ++iterations;
   }
+
+/* --- Wrap Things Up --- */
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
   viewer->close();
   #endif
@@ -232,6 +236,7 @@ int main() {
   #if AR_RECORD
   vidWrite.release();
   #endif
+  
   return 0;
 }
 
