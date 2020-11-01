@@ -108,7 +108,7 @@ int main() {
     #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
-      camera.record_ar(rgb);
+      cam.record_ar(rgb);
       #endif
       //update both tags in LCM message
       //first tag
@@ -211,7 +211,7 @@ int main() {
   #endif
   
   #if AR_RECORD
-  camera.record_ar_finish();
+  cam.record_ar_finish();
   #endif
   
   return 0;
