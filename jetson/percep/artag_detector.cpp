@@ -2,6 +2,7 @@
 
 static Mat HSV;
 static Mat DEPTH;
+
 /* For debug use: print the HSV values at mouseclick locations */
 void onMouse(int event, int x, int y, int flags, void *userdata) {
     if (event == EVENT_LBUTTONUP) {
@@ -122,4 +123,8 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
         }
     }
     return discoveredTags;
+}
+
+double TagDetector::getAngle(float xPixel, float wPixel){
+    return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
 }

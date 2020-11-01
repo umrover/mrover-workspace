@@ -15,7 +15,7 @@ void PCL::PassThroughFilter() {
     pass.setInputCloud(pt_cloud_ptr);
     pass.setFilterFieldName("z");
     //The z values for depth are in mm
-    pass.setFilterLimits(0.0,9000.0);
+    pass.setFilterLimits(0.0,2000.0);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -186,7 +186,7 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-bool PCL::FindClearPath(std::vector<std::vector<int>> interest_points,
+double PCL::FindClearPath(std::vector<std::vector<int>> interest_points,
                         shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Find Clear Path");
