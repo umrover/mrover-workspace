@@ -312,6 +312,39 @@ cv::Mat Camera::Impl::depth() {
   }
   return img;
 }
+
+void Camera::record_ar_init() {
+  //initializing ar tag videostream object
+
+  Mat depth_img = depth();
+  Mat rgb;
+  Mat src = image();
+
+  tp = d1.findARTags(src, depth_img, rgb);
+  Size fsize = rgb.size();
+
+  time_t now = time(0);
+  char* ltm = ctime(&now);
+  string timeStamp(ltm);
+
+  string s = "artag_number_" + timeStamp + ".avi";
+
+  vidWrite =  VideoWriter(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
+
+  if(vidWrite.isOpened() == false)
+  {
+	  cerr << "ar record didn't open\n";
+	  exit(1);
+  }
+}
+
+void Camera::record_ar(Mat rgb) {
+  vidWrite.write(rgb);
+}
+
+void Camera::record_ar_finish() {
+  vidWrite.release();
+}
 #endif
 
 #if OBSTACLE_DETECTION
