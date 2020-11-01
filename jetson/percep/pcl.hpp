@@ -68,7 +68,7 @@ class PCL {
         void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, std::vector<std::vector<int>> &interest_points);
         
         //Finds a clear path given the obstacle corners
-        bool FindClearPath(std::vector<std::vector<int>> interest_points,
+        double FindClearPath(std::vector<std::vector<int>> interest_points,
                            shared_ptr<pcl::visualization::PCLVisualizer> viewer);
 
         //Determines whether the input path is obstructed

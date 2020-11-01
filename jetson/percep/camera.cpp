@@ -100,6 +100,12 @@ inline float convertColor(float colorIn) {
     return *reinterpret_cast<float *> (&color_uint);
 }
 
+Camera::Impl::~Impl() {
+  this->depth_zed_.free(sl::MEM::CPU);
+  this->image_zed_.free(sl::MEM::CPU);
+	this->zed_.close();
+}
+
 #if OBSTACLE_DETECTION
 void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & p_pcl_point_cloud) {
   //Might need an overloaded assignment operator
@@ -125,24 +131,9 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & p_pcl_poin
     index += 4;
   }
 
- /* void Camera::Impl::write_curr_frame_to_disk(Mat rgb, Mat depth, int counter){
-  string fileName = to_string(counter / FRAME_WRITE_INTERVAL);
-    while(fileName.length() < 4){
-      fileName = '0'+fileName;
-    }
-    cv::imwrite(rgb_foldername +  fileName + std::string(".jpg"), rgb );
-    cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
-  }
-
-} */
+}
 #endif
 
-Camera::Impl::~Impl() {
-  this->depth_zed_.free(sl::MEM::CPU);
-  this->image_zed_.free(sl::MEM::CPU);
-	this->zed_.close();
-
-}
 
 
 #else //if OFFLINE_TEST
@@ -337,31 +328,6 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point
 }
 #endif
 
-// creates and opens folder to write to
-void Camera::disk_record_init() {
-    //defining directories to write to
-    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER "rgb/";
-    depth_foldername = DEFAULT_ONLINE_DATA_FOLDER "depth/";
-    string mkdir_rgb =  std::string("mkdir -p ") + rgb_foldername;
-    string mkdir_depth =  std::string("mkdir -p ") + depth_foldername;
-
-    //creates new folder in the system
-    if (-1 == system( mkdir_rgb.c_str()) || -1 == system(mkdir_depth.c_str())) {
-      exit(1);
-    }
-}
-
-//writes the Mat to a file
-void Camera::write_curr_frame_to_disk(cv::Mat rgb, cv::Mat depth, int counter){
-    string fileName = to_string(counter / FRAME_WRITE_INTERVAL);
-    while(fileName.length() < 4){
-      fileName = '0'+fileName;
-    }
-
-    cv::imwrite(rgb_foldername +  fileName + std::string(".jpg"), rgb );
-    cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
-}
-
 /*
 void Camera::Impl::writeDataCloud(int j){
   string name = ("pcl" + to_string(j) + ".pcd"); 
@@ -373,8 +339,8 @@ void Camera::Impl::writeDataCloud(int j){
 
 #endif
 
-Camera::Camera() : impl_(new Camera::Impl) {
-}
+Camera::Camera() : impl_{new Camera::Impl}, rgb_foldername{""},
+                   depth_foldername{""} {}
 
 Camera::~Camera() {
 	delete this->impl_;
@@ -399,3 +365,28 @@ void Camera::getDataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cl
   this->impl_->dataCloud(p_pcl_point_cloud);
 }
 #endif
+
+// creates and opens folder to write to
+void Camera::disk_record_init() {
+    //defining directories to write to
+    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER "rgb/";
+    depth_foldername = DEFAULT_ONLINE_DATA_FOLDER "depth/";
+    string mkdir_rgb =  std::string("mkdir -p ") + rgb_foldername;
+    string mkdir_depth =  std::string("mkdir -p ") + depth_foldername;
+
+    //creates new folder in the system
+    if (-1 == system( mkdir_rgb.c_str()) || -1 == system(mkdir_depth.c_str())) {
+      exit(1);
+    }
+}
+
+//writes the Mat to a file
+void Camera::write_curr_frame_to_disk(cv::Mat rgb, cv::Mat depth, int counter){
+    string fileName = to_string(counter / FRAME_WRITE_INTERVAL);
+    while(fileName.length() < 4){
+      fileName = '0'+fileName;
+    }
+
+    cv::imwrite(rgb_foldername +  fileName + std::string(".jpg"), rgb );
+    cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
+}
