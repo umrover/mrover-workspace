@@ -110,7 +110,7 @@ Vector3d compute_euler_angles(Matrix3d xform_mat) {
     double beta = acos((double)xform_mat(2,2));
     double gamma = atan2((double)xform_mat(2,0), (double)xform_mat(2,1));
 
-    Vector3d angles = {alpha, beta, gamma};
+    Vector3d angles(alpha, beta, gamma);
     return angles;
 }
 

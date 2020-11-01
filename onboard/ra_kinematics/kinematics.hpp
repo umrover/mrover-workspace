@@ -13,14 +13,12 @@ class KinematicsSolver {
 
 private:
     static const int MAX_ITERATIONS = 500;
-    static const int POS_THRESHOLD = 0.01;
-    static const int ANGLE_THRESHOLD = 10;
+    static constexpr double POS_THRESHOLD = 0.01;
+    static constexpr double ANGLE_THRESHOLD = 10.0;
     static const int POS_WEIGHT = 1;
-    static const double j_kp = 0.1;
-    static const double j_kd = 0;
-    static const double delta_theta = 0.0001;
-
-    bool e_locked;
+    static constexpr double j_kp = 0.1;
+    static constexpr double j_kd = 0;
+    static constexpr double delta_theta = 0.0001;
 
     ArmState robot_state;
     ArmState robot_ik;
