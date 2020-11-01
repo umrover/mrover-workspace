@@ -12,7 +12,6 @@ DiamondGateSearch::~DiamondGateSearch() {}
 
 void DiamondGateSearch::initializeSearch()
 {
-    cout << "DIAMOND SEARCH" << endl;
     mGateSearchPoints.clear();
     Odometry currOdom = mPhoebe->roverStatus().odometry();
     double diamondWidth = mPhoebe->roverStatus().path().front().gate_width * 1.5;

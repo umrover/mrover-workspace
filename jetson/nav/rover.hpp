@@ -58,11 +58,10 @@ enum class NavState
     GateTurnToCentPoint = 44,
     GateDriveToCentPoint = 45,
     GateFace = 46,
-    GateShimmy = 47,
-    GateDriveThrough = 48,
-    GateTurnToFarPost = 49,
-    GateDriveToFarPost = 50,
-    GateTurnToGateCenter = 51,
+    GateDriveThrough = 47,
+    GateTurnToFarPost = 48,
+    GateDriveToFarPost = 49,
+    GateTurnToGateCenter = 50,
 
     // Radio Repeater States
     RadioRepeaterTurn = 60,
