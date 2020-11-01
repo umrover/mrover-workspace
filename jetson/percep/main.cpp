@@ -25,42 +25,16 @@ bool cam_grab_succeed(Camera &cam, int & counter_fail) {
   return true;
 }
 
-static string rgb_foldername, depth_foldername;
-void disk_record_init() {
-  #if WRITE_CURR_FRAME_TO_DISK
-    // write images colleted to the folder
-    // absolute path
-    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER "rgb/";
-    depth_foldername = DEFAULT_ONLINE_DATA_FOLDER "depth/";
-    string mkdir_rgb =  std::string("mkdir -p ") + rgb_foldername;
-    string mkdir_depth =  std::string("mkdir -p ") + depth_foldername;
-    int dir_err_rgb = system( mkdir_rgb.c_str() );
-    int dir_err_depth = system(mkdir_depth.c_str());
-    if (-1 == dir_err_rgb || -1 == dir_err_depth) {
-      exit(1);
-    }
-  #endif
-}
-
-void write_curr_frame_to_disk(Mat rgb, Mat depth, int counter) {
-    string fileName = to_string(counter / FRAME_WRITE_INTERVAL);
-    while(fileName.length() < 4){
-      fileName = '0'+fileName;
-    }
-    cv::imwrite(rgb_foldername +  fileName + std::string(".jpg"), rgb );
-    cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
-}
-
 int main() {
   /* --- Initialize Camera --- */
   Camera cam;
   cam.grab();
-  int j = 0;
+  int iterations = 0;
   int counter_fail = 0;
   #if PERCEPTION_DEBUG
     namedWindow("depth", 2);
   #endif
-  disk_record_init();
+  cam.disk_record_init();
   //Video Stuff
   TagDetector d1;
   pair<Tag, Tag> tp;
@@ -145,10 +119,10 @@ int main() {
 
     // write to disk if permitted
     #if WRITE_CURR_FRAME_TO_DISK
-      if (j % FRAME_WRITE_INTERVAL == 0) {
+      if (iterations % FRAME_WRITE_INTERVAL == 0) {
         Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
-        thread write_thread(write_curr_frame_to_disk, rgb_copy, depth_copy, j);
-        write_thread.detach();
+        cerr << "Copied correctly" << endl;
+        cam.write_curr_frame_to_disk(rgb_copy, depth_copy, iterations);
       }
     #endif
 
@@ -249,7 +223,7 @@ int main() {
       waitKey(1);
       std::this_thread::sleep_for(0.2s);   
     #endif
-    ++j;
+    ++iterations;
   }
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
   viewer->close();
