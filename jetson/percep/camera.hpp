@@ -1,10 +1,7 @@
 #pragma once
 #include <opencv2/opencv.hpp>
 #include "perception.hpp"
-<<<<<<< HEAD
 
-=======
->>>>>>> Pcl restructure (#463)
 
 #if OBSTACLE_DETECTION
 	#include <pcl/common/common_headers.h>
