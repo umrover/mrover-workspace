@@ -59,7 +59,7 @@ private:
 
     NavState executeGateTurnToGateCenter();
 
-    NavState executeGateShimmy();
+    //NavState executeGateShimmy();
 
     NavState executeGateDriveThrough();
 
