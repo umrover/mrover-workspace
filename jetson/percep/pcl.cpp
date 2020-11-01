@@ -15,7 +15,7 @@ void PCL::PassThroughFilter() {
     pass.setInputCloud(pt_cloud_ptr);
     pass.setFilterFieldName("z");
     //The z values for depth are in mm
-    pass.setFilterLimits(0.0,2000.0);
+    pass.setFilterLimits(0.0,7000.0);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -54,7 +54,7 @@ void PCL::RANSACSegmentation(string type) {
     seg.setModelType(pcl::SACMODEL_PLANE);
     seg.setMethodType(pcl::SAC_RANSAC);
     seg.setMaxIterations(400);
-    seg.setDistanceThreshold(100); //Distance in mm away from actual plane a point can be
+    seg.setDistanceThreshold(200); //Distance in mm away from actual plane a point can be
     // to be considered an inlier
     seg.setAxis(Eigen::Vector3f(0, 0, 1)); //Looks for a plane along the Z axis
     double segmentation_epsilon = 45; //Max degree the normal of plane can be from Z axis
@@ -102,7 +102,7 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
     //Extracts clusters using nearet neighbors search
     pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
     ec.setClusterTolerance (60); // 60 mm radius per point
-    ec.setMinClusterSize (20);
+    ec.setMinClusterSize (100);
     ec.setMaxClusterSize (100000);
     ec.setSearchMethod (tree);
     ec.setInputCloud (pt_cloud_ptr);

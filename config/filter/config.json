@@ -4,7 +4,7 @@
     "Q_Dynamic": 0.1,
     "Q_Static": 0.001,
 
-    "FilterType": "LinearKalman",
+    "FilterType": "Pipe",
 
     "P_initial": [1, 0, 1, 0],
 

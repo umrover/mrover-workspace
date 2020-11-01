@@ -1,0 +1,3690 @@
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  82.6816
+distance:  2.76425
+waypoint bearing difference:  82.6816
+distance:  2.76425
+waypoint bearing difference:  82.6816
+distance:  2.76425
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  82.6085
+distance:  2.73706
+waypoint bearing difference:  82.6085
+distance:  2.73706
+waypoint bearing difference:  82.6085
+distance:  2.73706
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  82.6453
+distance:  2.75065
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  82.9936
+distance:  2.73474
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  82.9936
+distance:  2.73474
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  82.9936
+distance:  2.73474
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.0284
+distance:  2.74834
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4449
+distance:  2.75977
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4449
+distance:  2.75977
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4449
+distance:  2.75977
+waypoint bearing difference:  83.4449
+distance:  2.75977
+waypoint bearing difference:  83.4449
+distance:  2.75977
+waypoint bearing difference:  83.4449
+distance:  2.75977
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.4122
+distance:  2.74616
+waypoint bearing difference:  83.7966
+distance:  2.74409
+waypoint bearing difference:  83.7966
+distance:  2.74409
+waypoint bearing difference:  83.7966
+distance:  2.74409
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.7966
+distance:  2.74409
+waypoint bearing difference:  83.7966
+distance:  2.74409
+waypoint bearing difference:  83.7966
+distance:  2.74409
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8579
+distance:  2.77135
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8274
+distance:  2.75772
+waypoint bearing difference:  83.8579
+distance:  2.77135
+waypoint bearing difference:  83.8579
+distance:  2.77135
+waypoint bearing difference:  84.2391
+distance:  2.76943
+waypoint bearing difference:  84.2391
+distance:  2.76943
+waypoint bearing difference:  84.2391
+distance:  2.76943
+waypoint bearing difference:  84.2391
+distance:  2.76943
+waypoint bearing difference:  84.2391
+distance:  2.76943
+waypoint bearing difference:  84.2674
+distance:  2.78307
+waypoint bearing difference:  84.2674
+distance:  2.78307
+waypoint bearing difference:  84.2391
+distance:  2.76943
+waypoint bearing difference:  84.2391
+distance:  2.76943
+waypoint bearing difference:  84.2391
+distance:  2.76943
+waypoint bearing difference:  84.2674
+distance:  2.78307
+waypoint bearing difference:  84.2391
+distance:  2.76943
+waypoint bearing difference:  84.2674
+distance:  2.78307
+waypoint bearing difference:  84.6473
+distance:  2.78128
+waypoint bearing difference:  84.6473
+distance:  2.78128
+waypoint bearing difference:  84.6473
+distance:  2.78128
+waypoint bearing difference:  84.6473
+distance:  2.78128
+waypoint bearing difference:  84.6735
+distance:  2.79493
+waypoint bearing difference:  84.6473
+distance:  2.78128
+waypoint bearing difference:  84.6735
+distance:  2.79493
+waypoint bearing difference:  84.6735
+distance:  2.79493
+waypoint bearing difference:  84.6735
+distance:  2.79493
+waypoint bearing difference:  84.6995
+distance:  2.80858
+waypoint bearing difference:  84.6473
+distance:  2.78128
+waypoint bearing difference:  84.6473
+distance:  2.78128
+waypoint bearing difference:  85.052
+distance:  2.79327
+waypoint bearing difference:  85.052
+distance:  2.79327
+waypoint bearing difference:  85.052
+distance:  2.79327
+waypoint bearing difference:  85.052
+distance:  2.79327
+waypoint bearing difference:  85.431
+distance:  2.79173
+waypoint bearing difference:  85.0762
+distance:  2.80693
+waypoint bearing difference:  85.4754
+distance:  2.81906
+waypoint bearing difference:  85.4754
+distance:  2.81906
+waypoint bearing difference:  85.4754
+distance:  2.81906
+waypoint bearing difference:  85.4533
+distance:  2.8054
+waypoint bearing difference:  85.052
+distance:  2.79327
+waypoint bearing difference:  85.431
+distance:  2.79173
+waypoint bearing difference:  85.4084
+distance:  2.77806
+waypoint bearing difference:  85.4084
+distance:  2.77806
+waypoint bearing difference:  85.431
+distance:  2.79173
+waypoint bearing difference:  85.7896
+distance:  2.77664
+waypoint bearing difference:  85.8103
+distance:  2.79031
+waypoint bearing difference:  85.8103
+distance:  2.79031
+waypoint bearing difference:  85.8103
+distance:  2.79031
+waypoint bearing difference:  85.8103
+distance:  2.79031
+waypoint bearing difference:  85.8103
+distance:  2.79031
+waypoint bearing difference:  85.7896
+distance:  2.77664
+waypoint bearing difference:  85.8103
+distance:  2.79031
+waypoint bearing difference:  85.8103
+distance:  2.79031
+waypoint bearing difference:  85.8103
+distance:  2.79031
+waypoint bearing difference:  85.8103
+distance:  2.79031
+waypoint bearing difference:  85.8308
+distance:  2.80399
+waypoint bearing difference:  85.8308
+distance:  2.80399
+waypoint bearing difference:  86.2086
+distance:  2.8027
+waypoint bearing difference:  86.2086
+distance:  2.8027
+waypoint bearing difference:  86.2086
+distance:  2.8027
+waypoint bearing difference:  86.2086
+distance:  2.8027
+waypoint bearing difference:  86.2086
+distance:  2.8027
+waypoint bearing difference:  86.2086
+distance:  2.8027
+waypoint bearing difference:  86.2086
+distance:  2.8027
+waypoint bearing difference:  86.2271
+distance:  2.81638
+waypoint bearing difference:  86.2086
+distance:  2.8027
+waypoint bearing difference:  86.2086
+distance:  2.8027
+waypoint bearing difference:  86.2271
+distance:  2.81638
+waypoint bearing difference:  86.6034
+distance:  2.81522
+waypoint bearing difference:  86.6034
+distance:  2.81522
+waypoint bearing difference:  86.6034
+distance:  2.81522
+waypoint bearing difference:  86.6034
+distance:  2.81522
+waypoint bearing difference:  86.6034
+distance:  2.81522
+waypoint bearing difference:  86.6034
+distance:  2.81522
+waypoint bearing difference:  86.6034
+distance:  2.81522
+waypoint bearing difference:  86.6034
+distance:  2.81522
+waypoint bearing difference:  86.6034
+distance:  2.81522
+waypoint bearing difference:  86.6199
+distance:  2.82891
+waypoint bearing difference:  86.6199
+distance:  2.82891
+waypoint bearing difference:  86.6199
+distance:  2.82891
+waypoint bearing difference:  86.9947
+distance:  2.82787
+waypoint bearing difference:  87.0092
+distance:  2.84156
+waypoint bearing difference:  87.0092
+distance:  2.84156
+waypoint bearing difference:  87.0092
+distance:  2.84156
+waypoint bearing difference:  87.0092
+distance:  2.84156
+waypoint bearing difference:  87.0092
+distance:  2.84156
+waypoint bearing difference:  87.0092
+distance:  2.84156
+waypoint bearing difference:  87.0236
+distance:  2.85525
+waypoint bearing difference:  87.0236
+distance:  2.85525
+waypoint bearing difference:  87.0236
+distance:  2.85525
+waypoint bearing difference:  87.4075
+distance:  2.86805
+waypoint bearing difference:  87.0378
+distance:  2.86894
+waypoint bearing difference:  87.4075
+distance:  2.86805
+waypoint bearing difference:  87.4075
+distance:  2.86805
+waypoint bearing difference:  87.4198
+distance:  2.88174
+waypoint bearing difference:  87.4198
+distance:  2.88174
+waypoint bearing difference:  87.4198
+distance:  2.88174
+waypoint bearing difference:  87.4198
+distance:  2.88174
+waypoint bearing difference:  87.4198
+distance:  2.88174
+waypoint bearing difference:  87.4198
+distance:  2.88174
+waypoint bearing difference:  87.4198
+distance:  2.88174
+waypoint bearing difference:  87.788
+distance:  2.88097
+waypoint bearing difference:  87.7985
+distance:  2.89466
+waypoint bearing difference:  87.7985
+distance:  2.89466
+waypoint bearing difference:  87.7985
+distance:  2.89466
+waypoint bearing difference:  87.7985
+distance:  2.89466
+waypoint bearing difference:  87.7985
+distance:  2.89466
+waypoint bearing difference:  87.7985
+distance:  2.89466
+waypoint bearing difference:  87.7985
+distance:  2.89466
+waypoint bearing difference:  88.1652
+distance:  2.89401
+waypoint bearing difference:  88.1652
+distance:  2.89401
+waypoint bearing difference:  88.1652
+distance:  2.89401
+waypoint bearing difference:  88.1652
+distance:  2.89401
+waypoint bearing difference:  88.1738
+distance:  2.90771
+waypoint bearing difference:  88.1738
+distance:  2.90771
+waypoint bearing difference:  88.1738
+distance:  2.90771
+waypoint bearing difference:  88.5389
+distance:  2.90718
+waypoint bearing difference:  88.5389
+distance:  2.90718
+waypoint bearing difference:  88.5389
+distance:  2.90718
+waypoint bearing difference:  88.5457
+distance:  2.92089
+waypoint bearing difference:  88.5457
+distance:  2.92089
+waypoint bearing difference:  88.5457
+distance:  2.92089
+waypoint bearing difference:  88.5457
+distance:  2.92089
+waypoint bearing difference:  88.5457
+distance:  2.92089
+waypoint bearing difference:  88.5457
+distance:  2.92089
+waypoint bearing difference:  88.9092
+distance:  2.92047
+waypoint bearing difference:  88.9092
+distance:  2.92047
+waypoint bearing difference:  88.9092
+distance:  2.92047
+waypoint bearing difference:  88.9092
+distance:  2.92047
+waypoint bearing difference:  88.9092
+distance:  2.92047
+waypoint bearing difference:  88.9143
+distance:  2.93418
+waypoint bearing difference:  88.9143
+distance:  2.93418
+waypoint bearing difference:  88.9143
+distance:  2.93418
+waypoint bearing difference:  88.9143
+distance:  2.93418
+waypoint bearing difference:  88.9143
+distance:  2.93418
+waypoint bearing difference:  89.2761
+distance:  2.93389
+waypoint bearing difference:  89.2761
+distance:  2.93389
+waypoint bearing difference:  89.2761
+distance:  2.93389
+waypoint bearing difference:  89.2761
+distance:  2.93389
+waypoint bearing difference:  89.2761
+distance:  2.93389
+waypoint bearing difference:  89.2795
+distance:  2.94759
+waypoint bearing difference:  89.6381
+distance:  2.93371
+waypoint bearing difference:  89.6381
+distance:  2.93371
+waypoint bearing difference:  89.6381
+distance:  2.93371
+waypoint bearing difference:  89.6381
+distance:  2.93371
+waypoint bearing difference:  89.6381
+distance:  2.93371
+waypoint bearing difference:  89.6397
+distance:  2.94742
+waypoint bearing difference:  89.6397
+distance:  2.94742
+waypoint bearing difference:  89.6397
+distance:  2.94742
+waypoint bearing difference:  89.6397
+distance:  2.94742
+waypoint bearing difference:  89.6397
+distance:  2.94742
+waypoint bearing difference:  90
+distance:  2.96107
+waypoint bearing difference:  90
+distance:  2.96107
+waypoint bearing difference:  90
+distance:  2.96107
+waypoint bearing difference:  90
+distance:  2.96107
+waypoint bearing difference:  90.3586
+distance:  2.96113
+waypoint bearing difference:  90.3586
+distance:  2.96113
+waypoint bearing difference:  90.3586
+distance:  2.96113
+waypoint bearing difference:  90
+distance:  2.96107
+waypoint bearing difference:  90
+distance:  2.96107
+waypoint bearing difference:  90.3569
+distance:  2.97484
+waypoint bearing difference:  90.3569
+distance:  2.97484
+waypoint bearing difference:  90.3569
+distance:  2.97484
+waypoint bearing difference:  90.3569
+distance:  2.97484
+waypoint bearing difference:  90.3586
+distance:  2.96113
+waypoint bearing difference:  90.3569
+distance:  2.97484
+waypoint bearing difference:  90.7139
+distance:  2.97501
+waypoint bearing difference:  90.7106
+distance:  2.98872
+waypoint bearing difference:  90.7106
+distance:  2.98872
+waypoint bearing difference:  90.7106
+distance:  2.98872
+waypoint bearing difference:  90.7139
+distance:  2.97501
+waypoint bearing difference:  90.3569
+distance:  2.97484
+waypoint bearing difference:  90.7139
+distance:  2.97501
+waypoint bearing difference:  90.7106
+distance:  2.98872
+waypoint bearing difference:  91.0707
+distance:  2.9753
+waypoint bearing difference:  90.7106
+distance:  2.98872
+waypoint bearing difference:  91.0658
+distance:  2.989
+waypoint bearing difference:  91.0658
+distance:  2.989
+waypoint bearing difference:  91.0658
+distance:  2.989
+waypoint bearing difference:  91.0658
+distance:  2.989
+waypoint bearing difference:  91.0658
+distance:  2.989
+waypoint bearing difference:  91.0658
+distance:  2.989
+waypoint bearing difference:  91.0658
+distance:  2.989
+waypoint bearing difference:  91.0658
+distance:  2.989
+waypoint bearing difference:  91.0609
+distance:  3.00271
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.0609
+distance:  3.00271
+waypoint bearing difference:  91.0609
+distance:  3.00271
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.408
+distance:  3.01682
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.408
+distance:  3.01682
+waypoint bearing difference:  91.0609
+distance:  3.00271
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.408
+distance:  3.01682
+waypoint bearing difference:  91.408
+distance:  3.01682
+waypoint bearing difference:  91.4145
+distance:  3.00311
+waypoint bearing difference:  91.408
+distance:  3.01682
+waypoint bearing difference:  91.4017
+distance:  3.03052
+waypoint bearing difference:  91.408
+distance:  3.01682
+waypoint bearing difference:  91.408
+distance:  3.01682
+waypoint bearing difference:  91.408
+distance:  3.01682
+waypoint bearing difference:  91.4017
+distance:  3.03052
+waypoint bearing difference:  91.4017
+distance:  3.03052
+waypoint bearing difference:  91.408
+distance:  3.01682
+waypoint bearing difference:  91.4017
+distance:  3.03052
+waypoint bearing difference:  91.4017
+distance:  3.03052
+waypoint bearing difference:  91.4017
+distance:  3.03052
+waypoint bearing difference:  91.3953
+distance:  3.04423
+waypoint bearing difference:  91.7519
+distance:  3.03103
+waypoint bearing difference:  91.744
+distance:  3.04473
+waypoint bearing difference:  91.3953
+distance:  3.04423
+waypoint bearing difference:  91.3953
+distance:  3.04423
+waypoint bearing difference:  91.3953
+distance:  3.04423
+waypoint bearing difference:  91.3953
+distance:  3.04423
+waypoint bearing difference:  91.744
+distance:  3.04473
+waypoint bearing difference:  91.7362
+distance:  3.05844
+waypoint bearing difference:  91.3891
+distance:  3.05793
+waypoint bearing difference:  91.7362
+distance:  3.05844
+waypoint bearing difference:  91.7362
+distance:  3.05844
+waypoint bearing difference:  91.7362
+distance:  3.05844
+waypoint bearing difference:  91.7362
+distance:  3.05844
+waypoint bearing difference:  91.7362
+distance:  3.05844
+waypoint bearing difference:  91.7362
+distance:  3.05844
+waypoint bearing difference:  91.7284
+distance:  3.07214
+waypoint bearing difference:  91.7284
+distance:  3.07214
+waypoint bearing difference:  91.7284
+distance:  3.07214
+waypoint bearing difference:  91.7284
+distance:  3.07214
+waypoint bearing difference:  91.7362
+distance:  3.05844
+waypoint bearing difference:  91.7284
+distance:  3.07214
+waypoint bearing difference:  91.7284
+distance:  3.07214
+waypoint bearing difference:  92.0738
+distance:  3.07275
+waypoint bearing difference:  92.0646
+distance:  3.08645
+waypoint bearing difference:  92.0738
+distance:  3.07275
+waypoint bearing difference:  91.7284
+distance:  3.07214
+waypoint bearing difference:  92.0646
+distance:  3.08645
+waypoint bearing difference:  92.0646
+distance:  3.08645
+waypoint bearing difference:  92.0738
+distance:  3.07275
+waypoint bearing difference:  92.0738
+distance:  3.07275
+waypoint bearing difference:  92.0738
+distance:  3.07275
+waypoint bearing difference:  92.0646
+distance:  3.08645
+waypoint bearing difference:  92.0555
+distance:  3.10015
+waypoint bearing difference:  92.0646
+distance:  3.08645
+waypoint bearing difference:  92.0555
+distance:  3.10015
+waypoint bearing difference:  92.0646
+distance:  3.08645
+waypoint bearing difference:  92.0555
+distance:  3.10015
+waypoint bearing difference:  92.0555
+distance:  3.10015
+waypoint bearing difference:  92.3977
+distance:  3.10087
+waypoint bearing difference:  92.3977
+distance:  3.10087
+waypoint bearing difference:  92.0555
+distance:  3.10015
+waypoint bearing difference:  92.3872
+distance:  3.11457
+waypoint bearing difference:  92.3872
+distance:  3.11457
+waypoint bearing difference:  92.3872
+distance:  3.11457
+waypoint bearing difference:  92.3872
+distance:  3.11457
+waypoint bearing difference:  92.3872
+distance:  3.11457
+waypoint bearing difference:  92.7277
+distance:  3.1154
+waypoint bearing difference:  92.3872
+distance:  3.11457
+waypoint bearing difference:  92.3872
+distance:  3.11457
+waypoint bearing difference:  92.3872
+distance:  3.11457
+waypoint bearing difference:  92.7158
+distance:  3.12909
+waypoint bearing difference:  92.7158
+distance:  3.12909
+waypoint bearing difference:  92.7158
+distance:  3.12909
+waypoint bearing difference:  92.7158
+distance:  3.12909
+waypoint bearing difference:  92.7158
+distance:  3.12909
+waypoint bearing difference:  92.7158
+distance:  3.12909
+waypoint bearing difference:  92.7158
+distance:  3.12909
+waypoint bearing difference:  92.7158
+distance:  3.12909
+waypoint bearing difference:  92.7158
+distance:  3.12909
+waypoint bearing difference:  93.0413
+distance:  3.14371
+waypoint bearing difference:  93.0413
+distance:  3.14371
+waypoint bearing difference:  93.0413
+distance:  3.14371
+waypoint bearing difference:  93.0413
+distance:  3.14371
+waypoint bearing difference:  92.6922
+distance:  3.15648
+waypoint bearing difference:  93.0281
+distance:  3.1574
+waypoint bearing difference:  93.0281
+distance:  3.1574
+waypoint bearing difference:  93.0281
+distance:  3.1574
+waypoint bearing difference:  93.0281
+distance:  3.1574
+waypoint bearing difference:  93.0281
+distance:  3.1574
+waypoint bearing difference:  93.0281
+distance:  3.1574
+waypoint bearing difference:  93.0281
+distance:  3.1574
+waypoint bearing difference:  93.015
+distance:  3.17109
+waypoint bearing difference:  93.015
+distance:  3.17109
+waypoint bearing difference:  93.015
+distance:  3.17109
+waypoint bearing difference:  93.015
+distance:  3.17109
+waypoint bearing difference:  93.3493
+distance:  3.17212
+waypoint bearing difference:  93.3493
+distance:  3.17212
+waypoint bearing difference:  93.0021
+distance:  3.18478
+waypoint bearing difference:  93.3349
+distance:  3.1858
+waypoint bearing difference:  93.3349
+distance:  3.1858
+waypoint bearing difference:  93.3349
+distance:  3.1858
+waypoint bearing difference:  93.3349
+distance:  3.1858
+waypoint bearing difference:  93.3349
+distance:  3.1858
+waypoint bearing difference:  93.3349
+distance:  3.1858
+waypoint bearing difference:  93.3206
+distance:  3.19949
+waypoint bearing difference:  93.3206
+distance:  3.19949
+waypoint bearing difference:  93.3206
+distance:  3.19949
+waypoint bearing difference:  93.3206
+distance:  3.19949
+waypoint bearing difference:  93.6518
+distance:  3.20062
+waypoint bearing difference:  93.6363
+distance:  3.2143
+waypoint bearing difference:  93.6363
+distance:  3.2143
+waypoint bearing difference:  93.6363
+distance:  3.2143
+waypoint bearing difference:  93.6363
+distance:  3.2143
+waypoint bearing difference:  93.6363
+distance:  3.2143
+waypoint bearing difference:  93.6363
+distance:  3.2143
+waypoint bearing difference:  93.6363
+distance:  3.2143
+waypoint bearing difference:  93.6208
+distance:  3.22798
+waypoint bearing difference:  93.6208
+distance:  3.22798
+waypoint bearing difference:  93.6208
+distance:  3.22798
+waypoint bearing difference:  93.949
+distance:  3.2292
+waypoint bearing difference:  93.6208
+distance:  3.22798
+waypoint bearing difference:  93.949
+distance:  3.2292
+waypoint bearing difference:  93.6055
+distance:  3.24166
+waypoint bearing difference:  93.6055
+distance:  3.24166
+waypoint bearing difference:  93.6055
+distance:  3.24166
+waypoint bearing difference:  93.9323
+distance:  3.24288
+waypoint bearing difference:  93.9323
+distance:  3.24288
+waypoint bearing difference:  93.9323
+distance:  3.24288
+waypoint bearing difference:  93.9323
+distance:  3.24288
+waypoint bearing difference:  93.9323
+distance:  3.24288
+waypoint bearing difference:  93.9323
+distance:  3.24288
+waypoint bearing difference:  93.9158
+distance:  3.25655
+waypoint bearing difference:  93.9323
+distance:  3.24288
+waypoint bearing difference:  93.9323
+distance:  3.24288
+waypoint bearing difference:  93.9158
+distance:  3.25655
+waypoint bearing difference:  94.2409
+distance:  3.25787
+waypoint bearing difference:  94.2409
+distance:  3.25787
+waypoint bearing difference:  94.2409
+distance:  3.25787
+waypoint bearing difference:  93.9158
+distance:  3.25655
+waypoint bearing difference:  93.9158
+distance:  3.25655
+waypoint bearing difference:  94.2409
+distance:  3.25787
+waypoint bearing difference:  93.9158
+distance:  3.25655
+waypoint bearing difference:  94.2409
+distance:  3.25787
+waypoint bearing difference:  94.2409
+distance:  3.25787
+waypoint bearing difference:  94.2409
+distance:  3.25787
+waypoint bearing difference:  94.2409
+distance:  3.25787
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2056
+distance:  3.28522
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2056
+distance:  3.28522
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2056
+distance:  3.28522
+waypoint bearing difference:  94.2056
+distance:  3.28522
+waypoint bearing difference:  94.2056
+distance:  3.28522
+waypoint bearing difference:  94.2056
+distance:  3.28522
+waypoint bearing difference:  94.2056
+distance:  3.28522
+waypoint bearing difference:  94.5278
+distance:  3.28663
+waypoint bearing difference:  94.5467
+distance:  3.27296
+waypoint bearing difference:  94.5278
+distance:  3.28663
+waypoint bearing difference:  94.2056
+distance:  3.28522
+waypoint bearing difference:  94.2232
+distance:  3.27154
+waypoint bearing difference:  94.2056
+distance:  3.28522
+waypoint bearing difference:  94.509
+distance:  3.30029
+waypoint bearing difference:  94.1881
+distance:  3.29889
+waypoint bearing difference:  94.1881
+distance:  3.29889
+waypoint bearing difference:  94.1881
+distance:  3.29889
+waypoint bearing difference:  94.1881
+distance:  3.29889
+waypoint bearing difference:  94.1881
+distance:  3.29889
+waypoint bearing difference:  94.1881
+distance:  3.29889
+waypoint bearing difference:  94.1881
+distance:  3.29889
+waypoint bearing difference:  94.1708
+distance:  3.31256
+waypoint bearing difference:  94.4904
+distance:  3.31396
+waypoint bearing difference:  94.4904
+distance:  3.31396
+waypoint bearing difference:  94.1708
+distance:  3.31256
+waypoint bearing difference:  94.1708
+distance:  3.31256
+waypoint bearing difference:  94.1708
+distance:  3.31256
+waypoint bearing difference:  94.1536
+distance:  3.32623
+waypoint bearing difference:  94.1536
+distance:  3.32623
+waypoint bearing difference:  94.1536
+distance:  3.32623
+waypoint bearing difference:  94.1536
+distance:  3.32623
+waypoint bearing difference:  94.1536
+distance:  3.32623
+waypoint bearing difference:  94.1536
+distance:  3.32623
+waypoint bearing difference:  94.1536
+distance:  3.32623
+waypoint bearing difference:  94.1366
+distance:  3.3399
+waypoint bearing difference:  94.1366
+distance:  3.3399
+waypoint bearing difference:  94.1366
+distance:  3.3399
+waypoint bearing difference:  94.1197
+distance:  3.35358
+waypoint bearing difference:  93.8194
+distance:  3.33862
+waypoint bearing difference:  93.8038
+distance:  3.3523
+waypoint bearing difference:  93.8038
+distance:  3.3523
+waypoint bearing difference:  93.8038
+distance:  3.3523
+waypoint bearing difference:  93.8038
+distance:  3.3523
+waypoint bearing difference:  93.7883
+distance:  3.36598
+waypoint bearing difference:  93.7883
+distance:  3.36598
+waypoint bearing difference:  93.7729
+distance:  3.37966
+waypoint bearing difference:  93.7729
+distance:  3.37966
+waypoint bearing difference:  93.7729
+distance:  3.37966
+waypoint bearing difference:  93.7729
+distance:  3.37966
+waypoint bearing difference:  93.7729
+distance:  3.37966
+waypoint bearing difference:  93.7577
+distance:  3.39333
+waypoint bearing difference:  93.7577
+distance:  3.39333
+waypoint bearing difference:  93.7577
+distance:  3.39333
+waypoint bearing difference:  93.7577
+distance:  3.39333
+waypoint bearing difference:  93.7426
+distance:  3.40701
+waypoint bearing difference:  93.7426
+distance:  3.40701
+waypoint bearing difference:  93.7426
+distance:  3.40701
+waypoint bearing difference:  93.7426
+distance:  3.40701
+waypoint bearing difference:  93.7276
+distance:  3.42069
+waypoint bearing difference:  93.7276
+distance:  3.42069
+waypoint bearing difference:  93.7276
+distance:  3.42069
+waypoint bearing difference:  93.7127
+distance:  3.43437
+waypoint bearing difference:  93.7127
+distance:  3.43437
+waypoint bearing difference:  93.7127
+distance:  3.43437
+waypoint bearing difference:  93.698
+distance:  3.44805
+waypoint bearing difference:  93.698
+distance:  3.44805
+waypoint bearing difference:  93.698
+distance:  3.44805
+waypoint bearing difference:  93.698
+distance:  3.44805
+waypoint bearing difference:  93.698
+distance:  3.44805
+waypoint bearing difference:  93.6834
+distance:  3.46173
+waypoint bearing difference:  93.6834
+distance:  3.46173
+waypoint bearing difference:  93.6834
+distance:  3.46173
+waypoint bearing difference:  93.6834
+distance:  3.46173
+waypoint bearing difference:  93.6688
+distance:  3.47541
+waypoint bearing difference:  93.6688
+distance:  3.47541
+waypoint bearing difference:  93.6544
+distance:  3.48909
+waypoint bearing difference:  93.6544
+distance:  3.48909
+waypoint bearing difference:  93.6544
+distance:  3.48909
+waypoint bearing difference:  93.6544
+distance:  3.48909
+waypoint bearing difference:  93.6544
+distance:  3.48909
+waypoint bearing difference:  93.6544
+distance:  3.48909
+waypoint bearing difference:  93.6544
+distance:  3.48909
+waypoint bearing difference:  93.6401
+distance:  3.50277
+waypoint bearing difference:  93.6401
+distance:  3.50277
+waypoint bearing difference:  93.6401
+distance:  3.50277
+waypoint bearing difference:  93.6401
+distance:  3.50277
+waypoint bearing difference:  93.6401
+distance:  3.50277
+waypoint bearing difference:  93.626
+distance:  3.51646
+waypoint bearing difference:  93.626
+distance:  3.51646
+waypoint bearing difference:  93.626
+distance:  3.51646
+waypoint bearing difference:  93.626
+distance:  3.51646
+waypoint bearing difference:  93.626
+distance:  3.51646
+waypoint bearing difference:  93.6119
+distance:  3.53014
+waypoint bearing difference:  93.626
+distance:  3.51646
+waypoint bearing difference:  93.5979
+distance:  3.54382
+waypoint bearing difference:  93.6119
+distance:  3.53014
+waypoint bearing difference:  93.5979
+distance:  3.54382
+waypoint bearing difference:  93.5979
+distance:  3.54382
+waypoint bearing difference:  93.5979
+distance:  3.54382
+waypoint bearing difference:  93.2861
+distance:  3.55639
+waypoint bearing difference:  93.2861
+distance:  3.55639
+waypoint bearing difference:  93.2861
+distance:  3.55639
+waypoint bearing difference:  93.2861
+distance:  3.55639
+waypoint bearing difference:  93.2861
+distance:  3.55639
+waypoint bearing difference:  93.2861
+distance:  3.55639
+waypoint bearing difference:  93.2735
+distance:  3.57008
+waypoint bearing difference:  93.2735
+distance:  3.57008
+waypoint bearing difference:  93.2735
+distance:  3.57008
+waypoint bearing difference:  93.2735
+distance:  3.57008
+waypoint bearing difference:  93.261
+distance:  3.58376
+waypoint bearing difference:  93.261
+distance:  3.58376
+waypoint bearing difference:  93.261
+distance:  3.58376
+waypoint bearing difference:  93.2485
+distance:  3.59745
+waypoint bearing difference:  93.2485
+distance:  3.59745
+waypoint bearing difference:  93.2485
+distance:  3.59745
+waypoint bearing difference:  93.2485
+distance:  3.59745
+waypoint bearing difference:  93.2485
+distance:  3.59745
+waypoint bearing difference:  93.2485
+distance:  3.59745
+waypoint bearing difference:  93.2362
+distance:  3.61114
+waypoint bearing difference:  93.2362
+distance:  3.61114
+waypoint bearing difference:  93.2362
+distance:  3.61114
+waypoint bearing difference:  93.2362
+distance:  3.61114
+waypoint bearing difference:  93.224
+distance:  3.62482
+waypoint bearing difference:  93.224
+distance:  3.62482
+waypoint bearing difference:  93.224
+distance:  3.62482
+waypoint bearing difference:  93.224
+distance:  3.62482
+waypoint bearing difference:  93.224
+distance:  3.62482
+waypoint bearing difference:  93.224
+distance:  3.62482
+waypoint bearing difference:  93.224
+distance:  3.62482
+waypoint bearing difference:  93.224
+distance:  3.62482
+waypoint bearing difference:  93.2118
+distance:  3.63851
+waypoint bearing difference:  93.2118
+distance:  3.63851
+waypoint bearing difference:  93.2118
+distance:  3.63851
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1878
+distance:  3.66588
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.1998
+distance:  3.6522
+waypoint bearing difference:  93.49
+distance:  3.65328
+waypoint bearing difference:  93.49
+distance:  3.65328
+waypoint bearing difference:  93.49
+distance:  3.65328
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.4769
+distance:  3.66696
+waypoint bearing difference:  93.7519
+distance:  3.68181
+waypoint bearing difference:  93.7659
+distance:  3.66813
+waypoint bearing difference:  93.7519
+distance:  3.68181
+waypoint bearing difference:  93.7519
+distance:  3.68181
+waypoint bearing difference:  93.7519
+distance:  3.68181
+waypoint bearing difference:  93.7519
+distance:  3.68181
+waypoint bearing difference:  93.7519
+distance:  3.68181
+waypoint bearing difference:  93.7519
+distance:  3.68181
+waypoint bearing difference:  93.7519
+distance:  3.68181
+waypoint bearing difference:  93.738
+distance:  3.69549
+waypoint bearing difference:  93.738
+distance:  3.69549
+waypoint bearing difference:  94.0246
+distance:  3.69675
+waypoint bearing difference:  93.738
+distance:  3.69549
+waypoint bearing difference:  93.738
+distance:  3.69549
+waypoint bearing difference:  94.0246
+distance:  3.69675
+waypoint bearing difference:  94.0246
+distance:  3.69675
+waypoint bearing difference:  94.0246
+distance:  3.69675
+waypoint bearing difference:  94.0246
+distance:  3.69675
+waypoint bearing difference:  94.0246
+distance:  3.69675
+waypoint bearing difference:  94.0246
+distance:  3.69675
+waypoint bearing difference:  94.0097
+distance:  3.71042
+waypoint bearing difference:  94.0097
+distance:  3.71042
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  94.0097
+distance:  3.71042
+waypoint bearing difference:  94.0097
+distance:  3.71042
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  94.0097
+distance:  3.71042
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.995
+distance:  3.7241
+waypoint bearing difference:  93.9803
+distance:  3.73777
+waypoint bearing difference:  94.2636
+distance:  3.7391
+waypoint bearing difference:  93.9803
+distance:  3.73777
+waypoint bearing difference:  93.9803
+distance:  3.73777
+waypoint bearing difference:  93.9803
+distance:  3.73777
+waypoint bearing difference:  93.9803
+distance:  3.73777
+waypoint bearing difference:  93.9803
+distance:  3.73777
+waypoint bearing difference:  93.9658
+distance:  3.75145
+waypoint bearing difference:  94.2636
+distance:  3.7391
+waypoint bearing difference:  94.2481
+distance:  3.75277
+waypoint bearing difference:  93.9658
+distance:  3.75145
+waypoint bearing difference:  93.9658
+distance:  3.75145
+waypoint bearing difference:  93.9658
+distance:  3.75145
+waypoint bearing difference:  94.2481
+distance:  3.75277
+waypoint bearing difference:  94.2326
+distance:  3.76645
+waypoint bearing difference:  93.9514
+distance:  3.76512
+waypoint bearing difference:  93.9514
+distance:  3.76512
+waypoint bearing difference:  93.9514
+distance:  3.76512
+waypoint bearing difference:  93.9514
+distance:  3.76512
+waypoint bearing difference:  93.9514
+distance:  3.76512
+waypoint bearing difference:  93.9371
+distance:  3.7788
+waypoint bearing difference:  93.9371
+distance:  3.7788
+waypoint bearing difference:  94.2173
+distance:  3.78012
+waypoint bearing difference:  93.9371
+distance:  3.7788
+waypoint bearing difference:  93.9371
+distance:  3.7788
+waypoint bearing difference:  93.9371
+distance:  3.7788
+waypoint bearing difference:  93.9371
+distance:  3.7788
+waypoint bearing difference:  93.9228
+distance:  3.79248
+waypoint bearing difference:  93.9371
+distance:  3.7788
+waypoint bearing difference:  93.9228
+distance:  3.79248
+waypoint bearing difference:  93.9228
+distance:  3.79248
+waypoint bearing difference:  93.9228
+distance:  3.79248
+waypoint bearing difference:  93.9228
+distance:  3.79248
+waypoint bearing difference:  93.9228
+distance:  3.79248
+waypoint bearing difference:  93.9228
+distance:  3.79248
+waypoint bearing difference:  93.9228
+distance:  3.79248
+waypoint bearing difference:  93.9228
+distance:  3.79248
+waypoint bearing difference:  93.9087
+distance:  3.80615
+waypoint bearing difference:  93.9087
+distance:  3.80615
+waypoint bearing difference:  93.9087
+distance:  3.80615
+waypoint bearing difference:  93.9087
+distance:  3.80615
+waypoint bearing difference:  93.9087
+distance:  3.80615
+waypoint bearing difference:  93.9087
+distance:  3.80615
+waypoint bearing difference:  93.9087
+distance:  3.80615
+waypoint bearing difference:  93.8947
+distance:  3.81983
+waypoint bearing difference:  93.8947
+distance:  3.81983
+waypoint bearing difference:  93.8947
+distance:  3.81983
+waypoint bearing difference:  93.6173
+distance:  3.81861
+waypoint bearing difference:  93.6173
+distance:  3.81861
+waypoint bearing difference:  93.8947
+distance:  3.81983
+waypoint bearing difference:  93.8808
+distance:  3.83351
+waypoint bearing difference:  93.8808
+distance:  3.83351
+waypoint bearing difference:  93.8808
+distance:  3.83351
+waypoint bearing difference:  93.6044
+distance:  3.8323
+waypoint bearing difference:  93.5915
+distance:  3.84598
+waypoint bearing difference:  93.5915
+distance:  3.84598
+waypoint bearing difference:  93.5915
+distance:  3.84598
+waypoint bearing difference:  93.6044
+distance:  3.8323
+waypoint bearing difference:  93.5915
+distance:  3.84598
+waypoint bearing difference:  93.5915
+distance:  3.84598
+waypoint bearing difference:  93.5915
+distance:  3.84598
+waypoint bearing difference:  93.5788
+distance:  3.85966
+waypoint bearing difference:  93.5788
+distance:  3.85966
+waypoint bearing difference:  93.5788
+distance:  3.85966
+waypoint bearing difference:  93.5788
+distance:  3.85966
+waypoint bearing difference:  93.5788
+distance:  3.85966
+waypoint bearing difference:  93.5788
+distance:  3.85966
+waypoint bearing difference:  93.5788
+distance:  3.85966
+waypoint bearing difference:  93.5788
+distance:  3.85966
+waypoint bearing difference:  93.5788
+distance:  3.85966
+waypoint bearing difference:  93.8396
+distance:  3.87454
+waypoint bearing difference:  93.5661
+distance:  3.87334
+waypoint bearing difference:  93.5661
+distance:  3.87334
+waypoint bearing difference:  93.5661
+distance:  3.87334
+waypoint bearing difference:  93.5535
+distance:  3.88702
+waypoint bearing difference:  93.5661
+distance:  3.87334
+waypoint bearing difference:  93.5411
+distance:  3.90071
+waypoint bearing difference:  93.5411
+distance:  3.90071
+waypoint bearing difference:  93.2693
+distance:  3.89961
+waypoint bearing difference:  93.2693
+distance:  3.89961
+waypoint bearing difference:  93.2693
+distance:  3.89961
+waypoint bearing difference:  93.2578
+distance:  3.91329
+waypoint bearing difference:  93.2578
+distance:  3.91329
+waypoint bearing difference:  92.9869
+distance:  3.91228
+waypoint bearing difference:  92.9869
+distance:  3.91228
+waypoint bearing difference:  92.9764
+distance:  3.92597
+waypoint bearing difference:  92.9764
+distance:  3.92597
+waypoint bearing difference:  92.7158
+distance:  3.91136
+waypoint bearing difference:  92.7158
+distance:  3.91136
+waypoint bearing difference:  92.1808
+distance:  3.89608
+waypoint bearing difference:  91.9152
+distance:  3.88172
+waypoint bearing difference:  91.9152
+distance:  3.88172
+waypoint bearing difference:  91.9152
+distance:  3.88172
+waypoint bearing difference:  91.6418
+distance:  3.88114
+waypoint bearing difference:  91.3731
+distance:  3.86695
+waypoint bearing difference:  91.0985
+distance:  3.86655
+waypoint bearing difference:  90.5513
+distance:  3.85231
+waypoint bearing difference:  90.2747
+distance:  3.86589
+waypoint bearing difference:  90
+distance:  3.85213
+waypoint bearing difference:  89.7244
+distance:  3.85218
+waypoint bearing difference:  89.4487
+distance:  3.85231
+waypoint bearing difference:  89.1731
+distance:  3.85253
+waypoint bearing difference:  88.622
+distance:  3.85325
+waypoint bearing difference:  88.622
+distance:  3.85325
+waypoint bearing difference:  88.622
+distance:  3.85325
+waypoint bearing difference:  88.622
+distance:  3.85325
+waypoint bearing difference:  88.0712
+distance:  3.85432
+waypoint bearing difference:  87.8037
+distance:  3.86868
+waypoint bearing difference:  87.8037
+distance:  3.86868
+waypoint bearing difference:  87.8037
+distance:  3.86868
+waypoint bearing difference:  87.5295
+distance:  3.86944
+waypoint bearing difference:  87.5382
+distance:  3.88313
+waypoint bearing difference:  87.8115
+distance:  3.88238
+waypoint bearing difference:  87.8192
+distance:  3.89608
+waypoint bearing difference:  87.8192
+distance:  3.89608
+waypoint bearing difference:  87.8192
+distance:  3.89608
+waypoint bearing difference:  87.8192
+distance:  3.89608
+waypoint bearing difference:  87.8192
+distance:  3.89608
+waypoint bearing difference:  88.0982
+distance:  3.90912
+waypoint bearing difference:  88.3698
+distance:  3.90855
+waypoint bearing difference:  88.913
+distance:  3.90767
+waypoint bearing difference:  89.1847
+distance:  3.90736
+waypoint bearing difference:  89.7282
+distance:  3.90701
+waypoint bearing difference:  90.2708
+distance:  3.92072
+waypoint bearing difference:  90.2708
+distance:  3.92072
+waypoint bearing difference:  91.0794
+distance:  3.93508
+waypoint bearing difference:  91.3492
+distance:  3.93548
+waypoint bearing difference:  91.6189
+distance:  3.93596
+waypoint bearing difference:  91.6189
+distance:  3.93596
+waypoint bearing difference:  91.6189
+distance:  3.93596
+waypoint bearing difference:  91.8755
+distance:  3.96393
+waypoint bearing difference:  92.1431
+distance:  3.96458
+waypoint bearing difference:  92.4024
+distance:  3.97901
+waypoint bearing difference:  92.6598
+distance:  3.99352
+waypoint bearing difference:  92.9254
+distance:  3.99443
+waypoint bearing difference:  92.9154
+distance:  4.00812
+waypoint bearing difference:  93.1691
+distance:  4.02279
+waypoint bearing difference:  93.4209
+distance:  4.03754
+waypoint bearing difference:  93.6834
+distance:  4.03869
+waypoint bearing difference:  93.9323
+distance:  4.0536
+waypoint bearing difference:  93.9323
+distance:  4.0536
+waypoint bearing difference:  93.9323
+distance:  4.0536
+waypoint bearing difference:  94.1794
+distance:  4.06858
+waypoint bearing difference:  94.4248
+distance:  4.08364
+waypoint bearing difference:  94.41
+distance:  4.09731
+waypoint bearing difference:  94.6683
+distance:  4.09878
+waypoint bearing difference:  94.9264
+distance:  4.10033
+waypoint bearing difference:  94.9264
+distance:  4.10033
+waypoint bearing difference:  95.167
+distance:  4.11561
+waypoint bearing difference:  95.1499
+distance:  4.12927
+waypoint bearing difference:  95.4059
+distance:  4.13097
+waypoint bearing difference:  95.3703
+distance:  4.15827
+waypoint bearing difference:  95.606
+distance:  4.17369
+waypoint bearing difference:  95.606
+distance:  4.17369
+waypoint bearing difference:  95.606
+distance:  4.17369
+waypoint bearing difference:  95.5877
+distance:  4.18733
+waypoint bearing difference:  95.5877
+distance:  4.18733
+waypoint bearing difference:  95.5695
+distance:  4.20097
+waypoint bearing difference:  95.5695
+distance:  4.20097
+waypoint bearing difference:  95.5514
+distance:  4.21462
+waypoint bearing difference:  95.3005
+distance:  4.21286
+waypoint bearing difference:  95.2833
+distance:  4.22651
+waypoint bearing difference:  95.5514
+distance:  4.21462
+waypoint bearing difference:  95.5514
+distance:  4.21462
+waypoint bearing difference:  95.2833
+distance:  4.22651
+waypoint bearing difference:  95.2833
+distance:  4.22651
+waypoint bearing difference:  95.2833
+distance:  4.22651
+waypoint bearing difference:  95.2833
+distance:  4.22651
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.2833
+distance:  4.22651
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.2833
+distance:  4.22651
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.5334
+distance:  4.22826
+waypoint bearing difference:  95.5514
+distance:  4.21462
+waypoint bearing difference:  95.7833
+distance:  4.23009
+waypoint bearing difference:  95.7833
+distance:  4.23009
+waypoint bearing difference:  95.802
+distance:  4.21645
+waypoint bearing difference:  95.802
+distance:  4.21645
+waypoint bearing difference:  95.802
+distance:  4.21645
+waypoint bearing difference:  96.0525
+distance:  4.21836
+waypoint bearing difference:  96.0525
+distance:  4.21836
+waypoint bearing difference:  96.0525
+distance:  4.21836
+waypoint bearing difference:  96.0525
+distance:  4.21836
+waypoint bearing difference:  96.0525
+distance:  4.21836
+waypoint bearing difference:  96.0525
+distance:  4.21836
+waypoint bearing difference:  96.0722
+distance:  4.20473
+waypoint bearing difference:  96.0722
+distance:  4.20473
+waypoint bearing difference:  96.0525
+distance:  4.21836
+waypoint bearing difference:  96.0722
+distance:  4.20473
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.3231
+distance:  4.20673
+waypoint bearing difference:  96.5739
+distance:  4.20881
+waypoint bearing difference:  96.5739
+distance:  4.20881
+waypoint bearing difference:  96.5739
+distance:  4.20881
+waypoint bearing difference:  96.5739
+distance:  4.20881
+waypoint bearing difference:  96.5739
+distance:  4.20881
+waypoint bearing difference:  96.5739
+distance:  4.20881
+waypoint bearing difference:  96.5953
+distance:  4.1952
+waypoint bearing difference:  96.5953
+distance:  4.1952
+waypoint bearing difference:  96.5953
+distance:  4.1952
+waypoint bearing difference:  96.5953
+distance:  4.1952
+waypoint bearing difference:  96.5953
+distance:  4.1952
+waypoint bearing difference:  96.5953
+distance:  4.1952
+waypoint bearing difference:  96.8466
+distance:  4.19736
+waypoint bearing difference:  96.8466
+distance:  4.19736
+waypoint bearing difference:  96.8466
+distance:  4.19736
+waypoint bearing difference:  96.8466
+distance:  4.19736
+waypoint bearing difference:  96.8466
+distance:  4.19736
+waypoint bearing difference:  96.8466
+distance:  4.19736
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.869
+distance:  4.18375
+waypoint bearing difference:  96.8915
+distance:  4.17014
+waypoint bearing difference:  96.8915
+distance:  4.17014
+waypoint bearing difference:  96.8915
+distance:  4.17014
+waypoint bearing difference:  96.8915
+distance:  4.17014
+waypoint bearing difference:  96.8915
+distance:  4.17014
+waypoint bearing difference:  97.1442
+distance:  4.17241
+waypoint bearing difference:  97.1442
+distance:  4.17241
+waypoint bearing difference:  97.1442
+distance:  4.17241
+waypoint bearing difference:  97.1677
+distance:  4.15881
+waypoint bearing difference:  97.1677
+distance:  4.15881
+waypoint bearing difference:  97.1677
+distance:  4.15881
+waypoint bearing difference:  97.1677
+distance:  4.15881
+waypoint bearing difference:  97.1677
+distance:  4.15881
+waypoint bearing difference:  97.1913
+distance:  4.14521
+waypoint bearing difference:  97.4453
+distance:  4.14757
+waypoint bearing difference:  97.1913
+distance:  4.14521
+waypoint bearing difference:  97.4453
+distance:  4.14757
+waypoint bearing difference:  97.47
+distance:  4.13397
+waypoint bearing difference:  97.47
+distance:  4.13397
+waypoint bearing difference:  97.47
+distance:  4.13397
+waypoint bearing difference:  97.47
+distance:  4.13397
+waypoint bearing difference:  97.47
+distance:  4.13397
+waypoint bearing difference:  97.47
+distance:  4.13397
+waypoint bearing difference:  97.7501
+distance:  4.12284
+waypoint bearing difference:  97.7501
+distance:  4.12284
+waypoint bearing difference:  97.7501
+distance:  4.12284
+waypoint bearing difference:  97.7759
+distance:  4.10926
+waypoint bearing difference:  97.7759
+distance:  4.10926
+waypoint bearing difference:  97.7759
+distance:  4.10926
+waypoint bearing difference:  97.7759
+distance:  4.10926
+waypoint bearing difference:  97.7759
+distance:  4.10926
+waypoint bearing difference:  97.7759
+distance:  4.10926
+waypoint bearing difference:  97.7759
+distance:  4.10926
+waypoint bearing difference:  97.7759
+distance:  4.10926
+waypoint bearing difference:  98.0585
+distance:  4.09823
+waypoint bearing difference:  98.0585
+distance:  4.09823
+waypoint bearing difference:  97.8018
+distance:  4.09567
+waypoint bearing difference:  98.0585
+distance:  4.09823
+waypoint bearing difference:  98.0855
+distance:  4.08466
+waypoint bearing difference:  98.0855
+distance:  4.08466
+waypoint bearing difference:  98.0855
+distance:  4.08466
+waypoint bearing difference:  98.0855
+distance:  4.08466
+waypoint bearing difference:  98.0855
+distance:  4.08466
+waypoint bearing difference:  98.0855
+distance:  4.08466
+waypoint bearing difference:  98.0855
+distance:  4.08466
+waypoint bearing difference:  98.0855
+distance:  4.08466
+waypoint bearing difference:  98.1126
+distance:  4.07109
+waypoint bearing difference:  98.1126
+distance:  4.07109
+waypoint bearing difference:  98.0855
+distance:  4.08466
+waypoint bearing difference:  98.1126
+distance:  4.07109
+waypoint bearing difference:  98.1126
+distance:  4.07109
+waypoint bearing difference:  98.1399
+distance:  4.05752
+waypoint bearing difference:  98.1399
+distance:  4.05752
+waypoint bearing difference:  98.1126
+distance:  4.07109
+waypoint bearing difference:  98.1126
+distance:  4.07109
+waypoint bearing difference:  98.3988
+distance:  4.06018
+waypoint bearing difference:  98.3988
+distance:  4.06018
+waypoint bearing difference:  98.3988
+distance:  4.06018
+waypoint bearing difference:  98.1399
+distance:  4.05752
+waypoint bearing difference:  98.1399
+distance:  4.05752
+waypoint bearing difference:  98.3988
+distance:  4.06018
+waypoint bearing difference:  98.1399
+distance:  4.05752
+waypoint bearing difference:  98.1399
+distance:  4.05752
+waypoint bearing difference:  98.3988
+distance:  4.06018
+waypoint bearing difference:  98.4272
+distance:  4.04662
+waypoint bearing difference:  98.4272
+distance:  4.04662
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  97.9342
+distance:  4.02778
+waypoint bearing difference:  97.9342
+distance:  4.02778
+waypoint bearing difference:  97.9342
+distance:  4.02778
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  98.1674
+distance:  4.04395
+waypoint bearing difference:  97.9073
+distance:  4.04135
+waypoint bearing difference:  97.9073
+distance:  4.04135
+waypoint bearing difference:  97.9073
+distance:  4.04135
+waypoint bearing difference:  97.8807
+distance:  4.05493
+waypoint bearing difference:  97.8807
+distance:  4.05493
+waypoint bearing difference:  97.6469
+distance:  4.03885
+waypoint bearing difference:  97.6469
+distance:  4.03885
+waypoint bearing difference:  97.6211
+distance:  4.05243
+waypoint bearing difference:  97.6211
+distance:  4.05243
+waypoint bearing difference:  97.6211
+distance:  4.05243
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3613
+distance:  4.05002
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.3862
+distance:  4.03642
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.1252
+distance:  4.03408
+waypoint bearing difference:  97.4113
+distance:  4.02283
+waypoint bearing difference:  97.699
+distance:  4.01167
+waypoint bearing difference:  97.9342
+distance:  4.02778
+waypoint bearing difference:  97.9342
+distance:  4.02778
+waypoint bearing difference:  97.9073
+distance:  4.04135
+waypoint bearing difference:  98.1951
+distance:  4.03038
+waypoint bearing difference:  98.4844
+distance:  4.0195
+waypoint bearing difference:  98.7753
+distance:  4.00873
+waypoint bearing difference:  99.0678
+distance:  3.99806
+waypoint bearing difference:  99.0678
+distance:  3.99806
+waypoint bearing difference:  99.0678
+distance:  3.99806
+waypoint bearing difference:  99.0988
+distance:  3.98452
+waypoint bearing difference:  99.6243
+distance:  3.99055
+waypoint bearing difference:  99.9545
+distance:  3.96668
+waypoint bearing difference:  100.553
+distance:  3.9463
+waypoint bearing difference:  100.59
+distance:  3.93283
+waypoint bearing difference:  101.197
+distance:  3.91291
+waypoint bearing difference:  101.769
+distance:  3.90685
+waypoint bearing difference:  102.697
+distance:  3.87844
+waypoint bearing difference:  103.371
+distance:  3.84673
+waypoint bearing difference:  103.907
+distance:  3.85547
+waypoint bearing difference:  104.542
+distance:  3.838
+waypoint bearing difference:  104.542
+distance:  3.838
+waypoint bearing difference:  104.542
+distance:  3.838
+waypoint bearing difference:  105.13
+distance:  3.83424
+waypoint bearing difference:  105.506
+distance:  3.81269
+waypoint bearing difference:  106.366
+distance:  3.81478
+waypoint bearing difference:  106.632
+distance:  3.82004
+waypoint bearing difference:  106.958
+distance:  3.81227
+waypoint bearing difference:  107.019
+distance:  3.79916
+waypoint bearing difference:  107.552
+distance:  3.81017
+waypoint bearing difference:  107.88
+distance:  3.80276
+waypoint bearing difference:  107.88
+distance:  3.80276
+waypoint bearing difference:  107.88
+distance:  3.80276
+waypoint bearing difference:  107.88
+distance:  3.80276
+waypoint bearing difference:  108.21
+distance:  3.79546
+waypoint bearing difference:  108.21
+distance:  3.79546
+waypoint bearing difference:  108.475
+distance:  3.80129
+waypoint bearing difference:  108.541
+distance:  3.78829
+waypoint bearing difference:  108.873
+distance:  3.78125
+waypoint bearing difference:  108.873
+distance:  3.78125
+waypoint bearing difference:  108.607
+distance:  3.7753
+waypoint bearing difference:  108.674
+distance:  3.76231
+waypoint bearing difference:  108.674
+distance:  3.76231
+waypoint bearing difference:  108.674
+distance:  3.76231
+waypoint bearing difference:  108.674
+distance:  3.76231
+waypoint bearing difference:  108.674
+distance:  3.76231
+waypoint bearing difference:  108.674
+distance:  3.76231
+waypoint bearing difference:  109.077
+distance:  3.74236
+waypoint bearing difference:  109.414
+distance:  3.73553
+waypoint bearing difference:  109.555
+distance:  3.70968
+waypoint bearing difference:  109.555
+distance:  3.70968
+waypoint bearing difference:  109.555
+distance:  3.70968
+waypoint bearing difference:  109.626
+distance:  3.69677
+waypoint bearing difference:  109.626
+distance:  3.69677
+waypoint bearing difference:  109.626
+distance:  3.69677
+waypoint bearing difference:  109.969
+distance:  3.69014
+waypoint bearing difference:  109.969
+distance:  3.69014
+waypoint bearing difference:  109.969
+distance:  3.69014
+waypoint bearing difference:  110.387
+distance:  3.6708
+waypoint bearing difference:  110.387
+distance:  3.6708
+waypoint bearing difference:  110.387
+distance:  3.6708
+waypoint bearing difference:  111.158
+distance:  3.64549
+waypoint bearing difference:  111.158
+distance:  3.64549
+waypoint bearing difference:  111.158
+distance:  3.64549
+waypoint bearing difference:  111.236
+distance:  3.63271
+waypoint bearing difference:  111.236
+distance:  3.63271
+waypoint bearing difference:  111.236
+distance:  3.63271
+waypoint bearing difference:  111.667
+distance:  3.61397
+waypoint bearing difference:  111.667
+distance:  3.61397
+waypoint bearing difference:  111.667
+distance:  3.61397
+waypoint bearing difference:  112.376
+distance:  3.60245
+waypoint bearing difference:  112.376
+distance:  3.60245
+waypoint bearing difference:  112.376
+distance:  3.60245
+waypoint bearing difference:  113.176
+distance:  3.57888
+waypoint bearing difference:  113.176
+distance:  3.57888
+waypoint bearing difference:  113.176
+distance:  3.57888
+waypoint bearing difference:  113.535
+distance:  3.57364
+waypoint bearing difference:  113.535
+distance:  3.57364
+waypoint bearing difference:  113.535
+distance:  3.57364
+waypoint bearing difference:  113.985
+distance:  3.55602
+waypoint bearing difference:  113.985
+distance:  3.55602
+waypoint bearing difference:  113.985
+distance:  3.55602
+waypoint bearing difference:  114.075
+distance:  3.5435
+waypoint bearing difference:  114.075
+distance:  3.5435
+waypoint bearing difference:  114.075
+distance:  3.5435
+waypoint bearing difference:  114.44
+distance:  3.53861
+waypoint bearing difference:  114.806
+distance:  3.53387
+waypoint bearing difference:  114.806
+distance:  3.53387
+waypoint bearing difference:  114.806
+distance:  3.53387
+waypoint bearing difference:  114.806
+distance:  3.53387
+waypoint bearing difference:  114.806
+distance:  3.53387
+waypoint bearing difference:  114.806
+distance:  3.53387
+waypoint bearing difference:  114.806
+distance:  3.53387
+waypoint bearing difference:  114.806
+distance:  3.53387
+waypoint bearing difference:  115.172
+distance:  3.52927
+waypoint bearing difference:  115.172
+distance:  3.52927
+waypoint bearing difference:  115.172
+distance:  3.52927
+waypoint bearing difference:  114.899
+distance:  3.52143
+waypoint bearing difference:  114.899
+distance:  3.52143
+waypoint bearing difference:  114.899
+distance:  3.52143
+waypoint bearing difference:  114.625
+distance:  3.51367
+waypoint bearing difference:  114.625
+distance:  3.51367
+waypoint bearing difference:  114.625
+distance:  3.51367
+waypoint bearing difference:  114.35
+distance:  3.50599
+waypoint bearing difference:  114.258
+distance:  3.51848
+waypoint bearing difference:  114.35
+distance:  3.50599
+waypoint bearing difference:  114.35
+distance:  3.50599
+waypoint bearing difference:  113.982
+distance:  3.51091
+waypoint bearing difference:  114.258
+distance:  3.51848
+waypoint bearing difference:  114.35
+distance:  3.50599
+waypoint bearing difference:  113.982
+distance:  3.51091
+waypoint bearing difference:  114.073
+distance:  3.49839
+waypoint bearing difference:  114.073
+distance:  3.49839
+waypoint bearing difference:  114.073
+distance:  3.49839
+waypoint bearing difference:  114.073
+distance:  3.49839
+waypoint bearing difference:  114.073
+distance:  3.49839
+waypoint bearing difference:  113.795
+distance:  3.49087
+waypoint bearing difference:  113.795
+distance:  3.49087
+waypoint bearing difference:  113.795
+distance:  3.49087
+waypoint bearing difference:  113.795
+distance:  3.49087
+waypoint bearing difference:  113.795
+distance:  3.49087
+waypoint bearing difference:  113.887
+distance:  3.47833
+waypoint bearing difference:  113.887
+distance:  3.47833
+waypoint bearing difference:  113.887
+distance:  3.47833
+waypoint bearing difference:  113.887
+distance:  3.47833
+waypoint bearing difference:  113.607
+distance:  3.47087
+waypoint bearing difference:  113.607
+distance:  3.47087
+waypoint bearing difference:  113.607
+distance:  3.47087
+waypoint bearing difference:  113.607
+distance:  3.47087
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.607
+distance:  3.47087
+waypoint bearing difference:  113.607
+distance:  3.47087
+waypoint bearing difference:  113.607
+distance:  3.47087
+waypoint bearing difference:  113.887
+distance:  3.47833
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.416
+distance:  3.4509
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.326
+distance:  3.46349
+waypoint bearing difference:  113.416
+distance:  3.4509
+waypoint bearing difference:  113.416
+distance:  3.4509
+waypoint bearing difference:  113.789
+distance:  3.44576
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.698
+distance:  3.45831
+waypoint bearing difference:  113.789
+distance:  3.44576
+waypoint bearing difference:  114.164
+distance:  3.44077
+waypoint bearing difference:  114.539
+distance:  3.43592
+waypoint bearing difference:  114.635
+distance:  3.42345
+waypoint bearing difference:  115.11
+distance:  3.40637
+waypoint bearing difference:  115.208
+distance:  3.39397
+waypoint bearing difference:  115.872
+distance:  3.39758
+waypoint bearing difference:  116.358
+distance:  3.38112
+waypoint bearing difference:  116.954
+distance:  3.35268
+waypoint bearing difference:  117.842
+distance:  3.33322
+waypoint bearing difference:  117.842
+distance:  3.33322
+waypoint bearing difference:  117.842
+distance:  3.33322
+waypoint bearing difference:  118.234
+distance:  3.32983
+waypoint bearing difference:  118.741
+distance:  3.31457
+waypoint bearing difference:  119.649
+distance:  3.29675
+waypoint bearing difference:  120.167
+distance:  3.28222
+waypoint bearing difference:  120.567
+distance:  3.27976
+waypoint bearing difference:  121.37
+distance:  3.27533
+waypoint bearing difference:  122.155
+distance:  3.23846
+waypoint bearing difference:  122.692
+distance:  3.22525
+waypoint bearing difference:  123.376
+distance:  3.23397
+waypoint bearing difference:  123.645
+distance:  3.21111
+waypoint bearing difference:  124.468
+distance:  3.20915
+waypoint bearing difference:  124.468
+distance:  3.20915
+waypoint bearing difference:  124.468
+distance:  3.20915
+waypoint bearing difference:  125.291
+distance:  3.20785
+waypoint bearing difference:  125.846
+distance:  3.19633
+waypoint bearing difference:  126.405
+distance:  3.18511
+waypoint bearing difference:  126.968
+distance:  3.17419
+waypoint bearing difference:  127.234
+distance:  3.18537
+waypoint bearing difference:  127.8
+distance:  3.17491
+waypoint bearing difference:  128.631
+distance:  3.1763
+waypoint bearing difference:  129.099
+distance:  3.14428
+waypoint bearing difference:  129.099
+distance:  3.14428
+waypoint bearing difference:  129.099
+distance:  3.14428
+waypoint bearing difference:  129.099
+distance:  3.14428
+waypoint bearing difference:  129.678
+distance:  3.13485
+waypoint bearing difference:  130.098
+distance:  3.13621
+waypoint bearing difference:  130.098
+distance:  3.13621
+waypoint bearing difference:  130.518
+distance:  3.13775
+waypoint bearing difference:  130.938
+distance:  3.13945
+waypoint bearing difference:  131.69
+distance:  3.1208
+waypoint bearing difference:  132.28
+distance:  3.11281
+waypoint bearing difference:  132.874
+distance:  3.10516
+waypoint bearing difference:  133.47
+distance:  3.09785
+waypoint bearing difference:  133.821
+distance:  3.07801
+waypoint bearing difference:  134.604
+distance:  3.06145
+waypoint bearing difference:  134.604
+distance:  3.06145
+waypoint bearing difference:  134.604
+distance:  3.06145
+waypoint bearing difference:  135.031
+distance:  3.06479
+waypoint bearing difference:  136.065
+distance:  3.06245
+waypoint bearing difference:  136.625
+distance:  3.03406
+waypoint bearing difference:  137.242
+distance:  3.02888
+waypoint bearing difference:  137.67
+distance:  3.03326
+waypoint bearing difference:  138.29
+distance:  3.02868
+waypoint bearing difference:  138.679
+distance:  3.0105
+waypoint bearing difference:  139.504
+distance:  2.99758
+waypoint bearing difference:  139.733
+distance:  3.01169
+waypoint bearing difference:  139.733
+distance:  3.01169
+waypoint bearing difference:  139.733
+distance:  3.01169
+waypoint bearing difference:  140.133
+distance:  2.99405
+waypoint bearing difference:  140.785
+distance:  3.0139
+waypoint bearing difference:  141.191
+distance:  2.99664
+waypoint bearing difference:  141.616
+distance:  3.00258
+waypoint bearing difference:  142.04
+distance:  3.00867
+waypoint bearing difference:  142.246
+distance:  3.00026
+waypoint bearing difference:  142.669
+distance:  3.0066
+waypoint bearing difference:  143.087
+distance:  2.99005
+waypoint bearing difference:  143.087
+distance:  2.99005
+waypoint bearing difference:  143.087
+distance:  2.99005
+waypoint bearing difference:  143.087
+distance:  2.99005
+waypoint bearing difference:  143.087
+distance:  2.99005
+waypoint bearing difference:  143.087
+distance:  2.99005
+waypoint bearing difference:  143.509
+distance:  2.99672
+waypoint bearing difference:  143.509
+distance:  2.99672
+waypoint bearing difference:  143.298
+distance:  2.98184
+waypoint bearing difference:  143.298
+distance:  2.98184
+waypoint bearing difference:  143.298
+distance:  2.98184
+waypoint bearing difference:  143.509
+distance:  2.97367
+waypoint bearing difference:  143.298
+distance:  2.98184
+waypoint bearing difference:  143.298
+distance:  2.98184
+waypoint bearing difference:  143.296
+distance:  2.95879
+waypoint bearing difference:  143.296
+distance:  2.95879
+waypoint bearing difference:  143.296
+distance:  2.95879
+waypoint bearing difference:  143.721
+distance:  2.98859
+waypoint bearing difference:  143.509
+distance:  2.97367
+waypoint bearing difference:  143.509
+distance:  2.97367
+waypoint bearing difference:  143.509
+distance:  2.97367
+waypoint bearing difference:  143.509
+distance:  2.97367
+waypoint bearing difference:  143.722
+distance:  2.96554
+waypoint bearing difference:  143.722
+distance:  2.96554
+waypoint bearing difference:  143.722
+distance:  2.96554
+waypoint bearing difference:  143.722
+distance:  2.96554
+waypoint bearing difference:  143.722
+distance:  2.96554
+waypoint bearing difference:  143.722
+distance:  2.96554
+waypoint bearing difference:  143.722
+distance:  2.96554
+waypoint bearing difference:  143.509
+distance:  2.97367
+waypoint bearing difference:  143.722
+distance:  2.96554
+waypoint bearing difference:  143.936
+distance:  2.95745
+waypoint bearing difference:  143.509
+distance:  2.95062
+waypoint bearing difference:  143.509
+distance:  2.95062
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.94
+distance:  2.93439
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.724
+distance:  2.94248
+waypoint bearing difference:  143.94
+distance:  2.93439
+waypoint bearing difference:  143.94
+distance:  2.93439
+waypoint bearing difference:  143.94
+distance:  2.93439
+waypoint bearing difference:  143.94
+distance:  2.93439
+waypoint bearing difference:  143.94
+distance:  2.93439
+waypoint bearing difference:  143.94
+distance:  2.93439
+waypoint bearing difference:  143.726
+distance:  2.91943
+waypoint bearing difference:  143.94
+distance:  2.93439
+waypoint bearing difference:  143.726
+distance:  2.91943
+waypoint bearing difference:  143.726
+distance:  2.91943
+waypoint bearing difference:  143.726
+distance:  2.91943
+waypoint bearing difference:  143.509
+distance:  2.90451
+waypoint bearing difference:  143.943
+distance:  2.91134
+waypoint bearing difference:  143.943
+distance:  2.91134
+waypoint bearing difference:  143.727
+distance:  2.89638
+waypoint bearing difference:  143.727
+distance:  2.89638
+waypoint bearing difference:  143.947
+distance:  2.88829
+waypoint bearing difference:  143.947
+distance:  2.88829
+waypoint bearing difference:  143.947
+distance:  2.88829
+waypoint bearing difference:  143.509
+distance:  2.88146
+waypoint bearing difference:  143.729
+distance:  2.87333
+waypoint bearing difference:  143.95
+distance:  2.86524
+waypoint bearing difference:  143.729
+distance:  2.87333
+waypoint bearing difference:  143.729
+distance:  2.87333
+waypoint bearing difference:  143.729
+distance:  2.87333
+waypoint bearing difference:  143.95
+distance:  2.86524
+waypoint bearing difference:  143.947
+distance:  2.88829
+waypoint bearing difference:  143.95
+distance:  2.86524
+waypoint bearing difference:  143.95
+distance:  2.86524
+waypoint bearing difference:  143.95
+distance:  2.86524
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  143.95
+distance:  2.86524
+waypoint bearing difference:  143.95
+distance:  2.86524
+waypoint bearing difference:  143.95
+distance:  2.86524
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.389
+distance:  2.87224
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.167
+distance:  2.88025
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.167
+distance:  2.88025
+waypoint bearing difference:  144.389
+distance:  2.87224
+waypoint bearing difference:  144.389
+distance:  2.87224
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.389
+distance:  2.87224
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  144.396
+distance:  2.84919
+waypoint bearing difference:  144.396
+distance:  2.84919
+waypoint bearing difference:  144.396
+distance:  2.84919
+waypoint bearing difference:  144.178
+distance:  2.83415
+waypoint bearing difference:  144.172
+distance:  2.8572
+waypoint bearing difference:  143.954
+distance:  2.84219
+waypoint bearing difference:  144.178
+distance:  2.83415
+waypoint bearing difference:  144.178
+distance:  2.83415
+waypoint bearing difference:  144.178
+distance:  2.83415
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.733
+distance:  2.82723
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.735
+distance:  2.80418
+waypoint bearing difference:  143.735
+distance:  2.80418
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.735
+distance:  2.80418
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.957
+distance:  2.81914
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.735
+distance:  2.80418
+waypoint bearing difference:  143.735
+distance:  2.80418
+waypoint bearing difference:  143.735
+distance:  2.80418
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  144.189
+distance:  2.78804
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.735
+distance:  2.80418
+waypoint bearing difference:  143.736
+distance:  2.78112
+waypoint bearing difference:  143.736
+distance:  2.78112
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.961
+distance:  2.79609
+waypoint bearing difference:  143.509
+distance:  2.78925
+waypoint bearing difference:  143.509
+distance:  2.78925
+waypoint bearing difference:  143.509
+distance:  2.78925
+waypoint bearing difference:  143.736
+distance:  2.78112
+waypoint bearing difference:  143.736
+distance:  2.78112
+waypoint bearing difference:  143.735
+distance:  2.80418
+waypoint bearing difference:  143.509
+distance:  2.78925
+waypoint bearing difference:  143.736
+distance:  2.78112
+waypoint bearing difference:  143.509
+distance:  2.78925
+waypoint bearing difference:  143.282
+distance:  2.77438
+waypoint bearing difference:  143.509
+distance:  2.7662
+waypoint bearing difference:  143.509
+distance:  2.7662
+waypoint bearing difference:  143.509
+distance:  2.7662
+waypoint bearing difference:  143.509
+distance:  2.7662
+waypoint bearing difference:  143.509
+distance:  2.7662
+waypoint bearing difference:  143.509
+distance:  2.7662
+waypoint bearing difference:  143.509
+distance:  2.7662
+waypoint bearing difference:  143.738
+distance:  2.75807
+waypoint bearing difference:  143.969
+distance:  2.74999
+waypoint bearing difference:  144.658
+distance:  2.74904
+waypoint bearing difference:  145.113
+distance:  2.75632
+waypoint bearing difference:  145.348
+distance:  2.7485
+waypoint bearing difference:  145.801
+distance:  2.75604
+waypoint bearing difference:  146.464
+distance:  2.77918
+waypoint bearing difference:  146.701
+distance:  2.77163
+waypoint bearing difference:  147.177
+distance:  2.75667
+waypoint bearing difference:  147.177
+distance:  2.75667
+waypoint bearing difference:  147.177
+distance:  2.75667
+waypoint bearing difference:  147.624
+distance:  2.7649
+waypoint bearing difference:  147.828
+distance:  2.78056
+waypoint bearing difference:  148.03
+distance:  2.79627
+waypoint bearing difference:  148.269
+distance:  2.78903
+waypoint bearing difference:  148.51
+distance:  2.78185
+waypoint bearing difference:  148.269
+distance:  2.78903
+waypoint bearing difference:  148.468
+distance:  2.80481
+waypoint bearing difference:  148.269
+distance:  2.78903
+waypoint bearing difference:  148.068
+distance:  2.77329
+waypoint bearing difference:  148.03
+distance:  2.79627
+waypoint bearing difference:  148.03
+distance:  2.79627
+waypoint bearing difference:  148.03
+distance:  2.79627
+waypoint bearing difference:  148.03
+distance:  2.79627
+waypoint bearing difference:  148.03
+distance:  2.79627
+waypoint bearing difference:  148.03
+distance:  2.79627
+waypoint bearing difference:  148.269
+distance:  2.78903
+waypoint bearing difference:  147.828
+distance:  2.78056
+waypoint bearing difference:  148.269
+distance:  2.78903
+waypoint bearing difference:  147.828
+distance:  2.78056
+waypoint bearing difference:  147.828
+distance:  2.78056
+waypoint bearing difference:  148.03
+distance:  2.79627
+waypoint bearing difference:  147.828
+distance:  2.78056
+waypoint bearing difference:  147.864
+distance:  2.75758
+waypoint bearing difference:  147.864
+distance:  2.75758
+waypoint bearing difference:  147.864
+distance:  2.75758
+waypoint bearing difference:  147.385
+distance:  2.77226
+waypoint bearing difference:  147.624
+distance:  2.7649
+waypoint bearing difference:  147.658
+distance:  2.7419
+waypoint bearing difference:  147.658
+distance:  2.7419
+waypoint bearing difference:  147.417
+distance:  2.74926
+waypoint bearing difference:  147.417
+distance:  2.74926
+waypoint bearing difference:  147.417
+distance:  2.74926
+waypoint bearing difference:  147.177
+distance:  2.75667
+waypoint bearing difference:  147.208
+distance:  2.73366
+waypoint bearing difference:  147.624
+distance:  2.7649
+waypoint bearing difference:  147.624
+distance:  2.7649
+waypoint bearing difference:  147.624
+distance:  2.7649
+waypoint bearing difference:  146.967
+distance:  2.74111
+waypoint bearing difference:  146.996
+distance:  2.7181
+waypoint bearing difference:  146.967
+distance:  2.74111
+waypoint bearing difference:  146.996
+distance:  2.7181
+waypoint bearing difference:  146.727
+distance:  2.74861
+waypoint bearing difference:  146.755
+distance:  2.72559
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.299
+distance:  2.7177
+waypoint bearing difference:  146.299
+distance:  2.7177
+waypoint bearing difference:  146.299
+distance:  2.7177
+waypoint bearing difference:  146.299
+distance:  2.7177
+waypoint bearing difference:  146.081
+distance:  2.7023
+waypoint bearing difference:  146.059
+distance:  2.72533
+waypoint bearing difference:  146.059
+distance:  2.72533
+waypoint bearing difference:  146.059
+distance:  2.72533
+waypoint bearing difference:  146.059
+distance:  2.72533
+waypoint bearing difference:  146.081
+distance:  2.7023
+waypoint bearing difference:  146.059
+distance:  2.72533
+waypoint bearing difference:  146.059
+distance:  2.72533
+waypoint bearing difference:  146.038
+distance:  2.74836
+waypoint bearing difference:  146.038
+distance:  2.74836
+waypoint bearing difference:  146.059
+distance:  2.72533
+waypoint bearing difference:  145.82
+distance:  2.733
+waypoint bearing difference:  145.583
+distance:  2.74073
+waypoint bearing difference:  145.82
+distance:  2.733
+waypoint bearing difference:  145.82
+distance:  2.733
+waypoint bearing difference:  145.82
+distance:  2.733
+waypoint bearing difference:  145.84
+distance:  2.70997
+waypoint bearing difference:  145.82
+distance:  2.733
+waypoint bearing difference:  146.059
+distance:  2.72533
+waypoint bearing difference:  146.059
+distance:  2.72533
+waypoint bearing difference:  145.82
+distance:  2.733
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.84
+distance:  2.70997
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.84
+distance:  2.70997
+waypoint bearing difference:  145.84
+distance:  2.70997
+waypoint bearing difference:  145.601
+distance:  2.71769
+waypoint bearing difference:  145.84
+distance:  2.70997
+waypoint bearing difference:  146.54
+distance:  2.71011
+waypoint bearing difference:  146.782
+distance:  2.70258
+waypoint bearing difference:  147.056
+distance:  2.67209
+waypoint bearing difference:  147.552
+distance:  2.65728
+waypoint bearing difference:  147.803
+distance:  2.64995
+waypoint bearing difference:  147.803
+distance:  2.64995
+waypoint bearing difference:  147.803
+distance:  2.64995
+waypoint bearing difference:  148.307
+distance:  2.63544
+waypoint bearing difference:  148.817
+distance:  2.62114
+waypoint bearing difference:  148.817
+distance:  2.62114
+waypoint bearing difference:  149.332
+distance:  2.60705
+waypoint bearing difference:  149.854
+distance:  2.59317
+waypoint bearing difference:  150.38
+distance:  2.57951
+waypoint bearing difference:  150.646
+distance:  2.57276
+waypoint bearing difference:  150.912
+distance:  2.56607
+waypoint bearing difference:  151.181
+distance:  2.55944
+waypoint bearing difference:  151.181
+distance:  2.55944
+waypoint bearing difference:  151.721
+distance:  2.54633
+waypoint bearing difference:  151.721
+distance:  2.54633
+waypoint bearing difference:  151.648
+distance:  2.56915
+waypoint bearing difference:  151.648
+distance:  2.56915
+waypoint bearing difference:  151.721
+distance:  2.54633
+waypoint bearing difference:  152.267
+distance:  2.53346
+waypoint bearing difference:  152.819
+distance:  2.52082
+waypoint bearing difference:  153.376
+distance:  2.50841
+waypoint bearing difference:  154.506
+distance:  2.48432
+waypoint bearing difference:  155.188
+distance:  2.45006
+waypoint bearing difference:  156.067
+distance:  2.43309
+waypoint bearing difference:  156.067
+distance:  2.43309
+waypoint bearing difference:  156.067
+distance:  2.43309
+waypoint bearing difference:  156.66
+distance:  2.4221
+waypoint bearing difference:  156.66
+distance:  2.4221
+waypoint bearing difference:  157.559
+distance:  2.4061
+waypoint bearing difference:  158.165
+distance:  2.39577
+waypoint bearing difference:  158.306
+distance:  2.37348
+waypoint bearing difference:  159.084
+distance:  2.38078
+waypoint bearing difference:  159.393
+distance:  2.37592
+waypoint bearing difference:  160.174
+distance:  2.34432
+waypoint bearing difference:  160.807
+distance:  2.33516
+waypoint bearing difference:  161.445
+distance:  2.32629
+waypoint bearing difference:  161.766
+distance:  2.32197
+waypoint bearing difference:  161.766
+distance:  2.32197
+waypoint bearing difference:  161.766
+distance:  2.32197
+waypoint bearing difference:  162.271
+distance:  2.29587
+waypoint bearing difference:  163.06
+distance:  2.3054
+waypoint bearing difference:  163.06
+distance:  2.3054
+waypoint bearing difference:  163.714
+distance:  2.29756
+waypoint bearing difference:  163.386
+distance:  2.30144
+waypoint bearing difference:  163.714
+distance:  2.29756
+waypoint bearing difference:  164.043
+distance:  2.29375
+waypoint bearing difference:  164.703
+distance:  2.28637
+waypoint bearing difference:  164.703
+distance:  2.28637
+waypoint bearing difference:  165.368
+distance:  2.27929
+waypoint bearing difference:  165.368
+distance:  2.27929
+waypoint bearing difference:  165.368
+distance:  2.27929
+waypoint bearing difference:  165.035
+distance:  2.28279
+waypoint bearing difference:  165.702
+distance:  2.27586
+waypoint bearing difference:  165.702
+distance:  2.27586
+waypoint bearing difference:  166.942
+distance:  2.24489
+waypoint bearing difference:  167.178
+distance:  2.22375
+waypoint bearing difference:  168.312
+distance:  2.23314
+waypoint bearing difference:  169.697
+distance:  2.22268
+waypoint bearing difference:  170.743
+distance:  2.21569
+waypoint bearing difference:  171.796
+distance:  2.20945
+waypoint bearing difference:  172.437
+distance:  2.18733
+waypoint bearing difference:  173.15
+distance:  2.18389
+waypoint bearing difference:  173.15
+distance:  2.18389
+waypoint bearing difference:  173.15
+distance:  2.18389
+waypoint bearing difference:  173.865
+distance:  2.18079
+waypoint bearing difference:  174.536
+distance:  2.15958
+waypoint bearing difference:  175.22
+distance:  2.13867
+waypoint bearing difference:  175.953
+distance:  2.13656
+waypoint bearing difference:  175.953
+distance:  2.13656
+waypoint bearing difference:  176.687
+distance:  2.1348
+waypoint bearing difference:  177.08
+distance:  2.15256
+waypoint bearing difference:  177.79
+distance:  2.13282
+waypoint bearing difference:  178.158
+distance:  2.13234
+waypoint bearing difference:  178.158
+distance:  2.13234
+waypoint bearing difference:  178.158
+distance:  2.13234
+waypoint bearing difference:  178.174
+distance:  2.15086
+waypoint bearing difference:  178.526
+distance:  2.13194
+waypoint bearing difference:  178.895
+distance:  2.13163
+waypoint bearing difference:  179.635
+distance:  2.14981
+waypoint bearing difference:  180
+distance:  2.14977
+waypoint bearing difference:  180.365
+distance:  2.14981
+waypoint bearing difference:  180.365
+distance:  2.14981
+waypoint bearing difference:  180
+distance:  2.1683
+waypoint bearing difference:  180.362
+distance:  2.16834
+waypoint bearing difference:  181.087
+distance:  2.16869
+waypoint bearing difference:  181.087
+distance:  2.16869
+waypoint bearing difference:  181.087
+distance:  2.16869
+waypoint bearing difference:  181.087
+distance:  2.16869
+waypoint bearing difference:  181.795
+distance:  2.18791
+waypoint bearing difference:  182.154
+distance:  2.18838
+waypoint bearing difference:  182.513
+distance:  2.18894
+waypoint bearing difference:  183.587
+distance:  2.19113
+waypoint bearing difference:  183.945
+distance:  2.19203
+waypoint bearing difference:  184.266
+distance:  2.21149
+waypoint bearing difference:  184.974
+distance:  2.2137
+waypoint bearing difference:  185.327
+distance:  2.21493
+waypoint bearing difference:  185.633
+distance:  2.23469
+waypoint bearing difference:  186.331
+distance:  2.23755
+waypoint bearing difference:  186.331
+distance:  2.23755
+waypoint bearing difference:  186.331
+distance:  2.23755
+waypoint bearing difference:  186.68
+distance:  2.2391
+waypoint bearing difference:  186.68
+distance:  2.2391
+waypoint bearing difference:  188.347
+distance:  2.26644
+waypoint bearing difference:  188.689
+distance:  2.26847
+waypoint bearing difference:  189.297
+distance:  2.29106
+waypoint bearing difference:  189.973
+distance:  2.29565
+waypoint bearing difference:  190.98
+distance:  2.30313
+waypoint bearing difference:  191.556
+distance:  2.32666
+waypoint bearing difference:  192.216
+distance:  2.33231
+waypoint bearing difference:  192.873
+distance:  2.33826
+waypoint bearing difference:  192.873
+distance:  2.33826
+waypoint bearing difference:  192.873
+distance:  2.33826
+waypoint bearing difference:  193.421
+distance:  2.36254
+waypoint bearing difference:  194.066
+distance:  2.36906
+waypoint bearing difference:  194.707
+distance:  2.37587
+waypoint bearing difference:  195.143
+distance:  2.36149
+waypoint bearing difference:  195.662
+distance:  2.38664
+waypoint bearing difference:  196.294
+distance:  2.39419
+waypoint bearing difference:  196.794
+distance:  2.41976
+waypoint bearing difference:  197.104
+distance:  2.42376
+waypoint bearing difference:  197.413
+distance:  2.42783
+waypoint bearing difference:  197.722
+distance:  2.43196
+waypoint bearing difference:  197.722
+distance:  2.43196
+waypoint bearing difference:  197.722
+distance:  2.43196
+waypoint bearing difference:  198.029
+distance:  2.43617
+waypoint bearing difference:  198.502
+distance:  2.46236
+waypoint bearing difference:  198.804
+distance:  2.46675
+waypoint bearing difference:  199.703
+distance:  2.48031
+waypoint bearing difference:  199.856
+distance:  2.50239
+waypoint bearing difference:  200.297
+distance:  2.52921
+waypoint bearing difference:  201.016
+distance:  2.56106
+waypoint bearing difference:  201.016
+distance:  2.56106
+waypoint bearing difference:  201.302
+distance:  2.566
+waypoint bearing difference:  201.302
+distance:  2.566
+waypoint bearing difference:  201.87
+distance:  2.57609
+waypoint bearing difference:  201.87
+distance:  2.57609
+waypoint bearing difference:  214.392
+distance:  3.00942
+waypoint bearing difference:  214.392
+distance:  3.00942
+waypoint bearing difference:  214.392
+distance:  3.00942
+waypoint bearing difference:  214.194
+distance:  3.02473
+waypoint bearing difference:  214.194
+distance:  3.02473
+waypoint bearing difference:  214.194
+distance:  3.02473
+waypoint bearing difference:  214.194
+distance:  3.02473
+waypoint bearing difference:  214.194
+distance:  3.02473
+waypoint bearing difference:  214.194
+distance:  3.02473
+waypoint bearing difference:  214.194
+distance:  3.02473
+waypoint bearing difference:  214.194
+distance:  3.02473
+waypoint bearing difference:  214.194
+distance:  3.02473
+waypoint bearing difference:  213.997
+distance:  3.04008
+waypoint bearing difference:  213.997
+distance:  3.04008
+waypoint bearing difference:  213.997
+distance:  3.04008
+waypoint bearing difference:  213.783
+distance:  3.03243
+waypoint bearing difference:  213.783
+distance:  3.03243
+waypoint bearing difference:  213.997
+distance:  3.04008
+waypoint bearing difference:  213.997
+distance:  3.04008
+waypoint bearing difference:  214.211
+distance:  3.04777
+waypoint bearing difference:  214.621
+distance:  3.04022
+waypoint bearing difference:  214.833
+distance:  3.04803
+waypoint bearing difference:  214.833
+distance:  3.04803
+waypoint bearing difference:  215.447
+distance:  3.02561
+waypoint bearing difference:  215.447
+distance:  3.02561
+waypoint bearing difference:  215.863
+distance:  3.01855
+waypoint bearing difference:  215.863
+distance:  3.01855
+waypoint bearing difference:  216.491
+distance:  3.01977
+waypoint bearing difference:  216.91
+distance:  3.01311
+waypoint bearing difference:  217.331
+distance:  3.0066
+waypoint bearing difference:  217.331
+distance:  3.0066
+waypoint bearing difference:  217.546
+distance:  2.99189
+waypoint bearing difference:  217.96
+distance:  3.00867
+waypoint bearing difference:  217.96
+distance:  3.00867
+waypoint bearing difference:  218.384
+distance:  3.00258
+waypoint bearing difference:  218.384
+distance:  3.00258
+waypoint bearing difference:  218.384
+distance:  3.00258
+waypoint bearing difference:  219.013
+distance:  3.00525
+waypoint bearing difference:  219.236
+distance:  2.99088
+waypoint bearing difference:  219.236
+distance:  2.99088
+waypoint bearing difference:  219.462
+distance:  2.97655
+waypoint bearing difference:  219.92
+distance:  2.94802
+waypoint bearing difference:  220.124
+distance:  2.95684
+waypoint bearing difference:  220.356
+distance:  2.94269
+waypoint bearing difference:  220.387
+distance:  2.91969
+waypoint bearing difference:  220.863
+distance:  2.89156
+waypoint bearing difference:  220.898
+distance:  2.86858
+waypoint bearing difference:  220.898
+distance:  2.86858
+waypoint bearing difference:  220.898
+distance:  2.86858
+waypoint bearing difference:  221.387
+distance:  2.84066
+waypoint bearing difference:  221.635
+distance:  2.82679
+waypoint bearing difference:  221.468
+distance:  2.79473
+waypoint bearing difference:  221.976
+distance:  2.76707
+waypoint bearing difference:  222.022
+distance:  2.74412
+waypoint bearing difference:  222.545
+distance:  2.7167
+waypoint bearing difference:  222.865
+distance:  2.68017
+waypoint bearing difference:  222.92
+distance:  2.65726
+waypoint bearing difference:  222.703
+distance:  2.64794
+waypoint bearing difference:  222.703
+distance:  2.64794
+waypoint bearing difference:  222.977
+distance:  2.63435
+waypoint bearing difference:  222.977
+distance:  2.63435
+waypoint bearing difference:  222.813
+distance:  2.60211
+waypoint bearing difference:  223.092
+distance:  2.58855
+waypoint bearing difference:  223.211
+distance:  2.54276
+waypoint bearing difference:  223.211
+distance:  2.54276
+waypoint bearing difference:  222.985
+distance:  2.53339
+waypoint bearing difference:  222.815
+distance:  2.50115
+waypoint bearing difference:  222.874
+distance:  2.47824
+waypoint bearing difference:  222.406
+distance:  2.45967
+waypoint bearing difference:  222.169
+distance:  2.45044
+waypoint bearing difference:  222.223
+distance:  2.42751
+waypoint bearing difference:  222.223
+distance:  2.42751
+waypoint bearing difference:  222.223
+distance:  2.42751
+waypoint bearing difference:  222.223
+distance:  2.42751
+waypoint bearing difference:  221.74
+distance:  2.40917
+waypoint bearing difference:  221.496
+distance:  2.40006
+waypoint bearing difference:  221.25
+distance:  2.391
+waypoint bearing difference:  220.462
+distance:  2.38708
+waypoint bearing difference:  220.501
+distance:  2.36409
+waypoint bearing difference:  220.247
+distance:  2.35521
+waypoint bearing difference:  219.734
+distance:  2.33759
+waypoint bearing difference:  219.475
+distance:  2.32885
+waypoint bearing difference:  219.475
+distance:  2.32885
+waypoint bearing difference:  218.95
+distance:  2.31151
+waypoint bearing difference:  218.95
+distance:  2.31151
+waypoint bearing difference:  218.132
+distance:  2.30893
+waypoint bearing difference:  217.863
+distance:  2.30049
+waypoint bearing difference:  217.32
+distance:  2.28376
+waypoint bearing difference:  217.046
+distance:  2.27548
+waypoint bearing difference:  216.491
+distance:  2.25907
+waypoint bearing difference:  216.21
+distance:  2.25094
+waypoint bearing difference:  215.643
+distance:  2.23485
+waypoint bearing difference:  215.356
+distance:  2.22689
+waypoint bearing difference:  215.068
+distance:  2.21899
+waypoint bearing difference:  214.484
+distance:  2.20335
+waypoint bearing difference:  214.484
+distance:  2.20335
+waypoint bearing difference:  214.484
+distance:  2.20335
+waypoint bearing difference:  213.892
+distance:  2.18794
+waypoint bearing difference:  213.593
+distance:  2.18033
+waypoint bearing difference:  212.42
+distance:  2.17347
+waypoint bearing difference:  212.376
+distance:  2.15047
+waypoint bearing difference:  211.806
+distance:  2.15889
+waypoint bearing difference:  211.495
+distance:  2.1517
+waypoint bearing difference:  211.183
+distance:  2.14457
+waypoint bearing difference:  211.183
+distance:  2.14457
+waypoint bearing difference:  210.616
+distance:  2.15343
+waypoint bearing difference:  210.616
+distance:  2.15343
+waypoint bearing difference:  210.616
+distance:  2.15343
+waypoint bearing difference:  210.616
+distance:  2.15343
+waypoint bearing difference:  210.929
+distance:  2.16044
+waypoint bearing difference:  210.366
+distance:  2.1694
+waypoint bearing difference:  210.678
+distance:  2.17636
+waypoint bearing difference:  210.987
+distance:  2.18339
+waypoint bearing difference:  210.987
+distance:  2.18339
+waypoint bearing difference:  210.987
+distance:  2.18339
+waypoint bearing difference:  210.987
+distance:  2.18339
+waypoint bearing difference:  211.239
+distance:  2.16752
+waypoint bearing difference:  211.548
+distance:  2.17466
+waypoint bearing difference:  211.495
+distance:  2.1517
+waypoint bearing difference:  211.441
+distance:  2.12874
+waypoint bearing difference:  211.441
+distance:  2.12874
+waypoint bearing difference:  211.441
+distance:  2.12874
+waypoint bearing difference:  211.386
+distance:  2.10577
+waypoint bearing difference:  211.703
+distance:  2.11295
+waypoint bearing difference:  211.651
+distance:  2.08998
+waypoint bearing difference:  212.192
+distance:  2.05852
+waypoint bearing difference:  212.469
+distance:  2.04286
+waypoint bearing difference:  212.75
+distance:  2.02724
+waypoint bearing difference:  115.736
+distance:  9.87331e+06
+waypoint bearing difference:  115.736
+distance:  9.87331e+06
+waypoint bearing difference:  115.736
+distance:  9.87331e+06
+waypoint bearing difference:  115.736
+distance:  9.87331e+06

@@ -69,18 +69,6 @@ int main() {
   TagDetector d1;
   pair<Tag, Tag> tp;
   
-<<<<<<< HEAD
-  // Vector of obstacle detection true/false 
-  // Vector is boolean and contains x amount of values so we can compare against other obstale detection
-  // Used for outliers  
-  int numChecks = 3;
-  deque <bool> outliers;
-  outliers.resize(numChecks, true); //initializes outliers vector
-  deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
-  deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
-  obstacle_return lastObstacle;
-
-=======
   time_t now = time(0);
   char* ltm = ctime(&now);
   string timeStamp(ltm);
@@ -105,7 +93,6 @@ int main() {
 
 
 /* --- Main Processing Stuff --- */
->>>>>>> [percep] created FP filter and made code look beautiful resolves #419 (#467)
   while (true) {
 
     //Check to see if we were able to grab the frame
@@ -191,19 +178,20 @@ int main() {
     cerr<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
     #endif
 
-    //Run Obstacle Detection
-    obstacle_return obstacle_detection = pcl_obstacle_detection(point_cloud_ptr, viewer);  
-    
-    //Remove outdated outlier value
-    outliers.pop_back();
+//Run Obstacle Detection
+    pointcloud.pcl_obstacle_detection(viewer);  
+    obstacle_return obstacle_detection (pointcloud.bearing, pointcloud.distance);
 
-    if(obstacle_detection.bearing > 0.05 || obstacle_detection.bearing < -0.05)
+    
+    //Outlier Detection Processing
+    outliers.pop_back(); //Remove outdated outlier value
+
+    if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05)
         outliers.push_front(true);//if an obstacle is detected in front
     else 
         outliers.push_front(false); //obstacle is not detected
 
-    //If past iterations see obstacles
-    if(outliers == checkTrue)
+    if(outliers == checkTrue) //If past iterations see obstacles
       lastObstacle = obstacle_detection;
     else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
       lastObstacle = obstacle_detection;
@@ -224,7 +212,7 @@ int main() {
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
-    std::this_thread::sleep_for(0.2s); // Iteration speed control 
+    //std::this_thread::sleep_for(0.2s); // Iteration speed control 
     ++iterations;
   }
 
