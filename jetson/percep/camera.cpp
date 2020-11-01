@@ -132,6 +132,7 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & p_pcl_poin
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 =======
  /* void Camera::Impl::write_curr_frame_to_disk(Mat rgb, Mat depth, int counter){
@@ -145,6 +146,9 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & p_pcl_poin
 
 } */
 >>>>>>> [percep] added frame saving functions to camera class resolves #433 #434 (#466)
+=======
+}
+>>>>>>> [percep] created FP filter and made code look beautiful resolves #419 (#467)
 #endif
 
 
@@ -340,31 +344,6 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point
   }
 }
 #endif
-
-// creates and opens folder to write to
-void Camera::disk_record_init() {
-    //defining directories to write to
-    rgb_foldername = DEFAULT_ONLINE_DATA_FOLDER "rgb/";
-    depth_foldername = DEFAULT_ONLINE_DATA_FOLDER "depth/";
-    string mkdir_rgb =  std::string("mkdir -p ") + rgb_foldername;
-    string mkdir_depth =  std::string("mkdir -p ") + depth_foldername;
-
-    //creates new folder in the system
-    if (-1 == system( mkdir_rgb.c_str()) || -1 == system(mkdir_depth.c_str())) {
-      exit(1);
-    }
-}
-
-//writes the Mat to a file
-void Camera::write_curr_frame_to_disk(cv::Mat rgb, cv::Mat depth, int counter){
-    string fileName = to_string(counter / FRAME_WRITE_INTERVAL);
-    while(fileName.length() < 4){
-      fileName = '0'+fileName;
-    }
-
-    cv::imwrite(rgb_foldername +  fileName + std::string(".jpg"), rgb );
-    cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
-}
 
 /*
 void Camera::Impl::writeDataCloud(int j){
