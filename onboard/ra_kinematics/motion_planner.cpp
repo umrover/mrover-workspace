@@ -258,6 +258,3 @@ vector<tk::spline> spline_fitting(vector<Vector6d>& path) {
 
     return splines;
 }
-
-// How do we substitute scipy for this method?
-// tk::spline MotionPlanner::spline_fitting(vector<double> path){}

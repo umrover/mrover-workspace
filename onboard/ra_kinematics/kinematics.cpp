@@ -7,14 +7,15 @@
 #include <math.h>
 #include <vector>
 
+typedef Eigen::Matrix<double, -1, -1> MatrixXd;
 
 using namespace Eigen;
 
 KinematicsSolver::KinematicsSolver(const ArmState& robot_state_in) :   robot_state(robot_state_in),
                                                                 robot_ik(robot_state_in),
                                                                 robot_safety(robot_state_in),
-                                                                e_locked(false),
-                                                                target_pos_world(0, 0, 0) {
+                                                                e_locked(false)
+                                                                {
     // Try robot fk:
     FK(robot_state);
 }
@@ -22,7 +23,7 @@ KinematicsSolver::KinematicsSolver(const ArmState& robot_state_in) :   robot_sta
 Vector3d KinematicsSolver::FK(ArmState &robot_state) {
     // Set global transfprm as identity
     Matrix4d global_transform = Matrix4d::Identity();
-    robot_state.set_link_transform(robot_state.links_json['base'], Matrix4d::Identity());
+    robot_state.set_link_transform(robot_state.links_json["base"], Matrix4d::Identity());
     Matrix4d parent_mat = Matrix4d::Identity();
     for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
         // PB: Check if this should be get_joint_pos_world or get_joint_pos_local:
@@ -73,13 +74,13 @@ Vector3d KinematicsSolver::FK(ArmState &robot_state) {
         robot_state.set_joint_transform(it->first, global_transform);
         robot_state.set_link_transform(link, global_transform);
 
-        Matrix4d parent_mat = global_transform;
+        parent_mat = global_transform;
     }
     // Set ef position and orientation:
     Vector3d ef_xyz = robot_state.get_ef_pos_world();
     Matrix4d T = Matrix4d::Identity();
     T.block(0,3,3,1) = ef_xyz;
-    Matrix4d global_transform = parent_mat*T;
+    global_transform = parent_mat*T;
     robot_state.set_ef_transform(global_transform);
     Vector4d mult(0,0,0,1);
     Vector4d ef_pos_world = global_transform*mult;
@@ -360,7 +361,7 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
     // 6-D matrix
     MatrixXd jacobian_inverse;
 
-    for (int i = 0; i < joints.size(); ++i) {
+    for (int i = 0; i < (int)joints.size(); ++i) {
 
         // don't move joint e if it's locked
         if (e_locked && joints[i] == "joint_e") {
@@ -388,7 +389,8 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
             if (use_euler_angles) {
                 Matrix4d n_xform = apply_joint_xform(joints[i], delta_theta);
 
-                Vector3d euler_angles = compute_euler_angles(n_xform);
+                Vector3d euler_angles;
+                euler_angles = compute_euler_angles(n_xform.block(0,0,3,3));
 
                 Vector3d diff_angs = euler_angles - ef_euler_world;
                 Vector3d delta_angs = diff_angs / delta_theta;
@@ -411,7 +413,7 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
 
     // if using pseudo inverse (usually corresponds to using euler angles)
     if (use_pi) {
-        jacobian_inverse = (MatrixXd) jacobian.completeOrthogonalDecomposition();
+        jacobian_inverse = jacobian.completeOrthogonalDecomposition().pseudoInverse();
     }
 
     // otherwise, simply transpose the vector
@@ -424,7 +426,7 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
     Vector6d angle_vec;
     
     // find the angle of each joint
-    for (int i = 0; i < joints.size(); ++i) {
+    for (int i = 0; i < (int)joints.size(); ++i) {
         angle_vec(i) = robot_ik.get_joint_angles()[joints[i]] + d_theta[i];
 
         map<string, double> limits = robot_safety.get_joint_limits(joints[i]);
@@ -458,7 +460,7 @@ bool KinematicsSolver::is_safe(Vector6d angles) {
 
 bool KinematicsSolver::limit_check(const Vector6d &angles, const vector<string> &joints) {
 
-    for (int i = 0; i < joints.size(); ++i) {
+    for (int i = 0; i < (int)joints.size(); ++i) {
         map<string, double> limits = robot_safety.get_joint_limits(joints[i]);
         
         // if any angle is outside of bounds
