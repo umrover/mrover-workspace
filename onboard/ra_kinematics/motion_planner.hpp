@@ -52,12 +52,20 @@ private:
     Node* start_root;
     Node* goal_root;
 
+    // for testing only
+    int spline_size;
+
 public:
 
     
     MotionPlanner(ArmState& robot_state_in, lcm::LCM& lcm_in, KinematicsSolver& solver_in);
 
     vector<tk::spline> rrt_connect(Vector6d& target);
+
+    // for testing only
+    int getSplineSize() {
+        return spline_size;
+    }
 
 
 private:
