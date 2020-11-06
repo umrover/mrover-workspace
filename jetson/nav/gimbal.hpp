@@ -2,6 +2,7 @@
 #define GIMBAL_HPP
 
 #include "rover_msgs/ZedGimbalCmd.hpp"
+#include "rover_msgs/ZedGimbalPosition.hpp"
 #include "pid.hpp"
 #include "rapidjson/document.h"
 
@@ -25,6 +26,8 @@ class Gimbal{
 
         //returns the current yaw of the gimbal
         double getYaw() const;
+
+        double setYaw(double yaw);
 
         //returns the LCM message to be sent. Takes in a reference to the LCM object that sends it
         void publishControlSignal(lcm::LCM &lcmObj, const rapidjson::Document& mRoverConfig);
