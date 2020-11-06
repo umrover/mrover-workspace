@@ -124,8 +124,6 @@ public:
 
         RadioSignalStrength& radio();
 
-        Gimbal& gimbal();
-
         unsigned getPathTargets();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
@@ -189,11 +187,15 @@ public:
 
     PidLoop& bearingPid();
 
+    PidLoop& gimbalPid();
+
     const double longMeterInMinutes() const;
 
     void updateRepeater( RadioSignalStrength& signal);
 
     bool isTimeToDropRepeater();
+
+    Gimbal& gimbal();
 
 private:
     /*************************************************************************/
@@ -229,12 +231,17 @@ private:
     // The pid loop for turning.
     PidLoop mBearingPid;
 
+    // The pid loop for the camera gimbal.
+    PidLoop mGimbalPid;
+
     // If it is time to drop a radio repeater
     bool mTimeToDropRepeater;
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.
     double mLongMeterInMinutes;
+
+    Gimbal mGimbal;
 };
 
 #endif // ROVER_HPP

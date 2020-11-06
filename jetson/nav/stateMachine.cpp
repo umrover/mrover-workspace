@@ -154,6 +154,8 @@ void StateMachine::run()
             case NavState::SearchFaceNorth:
             case NavState::SearchSpin:
             case NavState::SearchSpinWait:
+            case NavState::SearchGimbalWait:
+            case NavState::SearchGimbal:
             case NavState::SearchTurn:
             case NavState::SearchDrive:
             case NavState::TurnToTarget:

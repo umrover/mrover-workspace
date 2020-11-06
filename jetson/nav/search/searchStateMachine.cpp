@@ -102,7 +102,7 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
     return NavState::SearchSpin;
 } // executeSearchSpin()
 
-NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig )
+NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     // TODO: Values sent to the gimbal are angles in degrees! This might be wrong, given that we don't know
     // whether the gimabl uses degrees/power/radians etc..
@@ -124,10 +124,10 @@ NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverCon
     if ( nextStop == 0 )
     {
         //get current angle and set as origAngle
-        mOriginalSpinAngle = phoebe->gimbal.getYaw(); //phoebe->roverStatus().odometry().bearing_deg; //doublecheck
+        mOriginalSpinAngle = phoebe->gimbal().getYaw(); //phoebe->roverStatus().odometry().bearing_deg; //doublecheck
         nextStop = mOriginalSpinAngle;
     }
-    if( phoebe->gimbal.setTargetYaw(nextStop) )
+    if( phoebe->gimbal().setTargetYaw(nextStop) )
     {
         if (nextStop == target){
             if (phase <= 2){
@@ -146,7 +146,7 @@ NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverCon
         if( phase == 3 )
         {
             phase = 0;
-            taarget = -150;
+            target = -150;
             nextStop = 0;
             return NavState::SearchTurn;
         }

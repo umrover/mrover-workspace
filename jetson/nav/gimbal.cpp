@@ -1,18 +1,15 @@
-#include <gimbal.hpp>
+#include "gimbal.hpp"
 
 using namespace std;
 
-Gimbal::Gimbal(const rapidjson::Document& mRoverConfig){
-    this->MAX_YAW = mRoverConfig["gimbal"]["maxRange"].GetDouble();
-    this->MIN_YAW = mRoverConfig["gimbal"]["minRange"].GetDouble();
-    this->TOLERANCE = mRoverConfig["gimbal"]["tolerance"].GetDouble();
-    this->pid = PidLoop(mRoverConfig["gimbalPid"]["Kp"].GetDouble(), mRoverConfig["gimbalPid"]["Ki"].GetDouble(), mRoverConfig["gimbalPid"]["Kd"].GetDouble());
-}
+Gimbal::Gimbal(double MIN_YAW_IN, double MAX_YAW_IN, double TOLERANCE_IN, PidLoop pid_in):
+    MAX_YAW(MAX_YAW_IN), MIN_YAW(MIN_YAW_IN), TOLERANCE(TOLERANCE_IN), pid(pid_in)
+    {}
 
 
 bool Gimbal::setTargetYaw(double target){
-    this->target_yaw = target;
-    this->pid.reset();
+    target_yaw = target;
+    pid.reset();
     return abs((this->target_yaw - this->cur_yaw) <= this->TOLERANCE);
 }
 
@@ -21,12 +18,8 @@ double Gimbal::getYaw() const {
 }
 
 //TODO: make sure gimbalChannel is defined in config.json
-void Gimbal::publishControlSignal(lcm::LCM & lcmObj, const rapidjson::Document& mRoverConfig) const {
+void Gimbal::publishControlSignal(lcm::LCM & lcmObj, const rapidjson::Document& mRoverConfig) {
     string channel = mRoverConfig[ "lcmChannels" ][ "gimbalChannel" ].GetString();
-    this->calculateControlSignal();
-    lcmObj.publish(channel, &(this->signal));
-}
-
-void Gimbal::calculateControlSignal(){
-    this->signal = this->pid.update(this->getYaw(), this->target_yaw);
+    signal.push = pid.update(getYaw(), target_yaw);
+    lcmObj.publish(channel, &signal);
 }
