@@ -2,12 +2,13 @@
 #include <opencv2/opencv.hpp>
 #include "perception.hpp"
 
+//#include "artag_detector.hpp"
+
 
 #if OBSTACLE_DETECTION
 	#include <pcl/common/common_headers.h>
 #endif
 
-#include "artag_detector.hpp"
 
 class Camera {
 private:
@@ -16,8 +17,8 @@ private:
 	std::string rgb_foldername;
 	std::string depth_foldername;
 	//Video Stuff
-  	std::pair<Tag, Tag> tp;
-  	TagDetector d1;
+  	//std::pair<Tag, Tag> tp;
+  	//TagDetector d1;
 	cv::VideoWriter vidWrite;
 	
 public:

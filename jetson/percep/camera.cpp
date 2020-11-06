@@ -315,6 +315,8 @@ cv::Mat Camera::Impl::depth() {
 
 void Camera::record_ar_init() {
   //initializing ar tag videostream object
+  std::pair<Tag, Tag> tp;
+  TagDetector d1;
 
   Mat depth_img = depth();
   Mat rgb;
