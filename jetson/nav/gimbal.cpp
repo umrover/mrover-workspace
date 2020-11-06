@@ -17,7 +17,7 @@ double Gimbal::getYaw() const {
     return this->cur_yaw;
 }
 
-double Gimbal::setYaw(double yaw){
+void Gimbal::setYaw(double yaw){
     this->cur_yaw = yaw;
 }
 
