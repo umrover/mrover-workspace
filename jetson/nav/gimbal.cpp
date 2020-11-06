@@ -17,6 +17,10 @@ double Gimbal::getYaw() const {
     return this->cur_yaw;
 }
 
+double Gimbal::setYaw(double yaw){
+    this->cur_yaw = yaw;
+}
+
 //TODO: make sure gimbalChannel is defined in config.json
 void Gimbal::publishControlSignal(lcm::LCM & lcmObj, const rapidjson::Document& mRoverConfig) {
     string channel = mRoverConfig[ "lcmChannels" ][ "gimbalChannel" ].GetString();

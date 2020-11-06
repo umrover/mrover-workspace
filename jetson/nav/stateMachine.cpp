@@ -532,6 +532,11 @@ void StateMachine::addRepeaterDropPoint()
     mPhoebe->roverStatus().path().push_front(way);
 } // addRepeaterDropPoint
 
+
+void StateMachine::updateGimbalPosition(double cur_yaw){
+    mPhoebe->gimbal().setYaw(cur_yaw);
+}
+
 // TODOS:
 // [drive to target] obstacle and target
 // all of code, what to do in cases of both target and obstacle
