@@ -155,7 +155,18 @@ Vector3d ArmState::get_ef_ang_world() {
 }
 
 // TODO: Do we need to implement this function?
-// Vector6d ArmState::get_ef_pos_and_euler_angles() {}
+Vector6d ArmState::get_ef_pos_and_euler_angles() {
+    Vector3d ef_pos_vec = get_ef_pos_world();
+    Vector3d ef_ang_world = get_ef_ang_world();
+    Vector6d ef_pos_and_angles;
+    for (int i = 0; i < 3; ++i) {
+        ef_pos_and_angles(i) = ef_pos_vec(i);
+    }
+    for (int i = 3; i < 6; ++i) {
+        ef_pos_and_angles(i) = ef_ang_world(i-3);
+    }
+    return ef_pos_and_angles;
+}
 
 // Tested in set_joint_angles_test
 map<string, double> ArmState::get_joint_angles() {

@@ -78,7 +78,8 @@ TEST(delete_joints_test) {
 TEST(set_joint_angles_test) {
     // Create the angles vector that will be used to test
     // TODO: Modify the length of set_angles as necessary
-    vector<double> set_angles{1.1, 0.9, -0.5, 0.1, 0.01, -1.2};
+    Vector6d set_angles;
+    set_angles << 1.1, 0.9, -0.5, 0.1, 0.01, -1.2;
     
     // Create the arm object:
     // TODO: Modify the configuration path as necessary
@@ -93,11 +94,15 @@ TEST(set_joint_angles_test) {
     arm.set_joint_angles(set_angles);
     // Retrieve the new arm angles and make sure they are identical to set_angles
     map<string, double> return_angles_map = arm.get_joint_angles();
-    vector<double> return_angles_vec;
+    Vector6d return_angles_vec;
+    int ind = 0;
     for (auto it = return_angles_map.begin(); it != return_angles_map.end(); ++it) {
-        return_angles_vec.push_back(it->second);
+        return_angles_vec(ind) = it->second;
+        ++ind;
     }
-    ASSERT_EQUAL(set_angles, return_angles_vec);
+    for (int i = 0; i < 6; ++i) {
+        ASSERT_EQUAL(set_angles(i), return_angles_vec(i));
+    }
 }
 
 TEST(link_link_check_test) {

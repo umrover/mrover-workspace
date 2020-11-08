@@ -1,5 +1,6 @@
 #include "kinematics.hpp"
 #include "utils.hpp"
+#include "arm_state.hpp"
 #include <cmath>
 #include <stdio.h>
 #include <stdlib.h>
