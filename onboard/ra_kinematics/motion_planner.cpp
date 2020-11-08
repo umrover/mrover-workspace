@@ -195,6 +195,7 @@ vector<tk::spline> MotionPlanner::rrt_connect(Vector6d& target) {
                     swap(a_path[j], a_path[a_path.size() - 1 - j]);
                 }
 
+                // add the intersection of the paths to a_path
                 Vector6d middle;
                 for (int j = 0; j < 6; ++j) {
                     middle(j) = a_new->config(j) * M_PI / 180;
@@ -207,11 +208,14 @@ vector<tk::spline> MotionPlanner::rrt_connect(Vector6d& target) {
                     a_path.push_back(b);
                 }
 
+                // reverse entire path
                 if (i % 2) {
                     for (int j = 0; j < a_path.size() / 2; ++j) {
                         swap(a_path[j], a_path[a_path.size() - 1 - j]);
                     }
                 }
+
+                spline_size = a_path.size();
 
                 return spline_fitting(a_path);
             }

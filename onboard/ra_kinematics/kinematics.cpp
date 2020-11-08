@@ -19,7 +19,6 @@ KinematicsSolver::KinematicsSolver(const ArmState& robot_state_in) :   robot_sta
                                                                 {
     // Try robot fk:
     FK(robot_state);
-    target_pos_world = {0, 0, 0};
 }
 
 Vector3d KinematicsSolver::FK(ArmState &robot_state) {
