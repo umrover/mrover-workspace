@@ -90,9 +90,9 @@ public:
         const lcm::ReceiveBuffer* recieveBuffer,
         const string& channel,
         const ZedGimbalPosition* positionIn
-    )
+        )
     {
-        mStateMachine->updateGimbalPosition(positionIn->yaw);
+        mStateMachine->updateGimbalPosition(positionIn->yaw_cur);
     }
 
 private:

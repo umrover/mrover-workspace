@@ -10,6 +10,7 @@ Gimbal::Gimbal(double MIN_YAW_IN, double MAX_YAW_IN, double TOLERANCE_IN, PidLoo
 bool Gimbal::setTargetYaw(double target){
     target_yaw = target;
     pid.reset();
+    // TODO: Update the command based on the current yaw
     return abs((this->target_yaw - this->cur_yaw) <= this->TOLERANCE);
 }
 
@@ -17,6 +18,7 @@ double Gimbal::getYaw() const {
     return this->cur_yaw;
 }
 
+// TODO: Rename this struct
 void Gimbal::setYaw(double yaw){
     this->cur_yaw = yaw;
 }
@@ -24,6 +26,6 @@ void Gimbal::setYaw(double yaw){
 //TODO: make sure gimbalChannel is defined in config.json
 void Gimbal::publishControlSignal(lcm::LCM & lcmObj, const rapidjson::Document& mRoverConfig) {
     string channel = mRoverConfig[ "lcmChannels" ][ "gimbalChannel" ].GetString();
-    signal.yaw = pid.update(getYaw(), target_yaw);
+    signal.power = pid.update(getYaw(), target_yaw);
     lcmObj.publish(channel, &signal);
 }
