@@ -218,6 +218,7 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
     if( phoebe->turn( phoebe->roverStatus().target().bearing +
                       phoebe->roverStatus().odometry().bearing_deg ) )
     {
+        cout << "Reached our target\n";
         return NavState::DriveToTarget;
     }
     updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
@@ -246,13 +247,28 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
         roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
-
-    DriveStatus driveStatus = phoebe->drive( phoebe->roverStatus().target().distance,
+    
+    DriveStatus driveStatus;
+    cout << phoebe->roverStatus().target().distance << "     " << phoebe->roverStatus().target2().distance << endl;
+    if (phoebe->roverStatus().target2().distance > 0) {
+        cout << "DRIVE TO RIGHTF\n";
+        driveStatus = phoebe->drive( phoebe->roverStatus().target2().distance,
+                                             phoebe->roverStatus().target2().bearing +
+                                             phoebe->roverStatus().odometry().bearing_deg,
+                                             true );
+    }
+    else {
+        cout << "DRIVE TO LEFT\n";
+        driveStatus = phoebe->drive( phoebe->roverStatus().target().distance,
                                              phoebe->roverStatus().target().bearing +
                                              phoebe->roverStatus().odometry().bearing_deg,
                                              true );
+
+    }
+    
     if( driveStatus == DriveStatus::Arrived )
     {
+        cout << "Drove to target\n";
         mSearchPoints.clear();
         if( phoebe->roverStatus().path().front().gate )
         {
