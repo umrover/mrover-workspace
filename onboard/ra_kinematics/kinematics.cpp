@@ -445,10 +445,9 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
 }
 
 bool KinematicsSolver::is_safe(Vector6d angles) {
-    vector<string> joints = robot_ik.get_all_joints();
     
     // if any angles are outside bounds
-    if (!limit_check(angles, joints)) {
+    if (!limit_check(angles)) {
         return false;
     }
 
@@ -458,7 +457,8 @@ bool KinematicsSolver::is_safe(Vector6d angles) {
     return robot_safety.obstacle_free();
 }
 
-bool KinematicsSolver::limit_check(const Vector6d &angles, const vector<string> &joints) {
+bool KinematicsSolver::limit_check(const Vector6d &angles) {
+    vector<string> joints = robot_ik.get_all_joints();
 
     for (int i = 0; i < (int)joints.size(); ++i) {
         map<string, double> limits = robot_safety.get_joint_limits(joints[i]);
@@ -473,14 +473,24 @@ bool KinematicsSolver::limit_check(const Vector6d &angles, const vector<string> 
 }
 
 void KinematicsSolver::perform_backup() {
+    Vector6d backup;
     int i = 0;
 
     for (auto const& pair : robot_state.get_joint_angles()) {
-        arm_state_backup(i++) = pair.second;
+        backup(i++) = pair.second;
     }
+
+    arm_state_backup.push(backup);
 }
 
 void KinematicsSolver::recover_from_backup() {
-    robot_state.set_joint_angles(arm_state_backup);
-    FK(robot_state);
+    if (arm_state_backup.empty()) {
+        cout << "ERROR: no backup arm_state to revert to!\n";
+    }
+    else {
+        robot_state.set_joint_angles(arm_state_backup.top());
+        arm_state_backup.pop();
+        
+        FK(robot_state);
+    }
 }
