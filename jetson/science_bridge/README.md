@@ -4,6 +4,9 @@ Code for the science bridge program that will interpret UART messages from a Nuc
 Writes, reads and parses NMEA like messages from the onboard 
 science nucleo to operate the science boxes and get relevant data.
 
+### Hardware
+We will be using a Nucleo STM32 F303RE board.
+
 ### Spectral
 TODO
 
@@ -14,7 +17,7 @@ Reads three seperate temperatures from one NMEA-style sentence from the nucleo o
 **Thermistor Data [Publisher]** \
 Messages: [ThermistorData.lcm](https://github.com/cgiger00/mrover-workspace/blob/science-nucleo/rover_msgs/ThermistorData.lcm) "/thermistor_data" \
 Publishers: onboard/science_bridge\
-Subscribers: -----------------
+Subscribers: onboard/teleop
 
 ### Text
 TODO
