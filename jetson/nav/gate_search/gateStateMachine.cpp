@@ -333,6 +333,7 @@ void GateStateMachine::updatePost2Info()
                                           mPhoebe->roverStatus().target2().distance,
                                           mPhoebe );
         lastKnownPost2.id = mPhoebe->roverStatus().target2().id;
+        cout << "IS" << endl;
     }
     else
     {
