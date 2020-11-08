@@ -203,10 +203,7 @@ NavState GateStateMachine::executeGateDrive()
     return NavState::GateTurn;
 } // executeGateDrive()
 
-
-
-
-
+//
 NavState GateStateMachine::executeGateTurnToCentPoint()
 {
     if( mPhoebe->turn( centerPoint1 ) )
@@ -216,6 +213,7 @@ NavState GateStateMachine::executeGateTurnToCentPoint()
     return NavState::GateTurnToCentPoint;
 } // executeGateTurnToCentPoint()
 
+//
 NavState GateStateMachine::executeGateDriveToCentPoint()
 {
     // TODO: Obstacle Avoidance?
@@ -232,7 +230,7 @@ NavState GateStateMachine::executeGateDriveToCentPoint()
     return NavState::GateTurnToCentPoint;
 } // executeGateDriveToCentPoint()
 
-
+//
 NavState GateStateMachine::executeGateFace()
 {
     if( mPhoebe->turn( centerPoint2 ) )
@@ -242,11 +240,11 @@ NavState GateStateMachine::executeGateFace()
     return NavState::GateFace;
 } // executeGateFace()
 
-
-
-// Make separate State for it and replace all GateFace Instances
+//
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
+    cout << mPhoebe->roverStatus().target().bearing << "     " << mPhoebe->roverStatus().target2().bearing << endl;
+    cout << "TURNING GATE\n";
     if( mPhoebe->roverStatus().target().distance >= mPhoebe->roverStatus().target2().distance ) {
         if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing ) ) {
             return NavState::GateDriveToFarPost;
@@ -263,6 +261,8 @@ NavState GateStateMachine::executeGateTurnToFarPost()
 NavState GateStateMachine::executeGateDriveToFarPost()
 {
     DriveStatus driveStatus;
+    cout << mPhoebe->roverStatus().target().distance << "     " << mPhoebe->roverStatus().target2().distance << endl;
+    
     if( mPhoebe->roverStatus().target().distance > mPhoebe->roverStatus().target2().distance ) {
         driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance, mPhoebe->roverStatus().target().bearing  );
     }  
@@ -333,7 +333,7 @@ void GateStateMachine::updatePost2Info()
                                           mPhoebe->roverStatus().target2().distance,
                                           mPhoebe );
         lastKnownPost2.id = mPhoebe->roverStatus().target2().id;
-        cout << "IS" << endl;
+        cout << "Gucci" << endl;
     }
     else
     {
