@@ -107,9 +107,9 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
                    config[ "bearingPid" ][ "kD" ].GetDouble())
-    , mGimbalPid(config["gimbalPid"]["Kp"].GetDouble(), 
+    , mGimbalPid( config["gimbalPid"]["Kp"].GetDouble(), 
                 config["gimbalPid"]["Ki"].GetDouble(), 
-                config["gimbalPid"]["Kd"].GetDouble())
+                config["gimbalPid"]["Kd"].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
       , mGimbal( config["gimbal"]["minRange"].GetDouble(), 

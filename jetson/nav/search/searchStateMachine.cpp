@@ -83,7 +83,7 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    if ( nextStop == 0 )
+    if( nextStop == 0 )
     {
         //get current angle and set as origAngle
         mOriginalSpinAngle = phoebe->roverStatus().odometry().bearing_deg; //doublecheck
@@ -113,7 +113,7 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
     static double phase = 0; // if 0, go to -150. if 1 go to +150, if 2 go to 0
-    static double target = -150;
+    static double target = -150; // TODO: Un-hardcode (absolute values) - rover config for gimbal search range
 
     if( phoebe->roverStatus().target().distance >= 0 )
     {
@@ -121,29 +121,35 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
+
+    // TODO: Check whether this is needed still
     if ( nextStop == 0 )
     {
         //get current angle and set as origAngle
         mOriginalSpinAngle = phoebe->gimbal().getYaw(); //phoebe->roverStatus().odometry().bearing_deg; //doublecheck
         nextStop = mOriginalSpinAngle;
     }
-    if( phoebe->gimbal().setTargetYaw(nextStop) )
+    // TODO: Refactor this to "turnGimbal" or something - implied movement
+    if( phoebe->gimbal().setTargetYaw( nextStop ) )
     {
-        if (nextStop == target){
-            if (phase <= 2){
+        if ( nextStop == target )
+        {
+            if ( phase <= 2 )
                 ++phase;
-            }
-            if (phase == 1){
+            
+            if ( phase == 1 ) {
+
                 waitStepSize *= -1;
                 target = 150;
             }
-            else if (phase == 2){
+            else if ( phase == 2 ) 
+            {
                 waitStepSize *= -1;
                 target = 0;
             }
         }
         
-        if( phase == 3 )
+        if ( phase == 3 )
         {
             phase = 0;
             target = -150;
@@ -183,11 +189,12 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
     if( difftime( time( nullptr ), startTime ) > waitTime )
     {
         started = false;
+        // We could remove this if we were to completely remove the old "search spin"???
         if ( phoebe->roverStatus().currentState() == NavState::SearchSpinWait )
         {
             return NavState::SearchSpin;
         }
-        else if (phoebe->roverStatus().currentState() == NavState::SearchGimbalWait){
+        else if ( phoebe->roverStatus().currentState() == NavState::SearchGimbalWait ){
             return NavState::SearchGimbal;
         }
         return NavState::SearchTurn;
@@ -198,7 +205,7 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
         {
             return NavState::SearchSpinWait;
         }
-        else if (phoebe->roverStatus().currentState() == NavState::SearchGimbalWait){
+        else if ( phoebe->roverStatus().currentState() == NavState::SearchGimbalWait ){
             return NavState::SearchGimbal;
         }
         return NavState::TurnedToTargetWait;
@@ -256,7 +263,7 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.pop_front();
-        return NavState::SearchGimbal;
+        return NavState::SearchGimbal; // Entry point to gimbal process
         //return NavState::SearchSpin;
     }
     if( driveStatus == DriveStatus::OnCourse )
