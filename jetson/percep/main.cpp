@@ -66,8 +66,6 @@ int main() {
   #endif
 
   /* --- AR Recording Initializations and Implementation--- */ 
-  TagDetector d1;
-  pair<Tag, Tag> tp;
   
   time_t now = time(0);
   char* ltm = ctime(&now);
@@ -76,19 +74,8 @@ int main() {
   #if AR_RECORD
   //initializing ar tag videostream object
   
-  Mat depth_img = cam.depth();
-  tp = d1.findARTags(src, depth_img, rgb);
-  Size fsize = rgb.size();
-  
-  string s = "artag_" + timeStamp + ".avi";
+  cam.record_ar_init();
 
-  VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
-
-  if(vidWrite.isOpened() == false)
-  {
-	  cout << "didn't open";
-	  exit(1);
-  }
   #endif
 
 
@@ -121,7 +108,7 @@ int main() {
     #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
-      vidWrite.write(rgb);
+      cam.record_ar(rgb);
       #endif
       //update both tags in LCM message
       //first tag
@@ -222,7 +209,7 @@ int main() {
   #endif
   
   #if AR_RECORD
-  vidWrite.release();
+  cam.record_ar_finish();
   #endif
   
   return 0;
