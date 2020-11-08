@@ -71,7 +71,7 @@ public:
         unsigned mPathTargets;
     };
 
-    Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
+    Rover( lcm::LCM& lcm_in );
 
     void stop();
 
@@ -93,9 +93,6 @@ private:
 
     // The rover's current status.
     RoverStatus mRoverStatus;
-
-    // A reference to the configuration file.
-    const rapidjson::Document& mRoverConfig;
 
     // A reference to the lcm object that will be used for
     // communicating with the actual rover and the base station.

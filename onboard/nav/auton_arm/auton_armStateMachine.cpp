@@ -22,19 +22,8 @@ AutonArmStateMachine::AutonArmStateMachine( lcm::LCM& lcmObject )
     , is_tag_received ( false )
     , is_coordinates_received ( false )
 {
-    ifstream configFile;
-    string configPath = getenv("MROVER_CONFIG");
-    configPath += "/config_nav/config.json";
-    configFile.open( configPath );
-    string config = "";
-    string setting;
-    while( configFile >> setting )
-    {
-        config += setting;
-    }
-    configFile.close();
-    mRoverConfig.Parse( config.c_str() );
-    mPhoebe = new Rover( mRoverConfig, lcmObject );
+
+    mPhoebe = new Rover( lcmObject );
 } //AutonArmStateMachine Constructor
 
 // Destructs the StateMachine object. Deallocates memory for the Rover
@@ -145,7 +134,7 @@ void AutonArmStateMachine::updateRoverStatus(Pos position) {
 
 bool AutonArmStateMachine::isRoverReady() const {
     return mStateChanged || // internal data has changed
-           mPhoebe->updateRover( mNewRoverStatus ); // external data ha s changed
+           mPhoebe->updateRover( mNewRoverStatus ); // external data has changed
 } //isRoverReady()
 
 void AutonArmStateMachine::publishNavState() const
@@ -156,12 +145,14 @@ void AutonArmStateMachine::publishNavState() const
 AutonArmState AutonArmStateMachine::executeOff() { 
     if( mPhoebe->roverStatus().autonState().is_auton )
     {
+        cout << "Reached executeOff" << endl;
         //TODO add what we want here
     }
     return AutonArmState::Off;
 }
 
 AutonArmState AutonArmStateMachine::executeDone() {
+    cout << "reached executeDone" << endl;   
     return AutonArmState::Done;
 }
 
@@ -169,20 +160,26 @@ AutonArmState AutonArmStateMachine::executeWaitingForTag() {
     // If statement to check if tag recieved
     if(!is_tag_received)
         return AutonArmState::WaitingForTag;
+
+    cout << "Tag received" << endl;
     is_tag_received = false;
     return AutonArmState::EvaluateTag;
 }
 
 AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     // Check if tag matches correct tag
-    if(mNewRoverStatus.target().id == CORRECT_TAG_ID)
+    if(mNewRoverStatus.target().id == CORRECT_TAG_ID) {
+        cout << "Correct tag identified" << endl;
         return AutonArmState::RequestCoordinates;
+    }
     // Else request another tag
+    cout << "Request another tag" << endl;
     return AutonArmState::RequestTag;
 }
 
 AutonArmState AutonArmStateMachine::executeRequestTag() {
     // Send request for tag
+    cout << "Requesting tag" << endl;
     Message message = {"request_tag", PERCEPTION_PACKAGE};
     mLcmObject.publish(LCM_CHANNEL_NAME, &message);
     return AutonArmState::WaitingForTag;
@@ -190,6 +187,7 @@ AutonArmState AutonArmStateMachine::executeRequestTag() {
 
 AutonArmState AutonArmStateMachine::executeRequestCoordinates() {
     // Send request for coordinates 
+    cout << "Requesting coordinates" << endl;
     Message message = {"request_coordinates", PERCEPTION_PACKAGE};
     mLcmObject.publish(LCM_CHANNEL_NAME, &message);
     return AutonArmState::WaitingForCoordinates;
@@ -200,12 +198,14 @@ AutonArmState AutonArmStateMachine::executeWaitingForCoordinates(){
     if(!is_coordinates_received)
         return AutonArmState::WaitingForCoordinates;
     // Else send coordinates
+    cout << "Coordinates received" << endl;
     is_coordinates_received = false;
     return AutonArmState::SendCoordinates;
 }
 
 AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     // send coordinates
+    cout << "executeSendCoordinates" << endl;
     received_position.target_package = TELEOP_PACKAGE;
     mLcmObject.publish(LCM_CHANNEL_NAME, &received_position);
     return AutonArmState::Done;

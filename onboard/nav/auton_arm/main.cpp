@@ -61,8 +61,10 @@ int main() {
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
     lcmObject.subscribe( "/autonomous_arm", &LcmHandlers::position, &lcmHandlers );
 
+    cout << "Starting state machine" << endl;
     while( lcmObject.handle() == 0 )
     {
+        //cout << "here" << endl;
         autonArmStateMachine.run();
     }
     return 0;

@@ -1,7 +1,12 @@
 #include "rover.hpp"
 
-Rover::RoverStatus::RoverStatus() : mCurrentState(AutonArmState::Off) {
-    mAutonState.is_auton = false;
+// Constructs a rover object with the given configuration file and lcm
+// object with which to use for communications.
+Rover::Rover( lcm::LCM& lcmObject )
+    : mLcmObject( lcmObject ) { }
+
+Rover::RoverStatus::RoverStatus() : mCurrentState(AutonArmState::WaitingForTag) {
+    mAutonState.is_auton = true;
 }
 
 AutonArmState& Rover::RoverStatus::currentState() {
@@ -15,8 +20,6 @@ AutonState& Rover::RoverStatus::autonState() {
 Target& Rover::RoverStatus::target() {
     return mTarget;
 } //target()
-
-Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject) : mRoverConfig(config), mLcmObject(lcmObject) {}
 
 bool Rover::updateRover(RoverStatus newRoverStatus) {
     // Rover currently on.

@@ -2,7 +2,6 @@
 #define AUTONARM_STATE_MACHINE_HPP
 
 #include <lcm/lcm-cpp.hpp>
-#include "rapidjson/document.h"
 #include "rover.hpp"
 
 using namespace std;
@@ -59,9 +58,6 @@ private:
     // Lcm object for sending and recieving messages.
     lcm::LCM& mLcmObject;
 
-    // Configuration file for the rover.
-    rapidjson::Document mRoverConfig;
-
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;
 
@@ -72,7 +68,7 @@ private:
 
     bool is_coordinates_received;
 
-    static const int32_t CORRECT_TAG_ID = 4;
+    static const int32_t CORRECT_TAG_ID = -1;
 
     static const int32_t NAV_PACKAGE = 1;
     static const int32_t TELEOP_PACKAGE = 2;
