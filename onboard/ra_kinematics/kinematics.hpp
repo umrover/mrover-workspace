@@ -23,8 +23,8 @@ class KinematicsSolver {
 private:
 
     ArmState robot_state;
-    ArmState robot_ik;
-    ArmState robot_safety;
+    //ArmState robot_ik;
+    //ArmState robot_safety;
     bool e_locked;
 
     stack<Vector6d> arm_state_backup;
@@ -51,7 +51,7 @@ public:
 
     KinematicsSolver(const ArmState& robot_state_in);
 
-    Vector3d FK(ArmState &robot_state);
+    Vector3d FK();
 
     Matrix4d apply_joint_xform(string joint, double theta);
 
