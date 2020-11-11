@@ -25,7 +25,7 @@ int main() {
   Mat src = cam.image();
   #endif
 
-  #if WRITE_CURR_FRAME_TO_DISK
+  #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
     cam.disk_record_init();
   #endif
 
@@ -221,4 +221,3 @@ int main() {
   return 0;
 }
 
-}

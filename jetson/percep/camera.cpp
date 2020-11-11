@@ -395,9 +395,9 @@ void Camera::getDataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cl
   std::cerr << "Implementation of datacloud for obs detection cerr edition" << endl;
 
 }
-
 #endif
 
+#if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
 
 // creates and opens folder to write to
 void Camera::disk_record_init() {
@@ -443,3 +443,4 @@ void Camera::write_curr_frame_to_disk(cv::Mat rgb, cv::Mat depth, pcl::PointClou
     cv::imwrite(depth_foldername +  fileName + std::string(".exr"), depth );
 }
 
+#endif
