@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include "arm_state.hpp"
+#include <stack>
 
 using namespace Eigen;
 
@@ -22,11 +23,22 @@ class KinematicsSolver {
 private:
 
     ArmState robot_state;
-    ArmState robot_ik;
-    ArmState robot_safety;
+    //ArmState robot_ik;
+    //ArmState robot_safety;
     bool e_locked;
 
-    Vector6d arm_state_backup;
+    stack<Vector6d> arm_state_backup;
+
+    /**
+     * Push the angles of robot_state into the arm_state_backup stack
+     * */
+    void perform_backup();
+
+    /**
+     * Pop a backup of the angles from robot_state and copy them into robot_state
+     * Then run FK
+     * */
+    void recover_from_backup();
 
 public:
 
@@ -39,7 +51,7 @@ public:
 
     KinematicsSolver(const ArmState& robot_state_in);
 
-    Vector3d FK(ArmState &robot_state);
+    Vector3d FK();
 
     Matrix4d apply_joint_xform(string joint, double theta);
 
@@ -59,14 +71,9 @@ public:
     /**
      * called by is_safe to check that angles are within bounds
      * @param angles the set of angles for a theoretical arm position
-     * @param joints the set of joint names on the current MRover arm
      * @return true if all angles are within bounds
      * */
-    bool limit_check(const Vector6d &angles, const vector<string> &joints);
-
-
-    void perform_backup();
-    void recover_from_backup();
+    bool limit_check(const Vector6d &angles);
 
 };
 
