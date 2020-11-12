@@ -18,7 +18,7 @@ KinematicsSolver::KinematicsSolver(const ArmState& robot_state_in) :   robot_sta
                                                                 e_locked(false)
                                                                 {
     // Try robot fk:
-    FK(robot_state);
+    // FK(robot_state);
 }
 
 Vector3d KinematicsSolver::FK(ArmState &robot_state) {

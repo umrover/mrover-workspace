@@ -5,6 +5,7 @@
 #include "../kinematics.hpp"
 
 #include <iostream>
+#include <string>
 
 using namespace nlohmann;
 using namespace std;
@@ -33,19 +34,11 @@ NOTE: For more testing points, see valid_configurations_2.csv located towards th
 
 
 TEST(initialization_test) {
-    // cout << "1\n" << endl;
-    // string config_path = getenv("MROVER_CONFIG");
-    // cout << "2\n" << endl;
-    // string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
-    // cout << "3\n" << endl;
-    // json geom = read_json_from_file(geom_file);
-    // cout << "4\n" << endl;
-    // ArmState arm = ArmState(geom);
-    // cout << "5\n" << endl;
-    // cout << "getting here" << endl;
-    // cout << "6\n" << endl;
-    // KinematicsSolver solver = KinematicsSolver(arm);
-    // cout << "7\n" << endl;
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    json geom = read_json_from_file(geom_file);
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver(arm);
 }
 
 TEST(fk_test) {
