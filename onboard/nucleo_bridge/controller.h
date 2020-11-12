@@ -6,7 +6,7 @@
 #include <cmath>
 #include <mutex>
 #include <limits>
-#include "hardware.h"
+#include "Hardware.h"
 #include "I2C.h"
 #include "ControllerMap.h"
 
@@ -25,8 +25,7 @@
 
 #define POINTER reinterpret_cast<uint8_t *>
 
-class Controller
-{
+class Controller {
 public:
     float startAngle = 0.0;
     float torqueScale = 1.0;
