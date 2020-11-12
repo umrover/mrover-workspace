@@ -4,20 +4,26 @@ Code to control the RA/SA, using Nucleo F303REs
 
 nucleo_bridge is responsible for connecting the rover network's LCM interface with the RA/SA system's Nucleo controller i2c interface
 
-main.cpp binds LCM channels to handler functions in frontend.h \
-main.cpp also creates a hash table of virtual Controller objects that represent each physical controller on the rover, across both RA/SA configurations
+main.cpp calls init() on the static LCMHandler class \
+main.cpp calls init() on the static ControllerMap class \
+main.cpp calls init() on the static I2C class \
+main.cpp creates two threads to run an outgoing function and an incoming function
+The outgoing function calls on the LCMHandler's handle_outgoing() function every millisecond
+The incoming function calls on the LCMHandler's handle_incoming() function continuously
 
-The virtual Controller class is defined in controller.h.\
+The ControllerMap class creates a hash table of virtual Controller objects from the config file located at "mrover-workspace/config_nucleo_bridge/controller_config.json".These virtual Controllers are used to contact the physical controller on the rover, across both RA/SA configurations.
+
+The virtual Controller class is defined in Controller.h.\
 Virtual Controllers store information about various controller-specific parameters (such as encoder cpr)\
 The virtual Controller class also has functions representing the possible transactions that can be had with the physical controller. \
-The virtual Controller will not attempt to communicate with it's physical controller unless "activated" by an appropriate LCM message relayed by frontend.h
-(e.g. A virtual RA Controller will never attempt to communicate with its physical RA controller unless an RA-related LCM message is sent)
+The virtual Controller will not attempt to communicate with it's physical controller unless "activated" by an appropriate LCM message relayed by LCMHandler.h
+(e.g. A virtual RA Controller will never attempt to communicate with its physical RA controller unless an RA-related LCM message is sent. This is to prevent multiple virtual Controller objects from trying to contact the same physical Controller object.)
 
-frontend.h is responsible for handling incoming and outgoing lcm messages. \
+LCMHandler.h is responsible for handling incoming and outgoing lcm messages. \
 Incoming lcm messages will trigger functions which call the functions on the appropriate virtual Controllers. \
 Outgoing lcm messages are triggered by a clock, which query the functions on the appropriate virtual Controllers for data.
 
-backend.h is responsible for translating communications by virtual Controllers into i2c transactions understood by the linux drivers.
+I2C.h is responsible for translating communications by virtual Controllers into i2c transactions understood by the linux drivers.
 
 ### LCM Channels
 #### RA Open Loop \[Subscriber\] "/ra_openloop_cmd"
@@ -55,22 +61,12 @@ Message: [FootCmd.lcm](https://github.com/raytitan/mrover-workspace/blob/rnucleo
 Publisher: onboard/teleop \
 Subscriber: onboard/nucleo_bridge
 
-#### RA Zero \[Subscriber\] "/ra_zero_trigger"
-Message: [RAZeroTrigger.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAZeroTrigger.lcm) \
-Publisher:??? \
-Subscriber: onboard/nucleo_bridge
-
-#### SA Zero \[Subscriber\] "/sa_zero_trigger"
-Message: [SAZeroTrigger.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAZeroTrigger.lcm) \
-Publisher: ??? \
-Subscriber: onboard/nucleo_bridge 
-
 #### RA Pos Data \[Publisher\] "/arm_posiiton"
 Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
 Publisher: onboard/nucleo_bridge \
 Subscriber: onboard/kinematics
 
-#### RA Pos Data \[Publisher\] "/sa_pos_data"
+#### SA Pos Data \[Publisher\] "/sa_pos_data"
 Message: [SAPosData.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAPosData.lcm) \
 Publisher: onboard/nucleo_bridge \
 Subscriber: onboard/kinematics
@@ -82,7 +78,7 @@ To build nucleo_bridge use `$./jarvis build onboard/nucleo_bridge/ ` from the mr
 To run nucleo_bridge use `$./jarvis exec onboard/nucleo_bridge/ `
 from the mrover-workspace directory.
 
-The CLI will only show errors, since printing output to the console is expensive in terms of time. A blank CLI is a good thing.
+After initializing the LCM bus, I2C bus, and virtual Controller objects, the CLI will only show errors, since printing output to the console is time expensive. A blank CLI is a good thing.
 
 To control the RA/SA through open-loop
 * Ensure onboard/teleop is running on the same platform
