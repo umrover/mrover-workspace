@@ -3,8 +3,8 @@
 
 //#define MULTITHREADING
 
-#include "controller.h"
-#include "hardware.h"
+#include "Controller.h"
+#include "Hardware.h"
 
 #include <unordered_map>
 #include <string>

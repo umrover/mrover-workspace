@@ -6,7 +6,7 @@
 
 #include "lcm/lcm-cpp.hpp"
 #include "Controller.h"
-#include "hardware.h"
+#include "Hardware.h"
 #include "LCMHandler.h"
 #include "I2C.h"
 
