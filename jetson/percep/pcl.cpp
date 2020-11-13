@@ -459,7 +459,8 @@ obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVi
     obstacle_return result;
     PassThroughFilter();
     DownsampleVoxelFilter();
-    RANSACSegmentation("remove");
+    //RANSACSegmentation("remove");
+    RANSACSegmentation("blue");
     std::vector<pcl::PointIndices> cluster_indices;
     CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));

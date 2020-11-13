@@ -169,7 +169,6 @@ int main() {
     pointcloud.pcl_obstacle_detection(viewer);  
     obstacle_return obstacle_detection (pointcloud.bearing, pointcloud.distance);
 
-    
     //Outlier Detection Processing
     outliers.pop_back(); //Remove outdated outlier value
 
@@ -182,9 +181,12 @@ int main() {
       lastObstacle = obstacle_detection;
     else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
       lastObstacle = obstacle_detection;
-      
+
     obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
-    obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
+    if(lastObstacle.distance <= obstacle_detection.distance)
+      obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
+    else
+      obstacleMessage.distance = (obstacle_detection.distance/1000); //update LCM distance field
     cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
     #if PERCEPTION_DEBUG
       //Update Processed 3D Viewer
