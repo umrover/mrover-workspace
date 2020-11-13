@@ -36,7 +36,6 @@ int main() {
   rover_msgs::Obstacle obstacleMessage;
   arTags[0].distance = -1;
   arTags[1].distance = -1;
-  obstacleMessage.detected = false;
 
   /* --- AR Tag Initializations --- */
   TagDetector detector;
@@ -81,9 +80,6 @@ int main() {
 
 /* --- Main Processing Stuff --- */
   while (true) {
-
-   
-    std:cerr << "Obs detection var: " << OBSTACLE_DETECTION << endl;
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
 
@@ -106,7 +102,6 @@ int main() {
         cerr << "Copied correctly" << endl;
         cam.write_curr_frame_to_disk(rgb_copy, depth_copy, pointcloud.pt_cloud_ptr, iterations);
       }
-      std::cerr << "gets through an if statement" << endl;
     #endif
 
 /* --- AR Tag Processing --- */
