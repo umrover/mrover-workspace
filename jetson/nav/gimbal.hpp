@@ -17,10 +17,10 @@ class Gimbal{
         double MAX_YAW, MIN_YAW;
         rover_msgs::ZedGimbalCmd signal;
         double TOLERANCE;
-        PidLoop pid;
+        
 
     public:
-        Gimbal(double MIN_YAW_IN, double MAX_YAW_IN, double tolerance_in, PidLoop pid_in);
+        Gimbal(double MIN_YAW_IN, double MAX_YAW_IN, double tolerance_in);
         //sets the target yaw of the gimbal
         bool setTargetYaw(double target);
 

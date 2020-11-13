@@ -187,7 +187,7 @@ public:
 
     PidLoop& bearingPid();
 
-    PidLoop& gimbalPid();
+   
 
     const double longMeterInMinutes() const;
 
@@ -231,8 +231,7 @@ private:
     // The pid loop for turning.
     PidLoop mBearingPid;
 
-    // The pid loop for the camera gimbal.
-    PidLoop mGimbalPid;
+   
 
     // If it is time to drop a radio repeater
     bool mTimeToDropRepeater;
