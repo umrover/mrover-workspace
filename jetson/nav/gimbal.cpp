@@ -2,14 +2,13 @@
 
 using namespace std;
 
-Gimbal::Gimbal(double MIN_YAW_IN, double MAX_YAW_IN, double TOLERANCE_IN, PidLoop pid_in):
-    MAX_YAW(MAX_YAW_IN), MIN_YAW(MIN_YAW_IN), TOLERANCE(TOLERANCE_IN), pid(pid_in)
+Gimbal::Gimbal(double MIN_YAW_IN, double MAX_YAW_IN, double TOLERANCE_IN):
+    MAX_YAW(MAX_YAW_IN), MIN_YAW(MIN_YAW_IN), TOLERANCE(TOLERANCE_IN)
     {}
 
 
 bool Gimbal::setTargetYaw(double target){
     target_yaw = target;
-    pid.reset();
     // TODO: Update the command based on the current yaw
     return abs((this->target_yaw - this->cur_yaw) <= this->TOLERANCE);
 }
@@ -26,6 +25,6 @@ void Gimbal::setYaw(double yaw){
 //TODO: make sure gimbalChannel is defined in config.json
 void Gimbal::publishControlSignal(lcm::LCM & lcmObj, const rapidjson::Document& mRoverConfig) {
     string channel = mRoverConfig[ "lcmChannels" ][ "gimbalChannel" ].GetString();
-    signal.power = pid.update(getYaw(), target_yaw);
+    signal.target_yaw = target_yaw;
     lcmObj.publish(channel, &signal);
 }
