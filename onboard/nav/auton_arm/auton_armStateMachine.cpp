@@ -37,11 +37,13 @@ void AutonArmStateMachine::run() {
     publishNavState();
     if( isRoverReady() )
     {
+        cout << "Is Auton 1: " << mPhoebe->roverStatus().autonState().is_auton << endl;
         mStateChanged = false;
         AutonArmState nextState = AutonArmState::Unknown;
 
         if( !mPhoebe->roverStatus().autonState().is_auton )
         {
+            cout << "Is Auton 2: " << mPhoebe->roverStatus().autonState().is_auton << endl;
             nextState = AutonArmState::Off;
             mPhoebe->roverStatus().currentState() = executeOff(); // turn off immediately
             if( nextState != mPhoebe->roverStatus().currentState() )
@@ -49,8 +51,10 @@ void AutonArmStateMachine::run() {
                 mPhoebe->roverStatus().currentState() = nextState;
                 mStateChanged = true;
             }
+            cout << "I quit" << endl;
             return;
         }
+        cout << "Is Auton 3: " << mPhoebe->roverStatus().autonState().is_auton << endl;
         switch( mPhoebe->roverStatus().currentState() )
         {
             case AutonArmState::Off:
@@ -106,12 +110,13 @@ void AutonArmStateMachine::run() {
                 exit(1);
             }
         } // switch
-
+        cout << "Is Auton 4: " << mPhoebe->roverStatus().autonState().is_auton << endl;
         if( nextState != mPhoebe->roverStatus().currentState() )
         {
             mStateChanged = true;
             mPhoebe->roverStatus().currentState() = nextState;
         }
+        cout << "Is Auton 5: " << mPhoebe->roverStatus().autonState().is_auton << endl;
         cerr << flush;
     } // if
 } //run()
@@ -122,8 +127,9 @@ void AutonArmStateMachine::updateRoverStatus(AutonState autonState) {
 } //updateRoverStatus(AutonState autonState)
 
 // Updates the target information of the rover's status.
-void AutonArmStateMachine::updateRoverStatus(TargetList targetList) {
-    mNewRoverStatus.target() = targetList.targetList[0];
+void AutonArmStateMachine::updateRoverStatus(Target target) {
+    cout << "Target received!" << endl;
+    mNewRoverStatus.target() = target;
     is_tag_received = true;
 } //updateRoverStatus(TargetList targetList)
 
@@ -158,8 +164,10 @@ AutonArmState AutonArmStateMachine::executeDone() {
 
 AutonArmState AutonArmStateMachine::executeWaitingForTag() {
     // If statement to check if tag recieved
-    if(!is_tag_received)
+    if(!is_tag_received) {
+        cout << "Waiting for tag" << endl;
         return AutonArmState::WaitingForTag;
+    }
 
     cout << "Tag received" << endl;
     is_tag_received = false;

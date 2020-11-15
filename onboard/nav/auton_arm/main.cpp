@@ -23,13 +23,13 @@ public:
     }
 
     // Sends the target lcm message to the state machine.
-    void targetList(
+    void target(
         const lcm::ReceiveBuffer* receiveBuffer,
         const string& channel,
-        const TargetList* targetListIn
+        const Target* target_in
         )
     {
-        statemachine->updateRoverStatus( *targetListIn );
+        statemachine->updateRoverStatus( *target_in );
     }
 
     void position(
@@ -58,14 +58,13 @@ int main() {
     LcmHandlers lcmHandlers( &autonArmStateMachine );
 
     lcmObject.subscribe( "/auton", &LcmHandlers::autonState, &lcmHandlers );
-    lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
+    lcmObject.subscribe( "/target", &LcmHandlers::target, &lcmHandlers );
     lcmObject.subscribe( "/autonomous_arm", &LcmHandlers::position, &lcmHandlers );
 
     cout << "Starting state machine" << endl;
     while( lcmObject.handle() == 0 )
     {
-        //cout << "here" << endl;
-        autonArmStateMachine.run();
+        autonArmStateMachine.run(); 
     }
     return 0;
 } // main()

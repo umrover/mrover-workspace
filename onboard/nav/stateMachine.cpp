@@ -273,6 +273,7 @@ void StateMachine::updateRoverStatus( Odometry odometry )
 // Updates the target information of the rover's status.
 void StateMachine::updateRoverStatus( TargetList targetList )
 {
+    cout << "Target received!" << endl;
     Target target1 = targetList.targetList[0];
     Target target2 = targetList.targetList[1];
     mNewRoverStatus.target() = target1;

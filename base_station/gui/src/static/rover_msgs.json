@@ -685,6 +685,20 @@
             "enable_sa"
         ]
     ],
+    "Target":[
+        [
+            "double",
+            "distance"
+        ],
+        [
+            "double",
+            "bearing"
+        ],
+        [
+            "int32_t",
+            "id"
+        ]
+    ],
     "TargetAngles": [
         [
             "float",
@@ -709,6 +723,12 @@
         [
             "float",
             "f"
+        ]
+    ],
+    "TargetList": [
+        [
+            "Target",
+            "targetList[2]"
         ]
     ],
     "TargetPoint": [
@@ -906,7 +926,9 @@
         "SimulationMode",
         "StartTest",
         "TalonConfig",
+        "Target",
         "TargetAngles",
+        "TargetList",
         "TargetPoint",
         "Temperature",
         "TennisBall",

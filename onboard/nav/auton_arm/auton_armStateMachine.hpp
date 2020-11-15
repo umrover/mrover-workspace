@@ -18,7 +18,7 @@ public:
 
     void updateRoverStatus( AutonState autonState );
 
-    void updateRoverStatus( TargetList targetList );
+    void updateRoverStatus( Target target );
 
     void updateRoverStatus ( Pos position );
     
