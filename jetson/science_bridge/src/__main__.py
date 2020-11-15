@@ -1,4 +1,4 @@
-	'''
+'''
 Writes, reads and parses NMEA like messages from the onboard
 science nucleo to operate the science boxes and get relevant data
 '''
