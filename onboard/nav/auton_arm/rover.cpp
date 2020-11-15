@@ -1,3 +1,4 @@
+#include <iostream>
 #include "rover.hpp"
 
 // Constructs a rover object with the given configuration file and lcm
@@ -23,6 +24,8 @@ Target& Rover::RoverStatus::target() {
 
 bool Rover::updateRover(RoverStatus newRoverStatus) {
     // Rover currently on.
+    //std::cout << "Update rover status" << (mRoverStatus.autonState().is_auton ? "True" : "False") << std::endl;
+
     if( mRoverStatus.autonState().is_auton )
     {
         // Rover turned off

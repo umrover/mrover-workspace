@@ -51,10 +51,8 @@ void AutonArmStateMachine::run() {
                 mPhoebe->roverStatus().currentState() = nextState;
                 mStateChanged = true;
             }
-            cout << "I quit" << endl;
             return;
         }
-        cout << "Is Auton 3: " << mPhoebe->roverStatus().autonState().is_auton << endl;
         switch( mPhoebe->roverStatus().currentState() )
         {
             case AutonArmState::Off:
@@ -84,6 +82,7 @@ void AutonArmStateMachine::run() {
             case AutonArmState::EvaluateTag: 
             {
                 nextState = executeEvaluateTag();
+                break;
             }
 
             case AutonArmState::RequestTag:
@@ -110,13 +109,13 @@ void AutonArmStateMachine::run() {
                 exit(1);
             }
         } // switch
-        cout << "Is Auton 4: " << mPhoebe->roverStatus().autonState().is_auton << endl;
         if( nextState != mPhoebe->roverStatus().currentState() )
         {
             mStateChanged = true;
             mPhoebe->roverStatus().currentState() = nextState;
+            cout << "State changed" << endl;
+            if(nextState == AutonArmState::EvaluateTag) cout << "Changed to evaluate tag" << endl;
         }
-        cout << "Is Auton 5: " << mPhoebe->roverStatus().autonState().is_auton << endl;
         cerr << flush;
     } // if
 } //run()
@@ -139,8 +138,11 @@ void AutonArmStateMachine::updateRoverStatus(Pos position) {
 }
 
 bool AutonArmStateMachine::isRoverReady() const {
-    return mStateChanged || // internal data has changed
-           mPhoebe->updateRover( mNewRoverStatus ); // external data has changed
+    if(mStateChanged) cout << "State changed: " << (mStateChanged ? "True" : "False") << endl;
+    return  // internal data has changed
+           mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
+           mPhoebe->roverStatus().currentState() == AutonArmState::EvaluateTag ||
+           mStateChanged;
 } //isRoverReady()
 
 void AutonArmStateMachine::publishNavState() const
