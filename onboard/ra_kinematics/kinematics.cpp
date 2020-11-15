@@ -29,7 +29,7 @@ Vector3d KinematicsSolver::FK() {
         Vector3d xyz = robot_state.get_joint_pos_world(it->first);
         // PB: Check if this should be get_joint_axis or get_joint_axis_world:
         Vector3d rot_axis_child = robot_state.get_joint_axis(it->first);
-        double theta = it->second->angle;
+        double theta = it->second.angle;
 
         Matrix4d rot_theta = Matrix4d::Identity();
         Matrix4d trans = Matrix4d::Identity();
@@ -220,7 +220,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
 
         int j_idx = 0;
         for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
-            it->second->angle = rand_angs(j_idx);
+            it->second.angle = rand_angs(j_idx);
             ++j_idx;
         }
         // Update transforms using FK:
@@ -249,7 +249,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
     cout << "\n";
     cout << "Current Joint Angles: ";
     for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
-        cout << it->second->angle << " ";
+        cout << it->second.angle << " ";
     }
     cout << "\n";
 
@@ -269,7 +269,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
             Vector6d joint_angles;
             int index = 0;
             for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
-                joint_angles(index++) = it->second->angle;
+                joint_angles(index++) = it->second.angle;
             }
 
             // restore previous robot_state angles

@@ -80,7 +80,7 @@ private:
     vector<string> joint_names;
     vector<string> link_names;
 
-    vector<Avoidance_Link *> collision_avoidance_links; // could make this an array
+    vector<Avoidance_Link> collision_avoidance_links; // could make this an array
     // TODO: Change num_collision_parts value as necessary
     static const int num_collision_parts = 23;
     Vector3d ef_pos_world;
@@ -97,8 +97,8 @@ private:
 
 public:
     json joints_json, links_json;
-    map<string, Joint *> joints;
-    map<string, Link *> links;
+    map<string, Joint> joints;
+    map<string, Link> links;
     ArmState(json &geom);
     
     ~ArmState();
@@ -147,7 +147,7 @@ public:
 
     void transform_avoidance_links();
 
-    bool link_link_check(vector<Avoidance_Link *>::iterator it, vector<Avoidance_Link *>::iterator jt);
+    bool link_link_check(vector<Avoidance_Link>::iterator it, vector<Avoidance_Link>::iterator jt);
 
     bool obstacle_free();
 
