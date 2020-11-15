@@ -97,6 +97,25 @@ def lcmThreaderMan():
             lock.release()
             
 
+        global start_time
+        start_time = t.clock()
+
+        try:
+            publish_encoder_msg()
+        except NameError:
+            pass
+        except AttributeError:
+            pass
+        except fibre.protocol.ChannelBrokenException:
+            pass
+        except ValueError:
+            global odrive_bridge
+            lock.acquire()
+            print("lost comms")
+            odrive_bridge.on_event("disarm cmd")
+            lock.release()
+            
+
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "calibrating cmd", "odrive error"]
 states = ["DisconnectedState", "DisarmedState", "ArmedState", "CalibrateState", "ErrorState"]
