@@ -80,10 +80,6 @@ def lcmThreaderMan():
         lcm_1.handle()
         global start_time
         start_time = t.clock()
-<<<<<<< HEAD:jetson/odrive_bridge/src/__main__.py
-=======
-
->>>>>>> 109bbb15... added watch dog back in...had been added directly to the mock_comp branch not mine earlier:onboard/odrive_bridge/src/__main__.py
         try:
             publish_encoder_msg()
         except NameError:
