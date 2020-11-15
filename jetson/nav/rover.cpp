@@ -239,6 +239,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.target() = newRoverStatus.target();
+            mRoverStatus.target2() = newRoverStatus.target2();
             mRoverStatus.radio() = newRoverStatus.radio();
             updateRepeater(mRoverStatus.radio());
             return true;
