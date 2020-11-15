@@ -235,7 +235,7 @@ NavState GateStateMachine::executeGateFace()
 {
     if( mPhoebe->turn( centerPoint2 ) )
     {
-        return NavState::GateTurnToFarPost;
+            return NavState::GateTurnToFarPost;
     }
     return NavState::GateFace;
 } // executeGateFace()
@@ -243,31 +243,42 @@ NavState GateStateMachine::executeGateFace()
 //
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
-    cout << mPhoebe->roverStatus().target().bearing << "     " << mPhoebe->roverStatus().target2().bearing << endl;
-    cout << "TURNING GATE\n";
-    if( mPhoebe->roverStatus().target().distance >= mPhoebe->roverStatus().target2().distance ) {
-        if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing ) ) {
+    if (mPhoebe->roverStatus().target2().distance > 0) {
+        if ( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) {
+            if( mPhoebe->turn(mPhoebe->roverStatus().target2().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) {
             return NavState::GateDriveToFarPost;
+            }
+        }
+        else {
+            if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) {
+                return NavState::GateDriveToFarPost;
+            }   
         }
     }
     else {
-        if( mPhoebe->turn(mPhoebe->roverStatus().target2().bearing ) ) {
+        if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) {
             return NavState::GateDriveToFarPost;
         }
     }
+
     return NavState::GateTurnToFarPost;
 } // executeGateTurnToFarPost()
 
 NavState GateStateMachine::executeGateDriveToFarPost()
 {
+
     DriveStatus driveStatus;
-    cout << mPhoebe->roverStatus().target().distance << "     " << mPhoebe->roverStatus().target2().distance << endl;
     
-    if( mPhoebe->roverStatus().target().distance > mPhoebe->roverStatus().target2().distance ) {
-        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance, mPhoebe->roverStatus().target().bearing  );
+    if( mPhoebe->roverStatus().target2().distance > 0 ) {
+        if ( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) {
+            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target2().distance, mPhoebe->roverStatus().target2().bearing );
+        }
+        else {
+            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance, mPhoebe->roverStatus().target().bearing );
+        }
     }  
     else {
-        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target2().distance, mPhoebe->roverStatus().target2().bearing );
+        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance, mPhoebe->roverStatus().target().bearing );
     }
 
     if( driveStatus == DriveStatus::Arrived )
@@ -333,7 +344,6 @@ void GateStateMachine::updatePost2Info()
                                           mPhoebe->roverStatus().target2().distance,
                                           mPhoebe );
         lastKnownPost2.id = mPhoebe->roverStatus().target2().id;
-        cout << "Gucci" << endl;
     }
     else
     {
