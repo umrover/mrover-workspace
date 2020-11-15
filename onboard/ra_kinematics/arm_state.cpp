@@ -56,6 +56,8 @@ void ArmState::add_avoidance_link(int link_num, string joint_origin_name, json &
 
 Vector3d ArmState::get_joint_pos_local(string joint) {
     // Return joint position relatice to local frame (position relative to previous joint)
+
+    // TODO write function to handle possible exceptions with call to at()
     return joints.at(joint).pos_local;
 }
 
