@@ -38,8 +38,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
 // Tested in joint_creation_test
 void ArmState::add_joint(string name, json &joint_geom) {
     // Add joint with given configuration to map of joints - used during initialization
-    Joint new_joint = Joint(name, joint_geom);
-    joints[name] = new_joint;
+    joints[name] = Joint(name, joint_geom);
     joint_names.push_back(name);
 }
 // Tested in avoidance_link_creation_test
