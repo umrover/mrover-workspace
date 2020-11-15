@@ -46,7 +46,6 @@
                 }
             },
             "link_shapes": {
-                "shapes": 1,
                 "shape_1": {
                     "type": "sphere",
                     "center": {
@@ -99,7 +98,6 @@
             },
             "link_shapes":
              {
-                "shapes": 2,
                 "shape_1":{
                     "type": "capsule",
                     "point_1": {
@@ -170,7 +168,6 @@
                 }
             },
             "link_shapes": {
-                "shapes" : 6,
                 "shape_1": {
                     "type": "sphere",
                     "center": {
@@ -292,7 +289,6 @@
                 }
             },
             "link_shapes": {
-                "shapes": 2,
                 "shape_1":{
                     "type": "capsule",
                     "point_1": {
@@ -363,7 +359,6 @@
                 }
             },
             "link_shapes": {
-                "shapes": 4,
                 "shape_1": {
                     "type": "capsule",
                     "point_1": {
@@ -457,7 +452,6 @@
                 }
             },
             "link_shapes": {
-                "shapes" : 1,
                 "shape_1":{
                     "type": "capsule",
                     "point_1": {
@@ -522,7 +516,6 @@
                 }
             },
             "link_shapes": {
-                "shapes": 7,
                 "shape_1":{
                     "type": "capsule",
                     "point_1": {
