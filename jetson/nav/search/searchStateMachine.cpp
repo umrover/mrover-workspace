@@ -250,23 +250,25 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     
     DriveStatus driveStatus;
 
-    cout << phoebe->roverStatus().target().distance << "     " << phoebe->roverStatus().target2().distance << endl;
-
-    if (phoebe->roverStatus().target2().distance > 0) {
-        if (phoebe->roverStatus().target().distance < phoebe->roverStatus().target2().distance) {
+    if( phoebe->roverStatus().target2().distance > 0 )
+    {
+        if( phoebe->roverStatus().target().distance < phoebe->roverStatus().target2().distance ) 
+        {
              driveStatus = phoebe->drive( phoebe->roverStatus().target().distance,
                                              phoebe->roverStatus().target().bearing +
                                              phoebe->roverStatus().odometry().bearing_deg,
                                              true );
         }
-        else {
+        else 
+        {
              driveStatus = phoebe->drive( phoebe->roverStatus().target2().distance,
                                              phoebe->roverStatus().target2().bearing +
                                              phoebe->roverStatus().odometry().bearing_deg,
                                              true );
         }
     }
-    else {
+    else 
+    {
         driveStatus = phoebe->drive( phoebe->roverStatus().target().distance,
                                              phoebe->roverStatus().target().bearing +
                                              phoebe->roverStatus().odometry().bearing_deg,

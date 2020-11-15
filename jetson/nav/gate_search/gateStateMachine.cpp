@@ -243,20 +243,26 @@ NavState GateStateMachine::executeGateFace()
 //
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
-    if (mPhoebe->roverStatus().target2().distance > 0) {
-        if ( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) {
-            if( mPhoebe->turn(mPhoebe->roverStatus().target2().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) {
+    if(mPhoebe->roverStatus().target2().distance > 0) 
+    {
+        if( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) 
+        {
+            if( mPhoebe->turn(mPhoebe->roverStatus().target2().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
+            {
             return NavState::GateDriveToFarPost;
             }
         }
-        else {
-            if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) {
+        else 
+        {
+            if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
+            {
                 return NavState::GateDriveToFarPost;
             }   
         }
     }
     else {
-        if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) {
+        if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
+        {
             return NavState::GateDriveToFarPost;
         }
     }
@@ -268,17 +274,30 @@ NavState GateStateMachine::executeGateDriveToFarPost()
 {
 
     DriveStatus driveStatus;
-    
-    if( mPhoebe->roverStatus().target2().distance > 0 ) {
-        if ( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) {
-            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target2().distance, mPhoebe->roverStatus().target2().bearing );
+
+    if( mPhoebe->roverStatus().target2().distance > 0 ) 
+    {
+        if( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) 
+        {
+            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target2().distance - 0.5,
+                                             mPhoebe->roverStatus().target2().bearing +
+                                             mPhoebe->roverStatus().odometry().bearing_deg,
+                                             true );
         }
-        else {
-            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance, mPhoebe->roverStatus().target().bearing );
+        else 
+        {
+            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance - 0.5,
+                                             mPhoebe->roverStatus().target().bearing +
+                                             mPhoebe->roverStatus().odometry().bearing_deg,
+                                             true );
         }
     }  
-    else {
-        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance, mPhoebe->roverStatus().target().bearing );
+    else 
+    {
+        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance - 0.5,
+                                             mPhoebe->roverStatus().target().bearing +
+                                             mPhoebe->roverStatus().odometry().bearing_deg,
+                                             true );
     }
 
     if( driveStatus == DriveStatus::Arrived )
@@ -296,9 +315,9 @@ NavState GateStateMachine::executeGateDriveToFarPost()
 NavState GateStateMachine::executeGateTurnToGateCenter()
 {
 
-    if ( mPhoebe->turn( centerPoint2 )) {
+    if ( mPhoebe->turn( centerPoint2 )) 
+    {
         return NavState::GateDriveThrough;
-        // Return something here!
     }
 
     return NavState::GateTurnToGateCenter;
