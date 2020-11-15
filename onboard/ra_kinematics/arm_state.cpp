@@ -24,9 +24,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
         
         json link_shapes = it.value()["link_shapes"];
         for (json::iterator jt = link_shapes.begin(); jt != link_shapes.end(); jt++) {
-            if (jt.key() != "shapes") {
-                add_avoidance_link(link_num++, joint_origin, jt.value());
-            }    
+            add_avoidance_link(link_num++, joint_origin, jt.value());    
         }
     }
 }

@@ -1,0 +1,844 @@
+{
+  "name": "mrover_arm",
+  "origin": {
+      "xyz": [
+          0,
+          0,
+          0
+      ],
+      "rpy": [
+          0,
+          0,
+          0
+      ]
+  },
+  "base": "chassis-a",
+  "links": {
+      "chassis-a": {
+          "visual": {
+              "origin": {
+                  "joint_origin": "joint_a",
+                  "xyz": [
+                      0,
+                      0,
+                      0
+                  ],
+                  "rpy": [
+                      0,
+                      0,
+                      0
+                  ]
+              },
+              "geometry": {
+                  "mesh": {
+                      "filename": "chassis-a.stl"
+                  }
+              },
+              "material": {
+                  "color": {
+                      "rgba": [
+                          0.356,
+                          0.361,
+                          0.376,
+                          1
+                      ]
+                  }
+              }
+          },
+          "link_shapes": { },
+          "mass_data" : {
+              "mass": 0.46,
+              "com": {
+                  "x": 0.0001778,
+                  "y": -0.0555963,
+                  "z": -0.0406400
+              }
+          }
+      },
+      "a-b": {
+          "visual": {
+              "origin": {
+                  "joint_origin": "joint_a",
+                  "xyz": [
+                      0,
+                      0,
+                      0
+                  ],
+                  "rpy": [
+                      0,
+                      0,
+                      0
+                  ]
+              },
+              "geometry": {
+                  "mesh": {
+                      "filename": "a-b.stl"
+                  }
+              },
+              "material": {
+                  "color": {
+                      "rgba": [
+                          0.356,
+                          0.361,
+                          0.376,
+                          1
+                      ]
+                  }
+              }
+          },
+          "link_shapes":
+           {
+              "shape_1":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0,
+                      "y1": 0.0446093,
+                      "z1": 0.0108198
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": 0.0633407,
+                      "z2": -0.0108198
+                  },
+                  "radius": 0.0508
+              },
+              "shape_2":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0,
+                      "y1": -0.0341307,
+                      "z1": 0.0882898
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": 0.0341307,
+                      "z2": -0.0247898
+                  },
+                  "radius": 0.03302
+              }
+          },
+          "mass_data":{
+              "mass": 0,
+              "com": {
+                  "x": 0.0045798,
+                  "y": -0.0000315,
+                  "z": 0.0274948
+              }
+          }
+      },
+      "b-c": {
+          "visual": {
+              "origin": {
+                  "joint_origin": "joint_b",
+                  "xyz": [
+                      0,
+                      0,
+                      0.1
+                  ],
+                  "rpy": [
+                      0,
+                      0,
+                      0
+                  ]
+              },
+              "geometry": {
+                  "mesh": {
+                      "filename": "b-c.stl"
+                  }
+              },
+              "material": {
+                  "color": {
+                      "rgba": [
+                          0.356,
+                          0.361,
+                          0.376,
+                          1
+                      ]
+                  }
+              }
+          },
+          "link_shapes": {
+              "shape_1": {
+                  "type": "sphere",
+                  "center": {
+                      "x1": -0.0508,
+                      "y1": -0.0005799,
+                      "z1": 0
+                  },
+                  "radius": 0.0279400
+              },
+              "shape_2": {
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": -0.0508,
+                      "y1": -0.0005799,
+                      "z1": -0.0508
+                  },
+                  "point_2": {
+                      "x2": 0.0254,
+                      "y2": -0.0005799,
+                      "z2": -0.0508
+                  },
+                  "radius": 0.0279400
+              },
+              "shape_3": {
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": -0.01016,
+                      "y1": 0.0027221,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": 0.01016,
+                      "y2": 0.0027221,
+                      "z2": 0
+                  },
+                  "radius": 0.05334
+              },
+              "shape_4": {
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0,
+                      "y1": -0.0506179,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": -0.3681179,
+                      "z2": 0
+                  },
+                  "radius": 0.0381
+              },
+              "shape_5": {
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0,
+                      "y1": -0.0125179,
+                      "z1": 0.06096
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": -0.2360379,
+                      "z2": 0.06096
+                  },
+                  "radius": 0.0348
+              },
+              "shape_6":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0,
+                      "y1": -0.3211279,
+                      "z1": 0.08509
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": 0.4481279,
+                      "z2": 0.08509
+                  },
+                  "radius": 0.0508
+              }
+          },
+          "mass_data":{
+              "mass": 1.48,
+              "com": {
+                  "x": 0.0009431,
+                  "y": -0.2501456,
+                  "z": 0.0450619
+              }
+          }
+      },
+      "c-d": {
+          "visual": {
+              "origin": {
+                  "joint_origin": "joint_c",
+                  "xyz": [
+                      0,
+                      0,
+                      0.2
+                  ],
+                  "rpy": [
+                      0,
+                      0,
+                      0
+                  ]
+              },
+              "geometry": {
+                  "mesh": {
+                      "filename": "c-d.stl"
+                  }
+              },
+              "material": {
+                  "color": {
+                      "rgba": [
+                          0.356,
+                          0.361,
+                          0.376,
+                          1
+                      ]
+                  }
+              }
+          },
+          "link_shapes": {
+              "shape_1":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0,
+                      "y1": 0.0033737,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": -0.0093263,
+                      "z2": 0
+                  },
+                  "radius": 0.0533400
+              },
+              "shape_2":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0,
+                      "y1": 0.0342927,
+                      "z1": 0.0578000
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": -0.0317473,
+                      "z2": 0.0578000
+                  },
+                  "radius": 0.02794
+              }
+          },
+          "mass_data":{
+              "mass": 0,
+              "com": {
+                  "x": 0.0004201,
+                  "y": -0.0052498,
+                  "z": 0.0177556
+              }
+          }
+      },
+      "d-e": {
+          "visual": {
+              "origin": {
+                  "joint_origin": "joint_d",
+                  "xyz": [
+                      0,
+                      0,
+                      0.3
+                  ],
+                  "rpy": [
+                      0,
+                      0,
+                      0
+                  ]
+              },
+              "geometry": {
+                  "mesh": {
+                      "filename": "d-e.stl"
+                  }
+              },
+              "material": {
+                  "color": {
+                      "rgba": [
+                          0.356,
+                          0.361,
+                          0.376,
+                          1
+                      ]
+                  }
+              }
+          },
+          "link_shapes": {
+              "shape_1": {
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0,
+                      "y1": -0.3048000,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": 0,
+                      "z2": 0
+                  },
+                  "radius": 0.0285750
+              },
+              "shape_2": {
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": -0.0114300,
+                      "y1": 0,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": 0.0114300,
+                      "y2": 0,
+                      "z2": 0
+                  },
+                  "radius": 0.0533400
+              },
+              "shape_3": {
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": -0.0292100,
+                      "y1": 0,
+                      "z1": -0.0558800
+                  },
+                  "point_2": {
+                      "x2": 0.0368300,
+                      "y2": 0,
+                      "z2": -0.0558800
+                  },
+                  "radius": 0.0279400
+              },
+              "shape_4": {
+                  "type": "sphere",
+                  "center": {
+                      "x1": -0.0558800,
+                      "y1": 0.0158750,
+                      "z1": 0.3282950
+                  },
+                  "radius": 0.0254
+              }
+          },
+          "mass_data":{
+              "mass": 1.21,
+              "com": {
+                  "x": -0.0022314,
+                  "y": -0.0331522,
+                  "z": -0.0136509
+              }
+          }
+      },
+      "e-f": {
+          "visual": {
+              "origin": {
+                  "joint_origin": "joint_e",
+                  "xyz": [
+                      0,
+                      0,
+                      0.4
+                  ],
+                  "rpy": [
+                      0,
+                      0,
+                      0
+                  ]
+              },
+              "geometry": {
+                  "mesh": {
+                      "filename": "e-f.stl"
+                  }
+              },
+              "material": {
+                  "color": {
+                      "rgba": [
+                          0.356,
+                          0.361,
+                          0.376,
+                          1
+                      ]
+                  }
+              }
+          },
+          "link_shapes": {
+              "shape_1":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0.0165669,
+                      "y1": 0,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": 0.1308669,
+                      "z2": 0
+                  },
+                  "radius": 0.0425450
+              }
+          },
+          "mass_data":{
+              "mass": 1.08,
+              "com": {
+                  "x": 0.0042447,
+                  "y": 0.0858236,
+                  "z": -0.0001020
+              }
+          }
+      },
+      "hand": {
+          "visual": {
+              "origin": {
+                  "joint_origin": "joint_f",
+                  "xyz": [
+                      0,
+                      0,
+                      0.5
+                  ],
+                  "rpy": [
+                      0,
+                      0,
+                      0
+                  ]
+              },
+              "geometry": {
+                  "mesh": {
+                      "filename": "hand.stl"
+                  }
+              },
+              "material": {
+                  "color": {
+                      "rgba": [
+                          0.356,
+                          0.361,
+                          0.376,
+                          1
+                      ]
+                  }
+              },
+              "mass_data":{
+                  "mass": 1.08,
+                  "com": {
+                      "x": -0.0165324,
+                      "y": 0.0202142,
+                      "z": 0.0201581
+                  }
+              }
+          },
+          "link_shapes": {
+              "shape_1":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": -0.0615620,
+                      "y1": -0.0354222,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": -0.0615620,
+                      "y2": 0.0407778,
+                      "z2": 0
+                  },
+                  "radius": 0.0254000
+              },
+              "shape_2":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": -0.0425120,
+                      "y1": 0.0039478,
+                      "z1": 0.1714500
+                  },
+                  "point_2": {
+                      "x2": -0.0425120,
+                      "y2": 0.0039478,
+                      "z2": 0.0076200
+                  },
+                  "radius": 0.0177800
+              },
+              "shape_3":{
+                  "type": "sphere",
+                  "center": {
+                      "x1": 0.1297106,
+                      "y1": 0.0083817,
+                      "z1": 0.0158420
+                  },
+                  "radius": 0.0444500
+              },
+              "shape_4":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": -0.0387020,
+                      "y1": 0.0158750,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": 0.0847037,
+                      "y2": 0.0158750,
+                      "z2": 0
+                  },
+                  "radius": 0.0228600
+              },
+              "shape_5":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": -0.0330849,
+                      "y1": 0.0584117,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": -0.0330849,
+                      "y2": 0.1090470,
+                      "z2": 0
+                  },
+                  "radius": 0.0279400
+              },
+              "shape_6":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0.0177151,
+                      "y1": 0.0584117,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": 0.0177151,
+                      "y2": 0.1090470,
+                      "z2": 0
+                  },
+                  "radius": 0.0279400
+              },
+              "shape_7":{
+                  "type": "capsule",
+                  "point_1": {
+                      "x1": 0.0685151,
+                      "y1": 0.0584117,
+                      "z1": 0
+                  },
+                  "point_2": {
+                      "x2": 0,
+                      "y2": 0.0685151,
+                      "z2": 0.1090470
+                  },
+                  "radius": 0.0279400
+              }
+          }
+      }
+  },
+  "joints": {
+      "joint_a": {
+          "parent": "chassis-a",
+          "child": "a-b",
+          "origin": {
+              "xyz": [
+                  0,
+                  0,
+                  0
+              ],
+              "rpy": [
+                  0,
+                  0,
+                  0
+              ]
+          },
+          "axis": [
+              0,
+              0,
+              1
+          ],
+          "type": "continuous",
+          "limit": {
+              "lower": -3.14,
+              "upper": 3.14
+          },
+          "mass_data":{
+              "mass": 0.69,
+              "com": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+              }
+          }
+      },
+      "joint_b": {
+          "parent": "a-b",
+          "child": "b-c",
+          "origin": {
+              "xyz": [
+                  0,
+                  0,
+                  0.1
+              ],
+              "rpy": [
+                  0,
+                  0,
+                  0
+              ]
+          },
+          "axis": [
+              1,
+              0,
+              0
+          ],
+          "type": "revolute",
+          "limit": {
+              "lower": -1.57,
+              "upper": 1.57
+          },
+          "mass_data":{
+              "mass": 0,
+              "com": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+              }
+          }
+      },
+      "joint_c": {
+          "parent": "b-c",
+          "child": "c-d",
+          "origin": {
+              "xyz": [
+                  0,
+                  0,
+                  0.2
+              ],
+              "rpy": [
+                  0,
+                  0,
+                  0
+              ]
+          },
+          "axis": [
+              1,
+              0,
+              0
+          ],
+          "type": "revolute",
+          "limit": {
+              "lower": -2.36,
+              "upper": 2.36
+          },
+          "mass_data":{
+              "mass": 1.11,
+              "com": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+              }
+          }
+      },
+      "joint_d": {
+          "parent": "c-d",
+          "child": "d-e",
+          "origin": {
+              "xyz": [
+                  0,
+                  0.35799459,
+                  0
+              ],
+              "rpy": [
+                  0,
+                  0,
+                  0
+              ]
+          },
+          "axis": [
+              0,
+              1,
+              0
+          ],
+          "type": "revolute",
+          "limit": {
+              "lower": -3.14,
+              "upper": 3.14
+          },
+          "mass_data":{
+              "mass": 0,
+              "com": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+              }
+          }
+      },
+      "joint_e": {
+          "parent": "d-e",
+          "child": "e-f",
+          "origin": {
+              "xyz": [
+                  0.077630655000,
+                  0,
+                  0
+              ],
+              "rpy": [
+                  0,
+                  0,
+                  0
+              ]
+          },
+          "axis": [
+              1,
+              0,
+              0
+          ],
+          "type": "revolute",
+          "limit": {
+              "lower": -2.36,
+              "upper": 0.87
+          },
+          "mass_data":{
+              "mass": 0,
+              "com": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+              }
+          }
+      },
+      "joint_f": {
+          "parent": "e-f",
+          "child": "hand",
+          "origin": {
+              "xyz": [
+                  0,
+                  0.1647412250,
+                  0
+              ],
+              "rpy": [
+                  0,
+                  0,
+                  0
+              ]
+          },
+          "axis": [
+              0,
+              1,
+              0
+          ],
+          "type": "revolute",
+          "limit": {
+              "lower": -3.14,
+              "upper": 3.14
+          },
+          "mass_data":{
+              "mass": 0.16,
+              "com": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+              }
+          }
+      } 
+  },
+  "endeffector": {
+      "frame": "joint_f",
+      "origin": {
+          "xyz": [
+              -0.02829814000,
+              0.1338834000,
+              0
+          ]
+      },
+      "position": [
+          [
+              0
+          ],
+          [
+              0
+          ],
+          [
+              0
+          ],
+          [
+              1
+          ]
+      ],
+      "mass_data":{
+          "mass": 0.69,
+          "com": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+          }
+      }
+  },
+  "links_geom_imported": true
+}
