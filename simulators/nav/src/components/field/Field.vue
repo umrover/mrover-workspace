@@ -165,12 +165,6 @@ export default class Field extends Vue {
   private readonly repeaterLoc!:Odom|null;
 
   @Getter
-  private readonly roverPath!:Odom[];
-
-  @Getter
-  private readonly roverPathVisible!:boolean;
-
-  @Getter
   private readonly waypoints!:Waypoint[];
 
   @Getter
@@ -187,9 +181,6 @@ export default class Field extends Vue {
 
   @Mutation
   private readonly pushObstacle!:(newObstacle:Obstacle)=>void;
-
-  @Mutation
-  private readonly pushToRoverPath!:(currLoc:Odom)=>void;
 
   @Mutation
   private readonly pushWaypoint!:(newWaypoint:Waypoint)=>void;
@@ -252,8 +243,8 @@ export default class Field extends Vue {
 
   /* Object for drawing rover on canvas. */
   private get canvasRover():CanvasRover {
-    return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale, this.roverPath,
-                           this.fieldOfViewOptions, this.roverPathVisible, this.pushToRoverPath);
+    return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale,
+                           this.fieldOfViewOptions);
   }
 
   /* Object for drawing waypoints on canvas. */
