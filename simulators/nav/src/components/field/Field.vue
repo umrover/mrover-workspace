@@ -42,7 +42,6 @@
       <canvas
         ref="fieldCanvas"
         v-drawWaypoints="canvasWaypoints"
-        v-drawReferencePoints="canvasReferencePoints"
         v-drawObstacles="canvasObstacles"
         v-drawArTags="canvasArTags"
         v-drawRepeater="canvasRepeater"
@@ -84,7 +83,6 @@ import {
 import { canvasToOdom } from '../../utils/utils';
 import CanvasArTags from './ar_tags';
 import CanvasObstacles from './obstacles';
-import CanvasReferencePoints from './reference_points';
 import CanvasRepeater from './repeater';
 import CanvasRover from './rover';
 import CanvasWaypoints from './waypoints';
@@ -105,10 +103,6 @@ const PIXEL_DENSITY = 4;
 
     drawObstacles(canvasElement:Element, binding):void {
       binding.value.drawObstacles(canvasElement as HTMLCanvasElement);
-    },
-
-    drawReferencePoints(canvasElement:Element, binding):void {
-      binding.value.drawReferencePoints(canvasElement as HTMLCanvasElement);
     },
 
     drawRepeater(canvasElement:Element, binding):void {
@@ -168,9 +162,6 @@ export default class Field extends Vue {
   private readonly obstacles!:Obstacle[];
 
   @Getter
-  private readonly referencePoints!:Odom[];
-
-  @Getter
   private readonly repeaterLoc!:Odom|null;
 
   @Getter
@@ -196,9 +187,6 @@ export default class Field extends Vue {
 
   @Mutation
   private readonly pushObstacle!:(newObstacle:Obstacle)=>void;
-
-  @Mutation
-  private readonly pushReferencePoint!:(newReferencePoint:Odom)=>void;
 
   @Mutation
   private readonly pushToRoverPath!:(currLoc:Odom)=>void;
@@ -252,14 +240,9 @@ export default class Field extends Vue {
     return new CanvasArTags(this.arTags, this.gates, this.fieldCenterOdom, this.scale);
   }
 
-  /* Object for drawing obstacles on canvas. */
+  /* Object for drawing ar obstacles on canvas. */
   private get canvasObstacles():CanvasObstacles {
     return new CanvasObstacles(this.obstacles, this.fieldCenterOdom, this.scale);
-  }
-
-  /* Object for drawing reference points on canvas. */
-  private get canvasReferencePoints():CanvasReferencePoints {
-    return new CanvasReferencePoints(this.referencePoints, this.fieldCenterOdom, this.scale);
   }
 
   /* Object for drawing radio repeater on canvas. */
@@ -339,11 +322,6 @@ export default class Field extends Vue {
           odom: clickOdom,
           search: this.waypointDrawOptions.search
         });
-        break;
-      }
-
-      case FieldItemType.REFERENCE_POINT: {
-        this.pushReferencePoint(clickOdom);
         break;
       }
 
