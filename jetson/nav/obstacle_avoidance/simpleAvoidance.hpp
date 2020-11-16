@@ -4,9 +4,9 @@
 #include "obstacleAvoidanceStateMachine.hpp"
 
 // This class implements the logic for the simple obstacle avoidance algorithm.
-// If an obstacle is seen, create an avoidance point using trigonometry with the angle turned and
+// If an obstacle is seen, create an avoidance point using trigonometry with the angle turned and 
 // distance from obstacle.
-class SimpleAvoidance : public ObstacleAvoidanceStateMachine
+class SimpleAvoidance : public ObstacleAvoidanceStateMachine 
 {
 public:
     SimpleAvoidance( StateMachine* roverStateMachine );

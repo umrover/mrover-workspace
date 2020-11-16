@@ -46,6 +46,8 @@ private:
 
     NavState executeDriveToTarget( Rover* phoebe, const rapidjson::Document& roverConfig );
 
+    bool isObstacleDetected( Rover* phoebe ) const;
+
     void updateTargetAngle( double bearing );
 
     void updateTurnToTargetRoverAngle( double bearing );

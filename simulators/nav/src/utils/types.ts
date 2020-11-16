@@ -130,6 +130,7 @@ export interface Obstacle {
 /* Interface representing the Obstacle LCM. This must be the same as the
    Obstacle LCM. */
 export interface ObstacleMessage {
+  detected:boolean; /* this will be deprecated so don't use */
   distance:number; /* meters from rover */
   bearing:number; /* degrees from rover */
 }

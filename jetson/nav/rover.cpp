@@ -342,7 +342,7 @@ void Rover::publishJoystick( const double forwardBack, const double leftRight, c
 // otherwise.
 bool Rover::isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const
 {
-    if( obstacle1.distance == obstacle2.distance &&
+    if( obstacle1.detected == obstacle2.detected &&
         obstacle1.bearing == obstacle2.bearing )
     {
         return true;
