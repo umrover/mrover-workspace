@@ -45,8 +45,7 @@ export enum FieldItemType {
   OBSTACLE,
   AR_TAG,
   GATE,
-  REFERENCE_POINT,
-  MOVE_ROVER
+  REFERENCE_POINT
 }
 
 
@@ -262,7 +261,6 @@ export interface SimulatorState {
   odomFormat:OdomFormat;
   path:Odom[];
   simSettings:SimulationSettings;
-  startLoc:Odom;
 }
 
 

@@ -71,15 +71,6 @@ const state:SimulatorState = {
   simSettings: {
     simulateLoc: true,
     simulatePercep: true
-  },
-
-  startLoc: {
-    latitude_deg: 38,
-    latitude_min: 24.38,
-    longitude_deg: -110,
-    longitude_min: -47.51,
-    bearing_deg: 0,
-    speed: -1
   }
 };
 
@@ -113,13 +104,13 @@ const getters = {
 
   roverPath: (simState:SimulatorState):Odom[] => simState.path,
 
+  // roverPathOld: (simState:SimulatorState):TempPath => simState.roverPathOld,
+
   roverPathVisible: (simState:SimulatorState):boolean => simState.debugOptions.roverPathVisible,
 
   simulateLoc: (simState:SimulatorState):boolean => simState.simSettings.simulateLoc,
 
   simulatePercep: (simState:SimulatorState):boolean => simState.simSettings.simulatePercep,
-
-  startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
   takeStep: (simState:SimulatorState):boolean => simState.debugOptions.takeStep,
 
@@ -207,10 +198,6 @@ const mutations = {
 
   setRoverPathVisible: (simState:SimulatorState, onOff:boolean):void => {
     simState.debugOptions.roverPathVisible = onOff;
-  },
-
-  setStartLoc: (simState:SimulatorState, newStartLoc:Odom):void => {
-    Object.assign(simState.startLoc, newStartLoc);
   },
 
   setTakeStep: (simState:SimulatorState, takeStep:boolean):void => {

@@ -77,7 +77,7 @@ export default class HearbeatMonitor extends Vue {
   /************************************************************************************************
    * Vue Life Cycle
    ************************************************************************************************/
-  /* Start checking for program pulse's on start up. */
+  /* */
   private created():void {
     this.checkPulseInterval = window.setInterval(this.checkForPulse, HB_CHECK_INTERVAL);
   } /* created() */

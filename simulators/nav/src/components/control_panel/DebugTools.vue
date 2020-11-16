@@ -123,6 +123,9 @@ export default class DebugTools extends Vue {
   private readonly currSpeed!:Speeds;
 
   @Getter
+  private readonly fieldCenterOdom!:Odom;
+
+  @Getter
   private readonly fieldOfViewOptions!:FieldOfViewOptions;
 
   @Getter
@@ -136,9 +139,6 @@ export default class DebugTools extends Vue {
 
   @Getter
   private readonly simulateLoc!:boolean;
-
-  @Getter
-  private readonly startLoc!:Odom;
 
   @Getter
   private readonly takeStep!:boolean;
@@ -283,7 +283,7 @@ export default class DebugTools extends Vue {
 
   /* Reset the rover to the starting state. */
   private resetRover():void {
-    this.setCurrOdom(this.startLoc);
+    this.setCurrOdom(this.fieldCenterOdom);
     this.setAutonState(false);
     this.setPaused(false);
     this.clearRoverPath();
