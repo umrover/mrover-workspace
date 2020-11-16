@@ -101,9 +101,9 @@ export interface Joystick {
 /* Interface representing the statuses of the various LCM connections of the
    simulator to other rover programs. */
 export interface LCMConnections {
+  auton:boolean;
   lcmBridge:boolean;
   localization:boolean;
-  nav:boolean;
   perception:boolean;
 }
 
@@ -232,8 +232,8 @@ export interface RoverState {
 /* Interface representing the different settings related to simulating different
    aspects of the environment that can be turned on and off. */
 export interface SimulationSettings {
-  simulateLoc:boolean;
-  simulatePercep:boolean;
+  simulateLocalization:boolean;
+  simulatePerception:boolean;
 }
 
 
