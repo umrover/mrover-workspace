@@ -52,12 +52,11 @@ export function applyJoystick(
      * circumference = 2 * PI * radius
      * arc_length = circumference * arc_angle / 360
      * [DERIVED]: radius = arc_length / arc_angle */
-  const radius:number = deltaBear !== 0 ? Math.abs(dist) / deltaBearRad : Infinity;
+  const radius:number = deltaBear !== 0 ? Math.abs(dist) / deltaBearRad : 0;
 
   /* Find chord length using law of sines. */
-  const chordLen:number =  radius === Infinity ? dist :
-    Math.sin(deltaBearRad) * radius /
-    Math.sin((Math.PI / 2) - (deltaBearRad / 2)) * (dist > 0 ? 1 : -1);
+  const chordLen:number =  Math.sin(deltaBearRad) * radius /
+                           Math.sin((Math.PI / 2) - (deltaBearRad / 2)) * (dist > 0 ? 1 : -1);
 
   /* Calculate new location */
   let halfwayBear:number = degToRad(currOdom.bearing_deg + (deltaBear / 2));
@@ -68,6 +67,7 @@ export function applyJoystick(
   const nextOdom:Odom = metersToOdom(nextPointMeters, canvasCent);
 
   /* Calculate new bearing */
+  nextOdom.bearing_deg = deltaBear;
   nextOdom.bearing_deg = compassModDeg(currOdom.bearing_deg + deltaBear);
 
   return nextOdom;
