@@ -3,10 +3,7 @@
 
 <!------------------------------------------- Template -------------------------------------------->
 <template>
-  <fieldset
-    v-hotkey.prevent="keymap"
-    class="box debug-tools"
-  >
+  <fieldset class="box debug-tools">
     <legend>Debug Tools</legend>
     <!-- IDE Features (e.g. pause, step, etc.) -->
     <div class="ide-features">
@@ -218,13 +215,6 @@ export default class DebugTools extends Vue {
       depth: newDepth,
       visible: this.drawFovIn
     });
-  }
-
-  /* Mapping of hotkeys to functions. */
-  get keymap():Record<string, ()=>void> {
-    return {
-      'shift+r': this.resetRover
-    };
   }
 
   /* Word to display on Play/Pause button. */

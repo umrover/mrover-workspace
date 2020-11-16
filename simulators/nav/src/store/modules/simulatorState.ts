@@ -149,6 +149,8 @@ const mutations = {
   },
 
   pushToRoverPath: (simState:SimulatorState, currLoc:Odom):void => {
+    console.log(currLoc);
+    console.log(simState);
     if (simState.path.length === 0) {
       simState.path.push(JSON.parse(JSON.stringify(currLoc)));
       return;
