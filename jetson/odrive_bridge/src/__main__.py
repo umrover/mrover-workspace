@@ -78,10 +78,6 @@ def lcmThreaderMan():
     last_pub = t.time()
     while True:
         lcm_1.handle()
-<<<<<<< HEAD:jetson/odrive_bridge/src/__main__.py
-
-=======
->>>>>>> a94e644b... added watch dog back in...had been added directly to the mock_comp branch not mine earlier:onboard/odrive_bridge/src/__main__.py
         global start_time
         start_time = t.clock()
 
@@ -246,14 +242,9 @@ class OdriveBridge(object):
         global modrive
         global legal_controller
         print("looking for odrive")
-<<<<<<< HEAD:jetson/odrive_bridge/src/__main__.py
 
         # TODO fill in 3rd odrive id
         odrives = ["205F3883304E", "2091358E524B", "2084399C4D4D"]
-=======
-        # TODO fill in 3rd odrive id
-        odrives = ["205F3883304E", "2091358E524B", "odrive3_id"]
->>>>>>> acdf014d... updated odrive code to support 3 odrives and 6 motors:onboard/odrive_bridge/src/__main__.py
         id = odrives[legal_controller]
 
         print(id)
