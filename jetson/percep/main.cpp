@@ -13,8 +13,7 @@ int main() {
   /* --- Camera Initializations --- */
   Camera cam;
   int iterations = 0;
-  int counter_fail = 0;
-   cam.grab();
+  cam.grab();
 
   #if PERCEPTION_DEBUG
     namedWindow("depth", 2);
@@ -25,7 +24,7 @@ int main() {
   Mat src = cam.image();
   #endif
 
-  #if WRITE_CURR_FRAME_TO_DISK
+  #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
     cam.disk_record_init();
   #endif
 
@@ -36,7 +35,6 @@ int main() {
   rover_msgs::Obstacle obstacleMessage;
   arTags[0].distance = -1;
   arTags[1].distance = -1;
-  obstacleMessage.detected = false;
 
   /* --- AR Tag Initializations --- */
   TagDetector detector;
@@ -48,7 +46,7 @@ int main() {
   #if OBSTACLE_DETECTION
 
   PCL pointcloud;
-  
+
   #if PERCEPTION_DEBUG
     /* --- Create PCL Visualizer --- */
     shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
@@ -73,15 +71,12 @@ int main() {
 
   #if AR_RECORD
   //initializing ar tag videostream object
-  
   cam.record_ar_init();
-
   #endif
 
 
 /* --- Main Processing Stuff --- */
   while (true) {
-
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
 
@@ -91,14 +86,18 @@ int main() {
     Mat src = cam.image();
     Mat depth_img = cam.depth();
     #endif
-    
 
-    // write to disk if permitted
-    #if WRITE_CURR_FRAME_TO_DISK
+    #if OBSTACLE_DETECTION
+    //Update Point Cloud
+    pointcloud.update();
+    cam.getDataCloud(pointcloud.pt_cloud_ptr);
+    #endif
+
+    #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
       if (iterations % FRAME_WRITE_INTERVAL == 0) {
         Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
         cerr << "Copied correctly" << endl;
-        cam.write_curr_frame_to_disk(rgb_copy, depth_copy, iterations);
+        cam.write_curr_frame_to_disk(rgb_copy, depth_copy, pointcloud.pt_cloud_ptr, iterations);
       }
     #endif
 
@@ -152,12 +151,8 @@ int main() {
     #endif
 
 /* --- Point Cloud Processing --- */
-    #if OBSTACLE_DETECTION
-
-    //Update Point Cloud
-    pointcloud.update();
-    cam.getDataCloud(pointcloud.pt_cloud_ptr);
-
+    #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
+    
     #if PERCEPTION_DEBUG
     //Update Original 3D Viewer
     viewer_original->updatePointCloud(pointcloud.pt_cloud_ptr);
@@ -204,6 +199,7 @@ int main() {
     //std::this_thread::sleep_for(0.2s); // Iteration speed control 
     ++iterations;
   }
+
 
 /* --- Wrap Things Up --- */
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
