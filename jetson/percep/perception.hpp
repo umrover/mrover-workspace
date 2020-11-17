@@ -118,6 +118,7 @@ class obstacle_return {
     }
     
     bearing = in.bearing;
+    distance = in.distance;
     return *this;
   }
 
