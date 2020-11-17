@@ -54,7 +54,7 @@ int main() {
   #endif
 
   /* --- Outlier Detection --- */
-  int numChecks = 3;
+  int numChecks = 4;
   deque <bool> outliers;
   outliers.resize(numChecks, true); //initializes outliers vector
   deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
@@ -121,7 +121,8 @@ int main() {
         }
       } else { //one tag found
         if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
-          arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
+          arTags[0].distance = (depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x))/1000;
+          cerr << "AR Tag Distance!!!!!!!!!!!!!!!!!!!!!!! "<<arTags[0].distance << std::endl;
         arTags[0].bearing = detector.getAngle((int)tagPair.first.loc.x, src.cols);
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
@@ -138,7 +139,7 @@ int main() {
         }
       } else { //one tag found
         if(!isnan(depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x)))
-          arTags[1].distance = depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x);
+          arTags[1].distance = (depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x))/1000;
         arTags[1].bearing = detector.getAngle((int)tagPair.second.loc.x, src.cols);
         arTags[1].id = tagPair.second.id;
         right_tag_buffer = 0;
@@ -167,11 +168,16 @@ int main() {
     //Outlier Detection Processing
     outliers.pop_back(); //Remove outdated outlier value
 
-    if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05)
+    if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05){
         outliers.push_front(true);//if an obstacle is detected in front
-    else 
-        outliers.push_front(false); //obstacle is not detected
-
+        obstacleMessage.detected=true;
+    }
+        
+    else {
+         outliers.push_front(false); //obstacle is not detected
+        obstacleMessage.detected=false;
+    }
+       
     if(outliers == checkTrue) //If past iterations see obstacles
       lastObstacle = obstacle_detection;
     else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
