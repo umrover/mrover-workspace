@@ -15,7 +15,7 @@ void PCL::PassThroughFilter() {
     pass.setInputCloud(pt_cloud_ptr);
     pass.setFilterFieldName("z");
     //The z values for depth are in mm
-    pass.setFilterLimits(0.0,2000.0);
+    pass.setFilterLimits(0.0,7000.0);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -459,8 +459,7 @@ obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVi
     obstacle_return result;
     PassThroughFilter();
     DownsampleVoxelFilter();
-    //RANSACSegmentation("remove");
-    RANSACSegmentation("blue");
+    RANSACSegmentation("remove");
     std::vector<pcl::PointIndices> cluster_indices;
     CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
