@@ -129,20 +129,12 @@ def build_deps(ctx):
                 # ctx.run("pip install -r {}/requirements.txt".format(
                     ctx.jarvis_root), hide='out')
                 # Workspace dependencies
-<<<<<<< HEAD
 
                 ctx.run("pip install -r pip_deps/requirements.txt", hide='out')
                 if site_cfg['jetson']:
                     print("Installing jetson pip dependencies...")
                     ctx.run("pip install -r pip_deps/jetson_requirements.txt",
                         hide='out')
-=======
-                # ctx.run("pip install -r pip_deps/requirements.txt", hide='out')
-                # if site_cfg['onboard']:
-                #     print("Installing onboard pip dependencies...")
-                #     ctx.run("pip install -r pip_deps/onboard_requirements.txt",
-                #         hide='out')
->>>>>>> 80f559f2745735ae5cdf63ade98d41ef8a8f7161
         pip_hasher.save()
     else:
         print("pip dependencies already installed, skipping.")
