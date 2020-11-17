@@ -13,8 +13,7 @@ int main() {
   /* --- Camera Initializations --- */
   Camera cam;
   int iterations = 0;
-  int counter_fail = 0;
-   cam.grab();
+  cam.grab();
 
   #if PERCEPTION_DEBUG
     namedWindow("depth", 2);
@@ -73,9 +72,7 @@ int main() {
 
   #if AR_RECORD
   //initializing ar tag videostream object
-  
   cam.record_ar_init();
-
   #endif
 
 
@@ -169,7 +166,6 @@ int main() {
     pointcloud.pcl_obstacle_detection(viewer);  
     obstacle_return obstacle_detection (pointcloud.bearing, pointcloud.distance);
 
-    
     //Outlier Detection Processing
     outliers.pop_back(); //Remove outdated outlier value
 
@@ -182,10 +178,13 @@ int main() {
       lastObstacle = obstacle_detection;
     else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
       lastObstacle = obstacle_detection;
-      
+
      //Update LCM 
     obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
-    obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
+    if(lastObstacle.distance <= obstacle_detection.distance)
+      obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
+    else
+      obstacleMessage.distance = (obstacle_detection.distance/1000); //update LCM distance field
     cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
 
     #if PERCEPTION_DEBUG

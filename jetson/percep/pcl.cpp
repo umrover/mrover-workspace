@@ -15,7 +15,7 @@ void PCL::PassThroughFilter() {
     pass.setInputCloud(pt_cloud_ptr);
     pass.setFilterFieldName("z");
     //The z values for depth are in mm
-    pass.setFilterLimits(0.0,2000.0);
+    pass.setFilterLimits(0.0,7000.0);
     pass.filter(*pt_cloud_ptr);
 }
 
