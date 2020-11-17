@@ -13,8 +13,7 @@ int main() {
   /* --- Camera Initializations --- */
   Camera cam;
   int iterations = 0;
-  int counter_fail = 0;
-   cam.grab();
+  cam.grab();
 
   #if PERCEPTION_DEBUG
     namedWindow("depth", 2);
@@ -73,9 +72,7 @@ int main() {
 
   #if AR_RECORD
   //initializing ar tag videostream object
-  
   cam.record_ar_init();
-
   #endif
 
 

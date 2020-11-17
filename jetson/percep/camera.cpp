@@ -165,8 +165,8 @@ private:
   std::vector<std::string> img_names;
   std::vector<std::string> pcd_names;
 
-	int idx_curr_img;
-  int idx_curr_pcd_img;
+	size_t idx_curr_img;
+  size_t idx_curr_pcd_img;
 
   std::string path;
   std::string rgb_path;
@@ -215,7 +215,6 @@ Camera::Impl::Impl() {
   #if AR_DETECTION
   
   std::unordered_set<std::string> img_tails({".exr", ".jpg"}); // for rgb
-  int img_tail_str_len = 4;
   std::cout<<"Read image names\n";
   do {
     errno = 0;
