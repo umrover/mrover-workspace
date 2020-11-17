@@ -402,8 +402,8 @@ class Modrive:
         front_state, back_state = self.get_current_state()
 
         # if both axes are idle it means its done calibrating
-        while(front_state != AXIS_STATE_IDLE 
-                or  back_state != AXIS_STATE_IDLE):
+        while(front_state != AXIS_STATE_IDLE
+                or back_state != AXIS_STATE_IDLE):
             front_state, back_state = self.get_current_state()
             pass
 
