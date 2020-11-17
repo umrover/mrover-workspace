@@ -3,7 +3,7 @@ import sys
 import time as t
 import odrive as odv
 import threading
-import fibre 
+import fibre
 from rover_msgs import DriveStateCmd, DriveVelCmd, \
     DriveStateData, DriveVelData
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
@@ -75,7 +75,6 @@ def lcmThreaderMan():
     lcm_1 = lcm.LCM()
     lcm_1.subscribe("/drive_state_cmd", drive_state_cmd_callback)
     lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
-    last_pub = t.time()
     while True:
         lcm_1.handle()
         global start_time
@@ -88,12 +87,6 @@ def lcmThreaderMan():
             pass
         except fibre.protocol.ChannelBrokenException:
             pass
-        except ValueError:
-            global odrive_bridge
-            lock.acquire()
-            print("lost comms")
-            odrive_bridge.on_event("disarm cmd")
-            lock.release()
 
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "calibrating cmd", "odrive error"]
@@ -392,7 +385,6 @@ class Modrive:
         self.front_axis = self.odrive.axis0
         self.back_axis = self.odrive.axis1
         self.set_current_lim(self.CURRENT_LIM)
-        self._init_watchdog()
 
     # viable to set initial state to idle?
 
@@ -438,11 +430,6 @@ class Modrive:
         self.closed_loop_ctrl()
         self.set_velocity_ctrl()
 
-    def watchdog(self):
-        self.front_axis.watchdog_feed()
-        self.back_axis.watchdog_feed()
-        # watchdog.check is called in odrive
-
     def set_current_lim(self, lim):
         self.front_axis.motor.config.current_lim = lim
         self.back_axis.motor.config.current_lim = lim
@@ -486,10 +473,6 @@ class Modrive:
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
-
-    def _init_watchdog(self):
-        self.front_axis.config.watchdog_timeout = 1.0
-        self.back_axis.config.watchdog_timeout = 1.0
 
     def _reset(self, m_axis):
         m_axis.motor.config.pole_pairs = 15
