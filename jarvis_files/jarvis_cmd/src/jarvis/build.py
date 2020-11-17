@@ -124,12 +124,10 @@ def build_deps(ctx):
         with ctx.cd(ctx.root):
             with ctx.inside_product_env():
                 print("Installing pip dependencies...")
-                # ctx.run("pip install --upgrade pip", hide='out')
+                ctx.run("pip install --upgrade pip", hide='out')
                 # Jarvis dependencies
-                # ctx.run("pip install -r {}/requirements.txt".format(
-                    ctx.jarvis_root), hide='out')
+                ctx.run("pip install -r {}/requirements.txt".format(ctx.jarvis_root), hide='out')
                 # Workspace dependencies
-
                 ctx.run("pip install -r pip_deps/requirements.txt", hide='out')
                 if site_cfg['jetson']:
                     print("Installing jetson pip dependencies...")
