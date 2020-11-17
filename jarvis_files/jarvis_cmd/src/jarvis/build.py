@@ -119,7 +119,7 @@ def build_deps(ctx):
 
     pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
     pip_hasher.hash_modification_time('pip_deps/')
-    """
+
     if pip_hasher.has_changed():
         with ctx.cd(ctx.root):
             with ctx.inside_product_env():
@@ -138,7 +138,6 @@ def build_deps(ctx):
         pip_hasher.save()
     else:
         print("pip dependencies already installed, skipping.")
-    """
 
     print("Done.")
 
