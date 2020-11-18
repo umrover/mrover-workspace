@@ -17,7 +17,7 @@ jarvis*
 jarvis_files/
 lcm_bridge/
 lcm_tools/
-onboard/
+jetson/
 pi_zeroes/
 rover_common/
 rover_msgs/
