@@ -270,6 +270,7 @@ NavState GateStateMachine::executeGateTurnToFarPost()
     return NavState::GateTurnToFarPost;
 } // executeGateTurnToFarPost()
 
+//
 NavState GateStateMachine::executeGateDriveToFarPost()
 {
 
@@ -309,9 +310,9 @@ NavState GateStateMachine::executeGateDriveToFarPost()
         return NavState::GateDriveToFarPost;
     }
     return NavState::GateDriveToFarPost;
-} // executeGateDriveToFarPost
+} // executeGateDriveToFarPost()
 
-
+//
 NavState GateStateMachine::executeGateTurnToGateCenter()
 {
 
@@ -321,8 +322,9 @@ NavState GateStateMachine::executeGateTurnToGateCenter()
     }
 
     return NavState::GateTurnToGateCenter;
-}
+} // executeGateTurnToGateCenter()
 
+//
 NavState GateStateMachine::executeGateDriveThrough()
 {
     // TODO: Obstacle Avoidance?
