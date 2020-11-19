@@ -39,7 +39,6 @@ class PCL {
         cloudArea = cloud_res.area();
         #else
         cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
-        std::cerr << cloudArea<< endl;
         #endif
 
     };

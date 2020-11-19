@@ -12,3 +12,4 @@ build/
 *.dat
 output.log
 base_station/gui/src/static/map
+/core.*
