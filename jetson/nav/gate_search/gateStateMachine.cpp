@@ -240,7 +240,8 @@ NavState GateStateMachine::executeGateFace()
     return NavState::GateFace;
 } // executeGateFace()
 
-//
+// Turn to farthest post if both have recorded distances, otherwise
+// turn to the current post we are facing
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
     if(mPhoebe->roverStatus().target2().distance > 0) 
@@ -270,7 +271,7 @@ NavState GateStateMachine::executeGateTurnToFarPost()
     return NavState::GateTurnToFarPost;
 } // executeGateTurnToFarPost()
 
-//
+// Drive to the farthest post, if possible
 NavState GateStateMachine::executeGateDriveToFarPost()
 {
 
@@ -312,7 +313,8 @@ NavState GateStateMachine::executeGateDriveToFarPost()
     return NavState::GateDriveToFarPost;
 } // executeGateDriveToFarPost()
 
-//
+// Turn back to center point
+// TODO: Could use new center point (currently this has not failed us)
 NavState GateStateMachine::executeGateTurnToGateCenter()
 {
 
