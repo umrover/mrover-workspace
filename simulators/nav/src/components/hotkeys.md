@@ -11,6 +11,7 @@
 | `shift+down` | Apply a single drive backward joystick command. | `HotKeys.vue` |
 | `shift+left` | Apply a single turn left joystick command. | `HotKeys.vue` |
 | `shift+right` | Apply a single turn right joystick command. | `HotKeys.vue` |
+| `shift+r` | Turn off the rover and move it to the starting location. | `HotKeys.vue` |
 || <div align="center">_Draw Module_</div> ||
 | `tab` | Switch the the next draw mode. | `HotKeys.vue` |
 | `shift+tab` | Switch the the previous draw mode. | `HotKeys.vue` |
