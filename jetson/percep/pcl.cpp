@@ -51,13 +51,13 @@ void PCL::RANSACSegmentation(string type) {
     //Creates instance of RANSAC Algorithm
     pcl::SACSegmentation<pcl::PointXYZRGB> seg;
     seg.setOptimizeCoefficients(true);
-    seg.setModelType(pcl::SACMODEL_PLANE);
+    seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE );
     seg.setMethodType(pcl::SAC_RANSAC);
     seg.setMaxIterations(400);
     seg.setDistanceThreshold(100); //Distance in mm away from actual plane a point can be
     // to be considered an inlier
-    seg.setAxis(Eigen::Vector3f(0, 0, 1)); //Looks for a plane along the Z axis
-    double segmentation_epsilon = 45; //Max degree the normal of plane can be from Z axis
+    seg.setAxis(Eigen::Vector3f(0, 1, 0)); //Looks for a plane along the Z axis
+    double segmentation_epsilon = 10; //Max degree the normal of plane can be from Z axis
     seg.setEpsAngle(pcl::deg2rad(segmentation_epsilon));
 
     //Objects where segmented plane is stored
@@ -69,9 +69,9 @@ void PCL::RANSACSegmentation(string type) {
 
     if(type == "blue"){
         for(int i = 0; i < (int)inliers->indices.size(); i++){
-        pt_cloud_ptr->points[inliers->indices[i]].r = 0;
-        pt_cloud_ptr->points[inliers->indices[i]].g = 0;
-        pt_cloud_ptr->points[inliers->indices[i]].b = 255;
+        pt_cloud_ptr->points[inliers->indices[i]].r = 255;
+        pt_cloud_ptr->points[inliers->indices[i]].g = 255;
+        pt_cloud_ptr->points[inliers->indices[i]].b = 0;
         }
     }
     else {
@@ -112,6 +112,7 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
     #if PERCEPTION_DEBUG
         std::cout << "Number of clusters: " << cluster_indices.size() << std::endl;
         int j = 0;
+        
         for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
         {
             for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
@@ -133,7 +134,7 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
                 }
             }
             j++;
-        }
+        } 
     #endif
 }
 
@@ -459,7 +460,7 @@ obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVi
     obstacle_return result;
     PassThroughFilter();
     DownsampleVoxelFilter();
-    RANSACSegmentation("remove");
+    RANSACSegmentation("blue");
     std::vector<pcl::PointIndices> cluster_indices;
     CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
