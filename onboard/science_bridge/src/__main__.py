@@ -4,12 +4,14 @@ science nucleo to operate the science boxes and get relevant data
 '''
 import serial
 import asyncio
+import Adafruit_BBIO.UART as UART
 #import numpy as np
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData#, SpectralData, MosfetCmd
 class ScienceBridge():
     def __init__(self):
+        UART.setup("UART4") #  Specific to beaglebone
         # maps NMEA msgs to their handler
         # mosfet, ammonia, and pump only send msgs
         self.NMEA_HANDLE_MAPPER = {
@@ -45,9 +47,9 @@ class ScienceBridge():
         # msg format: <"$THERMISTOR,temperature">
         try:
             arr = msg.split(",")
-            print("test")#thermistor_struct.temp0 = arr[1]
-            thermistor_struct.temp1 = arr[2]
-            thermistor_struct.temp2 = arr[3]
+            thermistor_struct.temp0 = float(arr[1])
+            thermistor_struct.temp1 = float(arr[2])
+            thermistor_struct.temp2 = float(arr[3])
         except:
             pass
         # parse the thermistor UART msg
@@ -89,9 +91,8 @@ class ScienceBridge():
             # Wait for all tags to be seen
             while (not all(seen_tags.values())):
                 try:
-                    msg = str(self.ser.readline())
-                    print(msg)
                     error_counter = 0
+                    msg = str(self.ser.readline())
                 except Exception as e:
                     if error_counter < self.max_error_count:
                         error_counter += 1
