@@ -121,7 +121,7 @@ int main() {
         }
       } else { //one tag found
         if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
-          arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
+          arTags[0].distance = (depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x))/1000;
         arTags[0].bearing = detector.getAngle((int)tagPair.first.loc.x, src.cols);
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
@@ -138,7 +138,7 @@ int main() {
         }
       } else { //one tag found
         if(!isnan(depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x)))
-          arTags[1].distance = depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x);
+          arTags[1].distance = (depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x))/1000;
         arTags[1].bearing = detector.getAngle((int)tagPair.second.loc.x, src.cols);
         arTags[1].id = tagPair.second.id;
         right_tag_buffer = 0;
@@ -198,7 +198,7 @@ int main() {
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
-    std::this_thread::sleep_for(1.0s); // Iteration speed control 
+    std::this_thread::sleep_for(0.2s); // Iteration speed control 
 
     ++iterations;
   }
