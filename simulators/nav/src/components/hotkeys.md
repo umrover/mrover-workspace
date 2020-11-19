@@ -2,7 +2,7 @@
 
 | Hotkey | Description | File |
 | :----- | :---------- | :--- |
-|| <div align="center">_todo_</div> ||
+|| <div align="center">_LCM Messages_</div> ||
 | `shift+enter` | Turn the rover on/off. | `HotKeys.vue` |
 || <div align="center">_Debug Tools_</div> ||
 | `shift+space` | Play/pause the simulator. | `HotKeys.vue` |
@@ -20,6 +20,8 @@
 | `shift+3` | Switch to gate draw mode. | `HotKeys.vue` |
 | `shift+4` | Switch to obstacle draw mode. | `HotKeys.vue` |
 | `shift+5` | Switch to reference point draw mode. | `HotKeys.vue` |
+| `shift+s` | Toggle the search point button in the draw module. | `DrawModule.vue` |
+| `shift+g` | Toggle the gate search point button in the draw module | `DrawModule.vue` |
 || <div align="center">_Field Controls_</div> ||
 | `shift+c` keydown | Turn on "Move Rover Mode" which allows you to click on the field to move the rover. | `HotKeys.vue` |
 | `shift+c` keyup | Turn off "Move Rover Mode". | `HotKeys.vue` |
