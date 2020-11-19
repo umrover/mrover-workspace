@@ -195,7 +195,7 @@ and likely will be too dense to remember everything when you first read it.
       both here for the purpose of demonstation but you can just use one of the
       two.
       <br/>
-      TODO: FIXME
+      TODO: FIXME image is missing
       ![git interactive rebase 2](/admin/workflow-wiki/img/git_interactive_rebase_2.png)
     * Then I save and exit this file. Now, I am presented a list of the first
       (and only in our case) group commits I want to `squash` together.
