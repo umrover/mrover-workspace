@@ -110,7 +110,7 @@ class ScienceBridge():
                                 #func(msg, spectral)
                                 #lcm.publish('/spectral_data', spectral.encode())
                             if(tag == "THERMISTOR"):
-                                thermistor_handler(msg, thermistor)
+                                self.thermistor_handler(msg, thermistor)
                                 lcm.publish('/thermistor_data', thermistor.encode())
                             seen_tags[tag] = True
                         except Exception as e:
