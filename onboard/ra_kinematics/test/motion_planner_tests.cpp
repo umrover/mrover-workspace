@@ -20,20 +20,17 @@ TEST(init_test) {
 
 TEST(rrt_connect_simple) {
     string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = config_path + "/config_kinematics/mrover_arm_test_geom.json";
 
     json geom = read_json_from_file(geom_file);
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 
     ArmState arm = ArmState(geom);
 
-    Vector6d angles_start;
+    vector<double> angles_start;
     angles_start(0) = 45;
     angles_start(1) = 45;
     angles_start(2) = 45;
-    angles_start(3) = 45;
-    angles_start(4) = 45;
-    angles_start(5) = 45;
     arm.set_joint_angles(angles_start);
 
     KinematicsSolver solver = KinematicsSolver(arm);

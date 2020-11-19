@@ -26,6 +26,8 @@ private:
     ArmState robot;
     KinematicsSolver solver;
 
+    vector<tk::spline> splines;
+
     vector< map<string, double> > all_limits;
 
     vector<int> step_limits;
@@ -60,7 +62,7 @@ public:
     
     MotionPlanner(ArmState& robot_state_in, lcm::LCM& lcm_in, KinematicsSolver& solver_in);
 
-    vector<tk::spline> rrt_connect(Vector6d& target);
+    void rrt_connect(Vector6d& target);
 
     // for testing only
     int getSplineSize() {
@@ -91,6 +93,8 @@ private:
     Node* connect(Node* tree, Vector6d& a_new);
 
     vector<tk::spline> spline_fitting(vector<Vector6d>& path);
+
+    vector<double> get_spline_pos(double spline_t);
 
     Node* root;
 
