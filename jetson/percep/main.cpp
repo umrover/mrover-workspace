@@ -13,8 +13,7 @@ int main() {
   /* --- Camera Initializations --- */
   Camera cam;
   int iterations = 0;
-  int counter_fail = 0;
-   cam.grab();
+  cam.grab();
 
   #if PERCEPTION_DEBUG
     namedWindow("depth", 2);
@@ -25,7 +24,7 @@ int main() {
   Mat src = cam.image();
   #endif
 
-  #if WRITE_CURR_FRAME_TO_DISK
+  #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
     cam.disk_record_init();
   #endif
 
@@ -36,7 +35,6 @@ int main() {
   rover_msgs::Obstacle obstacleMessage;
   arTags[0].distance = -1;
   arTags[1].distance = -1;
-  obstacleMessage.detected = false;
 
   /* --- AR Tag Initializations --- */
   TagDetector detector;
@@ -48,7 +46,7 @@ int main() {
   #if OBSTACLE_DETECTION
 
   PCL pointcloud;
-  
+
   #if PERCEPTION_DEBUG
     /* --- Create PCL Visualizer --- */
     shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
@@ -56,7 +54,7 @@ int main() {
   #endif
 
   /* --- Outlier Detection --- */
-  int numChecks = 3;
+  int numChecks = 4;
   deque <bool> outliers;
   outliers.resize(numChecks, true); //initializes outliers vector
   deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
@@ -66,8 +64,6 @@ int main() {
   #endif
 
   /* --- AR Recording Initializations and Implementation--- */ 
-  TagDetector d1;
-  pair<Tag, Tag> tp;
   
   time_t now = time(0);
   char* ltm = ctime(&now);
@@ -75,26 +71,12 @@ int main() {
 
   #if AR_RECORD
   //initializing ar tag videostream object
-  
-  Mat depth_img = cam.depth();
-  tp = d1.findARTags(src, depth_img, rgb);
-  Size fsize = rgb.size();
-  
-  string s = "artag_" + timeStamp + ".avi";
-
-  VideoWriter vidWrite(s, VideoWriter::fourcc('M','J','P','G'),10,fsize,true);
-
-  if(vidWrite.isOpened() == false)
-  {
-	  cout << "didn't open";
-	  exit(1);
-  }
+  cam.record_ar_init();
   #endif
 
 
 /* --- Main Processing Stuff --- */
   while (true) {
-
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
 
@@ -104,14 +86,18 @@ int main() {
     Mat src = cam.image();
     Mat depth_img = cam.depth();
     #endif
-    
 
-    // write to disk if permitted
-    #if WRITE_CURR_FRAME_TO_DISK
+    #if OBSTACLE_DETECTION
+    //Update Point Cloud
+    pointcloud.update();
+    cam.getDataCloud(pointcloud.pt_cloud_ptr);
+    #endif
+
+    #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
       if (iterations % FRAME_WRITE_INTERVAL == 0) {
         Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
         cerr << "Copied correctly" << endl;
-        cam.write_curr_frame_to_disk(rgb_copy, depth_copy, iterations);
+        cam.write_curr_frame_to_disk(rgb_copy, depth_copy, pointcloud.pt_cloud_ptr, iterations);
       }
     #endif
 
@@ -121,7 +107,7 @@ int main() {
     #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
-      vidWrite.write(rgb);
+      cam.record_ar(rgb);
       #endif
       //update both tags in LCM message
       //first tag
@@ -135,7 +121,8 @@ int main() {
         }
       } else { //one tag found
         if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
-          arTags[0].distance = depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x);
+          arTags[0].distance = (depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x))/1000;
+          cerr << "AR Tag Distance!!!!!!!!!!!!!!!!!!!!!!! "<<arTags[0].distance << std::endl;
         arTags[0].bearing = detector.getAngle((int)tagPair.first.loc.x, src.cols);
         arTags[0].id = tagPair.first.id;
         left_tag_buffer = 0;
@@ -152,7 +139,7 @@ int main() {
         }
       } else { //one tag found
         if(!isnan(depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x)))
-          arTags[1].distance = depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x);
+          arTags[1].distance = (depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x))/1000;
         arTags[1].bearing = detector.getAngle((int)tagPair.second.loc.x, src.cols);
         arTags[1].id = tagPair.second.id;
         right_tag_buffer = 0;
@@ -165,12 +152,8 @@ int main() {
     #endif
 
 /* --- Point Cloud Processing --- */
-    #if OBSTACLE_DETECTION
-
-    //Update Point Cloud
-    pointcloud.update();
-    cam.getDataCloud(pointcloud.pt_cloud_ptr);
-
+    #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
+    
     #if PERCEPTION_DEBUG
     //Update Original 3D Viewer
     viewer_original->updatePointCloud(pointcloud.pt_cloud_ptr);
@@ -182,22 +165,29 @@ int main() {
     pointcloud.pcl_obstacle_detection(viewer);  
     obstacle_return obstacle_detection (pointcloud.bearing, pointcloud.distance);
 
-    
     //Outlier Detection Processing
     outliers.pop_back(); //Remove outdated outlier value
 
-    if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05)
+    if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05){
         outliers.push_front(true);//if an obstacle is detected in front
-    else 
-        outliers.push_front(false); //obstacle is not detected
-
+        obstacleMessage.detected=true;
+    }
+        
+    else {
+         outliers.push_front(false); //obstacle is not detected
+        obstacleMessage.detected=false;
+    }
+       
     if(outliers == checkTrue) //If past iterations see obstacles
       lastObstacle = obstacle_detection;
     else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
       lastObstacle = obstacle_detection;
-      
+
     obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
-    obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
+    if(lastObstacle.distance <= obstacle_detection.distance)
+      obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
+    else
+      obstacleMessage.distance = (obstacle_detection.distance/1000); //update LCM distance field
     cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
     #if PERCEPTION_DEBUG
       //Update Processed 3D Viewer
@@ -216,13 +206,14 @@ int main() {
     ++iterations;
   }
 
+
 /* --- Wrap Things Up --- */
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
   viewer->close();
   #endif
   
   #if AR_RECORD
-  vidWrite.release();
+  cam.record_ar_finish();
   #endif
   
   return 0;
