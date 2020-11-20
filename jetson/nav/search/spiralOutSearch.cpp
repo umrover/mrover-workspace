@@ -39,5 +39,5 @@ void SpiralOut::initializeSearch( Rover* phoebe, const rapidjson::Document& rove
 
         }
     }
-    insertIntermediatePoints( phoebe, roverConfig );
+    insertIntermediatePoints();
 } // initializeSearch()

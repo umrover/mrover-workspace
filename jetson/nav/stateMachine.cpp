@@ -41,9 +41,9 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     configFile.close();
     mRoverConfig.Parse( config.c_str() );
     mPhoebe = new Rover( mRoverConfig, lcmObject );
-    mSearchStateMachine = SearchFactory( this, SearchType::SPIRALOUT );
+    mSearchStateMachine = SearchFactory( this, SearchType::SPIRALOUT, mPhoebe, mRoverConfig );
     mGateStateMachine = GateFactory( this, mPhoebe, mRoverConfig );
-    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( this, ObstacleAvoidanceAlgorithm::SimpleAvoidance );
+    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( this, ObstacleAvoidanceAlgorithm::SimpleAvoidance, mPhoebe, mRoverConfig );
 } // StateMachine()
 
 // Destructs the StateMachine object. Deallocates memory for the Rover
@@ -53,11 +53,11 @@ StateMachine::~StateMachine( )
     delete mPhoebe;
 }
 
-void StateMachine::setSearcher( SearchType type )
+void StateMachine::setSearcher( SearchType type, Rover* rover, const rapidjson::Document& roverConfig )
 {
     assert( mSearchStateMachine );
     delete mSearchStateMachine;
-    mSearchStateMachine = SearchFactory( this, type );
+    mSearchStateMachine = SearchFactory( this, type, rover, roverConfig );
 }
 
 void StateMachine::updateCompletedPoints( )
@@ -160,7 +160,7 @@ void StateMachine::run()
             case NavState::TurnedToTargetWait:
             case NavState::DriveToTarget:
             {
-                nextState = mSearchStateMachine->run( mPhoebe, mRoverConfig );
+                nextState = mSearchStateMachine->run();
                 break;
             }
 
@@ -169,7 +169,7 @@ void StateMachine::run()
             case NavState::DriveAroundObs:
             case NavState::SearchDriveAroundObs:
             {
-                nextState = mObstacleAvoidanceStateMachine->run( mPhoebe, mRoverConfig );
+                nextState = mObstacleAvoidanceStateMachine->run();
                 break;
             }
 
@@ -182,22 +182,22 @@ void StateMachine::run()
                 {
                     case 0:
                     {
-                        setSearcher(SearchType::SPIRALOUT);
+                        setSearcher(SearchType::SPIRALOUT, mPhoebe, mRoverConfig);
                         break;
                     }
                     case 1:
                     {
-                        setSearcher(SearchType::LAWNMOWER);
+                        setSearcher(SearchType::LAWNMOWER, mPhoebe, mRoverConfig);
                         break;
                     }
                     case 2:
                     {
-                        setSearcher(SearchType::SPIRALIN);
+                        setSearcher(SearchType::SPIRALIN, mPhoebe, mRoverConfig);
                         break;
                     }
                     default:
                     {
-                        setSearcher(SearchType::SPIRALOUT);
+                        setSearcher(SearchType::SPIRALOUT, mPhoebe, mRoverConfig);
                         break;
                     }
                 }

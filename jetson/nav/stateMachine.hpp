@@ -49,7 +49,7 @@ public:
 
     void updateRepeaterComplete( );
 
-    void setSearcher(SearchType type);
+    void setSearcher(SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
 
     /*************************************************************************/
     /* Public Member Variables */

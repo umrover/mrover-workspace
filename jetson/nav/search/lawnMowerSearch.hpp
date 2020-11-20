@@ -9,12 +9,12 @@
 class LawnMower : public SearchStateMachine
 {
 public:
-    LawnMower( StateMachine* stateMachine_ )
-    : SearchStateMachine(stateMachine_) {}
+    LawnMower( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig )
+    : SearchStateMachine( stateMachine_, rover, roverConfig ) {}
 
     ~LawnMower();
 
-    // Initializes the search ponit multipliers to be the intermost loop
+    // Initializes the search point multipliers to be the intermost loop
     // of the search.
     void initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, const double pathWidth );
 };

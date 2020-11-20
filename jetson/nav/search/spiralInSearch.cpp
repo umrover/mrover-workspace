@@ -38,6 +38,6 @@ void SpiralIn::initializeSearch( Rover* phoebe, const rapidjson::Document& rover
             mSearchPointMultiplier.second < 0 ? --mSearchPointMultiplier.second : ++mSearchPointMultiplier.second;
         }
     }
-    insertIntermediatePoints( phoebe, roverConfig );
+    insertIntermediatePoints();
     //TODO Reverse Deque. Not using this search though...
 } // initializeSearch()

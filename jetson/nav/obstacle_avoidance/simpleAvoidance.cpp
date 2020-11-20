@@ -6,12 +6,12 @@
 #include <iostream>
 #include <cmath>
 
-// Constructs a SimpleAvoidance object with the input roverStateMachine.
+// Constructs a SimpleAvoidance object with the input roverStateMachine, rover, and roverConfig.
 // SimpleAvoidance is abstacted from ObstacleAvoidanceStateMachine object so it creates an
-// ObstacleAvoidanceStateMachine object with the roverStateMachine. The SimpleAvoidance object will
-// execute the logic for the simple avoidance algorithm
-SimpleAvoidance::SimpleAvoidance( StateMachine* roverStateMachine )
-    : ObstacleAvoidanceStateMachine( roverStateMachine ) {}
+// ObstacleAvoidanceStateMachine object with the roverStateMachine, rover, and roverConfig. 
+// The SimpleAvoidance object will execute the logic for the simple avoidance algorithm
+SimpleAvoidance::SimpleAvoidance( StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig )
+    : ObstacleAvoidanceStateMachine( roverStateMachine, rover, roverConfig ) {}
 
 // Destructs the SimpleAvoidance object.
 SimpleAvoidance::~SimpleAvoidance() {}
@@ -22,7 +22,7 @@ SimpleAvoidance::~SimpleAvoidance() {}
 NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
                                                 const rapidjson::Document& roverConfig )
 {
-    if( isTargetDetected ( phoebe ) && isTargetReachable( phoebe, roverConfig ) )
+    if( isTargetDetected () && isTargetReachable( phoebe, roverConfig ) )
     {
         return NavState::TurnToTarget;
     }

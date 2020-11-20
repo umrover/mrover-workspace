@@ -41,5 +41,5 @@ void LawnMower::initializeSearch( Rover* phoebe, const rapidjson::Document& rove
             mSearchPoints.push_back( nextSearchPoint );
         }
     }
-    insertIntermediatePoints( phoebe, roverConfig );
+    insertIntermediatePoints();
 } // initializeSearch()

@@ -9,7 +9,7 @@
 class SimpleAvoidance : public ObstacleAvoidanceStateMachine
 {
 public:
-    SimpleAvoidance( StateMachine* roverStateMachine );
+    SimpleAvoidance( StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig );
 
     ~SimpleAvoidance();
 

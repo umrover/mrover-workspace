@@ -6,8 +6,8 @@
 class SpiralOut : public SearchStateMachine
 {
 public:
-    SpiralOut( StateMachine* stateMachine_ )
-    : SearchStateMachine(stateMachine_) {}
+    SpiralOut( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig )
+    : SearchStateMachine(stateMachine_, rover, roverConfig) {}
 
     ~SpiralOut();
 

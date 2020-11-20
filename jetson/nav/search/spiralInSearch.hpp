@@ -9,8 +9,8 @@
 class SpiralIn : public SearchStateMachine
 {
 public:
-    SpiralIn( StateMachine* stateMachine_ )
-    : SearchStateMachine(stateMachine_) {}
+    SpiralIn( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig )
+    : SearchStateMachine( stateMachine_, rover, roverConfig) {} 
 
     ~SpiralIn();
 
