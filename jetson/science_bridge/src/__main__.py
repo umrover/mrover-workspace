@@ -8,7 +8,7 @@ import Adafruit_BBIO.UART as UART
 #import numpy as np
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData#, SpectralData, MosfetCmd
+from rover_msgs import ThermistorData, MosfetCmd#, SpectralData
 class ScienceBridge():
     def __init__(self):
         UART.setup("UART4") #  Specific to beaglebone
@@ -62,10 +62,14 @@ class ScienceBridge():
         print(msg)
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        # struct = RTCM.decode(msg)
-        # print('Recieved: {} bytes'.format(len(bytes(struct.data))))
+        struct = RTCM.decode(msg)
+        print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
-        # self.ser.write(bytes(struct.data))
+        # Currently expects mosfet, device number, and enable bit along
+        # with padding to reach 30 bytes
+        message = "$Mosfet,{device},{enable},111111111111111111"
+        message = message.format(device = struct.device, enable = struct.enable)
+        self.ser.write(bytes(message))
         pass
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
