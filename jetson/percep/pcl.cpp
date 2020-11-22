@@ -6,16 +6,16 @@
 //Filters out all points with z values that aren't within a threshold
 //Z values are depth values in mm
 //Source: https://rb.gy/kkyi80
-void PCL::PassThroughFilter() {
+void PCL::PassThroughFilter(std::string axis, double upperLimit) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("PassThroughFilter");
     #endif
 
     pcl::PassThrough<pcl::PointXYZRGB> pass;
     pass.setInputCloud(pt_cloud_ptr);
-    pass.setFilterFieldName("z");
-    //The z values for depth are in mm
-    pass.setFilterLimits(0.0,7000.0);
+
+    pass.setFilterFieldName(axis);
+    pass.setFilterLimits(0.0,upperLimit);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -458,14 +458,15 @@ shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
 //This function is called in main.cpp
 obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
     obstacle_return result;
-    PassThroughFilter();
+    PassThroughFilter("z", 7000.0);
+    PassThroughFilter("y", 3000.0);
     DownsampleVoxelFilter();
     RANSACSegmentation("remove");
     std::vector<pcl::PointIndices> cluster_indices;
     CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
     FindInterestPoints(cluster_indices, interest_points);
-    bearing = FindClearPath(interest_points, viewer);  
+    bearing = FindClearPath(interest_points, viewer); 
 }
 
 

@@ -52,7 +52,7 @@ class PCL {
     private:
 
         //Filters points with values beyond certain threshold
-        void PassThroughFilter();
+        void PassThroughFilter(std::string axis, double upperLimit);
         
         //Clusters nearby points to reduce total number of points
         void DownsampleVoxelFilter();
