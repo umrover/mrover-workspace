@@ -109,40 +109,10 @@ int main() {
       #if AR_RECORD
       cam.record_ar(rgb);
       #endif
-      //update both tags in LCM message
-      //first tag
-      if(tagPair.first.id == -1){//no tag found
-        if(left_tag_buffer <= 20){//send the buffered tag
-          ++left_tag_buffer;
-        } else {//we probably actually lost the tag
-          arTags[0].distance = -1;
-          arTags[0].bearing = -1;
-          arTags[0].id = -1;
-        }
-      } else { //one tag found
-        if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
-          arTags[0].distance = (depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x))/1000;
-        arTags[0].bearing = detector.getAngle((int)tagPair.first.loc.x, src.cols);
-        arTags[0].id = tagPair.first.id;
-        left_tag_buffer = 0;
-      }
-      
-      //second tag
-      if(tagPair.second.id == -1){//no tag found
-        if(right_tag_buffer <= 20){//send the buffered tag
-          ++right_tag_buffer;
-        } else {//we probably actually lost the tag
-          arTags[1].distance = -1;
-          arTags[1].bearing = -1;
-          arTags[1].id = -1;
-        }
-      } else { //one tag found
-        if(!isnan(depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x)))
-          arTags[1].distance = (depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x))/1000;
-        arTags[1].bearing = detector.getAngle((int)tagPair.second.loc.x, src.cols);
-        arTags[1].id = tagPair.second.id;
-        right_tag_buffer = 0;
-      }
+
+      detector.tagfound(arTags, tagPair, 0, left_tag_buffer, depth_img, src);
+      detector.tagfound(arTags, tagPair, 1, right_tag_buffer, depth_img, src);
+
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
       waitKey(1);  
