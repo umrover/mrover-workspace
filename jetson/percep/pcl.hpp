@@ -7,19 +7,29 @@
 /* --- Compare Line Class --- */
 //Functor that indicates where a point is in
 //relation to a line in 2D space
+//recieves angle off y axis
 class compareLine {
 public:
+    int xIntercept;
     double m;
-    int b;
     
-    compareLine(double slope_in, int b_in) : m(slope_in), b(b_in){}
+    compareLine(double angle_in, int xInt_in) : xIntercept{xInt_in}, 
+                        m{tan(angle_in*PI/180)} {
+                            if(m != 0)
+                                m = 1/m;
+                        }
 
-    //Returns 1 if point is above line, 0 if on, -1 if below
+    //Returns 1 if point is right of line, 0 if on, -1 if left of line
     int operator()(int x, int y) {
-        double yc = x*m+b;
-        if(y > yc)
+        
+        //Make sure don't divide by 0
+        double xc = xIntercept;
+        if(m != 0)
+            xc = y/m+xIntercept;
+
+        if(x > xc)
             return 1;
-        else if (y == yc)
+        else if (x == xc)
             return 0;
         else
             return -1; 
@@ -67,13 +77,16 @@ class PCL {
         void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, std::vector<std::vector<int>> &interest_points);
         
         //Finds a clear path given the obstacle corners
-        double FindClearPath(std::vector<std::vector<int>> interest_points,
+        double FindClearPath(std::vector<std::vector<int>> &interest_points,
                            shared_ptr<pcl::visualization::PCLVisualizer> viewer);
 
         //Determines whether the input path is obstructed
         bool CheckPath(std::vector<std::vector<int>> interest_points,
                shared_ptr<pcl::visualization::PCLVisualizer> viewer,
                std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine);
+        
+        double getAngle(int buffer, int direction, std::vector<std::vector<int>> &interest_points,
+                    shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles);
 
     public:
         //Main function that runs the above 
