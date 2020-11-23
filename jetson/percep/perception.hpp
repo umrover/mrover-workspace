@@ -74,7 +74,7 @@
 
 const float inf = -std::numeric_limits<float>::infinity();
 
-const int FRAME_WRITE_INTERVAL = 3; // How many frames between writing to disk
+const int FRAME_WRITE_INTERVAL = 10; // How many frames between writing to disk
 
 #if ZED_SDK_PRESENT
   const int FRAME_WAITKEY = 1; // for cv::imshow, set to 1 if using zed, set to 0 if offline test
@@ -118,7 +118,6 @@ class obstacle_return {
     }
     
     bearing = in.bearing;
-    distance = in.distance;
     return *this;
   }
 
