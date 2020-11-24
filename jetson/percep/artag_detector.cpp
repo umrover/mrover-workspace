@@ -2,6 +2,7 @@
 
 static Mat HSV;
 static Mat DEPTH;
+
 /* For debug use: print the HSV values at mouseclick locations */
 void onMouse(int event, int x, int y, int flags, void *userdata) {
     if (event == EVENT_LBUTTONUP) {
@@ -16,7 +17,7 @@ void onMouse(int event, int x, int y, int flags, void *userdata) {
 
 TagDetector::TagDetector() {  //initializes detector object with pre-generated dictionary of tags
 
-    cv::FileStorage fsr("jetson/cv/alvar_dict.yml", cv::FileStorage::READ);
+    cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
         throw Exception();
@@ -34,6 +35,8 @@ TagDetector::TagDetector() {  //initializes detector object with pre-generated d
     // initialize other special parameters that we need to properly detect the URC (Alvar) tags
     alvarParams = new cv::aruco::DetectorParameters();
     alvarParams->markerBorderBits = 2;
+    alvarParams->doCornerRefinement = false;
+    alvarParams->polygonalApproxAccuracyRate = 0.08;
 }
 
 Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &corners) {  //gets coordinate of center of tag
@@ -50,7 +53,7 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
-pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
+pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
     // RETURN:
     // pair of target objects- each object has an x and y for the center,
     // and the tag ID number return them such that the "leftmost" (x
@@ -62,7 +65,9 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src) {  //detects AR
 
     /// Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
-
+#if AR_RECORD
+cv::aruco::drawDetectedMarkers(rgb, corners, ids);
+#endif
 #if PERCEPTION_DEBUG
     // Draw detected tags
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);
@@ -71,7 +76,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src) {  //detects AR
     // on click debugging for color
     DEPTH = depth_src;
     cvtColor(rgb, HSV, COLOR_RGB2HSV);
-    setMouseCallback("image", onMouse);
+    setMouseCallback("Obstacle", onMouse);
 #endif
 
     // create Tag objects for the detected tags and return them
@@ -118,4 +123,8 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src) {  //detects AR
         }
     }
     return discoveredTags;
+}
+
+double TagDetector::getAngle(float xPixel, float wPixel){
+    return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
 }
