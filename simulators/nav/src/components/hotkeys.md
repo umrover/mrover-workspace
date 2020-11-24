@@ -11,7 +11,7 @@
 | `shift+down` | Apply a single drive backward joystick command. | `HotKeys.vue` |
 | `shift+left` | Apply a single turn left joystick command. | `HotKeys.vue` |
 | `shift+right` | Apply a single turn right joystick command. | `HotKeys.vue` |
-| `shift+r` | Turn off the rover and move it to the starting location. | `HotKeys.vue` |
+| `shift+r` | Turn off the rover and move it to the starting location. | `DebugTools.vue` |
 || <div align="center">_Draw Module_</div> ||
 | `tab` | Switch the the next draw mode. | `HotKeys.vue` |
 | `shift+tab` | Switch the the previous draw mode. | `HotKeys.vue` |
@@ -23,8 +23,9 @@
 | `shift+s` | Toggle the search point button in the draw module. | `DrawModule.vue` |
 | `shift+g` | Toggle the gate search point button in the draw module | `DrawModule.vue` |
 || <div align="center">_Field Controls_</div> ||
-| `shift+c` keydown | Turn on "Move Rover Mode" which allows you to click on the field to move the rover. | `HotKeys.vue` |
-| `shift+c` keyup | Turn off "Move Rover Mode". | `HotKeys.vue` |
+| `shift+backspace` | Clear all field items and the rover's path. | `FieldItems.vue` |
+| `shift+c keydown` | Turn on "Move Rover Mode" which allows you to click on the field to move the rover. | `HotKeys.vue` |
+| `shift+c keyup` | Turn off "Move Rover Mode" (see `shift+c keydown`). | `HotKeys.vue` |
 | `shift+alt+c` | Make the current rover location the starting location. | `HotKeys.vue` |
 | `shift+ctrl+c` | Reset the starting location to the original location. | `HotKeys.vue` |
 || <div align="center">_Simulator Settings_</div> ||
@@ -33,4 +34,3 @@
 | `shift+alt+d` | Switch odometry readings to degrees. | `HotKeys.vue` |
 | `shift+alt+m` | Switch odometry readings to degrees and minutes. | `HotKeys.vue` |
 | `shift+alt+s` | Switch odometry readings to degrees, minutes and seconds. | `HotKeys.vue` |
-
