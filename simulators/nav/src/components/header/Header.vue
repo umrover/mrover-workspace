@@ -23,7 +23,7 @@
         </li>
         <li>
           <BinaryIndicator
-            :val="autonConnected"
+            :val="navConnected"
             name="Navigation"
           />
         </li>
@@ -61,34 +61,34 @@ export default class Header extends Vue {
    * Vuex Getters
    ************************************************************************************************/
   @Getter
-  private readonly autonConnected!:boolean;
+  private readonly navConnected!:boolean;
 
   @Getter
   private readonly lcmConnected!:boolean;
 
   @Getter
-  private readonly localizationConnected!:boolean;
+  private readonly locConnected!:boolean;
 
   @Getter
-  private readonly perceptionConnected!:boolean;
+  private readonly percepConnected!:boolean;
 
   @Getter
-  private readonly simulateLocalization!:boolean;
+  private readonly simulateLoc!:boolean;
 
   @Getter
-  private readonly simulatePerception!:boolean;
+  private readonly simulatePercep!:boolean;
 
   /************************************************************************************************
    * Local Getters/Setters
    ************************************************************************************************/
   /* Whether or not we are connected to or simulating localization. */
   private get localizationOn():boolean {
-    return this.simulateLocalization || this.localizationConnected;
+    return this.simulateLoc || this.locConnected;
   }
 
   /* Whether or not we are connected to or simulating perception. */
   private get perceptionOn():boolean {
-    return this.simulatePerception || this.perceptionConnected;
+    return this.simulatePercep || this.percepConnected;
   }
 }
 </script>

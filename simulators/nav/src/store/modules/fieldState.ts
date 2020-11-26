@@ -24,6 +24,7 @@ const state:FieldState = {
   },
   gates: [],
   obstacles: [],
+  referencePoints: [],
   repeaterLoc: null,
   size: 25,
   waypoints: []
@@ -44,6 +45,8 @@ const getters = {
   gates: (fieldState:FieldState):Gate[] => fieldState.gates,
 
   obstacles: (fieldState:FieldState):Obstacle[] => fieldState.obstacles,
+
+  referencePoints: (fieldState:FieldState):Odom[] => fieldState.referencePoints,
 
   repeaterLoc: (fieldState:FieldState):Odom|null => fieldState.repeaterLoc,
 
@@ -100,6 +103,10 @@ const mutations = {
     fieldState.obstacles.push(newObstacle);
   },
 
+  pushReferencePoint: (fieldState:FieldState, newReferencePoint:Odom):void => {
+    fieldState.referencePoints.push(newReferencePoint);
+  },
+
   pushWaypoint: (fieldState:FieldState, newWaypoint:Waypoint):void => {
     fieldState.waypoints.push(newWaypoint);
   },
@@ -114,6 +121,10 @@ const mutations = {
 
   removeObstacle: (fieldState:FieldState, index:number):void => {
     fieldState.obstacles.splice(index, 1);
+  },
+
+  removeReferencePoint: (fieldState:FieldState, index:number):void => {
+    fieldState.referencePoints.splice(index, 1);
   },
 
   removeWaypoint: (fieldState:FieldState, index:number):void => {
