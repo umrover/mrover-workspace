@@ -3,10 +3,10 @@
 
 #if OBSTACLE_DETECTION
 /* --- Pass Through Filter --- */
-//Filters out all points with z values that aren't within a threshold
-//Z values are depth values in mm
+//Filters out all points on a given axis that aren't within a threshold
+//Values are depth values in mm
 //Source: https://rb.gy/kkyi80
-void PCL::PassThroughFilter(std::string axis, double upperLimit) {
+void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("PassThroughFilter");
     #endif
@@ -480,5 +480,6 @@ void PCL::update() {
     std::cerr << "Width: " << pt_cloud_ptr->width<<std::endl;
     std::cerr << "Height: "<< pt_cloud_ptr->height<<"\n";
 }
+
 
 #endif
