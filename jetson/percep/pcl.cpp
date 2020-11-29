@@ -3,19 +3,20 @@
 
 #if OBSTACLE_DETECTION
 /* --- Pass Through Filter --- */
-//Filters out all points with z values that aren't within a threshold
-//Z values are depth values in mm
+//Filters out all points on a given axis passed as a string ("x", "y", or "z") that aren't within the threshold
+//The threshold covers points from 0.0 to upperLimit 
+//Values are depth values in mm
 //Source: https://rb.gy/kkyi80
-void PCL::PassThroughFilter() {
+void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("PassThroughFilter");
     #endif
 
     pcl::PassThrough<pcl::PointXYZRGB> pass;
     pass.setInputCloud(pt_cloud_ptr);
-    pass.setFilterFieldName("z");
-    //The z values for depth are in mm
-    pass.setFilterLimits(0.0,7000.0);
+
+    pass.setFilterFieldName(axis);
+    pass.setFilterLimits(0.0,upperLimit);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -455,17 +456,20 @@ shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
 /* --- Main --- */
 //This is the main point cloud processing function
 //It returns the bearing the rover should traverse
+//For the PassThroughFilter function we can trust the ZED depth for up to 7000 mm (7 m) for "z" axis. 
+//3000 mm (3m) for "x" is a placeholder, we will chnage this value based on further testing.
 //This function is called in main.cpp
 obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
     obstacle_return result;
-    PassThroughFilter();
+    PassThroughFilter("z", 7000.0);
+    PassThroughFilter("y", 3000.0);
     DownsampleVoxelFilter();
     RANSACSegmentation("remove");
     std::vector<pcl::PointIndices> cluster_indices;
     CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
     FindInterestPoints(cluster_indices, interest_points);
-    bearing = FindClearPath(interest_points, viewer);  
+    bearing = FindClearPath(interest_points, viewer); 
 }
 
 
