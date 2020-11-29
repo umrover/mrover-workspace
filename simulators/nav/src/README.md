@@ -1,9 +1,9 @@
 # <img src="static/mrover.png" alt="MRover Logo" width="30"/> MRover Navigation Simulator
 
 ## Table of Contents
-[Directory Overview](#directory-overview)  
-[Code Overview](#code-overview)  
-[Related Documents](#related-documents)  
+[Directory Overview](#directory-overview)<br/>
+[Code Overview](#code-overview)<br/>
+[Related Documents](#related-documents)<br/>
 
 ---
 

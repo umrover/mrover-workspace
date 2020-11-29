@@ -1,9 +1,9 @@
 # <img src="../static/mrover.png" alt="MRover Logo" width="30"/> MRover Navigation Simulator
 
 ## Table of Contents
-[Directory Overview](#directory-overview)  
-[Code Overview](#code-overview)  
-[Related Documents](#related-documents)  
+[Directory Overview](#directory-overview)<br/>
+[Code Overview](#code-overview)<br/>
+[Related Documents](#related-documents)<br/>
 
 ---
 
@@ -159,6 +159,12 @@ The `TargetDetector` class contains the logic for detecting targets.
 
 #### `NavSimulator.vue`
 The `NavSimulator` component contains all of the simulator's major components (e.g. Header, Perception, Field, etc.). This is the main body of the simulator.
+
+#### `HotKeys.vue`
+The `HotKeys` component contains logic for enabling hot keys and renders nothing
+to the screen. See the
+[Hotkeys Guide](/simulators/nav/src/components/hotkeys.md) for details on what
+hotkeys there are and what they do.
 
 ---
 
