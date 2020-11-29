@@ -1,6 +1,6 @@
 <!-- This file contains the DrawModule component which controls options for
      placing items on the field/canvas. -->
-<!-- TODO: remove this line -->
+<!-- TODO: remove this line because it's not supposed to be here -->
 
 <!------------------------------------------- Template -------------------------------------------->
 <template>
