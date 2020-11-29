@@ -37,13 +37,11 @@ void AutonArmStateMachine::run() {
     publishNavState();
     if( isRoverReady() )
     {
-        cout << "Is Auton 1: " << mPhoebe->roverStatus().autonState().is_auton << endl;
         mStateChanged = false;
         AutonArmState nextState = AutonArmState::Unknown;
 
         if( !mPhoebe->roverStatus().autonState().is_auton )
         {
-            cout << "Is Auton 2: " << mPhoebe->roverStatus().autonState().is_auton << endl;
             nextState = AutonArmState::Off;
             mPhoebe->roverStatus().currentState() = executeOff(); // turn off immediately
             if( nextState != mPhoebe->roverStatus().currentState() )
@@ -113,8 +111,6 @@ void AutonArmStateMachine::run() {
         {
             mStateChanged = true;
             mPhoebe->roverStatus().currentState() = nextState;
-            cout << "State changed" << endl;
-            if(nextState == AutonArmState::EvaluateTag) cout << "Changed to evaluate tag" << endl;
         }
         cerr << flush;
     } // if
@@ -138,11 +134,9 @@ void AutonArmStateMachine::updateRoverStatus(Pos position) {
 }
 
 bool AutonArmStateMachine::isRoverReady() const {
-    if(mStateChanged) cout << "State changed: " << (mStateChanged ? "True" : "False") << endl;
-    return  // internal data has changed
+    return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
-           mPhoebe->roverStatus().currentState() == AutonArmState::EvaluateTag ||
-           mStateChanged;
+           mPhoebe->roverStatus().currentState() == AutonArmState::EvaluateTag;
 } //isRoverReady()
 
 void AutonArmStateMachine::publishNavState() const
@@ -190,16 +184,16 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
 AutonArmState AutonArmStateMachine::executeRequestTag() {
     // Send request for tag
     cout << "Requesting tag" << endl;
-    Message message = {"request_tag", PERCEPTION_PACKAGE};
-    mLcmObject.publish(LCM_CHANNEL_NAME, &message);
+    //Message message = {"request_tag", PERCEPTION_PACKAGE};
+    //mLcmObject.publish(LCM_CHANNEL_NAME, &message);
     return AutonArmState::WaitingForTag;
 }
 
 AutonArmState AutonArmStateMachine::executeRequestCoordinates() {
     // Send request for coordinates 
     cout << "Requesting coordinates" << endl;
-    Message message = {"request_coordinates", PERCEPTION_PACKAGE};
-    mLcmObject.publish(LCM_CHANNEL_NAME, &message);
+    //Message message = {"request_coordinates", PERCEPTION_PACKAGE};
+    //mLcmObject.publish(LCM_CHANNEL_NAME, &message);
     return AutonArmState::WaitingForCoordinates;
 }
 

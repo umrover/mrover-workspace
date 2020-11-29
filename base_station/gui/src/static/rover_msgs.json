@@ -494,6 +494,24 @@
             "width"
         ]
     ],
+    "Pos": [
+        [
+            "double",
+            "x"
+        ],
+        [
+            "double",
+            "y"
+        ],
+        [
+            "double",
+            "z"
+        ],
+        [
+            "int32_t",
+            "package"
+        ]
+    ],
     "ProximitySensors": [
         [
             "boolean",
@@ -912,6 +930,7 @@
         "PIDConstants",
         "PiPicture",
         "PiSettings",
+        "Pos",
         "ProximitySensors",
         "RGB",
         "RGBFrame",

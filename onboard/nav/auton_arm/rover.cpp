@@ -24,8 +24,6 @@ Target& Rover::RoverStatus::target() {
 
 bool Rover::updateRover(RoverStatus newRoverStatus) {
     // Rover currently on.
-    //std::cout << "Update rover status" << (mRoverStatus.autonState().is_auton ? "True" : "False") << std::endl;
-
     if( mRoverStatus.autonState().is_auton )
     {
         // Rover turned off
@@ -65,5 +63,5 @@ Rover::RoverStatus& Rover::roverStatus(){
 
 bool Rover::isEqual( const Target& target1, const Target& target2 ) const
 {
-    return (target1.distance == target2.distance && target1.bearing == target2.bearing);
+    return (target1.distance == target2.distance && target1.bearing == target2.bearing && target1.id == target2.id);
 } // isEqual( Target )
