@@ -3,7 +3,8 @@
 
 #if OBSTACLE_DETECTION
 /* --- Pass Through Filter --- */
-//Filters out all points on a given axis that aren't within a threshold
+//Filters out all points on a given axis passed as a string ("x", "y", or "z") that aren't within the threshold
+//The threshold covers points from 0.0 to upperLimit 
 //Values are depth values in mm
 //Source: https://rb.gy/kkyi80
 void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
@@ -455,6 +456,8 @@ shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
 /* --- Main --- */
 //This is the main point cloud processing function
 //It returns the bearing the rover should traverse
+//For the PassThroughFilter function we can trust the ZED depth for up to 7000 mm (7 m) for "z" axis. 
+//3000 mm (3m) for "x" is a placeholder, we will chnage this value based on further testing.
 //This function is called in main.cpp
 obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
     obstacle_return result;
@@ -480,6 +483,5 @@ void PCL::update() {
     std::cerr << "Width: " << pt_cloud_ptr->width<<std::endl;
     std::cerr << "Height: "<< pt_cloud_ptr->height<<"\n";
 }
-
 
 #endif
