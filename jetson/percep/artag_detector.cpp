@@ -1,6 +1,6 @@
 #include "perception.hpp"
-#include "rover_msgs/Target.hpp"
-#include "rover_msgs/TargetList.hpp"
+//#include "rover_msgs/Target.hpp"
+//#include "rover_msgs/TargetList.hpp"
 
 static Mat HSV;
 static Mat DEPTH;
@@ -131,26 +131,43 @@ double TagDetector::getAngle(float xPixel, float wPixel){
     return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
 }
 
-void TagDetector::tagfound(rover_msgs::Target* arTags, pair<Tag, Tag> &tagPair, int tag, int buffer, Mat &depth_img, Mat &src){
- 
-   int id[2] = {tagPair.first.id, tagPair.second.id};
+void TagDetector::updateTag(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
+    int buffer=0;
+    struct tagPairs 
+    {
+     vect<int> id;
+     vect<int> locx;
+     vect<int> loxy;
+    } tagPairs;
+
+    tagPairs.id.push_back=tagPair.first.id;
+    tagPairs.locx.push_back=tagPair.first.loc.x;
+    tagPairs.locy.push_back=tagPair.first.loc.y;
+    tagPairs.id.push_back=tagPair.second.id;
+    tagPairs.locx.push_back=tagPair.first.loc.x;
+    tagPairs.locy.push_back=tagPair.first.loc.y;
+
+   /*int id[2] = {tagPair.first.id, tagPair.second.id};
    int locx[2] = {tagPair.first.loc.x, tagPair.second.loc.x};
    int locy[2] = {tagPair.first.loc.y, tagPair.second.loc.y};
-  
-  
-   if(id[tag] == -1){//no tag found
-       if(buffer <= 20){//send the buffered tag
+  */
+  for (uint i=0; i<2; i++)
+  {
+   if(tagPairs.id.at(0) == -1){//no tag found
+       if(buffer <= 20){//send buffered tag until tag is found
            ++buffer;
-       } else {//we probably actually lost the tag
-           arTags[tag].distance = -1;
-           arTags[tag].bearing = -1;
-           arTags[tag].id = -1;
+       } else {//if still no tag found, set all stats to -1
+           arTags[i].distance = -1;
+           arTags[i].bearing = -1;
+           arTags[i].id = -1;
        }
-   } else { //one tag found
+   } else {//one tag found
    if(!isnan(depth_img.at<float>(locy[tag], locx[tag])))
-       arTags[tag].distance = depth_img.at<float>(locy[tag], locx[tag])/1000;
-       arTags[tag].bearing = getAngle((int)locx[tag], src.cols);
-       arTags[tag].id = id[tag];
+       arTags[i].distance = depth_img.at<float>(tagPairs.locy.at(i), tagPairs.locx.at(i))/MM_TO_M;
+       arTags[i].bearing = getAngle((int)tagPairs.locx.at(i), src.cols);
+       arTags[i].id = tagPairs.id.at(i);
        buffer = 0;
    }
+  }
+
 }

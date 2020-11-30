@@ -107,11 +107,11 @@ int main() {
     #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
-      cam.record_ar(rgb);
+        cam.record_ar(rgb);
       #endif
 
-      detector.tagfound(arTags, tagPair, 0, left_tag_buffer, depth_img, src);
-      detector.tagfound(arTags, tagPair, 1, right_tag_buffer, depth_img, src);
+      detector.updateTag(arTags, tagPair, depth_img, src);
+      detector.updateTag(arTags, tagPair, depth_img, src);
 
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
