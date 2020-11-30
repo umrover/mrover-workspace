@@ -2,7 +2,7 @@
 
 static Mat HSV;
 static Mat DEPTH;
-int MM_TO_M=1000;
+const int MM_PER_M = 1000; // millimeters per meter conversation factor
 
 /* For debug use: print the HSV values at mouseclick locations */
 void onMouse(int event, int x, int y, int flags, void *userdata) {
@@ -64,7 +64,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     ids.clear();
     corners.clear();
 
-    /// Find tags
+    // Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
 #if AR_RECORD
 cv::aruco::drawDetectedMarkers(rgb, corners, ids);
