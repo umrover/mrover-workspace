@@ -142,6 +142,8 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
 /* --- Find Interest Points --- */
 //Finds the edges of each cluster by comparing x and y
 //values of all points in the cluster to find desired ones
+//Interest points are a collection of points that allow us
+//to define the edges of an obsacle
 void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,  
                              std::vector<std::vector<int>> &interest_points) {
 
@@ -187,13 +189,13 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 }
 
 /* --- Get Angle --- */
-//This function finds the angle off the x axis the
+//This function finds the angle off center the
 //line that passes through both these points is
 //Direction of 0 is left and 1 is right
 double PCL::getAngle(int buffer, int direction, std::vector<std::vector<int>> &interest_points,
                     shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles){
     double newAngle = 0;
-    //If Center Path is blocked check left until have to turn too far
+    //If Center Path is blocked check the left or right path depending on direction parameter
     while(newAngle > -70 && newAngle < 70){
         
         //Finding angle off center
@@ -236,7 +238,7 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
     //Check Center Path
     if(CheckPath(interest_points, viewer, obstacles, 
         compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))){
-            cerr << "CENTER PATH IS CLEAR!!!" << std::endl;
+            std::cerr << "CENTER PATH IS CLEAR!!!" << std::endl;
         return 0;
     }
 
