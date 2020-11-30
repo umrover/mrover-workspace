@@ -39,8 +39,6 @@ int main() {
   /* --- AR Tag Initializations --- */
   TagDetector detector;
   pair<Tag, Tag> tagPair;
-  int left_tag_buffer = 0;
-  int right_tag_buffer = 0;
   
   /* --- Point Cloud Initializations --- */
   #if OBSTACLE_DETECTION
@@ -111,11 +109,6 @@ int main() {
       #endif
 
       detector.updateTag(arTags, tagPair, depth_img, src);
-      cerr<<"tag0"<<arTags[0].distance<<endl;
-      cerr<<"tag0"<<arTags[0].id<<endl;
-      cerr<<"tag1"<<arTags[1].distance<<endl;
-      cerr<<"tag1"<<arTags[1].id<<endl;
-
 
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);

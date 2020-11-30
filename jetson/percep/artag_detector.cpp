@@ -2,6 +2,7 @@
 
 static Mat HSV;
 static Mat DEPTH;
+int MM_TO_M=1000;
 
 /* For debug use: print the HSV values at mouseclick locations */
 void onMouse(int event, int x, int y, int flags, void *userdata) {
@@ -130,12 +131,12 @@ double TagDetector::getAngle(float xPixel, float wPixel){
 }
 
 void TagDetector::updateTag(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
-    int buffer=0;
     struct tagPairs 
     {
      vector<int> id;
      vector<int> locx;
      vector<int> locy;
+     vector<int> buffer;
     }; 
     tagPairs tags;
 
@@ -145,12 +146,14 @@ void TagDetector::updateTag(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair,
     tags.id.push_back(tagPair.second.id);
     tags.locx.push_back(tagPair.first.loc.x);
     tags.locy.push_back(tagPair.first.loc.y);
+    tags.buffer.push_back(0);
+    tags.buffer.push_back(0);
 
   for (uint i=0; i<2; i++)
   {
-    if(tags.id.at(i) == -1){//no tag found
-        if(buffer <= 20){//send buffered tag until tag is found
-            ++buffer;
+    if(tags.id[i] == -1){//no tag found
+        if(tags.buffer[i] <= 20){//send buffered tag until tag is found
+            ++tags.buffer[i];
         } else {//if still no tag found, set all stats to -1
             arTags[i].distance = -1;
             arTags[i].bearing = -1;
@@ -161,7 +164,7 @@ void TagDetector::updateTag(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair,
         arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i))/MM_TO_M;
         arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
         arTags[i].id = tags.id.at(i);
-        buffer = 0;
+        tags.buffer[i]= 0;
    }
   }
 

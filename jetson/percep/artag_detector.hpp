@@ -3,7 +3,6 @@
 #include <vector>
 #include "perception.hpp"
 #include "rover_msgs/Target.hpp"
-#include "rover_msgs/TargetList.hpp"
 
 using namespace std;
 using namespace cv;
@@ -20,7 +19,6 @@ class TagDetector {
     std::vector<int> ids;
     std::vector<std::vector<cv::Point2f> > corners;
     cv::Mat rgb;
-    int MM_TO_M=1000;
 
    public:
    //constructor loads dictionary data from file
