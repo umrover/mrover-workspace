@@ -1,6 +1,4 @@
 #include "perception.hpp"
-//#include "rover_msgs/Target.hpp"
-//#include "rover_msgs/TargetList.hpp"
 
 static Mat HSV;
 static Mat DEPTH;
@@ -135,38 +133,35 @@ void TagDetector::updateTag(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair,
     int buffer=0;
     struct tagPairs 
     {
-     vect<int> id;
-     vect<int> locx;
-     vect<int> loxy;
-    } tagPairs;
+     vector<int> id;
+     vector<int> locx;
+     vector<int> locy;
+    }; 
+    tagPairs tags;
 
-    tagPairs.id.push_back=tagPair.first.id;
-    tagPairs.locx.push_back=tagPair.first.loc.x;
-    tagPairs.locy.push_back=tagPair.first.loc.y;
-    tagPairs.id.push_back=tagPair.second.id;
-    tagPairs.locx.push_back=tagPair.first.loc.x;
-    tagPairs.locy.push_back=tagPair.first.loc.y;
+    tags.id.push_back(tagPair.first.id);
+    tags.locx.push_back(tagPair.first.loc.x);
+    tags.locy.push_back(tagPair.first.loc.y);
+    tags.id.push_back(tagPair.second.id);
+    tags.locx.push_back(tagPair.first.loc.x);
+    tags.locy.push_back(tagPair.first.loc.y);
 
-   /*int id[2] = {tagPair.first.id, tagPair.second.id};
-   int locx[2] = {tagPair.first.loc.x, tagPair.second.loc.x};
-   int locy[2] = {tagPair.first.loc.y, tagPair.second.loc.y};
-  */
   for (uint i=0; i<2; i++)
   {
-   if(tagPairs.id.at(0) == -1){//no tag found
-       if(buffer <= 20){//send buffered tag until tag is found
-           ++buffer;
-       } else {//if still no tag found, set all stats to -1
-           arTags[i].distance = -1;
-           arTags[i].bearing = -1;
-           arTags[i].id = -1;
-       }
-   } else {//one tag found
-   if(!isnan(depth_img.at<float>(locy[tag], locx[tag])))
-       arTags[i].distance = depth_img.at<float>(tagPairs.locy.at(i), tagPairs.locx.at(i))/MM_TO_M;
-       arTags[i].bearing = getAngle((int)tagPairs.locx.at(i), src.cols);
-       arTags[i].id = tagPairs.id.at(i);
-       buffer = 0;
+    if(tags.id.at(i) == -1){//no tag found
+        if(buffer <= 20){//send buffered tag until tag is found
+            ++buffer;
+        } else {//if still no tag found, set all stats to -1
+            arTags[i].distance = -1;
+            arTags[i].bearing = -1;
+            arTags[i].id = -1;
+        }
+     } else {//one tag found
+    if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i))))
+        arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i))/MM_TO_M;
+        arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
+        arTags[i].id = tags.id.at(i);
+        buffer = 0;
    }
   }
 

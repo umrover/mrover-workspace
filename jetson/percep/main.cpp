@@ -111,7 +111,11 @@ int main() {
       #endif
 
       detector.updateTag(arTags, tagPair, depth_img, src);
-      detector.updateTag(arTags, tagPair, depth_img, src);
+      cerr<<"tag0"<<arTags[0].distance<<endl;
+      cerr<<"tag0"<<arTags[0].id<<endl;
+      cerr<<"tag1"<<arTags[1].distance<<endl;
+      cerr<<"tag1"<<arTags[1].id<<endl;
+
 
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
