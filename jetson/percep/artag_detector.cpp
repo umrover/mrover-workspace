@@ -161,10 +161,10 @@ void TagDetector::updateTag(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair,
         }
      } else {//one tag found
     if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i))))
-        arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i))/MM_TO_M;
+        arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
         arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
         arTags[i].id = tags.id.at(i);
-        tags.buffer[i]= 0;
+        tags.buffer[i] = 0;
    }
   }
 
