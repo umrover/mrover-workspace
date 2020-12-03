@@ -5,6 +5,7 @@
 #include "../motion_planner.hpp"
 #include <lcm/lcm-cpp.hpp>
 #include "../utils.hpp"
+#include <iostream>
 
 using namespace std;
 
@@ -28,17 +29,24 @@ TEST(rrt_connect_simple) {
     ArmState arm = ArmState(geom);
 
     vector<double> angles_start;
-    angles_start(0) = 45;
-    angles_start(1) = 45;
-    angles_start(2) = 45;
+    angles_start.push_back(0);
+    angles_start.push_back(0);
+    angles_start.push_back(0);
     arm.set_joint_angles(angles_start);
 
     KinematicsSolver solver = KinematicsSolver(arm);
     lcm::LCM lcm;
 
-    solver.FK(arm);
+    MotionPlanner planner = MotionPlanner(arm, lcm, solver);
 
-    //MotionPlanner planner = MotionPlanner(arm, lcm, solver);
+    cout << planner.get_spline_pos(0.0)[0] << ' '
+         << planner.get_spline_pos(0.0)[1] << ' '
+         << planner.get_spline_pos(0.0)[2] << '\n';
+    
+    cout << planner.get_spline_pos(1.0)[0] << ' '
+         << planner.get_spline_pos(1.0)[1] << ' '
+         << planner.get_spline_pos(1.0)[2] << '\n';
+    
 }
 
 TEST(rrt_connect) {
@@ -65,23 +73,23 @@ TEST(rrt_connect) {
     target(4) = start(4) + 1;
     target(5) = start(5) + 1;
 
-    vector<tk::spline> splines = planner.rrt_connect(target);
+    planner.rrt_connect(target);
 
-    ASSERT_ALMOST_EQUAL(splines[0](0), start(0), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[1](0), start(1), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[2](0), start(2), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[3](0), start(3), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[4](0), start(4), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[5](0), start(5), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start(0), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start(1), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start(2), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start(3), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start(4), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start(5), 0.05);
 
     int spline_last = planner.getSplineSize() - 1;
 
-    ASSERT_ALMOST_EQUAL(splines[0](spline_last), target(0), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[1](spline_last), target(1), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[2](spline_last), target(2), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[3](spline_last), target(3), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[4](spline_last), target(4), 0.05);
-    ASSERT_ALMOST_EQUAL(splines[5](spline_last), target(5), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[spline_last], target(0), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[spline_last], target(1), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[spline_last], target(2), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[spline_last], target(3), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[spline_last], target(4), 0.05);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[spline_last], target(5), 0.05);
 }
 
 TEST_MAIN()

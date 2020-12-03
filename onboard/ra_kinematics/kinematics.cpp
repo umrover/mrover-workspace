@@ -15,6 +15,7 @@ using namespace Eigen;
 KinematicsSolver::KinematicsSolver(const ArmState& robot_state_in) :    robot_state(robot_state_in),
                                                                         e_locked(false)
                                                                 {
+                                                                    // TODO change robot_state to parameter
     // Try robot fk:
     FK();
 }
