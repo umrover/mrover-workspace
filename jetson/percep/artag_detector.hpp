@@ -21,7 +21,7 @@ class TagDetector {
     cv::Mat rgb;
 
    public:
-   //constructor loads dictionary data from file
+   //constructor loads alvar dictionary data from file that defines tag bit configurations
     TagDetector(); 
     //takes detected AR tag and finds center coordinate for use with ZED                                                                 
     Point2f getAverageTagCoordinateFromCorners(const vector<Point2f> &corners);
@@ -30,5 +30,5 @@ class TagDetector {
     //finds the angle from center given pixel coordinates              
     double getAngle(float xPixel, float wPixel);     
     //if AR tag found, updates distance, bearing, and id                              
-    void updateTag(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src); 
+    void updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src); 
 };

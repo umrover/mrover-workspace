@@ -130,13 +130,12 @@ double TagDetector::getAngle(float xPixel, float wPixel){
     return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
 }
 
-void TagDetector::updateTag(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
-    struct tagPairs 
-    {
-     vector<int> id;
-     vector<int> locx;
-     vector<int> locy;
-     vector<int> buffer;
+void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
+    struct tagPairs {
+    vector<int> id;
+    vector<int> locx;
+    vector<int> locy;
+    vector<int> buffer;
     }; 
     tagPairs tags;
 
