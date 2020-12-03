@@ -201,12 +201,12 @@ double PCL::getAngle(int buffer, int direction, std::vector<std::vector<int>> &i
         //Finding angle off center
         double xDist = pt_cloud_ptr->points[obstacles.at(direction)].x;
         double zDist = pt_cloud_ptr->points[obstacles.at(0)].z;//Length of adjacent
-        xDist += direction ? buffer+HALF_ROVER : -(buffer+HALF_ROVER); //Calculate length of opposite
-        newAngle = atan(xDist/zDist)*180/PI;//tan-1(opposite/adjacent)
+        xDist       += direction ? buffer+HALF_ROVER : -(buffer+HALF_ROVER); //Calculate length of opposite
+        newAngle     = atan(xDist/zDist)*180/PI;//arctan(opposite/adjacent)
 
         //Create compareLine Functors
-        compareLine leftLine (newAngle, -HALF_ROVER);
-        compareLine rightLine (newAngle, HALF_ROVER);
+        compareLine leftLine(newAngle, -HALF_ROVER);
+        compareLine rightLine(newAngle, HALF_ROVER);
         
         obstacles.clear();
         
@@ -229,8 +229,8 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
         pcl::ScopeTime t ("Find Clear Path");
     #endif
 
-    // create left and right angle vlaue that default at 360 degrees
-    double leftAngle = 360;
+    // create left and right angle off center that default at 360 degrees
+    double leftAngle  = 360;
     double rightAngle = 360;
 
     std::vector<int> obstacles; //index of the leftmost and rightmost obstacles in path
@@ -246,15 +246,15 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
     vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
     //Find Clear left path
-    leftAngle = getAngle(10, 0, interest_points, viewer, obstacles);
+    leftAngle       = getAngle(10, 0, interest_points, viewer, obstacles);
 
     //Reset global variables
-    obstacles = {0, 0};
+    obstacles       = {0, 0};
     obstacles.at(0) = centerObstacles.at(0);
     obstacles.at(1) = centerObstacles.at(1);
 
     //Find clear right path
-    rightAngle = getAngle(10, 1, interest_points, viewer, obstacles);
+    rightAngle      = getAngle(10, 1, interest_points, viewer, obstacles);
 
     //If there is no clear path both ways return an impossible number
     if(rightAngle == 360 && leftAngle == 360) {
@@ -282,6 +282,8 @@ bool PCL::CheckPath(std::vector<std::vector<int>> interest_points,
     //Iterate through interest points
     for(auto cluster : interest_points) {
         for (auto index : cluster) {
+            //Check if the obstacle interest point is to the right of the left projected path of the rover 
+            //and to the left of the right projected path of the rover
             if(leftLine(pt_cloud_ptr->points[index].x, pt_cloud_ptr->points[index].z) >= 0  && 
                rightLine(pt_cloud_ptr->points[index].x, pt_cloud_ptr->points[index].z) <=0){
                 end = false;

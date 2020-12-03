@@ -23,14 +23,17 @@ public:
     int operator()(int x, int y) {
         
         //Make sure don't divide by 0
-        double xc = xIntercept;
+        double xc = xIntercept; //x calculated
         if(m != 0)
-            xc = y/m+xIntercept;
+            xc = y/m+xIntercept; //Find x value on line with same y value as input point
 
+        //Point is right of the line
         if(x > xc)
             return 1;
+        //Point is on the line
         else if (x == xc)
             return 0;
+        //Point is left of the line
         else
             return -1; 
     }

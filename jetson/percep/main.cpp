@@ -46,7 +46,7 @@ int main() {
   #if OBSTACLE_DETECTION
 
   PCL pointcloud;
-  
+
   #if PERCEPTION_DEBUG
     /* --- Create PCL Visualizer --- */
     shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
