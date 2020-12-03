@@ -89,7 +89,7 @@ class PCL {
                std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine);
         
         //Determines angle off center a clear path is in direction specified
-        double getAngle(int buffer, int direction, std::vector<std::vector<int>> &interest_points,
+        double getAngleOffCenter(int buffer, int direction, std::vector<std::vector<int>> &interest_points,
                     shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles);
 
     public:

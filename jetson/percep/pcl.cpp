@@ -188,15 +188,15 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 
 }
 
-/* --- Get Angle --- */
+/* --- Get Angle Off Center--- */
 //This function finds the angle off center the
 //line that passes through both these points is
 //Direction of 0 is left and 1 is right
-double PCL::getAngle(int buffer, int direction, std::vector<std::vector<int>> &interest_points,
+double PCL::getAngleOffCenter(int buffer, int direction, std::vector<std::vector<int>> &interest_points,
                     shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles){
     double newAngle = 0;
     //If Center Path is blocked check the left or right path depending on direction parameter
-    while(newAngle > -70 && newAngle < 70){
+    while(newAngle > -70 && newAngle < 70) {
         
         //Finding angle off center
         double xDist = pt_cloud_ptr->points[obstacles.at(direction)].x;
@@ -210,9 +210,9 @@ double PCL::getAngle(int buffer, int direction, std::vector<std::vector<int>> &i
         
         obstacles.clear();
         
-        if(CheckPath(interest_points, viewer, obstacles, leftLine, rightLine)){
+        if(CheckPath(interest_points, viewer, obstacles, leftLine, rightLine)) {
             #if PERCEPTION_DEBUG
-            std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
+                std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
             #endif
             return newAngle;
         }    
@@ -237,8 +237,8 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
     
     //Check Center Path
     if(CheckPath(interest_points, viewer, obstacles, 
-        compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))){
-            std::cerr << "CENTER PATH IS CLEAR!!!" << std::endl;
+        compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
+            std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
         return 0;
     }
 
@@ -246,7 +246,7 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
     vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
     //Find Clear left path
-    leftAngle       = getAngle(10, 0, interest_points, viewer, obstacles);
+    leftAngle       = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
 
     //Reset global variables
     obstacles       = {0, 0};
@@ -254,7 +254,7 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
     obstacles.at(1) = centerObstacles.at(1);
 
     //Find clear right path
-    rightAngle      = getAngle(10, 1, interest_points, viewer, obstacles);
+    rightAngle      = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
 
     //If there is no clear path both ways return an impossible number
     if(rightAngle == 360 && leftAngle == 360) {
@@ -289,7 +289,7 @@ bool PCL::CheckPath(std::vector<std::vector<int>> interest_points,
                 end = false;
             
                 //Check if obstacles is initialized
-                if(obstacles.size() == 0){
+                if(obstacles.size() == 0) {
                     obstacles.push_back(index);
                     obstacles.push_back(index);
                 }
