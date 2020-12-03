@@ -254,14 +254,14 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     {
         if( phoebe->roverStatus().target().distance < phoebe->roverStatus().target2().distance ) 
         {
-             driveStatus = phoebe->drive( phoebe->roverStatus().target().distance,
+             driveStatus = phoebe->drive( phoebe->roverStatus().target().distance - 0.15,
                                              phoebe->roverStatus().target().bearing +
                                              phoebe->roverStatus().odometry().bearing_deg,
                                              true );
         }
         else 
         {
-             driveStatus = phoebe->drive( phoebe->roverStatus().target2().distance,
+             driveStatus = phoebe->drive( phoebe->roverStatus().target2().distance - 0.15,
                                              phoebe->roverStatus().target2().bearing +
                                              phoebe->roverStatus().odometry().bearing_deg,
                                              true );
@@ -269,7 +269,7 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     }
     else 
     {
-        driveStatus = phoebe->drive( phoebe->roverStatus().target().distance,
+        driveStatus = phoebe->drive( phoebe->roverStatus().target().distance - 0.15,
                                              phoebe->roverStatus().target().bearing +
                                              phoebe->roverStatus().odometry().bearing_deg,
                                              true );

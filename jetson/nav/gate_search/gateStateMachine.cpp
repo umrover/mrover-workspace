@@ -281,14 +281,14 @@ NavState GateStateMachine::executeGateDriveToFarPost()
     {
         if( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) 
         {
-            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target2().distance - 0.5,
+            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target2().distance - 0.3,
                                              mPhoebe->roverStatus().target2().bearing +
                                              mPhoebe->roverStatus().odometry().bearing_deg,
                                              true );
         }
         else 
         {
-            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance - 0.5,
+            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance - 0.3,
                                              mPhoebe->roverStatus().target().bearing +
                                              mPhoebe->roverStatus().odometry().bearing_deg,
                                              true );
@@ -296,7 +296,7 @@ NavState GateStateMachine::executeGateDriveToFarPost()
     }  
     else 
     {
-        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance - 0.5,
+        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance - 0.3,
                                              mPhoebe->roverStatus().target().bearing +
                                              mPhoebe->roverStatus().odometry().bearing_deg,
                                              true );
@@ -340,7 +340,7 @@ NavState GateStateMachine::executeGateDriveThrough()
             centerPoint1 = centerPoint2;
             centerPoint2 = temp;
             CP1ToCP2CorrectDir = true;
-            return NavState::GateFace;
+            return NavState::GateSpin;
         }
         mPhoebe->roverStatus().path().pop_front();
         mRoverStateMachine->updateCompletedPoints();
@@ -348,7 +348,6 @@ NavState GateStateMachine::executeGateDriveThrough()
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
-        // TODO
         return NavState::GateDriveThrough;
     }
     return NavState::GateDriveThrough;
