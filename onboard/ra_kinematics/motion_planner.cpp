@@ -158,7 +158,7 @@ MotionPlanner::Node* MotionPlanner::connect(Node* tree, Vector6d& a_new) {
     return extension;
 }
 
-vector<tk::spline> MotionPlanner::rrt_connect(Vector6d& target) {
+void MotionPlanner::rrt_connect(Vector6d& target) {
     Vector6d start;
     start(0) = robot.get_joint_angles()["joint_a"];
     start(1) = robot.get_joint_angles()["joint_b"];
@@ -217,18 +217,18 @@ vector<tk::spline> MotionPlanner::rrt_connect(Vector6d& target) {
 
                 spline_size = a_path.size();
 
-                return spline_fitting(a_path);
+                spline_fitting(a_path);
+                return;
             }
         }
     }// for loop
 
     // if no path found, return an empty vector
-    return vector<tk::spline>();
+    splines = vector<tk::spline>();
 
 }
 
-// TODO translate line space and create 6 splines
-vector<tk::spline> spline_fitting(vector<Vector6d>& path) {
+vector<tk::spline> MotionPlanner::spline_fitting(vector<Vector6d>& path) {
 
     // six vectors, each with the path of a single component
     vector< vector<double> > separate_paths;
@@ -250,11 +250,18 @@ vector<tk::spline> spline_fitting(vector<Vector6d>& path) {
     }
 
     // use tk to create six different splines, representing a spline in 6 dimensions
-    vector<tk::spline> splines;
+    splines.clear();
     splines.resize(6);
     for (int i = 0; i < 6; ++i) {
         splines[i].set_points(x_, separate_paths[i]);
     }
+}
 
-    return splines;
+vector<double> MotionPlanner::get_spline_pos(double spline_t) {
+    vector<double> rtn;
+    rtn.reserve(6);
+
+    for (const tk::spline& spline : splines) {
+        rtn.push_back(spline_t);
+    }
 }
