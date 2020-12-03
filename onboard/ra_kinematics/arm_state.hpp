@@ -24,7 +24,7 @@ private:
 
     struct Joint {
         
-        Joint(string name_in, json joint_geom)
+        Joint(string name_in, const json& joint_geom)
             : name(name_in), angle(0), pos_world(Vector3d::Zero(3)), 
               global_transform(Matrix4d::Identity()), torque(Vector3d::Zero(3)) 
               {
@@ -139,11 +139,11 @@ public:
 
     void set_ef_pos_world(Vector3d ef_pos);
 
-    Vector6d get_ef_pos_and_euler_angles();
+    vector<double> get_ef_pos_and_euler_angles();
 
     map<string, double> get_joint_angles();
 
-    void set_joint_angles(Vector6d angles);
+    void set_joint_angles(vector<double>& angles);
 
     void transform_avoidance_links();
 

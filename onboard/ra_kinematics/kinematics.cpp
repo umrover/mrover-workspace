@@ -15,6 +15,7 @@ using namespace Eigen;
 KinematicsSolver::KinematicsSolver(const ArmState& robot_state_in) :    robot_state(robot_state_in),
                                                                         e_locked(false)
                                                                 {
+                                                                    // TODO change robot_state to parameter
     // Try robot fk:
     FK();
 }
@@ -174,20 +175,17 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
     /*
         Inverse kinematics for MRover arm using cyclic
         coordinate descent (CCD)
-
         Params:
             target_point (np.array([x, y, z, alpha, beta, gamma])):
             target point in 3d space
                 for end effector
             set_random_angles: asks solver to set joint angles to random
                 angles. Used to escape local minima
-
         Returns:
             joint_angles (list)
             bool : whether the robot arm was able to find
                 joint angles that allow it to reach within a threshold
                 of the target location
-
         Reference:
             http://www.cs.cmu.edu/~15464-s13/assignments/assignment2/jlander_gamedev_nov98.pdf
             http://www.cs.cmu.edu/~15464-s13/lectures/lecture6/IK.pdf
