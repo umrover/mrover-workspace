@@ -7,6 +7,7 @@ MotionPlanner::MotionPlanner(ArmState& robot_state_in, lcm::LCM& lcm_in, Kinemat
         robot(robot_state_in),
         lcm(lcm_in),
         solver(solver_in) {
+        // TODO make solver an argument for functions rather than member variable
     
     // add limits for each joint to all_limits, after converting to degrees
     for (string& joint : robot.get_all_joints()) {
@@ -134,9 +135,8 @@ MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d& z_rand) {
     for (int i = 0; i < 6; ++i) {
         z_new_angs(i) = z_new(i);
     }
-    if (!solver.is_safe(z_new_angs)){
-        // Can we use return NULL?
-        return NULL;
+    if (!solver.is_safe(z_new_angs)) {
+        return nullptr;
     }
     Node* new_node = &Node(z_new);
     new_node->parent = z_nearest;
