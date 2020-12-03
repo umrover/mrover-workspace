@@ -244,8 +244,8 @@ vector<tk::spline> MotionPlanner::spline_fitting(vector<Vector6d>& path) {
     // create a linear space betwee 0 and 1 with path.size() increments
     vector<double> x_;
     x_.reserve(path.size() + 1);
-    double step = path.size() <= 1 ? 1 : 1 / (path.size() - 1);
-    for (int i = 0; i <= 1; i += step) {
+    double spline_step = path.size() <= 1 ? 1 : 1 / (path.size() - 1);
+    for (int i = 0; i <= 1; i += spline_step) {
         x_.push_back(i);
     }
 
@@ -258,10 +258,15 @@ vector<tk::spline> MotionPlanner::spline_fitting(vector<Vector6d>& path) {
 }
 
 vector<double> MotionPlanner::get_spline_pos(double spline_t) {
-    vector<double> rtn;
-    rtn.reserve(6);
+    vector<double> angles;
+    angles.reserve(6);
 
     for (const tk::spline& spline : splines) {
-        rtn.push_back(spline_t);
+        angles.emplace_back(spline(spline_t));
     }
+
+    // invert 5th angle for use purposes
+    //angles[4] *= -1;
+
+    return angles;
 }
