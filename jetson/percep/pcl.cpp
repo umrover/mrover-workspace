@@ -151,7 +151,7 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
         pcl::ScopeTime t ("Find Interest Points");
     #endif
 
-    for (int i = 0; i < cluster_indices.size(); ++i)
+    for (int i = 0; i < (int)cluster_indices.size(); ++i)
     {
         std::vector<int>* curr_cluster = &interest_points[i];
 
@@ -200,9 +200,9 @@ double PCL::getAngleOffCenter(int buffer, int direction, std::vector<std::vector
         
         //Finding angle off center
         double xDist = pt_cloud_ptr->points[obstacles.at(direction)].x;
-        double zDist = pt_cloud_ptr->points[obstacles.at(0)].z;//Length of adjacent
-        xDist       += direction ? buffer+HALF_ROVER : -(buffer+HALF_ROVER); //Calculate length of opposite
-        newAngle     = atan(xDist/zDist)*180/PI;//arctan(opposite/adjacent)
+        double zDist = pt_cloud_ptr->points[obstacles.at(0)].z;//Length of adjacent side of right triangle
+        xDist += direction ? buffer+HALF_ROVER : -(buffer+HALF_ROVER); //Calculate length of opposite side of right triangle
+        newAngle = atan(xDist/zDist)*180/PI;//arctan(opposite/adjacent)
 
         //Create compareLine Functors
         compareLine leftLine(newAngle, -HALF_ROVER);
@@ -323,13 +323,13 @@ bool PCL::CheckPath(std::vector<std::vector<int>> interest_points,
     pcl::PointXYZRGB pt3(pt1);
     pt3.z=7000;
     pt3.x = leftLine.xIntercept;
-    if(leftLine.m != 0)
-        pt3.x=pt3.z/leftLine.m+leftLine.xIntercept;
+    if(leftLine.slope != 0)
+        pt3.x=pt3.z/leftLine.slope+leftLine.xIntercept;
     pcl::PointXYZRGB pt4(pt2);
     pt4.z=7000;
     pt4.x = rightLine.xIntercept;
-    if(rightLine.m != 0)
-        pt4.x=pt4.z/rightLine.m+rightLine.xIntercept;
+    if(rightLine.slope != 0)
+        pt4.x=pt4.z/rightLine.slope+rightLine.xIntercept;
     
     
     if(end) {
@@ -371,7 +371,7 @@ shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
 //For the PassThroughFilter function we can trust the ZED depth for up to 7000 mm (7 m) for "z" axis. 
 //3000 mm (3m) for "x" is a placeholder, we will chnage this value based on further testing.
 //This function is called in main.cpp
-obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
+void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
     obstacle_return result;
     PassThroughFilter("z", 7000.0);
     PassThroughFilter("y", 3000.0);

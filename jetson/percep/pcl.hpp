@@ -11,12 +11,12 @@
 class compareLine {
 public:
     int xIntercept;
-    double m;
+    double slope;
     
     compareLine(double angle_in, int xInt_in) : xIntercept{xInt_in}, 
-                        m{tan(angle_in*PI/180)} {
-                            if(m != 0)
-                                m = 1/m;
+                        slope{tan(angle_in*PI/180)} {
+                            if(slope != 0)
+                                slope = 1/slope;
                         }
 
     //Returns 1 if point is right of line, 0 if on, -1 if left of line
@@ -24,8 +24,8 @@ public:
         
         //Make sure don't divide by 0
         double xc = xIntercept; //x calculated
-        if(m != 0)
-            xc = y/m+xIntercept; //Find x value on line with same y value as input point
+        if(slope != 0)
+            xc = y/slope+xIntercept; //Find x value on line with same y value as input point
 
         //Point is right of the line
         if(x > xc)
@@ -94,7 +94,7 @@ class PCL {
 
     public:
         //Main function that runs the above 
-        obstacle_return pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer);
+        void pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer);
 
         //Creates a point cloud visualizer
         shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer();
