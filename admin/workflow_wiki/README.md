@@ -33,7 +33,23 @@ If any of there are not true, please resolve this before proceeding.
 4. Your `origin` remote points to `https://github.com/<your-github-username>/mrover-workspace.git` or `git@github.com:<your-github-username>/mrover-workspace.git`. This can be checked with `git remote -v`.
 
 ### Details
+When making code changes, you should be working on one of our [issues](https://github.com/umrover/mrover-workspace/issues).
+If you are working on multiple issues in parallel, make sure they are on separate branches (i.e. make sure you follow this process for each change independently).
+This is so that they eventually end up in a single pull request.
+In general, we try to do one issue per pull request.
+This will also result in one single commit per issue because, upon merging, commits in a pull request will be squashed into one commit.
 
+Making code changes can be broken down into 3 main steps.
+The first step is the intial setup which only needs to be done once per issue.
+The second step is making the actual changes to the code.
+The third step is testing your changes in order to verify the correctness of your changes and to verify you did not break any other functionalities in the process of making your changes.
+
+1. Create a new branch to work off of.
+    * When we create a new branch, we want to make sure our new branch is branched off of `upstream/main`. Thus, we first checkout `main`. This can be accomplished with the following command.
+        ```sh
+        git checkout main
+        ```
+    * We want this
 
 ### Example
 For this demo, we will be resolving
@@ -56,12 +72,12 @@ and likely will be too dense to remember everything when you first read it.
       _the umrover remote (set up in the_
       _[main README](/README.md#contribution-workflow))._
       <br/>
-      ![git checkout main, git pull upstream main](/admin/workflow-wiki/img/git_update_main.png)
+      ![git checkout main, git pull upstream main](img/git_update_main.png)
     * Next, I want to create a new branch to do my code changes on that is
       based off of `main`/`upstream/main` (they are the same right now).
       I will call my branch `hotkey-docs`.
       <br/>
-      ![git checkout -b hotkey-docs](/admin/workflow-wiki/img/git_new_branch.png)
+      ![git checkout -b hotkey-docs](img/git_new_branch.png)
 
 2. Make your code changes.
     * First work session
@@ -69,17 +85,17 @@ and likely will be too dense to remember everything when you first read it.
           Note that this did nothing (and told me so) since I was already on
           `hotkey-docs`.
           <br/>
-          ![work session 1, git checkout hotkey-docs](/admin/workflow-wiki/img/git_checkout_branch.png)
+          ![work session 1, git checkout hotkey-docs](img/git_checkout_branch.png)
         * Next, I make sure I am working off of the most up to date code.
           I do this with `git pull --rebase upstream main`. Note that most likely this will have no effect since I just created this branch off the most up to date version of `upstream/main`.
           <br/>
-          ![work session 1, git pull --rebase upstream main](/admin/workflow-wiki/img/ws1_git_pull_rebase.png)
+          ![work session 1, git pull --rebase upstream main](img/ws1_git_pull_rebase.png)
         * *Make the actual changes to code.*
         * *Test the code changes.*
         * Checking `git status` often is a great habit to have. This can be done
           by typing `git status`.
           <br/>
-          ![work session 1, git status](/admin/workflow-wiki/img/ws1_git_status_1.png)
+          ![work session 1, git status](img/ws1_git_status_1.png)
         * Now I want to stage my changes for commit. I do this with `git add`.
           I notice from `git status` that all my changes are in
           `simulators/nav/src/components/hotkeys.md` so I can add that file by
@@ -92,25 +108,25 @@ and likely will be too dense to remember everything when you first read it.
           This might allow me to see if I forgot to remove a debug print
           statement, for example.
           <br/>
-          ![work session 1, git add simulators/nav/src/components/hotkeys.md](/admin/workflow-wiki/img/ws1_git_add.png)
+          ![work session 1, git add simulators/nav/src/components/hotkeys.md](img/ws1_git_add.png)
         * Next I commit my changes using `git commit`. I type `git commit` at
           the command line and then type my commit message in the text editor
           that automatically opens up. Note that I do not intend for this to be
           my final commit message but I do want it to be useful so I can
           determine what I did in this commit.
           <br/>
-          ![work session 1, git commit message](/admin/workflow-wiki/img/ws1_git_commit_message.png)
+          ![work session 1, git commit message](img/ws1_git_commit_message.png)
           <br/>
-          ![work session 1, git commit, git status](/admin/workflow-wiki/img/ws1_git_commit.png)
+          ![work session 1, git commit, git status](img/ws1_git_commit.png)
         * I can type `git log` to view the change in the commit history. This is
           one I like to do pretty often just like `git status`.
           <br/>
-          ![work session 1, git log](/admin/workflow-wiki/img/ws1_git_log.png)
+          ![work session 1, git log](img/ws1_git_log.png)
         * Lastly, I push my changes, so that I don’t lose any work if something
           were to happen to my local repository, using
           `git push origin hotkey-docs`.
           <br/>
-          ![work session 1, git push origin hotkey-docs](/admin/workflow-wiki/img/ws1_git_push.png)
+          ![work session 1, git push origin hotkey-docs](img/ws1_git_push.png)
 
     * Second work session
         * If not already on my new branch (`hotkey-docs`), I check it out.
@@ -126,20 +142,20 @@ and likely will be too dense to remember everything when you first read it.
           un`stash` (`stash pop`) them.
           As the error message states, I could also commit them if I wanted.
           <br/>
-          ![work session 2, git pull --rebase upstream main](/admin/workflow-wiki/img/ws2_git_pull_rebase.png)
+          ![work session 2, git pull --rebase upstream main](img/ws2_git_pull_rebase.png)
         * *Make the actual changes to code.*
         * *Test the code changes.*
         * Again, I stage, commit, and push my changes. I see that all my changes
           are in `simulators/nav/src/components/ and there are no changes in
           that directory that I don't want so I can `add` that entire directory.
           <br/>
-          ![work session 2, git add, git commit, git push origin hotkey-docs](/admin/workflow-wiki/img/ws2_git_add_commit_push.png)
+          ![work session 2, git add, git commit, git push origin hotkey-docs](img/ws2_git_add_commit_push.png)
           <br/>
-          ![work session 2, git commit message](/admin/workflow-wiki/img/ws2_git_commit_message.png)
+          ![work session 2, git commit message](img/ws2_git_commit_message.png)
         * Using `git log`, I now see my two commits based off of
           `upstream/main`.
           <br/>
-          ![work session 2, git log](/admin/workflow-wiki/img/ws2_git_log.png)
+          ![work session 2, git log](img/ws2_git_log.png)
 
     * Third work session
         * Hopefully by now this is getting repetitive to you!
@@ -151,11 +167,11 @@ and likely will be too dense to remember everything when you first read it.
         * *Test the code changes.*
         * Again, I stage, commit, and push my changes.
           <br/>
-          ![work session 3, git add, git commit, git push origin hotkey-docs](/admin/workflow-wiki/img/ws3_git_add_commit_push.png)
+          ![work session 3, git add, git commit, git push origin hotkey-docs](img/ws3_git_add_commit_push.png)
           <br/>
-          ![work session 3, git commit message](/admin/workflow-wiki/img/ws3_git_commit_message.png)
+          ![work session 3, git commit message](img/ws3_git_commit_message.png)
           <br/>
-          ![work session 3, git log](/admin/workflow-wiki/img/ws3_git_log.png)
+          ![work session 3, git log](img/ws3_git_log.png)
 
     * Note that a work session does not need to be on different days or even at
       different times. It is a good habit to be committing often.
