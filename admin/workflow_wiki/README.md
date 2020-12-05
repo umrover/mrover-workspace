@@ -232,6 +232,7 @@ and likely will be too dense to remember everything when you first read it.
           Date:   Thu Nov 19 10:39:58 2020 -0500
 
               [nav-sim] Add hotkey documentation from HotKeys.vue
+
           commit 8dff03c3c4000fda2f2d4b990cdf5de2f24e4419 (upstream/main, origin/main, main)
           ...
           ```
@@ -255,32 +256,91 @@ and likely will be too dense to remember everything when you first read it.
 
     * Second work session
         * If not already on my new branch (`hotkey-docs`), I check it out.
-        * Next, I make sure I am working off of the most up to date version of
-          `upstream/main`.
-          I do this with `git pull --rebase upstream main`. Note that most likely
-          this will have no effect since I just created this branch off the most
-          up to date version of `upstream/main`.
+        * Next, I make sure I am working off of the most up to date version of `upstream/main`.
+          I do this with `git pull --rebase upstream main`.
+          Note that most likely this will have no effect since I just created this branch off the most up to date version of `upstream/main`.
           However, let's say I made a few code changes before `pull`ing.
-          In this case, I could `stash` them, then `pull --rebase`, and then, if
-          this changes are for
-          [issue 431](https://github.com/umrover/mrover-workspace/issues/431), I
-          un`stash` (`stash pop`) them.
+          In this case, I could `stash` them, then `pull --rebase`, and then, if this changes are for [issue 431](https://github.com/umrover/mrover-workspace/issues/431), I un`stash` (`stash pop`) them.
           As the error message states, I could also commit them if I wanted.
-          <br/>
-          ![work session 2, git pull --rebase upstream main](img/ws2_git_pull_rebase.png)
+          ```console
+          $ git pull --rebase upstream main
+          error: cannot pull with rebase: You have unstaged changes.
+          error: please commit or stash them.
+          $ git stash
+          Saved working directory and index state WIP on hotkey-docs: 5c2d69ea [nav-sim] Add hokey documentation from HotKeys.vue
+          $ git pull --rebase upstream main
+          From https://github.com/umrover/mrover-workspace
+           * branch              main       -> FETCH_HEAD
+          Current branch hotkey-docs is up to date.
+          $ git stash pop
+          On branch hotkey-docs
+          Changes not staged for commit:
+            (use "git add <file>..." to update what will be committed)
+            (use "git restore <file>..." to discard changes in working directory)
+                  modified:   simulators/nav/src/components/hotkeys.md
+
+          no changes added to commit (use "git add" and/or "git commit -a")
+          Dropped refs/stash@{0} (8fb86b7414f1fa99b9beba00ffb5869627945195)
+          ```
         * *Make the actual changes to code.*
         * *Test the code changes.*
-        * Again, I stage, commit, and push my changes. I see that all my changes
-          are in `simulators/nav/src/components/ and there are no changes in
-          that directory that I don't want so I can `add` that entire directory.
-          <br/>
-          ![work session 2, git add, git commit, git push origin hotkey-docs](img/ws2_git_add_commit_push.png)
-          <br/>
-          ![work session 2, git commit message](img/ws2_git_commit_message.png)
+        * Again, I stage, commit, and push my changes. I see that all my changes are in `simulators/nav/src/components/` and there are no changes in that directory that I don't want so I can `add` that entire directory.
+          ```console
+          $ git status
+          On branch hotkey-docs
+          Changes not staged for commit:
+            (use "git add <file>..." to update what will be committed)
+            (use "git restore <file>..." to discard changes in working directory)
+                  modified:   simulators/nav/src/components/README.md
+                  modified:   simulators/nav/src/components/hotkeys.md
+
+          no changes added to commit (use "git add" and/or "git commit -a")
+          $ git add simulators/nav/src/components
+          $ git commit
+          [hokey-docs 5b861961] [nav-sim] Add hotkey docs for DebugTools.vue
+           2 files changed, 10 insertions(+), 3 deletions(-)
+          $ git status
+          On branch hotkey-docs
+          nothing to commit, working tree clean
+          $ git push origin hotkey-docs
+          Enumerating objects: 15, done.
+          Counting objects: 100% (15/15), done.
+          Delta compression using up to 8 threads
+          Compressing objects: 100% (8/8), done.
+          Writing objects: 100% (7/7), 896 bytes | 896.00 KiB/s, done.
+          Total 8 (delta 6), reused 0 (delta 0)
+          remote: Resolving deltas: 100% (6/6), completed with 6 local objects.
+          To github.com:amverni/mrover-workspace.git
+             5c2d69ea..5b861961  hotkey-docs -> hotkey-docs
+          ```
+          ```console
+          1 [nav-sim] Add hotkey docs for DebugTools.vue
+          2 # Please enter the commit message for your changes. Lines starting
+          3 # with '#' will be ignored, and an empty message aborts the commit.
+          4 #
+          5 # On branch hotkey-docs
+          6 # Changes to be committed:
+          7 #   modified:   simulators/nav/src/components/README.md
+          8 #   modified:   simulators/nav/src/components/hotkeys.md
+          9 #
+          ```
         * Using `git log`, I now see my two commits based off of
           `upstream/main`.
-          <br/>
-          ![work session 2, git log](img/ws2_git_log.png)
+          ```console
+          commit 5b861961d9e46e71591856ff69b092a3964f8406 (HEAD -> hotkey-docs, origin/hotkey-docs)
+          Author: Andrew Vernier <amverni@umich.edu>
+          Date:   Thu Nov 19 15:22:14 2020 -0500
+
+              [nav-sim] Add hotkey docs for DebugTools.vue
+
+          commit 5c2d69ea285843cc770fe44d99b064a54739db74
+          Author: Andrew Vernier <amverni@umich.edu>
+          Date:   Thu Nov 19 10:39:58 2020 -0500
+
+              [nav-sim] Add hotkey documentation from HotKeys.vue
+
+          commit 8dff03c3c4000fda2f2d4b990cdf5de2f24e4419 (upstream/main, origin/main, main)
+          ```
 
     * Third work session
         * Hopefully by now this is getting repetitive to you!
