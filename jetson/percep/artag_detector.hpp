@@ -21,7 +21,7 @@ class TagDetector {
     cv::Mat rgb;
 
    public:
-   //constructor loads alvar dictionary data from file that defines tag bit configurations
+    //constructor loads alvar dictionary data from file that defines tag bit configurations
     TagDetector(); 
     //takes detected AR tag and finds center coordinate for use with ZED                                                                 
     Point2f getAverageTagCoordinateFromCorners(const vector<Point2f> &corners);
