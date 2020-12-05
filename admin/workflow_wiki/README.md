@@ -93,6 +93,8 @@ While the second step also involves testing, this testing is much more thorough 
 
 3. Testing code changes.
     * Perform full system testing and integration testing to verify your changes and verify no regression to other changes as a result of your changes.
+      While in a perfect world, this would mean regression testing all code in our repo, we understand this is not feasible.
+      Thus, instead, you should focus on testing that no interface with another team was broken.
       If you find any bugs related to your code, go back to step 2.
       If you find any bugs not related to your code, create an issue.
     * For details on how to do thorough testing on MRover, please see any software team lead or technical advisor.
