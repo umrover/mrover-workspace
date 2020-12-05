@@ -385,7 +385,7 @@ and likely will be too dense to remember everything when you first read it.
           To github.com:amverni/mrover-workspace.git
              5b861961..ec43ea6b  hotkey-docs -> hotkey-docs
           ```
-          ```vim
+          ```console
            1 [nav-sim] Add hotkey docs for DrawModule.vue
            2
            3 This change also fixes a todo with the naming of the LCM
