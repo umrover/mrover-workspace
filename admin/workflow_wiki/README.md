@@ -41,15 +41,68 @@ This will also result in one single commit per issue because, upon merging, comm
 
 Making code changes can be broken down into 3 main steps.
 The first step is the intial setup which only needs to be done once per issue.
-The second step is making the actual changes to the code.
+The second step is making the actual changes to the code and testing along the way.
 The third step is testing your changes in order to verify the correctness of your changes and to verify you did not break any other functionalities in the process of making your changes.
+While the second step also involves testing, this testing is much more thorough in that it requires also doing integration testing of your changes with the rest of our codebase rather than just testing your code.
 
 1. Create a new branch to work off of.
-    * When we create a new branch, we want to make sure our new branch is branched off of `upstream/main`. Thus, we first checkout `main`. This can be accomplished with the following command.
-        ```sh
-        git checkout main
-        ```
-    * We want this
+    * When we create a new branch, we want to make sure our new branch is branched off of the latest version of `upstream/main`.
+      Thus, we first checkout `main`.
+      ```sh
+      git checkout main
+      ```
+      Then we `pull` the latest changes.
+      ```sh
+      git pull upstream main
+      ```
+      Now your local branch `main` is up to date with `upstream/main`.
+    * Now create your new branch. By default it will be based off of the branch you currently have checked out (`main` in this case which is now the same as `upstream/main`).
+      Name this new branch something related to the changes you're making.
+      ```sh
+      git checkout -b <your-branch-name>
+      ```
+
+2. Make code changes.
+    * Checkout the local branch related to this change.
+      ```sh
+      git checkout <your-branch-name>
+      ```
+    * Make sure you are working off of the most up to date code in case something changes that affects my changes.
+      ```sh
+      git pull --rebase upstream main
+      ```
+    * Implement your code changes.
+    * Test your code changes.
+    * Stage your changes.
+      ```sh
+      git add <list of files/directories you changed>
+      ```
+    * Commit your changes with a useful commit message.
+      For the first commit you make, you should format your commit message in the following way:
+      ```console
+      [team/project] commit summary
+
+      PR_link_keyword #issue_number
+
+      Detailed commit message
+      ```
+      Here is a good example:
+      ```console
+      [nav] Refactor navigation simulator
+
+      resolves umrover #308
+
+      Refactor navigation simulator to use Vue and TypeScript.
+      This refactor is indented to make the simulator easier to maintain,
+      make it easier to add new features, and move towards using
+      technologies that are more commonly used in industry.
+
+      We are keeping around the old version of the simulator
+      temporarily in case the refactored version has any major
+      problems. This should be deleted when the correctness of the
+      refactored version is confirmed.
+      ```
+    * Repeat this step as many times as necessary until your have met all the requirements laid out in the description of the issue you are working on.
 
 ### Example
 For this demo, we will be resolving
@@ -79,7 +132,7 @@ and likely will be too dense to remember everything when you first read it.
       <br/>
       ![git checkout -b hotkey-docs](img/git_new_branch.png)
 
-2. Make your code changes.
+2. Make code changes.
     * First work session
         * If not already on my new branch (`hotkey-docs`), I check it out.
           Note that this did nothing (and told me so) since I was already on
