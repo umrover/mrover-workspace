@@ -48,34 +48,34 @@ While the second step also involves testing, this testing is much more thorough 
 1. Create a new branch to work off of.
     * When we create a new branch, we want to make sure our new branch is branched off of the latest version of `upstream/main`.
       Thus, we first checkout `main`.
-      ```sh
-      git checkout main
+      ```console
+      $ git checkout main
       ```
       Then we `pull` the latest changes.
-      ```sh
-      git pull upstream main
+      ```console
+      $ git pull upstream main
       ```
       Now your local branch `main` is up to date with `upstream/main`.
     * Now create your new branch. By default it will be based off of the branch you currently have checked out (`main` in this case which is now the same as `upstream/main`).
       Name this new branch something related to the changes you're making.
-      ```sh
-      git checkout -b <your branch name>
+      ```console
+      $ git checkout -b <your branch name>
       ```
 
 2. Make code changes.
     * Checkout the local branch related to this change.
-      ```sh
-      git checkout <your branch name>
+      ```console
+      $ git checkout <your branch name>
       ```
     * Make sure you are working off of the most up to date code in case something changes that affects my changes.
-      ```sh
-      git pull --rebase upstream main
+      ```console
+      $ git pull --rebase upstream main
       ```
     * Implement your code changes.
     * Test your code changes.
     * Stage your changes.
-      ```sh
-      git add <list of files/directories you changed>
+      ```console
+      $ git add <list of files/directories you changed>
       ```
     * Commit your changes with a useful commit message.
       For the first commit you make, you should format your commit message in the following way:
@@ -103,10 +103,17 @@ While the second step also involves testing, this testing is much more thorough 
       problems. This should be deleted when the correctness of the
       refactored version is confirmed.
       ```
+      Don't worry about this _too much_ because you will have the chance to change later.
     * Use `git status` and `git log` often!
+      ```console
+      $ git status
+      ```
+      ```console
+      $ git log
+      ```
     * Push your changes to your remote repository.
-      ```sh
-      git push origin <your branch name>
+      ```console
+      $ git push origin <your branch name>
       ```
     * Repeat this step as many times as necessary until your have met all the requirements laid out in the description of the issue you are working on.
 
@@ -131,67 +138,120 @@ We expect that this guide will be more useful to you as you are making changes
 and likely will be too dense to remember everything when you first read it.
 
 1. Create a new branch to work off of.
-    * First, I want to base my changes off of the most up to date
-      `upstream/main` branch. To do so, I check out my `main` branch and then
-      I pull from `upstream/main`. _Note that `upstream` is my local name for_
-      _the umrover remote (set up in the_
-      _[main README](/README.md#contribution-workflow))._
-      <br/>
-      ![git checkout main, git pull upstream main](img/git_update_main.png)
-    * Next, I want to create a new branch to do my code changes on that is
-      based off of `main`/`upstream/main` (they are the same right now).
+    * First, I want to base my changes off of the most up to date `upstream/main` branch.
+      To do so, I check out my `main` branch and then I pull from `upstream/main`.
+      ```console
+      $ git checkout main
+      Switch to branch 'main'
+      Your branch is up to date with 'upstream/main'.
+      $ git pull upstream main
+      From https://github.com/umrover/mrover-workspace
+       * branch                      main     -> FETCH_HEAD
+      Already up to date.
+      ```
+    * Next, I want to create a new branch to do my code changes on that is based off of `main`/`upstream/main` (they are the same right now).
       I will call my branch `hotkey-docs`.
-      <br/>
-      ![git checkout -b hotkey-docs](img/git_new_branch.png)
+      ```console
+      $ git checkout -b hotkey-docs
+      Switched to a new branch 'hotkey-docs'
+      ```
 
 2. Make code changes.
     * First work session
         * If not already on my new branch (`hotkey-docs`), I check it out.
-          Note that this did nothing (and told me so) since I was already on
-          `hotkey-docs`.
-          <br/>
-          ![work session 1, git checkout hotkey-docs](img/git_checkout_branch.png)
+          Note that this did nothing (and told me so) since I was already on `hotkey-docs`.
+          ```console
+          $ git checkout hotkey-docs
+          Already on 'hotkey-docs'
+          ```
         * Next, I make sure I am working off of the most up to date code.
           I do this with `git pull --rebase upstream main`. Note that most likely this will have no effect since I just created this branch off the most up to date version of `upstream/main`.
-          <br/>
-          ![work session 1, git pull --rebase upstream main](img/ws1_git_pull_rebase.png)
+          ```console
+          $ git pull --rebase upstream main
+          From https://github.com/umrover/mrover-workspace
+           * branch                      main     -> FETCH_HEAD
+          Already up to date.
+          Current branch hotkey-docs is up to date.
+          ```
         * *Make the actual changes to code.*
         * *Test the code changes.*
-        * Checking `git status` often is a great habit to have. This can be done
-          by typing `git status`.
-          <br/>
-          ![work session 1, git status](img/ws1_git_status_1.png)
+        * Checking `git status` often is a great habit to have.
+          This can be done by typing `git status`.
+          ```console
+          $ git status
+          On branch hotkey-docs
+          Untracked files:
+            (use "git add <file>..." to include in what will be committed)
+                  simulators/nav/src/components/hotkeys.md
+
+          nothing added to commit but untracked files present (use "git add" to track)
+          ```
         * Now I want to stage my changes for commit. I do this with `git add`.
           I notice from `git status` that all my changes are in
-          `simulators/nav/src/components/hotkeys.md` so I can add that file by
-          typing `git add simulators/nav/src/components/hotkeys.md`.
-          Note that I could have used `git add .` but I did not because it’s a
-          good habit to think about what we want to be staging rather than
-          blindly staging all changes.
-          Using `git diff` is also a good tool here to see what was changed
-          about those files.
-          This might allow me to see if I forgot to remove a debug print
-          statement, for example.
-          <br/>
-          ![work session 1, git add simulators/nav/src/components/hotkeys.md](img/ws1_git_add.png)
-        * Next I commit my changes using `git commit`. I type `git commit` at
-          the command line and then type my commit message in the text editor
-          that automatically opens up. Note that I do not intend for this to be
-          my final commit message but I do want it to be useful so I can
-          determine what I did in this commit.
-          <br/>
-          ![work session 1, git commit message](img/ws1_git_commit_message.png)
-          <br/>
-          ![work session 1, git commit, git status](img/ws1_git_commit.png)
+          `simulators/nav/src/components/hotkeys.md` so I can add that file by typing `git add simulators/nav/src/components/hotkeys.md`.
+          Note that I could have used `git add .` but I did not because it’s a good habit to think about what we want to be staging rather than blindly staging all changes.
+          Using `git diff` is also a good tool here to see what was changed about those files.
+          This might allow me to see if I forgot to remove a debug print statement, for example.
+          ```console
+          $ git add simulators/nav/src/components/hotkeys.md
+          $ git status
+          On branch hotkey-docs
+          Changes to be committed:
+            (use "git restore --staged <file>..." to unstage)
+
+          ```
+        * Next I commit my changes using `git commit`.
+          I type `git commit` at the command line and then type my commit message in the text editor that automatically opens up. Note that I do not intend for this to be my final commit message but I do want it to be useful so I can determine what I did in this commit. I plan to update the final commit message later.
+          ```console
+          1 [nav-sim] Add hotkey documentation from HotKeys.vue
+          2 # Please enter the commit message for your changes. Lines starting
+          3 # with '#' will be ignored, and an empty message aborts the commit.
+          4 #
+          5 # On branch hotkey-docs
+          6 # Changes to be committed:
+          7 #   new file: simulators/nav/src/components/hotkeys.md
+          8 #
+          ```
+          ```console
+          $ git commit
+          [hotkey-docs 5c2d69ea] [nav-sim] Add hotkey documentation from HotKeys.vue
+           1 file changed, 33 insertions(+)
+           create mode 100644 simulators/nav/src/components/hotkeys.md
+          $ git status
+          On branch hotkey-docs
+          nothing to commit, working tree clean
+          ```
         * I can type `git log` to view the change in the commit history. This is
           one I like to do pretty often just like `git status`.
-          <br/>
-          ![work session 1, git log](img/ws1_git_log.png)
-        * Lastly, I push my changes, so that I don’t lose any work if something
-          were to happen to my local repository, using
-          `git push origin hotkey-docs`.
-          <br/>
-          ![work session 1, git push origin hotkey-docs](img/ws1_git_push.png)
+          ```console
+          $ git log
+          ```
+          ```console
+          commit 5c2d69ea285843cc770fe44d99b064a54739db74 (HEAD -> hotkey-docs)
+          Author: Andrew Vernier <amverni@umich.edu>
+          Date:   Thu Nov 19 10:39:58 2020 -0500
+
+              [nav-sim] Add hotkey documentation from HotKeys.vue
+          commit 8dff03c3c4000fda2f2d4b990cdf5de2f24e4419 (upstream/main, origin/main, main)
+          ...
+          ```
+        * Lastly, I push my changes, so that I don’t lose any work if something were to happen to my local repository, using `git push origin hotkey-docs`.
+          ```console
+          $ git push origin hotkey-docs
+          Enumerating objects: 12, done.
+          Counting objects: 100% (12/12), done.
+          Delta compression using up to 8 threads
+          Compressing objects: 100% (7/7), done.
+          Writing objects: 100% (7/7), 1.20 KiB | 1.20 MiB/s, done.
+          Total 7 (delta 4), reused 0 (delta 0)
+          remote: Resolving deltas: 100% (4/4), completed with 4 local objects.
+          remote:
+          remote: Create a pull request for 'hotkey-docs' on GitHub by visiting:
+          remote:      http://github.com/amverni/mrover-workspace/pull/new/hotkey-docs
+          remote:
+          To github.com:amverni/mrover-workspace.git
+           * [new branch]        hotkey-docs -> hotkey-docs
+          ```
 
     * Second work session
         * If not already on my new branch (`hotkey-docs`), I check it out.
