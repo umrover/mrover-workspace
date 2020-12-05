@@ -78,32 +78,6 @@ While the second step also involves testing, this testing is much more thorough 
       $ git add <list of files/directories you changed>
       ```
     * Commit your changes with a useful commit message.
-      For the first commit you make, you should format your commit message in the following way:
-      ```console
-      [team/project] commit summary
-
-      PR_link_keyword #issue_number
-
-      Detailed commit message
-      ```
-
-      Here is a good example:
-      ```console
-      [nav] Refactor navigation simulator
-
-      resolves umrover #308
-
-      Refactor navigation simulator to use Vue and TypeScript.
-      This refactor is indented to make the simulator easier to maintain,
-      make it easier to add new features, and move towards using
-      technologies that are more commonly used in industry.
-
-      We are keeping around the old version of the simulator
-      temporarily in case the refactored version has any major
-      problems. This should be deleted when the correctness of the
-      refactored version is confirmed.
-      ```
-      Don't worry about this _too much_ because you will have the chance to change later.
     * Use `git status` and `git log` often!
       ```console
       $ git status
@@ -202,7 +176,7 @@ and likely will be too dense to remember everything when you first read it.
 
           ```
         * Next I commit my changes using `git commit`.
-          I type `git commit` at the command line and then type my commit message in the text editor that automatically opens up. Note that I do not intend for this to be my final commit message but I do want it to be useful so I can determine what I did in this commit. I plan to update the final commit message later.
+          I type `git commit` at the command line and then type my commit message in the text editor that automatically opens up. Note that I do not intend for this to be my final commit message but I do want it to be useful so I can determine what I did in this commit.
           ```console
           1 [nav-sim] Add hotkey documentation from HotKeys.vue
           2 # Please enter the commit message for your changes. Lines starting
