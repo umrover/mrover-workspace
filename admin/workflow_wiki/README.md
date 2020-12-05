@@ -198,6 +198,7 @@ and likely will be too dense to remember everything when you first read it.
           On branch hotkey-docs
           Changes to be committed:
             (use "git restore --staged <file>..." to unstage)
+                  new file:   simulators/nav/src/components/hotkeys.md
 
           ```
         * Next I commit my changes using `git commit`.
@@ -346,22 +347,85 @@ and likely will be too dense to remember everything when you first read it.
         * Hopefully by now this is getting repetitive to you!
           This is what we want - a process that is easy to remember and do.
         * If not already on my new branch (`hotkey-docs`), I check it out.
-        * Next, I make sure I am working off of the most up to date version of
-          `upstream/main` using  `git pull --rebase upstream main`.
+        * Next, I make sure I am working off of the most up to date version of `upstream/main` using  `git pull --rebase upstream main`.
         * *Make the actual changes to code.*
         * *Test the code changes.*
         * Again, I stage, commit, and push my changes.
-          <br/>
-          ![work session 3, git add, git commit, git push origin hotkey-docs](img/ws3_git_add_commit_push.png)
-          <br/>
-          ![work session 3, git commit message](img/ws3_git_commit_message.png)
-          <br/>
-          ![work session 3, git log](img/ws3_git_log.png)
+          ```console
+          $ git status
+          On branch hotkey-docs
+          Changes not staged for commit:
+            (use "git add <file>..." to update what will be committed)
+            (use "git restore <file>..." to discard changes in working directory)
+                  modified:   simulators/nav/src/components/hotkeys.md
 
-    * Note that a work session does not need to be on different days or even at
-      different times. It is a good habit to be committing often.
-      In fact, I actually did all my "work sessions" on the same day without
-      stopping between them.
+          no changes added to commit (use "git add" and/or "git commit -a")
+          $ git add simulators/nav/src/components/hotkeys.md
+          $ git status
+          On branch hotkey-docs
+          Changes to be committed:
+            (use "git restore --staged <file>..." to unstage)
+                  modified:   simulators/nav/src/components/hotkeys.md
+
+          $ git commit
+          [hotkey-docs ec43ea6b] [nav-sim] Add hotkey docs for DrawModule.vue
+           1 file changed, 3 insertions(+), deletion(-)
+          $ git status
+          On branch hotkey-docs
+          nothing to commit, working tree clean
+          $ git log
+          $ git push origin hotkey-docs
+          Enumerating objects: 13, done.
+          Counting objects: 100% (13/13), done.
+          Delta compression using up to 8 threads
+          Compressing objects: 100% (7/7), done.
+          Writing objects: 100% (7/7), 748 bytes | 749.00 KiB/s, done.
+          Total 7 (delta 5), reused 0 (delta 0)
+          remote: Resolving deltas: 100% (5/5), completed with 5 local objects.
+          To github.com:amverni/mrover-workspace.git
+             5b861961..ec43ea6b  hotkey-docs -> hotkey-docs
+          ```
+          ```console
+           1 [nav-sim] Add hotkey docs for DrawModule.vue
+           2
+           3 This change also fixes a todo with the naming of the LCM
+           4 messages section
+           5 # Please enter the commit message for your changes. Lines starting
+           6 # with '#' will be ignored, and an empty message aborts the commit.
+           7 #
+           8 # On branch hotkey-docs
+           9 # Changes to be committed:
+          10 #   modified:   simulators/nav/src/components/hotkeys.md
+          11 #
+          ```
+          ```console
+          commit ec43ea6bdadef6a3d74715c4aae82785d1ffff15 (HEAD -> hotkey-docs, origin/hotkey-docs)
+          Author: Andrew Vernier <amverni@umich.edu>
+          Date:   Thu Nov 19 15:43:24 2020 -0500
+
+              [nav-sim] Add hotkey docs for DrawModule.vue
+
+              This change also fixes a todo with the naming of the LCM
+              messages section
+
+          commit 5b861961d9e46e71591856ff69b092a3964f8406
+          Author: Andrew Vernier <amverni@umich.edu>
+          Date:   Thu Nov 19 15:22:14 2020 -0500
+
+              [nav-sim] Add hotkey docs for DebugTools.vue
+
+          commit 5c2d69ea285843cc770fe44d99b064a54739db74
+          Author: Andrew Vernier <amverni@umich.edu>
+          Date:   Thu Nov 19 10:39:58 2020 -0500
+
+              [nav-sim] Add hotkey documentation from HotKeys.vue
+
+          commit 8dff03c3c4000fda2f2d4b990cdf5de2f24e4419 (upstream/main, origin/main, main)
+          ```
+
+    * Note that a work session does not need to be on different days or even at different times.
+      It is a good habit to be committing often.
+      In fact, I actually did all my "work sessions" on the same day without stopping between them.
 
 3. Testing code changes.
     * I system and integration test my changes. If any bugs came up, I would
