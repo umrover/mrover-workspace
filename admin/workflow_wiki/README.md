@@ -59,13 +59,13 @@ While the second step also involves testing, this testing is much more thorough 
     * Now create your new branch. By default it will be based off of the branch you currently have checked out (`main` in this case which is now the same as `upstream/main`).
       Name this new branch something related to the changes you're making.
       ```sh
-      git checkout -b <your-branch-name>
+      git checkout -b <your branch name>
       ```
 
 2. Make code changes.
     * Checkout the local branch related to this change.
       ```sh
-      git checkout <your-branch-name>
+      git checkout <your branch name>
       ```
     * Make sure you are working off of the most up to date code in case something changes that affects my changes.
       ```sh
@@ -86,6 +86,7 @@ While the second step also involves testing, this testing is much more thorough 
 
       Detailed commit message
       ```
+
       Here is a good example:
       ```console
       [nav] Refactor navigation simulator
@@ -102,7 +103,18 @@ While the second step also involves testing, this testing is much more thorough 
       problems. This should be deleted when the correctness of the
       refactored version is confirmed.
       ```
+    * Use `git status` and `git log` often!
+    * Push your changes to your remote repository.
+      ```sh
+      git push origin <your branch name>
+      ```
     * Repeat this step as many times as necessary until your have met all the requirements laid out in the description of the issue you are working on.
+
+3. Testing code changes.
+    * Perform full system testing and integration testing to verify your changes and verify no regression to other changes as a result of your changes.
+      If you find any bugs related to your code, go back to step 2.
+      If you find any bugs not related to your code, create an issue.
+    * For details on how to do thorough testing on MRover, please see any software team lead or technical advisor.
 
 ### Example
 For this demo, we will be resolving
@@ -231,7 +243,7 @@ and likely will be too dense to remember everything when you first read it.
       In fact, I actually did all my "work sessions" on the same day without
       stopping between them.
 
-3. Testing
+3. Testing code changes.
     * I system and integration test my changes. If any bugs came up, I would
       repeat step 2 and add more commits onto `origin hotkey-docs`.
     * For my changes, this involves making sure the documentation renders
