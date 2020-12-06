@@ -12,6 +12,9 @@
     - [Assumptions](#assumptions-1)
     - [Details](#details-1)
     - [Example](#example-1)
+  - [Appendix](#appendix)
+    - [Appendix A: Anatomy of a MRover Formatted Commit Message](#appendix-a-anatomy-of-a-mrover-formatted-commit-message)
+    - [Appendix B: MRover Required Reviewers Guidelines](#appendix-b-mrover-required-reviewers-guidelines)
 
 ## Overview
 This document describes the process by which we recommend contributors should use when making code changes for our repo and how to go about getting those changes merged into our `main` branch.
@@ -431,10 +434,10 @@ Once you have done this, you will be able to squash your code into a single fina
 1. Create a pull request from `<your github username>/<your branch name>` to `umrover/main`.
     * Use the GitHub web page to create this pull request starting from your forked repository (`https://github.com/<your github username>/mrover-workspace`).
     * Navigate to the `pull requests` tab on your fork (`https://github.com/<your github username>/mrover-workspace/pulls`).
-    * Then click `new pull request` (https://github.com/<your github username>/mrover-workspace/compare`).
+    * Then click `new pull request` (`https://github.com/<your github username>/mrover-workspace/compare`).
     * Verify/set the base and head repositories and branches.
       Then click `Create pull request`.
-    * On the resulting page (`https://github.com/umrover/mrover-workspace/compare/main...<your github username>:<your branch name>`) modify the pull request title and comment and add your reviewers.
+    * On the resulting page (`https://github.com/umrover/mrover-workspace/compare/main...<your github username>:<your branch name>`) modify the pull request title and comment and add your reviewers according to [Appendix B: MRover Required Reviewers Guidelines](#appendix-b-mrover-required-reviewers-guidelines).
       Your title should be in the following format.
       ```console
       [<team/project>] <commit summary>
@@ -442,56 +445,57 @@ Once you have done this, you will be able to squash your code into a single fina
       Your comment should have more details regarding your change and link to the issue being resolved.
       It should be in the following format.
       ```console
-      <keyword to link to issue> #<issue number>
+      <comma separated list of <keyword to link to issue> #<issue number>>
 
       <detailed commit message>
 
       <description of the testing that occured>
       ```
-      Note that these will eventually become the starting point for your final commit message.
-      However, don't worry about this _too much_ just yet because you will have the chance to change it later.
-      The parts that make up the TODO: create section for anatomy of commit message.
+      You can notice that the pieces that make up the title and comment are the same pieces that make up a properly formatted final commit message.
+      This is because these will eventually become the starting point for your final commit message so do your best to make these pieces something you can reuse later.
+      However, don't worry about this _too much_ just yet because you will have the chance to change it.
+      For more information on what each of the pieces used to create the final commit message are, see [Appendix A: Anatomy of a MRover Formatted Commit Message](#appendix-a-anatomy-of-a-mrover-formatted-commit-message).
     * Then click the `Create pull request` button which will take me to the page for the newly created pull request (`https://github.com/umrover/mrover-workspace/pull/<pull request number>`).
 
 2. Address any review comments or build errors reported by Travis.
+   * Respond to comments that require further discussion or to clarify someone's confusion.
+     If you talk offline, put a quick summary of your conversation as the response so that others can refer back to the pull request page to get details on a specific change.
+    * For comments that require code changes or automated check failures, make a code change in a similar manner as to how you did in the [Making Code Changes](#making-code-changes) section.
+      One minor detail is that you do not do a `git pull --rebase upstream main` but instead do a `git pull upstream main`.
+      When you push new commits to the same branch as before (`origin/<your branch name>`), the pull request will automatically update, dismiss old reviews, and rerun the automated checks.
+    * Repeate this step until you have at least 3 approvals, 0 reviewers requesting changes, and passed the automated checks.
+
+3.
 
 ### Example
 We will be continuing the demo of resolving [issue 431](https://github.com/umrover/mrover-workspace/issues/431).
 
 1. Create a pull request from `amverni/hotkey-docs` to `umrover/main`.
-    * I go to my
-      [GitHub fork of mrover-workspace](https://github.com/amverni/mrover-workspace).
-    * I click
-      [`Pull requests`](https://github.com/umrover/mrover-workspace/pulls)
-      at the top.
+    * I go to my [GitHub fork of mrover-workspace](https://github.com/amverni/mrover-workspace).
+    * I click [`Pull requests`](https://github.com/umrover/mrover-workspace/pulls) at the top.
       <br/>
       ![amverni fork](img/pr_amverni_fork.png)
-    * I click
-      [`New pull request`](https://github.com/umrover/mrover-workspace/compare)
-      on the right about one-third of the way down the screen.
+    * I click [`New pull request`](https://github.com/umrover/mrover-workspace/compare) on the right about one-third of the way down the screen.
       <br/>
       ![pull requests](img/pr_pull_requests.png)
     * I verify the base repository is `umrover/mrover-workspace`.
       I verify the base branch is `main`.
       I verify the head repository is `amverni/mrover-workspace`.
       I set the head branch to `hotkey-docs`.
-      Then I click
-      [`Create pull request`](https://github.com/umrover/mrover-workspace/compare/main...amverni:hotkey-docs)
+      Then I click [`Create pull request`](https://github.com/umrover/mrover-workspace/compare/main...amverni:hotkey-docs) on the right about half-way down the screen.
       <br/>
       ![new pull request](img/pr_new_pull_request.png)
-      on the right about half-way down the screen.
     * I modify the PR Title and comment more details about the PR as well as what testing I did.
       This information will become my final commit message (however it can change later on).
       Note that I include a link to the issue being resolved (`#431`), a more detailed description, and a note on how this change was tested.
       I also add my reviewers.
-    * Then I click
-      [`Create pull request`](https://github.com/umrover/mrover-workspace/pull/505)
-      just below the comment box.
+    * Then I click [`Create pull request`](https://github.com/umrover/mrover-workspace/pull/505) just below the comment box.
       <br/>
       ![open a pull request](img/pr_open_a_pull_request.png)
 
 2. Address any review comments or build errors reported by Travis.
     * Some comments only require me to respond to them in order to either further a conversation or clear up a confusion.
+      I respond to these accordingly.
     * Some comments require code changes so I do another work session.
         * If not already on my new branch (`hotkey-docs`), I check it out.
         * Next, I make sure I am working off of the most up to date version of `upstream/main` using  `git pull upstream main`. Note that I do **NOT** use the `--rebase` flag this time. I save the automated commit message to create the merge commit. This step is optional as I can use the `Update branch` button on the [pull request page](https://github.com/umrover/mrover-workspace/pull/505) (which only appears if it's applicable).
@@ -594,11 +598,80 @@ We will be continuing the demo of resolving [issue 431](https://github.com/umrov
 
       Add a wiki detailing what each hotkey does as well as what file that hotkey is implemented.
 
-      This change was tested by manual inspection of the rendered page on my fork on GitHub.
+      This change was tested by viewing the wiki on my fork to verify it rendered properly.
       ```
-      Then I click the `Confirm squash and merge` button.
+    * Then I click the `Confirm squash and merge` button.
       <br/>
       ![pull request commit message](img/pr_commit_message_.png)
     * Lastly, I delete the branch that I was working off of by clicking the `Delete branch` button.
       <br/>
       ![pull request delete branch](img/pr_delete_branch.png)
+
+## Appendix
+
+### Appendix A: Anatomy of a MRover Formatted Commit Message
+This section details how to properly format a commit message in accordance with MRover guidelines and what each section of the commit message is.
+
+A commit message should have the following format.
+```console
+[<team/project>] <commit summary>
+
+<comma separated list of <keyword to link to issue> #<issue number>>
+
+<detailed commit message>
+
+<description of the testing that occured>
+```
+
+Below is a quick breakdown of each of the sections of a properly formatted commit message.
+* _Team/project_: the team or project that the code being changed belongs to.
+* _Commit summary_: a quick one line summary that describes the change.
+* _Keyword to link to issue_: a keyword that can be used to link pull requests to issues. [Here](https://docs.github.com/en/free-pro-team@latest/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword) is a complete list of the possible keywords.
+* _Issue number_: the id number associated with the issue being resolved by this commit.
+* _Comma separated list of..._: A list of keywords and issue number pairs separated by a comma. In most cases, this is a list of length one as most pull requests will only address a single issue.
+* _Detailed commit message_: More details describing what the pull request does. This will vary in length depending on the change.
+* _Description of the testing that occured_: A description of what testing was done to verify the correctness of the change.
+
+Here is a good example of a properly formatted commit message.
+```console
+[nav] Refactor navigation simulator
+
+resolves umrover #308
+
+Refactor navigation simulator to use Vue and TypeScript.
+This refactor is indented to make the simulator easier to maintain,
+make it easier to add new features, and move towards using
+technologies that are more commonly used in industry.
+
+We are keeping around the old version of the simulator
+temporarily in case the refactored version has any major
+problems. This should be deleted when the correctness of the
+refactored version is confirmed.
+
+This change was tested by verifying that the functionalities of the new simulator matched that of the old simulator.
+Additionally, a linter was added to remove many potential bugs and any stylistic errors.
+```
+
+### Appendix B: MRover Required Reviewers Guidelines
+This section details who needs to approve a pull request in order to merge it into `upstream/main`.
+
+MRover requires 3 reviewers.
+All reviewers should review the code and point out any stylistic and functional errors.
+Stylistic errors are problems with the code that make it less readable than it could be otherwise.
+If code is not readable, it is not maintainable.
+We must keep in mind that we will all graduate within a few years of making contributions and thus others will have to read our code and make sense of it.
+It is our responsiblity to make sure those future MRover developers can do this with as much ease as possible.
+Functional errors are problems with the code that cause it to not run as expected and to not meet the guidelines set by the issue being resolved.
+
+Each reviewer also has a unique role depending on who they are as described below.
+1. The first reviewer is someone who is very familiar with the code being changed.
+   It is this reviewer's responsibility to manually unit test the code to verify it's correctness.
+   This person should also do a very thorough review of the code for stylistic and functional errors.
+   Generally this can be a subteam lead, former lead, or experienced subteam member.
+2. The second reviewer is someone who is very familiar with MRover testing proceedures.
+   It is this reviewer's responsiblity to verify that the code being merged into main has been thoroughly tested both in terms of unit and integration testing.
+   This person is generally an older member on the team such as a technical advisor or the branch lead.
+3. The third reviewer is someone who is a younger member on the team who is still learning about the review process on MRover.
+   It is this reviewer's responsibility to learn about our review process and see if there are ways we can improve our process in the future.
+
+Reviewers should take as much pride in reviewing code as they do in writing code.
