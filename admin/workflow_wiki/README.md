@@ -584,7 +584,7 @@ We will be continuing the demo of resolving [issue 431](https://github.com/umrov
     * Once the automated checks pass again, I can merge.
       I click the `Squash and merge` button.
       <br/>
-      ![pull request squash and merge](/admin/workflow-wiki/img/pr_squash_and_merge.png)
+      ![pull request squash and merge](img/pr_squash_and_merge.png)
     * I modify the commit message to match the format specified in this document.
       My final commit message is:
       ```
@@ -598,7 +598,7 @@ We will be continuing the demo of resolving [issue 431](https://github.com/umrov
       ```
       Then I click the `Confirm squash and merge` button.
       <br/>
-      ![pull request commit message](/admin/workflow-wiki/img/pr_commit_message_.png)
+      ![pull request commit message](img/pr_commit_message_.png)
     * Lastly, I delete the branch that I was working off of by clicking the `Delete branch` button.
       <br/>
-      ![pull request delete branch](/admin/workflow-wiki/img/pr_delete_branch.png)
+      ![pull request delete branch](img/pr_delete_branch.png)
