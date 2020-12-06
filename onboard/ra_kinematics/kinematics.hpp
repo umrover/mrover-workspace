@@ -27,7 +27,7 @@ private:
     //ArmState robot_safety;
     bool e_locked;
 
-    stack<Vector6d> arm_state_backup;
+    stack<vector<double>> arm_state_backup;
 
     /**
      * Push the angles of robot_state into the arm_state_backup stack
@@ -66,14 +66,14 @@ public:
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds and don't cause collisions
      * */
-    bool is_safe(Vector6d angles);
+    bool is_safe(vector<double> angles);
 
     /**
      * called by is_safe to check that angles are within bounds
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds
      * */
-    bool limit_check(const Vector6d &angles);
+    bool limit_check(const vector<double> &angles);
 
 };
 

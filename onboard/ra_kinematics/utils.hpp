@@ -29,4 +29,6 @@ Vector3d calculate_torque(Vector3d r, double mass, Vector3d rot_axis);
 
 Vector3d apply_transformation(const Matrix4d &transform, const Vector3d &point);
 
+Vector6d vecTo6d(vector<double> inVec);
+
 #endif

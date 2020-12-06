@@ -8,6 +8,8 @@ using namespace nlohmann;
 using namespace std;
 using namespace Eigen;
 
+typedef Matrix<double, 6, 1> Vector6d;
+
 json read_json_from_file(string filepath) {
     ifstream file(filepath);
 
@@ -141,4 +143,12 @@ Vector3d apply_transformation(const Matrix4d &transform, const Vector3d &point) 
     Vector4d transformed = transform * four_d;
     Vector3d vector_transformed(transformed(0), transform(1), transform(2));
     return vector_transformed;
+}
+
+Vector6d vecTo6d(vector<double> inVec) {
+    Vector6d retVec;
+    for (int i = 0; i < 6; ++i) {
+        retVec(i) = inVec[i];
+    }
+    return retVec;
 }

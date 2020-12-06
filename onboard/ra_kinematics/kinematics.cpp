@@ -257,7 +257,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
             vector<double> ef_pos = robot_state.get_ef_pos_and_euler_angles();
             cout << "position reached: ";
             for (int i = 0; i < 6; ++i) {
-                cout << ef_pos(i) << " ";
+                cout << ef_pos[i] << " ";
             }
             cout << "\n";
             for (int i = 0; i < 6; ++i) {
@@ -286,7 +286,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
         IK_step(d_ef, true, use_euler_angles);
         // Iterate:
         // ef_vec_world is a 6d vector:
-        ef_vec_world = robot_state.get_ef_pos_and_euler_angles();
+        ef_vec_world = vecTo6d(robot_state.get_ef_pos_and_euler_angles());
         ef_ang_world = ef_vec_world.tail(3);
 
         dist = (ef_pos_world - target_pos_world).norm();
@@ -296,15 +296,15 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
     }
     cout << "AHH, safe checking!!!\n";
 
-    Vector6d angles_vec;
+    vector<double> angles_vec;
     int index = 0;
     auto joint_angs = robot_state.get_joint_angles();
     for (auto it = joint_angs.begin(); it != joint_angs.end(); ++it) {
-        angles_vec(index++) = it->second;
+        angles_vec[index++] = it->second;
     }
     if (!is_safe(angles_vec)){
         cout << "ik not safe\n";
-        return pair<Vector6d, bool> (angles_vec, false);
+        return pair<Vector6d, bool> (vecTo6d(angles_vec), false);
     }
     cout << "ik safe about to return\n";
 
@@ -329,19 +329,19 @@ pair<Vector6d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
     Vector3d target_pos(start_pos(0) + delta(0), start_pos(1) + delta(1), start_pos(2)+ delta(2));
 
     // vector to be returned
-    Vector6d joint_angles_vec;
+    vector<double> joint_angles_vec;
 
     if (target_pos.norm() > 0.82){
         map<string, double> joint_angles = robot_state.get_joint_angles();
         int index = 0;
         for (auto it = joint_angles.begin(); it != joint_angles.end(); ++it) {
-            joint_angles_vec(index++) = it->second;
+            joint_angles_vec[index++] = it->second;
         }
 
         // reset robot_state angles
         recover_from_backup();
 
-        return pair<Vector6d, bool>(joint_angles_vec, true);
+        return pair<Vector6d, bool>(vecTo6d(joint_angles_vec), true);
     }
 
     for (int i = 0; i < iterations; ++i) {
@@ -354,7 +354,7 @@ pair<Vector6d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
     map<string, double> joint_angles = robot_state.get_joint_angles();
     int index = 0;
     for (auto it = joint_angles.begin(); it != joint_angles.end(); ++it) {
-        joint_angles_vec(index++) = it->second;
+        joint_angles_vec[index++] = it->second;
     }
     bool angles_safe = is_safe(joint_angles_vec);
     
@@ -369,7 +369,7 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
     // may cause issue creating a type that refers to private member Link
     auto links = robot_state.links;
     vector<string> joints = robot_state.get_all_joints();
-    Vector6d ef_world = robot_state.get_ef_pos_and_euler_angles();
+    Vector6d ef_world = vecTo6d(robot_state.get_ef_pos_and_euler_angles());
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
     Vector3d ef_euler_world(ef_world(3), ef_world(4), ef_world(5));
 
@@ -441,11 +441,11 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
 
     Vector6d d_theta = jacobian_inverse * d_ef;
 
-    Vector6d angle_vec;
+    vector<double> angle_vec;
     
     // find the angle of each joint
     for (int i = 0; i < (int)joints.size(); ++i) {
-        angle_vec(i) = robot_state.get_joint_angles()[joints[i]] + d_theta[i];
+        angle_vec[i] = robot_state.get_joint_angles()[joints[i]] + d_theta[i];
 
         map<string, double> limits = robot_state.get_joint_limits(joints[i]);
 
@@ -462,7 +462,7 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
     FK();
 }
 
-bool KinematicsSolver::is_safe(Vector6d angles) {
+bool KinematicsSolver::is_safe(vector<double> angles) {
     
     perform_backup();
 
@@ -481,14 +481,14 @@ bool KinematicsSolver::is_safe(Vector6d angles) {
     return obstacle_free;
 }
 
-bool KinematicsSolver::limit_check(const Vector6d &angles) {
+bool KinematicsSolver::limit_check(const vector<double> &angles) {
     vector<string> joints = robot_state.get_all_joints();
 
     for (int i = 0; i < (int)joints.size(); ++i) {
         map<string, double> limits = robot_state.get_joint_limits(joints[i]);
         
         // if any angle is outside of bounds
-        if (!(limits["lower"] <= angles(i) && angles(i) < limits["upper"])) {
+        if (!(limits["lower"] <= angles[i] && angles[i] < limits["upper"])) {
             return false;
         }
     }
@@ -497,11 +497,11 @@ bool KinematicsSolver::limit_check(const Vector6d &angles) {
 }
 
 void KinematicsSolver::perform_backup() {
-    Vector6d backup;
+    vector<double> backup;
     int i = 0;
 
     for (auto const& pair : robot_state.get_joint_angles()) {
-        backup(i++) = pair.second;
+        backup[i++] = pair.second;
     }
 
     arm_state_backup.push(backup);
