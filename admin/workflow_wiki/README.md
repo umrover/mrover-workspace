@@ -465,7 +465,21 @@ Once you have done this, you will be able to squash your code into a single fina
       When you push new commits to the same branch as before (`origin/<your branch name>`), the pull request will automatically update, dismiss old reviews, and rerun the automated checks.
     * Repeate this step until you have at least 3 approvals, 0 reviewers requesting changes, and passed the automated checks.
 
-3.
+3. Merge code.
+    * If your branch is out of date, click the `Update branch` button.
+      This button will only appear if you are out of date.
+      In other words, if this button appears, you must click it.
+      You will not be allowed to merge your code without updating your branch.
+    * Wait for the automated checks to run again.
+      If they fail, you must go back to step 2.
+      If they pass, you can click the `Squash and merge` button.
+    * Modify the commit message to be your final commit message.
+      This commit message must be in the format specified in [Appendix A: Anatomy of a MRover Formatted Commit Message](#appendix-a-anatomy-of-a-mrover-formatted-commit-message).
+      You can hopefully reuse some of what you wrote in step 1.
+      The summary will default to include the pull request number.
+      You can leave this in the summary for future convenience.
+    * Click the `Confirm squash and merge` button.
+    * Delete the head branch by clicking the `Delete branch` button.
 
 ### Example
 We will be continuing the demo of resolving [issue 431](https://github.com/umrover/mrover-workspace/issues/431).
@@ -579,8 +593,9 @@ We will be continuing the demo of resolving [issue 431](https://github.com/umrov
       commit 4e182bbd62fe388a630a98a6b863ebdf260f8f29 (upstream/main)
       ...
       ```
+    * I now get 3 approvals and pass the automated checks, so I move on to step 3.
 
-3. Merge code once you have at least 3 approvals and passed the automated checks.
+3. Merge code.
     * My branch is out of date since other changes have been merged into main since I last merged with `upstream/main`.
       I click the `Update branch` button to resolve this.
       <br/>
@@ -602,7 +617,7 @@ We will be continuing the demo of resolving [issue 431](https://github.com/umrov
       ```
     * Then I click the `Confirm squash and merge` button.
       <br/>
-      ![pull request commit message](img/pr_commit_message_.png)
+      ![pull request commit message](img/pr_commit_message.png)
     * Lastly, I delete the branch that I was working off of by clicking the `Delete branch` button.
       <br/>
       ![pull request delete branch](img/pr_delete_branch.png)
