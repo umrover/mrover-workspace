@@ -182,6 +182,16 @@ and likely will be too dense to remember everything when you first read it.
         * Next I commit my changes using `git commit`.
           I type `git commit` at the command line and then type my commit message in the text editor that automatically opens up. Note that I do not intend for this to be my final commit message but I do want it to be useful so I can determine what I did in this commit.
           ```console
+          $ git commit
+          [hotkey-docs 5c2d69ea] [nav-sim] Add hotkey documentation from HotKeys.vue
+           1 file changed, 33 insertions(+)
+           create mode 100644 simulators/nav/src/components/hotkeys.md
+          $ git status
+          On branch hotkey-docs
+          nothing to commit, working tree clean
+          ```
+          My commit message:
+          ```console
           1 [nav-sim] Add hotkey documentation from HotKeys.vue
           2 # Please enter the commit message for your changes. Lines starting
           3 # with '#' will be ignored, and an empty message aborts the commit.
@@ -191,20 +201,12 @@ and likely will be too dense to remember everything when you first read it.
           7 #   new file: simulators/nav/src/components/hotkeys.md
           8 #
           ```
-          ```console
-          $ git commit
-          [hotkey-docs 5c2d69ea] [nav-sim] Add hotkey documentation from HotKeys.vue
-           1 file changed, 33 insertions(+)
-           create mode 100644 simulators/nav/src/components/hotkeys.md
-          $ git status
-          On branch hotkey-docs
-          nothing to commit, working tree clean
-          ```
         * I can type `git log` to view the change in the commit history. This is
           one I like to do pretty often just like `git status`.
           ```console
           $ git log
           ```
+          The git log:
           ```console
           commit 5c2d69ea285843cc770fe44d99b064a54739db74 (HEAD -> hotkey-docs)
           Author: Andrew Vernier <amverni@umich.edu>
@@ -292,6 +294,7 @@ and likely will be too dense to remember everything when you first read it.
           To github.com:amverni/mrover-workspace.git
              5c2d69ea..5b861961  hotkey-docs -> hotkey-docs
           ```
+          My commit message:
           ```console
           1 [nav-sim] Add hotkey docs for DebugTools.vue
           2 # Please enter the commit message for your changes. Lines starting
@@ -364,6 +367,7 @@ and likely will be too dense to remember everything when you first read it.
           To github.com:amverni/mrover-workspace.git
              5b861961..ec43ea6b  hotkey-docs -> hotkey-docs
           ```
+          My commit message:
           ```console
            1 [nav-sim] Add hotkey docs for DrawModule.vue
            2
@@ -377,6 +381,7 @@ and likely will be too dense to remember everything when you first read it.
           10 #   modified:   simulators/nav/src/components/hotkeys.md
           11 #
           ```
+          The git log:
           ```console
           commit ec43ea6bdadef6a3d74715c4aae82785d1ffff15 (HEAD -> hotkey-docs, origin/hotkey-docs)
           Author: Andrew Vernier <amverni@umich.edu>
@@ -429,7 +434,7 @@ If any of them are not true, please resolve this before proceeding.
 In order to merge a code change into `upstream`, you need to create a pull request.
 After creating a pull request, you need to pass the automated checks and get 3 review approvals.
 In order to get 3 approvals, you will need to address others' review comments and, potentially, make edits to your code.
-Once you have done this, you will be able to squash your code into a single final commit and merge your code.
+Once you have done this, you will be able to squash your code into a single final commit and merge in your code.
 
 1. Create a pull request from `<your github username>/<your branch name>` to `umrover/main`.
     * Use the GitHub web page to create this pull request starting from your forked repository (`https://github.com/<your github username>/mrover-workspace`).
@@ -459,9 +464,9 @@ Once you have done this, you will be able to squash your code into a single fina
 
 2. Address any review comments or build errors reported by Travis.
    * Respond to comments that require further discussion or to clarify someone's confusion.
-     If you talk offline, put a quick summary of your conversation as the response so that others can refer back to the pull request page to get details on a specific change.
+     If you talk offline, put a quick summary of your conversation as the response so that others who refer back to the pull request page to get details on a specific change still can do so.
     * For comments that require code changes or automated check failures, make a code change in a similar manner as to how you did in the [Making Code Changes](#making-code-changes) section.
-      One minor detail is that you do not do a `git pull --rebase upstream main` but instead do a `git pull upstream main`.
+      One minor detail is that you do **NOT** do a `git pull --rebase upstream main` but instead do a `git pull upstream main`.
       When you push new commits to the same branch as before (`origin/<your branch name>`), the pull request will automatically update, dismiss old reviews, and rerun the automated checks.
     * Repeate this step until you have at least 3 approvals, 0 reviewers requesting changes, and passed the automated checks.
 
@@ -499,9 +504,9 @@ We will be continuing the demo of resolving [issue 431](https://github.com/umrov
       Then I click [`Create pull request`](https://github.com/umrover/mrover-workspace/compare/main...amverni:hotkey-docs) on the right about half-way down the screen.
       <br/>
       ![new pull request](img/pr_new_pull_request.png)
-    * I modify the PR Title and comment more details about the PR as well as what testing I did.
+    * I modify the pull request title and comment.
       This information will become my final commit message (however it can change later on).
-      Note that I include a link to the issue being resolved (`#431`), a more detailed description, and a note on how this change was tested.
+      Note that I include a link to the issue being resolved (`#431`), a more detailed description, and a note on how this change was tested in the comment.
       I also add my reviewers.
     * Then I click [`Create pull request`](https://github.com/umrover/mrover-workspace/pull/505) just below the comment box.
       <br/>
@@ -575,7 +580,7 @@ We will be continuing the demo of resolving [issue 431](https://github.com/umrov
       11 #
       ```
 
-      Results from `git log`:
+      The git log:
       ```console
       commit 04240fb816aa1fc839f49c50c9b7060742281947 (HEAD -> hotkey-docs)
       Author: Andrew Vernier <amverni@umich.edu>
