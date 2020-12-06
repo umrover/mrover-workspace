@@ -316,6 +316,7 @@ and likely will be too dense to remember everything when you first read it.
               [nav-sim] Add hotkey documentation from HotKeys.vue
 
           commit 8dff03c3c4000fda2f2d4b990cdf5de2f24e4419 (upstream/main, origin/main, main)
+          ...
           ```
 
     * Third work session
@@ -396,6 +397,7 @@ and likely will be too dense to remember everything when you first read it.
               [nav-sim] Add hotkey documentation from HotKeys.vue
 
           commit 8dff03c3c4000fda2f2d4b990cdf5de2f24e4419 (upstream/main, origin/main, main)
+          ...
           ```
 
     * Note that a work session does not need to be on different days or even at different times.
@@ -412,9 +414,191 @@ and likely will be too dense to remember everything when you first read it.
       or SAMs.
 
 ## Merging Code Changes into Main
+This section describes the team's workflow starting right after you have finished making your code change to merging that code into `upstream/main`.
 
 ### Assumptions
+We make the following assumptions in this tutorial.
+If any of them are not true, please resolve this before proceeding.
+1. All [assumptions from Making Code Changes](#assumptions) apply to this section as well.
+2. You have completed a code change via the guidelines laid out [previously](#making-code-changes).
 
 ### Details
+In order to merge a code change into `upstream`, you need to create a pull request.
+After creating a pull request, you need to pass the automated checks and get 3 review approvals.
+In order to get 3 approvals, you will need to address others' review comments and, potentially, make edits to your code.
+Once you have done this, you will be able to squash your code into a single final commit and merge your code.
+
+1. Create a pull request from `<your github username>/<your branch name>` to `umrover/main`.
+    * Use the GitHub web page to create this pull request starting from your forked repository (`https://github.com/<your github username>/mrover-workspace`).
+    * Navigate to the `pull requests` tab on your fork (`https://github.com/<your github username>/mrover-workspace/pulls`).
+    * Then click `new pull request` (https://github.com/<your github username>/mrover-workspace/compare`).
+    * Verify/set the base and head repositories and branches.
+      Then click `Create pull request`.
+    * On the resulting page (`https://github.com/umrover/mrover-workspace/compare/main...<your github username>:<your branch name>`) modify the pull request title and comment and add your reviewers.
+      Your title should be in the following format.
+      ```console
+      [<team/project>] <commit summary>
+      ```
+      Your comment should have more details regarding your change and link to the issue being resolved.
+      It should be in the following format.
+      ```console
+      <keyword to link to issue> #<issue number>
+
+      <detailed commit message>
+
+      <description of the testing that occured>
+      ```
+      Note that these will eventually become the starting point for your final commit message.
+      However, don't worry about this _too much_ just yet because you will have the chance to change it later.
+      The parts that make up the TODO: create section for anatomy of commit message.
+    * Then click the `Create pull request` button which will take me to the page for the newly created pull request (`https://github.com/umrover/mrover-workspace/pull/<pull request number>`).
+
+2. Address any review comments or build errors reported by Travis.
 
 ### Example
+We will be continuing the demo of resolving [issue 431](https://github.com/umrover/mrover-workspace/issues/431).
+
+1. Create a pull request from `amverni/hotkey-docs` to `umrover/main`.
+    * I go to my
+      [GitHub fork of mrover-workspace](https://github.com/amverni/mrover-workspace).
+    * I click
+      [`Pull requests`](https://github.com/umrover/mrover-workspace/pulls)
+      at the top.
+      <br/>
+      ![amverni fork](img/pr_amverni_fork.png)
+    * I click
+      [`New pull request`](https://github.com/umrover/mrover-workspace/compare)
+      on the right about one-third of the way down the screen.
+      <br/>
+      ![pull requests](img/pr_pull_requests.png)
+    * I verify the base repository is `umrover/mrover-workspace`.
+      I verify the base branch is `main`.
+      I verify the head repository is `amverni/mrover-workspace`.
+      I set the head branch to `hotkey-docs`.
+      Then I click
+      [`Create pull request`](https://github.com/umrover/mrover-workspace/compare/main...amverni:hotkey-docs)
+      <br/>
+      ![new pull request](img/pr_new_pull_request.png)
+      on the right about half-way down the screen.
+    * I modify the PR Title and comment more details about the PR as well as what testing I did.
+      This information will become my final commit message (however it can change later on).
+      Note that I include a link to the issue being resolved (`#431`), a more detailed description, and a note on how this change was tested.
+      I also add my reviewers.
+    * Then I click
+      [`Create pull request`](https://github.com/umrover/mrover-workspace/pull/505)
+      just below the comment box.
+      <br/>
+      ![open a pull request](img/pr_open_a_pull_request.png)
+
+2. Address any review comments or build errors reported by Travis.
+    * Some comments only require me to respond to them in order to either further a conversation or clear up a confusion.
+    * Some comments require code changes so I do another work session.
+        * If not already on my new branch (`hotkey-docs`), I check it out.
+        * Next, I make sure I am working off of the most up to date version of `upstream/main` using  `git pull upstream main`. Note that I do **NOT** use the `--rebase` flag this time. I save the automated commit message to create the merge commit. This step is optional as I can use the `Update branch` button on the [pull request page](https://github.com/umrover/mrover-workspace/pull/505) (which only appears if it's applicable).
+          ```console
+          $ git pull upstream main
+          From https://github.com/umrover/mrover-workspace
+           * branch              main       -> FETCH_HEAD
+          Removing none.jpg
+          Removing jetson/cv/perception.hpp
+          Removing jetson/cv/meson_option.txt
+          ...
+          ```
+        * *Make the actual changes to code.*
+        * *Test the code changes.*
+    * I stage, commit, and push my changes.
+      ```console
+      $ git status
+      On branch hotkey-docs
+      Changes not staged for commit:
+            (use "git add <file>..." to update what will be committed)
+            (use "git restore <file>..." to discard changes in working directory)
+                  modified:   simulators/nav/README.md
+                  modified:   simulators/nav/src/README.md
+                  modified:   simulators/nav/src/components/README.md
+                  modified:   simulators/nav/src/components/hotkeys.md
+
+      no changes added to commit (use "git add" and/or "git commit -a")
+      $ git commit
+      [hotkey-docs 04240fb8] Address @aswarner's comments
+       4 files changed, 16 insertions(+), 16 deletions(-)
+      $ git status
+      On branch hotkey-docs
+      Changes to be committed:
+        (use "git restore --staged <file>..." to unstage)
+                  modified:   simulators/nav/README.md
+                  modified:   simulators/nav/src/README.md
+                  modified:   simulators/nav/src/components/README.md
+                  modified:   simulators/nav/src/components/hotkeys.md
+      $ git log
+      $ git push origin hotkey-docs
+      Enumerating objects: 29, done.
+      Counting objects: 100% (27/27), done.
+      Delta compression using up to 8 threads
+      Compressing objects: 100% (12/12), done.
+      Writing objects: 100% (12/12), 1.26 KiB | 1.26 MiB/s, done.
+      Total 12 (delta 9), reused 0 (delta 0)
+      remote: Resolving deltas: 100% (9/9), completed with 8 local objects.
+      To github.com:amverni/mrover-workspace.git
+         ec43ea6b..04240fb8  hotkey-docs -> hotkey-docs
+      ```
+      My commit message:
+      ```console
+       1 Address @aswarner's comments
+       2 # Please enter the commit message for your changes. Lines starting
+       3 # with '#' will be ignored, and an empty message
+       4 #
+       5 # On branch hotkey-docs
+       6 # Changes to be committed:
+       7 #   modified:   simulators/nav/README.md
+       8 #   modified:   simulators/nav/src/README.md
+       9 #   modified:   simulators/nav/src/components/README.md
+      10 #   modified:   simulators/nav/src/components/hotkeys.md
+      11 #
+      ```
+
+      Results from `git log`:
+      ```console
+      commit 04240fb816aa1fc839f49c50c9b7060742281947 (HEAD -> hotkey-docs)
+      Author: Andrew Vernier <amverni@umich.edu>
+      Date:   Thu Nov 24 09:18:42 2020 -0500
+
+          Address @aswarner's comments
+
+      commit 0858f71ac7270e91d25f281a54c5cf5382e4a6f7
+      Merge: ec43ea6b 4e18182bbd
+      Author: Andrew Vernier <amverni@umich.edu>
+      Date:   Thu Nov 24 09:13:28 2020 -0500
+
+          Merge branch 'main' of https://github.com/umrover/mrover-workspace into hotkey-docs
+
+      commit 4e182bbd62fe388a630a98a6b863ebdf260f8f29 (upstream/main)
+      ...
+      ```
+
+3. Merge code once you have at least 3 approvals and passed the automated checks.
+    * My branch is out of date since other changes have been merged into main since I last merged with `upstream/main`.
+      I click the `Update branch` button to resolve this.
+      <br/>
+      ![pull request update branch](img/pr_update_branch.png)
+    * Once the automated checks pass again, I can merge.
+      I click the `Squash and merge` button.
+      <br/>
+      ![pull request squash and merge](/admin/workflow-wiki/img/pr_squash_and_merge.png)
+    * I modify the commit message to match the format specified in this document.
+      My final commit message is:
+      ```
+      [nav-sim] Add documentation for nav sim hotkeys
+
+      resolves #431
+
+      Add a wiki detailing what each hotkey does as well as what file that hotkey is implemented.
+
+      This change was tested by manual inspection of the rendered page on my fork on GitHub.
+      ```
+      Then I click the `Confirm squash and merge` button.
+      <br/>
+      ![pull request commit message](/admin/workflow-wiki/img/pr_commit_message_.png)
+    * Lastly, I delete the branch that I was working off of by clicking the `Delete branch` button.
+      <br/>
+      ![pull request delete branch](/admin/workflow-wiki/img/pr_delete_branch.png)
