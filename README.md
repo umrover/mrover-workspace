@@ -98,3 +98,5 @@ Once you've made a change that you're ready to contribute, commit it and push
 it to your fork (called `origin` in git).  Afterwards, open a pull request in
 the GitHub UI. This will be merged by an MRover Software Lead after a short
 review.
+
+For more details on making code changes, see our [workflow wiki](admin/workflow_wiki/README.md).
