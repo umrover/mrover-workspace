@@ -63,6 +63,11 @@ public:
     MotionPlanner(ArmState& robot_state_in, lcm::LCM& lcm_in, KinematicsSolver& solver_in);
 
     void rrt_connect(Vector6d& target);
+
+    /**
+     * @param spline_t a time between 0 and 1
+     * @return a vector of six doubles representing the angles of each joint at time spline_t
+     * */
     vector<double> get_spline_pos(double spline_t);
 
     // for testing only
