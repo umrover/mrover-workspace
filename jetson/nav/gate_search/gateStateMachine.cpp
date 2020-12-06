@@ -240,11 +240,10 @@ NavState GateStateMachine::executeGateFace()
     return NavState::GateFace;
 } // executeGateFace()
 
-// Turn to farthest post if both have recorded distances, otherwise
-// turn to the current post we are facing
+//
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
-    if(mPhoebe->roverStatus().target2().distance > 0) 
+    if( mPhoebe->roverStatus().target2().distance > 0 ) 
     {
         if( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) 
         {
@@ -261,7 +260,8 @@ NavState GateStateMachine::executeGateTurnToFarPost()
             }   
         }
     }
-    else {
+    else 
+    {
         if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
         {
             return NavState::GateDriveToFarPost;
@@ -274,13 +274,13 @@ NavState GateStateMachine::executeGateTurnToFarPost()
 // Drive to the farthest post, if possible
 NavState GateStateMachine::executeGateDriveToFarPost()
 {
-
     DriveStatus driveStatus;
 
     if( mPhoebe->roverStatus().target2().distance > 0 ) 
     {
         if( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) 
         {
+            // TODO: Remove .3 m of adjustment room? (Used so we do not collide with the gate post)
             driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target2().distance - 0.3,
                                              mPhoebe->roverStatus().target2().bearing +
                                              mPhoebe->roverStatus().odometry().bearing_deg,
@@ -314,10 +314,9 @@ NavState GateStateMachine::executeGateDriveToFarPost()
 } // executeGateDriveToFarPost()
 
 // Turn back to center point
-// TODO: Could use new center point (currently this has not failed us)
+// TODO: Could use new center point
 NavState GateStateMachine::executeGateTurnToGateCenter()
 {
-
     if ( mPhoebe->turn( centerPoint2 )) 
     {
         return NavState::GateDriveThrough;
