@@ -1,5 +1,6 @@
 import Adafruit_BBIO.UART as UART
 import serial
+import struct
 
 baud = 115200
 
@@ -18,9 +19,8 @@ UART.setup("UART2")
 #first byte read or write, second is address
 
 # use with serial.Serial(port="/dev/ttyS4", baudrate=baud) as ser
-#pg 15 for talking about packets
-ser.write(0x00)
-
+#pg 15 for talking about packets    This is spi though, Not UART?
+#ser.write(0x00)
 
 
 
@@ -35,8 +35,34 @@ ZAccel = 0x67  # Processed z-axis accel data
 XMag = 0x69  # Processed x-axis magnetometer data
 YMag = 0x6A  # Processed y-axis magnetometer data
 ZMag = 0x6B  # Processed z-axis magnetometer data 
+#https://stackoverflow.com/questions/57982782/type-codes-in-python-for-array this is int
+type = "<b"
 
 
+        #Write to MOSI line to initiate read    SPI stuff that is appartently not correct
+        #ser.write(0x00)
+        #Write this second byte regarding the register to complete reading
+        #ser.write(register) 
+        #It writes the contents to the MISO line starting with the most-significant byte
+
+
+def read_data(register):
+    with serial.Serial(port="/dev/ttyS4", baudrate=baud) as ser:
+        #Page 31 Data Sheet
+        PT = 0000000
+        packet = struct.pack(type,'s','n','p',PT,register,)
+        ser.write(packet)
+        value = 0
+        return value
+
+
+while True:
+    GyroX = read_data(XGyro)
+    GyroY = read_data(YGyro)
+    GyroZ = read_data(ZGyro)
+    #Add other types after confirming this works
+
+    print("X: " + GyroX + "Y: " + GyroY + "Z: " + GyroZ)
 
 
 
