@@ -21,16 +21,15 @@ Additionally, using this workflow will help leads to help you use Git.
 This document requires a working knowledge of Git. Please feel free to stop and look-up Git methods you don't fully understand as you come across them.
 
 ## Making Code Changes
-This section describes the team's workflow from the point of getting assigned
-an issue to just before you make a pull request.
+This section describes the team's workflow from the point of getting assigned an issue to just before you make a pull request.
 
 ### Assumptions
 We make the following assmptions in this tutorial.
-If any of there are not true, please resolve this before proceeding.
+If any of them are not true, please resolve this before proceeding.
 1. You have set up your MRover enviromnent. This can be done by following along with our [Dev Environment Setup tutorial](https://docs.google.com/document/d/1l5zq6cyX115KAdGTMcv_rSFH0cFxCucFgVcFn7b-KnI/edit#heading=h.j1toowrjx1y4).
 2. You have read and completed all the steps laid out in the [main README](/README.md).
 3. Your `upstream` remote points to `https://github.com/umrover/mrover-workspace.git` or `git@github.com:umrover/mrover-workspace.git`. This can be checked with `git remote -v`.
-4. Your `origin` remote points to `https://github.com/<your-github-username>/mrover-workspace.git` or `git@github.com:<your-github-username>/mrover-workspace.git`. This can be checked with `git remote -v`.
+4. Your `origin` remote points to `https://github.com/<your github username>/mrover-workspace.git` or `git@github.com:<your github username>/mrover-workspace.git`. This can be checked with `git remote -v`.
 
 ### Details
 When making code changes, you should be working on one of our [issues](https://github.com/umrover/mrover-workspace/issues).
@@ -237,7 +236,7 @@ and likely will be too dense to remember everything when you first read it.
           I do this with `git pull --rebase upstream main`.
           Note that most likely this will have no effect since I just created this branch off the most up to date version of `upstream/main`.
           However, let's say I made a few code changes before `pull`ing.
-          In this case, I could `stash` them, then `pull --rebase`, and then, if this changes are for [issue 431](https://github.com/umrover/mrover-workspace/issues/431), I un`stash` (`stash pop`) them.
+          In this case, I could `stash` them, then `pull --rebase`, and then, if this changes are for [issue 431](https://github.com/umrover/mrover-workspace/issues/431), I unstash (`stash pop`) them.
           As the error message states, I could also commit them if I wanted.
           ```console
           $ git pull --rebase upstream main
