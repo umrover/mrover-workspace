@@ -44,7 +44,7 @@ the root of this repository.
 Choose some components to build and build them:
 
 ```sh
-$ ./jarvis build onboard/teleop
+$ ./jarvis build jetson/teleop
 $ ./jarvis build base_station/gui
 ...
 ```
@@ -53,12 +53,12 @@ Once you have built the components, you can run them easily with `jarvis exec`.
 Note that the slashes are converted to underscores in the executable name.
 
 ```sh
-$ ./jarvis exec onboard_teleop
-$ ./jarvis exec base_station_gui
+$ ./jarvis exec jetson/teleop
+$ ./jarvis exec base_station/gui
 ...
 ```
 
-In the future, it will be easy to compile an entire subtree, such as `onboard`.
+In the future, it will be easy to compile an entire subtree, such as `jetson`.
 
 ## Jarvis In-depth Documentation
 
@@ -87,7 +87,7 @@ Add the official MRover repository as upstream:
 $ git remote add upstream https://github.com/umrover/mrover-workspace.git
 ```
 
-Now, you are ready to develop. 
+Now, you are ready to develop.
 
 Before you make your changes, ensure that they still work by building the
 component you modified. Jarvis automatically tests and style-checks your code
@@ -98,3 +98,5 @@ Once you've made a change that you're ready to contribute, commit it and push
 it to your fork (called `origin` in git).  Afterwards, open a pull request in
 the GitHub UI. This will be merged by an MRover Software Lead after a short
 review.
+
+For more details on making code changes, see our [workflow wiki](admin/workflow_wiki/README.md).
