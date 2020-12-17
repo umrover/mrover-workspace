@@ -142,8 +142,8 @@
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
           {'topic': '/microscope', 'type': 'Microscope'},
-          {'topic': 'zed_gimbal_command', 'type': 'ZedGimbalPosition'},
-          {'topic': 'zed_gimbal_position', 'type': 'ZedGimbalPosition'}
+          {'topic': '/zed_gimbal_command', 'type': 'ZedGimbalPosition'},
+          {'topic': '/zed_gimbal_position', 'type': 'ZedGimbalPosition'}
         ]
       }
     },

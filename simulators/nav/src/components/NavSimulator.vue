@@ -47,7 +47,7 @@ import fnvPlus from 'fnv-plus';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
 import { RADIO } from '../utils/constants';
-import { applyJoystick as applyJoystickUtil } from '../utils/utils';
+import { applyJoystickCmdUtil, applyZedGimbalCmdUtil } from '../utils/utils';
 import {
   Joystick,
   NavStatus,
@@ -55,7 +55,8 @@ import {
   Odom,
   Speeds,
   TargetListMessage,
-  Waypoint
+  Waypoint,
+  ZedGimbalPosition
 } from '../utils/types';
 import ControlPanel from './control_panel/ControlPanel.vue';
 import Field from './field/Field.vue';
@@ -71,7 +72,7 @@ import Perception from './perception/Perception.vue';
  * Constants
  **************************************************************************************************/
 /* Frequency in milliseconds to publish outgoing LCM messages at. */
-const TIME_INTERVAL = 100;
+const TIME_INTERVAL_MILLI = 100;
 
 /* Number of milliseconds in a 1 second. */
 const ONE_SECOND_MILLI = 1000;
@@ -146,6 +147,12 @@ export default class NavSimulator extends Vue {
   @Getter
   private readonly waypoints!:Waypoint[];
 
+  @Getter
+  private readonly zedGimbalCmd!:ZedGimbalPosition;
+
+  @Getter
+  private readonly zedGimbalPos!:ZedGimbalPosition;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
@@ -184,6 +191,12 @@ export default class NavSimulator extends Vue {
 
   @Mutation
   private readonly setTargetList!:(newTargetList:TargetListMessage)=>void;
+
+  @Mutation
+  private readonly setZedGimbalCmd!:(newZedGimbalCmd:ZedGimbalPosition)=>void;
+
+  @Mutation
+  private readonly setZedGimbalPos!:(newZedGimbalPos:ZedGimbalPosition)=>void;
 
   /************************************************************************************************
    * Private Members
@@ -239,13 +252,15 @@ export default class NavSimulator extends Vue {
   @Watch('paused')
   private onUnpause(paused:boolean):void {
     if (!paused) {
-      this.applyJoystick();
+      this.applyJoystickCmd();
+      this.applyZedGimbalCmd();
     }
   }
 
   @Watch('takeStep')
   private onTakeStep():void {
-    this.applyJoystick();
+    this.applyJoystickCmd();
+    this.applyZedGimbalCmd();
     this.setTakeStep(false);
   }
 
@@ -254,14 +269,22 @@ export default class NavSimulator extends Vue {
    ************************************************************************************************/
   /* Apply the current joystick message to move the rover. Update the current
      odometry based on this movement. */
-  private applyJoystick():void {
+  private applyJoystickCmd():void {
     /* if not simulating localization, nothing to do */
     if (!this.simulateLoc) {
       return;
     }
+    const deltaTimeSeconds:number = TIME_INTERVAL_MILLI / ONE_SECOND_MILLI;
+    this.setCurrOdom(applyJoystickCmdUtil(this.currOdom, this.fieldCenterOdom, this.joystick,
+                                          deltaTimeSeconds, this.currSpeed));
+  }
 
-    this.setCurrOdom(applyJoystickUtil(this.currOdom, this.fieldCenterOdom, this.joystick,
-                                       TIME_INTERVAL / ONE_SECOND_MILLI, this.currSpeed));
+  /* Apply the current ZED gimbal command. Update the ZED gimbal based on the
+     current ZED gimbal command. */
+  private applyZedGimbalCmd():void {
+    const deltaTimeSeconds:number = TIME_INTERVAL_MILLI / ONE_SECOND_MILLI;
+    this.setZedGimbalPos(applyZedGimbalCmdUtil(this.zedGimbalPos, this.zedGimbalCmd,
+                                               deltaTimeSeconds, this.currSpeed));
   }
 
   /* Drop the radio repeater. */
@@ -319,7 +342,7 @@ export default class NavSimulator extends Vue {
             left_right: msg.message.left_right
           });
           if (!this.paused) {
-            this.applyJoystick();
+            this.applyJoystickCmd();
           }
         }
         else if (msg.topic === '/nav_status') {
@@ -348,7 +371,10 @@ export default class NavSimulator extends Vue {
           }
         }
         else if (msg.topic === '/zed_gimbal_command') {
-          console.log('zed_gimbal_command message');
+          this.setZedGimbalCmd(msg.message);
+          if (!this.paused) {
+            this.applyZedGimbalCmd();
+          }
         }
         else if (msg.topic === '/debugMessage') {
           if (msg.message.isError) {
@@ -362,14 +388,14 @@ export default class NavSimulator extends Vue {
 
       /* Subscriptions */
       [
-        { topic: '/autonomous',   type: 'Joystick' },
-        { topic: '/nav_status',    type: 'NavStatus' },
-        { topic: '/obstacle',     type: 'Obstacle' },
-        { topic: '/odometry',     type: 'Odometry' },
-        { topic: '/rr_drop_init', type: 'RepeaterDropInit' },
-        { topic: '/target_list',   type: 'TargetList' },
+        { topic: '/autonomous',         type: 'Joystick' },
+        { topic: '/nav_status',         type: 'NavStatus' },
+        { topic: '/obstacle',           type: 'Obstacle' },
+        { topic: '/odometry',           type: 'Odometry' },
+        { topic: '/rr_drop_init',       type: 'RepeaterDropInit' },
+        { topic: '/target_list',        type: 'TargetList' },
         { topic: '/zed_gimbal_command', type: 'ZedGimbalPosition' },
-        { topic: '/debugMessage', type: 'DebugMessage' }
+        { topic: '/debugMessage',       type: 'DebugMessage' }
       ]
     );
 
@@ -412,7 +438,10 @@ export default class NavSimulator extends Vue {
       };
       course.hash = fnvPlus.fast1a52(JSON.stringify(course));
       this.publish('/course', course);
-    }, TIME_INTERVAL);
+
+      const zedGimbalPos:any = Object.assign(this.zedGimbalPos, { type: 'ZedGimbalPosition' });
+      this.publish('/zed_gimbal_position', zedGimbalPos);
+    }, TIME_INTERVAL_MILLI);
 
     /* eslint-enable @typescript-eslint/no-explicit-any */
   } /* created() */

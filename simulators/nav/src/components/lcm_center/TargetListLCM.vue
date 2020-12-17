@@ -7,11 +7,11 @@
     <fieldset class="target-list">
       <legend>TargetList</legend>
       <p>Target 1 Distance: {{ dist1 }} m</p>
-      <p>Target 1 Bearing: {{ bear1 }} º</p>
+      <p>Target 1 Bearing: {{ bear1 }}º</p>
       <p>Target 1 ID: {{ targetList[0].id }}</p>
       <div class="divider" />
       <p>Target 2 Distance: {{ dist2 }} m</p>
-      <p>Target 2 Bearing: {{ bear2 }} º</p>
+      <p>Target 2 Bearing: {{ bear2 }}º</p>
       <p>Target 2 ID: {{ targetList[1].id }}</p>
     </fieldset>
   </div>
