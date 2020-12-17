@@ -368,7 +368,7 @@ export default class NavSimulator extends Vue {
         { topic: '/odometry',     type: 'Odometry' },
         { topic: '/rr_drop_init', type: 'RepeaterDropInit' },
         { topic: '/target_list',   type: 'TargetList' },
-        { topic: '/zed_gimbal_command', type: 'ZedGimbalCommand' },
+        { topic: '/zed_gimbal_command', type: 'ZedGimbalPosition' },
         { topic: '/debugMessage', type: 'DebugMessage' }
       ]
     );
