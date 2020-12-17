@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct ZedGimbalCommand {
+    double heading; // angle from north, 0-360
+}

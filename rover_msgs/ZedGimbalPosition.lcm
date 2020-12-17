@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct ZedGimbalPosition.lcm {
+    double angle; // absolute angle to turn ZED to from north, -180 to 180
+}
