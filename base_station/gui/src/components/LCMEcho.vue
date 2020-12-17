@@ -93,8 +93,9 @@
           '/set_demand': false,
           '/target_list': false,
           '/temperature': false,
-          '/tennis_ball': false
-
+          '/tennis_ball': false,
+          '/zed_gimbal_command': false,
+          '/zed_gimbal_position': false
         },
         subscriptions: [
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
@@ -103,11 +104,9 @@
           {'topic': '/auton', 'type': 'AutonState'},
           {'topic': '/camera_servos', 'type': 'CameraServos'},
           {'topic': '/course', 'type': 'Course'},
-          // {'topic': '', 'type': 'CurrentDraw'},
           {'topic': '/debugMessage', 'type': 'DebugMessage'},
           {'topic': '/drive_vel_cmd', 'type': 'DriveVelCmd'},
           {'topic': '/encoder', 'type': 'Encoder'},
-          // {'topic': '', 'type': 'Heartbeat'},
           {'topic': '/gimbal_control', 'type': 'Keyboard'},
           {'topic': '/gimbal_openloop_cmd', 'type': 'GimbalCmd'},
           {'topic': '/hand_openloop_cmd', 'type': 'HandCmd'},
@@ -142,7 +141,9 @@
           {'topic': '/tennis_ball', 'type': 'TennisBall'},
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
-          {'topic': '/microscope', 'type': 'Microscope'}
+          {'topic': '/microscope', 'type': 'Microscope'},
+          {'topic': 'zed_gimbal_command', 'type': 'ZedGimbalCommand'},
+          {'topic': 'zed_gimbal_position', 'type': 'ZedGimbalPosition'}
         ]
       }
     },

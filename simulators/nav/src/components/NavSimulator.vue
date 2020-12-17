@@ -347,6 +347,9 @@ export default class NavSimulator extends Vue {
             this.setTargetList(msg.message.targetList);
           }
         }
+        else if (msg.topic === '/zed_gimbal_command') {
+          console.log('zed_gimbal_command message');
+        }
         else if (msg.topic === '/debugMessage') {
           if (msg.message.isError) {
             console.error(msg.message.message);
@@ -365,6 +368,7 @@ export default class NavSimulator extends Vue {
         { topic: '/odometry',     type: 'Odometry' },
         { topic: '/rr_drop_init', type: 'RepeaterDropInit' },
         { topic: '/target_list',   type: 'TargetList' },
+        { topic: '/zed_gimbal_command', type: 'ZedGimbalCommand' },
         { topic: '/debugMessage', type: 'DebugMessage' }
       ]
     );
