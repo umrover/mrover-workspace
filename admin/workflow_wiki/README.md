@@ -241,8 +241,9 @@ and likely will be too dense to remember everything when you first read it.
         * If not already on my new branch (`hotkey-docs`), I check it out.
         * Next, I make sure I am working off of the most up to date version of `upstream/main`.
           I do this with `git pull upstream main`.
-          For learning purposes, let's say I made a few code changes before `pull`ing.
-          This doesn't change anything about our workflow but we can see that these unstaged and uncommitted changes were "fast-forwarded" on top of the changes I am pulling.
+          For learning purposes, let's look at an example where I made a few code changes before `pull`ing and that there were changes to `upstream/main` as this is the trickiest sitation.
+          This doesn't change anything about the steps we do, but we can see that these unstaged and uncommitted changes were "fast-forwarded" on top of the changes I am pulling.
+          There were no merge conflicts I had to deal with in this scenario.
           ```console
           $ git pull upstream main
           From https://github.com/umrover/mrover-workspace
@@ -505,7 +506,7 @@ We will be continuing the demo of resolving [issue 431](https://github.com/umrov
       I respond to these accordingly.
     * Some comments require code changes so I do another work session.
         * If not already on my new branch (`hotkey-docs`), I check it out.
-        * Next, I make sure I am working off of the most up to date version of `upstream/main` using  `git pull upstream main`. Note that I do **NOT** use the `--rebase` flag this time. I save the automated commit message to create the merge commit. This step is optional as I can use the `Update branch` button on the [pull request page](https://github.com/umrover/mrover-workspace/pull/505) (which only appears if it's applicable).
+        * Next, I make sure I am working off of the most up to date version of `upstream/main` using  `git pull upstream main`. I save the automated commit message to create the merge commit. This step is optional as I can use the `Update branch` button on the [pull request page](https://github.com/umrover/mrover-workspace/pull/505) (which only appears if it's applicable).
           ```console
           $ git pull upstream main
           From https://github.com/umrover/mrover-workspace
