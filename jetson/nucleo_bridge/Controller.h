@@ -25,6 +25,12 @@
 
 #define POINTER reinterpret_cast<uint8_t *>
 
+/*
+Virtual Controllers store information about various controller-specific parameters (such as encoder cpr)
+The virtual Controller class also has functions representing the possible transactions that can be had with the physical controller. 
+The virtual Controller will not attempt to communicate with its physical controller unless "activated" by an appropriate LCM message relayed by LCMHandler.h
+(e.g. A virtual RA Controller will never attempt to communicate with its physical RA controller unless an RA-related LCM message is sent. This is to prevent multiple virtual Controller objects from trying to contact the same physical Controller object.)
+*/
 class Controller {
 public:
     float startAngle = 0.0;
@@ -36,12 +42,13 @@ public:
 
     std::string name;
 
+    //Helper function to convert raw angle to radians. Also checks if new angle is close to old angle
     void recordAngle(int32_t angle);
 
 private:
     Hardware hardware;
 
-    //Wrapper for backend->i2c_transact, autofilling the i2c address of the Controller
+    //Wrapper for I2C transact, autofilling the i2c address of the Controller by using ControllerMap::get_i2c_address()
     void transact(uint8_t cmd, uint8_t writeNum, uint8_t readNum, uint8_t *writeBuf, uint8_t *readBuf);
 
     //If this Controller is not live, make it live by configuring the real controller

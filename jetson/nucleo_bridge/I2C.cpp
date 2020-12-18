@@ -1,5 +1,6 @@
 #include "I2C.h"
 
+//Abstraction for I2C/Hardware related functions
 void I2C::init()
 {
     file = open("/dev/i2c-1", O_RDWR);
@@ -10,6 +11,7 @@ void I2C::init()
     }
 }
 
+//Performs an i2c transaction
 void I2C::transact(uint8_t addr, uint8_t cmd, uint8_t writeNum, uint8_t readNum, uint8_t *writeBuf, uint8_t *readBuf)
 {
     if (file == -1)

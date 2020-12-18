@@ -1,10 +1,12 @@
 #include "ControllerMap.h"
 #include "Controller.h"
 
+//Helper function to calculate an i2c address based off of nucleo # and channel #
 uint8_t ControllerMap::calculate_i2c_address(uint8_t nucleo, uint8_t channel) {
     return ((nucleo + 1) << 4) | channel;
 }
 
+//Helper function to get the path of the config file
 std::string ControllerMap::get_config(){
     std::string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_nucleo_bridge/controller_config.json";
@@ -20,6 +22,7 @@ std::string ControllerMap::get_config(){
     return config;
 }
 
+//Initialization function
 void ControllerMap::init() {
     rapidjson::Document document;
     document.Parse(get_config().c_str());
@@ -62,14 +65,17 @@ void ControllerMap::init() {
     }
 }
 
+//Returns supposed i2c address based off of virtual controller name
 uint8_t ControllerMap::get_i2c_address(std::string name) {
     return name_map[name];
 }
 
+//Returns whether virtual controller name is in the "live" virtual controller to i2c address map
 bool ControllerMap::check_if_live(std::string name) {
     return (name == live_map[get_i2c_address(name)]);
 }
 
+//Forces this virtual controller into the i2c address to "live" virtual controller map, replacing any virtual controller already at that i2c address
 void ControllerMap::make_live(std::string name)
 {
     live_map[get_i2c_address(name)] = name;

@@ -16,7 +16,7 @@ The ControllerMap class creates a hash table of virtual Controller objects from 
 The virtual Controller class is defined in Controller.h.\
 Virtual Controllers store information about various controller-specific parameters (such as encoder cpr)\
 The virtual Controller class also has functions representing the possible transactions that can be had with the physical controller. \
-The virtual Controller will not attempt to communicate with it's physical controller unless "activated" by an appropriate LCM message relayed by LCMHandler.h
+The virtual Controller will not attempt to communicate with its physical controller unless "activated" by an appropriate LCM message relayed by LCMHandler.h
 (e.g. A virtual RA Controller will never attempt to communicate with its physical RA controller unless an RA-related LCM message is sent. This is to prevent multiple virtual Controller objects from trying to contact the same physical Controller object.)
 
 LCMHandler.h is responsible for handling incoming and outgoing lcm messages. \
@@ -102,11 +102,3 @@ These communication errors can be caused by a failure anywhere on the i2c bus, s
 ### Notes
 
 To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/raytitan/NucleoHAL/tree/master/Core). A README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.
-
-### Todo
-
-- [ ] Re-enable disabled arm joints and lcm messages.
-- [ ] Hardcode the encoder configurations, PID constants, and other miscellanious variables for each arm joint.
-- [ ] Test predictive torques.
-
-

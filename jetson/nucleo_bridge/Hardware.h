@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-enum Type
+enum HardwareType
 {
     Talon24V,
     Talon12V,
@@ -18,9 +18,9 @@ class Hardware
 {
 public:
     uint16_t pwmMin, pwmMax, pwmPeriod;
-    Type type;
+    HardwareType type;
 
-    Type getType(std::string input) {
+    HardwareType getType(std::string input) {
         if (input == "Talon24V"){
             return Talon24V;
         }

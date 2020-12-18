@@ -21,7 +21,6 @@ private:
     inline static int file = -1;
 
 public:
-
     //Abstraction for I2C/Hardware related functions
     static void init();
 

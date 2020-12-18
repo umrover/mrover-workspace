@@ -1,6 +1,6 @@
 #include "Controller.h"
 
-//Wrapper for backend->i2c_transact, autofilling the i2c address of the Controller
+//Wrapper for I2C transact, autofilling the i2c address of the Controller by using ControllerMap::get_i2c_address()
 void Controller::transact(uint8_t cmd, uint8_t writeNum, uint8_t readNum, uint8_t *writeBuf, uint8_t *readBuf)
 {
     I2C::transact(ControllerMap::get_i2c_address(name), cmd, writeNum, readNum, writeBuf, readBuf);

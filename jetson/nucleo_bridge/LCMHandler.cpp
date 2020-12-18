@@ -1,5 +1,6 @@
 #include "LCMHandler.h"
 
+//Initialize the lcm bus and subscribe to relevant channels with message handlers defined below
 void LCMHandler::init() {
     //Creation of lcm bus
     lcm_bus = new lcm::LCM();

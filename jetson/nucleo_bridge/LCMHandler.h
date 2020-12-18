@@ -29,7 +29,11 @@
 #define NOW std::chrono::high_resolution_clock::now()
 using namespace rover_msgs;
 
-//This class handles all LCM related functions - subscribing, handling, and publishing to channels
+/*
+LCMHandler.h is responsible for handling incoming and outgoing lcm messages.
+Incoming lcm messages will trigger functions which call the functions on the appropriate virtual Controllers. 
+Outgoing lcm messages are triggered by a clock, which query the functions on the appropriate virtual Controllers for data.
+*/
 class LCMHandler
 {
 private:
