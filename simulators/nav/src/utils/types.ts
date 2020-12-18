@@ -329,6 +329,16 @@ export enum WheelPositions {
   BackRight
 }
 
+/* Interface representing the constant values used to define the ZED and ZED
+   gimbal. */
+export interface ZedConstants {
+  gimbal:{
+    minAngle:number; /* degrees */
+    maxAngle:number; /* degrees */
+  };
+}
+
+
 /* Position for ZED gimbal */
 export interface ZedGimbalPosition {
   angle:number; /* absolute angle from rover's heading, -180 to 180 */

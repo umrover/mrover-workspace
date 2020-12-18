@@ -2,5 +2,5 @@ package rover_msgs;
 
 // Position for ZED gimbal
 struct ZedGimbalPosition {
-    double angle; // absolute angle from rover's heading, -180 to 180
+    double angle; // absolute angle from rover's heading, [-180, 180]
 }

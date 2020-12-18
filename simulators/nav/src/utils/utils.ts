@@ -1,5 +1,6 @@
 /* This file contains utility functions used throughout the application. */
 
+import { ZED } from './constants';
 import {
   ArTag,
   Joystick,
@@ -86,7 +87,14 @@ export function applyZedGimbalCmdUtil(
   const left:boolean = bearToDesired > 0;
   const deltaBearMax:number = deltaTime * currSpeed.turn;
   const deltaBear:number = Math.min(Math.abs(bearToDesired), deltaBearMax) * (left ? -1 : 1);
-  return { angle: currentPos.angle + deltaBear };
+  let newAngle:number = currentPos.angle + deltaBear;
+  if (newAngle < ZED.gimbal.minAngle) {
+    newAngle = ZED.gimbal.minAngle;
+  }
+  else if (newAngle > ZED.gimbal.maxAngle) {
+    newAngle = ZED.gimbal.maxAngle;
+  }
+  return { angle: newAngle };
 } /* applyZedGimbalCmdUtil() */
 
 

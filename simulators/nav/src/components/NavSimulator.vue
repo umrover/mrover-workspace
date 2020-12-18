@@ -47,7 +47,10 @@ import fnvPlus from 'fnv-plus';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
 import { RADIO } from '../utils/constants';
-import { applyJoystickCmdUtil, applyZedGimbalCmdUtil } from '../utils/utils';
+import {
+  applyJoystickCmdUtil,
+  applyZedGimbalCmdUtil
+} from '../utils/utils';
 import {
   Joystick,
   NavStatus,
