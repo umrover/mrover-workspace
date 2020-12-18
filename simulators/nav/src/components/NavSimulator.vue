@@ -373,7 +373,7 @@ export default class NavSimulator extends Vue {
             this.setTargetList(msg.message.targetList);
           }
         }
-        else if (msg.topic === '/zed_gimbal_command') {
+        else if (msg.topic === '/zed_gimbal_cmd') {
           this.setZedGimbalCmd(msg.message);
           if (!this.paused) {
             this.applyZedGimbalCmd();
@@ -391,14 +391,14 @@ export default class NavSimulator extends Vue {
 
       /* Subscriptions */
       [
-        { topic: '/autonomous',         type: 'Joystick' },
-        { topic: '/nav_status',         type: 'NavStatus' },
-        { topic: '/obstacle',           type: 'Obstacle' },
-        { topic: '/odometry',           type: 'Odometry' },
-        { topic: '/rr_drop_init',       type: 'RepeaterDropInit' },
-        { topic: '/target_list',        type: 'TargetList' },
-        { topic: '/zed_gimbal_command', type: 'ZedGimbalPosition' },
-        { topic: '/debugMessage',       type: 'DebugMessage' }
+        { topic: '/autonomous',     type: 'Joystick' },
+        { topic: '/nav_status',     type: 'NavStatus' },
+        { topic: '/obstacle',       type: 'Obstacle' },
+        { topic: '/odometry',       type: 'Odometry' },
+        { topic: '/rr_drop_init',   type: 'RepeaterDropInit' },
+        { topic: '/target_list',    type: 'TargetList' },
+        { topic: '/zed_gimbal_cmd', type: 'ZedGimbalPosition' },
+        { topic: '/debugMessage',   type: 'DebugMessage' }
       ]
     );
 
@@ -443,7 +443,7 @@ export default class NavSimulator extends Vue {
       this.publish('/course', course);
 
       const zedGimbalPos:any = Object.assign(this.zedGimbalPos, { type: 'ZedGimbalPosition' });
-      this.publish('/zed_gimbal_position', zedGimbalPos);
+      this.publish('/zed_gimbal_data', zedGimbalPos);
     }, TIME_INTERVAL_MILLI);
 
     /* eslint-enable @typescript-eslint/no-explicit-any */

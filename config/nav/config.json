@@ -48,8 +48,8 @@
 		"repeaterDropInitChannel": "/rr_drop_init",
 		"repeaterDropCompleteChannel": "/rr_drop_complete",
 		"joystickChannel": "/autonomous",
-		"zedGimbalCommand": "/zed_gimbal_command",
-		"zedGimbalPosition": "/zed_gimbal_position"
+		"zedGimbalCommand": "/zed_gimbal_cmd",
+		"zedGimbalPosition": "/zed_gimbal_data"
 	},
 
 	"radioRepeaterThresholds":

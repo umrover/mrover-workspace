@@ -94,8 +94,8 @@
           '/target_list': false,
           '/temperature': false,
           '/tennis_ball': false,
-          '/zed_gimbal_command': false,
-          '/zed_gimbal_position': false
+          '/zed_gimbal_cmd': false,
+          '/zed_gimbal_data': false
         },
         subscriptions: [
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
@@ -142,8 +142,8 @@
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
           {'topic': '/microscope', 'type': 'Microscope'},
-          {'topic': '/zed_gimbal_command', 'type': 'ZedGimbalPosition'},
-          {'topic': '/zed_gimbal_position', 'type': 'ZedGimbalPosition'}
+          {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
+          {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
         ]
       }
     },
