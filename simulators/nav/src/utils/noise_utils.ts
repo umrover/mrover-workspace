@@ -5,20 +5,29 @@ import {
   Odom,
   OdomNoiseSettings
 } from './types';
+import {
+  metersToOdom
+} from './utils';
 
 /**************************************************************************************************
  * Public Utility Functions
  **************************************************************************************************/
-/* */
+/* Create a noisy version of currOdom by adding normally distributed noise. */
 export function createNoisyOdom(
     currOdom:Odom,
     odomNoise:OdomNoiseSettings
 ):Odom {
-  const noisyOdom:Odom = { ...currOdom };
-  console.log(odomNoise);
+  /* add lat/lon noise */
+  const noisyOdom:Odom = metersToOdom({
+    x: Z() * odomNoise.latLonStdev,
+    y: Z() * odomNoise.latLonStdev
+  }, currOdom);
+
+  /* add heading noise */
   noisyOdom.bearing_deg += Z() * odomNoise.headingStdev;
+
   return noisyOdom;
-}
+} /* createNoisyOdom() */
 
 /* */
 export function func(currOdom:Odom):void {

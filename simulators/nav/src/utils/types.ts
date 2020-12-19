@@ -141,7 +141,8 @@ export interface NavStatus {
 }
 
 
-/* */
+/* Interface representing the settings that can be adjusted for the artificially
+   added noise. */
 export interface NoiseSettings {
   odomNoise:OdomNoiseSettings;
 }
@@ -181,7 +182,8 @@ export interface Odom {
 }
 
 
-/* */
+/* Interface representing the values for the artifically added noise pertaining
+   to Odoms. */
 export interface OdomNoiseSettings {
   headingStdev:number;  /* degrees */
   latLonStdev:number;   /* meters */

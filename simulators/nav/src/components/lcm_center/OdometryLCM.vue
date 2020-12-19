@@ -46,24 +46,25 @@ export default class OdometryLCM extends Vue {
   /************************************************************************************************
    * Local Getters/Setters
    ************************************************************************************************/
-  /* Stringified version of the latitude of the field item. */
+  /* Stringified version of the rover's latitude. */
   private get latitude():string {
     return stringifyLatLon(this.displayOdom.latitude_deg, this.displayOdom.latitude_min,
                            'lat', this.odomFormat);
   }
 
-  /* Stringified version of the longitude of the field item. */
+  /* Stringified version of the rover's longitude. */
   private get longitude():string {
     return stringifyLatLon(this.displayOdom.longitude_deg, this.displayOdom.longitude_min,
                            'lon', this.odomFormat);
   }
 
-  /* */
+  /* Stringified version of the rover's heading with fixed number of
+     decimals. */
   private get heading():string {
     return this.displayOdom.bearing_deg.toFixed(HEADING_DECIMALS);
   }
 
-  /* */
+  /* Odometry to display depending on the current mode of simulateLoc. */
   private get displayOdom():Odom {
     if (this.simulateLoc === SensorSimulationMode.OnWithNoise) {
       return this.currOdomNoisy;
