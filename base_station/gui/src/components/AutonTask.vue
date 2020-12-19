@@ -199,7 +199,7 @@ export default {
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu', 'type': 'IMU'},
-        {'topic': '/rr_drop_complete', 'type': 'RepeaterDropComplete'},
+        {'topic': '/rr_drop_complete', 'type': 'RepeaterDrop'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'}
       ]
     )
