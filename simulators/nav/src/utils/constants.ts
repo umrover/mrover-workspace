@@ -2,10 +2,17 @@
    of the rover). */
 
 import {
+  PerceptionConstants,
   PostConstants,
   RepeaterConstants,
   RoverConstants
 } from './types';
+
+
+/* Define the perception system constants */
+export const PERCEPTION:PerceptionConstants = {
+  minVisibleDistTag: 0.25
+};
 
 
 /* Define the size of a post. */

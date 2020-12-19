@@ -19,7 +19,7 @@ import {
   radToDeg
 } from '../../utils/utils';
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
-import { POST, ROVER } from '../../utils/constants';
+import { PERCEPTION, POST, ROVER } from '../../utils/constants';
 
 /* Class that performs target dectection calculations. */
 export default class TargetDetector {
@@ -261,14 +261,19 @@ export default class TargetDetector {
     }
 
     /* Step 2: Check if post is in field of view */
-    /* Case 1: post center is within field of view */
-    if (dist <= this.fov.depth &&
+    /* Case 1: post is too close to see */
+    if (dist < PERCEPTION.minVisibleDistTag) {
+      return false;
+    }
+
+    /* Case 2: post center is within field of view */
+    else if (dist <= this.fov.depth &&
         relBear >= -this.fov.angle / 2 &&
         relBear <= this.fov.angle / 2) {
       return true;
     }
 
-    /* Case 2: post center is within field of view angles but beyond depth.
+    /* Case 3: post center is within field of view angles but beyond depth.
                We consider these posts visible if we can see at 2 of the 3
                corners. */
     else if (relBear >= -this.fov.angle / 2 && relBear <= this.fov.angle / 2) {
@@ -285,7 +290,7 @@ export default class TargetDetector {
       return visibleCorners >= 2;
     }
 
-    /* Case 3: post is outside field of view angles */
+    /* Case 4: post is outside field of view angles */
     else {
       return false;
     }
