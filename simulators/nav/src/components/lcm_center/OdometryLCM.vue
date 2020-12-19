@@ -24,7 +24,7 @@ import { Odom, OdomFormat, SensorSimulationMode } from '../../utils/types';
 /**************************************************************************************************
  * Constants
  **************************************************************************************************/
-const HEADING_DECIMALS = 4;
+const HEADING_DECIMALS = 2;
 
 @Component({})
 export default class OdometryLCM extends Vue {
@@ -46,6 +46,16 @@ export default class OdometryLCM extends Vue {
   /************************************************************************************************
    * Local Getters/Setters
    ************************************************************************************************/
+  /* Odometry to display depending on the current mode of simulateLoc. */
+  private get displayOdom():Odom {
+    if (this.simulateLoc === SensorSimulationMode.OnWithNoise) {
+      return this.currOdomNoisy;
+    }
+    else {
+      return this.currOdom;
+    }
+  }
+
   /* Stringified version of the rover's latitude. */
   private get latitude():string {
     return stringifyLatLon(this.displayOdom.latitude_deg, this.displayOdom.latitude_min,
@@ -62,16 +72,6 @@ export default class OdometryLCM extends Vue {
      decimals. */
   private get heading():string {
     return this.displayOdom.bearing_deg.toFixed(HEADING_DECIMALS);
-  }
-
-  /* Odometry to display depending on the current mode of simulateLoc. */
-  private get displayOdom():Odom {
-    if (this.simulateLoc === SensorSimulationMode.OnWithNoise) {
-      return this.currOdomNoisy;
-    }
-    else {
-      return this.currOdom;
-    }
   }
 }
 </script>

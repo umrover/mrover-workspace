@@ -2,7 +2,9 @@
    simulated rover. */
 
 import {
-  createNoisyOdom
+  createNoisyObs,
+  createNoisyOdom,
+  createNoisyTargetList
 } from '../../utils/noise_utils';
 import {
   Joystick,
@@ -51,9 +53,18 @@ const state:RoverState = {
   },
 
   noiseSetttings: {
-    odomNoise: {
+    locNoise: {
       headingStdev: 5,
       latLonStdev: 1
+    },
+    percepNoise: {
+      obsFalsePos: 0.1,
+      obsFalseNeg: 0.1,
+      tagFalsePos: 0.1,
+      tagFalseNeg: 0.1,
+      tagIdFalses: 0.1,
+      bearStddev: 5,
+      distStddev: 0.5
     }
   },
 
@@ -62,9 +73,27 @@ const state:RoverState = {
     bearing: 0
   },
 
+  obstacleMessageNoisy: {
+    distance: -1,
+    bearing: 0
+  },
+
   radioSignalStrength: 100,
 
   targetList: [
+    {
+      distance: -1,
+      bearing: 0,
+      id: -1
+    },
+    {
+      distance: -1,
+      bearing: 0,
+      id: -1
+    }
+  ],
+
+  targetListNoisy: [
     {
       distance: -1,
       bearing: 0,
@@ -92,16 +121,20 @@ const getters = {
 
   obstacleMessage: (roverState:RoverState):ObstacleMessage => roverState.obstacleMessage,
 
+  obstacleMessageNoisy: (roverState:RoverState):ObstacleMessage => roverState.obstacleMessageNoisy,
+
   radioStrength: (roverState:RoverState):number => roverState.radioSignalStrength,
 
-  targetList: (roverState:RoverState):TargetListMessage => roverState.targetList
+  targetList: (roverState:RoverState):TargetListMessage => roverState.targetList,
+
+  noisyTargetList: (roverState:RoverState):TargetListMessage => roverState.targetListNoisy
 };
 
 
 const mutations = {
   setCurrOdom: (roverState:RoverState, newOdom:Odom):void => {
     Object.assign(roverState.currOdom, newOdom);
-    roverState.currOdomNoisy = createNoisyOdom(newOdom, roverState.noiseSetttings.odomNoise);
+    roverState.currOdomNoisy = createNoisyOdom(newOdom, roverState.noiseSetttings.locNoise);
   },
 
   setCurrSpeed: (roverState:RoverState, newSpeeds:Speeds):void => {
@@ -118,6 +151,8 @@ const mutations = {
 
   setObstacleMessage: (roverState:RoverState, newObstacle:ObstacleMessage):void => {
     Object.assign(roverState.obstacleMessage, newObstacle);
+    roverState.obstacleMessageNoisy = createNoisyObs(newObstacle,
+                                                     roverState.noiseSetttings.percepNoise);
   },
 
   setRadioStrength: (roverState:RoverState, strength:number):void => {
@@ -126,6 +161,8 @@ const mutations = {
 
   setTargetList: (roverState:RoverState, newTargetList:TargetListMessage):void => {
     roverState.targetList = newTargetList;
+    roverState.targetListNoisy = createNoisyTargetList(newTargetList,
+                                                       roverState.noiseSetttings.percepNoise);
   }
 };
 

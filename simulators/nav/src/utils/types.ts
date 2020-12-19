@@ -132,6 +132,14 @@ export interface LCMConnections {
 }
 
 
+/* Interface representing the values for the artifically added noise pertaining
+   to Localization. */
+export interface LocNoiseSettings {
+  headingStdev:number;  /* degrees */
+  latLonStdev:number;   /* meters */
+}
+
+
 /* Interface representing the NavStatus LCM. This must be the same as the
    NavStatus LCM. */
 export interface NavStatus {
@@ -144,7 +152,8 @@ export interface NavStatus {
 /* Interface representing the settings that can be adjusted for the artificially
    added noise. */
 export interface NoiseSettings {
-  odomNoise:OdomNoiseSettings;
+  locNoise:LocNoiseSettings;
+  percepNoise:PercepNoiseSettings;
 }
 
 
@@ -182,19 +191,24 @@ export interface Odom {
 }
 
 
-/* Interface representing the values for the artifically added noise pertaining
-   to Odoms. */
-export interface OdomNoiseSettings {
-  headingStdev:number;  /* degrees */
-  latLonStdev:number;   /* meters */
-}
-
-
 /* Enum representing the different odom formatting options. */
 export enum OdomFormat {
   D,  /* degrees */
   DM, /* degrees, minutes */
   DMS /* degrees, minutes, seconds */
+}
+
+
+/* Interface representing the values for the artifically added noise pertaining
+   to Perception. */
+export interface PercepNoiseSettings {
+  obsFalsePos:number; /* percentage, [0, 1] */
+  obsFalseNeg:number; /* percentage, [0, 1] */
+  tagFalsePos:number; /* percentage, [0, 1] */
+  tagFalseNeg:number; /* percentage, [0, 1] */
+  tagIdFalses:number; /* percentage of tag IDs given incorrectly, [0, 1] */
+  bearStddev:number; /* degrees */
+  distStddev:number; /* meters */
 }
 
 
@@ -264,8 +278,10 @@ export interface RoverState {
   navStatus:NavStatus;
   noiseSetttings:NoiseSettings;
   obstacleMessage:ObstacleMessage;
+  obstacleMessageNoisy:ObstacleMessage;
   radioSignalStrength:number;
   targetList:TargetListMessage;
+  targetListNoisy:TargetListMessage;
 }
 
 

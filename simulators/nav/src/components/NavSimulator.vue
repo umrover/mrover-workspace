@@ -124,6 +124,9 @@ export default class NavSimulator extends Vue {
   private readonly obstacleMessage!:ObstacleMessage;
 
   @Getter
+  private readonly obstacleMessageNoisy!:ObstacleMessage;
+
+  @Getter
   private readonly paused!:boolean;
 
   @Getter
@@ -389,7 +392,13 @@ export default class NavSimulator extends Vue {
       }
 
       if (this.simulatePercep !== SensorSimulationMode.Off) {
-        const obs:any = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
+        let obs:any;
+        if (this.simulatePercep === SensorSimulationMode.OnWithNoise) {
+          obs = Object.assign(this.obstacleMessageNoisy, { type: 'Obstacle' });
+        }
+        else {
+          obs = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
+        }
         this.publish('/obstacle', obs);
 
         const targetList:any = { targetList: this.targetList, type: 'TargetList' };
