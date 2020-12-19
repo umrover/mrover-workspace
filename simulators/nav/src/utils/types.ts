@@ -32,7 +32,7 @@ export enum ColorSchemeName {
   Green = 'Green',
   GreenGray = 'GreenGray', /* Green with gray border */
   Red = 'Red',
-  RedWhite = 'RedWhite',
+  RedWhite = 'RedWhite', /* Red with white border */
   Yellow = 'Yellow'
 }
 
@@ -141,6 +141,12 @@ export interface NavStatus {
 }
 
 
+/* */
+export interface NoiseSettings {
+  odomNoise:OdomNoiseSettings;
+}
+
+
 /* Interface for representing obstacles on the field. */
 export interface Obstacle {
   odom:Odom;
@@ -172,6 +178,13 @@ export interface Odom {
   longitude_min:number;
   bearing_deg:number; /* degrees from north */
   speed:number;
+}
+
+
+/* */
+export interface OdomNoiseSettings {
+  headingStdev:number;  /* degrees */
+  latLonStdev:number;   /* meters */
 }
 
 
@@ -243,9 +256,11 @@ export enum RoverLocationSource {
    store. */
 export interface RoverState {
   currOdom:Odom;
+  currOdomNoisy:Odom;
   currSpeed:Speeds;
   joystick:Joystick;
   navStatus:NavStatus;
+  noiseSetttings:NoiseSettings;
   obstacleMessage:ObstacleMessage;
   radioSignalStrength:number;
   targetList:TargetListMessage;

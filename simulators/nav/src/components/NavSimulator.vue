@@ -103,6 +103,9 @@ export default class NavSimulator extends Vue {
   private readonly currOdom!:Odom;
 
   @Getter
+  private readonly currOdomNoisy!:Odom;
+
+  @Getter
   private readonly currSpeed!:Speeds;
 
   @Getter
@@ -375,7 +378,13 @@ export default class NavSimulator extends Vue {
       this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn });
 
       if (this.simulateLoc !== SensorSimulationMode.Off) {
-        const odom:any = Object.assign(this.currOdom, { type: 'Odometry' });
+        let odom:any;
+        if (this.simulateLoc === SensorSimulationMode.OnWithNoise) {
+          odom = Object.assign(this.currOdomNoisy, { type: 'Odometry' });
+        }
+        else {
+          odom = Object.assign(this.currOdom, { type: 'Odometry' });
+        }
         this.publish('/odometry', odom);
       }
 

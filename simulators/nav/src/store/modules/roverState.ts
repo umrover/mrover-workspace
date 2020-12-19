@@ -2,6 +2,9 @@
    simulated rover. */
 
 import {
+  createNoisyOdom
+} from '../../utils/noise_utils';
+import {
   Joystick,
   NavStatus,
   ObstacleMessage,
@@ -14,6 +17,15 @@ import {
 
 const state:RoverState = {
   currOdom: {
+    latitude_deg: 38,
+    latitude_min: 24.38,
+    longitude_deg: -110,
+    longitude_min: -47.51,
+    bearing_deg: 0,
+    speed: -1
+  },
+
+  currOdomNoisy: {
     latitude_deg: 38,
     latitude_min: 24.38,
     longitude_deg: -110,
@@ -36,6 +48,13 @@ const state:RoverState = {
     nav_state_name: 'Unknown',
     completed_wps: 0,
     total_wps: 0
+  },
+
+  noiseSetttings: {
+    odomNoise: {
+      headingStdev: 5,
+      latLonStdev: 1
+    }
   },
 
   obstacleMessage: {
@@ -63,6 +82,8 @@ const state:RoverState = {
 const getters = {
   currOdom: (roverState:RoverState):Odom => roverState.currOdom,
 
+  currOdomNoisy: (roverState:RoverState):Odom => roverState.currOdomNoisy,
+
   joystick: (roverState:RoverState):Joystick => roverState.joystick,
 
   currSpeed: (roverState:RoverState):Speeds => roverState.currSpeed,
@@ -80,6 +101,7 @@ const getters = {
 const mutations = {
   setCurrOdom: (roverState:RoverState, newOdom:Odom):void => {
     Object.assign(roverState.currOdom, newOdom);
+    roverState.currOdomNoisy = createNoisyOdom(newOdom, roverState.noiseSetttings.odomNoise);
   },
 
   setCurrSpeed: (roverState:RoverState, newSpeeds:Speeds):void => {

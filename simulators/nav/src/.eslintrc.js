@@ -241,6 +241,7 @@ module.exports = {
     {
       "files": ["store/modules/*State.ts"],
       "rules": {
+        "no-magic-numbers": "off",
         "no-param-reassign": "off"
       }
     },
