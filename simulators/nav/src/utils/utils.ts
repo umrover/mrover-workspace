@@ -6,6 +6,7 @@ import {
   Odom,
   OdomFormat,
   Point2D,
+  SensorSimulationMode,
   Speeds
 } from './types';
 
@@ -226,6 +227,29 @@ export function rotatePoint(
         ((origin.y - point.y) * Math.cos(angleRad)))
   };
 } /* rotatePoint() */
+
+
+/* Switch sensor simulation modes to the "next" mode in the circular list. */
+export function rotateSensorSimulationMode(currMode:SensorSimulationMode):SensorSimulationMode {
+  switch (currMode) {
+    case SensorSimulationMode.OnWithNoise: {
+      return SensorSimulationMode.OnNoNoise;
+    }
+
+    case SensorSimulationMode.OnNoNoise: {
+      return SensorSimulationMode.Off;
+    }
+
+    case SensorSimulationMode.Off: {
+      return SensorSimulationMode.OnWithNoise;
+    }
+
+    default: {
+      console.log('ERROR: Unknown sensor simulation mode.');
+      return SensorSimulationMode.OnWithNoise;
+    }
+  }
+} /* rotateSensorSimulationMode() */
 
 
 /* Convert latitude or longitude into a string. */

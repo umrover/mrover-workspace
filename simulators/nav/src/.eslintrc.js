@@ -56,7 +56,7 @@ module.exports = {
         "total_wps"
        ]
     }],
-    "class-methods-use-this": "error",
+    "class-methods-use-this": "off",
     "comma-dangle": ["error", "never"],
     "comma-style": ["error", "last"],
     "consistent-return": "error",

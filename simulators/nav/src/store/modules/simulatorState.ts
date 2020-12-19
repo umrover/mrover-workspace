@@ -9,6 +9,7 @@ import {
   ObstacleDrawOptions,
   Odom,
   OdomFormat,
+  SensorSimulationMode,
   SimulatorState,
   WaypointDrawOptions
 } from '../../utils/types';
@@ -17,7 +18,6 @@ import {
 /**************************************************************************************************
  * Constants
  **************************************************************************************************/
-// const MAX_RECENT_PATH_LEN = 100;
 const BEARING_DIFF_THRESHOLD = 0.1;
 const MINUTE_DIFF_THRESHOLD = 0.00000001;
 
@@ -69,8 +69,8 @@ const state:SimulatorState = {
   path: [],
 
   simSettings: {
-    simulateLoc: true,
-    simulatePercep: true
+    simulateLoc: SensorSimulationMode.OnWithNoise,
+    simulatePercep: SensorSimulationMode.OnWithNoise
   },
 
   startLoc: {
@@ -115,9 +115,10 @@ const getters = {
 
   roverPathVisible: (simState:SimulatorState):boolean => simState.debugOptions.roverPathVisible,
 
-  simulateLoc: (simState:SimulatorState):boolean => simState.simSettings.simulateLoc,
+  simulateLoc: (simState:SimulatorState):SensorSimulationMode => simState.simSettings.simulateLoc,
 
-  simulatePercep: (simState:SimulatorState):boolean => simState.simSettings.simulatePercep,
+  simulatePercep: (simState:SimulatorState):SensorSimulationMode => simState.simSettings.
+      simulatePercep,
 
   startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
@@ -149,12 +150,12 @@ const mutations = {
     simState.lcmConnections.perception = onOff;
   },
 
-  flipSimulateLoc: (simState:SimulatorState, onOff:boolean):void => {
-    simState.simSettings.simulateLoc = onOff;
+  flipSimulateLoc: (simState:SimulatorState, newMode:SensorSimulationMode):void => {
+    simState.simSettings.simulateLoc = newMode;
   },
 
-  flipSimulatePercep: (simState:SimulatorState, onOff:boolean):void => {
-    simState.simSettings.simulatePercep = onOff;
+  flipSimulatePercep: (simState:SimulatorState, newMode:SensorSimulationMode):void => {
+    simState.simSettings.simulatePercep = newMode;
   },
 
   pushToRoverPath: (simState:SimulatorState, currLoc:Odom):void => {
@@ -228,10 +229,3 @@ export default {
   getters,
   mutations
 };
-
-/**************************************************************************************************
- * Private Helper Functions
- **************************************************************************************************/
-// /* Performs a list push operation specific to paths. This is the same as a
-//    normal push operation except that it will not push duplicate
-// function pathPush()

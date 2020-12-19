@@ -53,6 +53,7 @@ import {
   NavStatus,
   ObstacleMessage,
   Odom,
+  SensorSimulationMode,
   Speeds,
   TargetListMessage,
   Waypoint
@@ -132,10 +133,10 @@ export default class NavSimulator extends Vue {
   private readonly repeaterLoc!:Odom|null;
 
   @Getter
-  private readonly simulateLoc!:boolean;
+  private readonly simulateLoc!:SensorSimulationMode;
 
   @Getter
-  private readonly simulatePercep!:boolean;
+  private readonly simulatePercep!:SensorSimulationMode;
 
   @Getter
   private readonly takeStep!:boolean;
@@ -256,7 +257,7 @@ export default class NavSimulator extends Vue {
      odometry based on this movement. */
   private applyJoystick():void {
     /* if not simulating localization, nothing to do */
-    if (!this.simulateLoc) {
+    if (this.simulateLoc === SensorSimulationMode.Off) {
       return;
     }
 
@@ -327,13 +328,13 @@ export default class NavSimulator extends Vue {
           this.setNavStatus(msg.message);
         }
         else if (msg.topic === '/obstacle') {
-          if (!this.simulatePercep) {
+          if (this.simulatePercep === SensorSimulationMode.Off) {
             this.percepPulse = true;
             this.setObstacleMessage(msg.message);
           }
         }
         else if (msg.topic === '/odometry') {
-          if (!this.simulateLoc) {
+          if (this.simulateLoc === SensorSimulationMode.Off) {
             this.locPulse = true;
             this.setCurrOdom(msg.message);
           }
@@ -342,7 +343,7 @@ export default class NavSimulator extends Vue {
           this.dropRepeater();
         }
         else if (msg.topic === '/target_list') {
-          if (!this.simulatePercep) {
+          if (this.simulatePercep === SensorSimulationMode.Off) {
             this.percepPulse = true;
             this.setTargetList(msg.message.targetList);
           }
@@ -373,12 +374,12 @@ export default class NavSimulator extends Vue {
     this.intervalLcmPublish = window.setInterval(() => {
       this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn });
 
-      if (this.simulateLoc) {
+      if (this.simulateLoc !== SensorSimulationMode.Off) {
         const odom:any = Object.assign(this.currOdom, { type: 'Odometry' });
         this.publish('/odometry', odom);
       }
 
-      if (this.simulatePercep) {
+      if (this.simulatePercep !== SensorSimulationMode.Off) {
         const obs:any = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
         this.publish('/obstacle', obs);
 

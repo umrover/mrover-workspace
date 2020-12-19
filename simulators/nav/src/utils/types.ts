@@ -17,6 +17,26 @@ export interface ArTagDrawOptions {
 }
 
 
+/* Interface representing a color scheme that has the relevant CSS properties
+   for a button. */
+export interface ColorScheme {
+  backgroundColor:string;
+  backgroundColorHover:string;
+  borderColor:string;
+  fontColor:string;
+}
+
+
+/* Enum representing the different possible color schemes. */
+export enum ColorSchemeName {
+  Green = 'Green',
+  GreenGray = 'GreenGray', /* Green with gray border */
+  Red = 'Red',
+  RedWhite = 'RedWhite',
+  Yellow = 'Yellow'
+}
+
+
 /* Interface representing the current debug settings used in the DebugTools
    component. */
 export interface DebugOptions {
@@ -163,18 +183,6 @@ export enum OdomFormat {
 }
 
 
-// /* Data structure storing the information needed to draw the rover's path. */
-// export interface Path {
-//   // fullPath:Point2D[]; /* list of canvas locations */
-//   path:PathSnapshot[]; /* list of sets of 4 canvas locations */
-// }
-
-
-//  Data structure representing a single instance of the path
-// export interface PathSnapshot {
-//   loc:Odom
-// }
-
 /* Interface representing a point in 2D space for use on the canvas and various
    field calculations. */
 export interface Point2D {
@@ -244,11 +252,19 @@ export interface RoverState {
 }
 
 
+/* Enum representing the possible modes for sensor simulation. */
+export enum SensorSimulationMode {
+  OnWithNoise = 0,  /* simulation with added noise */
+  OnNoNoise,        /* simulation without any noise */
+  Off               /* don't simulate the sensor */
+}
+
+
 /* Interface representing the different settings related to simulating different
    aspects of the environment that can be turned on and off. */
 export interface SimulationSettings {
-  simulateLoc:boolean;
-  simulatePercep:boolean;
+  simulateLoc:SensorSimulationMode;
+  simulatePercep:SensorSimulationMode;
 }
 
 

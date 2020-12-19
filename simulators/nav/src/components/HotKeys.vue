@@ -16,8 +16,10 @@ import {
   FieldItemType,
   Joystick,
   Odom,
-  OdomFormat
+  OdomFormat,
+  SensorSimulationMode
 } from '../utils/types';
+import { rotateSensorSimulationMode } from '../utils/utils';
 
 @Component({})
 export default class HotKeys extends Vue {
@@ -40,10 +42,10 @@ export default class HotKeys extends Vue {
   private readonly paused!:boolean;
 
   @Getter
-  private readonly simulateLoc!:boolean;
+  private readonly simulateLoc!:SensorSimulationMode;
 
   @Getter
-  private readonly simulatePercep!:boolean;
+  private readonly simulatePercep!:SensorSimulationMode;
 
   /************************************************************************************************
    * Vuex Mutations
@@ -76,10 +78,10 @@ export default class HotKeys extends Vue {
   private readonly setTakeStep!:(takeStep:boolean)=>void;
 
   @Mutation
-  private readonly flipSimulateLoc!:(onOff:boolean)=>void;
+  private readonly flipSimulateLoc!:(newMode:SensorSimulationMode)=>void;
 
   @Mutation
-  private readonly flipSimulatePercep!:(onOff:boolean)=>void;
+  private readonly flipSimulatePercep!:(newMode:SensorSimulationMode)=>void;
 
   /************************************************************************************************
    * Private Members
@@ -131,12 +133,12 @@ export default class HotKeys extends Vue {
 
   /* Turn on and off simulating localization. */
   private flipSimLoc():void {
-    this.flipSimulateLoc(!this.simulateLoc);
+    this.flipSimulateLoc(rotateSensorSimulationMode(this.simulateLoc));
   } /* flipSimLoc() */
 
   /* Turn on and off simulating perception. */
   private flipSimPercep():void {
-    this.flipSimulatePercep(!this.simulatePercep);
+    this.flipSimulatePercep(rotateSensorSimulationMode(this.simulatePercep));
   } /* flipSimPercep() */
 
   /* Apply one joystick command based on "manual" input. */
