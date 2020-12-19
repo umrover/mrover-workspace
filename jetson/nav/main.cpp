@@ -80,7 +80,7 @@ public:
     void repeaterDropComplete(
         const lcm::ReceiveBuffer* receiveBuffer,
         const string& channel,
-        const RepeaterDropComplete* completeIn
+        const RepeaterDrop* completeIn
         )
     {
         mStateMachine->updateRepeaterComplete( );

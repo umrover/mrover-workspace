@@ -512,6 +512,7 @@
             "depths[numDepths]"
         ]
     ],
+    "RepeaterDrop": [],
     "RGB": [
         [
             "string",
@@ -893,6 +894,7 @@
         "PiPicture",
         "PiSettings",
         "ProximitySensors",
+        "RepeaterDrop",
         "RGB",
         "RGBFrame",
         "RGBLED",

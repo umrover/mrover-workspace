@@ -363,7 +363,7 @@ export default class NavSimulator extends Vue {
         { topic: '/nav_status',    type: 'NavStatus' },
         { topic: '/obstacle',     type: 'Obstacle' },
         { topic: '/odometry',     type: 'Odometry' },
-        { topic: '/rr_drop_init', type: 'RepeaterDropInit' },
+        { topic: '/rr_drop_init', type: 'RepeaterDrop' },
         { topic: '/target_list',   type: 'TargetList' },
         { topic: '/debugMessage', type: 'DebugMessage' }
       ]
@@ -389,7 +389,7 @@ export default class NavSimulator extends Vue {
       }
 
       if (this.repeaterLoc !== null) {
-        this.publish('/rr_drop_complete', { type: 'RepeaterDropComplete' });
+        this.publish('/rr_drop_complete', { type: 'RepeaterDrop' });
       }
 
       this.publish('/radio', { type: 'RadioSignalStrength', signal_strength: this.radioStrength });
