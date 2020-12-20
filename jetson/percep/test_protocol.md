@@ -1,12 +1,12 @@
 ## Compile Test
 - [ ] ` ./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=true `
-  - [ ] No compiler warnings
+  - [ ] No compiler errors or warnings
 - [ ] ` ./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=false `
-  - [ ] No compiler warnings
+  - [ ] No compiler errors or warnings
 - [ ] ` ./jarvis build jetson/percep -o with_zed=true ar_detection=true obs_detection=true perception_debug=false `
-  - [ ] Only ZED warnings
+  - [ ] No compiler errors, only ZED warnings
 - [ ] ` ./jarvis build jetson/percep -o with_zed=true ar_detection=true obs_detection=true perception_debug=true `
-   - [ ] Only ZED warnings
+   - [ ] No compiler errors, only ZED warnings
 
 ## Offline Debug Test
 - [ ] `./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=true`
