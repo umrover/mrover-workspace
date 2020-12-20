@@ -11,9 +11,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-struct IOFailure : public std::exception
-{
-};
+struct IOFailure : public std::exception {};
 
 class I2C
 {
