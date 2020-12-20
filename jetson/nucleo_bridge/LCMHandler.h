@@ -20,7 +20,6 @@
 #include <rover_msgs/GimbalCmd.hpp>
 #include <rover_msgs/RAPosData.hpp>
 #include <rover_msgs/SAPosData.hpp>
-//#include <rover_msgs/RAZeroTrigger.hpp>
 #include <rover_msgs/SAZeroTrigger.hpp>
 #include <rover_msgs/FootCmd.hpp>
 #include <rover_msgs/ArmPosition.hpp>
@@ -43,9 +42,10 @@ private:
 
     
     //Empty object to pass to lcm subscribe
-    class InternalHandler {
+    class InternalHandler
+    {
     public: 
-    //The following functions are handlers for the corresponding lcm messages
+    	//The following functions are handlers for the corresponding lcm messages
         void ra_closed_loop_cmd(LCM_INPUT, const ArmPosition *msg);
 
         void sa_closed_loop_cmd(LCM_INPUT, const SAClosedLoopCmd *msg);
@@ -54,24 +54,17 @@ private:
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
 
-        /*
-	void ra_config_cmd(LCM_INPUT, const RAConfigCmd *msg);
-        void sa_config_cmd(LCM_INPUT, const SAConfigCmd *msg);
-        void sa_zero_trigger(LCM_INPUT, const SAZeroTrigger *msg);
-        void ra_zero_trigger(LCM_INPUT, const RAZeroTrigger *msg);
-        */ 
         void hand_openloop_cmd(LCM_INPUT, const HandCmd *msg);
 
         void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
-        
-	void gimbal_cmd(LCM_INPUT, const GimbalCmd *msg);
+
+        void gimbal_cmd(LCM_INPUT, const GimbalCmd *msg);
 
         void refreshAngles();
 
         void ra_pos_data();
 
         void sa_pos_data();
-
     };
 
     inline static InternalHandler *internal_object = nullptr;
@@ -85,7 +78,6 @@ public:
 
     //Decide whether outgoing messages need to be sent, and if so, send them
     static void handle_outgoing();
-
 };
 
 #endif
