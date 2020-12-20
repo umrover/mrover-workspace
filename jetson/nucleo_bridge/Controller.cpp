@@ -17,21 +17,21 @@ void Controller::make_live()
     try
     {
         uint8_t buffer[32];
-        memcpy(buffer, POINTER(&(hardware.pwmMin)), 2);
-        memcpy(buffer + 2, POINTER(&(hardware.pwmMax)), 2);
-        memcpy(buffer + 4, POINTER(&(hardware.pwmPeriod)), 2);
+        memcpy(buffer, UINT8_POINTER_T(&(hardware.pwmMin)), 2);
+        memcpy(buffer + 2, UINT8_POINTER_T(&(hardware.pwmMax)), 2);
+        memcpy(buffer + 4, UINT8_POINTER_T(&(hardware.pwmPeriod)), 2);
         transact(CONFIG_PWM, buffer, nullptr);
 
-        memcpy(buffer, POINTER(&(kP)), 4);
-        memcpy(buffer + 4, POINTER(&(kI)), 4);
-        memcpy(buffer + 8, POINTER(&(kD)), 4);
+        memcpy(buffer, UINT8_POINTER_T(&(kP)), 4);
+        memcpy(buffer + 4, UINT8_POINTER_T(&(kI)), 4);
+        memcpy(buffer + 8, UINT8_POINTER_T(&(kD)), 4);
         transact(CONFIG_K, buffer, nullptr);
 
         uint16_t input = 0;
-        //transact(SPI, nullptr, POINTER(&input));
+        //transact(SPI, nullptr, UINT8_POINTER_T(&input));
 
         int32_t angle = static_cast<int32_t>(quadCPR * ((static_cast<float>(input) / spiCPR) + (startAngle / (2.0 * M_PI))));
-        transact(ADJUST, POINTER(&angle), nullptr);
+        transact(ADJUST, UINT8_POINTER_T(&angle), nullptr);
 
         transact(ON, nullptr, nullptr);
 
@@ -66,7 +66,7 @@ void Controller::open_loop(float input)
 
         uint16_t throttle = hardware.throttle(input);
         int32_t angle;
-        transact(OPEN_PLUS, POINTER(&throttle), POINTER(&angle));
+        transact(OPEN_PLUS, UINT8_POINTER_T(&throttle), UINT8_POINTER_T(&angle));
 
         recordAngle(angle);
     }
@@ -87,9 +87,9 @@ void Controller::closed_loop(float torque, float angle)
         int32_t closedSetpoint = static_cast<int32_t>((angle / (2.0 * M_PI)) * quadCPR);
         uint8_t buffer[32];
         int32_t angle;
-        memcpy(buffer, POINTER(&feedForward), 4);
-        memcpy(buffer + 4, POINTER(&closedSetpoint), 4);
-        transact(CLOSED_PLUS, buffer, POINTER(&angle));
+        memcpy(buffer, UINT8_POINTER_T(&feedForward), 4);
+        memcpy(buffer + 4, UINT8_POINTER_T(&closedSetpoint), 4);
+        transact(CLOSED_PLUS, buffer, UINT8_POINTER_T(&angle));
 
         recordAngle(angle);
     }
@@ -109,9 +109,9 @@ void Controller::config(float KP, float KI, float KD)
             make_live();
 
             uint8_t buffer[32];
-            memcpy(buffer, POINTER(&KP), 4);
-            memcpy(buffer + 4, POINTER(&KI), 4);
-            memcpy(buffer + 8, POINTER(&KD), 4);
+            memcpy(buffer, UINT8_POINTER_T(&KP), 4);
+            memcpy(buffer + 4, UINT8_POINTER_T(&KI), 4);
+            memcpy(buffer + 8, UINT8_POINTER_T(&KD), 4);
             transact(CONFIG_K, buffer, nullptr);
         }
         catch (IOFailure &e)
@@ -131,7 +131,7 @@ void Controller::zero()
             make_live();
 
             int32_t zero = 0;
-            transact(ADJUST, POINTER(&zero), nullptr);
+            transact(ADJUST, UINT8_POINTER_T(&zero), nullptr);
         }
         catch (IOFailure &e)
         {
@@ -151,7 +151,7 @@ void Controller::angle()
     try
     {
         int32_t angle;
-        transact(QUAD, nullptr, POINTER(&angle));
+        transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
         recordAngle(angle);
     }
     catch (IOFailure &e)

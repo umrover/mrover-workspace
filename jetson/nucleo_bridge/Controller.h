@@ -23,7 +23,7 @@
 #define SPI         0x50,   0,  2
 #define LIMIT       0x60,   0,  1
 
-#define POINTER reinterpret_cast<uint8_t *>
+#define UINT8_POINTER_T reinterpret_cast<uint8_t *>
 
 /*
 Virtual Controllers store information about various controller-specific parameters (such as encoder cpr)
