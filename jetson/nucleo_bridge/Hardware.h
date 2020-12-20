@@ -3,6 +3,7 @@
 
 #include <algorithm>
 
+//Helper enum representing the valid types of real motor controllers
 enum HardwareType
 {
     Talon24V,
@@ -99,10 +100,9 @@ public:
             return static_cast<uint16_t>(rerange(std::max(0.0f, input), 0, 1));
         case HBridgeNeg:
             return static_cast<uint16_t>(rerange(std::min(0.0f, input), 0, -1));
-        case None:
+        default:
             return 0;
         }
-        return 0;
     }
 };
 

@@ -12,6 +12,7 @@
 
 //Handles instantiation of Controller objects, FrontEnd, and BackEnd classes
 
+//The outgoing function calls on the LCMHandler's handle_outgoing() function every millisecond
 void outgoing()
 {
     while (true)
@@ -21,6 +22,7 @@ void outgoing()
     }
 }
 
+//The incoming function calls on the LCMHandler's handle_incoming() function continuously
 void incoming()
 {
     while (true)
