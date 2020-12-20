@@ -24,9 +24,10 @@ void LCMHandler::init()
     lcm_bus->subscribe("/hand_openloop_cmd",    &LCMHandler::InternalHandler::hand_openloop_cmd,    internal_object);
     lcm_bus->subscribe("/foot_openloop_cmd",    &LCMHandler::InternalHandler::foot_openloop_cmd,    internal_object);
     /*
-    lcmBus->subscribe("/ra_config_cmd",         &LCMHandler::InternalHandler::ra_config_cmd,        &internal_object);
+    The following functions may be reimplemented when IK is tested
+    lcmBus->subscribe("/ra_config_cmd",         &LCMHandler::InternalHandler::ra_config_cmd,        internal_object);
     lcm_bus.subscribe("/sa_config_cmd",         &LCMHandler::InternalHandler::sa_config_cmd,        internal_object);
-    lcm_bus.subscribe("/ra_zero_trigger",       &LCMHandler::InternalHandler::ra_zero_trigger,      &internal_object);
+    lcm_bus.subscribe("/ra_zero_trigger",       &LCMHandler::InternalHandler::ra_zero_trigger,      internal_object);
     lcm_bus.subscribe("/sa_zero_trigger",       &LCMHandler::InternalHandler::sa_zero_trigger,      internal_object);
     */
     printf("LCM Bus channels subscribed\n");
@@ -91,6 +92,7 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
 }
 
 /*
+The following functions may be reimplemented when IK is tested
 void LCMHandler::InternalHandler::ra_config_cmd(LCM_INPUT, const RAConfigCmd *msg)
 {
     ControllerMap::controllers["RA_0"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
@@ -167,7 +169,9 @@ void LCMHandler::InternalHandler::sa_pos_data()
     last_output_time = NOW;
 }
 
+
 /*
+The following functions may be reimplemented when IK is tested
 void LCMHandler::InternalHandler::sa_zero_trigger(LCM_INPUT, const SAZeroTrigger *msg)
 {
     ControllerMap::controllers["SA_0"]->zero();
