@@ -31,7 +31,8 @@ The virtual Controller class also has functions representing the possible transa
 The virtual Controller will not attempt to communicate with its physical controller unless "activated" by an appropriate LCM message relayed by LCMHandler.h
 (e.g. A virtual RA Controller will never attempt to communicate with its physical RA controller unless an RA-related LCM message is sent. This is to prevent multiple virtual Controller objects from trying to contact the same physical Controller object.)
 */
-class Controller {
+class Controller
+{
 public:
     float startAngle = 0.0;
     float torqueScale = 1.0;
