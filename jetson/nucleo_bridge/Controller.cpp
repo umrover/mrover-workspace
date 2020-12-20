@@ -48,11 +48,10 @@ void Controller::make_live()
 void Controller::recordAngle(int32_t angle)
 {
     float otherAngle = (static_cast<float>(angle) / quadCPR) * 2.0 * M_PI;
-    if (std::abs(otherAngle - currentAngle) >= M_PI / 16.0)
+    if (std::abs(otherAngle - currentAngle) < M_PI / 16.0)
     {
-        return;
+        currentAngle = otherAngle;
     }
-    currentAngle = otherAngle;
 }
 
 //Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use
@@ -114,8 +113,6 @@ void Controller::config(float KP, float KI, float KD)
             memcpy(buffer + 4, POINTER(&KI), 4);
             memcpy(buffer + 8, POINTER(&KD), 4);
             transact(CONFIG_K, buffer, nullptr);
-
-            return;
         }
         catch (IOFailure &e)
         {
@@ -135,8 +132,6 @@ void Controller::zero()
 
             int32_t zero = 0;
             transact(ADJUST, POINTER(&zero), nullptr);
-
-            return;
         }
         catch (IOFailure &e)
         {
