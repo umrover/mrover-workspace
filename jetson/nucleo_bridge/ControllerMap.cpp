@@ -2,12 +2,14 @@
 #include "Controller.h"
 
 //Helper function to calculate an i2c address based off of nucleo # and channel #
-uint8_t ControllerMap::calculate_i2c_address(uint8_t nucleo, uint8_t channel) {
+uint8_t ControllerMap::calculate_i2c_address(uint8_t nucleo, uint8_t channel)
+{
     return ((nucleo + 1) << 4) | channel;
 }
 
 //Helper function to get the path of the config file
-std::string ControllerMap::get_config(){
+std::string ControllerMap::get_config()
+{
     std::string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_nucleo_bridge/controller_config.json";
     std::ifstream configFile;
@@ -15,7 +17,8 @@ std::string ControllerMap::get_config(){
     
     std::string config = "";
     std::string line;
-    while (configFile >> line) {
+    while (configFile >> line)
+    {
         config += line;
     }
 
@@ -23,14 +26,16 @@ std::string ControllerMap::get_config(){
 }
 
 //Initialization function
-void ControllerMap::init() {
+void ControllerMap::init()
+{
     rapidjson::Document document;
     document.Parse(get_config().c_str());
 
     rapidjson::Value& root = document;
     assert(root.IsArray());
 
-    for (rapidjson::SizeType i = 0; i < root.Size(); ++i) {
+    for (rapidjson::SizeType i = 0; i < root.Size(); ++i)
+    {
         assert(root[i].HasMember("name") && root[i]["name"].IsString());
         std::string name = root[i]["name"].GetString();
 
@@ -46,19 +51,24 @@ void ControllerMap::init() {
         controllers[name] = new Controller(name, type);
         name_map[name] = calculate_i2c_address(nucleo, channel);
 
-        if (root[i].HasMember("quadCPR") && root[i]["quadCPR"].IsFloat()){
+        if (root[i].HasMember("quadCPR") && root[i]["quadCPR"].IsFloat())
+        {
             controllers[name]->quadCPR = root[i]["quadCPR"].GetFloat();
         }
-        if (root[i].HasMember("spiCPR") && root[i]["spiCPR"].IsFloat()){
+        if (root[i].HasMember("spiCPR") && root[i]["spiCPR"].IsFloat())
+        {
             controllers[name]->spiCPR = root[i]["spiCPR"].GetFloat();
         }
-        if (root[i].HasMember("kP") && root[i]["kP"].IsFloat()){
+        if (root[i].HasMember("kP") && root[i]["kP"].IsFloat())
+        {
             controllers[name]->kP = root[i]["kP"].GetFloat();
         }
-        if (root[i].HasMember("kI") && root[i]["kI"].IsFloat()){
+        if (root[i].HasMember("kI") && root[i]["kI"].IsFloat())
+        {
             controllers[name]->kI = root[i]["kI"].GetFloat();
         }
-        if (root[i].HasMember("kD") && root[i]["kD"].IsFloat()){
+        if (root[i].HasMember("kD") && root[i]["kD"].IsFloat())
+        {
             controllers[name]->kD = root[i]["kD"].GetFloat();
         }
         printf("Virtual Controller %s of type %s on Nucleo %i channel %i \n", name.c_str(), type.c_str(), nucleo, channel);
@@ -66,12 +76,14 @@ void ControllerMap::init() {
 }
 
 //Returns supposed i2c address based off of virtual controller name
-uint8_t ControllerMap::get_i2c_address(std::string name) {
+uint8_t ControllerMap::get_i2c_address(std::string name)
+{
     return name_map[name];
 }
 
 //Returns whether virtual controller name is in the "live" virtual controller to i2c address map
-bool ControllerMap::check_if_live(std::string name) {
+bool ControllerMap::check_if_live(std::string name)
+{
     return (name == live_map[get_i2c_address(name)]);
 }
 
