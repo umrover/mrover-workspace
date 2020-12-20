@@ -12,7 +12,8 @@
 
 //Handles instantiation of Controller objects, FrontEnd, and BackEnd classes
 
-void outgoing() {
+void outgoing()
+{
     while (true)
     {
         LCMHandler::handle_outgoing();
@@ -20,7 +21,8 @@ void outgoing() {
     }
 }
 
-void incoming() {
+void incoming()
+{
     while (true)
     {
         LCMHandler::handle_incoming();
