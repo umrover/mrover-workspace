@@ -10,18 +10,18 @@
 #include "I2C.h"
 #include "ControllerMap.h"
 
-#define OFF 0x00, 0, 0
-#define ON 0x0F, 0, 0
-#define OPEN 0x10, 2, 0
-#define OPEN_PLUS 0x1F, 2, 4
-#define CLOSED 0x20, 8, 0
-#define CLOSED_PLUS 0x2F, 8, 4
-#define CONFIG_PWM 0x30, 6, 0
-#define CONFIG_K 0x3F, 12, 0
-#define QUAD 0x40, 0, 4
-#define ADJUST 0x4F, 4, 0
-#define SPI 0x50, 0, 2
-#define LIMIT 0x60 0, 1
+#define OFF         0x00,   0,  0
+#define ON          0x0F,   0,  0
+#define OPEN        0x10,   2,  0
+#define OPEN_PLUS   0x1F,   2,  4
+#define CLOSED      0x20,   8,  0
+#define CLOSED_PLUS 0x2F,   8,  4
+#define CONFIG_PWM  0x30,   6,  0
+#define CONFIG_K    0x3F,   12, 0
+#define QUAD        0x40,   0,  4
+#define ADJUST      0x4F,   4,  0
+#define SPI         0x50,   0,  2
+#define LIMIT       0x60,   0,  1
 
 #define POINTER reinterpret_cast<uint8_t *>
 
