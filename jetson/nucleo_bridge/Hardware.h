@@ -20,23 +20,30 @@ public:
     uint16_t pwmMin, pwmMax, pwmPeriod;
     HardwareType type;
 
-    HardwareType getType(std::string input) {
-        if (input == "Talon24V"){
+    HardwareType getType(std::string input) 
+    {
+        if (input == "Talon24V")
+        {
             return Talon24V;
         }
-        else if (input == "Talon12V"){
+        else if (input == "Talon12V")
+        {
             return Talon12V;
         }
-        else if (input == "Talon6V"){
+        else if (input == "Talon6V")
+        {
             return Talon6V;
         }
-        else if (input == "HBridgePos"){
+        else if (input == "HBridgePos")
+        {
             return HBridgePos;
         }
-        else if (input == "HBridgeNeg"){
+        else if (input == "HBridgeNeg")
+        {
             return HBridgeNeg;
         }
-        else {
+        else 
+        {
             return None;
         }
     }
