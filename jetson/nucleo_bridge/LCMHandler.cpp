@@ -23,6 +23,12 @@ void LCMHandler::init()
     lcm_bus->subscribe("/gimbal_openloop_cmd",  &LCMHandler::InternalHandler::gimbal_cmd,           internal_object);
     lcm_bus->subscribe("/hand_openloop_cmd",    &LCMHandler::InternalHandler::hand_openloop_cmd,    internal_object);
     lcm_bus->subscribe("/foot_openloop_cmd",    &LCMHandler::InternalHandler::foot_openloop_cmd,    internal_object);
+    /*
+    lcmBus->subscribe("/ra_config_cmd",         &LCMHandler::InternalHandler::ra_config_cmd,        &internal_object);
+    lcm_bus.subscribe("/sa_config_cmd",         &LCMHandler::InternalHandler::sa_config_cmd,        internal_object);
+    lcm_bus.subscribe("/ra_zero_trigger",       &LCMHandler::InternalHandler::ra_zero_trigger,      &internal_object);
+    lcm_bus.subscribe("/sa_zero_trigger",       &LCMHandler::InternalHandler::sa_zero_trigger,      internal_object);
+    */
     printf("LCM Bus channels subscribed\n");
 }
 
@@ -84,6 +90,25 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
     sa_pos_data();
 }
 
+/*
+void LCMHandler::InternalHandler::ra_config_cmd(LCM_INPUT, const RAConfigCmd *msg)
+{
+    ControllerMap::controllers["RA_0"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
+    ControllerMap::controllers["RA_1"]->config(msg->Kp[1], msg->Ki[1], msg->Kd[1]);
+    ControllerMap::controllers["RA_2"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
+    ControllerMap::controllers["RA_3"]->config(msg->Kp[3], msg->Ki[3], msg->Kd[3]);
+    ControllerMap::controllers["RA_4"]->config(msg->Kp[4], msg->Ki[4], msg->Kd[4]);
+    ControllerMap::controllers["RA_5"]->config(msg->Kp[5], msg->Ki[5], msg->Kd[5]);
+}
+
+void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *msg)
+{
+    ControllerMap::controllers["SA_0"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
+    ControllerMap::controllers["SA_1"]->config(msg->Kp[1], msg->Ki[1], msg->Kd[1]);
+    ControllerMap::controllers["SA_2"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
+}
+*/
+
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
 {
     ControllerMap::controllers["HAND_FINGER_POS"]->open_loop(msg->finger);
@@ -141,6 +166,25 @@ void LCMHandler::InternalHandler::sa_pos_data()
 
     last_output_time = NOW;
 }
+
+/*
+void LCMHandler::InternalHandler::sa_zero_trigger(LCM_INPUT, const SAZeroTrigger *msg)
+{
+    ControllerMap::controllers["SA_0"]->zero();
+    ControllerMap::controllers["SA_1"]->zero();
+    ControllerMap::controllers["SA_2"]->zero();
+}
+
+void LCMHandler::ra_zero_trigger(LCM_INPUT, const RAZeroTrigger *msg)
+{
+    ControllerMap::controllers["RA_0"]->zero();
+    ControllerMap::controllers["RA_1"]->zero();
+ 	ControllerMap::controllers["RA_2"]->zero();
+ 	ControllerMap::controllers["RA_3"]->zero();
+ 	ControllerMap::controllers["RA_4"]->zero();
+ 	ControllerMap::controllers["RA_5"]->zero();
+}
+*/
 
 void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
 {
