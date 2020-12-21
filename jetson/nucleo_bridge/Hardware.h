@@ -18,7 +18,7 @@ enum HardwareType
 class Hardware
 {
 public:
-    uint16_t pwmMin, pwmMax, pwmPeriod;
+    uint16_t pwm_min, pwm_max, pwm_period;
     HardwareType type;
 
     HardwareType getType(std::string input) 
@@ -56,25 +56,25 @@ public:
         switch (type)
         {
         case Talon24V:
-            pwmMin = 1000;
-            pwmMax = 2000;
-            pwmPeriod = 3000;
+            pwm_min = 1000;
+            pwm_max = 2000;
+            pwm_period = 3000;
             break;
         case Talon12V:
-            pwmMin = 1250;
-            pwmMax = 1750;
-            pwmPeriod = 3000;
+            pwm_min = 1250;
+            pwm_max = 1750;
+            pwm_period = 3000;
             break;
         case Talon6V:
-            pwmMin = 1375;
-            pwmMax = 1625;
-            pwmPeriod = 3000;
+            pwm_min = 1375;
+            pwm_max = 1625;
+            pwm_period = 3000;
             break;
         case HBridgePos:
         case HBridgeNeg:
-            pwmMin = 0;
-            pwmMax = 3000;
-            pwmPeriod = 3000;
+            pwm_min = 0;
+            pwm_max = 3000;
+            pwm_period = 3000;
             break;
         case None:
             break;
@@ -84,7 +84,7 @@ public:
     //Helper function that takes a [-1.0, 1.0] (reranged between min and max) input and converts it into a 16-bit pwm output
     float rerange(float input, float min, float max)
     {
-        return (((pwmMax - pwmMin) / (max - min)) * (input - min)) + pwmMin;
+        return (((pwm_max - pwm_min) / (max - min)) * (input - min)) + pwm_min;
     }
 
     //Turns a given [-1.0,1.0] throttle input to a 16-bit pwm output

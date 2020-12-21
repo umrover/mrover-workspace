@@ -53,11 +53,11 @@ void ControllerMap::init()
 
         if (root[i].HasMember("quadCPR") && root[i]["quadCPR"].IsFloat())
         {
-            controllers[name]->quadCPR = root[i]["quadCPR"].GetFloat();
+            controllers[name]->quad_cpr = root[i]["quadCPR"].GetFloat();
         }
         if (root[i].HasMember("spiCPR") && root[i]["spiCPR"].IsFloat())
         {
-            controllers[name]->spiCPR = root[i]["spiCPR"].GetFloat();
+            controllers[name]->spi_cpr = root[i]["spiCPR"].GetFloat();
         }
         if (root[i].HasMember("kP") && root[i]["kP"].IsFloat())
         {

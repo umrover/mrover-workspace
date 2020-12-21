@@ -34,23 +34,23 @@ The virtual Controller will not attempt to communicate with its physical control
 class Controller
 {
 public:
-    float startAngle = 0.0;
-    float torqueScale = 1.0;
-    float quadCPR = std::numeric_limits<float>::infinity();
-    float spiCPR = std::numeric_limits<float>::infinity();
-    float currentAngle = 0.0;
+    float start_angle = 0.0;
+    float torque_scale = 1.0;
+    float quad_cpr = std::numeric_limits<float>::infinity();
+    float spi_cpr = std::numeric_limits<float>::infinity();
+    float current_angle = 0.0;
     float kP, kI, kD = 0.0;
 
     std::string name;
 
     //Helper function to convert raw angle to radians. Also checks if new angle is close to old angle
-    void recordAngle(int32_t angle);
+    void record_angle(int32_t angle);
 
 private:
     Hardware hardware;
 
     //Wrapper for I2C transact, autofilling the i2c address of the Controller by using ControllerMap::get_i2c_address()
-    void transact(uint8_t cmd, uint8_t writeNum, uint8_t readNum, uint8_t *writeBuf, uint8_t *readBuf);
+    void transact(uint8_t cmd, uint8_t write_num, uint8_t read_num, uint8_t *writeBuf, uint8_t *read_buf);
 
     //If this Controller is not live, make it live by configuring the real controller
     void make_live();
