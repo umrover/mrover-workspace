@@ -28,7 +28,6 @@ void Controller::make_live()
         transact(CONFIG_K, buffer, nullptr);
 
         uint16_t input = 0;
-        //transact(SPI, nullptr, UINT8_POINTER_T(&input));
 
         int32_t angle = static_cast<int32_t>(quad_cpr * ((static_cast<float>(input) / spi_cpr) + (start_angle / (2.0 * M_PI))));
         transact(ADJUST, UINT8_POINTER_T(&angle), nullptr);
