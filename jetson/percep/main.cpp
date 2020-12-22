@@ -198,8 +198,10 @@ int main() {
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
-    std::this_thread::sleep_for(0.2s); // Iteration speed control 
-
+    #if ZED_SDK_PRESENT
+    std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
+    #endif
+    
     ++iterations;
   }
 
