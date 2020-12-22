@@ -15,8 +15,9 @@ public:
     
     compareLine(double angle_in, int xInt_in) : xIntercept{xInt_in}, 
                         slope{tan(angle_in*PI/180)} {
-                            if(slope != 0)
+                            if(slope != 0) {
                                 slope = 1/slope;
+                            }
                         }
 
     //Returns 1 if point is right of line, 0 if on, -1 if left of line
@@ -28,14 +29,17 @@ public:
             xc = y/slope+xIntercept; //Find x value on line with same y value as input point
 
         //Point is right of the line
-        if(x > xc)
+        if(x > xc) {
             return 1;
+        }
         //Point is on the line
-        else if (x == xc)
+        else if (x == xc) {
             return 0;
+        }
         //Point is left of the line
-        else
-            return -1; 
+        else {
+            return -1;
+        } 
     }
 };
 
@@ -80,16 +84,19 @@ class PCL {
         void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, std::vector<std::vector<int>> &interest_points);
         
         //Finds a clear path given the obstacle corners
-        double FindClearPath(std::vector<std::vector<int>> &interest_points,
+        double FindClearPath(const std::vector<std::vector<int>> &interest_points,
                            shared_ptr<pcl::visualization::PCLVisualizer> viewer);
 
         //Determines whether the input path is obstructed
-        bool CheckPath(std::vector<std::vector<int>> interest_points,
+        bool CheckPath(const std::vector<std::vector<int>> &interest_points,
                shared_ptr<pcl::visualization::PCLVisualizer> viewer,
                std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine);
         
-        //Determines angle off center a clear path is in direction specified
-        double getAngleOffCenter(int buffer, int direction, std::vector<std::vector<int>> &interest_points,
+        /**
+        \brief Determines angle off center a clear path can be found
+        \param direction: given 0 finds left clear path given 1 find right clear path
+        */
+        double getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
                     shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles);
 
     public:

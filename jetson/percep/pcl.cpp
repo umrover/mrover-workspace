@@ -192,7 +192,7 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 //This function finds the angle off center the
 //line that passes through both these points is
 //Direction of 0 is left and 1 is right
-double PCL::getAngleOffCenter(int buffer, int direction, std::vector<std::vector<int>> &interest_points,
+double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
                     shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles){
     double newAngle = 0;
     //If Center Path is blocked check the left or right path depending on direction parameter
@@ -217,28 +217,23 @@ double PCL::getAngleOffCenter(int buffer, int direction, std::vector<std::vector
             return newAngle;
         }    
     }
-    return 360;
+    return direction ? 70 : -70; //If couldn't find clear path
 }
 
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
+double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
                         shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
     
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Find Clear Path");
     #endif
 
-    // create left and right angle off center that default at 360 degrees
-    double leftAngle  = 360;
-    double rightAngle = 360;
-
     std::vector<int> obstacles; //index of the leftmost and rightmost obstacles in path
     
     //Check Center Path
-    if(CheckPath(interest_points, viewer, obstacles, 
-        compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
-            std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
+    if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
+        std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
         return 0;
     }
 
@@ -246,7 +241,7 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
     vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
     //Find Clear left path
-    leftAngle       = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+    double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
 
     //Reset global variables
     obstacles       = {0, 0};
@@ -254,12 +249,7 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
     obstacles.at(1) = centerObstacles.at(1);
 
     //Find clear right path
-    rightAngle      = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
-
-    //If there is no clear path both ways return an impossible number
-    if(rightAngle == 360 && leftAngle == 360) {
-        return 360;
-    }
+    double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
 
     //Return the smallest angle (left if equal)
     return fabs(rightAngle) < fabs(leftAngle) ? rightAngle : leftAngle;
@@ -270,7 +260,7 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
 //If it is obstructed returns false
 //The path is constructed using the left x value and right x value of
 //the furthest points on the path
-bool PCL::CheckPath(std::vector<std::vector<int>> interest_points,
+bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
                shared_ptr<pcl::visualization::PCLVisualizer> viewer,
                std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine){
     #if PERCEPTION_DEBUG
@@ -294,11 +284,13 @@ bool PCL::CheckPath(std::vector<std::vector<int>> interest_points,
                     obstacles.push_back(index);
                 }
                 //Check if leftmost interest point in rover path
-                else if(pt_cloud_ptr->points[index].x < pt_cloud_ptr->points[obstacles.at(0)].x)
+                else if(pt_cloud_ptr->points[index].x < pt_cloud_ptr->points[obstacles.at(0)].x) {
                     obstacles.at(0) = index;
+                }
                 //Check if rightmost interest point in rover path
-                else if(pt_cloud_ptr->points[index].x > pt_cloud_ptr->points[obstacles.at(1)].x)
+                else if(pt_cloud_ptr->points[index].x > pt_cloud_ptr->points[obstacles.at(1)].x) {
                     obstacles.at(1) = index;
+                }
 
                 #if PERCEPTION_DEBUG
                 //Make interest points orange if they are within rover path
@@ -324,15 +316,17 @@ bool PCL::CheckPath(std::vector<std::vector<int>> interest_points,
     pt3.z=7000;
     pt3.x = leftLine.xIntercept;
     
-    if(leftLine.slope != 0) //Don't want to divide by 0
+    if(leftLine.slope != 0) { //Don't want to divide by 0
         pt3.x=pt3.z/leftLine.slope+leftLine.xIntercept;
+    }
     
     pcl::PointXYZRGB pt4(pt2);
     pt4.z=7000;
     pt4.x = rightLine.xIntercept;
     
-    if(rightLine.slope != 0) //Don't want to divide by 0
+    if(rightLine.slope != 0) { //Don't want to divide by 0
         pt4.x=pt4.z/rightLine.slope+rightLine.xIntercept;
+    }
     
     if(end) {
         viewer->removeShape("l1");

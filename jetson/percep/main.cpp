@@ -198,8 +198,8 @@ int main() {
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
-    #if ZED_SDK_PRESENT
-    std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
+    #if !ZED_SDK_PRESENT
+      std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
     #endif
     
     ++iterations;
@@ -208,11 +208,11 @@ int main() {
 
 /* --- Wrap Things Up --- */
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
-  viewer->close();
+    viewer->close();
   #endif
   
   #if AR_RECORD
-  cam.record_ar_finish();
+    cam.record_ar_finish();
   #endif
   
   return 0;
