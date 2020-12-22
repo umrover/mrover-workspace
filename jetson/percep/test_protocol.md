@@ -11,17 +11,25 @@
 ## Offline Debug Test
 - [ ] `./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=true`
 - [ ] Run code against test1 image set
-- [ ] Run code against test2 image set
 - Check for:
    - [ ]  Left and right path are being calculated
    - [ ]  Calculated bearing is reasonable given viewer output
-   - [ ]  AR Tag ID is 2 in test1 and 6 in test2
-   - [ ]  2 AR Tags detected simultaneously test2
+   - [ ]  AR Tag ID is 2
    - [ ]  Obstacles with large width are detected
    - [ ]  Path is projected around not through large obstacles
    - [ ]  Short obstacles are detected
    - [ ]  Steep inclines are detected as obstacles
-  
+- [ ] Run code against test2 image set
+- Check for:
+   - [ ]  Left and right path are being calculated
+   - [ ]  Calculated bearing is reasonable given viewer output
+   - [ ]  AR Tag ID is 6
+   - [ ]  2 AR Tags detected simultaneously
+   - [ ]  Obstacles with large width are detected
+   - [ ]  Path is projected around not through large obstacles
+   - [ ]  Short obstacles are detected
+   - [ ]  Steep inclines are detected as obstacles
+
 ## Offline Silent Test
 - [ ] `./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=false`
 - [ ] Run `time ./jarvis exec jetson/percep` against test_case1 image set
@@ -48,13 +56,15 @@
   - [ ] Obstacles with large width are detected
   - [ ] Short obstacles are detected
   - [ ] FPS values don't exceed \<TODO find this value\>
-  - [ ] LCM messages are populating properly
+  - [ ] Obstacle.lcm in /obstacle is populated correctly
+  - [ ] TargetList.lcm in /target_list is populated correctly
 
 ## Integration Test
 - [ ] Create new branch based off of main
-- [ ] Cherry-Pick all PRs that need testing onto new branch
 - [ ] Checkout new branch
+- [ ] Cherry-Pick all PRs that need testing onto new branch
 - [ ] Compile all Software Packages
 - [ ] Run all code simultaneously
-- [ ] LCM messages are populated appropriately
+- [ ] Obstacle.lcm in /obstacle is populated correctly
+- [ ] TargetList.lcm in /target_list is populated correctly
 - [ ] All sensors in suite are active
