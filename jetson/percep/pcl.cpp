@@ -199,10 +199,10 @@ double PCL::getAngleOffCenter(int buffer, int direction, std::vector<std::vector
     while(newAngle > -70 && newAngle < 70) {
         
         //Finding angle off center
-        double xDist = pt_cloud_ptr->points[obstacles.at(direction)].x;
-        double zDist = pt_cloud_ptr->points[obstacles.at(0)].z;//Length of adjacent side of right triangle
-        xDist += direction ? buffer+HALF_ROVER : -(buffer+HALF_ROVER); //Calculate length of opposite side of right triangle
-        newAngle = atan(xDist/zDist)*180/PI;//arctan(opposite/adjacent)
+        double oppSideRTri = pt_cloud_ptr->points[obstacles.at(direction)].x;
+        double adjSideRTri = pt_cloud_ptr->points[obstacles.at(0)].z;//Length of adjacent side of right triangle
+        oppSideRTri += direction ? buffer+HALF_ROVER : -(buffer+HALF_ROVER); //Calculate length of opposite side of right triangle
+        newAngle = atan(oppSideRTri/adjSideRTri)*180/PI;//arctan(opposite/adjacent)
 
         //Create compareLine Functors
         compareLine leftLine(newAngle, -HALF_ROVER);
@@ -323,14 +323,16 @@ bool PCL::CheckPath(std::vector<std::vector<int>> interest_points,
     pcl::PointXYZRGB pt3(pt1);
     pt3.z=7000;
     pt3.x = leftLine.xIntercept;
-    if(leftLine.slope != 0)
+    
+    if(leftLine.slope != 0) //Don't want to divide by 0
         pt3.x=pt3.z/leftLine.slope+leftLine.xIntercept;
+    
     pcl::PointXYZRGB pt4(pt2);
     pt4.z=7000;
     pt4.x = rightLine.xIntercept;
-    if(rightLine.slope != 0)
-        pt4.x=pt4.z/rightLine.slope+rightLine.xIntercept;
     
+    if(rightLine.slope != 0) //Don't want to divide by 0
+        pt4.x=pt4.z/rightLine.slope+rightLine.xIntercept;
     
     if(end) {
         viewer->removeShape("l1");
