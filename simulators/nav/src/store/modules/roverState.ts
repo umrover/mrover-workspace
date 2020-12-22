@@ -59,9 +59,9 @@ const state:RoverState = {
     },
     percepNoise: {
       obsFalsePos: 0.1,
-      obsFalseNeg: 0.1,
-      tagFalsePos: 0.1,
-      tagFalseNeg: 0.1,
+      obsFalseNeg: 0.05,
+      tagFalsePos: 0.01,
+      tagFalseNeg: 0.15,
       tagIdFalses: 0.1,
       bearStddev: 5,
       distStddev: 0.5
