@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct FootCmd {
+    double sensor; // [-1.0, 1.0] throttle at which to drive the SA Foot sensor motor
+    double claw; // [-1.0, 1.0] throttle at which to drive the SA Foot claw motor
+}
