@@ -54,7 +54,7 @@ int main() {
   #endif
 
   /* --- Outlier Detection --- */
-  int numChecks = 3;
+  int numChecks = 1;
   deque <bool> outliers;
   outliers.resize(numChecks, true); //initializes outliers vector
   deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
@@ -84,7 +84,16 @@ int main() {
     //Grab initial images from cameras
     Mat rgb;
     Mat src = cam.image();
-    Mat depth_img = cam.depth();
+    Mat depth_img;
+    /*try{
+      depth_img = cam.depth();
+    }
+    catch(...){
+      while(true){
+        viewer->spinOnce(20);
+      }
+    }*/
+    depth_img = cam.depth();
     #endif
 
     #if OBSTACLE_DETECTION
@@ -198,7 +207,7 @@ int main() {
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
-    std::this_thread::sleep_for(0.2s); // Iteration speed control 
+    std::this_thread::sleep_for(0.6s); // Iteration speed control 
 
     ++iterations;
   }

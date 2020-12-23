@@ -154,25 +154,60 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 
         //Initialize interest points
         std::fill(curr_cluster->begin(), curr_cluster->end(), cluster_indices[i].indices[0]);
-        
-        //Order of interest points: 0=Up Left 1=Up Right 2=Low Right 3=Low Left
+
+        //Interest Points: 0=Leftmost Point 1=Rightmost Point 2=Lowest Point 3=Highest Point 4=Closest Point 5=Furthest Point
         for (auto index : cluster_indices[i].indices)
         {
             auto curr_point = pt_cloud_ptr->points[index];
             
-            //Upper Left
-            if(curr_point.x < pt_cloud_ptr->points[curr_cluster->at(0)].x && curr_point.y > pt_cloud_ptr->points[curr_cluster->at(0)].y)
+            if(curr_point.x < pt_cloud_ptr->points[curr_cluster->at(0)].x){
                 curr_cluster->at(0) = index;
-            //Upper Right
-            else if(curr_point.x > pt_cloud_ptr->points[curr_cluster->at(1)].x && curr_point.y > pt_cloud_ptr->points[curr_cluster->at(1)].y)
+            }
+            if(curr_point.x > pt_cloud_ptr->points[curr_cluster->at(1)].x){
                 curr_cluster->at(1) = index;
-            //Low Left
-            else if(curr_point.x < pt_cloud_ptr->points[curr_cluster->at(2)].x && curr_point.y < pt_cloud_ptr->points[curr_cluster->at(2)].y)
+            }
+            if(curr_point.y < pt_cloud_ptr->points[curr_cluster->at(2)].y){
                 curr_cluster->at(2) = index;
-            //Low Right
-            else if(curr_point.x > pt_cloud_ptr->points[curr_cluster->at(3)].x && curr_point.y < pt_cloud_ptr->points[curr_cluster->at(3)].y)
+            }
+            if(curr_point.y > pt_cloud_ptr->points[curr_cluster->at(3)].y){
                 curr_cluster->at(3) = index;
+            }
+            if(curr_point.z < pt_cloud_ptr->points[curr_cluster->at(4)].z){
+                curr_cluster->at(4) = index;
+            }
+            if(curr_point.z > pt_cloud_ptr->points[curr_cluster->at(5)].z){
+                curr_cluster->at(5) = index;
+            }
         }
+
+        //Calulates the width of the obstacle based the difference between the leftmost and rightmost interst point
+        double width = std::abs(pt_cloud_ptr->points[curr_cluster->at(1)].x - pt_cloud_ptr->points[curr_cluster->at(0)].x);
+        //Calculates the number of rover widths that fit within the obstacle. The x10 multiplier adds more width increments.
+        int rovers = ((int) width/ROVER_W_MM) * 10;
+        //Creates a vector called points which holds the width increments we want the new interest points to be close to.
+        //Example: if rovers = 4, then the points vector would contain:  0.025, 0.05, 0.075, 0.1, 0.125, ..., 0.975
+        //The size of this vector will be the amount of new interest points we are adding to this obstacle.
+        std::vector<double> points;
+        for(double i = ((double) 1/rovers) ; i < 0.99999; i += ((double) 1/rovers)){
+            points.push_back(((double)i * width));
+        }
+
+        //Sets the new interest points equal to the leftmost point.
+        for(int i = 0; i < points.size(); ++i){
+            curr_cluster->at(9 + i) = curr_cluster->at(0);
+        }
+
+        //Finds the new interest points based on width increments.
+        for (auto index : cluster_indices[i].indices){
+            auto curr_point = pt_cloud_ptr->points[index];
+            for(int i = 0; i < points.size(); ++i){
+                if(curr_point.x <= pt_cloud_ptr->points[curr_cluster->at(0)].x + points[i] && 
+                curr_point.x > pt_cloud_ptr->points[curr_cluster->at(9 + i)].x){
+                    curr_cluster->at(9 + i) = index;
+                }
+            }
+        }
+        
     #if PERCEPTION_DEBUG
         for(auto interest_point : *curr_cluster)
         {
@@ -463,7 +498,7 @@ obstacle_return PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVi
     RANSACSegmentation("remove");
     std::vector<pcl::PointIndices> cluster_indices;
     CPUEuclidianClusterExtraction(cluster_indices);
-    std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
+    std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (1000));
     FindInterestPoints(cluster_indices, interest_points);
     bearing = FindClearPath(interest_points, viewer);  
 }
