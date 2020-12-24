@@ -18,7 +18,7 @@ import {
   Joystick,
   Odom,
   OdomFormat,
-  SensorSimulationMode
+  SensorSimulationMode,
   ZedGimbalPosition
 } from '../utils/types';
 import { rotateSensorSimulationMode } from '../utils/utils';
