@@ -104,7 +104,8 @@ import {
   FieldOfViewOptions,
   Odom,
   SensorSimulationMode,
-  Speeds
+  Speeds,
+  ZedGimbalPosition
 } from '../../utils/types';
 import Button from '../common/Button.vue';
 import Checkbox from '../common/Checkbox.vue';
@@ -188,6 +189,9 @@ export default class DebugTools extends Vue {
 
   @Mutation
   private readonly setTakeStep!:(takeStep:boolean)=>void;
+
+  @Mutation
+  private readonly setZedGimbalPos!:(newZedGimbalPos:ZedGimbalPosition)=>void;
 
   /************************************************************************************************
    * Local Getters/Setters
@@ -307,6 +311,7 @@ export default class DebugTools extends Vue {
     this.setCurrOdom(this.startLoc);
     this.setAutonState(false);
     this.setPaused(false);
+    this.setZedGimbalPos({ angle: 0 });
     this.clearRoverPath();
   } /* resetRover() */
 

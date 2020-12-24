@@ -12,12 +12,14 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
+import { ZED } from '../utils/constants';
 import {
   FieldItemType,
   Joystick,
   Odom,
   OdomFormat,
   SensorSimulationMode
+  ZedGimbalPosition
 } from '../utils/types';
 import { rotateSensorSimulationMode } from '../utils/utils';
 
@@ -47,11 +49,20 @@ export default class HotKeys extends Vue {
   @Getter
   private readonly simulatePercep!:SensorSimulationMode;
 
+  @Getter
+  private readonly zedGimbalPos!:ZedGimbalPosition;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
   @Mutation
   private readonly clearRoverPath!:()=>void;
+
+  @Mutation
+  private readonly flipSimulateLoc!:(newMode:SensorSimulationMode)=>void;
+
+  @Mutation
+  private readonly flipSimulatePercep!:(newMode:SensorSimulationMode)=>void;
 
   @Mutation
   private readonly setAutonState!:(onOff:boolean)=>void;
@@ -78,10 +89,10 @@ export default class HotKeys extends Vue {
   private readonly setTakeStep!:(takeStep:boolean)=>void;
 
   @Mutation
-  private readonly flipSimulateLoc!:(newMode:SensorSimulationMode)=>void;
+  private readonly setZedGimbalCmd!:(newZedGimbalCmd:ZedGimbalPosition)=>void;
 
   @Mutation
-  private readonly flipSimulatePercep!:(newMode:SensorSimulationMode)=>void;
+  private readonly setZedGimbalPos!:(newZedGimbalPos:ZedGimbalPosition)=>void;
 
   /************************************************************************************************
    * Private Members
@@ -119,7 +130,9 @@ export default class HotKeys extends Vue {
       'shift+up': this.manualDriveForward,
       'shift+down': this.manualDriveBackward,
       'shift+left': this.manualDriveLeft,
-      'shift+right': this.manualDriveRight
+      'shift+alt+left': this.manualGimbalLeft,
+      'shift+right': this.manualDriveRight,
+      'shift+alt+right': this.manualGimbalRight
     };
   }
 
@@ -148,6 +161,7 @@ export default class HotKeys extends Vue {
         forward_back: forwardBack,
         left_right: leftRight
       });
+      this.setZedGimbalCmd(this.zedGimbalPos);
       this.setTakeStep(true);
     }
   } /* manaulDrive() */
@@ -171,6 +185,28 @@ export default class HotKeys extends Vue {
   private manualDriveRight():void {
     this.manaulDrive(0, 1);
   } /* manualDriveRight() */
+
+  /* Set the ZED gimbal angle based on "manual" input. */
+  private manualGimbal(newAngle:number):void {
+    if (!this.autonOn || this.paused) {
+      this.setZedGimbalPos({
+        angle: newAngle
+      });
+      this.setZedGimbalCmd({
+        angle: newAngle
+      });
+    }
+  } /* manualGimbal() */
+
+  /* Apply one command to turn the ZED gimbal left based on "manual" input. */
+  private manualGimbalLeft():void {
+    this.manualGimbal(Math.max(this.zedGimbalPos.angle - 1, ZED.gimbal.minAngle));
+  } /* manualGimbalLeft() */
+
+  /* Apply one command to turn the ZED gimbal right based on "manual" input. */
+  private manualGimbalRight():void {
+    this.manualGimbal(Math.min(this.zedGimbalPos.angle + 1, ZED.gimbal.maxAngle));
+  } /* manualGimbalRight() */
 
   /* Pause and play the rover. */
   private pausePlay():void {

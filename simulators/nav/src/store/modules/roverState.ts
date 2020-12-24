@@ -13,7 +13,8 @@ import {
   Odom,
   RoverState,
   Speeds,
-  TargetListMessage
+  TargetListMessage,
+  ZedGimbalPosition
 } from '../../utils/types';
 
 
@@ -104,7 +105,15 @@ const state:RoverState = {
       bearing: 0,
       id: -1
     }
-  ]
+  ],
+
+  zedGimbalCmd: {
+    angle: 0
+  },
+
+  zedGimbalPos: {
+    angle: 0
+  }
 };
 
 
@@ -127,7 +136,11 @@ const getters = {
 
   targetList: (roverState:RoverState):TargetListMessage => roverState.targetList,
 
-  noisyTargetList: (roverState:RoverState):TargetListMessage => roverState.targetListNoisy
+  noisyTargetList: (roverState:RoverState):TargetListMessage => roverState.targetListNoisy,
+
+  zedGimbalCmd: (roverState:RoverState):ZedGimbalPosition => roverState.zedGimbalCmd,
+
+  zedGimbalPos: (roverState:RoverState):ZedGimbalPosition => roverState.zedGimbalPos
 };
 
 
@@ -163,6 +176,14 @@ const mutations = {
     roverState.targetList = newTargetList;
     roverState.targetListNoisy = createNoisyTargetList(newTargetList,
                                                        roverState.noiseSetttings.percepNoise);
+  },
+
+  setZedGimbalCmd: (roverState:RoverState, newZedGimbalCmd:ZedGimbalPosition):void => {
+    Object.assign(roverState.zedGimbalCmd, newZedGimbalCmd);
+  },
+
+  setZedGimbalPos: (roverState:RoverState, newZedGimbalPos:ZedGimbalPosition):void => {
+    Object.assign(roverState.zedGimbalPos, newZedGimbalPos);
   }
 };
 
