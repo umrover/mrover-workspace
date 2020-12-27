@@ -5,9 +5,11 @@
 #include <pcl/common/common_headers.h>
 
 /* --- Compare Line Class --- */
-//Functor that indicates where a point is in
-//relation to a line in 2D space
-//recieves angle off y axis
+/**
+ \brief Functor that indicates where a point is in
+relation to a line in 2D space
+recieves angle off y axis
+*/
 class compareLine {
 public:
     int xIntercept;
