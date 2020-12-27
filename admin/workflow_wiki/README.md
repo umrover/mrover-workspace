@@ -529,75 +529,75 @@ We will be continuing the demo of resolving [issue 431](https://github.com/umrov
           ```
         * *Make the actual changes to code.*
         * *Test the code changes.*
-    * I stage, commit, and push my changes.
-      ```console
-      $ git status
-      On branch hotkey-docs
-      Changes not staged for commit:
-            (use "git add <file>..." to update what will be committed)
-            (use "git restore <file>..." to discard changes in working directory)
-                  modified:   simulators/nav/README.md
-                  modified:   simulators/nav/src/README.md
-                  modified:   simulators/nav/src/components/README.md
-                  modified:   simulators/nav/src/components/hotkeys.md
+        * I stage, commit, and push my changes.
+          ```console
+          $ git status
+          On branch hotkey-docs
+          Changes not staged for commit:
+                (use "git add <file>..." to update what will be committed)
+                (use "git restore <file>..." to discard changes in working directory)
+                      modified:   simulators/nav/README.md
+                      modified:   simulators/nav/src/README.md
+                      modified:   simulators/nav/src/components/README.md
+                      modified:   simulators/nav/src/components/hotkeys.md
 
-      no changes added to commit (use "git add" and/or "git commit -a")
-      $ git commit
-      [hotkey-docs 04240fb8] Address @aswarner's comments
-       4 files changed, 16 insertions(+), 16 deletions(-)
-      $ git status
-      On branch hotkey-docs
-      Changes to be committed:
-        (use "git restore --staged <file>..." to unstage)
-                  modified:   simulators/nav/README.md
-                  modified:   simulators/nav/src/README.md
-                  modified:   simulators/nav/src/components/README.md
-                  modified:   simulators/nav/src/components/hotkeys.md
-      $ git log
-      $ git push origin hotkey-docs
-      Enumerating objects: 29, done.
-      Counting objects: 100% (27/27), done.
-      Delta compression using up to 8 threads
-      Compressing objects: 100% (12/12), done.
-      Writing objects: 100% (12/12), 1.26 KiB | 1.26 MiB/s, done.
-      Total 12 (delta 9), reused 0 (delta 0)
-      remote: Resolving deltas: 100% (9/9), completed with 8 local objects.
-      To github.com:amverni/mrover-workspace.git
-         ec43ea6b..04240fb8  hotkey-docs -> hotkey-docs
-      ```
-      My commit message:
-      ```console
-       1 Address @aswarner's comments
-       2 # Please enter the commit message for your changes. Lines starting
-       3 # with '#' will be ignored, and an empty message
-       4 #
-       5 # On branch hotkey-docs
-       6 # Changes to be committed:
-       7 #   modified:   simulators/nav/README.md
-       8 #   modified:   simulators/nav/src/README.md
-       9 #   modified:   simulators/nav/src/components/README.md
-      10 #   modified:   simulators/nav/src/components/hotkeys.md
-      11 #
-      ```
+          no changes added to commit (use "git add" and/or "git commit -a")
+          $ git commit
+          [hotkey-docs 04240fb8] Address @aswarner's comments
+           4 files changed, 16 insertions(+), 16 deletions(-)
+          $ git status
+          On branch hotkey-docs
+          Changes to be committed:
+            (use "git restore --staged <file>..." to unstage)
+                      modified:   simulators/nav/README.md
+                      modified:   simulators/nav/src/README.md
+                      modified:   simulators/nav/src/components/README.md
+                      modified:   simulators/nav/src/components/hotkeys.md
+          $ git log
+          $ git push origin hotkey-docs
+          Enumerating objects: 29, done.
+          Counting objects: 100% (27/27), done.
+          Delta compression using up to 8 threads
+          Compressing objects: 100% (12/12), done.
+          Writing objects: 100% (12/12), 1.26 KiB | 1.26 MiB/s, done.
+          Total 12 (delta 9), reused 0 (delta 0)
+          remote: Resolving deltas: 100% (9/9), completed with 8 local objects.
+          To github.com:amverni/mrover-workspace.git
+             ec43ea6b..04240fb8  hotkey-docs -> hotkey-docs
+          ```
+          My commit message:
+          ```console
+           1 Address @aswarner's comments
+           2 # Please enter the commit message for your changes. Lines starting
+           3 # with '#' will be ignored, and an empty message
+           4 #
+           5 # On branch hotkey-docs
+           6 # Changes to be committed:
+           7 #   modified:   simulators/nav/README.md
+           8 #   modified:   simulators/nav/src/README.md
+           9 #   modified:   simulators/nav/src/components/README.md
+          10 #   modified:   simulators/nav/src/components/hotkeys.md
+          11 #
+          ```
 
-      The git log:
-      ```console
-      commit 04240fb816aa1fc839f49c50c9b7060742281947 (HEAD -> hotkey-docs)
-      Author: Andrew Vernier <amverni@umich.edu>
-      Date:   Thu Nov 24 09:18:42 2020 -0500
+          The git log:
+          ```console
+          commit 04240fb816aa1fc839f49c50c9b7060742281947 (HEAD -> hotkey-docs)
+          Author: Andrew Vernier <amverni@umich.edu>
+          Date:   Thu Nov 24 09:18:42 2020 -0500
 
-          Address @aswarner's comments
+              Address @aswarner's comments
 
-      commit 0858f71ac7270e91d25f281a54c5cf5382e4a6f7
-      Merge: ec43ea6b 4e18182bbd
-      Author: Andrew Vernier <amverni@umich.edu>
-      Date:   Thu Nov 24 09:13:28 2020 -0500
+          commit 0858f71ac7270e91d25f281a54c5cf5382e4a6f7
+          Merge: ec43ea6b 4e18182bbd
+          Author: Andrew Vernier <amverni@umich.edu>
+          Date:   Thu Nov 24 09:13:28 2020 -0500
 
-          Merge branch 'main' of https://github.com/umrover/mrover-workspace into hotkey-docs
+              Merge branch 'main' of https://github.com/umrover/mrover-workspace into hotkey-docs
 
-      commit 4e182bbd62fe388a630a98a6b863ebdf260f8f29 (upstream/main)
-      ...
-      ```
+          commit 4e182bbd62fe388a630a98a6b863ebdf260f8f29 (upstream/main)
+          ...
+          ```
     * I now get 3 approvals and pass the automated checks, so I move on to step 3.
 
 3. Merge code.

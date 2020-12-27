@@ -20,7 +20,8 @@ import {
   Obstacle,
   ObstacleMessage,
   Odom,
-  TargetListMessage
+  TargetListMessage,
+  ZedGimbalPosition
 } from '../../utils/types';
 import ObstacleDetector from './obstacle_detector';
 import TargetDetector from './target_detector';
@@ -56,6 +57,9 @@ export default class Perception extends Vue {
 
   @Getter
   private readonly simulatePercep!:boolean;
+
+  @Getter
+  private readonly zedGimbalPos!:ZedGimbalPosition;
 
   /************************************************************************************************
    * Vuex Mutations
@@ -188,12 +192,29 @@ export default class Perception extends Vue {
      when we stop simulating perception, the last LCM messages are what nav
      will still see (i.e. we don't send a "blank" message. */
   @Watch('simulatePercep')
-  private onsimulatePercepChange():void {
+  private onSimulatePercepChange():void {
     if (this.simulatePercep) {
       this.computeVisibleObstacles();
       this.computeVisibleTargets();
     }
-  } /* onsimulatePercepChange() */
+  } /* onSimulatePercepChange() */
+
+  @Watch('zedGimbalPos', { deep: true })
+  private onZedGimbalPosChange():void {
+    /* If obstacleDetector or targetDetector not yet defined */
+    if (this.obstacleDetector === undefined || this.targetDetector === undefined) {
+      return;
+    }
+
+    /* Recompute obstacle LCM */
+    this.obstacleDetector.updateZedGimbalPos(this.zedGimbalPos);
+    this.computeVisibleObstacles();
+
+    /* Recompute targetList LCM */
+    this.targetDetector.updateZedGimbalPos(this.zedGimbalPos);
+    this.computeVisibleTargets();
+    console.log('here');
+  }
 
   /************************************************************************************************
    * Private Methods
@@ -239,13 +260,14 @@ export default class Perception extends Vue {
   private created():void {
     const scale = this.canvasHeight / this.fieldSize;
 
-    this.obstacleDetector = new ObstacleDetector(this.currOdom, this.obstacles,
+    this.obstacleDetector = new ObstacleDetector(this.currOdom, this.zedGimbalPos, this.obstacles,
                                                  this.fieldOfViewOptions, this.fieldCenterOdom,
                                                  this.canvasHeight, scale);
     this.computeVisibleObstacles();
 
-    this.targetDetector = new TargetDetector(this.currOdom, this.arTags, this.gates,
-                                             this.fieldOfViewOptions, this.fieldCenterOdom);
+    this.targetDetector = new TargetDetector(this.currOdom, this.zedGimbalPos, this.arTags,
+                                             this.gates, this.fieldOfViewOptions,
+                                             this.fieldCenterOdom);
     this.computeVisibleTargets();
   } /* created() */
 }

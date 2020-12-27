@@ -5,7 +5,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
                         SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, SAEndEffectorCmd)
+                        Keyboard, FootCmd)
 
 
 class Toggle:
@@ -141,11 +141,11 @@ def ra_control_callback(channel, msg):
 
     motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    quadratic(xboxData.left_trigger -
-                              xboxData.right_trigger),
                     deadzone(quadratic(xboxData.right_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_x), 0.09),
-                    (xboxData.d_pad_right-xboxData.d_pad_left)]
+                    quadratic(xboxData.right_trigger -
+                              xboxData.left_trigger),
+                    (xboxData.right_bumper - xboxData.left_bumper)]
 
     openloop_msg = RAOpenLoopCmd()
     openloop_msg.throttle = motor_speeds
@@ -208,26 +208,25 @@ async def transmit_drive_status():
 def sa_control_callback(channel, msg):
     xboxData = Xbox.decode(msg)
 
-    saMotorsData = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
+    saMotorsData = [deadzone(quadratic(xboxData.left_js_x), 0.09),
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    quadratic(xboxData.left_trigger -
-                              xboxData.right_trigger)]
+                    -deadzone(quadratic(xboxData.right_js_y), 0.09)]
 
     openloop_msg = SAOpenLoopCmd()
     openloop_msg.throttle = saMotorsData
 
     lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
 
-    endeffector_msg = SAEndEffectorCmd()
-    endeffector_msg.linear_actuator = xboxData.right_bumper - xboxData.left_bumper
-
-    lcm_.publish('/sa_endeffector_cmd', endeffector_msg.encode())
+    foot_msg = FootCmd()
+    foot_msg.claw = xboxData.a - xboxData.y
+    foot_msg.sensor = 0.5 * (xboxData.left_bumper - xboxData.right_bumper)
+    lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
 
 def gimbal_control_callback(channel, msg):
     keyboardData = Keyboard.decode(msg)
 
-    pitchData = [keyboardData.w - keyboardData.s,
+    pitchData = [keyboardData.s - keyboardData.w,
                  keyboardData.i - keyboardData.k]
 
     yawData = [keyboardData.a - keyboardData.d,

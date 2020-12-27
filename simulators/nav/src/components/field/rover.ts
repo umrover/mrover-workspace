@@ -5,7 +5,8 @@ import {
   FieldOfViewOptions,
   Odom,
   Point2D,
-  WheelLocs
+  WheelLocs,
+  ZedGimbalPosition
 } from '../../utils/types';
 import {
   compassToCanvasRad,
@@ -69,6 +70,9 @@ export default class CanvasRover {
   /* scale of the canvas in pixels/meter */
   private scale!:number;
 
+  /* Current position of the ZED Gimbal */
+  private zedGimbalPos!:ZedGimbalPosition;
+
   /************************************************************************************************
    * Public Methods
    ************************************************************************************************/
@@ -80,7 +84,8 @@ export default class CanvasRover {
       path:Odom[],
       fov:FieldOfViewOptions,
       pathVisible:boolean,
-      pushToPath:(currLoc:Odom)=>void
+      pushToPath:(currLoc:Odom)=>void,
+      zedGimbalPos:ZedGimbalPosition
   ) {
     this.currOdom = currOdom;
     this.canvasCent = canvasCent;
@@ -89,6 +94,7 @@ export default class CanvasRover {
     this.fov = fov;
     this.pathVisible = pathVisible;
     this.pushToPath = pushToPath;
+    this.zedGimbalPos = zedGimbalPos;
 
     this.scaledEdgeOffset = EDGE_OFFSET * this.scale;
     this.scaledEboxLen = EBOX_LEN * this.scale;
@@ -175,8 +181,8 @@ export default class CanvasRover {
     this.ctx.beginPath();
     this.ctx.moveTo(roverEyeLoc.x, roverEyeLoc.y);
     this.ctx.arc(roverEyeLoc.x, roverEyeLoc.y, this.scaledFovDepth,
-                 compassToCanvasRad(-degToRad(this.fov.angle / 2)),
-                 compassToCanvasRad(degToRad(this.fov.angle / 2)),
+                 compassToCanvasRad(degToRad((-this.fov.angle / 2) + this.zedGimbalPos.angle)),
+                 compassToCanvasRad(degToRad((this.fov.angle / 2) + this.zedGimbalPos.angle)),
                  false);
     this.ctx.lineTo(roverEyeLoc.x, roverEyeLoc.y);
     this.ctx.stroke();
