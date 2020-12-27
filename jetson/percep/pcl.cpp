@@ -2,6 +2,9 @@
 #include "perception.hpp"
 
 #if OBSTACLE_DETECTION
+
+const int MAX_FIELD_OF_VIEW_ANGLE = 70;
+
 /* --- Pass Through Filter --- */
 //Filters out all points on a given axis passed as a string ("x", "y", or "z") that aren't within the threshold
 //The threshold covers points from 0.0 to upperLimit 
@@ -196,7 +199,7 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
                     shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles){
     double newAngle = 0;
     //If Center Path is blocked check the left or right path depending on direction parameter
-    while(newAngle > -70 && newAngle < 70) {
+    while(newAngle > -MAX_FIELD_OF_VIEW_ANGLE && newAngle < MAX_FIELD_OF_VIEW_ANGLE) {
         
         //Finding angle off center
         double oppSideRTri = pt_cloud_ptr->points[obstacles.at(direction)].x;
@@ -217,7 +220,7 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
             return newAngle;
         }    
     }
-    return direction ? 70 : -70; //If couldn't find clear path
+    return direction ? MAX_FIELD_OF_VIEW_ANGLE : -MAX_FIELD_OF_VIEW_ANGLE; //If couldn't find clear path
 }
 
 /* --- Find Clear Path --- */
