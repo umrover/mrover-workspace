@@ -71,8 +71,8 @@ void PCL::RANSACSegmentation(string type) {
     seg.setInputCloud(pt_cloud_ptr);
     seg.segment(*inliers, *coefficients);
 
-    if(type == "blue"){
-        for(int i = 0; i < (int)inliers->indices.size(); i++){
+    if(type == "blue") {
+        for(int i = 0; i < (int)inliers->indices.size(); i++) {
         pt_cloud_ptr->points[inliers->indices[i]].r = 255;
         pt_cloud_ptr->points[inliers->indices[i]].g = 255;
         pt_cloud_ptr->points[inliers->indices[i]].b = 0;
@@ -196,7 +196,7 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 //line that passes through both these points is
 //Direction of 0 is left and 1 is right
 double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
-                    shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles){
+                    shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles) {
     double newAngle = 0;
     //If Center Path is blocked check the left or right path depending on direction parameter
     while(newAngle > -MAX_FIELD_OF_VIEW_ANGLE && newAngle < MAX_FIELD_OF_VIEW_ANGLE) {
@@ -265,7 +265,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
 //the furthest points on the path
 bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
                shared_ptr<pcl::visualization::PCLVisualizer> viewer,
-               std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine){
+               std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Check Path");
     #endif
@@ -278,7 +278,7 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
             //Check if the obstacle interest point is to the right of the left projected path of the rover 
             //and to the left of the right projected path of the rover
             if(leftLine(pt_cloud_ptr->points[index].x, pt_cloud_ptr->points[index].z) >= 0  && 
-               rightLine(pt_cloud_ptr->points[index].x, pt_cloud_ptr->points[index].z) <=0){
+               rightLine(pt_cloud_ptr->points[index].x, pt_cloud_ptr->points[index].z) <=0) {
                 end = false;
             
                 //Check if obstacles is initialized
