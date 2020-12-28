@@ -27,7 +27,7 @@ public:
         
         //Make sure don't divide by 0
         double xc = xIntercept; //x calculated
-        if(slope != 0){
+        if(slope != 0) {
             xc = y/slope+xIntercept; //Find x value on line with same y value as input point
         }
             
