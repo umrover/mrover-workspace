@@ -20,6 +20,7 @@
     </div>
     <div class="row">
       <RadioRepeaterLCM />
+      <ZedGimbalLCM />
     </div>
   </div>
 </template>
@@ -35,6 +36,7 @@ import ObstacleLCM from './ObstacleLCM.vue';
 import OdometryLCM from './OdometryLCM.vue';
 import RadioRepeaterLCM from './RadioRepeaterLCM.vue';
 import TargetListLCM from './TargetListLCM.vue';
+import ZedGimbalLCM from './ZedGimbalLCM.vue';
 
 @Component({
   components: {
@@ -44,7 +46,8 @@ import TargetListLCM from './TargetListLCM.vue';
     ObstacleLCM,
     OdometryLCM,
     RadioRepeaterLCM,
-    TargetListLCM
+    TargetListLCM,
+    ZedGimbalLCM
   }
 })
 export default class LCMCenter extends Vue {}

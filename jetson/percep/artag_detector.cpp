@@ -2,6 +2,7 @@
 
 static Mat HSV;
 static Mat DEPTH;
+const int MM_PER_M = 1000; // millimeters per meter conversation factor
 
 /* For debug use: print the HSV values at mouseclick locations */
 void onMouse(int event, int x, int y, int flags, void *userdata) {
@@ -63,7 +64,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     ids.clear();
     corners.clear();
 
-    /// Find tags
+    // Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
 #if AR_RECORD
 cv::aruco::drawDetectedMarkers(rgb, corners, ids);
@@ -127,4 +128,43 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
 
 double TagDetector::getAngle(float xPixel, float wPixel){
     return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
+}
+
+void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
+    struct tagPairs {
+        vector<int> id;
+        vector<int> locx;
+        vector<int> locy;
+        vector<int> buffer;
+    }; 
+    tagPairs tags;
+
+    tags.id.push_back(tagPair.first.id);
+    tags.locx.push_back(tagPair.first.loc.x);
+    tags.locy.push_back(tagPair.first.loc.y);
+    tags.id.push_back(tagPair.second.id);
+    tags.locx.push_back(tagPair.first.loc.x);
+    tags.locy.push_back(tagPair.first.loc.y);
+    tags.buffer.push_back(0);
+    tags.buffer.push_back(0);
+
+  for (uint i=0; i<2; i++)
+  {
+    if(tags.id[i] == -1){//no tag found
+        if(tags.buffer[i] <= 20){//send buffered tag until tag is found
+            ++tags.buffer[i];
+        } else {//if still no tag found, set all stats to -1
+            arTags[i].distance = -1;
+            arTags[i].bearing = -1;
+            arTags[i].id = -1;
+        }
+     } else {//one tag found
+    if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i))))
+        arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
+        arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
+        arTags[i].id = tags.id.at(i);
+        tags.buffer[i] = 0;
+   }
+  }
+
 }

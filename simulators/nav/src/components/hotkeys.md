@@ -11,6 +11,8 @@
 | `shift+down` | Apply a single drive backward joystick command. | `HotKeys.vue` |
 | `shift+left` | Apply a single turn left joystick command. | `HotKeys.vue` |
 | `shift+right` | Apply a single turn right joystick command. | `HotKeys.vue` |
+| `shift+alt+left` | Apply a single ZED gimbal command for 1 degree to the left. | `HotKeys.vue` |
+| `shift+alt+right` | Apply a single ZED gimbal command for 1 degree to the right. | `HotKeys.vue` |
 | `shift+r` | Turn off the rover and move it to the starting location. | `DebugTools.vue` |
 || <div align="center">_Draw Module_</div> ||
 | `tab` | Switch the the next draw mode. | `HotKeys.vue` |
