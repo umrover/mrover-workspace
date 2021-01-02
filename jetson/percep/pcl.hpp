@@ -6,7 +6,7 @@
 
 /* --- Compare Line Class --- */
 /**
- \brief Functor that indicates where a point is in
+\brief Functor that indicates where a point is in
 relation to a line in 2D space
 recieves angle off y axis
 */
