@@ -181,13 +181,6 @@ NavState GateStateMachine::executeGateDrive()
         return NavState::GateTurnToCentPoint;
     }
 
-    // TODO
-    // if( isObstacleDetected( phoebe ) )
-    // {
-    //     roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
-    //     roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
-    //     return NavState::SearchTurnAroundObs;
-    // }
     const Odometry& nextSearchPoint = mGateSearchPoints.front();
     DriveStatus driveStatus = mPhoebe->drive( nextSearchPoint );
 
@@ -216,7 +209,6 @@ NavState GateStateMachine::executeGateTurnToCentPoint()
 //
 NavState GateStateMachine::executeGateDriveToCentPoint()
 {
-    // TODO: Obstacle Avoidance?
     DriveStatus driveStatus = mPhoebe->drive( centerPoint1 );
 
     if( driveStatus == DriveStatus::Arrived )
@@ -328,7 +320,6 @@ NavState GateStateMachine::executeGateTurnToGateCenter()
 //
 NavState GateStateMachine::executeGateDriveThrough()
 {
-    // TODO: Obstacle Avoidance?
     DriveStatus driveStatus = mPhoebe->drive( centerPoint2 );
 
     if( driveStatus == DriveStatus::Arrived )
@@ -393,9 +384,9 @@ void GateStateMachine::calcCenterPoint()
     const double absAngle1 = mod(gateAngle + tagToPointAngle, 360);
     const double absAngle2 = mod(absAngle1 + 180, 360);
     const double tagToPointDist = sqrt(pow(gateWidth / 2, 2) + pow(distFromGate, 2));
+
     // Assuming that CV works well enough that we don't pass through the gate before
     // finding the second post. Thus, centerPoint1 will always be closer.
-    // TODO: verify this
     centerPoint1 = createOdom(lastKnownPost1.odom, absAngle1, tagToPointDist, mPhoebe);
     centerPoint2 = createOdom(lastKnownPost2.odom, absAngle2, tagToPointDist, mPhoebe);
     const double cp1Dist = estimateNoneuclid(currOdom, centerPoint1);
