@@ -5,7 +5,8 @@ import {
   PerceptionConstants,
   PostConstants,
   RepeaterConstants,
-  RoverConstants
+  RoverConstants,
+  ZedConstants
 } from './types';
 
 
@@ -34,4 +35,12 @@ export const RADIO:RepeaterConstants = {
 export const ROVER:RoverConstants = {
   length: 1.25,
   width: 1.25
+};
+
+/* Define ZED and ZED gimbal constants. */
+export const ZED:ZedConstants = {
+  gimbal: {
+    minAngle: -180,
+    maxAngle: 180
+  }
 };
