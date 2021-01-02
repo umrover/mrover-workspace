@@ -55,7 +55,7 @@
   - [ ] AR Tag ID is the correct ID
   - [ ] Obstacles with large width are detected
   - [ ] Short obstacles are detected
-  - [ ] FPS values don't exceed \<TODO find this value\>
+  - [ ] FPS values don't exceed \<TODO find this value in Issue #552\>
   - [ ] Obstacle.lcm in /obstacle is populated correctly
   - [ ] TargetList.lcm in /target_list is populated correctly
 
@@ -67,4 +67,7 @@
 - [ ] Run all code simultaneously
 - [ ] Obstacle.lcm in /obstacle is populated correctly
 - [ ] TargetList.lcm in /target_list is populated correctly
-- [ ] All sensors in suite are active
+- [ ] Sensors are Active
+  - [ ] Stereo Camera (ZED)
+  - [ ] Inertial Measurement Unit (IMU)
+  - [ ] Global Positioning System (GPS)
