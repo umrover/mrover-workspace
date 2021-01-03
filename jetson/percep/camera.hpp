@@ -6,7 +6,6 @@
 	#include <pcl/common/common_headers.h>
 #endif
 
-
 class Camera {
 private:
 	class Impl;
@@ -26,7 +25,6 @@ public:
 	cv::Mat image();
 	cv::Mat depth();
 	
-
 	#if OBSTACLE_DETECTION
 	void getDataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
 	#endif
