@@ -48,11 +48,18 @@ public:
 
 class PCL {
     public:
-
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer;
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original;
     //Constructor
     PCL() : 
+        
         bearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
+
+        #if PERCEPTION_DEBUG
+            viewer.createRGBVisualizer();
+            viewer_original.createRGBVisualizer();
+        #endif 
 
         #if ZED_SDK_PRESENT
         sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
@@ -105,7 +112,9 @@ class PCL {
     public:
         //Main function that runs the above 
         void pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer);
-
+        //Updates point cloud in the visualizer
+        //Note: if bool is_original is true, we are using the original viewer
+        void update_viewer(shared_ptr<pcl::visualization::PCLVisualizer> viewer, bool is_original);
         //Creates a point cloud visualizer
         shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer();
 

@@ -20,7 +20,9 @@ TagDetector::TagDetector() {  //initializes detector object with pre-generated d
 
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
-        std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
+        #if PERCEPTION_DEBUG
+            std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
+        #endif
         throw Exception();
     }
 

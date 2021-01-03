@@ -236,7 +236,9 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     
     //Check Center Path
     if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
-        std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
+        #if PERCEPTION_DEBUG
+            std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
+        #endif
         return 0;
     }
 
@@ -348,12 +350,32 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
     return end;
 }
 
+void PCL::update_viewer(shared_ptr<pcl::visualization::PCLVisualizer> viewer, bool is_original)
+{
+    if (is_original) {
+                viewer->updatePointCloud(pt_cloud_ptr);
+                viewer->spinOnce(10);
+            }
+            
+            else {
+                viewer->updatePointCloud(pt_cloud_ptr);
+                viewer->spinOnce(20);
+            }
+}
 /* --- Create Visualizer --- */
 //Creates a point cloud visualizer
 shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
     // Open 3D viewer and add point cloud
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer(
-      new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer")); //This is a smart pointer so no need to worry ab deleteing it
+    //#if PERCEPTION_DEBUG
+   // shared_ptr<pcl::visualization::PCLVisualizer> viewer(
+   //   new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer")); //This is a smart pointer so no need to worry ab deleteing it
+ //   #else
+    bool test = false;
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer",test));
+    viewer->close();
+     //#endif 
+
+
     viewer->setBackgroundColor(0.12, 0.12, 0.12);
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(pt_cloud_ptr);
     viewer->addPointCloud<pcl::PointXYZRGB>(pt_cloud_ptr, rgb);
@@ -391,8 +413,10 @@ void PCL::update() {
     pt_cloud_ptr->points.resize(cloudArea);
     pt_cloud_ptr->width = PT_CLOUD_WIDTH;
     pt_cloud_ptr->height = PT_CLOUD_HEIGHT;
-    std::cerr << "Width: " << pt_cloud_ptr->width<<std::endl;
-    std::cerr << "Height: "<< pt_cloud_ptr->height<<"\n";
+    #if PERCEPTION_DEBUG
+        std::cerr << "Width: " << pt_cloud_ptr->width<<std::endl;
+        std::cerr << "Height: "<< pt_cloud_ptr->height<<"\n";
+    #endif
 }
 
 #endif
