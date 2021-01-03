@@ -413,7 +413,7 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
     RANSACSegmentation("remove");
     std::vector<pcl::PointIndices> cluster_indices;
     CPUEuclidianClusterExtraction(cluster_indices);
-    std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
+    std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (1000));
     FindInterestPoints(cluster_indices, interest_points);
     bearing = FindClearPath(interest_points, viewer); 
 }
