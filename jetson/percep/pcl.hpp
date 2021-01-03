@@ -5,24 +5,44 @@
 #include <pcl/common/common_headers.h>
 
 /* --- Compare Line Class --- */
-//Functor that indicates where a point is in
-//relation to a line in 2D space
+/**
+\brief Functor that indicates where a point is in
+relation to a line in 2D space
+recieves angle off y axis
+*/
 class compareLine {
 public:
-    double m;
-    int b;
+    int xIntercept;
+    double slope;
     
-    compareLine(double slope_in, int b_in) : m(slope_in), b(b_in){}
+    compareLine(double angle_in, int xInt_in) : xIntercept{xInt_in}, 
+                        slope{tan(angle_in*PI/180)} {
+                            if(slope != 0) {
+                                slope = 1/slope;
+                            }
+                        }
 
-    //Returns 1 if point is above line, 0 if on, -1 if below
+    //Returns 1 if point is right of line, 0 if on, -1 if left of line
     int operator()(int x, int y) {
-        double yc = x*m+b;
-        if(y > yc)
+        
+        //Make sure don't divide by 0
+        double xc = xIntercept; //x calculated
+        if(slope != 0) {
+            xc = y/slope+xIntercept; //Find x value on line with same y value as input point
+        }
+            
+        //Point is right of the line
+        if(x > xc) {
             return 1;
-        else if (y == yc)
+        }
+        //Point is on the line
+        else if (x == xc) {
             return 0;
-        else
-            return -1; 
+        }
+        //Point is left of the line
+        else {
+            return -1;
+        } 
     }
 };
 
@@ -67,17 +87,24 @@ class PCL {
         void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, std::vector<std::vector<int>> &interest_points);
         
         //Finds a clear path given the obstacle corners
-        double FindClearPath(std::vector<std::vector<int>> interest_points,
+        double FindClearPath(const std::vector<std::vector<int>> &interest_points,
                            shared_ptr<pcl::visualization::PCLVisualizer> viewer);
 
         //Determines whether the input path is obstructed
-        bool CheckPath(std::vector<std::vector<int>> interest_points,
+        bool CheckPath(const std::vector<std::vector<int>> &interest_points,
                shared_ptr<pcl::visualization::PCLVisualizer> viewer,
                std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine);
+        
+        /**
+        \brief Determines angle off center a clear path can be found
+        \param direction: given 0 finds left clear path given 1 find right clear path
+        */
+        double getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
+                    shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles);
 
     public:
         //Main function that runs the above 
-        obstacle_return pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer);
+        void pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer);
 
         //Creates a point cloud visualizer
         shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer();
