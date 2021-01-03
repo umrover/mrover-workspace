@@ -199,14 +199,14 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
         }
 
         //Sets the new interest points equal to the leftmost point.
-        for(int i = 0; i < points.size(); ++i){
+        for(size_t i = 0; i < points.size(); ++i){
             curr_cluster->at(9 + i) = curr_cluster->at(0);
         }
 
         //Finds the new interest points based on width increments.
         for (auto index : cluster_indices[i].indices){
             auto curr_point = pt_cloud_ptr->points[index];
-            for(int i = 0; i < points.size(); ++i){
+            for(size_t i = 0; i < points.size(); ++i){
                 if(curr_point.x <= pt_cloud_ptr->points[curr_cluster->at(0)].x + points[i] && 
                 curr_point.x > pt_cloud_ptr->points[curr_cluster->at(9 + i)].x){
                     curr_cluster->at(9 + i) = index;
