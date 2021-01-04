@@ -1,16 +1,16 @@
 ## Compile Test
-- [ ] ` ./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=true `
+- [ ] Offline Debug: ` ./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=true `
   - [ ] No compiler errors or warnings
-- [ ] ` ./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=false `
+- [ ] Offline Silent: ` ./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=false `
   - [ ] No compiler errors or warnings
-- [ ] ` ./jarvis build jetson/percep -o with_zed=true ar_detection=true obs_detection=true perception_debug=false `
+- [ ] ZED Debug: ` ./jarvis build jetson/percep -o with_zed=true ar_detection=true obs_detection=true perception_debug=true `
   - [ ] No compiler errors, only ZED warnings
-- [ ] ` ./jarvis build jetson/percep -o with_zed=true ar_detection=true obs_detection=true perception_debug=true `
+- [ ] ZED Silent: ` ./jarvis build jetson/percep -o with_zed=true ar_detection=true obs_detection=true perception_debug=false `
    - [ ] No compiler errors, only ZED warnings
 
 ## Offline Debug Test
 - [ ] `./jarvis build jetson/percep -o with_zed=false ar_detection=true obs_detection=true perception_debug=true`
-- [ ] Run code against test1 image set
+- [ ] Run code against test1 image set located in perception-files repository
 - Check for:
    - [ ]  Left and right path are being calculated
    - [ ]  Calculated bearing is reasonable given viewer output
