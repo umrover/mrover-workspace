@@ -19,7 +19,7 @@
    - [ ]  Path is projected around not through large obstacles
    - [ ]  Short obstacles are detected
    - [ ]  Steep inclines are detected as obstacles
-- [ ] Run code against test2 image set
+- [ ] Run code against test2 image set located in perception-files repository
 - Check for:
    - [ ]  Left and right path are being calculated
    - [ ]  Calculated bearing is reasonable given viewer output
