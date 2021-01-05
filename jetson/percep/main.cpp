@@ -39,8 +39,6 @@ int main() {
   /* --- AR Tag Initializations --- */
   TagDetector detector;
   pair<Tag, Tag> tagPair;
-  int left_tag_buffer = 0;
-  int right_tag_buffer = 0;
   
   /* --- Point Cloud Initializations --- */
   #if OBSTACLE_DETECTION
@@ -107,42 +105,11 @@ int main() {
     #if AR_DETECTION
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
-      cam.record_ar(rgb);
+        cam.record_ar(rgb);
       #endif
-      //update both tags in LCM message
-      //first tag
-      if(tagPair.first.id == -1){//no tag found
-        if(left_tag_buffer <= 20){//send the buffered tag
-          ++left_tag_buffer;
-        } else {//we probably actually lost the tag
-          arTags[0].distance = -1;
-          arTags[0].bearing = -1;
-          arTags[0].id = -1;
-        }
-      } else { //one tag found
-        if(!isnan(depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x)))
-          arTags[0].distance = (depth_img.at<float>(tagPair.first.loc.y, tagPair.first.loc.x))/1000;
-        arTags[0].bearing = detector.getAngle((int)tagPair.first.loc.x, src.cols);
-        arTags[0].id = tagPair.first.id;
-        left_tag_buffer = 0;
-      }
-      
-      //second tag
-      if(tagPair.second.id == -1){//no tag found
-        if(right_tag_buffer <= 20){//send the buffered tag
-          ++right_tag_buffer;
-        } else {//we probably actually lost the tag
-          arTags[1].distance = -1;
-          arTags[1].bearing = -1;
-          arTags[1].id = -1;
-        }
-      } else { //one tag found
-        if(!isnan(depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x)))
-          arTags[1].distance = (depth_img.at<float>(tagPair.second.loc.y, tagPair.second.loc.x))/1000;
-        arTags[1].bearing = detector.getAngle((int)tagPair.second.loc.x, src.cols);
-        arTags[1].id = tagPair.second.id;
-        right_tag_buffer = 0;
-      }
+
+      detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
+
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
       waitKey(1);  
@@ -198,19 +165,21 @@ int main() {
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
 
-    std::this_thread::sleep_for(0.2s); // Iteration speed control 
-
+    #if !ZED_SDK_PRESENT
+      std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
+    #endif
+    
     ++iterations;
   }
 
 
 /* --- Wrap Things Up --- */
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
-  viewer->close();
+    viewer->close();
   #endif
   
   #if AR_RECORD
-  cam.record_ar_finish();
+    cam.record_ar_finish();
   #endif
   
   return 0;
