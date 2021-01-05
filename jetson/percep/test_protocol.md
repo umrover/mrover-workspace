@@ -38,7 +38,6 @@
 
 ## Unit Test
 - [ ] ` ./jarvis build jetson/percep -o with_zed=true ar_detection=true obs_detection=true perception_debug=true `
-- [ ] `./jarvis exec lcm_bridge/server/`
 - [ ] `./jarvis exec lcm_tools_echo Obstacle "/obstacle"`
 - [ ] `./jarvis exec lcm_tools_echo TargetList "/target_list"`
 - Test environment contains:
