@@ -70,7 +70,7 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
     // degrees to turn to before performing a search wait.
     double waitStepSize = roverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
-    static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
+    static double mOriginalSpinAngle = 0; // initialize, is corrected on first call
 
     if( phoebe->roverStatus().target().distance >= 0 )
     {
@@ -80,8 +80,8 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
     }
     if ( nextStop == 0 )
     {
-        //get current angle and set as origAngle
-        mOriginalSpinAngle = phoebe->roverStatus().odometry().bearing_deg; //doublecheck
+        // get current angle and set as origAngle
+        mOriginalSpinAngle = phoebe->roverStatus().odometry().bearing_deg; // doublecheck
         nextStop = mOriginalSpinAngle;
     }
     if( phoebe->turn( nextStop ) )
@@ -218,7 +218,6 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
     if( phoebe->turn( phoebe->roverStatus().target().bearing +
                       phoebe->roverStatus().odometry().bearing_deg ) )
     {
-        cout << "Reached our target\n";
         return NavState::DriveToTarget;
     }
     updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
@@ -238,7 +237,7 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     if( phoebe->roverStatus().target().distance < 0 )
     {
         cerr << "Lost the target\n";
-        return NavState::SearchTurn; //NavState::SearchSpin
+        return NavState::SearchTurn; // NavState::SearchSpin
     }
     if( isObstacleDetected( phoebe ) &&
         !isTargetReachable( phoebe, roverConfig ) )
@@ -250,35 +249,27 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     
     DriveStatus driveStatus;
 
+    double distance = phoebe->roverStatus().target().distance - searchAdjustmentDist;
+    double bearing = phoebe->roverStatus().target().bearing + phoebe->roverStatus().odometry().bearing_deg;
+
+    // Executes the logic for driving with 0, 1, or 2 targets in sight
+    // If we have a second target detected, determine which post is closer
+    // If the distance to the second target is less than the first,
+    // set our variables to the target 2's distance and bearing
+    // Else, use the initialized values from target 1 when driving
     if( phoebe->roverStatus().target2().distance > 0 )
     {
-        if( phoebe->roverStatus().target().distance < phoebe->roverStatus().target2().distance ) 
+        if( phoebe->roverStatus().target().distance > phoebe->roverStatus().target2().distance ) 
         {
-             driveStatus = phoebe->drive( phoebe->roverStatus().target().distance - 0.15,
-                                             phoebe->roverStatus().target().bearing +
-                                             phoebe->roverStatus().odometry().bearing_deg,
-                                             true );
-        }
-        else 
-        {
-             driveStatus = phoebe->drive( phoebe->roverStatus().target2().distance - 0.15,
-                                             phoebe->roverStatus().target2().bearing +
-                                             phoebe->roverStatus().odometry().bearing_deg,
-                                             true );
+            distance = phoebe->roverStatus().target2().distance - searchAdjustmentDist;
+            bearing = phoebe->roverStatus().target2().bearing + phoebe->roverStatus().odometry().bearing_deg;
         }
     }
-    else 
-    {
-        driveStatus = phoebe->drive( phoebe->roverStatus().target().distance - 0.15,
-                                             phoebe->roverStatus().target().bearing +
-                                             phoebe->roverStatus().odometry().bearing_deg,
-                                             true );
 
-    }
+    driveStatus = phoebe->drive( distance, bearing, true );
     
     if( driveStatus == DriveStatus::Arrived )
     {
-        cout << "Drove to target\n";
         mSearchPoints.clear();
         if( phoebe->roverStatus().path().front().gate )
         {

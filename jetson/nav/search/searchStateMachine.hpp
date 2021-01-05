@@ -62,6 +62,8 @@ private:
     // Last known angle of rover from turn to target.
     double mTurnToTargetRoverAngle;
 
+    double searchAdjustmentDist = 0.15;
+
 protected:
     /*************************************************************************/
     /* Protected Member Functions */

@@ -219,9 +219,9 @@ void StateMachine::run()
             case NavState::GateDriveToCentPoint:
             case NavState::GateFace:
             case NavState::GateDriveThrough:
-            case NavState::GateTurnToFarPost: //new
-            case NavState::GateDriveToFarPost: //new
-            case NavState::GateTurnToGateCenter: //new
+            case NavState::GateTurnToFarPost:
+            case NavState::GateDriveToFarPost:
+            case NavState::GateTurnToGateCenter:
             {
                 nextState = mGateStateMachine->run();
                 break;
@@ -477,9 +477,9 @@ string StateMachine::stringifyNavState() const
             { NavState::GateTurnToCentPoint, "Gate Turn to Center Point" },
             { NavState::GateDriveToCentPoint, "Gate Drive to Center Point" },
             { NavState::GateFace, "Gate Face" },
-            { NavState::GateTurnToFarPost, "Gate Turn to Far Post"}, // new
-            { NavState::GateDriveToFarPost, "Gate Drive to Far Post"}, // new
-            { NavState::GateTurnToGateCenter, "Gate Turn to Gate Center"}, // new
+            { NavState::GateTurnToFarPost, "Gate Turn to Far Post"},
+            { NavState::GateDriveToFarPost, "Gate Drive to Far Post"},
+            { NavState::GateTurnToGateCenter, "Gate Turn to Gate Center"},
             { NavState::GateDriveThrough, "Gate Drive Through" },
             { NavState::RadioRepeaterTurn, "Radio Repeater Turn" },
             { NavState::RadioRepeaterDrive, "Radio Repeater Drive" },

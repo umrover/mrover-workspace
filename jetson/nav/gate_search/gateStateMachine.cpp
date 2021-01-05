@@ -44,17 +44,16 @@ NavState GateStateMachine::run()
             return executeGateTurnToCentPoint();
         }
 
-        case NavState::GateDriveToCentPoint:
-        {
-            return executeGateDriveToCentPoint();
-        }
-
         case NavState::GateFace:
         {
             return executeGateFace();
         }
 
-        // new
+        case NavState::GateDriveToCentPoint:
+        {
+            return executeGateDriveToCentPoint();
+        }
+
         case NavState::GateTurnToFarPost:
         {
             return executeGateTurnToFarPost();
@@ -69,6 +68,7 @@ NavState GateStateMachine::run()
         {
             return executeGateTurnToGateCenter();
         }
+
         case NavState::GateDriveThrough:
         {
             return executeGateDriveThrough();
@@ -82,7 +82,6 @@ NavState GateStateMachine::run()
     } // switch
 } // run
 
-//
 NavState GateStateMachine::executeGateSpin()
 {
     // degrees to turn to before performing a search wait.
@@ -98,7 +97,7 @@ NavState GateStateMachine::executeGateSpin()
         return NavState::GateTurnToCentPoint;
     }
 
-    if ( nextStop == 0 )
+    if( nextStop == 0 )
     {
         // get current angle and set as origAngle
         mOriginalSpinAngle = mPhoebe->roverStatus().odometry().bearing_deg; //doublecheck
@@ -117,7 +116,6 @@ NavState GateStateMachine::executeGateSpin()
     return NavState::GateSpin;
 } // executeGateSpin()
 
-//
 NavState GateStateMachine::executeGateSpinWait()
 {
     static bool started = false;
@@ -146,7 +144,6 @@ NavState GateStateMachine::executeGateSpinWait()
     return NavState::GateSpinWait;
 } // executeGateSpinWait()
 
-//
 NavState GateStateMachine::executeGateTurn()
 {
     if( mGateSearchPoints.empty() )
@@ -170,7 +167,6 @@ NavState GateStateMachine::executeGateTurn()
     return NavState::GateTurn;
 } // executeGateTurn()
 
-//
 NavState GateStateMachine::executeGateDrive()
 {
     if( mPhoebe->roverStatus().target2().distance >= 0 ||
@@ -203,7 +199,6 @@ NavState GateStateMachine::executeGateDrive()
     return NavState::GateTurn;
 } // executeGateDrive()
 
-//
 NavState GateStateMachine::executeGateTurnToCentPoint()
 {
     if( mPhoebe->turn( centerPoint1 ) )
@@ -213,7 +208,6 @@ NavState GateStateMachine::executeGateTurnToCentPoint()
     return NavState::GateTurnToCentPoint;
 } // executeGateTurnToCentPoint()
 
-//
 NavState GateStateMachine::executeGateDriveToCentPoint()
 {
     // TODO: Obstacle Avoidance?
@@ -230,17 +224,16 @@ NavState GateStateMachine::executeGateDriveToCentPoint()
     return NavState::GateTurnToCentPoint;
 } // executeGateDriveToCentPoint()
 
-//
 NavState GateStateMachine::executeGateFace()
 {
     if( mPhoebe->turn( centerPoint2 ) )
     {
-            return NavState::GateTurnToFarPost;
+        return NavState::GateTurnToFarPost;
     }
     return NavState::GateFace;
 } // executeGateFace()
 
-//
+// Turn to furthest post, if possible
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
     if( mPhoebe->roverStatus().target2().distance > 0 ) 
@@ -249,7 +242,7 @@ NavState GateStateMachine::executeGateTurnToFarPost()
         {
             if( mPhoebe->turn(mPhoebe->roverStatus().target2().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
             {
-            return NavState::GateDriveToFarPost;
+                return NavState::GateDriveToFarPost;
             }
         }
         else 
@@ -276,35 +269,25 @@ NavState GateStateMachine::executeGateDriveToFarPost()
 {
     DriveStatus driveStatus;
 
+    // Set to first target, since we should have atleast one in sight/detected
+    double distance = mPhoebe->roverStatus().target().distance - gateAdjustmentDist;
+    double bearing = mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg;
+
     if( mPhoebe->roverStatus().target2().distance > 0 ) 
     {
         if( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) 
         {
-            // TODO: Remove .3 m of adjustment room? (Used so we do not collide with the gate post)
-            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target2().distance - 0.3,
-                                             mPhoebe->roverStatus().target2().bearing +
-                                             mPhoebe->roverStatus().odometry().bearing_deg,
-                                             true );
+            // Set our variables to drive to target/post 2, which is farther away
+            distance = mPhoebe->roverStatus().target2().distance - gateAdjustmentDist;
+            bearing = mPhoebe->roverStatus().target2().bearing + mPhoebe->roverStatus().odometry().bearing_deg;
         }
-        else 
-        {
-            driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance - 0.3,
-                                             mPhoebe->roverStatus().target().bearing +
-                                             mPhoebe->roverStatus().odometry().bearing_deg,
-                                             true );
-        }
-    }  
-    else 
-    {
-        driveStatus = mPhoebe->drive( mPhoebe->roverStatus().target().distance - 0.3,
-                                             mPhoebe->roverStatus().target().bearing +
-                                             mPhoebe->roverStatus().odometry().bearing_deg,
-                                             true );
     }
+
+    driveStatus = mPhoebe->drive( distance, bearing, true );
 
     if( driveStatus == DriveStatus::Arrived )
     {
-        return NavState::GateTurnToGateCenter; // Turn to center of gate
+        return NavState::GateTurnToGateCenter;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
@@ -314,7 +297,6 @@ NavState GateStateMachine::executeGateDriveToFarPost()
 } // executeGateDriveToFarPost()
 
 // Turn back to center point
-// TODO: Could use new center point
 NavState GateStateMachine::executeGateTurnToGateCenter()
 {
     if ( mPhoebe->turn( centerPoint2 )) 
@@ -325,7 +307,6 @@ NavState GateStateMachine::executeGateTurnToGateCenter()
     return NavState::GateTurnToGateCenter;
 } // executeGateTurnToGateCenter()
 
-//
 NavState GateStateMachine::executeGateDriveThrough()
 {
     // TODO: Obstacle Avoidance?

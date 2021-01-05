@@ -59,8 +59,6 @@ private:
 
     NavState executeGateTurnToGateCenter();
 
-    //NavState executeGateShimmy();
-
     NavState executeGateDriveThrough();
 
     void updatePost2Info();
@@ -82,6 +80,8 @@ private:
 
     //
     bool CP1ToCP2CorrectDir;
+
+    double gateAdjustmentDist = 0.3;
 
 protected:
     /*************************************************************************/
