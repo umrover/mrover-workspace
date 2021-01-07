@@ -157,10 +157,12 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
     for (int i = 0; i < (int)cluster_indices.size(); ++i)
     {
         std::vector<int>* curr_cluster = &interest_points[i];
-
+        //double currentDistance = 0;
+        
         //Initialize interest points
         std::fill(curr_cluster->begin(), curr_cluster->end(), cluster_indices[i].indices[0]);
         
+        //double sizeOfCluster = 0;
         //Order of interest points: 0=Up Left 1=Up Right 2=Low Right 3=Low Left
         for (auto index : cluster_indices[i].indices)
         {
@@ -178,15 +180,26 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
             //Low Right
             else if(curr_point.x > pt_cloud_ptr->points[curr_cluster->at(3)].x && curr_point.y < pt_cloud_ptr->points[curr_cluster->at(3)].y)
                 curr_cluster->at(3) = index;
+
+            //currentDistance += curr_point.z;
+            //sizeOfCluster++;
         }
-    #if PERCEPTION_DEBUG
-        for(auto interest_point : *curr_cluster)
-        {
-            pt_cloud_ptr->points[interest_point].r = 255;
-            pt_cloud_ptr->points[interest_point].g = 255;
-            pt_cloud_ptr->points[interest_point].b = 255;
-        }
-    #endif
+        /*currentDistance = 1.0 * currentDistance / sizeOfCluster;
+        if(currentDistance < previousDistance) {
+            previousDistance = currentDistance;
+            std::cout << "Distance " << previousDistance << ", Cluster Size " << sizeOfCluster << std::endl;
+            distance = previousDistance;
+            std::cout << "Distance to closestObstacle "  << distance << std::endl;
+        }*/
+
+        #if PERCEPTION_DEBUG
+            for(auto interest_point : *curr_cluster)
+            {
+                pt_cloud_ptr->points[interest_point].r = 255;
+                pt_cloud_ptr->points[interest_point].g = 255;
+                pt_cloud_ptr->points[interest_point].b = 255;
+            }
+        #endif
     }
 
 }
@@ -236,26 +249,42 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     
     //Check Center Path
     if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
-        std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
+            std::cerr << "CENTER PATH IS CLEAR!!!" << std::endl;
+            std::cerr << "Distance from Last Obstacle: " << distance << " meters" << std::endl;
         return 0;
     }
+    else { //otherwise, check left and right paths
 
-    //Initialize base cases outside of scope
-    vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
+        double centerDistance, leftDistance, rightDistance;
+        centerDistance = distance; //from previous loop of CheckPath, where it was only looking at the center path for a clear path
 
-    //Find Clear left path
-    double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+        //Initialize base cases outside of scope
+        vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
-    //Reset global variables
-    obstacles       = {0, 0};
-    obstacles.at(0) = centerObstacles.at(0);
-    obstacles.at(1) = centerObstacles.at(1);
+        //Find Clear left path
+        std::cerr << "Checking Left Path" << std::endl;
+        double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+        leftDistance = distance; 
 
-    //Find clear right path
-    double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+        //Reset global variables
+        obstacles = {0, 0};
+        obstacles.at(0) = centerObstacles.at(0);
+        obstacles.at(1) = centerObstacles.at(1);
 
-    //Return the smallest angle (left if equal)
-    return fabs(rightAngle) < fabs(leftAngle) ? rightAngle : leftAngle;
+        //Find clear right path
+        std::cerr << "Checking Right Path" << std::endl;
+        double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+        rightDistance = distance;
+
+        if(rightDistance < leftDistance && rightDistance < centerDistance) distance = rightDistance/1000.0;
+        else if(leftDistance < rightDistance && leftDistance < centerDistance) distance = leftDistance/1000.0;
+        else distance = centerDistance/1000.0;
+
+        std::cerr << "Distance from Last Obstacle: " << distance << " meters" << std::endl;
+
+        //Return the smallest angle (left if equal)
+        return fabs(rightAngle) < fabs(leftAngle) ? rightAngle : leftAngle;
+    }
 }
 
 /* --- Check Path --- */
@@ -272,8 +301,12 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
 
     bool end = true;
     
+    double previousDistance = DBL_MAX;
+    
     //Iterate through interest points
     for(auto cluster : interest_points) {
+        double sizeOfCluster = 0;
+        double currentDistance = 0;
         for (auto index : cluster) {
             //Check if the obstacle interest point is to the right of the left projected path of the rover 
             //and to the left of the right projected path of the rover
@@ -301,7 +334,17 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
                 pt_cloud_ptr->points[index].g = 69;
                 pt_cloud_ptr->points[index].b = 0;
                 #endif
+
+                currentDistance += pt_cloud_ptr->points[index].z;
+                sizeOfCluster++; 
             }
+        }
+        currentDistance = 1.0 * currentDistance / sizeOfCluster;
+        if(currentDistance < previousDistance) {
+            previousDistance = currentDistance;
+            //std::cerr << "Distance " << previousDistance << ", Cluster Size " << sizeOfCluster << std::endl;
+            distance = previousDistance;
+            //std::cerr << "Distance to closestObstacle "  << distance << std::endl;
         }
     }
 
@@ -382,6 +425,7 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
     FindInterestPoints(cluster_indices, interest_points);
     bearing = FindClearPath(interest_points, viewer); 
 }
+
 
 
 /* --- Update --- */

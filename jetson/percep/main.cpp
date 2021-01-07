@@ -146,11 +146,9 @@ int main() {
 
      //Update LCM 
     obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
-    if(lastObstacle.distance <= obstacle_detection.distance)
-      obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
-    else
-      obstacleMessage.distance = (obstacle_detection.distance/1000); //update LCM distance field
-    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
+    obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
+    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Bearing Sent: " << obstacleMessage.bearing << "\n";
+    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Distance Sent: " << obstacleMessage.distance << "\n";
 
     #if PERCEPTION_DEBUG
       //Update Processed 3D Viewer
