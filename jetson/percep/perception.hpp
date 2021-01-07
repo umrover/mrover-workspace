@@ -120,7 +120,8 @@ class obstacle_return {
       return *this;
     }
     
-    bearing = in.bearing;
+    left_bearing = in.left_bearing;
+    right_bearing = in.right_bearing;
     distance = in.distance;
     return *this;
   }
