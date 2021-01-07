@@ -237,7 +237,6 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     //Check Center Path
     if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
         std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
-        return 0;
     }
 
     //Initialize base cases outside of scope
