@@ -254,24 +254,38 @@ double PCL::FindClearPath(std::vector<std::vector<int>> &interest_points,
     if(CheckPath(interest_points, viewer, obstacles, 
         compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
             std::cerr << "CENTER PATH IS CLEAR!!!" << std::endl;
+            std::cerr << "Distance from Last Obstacle: " << distance << " meters" << std::endl;
         return 0;
     }
+    else { //otherwise, check left and right paths
 
-    //Initialize base cases outside of scope
-    vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
+        double centerDistance, leftDistance, rightDistance;
+        centerDistance = distance; //from previous loop of CheckPath, where it was only looking at the center path for a clear path
 
-    //Find Clear left path
-    std::cerr << "Checking Left Path" << std::endl;
-    leftAngle       = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+        //Initialize base cases outside of scope
+        vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
-    //Reset global variables
-    obstacles       = {0, 0};
-    obstacles.at(0) = centerObstacles.at(0);
-    obstacles.at(1) = centerObstacles.at(1);
+        //Find Clear left path
+        std::cerr << "Checking Left Path" << std::endl;
+        leftAngle       = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+        leftDistance = distance; 
 
-    //Find clear right path
-    std::cerr << "Checking Right Path" << std::endl;
-    rightAngle      = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+        //Reset global variables
+        obstacles       = {0, 0};
+        obstacles.at(0) = centerObstacles.at(0);
+        obstacles.at(1) = centerObstacles.at(1);
+
+        //Find clear right path
+        std::cerr << "Checking Right Path" << std::endl;
+        rightAngle      = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+        rightDistance = distance;
+
+        if(rightDistance < leftDistance && rightDistance < centerDistance) distance = rightDistance/1000.0;
+        else if(leftDistance < rightDistance && leftDistance < centerDistance) distance = leftDistance/1000.0;
+        else distance = centerDistance/1000.0;
+
+        std::cerr << "Distance from Last Obstacle: " << distance << " meters" << std::endl;
+    }
 
     //If there is no clear path both ways return an impossible number
     if(rightAngle == 360 && leftAngle == 360) {
@@ -331,13 +345,13 @@ bool PCL::CheckPath(std::vector<std::vector<int>> interest_points,
                 currentDistance += pt_cloud_ptr->points[index].z;
                 sizeOfCluster++; 
             }
-            currentDistance = 1.0 * currentDistance / sizeOfCluster;
-            if(currentDistance < previousDistance) {
+        }
+        currentDistance = 1.0 * currentDistance / sizeOfCluster;
+        if(currentDistance < previousDistance) {
             previousDistance = currentDistance;
-            std::cerr << "Distance " << previousDistance << ", Cluster Size " << sizeOfCluster << std::endl;
+            //std::cerr << "Distance " << previousDistance << ", Cluster Size " << sizeOfCluster << std::endl;
             distance = previousDistance;
-            std::cerr << "Distance to closestObstacle "  << distance << std::endl;
-            }
+            //std::cerr << "Distance to closestObstacle "  << distance << std::endl;
         }
     }
 
@@ -414,6 +428,7 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
     FindInterestPoints(cluster_indices, interest_points);
     bearing = FindClearPath(interest_points, viewer); 
 }
+
 
 
 /* --- Update --- */
