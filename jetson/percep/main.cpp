@@ -8,6 +8,53 @@ using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
 
+class Display{
+  private:
+  Mat img{Mat(250, 400, CV_8UC3, Scalar(0,0,0))};
+  string window_name;
+  map<string, double> stats_to_display;
+
+  public:
+    Display(string in_window_name) : window_name(in_window_name) {
+      namedWindow(window_name);
+      imshow(window_name, img);
+      waitKey(30);
+    }
+  
+    void update_display(map<string, double> inputs){
+      stats_to_display = inputs;
+      string input_text, stats_text;
+      int y_value = 20;
+
+      for(auto &stats : stats_to_display){
+        stats_text = to_string(stats.second);
+        input_text = stats.first + stats_text;
+        putText(img, input_text, Point(5, y_value), FONT_HERSHEY_PLAIN, 1, Scalar(255,255,255), 1);
+        y_value += 20;
+      }
+
+      imshow(window_name, img);
+      waitKey(1);
+    }
+
+    void clear_display(){
+      string input_text, stats_text;
+      int y_value = 20;
+
+      for(auto &stats : stats_to_display){
+        stats_text = to_string(stats.second);
+        input_text = stats.first + stats_text;
+        putText(img, input_text, Point(5, y_value), FONT_HERSHEY_PLAIN, 1, Scalar(0,0,0), 1);
+        y_value += 20;
+      }
+    }
+
+    ~Display(){
+      destroyWindow(window_name);
+    }
+ 
+};
+
 int main() {
   
   /* --- Camera Initializations --- */
@@ -73,8 +120,13 @@ int main() {
   #endif
 
 
+  Display display("Console Display");
+  double fps;
 /* --- Main Processing Stuff --- */
   while (true) {
+    //for calculating fps
+    auto start = std::chrono::high_resolution_clock::now();
+
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
 
@@ -170,6 +222,16 @@ int main() {
     #endif
     
     ++iterations;
+
+
+    //calculate fps
+    auto end = std::chrono::high_resolution_clock::now();
+    auto time_diff = end - start;
+    fps = 1 / std::chrono::duration<double>(time_diff).count();
+
+    display.clear_display();
+    display.update_display({ {"fps: ", fps}, {"bearing: ", pointcloud.bearing} });
+    
   }
 
 
