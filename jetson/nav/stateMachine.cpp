@@ -277,8 +277,8 @@ void StateMachine::updateRoverStatus( TargetList targetList )
 {
     Target target1 = targetList.targetList[0];
     Target target2 = targetList.targetList[1];
-    mNewRoverStatus.target() = target1;
-    mNewRoverStatus.target2() = target2;
+    mNewRoverStatus.leftTarget() = target1;
+    mNewRoverStatus.rightTarget() = target2;
 } // updateRoverStatus( Target )
 
 // Updates the radio signal strength information of the rover's status.

@@ -116,9 +116,9 @@ public:
 
         Odometry& odometry();
 
-        Target& target();
+        Target& leftTarget();
 
-        Target& target2();
+        Target& rightTarget();
 
         RadioSignalStrength& radio();
 

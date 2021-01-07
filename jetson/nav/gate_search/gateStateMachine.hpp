@@ -78,7 +78,7 @@ private:
     Odometry centerPoint1;
     Odometry centerPoint2;
 
-    //
+    // Check if we drove through the correct direction
     bool CP1ToCP2CorrectDir;
 
     double gateAdjustmentDist = 0.3;

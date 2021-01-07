@@ -82,6 +82,7 @@ NavState GateStateMachine::run()
     } // switch
 } // run
 
+// Perform spin search for a waypoint
 NavState GateStateMachine::executeGateSpin()
 {
     // degrees to turn to before performing a search wait.
@@ -89,8 +90,8 @@ NavState GateStateMachine::executeGateSpin()
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
 
-    if( mPhoebe->roverStatus().target2().distance >= 0 ||
-        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    if( mPhoebe->roverStatus().rightTarget().distance >= 0 ||
+        ( mPhoebe->roverStatus().leftTarget().distance >= 0 && mPhoebe->roverStatus().leftTarget().id != lastKnownPost1.id ))
     {
         updatePost2Info();
         calcCenterPoint();
@@ -116,13 +117,14 @@ NavState GateStateMachine::executeGateSpin()
     return NavState::GateSpin;
 } // executeGateSpin()
 
+// Wait for predetermined time before performing GateSpin
 NavState GateStateMachine::executeGateSpinWait()
 {
     static bool started = false;
     static time_t startTime;
 
-    if( mPhoebe->roverStatus().target2().distance >= 0 ||
-        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    if( mPhoebe->roverStatus().rightTarget().distance >= 0 ||
+        ( mPhoebe->roverStatus().leftTarget().distance >= 0 && mPhoebe->roverStatus().leftTarget().id != lastKnownPost1.id ))
     {
         updatePost2Info();
         calcCenterPoint();
@@ -144,6 +146,7 @@ NavState GateStateMachine::executeGateSpinWait()
     return NavState::GateSpinWait;
 } // executeGateSpinWait()
 
+// Turn to determined waypoint
 NavState GateStateMachine::executeGateTurn()
 {
     if( mGateSearchPoints.empty() )
@@ -151,8 +154,8 @@ NavState GateStateMachine::executeGateTurn()
         initializeSearch();
     }
 
-    if( mPhoebe->roverStatus().target2().distance >= 0 ||
-        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    if( mPhoebe->roverStatus().rightTarget().distance >= 0 ||
+        ( mPhoebe->roverStatus().leftTarget().distance >= 0 && mPhoebe->roverStatus().leftTarget().id != lastKnownPost1.id ))
     {
         updatePost2Info();
         calcCenterPoint();
@@ -167,10 +170,11 @@ NavState GateStateMachine::executeGateTurn()
     return NavState::GateTurn;
 } // executeGateTurn()
 
+// Drive to determined waypoint
 NavState GateStateMachine::executeGateDrive()
 {
-    if( mPhoebe->roverStatus().target2().distance >= 0 ||
-        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    if( mPhoebe->roverStatus().rightTarget().distance >= 0 ||
+        ( mPhoebe->roverStatus().leftTarget().distance >= 0 && mPhoebe->roverStatus().leftTarget().id != lastKnownPost1.id ))
     {
         updatePost2Info();
         calcCenterPoint();
@@ -192,6 +196,7 @@ NavState GateStateMachine::executeGateDrive()
     return NavState::GateTurn;
 } // executeGateDrive()
 
+// Turn to center of the two gate posts
 NavState GateStateMachine::executeGateTurnToCentPoint()
 {
     if( mPhoebe->turn( centerPoint1 ) )
@@ -201,6 +206,7 @@ NavState GateStateMachine::executeGateTurnToCentPoint()
     return NavState::GateTurnToCentPoint;
 } // executeGateTurnToCentPoint()
 
+// Drive to the center point defined by the two posts
 NavState GateStateMachine::executeGateDriveToCentPoint()
 {
     DriveStatus driveStatus = mPhoebe->drive( centerPoint1 );
@@ -216,6 +222,7 @@ NavState GateStateMachine::executeGateDriveToCentPoint()
     return NavState::GateTurnToCentPoint;
 } // executeGateDriveToCentPoint()
 
+// Turn to the face of the gate posts 
 NavState GateStateMachine::executeGateFace()
 {
     if( mPhoebe->turn( centerPoint2 ) )
@@ -225,21 +232,21 @@ NavState GateStateMachine::executeGateFace()
     return NavState::GateFace;
 } // executeGateFace()
 
-// Turn to furthest post, if possible
+// Turn to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
-    if( mPhoebe->roverStatus().target2().distance > 0 ) 
+    if( mPhoebe->roverStatus().rightTarget().distance > 0 ) 
     {
-        if( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) 
+        if( mPhoebe->roverStatus().leftTarget().distance < mPhoebe->roverStatus().rightTarget().distance ) 
         {
-            if( mPhoebe->turn(mPhoebe->roverStatus().target2().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
+            if( mPhoebe->turn(mPhoebe->roverStatus().rightTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
             {
                 return NavState::GateDriveToFarPost;
             }
         }
         else 
         {
-            if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
+            if( mPhoebe->turn(mPhoebe->roverStatus().leftTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
             {
                 return NavState::GateDriveToFarPost;
             }   
@@ -247,31 +254,30 @@ NavState GateStateMachine::executeGateTurnToFarPost()
     }
     else 
     {
-        if( mPhoebe->turn(mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
+        if( mPhoebe->turn(mPhoebe->roverStatus().leftTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg) ) 
         {
             return NavState::GateDriveToFarPost;
         }
     }
-
     return NavState::GateTurnToFarPost;
 } // executeGateTurnToFarPost()
 
-// Drive to the farthest post, if possible
+// Drive to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateDriveToFarPost()
 {
     DriveStatus driveStatus;
 
     // Set to first target, since we should have atleast one in sight/detected
-    double distance = mPhoebe->roverStatus().target().distance - gateAdjustmentDist;
-    double bearing = mPhoebe->roverStatus().target().bearing + mPhoebe->roverStatus().odometry().bearing_deg;
+    double distance = mPhoebe->roverStatus().leftTarget().distance - gateAdjustmentDist;
+    double bearing = mPhoebe->roverStatus().leftTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg;
 
-    if( mPhoebe->roverStatus().target2().distance > 0 ) 
+    if( mPhoebe->roverStatus().rightTarget().distance > 0 ) 
     {
-        if( mPhoebe->roverStatus().target().distance < mPhoebe->roverStatus().target2().distance ) 
+        if( mPhoebe->roverStatus().leftTarget().distance < mPhoebe->roverStatus().rightTarget().distance ) 
         {
             // Set our variables to drive to target/post 2, which is farther away
-            distance = mPhoebe->roverStatus().target2().distance - gateAdjustmentDist;
-            bearing = mPhoebe->roverStatus().target2().bearing + mPhoebe->roverStatus().odometry().bearing_deg;
+            distance = mPhoebe->roverStatus().rightTarget().distance - gateAdjustmentDist;
+            bearing = mPhoebe->roverStatus().rightTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg;
         }
     }
 
@@ -288,24 +294,24 @@ NavState GateStateMachine::executeGateDriveToFarPost()
     return NavState::GateDriveToFarPost;
 } // executeGateDriveToFarPost()
 
-// Turn back to center point
+// Execute turn back to center point for driving through the gate
 NavState GateStateMachine::executeGateTurnToGateCenter()
 {
     if ( mPhoebe->turn( centerPoint2 )) 
     {
         return NavState::GateDriveThrough;
     }
-
     return NavState::GateTurnToGateCenter;
 } // executeGateTurnToGateCenter()
 
+// Drive through gate posts
 NavState GateStateMachine::executeGateDriveThrough()
 {
     DriveStatus driveStatus = mPhoebe->drive( centerPoint2 );
 
     if( driveStatus == DriveStatus::Arrived )
     {
-        if(!CP1ToCP2CorrectDir)
+        if(!CP1ToCP2CorrectDir) // Check if we drove through the incorrect direction
         {
             const Odometry temp = centerPoint1;
             centerPoint1 = centerPoint2;
@@ -327,27 +333,27 @@ NavState GateStateMachine::executeGateDriveThrough()
 // Update stored location and id for second post.
 void GateStateMachine::updatePost2Info()
 {
-    if(mPhoebe->roverStatus().target2().distance >= 0 && mPhoebe->roverStatus().target().id == lastKnownPost1.id)
+    if(mPhoebe->roverStatus().rightTarget().distance >= 0 && mPhoebe->roverStatus().leftTarget().id == lastKnownPost1.id)
     {
         const double targetAbsAngle = mod(mPhoebe->roverStatus().odometry().bearing_deg +
-                                          mPhoebe->roverStatus().target2().bearing,
+                                          mPhoebe->roverStatus().rightTarget().bearing,
                                           360);
         lastKnownPost2.odom = createOdom( mPhoebe->roverStatus().odometry(),
                                           targetAbsAngle,
-                                          mPhoebe->roverStatus().target2().distance,
+                                          mPhoebe->roverStatus().rightTarget().distance,
                                           mPhoebe );
-        lastKnownPost2.id = mPhoebe->roverStatus().target2().id;
+        lastKnownPost2.id = mPhoebe->roverStatus().rightTarget().id;
     }
     else
     {
         const double targetAbsAngle = mod(mPhoebe->roverStatus().odometry().bearing_deg +
-                                          mPhoebe->roverStatus().target().bearing,
+                                          mPhoebe->roverStatus().leftTarget().bearing,
                                           360);
         lastKnownPost2.odom = createOdom( mPhoebe->roverStatus().odometry(),
                                           targetAbsAngle,
-                                          mPhoebe->roverStatus().target().distance,
+                                          mPhoebe->roverStatus().leftTarget().distance,
                                           mPhoebe );
-        lastKnownPost2.id = mPhoebe->roverStatus().target().id;
+        lastKnownPost2.id = mPhoebe->roverStatus().leftTarget().id;
     }
 } // updatePost2Info()
 
@@ -394,4 +400,4 @@ void GateStateMachine::calcCenterPoint()
 GateStateMachine* GateFactory( StateMachine* stateMachine, Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     return new DiamondGateSearch( stateMachine, phoebe, roverConfig );
-} // GateFactor()
+} // GateFactory()

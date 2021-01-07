@@ -15,8 +15,8 @@ void DiamondGateSearch::initializeSearch()
     mGateSearchPoints.clear();
     Odometry currOdom = mPhoebe->roverStatus().odometry();
     double diamondWidth = mPhoebe->roverStatus().path().front().gate_width * 1.5;
-    const double targetBearing = mPhoebe->roverStatus().target().bearing;
-    const double targetDist = mPhoebe->roverStatus().target().distance;
+    const double targetBearing = mPhoebe->roverStatus().leftTarget().bearing;
+    const double targetDist = mPhoebe->roverStatus().leftTarget().distance;
 
     // TODO: make figure explaining this in drive and link here
     double distance = sqrt(pow(targetDist, 2) + pow(diamondWidth, 2));

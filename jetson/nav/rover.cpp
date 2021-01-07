@@ -50,16 +50,18 @@ Odometry& Rover::RoverStatus::odometry()
 } // odometry()
 
 // Gets a reference to the rover's first target's current information.
-Target& Rover::RoverStatus::target()
+Target& Rover::RoverStatus::leftTarget()
 {
     return mTarget1;
 } // target()
 
-Target& Rover::RoverStatus::target2() {
+Target& Rover::RoverStatus::rightTarget() 
+{
     return mTarget2;
 }
 
-RadioSignalStrength& Rover::RoverStatus::radio() {
+RadioSignalStrength& Rover::RoverStatus::radio() 
+{
     return mSignal;
 }
 
@@ -84,14 +86,14 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     {
         auto &wp = mCourse.waypoints[ courseIndex ];
         mPath.push_back( wp );
-        if (wp.search) {
+        if( wp.search ) {
             ++mPathTargets;
         }
     }
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();
-    mTarget1 = newRoverStatus.target();
-    mTarget2 = newRoverStatus.target2();
+    mTarget1 = newRoverStatus.leftTarget();
+    mTarget2 = newRoverStatus.rightTarget();
     mSignal = newRoverStatus.radio();
     return *this;
 } // operator=
@@ -233,13 +235,13 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
         // If any data has changed, update all data
         if( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
             !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ||
-            !isEqual( mRoverStatus.target(), newRoverStatus.target()) ||
-            !isEqual( mRoverStatus.target2(), newRoverStatus.target2()) )
+            !isEqual( mRoverStatus.leftTarget(), newRoverStatus.leftTarget()) ||
+            !isEqual( mRoverStatus.rightTarget(), newRoverStatus.rightTarget()) )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
-            mRoverStatus.target() = newRoverStatus.target();
-            mRoverStatus.target2() = newRoverStatus.target2();
+            mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
+            mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
             mRoverStatus.radio() = newRoverStatus.radio();
             updateRepeater(mRoverStatus.radio());
             return true;
