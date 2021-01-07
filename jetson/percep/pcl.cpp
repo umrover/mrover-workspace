@@ -204,8 +204,6 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 //This function finds the angle off center the
 //line that passes through both these points is
 //Direction of 0 is left and 1 is right
-//double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
-//                    shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles) {
 double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
                               std::vector<int> &obstacles)
 {
@@ -239,8 +237,6 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-//double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
-//                        shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
 double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points)
 {
 #if PERCEPTION_DEBUG
@@ -281,9 +277,6 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points)
 //If it is obstructed returns false
 //The path is constructed using the left x value and right x value of
 //the furthest points on the path
-//bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
-//               shared_ptr<pcl::visualization::PCLVisualizer> viewer,
-//               std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine) {
 bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
                     std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine)
 {
@@ -379,11 +372,8 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
     return end;
 }
 
-//void PCL::update_viewer(shared_ptr<pcl::visualization::PCLVisualizer> viewer, bool is_original)
-//{
 void PCL::update_viewer(bool is_original)
 {
-    //std::cerr << "update running" << std::endl;
     if (is_original)
     {
         viewer_original->updatePointCloud(pt_cloud_ptr);
@@ -403,9 +393,8 @@ shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer()
     // Open 3D viewer and add point cloud
 
     //Creates visualizer with window if PERCEPTION_DEBUG is true, and mutes output otherwise
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer", false));
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer", PERCEPTION_DEBUG));
 
-    //#if PERCEPTION_DEBUG
     viewer->setBackgroundColor(0.12, 0.12, 0.12);
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(pt_cloud_ptr);
     viewer->addPointCloud<pcl::PointXYZRGB>(pt_cloud_ptr, rgb);
@@ -413,7 +402,6 @@ shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer()
     viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
     viewer->setCameraPosition(0, 0, -800, 0, -1, 0);
-    //#endif
 
     return (viewer);
 }
@@ -424,7 +412,6 @@ shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer()
 //For the PassThroughFilter function we can trust the ZED depth for up to 7000 mm (7 m) for "z" axis.
 //3000 mm (3m) for "x" is a placeholder, we will chnage this value based on further testing.
 //This function is called in main.cpp
-//void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
 void PCL::pcl_obstacle_detection()
 {
     obstacle_return result;

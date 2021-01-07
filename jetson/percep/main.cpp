@@ -45,18 +45,6 @@ int main() {
 
   PCL pointcloud;
 
-//NEED TO CREATE VIEWER, BUT STILL MAKE SURE IT DOESN'T OUTPUT
-  //#if PERCEPTION_DEBUG
-    /* --- Create PCL Visualizer --- */
-    /*
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
-    
-    #if PERCEPTION_DEBUG
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
-    #endif
-    */
-  //#endif
-
   /* --- Outlier Detection --- */
   int numChecks = 3;
   deque <bool> outliers;
@@ -131,8 +119,6 @@ int main() {
     #if PERCEPTION_DEBUG
       //Update Original 3D Viewer
       pointcloud.update_viewer(true);
-      //viewer_original->updatePointCloud(pointcloud.pt_cloud_ptr);
-      //viewer_original->spinOnce(10);
       cerr<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
     #endif
 
@@ -166,9 +152,6 @@ int main() {
     #if PERCEPTION_DEBUG
       //Update Processed 3D Viewer
       pointcloud.update_viewer(false);
-
-      //viewer->updatePointCloud(pointcloud.pt_cloud_ptr);
-      //viewer->spinOnce(20);
       #if PERCEPTION_DEBUG
         cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
       #endif
