@@ -209,7 +209,7 @@ export default class CanvasRover {
     this.ctx.stroke();
 
     this.ctx.strokeStyle = '#d19b62';
-    this.ctx.lineWidth = 10;
+    this.ctx.lineWidth = this.scaledWheelDpth;
     this.ctx.beginPath();
 
     const wheelLocs:WheelLocs = this.getRelWheelLocs();
