@@ -225,7 +225,7 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
+void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
                         shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
     
     #if PERCEPTION_DEBUG
@@ -253,9 +253,6 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
 
     //Find clear right path
     double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
-
-    //Return the smallest angle (left if equal)
-    return fabs(rightAngle) < fabs(leftAngle) ? rightAngle : leftAngle;
 }
 
 /* --- Check Path --- */
@@ -380,7 +377,7 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
     CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
     FindInterestPoints(cluster_indices, interest_points);
-    bearing = FindClearPath(interest_points, viewer); 
+    FindClearPath(interest_points, viewer); 
 }
 
 
