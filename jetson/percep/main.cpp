@@ -129,12 +129,12 @@ int main() {
 
     //Run Obstacle Detection
     pointcloud.pcl_obstacle_detection(viewer);  
-    obstacle_return obstacle_detection (pointcloud.bearing, pointcloud.distance);
+    obstacle_return obstacle_detection (pointcloud.left_bearing, pointcloud.right_bearing, pointcloud.distance);
 
     //Outlier Detection Processing
     outliers.pop_back(); //Remove outdated outlier value
 
-    if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05)
+    if(pointcloud.left_bearing > 0.05 || pointcloud.left_bearing < -0.05)
         outliers.push_front(true);//if an obstacle is detected in front
     else 
         outliers.push_front(false); //obstacle is not detected

@@ -51,7 +51,7 @@ class PCL {
 
     //Constructor
     PCL() : 
-        bearing{0}, distance{0}, detected{false},
+        left_bearing{0}, right_bearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
 
         #if ZED_SDK_PRESENT
@@ -63,7 +63,8 @@ class PCL {
 
     };
 
-    double bearing;
+    double left_bearing;
+    double right_bearing;
     double distance;
     bool detected;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr;
@@ -87,7 +88,7 @@ class PCL {
         void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, std::vector<std::vector<int>> &interest_points);
         
         //Finds a clear path given the obstacle corners
-        double FindClearPath(const std::vector<std::vector<int>> &interest_points,
+        void FindClearPath(const std::vector<std::vector<int>> &interest_points,
                            shared_ptr<pcl::visualization::PCLVisualizer> viewer);
 
         //Determines whether the input path is obstructed
