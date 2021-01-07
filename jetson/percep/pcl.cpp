@@ -186,30 +186,29 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
             }
         }
 
-        //Calulates the width of the obstacle based the difference between the leftmost and rightmost interst point
+        //Calulates the width of the obstacle based on the difference between the leftmost and rightmost interest point
         double width = std::abs(pt_cloud_ptr->points[curr_cluster->at(1)].x - pt_cloud_ptr->points[curr_cluster->at(0)].x);
         //Calculates the number of rover widths that fit within the obstacle. The x10 multiplier adds more width increments.
         int rovers = ((int) width/ROVER_W_MM) * 10;
-        //Creates a vector called points which holds the width increments we want the new interest points to be close to.
-        //Example: if rovers = 4, then the points vector would contain:  0.025, 0.05, 0.075, 0.1, 0.125, ..., 0.975
+        //Creates a vector called increments which holds the width increments we want the new interest points to be close to.
+        //Example, if rovers = 40, then increments vector would contain: 
+        //0.025 * leftmost point, 0.05 * leftmost point, 0.075 * leftmost point,..., 0.975 * left most point.
         //The size of this vector will be the amount of new interest points we are adding to this obstacle.
-        std::vector<double> points;
-        for(double i = ((double) 1/rovers) ; i < 0.99999; i += ((double) 1/rovers)){
-            points.push_back(((double)i * width));
+        std::vector<double> increments;
+        for(double i = ((double) 1/rovers) ; i < 1; i += ((double) 1/rovers)){
+            increments.push_back(((double)i * width) + pt_cloud_ptr->points[curr_cluster->at(0)].x);
+            //Sets the new interest points equal to the leftmost point.
+            curr_cluster->push_back(curr_cluster->at(0));
         }
 
-        //Sets the new interest points equal to the leftmost point.
-        for(size_t i = 0; i < points.size(); ++i){
-            curr_cluster->at(9 + i) = curr_cluster->at(0);
-        }
-
-        //Finds the new interest points based on width increments.
+        //Looks at the x value of a point in the cluster and checking if this value is larger than the leftmost x value, 
+        //and less than the leftmost x value + the width increment
         for (auto index : cluster_indices[i].indices){
             auto curr_point = pt_cloud_ptr->points[index];
-            for(size_t i = 0; i < points.size(); ++i){
-                if(curr_point.x <= pt_cloud_ptr->points[curr_cluster->at(0)].x + points[i] && 
-                curr_point.x > pt_cloud_ptr->points[curr_cluster->at(9 + i)].x){
-                    curr_cluster->at(9 + i) = index;
+            for(size_t i = 0; i < increments.size(); ++i){
+                if(curr_point.x <= increments[i] && 
+                curr_point.x > pt_cloud_ptr->points[curr_cluster->at(6 + i)].x){
+                    curr_cluster->at(6 + i) = index;
                 }
             }
         }
@@ -413,7 +412,7 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
     RANSACSegmentation("remove");
     std::vector<pcl::PointIndices> cluster_indices;
     CPUEuclidianClusterExtraction(cluster_indices);
-    std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (1000));
+    std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (6));
     FindInterestPoints(cluster_indices, interest_points);
     bearing = FindClearPath(interest_points, viewer); 
 }
