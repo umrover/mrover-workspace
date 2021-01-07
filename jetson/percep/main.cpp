@@ -145,7 +145,7 @@ int main() {
       lastObstacle = obstacle_detection;
 
      //Update LCM 
-    obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
+    obstacleMessage.bearing = lastObstacle.left_bearing; //update LCM bearing field
     if(lastObstacle.distance <= obstacle_detection.distance)
       obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
     else
