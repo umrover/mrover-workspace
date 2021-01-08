@@ -5,7 +5,7 @@ science nucleo to operate the science boxes and get relevant data
 import serial
 import asyncio
 import Adafruit_BBIO.UART as UART
-#import numpy as np
+from numpy import int16
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd#, SpectralData
@@ -45,10 +45,35 @@ class ScienceBridge():
         '''
         self.ser.close()
     def spectral_handler(self, msg, spectral_struct):
+
+        try:
+            arr = msg.split(",")
+            spectral_struct.d0_1 = int16((arr[1] << 8) | arr[2])
+            spectral_struct.d0_2 = int16((arr[3] << 8) | arr[4])
+            spectral_struct.d0_3 = int16((arr[5] << 8) | arr[6])
+            spectral_struct.d0_4 = int16((arr[7] << 8) | arr[8])
+            spectral_struct.d0_5 = int16((arr[9] << 8) | arr[10])
+            spectral_struct.d0_6 = int16((arr[11] << 8) | arr[12])
+            spectral_struct.d1_1 = int16((arr[13] << 8) | arr[14])
+            spectral_struct.d1_2 = int16((arr[15] << 8) | arr[16])
+            spectral_struct.d1_3 = int16((arr[17] << 8) | arr[18])
+            spectral_struct.d1_4 = int16((arr[19] << 8) | arr[20])
+            spectral_struct.d1_5 = int16((arr[21] << 8) | arr[22])
+            spectral_struct.d1_6 = int16((arr[23] << 8) | arr[24])
+            spectral_struct.d2_1 = int16((arr[25] << 8) | arr[26])
+            spectral_struct.d2_2 = int16((arr[27] << 8) | arr[28])
+            spectral_struct.d2_3 = int16((arr[29] << 8) | arr[30])
+            spectral_struct.d2_4 = int16((arr[31] << 8) | arr[32])
+            spectral_struct.d2_5 = int16((arr[33] << 8) | arr[34])
+            spectral_struct.d2_6 = int16((arr[35] << 8) | arr[36])
+
+        except:
+            pass
+
         # parse the spectral UART msg
         # add in relevant error handling
         # set the struct variables
-        pass
+        
     def thermistor_handler(self, msg, thermistor_struct):
         # msg format: <"$THERMISTOR,temperature">
         try:
