@@ -6,6 +6,7 @@ import serial
 import asyncio
 import Adafruit_BBIO.UART as UART
 from numpy import int16
+import lcm
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd#, SpectralData
@@ -32,7 +33,7 @@ class ScienceBridge():
         Not sure what the uart port on the jetson is
         '''
         self.ser = serial.Serial(
-            port='/dev/ttyS4',
+            port='/dev/ttyO4',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -93,14 +94,16 @@ class ScienceBridge():
         print(msg)
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        struct = RTCM.decode(msg)
-        print('Recieved: {} bytes'.format(len(bytes(struct.data))))
+        struct = MosfetCmd.decode(msg)
         # parse data into expected format
         # Currently expects mosfet, device number, and enable bit along
         # with padding to reach 30 bytes
         message = "$Mosfet,{device},{enable},111111111111111111"
-        message = message.format(device = struct.device, enable = struct.enable)
-        self.ser.write(bytes(message))
+        message = message.format(device = struct.device, enable = int(struct.enable))
+        self.ser.close()
+        self.ser.open()
+        if self.ser.isOpen():
+            self.ser.write(bytes(message,encoding='utf8'))
         pass
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
@@ -159,11 +162,15 @@ class ScienceBridge():
 def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
-        lcm = aiolcm.AsyncLCM()
-        lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        # lcm = aiolcm.AsyncLCM()
+        lcm1=lcm.LCM()
+        lcm1.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        print("properly started")
+        while True:
+            lcm1.handle()
         #lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         #lcm.subscribe("/pump_cmd", bridge.pump_transmit)
-        run_coroutines(lcm.loop(), bridge.recieve(lcm))
+        #run_coroutines(lcm.loop(), bridge.recieve(lcm))
 if __name__ == "__main__":
     main()
     
