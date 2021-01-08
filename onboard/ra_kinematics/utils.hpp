@@ -4,9 +4,11 @@
 #include "json.hpp"
 #include <Eigen/Dense>
 
-using namespace Eigen;
 using namespace std;
 using namespace nlohmann;
+using namespace Eigen;
+
+typedef Matrix<double, 6, 1> Vector6d;
 
 
 json read_json_from_file(string filepath);

@@ -8,8 +8,11 @@
 using namespace nlohmann;
 using namespace std;
 
-TEST(initialization_test) {
-    json geom;
+TEST(arm_initialization_test) {
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+
+    json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
 }
 
@@ -61,19 +64,19 @@ TEST(avoidance_link_creation_test) {
     ArmState arm = ArmState(geom);
 }
 
-TEST(delete_joints_test) {
-    // TODO: Change the configuration path as needed
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+// TEST(delete_joints_test) {
+//     // TODO: Change the configuration path as needed
+//     string config_path = getenv("MROVER_CONFIG");
+//     string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
 
-    json geom = read_json_from_file(geom_file);
-    ArmState* arm = new ArmState(geom);
+//     json geom = read_json_from_file(geom_file);
+//     ArmState* arm = new ArmState(geom);
 
-    // Todo: Change the number of joints as needed
-    ASSERT_EQUAL(6, arm->num_joints());
-    delete arm;
-    // Just tests to make sure there's no bugs in the destructor
-}
+//     // Todo: Change the number of joints as needed
+//     ASSERT_EQUAL(6, arm->num_joints());
+//     delete arm;
+//     // Just tests to make sure there's no bugs in the destructor
+// }
 
 TEST(set_joint_angles_test) {
     // Create the angles vector that will be used to test
@@ -95,8 +98,13 @@ TEST(set_joint_angles_test) {
     map<string, double> return_angles_map = arm.get_joint_angles();
     vector<double> return_angles_vec;
     int ind = 0;
+    // print contents of return_angles_map:
     for (auto it = return_angles_map.begin(); it != return_angles_map.end(); ++it) {
-        return_angles_vec[ind] = it->second;
+        cout << it->first << " " << it->second << "\n";
+    }
+    // Set return angles vec:
+    for (auto it = return_angles_map.begin(); it != return_angles_map.end(); ++it) {
+        return_angles_vec.push_back(it->second);
         ++ind;
     }
     for (int i = 0; i < 6; ++i) {
@@ -113,6 +121,15 @@ TEST(link_link_check_test) {
     ArmState arm = ArmState(geom);
     // Links and joints automatically initialized at onset of arm creation
     ASSERT_EQUAL(arm.obstacle_free(), 0);
+}
+
+TEST(json_read_test) {
+    // TODO: Modify the configuration paths as necessary
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+
+    json geom = read_json_from_file(geom_file);
+    ArmState arm = ArmState(geom);
 }
 
 

@@ -310,8 +310,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
 
     // restore robot_state to previous values
     recover_from_backup();
-
-    return pair<Vector6d, bool> (angles_vec, false);
+    return pair<Vector6d, bool> (vecTo6d(angles_vec), false);
 }
 
 pair<Vector6d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
@@ -361,7 +360,7 @@ pair<Vector6d, bool> KinematicsSolver::IK_delta(Vector6d delta, int iterations){
     // reset robot_state angles
     recover_from_backup();
     
-    return pair<Vector6d, bool>(joint_angles_vec, angles_safe);
+    return pair<Vector6d, bool>(vecTo6d(joint_angles_vec), angles_safe);
 }
 
 void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles) {

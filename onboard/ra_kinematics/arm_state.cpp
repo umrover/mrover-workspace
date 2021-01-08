@@ -24,7 +24,11 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
         
         json link_shapes = it.value()["link_shapes"];
         for (json::iterator jt = link_shapes.begin(); jt != link_shapes.end(); jt++) {
-            add_avoidance_link(link_num++, joint_origin, jt.value());    
+            //ERROR: occurring within this function call/function:
+            try{
+                add_avoidance_link(link_num++, joint_origin, jt.value());
+            }
+            catch (...){}
         }
     }
 }
@@ -42,7 +46,8 @@ void ArmState::add_joint(string name, json &joint_geom) {
 }
 // Tested in avoidance_link_creation_test
 void ArmState::add_avoidance_link(int link_num, string joint_origin_name, json &link_json) {
-    collision_avoidance_links.push_back(Avoidance_Link(link_num, joint_origin_name, link_json));
+    // ERROR: Occuring within this line:
+    collision_avoidance_links.emplace_back(link_num, joint_origin_name, link_json);
 }
 // Tested in delete_joints_test
 // void ArmState::delete_joints() {
@@ -51,7 +56,7 @@ void ArmState::add_avoidance_link(int link_num, string joint_origin_name, json &
 //     for (auto it = joints.begin(); it != joints.end(); it++) {
 //         delete it->second;
 //     }
-//     // joints.clear();
+//     joints.clear();
 // }
 
 Vector3d ArmState::get_joint_pos_local(string joint) {

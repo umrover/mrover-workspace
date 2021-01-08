@@ -55,9 +55,10 @@ private:
 
         Avoidance_Link(int link_num_in, string joint_origin_name, json &link_json) : 
                            link_num(link_num_in), joint_origin(joint_origin_name) {
+
             type = link_json["type"];
             radius = link_json["radius"];
-            
+
             if (type == "sphere") {
                 Vector3d p1(link_json["center"]["x1"], link_json["center"]["x1"], link_json["center"]["x1"]);
                 points.push_back(p1);
@@ -96,12 +97,13 @@ private:
     void delete_joints();
 
 public:
-    json joints_json, links_json;
+    json joints_json;
+    json links_json;
     map<string, Joint> joints;
     map<string, Link> links;
     ArmState(json &geom);
     
-    ~ArmState();
+    // ~ArmState();
 
     vector<string> get_all_joints();
 
