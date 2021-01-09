@@ -157,13 +157,11 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
     for (int i = 0; i < (int)cluster_indices.size(); ++i)
     {
         std::vector<int>* curr_cluster = &interest_points[i];
-        //double currentDistance = 0;
         
         //Initialize interest points
         std::fill(curr_cluster->begin(), curr_cluster->end(), cluster_indices[i].indices[0]);
         
-        //double sizeOfCluster = 0;
-        //Order of interest points: 0=Up Left 1=Up Right 2=Low Right 3=Low Left
+
         for (auto index : cluster_indices[i].indices)
         {
             auto curr_point = pt_cloud_ptr->points[index];
@@ -180,17 +178,7 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
             //Low Right
             else if(curr_point.x > pt_cloud_ptr->points[curr_cluster->at(3)].x && curr_point.y < pt_cloud_ptr->points[curr_cluster->at(3)].y)
                 curr_cluster->at(3) = index;
-
-            //currentDistance += curr_point.z;
-            //sizeOfCluster++;
         }
-        /*currentDistance = 1.0 * currentDistance / sizeOfCluster;
-        if(currentDistance < previousDistance) {
-            previousDistance = currentDistance;
-            std::cout << "Distance " << previousDistance << ", Cluster Size " << sizeOfCluster << std::endl;
-            distance = previousDistance;
-            std::cout << "Distance to closestObstacle "  << distance << std::endl;
-        }*/
 
         #if PERCEPTION_DEBUG
             for(auto interest_point : *curr_cluster)
@@ -250,11 +238,12 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     //Check Center Path
     if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
             std::cerr << "CENTER PATH IS CLEAR!!!" << std::endl;
-            std::cerr << "Distance from Last Obstacle: " << distance << " meters" << std::endl;
+            std::cerr << "Distance from Last Obstacle: " << distance << " meters" << std::endl; 
         return 0;
     }
-    else { //otherwise, check left and right paths
+    else { //otherwise, check to find left and right paths
 
+        //Values that store the distances of the last obstacle from a given CheckPath
         double centerDistance, leftDistance, rightDistance;
         centerDistance = distance; //from previous loop of CheckPath, where it was only looking at the center path for a clear path
 
@@ -276,6 +265,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
         double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
         rightDistance = distance;
 
+        //return smallest distance of an obstacle from all the paths
         if(rightDistance < leftDistance && rightDistance < centerDistance) distance = rightDistance/1000.0;
         else if(leftDistance < rightDistance && leftDistance < centerDistance) distance = leftDistance/1000.0;
         else distance = centerDistance/1000.0;
@@ -335,16 +325,19 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
                 pt_cloud_ptr->points[index].b = 0;
                 #endif
 
+                //adds distance from a point in a cluster to currentDistance, and keeps track of the cluster size
                 currentDistance += pt_cloud_ptr->points[index].z;
                 sizeOfCluster++; 
             }
         }
+        //to find the distance from an obstacle detected, add up all the z values from a given cluster of points
+        //then divide by the number of points in the cluster
         currentDistance = 1.0 * currentDistance / sizeOfCluster;
+
+        //if the last obstacle distance from a CheckPath loop was smaller, keep the smaller value, otherwise keep the current distance value
         if(currentDistance < previousDistance) {
             previousDistance = currentDistance;
-            //std::cerr << "Distance " << previousDistance << ", Cluster Size " << sizeOfCluster << std::endl;
             distance = previousDistance;
-            //std::cerr << "Distance to closestObstacle "  << distance << std::endl;
         }
     }
 
