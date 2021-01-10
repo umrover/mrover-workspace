@@ -212,12 +212,12 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
                 if(curr_point.x > pt_cloud_ptr->points[curr_cluster->at(0)].x && curr_point.x < pt_cloud_ptr->points[curr_cluster->at(1)].x) {
                     //If roverWidths = 40 and if your x value falls between leftmost + 0.025 * obstacle width and leftmost + 0.05 * obstacle width,
                     //then the value of i would be 1 which represents the index of increment map the we want to check.
-                    int i = ((double)(std::abs(curr_point.x - pt_cloud_ptr->points[curr_cluster->at(0)].x)/width)/((double) 1/roverWidths));
+                    int j = ((double)(std::abs(curr_point.x - pt_cloud_ptr->points[curr_cluster->at(0)].x)/width)/((double) 1/roverWidths));
                     //If the x value of the current point is greater than the value representing that percentile, 
                     //we set the value represnting the percentile equal to the x value of the current point.
-                    if(increments[i] < curr_point.x) {
-                        increments[i] = curr_point.x;
-                        curr_cluster->at(6 + i) = index;
+                    if(increments[j] < curr_point.x) {
+                        increments[j] = curr_point.x;
+                        curr_cluster->at(6 + j) = index;
                     }
                 }
             }
