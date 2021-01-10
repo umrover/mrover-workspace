@@ -63,7 +63,8 @@ Camera::Impl::Impl() {
 	
   #if PERCEPTION_DEBUG
     std::cout<<"ZED init success\n";
-	#endif
+  #endif
+
   this->runtime_params_.sensing_mode = sl::SENSING_MODE::STANDARD;
 
 	this->image_size_ = this->zed_.getCameraInformation().camera_resolution;
@@ -204,10 +205,8 @@ Camera::Impl::Impl() {
   #if OBSTACLE_DETECTION
   pcd_path = path + "/pcl";
   pcd_dir = opendir(pcd_path.c_str() );
-  if (NULL==pcd_dir) {
-    #if PERCEPTION_DEBUG
-      std::cerr<<"Input folder not exist\n";   
-    #endif 
+  if(NULL==pcd_dir) {
+    std::cout<<"Input folder not exist\n";   
     return;
   }
   #endif
@@ -286,9 +285,7 @@ bool Camera::Impl::grab() {
   #if AR_DETECTION
   idx_curr_img++;
   if (idx_curr_img >= img_names.size()) {
-    #if PERCEPTION_DEBUG
       std::cout<<"Ran out of images\n";
-    #endif
     end = false;
   }
   #endif
@@ -296,9 +293,7 @@ bool Camera::Impl::grab() {
   #if OBSTACLE_DETECTION
   idx_curr_pcd_img++;
   if (idx_curr_pcd_img >= pcd_names.size()-2) {
-    #if PERCEPTION_DEBUG
       std::cout<<"Ran out of images\n";
-    #endif
     end = false;  
   }
   #endif
@@ -312,14 +307,12 @@ bool Camera::Impl::grab() {
 cv::Mat Camera::Impl::image() {
   std::string full_path = rgb_path + std::string("/") + (img_names[idx_curr_img]);
 #if PERCEPTION_DEBUG
-  cerr << img_names[idx_curr_img] << "\n";
-  cerr << full_path << "\n";
+  cout << img_names[idx_curr_img] << "\n";
+  cout << full_path << "\n";
 #endif
   cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_COLOR);
   if (!img.data){
-    #if PERCEPTION_DEBUG
-      std::cerr<<"Load image "<<full_path<< " error\n";
-    #endif
+      std::cout<<"Load image "<<full_path<< " error\n";
   }
   return img;
 }
@@ -333,9 +326,7 @@ cv::Mat Camera::Impl::depth() {
   #endif
   cv::Mat img = cv::imread(full_path.c_str(), cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
   if (!img.data){
-    #if PERCEPTION_DEBUG
-      std::cerr<<"Load image "<<full_path<< " error\n";
-    #endif
+      std::cout<<"Load image "<<full_path<< " error\n";
   }
   return img;
 }
@@ -362,9 +353,7 @@ void Camera::record_ar_init() {
 
   if(vidWrite.isOpened() == false)
   {
-    #if PERCEPTION_DEBUG
-	    cerr << "ar record didn't open\n";
-    #endif
+	    cout << "ar record didn't open\n";
 	  exit(1);
   }
 }
@@ -450,9 +439,7 @@ void pcl_write(const cv::String &filename, pcl::PointCloud<pcl::PointXYZRGB>::Pt
   #endif
   try{ pcl::io::savePCDFileASCII (filename, *p_pcl_point_cloud); }
   catch (pcl::IOException &e){
-    #if PERCEPTION_DEBUG
-      cerr << e.what();
-    #endif
+      cout << e.what();
     }
 }
 

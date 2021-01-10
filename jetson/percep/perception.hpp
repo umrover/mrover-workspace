@@ -32,9 +32,7 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
-//#if PERCEPTION_DEBUG
-  #include <pcl/visualization/pcl_visualizer.h>
-//#endif
+#include <pcl/visualization/pcl_visualizer.h>
 #endif
 
 /* --- Ignore Error Checking for 3rd Part Header Files --- */

@@ -44,6 +44,10 @@ int main() {
   #if OBSTACLE_DETECTION
 
   PCL pointcloud;
+  enum viewerType {
+    newView, //set to 0 -or false- to be passed into updateViewer later
+    originalView //set to 1 -or true- to be passed into updateViewer later
+  };
 
   /* --- Outlier Detection --- */
   int numChecks = 3;
@@ -89,7 +93,7 @@ int main() {
       if (iterations % FRAME_WRITE_INTERVAL == 0) {
         Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
         #if PERCEPTION_DEBUG
-          cerr << "Copied correctly" << endl;
+          cout << "Copied correctly" << endl;
         #endif
         cam.write_curr_frame_to_disk(rgb_copy, depth_copy, pointcloud.pt_cloud_ptr, iterations);
       }
@@ -118,8 +122,8 @@ int main() {
     
     #if PERCEPTION_DEBUG
       //Update Original 3D Viewer
-      pointcloud.update_viewer(true);
-      cerr<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
+      pointcloud.updateViewer(originalView);
+      cout<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
     #endif
 
     //Run Obstacle Detection
@@ -146,14 +150,14 @@ int main() {
     else
       obstacleMessage.distance = (obstacle_detection.distance/1000); //update LCM distance field
     #if PERCEPTION_DEBUG
-      cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
+      cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
     #endif
 
     #if PERCEPTION_DEBUG
       //Update Processed 3D Viewer
-      pointcloud.update_viewer(false);
+      pointcloud.updateViewer(newView);
       #if PERCEPTION_DEBUG
-        cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
+        cout<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
       #endif
     #endif
     
@@ -173,7 +177,7 @@ int main() {
 
 /* --- Wrap Things Up --- */
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
-    //viewer->close();
+    pointcloud.~PCL();
   #endif
   
   #if AR_RECORD
