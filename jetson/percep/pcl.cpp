@@ -289,6 +289,9 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
     bool end = true;
     
     double previousDistance = DBL_MAX;
+
+    //if there are no interest points, the distance from the last obstacle should be DBL_MAX
+    distance = previousDistance;
     
     //Iterate through interest points
     for(auto cluster : interest_points) {
