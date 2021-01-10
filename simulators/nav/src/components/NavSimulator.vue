@@ -441,7 +441,7 @@ export default class NavSimulator extends Vue {
       }
 
       if (this.repeaterLoc !== null) {
-        this.publish('/rr_drop_complete', { type: 'RepeaterDropComplete' });
+        this.publish('/rr_drop_complete', { type: 'RepeaterDrop' });
       }
 
       this.publish('/radio', { type: 'RadioSignalStrength', signal_strength: this.radioStrength });
