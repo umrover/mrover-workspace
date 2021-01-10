@@ -207,7 +207,11 @@ The terminal should now display that you are in mrover@mrover-jetson  \
 `$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics 
 device. \
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
+<<<<<<< HEAD
 `$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="mrover", MODE="[__MODE__]" ` \
+=======
+`$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="vagrant", MODE="[__MODE__]" ` \
+>>>>>>> 17217f3b... [esw] 2021 SAR drive code
  Restart the VM. </font>
  
 #### ERROR_ILLEGAL_HALL_STATE
