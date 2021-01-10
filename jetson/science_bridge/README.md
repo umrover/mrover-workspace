@@ -34,7 +34,12 @@ Subscribers: jetson/teleop
 TODO
 
 ### Mosfet
-TODO
+Writes an NMEA like message over UART to the Nucleo in order to turn a specified mosfet device on or off.
+#### LCM Channels Publishing/Subscribed To
+**Mosfet Command [subscriber]** \
+Messages: [MosfetCmd.lcm](https://github.com/cgiger00/mrover-workspace/blob/science-nucleo/rover_msgs/MosfetCmd.lcm) "/mosfet_cmd" \
+Publishers: base_station/gui \
+Subscribers: jetson/science_bridge
 
 ### Ammonia
 TODO
