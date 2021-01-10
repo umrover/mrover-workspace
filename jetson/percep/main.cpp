@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono_literals;
 
 int main() {
-  
+  cout << "hello" << endl;
   /* --- Camera Initializations --- */
   Camera cam;
   int iterations = 0;
@@ -129,12 +129,12 @@ int main() {
 
     //Run Obstacle Detection
     pointcloud.pcl_obstacle_detection(viewer);  
-    obstacle_return obstacle_detection (pointcloud.bearing, pointcloud.distance);
+    obstacle_return obstacle_detection (pointcloud.leftBearing, pointcloud.rightBearing, pointcloud.distance);
 
     //Outlier Detection Processing
     outliers.pop_back(); //Remove outdated outlier value
 
-    if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05)
+    if(pointcloud.leftBearing > 0.05 || pointcloud.leftBearing < -0.05)
         outliers.push_front(true);//if an obstacle is detected in front
     else 
         outliers.push_front(false); //obstacle is not detected
@@ -145,7 +145,8 @@ int main() {
       lastObstacle = obstacle_detection;
 
      //Update LCM 
-    obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
+    obstacleMessage.bearing = lastObstacle.leftBearing; //update LCM bearing field
+    obstacleMessage.rightBearing = lastObstacle.rightBearing;
     if(lastObstacle.distance <= obstacle_detection.distance)
       obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
     else
@@ -160,6 +161,8 @@ int main() {
     #endif
     
     #endif
+    cout << "test" << endl;
+    cout << "bearing: " << obstacleMessage.bearing << " right bearing: " << obstacleMessage.rightBearing << endl;
     
 /* --- Publish LCMs --- */
     lcm_.publish("/target_list", &arTagsMessage);

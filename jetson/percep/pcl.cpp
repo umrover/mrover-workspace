@@ -225,7 +225,7 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
+void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
                         shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
     
     #if PERCEPTION_DEBUG
@@ -237,14 +237,13 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     //Check Center Path
     if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
         std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
-        return 0;
     }
 
     //Initialize base cases outside of scope
     vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
     //Find Clear left path
-    double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+    leftBearing = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
 
     //Reset global variables
     obstacles       = {0, 0};
@@ -252,10 +251,8 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     obstacles.at(1) = centerObstacles.at(1);
 
     //Find clear right path
-    double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
-
-    //Return the smallest angle (left if equal)
-    return fabs(rightAngle) < fabs(leftAngle) ? rightAngle : leftAngle;
+    // test
+    rightBearing = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
 }
 
 /* --- Check Path --- */
@@ -380,7 +377,7 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
     CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
     FindInterestPoints(cluster_indices, interest_points);
-    bearing = FindClearPath(interest_points, viewer); 
+    FindClearPath(interest_points, viewer); 
 }
 
 
