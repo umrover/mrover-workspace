@@ -243,7 +243,7 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
     //Find Clear left path
-    double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+    leftBearing = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
 
     //Reset global variables
     obstacles       = {0, 0};
@@ -251,7 +251,8 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     obstacles.at(1) = centerObstacles.at(1);
 
     //Find clear right path
-    double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+    // test
+    rightBearing = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
 }
 
 /* --- Check Path --- */
