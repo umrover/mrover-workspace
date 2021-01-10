@@ -101,18 +101,18 @@ const float obstacleThreshold = 5 * 0.0254; //inches to meters
 
 class obstacle_return {
   public:
-  double left_bearing;
-  double right_bearing;
+  double leftBearing;
+  double rightBearing;
   double distance; //Distance to nearest obstacle
   
   obstacle_return() {
-    left_bearing = 0;
-    right_bearing = 0;
+    leftBearing = 0;
+    rightBearing = 0;
     distance = 0;
   }
 
   obstacle_return(double left_bearing_in, double right_bearing_in, double distance_in) : 
-                  left_bearing{left_bearing_in}, right_bearing{right_bearing_in}, 
+                  leftBearing{left_bearing_in}, rightBearing{right_bearing_in}, 
                   distance{distance_in} {}
 
   obstacle_return& operator=(obstacle_return & in){
@@ -120,8 +120,8 @@ class obstacle_return {
       return *this;
     }
     
-    left_bearing = in.left_bearing;
-    right_bearing = in.right_bearing;
+    leftBearing = in.leftBearing;
+    rightBearing = in.rightBearing;
     distance = in.distance;
     return *this;
   }
