@@ -1,7 +1,5 @@
 #include "camera.hpp"
 #include "perception.hpp"
-#include "rapidjson/document.h"
-#include <rapidjson/error/en.h>
 
 #if OBSTACLE_DETECTION
   #include <pcl/common/common_headers.h>
@@ -366,7 +364,7 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point
 
 #endif
 
-Camera::Camera(const rapidjson::Document& config) : impl_{new Camera::Impl}, rgb_foldername{""},
+Camera::Camera(const rapidjson::Document &config) : impl_{new Camera::Impl}, rgb_foldername{""},
                    depth_foldername{""}, pcl_foldername{""} , mRoverConfig( config ) {}
 
 Camera::~Camera() {

@@ -3,8 +3,6 @@
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
 #include <deque>
-#include "rapidjson/document.h"
-#include <rapidjson/error/en.h>
 
 using namespace cv;
 using namespace std;
@@ -14,7 +12,6 @@ rapidjson::Document mRoverConfig;
  
 int main() {
  // reading in configuration file
- 
  ifstream configFile;
    string configPath = getenv("MROVER_CONFIG");
    configPath += "/config_percep/config.json";
@@ -28,9 +25,6 @@ int main() {
    configFile.close();
  
    mRoverConfig.Parse( config.c_str() );
-
-   double piNum = mRoverConfig["pi"].GetDouble();
-   cerr<<piNum<<endl;
 
   
   /* --- Camera Initializations --- */

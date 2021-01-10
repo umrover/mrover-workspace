@@ -57,6 +57,7 @@
 //Declaring configuration file
 //rapidjson::Document mRoverConfig;
 
+/*
 #define THRESHOLD_NO_WAY  80000 //how will we calibrate if the rover width changes
 //#define THRESHOLD_NO_OBSTACLE_CENTER  80000
 //#define THRESHOLD_NO_SUBWINDOW 27000
@@ -70,11 +71,11 @@
 
 //#define PI 3.14159265
 
-/* --- Point Cloud Definitions --- */
+/* --- Point Cloud Definitions --- 
 #define PT_CLOUD_WIDTH 320
 #define PT_CLOUD_HEIGHT 180
 #define ROVER_W_MM 1168
-#define HALF_ROVER 584
+//#define HALF_ROVER 584
 #define CENTERX 0
 
 const float inf = -std::numeric_limits<float>::infinity();
@@ -91,7 +92,7 @@ const int FRAME_WRITE_INTERVAL = 3; // How many frames between writing to disk
 const int RESOLUTION_WIDTH = 1280;
 const int RESOLUTION_HEIGHT = 720; // 720p
 const float TENNIS_BALL_PIXEL_SIZE = 25; // Pixel radius of tennis ball at 1m distance
-//const float fieldofView = 110 * PI/180;
+const float fieldofView = 110 * PI/180;
 const float focalLength = 2.8; //zed focal length in mm
 
 //Rover Specs
@@ -103,6 +104,8 @@ const float realWidth = 46 * 25.4; //rover width , rover is 46 inches wide TODO 
 const int num_sliding_windows = 20;
 const float distThreshold = 2.5;    //meters, used to calculate rover pixels
 const float obstacleThreshold = 5 * 0.0254; //inches to meters
+
+*/
 
 class obstacle_return {
   public:

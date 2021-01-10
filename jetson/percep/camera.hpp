@@ -23,7 +23,7 @@ private:
 
 	
 public:
-	Camera(const rapidjson::Document& config);
+	Camera(const rapidjson::Document &config);
 	~Camera();
 
 	bool grab();
