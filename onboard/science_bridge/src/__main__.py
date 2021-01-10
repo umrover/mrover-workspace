@@ -9,14 +9,14 @@ from numpy import int16
 import lcm
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd#, SpectralData
+from rover_msgs import ThermistorData, MosfetCmd, SpectralData
 class ScienceBridge():
     def __init__(self):
         UART.setup("UART4") #  Specific to beaglebone
         # maps NMEA msgs to their handler
         # mosfet, ammonia, and pump only send msgs
         self.NMEA_HANDLE_MAPPER = {
-           # "SPECTRAL" : self.spectral_handler,
+            "SPECTRAL" : self.spectral_handler,
             "THERMISTOR" : self.thermistor_handler,
             "TXT": self.txt_handler
         }
@@ -33,7 +33,7 @@ class ScienceBridge():
         Not sure what the uart port on the jetson is
         '''
         self.ser = serial.Serial(
-            port='/dev/ttyO4',
+            port='/dev/ttyS4',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -46,7 +46,7 @@ class ScienceBridge():
         '''
         self.ser.close()
     def spectral_handler(self, msg, spectral_struct):
-
+        print("in spec handler")
         try:
             arr = msg.split(",")
             spectral_struct.d0_1 = int16((arr[1] << 8) | arr[2])
@@ -77,6 +77,7 @@ class ScienceBridge():
         
     def thermistor_handler(self, msg, thermistor_struct):
         # msg format: <"$THERMISTOR,temperature">
+        print("in therm handler")
         try:
             arr = msg.split(",")
             thermistor_struct.temp0 = float(arr[1])
@@ -120,7 +121,8 @@ class ScienceBridge():
         # self.ser.write(bytes(struct.data))
         pass
     async def recieve(self, lcm):
-        #spectral = SpectralData()
+        print("inside recieve")
+        spectral = SpectralData()
         thermistor = ThermistorData()
          # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
@@ -144,9 +146,9 @@ class ScienceBridge():
                     if tag in msg:
                         match_found = True
                         try:
-                            #if(tag == "SPECTRAL"):
-                                #func(msg, spectral)
-                                #lcm.publish('/spectral_data', spectral.encode())
+                            if(tag == "SPECTRAL"):
+                                func(msg, spectral)
+                                lcm.publish('/spectral_data', spectral.encode())
                             if(tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
                                 lcm.publish('/thermistor_data', thermistor.encode())
@@ -162,7 +164,7 @@ class ScienceBridge():
 def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
-        # lcm = aiolcm.AsyncLCM()
+        _lcm = aiolcm.AsyncLCM()
         lcm1=lcm.LCM()
         lcm1.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         print("properly started")
@@ -170,7 +172,7 @@ def main():
             lcm1.handle()
         #lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         #lcm.subscribe("/pump_cmd", bridge.pump_transmit)
-        #run_coroutines(lcm.loop(), bridge.recieve(lcm))
+        run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
 if __name__ == "__main__":
     main()
     
