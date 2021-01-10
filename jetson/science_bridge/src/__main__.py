@@ -9,7 +9,7 @@ import Adafruit_BBIO.UART as UART
 import lcm
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd, SpectralData
+from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete#, SpectralData
 class ScienceBridge():
     def __init__(self):
         UART.setup("UART4") #  Specific to beaglebone
@@ -106,6 +106,18 @@ class ScienceBridge():
         if self.ser.isOpen():
             self.ser.write(bytes(message,encoding='utf8'))
         pass
+    def rr_drop(self,channel,msg):
+        # Struct is expected to be empty so no need for decoding
+        message = "$Mosfet,{device},{enable},111111111111111111"
+        # TODO set the specific device for the repeater on the firmware, placeholder 8.
+        # This is always an enable
+        message = message.format(device = 8, enable = 1)
+        self.ser.write(bytes(message))
+        #Publish to drop complete after sending the message.
+        complete = RepeaterDropComplete()
+        lcm.publish('/rr_drop_complete', complete.encode())
+
+
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
         # struct = RTCM.decode(msg)
@@ -164,12 +176,18 @@ class ScienceBridge():
 def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
+<<<<<<< HEAD:jetson/science_bridge/src/__main__.py
         _lcm = aiolcm.AsyncLCM()
         lcm1=lcm.LCM()
         lcm1.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         print("properly started")
         while True:
             lcm1.handle()
+=======
+        lcm = aiolcm.AsyncLCM()
+        lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        lcm.subscribe("/rr_drop_init",bridge.rr_drop)
+>>>>>>> 051998d7... Added code for the repeater drop:onboard/science_bridge/src/__main__.py
         #lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         #lcm.subscribe("/pump_cmd", bridge.pump_transmit)
         run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
