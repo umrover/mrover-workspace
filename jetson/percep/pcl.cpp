@@ -235,14 +235,18 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     std::vector<int> obstacles; //index of the leftmost and rightmost obstacles in path
     
     //Check Center Path
-    if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
+    if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))){
         std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
+        leftBearing = 0; //When no obstacles detected, reset bearings
+        rightBearing = 0;
     }
+    
+    else{
 
     //Initialize base cases outside of scope
     vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
-    //Find Clear left path
+    //Find Clear left path, set left bearing
     leftBearing = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
 
     //Reset global variables
@@ -250,9 +254,9 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     obstacles.at(0) = centerObstacles.at(0);
     obstacles.at(1) = centerObstacles.at(1);
 
-    //Find clear right path
-    // test
+    //Find clear right path, set right bearing
     rightBearing = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+    }
 }
 
 /* --- Check Path --- */

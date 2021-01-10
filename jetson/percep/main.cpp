@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono_literals;
 
 int main() {
-  cout << "hello" << endl;
+
   /* --- Camera Initializations --- */
   Camera cam;
   int iterations = 0;
@@ -134,7 +134,7 @@ int main() {
     //Outlier Detection Processing
     outliers.pop_back(); //Remove outdated outlier value
 
-    if(pointcloud.leftBearing > 0.05 || pointcloud.leftBearing < -0.05)
+    if(pointcloud.leftBearing > 0.05 || pointcloud.leftBearing < -0.05) //Check left bearing
         outliers.push_front(true);//if an obstacle is detected in front
     else 
         outliers.push_front(false); //obstacle is not detected
@@ -161,7 +161,6 @@ int main() {
     #endif
     
     #endif
-    cout << "test" << endl;
     cout << "bearing: " << obstacleMessage.bearing << " right bearing: " << obstacleMessage.rightBearing << endl;
     
 /* --- Publish LCMs --- */
