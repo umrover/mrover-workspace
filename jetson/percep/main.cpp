@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono_literals;
 
 int main() {
-  
+  cout << "hello" << endl;
   /* --- Camera Initializations --- */
   Camera cam;
   int iterations = 0;
@@ -146,6 +146,7 @@ int main() {
 
      //Update LCM 
     obstacleMessage.bearing = lastObstacle.leftBearing; //update LCM bearing field
+    obstacleMessage.rightBearing = lastObstacle.rightBearing;
     if(lastObstacle.distance <= obstacle_detection.distance)
       obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
     else
@@ -160,6 +161,8 @@ int main() {
     #endif
     
     #endif
+    cout << "test" << endl;
+    cout << "bearing: " << obstacleMessage.bearing << " right bearing: " << obstacleMessage.rightBearing << endl;
     
 /* --- Publish LCMs --- */
     lcm_.publish("/target_list", &arTagsMessage);
