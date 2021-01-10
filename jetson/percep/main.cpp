@@ -11,48 +11,50 @@ using namespace std::chrono_literals;
 class Display{
   private:
   Mat img{Mat(250, 400, CV_8UC3, Scalar(0,0,0))};
-  string window_name;
-  map<string, double> stats_to_display;
+  string windowName;
+  map<string, double> inputStats;
+
+
+  void clearDisplay(){
+    string inputText, statsText;
+    int yValue = 20;
+
+    for(auto &stats : inputStats){
+      statsText = to_string(stats.second);
+      inputText = stats.first + statsText;
+      putText(img, inputText, Point(5, yValue), FONT_HERSHEY_PLAIN, 1, Scalar(0,0,0), 1);
+      yValue += 20;
+    }
+  }
 
   public:
-    Display(string in_window_name) : window_name(in_window_name) {
-      namedWindow(window_name);
-      imshow(window_name, img);
+    Display(string in_windowName) : windowName(in_windowName) {
+      namedWindow(windowName);
+      imshow(windowName, img);
       waitKey(30);
     }
   
-    void update_display(map<string, double> inputs){
-      stats_to_display = inputs;
-      string input_text, stats_text;
-      int y_value = 20;
+    void updateDisplay(map<string, double> inputs){
+      clearDisplay();
 
-      for(auto &stats : stats_to_display){
-        stats_text = to_string(stats.second);
-        input_text = stats.first + stats_text;
-        putText(img, input_text, Point(5, y_value), FONT_HERSHEY_PLAIN, 1, Scalar(255,255,255), 1);
-        y_value += 20;
+      inputStats = inputs;
+      string inputText, statsText;
+      int yValue = 20;
+
+      for(auto &stats : inputStats){
+        statsText = to_string(stats.second);
+        inputText = stats.first + statsText;
+        putText(img, inputText, Point(5, yValue), FONT_HERSHEY_PLAIN, 1, Scalar(255,255,255), 1);
+        yValue += 20;
       }
 
-      imshow(window_name, img);
+      imshow(windowName, img);
       waitKey(1);
     }
 
-    void clear_display(){
-      string input_text, stats_text;
-      int y_value = 20;
-
-      for(auto &stats : stats_to_display){
-        stats_text = to_string(stats.second);
-        input_text = stats.first + stats_text;
-        putText(img, input_text, Point(5, y_value), FONT_HERSHEY_PLAIN, 1, Scalar(0,0,0), 1);
-        y_value += 20;
-      }
-    }
-
     ~Display(){
-      destroyWindow(window_name);
+      destroyWindow(windowName);
     }
- 
 };
 
 int main() {
@@ -226,11 +228,10 @@ int main() {
 
     //calculate fps
     auto end = std::chrono::high_resolution_clock::now();
-    auto time_diff = end - start;
-    fps = 1 / std::chrono::duration<double>(time_diff).count();
+    auto timeDiff = end - start;
+    fps = 1 / std::chrono::duration<double>(timeDiff).count();
 
-    display.clear_display();
-    display.update_display({ {"fps: ", fps}, {"bearing: ", pointcloud.bearing} });
+    display.updateDisplay({ {"fps: ", fps}, {"bearing: ", pointcloud.bearing} });
     
   }
 
