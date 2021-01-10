@@ -208,10 +208,14 @@ The terminal should now display that you are in mrover@mrover-jetson  \
 device. \
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
 <<<<<<< HEAD
+<<<<<<< HEAD
 `$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="mrover", MODE="[__MODE__]" ` \
 =======
 `$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="vagrant", MODE="[__MODE__]" ` \
 >>>>>>> 17217f3b... [esw] 2021 SAR drive code
+=======
+`$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="vagrant", MODE="[__MODE__]" ` \
+>>>>>>> 06834f98... pull request changes
  Restart the VM. </font>
  
 #### ERROR_ILLEGAL_HALL_STATE
