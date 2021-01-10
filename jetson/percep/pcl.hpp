@@ -51,7 +51,7 @@ class PCL {
 
     //Constructor
     PCL() : 
-        left_bearing{0}, right_bearing{0}, distance{0}, detected{false},
+        leftBearing{0}, rightBearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
 
         #if ZED_SDK_PRESENT
@@ -63,8 +63,8 @@ class PCL {
 
     };
 
-    double left_bearing;
-    double right_bearing;
+    double leftBearing;
+    double rightBearing;
     double distance;
     bool detected;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr;
