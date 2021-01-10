@@ -1,5 +1,7 @@
 #include "pcl.hpp"
 #include "perception.hpp"
+#include <rapidjson/error/en.h>
+
 
 #if OBSTACLE_DETECTION
 /* --- Pass Through Filter --- */
@@ -194,6 +196,7 @@ double PCL::FindClearPath(std::vector<std::vector<int>> interest_points,
     #endif
 
     int buffer = 50;
+    double PI = mRoverConfig["pi"].GetDouble();
 
     std::vector<int> obstacles; //X and Y values of the left and rightmost obstacles in path
 

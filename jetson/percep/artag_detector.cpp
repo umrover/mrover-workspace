@@ -1,4 +1,6 @@
 #include "perception.hpp"
+#include <rapidjson/error/en.h>
+
 
 static Mat HSV;
 static Mat DEPTH;
@@ -15,8 +17,8 @@ void onMouse(int event, int x, int y, int flags, void *userdata) {
     }
 }
 
-TagDetector::TagDetector() {  //initializes detector object with pre-generated dictionary of tags
-
+TagDetector::TagDetector(const rapidjson::Document& config)   //initializes detector object with pre-generated dictionary of tags
+    : mRoverConfig( config ) {
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
@@ -126,5 +128,8 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
 }
 
 double TagDetector::getAngle(float xPixel, float wPixel){
-    return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
+   double PI=mRoverConfig["pi"].GetDouble();
+   double fieldofView=mRoverConfig["zed_specs"]["fieldOfView"].GetDouble();
+   cerr<<"fieldView"<<fieldofView<<endl;
+   return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
 }

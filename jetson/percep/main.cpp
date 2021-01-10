@@ -3,15 +3,38 @@
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
 #include <deque>
+#include "rapidjson/document.h"
+#include <rapidjson/error/en.h>
 
 using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
 
+rapidjson::Document mRoverConfig;
+ 
 int main() {
+ // reading in configuration file
+ 
+ ifstream configFile;
+   string configPath = getenv("MROVER_CONFIG");
+   configPath += "/config_percep/config.json";
+   configFile.open( configPath );
+   string config = "";
+   string setting;
+   while( configFile >> setting )
+       {
+          config += setting;
+       }
+   configFile.close();
+ 
+   mRoverConfig.Parse( config.c_str() );
+
+   double piNum = mRoverConfig["pi"].GetDouble();
+   cerr<<piNum<<endl;
+
   
   /* --- Camera Initializations --- */
-  Camera cam;
+  Camera cam(mRoverConfig);
   int iterations = 0;
   cam.grab();
 
@@ -37,7 +60,7 @@ int main() {
   arTags[1].distance = -1;
 
   /* --- AR Tag Initializations --- */
-  TagDetector detector;
+  TagDetector detector(mRoverConfig);
   pair<Tag, Tag> tagPair;
   int left_tag_buffer = 0;
   int right_tag_buffer = 0;
@@ -45,7 +68,7 @@ int main() {
   /* --- Point Cloud Initializations --- */
   #if OBSTACLE_DETECTION
 
-  PCL pointcloud;
+  PCL pointcloud(mRoverConfig);
 
   #if PERCEPTION_DEBUG
     /* --- Create PCL Visualizer --- */

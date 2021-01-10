@@ -3,6 +3,7 @@
 
 #include "perception.hpp"
 #include <pcl/common/common_headers.h>
+#include <rapidjson/error/en.h>
 
 /* --- Compare Line Class --- */
 //Functor that indicates where a point is in
@@ -30,9 +31,9 @@ class PCL {
     public:
 
     //Constructor
-    PCL() : 
+    PCL(const rapidjson::Document& config) : 
         bearing{0}, distance{0}, detected{false},
-        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
+        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>},  mRoverConfig( config ) {
 
         #if ZED_SDK_PRESENT
         sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
@@ -50,6 +51,8 @@ class PCL {
     int cloudArea;
 
     private:
+        //reference to config file
+        const rapidjson::Document& mRoverConfig;
 
         //Filters points with values beyond certain threshold
         void PassThroughFilter();
