@@ -161,7 +161,7 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
         //Initialize interest points
         std::fill(curr_cluster->begin(), curr_cluster->end(), cluster_indices[i].indices[0]);
 
-        //Interest Points: 0=Leftmost Point 1=Rightmost Point 2=Lowest Point 3=Highest Point 4=Closest Point 5=Furthest Point
+        //Interest Points: 0=Leftmost Point 1=Rightmost Point 2=Lowest Point 3=Highest Point 4=Closest Point 5=Furthest Point.
         for (auto index : cluster_indices[i].indices)
         {
             auto curr_point = pt_cloud_ptr->points[index];
@@ -186,29 +186,39 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
             }
         }
 
-        //Calulates the width of the obstacle based on the difference between the leftmost and rightmost interest point
+        //Calulates the width of the obstacle based on the difference between the leftmost and rightmost interest point.
         double width = std::abs(pt_cloud_ptr->points[curr_cluster->at(1)].x - pt_cloud_ptr->points[curr_cluster->at(0)].x);
         //Calculates the number of rover widths that fit within the obstacle. The x10 multiplier adds more width increments.
-        int rovers = ((int) width/ROVER_W_MM) * 10;
-        //Creates a vector called increments which holds the width increments we want the new interest points to be close to.
-        //Example, if rovers = 40, then increments vector would contain: 
-        //0.025 * leftmost point, 0.05 * leftmost point, 0.075 * leftmost point,..., 0.975 * left most point.
-        //The size of this vector will be the amount of new interest points we are adding to this obstacle.
-        std::vector<double> increments;
-        for(double i = ((double) 1/rovers) ; i < 1; i += ((double) 1/rovers)){
-            increments.push_back(((double)i * width) + pt_cloud_ptr->points[curr_cluster->at(0)].x);
-            //Sets the new interest points equal to the leftmost point.
-            curr_cluster->push_back(curr_cluster->at(0));
-        }
+        int roverWidths = ((int) width/ROVER_W_MM) * 10;
 
-        //Looks at the x value of a point in the cluster and checking if this value is larger than the leftmost x value, 
-        //and less than the leftmost x value + the width increment
-        for (auto index : cluster_indices[i].indices){
-            auto curr_point = pt_cloud_ptr->points[index];
-            for(size_t i = 0; i < increments.size(); ++i){
-                if(curr_point.x <= increments[i] && 
-                curr_point.x > pt_cloud_ptr->points[curr_cluster->at(6 + i)].x){
-                    curr_cluster->at(6 + i) = index;
+        //Only want to add interest points if the obstacle's width > rover's Width.
+        if(roverWidths > 0) {
+            //Create a map data structure where the Key is an int from 0  to roverWidths-1.
+            //Each key index represents the a percentile increment.
+            //Example: if roverWidths = 40, then index 0 would represent leftmost + 0.025 * obstacle width,
+            //index 1 would represent leftmost + 0.05 * obstacle width and so on.
+            std::map<int, double> increments;
+            for(size_t i = 0; i < (size_t) roverWidths; ++i) {
+                //The defualt value stored in each key is the value of the leftmost interest point.
+                increments[i] = pt_cloud_ptr->points[curr_cluster->at(0)].x;
+                //Creates a new interest point and sets it equal to the index of the leftmost point.
+                curr_cluster->push_back(curr_cluster->at(0));
+            }
+            
+            //Using the x value of the current point, calculate the percentile that the current point would fall under, 
+            //and then compare that x value to the one of the point that is currently representing that percentile.
+            for (auto index : cluster_indices[i].indices) {
+                auto curr_point = pt_cloud_ptr->points[index];
+                if(curr_point.x > pt_cloud_ptr->points[curr_cluster->at(0)].x && curr_point.x < pt_cloud_ptr->points[curr_cluster->at(1)].x) {
+                    //If roverWidths = 40 and if your x value falls between leftmost + 0.025 * obstacle width and leftmost + 0.05 * obstacle width,
+                    //then the value of i would be 1 which represents the index of increment map the we want to check.
+                    int i = ((double)(std::abs(curr_point.x - pt_cloud_ptr->points[curr_cluster->at(0)].x)/width)/((double) 1/roverWidths));
+                    //If the x value of the current point is greater than the value representing that percentile, 
+                    //we set the value represnting the percentile equal to the x value of the current point.
+                    if(increments[i] < curr_point.x) {
+                        increments[i] = curr_point.x;
+                        curr_cluster->at(6 + i) = index;
+                    }
                 }
             }
         }
