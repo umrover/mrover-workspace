@@ -161,7 +161,7 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
         //Initialize interest points
         std::fill(curr_cluster->begin(), curr_cluster->end(), cluster_indices[i].indices[0]);
         
-
+        //Order of interest points: 0=Up Left 1=Up Right 2=Low Right 3=Low Left
         for (auto index : cluster_indices[i].indices)
         {
             auto curr_point = pt_cloud_ptr->points[index];
@@ -237,8 +237,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     
     //Check Center Path
     if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
-            std::cerr << "CENTER PATH IS CLEAR!!!" << std::endl;
-            std::cerr << "Distance from Last Obstacle: " << distance << " meters" << std::endl; 
+            std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
         return 0;
     }
     else { //otherwise, check to find left and right paths
@@ -251,7 +250,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
         vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
         //Find Clear left path
-        std::cerr << "Checking Left Path" << std::endl;
+        std::cout << "Checking Left Path" << std::endl;
         double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
         leftDistance = distance; 
 
@@ -261,7 +260,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
         obstacles.at(1) = centerObstacles.at(1);
 
         //Find clear right path
-        std::cerr << "Checking Right Path" << std::endl;
+        std::cout << "Checking Right Path" << std::endl;
         double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
         rightDistance = distance;
 
@@ -269,8 +268,6 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
         if(rightDistance < leftDistance && rightDistance < centerDistance) distance = rightDistance/1000.0;
         else if(leftDistance < rightDistance && leftDistance < centerDistance) distance = leftDistance/1000.0;
         else distance = centerDistance/1000.0;
-
-        std::cerr << "Distance from Last Obstacle: " << distance << " meters" << std::endl;
 
         //Return the smallest angle (left if equal)
         return fabs(rightAngle) < fabs(leftAngle) ? rightAngle : leftAngle;
