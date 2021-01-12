@@ -54,6 +54,7 @@
 
 #pragma GCC diagnostic pop
 
+#define PI 3.14159265
 //Declaring configuration file
 //rapidjson::Document mRoverConfig;
 
@@ -69,7 +70,7 @@
 
 #define SIMILARITY_THRESHOLD 8000
 
-//#define PI 3.14159265
+
 
 /* --- Point Cloud Definitions --- 
 #define PT_CLOUD_WIDTH 320

@@ -201,6 +201,8 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
     //If Center Path is blocked check the left or right path depending on direction parameter
     while(newAngle > -MAX_FIELD_OF_VIEW_ANGLE && newAngle < MAX_FIELD_OF_VIEW_ANGLE) {
         
+        double HALF_ROVER = mRoverConfig["pt_cloud"]["half_rover"].GetInt();
+        
         //Finding angle off center
         double oppSideRTri = pt_cloud_ptr->points[obstacles.at(direction)].x;
         double adjSideRTri = pt_cloud_ptr->points[obstacles.at(0)].z;//Length of adjacent side of right triangle
@@ -227,6 +229,8 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 //Returns the angle to a clear path
 double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
                         shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
+    
+    double HALF_ROVER = mRoverConfig["pt_cloud"]["half_rover"].GetInt();
     
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Find Clear Path");
@@ -387,6 +391,9 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
 /* --- Update --- */
 //Cleares and resizes cloud for new data
 void PCL::update() {
+    double PT_CLOUD_WIDTH = mRoverConfig["pt_cloud"]["pt_cloud_width"].GetInt();
+    double PT_CLOUD_HEIGHT =  mRoverConfig["pt_cloud"]["pt_cloud_height"].GetInt();
+
     pt_cloud_ptr->clear();
     pt_cloud_ptr->points.resize(cloudArea);
     pt_cloud_ptr->width = PT_CLOUD_WIDTH;

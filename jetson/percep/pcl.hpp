@@ -53,9 +53,9 @@ class PCL {
     PCL(const rapidjson::Document &config) : 
         bearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>},  mRoverConfig{config} {
-        double PT_CLOUD_WIDTH= mRoverConfig["pt_cloud"]["pt_cloud_width"].GetInt();
+        
+        double PT_CLOUD_WIDTH = mRoverConfig["pt_cloud"]["pt_cloud_width"].GetInt();
         double PT_CLOUD_HEIGHT =  mRoverConfig["pt_cloud"]["pt_cloud_height"].GetInt();
-
 
         #if ZED_SDK_PRESENT
         sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
@@ -66,11 +66,12 @@ class PCL {
 
     };
 
-    const rapidjson::Document mRoverConfig
+    
     double bearing;
     double distance;
     bool detected;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr;
+    const rapidjson::Document& mRoverConfig;
     int cloudArea;
 
     private:

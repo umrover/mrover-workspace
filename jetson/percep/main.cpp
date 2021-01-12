@@ -54,7 +54,7 @@ int main() {
   arTags[1].distance = -1;
 
   /* --- AR Tag Initializations --- */
-  TagDetector detector;
+  TagDetector detector(mRoverConfig);
   pair<Tag, Tag> tagPair;
   
   /* --- Point Cloud Initializations --- */

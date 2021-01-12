@@ -127,7 +127,6 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
 }
 
 double TagDetector::getAngle(float xPixel, float wPixel){
-    double PI=mRoverConfig["pi"].GetDouble();
     double fieldofView = 110 * PI/180;
     return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
 }
