@@ -33,7 +33,7 @@ class PCL {
     //Constructor
     PCL(const rapidjson::Document &config) : 
         bearing{0}, distance{0}, detected{false},
-        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>},  mRoverConfig( config ) {
+        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>},  mRoverConfig{config} {
         double PT_CLOUD_WIDTH= mRoverConfig["pt_cloud"]["pt_cloud_width"].GetInt();
         double PT_CLOUD_HEIGHT =  mRoverConfig["pt_cloud"]["pt_cloud_height"].GetInt();
 
@@ -47,6 +47,7 @@ class PCL {
 
     };
 
+    const rapidjson::Document mRoverConfig
     double bearing;
     double distance;
     bool detected;

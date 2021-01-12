@@ -1,21 +1,4 @@
 {
-    "threshold":
-    {
-        "threshold_no_way": 80000,
-        "threshold_confidence": 90,
-        "sky_start_row": 400,
-        "similarity_threshold": 8000,
-        "threshold_no_obstacle_center": 300000,
-        "threshold_no_subwindow": 70000
-
-    },
-    "ball_detection":
-    {
-        "ball_detection_max_dist": 6.0,
-        "ball_detection_min_rad": 5,
-        "ball_detection_max-rad": 300
-    },
-
     "pi": 3.14159265,
     "frame_write_interval": 10,
 
@@ -25,7 +8,11 @@
         "pt_cloud_height": 180,
         "rover_w_mm": 1168,
         "half_rover": 584,
-        "centerx": 0
+        "centerx": 0,
+        "passThrough": {
+            "lowerB":0,
+            "upperBZ": 
+        }
     },
 
     "zed_specs":
@@ -35,19 +22,13 @@
         "tennis_ball_pixel_size": 25,
         "focalLength": 2.8
     },
+
     "rover_specs":
     {
         "zedHeight": 0.4318000078,
         "realWidth": 1168.400024,
         "angleOffset": 0.1745329201
 
-    },
-
-    "obstacle_detection":
-    {
-        "num_sliding_windows": 20,
-        "distThreshold": 2.5,
-        "obstacleThreshold": 0.127
     }
 
 
