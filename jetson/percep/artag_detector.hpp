@@ -19,10 +19,12 @@ class TagDetector {
     std::vector<int> ids;
     std::vector<std::vector<cv::Point2f> > corners;
     cv::Mat rgb;
+    //reference to config file
+    const rapidjson::Document& mRoverConfig;
 
    public:
     //constructor loads alvar dictionary data from file that defines tag bit configurations
-    TagDetector(); 
+    TagDetector(const rapidjson::Document &config);    
     //takes detected AR tag and finds center coordinate for use with ZED                                                                 
     Point2f getAverageTagCoordinateFromCorners(const vector<Point2f> &corners);
     //detects AR tags in a given Mat     
@@ -31,4 +33,5 @@ class TagDetector {
     double getAngle(float xPixel, float wPixel);     
     //if AR tag found, updates distance, bearing, and id                              
     void updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src); 
+    
 };

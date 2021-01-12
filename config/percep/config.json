@@ -1,0 +1,35 @@
+{
+    "pi": 3.14159265,
+    "frame_write_interval": 10,
+
+    "pt_cloud":
+    {
+        "pt_cloud_width": 320,
+        "pt_cloud_height": 180,
+        "rover_w_mm": 1168,
+        "half_rover": 584,
+        "centerx": 0,
+        "passThrough": {
+            "lowerB": 0,
+            "upperBZ": 7000 
+        }
+    },
+
+    "zed_specs":
+    {
+        "resolution_width": 1280,
+        "resolution_height": 720,
+        "tennis_ball_pixel_size": 25,
+        "focalLength": 2.8
+    },
+
+    "rover_specs":
+    {
+        "zedHeight": 0.4318000078,
+        "realWidth": 1168.400024,
+        "angleOffset": 0.1745329201
+
+    }
+
+
+} 
