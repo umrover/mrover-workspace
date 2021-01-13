@@ -49,13 +49,31 @@ public:
 class PCL {
     public:
 
+    //Constants
+    int MAX_FIELD_OF_VIEW_ANGLE;
+    int PT_CLOUD_WIDTH;
+    int PT_CLOUD_HEIGHT;
+    int HALF_ROVER;
+    double UP_BD_Z;
+    double UP_BD_Y;
+    double LOW_BD ;
+
+
     //Constructor
-    PCL(const rapidjson::Document &config) : 
+    PCL(const rapidjson::Document &mRoverConfig) : 
+
+        //Populate Constants from Config File
+        MAX_FIELD_OF_VIEW_ANGLE{mRoverConfig["pt_cloud"]["max_field_of_view_angle"].GetInt()},
+        PT_CLOUD_WIDTH{mRoverConfig["pt_cloud"]["pt_cloud_width"].GetInt()},
+        PT_CLOUD_HEIGHT{mRoverConfig["pt_cloud"]["pt_cloud_height"].GetInt()},
+        HALF_ROVER{mRoverConfig["pt_cloud"]["half_rover"].GetInt()},
+        UP_BD_Z{mRoverConfig["pt_cloud"]["pass_through"]["upperBdZ"].GetDouble()},
+        UP_BD_Y{mRoverConfig["pt_cloud"]["pass_through"]["upperBdY"].GetDouble()},
+        LOW_BD{mRoverConfig["pt_cloud"]["pass_through"]["lowerBd"].GetDouble()},
+
+        //Other Values
         bearing{0}, distance{0}, detected{false},
-        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>},  mRoverConfig{config} {
-        
-        double PT_CLOUD_WIDTH = mRoverConfig["pt_cloud"]["pt_cloud_width"].GetInt();
-        double PT_CLOUD_HEIGHT =  mRoverConfig["pt_cloud"]["pt_cloud_height"].GetInt();
+        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
 
         #if ZED_SDK_PRESENT
         sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
@@ -67,11 +85,25 @@ class PCL {
     };
 
     
+    /** TODO 
+     * Move constructor for PCL into .cpp
+     * DownsampleVoxelFilter leaf size (don't worry ab making section here)
+     * RANSAC SECTION in pt_cloud section:
+     *      max iterations
+     *      segmentation epsilon
+     *      distance threshold
+     * 
+     * Euclidean cluster section in pt_cloud section
+     *      cluster tolerance
+     *      min cluster size
+     *      max cluster size
+     * */
+
+    //Memver Varibles
     double bearing;
     double distance;
     bool detected;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr;
-    const rapidjson::Document& mRoverConfig;
     int cloudArea;
 
     private:

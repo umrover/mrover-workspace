@@ -3,8 +3,6 @@
 
 #if OBSTACLE_DETECTION
 
-const int MAX_FIELD_OF_VIEW_ANGLE = 70;
-
 /* --- Pass Through Filter --- */
 //Filters out all points on a given axis passed as a string ("x", "y", or "z") that aren't within the threshold
 //The threshold covers points from 0.0 to upperLimit 
@@ -19,7 +17,7 @@ void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
     pass.setInputCloud(pt_cloud_ptr);
 
     pass.setFilterFieldName(axis);
-    pass.setFilterLimits(0.0,upperLimit);
+    pass.setFilterLimits( LOW_BD, upperLimit);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -201,8 +199,6 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
     //If Center Path is blocked check the left or right path depending on direction parameter
     while(newAngle > -MAX_FIELD_OF_VIEW_ANGLE && newAngle < MAX_FIELD_OF_VIEW_ANGLE) {
         
-        double HALF_ROVER = mRoverConfig["pt_cloud"]["half_rover"].GetInt();
-        
         //Finding angle off center
         double oppSideRTri = pt_cloud_ptr->points[obstacles.at(direction)].x;
         double adjSideRTri = pt_cloud_ptr->points[obstacles.at(0)].z;//Length of adjacent side of right triangle
@@ -229,9 +225,7 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 //Returns the angle to a clear path
 double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
                         shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
-    
-    double HALF_ROVER = mRoverConfig["pt_cloud"]["half_rover"].GetInt();
-    
+
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Find Clear Path");
     #endif
@@ -376,8 +370,8 @@ shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
 //This function is called in main.cpp
 void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
     obstacle_return result;
-    PassThroughFilter("z", 7000.0);
-    PassThroughFilter("y", 3000.0);
+    PassThroughFilter("z", UP_BD_Z);
+    PassThroughFilter("y", UP_BD_Y);
     DownsampleVoxelFilter();
     RANSACSegmentation("remove");
     std::vector<pcl::PointIndices> cluster_indices;
@@ -391,9 +385,6 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
 /* --- Update --- */
 //Cleares and resizes cloud for new data
 void PCL::update() {
-    double PT_CLOUD_WIDTH = mRoverConfig["pt_cloud"]["pt_cloud_width"].GetInt();
-    double PT_CLOUD_HEIGHT =  mRoverConfig["pt_cloud"]["pt_cloud_height"].GetInt();
-
     pt_cloud_ptr->clear();
     pt_cloud_ptr->points.resize(cloudArea);
     pt_cloud_ptr->width = PT_CLOUD_WIDTH;

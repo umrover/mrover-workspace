@@ -1,17 +1,19 @@
 {
-    "pi": 3.14159265,
     "frame_write_interval": 10,
 
     "pt_cloud":
     {
+        "max_field_of_view_angle": 70,
         "pt_cloud_width": 320,
         "pt_cloud_height": 180,
         "rover_w_mm": 1168,
         "half_rover": 584,
         "centerx": 0,
-        "passThrough": {
-            "lowerB": 0,
-            "upperBZ": 7000 
+
+        "pass_through": {
+            "upperBdZ": 7000.0,
+            "upperBdY": 3000.0, 
+            "lowerBd": 0.0
         }
     },
 
@@ -19,7 +21,6 @@
     {
         "resolution_width": 1280,
         "resolution_height": 720,
-        "tennis_ball_pixel_size": 25,
         "focalLength": 2.8
     },
 
@@ -28,8 +29,6 @@
         "zedHeight": 0.4318000078,
         "realWidth": 1168.400024,
         "angleOffset": 0.1745329201
-
     }
-
 
 } 

@@ -16,8 +16,8 @@ void onMouse(int event, int x, int y, int flags, void *userdata) {
     }
 }
 
-TagDetector::TagDetector(const rapidjson::Document &config)   //initializes detector object with pre-generated dictionary of tags
-    : mRoverConfig( config ) {
+TagDetector::TagDetector(const rapidjson::Document &mRoverConfig)   //initializes detector object with pre-generated dictionary of tags
+     {
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
