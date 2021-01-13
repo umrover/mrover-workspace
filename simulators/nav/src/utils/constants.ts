@@ -4,6 +4,7 @@
 import {
   ColorScheme,
   ColorSchemeName,
+  PerceptionConstants,
   PostConstants,
   RepeaterConstants,
   RoverConstants,
@@ -43,6 +44,12 @@ export const BUTTON_COLOR_SCHEMES:Record<ColorSchemeName, ColorScheme> = {
     borderColor: '#ffff5d',
     fontColor: 'black'
   }
+};
+
+
+/* Define the perception system constants */
+export const PERCEPTION:PerceptionConstants = {
+  minVisibleDistTag: 0.25
 };
 
 
