@@ -437,7 +437,7 @@ NavState StateMachine::executeDrive()
 NavState StateMachine::executeRepeaterDropWait( )
 {
 
-    RepeaterDropInit rr_init;
+    RepeaterDrop rr_init;
     const string& radioRepeaterInitChannel = mRoverConfig[ "lcmChannels" ][ "repeaterDropInitChannel" ].GetString();
     mLcmObject.publish( radioRepeaterInitChannel, &rr_init );
 
@@ -518,7 +518,7 @@ bool StateMachine::isAddRepeaterDropPoint() const
              mPhoebe->roverStatus().currentState() != NavState::RadioRepeaterDrive &&
              mPhoebe->isTimeToDropRepeater() &&
              mRepeaterDropComplete == false );
-} //isAddRepeaterDropPoint
+} // isAddRepeaterDropPoint
 
 // Returns whether or not to enter RadioRepeaterTurn state.
 void StateMachine::addRepeaterDropPoint()
