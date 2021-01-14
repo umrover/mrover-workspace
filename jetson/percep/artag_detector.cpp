@@ -22,7 +22,7 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig) //initializes 
    DO_CORNER_REFINEMENT{mRoverConfig["alvar_params"]["doCornerRefinement"].GetBool()},
    POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonalApproxAccuracyRate"].GetDouble()},
    MM_PER_M{mRoverConfig["mm_per_m"].GetInt()},
-   DEFAULT_TAG_VAL{mRoverConfig["DEFAULT_TAG_VAL"].GetInt()} {
+   DEFAULT_TAG_VAL{mRoverConfig["default_tag_val"].GetInt()} {
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
