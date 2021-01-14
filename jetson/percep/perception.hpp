@@ -14,6 +14,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <map>
 
 #if OBSTACLE_DETECTION
 /* --- PCL Includes --- */
@@ -131,3 +132,5 @@ class obstacle_return {
 
 //pcl class
 #include "pcl.hpp"
+
+extern map<string, double> statisticsDisplay;

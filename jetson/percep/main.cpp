@@ -8,6 +8,7 @@ using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
 
+
 class Display{
   private:
   Mat img{Mat(250, 400, CV_8UC3, Scalar(0,0,0))};
@@ -56,6 +57,8 @@ class Display{
       destroyWindow(windowName);
     }
 };
+
+map<string, double> statisticsDisplay;
 
 int main() {
   
@@ -124,10 +127,11 @@ int main() {
 
   Display display("Console Display");
   double fps;
+  //statisticsDisplay.insert({"fps: ", fps});
 /* --- Main Processing Stuff --- */
   while (true) {
     //for calculating fps
-    auto start = std::chrono::high_resolution_clock::now();
+    auto fpsStart = std::chrono::high_resolution_clock::now();
 
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
@@ -157,12 +161,18 @@ int main() {
     arTags[0].distance = -1;
     arTags[1].distance = -1;
     #if AR_DETECTION
+      auto ar_detectStart = std::chrono::high_resolution_clock::now();
+
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
         cam.record_ar(rgb);
       #endif
 
       detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
+
+      auto ar_detectEnd = std::chrono::high_resolution_clock::now();
+      double ar_detectTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(ar_detectEnd - ar_detectStart).count();
+      statisticsDisplay.insert({"AR Detection Time (ms): ", ar_detectTimeDiff});
 
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
@@ -225,14 +235,17 @@ int main() {
     
     ++iterations;
 
-
     //calculate fps
-    auto end = std::chrono::high_resolution_clock::now();
-    auto timeDiff = end - start;
-    fps = 1 / std::chrono::duration<double>(timeDiff).count();
+    auto fpsEnd = std::chrono::high_resolution_clock::now();
+    auto fpsTimeDiff = fpsEnd - fpsStart;
+    fps = 1 / std::chrono::duration<double, std::ratio<1,1>>(fpsTimeDiff).count();
 
-    display.updateDisplay({ {"fps: ", fps}, {"bearing: ", pointcloud.bearing} });
-    
+    statisticsDisplay.insert({"FPS: ", fps});
+    statisticsDisplay.insert({"Bearing: ", pointcloud.bearing});
+    //statisticsDisplay.insert({"distance: ", pointcloud.distance});
+
+    display.updateDisplay(statisticsDisplay);
+    statisticsDisplay.clear();
   }
 
 
