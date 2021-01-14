@@ -175,6 +175,15 @@ export enum OdomFormat {
 //   loc:Odom
 // }
 
+/* Interface repressenting the constant values used to define the perception
+   system. */
+export interface PerceptionConstants {
+
+  /* minimum distance a tag's center must be away to see it, meters */
+  minVisibleDistTag:number;
+}
+
+
 /* Interface representing a point in 2D space for use on the canvas and various
    field calculations. */
 export interface Point2D {
