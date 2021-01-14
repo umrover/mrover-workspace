@@ -22,7 +22,7 @@ void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
     pass.setFilterLimits(0.0,upperLimit);
     pass.filter(*pt_cloud_ptr);
 }
-
+// random edit
 /* --- Voxel Filter --- */
 //Creates clusters given by the size of a leaf
 //All points in a cluster are then reduced to a single point
