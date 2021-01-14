@@ -1,7 +1,7 @@
 {
     "frame_write_interval": 10,
     "buffer_iterations": 20,
-    "default_tag_val": -1,
+    "DEFAULT_TAG_VAL": -1,
     "mm_per_m":1000,
 
     "pt_cloud":
@@ -37,7 +37,7 @@
     "alvar_params":
     {
         "markerBorderBits": 2,
-        "doCornerRefinement": false,
+        "doCornerRefinement": 0,
         "polygonalApproxAccuracyRate": 0.08
 
     }

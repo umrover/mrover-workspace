@@ -16,13 +16,13 @@ void onMouse(int event, int x, int y, int flags, void *userdata) {
 }
 
 TagDetector::TagDetector(const rapidjson::Document &mRoverConfig) //initializes detector object with pre-generated dictionary of tags
-    :
+    :  //Populate Constants from Config File
    BUFFER_ITERATIONS{mRoverConfig["buffer_iterations"].GetInt()},
    MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["markerBorderBits"].GetInt()},
-   DO_CORNER_REFINEMENT{mRoverConfig["alvar_params"]["doCornerRefinement"].GetBool()},
+   DO_CORNER_REFINEMENT{!!mRoverConfig["alvar_params"]["doCornerRefinement"].GetInt()},
    POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonalApproxAccuracyRate"].GetDouble()},
    MM_PER_M{mRoverConfig["mm_per_m"].GetInt()},
-   DEFAULT_TAG_VAL{mRoverConfig["default_tag_val"].GetInt()} {
+   DEFAULT_TAG_VAL{mRoverConfig["DEFAULT_TAG_VAL"].GetInt()} {
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
@@ -165,11 +165,12 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
             arTags[i].id = DEFAULT_TAG_VAL;
         }
      } else {//one tag found
-    if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i))))
+    if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))) {
         arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
         arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
         arTags[i].id = tags.id.at(i);
         tags.buffer[i] = 0;
+    }
    }
   }
 }
