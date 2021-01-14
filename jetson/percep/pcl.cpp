@@ -10,7 +10,7 @@ const int MAX_FIELD_OF_VIEW_ANGLE = 70;
 //The threshold covers points from 0.0 to upperLimit 
 //Values are depth values in mm
 //Source: https://rb.gy/kkyi80
-void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
+void PCL::passThroughFilter(const std::string axis, const double upperLimit) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("PassThroughFilter");
     #endif
@@ -22,13 +22,13 @@ void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
     pass.setFilterLimits(0.0,upperLimit);
     pass.filter(*pt_cloud_ptr);
 }
-// random edit
+
 /* --- Voxel Filter --- */
 //Creates clusters given by the size of a leaf
 //All points in a cluster are then reduced to a single point
 //This point is the centroid of the cluster
 //Source: https://rb.gy/2ybg8n
-void PCL::DownsampleVoxelFilter() {
+void PCL::downsampleVoxelFilter() {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("VoxelFilter");
     #endif
@@ -61,8 +61,8 @@ void PCL::RANSACSegmentation(string type) {
     seg.setDistanceThreshold(100); //Distance in mm away from actual plane a point can be
     // to be considered an inlier
     seg.setAxis(Eigen::Vector3f(0, 1, 0)); //Looks for a plane along the Z axis
-    double segmentation_epsilon = 10; //Max degree the normal of plane can be from Z axis
-    seg.setEpsAngle(pcl::deg2rad(segmentation_epsilon));
+    double segmentationEpsilon = 10; //Max degree the normal of plane can be from Z axis
+    seg.setEpsAngle(pcl::deg2rad(segmentationEpsilon));
 
     //Objects where segmented plane is stored
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
@@ -94,7 +94,7 @@ void PCL::RANSACSegmentation(string type) {
 //Use this tree to traverse point cloud and create vector of clusters
 //Return vector of clusters
 //Source: https://rb.gy/qvjati
-void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_indices) {
+void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &clusterIndices) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("CPU Cluster Extraction");
     #endif
@@ -110,17 +110,15 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
     ec.setMaxClusterSize (100000);
     ec.setSearchMethod (tree);
     ec.setInputCloud (pt_cloud_ptr);
-    ec.extract (cluster_indices);
+    ec.extract (clusterIndices);
 
     //Colors all clusters
     #if PERCEPTION_DEBUG
-        std::cout << "Number of clusters: " << cluster_indices.size() << std::endl;
+        std::cout << "Number of clusters: " << clusterIndices.size() << std::endl;
         int j = 0;
         
-        for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
-        {
-            for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
-            {
+        for (std::vector<pcl::PointIndices>::const_iterator it = clusterIndices.begin (); it != clusterIndices.end (); ++it) {
+            for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit) {
                 if(j%3) {
                     pt_cloud_ptr->points[*pit].r = 100+j*15;
                     pt_cloud_ptr->points[*pit].g = 0;
@@ -147,23 +145,20 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
 //values of all points in the cluster to find desired ones
 //Interest points are a collection of points that allow us
 //to define the edges of an obsacle
-void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,  
-                             std::vector<std::vector<int>> &interest_points) {
+void PCL::findInterestPoints(std::vector<pcl::PointIndices> &clusterIndices, std::vector<std::vector<int>> &interestPoints) {
 
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Find Interest Points");
     #endif
 
-    for (int i = 0; i < (int)cluster_indices.size(); ++i)
-    {
-        std::vector<int>* curr_cluster = &interest_points[i];
+    for (int i = 0; i < (int)clusterIndices.size(); ++i) {
+        std::vector<int>* curr_cluster = &interestPoints[i];
 
         //Initialize interest points
-        std::fill(curr_cluster->begin(), curr_cluster->end(), cluster_indices[i].indices[0]);
+        std::fill(curr_cluster->begin(), curr_cluster->end(), clusterIndices[i].indices[0]);
         
         //Order of interest points: 0=Up Left 1=Up Right 2=Low Right 3=Low Left
-        for (auto index : cluster_indices[i].indices)
-        {
+        for (auto index : clusterIndices[i].indices) {
             auto curr_point = pt_cloud_ptr->points[index];
             
             //Upper Left
@@ -180,11 +175,10 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
                 curr_cluster->at(3) = index;
         }
     #if PERCEPTION_DEBUG
-        for(auto interest_point : *curr_cluster)
-        {
-            pt_cloud_ptr->points[interest_point].r = 255;
-            pt_cloud_ptr->points[interest_point].g = 255;
-            pt_cloud_ptr->points[interest_point].b = 255;
+        for(auto interestPoint : *curr_cluster) {
+            pt_cloud_ptr->points[interestPoint].r = 255;
+            pt_cloud_ptr->points[interestPoint].g = 255;
+            pt_cloud_ptr->points[interestPoint].b = 255;
         }
     #endif
     }
@@ -195,8 +189,7 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 //This function finds the angle off center the
 //line that passes through both these points is
 //Direction of 0 is left and 1 is right
-double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
-                    shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles) {
+double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interestPoints, shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles) {
     double newAngle = 0;
     //If Center Path is blocked check the left or right path depending on direction parameter
     while(newAngle > -MAX_FIELD_OF_VIEW_ANGLE && newAngle < MAX_FIELD_OF_VIEW_ANGLE) {
@@ -213,7 +206,7 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
         
         obstacles.clear();
         
-        if(CheckPath(interest_points, viewer, obstacles, leftLine, rightLine)) {
+        if(checkPath(interestPoints, viewer, obstacles, leftLine, rightLine)) {
             #if PERCEPTION_DEBUG
                 std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
             #endif
@@ -225,8 +218,7 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
-                        shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
+double PCL::findClearPath(const std::vector<std::vector<int>> &interestPoints, shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
     
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t ("Find Clear Path");
@@ -235,7 +227,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     std::vector<int> obstacles; //index of the leftmost and rightmost obstacles in path
     
     //Check Center Path
-    if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
+    if(checkPath(interestPoints, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
         std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
         return 0;
     }
@@ -244,7 +236,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
     //Find Clear left path
-    double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+    double leftAngle = getAngleOffCenter(10, 0, interestPoints, viewer, obstacles);
 
     //Reset global variables
     obstacles       = {0, 0};
@@ -252,7 +244,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     obstacles.at(1) = centerObstacles.at(1);
 
     //Find clear right path
-    double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+    double rightAngle = getAngleOffCenter(10, 1, interestPoints, viewer, obstacles);
 
     //Return the smallest angle (left if equal)
     return fabs(rightAngle) < fabs(leftAngle) ? rightAngle : leftAngle;
@@ -263,7 +255,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
 //If it is obstructed returns false
 //The path is constructed using the left x value and right x value of
 //the furthest points on the path
-bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
+bool PCL::checkPath(const std::vector<std::vector<int>> &interestPoints,
                shared_ptr<pcl::visualization::PCLVisualizer> viewer,
                std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine) {
     #if PERCEPTION_DEBUG
@@ -273,7 +265,7 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
     bool end = true;
     
     //Iterate through interest points
-    for(auto cluster : interest_points) {
+    for(auto cluster : interestPoints) {
         for (auto index : cluster) {
             //Check if the obstacle interest point is to the right of the left projected path of the rover 
             //and to the left of the right projected path of the rover
@@ -319,7 +311,8 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
     pt3.z=7000;
     pt3.x = leftLine.xIntercept;
     
-    if(leftLine.slope != 0) { //Don't want to divide by 0
+    if(leftLine.slope != 0) { 
+        //Don't want to divide by 0
         pt3.x=pt3.z/leftLine.slope+leftLine.xIntercept;
     }
     
@@ -327,7 +320,8 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
     pt4.z=7000;
     pt4.x = rightLine.xIntercept;
     
-    if(rightLine.slope != 0) { //Don't want to divide by 0
+    if(rightLine.slope != 0) { 
+        //Don't want to divide by 0
         pt4.x=pt4.z/rightLine.slope+rightLine.xIntercept;
     }
     
@@ -372,15 +366,15 @@ shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
 //This function is called in main.cpp
 void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
     obstacle_return result;
-    PassThroughFilter("z", 7000.0);
-    PassThroughFilter("y", 3000.0);
-    DownsampleVoxelFilter();
+    passThroughFilter("z", 7000.0);
+    passThroughFilter("y", 3000.0);
+    downsampleVoxelFilter();
     RANSACSegmentation("remove");
-    std::vector<pcl::PointIndices> cluster_indices;
-    CPUEuclidianClusterExtraction(cluster_indices);
-    std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (4));
-    FindInterestPoints(cluster_indices, interest_points);
-    bearing = FindClearPath(interest_points, viewer); 
+    std::vector<pcl::PointIndices> clusterIndices;
+    CPUEuclidianClusterExtraction(clusterIndices);
+    std::vector<std::vector<int>> interestPoints(clusterIndices.size(), vector<int> (4));
+    findInterestPoints(clusterIndices, interestPoints);
+    bearing = findClearPath(interestPoints, viewer); 
 }
 
 
