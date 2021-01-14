@@ -2,7 +2,6 @@
 
 static Mat HSV;
 static Mat DEPTH;
-const int MM_PER_M = 1000; // millimeters per meter conversation factor
 
 /* For debug use: print the HSV values at mouseclick locations */
 void onMouse(int event, int x, int y, int flags, void *userdata) {
@@ -16,8 +15,14 @@ void onMouse(int event, int x, int y, int flags, void *userdata) {
     }
 }
 
-TagDetector::TagDetector(const rapidjson::Document &mRoverConfig)   //initializes detector object with pre-generated dictionary of tags
-     {
+TagDetector::TagDetector(const rapidjson::Document &mRoverConfig) //initializes detector object with pre-generated dictionary of tags
+    :
+   BUFFER_ITERATIONS{mRoverConfig["buffer_iterations"].GetInt()},
+   MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["markerBorderBits"].GetInt()},
+   DO_CORNER_REFINEMENT{mRoverConfig["alvar_params"]["doCornerRefinement"].GetBool()},
+   POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonalApproxAccuracyRate"].GetDouble()},
+   MM_PER_M{mRoverConfig["mm_per_m"].GetInt()},
+   DEFAULT_TAG_VAL{mRoverConfig["DEFAULT_TAG_VAL"].GetInt()} {
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
@@ -35,9 +40,9 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig)   //initialize
 
     // initialize other special parameters that we need to properly detect the URC (Alvar) tags
     alvarParams = new cv::aruco::DetectorParameters();
-    alvarParams->markerBorderBits = 2;
-    alvarParams->doCornerRefinement = false;
-    alvarParams->polygonalApproxAccuracyRate = 0.08;
+    alvarParams->markerBorderBits = MARKER_BORDER_BITS;
+    alvarParams->doCornerRefinement = DO_CORNER_REFINEMENT;
+    alvarParams->polygonalApproxAccuracyRate =POLYGONAL_APPROX_ACCURACY_RATE;
 }
 
 Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &corners) {  //gets coordinate of center of tag
@@ -84,16 +89,16 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     pair<Tag, Tag> discoveredTags;
     if (ids.size() == 0) {
         // no tags found, return invalid objects with tag set to -1
-        discoveredTags.first.id = -1;
+        discoveredTags.first.id = DEFAULT_TAG_VAL;
         discoveredTags.first.loc = Point2f();
-        discoveredTags.second.id = -1;
+        discoveredTags.second.id = DEFAULT_TAG_VAL;
         discoveredTags.second.loc = Point2f();
 
     } else if (ids.size() == 1) {  // exactly one tag found
         discoveredTags.first.id = ids[0];
         discoveredTags.first.loc = getAverageTagCoordinateFromCorners(corners[0]);
         // set second tag to invalid object with tag as -1
-        discoveredTags.second.id = -1;
+        discoveredTags.second.id = DEFAULT_TAG_VAL;
         discoveredTags.second.loc = Point2f();
     } else if (ids.size() == 2) {  // exactly two tags found
         Tag t0, t1;
@@ -151,13 +156,13 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
 
   for (uint i=0; i<2; i++)
   {
-    if(tags.id[i] == -1){//no tag found
-        if(tags.buffer[i] <= 20){//send buffered tag until tag is found
+    if(tags.id[i] == DEFAULT_TAG_VAL){//no tag found
+        if(tags.buffer[i] <= BUFFER_ITERATIONS){//send buffered tag until tag is found
             ++tags.buffer[i];
         } else {//if still no tag found, set all stats to -1
-            arTags[i].distance = -1;
-            arTags[i].bearing = -1;
-            arTags[i].id = -1;
+            arTags[i].distance = DEFAULT_TAG_VAL;
+            arTags[i].bearing = DEFAULT_TAG_VAL;
+            arTags[i].id = DEFAULT_TAG_VAL;
         }
      } else {//one tag found
     if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i))))

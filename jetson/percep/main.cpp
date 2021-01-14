@@ -50,8 +50,9 @@ int main() {
   rover_msgs::TargetList arTagsMessage;
   rover_msgs::Target* arTags = arTagsMessage.targetList;
   rover_msgs::Obstacle obstacleMessage;
-  arTags[0].distance = -1;
-  arTags[1].distance = -1;
+  int DEFAULT_TAG_VAL=mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
+  arTags[0].distance = DEFAULT_TAG_VAL;
+  arTags[1].distance = DEFAULT_TAG_VAL;
 
   /* --- AR Tag Initializations --- */
   TagDetector detector(mRoverConfig);

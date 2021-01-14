@@ -58,32 +58,8 @@ class PCL {
     double UP_BD_Y;
     double LOW_BD ;
 
-
     //Constructor
-    PCL(const rapidjson::Document &mRoverConfig) : 
-
-        //Populate Constants from Config File
-        MAX_FIELD_OF_VIEW_ANGLE{mRoverConfig["pt_cloud"]["max_field_of_view_angle"].GetInt()},
-        PT_CLOUD_WIDTH{mRoverConfig["pt_cloud"]["pt_cloud_width"].GetInt()},
-        PT_CLOUD_HEIGHT{mRoverConfig["pt_cloud"]["pt_cloud_height"].GetInt()},
-        HALF_ROVER{mRoverConfig["pt_cloud"]["half_rover"].GetInt()},
-        UP_BD_Z{mRoverConfig["pt_cloud"]["pass_through"]["upperBdZ"].GetDouble()},
-        UP_BD_Y{mRoverConfig["pt_cloud"]["pass_through"]["upperBdY"].GetDouble()},
-        LOW_BD{mRoverConfig["pt_cloud"]["pass_through"]["lowerBd"].GetDouble()},
-
-        //Other Values
-        bearing{0}, distance{0}, detected{false},
-        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
-
-        #if ZED_SDK_PRESENT
-        sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
-        cloudArea = cloud_res.area();
-        #else
-        cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
-        #endif
-
-    };
-
+    PCL(const rapidjson::Document &mRoverConfig);
     
     /** TODO 
      * Move constructor for PCL into .cpp
@@ -99,7 +75,7 @@ class PCL {
      *      max cluster size
      * */
 
-    //Memver Varibles
+    //Member Variables
     double bearing;
     double distance;
     bool detected;

@@ -19,18 +19,16 @@ class TagDetector {
     std::vector<int> ids;
     std::vector<std::vector<cv::Point2f> > corners;
     cv::Mat rgb;
-
-    /** TODO ADD these to config file
-     * buffer line 155 .cpp
-     * marker border bits line 38
-     * docornerrefinement line 39
-     * polygonal accuracy rate line 40
-     * MM_PER_M line 5
-     * default tag val -> replace all = -1 with = this val (note: if a number is being subtracted by one don't replace it)
-     *      create and use default tag val in main.cpp lines 120,121 also
-     */
     
    public:
+   //Constants:
+   int BUFFER_ITERATIONS;
+   int MARKER_BORDER_BITS;
+   bool DO_CORNER_REFINEMENT;
+   double POLYGONAL_APPROX_ACCURACY_RATE;
+   int MM_PER_M;
+   int DEFAULT_TAG_VAL;
+
     //constructor loads alvar dictionary data from file that defines tag bit configurations
     TagDetector(const rapidjson::Document &mRoverConfig);    
     //takes detected AR tag and finds center coordinate for use with ZED                                                                 

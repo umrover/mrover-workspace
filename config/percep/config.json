@@ -1,5 +1,8 @@
 {
     "frame_write_interval": 10,
+    "buffer_iterations": 20,
+    "DEFAULT_TAG_VAL": -1,
+    "mm_per_m":1000,
 
     "pt_cloud":
     {
@@ -29,6 +32,13 @@
         "zedHeight": 0.4318000078,
         "realWidth": 1168.400024,
         "angleOffset": 0.1745329201
-    }
+    },
 
+    "alvar_params":
+    {
+        "markerBorderBits": 2,
+        "doCornerRefinement": false,
+        "polygonalApproxAccuracyRate": 0.08
+
+    }
 } 
