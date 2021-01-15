@@ -128,7 +128,7 @@ class ScienceBridge():
         self.ser.write(bytes(message))
         #Publish to drop complete after sending the message.
         complete = RepeaterDropComplete()
-        lcm.publish('/rr_drop_complete', complete.encode())
+        _lcm.publish('/rr_drop_complete', complete.encode())
 
 
     def ammonia_transmit(self, channel, msg):
