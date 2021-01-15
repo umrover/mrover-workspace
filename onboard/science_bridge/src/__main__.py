@@ -7,6 +7,7 @@ import asyncio
 import Adafruit_BBIO.UART as UART
 from numpy import int16
 import lcm
+import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete, SpectralData
@@ -97,13 +98,33 @@ class ScienceBridge():
         message = "$Mosfet,{device},{enable},111111111111111111"
         # TODO set the specific device for the repeater on the firmware, placeholder 8.
         # This is always an enable
-        message = message.format(device = 8, enable = 1)
+        message = message.format(device = 4, enable = 1)
         self.ser.write(bytes(message))
-        #Publish to drop complete after sending the message.
+        # Publish to drop complete after sending the message.
         complete = RepeaterDropComplete()
         _lcm.publish('/rr_drop_complete', complete.encode())
-
-
+    def nav_status(self,channel,msg):
+        # Want the name of the status I guess?
+        # Off, Done, Else
+        struct = RTCM.decode(msg)
+        # Off = Blue
+        message = "$Mosfet,{device},{enable},111111111111111111"
+        if struct.nav_state_name == "Off":
+            message = message.format(device = 2, enable = 1)
+            self.ser.write(bytes(message))
+        # Done = Flashing green
+        else if struct.nav_state_name == "Done":
+            # Flashing by turning on and off for 1 second intervals
+            for i in range (0,6):
+                self.ser.write(bytes(message.format(device = 1, enable = 1)))
+                await asyncio.sleep(self.sleep)
+                self.ser.write(bytes(message.format(device = 1, enable = 0)))
+                await asyncio.sleep(self.sleep)
+        # Everytime else = Red
+        else:
+            message = message.format(device = 0, enable = 1)
+            self.ser.write(bytes(message))
+        pass
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
         # struct = RTCM.decode(msg)
@@ -164,6 +185,7 @@ def main():
         _lcm = aiolcm.AsyncLCM()
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
+        _lcm.subscribe("/nav_status",bridge.nav_status)
         print("properly started")
         #lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         #lcm.subscribe("/pump_cmd", bridge.pump_transmit)
