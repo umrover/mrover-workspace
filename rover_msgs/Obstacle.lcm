@@ -2,6 +2,6 @@ package rover_msgs;
 
 struct Obstacle {
 	double bearing; // from straight ahead
-	double distance; // from straight ahead
 	double rightBearing;
+	double distance; // from straight ahead
 }
