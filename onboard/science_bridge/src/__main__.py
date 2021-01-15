@@ -7,6 +7,7 @@ import asyncio
 import Adafruit_BBIO.UART as UART
 from numpy import int16
 import lcm
+import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete, SpectralData
@@ -112,7 +113,7 @@ class ScienceBridge():
         message = "$Mosfet,{device},{enable},111111111111111111"
         # TODO set the specific device for the repeater on the firmware, placeholder 8.
         # This is always an enable
-        message = message.format(device = 8, enable = 1)
+        message = message.format(device = 4, enable = 1)
         self.ser.write(bytes(message))
         # Publish to drop complete after sending the message.
         complete = RepeaterDropComplete()
@@ -128,9 +129,12 @@ class ScienceBridge():
             self.ser.write(bytes(message))
         # Done = Flashing green
         else if struct.nav_state_name == "Done":
-            # Not sure how to flash, probably needs change in firmware
-            message = message.format(device = 1, enable = 1)
-            self.ser.write(bytes(message))
+            # Flashing by turning on and off for 1 second intervals
+            for i in range (0,6):
+                self.ser.write(bytes(message.format(device = 1, enable = 1)))
+                await asyncio.sleep(self.sleep)
+                self.ser.write(bytes(message.format(device = 1, enable = 0)))
+                await asyncio.sleep(self.sleep)
         # Everytime else = Red
         else:
             message = message.format(device = 0, enable = 1)
