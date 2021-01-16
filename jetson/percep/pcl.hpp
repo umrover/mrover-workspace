@@ -12,10 +12,17 @@ recieves angle off y axis
 */
 class compareLine {
 public:
+    //Member Variables
     int xIntercept;
     double slope;
     
-    compareLine(double angle_in, int xInt_in) : xIntercept{xInt_in}, 
+    /**
+     \brief CompareLine constructor
+     \param angleIn: angle in degrees a line is off the x axis
+     \param xIntIn: X intercept of a given line
+     \returns void
+     */
+    compareLine(double angle_in, int xIntIn) : xIntercept{xIntIn}, 
                         slope{tan(angle_in*PI/180)} {
                             if(slope != 0) {
                                 slope = 1/slope;
@@ -46,10 +53,19 @@ public:
     }
 };
 
+/**
+ * \class PCL
+ * \brief functor involving PCL
+ */
 class PCL {
     public:
 
     //Constructor
+
+    /**
+     \brief PCL constructor
+     \returns void
+     */
     PCL() : 
         bearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
