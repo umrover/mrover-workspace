@@ -126,8 +126,6 @@ int main() {
 
 
   Display display("Console Display");
-  double fps;
-  //statisticsDisplay.insert({"fps: ", fps});
 /* --- Main Processing Stuff --- */
   while (true) {
     //for calculating fps
@@ -138,9 +136,15 @@ int main() {
 
     #if AR_DETECTION
     //Grab initial images from cameras
+    auto image_grabStart = std::chrono::high_resolution_clock::now();
+
     Mat rgb;
     Mat src = cam.image();
     Mat depth_img = cam.depth();
+
+    auto image_grabEnd = std::chrono::high_resolution_clock::now();
+    double image_grabTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(image_grabEnd - image_grabStart).count();
+    statisticsDisplay.insert({"Grab Image Time (ms): ", image_grabTimeDiff});
     #endif
 
     #if OBSTACLE_DETECTION
@@ -183,7 +187,8 @@ int main() {
 
 /* --- Point Cloud Processing --- */
     #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
-    
+    auto obstacleStart = std::chrono::high_resolution_clock::now();
+
     #if PERCEPTION_DEBUG
     //Update Original 3D Viewer
     viewer_original->updatePointCloud(pointcloud.pt_cloud_ptr);
@@ -223,6 +228,9 @@ int main() {
       cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
     #endif
     
+    auto obstacleEnd = std::chrono::high_resolution_clock::now();
+    double obstacleTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(obstacleEnd - obstacleStart).count();
+    statisticsDisplay.insert({"Obstacle Detection Time (ms): ", obstacleTimeDiff});
     #endif
     
 /* --- Publish LCMs --- */
@@ -238,11 +246,10 @@ int main() {
     //calculate fps
     auto fpsEnd = std::chrono::high_resolution_clock::now();
     auto fpsTimeDiff = fpsEnd - fpsStart;
-    fps = 1 / std::chrono::duration<double, std::ratio<1,1>>(fpsTimeDiff).count();
+    double fps = 1 / std::chrono::duration<double, std::ratio<1,1>>(fpsTimeDiff).count();
 
     statisticsDisplay.insert({"FPS: ", fps});
     statisticsDisplay.insert({"Bearing: ", pointcloud.bearing});
-    //statisticsDisplay.insert({"distance: ", pointcloud.distance});
 
     display.updateDisplay(statisticsDisplay);
     statisticsDisplay.clear();
