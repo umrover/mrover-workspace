@@ -95,8 +95,8 @@ void PCL::RANSACSegmentation(string type) {
 //Return vector of clusters
 //Source: https://rb.gy/qvjati
 void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_indices) {
-    pcl::StopWatch funcTime;
     #if PERCEPTION_DEBUG
+        pcl::StopWatch funcTime;
         pcl::ScopeTime t ("CPU Cluster Extraction");
     #endif
     
@@ -140,10 +140,10 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
             }
             j++;
         } 
-    #endif
 
-    double scopeTime = funcTime.getTime();
-    statisticsDisplay.insert({"CPU Cluster Extraction (ms): ", scopeTime});
+        double scopeTime = funcTime.getTime();
+        statisticsDisplay.insert({"CPU Cluster Extraction (ms): ", scopeTime});
+    #endif
 }
 
 /* --- Find Interest Points --- */

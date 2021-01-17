@@ -1,62 +1,13 @@
 #include "perception.hpp"
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
+#include "display.hpp"
 #include <unistd.h>
 #include <deque>
 
 using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
-
-
-class Display{
-  private:
-  Mat img{Mat(250, 400, CV_8UC3, Scalar(0,0,0))};
-  string windowName;
-  map<string, double> inputStats;
-
-
-  void clearDisplay(){
-    string inputText, statsText;
-    int yValue = 20;
-
-    for(auto &stats : inputStats){
-      statsText = to_string(stats.second);
-      inputText = stats.first + statsText;
-      putText(img, inputText, Point(5, yValue), FONT_HERSHEY_PLAIN, 1, Scalar(0,0,0), 1);
-      yValue += 20;
-    }
-  }
-
-  public:
-    Display(string in_windowName) : windowName(in_windowName) {
-      namedWindow(windowName);
-      imshow(windowName, img);
-      waitKey(30);
-    }
-  
-    void updateDisplay(map<string, double> inputs){
-      clearDisplay();
-
-      inputStats = inputs;
-      string inputText, statsText;
-      int yValue = 20;
-
-      for(auto &stats : inputStats){
-        statsText = to_string(stats.second);
-        inputText = stats.first + statsText;
-        putText(img, inputText, Point(5, yValue), FONT_HERSHEY_PLAIN, 1, Scalar(255,255,255), 1);
-        yValue += 20;
-      }
-
-      imshow(windowName, img);
-      waitKey(1);
-    }
-
-    ~Display(){
-      destroyWindow(windowName);
-    }
-};
 
 map<string, double> statisticsDisplay;
 
@@ -124,15 +75,18 @@ int main() {
   cam.record_ar_init();
   #endif
 
-
   Display display("Console Display");
 /* --- Main Processing Stuff --- */
   while (true) {
-    //for calculating fps
-    auto fpsStart = std::chrono::high_resolution_clock::now();
+    #if PERCEPTION_DEBUG
+      auto fpsStart = std::chrono::high_resolution_clock::now();
+    #endif
+
+    #if PERCEPTION_DEBUG && AR_DETECTION
+      auto image_grabStart = std::chrono::high_resolution_clock::now();
+    #endif
 
     //Check to see if we were able to grab the frame
-    auto image_grabStart = std::chrono::high_resolution_clock::now();
     if (!cam.grab()) break;
 
     #if AR_DETECTION
@@ -141,9 +95,11 @@ int main() {
     Mat src = cam.image();
     Mat depth_img = cam.depth();
 
-    auto image_grabEnd = std::chrono::high_resolution_clock::now();
-    double image_grabTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(image_grabEnd - image_grabStart).count();
-    statisticsDisplay.insert({"Grab Image Time (ms): ", image_grabTimeDiff});
+    #if PERCEPTION_DEBUG 
+      auto image_grabEnd = std::chrono::high_resolution_clock::now();
+      double image_grabTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(image_grabEnd - image_grabStart).count();
+      statisticsDisplay.insert({"Grab Image Time (ms): ", image_grabTimeDiff});
+    #endif
     #endif
 
     #if OBSTACLE_DETECTION
@@ -164,7 +120,9 @@ int main() {
     arTags[0].distance = -1;
     arTags[1].distance = -1;
     #if AR_DETECTION
-      auto ar_detectStart = std::chrono::high_resolution_clock::now();
+      #if PERCEPTION_DEBUG
+        auto ar_detectStart = std::chrono::high_resolution_clock::now();
+      #endif
 
       tagPair = detector.findARTags(src, depth_img, rgb);
       #if AR_RECORD
@@ -173,20 +131,24 @@ int main() {
 
       detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
 
-      auto ar_detectEnd = std::chrono::high_resolution_clock::now();
-      double ar_detectTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(ar_detectEnd - ar_detectStart).count();
-      statisticsDisplay.insert({"AR Detection Time (ms): ", ar_detectTimeDiff});
+      #if PERCEPTION_DEBUG
+        auto ar_detectEnd = std::chrono::high_resolution_clock::now();
+        double ar_detectTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(ar_detectEnd - ar_detectStart).count();
+        statisticsDisplay.insert({"AR Detection Time (ms): ", ar_detectTimeDiff});
+      #endif
 
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
       waitKey(1);  
     #endif
-
     #endif
 
 /* --- Point Cloud Processing --- */
     #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
-    auto obstacleStart = std::chrono::high_resolution_clock::now();
+
+    #if PERCEPTION_DEBUG
+      auto obstacleStart = std::chrono::high_resolution_clock::now();
+    #endif
 
     #if PERCEPTION_DEBUG
     //Update Original 3D Viewer
@@ -225,11 +187,11 @@ int main() {
       viewer->updatePointCloud(pointcloud.pt_cloud_ptr);
       viewer->spinOnce(20);
       cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
-    #endif
     
-    auto obstacleEnd = std::chrono::high_resolution_clock::now();
-    double obstacleTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(obstacleEnd - obstacleStart).count();
-    statisticsDisplay.insert({"Obstacle Detection Time (ms): ", obstacleTimeDiff});
+      auto obstacleEnd = std::chrono::high_resolution_clock::now();
+      double obstacleTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(obstacleEnd - obstacleStart).count();
+      statisticsDisplay.insert({"Obstacle Detection Time (ms): ", obstacleTimeDiff});
+    #endif
     #endif
     
 /* --- Publish LCMs --- */
@@ -242,16 +204,18 @@ int main() {
     
     ++iterations;
 
-    //calculate fps
-    auto fpsEnd = std::chrono::high_resolution_clock::now();
-    auto fpsTimeDiff = fpsEnd - fpsStart;
-    double fps = 1 / std::chrono::duration<double, std::ratio<1,1>>(fpsTimeDiff).count();
+    #if PERCEPTION_DEBUG
+      //calculate fps
+      auto fpsEnd = std::chrono::high_resolution_clock::now();
+      auto fpsTimeDiff = fpsEnd - fpsStart;
+      double fps = 1 / std::chrono::duration<double, std::ratio<1,1>>(fpsTimeDiff).count();
 
-    statisticsDisplay.insert({"FPS: ", fps});
-    statisticsDisplay.insert({"Bearing: ", pointcloud.bearing});
+      statisticsDisplay.insert({"FPS: ", fps});
+      statisticsDisplay.insert({"Bearing: ", pointcloud.bearing});
 
-    display.updateDisplay(statisticsDisplay);
-    statisticsDisplay.clear();
+      display.updateDisplay(statisticsDisplay);
+      statisticsDisplay.clear();
+    #endif
   }
 
 
