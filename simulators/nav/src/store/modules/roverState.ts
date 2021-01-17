@@ -56,7 +56,7 @@ const state:RoverState = {
   noiseSetttings: {
     locNoise: {
       headingStdev: 5,
-      latLonStdev: 1
+      latLonStdev: 2
     },
     percepNoise: {
       obsFalsePos: 0.1,
