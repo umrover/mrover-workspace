@@ -118,70 +118,70 @@ int main() {
       #endif
 
 /* --- Point Cloud Processing --- */
-    #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
+      #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
     
-      #if PERCEPTION_DEBUG
-        //Update Original 3D Viewer
-        viewer_original->updatePointCloud(pointcloud.pt_cloud_ptr);
-        viewer_original->spinOnce(10);
-        cerr<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
+        #if PERCEPTION_DEBUG
+          //Update Original 3D Viewer
+          viewer_original->updatePointCloud(pointcloud.pt_cloud_ptr);
+          viewer_original->spinOnce(10);
+          cerr<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
+        #endif
+
+        //Run Obstacle Detection
+        pointcloud.pcl_obstacle_detection(viewer);  
+        obstacle_return obstacle_detection (pointcloud.bearing, pointcloud.distance);
+
+        //Outlier Detection Processing
+        outliers.pop_back(); //Remove outdated outlier value
+
+        if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05)
+          outliers.push_front(true); //if an obstacle is detected in front
+        else 
+          outliers.push_front(false); //obstacle is not detected
+
+        if(outliers == checkTrue) //If past iterations see obstacles
+          lastObstacle = obstacle_detection;
+        else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
+          lastObstacle = obstacle_detection;
+
+      //Update LCM 
+        obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
+        if(lastObstacle.distance <= obstacle_detection.distance)
+          obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
+        else
+          obstacleMessage.distance = (obstacle_detection.distance/1000); //update LCM distance field
+        cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
+
+        #if PERCEPTION_DEBUG
+          //Update Processed 3D Viewer
+          viewer->updatePointCloud(pointcloud.pt_cloud_ptr);
+          viewer->spinOnce(20);
+          cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
+        #endif
+    
       #endif
-
-      //Run Obstacle Detection
-      pointcloud.pcl_obstacle_detection(viewer);  
-      obstacle_return obstacle_detection (pointcloud.bearing, pointcloud.distance);
-
-      //Outlier Detection Processing
-      outliers.pop_back(); //Remove outdated outlier value
-
-      if(pointcloud.bearing > 0.05 || pointcloud.bearing < -0.05)
-        outliers.push_front(true);//if an obstacle is detected in front
-      else 
-        outliers.push_front(false); //obstacle is not detected
-
-      if(outliers == checkTrue) //If past iterations see obstacles
-        lastObstacle = obstacle_detection;
-      else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
-        lastObstacle = obstacle_detection;
-
-     //Update LCM 
-    obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
-    if(lastObstacle.distance <= obstacle_detection.distance)
-      obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
-    else
-      obstacleMessage.distance = (obstacle_detection.distance/1000); //update LCM distance field
-    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
-
-    #if PERCEPTION_DEBUG
-      //Update Processed 3D Viewer
-      viewer->updatePointCloud(pointcloud.pt_cloud_ptr);
-      viewer->spinOnce(20);
-      cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
-    #endif
-    
-    #endif
     
 /* --- Publish LCMs --- */
-    lcm_.publish("/target_list", &arTagsMessage);
-    lcm_.publish("/obstacle", &obstacleMessage);
+      lcm_.publish("/target_list", &arTagsMessage);
+      lcm_.publish("/obstacle", &obstacleMessage);
 
-    #if !ZED_SDK_PRESENT
-      std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
-    #endif
+      #if !ZED_SDK_PRESENT
+        std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
+      #endif
     
-    ++iterations;
-  }
+      ++iterations;
+    }
 
 
 /* --- Wrap Things Up --- */
-  #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
-    viewer->close();
-  #endif
+    #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
+      viewer->close();
+    #endif
   
-  #if AR_RECORD
-    cam.record_ar_finish();
-  #endif
+    #if AR_RECORD
+      cam.record_ar_finish();
+    #endif
   
-  return 0;
+    return 0;
 }
 
