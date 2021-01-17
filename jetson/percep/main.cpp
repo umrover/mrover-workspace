@@ -132,12 +132,11 @@ int main() {
     auto fpsStart = std::chrono::high_resolution_clock::now();
 
     //Check to see if we were able to grab the frame
+    auto image_grabStart = std::chrono::high_resolution_clock::now();
     if (!cam.grab()) break;
 
     #if AR_DETECTION
     //Grab initial images from cameras
-    auto image_grabStart = std::chrono::high_resolution_clock::now();
-
     Mat rgb;
     Mat src = cam.image();
     Mat depth_img = cam.depth();
