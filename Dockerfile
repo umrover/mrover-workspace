@@ -133,3 +133,4 @@ RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING PCL" && \
     make -j1 && make install && ldconfig && \
     cd /usr/local && \
     rm -rf pcl-pcl-1.11.1
+    
