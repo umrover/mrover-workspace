@@ -12,6 +12,7 @@ using namespace std;
 #define PI 3.14159265
 
 int main(){
+
 	Camera cam;
 	int counter_fail = 0;
 	while (!cam.grab()) {
@@ -72,7 +73,7 @@ int main(){
 	    Mat depth_img;
 
 		const float roverWidth = 46 * 25.4; //inches to mm
-		const float focalLength = mRoverConfig["zed_specs"]["focalLength"].GetFloat(); //zed focal length in mm
+		const float focalLength = 2.8; //zed focal length in mm
 		const float fieldofView = 110 * PI/180;	//degrees to radians
 
 		float distThreshold;    //meters, used to calculate rover pixels for scanning width

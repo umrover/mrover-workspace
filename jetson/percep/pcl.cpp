@@ -20,10 +20,10 @@
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
 
         #if ZED_SDK_PRESENT
-        sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
-        cloudArea = cloud_res.area();
+           sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
+           cloudArea = cloud_res.area();
         #else
-        cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
+            cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
         #endif
 
     };
