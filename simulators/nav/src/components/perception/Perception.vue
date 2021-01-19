@@ -4,9 +4,8 @@
 
 <!------------------------------------------- Template -------------------------------------------->
 <template>
-  <div>
-    <!-- Render nothing. -->
-  </div>
+  <!-- Render nothing. -->
+  <div />
 </template>
 
 
@@ -21,7 +20,8 @@ import {
   Obstacle,
   ObstacleMessage,
   Odom,
-  TargetListMessage
+  TargetListMessage,
+  ZedGimbalPosition
 } from '../../utils/types';
 import ObstacleDetector from './obstacle_detector';
 import TargetDetector from './target_detector';
@@ -56,7 +56,10 @@ export default class Perception extends Vue {
   private readonly obstacles!:Obstacle[];
 
   @Getter
-  private readonly simulatePerception!:boolean;
+  private readonly simulatePercep!:boolean;
+
+  @Getter
+  private readonly zedGimbalPos!:ZedGimbalPosition;
 
   /************************************************************************************************
    * Vuex Mutations
@@ -188,13 +191,30 @@ export default class Perception extends Vue {
      targets. We intentionally only update when starting simulating because
      when we stop simulating perception, the last LCM messages are what nav
      will still see (i.e. we don't send a "blank" message. */
-  @Watch('simulatePerception')
-  private onSimulatePerceptionChange():void {
-    if (this.simulatePerception) {
+  @Watch('simulatePercep')
+  private onSimulatePercepChange():void {
+    if (this.simulatePercep) {
       this.computeVisibleObstacles();
       this.computeVisibleTargets();
     }
-  } /* onSimulatePerceptionChange() */
+  } /* onSimulatePercepChange() */
+
+  @Watch('zedGimbalPos', { deep: true })
+  private onZedGimbalPosChange():void {
+    /* If obstacleDetector or targetDetector not yet defined */
+    if (this.obstacleDetector === undefined || this.targetDetector === undefined) {
+      return;
+    }
+
+    /* Recompute obstacle LCM */
+    this.obstacleDetector.updateZedGimbalPos(this.zedGimbalPos);
+    this.computeVisibleObstacles();
+
+    /* Recompute targetList LCM */
+    this.targetDetector.updateZedGimbalPos(this.zedGimbalPos);
+    this.computeVisibleTargets();
+    console.log('here');
+  }
 
   /************************************************************************************************
    * Private Methods
@@ -202,7 +222,7 @@ export default class Perception extends Vue {
   /* Compute the obstacles that are visible to the rover. */
   private computeVisibleObstacles():void {
     /* If not simulating perception */
-    if (!this.simulatePerception) {
+    if (!this.simulatePercep) {
       return;
     }
 
@@ -219,7 +239,7 @@ export default class Perception extends Vue {
   /* Compute the targets that are visible to the rover. */
   private computeVisibleTargets():void {
     /* If not simulating perception */
-    if (!this.simulatePerception) {
+    if (!this.simulatePercep) {
       return;
     }
 
@@ -240,13 +260,14 @@ export default class Perception extends Vue {
   private created():void {
     const scale = this.canvasHeight / this.fieldSize;
 
-    this.obstacleDetector = new ObstacleDetector(this.currOdom, this.obstacles,
+    this.obstacleDetector = new ObstacleDetector(this.currOdom, this.zedGimbalPos, this.obstacles,
                                                  this.fieldOfViewOptions, this.fieldCenterOdom,
                                                  this.canvasHeight, scale);
     this.computeVisibleObstacles();
 
-    this.targetDetector = new TargetDetector(this.currOdom, this.arTags, this.gates,
-                                             this.fieldOfViewOptions, this.fieldCenterOdom);
+    this.targetDetector = new TargetDetector(this.currOdom, this.zedGimbalPos, this.arTags,
+                                             this.gates, this.fieldOfViewOptions,
+                                             this.fieldCenterOdom);
     this.computeVisibleTargets();
   } /* created() */
 }

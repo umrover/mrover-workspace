@@ -3,7 +3,10 @@
 
 <!------------------------------------------- Template -------------------------------------------->
 <template>
-  <fieldset class="box draw-module">
+  <fieldset
+    v-hotkey.prevent="keymap"
+    class="box draw-module"
+  >
     <legend>Draw Module</legend>
     <RadioSelector
       :options="drawModeOptions"
@@ -99,6 +102,12 @@
           </div>
         </div>
       </div>
+
+      <!-- REFERENCE_POINT -->
+      <div
+        :class="{ 'invisible': drawMode !== DrawModeType.REFERENCE_POINT }"
+        class="draw-options reference-point-draw-options"
+      />
 
       <!-- The largest draw-options must go last for styling purposes.
            Additionally it must have the class 'largest-draw-options'. -->
@@ -239,10 +248,11 @@ export default class DrawModeModule extends Vue {
    ************************************************************************************************/
   /* Draw mode options */
   private readonly drawModeOptions:RadioOption<FieldItemType>[] = [
-    { value: FieldItemType.WAYPOINT, name: 'Waypoint' },
-    { value: FieldItemType.AR_TAG,   name: 'AR Tag' },
-    { value: FieldItemType.GATE,     name: 'Gate' },
-    { value: FieldItemType.OBSTACLE, name: 'Obstacle' }
+    { value: FieldItemType.WAYPOINT,        name: 'Waypoint' },
+    { value: FieldItemType.AR_TAG,          name: 'AR Tag' },
+    { value: FieldItemType.GATE,            name: 'Gate' },
+    { value: FieldItemType.OBSTACLE,        name: 'Obstacle' },
+    { value: FieldItemType.REFERENCE_POINT, name: 'Reference Point' }
   ];
 
   /************************************************************************************************
@@ -385,11 +395,23 @@ export default class DrawModeModule extends Vue {
     });
   }
 
+  /* Mapping of hotkeys to functions. */
+  get keymap():Record<string, ()=>void> {
+    return {
+      'shift+s': this.toggleIsSearchPoint,
+      'shift+g': this.toggleIsGateSearchPoint
+    };
+  }
+
   /************************************************************************************************
    * Private Methods
    ************************************************************************************************/
   /* Set/unset the gate search option. */
   private toggleIsGateSearchPoint():void {
+    /* Don't toggle if not in WAYPOINT draw mode. */
+    if (this.drawMode !== FieldItemType.WAYPOINT) {
+      return;
+    }
     this.waypointIsGateSearch = !this.waypointIsGateSearch;
     if (this.waypointIsGateSearch) {
       this.waypointIsSearch = true;
@@ -398,6 +420,9 @@ export default class DrawModeModule extends Vue {
 
   /* Set/unset the search option. */
   private toggleIsSearchPoint():void {
+    if (this.drawMode !== FieldItemType.WAYPOINT) {
+      return;
+    }
     this.waypointIsSearch = !this.waypointIsSearch;
     if (!this.waypointIsSearch) {
       this.waypointIsGateSearch = false;

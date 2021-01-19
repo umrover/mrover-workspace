@@ -1,0 +1,12 @@
+[Unit]
+Description=MRover Onboard Computer Vision
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jarvis exec jetson_cv
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

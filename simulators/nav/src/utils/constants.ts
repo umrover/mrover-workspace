@@ -2,10 +2,18 @@
    of the rover). */
 
 import {
+  PerceptionConstants,
   PostConstants,
   RepeaterConstants,
-  RoverConstants
+  RoverConstants,
+  ZedConstants
 } from './types';
+
+
+/* Define the perception system constants */
+export const PERCEPTION:PerceptionConstants = {
+  minVisibleDistTag: 0.25
+};
 
 
 /* Define the size of a post. */
@@ -27,4 +35,12 @@ export const RADIO:RepeaterConstants = {
 export const ROVER:RoverConstants = {
   length: 1.25,
   width: 1.25
+};
+
+/* Define ZED and ZED gimbal constants. */
+export const ZED:ZedConstants = {
+  gimbal: {
+    minAngle: -180,
+    maxAngle: 180
+  }
 };

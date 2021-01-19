@@ -1,9 +1,0 @@
-#pragma once
-#mesondefine AR_DETECTION
-#mesondefine OBSTACLE_DETECTION
-#mesondefine ZED_SDK_PRESENT
-#mesondefine PERCEPTION_DEBUG
-#mesondefine WRITE_CURR_FRAME_TO_DISK
-#mesondefine DEFAULT_ONLINE_DATA_FOLDER
-#mesondefine OBS_RECORD
-#mesondefine AR_RECORD

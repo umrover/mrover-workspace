@@ -3,31 +3,39 @@
 
 <!------------------------------------------- Template -------------------------------------------->
 <template>
-  <fieldset class="box debug-tools">
+  <fieldset
+    v-hotkey.prevent="keymap"
+    class="box debug-tools"
+  >
     <legend>Debug Tools</legend>
     <!-- IDE Features (e.g. pause, step, etc.) -->
     <div class="ide-features">
       <Button
         name="Reset Rover"
-        :disabled="!simulateLocalization"
+        :disabled="!simulateLoc"
         @clicked="resetRover"
       />
       <Checkbox
         class="play-pause"
         :on="!paused"
         :name="playPauseDisplay"
-        :disabled="!simulateLocalization"
+        :disabled="!simulateLoc"
         @clicked="playPause"
       />
       <Button
         name="Step"
-        :disabled="!paused || !simulateLocalization"
+        :disabled="!paused || !simulateLoc"
         @clicked="step"
       />
       <Checkbox
         :on="drawFovIn"
-        name="Draw Rover Visibility"
+        name="Draw Visibility"
         @clicked="toggleDrawFov"
+      />
+      <Checkbox
+        :on="drawPathIn"
+        name="Draw Path"
+        @clicked="toggleDrawPath"
       />
     </div>
 
@@ -87,7 +95,12 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { FieldOfViewOptions, Odom, Speeds } from '../../utils/types';
+import {
+  FieldOfViewOptions,
+  Odom,
+  Speeds,
+  ZedGimbalPosition
+} from '../../utils/types';
 import Button from '../common/Button.vue';
 import Checkbox from '../common/Checkbox.vue';
 import NumberInput from '../common/NumberInput.vue';
@@ -115,16 +128,22 @@ export default class DebugTools extends Vue {
   private readonly currSpeed!:Speeds;
 
   @Getter
-  private readonly fieldCenterOdom!:Odom;
-
-  @Getter
   private readonly fieldOfViewOptions!:FieldOfViewOptions;
 
   @Getter
   private readonly paused!:boolean;
 
   @Getter
-  private readonly simulateLocalization!:boolean;
+  private readonly roverPath!:Odom[];
+
+  @Getter
+  private readonly roverPathVisible!:boolean;
+
+  @Getter
+  private readonly simulateLoc!:boolean;
+
+  @Getter
+  private readonly startLoc!:Odom;
 
   @Getter
   private readonly takeStep!:boolean;
@@ -132,6 +151,9 @@ export default class DebugTools extends Vue {
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
+  @Mutation
+  private readonly clearRoverPath!:()=>void;
+
   @Mutation
   private readonly setAutonState!:(onOff:boolean)=>void;
 
@@ -151,7 +173,13 @@ export default class DebugTools extends Vue {
   private readonly setRepeaterLoc!:(newRepeaterLoc:Odom|null)=>void;
 
   @Mutation
+  private readonly setRoverPathVisible!:(onOff:boolean)=>void;
+
+  @Mutation
   private readonly setTakeStep!:(takeStep:boolean)=>void;
+
+  @Mutation
+  private readonly setZedGimbalPos!:(newZedGimbalPos:ZedGimbalPosition)=>void;
 
   /************************************************************************************************
    * Local Getters/Setters
@@ -166,6 +194,14 @@ export default class DebugTools extends Vue {
       depth: this.fovDepthIn,
       visible: newVisible
     });
+  }
+
+  /* Displayed whether or not to draw the rover's path. */
+  private get drawPathIn():boolean {
+    return this.roverPathVisible;
+  }
+  private set drawPathIn(newVisible:boolean) {
+    this.setRoverPathVisible(newVisible);
   }
 
   /* Displayed field of view angle. */
@@ -190,6 +226,13 @@ export default class DebugTools extends Vue {
       depth: newDepth,
       visible: this.drawFovIn
     });
+  }
+
+  /* Mapping of hotkeys to functions. */
+  get keymap():Record<string, ()=>void> {
+    return {
+      'shift+r': this.resetRover
+    };
   }
 
   /* Word to display on Play/Pause button. */
@@ -248,9 +291,11 @@ export default class DebugTools extends Vue {
 
   /* Reset the rover to the starting state. */
   private resetRover():void {
-    this.setCurrOdom(this.fieldCenterOdom);
+    this.setCurrOdom(this.startLoc);
     this.setAutonState(false);
     this.setPaused(false);
+    this.setZedGimbalPos({ angle: 0 });
+    this.clearRoverPath();
   } /* resetRover() */
 
   /* When paused, execute a single joystick command. */
@@ -262,6 +307,11 @@ export default class DebugTools extends Vue {
   private toggleDrawFov():void {
     this.drawFovIn = !this.drawFovIn;
   } /* toggleDrawFov() */
+
+  /* Flip on/off drawing the rover's path. */
+  private toggleDrawPath():void {
+    this.drawPathIn = !this.drawPathIn;
+  } /* toggleDrawPath() */
 }
 </script>
 
