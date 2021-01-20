@@ -19,7 +19,7 @@
 //Also allows us to not be restricted to using the ZED for testing,
 //but can use sample images for testing
 class Camera::Impl {
-	public:
+    public:
 		Impl();
 		~Impl();
 		bool grab();

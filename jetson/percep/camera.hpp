@@ -14,7 +14,7 @@ private:
 	std::string depth_foldername;
 	std::string pcl_foldername;
 
-	cv::VideoWriter vidWrite;
+    cv::VideoWriter vidWrite;
 	
 public:
 	Camera();
