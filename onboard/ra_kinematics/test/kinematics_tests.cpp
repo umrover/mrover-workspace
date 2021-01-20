@@ -6,9 +6,13 @@
 
 #include <iostream>
 #include <string>
+#include <iomanip>
 
 using namespace nlohmann;
 using namespace std;
+
+typedef Eigen::Matrix<double, -1, -1> MatrixXd;
+typedef Eigen::Matrix<double, 6, 1> Vector6d;
 
 /* 
 Here are some varius tests we can use to test kinematics.cpp once it is written (using 2019 configuration):
@@ -32,8 +36,8 @@ NOTE: For more testing points, see valid_configurations_2.csv located towards th
 
 */
 
-
 TEST(initialization_test) {
+    cout << setprecision(9);
     string config_path = getenv("MROVER_CONFIG");
     string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
     json geom = read_json_from_file(geom_file);
@@ -42,19 +46,32 @@ TEST(initialization_test) {
 }
 
 TEST(fk_test) {
+    cout << setprecision(9);
     // Create the arm to be tested on:
-    // string config_path = getenv("MROVER_CONFIG");
-    // string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
 
-    // json geom = read_json_from_file(geom_file);
-    // ArmState arm = ArmState(geom);
-    // KinematicsSolver solver = KinematicsSolver(arm);
-    
+    json geom = read_json_from_file(geom_file);
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver(arm);
 }
 
 TEST(apply_joint_xform_test) {}
 
-TEST(ik_test) {}
+TEST(ik_test) {
+    cout << setprecision(9);
+    string config_path = getenv("MROVER_CONFIG");
+    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+
+    json geom = read_json_from_file(geom_file);
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver(arm);
+    // Create target point vector:
+    Vector6d target;
+    target << 0.28873017665603573,0.022374986261356488,0.10726454148173355,
+                1.8729278741492037,2.235500299169628,0.161684737768472;
+    solver.IK(target, true, false);
+}
 
 TEST(ik_step_test) {}
 

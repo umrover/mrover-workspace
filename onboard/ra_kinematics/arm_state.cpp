@@ -2,6 +2,7 @@
 #include "json.hpp"
 #include "utils.hpp"
 #include <iostream>
+#include <iomanip>
 #include <Eigen/Dense>
 
 using namespace Eigen;
@@ -20,11 +21,14 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
     links_json = geom["links"];
     int link_num = 0;
     for (json::iterator it = links_json.begin(); it != links_json.end(); it++) {
+        // Create the link object:
+        links[it.key()].name = it.key();
+        links[it.key()].global_transform = Matrix4d::Identity();
+
         string joint_origin = it.value()["visual"]["origin"]["joint_origin"];
         
         json link_shapes = it.value()["link_shapes"];
         for (json::iterator jt = link_shapes.begin(); jt != link_shapes.end(); jt++) {
-            //ERROR: occurring within this function call/function:
             try{
                 add_avoidance_link(link_num++, joint_origin, jt.value());
             }
@@ -94,7 +98,7 @@ map<string, double> ArmState::get_joint_limits(string joint) {
     return joints.at(joint).joint_limits;
 }
 // Tested in set_joint_angles_test
-void ArmState::set_joint_angles(vector<double>& angles) {
+void ArmState::set_joint_angles(const vector<double>& angles) {
     // Iterate through all angles and joints adding the angles to each corresponding joint.
     // angles vector should be same size as internal joints map.
     int i = 0;
@@ -147,6 +151,12 @@ void ArmState::set_joint_pos_world(string joint, Vector3d position) {
 }
 
 Vector3d ArmState::get_joint_pos_world(string joint) {
+    // cout << "joint: " << joint << "\n";s
+    // cout all joints:
+    // cout << "joints:\n";
+    // for (auto it = joints.begin(); it != joints.end(); ++it) {
+    //     cout << it->first << "\n";
+    // }
     return joints.at(joint).pos_world;
 }
 
@@ -165,10 +175,10 @@ vector<double> ArmState::get_ef_pos_and_euler_angles() {
     Vector3d ef_ang_world = get_ef_ang_world();
     vector<double> ef_pos_and_angles;
     for (int i = 0; i < 3; ++i) {
-        ef_pos_and_angles[i] = ef_pos_vec(i);
+        ef_pos_and_angles.push_back(ef_pos_vec(i));
     }
     for (int i = 3; i < 6; ++i) {
-        ef_pos_and_angles[i] = ef_ang_world(i-3);
+        ef_pos_and_angles.push_back(ef_ang_world(i-3));
     }
     return ef_pos_and_angles;
 }

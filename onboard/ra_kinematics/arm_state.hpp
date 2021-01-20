@@ -35,6 +35,14 @@ private:
 
                   joint_limits["lower"] = joint_geom["limit"]["lower"];
                   joint_limits["upper"] = joint_geom["limit"]["upper"];
+                  child_link = joint_geom["child"];
+                  // joints b and c get an angle of 0, the rest should get 0   
+                  if (name_in == "joint_b" || name_in == "joint_c") {
+                      angle = 1.0;
+                  }
+                  else{
+                      angle = 0;
+                  } 
               }
 
         string name;
@@ -145,7 +153,7 @@ public:
 
     map<string, double> get_joint_angles();
 
-    void set_joint_angles(vector<double>& angles);
+    void set_joint_angles(const vector<double>& angles);
 
     void transform_avoidance_links();
 

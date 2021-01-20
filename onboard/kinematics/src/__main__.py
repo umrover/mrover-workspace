@@ -10,7 +10,7 @@
 
 import os
 from .mrover_arm import MRoverArm
-from .configuration_space_test import ConfigurationSpaceTest
+# from .configuration_space_test import ConfigurationSpaceTest
 # from .kinematics_tester import KinematicsTester
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
@@ -80,8 +80,8 @@ def main():
 
     ra.IK(target_point, True, False)
 
-    config = ConfigurationSpaceTest(arm)
-    config.straight_up_torque_test()
+    # config = ConfigurationSpaceTest(arm)
+    # config.straight_up_torque_test()
 
     # config.write_file()
     # config.read_file()
