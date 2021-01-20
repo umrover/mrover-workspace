@@ -285,9 +285,8 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     }
     else { //otherwise, check to find left and right paths
 
-        //Values that store the distances of the last obstacle from a given CheckPath
-        double centerDistance, leftDistance, rightDistance;
-        centerDistance = distance; //from previous loop of CheckPath, where it was only looking at the center path for a clear path
+        //Values that store the distances of the last obstacle from a given CheckPath. Center value gets its distance from previous loop of CheckPath
+        double centerDistance = distance, leftDistance, rightDistance;
 
         //Initialize base cases outside of scope
         vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
