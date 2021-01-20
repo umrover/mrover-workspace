@@ -1,12 +1,14 @@
 /* This file contains utility functions used throughout the application. */
 
+import { ZED } from './constants';
 import {
   ArTag,
   Joystick,
   Odom,
   OdomFormat,
   Point2D,
-  Speeds
+  Speeds,
+  ZedGimbalPosition
 } from './types';
 
 /**************************************************************************************************
@@ -30,7 +32,7 @@ const EARTH_RADIUS = 6371000.0;
 /* Calculate new gps location based a joystick command.
    CAUTION: This function assumes constant speeds over
    the time interval */
-export function applyJoystick(
+export function applyJoystickCmdUtil(
     currOdom:Odom,
     canvasCent:Odom,
     command:Joystick,
@@ -52,11 +54,12 @@ export function applyJoystick(
      * circumference = 2 * PI * radius
      * arc_length = circumference * arc_angle / 360
      * [DERIVED]: radius = arc_length / arc_angle */
-  const radius:number = deltaBear !== 0 ? Math.abs(dist) / deltaBearRad : 0;
+  const radius:number = deltaBear !== 0 ? Math.abs(dist) / deltaBearRad : Infinity;
 
   /* Find chord length using law of sines. */
-  const chordLen:number =  Math.sin(deltaBearRad) * radius /
-                           Math.sin((Math.PI / 2) - (deltaBearRad / 2)) * (dist > 0 ? 1 : -1);
+  const chordLen:number =  radius === Infinity ? dist :
+    Math.sin(deltaBearRad) * radius /
+    Math.sin((Math.PI / 2) - (deltaBearRad / 2)) * (dist > 0 ? 1 : -1);
 
   /* Calculate new location */
   let halfwayBear:number = degToRad(currOdom.bearing_deg + (deltaBear / 2));
@@ -67,11 +70,32 @@ export function applyJoystick(
   const nextOdom:Odom = metersToOdom(nextPointMeters, canvasCent);
 
   /* Calculate new bearing */
-  nextOdom.bearing_deg = deltaBear;
   nextOdom.bearing_deg = compassModDeg(currOdom.bearing_deg + deltaBear);
 
   return nextOdom;
-} /* applyJoystick() */
+} /* applyJoystickUtil() */
+
+
+/* Calculate the new ZED gimbal bearing based on the given command. */
+export function applyZedGimbalCmdUtil(
+    currentPos:ZedGimbalPosition,
+    desiredPos:ZedGimbalPosition,
+    deltaTime:number, /* seconds */
+    currSpeed:Speeds
+):ZedGimbalPosition {
+  const bearToDesired:number = currentPos.angle - desiredPos.angle;
+  const left:boolean = bearToDesired > 0;
+  const deltaBearMax:number = deltaTime * currSpeed.turn;
+  const deltaBear:number = Math.min(Math.abs(bearToDesired), deltaBearMax) * (left ? -1 : 1);
+  let newAngle:number = currentPos.angle + deltaBear;
+  if (newAngle < ZED.gimbal.minAngle) {
+    newAngle = ZED.gimbal.minAngle;
+  }
+  else if (newAngle > ZED.gimbal.maxAngle) {
+    newAngle = ZED.gimbal.maxAngle;
+  }
+  return { angle: newAngle };
+} /* applyZedGimbalCmdUtil() */
 
 
 /* Compare ArTags. ArTags on the left (relative to the source) are "less than"
@@ -209,6 +233,23 @@ export function odomToCanvas(
 export function radToDeg(angle:number):number {
   return angle * 180 / Math.PI;
 } /* radToDeg() */
+
+
+/* Find location of point after rotating around origin. */
+export function rotatePoint(
+    point:Point2D /* pixels */,
+    origin:Point2D /* pixels */,
+    angle:number /* degrees of rotation on compass */
+):Point2D {
+  /* Multiply by -1 because compass and canvas rotate opposite directions */
+  const angleRad:number = -1 * degToRad(angle);
+  return {
+    x: ((point.x - origin.x) * Math.cos(angleRad)) +
+        ((origin.y - point.y) * Math.sin(angleRad)) + origin.x,
+    y: origin.y - (((point.x - origin.x) * Math.sin(angleRad)) -
+        ((origin.y - point.y) * Math.cos(angleRad)))
+  };
+} /* rotatePoint() */
 
 
 /* Convert latitude or longitude into a string. */
@@ -413,23 +454,6 @@ function radToDeg2D(coords:Point2D):Point2D {
     y: radToDeg(coords.y)
   };
 } /* radToDeg2D() */
-
-
-/* Find location of point after rotating around origin. */
-function rotatePoint(
-    point:Point2D /* pixels */,
-    origin:Point2D /* pixels */,
-    angle:number /* degrees of rotation on compass */
-):Point2D {
-  /* Multiply by -1 because compass and canvas rotate opposite directions */
-  const angleRad:number = -1 * degToRad(angle);
-  return {
-    x: ((point.x - origin.x) * Math.cos(angleRad)) +
-        ((origin.y - point.y) * Math.sin(angleRad)) + origin.x,
-    y: origin.y - (((point.x - origin.x) * Math.sin(angleRad)) -
-        ((origin.y - point.y) * Math.cos(angleRad)))
-  };
-} /* rotatePoint() */
 
 
 /* Translate a point from the origin (0, 0) to the input origin. Return the

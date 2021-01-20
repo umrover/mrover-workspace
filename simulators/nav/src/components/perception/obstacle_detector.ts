@@ -6,7 +6,8 @@ import {
   Obstacle,
   ObstacleMessage,
   Odom,
-  Point2D
+  Point2D,
+  ZedGimbalPosition
 } from '../../utils/types';
 import {
   calcDistAndBear,
@@ -59,6 +60,9 @@ export default class ObstacleDetector {
   /* obstacles visible to the rover */
   private visibleObstacles!:Obstacle[];
 
+  /* position of the ZED's gimbal */
+  private zedGimbalPos!:ZedGimbalPosition;
+
   /* location of the ZED (i.e. rover's eyes) */
   private zedOdom!:Odom;
 
@@ -68,6 +72,7 @@ export default class ObstacleDetector {
   /* Initialize ObstacleDetector. */
   constructor(
       currOdom:Odom,
+      zedGimbalPos:ZedGimbalPosition,
       obstacles:Obstacle[],
       fov:FieldOfViewOptions,
       fieldCenterOdom:Odom,
@@ -76,42 +81,14 @@ export default class ObstacleDetector {
   ) {
     this.canvasHeight = canvasHeight;
     this.currOdom = currOdom;
+    this.zedGimbalPos = zedGimbalPos;
     this.fieldCenterOdom = fieldCenterOdom;
     this.fov = fov;
     this.obstacles = obstacles;
     this.scale = scale;
 
-    this.zedOdom = calcRelativeOdom(currOdom, currOdom.bearing_deg,
-                                    ROVER.length / 2, fieldCenterOdom);
-    this.zedOdom.bearing_deg = currOdom.bearing_deg;
+    this.updateZedOdom();
   } /* constructor() */
-
-  /* Update canvas height on change. */
-  updateCanvasHeight(newCanvasHeight:number /* pixels */):void {
-    this.canvasHeight = newCanvasHeight;
-  } /* updateCanvasHeight() */
-
-  /* Update zedOdom on currOdom change. */
-  updateCurrOdom(newCurrOdom:Odom):void {
-    this.zedOdom = calcRelativeOdom(newCurrOdom, newCurrOdom.bearing_deg,
-                                    ROVER.length / 2, this.fieldCenterOdom);
-    this.zedOdom.bearing_deg = newCurrOdom.bearing_deg;
-  } /* updateCurrOdom() */
-
-  /* Update field of view options on change. */
-  updateFov(newFov:FieldOfViewOptions):void {
-    this.fov = newFov;
-  } /* updateFov() */
-
-  /* Update obstacles list on change. */
-  updateObstacles(newObstacles:Obstacle[]):void {
-    this.obstacles = newObstacles;
-  } /* updateObstacles() */
-
-  /* Update canvas field scale on change. */
-  updateScale(newScale:number):void {
-    this.scale = newScale;
-  } /* updateScale() */
 
   /* Calculate the Obstacle LCM message. */
   computeObsMsg():ObstacleMessage {
@@ -239,11 +216,42 @@ export default class ObstacleDetector {
     }
 
     return {
-      detected: false,
       distance: this.obsDist,
       bearing: angle
     };
   } /* computeObsMsg() */
+
+  /* Update canvas height on change. */
+  updateCanvasHeight(newCanvasHeight:number /* pixels */):void {
+    this.canvasHeight = newCanvasHeight;
+  } /* updateCanvasHeight() */
+
+  /* Update zedOdom on currOdom change. */
+  updateCurrOdom(newCurrOdom:Odom):void {
+    this.currOdom = newCurrOdom;
+    this.updateZedOdom();
+  } /* updateCurrOdom() */
+
+  /* Update field of view options on change. */
+  updateFov(newFov:FieldOfViewOptions):void {
+    this.fov = newFov;
+  } /* updateFov() */
+
+  /* Update obstacles list on change. */
+  updateObstacles(newObstacles:Obstacle[]):void {
+    this.obstacles = newObstacles;
+  } /* updateObstacles() */
+
+  /* Update canvas field scale on change. */
+  updateScale(newScale:number):void {
+    this.scale = newScale;
+  } /* updateScale() */
+
+  /* Update ZED gimbal position on change. */
+  updateZedGimbalPos(newZedGimbalPos:ZedGimbalPosition):void {
+    this.zedGimbalPos = newZedGimbalPos;
+    this.updateZedOdom();
+  }
 
   /************************************************************************************************
    * Private Methods
@@ -281,7 +289,6 @@ export default class ObstacleDetector {
     }
 
     return {
-      detected: false, /* deprecated so always false */
       distance: this.obsDist, /* Will be -1 if okay to go straight ahead (i.e. bearing = 0) */
       bearing: calcRelativeBearing(this.zedOdom.bearing_deg, angle)
     };
@@ -533,4 +540,11 @@ export default class ObstacleDetector {
       return cornerDist <= (obs.size / 2) - MIN_OBS_SIZE;
     }
   } /* isObsVisible() */
+
+  /* Calculate the odometry of the ZED */
+  private updateZedOdom():void {
+    this.zedOdom = calcRelativeOdom(this.currOdom, this.currOdom.bearing_deg,
+                                    ROVER.length / 2, this.fieldCenterOdom);
+    this.zedOdom.bearing_deg = compassModDeg(this.currOdom.bearing_deg + this.zedGimbalPos.angle);
+  } /* updateZedOdom() */
 } /* ObstacleDetector */

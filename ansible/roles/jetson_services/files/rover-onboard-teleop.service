@@ -1,0 +1,14 @@
+[Unit]
+Description=MRover Onboard Teleop
+Requires=rover-jetson-talon.service
+After=rover-jetson-talon.service
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jarvis exec jetson_teleop
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

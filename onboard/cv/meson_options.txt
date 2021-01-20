@@ -1,9 +1,0 @@
-option('ar_detection', type: 'boolean', value : true)
-option('obs_detection', type: 'boolean', value: true)
-option('with_zed', type: 'boolean', value : true)
-option('perception_debug', type: 'boolean', value: true)
-option('write_frame', type: 'boolean', value: false)
-option('data_folder', type: 'string', value: '/home/jessica/auton_data/')
-option('obs_record', type: 'boolean', value : false)
-option('ar_record', type: 'boolean', value : false)
-

@@ -8,7 +8,7 @@
       <legend>Odometry</legend>
       <p>Latitude: {{ latitude }}</p>
       <p>Longitude: {{ longitude }}</p>
-      <p>Heading: {{ currOdom.bearing_deg }} º</p>
+      <p>Heading: {{ currOdom.bearing_deg }}º</p>
     </fieldset>
   </div>
 </template>

@@ -3,4 +3,4 @@ rapidjson=False
 phoenix=False
 
 [pip_deps]
-onboard=False
+jetson=False

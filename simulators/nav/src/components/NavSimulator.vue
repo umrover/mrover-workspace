@@ -10,6 +10,7 @@
   >
     <Header />
     <Perception />
+    <HotKeys />
     <div class="flex-grid">
       <!-- left half -->
       <div class="col left">
@@ -21,6 +22,20 @@
         <ControlPanel />
         <FieldItems />
       </div>
+
+      <!-- LCM Connection Statuses -->
+      <HeartbeatMonitor
+        :is-alive.sync="isNavAlive"
+        :has-pulse.sync="navPulse"
+      />
+      <HeartbeatMonitor
+        :is-alive.sync="isLocAlive"
+        :has-pulse.sync="locPulse"
+      />
+      <HeartbeatMonitor
+        :is-alive.sync="isPercepAlive"
+        :has-pulse.sync="percepPulse"
+      />
     </div>
   </div>
 </template>
@@ -32,7 +47,10 @@ import fnvPlus from 'fnv-plus';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
 import { RADIO } from '../utils/constants';
-import { applyJoystick as applyJoystickUtil } from '../utils/utils';
+import {
+  applyJoystickCmdUtil,
+  applyZedGimbalCmdUtil
+} from '../utils/utils';
 import {
   Joystick,
   NavStatus,
@@ -40,12 +58,15 @@ import {
   Odom,
   Speeds,
   TargetListMessage,
-  Waypoint
+  Waypoint,
+  ZedGimbalPosition
 } from '../utils/types';
 import ControlPanel from './control_panel/ControlPanel.vue';
 import Field from './field/Field.vue';
 import FieldItems from './field_items/FieldItems.vue';
 import Header from './header/Header.vue';
+import HeartbeatMonitor from './common/HeartbeatMonitor.vue';
+import HotKeys from './HotKeys.vue';
 import LCMBridge from '../../deps/lcm_bridge_client/dist/bridge.js';
 import LCMCenter from './lcm_center/LCMCenter.vue';
 import Perception from './perception/Perception.vue';
@@ -54,7 +75,7 @@ import Perception from './perception/Perception.vue';
  * Constants
  **************************************************************************************************/
 /* Frequency in milliseconds to publish outgoing LCM messages at. */
-const TIME_INTERVAL = 100;
+const TIME_INTERVAL_MILLI = 100;
 
 /* Number of milliseconds in a 1 second. */
 const ONE_SECOND_MILLI = 1000;
@@ -68,6 +89,8 @@ const TWO_SECOND_MILLI = 2000;
     Field,
     FieldItems,
     Header,
+    HeartbeatMonitor,
+    HotKeys,
     LCMCenter,
     Perception
   }
@@ -83,13 +106,19 @@ export default class NavSimulator extends Vue {
   private readonly currOdom!:Odom;
 
   @Getter
+  private readonly currSpeed!:Speeds;
+
+  @Getter
   private readonly fieldCenterOdom!:Odom;
 
   @Getter
   private readonly joystick!:Joystick;
 
   @Getter
-  private readonly currSpeed!:Speeds;
+  private readonly locConnected!:boolean;
+
+  @Getter
+  private readonly navConnected!:boolean;
 
   @Getter
   private readonly obstacleMessage!:ObstacleMessage;
@@ -98,16 +127,19 @@ export default class NavSimulator extends Vue {
   private readonly paused!:boolean;
 
   @Getter
+  private readonly percepConnected!:boolean;
+
+  @Getter
   private readonly radioStrength!:number;
 
   @Getter
   private readonly repeaterLoc!:Odom|null;
 
   @Getter
-  private readonly simulateLocalization!:boolean;
+  private readonly simulateLoc!:boolean;
 
   @Getter
-  private readonly simulatePerception!:boolean;
+  private readonly simulatePercep!:boolean;
 
   @Getter
   private readonly takeStep!:boolean;
@@ -118,11 +150,26 @@ export default class NavSimulator extends Vue {
   @Getter
   private readonly waypoints!:Waypoint[];
 
+  @Getter
+  private readonly zedGimbalCmd!:ZedGimbalPosition;
+
+  @Getter
+  private readonly zedGimbalPos!:ZedGimbalPosition;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
   @Mutation
   private readonly flipLcmConnected!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipLocConnected!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipNavConnected!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipPercepConnected!:(onOff:boolean)=>void;
 
   @Mutation
   private readonly setCurrOdom!:(newOdom:Odom)=>void;
@@ -148,17 +195,59 @@ export default class NavSimulator extends Vue {
   @Mutation
   private readonly setTargetList!:(newTargetList:TargetListMessage)=>void;
 
+  @Mutation
+  private readonly setZedGimbalCmd!:(newZedGimbalCmd:ZedGimbalPosition)=>void;
+
+  @Mutation
+  private readonly setZedGimbalPos!:(newZedGimbalPos:ZedGimbalPosition)=>void;
+
   /************************************************************************************************
    * Private Members
    ************************************************************************************************/
-  /* LCM Bridge Client for LCM communications in and out of simulator. */
-  private lcmBridge!:LCMBridge;
+  /* Whether or not we are in the process of dropping the repeater. */
+  private droppingRepeater = false;
 
   /* Interval to publish outgoing LCM messages with. */
   private intervalLcmPublish!:number;
 
-  /* Whether or not we are in the process of dropping the repeater. */
-  private droppingRepeater = false;
+  /* LCM Bridge Client for LCM communications in and out of simulator. */
+  private lcmBridge!:LCMBridge;
+
+  /* Has there been a sign of life from the localization program. */
+  private locPulse = false;
+
+  /* Has there been a sign of life from the navigation program. */
+  private navPulse = false;
+
+  /* Has there been a sign of life from the perception program. */
+  private percepPulse = false;
+
+  /************************************************************************************************
+   * Local Getters/Setters
+   ************************************************************************************************/
+  /* Are we receiving lcm messages from the localization program */
+  private get isLocAlive():boolean {
+    return this.locConnected;
+  }
+  private set isLocAlive(newLocConnected:boolean) {
+    this.flipLocConnected(newLocConnected);
+  }
+
+  /* Are we receiving lcm messages from the navigation program */
+  private get isNavAlive():boolean {
+    return this.navConnected;
+  }
+  private set isNavAlive(newNavConnected:boolean) {
+    this.flipNavConnected(newNavConnected);
+  }
+
+  /* Are we receiving lcm messages from the perception program */
+  private get isPercepAlive():boolean {
+    return this.percepConnected;
+  }
+  private set isPercepAlive(newPercepConnected:boolean) {
+    this.flipPercepConnected(newPercepConnected);
+  }
 
   /************************************************************************************************
    * Watchers
@@ -166,13 +255,15 @@ export default class NavSimulator extends Vue {
   @Watch('paused')
   private onUnpause(paused:boolean):void {
     if (!paused) {
-      this.applyJoystick();
+      this.applyJoystickCmd();
+      this.applyZedGimbalCmd();
     }
   }
 
   @Watch('takeStep')
   private onTakeStep():void {
-    this.applyJoystick();
+    this.applyJoystickCmd();
+    this.applyZedGimbalCmd();
     this.setTakeStep(false);
   }
 
@@ -181,14 +272,22 @@ export default class NavSimulator extends Vue {
    ************************************************************************************************/
   /* Apply the current joystick message to move the rover. Update the current
      odometry based on this movement. */
-  private applyJoystick():void {
+  private applyJoystickCmd():void {
     /* if not simulating localization, nothing to do */
-    if (!this.simulateLocalization) {
+    if (!this.simulateLoc) {
       return;
     }
+    const deltaTimeSeconds:number = TIME_INTERVAL_MILLI / ONE_SECOND_MILLI;
+    this.setCurrOdom(applyJoystickCmdUtil(this.currOdom, this.fieldCenterOdom, this.joystick,
+                                          deltaTimeSeconds, this.currSpeed));
+  }
 
-    this.setCurrOdom(applyJoystickUtil(this.currOdom, this.fieldCenterOdom, this.joystick,
-                                       TIME_INTERVAL / ONE_SECOND_MILLI, this.currSpeed));
+  /* Apply the current ZED gimbal command. Update the ZED gimbal based on the
+     current ZED gimbal command. */
+  private applyZedGimbalCmd():void {
+    const deltaTimeSeconds:number = TIME_INTERVAL_MILLI / ONE_SECOND_MILLI;
+    this.setZedGimbalPos(applyZedGimbalCmdUtil(this.zedGimbalPos, this.zedGimbalCmd,
+                                               deltaTimeSeconds, this.currSpeed));
   }
 
   /* Drop the radio repeater. */
@@ -246,19 +345,22 @@ export default class NavSimulator extends Vue {
             left_right: msg.message.left_right
           });
           if (!this.paused) {
-            this.applyJoystick();
+            this.applyJoystickCmd();
           }
         }
         else if (msg.topic === '/nav_status') {
+          this.navPulse = true;
           this.setNavStatus(msg.message);
         }
         else if (msg.topic === '/obstacle') {
-          if (!this.simulatePerception) {
+          if (!this.simulatePercep) {
+            this.percepPulse = true;
             this.setObstacleMessage(msg.message);
           }
         }
         else if (msg.topic === '/odometry') {
-          if (!this.simulateLocalization) {
+          if (!this.simulateLoc) {
+            this.locPulse = true;
             this.setCurrOdom(msg.message);
           }
         }
@@ -266,8 +368,15 @@ export default class NavSimulator extends Vue {
           this.dropRepeater();
         }
         else if (msg.topic === '/target_list') {
-          if (!this.simulatePerception) {
+          if (!this.simulatePercep) {
+            this.percepPulse = true;
             this.setTargetList(msg.message.targetList);
+          }
+        }
+        else if (msg.topic === '/zed_gimbal_cmd') {
+          this.setZedGimbalCmd(msg.message);
+          if (!this.paused) {
+            this.applyZedGimbalCmd();
           }
         }
         else if (msg.topic === '/debugMessage') {
@@ -282,13 +391,14 @@ export default class NavSimulator extends Vue {
 
       /* Subscriptions */
       [
-        { topic: '/autonomous',   type: 'Joystick' },
-        { topic: '/nav_status',    type: 'NavStatus' },
-        { topic: '/obstacle',     type: 'Obstacle' },
-        { topic: '/odometry',     type: 'Odometry' },
-        { topic: '/rr_drop_init', type: 'RepeaterDropInit' },
-        { topic: '/target_list',   type: 'TargetList' },
-        { topic: '/debugMessage', type: 'DebugMessage' }
+        { topic: '/autonomous',     type: 'Joystick' },
+        { topic: '/nav_status',     type: 'NavStatus' },
+        { topic: '/obstacle',       type: 'Obstacle' },
+        { topic: '/odometry',       type: 'Odometry' },
+        { topic: '/rr_drop_init',   type: 'RepeaterDropInit' },
+        { topic: '/target_list',    type: 'TargetList' },
+        { topic: '/zed_gimbal_cmd', type: 'ZedGimbalPosition' },
+        { topic: '/debugMessage',   type: 'DebugMessage' }
       ]
     );
 
@@ -296,12 +406,12 @@ export default class NavSimulator extends Vue {
     this.intervalLcmPublish = window.setInterval(() => {
       this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn });
 
-      if (this.simulateLocalization) {
+      if (this.simulateLoc) {
         const odom:any = Object.assign(this.currOdom, { type: 'Odometry' });
         this.publish('/odometry', odom);
       }
 
-      if (this.simulatePerception) {
+      if (this.simulatePercep) {
         const obs:any = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
         this.publish('/obstacle', obs);
 
@@ -312,7 +422,7 @@ export default class NavSimulator extends Vue {
       }
 
       if (this.repeaterLoc !== null) {
-        this.publish('/rr_drop_complete', { type: 'RepeaterDropComplete' });
+        this.publish('/rr_drop_complete', { type: 'RepeaterDrop' });
       }
 
       this.publish('/radio', { type: 'RadioSignalStrength', signal_strength: this.radioStrength });
@@ -331,7 +441,10 @@ export default class NavSimulator extends Vue {
       };
       course.hash = fnvPlus.fast1a52(JSON.stringify(course));
       this.publish('/course', course);
-    }, TIME_INTERVAL);
+
+      const zedGimbalPos:any = Object.assign(this.zedGimbalPos, { type: 'ZedGimbalPosition' });
+      this.publish('/zed_gimbal_data', zedGimbalPos);
+    }, TIME_INTERVAL_MILLI);
 
     /* eslint-enable @typescript-eslint/no-explicit-any */
   } /* created() */

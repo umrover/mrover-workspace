@@ -93,8 +93,9 @@
           '/set_demand': false,
           '/target_list': false,
           '/temperature': false,
-          '/tennis_ball': false
-
+          '/tennis_ball': false,
+          '/zed_gimbal_cmd': false,
+          '/zed_gimbal_data': false
         },
         subscriptions: [
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
@@ -103,11 +104,9 @@
           {'topic': '/auton', 'type': 'AutonState'},
           {'topic': '/camera_servos', 'type': 'CameraServos'},
           {'topic': '/course', 'type': 'Course'},
-          // {'topic': '', 'type': 'CurrentDraw'},
           {'topic': '/debugMessage', 'type': 'DebugMessage'},
           {'topic': '/drive_vel_cmd', 'type': 'DriveVelCmd'},
           {'topic': '/encoder', 'type': 'Encoder'},
-          // {'topic': '', 'type': 'Heartbeat'},
           {'topic': '/gimbal_control', 'type': 'Keyboard'},
           {'topic': '/gimbal_openloop_cmd', 'type': 'GimbalCmd'},
           {'topic': '/hand_openloop_cmd', 'type': 'HandCmd'},
@@ -123,8 +122,8 @@
           {'topic': '/pi_settings', 'type': 'PiSettings'},
           {'topic': '/radio_update', 'type': 'RadioSignalStrength' },
           {'topic': '/radio_setup', 'type': 'Signal'},
-          {'topic': '/rr_drop_complete', 'type': 'RepeaterDropComplete'},
-          {'topic': '/rr_drop_init', 'type': 'RepeaterDropInit'},
+          {'topic': '/rr_drop_complete', 'type': 'RepeaterDrop'},
+          {'topic': '/rr_drop_init', 'type': 'RepeaterDrop'},
           {'topic': '/sa_motors', 'type': 'SAMotors'},
           {'topic': '/sensors', 'type': 'Sensors'},
           {'topic': '/sensor_switch', 'type': 'SensorSwitch'},
@@ -142,7 +141,9 @@
           {'topic': '/tennis_ball', 'type': 'TennisBall'},
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
-          {'topic': '/microscope', 'type': 'Microscope'}
+          {'topic': '/microscope', 'type': 'Microscope'},
+          {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
+          {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
         ]
       }
     },

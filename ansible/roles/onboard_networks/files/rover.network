@@ -1,9 +1,0 @@
-[Match]
-Name=eth0
-
-[Network]
-Address=10.1.0.1/8
-
-[Route]
-Destination=224.0.0.0/4
-Scope=link
