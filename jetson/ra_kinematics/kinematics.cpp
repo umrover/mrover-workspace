@@ -18,31 +18,19 @@ KinematicsSolver::KinematicsSolver(const ArmState& robot_state_in) :    robot_st
                                                                 {
                                                                     // TODO change robot_state to parameter
     // Try robot fk:
-    // cout << "ef_pos after running FK: ";
     FK();
-    // cout << FK() << "\n";
-    // Not updating link_transforms correctly
-    // for (auto it = robot_state.links.begin(); it != robot_state.links.end(); ++it) {
-    //     cout << it->first << ":\n";
-    //     cout << it->second.global_transform << "\n";
-    // }
 }
 
 Vector3d KinematicsSolver::FK() {
     // Set global transform as identity
     Matrix4d global_transform = Matrix4d::Identity();
-    // cout << robot_state.links_json << endl;
     // TODO: Edit name of base ("chassis-a") as necessary:
     robot_state.set_link_transform("base", Matrix4d::Identity());
     Matrix4d parent_mat = Matrix4d::Identity();
     for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
-        // PB: Check if this should be get_joint_pos_world or get_joint_pos_local:
         Vector3d xyz = robot_state.get_joint_pos_local(it->first);
-        // cout << it->first << " xyz: " << xyz;
-        // PB: Check if this should be get_joint_axis or get_joint_axis_world:
         Vector3d rot_axis_child = robot_state.get_joint_axis(it->first);
         double theta = it->second.angle;
-        // cout << "theta: " << theta << "\n";s
 
         Matrix4d rot_theta = Matrix4d::Identity();
         Matrix4d trans = Matrix4d::Identity();
@@ -78,15 +66,11 @@ Vector3d KinematicsSolver::FK() {
             rot_theta(1,0) = -1*stheta;
             rot_theta(1,1) = ctheta;
         }
-        // cout << "\ntrans mat\n" << trans << "\n";
-        // cout << "\nrot mat\n" << rot_theta << "\n";
 
         Matrix4d T = trans*rot_theta;
         Matrix4d global_transform = parent_mat*T;
 
         string link = robot_state.get_child_link(it->first);
-
-        // cout << "\nglobal transform: \n" << global_transform << "\n";
 
         robot_state.set_joint_transform(it->first, global_transform);
         robot_state.set_link_transform(link, global_transform);
@@ -219,11 +203,8 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
     cout << "FK RAN!!\n";
 
     // backup current angles
-    // cout << "performing backup\n";
 
     perform_backup();
-
-    // cout << "performed backup\n";
 
     vector<string> joints_vec = robot_state.get_all_joints();
     vector<string> links_vec = robot_state.get_all_links();
@@ -245,7 +226,6 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
         // Update transforms using FK:
         FK();
     }
-    // cout << "set random angles as needed!\n";
     // Get position the end effector:
     Vector3d ef_ang_world = robot_state.get_ef_ang_world();
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
@@ -273,7 +253,6 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
     }
     cout << "\n";
 
-    // cout << "Entering IK loop\n";
 
     while (dist > POS_THRESHOLD or angle_dist > ANGLE_THRESHOLD) {
         if (num_iterations > MAX_ITERATIONS) {
@@ -304,13 +283,10 @@ pair<Vector6d, bool> KinematicsSolver::IK(Vector6d target_point, bool set_random
         ef_to_target_vec_world.head(3) = ef_to_target_b_weights.head(3) * get_pos_weight();
         ef_to_target_vec_world.tail(3) = ef_to_target_b_weights.tail(3);
 
-        // cout << "Created 6d ef vector!\n";
         // d_ef is the vector we want the ef to move in this step 
         // d_ef is a 6d vector
         Vector6d d_ef = j_kp * ef_to_target_b_weights - j_kd * (ef_v * (ef_to_target_vec_world)/ef_to_target_vec_world.norm());
-        // cout << "Entering IK step function!\n";
         IK_step(d_ef, true, use_euler_angles);
-        // cout << "performed IK step\n";
         // Iterate:
         // ef_vec_world is a 6d vector:
         ef_vec_world = vecTo6d(robot_state.get_ef_pos_and_euler_angles());
@@ -395,20 +371,15 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
     // may cause issue creating a type that refers to private member Link
     auto links = robot_state.links;
     vector<string> joints = robot_state.get_all_joints();
-    // cout << "got links and joints\n";
-    // cout << "size of vec: " << robot_state.get_ef_pos_and_euler_angles().size();
     Vector6d ef_world = vecTo6d(robot_state.get_ef_pos_and_euler_angles());
-    // cout << "Called vecTo6d\n";
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
     Vector3d ef_euler_world(ef_world(3), ef_world(4), ef_world(5));
-    // cout << "Initilaized all vectors\n";
 
     MatrixXd jacobian(6, 6);
     jacobian.setZero();
 
     // 6-D matrix
     MatrixXd jacobian_inverse;
-    // cout << "Initialized all of the Eigen stuff!\n";
 
     for (int i = 0; i < (int)joints.size(); ++i) {
 
@@ -422,18 +393,11 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
         // otherwise, calculate the jacobian
         else {
             // Error occuring somewhere below this line
-            // cout << "Error spot 1\n";
             Vector3d rot_axis_local = robot_state.get_joint_axis(joints[i]);
-            // cout << "Error spot 2\n";
             Matrix4d joint_xform = robot_state.get_joint_transform(joints[i]);
-            // cout << "Error spot 3\n";
-            // cout << "link: " << robot_state.get_child_link(joints[i]) << "\n";
             Vector3d joint_pos_world = robot_state.get_link_point_world(robot_state.get_child_link(joints[i]));
-            // cout << "Error spot 4\n";
             Vector3d rot_axis_world = apply_transformation(joint_xform, rot_axis_local);
-            // cout << "Error spot 5\n";
             Vector3d joint_to_ef_vec_world = ef_pos_world - joint_pos_world;
-            // cout << "Error spot 6\n";
             Transpose<Vector3d> joint_col_xyz = (rot_axis_world.cross(joint_to_ef_vec_world)).transpose();
 
             Vector6d joint_col;
@@ -443,9 +407,8 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
                 Matrix4d n_xform = apply_joint_xform(joints[i], delta_theta);
 
                 Vector3d euler_angles;
-                // cout << "Attempting to block\n";
                 euler_angles = compute_euler_angles(n_xform.block(0,0,3,3));
-                // cout << "Completed blocking\n";
+                // cout << " blocking\n";
                 Vector3d diff_angs = euler_angles - ef_euler_world;
                 Vector3d delta_angs = diff_angs / delta_theta;
 
@@ -453,24 +416,13 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
 
                 Transpose<Vector3d> joint_col_euler = delta_angs.transpose();
 
-                // cout << "Completed transposing\n";
-
-                // cout << "joint_col_xyz: ";
-                // cout << joint_col_xyz << "\n";
-                // cout << "joint_col_euler: " << joint_col_euler << "\n";
                 joint_col.head(3) = joint_col_xyz;
                 joint_col.tail(3) = joint_col_euler;
-                // joint_col << joint_col_xyz, joint_col_euler;
-                // cout << "Combined joint_col matrix successfully\n";
             }
             else {
                 // cout << "Attempting joint_col comb\n";
                 joint_col.head(3) = joint_col_xyz;
                 joint_col.tail(3) = Vector3d();
-                // cout << "joint_col_xyz: \n" << joint_col_xyz << "\n";
-                // cout << "joint_col: \n" << joint_col << "\n"; 
-                // cout << "Completed joint_col comb\n";
-            }
 
             for (size_t j = 0; j < 6; ++j) {
                 jacobian(j, i) = joint_col[j];
