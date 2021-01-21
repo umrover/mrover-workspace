@@ -2,7 +2,7 @@
 #define GIMBAL_HPP
 
 #include "rover_msgs/ZedGimbalCmd.hpp"
-#include "rover_msgs/ZedGimbalData.hpp"
+#include "rover_msgs/ZedGimbalPosition.hpp"
 #include "pid.hpp"
 #include "rapidjson/document.h"
 

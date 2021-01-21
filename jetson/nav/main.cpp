@@ -89,10 +89,10 @@ public:
     void gimbalPositionUpdate(
         const lcm::ReceiveBuffer* recieveBuffer,
         const string& channel,
-        const ZedGimbalData* positionIn
+        const ZedGimbalPosition* positionIn
         )
     {
-        mStateMachine->updateGimbalPosition(positionIn->yaw);
+        mStateMachine->updateGimbalPosition(positionIn->angle);
     }
 
 private:
