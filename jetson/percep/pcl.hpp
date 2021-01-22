@@ -62,7 +62,6 @@ class PCL {
     PCL(const rapidjson::Document &mRoverConfig);
     
     /** TODO 
-     * Move constructor for PCL into .cpp
      * DownsampleVoxelFilter leaf size (don't worry ab making section here)
      * RANSAC SECTION in pt_cloud section:
      *      max iterations
