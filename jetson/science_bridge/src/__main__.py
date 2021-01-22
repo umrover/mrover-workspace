@@ -188,10 +188,10 @@ class ScienceBridge():
                         try:
                             if(tag == "SPECTRAL"):
                                 func(msg, spectral)
-                                _lcm.publish('/spectral_data', spectral.encode())
+                                lcm.publish('/spectral_data', spectral.encode())
                             if(tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
-                                _lcm.publish('/thermistor_data', thermistor.encode())
+                                lcm.publish('/thermistor_data', thermistor.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
@@ -204,16 +204,16 @@ class ScienceBridge():
 def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
-        lcm_ = aiolcm.AsyncLCM()
-        bridge.lcm = lcm_
-        lcm_.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        lcm_.subscribe("/rr_drop_init",bridge.rr_drop)
-        lcm_.subscribe("/nav_status",bridge.nav_status)
-        print("properly started 2")
-        #lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
-        #lcm.subscribe("/pump_cmd", bridge.pump_transmit)
-        run_coroutines(lcm_.loop())
-        print("Coroutines running")
+        _lcm = aiolcm.AsyncLCM()
+        bridge.lcm = _lcm
+        _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
+        _lcm.subscribe("/nav_status",bridge.nav_status)
+        print("properly started")
+        # lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
+        # lcm.subscribe("/pump_cmd", bridge.pump_transmit)
+        # Temp removed to test callback
+        run_coroutines(_lcm.loop())# bridge.recieve(_lcm))
 if __name__ == "__main__":
     main()
     
