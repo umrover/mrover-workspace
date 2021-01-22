@@ -108,7 +108,8 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
     // whether the gimabl uses degrees/power/radians etc..
 
     // degrees to turn to before performing a search wait.
-    double waitStepSize = roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+    std::cout << "starting gimbal search " << std::endl;
+    double waitStepSize = 75.0;//roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
 
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
@@ -117,21 +118,26 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
 
     if( phoebe->roverStatus().target().distance >= 0 )
     {
+        std::cout << "target aquired " << std::endl; 
         updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-
+    std::cout << "no target yet " << std::endl;
     // TODO: Check whether this is needed still
     if ( nextStop == 0 )
     {
         //get current angle and set as origAngle
+        std::cout << "getting yaw " << std::endl;
         mOriginalSpinAngle = phoebe->gimbal().getYaw(); //phoebe->roverStatus().odometry().bearing_deg; //doublecheck
+        std::cout << "got yaw" << std::endl;
         nextStop = mOriginalSpinAngle;
     }
     // TODO: Refactor this to "turnGimbal" or something - implied movement
+    std::cout << "setting gimbal target" << std::endl;
     if( phoebe->gimbal().setTargetYaw( nextStop ) )
-    {
+    {   
+        std::cout << "reached gimbal target, generating next one" << std::endl;
         if ( nextStop == target )
         {
             if ( phase <= 2 )
@@ -154,11 +160,14 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
             phase = 0;
             target = -150;
             nextStop = 0;
+            std::cout << "done with gimbal search. Moving to search turn" << std::endl;
             return NavState::SearchTurn;
         }
         nextStop += waitStepSize;
+        std::cout << "going to gimbal wait" << std::endl;
         return NavState::SearchGimbalWait;
     }
+    phoebe->publishGimbal();
 
     return NavState::SearchGimbal;
 }

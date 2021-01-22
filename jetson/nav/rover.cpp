@@ -331,6 +331,11 @@ Gimbal& Rover::gimbal()
     return mGimbal;
 }
 
+void Rover::publishGimbal(){
+    mGimbal.publishControlSignal(mLcmObject, mRoverConfig);
+}
+
+
 // Publishes a joystick command with the given forwardBack and
 // leftRight efforts.
 void Rover::publishJoystick( const double forwardBack, const double leftRight, const bool kill )
