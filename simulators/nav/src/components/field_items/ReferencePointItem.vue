@@ -8,7 +8,7 @@
       <b>Reference Point {{ index }}</b>
       <Button
         name="%D7"
-        :invert-color="true"
+        :color-scheme="redColorScheme"
         @clicked="deleteReferencePointItem"
       />
     </div>
@@ -24,7 +24,13 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Mutation } from 'vuex-class';
-import { Odom, RoverLocationSource } from '../../utils/types';
+import { BUTTON_COLOR_SCHEMES } from '../../utils/constants';
+import {
+  ColorScheme,
+  ColorSchemeName,
+  Odom,
+  RoverLocationSource
+} from '../../utils/types';
 import Button from '../common/Button.vue';
 import FieldItemInfo from './FieldItemInfo.vue';
 
@@ -65,6 +71,11 @@ export default class ReferencePointItem extends Vue {
   private deleteReferencePointItem():void {
     this.removeReferencePoint(this.index);
   } /* deleteRefereceointItem() */
+
+  /* Get the red color scheme for a button. */
+  private get redColorScheme():ColorScheme {
+    return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
+  }
 }
 </script>
 

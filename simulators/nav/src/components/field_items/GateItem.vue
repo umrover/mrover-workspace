@@ -8,7 +8,7 @@
       <b class="gate-item-name">Gate {{ index }}</b>
       <Button
         name="%D7"
-        :invert-color="true"
+        :color-scheme="redColorScheme"
         @clicked="deleteGateItem"
       />
     </div>
@@ -75,7 +75,14 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { Gate, Odom, RoverLocationSource } from '../../utils/types';
+import { BUTTON_COLOR_SCHEMES } from '../../utils/constants';
+import {
+  ColorScheme,
+  ColorSchemeName,
+  Gate,
+  Odom,
+  RoverLocationSource
+} from '../../utils/types';
 import { compassModDeg, calcRelativeOdom } from '../../utils/utils';
 import Button from '../common/Button.vue';
 import NumberInput from '../common/NumberInput.vue';
@@ -124,6 +131,11 @@ export default class GateItem extends Vue {
   /************************************************************************************************
    * Local Getters/Setters
    ************************************************************************************************/
+  /* Get the red color scheme for a button. */
+  private get redColorScheme():ColorScheme {
+    return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
+  }
+
   /* Width of gate. */
   private get width():number {
     return this.gate.width;
