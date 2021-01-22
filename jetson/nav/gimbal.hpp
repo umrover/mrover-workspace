@@ -15,7 +15,7 @@ class Gimbal{
         double target_yaw;
         double yaw_command;
         double MAX_YAW, MIN_YAW;
-        rover_msgs::ZedGimbalCmd signal;
+        rover_msgs::ZedGimbalPosition signal;
         double TOLERANCE;
         
 

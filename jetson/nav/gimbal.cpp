@@ -1,5 +1,5 @@
 #include "gimbal.hpp"
-
+#include "iostream"
 using namespace std;
 
 Gimbal::Gimbal(double MIN_YAW_IN, double MAX_YAW_IN, double TOLERANCE_IN):
@@ -24,7 +24,8 @@ void Gimbal::setYaw(double yaw){
 
 //TODO: make sure gimbalChannel is defined in config.json
 void Gimbal::publishControlSignal(lcm::LCM & lcmObj, const rapidjson::Document& mRoverConfig) {
-    string channel = mRoverConfig[ "lcmChannels" ][ "gimbalChannel" ].GetString();
-    signal.target_yaw = target_yaw;
+    std::cout << "publishing gimbal signal" << std::endl;
+    string channel = mRoverConfig[ "lcmChannels" ][ "zedGimbalCommand" ].GetString();
+    signal.angle = target_yaw;
     lcmObj.publish(channel, &signal);
 }

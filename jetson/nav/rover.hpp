@@ -197,6 +197,8 @@ public:
 
     Gimbal& gimbal();
 
+    void publishGimbal();
+
 private:
     /*************************************************************************/
     /* Private Member Functions */

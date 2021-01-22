@@ -409,7 +409,7 @@ NavState StateMachine::executeDrive()
     {
         if( nextWaypoint.search )
         {
-            return NavState::SearchSpin;
+            return NavState::SearchGimbal;
         }
         mPhoebe->roverStatus().path().pop_front();
         // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
@@ -465,6 +465,7 @@ string StateMachine::stringifyNavState() const
             { NavState::SearchFaceNorth, "Search Face North" },
             { NavState::SearchSpin, "Search Spin" },
             { NavState::SearchGimbal, "Search Gimbal" },
+            { NavState::SearchGimbalWait, "Search Gimbal Wait" },
             { NavState::SearchSpinWait, "Search Spin Wait" },
             { NavState::ChangeSearchAlg, "Change Search Algorithm" },
             { NavState::SearchTurn, "Search Turn" },
