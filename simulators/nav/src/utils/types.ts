@@ -45,7 +45,8 @@ export enum FieldItemType {
   OBSTACLE,
   AR_TAG,
   GATE,
-  REFERENCE_POINT
+  REFERENCE_POINT,
+  MOVE_ROVER
 }
 
 
@@ -130,7 +131,6 @@ export interface Obstacle {
 /* Interface representing the Obstacle LCM. This must be the same as the
    Obstacle LCM. */
 export interface ObstacleMessage {
-  detected:boolean; /* this will be deprecated so don't use */
   distance:number; /* meters from rover */
   bearing:number; /* degrees from rover */
 }
@@ -174,6 +174,15 @@ export enum OdomFormat {
 // export interface PathSnapshot {
 //   loc:Odom
 // }
+
+/* Interface repressenting the constant values used to define the perception
+   system. */
+export interface PerceptionConstants {
+
+  /* minimum distance a tag's center must be away to see it, meters */
+  minVisibleDistTag:number;
+}
+
 
 /* Interface representing a point in 2D space for use on the canvas and various
    field calculations. */
@@ -241,6 +250,8 @@ export interface RoverState {
   obstacleMessage:ObstacleMessage;
   radioSignalStrength:number;
   targetList:TargetListMessage;
+  zedGimbalCmd:ZedGimbalPosition; /* Desired position of the ZED gimbal. */
+  zedGimbalPos:ZedGimbalPosition; /* Current position of the ZED gimbal. */
 }
 
 
@@ -262,6 +273,7 @@ export interface SimulatorState {
   odomFormat:OdomFormat;
   path:Odom[];
   simSettings:SimulationSettings;
+  startLoc:Odom;
 }
 
 
@@ -269,6 +281,8 @@ export interface SimulatorState {
    current speed and not the maximum speed. */
 export interface Speeds {
   drive:number; /* m/s */
+
+  /* used for both the rover turning and the ZED gimbal turning */
   turn:number; /* degrees/s */
 }
 
@@ -322,4 +336,19 @@ export enum WheelPositions {
   FrontRight,
   BackLeft,
   BackRight
+}
+
+/* Interface representing the constant values used to define the ZED and ZED
+   gimbal. */
+export interface ZedConstants {
+  gimbal:{
+    minAngle:number; /* degrees */
+    maxAngle:number; /* degrees */
+  };
+}
+
+
+/* Position for ZED gimbal */
+export interface ZedGimbalPosition {
+  angle:number; /* absolute angle from rover's heading, -180 to 180 */
 }

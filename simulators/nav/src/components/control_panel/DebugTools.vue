@@ -95,7 +95,12 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { FieldOfViewOptions, Odom, Speeds } from '../../utils/types';
+import {
+  FieldOfViewOptions,
+  Odom,
+  Speeds,
+  ZedGimbalPosition
+} from '../../utils/types';
 import Button from '../common/Button.vue';
 import Checkbox from '../common/Checkbox.vue';
 import NumberInput from '../common/NumberInput.vue';
@@ -123,9 +128,6 @@ export default class DebugTools extends Vue {
   private readonly currSpeed!:Speeds;
 
   @Getter
-  private readonly fieldCenterOdom!:Odom;
-
-  @Getter
   private readonly fieldOfViewOptions!:FieldOfViewOptions;
 
   @Getter
@@ -139,6 +141,9 @@ export default class DebugTools extends Vue {
 
   @Getter
   private readonly simulateLoc!:boolean;
+
+  @Getter
+  private readonly startLoc!:Odom;
 
   @Getter
   private readonly takeStep!:boolean;
@@ -172,6 +177,9 @@ export default class DebugTools extends Vue {
 
   @Mutation
   private readonly setTakeStep!:(takeStep:boolean)=>void;
+
+  @Mutation
+  private readonly setZedGimbalPos!:(newZedGimbalPos:ZedGimbalPosition)=>void;
 
   /************************************************************************************************
    * Local Getters/Setters
@@ -283,9 +291,10 @@ export default class DebugTools extends Vue {
 
   /* Reset the rover to the starting state. */
   private resetRover():void {
-    this.setCurrOdom(this.fieldCenterOdom);
+    this.setCurrOdom(this.startLoc);
     this.setAutonState(false);
     this.setPaused(false);
+    this.setZedGimbalPos({ angle: 0 });
     this.clearRoverPath();
   } /* resetRover() */
 

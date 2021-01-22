@@ -1,0 +1,48 @@
+- name: Copy systemd service files
+  template:
+      src: "files/{{ item }}.service"
+      dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+      - rover-jetson-auton-light
+      - rover-jetson-cv
+      - rover-jetson-filter
+      - rover-jetson-gps
+      - rover-jetson-imu
+      - rover-jetson-kinematics
+      - rover-jetson-microscope
+      - rover-jetson-nav
+      - rover-jetson-raman
+      - rover-jetson-science-controls
+      - rover-jetson-sensor-package
+      - rover-jetson-talon
+      - rover-jetson-teleop
+
+- name: Copy environment variable definitions
+  copy:
+      src: files/rover.env
+      dest: /etc/default/rover.env
+
+- name: Install udev rules
+  copy:
+      src: files/rover.rules
+      dest: /etc/udev/rules.d/10-rover.rules
+
+- name: Reload systemd
+  systemd: daemon_reload=yes
+
+- name: Enable services
+  systemd: name={{item}} enabled=yes
+  with_items:
+      - rover-jetson-auton-light.service
+      - rover-jetson-cv.service
+      - rover-jetson-filter.service
+      - rover-jetson-gps.service
+      - rover-jetson-imu.service
+      - rover-jetson-kinematics.service
+      - rover-jetson-microscope.service
+      - rover-jetson-nav.service
+      - rover-jetson-raman.service
+      - rover-jetson-science-controls.service
+      - rover-jetson-sensor-package.service
+      - rover-jetson-talon.service
+      - rover-jetson-teleop.service

@@ -12,7 +12,14 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { FieldItemType, Joystick, OdomFormat } from '../utils/types';
+import { ZED } from '../utils/constants';
+import {
+  FieldItemType,
+  Joystick,
+  Odom,
+  OdomFormat,
+  ZedGimbalPosition
+} from '../utils/types';
 
 @Component({})
 export default class HotKeys extends Vue {
@@ -23,7 +30,13 @@ export default class HotKeys extends Vue {
   private readonly autonOn!:boolean;
 
   @Getter
+  private readonly currOdom!:Odom;
+
+  @Getter
   private readonly drawMode!:FieldItemType;
+
+  @Getter
+  private readonly fieldCenterOdom!:Odom;
 
   @Getter
   private readonly paused!:boolean;
@@ -34,11 +47,26 @@ export default class HotKeys extends Vue {
   @Getter
   private readonly simulatePercep!:boolean;
 
+  @Getter
+  private readonly zedGimbalPos!:ZedGimbalPosition;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
   @Mutation
+  private readonly clearRoverPath!:()=>void;
+
+  @Mutation
+  private readonly flipSimulateLoc!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipSimulatePercep!:(onOff:boolean)=>void;
+
+  @Mutation
   private readonly setAutonState!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly setCurrOdom!:(newOdom:Odom)=>void;
 
   @Mutation
   private readonly setDrawMode!:(mode:FieldItemType)=>void;
@@ -53,19 +81,28 @@ export default class HotKeys extends Vue {
   private readonly setPaused!:(paused:boolean)=>void;
 
   @Mutation
+  private readonly setStartLoc!:(newStartLoc:Odom)=>void;
+
+  @Mutation
   private readonly setTakeStep!:(takeStep:boolean)=>void;
 
   @Mutation
-  private readonly flipSimulateLoc!:(onOff:boolean)=>void;
+  private readonly setZedGimbalCmd!:(newZedGimbalCmd:ZedGimbalPosition)=>void;
 
   @Mutation
-  private readonly flipSimulatePercep!:(onOff:boolean)=>void;
+  private readonly setZedGimbalPos!:(newZedGimbalPos:ZedGimbalPosition)=>void;
+
+  /************************************************************************************************
+   * Private Members
+   ************************************************************************************************/
+  /* Whether or not clicking on the field recenters the field. */
+  private prevDrawMode:FieldItemType|null = null;
 
   /************************************************************************************************
    * Local Getters/Setters
    ************************************************************************************************/
   /* Mapping of hotkeys to functions. */
-  get keymap():Record<string, ()=>void> {
+  get keymap():Record<string, (()=>void)|(Record<string, ()=>void>)> {
     return {
       'shift+enter': this.flipAutonState,
       'shift+space': this.pausePlay,
@@ -77,6 +114,12 @@ export default class HotKeys extends Vue {
       'shift+3': this.setToGateDrawMode,
       'shift+4': this.setToObstacleDrawMode,
       'shift+5': this.setToReferencePointDrawMode,
+      'shift+c': {
+        keydown: this.toggleMoveRoverModeOn,
+        keyup: this.toggleMoveRoverModeOff
+      },
+      'shift+alt+c': this.updateStartLoc,
+      'shift+ctrl+c': this.resetStartLoc,
       'shift+l': this.flipSimLoc,
       'shift+p': this.flipSimPercep,
       'shift+alt+d': this.setToDFormat,
@@ -85,7 +128,9 @@ export default class HotKeys extends Vue {
       'shift+up': this.manualDriveForward,
       'shift+down': this.manualDriveBackward,
       'shift+left': this.manualDriveLeft,
-      'shift+right': this.manualDriveRight
+      'shift+alt+left': this.manualGimbalLeft,
+      'shift+right': this.manualDriveRight,
+      'shift+alt+right': this.manualGimbalRight
     };
   }
 
@@ -114,6 +159,7 @@ export default class HotKeys extends Vue {
         forward_back: forwardBack,
         left_right: leftRight
       });
+      this.setZedGimbalCmd(this.zedGimbalPos);
       this.setTakeStep(true);
     }
   } /* manaulDrive() */
@@ -138,10 +184,41 @@ export default class HotKeys extends Vue {
     this.manaulDrive(0, 1);
   } /* manualDriveRight() */
 
+  /* Set the ZED gimbal angle based on "manual" input. */
+  private manualGimbal(newAngle:number):void {
+    if (!this.autonOn || this.paused) {
+      this.setZedGimbalPos({
+        angle: newAngle
+      });
+      this.setZedGimbalCmd({
+        angle: newAngle
+      });
+    }
+  } /* manualGimbal() */
+
+  /* Apply one command to turn the ZED gimbal left based on "manual" input. */
+  private manualGimbalLeft():void {
+    this.manualGimbal(Math.max(this.zedGimbalPos.angle - 1, ZED.gimbal.minAngle));
+  } /* manualGimbalLeft() */
+
+  /* Apply one command to turn the ZED gimbal right based on "manual" input. */
+  private manualGimbalRight():void {
+    this.manualGimbal(Math.min(this.zedGimbalPos.angle + 1, ZED.gimbal.maxAngle));
+  } /* manualGimbalRight() */
+
   /* Pause and play the rover. */
   private pausePlay():void {
     this.setPaused(!this.paused);
   } /* pausePlay() */
+
+  /* Move the rover's starting location back to the field center. */
+  private resetStartLoc():void {
+    if (!this.autonOn) {
+      this.setStartLoc(this.fieldCenterOdom);
+      this.setCurrOdom(this.fieldCenterOdom);
+      this.clearRoverPath();
+    }
+  } /* resetStartLoc() */
 
   /* Rotate through the draw modes in the forwards direction. */
   private setToNextDrawMode():void {
@@ -253,5 +330,31 @@ export default class HotKeys extends Vue {
       this.setTakeStep(true);
     }
   } /* takeStep() */
+
+  /* Switch from MOVE_ROVER draw mode back to previous draw mode. */
+  private toggleMoveRoverModeOff():void {
+    if (this.prevDrawMode === null) {
+      console.log('ERROR: Previous Draw Mode is null.');
+      return;
+    }
+    this.setDrawMode(this.prevDrawMode);
+    this.prevDrawMode = null;
+  } /* toggleMoveRoverModeOff() */
+
+  /* Switch to MOVE_ROVER draw mode and save previous draw mode. */
+  private toggleMoveRoverModeOn():void {
+    if (this.drawMode !== FieldItemType.MOVE_ROVER) {
+      this.prevDrawMode = this.drawMode;
+      this.setDrawMode(FieldItemType.MOVE_ROVER);
+    }
+  } /* toggleMoveRoverModeOn() */
+
+  /* Make the current odom the new start location. */
+  private updateStartLoc():void {
+    if (!this.autonOn) {
+      this.setStartLoc(this.currOdom);
+      this.clearRoverPath();
+    }
+  } /* updateStartLoc() */
 }
 </script>

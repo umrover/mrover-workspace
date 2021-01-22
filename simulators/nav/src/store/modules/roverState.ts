@@ -8,7 +8,8 @@ import {
   Odom,
   RoverState,
   Speeds,
-  TargetListMessage
+  TargetListMessage,
+  ZedGimbalPosition
 } from '../../utils/types';
 
 
@@ -39,7 +40,6 @@ const state:RoverState = {
   },
 
   obstacleMessage: {
-    detected: false, /* this will be deprecated so don't use */
     distance: -1,
     bearing: 0
   },
@@ -57,7 +57,15 @@ const state:RoverState = {
       bearing: 0,
       id: -1
     }
-  ]
+  ],
+
+  zedGimbalCmd: {
+    angle: 0
+  },
+
+  zedGimbalPos: {
+    angle: 0
+  }
 };
 
 
@@ -74,7 +82,11 @@ const getters = {
 
   radioStrength: (roverState:RoverState):number => roverState.radioSignalStrength,
 
-  targetList: (roverState:RoverState):TargetListMessage => roverState.targetList
+  targetList: (roverState:RoverState):TargetListMessage => roverState.targetList,
+
+  zedGimbalCmd: (roverState:RoverState):ZedGimbalPosition => roverState.zedGimbalCmd,
+
+  zedGimbalPos: (roverState:RoverState):ZedGimbalPosition => roverState.zedGimbalPos
 };
 
 
@@ -105,6 +117,14 @@ const mutations = {
 
   setTargetList: (roverState:RoverState, newTargetList:TargetListMessage):void => {
     roverState.targetList = newTargetList;
+  },
+
+  setZedGimbalCmd: (roverState:RoverState, newZedGimbalCmd:ZedGimbalPosition):void => {
+    Object.assign(roverState.zedGimbalCmd, newZedGimbalCmd);
+  },
+
+  setZedGimbalPos: (roverState:RoverState, newZedGimbalPos:ZedGimbalPosition):void => {
+    Object.assign(roverState.zedGimbalPos, newZedGimbalPos);
   }
 };
 

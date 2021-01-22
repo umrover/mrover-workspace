@@ -47,7 +47,8 @@
         v-drawArTags="canvasArTags"
         v-drawRepeater="canvasRepeater"
         v-drawRover="canvasRover"
-        @click="addFieldItem"
+        @click="handleFieldClick"
+        @dblclick="handleFieldDblClick"
       />
     </div>
   </div>
@@ -79,7 +80,8 @@ import {
   Odom,
   Point2D,
   Waypoint,
-  WaypointDrawOptions
+  WaypointDrawOptions,
+  ZedGimbalPosition
 } from '../../utils/types';
 import { canvasToOdom } from '../../utils/utils';
 import CanvasArTags from './ar_tags';
@@ -135,6 +137,9 @@ export default class Field extends Vue {
   private readonly arTags!:ArTag[];
 
   @Getter
+  private readonly autonOn!:boolean;
+
+  @Getter
   private readonly canvasHeight!:number;
 
   @Getter
@@ -185,9 +190,15 @@ export default class Field extends Vue {
   @Getter
   private readonly waypointDrawOptions!:WaypointDrawOptions;
 
+  @Getter
+  private readonly zedGimbalPos!:ZedGimbalPosition;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
+  @Mutation
+  private readonly clearRoverPath!:()=>void;
+
   @Mutation
   private readonly pushArTag!:(newArTag:ArTag)=>void;
 
@@ -210,6 +221,9 @@ export default class Field extends Vue {
   private readonly setArTag!:(newArTags:ArTag[])=>void;
 
   @Mutation
+  private readonly setCurrOdom!:(newOdom:Odom)=>void;
+
+  @Mutation
   private readonly setFieldState!:(newState:FieldState)=>void
 
   @Mutation
@@ -217,6 +231,9 @@ export default class Field extends Vue {
 
   @Mutation
   private readonly setObstacles!:(newObstacles:Obstacle[])=>void;
+
+  @Mutation
+  private readonly setStartLoc!:(newStartLoc:Odom)=>void;
 
   @Mutation
   private readonly setWaypoints!:(newWaypoints:Waypoint[])=>void;
@@ -270,7 +287,8 @@ export default class Field extends Vue {
   /* Object for drawing rover on canvas. */
   private get canvasRover():CanvasRover {
     return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale, this.roverPath,
-                           this.fieldOfViewOptions, this.roverPathVisible, this.pushToRoverPath);
+                           this.fieldOfViewOptions, this.roverPathVisible, this.pushToRoverPath,
+                           this.zedGimbalPos);
   }
 
   /* Object for drawing waypoints on canvas. */
@@ -290,12 +308,22 @@ export default class Field extends Vue {
   /************************************************************************************************
    * Private Methods
    ************************************************************************************************/
+  /* Download a test case in JSON format with the current field items on the
+     canvas. */
+  private downloadTestCase():void {
+    const testCaseData:string = JSON.stringify(this.fieldState, null, 2);
+    const dataToDownload = `data:text/plain;charset=utf-8,${encodeURIComponent(testCaseData)}`;
+
+    this.dataToDownload.setAttribute('href', dataToDownload);
+    this.dataToDownload.setAttribute('download', `test_case_${new Date().toJSON()}.json`);
+    this.dataToDownload.click();
+    this.dataToDownload.removeAttribute('href');
+    this.dataToDownload.removeAttribute('download');
+  } /* downloadTestCase() */
+
   /* When field is clicked, add the field item corresponding to the current
      draw mode. */
-  private addFieldItem(event:MouseEvent):void {
-    /* Update scale in case of window resizing */
-    // this.updateScale();
-
+  private handleFieldClick(event:MouseEvent):void {
     const clickLoc:Point2D = {
       x: event.offsetX * PIXEL_DENSITY,
       y: event.offsetY * PIXEL_DENSITY
@@ -347,22 +375,51 @@ export default class Field extends Vue {
         break;
       }
 
+      case FieldItemType.MOVE_ROVER: {
+        this.moveRover(clickOdom);
+        break;
+      }
+
       /* no default */
     }
-  } /* addFieldItem() */
+  } /* handleFieldClick() */
 
-  /* Download a test case in JSON format with the current field items on the
-     canvas. */
-  private downloadTestCase():void {
-    const testCaseData:string = JSON.stringify(this.fieldState, null, 2);
-    const dataToDownload = `data:text/plain;charset=utf-8,${encodeURIComponent(testCaseData)}`;
+  /* When field is double-clicked, perform action corresponding to the current
+     draw mode. */
+  private handleFieldDblClick(event:MouseEvent):void {
+    const clickLoc:Point2D = {
+      x: event.offsetX * PIXEL_DENSITY,
+      y: event.offsetY * PIXEL_DENSITY
+    };
+    const clickOdom:Odom = canvasToOdom(clickLoc, this.canvasHeight, this.scale,
+                                        this.fieldCenterOdom);
 
-    this.dataToDownload.setAttribute('href', dataToDownload);
-    this.dataToDownload.setAttribute('download', `test_case_${new Date().toJSON()}.json`);
-    this.dataToDownload.click();
-    this.dataToDownload.removeAttribute('href');
-    this.dataToDownload.removeAttribute('download');
-  } /* downloadTestCase() */
+    switch (this.drawMode) {
+      case FieldItemType.MOVE_ROVER: {
+        this.moveStartLoc(clickOdom);
+        break;
+      }
+
+      /* no default */
+    }
+  } /* handleFieldDblClick() */
+
+  /* If the rover is not on, move the current odom. */
+  private moveRover(newCurrOdom:Odom):void {
+    if (!this.autonOn) {
+      this.setCurrOdom(newCurrOdom);
+      this.clearRoverPath();
+    }
+  } /* moveRover() */
+
+  /* If the rover is not on, change the starting (and current) location. */
+  private moveStartLoc(newStartLoc:Odom):void {
+    if (!this.autonOn) {
+      this.setStartLoc(newStartLoc);
+      this.setCurrOdom(newStartLoc);
+      this.clearRoverPath();
+    }
+  } /* moveStartLoc() */
 
   /* Update scale when the field size changes. */
   private updateScale():void {

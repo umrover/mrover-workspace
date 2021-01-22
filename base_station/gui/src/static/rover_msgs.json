@@ -530,6 +530,7 @@
             "depths[numDepths]"
         ]
     ],
+    "RepeaterDrop": [],
     "RGB": [
         [
             "string",
@@ -896,6 +897,12 @@
             "y"
         ]
     ],
+    "ZedGimbalPosition": [
+        [
+            "double",
+            "angle"
+        ]
+    ],
     "message_types": [
         "ArmPosition",
         "ArmToggles",
@@ -932,6 +939,7 @@
         "PiSettings",
         "Pos",
         "ProximitySensors",
+        "RepeaterDrop",
         "RGB",
         "RGBFrame",
         "RGBLED",
@@ -954,6 +962,7 @@
         "TestEnable",
         "Waypoint",
         "WheelSpeeds",
-        "Xbox"
+        "Xbox",
+        "ZedGimbalPosition"
     ]
 }

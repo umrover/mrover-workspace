@@ -92,7 +92,7 @@ def build_dir(ctx, d, lint, opts=None):
 
 
 def get_site_cfg():
-    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix', 'onboard']
+    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix', 'jetson']
     site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
     site_cfg = configparser.ConfigParser()
     site_cfg['third_party'] = {}
@@ -116,7 +116,7 @@ def build_deps(ctx):
         third_party.ensure_rapidjson(ctx)
     if site_cfg['lcm']:
         third_party.ensure_lcm(ctx)
-    
+
     pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
     pip_hasher.hash_modification_time('pip_deps/')
     if pip_hasher.has_changed():
@@ -129,9 +129,9 @@ def build_deps(ctx):
                     ctx.jarvis_root), hide='out')
                 # Workspace dependencies
                 ctx.run("pip install -r pip_deps/requirements.txt", hide='out')
-                if site_cfg['onboard']:
-                    print("Installing onboard pip dependencies...")
-                    ctx.run("pip install -r pip_deps/onboard_requirements.txt",
+                if site_cfg['jetson']:
+                    print("Installing jetson pip dependencies...")
+                    ctx.run("pip install -r pip_deps/jetson_requirements.txt",
                         hide='out')
         pip_hasher.save()
     else:
