@@ -25,20 +25,20 @@
         <div class="clear-btn-area waypoint-area-buttons">
           <Button
             name="Clear Waypoints"
-            :invert-color="true"
+            :color-scheme="redColorScheme"
             :disabled="waypoints.length === 0"
             @clicked="clearWps"
           />
           <div class="field-item-btns">
             <Button
               name="Clear Path"
-              :invert-color="true"
+              :color-scheme="redColorScheme"
               :disabled="roverPath.length <= 1"
               @clicked="clearRoverPath"
             />
             <Button
               name="Clear Field"
-              :invert-color="true"
+              :color-scheme="redColorScheme"
               :disabled="clearFieldDisabled"
               @clicked="clearField"
             />
@@ -87,7 +87,7 @@
         <Button
           class="clear-btn-area"
           name="Clear Ar Tags"
-          :invert-color="true"
+          :color-scheme="redColorScheme"
           :disabled="arTags.length === 0"
           @clicked="clearArs"
         />
@@ -134,7 +134,7 @@
         <Button
           class="clear-btn-area"
           name="Clear Gates"
-          :invert-color="true"
+          :color-scheme="redColorScheme"
           :disabled="gates.length === 0"
           @clicked="clearGates"
         />
@@ -181,7 +181,7 @@
         <Button
           class="clear-btn-area"
           name="Clear Obstacles"
-          :invert-color="true"
+          :color-scheme="redColorScheme"
           :disabled="obstacles.length === 0"
           @clicked="clearObs"
         />
@@ -228,7 +228,7 @@
         <Button
           class="clear-btn-area"
           name="Reset Radio Repeater"
-          :invert-color="true"
+          :color-scheme="redColorScheme"
           :disabled="repeaterLoc === null"
           @clicked="resetRr"
         />
@@ -273,7 +273,7 @@
         <Button
           class="clear-btn-area"
           name="Clear Reference Points"
-          :invert-color="true"
+          :color-scheme="redColorScheme"
           :disabled="referencePoints.length === 0"
           @clicked="clearRefPts"
         />
@@ -313,8 +313,11 @@ import {
   Vue
 } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
+import { BUTTON_COLOR_SCHEMES } from '../../utils/constants';
 import {
   ArTag,
+  ColorScheme,
+  ColorSchemeName,
   Gate,
   Obstacle,
   Odom,
@@ -492,6 +495,11 @@ export default class FieldItems extends Vue {
   @Watch('odomFormat')
   private onOdomFormatChange():void {
     this.onUpdate();
+  }
+
+  /* Get the red color scheme for a button. */
+  private get redColorScheme():ColorScheme {
+    return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
   }
 
   /************************************************************************************************
