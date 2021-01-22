@@ -166,7 +166,7 @@ public:
 
     DriveStatus drive( const double distance, const double bearing, const bool target = false );
 
-    void drive(const int direction, const double bearing);
+    void drive( const int direction, const double bearing );
 
     bool turn( Odometry& destination );
 

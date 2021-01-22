@@ -27,10 +27,10 @@ public:
     /* Public Member Variables */
     /*************************************************************************/
     /* saved last known location of first tag of a gate */
-    Waypoint lastKnownPost1;
+    Waypoint lastKnownRightPost;
 
     /* saved last known location of second tag of a gate */
-    Waypoint lastKnownPost2;
+    Waypoint lastKnownLeftPost;
 
     // Queue of search points
     deque<Odometry> mGateSearchPoints;
@@ -79,8 +79,10 @@ private:
     Odometry centerPoint2;
 
     // Check if we drove through the correct direction
-    bool CP1ToCP2CorrectDir;
+    bool isCorrectGateDir;
 
+    // Minor adjustment to gate targeting
+    // helpful if we drive through the incorrect direction
     double gateAdjustmentDist = 0.3;
 
 protected:

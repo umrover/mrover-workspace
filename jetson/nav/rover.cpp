@@ -136,8 +136,8 @@ DriveStatus Rover::drive( const Odometry& destination )
 // on-course or off-course.
 DriveStatus Rover::drive( const double distance, const double bearing, const bool target )
 {
-    if( (!target && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble()) ||
-        (target && distance < mRoverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble()) )
+    if( ( !target && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble() ) ||
+        ( target && distance < mRoverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble() ) )
     {
         return DriveStatus::Arrived;
     }
@@ -161,13 +161,13 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
 // does not calculate if you have arrive at a specific location and
 // this must be handled outside of this function.
 // The input bearing is an absolute bearing.
-void Rover::drive(const int direction, const double bearing)
+void Rover::drive( const int direction, const double bearing )
 {
     double destinationBearing = mod(bearing, 360);
-    throughZero(destinationBearing, mRoverStatus.odometry().bearing_deg);
-    const double distanceEffort = mDistancePid.update(-1 * direction, 0);
-    const double turningEffort = mBearingPid.update(mRoverStatus.odometry().bearing_deg, destinationBearing);
-    publishJoystick(distanceEffort, turningEffort, false);
+    throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg );
+    const double distanceEffort = mDistancePid.update( -1 * direction, 0 );
+    const double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
+    publishJoystick( distanceEffort, turningEffort, false );
 } // drive()
 
 // Sends a joystick command to turn the rover toward the destination
@@ -184,7 +184,7 @@ bool Rover::turn( Odometry& destination )
 // otherwise.
 bool Rover::turn( double bearing )
 {
-    bearing = mod(bearing, 360);
+    bearing = mod( bearing, 360 );
     throughZero( bearing, mRoverStatus.odometry().bearing_deg );
     double turningBearingThreshold;
     if( isTurningAroundObstacle( mRoverStatus.currentState() ) )
@@ -200,8 +200,8 @@ bool Rover::turn( double bearing )
         return true;
     }
     double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, bearing );
-    double minTurningEffort = mRoverConfig[ "navThresholds" ][ "minTurningEffort" ].GetDouble() * (turningEffort < 0 ? -1 : 1);
-    if( isTurningAroundObstacle( mRoverStatus.currentState() ) && fabs(turningEffort) < minTurningEffort )
+    double minTurningEffort = mRoverConfig[ "navThresholds" ][ "minTurningEffort" ].GetDouble() * ( turningEffort < 0 ? -1 : 1 );
+    if( isTurningAroundObstacle( mRoverStatus.currentState() ) && fabs( turningEffort ) < minTurningEffort )
     {
         turningEffort = minTurningEffort;
     }
@@ -235,15 +235,15 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
         // If any data has changed, update all data
         if( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
             !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ||
-            !isEqual( mRoverStatus.leftTarget(), newRoverStatus.leftTarget()) ||
-            !isEqual( mRoverStatus.rightTarget(), newRoverStatus.rightTarget()) )
+            !isEqual( mRoverStatus.leftTarget(), newRoverStatus.leftTarget() ) ||
+            !isEqual( mRoverStatus.rightTarget(), newRoverStatus.rightTarget() ) )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
             mRoverStatus.radio() = newRoverStatus.radio();
-            updateRepeater(mRoverStatus.radio());
+            updateRepeater( mRoverStatus.radio() );
             return true;
         }
 
@@ -277,7 +277,7 @@ const double Rover::longMeterInMinutes() const
 // since the rover has gotten a strong radio signal. If the signal drops
 // below the signalStrengthCutOff and the timer hasn't started, begin the clock.
 // Otherwise, the signal is good so the timer should be stopped.
-void Rover::updateRepeater(RadioSignalStrength& radioSignal)
+void Rover::updateRepeater( RadioSignalStrength& radioSignal )
 {
     static bool started = false;
     static time_t startTime;
@@ -287,7 +287,7 @@ void Rover::updateRepeater(RadioSignalStrength& radioSignal)
     if( !mTimeToDropRepeater &&
         !started &&
         radioSignal.signal_strength <=
-        mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble())
+        mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble() )
     {
         startTime = time( nullptr );
         started = true;

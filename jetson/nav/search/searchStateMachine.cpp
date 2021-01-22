@@ -11,7 +11,7 @@
 #include <cmath>
 
 // Constructs an SearchStateMachine object with roverStateMachine
-SearchStateMachine::SearchStateMachine(StateMachine* roverStateMachine )
+SearchStateMachine::SearchStateMachine( StateMachine* roverStateMachine )
     : roverStateMachine( roverStateMachine ) {}
 
 // Runs the search state machine through one iteration. This will be called by
@@ -78,7 +78,7 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    if ( nextStop == 0 )
+    if( nextStop == 0 )
     {
         // get current angle and set as origAngle
         mOriginalSpinAngle = phoebe->roverStatus().odometry().bearing_deg; // doublecheck
@@ -249,7 +249,7 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     
     DriveStatus driveStatus;
 
-    double distance = phoebe->roverStatus().leftTarget().distance - searchAdjustmentDist;
+    double distance = phoebe->roverStatus().leftTarget().distance;
     double bearing = phoebe->roverStatus().leftTarget().bearing + phoebe->roverStatus().odometry().bearing_deg;
 
     // Executes the logic for driving with 0, 1, or 2 targets in sight
@@ -261,7 +261,7 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     {
         if( phoebe->roverStatus().leftTarget().distance > phoebe->roverStatus().rightTarget().distance ) 
         {
-            distance = phoebe->roverStatus().rightTarget().distance - searchAdjustmentDist;
+            distance = phoebe->roverStatus().rightTarget().distance;
             bearing = phoebe->roverStatus().rightTarget().bearing + phoebe->roverStatus().odometry().bearing_deg;
         }
     }
@@ -274,14 +274,14 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
         if( phoebe->roverStatus().path().front().gate )
         {
             roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
-            const double absAngle = mod(phoebe->roverStatus().odometry().bearing_deg +
+            const double absAngle = mod( phoebe->roverStatus().odometry().bearing_deg +
                                         phoebe->roverStatus().leftTarget().bearing,
-                                        360);
-            roverStateMachine->mGateStateMachine->lastKnownPost1.odom = createOdom( phoebe->roverStatus().odometry(),
+                                        360 );
+            roverStateMachine->mGateStateMachine->lastKnownRightPost.odom = createOdom( phoebe->roverStatus().odometry(),
                                                                                     absAngle,
                                                                                     phoebe->roverStatus().leftTarget().distance,
                                                                                     phoebe );
-            roverStateMachine->mGateStateMachine->lastKnownPost1.id = phoebe->roverStatus().leftTarget().id;
+            roverStateMachine->mGateStateMachine->lastKnownRightPost.id = phoebe->roverStatus().leftTarget().id;
             return NavState::GateSpin;
         }
         phoebe->roverStatus().path().pop_front();
@@ -352,7 +352,7 @@ void SearchStateMachine::insertIntermediatePoints( Rover * phoebe, const rapidjs
 SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type )  //TODO
 {
     SearchStateMachine* search = nullptr;
-    switch (type)
+    switch ( type )
     {
         case SearchType::SPIRALOUT:
             search = new SpiralOut( stateMachine );

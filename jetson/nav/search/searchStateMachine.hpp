@@ -20,7 +20,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    SearchStateMachine(StateMachine* stateMachine_);
+    SearchStateMachine( StateMachine* stateMachine_ );
 
     virtual ~SearchStateMachine() {}
 
@@ -61,8 +61,6 @@ private:
 
     // Last known angle of rover from turn to target.
     double mTurnToTargetRoverAngle;
-
-    double searchAdjustmentDist = 0.15;
 
 protected:
     /*************************************************************************/

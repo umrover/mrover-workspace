@@ -141,7 +141,7 @@ bool isLocationReachable( Rover* phoebe, const rapidjson::Document& roverConfig,
     double distToObs = phoebe->roverStatus().obstacle().distance;
     double bearToObs = phoebe->roverStatus().obstacle().bearing;
     double bearToObsComplement = 90 - bearToObs;
-    double xComponentOfDistToObs = distToObs * cos(bearToObsComplement);
+    double xComponentOfDistToObs = distToObs * cos( bearToObsComplement );
 
     bool isReachable = false;
 
