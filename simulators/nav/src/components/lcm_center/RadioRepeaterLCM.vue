@@ -13,6 +13,7 @@
       <Button
         name="Update"
         :invert-color="invertColor"
+        :color-scheme="repeaterButtonColor"
         @clicked="updateSignalStrength"
       />
       <NumberInput
@@ -29,7 +30,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { RADIO } from '../../utils/constants';
+import { BUTTON_COLOR_SCHEMES, RADIO } from '../../utils/constants';
+import { ColorScheme, ColorSchemeName } from '../../utils/types';
 import Button from '../common/Button.vue';
 import NumberInput from '../common/NumberInput.vue';
 
@@ -70,6 +72,16 @@ export default class RadioRepeaterLCM extends Vue {
   /* Whether or not to flip the color from green to red. */
   private get invertColor():boolean {
     return this.radioStrength < RADIO.lowSignalStrengthThreshold;
+  }
+
+  /* Color of the update repeater signal strength button. */
+  private get repeaterButtonColor():ColorScheme {
+    if (this.invertColor) {
+      return BUTTON_COLOR_SCHEMES[ColorSchemeName.RedWhite];
+    }
+    else {
+      return BUTTON_COLOR_SCHEMES[ColorSchemeName.GreenGray];
+    }
   }
 
   /* Determine if the radio signal strength is strong ('on') or weak ('off'). */

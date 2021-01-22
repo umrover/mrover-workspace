@@ -49,13 +49,11 @@ int main() {
         originalView //set to 1 -or true- to be passed into updateViewer later
     };
 
-    /* --- Outlier Detection --- */
-    int numChecks = 3;
-    deque <bool> outliers;
-    outliers.resize(numChecks, true); //initializes outliers vector
-    deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
-    deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
-    obstacle_return lastObstacle;
+     //Update LCM 
+    obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
+    obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
+    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Bearing Sent: " << obstacleMessage.bearing << "\n";
+    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Distance Sent: " << obstacleMessage.distance << "\n";
 
     #endif
 
