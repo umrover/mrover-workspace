@@ -148,8 +148,7 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
     tags.buffer.push_back(0);
     tags.buffer.push_back(0);
 
-  for (uint i=0; i<2; i++)
-  {
+  for (uint i=0; i<2; i++){
     if(tags.id[i] == -1){//no tag found
         if(tags.buffer[i] <= 20){//send buffered tag until tag is found
             ++tags.buffer[i];
