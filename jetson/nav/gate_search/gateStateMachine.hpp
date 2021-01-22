@@ -81,9 +81,10 @@ private:
     // Check if we drove through the correct direction
     bool isCorrectGateDir;
 
-    // Minor adjustment to gate targeting
-    // helpful if we drive through the incorrect direction
-    double gateAdjustmentDist = 0.3;
+    // Minor adjustment to gate targeting, due to issue
+    // of driving through a post when driving through the
+    // wrong direction
+    double gateAdjustmentDist;
 
 protected:
     /*************************************************************************/

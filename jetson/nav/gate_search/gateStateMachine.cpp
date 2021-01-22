@@ -265,6 +265,10 @@ NavState GateStateMachine::executeGateTurnToFarPost()
 // Drive to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateDriveToFarPost()
 {
+    // Minor adjustment to gate targeting, due to issue of driving through a 
+    // post when driving through the wrong direction
+    double gateAdjustmentDist = mRoverConfig[ "gateAdjustment" ][ "adjustmentDistance" ].GetDouble();
+
     // Set to first target, since we should have atleast one in sight/detected
     double distance = mPhoebe->roverStatus().leftTarget().distance - gateAdjustmentDist;
     double bearing = mPhoebe->roverStatus().leftTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg;
