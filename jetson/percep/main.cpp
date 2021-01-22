@@ -116,7 +116,7 @@ int main() {
         #endif
 
       #endif
-
+    
 /* --- Point Cloud Processing --- */
       #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
     
@@ -160,6 +160,7 @@ int main() {
         #endif
     
       #endif
+    
     
 /* --- Publish LCMs --- */
       lcm_.publish("/target_list", &arTagsMessage);
