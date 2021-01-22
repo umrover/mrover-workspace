@@ -273,8 +273,10 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) 
     std::vector<int> obstacles; //index of the leftmost and rightmost obstacles in path
 
     //Check Center Path
-    if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
+    if(CheckPath(interest_points, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
+        #if PERCEPTION_DEBUG
             std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
+        #endif
         return 0;
     }
     else { //otherwise, check to find left and right paths
@@ -286,8 +288,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) 
         vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
         //Find Clear left path
-        std::cout << "Checking Left Path" << std::endl;
-        double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+        double leftAngle = getAngleOffCenter(10, 0, interest_points, obstacles);
         leftDistance = distance; 
 
         //Reset global variables
@@ -296,8 +297,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) 
         obstacles.at(1) = centerObstacles.at(1);
 
         //Find clear right path
-        std::cout << "Checking Right Path" << std::endl;
-        double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+        double rightAngle = getAngleOffCenter(10, 1, interest_points, obstacles);
         rightDistance = distance;
 
         //return smallest distance of an obstacle from all the paths

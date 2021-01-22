@@ -49,11 +49,13 @@ int main() {
         originalView //set to 1 -or true- to be passed into updateViewer later
     };
 
-     //Update LCM 
-    obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
-    obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
-    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Bearing Sent: " << obstacleMessage.bearing << "\n";
-    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Distance Sent: " << obstacleMessage.distance << "\n";
+    /* --- Outlier Detection --- */
+    int numChecks = 3;
+    deque <bool> outliers;
+    outliers.resize(numChecks, true); //initializes outliers vector
+    deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
+    deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
+    obstacle_return lastObstacle;
 
     #endif
 
@@ -141,14 +143,11 @@ int main() {
         else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
             lastObstacle = obstacle_detection;
 
-        //Update LCM 
+        obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
         obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
-        if(lastObstacle.distance <= obstacle_detection.distance)
-            obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
-        else
-            obstacleMessage.distance = (obstacle_detection.distance/1000); //update LCM distance field
         #if PERCEPTION_DEBUG
             cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
+            cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Distance Sent: " << obstacleMessage.distance << "\n";
         #endif
 
         #if PERCEPTION_DEBUG
