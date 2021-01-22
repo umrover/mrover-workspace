@@ -268,6 +268,8 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson:
             return NavState::SearchGimbal; // Entry point to gimbal process
         }
         else{
+
+            std::cout << "entering search spin through here" << std::endl;
             return NavState::SearchSpin;
         }
     }
