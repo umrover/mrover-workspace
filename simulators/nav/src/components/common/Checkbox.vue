@@ -53,27 +53,12 @@ export default class Checkbox extends Vue {
 
 <!----------------------------------------- Scoped Style ------------------------------------------>
 <style scoped>
-.checkbox {
-  cursor: pointer;
-  border: 2px solid;
-  border-radius: 5px;
-  padding: 0 5px;
-  text-align: center;
-  margin: 2px;
-  white-space: nowrap;
-  flex: 1;
-}
-
 .checkbox.off {
   border-color: rgb(255, 40, 40);
 }
 
 .checkbox.on {
   border-color: #4c4;
-}
-
-.checkbox p {
-  margin: auto;
 }
 
 .disabled {
