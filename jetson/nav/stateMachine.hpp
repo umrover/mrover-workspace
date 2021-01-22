@@ -49,7 +49,7 @@ public:
 
     void updateRepeaterComplete( );
 
-    void setSearcher(SearchType type);
+    void setSearcher( SearchType type );
 
     /*************************************************************************/
     /* Public Member Variables */

@@ -27,10 +27,10 @@ public:
     /* Public Member Variables */
     /*************************************************************************/
     /* saved last known location of first tag of a gate */
-    Waypoint lastKnownPost1;
+    Waypoint lastKnownRightPost;
 
     /* saved last known location of second tag of a gate */
-    Waypoint lastKnownPost2;
+    Waypoint lastKnownLeftPost;
 
     // Queue of search points
     deque<Odometry> mGateSearchPoints;
@@ -53,7 +53,11 @@ private:
 
     NavState executeGateFace();
 
-    NavState executeGateShimmy();
+    NavState executeGateTurnToFarPost();
+
+    NavState executeGateDriveToFarPost();
+
+    NavState executeGateTurnToGateCenter();
 
     NavState executeGateDriveThrough();
 
@@ -74,8 +78,13 @@ private:
     Odometry centerPoint1;
     Odometry centerPoint2;
 
-    //
-    bool CP1ToCP2CorrectDir;
+    // Check if we drove through the correct direction
+    bool isCorrectGateDir;
+
+    // Minor adjustment to gate targeting, due to issue
+    // of driving through a post when driving through the
+    // wrong direction
+    double gateAdjustmentDist;
 
 protected:
     /*************************************************************************/

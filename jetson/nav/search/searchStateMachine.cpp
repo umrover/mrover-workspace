@@ -11,7 +11,7 @@
 #include <cmath>
 
 // Constructs an SearchStateMachine object with roverStateMachine
-SearchStateMachine::SearchStateMachine(StateMachine* roverStateMachine )
+SearchStateMachine::SearchStateMachine( StateMachine* roverStateMachine )
     : roverStateMachine( roverStateMachine ) {}
 
 // Runs the search state machine through one iteration. This will be called by
@@ -70,18 +70,18 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
     // degrees to turn to before performing a search wait.
     double waitStepSize = roverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
-    static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
+    static double mOriginalSpinAngle = 0; // initialize, is corrected on first call
 
-    if( phoebe->roverStatus().target().distance >= 0 )
+    if( phoebe->roverStatus().leftTarget().distance >= 0 )
     {
-        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
+        updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    if ( nextStop == 0 )
+    if( nextStop == 0 )
     {
-        //get current angle and set as origAngle
-        mOriginalSpinAngle = phoebe->roverStatus().odometry().bearing_deg; //doublecheck
+        // get current angle and set as origAngle
+        mOriginalSpinAngle = phoebe->roverStatus().odometry().bearing_deg; // doublecheck
         nextStop = mOriginalSpinAngle;
     }
     if( phoebe->turn( nextStop ) )
@@ -107,9 +107,9 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
     static bool started = false;
     static time_t startTime;
 
-    if( phoebe->roverStatus().target().distance >= 0 )
+    if( phoebe->roverStatus().leftTarget().distance >= 0 )
     {
-        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
+        updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                        phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
@@ -150,9 +150,9 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
     {
         return NavState::ChangeSearchAlg;
     }
-    if( phoebe->roverStatus().target().distance >= 0 )
+    if( phoebe->roverStatus().leftTarget().distance >= 0 )
     {
-        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
+        updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                        phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
@@ -172,9 +172,9 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
 NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
 {
-    if( phoebe->roverStatus().target().distance >= 0 )
+    if( phoebe->roverStatus().leftTarget().distance >= 0 )
     {
-        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
+        updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
@@ -206,7 +206,7 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
 // Else the rover continues to turn to to the target.
 NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
 {
-    if( phoebe->roverStatus().target().distance < 0 )
+    if( phoebe->roverStatus().leftTarget().distance < 0 )
     {
         cerr << "Lost the target. Continuing to turn to last known angle\n";
         if( phoebe->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
@@ -215,12 +215,12 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
         }
         return NavState::TurnToTarget;
     }
-    if( phoebe->turn( phoebe->roverStatus().target().bearing +
+    if( phoebe->turn( phoebe->roverStatus().leftTarget().bearing +
                       phoebe->roverStatus().odometry().bearing_deg ) )
     {
         return NavState::DriveToTarget;
     }
-    updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
+    updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                        phoebe->roverStatus().odometry().bearing_deg );
     return NavState::TurnToTarget;
 } // executeTurnToTarget()
@@ -234,10 +234,10 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
 // Else, it turns back to face the target.
 NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    if( phoebe->roverStatus().target().distance < 0 )
+    if( phoebe->roverStatus().leftTarget().distance < 0 )
     {
         cerr << "Lost the target\n";
-        return NavState::SearchTurn; //NavState::SearchSpin
+        return NavState::SearchTurn; // NavState::SearchSpin
     }
     if( isObstacleDetected( phoebe ) &&
         !isTargetReachable( phoebe, roverConfig ) )
@@ -246,25 +246,42 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
         roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
+    
+    DriveStatus driveStatus;
 
-    DriveStatus driveStatus = phoebe->drive( phoebe->roverStatus().target().distance,
-                                             phoebe->roverStatus().target().bearing +
-                                             phoebe->roverStatus().odometry().bearing_deg,
-                                             true );
+    double distance = phoebe->roverStatus().leftTarget().distance;
+    double bearing = phoebe->roverStatus().leftTarget().bearing + phoebe->roverStatus().odometry().bearing_deg;
+
+    // Executes the logic for driving with 0, 1, or 2 targets in sight
+    // If we have a second target detected, determine which post is closer
+    // If the distance to the second target is less than the first,
+    // set our variables to the target 2's distance and bearing
+    // Else, use the initialized values from target 1 when driving
+    if( phoebe->roverStatus().rightTarget().distance > 0 )
+    {
+        if( phoebe->roverStatus().leftTarget().distance > phoebe->roverStatus().rightTarget().distance ) 
+        {
+            distance = phoebe->roverStatus().rightTarget().distance;
+            bearing = phoebe->roverStatus().rightTarget().bearing + phoebe->roverStatus().odometry().bearing_deg;
+        }
+    }
+
+    driveStatus = phoebe->drive( distance, bearing, true );
+    
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.clear();
         if( phoebe->roverStatus().path().front().gate )
         {
             roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
-            const double absAngle = mod(phoebe->roverStatus().odometry().bearing_deg +
-                                        phoebe->roverStatus().target().bearing,
-                                        360);
-            roverStateMachine->mGateStateMachine->lastKnownPost1.odom = createOdom( phoebe->roverStatus().odometry(),
+            const double absAngle = mod( phoebe->roverStatus().odometry().bearing_deg +
+                                        phoebe->roverStatus().leftTarget().bearing,
+                                        360 );
+            roverStateMachine->mGateStateMachine->lastKnownRightPost.odom = createOdom( phoebe->roverStatus().odometry(),
                                                                                     absAngle,
-                                                                                    phoebe->roverStatus().target().distance,
+                                                                                    phoebe->roverStatus().leftTarget().distance,
                                                                                     phoebe );
-            roverStateMachine->mGateStateMachine->lastKnownPost1.id = phoebe->roverStatus().target().id;
+            roverStateMachine->mGateStateMachine->lastKnownRightPost.id = phoebe->roverStatus().leftTarget().id;
             return NavState::GateSpin;
         }
         phoebe->roverStatus().path().pop_front();
@@ -335,7 +352,7 @@ void SearchStateMachine::insertIntermediatePoints( Rover * phoebe, const rapidjs
 SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type )  //TODO
 {
     SearchStateMachine* search = nullptr;
-    switch (type)
+    switch ( type )
     {
         case SearchType::SPIRALOUT:
             search = new SpiralOut( stateMachine );
