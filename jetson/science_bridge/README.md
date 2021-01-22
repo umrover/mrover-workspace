@@ -41,6 +41,21 @@ Messages: [MosfetCmd.lcm](https://github.com/cgiger00/mrover-workspace/blob/scie
 Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 
+**Nav Status [subscriber]** \
+Messages: [NavStatus.lcm](https://github.com/cgiger00/mrover-workspace/blob/science-nucleo/rover_msgs/NavStatus.lcm) "/nav_status" \
+Publishers: jetson/nav \
+Subscribers: jetson/science_bridge
+
+**Repeater Drop Init [subscriber]** \
+Messages: [RepeaterDropInit.lcm](https://github.com/cgiger00/mrover-workspace/blob/science-nucleo/rover_msgs/RepeaterDropInit.lcm) "/rr_drop_init" \
+Publishers: jetson/nav \
+Subscribers: jetson/science_bridge
+
+**Repeater Drop Complete [publisher]** \
+Messages: [RepeaterDropComplete.lcm](https://github.com/cgiger00/mrover-workspace/blob/science-nucleo/rover_msgs/RepeaterDropComplete.lcm) "/rr_drop_complete" \
+Publishers: jetson/science_bridge\
+Subscribers: jetson/nav
+
 ### Ammonia
 TODO
 
