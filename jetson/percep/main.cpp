@@ -161,7 +161,6 @@ int main() {
     #endif
     
     #endif
-    cout << "bearing: " << obstacleMessage.bearing << " right bearing: " << obstacleMessage.rightBearing << endl;
     
 /* --- Publish LCMs --- */
     lcm_.publish("/target_list", &arTagsMessage);
