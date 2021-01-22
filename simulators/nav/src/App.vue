@@ -39,6 +39,21 @@ body {
   margin: auto;
 }
 
+.checkbox {
+  cursor: pointer;
+  border: 2px solid;
+  border-radius: 5px;
+  padding: 0 5px;
+  text-align: center;
+  margin: 2px;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.checkbox p {
+  margin: auto;
+}
+
 .container {
   border: solid 2px black;
   border-radius: 5px;

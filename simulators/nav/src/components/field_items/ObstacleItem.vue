@@ -8,7 +8,7 @@
       <b class="obstacle-item-name">Obstacle {{ index }}</b>
       <Button
         name="%D7"
-        :invert-color="true"
+        :color-scheme="redColorScheme"
         @clicked="deleteObstacleItem"
       />
     </div>
@@ -36,7 +36,13 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Mutation } from 'vuex-class';
-import { Obstacle, RoverLocationSource } from '../../utils/types';
+import { BUTTON_COLOR_SCHEMES } from '../../utils/constants';
+import {
+  ColorScheme,
+  ColorSchemeName,
+  Obstacle,
+  RoverLocationSource
+} from '../../utils/types';
 import Button from '../common/Button.vue';
 import NumberInput from '../common/NumberInput.vue';
 import FieldItemInfo from './FieldItemInfo.vue';
@@ -96,6 +102,11 @@ export default class ObstacleItem extends Vue {
   /************************************************************************************************
    * Local Getters/Setters
    ************************************************************************************************/
+  /* Get the red color scheme for a button. */
+  private get redColorScheme():ColorScheme {
+    return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
+  }
+
   /* Size of obstacle. */
   private get size():number {
     return this.obstacle.size;
