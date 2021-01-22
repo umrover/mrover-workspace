@@ -45,15 +45,24 @@ type = "<b"
         #ser.write(register) 
         #It writes the contents to the MISO line starting with the most-significant byte
 
+ser = serial.Serial(port="/dev/ttyO1", baudrate=baud)
+ser.close()
+ser.open()
+
+#Sets desired transmission rates for CHR NMEA-style packets (31 bits) Pg. 55
+CREG_COM_RATES7 = 0x07
+packetRates = 0xf0000
+
+
+#Send binary packet saying use NMEA and set rate of transfer, read packet beginning with $PCHRS
 
 def read_data(register):
-    with serial.Serial(port="/dev/ttyS4", baudrate=baud) as ser:
+    # with serial.Serial(port="/dev/ttyS4", baudrate=baud) as ser:
         #Page 31 Data Sheet
-        PT = 0000000
-        packet = struct.pack(type,'s','n','p',PT,register,)
-        ser.write(packet)
-        value = 0
-        return value
+    PT = 00000000
+    packet = struct.pack('s','n','p', PT, register)
+    value = ser.write(packet)
+    return value
 
 
 while True:
