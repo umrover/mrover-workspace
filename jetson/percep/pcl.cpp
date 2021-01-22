@@ -219,18 +219,9 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
             }
         }
         
-    #if PERCEPTION_DEBUG
-        for(auto interest_point : *curr_cluster)
-        {
-            pt_cloud_ptr->points[interest_point].r = 255;
-            pt_cloud_ptr->points[interest_point].g = 255;
-            pt_cloud_ptr->points[interest_point].b = 255;
-        }
-    #endif
-    }
-
         #if PERCEPTION_DEBUG
-            for(auto interest_point : *curr_cluster) {
+            for(auto interest_point : *curr_cluster)
+            {
                 pt_cloud_ptr->points[interest_point].r = 255;
                 pt_cloud_ptr->points[interest_point].g = 255;
                 pt_cloud_ptr->points[interest_point].b = 255;
