@@ -9,7 +9,11 @@ import Adafruit_BBIO.UART as UART
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
+<<<<<<< HEAD
 from rover_msgs import ThermistorData, MosfetCmd, NavStatus, RepeaterDropComplete, SpectralData
+=======
+from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete, SpectralData, NavStatus
+>>>>>>> ed4d07c6af1baccf03dc7e1a77eecdf7c8b7748f
 class ScienceBridge():
     def __init__(self):
         UART.setup("UART4") #  Specific to beaglebone
@@ -139,14 +143,7 @@ class ScienceBridge():
         pass
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        # struct = RTCM.decode(msg)
-        # print('Recieved: {} bytes'.format(len(bytes(struct.data))))
-        # parse data into expected format
-        # self.ser.write(bytes(struct.data))
-        pass
-    def pump_transmit(self, channel, msg):
-        # get cmd lcm and send to nucleo
-        # struct = RTCM.decode(msg)
+        # struct = STRUCT.decode(msg)
         # print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
         # self.ser.write(bytes(struct.data))
@@ -179,10 +176,10 @@ class ScienceBridge():
                         try:
                             if(tag == "SPECTRAL"):
                                 func(msg, spectral)
-                                lcm.publish('/spectral_data', spectral.encode())
+                                _lcm.publish('/spectral_data', spectral.encode())
                             if(tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
-                                lcm.publish('/thermistor_data', thermistor.encode())
+                                _lcm.publish('/thermistor_data', thermistor.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
