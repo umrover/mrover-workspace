@@ -20,7 +20,7 @@
 //but can use sample images for testing
 class Camera::Impl {
 public:
-	Impl();
+  Impl();
   ~Impl();
 	bool grab();
 
