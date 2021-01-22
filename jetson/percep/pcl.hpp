@@ -3,6 +3,7 @@
 
 #include "perception.hpp"
 #include <pcl/common/common_headers.h>
+#include <float.h>
 
 /* --- Compare Line Class --- */
 /**

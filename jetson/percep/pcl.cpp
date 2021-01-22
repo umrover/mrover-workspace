@@ -157,7 +157,7 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
     for (int i = 0; i < (int)cluster_indices.size(); ++i)
     {
         std::vector<int>* curr_cluster = &interest_points[i];
-
+        
         //Initialize interest points
         std::fill(curr_cluster->begin(), curr_cluster->end(), cluster_indices[i].indices[0]);
 
@@ -287,19 +287,19 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
     
     else{
 
-    //Initialize base cases outside of scope
-    vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
+        //Initialize base cases outside of scope
+        vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
-    //Find Clear left path, set left bearing
-    leftBearing = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+        //Find Clear left path, set left bearing
+        leftBearing = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+        
+        //Reset global variables
+        obstacles = {0, 0};
+        obstacles.at(0) = centerObstacles.at(0);
+        obstacles.at(1) = centerObstacles.at(1);
 
-    //Reset global variables
-    obstacles       = {0, 0};
-    obstacles.at(0) = centerObstacles.at(0);
-    obstacles.at(1) = centerObstacles.at(1);
-
-    //Find clear right path, set right bearing
-    rightBearing = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+        //Find clear right path, set right bearing
+        rightBearing = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
     }
 }
 
@@ -317,8 +317,15 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
 
     bool end = true;
     
+    double previousDistance = DBL_MAX;
+
+    //if there are no interest points, the distance from the last obstacle should be DBL_MAX
+    distance = previousDistance;
+    
     //Iterate through interest points
     for(auto cluster : interest_points) {
+        double sizeOfCluster = 0;
+        double currentDistance = 0;
         for (auto index : cluster) {
             //Check if the obstacle interest point is to the right of the left projected path of the rover 
             //and to the left of the right projected path of the rover
@@ -346,7 +353,20 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
                 pt_cloud_ptr->points[index].g = 69;
                 pt_cloud_ptr->points[index].b = 0;
                 #endif
+
+                //adds distance from a point in a cluster to currentDistance, and keeps track of the cluster size
+                currentDistance += pt_cloud_ptr->points[index].z;
+                sizeOfCluster++; 
             }
+        }
+        //to find the distance from an obstacle detected, add up all the z values from a given cluster of points
+        //then divide by the number of points in the cluster
+        currentDistance = 1.0 * currentDistance / sizeOfCluster;
+
+        //if the last obstacle distance from a CheckPath loop was smaller, keep the smaller value, otherwise keep the current distance value
+        if(currentDistance < previousDistance) {
+            previousDistance = currentDistance;
+            distance = previousDistance;
         }
     }
 
@@ -427,6 +447,7 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
     FindInterestPoints(cluster_indices, interest_points);
     FindClearPath(interest_points, viewer); 
 }
+
 
 
 /* --- Update --- */
