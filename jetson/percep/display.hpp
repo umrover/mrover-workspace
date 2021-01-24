@@ -1,8 +1,5 @@
+#if PERCEPTION_DEBUG
 #include "perception.hpp"
-#include "rover_msgs/Target.hpp"
-#include "rover_msgs/TargetList.hpp"
-#include <unistd.h>
-#include <deque>
 
 using namespace cv;
 using namespace std;
@@ -55,3 +52,5 @@ class Display{
       destroyWindow(windowName);
     }
 };
+
+#endif

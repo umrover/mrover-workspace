@@ -2,6 +2,7 @@
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "display.hpp"
+#include "pcl.hpp"
 #include <unistd.h>
 #include <deque>
 
@@ -191,6 +192,7 @@ int main() {
       auto obstacleEnd = std::chrono::high_resolution_clock::now();
       double obstacleTimeDiff = std::chrono::duration<double, std::ratio<1,1000>>(obstacleEnd - obstacleStart).count();
       statisticsDisplay.insert({"Obstacle Detection Time (ms): ", obstacleTimeDiff});
+      statisticsDisplay.insert({"Bearing: ", pointcloud.bearing});
     #endif
     #endif
     
@@ -209,9 +211,7 @@ int main() {
       auto fpsEnd = std::chrono::high_resolution_clock::now();
       auto fpsTimeDiff = fpsEnd - fpsStart;
       double fps = 1 / std::chrono::duration<double, std::ratio<1,1>>(fpsTimeDiff).count();
-
       statisticsDisplay.insert({"FPS: ", fps});
-      statisticsDisplay.insert({"Bearing: ", pointcloud.bearing});
 
       display.updateDisplay(statisticsDisplay);
       statisticsDisplay.clear();
