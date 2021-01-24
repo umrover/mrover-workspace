@@ -73,5 +73,6 @@
 		"searchWaitStepSize": 90.0,
 		"gimbalSearchWaitStepSize": 75.0,
 		"searchWaitTime": 1.0
+		"useGimbal": true,
 	}
 }
