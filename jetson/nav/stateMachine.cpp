@@ -412,7 +412,12 @@ NavState StateMachine::executeDrive()
     {
         if( nextWaypoint.search )
         {
-            return NavState::SearchGimbal;
+            if (mRoverConfig[ "search" ][ "useGimbal" ].GetBool()){
+                return NavState::SearchGimbal; // Entry point to gimbal process
+            }
+            else{
+                return NavState::SearchSpin;
+            }
         }
         mPhoebe->roverStatus().path().pop_front();
         // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)

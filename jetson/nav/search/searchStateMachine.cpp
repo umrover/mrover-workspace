@@ -280,13 +280,12 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson:
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.pop_front();
-        //TODO: fill this in with an actual switch
-        if (true){
+    
+        
+        if (roverConfig[ "search" ][ "useGimbal" ].GetBool()){
             return NavState::SearchGimbal; // Entry point to gimbal process
         }
         else{
-
-            std::cout << "entering search spin through here" << std::endl;
             return NavState::SearchSpin;
         }
     }
