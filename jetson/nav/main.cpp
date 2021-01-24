@@ -115,6 +115,7 @@ int main()
     while( lcmObject.handle() == 0 )
     {
         roverStateMachine.run();
+        cout << "run 1\n";
     }
     return 0;
 } // main()

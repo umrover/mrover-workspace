@@ -347,19 +347,22 @@ NavState StateMachine::executeTurn()
 {
     if( mPhoebe->roverStatus().path().empty() )
     {
+        cout << "done\n";
         return NavState::Done;
     }
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
-    {
-        addRepeaterDropPoint();
-        return NavState::RadioRepeaterTurn;
-    }
+    // if ( isAddRepeaterDropPoint() )
+    // {
+    //     cout << "add repeater drop point\n";
+    //     addRepeaterDropPoint();
+    //     return NavState::RadioRepeaterTurn;
+    // }
 
     Odometry& nextPoint = mPhoebe->roverStatus().path().front().odom;
     if( mPhoebe->turn( nextPoint ) )
     {
+        cout << "radio drive\n";
         if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
         {
             return NavState::RadioRepeaterDrive;
@@ -367,10 +370,12 @@ NavState StateMachine::executeTurn()
         return NavState::Drive;
     }
 
-    if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
-    {
-        return NavState::RadioRepeaterTurn;
-    }
+    // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
+    // {
+    //     cout << "radio turn\n";
+    //     return NavState::RadioRepeaterTurn;
+    // }
+    cout << "turn to turn\n";
     return NavState::Turn;
 } // executeTurn()
 
@@ -387,11 +392,11 @@ NavState StateMachine::executeDrive()
 
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
-    {
-        addRepeaterDropPoint();
-        return NavState::RadioRepeaterTurn;
-    }
+    // if ( isAddRepeaterDropPoint() )
+    // {
+    //     addRepeaterDropPoint();
+    //     return NavState::RadioRepeaterTurn;
+    // }
 
     if( isObstacleDetected( mPhoebe ) && !isWaypointReachable( distance ) )
     {
@@ -407,19 +412,19 @@ NavState StateMachine::executeDrive()
             return NavState::SearchSpin;
         }
         mPhoebe->roverStatus().path().pop_front();
-        if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
-        {
-            return NavState::RepeaterDropWait;
-        }
+        // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+        // {
+        //     return NavState::RepeaterDropWait;
+        // }
         ++mCompletedWaypoints;
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
-        if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
-        {
-            return NavState::RadioRepeaterDrive;
-        }
+        // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+        // {
+        //     return NavState::RadioRepeaterDrive;
+        // }
         return NavState::Drive;
     }
     // else driveStatus == DriveStatus::OffCourse (must turn to waypoint)

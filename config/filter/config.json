@@ -1,58 +1,24 @@
 {
-    "filterWeights":
-    {
-        "location":
-        {
-            "gps": 0,
-            "sensorPackage": 1,
-            "filter1": 0
-        },
-        "bearing":
-        {
-            "imu": 0,
-            "imuYaw": 0,
-            "sensorPackage": 1,
-            "trackAngleGyro": 0
-        }
-    },
+    "COMMENT" : "ALL VALUES IN METERS",
 
+    "Q_Dynamic": 0.1,
+    "Q_Static": 0.001,
 
-    "__COMMENT__": "below this point is for internal use only",
+    "FilterType": "LinearKalman",
 
-    "bearingWeights":
-    {
-        "trackAngleWeight": 0.5,
-        "imuMagWeight": 0.5,
-        "phoneMagWeight": 0.5,
-        "gyroWeight": 0.5
-    },
+    "P_initial": [1, 0, 1, 0],
 
-    "driveWeights":
-    {
-        "IMU":
-        {
-            "accel": 0.5,
-            "gyro": 0.5
-        },
-        "GPS":
-        {
-            "loc": 0.5,
-            "calcVel": 0.5,
-            "groundSpeed": 0.5,
-            "phone": 0.5,
-            "raw_lat": 0.5,
-            "raw_long": 0.5,
-            "calc_lat": 0.5,
-            "calc_long": 0.5
-        }
-    },
+    "R_Dynamic": [1, 1, 1, 1],
+    "R_Static": [4, 0.01, 4, 0.01],
 
-    "constants":
-    {
-        "imuDeltaTime": 0.01,
-        "updateRate": 0.1,
-        "metersToLatMin": 0.0005389625,
-        "earthRad": 6371000,
-        "earthCirc": 40075000
-    }
+    "dt" : 0.01,
+
+    "UpdateRate" : 0.1,
+
+    "IMU_fresh_timeout" : 5,    
+    "GPS_fresh_timeout" : 1,
+    "IMU_accel_filter_bias" : 0.8,
+    "IMU_accel_threshold": 0.5,
+
+    "RefCoords": {"lat": 42.2766, "long": -83.7382}
 }
