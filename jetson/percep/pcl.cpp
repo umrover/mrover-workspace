@@ -15,13 +15,14 @@
         UP_BD_Y{mRoverConfig["pt_cloud"]["pass_through"]["upperBdY"].GetDouble()},
         LOW_BD{mRoverConfig["pt_cloud"]["pass_through"]["lowerBd"].GetDouble()},
         ROVER_W_MM{mRoverConfig["pt_cloud"]["rover_w_mm"].GetDouble()},
+        LEAF_SIZE{mRoverConfig["pt_cloud"]["downsample_voxel_filter"].GetFloat()},
         MAX_ITERATIONS{mRoverConfig["pt_cloud"]["ransac"]["max_iterations"].GetInt()},
         SEGMENTATION_EPSLION{mRoverConfig["pt_cloud"]["ransac"]["segmentation_epsilon"].GetDouble()},
         DISTANCE_THRESHOLD{mRoverConfig["pt_cloud"]["ransac"]["distance_threshold"].GetDouble()},
         CLUSTER_TOLERANCE{mRoverConfig["pt_cloud"]["euclidean_cluster"]["cluster_tolerance"].GetInt()},
         MIN_CLUSTER_SIZE{mRoverConfig["pt_cloud"]["euclidean_cluster"]["min_cluster_size"].GetInt()},
         MAX_CLUSTER_SIZE{mRoverConfig["pt_cloud"]["euclidean_cluster"]["max_cluster_size"].GetInt()},
-        LEAF_SIZE{mRoverConfig["pt_cloud"]["downsample_voxel_filter"].GetFloat()},
+        
         //Other Values
         bearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
