@@ -253,8 +253,11 @@ As of right now we are unsure whether or not we are using odrives for the 2021 R
 
 ### Notes
 The odrive code has been modified to work for 3 odrives on the 2021 rover for SAR. We do not plan on using odrives for URC.
+<<<<<<< HEAD
 
 
 
 
 
+=======
+>>>>>>> 70cf3ced601a9e93fa807b3149b1ecbe65643d79

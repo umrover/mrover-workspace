@@ -80,7 +80,8 @@ import {
   Odom,
   Point2D,
   Waypoint,
-  WaypointDrawOptions
+  WaypointDrawOptions,
+  ZedGimbalPosition
 } from '../../utils/types';
 import { canvasToOdom } from '../../utils/utils';
 import CanvasArTags from './ar_tags';
@@ -189,6 +190,9 @@ export default class Field extends Vue {
   @Getter
   private readonly waypointDrawOptions!:WaypointDrawOptions;
 
+  @Getter
+  private readonly zedGimbalPos!:ZedGimbalPosition;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
@@ -283,7 +287,8 @@ export default class Field extends Vue {
   /* Object for drawing rover on canvas. */
   private get canvasRover():CanvasRover {
     return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale, this.roverPath,
-                           this.fieldOfViewOptions, this.roverPathVisible, this.pushToRoverPath);
+                           this.fieldOfViewOptions, this.roverPathVisible, this.pushToRoverPath,
+                           this.zedGimbalPos);
   }
 
   /* Object for drawing waypoints on canvas. */
