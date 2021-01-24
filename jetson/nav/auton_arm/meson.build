@@ -2,6 +2,6 @@ project('nav', 'cpp', default_options : ['cpp_std=c++14'])
 
 liblcm = dependency('lcm')
 
-executable('onboard_nav_auton_arm', 'main.cpp', 'rover.cpp', 'auton_armStateMachine.cpp', 
+executable('jetson_nav_auton_arm', 'main.cpp', 'rover.cpp', 'auton_armStateMachine.cpp', 
            dependencies : [liblcm],
            install : true)
