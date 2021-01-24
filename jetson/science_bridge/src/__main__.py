@@ -110,13 +110,16 @@ class ScienceBridge():
         print("Received nav req")
         # Want the name of the status I guess?
         # Off, Done, Else
+        # Off = Bluee
         struct = NavStatus.decode(msg)
-        # Off = Blue
         message = "$Mosfet,{device},{enable},1"
+        # time.sleep(1)
+        # self.ser.write(bytes(message.format(device=prev, enable = 1),encoding='utf8'))
         if struct.nav_state_name == "Off":
             print("navstatus off")
             message = message.format(device = 2, enable = 1)
             self.ser.write(bytes(message,encoding='utf8'))
+            prev = 2
         # Done = Flashing green
         elif struct.nav_state_name == "Done":
             print("navstatus Done")
@@ -127,11 +130,20 @@ class ScienceBridge():
                 time.sleep(1)
                 self.ser.write(bytes(message.format(device = 1, enable = 0),encoding='utf8'))
                 time.sleep(1)
+                prev=1
         # Everytime else = Red
         else:
             print("navstatus else")
-            message = message.format(device = 0, enable = 1)
-            self.ser.write(bytes(message,encoding='utf8'))
+            messageon = message.format(device = 0, enable = 1)
+            self.ser.write(bytes(messageon,encoding='utf8'))
+            prev = 0
+        time.sleep(1)
+        if (prev != 2):
+            self.ser.write(bytes(message.format(device=2, enable = 0),encoding='utf8'))
+        #time.sleep(1)
+        if (prev != 0):
+            self.ser.write(bytes(message.format(device=0,enable=0),encoding='utf8'))
+
         pass
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
