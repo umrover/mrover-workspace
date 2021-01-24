@@ -347,7 +347,6 @@ NavState StateMachine::executeTurn()
 {
     if( mPhoebe->roverStatus().path().empty() )
     {
-        cout << "done\n";
         return NavState::Done;
     }
     // If we should drop a repeater and have not already, add last
@@ -362,11 +361,11 @@ NavState StateMachine::executeTurn()
     Odometry& nextPoint = mPhoebe->roverStatus().path().front().odom;
     if( mPhoebe->turn( nextPoint ) )
     {
-        cout << "radio drive\n";
-        if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
-        {
-            return NavState::RadioRepeaterDrive;
-        }
+        // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
+        // {
+        //     cout << "radio drive\n";
+        //     return NavState::RadioRepeaterDrive;
+        // }
         return NavState::Drive;
     }
 
@@ -375,7 +374,6 @@ NavState StateMachine::executeTurn()
     //     cout << "radio turn\n";
     //     return NavState::RadioRepeaterTurn;
     // }
-    cout << "turn to turn\n";
     return NavState::Turn;
 } // executeTurn()
 
@@ -428,10 +426,10 @@ NavState StateMachine::executeDrive()
         return NavState::Drive;
     }
     // else driveStatus == DriveStatus::OffCourse (must turn to waypoint)
-    if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
-    {
-        return NavState::RadioRepeaterTurn;
-    }
+    // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+    // {
+    //     return NavState::RadioRepeaterTurn;
+    // }
 
     return NavState::Turn;
 } // executeDrive()
