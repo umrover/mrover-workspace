@@ -120,7 +120,7 @@ int main()
     lcmObject.subscribe( "/radio", &LcmHandlers::radioSignalStrength, &lcmHandlers );
     lcmObject.subscribe( "/rr_drop_complete", &LcmHandlers::repeaterDropComplete, &lcmHandlers );
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
-    lcmObject.subscribe("/gimbal", &LcmHandlers::gimbalPositionUpdate, &lcmHandlers);
+    lcmObject.subscribe("/zed_gimbal_data", &LcmHandlers::gimbalPositionUpdate, &lcmHandlers);
 
     while( lcmObject.handle() == 0 )
     {
