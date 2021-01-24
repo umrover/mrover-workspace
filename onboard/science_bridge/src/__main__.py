@@ -5,7 +5,7 @@ science nucleo to operate the science boxes and get relevant data
 import serial
 import asyncio
 import Adafruit_BBIO.UART as UART
-from numpy import int16
+# from numpy import int16
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
@@ -111,13 +111,6 @@ class ScienceBridge():
         struct = NavStatus.decode(msg)
         # Off = Blue
         message = "$Mosfet,{device},{enable},1"
-        # First Reset all leds
-        r_reset = message.format(device = 0, enable = 0)
-        g_reset = message.format(device = 1, enable = 0)
-        b_reset = message.format(device = 2, enable = 0)
-        self.ser.write(bytes(r_reset,encoding='utf8'))
-        self.ser.write(bytes(g_reset,encoding='utf8'))
-        self.ser.write(bytes(b_reset,encoding='utf8'))
         if struct.nav_state_name == "Off":
             print("navstatus off")
             message = message.format(device = 2, enable = 1)
