@@ -53,7 +53,7 @@ class ScienceBridge():
                     "d1_3", "d1_4", "d1_5", "d1_6", "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
             count = 1
             for var in struct_variables:
-                # setattr(spectral_struct, var, ((int16(arr[count]) << 8) | (int16(arr[count + 1]))))
+                setattr(spectral_struct, var, ((int16(arr[count]) << 8) | (int16(arr[count + 1]))))
                 count += 2
         except:
             pass
@@ -213,7 +213,7 @@ def main():
         # lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         # lcm.subscribe("/pump_cmd", bridge.pump_transmit)
         # Temp removed to test callback
-        run_coroutines(_lcm.loop())# bridge.recieve(_lcm))
+        run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
 if __name__ == "__main__":
     main()
     
