@@ -234,13 +234,11 @@ class OdriveBridge(object):
         global modrive
         global legal_controller
         print("looking for odrive")
-<<<<<<< HEAD
-        # TODO fill in 3rd odrive id
-=======
+
         # odrive 0 --> front motors
         # odrive 1 --> middle motors
         # odrive 2 --> back motors
->>>>>>> 70cf3ced601a9e93fa807b3149b1ecbe65643d79
+
         odrives = ["205F3883304E", "2091358E524B", "2084399C4D4D"]
         id = odrives[legal_controller]
 
