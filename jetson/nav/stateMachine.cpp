@@ -99,6 +99,7 @@ void StateMachine::updateObstacleElements( double bearing, double distance )
 // Will call the corresponding function based on the current state.
 void StateMachine::run()
 {
+   
     publishNavState();
     if( isRoverReady() )
     {
@@ -296,6 +297,8 @@ bool StateMachine::isRoverReady() const
            mPhoebe->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
            mPhoebe->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
            mPhoebe->roverStatus().currentState() == NavState::RepeaterDropWait ||
+           mPhoebe->roverStatus().currentState() == NavState::SearchGimbalWait ||
+           mPhoebe->roverStatus().currentState() == NavState::SearchGimbal ||
            mPhoebe->roverStatus().currentState() == NavState::GateSpinWait;
 
 } // isRoverReady()

@@ -108,13 +108,13 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
     // whether the gimabl uses degrees/power/radians etc..
 
     // degrees to turn to before performing a search wait.
-    std::cout << "starting gimbal search " << std::endl;
-    double waitStepSize = 75.0;//roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+   
+    static double waitStepSize = 75.0;//roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
 
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
     static double phase = 0; // if 0, go to -150. if 1 go to +150, if 2 go to 0
-    static double target = -150; // TODO: Un-hardcode (absolute values) - rover config for gimbal search range
+    static double target = 150; // TODO: Un-hardcode (absolute values) - rover config for gimbal search range
 
     if( phoebe->roverStatus().target().distance >= 0 )
     {
@@ -123,30 +123,32 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    std::cout << "no target yet " << std::endl;
-    // TODO: Check whether this is needed still
-    if ( nextStop == 0 )
-    {
-        //get current angle and set as origAngle
-        std::cout << "getting yaw " << std::endl;
-        mOriginalSpinAngle = phoebe->gimbal().getYaw(); //phoebe->roverStatus().odometry().bearing_deg; //doublecheck
-        std::cout << "got yaw" << std::endl;
-        nextStop = mOriginalSpinAngle;
-    }
+  
+    // // TODO: Check whether this is needed still
+    // if ( nextStop == 0 )
+    // {
+    //     //get current angle and set as origAngle
+      
+    //     mOriginalSpinAngle = phoebe->gimbal().getYaw(); //phoebe->roverStatus().odometry().bearing_deg; //doublecheck
+      
+    //     nextStop = mOriginalSpinAngle;
+    // }
     // TODO: Refactor this to "turnGimbal" or something - implied movement
-    std::cout << "setting gimbal target" << std::endl;
+    std::cout << "setting gimbal target: " << nextStop << " phase target: " << target << std::endl;
     if( phoebe->gimbal().setTargetYaw( nextStop ) )
     {   
-        std::cout << "reached gimbal target, generating next one" << std::endl;
+        std::cout << "reached gimbal stop, generating next one" << std::endl;
+        
         if ( nextStop == target )
         {
+            std::cout << "Reached gimbal phase target, generating new one" << std::endl;
             if ( phase <= 2 )
                 ++phase;
             
             if ( phase == 1 ) {
 
                 waitStepSize *= -1;
-                target = 150;
+                target = -150;
             }
             else if ( phase == 2 ) 
             {
@@ -154,17 +156,23 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
                 target = 0;
             }
         }
-        
+        std::cout << "current phase : " << phase << std::endl;
+        std::cout << "wait step: " << waitStepSize << std::endl;
+    
         if ( phase == 3 )
         {
-            phase = 0;
-            target = -150;
-            nextStop = 0;
+            waitStepSize = 75.0;//roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+            nextStop = 0; // to force the rover to wait initially
+            mOriginalSpinAngle = 0; //initialize, is corrected on first call
+            phase = 0; // if 0, go to -150. if 1 go to +150, if 2 go to 0
+            target = 150; // TODO: Un-hardcode (absolute values) - rover config for gimbal search range
+
             std::cout << "done with gimbal search. Moving to search turn" << std::endl;
             return NavState::SearchTurn;
         }
         nextStop += waitStepSize;
-        std::cout << "going to gimbal wait" << std::endl;
+        
+        std::cout << "going to gimbal wait, next stop: " << nextStop << std::endl;
         return NavState::SearchGimbalWait;
     }
     phoebe->publishGimbal();
@@ -181,7 +189,7 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
 {
     static bool started = false;
     static time_t startTime;
-
+    cout << "entering rover wait " << endl;
     if( phoebe->roverStatus().target().distance >= 0 )
     {
         updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
