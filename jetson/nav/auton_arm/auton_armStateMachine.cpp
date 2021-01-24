@@ -126,7 +126,7 @@ void AutonArmStateMachine::updateRoverStatus(Target target) {
     cout << "Target received!" << endl;
     mNewRoverStatus.target() = target;
     is_tag_received = true;
-} //updateRoverStatus(TargetList targetList)
+} //updateRoverStatus(Target target)
 
 void AutonArmStateMachine::updateRoverStatus(Pos position) {
     received_position = position;
@@ -197,7 +197,7 @@ AutonArmState AutonArmStateMachine::executeRequestCoordinates() {
     return AutonArmState::WaitingForCoordinates;
 }
 
-AutonArmState AutonArmStateMachine::executeWaitingForCoordinates(){
+AutonArmState AutonArmStateMachine::executeWaitingForCoordinates() {
     // If coordinates have not been recieved
     if(!is_coordinates_received)
         return AutonArmState::WaitingForCoordinates;

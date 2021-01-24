@@ -36,6 +36,7 @@ bool Rover::updateRover(RoverStatus newRoverStatus) {
         // If any data has changed, update all data
         if(!isEqual( mRoverStatus.target(), newRoverStatus.target()))
         {
+            cout << "Target updated" << endl;
             mRoverStatus.target() = newRoverStatus.target();
             return true;
         }
