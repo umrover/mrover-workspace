@@ -334,6 +334,7 @@
 
 #endif
 
+
 Camera::Camera() : impl_{new Camera::Impl}, rgb_foldername{""}, depth_foldername{""}, pcl_foldername{""} {}
 
 Camera::~Camera() {

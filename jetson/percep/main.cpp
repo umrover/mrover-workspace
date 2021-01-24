@@ -108,6 +108,7 @@ int main() {
           cam.record_ar(rgb);
         #endif
 
+
         detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
 
         #if PERCEPTION_DEBUG && AR_DETECTION
