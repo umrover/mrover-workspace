@@ -57,23 +57,22 @@ class PCL {
     double UP_BD_Z;
     double UP_BD_Y;
     double LOW_BD ;
+    double ROVER_W_MM;
+    float LEAF_SIZE;
+    //RANSAC constants
+    int MAX_ITERATIONS;
+    double SEGMENTATION_EPSLION;
+    double DISTANCE_THRESHOLD;
+    //Euclidean cluster constants
+    int CLUSTER_TOLERANCE;
+    int MIN_CLUSTER_SIZE;
+    int MAX_CLUSTER_SIZE;
+
+    
 
     //Constructor
     PCL(const rapidjson::Document &mRoverConfig);
     
-    /** TODO 
-     * DownsampleVoxelFilter leaf size (don't worry ab making section here)
-     * RANSAC SECTION in pt_cloud section:
-     *      max iterations
-     *      segmentation epsilon
-     *      distance threshold
-     * 
-     * Euclidean cluster section in pt_cloud section
-     *      cluster tolerance
-     *      min cluster size
-     *      max cluster size
-     * */
-
     //Member Variables
     double bearing;
     double distance;

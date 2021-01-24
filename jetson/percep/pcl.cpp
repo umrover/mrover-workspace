@@ -3,7 +3,7 @@
 
 #if OBSTACLE_DETECTION
 
- //Constructor
+    //Constructor
     PCL::PCL(const rapidjson::Document &mRoverConfig) : 
 
         //Populate Constants from Config File
@@ -14,7 +14,14 @@
         UP_BD_Z{mRoverConfig["pt_cloud"]["pass_through"]["upperBdZ"].GetDouble()},
         UP_BD_Y{mRoverConfig["pt_cloud"]["pass_through"]["upperBdY"].GetDouble()},
         LOW_BD{mRoverConfig["pt_cloud"]["pass_through"]["lowerBd"].GetDouble()},
-
+        ROVER_W_MM{mRoverConfig["pt_cloud"]["rover_w_mm"].GetDouble()},
+        MAX_ITERATIONS{mRoverConfig["pt_cloud"]["ransac"]["max_iterations"].GetInt()},
+        SEGMENTATION_EPSLION{mRoverConfig["pt_cloud"]["ransac"]["segmentation_epsilon"].GetDouble()},
+        DISTANCE_THRESHOLD{mRoverConfig["pt_cloud"]["ransac"]["distance_threshold"].GetDouble()},
+        CLUSTER_TOLERANCE{mRoverConfig["pt_cloud"]["euclidean_cluster"]["cluster_tolerance"].GetInt()},
+        MIN_CLUSTER_SIZE{mRoverConfig["pt_cloud"]["euclidean_cluster"]["min_cluster_size"].GetInt()},
+        MAX_CLUSTER_SIZE{mRoverConfig["pt_cloud"]["euclidean_cluster"]["max_cluster_size"].GetInt()},
+        LEAF_SIZE{mRoverConfig["pt_cloud"]["downsample_voxel_filter"].GetFloat()},
         //Other Values
         bearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
@@ -58,7 +65,7 @@ void PCL::DownsampleVoxelFilter() {
 
     pcl::VoxelGrid<pcl::PointXYZRGB> sor;
     sor.setInputCloud (pt_cloud_ptr);
-    sor.setLeafSize(20.0f, 20.0f, 20.0f);
+    sor.setLeafSize(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE);
     sor.filter (*pt_cloud_ptr);
 }
 
@@ -80,12 +87,12 @@ void PCL::RANSACSegmentation(string type) {
     seg.setOptimizeCoefficients(true);
     seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE );
     seg.setMethodType(pcl::SAC_RANSAC);
-    seg.setMaxIterations(400);
-    seg.setDistanceThreshold(100); //Distance in mm away from actual plane a point can be
+    seg.setMaxIterations(MAX_ITERATIONS);
+    seg.setDistanceThreshold(DISTANCE_THRESHOLD); //Distance in mm away from actual plane a point can be
     // to be considered an inlier
     seg.setAxis(Eigen::Vector3f(0, 1, 0)); //Looks for a plane along the Z axis
-    double segmentation_epsilon = 10; //Max degree the normal of plane can be from Z axis
-    seg.setEpsAngle(pcl::deg2rad(segmentation_epsilon));
+    //Max degree the normal of plane can be from Z axis
+    seg.setEpsAngle(pcl::deg2rad(SEGMENTATION_EPSLION));
 
     //Objects where segmented plane is stored
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
@@ -128,9 +135,9 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
     
     //Extracts clusters using nearet neighbors search
     pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
-    ec.setClusterTolerance (60); // 60 mm radius per point
-    ec.setMinClusterSize (20);
-    ec.setMaxClusterSize (100000);
+    ec.setClusterTolerance (CLUSTER_TOLERANCE); // 60 mm radius per point
+    ec.setMinClusterSize (MIN_CLUSTER_SIZE);
+    ec.setMaxClusterSize (MAX_CLUSTER_SIZE);
     ec.setSearchMethod (tree);
     ec.setInputCloud (pt_cloud_ptr);
     ec.extract (cluster_indices);

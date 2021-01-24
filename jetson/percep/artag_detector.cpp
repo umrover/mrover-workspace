@@ -152,13 +152,12 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
     tags.locx.push_back(tagPair.first.loc.x);
     tags.locy.push_back(tagPair.first.loc.y);
     tags.id.push_back(tagPair.second.id);
-    tags.locx.push_back(tagPair.first.loc.x);
-    tags.locy.push_back(tagPair.first.loc.y);
+    tags.locx.push_back(tagPair.second.loc.x);
+    tags.locy.push_back(tagPair.second.loc.y);
     tags.buffer.push_back(0);
     tags.buffer.push_back(0);
 
-  for (uint i=0; i<2; i++)
-  {
+  for (uint i=0; i<2; i++) {
     if(tags.id[i] == DEFAULT_TAG_VAL){//no tag found
         if(tags.buffer[i] <= BUFFER_ITERATIONS){//send buffered tag until tag is found
             ++tags.buffer[i];
@@ -167,13 +166,13 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
             arTags[i].bearing = DEFAULT_TAG_VAL;
             arTags[i].id = DEFAULT_TAG_VAL;
         }
-     } else {//one tag found
+     } else {//tag found
     if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))) {
         arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
+    }
         arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
         arTags[i].id = tags.id.at(i);
         tags.buffer[i] = 0;
-    }
    }
   }
 }

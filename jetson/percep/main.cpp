@@ -7,11 +7,10 @@
 using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
-
-rapidjson::Document mRoverConfig;
  
 int main() {
  /* --- Reading in Config File --- */
+  rapidjson::Document mRoverConfig;
   ifstream configFile;
   string configPath = getenv("MROVER_CONFIG");
   configPath += "/config_percep/config.json";
