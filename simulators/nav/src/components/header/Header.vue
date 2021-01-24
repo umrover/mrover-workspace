@@ -49,6 +49,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
+import { SensorSimulationMode } from '../../utils/types';
 import BinaryIndicator from '../common/BinaryIndicator.vue';
 
 @Component({
@@ -73,22 +74,22 @@ export default class Header extends Vue {
   private readonly percepConnected!:boolean;
 
   @Getter
-  private readonly simulateLoc!:boolean;
+  private readonly simulateLoc!:SensorSimulationMode;
 
   @Getter
-  private readonly simulatePercep!:boolean;
+  private readonly simulatePercep!:SensorSimulationMode;
 
   /************************************************************************************************
    * Local Getters/Setters
    ************************************************************************************************/
   /* Whether or not we are connected to or simulating localization. */
   private get localizationOn():boolean {
-    return this.simulateLoc || this.locConnected;
+    return this.simulateLoc !== SensorSimulationMode.Off || this.locConnected;
   }
 
   /* Whether or not we are connected to or simulating perception. */
   private get perceptionOn():boolean {
-    return this.simulatePercep || this.percepConnected;
+    return this.simulatePercep !== SensorSimulationMode.Off || this.percepConnected;
   }
 }
 </script>

@@ -8,7 +8,7 @@
       <b class="ar-tag-item-name">Ar Tag {{ index }}</b>
       <Button
         name="%D7"
-        :invert-color="true"
+        :color-scheme="redColorScheme"
         @clicked="deleteArTagItem"
       />
     </div>
@@ -34,7 +34,13 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Mutation } from 'vuex-class';
-import { ArTag, RoverLocationSource } from '../../utils/types';
+import { BUTTON_COLOR_SCHEMES } from '../../utils/constants';
+import {
+  ArTag,
+  ColorScheme,
+  ColorSchemeName,
+  RoverLocationSource
+} from '../../utils/types';
 import Button from '../common/Button.vue';
 import NumberInput from '../common/NumberInput.vue';
 import FieldItemInfo from './FieldItemInfo.vue';
@@ -86,6 +92,11 @@ export default class ArTagItem extends Vue {
       odom: this.arTag.odom,
       orientation: this.arTag.orientation
     }, this.index]);
+  }
+
+  /* Get the red color scheme for a button. */
+  private get redColorScheme():ColorScheme {
+    return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
   }
 
   /************************************************************************************************

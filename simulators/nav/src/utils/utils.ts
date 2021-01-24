@@ -7,6 +7,7 @@ import {
   Odom,
   OdomFormat,
   Point2D,
+  SensorSimulationMode,
   Speeds,
   ZedGimbalPosition
 } from './types';
@@ -29,6 +30,36 @@ const EARTH_RADIUS = 6371000.0;
 /**************************************************************************************************
  * Public Utility Functions
  **************************************************************************************************/
+/* Add corresponding components of Odoms and ensure all values in valid
+   applicable range.
+   CAUTION: This does not account for overflow in the lat/lon degree place and
+   assumes the incoming odoms are valid. */
+export function addOdoms(odom1:Odom, odom2:Odom):Odom {
+  const odomFinal:Odom = { ...odom1 };
+
+  /* add headings */
+  odomFinal.bearing_deg += odom2.bearing_deg;
+  odomFinal.bearing_deg = compassModDeg(odomFinal.bearing_deg);
+
+  /* add latitudes */
+  odomFinal.latitude_deg += odom2.latitude_deg;
+  odomFinal.latitude_min += odom2.latitude_min;
+  if (odomFinal.latitude_min > 60) {
+    odomFinal.latitude_deg += 1;
+    odomFinal.latitude_min %= 60;
+  }
+
+  /* add longitudes */
+  odomFinal.longitude_deg += odom2.longitude_deg;
+  odomFinal.longitude_min += odom2.longitude_min;
+  if (odomFinal.longitude_min > 60) {
+    odomFinal.longitude_deg += 1;
+    odomFinal.longitude_min %= 60;
+  }
+
+  return odomFinal;
+} /* addOdoms() */
+
 /* Calculate new gps location based a joystick command.
    CAUTION: This function assumes constant speeds over
    the time interval */
@@ -219,6 +250,26 @@ export function degToRad(angle:number):number {
 } /* degToRad() */
 
 
+/* Convert point some meters away from refPt to latitude and longitude */
+export function metersToOdom(point:Point2D, refPt:Odom):Odom {
+  const refPtRad:Point2D = degToRad2D(odomToPoint(refPt));
+
+  /* Calculate change in latitude using:
+     * radius_radians = arc_length / arc_angle
+     Multiply by -1 because canvas y-axis increases downward rather than up. */
+  const dLatRad:number = metersToLatRad(point.y) * -1;
+
+  /* Calculate change in longitude. */
+  const dLonRad:number = metersToLonRad(point.x, refPtRad);
+
+  const coordOut = {
+    x: refPtRad.x + dLonRad,
+    y: refPtRad.y + dLatRad
+  };
+  return pointToOdom(radToDeg2D(coordOut));
+} /* metersToOdom() */
+
+
 export function odomToCanvas(
     point:Odom,
     canvasCent:Odom,
@@ -250,6 +301,29 @@ export function rotatePoint(
         ((origin.y - point.y) * Math.cos(angleRad)))
   };
 } /* rotatePoint() */
+
+
+/* Switch sensor simulation modes to the "next" mode in the circular list. */
+export function rotateSensorSimulationMode(currMode:SensorSimulationMode):SensorSimulationMode {
+  switch (currMode) {
+    case SensorSimulationMode.OnWithNoise: {
+      return SensorSimulationMode.OnNoNoise;
+    }
+
+    case SensorSimulationMode.OnNoNoise: {
+      return SensorSimulationMode.Off;
+    }
+
+    case SensorSimulationMode.Off: {
+      return SensorSimulationMode.OnWithNoise;
+    }
+
+    default: {
+      console.log('ERROR: Unknown sensor simulation mode.');
+      return SensorSimulationMode.OnWithNoise;
+    }
+  }
+} /* rotateSensorSimulationMode() */
 
 
 /* Convert latitude or longitude into a string. */
@@ -392,26 +466,6 @@ function metersToLonRad(meters:number, canvasCentRad:Point2D):number {
 
   return meters / currLatRadius;
 } /* metersToLonRad() */
-
-
-/* Convert point in meters to latitude and longitude */
-function metersToOdom(point:Point2D, canvasCent:Odom):Odom {
-  const canvasCentRad:Point2D = degToRad2D(odomToPoint(canvasCent));
-
-  /* Calculate change in latitude using:
-     * radius_radians = arc_length / arc_angle
-     Multiply by -1 because canvas y-axis increases downward rather than up. */
-  const dLatRad:number = metersToLatRad(point.y) * -1;
-
-  /* Calculate change in longitude. */
-  const dLonRad:number = metersToLonRad(point.x, canvasCentRad);
-
-  const coordOut = {
-    x: canvasCentRad.x + dLonRad,
-    y: canvasCentRad.y + dLatRad
-  };
-  return pointToOdom(radToDeg2D(coordOut));
-} /* metersToOdom() */
 
 
 /* Convert from Odom to Point2D in meters (origin at middle of canvas) */
