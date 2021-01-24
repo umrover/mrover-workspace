@@ -104,44 +104,24 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
 
 NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    // TODO: Values sent to the gimbal are angles in degrees! This might be wrong, given that we don't know
-    // whether the gimabl uses degrees/power/radians etc..
-
-    // degrees to turn to before performing a search wait.
-   
-    static double waitStepSize = 75.0;//roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
-
+    
+    static double waitStepSize = roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
-    static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
-    static double phase = 0; // if 0, go to -150. if 1 go to +150, if 2 go to 0
-    static double target = 150; // TODO: Un-hardcode (absolute values) - rover config for gimbal search range
+    static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
+    static double target = roverConfig["search"]["gimbalSearchAngleMag"].GetDouble(); 
 
     if( phoebe->roverStatus().target().distance >= 0 )
     {
-        std::cout << "target aquired " << std::endl; 
         updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-  
-    // // TODO: Check whether this is needed still
-    // if ( nextStop == 0 )
-    // {
-    //     //get current angle and set as origAngle
-      
-    //     mOriginalSpinAngle = phoebe->gimbal().getYaw(); //phoebe->roverStatus().odometry().bearing_deg; //doublecheck
-      
-    //     nextStop = mOriginalSpinAngle;
-    // }
-    // TODO: Refactor this to "turnGimbal" or something - implied movement
-    std::cout << "setting gimbal target: " << nextStop << " phase target: " << target << std::endl;
     if( phoebe->gimbal().setTargetYaw( nextStop ) )
     {   
-        std::cout << "reached gimbal stop, generating next one" << std::endl;
-        
+     
         if ( nextStop == target )
         {
-            std::cout << "Reached gimbal phase target, generating new one" << std::endl;
+           
             if ( phase <= 2 )
                 ++phase;
             
@@ -156,23 +136,19 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
                 target = 0;
             }
         }
-        std::cout << "current phase : " << phase << std::endl;
-        std::cout << "wait step: " << waitStepSize << std::endl;
+       
     
         if ( phase == 3 )
         {
-            waitStepSize = 75.0;//roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
-            nextStop = 0; // to force the rover to wait initially
-            mOriginalSpinAngle = 0; //initialize, is corrected on first call
-            phase = 0; // if 0, go to -150. if 1 go to +150, if 2 go to 0
-            target = 150; // TODO: Un-hardcode (absolute values) - rover config for gimbal search range
-
-            std::cout << "done with gimbal search. Moving to search turn" << std::endl;
+            //reset static vars
+            waitStepSize = roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+            nextStop = 0;
+            phase = 0;
+            target = roverConfig["search"]["gimbalSearchAngleMag"].GetDouble();
             return NavState::SearchTurn;
         }
         nextStop += waitStepSize;
         
-        std::cout << "going to gimbal wait, next stop: " << nextStop << std::endl;
         return NavState::SearchGimbalWait;
     }
     phoebe->publishGimbal();
@@ -189,7 +165,7 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
 {
     static bool started = false;
     static time_t startTime;
-    cout << "entering rover wait " << endl;
+
     if( phoebe->roverStatus().target().distance >= 0 )
     {
         updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
