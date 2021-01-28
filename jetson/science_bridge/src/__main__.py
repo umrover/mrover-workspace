@@ -127,11 +127,27 @@ class ScienceBridge():
         pass
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        # struct = STRUCT.decode(msg)
-        # print('Recieved: {} bytes'.format(len(bytes(struct.data))))
+        struct = AmmoniaCmd.decode(msg)
+        print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
         # self.ser.write(bytes(struct.data))
+        message = "$AMMONIA, {speed},,,,,,,,,,,,,"
+        message = message.format(speed = struct.speed)
+        #print(message.val)
+
+        self.ser.close()
+        self.ser.open()
+        if self.ser.isOpen():
+            self.ser.write(bytes(message,encoding='utf-8'))
         pass
+    # #if ser.isOpen():
+    # while(1):
+    #     print("Serial is open!")
+    #     ser.write("$AMMONIA,0,,,".encode('utf-8'))
+    #     time.sleep(1)
+    # ser.close()
+    # #
+
     async def recieve(self, lcm):
         spectral = SpectralData()
         thermistor = ThermistorData()
