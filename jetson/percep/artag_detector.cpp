@@ -20,7 +20,7 @@ TagDetector::TagDetector() {  //initializes detector object with pre-generated d
 
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
-        std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
+        std::cout << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
         throw Exception();
     }
 
@@ -157,14 +157,15 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
             arTags[i].bearing = -1;
             arTags[i].id = -1;
         }
-    } 
+    }
     else {//one tag found
-        if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))){
+        if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))) {
             arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
-            arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
-            arTags[i].id = tags.id.at(i);
-            tags.buffer[i] = 0;
         }
+
+        arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
+        arTags[i].id = tags.id.at(i);
+        tags.buffer[i] = 0;
     }
   }
 
