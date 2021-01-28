@@ -51,7 +51,7 @@ public:
 
     void updateGimbalPosition(double curYaw);
 
-    void setSearcher(SearchType type);
+    
 
     /*************************************************************************/
     /* Public Member Variables */
