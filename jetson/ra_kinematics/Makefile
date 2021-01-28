@@ -11,8 +11,6 @@ build_run:
 tests :
 	cp test/arm_state_test_build.txt meson.build
 	cd ../.. && pwd && ./jarvis build jetson/ra_kinematics/ && ./jarvis exec jetson/ra_kinematics/
-	cp test/kinematics_test_build.txt meson.build
-	cd ../.. && pwd && ./jarvis build jetson/ra_kinematics/ && ./jarvis exec jetson/ra_kinematics/
 	cp test/main_build.txt meson.build
 
 arm_state_tests:
