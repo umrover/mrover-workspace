@@ -38,8 +38,8 @@ NOTE: For more testing points, see valid_configurations_2.csv located towards th
 
 TEST(initialization_test) {
     cout << setprecision(9);
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
+    
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
     KinematicsSolver solver(arm);
@@ -48,8 +48,7 @@ TEST(initialization_test) {
 TEST(fk_test) {
     cout << setprecision(9);
     // Create the arm to be tested on:
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
@@ -60,8 +59,7 @@ TEST(apply_joint_xform_test) {}
 
 TEST(ik_test) {
     cout << setprecision(9);
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);

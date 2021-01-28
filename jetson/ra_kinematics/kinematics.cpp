@@ -423,7 +423,7 @@ void KinematicsSolver::IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles
                 // cout << "Attempting joint_col comb\n";
                 joint_col.head(3) = joint_col_xyz;
                 joint_col.tail(3) = Vector3d();
-
+            }
             for (size_t j = 0; j < 6; ++j) {
                 jacobian(j, i) = joint_col[j];
             }

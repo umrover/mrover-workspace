@@ -20,8 +20,7 @@ TEST(init_test) {
 }
 
 TEST(rrt_connect_simple) {
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_test_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
     ASSERT_EQUAL(geom["name"], "mrover_arm");
@@ -50,8 +49,7 @@ TEST(rrt_connect_simple) {
 }
 
 TEST(rrt_connect) {
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
 

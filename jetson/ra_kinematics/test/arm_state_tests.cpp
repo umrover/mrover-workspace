@@ -9,8 +9,7 @@ using namespace nlohmann;
 using namespace std;
 
 TEST(arm_initialization_test) {
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
@@ -19,8 +18,7 @@ TEST(arm_initialization_test) {
 TEST(read_geom_file) {
     // string config_path = "../../config";
     // string geom_file = config_path + "/kinematics/mrover_arm_geom.json";
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
 
@@ -29,8 +27,7 @@ TEST(read_geom_file) {
 
 TEST(joint_creation_test) {
     // TODO: Change configuration paths as needed.
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
 
@@ -54,8 +51,7 @@ TEST(joint_creation_test) {
 }
 
 TEST(avoidance_link_creation_test) {
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
 
@@ -85,8 +81,7 @@ TEST(set_joint_angles_test) {
     
     // Create the arm object:
     // TODO: Modify the configuration path as necessary
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
 
@@ -114,8 +109,7 @@ TEST(set_joint_angles_test) {
 
 TEST(link_link_check_test) {
     // TODO: Modify the configuration paths as necessary
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
@@ -125,8 +119,7 @@ TEST(link_link_check_test) {
 
 TEST(json_read_test) {
     // TODO: Modify the configuration paths as necessary
-    string config_path = getenv("MROVER_CONFIG");
-    string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
