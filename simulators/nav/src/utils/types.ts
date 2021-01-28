@@ -17,6 +17,26 @@ export interface ArTagDrawOptions {
 }
 
 
+/* Interface representing a color scheme that has the relevant CSS properties
+   for a button. */
+export interface ColorScheme {
+  backgroundColor:string;
+  backgroundColorHover:string;
+  borderColor:string;
+  fontColor:string;
+}
+
+
+/* Enum representing the different possible color schemes. */
+export enum ColorSchemeName {
+  Green = 'Green',
+  GreenGray = 'GreenGray', /* Green with gray border */
+  Red = 'Red',
+  RedWhite = 'RedWhite', /* Red with white border */
+  Yellow = 'Yellow'
+}
+
+
 /* Interface representing the current debug settings used in the DebugTools
    component. */
 export interface DebugOptions {
@@ -112,12 +132,28 @@ export interface LCMConnections {
 }
 
 
+/* Interface representing the values for the artifically added noise pertaining
+   to Localization. */
+export interface LocNoiseSettings {
+  headingStdev:number;  /* degrees */
+  latLonStdev:number;   /* meters */
+}
+
+
 /* Interface representing the NavStatus LCM. This must be the same as the
    NavStatus LCM. */
 export interface NavStatus {
   nav_state_name:string;
   completed_wps:number;
   total_wps:number;
+}
+
+
+/* Interface representing the settings that can be adjusted for the artificially
+   added noise. */
+export interface NoiseSettings {
+  locNoise:LocNoiseSettings;
+  percepNoise:PercepNoiseSettings;
 }
 
 
@@ -163,17 +199,18 @@ export enum OdomFormat {
 }
 
 
-// /* Data structure storing the information needed to draw the rover's path. */
-// export interface Path {
-//   // fullPath:Point2D[]; /* list of canvas locations */
-//   path:PathSnapshot[]; /* list of sets of 4 canvas locations */
-// }
+/* Interface representing the values for the artifically added noise pertaining
+   to Perception. */
+export interface PercepNoiseSettings {
+  obsFalsePos:number; /* percentage, [0, 1] */
+  obsFalseNeg:number; /* percentage, [0, 1] */
+  tagFalsePos:number; /* percentage, [0, 1] */
+  tagFalseNeg:number; /* percentage, [0, 1] */
+  tagIdFalses:number; /* percentage of tag IDs given incorrectly, [0, 1] */
+  bearStddev:number; /* degrees */
+  distStddev:number; /* meters */
+}
 
-
-//  Data structure representing a single instance of the path
-// export interface PathSnapshot {
-//   loc:Odom
-// }
 
 /* Interface repressenting the constant values used to define the perception
    system. */
@@ -244,22 +281,34 @@ export enum RoverLocationSource {
    store. */
 export interface RoverState {
   currOdom:Odom;
+  currOdomNoisy:Odom;
   currSpeed:Speeds;
   joystick:Joystick;
   navStatus:NavStatus;
+  noiseSetttings:NoiseSettings;
   obstacleMessage:ObstacleMessage;
+  obstacleMessageNoisy:ObstacleMessage;
   radioSignalStrength:number;
   targetList:TargetListMessage;
+  targetListNoisy:TargetListMessage;
   zedGimbalCmd:ZedGimbalPosition; /* Desired position of the ZED gimbal. */
   zedGimbalPos:ZedGimbalPosition; /* Current position of the ZED gimbal. */
+}
+
+
+/* Enum representing the possible modes for sensor simulation. */
+export enum SensorSimulationMode {
+  OnWithNoise = 0,  /* simulation with added noise */
+  OnNoNoise,        /* simulation without any noise */
+  Off               /* don't simulate the sensor */
 }
 
 
 /* Interface representing the different settings related to simulating different
    aspects of the environment that can be turned on and off. */
 export interface SimulationSettings {
-  simulateLoc:boolean;
-  simulatePercep:boolean;
+  simulateLoc:SensorSimulationMode;
+  simulatePercep:SensorSimulationMode;
 }
 
 

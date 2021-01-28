@@ -8,7 +8,7 @@
       <legend>Odometry</legend>
       <p>Latitude: {{ latitude }}</p>
       <p>Longitude: {{ longitude }}</p>
-      <p>Heading: {{ currOdom.bearing_deg }}º</p>
+      <p>Heading: {{ heading }}º</p>
     </fieldset>
   </div>
 </template>
@@ -19,7 +19,12 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter } from 'vuex-class';
 import { stringifyLatLon } from '../../utils/utils';
-import { Odom, OdomFormat } from '../../utils/types';
+import { Odom, OdomFormat, SensorSimulationMode } from '../../utils/types';
+
+/**************************************************************************************************
+ * Constants
+ **************************************************************************************************/
+const HEADING_DECIMALS = 2;
 
 @Component({})
 export default class OdometryLCM extends Vue {
@@ -30,21 +35,43 @@ export default class OdometryLCM extends Vue {
   private readonly currOdom!:Odom;
 
   @Getter
+  private readonly currOdomNoisy!:Odom;
+
+  @Getter
   private readonly odomFormat!:OdomFormat;
+
+  @Getter
+  private readonly simulateLoc!:SensorSimulationMode;
 
   /************************************************************************************************
    * Local Getters/Setters
    ************************************************************************************************/
-  /* Stringified version of the latitude of the field item. */
+  /* Odometry to display depending on the current mode of simulateLoc. */
+  private get displayOdom():Odom {
+    if (this.simulateLoc === SensorSimulationMode.OnWithNoise) {
+      return this.currOdomNoisy;
+    }
+    else {
+      return this.currOdom;
+    }
+  }
+
+  /* Stringified version of the rover's latitude. */
   private get latitude():string {
-    return stringifyLatLon(this.currOdom.latitude_deg, this.currOdom.latitude_min,
+    return stringifyLatLon(this.displayOdom.latitude_deg, this.displayOdom.latitude_min,
                            'lat', this.odomFormat);
   }
 
-  /* Stringified version of the longitude of the field item. */
+  /* Stringified version of the rover's longitude. */
   private get longitude():string {
-    return stringifyLatLon(this.currOdom.longitude_deg, this.currOdom.longitude_min,
+    return stringifyLatLon(this.displayOdom.longitude_deg, this.displayOdom.longitude_min,
                            'lon', this.odomFormat);
+  }
+
+  /* Stringified version of the rover's heading with fixed number of
+     decimals. */
+  private get heading():string {
+    return this.displayOdom.bearing_deg.toFixed(HEADING_DECIMALS);
   }
 }
 </script>

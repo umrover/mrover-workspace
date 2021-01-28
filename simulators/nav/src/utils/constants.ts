@@ -2,12 +2,49 @@
    of the rover). */
 
 import {
+  ColorScheme,
+  ColorSchemeName,
   PerceptionConstants,
   PostConstants,
   RepeaterConstants,
   RoverConstants,
   ZedConstants
 } from './types';
+
+
+/* Button */
+export const BUTTON_COLOR_SCHEMES:Record<ColorSchemeName, ColorScheme> = {
+  Green: {
+    backgroundColor: '#a0ffa0',
+    backgroundColorHover: '#beffbe',
+    borderColor: '#44cc44',
+    fontColor: 'black'
+  },
+  GreenGray: {
+    backgroundColor: '#a0ffa0',
+    backgroundColorHover: '#beffbe',
+    borderColor: '#444',
+    fontColor: 'black'
+  },
+  Red: {
+    backgroundColor: '#ff5a5a',
+    backgroundColorHover: '#ff7878',
+    borderColor: '#ff2828',
+    fontColor: 'white'
+  },
+  RedWhite: {
+    backgroundColor: '#ff5a5a',
+    backgroundColorHover: '#ff7878',
+    borderColor: 'white',
+    fontColor: 'white'
+  },
+  Yellow: {
+    backgroundColor: '#ffff99',
+    backgroundColorHover: '#ffffb7',
+    borderColor: '#ffff5d',
+    fontColor: 'black'
+  }
+};
 
 
 /* Define the perception system constants */

@@ -20,6 +20,7 @@ import {
   Obstacle,
   ObstacleMessage,
   Odom,
+  SensorSimulationMode,
   TargetListMessage,
   ZedGimbalPosition
 } from '../../utils/types';
@@ -56,7 +57,7 @@ export default class Perception extends Vue {
   private readonly obstacles!:Obstacle[];
 
   @Getter
-  private readonly simulatePercep!:boolean;
+  private readonly simulatePercep!:SensorSimulationMode;
 
   @Getter
   private readonly zedGimbalPos!:ZedGimbalPosition;
@@ -192,8 +193,8 @@ export default class Perception extends Vue {
      when we stop simulating perception, the last LCM messages are what nav
      will still see (i.e. we don't send a "blank" message. */
   @Watch('simulatePercep')
-  private onSimulatePercepChange():void {
-    if (this.simulatePercep) {
+  private onsimulatePercepChange():void {
+    if (this.simulatePercep !== SensorSimulationMode.Off) {
       this.computeVisibleObstacles();
       this.computeVisibleTargets();
     }
@@ -222,7 +223,7 @@ export default class Perception extends Vue {
   /* Compute the obstacles that are visible to the rover. */
   private computeVisibleObstacles():void {
     /* If not simulating perception */
-    if (!this.simulatePercep) {
+    if (this.simulatePercep === SensorSimulationMode.Off) {
       return;
     }
 
@@ -239,7 +240,7 @@ export default class Perception extends Vue {
   /* Compute the targets that are visible to the rover. */
   private computeVisibleTargets():void {
     /* If not simulating perception */
-    if (!this.simulatePercep) {
+    if (this.simulatePercep === SensorSimulationMode.Off) {
       return;
     }
 
