@@ -99,6 +99,7 @@ void StateMachine::updateObstacleElements( double bearing, double distance )
 // Will call the corresponding function based on the current state.
 void StateMachine::run()
 {
+   
     publishNavState();
     if( isRoverReady() )
     {
@@ -154,6 +155,8 @@ void StateMachine::run()
             case NavState::SearchFaceNorth:
             case NavState::SearchSpin:
             case NavState::SearchSpinWait:
+            case NavState::SearchGimbalWait:
+            case NavState::SearchGimbal:
             case NavState::SearchTurn:
             case NavState::SearchDrive:
             case NavState::TurnToTarget:
@@ -296,6 +299,8 @@ bool StateMachine::isRoverReady() const
            mPhoebe->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
            mPhoebe->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
            mPhoebe->roverStatus().currentState() == NavState::RepeaterDropWait ||
+           mPhoebe->roverStatus().currentState() == NavState::SearchGimbalWait ||
+           mPhoebe->roverStatus().currentState() == NavState::SearchGimbal ||
            mPhoebe->roverStatus().currentState() == NavState::GateSpinWait;
 
 } // isRoverReady()
@@ -404,7 +409,12 @@ NavState StateMachine::executeDrive()
     {
         if( nextWaypoint.search )
         {
-            return NavState::SearchSpin;
+            if (mRoverConfig[ "search" ][ "useGimbal" ].GetBool()){
+                return NavState::SearchGimbal; // Entry point to gimbal process
+            }
+            else{
+                return NavState::SearchSpin;
+            }
         }
         mPhoebe->roverStatus().path().pop_front();
         if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
@@ -459,6 +469,8 @@ string StateMachine::stringifyNavState() const
             { NavState::Drive, "Drive" },
             { NavState::SearchFaceNorth, "Search Face North" },
             { NavState::SearchSpin, "Search Spin" },
+            { NavState::SearchGimbal, "Search Gimbal" },
+            { NavState::SearchGimbalWait, "Search Gimbal Wait" },
             { NavState::SearchSpinWait, "Search Spin Wait" },
             { NavState::ChangeSearchAlg, "Change Search Algorithm" },
             { NavState::SearchTurn, "Search Turn" },
@@ -532,6 +544,11 @@ void StateMachine::addRepeaterDropPoint()
 
     mPhoebe->roverStatus().path().push_front(way);
 } // addRepeaterDropPoint
+
+
+void StateMachine::updateGimbalPosition(double cur_yaw){
+    mPhoebe->gimbal().setYaw(cur_yaw);
+}
 
 // TODOS:
 // [drive to target] obstacle and target

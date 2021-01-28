@@ -108,9 +108,12 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                     config[ "distancePid" ][ "kD" ].GetDouble() )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
-                   config[ "bearingPid" ][ "kD" ].GetDouble() )
+                   config[ "bearingPid" ][ "kD" ].GetDouble())
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
+      , mGimbal( config["gimbal"]["minRange"].GetDouble(), 
+                config["gimbal"]["maxRange"].GetDouble(), 
+                config["gimbal"]["tolerance"].GetDouble())
 {
 } // Rover()
 
@@ -324,6 +327,17 @@ PidLoop& Rover::bearingPid()
 {
     return mBearingPid;
 } // bearingPid()
+
+
+Gimbal& Rover::gimbal()
+{
+    return mGimbal;
+}
+
+void Rover::publishGimbal(){
+    mGimbal.publishControlSignal(mLcmObject, mRoverConfig);
+}
+
 
 // Publishes a joystick command with the given forwardBack and
 // leftRight efforts.
