@@ -212,6 +212,7 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
 // Else the rover keeps turning to the next Waypoint.
 NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
+    cout << "search size: " << mSearchPoints.size() << endl;
     if( mSearchPoints.empty() )
     {
         cout << "changing search alg" << endl;

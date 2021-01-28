@@ -352,6 +352,7 @@ NavState StateMachine::executeTurn()
 {
     if( mPhoebe->roverStatus().path().empty() )
     {
+        cout << "path is empty" << endl;
         return NavState::Done;
     }
     // If we should drop a repeater and have not already, add last
