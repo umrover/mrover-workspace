@@ -110,9 +110,9 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
     static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
     static double target = roverConfig["search"]["gimbalSearchAngleMag"].GetDouble(); 
 
-    if( phoebe->roverStatus().target().distance >= 0 )
+    if( phoebe->roverStatus().leftTarget().distance >= 0 )
     {
-        updateTargetDetectionElements( phoebe->roverStatus().target().bearing,
+        updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
@@ -214,6 +214,7 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
 {
     if( mSearchPoints.empty() )
     {
+        cout << "changing search alg" << endl;
         return NavState::ChangeSearchAlg;
     }
     if( phoebe->roverStatus().leftTarget().distance >= 0 )
