@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <map>
 #include "rover_msgs/TargetPositionList.hpp"
-//***include other stuff
+//***include other stuff    
 
 // Constructs an AutonArmStateMachine object with the input lcm object.
 // Reads the configuartion file and constructs a Rover objet with this
@@ -18,9 +18,8 @@ AutonArmStateMachine::AutonArmStateMachine( lcm::LCM& lcmObject )
     , mLcmObject( lcmObject )
     , mStateChanged( true )
     , is_tag_received ( false )
-    , is_coordinates_received ( false )
 {
-
+    num_correct_tags = 0;
     mPhoebe = new Rover( lcmObject );
 } //AutonArmStateMachine Constructor
 
@@ -147,9 +146,17 @@ AutonArmState AutonArmStateMachine::executeWaitingForTag() {
 
 AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     // Check if tag matches correct tag
-    
-    // TODO write evaluate code with new array structure
-    
+    TargetPositionList &targetList = mNewRoverStatus.targetList();
+
+    for (int i = 0; i < targetList.num_targets; i++) {
+        //if(targetList[i] == CORRECT_TAG_ID)
+        num_correct_tags++;
+    }
+
+    if(num_correct_tags == CORRECT_TAGS_NEEDED){
+        return AutonArmState::SendCoordinates;
+    }
+
     // Else wait for another tag
     cout << "Request another tag" << endl;
     return AutonArmState::WaitingForTag;

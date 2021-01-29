@@ -20,7 +20,7 @@ public:
 
     void updateRoverStatus( TargetPositionList targetList );
     
-    const string LCM_CHANNEL_NAME = "/autonomous_arm";
+    const string LCM_CHANNEL_NAME = "/autonomous_arm"; //might not need
 
 
 private:
@@ -50,13 +50,19 @@ private:
     // Lcm object for sending and recieving messages.
     lcm::LCM& mLcmObject;
 
+    // Tracks number of correct tags received in a row
+    int num_correct_tags;
+
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;
 
+    // Tracks whether or not target has been received 
     bool is_tag_received;
 
-    bool is_coordinates_received;
+    // Number of correct tags needed in a row to proceed
+    static const int CORRECT_TAGS_NEEDED = 3;
 
+    // ID of correct tag 
     static const int32_t CORRECT_TAG_ID = -1;
 
 };
