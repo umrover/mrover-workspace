@@ -18,7 +18,8 @@ class ScienceBridge():
         self.NMEA_HANDLE_MAPPER = {
             "SPECTRAL" : self.spectral_handler,
             "THERMISTOR" : self.thermistor_handler,
-            "TXT": self.txt_handler
+            "TXT": self.txt_handler,
+            "REPEATER": self.repeater_handler
         }
         self.NMEA_TRANSMIT_MAPPER = {
             #"MOSFET" : self.mosfet_transmit,
@@ -27,7 +28,6 @@ class ScienceBridge():
         }
         self.max_error_count = 20
         self.sleep = 1
-        self.lcm = None
     def __enter__(self):
         '''
         Opens a serial connection to the nucleo
@@ -79,6 +79,10 @@ class ScienceBridge():
         Prints info messages revieved from nucleo to screen
         '''
         print(msg)
+    def repeater_handler(self,msg,struct):
+        # Expected to be an empty message so nothing is done
+        # Only included to fit struct
+        pass
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
         struct = MosfetCmd.decode(msg)
@@ -97,13 +101,11 @@ class ScienceBridge():
         print("Received rr_drop req")
         # Struct is expected to be empty so no need for decoding
         message = "$Mosfet,{device},{enable},1"
-        # TODO set the specific device for the repeater on the firmware, placeholder 8.
         # This is always an enable
+        # Should be tied to SA UV = 4
         message = message.format(device = 4, enable = 1)
         self.ser.write(bytes(message,encoding='utf8'))
         # Publish to drop complete after sending the message.
-        complete = RepeaterDropComplete()
-        self.lcm.publish('/rr_drop_complete',complete.encode()) 
     def nav_status(self,channel,msg):
         print("Received nav req")
         # Want the name of the status I guess?
@@ -119,6 +121,7 @@ class ScienceBridge():
         elif struct.nav_state_name == "Done":
             print("navstatus Done")
             # Flashing by turning on and off for 1 second intervals
+            # Maybe change to 
             for i in range (0,6):
                 self.ser.write(bytes(message.format(device = 1, enable = 1),encoding='utf8'))
                 time.sleep(1)
@@ -156,6 +159,7 @@ class ScienceBridge():
     async def recieve(self, lcm):
         spectral = SpectralData()
         thermistor = ThermistorData()
+        rr_drop = RepeaterDropComplete()
          # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
                      for tag in self.NMEA_HANDLE_MAPPER.keys()}
@@ -185,6 +189,9 @@ class ScienceBridge():
                             if(tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
                                 lcm.publish('/thermistor_data', thermistor.encode())
+                            if(tag == "REPEATER"):
+                                # Empty message so no handler required.
+                                lcm.publish('/rr_drop_complete',rr_drop.encode()) 
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
@@ -198,7 +205,6 @@ def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
         _lcm = aiolcm.AsyncLCM()
-        bridge.lcm = _lcm
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
         _lcm.subscribe("/nav_status",bridge.nav_status)
