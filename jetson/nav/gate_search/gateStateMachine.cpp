@@ -24,6 +24,11 @@ NavState GateStateMachine::run()
             return executeGateSpin();
         }
 
+        case NavState::GateSearchGimbal:
+        {
+            return executeGateSearchGimbal();
+        }
+
         case NavState::GateSpinWait:
         {
             return executeGateSpinWait();
@@ -117,6 +122,65 @@ NavState GateStateMachine::executeGateSpin()
     return NavState::GateSpin;
 } // executeGateSpin()
 
+NavState GateStateMachine::executeGateSearchGimbal()
+{
+    cout << "starting gate search gimbal" << endl;
+    static double waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+    static double nextStop = 0; // to force the rover to wait initially
+    static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
+    static double target = mRoverConfig["search"]["gimbalSearchAngleMag"].GetDouble(); 
+
+    if( mPhoebe->roverStatus().rightTarget().distance >= 0 ||
+        ( mPhoebe->roverStatus().leftTarget().distance >= 0 && mPhoebe->roverStatus().leftTarget().id != lastKnownRightPost.id ) )
+    {
+        cout << "gate target found" << endl;
+        updatePost2Info();
+        calcCenterPoint();
+        return NavState::GateTurnToCentPoint;
+    }
+    if( mPhoebe->gimbal().setTargetYaw( nextStop ) )
+    {   
+        cout << "reached gimbal stop point" << endl;
+        if ( nextStop == target )
+        {
+            cout << "generating new gimbal target" << endl;
+            if ( phase <= 2 )
+                ++phase;
+            
+            if ( phase == 1 ) {
+
+                waitStepSize *= -1;
+                target = -150;
+            }
+            else if ( phase == 2 ) 
+            {
+                waitStepSize *= -1;
+                target = 0;
+            }
+        }
+       
+    
+        if ( phase == 3 )
+        {
+            //reset static vars
+            cout << "exiting gimbal search" << endl;
+            waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+            nextStop = 0;
+            phase = 0;
+            target = mRoverConfig["search"]["gimbalSearchAngleMag"].GetDouble();
+            return NavState::GateTurn;
+        }
+       
+        nextStop += waitStepSize;
+        
+        return NavState::GateSpinWait;
+    }
+  
+    mPhoebe->publishGimbal();
+
+    return NavState::GateSearchGimbal;
+}
+
 // Wait for predetermined time before performing GateSpin
 NavState GateStateMachine::executeGateSpinWait()
 {
@@ -141,8 +205,17 @@ NavState GateStateMachine::executeGateSpinWait()
     if( difftime( time( nullptr ), startTime ) > waitTime )
     {
         started = false;
-        return NavState::GateSpin;
+        if ( mRoverConfig["search"]["useGimbal"].GetBool() )
+        {
+            return NavState::GateSearchGimbal;
+        }
+
+        else
+        {
+            return NavState::GateSpin;
+        }
     }
+
     return NavState::GateSpinWait;
 } // executeGateSpinWait()
 
