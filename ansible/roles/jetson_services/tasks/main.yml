@@ -28,16 +28,11 @@
 - name: Enable services
   systemd: name={{item}} enabled=yes
   with_items:
-      - rover-jetson-auton-light.service
       - rover-jetson-cv.service
       - rover-jetson-filter.service
       - rover-jetson-gps.service
-      - rover-jetson-imu.service
       - rover-jetson-kinematics.service
       - rover-jetson-microscope.service
       - rover-jetson-nav.service
       - rover-jetson-raman.service
-      - rover-jetson-science-controls.service
-      - rover-jetson-sensor-package.service
-      - rover-jetson-talon.service
       - rover-jetson-teleop.service
