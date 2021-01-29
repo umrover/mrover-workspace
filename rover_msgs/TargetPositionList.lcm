@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct TargetPositionList {
+    int8_t num_targets;
+    TargetPosition target_list[3];
+}

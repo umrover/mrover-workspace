@@ -6,7 +6,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <map>
-#include "rover_msgs/Pos.hpp"
 #include "rover_msgs/Message.hpp"
 #include "rover_msgs/Target.hpp"
 //***include other stuff
@@ -128,11 +127,6 @@ void AutonArmStateMachine::updateRoverStatus(Target target) {
     is_tag_received = true;
 } //updateRoverStatus(Target target)
 
-void AutonArmStateMachine::updateRoverStatus(Pos position) {
-    received_position = position;
-    is_coordinates_received = true;
-}
-
 bool AutonArmStateMachine::isRoverReady() const {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
@@ -210,7 +204,6 @@ AutonArmState AutonArmStateMachine::executeWaitingForCoordinates() {
 AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     // send coordinates
     cout << "executeSendCoordinates" << endl;
-    received_position.target_package = TELEOP_PACKAGE;
-    mLcmObject.publish(LCM_CHANNEL_NAME, &received_position);
+    // TODO send coordinates with updated lcm structure
     return AutonArmState::Done;
 }
