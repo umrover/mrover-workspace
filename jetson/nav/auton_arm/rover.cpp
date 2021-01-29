@@ -18,8 +18,8 @@ AutonState& Rover::RoverStatus::autonState() {
     return mAutonState;
 } //autonState()
 
-Target& Rover::RoverStatus::target() {
-    return mTarget;
+TargetPositionList& Rover::RoverStatus::targetList() {
+    return mTargetList;
 } //target()
 
 bool Rover::updateRover(RoverStatus newRoverStatus) {
@@ -34,10 +34,10 @@ bool Rover::updateRover(RoverStatus newRoverStatus) {
         }
 
         // If any data has changed, update all data
-        if(!isEqual( mRoverStatus.target(), newRoverStatus.target()))
+        if(!isEqual( mRoverStatus.targetList(), newRoverStatus.targetList()))
         {
             cout << "Target updated" << endl;
-            mRoverStatus.target() = newRoverStatus.target();
+            mRoverStatus.targetList() = newRoverStatus.targetList();
             return true;
         }
 
@@ -58,11 +58,24 @@ bool Rover::updateRover(RoverStatus newRoverStatus) {
     return false;
 } //updateRover(newRoverStatus)
 
-Rover::RoverStatus& Rover::roverStatus(){
+Rover::RoverStatus& Rover::roverStatus() {
     return mRoverStatus;
 }
 
-bool Rover::isEqual( const Target& target1, const Target& target2 ) const
+bool Rover::isEqual( const TargetPositionList& targetList1, const TargetPositionList& targetList2 ) const
 {
-    return (target1.distance == target2.distance && target1.bearing == target2.bearing && target1.id == target2.id);
+    if (targetList1.num_targets != targetList2.num_targets) return false;
+
+    for(int i = 0; i < targetList1.num_targets; i++)
+    {
+        if(
+            targetList1.target_list[i].x != targetList2.target_list[i].x || 
+            targetList1.target_list[i].y != targetList2.target_list[i].y ||  
+            targetList1.target_list[i].z != targetList2.target_list[i].z || 
+            targetList1.target_list[i].target_id != targetList2.target_list[i].target_id
+        
+        ) return false;
+    }
+    return true;
+
 } // isEqual( Target )

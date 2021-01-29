@@ -6,8 +6,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <map>
-#include "rover_msgs/Message.hpp"
-#include "rover_msgs/Target.hpp"
+#include "rover_msgs/TargetPositionList.hpp"
 //***include other stuff
 
 // Constructs an AutonArmStateMachine object with the input lcm object.
@@ -70,27 +69,9 @@ void AutonArmStateMachine::run() {
                 break;
             }
 
-            case AutonArmState::WaitingForCoordinates:
-            {
-                nextState = executeWaitingForCoordinates();
-                break;  
-            }
-
             case AutonArmState::EvaluateTag: 
             {
                 nextState = executeEvaluateTag();
-                break;
-            }
-
-            case AutonArmState::RequestTag:
-            {
-                nextState = executeRequestTag();
-                break;
-            }
-
-            case AutonArmState::RequestCoordinates: 
-            {
-                nextState = executeRequestCoordinates();
                 break;
             }
 
@@ -121,9 +102,9 @@ void AutonArmStateMachine::updateRoverStatus(AutonState autonState) {
 } //updateRoverStatus(AutonState autonState)
 
 // Updates the target information of the rover's status.
-void AutonArmStateMachine::updateRoverStatus(Target target) {
+void AutonArmStateMachine::updateRoverStatus(TargetPositionList targetList) {
     cout << "Target received!" << endl;
-    mNewRoverStatus.target() = target;
+    mNewRoverStatus.targetList() = targetList;
     is_tag_received = true;
 } //updateRoverStatus(Target target)
 
@@ -166,39 +147,12 @@ AutonArmState AutonArmStateMachine::executeWaitingForTag() {
 
 AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     // Check if tag matches correct tag
-    if(mNewRoverStatus.target().id == CORRECT_TAG_ID) {
-        cout << "Correct tag identified" << endl;
-        return AutonArmState::RequestCoordinates;
-    }
-    // Else request another tag
+    
+    // TODO write evaluate code with new array structure
+    
+    // Else wait for another tag
     cout << "Request another tag" << endl;
-    return AutonArmState::RequestTag;
-}
-
-AutonArmState AutonArmStateMachine::executeRequestTag() {
-    // Send request for tag
-    cout << "Requesting tag" << endl;
-    //Message message = {"request_tag", PERCEPTION_PACKAGE};
-    //mLcmObject.publish(LCM_CHANNEL_NAME, &message);
     return AutonArmState::WaitingForTag;
-}
-
-AutonArmState AutonArmStateMachine::executeRequestCoordinates() {
-    // Send request for coordinates 
-    cout << "Requesting coordinates" << endl;
-    //Message message = {"request_coordinates", PERCEPTION_PACKAGE};
-    //mLcmObject.publish(LCM_CHANNEL_NAME, &message);
-    return AutonArmState::WaitingForCoordinates;
-}
-
-AutonArmState AutonArmStateMachine::executeWaitingForCoordinates() {
-    // If coordinates have not been recieved
-    if(!is_coordinates_received)
-        return AutonArmState::WaitingForCoordinates;
-    // Else send coordinates
-    cout << "Coordinates received" << endl;
-    is_coordinates_received = false;
-    return AutonArmState::SendCoordinates;
 }
 
 AutonArmState AutonArmStateMachine::executeSendCoordinates() {

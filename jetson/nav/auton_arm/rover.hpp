@@ -5,8 +5,7 @@
 #include <queue>
 
 #include "rover_msgs/AutonState.hpp"
-#include "rover_msgs/TargetList.hpp"
-#include "rover_msgs/Pos.hpp"
+#include "rover_msgs/TargetPositionList.hpp"
 #include "rapidjson/document.h"
 
 using namespace rover_msgs;
@@ -22,11 +21,6 @@ enum class AutonArmState
     // Nav-perception states
     WaitingForTag = 10,
     EvaluateTag = 11,
-    RequestTag = 12,
-
-    // Coordinates 
-    RequestCoordinates = 20,
-    WaitingForCoordinates = 21,
     
     // Nav-teleop
     SendCoordinates = 30,
@@ -47,14 +41,14 @@ public:
         RoverStatus(
             AutonArmState navState,
             AutonState autonStateIn,
-            Target targetIn
+            TargetPositionList targetListIn
             );
 
         AutonArmState& currentState();
 
         AutonState& autonState();
 
-        Target& target();
+        TargetPositionList& targetList();
 
     private:
         // The rover's current navigation state.
@@ -65,7 +59,7 @@ public:
 
         // The rover's current target information from computer
         // vision.
-        Target mTarget;
+        TargetPositionList mTargetList;
 
         // Total targets to seach for in the course
         unsigned mPathTargets;
@@ -85,7 +79,7 @@ private:
     /* Private Member Functions */
     /*************************************************************************/
 
-    bool isEqual( const Target& target1, const Target& target2 ) const;
+    bool isEqual( const TargetPositionList& target1, const TargetPositionList& targetList2 ) const;
 
     /*************************************************************************/
     /* Private Member Variables */

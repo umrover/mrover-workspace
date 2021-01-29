@@ -18,7 +18,7 @@ public:
 
     void updateRoverStatus( AutonState autonState );
 
-    void updateRoverStatus( Target target );
+    void updateRoverStatus( TargetPositionList targetList );
     
     const string LCM_CHANNEL_NAME = "/autonomous_arm";
 
@@ -35,12 +35,6 @@ private:
     AutonArmState executeWaitingForTag();
 
     AutonArmState executeEvaluateTag();
-
-    AutonArmState executeRequestTag();
-
-    AutonArmState executeRequestCoordinates();
-
-    AutonArmState executeWaitingForCoordinates();
 
     AutonArmState executeSendCoordinates();
 
@@ -65,9 +59,6 @@ private:
 
     static const int32_t CORRECT_TAG_ID = -1;
 
-    static const int32_t NAV_PACKAGE = 1;
-    static const int32_t TELEOP_PACKAGE = 2;
-    static const int32_t PERCEPTION_PACKAGE = 3;
 };
 
 #endif
