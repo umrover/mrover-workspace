@@ -1,3 +1,23 @@
+# INSTRUCTIONS #
+#This Dockerfile needs to be built into an image prior to testing
+#This image, once build, should be pushed to umrover/travis
+#Our Travis system will then download this image from DockerHub and run our current system within this image
+
+# UPDATING THE DOCKERFILE #
+#If you would like to make changes to the DockerFile you must first install Docker on your system
+#You can then download the pre-built image from DockerHub the way specified in the travis.yml
+#Now that the image is downloaded you can take advantage of Docker Layers and when you build you
+#won't need to rebuild the entire image, but rather, only the RUN commands that you added or modified will be built
+#You can build the Dockerfile with the command: 'docker build -t mrover .'
+
+# PUSHING THE DOCKERIMAGE TO DOCKERHUB #
+#Now that you have built the Docker Image you must push it to DockerHub
+#This can be done by signing into the mrover DockerHub account via the command line
+#Once you are signed in make sure the tag for your image is named appropriately. Use 'docker tag' to do any renaming
+#Then run 'docker push umrover/travis' to push the appropriately named and versioned image to DockerHub
+#Travis is configured to download whatever the latest umrover/travis image is, so once your changes are pushed they
+#should be picked up by travis
+
 FROM ubuntu:18.04
 
 #Setup Ansible
@@ -93,8 +113,7 @@ RUN apt-get install --no-install-recommends lsb-release wget less udev sudo apt-
     cd /usr/local && \
     chmod a+xwr --preserve-root --recursive zed
 
-#Install PCL
-#Install VTK Successful
+#Install VTK
 ENV TERM xterm
 RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING VTK" && \
     apt-get update -y && apt-get upgrade -y && apt-get install -y keyboard-configuration libboost-all-dev curl cmake libxt-dev && \
@@ -112,6 +131,7 @@ RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING VTK" && \
     cmake -DCMAKE_BUILD_TYPE:STRING=Release /usr/local/VTK-8.2.0/ -DVTK_USE_SYSTEM_PNG=ON && \
     make -j1 install
 
+#Intall Eigen
 RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING EIGEN" && \
     cd /usr/local && \
     wget -qO- https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.gz | sudo tar xz && \
@@ -121,6 +141,7 @@ RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING EIGEN" && \
     make install && \
     cd ../.. && sudo rm -rf eigen-3.3.7/ && sudo rm -f eigen-3.3.7.tar.gz
 
+#Install PCL
 RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING PCL" && \
     apt-get install -y libflann-dev libgtest-dev libboost-all-dev && \
     cd /usr/local && \
@@ -133,4 +154,3 @@ RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING PCL" && \
     make -j1 && make install && ldconfig && \
     cd /usr/local && \
     rm -rf pcl-pcl-1.11.1
-    
