@@ -53,7 +53,7 @@ class ScienceBridge():
                     "d1_3", "d1_4", "d1_5", "d1_6", "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
             count = 1
             for var in struct_variables:
-                # setattr(spectral_struct, var, ((int16(arr[count]) << 8) | (int16(arr[count + 1]))))
+                setattr(spectral_struct, var, ((int16(arr[count]) << 8) | (int16(arr[count + 1]))))
                 count += 2
         except:
             pass
@@ -144,11 +144,27 @@ class ScienceBridge():
         pass
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        # struct = STRUCT.decode(msg)
-        # print('Recieved: {} bytes'.format(len(bytes(struct.data))))
+        struct = AmmoniaCmd.decode(msg)
+        print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
         # self.ser.write(bytes(struct.data))
+        message = "$AMMONIA, {speed},,,,,,,,,,,,,"
+        message = message.format(speed = struct.speed)
+        #print(message.val)
+
+        self.ser.close()
+        self.ser.open()
+        if self.ser.isOpen():
+            self.ser.write(bytes(message,encoding='utf-8'))
         pass
+    # #if ser.isOpen():
+    # while(1):
+    #     print("Serial is open!")
+    #     ser.write("$AMMONIA,0,,,".encode('utf-8'))
+    #     time.sleep(1)
+    # ser.close()
+    # #
+
     async def recieve(self, lcm):
         spectral = SpectralData()
         thermistor = ThermistorData()
@@ -202,7 +218,7 @@ def main():
         # lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         # lcm.subscribe("/pump_cmd", bridge.pump_transmit)
         # Temp removed to test callback
-        run_coroutines(_lcm.loop())# bridge.recieve(_lcm))
+        run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
 if __name__ == "__main__":
     main()
     
