@@ -225,6 +225,7 @@ void StateMachine::run()
             case NavState::GateTurnToFarPost:
             case NavState::GateDriveToFarPost:
             case NavState::GateTurnToGateCenter:
+            case NavState::GateSearchGimbal:
             {
                 nextState = mGateStateMachine->run();
                 break;
@@ -301,6 +302,7 @@ bool StateMachine::isRoverReady() const
            mPhoebe->roverStatus().currentState() == NavState::RepeaterDropWait ||
            mPhoebe->roverStatus().currentState() == NavState::SearchGimbalWait ||
            mPhoebe->roverStatus().currentState() == NavState::SearchGimbal ||
+           mPhoebe->roverStatus().currentState() == NavState::GateSearchGimbal ||
            mPhoebe->roverStatus().currentState() == NavState::GateSpinWait;
 
 } // isRoverReady()
@@ -494,6 +496,7 @@ string StateMachine::stringifyNavState() const
             { NavState::GateDriveToFarPost, "Gate Drive to Far Post"},
             { NavState::GateTurnToGateCenter, "Gate Turn to Gate Center"},
             { NavState::GateDriveThrough, "Gate Drive Through" },
+            { NavState::GateSearchGimbal, "Gate Search Gimbal" },
             { NavState::RadioRepeaterTurn, "Radio Repeater Turn" },
             { NavState::RadioRepeaterDrive, "Radio Repeater Drive" },
             { NavState::RepeaterDropWait, "Radio Repeater Drop" },

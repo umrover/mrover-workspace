@@ -357,7 +357,14 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
                                                                                     phoebe->roverStatus().leftTarget().distance,
                                                                                     phoebe );
             roverStateMachine->mGateStateMachine->lastKnownRightPost.id = phoebe->roverStatus().leftTarget().id;
-            return NavState::GateSpin;
+            if (roverConfig["search"]["useGimbal"].GetBool()) {
+                cout << "going into gate search gimbal. Last known right post ID: " <<  roverStateMachine->mGateStateMachine->lastKnownRightPost.id << endl;
+                return NavState::GateSearchGimbal;
+            }
+            else {
+                 return NavState::GateSpin;
+            }
+           
         }
         phoebe->roverStatus().path().pop_front();
         roverStateMachine->updateCompletedPoints();
