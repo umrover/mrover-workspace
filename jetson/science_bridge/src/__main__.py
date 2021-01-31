@@ -5,19 +5,10 @@ science nucleo to operate the science boxes and get relevant data
 import serial
 import asyncio
 import Adafruit_BBIO.UART as UART
-<<<<<<< HEAD:jetson/science_bridge/src/__main__.py
 from numpy import int16
-=======
-#import numpy as np
-import lcm
->>>>>>> 225045f1... [Mosfet] Fixed Struct and uart port:onboard/science_bridge/src/__main__.py
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-<<<<<<< HEAD:jetson/science_bridge/src/__main__.py
-from rover_msgs import ThermistorData, MosfetCmd, SpectralData
-=======
 from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete#, SpectralData
->>>>>>> 051998d7... Added code for the repeater drop:onboard/science_bridge/src/__main__.py
 class ScienceBridge():
     def __init__(self):
         UART.setup("UART4") #  Specific to beaglebone
@@ -40,7 +31,6 @@ class ScienceBridge():
         Opens a serial connection to the nucleo
         Not sure what the uart port on the jetson is
         '''
-<<<<<<< HEAD:jetson/science_bridge/src/__main__.py
         self.ser = serial.Serial(
             port='/dev/ttyS4',
             baudrate=38400,
@@ -48,9 +38,6 @@ class ScienceBridge():
             stopbits=serial.STOPBITS_ONE,
             bytesize=serial.EIGHTBITS
         )
-=======
-        self.ser = serial.Serial("/dev/ttyO4", 115200)
->>>>>>> 225045f1... [Mosfet] Fixed Struct and uart port:onboard/science_bridge/src/__main__.py
         return self
     def __exit__(self, exc_type, exc_value, traceback):
         '''
@@ -109,7 +96,7 @@ class ScienceBridge():
         message = "$Mosfet,{device},{enable},111111111111111111"
         # TODO set the specific device for the repeater on the firmware, placeholder 8.
         # This is always an enable
-        message = message.format(device = 8, enable = 1)
+        message = message.format(device = 4, enable = 1)
         self.ser.write(bytes(message))
         # Publish to drop complete after sending the message.
         complete = RepeaterDropComplete()
@@ -125,9 +112,12 @@ class ScienceBridge():
             self.ser.write(bytes(message))
         # Done = Flashing green
         else if struct.nav_state_name == "Done":
-            # Not sure how to flash, probably needs change in firmware
-            message = message.format(device = 1, enable = 1)
-            self.ser.write(bytes(message))
+            # Flashing by turning on and off for 1 second intervals
+            for i in range (0,6):
+                self.ser.write(bytes(message.format(device = 1, enable = 1)))
+                await asyncio.sleep(self.sleep)
+                self.ser.write(bytes(message.format(device = 1, enable = 0)))
+                await asyncio.sleep(self.sleep)
         # Everytime else = Red
         else:
             message = message.format(device = 0, enable = 1)
@@ -190,25 +180,11 @@ class ScienceBridge():
 def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
-<<<<<<< HEAD:jetson/science_bridge/src/__main__.py
-        _lcm = aiolcm.AsyncLCM()
-<<<<<<< HEAD:jetson/science_bridge/src/__main__.py
-        lcm1=lcm.LCM()
-        lcm1.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        print("properly started")
-        while True:
-            lcm1.handle()
-=======
         lcm = aiolcm.AsyncLCM()
         lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         lcm.subscribe("/rr_drop_init",bridge.rr_drop)
->>>>>>> 051998d7... Added code for the repeater drop:onboard/science_bridge/src/__main__.py
-=======
-        _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
-        _lcm.subscribe("/nav_status",bridge.nav_status)
+        lcm.subscribe("/nav_status",bridge.nav_status)
         print("properly started")
->>>>>>> 3390ef67... Fixed lcm back into asynclcm after merge:onboard/science_bridge/src/__main__.py
         #lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         #lcm.subscribe("/pump_cmd", bridge.pump_transmit)
         run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
