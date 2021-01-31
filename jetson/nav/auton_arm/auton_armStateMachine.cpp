@@ -7,7 +7,6 @@
 #include <cstdlib>
 #include <map>
 #include "rover_msgs/TargetPositionList.hpp"
-//***include other stuff    
 
 // Constructs an AutonArmStateMachine object with the input lcm object.
 // Reads the configuartion file and constructs a Rover objet with this
@@ -148,17 +147,29 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     // Check if tag matches correct tag
     TargetPositionList &targetList = mNewRoverStatus.targetList();
 
+    bool tagFound = false;
     for (int i = 0; i < targetList.num_targets; i++) {
-        //if(targetList[i] == CORRECT_TAG_ID)
-        num_correct_tags++;
+        if (targetList.target_list[i].target_id == CORRECT_TAG_ID) { 
+            Position newPosition(targetList.target_list[i].x, targetList.target_list[i].y, targetList.taget_list[i].z);
+            if(currentPosition == newPosition) {
+                num_correct_tags++;
+                break;
+            }
+            else {
+                num_correct_tags = 1;
+            }
+            tagFound = true;
+            currentPosition = newPosition;
+        }
     }
 
-    if(num_correct_tags == CORRECT_TAGS_NEEDED){
+    if(!tagFound) num_correct_tags = 0;
+    else if(num_correct_tags == CORRECT_TAGS_NEEDED) {
         return AutonArmState::SendCoordinates;
     }
 
-    // Else wait for another tag
-    cout << "Request another tag" << endl;
+    // Else wait for another tag list
+    cout << "Waiting for another tag" << endl;
     return AutonArmState::WaitingForTag;
 }
 
@@ -167,4 +178,12 @@ AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     cout << "executeSendCoordinates" << endl;
     // TODO send coordinates with updated lcm structure
     return AutonArmState::Done;
+}
+
+bool AutonArmStateMachine::Position::operator==(const Position &rhs) {
+    return (
+        abs(x - rhs.x) < MARGIN_OF_ERROR &&
+        abs(y - rhs.y) < MARGIN_OF_ERROR &&
+        abs(z - rhs.z) < MARGIN_OF_ERROR
+    );
 }

@@ -38,6 +38,18 @@ private:
 
     AutonArmState executeSendCoordinates();
 
+    // Struct to store x, y, and z coordinates of most recent tag
+    struct Position {
+        const double MARGIN_OF_ERROR = 5;   //possibly put outside of struct
+
+        double x;
+        double y;
+        double z;
+        Position() : x(0), y(0), z(0) {}
+        Position(double x, double y, double z) { this->x = x; this->y = y; this->z = z; }
+        bool operator==(const Position &rhs);
+    };
+
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
@@ -49,6 +61,9 @@ private:
 
     // Lcm object for sending and recieving messages.
     lcm::LCM& mLcmObject;
+
+    // Holds position of last correct tag received
+    Position currentPosition;
 
     // Tracks number of correct tags received in a row
     int num_correct_tags;
@@ -64,6 +79,9 @@ private:
 
     // ID of correct tag 
     static const int32_t CORRECT_TAG_ID = -1;
+
+    // Required margin of error
+    
 
 };
 
