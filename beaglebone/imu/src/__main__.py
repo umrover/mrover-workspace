@@ -51,7 +51,8 @@ ser.open()
 
 #Sets desired transmission rates for CHR NMEA-style packets (31 bits) Pg. 55
 #CREG_COM_RATES7 = 0x07
-#packetRates = 0xf0000
+#packetRates = 0xf0000                      scp __main__.py debian@192.168.7.2:/home/debian
+#                                           ssh debian@192.168.7.2
 
 
 #Send binary packet saying use NMEA and set rate of transfer, read packet beginning with $PCHRS
