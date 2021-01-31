@@ -6,6 +6,7 @@ import serial
 import asyncio
 import Adafruit_BBIO.UART as UART
 from numpy import int16
+import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete, SpectralData, NavStatus
@@ -111,7 +112,7 @@ class ScienceBridge():
             message = message.format(device = 2, enable = 1)
             self.ser.write(bytes(message))
         # Done = Flashing green
-        else if struct.nav_state_name == "Done":
+        elif struct.nav_state_name == "Done":
             # Flashing by turning on and off for 1 second intervals
             for i in range (0,6):
                 self.ser.write(bytes(message.format(device = 1, enable = 1)))
