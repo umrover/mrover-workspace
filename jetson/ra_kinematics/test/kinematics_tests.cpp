@@ -68,7 +68,7 @@ TEST(ik_test) {
     Vector6d target;
     target << 0.28873017665603573,0.022374986261356488,0.10726454148173355,
                 1.8729278741492037,2.235500299169628,0.161684737768472;
-    solver.IK(target, true, false);
+    solver.IK(arm, target, true, false);
 }
 
 TEST(ik_step_test) {}

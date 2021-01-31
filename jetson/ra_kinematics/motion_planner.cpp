@@ -3,11 +3,8 @@
 #include <deque>
 
 
-MotionPlanner::MotionPlanner(ArmState& robot_state_in, lcm::LCM& lcm_in, KinematicsSolver& solver_in) :
-        robot(robot_state_in),
-        lcm(lcm_in),
+MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in) :
         solver(solver_in) {
-        // TODO make solver an argument for functions rather than member variable
     
     // add limits for each joint to all_limits, after converting to degrees
     for (string& joint : robot.get_all_joints()) {
@@ -126,7 +123,7 @@ Vector6d MotionPlanner::get_radians(Vector6d& config) {
     return config;
 }
 
-MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d& z_rand) {
+MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d& z_rand) {
     inc_i();
     Node* z_nearest = nearest(tree, z_rand);
     Vector6d z_new = steer(z_nearest, z_rand);
@@ -135,7 +132,7 @@ MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d& z_rand) {
     for (int i = 0; i < 6; ++i) {
         z_new_angs(i) = z_new(i);
     }
-    if (!solver.is_safe(z_new_angs)) {
+    if (!solver.is_safe(robot, z_new_angs)) {
         return nullptr;
     }
     Node* new_node = &Node(z_new);
@@ -145,20 +142,20 @@ MotionPlanner::Node* MotionPlanner::extend(Node* tree, Vector6d& z_rand) {
     return new_node;
 }
 
-MotionPlanner::Node* MotionPlanner::connect(Node* tree, Vector6d& a_new) {
-    Node* extension = extend(tree, a_new);
+MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, Vector6d& a_new) {
+    Node* extension = extend(robot, tree, a_new);
     Vector6d config = extension->config;
 
     // TODO should we be changing tree or a_new?
     while (extension && !(config == a_new)) {
-        extension = extend(tree, a_new);
+        extension = extend(robot, tree, a_new);
         config = extension->config;
     }
 
     return extension;
 }
 
-void MotionPlanner::rrt_connect(Vector6d& target) {
+void MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
     Vector6d start;
     start(0) = robot.get_joint_angles()["joint_a"];
     start(1) = robot.get_joint_angles()["joint_b"];
@@ -180,10 +177,10 @@ void MotionPlanner::rrt_connect(Vector6d& target) {
         Node* b_root = i % 2 == 0 ? goal_root : start_root;
         Vector6d z_rand = sample();
 
-        Node* a_new = extend(a_root, z_rand);
+        Node* a_new = extend(robot, a_root, z_rand);
 
         if (a_new) {
-            Node* b_new = connect(b_root, a_new->config);
+            Node* b_new = connect(robot, b_root, a_new->config);
 
             // if the trees are connected
             if (a_new->config == b_new->config) {

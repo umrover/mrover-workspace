@@ -30,7 +30,7 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg){
        msg.joint_f = 0.0;
        vector<double> angles{msg.joint_a, msg.joint_b, msg.joint_c, msg.joint_d, msg.joint_e, msg.joint_f};
        state.set_joint_angles(angles);
-       solver.FK();
+       solver.FK(state);
        publish_transforms(state);
    }
 }
@@ -127,7 +127,7 @@ void MRoverArm::preview(){
            vector<double> targ_pos = {target[0], target[1], target[2], target[3], target[4], target[5]};
            preview_robot.set_joint_angles(targ_pos);
 
-           solver.FK(); 
+           solver.FK(state); 
  
            publish_transforms(preview_robot);
            t += 1/num_steps;
@@ -163,7 +163,7 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
    point(5) = (double)point_msg.gamma;
  
    bool success = false;
-   pair<Vector6d, bool> ik_solution = solver.IK(point, false, use_orientation);
+   pair<Vector6d, bool> ik_solution = solver.IK(state, point, false, use_orientation);
   
    for(int i = 0; i<5; ++i){
        if(ik_solution.second){
@@ -171,7 +171,7 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
            break;
        }
        cout << "Attempting new IK solution..." << endl << i << endl;
-       ik_solution = solver.IK(point, true, use_orientation);
+       ik_solution = solver.IK(state, point, true, use_orientation);
    }
    if(!ik_solution.second){
        cout << "NO IK SOLUTION FOUND, please try a different configuration." << endl;
@@ -261,7 +261,7 @@ void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg){
 //        arm_position.joint_f = gja["joint_f"];
 //        vector<double> angles = {gja["joint_a"], gja["joint_b"], gja["joint_c"], gja["joint_d"], gja["joint_e"], gja["joint_f"]};
 //        state.set_joint_angles(angles);
-//        solver.FK();  
+//        solver.FK(state);  
 //        publish_transforms(state);
 //        //again, running into the issue of encode(), should we even have it there
 //        if(sim_mode){

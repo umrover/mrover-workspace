@@ -7,7 +7,6 @@
 #include "kinematics.hpp"
 #include <map>
 
-#include <lcm/lcm-cpp.hpp>
 #include "spline.h"
 
 using namespace Eigen;
@@ -23,7 +22,6 @@ using namespace std;
 class MotionPlanner {
 private:
 
-    ArmState robot;
     KinematicsSolver solver;
 
     vector<tk::spline> splines;
@@ -35,8 +33,6 @@ private:
     int neighbor_dist;
     int max_iterations;
     int i;
-
-    lcm::LCM& lcm;
 
     class Node {
         friend class MotionPlanner;
@@ -58,11 +54,10 @@ private:
     int spline_size;
 
 public:
-
     
-    MotionPlanner(ArmState& robot_state_in, lcm::LCM& lcm_in, KinematicsSolver& solver_in);
+    MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in);
 
-    void rrt_connect(Vector6d& target);
+    void rrt_connect(ArmState& robot, Vector6d& target);
 
     /**
      * @param spline_t a time between 0 and 1

@@ -22,9 +22,6 @@ class KinematicsSolver {
 
 private:
 
-    ArmState robot_state;
-    //ArmState robot_ik;
-    //ArmState robot_safety;
     bool e_locked;
 
     stack<vector<double>> arm_state_backup;
@@ -32,13 +29,13 @@ private:
     /**
      * Push the angles of robot_state into the arm_state_backup stack
      * */
-    void perform_backup();
+    void perform_backup(ArmState &robot_state);
 
     /**
      * Pop a backup of the angles from robot_state and copy them into robot_state
      * Then run FK
      * */
-    void recover_from_backup();
+    void recover_from_backup(ArmState &robot_state);
 
 public:
 
@@ -49,31 +46,29 @@ public:
         return POS_WEIGHT;
     }
 
-    KinematicsSolver(const ArmState& robot_state_in);
+    KinematicsSolver();
 
-    Vector3d FK();
+    Vector3d FK(ArmState &robot_state);
 
-    Matrix4d apply_joint_xform(string joint, double theta);
+    Matrix4d apply_joint_xform(ArmState &robot_state, string joint, double theta);
 
-    pair<Vector6d, bool> IK(Vector6d target_point, bool set_random_angles, bool use_euler_angles);
+    pair<Vector6d, bool> IK(ArmState &robot_state, Vector6d target_point, bool set_random_angles, bool use_euler_angles);
 
-    void IK_step(Vector6d d_ef, bool use_pi, bool use_euler_angles);
-
-    pair<Vector6d, bool> IK_delta(Vector6d delta, int iterations);
+    void IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi, bool use_euler_angles);
 
 
     /**
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds and don't cause collisions
      * */
-    bool is_safe(vector<double> angles);
+    bool is_safe(ArmState &robot_state, vector<double> angles);
 
     /**
      * called by is_safe to check that angles are within bounds
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds
      * */
-    bool limit_check(const vector<double> &angles);
+    bool limit_check(ArmState &robot_state, const vector<double> &angles);
 
 };
 
