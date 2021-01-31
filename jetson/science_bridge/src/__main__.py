@@ -94,7 +94,8 @@ class ScienceBridge():
         print(msg)
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        struct = MosfetCmd.decode(msg)
+        struct = RTCM.decode(msg)
+        print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
         # Currently expects mosfet, device number, and enable bit along
         # with padding to reach 30 bytes
@@ -176,11 +177,9 @@ def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
         _lcm = aiolcm.AsyncLCM()
-        lcm1=lcm.LCM()
-        lcm1.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
         print("properly started")
-        while True:
-            lcm1.handle()
         #lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         #lcm.subscribe("/pump_cmd", bridge.pump_transmit)
         run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
