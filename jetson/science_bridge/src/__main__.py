@@ -8,7 +8,7 @@ import Adafruit_BBIO.UART as UART
 from numpy import int16
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete#, SpectralData
+from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete, SpectralData, NavStatus
 class ScienceBridge():
     def __init__(self):
         UART.setup("UART4") #  Specific to beaglebone
@@ -79,7 +79,7 @@ class ScienceBridge():
         print(msg)
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        struct = RTCM.decode(msg)
+        struct = MosfetCmd.decode(msg)
         print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
         # Currently expects mosfet, device number, and enable bit along
@@ -104,7 +104,7 @@ class ScienceBridge():
     def nav_status(self,channel,msg):
         # Want the name of the status I guess?
         # Off, Done, Else
-        struct = RTCM.decode(msg)
+        struct = NavStatus.decode(msg)
         # Off = Blue
         message = "$Mosfet,{device},{enable},111111111111111111"
         if struct.nav_state_name == "Off":
@@ -125,14 +125,7 @@ class ScienceBridge():
         pass
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        # struct = RTCM.decode(msg)
-        # print('Recieved: {} bytes'.format(len(bytes(struct.data))))
-        # parse data into expected format
-        # self.ser.write(bytes(struct.data))
-        pass
-    def pump_transmit(self, channel, msg):
-        # get cmd lcm and send to nucleo
-        # struct = RTCM.decode(msg)
+        # struct = STRUCT.decode(msg)
         # print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
         # self.ser.write(bytes(struct.data))
