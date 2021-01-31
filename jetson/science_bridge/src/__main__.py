@@ -107,7 +107,8 @@ class ScienceBridge():
         print(msg)
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        struct = MosfetCmd.decode(msg)
+        struct = RTCM.decode(msg)
+        print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
         # Currently expects mosfet, device number, and enable bit along
         # with padding to reach 30 bytes
@@ -190,6 +191,7 @@ def main():
     with ScienceBridge() as bridge:
 <<<<<<< HEAD:jetson/science_bridge/src/__main__.py
         _lcm = aiolcm.AsyncLCM()
+<<<<<<< HEAD:jetson/science_bridge/src/__main__.py
         lcm1=lcm.LCM()
         lcm1.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         print("properly started")
@@ -200,6 +202,11 @@ def main():
         lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         lcm.subscribe("/rr_drop_init",bridge.rr_drop)
 >>>>>>> 051998d7... Added code for the repeater drop:onboard/science_bridge/src/__main__.py
+=======
+        _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
+        print("properly started")
+>>>>>>> 3390ef67... Fixed lcm back into asynclcm after merge:onboard/science_bridge/src/__main__.py
         #lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         #lcm.subscribe("/pump_cmd", bridge.pump_transmit)
         run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
