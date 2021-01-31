@@ -150,7 +150,7 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     bool tagFound = false;
     for (int i = 0; i < targetList.num_targets; i++) {
         if (targetList.target_list[i].target_id == CORRECT_TAG_ID) { 
-            Position newPosition(targetList.target_list[i].x, targetList.target_list[i].y, targetList.taget_list[i].z);
+            Position newPosition(targetList.target_list[i].x, targetList.target_list[i].y, targetList.target_list[i].z);
             if(currentPosition == newPosition) {
                 num_correct_tags++;
                 break;
@@ -186,4 +186,11 @@ bool AutonArmStateMachine::Position::operator==(const Position &rhs) {
         abs(y - rhs.y) < MARGIN_OF_ERROR &&
         abs(z - rhs.z) < MARGIN_OF_ERROR
     );
+}
+
+AutonArmStateMachine::Position& AutonArmStateMachine::Position::operator=(const Position &rhs) {
+    x = rhs.x;
+    y = rhs.y;
+    z = rhs.z;
+    return *this;
 }
