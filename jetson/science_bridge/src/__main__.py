@@ -180,7 +180,8 @@ class ScienceBridge():
             while (not all(seen_tags.values())):
                 try:
                     error_counter = 0
-                    msg = str(self.ser.readline())
+                    tx = self.ser.readline()
+                    msg =  str(tx)
                 except Exception as e:
                     print("Errored")
                     if error_counter < self.max_error_count:
