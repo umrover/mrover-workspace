@@ -5,11 +5,11 @@ science nucleo to operate the science boxes and get relevant data
 import serial
 import asyncio
 import Adafruit_BBIO.UART as UART
-from numpy import int16
+#from numpy import int16
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete, SpectralData, NavStatus
+from rover_msgs import ThermistorData, MosfetCmd, NavStatus, RepeaterDropComplete, SpectralData
 class ScienceBridge():
     def __init__(self):
         UART.setup("UART4") #  Specific to beaglebone
@@ -27,6 +27,7 @@ class ScienceBridge():
         }
         self.max_error_count = 20
         self.sleep = 1
+        self.lcm = None
     def __enter__(self):
         '''
         Opens a serial connection to the nucleo
@@ -52,7 +53,7 @@ class ScienceBridge():
                     "d1_3", "d1_4", "d1_5", "d1_6", "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
             count = 1
             for var in struct_variables:
-                setattr(spectral_struct, var, ((int16(arr[count]) << 8) | (int16(arr[count + 1]))))
+                # setattr(spectral_struct, var, ((int16(arr[count]) << 8) | (int16(arr[count + 1]))))
                 count += 2
         except:
             pass
@@ -81,48 +82,60 @@ class ScienceBridge():
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
         struct = MosfetCmd.decode(msg)
-        print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
         # Currently expects mosfet, device number, and enable bit along
         # with padding to reach 30 bytes
-        message = "$Mosfet,{device},{enable},111111111111111111"
+        message = "$Mosfet,{device},{enable},1"
         message = message.format(device = struct.device, enable = int(struct.enable))
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
             self.ser.write(bytes(message,encoding='utf8'))
+        print("Mosfet Received")
         pass
     def rr_drop(self,channel,msg):
+        print("Received rr_drop req")
         # Struct is expected to be empty so no need for decoding
-        message = "$Mosfet,{device},{enable},111111111111111111"
+        message = "$Mosfet,{device},{enable},1"
         # TODO set the specific device for the repeater on the firmware, placeholder 8.
         # This is always an enable
         message = message.format(device = 4, enable = 1)
-        self.ser.write(bytes(message))
+        self.ser.write(bytes(message,encoding='utf8'))
         # Publish to drop complete after sending the message.
         complete = RepeaterDropComplete()
-        _lcm.publish('/rr_drop_complete', complete.encode())
+        self.lcm.publish('/rr_drop_complete',complete.encode()) 
     def nav_status(self,channel,msg):
+        print("Received nav req")
         # Want the name of the status I guess?
         # Off, Done, Else
         struct = NavStatus.decode(msg)
         # Off = Blue
-        message = "$Mosfet,{device},{enable},111111111111111111"
+        message = "$Mosfet,{device},{enable},1"
+        # First Reset all leds
+        r_reset = message.format(device = 0, enable = 0)
+        g_reset = message.format(device = 1, enable = 0)
+        b_reset = message.format(device = 2, enable = 0)
+        self.ser.write(bytes(r_reset,encoding='utf8'))
+        self.ser.write(bytes(g_reset,encoding='utf8'))
+        self.ser.write(bytes(b_reset,encoding='utf8'))
         if struct.nav_state_name == "Off":
+            print("navstatus off")
             message = message.format(device = 2, enable = 1)
-            self.ser.write(bytes(message))
+            self.ser.write(bytes(message,encoding='utf8'))
         # Done = Flashing green
         elif struct.nav_state_name == "Done":
+            print("navstatus Done")
             # Flashing by turning on and off for 1 second intervals
             for i in range (0,6):
-                self.ser.write(bytes(message.format(device = 1, enable = 1)))
-                await asyncio.sleep(self.sleep)
-                self.ser.write(bytes(message.format(device = 1, enable = 0)))
-                await asyncio.sleep(self.sleep)
+                self.ser.write(bytes(message.format(device = 1, enable = 1),encoding='utf8'))
+                time.sleep(1)
+                self.ser.write(bytes(message.format(device = 1, enable = 0),encoding='utf8'))
+                time.sleep(1)
         # Everytime else = Red
         else:
+            print("navstatus else")
             message = message.format(device = 0, enable = 1)
-            self.ser.write(bytes(message))
+            self.ser.write(bytes(message,encoding='utf8'))
         pass
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
@@ -160,6 +173,7 @@ class ScienceBridge():
                     error_counter = 0
                     msg = str(self.ser.readline())
                 except Exception as e:
+                    print("Errored")
                     if error_counter < self.max_error_count:
                         error_counter += 1
                         print(e)
@@ -190,14 +204,16 @@ class ScienceBridge():
 def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
-        _lcm = aiolcm.AsyncLCM()
-        _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
-        _lcm.subscribe("/nav_status",bridge.nav_status)
-        print("properly started")
+        lcm_ = aiolcm.AsyncLCM()
+        bridge.lcm = lcm_
+        lcm_.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        lcm_.subscribe("/rr_drop_init",bridge.rr_drop)
+        lcm_.subscribe("/nav_status",bridge.nav_status)
+        print("properly started 2")
         #lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         #lcm.subscribe("/pump_cmd", bridge.pump_transmit)
-        run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
+        run_coroutines(lcm_.loop())
+        print("Coroutines running")
 if __name__ == "__main__":
     main()
     
