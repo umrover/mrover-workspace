@@ -3,14 +3,14 @@
 #include "motion_planner.hpp"
 #include "kinematics.hpp"
 #include "spline.h"
-// #include "rover_msgs/ArmPosition.hpp"
-// #include "rover_msgs/MotionExecute.hpp"
-// #include "rover_msgs/FKTransform.hpp"
+#include "rover_msgs/ArmPosition.hpp"
+#include "rover_msgs/MotionExecute.hpp"
+#include "rover_msgs/FKTransform.hpp"
  
 using namespace std;
 using namespace Eigen;
  
-MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) : spline_t(0), done_previewing(false), enable_execute(false), sim_mode(true), ik_enabled(false), state(ArmState(geom)), lcm_(lcm), solver(KinematicsSolver(state)), motion_planner(MotionPlanner(state, lcm, solver))  {}
+MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) : done_previewing(false), enable_execute(false), sim_mode(true), ik_enabled(false), state(ArmState(geom)), lcm_(lcm), solver(KinematicsSolver()), motion_planner(MotionPlanner(solver))  {}
  
 void MRoverArm::arm_position_callback(string channel, ArmPosition msg){
    /*
