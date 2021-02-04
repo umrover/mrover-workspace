@@ -12,11 +12,9 @@ using namespace std;
 TEST(init_test) {
     json geom;
     ArmState arm = ArmState(geom);
-    KinematicsSolver solver = KinematicsSolver(arm);
+    KinematicsSolver solver = KinematicsSolver();
 
-    lcm::LCM lcm;
-
-    MotionPlanner planner = MotionPlanner(arm, lcm, solver);
+    MotionPlanner planner = MotionPlanner(arm, solver);
 }
 
 TEST(rrt_connect_simple) {
@@ -33,10 +31,9 @@ TEST(rrt_connect_simple) {
     angles_start.push_back(0);
     arm.set_joint_angles(angles_start);
 
-    KinematicsSolver solver = KinematicsSolver(arm);
-    lcm::LCM lcm;
+    KinematicsSolver solver = KinematicsSolver();
 
-    MotionPlanner planner = MotionPlanner(arm, lcm, solver);
+    MotionPlanner planner = MotionPlanner(arm, solver);
 
     cout << planner.get_spline_pos(0.0)[0] << ' '
          << planner.get_spline_pos(0.0)[1] << ' '
@@ -48,6 +45,7 @@ TEST(rrt_connect_simple) {
     
 }
 
+/*
 TEST(rrt_connect) {
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
@@ -56,11 +54,9 @@ TEST(rrt_connect) {
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 
     ArmState arm = ArmState(geom);
-    KinematicsSolver solver = KinematicsSolver(arm);
+    KinematicsSolver solver = KinematicsSolver();
 
-    lcm::LCM lcm;
-
-    MotionPlanner planner = MotionPlanner(arm, lcm, solver);
+    MotionPlanner planner = MotionPlanner(arm, solver);
 
     Vector6d start = arm.get_ef_pos_world();
     Vector6d target;
@@ -71,7 +67,7 @@ TEST(rrt_connect) {
     target(4) = start(4) + 1;
     target(5) = start(5) + 1;
 
-    planner.rrt_connect(target);
+    planner.rrt_connect(arm, target);
 
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start(0), 0.05);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start(1), 0.05);
@@ -88,6 +84,6 @@ TEST(rrt_connect) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[spline_last], target(3), 0.05);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[spline_last], target(4), 0.05);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[spline_last], target(5), 0.05);
-}
+}*/
 
 TEST_MAIN()

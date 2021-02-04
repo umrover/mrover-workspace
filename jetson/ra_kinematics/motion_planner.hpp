@@ -13,11 +13,7 @@ using namespace Eigen;
 using namespace std;
 
 /**
- * DO NOT ASSUME THIS INTERFACE IS CORRECT WHEN IMPLEMENTING
- * (Should be reviewed)
- * 
- * TODO check if Node is implemented properly
- * TODO Check if all functions need to be private
+ * Use rrt_connect() to map out a path to the target position.
  * */
 class MotionPlanner {
 private:
@@ -87,11 +83,14 @@ private:
 
     vector<Vector6d> backtrace_path(Node* end, Node* root);
 
+    void delete_tree(Node* twig);
+    void delete_tree(Node* root);
+
     Vector6d get_radians(Vector6d& config);
 
-    Node* extend(Node* tree, Vector6d& z_rand);
+    Node* extend(ArmState &robot, Node* tree, Vector6d& z_rand);
 
-    Node* connect(Node* tree, Vector6d& a_new);
+    Node* connect(ArmState &robot, Node* tree, Vector6d& a_new);
 
     vector<tk::spline> spline_fitting(vector<Vector6d>& path);
 

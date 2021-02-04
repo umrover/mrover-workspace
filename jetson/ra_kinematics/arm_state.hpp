@@ -113,7 +113,7 @@ public:
     
     // ~ArmState();
 
-    vector<string> get_all_joints();
+    vector<string> get_all_joints() const;
 
     vector<string> get_all_links();
 
@@ -125,7 +125,7 @@ public:
 
     Vector3d get_joint_axis_world(string joint);
 
-    map<string, double> get_joint_limits(string joint);
+    map<string, double> get_joint_limits(string joint) const;
 
     Matrix4d get_joint_transform(string joint);
 

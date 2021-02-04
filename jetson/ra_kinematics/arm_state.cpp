@@ -92,7 +92,7 @@ double ArmState::get_joint_mass(string joint) {
     return joints.at(joint).mass;
 }
 
-map<string, double> ArmState::get_joint_limits(string joint) {
+map<string, double> ArmState::get_joint_limits(string joint) const {
     // Returns a map of the joint rotation limits in radians.
     // Map should have a "lower" value and "upper" value.
     return joints.at(joint).joint_limits;
@@ -108,7 +108,7 @@ void ArmState::set_joint_angles(const vector<double>& angles) {
     }
 }
 
-vector<string> ArmState::get_all_joints() {
+vector<string> ArmState::get_all_joints() const {
     // Returns a vector containing all of the joint names
     return joint_names;
 }

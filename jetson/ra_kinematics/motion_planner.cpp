@@ -32,7 +32,7 @@ Vector6d MotionPlanner::sample() {
 
     Vector6d z_rand;
 
-    for (int i = 0; i < all_limits.size(); ++i) {
+    for (size_t i = 0; i < all_limits.size(); ++i) {
         std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
         std::default_random_engine eng;
 
@@ -73,7 +73,7 @@ MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vect
 Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d& end) {
     Vector6d line_vec = end - start->config;
 
-    for (int i = 0; i < step_limits.size(); ++i) {
+    for (size_t i = 0; i < step_limits.size(); ++i) {
         if (step_limits[i] - abs(line_vec(i)) >= 0) {
             return end;
         }
@@ -115,6 +115,28 @@ vector<Vector6d> MotionPlanner::backtrace_path(MotionPlanner::Node* end, MotionP
     return path;
 }
 
+void MotionPlanner::delete_tree(MotionPlanner::Node* twig) {
+    if (!twig) {
+        return;
+    }
+
+    while (twig->parent) {
+        twig = twig->parent;
+    }
+
+    delete_tree_helper(twig);
+}
+
+void MotionPlanner::delete_tree_helper(MotionPlanner::Node* root) {
+    if (root) {
+        for (Node* child : root->children) {
+            delete_tree(child);
+        }
+
+        delete root;
+    }
+}
+
 Vector6d MotionPlanner::get_radians(Vector6d& config) {
     for (int i = 0; i < 6; ++i) {
         config(i) *= (M_PI / 180);
@@ -128,29 +150,27 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d
     Node* z_nearest = nearest(tree, z_rand);
     Vector6d z_new = steer(z_nearest, z_rand);
 
-    Vector6d z_new_angs;
-    for (int i = 0; i < 6; ++i) {
-        z_new_angs(i) = z_new(i);
+    Vector<double> z_new_angs;
+    for (size_t i = 0; i < 6; ++i) {
+        z_new_angs[i] = z_new(i);
     }
     if (!solver.is_safe(robot, z_new_angs)) {
         return nullptr;
     }
-    Node* new_node = &Node(z_new);
+    Node* new_node = new Node(z_new);
     new_node->parent = z_nearest;
-    z_nearest->children.push_back(new_node);
     new_node->cost = z_nearest->cost + (z_nearest->config - z_new).norm();
+    z_nearest->children.push_back(new_node);
     return new_node;
 }
 
 MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, Vector6d& a_new) {
-    Node* extension = extend(robot, tree, a_new);
-    Vector6d config = extension->config;
+    Node* extension;
 
-    // TODO should we be changing tree or a_new?
-    while (extension && !(config == a_new)) {
+    // TODO Are we supposed to change tree or a_new?
+    do {
         extension = extend(robot, tree, a_new);
-        config = extension->config;
-    }
+    } while (extension && extension->config != a_new);
 
     return extension;
 }
@@ -215,10 +235,18 @@ void MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
                 spline_size = a_path.size();
 
                 spline_fitting(a_path);
+
+                delete_tree(a_root);
+                delete_tree(b_root);
                 return;
             }
+
+            delete_tree(b_root);
         }
-    }// for loop
+        
+    } // for loop
+
+
 
     // if no path found, return an empty vector
     splines = vector<tk::spline>();
