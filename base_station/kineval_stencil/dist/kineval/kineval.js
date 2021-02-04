@@ -37,6 +37,7 @@ kineval.start = function kinevalExecute() {
     var x;
     for (x in robot.links) {
         if (typeof links_geom[x] === 'undefined') {
+            console.log(JSON.stringify(x))
             console.log("waiting for robot geometries to load");
             //requestAnimationFrame(kineval.start);
             setTimeout(kineval.start,1000);
