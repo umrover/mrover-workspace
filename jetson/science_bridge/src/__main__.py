@@ -9,7 +9,7 @@ import Adafruit_BBIO.UART as UART
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd, RepeaterDropComplete, SpectralData, NavStatus
+from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, NavStatus
 class ScienceBridge():
     def __init__(self):
         UART.setup("UART4") #  Specific to beaglebone
@@ -171,7 +171,7 @@ class ScienceBridge():
     async def recieve(self, lcm):
         spectral = SpectralData()
         thermistor = ThermistorData()
-        rr_drop = RepeaterDropComplete()
+        rr_drop = RepeaterDrop()
          # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
                      for tag in self.NMEA_HANDLE_MAPPER.keys()}
@@ -218,8 +218,8 @@ def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
         _lcm = aiolcm.AsyncLCM()
-        _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
+        # _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        # _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
         _lcm.subscribe("/nav_status",bridge.nav_status)
         print("properly started")
         # lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
