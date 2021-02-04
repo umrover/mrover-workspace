@@ -13,3 +13,4 @@ build/
 output.log
 base_station/gui/src/static/map
 /core.*
+jetson/ra_kinematics/meson.build

@@ -28,7 +28,7 @@ private:
 
     int neighbor_dist;
     int max_iterations;
-    int i;
+    
 
     class Node {
         friend class MotionPlanner;
@@ -53,7 +53,11 @@ public:
     
     MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in);
 
-    void rrt_connect(ArmState& robot, Vector6d& target);
+    /**
+     * 
+     * @return true if a path was found
+     * */
+    bool rrt_connect(ArmState& robot, Vector6d& target);
 
     /**
      * @param spline_t a time between 0 and 1
@@ -84,7 +88,7 @@ private:
     vector<Vector6d> backtrace_path(Node* end, Node* root);
 
     void delete_tree(Node* twig);
-    void delete_tree(Node* root);
+    void delete_tree_helper(Node* root);
 
     Vector6d get_radians(Vector6d& config);
 
@@ -92,13 +96,8 @@ private:
 
     Node* connect(ArmState &robot, Node* tree, Vector6d& a_new);
 
-    vector<tk::spline> spline_fitting(vector<Vector6d>& path);
+    void spline_fitting(vector<Vector6d>& path);
 
-    Node* root;
-
-    void inc_i(){
-        ++i;
-    }
 };
 
 

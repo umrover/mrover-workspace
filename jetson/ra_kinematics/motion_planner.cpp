@@ -25,7 +25,6 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in)
 
     neighbor_dist = 3;
     max_iterations = 1000;
-    i = 0;
 }
 
 Vector6d MotionPlanner::sample() {
@@ -146,11 +145,10 @@ Vector6d MotionPlanner::get_radians(Vector6d& config) {
 }
 
 MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d& z_rand) {
-    inc_i();
     Node* z_nearest = nearest(tree, z_rand);
     Vector6d z_new = steer(z_nearest, z_rand);
 
-    Vector<double> z_new_angs;
+    vector<double> z_new_angs;
     for (size_t i = 0; i < 6; ++i) {
         z_new_angs[i] = z_new(i);
     }
@@ -167,7 +165,6 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d
 MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, Vector6d& a_new) {
     Node* extension;
 
-    // TODO Are we supposed to change tree or a_new?
     do {
         extension = extend(robot, tree, a_new);
     } while (extension && extension->config != a_new);
@@ -175,7 +172,7 @@ MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, Vector6
     return extension;
 }
 
-void MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
+bool MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
     Vector6d start;
     start(0) = robot.get_joint_angles()["joint_a"];
     start(1) = robot.get_joint_angles()["joint_b"];
@@ -189,8 +186,8 @@ void MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
         start(i) = start(i) * 180 / M_PI;
     }
 
-    start_root = &Node(start);
-    goal_root = &Node(target);
+    start_root = new Node(start);
+    goal_root =  new Node(target);
 
     for (int i = 0; i < max_iterations; ++i) {
         Node* a_root = i % 2 == 0 ? start_root : goal_root;
@@ -208,7 +205,7 @@ void MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
                 vector<Vector6d> b_path = backtrace_path(b_new, b_root);
 
                 // reverse a_path
-                for (int j = 0; j < a_path.size() / 2; ++j) {
+                for (size_t j = 0; j < a_path.size() / 2; ++j) {
                     swap(a_path[j], a_path[a_path.size() - 1 - j]);
                 }
 
@@ -225,9 +222,9 @@ void MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
                     a_path.push_back(b);
                 }
 
-                // reverse entire path
-                if (i % 2) {
-                    for (int j = 0; j < a_path.size() / 2; ++j) {
+                // reverse entire path if a_root is the goal
+                if (i % 2 != 0) {
+                    for (size_t j = 0; j < a_path.size() / 2; ++j) {
                         swap(a_path[j], a_path[a_path.size() - 1 - j]);
                     }
                 }
@@ -236,32 +233,35 @@ void MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
 
                 spline_fitting(a_path);
 
-                delete_tree(a_root);
-                delete_tree(b_root);
-                return;
+                // delete trees before returning
+                delete_tree(start_root);
+                delete_tree(goal_root);
+
+                return true;
             }
 
-            delete_tree(b_root);
         }
         
     } // for loop
 
+    delete_tree(start_root);
+    delete_tree(goal_root);
 
-
-    // if no path found, return an empty vector
+    // if no path found, make sure splines is empty
     splines = vector<tk::spline>();
+    return false;
 
 }
 
-vector<tk::spline> MotionPlanner::spline_fitting(vector<Vector6d>& path) {
+void MotionPlanner::spline_fitting(vector<Vector6d>& path) {
 
     // six vectors, each with the path of a single component
     vector< vector<double> > separate_paths;
     separate_paths.resize(6, vector<double>(path.size()));
 
     // convert path to vectors
-    for (int i = 0; i < path.size(); ++i) {
-        for (int j = 0; j < 6; ++j) {
+    for (size_t i = 0; i < path.size(); ++i) {
+        for (size_t j = 0; j < 6; ++j) {
             separate_paths[j][i] = path[i](j);
         }
     }
@@ -270,14 +270,14 @@ vector<tk::spline> MotionPlanner::spline_fitting(vector<Vector6d>& path) {
     vector<double> x_;
     x_.reserve(path.size() + 1);
     double spline_step = path.size() <= 1 ? 1 : 1 / (path.size() - 1);
-    for (int i = 0; i <= 1; i += spline_step) {
+    for (size_t i = 0; i <= 1; i += spline_step) {
         x_.push_back(i);
     }
 
     // use tk to create six different splines, representing a spline in 6 dimensions
     splines.clear();
     splines.resize(6);
-    for (int i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < 6; ++i) {
         splines[i].set_points(x_, separate_paths[i]);
     }
 }
