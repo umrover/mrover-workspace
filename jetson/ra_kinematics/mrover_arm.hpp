@@ -41,7 +41,6 @@ private:
    MotionPlanner motion_planner;
    // current_spline = [];  // list
    lcm::LCM &lcm_;
-   int spline_t;
    bool done_previewing;
    bool enable_execute;
    bool sim_mode;
