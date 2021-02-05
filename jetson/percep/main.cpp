@@ -88,7 +88,7 @@ int main() {
   #endif
 
 
- /* --- Main Processing Stuff --- */
+/* --- Main Processing Stuff --- */
   while (true) {
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
@@ -115,7 +115,7 @@ int main() {
     arTags[1].distance = -1;
 
     /* --- AR Tag Initializations --- */
-    TagDetector detector(mRoverConfig);
+    TagDetector detector;
     pair<Tag, Tag> tagPair;
     
     /* --- Point Cloud Initializations --- */
@@ -178,8 +178,8 @@ int main() {
         #endif
 
         /* --- AR Tag Processing --- */
-        arTags[0].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
-        arTags[1].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
+        arTags[0].distance = -1;
+        arTags[1].distance = -1;
         #if AR_DETECTION
             tagPair = detector.findARTags(src, depth_img, rgb);
             #if AR_RECORD
