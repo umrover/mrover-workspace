@@ -7,13 +7,98 @@
 using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
-
+ 
 int main() {
+ /* --- Reading in Config File --- */
+  rapidjson::Document mRoverConfig;
+  ifstream configFile;
+  string configPath = getenv("MROVER_CONFIG");
+  configPath += "/config_percep/config.json";
+  configFile.open( configPath );
+  string config = "";
+  string setting;
+  while( configFile >> setting ) {
+    config += setting;
+  }
+  configFile.close();
+  mRoverConfig.Parse( config.c_str() );
+
   
+<<<<<<< HEAD
     /* --- Camera Initializations --- */
     Camera cam;
     int iterations = 0;
     cam.grab();
+=======
+  /* --- Camera Initializations --- */
+  Camera cam(mRoverConfig);
+  int iterations = 0;
+  cam.grab();
+
+  #if PERCEPTION_DEBUG
+    namedWindow("depth", 2);
+  #endif
+  
+  #if AR_DETECTION
+  Mat rgb;
+  Mat src = cam.image();
+  #endif
+
+  #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
+    cam.disk_record_init();
+  #endif
+
+  /* -- LCM Messages Initializations -- */
+  lcm::LCM lcm_;
+  rover_msgs::TargetList arTagsMessage;
+  rover_msgs::Target* arTags = arTagsMessage.targetList;
+  rover_msgs::Obstacle obstacleMessage;
+  int DEFAULT_TAG_VAL=mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
+  arTags[0].distance = DEFAULT_TAG_VAL;
+  arTags[1].distance = DEFAULT_TAG_VAL;
+
+  /* --- AR Tag Initializations --- */
+  TagDetector detector(mRoverConfig);
+  pair<Tag, Tag> tagPair;
+  
+  /* --- Point Cloud Initializations --- */
+  #if OBSTACLE_DETECTION
+
+  PCL pointcloud(mRoverConfig);
+
+  #if PERCEPTION_DEBUG
+    /* --- Create PCL Visualizer --- */
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
+  #endif
+
+  /* --- Outlier Detection --- */
+  int numChecks = 3;
+  deque <bool> outliers;
+  outliers.resize(numChecks, true); //initializes outliers vector
+  deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
+  deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
+  obstacle_return lastObstacle;
+
+  #endif
+
+  /* --- AR Recording Initializations and Implementation--- */ 
+  
+  time_t now = time(0);
+  char* ltm = ctime(&now);
+  string timeStamp(ltm);
+
+  #if AR_RECORD
+  //initializing ar tag videostream object
+  cam.record_ar_init();
+  #endif
+
+
+/* --- Main Processing Stuff --- */
+  while (true) {
+    //Check to see if we were able to grab the frame
+    if (!cam.grab()) break;
+>>>>>>> 1fb4ddcbd7b136ebbb25a6ca875eb9a313e17e40
 
     #if PERCEPTION_DEBUG
         namedWindow("depth", 2);
