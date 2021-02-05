@@ -115,7 +115,7 @@ int main() {
     arTags[1].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
 
     /* --- AR Tag Initializations --- */
-    TagDetector detector(mRoverConfig);
+    TagDetector detector;
     pair<Tag, Tag> tagPair;
     
     /* --- Point Cloud Initializations --- */
