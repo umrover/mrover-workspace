@@ -42,12 +42,6 @@ int main() {
   TagDetector detector(mRoverConfig);
   pair<Tag, Tag> tagPair;
 
-  #if PERCEPTION_DEBUG
-    /* --- Create PCL Visualizer --- */
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
-  #endif
-
   /* --- Outlier Detection --- */
   int numChecks = 3;
   deque <bool> outliers;
@@ -55,8 +49,6 @@ int main() {
   deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
   deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
   obstacle_return lastObstacle;
-
-  #endif
 
   /* --- AR Recording Initializations and Implementation--- */ 
   
@@ -92,6 +84,13 @@ int main() {
         newView, //set to 0 -or false- to be passed into updateViewer later
         originalView //set to 1 -or true- to be passed into updateViewer later
     };
+    #endif
+
+     #if PERCEPTION_DEBUG
+    /* --- Create PCL Visualizer --- */
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
+  #endif
 
   /* --- Main Processing Stuff --- */
   while (true) {
