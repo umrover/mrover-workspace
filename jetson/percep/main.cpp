@@ -88,7 +88,7 @@ int main() {
   #endif
 
 
-/* --- Main Processing Stuff --- */
+ /* --- Main Processing Stuff --- */
   while (true) {
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
@@ -111,11 +111,11 @@ int main() {
     rover_msgs::TargetList arTagsMessage;
     rover_msgs::Target* arTags = arTagsMessage.targetList;
     rover_msgs::Obstacle obstacleMessage;
-    arTags[0].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
-    arTags[1].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
+    arTags[0].distance = -1;
+    arTags[1].distance = -1;
 
     /* --- AR Tag Initializations --- */
-    TagDetector detector;
+    TagDetector detector(mRoverConfig);
     pair<Tag, Tag> tagPair;
     
     /* --- Point Cloud Initializations --- */
@@ -147,7 +147,7 @@ int main() {
     //initializing ar tag videostream object
     cam.record_ar_init();
     #endif
-  }
+
 
   /* --- Main Processing Stuff --- */
   while (true) {
