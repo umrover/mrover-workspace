@@ -29,19 +29,6 @@ int main() {
   int iterations = 0;
   cam.grab();
 
-  #if PERCEPTION_DEBUG
-    namedWindow("depth", 2);
-  #endif
-  
-  #if AR_DETECTION
-  Mat rgb;
-  Mat src = cam.image();
-  #endif
-
-  #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
-    cam.disk_record_init();
-  #endif
-
   /* -- LCM Messages Initializations -- */
   lcm::LCM lcm_;
   rover_msgs::TargetList arTagsMessage;
@@ -54,11 +41,6 @@ int main() {
   /* --- AR Tag Initializations --- */
   TagDetector detector(mRoverConfig);
   pair<Tag, Tag> tagPair;
-  
-  /* --- Point Cloud Initializations --- */
-  #if OBSTACLE_DETECTION
-
-  PCL pointcloud(mRoverConfig);
 
   #if PERCEPTION_DEBUG
     /* --- Create PCL Visualizer --- */
@@ -102,23 +84,6 @@ int main() {
     Mat src = cam.image();
     #endif
 
-    #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
-        cam.disk_record_init();
-    #endif
-  }
-
-    /* -- LCM Messages Initializations -- */
-    lcm::LCM lcm_;
-    rover_msgs::TargetList arTagsMessage;
-    rover_msgs::Target* arTags = arTagsMessage.targetList;
-    rover_msgs::Obstacle obstacleMessage;
-    arTags[0].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
-    arTags[1].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
-
-    /* --- AR Tag Initializations --- */
-    TagDetector detector(mRoverConfig);
-    pair<Tag, Tag> tagPair;
-    
     /* --- Point Cloud Initializations --- */
     #if OBSTACLE_DETECTION
 
@@ -127,28 +92,6 @@ int main() {
         newView, //set to 0 -or false- to be passed into updateViewer later
         originalView //set to 1 -or true- to be passed into updateViewer later
     };
-
-    /* --- Outlier Detection --- */
-    int numChecks = 3;
-    deque <bool> outliers;
-    outliers.resize(numChecks, true); //initializes outliers vector
-    deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
-    deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
-    obstacle_return lastObstacle;
-
-    #endif
-
-    /* --- AR Recording Initializations and Implementation--- */ 
-    
-    time_t now = time(0);
-    char* ltm = ctime(&now);
-    string timeStamp(ltm);
-
-    #if AR_RECORD
-    //initializing ar tag videostream object
-    cam.record_ar_init();
-    #endif
-  
 
   /* --- Main Processing Stuff --- */
   while (true) {
