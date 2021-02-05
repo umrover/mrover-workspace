@@ -27,6 +27,11 @@
         bearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
 
+        #if PERCEPTION_DEBUG
+        viewer = createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
+        viewer_original = createRGBVisualizer();
+        #endif
+
         #if ZED_SDK_PRESENT
            sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
            cloudArea = cloud_res.area();

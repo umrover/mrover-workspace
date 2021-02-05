@@ -52,24 +52,6 @@ class PCL {
         shared_ptr<pcl::visualization::PCLVisualizer> viewer;
         shared_ptr<pcl::visualization::PCLVisualizer> viewer_original;
 
-    //Constructor
-    PCL(const rapidjson::Document &mRoverConfig) : 
-        
-        bearing{0}, distance{0}, detected{false},
-        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
-    
-        #if PERCEPTION_DEBUG
-            viewer = createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
-            viewer_original = createRGBVisualizer();
-        #endif
-
-        #if ZED_SDK_PRESENT
-        sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
-        cloudArea = cloud_res.area();
-        #else
-        cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
-        #endif
-        }
     //Constants
     int MAX_FIELD_OF_VIEW_ANGLE;
     int PT_CLOUD_WIDTH;
@@ -89,7 +71,8 @@ class PCL {
     int MIN_CLUSTER_SIZE;
     int MAX_CLUSTER_SIZE;
 
-    
+    //Constructor
+    PCL(const rapidjson::Document &mRoverConfig){};
 
     //Destructor for PCL
     ~PCL() {
