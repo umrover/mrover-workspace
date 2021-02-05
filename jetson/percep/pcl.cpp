@@ -296,8 +296,7 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
-                        shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
+double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {                        
 
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t("Find Clear Path");
