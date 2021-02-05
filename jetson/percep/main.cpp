@@ -62,8 +62,8 @@ int main() {
   #endif
 
 
-/* --- Main Processing Stuff --- */
-  while (true) {
+ /* --- Main Processing Stuff --- */
+  /*while (true) {
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
 
@@ -74,7 +74,7 @@ int main() {
     #if AR_DETECTION
     Mat rgb;
     Mat src = cam.image();
-    #endif
+    #endif */
 
     /* --- Point Cloud Initializations --- */
     #if OBSTACLE_DETECTION
