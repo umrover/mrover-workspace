@@ -16,7 +16,6 @@ SearchStateMachine::SearchStateMachine( StateMachine* roverStateMachine )
 
 // Runs the search state machine through one iteration. This will be called by
 // StateMachine  when NavState is in a search state. This will call the corresponding
-// function based on the current state and return the next NavState
 NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     switch ( phoebe->roverStatus().currentState() )
@@ -102,6 +101,10 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
     return NavState::SearchSpin;
 } // executeSearchSpin()
 
+
+//Executes the logic for a gimbal search spin. The main objective of a gimbal search spin is to spin the gimbal
+//to positive "gimbalSearchAngleMag" (150) then to -150 then to 0. Every "wait step size" we stop the gimbal
+//in order to give it time to find the target.
 NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     
@@ -110,21 +113,24 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
     static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
     static double target = roverConfig["search"]["gimbalSearchAngleMag"].GetDouble(); 
 
+    //if target aquired, turn to it
     if( phoebe->roverStatus().leftTarget().distance >= 0 )
     {
         updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
+    //set the target yaw to wherever the next stop on the gimbals path is
+    //enter the if if the gimbal is at the next stop
     if( phoebe->gimbal().setTargetYaw( nextStop ) )
     {   
-     
+        //if the next stop is at the target for the phase (150, -150, 0)
         if ( nextStop == target )
         {
-           
+            //if there are more phases, increment the phase
             if ( phase <= 2 )
                 ++phase;
-            
+            //set the targets based on the phase and flip the waitstepsize to turn the other way
             if ( phase == 1 ) {
 
                 waitStepSize *= -1;
@@ -137,21 +143,24 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
             }
         }
        
-    
+        //if we are done with all phases
         if ( phase == 3 )
         {
             //reset static vars
-            waitStepSize = roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+            waitStepSize = roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble( );
             nextStop = 0;
             phase = 0;
-            target = roverConfig["search"]["gimbalSearchAngleMag"].GetDouble();
+            target = roverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble( );
+            //Turn to next search point
             return NavState::SearchTurn;
         }
+        //set the next stop for the gimbal to increment by the waitStepSize
         nextStop += waitStepSize;
-        
+        //we are at our stopping point for the camera so go into search gimbal wait
         return NavState::SearchGimbalWait;
     }
-    phoebe->publishGimbal();
+    //publish gimbal lcm command
+    phoebe->publishGimbal( );
 
     return NavState::SearchGimbal;
 }
@@ -182,12 +191,12 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
     if( difftime( time( nullptr ), startTime ) > waitTime )
     {
         started = false;
-        // We could remove this if we were to completely remove the old "search spin"???
-        if ( phoebe->roverStatus().currentState() == NavState::SearchSpinWait )
+        // Determine wwhich Spin we are executing then go back to the correct method
+        if ( phoebe->roverStatus( ).currentState( ) == NavState::SearchSpinWait )
         {
             return NavState::SearchSpin;
         }
-        else if ( phoebe->roverStatus().currentState() == NavState::SearchGimbalWait ){
+        else if ( phoebe->roverStatus( ).currentState( ) == NavState::SearchGimbalWait ){
             return NavState::SearchGimbal;
         }
         return NavState::SearchTurn;
@@ -259,9 +268,9 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson:
     {
         mSearchPoints.pop_front();
     
-        
+        //if the rover uses the gimbal use it, otherwise dont.
         if (roverConfig[ "search" ][ "useGimbal" ].GetBool()){
-            return NavState::SearchGimbal; // Entry point to gimbal process
+            return NavState::SearchGimbal;
         }
         else{
             return NavState::SearchSpin;

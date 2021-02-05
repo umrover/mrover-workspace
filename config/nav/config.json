@@ -42,8 +42,6 @@
 
 	"gimbal":
 	{
-		"minRange":0,
-		"maxRange":120,
 		"tolerance":1.0
 	},
 

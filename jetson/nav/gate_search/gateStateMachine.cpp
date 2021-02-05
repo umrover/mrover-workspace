@@ -122,31 +122,38 @@ NavState GateStateMachine::executeGateSpin()
     return NavState::GateSpin;
 } // executeGateSpin()
 
+//Executes the logic for a gimbal gate search. The main objective of a gimbal gate search is to spin the gimbal
+//to positive "gimbalSearchAngleMag" (150) then to -150 then to 0. Every "wait step size" we stop the gimbal
+//in order to give it time to find the target.
 NavState GateStateMachine::executeGateSearchGimbal()
 {
-    cout << "starting gate search gimbal" << endl;
+    
     static double waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
-    static double target = mRoverConfig["search"]["gimbalSearchAngleMag"].GetDouble(); 
+    static double target = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble(); 
 
+    //if target aquired, go to it
     if( mPhoebe->roverStatus().rightTarget().distance >= 0 ||
         ( mPhoebe->roverStatus().leftTarget().distance >= 0 && mPhoebe->roverStatus().leftTarget().id != lastKnownRightPost.id ) )
     {
-        cout << "gate target found" << endl;
         updatePost2Info();
         calcCenterPoint();
         return NavState::GateTurnToCentPoint;
     }
+
+    //set the target yaw to wherever the next stop on the gimbals path is
+    //enter the if if the gimbal is at the next stop
     if( mPhoebe->gimbal().setTargetYaw( nextStop ) )
     {   
-        cout << "reached gimbal stop point" << endl;
+        //if the next stop is at the target for the phase (150, -150, 0)
         if ( nextStop == target )
         {
-            cout << "generating new gimbal target" << endl;
+            //if there are more phases, increment the phase
             if ( phase <= 2 )
                 ++phase;
             
+            //set the targets based on the phase and flip the waitstepsize to turn the other way
             if ( phase == 1 ) {
 
                 waitStepSize *= -1;
@@ -159,24 +166,25 @@ NavState GateStateMachine::executeGateSearchGimbal()
             }
         }
        
-    
+        //if we are done with all phases
         if ( phase == 3 )
         {
             //reset static vars
             cout << "exiting gimbal search" << endl;
-            waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+            waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble( );
             nextStop = 0;
             phase = 0;
-            target = mRoverConfig["search"]["gimbalSearchAngleMag"].GetDouble();
+            target = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble( );
+            //Turn to next search point
             return NavState::GateTurn;
         }
-       
+        //set the next stop for the gimbal to increment by the waitStepSize
         nextStop += waitStepSize;
-        
+        //we are at our stopping point for the camera so go into search gimbal wait
         return NavState::GateSpinWait;
     }
   
-    mPhoebe->publishGimbal();
+    mPhoebe->publishGimbal( );
 
     return NavState::GateSearchGimbal;
 }
@@ -205,6 +213,7 @@ NavState GateStateMachine::executeGateSpinWait()
     if( difftime( time( nullptr ), startTime ) > waitTime )
     {
         started = false;
+        //if using gimbal switch to it.
         if ( mRoverConfig["search"]["useGimbal"].GetBool() )
         {
             return NavState::GateSearchGimbal;

@@ -553,8 +553,9 @@ void StateMachine::addRepeaterDropPoint()
 } // addRepeaterDropPoint
 
 
+//updates the gimbal object with its current position read in from the LCM
 void StateMachine::updateGimbalPosition(double cur_yaw){
-    mPhoebe->gimbal().setYaw(cur_yaw);
+    mPhoebe->gimbal().setCurrentYaw(cur_yaw);
 }
 
 // TODOS:

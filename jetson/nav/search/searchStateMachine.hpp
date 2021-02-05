@@ -36,7 +36,7 @@ private:
     /*************************************************************************/
     NavState executeSearchSpin( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig);
+    NavState executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig );
 
     NavState executeRoverWait( Rover* phoebe, const rapidjson::Document& roverConfig );
 
