@@ -24,6 +24,12 @@ int main() {
   mRoverConfig.Parse( config.c_str() );
 
   
+<<<<<<< HEAD
+    /* --- Camera Initializations --- */
+    Camera cam;
+    int iterations = 0;
+    cam.grab();
+=======
   /* --- Camera Initializations --- */
   Camera cam(mRoverConfig);
   int iterations = 0;
@@ -92,6 +98,7 @@ int main() {
   while (true) {
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
+>>>>>>> 1fb4ddcbd7b136ebbb25a6ca875eb9a313e17e40
 
     #if PERCEPTION_DEBUG
         namedWindow("depth", 2);
