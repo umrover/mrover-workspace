@@ -86,13 +86,14 @@ public:
         mStateMachine->updateRepeaterComplete( );
     }
 
+    // Updates the Gimbal with its position.
     void gimbalPositionUpdate(
         const lcm::ReceiveBuffer* recieveBuffer,
         const string& channel,
         const ZedGimbalPosition* positionIn
         )
     {
-        mStateMachine->updateGimbalPosition(positionIn->angle);
+        mStateMachine->updateGimbalPosition( positionIn->angle );
     }
 
 private:
@@ -120,7 +121,7 @@ int main()
     lcmObject.subscribe( "/radio", &LcmHandlers::radioSignalStrength, &lcmHandlers );
     lcmObject.subscribe( "/rr_drop_complete", &LcmHandlers::repeaterDropComplete, &lcmHandlers );
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
-    lcmObject.subscribe("/zed_gimbal_data", &LcmHandlers::gimbalPositionUpdate, &lcmHandlers);
+    lcmObject.subscribe( "/zed_gimbal_data", &LcmHandlers::gimbalPositionUpdate, &lcmHandlers );
 
     while( lcmObject.handle() == 0 )
     {

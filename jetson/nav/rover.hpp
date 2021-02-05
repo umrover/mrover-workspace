@@ -243,6 +243,7 @@ private:
     // on the rover's current latitude.
     double mLongMeterInMinutes;
 
+    // Gimbal object.
     Gimbal mGimbal;
 };
 

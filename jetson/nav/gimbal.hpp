@@ -13,25 +13,21 @@ class Gimbal{
     private:
         double cur_yaw;
         double target_yaw;
-        double yaw_command;
-        double MAX_YAW, MIN_YAW;
-        rover_msgs::ZedGimbalPosition signal;
         double TOLERANCE;
-        
-
+        rover_msgs::ZedGimbalPosition signal;
     public:
-        Gimbal(double MIN_YAW_IN, double MAX_YAW_IN, double tolerance_in);
+        Gimbal(double tolerance_in );
         //sets the target yaw of the gimbal
-        bool setTargetYaw(double target);
+        bool setTargetYaw( double target );
 
         //returns the current yaw of the gimbal
         double getYaw() const;
 
-        void setYaw(double yaw);
+        //sets the current yaw of the gimbal (from sensor)
+        void setCurrentYaw( double yaw );
 
         //returns the LCM message to be sent. Takes in a reference to the LCM object that sends it
-        void publishControlSignal(lcm::LCM &lcmObj, const rapidjson::Document& mRoverConfig);
-
+        void publishControlSignal( lcm::LCM &lcmObj, const rapidjson::Document& mRoverConfig );
 };
 
 #endif // gimbal.hpp

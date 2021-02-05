@@ -38,8 +38,12 @@ public:
 private:
     /*************************************************************************/
     /* Private Member Functions */
+
+    //TODO: make sure order of declarations is consistent.
     /*************************************************************************/
     NavState executeGateSpin();
+
+    NavState executeGateSearchGimbal();
 
     NavState executeGateSpinWait();
 
@@ -61,7 +65,7 @@ private:
 
     NavState executeGateTurnToGateCenter();
 
-    NavState executeGateSearchGimbal();
+   
 
     void updatePost2Info();
 
