@@ -90,7 +90,7 @@ int main() {
         newView, //set to 0 -or false- to be passed into updateViewer later
         originalView //set to 1 -or true- to be passed into updateViewer later
     };
-  
+    #endif
 
      #if PERCEPTION_DEBUG
     /* --- Create PCL Visualizer --- */
