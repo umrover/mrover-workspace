@@ -29,6 +29,19 @@ int main() {
   int iterations = 0;
   cam.grab();
 
+  #if PERCEPTION_DEBUG
+  namedWindow("depth", 2);
+  #endif
+
+  #if AR_DETECTION
+  Mat rgb;
+  Mat src = cam.image();
+  #endif
+
+  #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
+  cam.disk_record_init();
+  #endif
+
   /* -- LCM Messages Initializations -- */
   lcm::LCM lcm_;
   rover_msgs::TargetList arTagsMessage;
@@ -42,13 +55,6 @@ int main() {
   TagDetector detector(mRoverConfig);
   pair<Tag, Tag> tagPair;
 
-  /* --- Outlier Detection --- */
-  int numChecks = 3;
-  deque <bool> outliers;
-  outliers.resize(numChecks, true); //initializes outliers vector
-  deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
-  deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
-  obstacle_return lastObstacle;
 
   /* --- AR Recording Initializations and Implementation--- */ 
   
@@ -90,6 +96,16 @@ int main() {
     /* --- Create PCL Visualizer --- */
     shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
     shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
+  #endif
+
+    /* --- Outlier Detection --- */
+  int numChecks = 3;
+  deque <bool> outliers;
+  outliers.resize(numChecks, true); //initializes outliers vector
+  deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
+  deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
+  obstacle_return lastObstacle;
+
   #endif
 
   /* --- Main Processing Stuff --- */
