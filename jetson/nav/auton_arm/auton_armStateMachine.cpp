@@ -101,7 +101,9 @@ void AutonArmStateMachine::updateRoverStatus(AutonState autonState) {
 
 // Updates the target information of the rover's status.
 void AutonArmStateMachine::updateRoverStatus(TargetPositionList targetList) {
+    if(mPhoebe->roverStatus().currentState() != AutonArmState::WaitingForTag) return;
     cout << "Target received!" << endl;
+    
     mNewRoverStatus.targetList() = targetList;
     is_tag_received = true;
 } //updateRoverStatus(Target target)
@@ -151,23 +153,25 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     for (int i = 0; i < targetList.num_targets; i++) {
         if (targetList.target_list[i].target_id == CORRECT_TAG_ID) { 
             Position newPosition(targetList.target_list[i].x, targetList.target_list[i].y, targetList.target_list[i].z);
+            tagFound = true;
             if(currentPosition == newPosition) {
                 num_correct_tags++;
+                currentPosition = newPosition;
                 break;
             }
             else {
                 num_correct_tags = 1;
+                currentPosition = newPosition;
             }
-            tagFound = true;
-            currentPosition = newPosition;
         }
     }
 
     if(!tagFound) num_correct_tags = 0;
-    else if(num_correct_tags == CORRECT_TAGS_NEEDED) {
+    else if(num_correct_tags >= CORRECT_TAGS_NEEDED) {
         return AutonArmState::SendCoordinates;
     }
 
+    cout << "Number of correct tags is: " << num_correct_tags << endl;
     // Else wait for another tag list
     cout << "Waiting for another tag" << endl;
     return AutonArmState::WaitingForTag;
