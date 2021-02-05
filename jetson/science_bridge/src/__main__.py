@@ -85,12 +85,14 @@ class ScienceBridge():
         pass
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
+        print("Mosfet callback")
         struct = MosfetCmd.decode(msg)
         # parse data into expected format
         # Currently expects mosfet, device number, and enable bit along
         # with padding to reach 30 bytes
         message = "$Mosfet,{device},{enable},1"
         message = message.format(device = struct.device, enable = int(struct.enable))
+        print(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
@@ -178,10 +180,13 @@ class ScienceBridge():
         while True:
             # Wait for all tags to be seen
             while (not all(seen_tags.values())):
+                await asyncio.sleep(self.sleep)
                 try:
                     error_counter = 0
                     tx = self.ser.readline()
                     msg =  str(tx)
+                    print(msg)
+
                 except Exception as e:
                     print("Errored")
                     if error_counter < self.max_error_count:
@@ -218,8 +223,8 @@ def main():
     # Uses a context manager to ensure serial port released
     with ScienceBridge() as bridge:
         _lcm = aiolcm.AsyncLCM()
-        # _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        # _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
+        _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
+        _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
         _lcm.subscribe("/nav_status",bridge.nav_status)
         print("properly started")
         # lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
