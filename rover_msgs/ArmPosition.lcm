@@ -6,4 +6,5 @@ struct ArmPosition {
     double joint_c;
     double joint_d;
     double joint_e;
+    double joint_f;
 }
