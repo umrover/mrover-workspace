@@ -327,9 +327,15 @@ cv::Mat Camera::Impl::depth() {
 }
 
 void Camera::record_ar_init() {
+<<<<<<< HEAD
     //initializing ar tag videostream object
     std::pair<Tag, Tag> tp;
     TagDetector d1;
+=======
+  //initializing ar tag videostream object
+  std::pair<Tag, Tag> tp;
+  TagDetector d1(mRoverConfig);
+>>>>>>> 1fb4ddcbd7b136ebbb25a6ca875eb9a313e17e40
 
     Mat depth_img = depth();
     Mat rgb;
@@ -379,8 +385,8 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point
 
 #endif
 
-Camera::Camera() : impl_{new Camera::Impl}, rgb_foldername{""},
-                   depth_foldername{""}, pcl_foldername{""} {}
+Camera::Camera(const rapidjson::Document &config) : impl_{new Camera::Impl}, rgb_foldername{""},
+                   depth_foldername{""}, pcl_foldername{""} , mRoverConfig( config ) {}
 
 Camera::~Camera() {
 	delete this->impl_;

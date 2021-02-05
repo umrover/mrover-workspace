@@ -53,7 +53,7 @@ class PCL {
         shared_ptr<pcl::visualization::PCLVisualizer> viewer_original;
 
     //Constructor
-    PCL() : 
+    PCL(const rapidjson::Document &mRoverConfig) : 
         
         bearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
@@ -69,15 +69,35 @@ class PCL {
         #else
         cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
         #endif
+        }
+    //Constants
+    int MAX_FIELD_OF_VIEW_ANGLE;
+    int PT_CLOUD_WIDTH;
+    int PT_CLOUD_HEIGHT;
+    int HALF_ROVER;
+    double UP_BD_Z;
+    double UP_BD_Y;
+    double LOW_BD ;
+    double ROVER_W_MM;
+    float LEAF_SIZE;
+    //RANSAC constants
+    int MAX_ITERATIONS;
+    double SEGMENTATION_EPSLION;
+    double DISTANCE_THRESHOLD;
+    //Euclidean cluster constants
+    int CLUSTER_TOLERANCE;
+    int MIN_CLUSTER_SIZE;
+    int MAX_CLUSTER_SIZE;
 
-    };
+    
 
     //Destructor for PCL
     ~PCL() {
         viewer -> close();
         viewer_original -> close();
     };
-
+    
+    //Member Variables
     double bearing;
     double distance;
     bool detected;
