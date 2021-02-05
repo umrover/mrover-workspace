@@ -50,11 +50,7 @@ void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
     pass.setInputCloud(pt_cloud_ptr);
 
     pass.setFilterFieldName(axis);
-<<<<<<< HEAD
-    pass.setFilterLimits(0.0, upperLimit);
-=======
     pass.setFilterLimits( LOW_BD, upperLimit);
->>>>>>> 1fb4ddcbd7b136ebbb25a6ca875eb9a313e17e40
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -69,15 +65,9 @@ void PCL::DownsampleVoxelFilter() {
     #endif
 
     pcl::VoxelGrid<pcl::PointXYZRGB> sor;
-<<<<<<< HEAD
-    sor.setInputCloud(pt_cloud_ptr);
-    sor.setLeafSize(20.0f, 20.0f, 20.0f);
-    sor.filter(*pt_cloud_ptr);
-=======
     sor.setInputCloud (pt_cloud_ptr);
     sor.setLeafSize(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE);
     sor.filter (*pt_cloud_ptr);
->>>>>>> 1fb4ddcbd7b136ebbb25a6ca875eb9a313e17e40
 }
 
 /* --- RANSAC Plane Segmentation Blue --- */
@@ -102,13 +92,8 @@ void PCL::RANSACSegmentation(string type) {
     seg.setDistanceThreshold(DISTANCE_THRESHOLD); //Distance in mm away from actual plane a point can be
     // to be considered an inlier
     seg.setAxis(Eigen::Vector3f(0, 1, 0)); //Looks for a plane along the Z axis
-<<<<<<< HEAD
-    double segmentation_epsilon = 10;      //Max degree the normal of plane can be from Z axis
-    seg.setEpsAngle(pcl::deg2rad(segmentation_epsilon));
-=======
     //Max degree the normal of plane can be from Z axis
     seg.setEpsAngle(pcl::deg2rad(SEGMENTATION_EPSLION));
->>>>>>> 1fb4ddcbd7b136ebbb25a6ca875eb9a313e17e40
 
     //Objects where segmented plane is stored
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
@@ -150,21 +135,12 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
 
     //Extracts clusters using nearet neighbors search
     pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
-<<<<<<< HEAD
-    ec.setClusterTolerance(60); // 60 mm radius per point
-    ec.setMinClusterSize(20);
-    ec.setMaxClusterSize(100000);
-    ec.setSearchMethod(tree);
-    ec.setInputCloud(pt_cloud_ptr);
-    ec.extract(cluster_indices);
-=======
     ec.setClusterTolerance (CLUSTER_TOLERANCE); // 60 mm radius per point
     ec.setMinClusterSize (MIN_CLUSTER_SIZE);
     ec.setMaxClusterSize (MAX_CLUSTER_SIZE);
     ec.setSearchMethod (tree);
     ec.setInputCloud (pt_cloud_ptr);
     ec.extract (cluster_indices);
->>>>>>> 1fb4ddcbd7b136ebbb25a6ca875eb9a313e17e40
 
     //Colors all clusters
     #if PERCEPTION_DEBUG
@@ -320,7 +296,9 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
+double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
+                        shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
+
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t("Find Clear Path");
     #endif
