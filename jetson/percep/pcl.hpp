@@ -72,7 +72,7 @@ class PCL {
     int MAX_CLUSTER_SIZE;
 
     //Constructor
-    PCL(const rapidjson::Document &mRoverConfig){};
+    PCL(const rapidjson::Document &mRoverConfig);
 
     //Destructor for PCL
     ~PCL() {
