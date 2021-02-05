@@ -105,7 +105,6 @@ int main() {
     #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
         cam.disk_record_init();
     #endif
-  }
 
     /* -- LCM Messages Initializations -- */
     lcm::LCM lcm_;
@@ -122,7 +121,7 @@ int main() {
     /* --- Point Cloud Initializations --- */
     #if OBSTACLE_DETECTION
 
-    PCL pointcloud(mRoverConfig);
+    PCL pointcloud;
     enum viewerType {
         newView, //set to 0 -or false- to be passed into updateViewer later
         originalView //set to 1 -or true- to be passed into updateViewer later
@@ -148,7 +147,7 @@ int main() {
     //initializing ar tag videostream object
     cam.record_ar_init();
     #endif
-  
+  }
 
   /* --- Main Processing Stuff --- */
   while (true) {
