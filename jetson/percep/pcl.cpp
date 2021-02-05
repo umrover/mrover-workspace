@@ -50,7 +50,6 @@ void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
     pass.setInputCloud(pt_cloud_ptr);
 
     pass.setFilterFieldName(axis);
-}
 //Creates clusters given by the size of a leaf
 //All points in a cluster are then reduced to a single point
 //This point is the centroid of the cluster
