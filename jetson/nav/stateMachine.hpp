@@ -49,10 +49,10 @@ public:
 
     void updateRepeaterComplete( );
 
+    void setSearcher( SearchType type );
+
     void updateGimbalPosition(double curYaw);
-
     
-
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
