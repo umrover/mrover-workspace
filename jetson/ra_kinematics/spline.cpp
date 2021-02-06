@@ -1,5 +1,7 @@
 #include "spline.h"
 
+using namespace tk;
+
 // band_matrix implementation
 // -------------------------
 
