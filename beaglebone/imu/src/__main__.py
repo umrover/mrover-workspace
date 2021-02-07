@@ -35,6 +35,7 @@ ZAccel = 0x67  # Processed z-axis accel data
 XMag = 0x69  # Processed x-axis magnetometer data
 YMag = 0x6A  # Processed y-axis magnetometer data
 ZMag = 0x6B  # Processed z-axis magnetometer data 
+
 #https://stackoverflow.com/questions/57982782/type-codes-in-python-for-array this is int
 type = "<b"
 
@@ -49,6 +50,8 @@ ser = serial.Serial(port="/dev/ttyS4", baudrate=baud)
 ser.close()
 ser.open()
 
+cmd_buffer = [0,0,0,0,0,0,0,0]
+
 #Sets desired transmission rates for CHR NMEA-style packets (31 bits) Pg. 55
 #CREG_COM_RATES7 = 0x07
 #packetRates = 0xf0000                      scp __main__.py debian@192.168.7.2:/home/debian
@@ -57,16 +60,80 @@ ser.open()
 
 #Send binary packet saying use NMEA and set rate of transfer, read packet beginning with $PCHRS
 
+def checkfirmware():
+    cmd_buffer[0] = ord('s')
+    cmd_buffer[1] = ord('n')
+    cmd_buffer[2] = ord('p')
+    cmd_buffer[3] = 0x40 #1000000 or just 0?
+    cmd_buffer[4] = 0xAD
+
+    checksum = ord('s') + ord('n') + ord('p') + 0xAD
+    
+    cmd_buffer[5] = checksum >> 8
+    cmd_buffer[6] = checksum & 0xFF
+
+    #ser.write(bytes([ord('s')]))
+    #ser.write(bytes([ord('n')]))
+    #ser.write(bytes([ord('p')]))
+    #ser.write(0x00)
+    #ser.write(0xAA)
+    #ser.write(0x01)
+    #ser.write(0xFB)
+
+    ser.write(cmd_buffer)
+
+
+def resetEKF():
+    cmd_buffer[0] = ord('s')
+    cmd_buffer[1] = ord('n')
+    cmd_buffer[2] = ord('p')
+    cmd_buffer[3] = 0x40
+    cmd_buffer[4] = 0xB0
+
+    checksum = ord('s') + ord('n') + ord('p') + 0xB0
+    
+    cmd_buffer[5] = checksum >> 8
+    cmd_buffer[6] = checksum & 0xB0
+
+    ser.write(cmd_buffer)
+
+
 def read_data(register):
     # with serial.Serial(port="/dev/ttyS4", baudrate=baud) as ser:
         #Page 31 Data Sheet
-    PT = 00000000
-    packet = struct.pack('s','n','p', PT, register)
-    value = ser.write(packet)
+    #PT = 00000000
+    #packet = struct.pack('s','n','p', PT, register)
+    
+    #value = ser.read(register)
+
+    cmd_buffer[0] = ord('s')
+    cmd_buffer[1] = ord('n')
+    cmd_buffer[2] = ord('p')
+    cmd_buffer[3] = 0x40
+    cmd_buffer[4] = register
+
+    checksum = ord('s') + ord('n') + ord('p') + register
+    
+    cmd_buffer[5] = 0
+    cmd_buffer[6] = checksum >> 8
+    cmd_buffer[7] = checksum & 0xFF
+    print(cmd_buffer)
+
+    #Attempting to get a reading from the UM7
+    ser.write(cmd_buffer)
+    value = ser.read()
+    print(value)
+    value = ser.read()
+    print(value)
+    value = ser.read()
+    print(value)
     return value
 
 
-while True:
+checkfirmware()
+resetEKF()
+while ser.isOpen():
+    
     GyroX = read_data(XGyro)
     GyroY = read_data(YGyro)
     GyroZ = read_data(ZGyro)
@@ -76,5 +143,14 @@ while True:
     MagX = read_data(XMag)
     MagY = read_data(YMag)
     MagZ = read_data(ZMag)
+    
+    #ser.write('s','n','p', PT, XGyro)
 
-    print("Gyro:      X: " + GyroX + "Y: " + GyroY + "Z: " + GyroZ + "\n         Accel:     X: " + AccelX + "Y: " + AccelY + "Z: " + AccelZ + "\n         Mag:       X: " + MagX + "Y: " + MagY + "Z: " + MagZ)
+    #test = ser.read(YGyro)
+    #print(test)
+    #print(AccelX)
+    #print(AccelY)
+    #print(AccelZ)
+    
+
+    #print("Gyro:      X: " + GyroX + "Y: " + GyroY + "Z: " + GyroZ + "\n         Accel:     X: " + AccelX + "Y: " + AccelY + "Z: " + AccelZ + "\n         Mag:       X: " + MagX + "Y: " + MagY + "Z: " + MagZ)
