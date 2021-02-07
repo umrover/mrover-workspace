@@ -1,5 +1,6 @@
 #include "json.hpp"
-#include "arm_state.hpp"
+// #include "arm_state.hpp"
+#include "mrover_arm.hpp"
 #include "utils.hpp"
 
 
@@ -9,8 +10,29 @@
 using nlohmann::json;
 using namespace std;
 
+class lcmHandlers {
+public:
+    lcmHandlers (MRoverArm* robot_arm) : arm(robot_arm) {}
+
+    void executeCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const MotionExecute* m_execute
+        )
+    {
+        arm->motion_execute_callback( channel, *m_execute );
+    }
+
+private:
+    MRoverArm* arm;
+};
+
+
+
 int main() 
 {
+
+    
     cout << "INITIALIZING KINEMATICS FOR ROBOT ARM\n";
     // string config_path = getenv("MROVER_CONFIG");
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
@@ -20,11 +42,19 @@ int main()
 
     cout << "INITIALIZING ROBOT ARM OBJECT\n";
 
-    ArmState arm = ArmState(geom);
+    MRoverArm robot_arm(geom, lcmObject);
 
-    cout << "GETTING JOINT A\n";
+    lcmHandlers handler(&robot_arm);
 
-    arm.get_joint_mass("joint_a");
+    lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
+
+
+
+    // ArmState arm = ArmState(geom);
+
+    // cout << "GETTING JOINT A\n";
+
+    // arm.get_joint_mass("joint_a");
 
 
     return 0;
