@@ -17,8 +17,8 @@ class Gimbal{
         rover_msgs::ZedGimbalPosition signal;
     public:
         Gimbal(double tolerance_in );
-        //sets the target yaw of the gimbal
-        bool setDesiredGimbalYaw( double target );
+        //sets the desired yaw of the gimbal
+        bool setDesiredGimbalYaw( double desired_yaw );
 
         //returns the current yaw of the gimbal
         double getYaw() const;

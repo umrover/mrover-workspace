@@ -119,17 +119,17 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    //set the target yaw to wherever the next stop on the gimbals path is
+    //set the desiredYaw to wherever the next stop on the gimbals path is
     //enter the if if the gimbal is at the next stop
     if( phoebe->gimbal().setDesiredGimbalYaw( nextStop ) )
     {   
-        //if the next stop is at the target for the phase (150, -150, 0)
+        //if the next stop is at the desiredYaw for the phase (150, -150, 0)
         if ( nextStop == desiredYaw )
         {
             //if there are more phases, increment the phase
             if ( phase <= 2 )
                 ++phase;
-            //set the targets based on the phase and flip the waitstepsize to turn the other way
+            //set the desiredYaw based on the phase and flip the waitstepsize to turn the other way
             if ( phase == 1 ) {
 
                 waitStepSize *= -1;
