@@ -2,7 +2,7 @@
 #define MROVER_ARM_H
  
 #include "json.hpp"
-// #include <lcm/lcm-cpp.hpp>
+#include <lcm/lcm-cpp.hpp>
 #include <Eigen/Dense>
 #include "mrover_arm.hpp"
 #include "arm_state.hpp"
