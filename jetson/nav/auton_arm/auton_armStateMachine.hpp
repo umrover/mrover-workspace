@@ -86,7 +86,7 @@ private:
     static const int32_t CORRECT_TAG_ID = -1;
 
     // Delay time between tag evaluations 
-    chrono::duration<double, milli> DELAY = chrono::milliseconds(15000);
+    chrono::duration<double, milli> DELAY = chrono::milliseconds(5000);
     //chrono::seconds::count x = 1;
 };
 

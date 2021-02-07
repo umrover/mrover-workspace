@@ -185,9 +185,14 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
 
 AutonArmState AutonArmStateMachine::executePauseTag() {
     cout << "Waiting...\n";
-    this_thread::sleep_for(DELAY);
-    cout << "Done waiting\n";
-    return AutonArmState::WaitingForTag;    
+    // if first time entering
+        auto start = std::chrono::system_clock::now();
+    auto current = std::chrono::system_clock::now();
+    if ( current-start >= DELAY ) {
+        cout << "Done waiting\n";
+        return AutonArmState::WaitingForTag;
+    }
+    return AutonArmState::PauseTag;    
 }
 
 AutonArmState AutonArmStateMachine::executeSendCoordinates() {
