@@ -180,7 +180,6 @@ class ScienceBridge():
         while True:
             # Wait for all tags to be seen
             while (not all(seen_tags.values())):
-                await asyncio.sleep(self.sleep)
                 try:
                     error_counter = 0
                     tx = self.ser.readline()
@@ -216,6 +215,7 @@ class ScienceBridge():
                         break
                 if not match_found:
                     print('Error decoding message stream: {}'.format(msg))
+                await asyncio.sleep(self.sleep)
             seen_tags = {tag: False if not tag == 'TXT' else True
                          for tag in self.NMEA_HANDLE_MAPPER.keys()}
             await asyncio.sleep(self.sleep)
