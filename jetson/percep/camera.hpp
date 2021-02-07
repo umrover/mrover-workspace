@@ -1,6 +1,8 @@
 #pragma once
 #include <opencv2/opencv.hpp>
 #include "perception.hpp"
+#include "rapidjson/document.h"
+#include <rapidjson/error/en.h>
 
 #if OBSTACLE_DETECTION
 	#include <pcl/common/common_headers.h>
@@ -13,11 +15,12 @@ private:
 	std::string rgb_foldername;
 	std::string depth_foldername;
 	std::string pcl_foldername;
-
 	cv::VideoWriter vidWrite;
+	//reference to config file
+    const rapidjson::Document& mRoverConfig;
 	
 public:
-	Camera();
+	Camera(const rapidjson::Document &config);
 	~Camera();
 
 	bool grab();
