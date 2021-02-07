@@ -36,13 +36,13 @@ NOTE: For more testing points, see valid_configurations_2.csv located towards th
 
 */
 
-TEST(initialization_test) {
+TEST(kinematics_initialization) {
     cout << setprecision(9);
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
     
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
-    KinematicsSolver solver(arm);
+    KinematicsSolver solver();
 }
 
 TEST(fk_test) {
@@ -52,10 +52,11 @@ TEST(fk_test) {
 
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
-    KinematicsSolver solver = KinematicsSolver(arm);
+    KinematicsSolver solver = KinematicsSolver();
+    solver.FK(arm);
 }
 
-TEST(apply_joint_xform_test) {}
+// TEST(apply_joint_xform_test) {}
 
 TEST(ik_test) {
     cout << setprecision(9);
@@ -63,18 +64,19 @@ TEST(ik_test) {
 
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
-    KinematicsSolver solver = KinematicsSolver(arm);
+    KinematicsSolver solver = KinematicsSolver();
     // Create target point vector:
     Vector6d target;
     target << 0.28873017665603573,0.022374986261356488,0.10726454148173355,
                 1.8729278741492037,2.235500299169628,0.161684737768472;
+    solver.FK(arm);
     solver.IK(arm, target, true, false);
 }
 
-TEST(ik_step_test) {}
+// TEST(ik_step_test) {}
 
-TEST(is_safe_test) {}
+// TEST(is_safe_test) {}
 
-TEST(limit_check_test) {}
+// TEST(limit_check_test) {}
 
 TEST_MAIN()
