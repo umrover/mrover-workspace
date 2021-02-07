@@ -12,21 +12,19 @@
     <div class="ide-features">
       <Button
         name="Reset Rover"
-        :disabled="simulateLoc === SensorSimulationModeType.Off"
-        :color-scheme="greenColorScheme"
+        :disabled="!simulateLoc"
         @clicked="resetRover"
       />
       <Checkbox
         class="play-pause"
         :on="!paused"
         :name="playPauseDisplay"
-        :disabled="simulateLoc === SensorSimulationModeType.Off"
+        :disabled="!simulateLoc"
         @clicked="playPause"
       />
       <Button
         name="Step"
-        :disabled="!paused || simulateLoc === SensorSimulationModeType.Off"
-        :color-scheme="greenColorScheme"
+        :disabled="!paused || !simulateLoc"
         @clicked="step"
       />
       <Checkbox
@@ -97,13 +95,9 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { BUTTON_COLOR_SCHEMES } from '../../utils/constants';
 import {
-  ColorScheme,
-  ColorSchemeName,
   FieldOfViewOptions,
   Odom,
-  SensorSimulationMode,
   Speeds,
   ZedGimbalPosition
 } from '../../utils/types';
@@ -128,12 +122,6 @@ const TURN_STEP = 5; /* degrees/second */
 })
 export default class DebugTools extends Vue {
   /************************************************************************************************
-   * Types
-   ************************************************************************************************/
-  /* Redefine SensorSimulationMode locally for use in the Template. */
-  private readonly SensorSimulationModeType = SensorSimulationMode;
-
-  /************************************************************************************************
    * Vuex Getters
    ************************************************************************************************/
   @Getter
@@ -152,7 +140,7 @@ export default class DebugTools extends Vue {
   private readonly roverPathVisible!:boolean;
 
   @Getter
-  private readonly simulateLoc!:SensorSimulationMode;
+  private readonly simulateLoc!:boolean;
 
   @Getter
   private readonly startLoc!:Odom;
@@ -216,25 +204,6 @@ export default class DebugTools extends Vue {
     this.setRoverPathVisible(newVisible);
   }
 
-  /* Drive Speed */
-  private get driveSpeed():number {
-    return this.currSpeed.drive;
-  }
-  private set driveSpeed(newSpeed:number) {
-    /* Check for out of range caused by dynamic min value. */
-    const speed:number = Math.max(newSpeed, MIN_DRIVE_SPEED);
-    this.setCurrSpeed({
-      drive: speed,
-      turn: this.currSpeed.turn
-    });
-  }
-  private get driveSpeedMin():number {
-    return this.driveSpeed === MIN_DRIVE_SPEED ? MIN_DRIVE_SPEED : 0;
-  }
-  private get driveSpeedStep():number {
-    return this.driveSpeed === MIN_DRIVE_SPEED ? DRIVE_STEP - MIN_DRIVE_SPEED : DRIVE_STEP;
-  }
-
   /* Displayed field of view angle. */
   private get fovAngleIn():number {
     return this.fieldOfViewOptions.angle;
@@ -259,11 +228,6 @@ export default class DebugTools extends Vue {
     });
   }
 
-  /* Get the green color scheme for a button. */
-  private get greenColorScheme():ColorScheme {
-    return BUTTON_COLOR_SCHEMES[ColorSchemeName.Green];
-  }
-
   /* Mapping of hotkeys to functions. */
   get keymap():Record<string, ()=>void> {
     return {
@@ -277,6 +241,25 @@ export default class DebugTools extends Vue {
       return 'Play';
     }
     return 'Pause';
+  }
+
+  /* Drive Speed */
+  private get driveSpeed():number {
+    return this.currSpeed.drive;
+  }
+  private set driveSpeed(newSpeed:number) {
+    /* Check for out of range caused by dynamic min value. */
+    const speed:number = Math.max(newSpeed, MIN_DRIVE_SPEED);
+    this.setCurrSpeed({
+      drive: speed,
+      turn: this.currSpeed.turn
+    });
+  }
+  private get driveSpeedMin():number {
+    return this.driveSpeed === MIN_DRIVE_SPEED ? MIN_DRIVE_SPEED : 0;
+  }
+  private get driveSpeedStep():number {
+    return this.driveSpeed === MIN_DRIVE_SPEED ? DRIVE_STEP - MIN_DRIVE_SPEED : DRIVE_STEP;
   }
 
   /* Turn Speed */
