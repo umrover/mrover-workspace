@@ -107,10 +107,10 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
 NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     
-    static double waitStepSize = roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+    static double waitStepSize = roverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
-    static double desiredYaw = roverConfig["search"]["gimbalSearchAngleMag"].GetDouble(); 
+    static double desiredYaw = roverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble(); 
 
     //if target aquired, turn to it
     if( phoebe->roverStatus().leftTarget().distance >= 0 )
@@ -130,14 +130,14 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
             if ( phase <= 2 )
                 ++phase;
             //set the desiredYaw based on the phase and flip the waitstepsize to turn the other way
+            //set the desired_yaw based on the phase and flip the waitstepsize to turn the other way
             if ( phase == 1 ) {
-
-                waitStepSize *= -1;
+                waitStepSize = -roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
                 desiredYaw *= -1;
             }
             else if ( phase == 2 ) 
             {
-                waitStepSize *= -1;
+                waitStepSize = 0 - nextStop;
                 desiredYaw = 0;
             }
         }
@@ -146,7 +146,7 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
         if ( phase == 3 )
         {
             //reset static vars
-            waitStepSize = roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble( );
+            waitStepSize = roverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble();
             nextStop = 0;
             phase = 0;
             desiredYaw = roverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble( );

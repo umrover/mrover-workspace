@@ -128,7 +128,7 @@ NavState GateStateMachine::executeGateSpin()
 NavState GateStateMachine::executeGateSearchGimbal()
 {
     
-    static double waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
+    static double waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
     static double desired_yaw = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble(); 
@@ -156,12 +156,12 @@ NavState GateStateMachine::executeGateSearchGimbal()
             //set the desired_yaw based on the phase and flip the waitstepsize to turn the other way
             if ( phase == 1 ) {
 
-                waitStepSize *= -1;
+                waitStepSize = -mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
                 desired_yaw *= -1;
             }
             else if ( phase == 2 ) 
             {
-                waitStepSize *= -1;
+                waitStepSize = 0 - nextStop;
                 desired_yaw = 0;
             }
         }
@@ -170,8 +170,7 @@ NavState GateStateMachine::executeGateSearchGimbal()
         if ( phase == 3 )
         {
             //reset static vars
-            cout << "exiting gimbal search" << endl;
-            waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble( );
+            waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble();
             nextStop = 0;
             phase = 0;
             desired_yaw = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble( );
