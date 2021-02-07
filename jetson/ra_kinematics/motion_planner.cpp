@@ -149,6 +149,7 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d
     Vector6d z_new = steer(z_nearest, z_rand);
 
     vector<double> z_new_angs;
+    z_new_angs.resize(6);
     for (size_t i = 0; i < 6; ++i) {
         z_new_angs[i] = z_new(i);
     }
@@ -197,6 +198,7 @@ bool MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
         Node* a_new = extend(robot, a_root, z_rand);
 
         if (a_new) {
+
             Node* b_new = connect(robot, b_root, a_new->config);
 
             // if the trees are connected
@@ -263,7 +265,11 @@ void MotionPlanner::spline_fitting(vector<Vector6d>& path) {
     for (size_t i = 0; i < path.size(); ++i) {
         for (size_t j = 0; j < 6; ++j) {
             separate_paths[j][i] = path[i](j);
+
+            cout << path[i](j) << '\n';
         }
+
+        cout << '\n';
     }
 
     // create a linear space betwee 0 and 1 with path.size() increments
