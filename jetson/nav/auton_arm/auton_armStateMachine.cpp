@@ -111,7 +111,7 @@ void AutonArmStateMachine::updateRoverStatus(TargetPositionList targetList) {
 bool AutonArmStateMachine::isRoverReady() const {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
-           mPhoebe->roverStatus().currentState() == AutonArmState::EvaluateTag;
+           is_tag_received; // has a new tag been received 
 } //isRoverReady()
 
 void AutonArmStateMachine::publishNavState() const
@@ -153,16 +153,16 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     for (int i = 0; i < targetList.num_targets; i++) {
         if (targetList.target_list[i].target_id == CORRECT_TAG_ID) { 
             Position newPosition(targetList.target_list[i].x, targetList.target_list[i].y, targetList.target_list[i].z);
-            tagFound = true;
             if(currentPosition == newPosition) {
                 num_correct_tags++;
                 currentPosition = newPosition;
-                break;
             }
             else {
                 num_correct_tags = 1;
                 currentPosition = newPosition;
             }
+            tagFound = true;
+            break;
         }
     }
 
@@ -180,16 +180,21 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
 AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     // send coordinates
     cout << "executeSendCoordinates" << endl;
-    // TODO send coordinates with updated lcm structure
+
+    TargetPosition sendPosition;
+    sendPosition.x = currentPosition.x;
+    sendPosition.y = currentPosition.y;
+    sendPosition.z = currentPosition.z;
+    sendPosition.target_id = CORRECT_TAG_ID;
+
+    mLcmObject.publish("/target_position", &sendPosition);
+    cout << "Sent target position\n";
+    
     return AutonArmState::Done;
 }
 
 bool AutonArmStateMachine::Position::operator==(const Position &rhs) {
-    return (
-        abs(x - rhs.x) < MARGIN_OF_ERROR &&
-        abs(y - rhs.y) < MARGIN_OF_ERROR &&
-        abs(z - rhs.z) < MARGIN_OF_ERROR
-    );
+    return sqrt(pow(x-rhs.x, 2) + pow(y-rhs.y, 2) + pow(z-rhs.z, 2)) < MARGIN_OF_ERROR;
 }
 
 AutonArmStateMachine::Position& AutonArmStateMachine::Position::operator=(const Position &rhs) {

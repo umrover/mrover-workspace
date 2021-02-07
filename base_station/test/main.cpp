@@ -17,12 +17,9 @@ int main() {
         cin >> num_targets;
         list.num_targets = num_targets;
         
-        cout << list.num_targets << endl;
-        //if(list.num_targets > 3 || list.num_targets < 0) continue;
+        if(list.num_targets > 3 || list.num_targets <= 0) continue;
 
         for(int i = 0; i < num_targets; i++) {
-            cout << i << endl;
-
             cout << "Target " << i << ":\n";
             cout << "X: ";
             cin >> list.target_list[i].x;
