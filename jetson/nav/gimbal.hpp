@@ -1,7 +1,7 @@
 #ifndef GIMBAL_HPP
 #define GIMBAL_HPP
 
-#include "rover_msgs/ZedGimbalCmd.hpp"
+
 #include "rover_msgs/ZedGimbalPosition.hpp"
 #include "pid.hpp"
 #include "rapidjson/document.h"
@@ -12,13 +12,13 @@
 class Gimbal{
     private:
         double cur_yaw;
-        double target_yaw;
+        double desired_gimbal_yaw;
         double TOLERANCE;
         rover_msgs::ZedGimbalPosition signal;
     public:
         Gimbal(double tolerance_in );
         //sets the target yaw of the gimbal
-        bool setTargetYaw( double target );
+        bool setDesiredGimbalYaw( double target );
 
         //returns the current yaw of the gimbal
         double getYaw() const;

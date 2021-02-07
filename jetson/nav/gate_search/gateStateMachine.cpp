@@ -29,9 +29,9 @@ NavState GateStateMachine::run()
             return executeGateSearchGimbal();
         }
 
-        case NavState::GateSpinWait:
+        case NavState::GateWait:
         {
-            return executeGateSpinWait();
+            return executeGateWait();
         }
 
         case NavState::GateTurn:
@@ -117,7 +117,7 @@ NavState GateStateMachine::executeGateSpin()
             return NavState::GateTurn;
         }
         nextStop += waitStepSize;
-        return NavState::GateSpinWait;
+        return NavState::GateWait;
     }
     return NavState::GateSpin;
 } // executeGateSpin()
@@ -131,7 +131,7 @@ NavState GateStateMachine::executeGateSearchGimbal()
     static double waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
-    static double target = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble(); 
+    static double desired_yaw = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble(); 
 
     //if target aquired, go to it
     if( mPhoebe->roverStatus().rightTarget().distance >= 0 ||
@@ -144,10 +144,10 @@ NavState GateStateMachine::executeGateSearchGimbal()
 
     //set the target yaw to wherever the next stop on the gimbals path is
     //enter the if if the gimbal is at the next stop
-    if( mPhoebe->gimbal().setTargetYaw( nextStop ) )
+    if( mPhoebe->gimbal().setDesiredGimbalYaw( nextStop ) )
     {   
         //if the next stop is at the target for the phase (150, -150, 0)
-        if ( nextStop == target )
+        if ( nextStop == desired_yaw )
         {
             //if there are more phases, increment the phase
             if ( phase <= 2 )
@@ -157,12 +157,12 @@ NavState GateStateMachine::executeGateSearchGimbal()
             if ( phase == 1 ) {
 
                 waitStepSize *= -1;
-                target = -150;
+                desired_yaw *= -1;
             }
             else if ( phase == 2 ) 
             {
                 waitStepSize *= -1;
-                target = 0;
+                desired_yaw = 0;
             }
         }
        
@@ -174,23 +174,23 @@ NavState GateStateMachine::executeGateSearchGimbal()
             waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble( );
             nextStop = 0;
             phase = 0;
-            target = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble( );
+            desired_yaw = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble( );
             //Turn to next search point
             return NavState::GateTurn;
         }
         //set the next stop for the gimbal to increment by the waitStepSize
         nextStop += waitStepSize;
         //we are at our stopping point for the camera so go into search gimbal wait
-        return NavState::GateSpinWait;
+        return NavState::GateWait;
     }
   
     mPhoebe->publishGimbal( );
 
     return NavState::GateSearchGimbal;
-}
+}//executeGateSearchGimbal()
 
 // Wait for predetermined time before performing GateSpin
-NavState GateStateMachine::executeGateSpinWait()
+NavState GateStateMachine::executeGateWait()
 {
     static bool started = false;
     static time_t startTime;
@@ -225,8 +225,8 @@ NavState GateStateMachine::executeGateSpinWait()
         }
     }
 
-    return NavState::GateSpinWait;
-} // executeGateSpinWait()
+    return NavState::GateWait;
+} // executeGateWait()
 
 // Turn to determined waypoint
 NavState GateStateMachine::executeGateTurn()

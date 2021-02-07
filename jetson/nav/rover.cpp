@@ -108,10 +108,10 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                     config[ "distancePid" ][ "kD" ].GetDouble() )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
-                   config[ "bearingPid" ][ "kD" ].GetDouble())
+                   config[ "bearingPid" ][ "kD" ].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
-      , mGimbal( config["gimbal"]["tolerance"].GetDouble())
+      , mGimbal( config["gimbal"]["tolerance"].GetDouble() )
 {
 } // Rover()
 
@@ -334,7 +334,7 @@ Gimbal& Rover::gimbal()
 
 // tells the gimbal to go to its requested location
 void Rover::publishGimbal(){
-    mGimbal.publishControlSignal(mLcmObject, mRoverConfig);
+    mGimbal.publishControlSignal( mLcmObject, mRoverConfig );
 }
 
 

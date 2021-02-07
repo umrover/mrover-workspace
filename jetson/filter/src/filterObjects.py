@@ -11,7 +11,7 @@ class NavState:
     Drive = "Drive"
     SearchFaceNorth = "Search Face North"
     SearchSpin = "Search Spin"
-    SearchSpinWait = "Search Spin Wait"
+    SearchWait = "Search Wait"
     ChangeSearchAlg = "Change Search Algorithm"
     SearchTurn = "Search Turn"
     SearchDrive = "Search Drive"
@@ -26,7 +26,7 @@ class NavState:
     RepeaterDropWait = "Repeater Drop Wait"
     Unknown = "Unknown"
 
-    StationaryStates = [Off, Done, SearchSpinWait, ChangeSearchAlg,
+    StationaryStates = [Off, Done, SearchWait, ChangeSearchAlg,
                         RepeaterDropWait]
     RotationalStates = [Turn, SearchFaceNorth, SearchSpin,
                         SearchTurn, TurnToBall, TurnAroundObs,

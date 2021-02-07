@@ -8,9 +8,9 @@ using namespace std;
 Gimbal::Gimbal(double TOLERANCE_IN): TOLERANCE(TOLERANCE_IN){}
 
 //sets the target yaw variable and returns if the gimbal is at the target
-bool Gimbal::setTargetYaw(double target){
-    target_yaw = target;
-    return (abs(this->target_yaw - this->cur_yaw) <= this->TOLERANCE);
+bool Gimbal::setDesiredGimbalYaw(double desired_yaw){
+    desired_gimbal_yaw = desired_yaw;
+    return (abs(this->desired_gimbal_yaw - this->cur_yaw) <= this->TOLERANCE);
 }
 
 //returns the current measured yaw of the gimbal
@@ -27,6 +27,6 @@ void Gimbal::setCurrentYaw(double yaw){
 void Gimbal::publishControlSignal(lcm::LCM & lcmObj, const rapidjson::Document& mRoverConfig) {
   
     string channel = mRoverConfig[ "lcmChannels" ][ "zedGimbalCommand" ].GetString();
-    signal.angle = target_yaw;
+    signal.angle = desired_gimbal_yaw;
     lcmObj.publish(channel, &signal);
 }

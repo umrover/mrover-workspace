@@ -1,5 +1,0 @@
-package rover_msgs;
-
-struct ZedGimbalCmd {
-	double target_yaw;
-}

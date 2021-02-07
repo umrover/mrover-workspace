@@ -154,8 +154,7 @@ void StateMachine::run()
 
             case NavState::SearchFaceNorth:
             case NavState::SearchSpin:
-            case NavState::SearchSpinWait:
-            case NavState::SearchGimbalWait:
+            case NavState::SearchWait:
             case NavState::SearchGimbal:
             case NavState::SearchTurn:
             case NavState::SearchDrive:
@@ -215,7 +214,7 @@ void StateMachine::run()
             }
 
             case NavState::GateSpin:
-            case NavState::GateSpinWait:
+            case NavState::GateWait:
             case NavState::GateTurn:
             case NavState::GateDrive:
             case NavState::GateTurnToCentPoint:
@@ -297,13 +296,12 @@ bool StateMachine::isRoverReady() const
 {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
-           mPhoebe->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
+           mPhoebe->roverStatus().currentState() == NavState::SearchWait || // continue even if no data has changed
            mPhoebe->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
            mPhoebe->roverStatus().currentState() == NavState::RepeaterDropWait ||
-           mPhoebe->roverStatus().currentState() == NavState::SearchGimbalWait ||
            mPhoebe->roverStatus().currentState() == NavState::SearchGimbal ||
            mPhoebe->roverStatus().currentState() == NavState::GateSearchGimbal ||
-           mPhoebe->roverStatus().currentState() == NavState::GateSpinWait;
+           mPhoebe->roverStatus().currentState() == NavState::GateWait;
 
 } // isRoverReady()
 
@@ -415,7 +413,7 @@ NavState StateMachine::executeDrive()
     {
         if( nextWaypoint.search )
         {
-            if (mRoverConfig[ "search" ][ "useGimbal" ].GetBool()){
+            if ( mRoverConfig[ "search" ][ "useGimbal" ].GetBool() ){
                 return NavState::SearchGimbal; // Entry point to gimbal process
             }
             else{
@@ -476,8 +474,7 @@ string StateMachine::stringifyNavState() const
             { NavState::SearchFaceNorth, "Search Face North" },
             { NavState::SearchSpin, "Search Spin" },
             { NavState::SearchGimbal, "Search Gimbal" },
-            { NavState::SearchGimbalWait, "Search Gimbal Wait" },
-            { NavState::SearchSpinWait, "Search Spin Wait" },
+            { NavState::SearchWait, "Search Spin Wait" },
             { NavState::ChangeSearchAlg, "Change Search Algorithm" },
             { NavState::SearchTurn, "Search Turn" },
             { NavState::SearchDrive, "Search Drive" },
@@ -489,7 +486,7 @@ string StateMachine::stringifyNavState() const
             { NavState::SearchTurnAroundObs, "Search Turn Around Obstacle" },
             { NavState::SearchDriveAroundObs, "Search Drive Around Obstacle" },
             { NavState::GateSpin, "Gate Spin" },
-            { NavState::GateSpinWait, "Gate Spin Wait" },
+            { NavState::GateWait, "Gate Wait" },
             { NavState::GateTurn, "Gate Turn" },
             { NavState::GateDrive, "Gate Drive" },
             { NavState::GateTurnToCentPoint, "Gate Turn to Center Point" },

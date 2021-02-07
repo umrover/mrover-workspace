@@ -35,8 +35,7 @@ enum class NavState
     SearchFaceNorth = 20,
     SearchSpin = 21,
     SearchGimbal = 22,
-    SearchGimbalWait = 23,
-    SearchSpinWait = 24,
+    SearchWait = 24,
     SearchTurn = 25,
     SearchDrive = 26,
     ChangeSearchAlg = 27,
@@ -54,7 +53,7 @@ enum class NavState
 
     // Gate Search States
     GateSpin = 40,
-    GateSpinWait = 41,
+    GateWait = 41,
     GateTurn = 42,
     GateDrive = 43,
     GateTurnToCentPoint = 44,
@@ -129,8 +128,6 @@ public:
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
-        
-
     private:
         // The rover's current navigation state.
         NavState mCurrentState;
@@ -188,8 +185,6 @@ public:
 
     PidLoop& bearingPid();
 
-   
-
     const double longMeterInMinutes() const;
 
     void updateRepeater( RadioSignalStrength& signal);
@@ -233,8 +228,6 @@ private:
 
     // The pid loop for turning.
     PidLoop mBearingPid;
-
-   
 
     // If it is time to drop a radio repeater
     bool mTimeToDropRepeater;
