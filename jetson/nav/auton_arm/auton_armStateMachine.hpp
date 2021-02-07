@@ -2,6 +2,8 @@
 #define AUTONARM_STATE_MACHINE_HPP
 
 #include <lcm/lcm-cpp.hpp>
+#include <chrono>
+#include <thread>
 #include "rover.hpp"
 
 using namespace std;
@@ -35,6 +37,8 @@ private:
     AutonArmState executeWaitingForTag();
 
     AutonArmState executeEvaluateTag();
+
+    AutonArmState executePauseTag();
 
     AutonArmState executeSendCoordinates();
 
@@ -81,9 +85,9 @@ private:
     // ID of correct tag 
     static const int32_t CORRECT_TAG_ID = -1;
 
-    // Required margin of error
-    
-
+    // Delay time between tag evaluations 
+    chrono::duration<double, milli> DELAY = chrono::milliseconds(15000);
+    //chrono::seconds::count x = 1;
 };
 
 #endif

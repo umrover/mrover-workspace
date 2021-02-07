@@ -21,6 +21,7 @@ enum class AutonArmState
     // Nav-perception states
     WaitingForTag = 10,
     EvaluateTag = 11,
+    PauseTag = 12,
     
     // Nav-teleop
     SendCoordinates = 30,

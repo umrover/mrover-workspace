@@ -73,6 +73,12 @@ void AutonArmStateMachine::run() {
                 break;
             }
 
+            case AutonArmState::PauseTag:
+            {
+                nextState = executePauseTag();
+                break;
+            }
+
             case AutonArmState::SendCoordinates:
             {
                 nextState = executeSendCoordinates();
@@ -174,7 +180,14 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     cout << "Number of correct tags is: " << num_correct_tags << endl;
     // Else wait for another tag list
     cout << "Waiting for another tag" << endl;
-    return AutonArmState::WaitingForTag;
+    return AutonArmState::PauseTag;
+}
+
+AutonArmState AutonArmStateMachine::executePauseTag() {
+    cout << "Waiting...\n";
+    this_thread::sleep_for(DELAY);
+    cout << "Done waiting\n";
+    return AutonArmState::WaitingForTag;    
 }
 
 AutonArmState AutonArmStateMachine::executeSendCoordinates() {
