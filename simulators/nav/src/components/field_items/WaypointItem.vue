@@ -8,7 +8,7 @@
       <b class="waypoint-item-name">Waypoint {{ index }}</b>
       <Button
         name="%D7"
-        :color-scheme="redColorScheme"
+        :invert-color="true"
         @clicked="deleteWaypointItem"
       />
     </div>
@@ -58,13 +58,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { Mutation } from 'vuex-class';
-import { BUTTON_COLOR_SCHEMES } from '../../utils/constants';
-import {
-  ColorScheme,
-  ColorSchemeName,
-  RoverLocationSource,
-  Waypoint
-} from '../../utils/types';
+import { RoverLocationSource, Waypoint } from '../../utils/types';
 import Button from '../common/Button.vue';
 import Checkbox from '../common/Checkbox.vue';
 import NumberInput from '../common/NumberInput.vue';
@@ -149,11 +143,6 @@ export default class WaypointItem extends Vue {
       odom: this.waypoint.odom,
       search: newIsSearchPoint
     }, this.index]);
-  }
-
-  /* Get the red color scheme for a button. */
-  private get redColorScheme():ColorScheme {
-    return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
   }
 
   /* ID of target to search for at waypoint. Note this is only relevant if
