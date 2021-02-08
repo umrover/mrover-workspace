@@ -171,6 +171,14 @@ void LCMHandler::InternalHandler::sa_pos_data()
     last_output_time = NOW;
 }
 
+void LCMHandler::InternalHandler::zed_pos_data()
+{
+	ZedGimbalPosition msg;
+        msg->angle = ControlerMap::controllers["ZED_GIMBAL_YAW"]->current_angle;
+        lcm_bus->publish("zed_gimbal_data", &msg);
+        last_output_time = NOW;
+}
+
 
 /*
 The following functions may be reimplemented when IK is tested
