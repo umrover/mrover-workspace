@@ -17,9 +17,8 @@ void Controller::make_live()
     try
     {
         uint8_t buffer[32];
-        memcpy(buffer, UINT8_POINTER_T(&(hardware.pwm_min)), 2);
-        memcpy(buffer + 2, UINT8_POINTER_T(&(hardware.pwm_max)), 2);
-        memcpy(buffer + 4, UINT8_POINTER_T(&(hardware.pwm_period)), 2);
+        //buffer sends max pwm 
+        memcpy(buffer, UINT8_POINTER_T(&(hardware.pwm_max)), 2);
         transact(CONFIG_PWM, buffer, nullptr);
 
         memcpy(buffer, UINT8_POINTER_T(&(kP)), 4);
@@ -65,7 +64,8 @@ void Controller::open_loop(float input)
     {
         make_live();
 
-        uint16_t throttle = hardware.throttle(input);
+        // sent as a number between -1.0 and 1.0
+        int8_t throttle = hardware.throttle(input);
         int32_t angle;
         transact(OPEN_PLUS, UINT8_POINTER_T(&throttle), UINT8_POINTER_T(&angle));
 

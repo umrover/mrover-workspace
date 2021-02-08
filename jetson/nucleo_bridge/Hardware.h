@@ -6,11 +6,8 @@
 //Helper enum representing the valid types of real motor controllers
 enum HardwareType
 {
-    Talon24V,
-    Talon12V,
-    Talon6V,
-    HBridgePos,
-    HBridgeNeg,
+    HBridge,
+    Cytron,
     None
 };
 
@@ -18,30 +15,16 @@ enum HardwareType
 class Hardware
 {
 public:
-    uint16_t pwm_min, pwm_max, pwm_period;
+    uint16_t pwm_max;
     HardwareType type;
 
     HardwareType getType(std::string input) 
     {
-        if (input == "Talon24V")
-        {
-            return Talon24V;
+        if (input == "HBridge") {
+            return HBridge;
         }
-        else if (input == "Talon12V")
-        {
-            return Talon12V;
-        }
-        else if (input == "Talon6V")
-        {
-            return Talon6V;
-        }
-        else if (input == "HBridgePos")
-        {
-            return HBridgePos;
-        }
-        else if (input == "HBridgeNeg")
-        {
-            return HBridgeNeg;
+        else if (input == "Cytron") {
+            return Cytron;
         }
         else 
         {
@@ -55,26 +38,11 @@ public:
     {
         switch (type)
         {
-        case Talon24V:
-            pwm_min = 1000;
-            pwm_max = 2000;
-            pwm_period = 3000;
+        case HBridge:
+            pwm_max = 100;           
             break;
-        case Talon12V:
-            pwm_min = 1250;
-            pwm_max = 1750;
-            pwm_period = 3000;
-            break;
-        case Talon6V:
-            pwm_min = 1375;
-            pwm_max = 1625;
-            pwm_period = 3000;
-            break;
-        case HBridgePos:
-        case HBridgeNeg:
-            pwm_min = 0;
-            pwm_max = 3000;
-            pwm_period = 3000;
+        case Cytron:
+            pwm_max = 100;
             break;
         case None:
             break;
@@ -82,24 +50,27 @@ public:
     }
 
     //Helper function that takes a [-1.0, 1.0] (reranged between min and max) input and converts it into a 16-bit pwm output
-    float rerange(float input, float min, float max)
-    {
-        return (((pwm_max - pwm_min) / (max - min)) * (input - min)) + pwm_min;
-    }
+    // float rerange(float input, float min, float max)
+    // {
+    //     return (((pwm_max) / (max - min)) * (input - min));
+    // }
 
     //Turns a given [-1.0,1.0] throttle input to a 16-bit pwm output
     uint16_t throttle(float input)
     {
+        if (input > 1) {
+            input = 1;
+        }
+        else if (input < -1) {
+            input = -1;
+        }
+        // might not be needed
         switch (type)
         {
-        case Talon24V:
-        case Talon12V:
-        case Talon6V:
-            return static_cast<uint16_t>(rerange(input, -1, 1));
-        case HBridgePos:
-            return static_cast<uint16_t>(rerange(std::max(0.0f, input), 0, 1));
-        case HBridgeNeg:
-            return static_cast<uint16_t>(rerange(std::min(0.0f, input), 0, -1));
+        case Cytron:
+            return static_cast<int8_t>(input);
+        case HBridge:
+            return static_cast<int8_t>(input);
         default:
             return 0;
         }
