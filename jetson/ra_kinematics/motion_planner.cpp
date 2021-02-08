@@ -1,6 +1,7 @@
 #include "motion_planner.hpp"
 #include <random>
 #include <deque>
+#include <time.h>
 
 
 MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in) :
@@ -16,6 +17,9 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in)
       all_limits.push_back(limits);
     }
 
+    step_limits.reserve(6);
+
+    // limits for an individual step for each joint in degrees
     step_limits.push_back(1);
     step_limits.push_back(1);
     step_limits.push_back(2);
@@ -23,8 +27,11 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in)
     step_limits.push_back(5);
     step_limits.push_back(1);
 
-    neighbor_dist = 3;
-    max_iterations = 1000;
+    //time_t timer;
+    std::default_random_engine eng(clock());
+
+    // TODO change to 1000
+    max_iterations = 10;
 }
 
 Vector6d MotionPlanner::sample() {
@@ -32,10 +39,12 @@ Vector6d MotionPlanner::sample() {
     Vector6d z_rand;
 
     for (size_t i = 0; i < all_limits.size(); ++i) {
-        std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
-        std::default_random_engine eng;
 
-        z_rand(i) = (distr(eng));
+        cout << "time: " << clock() << "\n";
+
+        std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
+
+        z_rand(i) = distr(eng);
     }
 
     return z_rand;
@@ -70,23 +79,38 @@ MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vect
 
 
 Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d& end) {
+    // Calculate the vector from start position to end
     Vector6d line_vec = end - start->config;
 
+    bool step_too_big = false;
+
     for (size_t i = 0; i < step_limits.size(); ++i) {
-        if (step_limits[i] - abs(line_vec(i)) >= 0) {
-            return end;
+
+        // if line_vec is out of acceptable range for joint i
+        if (step_limits[i] - abs(line_vec(i)) < 0) {
+            step_too_big = true;
+            break;
         }
     }
 
+    // if end is within reach of all joints, return end
+    if (!step_too_big) {
+        cout << "No step was found to be too big, returning end.\n";
+        return end;
+    }
+
+    // min_t will be the reciprocal of the largest number of steps required
     double min_t = numeric_limits<double>::max();
 
     Vector6d new_config = start->config;
 
     //parametrize the line
     for (int i = 0; i < line_vec.size(); ++i) {
-      
-        // TODO can line_vec[i] be 0?
-        double t = step_limits[i] / abs(line_vec[i]);
+        double t = numeric_limits<double>::max();
+        if (line_vec[i] != 0) {
+            t = step_limits[i] / abs(line_vec[i]);
+        }
+
         if (t < min_t) {
             min_t = t;
         }
@@ -148,14 +172,19 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d
     Node* z_nearest = nearest(tree, z_rand);
     Vector6d z_new = steer(z_nearest, z_rand);
 
+    cout << "z_new: ";
+    print_vec(z_new);
+
     vector<double> z_new_angs;
     z_new_angs.resize(6);
     for (size_t i = 0; i < 6; ++i) {
-        z_new_angs[i] = z_new(i);
+        z_new_angs[i] = z_new(i) * M_PI / 180;
     }
+
     if (!solver.is_safe(robot, z_new_angs)) {
         return nullptr;
     }
+
     Node* new_node = new Node(z_new);
     new_node->parent = z_nearest;
     new_node->cost = z_nearest->cost + (z_nearest->config - z_new).norm();
@@ -189,17 +218,28 @@ bool MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
 
     start_root = new Node(start);
     goal_root =  new Node(target);
+    
+    cout << "Entering loop...\n";
 
     for (int i = 0; i < max_iterations; ++i) {
         Node* a_root = i % 2 == 0 ? start_root : goal_root;
         Node* b_root = i % 2 == 0 ? goal_root : start_root;
         Vector6d z_rand = sample();
 
+        cout << "z_rand: ";
+        print_vec(z_rand);
+
         Node* a_new = extend(robot, a_root, z_rand);
 
         if (a_new) {
 
+            cout << "a_new found: ";
+            print_vec(a_new->config);
+
             Node* b_new = connect(robot, b_root, a_new->config);
+
+            cout << "b_new: ";
+            print_vec(b_new->config);
 
             // if the trees are connected
             if (a_new->config == b_new->config) {
@@ -242,6 +282,9 @@ bool MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
                 return true;
             }
 
+        }
+        else {
+            cout << "a_new invalid\n";
         }
         
     } // for loop

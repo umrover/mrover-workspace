@@ -66,7 +66,12 @@ TEST(rrt_connect) {
 
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
+
+    vector<double> set_angles{0.1, 0.4, -0.1, 0.1, 0.01, -0.2};
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));
+    arm.set_joint_angles(set_angles);
     solver.FK(arm);
+
 
     MotionPlanner planner = MotionPlanner(arm, solver);
 
