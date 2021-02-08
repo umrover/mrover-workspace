@@ -61,7 +61,7 @@ private:
 
         void gimbal_cmd(LCM_INPUT, const GimbalCmd *msg);
 
-        void zed_gimbal_cmd(LCM_INPUT, const ZedGimbalPosition *msg);
+        void zed_gimbal_cmd(LCM_INPUT, const ZedGimbalCmd *msg);
 
         void zed_gimbal_data();
 
