@@ -23,6 +23,7 @@ void LCMHandler::init()
     lcm_bus->subscribe("/gimbal_openloop_cmd",  &LCMHandler::InternalHandler::gimbal_cmd,           internal_object);
     lcm_bus->subscribe("/hand_openloop_cmd",    &LCMHandler::InternalHandler::hand_openloop_cmd,    internal_object);
     lcm_bus->subscribe("/foot_openloop_cmd",    &LCMHandler::InternalHandler::foot_openloop_cmd,    internal_object);
+    lcm_bus->subscribe("/zed_gimbal_cmd",       &LCMHandler::InternalHandler::zed_gimbal_cmd,       internal_object)
     /*
     The following functions may be reimplemented when IK is tested
     lcmBus->subscribe("/ra_config_cmd",         &LCMHandler::InternalHandler::ra_config_cmd,        internal_object);
@@ -113,23 +114,24 @@ void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *ms
 
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
 {
-    ControllerMap::controllers["HAND_FINGER_POS"]->open_loop(msg->finger);
-    ControllerMap::controllers["HAND_FINGER_NEG"]->open_loop(msg->finger);
-    ControllerMap::controllers["HAND_GRIP_POS"]->open_loop(msg->grip);
-    ControllerMap::controllers["HAND_GRIP_NEG"]->open_loop(msg->grip);
+    ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger);
+    ControllerMap::controllers["HAND_GRIP"]->open_loop(msg->grip);
 }
 
 void LCMHandler::InternalHandler::gimbal_cmd(LCM_INPUT, const GimbalCmd *msg)
 {
-    ControllerMap::controllers["GIMBAL_PITCH_0_POS"]->open_loop(msg->pitch[0]);
-    ControllerMap::controllers["GIMBAL_PITCH_0_NEG"]->open_loop(msg->pitch[0]);
-    ControllerMap::controllers["GIMBAL_PITCH_1_POS"]->open_loop(msg->pitch[1]);
-    ControllerMap::controllers["GIMBAL_PITCH_1_NEG"]->open_loop(msg->pitch[1]);
-    ControllerMap::controllers["GIMBAL_YAW_0_POS"]->open_loop(msg->yaw[0]);
-    ControllerMap::controllers["GIMBAL_YAW_0_NEG"]->open_loop(msg->yaw[0]);
-    ControllerMap::controllers["GIMBAL_YAW_1_POS"]->open_loop(msg->yaw[1]);
-    ControllerMap::controllers["GIMBAL_YAW_1_NEG"]->open_loop(msg->yaw[1]);
+    ControllerMap::controllers["GIMBAL_PITCH_0"]->open_loop(msg->pitch[0]);
+    ControllerMap::controllers["GIMBAL_PITCH_1"]->open_loop(msg->pitch[1]);
+    ControllerMap::controllers["GIMBAL_YAW_0"]->open_loop(msg->yaw[0]);
+    ControllerMap::controllers["GIMBAL_YAW_1"]->open_loop(msg->yaw[1]);
 }
+
+
+void LCMHandler::InternalHandler::zed_gimbal_cmd(LCM_INPUT, const *ZedGimbalCmd *msg) {
+    ControllerMap::controllers["ZED_GIMBAL_YAW"]->closed_loop(1, msg->angle);
+    //FF term isn't used 
+}
+
 
 void LCMHandler::InternalHandler::refreshAngles()
 {
