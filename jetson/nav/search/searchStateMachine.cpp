@@ -103,10 +103,12 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
 
 //Executes the logic for a gimbal search spin. The main objective of a gimbal search spin is to spin the gimbal
 //to positive "gimbalSearchAngleMag" (150) then to -150 then to 0. Every "wait step size" we stop the gimbal
-//in order to give it time to find the target.
+//in order to give it time to find the target. Only use the wait step size on the 1st phase of the rotation
+//this is because its unnecsesary to double check
 NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    
+    //initially set the waitstepsize to be the same as the gimbalSearchAngleMag so we just go straight to
+    //the extremity without waiting.
     static double waitStepSize = roverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
@@ -129,12 +131,14 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
             //if there are more phases, increment the phase
             if ( phase <= 2 )
                 ++phase;
-            //set the desiredYaw based on the phase and flip the waitstepsize to turn the other way
-            //set the desired_yaw based on the phase and flip the waitstepsize to turn the other way
+            //if the phase is one, set the waitstepsize to the specified config value and flip desired yaw
+            //goal of this phase is to go in waitstepsize increments from positive gimbalSearchAngleMag to 
+            //negative gimbalSearchAngleMag
             if ( phase == 1 ) {
                 waitStepSize = -roverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
                 desiredYaw *= -1;
             }
+            //Go straight to zero, set the waitstep size to the difference between 0 and currentPosition
             else if ( phase == 2 ) 
             {
                 waitStepSize = 0 - nextStop;

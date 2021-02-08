@@ -127,7 +127,8 @@ NavState GateStateMachine::executeGateSpin()
 //in order to give it time to find the target.
 NavState GateStateMachine::executeGateSearchGimbal()
 {
-    
+    //initially set the waitstepsize to be the same as the gimbalSearchAngleMag so we just go straight to
+    //the extremity without waiting.
     static double waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
@@ -153,12 +154,14 @@ NavState GateStateMachine::executeGateSearchGimbal()
             if ( phase <= 2 )
                 ++phase;
             
-            //set the desired_yaw based on the phase and flip the waitstepsize to turn the other way
+            //if the phase is one, set the waitstepsize to the specified config value and flip desired yaw
+            //goal of this phase is to go in waitstepsize increments from positive gimbalSearchAngleMag to 
+            //negative gimbalSearchAngleMag
             if ( phase == 1 ) {
-
                 waitStepSize = -mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
                 desired_yaw *= -1;
             }
+            //Go straight to zero, set the waitstep size to the difference between 0 and currentPosition
             else if ( phase == 2 ) 
             {
                 waitStepSize = 0 - nextStop;
