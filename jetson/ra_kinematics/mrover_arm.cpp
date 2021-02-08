@@ -3,7 +3,6 @@
 #include "motion_planner.hpp"
 #include "kinematics.hpp"
 #include "spline.h"
-#include <lcm/lcm-cpp.hpp>
 #include "rover_msgs/ArmPosition.hpp"
 #include "rover_msgs/MotionExecute.hpp"
 #include "rover_msgs/FKTransform.hpp"
@@ -11,7 +10,7 @@
 using namespace std;
 using namespace Eigen;
  
-MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) : geom(geom), state(ArmState(geom)), solver(KinematicsSolver()), motion_planner(MotionPlanner(state, solver)), lcm_(lcm), done_previewing(false), enable_execute(false), sim_mode(true), ik_enabled(false)  {}
+MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) : done_previewing(false), enable_execute(false), sim_mode(true), ik_enabled(false), state(geom), lcm_(lcm), motion_planner(state, solver)  {}
  
 void MRoverArm::arm_position_callback(string channel, ArmPosition msg){
    /*
@@ -224,8 +223,9 @@ void MRoverArm::plan_path(Vector6d goal){
  
    //idk this data type
 //    vector<tk::spline> path_spline =   this was the beginning of the line below but rrtconnect is void
-   bool path = motion_planner.rrt_connect(state, goal); //is rrt_connect a void function
-   if(path){
+   motion_planner.rrt_connect(goal); //is rrt_connect a void function
+   if(!path_spline.empty()){
+       spline_t = 0;
        cout << "planned path" << endl;
    }
    else{
