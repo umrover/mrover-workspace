@@ -128,6 +128,7 @@ class Quaternion:
     def __array__(self):
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return self._q
 =======
         return self._q
@@ -135,3 +136,6 @@ class Quaternion:
 =======
         return self._q
 >>>>>>> 9a1cce29... [IMU] Lint Lint
+=======
+        return self._q
+>>>>>>> c99258c45f483eb39fbd0558104a73bc8ce6abbf

@@ -5,7 +5,10 @@
 The IMU is intended to read out accelerometer, gyroscope and magnetometer readings and translate them into pitch, roll, yaw and bearing for use in Auton's systems. The IMU must be calibrated whenever it is being used in a new environment. We do so by running the calibration script, and the Motion Sensor Calibrated Tool. This is followed by the main driver which utilizes the calibrated values in order to produce accurate data.
 
 ### LCM Channels Publishing/Subscribed To
+<<<<<<< HEAD
 
+=======
+>>>>>>> c99258c45f483eb39fbd0558104a73bc8ce6abbf
 **IMU Data**[publisher] \
 Messages:  [IMUData.lcm](https://github.com/jjtom34/mrover-workspace/blob/master/rover_msgs/IMUData.lcm) "/imu_data" \
 Publishers: beaglebone/imu \

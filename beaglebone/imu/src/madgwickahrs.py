@@ -121,4 +121,7 @@ class MadgwickAHRS:
         # Integrate to yield quaternion
         q += qdot * self.samplePeriod
         self.quaternion = Quaternion.Quaternion(q / norm(q))  # normalise quaternion
+<<<<<<< HEAD
         
+=======
+>>>>>>> c99258c45f483eb39fbd0558104a73bc8ce6abbf
