@@ -113,7 +113,7 @@ class GPS_Manager():
 
     def txt_handler(self, msg, gps_struct):
         '''
-        Prints info messages revieved from GPS to screen
+        Prints info messages recieved from GPS to screen
         '''
         print(msg)
 
