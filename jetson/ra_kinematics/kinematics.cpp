@@ -429,8 +429,6 @@ bool KinematicsSolver::is_safe(ArmState &robot_state, vector<double> angles) {
     FK(robot_state);
     bool obstacle_free = robot_state.obstacle_free();
 
-    cout << "Safety state: " << obstacle_free << "\n";
-
     recover_from_backup(robot_state);
     return obstacle_free;
 }
@@ -438,12 +436,8 @@ bool KinematicsSolver::is_safe(ArmState &robot_state, vector<double> angles) {
 bool KinematicsSolver::limit_check(ArmState &robot_state, const vector<double> &angles) {
     vector<string> joints = robot_state.get_all_joints();
 
-    cout << "angles: ";
-
     for (int i = 0; i < (int)joints.size(); ++i) {
         map<string, double> limits = robot_state.get_joint_limits(joints[i]);
-
-        cout << angles[i] << " ";
         
         // if any angle is outside of bounds
         if (!(limits["lower"] <= angles[i] && angles[i] < limits["upper"])) {
@@ -451,7 +445,6 @@ bool KinematicsSolver::limit_check(ArmState &robot_state, const vector<double> &
         }
     }
 
-    cout << "\n";
     // if all angles are in bounds
     return true;
 }

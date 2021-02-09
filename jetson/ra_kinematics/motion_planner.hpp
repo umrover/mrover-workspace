@@ -63,7 +63,7 @@ public:
      * 
      * @return true if a path was found
      * */
-    bool rrt_connect(ArmState& robot, Vector6d& target);
+    bool rrt_connect(ArmState& robot, const Vector6d& target_position);
 
     /**
      * @param spline_t a time between 0 and 1
@@ -103,13 +103,6 @@ private:
     Node* connect(ArmState &robot, Node* tree, Vector6d& a_new);
 
     void spline_fitting(vector<Vector6d>& path);
-
-    void print_vec(Vector6d input) {
-        for (size_t i = 0; i < 6; ++i) {
-            cout << input(i) << ' ';
-        }
-        cout << '\n';
-    }
 
 };
 

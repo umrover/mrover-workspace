@@ -30,8 +30,7 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in)
     //time_t timer;
     std::default_random_engine eng(clock());
 
-    // TODO change to 1000
-    max_iterations = 10;
+    max_iterations = 1000;
 }
 
 Vector6d MotionPlanner::sample() {
@@ -39,8 +38,6 @@ Vector6d MotionPlanner::sample() {
     Vector6d z_rand;
 
     for (size_t i = 0; i < all_limits.size(); ++i) {
-
-        cout << "time: " << clock() << "\n";
 
         std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
 
@@ -95,7 +92,6 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d& end) {
 
     // if end is within reach of all joints, return end
     if (!step_too_big) {
-        cout << "No step was found to be too big, returning end.\n";
         return end;
     }
 
@@ -153,7 +149,7 @@ void MotionPlanner::delete_tree(MotionPlanner::Node* twig) {
 void MotionPlanner::delete_tree_helper(MotionPlanner::Node* root) {
     if (root) {
         for (Node* child : root->children) {
-            delete_tree(child);
+            delete_tree_helper(child);
         }
 
         delete root;
@@ -172,18 +168,15 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d
     Node* z_nearest = nearest(tree, z_rand);
     Vector6d z_new = steer(z_nearest, z_rand);
 
-    cout << "z_new: ";
-    print_vec(z_new);
-
     vector<double> z_new_angs;
     z_new_angs.resize(6);
     for (size_t i = 0; i < 6; ++i) {
         z_new_angs[i] = z_new(i) * M_PI / 180;
     }
 
-    if (!solver.is_safe(robot, z_new_angs)) {
+    /*if (!solver.is_safe(robot, z_new_angs)) {
         return nullptr;
-    }
+    }*/
 
     Node* new_node = new Node(z_new);
     new_node->parent = z_nearest;
@@ -202,7 +195,7 @@ MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, Vector6
     return extension;
 }
 
-bool MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
+bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_position) {
     Vector6d start;
     start(0) = robot.get_joint_angles()["joint_a"];
     start(1) = robot.get_joint_angles()["joint_b"];
@@ -211,6 +204,8 @@ bool MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
     start(4) = robot.get_joint_angles()["joint_e"];
     start(5) = robot.get_joint_angles()["joint_f"];
 
+    Vector6d target = target_position;
+
     for (int i = 0; i < target.size(); ++i) {
         target(i) = target(i) * 180 / M_PI;
         start(i) = start(i) * 180 / M_PI;
@@ -218,28 +213,17 @@ bool MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
 
     start_root = new Node(start);
     goal_root =  new Node(target);
-    
-    cout << "Entering loop...\n";
 
     for (int i = 0; i < max_iterations; ++i) {
         Node* a_root = i % 2 == 0 ? start_root : goal_root;
         Node* b_root = i % 2 == 0 ? goal_root : start_root;
         Vector6d z_rand = sample();
 
-        cout << "z_rand: ";
-        print_vec(z_rand);
-
         Node* a_new = extend(robot, a_root, z_rand);
 
         if (a_new) {
 
-            cout << "a_new found: ";
-            print_vec(a_new->config);
-
             Node* b_new = connect(robot, b_root, a_new->config);
-
-            cout << "b_new: ";
-            print_vec(b_new->config);
 
             // if the trees are connected
             if (a_new->config == b_new->config) {
@@ -283,9 +267,6 @@ bool MotionPlanner::rrt_connect(ArmState& robot, Vector6d& target) {
             }
 
         }
-        else {
-            cout << "a_new invalid\n";
-        }
         
     } // for loop
 
@@ -308,18 +289,22 @@ void MotionPlanner::spline_fitting(vector<Vector6d>& path) {
     for (size_t i = 0; i < path.size(); ++i) {
         for (size_t j = 0; j < 6; ++j) {
             separate_paths[j][i] = path[i](j);
-
-            cout << path[i](j) << '\n';
         }
-
-        cout << '\n';
     }
 
-    // create a linear space betwee 0 and 1 with path.size() increments
+    // create a linear space between 0 and 1 with path.size() increments
     vector<double> x_;
     x_.reserve(path.size() + 1);
-    double spline_step = path.size() <= 1 ? 1 : 1 / (path.size() - 1);
-    for (size_t i = 0; i <= 1; i += spline_step) {
+
+    double spline_step;
+    if (path.size() > 1) {
+        spline_step = 1.0 / (path.size() - 1);
+    }
+    else {
+        spline_step = 1;
+    }
+
+    for (double i = 0.0; i <= 1.0; i += spline_step) {
         x_.push_back(i);
     }
 
