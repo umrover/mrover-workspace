@@ -41,7 +41,9 @@ private:
     /*************************************************************************/
     NavState executeGateSpin();
 
-    NavState executeGateSpinWait();
+    NavState executeGateSearchGimbal();
+
+    NavState executeGateWait();
 
     NavState executeGateTurn();
 
@@ -53,13 +55,15 @@ private:
 
     NavState executeGateFace();
 
+    NavState executeGateDriveThrough();
+
     NavState executeGateTurnToFarPost();
 
     NavState executeGateDriveToFarPost();
 
     NavState executeGateTurnToGateCenter();
 
-    NavState executeGateDriveThrough();
+   
 
     void updatePost2Info();
 

@@ -40,6 +40,11 @@
 		"width": 1.5
 	},
 
+	"gimbal":
+	{
+		"tolerance":1.0
+	},
+
 	"computerVision":
 	{
 		"visionDistance": 3.0,
@@ -69,6 +74,9 @@
 		"numSearches": 2,
 		"bailThresh": 10.0,
 		"searchWaitStepSize": 90.0,
-		"searchWaitTime": 1.0
+		"gimbalSearchWaitStepSize": 75.0,
+		"searchWaitTime": 1.0,
+		"useGimbal": false,
+		"gimbalSearchAngleMag": 150
 	}
 }
