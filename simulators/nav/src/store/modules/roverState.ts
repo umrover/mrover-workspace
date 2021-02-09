@@ -2,11 +2,6 @@
    simulated rover. */
 
 import {
-  createNoisyObs,
-  createNoisyOdom,
-  createNoisyTargetList
-} from '../../utils/noise_utils';
-import {
   Joystick,
   NavStatus,
   ObstacleMessage,
@@ -20,15 +15,6 @@ import {
 
 const state:RoverState = {
   currOdom: {
-    latitude_deg: 38,
-    latitude_min: 24.38,
-    longitude_deg: -110,
-    longitude_min: -47.51,
-    bearing_deg: 0,
-    speed: -1
-  },
-
-  currOdomNoisy: {
     latitude_deg: 38,
     latitude_min: 24.38,
     longitude_deg: -110,
@@ -53,28 +39,7 @@ const state:RoverState = {
     total_wps: 0
   },
 
-  noiseSetttings: {
-    locNoise: {
-      headingStdev: 5,
-      latLonStdev: 2
-    },
-    percepNoise: {
-      obsFalsePos: 0.1,
-      obsFalseNeg: 0.05,
-      tagFalsePos: 0.01,
-      tagFalseNeg: 0.15,
-      tagIdFalses: 0.1,
-      bearStddev: 5,
-      distStddev: 0.5
-    }
-  },
-
   obstacleMessage: {
-    distance: -1,
-    bearing: 0
-  },
-
-  obstacleMessageNoisy: {
     distance: -1,
     bearing: 0
   },
@@ -82,19 +47,6 @@ const state:RoverState = {
   radioSignalStrength: 100,
 
   targetList: [
-    {
-      distance: -1,
-      bearing: 0,
-      id: -1
-    },
-    {
-      distance: -1,
-      bearing: 0,
-      id: -1
-    }
-  ],
-
-  targetListNoisy: [
     {
       distance: -1,
       bearing: 0,
@@ -120,8 +72,6 @@ const state:RoverState = {
 const getters = {
   currOdom: (roverState:RoverState):Odom => roverState.currOdom,
 
-  currOdomNoisy: (roverState:RoverState):Odom => roverState.currOdomNoisy,
-
   joystick: (roverState:RoverState):Joystick => roverState.joystick,
 
   currSpeed: (roverState:RoverState):Speeds => roverState.currSpeed,
@@ -130,13 +80,9 @@ const getters = {
 
   obstacleMessage: (roverState:RoverState):ObstacleMessage => roverState.obstacleMessage,
 
-  obstacleMessageNoisy: (roverState:RoverState):ObstacleMessage => roverState.obstacleMessageNoisy,
-
   radioStrength: (roverState:RoverState):number => roverState.radioSignalStrength,
 
   targetList: (roverState:RoverState):TargetListMessage => roverState.targetList,
-
-  noisyTargetList: (roverState:RoverState):TargetListMessage => roverState.targetListNoisy,
 
   zedGimbalCmd: (roverState:RoverState):ZedGimbalPosition => roverState.zedGimbalCmd,
 
@@ -147,7 +93,6 @@ const getters = {
 const mutations = {
   setCurrOdom: (roverState:RoverState, newOdom:Odom):void => {
     Object.assign(roverState.currOdom, newOdom);
-    roverState.currOdomNoisy = createNoisyOdom(newOdom, roverState.noiseSetttings.locNoise);
   },
 
   setCurrSpeed: (roverState:RoverState, newSpeeds:Speeds):void => {
@@ -164,8 +109,6 @@ const mutations = {
 
   setObstacleMessage: (roverState:RoverState, newObstacle:ObstacleMessage):void => {
     Object.assign(roverState.obstacleMessage, newObstacle);
-    roverState.obstacleMessageNoisy = createNoisyObs(newObstacle,
-                                                     roverState.noiseSetttings.percepNoise);
   },
 
   setRadioStrength: (roverState:RoverState, strength:number):void => {
@@ -174,8 +117,6 @@ const mutations = {
 
   setTargetList: (roverState:RoverState, newTargetList:TargetListMessage):void => {
     roverState.targetList = newTargetList;
-    roverState.targetListNoisy = createNoisyTargetList(newTargetList,
-                                                       roverState.noiseSetttings.percepNoise);
   },
 
   setZedGimbalCmd: (roverState:RoverState, newZedGimbalCmd:ZedGimbalPosition):void => {
