@@ -58,7 +58,7 @@ Camera::Impl::Impl() {
     init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
     this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
 
-	this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
+//	this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
 	
     #if PERCEPTION_DEBUG
         std::cout<<"ZED init success\n";
