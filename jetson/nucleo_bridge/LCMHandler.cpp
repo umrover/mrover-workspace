@@ -128,7 +128,7 @@ void LCMHandler::InternalHandler::gimbal_cmd(LCM_INPUT, const GimbalCmd *msg)
 }
 
 
-void LCMHandler::InternalHandler::zed_gimbal_cmd(LCM_INPUT, const *ZedGimbalCmd *msg) {
+void LCMHandler::InternalHandler::zed_gimbal_cmd(LCM_INPUT, const ZedGimbalPosition *msg) {
     ControllerMap::controllers["ZED_GIMBAL_YAW"]->closed_loop(1, msg->angle);
     zed_gimbal_data();
     //FF term isn't used 
@@ -173,12 +173,12 @@ void LCMHandler::InternalHandler::sa_pos_data()
     last_output_time = NOW;
 }
 
-void LCMHandler::InternalHandler::zed_pos_data()
+void LCMHandler::InternalHandler::zed_gimbal_data()
 {
 	ZedGimbalPosition msg;
-        msg->angle = ControlerMap::controllers["ZED_GIMBAL_YAW"]->current_angle;
-        lcm_bus->publish("zed_gimbal_data", &msg);
-        last_output_time = NOW;
+    msg.angle = ControllerMap::controllers["ZED_GIMBAL_YAW"]->current_angle;
+    lcm_bus->publish("/zed_gimbal_data", &msg);
+    last_output_time = NOW;
 }
 
 
