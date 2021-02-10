@@ -22,7 +22,7 @@ class GPS_Manager():
         configPath = getenv('MROVER_CONFIG')
         configPath += "/config_gps/config.json"
         with open(configPath, "r") as read_file:
-            self.config = json.load(read_file)['onboard']
+            self.config = json.load(read_file)['jetson']
 
         for key, val in self.config.items():
             self.__setattr__(str(key), val)
@@ -147,7 +147,6 @@ class GPS_Manager():
                         continue
                     else:
                         raise e
-
                 match_found = False
                 for tag, func in self.NMEA_TAGS_MAPPER.items():
                     if tag in msg:
