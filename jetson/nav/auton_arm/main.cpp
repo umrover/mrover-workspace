@@ -1,6 +1,6 @@
 #include <iostream>
 #include <lcm/lcm-cpp.hpp>
-#include "auton_armStateMachine.hpp"
+#include "stateMachine.hpp"
 
 using namespace rover_msgs;
 using namespace std;

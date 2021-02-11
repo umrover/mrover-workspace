@@ -1,4 +1,4 @@
-#include "auton_armStateMachine.hpp"
+#include "stateMachine.hpp"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -101,13 +101,13 @@ void AutonArmStateMachine::run() {
 } //run()
 
 // Updates the auton state (on/off) of the rover's status.
-void AutonArmStateMachine::updateRoverStatus(AutonState autonState) {
+void AutonArmStateMachine::updateRoverStatus( AutonState autonState ) {
     mNewRoverStatus.autonState() = autonState;
 } //updateRoverStatus(AutonState autonState)
 
 // Updates the target information of the rover's status.
-void AutonArmStateMachine::updateRoverStatus(TargetPositionList targetList) {
-    if(mPhoebe->roverStatus().currentState() != AutonArmState::WaitingForTag) return;
+void AutonArmStateMachine::updateRoverStatus( TargetPositionList targetList ) {
+    if( mPhoebe->roverStatus().currentState() != AutonArmState::WaitingForTag ) return;
     cout << "Target received!" << endl;
     
     mNewRoverStatus.targetList() = targetList;
@@ -129,14 +129,14 @@ void AutonArmStateMachine::publishNavState() const
 AutonArmState AutonArmStateMachine::executeOff() { 
     if( mPhoebe->roverStatus().autonState().is_auton )
     {
-        cout << "Reached executeOff" << endl;
+        cout << "Reached execute off" << endl;
         //TODO add what we want here
     }
     return AutonArmState::Off;
 }
 
 AutonArmState AutonArmStateMachine::executeDone() {
-    cout << "reached executeDone" << endl;   
+    cout << "Done" << endl;   
     return AutonArmState::Done;
 }
 
@@ -160,7 +160,7 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     for (int i = 0; i < targetList.num_targets; i++) {
         if (targetList.target_list[i].target_id == CORRECT_TAG_ID) { 
             TargetPosition newPosition = targetList.target_list[i];
-            if(isEqual(currentPosition, newPosition)) {   
+            if( isEqual(currentPosition, newPosition) ) {   
                 num_correct_tags++;
                 currentPosition = newPosition;
             }
@@ -201,12 +201,12 @@ AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     // send coordinates
     cout << "executeSendCoordinates" << endl;
 
-    mLcmObject.publish("/target_position", &currentPosition);
+    mLcmObject.publish("/target_position", &currentPosition);   //replace with correct channel
     cout << "Sent target position\n";
     
     return AutonArmState::Done;
 }
 
 bool AutonArmStateMachine::isEqual(const TargetPosition &a, const TargetPosition &b) const {
-    return sqrt(pow(a.x-b.x, 2) + pow(a.y-b.y, 2) + pow(a.z-b.z, 2)) < MARGIN_OF_ERROR;
+    return sqrt( pow(a.x-b.x, 2) + pow(a.y-b.y, 2) + pow(a.z-b.z, 2) ) < MARGIN_OF_ERROR;
 }
