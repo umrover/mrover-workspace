@@ -60,13 +60,13 @@ private:
     TargetPosition currentPosition;
 
     // Tracks number of correct tags received in a row
-    int num_correct_tags;
+    int correctTags;
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;
 
     // Tracks whether or not target has been received 
-    bool is_tag_received;
+    bool isTagReceived;
 
     // Start time for pause timer
     chrono::system_clock::time_point start; 

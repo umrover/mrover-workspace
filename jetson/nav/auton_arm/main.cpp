@@ -5,7 +5,7 @@
 using namespace rover_msgs;
 using namespace std;
 
-class LcmHandlers{
+class LcmHandlers {
 public:
     // Constructs an LcmHandler with the given state machine to work
     // with.
@@ -26,10 +26,10 @@ public:
     void targetPositionList(
         const lcm::ReceiveBuffer* receiveBuffer,
         const string& channel,
-        const TargetPositionList* target_in
+        const TargetPositionList* targetIn
         )
     {
-        statemachine->updateRoverStatus( *target_in );
+        statemachine->updateRoverStatus( *targetIn );
     }
         
 private:

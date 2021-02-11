@@ -16,18 +16,18 @@ AutonArmStateMachine::AutonArmStateMachine( lcm::LCM& lcmObject )
     : mPhoebe( nullptr )
     , mLcmObject( lcmObject )
     , mStateChanged( true )
-    , is_tag_received ( false )
+    , isTagReceived ( false )
 {
-    num_correct_tags = 0;
+    correctTags = 0;
     mPhoebe = new Rover( lcmObject );
-} //AutonArmStateMachine Constructor
+} // AutonArmStateMachine Constructor
 
 // Destructs the StateMachine object. Deallocates memory for the Rover
 // object.
-AutonArmStateMachine::~AutonArmStateMachine( )
+AutonArmStateMachine::~AutonArmStateMachine()
 {
     delete mPhoebe;
-}
+} // AutonArmStateMachine Destructor
 
 void AutonArmStateMachine::run() {
     publishNavState();
@@ -111,13 +111,13 @@ void AutonArmStateMachine::updateRoverStatus( TargetPositionList targetList ) {
     cout << "Target received!" << endl;
     
     mNewRoverStatus.targetList() = targetList;
-    is_tag_received = true;
+    isTagReceived = true;
 } //updateRoverStatus(Target target)
 
 bool AutonArmStateMachine::isRoverReady() const {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
-           is_tag_received || // has a new tag been received 
+           isTagReceived || // has a new tag been received 
            mPhoebe->roverStatus().currentState() == AutonArmState::PauseTag; // if timer is active
 } //isRoverReady()
 
@@ -133,58 +133,58 @@ AutonArmState AutonArmStateMachine::executeOff() {
         //TODO add what we want here
     }
     return AutonArmState::Off;
-}
+} // executeOff()
 
 AutonArmState AutonArmStateMachine::executeDone() {
     cout << "Done" << endl;   
     return AutonArmState::Done;
-}
+} // executeDone()
 
 AutonArmState AutonArmStateMachine::executeWaitingForTag() {
     // If statement to check if tag recieved
-    if(!is_tag_received) {
+    if(!isTagReceived) {
         cout << "Waiting for tag" << endl;
         return AutonArmState::WaitingForTag;
     }
 
     cout << "Tag received" << endl;
-    is_tag_received = false;
+    isTagReceived = false;
     return AutonArmState::EvaluateTag;
-}
+} // executeWaitingForTag()
 
 AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     // Check if tag matches correct tag
-    TargetPositionList &targetList = mNewRoverStatus.targetList();
+    TargetPositionList &receivedList = mNewRoverStatus.targetList();
 
     bool tagFound = false;
-    for (int i = 0; i < targetList.num_targets; i++) {
-        if (targetList.target_list[i].target_id == CORRECT_TAG_ID) { 
-            TargetPosition newPosition = targetList.target_list[i];
+    for ( int i = 0; i < receivedList.num_targets; i++ ) {
+        if (receivedList.target_list[i].target_id == CORRECT_TAG_ID) { 
+            TargetPosition newPosition = receivedList.target_list[i];
             if( isEqual(currentPosition, newPosition) ) {   
-                num_correct_tags++;
+                correctTags++;
                 currentPosition = newPosition;
             }
             else {
-                num_correct_tags = 1;
+                correctTags = 1;
                 currentPosition = newPosition;
             }
             tagFound = true;
             break;
         }
-    }
+    } // for
 
-    if(!tagFound) num_correct_tags = 0;
-    else if(num_correct_tags >= CORRECT_TAGS_NEEDED) {
+    if( !tagFound ) correctTags = 0;
+    else if(correctTags >= CORRECT_TAGS_NEEDED) {
         return AutonArmState::SendCoordinates;
     }
 
-    cout << "Number of correct tags is: " << num_correct_tags << endl;
+    cout << "Number of correct tags is: " << correctTags << endl;
     // Else wait for another tag list
     cout << "Waiting for another tag" << endl;
     
     start = chrono::system_clock::now();
     return AutonArmState::PauseTag;
-}
+} // executeEvaluateTag()
 
 AutonArmState AutonArmStateMachine::executePauseTag() {
     cout << "Waiting...\n";
@@ -195,7 +195,7 @@ AutonArmState AutonArmStateMachine::executePauseTag() {
         return AutonArmState::WaitingForTag;
     }
     return AutonArmState::PauseTag;    
-}
+} //executePauseTag()
 
 AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     // send coordinates
@@ -205,8 +205,8 @@ AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     cout << "Sent target position\n";
     
     return AutonArmState::Done;
-}
+} // executeSendCoordinates()
 
 bool AutonArmStateMachine::isEqual(const TargetPosition &a, const TargetPosition &b) const {
     return sqrt( pow(a.x-b.x, 2) + pow(a.y-b.y, 2) + pow(a.z-b.z, 2) ) < MARGIN_OF_ERROR;
-}
+} // isEqual( TargetPosition )

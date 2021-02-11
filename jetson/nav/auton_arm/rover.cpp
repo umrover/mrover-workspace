@@ -6,21 +6,21 @@
 Rover::Rover( lcm::LCM& lcmObject )
     : mLcmObject( lcmObject ) { }
 
-Rover::RoverStatus::RoverStatus() : mCurrentState(AutonArmState::WaitingForTag) {
+Rover::RoverStatus::RoverStatus() : mCurrentState( AutonArmState::WaitingForTag ) {
     mAutonState.is_auton = true;
-}
+} // RoverStatus()
 
 AutonArmState& Rover::RoverStatus::currentState() {
     return mCurrentState;
-} //currentState()
+} // currentState()
 
 AutonState& Rover::RoverStatus::autonState() {
     return mAutonState;
-} //autonState()
+} // autonState()
 
 TargetPositionList& Rover::RoverStatus::targetList() {
     return mTargetList;
-} //target()
+} // target()
 
 bool Rover::updateRover(RoverStatus newRoverStatus) {
     // Rover currently on.
@@ -48,8 +48,8 @@ bool Rover::updateRover(RoverStatus newRoverStatus) {
         return false;
     }
     return false;
-} //updateRover(newRoverStatus)
+} // updateRover(newRoverStatus)
 
 Rover::RoverStatus& Rover::roverStatus() {
     return mRoverStatus;
-}
+} // roverStatus()
