@@ -45,6 +45,9 @@
                     }
                 }
             },
+            "collisions": [
+                9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
+            ],
             "link_shapes": {
                 "shape_1": {
                     "type": "sphere",
@@ -96,6 +99,9 @@
                     }
                 }
             },
+            "collisions": [
+                9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
+            ],
             "link_shapes":
              {
                 "shape_1":{
@@ -167,6 +173,9 @@
                     }
                 }
             },
+            "collisions": [
+                11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
+            ],
             "link_shapes": {
                 "shape_1": {
                     "type": "sphere",
@@ -288,6 +297,9 @@
                     }
                 }
             },
+            "collisions": [
+                15, 16, 17, 18, 19, 20, 21, 22
+            ],
             "link_shapes": {
                 "shape_1":{
                     "type": "capsule",
@@ -358,6 +370,9 @@
                     }
                 }
             },
+            "collisions": [
+                16, 17, 18, 19, 20, 21, 22
+            ],
             "link_shapes": {
                 "shape_1": {
                     "type": "capsule",
@@ -451,6 +466,7 @@
                     }
                 }
             },
+            "collisions": [],
             "link_shapes": {
                 "shape_1":{
                     "type": "capsule",
@@ -515,6 +531,7 @@
                     }
                 }
             },
+            "collisions": [],
             "link_shapes": {
                 "shape_1":{
                     "type": "capsule",

@@ -114,7 +114,7 @@ TEST(link_link_check_test) {
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
     // Links and joints automatically initialized at onset of arm creation
-    ASSERT_EQUAL(arm.obstacle_free(), 0);
+    ASSERT_TRUE(arm.obstacle_free());
 }
 
 TEST(json_read_test) {
