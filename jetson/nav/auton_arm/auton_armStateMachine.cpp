@@ -158,9 +158,8 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     bool tagFound = false;
     for (int i = 0; i < targetList.num_targets; i++) {
         if (targetList.target_list[i].target_id == CORRECT_TAG_ID) { 
-            //Position 
-            TargetPosition newPosition(targetList.target_list[i].x, targetList.target_list[i].y, targetList.target_list[i].z);
-            if(currentPosition == newPosition) {    //fix
+            TargetPosition newPosition = targetList.target_list[i];
+            if(isEqual(currentPosition, newPosition)) {   
                 num_correct_tags++;
                 currentPosition = newPosition;
             }
@@ -200,25 +199,12 @@ AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     // send coordinates
     cout << "executeSendCoordinates" << endl;
 
-    TargetPosition sendPosition;
-    sendPosition.x = currentPosition.x;
-    sendPosition.y = currentPosition.y;
-    sendPosition.z = currentPosition.z;
-    sendPosition.target_id = CORRECT_TAG_ID;
-
-    mLcmObject.publish("/target_position", &sendPosition);
+    mLcmObject.publish("/target_position", &currentPosition);
     cout << "Sent target position\n";
     
     return AutonArmState::Done;
 }
 
-bool AutonArmStateMachine::Position::operator==(const Position &rhs) {
-    return sqrt(pow(x-rhs.x, 2) + pow(y-rhs.y, 2) + pow(z-rhs.z, 2)) < MARGIN_OF_ERROR;
-}
-
-AutonArmStateMachine::Position& AutonArmStateMachine::Position::operator=(const Position &rhs) {
-    x = rhs.x;
-    y = rhs.y;
-    z = rhs.z;
-    return *this;
+bool AutonArmStateMachine::isEqual(const TargetPosition &a, const TargetPosition &b) const {
+    return sqrt(pow(a.x-b.x, 2) + pow(a.y-b.y, 2) + pow(a.z-b.z, 2)) < MARGIN_OF_ERROR;
 }

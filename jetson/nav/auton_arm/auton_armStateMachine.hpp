@@ -26,6 +26,8 @@ public:
 
 
 private:
+    bool isEqual( const TargetPosition &a, const TargetPosition &b ) const;
+
     bool isRoverReady() const;
 
     void publishNavState() const;
@@ -42,19 +44,6 @@ private:
 
     AutonArmState executeSendCoordinates();
 
-    // Struct to store x, y, and z coordinates of most recent tag
-    struct Position {
-        const double MARGIN_OF_ERROR = 5;   //possibly put outside of struct
-
-        double x;
-        double y;
-        double z;
-        Position() : x(0), y(0), z(0) {}
-        Position(double x, double y, double z) { this->x = x; this->y = y; this->z = z; }
-        bool operator==(const Position &rhs);
-        Position& operator=(const Position &rhs);
-    };
-
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
@@ -68,7 +57,7 @@ private:
     lcm::LCM& mLcmObject;
 
     // Holds position of last correct tag received
-    Position currentPosition;
+    TargetPosition currentPosition;
 
     // Tracks number of correct tags received in a row
     int num_correct_tags;
@@ -88,6 +77,9 @@ private:
     // Delay time between tag evaluations 
     chrono::duration<double, milli> DELAY = chrono::milliseconds(5000);
     //chrono::seconds::count x = 1;
+
+    // Margin of error between each field (x,y,z) of 2 consecutive TargetPosition coordinates
+    const double MARGIN_OF_ERROR = 5;
 };
 
 #endif
