@@ -162,7 +162,7 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
    point(4) = (double)point_msg.beta;
    point(5) = (double)point_msg.gamma;
  
-   bool success = false;
+//    bool success = false;
    pair<Vector6d, bool> ik_solution = solver.IK(state, point, false, use_orientation);
   
    for(int i = 0; i<5; ++i){
@@ -223,9 +223,8 @@ void MRoverArm::plan_path(Vector6d goal){
  
    //idk this data type
 //    vector<tk::spline> path_spline =   this was the beginning of the line below but rrtconnect is void
-   motion_planner.rrt_connect(goal); //is rrt_connect a void function
-   if(!path_spline.empty()){
-       spline_t = 0;
+   bool path = motion_planner.rrt_connect(state, goal); //is rrt_connect a void function
+   if(path){
        cout << "planned path" << endl;
    }
    else{
@@ -233,12 +232,12 @@ void MRoverArm::plan_path(Vector6d goal){
    }
 }
  
-void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg){
-   SimulationMode simulation_mode_msg = msg;
+// void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg){
+//    SimulationMode simulation_mode_msg = msg;
  
-   bool sim_mode = simulation_mode_msg.sim_mode;
-   publish_transforms(state);
-}
+// //    bool sim_mode = simulation_mode_msg.sim_mode;
+//    publish_transforms(state);
+// }
  
 // void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg){
 //    if(enable_execute){
