@@ -74,14 +74,15 @@ void MRoverArm::publish_transforms(ArmState state){
 }
  
 void MRoverArm::motion_execute_callback(string channel, MotionExecute msg){
-       if (msg.preview) {
-           enable_execute = false;
-           preview();
-       }
-       else
-       {
-           execute_spline();
-       }
+    cout << "Motion Executing!" << '\n';
+    if (msg.preview) {
+        enable_execute = false;
+        preview();
+    }
+    else
+    {
+        execute_spline();
+    }
 }
       
  
