@@ -158,8 +158,9 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     bool tagFound = false;
     for (int i = 0; i < targetList.num_targets; i++) {
         if (targetList.target_list[i].target_id == CORRECT_TAG_ID) { 
-            Position newPosition(targetList.target_list[i].x, targetList.target_list[i].y, targetList.target_list[i].z);
-            if(currentPosition == newPosition) {
+            //Position 
+            TargetPosition newPosition(targetList.target_list[i].x, targetList.target_list[i].y, targetList.target_list[i].z);
+            if(currentPosition == newPosition) {    //fix
                 num_correct_tags++;
                 currentPosition = newPosition;
             }
