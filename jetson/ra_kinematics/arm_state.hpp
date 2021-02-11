@@ -156,6 +156,12 @@ public:
 
     void transform_avoidance_links();
 
+    /**
+     * @param index1 index for collision_avoidance_links
+     * @param index2 index for collision_avoidance_links
+     * 
+     * Returns true if there is a collision between the links
+     * */
     bool link_link_check(size_t index_1, size_t index_2);
 
     bool obstacle_free();

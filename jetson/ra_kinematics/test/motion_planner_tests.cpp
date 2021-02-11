@@ -31,7 +31,7 @@ TEST(rrt_connect_simple) {
 
     // set angles and confirm there are no collisions
     vector<double> set_angles{0, 1, 1, 0, 0, 0};
-    //ASSERT_TRUE(solver.is_safe(arm, set_angles));
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
 
@@ -65,7 +65,7 @@ TEST(rrt_connect_simple) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target(5), 0.01);
 }
 
-
+/*
 TEST(rrt_connect) {
 
     // read arm geometry
@@ -112,6 +112,6 @@ TEST(rrt_connect) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target(3), 0.01);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target(4), 0.01);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target(5), 0.01);
-}
+}*/
 
 TEST_MAIN()

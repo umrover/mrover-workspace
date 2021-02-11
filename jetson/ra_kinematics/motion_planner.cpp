@@ -174,9 +174,9 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d
         z_new_angs[i] = z_new(i) * M_PI / 180;
     }
 
-    /*if (!solver.is_safe(robot, z_new_angs)) {
+    if (!solver.is_safe(robot, z_new_angs)) {
         return nullptr;
-    }*/
+    }
 
     Node* new_node = new Node(z_new);
     new_node->parent = z_nearest;

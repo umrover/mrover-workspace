@@ -203,13 +203,13 @@ map<string, double> ArmState::get_joint_angles() {
     return angles;
 }
 
-// TODO: Do we need to implement this function?
-
 void ArmState::transform_avoidance_links() {
     for (size_t i = 0; i < collision_avoidance_links.size(); ++i) {
         Avoidance_Link& link = collision_avoidance_links.at(i);
 
         const Matrix4d &joint_xform = get_joint_transform(link.joint_origin);
+
+        cout << joint_xform << '\n';
         
         for(size_t j = 0; j < link.points.size(); ++j) {
             link.points[j] = apply_transformation(joint_xform, link.points[j]);
