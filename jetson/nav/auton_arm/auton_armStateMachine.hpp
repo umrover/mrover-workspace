@@ -68,6 +68,9 @@ private:
     // Tracks whether or not target has been received 
     bool is_tag_received;
 
+    // Start time for pause timer
+    chrono::system_clock::time_point start; 
+
     // Number of correct tags needed in a row to proceed
     static const int CORRECT_TAGS_NEEDED = 3;
 

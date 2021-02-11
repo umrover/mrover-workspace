@@ -117,7 +117,8 @@ void AutonArmStateMachine::updateRoverStatus(TargetPositionList targetList) {
 bool AutonArmStateMachine::isRoverReady() const {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
-           is_tag_received; // has a new tag been received 
+           is_tag_received || // has a new tag been received 
+           mPhoebe->roverStatus().currentState() == AutonArmState::PauseTag; // if timer is active
 } //isRoverReady()
 
 void AutonArmStateMachine::publishNavState() const
@@ -180,14 +181,15 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
     cout << "Number of correct tags is: " << num_correct_tags << endl;
     // Else wait for another tag list
     cout << "Waiting for another tag" << endl;
+    
+    start = chrono::system_clock::now();
     return AutonArmState::PauseTag;
 }
 
 AutonArmState AutonArmStateMachine::executePauseTag() {
     cout << "Waiting...\n";
-    // if first time entering
-        auto start = std::chrono::system_clock::now();
-    auto current = std::chrono::system_clock::now();
+    
+    chrono::system_clock::time_point current = chrono::system_clock::now();
     if ( current-start >= DELAY ) {
         cout << "Done waiting\n";
         return AutonArmState::WaitingForTag;
