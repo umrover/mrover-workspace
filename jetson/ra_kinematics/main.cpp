@@ -49,6 +49,11 @@ int main()
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
 
 
+    while( lcmObject.handle() == 0 ) {
+        //run kinematics
+    }
+
+
 
     // ArmState arm = ArmState(geom);
 

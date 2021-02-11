@@ -61,8 +61,8 @@ private:
 
     struct Avoidance_Link {
 
-        Avoidance_Link(int link_num_in, string joint_origin_name, json &link_json) : 
-                           link_num(link_num_in), joint_origin(joint_origin_name) {
+        Avoidance_Link(int link_num_in, string joint_origin_name, json &link_json, vector<size_t> collisions) : 
+                           link_num(link_num_in), joint_origin(joint_origin_name), collisions(collisions) {
 
             type = link_json["type"];
             radius = link_json["radius"];
@@ -84,6 +84,7 @@ private:
         string type;
         vector<Vector3d> points;
         double radius;
+        vector<size_t> collisions;
     };
 
     vector<string> joint_names;
@@ -94,11 +95,9 @@ private:
     static const int num_collision_parts = 23;
     Vector3d ef_pos_world;
     Matrix4d ef_xform;
-    Matrix<double, num_collision_parts, num_collision_parts> collision_mat;
+
 
     void add_joint(string joint, json &joint_geom);
-
-    void add_avoidance_link(int link_num, string joint_origin_name, json &link_json);
 
     void transform_parts();
 
@@ -157,7 +156,7 @@ public:
 
     void transform_avoidance_links();
 
-    bool link_link_check(vector<Avoidance_Link>::iterator it, vector<Avoidance_Link>::iterator jt);
+    bool link_link_check(size_t index_1, size_t index_2);
 
     bool obstacle_free();
 
