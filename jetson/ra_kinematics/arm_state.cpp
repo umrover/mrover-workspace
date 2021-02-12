@@ -208,12 +208,21 @@ void ArmState::transform_avoidance_links() {
         Avoidance_Link& link = collision_avoidance_links.at(i);
 
         const Matrix4d &joint_xform = get_joint_transform(link.joint_origin);
+        cout << "\nlink number " << i << ":\n" << joint_xform << "\n \n";
 
-        cout << joint_xform << '\n';
         
-        for(size_t j = 0; j < link.points.size(); ++j) {
+        for (size_t j = 0; j < link.points.size(); ++j) {
+            cout << "points before:\n" << collision_avoidance_links.at(i).points[j] << "\n";
             link.points[j] = apply_transformation(joint_xform, link.points[j]);
         }
+
+        cout << "\n";
+
+        for (size_t j = 0; j < collision_avoidance_links.at(i).points.size(); ++j) {
+            cout << "points after:\n" << collision_avoidance_links.at(i).points[j] << "\n";
+        }
+
+        cout << "\n";
 
         // for (size_t j = 0; j < collision_avoidance_links.size())
 
@@ -256,6 +265,7 @@ bool ArmState::obstacle_free() {
     for (size_t i = 0; i < collision_avoidance_links.size(); ++i) {
         for (size_t possible_collision : collision_avoidance_links[i].collisions) {
             if (link_link_check(i, possible_collision)) {
+                cout << "found an obstacle at link " << i << " and link " << possible_collision << "\n";
                 return false;
             }
         }

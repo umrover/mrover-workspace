@@ -432,7 +432,7 @@ bool KinematicsSolver::is_safe(ArmState &robot_state, vector<double> angles) {
 
     cout << "Entering obstacle_free()...\n";
     bool obstacle_free = robot_state.obstacle_free();
-    cout << "Returned from obstacle_free()\n";
+    cout << "Returned from obstacle_free(): " << obstacle_free << "\n";
 
     recover_from_backup(robot_state);
 
