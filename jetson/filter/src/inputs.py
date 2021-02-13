@@ -82,7 +82,7 @@ class AccelComponent(SensorComponent):
         self.accel_z = None
         self.filter_bias = filter_bias
         self.threshold_value = threshold
-    
+
     def lowPass(self, new, old, bias):
         '''
         Returns the new value run through a low-pass filter
@@ -95,7 +95,7 @@ class AccelComponent(SensorComponent):
         if old is None:
             return new
         return new * bias + old * (1 - bias)
-    
+
     def threshold(self, value, threshold_value):
         '''
         Returns value if |value| > threshold, else threshold
@@ -382,6 +382,7 @@ class Gps(Sensor):
     @attribute VelComponent vel: velocity component of GPS
     @attribute PosComponent pos: position component of GPS
     @attribute BearingComponent bearing: bearing component of GPS
+    @attribute int quality: quality of GPS connection according to GPS.lcm
     '''
 
     def __init__(self):
@@ -389,17 +390,20 @@ class Gps(Sensor):
         self.vel = VelComponent()
         self.pos = PosComponent()
         self.bearing = BearingComponent()
+        self.quality = -1
 
     def update(self, new_gps):
         # Hold onto old values in case we need to revert update
         old_vel = deepcopy(self.vel)
         old_pos = deepcopy(self.pos)
         old_bearing = deepcopy(self.bearing)
+        old_quality = self.quality
 
         try:
             self.vel.update(new_gps)
             self.pos.update(new_gps)
             self.bearing.update(new_gps)
+            self.quality = new_gps.quality
             self.fresh = True
             self.last_fresh = time.time()
         except AttributeError as e:
@@ -408,7 +412,11 @@ class Gps(Sensor):
             self.vel = old_vel
             self.pos = old_pos
             self.bearing = old_bearing
+            self.quality = old_quality
             self.fresh = False
+
+    def isRTK(self):
+        return self.quality == 4 or self.quality == 5
 
     def ready(self):
         return self.vel.ready() and self.pos.ready()

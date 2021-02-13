@@ -344,6 +344,8 @@ class SensorFusion:
             if self.filter is not None:
                 if self.config["FilterType"] == "LinearKalman":
                     self._runLKF()
+                    if self.gps.isRTK():
+                        self.state_estimate.pos = self.gps.asMinutes()
                 elif self.config["FilterType"] == "Pipe":
                     bearing = self._getFreshBearing()
                     if bearing is None:
