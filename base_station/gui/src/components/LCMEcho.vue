@@ -69,6 +69,7 @@
           '/imu': false,
           '/kill_switch': false,
           '/microscope': false,
+          '/mosfet_cmd': false,
           '/drive_vel_cmd': false,
           '/nav_status': false,
           '/obstacle': false,
@@ -142,6 +143,7 @@
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
           {'topic': '/microscope', 'type': 'Microscope'},
+          {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
         ]

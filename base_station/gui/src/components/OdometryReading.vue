@@ -50,19 +50,3 @@ export default {
       return this.odom_format == 'DMS';
     }
   },
-}
-</script>
-
-<style scoped>
-  .odom-wrap {
-      padding: 0px;
-      padding-left: 10px;
-      padding-right: 0px;
-      border: none;
-      margin-top: 0.5rem;
-  }
-
-  .odom-wrap p {
-    display: inline;
-  }
-</style>
