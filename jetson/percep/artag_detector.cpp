@@ -169,4 +169,3 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
     }
   }
 
-}
