@@ -19,7 +19,6 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
 
     // Create all Avoidance_Link instances from mrover_arm json (for collision avoidance)
     links_json = geom["links"];
-    int link_num = 0;
     for (json::iterator it = links_json.begin(); it != links_json.end(); it++) {
         // Create the link object:
         links[it.key()].name = it.key();
@@ -37,8 +36,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
         json link_shapes = it.value()["link_shapes"];
         for (json::iterator jt = link_shapes.begin(); jt != link_shapes.end(); jt++) {
             try {
-                // add_avoidance_link(link_num++, joint_origin, jt.value(), collisions);
-                collision_avoidance_links.emplace_back(link_num++, joint_origin, jt.value(), collisions);
+                collision_avoidance_links.emplace_back(joint_origin, jt.value(), collisions);
             }
             catch (json::exception& e) {
                 cout << "Error creating avoidance link: " << e.what() << "\n"
@@ -46,11 +44,19 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
             }
         }
     }
+
+    Link_Comp comparator;
+    sort(collision_avoidance_links.begin(), collision_avoidance_links.end(), comparator);
 }
 // Tested in delete_joints_test
 // ArmState::~ArmState() {
 //     delete_joints();
 // }
+
+
+bool ArmState::Link_Comp::operator()(const Avoidance_Link& a, const Avoidance_Link& b) {
+    return a.link_num < b.link_num;
+}
 
 // Tested in joint_creation_test
 void ArmState::add_joint(string name, json &joint_geom) {
@@ -272,6 +278,8 @@ bool ArmState::obstacle_free() {
                 cout << "found an obstacle at link " << i << " and link " << possible_collision << "\n";
                 return false;
             }
+
+            cout << "link check worked for " << i << " and " << possible_collision << "\n";
         }
     }
     return true;
