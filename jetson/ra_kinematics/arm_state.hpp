@@ -61,11 +61,12 @@ private:
 
     struct Avoidance_Link {
 
-        Avoidance_Link(int link_num_in, string joint_origin_name, json &link_json, vector<size_t> collisions) : 
-                           link_num(link_num_in), joint_origin(joint_origin_name), collisions(collisions) {
+        Avoidance_Link(string joint_origin_name, json &link_json, vector<size_t> collisions) : 
+                           joint_origin(joint_origin_name), collisions(collisions) {
 
             type = link_json["type"];
             radius = link_json["radius"];
+            link_num = link_json["link_num"];
 
             if (type == "sphere") {
                 Vector3d p1(link_json["center"]["x1"], link_json["center"]["x1"], link_json["center"]["x1"]);
@@ -103,6 +104,11 @@ private:
     void transform_parts();
 
     void delete_joints();
+
+    struct Link_Comp {
+        bool operator()(const Avoidance_Link& a, const Avoidance_Link& b);
+    };
+
 
 public:
     json joints_json;

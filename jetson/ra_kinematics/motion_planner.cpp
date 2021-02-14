@@ -214,6 +214,8 @@ bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_position
     start_root = new Node(start);
     goal_root =  new Node(target);
 
+    cout << "entering loop...\n";
+
     for (int i = 0; i < max_iterations; ++i) {
         Node* a_root = i % 2 == 0 ? start_root : goal_root;
         Node* b_root = i % 2 == 0 ? goal_root : start_root;
@@ -223,10 +225,13 @@ bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_position
 
         if (a_new) {
 
+            cout << "a_new found\n";
+
             Node* b_new = connect(robot, b_root, a_new->config);
 
             // if the trees are connected
             if (a_new->config == b_new->config) {
+                cout << "backtracing paths...\n";
                 vector<Vector6d> a_path = backtrace_path(a_new, a_root);
                 vector<Vector6d> b_path = backtrace_path(b_new, b_root);
 
@@ -257,6 +262,7 @@ bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_position
 
                 spline_size = a_path.size();
 
+                cout << "spline fitting...\n";
                 spline_fitting(a_path);
 
                 // delete trees before returning

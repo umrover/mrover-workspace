@@ -21,7 +21,6 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
 
     // Create all Avoidance_Link instances from mrover_arm json (for collision avoidance)
     links_json = geom["links"];
-    int link_num = 0;
     for (json::iterator it = links_json.begin(); it != links_json.end(); it++) {
         // Create the link object:
         links[it.key()].name = it.key();
@@ -39,8 +38,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
         json link_shapes = it.value()["link_shapes"];
         for (json::iterator jt = link_shapes.begin(); jt != link_shapes.end(); jt++) {
             try {
-                // add_avoidance_link(link_num++, joint_origin, jt.value(), collisions);
-                collision_avoidance_links.emplace_back(link_num++, joint_origin, jt.value(), collisions);
+                collision_avoidance_links.emplace_back(joint_origin, jt.value(), collisions);
             }
             catch (json::exception& e) {
                 cout << "Error creating avoidance link: " << e.what() << "\n"
@@ -48,11 +46,19 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
             }
         }
     }
+
+    Link_Comp comparator;
+    sort(collision_avoidance_links.begin(), collision_avoidance_links.end(), comparator);
 }
 // Tested in delete_joints_test
 // ArmState::~ArmState() {
 //     delete_joints();
 // }
+
+
+bool ArmState::Link_Comp::operator()(const Avoidance_Link& a, const Avoidance_Link& b) {
+    return a.link_num < b.link_num;
+}
 
 // Tested in joint_creation_test
 void ArmState::add_joint(string name, json &joint_geom) {
@@ -238,6 +244,8 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) {
     double closest_dist;
     Avoidance_Link& link_1 = collision_avoidance_links.at(index_1);
     Avoidance_Link& link_2 = collision_avoidance_links.at(index_2);
+
+    cout << "links " << index_1 << " (" << link_1.type << ") and " << index_2 << " (" << link_2.type << "): ";
     if (link_1.type == "capsule" && link_2.type == "capsule") {
         Vector3d b1 = link_1.points[0];
         Vector3d b2 = link_2.points[0];
@@ -260,6 +268,8 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) {
     else {
         closest_dist = (link_1.points[0] - link_2.points[0]).norm();
     }
+    cout << closest_dist << " < " << link_1.radius << " + " << link_2.radius << "\n";
+
     return closest_dist < (link_1.radius + link_2.radius);
 }
 // Tested in link_link_check_test
@@ -272,6 +282,8 @@ bool ArmState::obstacle_free() {
                 cout << "found an obstacle at link " << i << " and link " << possible_collision << "\n";
                 return false;
             }
+
+            cout << "link check worked for " << i << " and " << possible_collision << "\n";
         }
     }
     return true;

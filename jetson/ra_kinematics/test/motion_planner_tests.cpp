@@ -30,10 +30,13 @@ TEST(rrt_connect_simple) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // set angles and confirm there are no collisions
-    vector<double> set_angles{0, 1, 1, 0, 0, 0};
+    vector<double> set_angles{0, 0, 0, 0, 0, 0};
     ASSERT_TRUE(solver.is_safe(arm, set_angles));
+    cout << "is_safe works\n";
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
+
+    cout << "returned from FK\n";
 
     Vector6d target;
 
@@ -46,8 +49,12 @@ TEST(rrt_connect_simple) {
     target(4) = start["joint_e"] + 0.1;
     target(5) = start["joint_f"] + 0.1;
 
+
+    cout << "entering rrt\n";
     // run rrt_connect and confirm it found a path
     ASSERT_TRUE(planner.rrt_connect(arm, target));
+
+    cout << "returned from rrt\n";
 
     // confirm spline positions
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start["joint_a"], 0.01);
