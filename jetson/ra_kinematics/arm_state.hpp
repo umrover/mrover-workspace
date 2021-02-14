@@ -67,6 +67,8 @@ private:
             type = link_json["type"];
             radius = link_json["radius"];
 
+            cout << "link " << link_num << " radius: " << radius << "\n";
+
             if (type == "sphere") {
                 Vector3d p1(link_json["center"]["x1"], link_json["center"]["x1"], link_json["center"]["x1"]);
                 points.push_back(p1);

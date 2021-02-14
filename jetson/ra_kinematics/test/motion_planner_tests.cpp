@@ -30,7 +30,7 @@ TEST(rrt_connect_simple) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // set angles and confirm there are no collisions
-    vector<double> set_angles{0, 1, 1, 0, 0, 0};
+    vector<double> set_angles{1, 0.5, 0, -1, -1, -1};
     ASSERT_TRUE(solver.is_safe(arm, set_angles));
     arm.set_joint_angles(set_angles);
     solver.FK(arm);

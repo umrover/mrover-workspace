@@ -234,6 +234,8 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) {
     double closest_dist;
     Avoidance_Link& link_1 = collision_avoidance_links.at(index_1);
     Avoidance_Link& link_2 = collision_avoidance_links.at(index_2);
+
+    cout << "links " << index_1 << " (" << link_1.type << ") and " << index_2 << " (" << link_2.type << "): ";
     if (link_1.type == "capsule" && link_2.type == "capsule") {
         Vector3d b1 = link_1.points[0];
         Vector3d b2 = link_2.points[0];
@@ -256,6 +258,8 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) {
     else {
         closest_dist = (link_1.points[0] - link_2.points[0]).norm();
     }
+    cout << closest_dist << " < " << link_1.radius << " + " << link_2.radius << "\n";
+
     return closest_dist < (link_1.radius + link_2.radius);
 }
 // Tested in link_link_check_test
