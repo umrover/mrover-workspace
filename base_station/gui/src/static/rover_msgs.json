@@ -343,6 +343,16 @@
             "enable"
         ]
     ],
+    "MosfetCmd": [
+        [
+            "int8_t",
+            "device"
+        ],
+        [
+            "boolean",
+            "enable"
+        ]
+    ],
     "MotionExecute": [
         [
             "boolean",
@@ -889,6 +899,7 @@
         "MicroCam",
         "Microscope",
         "Mosfet",
+        "MosfetCmd",
         "MotionExecute",
         "NavStatus",
         "Obstacle",
