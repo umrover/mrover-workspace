@@ -415,7 +415,7 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
 }
 
 bool KinematicsSolver::is_safe(ArmState &robot_state, vector<double> angles) {
-    
+    cout << "Entering is_safe()...\n";
     perform_backup(robot_state);
 
     // if any angles are outside bounds
@@ -424,12 +424,20 @@ bool KinematicsSolver::is_safe(ArmState &robot_state, vector<double> angles) {
         return false;
     }
 
+    cout << "limit check passed\n";
+
     // run FK algorithm to determine if there is a collision
     robot_state.set_joint_angles(angles);
     FK(robot_state);
+
+    cout << "Entering obstacle_free()...\n";
     bool obstacle_free = robot_state.obstacle_free();
+    cout << "Returned from obstacle_free(): " << obstacle_free << "\n";
 
     recover_from_backup(robot_state);
+
+
+    cout << "Leaving is_safe()\n";
     return obstacle_free;
 }
 
