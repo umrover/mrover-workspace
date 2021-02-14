@@ -95,6 +95,7 @@ private:
     static const int num_collision_parts = 23;
     Vector3d ef_pos_world;
     Matrix4d ef_xform;
+    Vector3d ef_xyz;
 
 
     void add_joint(string joint, json &joint_geom);
@@ -146,8 +147,6 @@ public:
 
     Vector3d get_ef_ang_world();
 
-    void set_ef_pos_world(Vector3d ef_pos);
-
     vector<double> get_ef_pos_and_euler_angles();
 
     map<string, double> get_joint_angles();
@@ -175,6 +174,12 @@ public:
     void set_joint_torque(string joint, Vector3d torque);
 
     Vector3d get_link_point_world(string link);
+
+    Matrix4d get_link_xform(string link);
+
+    Vector3d get_ef_xyz();
+
+    void set_ef_xyz(vector<double> ef_xyz_vec);
 
 };
 

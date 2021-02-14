@@ -12,6 +12,8 @@ using namespace std;
 // Tested in joint creation test
 ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix4d::Identity()) {
     // Create all Joint instances from mrover_arm json
+    vector<double> ef_orig_pos = geom["endeffector"]["origin"]["xyz"];
+    set_ef_xyz(ef_orig_pos);
     joints_json = geom["joints"];
     for (json::iterator it = joints_json.begin(); it != joints_json.end(); it++) {
         add_joint(it.key(), it.value());
@@ -172,7 +174,9 @@ Vector3d ArmState::get_joint_pos_world(string joint) {
 }
 
 Vector3d ArmState::get_ef_pos_world() {
-    return ef_pos_world;
+    Matrix4d trans_mat = get_ef_transform();
+    Vector3d ret_vec(trans_mat(0,3), trans_mat(1,3), trans_mat(2,3));
+    return ret_vec;
 }
 
 Vector3d ArmState::get_ef_ang_world() {
@@ -282,10 +286,6 @@ string ArmState::get_child_link(string joint){
     return joints.at(joint).child_link;
 }
 
-void ArmState::set_ef_pos_world(Vector3d ef_pos){
-    ef_pos_world = ef_pos;
-}
-
 Vector3d ArmState::get_joint_torque(string joint){
     return joints.at(joint).torque;
 }
@@ -300,4 +300,18 @@ Vector3d ArmState::get_link_point_world(string link){
     link_point_world(1) = links[link].global_transform(1,3);
     link_point_world(2) = links[link].global_transform(2,3);
     return link_point_world;
+}
+
+Matrix4d ArmState::get_link_xform(string link) {
+    return links[link].global_transform;
+}
+
+Vector3d ArmState::get_ef_xyz() {
+    return ef_xyz;
+}
+
+void ArmState::set_ef_xyz(vector<double> ef_xyz_vec){
+    ef_xyz(0) = ef_xyz_vec[0];
+    ef_xyz(1) = ef_xyz_vec[1];
+    ef_xyz(2) = ef_xyz_vec[2];
 }

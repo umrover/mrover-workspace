@@ -23,6 +23,10 @@ class KinematicsSolver:
         self.ANGLE_THRESHOLD = 10  # degrees_to_radians(88)
         self.POS_WEIGHT = 1
         # try robot_ik
+        print("ef_pos_world")
+        print(robot_state.get_ef_pos_world())
+        print("ef position xyz:")
+        print(robot_state.get_ef_xyz())
         self.FK(self.robot_state)
         print("a-b")
         print(robot_state.get_link_transform("a-b"))
@@ -36,6 +40,13 @@ class KinematicsSolver:
         print(robot_state.get_link_transform("e-f"))
         print("hand")
         print(robot_state.get_link_transform("hand"))
+        print("ef_position world:")
+        print(robot_state.get_ef_pos_world())
+        print("ef_position_xform:")
+        print(robot_state.get_ef_transform())
+        print("ef position xyz:")
+        print(robot_state.get_ef_xyz())
+        exit(1)
         self.target_pos_world = np.array([0, 0, 0])
         self.e_locked = False
 
