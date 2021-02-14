@@ -9,7 +9,7 @@ import Adafruit_BBIO.UART as UART
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, NavStatus
+from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, NavStatus, AmmoniaCmd
 class ScienceBridge():
     def __init__(self):
         UART.setup("UART4") #  Specific to beaglebone
@@ -153,10 +153,11 @@ class ScienceBridge():
         print('Recieved: {} bytes'.format(len(bytes(struct.data))))
         # parse data into expected format
         # self.ser.write(bytes(struct.data))
-        message = "$AMMONIA, {speed},,,,,,,,,,,,,"
+        message = "$AMMONIA, {speed}"
         message = message.format(speed = struct.speed)
-        #print(message.val)
-
+        while(len(message) < 13):
+            message += ","
+        print(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
@@ -226,10 +227,9 @@ def main():
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
         _lcm.subscribe("/nav_status",bridge.nav_status)
+        _lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         print("properly started")
-        # lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         # lcm.subscribe("/pump_cmd", bridge.pump_transmit)
-        # Temp removed to test callback
         run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
 if __name__ == "__main__":
     main()
