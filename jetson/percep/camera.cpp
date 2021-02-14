@@ -354,6 +354,7 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point
  
  //Read in image names
  std::string pcd_name = pcd_names[idx_curr_pcd_img];
+ std::cout << "PCD Name: " << pcd_name << std::endl;
  std::string full_path = pcd_path + std::string("/") + pcd_name;
   //Load in the file  
   if (pcl::io::loadPCDFile<pcl::PointXYZRGB> (full_path, *p_pcl_point_cloud) == -1){ //* load the file 
