@@ -150,11 +150,12 @@ class ScienceBridge():
     def ammonia_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
         struct = AmmoniaCmd.decode(msg)
-        print('Recieved: {} bytes'.format(len(bytes(struct.data))))
+        print("Received Ammonia Cmd")
         # parse data into expected format
         # self.ser.write(bytes(struct.data))
-        message = "$AMMONIA, {speed}"
+        message = "$AMMONIA,{speed}"
         message = message.format(speed = struct.speed)
+        print(len(message))
         while(len(message) < 13):
             message += ","
         print(message)
