@@ -17,8 +17,8 @@ void Controller::make_live()
     try
     {
         uint8_t buffer[32];
-        //buffer sends max pwm 
-        memcpy(buffer, UINT8_POINTER_T(&(hardware.pwm_max)), 2);
+        //buffer sends max percentage speed  
+        memcpy(buffer, UINT8_POINTER_T(&(hardware.speed_max)), 2);
         transact(CONFIG_PWM, buffer, nullptr);
 
         memcpy(buffer, UINT8_POINTER_T(&(kP)), 4);
