@@ -58,21 +58,21 @@
     },
     {
         "name":"SA_0",
-        "type":"Cytron",
+        "type":"HBridge6V",
         "nucleo": 0,
         "channel": 0,
         "quadCPR": 464.64
     },
     {
         "name":"SA_1",
-        "type":"Cytron",
+        "type":"HBridge6V",
         "nucleo": 0,
         "channel": 1,
         "quadCPR": 23945.84
     },
     {
         "name":"SA_2",
-        "type":"Cytron",
+        "type":"HBridge6V",
         "nucleo": 1,
         "channel": 0,
         "quadCPR": 23945.84
@@ -120,7 +120,7 @@
     },
     {
         "name":"RA_5",
-        "type":"HBridge",
+        "type":"HBridge6V",
         "nucleo": 2,
         "channel": 1,
         "quadCPR": 18144,

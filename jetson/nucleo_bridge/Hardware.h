@@ -46,9 +46,10 @@ public:
             speed_max = 16;           
             break;
         case HBridge12V:
-            pwm_max = 33;
+            speed_max = 33;
+	    break;
         case Cytron:
-            pwm_max = 70;
+            speed_max = 70;
             break;
         case None:
             break;
@@ -61,17 +62,16 @@ public:
     //     return (((pwm_max) / (max - min)) * (input - min));
     // }
 
-    //Turns a given [-1.0,1.0] throttle input to a 16-bit pwm output
-    uint16_t throttle(float input)
+    //limits throttle
+    float throttle(float input)
     {
         if (input > 1) {
-            input = 1;
+            input = 1.0;
         }
         else if (input < -1) {
-            input = -1;
+            input = -1.0;
         }
-]
-        return static_cast<int8_t>(input);
+        return input;
     }
 };
 
