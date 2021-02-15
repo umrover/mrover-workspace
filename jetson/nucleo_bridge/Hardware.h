@@ -6,7 +6,8 @@
 //Helper enum representing the valid types of real motor controllers
 enum HardwareType
 {
-    HBridge,
+    HBridge6V,
+    HBridge12V,
     Cytron,
     None
 };
@@ -15,13 +16,16 @@ enum HardwareType
 class Hardware
 {
 public:
-    uint16_t pwm_max;
+    uint16_t speed_max; //out of 100 to avoid sending floats
     HardwareType type;
 
     HardwareType getType(std::string input) 
     {
-        if (input == "HBridge") {
-            return HBridge;
+        if (input == "HBridge6V") {
+            return HBridge6V;
+        }
+        else if(input == "HBridge12V") {
+            return HBridge12V;
         }
         else if (input == "Cytron") {
             return Cytron;
@@ -38,11 +42,13 @@ public:
     {
         switch (type)
         {
-        case HBridge:
-            pwm_max = 100;           
+        case HBridge6V:
+            speed_max = 16;           
             break;
+        case HBridge12V:
+            pwm_max = 33;
         case Cytron:
-            pwm_max = 100;
+            pwm_max = 70;
             break;
         case None:
             break;
@@ -64,16 +70,8 @@ public:
         else if (input < -1) {
             input = -1;
         }
-        // might not be needed
-        switch (type)
-        {
-        case Cytron:
-            return static_cast<int8_t>(input);
-        case HBridge:
-            return static_cast<int8_t>(input);
-        default:
-            return 0;
-        }
+]
+        return static_cast<int8_t>(input);
     }
 };
 
