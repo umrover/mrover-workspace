@@ -72,15 +72,13 @@ Vector3d KinematicsSolver::FK(ArmState &robot_state) {
         parent_mat = global_transform;
     }
     // Set ef position and orientation:
-    Vector3d ef_xyz = robot_state.get_ef_pos_world();
+    Vector3d ef_xyz = robot_state.get_ef_xyz();
     Matrix4d T = Matrix4d::Identity();
     T.block(0,3,3,1) = ef_xyz;
     global_transform = parent_mat*T;
     robot_state.set_ef_transform(global_transform);
     Vector4d mult(0,0,0,1);
     Vector4d ef_pos_world = global_transform*mult;
-    Vector3d set_ef_pos (ef_pos_world(0), ef_pos_world(1), ef_pos_world(2));
-    robot_state.set_ef_pos_world(set_ef_pos);
 
     Vector3d prev_com(0,0,0);
     double total_mass = 0;
@@ -374,7 +372,7 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
         }
     }
 
-    cout << "Filled in the Jacobian matrix\n";
+    // cout << "Filled in the Jacobian matrix\n";
 
     // if using pseudo inverse (usually corresponds to using euler angles)
     if (use_pi) {
@@ -386,7 +384,7 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
         jacobian_inverse = jacobian.transpose();
     }
 
-    cout << "Applied use_pi\n";
+    // cout << "Applied use_pi\n";
 
     Vector6d d_theta = jacobian_inverse * d_ef;
 
