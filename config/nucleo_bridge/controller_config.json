@@ -120,7 +120,7 @@
     },
     {
         "name":"RA_5",
-        "type":"HBridge6V",
+        "type":"HBridge",
         "nucleo": 2,
         "channel": 1,
         "quadCPR": 18144,
