@@ -34,24 +34,30 @@ TEST(rrt_connect_simple) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // set angles and confirm there are no collisions
-    vector<double> set_angles{1, 0.5, 0, -1, -1, -1};
+    vector<double> set_angles{1, 0, 0, -1, 0, 0};
     ASSERT_TRUE(solver.is_safe(arm, set_angles));
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
 
-    Vector6d target;
-
     // move target slightly away from starting position
     map<string, double> start = arm.get_joint_angles();
-    target(0) = start["joint_a"] + 0.1;
-    target(1) = start["joint_b"] + 0.1;
-    target(2) = start["joint_c"] + 0.1;
-    target(3) = start["joint_d"] + 0.1;
-    target(4) = start["joint_e"] + 0.1;
-    target(5) = start["joint_f"] + 0.1;
+
+    vector<double> target;
+    target.resize(6);
+
+    target[0] = start["joint_a"] + 0.1;
+    target[1] = start["joint_b"] + 0.1;
+    target[2] = start["joint_c"] + 0.1;
+    target[3] = start["joint_d"] - 0.1;
+    target[4] = start["joint_e"] - 0.1;
+    target[5] = start["joint_f"] - 0.1;
+
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    Vector6d target6d = vecTo6d(target);
 
     // run rrt_connect and confirm it found a path
-    ASSERT_TRUE(planner.rrt_connect(arm, target));
+    ASSERT_TRUE(planner.rrt_connect(arm, target6d));
 
     // confirm spline positions
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start["joint_a"], 0.01);
@@ -61,15 +67,15 @@ TEST(rrt_connect_simple) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[4], start["joint_e"], 0.01);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[5], start["joint_f"], 0.01);
 
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target(0), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target(1), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target(2), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target(3), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target(4), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target(5), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target6d(0), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target6d(1), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target6d(2), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target6d(3), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target6d(4), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
 }
 
-/*
+
 TEST(rrt_connect) {
 
     // read arm geometry
@@ -83,24 +89,30 @@ TEST(rrt_connect) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // set angles and confirm there are no collisions
-    vector<double> set_angles{0, 1, 1, 0, 0, 0};
-    //ASSERT_TRUE(solver.is_safe(arm, set_angles));
+    vector<double> set_angles{1, 0, 0, -1, 0, 0};
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
 
-    Vector6d target;
-
     // move target slightly away from starting position
     map<string, double> start = arm.get_joint_angles();
-    target(0) = start["joint_a"] + -0.2;
-    target(1) = start["joint_b"] + 0.1;
-    target(2) = start["joint_c"] + 0.1;
-    target(3) = start["joint_d"] + 0.1;
-    target(4) = start["joint_e"] + 0.1;
-    target(5) = start["joint_f"] + 0.1;
+
+    vector<double> target;
+    target.resize(6);
+
+    target[0] = start["joint_a"] + 0.1;
+    target[1] = start["joint_b"] + 0.1;
+    target[2] = start["joint_c"] + 0.1;
+    target[3] = start["joint_d"] - 0.1;
+    target[4] = start["joint_e"] - 0.1;
+    target[5] = start["joint_f"] - 0.1;
+
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    Vector6d target6d = vecTo6d(target);
 
     // run rrt_connect and confirm it found a path
-    ASSERT_TRUE(planner.rrt_connect(arm, target));
+    ASSERT_TRUE(planner.rrt_connect(arm, target6d));
 
     // confirm spline positions
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start["joint_a"], 0.01);
@@ -110,12 +122,46 @@ TEST(rrt_connect) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[4], start["joint_e"], 0.01);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[5], start["joint_f"], 0.01);
 
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target(0), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target(1), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target(2), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target(3), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target(4), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target(5), 0.01);
-}*/
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target6d(0), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target6d(1), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target6d(2), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target6d(3), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target6d(4), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
+    
+    arm.set_joint_angles(target);
+
+    // move target slightly away from starting position
+    start = arm.get_joint_angles();
+
+    target[0] = start["joint_a"] - 0.05;
+    target[1] = start["joint_b"] - 0.05;
+    target[2] = start["joint_c"] - 0.05;
+    target[3] = start["joint_d"] + 0.05;
+    target[4] = start["joint_e"] + 0.05;
+    target[5] = start["joint_f"] + 0.05;
+
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    target6d = vecTo6d(target);
+
+    // run rrt_connect and confirm it found a path
+    ASSERT_TRUE(planner.rrt_connect(arm, target6d));
+
+    // confirm spline positions
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start["joint_a"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[1], start["joint_b"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[2], start["joint_c"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[3], start["joint_d"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[4], start["joint_e"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[5], start["joint_f"], 0.01);
+
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target6d(0), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target6d(1), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target6d(2), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target6d(3), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target6d(4), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
+}
 
 TEST_MAIN()
