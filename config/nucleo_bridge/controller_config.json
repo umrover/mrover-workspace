@@ -58,21 +58,21 @@
     },
     {
         "name":"SA_0",
-        "type":"HBridge6V",
+        "type":"HBridge9V",
         "nucleo": 0,
         "channel": 0,
         "quadCPR": 464.64
     },
     {
         "name":"SA_1",
-        "type":"HBridge6V",
+        "type":"HBridge9V",
         "nucleo": 0,
         "channel": 1,
         "quadCPR": 23945.84
     },
     {
         "name":"SA_2",
-        "type":"HBridge6V",
+        "type":"HBridge9V",
         "nucleo": 1,
         "channel": 0,
         "quadCPR": 23945.84
