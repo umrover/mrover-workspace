@@ -231,7 +231,8 @@ void Controller::open_loop(float input)
         // sent as a number between -1.0 and 1.0
 	uint8_t buffer[32];
         float throttle = hardware.throttle(input);
-	memcpy(buffer, UINT8_POINTER_T(&throttle), 4);
+        print("throttle: ", throttle);
+	    memcpy(buffer, UINT8_POINTER_T(&throttle), 4);
 
         int32_t angle;
         transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&angle));

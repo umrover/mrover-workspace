@@ -7,6 +7,7 @@
 enum HardwareType
 {
     HBridge6V,
+    HBridge9V,
     HBridge12V,
     Cytron,
     None
@@ -23,6 +24,9 @@ public:
     {
         if (input == "HBridge6V") {
             return HBridge6V;
+        }
+        else if (input == "HBridge9V") {
+            return HBridge9V;
         }
         else if(input == "HBridge12V") {
             return HBridge12V;
@@ -45,9 +49,12 @@ public:
         case HBridge6V:
             speed_max = 16;           
             break;
+        case HBridge9V:
+            speed_max = 25;
+            break;
         case HBridge12V:
             speed_max = 33;
-	    break;
+	        break;
         case Cytron:
             speed_max = 70;
             break;
@@ -65,10 +72,10 @@ public:
     //limits throttle
     float throttle(float input)
     {
-        if (input > 1) {
+        if (input > 1.0) {
             input = 1.0;
         }
-        else if (input < -1) {
+        else if (input < -1.0) {
             input = -1.0;
         }
         return input;
