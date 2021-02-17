@@ -6,10 +6,9 @@
 //Helper enum representing the valid types of real motor controllers
 enum HardwareType
 {
-    HBridge6V,
-    HBridge9V,
-    HBridge12V,
-    Cytron,
+    Motor6V,
+    Motor9V,
+    Motor12V,
     None
 };
 
@@ -22,17 +21,14 @@ public:
 
     HardwareType getType(std::string input) 
     {
-        if (input == "HBridge6V") {
-            return HBridge6V;
+        if (input == "Motor6V") {
+            return Motor6V;
         }
-        else if (input == "HBridge9V") {
-            return HBridge9V;
+        else if (input == "Motor9V") {
+            return Motor9V;
         }
-        else if(input == "HBridge12V") {
-            return HBridge12V;
-        }
-        else if (input == "Cytron") {
-            return Cytron;
+        else if(input == "Motor12V") {
+            return Motor12V;
         }
         else 
         {
@@ -46,18 +42,15 @@ public:
     {
         switch (type)
         {
-        case HBridge6V:
+        case Motor6V:
             speed_max = 16;           
             break;
-        case HBridge9V:
+        case Motor9V:
             speed_max = 25;
             break;
-        case HBridge12V:
+        case Motor12V:
             speed_max = 33;
 	        break;
-        case Cytron:
-            speed_max = 70;
-            break;
         case None:
             break;
         }
