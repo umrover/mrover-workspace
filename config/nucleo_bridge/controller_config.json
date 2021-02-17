@@ -1,55 +1,55 @@
 [
     {
         "name":"HAND_FINGER",
-        "type":"HBridge6V",
+        "type":"HBridge12V",
         "nucleo": 0,
         "channel": 2
     },
     {
         "name":"HAND_GRIP",
-        "type":"HBridge6V",
+        "type":"Motor12V",
         "nucleo": 0,
         "channel": 4
     },
     {
         "name":"FOOT_CLAW",
-        "type":"HBridge6V",
+        "type":"Motor6V",
         "nucleo": 2,
         "channel": 0
     },
     {
         "name":"FOOT_SENSOR",
-        "type":"HBridge6V",
+        "type":"Motor6V",
         "nucleo": 1,
         "channel": 1
     },
     {
         "name":"GIMBAL_PITCH_0",
-        "type":"HBridge6V",
+        "type":"Motor6V",
         "nucleo": 1,
         "channel": 2
     },
     {
         "name":"GIMBAL_PITCH_1",
-        "type":"HBridge6V",
+        "type":"Motor6V",
         "nucleo": 2,
         "channel": 2
     },
     {
         "name":"GIMBAL_YAW_0",
-        "type":"HBridge6V",
+        "type":"Motor6V",
         "nucleo": 1,
         "channel": 4
     },
     {
         "name":"GIMBAL_YAW_1",
-        "type":"HBridge6V",
+        "type":"Motor6V",
         "nucleo": 2,
         "channel": 4
     },
     {
         "name":"ZED_GIMBAL_YAW",
-        "type":"HBridge6V",
+        "type":"Motor6V",
         "nucleo": 2,
         "channel": 0,
         "quadCPR": 20,
@@ -58,42 +58,42 @@
     },
     {
         "name":"SA_0",
-        "type":"HBridge9V",
+        "type":"Motor6V",
         "nucleo": 0,
         "channel": 0,
         "quadCPR": 464.64
     },
     {
         "name":"SA_1",
-        "type":"HBridge9V",
+        "type":"Motor6V",
         "nucleo": 0,
         "channel": 1,
         "quadCPR": 23945.84
     },
     {
         "name":"SA_2",
-        "type":"HBridge9V",
+        "type":"Motor6V",
         "nucleo": 1,
         "channel": 0,
         "quadCPR": 23945.84
     },
     {
         "name":"RA_0",
-        "type":"Cytron",
+        "type":"Motor12V",
         "nucleo": 0,
         "channel": 0,
         "quadCPR": 994.0
     },
     {
         "name":"RA_1",
-        "type":"Cytron",
+        "type":"Motor12V",
         "nucleo": 0,
         "channel": 1,
         "quadCPR": 1.0
     },
     {
         "name":"RA_2",
-        "type":"Cytron",
+        "type":"Motor12V",
         "nucleo": 1,
         "channel": 0,
         "quadCPR": 342506.67,
@@ -102,7 +102,7 @@
     },
     {
         "name":"RA_3",
-        "type":"Cytron",
+        "type":"Motor12V",
         "nucleo": 1,
         "channel": 1,
         "quadCPR": 180266.67,
@@ -111,7 +111,7 @@
     },
     {
         "name":"RA_4",
-        "type":"Cytron",
+        "type":"Motor12V",
         "nucleo": 2,
         "channel": 0,
         "quadCPR": 180266.67,
@@ -120,7 +120,7 @@
     },
     {
         "name":"RA_5",
-        "type":"HBridge6V",
+        "type":"Motor12V",
         "nucleo": 2,
         "channel": 1,
         "quadCPR": 18144,
