@@ -38,7 +38,8 @@ class ScienceBridge():
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS
+            bytesize=serial.EIGHTBITS,
+            timeout=0
         )
         return self
     def __exit__(self, exc_type, exc_value, traceback):
@@ -216,7 +217,8 @@ class ScienceBridge():
                             print(e)
                         break
                 if not match_found:
-                    print('Error decoding message stream: {}'.format(msg))
+                    if not msg:
+                        print('Error decoding message stream: {}'.format(msg))
                 await asyncio.sleep(self.sleep)
             seen_tags = {tag: False if not tag == 'TXT' else True
                          for tag in self.NMEA_HANDLE_MAPPER.keys()}
