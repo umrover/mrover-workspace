@@ -23,30 +23,30 @@ class KinematicsSolver:
         self.ANGLE_THRESHOLD = 10  # degrees_to_radians(88)
         self.POS_WEIGHT = 1
         # try robot_ik
-        print("ef_pos_world")
-        print(robot_state.get_ef_pos_world())
-        print("ef position xyz:")
-        print(robot_state.get_ef_xyz())
+        # print("ef_pos_world")
+        # print(robot_state.get_ef_pos_world())
+        # print("ef position xyz:")
+        # print(robot_state.get_ef_xyz())
         self.FK(self.robot_state)
-        print("a-b")
-        print(robot_state.get_link_transform("a-b"))
-        print("b-c")
-        print(robot_state.get_link_transform("b-c"))
-        print("c-d")
-        print(robot_state.get_link_transform("c-d"))
-        print("d-e")
-        print(robot_state.get_link_transform("d-e"))
-        print("e-f")
-        print(robot_state.get_link_transform("e-f"))
-        print("hand")
-        print(robot_state.get_link_transform("hand"))
-        print("ef_position world:")
-        print(robot_state.get_ef_pos_world())
-        print("ef_position_xform:")
-        print(robot_state.get_ef_transform())
-        print("ef position xyz:")
-        print(robot_state.get_ef_xyz())
-        exit(1)
+        # print("a-b")
+        # print(robot_state.get_link_transform("a-b"))
+        # print("b-c")
+        # print(robot_state.get_link_transform("b-c"))
+        # print("c-d")
+        # print(robot_state.get_link_transform("c-d"))
+        # print("d-e")
+        # print(robot_state.get_link_transform("d-e"))
+        # print("e-f")
+        # print(robot_state.get_link_transform("e-f"))
+        # print("hand")
+        # print(robot_state.get_link_transform("hand"))
+        # print("ef_position world:")
+        # print(robot_state.get_ef_pos_world())
+        # print("ef_position_xform:")
+        # print(robot_state.get_ef_transform())
+        # print("ef position xyz:")
+        # print(robot_state.get_ef_xyz())
+        # exit(1)
         self.target_pos_world = np.array([0, 0, 0])
         self.e_locked = False
 
@@ -75,8 +75,8 @@ class KinematicsSolver:
         for joint in joints:
 
             xyz = copy.deepcopy(np.array(cur_robot.get_joint_xyz(joint)))
-            print("xyz: ")
-            print(xyz)
+            # print("xyz: ")
+            # print(xyz)
             rot_axis_child = np.array(cur_robot.get_joint_axis(joint))
 
             # set theta: retrieve joint angle!
@@ -178,9 +178,9 @@ class KinematicsSolver:
                 http://www.cs.cmu.edu/~15464-s13/assignments/assignment2/jlander_gamedev_nov98.pdf
                 http://www.cs.cmu.edu/~15464-s13/lectures/lecture6/IK.pdf
         '''
-        print("RUNNING IK")
+        # print("RUNNING IK")
 
-        print("Target Point: ", target_point)
+        # print("Target Point: ", target_point)
 
         num_iterations = 0
         self.target_pos_world = target_point[:3]
@@ -229,8 +229,8 @@ class KinematicsSolver:
         angle_dist = LA.norm(ef_ang_world - self.target_ang_world)
 
         ef_v = 0
-        print("Current EF Position: ", ef_vec_world)
-        print("Current Joint Angles: ", self.robot_ik.angles)
+        # print("Current EF Position: ", ef_vec_world)
+        # print("Current Joint Angles: ", self.robot_ik.angles)
 
         # print(dist)
         # print(angle_dist)
@@ -265,8 +265,8 @@ class KinematicsSolver:
 
             # iterate
             ef_vec_world = self.robot_ik.get_world_point_angles(links[-1])
-            print("ef_vec_world: ")
-            print(ef_vec_world)
+            # print("ef_vec_world: ")
+            # print(ef_vec_world)
             # print(ef_vec_world)
             ef_pos_world = self.robot_ik.get_ef_pos_world()
             ef_ang_world = ef_vec_world[3:]
@@ -279,30 +279,30 @@ class KinematicsSolver:
 
             num_iterations += 1
 
-            if(num_iterations % 100000 == 0):
-                print("euler angles")
-                print(ef_ang_world)
-                print("target euler angles")
-                print(self.target_ang_world)
-                print("x y z")
-                print(ef_pos_world)
-                print("target x y z")
-                print(self.target_pos_world)
+            # if(num_iterations % 100000 == 0):
+            #     print("euler angles")
+            #     print(ef_ang_world)
+            #     print("target euler angles")
+            #     print(self.target_ang_world)
+            #     print("x y z")
+            #     print(ef_pos_world)
+            #     print("target x y z")
+            #     print(self.target_pos_world)
 
-                print()
+            #     print()
 
-                total_dist = LA.norm(ef_vec_world - target_point)
-                print(total_dist)
+            #     total_dist = LA.norm(ef_vec_world - target_point)
+            #     print(total_dist)
 
-                print()
+            #     print()
 
-                print(dist)
+            #     print(dist)
 
-                print()
+            #     print()
 
-                print(angle_dist)
+            #     print(angle_dist)
 
-                print()
+            #     print()
 
         # print("Angle and angle goal: ")
         # print(ef_ang_world)
