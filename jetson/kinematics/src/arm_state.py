@@ -66,8 +66,8 @@ class ArmState:
         # D-E link:
         self._collision_mat[11:15, 16:23] = 1
 
-        coll_tp = np.transpose(self._collision_mat)
-        self._collision_mat = coll_tp + self._collision_mat
+        # coll_tp = np.transpose(self._collision_mat)
+        # self._collision_mat = coll_tp + self._collision_mat
 
     @property
     def base(self):
@@ -268,6 +268,7 @@ class ArmState:
     def transform_parts(self):
         transformed_parts = []
         for link in self.all_links:
+            # print("transforming parts")
             # print(link)
 
             joint_origin = self.get_link_joint_origin(link)
@@ -278,11 +279,17 @@ class ArmState:
 
             # print(transform)
 
-            num_collision_parts = int(self.get_num_shapes(link))
+            # for i in self.geom['links'][link]['link_shapes']:
+            #     print(i)
+
+            # print(len(self.geom['links'][link]['link_shapes']))
+
+            num_collision_parts = len(self.geom['links'][link]['link_shapes'])
 
             # print(num_collision_parts)
 
             for i in range(num_collision_parts):
+                # print(num_collision_parts)
                 # print("looping")
                 shape = self.get_link_shape(link, i)
                 # print(shape)
