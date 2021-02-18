@@ -30,6 +30,29 @@ public:
 
     virtual void initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
 
+protected:
+    /*************************************************************************/
+    /* Protected Member Functions */
+    /*************************************************************************/
+
+    void insertIntermediatePoints();
+
+    /*************************************************************************/
+    /* Protected Member Variables */
+    /*************************************************************************/
+
+    // Pointer to rover State Machine to access member functions
+    StateMachine* roverStateMachine;
+
+    // Vector of search point multipliers used as a base for the search points.
+    vector< pair<short, short> > mSearchPointMultipliers;
+
+    // Queue of search points.
+    deque<Odometry> mSearchPoints;
+
+    // Pointer to rover object
+    Rover* mPhoebe;
+
 private:
     /*************************************************************************/
     /* Private Member Functions */
@@ -64,29 +87,6 @@ private:
 
     // Reference to config variables
     const rapidjson::Document& mRoverConfig;
-
-protected:
-    /*************************************************************************/
-    /* Protected Member Functions */
-    /*************************************************************************/
-
-    void insertIntermediatePoints();
-
-    /*************************************************************************/
-    /* Protected Member Variables */
-    /*************************************************************************/
-
-    // Pointer to rover State Machine to access member functions
-    StateMachine* roverStateMachine;
-
-    // Vector of search point multipliers used as a base for the search points.
-    vector< pair<short, short> > mSearchPointMultipliers;
-
-    // Queue of search points.
-    deque<Odometry> mSearchPoints;
-
-    // Pointer to rover object
-    Rover* mPhoebe;
 
 };
 

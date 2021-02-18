@@ -19,7 +19,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    ObstacleAvoidanceStateMachine( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig);
+    ObstacleAvoidanceStateMachine( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig );
 
     virtual ~ObstacleAvoidanceStateMachine() {}
 
@@ -38,13 +38,6 @@ public:
     virtual NavState executeTurnAroundObs( Rover* phoebe, const rapidjson::Document& roverConfig ) = 0;
 
     virtual NavState executeDriveAroundObs( Rover* phoebe ) = 0;
-
-private:
-    /*************************************************************************/
-    /* Private Member Variables */
-    /*************************************************************************/
-    // Reference to config variables
-    const rapidjson::Document& mRoverConfig;
 
 protected:
     /*************************************************************************/
@@ -71,6 +64,15 @@ protected:
 
     // Pointer to rover object
     Rover* mPhoebe;
+
+private:
+    /*************************************************************************/
+    /* Private Member Variables */
+    /*************************************************************************/
+
+    // Reference to config variables
+    const rapidjson::Document& mRoverConfig;
+
 };
 
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle 

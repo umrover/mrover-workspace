@@ -7,11 +7,11 @@
 #include <iostream>
 
 // Constructs an ObstacleAvoidanceStateMachine object with roverStateMachine, mRoverConfig, and mPhoebe
-ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig)
+ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig )
     : roverStateMachine( stateMachine_ )
-    , mPhoebe( rover )
-    , mRoverConfig( roverConfig )
-    ,  mJustDetectedObstacle( false ) {}
+    , mJustDetectedObstacle( false )
+    , mPhoebe( rover ) 
+    , mRoverConfig( roverConfig ) {}
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
