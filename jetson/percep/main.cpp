@@ -10,49 +10,30 @@ using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
 
-// AR Tag processing thread function
-void ARTagProcessing(Mat &rgbIn, Mat &srcIn, Mat &depthImgIn, TagDetector &detectorIn, pair<Tag, Tag> &tagPairIn, 
-                      Camera &camIn, rover_msgs::Target *&arTagsIn) {
-  arTagsIn[0].distance = -1;
-  arTagsIn[1].distance = -1;
-  #if AR_DETECTION
-      tagPairIn = detectorIn.findARTags(srcIn, depthImgIn, rgbIn);
-      #if AR_RECORD
-        camIn.record_ar(rgbIn);
-      #endif
-
-      detectorIn.updateDetectedTagInfo(arTagsIn, tagPairIn, depthImgIn, srcIn);
-
-  #if PERCEPTION_DEBUG && AR_DETECTION
-      imshow("depth", srcIn);
-      waitKey(1);  
-  #endif
-
-  #endif
-}
-
+enum viewerType {
+    newView, //set to 0 -or false- to be passed into updateViewer later
+    originalView //set to 1 -or true- to be passed into updateViewer later
+};
 // PCL Thread function
-void PCLProcessing(PCL &pointCloudIn, shared_ptr<pcl::visualization::PCLVisualizer> &viewerIn, shared_ptr<pcl::visualization::PCLVisualizer> &viewerOriginalIn,
-                    deque<bool> &outliersIn,  obstacle_return &lastObstacleIn, rover_msgs::Obstacle &obstacleMessageIn,
-                    deque <bool> &checkTrueIn, deque <bool> &checkFalseIn) {
+void PCLProcessing(PCL &pointCloudIn, deque<bool> &outliersIn, obstacle_return &lastObstacleIn, 
+                    rover_msgs::Obstacle &obstacleMessageIn, deque <bool> &checkTrueIn, deque <bool> &checkFalseIn) {
   
   #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
     
   #if PERCEPTION_DEBUG
-    //Update Original 3D Viewer
-    viewerOriginalIn->updatePointCloud(pointCloudIn.pt_cloud_ptr);
-    viewerOriginalIn->spinOnce(10);
-    cerr<<"Original W: " <<pointCloudIn.pt_cloud_ptr->width<<" Original H: "<<pointCloudIn.pt_cloud_ptr->height<<endl;
+      //Update Original 3D Viewer
+      pointCloudIn.updateViewer(originalView);
+      cout<<"Original W: " <<pointCloudIn.pt_cloud_ptr->width<<" Original H: "<<pointCloudIn.pt_cloud_ptr->height<<endl;
   #endif
 
     //Run Obstacle Detection
-    pointCloudIn.pcl_obstacle_detection(viewerIn);  
-    obstacle_return obstacle_detection (pointCloudIn.leftBearing, pointCloudIn.rightBearing, pointCloudIn.distance);
+    pointCloudIn.pcl_obstacle_detection();  
+    obstacle_return obstacle_detection (pointCloudIn.bearing, pointCloudIn.distance);
 
     //Outlier Detection Processing
     outliersIn.pop_back(); //Remove outdated outlier value
 
-    if(pointCloudIn.leftBearing > 0.05 || pointCloudIn.leftBearing < -0.05) //Check left bearing
+    if(pointCloudIn.bearing > 0.05 || pointCloudIn.bearing < -0.05) //Check left bearing
         outliersIn.push_front(true);//if an obstacle is detected in front
     else 
         outliersIn.push_front(false); //obstacle is not detected
@@ -62,19 +43,15 @@ void PCLProcessing(PCL &pointCloudIn, shared_ptr<pcl::visualization::PCLVisualiz
     else if (outliersIn == checkFalseIn) // If our iterations see no obstacles after seeing obstacles
       lastObstacleIn = obstacle_detection;
 
-     //Update LCM 
-    obstacleMessageIn.bearing = lastObstacleIn.leftBearing; //update LCM bearing field
-    obstacleMessageIn.rightBearing = lastObstacleIn.rightBearing;
-    if(lastObstacleIn.distance <= obstacle_detection.distance)
-      obstacleMessageIn.distance = (lastObstacleIn.distance/1000); //update LCM distance field
-    else
-      obstacleMessageIn.distance = (obstacle_detection.distance/1000); //update LCM distance field
-    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessageIn.bearing << "\n";
-
+    obstacleMessageIn.distance = lastObstacleIn.distance; //update LCM distance field
+    obstacleMessageIn.bearing = lastObstacleIn.bearing; //update LCM bearing field
+    #if PERCEPTION_DEBUG
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessageIn.bearing << "\n";
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Distance Sent: " << obstacleMessageIn.distance << "\n";
+    #endif
   #if PERCEPTION_DEBUG
       //Update Processed 3D Viewer
-      viewerIn->updatePointCloud(pointCloudIn.pt_cloud_ptr);
-      viewerIn->spinOnce(20);
+      pointCloudIn.updateViewer(newView);
       cerr<<"Downsampled W: " <<pointCloudIn.pt_cloud_ptr->width<<" Downsampled H: "<<pointCloudIn.pt_cloud_ptr->height<<endl;
   #endif
     
@@ -119,13 +96,7 @@ int main() {
   #if OBSTACLE_DETECTION
 
   PCL pointcloud;
-
-  #if PERCEPTION_DEBUG
-    /* --- Create PCL Visualizer --- */
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer = pointcloud.createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer_original = pointcloud.createRGBVisualizer();
-  #endif
-
+  
   /* --- Outlier Detection --- */
   int numChecks = 3;
   deque <bool> outliers;
@@ -161,39 +132,51 @@ int main() {
     #if AR_DETECTION
     Mat rgb;
     Mat src = cam.image();
+    Mat depth_img = cam.depth();
+    #endif
+
+    #if OBSTACLE_DETECTION
+        //Update Point Cloud
+        pointcloud.update();
+        cam.getDataCloud(pointcloud.pt_cloud_ptr);
     #endif
 
     #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
-        cam.disk_record_init();
+            if (iterations % FRAME_WRITE_INTERVAL == 0) {
+                Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
+                #if PERCEPTION_DEBUG
+                    cout << "Copied correctly" << endl;
+                #endif
+                cam.write_curr_frame_to_disk(rgb_copy, depth_copy, pointcloud.pt_cloud_ptr, iterations);
+              }
     #endif
 
   // Launch the two threads
   //thread ARTagThread(ARTagProcessing, ref(rgb), ref(src), ref(depth_img), ref(detector), ref(tagPair), ref(cam), ref(arTags));
-  auto grabStart2 = std::chrono::high_resolution_clock::now();
-  thread PCLThread(PCLProcessing, ref(pointcloud), ref(viewer), ref(viewer_original), ref(outliers), ref(lastObstacle), 
-                    ref(obstacleMessage), ref(checkTrue), ref(checkFalse));
-  auto bigEnd2 = std::chrono::high_resolution_clock::now();
-    auto loopDur2 = std::chrono::duration_cast<std::chrono::microseconds>(bigEnd2 - grabStart2); 
-    fout << (loopDur2.count()/1.0e3) << " \n";
-  //ARTagThread.join();
-  //PCLThread.join();
-  
+  thread PCLThread(PCLProcessing, ref(pointcloud), ref(outliers), ref(lastObstacle), ref(obstacleMessage), 
+                    ref(checkTrue), ref(checkFalse));
+ 
 /* --- AR Tag Processing --- */
-     arTags[0].distance = -1;
-    arTags[1].distance = -1;
+  arTags[0].distance = -1;
+  arTags[1].distance = -1;
+  #if AR_DETECTION
+      tagPair = detector.findARTags(src, depth_img, rgb);
+      #if AR_RECORD
+          cam.record_ar(rgb);
+      #endif
 
-    #if PERCEPTION_DEBUG && AR_DETECTION
+      detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
+
+  #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
       waitKey(1);  
-    #endif
+  #endif
 
-    #endif 
+  #endif
 
-    auto grabStart3 = std::chrono::high_resolution_clock::now();
-    PCLThread.join();
-    auto bigEnd3 = std::chrono::high_resolution_clock::now();
-    auto loopDur3 = std::chrono::duration_cast<std::chrono::microseconds>(bigEnd3 - grabStart3); 
-    fout << (loopDur3.count()/1.0e3) << " \n";
+   
+  PCLThread.join();
+    
 /* --- Point Cloud Processing --- */
     /* #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
     
@@ -240,15 +223,14 @@ int main() {
     
     #endif */
     
-    time_t now = time(0);
-    char* ltm = ctime(&now);
-    string timeStamp(ltm);
+  /* --- Publish LCMs --- */
+    lcm_.publish("/target_list", &arTagsMessage);
+    lcm_.publish("/obstacle", &obstacleMessage);
 
-    #if AR_RECORD
-    //initializing ar tag videostream object
-    cam.record_ar_init();
+    #if !ZED_SDK_PRESENT
+            std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
     #endif
-    
+
     ++iterations;
     auto bigEnd = std::chrono::high_resolution_clock::now();
     auto loopDur= std::chrono::duration_cast<std::chrono::microseconds>(bigEnd - grabStart); 
@@ -259,12 +241,12 @@ int main() {
  
 /* --- Wrap Things Up --- */
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
-    viewer->close();
+    pointcloud.~PCL();
   #endif
   
-    #if AR_RECORD
+  #if AR_RECORD
         cam.record_ar_finish();
-    #endif
+  #endif
   
     return 0;
 }
