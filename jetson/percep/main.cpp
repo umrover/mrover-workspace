@@ -234,7 +234,7 @@ int main() {
     ++iterations;
     auto bigEnd = std::chrono::high_resolution_clock::now();
     auto loopDur= std::chrono::duration_cast<std::chrono::microseconds>(bigEnd - grabStart); 
-    fout << (loopDur.count()/1.0e3) << " \n\n";
+    fout << (loopDur.count()/1.0e3) << " \n";
     fout.flush();
   }
   fout.close();
