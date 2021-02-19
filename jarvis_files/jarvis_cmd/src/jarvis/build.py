@@ -123,16 +123,16 @@ def build_deps(ctx):
         with ctx.cd(ctx.root):
             with ctx.inside_product_env():
                 print("Installing pip dependencies...")
-                ctx.run("pip install --upgrade pip", hide='out')
+                ctx.run("pip3 install --upgrade pip3")
+                ctx.run("pip3 install cython")
                 # Jarvis dependencies
-                ctx.run("pip install -r {}/requirements.txt".format(
-                    ctx.jarvis_root), hide='out')
+                ctx.run("pip3 install -r {}/requirements.txt".format(
+                    ctx.jarvis_root))
                 # Workspace dependencies
-                ctx.run("pip install -r pip_deps/requirements.txt", hide='out')
+                ctx.run("pip3 install -r pip_deps/requirements.txt")
                 if site_cfg['jetson']:
                     print("Installing jetson pip dependencies...")
-                    ctx.run("pip install -r pip_deps/jetson_requirements.txt",
-                        hide='out')
+                    ctx.run("pip3 install -r pip_deps/jetson_requirements.txt")
         pip_hasher.save()
     else:
         print("pip dependencies already installed, skipping.")
