@@ -50,7 +50,7 @@ public:
             break;
         case Motor12V:
             speed_max = 33;
-	        break;
+	    break;
         case None:
             break;
         }
