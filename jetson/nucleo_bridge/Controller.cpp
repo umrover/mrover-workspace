@@ -212,10 +212,10 @@ void Controller::make_live()
 void Controller::record_angle(int32_t angle)
 {
     float other_angle = (static_cast<float>(angle) / quad_cpr) * 2.0 * M_PI;
-    if (std::abs(other_angle - current_angle) < M_PI / 16.0)
-    {
+    //if (std::abs(other_angle - current_angle) < M_PI / 16.0)
+    //{
         current_angle = other_angle;
-    }
+    //}
 }
 
 //Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use
@@ -231,7 +231,7 @@ void Controller::open_loop(float input)
         // sent as a number between -1.0 and 1.0
 	uint8_t buffer[32];
         float throttle = hardware.throttle(input);
-        print("throttle: ", throttle);
+        // print("throttle: ", throttle);
 	    memcpy(buffer, UINT8_POINTER_T(&throttle), 4);
 
         int32_t angle;
