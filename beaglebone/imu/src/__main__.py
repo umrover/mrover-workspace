@@ -22,7 +22,7 @@ UART.setup("UART2")
 #pg 15 for talking about packets    This is spi though, Not UART?
 #ser.write(0x00)
 
-
+#pip install
 
 #Wants Gyroscopic accelerometer and magnetometer data
 #Data Registers
@@ -96,6 +96,27 @@ def resetEKF():
     cmd_buffer[6] = checksum & 0xB0
 
     ser.write(cmd_buffer)
+    
+
+
+def setRate():
+    cmd_buffer[0] = ord('s')
+    cmd_buffer[1] = ord('n')
+    cmd_buffer[2] = ord('p')
+    cmd_buffer[3] = 0x40
+    cmd_buffer[4] = 0x04 #Processed Data
+
+    checksum = ord('s') + ord('n') + ord('p') + 0x04
+
+    cmd_buffer[5] = 0x3f #Data that is non zero
+    
+    cmd_buffer[6] = checksum >> 8
+    cmd_buffer[7] = checksum & 0xB0
+
+    ser.write(cmd_buffer)
+    print (cmd_buffer)
+
+    
 
 
 def read_data(register):
@@ -109,7 +130,7 @@ def read_data(register):
     cmd_buffer[0] = ord('s')
     cmd_buffer[1] = ord('n')
     cmd_buffer[2] = ord('p')
-    cmd_buffer[3] = 0x40
+    cmd_buffer[3] = 0x00
     cmd_buffer[4] = register
 
     checksum = ord('s') + ord('n') + ord('p') + register
@@ -117,32 +138,31 @@ def read_data(register):
     cmd_buffer[5] = 0
     cmd_buffer[6] = checksum >> 8
     cmd_buffer[7] = checksum & 0xFF
-    print(cmd_buffer)
 
     #Attempting to get a reading from the UM7
     ser.write(cmd_buffer)
+
+
     value = ser.read()
     print(value)
-    value = ser.read()
-    print(value)
-    value = ser.read()
-    print(value)
+
     return value
 
 
 checkfirmware()
 resetEKF()
+setRate()
 while ser.isOpen():
     
     GyroX = read_data(XGyro)
-    GyroY = read_data(YGyro)
-    GyroZ = read_data(ZGyro)
-    AccelX = read_data(XAccel)
-    AccelY = read_data(YAccel)
-    AccelZ = read_data(ZAccel)
-    MagX = read_data(XMag)
-    MagY = read_data(YMag)
-    MagZ = read_data(ZMag)
+    #GyroY = read_data(YGyro)
+    #GyroZ = read_data(ZGyro)
+    #AccelX = read_data(XAccel)
+    #AccelY = read_data(YAccel)
+    #AccelZ = read_data(ZAccel)
+    #MagX = read_data(XMag)
+    #MagY = read_data(YMag)
+    #MagZ = read_data(ZMag)
     
     #ser.write('s','n','p', PT, XGyro)
 
