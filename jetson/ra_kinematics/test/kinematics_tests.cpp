@@ -57,7 +57,7 @@ bool vec3dAlmostEqual(Vector3d a, Vector3d b, double epsilon) {
 }
 
 TEST(kinematics_initialization) {
-    cout << setprecision(9);
+    cout << setprecision(8);
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
     
     json geom = read_json_from_file(geom_file);
@@ -66,7 +66,7 @@ TEST(kinematics_initialization) {
 }
 
 TEST(fk_test) {
-    cout << setprecision(9);
+    cout << setprecision(8);
     // Create the arm to be tested on:
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
@@ -112,7 +112,7 @@ TEST(fk_test) {
             0,         -0.41614684, -0.90929743, -0.03164172,
             0,          0.90929743, -0.41614684,  0.949370,
             0,          0,           0,           1;
-
+    // Assert links are being created accurately
     ASSERT_TRUE(transMatAlmostEqual(a_b, arm.get_link_xform("a-b"), epsilon));
     ASSERT_TRUE(transMatAlmostEqual(b_c, arm.get_link_xform("b-c"), epsilon));
     ASSERT_TRUE(transMatAlmostEqual(c_d, arm.get_link_xform("c-d"), epsilon));
@@ -120,13 +120,26 @@ TEST(fk_test) {
     ASSERT_TRUE(transMatAlmostEqual(e_f, arm.get_link_xform("e-f"), epsilon));
     ASSERT_TRUE(transMatAlmostEqual(hand, arm.get_link_xform("hand"), epsilon));
     ASSERT_TRUE(transMatAlmostEqual(ef, arm.get_ef_transform(), epsilon));
-
+    // Assert joints arebeing created accurately:
+    Vector3d joint_a(0, 0, 0);
+    Vector3d joint_b(0, 0.05055616, 0.02538222);
+    Vector3d joint_c(-0.09827959,  0.24160829,  0.35230844);
+    Vector3d joint_d(-0.09827959,  0.09262998,  0.677832);
+    Vector3d joint_e(-0.02064893,  0.09262998,  0.677832);
+    Vector3d joint_f(-0.02064893,  0.02407344,  0.82763077);
+    ASSERT_TRUE(vec3dAlmostEqual(joint_a, arm.get_joint_pos_world("joint_a"), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_b, arm.get_joint_pos_world("joint_b"), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_c, arm.get_joint_pos_world("joint_c"), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_d, arm.get_joint_pos_world("joint_d"), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_e, arm.get_joint_pos_world("joint_e"), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_f, arm.get_joint_pos_world("joint_f"), epsilon));
+    // FK working , yay!!!
 }
 
 // TEST(apply_joint_xform_test) {}
 
 TEST(ik_test) {
-    cout << setprecision(9);
+    // cout << setprecision(8);
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
     json geom = read_json_from_file(geom_file);
@@ -134,10 +147,10 @@ TEST(ik_test) {
     KinematicsSolver solver = KinematicsSolver();
     // Create target point vector:
     Vector6d target;
-    target << 0.28873017665603573,0.022374986261356488,0.10726454148173355,
-                1.8729278741492037,2.235500299169628,0.161684737768472;
+    target <<   0.43561896709482717, -0.5849202310118653, -0.23898894427981895,
+                -0.19091988273941293, 0.5705597354134033, -2.8999168062356357;
     solver.FK(arm);
-    solver.IK(arm, target, true, false);
+    solver.IK(arm, target, false, false);
 }
 
 // TEST(ik_step_test) {}
