@@ -9,7 +9,7 @@
         "name":"HAND_GRIP",
         "type":"Motor12V",
         "nucleo": 0,
-        "channel": 4
+        "channel": 3
     },
     {
         "name":"FOOT_CLAW",
@@ -30,29 +30,17 @@
         "channel": 2
     },
     {
-        "name":"GIMBAL_PITCH_1",
-        "type":"Motor6V",
-        "nucleo": 2,
-        "channel": 2
-    },
-    {
         "name":"GIMBAL_YAW_0",
         "type":"Motor6V",
-        "nucleo": 1,
-        "channel": 4
-    },
-    {
-        "name":"GIMBAL_YAW_1",
-        "type":"Motor6V",
-        "nucleo": 2,
-        "channel": 4
+        "nucleo": 0,
+        "channel": 5
     },
     {
         "name":"ZED_GIMBAL_YAW",
-        "type":"Motor6V",
+        "type":"Motor12V",
         "nucleo": 2,
-        "channel": 0,
-        "quadCPR": 20,
+        "channel": 1,
+        "quadCPR": 1.0,
         "kP": 0.001,
         "kI":0.00005
     },
@@ -82,7 +70,7 @@
         "type":"Motor12V",
         "nucleo": 0,
         "channel": 0,
-        "quadCPR": 994.0
+        "quadCPR": 9600.0
     },
     {
         "name":"RA_1",
@@ -96,7 +84,7 @@
         "type":"Motor12V",
         "nucleo": 1,
         "channel": 0,
-        "quadCPR": 342506.67,
+        "quadCPR": 1216.0,
         "kP": 0.001,
         "kI": 0.00005
     },
@@ -105,7 +93,7 @@
         "type":"Motor12V",
         "nucleo": 1,
         "channel": 1,
-        "quadCPR": 180266.67,
+        "quadCPR": 640.0,
         "kP": 0.001,
         "kI": 0.00005
     },
@@ -114,7 +102,7 @@
         "type":"Motor12V",
         "nucleo": 2,
         "channel": 0,
-        "quadCPR": 180266.67,
+        "quadCPR": 640.0,
         "kP": -0.001,
         "kI": -0.00005
     },

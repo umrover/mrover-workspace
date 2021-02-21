@@ -122,14 +122,12 @@ void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *ms
 void LCMHandler::InternalHandler::gimbal_cmd(LCM_INPUT, const GimbalCmd *msg)
 {
     ControllerMap::controllers["GIMBAL_PITCH_0"]->open_loop(msg->pitch[0]);
-    ControllerMap::controllers["GIMBAL_PITCH_1"]->open_loop(msg->pitch[1]);
     ControllerMap::controllers["GIMBAL_YAW_0"]->open_loop(msg->yaw[0]);
-    ControllerMap::controllers["GIMBAL_YAW_1"]->open_loop(msg->yaw[1]);
 }
 
 
 void LCMHandler::InternalHandler::zed_gimbal_cmd(LCM_INPUT, const ZedGimbalPosition *msg) {
-    ControllerMap::controllers["ZED_GIMBAL_YAW"]->closed_loop(1, msg->angle);
+    ControllerMap::controllers["ZED_GIMBAL_YAW"]->closed_loop(0, msg->angle);
     zed_gimbal_data();
     //FF term isn't used 
 }
