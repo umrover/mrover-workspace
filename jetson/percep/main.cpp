@@ -59,8 +59,6 @@ void PCLProcessing(PCL &pointCloudIn, deque<bool> &outliersIn, obstacle_return &
 }
 
 int main() {
-  ofstream fout;
-  fout.open("fpsdata.txt", ios::out);
 
   /* --- Camera Initializations --- */
   Camera cam;
@@ -121,7 +119,6 @@ int main() {
 
 /* --- Main Processing Stuff --- */
   while (true) {
-    auto grabStart = std::chrono::high_resolution_clock::now();
     //Check to see if we were able to grab the frame
     if (!cam.grab()) break;
 
@@ -151,8 +148,7 @@ int main() {
               }
     #endif
 
-  // Launch the two threads
-  //thread ARTagThread(ARTagProcessing, ref(rgb), ref(src), ref(depth_img), ref(detector), ref(tagPair), ref(cam), ref(arTags));
+  // Launch PCL thread
   thread PCLThread(PCLProcessing, ref(pointcloud), ref(outliers), ref(lastObstacle), ref(obstacleMessage), 
                     ref(checkTrue), ref(checkFalse));
  
@@ -174,55 +170,9 @@ int main() {
 
   #endif
 
-   
+  // Wait for PCL thread to finish
   PCLThread.join();
-    
-/* --- Point Cloud Processing --- */
-    /* #if OBSTACLE_DETECTION && !WRITE_CURR_FRAME_TO_DISK
-    
-    #if PERCEPTION_DEBUG
-    //Update Original 3D Viewer
-    viewer_original->updatePointCloud(pointcloud.pt_cloud_ptr);
-    viewer_original->spinOnce(10);
-    cerr<<"Original W: " <<pointcloud.pt_cloud_ptr->width<<" Original H: "<<pointcloud.pt_cloud_ptr->height<<endl;
-    #endif
-
-    //Run Obstacle Detection
-    pointcloud.pcl_obstacle_detection(viewer);  
-    obstacle_return obstacle_detection (pointcloud.leftBearing, pointcloud.rightBearing, pointcloud.distance);
-
-    //Outlier Detection Processing
-    outliers.pop_back(); //Remove outdated outlier value
-
-    if(pointcloud.leftBearing > 0.05 || pointcloud.leftBearing < -0.05) //Check left bearing
-        outliers.push_front(true);//if an obstacle is detected in front
-    else 
-        outliers.push_front(false); //obstacle is not detected
-
-    PCL pointcloud;
-    enum viewerType {
-        newView, //set to 0 -or false- to be passed into updateViewer later
-        originalView //set to 1 -or true- to be passed into updateViewer later
-    };
-
-     //Update LCM 
-    obstacleMessage.bearing = lastObstacle.leftBearing; //update LCM bearing field
-    obstacleMessage.rightBearing = lastObstacle.rightBearing;
-    if(lastObstacle.distance <= obstacle_detection.distance)
-      obstacleMessage.distance = (lastObstacle.distance/1000); //update LCM distance field
-    else
-      obstacleMessage.distance = (obstacle_detection.distance/1000); //update LCM distance field
-    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
-
-    #if PERCEPTION_DEBUG
-      //Update Processed 3D Viewer
-      viewer->updatePointCloud(pointcloud.pt_cloud_ptr);
-      viewer->spinOnce(20);
-      cerr<<"Downsampled W: " <<pointcloud.pt_cloud_ptr->width<<" Downsampled H: "<<pointcloud.pt_cloud_ptr->height<<endl;
-    #endif
-    
-    #endif */
-    
+  
   /* --- Publish LCMs --- */
     lcm_.publish("/target_list", &arTagsMessage);
     lcm_.publish("/obstacle", &obstacleMessage);
@@ -232,13 +182,8 @@ int main() {
     #endif
 
     ++iterations;
-    auto bigEnd = std::chrono::high_resolution_clock::now();
-    auto loopDur= std::chrono::duration_cast<std::chrono::microseconds>(bigEnd - grabStart); 
-    fout << (loopDur.count()/1.0e3) << " \n";
-    fout.flush();
   }
-  fout.close();
- 
+
 /* --- Wrap Things Up --- */
   #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
     pointcloud.~PCL();
