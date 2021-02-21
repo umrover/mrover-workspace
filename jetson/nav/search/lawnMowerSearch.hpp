@@ -16,7 +16,7 @@ public:
 
     // Initializes the search point multipliers to be the intermost loop
     // of the search.
-    void initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, const double pathWidth );
+    void initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, const double pathWidth );
 };
 
 #endif //LAWN_MOWER_SEARCH_HPP

@@ -16,7 +16,7 @@ public:
 
     // Initializes the search ponit multipliers to be the intermost loop
     // of the search.
-    void initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, const double pathWidth );
+    void initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, const double pathWidth );
 };
 
 #endif //SPIRAL_IN_SEARCH_HPP

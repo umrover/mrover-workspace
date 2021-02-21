@@ -26,9 +26,9 @@ public:
 
     NavState run();
 
-    bool targetReachable( Rover* phoebe, double distance, double bearing );
+    bool targetReachable( Rover* rover, double distance, double bearing );
 
-    virtual void initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
+    virtual void initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
 
 protected:
     /*************************************************************************/
@@ -51,7 +51,7 @@ protected:
     deque<Odometry> mSearchPoints;
 
     // Pointer to rover object
-    Rover* mPhoebe;
+    Rover* mRover;
 
 private:
     /*************************************************************************/

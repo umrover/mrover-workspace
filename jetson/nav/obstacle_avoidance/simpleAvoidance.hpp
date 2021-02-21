@@ -13,11 +13,11 @@ public:
 
     ~SimpleAvoidance();
 
-    NavState executeTurnAroundObs( Rover* phoebe, const rapidjson::Document& roverConfig );
+    NavState executeTurnAroundObs( Rover* rover, const rapidjson::Document& roverConfig );
 
-    NavState executeDriveAroundObs( Rover* phoebe );
+    NavState executeDriveAroundObs( Rover* rover );
 
-    Odometry createAvoidancePoint( Rover* phoebe, const double distance );
+    Odometry createAvoidancePoint( Rover* rover, const double distance );
 };
 
 #endif //SIMPLE_AVOIDANCE_HPP

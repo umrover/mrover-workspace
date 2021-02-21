@@ -10,14 +10,14 @@
 GateStateMachine::GateStateMachine( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig )
     : mRoverStateMachine( stateMachine )
     , mRoverConfig( roverConfig )
-    , mPhoebe( rover ) {}
+    , mRover( rover ) {}
 
 GateStateMachine::~GateStateMachine() {}
 
 // Execute loop through gate state machine.
 NavState GateStateMachine::run()
 {
-    switch ( mPhoebe->roverStatus().currentState() )
+    switch ( mRover->roverStatus().currentState() )
     {
         case NavState::GateSpin:
         {
@@ -80,8 +80,8 @@ NavState GateStateMachine::executeGateSpin()
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
 
-    if( mPhoebe->roverStatus().target2().distance >= 0 ||
-        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    if( mRover->roverStatus().target2().distance >= 0 ||
+        ( mRover->roverStatus().target().distance >= 0 && mRover->roverStatus().target().id != lastKnownPost1.id ))
     {
         updatePost2Info();
         calcCenterPoint();
@@ -91,10 +91,10 @@ NavState GateStateMachine::executeGateSpin()
     if ( nextStop == 0 )
     {
         // get current angle and set as origAngle
-        mOriginalSpinAngle = mPhoebe->roverStatus().odometry().bearing_deg; //doublecheck
+        mOriginalSpinAngle = mRover->roverStatus().odometry().bearing_deg; //doublecheck
         nextStop = mOriginalSpinAngle;
     }
-    if( mPhoebe->turn( nextStop ) )
+    if( mRover->turn( nextStop ) )
     {
         if( nextStop - mOriginalSpinAngle >= 360 )
         {
@@ -113,8 +113,8 @@ NavState GateStateMachine::executeGateSpinWait()
     static bool started = false;
     static time_t startTime;
 
-    if( mPhoebe->roverStatus().target2().distance >= 0 ||
-        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    if( mRover->roverStatus().target2().distance >= 0 ||
+        ( mRover->roverStatus().target().distance >= 0 && mRover->roverStatus().target().id != lastKnownPost1.id ))
     {
         updatePost2Info();
         calcCenterPoint();
@@ -123,7 +123,7 @@ NavState GateStateMachine::executeGateSpinWait()
 
     if( !started )
     {
-        mPhoebe->stop();
+        mRover->stop();
         startTime = time( nullptr );
         started = true;
     }
@@ -144,8 +144,8 @@ NavState GateStateMachine::executeGateTurn()
         initializeSearch();
     }
 
-    if( mPhoebe->roverStatus().target2().distance >= 0 ||
-        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    if( mRover->roverStatus().target2().distance >= 0 ||
+        ( mRover->roverStatus().target().distance >= 0 && mRover->roverStatus().target().id != lastKnownPost1.id ))
     {
         updatePost2Info();
         calcCenterPoint();
@@ -153,7 +153,7 @@ NavState GateStateMachine::executeGateTurn()
     }
 
     Odometry& nextSearchPoint = mGateSearchPoints.front();
-    if( mPhoebe->turn( nextSearchPoint ) )
+    if( mRover->turn( nextSearchPoint ) )
     {
         return NavState::GateDrive;
     }
@@ -163,8 +163,8 @@ NavState GateStateMachine::executeGateTurn()
 //
 NavState GateStateMachine::executeGateDrive()
 {
-    if( mPhoebe->roverStatus().target2().distance >= 0 ||
-        ( mPhoebe->roverStatus().target().distance >= 0 && mPhoebe->roverStatus().target().id != lastKnownPost1.id ))
+    if( mRover->roverStatus().target2().distance >= 0 ||
+        ( mRover->roverStatus().target().distance >= 0 && mRover->roverStatus().target().id != lastKnownPost1.id ))
     {
         updatePost2Info();
         calcCenterPoint();
@@ -172,14 +172,14 @@ NavState GateStateMachine::executeGateDrive()
     }
 
     // TODO
-    // if( isObstacleDetected( phoebe ) )
+    // if( isObstacleDetected( rover ) )
     // {
-    //     roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
-    //     roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
+    //     roverStateMachine->updateObstacleAngle( rover->roverStatus().obstacle().bearing );
+    //     roverStateMachine->updateObstacleDistance( rover->roverStatus().obstacle().distance );
     //     return NavState::SearchTurnAroundObs;
     // }
     const Odometry& nextSearchPoint = mGateSearchPoints.front();
-    DriveStatus driveStatus = mPhoebe->drive( nextSearchPoint );
+    DriveStatus driveStatus = mRover->drive( nextSearchPoint );
 
     if( driveStatus == DriveStatus::Arrived )
     {
@@ -195,7 +195,7 @@ NavState GateStateMachine::executeGateDrive()
 
 NavState GateStateMachine::executeGateTurnToCentPoint()
 {
-    if( mPhoebe->turn( centerPoint1 ) )
+    if( mRover->turn( centerPoint1 ) )
     {
         return NavState::GateDriveToCentPoint;
     }
@@ -205,7 +205,7 @@ NavState GateStateMachine::executeGateTurnToCentPoint()
 NavState GateStateMachine::executeGateDriveToCentPoint()
 {
     // TODO: Obstacle Avoidance?
-    DriveStatus driveStatus = mPhoebe->drive( centerPoint1 );
+    DriveStatus driveStatus = mRover->drive( centerPoint1 );
 
     if( driveStatus == DriveStatus::Arrived )
     {
@@ -220,7 +220,7 @@ NavState GateStateMachine::executeGateDriveToCentPoint()
 
 NavState GateStateMachine::executeGateFace()
 {
-    if( mPhoebe->turn( centerPoint2 ) )
+    if( mRover->turn( centerPoint2 ) )
     {
         return NavState::GateShimmy;
     }
@@ -232,11 +232,11 @@ NavState GateStateMachine::executeGateShimmy()
     static int direction = 1; // 1 = forward, -1 = backwards
     const double fovDepth = mRoverConfig["computerVision"]["visionDistance"].GetDouble();
     const double fovAngle = mRoverConfig["computerVision"]["fieldOfViewSafeAngle"].GetDouble();
-    const Odometry currOdom = mPhoebe->roverStatus().odometry();
+    const Odometry currOdom = mRover->roverStatus().odometry();
 
     // If we are centered
-    const double targetAnglesDiff = mPhoebe->roverStatus().target().bearing +
-                                    mPhoebe->roverStatus().target2().bearing;
+    const double targetAnglesDiff = mRover->roverStatus().target().bearing +
+                                    mRover->roverStatus().target2().bearing;
     if(targetAnglesDiff < mRoverConfig["navThresholds"]["gateCenteredAngleDiff"].GetDouble())
     {
         direction = 1;
@@ -244,30 +244,30 @@ NavState GateStateMachine::executeGateShimmy()
     }
 
     // If we need to switch directions
-    const bool visibleTargetAngles = mPhoebe->roverStatus().target().bearing > fovAngle / 2 &&
-                                     mPhoebe->roverStatus().target2().bearing < fovAngle / 2;
-    const bool visibleTargetDists = mPhoebe->roverStatus().target().distance < fovDepth &&
-                                    mPhoebe->roverStatus().target2().distance < fovDepth;
+    const bool visibleTargetAngles = mRover->roverStatus().target().bearing > fovAngle / 2 &&
+                                     mRover->roverStatus().target2().bearing < fovAngle / 2;
+    const bool visibleTargetDists = mRover->roverStatus().target().distance < fovDepth &&
+                                    mRover->roverStatus().target2().distance < fovDepth;
     if(!visibleTargetAngles || !visibleTargetDists)
     {
-        mPhoebe->stop();
+        mRover->stop();
         direction = direction == 1 ? -1 : 1;
         return NavState::GateFace;
     }
 
     // Otherwise keep driving
-    const double gateWidth = mPhoebe->roverStatus().path().front().gate_width;
+    const double gateWidth = mRover->roverStatus().path().front().gate_width;
     const double gateAngle = calcBearing(lastKnownPost1.odom, lastKnownPost2.odom); // Angle from post 1 to post 2
-    const Odometry gateCent = createOdom(lastKnownPost1.odom, gateAngle, gateWidth / 2, mPhoebe);
+    const Odometry gateCent = createOdom(lastKnownPost1.odom, gateAngle, gateWidth / 2, mRover);
     const double roverToGateCentAngle = calcBearing(currOdom, gateCent); // ablsolute angle
-    mPhoebe->drive(direction, roverToGateCentAngle); // TODO: drive straight when going backwards
+    mRover->drive(direction, roverToGateCentAngle); // TODO: drive straight when going backwards
     return NavState::GateShimmy;
 } // executeGateShimmy()
 
 NavState GateStateMachine::executeGateDriveThrough()
 {
     // TODO: Obstacle Avoidance?
-    DriveStatus driveStatus = mPhoebe->drive( centerPoint2 );
+    DriveStatus driveStatus = mRover->drive( centerPoint2 );
 
     if( driveStatus == DriveStatus::Arrived )
     {
@@ -279,7 +279,7 @@ NavState GateStateMachine::executeGateDriveThrough()
             CP1ToCP2CorrectDir = true;
             return NavState::GateFace;
         }
-        mPhoebe->roverStatus().path().pop_front();
+        mRover->roverStatus().path().pop_front();
         mRoverStateMachine->updateCompletedPoints();
         return NavState::Turn;
     }
@@ -294,27 +294,27 @@ NavState GateStateMachine::executeGateDriveThrough()
 // Update stored location and id for second post.
 void GateStateMachine::updatePost2Info()
 {
-    if(mPhoebe->roverStatus().target2().distance >= 0 && mPhoebe->roverStatus().target().id == lastKnownPost1.id)
+    if(mRover->roverStatus().target2().distance >= 0 && mRover->roverStatus().target().id == lastKnownPost1.id)
     {
-        const double targetAbsAngle = mod(mPhoebe->roverStatus().odometry().bearing_deg +
-                                          mPhoebe->roverStatus().target2().bearing,
+        const double targetAbsAngle = mod(mRover->roverStatus().odometry().bearing_deg +
+                                          mRover->roverStatus().target2().bearing,
                                           360);
-        lastKnownPost2.odom = createOdom( mPhoebe->roverStatus().odometry(),
+        lastKnownPost2.odom = createOdom( mRover->roverStatus().odometry(),
                                           targetAbsAngle,
-                                          mPhoebe->roverStatus().target2().distance,
-                                          mPhoebe );
-        lastKnownPost2.id = mPhoebe->roverStatus().target2().id;
+                                          mRover->roverStatus().target2().distance,
+                                          mRover );
+        lastKnownPost2.id = mRover->roverStatus().target2().id;
     }
     else
     {
-        const double targetAbsAngle = mod(mPhoebe->roverStatus().odometry().bearing_deg +
-                                          mPhoebe->roverStatus().target().bearing,
+        const double targetAbsAngle = mod(mRover->roverStatus().odometry().bearing_deg +
+                                          mRover->roverStatus().target().bearing,
                                           360);
-        lastKnownPost2.odom = createOdom( mPhoebe->roverStatus().odometry(),
+        lastKnownPost2.odom = createOdom( mRover->roverStatus().odometry(),
                                           targetAbsAngle,
-                                          mPhoebe->roverStatus().target().distance,
-                                          mPhoebe );
-        lastKnownPost2.id = mPhoebe->roverStatus().target().id;
+                                          mRover->roverStatus().target().distance,
+                                          mRover );
+        lastKnownPost2.id = mRover->roverStatus().target().id;
     }
 } // updatePost2Info()
 
@@ -324,9 +324,9 @@ void GateStateMachine::updatePost2Info()
 // through it in the correct direction.
 void GateStateMachine::calcCenterPoint()
 {
-    const Odometry& currOdom = mPhoebe->roverStatus().odometry();
+    const Odometry& currOdom = mRover->roverStatus().odometry();
     const double distFromGate = 3;
-    const double gateWidth = mPhoebe->roverStatus().path().front().gate_width;
+    const double gateWidth = mRover->roverStatus().path().front().gate_width;
     const double tagToPointAngle = radianToDegree(atan2(distFromGate, gateWidth / 2));
     const double gateAngle = calcBearing(lastKnownPost1.odom, lastKnownPost2.odom);
     const double absAngle1 = mod(gateAngle + tagToPointAngle, 360);
@@ -335,8 +335,8 @@ void GateStateMachine::calcCenterPoint()
     // Assuming that CV works well enough that we don't pass through the gate before
     // finding the second post. Thus, centerPoint1 will always be closer.
     // TODO: verify this
-    centerPoint1 = createOdom(lastKnownPost1.odom, absAngle1, tagToPointDist, mPhoebe);
-    centerPoint2 = createOdom(lastKnownPost2.odom, absAngle2, tagToPointDist, mPhoebe);
+    centerPoint1 = createOdom(lastKnownPost1.odom, absAngle1, tagToPointDist, mRover);
+    centerPoint2 = createOdom(lastKnownPost2.odom, absAngle2, tagToPointDist, mRover);
     const double cp1Dist = estimateNoneuclid(currOdom, centerPoint1);
     const double cp2Dist = estimateNoneuclid(currOdom, centerPoint2);
     if(lastKnownPost1.id % 2)
@@ -358,7 +358,7 @@ void GateStateMachine::calcCenterPoint()
 } // calcCenterPoint()
 
 // Creates an GateStateMachine object
-GateStateMachine* GateFactory( StateMachine* stateMachine, Rover* phoebe, const rapidjson::Document& roverConfig )
+GateStateMachine* GateFactory( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig )
 {
-    return new DiamondGateSearch( stateMachine, phoebe, roverConfig );
+    return new DiamondGateSearch( stateMachine, rover, roverConfig );
 } // GateFactor()

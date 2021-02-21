@@ -33,11 +33,11 @@ public:
 
     bool isTargetDetected();
 
-    virtual Odometry createAvoidancePoint( Rover* phoebe, const double distance ) = 0;
+    virtual Odometry createAvoidancePoint( Rover* rover, const double distance ) = 0;
 
-    virtual NavState executeTurnAroundObs( Rover* phoebe, const rapidjson::Document& roverConfig ) = 0;
+    virtual NavState executeTurnAroundObs( Rover* rover, const rapidjson::Document& roverConfig ) = 0;
 
-    virtual NavState executeDriveAroundObs( Rover* phoebe ) = 0;
+    virtual NavState executeDriveAroundObs( Rover* rover ) = 0;
 
 protected:
     /*************************************************************************/
@@ -63,7 +63,7 @@ protected:
     double mLastObstacleAngle;
 
     // Pointer to rover object
-    Rover* mPhoebe;
+    Rover* mRover;
 
 private:
     /*************************************************************************/
