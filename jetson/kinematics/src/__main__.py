@@ -14,7 +14,7 @@ from .mrover_arm import MRoverArm
 # from .kinematics_tester import KinematicsTester
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from .kinematics import KinematicsSolver
+# from .kinematics import KinematicsSolver
 
 
 def main():
@@ -74,9 +74,9 @@ def main():
     lcm_ = aiolcm.AsyncLCM()
 
     arm = MRoverArm(args, lcm_)
-    ra = KinematicsSolver(arm.state, lcm_)
-    target_point = [0.43561896709482717, -0.5849202310118653, -0.23898894427981895,
-                    -0.19091988273941293, 0.5705597354134033, -2.8999168062356357]
+    # ra = KinematicsSolver(arm.state, lcm_)
+    # target_point = [0.43561896709482717, -0.5849202310118653, -0.23898894427981895,
+    #                 -0.19091988273941293, 0.5705597354134033, -2.8999168062356357]
 
     ra.IK(target_point, False, False)
 
@@ -99,3 +99,5 @@ def main():
     lcm_.subscribe("/ik_enabled", arm.ik_enabled_callback)
 
     run_coroutines(lcm_.loop(), arm.execute_spline())
+
+    # print("done running kinematics")

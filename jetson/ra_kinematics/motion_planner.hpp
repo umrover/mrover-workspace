@@ -43,7 +43,7 @@ private:
         double cost;
 
     public:
-        Node(Vector6d config_in) : config(config_in), cost(0) { }
+        Node(Vector6d config_in) : config(config_in), parent(nullptr), cost(0) { }
     }; // Node class
 
     Node* start_root;

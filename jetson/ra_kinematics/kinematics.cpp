@@ -200,22 +200,21 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     vector<string> links_vec = robot_state.get_all_links();
     if (set_random_angles) {
         // ((double) rand() / (RAND_MAX)) yields random number [0,1)
-        Vector6d rand_angs;
-        rand_angs(0) = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
-        rand_angs(1) = ((double) rand() / (RAND_MAX))*0.25*M_PI;
-        rand_angs(2) = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
-        rand_angs(3) = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;;
-        rand_angs(4) = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
-        rand_angs(5) = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
+        vector<double> rand_angs;
+        rand_angs.resize(6);
 
-        int j_idx = 0;
-        for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
-            it->second.angle = rand_angs(j_idx);
-            ++j_idx;
-        }
+        rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
+        rand_angs[1] = ((double) rand() / (RAND_MAX))*0.25*M_PI;
+        rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
+        rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;;
+        rand_angs[4] = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
+        rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
+
+        robot_state.set_joint_angles(rand_angs);
         // Update transforms using FK:
         FK(robot_state);
     }
+    
     // Get position the end effector:
     Vector3d ef_ang_world = robot_state.get_ef_ang_world();
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
@@ -243,6 +242,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     }
     cout << "\n";
 
+    int num_iterations = 0;
 
     while (dist > POS_THRESHOLD or angle_dist > ANGLE_THRESHOLD) {
         if (num_iterations > MAX_ITERATIONS) {
@@ -268,9 +268,6 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
 
             return pair<Vector6d, bool> (joint_angles, false);
         }
-        if (num_iterations == 8) {
-            cout << "ef_position 1: " << robot_state.get_ef_pos_world() << "\n";
-        }
 
         Vector6d ef_to_target_b_weights = target_point - ef_vec_world;
         Vector6d ef_to_target_vec_world;
@@ -278,10 +275,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
         ef_to_target_vec_world.tail(3) = ef_to_target_b_weights.tail(3);
         // d_ef is the vector we want the ef to move in this step 
         // d_ef is a 6d vector
-        Vector6d d_ef = j_kp * ef_to_target_b_weights - j_kd * (ef_v * (ef_to_target_vec_world)/ef_to_target_vec_world.norm());
-        if (num_iterations == 8) {
-            cout << "d_ef: " << d_ef << "\n";
-        }
+        Vector6d d_ef = j_kp * ef_to_target_b_weights - j_kd * (ef_v * (ef_to_target_vec_world)/(ef_to_target_vec_world.norm()));
 
         IK_step(robot_state, d_ef, true, use_euler_angles);
         
