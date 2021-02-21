@@ -391,7 +391,7 @@ NavState StateMachine::executeDrive()
         return NavState::RadioRepeaterTurn;
     }
 
-    if( isObstacleDetected( mPhoebe ) && !isWaypointReachable( distance ) )
+    if( isObstacleDetected( mPhoebe ) && !isWaypointReachable( distance ) && inObstacleThreshold( mPhoebe, mRoverConfig ) )
     {
         mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
                                                                 getOptimalAvoidanceDistance() );
