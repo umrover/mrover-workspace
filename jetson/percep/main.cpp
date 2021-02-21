@@ -14,6 +14,7 @@ enum viewerType {
     newView, //set to 0 -or false- to be passed into updateViewer later
     originalView //set to 1 -or true- to be passed into updateViewer later
 };
+#if OBSTACLE_DETECTION
 // PCL Thread function
 void PCLProcessing(PCL &pointCloudIn, deque<bool> &outliersIn, obstacle_return &lastObstacleIn, 
                     rover_msgs::Obstacle &obstacleMessageIn, deque <bool> &checkTrueIn, deque <bool> &checkFalseIn) {
@@ -57,7 +58,7 @@ void PCLProcessing(PCL &pointCloudIn, deque<bool> &outliersIn, obstacle_return &
     
   #endif
 }
-
+#endif
 int main() {
 
   /* --- Camera Initializations --- */
@@ -148,9 +149,11 @@ int main() {
               }
     #endif
 
+  #if OBSTACLE_DETECTION
   // Launch PCL thread
   thread PCLThread(PCLProcessing, ref(pointcloud), ref(outliers), ref(lastObstacle), ref(obstacleMessage), 
                     ref(checkTrue), ref(checkFalse));
+  #endif
  
 /* --- AR Tag Processing --- */
   arTags[0].distance = -1;
@@ -170,8 +173,10 @@ int main() {
 
   #endif
 
+  #if OBSTACLE_DETECTION
   // Wait for PCL thread to finish
   PCLThread.join();
+  #endif
   
   /* --- Publish LCMs --- */
     lcm_.publish("/target_list", &arTagsMessage);
