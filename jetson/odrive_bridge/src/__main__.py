@@ -197,7 +197,7 @@ class OdriveBridge(object):
         global modrive
         global legal_controller
         print("looking for odrive")
-        odrives = ["2091358E524B", "20563591524B"]
+        odrives = ["205A377D5753", "2091358E524B", "207C39A14D4D"]
         id = odrives[legal_controller]
 
         print(id)
