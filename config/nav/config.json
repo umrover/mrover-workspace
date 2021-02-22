@@ -31,6 +31,7 @@
 		"drivingBearing": 50,
 		"waypointDistance": 2.0,
 		"targetDistance": 1.0,
+		"tagToPostDistance": 1.5,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20
 	},
