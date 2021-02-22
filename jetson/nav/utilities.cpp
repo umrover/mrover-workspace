@@ -173,6 +173,6 @@ bool isObstaclePost( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     double tagToPostThreshold = roverConfig["navThresholds"]["tagToPostDistance"].GetDouble();
     double tagToObsDist = abs( phoebe->roverStatus().obstacle().distance
-                                - phoebe->roverStatus().target().distance );
+                                - phoebe->roverStatus().leftTarget().distance );
     return tagToObsDist <= tagToPostThreshold;
 }
