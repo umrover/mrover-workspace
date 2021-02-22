@@ -133,15 +133,15 @@
 [
     {
         "name":"HAND_FINGER",
-        "type":"HBridge12V",
+        "type":"Motor12V",
         "nucleo": 0,
         "channel": 2
     },
     {
         "name":"HAND_GRIP",
         "type":"Motor12V",
-        "nucleo": 0,
-        "channel": 3
+        "nucleo": 1,
+        "channel": 2
     },
     {
         "name":"FOOT_CLAW",
@@ -159,7 +159,7 @@
         "name":"GIMBAL_PITCH_0",
         "type":"Motor6V",
         "nucleo": 1,
-        "channel": 2
+        "channel": 3
     },
     {
         "name":"GIMBAL_YAW_0",
