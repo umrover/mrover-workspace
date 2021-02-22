@@ -535,8 +535,6 @@ class Modrive:
         m_axis.encoder.config.pre_calibrated = True
 
     def check_errors(self):
-        return self._check_error_on_axis(self.front_axis) + \
-                                self._check_error_on_axis(self.back_axis)
-
-    def _check_error_on_axis(self, axis):
-        return axis.error + axis.encoder.error + axis.controller.error + axis.motor.error
+        front = self.front_axis.error
+        back = self.back_axis.error
+        return back + front

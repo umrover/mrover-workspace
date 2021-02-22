@@ -207,7 +207,7 @@ The terminal should now display that you are in mrover@mrover-jetson  \
 `$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics 
 device. \
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
-`$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="vagrant", MODE="[__MODE__]" ` \
+`$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="mrover", MODE="[__MODE__]" ` \
  Restart the VM. </font>
  
 #### ERROR_ILLEGAL_HALL_STATE
@@ -253,11 +253,3 @@ As of right now we are unsure whether or not we are using odrives for the 2021 R
 
 ### Notes
 The odrive code has been modified to work for 3 odrives on the 2021 rover for SAR. We do not plan on using odrives for URC.
-<<<<<<< HEAD
-
-
-
-
-
-=======
->>>>>>> 70cf3ced601a9e93fa807b3149b1ecbe65643d79
