@@ -320,7 +320,14 @@ void Controller::angle()
     try
     {
         int32_t angle;
-        transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
+        if (name == "RA_1") {
+            int16_t temp;
+            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&temp));
+            angle = static_cast<int32_t>(temp);
+        }
+        else {
+            transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
+        }
         record_angle(angle);
     }
     catch (IOFailure &e)
