@@ -25,7 +25,6 @@ def main():
     right_speed = 0.0
 
     global legal_controller
-    global legal_axis
 
     global vel_msg
     global state_msg
@@ -39,7 +38,6 @@ def main():
     start_time = t.clock()
 
     legal_controller = int(sys.argv[1])
-    legal_axis = sys.argv[2]
 
     vel_msg = DriveVelData()
     state_msg = DriveStateData()
@@ -239,7 +237,7 @@ class OdriveBridge(object):
         # odrive 1 --> middle motors
         # odrive 2 --> back motors
 
-        odrives = ["205F3883304E", "2091358E524B", "2084399C4D4D"]
+        odrives = ["205A377D5753", "2091358E524B", "207C39A14D4D"]
         id = odrives[legal_controller]
 
         print(id)
