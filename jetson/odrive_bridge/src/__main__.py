@@ -239,7 +239,7 @@ class OdriveBridge(object):
         # odrive 1 --> middle motors
         # odrive 2 --> back motors
 
-        odrives = ["205F3883304E", "2091358E524B", "2084399C4D4D"]
+        odrives = ["205A377D5753", "2091358E524B", "207C39A14D4D"]
         id = odrives[legal_controller]
 
         print(id)
