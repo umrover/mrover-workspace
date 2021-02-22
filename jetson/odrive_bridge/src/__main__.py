@@ -25,7 +25,6 @@ def main():
     right_speed = 0.0
 
     global legal_controller
-    global legal_axis
 
     global vel_msg
     global state_msg
@@ -39,7 +38,6 @@ def main():
     start_time = t.clock()
 
     legal_controller = int(sys.argv[1])
-    legal_axis = sys.argv[2]
 
     vel_msg = DriveVelData()
     state_msg = DriveStateData()
