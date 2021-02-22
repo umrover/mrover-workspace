@@ -126,7 +126,7 @@ void clear( deque<Waypoint>& aDeque )
 // Checks to see if target is reachable before hitting obstacle
 // If the x component of the distance to obstacle is greater than
 // half the width of the rover the obstacle if reachable
-// Or the obstacle is a post
+// OR the obstacle is a post
 bool isTargetReachable( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     double distToTarget = phoebe->roverStatus().leftTarget().distance;
@@ -166,6 +166,9 @@ bool isObstacleDetected( Rover* phoebe )
 
 // returns true if the detected obstacle is likely to be a post supporting an AR tag
 // ASSUMPTION: real obstacles are not within {tagToPostThreshold} meters of the tag
+// NOTE: at beginning of subsequent early legs, we will start directly in front of a post
+// but this function will only be called when a target is detected, which is also when we have
+// already reached a waypoint, so we will treat the post as a regular obstacle
 bool isObstaclePost( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     double tagToPostThreshold = roverConfig["navThresholds"]["tagToPostDistance"].GetDouble();
