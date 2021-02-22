@@ -123,10 +123,10 @@ def build_deps(ctx):
         with ctx.cd(ctx.root):
             with ctx.inside_product_env():
                 print("Installing pip dependencies...")
-                ctx.run("pip3 install --upgrade pip3")
+                ctx.run("pip3 install --upgrade pip")
                 ctx.run("pip3 install cython")
                 # Jarvis dependencies
-                ctx.run("pip3 install -r {}/requirements.txt".format(
+                ctx.run("pip3 install -r \"{}\"/requirements.txt".format(
                     ctx.jarvis_root))
                 # Workspace dependencies
                 ctx.run("pip3 install -r pip_deps/requirements.txt")

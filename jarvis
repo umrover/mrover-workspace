@@ -21,7 +21,7 @@ make_jarvis_env() {
     # Make virtualenv for Jarvis
     python3.7 -m venv --copies --clear --prompt "jarvis boot venv" "${JARVIS_VENV}"
     source "${JARVIS_VENV}/bin/activate"
-    pip3 install --upgrade pip3
+    pip3 install --upgrade pip
     pip3 install --quiet -r "${JARVIS_ROOT}/requirements.txt"
     pip3 install --quiet "${JARVIS_ROOT}/jarvis_cmd"
 }
