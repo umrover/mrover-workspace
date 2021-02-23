@@ -176,7 +176,9 @@ Vector3d ArmState::get_joint_pos_world(string joint) {
     // for (auto it = joints.begin(); it != joints.end(); ++it) {
     //     cout << it->first << "\n";
     // }
-    return joints.at(joint).pos_world;
+    Matrix4d joint_xform = get_joint_transform(joint);
+    Vector3d joint_pos(joint_xform(0,3), joint_xform(1,3), joint_xform(2,3));
+    return joint_pos;
 }
 
 Vector3d ArmState::get_ef_pos_world() {

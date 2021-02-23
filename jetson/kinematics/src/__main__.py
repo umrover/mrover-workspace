@@ -78,7 +78,7 @@ def main():
     # target_point = [0.43561896709482717, -0.5849202310118653, -0.23898894427981895,
     #                 -0.19091988273941293, 0.5705597354134033, -2.8999168062356357]
 
-    # ra.IK(target_point, True, False)
+    ra.IK(target_point, False, False)
 
     # config = ConfigurationSpaceTest(arm)
     # config.straight_up_torque_test()

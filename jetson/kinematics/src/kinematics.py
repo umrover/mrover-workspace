@@ -191,6 +191,8 @@ class KinematicsSolver:
         self.robot_ik = copy.deepcopy(self.robot_state)
         links = self.robot_ik.all_links
         joints = self.robot_ik.all_joints
+        print("ef_pos:")
+        print(self.robot_state.get_ef_pos_world())
         # print("joints: ")
         # print(joints)
         # print("links: ")
@@ -213,10 +215,10 @@ class KinematicsSolver:
                                  rand_d,
                                  rand_e,
                                  rand_f])
-
             j_idx = 0
             for joint in joints:
                 self.robot_ik.angles[joint] = rand_angs[j_idx]
+                j_idx += 1
             # update transforms using FK
             self.FK(self.robot_ik)
 
@@ -246,11 +248,13 @@ class KinematicsSolver:
 
             # print("here")
             # print(target_point)
+            if (num_iterations == 8):
+                print("ef_pos 1:")
+                print(self.robot_ik.get_ef_pos_world())
             ef_to_target_b_weights = target_point - ef_vec_world
             ef_to_tar_xyz = ef_to_target_b_weights[:3] * self.POS_WEIGHT
             ef_to_tar_ang = ef_to_target_b_weights[3:]
             ef_to_target_vec_world = np.append(ef_to_tar_xyz, ef_to_tar_ang)
-
             # print("made target vec world")
 
             # d_ef is the vector we want the ef to move in this step
@@ -258,11 +262,17 @@ class KinematicsSolver:
             d_ef = self.j_kp * ef_to_target_b_weights\
                 - self.j_kd * (ef_v * (ef_to_target_vec_world /
                                        LA.norm(ef_to_target_vec_world)))
+            if (num_iterations == 8):
+                print("d_ef: ")
+                print(d_ef)
             # print("made d_ef")
             # print("About to Run IK Step")
-            self.IK_step(d_ef, True, use_euler_angles)
-            # print("Ran IK Step")
 
+            self.IK_step(d_ef, True, use_euler_angles)
+            if (num_iterations == 8):
+                print("ef_pos 2:")
+                print(self.robot_ik.get_ef_pos_world())
+            # print("Ran IK Step")
             # iterate
             ef_vec_world = self.robot_ik.get_world_point_angles(links[-1])
             # print("ef_vec_world: ")
@@ -276,7 +286,9 @@ class KinematicsSolver:
 
             # print("Euler Angles | Alpha: ")
             # print(ef_pos_world[3])
-
+            if (num_iterations == 8):
+                print("ef_pos 3:")
+                print(self.robot_ik.get_ef_pos_world())
             num_iterations += 1
 
             # if(num_iterations % 100000 == 0):
@@ -371,13 +383,13 @@ class KinematicsSolver:
 
                 rot_axis_world = apply_transformation(joint_xform,
                                                       rot_axis_local)
-
                 joint_to_ef_vec_world = ef_pos_world - joint_pos_world
 
                 # single column contribution to Jacobian
                 joint_col_xyz = np.transpose(np.cross(rot_axis_world,
                                                       joint_to_ef_vec_world))
-
+                # print("joint_col_xyz")
+                # print(joint_col_xyz)
                 joint_col = []
 
                 if(use_euler_angles):
@@ -396,31 +408,31 @@ class KinematicsSolver:
                     joint_col = np.append(joint_col_xyz, joint_col_euler)
                 else:
                     joint_col = np.append(joint_col_xyz, [0, 0, 0])
-
+                # print("joint_col:")
+                # print(joint_col)
                 jacobian[:, joint_idx] = joint_col
-
+        print("Jacobian: ")
+        print(jacobian)
         # compute pseudoinverse or transpose
         if use_pi:
             jacobian_inverse = LA.pinv(jacobian)
             # print(jacobian_inverse)
         else:
             jacobian_inverse = np.transpose(jacobian)
-
+        print("Jacobian inverse: ")
+        print(jacobian_inverse)
         # compute changes to dofs
         d_theta = np.matmul(jacobian_inverse, d_ef)
 
-        # print(jacobian)
-
         # apply changes to dofs
-
+        print("angles:")
         for joint_idx, joint in enumerate(joints):
             angle = self.robot_ik.angles[joint] + d_theta[joint_idx]
 
             limits = self.robot_safety.get_joint_limit(joint)
             angle = np.clip(angle, limits['lower'], limits['upper'])
-
+            print(angle)
             self.robot_ik.angles[joint] = angle
-
         self.FK(self.robot_ik)
 
     def safe(self, angles):

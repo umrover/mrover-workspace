@@ -184,16 +184,15 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
             http://www.cs.cmu.edu/~15464-s13/lectures/lecture6/IK.pdf
     */
     cout << "Running IK!" << endl;
-    cout << "target point: " << target_point(0) << " " <<  target_point(1) << " " <<  target_point(2)
-         << " " <<  target_point(3) << " " <<  target_point(4) << " " <<  target_point(5) << "\n";
-
+    cout << "target point: " << target_point << "\n";
+    int num_iterations = 0;
     Vector3d target_pos_world = target_point.head(3);
     Vector3d target_ang_world = target_point.tail(3);
 
     FK(robot_state);
-    cout << "FK RAN!!\n";
 
     // backup current angles
+    cout << "ef_pos: " << robot_state.get_ef_pos_world();
 
     perform_backup(robot_state);
 
@@ -253,7 +252,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
             for (int i = 0; i < 6; ++i) {
                 cout << ef_pos[i] << " ";
             }
-            cout << "\ntarget point: ";
+            cout << "\ntarget position:\n";
             for (int i = 0; i < 6; ++i) {
                 cout << target_point(i) << " ";
             }
@@ -274,12 +273,15 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
         Vector6d ef_to_target_vec_world;
         ef_to_target_vec_world.head(3) = ef_to_target_b_weights.head(3) * get_pos_weight();
         ef_to_target_vec_world.tail(3) = ef_to_target_b_weights.tail(3);
-
         // d_ef is the vector we want the ef to move in this step 
         // d_ef is a 6d vector
         Vector6d d_ef = j_kp * ef_to_target_b_weights - j_kd * (ef_v * (ef_to_target_vec_world)/(ef_to_target_vec_world.norm()));
 
         IK_step(robot_state, d_ef, true, use_euler_angles);
+        
+        if (num_iterations == 8) {
+            cout << "ef_position 2: " << robot_state.get_ef_pos_world() << "\n";
+        }
         // Iterate:
         // ef_vec_world is a 6d vector:
         ef_vec_world = vecTo6d(robot_state.get_ef_pos_and_euler_angles());
@@ -287,6 +289,10 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
 
         dist = (ef_pos_world - target_pos_world).norm();
         angle_dist = (ef_ang_world - target_ang_world).norm();
+
+        if (num_iterations == 8) {
+            cout << "ef_position 3: " << robot_state.get_ef_pos_world() << "\n";
+        }
 
         ++num_iterations;
     }
@@ -323,7 +329,6 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
 
     // 6-D matrix
     MatrixXd jacobian_inverse;
-
     for (int i = 0; i < (int)joints.size(); ++i) {
 
         // don't move joint e if it's locked
@@ -333,7 +338,6 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
             }
         }
 
-        // otherwise, calculate the jacobian
         else {
             // Error occuring somewhere below this line
             Vector3d rot_axis_local = robot_state.get_joint_axis(joints[i]);
@@ -365,16 +369,15 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
             else {
                 // cout << "Attempting joint_col comb\n";
                 joint_col.head(3) = joint_col_xyz;
-                joint_col.tail(3) = Vector3d();
+                joint_col.tail(3) = Vector3d(0,0,0);
             }
             for (size_t j = 0; j < 6; ++j) {
                 jacobian(j, i) = joint_col[j];
             }
         }
     }
-
-    // cout << "Filled in the Jacobian matrix\n";
-
+    cout << "\nJacobian: \n";
+    cout << jacobian << "\n";
     // if using pseudo inverse (usually corresponds to using euler angles)
     if (use_pi) {
         jacobian_inverse = jacobian.completeOrthogonalDecomposition().pseudoInverse();
@@ -384,32 +387,32 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
     else {
         jacobian_inverse = jacobian.transpose();
     }
-
     // cout << "Applied use_pi\n";
-
+    cout << "\nJacobian Inverse: \n";
+    cout << jacobian_inverse << "\n";
     Vector6d d_theta = jacobian_inverse * d_ef;
 
     vector<double> angle_vec;
-    
     // find the angle of each joint
+    cout << "angles:\n";
     for (int i = 0; i < (int)joints.size(); ++i) {
-        angle_vec.push_back(robot_state.get_joint_angles()[joints[i]] + d_theta[i]);
-
         map<string, double> limits = robot_state.get_joint_limits(joints[i]);
 
-        if (angle_vec[i] < limits["lower"]) {
-            angle_vec.push_back(limits["lower"]);
+        double angle = robot_state.get_joint_angles()[joints[i]] + d_theta[i];
+
+        if (angle < limits["lower"]) {
+            angle = limits["lower"];
         }
-        else if (angle_vec[i] < limits["upper"]) {
-            angle_vec.push_back(limits["upper"]);
+        else if (angle > limits["upper"]) {
+            angle = limits["upper"];
         }
+        cout << angle << "\n";
+        angle_vec.push_back(angle);
     }
-
-    // cout << "Found the angle of each joint\n";
-
     // run forward kinematics
     robot_state.set_joint_angles(angle_vec);
     FK(robot_state);
+
     // cout << "Ran forward kinematics from IK step function\n";
 }
 
