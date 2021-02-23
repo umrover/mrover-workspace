@@ -9,7 +9,7 @@
 
 using namespace std;
 
-TEST(init_test) {
+TEST(motion_planner_init) {
     // read arm geometry
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
     json geom = read_json_from_file(geom_file);
@@ -19,7 +19,20 @@ TEST(init_test) {
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
     MotionPlanner planner = MotionPlanner(arm, solver);
+
+    /*
+    vector<double> set_angles{-0.10851897208699646,
+                                -0.48035061172641025,
+                                0.42750147611540207,
+                                -0.4536622798173834,
+                                1.5091481179603654,
+                                0.2809788467090569};*/
+    
+    vector<double> set_angles{0, 1, 1, 0, 0, 0};
+
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));
 }
+
 
 TEST(rrt_connect_simple) {
 
@@ -34,7 +47,7 @@ TEST(rrt_connect_simple) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // set angles and confirm there are no collisions
-    vector<double> set_angles{1, 0, 0, -1, 0, 0};
+    vector<double> set_angles{0, 1, 1, 0, 0, 0};
     ASSERT_TRUE(solver.is_safe(arm, set_angles));
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
@@ -51,6 +64,63 @@ TEST(rrt_connect_simple) {
     target[3] = start["joint_d"] - 0.1;
     target[4] = start["joint_e"] - 0.1;
     target[5] = start["joint_f"] - 0.1;
+
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    Vector6d target6d = vecTo6d(target);
+
+    // run rrt_connect and confirm it found a path
+    ASSERT_TRUE(planner.rrt_connect(arm, target6d));
+
+    // confirm spline positions
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start["joint_a"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[1], start["joint_b"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[2], start["joint_c"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[3], start["joint_d"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[4], start["joint_e"], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[5], start["joint_f"], 0.01);
+
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target6d(0), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target6d(1), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target6d(2), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target6d(3), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target6d(4), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
+}
+
+/**
+ * target is the same as starting postition
+ * */
+TEST(anti_motion_planner) {
+
+    // read arm geometry
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
+    json geom = read_json_from_file(geom_file);
+
+    ASSERT_EQUAL(geom["name"], "mrover_arm");
+
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+    MotionPlanner planner = MotionPlanner(arm, solver);
+
+    // set angles and confirm there are no collisions
+    vector<double> set_angles{0, 1, 1, 0, 0, 0};
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));
+    arm.set_joint_angles(set_angles);
+    solver.FK(arm);
+
+    // move target slightly away from starting position
+    map<string, double> start = arm.get_joint_angles();
+
+    vector<double> target;
+    target.resize(6);
+
+    target[0] = start["joint_a"];
+    target[1] = start["joint_b"];
+    target[2] = start["joint_c"];
+    target[3] = start["joint_d"];
+    target[4] = start["joint_e"];
+    target[5] = start["joint_f"];
 
     ASSERT_TRUE(solver.is_safe(arm, target));
 
@@ -163,5 +233,4 @@ TEST(rrt_connect) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target6d(4), 0.01);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
 }
-
 TEST_MAIN()

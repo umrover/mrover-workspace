@@ -141,7 +141,7 @@ Vector3d calculate_torque(Vector3d r, double mass, Vector3d rot_axis){
 Vector3d apply_transformation(const Matrix4d &transform, const Vector3d &point) {
     Vector4d four_d(point[0], point[1], point[2], 1);
     Vector4d transformed = transform * four_d;
-    Vector3d vector_transformed(transformed(0), transform(1), transform(2));
+    Vector3d vector_transformed(transformed(0), transformed(1), transformed(2));
     return vector_transformed;
 }
 
