@@ -13,7 +13,7 @@
 #define OFF         0x00,   0,  0
 #define ON          0x0F,   0,  0
 #define OPEN        0x10,   2,  0
-#define OPEN_PLUS   0x1F,   4,  4
+#define OPEN_PLUS   0x1F,   4,  0
 #define CLOSED      0x20,   8,  0
 #define CLOSED_PLUS 0x2F,   8,  4
 #define CONFIG_PWM  0x30,   2,  0
@@ -40,7 +40,9 @@ public:
     float quad_cpr = std::numeric_limits<float>::infinity();
     float spi_cpr = std::numeric_limits<float>::infinity();
     float current_angle = 0.0;
-    float kP, kI, kD = 0.0;
+    float kP = 0.0;
+    float kI = 0.0; 
+    float kD = 0.0;
 
     std::string name;
 
