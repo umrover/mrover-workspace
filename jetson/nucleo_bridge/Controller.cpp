@@ -71,9 +71,9 @@ void Controller::open_loop(float input)
 	    memcpy(buffer, UINT8_POINTER_T(&throttle), 4);
 
         int32_t angle;
-        transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&angle));
-
-        record_angle(angle);
+       // transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&angle));
+	transact(OPEN_PLUS, buffer, nullptr);
+       // record_angle(angle);
     }
     catch (IOFailure &e)
     {
@@ -156,14 +156,14 @@ void Controller::angle()
     try
     {
         int32_t angle;
-        if (name == "RA_1") {
-            int16_t temp;
-            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&temp));
-            angle = static_cast<int32_t>(temp);
-        }
-        else {
-            transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
-        }
+      //  if (name == "RA_1") {
+      //      int16_t temp;
+      //      transact(ABS_ENC, nullptr, UINT8_POINTER_T(&temp));
+      //      angle = static_cast<int32_t>(temp);
+      //  }
+      //  else {
+      //      transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
+      //  }
         record_angle(angle);
     }
     catch (IOFailure &e)
