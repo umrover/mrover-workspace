@@ -220,14 +220,14 @@ void ArmState::transform_avoidance_links() {
         Avoidance_Link& link = collision_avoidance_links.at(i);
 
         const Matrix4d &joint_xform = get_joint_transform(link.joint_origin);
-        cout << "\nlink number " << i << ":\n" << joint_xform << "\n \n";
+        // cout << "\nlink number " << i << ":\n" << joint_xform << "\n \n";
 
         
         for (size_t j = 0; j < link.points.size(); ++j) {
-            cout << "points before:\n" << collision_avoidance_links.at(i).points[j] << "\n";
+            // cout << "points before:\n" << collision_avoidance_links.at(i).points[j] << "\n";
             link.points[j] = apply_transformation(joint_xform, link.points[j]);
         }
-
+        /*
         cout << "\n";
 
         for (size_t j = 0; j < collision_avoidance_links.at(i).points.size(); ++j) {
@@ -235,7 +235,7 @@ void ArmState::transform_avoidance_links() {
         }
 
         cout << "\n";
-
+        */
         // for (size_t j = 0; j < collision_avoidance_links.size())
 
     }
@@ -247,12 +247,13 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) {
     Avoidance_Link& link_1 = collision_avoidance_links.at(index_1);
     Avoidance_Link& link_2 = collision_avoidance_links.at(index_2);
 
-    cout << "links " << index_1 << " (" << link_1.type << ") and " << index_2 << " (" << link_2.type << "): ";
+    //cout << "links " << index_1 << " (" << link_1.type << ") and " << index_2 << " (" << link_2.type << "):\n";
     if (link_1.type == "capsule" && link_2.type == "capsule") {
         Vector3d b1 = link_1.points[0];
         Vector3d b2 = link_2.points[0];
         Vector3d e1 = link_1.points[1];
         Vector3d e2 = link_2.points[1];
+        //cout << b1 << '\n' << e1 << '\n' << b2 << '\n' << e2 << "\n\n";
         closest_dist = closest_dist_bet_lines(b1, e1, b2, e2);
     }
     else if (link_1.type == "capsule") {
@@ -270,7 +271,7 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) {
     else {
         closest_dist = (link_1.points[0] - link_2.points[0]).norm();
     }
-    cout << closest_dist << " < " << link_1.radius << " + " << link_2.radius << "\n";
+    //cout << closest_dist << " < " << link_1.radius << " + " << link_2.radius << "\n";
 
     return closest_dist < (link_1.radius + link_2.radius);
 }
@@ -278,14 +279,14 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) {
 bool ArmState::obstacle_free() {
     transform_avoidance_links();
     
-    for (size_t i = 0; i < collision_avoidance_links.size(); ++i) {
+    for (size_t i = 1; i < collision_avoidance_links.size(); ++i) {
         for (size_t possible_collision : collision_avoidance_links[i].collisions) {
             if (link_link_check(i, possible_collision)) {
-                cout << "found an obstacle at link " << i << " and link " << possible_collision << "\n";
+                //cout << "found an obstacle at link " << i << " and link " << possible_collision << "\n";
                 return false;
             }
 
-            cout << "link check worked for " << i << " and " << possible_collision << "\n";
+            //cout << "link check worked for " << i << " and " << possible_collision << "\n";
         }
     }
     return true;

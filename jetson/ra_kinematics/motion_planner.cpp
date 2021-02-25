@@ -293,18 +293,37 @@ void MotionPlanner::spline_fitting(vector<Vector6d>& path) {
 
     // create a linear space between 0 and 1 with path.size() increments
     vector<double> x_;
-    x_.reserve(path.size() + 1);
+    x_.reserve(path.size());
 
+    // find ideal step size for x_, handling edge cases
     double spline_step;
     if (path.size() > 1) {
         spline_step = 1.0 / (path.size() - 1);
     }
+    else if (path.size() == 1) {
+        for (size_t i = 0; i < 6; ++i) {
+            separate_paths[i].push_back(separate_paths[i][0]);
+        }
+        spline_step = 1.0;
+    }
     else {
-        spline_step = 1;
+        cout << "Error! Path is of size 0.\n";
     }
 
+    // create evenly distributed range from 0 to 1 with path.size() steps
     for (double i = 0.0; i <= 1.0; i += spline_step) {
         x_.push_back(i);
+    }
+
+    // recover from possible floating point issues
+    if (x_.size() == path.size()) {
+        x_[x_.size() - 1] = 1.0;
+    }
+    else if (x_.size() == path.size() - 1) {
+        x_.push_back(1.0);
+    }
+    else {
+        cout << "Error! Could not create properly sized spline.\n";
     }
 
     // use tk to create six different splines, representing a spline in 6 dimensions
