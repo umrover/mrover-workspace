@@ -2,7 +2,6 @@ import json
 import time
 import asyncio
 import numpy as np
-from copy import deepcopy
 from os import getenv
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
@@ -16,7 +15,6 @@ from .conversions import meters2lat, meters2long, lat2meters, long2meters, \
 class StateEstimate:
     '''
     Class for current state estimate
-
     @attribute dict pos: current position estimate (integer degrees, decimal minutes)
     @attribute dict vel: current velocity estimate (m/s)
     @attribute float bearing_deg: current bearing estimate (decimal degrees East of North)
@@ -29,7 +27,6 @@ class StateEstimate:
                  ref_lat=0, ref_long=0):
         '''
         Initalizes state variable values
-
         @optional int lat_deg: latitude integer degrees
         @optional float lat_min: latitude decimal minutes
         @optional float vel_north: velocity North (m/s)
@@ -50,7 +47,6 @@ class StateEstimate:
     def posToMeters(self):
         '''
         Returns the current position estimate converted to meters
-
         @return dict: current position estimate (meters)
         '''
         pos_meters = {}
@@ -64,7 +60,6 @@ class StateEstimate:
     def asLKFInput(self):
         '''
         Returns the state estimate as an ndarray for LKF input
-
         @return ndarray: state vector
         '''
         pos_meters = self.posToMeters()
@@ -74,7 +69,6 @@ class StateEstimate:
     def updateFromLKF(self, lkf_out):
         '''
         Updates state estimate from the filter output
-
         @param ndarray lkf_out: LKF state vector
         '''
         lat_decimal_deg = meters2lat(lkf_out[0], ref_lat=self.ref_lat)
@@ -87,7 +81,6 @@ class StateEstimate:
     def asOdom(self):
         '''
         Returns the current state estimate as an Odometry LCM object
-
         @return Odometry: state estimate in Odometry LCM format
         '''
         odom = Odometry()
@@ -103,7 +96,6 @@ class StateEstimate:
 class SensorFusion:
     '''
     Class for filtering sensor data and outputting state estimates
-
     @attribute dict config: user-configured parameters found in config/filter/config.json
     @attribute Gps gps: GPS sensor
     @attribute Imu imu: IMU sensor
@@ -124,8 +116,9 @@ class SensorFusion:
         self.imu = Imu(self.config["IMU_accel_filter_bias"], self.config["IMU_accel_threshold"])
         self.nav_state = None
         self.static_nav_states = {None, "Off", "Done", "Search Spin Wait", "Turned to Target Wait", "Gate Spin Wait",
-                                  "Turn", "Search Turn", "Turn to Target", "Turn Around Obstacle", "Search Turn Around Obstacle",
-                                  "Gate Turn", "Gate Turn to Center Point", "Radio Repeater Turn"}
+                                  "Turn", "Search Turn", "Turn to Target", "Turn Around Obstacle",
+                                  "Search Turn Around Obstacle", "Gate Turn", "Gate Turn to Center Point",
+                                  "Radio Repeater Turn"}
 
         self.filter = None
         self.state_estimate = StateEstimate(ref_lat=self.config["RefCoords"]["lat"],
@@ -164,7 +157,7 @@ class SensorFusion:
             self.filter = "Pipe"
         else:
             raise ValueError("Invalid filter type!")
-    
+
     def _constructLKF(self):
         '''
         Constructs a Linear Kalman Filter
@@ -203,7 +196,7 @@ class SensorFusion:
 
         self.filter = LinearKalmanFilter(4, 4, dim_u=2)
         self.filter.construct(self.state_estimate, P_initial, F, H, Q, R, B=B)
-    
+
     def _runLKF(self):
         '''
         Runs an iteration of a Linear Kalman Filter
@@ -230,13 +223,13 @@ class SensorFusion:
         if pos is not None:
             pos_meters = {}
             pos_meters["long"] = long2meters(pos["long"], pos["lat"],
-                                                ref_long=self.config["RefCoords"]["long"])
+                                             ref_long=self.config["RefCoords"]["long"])
             pos_meters["lat"] = lat2meters(pos["lat"],
-                                            ref_lat=self.config["RefCoords"]["lat"])
+                                           ref_lat=self.config["RefCoords"]["lat"])
             if vel is not None:
                 # If both position and velocity are available, use both
                 z = np.array([pos_meters["lat"], vel["north"], pos_meters["long"],
-                                vel["east"]])
+                              vel["east"]])
                 H = np.eye(4)
             else:
                 # If only position is available, zero out the velocity residual
@@ -273,7 +266,6 @@ class SensorFusion:
     def _getFreshBearing(self):
         '''
         Returns a fresh bearing to use. Uses IMU over GPS, returns None if no fresh sensors
-
         @return float/None: bearing (decimal degrees East of North)
         '''
         if time.time() - self.imu.last_fresh <= self.config["IMU_fresh_timeout"]:
@@ -286,7 +278,6 @@ class SensorFusion:
     def _getFreshPos(self, decimal=True):
         '''
         Returns a fresh GPS position to use. Returns None if no fresh sensors
-
         @return dict/None: GPS coordinates (decimal degrees)
         '''
         if time.time() - self.gps.last_fresh <= self.config["GPS_fresh_timeout"]:
@@ -300,7 +291,6 @@ class SensorFusion:
     def _getFreshVel(self, ref_bearing):
         '''
         Returns a fresh velocity to use. Returns None if no fresh sensors
-
         @param float ref_bearing: reference bearing (decimal degrees East of North)
         @return dict/None: velocity North,East (m/s)
         '''
@@ -315,7 +305,6 @@ class SensorFusion:
     def _getFreshAccel(self, ref_bearing):
         '''
         Returns a fresh acceleration to use. Returns None if no fresh sensors
-
         @param float ref_bearing: reference bearing (decimal degrees East of North)
         @return dict/None: acceleration North,East,z (m/s^2)
         '''
@@ -333,8 +322,8 @@ class SensorFusion:
         '''
         self.filter.x[1] = 0.0
         self.filter.x[3] = 0.0
-        self.filter.P[1,:] = 0.0
-        self.filter.P[3,:] = 0.0
+        self.filter.P[1, :] = 0.0
+        self.filter.P[3, :] = 0.0
 
     async def run(self):
         '''
@@ -344,8 +333,6 @@ class SensorFusion:
             if self.filter is not None:
                 if self.config["FilterType"] == "LinearKalman":
                     self._runLKF()
-                    if self.gps.isRTK():
-                        self.state_estimate.pos = self.gps.asMinutes()
                 elif self.config["FilterType"] == "Pipe":
                     bearing = self._getFreshBearing()
                     if bearing is None:

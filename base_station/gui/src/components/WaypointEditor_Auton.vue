@@ -36,12 +36,14 @@
     </div>
     <div class="col-wrap" style="left: 50%">
       <div class="box">
-        <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/><br>
+        <div style="margin-bottom: 4mm">
+          <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/><br>
+        </div>
         <span>
           Navigation State: {{nav_status.nav_state_name}}<br>
           Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
           Radio Repeater Dropped: {{repeater_dropped}}<br>
-           
+          
         </span>
         <span>
          <OdometryReading v-bind:odom="odom"/>
