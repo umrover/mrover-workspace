@@ -2,6 +2,7 @@ import numpy as np
 from numpy import linalg as LA
 import random
 import copy
+import time
 from .utils import apply_transformation
 from .utils import compute_euler_angles
 from.utils import calculate_torque
@@ -181,7 +182,7 @@ class KinematicsSolver:
         # print("RUNNING IK")
 
         # print("Target Point: ", target_point)
-
+        time_start = time.time()
         num_iterations = 0
         self.target_pos_world = target_point[:3]
         self.target_ang_world = target_point[3:]
@@ -248,9 +249,9 @@ class KinematicsSolver:
 
             # print("here")
             # print(target_point)
-            if (num_iterations == 8):
-                print("ef_pos 1:")
-                print(self.robot_ik.get_ef_pos_world())
+            # if (num_iterations == 8):
+            #     print("ef_pos 1:")
+            #     print(self.robot_ik.get_ef_pos_world())
             ef_to_target_b_weights = target_point - ef_vec_world
             ef_to_tar_xyz = ef_to_target_b_weights[:3] * self.POS_WEIGHT
             ef_to_tar_ang = ef_to_target_b_weights[3:]
@@ -262,16 +263,16 @@ class KinematicsSolver:
             d_ef = self.j_kp * ef_to_target_b_weights\
                 - self.j_kd * (ef_v * (ef_to_target_vec_world /
                                        LA.norm(ef_to_target_vec_world)))
-            if (num_iterations == 8):
-                print("d_ef: ")
-                print(d_ef)
+            # if (num_iterations == 8):
+            #     print("d_ef: ")
+            #     print(d_ef)
             # print("made d_ef")
             # print("About to Run IK Step")
 
             self.IK_step(d_ef, True, use_euler_angles)
-            if (num_iterations == 8):
-                print("ef_pos 2:")
-                print(self.robot_ik.get_ef_pos_world())
+            # if (num_iterations == 8):
+            #     print("ef_pos 2:")
+            #     print(self.robot_ik.get_ef_pos_world())
             # print("Ran IK Step")
             # iterate
             ef_vec_world = self.robot_ik.get_world_point_angles(links[-1])
@@ -324,9 +325,15 @@ class KinematicsSolver:
 
         # print("Position and position goal:")
 
-        # print(ef_pos_world)
+        print("ef_pos_world")
+        print(self.robot_ik.get_ef_pos_world())
+        print("Position reached: ")
+        print(ef_vec_world)
+        print("Target point: ")
+        print(target_point)
         # print(self.target_pos_world)
-
+        time_end = time.time()
+        print("Time to run algorithm: ", time_end - time_start)
         # print()
         print("AHH, safe checking")
         if not self.safe(self.robot_ik.get_angles()):
@@ -411,27 +418,21 @@ class KinematicsSolver:
                 # print("joint_col:")
                 # print(joint_col)
                 jacobian[:, joint_idx] = joint_col
-        print("Jacobian: ")
-        print(jacobian)
         # compute pseudoinverse or transpose
         if use_pi:
             jacobian_inverse = LA.pinv(jacobian)
             # print(jacobian_inverse)
         else:
             jacobian_inverse = np.transpose(jacobian)
-        print("Jacobian inverse: ")
-        print(jacobian_inverse)
         # compute changes to dofs
         d_theta = np.matmul(jacobian_inverse, d_ef)
 
         # apply changes to dofs
-        print("angles:")
         for joint_idx, joint in enumerate(joints):
             angle = self.robot_ik.angles[joint] + d_theta[joint_idx]
 
             limits = self.robot_safety.get_joint_limit(joint)
             angle = np.clip(angle, limits['lower'], limits['upper'])
-            print(angle)
             self.robot_ik.angles[joint] = angle
         self.FK(self.robot_ik)
 

@@ -228,13 +228,9 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
 
     double ef_v = 0;
 
-    cout << "Current EF position: ";
-    for (int i = 0; i < 3; ++i) {
-        cout << ef_pos_world(i) << " ";
-    }
-    for (int i = 0; i < 3; ++i) {
-        cout << ef_ang_world(i) << " ";
-    }
+    cout << "Current EF position: \n";
+    cout << ef_pos_world << "\n";
+    cout << ef_ang_world << "\n";
     cout << "\n";
     cout << "Current Joint Angles: ";
     for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
@@ -242,7 +238,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     }
     cout << "\n";
 
-    while (dist > POS_THRESHOLD or angle_dist > ANGLE_THRESHOLD) {
+    while (dist > POS_THRESHOLD or (angle_dist > ANGLE_THRESHOLD && use_euler_angles)) {
         if (num_iterations > MAX_ITERATIONS) {
             cout << "Max ik iterations hit\n";
             vector<double> ef_pos = robot_state.get_ef_pos_and_euler_angles();
@@ -347,7 +343,7 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
                 Vector3d euler_angles;
                 euler_angles = compute_euler_angles(n_xform.block(0,0,3,3));
                 // cout << " blocking\n";
-                Vector3d diff_angs = euler_angles - ef_euler_world;
+                Vector3d diff_angs = (euler_angles - ef_euler_world);
                 Vector3d delta_angs = diff_angs / delta_theta;
 
                 joint_col_xyz = joint_col_xyz.transpose();

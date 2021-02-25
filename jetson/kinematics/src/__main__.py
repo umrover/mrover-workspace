@@ -75,10 +75,13 @@ def main():
 
     arm = MRoverArm(args, lcm_)
     ra = KinematicsSolver(arm.state, lcm_)
-    target_point = [0.43561896709482717, -0.5849202310118653, -0.23898894427981895,
-                    -0.19091988273941293, 0.5705597354134033, -2.8999168062356357]
+    # target_point = [0.43561896709482717, -0.5849202310118653, -0.23898894427981895,
+    #                 -0.19091988273941293, 0.5705597354134033, -2.8999168062356357]
 
-    ra.IK(target_point, False, False)
+    target_point = [0.016696540990824446, -0.303096070950721, -0.21998941217186194,
+                    -2.35009466480546, 0.4985607719497288, -2.8692554925434313]
+
+    ra.IK(target_point, False, True)
 
     # config = ConfigurationSpaceTest(arm)
     # config.straight_up_torque_test()

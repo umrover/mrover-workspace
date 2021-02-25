@@ -7,9 +7,11 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <chrono>
 
 using namespace nlohmann;
 using namespace std;
+using namespace std::chrono;
 
 typedef Eigen::Matrix<double, -1, -1> MatrixXd;
 typedef Eigen::Matrix<double, 6, 1> Vector6d;
@@ -150,7 +152,11 @@ TEST(ik_test1) {
     target <<   0.43561896709482717, -0.5849202310118653, -0.23898894427981895,
                 -0.19091988273941293, 0.5705597354134033, -2.8999168062356357;
     solver.FK(arm);
+    auto start = high_resolution_clock::now();
     solver.IK(arm, target, false, false);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop-start);
+    cout << "Time to run FK: " << duration.count() << " milliseconds!\n";
 }
 
 TEST(ik_test2) {
@@ -180,6 +186,21 @@ TEST(ik_test3) {
     target << 0.242980428, -0.0244739898, 0.117660569, -0.426478891, 0.839306191, -1.09910019;
     //solver.FK(arm);
     solver.IK(arm, target, true, true);
+}
+
+TEST(ik_test4) {
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
+
+    json geom = read_json_from_file(geom_file);
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+
+    // Create target point vector:
+    Vector6d target;
+    target << 0.016696540990824446, -0.303096070950721, -0.21998941217186194,
+            -2.35009466480546, 0.4985607719497288, -2.8692554925434313;
+    //solver.FK(arm);
+    solver.IK(arm, target, false, true);
 }
 
 // TEST(ik_step_test) {}
