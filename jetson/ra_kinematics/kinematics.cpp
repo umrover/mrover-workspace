@@ -242,8 +242,6 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     }
     cout << "\n";
 
-    int num_iterations = 0;
-
     while (dist > POS_THRESHOLD or angle_dist > ANGLE_THRESHOLD) {
         if (num_iterations > MAX_ITERATIONS) {
             cout << "Max ik iterations hit\n";
@@ -279,9 +277,6 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
 
         IK_step(robot_state, d_ef, true, use_euler_angles);
         
-        if (num_iterations == 8) {
-            cout << "ef_position 2: " << robot_state.get_ef_pos_world() << "\n";
-        }
         // Iterate:
         // ef_vec_world is a 6d vector:
         ef_vec_world = vecTo6d(robot_state.get_ef_pos_and_euler_angles());
@@ -289,10 +284,6 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
 
         dist = (ef_pos_world - target_pos_world).norm();
         angle_dist = (ef_ang_world - target_ang_world).norm();
-
-        if (num_iterations == 8) {
-            cout << "ef_position 3: " << robot_state.get_ef_pos_world() << "\n";
-        }
 
         ++num_iterations;
     }
@@ -376,8 +367,8 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
             }
         }
     }
-    cout << "\nJacobian: \n";
-    cout << jacobian << "\n";
+    // cout << "\nJacobian: \n";
+    // cout << jacobian << "\n";
     // if using pseudo inverse (usually corresponds to using euler angles)
     if (use_pi) {
         jacobian_inverse = jacobian.completeOrthogonalDecomposition().pseudoInverse();
@@ -388,13 +379,13 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
         jacobian_inverse = jacobian.transpose();
     }
     // cout << "Applied use_pi\n";
-    cout << "\nJacobian Inverse: \n";
-    cout << jacobian_inverse << "\n";
+    // cout << "\nJacobian Inverse: \n";
+    // cout << jacobian_inverse << "\n";
     Vector6d d_theta = jacobian_inverse * d_ef;
 
     vector<double> angle_vec;
     // find the angle of each joint
-    cout << "angles:\n";
+    // cout << "angles:\n";
     for (int i = 0; i < (int)joints.size(); ++i) {
         map<string, double> limits = robot_state.get_joint_limits(joints[i]);
 
@@ -406,7 +397,7 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
         else if (angle > limits["upper"]) {
             angle = limits["upper"];
         }
-        cout << angle << "\n";
+        // cout << angle << "\n";
         angle_vec.push_back(angle);
     }
     // run forward kinematics
