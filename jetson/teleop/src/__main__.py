@@ -1,5 +1,6 @@
 import asyncio
 import math
+import time
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
@@ -37,6 +38,13 @@ lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
 connection = None
+
+# duration to wait for auton commands before killing drive (in seconds)
+AUTON_TIMEOUT = 1.0
+
+# last time auton updated motors
+auton_last = 0.0
+auton_running = False
 
 
 def send_drive_kill():
@@ -160,6 +168,14 @@ def ra_control_callback(channel, msg):
 
 
 def autonomous_callback(channel, msg):
+    global auton_last, auton_running
+
+    # TODO look into communicating with GUI to get mode
+    if not auton_running:
+        auton_running = True
+
+    auton_last = time.time()
+
     input_data = Joystick.decode(msg)
     new_motor = DriveVelCmd()
 
@@ -203,6 +219,22 @@ async def transmit_drive_status():
             lcm_.publish('/kill_switch', new_kill.encode())
         # print("Published new kill message: {}".format(kill_motor))
         await asyncio.sleep(1)
+
+
+async def check_auton_status():
+    global AUTON_TIMEOUT, auton_last, auton_running
+
+    while True:
+        print('Checking status')
+
+        # if auton stopped sending messages, kill drive
+        if auton_running and time.time() - auton_last > AUTON_TIMEOUT:
+            print('Attempting to kill')
+            send_drive_kill()
+            auton_running = False
+
+        # sleep briefly before checking again
+        await asyncio.sleep(0.2 * AUTON_TIMEOUT)
 
 
 def sa_control_callback(channel, msg):
@@ -250,4 +282,4 @@ def main():
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),
-                   transmit_temperature(), transmit_drive_status())
+                   transmit_temperature(), transmit_drive_status(), check_auton_status())
