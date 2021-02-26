@@ -173,10 +173,6 @@ int main() {
 
 
     /* --- Wrap Things Up --- */
-    #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
-        pointcloud.~PCL();
-    #endif
-  
     #if AR_RECORD
         cam.record_ar_finish();
     #endif

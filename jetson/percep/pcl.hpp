@@ -74,8 +74,10 @@ class PCL {
 
     //Destructor for PCL
     ~PCL() {
+      #if OBSTACLE_DETECTION && PERCEPTION_DEBUG 
         viewer -> close();
         viewer_original -> close();
+      #endif
     };
 
     double bearing;

@@ -203,7 +203,7 @@ Camera::Impl::Impl() {
     pcd_path = path + "/pcl";
     pcd_dir = opendir(pcd_path.c_str() );
     if(NULL==pcd_dir) {
-        std::cout<<"Input folder not exist\n";   
+        std::cerr<<"Input folder not exist\n";   
         return;
   }
   #endif
@@ -307,7 +307,7 @@ cv::Mat Camera::Impl::image() {
     #endif
     cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_COLOR);
     if (!img.data){
-        std::cout<<"Load image "<<full_path<< " error\n";
+        std::cerr<<"Load image "<<full_path<< " error\n";
     }
     return img;
 }
@@ -321,7 +321,7 @@ cv::Mat Camera::Impl::depth() {
     #endif
     cv::Mat img = cv::imread(full_path.c_str(), cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
     if (!img.data){
-        std::cout<<"Load image "<<full_path<< " error\n";
+        std::cerr<<"Load image "<<full_path<< " error\n";
     }
     return img;
 }
@@ -348,7 +348,7 @@ void Camera::record_ar_init() {
 
     if(vidWrite.isOpened() == false)
     {
-        cout << "ar record didn't open\n";
+        cerr << "ar record didn't open\n";
         exit(1);
     }
 }
