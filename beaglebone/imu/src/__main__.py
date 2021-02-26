@@ -18,7 +18,7 @@ UART.setup("UART2")
 #the address of the register being accessed. 
 #first byte read or write, second is address
 
-# use with serial.Serial(port="/dev/ttyS4", baudrate=baud) as ser
+
 #pg 15 for talking about packets    This is spi though, Not UART?
 #ser.write(0x00)
 
@@ -39,26 +39,16 @@ ZMag = 0x6B  # Processed z-axis magnetometer data
 #https://stackoverflow.com/questions/57982782/type-codes-in-python-for-array this is int
 type = "<b"
 
-
-        #Write to MOSI line to initiate read    SPI stuff that is appartently not correct
-        #ser.write(0x00)
-        #Write this second byte regarding the register to complete reading
-        #ser.write(register) 
-        #It writes the contents to the MISO line starting with the most-significant byte
-
 ser = serial.Serial(port="/dev/ttyS4", baudrate=baud)
 ser.close()
 ser.open()
 
-cmd_buffer = [0,0,0,0,0,0,0,0]
+cmd_buffer = [0,0,0,0,0,0,0,0,0,0,0]
 
 #Sets desired transmission rates for CHR NMEA-style packets (31 bits) Pg. 55
 #CREG_COM_RATES7 = 0x07
-#packetRates = 0xf0000                      scp __main__.py debian@192.168.7.2:/home/debian
-#                                           ssh debian@192.168.7.2
+#packetRates = 0xf0000
 
-
-#Send binary packet saying use NMEA and set rate of transfer, read packet beginning with $PCHRS
 
 def checkfirmware():
     cmd_buffer[0] = ord('s')
@@ -69,8 +59,13 @@ def checkfirmware():
 
     checksum = ord('s') + ord('n') + ord('p') + 0xAD
     
-    cmd_buffer[5] = checksum >> 8
-    cmd_buffer[6] = checksum & 0xFF
+    cmd_buffer[5] = 0
+    cmd_buffer[6] = 0
+    cmd_buffer[7] = 0
+    cmd_buffer[8] = 0
+
+    cmd_buffer[9] = checksum >> 8
+    cmd_buffer[10] = checksum & 0xFF
 
     #ser.write(bytes([ord('s')]))
     #ser.write(bytes([ord('n')]))
@@ -91,9 +86,14 @@ def resetEKF():
     cmd_buffer[4] = 0xB0
 
     checksum = ord('s') + ord('n') + ord('p') + 0xB0
-    
-    cmd_buffer[5] = checksum >> 8
-    cmd_buffer[6] = checksum & 0xB0
+
+    cmd_buffer[5] = 0
+    cmd_buffer[6] = 0
+    cmd_buffer[7] = 0
+    cmd_buffer[8] = 0
+
+    cmd_buffer[9] = checksum >> 8
+    cmd_buffer[10] = checksum & 0xB0
 
     ser.write(cmd_buffer)
     
@@ -108,13 +108,16 @@ def setRate():
 
     checksum = ord('s') + ord('n') + ord('p') + 0x04
 
-    cmd_buffer[5] = 0x3f #Data that is non zero
-    
-    cmd_buffer[6] = checksum >> 8
-    cmd_buffer[7] = checksum & 0xB0
+    #Data that is non zero
+    cmd_buffer[5] = 0
+    cmd_buffer[6] = 0
+    cmd_buffer[7] = 0
+    cmd_buffer[8] = 0x08
+
+    cmd_buffer[9] = checksum >> 8
+    cmd_buffer[10] = checksum & 0xB0
 
     ser.write(cmd_buffer)
-    print (cmd_buffer)
 
     
 
@@ -135,16 +138,25 @@ def read_data(register):
 
     checksum = ord('s') + ord('n') + ord('p') + register
     
+    #these four are for the four bytes that make up the data section
     cmd_buffer[5] = 0
-    cmd_buffer[6] = checksum >> 8
-    cmd_buffer[7] = checksum & 0xFF
+    cmd_buffer[6] = 0
+    cmd_buffer[7] = 0
+    cmd_buffer[8] = 0
+
+    cmd_buffer[9] = checksum >> 8
+    cmd_buffer[10] = checksum & 0xFF
 
     #Attempting to get a reading from the UM7
-    ser.write(cmd_buffer)
-
-
-    value = ser.read()
+    print(cmd_buffer)
+    value = ser.write(cmd_buffer)     
     print(value)
+    print(cmd_buffer)
+
+    #print("pt1")
+    #value = ser.read(register)
+    #print("pt2")
+    #print(value)
 
     return value
 
@@ -155,22 +167,20 @@ setRate()
 while ser.isOpen():
     
     GyroX = read_data(XGyro)
-    #GyroY = read_data(YGyro)
-    #GyroZ = read_data(ZGyro)
-    #AccelX = read_data(XAccel)
-    #AccelY = read_data(YAccel)
-    #AccelZ = read_data(ZAccel)
-    #MagX = read_data(XMag)
-    #MagY = read_data(YMag)
-    #MagZ = read_data(ZMag)
+    GyroY = read_data(YGyro)
+    GyroZ = read_data(ZGyro)
+    AccelX = read_data(XAccel)
+    AccelY = read_data(YAccel)
+    AccelZ = read_data(ZAccel)
+    MagX = read_data(XMag)
+    MagY = read_data(YMag)
+    MagZ = read_data(ZMag)
     
-    #ser.write('s','n','p', PT, XGyro)
 
-    #test = ser.read(YGyro)
-    #print(test)
-    #print(AccelX)
-    #print(AccelY)
-    #print(AccelZ)
     
 
     #print("Gyro:      X: " + GyroX + "Y: " + GyroY + "Z: " + GyroZ + "\n         Accel:     X: " + AccelX + "Y: " + AccelY + "Z: " + AccelZ + "\n         Mag:       X: " + MagX + "Y: " + MagY + "Z: " + MagZ)
+
+
+#I think Rushils code wasnt working since he reserved one space in his buffer for the packet type and data bytes payloads, which are more than one byte
+#packet type is one byte though right?
