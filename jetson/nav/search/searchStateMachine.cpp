@@ -39,7 +39,7 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
 
         case NavState::SearchDrive:
         {
-            return executeSearchDrive( phoebe );
+            return executeSearchDrive( phoebe, roverConfig );
         }
 
         case NavState::TurnToTarget:
@@ -170,7 +170,7 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
 // If the rover finishes driving, it proceeds to turning to the next Waypoint.
 // If the rover is still on course, it keeps driving to the next Waypoint.
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
-NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
+NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
     if( phoebe->roverStatus().target().distance >= 0 )
     {
@@ -178,8 +178,9 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe )
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    if( isObstacleDetected( phoebe ) )
+    if( isObstacleDetected( phoebe )  && inObstacleThreshold( phoebe, roverConfig ) )
     {
+        // cerr << "In Threshold executeSearchDrive " << phoebe->roverStatus().obstacle().distance << endl;
         roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
         roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
@@ -240,8 +241,9 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
         return NavState::SearchTurn; //NavState::SearchSpin
     }
     if( isObstacleDetected( phoebe ) &&
-        !isTargetReachable( phoebe, roverConfig ) )
+        !isTargetReachable( phoebe, roverConfig )  && inObstacleThreshold( phoebe, roverConfig ) )
     {
+        // cerr << "In Threshold executeDriveToTarget " << phoebe->roverStatus().obstacle().distance << endl;
         roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
         roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;

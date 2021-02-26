@@ -40,7 +40,7 @@ private:
 
     NavState executeSearchTurn( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    NavState executeSearchDrive( Rover* phoebe );
+    NavState executeSearchDrive( Rover* phoebe, const rapidjson::Document& roverConfig );
 
     NavState executeTurnToTarget( Rover* phoebe );
 

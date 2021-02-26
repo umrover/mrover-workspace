@@ -395,6 +395,7 @@ NavState StateMachine::executeDrive()
     {
         mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
                                                                 getOptimalAvoidanceDistance() );
+        // cerr << "In Threshold executeDrive " << mPhoebe->roverStatus().obstacle().distance << endl; // trying to see if it gets called
         return NavState::TurnAroundObs;
     }
     DriveStatus driveStatus = mPhoebe->drive( nextWaypoint.odom );

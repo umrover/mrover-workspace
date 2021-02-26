@@ -15,7 +15,7 @@ public:
 
     NavState executeTurnAroundObs( Rover* phoebe, const rapidjson::Document& roverConfig );
 
-    NavState executeDriveAroundObs( Rover* phoebe );
+    NavState executeDriveAroundObs( Rover* phoebe, const rapidjson::Document& roverConfig );
 
     Odometry createAvoidancePoint( Rover* phoebe, const double distance );
 };
