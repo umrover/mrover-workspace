@@ -291,10 +291,9 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     cout << "AHH, safe checking!!!\n";
 
     vector<double> angles_vec;
-    int index = 0;
     auto joint_angs = robot_state.get_joint_angles();
     for (auto it = joint_angs.begin(); it != joint_angs.end(); ++it) {
-        angles_vec[index++] = it->second;
+        angles_vec.push_back(it->second);
     }
     if (!is_safe(robot_state, angles_vec)){
         cout << "ik not safe\n";

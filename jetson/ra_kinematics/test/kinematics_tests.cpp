@@ -138,8 +138,6 @@ TEST(fk_test) {
     // FK working , yay!!!
 }
 
-// TEST(apply_joint_xform_test) {}
-
 TEST(ik_test1) {
     // cout << setprecision(8);
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
@@ -202,11 +200,5 @@ TEST(ik_test4) {
     //solver.FK(arm);
     solver.IK(arm, target, false, true);
 }
-
-// TEST(ik_step_test) {}
-
-// TEST(is_safe_test) {}
-
-// TEST(limit_check_test) {}
 
 TEST_MAIN()
