@@ -157,14 +157,15 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
             arTags[i].bearing = -1;
             arTags[i].id = -1;
         }
-    } 
+    }
     else {//one tag found
-        if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))){
+        if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))) {
             arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
-            arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
-            arTags[i].id = tags.id.at(i);
-            tags.buffer[i] = 0;
         }
+
+        arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
+        arTags[i].id = tags.id.at(i);
+        tags.buffer[i] = 0;
     }
   }
 

@@ -7,19 +7,19 @@ const int MAX_FIELD_OF_VIEW_ANGLE = 70;
 
 /* --- Pass Through Filter --- */
 //Filters out all points on a given axis passed as a string ("x", "y", or "z") that aren't within the threshold
-//The threshold covers points from 0.0 to upperLimit 
+//The threshold covers points from 0.0 to upperLimit
 //Values are depth values in mm
 //Source: https://rb.gy/kkyi80
 void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
     #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("PassThroughFilter");
+        pcl::ScopeTime t("PassThroughFilter");
     #endif
 
     pcl::PassThrough<pcl::PointXYZRGB> pass;
     pass.setInputCloud(pt_cloud_ptr);
 
     pass.setFilterFieldName(axis);
-    pass.setFilterLimits(0.0,upperLimit);
+    pass.setFilterLimits(0.0, upperLimit);
     pass.filter(*pt_cloud_ptr);
 }
 
@@ -30,52 +30,52 @@ void PCL::PassThroughFilter(const std::string axis, const double upperLimit) {
 //Source: https://rb.gy/2ybg8n
 void PCL::DownsampleVoxelFilter() {
     #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("VoxelFilter");
+        pcl::ScopeTime t("VoxelFilter");
     #endif
 
     pcl::VoxelGrid<pcl::PointXYZRGB> sor;
-    sor.setInputCloud (pt_cloud_ptr);
+    sor.setInputCloud(pt_cloud_ptr);
     sor.setLeafSize(20.0f, 20.0f, 20.0f);
-    sor.filter (*pt_cloud_ptr);
+    sor.filter(*pt_cloud_ptr);
 }
 
 /* --- RANSAC Plane Segmentation Blue --- */
 //Picks three random points in point cloud
 //Counts how many points lie on or near the plane made by these three
-//If the number of points in the plane (score) is greater than 
+//If the number of points in the plane (score) is greater than
 //some threshold then a valid plane has been found
 //Colors all points in this plane blue or
 //removes points completely from point cloud
 //Source: https://rb.gy/zx6ojh
 void PCL::RANSACSegmentation(string type) {
     #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("RANSACSegmentation");
+        pcl::ScopeTime t("RANSACSegmentation");
     #endif
 
     //Creates instance of RANSAC Algorithm
     pcl::SACSegmentation<pcl::PointXYZRGB> seg;
     seg.setOptimizeCoefficients(true);
-    seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE );
+    seg.setModelType(pcl::SACMODEL_PERPENDICULAR_PLANE);
     seg.setMethodType(pcl::SAC_RANSAC);
     seg.setMaxIterations(400);
     seg.setDistanceThreshold(100); //Distance in mm away from actual plane a point can be
     // to be considered an inlier
     seg.setAxis(Eigen::Vector3f(0, 1, 0)); //Looks for a plane along the Z axis
-    double segmentation_epsilon = 10; //Max degree the normal of plane can be from Z axis
+    double segmentation_epsilon = 10;      //Max degree the normal of plane can be from Z axis
     seg.setEpsAngle(pcl::deg2rad(segmentation_epsilon));
 
     //Objects where segmented plane is stored
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
-    
+
     seg.setInputCloud(pt_cloud_ptr);
     seg.segment(*inliers, *coefficients);
 
     if(type == "blue") {
-        for(int i = 0; i < (int)inliers->indices.size(); i++) {
-        pt_cloud_ptr->points[inliers->indices[i]].r = 255;
-        pt_cloud_ptr->points[inliers->indices[i]].g = 255;
-        pt_cloud_ptr->points[inliers->indices[i]].b = 0;
+        for (int i = 0; i < (int)inliers->indices.size(); i++) {
+            pt_cloud_ptr->points[inliers->indices[i]].r = 255;
+            pt_cloud_ptr->points[inliers->indices[i]].g = 255;
+            pt_cloud_ptr->points[inliers->indices[i]].b = 0;
         }
     }
     else {
@@ -86,7 +86,6 @@ void PCL::RANSACSegmentation(string type) {
         extract.setNegative(true); //Controls whether chosen indices are retained or removed
         extract.filter(*pt_cloud_ptr);
     }
-    
 }
 
 /* --- Euclidian Cluster Extraction --- */
@@ -96,49 +95,47 @@ void PCL::RANSACSegmentation(string type) {
 //Source: https://rb.gy/qvjati
 void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_indices) {
     #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("CPU Cluster Extraction");
+        pcl::ScopeTime t("CPU Cluster Extraction");
     #endif
 
     // Creating the KdTree object for the search method of the extraction
-    pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
-    tree->setInputCloud (pt_cloud_ptr);
-    
+    pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGB>);
+    tree->setInputCloud(pt_cloud_ptr);
+
     //Extracts clusters using nearet neighbors search
     pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
-    ec.setClusterTolerance (60); // 60 mm radius per point
-    ec.setMinClusterSize (20);
-    ec.setMaxClusterSize (100000);
-    ec.setSearchMethod (tree);
-    ec.setInputCloud (pt_cloud_ptr);
-    ec.extract (cluster_indices);
+    ec.setClusterTolerance(60); // 60 mm radius per point
+    ec.setMinClusterSize(20);
+    ec.setMaxClusterSize(100000);
+    ec.setSearchMethod(tree);
+    ec.setInputCloud(pt_cloud_ptr);
+    ec.extract(cluster_indices);
 
     //Colors all clusters
     #if PERCEPTION_DEBUG
         std::cout << "Number of clusters: " << cluster_indices.size() << std::endl;
         int j = 0;
-        
-        for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
-        {
-            for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
-            {
-                if(j%3) {
-                    pt_cloud_ptr->points[*pit].r = 100+j*15;
+
+        for(std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin(); it != cluster_indices.end(); ++it) {
+            for(std::vector<int>::const_iterator pit = it->indices.begin(); pit != it->indices.end(); ++pit) {
+                if(j % 3) {
+                    pt_cloud_ptr->points[*pit].r = 100 + j * 15;
                     pt_cloud_ptr->points[*pit].g = 0;
                     pt_cloud_ptr->points[*pit].b = 0;
                 }
-                else if(j%2) {
+                else if(j % 2) {
                     pt_cloud_ptr->points[*pit].r = 0;
-                    pt_cloud_ptr->points[*pit].g = 100+j*15;
+                    pt_cloud_ptr->points[*pit].g = 100 + j * 15;
                     pt_cloud_ptr->points[*pit].b = 0;
                 }
                 else {
                     pt_cloud_ptr->points[*pit].r = 0;
                     pt_cloud_ptr->points[*pit].g = 0;
-                    pt_cloud_ptr->points[*pit].b = 100+j*15;
+                    pt_cloud_ptr->points[*pit].b = 100 + j * 15;
                 }
             }
             j++;
-        } 
+        }
     #endif
 }
 
@@ -147,11 +144,11 @@ void PCL::CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_
 //values of all points in the cluster to find desired ones
 //Interest points are a collection of points that allow us
 //to define the edges of an obsacle
-void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,  
+void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
                              std::vector<std::vector<int>> &interest_points) {
 
     #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("Find Interest Points");
+        pcl::ScopeTime t("Find Interest Points");
     #endif
 
     for (int i = 0; i < (int)cluster_indices.size(); ++i)
@@ -223,16 +220,15 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
             }
         }
         
-    #if PERCEPTION_DEBUG
-        for(auto interest_point : *curr_cluster)
-        {
-            pt_cloud_ptr->points[interest_point].r = 255;
-            pt_cloud_ptr->points[interest_point].g = 255;
-            pt_cloud_ptr->points[interest_point].b = 255;
-        }
-    #endif
+        #if PERCEPTION_DEBUG
+            for(auto interest_point : *curr_cluster)
+            {
+                pt_cloud_ptr->points[interest_point].r = 255;
+                pt_cloud_ptr->points[interest_point].g = 255;
+                pt_cloud_ptr->points[interest_point].b = 255;
+            }
+        #endif
     }
-
 }
 
 /* --- Get Angle Off Center--- */
@@ -240,47 +236,47 @@ void PCL::FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices,
 //line that passes through both these points is
 //Direction of 0 is left and 1 is right
 double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
-                    shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles) {
+                              std::vector<int> &obstacles) {
     double newAngle = 0;
     //If Center Path is blocked check the left or right path depending on direction parameter
-    while(newAngle > -MAX_FIELD_OF_VIEW_ANGLE && newAngle < MAX_FIELD_OF_VIEW_ANGLE) {
-        
+    while (newAngle > -MAX_FIELD_OF_VIEW_ANGLE && newAngle < MAX_FIELD_OF_VIEW_ANGLE) {
+
         //Finding angle off center
         double oppSideRTri = pt_cloud_ptr->points[obstacles.at(direction)].x;
-        double adjSideRTri = pt_cloud_ptr->points[obstacles.at(0)].z;//Length of adjacent side of right triangle
-        oppSideRTri += direction ? buffer+HALF_ROVER : -(buffer+HALF_ROVER); //Calculate length of opposite side of right triangle
-        newAngle = atan(oppSideRTri/adjSideRTri)*180/PI;//arctan(opposite/adjacent)
+        double adjSideRTri = pt_cloud_ptr->points[obstacles.at(0)].z;            //Length of adjacent side of right triangle
+        oppSideRTri += direction ? buffer + HALF_ROVER : -(buffer + HALF_ROVER); //Calculate length of opposite side of right triangle
+        newAngle = atan(oppSideRTri / adjSideRTri) * 180 / PI;                   //arctan(opposite/adjacent)
 
         //Create compareLine Functors
         compareLine leftLine(newAngle, -HALF_ROVER);
         compareLine rightLine(newAngle, HALF_ROVER);
-        
+
         obstacles.clear();
-        
-        if(CheckPath(interest_points, viewer, obstacles, leftLine, rightLine)) {
+
+        if(CheckPath(interest_points, obstacles, leftLine, rightLine)) {
             #if PERCEPTION_DEBUG
-                std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: "<<newAngle<<std::endl;
+                std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FOUND NEW PATH AT: " << newAngle << std::endl;
             #endif
             return newAngle;
-        }    
+        }
     }
     return direction ? MAX_FIELD_OF_VIEW_ANGLE : -MAX_FIELD_OF_VIEW_ANGLE; //If couldn't find clear path
 }
 
 /* --- Find Clear Path --- */
 //Returns the angle to a clear path
-double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
-                        shared_ptr<pcl::visualization::PCLVisualizer> viewer) {                        
-    
+double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
     #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("Find Clear Path");
+        pcl::ScopeTime t("Find Clear Path");
     #endif
 
     std::vector<int> obstacles; //index of the leftmost and rightmost obstacles in path
-    
+
     //Check Center Path
-    if(CheckPath(interest_points, viewer, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
+    if(CheckPath(interest_points, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
+        #if PERCEPTION_DEBUG
             std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
+        #endif
         return 0;
     }
     else { //otherwise, check to find left and right paths
@@ -292,8 +288,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
         vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
         //Find Clear left path
-        std::cout << "Checking Left Path" << std::endl;
-        double leftAngle = getAngleOffCenter(10, 0, interest_points, viewer, obstacles);
+        double leftAngle = getAngleOffCenter(10, 0, interest_points, obstacles);
         leftDistance = distance; 
 
         //Reset global variables
@@ -302,8 +297,7 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
         obstacles.at(1) = centerObstacles.at(1);
 
         //Find clear right path
-        std::cout << "Checking Right Path" << std::endl;
-        double rightAngle = getAngleOffCenter(10, 1, interest_points, viewer, obstacles);
+        double rightAngle = getAngleOffCenter(10, 1, interest_points, obstacles);
         rightDistance = distance;
 
         //return smallest distance of an obstacle from all the paths
@@ -322,14 +316,12 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points,
 //The path is constructed using the left x value and right x value of
 //the furthest points on the path
 bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
-               shared_ptr<pcl::visualization::PCLVisualizer> viewer,
-               std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine) {
+                    std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine) {
     #if PERCEPTION_DEBUG
-        pcl::ScopeTime t ("Check Path");
+        pcl::ScopeTime t("Check Path");
     #endif
 
-    bool end = true;
-    
+    bool end = true; 
     double previousDistance = DBL_MAX;
 
     //if there are no interest points, the distance from the last obstacle should be DBL_MAX
@@ -342,10 +334,10 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
         for (auto index : cluster) {
             //Check if the obstacle interest point is to the right of the left projected path of the rover 
             //and to the left of the right projected path of the rover
-            if(leftLine(pt_cloud_ptr->points[index].x, pt_cloud_ptr->points[index].z) >= 0  && 
-               rightLine(pt_cloud_ptr->points[index].x, pt_cloud_ptr->points[index].z) <=0) {
+            if(leftLine(pt_cloud_ptr->points[index].x, pt_cloud_ptr->points[index].z) >= 0 &&
+                rightLine(pt_cloud_ptr->points[index].x, pt_cloud_ptr->points[index].z) <= 0) {
                 end = false;
-            
+
                 //Check if obstacles is initialized
                 if(obstacles.size() == 0) {
                     obstacles.push_back(index);
@@ -361,10 +353,10 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
                 }
 
                 #if PERCEPTION_DEBUG
-                //Make interest points orange if they are within rover path
-                pt_cloud_ptr->points[index].r = 255;
-                pt_cloud_ptr->points[index].g = 69;
-                pt_cloud_ptr->points[index].b = 0;
+                    //Make interest points orange if they are within rover path
+                    pt_cloud_ptr->points[index].r = 255;
+                    pt_cloud_ptr->points[index].g = 69;
+                    pt_cloud_ptr->points[index].b = 0;
                 #endif
 
                 //adds distance from a point in a cluster to currentDistance, and keeps track of the cluster size
@@ -384,71 +376,86 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
     }
 
     #if PERCEPTION_DEBUG
-    //Project path in viewer
-    pcl::PointXYZRGB pt1;
-    pt1.x = leftLine.xIntercept;
-    pt1.y = 0;
-    pt1.z = 0;
-    pcl::PointXYZRGB pt2;
-    pt2.x = rightLine.xIntercept;
-    pt2.y = 0;
-    pt2.z = 0;
-    pcl::PointXYZRGB pt3(pt1);
-    pt3.z=7000;
-    pt3.x = leftLine.xIntercept;
-    
-    if(leftLine.slope != 0) { //Don't want to divide by 0
-        pt3.x=pt3.z/leftLine.slope+leftLine.xIntercept;
-    }
-    
-    pcl::PointXYZRGB pt4(pt2);
-    pt4.z=7000;
-    pt4.x = rightLine.xIntercept;
-    
-    if(rightLine.slope != 0) { //Don't want to divide by 0
-        pt4.x=pt4.z/rightLine.slope+rightLine.xIntercept;
-    }
-    
-    if(end) {
-        viewer->removeShape("l1");
-        viewer->removeShape("l2");
-        viewer->addLine(pt1,pt3,0,255,0,"l1");
-        viewer->addLine(pt2,pt4,0,255,0,"l2");
-    }
-    else {
-        viewer->removeShape("l1");
-        viewer->removeShape("l2");
-        viewer->addLine(pt1,pt3,255,0,0,"l1");
-        viewer->addLine(pt2,pt4,255,0,0,"l2");
-    }
+        //Project path in viewer
+        pcl::PointXYZRGB pt1;
+        pt1.x = leftLine.xIntercept;
+        pt1.y = 0;
+        pt1.z = 0;
+        pcl::PointXYZRGB pt2;
+        pt2.x = rightLine.xIntercept;
+        pt2.y = 0;
+        pt2.z = 0;
+        pcl::PointXYZRGB pt3(pt1);
+        pt3.z = 7000;
+        pt3.x = leftLine.xIntercept;
+
+        if(leftLine.slope != 0) { //Don't want to divide by 0
+            pt3.x = pt3.z / leftLine.slope + leftLine.xIntercept;
+        }
+
+        pcl::PointXYZRGB pt4(pt2);
+        pt4.z = 7000;
+        pt4.x = rightLine.xIntercept;
+
+        if(rightLine.slope != 0) { //Don't want to divide by 0
+            pt4.x = pt4.z / rightLine.slope + rightLine.xIntercept;
+        }
+
+        if(end) {
+            viewer->removeShape("l1");
+            viewer->removeShape("l2");
+            viewer->addLine(pt1, pt3, 0, 255, 0, "l1");
+            viewer->addLine(pt2, pt4, 0, 255, 0, "l2");
+        }
+        else {
+            viewer->removeShape("l1");
+            viewer->removeShape("l2");
+            viewer->addLine(pt1, pt3, 255, 0, 0, "l1");
+            viewer->addLine(pt2, pt4, 255, 0, 0, "l2");
+        }
     #endif
-    
+
     return end;
 }
 
+
+void PCL::updateViewer(bool is_original) {
+    if(is_original) {
+        viewer_original->updatePointCloud(pt_cloud_ptr);
+        viewer_original->spinOnce(10);
+    }
+
+    else {
+        viewer->updatePointCloud(pt_cloud_ptr);
+        viewer->spinOnce(20);
+    }
+}
 /* --- Create Visualizer --- */
 //Creates a point cloud visualizer
 shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
     // Open 3D viewer and add point cloud
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer(
-      new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer")); //This is a smart pointer so no need to worry ab deleteing it
+
+    //Creates visualizer with window if PERCEPTION_DEBUG is true, and mutes output otherwise
+    shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer", PERCEPTION_DEBUG));
+
     viewer->setBackgroundColor(0.12, 0.12, 0.12);
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(pt_cloud_ptr);
     viewer->addPointCloud<pcl::PointXYZRGB>(pt_cloud_ptr, rgb);
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1.5);
     viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
-    viewer->setCameraPosition(0,0,-800,0,-1,0);
+    viewer->setCameraPosition(0, 0, -800, 0, -1, 0);
+
     return (viewer);
 }
 
 /* --- Main --- */
 //This is the main point cloud processing function
 //It returns the bearing the rover should traverse
-//For the PassThroughFilter function we can trust the ZED depth for up to 7000 mm (7 m) for "z" axis. 
+//For the PassThroughFilter function we can trust the ZED depth for up to 7000 mm (7 m) for "z" axis.
 //3000 mm (3m) for "x" is a placeholder, we will chnage this value based on further testing.
 //This function is called in main.cpp
-void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer) {
+void PCL::pcl_obstacle_detection() {
     obstacle_return result;
     PassThroughFilter("z", 7000.0);
     PassThroughFilter("y", 3000.0);
@@ -458,7 +465,7 @@ void PCL::pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> v
     CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (6));
     FindInterestPoints(cluster_indices, interest_points);
-    bearing = FindClearPath(interest_points, viewer); 
+    bearing = FindClearPath(interest_points);
 }
 
 
@@ -470,8 +477,11 @@ void PCL::update() {
     pt_cloud_ptr->points.resize(cloudArea);
     pt_cloud_ptr->width = PT_CLOUD_WIDTH;
     pt_cloud_ptr->height = PT_CLOUD_HEIGHT;
-    std::cerr << "Width: " << pt_cloud_ptr->width<<std::endl;
-    std::cerr << "Height: "<< pt_cloud_ptr->height<<"\n";
+
+    #if PERCEPTION_DEBUG
+        std::cout << "Width: " << pt_cloud_ptr->width << std::endl;
+        std::cout << "Height: " << pt_cloud_ptr->height << "\n";
+    #endif
 }
 
 #endif

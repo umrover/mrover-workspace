@@ -49,11 +49,19 @@ public:
 
 class PCL {
     public:
+        shared_ptr<pcl::visualization::PCLVisualizer> viewer;
+        shared_ptr<pcl::visualization::PCLVisualizer> viewer_original;
 
     //Constructor
     PCL() : 
+        
         bearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
+    
+        #if PERCEPTION_DEBUG
+            viewer = createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
+            viewer_original = createRGBVisualizer();
+        #endif
 
         #if ZED_SDK_PRESENT
         sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
@@ -62,6 +70,14 @@ class PCL {
         cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
         #endif
 
+    };
+
+    //Destructor for PCL
+    ~PCL() {
+      #if OBSTACLE_DETECTION && PERCEPTION_DEBUG 
+        viewer -> close();
+        viewer_original -> close();
+      #endif
     };
 
     double bearing;
@@ -88,12 +104,10 @@ class PCL {
         void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, std::vector<std::vector<int>> &interest_points);
         
         //Finds a clear path given the obstacle corners
-        double FindClearPath(const std::vector<std::vector<int>> &interest_points,
-                           shared_ptr<pcl::visualization::PCLVisualizer> viewer);
+        double FindClearPath(const std::vector<std::vector<int>> &interest_points);
 
         //Determines whether the input path is obstructed
         bool CheckPath(const std::vector<std::vector<int>> &interest_points,
-               shared_ptr<pcl::visualization::PCLVisualizer> viewer,
                std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine);
         
         /**
@@ -101,12 +115,16 @@ class PCL {
         \param direction: given 0 finds left clear path given 1 find right clear path
         */
         double getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
-                    shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles);
+                    std::vector<int> &obstacles);
 
     public:
         //Main function that runs the above 
-        void pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer);
+        void pcl_obstacle_detection();
 
+        //Updates point cloud in the visualizer
+        //Note: if bool is_original is true, we are using the original viewer
+        void updateViewer(bool is_original);
+        
         //Creates a point cloud visualizer
         shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer();
 
