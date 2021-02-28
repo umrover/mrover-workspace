@@ -1,5 +1,5 @@
 package rover_msgs;
 
 struct TargetList {
-	Target targetList[2];
+	CircAutonTarget targetList[2];
 }
