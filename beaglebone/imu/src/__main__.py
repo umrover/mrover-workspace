@@ -7,7 +7,7 @@ baud = 115200
 #https://learn.adafruit.com/setting-up-io-python-library-on-beaglebone-black/uart
 #UART1 RX:P9_26 TX:P9_24 CTS:P9_20 RTS:P9_19
 #UART2 RX:P9_22 TX:P9_21
-UART.setup("UART2")
+UART.setup("UART4")
 
 
 #Binary packets Pg. 31
@@ -54,7 +54,7 @@ def checkfirmware():
     cmd_buffer[0] = ord('s')
     cmd_buffer[1] = ord('n')
     cmd_buffer[2] = ord('p')
-    cmd_buffer[3] = 0x40 #1000000 or just 0?
+    cmd_buffer[3] = 0x80 #1000000 or just 0?
     cmd_buffer[4] = 0xAD
 
     checksum = ord('s') + ord('n') + ord('p') + 0xAD
@@ -65,7 +65,7 @@ def checkfirmware():
     cmd_buffer[8] = 0
 
     cmd_buffer[9] = checksum >> 8
-    cmd_buffer[10] = checksum & 0xFF
+    cmd_buffer[10] = checksum & 0xff
 
     #ser.write(bytes([ord('s')]))
     #ser.write(bytes([ord('n')]))
@@ -82,7 +82,7 @@ def resetEKF():
     cmd_buffer[0] = ord('s')
     cmd_buffer[1] = ord('n')
     cmd_buffer[2] = ord('p')
-    cmd_buffer[3] = 0x40
+    cmd_buffer[3] = 0x80
     cmd_buffer[4] = 0xB0
 
     checksum = ord('s') + ord('n') + ord('p') + 0xB0
@@ -93,32 +93,51 @@ def resetEKF():
     cmd_buffer[8] = 0
 
     cmd_buffer[9] = checksum >> 8
-    cmd_buffer[10] = checksum & 0xB0
+    cmd_buffer[10] = checksum & 0xff
 
     ser.write(cmd_buffer)
     
 
 
 def setRate():
-    cmd_buffer[0] = ord('s')
+    cmd_buffer[0] = ord('s') 
     cmd_buffer[1] = ord('n')
     cmd_buffer[2] = ord('p')
-    cmd_buffer[3] = 0x40
-    cmd_buffer[4] = 0x04 #Processed Data
-
-    checksum = ord('s') + ord('n') + ord('p') + 0x04
+    cmd_buffer[3] = 0x80
+    cmd_buffer[4] = 0x07 #Processed Data
 
     #Data that is non zero
-    cmd_buffer[5] = 0
-    cmd_buffer[6] = 0
-    cmd_buffer[7] = 0
-    cmd_buffer[8] = 0x08
+    cmd_buffer[5] = 0x11
+    cmd_buffer[6] = 0x11
+    cmd_buffer[7] = 0x11
+    cmd_buffer[8] = 0x11
 
-    cmd_buffer[9] = checksum >> 8
-    cmd_buffer[10] = checksum & 0xB0
+    checksum = ord('s') + ord('n') + ord('p') + 0x07 + 0x80 + 0x11 + 0x11 + 0x11 + 0x11
+
+    cmd_buffer[9] = checksum >> 8     #0x02
+    cmd_buffer[10] = checksum & 0xff  #0x1C
 
     ser.write(cmd_buffer)
 
+    print(cmd_buffer)
+
+
+def turnOffRegister(register):
+    cmd_buffer[0] = ord('s') 
+    cmd_buffer[1] = ord('n')
+    cmd_buffer[2] = ord('p')
+    cmd_buffer[3] = 0x80
+    cmd_buffer[4] = register
+    #Data that is non zero
+    cmd_buffer[5] = 0x00
+    cmd_buffer[6] = 0x00
+    cmd_buffer[7] = 0x00
+    cmd_buffer[8] = 0x00
+    checksum = ord('s') + ord('n') + ord('p') + register + 0x80
+    cmd_buffer[9] = checksum >> 8     #0x02
+    cmd_buffer[10] = checksum & 0xff  #0x1C
+    ser.write(cmd_buffer)
+    print(cmd_buffer)
     
 
 
@@ -151,7 +170,6 @@ def read_data(register):
     print(cmd_buffer)
     value = ser.write(cmd_buffer)     
     print(value)
-    print(cmd_buffer)
 
     #print("pt1")
     #value = ser.read(register)
@@ -161,26 +179,29 @@ def read_data(register):
     return value
 
 
-checkfirmware()
-resetEKF()
+#checkfirmware()
+#resetEKF()
 setRate()
+turnOffRegister(0x01)
+turnOffRegister(0x02)
+turnOffRegister(0x03)
+turnOffRegister(0x04)
+turnOffRegister(0x05)
+turnOffRegister(0x06)
 while ser.isOpen():
     
     GyroX = read_data(XGyro)
     GyroY = read_data(YGyro)
     GyroZ = read_data(ZGyro)
-    AccelX = read_data(XAccel)
-    AccelY = read_data(YAccel)
-    AccelZ = read_data(ZAccel)
-    MagX = read_data(XMag)
-    MagY = read_data(YMag)
-    MagZ = read_data(ZMag)
+    #AccelX = read_data(XAccel)
+    #AccelY = read_data(YAccel)
+    #AccelZ = read_data(ZAccel)
+    #MagX = read_data(XMag)
+    #MagY = read_data(YMag)
+    #MagZ = read_data(ZMag)
     
 
     
 
     #print("Gyro:      X: " + GyroX + "Y: " + GyroY + "Z: " + GyroZ + "\n         Accel:     X: " + AccelX + "Y: " + AccelY + "Z: " + AccelZ + "\n         Mag:       X: " + MagX + "Y: " + MagY + "Z: " + MagZ)
 
-
-#I think Rushils code wasnt working since he reserved one space in his buffer for the packet type and data bytes payloads, which are more than one byte
-#packet type is one byte though right?
