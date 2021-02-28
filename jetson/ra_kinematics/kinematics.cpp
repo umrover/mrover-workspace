@@ -107,14 +107,18 @@ Vector3d KinematicsSolver::FK(ArmState &robot_state) {
 Matrix4d KinematicsSolver::apply_joint_xform(ArmState &robot_state, string joint, double theta) {
 
     // deep copy position of joint
+    /*
     double xyz[3];
     double *data = robot_state.get_joint_pos_world(joint).data();
     for (size_t i = 0; i < 3; ++i) {
         xyz[i] = data[i];
+        cout << xyz[i] << '\n';
     }
+    */
+    Vector3d xyz = robot_state.get_joint_pos_local(joint);
 
     // get intended direction of rotation
-    double *rot_axis_child = robot_state.get_joint_axis(joint).data();
+    Vector3d rot_axis_child = robot_state.get_joint_axis(joint);
 
     Matrix4d rot_theta = Matrix4d::Identity();
     Matrix4d trans = Matrix4d::Identity();
@@ -123,14 +127,14 @@ Matrix4d KinematicsSolver::apply_joint_xform(ArmState &robot_state, string joint
     double stheta = sin(theta);
 
     // copy trans from position
-    trans(0, 3) = xyz[0];
-    trans(1, 3) = xyz[1];
-    trans(2, 3) = xyz[2];
+    trans(0, 3) = xyz(0);
+    trans(1, 3) = xyz(1);
+    trans(2, 3) = xyz(2);
 
-    double rot_arr_one[] = {1, 0, 0};
-    double rot_arr_two[] = {0, 1, 0};
-    double rot_arr_three[] = {0, 0, 1};
-    double rot_arr_four[] = {0, 0, -1};
+    Vector3d rot_arr_one(1, 0, 0);
+    Vector3d rot_arr_two(0, 1, 0);
+    Vector3d rot_arr_three(0, 0, 1);
+    Vector3d rot_arr_four(0, 0, -1);
 
 
     // make rotation around rot_axis by theta
@@ -160,6 +164,7 @@ Matrix4d KinematicsSolver::apply_joint_xform(ArmState &robot_state, string joint
     }
 
     Matrix4d parent_mat = robot_state.get_ef_transform();
+
     Matrix4d T = trans * rot_theta;
     return parent_mat * T;
 }
@@ -232,9 +237,9 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     cout << ef_pos_world << "\n";
     cout << ef_ang_world << "\n";
     cout << "\n";
-    cout << "Current Joint Angles: ";
+    cout << "Initial Joint Angles: ";
     for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
-        cout << it->second.angle << " ";
+        cout << it->second.angle << "\n";
     }
     cout << "\n";
 
@@ -368,6 +373,9 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
     // if using pseudo inverse (usually corresponds to using euler angles)
     if (use_pi) {
         jacobian_inverse = jacobian.completeOrthogonalDecomposition().pseudoInverse();
+        //cout << "Jacobian Inverse: \n";
+        //cout << jacobian_inverse << "\n";
+
     }
 
     // otherwise, simply transpose the vector
@@ -375,13 +383,12 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
         jacobian_inverse = jacobian.transpose();
     }
     // cout << "Applied use_pi\n";
-    // cout << "\nJacobian Inverse: \n";
-    // cout << jacobian_inverse << "\n";
+    
     Vector6d d_theta = jacobian_inverse * d_ef;
 
     vector<double> angle_vec;
     // find the angle of each joint
-    // cout << "angles:\n";
+    //cout << "angles in IK step:\n";
     for (int i = 0; i < (int)joints.size(); ++i) {
         map<string, double> limits = robot_state.get_joint_limits(joints[i]);
 
@@ -393,7 +400,7 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
         else if (angle > limits["upper"]) {
             angle = limits["upper"];
         }
-        // cout << angle << "\n";
+        //cout << angle << "\n";
         angle_vec.push_back(angle);
     }
     // run forward kinematics
