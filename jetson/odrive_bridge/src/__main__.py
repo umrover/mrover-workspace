@@ -71,7 +71,6 @@ def main():
 
 def lcmThreaderMan():
     lcm_1 = lcm.LCM()
-    lcm_1.subscribe("/drive_state_cmd", drive_state_cmd_callback)
     lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
     while True:
         lcm_1.handle()
@@ -87,8 +86,8 @@ def lcmThreaderMan():
             pass
 
 
-events = ["disconnected odrive", "disarm cmd", "arm cmd", "calibrating cmd", "odrive error"]
-states = ["DisconnectedState", "DisarmedState", "ArmedState", "CalibrateState", "ErrorState"]
+events = ["disconnected odrive", "disarm cmd", "arm cmd", "odrive error"]
+states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
 # Program states possible - BOOT,  DISARMED, ARMED, CALIBRATE ERROR
 # 							1		 2	      3	       4        5
 
@@ -150,10 +149,6 @@ class DisarmedState(State):
             modrive.arm()
             return ArmedState()
 
-        elif (event == "calibrating cmd"):
-            # sequence can be moved to armed ?
-            return DisarmedState()
-
         elif (event == "odrive error"):
             return ErrorState()
 
@@ -176,25 +171,6 @@ class ArmedState(State):
 
         elif (event == "odrive error"):
             return ErrorState()
-
-        elif (event == "calibrating cmd"):
-            modrive.reset()
-            return CalibrateState()
-
-        return self
-
-
-class CalibrateState(State):
-    def on_event(self, event):
-        global modrive
-
-        if (event == "arm cmd"):
-            modrive.arm()
-            return ArmedState()
-
-        if(modrive.check_errors()):
-            print("clearing calibration errors")
-            dump_errors(modrive.odrive, True)
 
         return self
 
@@ -278,16 +254,6 @@ class OdriveBridge(object):
             self.on_event("arm cmd")
             lock.release()
 
-        elif (str(self.state) == "CalibrateState"):
-            self.connect()
-            modrive.calibrate()
-            self.connect()
-            print("done calibrating")
-
-            lock.acquire()
-            self.on_event("arm cmd")
-            lock.release()
-
         errors = modrive.check_errors()
 
         if errors:
@@ -338,19 +304,6 @@ def publish_encoder_msg():
     publish_encoder_helper("RIGHT")
 
 
-def drive_state_cmd_callback(channel, msg):
-    print("requested state call back is being called")
-    global odrive_bridge
-    global legal_controller
-
-    command_list = ["disarm cmd", "arm cmd", "calibrating cmd"]
-    cmd = DriveStateCmd.decode(msg)
-    if cmd.controller == legal_controller:  # Check which controller
-        lock.acquire()
-        odrive_bridge.on_event(command_list[cmd.state - 1])
-        lock.release()
-
-
 def drive_vel_cmd_callback(channel, msg):
     # set the odrive's velocity to the float specified in the message
     # no state change
@@ -390,29 +343,6 @@ class Modrive:
         if attr in self.__dict__:
             return getattr(self, attr)
         return getattr(self.odrive, attr)
-
-    def reset(self):
-        self._reset(self.front_axis)
-        self._reset(self.back_axis)
-        self.odrive.save_configuration()
-        # the guide says to reboot here...
-
-    def calibrate(self):
-        dump_errors(self.odrive, True)  # clears all odrive encoder errors
-        self._requested_state(AXIS_STATE_FULL_CALIBRATION_SEQUENCE)
-
-        front_state, back_state = self.get_current_state()
-
-        # if both axes are idle it means its done calibrating
-        while(front_state != AXIS_STATE_IDLE
-                or back_state != AXIS_STATE_IDLE):
-            front_state, back_state = self.get_current_state()
-            pass
-
-        self._pre_calibrate(self.front_axis)
-        self._pre_calibrate(self.back_axis)
-        self.odrive.save_configuration()
-        # also says to reboot here...
 
     def disarm(self):
         self.set_current_lim(100)
@@ -471,25 +401,6 @@ class Modrive:
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
-
-    def _reset(self, m_axis):
-        m_axis.motor.config.pole_pairs = 15
-        m_axis.motor.config.resistance_calib_max_voltage = 4
-        m_axis.motor.config.requested_current_range = 25
-        m_axis.motor.config.current_control_bandwidth = 100
-
-        m_axis.encoder.config.mode = ENCODER_MODE_HALL
-        m_axis.encoder.config.cpr = 90
-        m_axis.encoder.config.bandwidth = 100
-        m_axis.controller.config.pos_gain = 1
-        m_axis.controller.config.vel_gain = 0.02
-        m_axis.controller.config.vel_integrator_gain = 0.1
-        m_axis.controller.config.vel_limit = 1000
-        m_axis.controller.config.control_mode = CTRL_MODE_VELOCITY_CONTROL
-
-    def _pre_calibrate(self, m_axis):
-        m_axis.motor.config.pre_calibrated = True
-        m_axis.encoder.config.pre_calibrated = True
 
     def check_errors(self):
         front = self.front_axis.error
