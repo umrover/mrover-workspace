@@ -93,8 +93,8 @@ def lcmThreaderMan():
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "odrive error"]
 states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
-# Program states possible - BOOT,  DISARMED, ARMED,   ERROR
-# 							1		 2	      3	       4
+# Program states possible - BOOT,  DISARMED, ARMED, CALIBRATE ERROR
+# 							1		 2	      3	       4        5
 
 
 class State(object):
@@ -304,14 +304,7 @@ class OdriveBridge(object):
             self.on_event("arm cmd")
             lock.release()
 
-        try:
-            errors = modrive.check_errors()
-        except Exception:
-            errors = 0
-            lock.acquire()
-            self.on_event("disconnected odrive")
-            lock.release()
-            print("unable to check errors of unplugged odrive")
+        errors = modrive.check_errors()
 
         if errors:
             # if (errors == 0x800 or erros == 0x1000):
@@ -405,66 +398,6 @@ class Modrive:
         if attr in self.__dict__:
             return getattr(self, attr)
         return getattr(self.odrive, attr)
-
-    def reset(self):
-        self._reset(self.front_axis)
-        self._reset(self.back_axis)
-        self.odrive.save_configuration()
-        # the guide says to reboot here...
-
-    def print_debug(self):
-        try:
-            print("Print control mode")
-            print(self.front_axis.controller.config.control_mode)
-            print(self.back_axis.controller.config.control_mode)
-            print("Printing requested state")
-            print(self.front_axis.current_state)
-            print(self.back_axis.current_state)
-        except Exception as e:
-            print("Failed in print_debug. Error:")
-            print(e)
-
-    def enable_watchdog(self):
-        try:
-            print("Enabling watchdog")
-            self.front_axis.config.watchdog_timeout = 0.1
-            self.back_axis.config.watchdog_timeout = 0.1
-            self.watchdog_feed()
-            self.front_axis.config.enable_watchdog = True
-            self.back_axis.config.enable_watchdog = True
-        except Exception as e:
-            print("Failed in enable_watchdog. Error:")
-            print(e)
-
-    def disable_watchdog(self):
-        try:
-            print("Disabling watchdog")
-            self.front_axis.config.watchdog_timeout = 0
-            self.back_axis.config.watchdog_timeout = 0
-            self.front_axis.config.enable_watchdog = False
-            self.back_axis.config.enable_watchdog = False
-        except Exception as e:
-            print("Failed in disable_watchdog. Error:")
-            print(e)
-
-    def reset_watchdog(self):
-        try:
-            print("Resetting watchdog")
-            self.disable_watchdog()
-            # clears errors cleanly
-            self.odrive.clear_errors()
-            self.enable_watchdog()
-        except Exception as e:
-            print("Failed in disable_watchdog. Error:")
-            print(e)
-
-    def watchdog_feed(self):
-        try:
-            self.front_axis.watchdog_feed()
-            self.back_axis.watchdog_feed()
-        except Exception as e:
-            print("Failed in watchdog_feed. Error:")
-            print(e)
 
     def disarm(self):
         self.closed_loop_ctrl()
