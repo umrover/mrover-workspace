@@ -141,7 +141,6 @@ RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING EIGEN" && \
     make install && \
     cd ../.. && sudo rm -rf eigen-3.3.7/ && sudo rm -f eigen-3.3.7.tar.gz
 
-<<<<<<< HEAD
 #Install PCL
 RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING PCL" && \
     apt-get install -y libflann-dev libgtest-dev libboost-all-dev && \
@@ -155,6 +154,3 @@ RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING PCL" && \
     make -j1 && make install && ldconfig && \
     cd /usr/local && \
     rm -rf pcl-pcl-1.11.1
-=======
-ENTRYPOINT ["/bin/bash"]
->>>>>>> fe704fe... Merged in config file
