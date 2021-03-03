@@ -1,6 +1,6 @@
 <template>
   <div class="odom-wrap">
-    <div class="sacontrols">
+    <div class="sacontrols odom">
       <p>Current odometry reading:</p>
       <div>
         <p>{{formatted_odom.lat.d}}º</p>
@@ -17,7 +17,11 @@
         <p>Bearing: {{odom.bearing_deg.toFixed(2)}}º</p>
       </div>
     </div>
-    <div class="sacontrols">
+    <div class = "pdb">
+    <PDBData/>
+    </div>
+    <div class="sacontrols buttons">
+    <button ref="raman" class=raman v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>
     <SAControls/>
     </div>
   </div>
@@ -27,6 +31,7 @@
 import {convertDMS} from '../utils.js';
 import {mapGetters} from 'vuex';
 import SAControls from './SAControls.vue';
+import PDBData from './PDBData.vue';
 
 export default {
   props: {
@@ -57,8 +62,19 @@ export default {
     }
   },
 
+    methods: {
+      sendCollect: function (button) {
+        this.$parent.publish("/raman_collect", {"type": "Signal"})
+        let obj = this.$refs["raman"]
+        obj.disabled = true
+        setTimeout(function() {
+          obj.disabled = false;
+        }, 2000);
+      }
+    },
   components: {
-    SAControls
+    SAControls,
+    PDBData
   }
 }
 </script>
@@ -70,8 +86,26 @@ export default {
       padding-right: 0px;
       border: none;
       margin-top: 0.5rem;
+      display: grid;
+      grid-gap: 3px;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      grid-template-areas: "odom buttons" "pdb buttons";
+      font-family: sans-serif;
+      height: 24vh;
   }
-
+  .odom{
+    grid-area: odom;
+  }
+  .buttons{
+    grid-area: buttons;
+  }
+  .raman{
+    margin-left: 20px;
+  }
+  .pdb{
+    grid-area: pdb;
+  }
   .odom-wrap p {
     display: inline;
   }

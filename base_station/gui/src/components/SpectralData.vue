@@ -1,53 +1,54 @@
 <template>
-<div class = "wrap">
+<div>
   <table class="tableFormat" style="undefined;table-layout: fixed; width: 434px">
   <colgroup>
+    <col style="width: 63px">
     <col style="width: 53px">
-    <col style="width: 25px">
-    <col style="width: 25px">
-    <col style="width: 25px">
-    <col style="width: 25px">
-    <col style="width: 25px">
-    <col style="width: 25px">
+    <col style="width: 53px">
+    <col style="width: 53px">
+    <col style="width: 53px">
+    <col style="width: 53px">
+    <col style="width: 53px">
+    <col style="width: 53px">
   </colgroup>
   <thead>
     <tr>
-      <th> </th>
-      <th>1</th>
-      <th>2</th>
-      <th >3</th>
-      <th >4</th>
-      <th >5</th>
-      <th >6</th>
+      <th class = "tableElement"></th>
+      <th class = "tableElement">1</th>
+      <th class = "tableElement">2</th>
+      <th class = "tableElement">3</th>
+      <th class = "tableElement">4</th>
+      <th class = "tableElement">5</th>
+      <th class = "tableElement">6</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td >Spec 0</td>
-      <td >{{spectral_data.d0_1}}</td>
-      <td >{{spectral_data.d0_2}}</td>
-      <td >{{spectral_data.d0_3}}</td>
-      <td >{{spectral_data.d0_4}}</td>
-      <td >{{spectral_data.d0_5}}</td>
-      <td >{{spectral_data.d0_6}}</td>
+      <td class = "tableElement">Spec 0</td>
+      <td class = "tableElement">{{spectral_data.d0_1}}</td>
+      <td class = "tableElement">{{spectral_data.d0_2}}</td>
+      <td class = "tableElement">{{spectral_data.d0_3}}</td>
+      <td class = "tableElement">{{spectral_data.d0_4}}</td>
+      <td class = "tableElement">{{spectral_data.d0_5}}</td>
+      <td class = "tableElement">{{spectral_data.d0_6}}</td>
     </tr>
     <tr>
-      <td >Spec 1</td>
-      <td >{{spectral_data.d1_1}}</td>
-      <td >{{spectral_data.d1_2}}</td>
-      <td >{{spectral_data.d1_3}}</td>
-      <td >{{spectral_data.d1_4}}</td>
-      <td >{{spectral_data.d1_5}}</td>
-      <td >{{spectral_data.d1_6}}</td>
+      <td class = "tableElement">Spec 1</td>
+      <td class = "tableElement">{{spectral_data.d1_1}}</td>
+      <td class = "tableElement">{{spectral_data.d1_2}}</td>
+      <td class = "tableElement">{{spectral_data.d1_3}}</td>
+      <td class = "tableElement">{{spectral_data.d1_4}}</td>
+      <td class = "tableElement">{{spectral_data.d1_5}}</td>
+      <td class = "tableElement">{{spectral_data.d1_6}}</td>
     </tr>
     <tr>
-      <td >Spec 2</td>
-      <td >{{spectral_data.d2_1}}</td>
-      <td >{{spectral_data.d2_2}}</td>
-      <td >{{spectral_data.d2_3}}</td>
-      <td >{{spectral_data.d2_4}}</td>
-      <td >{{spectral_data.d2_5}}</td>
-      <td >{{spectral_data.d2_6}}</td>
+      <td class = "tableElement">Spec 2</td>
+      <td class = "tableElement">{{spectral_data.d2_1}}</td>
+      <td class = "tableElement">{{spectral_data.d2_2}}</td>
+      <td class = "tableElement">{{spectral_data.d2_3}}</td>
+      <td class = "tableElement">{{spectral_data.d2_4}}</td>
+      <td class = "tableElement">{{spectral_data.d2_5}}</td>
+      <td class = "tableElement">{{spectral_data.d2_6}}</td>
     </tr>
   </tbody>
   </table>
@@ -71,22 +72,29 @@
     border-collapse:collapse;
     border-spacing:0;
   }
-  .tableFormat thead{
-    display: table-header-group;
-    text-align: center;
-    
+  .tableFormat td{
+    border-color:black;
+    border-style:solid;
+    border-width:1px;
+    font-size:14px;
+    overflow:hidden;
+    padding:10px 5px;
+    word-break:normal
   }
-  .tableFormat tbody{
-    display: table-row;
-    text-align: center;
-  }
-  .tableFormat th td{
-    border: 1px solid black;
-    border-collapse: collapse;
+  .tableFormat th{
+    border-color:black;
+    border-style:solid;
+    border-width:1px;
+    font-size:14px;
+    font-weight:normal;
     overflow:hidden;
     padding:10px 5px;
     word-break:normal;
-    text-align: center;
+  }
+  .tableFormat .tableElement{
+    border-color:inherit;
+    text-align:center;
+    vertical-align:top
   }
 </style>
 
