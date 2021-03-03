@@ -1,4 +1,10 @@
 {
+    "AmmoniaCmd": [
+        [
+            "double",
+            "speed"
+        ]
+    ],
     "ArmPosition": [
         [
             "double",
@@ -681,6 +687,80 @@
             "sim_mode"
         ]
     ],
+    "SpectralData": [
+        [
+            "int16_t",
+            "d0_1"    
+        ],
+        [
+            "int16_t",
+            "d0_2"    
+        ],
+        [
+            "int16_t",
+            "d0_3"    
+        ],
+        [
+            "int16_t",
+            "d0_4"    
+        ],
+        [
+            "int16_t",
+            "d0_5"    
+        ],
+        [
+            "int16_t",
+            "d0_6"    
+        ],
+        [
+            "int16_t",
+            "d1_1"    
+        ],
+        [
+            "int16_t",
+            "d1_2"    
+        ],
+        [
+            "int16_t",
+            "d1_3"    
+        ],
+        [
+            "int16_t",
+            "d1_4"    
+        ],
+        [
+            "int16_t",
+            "d1_5"    
+        ],
+        [
+            "int16_t",
+            "d1_6"    
+        ],
+        [
+            "int16_t",
+            "d2_1"    
+        ],
+        [
+            "int16_t",
+            "d2_2"    
+        ],
+        [
+            "int16_t",
+            "d2_3"    
+        ],
+        [
+            "int16_t",
+            "d2_4"    
+        ],
+        [
+            "int16_t",
+            "d2_5"    
+        ],
+        [
+            "int16_t",
+            "d2_6"    
+        ]
+    ],
     "StartTest": [
         [
             "string",
@@ -875,6 +955,7 @@
         ]
     ],
     "message_types": [
+        "AmmoniaCmd",
         "ArmPosition",
         "ArmToggles",
         "AutonState",
