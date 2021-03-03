@@ -3,6 +3,7 @@
     "buffer_iterations": 20,
     "DEFAULT_TAG_VAL": -1,
     "mm_per_m":1000,
+    "threshold_confidence":90,
 
     "pt_cloud":
     {   

@@ -27,10 +27,11 @@ public:
 	cv::Mat image();
 	cv::Mat depth();
 
+    #define THRESHOLD_CONFIDENCE 90;
+
     #if OBSTACLE_DETECTION
     void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
     #endif
-  
   
 private:
 	sl::RuntimeParameters runtime_params_;
@@ -380,8 +381,7 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point
 
 #endif
 
-Camera::Camera(const rapidjson::Document &config) : impl_{new Camera::Impl}, rgb_foldername{""},
-                   depth_foldername{""}, pcl_foldername{""} , mRoverConfig( config ) {}
+Camera::Camera(const rapidjson::Document &config) : impl_{new Camera::Impl}, rgb_foldername{""}, depth_foldername{""}, pcl_foldername{""} , mRoverConfig( config ) {}
 
 Camera::~Camera() {
 	delete this->impl_;
