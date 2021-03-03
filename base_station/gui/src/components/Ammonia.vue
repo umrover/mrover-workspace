@@ -4,19 +4,19 @@
         <h3> Ammonia Controls </h3>
     </div>
     <div class="box">
-        <button>
+        <button v-on:click="setPart(1)">
             Up
         </button>
-        <button>
+        <button v-on:click="setPart(-1)">
             Down
         </button>
-        <button>
+        <button v-on:click="setPart(0)">
             Stop
         </button>
     </div>
 </div>
 </template>
-
+<!-- Reminder to attach github page for AmmoniaCmd to Teleop/ESW Interface google doc -->
 <style scoped>
     .wrap {
         display: inline-block;
@@ -34,9 +34,12 @@
 
 <script>
 export default {
-    data () {
-        return {
-
+    methods: {
+        setPart: function(speed) {
+        this.$parent.publish("/ammonia_cmd", {
+            'type': 'AmmoniaCmd',
+            'speed': speed
+        })
         }
     }
 }

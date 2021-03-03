@@ -49,6 +49,7 @@
         },
         messages: [],
         viewing: {
+          '/ammonia_cmd': false,
           '/arm_motors': false,
           '/arm_toggles_button_data': false,
           '/arm_toggles_toggle_data': false,
@@ -99,6 +100,7 @@
           '/zed_gimbal_data': false
         },
         subscriptions: [
+          {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
           {'topic': '/arm_toggles_toggle_data', 'type': 'ArmToggles'},
           {'topic': '/ik_ra_control', 'type': 'ArmPosition'},

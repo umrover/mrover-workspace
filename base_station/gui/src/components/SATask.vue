@@ -32,21 +32,21 @@
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
     </div>
-    <div class="box sa_testing light-bg">
+    <!--div class="box sa_testing light-bg">
       <SATestingControls/>
-    </div>
-    <!--div class="box light-bg">
-      <SpectralData v-bind:spectral_data="spectral_data"/>
     </div-->
+    <div class="box light-bg">
+      <SpectralData v-bind:spectral_data="spectral_data"/>
+    </div>
     <!--div class="box sa_controls light-bg">
       <SAControls/>
     </div-->
     <div class = "box light-bg chlorophyll">
       <Chlorophyll/>
     </div>
-    <!--div class="box ammonia light-bg">
+    <div class="box ammonia light-bg">
       <Ammonia/>
-    </div-->
+    </div>
   </div>
 </template>
 
@@ -188,7 +188,8 @@ export default {
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/spectral_data', 'type': 'SpectralData'},
         {'topic': '/thermistor_data', 'type': 'ThermistorData'},
-        {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'}
+        {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
+        {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'}
       ]
     )
 
@@ -253,7 +254,7 @@ export default {
         grid-gap: 10px;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: 60px 3fr 1fr 2fr 3fr;
-        grid-template-areas: "header header" "map cameras" "map sa_testing" "map chlorophyll" "odom waypoints";
+        grid-template-areas: "header header" "map cameras" "map sa_testing" "map chlorophyll" "odom ammonia";
         font-family: sans-serif;
         height: 98vh;
     }
