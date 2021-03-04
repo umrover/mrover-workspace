@@ -1,6 +1,7 @@
 import Adafruit_BBIO.UART as UART
 import serial
 import struct
+import time
 
 baud = 115200
 
@@ -44,6 +45,7 @@ ser.close()
 ser.open()
 
 cmd_buffer = [0,0,0,0,0,0,0,0,0,0,0]
+sending_buffer = [0,0,0,0,0,0,0]
 
 #Sets desired transmission rates for CHR NMEA-style packets (31 bits) Pg. 55
 #CREG_COM_RATES7 = 0x07
@@ -98,13 +100,12 @@ def resetEKF():
     ser.write(cmd_buffer)
     
 
-
-def setRate():
+def setRate(register):
     cmd_buffer[0] = ord('s') 
     cmd_buffer[1] = ord('n')
     cmd_buffer[2] = ord('p')
     cmd_buffer[3] = 0x80
-    cmd_buffer[4] = 0x07 #Processed Data
+    cmd_buffer[4] = register #Processed Data
 
     #Data that is non zero
     cmd_buffer[5] = 0x11
@@ -112,14 +113,12 @@ def setRate():
     cmd_buffer[7] = 0x11
     cmd_buffer[8] = 0x11
 
-    checksum = ord('s') + ord('n') + ord('p') + 0x07 + 0x80 + 0x11 + 0x11 + 0x11 + 0x11
+    checksum = ord('s') + ord('n') + ord('p') + register + 0x80 + 0x11 + 0x11 + 0x11 + 0x11
 
     cmd_buffer[9] = checksum >> 8     #0x02
     cmd_buffer[10] = checksum & 0xff  #0x1C
 
     ser.write(cmd_buffer)
-
-    print(cmd_buffer)
 
 
 def turnOffRegister(register):
@@ -136,8 +135,10 @@ def turnOffRegister(register):
     checksum = ord('s') + ord('n') + ord('p') + register + 0x80
     cmd_buffer[9] = checksum >> 8     #0x02
     cmd_buffer[10] = checksum & 0xff  #0x1C
-    ser.write(cmd_buffer)
-    print(cmd_buffer)
+    
+    ser.write(bytes(cmd_buffer))
+   
+
     
 
 
@@ -149,50 +150,103 @@ def read_data(register):
     
     #value = ser.read(register)
 
-    cmd_buffer[0] = ord('s')
-    cmd_buffer[1] = ord('n')
-    cmd_buffer[2] = ord('p')
-    cmd_buffer[3] = 0x00
-    cmd_buffer[4] = register
+    sending_buffer[0] = ord('s')
+    sending_buffer[1] = ord('n')
+    sending_buffer[2] = ord('p')
+    sending_buffer[3] = 0x00
+    sending_buffer[4] = register
 
     checksum = ord('s') + ord('n') + ord('p') + register
-    
-    #these four are for the four bytes that make up the data section
+
+    sending_buffer[5] = checksum >> 8
+    sending_buffer[6] = checksum & 0xFF
+
+    #Attempting to get a reading from the UM7
+    ser.write(sending_buffer)     
+
+
+    b = ser.read()
+    if (b == bytes('s', 'utf-8')):
+        b = ser.read()
+        if (b == bytes('n', 'utf-8')):
+            b = ser.read()
+            if (b == bytes('p', 'utf-8')):
+                #Reading the four bytes of data
+                b = ser.read()
+                print("reached")
+                print(ord(b))
+                c = ser.read()
+                print(ord(c))
+                d = ser.read()
+                print(ord(d))
+                e = ser.read()
+                print(ord(e))
+                #Should be checksum
+                b = ser.read()
+                print(ord(b))
+                b = ser.read()
+                print(ord(b))
+                
+
+def send(register):
+    cmd_buffer[0] = ord('s') 
+    cmd_buffer[1] = ord('n')
+    cmd_buffer[2] = ord('p')
+    cmd_buffer[3] = 0x80
+    cmd_buffer[4] = register #Processed Data
+
+    #Data that is non zero
     cmd_buffer[5] = 0
-    cmd_buffer[6] = 0
+    cmd_buffer[6] = 0x01
     cmd_buffer[7] = 0
     cmd_buffer[8] = 0
 
-    cmd_buffer[9] = checksum >> 8
-    cmd_buffer[10] = checksum & 0xFF
+    checksum = ord('s') + ord('n') + ord('p') + register + 0x80 + 0x01
 
-    #Attempting to get a reading from the UM7
+    cmd_buffer[9] = checksum >> 8     #0x02
+    cmd_buffer[10] = checksum & 0xff  #0x1C
+
+    ser.write(cmd_buffer)
     print(cmd_buffer)
-    value = ser.write(cmd_buffer)     
-    print(value)
 
-    #print("pt1")
-    #value = ser.read(register)
-    #print("pt2")
-    #print(value)
-
-    return value
+    return 0
 
 
 #checkfirmware()
 #resetEKF()
-setRate()
+#attempting switch between 3 and 7
+
+turnOffRegister(0x03)
 turnOffRegister(0x01)
 turnOffRegister(0x02)
-turnOffRegister(0x03)
+turnOffRegister(0x07)
 turnOffRegister(0x04)
 turnOffRegister(0x05)
 turnOffRegister(0x06)
-while ser.isOpen():
+
+send(0x07)
+#b = ser.read()
+#print(b) 
+#print(bytes('s', 'utf-8'))
+#while ser.isOpen():
     
-    GyroX = read_data(XGyro)
-    GyroY = read_data(YGyro)
-    GyroZ = read_data(ZGyro)
+    #read_data(0x5f)
+
+    # b = ser.read()
+    # if (b == bytes('s', 'utf-8')):
+    #     b = ser.read()
+    #     if (b == bytes('n', 'utf-8')):
+    #         b = ser.read()
+    #         if (b == bytes('p', 'utf-8')):
+    #             break
+
+
+
+print("We got stuff!")
+    #Using xGyro gets four bytes of data
+    #GyroX = read_data(XGyro)
+    #GyroY = read_data(YGyro)
+    #GyroZ = read_data(ZGyro)
     #AccelX = read_data(XAccel)
     #AccelY = read_data(YAccel)
     #AccelZ = read_data(ZAccel)
@@ -204,4 +258,4 @@ while ser.isOpen():
     
 
     #print("Gyro:      X: " + GyroX + "Y: " + GyroY + "Z: " + GyroZ + "\n         Accel:     X: " + AccelX + "Y: " + AccelY + "Z: " + AccelZ + "\n         Mag:       X: " + MagX + "Y: " + MagY + "Z: " + MagZ)
-
+ser.close()
