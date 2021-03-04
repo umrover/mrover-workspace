@@ -166,7 +166,8 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
 
 // Executes the logic for driving while searching.
 // If the rover detects the target, it proceeds to the target.
-// If the rover detects an obstacle, it proceeds to obstacle avoidance.
+// If the rover detects an obstacle and is within the obstacle 
+// distance threshold, it proceeds to obstacle avoidance.
 // If the rover finishes driving, it proceeds to turning to the next Waypoint.
 // If the rover is still on course, it keeps driving to the next Waypoint.
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
@@ -229,7 +230,8 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
 // Executes the logic for driving to the target.
 // If the rover loses the target, it continues with search by going to
 // the last point before the rover turned to the target
-// If the rover detects an obstacle, it proceeds to go around the obstacle.
+// If the rover detects an obstacle and is within the obstacle 
+// distance threshold, it proceeds to go around the obstacle.
 // If the rover finishes driving to the target, it moves on to the next Waypoint.
 // If the rover is on course, it keeps driving to the target.
 // Else, it turns back to face the target.

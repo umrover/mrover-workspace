@@ -376,8 +376,8 @@ NavState StateMachine::executeTurn()
 // proceeds to Off. If the rover finishes driving, it either starts
 // searching for a target (dependent the search parameter of
 // the Waypoint) or it turns to the next Waypoint. If the rover
-// detects an obstacle, it goes to turn around it. Else the rover
-// keeps driving to the next Waypoint.
+// detects an obstacle and is within the obstacle distance threshold, 
+// it goes to turn around it. Else the rover keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive()
 {
     const Waypoint& nextWaypoint = mPhoebe->roverStatus().path().front();
