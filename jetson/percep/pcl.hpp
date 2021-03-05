@@ -62,14 +62,17 @@ class PCL {
         double LOW_BD ;
         double ROVER_W_MM;
         float LEAF_SIZE;
+
         //RANSAC constants
         int MAX_ITERATIONS;
         double SEGMENTATION_EPSLION;
         double DISTANCE_THRESHOLD;
+
         //Euclidean cluster constants
         int CLUSTER_TOLERANCE;
         int MIN_CLUSTER_SIZE;
         int MAX_CLUSTER_SIZE;
+        
         //member variables
         double bearing;
         double distance;

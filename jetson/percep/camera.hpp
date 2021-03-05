@@ -14,10 +14,12 @@ private:
 	std::string depth_foldername;
 	std::string pcl_foldername;
 	cv::VideoWriter vidWrite;
-	//reference to config file
+
+    //reference to config file
     const rapidjson::Document& mRoverConfig;
 	
 public:
+
 	Camera(const rapidjson::Document &config);
 	~Camera();
 

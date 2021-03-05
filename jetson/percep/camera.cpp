@@ -20,14 +20,15 @@
 //but can use sample images for testing
 class Camera::Impl {
 public:
-    Impl();
+    Impl(const rapidjson::Document &config);
     ~Impl();
 	bool grab();
 
 	cv::Mat image();
 	cv::Mat depth();
-
-    #define THRESHOLD_CONFIDENCE 90;
+    
+    //constants
+    int THRESHOLD_CONFIDENCE;
 
     #if OBSTACLE_DETECTION
     void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
@@ -45,7 +46,7 @@ private:
 	cv::Mat depth_;
 };
 
-Camera::Impl::Impl() {
+Camera::Impl::Impl(const rapidjson::Document &config) : THRESHOLD_CONFIDENCE(config["threshold_confidence"].GetDouble()) {
 	sl::InitParameters init_params;
 	init_params.camera_resolution = sl::RESOLUTION::HD720; // default: 720p
 	init_params.depth_mode = sl::DEPTH_MODE::PERFORMANCE;
@@ -381,7 +382,8 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point
 
 #endif
 
-Camera::Camera(const rapidjson::Document &config) : impl_{new Camera::Impl}, rgb_foldername{""}, depth_foldername{""}, pcl_foldername{""} , mRoverConfig( config ) {}
+Camera::Camera(const rapidjson::Document &config) : impl_{new Camera::Impl(config)}, rgb_foldername{""},
+                         depth_foldername{""}, pcl_foldername{""} , mRoverConfig( config ) {}
 
 Camera::~Camera() {
 	delete this->impl_;
