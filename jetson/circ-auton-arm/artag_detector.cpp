@@ -54,6 +54,23 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
+double TagDetector::getHeightOfTagOffGround(const vector<Point2f> &corners) {
+    //RETURN:
+    //height of tag in mm? off ground 
+    int heightTagMM = 200;
+    
+    //height of tag, bottom y corner subtracted from top y corner 
+    //note: corners in vector are clockwise so corner[0] is top left tag
+    //and corner[3] is bottom left tag
+    int heightTag = corners[0].y - corner[3].y;
+    int heightImage = src.size().height;
+    int distanceTagToTop = heightImage - corners[0].y;
+    int tagDistanceOffGround = heightImage - (distanceTagToTop + heightTag);
+
+    return tagDistanceOffGround * heightTagMM; 
+
+}
+
 pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
     // RETURN:
     // pair of target objects- each object has an x and y for the center,
