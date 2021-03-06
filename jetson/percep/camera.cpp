@@ -46,7 +46,7 @@ private:
 	cv::Mat depth_;
 };
 
-Camera::Impl::Impl(const rapidjson::Document &config) : THRESHOLD_CONFIDENCE(config["threshold_confidence"].GetDouble()) {
+Camera::Impl::Impl(const rapidjson::Document &config) : THRESHOLD_CONFIDENCE(config["camera"]["threshold_confidence"].GetDouble()) {
 	sl::InitParameters init_params;
 	init_params.camera_resolution = sl::RESOLUTION::HD720; // default: 720p
 	init_params.depth_mode = sl::DEPTH_MODE::PERFORMANCE;
@@ -146,7 +146,7 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & p_pcl_poin
 #include <unordered_set>
 class Camera::Impl {
 public:
-    Impl();
+    Impl(const rapidjson::Document &config);
     ~Impl();
     bool grab();
 
@@ -186,7 +186,7 @@ Camera::Impl::~Impl() {
     closedir(pcd_dir);
 }
 
-Camera::Impl::Impl() {
+Camera::Impl::Impl(const rapidjson::Document &config) {
   
     std::cout<<"Please input the folder path (there should be a rgb and depth existing in this folder): ";
     std::cin>>path;
