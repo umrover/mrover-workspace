@@ -54,7 +54,7 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
-double TagDetector::getHeightOfTagOffGround(const vector<Point2f> &corners) {
+double TagDetector::getHeightTagOffGround(const vector<Point2f> &corners) {
     //RETURN:
     //height of tag in mm? off ground 
     int heightTagMM = 200;

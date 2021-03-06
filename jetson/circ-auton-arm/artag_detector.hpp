@@ -32,5 +32,5 @@ class TagDetector {
     //if AR tag found, updates distance, bearing, and id                              
     void updateDetectedTagInfo(rover_msgs::CircAutonTarget *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src); 
     //returns distance of tag off bottom of image in MM
-    double TagDetector::getHeightOfTagOffGround(const vector<Point2f> &corners);
+    double TagDetector::getHeightTagOffGround(const vector<Point2f> &corners);
 };
