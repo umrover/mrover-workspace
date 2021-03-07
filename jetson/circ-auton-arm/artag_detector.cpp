@@ -65,22 +65,19 @@ Point2f TagDetector::getTagCoordRelativeToCenter(Mat &src, Point2f &tagLoc) {
     centerCoord.z = 0;
     
     Point2f tagCoord;
-    //if tag x coordinate is less than center x, tag x is negative
-    //if tag y coord is greater than center y, tag y is negative
+    tagCoord.x = abs(centerCoord.x - tagLoc.x);
+    tagCoord.y = abs(centerCoord.y - tagLoc.y);
+    //if tag x coordinate is less than center x, tag x should be negative
+    //if tag y coord is greater than center y, tag y should be negative
     if(tagLoc.x < centerCoord.x || tagLoc.y > centerCoord.y) {
-        if(tagLoc.x < centerCoord.x) {
-            tagCoord.x = centerCoord.x - tagLoc.x;
+        if(tagLoc.x < centerCoord.x && tagLoc.y > centerCoord.y) {
+            tagCoord.x = -tagCoord.x;
+            tagCoord.y = -tagCoord.y;
         }
         if(tagLoc.y > centerCoord.y) {
-            tagCoord.y = tagLoc.y - centerCoord.y;
+            tagCoord.y = -tagCoord.y;
         }
     }
-    //else positive
-    else { 
-        tagCoord.x = tagLoc.x - centerCoord.x;
-        tagCoord.y = centerCoord.y - tagLoc.y;
-    }
-
     
     cerr << "width and height: " << widthImage << " " << heightImage << endl;
     cerr << "tag x and center x " << tagLoc.x << " " << centerCoord.x << " " << tagLoc.x - centerCoord.x << endl;

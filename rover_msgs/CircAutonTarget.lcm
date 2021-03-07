@@ -1,8 +1,0 @@
-package rover_msgs;
-
-struct CircAutonTarget {
-    double x;
-    double y;
-    double z;
-    int32_t id;
-}
