@@ -179,9 +179,8 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson:
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    if( isObstacleDetected( phoebe )  && inObstacleThreshold( phoebe, roverConfig ) )
+    if( isObstacleDetected( phoebe )  && isObstacleInThreshold( phoebe, roverConfig ) )
     {
-        // cerr << "In Threshold executeSearchDrive " << phoebe->roverStatus().obstacle().distance << endl;
         roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
         roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
@@ -243,9 +242,8 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
         return NavState::SearchTurn; //NavState::SearchSpin
     }
     if( isObstacleDetected( phoebe ) &&
-        !isTargetReachable( phoebe, roverConfig )  && inObstacleThreshold( phoebe, roverConfig ) )
+        !isTargetReachable( phoebe, roverConfig )  && isObstacleInThreshold( phoebe, roverConfig ) )
     {
-        // cerr << "In Threshold executeDriveToTarget " << phoebe->roverStatus().obstacle().distance << endl;
         roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
         roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;

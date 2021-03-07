@@ -56,9 +56,8 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* phoebe,
 // ( original waypoint is the waypoint before obstacle avoidance was triggered )
 NavState SimpleAvoidance::executeDriveAroundObs( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    if( isObstacleDetected( phoebe )  && inObstacleThreshold( phoebe, roverConfig ) )
+    if( isObstacleDetected( phoebe )  && isObstacleInThreshold( phoebe, roverConfig ) )
     {
-        // cerr << "In Threshold executeDriveAroundObs " << phoebe->roverStatus().obstacle().distance << endl;
         if( phoebe->roverStatus().currentState() == NavState::DriveAroundObs )
         {
             return NavState::TurnAroundObs;

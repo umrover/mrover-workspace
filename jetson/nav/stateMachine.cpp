@@ -391,11 +391,10 @@ NavState StateMachine::executeDrive()
         return NavState::RadioRepeaterTurn;
     }
 
-    if( isObstacleDetected( mPhoebe ) && !isWaypointReachable( distance ) && inObstacleThreshold( mPhoebe, mRoverConfig ) )
+    if( isObstacleDetected( mPhoebe ) && !isWaypointReachable( distance ) && isObstacleInThreshold( mPhoebe, mRoverConfig ) )
     {
         mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
                                                                 getOptimalAvoidanceDistance() );
-        // cerr << "In Threshold executeDrive " << mPhoebe->roverStatus().obstacle().distance << endl; // trying to see if it gets called
         return NavState::TurnAroundObs;
     }
     DriveStatus driveStatus = mPhoebe->drive( nextWaypoint.odom );
