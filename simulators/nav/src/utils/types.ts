@@ -66,7 +66,7 @@ export interface FieldState {
   canvasHeight:number; /* pixels */
   centerOdom:Odom;
   gates:Gate[];
-  obstacles:Obstacle[];
+  obstacles2:Obstacle[];
   referencePoints:Odom[];
   repeaterLoc:Odom|null;
   size:number;

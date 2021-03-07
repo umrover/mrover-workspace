@@ -13,6 +13,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
+import { calcRelativeOdom } from '../../utils/utils';
 import {
   ArTag,
   FieldOfViewOptions,
@@ -89,8 +90,16 @@ export default class Perception extends Vue {
       return;
     }
 
+    console.log('Updating ar tags');
+
     /* Recompute targetList LCM */
     this.targetDetector.updateArTags(this.arTags);
+
+    /* Recompute obstacleList LCM*/
+    this.onObstaclesChange();
+
+    console.log(this.obstacles.length);
+
     this.computeVisibleTargets();
   } /* onArTagsChange() */
 
@@ -170,6 +179,10 @@ export default class Perception extends Vue {
 
     /* Recompute targetList LCM */
     this.targetDetector.updateGates(this.gates);
+
+    /* Recompute obstacles */
+    this.onObstaclesChange();
+
     this.computeVisibleTargets();
   } /* onGatesChange() */
 
@@ -178,12 +191,33 @@ export default class Perception extends Vue {
   @Watch('obstacles', { deep: true })
   private onObstaclesChange():void {
     /* If obstacleDetector not yet defined */
+    console.log('Updating perception obstacle');
     if (this.obstacleDetector === undefined) {
       return;
     }
 
     /* Recompute obstacle LCM */
-    this.obstacleDetector.updateObstacles(this.obstacles);
+    const newObstacles:Obstacle[] = this.obstacles.slice();
+    for (let i = 0; i < this.arTags.length; i += 1) {
+      newObstacles.push({ odom: this.arTags[i].odom, size: 0.5 });
+    }
+    for (let i = 0; i < this.gates.length; i += 1) {
+      newObstacles.push({
+        odom: calcRelativeOdom(this.gates[i].odom,
+                               this.gates[i].orientation,
+                               this.gates[i].width / 2,
+                               this.fieldCenterOdom),
+        size: 0.5
+      });
+      newObstacles.push({
+        odom: calcRelativeOdom(this.gates[i].odom,
+                               this.gates[i].orientation + 180,
+                               this.gates[i].width / 2,
+                               this.fieldCenterOdom),
+        size: 0.5
+      });
+    }
+    this.obstacleDetector.updateObstacles(newObstacles);
     this.computeVisibleObstacles();
   } /* onObstaclesChange() */
 
