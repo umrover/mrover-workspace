@@ -54,20 +54,57 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
-double TagDetector::getHeightTagOffGround(const vector<Point2f> &corners) {
+Point2f TagDetector::getTagCoordRelativeToCenter(Mat &src, Point2f &tagLoc) {
+    //RETURN:
+    //Point3f containing coordinates of tag from center of image in meters
+    Point3f centerCoord;
+    double heightImage = src.size().height;
+    double widthImage = src.size().width;
+    centerCoord.x = widthImage / 2;
+    centerCoord.y = heightImage / 2;
+    centerCoord.z = 0;
+    
+    Point2f tagCoord;
+    //if tag x coordinate is less than center x, tag x is negative
+    //if tag y coord is greater than center y, tag y is negative
+    if(tagLoc.x < centerCoord.x || tagLoc.y > centerCoord.y) {
+        if(tagLoc.x < centerCoord.x) {
+            tagCoord.x = centerCoord.x - tagLoc.x;
+        }
+        if(tagLoc.y > centerCoord.y) {
+            tagCoord.y = tagLoc.y - centerCoord.y;
+        }
+    }
+    //else positive
+    else { 
+        tagCoord.x = tagLoc.x - centerCoord.x;
+        tagCoord.y = centerCoord.y - tagLoc.y;
+    }
+
+    
+    cerr << "width and height: " << widthImage << " " << heightImage << endl;
+    cerr << "tag x and center x " << tagLoc.x << " " << centerCoord.x << " " << tagLoc.x - centerCoord.x << endl;
+    cerr << "tag y and center y " << tagLoc.y << " " << centerCoord.y << " " << tagLoc.y - centerCoord.y << endl;
+    return tagCoord;
+}
+
+double TagDetector::getHeightTagOffGround(const vector<Point2f> &corners, Mat &src) {
     //RETURN:
     //height of tag in mm? off ground 
-    int heightTagMM = 200;
+   double heightTagM = .20;
     
     //height of tag, bottom y corner subtracted from top y corner 
     //note: corners in vector are clockwise so corner[0] is top left tag
     //and corner[3] is bottom left tag
-    int heightTag = corners[0].y - corner[3].y;
-    int heightImage = src.size().height;
-    int distanceTagToTop = heightImage - corners[0].y;
-    int tagDistanceOffGround = heightImage - (distanceTagToTop + heightTag);
+    double heightTag = abs(corners[0].y - corners[3].y);
 
-    return tagDistanceOffGround * heightTagMM; 
+    //cout << "corner 0, corner 3 " << corners[0].y << " " << corners[3].y << endl;
+
+    double heightImage = src.size().height;
+    double distanceTagToTop = heightImage - corners[0].y;
+    double tagDistanceOffGround = heightImage - (distanceTagToTop + heightTag);
+
+    return (tagDistanceOffGround / heightTag) * heightTagM; 
 
 }
 
@@ -109,6 +146,9 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     } else if (ids.size() == 1) {  // exactly one tag found
         discoveredTags.first.id = ids[0];
         discoveredTags.first.loc = getAverageTagCoordinateFromCorners(corners[0]);
+        //cerr << "height off ground: " << ids[0] << " " << getHeightTagOffGround(corners[0], src) << endl;
+        cerr << "tag coordinates " << ids[0] << " " << getTagCoordRelativeToCenter(src,discoveredTags.first.loc).x 
+        << " " << getTagCoordRelativeToCenter(src,discoveredTags.first.loc).y <<endl;
         // set second tag to invalid object with tag as -1
         discoveredTags.second.id = -1;
         discoveredTags.second.loc = Point2f();
@@ -116,8 +156,10 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
         Tag t0, t1;
         t0.id = ids[0];
         t0.loc = getAverageTagCoordinateFromCorners(corners[0]);
+        //cerr << ids[0] << getHeightTagOffGround(corners[0], src) << endl;
         t1.id = ids[1];
         t1.loc = getAverageTagCoordinateFromCorners(corners[1]);
+        //cerr << "height off ground: " << ids[0] << " " << getHeightTagOffGround(corners[1], src) << endl;
         if (t0.loc.x < t1.loc.x) {  //if tag 0 is left of tag 1, put t0 first
             discoveredTags.first = t0;
             discoveredTags.second = t1;
@@ -130,8 +172,10 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
         Tag t0, t1;
         t0.id = ids[0];
         t0.loc = getAverageTagCoordinateFromCorners(corners[0]);
+        //cerr << "height off ground: " << ids[0] << " " << getHeightTagOffGround(corners[0], src) << endl;
         t1.id = ids[ids.size() - 1];
         t1.loc = getAverageTagCoordinateFromCorners(corners[ids.size() - 1]);
+        //cerr << "height off ground: " << ids[ids.size() - 1] << " " << getHeightTagOffGround(corners[0], src) << endl;
         if (t0.loc.x < t1.loc.x) {  //if tag 0 is left of tag 1, put t0 first
             discoveredTags.first = t0;
             discoveredTags.second = t1;
@@ -148,7 +192,7 @@ double TagDetector::getAngle(float xPixel, float wPixel){
 }
 
 
-void TagDetector::updateDetectedTagInfo(rover_msgs::CircAutonTarget *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
+void TagDetector::updateDetectedTagInfo(rover_msgs::TargetPosition *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
     struct tagPairs {
         vector<int> id;
         vector<int> locx;
@@ -173,22 +217,27 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::CircAutonTarget *arTags, pai
         } else {//if still no tag found, set all stats to -1
             arTags[i].z = -1;
             //arTags[i].bearing = -1;
-            arTags[i].id = -1;
+            arTags[i].target_id = -1;
         }
     } 
     else {//one tag found
+        Point2f tagCoord;
+        tagCoord.x = tags.locx.at(i);
+        tagCoord.y = tags.locy.at(i);
         if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))){
-            arTags[i].x =tags.locx.at(i);
-            arTags[i].y =tags.locy.at(i);
+            arTags[i].x = getTagCoordRelativeToCenter(src, tagCoord).x;
+            arTags[i].y = getTagCoordRelativeToCenter(src, tagCoord).y;
+            //arTags[i].x = getTagCoordRelativeToCenter(src, tags.locx.at(i));
+            //arTags[i].y = getTagCoordRelativeToCenter(src, tags.locy.at(i));
             arTags[i].z = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
             //arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
-            arTags[i].id = tags.id.at(i);
+            arTags[i].target_id = tags.id.at(i);
             tags.buffer[i] = 0;
         }
     }
   }
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Location Sent: " << arTags[0].x << "\n";
-    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ID Sent: " << arTags[0].id << "\n";
+  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Location Sent: " << arTags[0].x << " " << arTags[0].y << "\n";
+    cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ID Sent: " << arTags[0].target_id << "\n";
 
 
 }

@@ -1,0 +1,8 @@
+package rover_msgs;
+
+struct TargetPosition {
+    double x;
+    double y;
+    double z;
+    int32_t target_id;
+}

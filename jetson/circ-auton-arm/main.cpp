@@ -1,8 +1,9 @@
 #include <iostream>
 #include <lcm/lcm-cpp.hpp>
-#include "rover_msgs/CircAutonTarget.hpp"
-#include "rover_msgs/TargetList.hpp"
-#include "rover_msgs/TargetOrientation.hpp"
+#include "rover_msgs/TargetPosition.hpp"
+#include "rover_msgs/TargetPositionList.hpp"
+//#include "rover_msgs/TargetList.hpp"
+//#include "rover_msgs/TargetOrientation.hpp"
 #include <unistd.h>
 #include "perception.hpp"
 
@@ -18,7 +19,6 @@ using namespace std;
 
 int main() {
     cout<<"Hello world"<<endl;
-    cout<<ZED_SDK_PRESENT<<endl;
 /*
     //create new lcm object
     lcm::LCM lcmObj;
@@ -54,9 +54,9 @@ int main() {
 
   /* -- LCM Messages Initializations -- */
   lcm::LCM lcm_;
-  rover_msgs::TargetList arTagsMessage;
+  rover_msgs::TargetPositionList arTagsMessage;
   //rover_msgs::Target* arTags = arTagsMessage.CircTarget;
-  rover_msgs::CircAutonTarget* arTags = arTagsMessage.targetList;
+  rover_msgs::TargetPosition* arTags = arTagsMessage.target_list;
   arTags[0].z = -1;
   arTags[1].z = -1;
 
@@ -106,7 +106,7 @@ int main() {
       #endif
 
       detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
-      cerr<<arTags[0].x<<" "<<arTags[0].y<<" "<<arTags[0].z<<" "<<arTags[0].id<<endl;
+      cerr<<arTags[0].x<<" "<<arTags[0].y<<" "<<arTags[0].z<<" "<<arTags[0].target_id<<endl;
 
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
@@ -116,7 +116,7 @@ int main() {
     #endif
 
 /* --- Publish LCMs --- */
-  lcm_.publish("/target_list", &arTagsMessage);
+  lcm_.publish("/target_position_list", &arTagsMessage);
 
     #if !ZED_SDK_PRESENT
     std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
