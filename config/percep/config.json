@@ -21,7 +21,7 @@
         },
 
         "pass_through": {
-            "upperBdZ": 7000.0,
+            "upperBdZ": 2500.0,
             "upperBdY": 3000.0, 
             "lowerBd": 0.0
         },

@@ -159,6 +159,9 @@ int main() {
 
         obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
         obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
+
+        if(obstacleMessage.distance > 7) obstacleMessage.distance = -1; // Set to -1 if don't trust distance
+        
         #if PERCEPTION_DEBUG
             cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
             cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Distance Sent: " << obstacleMessage.distance << "\n";
