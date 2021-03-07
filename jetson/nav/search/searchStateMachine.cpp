@@ -290,22 +290,52 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson:
 // Else the rover continues to turn to to the target.
 NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
 {
-    if( phoebe->roverStatus().leftTarget().distance < 0 )
+    static int turn_to_target_state = 0;
+    static double bearing_angle = 0;
+    if( phoebe->roverStatus().leftTarget().distance < 0  && turn_to_target_state != 1 && turn_to_target_state != 2)
     {
         cerr << "Lost the target. Continuing to turn to last known angle\n";
-        if( phoebe->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
+        if( phoebe->turn( mTargetAngle + mTurnToTargetRoverAngle ) && phoebe->gimbal().setDesiredGimbalYaw( 0 ))
         {
+            turn_to_target_state = 0;
             return NavState::TurnedToTargetWait;
         }
         return NavState::TurnToTarget;
     }
-    if( phoebe->turn( phoebe->roverStatus().leftTarget().bearing +
-                      phoebe->roverStatus().odometry().bearing_deg ) )
-    {
+    cout << "ttts: " << turn_to_target_state  << endl;
+    if (turn_to_target_state == 0){
+        //cout << "setting gimbal to: " << bearing_angle  << endl;
+        if (phoebe->gimbal().setDesiredGimbalYaw( phoebe->roverStatus().leftTarget().bearing ) )
+        {
+            bearing_angle = phoebe->roverStatus().leftTarget().bearing + phoebe->roverStatus().odometry().bearing_deg;
+            ++turn_to_target_state;
+        }
+    }
+    else if (turn_to_target_state == 1){
+      
+        if( phoebe->turn( bearing_angle ) )
+        {   
+            cout << "donezo: " << phoebe->roverStatus().odometry().bearing_deg << endl;
+            ++turn_to_target_state;
+        }
+    }
+    else if (turn_to_target_state == 2){
+        cout << "setting gimbal to: " << endl;
+        if ( phoebe->gimbal().setDesiredGimbalYaw( 0 ) )
+        {
+            ++turn_to_target_state;
+        }
+    }
+    else if (turn_to_target_state == 3){
+        turn_to_target_state = 0;
         return NavState::DriveToTarget;
     }
+
+
     updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                        phoebe->roverStatus().odometry().bearing_deg );
+    //publish gimbal lcm command
+    phoebe->publishGimbal( );
     return NavState::TurnToTarget;
 } // executeTurnToTarget()
 
