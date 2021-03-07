@@ -231,8 +231,6 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     double dist = (ef_pos_world - target_pos_world).norm();
     double angle_dist = (ef_ang_world - target_ang_world).norm();
 
-    double ef_v = 0;
-
     cout << "Current EF position: \n";
     cout << ef_pos_world << "\n";
     cout << ef_ang_world << "\n";
@@ -262,25 +260,26 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
                 joint_angles(index++) = it->second.angle;
             }
 
+            // cout << "Distance left:" << dist << "\n";
+
             // restore previous robot_state angles
             recover_from_backup(robot_state);
 
             return pair<Vector6d, bool> (joint_angles, false);
         }
 
-        Vector6d ef_to_target_b_weights = target_point - ef_vec_world;
-        Vector6d ef_to_target_vec_world;
-        ef_to_target_vec_world.head(3) = ef_to_target_b_weights.head(3) * get_pos_weight();
-        ef_to_target_vec_world.tail(3) = ef_to_target_b_weights.tail(3);
+        Vector6d ef_to_target_vec_world = target_point - ef_vec_world;
+        ef_to_target_vec_world.tail(3) = ef_to_target_vec_world.tail(3) * (use_euler_angles ? ANG_WEIGHT : 0);
         // d_ef is the vector we want the ef to move in this step 
         // d_ef is a 6d vector
-        Vector6d d_ef = j_kp * ef_to_target_b_weights - j_kd * (ef_v * (ef_to_target_vec_world)/(ef_to_target_vec_world.norm()));
+        Vector6d d_ef = j_kp * ef_to_target_vec_world;
 
-        IK_step(robot_state, d_ef, true, use_euler_angles);
+        IK_step(robot_state, d_ef, false, use_euler_angles);
         
         // Iterate:
         // ef_vec_world is a 6d vector:
         ef_vec_world = vecTo6d(robot_state.get_ef_pos_and_euler_angles());
+        ef_pos_world = ef_vec_world.head(3);
         ef_ang_world = ef_vec_world.tail(3);
 
         dist = (ef_pos_world - target_pos_world).norm();
@@ -289,6 +288,9 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
         ++num_iterations;
     }
     cout << "AHH, safe checking!!!\n";
+
+    Vector3d ef_pos = robot_state.get_ef_pos_world();
+    cout << "End effector positions [ " << ef_pos(0) << " " << ef_pos(1) << " " << ef_pos(2) << "]\n";
 
     vector<double> angles_vec;
     auto joint_angs = robot_state.get_joint_angles();
@@ -303,7 +305,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
 
     // restore robot_state to previous values
     recover_from_backup(robot_state);
-    return pair<Vector6d, bool> (vecTo6d(angles_vec), false);
+    return pair<Vector6d, bool> (vecTo6d(angles_vec), true);
 }
 
 void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi, bool use_euler_angles) {
@@ -382,12 +384,11 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
         jacobian_inverse = jacobian.transpose();
     }
     // cout << "Applied use_pi\n";
-    
+
     Vector6d d_theta = jacobian_inverse * d_ef;
 
     vector<double> angle_vec;
     // find the angle of each joint
-    //cout << "angles in IK step:\n";
     for (int i = 0; i < (int)joints.size(); ++i) {
         map<string, double> limits = robot_state.get_joint_limits(joints[i]);
 
@@ -400,13 +401,20 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
             angle = limits["upper"];
         }
         //cout << angle << "\n";
+        // cout << limits["lower"] << ' ' << limits["upper"] << '\n';
         angle_vec.push_back(angle);
     }
     // run forward kinematics
     robot_state.set_joint_angles(angle_vec);
+    /*cout << "Angles: ";
+    for(int i = 0; i < angle_vec.size(); ++i) {
+        cout << angle_vec[i] << " ";
+    }
+    cout << "\n";*/
     FK(robot_state);
 
-    // cout << "Ran forward kinematics from IK step function\n";
+    // Vector3d ef_pos = robot_state.get_ef_pos_world();
+    // cout << "End effector positions [ " << ef_pos(0) << " " << ef_pos(1) << " " << ef_pos(2) << "]\n";
 }
 
 bool KinematicsSolver::is_safe(ArmState &robot_state, vector<double> angles) {

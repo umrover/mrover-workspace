@@ -19,8 +19,8 @@ export default {
         }
     },
     created: function(){
-        setTimeout(() => {  this.currentDraw = 36.6;
-                            this.temperature = 24;
+        setTimeout(() => {  this.currentDraw = 45;
+                            this.temperature = 21;
                             this.activeColor= "green"; }, 10000);
     }
 

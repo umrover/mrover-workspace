@@ -4,8 +4,8 @@ from .mrover_arm import MRoverArm
 # from .sa_state import SAState
 # from .configuration_space_test import ConfigurationSpaceTest
 # from .kinematics_tester import KinematicsTester
-# from .kinematics import KinematicsSolver
-from rover_common.aiohelper import run_coroutines
+from .kinematics import KinematicsSolver
+# from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 # from .configuration_space_test import ConfigurationSpaceTest
 # from .kinematics_tester import KinematicsTester
@@ -25,7 +25,16 @@ def main():
     # }
 
     arm = MRoverArm(args, lcm_)
+    ra = KinematicsSolver(arm.state, lcm_)
+    target_point = [0.43561896709482717, -0.5849202310118653, -0.23898894427981895,
+                    -0.19091988273941293, 0.5705597354134033, -2.8999168062356357]
 
+    # target_point = [0.016696540990824446, -0.303096070950721, -0.21998941217186194,
+    #                 -2.35009466480546, 0.4985607719497288, -2.8692554925434313]
+
+    ra.IK(target_point, False, False)
+
+    # ra.IK(target_point, False, True)
     # sa_arm = SAState(sa_geom, lcm_)
     # sa = SAKinematics(lcm_, sa_arm)
     # sa.plan_return_to_deposit([4, 12, 17])
@@ -46,19 +55,19 @@ def main():
     # ra = KinematicsSolver(arm, lcm_)
     # ra.IK(target_point, True, False)
 
-    lcm_.subscribe("/arm_position", arm.arm_position_callback)
-    lcm_.subscribe("/target_orientation", arm.target_orientation_callback)
-    lcm_.subscribe("/target_angles", arm.target_angles_callback)
-    lcm_.subscribe("/confirmation", arm.arm_position_callback)
-    lcm_.subscribe("/motion_execute", arm.motion_execute_callback)
-    lcm_.subscribe("/simulation_mode", arm.simulation_mode_callback)
-    lcm_.subscribe("/ik_arm_control", arm.cartesian_control_callback)
-    lcm_.subscribe("/lock_joint_e", arm.lock_e_callback)
-    lcm_.subscribe("/ik_enabled", arm.ik_enabled_callback)
-    # lcm_.subscribe("/sa_depositpos_trig", sa.execute_callback)
-    # lcm_.subscribe("/sa_pos_data", sa.arm_position_callback)
+    # lcm_.subscribe("/arm_position", arm.arm_position_callback)
+    # lcm_.subscribe("/target_orientation", arm.target_orientation_callback)
+    # lcm_.subscribe("/target_angles", arm.target_angles_callback)
+    # lcm_.subscribe("/confirmation", arm.arm_position_callback)
+    # lcm_.subscribe("/motion_execute", arm.motion_execute_callback)
+    # lcm_.subscribe("/simulation_mode", arm.simulation_mode_callback)
+    # lcm_.subscribe("/ik_arm_control", arm.cartesian_control_callback)
+    # lcm_.subscribe("/lock_joint_e", arm.lock_e_callback)
+    # lcm_.subscribe("/ik_enabled", arm.ik_enabled_callback)
+    # # lcm_.subscribe("/sa_depositpos_trig", sa.execute_callback)
+    # # lcm_.subscribe("/sa_pos_data", sa.arm_position_callback)
 
-    run_coroutines(lcm_.loop(), arm.execute_spline())
+    # run_coroutines(lcm_.loop(), arm.execute_spline())
 
     # config_path = os.environ['MROVER_CONFIG']
     # geom_file = config_path + '/config_kinematics/mrover_arm_geom.json'

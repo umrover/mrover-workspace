@@ -269,7 +269,7 @@ class KinematicsSolver:
             # print("made d_ef")
             # print("About to Run IK Step")
 
-            self.IK_step(d_ef, True, use_euler_angles)
+            self.IK_step(d_ef, False, use_euler_angles)
             # if (num_iterations == 8):
             #     print("ef_pos 2:")
             #     print(self.robot_ik.get_ef_pos_world())
@@ -428,13 +428,20 @@ class KinematicsSolver:
         d_theta = np.matmul(jacobian_inverse, d_ef)
 
         # apply changes to dofs
+        print("Angles: ", end="")
+        # print("Limits: ", end="")
         for joint_idx, joint in enumerate(joints):
             angle = self.robot_ik.angles[joint] + d_theta[joint_idx]
 
             limits = self.robot_safety.get_joint_limit(joint)
             angle = np.clip(angle, limits['lower'], limits['upper'])
             self.robot_ik.angles[joint] = angle
+            # print(limits['lower'], limits['upper'])
+            print(angle, " ", end="")
+
+        # print()
         self.FK(self.robot_ik)
+        # print("End Effector Positions", self.robot_ik.get_ef_pos_world())
 
     def safe(self, angles):
         limit = self.limit_check(angles)

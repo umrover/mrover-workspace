@@ -12,7 +12,7 @@ typedef Matrix<double, 6, 1> Vector6d;
 static const int MAX_ITERATIONS = 500;
 static constexpr double POS_THRESHOLD = 0.01;
 static constexpr double ANGLE_THRESHOLD = 10.0;
-static const int POS_WEIGHT = 1;
+static constexpr int ANG_WEIGHT = 1;
 static constexpr double j_kp = 0.1;
 static constexpr double j_kd = 0;
 static constexpr double delta_theta = 0.0001;
@@ -41,10 +41,6 @@ public:
 
     Vector3d target_pos_world;
     Vector3d target_angle_world;
-
-    int get_pos_weight() {
-        return POS_WEIGHT;
-    }
 
     KinematicsSolver();
 
