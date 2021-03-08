@@ -13,26 +13,19 @@
 using namespace Eigen;
 using namespace std;
 
+static constexpr int MAX_RRT_ITERATIONS = 500;
+
 /**
  * Use rrt_connect() to map out a path to the target position.
  * */
 class MotionPlanner {
 private:
 
-    KinematicsSolver solver;
-
-    vector<tk::spline> splines;
+    // TODO convert everything to radians
 
     /**
-     * all_limits[i]["lower | upper"] returns i'th limit in degrees
+     * RRT Node
      * */
-    vector< map<string, double> > all_limits;
-
-    vector<double> step_limits;
-
-    int max_iterations;
-    
-
     class Node {
         friend class MotionPlanner;
     private:
@@ -45,6 +38,17 @@ private:
     public:
         Node(Vector6d config_in) : config(config_in), parent(nullptr), cost(0) { }
     }; // Node class
+
+    KinematicsSolver solver;
+
+    vector<tk::spline> splines;
+
+    /**
+     * joint_limits[i]["lower | upper"] returns i'th limit in degrees
+     * */
+    vector< map<string, double> > joint_limits;
+
+    vector<double> step_limits;
 
     Node* start_root;
     Node* goal_root;
@@ -60,21 +64,20 @@ public:
     MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in);
 
     /**
+     * Implements RRT path planning to create path
+     * 
+     * @param robot starting state with current joint angles
+     * @param target the set of joint angles the algorithm must reach
      * 
      * @return true if a path was found
      * */
-    bool rrt_connect(ArmState& robot, const Vector6d& target_position);
+    bool rrt_connect(ArmState& robot, const Vector6d& target_angles);
 
     /**
      * @param spline_t a time between 0 and 1
      * @return a vector of six doubles representing the angles of each joint at time spline_t
      * */
     vector<double> get_spline_pos(double spline_t);
-
-    // for testing only
-    int getSplineSize() {
-        return spline_size;
-    }
 
 
 private:
@@ -85,10 +88,19 @@ private:
     Vector6d sample();
 
     /**
-     * Find nearest node in tree to a given random node in config space
+     * @param tree_root the root of the RRT tree
+     * @param rand a random set of angles in the possible space
+     * 
+     * @return nearest node in tree to a given random node in config space
      * */
     Node* nearest(Node* tree_root, Vector6d& rand);
 
+    /**
+     * @param start an RRT node that has been found to be near end
+     * @param end the target set of angles
+     * 
+     * @return a set of angles branching from start towards end without violating step_limits
+     * */
     Vector6d steer(Node* start, Vector6d& end);
 
     vector<Vector6d> backtrace_path(Node* end, Node* root);

@@ -9,7 +9,7 @@ using namespace Eigen;
 
 typedef Matrix<double, 6, 1> Vector6d;
 
-static const int MAX_ITERATIONS = 500;
+static constexpr int MAX_ITERATIONS = 500;
 static constexpr double POS_THRESHOLD = 0.01;
 static constexpr double ANGLE_THRESHOLD = 10.0;
 static constexpr int ANG_WEIGHT = 1;

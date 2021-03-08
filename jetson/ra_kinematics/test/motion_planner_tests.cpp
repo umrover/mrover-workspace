@@ -69,6 +69,8 @@ TEST(rrt_connect_simple) {
 
     Vector6d target6d = vecTo6d(target);
 
+    cout << "entering rrt...\n";
+
     // run rrt_connect and confirm it found a path
     ASSERT_TRUE(planner.rrt_connect(arm, target6d));
 

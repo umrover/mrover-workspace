@@ -35,7 +35,7 @@ TEST(joint_creation_test) {
 
     ArmState arm = ArmState(geom);
 
-    Vector3d joint_c_local(-0.09827958500, 0.37832483699999997, 0.015874163831999997);
+    Vector3d joint_c_local(-0.05840, 0.58039, 0.009525);
     Vector3d joint_c_com(0, 0, 0);
     Vector3d joint_c_axis(1, 0, 0);
 

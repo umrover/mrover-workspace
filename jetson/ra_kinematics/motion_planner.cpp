@@ -1,20 +1,20 @@
 #include "motion_planner.hpp"
 #include <random>
-#include <deque>
+#include <queue>
 #include <time.h>
 
 
 MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in) :
         solver(solver_in) {
     
-    // add limits for each joint to all_limits, after converting to degrees
+    // add limits for each joint to joint_limits, after converting to degrees
     for (string& joint : robot.get_all_joints()) {
       map<string, double> limits = robot.get_joint_limits(joint);
 
       limits["lower"] = limits["lower"] * 180 / M_PI;
       limits["upper"] = limits["upper"] * 180 / M_PI;
 
-      all_limits.push_back(limits);
+      joint_limits.push_back(limits);
     }
 
     step_limits.reserve(6);
@@ -29,18 +29,14 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in)
 
     //time_t timer;
     std::default_random_engine eng(clock());
-
-    max_iterations = 1000;
 }
 
 Vector6d MotionPlanner::sample() {
-
     Vector6d z_rand;
 
-    for (size_t i = 0; i < all_limits.size(); ++i) {
-
-        std::uniform_real_distribution<double> distr(all_limits[i]["lower"], all_limits[i]["upper"]);
-
+    for (size_t i = 0; i < joint_limits.size(); ++i) {
+        // create distribution of angles between limits and choose an angle
+        std::uniform_real_distribution<double> distr(joint_limits[i]["lower"], joint_limits[i]["upper"]);
         z_rand(i) = distr(eng);
     }
 
@@ -48,17 +44,18 @@ Vector6d MotionPlanner::sample() {
 }
 
 MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vector6d& rand) {
-
-    deque<Node*> q;
-    q.push_back(tree_root);
+    queue<Node*> q;
+    q.push(tree_root);
 
     double min_dist = numeric_limits<double>::max();
     Node* min_node = nullptr;
 
+    // Run breadth-first search for nearest node in tree
     while (!q.empty()) {
         Node* node = q.front();
-        q.pop_front();
+        q.pop();
 
+        // TODO consider taking into account cost
         double dist = (node->config - rand).norm();
 
         if (dist < min_dist) {
@@ -67,7 +64,7 @@ MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vect
         }
 
         for (Node* child : node->children) {
-          q.push_back(child);
+          q.push(child);
         }
     }
 
@@ -76,15 +73,14 @@ MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vect
 
 
 Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d& end) {
-    // Calculate the vector from start position to end
-    Vector6d line_vec = end - start->config;
 
+    // calculate the vector from start position to end (each value is a change in angle)
+    Vector6d vec = end - start->config;
+
+    // check for any steps that are outside acceptable range
     bool step_too_big = false;
-
     for (size_t i = 0; i < step_limits.size(); ++i) {
-
-        // if line_vec is out of acceptable range for joint i
-        if (step_limits[i] - abs(line_vec(i)) < 0) {
+        if (step_limits[i] - abs(vec(i)) < 0) {
             step_too_big = true;
             break;
         }
@@ -96,24 +92,27 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d& end) {
     }
 
     // min_t will be the reciprocal of the largest number of steps required
+    // to reach from start to end
     double min_t = numeric_limits<double>::max();
 
-    Vector6d new_config = start->config;
-
     //parametrize the line
-    for (int i = 0; i < line_vec.size(); ++i) {
+    for (int i = 0; i < vec.size(); ++i) {
         double t = numeric_limits<double>::max();
-        if (line_vec[i] != 0) {
-            t = step_limits[i] / abs(line_vec[i]);
+
+        // if the difference (from start to end) in angles at joint i is not 0
+        if (vec[i] != 0) {
+            t = step_limits[i] / abs(vec[i]);
         }
 
         if (t < min_t) {
             min_t = t;
         }
     }
-
-    for (int i = 0; i < line_vec.size(); ++i) {
-        new_config(i) += min_t * line_vec[i];
+    
+    // find the biggest possible step from start directly towards end
+    Vector6d new_config = start->config;
+    for (int i = 0; i < vec.size(); ++i) {
+        new_config(i) += min_t * vec[i];
     }
 
     return new_config;
@@ -123,15 +122,15 @@ vector<Vector6d> MotionPlanner::backtrace_path(MotionPlanner::Node* end, MotionP
     vector<Vector6d> path;
 
     // starting at end, add each position config to path
-    while (end != root) {
+    while (true) {
         path.push_back(get_radians(end->config));
+
+        if (end == root) {
+            return path;
+        }
+
         end = end->parent;
     }
-
-    // include the config for the root node
-    path.push_back(get_radians(end->config));
-    
-    return path;
 }
 
 void MotionPlanner::delete_tree(MotionPlanner::Node* twig) {
@@ -164,23 +163,35 @@ Vector6d MotionPlanner::get_radians(Vector6d& config) {
 }
 
 MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d& z_rand) {
+
+    // z_nearest is the nearest node in the tree to z_rand
     Node* z_nearest = nearest(tree, z_rand);
+
+    // z_new is the set of angles extending from z_nearest towards z_rand, within step_limits
     Vector6d z_new = steer(z_nearest, z_rand);
 
-    vector<double> z_new_angs;
-    z_new_angs.resize(6);
+    // convert z_new to radians
+    vector<double> z_new_radians;
+    z_new_radians.resize(6);
     for (size_t i = 0; i < 6; ++i) {
-        z_new_angs[i] = z_new(i) * M_PI / 180;
+        z_new_radians[i] = z_new(i) * M_PI / 180;
     }
 
-    if (!solver.is_safe(robot, z_new_angs)) {
+    // check that we have not violated joint limits or created collisions
+    if (!solver.is_safe(robot, z_new_radians)) {
         return nullptr;
     }
 
+    // create dynamic node branching from tree
     Node* new_node = new Node(z_new);
     new_node->parent = z_nearest;
+
+    // cost is previous cost + distance to new set of angles
     new_node->cost = z_nearest->cost + (z_nearest->config - z_new).norm();
+
+    // add new_node to tree
     z_nearest->children.push_back(new_node);
+
     return new_node;
 }
 
@@ -194,7 +205,9 @@ MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, Vector6
     return extension;
 }
 
-bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_position) {
+bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_angles) {
+
+    // retrieve starting and target joint angles
     Vector6d start;
     start(0) = robot.get_joint_angles()["joint_a"];
     start(1) = robot.get_joint_angles()["joint_b"];
@@ -203,8 +216,9 @@ bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_position
     start(4) = robot.get_joint_angles()["joint_e"];
     start(5) = robot.get_joint_angles()["joint_f"];
 
-    Vector6d target = target_position;
+    Vector6d target = target_angles;
 
+    // convert target to degrees
     for (int i = 0; i < target.size(); ++i) {
         target(i) = target(i) * 180 / M_PI;
         start(i) = start(i) * 180 / M_PI;
@@ -213,7 +227,7 @@ bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_position
     start_root = new Node(start);
     goal_root =  new Node(target);
 
-    for (int i = 0; i < max_iterations; ++i) {
+    for (int i = 0; i < MAX_RRT_ITERATIONS; ++i) {
         Node* a_root = i % 2 == 0 ? start_root : goal_root;
         Node* b_root = i % 2 == 0 ? goal_root : start_root;
         Vector6d z_rand = sample();
@@ -225,7 +239,7 @@ bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_position
             Node* b_new = connect(robot, b_root, a_new->config);
 
             // if the trees are connected
-            if (a_new->config == b_new->config) {
+            if (b_new && a_new->config == b_new->config) {
                 vector<Vector6d> a_path = backtrace_path(a_new, a_root);
                 vector<Vector6d> b_path = backtrace_path(b_new, b_root);
 
