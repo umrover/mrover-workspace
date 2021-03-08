@@ -33,31 +33,13 @@ private:
 
     /**
      * Pop a backup of the angles from robot_state and copy them into robot_state
-     * Then run FK
+     * Then run FK to resolve state
      * */
     void recover_from_backup(ArmState &robot_state);
 
-public:
-
-    Vector3d target_pos_world;
-    Vector3d target_angle_world;
-
-    KinematicsSolver();
-
-    Vector3d FK(ArmState &robot_state);
-
     Matrix4d apply_joint_xform(ArmState &robot_state, string joint, double theta);
 
-    pair<Vector6d, bool> IK(ArmState &robot_state, Vector6d target_point, bool set_random_angles, bool use_euler_angles);
-
     void IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi, bool use_euler_angles);
-
-
-    /**
-     * @param angles the set of angles for a theoretical arm position
-     * @return true if all angles are within bounds and don't cause collisions
-     * */
-    bool is_safe(ArmState &robot_state, vector<double> angles);
 
     /**
      * called by is_safe to check that angles are within bounds
@@ -65,6 +47,20 @@ public:
      * @return true if all angles are within bounds
      * */
     bool limit_check(ArmState &robot_state, const vector<double> &angles);
+
+public:
+
+    KinematicsSolver();
+
+    Vector3d FK(ArmState &robot_state);
+
+    pair<Vector6d, bool> IK(ArmState &robot_state, Vector6d target_point, bool set_random_angles, bool use_euler_angles);
+
+    /**
+     * @param angles the set of angles for a theoretical arm position
+     * @return true if all angles are within bounds and don't cause collisions
+     * */
+    bool is_safe(ArmState &robot_state, vector<double> angles);
 
 };
 

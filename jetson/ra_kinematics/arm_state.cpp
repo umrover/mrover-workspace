@@ -11,16 +11,17 @@ using namespace std;
 
 // Tested in joint creation test
 ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix4d::Identity()) {
+
     // Create all Joint instances from mrover_arm json
-    vector<double> ef_orig_pos = geom["endeffector"]["origin"]["xyz"];
-    set_ef_xyz(ef_orig_pos);
-    joints_json = geom["joints"];
+    set_ef_xyz(geom["endeffector"]["origin"]["xyz"]);
+
+    json joints_json = geom["joints"];
     for (json::iterator it = joints_json.begin(); it != joints_json.end(); it++) {
         add_joint(it.key(), it.value());
     }
 
     // Create all Avoidance_Link instances from mrover_arm json (for collision avoidance)
-    links_json = geom["links"];
+    json links_json = geom["links"];
     for (json::iterator it = links_json.begin(); it != links_json.end(); it++) {
         // Create the link object:
         links[it.key()].name = it.key();
@@ -28,12 +29,6 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
 
         string joint_origin = it.value()["visual"]["origin"]["joint_origin"];
         vector<size_t> collisions = it.value()["collisions"];
-
-        // for (size_t i = 0; i < collisions.size(); ++i) {
-        //     cout << collisions[i] << ", ";
-        // }
-        // cout << '\n';
-
         
         json link_shapes = it.value()["link_shapes"];
         for (json::iterator jt = link_shapes.begin(); jt != link_shapes.end(); jt++) {
@@ -47,14 +42,10 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
         }
     }
 
+    // Sort links by link_num, since they may not be in order from the json
     Link_Comp comparator;
     sort(collision_avoidance_links.begin(), collision_avoidance_links.end(), comparator);
 }
-// Tested in delete_joints_test
-// ArmState::~ArmState() {
-//     delete_joints();
-// }
-
 
 bool ArmState::Link_Comp::operator()(const Avoidance_Link& a, const Avoidance_Link& b) {
     return a.link_num < b.link_num;
@@ -67,20 +58,6 @@ void ArmState::add_joint(string name, json &joint_geom) {
     joints.emplace(std::piecewise_construct, std::forward_as_tuple(name), std::forward_as_tuple(name, joint_geom));
     joint_names.push_back(name);
 }
-// // Tested in avoidance_link_creation_test
-// void ArmState::add_avoidance_link(int link_num, string joint_origin_name, json &link_json, vector<size_t> collisions) {
-//     // ERROR: Occuring within this line:
-//     collision_avoidance_links.emplace_back(link_num, joint_origin_name, link_json);
-// }
-// Tested in delete_joints_test
-// void ArmState::delete_joints() {
-//     // Delete all instances of Joint struct when we're done with this ArmState object
-//     map<string, Joint *>::iterator it;
-//     for (auto it = joints.begin(); it != joints.end(); it++) {
-//         delete it->second;
-//     }
-//     joints.clear();
-// }
 
 Vector3d ArmState::get_joint_pos_local(string joint) {
     // Return joint position relatice to local frame (position relative to previous joint)
@@ -105,8 +82,6 @@ Vector3d ArmState::get_joint_com(string joint) {
 }
 
 double ArmState::get_joint_mass(string joint) {
-    // cout << "joint mass for joint: " << joint << "\n";
-    // cout << "end effector position: \n" << ef_pos_world << "\n";
     // TODO: Consider adding mass to the joint struct?
     return joints.at(joint).mass;
 }
@@ -118,6 +93,8 @@ map<string, double> ArmState::get_joint_limits(string joint) const {
 }
 // Tested in set_joint_angles_test
 void ArmState::set_joint_angles(const vector<double>& angles) {
+    // TODO consider clipping invalid angles or throwing error
+
     // Iterate through all angles and joints adding the angles to each corresponding joint.
     // angles vector should be same size as internal joints map.
     int i = 0;
@@ -128,16 +105,8 @@ void ArmState::set_joint_angles(const vector<double>& angles) {
 }
 
 vector<string> ArmState::get_all_joints() const {
-    // Returns a vector containing all of the joint names
+    // Return a vector containing all of the joint names
     return joint_names;
-}
-
-vector<string> ArmState::get_all_links() {
-    vector<string> link_vec;
-    for (auto it = links.begin(); it != links.end(); ++it) {
-        link_vec.push_back(it->first);
-    }
-    return link_vec;
 }
 
 Vector3d ArmState::get_joint_axis_world(string joint) {
@@ -156,7 +125,6 @@ void ArmState::set_link_transform(string link, Matrix4d xform) {
     links[link].global_transform = xform;
 }
 
-
 Matrix4d ArmState::get_ef_transform() {
     return ef_xform;
 }
@@ -165,17 +133,7 @@ void ArmState::set_ef_transform(Matrix4d xform) {
     ef_xform = xform;
 }
 
-void ArmState::set_joint_pos_world(string joint, Vector3d position) {
-    joints.at(joint).pos_world = position;
-}
-
 Vector3d ArmState::get_joint_pos_world(string joint) {
-    // cout << "joint: " << joint << "\n";s
-    // cout all joints:
-    // cout << "joints:\n";
-    // for (auto it = joints.begin(); it != joints.end(); ++it) {
-    //     cout << it->first << "\n";
-    // }
     Matrix4d joint_xform = get_joint_transform(joint);
     Vector3d joint_pos(joint_xform(0,3), joint_xform(1,3), joint_xform(2,3));
     return joint_pos;
@@ -220,24 +178,10 @@ void ArmState::transform_avoidance_links() {
         Avoidance_Link& link = collision_avoidance_links.at(i);
 
         const Matrix4d &joint_xform = get_joint_transform(link.joint_origin);
-        // cout << "\nlink number " << i << ":\n" << joint_xform << "\n \n";
-
         
         for (size_t j = 0; j < link.points.size(); ++j) {
-            // cout << "points before:\n" << collision_avoidance_links.at(i).points[j] << "\n";
             link.points[j] = apply_transformation(joint_xform, link.points[j]);
         }
-        /*
-        cout << "\n";
-
-        for (size_t j = 0; j < collision_avoidance_links.at(i).points.size(); ++j) {
-            cout << "points after:\n" << collision_avoidance_links.at(i).points[j] << "\n";
-        }
-
-        cout << "\n";
-        */
-        // for (size_t j = 0; j < collision_avoidance_links.size())
-
     }
 }
 
@@ -247,13 +191,11 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) {
     Avoidance_Link& link_1 = collision_avoidance_links.at(index_1);
     Avoidance_Link& link_2 = collision_avoidance_links.at(index_2);
 
-    //cout << "links " << index_1 << " (" << link_1.type << ") and " << index_2 << " (" << link_2.type << "):\n";
     if (link_1.type == "capsule" && link_2.type == "capsule") {
         Vector3d b1 = link_1.points[0];
         Vector3d b2 = link_2.points[0];
         Vector3d e1 = link_1.points[1];
         Vector3d e2 = link_2.points[1];
-        //cout << b1 << '\n' << e1 << '\n' << b2 << '\n' << e2 << "\n\n";
         closest_dist = closest_dist_bet_lines(b1, e1, b2, e2);
     }
     else if (link_1.type == "capsule") {
@@ -271,10 +213,10 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) {
     else {
         closest_dist = (link_1.points[0] - link_2.points[0]).norm();
     }
-    //cout << closest_dist << " < " << link_1.radius << " + " << link_2.radius << "\n";
 
     return closest_dist < (link_1.radius + link_2.radius);
 }
+
 // Tested in link_link_check_test
 bool ArmState::obstacle_free() {
     transform_avoidance_links();
@@ -282,11 +224,8 @@ bool ArmState::obstacle_free() {
     for (size_t i = 1; i < collision_avoidance_links.size(); ++i) {
         for (size_t possible_collision : collision_avoidance_links[i].collisions) {
             if (link_link_check(i, possible_collision)) {
-                //cout << "found an obstacle at link " << i << " and link " << possible_collision << "\n";
                 return false;
             }
-
-            //cout << "link check worked for " << i << " and " << possible_collision << "\n";
         }
     }
     return true;

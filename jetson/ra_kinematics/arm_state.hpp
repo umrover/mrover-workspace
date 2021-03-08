@@ -14,9 +14,12 @@ using namespace std;
 
 typedef Matrix<double, 6, 1> Vector6d;
 
+/**
+ * Represent MRover's 6 DOF arm
+ * */
 class ArmState{
-
 private:
+
     struct Link {
         string name;
         Matrix4d global_transform;
@@ -24,26 +27,34 @@ private:
 
     struct Joint {
         
+        /**
+         * Construct joint from json input
+         * */
         Joint(string name_in, const json& joint_geom)
             : name(name_in), angle(0), pos_world(Vector3d::Zero(3)), 
               global_transform(Matrix4d::Identity()), torque(Vector3d::Zero(3)) 
-              {
-                  pos_local << joint_geom["origin"]["xyz"][0], joint_geom["origin"]["xyz"][1], joint_geom["origin"]["xyz"][2];
-                  local_center_of_mass << joint_geom["mass_data"]["com"]["x"], joint_geom["mass_data"]["com"]["y"], joint_geom["mass_data"]["com"]["z"];
+        {
+            pos_local << joint_geom["origin"]["xyz"][0], joint_geom["origin"]["xyz"][1], joint_geom["origin"]["xyz"][2];
+            local_center_of_mass << joint_geom["mass_data"]["com"]["x"], joint_geom["mass_data"]["com"]["y"], joint_geom["mass_data"]["com"]["z"];
 
-                  rot_axis << joint_geom["axis"][0], joint_geom["axis"][1], joint_geom["axis"][2];
+            rot_axis << joint_geom["axis"][0], joint_geom["axis"][1], joint_geom["axis"][2];
 
-                  joint_limits["lower"] = joint_geom["limit"]["lower"];
-                  joint_limits["upper"] = joint_geom["limit"]["upper"];
-                  child_link = joint_geom["child"];
-                  // joints b and c get an angle of 0, the rest should get 0   
-                  if (name_in == "joint_b" || name_in == "joint_c") {
-                      angle = 1.0;
-                  }
-                  else{
-                      angle = 0;
-                  } 
-              }
+            // TODO check with RA whether joint limits are correct
+            joint_limits["lower"] = joint_geom["limit"]["lower"];
+            joint_limits["upper"] = joint_geom["limit"]["upper"];
+
+            child_link = joint_geom["child"];
+
+            // TODO check if mass is necessary. If so, initialize here
+
+            // joints b and c get an angle of 0, the rest should get 0   
+            if (name_in == "joint_b" || name_in == "joint_c") {
+                angle = 1.0;
+            }
+            else {
+                angle = 0;
+            }
+        }
 
         string name;
         double angle;
@@ -103,25 +114,18 @@ private:
 
     void transform_parts();
 
-    void delete_joints();
-
     struct Link_Comp {
         bool operator()(const Avoidance_Link& a, const Avoidance_Link& b);
     };
 
+    void set_ef_xyz(vector<double> ef_xyz_vec);
 
 public:
-    json joints_json;
-    json links_json;
     map<string, Joint> joints;
     map<string, Link> links;
     ArmState(json &geom);
-    
-    // ~ArmState();
 
     vector<string> get_all_joints() const;
-
-    vector<string> get_all_links();
 
     Vector3d get_joint_com(string joint);
 
@@ -142,8 +146,6 @@ public:
     Matrix4d get_ef_transform();
 
     void set_ef_transform(Matrix4d xform);
-
-    void set_joint_pos_world(string joint, Vector3d position);
 
     Vector3d get_joint_pos_world(string joint);
 
@@ -184,8 +186,6 @@ public:
     Matrix4d get_link_xform(string link);
 
     Vector3d get_ef_xyz();
-
-    void set_ef_xyz(vector<double> ef_xyz_vec);
 
 };
 

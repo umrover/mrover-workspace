@@ -18,6 +18,7 @@ KinematicsSolver::KinematicsSolver() : e_locked(false) { }
 Vector3d KinematicsSolver::FK(ArmState &robot_state) {
     // Set global transform as identity
     Matrix4d global_transform = Matrix4d::Identity();
+
     // TODO: Edit name of base ("chassis-a") as necessary:
     robot_state.set_link_transform("base", Matrix4d::Identity());
     Matrix4d parent_mat = Matrix4d::Identity();
@@ -202,7 +203,6 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     perform_backup(robot_state);
 
     vector<string> joints_vec = robot_state.get_all_joints();
-    vector<string> links_vec = robot_state.get_all_links();
     if (set_random_angles) {
         // ((double) rand() / (RAND_MAX)) yields random number [0,1)
         vector<double> rand_angs;
@@ -332,7 +332,7 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
         }
 
         else {
-            // Error occuring somewhere below this line
+
             Vector3d rot_axis_local = robot_state.get_joint_axis(joints[i]);
             Matrix4d joint_xform = robot_state.get_joint_transform(joints[i]);
             Vector3d joint_pos_world = robot_state.get_link_point_world(robot_state.get_child_link(joints[i]));
