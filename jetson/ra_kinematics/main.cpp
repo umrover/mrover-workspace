@@ -1,5 +1,6 @@
 #include "json.hpp"
-// #include "arm_state.hpp"
+#include "arm_state.hpp"
+#include "kinematics.hpp"
 #include "mrover_arm.hpp"
 #include "utils.hpp"
 
@@ -43,6 +44,7 @@ int main()
     cout << "INITIALIZING ROBOT ARM OBJECT\n";
 
     MRoverArm robot_arm(geom, lcmObject);
+    KinematicsSolver solver = KinematicsSolver();
 
     lcmHandlers handler(&robot_arm);
 
@@ -51,6 +53,7 @@ int main()
 
     while( lcmObject.handle() == 0 ) {
         //run kinematics
+        
     }
 
 

@@ -108,7 +108,6 @@ void MRoverArm::execute_spline(){
                enable_execute = false;
            }
        }
-  
 }
  
 void MRoverArm::preview(){
