@@ -23,6 +23,15 @@ public:
         arm->motion_execute_callback( channel, *m_execute );
     }
 
+    void executePresetCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const PresetAngles* p_execute
+        )
+    {
+        arm->preset_execute_callback( channel, *p_execute );
+    }
+
 private:
     MRoverArm* arm;
 };
@@ -47,6 +56,7 @@ int main()
     lcmHandlers handler(&robot_arm);
 
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
+    lcmObject.subscribe( "/preset_angles" , &lcmHandlers::executePresetCallback, &handler );
 
 
     while( lcmObject.handle() == 0 ) {

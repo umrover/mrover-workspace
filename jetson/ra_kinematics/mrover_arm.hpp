@@ -18,6 +18,7 @@
 #include "rover_msgs/IkArmControl.hpp"
 #include "rover_msgs/TargetAngles.hpp"
 #include "rover_msgs/LockJointE.hpp"
+#include "rover_msgs/PresetAngles.hpp"
  
 using namespace rover_msgs;
  
@@ -56,6 +57,8 @@ public:
    void publish_transforms(ArmState state);
  
    void motion_execute_callback(string channel, MotionExecute msg);
+
+   void preset_execute_callback(string channel, PresetAngles msg);
  
    void target_orientation_callback(string channel, TargetOrientation msg);
  
