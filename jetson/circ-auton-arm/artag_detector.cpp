@@ -54,15 +54,17 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
+//TODO:
+//add labels showing tag coordinates
+//convert to mm
 Point2f TagDetector::getTagCoordRelativeToCenter(Mat &src, Mat &rgb, Point2f &tagLoc) {
     //RETURN:
     //Point3f containing coordinates of tag from center of image in meters
-    Point3f centerCoord;
+    Point2f centerCoord;
     double heightImage = src.size().height;
     double widthImage = src.size().width;
     centerCoord.x = widthImage / 2;
     centerCoord.y = heightImage / 2;
-    centerCoord.z = 0;
     
     Point2f tagCoord;
     tagCoord.x = abs(centerCoord.x - tagLoc.x);
@@ -79,15 +81,10 @@ Point2f TagDetector::getTagCoordRelativeToCenter(Mat &src, Mat &rgb, Point2f &ta
         }
     }
 
-    Point2f widthCoord; 
-    widthCoord.x = widthImage;
-    widthCoord.y = tagLoc.y;
-    Point2f heightCoord;
-    heightCoord.x = tagLoc.x;
-    heightCoord.y = heightImage;
+    //putText(img, label, Point(x, y), FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0,255,0), 2.0);
     //draw horizontal and vertical lines from center of tag to edge of frame
-    cv::line(rgb, tagLoc, widthCoord, Scalar(255,255,0), 4, LINE_8);
-    cv::line(rgb, tagLoc, heightCoord, Scalar(255,255,0), 4, LINE_8);
+    cv::line(rgb, tagLoc, centerCoord, Scalar(255,255,0), 4, LINE_8);
+    cv::line(rgb, tagLoc, Point(tagLoc.x, heightImage), Scalar(255,255,0), 4, LINE_8);
 
     cerr << "width and height: " << widthImage << " " << heightImage << endl;
     cerr << "tag x and center x " << tagLoc.x << " " << centerCoord.x << " " << tagLoc.x - centerCoord.x << endl;
