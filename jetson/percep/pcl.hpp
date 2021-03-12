@@ -52,39 +52,45 @@ class PCL {
         shared_ptr<pcl::visualization::PCLVisualizer> viewer;
         shared_ptr<pcl::visualization::PCLVisualizer> viewer_original;
 
-    //Constructor
-    PCL() : 
+        //Constants
+        int MAX_FIELD_OF_VIEW_ANGLE;
+        int PT_CLOUD_WIDTH;
+        int PT_CLOUD_HEIGHT;
+        int HALF_ROVER;
+        double UP_BD_Z;
+        double UP_BD_Y;
+        double LOW_BD ;
+        double ROVER_W_MM;
+        float LEAF_SIZE;
+
+        //RANSAC constants
+        int MAX_ITERATIONS;
+        double SEGMENTATION_EPSLION;
+        double DISTANCE_THRESHOLD;
+
+        //Euclidean cluster constants
+        int CLUSTER_TOLERANCE;
+        int MIN_CLUSTER_SIZE;
+        int MAX_CLUSTER_SIZE;
         
-        bearing{0}, distance{0}, detected{false},
-        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
-    
-        #if PERCEPTION_DEBUG
-            viewer = createRGBVisualizer(); //This is a smart pointer so no need to worry ab deleteing it
-            viewer_original = createRGBVisualizer();
+        //member variables
+        double bearing;
+        double distance;
+        bool detected;
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr;
+        int cloudArea;
+
+        //Constructor
+        PCL(const rapidjson::Document &mRoverConfig);
+
+        //Destructor for PCL
+        ~PCL() {
+        #if OBSTACLE_DETECTION && PERCEPTION_DEBUG 
+            viewer -> close();
+            viewer_original -> close();
         #endif
+        };
 
-        #if ZED_SDK_PRESENT
-        sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
-        cloudArea = cloud_res.area();
-        #else
-        cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
-        #endif
-
-    };
-
-    //Destructor for PCL
-    ~PCL() {
-      #if OBSTACLE_DETECTION && PERCEPTION_DEBUG 
-        viewer -> close();
-        viewer_original -> close();
-      #endif
-    };
-
-    double bearing;
-    double distance;
-    bool detected;
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr;
-    int cloudArea;
 
     private:
 

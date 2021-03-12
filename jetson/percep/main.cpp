@@ -7,11 +7,25 @@
 using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
-
+ 
 int main() {
+ /* --- Reading in Config File --- */
+  rapidjson::Document mRoverConfig;
+  ifstream configFile;
+  string configPath = getenv("MROVER_CONFIG");
+  configPath += "/config_percep/config.json";
+  configFile.open( configPath );
+  string config = "";
+  string setting;
+  while( configFile >> setting ) {
+    config += setting;
+  }
+  configFile.close();
+  mRoverConfig.Parse( config.c_str() );
+
   
     /* --- Camera Initializations --- */
-    Camera cam;
+    Camera cam(mRoverConfig);
     int iterations = 0;
     cam.grab();
 
@@ -33,17 +47,17 @@ int main() {
     rover_msgs::TargetList arTagsMessage;
     rover_msgs::Target* arTags = arTagsMessage.targetList;
     rover_msgs::Obstacle obstacleMessage;
-    arTags[0].distance = -1;
-    arTags[1].distance = -1;
+    arTags[0].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
+    arTags[1].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
 
     /* --- AR Tag Initializations --- */
-    TagDetector detector;
+    TagDetector detector(mRoverConfig);
     pair<Tag, Tag> tagPair;
     
     /* --- Point Cloud Initializations --- */
     #if OBSTACLE_DETECTION
 
-    PCL pointcloud;
+    PCL pointcloud(mRoverConfig);
     enum viewerType {
         newView, //set to 0 -or false- to be passed into updateViewer later
         originalView //set to 1 -or true- to be passed into updateViewer later
@@ -90,6 +104,7 @@ int main() {
         #endif
 
         #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
+        int FRAME_WRITE_INTERVAL = mRoverConfig["camera"]["frame_write_interval"].GetInt();
             if (iterations % FRAME_WRITE_INTERVAL == 0) {
                 Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
                 #if PERCEPTION_DEBUG
@@ -100,8 +115,8 @@ int main() {
         #endif
 
         /* --- AR Tag Processing --- */
-        arTags[0].distance = -1;
-        arTags[1].distance = -1;
+        arTags[0].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
+        arTags[1].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
         #if AR_DETECTION
             tagPair = detector.findARTags(src, depth_img, rgb);
             #if AR_RECORD
