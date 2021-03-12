@@ -54,7 +54,7 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
-Point2f TagDetector::getTagCoordRelativeToCenter(Mat &src, Point2f &tagLoc) {
+Point2f TagDetector::getTagCoordRelativeToCenter(Mat &src, Mat &rgb, Point2f &tagLoc) {
     //RETURN:
     //Point3f containing coordinates of tag from center of image in meters
     Point3f centerCoord;
@@ -78,12 +78,32 @@ Point2f TagDetector::getTagCoordRelativeToCenter(Mat &src, Point2f &tagLoc) {
             tagCoord.y = -tagCoord.y;
         }
     }
-    
+
+    Point2f widthCoord; 
+    widthCoord.x = widthImage;
+    widthCoord.y = tagLoc.y;
+    Point2f heightCoord;
+    heightCoord.x = tagLoc.x;
+    heightCoord.y = heightImage;
+    //draw horizontal and vertical lines from center of tag to edge of frame
+    cv::line(rgb, tagLoc, widthCoord, Scalar(255,255,0), 4, LINE_8);
+    cv::line(rgb, tagLoc, heightCoord, Scalar(255,255,0), 4, LINE_8);
+
     cerr << "width and height: " << widthImage << " " << heightImage << endl;
     cerr << "tag x and center x " << tagLoc.x << " " << centerCoord.x << " " << tagLoc.x - centerCoord.x << endl;
     cerr << "tag y and center y " << tagLoc.y << " " << centerCoord.y << " " << tagLoc.y - centerCoord.y << endl;
     return tagCoord;
 }
+
+/*void TagDetector::drawLineFromTagCenter(Mat &rgb, Point2f &tagLoc) {
+    //draws line from center of tag to edge of frame for debugging
+    double heightImage = src.size().height;
+    double widthImage = src.size().width;
+    //draw horizontal and vertical lines from center of tag to edge of frame
+    cv::line(rgb, tagLoc, Point(widthImage,tagLoc.y), Scalar(255,255,0), 4, LINE_8);
+    cv::line(rgb, tagLoc, Point(tagLoc.x,heightImage), Scalar(255,255,0), 4, LINE_8);
+    //imshow("line", rgb); 
+}*/
 
 double TagDetector::getHeightTagOffGround(const vector<Point2f> &corners, Mat &src) {
     //RETURN:
@@ -117,19 +137,6 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
 
     // Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
-#if AR_RECORD
-cv::aruco::drawDetectedMarkers(rgb, corners, ids);
-#endif
-#if PERCEPTION_DEBUG
-    // Draw detected tags
-    cv::aruco::drawDetectedMarkers(rgb, corners, ids);
-    cv::imshow("AR Tags", rgb);
-
-    // on click debugging for color
-    DEPTH = depth_src;
-    cvtColor(rgb, HSV, COLOR_RGB2HSV);
-    setMouseCallback("Obstacle", onMouse);
-#endif
 
     // create Tag objects for the detected tags and return them
     pair<Tag, Tag> discoveredTags;
@@ -143,9 +150,22 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     } else if (ids.size() == 1) {  // exactly one tag found
         discoveredTags.first.id = ids[0];
         discoveredTags.first.loc = getAverageTagCoordinateFromCorners(corners[0]);
-        //cerr << "height off ground: " << ids[0] << " " << getHeightTagOffGround(corners[0], src) << endl;
-        cerr << "tag coordinates " << ids[0] << " " << getTagCoordRelativeToCenter(src,discoveredTags.first.loc).x 
-        << " " << getTagCoordRelativeToCenter(src,discoveredTags.first.loc).y <<endl;
+
+       /* double heightImage = src.size().height;
+        double widthImage = src.size().width;*/
+        cerr << "tag coordinates " << ids[0] << " " << getTagCoordRelativeToCenter(src,rgb,discoveredTags.first.loc).x 
+        << " " << getTagCoordRelativeToCenter(src,rgb,discoveredTags.first.loc).y <<endl;
+       /* Point2f widthCoord; 
+        widthCoord.x = widthImage;
+        widthCoord.y = discoveredTags.first.loc.y;
+        Point2f heightCoord;
+        heightCoord.x = discoveredTags.first.loc.x;
+        heightCoord.y = heightImage;
+        //draw horizontal and vertical lines from center of tag to edge of frame
+        cv::line(rgb, discoveredTags.first.loc, widthCoord, Scalar(255,255,0), 4, LINE_8);
+        cv::line(rgb, discoveredTags.first.loc, heightCoord, Scalar(255,255,0), 4, LINE_8);
+        imshow("line", rgb); */
+
         // set second tag to invalid object with tag as -1
         discoveredTags.second.id = -1;
         discoveredTags.second.loc = Point2f();
@@ -181,6 +201,21 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
             discoveredTags.second = t0;
         }
     }
+
+    #if AR_RECORD
+    cv::aruco::drawDetectedMarkers(rgb, corners, ids);
+    #endif
+    #if PERCEPTION_DEBUG
+    // Draw detected tags
+    cv::aruco::drawDetectedMarkers(rgb, corners, ids);
+    cv::imshow("AR Tags", rgb);
+
+    // on click debugging for color
+    DEPTH = depth_src;
+    cvtColor(rgb, HSV, COLOR_RGB2HSV);
+    setMouseCallback("Obstacle", onMouse);
+    #endif
+
     return discoveredTags;
 }
 
@@ -189,7 +224,7 @@ double TagDetector::getAngle(float xPixel, float wPixel){
 }
 
 
-void TagDetector::updateDetectedTagInfo(rover_msgs::TargetPosition *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
+void TagDetector::updateDetectedTagInfo(rover_msgs::TargetPosition *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src, Mat &rgb){
     struct tagPairs {
         vector<int> id;
         vector<int> locx;
@@ -222,8 +257,8 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::TargetPosition *arTags, pair
         tagCoord.x = tags.locx.at(i);
         tagCoord.y = tags.locy.at(i);
         if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))){
-            arTags[i].x = getTagCoordRelativeToCenter(src, tagCoord).x;
-            arTags[i].y = getTagCoordRelativeToCenter(src, tagCoord).y;
+            arTags[i].x = getTagCoordRelativeToCenter(src, rgb, tagCoord).x;
+            arTags[i].y = getTagCoordRelativeToCenter(src, rgb, tagCoord).y;
             //arTags[i].x = getTagCoordRelativeToCenter(src, tags.locx.at(i));
             //arTags[i].y = getTagCoordRelativeToCenter(src, tags.locy.at(i));
             arTags[i].z = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;

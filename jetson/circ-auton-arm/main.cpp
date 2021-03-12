@@ -105,7 +105,7 @@ int main() {
         cam.record_ar(rgb);
       #endif
 
-      detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
+      detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src, rgb);
       cerr<<arTags[0].x<<" "<<arTags[0].y<<" "<<arTags[0].z<<" "<<arTags[0].target_id<<endl;
 
     #if PERCEPTION_DEBUG && AR_DETECTION
