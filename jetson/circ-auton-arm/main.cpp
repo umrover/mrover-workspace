@@ -9,32 +9,10 @@
 
 using namespace std;
 
-/* void outgoing() {
-    while(true) {
-        lcm.handle();
-        LCMHandler::time_outgoing();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-} */
-
 int main() {
     cout<<"Hello world"<<endl;
-/*
-    //create new lcm object
-    lcm::LCM lcmObj;
-    if( !lcmObject.good() )
-    {
-        cerr << "Error: cannot create LCM\n";
-        return 1;
-    }
 
-    LCMHandler lcmHandler(&roverStateMachine);
-
-    lcmObj.subscribe( "/circ_target", &LcmHandlers::CircTarget, &lcmHandler );
-
-    */
-
-    /* --- Camera Initializations --- */
+  /* --- Camera Initializations --- */
   Camera cam;
   int iterations = 0;
   cam.grab();
@@ -55,7 +33,6 @@ int main() {
   /* -- LCM Messages Initializations -- */
   lcm::LCM lcm_;
   rover_msgs::TargetPositionList arTagsMessage;
-  //rover_msgs::Target* arTags = arTagsMessage.CircTarget;
   rover_msgs::TargetPosition* arTags = arTagsMessage.target_list;
   arTags[0].z = -1;
   arTags[1].z = -1;
@@ -106,7 +83,7 @@ int main() {
       #endif
 
       detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src, rgb);
-      cerr<<arTags[0].x<<" "<<arTags[0].y<<" "<<arTags[0].z<<" "<<arTags[0].target_id<<endl;
+      //cerr<<arTags[0].x<<" "<<arTags[0].y<<" "<<arTags[0].z<<" "<<arTags[0].target_id<<endl;
 
     #if PERCEPTION_DEBUG && AR_DETECTION
       imshow("depth", src);
@@ -119,7 +96,7 @@ int main() {
   lcm_.publish("/target_position_list", &arTagsMessage);
 
     #if !ZED_SDK_PRESENT
-    std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
+    std::this_thread::sleep_for(0.5s); // Iteration speed control not needed when using camera 
     #endif
     cerr<<"LCM sent"<<endl;
   }
