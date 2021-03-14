@@ -17,9 +17,9 @@
         <p>Bearing: {{odom.bearing_deg.toFixed(2)}}º</p>
       </div>
     </div>
-    <div class = "pdb">
+    <!--div class = "pdb">
     <PDBData/>
-    </div>
+    </div-->
     <div class="sacontrols buttons">
     <button ref="raman" class=raman v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>
     <SAControls/>
@@ -64,17 +64,27 @@ export default {
 
     methods: {
       sendCollect: function (button) {
-        this.$parent.publish("/raman_collect", {"type": "Signal"})
+        this.$parent.publish("/mosfet_cmd", {
+        'type': 'MosfetCmd',
+        'device': 5,
+        'enable': true
+      })
         let obj = this.$refs["raman"]
         obj.disabled = true
-        setTimeout(function() {
-          obj.disabled = false;
-        }, 2000);
+        setTimeout(this.pubHelper, 2000);
+      },
+      pubHelper: function (){
+        this.$refs["raman"].disabled = false;
+        this.$parent.publish("/mosfet_cmd", {
+            'type': 'MosfetCmd',
+            'device': 5,
+            'enable': false
+          })
       }
     },
   components: {
-    SAControls,
-    PDBData
+    SAControls
+    //PDBData
   }
 }
 </script>

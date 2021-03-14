@@ -33,6 +33,5 @@ export default {
     padding-left: 0px;
     padding-right: 0px;
     border: none;
-    margin-top: 0.5rem;
 }
 </style>

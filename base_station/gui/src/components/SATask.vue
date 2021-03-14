@@ -35,7 +35,7 @@
     <!--div class="box sa_testing light-bg">
       <SATestingControls/>
     </div-->
-    <div class="box light-bg">
+    <div class="box spectral light-bg">
       <SpectralData v-bind:spectral_data="spectral_data"/>
     </div>
     <!--div class="box sa_controls light-bg">
@@ -46,6 +46,9 @@
     </div>
     <div class="box ammonia light-bg">
       <Ammonia/>
+    </div>
+    <div class="box drives light-bg">
+      <DriveVelDataV/>
     </div>
   </div>
 </template>
@@ -62,6 +65,7 @@ import SATestingControls from './SATestingControls.vue'
 import SpectralData from './SpectralData.vue'
 import Chlorophyll from './Chlorophyll.vue'
 import Ammonia from './Ammonia.vue'
+import DriveVelDataV from './DriveVelDataV.vue'
 
 let interval;
 
@@ -189,7 +193,9 @@ export default {
         {'topic': '/spectral_data', 'type': 'SpectralData'},
         {'topic': '/thermistor_data', 'type': 'ThermistorData'},
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
-        {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'}
+        {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
+        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
       ]
     )
 
@@ -243,7 +249,8 @@ export default {
     SATestingControls,
     SpectralData,
     Chlorophyll,
-    Ammonia
+    Ammonia,
+    DriveVelDataV
   }
 }</script>
 
@@ -252,11 +259,12 @@ export default {
     .wrapper {
         display: grid;
         grid-gap: 10px;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 2fr 1fr 1fr;
         grid-template-rows: 60px 3fr 1fr 2fr 3fr;
-        grid-template-areas: "header header" "map cameras" "map sa_testing" "map chlorophyll" "odom ammonia";
+        grid-template-areas: "header header header" "map cameras cameras" "map spectral drives" "map chlorophyll drives" "odom ammonia drives";
         font-family: sans-serif;
         height: 98vh;
+        overflow: auto;
     }
 
     .box {
@@ -362,6 +370,18 @@ export default {
 
     .waypoints {
         grid-area: waypoints;
+    }
+
+    .drives {
+      grid-area: drives;
+    }
+
+    .cameras {
+      grid-area: cameras;
+    }
+
+    .spectral {
+      grid-area: spectral;
     }
 
     .controls {

@@ -1,5 +1,8 @@
 <template>
 <div>
+    <div>
+        <h4> Spectral Data </h4>
+    </div>
   <table class="tableFormat" style="undefined;table-layout: fixed; width: 434px">
   <colgroup>
     <col style="width: 63px">
@@ -78,7 +81,7 @@
     border-width:1px;
     font-size:14px;
     overflow:hidden;
-    padding:10px 5px;
+    padding:5px 5px;
     word-break:normal
   }
   .tableFormat th{
