@@ -8,7 +8,10 @@ using namespace std;
 using namespace cv;
 
 struct Tag {
+    //original location of tag according to opencv
     Point2f loc;
+    //location converted to m and on coordinate grid
+    Point2f locM;
     int id;
 };
 

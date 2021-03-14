@@ -167,5 +167,5 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
         }
     }
   }
-
+    cerr<<arTags[0].distance<<" "<<arTags[0].id<<endl;
 }

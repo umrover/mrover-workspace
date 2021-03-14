@@ -96,7 +96,7 @@ int main() {
   lcm_.publish("/target_position_list", &arTagsMessage);
 
     #if !ZED_SDK_PRESENT
-    std::this_thread::sleep_for(0.5s); // Iteration speed control not needed when using camera 
+    std::this_thread::sleep_for(0.2s); // Iteration speed control not needed when using camera 
     #endif
     cerr<<"LCM sent"<<endl;
   }
