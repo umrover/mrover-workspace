@@ -24,7 +24,7 @@
         MAX_CLUSTER_SIZE{mRoverConfig["pt_cloud"]["euclidean_cluster"]["max_cluster_size"].GetInt()},
         
         //Other Values
-        leftbearing{0}, rightBearing{0}, distance{0}, detected{false},
+        leftBearing{0}, rightBearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
 
         #if PERCEPTION_DEBUG
@@ -315,7 +315,6 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
       #if PERCEPTION_DEBUG
             std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
       #endif
-      return 0;
     }
     
     else {
