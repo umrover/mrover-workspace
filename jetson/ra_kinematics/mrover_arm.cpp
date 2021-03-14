@@ -115,29 +115,25 @@ void MRoverArm::execute_spline(){
 }
  
 void MRoverArm::preview(){
-       cout << "Previewing" << endl;      
-       ArmState preview_robot = state; 
-       int num_steps = 500;
-       double t = 0.0;
-       while (t < 1){
-           vector<double> target = motion_planner.get_spline_pos(t); 
-           ArmPosition target_pos;
-           target_pos.joint_a = target[0];
-           target_pos.joint_b = target[1];
-           target_pos.joint_c = target[2];
-           target_pos.joint_d = target[3];
-           target_pos.joint_e = -target[4];
-           target_pos.joint_f = target[5];
-           vector<double> targ_pos = {target[0], target[1], target[2], target[3], target[4], target[5]};
-           preview_robot.set_joint_angles(targ_pos);
+    cout << "Previewing" << endl;      
+    ArmState preview_robot = state; 
+    double num_steps = 500.0;
+    double t = 0.0;
 
-           solver.FK(state); 
- 
-           publish_transforms(preview_robot);
-           t += 1/num_steps;
-       } 
-       cout <<  "Preview Done" << endl;
+    while (t < 1) {
+
+        // get angles
+        vector<double> target = motion_planner.get_spline_pos(t);
+        preview_robot.set_joint_angles(target);
+
+        solver.FK(state); 
+
+        publish_transforms(preview_robot);
+        t += 1.0 / num_steps;
+    } 
+    cout <<  "Preview Done" << endl;
 }
+
 void MRoverArm::lock_e_callback(string channel, LockJointE msg){
        cout << "joint e locked" << endl;
     //    solver.lock_joint_e(msg.locked); //no function lock_joint_e in kinematics.cpp
