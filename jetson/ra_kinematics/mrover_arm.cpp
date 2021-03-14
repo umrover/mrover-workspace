@@ -6,12 +6,12 @@
 #include "rover_msgs/ArmPosition.hpp"
 #include "rover_msgs/MotionExecute.hpp"
 #include "rover_msgs/FKTransform.hpp"
- 
+
 using namespace std;
 using namespace Eigen;
- 
+
 MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) : done_previewing(false), enable_execute(false), sim_mode(true), ik_enabled(false), state(geom), lcm_(lcm), motion_planner(state, solver)  {}
- 
+
 void MRoverArm::arm_position_callback(string channel, ArmPosition msg){
    /*
        Handler for angles
@@ -20,7 +20,7 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg){
    if (ik_enabled && !enable_execute){
        return;
    }
- 
+
    if (channel == "/arm_position") {
        msg.joint_a = 0.0;
        msg.joint_b = 0.0;
@@ -34,7 +34,7 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg){
        publish_transforms(state);
    }
 }
- 
+
 void MRoverArm::publish_config(vector<double> &config, string channel){
        ArmPosition arm_position;
        arm_position.joint_a = config[0];
@@ -44,35 +44,28 @@ void MRoverArm::publish_config(vector<double> &config, string channel){
        arm_position.joint_e = config[4];
        arm_position.joint_f = config[5];
        lcm_.publish(channel, &arm_position); //no matching call to publish should take in const msg type msg
- 
 }
- 
-void MRoverArm::matrix_helper(double arr[4][4], const Matrix4d &mat)
-{
-   for (int i = 0; i < 4; ++i)
-   {
-       for (int j = 0; j < 4; ++j)
-       {
+
+void MRoverArm::matrix_helper(double arr[4][4], const Matrix4d &mat) {
+   for (int i = 0; i < 4; ++i) {
+       for (int j = 0; j < 4; ++j) {
            arr[i][j] = mat(i,j);
        }
    }
-} 
- 
-void MRoverArm::publish_transforms(ArmState state){
-       FKTransform tm;  
-       matrix_helper(tm.transform_a, state.get_joint_transform("joint_a"));
-       matrix_helper(tm.transform_b, state.get_joint_transform("joint_b"));
-       matrix_helper(tm.transform_c, state.get_joint_transform("joint_c"));
-       matrix_helper(tm.transform_d, state.get_joint_transform("joint_d"));
-       matrix_helper(tm.transform_e, state.get_joint_transform("joint_e"));
-       matrix_helper(tm.transform_f, state.get_joint_transform("joint_f"));
-       // tm.transform_b = state.get_joint_transform("joint_b");
-       // tm.transform_c = state.get_joint_transform("joint_c");
-       // tm.transform_d = state.get_joint_transform("joint_d");;
-       // tm.transform_e = state.get_joint_transform("joint_e");
-       // tm.transform_f = state.get_joint_transform("joint_f");
 }
- 
+
+void MRoverArm::publish_transforms(const ArmState& pub_state) {
+    FKTransform tm;
+    matrix_helper(tm.transform_a, pub_state.get_joint_transform("joint_a"));
+    matrix_helper(tm.transform_b, pub_state.get_joint_transform("joint_b"));
+    matrix_helper(tm.transform_c, pub_state.get_joint_transform("joint_c"));
+    matrix_helper(tm.transform_d, pub_state.get_joint_transform("joint_d"));
+    matrix_helper(tm.transform_e, pub_state.get_joint_transform("joint_e"));
+    matrix_helper(tm.transform_f, pub_state.get_joint_transform("joint_f"));
+
+    lcm_.publish("/fk_transform", &tm);
+}
+
 void MRoverArm::motion_execute_callback(string channel, MotionExecute msg){
     cout << "Motion Executing!" << '\n';
     if (msg.preview) {
@@ -115,8 +108,14 @@ void MRoverArm::execute_spline(){
 }
  
 void MRoverArm::preview(){
-    cout << "Previewing" << endl;      
-    ArmState preview_robot = state; 
+    cout << "Previewing" << endl;
+
+    // backup angles
+    vector<double> backup;
+    for (auto const& pair : state.get_joint_angles()) {
+        backup.push_back(pair.second);
+    }
+
     double num_steps = 500.0;
     double t = 0.0;
 
@@ -124,14 +123,20 @@ void MRoverArm::preview(){
 
         // get angles
         vector<double> target = motion_planner.get_spline_pos(t);
-        preview_robot.set_joint_angles(target);
+        state.set_joint_angles(target);
 
         solver.FK(state); 
 
-        publish_transforms(preview_robot);
+        publish_transforms(state);
         t += 1.0 / num_steps;
-    } 
+    }
     cout <<  "Preview Done" << endl;
+
+    // recover from backup
+    state.set_joint_angles(backup);
+
+    // update state based on new angles
+    solver.FK(state);
 }
 
 void MRoverArm::lock_e_callback(string channel, LockJointE msg){
@@ -188,7 +193,8 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
    goal(4) = getjoint["joint_e"];
    goal(5) = getjoint["joint_f"];
    plan_path(goal);
-   execute_spline();
+   preview();
+//    execute_spline();
    cout << "ended everything\n";
 }
  

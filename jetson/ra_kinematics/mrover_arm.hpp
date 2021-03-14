@@ -47,36 +47,36 @@ private:
    bool ik_enabled;
  
 public:
-   MRoverArm(json &geom, lcm::LCM &lcm);
- 
-   void arm_position_callback(string channel, ArmPosition msg);
- 
-   void publish_config(vector<double> &config, string channel);
- 
-   void publish_transforms(ArmState state);
- 
-   void motion_execute_callback(string channel, MotionExecute msg);
- 
-   void target_orientation_callback(string channel, TargetOrientation msg);
- 
-   void plan_path(Vector6d goal);
- 
-   void execute_spline();
- 
-   void preview();
- 
-   void lock_e_callback(string channel, LockJointE msg);
- 
-   void k_enabled_callback(string channel, IkEnabled msg);
- 
-   void target_angles_callback(string channel, TargetAngles msg);
- 
-   void simulation_mode_callback(string channel, SimulationMode msg);
- 
-   void cartesian_control_callback(string channel, IkArmControl msg);
- 
-   void matrix_helper(double arr[4][4], const Matrix4d &mat);
- 
+    MRoverArm(json &geom, lcm::LCM &lcm);
+
+    void arm_position_callback(string channel, ArmPosition msg);
+
+    void publish_config(vector<double> &config, string channel);
+
+    void publish_transforms(const ArmState &state);
+
+    void motion_execute_callback(string channel, MotionExecute msg);
+
+    void target_orientation_callback(string channel, TargetOrientation msg);
+
+    void plan_path(Vector6d goal);
+
+    void execute_spline();
+
+    void preview();
+
+    void lock_e_callback(string channel, LockJointE msg);
+
+    void k_enabled_callback(string channel, IkEnabled msg);
+
+    void target_angles_callback(string channel, TargetAngles msg);
+
+    void simulation_mode_callback(string channel, SimulationMode msg);
+
+    void cartesian_control_callback(string channel, IkArmControl msg);
+
+private:
+    void matrix_helper(double arr[4][4], const Matrix4d &mat);
 };
  
  

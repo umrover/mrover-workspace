@@ -62,6 +62,7 @@
           '/debugMessage': false,
           '/drive_control': false,
           '/encoder': false,
+          '/fk_transform': false,
           '/gimbal_control': false,
           '/gimbal_openloop_cmd': false,
           '/gps': false,
@@ -113,6 +114,7 @@
           {'topic': '/debugMessage', 'type': 'DebugMessage'},
           {'topic': '/drive_vel_cmd', 'type': 'DriveVelCmd'},
           {'topic': '/encoder', 'type': 'Encoder'},
+          {'topic': '/fk_transform', 'type': 'FKTransfo'}
           {'topic': '/gimbal_control', 'type': 'Keyboard'},
           {'topic': '/gimbal_openloop_cmd', 'type': 'GimbalCmd'},
           {'topic': '/hand_openloop_cmd', 'type': 'HandCmd'},
