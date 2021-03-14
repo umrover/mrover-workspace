@@ -123,6 +123,30 @@
             "right"
         ]
     ],
+    "DriveStateData": [
+        [
+            "int8_t",
+            "controller"
+        ],
+        [
+            "int8_t",
+            "state"
+        ]
+    ],
+    "DriveVelData": [
+        [
+            "int8_t",
+            "axis"
+        ],
+        [
+            "float",
+            "measuredCurrent"
+        ],
+        [
+            "float",
+            "estimatedVel"
+        ]
+    ],
     "ESCThrottle": [
         [
             "string",

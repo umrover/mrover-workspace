@@ -117,6 +117,7 @@
           {'topic': '/drive_control', 'type': 'Joystick'},
           {'topic': '/autonomous', 'type': 'Joystick'},
           {'topic': '/kill_switch', 'type': 'KillSwitch'},
+          {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
           {'topic': '/nav_status', 'type': 'NavStatus'},
           {'topic': '/obstacle', 'type': 'Obstacle'},
           {'topic': '/odometry', 'type': 'Odometry'},
@@ -145,7 +146,6 @@
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
           {'topic': '/microscope', 'type': 'Microscope'},
-          {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
         ]

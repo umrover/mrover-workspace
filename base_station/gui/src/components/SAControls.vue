@@ -198,7 +198,7 @@ export default {
     },
 
     zeroEncoders: function() {
-      this.$parent.publish('/sa_zero_trigger', {'type': 'Signal'})
+      this.$parent.$parent.publish('/sa_zero_trigger', {'type': 'Signal'})
     },
 
     ...mapMutations('controls', {
