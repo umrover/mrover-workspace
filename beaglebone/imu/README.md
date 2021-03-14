@@ -17,14 +17,14 @@ The UM-7 is hooked up using UART (RX and TX) wires. Sending an enable command (V
  
 #### Running
 TODO - unknown if running off of beaglebone. If so then use the following \
-$ cd ~/mrover-workspace
-$ ./jarvis build beaglebone/imu
+$ cd ~/mrover-workspace \
+$ ./jarvis build beaglebone/imu \
 $ ./jarvis exec beaglebone_imu
  
 #### LCM Commands
-To get readings from the sensor:
-In a new terminal
-$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo IMUData "/imu_data"
+To get readings from the sensor: \
+In a new terminal \
+$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo IMUData "/imu_data" \
 while the program is running.
 
 #### Calibration
