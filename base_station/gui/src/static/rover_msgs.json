@@ -512,10 +512,6 @@
     ],
     "PresetAngles": [
         [
-            "boolean",
-            "preview"
-        ],
-        [
             "string",
             "preset"
         ]

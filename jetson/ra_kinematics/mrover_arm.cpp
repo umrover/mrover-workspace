@@ -92,11 +92,7 @@ void MRoverArm::motion_execute_callback(string channel, MotionExecute msg){
 void MRoverArm::preset_execute_callback(string channel, PresetAngles msg) {
     cout << "running preset_execute_callback\n";
     cout << "requested preset: " << msg.preset << "\n";
-    cout << "preview: " << msg.preview << "\n";
 
-    cout << true;
-
-    string preset_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
     json presets;
 
     // read preset angles from json
@@ -106,6 +102,7 @@ void MRoverArm::preset_execute_callback(string channel, PresetAngles msg) {
     catch (json::exception& e) {
         cout << "Could not read " << msg.preset << " from json: " PRESET_FILE << "\n";
         cout << "message: " << e.what() << "\n";
+        return;
     }
 
     // convert to Vector6d
@@ -121,15 +118,8 @@ void MRoverArm::preset_execute_callback(string channel, PresetAngles msg) {
 
     cout << "Path planned!\n";
 
-    if (msg.preview) {
-        enable_execute = false;
-        preview();
-    }
-    else
-    {
-        enable_execute = true;
-        execute_spline();
-    }
+    enable_execute = false;
+    preview();
 }
  
 void MRoverArm::execute_spline(){ 
