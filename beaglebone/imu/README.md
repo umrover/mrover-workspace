@@ -15,6 +15,12 @@ Subscribers: jetson/filter
 The UM-7 is hooked up using UART (RX and TX) wires. Sending an enable command (Via changing transmission rate from 0 to not 0) to the CREG_COM_RATES7 register
  will enable NMEA style messages to be sent over at the specified rate for the specified NMEA string.
  
+#### Running
+TODO - unknown if running off of beaglebone. If so then use the following \
+$ cd ~/mrover-workspace
+$ ./jarvis build beaglebone/imu
+$ ./jarvis exec beaglebone_imu
+ 
 #### LCM Commands
 To get readings from the sensor:
 In a new terminal
@@ -26,5 +32,6 @@ TODO - Unsure if necessary with this model
 
 ### To Do
 - [ ] Use more robust python implementation of the code - similar to new gps and science bridge code.
+- [ ] Verify what this imu will run on (Beaglebone? Jetson?)
 - [ ] Verify if we need to calibrate the imu
 
