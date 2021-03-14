@@ -81,6 +81,7 @@ void MRoverArm::motion_execute_callback(string channel, MotionExecute msg){
     }
     else
     {
+        enable_execute = true;
         execute_spline();
     }
 }
@@ -89,6 +90,8 @@ void MRoverArm::motion_execute_callback(string channel, MotionExecute msg){
 void MRoverArm::execute_spline(){ 
        cout << "Executing path on arm" << endl;  
        double spline_t = 0;
+       enable_execute = true;
+       sim_mode = false;
        // run spline
        while(enable_execute){
            cout << "spline time: " << spline_t << endl; 
@@ -189,6 +192,8 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
    goal(4) = getjoint["joint_e"];
    goal(5) = getjoint["joint_f"];
    plan_path(goal);
+   execute_spline();
+   cout << "ended everything\n";
 }
  
 void MRoverArm::target_angles_callback(string channel, TargetAngles msg){

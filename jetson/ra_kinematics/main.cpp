@@ -17,10 +17,10 @@ public:
     void executeCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const string& channel,
-        const MotionExecute* m_execute
+        const TargetOrientation* m_execute
         )
     {
-        arm->motion_execute_callback( channel, *m_execute );
+        arm->target_orientation_callback( channel, *m_execute );
     }
 
 private:
@@ -48,12 +48,9 @@ int main()
 
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
 
-
     while( lcmObject.handle() == 0 ) {
         //run kinematics
     }
-
-
 
     // ArmState arm = ArmState(geom);
 
