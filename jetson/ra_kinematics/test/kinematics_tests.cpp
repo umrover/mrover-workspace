@@ -170,7 +170,7 @@ TEST(fk_test) {
     ASSERT_TRUE(vec3dAlmostEqual(joint_f, arm.get_joint_pos_world("joint_f"), epsilon));
     // FK working , yay!!!
 }
-/*
+
 TEST(ik_test1) {
     // cout << setprecision(8);
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
@@ -296,6 +296,6 @@ TEST(ik_test_short) {
     }
 
     ASSERT_TRUE(success);
-}*/
+}
 
 TEST_MAIN()
