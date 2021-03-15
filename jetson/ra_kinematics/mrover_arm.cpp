@@ -182,19 +182,9 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
        cout << "NO IK SOLUTION FOUND, please try a different configuration." << endl;
        return;
    }
- 
-   publish_transforms(state);
-   map<string, double> getjoint = state.get_joint_angles(); 
-   Vector6d goal;
-   goal(0) = getjoint["joint_a"];
-   goal(1) = getjoint["joint_b"];
-   goal(2) = getjoint["joint_c"];
-   goal(3) = getjoint["joint_d"];
-   goal(4) = getjoint["joint_e"];
-   goal(5) = getjoint["joint_f"];
-   plan_path(goal);
+
+   plan_path(ik_solution.first);
    preview();
-//    execute_spline();
    cout << "ended everything\n";
 }
  
