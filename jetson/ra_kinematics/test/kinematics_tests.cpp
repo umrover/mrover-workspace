@@ -75,6 +75,17 @@ TEST(fk_test) {
     json geom = read_json_from_file(geom_file);
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
+
+    vector<double> angles;
+    angles.push_back(0);
+    angles.push_back(1);
+    angles.push_back(1);
+    angles.push_back(0);
+    angles.push_back(0);
+    angles.push_back(0);
+
+    arm.set_joint_angles(angles);
+
     cout << "ef_pos:\n";
     cout << arm.get_ef_pos_world() << "\n";
     solver.FK(arm);
@@ -89,33 +100,33 @@ TEST(fk_test) {
             0, 0, 0, 1;
     Matrix4d b_c;
     b_c <<  1,          0,           0,           0,        
-            0,          0.54030231, -0.84147098,  0.05055616,
-            0,          0.84147098,  0.54030231,  0.02538222,
+            0,          0.54030231, -0.84147098,  0.03429,
+            0,          0.84147098,  0.54030231,  0.02858,
             0,          0,           0,           1;
     Matrix4d c_d;
-    c_d <<  1,          0,           0,          -0.09827959,
-            0,         -0.41614684, -0.90929743,  0.24160829,
-            0,          0.90929743, -0.41614684,  0.35230844,
+    c_d <<  1,          0,           0,          -0.0584,
+            0,         -0.41614684, -0.90929743,  0.33986104,
+            0,          0.90929743, -0.41614684,  0.52210772,
             0,          0,           0,           1;
     Matrix4d d_e;
-    d_e << 1,          0,           0,          -0.09827959,
-           0,         -0.41614684, -0.90929743,  0.09262998,
-           0,          0.90929743, -0.41614684,  0.677832,
+    d_e << 1,          0,           0,          -0.102723,
+           0,         -0.41614684, -0.90929743,  0.31556032,
+           0,          0.90929743, -0.41614684,  0.57520578,
            0,          0,           0,           1;
     Matrix4d e_f;
-    e_f << 1,          0,           0,           -0.02064893,
-           0,         -0.41614684, -0.90929743,  0.09262998,
-           0,          0.90929743, -0.41614684,  0.677832,
+    e_f << 1,          0,           0,           -0.0443284,
+           0,         -0.41614684, -0.90929743,  0.13792929,
+           0,          0.90929743, -0.41614684,  0.96333666,
            0,          0,           0,            1;
     Matrix4d hand;
-    hand << 1,          0,           0,           -0.02064893,
-            0,         -0.41614684, -0.90929743,   0.02407344,
-            0,          0.90929743, -0.41614684,   0.82763077,
+    hand << 1,          0,           0,           -0.0236782,
+            0,         -0.41614684, -0.90929743,   0.0953546,
+            0,          0.90929743, -0.41614684,   1.1250297,
             0,          0,           0,            1;
     Matrix4d ef;
-    ef <<   1,          0,           0,          -0.04894707,
-            0,         -0.41614684, -0.90929743, -0.03164172,
-            0,          0.90929743, -0.41614684,  0.949370,
+    ef <<   1,          0,           0,          -0.05197634,
+            0,         -0.41614684, -0.90929743,  0.039639447,
+            0,          0.90929743, -0.41614684,  1.2467695,
             0,          0,           0,           1;
 
     // Assert links are being created accurately
@@ -127,13 +138,30 @@ TEST(fk_test) {
     ASSERT_TRUE(transMatAlmostEqual(hand, arm.get_link_xform("hand"), epsilon));
     ASSERT_TRUE(transMatAlmostEqual(ef, arm.get_ef_transform(), epsilon));
 
+    cout << "a-b\n" << arm.get_link_xform("a-b") << "\n\n";
+    cout << "b-c\n" << arm.get_link_xform("b-c") << "\n\n";
+    cout << "c-d\n" << arm.get_link_xform("c-d") << "\n\n";
+    cout << "d-e\n" << arm.get_link_xform("d-e") << "\n\n";
+    cout << "e-f\n" << arm.get_link_xform("e-f") << "\n\n";
+    cout << "hand\n" << arm.get_link_xform("hand") << "\n\n";
+    cout << "ef\n" << arm.get_ef_transform() << "\n\n";
+
     // Assert joints are being created accurately:
     Vector3d joint_a(0, 0, 0);
-    Vector3d joint_b(0, 0.05055616, 0.02538222);
-    Vector3d joint_c(-0.09827959,  0.24160829,  0.35230844);
-    Vector3d joint_d(-0.09827959,  0.09262998,  0.677832);
-    Vector3d joint_e(-0.02064893,  0.09262998,  0.677832);
-    Vector3d joint_f(-0.02064893,  0.02407344,  0.82763077);
+    Vector3d joint_b(0,           0.03429,     0.02858);
+    Vector3d joint_c(-0.0584,     0.33986104,  0.52210772);
+    Vector3d joint_d(-0.102723,   0.31556032,  0.57520578);
+    Vector3d joint_e(-0.0443284,  0.13792929,  0.96333666);
+    Vector3d joint_f(-0.0236782,  0.0953546,   1.1250297);
+
+    cout << "a\n" << arm.get_joint_pos_world("joint_a") << "\n\n";
+    cout << "b\n" << arm.get_joint_pos_world("joint_b") << "\n\n";
+    cout << "c\n" << arm.get_joint_pos_world("joint_c") << "\n\n";
+    cout << "d\n" << arm.get_joint_pos_world("joint_d") << "\n\n";
+    cout << "e\n" << arm.get_joint_pos_world("joint_e") << "\n\n";
+    cout << "f\n" << arm.get_joint_pos_world("joint_f") << "\n\n";
+
+    
     ASSERT_TRUE(vec3dAlmostEqual(joint_a, arm.get_joint_pos_world("joint_a"), epsilon));
     ASSERT_TRUE(vec3dAlmostEqual(joint_b, arm.get_joint_pos_world("joint_b"), epsilon));
     ASSERT_TRUE(vec3dAlmostEqual(joint_c, arm.get_joint_pos_world("joint_c"), epsilon));
@@ -142,7 +170,7 @@ TEST(fk_test) {
     ASSERT_TRUE(vec3dAlmostEqual(joint_f, arm.get_joint_pos_world("joint_f"), epsilon));
     // FK working , yay!!!
 }
-
+/*
 TEST(ik_test1) {
     // cout << setprecision(8);
     string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
@@ -268,6 +296,6 @@ TEST(ik_test_short) {
     }
 
     ASSERT_TRUE(success);
-}
+}*/
 
 TEST_MAIN()
