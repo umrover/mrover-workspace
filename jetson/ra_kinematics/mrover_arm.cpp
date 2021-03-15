@@ -7,6 +7,9 @@
 #include "rover_msgs/MotionExecute.hpp"
 #include "rover_msgs/FKTransform.hpp"
 
+#include <chrono>
+#include <thread>
+
 using namespace std;
 using namespace Eigen;
 
@@ -129,11 +132,13 @@ void MRoverArm::preview(){
 
         publish_transforms(state);
         t += 1.0 / num_steps;
+
+        this_thread::sleep_for(chrono::nanoseconds(2000000));
     }
     cout <<  "Preview Done" << endl;
 
     // recover from backup
-    state.set_joint_angles(backup);
+    //state.set_joint_angles(backup);
 
     // update state based on new angles
     solver.FK(state);
@@ -170,7 +175,7 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
 //    bool success = false;
    pair<Vector6d, bool> ik_solution = solver.IK(state, point, false, use_orientation);
   
-   for(int i = 0; i<5; ++i){
+   for(int i = 0; i<5; ++i) {
        if(ik_solution.second){
            cout << "Solved IK" << endl;
            break;

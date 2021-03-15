@@ -251,7 +251,7 @@ bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_angles) 
                 // add the intersection of the paths to a_path
                 Vector6d middle;
                 for (int j = 0; j < 6; ++j) {
-                    middle(j) = a_new->config(j) * M_PI / 180;
+                    middle(j) = a_new->config(j);
                 }
 
                 a_path.push_back(middle);
