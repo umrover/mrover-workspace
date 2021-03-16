@@ -9,6 +9,7 @@
 class Camera {
 private:
 	class Impl;
+	int FRAME_WRITE_INTERVAL;
 	Impl *impl_;
 	std::string rgb_foldername;
 	std::string depth_foldername;
@@ -19,9 +20,6 @@ private:
     const rapidjson::Document& mRoverConfig;
 	
 public:
-
-    //constants
-    int FRAME_WRITE_INTERVAL;
 
 	Camera(const rapidjson::Document &config);
 	~Camera();
