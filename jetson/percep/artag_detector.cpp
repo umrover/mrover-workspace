@@ -74,10 +74,10 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
 
     // Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
-#if AR_RECORD
-cv::aruco::drawDetectedMarkers(rgb, corners, ids);
-#endif
-#if PERCEPTION_DEBUG
+    #if AR_RECORD
+    cv::aruco::drawDetectedMarkers(rgb, corners, ids);
+    #endif
+    #if PERCEPTION_DEBUG
     // Draw detected tags
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     cv::imshow("AR Tags", rgb);
@@ -86,7 +86,7 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     DEPTH = depth_src;
     cvtColor(rgb, HSV, COLOR_RGB2HSV);
     setMouseCallback("Obstacle", onMouse);
-#endif
+    #endif
 
     // create Tag objects for the detected tags and return them
     pair<Tag, Tag> discoveredTags;
@@ -162,7 +162,6 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
         if(tags.buffer[i] <= BUFFER_ITERATIONS){//send buffered tag until tag is found
             ++tags.buffer[i];
         } else {//if still no tag found, set all stats to -1
-
             arTags[i].distance = DEFAULT_TAG_VAL;
             arTags[i].bearing = DEFAULT_TAG_VAL;
             arTags[i].id = DEFAULT_TAG_VAL;

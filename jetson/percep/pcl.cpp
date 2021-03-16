@@ -319,11 +319,15 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
     
     else {
 
+        //Values that store the distances of the last obstacle from a given CheckPath. Center value gets its distance from previous loop of CheckPath
+        double centerDistance = distance, leftDistance, rightDistance;
+
         //Initialize base cases outside of scope
         vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
-        //Find Clear left path, set left bearing
+        //Find clear left path, set left bearing
         leftBearing = getAngleOffCenter(10, 0, interest_points, obstacles);
+        leftDistance = distance; 
         
         //Reset global variables
         obstacles = {0, 0};
@@ -332,6 +336,12 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
 
         //Find clear right path, set right bearing
         rightBearing = getAngleOffCenter(10, 1, interest_points, obstacles);
+        rightDistance = distance;
+
+        //return smallest distance of an obstacle from all the paths
+        if(rightDistance < leftDistance && rightDistance < centerDistance) distance = rightDistance/1000.0;
+        else if(leftDistance < rightDistance && leftDistance < centerDistance) distance = leftDistance/1000.0;
+        else distance = centerDistance/1000.0;
     }
 }
 

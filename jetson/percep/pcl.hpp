@@ -90,7 +90,7 @@ class PCL {
             viewer -> close();
             viewer_original -> close();
         #endif
-};
+        };
 
     private:
 
