@@ -158,15 +158,15 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
     tags.buffer.push_back(0);
 
   for (uint i=0; i<2; i++) {
-    if(tags.id[i] == DEFAULT_TAG_VAL){//no tag found
-        if(tags.buffer[i] <= BUFFER_ITERATIONS){//send buffered tag until tag is found
+    if(tags.id[i] == DEFAULT_TAG_VAL){ //no tag found
+        if(tags.buffer[i] <= BUFFER_ITERATIONS){ //send buffered tag until tag is found
             ++tags.buffer[i];
-        } else {//if still no tag found, set all stats to -1
+        } else { //if still no tag found, set all stats to -1
             arTags[i].distance = DEFAULT_TAG_VAL;
             arTags[i].bearing = DEFAULT_TAG_VAL;
             arTags[i].id = DEFAULT_TAG_VAL;
         }
-     } else {//tag found
+     } else { //tag found
     if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))) {
         arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
     }
