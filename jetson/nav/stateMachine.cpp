@@ -301,6 +301,7 @@ bool StateMachine::isRoverReady() const
            mPhoebe->roverStatus().currentState() == NavState::RepeaterDropWait ||
            mPhoebe->roverStatus().currentState() == NavState::SearchGimbal ||
            mPhoebe->roverStatus().currentState() == NavState::GateSearchGimbal ||
+           mPhoebe->roverStatus().currentState() == NavState::TurnToTarget ||
            mPhoebe->roverStatus().currentState() == NavState::GateWait;
 
 } // isRoverReady()

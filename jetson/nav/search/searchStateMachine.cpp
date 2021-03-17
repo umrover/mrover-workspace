@@ -47,7 +47,7 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
 
         case NavState::TurnToTarget:
         {
-            return executeTurnToTarget( phoebe );
+            return executeTurnToTarget( phoebe, roverConfig );
         }
 
         case NavState::DriveToTarget:
@@ -117,6 +117,7 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
     //if target aquired, turn to it
     if( phoebe->roverStatus().leftTarget().distance >= 0 )
     {
+        cout  << "Target Aquired! gimbal" << endl;
         updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
@@ -284,54 +285,82 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson:
 } // executeSearchDrive()
 
 // Executes the logic for turning to the target.
+// Starts by turnign the gimbal towards the target. Then holds for 200 cycles to confirm aquisition
 // If the rover loses the target, will continue to turn using last known angles.
+// Once target location confirmed, rover turns towards the target, then rights its gimbal
 // If the rover finishes turning to the target, it goes into waiting state to
 // give CV time to relocate the target
 // Else the rover continues to turn to to the target.
-NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
+NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe, const rapidjson::Document& roverConfig  )
 {
     static int turn_to_target_state = 0;
     static double bearing_angle = 0;
-    if( phoebe->roverStatus().leftTarget().distance < 0  && turn_to_target_state != 1 && turn_to_target_state != 2)
+
+    static bool first_time = true;
+ 
+    //if we are not using a gimbal, just skip all gimbal states and immeaditly turn to target, only needs to run once
+    if ( !roverConfig[ "search" ][ "useGimbal" ].GetBool() && first_time){
+        turn_to_target_state = 2;
+        first_time = false;
+        bearing_angle = phoebe->roverStatus().leftTarget().bearing + phoebe->roverStatus().odometry().bearing_deg;
+    }
+    
+    if( phoebe->roverStatus().leftTarget().distance < 0  && turn_to_target_state != 2 && turn_to_target_state != 3)
     {
         cerr << "Lost the target. Continuing to turn to last known angle\n";
-        if( phoebe->turn( mTargetAngle + mTurnToTargetRoverAngle ) && phoebe->gimbal().setDesiredGimbalYaw( 0 ))
+        if( phoebe->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
         {
             turn_to_target_state = 0;
+            bearing_angle = 0;
+            first_time = true;
             return NavState::TurnedToTargetWait;
         }
         return NavState::TurnToTarget;
     }
-    cout << "ttts: " << turn_to_target_state  << endl;
-    if (turn_to_target_state == 0){
-        //cout << "setting gimbal to: " << bearing_angle  << endl;
-        if (phoebe->gimbal().setDesiredGimbalYaw( phoebe->roverStatus().leftTarget().bearing ) )
+   
+    if ( turn_to_target_state == 0 ){
+       
+        if ( abs( phoebe->roverStatus().leftTarget().bearing - phoebe->gimbal().getYaw() ) > 10 )
         {
-            bearing_angle = phoebe->roverStatus().leftTarget().bearing + phoebe->roverStatus().odometry().bearing_deg;
+            phoebe->gimbal( ).setDesiredGimbalYaw( phoebe->roverStatus().leftTarget().bearing);
+        }
+        else{
+            bearing_angle = phoebe->roverStatus( ).leftTarget( ).bearing + phoebe->roverStatus( ).odometry( ).bearing_deg;
             ++turn_to_target_state;
         }
     }
-    else if (turn_to_target_state == 1){
-      
-        if( phoebe->turn( bearing_angle ) )
-        {   
-            cout << "donezo: " << phoebe->roverStatus().odometry().bearing_deg << endl;
+    else if ( turn_to_target_state == 1 ){
+        //wait 250 clock cycles to confirm target aquisition (maybe do this based off of time later)
+        static int cycles = 0;
+        ++cycles;
+        if (cycles > 250){
+            cycles = 0;
             ++turn_to_target_state;
         }
     }
     else if (turn_to_target_state == 2){
-        cout << "setting gimbal to: " << endl;
+        
+        if( phoebe->turn( bearing_angle ) )
+        {   
+            ++turn_to_target_state;
+            //if no gimbal skip gimbal righting step.
+            if ( !roverConfig[ "search" ][ "useGimbal" ].GetBool() ){
+                ++turn_to_target_state;
+            }
+        }
+    }
+    else if (turn_to_target_state == 3){
         if ( phoebe->gimbal().setDesiredGimbalYaw( 0 ) )
         {
             ++turn_to_target_state;
         }
     }
-    else if (turn_to_target_state == 3){
+    else if (turn_to_target_state == 4){
         turn_to_target_state = 0;
+        bearing_angle = 0;
+        first_time = true;
         return NavState::DriveToTarget;
     }
-
-
     updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                        phoebe->roverStatus().odometry().bearing_deg );
     //publish gimbal lcm command
