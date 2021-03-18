@@ -7,6 +7,7 @@
 
 #include <lcm/lcm-cpp.hpp>
 #include <iostream>
+#include <thread>
 
 using nlohmann::json;
 using namespace std;
@@ -22,6 +23,24 @@ public:
         )
     {
         arm->target_orientation_callback( channel, *m_execute );
+    }
+    
+    void motionExecuteCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const MotionExecute* m_execute
+    )
+    {
+        arm->motion_execute_callback( channel, *m_execute );
+    }
+
+    void armPositionCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const ArmPosition* arm_pos
+    )
+    {
+        arm->arm_position_callback( channel, *arm_pos );
     }
 
 private:
@@ -47,11 +66,17 @@ int main() {
     lcmHandlers handler(&robot_arm);
 
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
+    lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
+    lcmObject.subscribe( "/arm_position", &lcmHandlers::armPositionCallback, &handler );
+    
+    thread exe_spline(robot_arm.execute_spline);
 
     while( lcmObject.handle() == 0 ) {
         //run kinematics
         
     }
+
+    exe_spline.join();
 
     // ArmState arm = ArmState(geom);
 

@@ -6,39 +6,42 @@
 #include "rover_msgs/ArmPosition.hpp"
 #include "rover_msgs/MotionExecute.hpp"
 #include "rover_msgs/FKTransform.hpp"
+#include "rover_msgs/DebugMessage.hpp"
 
 #include <chrono>
 #include <thread>
+#include <future>
 
 using namespace std;
 using namespace Eigen;
 
 MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) : done_previewing(false), enable_execute(false), sim_mode(true), ik_enabled(false), state(geom), lcm_(lcm), motion_planner(state, solver)  {}
 
-void MRoverArm::arm_position_callback(string channel, ArmPosition msg){
-   /*
-       Handler for angles
-       Triggers forward kinematics
-   */ 
-   if (ik_enabled && !enable_execute){
-       return;
-   }
+void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
+    /*
+        Handler for angles
+        Triggers forward kinematics
+    */ 
+    if (ik_enabled && !enable_execute) {
+        return;
+    }
 
-   if (channel == "/arm_position") {
-       msg.joint_a = 0.0;
-       msg.joint_b = 0.0;
-       msg.joint_c = 0.0;
-       msg.joint_d = 0.0;
-       msg.joint_e = 0.0;
-       msg.joint_f = 0.0;
-       vector<double> angles{msg.joint_a, msg.joint_b, msg.joint_c, msg.joint_d, msg.joint_e, msg.joint_f};
-       state.set_joint_angles(angles);
-       solver.FK(state);
-       publish_transforms(state);
-   }
+    if (channel == "/arm_position") {
+        vector<double> angles{msg.joint_a, msg.joint_b, msg.joint_c, msg.joint_d, msg.joint_e, msg.joint_f};
+
+        cout << "angles in arm_position_callback:  ";
+        for (size_t i = 0; i < angles.size(); ++i) {
+            cout << angles[i] << "  ";
+        }
+        cout << '\n';
+
+        state.set_joint_angles(angles);
+        solver.FK(state);
+        publish_transforms(state);
+    }
 }
 
-void MRoverArm::publish_config(vector<double> &config, string channel){
+void MRoverArm::publish_config(vector<double> &config, string channel) {
        ArmPosition arm_position;
        arm_position.joint_a = config[0];
        arm_position.joint_b = config[1];
@@ -69,7 +72,7 @@ void MRoverArm::publish_transforms(const ArmState& pub_state) {
     lcm_.publish("/fk_transform", &tm);
 }
 
-void MRoverArm::motion_execute_callback(string channel, MotionExecute msg){
+void MRoverArm::motion_execute_callback(string channel, MotionExecute msg) {
     cout << "Motion Executing!" << '\n';
     if (msg.preview) {
         enable_execute = false;
@@ -77,40 +80,69 @@ void MRoverArm::motion_execute_callback(string channel, MotionExecute msg){
     }
     else
     {
+        // enable_execute = true;
+        // execute_spline();
         enable_execute = true;
-        execute_spline();
     }
 }
-      
- 
-void MRoverArm::execute_spline(){ 
-       cout << "Executing path on arm" << endl;  
-       double spline_t = 0;
-       enable_execute = true;
-       sim_mode = false;
-       // run spline
-       while(enable_execute){
-           cout << "spline time: " << spline_t << endl; 
-           vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
-           target_angles[4] *= -1;
-           if (!sim_mode){ 
-               publish_config(target_angles, "/ik_ra_control");
-               spline_t += 0.01;
-           }
-           // TODO: make sure transition from not self.sim_mode
-           //   to self.sim_mode is safe!!      previously commented
-           else if (sim_mode){
-               publish_config(target_angles, "/arm_position");
-               spline_t += 0.01;
-           }
-           if (spline_t >= 1){
-               enable_execute = false;
-           }
-       }
+
+
+void MRoverArm::execute_spline() { 
+    double spline_t = 0.0;
+    while true {
+        if (enable_execute) {
+            vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
+            // target_angles[4] *= -1;
+            
+            if (!sim_mode) { 
+                publish_config(target_angles, "/ik_ra_control");
+                spline_t += 0.01;
+            }
+            // TODO: make sure transition from not self.sim_mode
+            //   to self.sim_mode is safe!!      previously commented
+            else if (sim_mode) {
+                publish_config(target_angles, "/arm_position");
+                spline_t += 0.01;
+            }
+
+            if (spline_t > 1) {
+                enable_execute = false;
+                spline_t = 0.0;
+            }
+
+            this_thread::sleep_for(chrono::milliseconds(10));
+        }
+        else {
+            this_thread::sleep_for(chrono::milliseconds(500));
+        }
+        
+    }
+    //    cout << "Executing path on arm" << endl;
+    //    double spline_t = 0;
+    //    sim_mode = true;
+    //    // run spline
+    //    while(enable_execute) {
+    //        cout << "spline time: " << spline_t << endl;
+    //        vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
+    //        target_angles[4] *= -1;
+    //        if (!sim_mode) { 
+    //            publish_config(target_angles, "/ik_ra_control");
+    //            spline_t += 0.01;
+    //        }
+    //        // TODO: make sure transition from not self.sim_mode
+    //        //   to self.sim_mode is safe!!      previously commented
+    //        else if (sim_mode) {
+    //            publish_config(target_angles, "/arm_position");
+    //            spline_t += 0.01;
+    //        }
+    //        if (spline_t >= 1) {
+    //            enable_execute = false;
+    //        }
+    //    }
   
 }
  
-void MRoverArm::preview(){
+void MRoverArm::preview() {
     cout << "Previewing" << endl;
 
     // backup angles
@@ -133,9 +165,15 @@ void MRoverArm::preview(){
         publish_transforms(state);
         t += 1.0 / num_steps;
 
-        this_thread::sleep_for(chrono::nanoseconds(2000000));
+        this_thread::sleep_for(chrono::milliseconds(2));
     }
     cout <<  "Preview Done" << endl;
+
+    DebugMessage msg;
+    msg.isError = false;
+    msg.message = "Preview Done";
+    
+    lcm_.publish("/debugMessage", &msg);
 
     // recover from backup
     //state.set_joint_angles(backup);
@@ -144,15 +182,15 @@ void MRoverArm::preview(){
     solver.FK(state);
 }
 
-void MRoverArm::lock_e_callback(string channel, LockJointE msg){
+void MRoverArm::lock_e_callback(string channel, LockJointE msg) {
        cout << "joint e locked" << endl;
     //    solver.lock_joint_e(msg.locked); //no function lock_joint_e in kinematics.cpp
 }
-void MRoverArm::k_enabled_callback(string channel, IkEnabled msg){  
+void MRoverArm::k_enabled_callback(string channel, IkEnabled msg) {  
        ik_enabled = msg.enabled;
 }
  
-void MRoverArm::target_orientation_callback(string channel, TargetOrientation msg){
+void MRoverArm::target_orientation_callback(string channel, TargetOrientation msg) {
    cout << "target orientation callback";
    TargetOrientation point_msg = msg;
    enable_execute = false;
@@ -176,14 +214,14 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
    pair<Vector6d, bool> ik_solution = solver.IK(state, point, false, use_orientation);
   
    for(int i = 0; i<5; ++i) {
-       if(ik_solution.second){
+       if(ik_solution.second) {
            cout << "Solved IK" << endl;
            break;
        }
        cout << "Attempting new IK solution..." << endl << i << endl;
        ik_solution = solver.IK(state, point, true, use_orientation);
    }
-   if(!ik_solution.second){
+   if(!ik_solution.second) {
        cout << "NO IK SOLUTION FOUND, please try a different configuration." << endl;
        return;
    }
@@ -193,7 +231,7 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
    cout << "ended everything\n";
 }
  
-void MRoverArm::target_angles_callback(string channel, TargetAngles msg){
+void MRoverArm::target_angles_callback(string channel, TargetAngles msg) {
    enable_execute = false;
    TargetAngles target_angles = msg;  
  
@@ -205,21 +243,21 @@ void MRoverArm::target_angles_callback(string channel, TargetAngles msg){
    goal(4) = (double)target_angles.joint_e;
    goal(5) = (double)target_angles.joint_f;
 
-   for(int i = 0; i<6; i++){
+   for(int i = 0; i<6; i++) {
        cout << goal[i] << "\t";
    }
    cout << endl;
    plan_path(goal);
 }
  
-void MRoverArm::plan_path(Vector6d goal){
+void MRoverArm::plan_path(Vector6d goal) {
    cout << "goal" << endl;
-   for(int i = 0; i<goal.size(); i++){
+   for(int i = 0; i<goal.size(); i++) {
        cout << goal[i] << "\t";
    }
    cout << endl << "start" << endl;
    map<string, double> joint_angles = state.get_joint_angles();
-//    for(int i = 0; i<joint_angles.size(); i++){ // cant index into map
+//    for(int i = 0; i<joint_angles.size(); i++) { // cant index into map
 //        cout << joint_angles[i] << "\t";
 //    }
    cout << endl;  
@@ -227,7 +265,7 @@ void MRoverArm::plan_path(Vector6d goal){
    //idk this data type
 //    vector<tk::spline> path_spline =   this was the beginning of the line below but rrtconnect is void
    bool path = motion_planner.rrt_connect(state, goal); //is rrt_connect a void function
-   if(path){
+   if(path) {
        cout << "planned path" << endl;
    }
    else{
@@ -235,15 +273,15 @@ void MRoverArm::plan_path(Vector6d goal){
    }
 }
  
-// void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg){
+// void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg) {
 //    SimulationMode simulation_mode_msg = msg;
  
 // //    bool sim_mode = simulation_mode_msg.sim_mode;
 //    publish_transforms(state);
 // }
  
-// void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg){
-//    if(enable_execute){
+// void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {
+//    if(enable_execute) {
 //        return;
 //    }
  
@@ -252,7 +290,7 @@ void MRoverArm::plan_path(Vector6d goal){
 //    //idk if this line is right down here
 //    pair<vector<double> joint_angles, bool is_safe> = solver.IK_delta(delta, 3); // IK_delta takes in a Vector6d. ik arm control only has 3 values.
   
-//    if(is_safe){
+//    if(is_safe) {
 //        ArmPosition arm_position = ArmPosition();
 //        map<string,double> gja = state.get_joint_angles();
 //        arm_position.joint_a = gja["joint_a"];
@@ -266,7 +304,7 @@ void MRoverArm::plan_path(Vector6d goal){
 //        solver.FK(state);  
 //        publish_transforms(state);
 //        //again, running into the issue of encode(), should we even have it there
-//        if(sim_mode){
+//        if(sim_mode) {
 //            cout << "Printing sim_mode" << endl;
 //            lcm_.publish("/arm_position", arm_position.encode());
 //        }
