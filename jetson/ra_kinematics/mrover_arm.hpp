@@ -47,20 +47,45 @@ private:
    bool ik_enabled;
  
 public:
+
+    /**
+     * MRoverArm constructor
+     * 
+     * @param geom standard mrover config file for RA
+     * @param lcm empty lcm object to communicate with other systems
+     * */
     MRoverArm(json &geom, lcm::LCM &lcm);
 
+    /**
+     * Handle message with updated joint angles from encoders,
+     * update state and call FK() to adjust transforms
+     * 
+     * @param channel expected: "/arm_position"
+     * @param msg format: double joint_a, joint_b, ... , joint_f
+     * */
     void arm_position_callback(string channel, ArmPosition msg);
 
-    void publish_config(vector<double> &config, string channel);
-
-    void publish_transforms(const ArmState &state);
-
+    /**
+     * Handle new target position by calculating angles and plotting path,
+     * then preview path
+     * 
+     * @param channel expected: "/target_orientation"
+     * @param msg float x, y, z, alpha, beta, gamma; bool use_orientation
+     * */
+    void target_orientation_callback(string channel, TargetOrientation msg);
+    
+    /**
+     * Handle request to move arm through previously calculated path
+     * 
+     * @param channel expected: "/motion_execute"
+     * @param msg format: bool preview
+     * */
     void motion_execute_callback(string channel, MotionExecute msg);
 
-    void target_orientation_callback(string channel, TargetOrientation msg);
-
-    void plan_path(Vector6d goal);
-
+    /**
+     * Asynchronous function, when enable_execute is set to true:
+     * Executes current path on physical rover, unless sim_mode is true
+     * */
     void execute_spline();
 
     void preview();
@@ -76,6 +101,12 @@ public:
     void cartesian_control_callback(string channel, IkArmControl msg);
 
 private:
+    void publish_config(vector<double> &config, string channel);
+
+    void publish_transforms(const ArmState &state);
+
+    void plan_path(Vector6d goal);
+
     void matrix_helper(double arr[4][4], const Matrix4d &mat);
 };
  

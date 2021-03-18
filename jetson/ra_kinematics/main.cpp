@@ -1,9 +1,7 @@
 #include "json.hpp"
 #include "arm_state.hpp"
-#include "kinematics.hpp"
 #include "mrover_arm.hpp"
 #include "utils.hpp"
-
 
 #include <lcm/lcm-cpp.hpp>
 #include <iostream>
@@ -52,38 +50,29 @@ private:
 int main() {
     
     cout << "INITIALIZING KINEMATICS FOR ROBOT ARM\n";
-    // string config_path = getenv("MROVER_CONFIG");
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
 
-    lcm::LCM lcmObject;
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
     json geom = read_json_from_file(geom_file);
 
     cout << "INITIALIZING ROBOT ARM OBJECT\n";
 
+    lcm::LCM lcmObject;
     MRoverArm robot_arm(geom, lcmObject);
-    KinematicsSolver solver = KinematicsSolver();
 
     lcmHandlers handler(&robot_arm);
 
+    lcmObject.subscribe( "/arm_position", &lcmHandlers::armPositionCallback, &handler );
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
     lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
-    lcmObject.subscribe( "/arm_position", &lcmHandlers::armPositionCallback, &handler );
     
-    thread exe_spline(robot_arm.execute_spline);
+    thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
 
     while( lcmObject.handle() == 0 ) {
         //run kinematics
         
     }
 
-    exe_spline.join();
-
-    // ArmState arm = ArmState(geom);
-
-    // cout << "GETTING JOINT A\n";
-
-    // arm.get_joint_mass("joint_a");
-
+    execute_spline.join();
 
     return 0;
 }
