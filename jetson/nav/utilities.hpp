@@ -22,7 +22,7 @@ Odometry addMinToDegrees( const Odometry & current, const double lat_minutes = 0
 
 double estimateNoneuclid( const Odometry& start, const Odometry& dest );
 
-Odometry createOdom ( const Odometry & current, const double bearing, const double distance, Rover * phoebe );
+Odometry createOdom ( const Odometry & current, const double bearing, const double distance, Rover * rover );
 
 double calcBearing( const Odometry& start, const Odometry& dest );
 
@@ -32,10 +32,10 @@ void throughZero( double& destinationBearing, const double currentBearing );
 
 void clear( deque<Waypoint>& aDeque );
 
-bool isTargetReachable( Rover* phoebe, const rapidjson::Document& roverConfig );
+bool isTargetReachable( Rover* rover, const rapidjson::Document& roverConfig );
 
-bool isLocationReachable( Rover* phoebe, const rapidjson::Document& roverConfig, const double locDist, const double distThresh );
+bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, const double locDist, const double distThresh );
 
-bool isObstacleDetected( Rover* phoebe );
+bool isObstacleDetected( Rover* rover );
 
 #endif // NAV_UTILITES
