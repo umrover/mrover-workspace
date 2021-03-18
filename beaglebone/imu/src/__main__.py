@@ -15,9 +15,7 @@ class IMU_Manager():
 
         # Mapping NMEA messages to their handlers
         self.NMEA_TAGS_MAPPER = {
-            "PCHRS,0": self.pchrs_handler,
-            "PCHRS,1": self.pchrs_handler,
-            "PCHRS,2": self.pchrs_handler
+            "PCHRS": self.pchrs_handler
         }
 
     def __enter__(self):
