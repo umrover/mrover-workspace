@@ -46,11 +46,11 @@ double estimateNoneuclid( const Odometry& current, const Odometry& dest )
 
 // create a new Odometry point at a bearing and distance from a given odometry point
 // Note this uses the absolute bearing not a bearing relative to the rover.
-Odometry createOdom( const Odometry & current, double bearing, const double distance, Rover * phoebe )
+Odometry createOdom( const Odometry & current, double bearing, const double distance, Rover * rover )
 {
     bearing = degreeToRadian( bearing );
     double latChange = distance * cos( bearing ) * LAT_METER_IN_MINUTES;
-    double lonChange = distance * sin( bearing  ) * phoebe->longMeterInMinutes();
+    double lonChange = distance * sin( bearing  ) * rover->longMeterInMinutes();
     Odometry newOdom = addMinToDegrees( current, latChange, lonChange );
     return newOdom;
 }
@@ -126,20 +126,20 @@ void clear( deque<Waypoint>& aDeque )
 // Checks to see if target is reachable before hitting obstacle
 // If the x component of the distance to obstacle is greater than
 // half the width of the rover the obstacle if reachable
-bool isTargetReachable( Rover* phoebe, const rapidjson::Document& roverConfig )
+bool isTargetReachable( Rover* rover, const rapidjson::Document& roverConfig )
 {
-    double distToTarget = phoebe->roverStatus().target().distance;
+    double distToTarget = rover->roverStatus().target().distance;
     double distThresh = roverConfig["navThresholds"]["targetDistance"].GetDouble();
-    return isLocationReachable( phoebe, roverConfig, distToTarget, distThresh );
+    return isLocationReachable( rover, roverConfig, distToTarget, distThresh );
 } // istargetReachable()
 
 // Returns true if the rover can reach the input location without hitting the obstacle.
 // ASSUMPTION: There is an obstacle detected.
 // ASSUMPTION: The rover is driving straight.
-bool isLocationReachable( Rover* phoebe, const rapidjson::Document& roverConfig, const double locDist, const double distThresh )
+bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, const double locDist, const double distThresh )
 {
-    double distToObs = phoebe->roverStatus().obstacle().distance;
-    double bearToObs = phoebe->roverStatus().obstacle().bearing;
+    double distToObs = rover->roverStatus().obstacle().distance;
+    double bearToObs = rover->roverStatus().obstacle().bearing;
     double bearToObsComplement = 90 - bearToObs;
     double xComponentOfDistToObs = distToObs * cos(bearToObsComplement);
 
@@ -155,7 +155,7 @@ bool isLocationReachable( Rover* phoebe, const rapidjson::Document& roverConfig,
 } // isLocationReachable()
 
 // Returns true if an obstacle is detected, false otherwise.
-bool isObstacleDetected( Rover* phoebe )
+bool isObstacleDetected( Rover* rover )
 {
-    return phoebe->roverStatus().obstacle().distance >= 0;
+    return rover->roverStatus().obstacle().distance >= 0;
 } // isObstacleDetected()
