@@ -27,7 +27,7 @@
 
 	"navThresholds":
 	{
-		"turningBearing": 10,
+		"turningBearing": 20,
 		"drivingBearing": 50,
 		"waypointDistance": 2.0,
 		"targetDistance": 1.0,
@@ -77,7 +77,7 @@
 		"searchWaitStepSize": 90.0,
 		"gimbalSearchWaitStepSize": 75.0,
 		"searchWaitTime": 1.0,
-		"useGimbal": false,
+		"useGimbal": true,
 		"gimbalSearchAngleMag": 150
 	}
 }
