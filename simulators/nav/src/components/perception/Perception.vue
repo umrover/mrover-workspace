@@ -90,15 +90,11 @@ export default class Perception extends Vue {
       return;
     }
 
-    console.log('Updating ar tags');
-
     /* Recompute targetList LCM */
     this.targetDetector.updateArTags(this.arTags);
 
     /* Recompute obstacleList LCM*/
     this.onObstaclesChange();
-
-    console.log(this.obstacles.length);
 
     this.computeVisibleTargets();
   } /* onArTagsChange() */
@@ -191,15 +187,16 @@ export default class Perception extends Vue {
   @Watch('obstacles', { deep: true })
   private onObstaclesChange():void {
     /* If obstacleDetector not yet defined */
-    console.log('Updating perception obstacle');
     if (this.obstacleDetector === undefined) {
       return;
     }
 
-    /* Recompute obstacle LCM */
+    /* Take a deep copy of the obstacles array */
     const newObstacles:Obstacle[] = this.obstacles.slice();
+
+    /* Add ar tag and gate obstacles to array */
     for (let i = 0; i < this.arTags.length; i += 1) {
-      newObstacles.push({ odom: this.arTags[i].odom, size: 0.5 });
+      newObstacles.push({ odom: this.arTags[i].odom, size: 0.25 });
     }
     for (let i = 0; i < this.gates.length; i += 1) {
       newObstacles.push({
@@ -207,17 +204,19 @@ export default class Perception extends Vue {
                                this.gates[i].orientation,
                                this.gates[i].width / 2,
                                this.fieldCenterOdom),
-        size: 0.5
+        size: 0.25
       });
       newObstacles.push({
         odom: calcRelativeOdom(this.gates[i].odom,
                                this.gates[i].orientation + 180,
                                this.gates[i].width / 2,
                                this.fieldCenterOdom),
-        size: 0.5
+        size: 0.25
       });
     }
     this.obstacleDetector.updateObstacles(newObstacles);
+
+    /* Recompute obstacle LCM */
     this.computeVisibleObstacles();
   } /* onObstaclesChange() */
 
@@ -247,7 +246,6 @@ export default class Perception extends Vue {
     /* Recompute targetList LCM */
     this.targetDetector.updateZedGimbalPos(this.zedGimbalPos);
     this.computeVisibleTargets();
-    console.log('here');
   }
 
   /************************************************************************************************

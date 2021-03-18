@@ -238,8 +238,8 @@ export default class ObstacleDetector {
   } /* updateFov() */
 
   /* Update obstacles list on change. */
-  updateObstacles(obstacles:Obstacle[]):void {
-    this.obstacles = obstacles;
+  updateObstacles(newObstacles:Obstacle[]):void {
+    this.obstacles = newObstacles;
   } /* updateObstacles() */
 
   /* Update canvas field scale on change. */

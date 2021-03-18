@@ -23,7 +23,7 @@ const state:FieldState = {
     speed: -1
   },
   gates: [],
-  obstacles2: [],
+  obstacles: [],
   referencePoints: [],
   repeaterLoc: null,
   size: 25,
@@ -44,7 +44,7 @@ const getters = {
 
   gates: (fieldState:FieldState):Gate[] => fieldState.gates,
 
-  obstacles: (fieldState:FieldState):Obstacle[] => fieldState.obstacles2,
+  obstacles: (fieldState:FieldState):Obstacle[] => fieldState.obstacles,
 
   referencePoints: (fieldState:FieldState):Odom[] => fieldState.referencePoints,
 
@@ -75,7 +75,7 @@ const mutations = {
 
   editObstacle: (fieldState:FieldState, obstacleEdit:[Obstacle, number]):void => {
     const [updatedObstacle, index]:[Obstacle, number] = obstacleEdit;
-    Object.assign(fieldState.obstacles2[index], updatedObstacle);
+    Object.assign(fieldState.obstacles[index], updatedObstacle);
 
     /* Note that `fieldState.obstacles[index] = updatedObstacle` will not work.
        For more information this, read more about why to use Object.assign() vs.
@@ -100,7 +100,7 @@ const mutations = {
   },
 
   pushObstacle: (fieldState:FieldState, newObstacle:Obstacle):void => {
-    fieldState.obstacles2.push(newObstacle);
+    fieldState.obstacles.push(newObstacle);
   },
 
   pushReferencePoint: (fieldState:FieldState, newReferencePoint:Odom):void => {
@@ -120,7 +120,7 @@ const mutations = {
   },
 
   removeObstacle: (fieldState:FieldState, index:number):void => {
-    fieldState.obstacles2.splice(index, 1);
+    fieldState.obstacles.splice(index, 1);
   },
 
   removeReferencePoint: (fieldState:FieldState, index:number):void => {
@@ -147,7 +147,7 @@ const mutations = {
     fieldState.arTags = newState.arTags;
     Object.assign(fieldState.centerOdom, newState.centerOdom);
     fieldState.gates = newState.gates;
-    fieldState.obstacles2 = newState.obstacles2;
+    fieldState.obstacles = newState.obstacles;
     fieldState.repeaterLoc = newState.repeaterLoc;
     fieldState.size = newState.size;
     fieldState.waypoints = newState.waypoints;
@@ -160,7 +160,7 @@ const mutations = {
   },
 
   setObstacles: (fieldState:FieldState, newObstacles:Obstacle[]):void => {
-    fieldState.obstacles2 = newObstacles;
+    fieldState.obstacles = newObstacles;
   },
 
   setRepeaterLoc: (fieldState:FieldState, newRepeaterLoc:Odom|null):void => {
@@ -175,6 +175,7 @@ const mutations = {
     fieldState.canvasHeight = newCanvasHeight;
   }
 };
+
 
 export default {
   state,
