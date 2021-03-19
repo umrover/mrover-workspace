@@ -4,7 +4,7 @@ import time as t
 import odrive as odv
 import threading
 import fibre
-from rover_msgs import DriveStateCmd, DriveVelCmd, \
+from rover_msgs import DriveVelCmd, \
     DriveStateData, DriveVelData
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
     CTRL_MODE_VELOCITY_CONTROL, AXIS_STATE_IDLE
