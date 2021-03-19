@@ -88,8 +88,8 @@ def lcmThreaderMan():
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "odrive error"]
 states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
-# Program states possible - BOOT,  DISARMED, ARMED, CALIBRATE ERROR
-# 							1		 2	      3	       4        5
+# Program states possible - BOOT,  DISARMED, ARMED, ERROR
+#                            1		 2	      3	      4
 
 
 class State(object):
