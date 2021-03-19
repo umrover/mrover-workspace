@@ -93,13 +93,8 @@ def lcmThreaderMan():
 
 events = ["disconnected odrive", "disarm cmd", "arm cmd", "odrive error"]
 states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
-<<<<<<< HEAD
-# Program states possible - BOOT,  DISARMED, ARMED, ERROR
-#                            1		 2	      3	      4
-=======
 # Program states possible - BOOT,  DISARMED, ARMED, CALIBRATE ERROR
 # 							1		 2	      3	       4        5
->>>>>>> code clean up
 
 
 class State(object):
@@ -468,13 +463,10 @@ class Modrive:
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
 
-<<<<<<< HEAD
     def _pre_calibrate(self, m_axis):
         m_axis.motor.config.pre_calibrated = True
         m_axis.encoder.config.pre_calibrated = True
 
-=======
->>>>>>> code clean up
     def check_errors(self):
         front = self.front_axis.error
         back = self.back_axis.error
