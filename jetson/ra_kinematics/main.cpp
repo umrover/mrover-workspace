@@ -39,6 +39,7 @@ public:
         )
     {
         arm->preset_execute_callback( channel, *p_execute );
+    }
       
     void armPositionCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
