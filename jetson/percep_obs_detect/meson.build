@@ -42,5 +42,5 @@ obs_include_dirs = include_directories('/usr/local/include/pcl-1.11',
 	all_deps += [obs]
 
 exe = executable('percep_obs_detect', 'src/obs-detector.cpp', 'src/common.cu', 'src/euclidean-cluster.cu', 'src/find-clear.cu', 'src/GLViewer.cpp', 
-                'src/pass-through.cu', 'src/pcl.cpp', 'src/plane-ransac.cu', install : true, dependencies : all_deps, include_directories : incdir )
+                'src/pass-through.cu', 'src/pcl.cpp', 'src/plane-ransac.cu', 'src/voxel-grid.cu', install : true, dependencies : all_deps, include_directories : incdir )
 #exe = executable('jetson_obs_detector', 'src/driver.cpp' , install : true, dependencies : all_deps, include_directories : incdir)
