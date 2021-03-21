@@ -1,12 +1,13 @@
 import Adafruit_BBIO.UART as UART
 import serial
-import struct
-import time
+# import struct
+# import time
 import asyncio
-from os import getenv
+# from os import getenv
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import IMUData
+
 
 class IMU_Manager():
 
@@ -40,7 +41,7 @@ class IMU_Manager():
 
     def pchrs_handler(self, msg, imu_struct):
         arr = msg.split(",")
-        
+
         # packet type can be either 0: gyro, 1: accel, 2: magnetometer
         # mag data is unit-nrom (unitless)
         try:
@@ -90,7 +91,6 @@ class IMU_Manager():
             imu_struct.yaw_rad = 0
             imu_struct.bearing_deg = 0
 
-
     async def recieve(self, lcm):
             '''
             Reads from the rover IMU over serial connection.
@@ -103,7 +103,7 @@ class IMU_Manager():
             error_counter = 0
             # Mark TXT as always seen because they are not necessary
             seen_tags = {tag: False if not tag == 'TXT' else True
-                        for tag in self.NMEA_TAGS_MAPPER.keys()}
+                         for tag in self.NMEA_TAGS_MAPPER.keys()}
             while True:
                 # Wait for all tags to be seen
                 while (not all(seen_tags.values())):
@@ -142,7 +142,7 @@ class IMU_Manager():
                             print('Error decoding message stream: {}'.format(msg))
 
                 seen_tags = {tag: False if not tag == 'TXT' else True
-                            for tag in self.NMEA_TAGS_MAPPER.keys()}
+                             for tag in self.NMEA_TAGS_MAPPER.keys()}
                 await asyncio.sleep(self.sleep)
 
     # turns off registers that are outputting non-NMEA data
@@ -150,22 +150,24 @@ class IMU_Manager():
         checksum = ord('s') + ord('n') + ord('p') + register + 0x80
 
         cmd_buffer = {ord('s'), ord('n'), ord('p'), 0x80, register,
-                     0x00, 0x00, 0x00, 0x00, checksum >> 8, checksum & 0xff}
-        
+                      0x00, 0x00, 0x00, 0x00, checksum >> 8, checksum & 0xff}
+
         self.ser.write(bytes(cmd_buffer))
-    
+
     # turns on the attidude and sensor nmea sentences to 1Hz
     def enable_nmea(self, register):
         checksum = ord('s') + ord('n') + ord('p') + register + 0x80 + 0x01
-        
+
         cmd_buffer = {ord('s'), ord('n'), ord('p'), 0x80, register,
-                         0 , 0x11, 0, 0, checksum >> 8, checksum & 0xff}
-        
+                      0, 0x11, 0, 0, checksum >> 8, checksum & 0xff}
+
         self.ser.write(bytes(cmd_buffer))
 
 # end of class
 
+
 def main():
+
     # Uses a context manager to ensure serial port released
     NMEA_RATE_REG = 0x07
 
@@ -174,7 +176,7 @@ def main():
         l = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}
         for reg in l:
             manager.turnOffRegister(reg)
-        
+
         manager.enable_nmea(NMEA_RATE_REG)
 
         lcm = aiolcm.AsyncLCM()
