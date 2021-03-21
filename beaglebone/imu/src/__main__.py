@@ -46,21 +46,23 @@ class IMU_Manager():
         # mag data is unit-nrom (unitless)
         try:
             arr = msg.split(",")
+            print(arr)
             packetType = arr[1]
-            if (packetType == 0):
+            if (packetType == '0'):
                 imu_struct.gyro_x_dps = float(arr[3])
                 imu_struct.gyro_y_dps = float(arr[4])
                 imu_struct.gyro_z_dps = float(arr[5])
-            elif (packetType == 1):
+            elif (packetType == '1'):
                 imu_struct.accel_x_g = float(arr[3])
                 imu_struct.accel_y_g = float(arr[4])
                 imu_struct.accel_z_g = float(arr[5])
-            elif (packetType == 2):
+            elif (packetType == '2'):
                 imu_struct.mag_x_uT = float(arr[3])
                 imu_struct.mag_y_uT = float(arr[4])
                 imu_struct.mag_z_uT = float(arr[5])
             else:
                 # this shouldnt happen
+                print("Passed")
                 pass
         # fill with zeroes if something goes wrong.
         except:
@@ -84,9 +86,10 @@ class IMU_Manager():
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
             imu_struct.yaw_rad = float(arr[4]) * pi / 180
             # heading not bearing
-            imu_struct.bearing_deg = float(arr[5])
+            imu_struct.bearing_deg = 0
         # fill with zeroes if something goes wrong
         except:
+            print("somthing went wrong the other one")
             imu_struct.roll_rad = 0
             imu_struct.pitch_rad = 0
             imu_struct.yaw_rad = 0
