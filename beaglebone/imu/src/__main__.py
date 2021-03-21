@@ -57,13 +57,14 @@ class IMU_Manager():
                 imu_struct.accel_z_g = float(arr[5])
             elif (packetType == 2):
                 imu_struct.mag_x_uT = float(arr[3])
-                imu_struct.mag_y_uT = float(arr[3])
-                imu_struct.mag_z_uT = float(arr[3])
+                imu_struct.mag_y_uT = float(arr[4])
+                imu_struct.mag_z_uT = float(arr[5])
             else:
                 # this shouldnt happen
                 pass
         # fill with zeroes if something goes wrong.
         except:
+            print("somthing went wrong")
             imu_struct.gyro_x_dps = 0
             imu_struct.gyro_y_dps = 0
             imu_struct.gyro_z_dps = 0
@@ -109,7 +110,6 @@ class IMU_Manager():
                 while (not all(seen_tags.values())):
                     try:
                         msg = str(self.ser.readline())
-                        print(msg)
                         error_counter = 0
                     except Exception as e:
                         if error_counter < self.max_error_count:
@@ -126,10 +126,12 @@ class IMU_Manager():
                             match_found = True
                             try:
                                 if(tag == "PCHRS"):
+                                    print(msg)
                                     func(msg, imu)
                                     lcm.publish('/imu_data', imu.encode())
                                     seen_tags[tag] = True
                                 if(tag == "PCHRA"):
+                                    print(msg)
                                     func(msg, imu)
                                     lcm.publish('/imu_data', imu.encode())
                                     seen_tags[tag] = True
@@ -149,17 +151,18 @@ class IMU_Manager():
     def turnOffRegister(self, register):
         checksum = ord('s') + ord('n') + ord('p') + register + 0x80
 
-        cmd_buffer = {ord('s'), ord('n'), ord('p'), 0x80, register,
-                      0x00, 0x00, 0x00, 0x00, checksum >> 8, checksum & 0xff}
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, register,
+                      0x00, 0x00, 0x00, 0x00, checksum >> 8, checksum & 0xff]
+        print(bytes(cmd_buffer))
 
         self.ser.write(cmd_buffer)
 
     # turns on the attidude and sensor nmea sentences to 1Hz
     def enable_nmea(self, register):
-        checksum = ord('s') + ord('n') + ord('p') + register + 0x80 + 0x01
+        checksum = ord('s') + ord('n') + ord('p') + register + 0x80 + 0x11
 
-        cmd_buffer = {ord('s'), ord('n'), ord('p'), 0x80, register,
-                      0, 0x11, 0, 0, checksum >> 8, checksum & 0xff}
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, register,
+                      0, 0x11, 0, 0, checksum >> 8, checksum & 0xff]
 
         self.ser.write(cmd_buffer)
 
