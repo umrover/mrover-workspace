@@ -184,6 +184,7 @@ kineval.initlcmbridge = function initlcmbridge() {
                 }
                 else if (msg['message']['message'] === 'No IK solution') {
                     target_geom.color = 0xff3300
+                    window.alert("No IK solution found. Please try a different configuration.")
                 }
                 else if (msg['message']['message'].includes("Planned path")) {
                     shouldPreview = window.confirm("Planned Path. View Path?");
@@ -204,6 +205,13 @@ kineval.initlcmbridge = function initlcmbridge() {
                             'preview': false,
                         }
                         kineval.publish('/motion_execute', MotionPreviewMsg)
+                    }
+                    else {
+                        var IKenabled = {
+                            'type': 'IkEnabled',
+                            'enabled': false,
+                        }
+                        kineval.publish('/ik_enabled', IKenabled)
                     }
                 }
             

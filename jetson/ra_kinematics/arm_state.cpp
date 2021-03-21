@@ -113,7 +113,7 @@ Vector3d ArmState::get_joint_axis_world(string joint) {
     return joints.at(joint).joint_axis_world;
 }
 
-Matrix4d ArmState::get_joint_transform(string joint) {
+Matrix4d ArmState::get_joint_transform(string joint) const {
     return joints.at(joint).global_transform;
 }
 

@@ -137,7 +137,7 @@ public:
 
     map<string, double> get_joint_limits(string joint) const;
 
-    Matrix4d get_joint_transform(string joint);
+    Matrix4d get_joint_transform(string joint) const;
 
     void set_joint_transform(string joint, Matrix4d xform);
 

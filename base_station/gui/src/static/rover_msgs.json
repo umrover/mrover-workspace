@@ -866,6 +866,36 @@
             "enabled"
         ]
     ],
+    "TargetOrientation": [
+        [
+            "float",
+            "x"
+        ],
+        [
+            "float",
+            "y"
+        ],
+        [
+            "float",
+            "z"
+        ],
+        [
+            "float",
+            "alpha"
+        ],
+        [
+            "float",
+            "beta"
+        ],
+        [
+            "float",
+            "gamma"
+        ],
+        [
+            "boolean",
+            "use_orientation"
+        ]
+    ],
     "Waypoint": [
         [
             "boolean",
@@ -1012,6 +1042,7 @@
         "StartTest",
         "TalonConfig",
         "TargetAngles",
+        "TargetOrientation",
         "TargetList",
         "TargetPoint",
         "Temperature",

@@ -51,6 +51,7 @@
         viewing: {
           '/ammonia_cmd': false,
           '/arm_motors': false,
+          '/arm_position': false,
           '/arm_toggles_button_data': false,
           '/arm_toggles_toggle_data': false,
           '/auton': false,
@@ -61,6 +62,7 @@
           '/debugMessage': false,
           '/drive_control': false,
           '/encoder': false,
+          '/fk_transform': false,
           '/gimbal_control': false,
           '/gimbal_openloop_cmd': false,
           '/gps': false,
@@ -95,6 +97,7 @@
           '/sensors': false,
           '/set_demand': false,
           '/target_list': false,
+          '/target_orientation': false,
           '/temperature': false,
           '/tennis_ball': false,
           '/zed_gimbal_cmd': false,
@@ -103,6 +106,7 @@
         subscriptions: [
           {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
+          {'topic': '/arm_position', 'type': 'ArmPosition'},
           {'topic': '/arm_toggles_toggle_data', 'type': 'ArmToggles'},
           {'topic': '/ik_ra_control', 'type': 'ArmPosition'},
           {'topic': '/auton', 'type': 'AutonState'},
@@ -111,6 +115,7 @@
           {'topic': '/debugMessage', 'type': 'DebugMessage'},
           {'topic': '/drive_vel_cmd', 'type': 'DriveVelCmd'},
           {'topic': '/encoder', 'type': 'Encoder'},
+          {'topic': '/fk_transform', 'type': 'FKTransfo'}
           {'topic': '/gimbal_control', 'type': 'Keyboard'},
           {'topic': '/gimbal_openloop_cmd', 'type': 'GimbalCmd'},
           {'topic': '/hand_openloop_cmd', 'type': 'HandCmd'},
@@ -142,6 +147,7 @@
           {'topic': '/sa_pidconfig_cmd', 'type': 'PIDConstants'},
           {'topic': '/sa_zero_trigger', 'type': 'Signal'},
           {'topic': '/target_list', 'type': 'TargetList'},
+          {'topic': '/target_orientation', 'type': 'TargetOrientation'},
           {'topic': '/temperature', 'type': 'Temperature'},
           {'topic': '/tennis_ball', 'type': 'TennisBall'},
           {'topic': '/imu', 'type': 'IMU'},
