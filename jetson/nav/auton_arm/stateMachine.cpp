@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <map>
 #include "rover_msgs/TargetPositionList.hpp"
+#include "rover_msgs/TargetOrientation.hpp"
 
 // Constructs an AutonArmStateMachine object with the input lcm object.
 // Reads the configuartion file and constructs a Rover objet with this
@@ -201,7 +202,13 @@ AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     // send coordinates
     cout << "executeSendCoordinates" << endl;
 
-    mLcmObject.publish("/target_position", &currentPosition);   // TODO replace with correct channel
+    TargetOrientation orientation;
+    orientation.x = currentPosition.x;
+    orientation.y = currentPosition.y;
+    orientation.z = currentPosition.z;
+    orientation.use_orientation = false;
+
+    mLcmObject.publish("/target_orientation", &orientation);
     cout << "Sent target position\n";
     
     return AutonArmState::Done;
