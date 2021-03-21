@@ -3,6 +3,7 @@
 #include "motion_planner.hpp"
 #include "kinematics.hpp"
 #include "spline.h"
+#include "utils.hpp"
 #include "rover_msgs/ArmPosition.hpp"
 #include "rover_msgs/MotionExecute.hpp"
 #include "rover_msgs/FKTransform.hpp"
@@ -13,6 +14,9 @@
 
 using namespace std;
 using namespace Eigen;
+using nlohmann::json;
+
+#define PRESET_FILE "/vagrant/config/kinematics/mrover_arm_presets.json"
 
 MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     done_previewing(false),
@@ -213,6 +217,39 @@ void MRoverArm::preview() {
 
     // update state based on new angles
     solver.FK(state);
+}
+
+void MRoverArm::preset_execute_callback(string channel, PresetAngles msg) {
+    cout << "running preset_execute_callback\n";
+    cout << "requested preset: " << msg.preset << "\n";
+
+    json presets;
+
+    // read preset angles from json
+    try {
+        presets = read_json_from_file(PRESET_FILE)[msg.preset];
+    }
+    catch (json::exception& e) {
+        cout << "Could not read " << msg.preset << " from json: " PRESET_FILE << "\n";
+        cout << "message: " << e.what() << "\n";
+        return;
+    }
+
+    // convert to Vector6d
+    Vector6d target;
+    size_t i = 0;
+    for (double angle : presets) {
+        target[i++] = angle;
+    }
+
+    cout << "Found presets:\n" << target << "\n";
+
+    plan_path(target);
+
+    cout << "Path planned!\n";
+
+    enable_execute = false;
+    preview();
 }
 
 void MRoverArm::publish_transforms(const ArmState& pub_state) {

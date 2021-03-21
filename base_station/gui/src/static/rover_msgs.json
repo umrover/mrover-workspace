@@ -510,6 +510,12 @@
             "width"
         ]
     ],
+    "PresetAngles": [
+        [
+            "string",
+            "preset"
+        ]
+    ],
     "ProximitySensors": [
         [
             "boolean",
@@ -1020,6 +1026,7 @@
         "PIDConstants",
         "PiPicture",
         "PiSettings",
+        "PresetAngles",
         "ProximitySensors",
         "RGB",
         "RGBFrame",

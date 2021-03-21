@@ -32,6 +32,14 @@ public:
         arm->motion_execute_callback( channel, *m_execute );
     }
 
+    void executePresetCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const PresetAngles* p_execute
+        )
+    {
+        arm->preset_execute_callback( channel, *p_execute );
+      
     void armPositionCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const string& channel,
@@ -81,6 +89,7 @@ int main() {
 
     lcmObject.subscribe( "/arm_position", &lcmHandlers::armPositionCallback, &handler );
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
+    lcmObject.subscribe( "/preset_angles" , &lcmHandlers::executePresetCallback, &handler );
     lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
     lcmObject.subscribe( "/ik_enabled", &lcmHandlers::ikEnabledCallback, &handler );
     lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
