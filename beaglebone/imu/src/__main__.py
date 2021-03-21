@@ -44,26 +44,27 @@ class IMU_Manager():
         # mag data is unit-nrom (unitless)
         try:
             arr = msg.split(",")
+            print(arr)
             packetType = arr[1]
-            if (packetType == 0):
+            if (packetType == '0'):
                 imu_struct.gyro_x_dps = float(arr[3])
                 imu_struct.gyro_y_dps = float(arr[4])
                 imu_struct.gyro_z_dps = float(arr[5])
-
                 bearing = -(math.atan2(arr[4], arr[3]) * (180.0 / math.pi))
                 if(bearing < 0):
                     bearing += 360
                 imu_struct.bearing_deg = bearing
-            elif (packetType == 1):
+            elif (packetType == '1'):
                 imu_struct.accel_x_g = float(arr[3])
                 imu_struct.accel_y_g = float(arr[4])
                 imu_struct.accel_z_g = float(arr[5])
-            elif (packetType == 2):
+            elif (packetType == '2'):
                 imu_struct.mag_x_uT = float(arr[3])
                 imu_struct.mag_y_uT = float(arr[4])
                 imu_struct.mag_z_uT = float(arr[5])
             else:
                 # this shouldnt happen
+                print("Passed")
                 pass
         # fill with zeroes if something goes wrong.
         except:
@@ -87,9 +88,10 @@ class IMU_Manager():
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
             imu_struct.yaw_rad = float(arr[4]) * pi / 180
             # heading not bearing
-            imu_struct.bearing_deg = float(arr[5])
+            imu_struct.bearing_deg = 0
         # fill with zeroes if something goes wrong
         except:
+            print("somthing went wrong the other one")
             imu_struct.roll_rad = 0
             imu_struct.pitch_rad = 0
             imu_struct.yaw_rad = 0
@@ -158,7 +160,7 @@ class IMU_Manager():
                       0x00, 0x00, 0x00, 0x00, checksum >> 8, checksum & 0xff]
         print(bytes(cmd_buffer))
 
-        self.ser.write(bytes(cmd_buffer))
+        self.ser.write(cmd_buffer)
 
     # turns on the attidude and sensor nmea sentences to 1Hz
     def enable_nmea(self, register):
@@ -167,7 +169,7 @@ class IMU_Manager():
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, register,
                       0, 0x11, 0, 0, checksum >> 8, checksum & 0xff]
 
-        self.ser.write(bytes(cmd_buffer))
+        self.ser.write(cmd_buffer)
 
 # end of class
 
