@@ -287,7 +287,7 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson:
 // Executes the logic for turning to the target.
 // Starts by turnign the gimbal towards the target. Then holds for 200 cycles to confirm aquisition
 // If the rover loses the target, will continue to turn using last known angles.
-// Once target location confirmed, rover turns towards the target, then rights its gimbal
+// Once target location confirmed, rover turns towards the target, then re-centers its gimbal
 // If the rover finishes turning to the target, it goes into waiting state to
 // give CV time to relocate the target
 // Else the rover continues to turn to to the target.
@@ -298,13 +298,15 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe, const rapidjson
 
     static bool firstTime = true;
     
-    //if we are not using a gimbal, just skip all gimbal states and immeaditly turn to target, only needs to run once
+    //if we are not using a gimbal, just skip all gimbal states and immediately turn to target, only needs to run once
     if ( !roverConfig[ "search" ][ "useGimbal" ].GetBool() && firstTime){
         turnToTargetStage = 5;
         firstTime = false;
         bearingAngle = phoebe->roverStatus().leftTarget().bearing + phoebe->roverStatus().odometry().bearing_deg;
     }
     
+    //if we lose the target and we are not in a state where this is expected (re-centering gimbal, turning to target (gimbal might go off))
+    //then notify loss of target, reset static vars, and turn back to last known angle on the search path
     if( phoebe->roverStatus().leftTarget().distance < 0  && turnToTargetStage != 2 && turnToTargetStage != 3)
     {
         cerr << "Lost the target. Continuing to turn to last known angle\n";
@@ -318,6 +320,8 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe, const rapidjson
         return NavState::TurnToTarget;
     }
    
+    
+    //first step (with gimbal): turn gimbal to the target with a margin of error of 10 degrees
     if ( turnToTargetStage == 0 ){
        
         if ( abs( phoebe->roverStatus().leftTarget().bearing - phoebe->gimbal().getYaw() ) > 10 )
@@ -329,8 +333,8 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe, const rapidjson
             ++turnToTargetStage;
         }
     }
+    //wait "searchWaitTime" seconds to confirm target aquisition, if we don't have a gimbal send to finishing state otherwise just advance
     else if ( turnToTargetStage == 1 ){
-        //wait 1 second to confirm target aquisition
         static bool timeStarted = false;
         static int startTime = time( nullptr );
         if (!timeStarted){
@@ -348,26 +352,30 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe, const rapidjson
             ++turnToTargetStage;
         }
     }
-    else if (turnToTargetStage == 2){
+    //turn the rover to face the target (its ok to lose the target here since the gimbal will face away for some time)
+    else if ( turnToTargetStage == 2 ){
         
         if( phoebe->turn( bearingAngle ) )
         {   
             ++turnToTargetStage;
         }
     }
-    else if (turnToTargetStage == 3){
+    //set the gimbal back to 0 degrees so it is facing the direction of rover travel (it is also ok to lose the target here since it may start facing away from target)
+    else if ( turnToTargetStage == 3 ){
         if ( phoebe->gimbal().setDesiredGimbalYaw( 0 ) )
         {
             ++turnToTargetStage;
         }
     }
-    else if (turnToTargetStage == 4){
+    //reset static vars and change state to drive towards target
+    else if ( turnToTargetStage == 4 ){
         turnToTargetStage = 0;
         bearingAngle = 0;
         firstTime = true;
         return NavState::DriveToTarget;
     }
-    else if (turnToTargetStage == 5){
+    //if we don't have a gimbal, simply turn the rover to target and then switch to waiting state to confirm
+    else if ( turnToTargetStage == 5 ){
         if( phoebe->turn( bearingAngle ) )
         {   
             turnToTargetStage = 1;
