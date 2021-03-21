@@ -131,7 +131,7 @@ class IMU_Manager():
                                     seen_tags[tag] = True
                                 if(tag == "PCHRA"):
                                     func(msg, imu)
-                                    lcm.publish('imu_data', imu.encode())
+                                    lcm.publish('/imu_data', imu.encode())
                                     seen_tags[tag] = True
                             except Exception as e:
                                 print(e)
