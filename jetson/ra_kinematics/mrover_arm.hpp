@@ -18,6 +18,7 @@
 #include "rover_msgs/IkArmControl.hpp"
 #include "rover_msgs/TargetAngles.hpp"
 #include "rover_msgs/LockJointE.hpp"
+#include "rover_msgs/IkEnabled.hpp"
  
 using namespace rover_msgs;
  
@@ -81,6 +82,10 @@ public:
      * @param msg format: bool preview
      * */
     void motion_execute_callback(string channel, MotionExecute msg);
+    
+    void ik_enabled_callback(string channel, IkEnabled msg);
+    
+    void simulation_mode_callback(string channel, SimulationMode msg);
 
     /**
      * Asynchronous function, when enable_execute is set to true:
@@ -92,11 +97,8 @@ public:
 
     void lock_e_callback(string channel, LockJointE msg);
 
-    void k_enabled_callback(string channel, IkEnabled msg);
-
     void target_angles_callback(string channel, TargetAngles msg);
 
-    void simulation_mode_callback(string channel, SimulationMode msg);
 
     void cartesian_control_callback(string channel, IkArmControl msg);
 

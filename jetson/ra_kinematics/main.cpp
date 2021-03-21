@@ -41,6 +41,24 @@ public:
         arm->arm_position_callback( channel, *arm_pos );
     }
 
+    void ikEnabledCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const IkEnabled* enable
+    )
+    {
+        arm->ik_enabled_callback( channel, *enable );
+    }
+
+    void simModeCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const SimulationMode* sim_mode
+    )
+    {
+        arm->simulation_mode_callback( channel, *sim_mode );
+    }
+
 private:
     MRoverArm* arm;
 };
@@ -64,6 +82,8 @@ int main() {
     lcmObject.subscribe( "/arm_position", &lcmHandlers::armPositionCallback, &handler );
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
     lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
+    lcmObject.subscribe( "/ik_enabled", &lcmHandlers::ikEnabledCallback, &handler );
+    lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
     
     thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
 

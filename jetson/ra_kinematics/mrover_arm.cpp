@@ -78,6 +78,13 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
 
     if(!ik_solution.second) {
         cout << "NO IK SOLUTION FOUND, please try a different configuration.\n";
+
+        DebugMessage msg;
+        msg.isError = false;
+        msg.message = "No IK solution";
+        
+        // send popup message to GUI
+        lcm_.publish("/debugMessage", &msg);
         return;
     }
 
@@ -134,6 +141,7 @@ void MRoverArm::execute_spline() {
             if (spline_t > 1) {
                 enable_execute = false;
                 spline_t = 0.0;
+                ik_enabled = false;
             }
 
             this_thread::sleep_for(chrono::milliseconds(10));
@@ -165,6 +173,7 @@ void MRoverArm::matrix_helper(double arr[4][4], const Matrix4d &mat) {
  
 void MRoverArm::preview() {
     cout << "Previewing" << endl;
+    ik_enabled = true;
 
     // backup angles
     vector<double> backup;
@@ -222,8 +231,12 @@ void MRoverArm::lock_e_callback(string channel, LockJointE msg) {
        cout << "joint e locked" << endl;
     //    solver.lock_joint_e(msg.locked); //no function lock_joint_e in kinematics.cpp
 }
-void MRoverArm::k_enabled_callback(string channel, IkEnabled msg) {  
-       ik_enabled = msg.enabled;
+void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {  
+    ik_enabled = msg.enabled;
+
+    if (!ik_enabled) {
+        publish_transforms(state);
+    }
 }
  
 
@@ -262,12 +275,10 @@ void MRoverArm::plan_path(Vector6d goal) {
     }
 }
  
-// void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg) {
-//    SimulationMode simulation_mode_msg = msg;
- 
-// //    bool sim_mode = simulation_mode_msg.sim_mode;
-//    publish_transforms(state);
-// }
+void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg) {
+    sim_mode = msg.sim_mode;
+    // publish_transforms(state);
+}
  
 // void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {
 //    if(enable_execute) {
