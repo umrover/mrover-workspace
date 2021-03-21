@@ -152,7 +152,7 @@ class IMU_Manager():
         cmd_buffer = {ord('s'), ord('n'), ord('p'), 0x80, register,
                       0x00, 0x00, 0x00, 0x00, checksum >> 8, checksum & 0xff}
 
-        self.ser.write(bytes(cmd_buffer))
+        self.ser.write(cmd_buffer)
 
     # turns on the attidude and sensor nmea sentences to 1Hz
     def enable_nmea(self, register):
@@ -161,7 +161,7 @@ class IMU_Manager():
         cmd_buffer = {ord('s'), ord('n'), ord('p'), 0x80, register,
                       0, 0x11, 0, 0, checksum >> 8, checksum & 0xff}
 
-        self.ser.write(bytes(cmd_buffer))
+        self.ser.write(cmd_buffer)
 
 # end of class
 
