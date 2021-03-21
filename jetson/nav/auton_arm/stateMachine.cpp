@@ -147,12 +147,14 @@ AutonArmState AutonArmStateMachine::executeWaitingForTag() {
         return AutonArmState::WaitingForTag;
     }
 
-    cout << "Tag received" << endl;
+    cout << "Target recognized" << endl;
     isTagReceived = false;
     return AutonArmState::EvaluateTag;
 } // executeWaitingForTag()
 
 AutonArmState AutonArmStateMachine::executeEvaluateTag() {
+    cout << "Evaluating target" << endl;
+
     // Check if tag matches correct tag
     TargetPositionList &receivedList = mNewRoverStatus.targetList();
 
@@ -180,15 +182,13 @@ AutonArmState AutonArmStateMachine::executeEvaluateTag() {
 
     cout << "Number of correct tags is: " << correctTags << endl;
     // Else wait for another tag list
-    cout << "Waiting for another tag" << endl;
+    cout << "Waiting for another target" << endl;
     
     start = chrono::system_clock::now();
     return AutonArmState::PauseTag;
 } // executeEvaluateTag()
 
 AutonArmState AutonArmStateMachine::executePauseTag() {
-    cout << "Waiting...\n";
-    
     chrono::system_clock::time_point current = chrono::system_clock::now();
     if ( current-start >= DELAY ) {
         cout << "Done waiting\n";
@@ -201,7 +201,7 @@ AutonArmState AutonArmStateMachine::executeSendCoordinates() {
     // send coordinates
     cout << "executeSendCoordinates" << endl;
 
-    mLcmObject.publish("/target_position", &currentPosition);   //replace with correct channel
+    mLcmObject.publish("/target_position", &currentPosition);   // TODO replace with correct channel
     cout << "Sent target position\n";
     
     return AutonArmState::Done;

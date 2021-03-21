@@ -47,6 +47,19 @@ private:
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
+    
+    // Number of correct tags needed in a row to proceed
+    static const int CORRECT_TAGS_NEEDED = 3;
+
+    // ID of correct tag 
+    static const int32_t CORRECT_TAG_ID = -1; // TODO change to actual correct tag ID   
+
+    // Delay time between tag evaluations 
+    chrono::duration<double, milli> DELAY = chrono::milliseconds(50); // TODO modify if needed
+
+    // Margin of error between each field (x,y,z) of 2 consecutive TargetPosition coordinates
+    const double MARGIN_OF_ERROR = 0.5; // TODO change to desired margin of error
+
     // Rover object to do basic rover operations in the state machine.
     Rover* mPhoebe;
 
@@ -70,19 +83,6 @@ private:
 
     // Start time for pause timer
     chrono::system_clock::time_point start; 
-
-    // Number of correct tags needed in a row to proceed
-    static const int CORRECT_TAGS_NEEDED = 3;
-
-    // ID of correct tag 
-    static const int32_t CORRECT_TAG_ID = -1;
-
-    // Delay time between tag evaluations 
-    chrono::duration<double, milli> DELAY = chrono::milliseconds(5000);
-    //chrono::seconds::count x = 1;
-
-    // Margin of error between each field (x,y,z) of 2 consecutive TargetPosition coordinates
-    const double MARGIN_OF_ERROR = 5;
 };
 
 #endif
