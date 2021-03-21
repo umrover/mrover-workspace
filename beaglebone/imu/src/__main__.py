@@ -176,7 +176,7 @@ def main():
 
     with IMU_Manager() as manager:
         # turns off registers that are outputting non-NMEA data
-        l = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}
+        l = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]
         for reg in l:
             manager.turnOffRegister(reg)
 
