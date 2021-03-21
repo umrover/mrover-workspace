@@ -49,7 +49,7 @@ public:
 
     void updateRepeaterComplete( );
 
-    void setSearcher(SearchType type);
+    void setSearcher(SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
 
     /*************************************************************************/
     /* Public Member Variables */
@@ -97,7 +97,7 @@ private:
     /* Private Member Variables */
     /*************************************************************************/
     // Rover object to do basic rover operations in the state machine.
-    Rover* mPhoebe;
+    Rover* mRover;
 
     // RoverStatus object for updating the rover's status.
     Rover::RoverStatus mNewRoverStatus;
