@@ -300,7 +300,7 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe, const rapidjson
     
     //if we are not using a gimbal, just skip all gimbal states and immeaditly turn to target, only needs to run once
     if ( !roverConfig[ "search" ][ "useGimbal" ].GetBool() && firstTime){
-        turnToTargetStage = 2;
+        turnToTargetStage = 5;
         firstTime = false;
         bearingAngle = phoebe->roverStatus().leftTarget().bearing + phoebe->roverStatus().odometry().bearing_deg;
     }
@@ -341,6 +341,10 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe, const rapidjson
         double waitTime = roverConfig[ "search" ][ "searchWaitTime" ].GetDouble();
         if ( difftime( time( nullptr ), startTime ) > waitTime ){
             timeStarted = false;
+            if ( !roverConfig["search"]["useGimbal"].GetBool() )
+            {
+                turnToTargetStage = 4;
+            }
             ++turnToTargetStage;
         }
     }
@@ -349,10 +353,6 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe, const rapidjson
         if( phoebe->turn( bearingAngle ) )
         {   
             ++turnToTargetStage;
-            //if no gimbal skip gimbal righting step.
-            if ( !roverConfig[ "search" ][ "useGimbal" ].GetBool() ){
-                ++turnToTargetStage;
-            }
         }
     }
     else if (turnToTargetStage == 3){
@@ -367,6 +367,13 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe, const rapidjson
         firstTime = true;
         return NavState::DriveToTarget;
     }
+    else if (turnToTargetStage == 5){
+        if( phoebe->turn( bearingAngle ) )
+        {   
+            turnToTargetStage = 1;
+        }
+    }
+
     updateTargetDetectionElements( phoebe->roverStatus().leftTarget().bearing,
                                        phoebe->roverStatus().odometry().bearing_deg );
     //publish gimbal lcm command
