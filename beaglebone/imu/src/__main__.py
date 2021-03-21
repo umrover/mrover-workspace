@@ -130,7 +130,7 @@ class IMU_Manager():
                                     lcm.publish('/imu_data', imu.encode())
                                     seen_tags[tag] = True
                                 if(tag == "PCHRA"):
-                                    fun(msg, imu)
+                                    func(msg, imu)
                                     lcm.publish('imu_data', imu.encode())
                                     seen_tags[tag] = True
                             except Exception as e:
