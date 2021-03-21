@@ -50,10 +50,6 @@ class IMU_Manager():
                 imu_struct.gyro_x_dps = float(arr[3])
                 imu_struct.gyro_y_dps = float(arr[4])
                 imu_struct.gyro_z_dps = float(arr[5])
-                bearing = -(math.atan2(arr[4], arr[3]) * (180.0 / math.pi))
-                if(bearing < 0):
-                    bearing += 360
-                imu_struct.bearing_deg = bearing
             elif (packetType == '1'):
                 imu_struct.accel_x_g = float(arr[3])
                 imu_struct.accel_y_g = float(arr[4])
@@ -62,6 +58,10 @@ class IMU_Manager():
                 imu_struct.mag_x_uT = float(arr[3])
                 imu_struct.mag_y_uT = float(arr[4])
                 imu_struct.mag_z_uT = float(arr[5])
+                bearing = -(math.atan2(float(arr[4]), float(arr[3])) * (180.0 / math.pi))
+                if(bearing < 0):
+                    bearing += 360
+                imu_struct.bearing_deg = bearing
             else:
                 # this shouldnt happen
                 print("Passed")
@@ -72,12 +72,12 @@ class IMU_Manager():
             imu_struct.gyro_x_dps = 0
             imu_struct.gyro_y_dps = 0
             imu_struct.gyro_z_dps = 0
-            imu_struct.accel_x_dps = 0
-            imu_struct.accel_y_dps = 0
-            imu_struct.accel_z_dps = 0
-            imu_struct.mag_x_dps = 0
-            imu_struct.mag_y_dps = 0
-            imu_struct.mag_z_dps = 0
+            imu_struct.accel_x_g = 0
+            imu_struct.accel_y_g = 0
+            imu_struct.accel_z_g = 0
+            imu_struct.mag_x_uT = 0
+            imu_struct.mag_y_uT = 0
+            imu_struct.mag_z_uT = 0
 
     def pchra_handler(self, msg, imu_struct):
         pi = 3.14159265359
@@ -87,15 +87,12 @@ class IMU_Manager():
             imu_struct.roll_rad = float(arr[2]) * pi / 180
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
             imu_struct.yaw_rad = float(arr[4]) * pi / 180
-            # heading not bearing
-            imu_struct.bearing_deg = 0
         # fill with zeroes if something goes wrong
         except:
             print("somthing went wrong the other one")
             imu_struct.roll_rad = 0
             imu_struct.pitch_rad = 0
             imu_struct.yaw_rad = 0
-            imu_struct.bearing_deg = 0
 
     async def recieve(self, lcm):
             '''
@@ -171,15 +168,42 @@ class IMU_Manager():
 
         self.ser.write(cmd_buffer)
 
+    def get_calibration_val(self, register):
+        checksum = ord('s') + ord('n') + ord('p') + register + 0x08
+
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, register, 
+                      checksum >> 8, checksum & 0xff]
+
+        self.ser.write(cmd_buffer)
+
+        recieved = self.ser.readline()
+        #recieved[]
+
+    def zero_gyros(self):
+        checksum = ord('s') + ord('n') + ord('p') + 0xAD + 0x80
+
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, 0xAD,
+                      checksum >> 8, checksum & 0xff]
+
+        self.ser.write(cmd_buffer)
+
+    def calibrate_accelerometers(self):
+        checksum = ord('s') + ord('n') + ord('p') + 0xB1 + 0x80
+
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, 0xB1,
+                      checksum >> 8, checksum & 0xff]
+
+        self.ser.write(cmd_buffer)
 # end of class
 
 
 def main():
-
     # Uses a context manager to ensure serial port released
     NMEA_RATE_REG = 0x07
 
     with IMU_Manager() as manager:
+        manager.calibrate_accelerometers()
+        manager.zero_gyros()
         # turns off registers that are outputting non-NMEA data
         l = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]
         for reg in l:
