@@ -1,9 +1,7 @@
 import Adafruit_BBIO.UART as UART
 import serial
-# import struct
-# import time
 import asyncio
-# from os import getenv
+import math
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import IMUData
@@ -52,7 +50,12 @@ class IMU_Manager():
                 imu_struct.gyro_x_dps = float(arr[3])
                 imu_struct.gyro_y_dps = float(arr[4])
                 imu_struct.gyro_z_dps = float(arr[5])
-            elif (packetType == '1'):
+
+                bearing = -(math.atan2(arr[4], arr[3]) * (180.0 / math.pi))
+                if(bearing < 0):
+                    bearing += 360
+                imu_struct.bearing_deg = bearing
+            elif (packetType == 1):
                 imu_struct.accel_x_g = float(arr[3])
                 imu_struct.accel_y_g = float(arr[4])
                 imu_struct.accel_z_g = float(arr[5])
