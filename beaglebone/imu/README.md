@@ -2,8 +2,8 @@ Code for the UM-7 IMU
 ----
 
 ### About
-The UM-7 is an integrated IMU and GPS unit. It supports direct register access as well as NMEA protocol through UART. It will run on the jetson or \
-a beaglebone. \
+The UM-7 is an integrated IMU and GPS unit. It supports direct register access as well as NMEA protocol through UART. It will 
+run on the jetson or a beaglebone. \
 [Datasheet](https://www.pololu.com/file/0J1556/UM7%20Datasheet_v1-8_30.07.2018.pdf)
 
 #### LCM Channels Publishing/Subscribed To
