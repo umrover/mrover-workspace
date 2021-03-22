@@ -17,11 +17,6 @@ Messages: [SpectralData.lcm](https://github.com/cgiger00/mrover-workspace/blob/s
 Publishers: jetson/science_bridge \
 Subscribers: base_station/gui
 
-**Spectral Command [subscriber]** \
-Messages: [SpectralCmd.lcm](https://github.com/cgiger00/mrover-workspace/blob/spectral/rover_msgs/SpectralCmd.lcm) "/spectral_cmd" \
-Publishers: base_station/gui \
-Subscribers: jetson/science_bridge
-
 ### Thermistor
 Reads three seperate temperatures from one NMEA-style sentence from the nucleo over UART.
 #### LCM Channels Publishing/Subscribed To
@@ -30,11 +25,9 @@ Messages: [ThermistorData.lcm](https://github.com/cgiger00/mrover-workspace/blob
 Publishers: jetson/science_bridge\
 Subscribers: jetson/teleop
 
-### Text
-TODO
-
 ### Mosfet
-Writes an NMEA like message over UART to the Nucleo in order to turn a specified mosfet device on or off.
+Writes an NMEA like message over UART to the Nucleo in order to turn a specified mosfet device on or off. \
+Controls the UV leds, white leds, peristaltic pumps, heaters, raman laser, repeater drop, and auton leds.
 #### LCM Channels Publishing/Subscribed To
 **Mosfet Command [subscriber]** \
 Messages: [MosfetCmd.lcm](https://github.com/cgiger00/mrover-workspace/blob/science-nucleo/rover_msgs/MosfetCmd.lcm) "/mosfet_cmd" \
@@ -57,7 +50,9 @@ Publishers: jetson/science_bridge\
 Subscribers: jetson/nav
 
 ### Ammonia
-TODO
+Writes NMEA like messages over UART to the Nucleo in order to run the ammonia test linear actuator forward/backwards at a given speed. 
+#### LCM Channels Publishing/Subscribed To 
+Messsages: [AmmoniaCmd.lcm](https://github.com/jnnanni/mrover-workspace/blob/sagui/rover_msgs/AmmoniaCmd.lcm) "/ammonia_cmd" \
+Publishers: base_station/gui \
+Subscribers: jetson/science_bridge
 
-### Pump
-TODO
