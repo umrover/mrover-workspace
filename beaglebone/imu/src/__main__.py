@@ -17,7 +17,7 @@ class IMU_Manager():
             "PCHRS": self.pchrs_handler,
             "PCHRA": self.pchra_handler
         }
-        self.sleep = 0.001
+        self.sleep = .01
 
     def __enter__(self):
 
@@ -105,10 +105,7 @@ class IMU_Manager():
             imu = IMUData()
             error_counter = 0
             # Mark TXT as always seen because they are not necessary
-            seen_tags = {tag: False if not tag == 'TXT' else True
-                         for tag in self.NMEA_TAGS_MAPPER.keys()}
             while True:
-                # Wait for all tags to be seen
                 try:
                     msg = str(self.ser.readline())
                     error_counter = 0
@@ -130,22 +127,18 @@ class IMU_Manager():
                                 print(msg)
                                 func(msg, imu)
                                 lcm.publish('/imu_data', imu.encode())
-                                seen_tags[tag] = True
                             if(tag == "PCHRA"):
                                 print(msg)
                                 func(msg, imu)
                                 lcm.publish('/imu_data', imu.encode())
-                                seen_tags[tag] = True
                         except Exception as e:
                             print(e)
-                        break
+                            break
 
                     if not match_found:
                         if not msg:
                             print('Error decoding message stream: {}'.format(msg))
 
-                seen_tags = {tag: False if not tag == 'TXT' else True
-                             for tag in self.NMEA_TAGS_MAPPER.keys()}
                 await asyncio.sleep(self.sleep)
 
     # turns off registers that are outputting non-NMEA data
@@ -160,10 +153,10 @@ class IMU_Manager():
 
     # turns on the attidude and sensor nmea sentences to 1Hz
     def enable_nmea(self, register):
-        checksum = ord('s') + ord('n') + ord('p') + register + 0x80 + 0xff
+        checksum = ord('s') + ord('n') + ord('p') + register + 0x80 + 0x11
 
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, register,
-                      0, 0xff, 0, 0, checksum >> 8, checksum & 0xff]
+                      0, 0x11, 0, 0, checksum >> 8, checksum & 0xff]
 
         self.ser.write(cmd_buffer)
 
