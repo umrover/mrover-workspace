@@ -17,7 +17,7 @@ class IMU_Manager():
             "PCHRS": self.pchrs_handler,
             "PCHRA": self.pchra_handler
         }
-        self.sleep = 1
+        self.sleep = .01
 
     def __enter__(self):
 
@@ -87,7 +87,7 @@ class IMU_Manager():
             imu_struct.roll_rad = float(arr[2]) * pi / 180
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
             imu_struct.yaw_rad = float(arr[4]) * pi / 180
-        # fill with zeroes if something goes wrong
+            # fill with zeroes if something goes wrong
         except:
             print("somthing went wrong the other one")
             imu_struct.roll_rad = 0
@@ -105,48 +105,40 @@ class IMU_Manager():
             imu = IMUData()
             error_counter = 0
             # Mark TXT as always seen because they are not necessary
-            seen_tags = {tag: False if not tag == 'TXT' else True
-                         for tag in self.NMEA_TAGS_MAPPER.keys()}
             while True:
-                # Wait for all tags to be seen
-                while (not all(seen_tags.values())):
-                    try:
-                        msg = str(self.ser.readline())
-                        error_counter = 0
-                    except Exception as e:
-                        if error_counter < self.max_error_count:
-                            error_counter += 1
-                            print(e)
-                            await asyncio.sleep(self.sleep)
-                            continue
-                        else:
-                            raise e
+                try:
+                    msg = str(self.ser.readline())
+                    error_counter = 0
+                except Exception as e:
+                    if error_counter < self.max_error_count:
+                        error_counter += 1
+                        print(e)
+                        await asyncio.sleep(self.sleep)
+                        continue
+                    else:
+                        raise e
 
-                    match_found = False
-                    for tag, func in self.NMEA_TAGS_MAPPER.items():
-                        if tag in msg:
-                            match_found = True
-                            try:
-                                if(tag == "PCHRS"):
-                                    print(msg)
-                                    func(msg, imu)
-                                    lcm.publish('/imu_data', imu.encode())
-                                    seen_tags[tag] = True
-                                if(tag == "PCHRA"):
-                                    print(msg)
-                                    func(msg, imu)
-                                    lcm.publish('/imu_data', imu.encode())
-                                    seen_tags[tag] = True
-                            except Exception as e:
-                                print(e)
+                match_found = False
+                for tag, func in self.NMEA_TAGS_MAPPER.items():
+                    if tag in msg:
+                        match_found = True
+                        try:
+                            if(tag == "PCHRS"):
+                                print(msg)
+                                func(msg, imu)
+                                lcm.publish('/imu_data', imu.encode())
+                            if(tag == "PCHRA"):
+                                print(msg)
+                                func(msg, imu)
+                                lcm.publish('/imu_data', imu.encode())
+                        except Exception as e:
+                            print(e)
                             break
 
                     if not match_found:
                         if not msg:
                             print('Error decoding message stream: {}'.format(msg))
 
-                seen_tags = {tag: False if not tag == 'TXT' else True
-                             for tag in self.NMEA_TAGS_MAPPER.keys()}
                 await asyncio.sleep(self.sleep)
 
     # turns off registers that are outputting non-NMEA data
@@ -168,32 +160,18 @@ class IMU_Manager():
 
         self.ser.write(cmd_buffer)
 
-    def get_calibration_val(self, register):
-        checksum = ord('s') + ord('n') + ord('p') + register + 0x08
+    def calibrate(self):
+        registers = [0xAD, 0xB0, 0xB1]
+        PTs = [0x80, 0x80, 0x80]
 
-        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, register, 
-                      checksum >> 8, checksum & 0xff]
+        for i in range(0, 3):
+            checksum = ord('s') + ord('n') + ord('p') + registers[i] + PTs[i]
 
-        self.ser.write(cmd_buffer)
+            cmd_buffer = [ord('s'), ord('n'), ord('p'), PTs[i], registers[i],
+                          checksum >> 8, checksum & 0xff]
 
-        recieved = self.ser.readline()
-        #recieved[]
+            self.ser.write(cmd_buffer)
 
-    def zero_gyros(self):
-        checksum = ord('s') + ord('n') + ord('p') + 0xAD + 0x80
-
-        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, 0xAD,
-                      checksum >> 8, checksum & 0xff]
-
-        self.ser.write(cmd_buffer)
-
-    def calibrate_accelerometers(self):
-        checksum = ord('s') + ord('n') + ord('p') + 0xB1 + 0x80
-
-        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, 0xB1,
-                      checksum >> 8, checksum & 0xff]
-
-        self.ser.write(cmd_buffer)
 # end of class
 
 
@@ -202,14 +180,13 @@ def main():
     NMEA_RATE_REG = 0x07
 
     with IMU_Manager() as manager:
-        manager.calibrate_accelerometers()
-        manager.zero_gyros()
         # turns off registers that are outputting non-NMEA data
         l = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]
         for reg in l:
             manager.turnOffRegister(reg)
 
         manager.enable_nmea(NMEA_RATE_REG)
+        # manager.calibrate()
 
         lcm = aiolcm.AsyncLCM()
 

@@ -12,14 +12,14 @@ enum class ObstacleAvoidanceAlgorithm
     SimpleAvoidance
 };
 
-// This class is the base class for the logic of the obstacle avoidance state machine
+// This class is the base class for the logic of the obstacle avoidance state machine 
 class ObstacleAvoidanceStateMachine 
 {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    ObstacleAvoidanceStateMachine( StateMachine* stateMachine_ );
+    ObstacleAvoidanceStateMachine( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig );
 
     virtual ~ObstacleAvoidanceStateMachine() {}
 
@@ -29,15 +29,15 @@ public:
 
     void updateObstacleElements( double bearing, double distance );  
 
-    NavState run( Rover* phoebe, const rapidjson::Document& roverConfig );
+    NavState run();
 
-    bool isTargetDetected( Rover* phoebe );
+    bool isTargetDetected();
 
-    virtual Odometry createAvoidancePoint( Rover* phoebe, const double distance ) = 0;
+    virtual Odometry createAvoidancePoint( Rover* rover, const double distance ) = 0;
 
-    virtual NavState executeTurnAroundObs( Rover* phoebe, const rapidjson::Document& roverConfig ) = 0;
+    virtual NavState executeTurnAroundObs( Rover* rover, const rapidjson::Document& roverConfig ) = 0;
 
-    virtual NavState executeDriveAroundObs( Rover* phoebe ) = 0;
+    virtual NavState executeDriveAroundObs( Rover* rover ) = 0;
 
 protected:
     /*************************************************************************/
@@ -61,12 +61,24 @@ protected:
 
     // Last obstacle angle for consecutive angles
     double mLastObstacleAngle;
+
+    // Pointer to rover object
+    Rover* mRover;
+
+private:
+    /*************************************************************************/
+    /* Private Member Variables */
+    /*************************************************************************/
+
+    // Reference to config variables
+    const rapidjson::Document& mRoverConfig;
+
 };
 
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle 
 // avoidance algorithm. This allows for an an ease of transition between obstacle 
 // avoidance algorithms
 ObstacleAvoidanceStateMachine* ObstacleAvoiderFactory( StateMachine* roverStateMachine,
-                                                       ObstacleAvoidanceAlgorithm algorithm );
+                                                       ObstacleAvoidanceAlgorithm algorithm, Rover* rover, const rapidjson::Document& roverConfig );
 
 #endif //OBSTACLE_AVOIDANCE_STATE_MACHINE_HPP

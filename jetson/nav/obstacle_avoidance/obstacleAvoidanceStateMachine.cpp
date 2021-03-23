@@ -6,10 +6,12 @@
 #include <cmath>
 #include <iostream>
 
-// Constructs an ObstacleAvoidanceStateMachine object with roverStateMachine
-ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine( StateMachine* stateMachine_)
-    : roverStateMachine( stateMachine_ ),
-      mJustDetectedObstacle( false ) {}
+// Constructs an ObstacleAvoidanceStateMachine object with roverStateMachine, mRoverConfig, and mRover
+ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig )
+    : roverStateMachine( stateMachine_ )
+    , mJustDetectedObstacle( false )
+    , mRover( rover ) 
+    , mRoverConfig( roverConfig ) {}
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
@@ -36,20 +38,20 @@ void ObstacleAvoidanceStateMachine::updateObstacleElements( double bearing, doub
 // Runs the avoidance state machine through one iteration. This will be called by StateMachine
 // when NavState is in an obstacle avoidance state. This will call the corresponding function based
 // on the current state and return the next NavState
-NavState ObstacleAvoidanceStateMachine::run( Rover* phoebe, const rapidjson::Document& roverConfig )
+NavState ObstacleAvoidanceStateMachine::run()
 {
-    switch ( phoebe->roverStatus().currentState() )
+    switch ( mRover->roverStatus().currentState() )
     {
         case NavState::TurnAroundObs:
         case NavState::SearchTurnAroundObs:
         {
-            return executeTurnAroundObs( phoebe, roverConfig );
+            return executeTurnAroundObs( mRover, mRoverConfig );
         }
 
         case NavState::DriveAroundObs:
         case NavState::SearchDriveAroundObs:
         {
-            return executeDriveAroundObs( phoebe );
+            return executeDriveAroundObs( mRover );
         }
 
         default:
@@ -61,27 +63,27 @@ NavState ObstacleAvoidanceStateMachine::run( Rover* phoebe, const rapidjson::Doc
 }
 
 // Checks that both rover is in search state and that target is detected
-bool ObstacleAvoidanceStateMachine::isTargetDetected ( Rover* phoebe )
+bool ObstacleAvoidanceStateMachine::isTargetDetected ()
 {
-    return ( phoebe->roverStatus().currentState() == NavState::SearchTurnAroundObs &&
-             phoebe->roverStatus().target().distance >= 0 );
+    return ( mRover->roverStatus().currentState() == NavState::SearchTurnAroundObs &&
+             mRover->roverStatus().target().distance >= 0 );
 }
 
 // The obstacle avoidance factory allows for the creation of obstacle avoidance objects and
 // an ease of transition between obstacle avoidance algorithms
 ObstacleAvoidanceStateMachine* ObstacleAvoiderFactory ( StateMachine* roverStateMachine,
-                                                        ObstacleAvoidanceAlgorithm algorithm )
+                                                        ObstacleAvoidanceAlgorithm algorithm, Rover* rover, const rapidjson::Document& roverConfig )
 {
     ObstacleAvoidanceStateMachine* avoid = nullptr;
     switch ( algorithm )
     {
         case ObstacleAvoidanceAlgorithm::SimpleAvoidance:
-            avoid = new SimpleAvoidance( roverStateMachine );
+            avoid = new SimpleAvoidance( roverStateMachine, rover, roverConfig );
             break;
 
         default:
             std::cerr << "Unkown Search Type. Defaulting to original\n";
-            avoid = new SimpleAvoidance( roverStateMachine );
+            avoid = new SimpleAvoidance( roverStateMachine, rover, roverConfig );
             break;
     } // switch
     return avoid;
