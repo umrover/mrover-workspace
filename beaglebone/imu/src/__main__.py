@@ -171,6 +171,7 @@ class IMU_Manager():
                           checksum >> 8, checksum & 0xff]
 
             self.ser.write(cmd_buffer)
+    
 
 # end of class
 
