@@ -115,7 +115,7 @@
           {'topic': '/debugMessage', 'type': 'DebugMessage'},
           {'topic': '/drive_vel_cmd', 'type': 'DriveVelCmd'},
           {'topic': '/encoder', 'type': 'Encoder'},
-          {'topic': '/fk_transform', 'type': 'FKTransfo'}
+          {'topic': '/fk_transform', 'type': 'FKTransform'},
           {'topic': '/gimbal_control', 'type': 'Keyboard'},
           {'topic': '/gimbal_openloop_cmd', 'type': 'GimbalCmd'},
           {'topic': '/hand_openloop_cmd', 'type': 'HandCmd'},
