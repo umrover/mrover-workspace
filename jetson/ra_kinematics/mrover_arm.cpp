@@ -19,16 +19,16 @@ using nlohmann::json;
 #define PRESET_FILE "/vagrant/config/kinematics/mrover_arm_presets.json"
 
 MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
+    state(geom),
+    motion_planner(state, solver),
+    lcm_(lcm),
     done_previewing(false),
     enable_execute(false),
     sim_mode(true),
-    ik_enabled(false),
-    state(geom),
-    lcm_(lcm),
-    motion_planner(state, solver)  { }
+    ik_enabled(false)  { }
 
 void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
-    // if previewing, don't update state
+    // if previewing, don't update state based on arm position
     if (ik_enabled && !enable_execute) {
         return;
     }
@@ -49,7 +49,6 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
 void MRoverArm::target_orientation_callback(string channel, TargetOrientation msg) {
     cout << "target orientation callback";
 
-    // don't update GUI to the current arm position (see execute_spline())
     enable_execute = false;
 
     cout << "alpha beta gamma\n";
@@ -80,6 +79,7 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
         ik_solution = solver.IK(state, point, true, use_orientation);
     }
 
+    // if no solution
     if(!ik_solution.second) {
         cout << "NO IK SOLUTION FOUND, please try a different configuration.\n";
 
@@ -277,15 +277,9 @@ void MRoverArm::lock_e_callback(string channel, LockJointE msg) {
 void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {  
     ik_enabled = msg.enabled;
 
-    cout << "received IK enabled message: \n";
-
     if (!ik_enabled) {
-        cout << "attempting to halt\n";
         enable_execute = false;
         publish_transforms(state);
-    }
-    else {
-        cout << "what is going on\n";
     }
 }
 

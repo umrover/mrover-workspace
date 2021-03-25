@@ -37,7 +37,6 @@ typedef Matrix<double, 6, 1> Vector6d;
 class MRoverArm {
  
 private:
-   json geom;
    ArmState state;
    KinematicsSolver solver;
    MotionPlanner motion_planner;
