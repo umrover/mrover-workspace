@@ -899,7 +899,7 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         }
 
         kineval.publish('/target_orientation', TargetOrientationMsg)
-        kineval.params.update_motion_plan = true; 
+        kineval.params.update_motion_plan = true;
         console.log("sent point")
         console.log(kineval.params.use_orientation)
     }
@@ -931,6 +931,14 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         kineval.publish('/motion_execute', MotionExecuteMsg)
     }
 
+    dummy_object.halt_motion = function() {
+        var IkEnabledMsg = {
+            'type': 'IkEnabled',
+            'enabled': false,
+        }
+        kineval.publish('/ik_enabled', IkEnabledMsg)
+    }
+
     // 1. send point
     // 2. preview 
     // 3. execute 
@@ -938,7 +946,8 @@ kineval.initGUIDisplay = function initGUIDisplay () {
     gui.add(dummy_object, 'target_angle_neutral');
     gui.add(dummy_object, 'target_angle_down');
     gui.add(dummy_object, 'preview_plan');
-    gui.add(dummy_object, 'execute_plan')
+    gui.add(dummy_object, 'execute_plan');
+    gui.add(dummy_object, 'halt_motion');
 
     
     var text = new angles();

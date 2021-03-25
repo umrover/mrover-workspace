@@ -813,6 +813,36 @@
             "f"
         ]
     ],
+    "TargetOrientation": [
+        [
+            "float",
+            "x"
+        ],
+        [
+            "float",
+            "y"
+        ],
+        [
+            "float",
+            "z"
+        ],
+        [
+            "float",
+            "alpha"
+        ],
+        [
+            "float",
+            "beta"
+        ],
+        [
+            "float",
+            "gamma"
+        ],
+        [
+            "boolean",
+            "use_orientation"
+        ]
+    ],
     "TargetPoint": [
         [
             "float",
@@ -864,36 +894,6 @@
         [
             "boolean",
             "enabled"
-        ]
-    ],
-    "TargetOrientation": [
-        [
-            "float",
-            "x"
-        ],
-        [
-            "float",
-            "y"
-        ],
-        [
-            "float",
-            "z"
-        ],
-        [
-            "float",
-            "alpha"
-        ],
-        [
-            "float",
-            "beta"
-        ],
-        [
-            "float",
-            "gamma"
-        ],
-        [
-            "boolean",
-            "use_orientation"
         ]
     ],
     "Waypoint": [

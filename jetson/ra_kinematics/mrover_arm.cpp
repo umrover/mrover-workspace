@@ -49,7 +49,7 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
 void MRoverArm::target_orientation_callback(string channel, TargetOrientation msg) {
     cout << "target orientation callback";
 
-    // don't update GUI if the arm moves (see execute_spline())
+    // don't update GUI to the current arm position (see execute_spline())
     enable_execute = false;
 
     cout << "alpha beta gamma\n";
@@ -99,6 +99,8 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
     preview();
 
     cout << "ended target orientation callback\n";
+    cout << "enable_execute: " << enable_execute << "\n";
+    cout << "ik_enabled: " << ik_enabled << "\n";
 }
 
 void MRoverArm::motion_execute_callback(string channel, MotionExecute msg) {
@@ -129,7 +131,7 @@ void MRoverArm::execute_spline() {
             if (!sim_mode) {
                 // TODO make publish function names more intuitive?
                 publish_config(target_angles, "/ik_ra_control");
-                spline_t += 0.01;
+                spline_t += 0.003;
             }
 
             // TODO: make sure transition from not self.sim_mode
@@ -151,7 +153,7 @@ void MRoverArm::execute_spline() {
             this_thread::sleep_for(chrono::milliseconds(10));
         }
         else {
-            this_thread::sleep_for(chrono::milliseconds(500));
+            this_thread::sleep_for(chrono::milliseconds(200));
         }   
     }
 }
@@ -223,6 +225,8 @@ void MRoverArm::preset_execute_callback(string channel, PresetAngles msg) {
     cout << "running preset_execute_callback\n";
     cout << "requested preset: " << msg.preset << "\n";
 
+    enable_execute = false;
+
     json presets;
 
     // read preset angles from json
@@ -247,9 +251,11 @@ void MRoverArm::preset_execute_callback(string channel, PresetAngles msg) {
     plan_path(target);
 
     cout << "Path planned!\n";
-
-    enable_execute = false;
     preview();
+
+    cout << "End of preset callback\n";
+    cout << "enable_execute: " << enable_execute << "\n";
+    cout << "ik_enabled: " << ik_enabled << "\n";
 }
 
 void MRoverArm::publish_transforms(const ArmState& pub_state) {
@@ -271,11 +277,17 @@ void MRoverArm::lock_e_callback(string channel, LockJointE msg) {
 void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {  
     ik_enabled = msg.enabled;
 
+    cout << "received IK enabled message: \n";
+
     if (!ik_enabled) {
+        cout << "attempting to halt\n";
+        enable_execute = false;
         publish_transforms(state);
     }
+    else {
+        cout << "what is going on\n";
+    }
 }
- 
 
  
 void MRoverArm::target_angles_callback(string channel, TargetAngles msg) {
