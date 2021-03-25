@@ -2,6 +2,7 @@ import Adafruit_BBIO.UART as UART
 import serial
 import asyncio
 import math
+import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import IMUData
@@ -147,7 +148,6 @@ class IMU_Manager():
 
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, register,
                       0x00, 0x00, 0x00, 0x00, checksum >> 8, checksum & 0xff]
-        print(bytes(cmd_buffer))
 
         self.ser.write(cmd_buffer)
 
@@ -160,17 +160,29 @@ class IMU_Manager():
 
         self.ser.write(cmd_buffer)
 
-    def calibrate(self):
-        registers = [0xAD, 0xB0, 0xB1]
-        PTs = [0x80, 0x80, 0x80]
+    def get_calibrated(self, register):
+        checksum = ord('s') + ord('n') + ord('p') + register
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, register,
+                      checksum >> 8, checksum & 0xff]
 
-        for i in range(0, 3):
-            checksum = ord('s') + ord('n') + ord('p') + registers[i] + PTs[i]
+        # sends reques for data
+        self.ser.write(cmd_buffer)
+        time.sleep(.5)
 
-            cmd_buffer = [ord('s'), ord('n'), ord('p'), PTs[i], registers[i],
-                          checksum >> 8, checksum & 0xff]
+        # um7 sends back same message as request for data but with payload
+        # containing IEEE 754 32bit number (= to python float)
+        received = self.ser.readline()
+        print("reveived\n")
+        print(received)
+        if(received[0:8] == "b'snp\x80"):
+            print(received[0:8])
+            print(received)
+            print("\n")
+        # b'/0x74/0x72
+        # data = float(received[5:9])
+        # print("data")
+        # print(data)
 
-            self.ser.write(cmd_buffer)
 
 # end of class
 
@@ -178,6 +190,9 @@ class IMU_Manager():
 def main():
     # Uses a context manager to ensure serial port released
     NMEA_RATE_REG = 0x07
+    GYRO_PROC = [0x61, 0x62, 0x63]
+    MAG_PROC = [0x69, 0x6A, 0x6B]
+    ACCEL_PROC = [0x65, 0x66, 0x67]
 
     with IMU_Manager() as manager:
         # turns off registers that are outputting non-NMEA data
@@ -185,8 +200,18 @@ def main():
         for reg in l:
             manager.turnOffRegister(reg)
 
+        # hopefully spits out calibrated values from registers
+        for r in GYRO_PROC:
+            print("GYRO_PROC\n")
+            manager.get_calibrated(r)
+        for r in MAG_PROC:
+            print("MAG_PROC\n")
+            manager.get_calibrated(r)
+        for r in ACCEL_PROC:
+            print("ACCEL_PROC\n")
+            manager.get_calibrated(r)
+
         manager.enable_nmea(NMEA_RATE_REG)
-        # manager.calibrate()
 
         lcm = aiolcm.AsyncLCM()
 
