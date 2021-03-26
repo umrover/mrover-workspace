@@ -9,20 +9,15 @@
 #define PI 3.141592
 #define HALF_ROVER 584
 #define VIEWER_BGR_COLOR 2.14804915479e-38
-
 // Temporary #define we can use until voxel grid is fully implemented
 #define VOXEL 1
 
-//GPU point cloud struct that can be passed to cuda kernels and represents a point cloud
+/**
+ * \struct GPU_Cloud_F4
+ * \brief GPU point cloud struct that can be passed to cuda kernels and represents a point cloud
+ */
 struct GPU_Cloud_F4 {
     sl::float4* data;
-    int stride; 
-    int size;
-};
-
-//GPU Indicies data
-struct GPU_Indicies {
-    int* data;
     int size;
 };
 
@@ -83,19 +78,34 @@ struct Bins {
     float partitionLength;
 };
 
-//Returns true if a cuda error occured and prints an error message
+/**
+ * \brief Returns true if a cuda error occured and prints an error message
+ */
 bool checkStatus(cudaError_t status);
 
-//ceiling division x/y. e.g. ceilDiv(3,2) -> 2
+/**
+ * \brief ceiling division x/y. e.g. ceilDiv(3,2) -> 2
+ */
 int ceilDiv(int x, int y);
 
-//Get a CUDA workable gpu point cloud struct from Zed GPU cloud
+/**
+ * \brief Get a CUDA workable gpu point cloud struct from Zed GPU cloud
+ */
 GPU_Cloud_F4 getRawCloud(sl::Mat zed_cloud);
 
+/**
+ * \brief Crete an empty GPU Cloud of given size
+ */
 GPU_Cloud_F4 createCloud(int size);
 
+/**
+ * \brief Copys one GPU cloud's data to another
+ */
 void copyCloud(GPU_Cloud_F4 &to, GPU_Cloud_F4 &from);
 
+/**
+ * \brief Iterate through the unused memory in a GPU cloud and set it to zeros
+ */
 void clearStale(GPU_Cloud_F4 &cloud, int maxSize);
 
 __global__ void findClearPathKernel(float* minXG, float* maxXG, float* minZG, float* maxZ, int numClusters, int* leftBearing, int* rightBearing);

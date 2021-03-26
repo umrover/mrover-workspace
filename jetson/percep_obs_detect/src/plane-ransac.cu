@@ -318,8 +318,6 @@ __global__ void removeInliers(GPU_Cloud_F4 pc, GPU_Cloud_F4 out, int* optimalMod
 
 }
 
-RansacPlane::RansacPlane() {};
-
 RansacPlane::RansacPlane(sl::float3 axis, float epsilon, int iterations, float threshold, int pcSize)
 : pc(pc), axis(axis), epsilon(epsilon), iterations(iterations), threshold(threshold)  {
     //Set up buffers needed for RANSAC
@@ -435,16 +433,6 @@ RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud_F4 &pc, bool flag) {
     
     return plane;
 }
-
-/*
-EFFECTS:
-    1. Uses the selection computed in computeModel() and the modelPoints of that selection
-    to re-calculate the inliers and export them in a list. 
-*/
-GPU_Indicies RansacPlane::getInliers() {
-    return {nullptr, 0};
-}
-
 
 RansacPlane::~RansacPlane() {
     cudaFree(inlierCounts);

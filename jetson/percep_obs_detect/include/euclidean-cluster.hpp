@@ -2,16 +2,17 @@
 
 #include "common.hpp"
 
-/*
-How this ultimately should work:
-1. Using a kernel, associate each point with a bin representing a voxel of 3D space in a key value pair (see Research/fixed radius NN)
-2. Sort the pairs using thrust by bin to increasing coalecsing during NN lookup
-3. Construct an undirected graph where each point has an edge to its neighbors via the the vertex method described in Research/euclidean cluster extract 
-4. Use connected component labeling to propogate labels through the graph for points that belong to the same cluster see (Research/CCL) 
-*/
-
+ /** 
+ * \class EuclideanClusterExtractor
+ * \brief Finds distinct clusters in the point cloud and identifies them
+ */
 class EuclideanClusterExtractor {
     public:
+
+        /** 
+         * \class ObsReturn
+         * \brief Basic datatype to return found clusters
+         */
         struct ObsReturn {
             int size = 0;
             float* minX;
@@ -25,22 +26,23 @@ class EuclideanClusterExtractor {
 
         int bearingRight;
         int bearingLeft;
-        /*
-        REQUIRES: 
-        - Zed point cloud allocated on GPU
-        - Radius for fixed radius NN Search 
-        - min size in points [removes clusters that are smaller]
-        - max size in points 
-        EFFECTS:
-        - Computes clusters on point cloud based on Euclidean distances 
-        */
+ 
+        /**
+         * \brief EuclideanClusterExtractor constructor 
+         * \param tolerance How far one point can be from another and still be considered "connected", or part of the same cluster
+         * \param minSize The minimum number of points that can define a unique cluster (helpful for noise removal)
+         * \param maxSize The maximum number of points that can define a unique cluster (helpful for not identifying walls)
+         * \param cloudArea The maximum size of a cloud that may be passed to the extractor
+         * \param partitions TODO
+         */
         EuclideanClusterExtractor(float tolerance, int minSize, float maxSize, size_t cloudArea, int partitions);
         EuclideanClusterExtractor();
 
-        /*
-        EFFECTS:
-        - Extracts clusters 
-        */
+        /**
+         * \brief Extracts clusters and packages them into ObsReturn
+         * \param pc Point cloud to search 
+         * \param bins Bins which sub-divide space from VoxelFilter
+         */
         ObsReturn extractClusters(GPU_Cloud_F4 pc, Bins &bins);
 
     private:

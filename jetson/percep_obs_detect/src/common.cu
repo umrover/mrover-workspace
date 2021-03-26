@@ -37,7 +37,6 @@ inline float convertColor(float colorIn) {
 GPU_Cloud_F4 getRawCloud(sl::Mat zed_cloud) {
     GPU_Cloud_F4 g;
     g.data = zed_cloud.getPtr<sl::float4>(sl::MEM::GPU);
-    g.stride = 4;
     g.size = zed_cloud.getWidth() * zed_cloud.getHeight();
     return g;
 }
@@ -45,7 +44,6 @@ GPU_Cloud_F4 getRawCloud(sl::Mat zed_cloud) {
 GPU_Cloud_F4 createCloud(int size) {
     GPU_Cloud_F4 g;
     cudaMalloc(&g.data, sizeof(sl::float4)*size);
-    g.stride = 4;
     g.size = size;
     return g;
 }

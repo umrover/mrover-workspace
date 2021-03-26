@@ -8,6 +8,10 @@
 
 using namespace std;
 
+/** 
+ * \class Recorder
+ * \brief [TODO] In Development
+ */
 class Recorder {
     public:
         Recorder() : frameNum(0){
@@ -48,6 +52,10 @@ class Recorder {
 
 };
 
+/** 
+ * \class Reader
+ * \brief [TODO] In Development
+ */
 class Reader {
     public:
         Reader() : dir("") {

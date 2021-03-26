@@ -29,27 +29,49 @@ enum class OperationMode {DEBUG, SILENT};
  */
 enum ViewerType {NONE, PCLV, GL};
 
+/** 
+ * \class ObsDetector
+ * \brief class that contains framework, algorithm instances, and state variables to perform obstacle detection
+ */
 class ObsDetector {
     public:
-        //Construct the obstacle detector with appropriate options
+        /**
+         * \brief ObsDetector constructor
+         * \param source: Source of point clouds, either ZED to read from camera, GPUMEM to pass a pointer to a frame, or FILESYSTEM for static test files
+         * \param mode: Debugging level, either DEBUG for testing or SILENT for competition
+         * \param viewer: Viewer type, use NONE for competition, PCLV if you are on Great Lakes, and GL otherwise
+         */
         ObsDetector(DataSource source, OperationMode mode, ViewerType viewer);
 
         //Destructor 
         ~ObsDetector();
 
-        // Grabs the next frame from either file or zed and performs an obstacle detection
+        /**
+         * \brief Grabs the next frame from either file or zed and performs an obstacle detection
+         */
         void update();
 
-        // This is the underlying method called by update(), if DataSource::GPUMEM is selected, call this one with the frame
+        /**
+         * \brief This is the underlying method called by update(), if DataSource::GPUMEM is selected, call this version 
+         * of the function directly with a pointer to your frame in GPU memory
+         * \param frame: sl::Mat frame to do detection on with memory allocated on the GPU
+         */
         void update(sl::Mat &frame);
 
-        //Do viewer update tick, it may be desirable to call this in its own thread 
+        /**
+         * \brief Do viewer update tick, it may be desirable to call this in its own thread 
+         */
         void spinViewer();
 
-        //Start recording frames from ZED
+        /**
+         * \brief [TODO] Start recording frames from ZED
+         * \param frame: string directory in which to write the pcd files, directory should already exist
+         */
         void startRecording(std::string directory);
 
-        //Stop recording frames (this does not need to be called if you want to record until program exit)
+        /**
+         * \brief [TODO] Stop recording frames (this does not need to be called if you want to record until program exit)
+         */
         void stopRecording();
 
     private:

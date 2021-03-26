@@ -11,7 +11,6 @@
 #include <thrust/iterator/transform_iterator.h>
 #include <thrust/sequence.h>
 
-PassThrough::PassThrough() {};
 
 PassThrough::PassThrough(char axis, float min, float max) : min{min}, max{max}, axis(axis){};
 
