@@ -45,7 +45,7 @@ void ObsDetector::pclKeyCallback(const pcl::visualization::KeyboardEvent &event,
 void ObsDetector::setupParamaters(std::string parameterFile) {
     //Operating resolution
     cloud_res = sl::Resolution(320/2, 180/2);
-    readDir = "../data";
+    readDir = "/home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data";
 
     //Zed params
     init_params.coordinate_units = sl::UNIT::MILLIMETER;
@@ -209,7 +209,7 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
     //obs.update();
     std::thread viewerTick( [&]{while(true) { obs.update();} });

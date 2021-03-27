@@ -38,6 +38,7 @@ if obs_detection and not vm_config
 	obs = declare_dependency(
 	include_directories : obs_include_dirs,
 	link_args : [
+			'-L/usr/local/lib',
 		# PCL
 			'-lpcl_common', '-lpcl_visualization', '-lpcl_filters', '-lpcl_segmentation', '-lpcl_search', '-lpcl_kdtree', '-lpcl_sample_consensus',
 			'-lpcl_io','-lboost_system','-lvtksys-8.2', '-lvtkRenderingCore-8.2', '-lvtkCommonCore-8.2',
@@ -53,6 +54,7 @@ elif obs_detection and vm_config
 	include_directories : obs_include_dirs,
 	link_args : [
 		# PCL
+			'-L/usr/local/lib',
 			'-lpcl_common', '-lpcl_visualization', '-lpcl_filters', '-lpcl_segmentation', '-lpcl_search', '-lpcl_kdtree', '-lpcl_sample_consensus',
 			'-lpcl_io','-lboost_system','-lvtksys-6.3', '-lvtkRenderingCore-6.3', '-lvtkCommonCore-6.3',
 			'-lvtkCommonDataModel-6.3', '-lvtkCommonMath-6.3', '-lvtkFiltersCore-6.3', '-lvtkCommonExecutionModel-6.3', '-lvtkFiltersGeometry-6.3'
