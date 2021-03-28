@@ -87,7 +87,7 @@ __global__ void determineGraphStructureKernel(GPU_Cloud_F4 pc, float tolerance, 
     // the tolerance and then figure out how many bins outward need to be traversed to satisfy the tolerance
     // Can make 1/4 larger to search fewer bins or smaller to search more bins
     int check = 3;
-    if(ptIdx == check) printf("partitionLength: %i\n", partitionLength);
+    if(ptIdx == check) printf("partitionLength: %f\n", partitionLength);
     int binsWithinThreshold = (tolerance - 0.25 * partitionLength)/partitionLength;
     int totalBinsSearch = (binsWithinThreshold*2+1)^3; 
     int partitionsCubed = partitions*partitions*partitions;
@@ -163,7 +163,7 @@ __global__ void buildGraphKernel(GPU_Cloud_F4 pc, float tolerance, int* neighbor
     sl::float3 pt = pc.data[ptIdx];
     int neighborCount = 0;
     float partitionLength = bins.partitionLength;
-    int binNum = pc.data[ptIdx].w;
+    int startBin = pc.data[ptIdx].w;
     int partitions = bins.partition;
 
     // Assume that the point is 1/4 the way from the edge of the bin, subtract this from
@@ -188,8 +188,8 @@ __global__ void buildGraphKernel(GPU_Cloud_F4 pc, float tolerance, int* neighbor
     // other out of bounds cases that aren't necessarily negative
     int binsX, binsY, binsZ;
     binsX = binsY = binsZ = binsWithinThreshold;
-    int startBin = binNum;
-    int partitionsSquared = partitions*partitions;
+
+    //int partitionsSquared = partitions*partitions;
     int* list = neighborLists + listStart[ptIdx];
 
     if(startBin - binsWithinThreshold >= 0) startBin -= binsWithinThreshold;
@@ -198,14 +198,14 @@ __global__ void buildGraphKernel(GPU_Cloud_F4 pc, float tolerance, int* neighbor
     if(startBin - binsWithinThreshold*partitions >= 0) startBin -= partitions*binsWithinThreshold; 
     else binsY = 0;
 
-    if(startBin - binsWithinThreshold*partitions*partitions >=0) startBin -= partitionsSquared*binsWithinThreshold;
+    if(startBin - binsWithinThreshold*partitions*partitions >=0) startBin -= partitions*partitions*binsWithinThreshold;
     else binsZ = 0;
 
-    int binsSearched = 0;
-    if(ptIdx == check) printf("PC Size: %i\n", pc.size);
-    if(ptIdx == check) printf("PtMain: (%f, %f, %f)\n", pt.x, pt.y, pt.z);
-    if(ptIdx == check) printf("BinNum: %i\n StartBin: %i\n", binNum, startBin);
-    for(int i = startBin; i <= startBin + binsZ*2*partitionsSquared && i < partitionsCubed; i += partitionsSquared) {
+    //int binsSearched = 0;
+    //if(ptIdx == check) printf("PC Size: %i\n", pc.size);
+    //if(ptIdx == check) printf("PtMain: (%f, %f, %f)\n", pt.x, pt.y, pt.z);
+    //if(ptIdx == check) printf("BinNum: %i\n StartBin: %i\n", binNum, startBin);
+    for(int i = startBin; i <= startBin + binsZ*2*partitions*partitions && i < partitionsCubed; i += partitions*partitions) {
         //Iterate bottom to top
         for(int j = i; j <= i + binsY*2*partitions && j < partitionsCubed; j += partitions) {
             //Iterate front to back
@@ -224,12 +224,12 @@ __global__ void buildGraphKernel(GPU_Cloud_F4 pc, float tolerance, int* neighbor
                         //printf("PtECE: (%f, %f, %f)\n", pc.data[l+bins.data[k]].x, pc.data[l+bins.data[k]].y, pc.data[l+bins.data[k]].z);
                     }
                 }
-                binsSearched++;
+                //binsSearched++;
             }
         }
     }
 
-    if(ptIdx == 0) printf("Bins Searched: %i\n", binsSearched);
+    //if(ptIdx == 0) printf("Bins Searched: %i\n", binsSearched);
     labels[ptIdx] = ptIdx;
     f1[ptIdx] = true;
     f2[ptIdx] = false;
@@ -452,7 +452,7 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     //std::cerr<<"Graph kernel built\n";
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
-    
+
     bool stillGoingCPU = true;    
     while(stillGoingCPU) {
         //one iteration of label propogation

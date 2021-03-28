@@ -93,7 +93,7 @@ __global__ void makeCubeKernel(GPU_Cloud_F4 pc, pair<float,float>* extrema, floa
         }
     }
     
-    // Need to grab partition lengt, but could use a better spot
+    // Need to grab partition length, but could use a better spot
     if(threadIdx.x == 0) *partitionLength = (extrema[0].second-extrema[0].first);
 
     return;   

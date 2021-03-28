@@ -137,11 +137,6 @@ void ObsDetector::update(sl::Mat &frame) {
 
 
 
-
-
-
-
-
     //std::cout << "post ransac:" << pc.size << endl;
     auto grabStart = high_resolution_clock::now();
     obstacles = ece->extractClusters(pc, bins); 
@@ -209,7 +204,7 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
     //obs.update();
     std::thread viewerTick( [&]{while(true) { obs.update();} });
