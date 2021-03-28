@@ -1,0 +1,29 @@
+Phoenix already installed, skipping.
+RapidJson already installed, skipping.
+LCM already installed, skipping.
+pip dependencies already installed, skipping.
+Done.
+- building dependency rover_msgs
+Building LCM package
+rover_msgs unchanged, skipping.
+Done
+Building C++ package
+Compiling C++ project...
+/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+The Meson build system
+Version: 0.57.1
+Source dir: /home/mrover/mrover-workspace/jetson/percep_obs_detect
+Build dir: /home/mrover/.mrover/scratch/jetson_percep_obs_detect
+Build type: native build
+Project name: percep_obs_detect
+Project version: undefined
+C++ compiler for the host machine: c++ (gcc 7.5.0 "c++ (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0")
+C++ linker for the host machine: c++ ld.bfd 2.30
+Cuda compiler for the host machine: nvcc (nvcc 10.0.130)
+Cuda linker for the host machine: nvcc nvlink 10.0.130
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Build targets in project: 1
+
+Found ninja-1.8.2 at /usr/bin/ninja
+ninja: build stopped: interrupted by user.

@@ -20,17 +20,19 @@
 //but can use sample images for testing
 class Camera::Impl {
 public:
-    Impl();
+    Impl(const rapidjson::Document &config);
     ~Impl();
 	bool grab();
 
 	cv::Mat image();
 	cv::Mat depth();
+    
+    //constants
+    int THRESHOLD_CONFIDENCE;
 
     #if OBSTACLE_DETECTION
     void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
     #endif
-  
   
 private:
 	sl::RuntimeParameters runtime_params_;
@@ -44,7 +46,7 @@ private:
 	cv::Mat depth_;
 };
 
-Camera::Impl::Impl() {
+Camera::Impl::Impl(const rapidjson::Document &config) : THRESHOLD_CONFIDENCE(config["camera"]["threshold_confidence"].GetDouble()) {
 	sl::InitParameters init_params;
 	init_params.camera_resolution = sl::RESOLUTION::HD720; // default: 720p
 	init_params.depth_mode = sl::DEPTH_MODE::PERFORMANCE;
@@ -58,7 +60,7 @@ Camera::Impl::Impl() {
     init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
     this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
 
-//	this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
+	this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
 	
     #if PERCEPTION_DEBUG
         std::cout<<"ZED init success\n";
@@ -144,7 +146,7 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & p_pcl_poin
 #include <unordered_set>
 class Camera::Impl {
 public:
-    Impl();
+    Impl(const rapidjson::Document &config);
     ~Impl();
     bool grab();
 
@@ -184,7 +186,7 @@ Camera::Impl::~Impl() {
     closedir(pcd_dir);
 }
 
-Camera::Impl::Impl() {
+Camera::Impl::Impl(const rapidjson::Document &config) {
   
     std::cout<<"Please input the folder path (there should be a rgb and depth existing in this folder): ";
     std::cin>>path;
@@ -203,7 +205,7 @@ Camera::Impl::Impl() {
     pcd_path = path + "/pcl";
     pcd_dir = opendir(pcd_path.c_str() );
     if(NULL==pcd_dir) {
-        std::cout<<"Input folder not exist\n";   
+        std::cerr<<"Input folder not exist\n";   
         return;
   }
   #endif
@@ -307,7 +309,7 @@ cv::Mat Camera::Impl::image() {
     #endif
     cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_COLOR);
     if (!img.data){
-        std::cout<<"Load image "<<full_path<< " error\n";
+        std::cerr<<"Load image "<<full_path<< " error\n";
     }
     return img;
 }
@@ -321,12 +323,13 @@ cv::Mat Camera::Impl::depth() {
     #endif
     cv::Mat img = cv::imread(full_path.c_str(), cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
     if (!img.data){
-        std::cout<<"Load image "<<full_path<< " error\n";
+        std::cerr<<"Load image "<<full_path<< " error\n";
     }
     return img;
 }
 
 void Camera::record_ar_init() {
+  //initializing ar tag videostream object
   std::pair<Tag, Tag> tp;
   TagDetector d1(mRoverConfig);
 
@@ -348,7 +351,7 @@ void Camera::record_ar_init() {
 
     if(vidWrite.isOpened() == false)
     {
-        cout << "ar record didn't open\n";
+        cerr << "ar record didn't open\n";
         exit(1);
     }
 }
@@ -379,8 +382,9 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point
 
 #endif
 
-Camera::Camera(const rapidjson::Document &config) : impl_{new Camera::Impl}, rgb_foldername{""},
-                   depth_foldername{""}, pcl_foldername{""} , mRoverConfig( config ) {}
+Camera::Camera(const rapidjson::Document &config) : 
+FRAME_WRITE_INTERVAL{mRoverConfig["camera"]["frame_write_interval"].GetInt()}, impl_{new Camera::Impl(config)}, rgb_foldername{""},
+                         depth_foldername{""}, pcl_foldername{""} , mRoverConfig( config ) {}
 
 Camera::~Camera() {
 	delete this->impl_;

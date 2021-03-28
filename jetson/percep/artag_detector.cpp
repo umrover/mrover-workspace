@@ -19,16 +19,16 @@ void onMouse(int event, int x, int y, int flags, void *userdata) {
 TagDetector::TagDetector(const rapidjson::Document &mRoverConfig) :  
 
    //Populate Constants from Config File
-   BUFFER_ITERATIONS{mRoverConfig["buffer_iterations"].GetInt()},
-   MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["markerBorderBits"].GetInt()},
-   DO_CORNER_REFINEMENT{!!mRoverConfig["alvar_params"]["doCornerRefinement"].GetInt()},
-   POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonalApproxAccuracyRate"].GetDouble()},
+   BUFFER_ITERATIONS{mRoverConfig["ar_tag"]["buffer_iterations"].GetInt()},
+   MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["marker_border_bits"].GetInt()},
+   DO_CORNER_REFINEMENT{!!mRoverConfig["alvar_params"]["do_corner_refinement"].GetInt()},
+   POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonal_approx_accuracy_rate"].GetDouble()},
    MM_PER_M{mRoverConfig["mm_per_m"].GetInt()},
-   DEFAULT_TAG_VAL{mRoverConfig["DEFAULT_TAG_VAL"].GetInt()} {
+   DEFAULT_TAG_VAL{mRoverConfig["ar_tag"]["default_tag_val"].GetInt()} {
 
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
-        std::cout << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
+        std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
         throw Exception();
     }
 

@@ -11,9 +11,9 @@
         PT_CLOUD_WIDTH{mRoverConfig["pt_cloud"]["pt_cloud_width"].GetInt()},
         PT_CLOUD_HEIGHT{mRoverConfig["pt_cloud"]["pt_cloud_height"].GetInt()},
         HALF_ROVER{mRoverConfig["pt_cloud"]["half_rover"].GetInt()},
-        UP_BD_Z{mRoverConfig["pt_cloud"]["pass_through"]["upperBdZ"].GetDouble()},
-        UP_BD_Y{mRoverConfig["pt_cloud"]["pass_through"]["upperBdY"].GetDouble()},
-        LOW_BD{mRoverConfig["pt_cloud"]["pass_through"]["lowerBd"].GetDouble()},
+        UP_BD_Z{mRoverConfig["pt_cloud"]["pass_through"]["upper_bd_z"].GetDouble()},
+        UP_BD_Y{mRoverConfig["pt_cloud"]["pass_through"]["upper_bd_y"].GetDouble()},
+        LOW_BD{mRoverConfig["pt_cloud"]["pass_through"]["lower_bd"].GetDouble()},
         ROVER_W_MM{mRoverConfig["pt_cloud"]["rover_w_mm"].GetDouble()},
         LEAF_SIZE{mRoverConfig["pt_cloud"]["downsample_voxel_filter"].GetFloat()},
         MAX_ITERATIONS{mRoverConfig["pt_cloud"]["ransac"]["max_iterations"].GetInt()},
@@ -358,9 +358,9 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
     #endif
 
     bool end = true; 
-    double previousDistance = DBL_MAX;
+    double previousDistance = -1;
 
-    //if there are no interest points, the distance from the last obstacle should be DBL_MAX
+    //if there are no interest points, the distance from the last obstacle should be -1
     distance = previousDistance;
     
     //Iterate through interest points
@@ -405,7 +405,7 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
         currentDistance = 1.0 * currentDistance / sizeOfCluster;
 
         //if the last obstacle distance from a CheckPath loop was smaller, keep the smaller value, otherwise keep the current distance value
-        if(currentDistance < previousDistance) {
+        if(currentDistance < previousDistance || (previousDistance == -1 && sizeOfCluster != 0)) {
             previousDistance = currentDistance;
             distance = previousDistance;
         }

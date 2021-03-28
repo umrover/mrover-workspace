@@ -47,8 +47,8 @@ int main() {
     rover_msgs::TargetList arTagsMessage;
     rover_msgs::Target* arTags = arTagsMessage.targetList;
     rover_msgs::Obstacle obstacleMessage;
-    arTags[0].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
-    arTags[1].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
+    arTags[0].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
+    arTags[1].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
 
     /* --- AR Tag Initializations --- */
     TagDetector detector(mRoverConfig);
@@ -104,6 +104,7 @@ int main() {
         #endif
 
         #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
+        int FRAME_WRITE_INTERVAL = mRoverConfig["camera"]["frame_write_interval"].GetInt();
             if (iterations % FRAME_WRITE_INTERVAL == 0) {
                 Mat rgb_copy = src.clone(), depth_copy = depth_img.clone();
                 #if PERCEPTION_DEBUG
@@ -114,8 +115,8 @@ int main() {
         #endif
 
         /* --- AR Tag Processing --- */
-        arTags[0].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
-        arTags[1].distance = mRoverConfig["DEFAULT_TAG_VAL"].GetInt();
+        arTags[0].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
+        arTags[1].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
         #if AR_DETECTION
             tagPair = detector.findARTags(src, depth_img, rgb);
             #if AR_RECORD
@@ -159,9 +160,6 @@ int main() {
 
         obstacleMessage.distance = lastObstacle.distance; //update LCM distance field
         obstacleMessage.bearing = lastObstacle.bearing; //update LCM bearing field
-
-        if(obstacleMessage.distance > 7) obstacleMessage.distance = -1; // Set to -1 if don't trust distance
-        
         #if PERCEPTION_DEBUG
             cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Path Sent: " << obstacleMessage.bearing << "\n";
             cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Distance Sent: " << obstacleMessage.distance << "\n";
@@ -190,10 +188,6 @@ int main() {
 
 
     /* --- Wrap Things Up --- */
-    #if OBSTACLE_DETECTION && PERCEPTION_DEBUG
-        pointcloud.~PCL();
-    #endif
-  
     #if AR_RECORD
         cam.record_ar_finish();
     #endif

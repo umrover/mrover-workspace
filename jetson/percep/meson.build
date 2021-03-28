@@ -84,5 +84,5 @@ configure_file(
 
 executable('jetson_percep',
 		   'main.cpp', 'camera.cpp', 'artag_detector.cpp', 'pcl.cpp',
-		   dependencies : all_deps,
+		   dependencies : all_deps, cpp_args : '-mavx',
 		   install : true)
