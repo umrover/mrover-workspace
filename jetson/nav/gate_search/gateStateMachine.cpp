@@ -461,7 +461,7 @@ void GateStateMachine::calcCenterPoint()
     // Assuming that CV works well enough that we don't pass through the gate before
     // finding the second post. Thus, centerPoint1 will always be closer.
     centerPoint1 = createOdom( lastKnownRightPost.odom, absAngle1, tagToPointDist, mPhoebe );
-    centerPoint2 = createOdom( lastKnownLeftPost.odom, absAngle2, tagToPointDist, mPhoebe );
+    centerPoint2 = createOdom( lastKnownLeftPost.odom, absAngle2, tagToPointDist + 1.0, mPhoebe );
     const double cp1Dist = estimateNoneuclid( currOdom, centerPoint1 );
     const double cp2Dist = estimateNoneuclid( currOdom, centerPoint2 );
     if( lastKnownRightPost.id % 2 )
