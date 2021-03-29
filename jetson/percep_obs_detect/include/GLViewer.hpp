@@ -203,8 +203,11 @@ public:
     ~GLViewer();
     bool isAvailable();
 
-    GLenum init(int argc, char **argv, sl::CameraParameters param);
+    GLenum init(int argc, char **argv, sl::CameraParameters param, bool* play, int* frameNum);
     void updatePointCloud(sl::Mat &matXYZRGBA);
+
+    void updatePlaybackState(bool &play, int &frameNum);
+
 
     void exit();
 private:
@@ -255,6 +258,9 @@ private:
     CameraGL camera_;
     Shader shader_;
     GLuint shMVPMatrixLoc_;
+
+    bool* play;
+    int* frameNum;
 };
 
 void updateRansacPlane(sl::float3 p1, sl::float3 p2, sl::float3 p3, float scale);

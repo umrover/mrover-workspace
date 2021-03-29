@@ -25,7 +25,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
     } else if(mode != OperationMode::SILENT && viewer == ViewerType::GL) {
         int argc = 1;
         char *argv[1] = {(char*)"Window"};
-        glViewer.init(argc, argv, defParams);
+        glViewer.init(argc, argv, defParams, &framePlay, &frameNum);
     }
 };
 
@@ -148,7 +148,7 @@ void ObsDetector::update(sl::Mat &frame) {
     if(mode != OperationMode::SILENT) {
         clearStale(pc, cloud_res.area());
         if(viewer == ViewerType::GL) {
-            glViewer.updatePointCloud(orig);
+            glViewer.updatePointCloud(frame);
         } else {
            pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_pcl(new pcl::PointCloud<pcl::PointXYZRGB>);
            ZedToPcl(pc_pcl, frame);
@@ -204,7 +204,7 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
     //obs.update();
     std::thread viewerTick( [&]{while(true) { obs.update();} });

@@ -235,7 +235,9 @@ void updateProjectedLines(int bearingRight, int bearingLeft) {
     projPath.pushToGPU();
 }
 
-GLenum GLViewer::init(int argc, char **argv, sl::CameraParameters param) {
+GLenum GLViewer::init(int argc, char **argv, sl::CameraParameters param, bool* play, int* frameNum) {
+    this->play = play;
+    this->frameNum = frameNum;
     
     glutInit(&argc, argv);
     int wnd_w = glutGet(GLUT_SCREEN_WIDTH);
@@ -302,6 +304,15 @@ void GLViewer::updatePointCloud(sl::Mat &matXYZRGBA) {
     pointCloud_.mutexData.unlock();
 }
 
+void GLViewer::updatePlaybackState(bool &play, int &frameNum)  {
+    if (keyStates_['d'] == KEY_STATE::UP) frameNum++;
+    if (keyStates_['a'] == KEY_STATE::UP) frameNum--;
+    if (keyStates_['p'] == KEY_STATE::UP) {
+        std::cout << "PAUSING " << std::endl;
+        play = !play;
+    }
+}
+
 void GLViewer::update() {
     if (keyStates_['q'] == KEY_STATE::UP || keyStates_['Q'] == KEY_STATE::UP || keyStates_[27] == KEY_STATE::UP) {
         pointCloud_.close();
@@ -309,8 +320,9 @@ void GLViewer::update() {
         return;
     }
 
-    //if (keyStates_['d'] == KEY_STATE::UP) nextFrame();
-    //if (keyStates_['a'] == KEY_STATE::UP) prevFrame();
+    if (keyStates_['d'] == KEY_STATE::UP) (*frameNum)++;
+    if (keyStates_['a'] == KEY_STATE::UP) (*frameNum)--;
+    if (keyStates_['p'] == KEY_STATE::UP) *play = !(*play);
 
 
     // Rotate camera with mouse
