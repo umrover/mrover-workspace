@@ -62,7 +62,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 
     //Obs Detecting Algorithm Params
     passZ = new PassThrough('z', 200.0, 8000.0); //7000
-    ransacPlane = new RansacPlane(sl::float3(0, 1, 0), 8, 600, 80, cloud_res.area());
+    ransacPlane = new RansacPlane(sl::float3(0, 1, 0), 4, 600, 60, cloud_res.area(), 150);
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(150, 30, 0, cloud_res.area(), 9); 
 }
@@ -99,7 +99,7 @@ void ObsDetector::update(sl::Mat &frame) {
     // Processing 
     passZ->run(pc);
     //std::cout << "pre ransac:" << pc.size << endl;
-    ransacPlane->computeModel(pc, true);
+    ransacPlane->computeModel(pc);
     
     
     
@@ -139,7 +139,7 @@ void ObsDetector::update(sl::Mat &frame) {
 
     //std::cout << "post ransac:" << pc.size << endl;
     auto grabStart = high_resolution_clock::now();
-    obstacles = ece->extractClusters(pc, bins); 
+    //obstacles = ece->extractClusters(pc, bins); 
     auto grabEnd = high_resolution_clock::now();
     auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
     //cout << "ECE time: " << (grabDuration.count()/1.0e3) << " ms" << endl; 

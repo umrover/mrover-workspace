@@ -318,8 +318,8 @@ __global__ void removeInliers(GPU_Cloud_F4 pc, GPU_Cloud_F4 out, int* optimalMod
 
 }
 
-RansacPlane::RansacPlane(sl::float3 axis, float epsilon, int iterations, float threshold, int pcSize)
-: pc(pc), axis(axis), epsilon(epsilon), iterations(iterations), threshold(threshold)  {
+RansacPlane::RansacPlane(sl::float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius)
+: pc(pc), axis(axis), epsilon(epsilon), iterations(iterations), threshold(threshold), removalRadius(removalRadius)  {
     //Set up buffers needed for RANSAC
     cudaMalloc(&inlierCounts, sizeof(float) * iterations); 
     cudaMalloc(&modelPoints, sizeof(int) * iterations * 3);
@@ -377,7 +377,7 @@ RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud_F4 pc) {
     int threads = MAX_THREADS;
     ransacKernel<<<blocks, threads>>>(pc, inlierCounts, modelPoints, threshold, axis, cos(epsilon*3.1415/180));
     selectOptimalRansacModel<<<1, MAX_THREADS>>>(pc, inlierCounts, modelPoints, selection, iterations, optimalModelIndex);
-    computeInliers<<<1, threads>>>(pc, optimalModelIndex, modelPoints, threshold, axis);
+    computeInliers<<<1, threads>>>(pc, optimalModelIndex, modelPoints, removalRadius, axis);
 
     //might be able to use memcpyAsync() here, double check
     checkStatus(cudaGetLastError());
@@ -411,7 +411,7 @@ RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud_F4 &pc, bool flag) {
     int* size;
     cudaMalloc(&size, sizeof(int));
     cudaMemset(size, 0, sizeof(int));
-    removeInliers<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tmpCloud, optimalModelIndex, modelPoints, threshold, axis, size);
+    removeInliers<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tmpCloud, optimalModelIndex, modelPoints, removalRadius, axis, size);
     int sizeCpu;
     cudaMemcpy(&sizeCpu, size, sizeof(int), cudaMemcpyDeviceToHost);
     tmpCloud.size = sizeCpu;

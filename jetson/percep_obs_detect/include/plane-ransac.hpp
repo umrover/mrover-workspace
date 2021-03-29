@@ -26,8 +26,9 @@ class RansacPlane {
          * \param iterations The number of randomly selected models to attempt to fit to the data, must be less than 1024
          * \param threshold The maximum allowed distance from the model for a point to be considered an inlier
          * \param pcSize The maximum expected size of a point cloud passed to this algorithm (use the frame resolution area)
+         * \param removalRadius The max distance of points from the detected plane to be removed 
          */
-        RansacPlane(sl::float3 axis, float epsilon, int iterations, float threshold, int pcSize);
+        RansacPlane(sl::float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius);
 
         ~RansacPlane();
 
@@ -54,6 +55,7 @@ class RansacPlane {
         float epsilon;
         int iterations;
         float threshold;
+        float removalRadius;
 
         //internal info [GPU]
         float* inlierCounts; 
