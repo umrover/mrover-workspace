@@ -99,7 +99,7 @@ void ObsDetector::update(sl::Mat &frame) {
     // Processing 
     passZ->run(pc);
     //std::cout << "pre ransac:" << pc.size << endl;
-    ransacPlane->computeModel(pc);
+    ransacPlane->computeModel(pc, true);
     
     
     
@@ -139,10 +139,15 @@ void ObsDetector::update(sl::Mat &frame) {
 
     //std::cout << "post ransac:" << pc.size << endl;
     auto grabStart = high_resolution_clock::now();
-    //obstacles = ece->extractClusters(pc, bins); 
+    obstacles = ece->extractClusters(pc, bins); 
     auto grabEnd = high_resolution_clock::now();
     auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
     //cout << "ECE time: " << (grabDuration.count()/1.0e3) << " ms" << endl; 
+
+    //LCM
+    //obstacleMessage.bearing = 
+    //obstacleMessage.distance = 
+    lcm_.publish("/obstacle", &obstacleMessage);
 
     // Rendering
     if(mode != OperationMode::SILENT) {
@@ -162,6 +167,13 @@ void ObsDetector::update(sl::Mat &frame) {
     }
 
     if(framePlay) frameNum++;
+}
+
+void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
+    this->leftBearing = leftBearing;
+    this->rightBearing = rightBearing;
+    this->distance = distance;
+    //obstacleMessage.leftBearing = leftBearing;
 }
 
 void ObsDetector::spinViewer() {
@@ -209,6 +221,8 @@ int main() {
     //obs.update();
     std::thread viewerTick( [&]{while(true) { obs.update();} });
     
+
+
     while(true) {
         //obs.update();
         obs.spinViewer();

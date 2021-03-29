@@ -6,6 +6,7 @@ project('percep_obs_detect', 'cuda', 'cpp')
 #cuda = dependency('cuda', version : '>=10', modules : ['cublas'])
 #all_deps = [cuda]
 
+lcm = dependency('lcm')
 
 incdir = include_directories('include/')
 #zed_dep = dependency('ZED', method : 'auto')
@@ -26,7 +27,7 @@ zed = declare_dependency(
         '-lnppim', '-lnppist', '-lnppitc', '-lnppc'
 
     ])
-all_deps = [zed]
+all_deps = [zed, lcm]
 
 obs_include_dirs = include_directories('/usr/local/include/pcl-1.11', 
 	'/usr/local/include/eigen3', '/usr/include/boost', '/usr/local/include/vtk-8.2', '/usr/include/flann')

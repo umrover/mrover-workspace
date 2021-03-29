@@ -10,6 +10,8 @@
 #include "common.hpp"
 #include "pcl.hpp"
 #include "voxel-grid.hpp"
+#include <lcm/lcm-cpp.hpp>
+#include "rover_msgs/Obstacle.hpp"
 
 /*
  *** Determines where to input clouds for obstacle detection ***
@@ -74,6 +76,14 @@ class ObsDetector {
          */
         void stopRecording();
 
+        /**
+         * \brief Populates the LCM message
+         * \param leftBearing left bearing of path
+         * \param rightBearing right bearing of path
+         * \param distance distance to nearest obstacle
+         */
+        void populateMessage(float leftBearing, float rightBearing, float distance);
+
     private:
 
         //Sets up detection paramaters from a JSON file
@@ -81,6 +91,10 @@ class ObsDetector {
 
 
     private: 
+        //Lcm
+        lcm::LCM lcm_;
+        rover_msgs::Obstacle obstacleMessage;
+
         //Data sources
         sl::Camera zed;
         Reader fileReader;
@@ -111,6 +125,9 @@ class ObsDetector {
         //Output data
         RansacPlane::Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
+        float leftBearing;
+        float rightBearing;
+        float distance;
 
         //Other
         Recorder recorder;
