@@ -132,7 +132,7 @@ NavState GateStateMachine::executeGateSearchGimbal()
     static double waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double phase = 0; // if 0, go to +150. if 1 go to -150, if 2 go to 0
-    static double desired_yaw = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble(); 
+    static double desired_yaw = mRoverConfig[ "search" ][ "gimbalSearchAngleMag" ].GetDouble();
 
     //if target aquired, go to it
     if( mPhoebe->roverStatus().rightTarget().distance >= 0 ||
@@ -146,29 +146,29 @@ NavState GateStateMachine::executeGateSearchGimbal()
     //set the desired_yaw to wherever the next stop on the gimbals path is
     //enter the if if the gimbal is at the next stop
     if( mPhoebe->gimbal().setDesiredGimbalYaw( nextStop ) )
-    {   
+    {
         //if the next stop is at the desired_yaw for the phase (150, -150, 0)
         if ( nextStop == desired_yaw )
         {
             //if there are more phases, increment the phase
             if ( phase <= 2 )
                 ++phase;
-            
+
             //if the phase is one, set the waitstepsize to the specified config value and flip desired yaw
-            //goal of this phase is to go in waitstepsize increments from positive gimbalSearchAngleMag to 
+            //goal of this phase is to go in waitstepsize increments from positive gimbalSearchAngleMag to
             //negative gimbalSearchAngleMag
             if ( phase == 1 ) {
                 waitStepSize = -mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble();
                 desired_yaw *= -1;
             }
             //Go straight to zero, set the waitstep size to the difference between 0 and currentPosition
-            else if ( phase == 2 ) 
+            else if ( phase == 2 )
             {
                 waitStepSize = 0 - nextStop;
                 desired_yaw = 0;
             }
         }
-       
+
         //if we are done with all phases
         if ( phase == 3 )
         {
@@ -185,7 +185,7 @@ NavState GateStateMachine::executeGateSearchGimbal()
         //we are at our stopping point for the camera so go into search gimbal wait
         return NavState::GateWait;
     }
-  
+
     mPhoebe->publishGimbal( );
 
     return NavState::GateSearchGimbal;
@@ -306,7 +306,7 @@ NavState GateStateMachine::executeGateDriveToCentPoint()
     return NavState::GateTurnToCentPoint;
 } // executeGateDriveToCentPoint()
 
-// Turn to the face of the gate posts 
+// Turn to the face of the gate posts
 NavState GateStateMachine::executeGateFace()
 {
     if( mPhoebe->turn( centerPoint2 ) )
@@ -319,26 +319,26 @@ NavState GateStateMachine::executeGateFace()
 // Turn to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
-    if( mPhoebe->roverStatus().rightTarget().distance > 0 ) 
+    if( mPhoebe->roverStatus().rightTarget().distance > 0 )
     {
-        if( mPhoebe->roverStatus().leftTarget().distance < mPhoebe->roverStatus().rightTarget().distance ) 
+        if( mPhoebe->roverStatus().leftTarget().distance < mPhoebe->roverStatus().rightTarget().distance )
         {
             if( mPhoebe->turn( mPhoebe->roverStatus().rightTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg ) )
             {
                 return NavState::GateDriveToFarPost;
             }
         }
-        else 
+        else
         {
-            if( mPhoebe->turn( mPhoebe->roverStatus().leftTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg ) ) 
+            if( mPhoebe->turn( mPhoebe->roverStatus().leftTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg ) )
             {
                 return NavState::GateDriveToFarPost;
-            }   
+            }
         }
     }
-    else 
+    else
     {
-        if( mPhoebe->turn( mPhoebe->roverStatus().leftTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg ) ) 
+        if( mPhoebe->turn( mPhoebe->roverStatus().leftTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg ) )
         {
             return NavState::GateDriveToFarPost;
         }
@@ -349,7 +349,7 @@ NavState GateStateMachine::executeGateTurnToFarPost()
 // Drive to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateDriveToFarPost()
 {
-    // Minor adjustment to gate targeting, due to issue of driving through a 
+    // Minor adjustment to gate targeting, due to issue of driving through a
     // post when driving through the wrong direction
     double gateAdjustmentDist = mRoverConfig[ "gateAdjustment" ][ "adjustmentDistance" ].GetDouble();
 
@@ -357,9 +357,9 @@ NavState GateStateMachine::executeGateDriveToFarPost()
     double distance = mPhoebe->roverStatus().leftTarget().distance - gateAdjustmentDist;
     double bearing = mPhoebe->roverStatus().leftTarget().bearing + mPhoebe->roverStatus().odometry().bearing_deg;
 
-    if( mPhoebe->roverStatus().rightTarget().distance > 0 ) 
+    if( mPhoebe->roverStatus().rightTarget().distance > 0 )
     {
-        if( mPhoebe->roverStatus().leftTarget().distance < mPhoebe->roverStatus().rightTarget().distance ) 
+        if( mPhoebe->roverStatus().leftTarget().distance < mPhoebe->roverStatus().rightTarget().distance )
         {
             // Set our variables to drive to target/post 2, which is farther away
             distance = mPhoebe->roverStatus().rightTarget().distance - gateAdjustmentDist;
@@ -383,7 +383,7 @@ NavState GateStateMachine::executeGateDriveToFarPost()
 // Execute turn back to center point for driving through the gate
 NavState GateStateMachine::executeGateTurnToGateCenter()
 {
-    if( mPhoebe->turn( centerPoint2 ) ) 
+    if( mPhoebe->turn( centerPoint2 ) )
     {
         return NavState::GateDriveThrough;
     }
@@ -449,6 +449,8 @@ void GateStateMachine::updatePost2Info()
 // through it in the correct direction.
 void GateStateMachine::calcCenterPoint()
 {
+    double centerAdjustDist = mRoverConfig[ "gateAdjustment" ][ "farCenterPointDistAdjustment" ].GetDouble();
+
     const Odometry& currOdom = mPhoebe->roverStatus().odometry();
     const double distFromGate = 3;
     const double gateWidth = mPhoebe->roverStatus().path().front().gate_width;
@@ -461,7 +463,7 @@ void GateStateMachine::calcCenterPoint()
     // Assuming that CV works well enough that we don't pass through the gate before
     // finding the second post. Thus, centerPoint1 will always be closer.
     centerPoint1 = createOdom( lastKnownRightPost.odom, absAngle1, tagToPointDist, mPhoebe );
-    centerPoint2 = createOdom( lastKnownLeftPost.odom, absAngle2, tagToPointDist, mPhoebe );
+    centerPoint2 = createOdom( lastKnownLeftPost.odom, absAngle2, tagToPointDist + centerAdjustDist, mPhoebe );
     const double cp1Dist = estimateNoneuclid( currOdom, centerPoint1 );
     const double cp2Dist = estimateNoneuclid( currOdom, centerPoint2 );
     if( lastKnownRightPost.id % 2 )
