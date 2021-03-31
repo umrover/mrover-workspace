@@ -12,10 +12,11 @@
 		"kI": 0,
 		"kD": 0
 	},
-	
+
 	"gateAdjustment":
 	{
-		"adjustmentDistance": 0.3
+		"adjustmentDistance": 0.3,
+		"farCenterPointDistAdjustment": 1.0
 	},
 
 	"joystick":
