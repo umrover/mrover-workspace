@@ -28,5 +28,10 @@ motion_planner_tests:
 	cd ../.. && pwd && ./jarvis build jetson/ra_kinematics/ && ./jarvis exec jetson/ra_kinematics/
 	cp test/main_build.txt meson.build
 
+config_space_test:
+	cp test/config_space_test_build.txt meson.build
+	cd ../.. && pwd && ./jarvis build jetson/ra_kinematics/ && ./jarvis exec jetson/ra_kinematics/
+	cp test/main_build.txt meson.build
+
 exec :
 	cd ../.. && ./jarvis exec jetson_ra_kinematics

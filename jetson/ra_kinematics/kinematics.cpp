@@ -82,26 +82,26 @@ Vector3d KinematicsSolver::FK(ArmState &robot_state) {
     Vector4d mult(0,0,0,1);
     Vector4d ef_pos_world = global_transform*mult;
 
-    Vector3d prev_com(0,0,0);
-    double total_mass = 0;
+    // Vector3d prev_com(0,0,0);
+    // double total_mass = 0;
 
-    for (auto it = robot_state.joints.rbegin(); it != robot_state.joints.rend(); ++it) {
-        Vector3d joint_pos = robot_state.get_joint_pos_world(it->first);
-        Vector3d com_cur_link = robot_state.get_joint_com(it->first);
-        double cur_link_mass = robot_state.get_joint_mass(it->first);
+    // for (auto it = robot_state.joints.rbegin(); it != robot_state.joints.rend(); ++it) {
+    //     Vector3d joint_pos = robot_state.get_joint_pos_world(it->first);
+    //     Vector3d com_cur_link = robot_state.get_joint_com(it->first);
+    //     double cur_link_mass = robot_state.get_joint_mass(it->first);
 
-        // Calculate center of mass of current link:
-        Vector3d curr_com = prev_com * total_mass + com_cur_link * cur_link_mass;
-        total_mass += cur_link_mass;
-        curr_com /= total_mass;
+    //     // Calculate center of mass of current link:
+    //     Vector3d curr_com = prev_com * total_mass + com_cur_link * cur_link_mass;
+    //     total_mass += cur_link_mass;
+    //     curr_com /= total_mass;
 
-        // Calculate torque for current joint:
-        Vector3d r = curr_com - joint_pos;
-        Vector3d rot_axis_world = robot_state.get_joint_axis_world(it->first);
-        Vector3d torque = calculate_torque(r, total_mass, rot_axis_world);
-        robot_state.set_joint_torque(it->first, torque);
-        prev_com = curr_com;
-    }
+    //     // Calculate torque for current joint:
+    //     Vector3d r = curr_com - joint_pos;
+    //     Vector3d rot_axis_world = robot_state.get_joint_axis_world(it->first);
+    //     Vector3d torque = calculate_torque(r, total_mass, rot_axis_world);
+    //     robot_state.set_joint_torque(it->first, torque);
+    //     prev_com = curr_com;
+    // }
 
     Vector3d return_vec(ef_pos_world(0), ef_pos_world(1), ef_pos_world(2));
     return return_vec;
@@ -181,8 +181,8 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
             http://www.cs.cmu.edu/~15464-s13/assignments/assignment2/jlander_gamedev_nov98.pdf
             http://www.cs.cmu.edu/~15464-s13/lectures/lecture6/IK.pdf
     */
-    cout << "Running IK!" << endl;
-    cout << "target point: " << target_point << "\n";
+    // cout << "Running IK!" << endl;
+    // cout << "target point: " << target_point << "\n";
     int num_iterations = 0;
     Vector3d target_pos_world = target_point.head(3);
     Vector3d target_ang_world = target_point.tail(3);
@@ -217,29 +217,29 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     double dist = (ef_pos_world - target_pos_world).norm();
     double angle_dist = (ef_ang_world - target_ang_world).norm();
 
-    cout << "Current EF position: \n";
-    cout << ef_pos_world << "\n";
-    cout << ef_ang_world << "\n";
-    cout << "\n";
-    cout << "Initial Joint Angles: ";
-    for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
-        cout << it->second.angle << "\n";
-    }
-    cout << "\n";
+    // cout << "Current EF position: \n";
+    // cout << ef_pos_world << "\n";
+    // cout << ef_ang_world << "\n";
+    // cout << "\n";
+    // cout << "Initial Joint Angles: ";
+    // for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
+    //     cout << it->second.angle << "\n";
+    // }
+    // cout << "\n";
 
     while (dist > POS_THRESHOLD or (angle_dist > ANGLE_THRESHOLD && use_euler_angles)) {
         if (num_iterations > MAX_ITERATIONS) {
-            cout << "Max ik iterations hit\n";
+            // cout << "Max ik iterations hit\n";
             vector<double> ef_pos = robot_state.get_ef_pos_and_euler_angles();
-            cout << "position reached: ";
-            for (int i = 0; i < 6; ++i) {
-                cout << ef_pos[i] << " ";
-            }
-            cout << "\ntarget position:\n";
-            for (int i = 0; i < 6; ++i) {
-                cout << target_point(i) << " ";
-            }
-            cout << "\n";
+            // cout << "position reached: ";
+            // for (int i = 0; i < 6; ++i) {
+            //     cout << ef_pos[i] << " ";
+            // }
+            // cout << "\ntarget position:\n";
+            // for (int i = 0; i < 6; ++i) {
+            //     cout << target_point(i) << " ";
+            // }
+            // cout << "\n";
             Vector6d joint_angles;
             int index = 0;
             for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
@@ -269,10 +269,10 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
 
         ++num_iterations;
     }
-    cout << "AHH, safe checking!!!\n";
+    // cout << "AHH, safe checking!!!\n";
 
     Vector3d ef_pos = robot_state.get_ef_pos_world();
-    cout << "End effector positions [ " << ef_pos(0) << " " << ef_pos(1) << " " << ef_pos(2) << "]\n";
+    // cout << "End effector positions [ " << ef_pos(0) << " " << ef_pos(1) << " " << ef_pos(2) << "]\n";
 
     vector<double> angles_vec;
     auto joint_angs = robot_state.get_joint_angles();
@@ -280,10 +280,10 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
         angles_vec.push_back(it->second);
     }
     if (!is_safe(robot_state, angles_vec)){
-        cout << "ik not safe\n";
+        // cout << "ik not safe\n";
         return pair<Vector6d, bool> (vecTo6d(angles_vec), false);
     }
-    cout << "ik safe about to return\n";
+    // cout << "ik safe about to return\n";
 
     // restore robot_state to previous values
     recover_from_backup(robot_state);

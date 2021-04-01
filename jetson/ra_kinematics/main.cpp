@@ -1,5 +1,4 @@
 #include "json.hpp"
-#include "arm_state.hpp"
 #include "mrover_arm.hpp"
 #include "utils.hpp"
 
@@ -9,6 +8,7 @@
 
 using nlohmann::json;
 using namespace std;
+
 
 class lcmHandlers {
 public:
@@ -82,6 +82,8 @@ int main() {
     json geom = read_json_from_file(geom_file);
 
     cout << "INITIALIZING ROBOT ARM OBJECT\n";
+
+    
 
     lcm::LCM lcmObject;
     MRoverArm robot_arm(geom, lcmObject);
