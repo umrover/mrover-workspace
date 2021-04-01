@@ -831,6 +831,24 @@ var angles = function() {
     }
 };
 
+var presetAngles = function() {
+    this.presetToggles = {};
+    this.actual_JSON = {};
+    this.size = 0;
+    this.submit = function(){
+        for(i = 0; i < this.size; i++){
+            if(this.presetToggles[Object.keys(this.actual_JSON)[i]]){
+                var msg = {
+                    'type': 'PresetAngles',
+                    'preset': Object.keys(this.actual_JSON)[i]
+                }
+                kineval.publish('/preset_angles',msg);
+                break;
+            }
+        }
+   }
+};
+
 kineval.initGUIDisplay = function initGUIDisplay () {
 
     var gui = new dat.GUI();
@@ -960,6 +978,12 @@ kineval.initGUIDisplay = function initGUIDisplay () {
     gui2.add(text, 'beta');
     gui2.add(text, 'gamma');
     gui2.add(text, 'submit');
+
+    //../config/kinematics/mrover_arm_presets.json
+
+    var gui3 = new dat.GUI();
+    gui3.close();
+    presets_init(gui3);
 }
 
 kineval.initRobotLinksGeoms = function initRobotLinksGeoms() {
@@ -1255,4 +1279,36 @@ kineval.loadJSFile = function loadJSFile(filename,kineval_object) {
     if (kineval_object!=="robot" && kineval_object!=="world" && kineval_object!=="floor")
         console.warn("kineval: JS file loaded, object type "+kineval_object+" not recognized");
 
+}
+
+function loadJSON(callback) {   
+
+    var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+    xobj.open('GET', 'mrover_arm_presets.json', true); // Replace 'my_data' with the path to your file
+    xobj.onreadystatechange = function () {
+          if (xobj.readyState == 4 && xobj.status == "200") {
+            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+            callback(xobj.responseText);
+          }
+    };
+    xobj.send(null);  
+ }
+function presets_init(gui) {
+    loadJSON(function(response) {
+        // Parse JSON string into object
+        actual_JSON = JSON.parse(response);
+        console.log("presets json =" +JSON.stringify(actual_JSON));
+        var size = Object.keys(actual_JSON).length;
+        var presetToggles = {};
+        for(i = 0; i < size; i++){
+            presetToggles[Object.keys(actual_JSON)[i]] = false;
+            gui.add(presetToggles,Object.keys(actual_JSON)[i]);
+        }
+        var submit = new presetAngles();
+        submit.presetToggles = presetToggles;
+        submit.actual_JSON = actual_JSON;
+        submit.size = size;
+        gui.add(submit, "submit");
+    });
 }
