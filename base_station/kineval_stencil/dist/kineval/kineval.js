@@ -851,31 +851,9 @@ var presetAngles = function() {
 
 kineval.initGUIDisplay = function initGUIDisplay () {
 
-    var gui = new dat.GUI();
+    var primary_gui = new dat.GUI();
 
-    dummy_display = {};
-    dummy_display['kineval'] = function() {kineval.displayHelp};
-    gui.add(dummy_display, 'kineval');
-
-    gui.add(kineval.params, 'arm_enabled').onChange(function () {
-        var TalonConfigMsg =  {
-            'type': 'TalonConfig',
-            'enable_arm': kineval.params.arm_enabled,
-            'enable_sa': false,
-        }
-        kineval.publish('/talon_config', TalonConfigMsg)
-
-        for (var i = 1; i <= 6; i++) {
-            var OpenLoopMsg = {
-                'type': 'OpenLoopRAMotor',
-                'joint_id': i,
-                'speed': 0
-            }
-            kineval.publish('/arm_motors', OpenLoopMsg)
-        }
-    });
-
-    gui.add(kineval.params, 'simulation_mode').onChange(function () {
+    primary_gui.add(kineval.params, 'simulation_mode').onChange(function () {
         var SimulationModeMsg = {
             'type': 'SimulationMode',
             'sim_mode': kineval.params.simulation_mode
@@ -883,7 +861,7 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         kineval.publish('/simulation_mode', SimulationModeMsg)
     });
 
-    gui.add(kineval.params, 'lock_joint_e').onChange(function () {
+    primary_gui.add(kineval.params, 'lock_joint_e').onChange(function () {
         var LockJointEMsg = {
             'type': 'LockJointE',
             'locked': kineval.params.lock_joint_e
@@ -891,10 +869,10 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         kineval.publish('/lock_joint_e', LockJointEMsg)
     });
 
-    gui.add(kineval.params, 'use_orientation').onChange(function () {});
+    primary_gui.add(kineval.params, 'use_orientation').onChange(function () {});
 
-    var dummy_object = {};
-    dummy_object.send_target_orientation = function() {
+    var primary_display = {};
+    primary_display.send_target_orientation = function() {
         
         var three_d_rot = new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[0])
         three_d_rot.multiply(new THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[1]))
@@ -922,34 +900,7 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         console.log(kineval.params.use_orientation)
     }
 
-    dummy_object.target_angle_neutral = function() {
-        const goal = [0.0, 0.5, 1.0, 0.1, 0.0, 0.0]
-        kineval.publish_target_angles(goal)
-    }
-
-    dummy_object.target_angle_down = function() {
-        const goal = [0.0, 0.3, 1.5, 1.3, 0.0, 0.0]
-        kineval.publish_target_angles(goal)
-    }
-
-    dummy_object.preview_plan = function() {
-        var MotionPreviewMsg = {
-            'type': 'MotionExecute',
-            'preview': true,
-        }
-        console.log('Previewing plan')
-        kineval.publish('/motion_execute', MotionPreviewMsg)
-    }
-
-    dummy_object.execute_plan = function() {
-        var MotionExecuteMsg = { 
-            'type': 'MotionExecute',
-            'preview': false,
-        }
-        kineval.publish('/motion_execute', MotionExecuteMsg)
-    }
-
-    dummy_object.halt_motion = function() {
+    primary_display.halt_motion = function() {
         var IkEnabledMsg = {
             'type': 'IkEnabled',
             'enabled': false,
@@ -960,30 +911,24 @@ kineval.initGUIDisplay = function initGUIDisplay () {
     // 1. send point
     // 2. preview 
     // 3. execute 
-    gui.add(dummy_object, 'send_target_orientation');
-    gui.add(dummy_object, 'target_angle_neutral');
-    gui.add(dummy_object, 'target_angle_down');
-    gui.add(dummy_object, 'preview_plan');
-    gui.add(dummy_object, 'execute_plan');
-    gui.add(dummy_object, 'halt_motion');
+    primary_gui.add(primary_display, 'send_target_orientation');
+    primary_gui.add(primary_display, 'halt_motion');
 
     
     var text = new angles();
-    var gui2 = new dat.GUI();
-    gui2.close();
-    gui2.add(text, 'x');
-    gui2.add(text, 'y');
-    gui2.add(text, 'z');
-    gui2.add(text, 'alpha');
-    gui2.add(text, 'beta');
-    gui2.add(text, 'gamma');
-    gui2.add(text, 'submit');
+    var target_gui = new dat.GUI();
+    target_gui.add(text, 'x');
+    target_gui.add(text, 'y');
+    target_gui.add(text, 'z');
+    target_gui.add(text, 'alpha');
+    target_gui.add(text, 'beta');
+    target_gui.add(text, 'gamma');
+    target_gui.add(text, 'submit');
 
     //../config/kinematics/mrover_arm_presets.json
 
-    var gui3 = new dat.GUI();
-    gui3.close();
-    presets_init(gui3);
+    var preset_gui = new dat.GUI();
+    presets_init(preset_gui);
 }
 
 kineval.initRobotLinksGeoms = function initRobotLinksGeoms() {
