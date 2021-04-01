@@ -172,17 +172,15 @@ class IMU_Manager():
         # um7 sends back same message as request for data but with payload
         # containing IEEE 754 32bit number (= to python float)
         received = self.ser.readline()
-        print("reveived\n")
-        print(received)
-        if(received[0:8] == "b'snp\x80"):
-            print(received[0:8])
-            print(received)
-            print("\n")
-        # b'/0x74/0x72
-        # data = float(received[5:9])
-        # print("data")
-        # print(data)
-
+        # print(received)
+        # Filters the buffer looking for the has data packets and prints it
+        run = True
+        iterator = 0
+        while (run):
+            if(received[iterator:(iterator + 4)] == b'snp\x80'):
+                print(received[iterator:(iterator + 11)])
+                run = False
+            iterator = iterator + 1
 
 # end of class
 
