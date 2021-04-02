@@ -1259,6 +1259,7 @@ kineval.loadJSFile = function loadJSFile(filename,kineval_object) {
         console.warn("kineval: JS file loaded, object type "+kineval_object+" not recognized");
 
 }
+
 function loadJSON(callback) {   
 
     var xobj = new XMLHttpRequest();
