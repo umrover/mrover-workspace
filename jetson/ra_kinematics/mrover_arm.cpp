@@ -47,12 +47,12 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
 }
 
 void MRoverArm::target_orientation_callback(string channel, TargetOrientation msg) {
-    cout << "target orientation callback";
+    cout << "received target orientation, starting callback\n";
 
     enable_execute = false;
 
-    cout << "alpha beta gamma\n";
-    cout << msg.alpha << " , " << msg.beta << " , " << msg.gamma << "\n";
+    // cout << "alpha beta gamma\n";
+    // cout << msg.alpha << " , " << msg.beta << " , " << msg.gamma << "\n";
 
     bool use_orientation = msg.use_orientation;
     cout << "use orientation: " << use_orientation << "\n";
@@ -71,11 +71,10 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
     // attempt to find ik_solution, starting at up to 10 random positions
     for(int i = 0; i < 10; ++i) {
         if(ik_solution.second) {
-            cout << "Solved IK\n";
+            cout << "Solved IK with " << i << " random starting positions\n";
             break;
         }
 
-        cout << "Attempting new IK solution... (iteration " << i << ")\n";
         ik_solution = solver.IK(state, point, true, use_orientation);
     }
 
@@ -92,28 +91,26 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
         return;
     }
 
-    // create path of the angles ik found
+    // create path of the angles IK found
     plan_path(ik_solution.first);
 
     // view path on GUI without moving the physical arm
     preview();
 
     cout << "ended target orientation callback\n";
-    cout << "enable_execute: " << enable_execute << "\n";
-    cout << "ik_enabled: " << ik_enabled << "\n";
 }
 
 void MRoverArm::motion_execute_callback(string channel, MotionExecute msg) {
-    cout << "Motion Executing!\n";
 
     // TODO do we ever need to preview at this stage? Isn't that done before we get here?
     // TODO if user cancels after preview, figure out how to send current position to GUI
     if (msg.preview) {
-        enable_execute = false;
-        preview();
+        // enable_execute = false;
+        // preview();
     }
     else {
         // run loop inside execute_spline()
+        cout << "Motion Executing!\n";
         enable_execute = true;
     }
 }
@@ -183,14 +180,15 @@ void MRoverArm::preview() {
 
     // backup angles
     vector<double> backup;
-    for (auto const& pair : state.get_joint_angles()) {
-        backup.push_back(pair.second);
+    map<string, double> start = state.get_joint_angles();
+    for (string& joint_name : state.get_all_joints()) {
+        backup.push_back(start[joint_name]);
     }
 
     double num_steps = 500.0;
     double t = 0.0;
 
-    while (t < 1) {
+    while (t <= 1) {
 
         // set state to next position in the path
         vector<double> target = motion_planner.get_spline_pos(t);
@@ -246,16 +244,11 @@ void MRoverArm::preset_execute_callback(string channel, PresetAngles msg) {
         target[i++] = angle;
     }
 
-    cout << "Found presets:\n" << target << "\n";
-
     plan_path(target);
 
-    cout << "Path planned!\n";
     preview();
 
     cout << "End of preset callback\n";
-    cout << "enable_execute: " << enable_execute << "\n";
-    cout << "ik_enabled: " << ik_enabled << "\n";
 }
 
 void MRoverArm::publish_transforms(const ArmState& pub_state) {
@@ -271,8 +264,8 @@ void MRoverArm::publish_transforms(const ArmState& pub_state) {
 }
 
 void MRoverArm::lock_e_callback(string channel, LockJointE msg) {
-       cout << "joint e locked" << endl;
-    //    solver.lock_joint_e(msg.locked); //no function lock_joint_e in kinematics.cpp
+    // cout << "joint e locked" << endl;
+    // solver.lock_joint_e(msg.locked); //no function lock_joint_e in kinematics.cpp
 }
 void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {  
     ik_enabled = msg.enabled;
@@ -302,27 +295,22 @@ void MRoverArm::target_angles_callback(string channel, TargetAngles msg) {
    cout << endl;
    plan_path(goal);
 }
- 
-void MRoverArm::plan_path(Vector6d goal) {
-    cout << "goal" << endl;
-    for(int i = 0; i<goal.size(); i++) {
-        cout << goal[i] << "\t";
-    }
 
+void MRoverArm::plan_path(Vector6d goal) {
     bool path_found = motion_planner.rrt_connect(state, goal);
     if (path_found) {
-        cout << "planned path" << endl;
+        cout << "planned path\n";
     }
     else {
-        cout << "No path found" << endl;
+        cout << "No path found\n";
     }
 }
- 
+
 void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg) {
     sim_mode = msg.sim_mode;
     // publish_transforms(state);
 }
- 
+
 // void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {
 //    if(enable_execute) {
 //        return;

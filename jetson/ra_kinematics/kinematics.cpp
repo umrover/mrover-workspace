@@ -279,11 +279,13 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     for (auto it = joint_angs.begin(); it != joint_angs.end(); ++it) {
         angles_vec.push_back(it->second);
     }
+
     if (!is_safe(robot_state, angles_vec)){
-        // cout << "ik not safe\n";
+        cout << "Found IK solution, but solution is not safe!\n";
+
+        recover_from_backup(robot_state);
         return pair<Vector6d, bool> (vecTo6d(angles_vec), false);
     }
-    // cout << "ik safe about to return\n";
 
     // restore robot_state to previous values
     recover_from_backup(robot_state);
