@@ -10,5 +10,6 @@
       ansible_python_interpreter: /usr/bin/python3
   roles:
   - jetson_dev
+  - common_dev
   - jetson_networks
   - jetson_services

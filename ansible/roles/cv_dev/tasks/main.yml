@@ -5,9 +5,5 @@
       - libboost-dev
       - imagemagick
       - libtinyxml-dev
-      - cmake
-      - build-essential
-      - nodejs
-      - yarn
       - mercurial
     state: present

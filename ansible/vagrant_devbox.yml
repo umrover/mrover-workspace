@@ -10,6 +10,7 @@
   - base_station_dev
   - cv_dev
   - pis_dev
+  - common_dev
   tasks:
   - name: Configure bashrc
     copy:

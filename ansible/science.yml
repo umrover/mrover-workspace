@@ -9,6 +9,7 @@
   roles:
   - jetson_dev
   - base_station_dev
+  - common_dev
   - science_networks
   - science_services
   tasks:
