@@ -3,9 +3,17 @@ import serial
 import asyncio
 import math
 import time
+import struct
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import IMUData
+
+# Converting binary to float
+
+
+def binaryToFloat(value):
+    hx = hex(int(value, 2))
+    return struct.unpack("d", struct.pack("q", int(hx, 16)))[0]
 
 
 class IMU_Manager():
@@ -180,6 +188,14 @@ class IMU_Manager():
             if(received[iterator:(iterator + 4)] == b'snp\x80'):
                 print(received[iterator:(iterator + 11)])
                 run = False
+                data = [0x00, 0x00, 0x00, 0x00]
+                # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
+                data = received[(iterator + 5):(iterator + 9)]
+                print(data)
+                plaincontent = (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3])
+                print(plaincontent)
+                val = struct.unpack('>f', data)
+                print(val)
             iterator = iterator + 1
 
 # end of class
@@ -200,14 +216,17 @@ def main():
 
         # hopefully spits out calibrated values from registers
         for r in GYRO_PROC:
-            print("GYRO_PROC\n")
+            print("GYRO_PROC")
             manager.get_calibrated(r)
+            print("\n")
         for r in MAG_PROC:
-            print("MAG_PROC\n")
+            print("MAG_PROC")
             manager.get_calibrated(r)
+            print("\n")
         for r in ACCEL_PROC:
-            print("ACCEL_PROC\n")
+            print("ACCEL_PROC")
             manager.get_calibrated(r)
+            print("\n")
 
         manager.enable_nmea(NMEA_RATE_REG)
 
