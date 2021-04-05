@@ -125,7 +125,7 @@ kineval.initlcmbridge = function initlcmbridge() {
             kineval.connections.cameras = online.slice(1)
         },
         // Subscribed LCM message received
-        (msg) => {
+        async (msg) => {
             if (msg.topic == '/arm_position') {
                 var all_joints = Object.keys(robot.joints).slice(0, Object.keys(robot.joints).length - 1)
                 for (var joint_idx in all_joints) {
@@ -198,8 +198,18 @@ kineval.initlcmbridge = function initlcmbridge() {
                     }
                 }
                 else if (msg['message']['message'].includes("Preview")) {
-                    shouldExecute = window.confirm("Previewed path. Execute Path?");
+
+                    // focus window to ensure popup appears
+                    while (!document.hasFocus()) {
+                        await new Promise(r => setTimeout(r, 200))
+                    }
+
+                    // send popup to user
+                    shouldExecute = window.confirm("Previewed path. Execute path?");
+
+                    // send lcm accordingly
                     if (shouldExecute) {
+                        console.log("confirmed path execution")
                         var MotionPreviewMsg = {
                             'type': 'MotionExecute',
                             'preview': false,
@@ -207,6 +217,7 @@ kineval.initlcmbridge = function initlcmbridge() {
                         kineval.publish('/motion_execute', MotionPreviewMsg)
                     }
                     else {
+                        console.log("declined path execution")
                         var IKenabled = {
                             'type': 'IkEnabled',
                             'enabled': false,
@@ -214,7 +225,6 @@ kineval.initlcmbridge = function initlcmbridge() {
                         kineval.publish('/ik_enabled', IKenabled)
                     }
                 }
-            
 
             }
 
@@ -895,7 +905,7 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         }
 
         kineval.publish('/target_orientation', TargetOrientationMsg)
-        kineval.params.update_motion_plan = true;
+        //kineval.params.update_motion_plan = true;
         console.log("sent point")
         console.log(kineval.params.use_orientation)
     }
