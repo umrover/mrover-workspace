@@ -1,0 +1,13 @@
+[Unit]
+Description=MRover Onboard Navigation
+Requires=rover-jetson-teleop.service
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jarvis exec jetson_odrive_bridge 0
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

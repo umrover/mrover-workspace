@@ -246,7 +246,7 @@ def sa_control_callback(channel, msg):
 
     foot_msg = FootCmd()
     foot_msg.scoop = xboxData.a - xboxData.y
-    foot_msg.microscope_triad = 0.5 * (xboxData.left_bumper - xboxData.right_bumper)
+    foot_msg.microscope_triad = -(xboxData.left_bumper - xboxData.right_bumper)
     lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
 
