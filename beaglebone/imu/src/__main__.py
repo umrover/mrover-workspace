@@ -2,9 +2,18 @@ import Adafruit_BBIO.UART as UART
 import serial
 import asyncio
 import math
+import time
+import struct
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import IMUData
+
+# Converting binary to float
+
+
+def binaryToFloat(value):
+    hx = hex(int(value, 2))
+    return struct.unpack("d", struct.pack("q", int(hx, 16)))[0]
 
 
 class IMU_Manager():
@@ -147,7 +156,6 @@ class IMU_Manager():
 
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, register,
                       0x00, 0x00, 0x00, 0x00, checksum >> 8, checksum & 0xff]
-        print(bytes(cmd_buffer))
 
         self.ser.write(cmd_buffer)
 
@@ -160,18 +168,35 @@ class IMU_Manager():
 
         self.ser.write(cmd_buffer)
 
-    def calibrate(self):
-        registers = [0xAD, 0xB0, 0xB1]
-        PTs = [0x80, 0x80, 0x80]
+    def get_calibrated(self, register):
+        checksum = ord('s') + ord('n') + ord('p') + register
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, register,
+                      checksum >> 8, checksum & 0xff]
 
-        for i in range(0, 3):
-            checksum = ord('s') + ord('n') + ord('p') + registers[i] + PTs[i]
+        # sends reques for data
+        self.ser.write(cmd_buffer)
+        time.sleep(.5)
 
-            cmd_buffer = [ord('s'), ord('n'), ord('p'), PTs[i], registers[i],
-                          checksum >> 8, checksum & 0xff]
-
-            self.ser.write(cmd_buffer)
-    
+        # um7 sends back same message as request for data but with payload
+        # containing IEEE 754 32bit number (= to python float)
+        received = self.ser.readline()
+        # print(received)
+        # Filters the buffer looking for the has data packets and prints it
+        run = True
+        iterator = 0
+        while (run):
+            if(received[iterator:(iterator + 4)] == b'snp\x80'):
+                print(received[iterator:(iterator + 11)])
+                run = False
+                data = [0x00, 0x00, 0x00, 0x00]
+                # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
+                data = received[(iterator + 5):(iterator + 9)]
+                print(data)
+                plaincontent = (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3])
+                print(plaincontent)
+                val = struct.unpack('>f', data)
+                print(val)
+            iterator = iterator + 1
 
 # end of class
 
@@ -179,6 +204,9 @@ class IMU_Manager():
 def main():
     # Uses a context manager to ensure serial port released
     NMEA_RATE_REG = 0x07
+    GYRO_PROC = [0x61, 0x62, 0x63]
+    MAG_PROC = [0x69, 0x6A, 0x6B]
+    ACCEL_PROC = [0x65, 0x66, 0x67]
 
     with IMU_Manager() as manager:
         # turns off registers that are outputting non-NMEA data
@@ -186,8 +214,21 @@ def main():
         for reg in l:
             manager.turnOffRegister(reg)
 
+        # hopefully spits out calibrated values from registers
+        for r in GYRO_PROC:
+            print("GYRO_PROC")
+            manager.get_calibrated(r)
+            print("\n")
+        for r in MAG_PROC:
+            print("MAG_PROC")
+            manager.get_calibrated(r)
+            print("\n")
+        for r in ACCEL_PROC:
+            print("ACCEL_PROC")
+            manager.get_calibrated(r)
+            print("\n")
+
         manager.enable_nmea(NMEA_RATE_REG)
-        # manager.calibrate()
 
         lcm = aiolcm.AsyncLCM()
 
