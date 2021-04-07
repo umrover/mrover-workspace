@@ -37,7 +37,9 @@ public:
 
     virtual NavState executeTurnAroundObs( Rover* rover, const rapidjson::Document& roverConfig ) = 0;
 
-    virtual NavState executeDriveAroundObs( Rover* rover ) = 0;
+
+    virtual NavState executeDriveAroundObs( Rover* rover, const rapidjson::Document& roverConfig ) = 0;
+
 
 protected:
     /*************************************************************************/
