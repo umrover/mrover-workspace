@@ -13,6 +13,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
+import { calcRelativeOdom } from '../../utils/utils';
 import {
   ArTag,
   FieldOfViewOptions,
@@ -91,6 +92,10 @@ export default class Perception extends Vue {
 
     /* Recompute targetList LCM */
     this.targetDetector.updateArTags(this.arTags);
+
+    /* Recompute obstacleList LCM*/
+    this.onObstaclesChange();
+
     this.computeVisibleTargets();
   } /* onArTagsChange() */
 
@@ -170,6 +175,10 @@ export default class Perception extends Vue {
 
     /* Recompute targetList LCM */
     this.targetDetector.updateGates(this.gates);
+
+    /* Recompute obstacles */
+    this.onObstaclesChange();
+
     this.computeVisibleTargets();
   } /* onGatesChange() */
 
@@ -182,8 +191,32 @@ export default class Perception extends Vue {
       return;
     }
 
+    /* Take a deep copy of the obstacles array */
+    const newObstacles:Obstacle[] = this.obstacles.slice();
+
+    /* Add ar tag and gate obstacles to array */
+    for (let i = 0; i < this.arTags.length; i += 1) {
+      newObstacles.push({ odom: this.arTags[i].odom, size: 0.25 });
+    }
+    for (let i = 0; i < this.gates.length; i += 1) {
+      newObstacles.push({
+        odom: calcRelativeOdom(this.gates[i].odom,
+                               this.gates[i].orientation,
+                               this.gates[i].width / 2,
+                               this.fieldCenterOdom),
+        size: 0.25
+      });
+      newObstacles.push({
+        odom: calcRelativeOdom(this.gates[i].odom,
+                               this.gates[i].orientation + 180,
+                               this.gates[i].width / 2,
+                               this.fieldCenterOdom),
+        size: 0.25
+      });
+    }
+    this.obstacleDetector.updateObstacles(newObstacles);
+
     /* Recompute obstacle LCM */
-    this.obstacleDetector.updateObstacles(this.obstacles);
     this.computeVisibleObstacles();
   } /* onObstaclesChange() */
 
@@ -213,7 +246,6 @@ export default class Perception extends Vue {
     /* Recompute targetList LCM */
     this.targetDetector.updateZedGimbalPos(this.zedGimbalPos);
     this.computeVisibleTargets();
-    console.log('here');
   }
 
   /************************************************************************************************
