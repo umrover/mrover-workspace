@@ -67,7 +67,8 @@ def lcmThreaderMan():
         lcm_1.handle()
         try:
             publish_encoder_msg()
-        except (NameError, AttributeError, fibre.protocol.ChannelBrokenException):
+        except Exception as e:
+            print("crashed with exception:", e)
             if usblock.locked():
                 usblock.release()
 
@@ -177,8 +178,8 @@ class ErrorState(State):
         if (event == Event.ODRIVE_ERROR):
             try:
                 modrive.reboot()  # only runs after initial pairing
-            except:
-                print('channel error caught')
+            except Exception as e:
+                print('Exception caught:', e)
 
             return DisconnectedState()
 
@@ -239,13 +240,14 @@ class OdriveBridge(object):
                 modrive.watchdog_feed()
                 usblock.release()
 
-            except (fibre.protocol.ChannelBrokenException, AttributeError):
+            except Exception as e:
                 if usblock.locked():
                     usblock.release()
                 errors = 0
                 usblock.acquire()
                 self.on_event(Event.DISCONNECTED_ODRIVE)
                 usblock.release()
+                print("update failed with exception:", e)
                 print("unable to check errors of unplugged odrive")
 
             if errors:
@@ -329,7 +331,8 @@ def drive_vel_cmd_callback(channel, msg):
             speedlock.acquire()
             left_speed, right_speed = cmd.left, cmd.right
             speedlock.release()
-    except NameError:
+    except Exception as e:
+        print("crashed in cmd cb with exception:", e)
         pass
 
 
