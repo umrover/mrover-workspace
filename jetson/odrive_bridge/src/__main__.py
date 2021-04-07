@@ -65,6 +65,8 @@ def lcmThreaderMan():
     lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
     while True:
         lcm_1.handle()
+        global start_time
+        start_time = t.clock()
         try:
             publish_encoder_msg()
         except Exception as e:
