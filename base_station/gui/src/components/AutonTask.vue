@@ -45,7 +45,7 @@
       <AutonWaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
     </div>
     <div class="box cameras light-bg">
-      <Cameras v-if="!this.autonEnabled" v-bind:numCams="4" v-bind:mission="Auton" v-bind:channel="'/cameras_control'"/>
+      <Cameras v-if="!this.autonEnabled" v-bind:numCams="4" v-bind:mission="'Auton'" v-bind:channel="'/cameras_control'"/>
     </div>
   </div>
 
