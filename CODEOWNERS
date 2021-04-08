@@ -1,6 +1,6 @@
 # Files owned by Perception
-/jetson/percep/             @umrover/perception
-/config/percep/             @umrover/perception
-/rover_msgs/Obstacle.lcm    @umrover/perception
-/rover_msgs/TargetList.lcm  @umrover/perception
-/rover_msgs/Target.lcm      @umrover/perception
+/jetson/percep/             @mmartin4972
+/config/percep/             @mmartin4972
+/rover_msgs/Obstacle.lcm    @mmartin4972
+/rover_msgs/TargetList.lcm  @mmartin4972
+/rover_msgs/Target.lcm      @mmartin4972
