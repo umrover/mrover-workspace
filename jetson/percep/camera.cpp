@@ -84,7 +84,7 @@ Camera::Impl::Impl(const rapidjson::Document &config) : THRESHOLD_CONFIDENCE(con
 bool Camera::Impl::grab() {
     return this->zed_.grab() == sl::ERROR_CODE::SUCCESS;
 }
-
+//Testing
 cv::Mat Camera::Impl::image() {
 	this->zed_.retrieveImage(this->image_zed_, sl::VIEW::LEFT, sl::MEM::CPU,
 							 this->image_size_);
