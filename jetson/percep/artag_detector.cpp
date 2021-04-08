@@ -133,7 +133,7 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     }
     return discoveredTags;
 }
-
+//Changes
 double TagDetector::getAngle(float xPixel, float wPixel){
     double fieldofView = 110 * PI/180;
     return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
