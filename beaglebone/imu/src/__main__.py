@@ -81,7 +81,7 @@ class IMU_Manager():
                 print("Passed")
                 pass
         # fill with zeroes if something goes wrong.
-        except Exception as a:
+        except a:
             print("Error with PCHRS handler")
             print(a)
             imu_struct.gyro_x_dps = 0
@@ -110,7 +110,7 @@ class IMU_Manager():
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
             imu_struct.yaw_rad = float(arr[4]) * pi / 180
             # fill with zeroes if something goes wrong
-        except Exception as b:
+        except b:
             print("Error with PCHRA handler")
             print(b)
             imu_struct.roll_rad = 0
@@ -216,14 +216,14 @@ class IMU_Manager():
         # checksum is computed using XOR of every byte in the packet
         # except '*' and '$'
         def calc_checksum(self, msg):
-            calc_checksum = 0
+            c_checksum = 0
             for b in msg:
-                calc_checksum ^= ord(b)
+                c_checksum ^= ord(b)
 
-            calc_checksum = hex(calc_checksum)
-            calc_checksum = f'{calc_checksum}'[2:]
+            c_checksum = hex(c_checksum)
+            c_checksum = int((str(c_checksum))[2:])
 
-            return calc_checksum
+            return c_checksum
 
 # end of class
 
