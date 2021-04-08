@@ -46,20 +46,6 @@ class IMU_Manager():
         '''
         self.ser.close()
 
-    
-    # returns hex value of calculated checksum fromt the message
-    # checksum is computed using XOR of every byte in the packet
-    # except '*' and '$'
-    def calc_checksum(self, msg):
-        c_checksum = 0
-        for b in msg:
-            c_checksum ^= ord(b)
-
-        c_checksum = hex(c_checksum)
-        c_checksum = int((str(c_checksum))[2:])
-
-        return c_checksum
-
     def pchrs_handler(self, msg, imu_struct):
         # packet type can be either 0: gyro, 1: accel, 2: magnetometer
         # mag data is unit-nrom (unitless)
@@ -68,7 +54,7 @@ class IMU_Manager():
 
             # Checksum checking
             checksum = int(arr[6][2:])
-            if(checksum != calc_checksum(msg)):
+            if(checksum != self.calc_checksum(msg)):
                 # error in checksum
                 raise ValueError("Failed Checksum")
 
@@ -115,7 +101,7 @@ class IMU_Manager():
 
             # Checksum checking
             checksum = int(arr[6][2:])
-            if(checksum != calc_checksum(msg)):
+            if(checksum != self.calc_checksum(msg)):
                 # error in checksum
                 raise ValueError("Failed Checksum")
 
@@ -225,6 +211,17 @@ class IMU_Manager():
                 val = struct.unpack('>f', data)
                 print(val)
             iterator = iterator + 1
+
+        # returns hex value of calculated checksum fromt the message
+        # checksum is computed using XOR of every byte in the packet
+        # except '*' and '$'
+        def calc_checksum(self, msg):
+            c_checksum = 0
+            for b in msg:
+                c_checksum ^= ord(b)
+            c_checksum = hex(c_checksum)
+            c_checksum = int((str(c_checksum))[2:])
+            return c_checksum
 
 # end of class
 
