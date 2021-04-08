@@ -124,7 +124,7 @@ class SensorFusion:
         self.nav_state = None
         self.static_nav_states = {None, "Off", "Done", "Search Spin Wait", "Turned to Target Wait", "Gate Spin Wait",
                                   "Turn", "Search Turn", "Turn to Target", "Turn Around Obstacle",
-                                  "Search Turn Around Obstacle", "Gate Turn", "Gate Turn to Center Point",\
+                                  "Search Turn Around Obstacle", "Gate Turn", "Gate Turn to Center Point",
                                   "Radio Repeater Turn"}
 
         self.filter = None
