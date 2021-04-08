@@ -1,0 +1,6 @@
+# Files owned by Perception
+/jetson/percep/             @umrover/perception
+/config/percep/             @umrover/perception
+/rover_msgs/Obstacle.lcm    @umrover/perception
+/rover_msgs/TargetList.lcm  @umrover/perception
+/rover_msgs/Target.lcm      @umrover/perception
