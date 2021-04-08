@@ -159,3 +159,9 @@ bool isObstacleDetected( Rover* rover )
 {
     return rover->roverStatus().obstacle().distance >= 0;
 } // isObstacleDetected()
+
+// Returns true if distance from obstacle is within user-configurable threshold
+bool isObstacleInThreshold( Rover* rover, const rapidjson::Document& roverConfig )
+{
+    return rover->roverStatus().obstacle().distance <= roverConfig["navThresholds"]["obstacleDistanceThreshold"].GetDouble();
+} // isObstacleInThreshold()
