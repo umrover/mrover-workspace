@@ -56,7 +56,7 @@ class IMU_Manager():
             checksum = int(arr[6][2:])
             if(checksum != calc_checksum(msg)):
                 # error in checksum
-                raise a
+                raise ValueError("Failed Checksum")
 
             print(arr)
             packetType = arr[1]
@@ -81,9 +81,9 @@ class IMU_Manager():
                 print("Passed")
                 pass
         # fill with zeroes if something goes wrong.
-        except a:
+        except Exception as a:
             print("Error with PCHRS handler")
-            print(a)
+            print(a.args)
             imu_struct.gyro_x_dps = 0
             imu_struct.gyro_y_dps = 0
             imu_struct.gyro_z_dps = 0
@@ -103,16 +103,16 @@ class IMU_Manager():
             checksum = int(arr[6][2:])
             if(checksum != calc_checksum(msg)):
                 # error in checksum
-                raise b
+                raise ValueError("Failed Checksum")
 
             # raw values are in degrees, need to convert to radians
             imu_struct.roll_rad = float(arr[2]) * pi / 180
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
             imu_struct.yaw_rad = float(arr[4]) * pi / 180
             # fill with zeroes if something goes wrong
-        except b:
+        except Exception as b:
             print("Error with PCHRA handler")
-            print(b)
+            print(b.args)
             imu_struct.roll_rad = 0
             imu_struct.pitch_rad = 0
             imu_struct.yaw_rad = 0
