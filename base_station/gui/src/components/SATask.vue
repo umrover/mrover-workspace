@@ -47,6 +47,9 @@
     <div class="box ammonia light-bg">
       <Ammonia/>
     </div>
+    <div class="box amino light-bg">
+      <Amino/>
+    </div>
     <div class="box drives light-bg">
       <DriveVelDataV/>
     </div>
@@ -66,6 +69,7 @@ import SpectralData from './SpectralData.vue'
 import Chlorophyll from './Chlorophyll.vue'
 import Ammonia from './Ammonia.vue'
 import DriveVelDataV from './DriveVelDataV.vue'
+import Amino from './Amino.vue'
 
 let interval;
 
@@ -195,7 +199,8 @@ export default {
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
         {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
-        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
+        {'topic': '/thermistor_data', 'type': 'ThermistorData'}
       ]
     )
 
@@ -250,7 +255,8 @@ export default {
     SpectralData,
     Chlorophyll,
     Ammonia,
-    DriveVelDataV
+    DriveVelDataV,
+    Amino
   }
 }</script>
 
@@ -260,8 +266,8 @@ export default {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: 2fr 1fr 1fr;
-        grid-template-rows: 60px 3fr 1fr 2fr 3fr;
-        grid-template-areas: "header header header" "map cameras cameras" "map spectral drives" "map chlorophyll drives" "odom ammonia drives";
+        grid-template-rows: 60px 3fr 1fr 2fr 1.5fr 1.5fr;
+        grid-template-areas: "header header header" "map cameras cameras" "map spectral drives" "map chlorophyll drives" "odom ammonia drives" "odom amino drives";
         font-family: sans-serif;
         height: 98vh;
         overflow: auto;
@@ -351,6 +357,10 @@ export default {
         grid-area: odom;
         font-size: 1em;
     }
+
+    .amino{
+      grid-area: amino;
+    } 
 
     .ammonia{
       grid-area: ammonia;

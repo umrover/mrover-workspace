@@ -12,21 +12,21 @@
       </select>
       UV Status: {{siteUVs.UV0}}
     </div-->
-    <!--div class="box1" v-if="whiteLEDS == 0">
-        <button  v-on:click="whiteLEDS=1">
+    <div class="box1" v-if="whiteLEDS == 0">
+        <button  v-on:click="whiteLEDS=1,setPart(5,true)">
         White LEDs On
         </button>
     </div>
     <div class="box1" v-if="whiteLEDS == 1">
-        <button  v-on:click="whiteLEDS=0">
+        <button  v-on:click="whiteLEDS=0,setPart(5,false)">
         White LEDs Off
         </button>
-    </div-->
+    </div>
     <div class="box1">
-        <button v-if="siteUVs.UV0 == 0" v-on:click="siteUVs.UV0 = 1,setPart(1,true)">
+        <button v-if="siteUVs.UV0 == 0" v-on:click="siteUVs.UV0 = 1,setPart(4,true),setPart(3,true)">
         UV On
         </button>
-        <button v-if="siteUVs.UV0 == 1" v-on:click="siteUVs.UV0 = 0,setPart(1,false)">
+        <button v-if="siteUVs.UV0 == 1" v-on:click="siteUVs.UV0 = 0,setPart(4,false),setPart(3,false)">
         UV Off
         </button>
     </div>

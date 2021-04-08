@@ -1,6 +1,7 @@
 package rover_msgs;
 
 struct ThermistorData {
-	double temperature_C; // Celsius
-	string thermistor; // Either thermistor white, blue, or yellow
+	double temp0; //Celsius
+	double temp1; 
+	double temp2; 
 }
