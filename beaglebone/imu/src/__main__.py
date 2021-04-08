@@ -54,10 +54,9 @@ class IMU_Manager():
 
             # Checksum checking
             checksum = int(arr[6][2:])
-            if(checksum != calc_checksum(msg)){
+            if(checksum != calc_checksum(msg)):
                 # error in checksum
                 raise a
-            }
 
             print(arr)
             packetType = arr[1]
@@ -102,10 +101,9 @@ class IMU_Manager():
 
             # Checksum checking
             checksum = int(arr[6][2:])
-            if(checksum != calc_checksum(msg)){
+            if(checksum != calc_checksum(msg)):
                 # error in checksum
                 raise b
-            }
 
             # raw values are in degrees, need to convert to radians
             imu_struct.roll_rad = float(arr[2]) * pi / 180
@@ -215,7 +213,7 @@ class IMU_Manager():
             iterator = iterator + 1
 
         # returns hex value of calculated checksum fromt the message
-        # checksum is computed using XOR of every byte in the packet 
+        # checksum is computed using XOR of every byte in the packet
         # except '*' and '$'
         def calc_checksum(self, msg):
             calc_checksum = 0
