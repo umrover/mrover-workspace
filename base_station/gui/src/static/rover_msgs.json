@@ -884,6 +884,20 @@
             "enabled"
         ]
     ],
+    "ThermistorData": [
+        [
+            "double",
+            "temp0"
+        ],
+        [
+            "double",
+            "temp1"
+        ],
+        [
+            "double",
+            "temp2"
+        ]
+    ],
     "Waypoint": [
         [
             "boolean",

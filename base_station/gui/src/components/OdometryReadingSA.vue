@@ -66,7 +66,7 @@ export default {
       sendCollect: function (button) {
         this.$parent.publish("/mosfet_cmd", {
         'type': 'MosfetCmd',
-        'device': 5,
+        'device': 12,
         'enable': true
       })
         let obj = this.$refs["raman"]
@@ -77,7 +77,7 @@ export default {
         this.$refs["raman"].disabled = false;
         this.$parent.publish("/mosfet_cmd", {
             'type': 'MosfetCmd',
-            'device': 5,
+            'device': 12,
             'enable': false
           })
       }
