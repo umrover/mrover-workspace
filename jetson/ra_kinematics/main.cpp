@@ -35,10 +35,10 @@ public:
     void executePresetCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const string& channel,
-        const PresetAngles* p_execute
+        const ArmPosition* p_execute
         )
     {
-        arm->preset_execute_callback( channel, *p_execute );
+        arm->target_angles_callback( channel, *p_execute );
     }
       
     void armPositionCallback(
@@ -82,8 +82,6 @@ int main() {
     json geom = read_json_from_file(geom_file);
 
     cout << "INITIALIZING ROBOT ARM OBJECT\n";
-
-    
 
     lcm::LCM lcmObject;
     MRoverArm robot_arm(geom, lcmObject);

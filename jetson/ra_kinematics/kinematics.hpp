@@ -15,7 +15,7 @@ static constexpr double ANGLE_THRESHOLD = 10.0;
 static constexpr int ANG_WEIGHT = 1;
 static constexpr double j_kp = 0.1;
 static constexpr double j_kd = 0;
-static constexpr double delta_theta = 0.0001;
+static constexpr double DELTA_THETA = 0.0001;
 
 
 class KinematicsSolver {

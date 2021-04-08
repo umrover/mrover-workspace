@@ -328,13 +328,13 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
 
             // calculate end effector orientation jacobian values
             if (use_euler_angles) {
-                Matrix4d n_xform = apply_joint_xform(robot_state, joints[i], delta_theta);
+                Matrix4d n_xform = apply_joint_xform(robot_state, joints[i], DELTA_THETA);
 
                 Vector3d euler_angles;
                 euler_angles = compute_euler_angles(n_xform.block(0,0,3,3));
                 // cout << " blocking\n";
                 Vector3d diff_angs = (euler_angles - ef_euler_world);
-                Vector3d delta_angs = diff_angs / delta_theta;
+                Vector3d delta_angs = diff_angs / DELTA_THETA;
 
                 joint_col_xyz = joint_col_xyz.transpose();
 

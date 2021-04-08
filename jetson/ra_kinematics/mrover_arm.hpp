@@ -16,10 +16,8 @@
 #include "rover_msgs/IkEnabled.hpp"
 #include "rover_msgs/SimulationMode.hpp"
 #include "rover_msgs/IkArmControl.hpp"
-#include "rover_msgs/TargetAngles.hpp"
 #include "rover_msgs/LockJointE.hpp"
-#include "rover_msgs/PresetAngles.hpp"
-#include "rover_msgs/IkEnabled.hpp"
+#include "rover_msgs/DebugMessage.hpp"
  
 using namespace rover_msgs;
  
@@ -84,8 +82,6 @@ public:
     void motion_execute_callback(string channel, MotionExecute msg);
     
     void ik_enabled_callback(string channel, IkEnabled msg);
-
-    void preset_execute_callback(string channel, PresetAngles msg);
     
     void simulation_mode_callback(string channel, SimulationMode msg);
 
@@ -99,7 +95,13 @@ public:
 
     void lock_e_callback(string channel, LockJointE msg);
 
-    void target_angles_callback(string channel, TargetAngles msg);
+    /**
+     * Handle request to go to specific set of angles
+     * 
+     * @param channel expected: "/preset_angles", but could handle others
+     * @param msg format: double joint_a, joint_b, joint_c, joint_d, joint_e, joint_f
+     * */
+    void target_angles_callback(string channel, ArmPosition msg);
 
     void cartesian_control_callback(string channel, IkArmControl msg);
 

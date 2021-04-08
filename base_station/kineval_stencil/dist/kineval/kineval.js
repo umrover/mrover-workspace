@@ -845,14 +845,24 @@ var presetAngles = function() {
     this.presetToggles = {};
     this.actual_JSON = {};
     this.size = 0;
-    this.submit = function(){
-        for(i = 0; i < this.size; i++){
-            if(this.presetToggles[Object.keys(this.actual_JSON)[i]]){
+
+    this.submit = function() {
+
+        for (i = 0; i < this.size; i++) {
+            // if key i is toggled
+            if (this.presetToggles[Object.keys(this.actual_JSON)[i]]) {
                 var msg = {
-                    'type': 'PresetAngles',
-                    'preset': Object.keys(this.actual_JSON)[i]
+                    'type': 'ArmPosition',
+                    'joint_a': this.actual_JSON[Object.keys(this.actual_JSON)[i]][0],
+                    'joint_b': this.actual_JSON[Object.keys(this.actual_JSON)[i]][1],
+                    'joint_c': this.actual_JSON[Object.keys(this.actual_JSON)[i]][2],
+                    'joint_d': this.actual_JSON[Object.keys(this.actual_JSON)[i]][3],
+                    'joint_e': this.actual_JSON[Object.keys(this.actual_JSON)[i]][4],
+                    'joint_f': this.actual_JSON[Object.keys(this.actual_JSON)[i]][5]
                 }
-                kineval.publish('/preset_angles',msg);
+
+                // send message to kinematics and exit loop
+                kineval.publish('/preset_angles', msg);
                 break;
             }
         }
@@ -1236,30 +1246,43 @@ kineval.loadJSFile = function loadJSFile(filename,kineval_object) {
 
 }
 
-function loadJSON(callback) {   
-
+function loadJSON(callback) {
     var xobj = new XMLHttpRequest();
-        xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'mrover_arm_presets.json', true); // Replace 'my_data' with the path to your file
+    xobj.overrideMimeType("application/json");
+
+    // open json preset file
+    xobj.open('GET', 'mrover_arm_presets.json', true);
+
+    // once file is loaded
     xobj.onreadystatechange = function () {
-          if (xobj.readyState == 4 && xobj.status == "200") {
+        if (xobj.readyState == 4 && xobj.status == "200") {
+            console.log('Loaded presets json');
             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
             callback(xobj.responseText);
-          }
+        }
+        else {
+            console.log('Could not load presets json');
+        }
     };
     xobj.send(null);  
- }
+}
+
+// create menu for presets
 function presets_init(gui) {
+
+    // pass callback to loadJSON to be called when it gets data from json file
     loadJSON(function(response) {
         // Parse JSON string into object
         actual_JSON = JSON.parse(response);
-        console.log("presets json =" +JSON.stringify(actual_JSON));
+        console.log("presets json =" + JSON.stringify(actual_JSON));
+
         var size = Object.keys(actual_JSON).length;
-        var presetToggles = {};
-        for(i = 0; i < size; i++){
+        var presetToggles = { };
+        for(i = 0; i < size; i++) {
             presetToggles[Object.keys(actual_JSON)[i]] = false;
-            gui.add(presetToggles,Object.keys(actual_JSON)[i]);
+            gui.add(presetToggles, Object.keys(actual_JSON)[i]);
         }
+
         var submit = new presetAngles();
         submit.presetToggles = presetToggles;
         submit.actual_JSON = actual_JSON;

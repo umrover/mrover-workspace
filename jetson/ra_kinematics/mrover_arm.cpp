@@ -4,10 +4,6 @@
 #include "kinematics.hpp"
 #include "spline.h"
 #include "utils.hpp"
-#include "rover_msgs/ArmPosition.hpp"
-#include "rover_msgs/MotionExecute.hpp"
-#include "rover_msgs/FKTransform.hpp"
-#include "rover_msgs/DebugMessage.hpp"
 
 #include <chrono>
 #include <thread>
@@ -15,8 +11,6 @@
 using namespace std;
 using namespace Eigen;
 using nlohmann::json;
-
-#define PRESET_FILE "/vagrant/config/kinematics/mrover_arm_presets.json"
 
 MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     state(geom),
@@ -137,7 +131,7 @@ void MRoverArm::execute_spline() {
             // if in sim_mode, simulate that we have gotten a new current position
             else if (sim_mode) {
                 publish_config(target_angles, "/arm_position");
-                spline_t += 0.01;
+                spline_t += 0.005;
             }
 
             // break out of loop if necessary
@@ -151,6 +145,7 @@ void MRoverArm::execute_spline() {
         }
         else {
             this_thread::sleep_for(chrono::milliseconds(200));
+            spline_t = 0;
         }   
     }
 }
@@ -219,36 +214,31 @@ void MRoverArm::preview() {
     solver.FK(state);
 }
 
-void MRoverArm::preset_execute_callback(string channel, PresetAngles msg) {
-    cout << "running preset_execute_callback\n";
-    cout << "requested preset: " << msg.preset << "\n";
+void MRoverArm::target_angles_callback(string channel, ArmPosition msg) {
+    cout << "running target_angles_callback\n";
 
     enable_execute = false;
 
-    json presets;
-
-    // read preset angles from json
-    try {
-        presets = read_json_from_file(PRESET_FILE)[msg.preset];
-    }
-    catch (json::exception& e) {
-        cout << "Could not read " << msg.preset << " from json: " PRESET_FILE << "\n";
-        cout << "message: " << e.what() << "\n";
-        return;
-    }
-
     // convert to Vector6d
     Vector6d target;
-    size_t i = 0;
-    for (double angle : presets) {
-        target[i++] = angle;
+    target[0] = (double) msg.joint_a;
+    target[1] = (double) msg.joint_b;
+    target[2] = (double) msg.joint_c;
+    target[3] = (double) msg.joint_d;
+    target[4] = (double) msg.joint_e;
+    target[5] = (double) msg.joint_f;
+    
+    cout << "requested angles: ";
+    for (size_t i = 0; i < 6; ++i) {
+        cout << target[i] << " ";
     }
+    cout << "\n";
 
     plan_path(target);
 
     preview();
 
-    cout << "End of preset callback\n";
+    cout << "finished target_angles_callback\n";
 }
 
 void MRoverArm::publish_transforms(const ArmState& pub_state) {
@@ -274,27 +264,7 @@ void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {
         enable_execute = false;
         publish_transforms(state);
     }
-}
-
- 
-void MRoverArm::target_angles_callback(string channel, TargetAngles msg) {
-   enable_execute = false;
-   TargetAngles target_angles = msg;  
- 
-   Vector6d goal;
-   goal(0) = (double)target_angles.joint_a;
-   goal(1) = (double)target_angles.joint_b;
-   goal(2) = (double)target_angles.joint_c;
-   goal(3) = (double)target_angles.joint_d;
-   goal(4) = (double)target_angles.joint_e;
-   goal(5) = (double)target_angles.joint_f;
-
-   for(int i = 0; i<6; i++) {
-       cout << goal[i] << "\t";
-   }
-   cout << endl;
-   plan_path(goal);
-}
+}       
 
 void MRoverArm::plan_path(Vector6d goal) {
     bool path_found = motion_planner.rrt_connect(state, goal);
