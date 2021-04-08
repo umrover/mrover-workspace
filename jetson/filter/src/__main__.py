@@ -2,7 +2,6 @@ import json
 import time
 import asyncio
 import numpy as np
-from copy import deepcopy
 from os import getenv
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
@@ -124,8 +123,9 @@ class SensorFusion:
         self.imu = Imu(self.config["IMU_accel_filter_bias"], self.config["IMU_accel_threshold"])
         self.nav_state = None
         self.static_nav_states = {None, "Off", "Done", "Search Spin Wait", "Turned to Target Wait", "Gate Spin Wait",
-                                  "Turn", "Search Turn", "Turn to Target", "Turn Around Obstacle", "Search Turn Around Obstacle",
-                                  "Gate Turn", "Gate Turn to Center Point", "Radio Repeater Turn"}
+                                  "Turn", "Search Turn", "Turn to Target", "Turn Around Obstacle",
+                                  "Search Turn Around Obstacle", "Gate Turn", "Gate Turn to Center Point",
+                                  "Radio Repeater Turn"}
 
         self.filter = None
         self.state_estimate = StateEstimate(ref_lat=self.config["RefCoords"]["lat"],
@@ -164,7 +164,7 @@ class SensorFusion:
             self.filter = "Pipe"
         else:
             raise ValueError("Invalid filter type!")
-    
+
     def _constructLKF(self):
         '''
         Constructs a Linear Kalman Filter
@@ -203,7 +203,7 @@ class SensorFusion:
 
         self.filter = LinearKalmanFilter(4, 4, dim_u=2)
         self.filter.construct(self.state_estimate, P_initial, F, H, Q, R, B=B)
-    
+
     def _runLKF(self):
         '''
         Runs an iteration of a Linear Kalman Filter
@@ -230,13 +230,13 @@ class SensorFusion:
         if pos is not None:
             pos_meters = {}
             pos_meters["long"] = long2meters(pos["long"], pos["lat"],
-                                                ref_long=self.config["RefCoords"]["long"])
+                                             ref_long=self.config["RefCoords"]["long"])
             pos_meters["lat"] = lat2meters(pos["lat"],
-                                            ref_lat=self.config["RefCoords"]["lat"])
+                                           ref_lat=self.config["RefCoords"]["lat"])
             if vel is not None:
                 # If both position and velocity are available, use both
                 z = np.array([pos_meters["lat"], vel["north"], pos_meters["long"],
-                                vel["east"]])
+                              vel["east"]])
                 H = np.eye(4)
             else:
                 # If only position is available, zero out the velocity residual
@@ -333,8 +333,8 @@ class SensorFusion:
         '''
         self.filter.x[1] = 0.0
         self.filter.x[3] = 0.0
-        self.filter.P[1,:] = 0.0
-        self.filter.P[3,:] = 0.0
+        self.filter.P[1, :] = 0.0
+        self.filter.P[3, :] = 0.0
 
     async def run(self):
         '''
