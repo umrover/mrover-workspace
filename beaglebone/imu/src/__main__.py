@@ -221,7 +221,7 @@ class IMU_Manager():
                 calc_checksum ^= ord(b)
 
             calc_checksum = hex(calc_checksum)
-            calc_checksum = f'{calc_checksum}'[2:0]
+            calc_checksum = f'{calc_checksum}'[2:]
 
             return calc_checksum
 
