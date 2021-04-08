@@ -80,7 +80,7 @@ Camera::Impl::Impl(const rapidjson::Document &config) : THRESHOLD_CONFIDENCE(con
 		this->image_size_.height, this->image_size_.width, CV_32FC1,
 		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
 }
-
+// Giant changes
 bool Camera::Impl::grab() {
     return this->zed_.grab() == sl::ERROR_CODE::SUCCESS;
 }
