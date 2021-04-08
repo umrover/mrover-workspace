@@ -47,12 +47,18 @@ class IMU_Manager():
         self.ser.close()
 
     def pchrs_handler(self, msg, imu_struct):
-        arr = msg.split(",")
-
         # packet type can be either 0: gyro, 1: accel, 2: magnetometer
         # mag data is unit-nrom (unitless)
         try:
             arr = msg.split(",")
+
+            # Checksum checking
+            checksum = int(arr[6][2:])
+            if(checksum != calc_checksum(msg)){
+                # error in checksum
+                raise a
+            }
+
             print(arr)
             packetType = arr[1]
             if (packetType == '0'):
@@ -76,8 +82,9 @@ class IMU_Manager():
                 print("Passed")
                 pass
         # fill with zeroes if something goes wrong.
-        except:
-            print("somthing went wrong")
+        except Exception as a:
+            print("Error with PCHRS handler")
+            print(a)
             imu_struct.gyro_x_dps = 0
             imu_struct.gyro_y_dps = 0
             imu_struct.gyro_z_dps = 0
@@ -92,13 +99,22 @@ class IMU_Manager():
         pi = 3.14159265359
         try:
             arr = msg.split(",")
+
+            # Checksum checking
+            checksum = int(arr[6][2:])
+            if(checksum != calc_checksum(msg)){
+                # error in checksum
+                raise b
+            }
+
             # raw values are in degrees, need to convert to radians
             imu_struct.roll_rad = float(arr[2]) * pi / 180
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
             imu_struct.yaw_rad = float(arr[4]) * pi / 180
             # fill with zeroes if something goes wrong
-        except:
-            print("somthing went wrong the other one")
+        except Exception as b:
+            print("Error with PCHRA handler")
+            print(b)
             imu_struct.roll_rad = 0
             imu_struct.pitch_rad = 0
             imu_struct.yaw_rad = 0
@@ -197,6 +213,19 @@ class IMU_Manager():
                 val = struct.unpack('>f', data)
                 print(val)
             iterator = iterator + 1
+
+        # returns hex value of calculated checksum fromt the message
+        # checksum is computed using XOR of every byte in the packet 
+        # except '*' and '$'
+        def calc_checksum(self, msg):
+            calc_checksum = 0
+            for b in msg:
+                calc_checksum ^= ord(b)
+
+            calc_checksum = hex(calc_checksum)
+            calc_checksum = f'{calc_checksum}'[2:0]
+
+            return calc_checksum
 
 # end of class
 
