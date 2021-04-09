@@ -186,7 +186,7 @@ NavState GateStateMachine::executeGateSearchGimbal()
         return NavState::GateWait;
     }
 
-    mPhoebe->publishGimbal( );
+    
 
     return NavState::GateSearchGimbal;
 }//executeGateSearchGimbal()

@@ -162,8 +162,7 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
         //we are at our stopping point for the camera so go into search gimbal wait
         return NavState::SearchWait;
     }
-    //publish gimbal lcm command
-    phoebe->publishGimbal( );
+   
 
     return NavState::SearchGimbal;
 }
