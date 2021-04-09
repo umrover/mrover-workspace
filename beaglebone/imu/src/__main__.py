@@ -53,10 +53,10 @@ class IMU_Manager():
             arr = msg.split(",")
 
             # Checksum checking
-            checksum = int(arr[6][2:])
-            if(checksum != self.calc_checksum(msg)):
-                # error in checksum
-                raise ValueError("Failed Checksum")
+            # checksum = int(arr[6][2:])
+            # if(checksum != self.calc_checksum(msg)):
+            # error in checksum
+            # raise ValueError("Failed Checksum")
 
             print(arr)
             packetType = arr[1]
@@ -101,6 +101,7 @@ class IMU_Manager():
 
             # Checksum checking
             checksum = int(arr[6][2:])
+            # Has an out of range error
             if(checksum != self.calc_checksum(msg)):
                 # error in checksum
                 raise ValueError("Failed Checksum")
@@ -200,28 +201,82 @@ class IMU_Manager():
         iterator = 0
         while (run):
             if(received[iterator:(iterator + 4)] == b'snp\x80'):
-                print(received[iterator:(iterator + 11)])
+                # print(received[iterator:(iterator + 11)])
                 run = False
                 data = [0x00, 0x00, 0x00, 0x00]
                 # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
                 data = received[(iterator + 5):(iterator + 9)]
-                print(data)
-                plaincontent = (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3])
-                print(plaincontent)
+                # print(data)
+                # plaincontent = (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3])
+                # print(plaincontent)
                 val = struct.unpack('>f', data)
                 print(val)
             iterator = iterator + 1
 
-        # returns hex value of calculated checksum fromt the message
-        # checksum is computed using XOR of every byte in the packet
-        # except '*' and '$'
-        def calc_checksum(self, msg):
-            c_checksum = 0
-            for b in msg:
-                c_checksum ^= ord(b)
-            c_checksum = hex(c_checksum)
-            c_checksum = int((str(c_checksum))[2:])
-            return c_checksum
+    def get_raw(self, registerxy, registerz):
+        checksum = ord('s') + ord('n') + ord('p') + registerxy
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerxy,
+                      checksum >> 8, checksum & 0xff]
+
+        # sends reques for data
+        self.ser.write(cmd_buffer)
+        time.sleep(.5)
+
+        # um7 sends back same message as request for data but with payload
+        # containing IEEE 754 32bit number (= to python float)
+        received = self.ser.readline()
+        # print(received)
+        # Filters the buffer looking for the has data packets and prints it
+        run = True
+        iterator = 0
+        while (run):
+            if(received[iterator:(iterator + 4)] == b'snp\x80'):
+                # print(received[iterator:(iterator + 11)])
+                run = False
+                data = [0x00, 0x00, 0x00, 0x00]
+                # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
+                data = received[(iterator + 5):(iterator + 9)]
+                # print(data)
+                # plaincontent = (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3])
+                # print(plaincontent)
+                valx = received[(iterator + 5):(iterator + 7)]
+                print(valx)
+                valy = data[2] << 8 | data[3]
+                print(valy)
+            iterator = iterator + 1
+
+        # now for the z value
+        checksum = ord('s') + ord('n') + ord('p') + registerz
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerz,
+                      checksum >> 8, checksum & 0xff]
+
+        self.ser.write(cmd_buffer)
+        time.sleep(.5)
+
+        received = self.ser.readline()
+
+        run = True
+        iterator = 0
+        while (run):
+            if(received[iterator:(iterator + 4)] == b'snp\x80'):
+                run = False
+                data = [0x00, 0x00, 0x00, 0x00]
+                data = received[(iterator + 5):(iterator + 9)]
+                valz = data[0] << 8 | data[1]
+                print(valz)
+            iterator = iterator + 1
+
+    # returns hex value of calculated checksum fromt the message
+    # checksum is computed using XOR of every byte in the packet
+    # except '*' and '$'
+    def calc_checksum(self, msg):
+        c_checksum = 0
+        for b in msg:
+            c_checksum ^= ord(b)
+        c_checksum = hex(c_checksum)
+        c_checksum = int((str(c_checksum))[2:])
+        # invalid literal for int() with base 10: 'C\\\\r\\\\n\'"','
+        return c_checksum
 
 # end of class
 
@@ -239,19 +294,28 @@ def main():
         for reg in l:
             manager.turnOffRegister(reg)
 
-        # hopefully spits out calibrated values from registers
+        # spits out calibrated values from registers
         for r in GYRO_PROC:
             print("GYRO_PROC")
-            manager.get_calibrated(r)
-            print("\n")
-        for r in MAG_PROC:
-            print("MAG_PROC")
             manager.get_calibrated(r)
             print("\n")
         for r in ACCEL_PROC:
             print("ACCEL_PROC")
             manager.get_calibrated(r)
             print("\n")
+        for r in MAG_PROC:
+            print("MAG_PROC")
+            manager.get_calibrated(r)
+            print("\n")
+
+        print("RAW_GYRO")
+        manager.get_raw(0x56, 0x57)
+
+        print("RAW_ACCEL")
+        manager.get_raw(0x59, 0x5A)
+
+        print("RAW_MAG")
+        manager.get_raw(0x5C, 0x5D)
 
         manager.enable_nmea(NMEA_RATE_REG)
 
