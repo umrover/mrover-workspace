@@ -78,7 +78,7 @@
 		"searchWaitStepSize": 90.0,
 		"gimbalSearchWaitStepSize": 75.0,
 		"searchWaitTime": 1.0,
-		"useGimbal": false,
+		"useGimbal": true,
 		"gimbalSearchAngleMag": 150
 	}
 }

@@ -123,7 +123,7 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
     }
     //set the desiredYaw to wherever the next stop on the gimbals path is
     //enter the if if the gimbal is at the next stop
-    if( phoebe->gimbal().setDesiredGimbalYaw( nextStop ) )
+    if( phoebe->sendGimbalSetpoint( nextStop ) )
     {   
         //if the next stop is at the desiredYaw for the phase (150, -150, 0)
         if ( nextStop == desiredYaw )
