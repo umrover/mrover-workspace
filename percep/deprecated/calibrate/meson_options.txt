@@ -1,0 +1,1 @@
+option('with_zed', type: 'boolean', value : true)
