@@ -33,6 +33,7 @@
         <RadioSignalStrength v-bind:RadioSignalStrength="RadioSignalStrength"/>
         <Obstacle v-bind:Obstacle="Obstacle"/>
         <TargetList v-bind:TargetList="TargetList"/>
+        <DriveVelDataH/>
      </div>
 
     <!--div class="box2">
@@ -69,6 +70,7 @@ import RawSensorData from './RawSensorData.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import Obstacle from './Obstacle.vue'
 import TargetList from './TargetList.vue'
+import DriveVelDataH from './DriveVelDataH.vue'
 
 let interval;
 
@@ -231,7 +233,9 @@ export default {
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/obstacle', 'type': 'Obstacle'},
         {'topic': '/radio', 'type': 'RadioSignalStrength'},
-        {'topic': '/target_list', 'type': 'TargetList'}
+        {'topic': '/target_list', 'type': 'TargetList'},
+        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
       ]
     )
 
@@ -289,7 +293,8 @@ export default {
     WaypointEditor,
     RadioSignalStrength,
     Obstacle,
-    TargetList
+    TargetList,
+    DriveVelDataH
   }
 }
 </script>

@@ -35,18 +35,22 @@
       </div>
     </div>
     <div class="col-wrap" style="left: 50%">
-      <div class="box">
-        <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/><br>
-        <span>
-          Navigation State: {{nav_status.nav_state_name}}<br>
-          Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
-          Radio Repeater Dropped: {{repeater_dropped}}<br>
-           
-        </span>
-        <span>
+      <div class="box datagrid">
+        <div class="autonmode" >
+          <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/>
+        </div>
+        <div class="stats">
+          <p>
+            Navigation State: {{nav_status.nav_state_name}}<br>
+            Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
+            Radio Repeater Dropped: {{repeater_dropped}}<br>
+            
+          </p>
+        </div>
+        <div class="odom">
          <OdometryReading v-bind:odom="odom"/>
-        </span>
-        <div class="Joystick light-bg">
+        </div>
+        <div class="joystick light-bg">
           <AutonJoystickReading v-bind:Joystick="Joystick"/>
         </div>
       </div>
@@ -61,7 +65,7 @@
 </template>
 
 <script>
-import Checkbox from './Checkbox.vue'
+import Checkbox from './CheckboxBig.vue'
 import draggable from 'vuedraggable'
 import {convertDMS} from '../utils.js';
 import OdometryReading from './OdometryReading.vue'
@@ -340,9 +344,9 @@ export default {
     margin-bottom: 6px;
   }
     
-  .box span{
+  /*.box span{
     display:inline-block;
-  }
+  }*/
 
   .box1 {
     border-radius: 5px;
@@ -362,6 +366,31 @@ export default {
     max-height: 70%;
   }
 
+  .datagrid {
+      display: grid;
+      grid-gap: 3px;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      grid-template-areas: "autonmode stats" "odom joystick";
+      font-family: sans-serif;
+      height: 24vh;
+  }
+
+  .autonmode{
+    align-content: center;
+  }
+
+  .stats{
+    grid-area: stats;
+  }
+  
+  .joystick{
+    grid-area: joystick;
+  }
+  
+  .odom{
+    grid-area: odom;
+  }
   .wp-input p {
     display: inline;
   }
