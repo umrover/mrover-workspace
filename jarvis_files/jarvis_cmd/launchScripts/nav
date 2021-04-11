@@ -25,8 +25,3 @@ echo ${dim[0]}
 xdotool windowsize $WID ${dim[0]} ${dim[1]} 
 xdotool windowmove $WID 0 0
 xdotool windowminimize $WID
-
-# Helpful Notes and Stuff
-
-# xtodo documentation
-#http://manpages.ubuntu.com/manpages/trusty/man1/xdotool.1.html#window%20stack
