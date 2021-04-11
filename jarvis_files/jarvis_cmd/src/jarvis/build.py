@@ -169,3 +169,24 @@ def build_all(ctx, d, lint, opts, not_build):
     print("Successfully built: {} of {} project(s).".format(
         num_projects - len(failed_projects), num_projects))
     return len(failed_projects)
+
+
+def launch_percep(ctx):
+    #Build circ-auton-arm
+    print("Here")
+    percep = 'jetson/circ-auton-arm'
+    l = 'True'
+    opt = ['with_zed=true']
+    build_dir( ctx, percep, l, opt)
+    command = "echo 'Click this window' && ./terminal"
+    ctx.run("gnome-terminal \
+            -- bash -c \
+            'echo "Click this window "cd ~/mrover-workspace"
+            $SHELL'")
+    ctx.run("fish=pidof jetson_circ_auton_arm")
+    return
+
+def launch_dir(ctx, d):
+    if d == "percep":
+        launch_percep(ctx)
+    return

@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Focus in on the current window
+WID=$(xdotool selectwindow)
+xdotool windowfocus $WID
+
+# Enter commands you want to be executed in the window here
+
+# Run Perception
+xdotool key type "./jarvis build jetson/percep && ./jarvis exec jetson/percep"
+xdotool key KP_Enter
+
+#Open a new tab for Obstacle LCM
+xdotool key ctrl+shift+t
+xdotool key type "./jarvis build lcm_tools/echo && ./jarvis exec lcm_tools_echo Obstacle /obstacle"
+xdotool key KP_Enter
+
+# Helpful Notes and Stuff
+
+# Wait for percep to finish before continuing
+#pid=$(pidof jetson_percep) 
+#tail --pid=$pid -f /dev/null
+
+# xtodo documentation
+#http://manpages.ubuntu.com/manpages/trusty/man1/xdotool.1.html#window%20stack

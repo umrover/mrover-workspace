@@ -3,7 +3,7 @@ import sys
 from buildsys import WorkspaceContext
 from invoke.exceptions import UnexpectedExit
 
-from .build import build_dir, clean, build_deps, build_all
+from .build import build_dir, clean, build_deps, build_all, launch_dir
 
 
 def clean_dir_name(d):
@@ -41,6 +41,8 @@ def main():
                            help='Runs a command in the product venv')
     subcommands.add_parser('upgrade',
                            help='Re-installs the Jarvis CLI')
+    parser_launch = subcommands.add_parser('launch', help='Builds and runs a system')
+    parser_launch.add_argument('sys', help='System to launch')
 
     args = parser.parse_args()
 
@@ -57,6 +59,9 @@ def main():
             clean(ctx)
         elif args.subcommand_name == 'dep':
             build_deps(ctx)
+        elif args.subcommand_name == 'launch':
+            launch_dir(ctx, clean_dir_name(args.sys))
+
     except UnexpectedExit as e:
         sys.exit(e.result.exited)
 
