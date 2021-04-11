@@ -2,6 +2,7 @@ import configparser
 import os
 import sys
 import shutil
+import subprocess
 from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
 from buildsys.rollupjs import RollupJSBuilder
@@ -170,19 +171,19 @@ def build_all(ctx, d, lint, opts, not_build):
         num_projects - len(failed_projects), num_projects))
     return len(failed_projects)
 
+# Function that parses launch command
+def launch_dir(ctx, d, opts):
+    if d == "percep":
+        launch_percep(ctx, opts)
+    return
 
-def launch_percep(ctx):
+# Function that builds and executes perception run script in new terminal
+def launch_percep(ctx, opts):
     #Build circ-auton-arm
     percep = 'jetson/percep'
     l = 'True'
-    opt = ['with_zed=true']
-    build_dir( ctx, percep, l, opt)
+    build_dir( ctx, percep, l, opts)
     ctx.run("gnome-terminal \
             -- bash -c \
             './jarvis_files/jarvis_cmd/launchScripts/percep; $SHELL'")
-    return
-
-def launch_dir(ctx, d):
-    if d == "percep":
-        launch_percep(ctx)
     return

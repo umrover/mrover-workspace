@@ -43,6 +43,9 @@ def main():
                            help='Re-installs the Jarvis CLI')
     parser_launch = subcommands.add_parser('launch', help='Builds and runs a system')
     parser_launch.add_argument('sys', help='System to launch')
+    parser_launch.add_argument('-o', '--option', nargs='+', dest='launch_opts',
+                              help='A launch option to pass to the underlying '
+                              'build system')
 
     args = parser.parse_args()
 
@@ -60,7 +63,7 @@ def main():
         elif args.subcommand_name == 'dep':
             build_deps(ctx)
         elif args.subcommand_name == 'launch':
-            launch_dir(ctx, clean_dir_name(args.sys))
+            launch_dir(ctx, clean_dir_name(args.sys), args.launch_opts)
 
     except UnexpectedExit as e:
         sys.exit(e.result.exited)
