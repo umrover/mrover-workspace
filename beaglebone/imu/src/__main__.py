@@ -53,10 +53,10 @@ class IMU_Manager():
             arr = msg.split(",")
 
             # Checksum checking
-            # checksum = int(arr[6][2:])
-            # if(checksum != self.calc_checksum(msg)):
-            # error in checksum
-            # raise ValueError("Failed Checksum")
+            checksum = int(arr[6][1:3], 16)
+            if(checksum != self.calc_checksum(msg)):
+                # error in checksum
+                raise ValueError("Failed Checksum")
 
             print(arr)
             packetType = arr[1]
@@ -100,8 +100,7 @@ class IMU_Manager():
             arr = msg.split(",")
 
             # Checksum checking
-            checksum = int(arr[6][2:])
-            # Has an out of range error
+            checksum = int(arr[5][1:3], 16)
             if(checksum != self.calc_checksum(msg)):
                 # error in checksum
                 raise ValueError("Failed Checksum")
@@ -236,13 +235,15 @@ class IMU_Manager():
                 data = [0x00, 0x00, 0x00, 0x00]
                 # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
                 data = received[(iterator + 5):(iterator + 9)]
-                # print(data)
-                # plaincontent = (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3])
-                # print(plaincontent)
-                valx = received[(iterator + 5):(iterator + 7)]
+                print("recieved: ", received)
+                print("data: ", data)
+                print((received[iterator + 5]))
+                valx = (hex((received[iterator + 5])) << 8) | hex((received[iterator + 6]))
                 print(valx)
-                valy = data[2] << 8 | data[3]
-                print(valy)
+                f = struct.unpack('f', bytes(valx, 'utf-8'))
+                print(f)
+                # valy = (hex(ord(received[iterator + 7])) << 8) | hex(ord(received[iterator + 8]))
+                # print(valy)
             iterator = iterator + 1
 
         # now for the z value
@@ -268,14 +269,14 @@ class IMU_Manager():
 
     # returns hex value of calculated checksum fromt the message
     # checksum is computed using XOR of every byte in the packet
-    # except '*' and '$'
+    # between '$' and '*' noninclusive
     def calc_checksum(self, msg):
         c_checksum = 0
-        for b in msg:
+        for b in msg[3:-8]:
             c_checksum ^= ord(b)
         c_checksum = hex(c_checksum)
-        c_checksum = int((str(c_checksum))[2:])
-        # invalid literal for int() with base 10: 'C\\\\r\\\\n\'"','
+        c_checksum = (str(c_checksum))[2:4]
+        c_checksum = int(c_checksum, 16)
         return c_checksum
 
 # end of class
