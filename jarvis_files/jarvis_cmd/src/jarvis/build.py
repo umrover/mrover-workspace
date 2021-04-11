@@ -173,17 +173,13 @@ def build_all(ctx, d, lint, opts, not_build):
 
 def launch_percep(ctx):
     #Build circ-auton-arm
-    print("Here")
-    percep = 'jetson/circ-auton-arm'
+    percep = 'jetson/percep'
     l = 'True'
     opt = ['with_zed=true']
     build_dir( ctx, percep, l, opt)
-    command = "echo 'Click this window' && ./terminal"
     ctx.run("gnome-terminal \
             -- bash -c \
-            'echo "Click this window "cd ~/mrover-workspace"
-            $SHELL'")
-    ctx.run("fish=pidof jetson_circ_auton_arm")
+            './jarvis_files/jarvis_cmd/launchScripts/percep; $SHELL'")
     return
 
 def launch_dir(ctx, d):
