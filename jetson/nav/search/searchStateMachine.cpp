@@ -169,7 +169,8 @@ NavState SearchStateMachine::executeSearchTurn()
 
 // Executes the logic for driving while searching.
 // If the rover detects the target, it proceeds to the target.
-// If the rover detects an obstacle, it proceeds to obstacle avoidance.
+// If the rover detects an obstacle and is within the obstacle 
+// distance threshold, it proceeds to obstacle avoidance.
 // If the rover finishes driving, it proceeds to turning to the next Waypoint.
 // If the rover is still on course, it keeps driving to the next Waypoint.
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
@@ -181,7 +182,8 @@ NavState SearchStateMachine::executeSearchDrive()
                                            mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    if( isObstacleDetected( mRover ) )
+
+    if( isObstacleDetected( mRover )  && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
         roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing );
         roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
@@ -231,7 +233,8 @@ NavState SearchStateMachine::executeTurnToTarget()
 // Executes the logic for driving to the target.
 // If the rover loses the target, it continues with search by going to
 // the last point before the rover turned to the target
-// If the rover detects an obstacle, it proceeds to go around the obstacle.
+// If the rover detects an obstacle and is within the obstacle 
+// distance threshold, it proceeds to go around the obstacle.
 // If the rover finishes driving to the target, it moves on to the next Waypoint.
 // If the rover is on course, it keeps driving to the target.
 // Else, it turns back to face the target.
@@ -242,8 +245,9 @@ NavState SearchStateMachine::executeDriveToTarget()
         cerr << "Lost the target\n";
         return NavState::SearchTurn; //NavState::SearchSpin
     }
+
     if( isObstacleDetected( mRover ) &&
-        !isTargetReachable( mRover, mRoverConfig ) )
+        !isTargetReachable( mRover, mRoverConfig )  && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
         roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing );
         roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
