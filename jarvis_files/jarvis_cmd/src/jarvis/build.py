@@ -2,7 +2,9 @@ import configparser
 import os
 import sys
 import shutil
+import time
 import subprocess
+
 from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
 from buildsys.rollupjs import RollupJSBuilder
@@ -175,16 +177,76 @@ def build_all(ctx, d, lint, opts, not_build):
 def launch_dir(ctx, d, opts):
     if d == "percep":
         launch_percep(ctx, opts)
+    if d == "nav":
+        launch_nav(ctx, opts)
+    if d == "loc":
+        launch_loc(ctx, opts)
+    if d == "auton":
+        launch_auton(ctx, opts)  
     return
 
-# Function that builds and executes perception run script in new terminal
+def get_process_id(name):
+
+    child = subprocess.Popen(['pgrep', '-f', name], stdout=subprocess.PIPE, shell=False)
+    response = child.communicate()[0]
+    return [int(pid) for pid in response.split()]
+
+def wait_for_click():
+    pid = get_process_id("xdotool selectwindow")
+    while pid:
+        pid = get_process_id("xdotool selectwindow")
+        time.sleep(.1)
+    return 
+
+# Functions that builds and execute auton subteam code
 def launch_percep(ctx, opts):
-    #Build circ-auton-arm
     percep = 'jetson/percep'
     l = 'True'
-    build_dir( ctx, percep, l, opts)
+    build_dir(ctx, percep, l, opts)
     ctx.run("gnome-terminal \
             -- bash -c \
             './jarvis_files/jarvis_cmd/launchScripts/percep; $SHELL'")
-    return
     
+    wait_for_click()
+    return
+
+def launch_nav(ctx, opts):
+    nav = 'jetson/nav'
+    l = 'True'
+    build_dir(ctx, nav, l, opts)
+    ctx.run("gnome-terminal \
+            -- bash -c \
+            './jarvis_files/jarvis_cmd/launchScripts/nav; $SHELL'")
+    
+    wait_for_click()
+    return
+
+def launch_loc(ctx, opts):
+    gps = 'jetson/gps'
+    filter = 'jetson/filter'
+    l = 'True'
+    build_dir(ctx, gps, l, opts)
+    build_dir(ctx, filter, l, opts)
+    ctx.run("gnome-terminal \
+            -- bash -c \
+            './jarvis_files/jarvis_cmd/launchScripts/loc; $SHELL'")
+    
+    wait_for_click()
+    return
+
+def launch_auton(ctx, opts):
+    build_deps(ctx)
+    
+    opt = ['']
+    station = "base_station/gui"
+    lcm_bridge = "lcm_bridge/server"
+    lcm_echo = "lcm_tools/echo"
+    l = 'True'
+    build_dir(ctx, station, l, opts)
+    build_dir(ctx, lcm_bridge, l, opts)
+    build_dir(ctx, lcm_echo, l , opts)
+
+    launch_nav(ctx, opts)
+    launch_loc(ctx, opts)
+    launch_percep(ctx, opts)
+    return
