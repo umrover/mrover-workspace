@@ -187,3 +187,4 @@ def launch_percep(ctx, opts):
             -- bash -c \
             './jarvis_files/jarvis_cmd/launchScripts/percep; $SHELL'")
     return
+    
