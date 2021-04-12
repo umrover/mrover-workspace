@@ -172,7 +172,7 @@ kineval.initlcmbridge = function initlcmbridge() {
                     matrix.multiplyMatrices(csys_fix, matrix)
                     robot.joints[joint_name].xform = matrix
                 }
-            } else if (msg.topic === '/debugMessage') {
+            } else if (msg.topic === '/debug_message') {
                 
                 if (msg['message']['isError']) {
                     console.error(msg['message']['message'])
@@ -231,7 +231,7 @@ kineval.initlcmbridge = function initlcmbridge() {
         },
         // Subscriptions
         [
-            {'topic': '/debugMessage', 'type': 'DebugMessage'},
+            {'topic': '/debug_message', 'type': 'DebugMessage'},
             {'topic': '/arm_position', 'type': 'ArmPosition'},
             {'topic': '/fk_transform', 'type': 'FKTransform'}
         ]

@@ -81,7 +81,7 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
         msg.message = "No IK solution";
         
         // send popup message to GUI
-        lcm_.publish("/debugMessage", &msg);
+        lcm_.publish("/debug_message", &msg);
         return;
     }
 
@@ -205,7 +205,7 @@ void MRoverArm::preview() {
     msg.message = "Preview Done";
     
     // send popup message to GUI
-    lcm_.publish("/debugMessage", &msg);
+    lcm_.publish("/debug_message", &msg);
 
     // recover from backup to previous arm position
     state.set_joint_angles(backup);
