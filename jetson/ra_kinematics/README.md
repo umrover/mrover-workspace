@@ -1,23 +1,23 @@
 Code to compute Inverse Kinematics and path planning for the robotic arm
-===============================================================================
+========================================================================
 ### About ###
 
 ra_kinematics is responsible for listening to GUI input (in base_station/kineval_stencil/) and subsequently sending arm angle configurations to ESW and the GUI.
 
-main.cpp creates an MRoverArm object and sets various functions of this arm object to handle LCM messages (see below). 
+main.cpp creates an MRoverArm object and sets various functions of this arm object to handle LCM messages (see below).
 
 mrover_arm.hpp defines the MRoverArm class, which contains all functions of the ra_kinematics package that handle and publish LCM messages. MRoverArm contains ArmState, Kinematics, and MotionPlanner objects which together allow for successful inverse kinematics.
 
 arm_state.hpp defines the ArmState class, which stores a particular state of the robotic arm. The state includes the physical geometry of each joint and link, a set of joint angles, and transformation matrices of each link.
 
-kinematics.hpp defines the Kinematics class, which includes functions to interact with an ArmState parameter. Kinematics does not include any state of its own. \
+kinematics.hpp defines the Kinematics class, which includes functions to interact with an ArmState parameter. Kinematics does not include any state of its own.
 - FK() computes the ArmState object's end effector position/orientation and updates the arm's transformation matrices based on the arm's joint angles.
 - IK() computes a set of joint angles that cause the end effector of the given ArmState to reach the target position.
 - is_safe() checks that a given set of angles falls within the ArmState's joint limits and does not cause a collision.
 
 motion_planner.hpp defines the MotionPlanner class, which includes functions to plan a path for a robotic arm.
 - rrt_connect() finds a path between an ArmState parameter's current state and a set of target angles and stores this path as a member variable.
-- get_spline_pos() returns the set of joint angles at a time between 0 and 1 for the last planned path
+- get_spline_pos() returns the set of joint angles at a time between 0 and 1 for the last path planned with rrt_connect().
 
 ### Usage ###
 
