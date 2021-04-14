@@ -32,15 +32,9 @@
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
     </div>
-    <!--div class="box sa_testing light-bg">
-      <SATestingControls/>
-    </div-->
     <div class="box spectral light-bg">
       <SpectralData v-bind:spectral_data="spectral_data"/>
     </div>
-    <!--div class="box sa_controls light-bg">
-      <SAControls/>
-    </div-->
     <div class = "box light-bg chlorophyll">
       <Chlorophyll/>
     </div>
@@ -53,6 +47,9 @@
     <div class="box drives light-bg">
       <DriveVelDataV/>
     </div>
+    <div class="box report light-bg">
+      <GenerateReport/>
+    </div>
   </div>
 </template>
 
@@ -64,12 +61,12 @@ import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReadingSA.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
-import SATestingControls from './SATestingControls.vue'
 import SpectralData from './SpectralData.vue'
 import Chlorophyll from './Chlorophyll.vue'
 import Ammonia from './Ammonia.vue'
 import DriveVelDataV from './DriveVelDataV.vue'
 import Amino from './Amino.vue'
+import GenerateReport from './GenerateReport.vue'
 
 let interval;
 
@@ -256,7 +253,8 @@ export default {
     Chlorophyll,
     Ammonia,
     DriveVelDataV,
-    Amino
+    Amino,
+    GenerateReport
   }
 }</script>
 
@@ -267,7 +265,7 @@ export default {
         grid-gap: 10px;
         grid-template-columns: 2fr 1fr 1fr;
         grid-template-rows: 60px 3fr 1fr 2fr 1.5fr 1.5fr;
-        grid-template-areas: "header header header" "map cameras cameras" "map spectral drives" "map chlorophyll drives" "odom ammonia drives" "odom amino drives";
+        grid-template-areas: "header header header" "map cameras cameras" "map spectral drives" "map chlorophyll drives" "odom ammonia drives" "report amino drives";
         font-family: sans-serif;
         height: 98vh;
         overflow: auto;
@@ -392,6 +390,10 @@ export default {
 
     .spectral {
       grid-area: spectral;
+    }
+
+    .report {
+      grid-area: report;
     }
 
     .controls {
