@@ -30,7 +30,7 @@ private:
         /**
          * Construct joint from json input
          * */
-        Joint(string name_in, const json& joint_geom)
+        Joint(string name_in, const json &joint_geom)
             : name(name_in), angle(0), pos_world(Vector3d::Zero(3)), 
               global_transform(Matrix4d::Identity()), torque(Vector3d::Zero(3)) 
         {
@@ -115,7 +115,7 @@ private:
     void transform_parts();
 
     struct Link_Comp {
-        bool operator()(const Avoidance_Link& a, const Avoidance_Link& b);
+        bool operator()(const Avoidance_Link &a, const Avoidance_Link &b);
     };
 
     void set_ef_xyz(vector<double> ef_xyz_vec);
@@ -127,39 +127,39 @@ public:
 
     vector<string> get_all_joints() const;
 
-    Vector3d get_joint_com(string joint);
+    Vector3d get_joint_com(const string &joint) const;
 
-    double get_joint_mass(string joint);
+    double get_joint_mass(const string &joint) const;
 
-    Vector3d get_joint_axis(string joint);
+    Vector3d get_joint_axis(const string &joint) const;
 
-    Vector3d get_joint_axis_world(string joint);
+    Vector3d get_joint_axis_world(const string &joint) const;
 
     map<string, double> get_joint_limits(string joint) const;
 
-    Matrix4d get_joint_transform(string joint) const;
+    Matrix4d get_joint_transform(const string &joint) const;
 
-    void set_joint_transform(string joint, Matrix4d xform);
+    void set_joint_transform(const string &joint, const Matrix4d &xform);
 
-    void set_link_transform(string link, Matrix4d xform);
+    void set_link_transform(const string &link, const Matrix4d &xform);
 
-    Matrix4d get_ef_transform();
+    Matrix4d get_ef_transform() const;
 
-    void set_ef_transform(Matrix4d xform);
+    void set_ef_transform(const Matrix4d &xform);
 
-    Vector3d get_joint_pos_world(string joint);
+    Vector3d get_joint_pos_world(const string &joint) const;
 
-    Vector3d get_joint_pos_local(string joint);
+    Vector3d get_joint_pos_local(const string &joint) const;
 
-    Vector3d get_ef_pos_world();
+    Vector3d get_ef_pos_world() const;
 
-    Vector3d get_ef_ang_world();
+    Vector3d get_ef_ang_world() const;
 
-    vector<double> get_ef_pos_and_euler_angles();
+    vector<double> get_ef_pos_and_euler_angles() const;
 
-    map<string, double> get_joint_angles();
+    map<string, double> get_joint_angles() const;
 
-    void set_joint_angles(const vector<double>& angles);
+    void set_joint_angles(const vector<double> &angles);
 
     void transform_avoidance_links();
 
@@ -169,23 +169,23 @@ public:
      * 
      * Returns true if there is a collision between the links
      * */
-    bool link_link_check(size_t index_1, size_t index_2);
+    bool link_link_check(size_t index_1, size_t index_2) const;
 
     bool obstacle_free();
 
-    int num_joints();
+    int num_joints() const;
 
-    string get_child_link(string joint);
+    string get_child_link(const string &joint) const;
 
-    Vector3d get_joint_torque(string joint);
+    Vector3d get_joint_torque(const string &joint) const;
 
-    void set_joint_torque(string joint, Vector3d torque);
+    void set_joint_torque(const string &joint, const Vector3d &torque);
 
-    Vector3d get_link_point_world(string link);
+    Vector3d get_link_point_world(const string &link);
 
-    Matrix4d get_link_xform(string link);
+    Matrix4d get_link_xform(const string &link);
 
-    Vector3d get_ef_xyz();
+    Vector3d get_ef_xyz() const;
 
 };
 

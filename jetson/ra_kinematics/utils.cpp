@@ -10,7 +10,7 @@ using namespace Eigen;
 
 typedef Matrix<double, 6, 1> Vector6d;
 
-json read_json_from_file(string filepath) {
+json read_json_from_file(const string &filepath) {
     ifstream file(filepath);
 
     json config;
@@ -19,7 +19,7 @@ json read_json_from_file(string filepath) {
     return config;
 }
 
-double point_line_distance(Vector3d end1, Vector3d end2, Vector3d point) {
+double point_line_distance(const Vector3d &end1, const Vector3d &end2, const Vector3d &point) {
     double t = 0;
     for (int i = 0; i < 3; ++i){
         t += (point[i] - end1[i]) * (end2[i] - end1[i]);
@@ -37,7 +37,7 @@ double point_line_distance(Vector3d end1, Vector3d end2, Vector3d point) {
     return (closest_point - point).norm();
 }
 
-double closest_dist_bet_lines(Vector3d a0, Vector3d a1, Vector3d b0, Vector3d b1) {
+double closest_dist_bet_lines(const Vector3d &a0, const Vector3d &a1, const Vector3d &b0, const Vector3d &b1) {
     float SMALL_NUM = 0.00000001;
     Vector3d u = a1 - a0;
     Vector3d v = b1 - b0;
@@ -107,10 +107,10 @@ double closest_dist_bet_lines(Vector3d a0, Vector3d a1, Vector3d b0, Vector3d b1
     return dP.norm();
 }
 
-Vector3d compute_euler_angles(Matrix3d xform_mat) {
-    double alpha = atan2((double)xform_mat(0,2), -(double)xform_mat(1,2));
-    double beta = acos((double)xform_mat(2,2));
-    double gamma = atan2((double)xform_mat(2,0), (double)xform_mat(2,1));
+Vector3d compute_euler_angles(const Matrix3d &xform_mat) {
+    double alpha = atan2((double) xform_mat(0,2), - (double) xform_mat(1,2));
+    double beta = acos((double) xform_mat(2,2));
+    double gamma = atan2((double) xform_mat(2,0), (double) xform_mat(2,1));
 
     Vector3d angles(alpha, beta, gamma);
     return angles;
@@ -124,15 +124,16 @@ double radians_to_degrees(double radians) {
     return radians * 180 / (2 * acos(0.0));
 }
 
-Vector3d calculate_midpoint(Vector3d point1, Vector3d point2){
+Vector3d calculate_midpoint(const Vector3d &point1, const Vector3d &point2){
     return (point2 + point1)/2;
 }
 
-Vector3d calculate_center_of_mass(Vector3d joint1, Vector3d joint2, double percent_length) {
+Vector3d calculate_center_of_mass(const Vector3d &joint1, const Vector3d &joint2, double percent_length) {
     return percent_length * (joint2 - joint1) + joint1;
 }
 
-Vector3d calculate_torque(Vector3d r, double mass, Vector3d rot_axis){
+// TODO: Why are we not using rot_axis??
+Vector3d calculate_torque(const Vector3d &r, double mass, const Vector3d &rot_axis){
     double g = -9.807;
     Vector3d force = {0, 0, g * mass};
     return r.cross(force);
@@ -145,7 +146,7 @@ Vector3d apply_transformation(const Matrix4d &transform, const Vector3d &point) 
     return vector_transformed;
 }
 
-Vector6d vecTo6d(vector<double> inVec) {
+Vector6d vecTo6d(const vector<double> &inVec) {
     Vector6d retVec;
     for (int i = 0; i < 6; ++i) {
         retVec(i) = inVec[i];

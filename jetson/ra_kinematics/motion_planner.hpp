@@ -61,7 +61,7 @@ private:
 
 public:
     
-    MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in);
+    MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in);
 
     /**
      * Implements RRT path planning to create path
@@ -71,7 +71,7 @@ public:
      * 
      * @return true if a path was found
      * */
-    bool rrt_connect(ArmState& robot, const Vector6d& target_angles);
+    bool rrt_connect(ArmState &robot, const Vector6d &target_angles);
 
     /**
      * @param spline_t a time between 0 and 1
@@ -93,7 +93,7 @@ private:
      * 
      * @return nearest node in tree to a given random node in config space
      * */
-    Node* nearest(Node* tree_root, Vector6d& rand);
+    Node* nearest(Node* tree_root, const Vector6d &rand);
 
     /**
      * @param start an RRT node that has been found to be near end
@@ -101,20 +101,20 @@ private:
      * 
      * @return a set of angles branching from start towards end without violating step_limits
      * */
-    Vector6d steer(Node* start, Vector6d& end);
+    Vector6d steer(Node* start, const Vector6d &end);
 
     vector<Vector6d> backtrace_path(Node* end, Node* root);
 
     void delete_tree(Node* twig);
     void delete_tree_helper(Node* root);
 
-    Vector6d get_radians(Vector6d& config);
+    Vector6d get_radians(Vector6d &config);
 
-    Node* extend(ArmState &robot, Node* tree, Vector6d& z_rand);
+    Node* extend(ArmState &robot, Node* tree, const Vector6d &z_rand);
 
-    Node* connect(ArmState &robot, Node* tree, Vector6d& a_new);
+    Node* connect(ArmState &robot, Node* tree, const Vector6d &a_new);
 
-    void spline_fitting(vector<Vector6d>& path);
+    void spline_fitting(const vector<Vector6d> &path);
 
 };
 

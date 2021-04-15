@@ -107,7 +107,7 @@ Vector3d KinematicsSolver::FK(ArmState &robot_state) {
     return return_vec;
 }
 
-Matrix4d KinematicsSolver::apply_joint_xform(ArmState &robot_state, string joint, double theta) {
+Matrix4d KinematicsSolver::apply_joint_xform(const ArmState& robot_state, const string& joint, double theta) {
 
     Vector3d xyz = robot_state.get_joint_pos_local(joint);
 
@@ -162,7 +162,7 @@ Matrix4d KinematicsSolver::apply_joint_xform(ArmState &robot_state, string joint
     return parent_mat * T;
 }
 
-pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target_point, bool set_random_angles, bool use_euler_angles) {
+pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d& target_point, bool set_random_angles, bool use_euler_angles) {
     /*
         Inverse kinematics for MRover arm using cyclic
         coordinate descent (CCD)
@@ -230,7 +230,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     while (dist > POS_THRESHOLD or (angle_dist > ANGLE_THRESHOLD && use_euler_angles)) {
         if (num_iterations > MAX_ITERATIONS) {
             // cout << "Max ik iterations hit\n";
-            vector<double> ef_pos = robot_state.get_ef_pos_and_euler_angles();
+            // vector<double> ef_pos = robot_state.get_ef_pos_and_euler_angles();
             // cout << "position reached: ";
             // for (int i = 0; i < 6; ++i) {
             //     cout << ef_pos[i] << " ";
@@ -271,7 +271,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     }
     // cout << "AHH, safe checking!!!\n";
 
-    Vector3d ef_pos = robot_state.get_ef_pos_world();
+    // Vector3d ef_pos = robot_state.get_ef_pos_world();
     // cout << "End effector positions [ " << ef_pos(0) << " " << ef_pos(1) << " " << ef_pos(2) << "]\n";
 
     vector<double> angles_vec;
@@ -292,7 +292,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, Vector6d target
     return pair<Vector6d, bool> (vecTo6d(angles_vec), true);
 }
 
-void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi, bool use_euler_angles) {
+void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool use_pi, bool use_euler_angles) {
 
     vector<string> joints = robot_state.get_all_joints();
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
@@ -389,7 +389,7 @@ void KinematicsSolver::IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi
     FK(robot_state);
 }
 
-bool KinematicsSolver::is_safe(ArmState &robot_state, vector<double> angles) {
+bool KinematicsSolver::is_safe(ArmState &robot_state, const vector<double> &angles) {
     perform_backup(robot_state);
 
     // if any angles are outside bounds

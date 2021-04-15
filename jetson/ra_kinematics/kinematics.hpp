@@ -37,9 +37,9 @@ private:
      * */
     void recover_from_backup(ArmState &robot_state);
 
-    Matrix4d apply_joint_xform(ArmState &robot_state, string joint, double theta);
+    Matrix4d apply_joint_xform(const ArmState &robot_state, const string &joint, double theta);
 
-    void IK_step(ArmState &robot_state, Vector6d d_ef, bool use_pi, bool use_euler_angles);
+    void IK_step(ArmState &robot_state, const Vector6d &d_ef, bool use_pi, bool use_euler_angles);
 
     /**
      * called by is_safe to check that angles are within bounds
@@ -54,13 +54,13 @@ public:
 
     Vector3d FK(ArmState &robot_state);
 
-    pair<Vector6d, bool> IK(ArmState &robot_state, Vector6d target_point, bool set_random_angles, bool use_euler_angles);
+    pair<Vector6d, bool> IK(ArmState &robot_state, const Vector6d &target_point, bool set_random_angles, bool use_euler_angles);
 
     /**
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds and don't cause collisions
      * */
-    bool is_safe(ArmState &robot_state, vector<double> angles);
+    bool is_safe(ArmState &robot_state, const vector<double> &angles);
 
 };
 

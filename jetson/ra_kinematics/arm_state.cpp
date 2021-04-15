@@ -35,7 +35,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
             try {
                 collision_avoidance_links.emplace_back(joint_origin, jt.value(), collisions);
             }
-            catch (json::exception& e) {
+            catch (json::exception &e) {
                 cout << "Error creating avoidance link: " << e.what() << "\n"
                      << "exception id: " << e.id << std::endl;
             }
@@ -47,7 +47,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
     sort(collision_avoidance_links.begin(), collision_avoidance_links.end(), comparator);
 }
 
-bool ArmState::Link_Comp::operator()(const Avoidance_Link& a, const Avoidance_Link& b) {
+bool ArmState::Link_Comp::operator()(const Avoidance_Link &a, const Avoidance_Link &b) {
     return a.link_num < b.link_num;
 }
 
@@ -59,19 +59,19 @@ void ArmState::add_joint(string name, json &joint_geom) {
     joint_names.push_back(name);
 }
 
-Vector3d ArmState::get_joint_pos_local(string joint) {
+Vector3d ArmState::get_joint_pos_local(const string &joint) const {
     // Return joint position relatice to local frame (position relative to previous joint)
 
     // TODO write function to handle possible exceptions with call to at()
     return joints.at(joint).pos_local;
 }
 
-Vector3d ArmState::get_joint_axis(string joint) {
+Vector3d ArmState::get_joint_axis(const string &joint) const {
     // Return local axis of rotation
     return joints.at(joint).rot_axis;
 }
 
-Vector3d ArmState::get_joint_com(string joint) {
+Vector3d ArmState::get_joint_com(const string &joint) const {
     // Return center of mass of specific link relative to the joint origin
     Matrix4d transform = get_joint_transform(joint);
     Matrix4d translation = Matrix4d::Identity();
@@ -81,7 +81,7 @@ Vector3d ArmState::get_joint_com(string joint) {
     return out_vec;
 }
 
-double ArmState::get_joint_mass(string joint) {
+double ArmState::get_joint_mass(const string &joint) const {
     // TODO: Consider adding mass to the joint struct?
     return joints.at(joint).mass;
 }
@@ -92,7 +92,7 @@ map<string, double> ArmState::get_joint_limits(string joint) const {
     return joints.at(joint).joint_limits;
 }
 // Tested in set_joint_angles_test
-void ArmState::set_joint_angles(const vector<double>& angles) {
+void ArmState::set_joint_angles(const vector<double> &angles) {
     // TODO consider clipping invalid angles or throwing error
 
     // Iterate through all angles and joints adding the angles to each corresponding joint.
@@ -109,49 +109,49 @@ vector<string> ArmState::get_all_joints() const {
     return joint_names;
 }
 
-Vector3d ArmState::get_joint_axis_world(string joint) {
+Vector3d ArmState::get_joint_axis_world(const string &joint) const {
     return joints.at(joint).joint_axis_world;
 }
 
-Matrix4d ArmState::get_joint_transform(string joint) const {
+Matrix4d ArmState::get_joint_transform(const string &joint) const {
     return joints.at(joint).global_transform;
 }
 
-void ArmState::set_joint_transform(string joint, Matrix4d xform) {
+void ArmState::set_joint_transform(const string &joint, const Matrix4d &xform) {
     joints.at(joint).global_transform = xform;
 }
 
-void ArmState::set_link_transform(string link, Matrix4d xform) {
+void ArmState::set_link_transform(const string &link, const Matrix4d &xform) {
     links[link].global_transform = xform;
 }
 
-Matrix4d ArmState::get_ef_transform() {
+Matrix4d ArmState::get_ef_transform() const {
     return ef_xform;
 }
 
-void ArmState::set_ef_transform(Matrix4d xform) {
+void ArmState::set_ef_transform(const Matrix4d &xform) {
     ef_xform = xform;
 }
 
-Vector3d ArmState::get_joint_pos_world(string joint) {
+Vector3d ArmState::get_joint_pos_world(const string &joint) const {
     Matrix4d joint_xform = get_joint_transform(joint);
     Vector3d joint_pos(joint_xform(0,3), joint_xform(1,3), joint_xform(2,3));
     return joint_pos;
 }
 
-Vector3d ArmState::get_ef_pos_world() {
+Vector3d ArmState::get_ef_pos_world() const {
     Matrix4d trans_mat = get_ef_transform();
     Vector3d ret_vec(trans_mat(0,3), trans_mat(1,3), trans_mat(2,3));
     return ret_vec;
 }
 
-Vector3d ArmState::get_ef_ang_world() {
+Vector3d ArmState::get_ef_ang_world() const {
     Matrix3d ang_xform = ef_xform.block(0,0,3,3);
     return compute_euler_angles(ang_xform);
 }
 
 // TODO: Do we need to implement this function?
-vector<double> ArmState::get_ef_pos_and_euler_angles() {
+vector<double> ArmState::get_ef_pos_and_euler_angles() const {
     Vector3d ef_pos_vec = get_ef_pos_world();
     Vector3d ef_ang_world = get_ef_ang_world();
     vector<double> ef_pos_and_angles;
@@ -165,7 +165,7 @@ vector<double> ArmState::get_ef_pos_and_euler_angles() {
 }
 
 // Tested in set_joint_angles_test
-map<string, double> ArmState::get_joint_angles() {
+map<string, double> ArmState::get_joint_angles() const {
     map<string, double> angles;
     for (auto it = joints.begin(); it != joints.end(); ++it) {
         angles[it->first] = it->second.angle;
@@ -175,7 +175,7 @@ map<string, double> ArmState::get_joint_angles() {
 
 void ArmState::transform_avoidance_links() {
     for (size_t i = 0; i < collision_avoidance_links.size(); ++i) {
-        Avoidance_Link& link = collision_avoidance_links.at(i);
+        Avoidance_Link &link = collision_avoidance_links.at(i);
 
         const Matrix4d &joint_xform = get_joint_transform(link.joint_origin);
         
@@ -186,28 +186,28 @@ void ArmState::transform_avoidance_links() {
 }
 
 // Tested in link_link_check_test
-bool ArmState::link_link_check(size_t index_1, size_t index_2) {
+bool ArmState::link_link_check(size_t index_1, size_t index_2) const {
     double closest_dist;
-    Avoidance_Link& link_1 = collision_avoidance_links.at(index_1);
-    Avoidance_Link& link_2 = collision_avoidance_links.at(index_2);
+    const Avoidance_Link &link_1 = collision_avoidance_links.at(index_1);
+    const Avoidance_Link &link_2 = collision_avoidance_links.at(index_2);
 
     if (link_1.type == "capsule" && link_2.type == "capsule") {
-        Vector3d b1 = link_1.points[0];
-        Vector3d b2 = link_2.points[0];
-        Vector3d e1 = link_1.points[1];
-        Vector3d e2 = link_2.points[1];
+        const Vector3d &b1 = link_1.points[0];
+        const Vector3d &b2 = link_2.points[0];
+        const Vector3d &e1 = link_1.points[1];
+        const Vector3d &e2 = link_2.points[1];
         closest_dist = closest_dist_bet_lines(b1, e1, b2, e2);
     }
     else if (link_1.type == "capsule") {
-        Vector3d b1 = link_1.points[0];
-        Vector3d e1 = link_1.points[1];
-        Vector3d center = link_2.points[0];
+        const Vector3d &b1 = link_1.points[0];
+        const Vector3d &e1 = link_1.points[1];
+        const Vector3d &center = link_2.points[0];
         closest_dist = point_line_distance(b1, e1, center);
     }
     else if (link_2.type == "capsule") {
-        Vector3d b2 = link_2.points[0];
-        Vector3d e2 = link_2.points[1];
-        Vector3d center = link_1.points[0];
+        const Vector3d &b2 = link_2.points[0];
+        const Vector3d &e2 = link_2.points[1];
+        const Vector3d &center = link_1.points[0];
         closest_dist = point_line_distance(b2, e2, center);
     }
     else {
@@ -232,23 +232,23 @@ bool ArmState::obstacle_free() {
 }
 
 // Used for testing ArmState functions
-int ArmState::num_joints() {
+int ArmState::num_joints() const {
     return joints.size();
 }
 
-string ArmState::get_child_link(string joint){
+string ArmState::get_child_link(const string &joint) const {
     return joints.at(joint).child_link;
 }
 
-Vector3d ArmState::get_joint_torque(string joint){
+Vector3d ArmState::get_joint_torque(const string &joint) const {
     return joints.at(joint).torque;
 }
 
-void ArmState::set_joint_torque(string joint, Vector3d torque){
+void ArmState::set_joint_torque(const string &joint, const Vector3d &torque) {
     joints.at(joint).torque = torque;
 }
 
-Vector3d ArmState::get_link_point_world(string link){
+Vector3d ArmState::get_link_point_world(const string &link) {
     Vector3d link_point_world;
     link_point_world(0) = links[link].global_transform(0,3);
     link_point_world(1) = links[link].global_transform(1,3);
@@ -256,11 +256,11 @@ Vector3d ArmState::get_link_point_world(string link){
     return link_point_world;
 }
 
-Matrix4d ArmState::get_link_xform(string link) {
+Matrix4d ArmState::get_link_xform(const string &link) {
     return links[link].global_transform;
 }
 
-Vector3d ArmState::get_ef_xyz() {
+Vector3d ArmState::get_ef_xyz() const {
     return ef_xyz;
 }
 

@@ -4,11 +4,11 @@
 #include <time.h>
 
 
-MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver& solver_in) :
+MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in) :
         solver(solver_in) {
     
     // add limits for each joint to joint_limits, after converting to degrees
-    for (string& joint : robot.get_all_joints()) {
+    for (string &joint : robot.get_all_joints()) {
       map<string, double> limits = robot.get_joint_limits(joint);
 
       limits["lower"] = limits["lower"] * 180 / M_PI;
@@ -43,7 +43,7 @@ Vector6d MotionPlanner::sample() {
     return z_rand;
 }
 
-MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vector6d& rand) {
+MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, const Vector6d &rand) {
     queue<Node*> q;
     q.push(tree_root);
 
@@ -72,7 +72,7 @@ MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, Vect
 }
 
 
-Vector6d MotionPlanner::steer(MotionPlanner::Node* start, Vector6d& end) {
+Vector6d MotionPlanner::steer(MotionPlanner::Node* start, const Vector6d &end) {
 
     // calculate the vector from start position to end (each value is a change in angle)
     Vector6d vec = end - start->config;
@@ -154,15 +154,15 @@ void MotionPlanner::delete_tree_helper(MotionPlanner::Node* root) {
     }
 }
 
-Vector6d MotionPlanner::get_radians(Vector6d& config) {
+Vector6d MotionPlanner::get_radians(Vector6d &config) {
     for (int i = 0; i < 6; ++i) {
-        config(i) *= (M_PI / 180);
+        config[i] *= (M_PI / 180);
     }
 
     return config;
 }
 
-MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d& z_rand) {
+MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const Vector6d &z_rand) {
 
     // z_nearest is the nearest node in the tree to z_rand
     Node* z_nearest = nearest(tree, z_rand);
@@ -195,7 +195,7 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, Vector6d
     return new_node;
 }
 
-MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, Vector6d& a_new) {
+MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, const Vector6d &a_new) {
     Node* extension;
 
     do {
@@ -205,7 +205,7 @@ MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, Vector6
     return extension;
 }
 
-bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_angles) {
+bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) {
 
     // retrieve starting and target joint angles
     Vector6d start;
@@ -292,7 +292,7 @@ bool MotionPlanner::rrt_connect(ArmState& robot, const Vector6d& target_angles) 
 
 }
 
-void MotionPlanner::spline_fitting(vector<Vector6d>& path) {
+void MotionPlanner::spline_fitting(const vector<Vector6d> &path) {
 
     // six vectors, each with the path of a single component
     vector< vector<double> > separate_paths;
@@ -352,7 +352,7 @@ vector<double> MotionPlanner::get_spline_pos(double spline_t) {
     vector<double> angles;
     angles.reserve(6);
 
-    for (const tk::spline& spline : splines) {
+    for (const tk::spline &spline : splines) {
         angles.emplace_back(spline(spline_t));
     }
 
