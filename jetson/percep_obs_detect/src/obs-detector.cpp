@@ -3,6 +3,7 @@
 #include <chrono>
 using namespace std;
 using namespace std::chrono;
+using namespace boost::interprocess;
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewer) : source(source), mode(mode), viewer(viewer), record(false)
 {
@@ -27,6 +28,9 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         char *argv[1] = {(char*)"Window"};
         glViewer.init(argc, argv, defParams, &framePlay, &frameNum);
     }
+
+    shm = shared_memory_object(open_only, "gpuhandle", read_write);
+    region = mapped_region(shm, read_write);
 };
 
 void ObsDetector::pclKeyCallback(const pcl::visualization::KeyboardEvent &event, void* junk) {
@@ -66,8 +70,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(150, 30, 0, cloud_res.area(), 9); 
 }
-
-
+        
 
 void ObsDetector::update() {
     if(source == DataSource::ZED) {
@@ -82,12 +85,7 @@ void ObsDetector::update() {
         fileReader.load(frameNum, frame, true);
         update(frame);
     } else if(source == DataSource::GPUMEM){
-        using namespace boost::interprocess;
-        // Create shared memory region where data from driver program is written 
-        shared_memory_object shm (open_only, "gpuhandle", read_write);
-        mapped_region region(shm, read_write);
-
-        int* dataGPU;
+        sl::float4* dataGPU;
         unsigned char *handleBuffer;
         cudaIpcMemHandle_t my_handle;
 
@@ -96,17 +94,23 @@ void ObsDetector::update() {
 
         //if parity bit is set to 1, perform operations
         if(handleBuffer[sizeof(my_handle)] == 1){
-          //Get cloud data
-          memcpy((unsigned char *)(&my_handle), handleBuffer, sizeof(my_handle));
-          checkStatus(cudaIpcOpenMemHandle((void **)&dataGPU, my_handle, cudaIpcMemLazyEnablePeerAccess));
-          checkStatus(cudaGetLastError());
+            cout << "got frame" << endl;
 
-          //Run processing on cloud frame
-          sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, (sl::uchar1*)dataGPU, 4, sl::MEM::GPU);
-          update(frame);
+            for(int i = 0; i < sizeof(my_handle); i++) {
+                cout << (int)handleBuffer[i] << " ";
+            }
+            cout << endl;
 
-          //Set parity bit back to 0 to allow new frame to be written in
-          handleBuffer[sizeof(my_handle)] = 0;
+            //Get cloud data
+            memcpy((unsigned char *)(&my_handle), handleBuffer, sizeof(my_handle));
+            checkStatus(cudaIpcOpenMemHandle((void **)&dataGPU, my_handle, cudaIpcMemLazyEnablePeerAccess));
+
+            //Run processing on cloud frame
+            sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, (sl::uchar1*)dataGPU, 4*sizeof(float), sl::MEM::GPU);
+            //update(frame);
+
+            //Set parity bit back to 0 to allow new frame to be written in
+            handleBuffer[sizeof(my_handle)] = 0;
         }
     }
 } 
@@ -124,9 +128,9 @@ void ObsDetector::update(sl::Mat &frame) {
     pc = getRawCloud(frame);
 
     // Processing 
-    passZ->run(pc);
+    //passZ->run(pc);
     //std::cout << "pre ransac:" << pc.size << endl;
-    ransacPlane->computeModel(pc, true);
+    //ransacPlane->computeModel(pc, true);
     
     
     
@@ -158,7 +162,7 @@ void ObsDetector::update(sl::Mat &frame) {
     Bins bins;
 
     #if VOXEL
-        bins = voxelGrid->run(pc);
+    //    bins = voxelGrid->run(pc);
     #endif
 
 
@@ -166,7 +170,7 @@ void ObsDetector::update(sl::Mat &frame) {
 
     //std::cout << "post ransac:" << pc.size << endl;
     auto grabStart = high_resolution_clock::now();
-    obstacles = ece->extractClusters(pc, bins); 
+    //obstacles = ece->extractClusters(pc, bins); 
     auto grabEnd = high_resolution_clock::now();
     auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
     //cout << "ECE time: " << (grabDuration.count()/1.0e3) << " ms" << endl; 
@@ -174,7 +178,7 @@ void ObsDetector::update(sl::Mat &frame) {
     //LCM
     //obstacleMessage.bearing = 
     //obstacleMessage.distance = 
-    lcm_.publish("/obstacle", &obstacleMessage);
+    //lcm_.publish("/obstacle", &obstacleMessage);
 
     // Rendering
     if(mode != OperationMode::SILENT) {
@@ -243,7 +247,7 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::PCLV);
+    ObsDetector obs(DataSource::GPUMEM, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
     //obs.update();
     std::thread viewerTick( [&]{while(true) { obs.update();} });

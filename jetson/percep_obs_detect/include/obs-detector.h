@@ -18,6 +18,8 @@
 #include <cstring>
 #include <iostream>
 
+//using namespace boost::interprocess;
+
 /*
  *** Determines where to input clouds for obstacle detection ***
  *      ZED: inputs clouds directly from a connected ZED
@@ -138,5 +140,9 @@ class ObsDetector {
         Recorder recorder;
         int frameNum = 0;
         bool framePlay = true;
+
+        //Shared mem
+        boost::interprocess::shared_memory_object shm;
+        boost::interprocess::mapped_region region;
         
 };
