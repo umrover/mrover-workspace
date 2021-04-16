@@ -106,8 +106,8 @@ void ObsDetector::update() {
             checkStatus(cudaIpcOpenMemHandle((void **)&dataGPU, my_handle, cudaIpcMemLazyEnablePeerAccess));
 
             //Run processing on cloud frame
-            sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, (sl::uchar1*)dataGPU, 4*sizeof(float), sl::MEM::GPU);
-            //update(frame);
+            sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, (sl::uchar1*)dataGPU, 2560, sl::MEM::GPU);
+            update(frame);
 
             //Set parity bit back to 0 to allow new frame to be written in
             handleBuffer[sizeof(my_handle)] = 0;

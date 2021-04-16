@@ -40,7 +40,7 @@ int main() {
     gotFrame = true;
     zed.grab();
     zed.retrieveMeasure(curFrame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
-
+    cout << "step bytes " << curFrame.getStepBytes() << endl;
     while(true) {
 
         
@@ -61,7 +61,7 @@ int main() {
             memset(handle_buffer, 0, sizeof(my_handle));
             memcpy(handle_buffer, (unsigned char *)(&my_handle), sizeof(my_handle));
             //copy the primative char array bytes of the handle into shared memory
-            //memcpy(sharedMemData, handle_buffer, sizeof(my_handle));
+            memcpy(sharedMemData, handle_buffer, sizeof(my_handle));
             //write parity bit to high
             sharedMemData[sizeof(my_handle)] = 1;
             std::cout << "writing to shared" << std::endl;
@@ -72,6 +72,8 @@ int main() {
             }
             cout << endl;
 
+            //TEMP
+            gotFrame = false;
         } /*
          else { 
         
