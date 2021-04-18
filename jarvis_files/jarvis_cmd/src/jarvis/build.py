@@ -182,9 +182,7 @@ def launch_dir(ctx, d, opts, ssh):
     if d == "loc":
         launch_loc(ctx, opts, ssh)
     if d == "auton":
-        launch_auton(ctx, opts, ssh./jarvis exec jetson/nav
-        ./jarvis exec base_station/gui
-        )  
+        launch_auton(ctx, opts, ssh)  
     return
 
 def get_process_id(name):
