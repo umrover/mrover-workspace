@@ -174,15 +174,15 @@ def build_all(ctx, d, lint, opts, not_build):
     return len(failed_projects)
 
 # Function that parses launch command
-def launch_dir(ctx, d, opts):
+def launch_dir(ctx, d, opts, ssh):
     if d == "percep":
-        launch_percep(ctx, opts)
+        launch_percep(ctx, opts, ssh)
     if d == "nav":
-        launch_nav(ctx, opts)
+        launch_nav(ctx, opts, ssh)
     if d == "loc":
-        launch_loc(ctx, opts)
+        launch_loc(ctx, opts, ssh)
     if d == "auton":
-        launch_auton(ctx, opts)  
+        launch_auton(ctx, opts, ssh)  
     return
 
 def get_process_id(name):
@@ -198,43 +198,55 @@ def wait_for_click():
         time.sleep(.1)
     return 
 
-# Functions that builds and execute auton subteam code
-def launch_percep(ctx, opts):
+def genTerminalLaunchCommand(script_address, ssh):
+    command = "gnome-terminal -- bash -c './"
+    command = command + script_address
+
+    if ssh:
+        return command + " ssh; $SHELL'"
+    else:
+        return command + "; $SHELL'"
+
+# Functions that build and execute auton subteam code
+def launch_percep(ctx, opts, ssh):
     percep = 'jetson/percep'
     l = 'True'
+    workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/percep"
+    
     build_dir(ctx, percep, l, opts)
-    ctx.run("gnome-terminal \
-            -- bash -c \
-            './jarvis_files/jarvis_cmd/launchScripts/percep; $SHELL'")
+
+    ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
     
     wait_for_click()
     return
 
-def launch_nav(ctx, opts):
+def launch_nav(ctx, opts, ssh):
     nav = 'jetson/nav'
     l = 'True'
-    build_dir(ctx, nav, l, opts)
-    ctx.run("gnome-terminal \
-            -- bash -c \
-            './jarvis_files/jarvis_cmd/launchScripts/nav; $SHELL'")
+    workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/nav"
     
+    build_dir(ctx, nav, l, opts)
+    
+    ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
+
     wait_for_click()
     return
 
-def launch_loc(ctx, opts):
+def launch_loc(ctx, opts, ssh):
     gps = 'jetson/gps'
     filter = 'jetson/filter'
     l = 'True'
+    workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/loc"
+
     build_dir(ctx, gps, l, opts)
     build_dir(ctx, filter, l, opts)
-    ctx.run("gnome-terminal \
-            -- bash -c \
-            './jarvis_files/jarvis_cmd/launchScripts/loc; $SHELL'")
+    
+    ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
     
     wait_for_click()
     return
 
-def launch_auton(ctx, opts):
+def launch_auton(ctx, opts, ssh):
     build_deps(ctx)
     
     opt = ['']
@@ -246,7 +258,7 @@ def launch_auton(ctx, opts):
     build_dir(ctx, lcm_bridge, l, opts)
     build_dir(ctx, lcm_echo, l , opts)
 
-    launch_nav(ctx, opts)
-    launch_loc(ctx, opts)
-    launch_percep(ctx, opts)
+    launch_nav(ctx, opts, ssh)
+    launch_loc(ctx, opts, ssh)
+    launch_percep(ctx, opts, ssh)
     return

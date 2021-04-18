@@ -12,16 +12,18 @@ xdotool key KP_Enter
 
 #Open a new tab for Obstacle LCM
 xdotool key ctrl+shift+t
+# Check If need to ssh first
+if [[ $1 ]]; then
+    ./jarvis_files/jarvis_cmd/launchScripts/ssh $WID
+fi
 xdotool key type "./jarvis exec jetson/filter"
 xdotool key KP_Enter
 
 # Make window 1/4 of screen and align upper right
 dimensions=$(./jarvis_files/jarvis_cmd/launchScripts/dim)
 dim=($dimensions)
-echo ${dim[0]}
 dim[0]=$(expr ${dim[0]} / 2)
 dim[1]=$(expr ${dim[1]} / 2)
-echo ${dim[0]}
 xdotool windowsize $WID ${dim[0]} ${dim[1]} 
 xdotool windowmove $WID ${dim[0]} 0 
 xdotool windowminimize $WID
