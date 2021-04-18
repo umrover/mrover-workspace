@@ -119,8 +119,24 @@ export default {
           d2_4:0,
           d2_5:0,
           d2_6:0
+      },
+      MosfetIDs: {
+        rLed: 0,
+        gLed: 1,
+        bLed: 2,
+        sciUV: 3,
+        SAUV: 4,
+        sciWLed: 5,
+        perPump0: 6,
+        perPump1: 7,
+        perPump2: 8,
+        heater0: 9,
+        heater1: 10,
+        heater2: 11,
+        ramanLaser: 12
       }
-    }
+
+}
   },
 
   methods: {
@@ -248,7 +264,6 @@ export default {
     CommIndicator,
     OdometryReading,
     WaypointEditor,
-    SATestingControls,
     SpectralData,
     Chlorophyll,
     Ammonia,
