@@ -1,6 +1,6 @@
 #!/bin/bash
 
-xdotool key --window $1 type "ssh mrover@10.1.0.1"
+xdotool key --window $1 type "ssh -X mrover@10.1.0.1"
 xdotool key --window $1 KP_Enter
 sleep 1s
 xdotool key --window $1 type "mrover"
