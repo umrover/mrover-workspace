@@ -2,6 +2,9 @@ import configparser
 import os
 import sys
 import shutil
+import time
+import subprocess
+
 from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
 from buildsys.rollupjs import RollupJSBuilder
@@ -169,3 +172,93 @@ def build_all(ctx, d, lint, opts, not_build):
     print("Successfully built: {} of {} project(s).".format(
         num_projects - len(failed_projects), num_projects))
     return len(failed_projects)
+
+# Function that parses launch command
+def launch_dir(ctx, d, opts, ssh):
+    if d == "percep":
+        launch_percep(ctx, opts, ssh)
+    if d == "nav":
+        launch_nav(ctx, opts, ssh)
+    if d == "loc":
+        launch_loc(ctx, opts, ssh)
+    if d == "auton":
+        launch_auton(ctx, opts, ssh)  
+    return
+
+def get_process_id(name):
+
+    child = subprocess.Popen(['pgrep', '-f', name], stdout=subprocess.PIPE, shell=False)
+    response = child.communicate()[0]
+    return [int(pid) for pid in response.split()]
+
+def wait_for_click():
+    pid = get_process_id("xdotool selectwindow")
+    while pid:
+        pid = get_process_id("xdotool selectwindow")
+        time.sleep(.1)
+    return 
+
+def genTerminalLaunchCommand(script_address, ssh):
+    command = "gnome-terminal -- bash -c './"
+    command = command + script_address
+
+    if ssh:
+        return command + " ssh; $SHELL'"
+    else:
+        return command + "; $SHELL'"
+
+# Functions that build and execute auton subteam code
+def launch_percep(ctx, opts, ssh):
+    percep = 'jetson/percep'
+    l = 'True'
+    workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/percep"
+    
+    build_dir(ctx, percep, l, opts)
+
+    ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
+    
+    wait_for_click()
+    return
+
+def launch_nav(ctx, opts, ssh):
+    nav = 'jetson/nav'
+    l = 'True'
+    workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/nav"
+    
+    build_dir(ctx, nav, l, opts)
+    
+    ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
+
+    wait_for_click()
+    return
+
+def launch_loc(ctx, opts, ssh):
+    gps = 'jetson/gps'
+    filter = 'jetson/filter'
+    l = 'True'
+    workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/loc"
+
+    build_dir(ctx, gps, l, opts)
+    build_dir(ctx, filter, l, opts)
+    
+    ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
+    
+    wait_for_click()
+    return
+
+def launch_auton(ctx, opts, ssh):
+    build_deps(ctx)
+    
+    opt = ['']
+    station = "base_station/gui"
+    lcm_bridge = "lcm_bridge/server"
+    lcm_echo = "lcm_tools/echo"
+    l = 'True'
+    build_dir(ctx, station, l, opts)
+    build_dir(ctx, lcm_bridge, l, opts)
+    build_dir(ctx, lcm_echo, l , opts)
+
+    launch_nav(ctx, opts, ssh)
+    launch_loc(ctx, opts, ssh)
+    launch_percep(ctx, opts, ssh)
+    return
