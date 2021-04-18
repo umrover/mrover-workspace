@@ -13,20 +13,20 @@
       UV Status: {{siteUVs.UV0}}
     </div-->
     <div class="box1" v-if="whiteLEDS == 0">
-        <button  v-on:click="whiteLEDS=1,setPart(this.$parent.MosfetIDs.sciWLed,true)">
+        <button  v-on:click="whiteLEDS=1,setPart(mosfetIDs.sciWLed,true)">
         White LEDs On
         </button>
     </div>
     <div class="box1" v-if="whiteLEDS == 1">
-        <button  v-on:click="whiteLEDS=0,setPart(this.$parent.MosfetIDs.sciWLed,false)">
+        <button  v-on:click="whiteLEDS=0,setPart(mosfetIDs.sciWLed,false)">
         White LEDs Off
         </button>
     </div>
     <div class="box1">
-        <button v-if="siteUVs.UV0 == 0" v-on:click="siteUVs.UV0 = 1,setPart(this.$parent.MosfetIDs.sciUV,true)">
+        <button v-if="siteUVs.UV0 == 0" v-on:click="siteUVs.UV0 = 1,setPart(mosfetIDs.sciUV,true)">
         UV On
         </button>
-        <button v-if="siteUVs.UV0 == 1" v-on:click="siteUVs.UV0 = 0,setPart(this.$parent.MosfetIDs.sciUV,false)">
+        <button v-if="siteUVs.UV0 == 1" v-on:click="siteUVs.UV0 = 0,setPart(mosfetIDs.sciUV,false)">
         UV Off
         </button>
     </div>
@@ -83,6 +83,12 @@ export default {
         this.siteUVs = msg
       })
     }
+  },
+  props: {
+    mosfetIDs: {
+      type: Object,
+      required: true
+    },
   },  
   methods: {
     setPart: function(id, enabled) {

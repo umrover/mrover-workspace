@@ -24,7 +24,7 @@
     </div>
 
     <div class="box odom light-bg">
-      <OdometryReading v-bind:odom="odom"/>
+      <OdometryReading v-bind:odom="odom" v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
@@ -36,13 +36,13 @@
       <SpectralData v-bind:spectral_data="spectral_data"/>
     </div>
     <div class = "box light-bg chlorophyll">
-      <Chlorophyll/>
+      <Chlorophyll v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box ammonia light-bg">
       <Ammonia/>
     </div>
     <div class="box amino light-bg">
-      <Amino/>
+      <Amino v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box drives light-bg">
       <DriveVelDataV/>
@@ -116,7 +116,7 @@ export default {
           d2_5:0,
           d2_6:0
       },
-      MosfetIDs: {
+      mosfetIDs: {
         rLed: 0,
         gLed: 1,
         bLed: 2,
