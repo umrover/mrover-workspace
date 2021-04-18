@@ -24,7 +24,8 @@ class IMU_Manager():
         # Mapping NMEA messages to their handlers
         self.NMEA_TAGS_MAPPER = {
             "PCHRS": self.pchrs_handler,
-            "PCHRA": self.pchra_handler
+            "PCHRA": self.pchra_handler,
+            "PCHRH": self.pchrh_handler
         }
         self.sleep = .01
 
@@ -117,6 +118,24 @@ class IMU_Manager():
             imu_struct.pitch_rad = 0
             imu_struct.yaw_rad = 0
 
+    def pchrh_handler(self, msg, imu_struct):
+        try:
+            arr = msg.split(",")
+
+            print("Satalites being used: ", arr[2])
+            print("Satalites being tracked: ", arr[3])
+            print("HDOP: ", arr[4])
+            print("Mode (0 is Euler Angle, 1 is quaternion): ", arr[5])
+            print("COM (1 means it is transmitting too much): ", arr[6])
+            print("Accel (0-1; high if not read correctly): ", arr[7])
+            print("Gyro (0-1; high if not read correctly): ", arr[8])
+            print("Mag (0-1; high if not read correctly): ", arr[9])
+            print("GPS (0-1; high if not read correctly): ", arr[10])
+
+        except Exception as b:
+            print("Error with PCHRH handler")
+            print(b.args)
+
     async def recieve(self, lcm):
             '''
             Reads from the rover IMU over serial connection.
@@ -154,6 +173,9 @@ class IMU_Manager():
                                 print(msg)
                                 func(msg, imu)
                                 lcm.publish('/imu_data', imu.encode())
+                            if(tag == "PCHRH"):
+                                print(msg)
+                                func(msg, imu)
                         except Exception as e:
                             print(e)
                             break
@@ -181,6 +203,14 @@ class IMU_Manager():
                       0, 0x11, 0, 0, checksum >> 8, checksum & 0xff]
 
         self.ser.write(cmd_buffer)
+
+        # health packet
+        checksum = ord('s') + ord('n') + ord('p') + 0x06 + 0x80 + 0x01
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, 0x06,
+                      0, 0x01, 0, 0, checksum >> 8, checksum & 0xff]
+
+        self.ser.write(cmd_buffer)
+
 
     def get_calibrated(self, register):
         checksum = ord('s') + ord('n') + ord('p') + register
@@ -223,6 +253,7 @@ class IMU_Manager():
 
         # um7 sends back same message as request for data but with payload
         # containing IEEE 754 32bit number (= to python float)
+        data = []*32
         received = self.ser.readline()
         # print(received)
         # Filters the buffer looking for the has data packets and prints it
@@ -230,15 +261,21 @@ class IMU_Manager():
         iterator = 0
         while (run):
             if(received[iterator:(iterator + 4)] == b'snp\x80'):
-                # print(received[iterator:(iterator + 11)])
                 run = False
+                # get data
+                count = 0
+                for b in received:
+                    data[count] = b
+                    count += 1
+                
+                # print(received[iterator:(iterator + 11)])
                 data = [0x00, 0x00, 0x00, 0x00]
                 # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
                 data = received[(iterator + 5):(iterator + 9)]
                 print("recieved: ", received)
                 print("data: ", data)
                 print((received[iterator + 5]))
-                valx = (hex((received[iterator + 5])) << 8) | hex((received[iterator + 6]))
+                valx = (int(received[iterator + 5]) << 8) | int(received[iterator + 6])
                 print(valx)
                 f = struct.unpack('f', bytes(valx, 'utf-8'))
                 print(f)
@@ -309,14 +346,14 @@ def main():
             manager.get_calibrated(r)
             print("\n")
 
-        print("RAW_GYRO")
-        manager.get_raw(0x56, 0x57)
+        # print("RAW_GYRO")
+        # manager.get_raw(0x56, 0x57)
 
-        print("RAW_ACCEL")
-        manager.get_raw(0x59, 0x5A)
+        # print("RAW_ACCEL")
+        # manager.get_raw(0x59, 0x5A)
 
-        print("RAW_MAG")
-        manager.get_raw(0x5C, 0x5D)
+        # print("RAW_MAG")
+        # manager.get_raw(0x5C, 0x5D)
 
         manager.enable_nmea(NMEA_RATE_REG)
 
