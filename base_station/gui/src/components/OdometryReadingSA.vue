@@ -21,7 +21,7 @@
     <PDBData/>
     </div-->
     <div class="sacontrols buttons">
-    <button ref="raman" class=raman v-on:click="sendCollect($event)"> <span>Raman Test</span> </button>
+    <button ref="raman" class=raman v-on:click="sendCollect(mosfetIDs.ramanLaser)"> <span>Raman Test</span> </button>
     <SAControls/>
     </div>
   </div>
@@ -36,6 +36,10 @@ import SAControls from './SAControls.vue';
 export default {
   props: {
     odom: {
+      type: Object,
+      required: true
+    },
+    mosfetIDs: {
       type: Object,
       required: true
     },
@@ -63,21 +67,21 @@ export default {
   },
 
     methods: {
-      sendCollect: function (button) {
+      sendCollect: function (ramanLaser) {
         this.$parent.publish("/mosfet_cmd", {
         'type': 'MosfetCmd',
-        'device': this.$parent.MosfetIDs.ramanLaser,
+        'device': ramanLaser,
         'enable': true
       })
         let obj = this.$refs["raman"]
         obj.disabled = true
-        setTimeout(this.pubHelper, 2000);
+        setTimeout(this.pubHelper, 2000, ramanLaser);
       },
-      pubHelper: function (){
+      pubHelper: function (ramanLaser){
         this.$refs["raman"].disabled = false;
         this.$parent.publish("/mosfet_cmd", {
             'type': 'MosfetCmd',
-            'device': this.$parent.MosfetIDs.ramanLaser,
+            'device': ramanLaser,
             'enable': false
           })
       }
