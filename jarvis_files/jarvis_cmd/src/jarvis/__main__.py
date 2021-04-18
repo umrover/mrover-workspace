@@ -3,8 +3,8 @@ import sys
 from buildsys import WorkspaceContext
 from invoke.exceptions import UnexpectedExit
 
-from .build import build_dir, clean, build_deps, build_all, launch_dir
-
+from .build import build_dir, clean, build_deps, build_all
+from .launch import launch_dir
 
 def clean_dir_name(d):
     if d[-1] == '/':
