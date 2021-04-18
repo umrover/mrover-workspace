@@ -21,7 +21,7 @@ xdotool key type "./jarvis exec base_station/gui"
 xdotool key KP_Enter
 
 # Make window 1/4 of screen and align lower left
-dimensions=$(./jarvis_files/jarvis_cmd/launchScripts/dim)
+dimensions=$(./jarvis_files/launchScripts/dim)
 dim=($dimensions)
 dim[0]=$(expr ${dim[0]} / 2)
 dim[1]=$(expr ${dim[1]} / 2)

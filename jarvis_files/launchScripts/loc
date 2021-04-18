@@ -14,13 +14,13 @@ xdotool key KP_Enter
 xdotool key ctrl+shift+t
 # Check If need to ssh first
 if [[ $1 ]]; then
-    ./jarvis_files/jarvis_cmd/launchScripts/ssh $WID
+    ./jarvis_files/launchScripts/ssh $WID
 fi
 xdotool key type "./jarvis exec jetson/filter"
 xdotool key KP_Enter
 
 # Make window 1/4 of screen and align upper right
-dimensions=$(./jarvis_files/jarvis_cmd/launchScripts/dim)
+dimensions=$(./jarvis_files/launchScripts/dim)
 dim=($dimensions)
 dim[0]=$(expr ${dim[0]} / 2)
 dim[1]=$(expr ${dim[1]} / 2)

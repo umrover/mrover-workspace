@@ -45,7 +45,7 @@ def genTerminalLaunchCommand(script_address, ssh):
 def launch_perception(ctx, opts, ssh):
     percep = 'jetson/percep'
     use_linter = 'True'
-    workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/percep"
+    workspace_relative_address = "jarvis_files/launchScripts/percep"
     
     build_dir(ctx, percep, use_linter, opts)
 
@@ -57,7 +57,7 @@ def launch_perception(ctx, opts, ssh):
 def launch_navigation(ctx, opts, ssh):
     nav = 'jetson/nav'
     use_linter = 'True'
-    workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/nav"
+    workspace_relative_address = "jarvis_files/launchScripts/nav"
     
     build_dir(ctx, nav, use_linter, opts)
     
@@ -70,7 +70,7 @@ def launch_localization(ctx, opts, ssh):
     gps = 'jetson/gps'
     filter = 'jetson/filter'
     use_linter = 'True'
-    workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/loc"
+    workspace_relative_address = "jarvis_files/launchScripts/loc"
 
     build_dir(ctx, gps, use_linter, opts)
     build_dir(ctx, filter, use_linter, opts)
