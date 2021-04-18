@@ -10,12 +10,13 @@ xdotool windowfocus $WID
 xdotool key type "./jarvis exec jetson/nav"
 xdotool key KP_Enter
 
+# Need to add code HERE that will launch a gnome-terminal
+# This terminal will build base_station gui and lcm_bridge/server
+# Have script wait until the PID of build is finished then continue
+# Gnome-terminal should close automatically
+
 #Open a new tab for Obstacle LCM
 xdotool key ctrl+shift+t
-# Check If need to ssh first
-if [[ $1 ]]; then
-    ./jarvis_files/jarvis_cmd/launchScripts/ssh $WID
-fi
 xdotool key type "./jarvis exec base_station/gui"
 xdotool key KP_Enter
 

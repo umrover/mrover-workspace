@@ -182,7 +182,9 @@ def launch_dir(ctx, d, opts, ssh):
     if d == "loc":
         launch_loc(ctx, opts, ssh)
     if d == "auton":
-        launch_auton(ctx, opts, ssh)  
+        launch_auton(ctx, opts, ssh./jarvis exec jetson/nav
+        ./jarvis exec base_station/gui
+        )  
     return
 
 def get_process_id(name):
@@ -250,12 +252,8 @@ def launch_auton(ctx, opts, ssh):
     build_deps(ctx)
     
     opt = ['']
-    station = "base_station/gui"
-    lcm_bridge = "lcm_bridge/server"
     lcm_echo = "lcm_tools/echo"
     l = 'True'
-    build_dir(ctx, station, l, opts)
-    build_dir(ctx, lcm_bridge, l, opts)
     build_dir(ctx, lcm_echo, l , opts)
 
     launch_nav(ctx, opts, ssh)
