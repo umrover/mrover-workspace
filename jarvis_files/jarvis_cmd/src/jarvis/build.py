@@ -176,11 +176,11 @@ def build_all(ctx, d, lint, opts, not_build):
 # Function that parses launch command
 def launch_dir(ctx, d, opts, ssh):
     if d == "percep":
-        launch_percep(ctx, opts, ssh)
+        launch_perception(ctx, opts, ssh)
     if d == "nav":
-        launch_nav(ctx, opts, ssh)
+        launch_navigation(ctx, opts, ssh)
     if d == "loc":
-        launch_loc(ctx, opts, ssh)
+        launch_localization(ctx, opts, ssh)
     if d == "auton":
         launch_auton(ctx, opts, ssh)  
     return
@@ -208,38 +208,38 @@ def genTerminalLaunchCommand(script_address, ssh):
         return command + "; $SHELL'"
 
 # Functions that build and execute auton subteam code
-def launch_percep(ctx, opts, ssh):
+def launch_perception(ctx, opts, ssh):
     percep = 'jetson/percep'
-    l = 'True'
+    use_linter = 'True'
     workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/percep"
     
-    build_dir(ctx, percep, l, opts)
+    build_dir(ctx, percep, use_linter, opts)
 
     ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
     
     wait_for_click()
     return
 
-def launch_nav(ctx, opts, ssh):
+def launch_navigation(ctx, opts, ssh):
     nav = 'jetson/nav'
-    l = 'True'
+    use_linter = 'True'
     workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/nav"
     
-    build_dir(ctx, nav, l, opts)
+    build_dir(ctx, nav, use_linter, opts)
     
     ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
 
     wait_for_click()
     return
 
-def launch_loc(ctx, opts, ssh):
+def launch_localization(ctx, opts, ssh):
     gps = 'jetson/gps'
     filter = 'jetson/filter'
-    l = 'True'
+    use_linter = 'True'
     workspace_relative_address = "jarvis_files/jarvis_cmd/launchScripts/loc"
 
-    build_dir(ctx, gps, l, opts)
-    build_dir(ctx, filter, l, opts)
+    build_dir(ctx, gps, use_linter, opts)
+    build_dir(ctx, filter, use_linter, opts)
     
     ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
     
@@ -249,12 +249,11 @@ def launch_loc(ctx, opts, ssh):
 def launch_auton(ctx, opts, ssh):
     build_deps(ctx)
     
-    opt = ['']
     lcm_echo = "lcm_tools/echo"
     l = 'True'
     build_dir(ctx, lcm_echo, l , opts)
 
-    launch_nav(ctx, opts, ssh)
-    launch_loc(ctx, opts, ssh)
-    launch_percep(ctx, opts, ssh)
+    launch_navigation(ctx, opts, ssh)
+    launch_localization(ctx, opts, ssh)
+    launch_perception(ctx, opts, ssh)
     return
