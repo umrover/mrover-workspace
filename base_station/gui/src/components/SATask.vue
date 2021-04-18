@@ -32,15 +32,9 @@
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
     </div>
-    <!--div class="box sa_testing light-bg">
-      <SATestingControls/>
-    </div-->
     <div class="box spectral light-bg">
       <SpectralData v-bind:spectral_data="spectral_data"/>
     </div>
-    <!--div class="box sa_controls light-bg">
-      <SAControls/>
-    </div-->
     <div class = "box light-bg chlorophyll">
       <Chlorophyll/>
     </div>
@@ -64,7 +58,6 @@ import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReadingSA.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
-import SATestingControls from './SATestingControls.vue'
 import SpectralData from './SpectralData.vue'
 import Chlorophyll from './Chlorophyll.vue'
 import Ammonia from './Ammonia.vue'
@@ -122,8 +115,24 @@ export default {
           d2_4:0,
           d2_5:0,
           d2_6:0
+      },
+      MosfetIDs: {
+        rLed: 0,
+        gLed: 1,
+        bLed: 2,
+        sciUV: 3,
+        SAUV: 4,
+        sciWLed: 5,
+        perPump0: 6,
+        perPump1: 7,
+        perPump2: 8,
+        heater0: 9,
+        heater1: 10,
+        heater2: 11,
+        ramanLaser: 12
       }
-    }
+
+}
   },
 
   methods: {
@@ -251,7 +260,6 @@ export default {
     CommIndicator,
     OdometryReading,
     WaypointEditor,
-    SATestingControls,
     SpectralData,
     Chlorophyll,
     Ammonia,

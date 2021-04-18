@@ -12,46 +12,46 @@
         </select>
     </div>
     <div class="box1" v-if="site == 0">
-        <button v-if="pump0==0" v-on:click="pump0 = 1, setPart(6,true)">
+        <button v-if="pump0==0" v-on:click="pump0 = 1, setPart(this.$parent.MosfetIDs.perPump0,true)">
             Pump 0 on
         </button>
-        <button v-if="pump0==1" v-on:click="pump0 = 0, setPart(6,false)">
+        <button v-if="pump0==1" v-on:click="pump0 = 0, setPart(this.$parent.MosfetIDs.perPump0,false)">
             Pump 0 off
         </button>
-        <button v-if="heater0==0" v-on:click="heater0 = 1, setPart(9,true)" v-bind:style="{color: color0}">
+        <button v-if="heater0==0" v-on:click="heater0 = 1, setPart(this.$parent.MosfetIDs.heater0,true)" v-bind:style="{color: color0}">
             Heater 0 on
         </button>
-        <button v-if="heater0==1" v-on:click="heater0 = 0, setPart(9,false)" v-bind:style="{color: color0}">
+        <button v-if="heater0==1" v-on:click="heater0 = 0, setPart(this.$parent.MosfetIDs.heater0,false)" v-bind:style="{color: color0}">
             Heater 0 off
         </button>
         <p>Thermistor 0: {{temp0}} C°</p>
     </div>
     <div class="box1" v-if="site == 1">
-        <button v-if="pump1==0" v-on:click="pump1 = 1, setPart(7,true)">
+        <button v-if="pump1==0" v-on:click="pump1 = 1, setPart(this.$parent.MosfetIDs.perPump1,true)">
             Pump 1 on
         </button>
-        <button v-if="pump1==1" v-on:click="pump1 = 0, setPart(7,false)">
+        <button v-if="pump1==1" v-on:click="pump1 = 0, setPart(this.$parent.MosfetIDs.perPump1,false)">
             Pump 1 off
         </button>
-        <button v-if="heater1==0" v-on:click="heater1 = 1, setPart(10,true)" v-bind:style="{color: color1}">
+        <button v-if="heater1==0" v-on:click="heater1 = 1, setPart(this.$parent.MosfetIDs.heater1,true)" v-bind:style="{color: color1}">
             Heater 1 on
         </button>
-        <button v-if="heater1==1" v-on:click="heater1 = 0, setPart(10,false)" v-bind:style="{color: color1}">
+        <button v-if="heater1==1" v-on:click="heater1 = 0, setPart(this.$parent.MosfetIDs.heater1,false)" v-bind:style="{color: color1}">
             Heater 1 off
         </button>
         <p>Thermistor 1: {{temp1}} C°</p>
     </div>
     <div class="box1" v-if="site == 2">
-        <button v-if="pump2==0" v-on:click="pump2 = 1, setPart(8,true)">
+        <button v-if="pump2==0" v-on:click="pump2 = 1, setPart(this.$parent.MosfetIDs.perPump2,true)">
             Pump 2 on
         </button>
-        <button v-if="pump2==1" v-on:click="pump2 = 0, setPart(8,false)">
+        <button v-if="pump2==1" v-on:click="pump2 = 0, setPart(this.$parent.MosfetIDs.perPump2,false)">
             Pump 2 off
         </button>
-        <button v-if="heater2==0" v-on:click="heater2 = 1, setPart(11,true)" v-bind:style="{color: color2}">
+        <button v-if="heater2==0" v-on:click="heater2 = 1, setPart(this.$parent.MosfetIDs.heater2,true)" v-bind:style="{color: color2}">
             Heater 2 on
         </button>
-        <button v-if="heater2==1" v-on:click="heater2 = 0, setPart(11,false)" v-bind:style="{color: color2}">
+        <button v-if="heater2==1" v-on:click="heater2 = 0, setPart(this.$parent.MosfetIDs.heater2,false)" v-bind:style="{color: color2}">
             Heater 2 off
         </button>
         <p>Thermistor 2: {{temp2}} C°</p>

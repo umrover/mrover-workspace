@@ -31,7 +31,7 @@
 import {convertDMS} from '../utils.js';
 import {mapGetters} from 'vuex';
 import SAControls from './SAControls.vue';
-import PDBData from './PDBData.vue';
+//import PDBData from './PDBData.vue';
 
 export default {
   props: {
@@ -66,7 +66,7 @@ export default {
       sendCollect: function (button) {
         this.$parent.publish("/mosfet_cmd", {
         'type': 'MosfetCmd',
-        'device': 12,
+        'device': this.$parent.MosfetIDs.ramanLaser,
         'enable': true
       })
         let obj = this.$refs["raman"]
@@ -77,7 +77,7 @@ export default {
         this.$refs["raman"].disabled = false;
         this.$parent.publish("/mosfet_cmd", {
             'type': 'MosfetCmd',
-            'device': 12,
+            'device': this.$parent.MosfetIDs.ramanLaser,
             'enable': false
           })
       }
@@ -113,9 +113,9 @@ export default {
   .raman{
     margin-left: 20px;
   }
-  .pdb{
+  /*.pdb{
     grid-area: pdb;
-  }
+  }*/
   .odom-wrap p {
     display: inline;
   }
