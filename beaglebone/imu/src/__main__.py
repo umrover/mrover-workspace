@@ -1,128 +1,196 @@
-import numpy as np
-import lcm
-from . import madgwickahrs as MadgwickAHRS
+import serial
+import asyncio
+import math
+from rover_common.aiohelper import run_coroutines
+from rover_common import aiolcm
 from rover_msgs import IMUData
 
-from . import imu
-from . import mux
 
+class IMU_Manager():
 
-# Offsets applied to raw x/y/z mag values
-gyro_offsets = [0, 0, 0]
-accel_offsets = [0, 0, 0]
-mag_offsets = [0, 0, 0]
+    def __init__(self):
+        # Mapping NMEA messages to their handlers
+        self.NMEA_TAGS_MAPPER = {
+            "PCHRS": self.pchrs_handler,
+            "PCHRA": self.pchra_handler
+        }
+        self.sleep = .01
+        self.max_error_count = 20
 
-# Soft iron error compensation matrix
-mag_softiron_matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    def __enter__(self):
 
-mag_field_strength = 0
+        self.ser = serial.Serial(
+            port='/dev/ttyTHS0',
+            baudrate=115200,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+            bytesize=serial.EIGHTBITS,
+            timeout=0
+        )
+        return self
 
-filter = MadgwickAHRS.MadgwickAHRS()
+    def __exit__(self, exc_type, exc_value, traceback):
+        '''
+        Closes serial connection to UM-7
+        '''
+        self.ser.close()
+
+    def pchrs_handler(self, msg, imu_struct):
+        arr = msg.split(",")
+
+        # packet type can be either 0: gyro, 1: accel, 2: magnetometer
+        # mag data is unit-nrom (unitless)
+        try:
+            arr = msg.split(",")
+            print(arr)
+            packetType = arr[1]
+            if (packetType == '0'):
+                imu_struct.gyro_x_dps = float(arr[3])
+                imu_struct.gyro_y_dps = float(arr[4])
+                imu_struct.gyro_z_dps = float(arr[5])
+            elif (packetType == '1'):
+                imu_struct.accel_x_g = float(arr[3])
+                imu_struct.accel_y_g = float(arr[4])
+                imu_struct.accel_z_g = float(arr[5])
+            elif (packetType == '2'):
+                imu_struct.mag_x = float(arr[3])
+                imu_struct.mag_y = float(arr[4])
+                imu_struct.mag_z = float(arr[5])
+
+                bearing = -math.atan2(imu_struct.mag_y, imu_struct.mag_x) * (180.0 / math.pi)
+                if(bearing < 0):
+                    bearing += 360
+                imu_struct.bearing_deg = bearing
+            else:
+                # this shouldnt happen
+                print("Passed")
+                pass
+        # fill with zeroes if something goes wrong.
+        except:
+            print("somthing went wrong")
+            imu_struct.gyro_x_dps = 0
+            imu_struct.gyro_y_dps = 0
+            imu_struct.gyro_z_dps = 0
+            imu_struct.accel_x_g = 0
+            imu_struct.accel_y_g = 0
+            imu_struct.accel_z_g = 0
+            imu_struct.mag_x = 0
+            imu_struct.mag_y = 0
+            imu_struct.mag_z = 0
+
+    def pchra_handler(self, msg, imu_struct):
+        pi = 3.14159265359
+        try:
+            arr = msg.split(",")
+            # raw values are in degrees, need to convert to radians
+            imu_struct.roll_rad = float(arr[2]) * pi / 180
+            imu_struct.pitch_rad = float(arr[3]) * pi / 180
+            imu_struct.yaw_rad = float(arr[4]) * pi / 180
+            # fill with zeroes if something goes wrong
+        except:
+            print("somthing went wrong the other one")
+            imu_struct.roll_rad = 0
+            imu_struct.pitch_rad = 0
+            imu_struct.yaw_rad = 0
+
+    async def recieve(self, lcm):
+            '''
+            Reads from the rover IMU over serial connection.
+            Attempts to read and proccess all supported NMEA tags
+            at least once before publishing a new LCM message.
+            Sleeps after publishing to
+            allow time for handling incoming LCM messages
+            '''
+            imu = IMUData()
+            error_counter = 0
+            # Mark TXT as always seen because they are not necessary
+            while True:
+                try:
+                    msg = str(self.ser.readline())
+                    error_counter = 0
+                except Exception as e:
+                    if error_counter < self.max_error_count:
+                        error_counter += 1
+                        print(e)
+                        await asyncio.sleep(self.sleep)
+                        continue
+                    else:
+                        raise e
+
+                match_found = False
+                for tag, func in self.NMEA_TAGS_MAPPER.items():
+                    if tag in msg:
+                        match_found = True
+                        try:
+                            if(tag == "PCHRS"):
+                                print(msg)
+                                func(msg, imu)
+                                lcm.publish('/imu_data', imu.encode())
+                            if(tag == "PCHRA"):
+                                print(msg)
+                                func(msg, imu)
+                                lcm.publish('/imu_data', imu.encode())
+                        except Exception as e:
+                            print(e)
+                            break
+
+                    if not match_found:
+                        if not msg:
+                            print('Error decoding message stream: {}'.format(msg))
+
+                await asyncio.sleep(self.sleep)
+
+    # turns off registers that are outputting non-NMEA data
+    def turnOffRegister(self, register):
+        checksum = ord('s') + ord('n') + ord('p') + register + 0x80
+
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, register,
+                      0x00, 0x00, 0x00, 0x00, checksum >> 8, checksum & 0xff]
+        print(bytes(cmd_buffer))
+
+        self.ser.write(cmd_buffer)
+
+    # turns on the attidude and sensor nmea sentences to 1Hz
+    def enable_nmea(self, register):
+        checksum = ord('s') + ord('n') + ord('p') + register + 0x80 + 0x11
+
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x80, register,
+                      0, 0x11, 0, 0, checksum >> 8, checksum & 0xff]
+
+        self.ser.write(cmd_buffer)
+
+    def calibrate(self):
+        registers = [0xAD, 0xB0, 0xB1]
+        PTs = [0x80, 0x80, 0x80]
+
+        for i in range(0, 3):
+            checksum = ord('s') + ord('n') + ord('p') + registers[i] + PTs[i]
+
+            cmd_buffer = [ord('s'), ord('n'), ord('p'), PTs[i], registers[i],
+                          checksum >> 8, checksum & 0xff]
+
+            self.ser.write(cmd_buffer)
+
+# end of class
 
 
 def main():
-    global lcm_
-    lcm_ = lcm.LCM()
-    imudata = IMUData()
+    # Uses a context manager to ensure serial port released
+    NMEA_RATE_REG = 0x07
 
-    mux.enable(0x1)
+    with IMU_Manager() as manager:
+        # turns off registers that are outputting non-NMEA data
+        l = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]
+        for reg in l:
+            manager.turnOffRegister(reg)
 
-    while not imu.start_up():
-            pass
+        manager.enable_nmea(NMEA_RATE_REG)
+        # manager.calibrate()
 
-    with open('mag_calibration.txt', 'r') as mag_calibration:
-        lines = mag_calibration.readlines()
-        mag_offsets = [float(x) for x in lines[0].split()]
-        mag_softiron_matrix = np.reshape([float(x) for x in lines[1].split()], (3, 3))
-        # mag_field_strength = [float(x) for x in lines[3].split()][0]
+        lcm = aiolcm.AsyncLCM()
 
-    with open('ag_calibration.txt', 'r') as ag_calibration:
-        lines = ag_calibration.readlines()
-
-        accel_offsets = [float(x) for x in lines[0].split()]
-        gyro_offsets = [float(x) for x in lines[1].split()]
-
-    while(True):
-        try:
-            data = imu.get_data()
-
-        except Exception:
-            print("Connection Lost")
-
-        # Apply accel/gyro calibration
-        for i in range(6):
-            if (i < 3):
-                data[i] += accel_offsets[i]
-            else:
-                data[i] += gyro_offsets[i - 3]
-
-        # Raw Data
-        print("Accel Raw: ", data[imu.XACCEL] / 2048, ",", data[imu.YACCEL] / 2048, ",", data[imu.ZACCEL] / 2048)
-        print("Gyro Raw: ", data[imu.XGYRO] / 16.4, ",", data[imu.YGYRO] / 16.4, ",", data[imu.ZGYRO] / 16.4)
-        print("Mag Raw: ", data[imu.XMAG] * 0.15, ",", data[imu.YMAG] * 0.15, ",", data[imu.ZMAG] * 0.15)
-
-        # Accel measures in 2048 LSB/g and Gyro in 2000 LSB/dps
-        # so we divide the register value by that to get the unit
-        imudata.accel_x_g = data[imu.XACCEL] / 2048
-        imudata.accel_y_g = data[imu.YACCEL] / 2048
-        imudata.accel_z_g = data[imu.ZACCEL] / 2048
-
-        imudata.gyro_x_dps = data[imu.XGYRO] / 16.4
-        imudata.gyro_y_dps = data[imu.YGYRO] / 16.4
-        imudata.gyro_z_dps = data[imu.ZGYRO] / 16.4
-
-        # Magnetometer is in 0.15 microTeslas/LSB
-        mag_x = (data[imu.XMAG] * 0.15) - mag_offsets[0]
-        mag_y = (data[imu.YMAG] * 0.15) - mag_offsets[1]
-        mag_z = (data[imu.ZMAG] * 0.15) - mag_offsets[2]
-
-        # Apply mag soft iron error compensation
-        imudata.mag_x_uT = mag_x * mag_softiron_matrix[0][0] + \
-            mag_y * mag_softiron_matrix[0][1] + mag_z * mag_softiron_matrix[0][2]
-
-        imudata.mag_y_uT = mag_x * mag_softiron_matrix[1][0] + \
-            mag_y * mag_softiron_matrix[1][1] + mag_z * mag_softiron_matrix[1][2]
-
-        imudata.mag_z_uT = mag_x * mag_softiron_matrix[2][0] + \
-            mag_y * mag_softiron_matrix[2][1] + mag_z * mag_softiron_matrix[2][2]
-
-        # Bearing Calculation
-        bearing = -(np.arctan2(imudata.mag_y_uT, imudata.mag_x_uT) * (180.0 / np.pi))
-        if (bearing < 0):
-            bearing += 360
-
-        imudata.bearing_deg = bearing
-        print("Bearing: ", imudata.bearing_deg)
-
-        # Roll, Pitch, yaw calc
-        # Dividing the mag data by 100000 to get units to be Teslas
-        acc = np.array([imudata.accel_x_g, imudata.accel_y_g, imudata.accel_z_g])
-        gyr = np.array([imudata.gyro_x_dps, imudata.gyro_y_dps, imudata.gyro_z_dps])
-        mag = np.array([imudata.mag_x_uT / 1000000.0, imudata.mag_y_uT / 1000000.0, imudata.mag_z_uT / 1000000.0])
-        gyr_rad = gyr * (np.pi/180)
-
-        # Everything Past here is Auton stuff
-        filter.update(gyr_rad, acc, mag)
-        # aboves update method can be run instead of update_imu
-        # if the magnetometer problem is fixed
-        # filter.update_imu(gyr_rad,acc)
-        # updates the filter and returns roll,pitch,and yaw in quaternion form
-        ahrs = filter.quaternion.to_euler_angles()
-
-        # values are between -pi and pi
-        curRoll = ahrs[0]
-        curPitch = ahrs[2]
-        curYaw = ahrs[1]
-
-        # Remove prints after testing
-        print("Roll: ", curRoll, " Pitch: ", curPitch, " Yaw: ", curYaw)
-
-        imudata.roll_rad = curRoll
-        imudata.pitch_rad = curPitch
-        imudata.yaw_rad = curYaw
-
-        lcm_.publish('/imu_data', imudata.encode())
+        run_coroutines(lcm.loop(), manager.recieve(lcm))
 
 
-if(__name__ == '__main__'):
+if __name__ == "__main__":
     main()
