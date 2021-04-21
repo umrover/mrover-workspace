@@ -46,10 +46,10 @@ def main():
     parser_launch = subcommands.add_parser('launch', help='Builds and runs a system')
     parser_launch.add_argument('sys', help='System to launch')
     parser_launch.add_argument('-o', '--option', nargs='+', dest='launch_opts',
-                              help='A launch option to pass to the underlying '
-                              'build system')
+                               help='A launch option to pass to the underlying '
+                               'build system')
     parser_launch.add_argument('-s', '--ssh', action='store_true',
-                              help='Specify whether we are ssh\'d in or not')
+                               help='Specify whether we are ssh\'d in or not')
                               
 
     args = parser.parse_args()
