@@ -43,11 +43,11 @@ def genTerminalLaunchCommand(script_address, ssh):
 
 # Functions that build and execute auton subteam code
 def launch_perception(ctx, opts, ssh):
-    percep = 'jetson/percep'
+    jetson_percep = 'jetson/percep'
     use_linter = 'True'
     workspace_relative_address = "jarvis_files/launchScripts/percep"
     
-    build_dir(ctx, percep, use_linter, opts)
+    build_dir(ctx, jetson_percep, use_linter, opts)
 
     ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
     
@@ -55,11 +55,11 @@ def launch_perception(ctx, opts, ssh):
     return
 
 def launch_navigation(ctx, opts, ssh):
-    nav = 'jetson/nav'
+    jetson_nav = 'jetson/nav'
     use_linter = 'True'
     workspace_relative_address = "jarvis_files/launchScripts/nav"
     
-    build_dir(ctx, nav, use_linter, opts)
+    build_dir(ctx, jetson_nav, use_linter, opts)
     
     ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
 
@@ -67,13 +67,13 @@ def launch_navigation(ctx, opts, ssh):
     return
 
 def launch_localization(ctx, opts, ssh):
-    gps = 'jetson/gps'
-    filter = 'jetson/filter'
+    jetson_gps = 'jetson/gps'
+    jetson_filter = 'jetson/filter'
     use_linter = 'True'
     workspace_relative_address = "jarvis_files/launchScripts/loc"
 
-    build_dir(ctx, gps, use_linter, opts)
-    build_dir(ctx, filter, use_linter, opts)
+    build_dir(ctx, jetson_gps, use_linter, opts)
+    build_dir(ctx, jetson_filter, use_linter, opts)
     
     ctx.run( genTerminalLaunchCommand(workspace_relative_address, ssh) )
     
@@ -84,8 +84,8 @@ def launch_auton(ctx, opts, ssh):
     build_deps(ctx)
     
     lcm_echo = "lcm_tools/echo"
-    l = 'True'
-    build_dir(ctx, lcm_echo, l , opts)
+    use_linter = 'True'
+    build_dir(ctx, lcm_echo, use_linter , opts)
 
     launch_navigation(ctx, opts, ssh)
     launch_localization(ctx, opts, ssh)
