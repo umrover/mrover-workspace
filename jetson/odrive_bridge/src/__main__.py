@@ -286,8 +286,8 @@ def publish_encoder_helper(axis):
     global modrive
     global legal_controller
     msg = DriveVelData()
-    msg.measuredCurrent = modrive.get_iq_measured(axis)
-    msg.estimatedVel = modrive.get_vel_estimate(axis)
+    msg.current = modrive.get_iq_measured(axis)
+    msg.vel = modrive.get_vel_estimate(axis)
 
     motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
                  ("LEFT", 1): 2, ("RIGHT", 1): 3,
