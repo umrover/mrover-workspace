@@ -12,7 +12,7 @@ from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, NavStatus, AmmoniaCmd
 class ScienceBridge():
     def __init__(self):
-        UART.setup("UART4")  #  Specific to beaglebone
+        # UART.setup("UART4")  #  Specific to beaglebone
         # maps NMEA msgs to their handler
         # mosfet, ammonia, and pump only send msgs
         self.NMEA_HANDLE_MAPPER = {
@@ -35,7 +35,8 @@ class ScienceBridge():
         Not sure what the uart port on the jetson is
         '''
         self.ser = serial.Serial(
-            port='/dev/ttyS4',
+            # port='/dev/ttyS4',
+            port='/dev/ttyTHS1',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
