@@ -212,7 +212,7 @@ class OdriveBridge(object):
         # odrive 1 --> middle motors
         # odrive 2 --> back motors
 
-        odrives = ["205A377D5753", "2091358E524B", "207C39A14D4D"]
+        odrives = ["206937905753", "2073378C5753", "206F35843056"]
         id = odrives[legal_controller]
 
         print(id)
@@ -220,7 +220,7 @@ class OdriveBridge(object):
 
         print("found odrive")
         modrive = Modrive(odrive)  # arguments = odr
-        modrive.set_current_lim(100)
+        modrive.set_current_lim(30)
         self.encoder_time = t.time()
 
     def on_event(self, event):
@@ -344,7 +344,7 @@ class Modrive:
         return getattr(self.odrive, attr)
 
     def disarm(self):
-        self.set_current_lim(100)
+        self.set_current_lim(30)
         self.closed_loop_ctrl()
         self.set_velocity_ctrl()
 
@@ -376,7 +376,6 @@ class Modrive:
             return self.back_axis.motor.current_control.Iq_measured
 
     def get_vel_estimate(self, axis):
-        # axis = self.odrive[axis_number]
         if (axis == "LEFT"):
             return self.front_axis.encoder.vel_estimate
         elif(axis == "RIGHT"):
@@ -394,9 +393,9 @@ class Modrive:
 
     def set_vel(self, axis, vel):
         if (axis == "LEFT"):
-            self.front_axis.controller.vel_setpoint = vel
+            self.front_axis.controller.input_vel = vel
         elif axis == "RIGHT":
-            self.back_axis.controller.vel_setpoint = -vel
+            self.back_axis.controller.input_vel = -vel
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
