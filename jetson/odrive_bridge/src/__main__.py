@@ -7,7 +7,7 @@ import fibre
 from rover_msgs import DriveVelCmd, \
     DriveStateData, DriveVelData
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
-    CTRL_MODE_VELOCITY_CONTROL, AXIS_STATE_IDLE
+    CONTROL_MODE_VELOCITY_CONTROL, AXIS_STATE_IDLE
 
 from odrive.utils import dump_errors
 
@@ -366,7 +366,7 @@ class Modrive:
         self.back_axis.controller.config.control_mode = mode
 
     def set_velocity_ctrl(self):
-        self._set_control_mode(CTRL_MODE_VELOCITY_CONTROL)
+        self._set_control_mode(CONTROL_MODE_VELOCITY_CONTROL)
 
     def get_iq_measured(self, axis):
         # measured current [Amps]
@@ -394,9 +394,9 @@ class Modrive:
 
     def set_vel(self, axis, vel):
         if (axis == "LEFT"):
-            self.front_axis.controller.vel_setpoint = vel * 205
+            self.front_axis.controller.vel_setpoint = vel
         elif axis == "RIGHT":
-            self.back_axis.controller.vel_setpoint = vel * -205
+            self.back_axis.controller.vel_setpoint = -vel
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
