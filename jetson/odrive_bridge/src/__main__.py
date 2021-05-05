@@ -242,7 +242,7 @@ class OdriveBridge(object):
 
         print("found odrive")
         modrive = Modrive(odrive)  # arguments = odr
-        modrive.set_current_lim(100)
+        modrive.set_current_lim(30)
         self.encoder_time = t.time()
 
     def on_event(self, event):
@@ -432,7 +432,6 @@ class Modrive:
             return self.back_axis.motor.current_control.Iq_measured
 
     def get_vel_estimate(self, axis):
-        # axis = self.odrive[axis_number]
         if (axis == "LEFT"):
             return self.front_axis.encoder.vel_estimate
         elif(axis == "RIGHT"):
@@ -451,15 +450,9 @@ class Modrive:
     def set_vel(self, axis, vel):
         global legal_controller
         if (axis == "LEFT"):
-            # TEMPORARY FIX FOR ROLLING ROVER SINCE
-            # middle left odrive IS 2x more than the rest bc of the 48V maxon
-            # TODO - fix when this is no longer the case!
-            if (legal_controller == 1):
-                self.front_axis.controller.input_vel = vel * 100
-            else:
-                self.front_axis.controller.input_vel = vel * 50
+            self.front_axis.controller.input_vel = vel
         elif axis == "RIGHT":
-            self.back_axis.controller.input_vel = vel * -50
+            self.back_axis.controller.input_vel = -vel
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
