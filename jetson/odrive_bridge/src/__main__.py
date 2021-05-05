@@ -286,8 +286,8 @@ def publish_encoder_helper(axis):
     global modrive
     global legal_controller
     msg = DriveVelData()
-    msg.current = modrive.get_iq_measured(axis)
-    msg.vel = modrive.get_vel_estimate(axis)
+    msg.current_amps = modrive.get_iq_measured(axis)
+    msg.vel_percent = modrive.get_vel_estimate(axis)
 
     motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
                  ("LEFT", 1): 2, ("RIGHT", 1): 3,
@@ -376,10 +376,11 @@ class Modrive:
             return self.back_axis.motor.current_control.Iq_measured
 
     def get_vel_estimate(self, axis):
+        # divide by 1.5 to scale by percent
         if (axis == "LEFT"):
-            return self.front_axis.encoder.vel_estimate
+            return self.front_axis.encoder.vel_estimate / 1.5
         elif(axis == "RIGHT"):
-            return self.back_axis.encoder.vel_estimate
+            return self.back_axis.encoder.vel_estimate / 1.5
 
     def idle(self):
         self._requested_state(AXIS_STATE_IDLE)
