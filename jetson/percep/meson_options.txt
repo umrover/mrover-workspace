@@ -3,10 +3,10 @@ option('ar_record', type: 'boolean', value : false)
 option('obs_detection', type: 'boolean', value: true)
 option('obs_record', type: 'boolean', value : false)
 option('with_zed', type: 'boolean', value : true)
-option('perception_debug', type: 'boolean', value: true)
+option('perception_debug', type: 'boolean', value: false)
 option('write_frame', type: 'boolean', value: false)
 option('data_folder', type: 'string', value: '/home/jessica/auton_data/')
-option('vm_config',type: 'boolean', value: false)
+option('vm_config',type: 'boolean', value: true)
 
 
 
