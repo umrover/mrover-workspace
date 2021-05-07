@@ -2,7 +2,6 @@ import configparser
 import os
 import sys
 import shutil
-
 from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
 from buildsys.rollupjs import RollupJSBuilder
