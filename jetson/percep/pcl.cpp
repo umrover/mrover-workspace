@@ -301,7 +301,7 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 
 /* --- Find Clear Path --- */
 // Calculates left and right bearings
-void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {                     
+void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t("Find Clear Path");
     #endif
@@ -328,7 +328,7 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
         //Find clear left path, set left bearing
         leftBearing = getAngleOffCenter(10, 0, interest_points, obstacles);
         leftDistance = distance; 
-        
+
         //Reset global variables
         obstacles = {0, 0};
         obstacles.at(0) = centerObstacles.at(0);

@@ -142,7 +142,7 @@ int main() {
 
         //Run Obstacle Detection
         pointcloud.pcl_obstacle_detection();  
-        obstacle_return obstacle_detection (pointcloud.leftBearing, pointcloud.rightBearing, pointcloud.distance);
+        obstacle_return obstacleOutput (pointcloud.leftBearing, pointcloud.rightBearing, pointcloud.distance);
 
         //Outlier Detection Processing
         outliers.pop_back(); //Remove outdated outlier value
@@ -153,9 +153,9 @@ int main() {
             outliers.push_front(false); //obstacle is not detected
 
         if(outliers == checkTrue) //If past iterations see obstacles
-            lastObstacle = obstacle_detection;
+            lastObstacle = obstacleOutput;
         else if (outliers == checkFalse) // If our iterations see no obstacles after seeing obstacles
-            lastObstacle = obstacle_detection;
+            lastObstacle = obstacleOutput;
 
         //Update LCM 
         obstacleMessage.bearing = lastObstacle.leftBearing; // Update LCM bearing field
