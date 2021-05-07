@@ -1,6 +1,6 @@
 # Files owned by Perception
-/jetson/percep/             @mmartin4972
-/config/percep/             @mmartin4972
-/rover_msgs/Obstacle.lcm    @mmartin4972
-/rover_msgs/TargetList.lcm  @mmartin4972
-/rover_msgs/Target.lcm      @mmartin4972
+/jetson/percep/             @niwhsa9
+/config/percep/             @niwhsa9
+/rover_msgs/Obstacle.lcm    @niwhsa9
+/rover_msgs/TargetList.lcm  @niwhsa9
+/rover_msgs/Target.lcm      @niwhsa9
