@@ -15,11 +15,6 @@ xdotool key KP_Enter
 # Have script wait until the PID of build is finished then continue
 # Gnome-terminal should close automatically
 
-#Open a new tab for Obstacle LCM
-xdotool key ctrl+shift+t
-xdotool key type "./jarvis exec base_station/gui"
-xdotool key KP_Enter
-
 # Make window 1/4 of screen and align lower left
 dimensions=$(./jarvis_files/launchScripts/dim)
 dim=($dimensions)

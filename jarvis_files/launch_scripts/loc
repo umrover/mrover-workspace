@@ -7,7 +7,16 @@ xdotool windowfocus $WID
 # Enter commands you want to be executed in the window here
 
 # Run Perception
-xdotool key type "./jarvis exec jetson/gps"
+xdotool key type "sudo ./jarvis exec jetson/gps"
+xdotool key KP_Enter
+
+#Open a new tab for Obstacle LCM
+xdotool key ctrl+shift+t
+# Check If need to ssh first
+if [[ $1 ]]; then
+    ./jarvis_files/launchScripts/ssh $WID
+fi
+xdotool key type "./jarvis exec beaglebone/imu"
 xdotool key KP_Enter
 
 #Open a new tab for Obstacle LCM
