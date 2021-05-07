@@ -13,7 +13,6 @@ def launch_dir(ctx, package, opts, ssh):
         launch_localization(ctx, opts, ssh)
     if package == "auton":
         launch_auton(ctx, opts, ssh)
-    return
 
 def get_process_id(name):
 
@@ -26,7 +25,6 @@ def wait_for_click():
     while pid:
         pid = get_process_id("xdotool selectwindow")
         time.sleep(.1)
-    return
 
 def gen_terminal_launch_command(script_name, ssh):
     command = "gnome-terminal -- bash -c './jarvis_files/launch_scripts/"
@@ -47,7 +45,6 @@ def launch_perception(ctx, opts, ssh):
     ctx.run(gen_terminal_launch_command("percep", ssh))
 
     wait_for_click()
-    return
 
 def launch_navigation(ctx, opts, ssh):
     jetson_nav = 'jetson/nav'
@@ -58,7 +55,6 @@ def launch_navigation(ctx, opts, ssh):
     ctx.run(gen_terminal_launch_command("nav", ssh))
 
     wait_for_click()
-    return
 
 def launch_localization(ctx, opts, ssh):
     jetson_gps = 'jetson/gps'
@@ -71,7 +67,6 @@ def launch_localization(ctx, opts, ssh):
     ctx.run(gen_terminal_launch_command("loc", ssh))
 
     wait_for_click()
-    return
 
 def launch_auton(ctx, opts, ssh):
     build_deps(ctx)
@@ -83,4 +78,3 @@ def launch_auton(ctx, opts, ssh):
     launch_navigation(ctx, opts, ssh)
     launch_localization(ctx, opts, ssh)
     launch_perception(ctx, opts, ssh)
-    return
