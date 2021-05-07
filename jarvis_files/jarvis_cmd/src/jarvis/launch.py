@@ -28,9 +28,9 @@ def wait_for_click():
         time.sleep(.1)
     return
 
-def gen_terminal_launch_command(script_address, ssh):
-    command = "gnome-terminal -- bash -c './"
-    command = command + script_address
+def gen_terminal_launch_command(script_name, ssh):
+    command = "gnome-terminal -- bash -c './jarvis_files/launch_scripts/"
+    command = command + script_name
 
     if ssh:
         return command + " ssh; $SHELL'"
@@ -41,11 +41,10 @@ def gen_terminal_launch_command(script_address, ssh):
 def launch_perception(ctx, opts, ssh):
     jetson_percep = 'jetson/percep'
     use_linter = True
-    workspace_relative_address = "jarvis_files/launchScripts/percep"
 
     build_dir(ctx, jetson_percep, use_linter, opts)
 
-    ctx.run(gen_terminal_launch_command(workspace_relative_address, ssh))
+    ctx.run(gen_terminal_launch_command("percep", ssh))
 
     wait_for_click()
     return
@@ -53,11 +52,10 @@ def launch_perception(ctx, opts, ssh):
 def launch_navigation(ctx, opts, ssh):
     jetson_nav = 'jetson/nav'
     use_linter = True
-    workspace_relative_address = "jarvis_files/launchScripts/nav"
 
     build_dir(ctx, jetson_nav, use_linter, opts)
 
-    ctx.run(gen_terminal_launch_command(workspace_relative_address, ssh))
+    ctx.run(gen_terminal_launch_command("nav", ssh))
 
     wait_for_click()
     return
@@ -66,12 +64,11 @@ def launch_localization(ctx, opts, ssh):
     jetson_gps = 'jetson/gps'
     jetson_filter = 'jetson/filter'
     use_linter = True
-    workspace_relative_address = "jarvis_files/launchScripts/loc"
 
     build_dir(ctx, jetson_gps, use_linter, opts)
     build_dir(ctx, jetson_filter, use_linter, opts)
 
-    ctx.run(gen_terminal_launch_command(workspace_relative_address, ssh))
+    ctx.run(gen_terminal_launch_command("loc", ssh))
 
     wait_for_click()
     return
