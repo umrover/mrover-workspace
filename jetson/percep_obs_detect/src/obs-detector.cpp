@@ -29,8 +29,8 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         glViewer.init(argc, argv, defParams, &framePlay, &frameNum);
     }
 
-    shm = shared_memory_object(open_only, "gpuhandle", read_write);
-    region = mapped_region(shm, read_write);
+   // shm = shared_memory_object(open_only, "gpuhandle", read_write);
+   // region = mapped_region(shm, read_write);
 };
 
 void ObsDetector::pclKeyCallback(const pcl::visualization::KeyboardEvent &event, void* junk) {
@@ -49,7 +49,7 @@ void ObsDetector::pclKeyCallback(const pcl::visualization::KeyboardEvent &event,
 void ObsDetector::setupParamaters(std::string parameterFile) {
     //Operating resolution
     cloud_res = sl::Resolution(320/2, 180/2);
-    readDir = "/home/arschall/mrover-workspace/jetson/percep_obs_detect/data";
+    readDir = "/home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data";
 
     //Zed params
     init_params.coordinate_units = sl::UNIT::MILLIMETER;
@@ -128,9 +128,9 @@ void ObsDetector::update(sl::Mat &frame) {
     pc = getRawCloud(frame);
 
     // Processing 
-    //passZ->run(pc);
+    passZ->run(pc);
     //std::cout << "pre ransac:" << pc.size << endl;
-    //ransacPlane->computeModel(pc, true);
+    ransacPlane->computeModel(pc);
     
     
     
@@ -170,7 +170,7 @@ void ObsDetector::update(sl::Mat &frame) {
 
     //std::cout << "post ransac:" << pc.size << endl;
     auto grabStart = high_resolution_clock::now();
-    //obstacles = ece->extractClusters(pc, bins); 
+    obstacles = ece->extractClusters(pc, bins); 
     auto grabEnd = high_resolution_clock::now();
     auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
     //cout << "ECE time: " << (grabDuration.count()/1.0e3) << " ms" << endl; 
@@ -247,7 +247,7 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::GPUMEM, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
     //obs.update();
     std::thread viewerTick( [&]{while(true) { obs.update();} });
