@@ -65,10 +65,10 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     defParams.image_size.height = 90;
 
     //Obs Detecting Algorithm Params
-    passZ = new PassThrough('z', 200.0, 8000.0); //7000
-    ransacPlane = new RansacPlane(sl::float3(0, 1, 0), 4, 600, 60, cloud_res.area(), 150);
+    passZ = new PassThrough('z', 200.0, 7000.0); //7000
+    ransacPlane = new RansacPlane(sl::float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
-    ece = new EuclideanClusterExtractor(150, 30, 0, cloud_res.area(), 9); 
+    ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
 }
         
 
@@ -130,7 +130,7 @@ void ObsDetector::update(sl::Mat &frame) {
     // Processing 
     passZ->run(pc);
     //std::cout << "pre ransac:" << pc.size << endl;
-    ransacPlane->computeModel(pc);
+    ransacPlane->computeModel(pc, 1);
     
     
     
@@ -162,7 +162,7 @@ void ObsDetector::update(sl::Mat &frame) {
     Bins bins;
 
     #if VOXEL
-    //    bins = voxelGrid->run(pc);
+        bins = voxelGrid->run(pc);
     #endif
 
 
@@ -247,7 +247,7 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
     //obs.update();
     std::thread viewerTick( [&]{while(true) { obs.update();} });

@@ -1,6 +1,7 @@
 #include "common.hpp"
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
+#include <thrust/device_ptr.h>
 
 #pragma once
 
