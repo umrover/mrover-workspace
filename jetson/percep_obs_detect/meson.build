@@ -8,40 +8,65 @@ project('percep_obs_detect', 'cuda', 'cpp')
 
 lcm = dependency('lcm')
 
+with_zed = get_option('with_zed')
+vm_config = get_option('vm_config')
+
 incdir = include_directories('include/')
 #zed_dep = dependency('ZED', method : 'auto')
 #all_deps = [zed_dep]
 
-zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
-zed = declare_dependency(
-    include_directories : zed_include_dirs,
-    link_args : [
-        # ZED SDK
-        '-L/usr/local/zed/lib',
-        '-lsl_zed',
+if with_zed
 
-        # CUDA 
-        '-L/usr/local/cuda/lib64',
-        '-lcuda', '-lnppial', '-lnppisu', '-lnppicc',
-        '-lnppicom', '-lnppidei', '-lnppif', '-lnppig',
-        '-lnppim', '-lnppist', '-lnppitc', '-lnppc'
+    zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
+    zed = declare_dependency(
+        include_directories : zed_include_dirs,
+        link_args : [
+            # ZED SDK
+            '-L/usr/local/zed/lib',
+            '-lsl_zed',
 
-    ])
-all_deps = [zed, lcm]
+            # CUDA 
+            '-L/usr/local/cuda/lib64',
+            '-lcuda', '-lnppial', '-lnppisu', '-lnppicc',
+            '-lnppicom', '-lnppidei', '-lnppif', '-lnppig',
+            '-lnppim', '-lnppist', '-lnppitc', '-lnppc'
 
-obs_include_dirs = include_directories('/usr/local/include/pcl-1.11', 
-	'/usr/local/include/eigen3', '/usr/include/boost', '/usr/local/include/vtk-8.2', '/usr/include/flann')
+        ])
+    all_deps = [zed, lcm]
+endif
+
+if not vm_config
+
+    obs_include_dirs = include_directories('/usr/local/include/pcl-1.11', 
+        '/usr/local/include/eigen3', '/usr/include/boost', '/usr/local/include/vtk-8.2', '/usr/include/flann')
+        obs = declare_dependency(
+        include_directories : obs_include_dirs,
+        link_args : [
+            # PCL
+                '-L/usr/local/lib',
+                '-lpcl_common', '-lpcl_visualization', '-lpcl_filters', '-lpcl_segmentation', '-lpcl_search', '-lpcl_kdtree', '-lpcl_sample_consensus',
+                '-lpcl_io','-lboost_system','-lvtksys-8.2', '-lvtkRenderingCore-8.2', '-lvtkCommonCore-8.2',
+                '-lvtkCommonDataModel-8.2', '-lvtkCommonMath-8.2', '-lvtkFiltersCore-8.2', '-lvtkCommonExecutionModel-8.2', '-lvtkFiltersGeometry-8.2', 
+                '-lpthread', '-lGL', '-lglut', '-lGLEW'
+        ])
+        all_deps += [obs]
+
+elif vm_config
+
+	obs_include_dirs = include_directories('/usr/local/include/pcl-1.11', 
+	'/usr/local/include/eigen3', '/usr/include/boost', '/usr/include/vtk-6.3', '/usr/include/flann')
 	obs = declare_dependency(
 	include_directories : obs_include_dirs,
 	link_args : [
 		# PCL
-            '-L/usr/local/lib',
+			'-L/usr/local/lib',
 			'-lpcl_common', '-lpcl_visualization', '-lpcl_filters', '-lpcl_segmentation', '-lpcl_search', '-lpcl_kdtree', '-lpcl_sample_consensus',
-			'-lpcl_io','-lboost_system','-lvtksys-8.2', '-lvtkRenderingCore-8.2', '-lvtkCommonCore-8.2',
-			'-lvtkCommonDataModel-8.2', '-lvtkCommonMath-8.2', '-lvtkFiltersCore-8.2', '-lvtkCommonExecutionModel-8.2', '-lvtkFiltersGeometry-8.2', 
-            '-lpthread', '-lGL', '-lglut', '-lGLEW'
+			'-lpcl_io','-lboost_system','-lvtksys-6.3', '-lvtkRenderingCore-6.3', '-lvtkCommonCore-6.3',
+			'-lvtkCommonDataModel-6.3', '-lvtkCommonMath-6.3', '-lvtkFiltersCore-6.3', '-lvtkCommonExecutionModel-6.3', '-lvtkFiltersGeometry-6.3'
 	])
 	all_deps += [obs]
+
+endif
 
 # Helfupl cuda build flags
 debug_args = [ '-res-usage', '-g']
