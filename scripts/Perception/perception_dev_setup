@@ -1,0 +1,292 @@
+#! /bin/bash
+
+ask_question(){
+    while :
+    do
+        read -p "$question" input
+        
+        if [ $input == 'y' ] || [ $input == 'Y' ] || [ $input == 'n' ] || [ $input == 'N' ]
+        then
+            break;
+        fi
+        echo "Please enter (Y/N)";
+    done
+}
+
+stop_if_fail(){
+if ! $command
+then 
+    echo "Couldn't $command"
+    exit;
+fi
+}
+
+install_cuda(){
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING CUDA"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DOWNLOADING 1.6GB FILE"
+dpkg -i cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
+apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+apt-get update -y
+apt-get install -y cuda-10-0
+exit
+
+}
+
+setup_workspace() {
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Setting Up Workspace"
+cd ~
+apt-get install -y git
+
+command="cd $workspace"
+stop_if_fail
+command="cd mrover-workspace"
+stop_if_fail
+
+apt-get update
+apt-get -y upgrade
+apt-get install -y build-essential software-properties-common apt-transport-https git wget
+apt-add-repository ppa:ansible/ansible
+apt-get update
+apt-get install -y ansible
+
+command="cd ansible"
+stop_if_fail
+command="ansible-playbook -i "localhost," -c local devbox.yml"
+stop_if_fail
+echo "Workspace all set!"
+
+}
+
+install_meson() {
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Installing Meson"
+    apt-get install -y python3 python3-pip python3-setuptools python3-wheel ninja-build
+    pip3 install --user meson
+    echo "export PATH=\"\$PATH:~/.local/bin\"" >> ~/.bashrc
+    echo "Meson Installed. Reload Terminal to Finish"
+}
+
+install_go() {
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Installing GO"
+    wget https://golang.org/dl/go1.15.6.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go1.15.6.linux-amd64.tar.gz
+    export PATH=$PATH:/usr/local/go/bin
+    go version
+}
+
+intall_singularity() {
+    export VERSION=3.7.0 && \
+    wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz && \
+    tar -xzf singularity-${VERSION}.tar.gz && \
+    cd singularity
+    ./mconfig && \
+    make -C ./builddir && \
+    sudo make -C ./builddir install
+    . /usr/local/etc/bash_completion.d/singularity
+}
+
+install_python() {
+    apt update -y
+    apt install -y python3.7
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
+    update-alternatives --config python3
+    python3 -V
+}
+
+question="Setup Workspace? (Y/N): "
+ask_question
+setupWorkspace=$input
+
+if [ $setupWorkspace == 'y' ] || [ $setupWorkspace == 'Y' ] ;
+then
+read -p "Please enter path to mrover-workspace (doesn't include 'mrover-workspace'):" workspace
+setup_workspace
+exit
+fi
+
+question="CUDA Installed? (Y/N): ";
+ask_question
+CUDA=$input
+
+if [ $CUDA == 'y' ] || [ $CUDA == 'Y' ] ;
+then
+    question="ZedSDK? (Y/N): ";
+    ask_question
+    zedSDK=$input
+else
+    question="Install CUDA? (Y/N): ";
+    ask_question
+    installCuda=$input
+
+    if [ $installCuda == 'y' ] || [ $installCuda == 'Y' ] ;
+    then
+        echo "You have indicated you wish to install CUDA" ; 
+        echo "Once CUDA is installed you must restart your computer" ;
+        echo "After restart select N for this option and Y for the CUDA Installed option to continue setting up rest of the dev evn" ;
+        question="Continue? (Y/N) ";
+        ask_question
+        install_cuda
+    fi
+fi
+
+question="PCL? (Y/N): ";
+ask_question
+PCL=$input
+
+if [[ $PCL == 'y' || $PCL == 'Y' ]] && [[ $CUDA == 'y' || $CUDA == 'Y' ]] ;
+then
+question="PCL GPU Configuration? (Y/N): ";
+ask_question
+PCL_GPU=$input
+fi
+
+question="OpenCV? (Y/N): ";
+ask_question
+openCV=$input
+
+question="Meson? (Y/N): ";
+ask_question
+meson=$input
+
+question="GO? (Y/N): ";
+ask_question
+go=$input
+
+question="Singularity? (Y/N): ";
+ask_question
+singularity=$input
+
+question="Python 3.7? (Y/N): ";
+ask_question
+python=$input
+
+if [ $meson == 'y' ] || [ $meson == 'Y' ] 
+then
+install_meson
+fi
+
+if [ $go == 'y' ] || [ $go == 'Y' ]
+then 
+install_go
+fi
+
+if [ $singularity == 'y' ] || [ $singularity == 'Y' ]
+then 
+install_singularity
+fi
+
+if [ $python == 'y' ] || [ $python == 'Y' ]
+then 
+install_python
+fi
+
+if [ $openCV == 'y' ] || [ $openCV == 'Y' ] 
+then
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING OPENCV"
+apt-get update
+apt-get -y upgrade
+apt-get install -y build-essential software-properties-common apt-transport-https wget
+apt-get autoremove -y
+apt-get install -y --no-install-recommends cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3.6-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev jasper libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libavresample-dev
+cd /usr/local
+wget -O opencv-3.2.0.tar.gz https://github.com/opencv/opencv/archive/3.2.0.tar.gz
+tar -xzf opencv-3.2.0.tar.gz
+wget -O opencv_contrib-3.2.0.tar.gz https://github.com/opencv/opencv_contrib/archive/3.2.0.tar.gz
+tar -xzf opencv_contrib-3.2.0.tar.gz
+rm opencv-3.2.0.tar.gz
+rm opencv_contrib-3.2.0.tar.gz
+cd opencv-3.2.0
+mkdir release
+cd release
+cmake -DENABLE_PREMCOMPILED_HEADERS=OFF -D WITH_CUDA=OFF -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D OPENCV_EXTRA_MODULES_PATH=/usr/local/opencv_contrib-3.2.0/modules -D BUILD_opencv_aruco=ON -D BUILD_opencv_bgsegm=OFF -D BUILD_opencv_bioinspired=OFF -D BUILD_opencv_ccalib=OFF -D BUILD_opencv_cnn_3dobj=OFF -D BUILD_opencv_cvv=OFF -D BUILD_opencv_datasets=OFF -D BUILD_opencv_dnn_objdetect=OFF -D BUILD_opencv_dnn_superres=OFF -D BUILD_opencv_dnns_easily_fooled=OFF -D BUILD_opencv_dpm=OFF -D BUILD_opencv_face=OFF -D BUILD_opencv_fuzzy=OFF -D BUILD_opencv_freetype=OFF -D BUILD_opencv_hdf=OFF -D BUILD_opencv_line_descriptor=OFF -D BUILD_opencv_matlab=OFF -D BUILD_opencv_optflow=OFF -D BUILD_opencv_ovis=OFF -D BUILD_opencv_plot=OFF -D BUILD_opencv_reg=OFF -D BUILD_opencv_rgbd=OFF -D BUILD_opencv_saliency=OFF -D BUILD_opencv_sfm=OFF -D BUILD_opencv_stereo=OFF -D BUILD_opencv_structured_light=OFF -D BUILD_opencv_surface_matching=OFF -D BUILD_opencv_text=OFF -D BUILD_opencv_tracking=OFF -D BUILD_opencv_xfeatures2d=OFF -D BUILD_opencv_ximgproc=OFF -D BUILD_opencv_xobjdetect=OFF -D BUILD_opencv_xphoto=OFF /usr/local/opencv-3.2.0/
+command="make"
+stop_if_fail
+make install
+ldconfig
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEANING OPENCV"
+cd /usr/local
+rm -rf opencv-3.2.0
+
+fi
+
+if [ $PCL == 'y' ] || [ $PCL == 'Y' ] 
+then 
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING VTK"
+apt-get install -y libboost-all-dev curl cmake libxt-dev 
+apt-get install -y --no-install-recommends cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev python3.6-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev jasper libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libavresample-dev 
+
+if [ $PCL_GPU == 'y' ] || [ $PCL_GPU == 'Y' ] ;
+then 
+    curl https://vtk.org/files/release/8.2/VTK-8.2.0.tar.gz --output VTK-8.2.0.tar.gz
+    command="tar -xvzf VTK-8.2.0.tar.gz"
+    stop_if_fail
+    mv VTK-8.2.0 /usr/local
+    cd /usr/local/VTK-8.2.0/
+    mkdir VTK-Release-build
+    cd VTK-Release-build/
+    cmake -DCMAKE_BUILD_TYPE:STRING=Release /usr/local/VTK-8.2.0/ -DVTK_USE_SYSTEM_PNG=ON
+    make -j1 install
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLED VTK VERSION 8.2" ;
+else 
+    apt-get install -y libvtk6-dev libvtk6-java
+    ehcho "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLED VTK VERSION 6.3" ;
+fi
+
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING EIGEN"
+cd /usr/local
+wget -qO- https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.gz | sudo tar xz
+apt install -y libblas-dev
+cd eigen-3.3.7 && sudo mkdir build && cd build
+cmake ..
+make install
+cd ../.. && sudo rm -rf eigen-3.3.7/ && sudo rm -f eigen-3.3.7.tar.gz
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING PCL"
+apt-get install -y libflann-dev libgtest-dev libboost-all-dev
+cd /usr/local
+curl https://codeload.github.com/PointCloudLibrary/pcl/tar.gz/pcl-1.11.1 --output pcl-pcl-1.11.1.tar.gz
+tar -xvzf pcl-pcl-1.11.1.tar.gz 
+rm pcl-pcl-1.11.1.tar.gz
+cd pcl-pcl-1.11.1
+mkdir build && cd build
+
+if [ $PCL_GPU == 'y' ] || [ $PCL_GPU == 'Y' ] ;
+then 
+    command="cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_CUDA=ON -DBUILD_GPU=ON -DBUILD_apps=ON -DBUILD_global_tests=ON -DBUILD_outofcore=on -DBUILD_people=ON -DBUILD_visualization=ON -DBUILD_cuda_io=ON .."
+    stop_if_fail
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CONFIGURED FOR GPU" ;
+else
+    command="cmake -DCMAKE_BUILD_TYPE=Release .."
+    stop_if_fail
+fi
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!BUILDING BE PATIENT. CLOSE ALL OPEN APPLICATIONS!!!!!!"
+command="make -j1"
+stop_if_fail
+make install
+ldconfig
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEANING PCL"
+cd /usr/local
+rm -rf pcl-pcl-1.11.1
+fi
+
+if [ $zedSDK == 'y' ] || [ $zedSDK == 'Y' ]
+then
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING ZED SDK"
+apt-get install --no-install-recommends lsb-release wget less udev sudo apt-transport-https -y
+apt-get update -y
+wget -O ZED_SDK_Linux_Ubuntu18.run https://download.stereolabs.com/zedsdk/3.2/cu100/ubuntu18
+command="chmod +x ZED_SDK_Linux_Ubuntu18.run"
+stop_if_fail
+./ZED_SDK_Linux_Ubuntu18.run silent
+rm ZED_SDK_Linux_Ubuntu18.run
+cd /usr/local
+chmod a+xwr --preserve-root --recursive zed
+fi
+
+
