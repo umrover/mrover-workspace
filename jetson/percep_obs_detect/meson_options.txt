@@ -1,2 +1,2 @@
 option('with_zed', type: 'boolean', value : true)
-option('vm_config',type: 'boolean', value: false)
+option('vm_config',type: 'boolean', value: true)
