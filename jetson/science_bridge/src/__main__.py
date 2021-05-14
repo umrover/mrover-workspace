@@ -4,8 +4,9 @@ science nucleo to operate the science boxes and get relevant data
 '''
 import serial
 import asyncio
-import Adafruit_BBIO.UART as UART
-# from numpy import int16
+# import Adafruit_BBIO.UART as UART
+import numpy as np
+import re
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
@@ -36,7 +37,7 @@ class ScienceBridge():
         '''
         self.ser = serial.Serial(
             # port='/dev/ttyS4',
-            port='/dev/ttyTHS1',
+            port='/dev/ttyTHS0',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -51,15 +52,20 @@ class ScienceBridge():
         '''
         self.ser.close()
 
-    def spectral_handler(self, msg, spectral_struct):
+    def spectral_handler(self, m, spectral_struct):
         try:
-            arr = msg.split(",")
+            m.split(',')
+            arr = [s.strip().strip('\x00') for s in m.split(',')]
             struct_variables = ["d0_1", "d0_2", "d0_3", "d0_4", "d0_5", "d0_6",
                                 "d1_1", "d1_2", "d1_3", "d1_4", "d1_5", "d1_6",
                                 "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
+            print(arr)
             count = 1
             for var in struct_variables:
-                setattr(spectral_struct, var, ((int16(arr[count]) << 8) | (int16(arr[count + 1]))))
+                if (not (count >= len(arr))):
+                    setattr(spectral_struct, var, ((np.int16(arr[count]) << 8) | (np.int16(arr[count + 1]))))
+                else:
+                    setattr(spectral_struct, var, 0)
                 count += 2
         except:
             pass
@@ -213,8 +219,9 @@ class ScienceBridge():
                         match_found = True
                         try:
                             if(tag == "SPECTRAL"):
-                                func(msg, spectral)
+                                self.spectral_handler(tx.decode(), spectral)
                                 lcm.publish('/spectral_data', spectral.encode())
+                                print('published spectral struct?')
                             if(tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
                                 lcm.publish('/thermistor_data', thermistor.encode())
