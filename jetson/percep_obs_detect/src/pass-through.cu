@@ -39,13 +39,16 @@ void PassThrough::run(GPU_Cloud_F4 &cloud){
     //Instansiate a predicate functor and copy the contents of the cloud
     WithinBounds pred(min, max, axis);
     thrust::device_vector<sl::float4> buffer(cloud.data, cloud.data+cloud.size);
-
+	checkStatus(cudaGetLastError());
+    checkStatus(cudaDeviceSynchronize());
     //Copy from the temp buffer back into the cloud only the points that pass the predicate 
     sl::float4* end = thrust::copy_if(thrust::device, buffer.begin(), buffer.end(), cloud.data, pred);
-
+checkStatus(cudaGetLastError());
+    checkStatus(cudaDeviceSynchronize());
     //Clear the remainder of the cloud of points that failed pass through
     thrust::fill(thrust::device, end, cloud.data+cloud.size, sl::float4(0, 0, 0, 0));
-
+checkStatus(cudaGetLastError());
+    checkStatus(cudaDeviceSynchronize());
     //update the cloud size
     cloud.size = end - cloud.data;
 }

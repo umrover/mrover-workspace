@@ -49,7 +49,7 @@ void ObsDetector::pclKeyCallback(const pcl::visualization::KeyboardEvent &event,
 void ObsDetector::setupParamaters(std::string parameterFile) {
     //Operating resolution
     cloud_res = sl::Resolution(320/2, 180/2);
-    readDir = "/home/mgmii/mrover-workspace/jetson/percep_obs_detect/data";
+    readDir = "/home/mrover/mrover-workspace/jetson/percep_obs_detect/data";
 
     //Zed params
     init_params.coordinate_units = sl::UNIT::MILLIMETER;

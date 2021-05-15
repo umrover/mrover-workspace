@@ -5,7 +5,7 @@
 #define COMMON
 
 #define CHANNEL 4
-#define BLOCK_SIZE 1024
+#define BLOCK_SIZE 512
 #define PI 3.141592
 #define HALF_ROVER 584
 #define VIEWER_BGR_COLOR 2.14804915479e-38
