@@ -5,7 +5,7 @@ project('percep_obs_detect', 'cuda', 'cpp')
 
 #cuda = dependency('cuda', version : '>=10', modules : ['cublas'])
 #all_deps = [cuda]
-
+all_deps = []
 lcm = dependency('lcm')
 
 with_zed = get_option('with_zed')
@@ -32,7 +32,7 @@ if with_zed
             '-lnppim', '-lnppist', '-lnppitc', '-lnppc'
 
         ])
-    all_deps = [zed, lcm]
+    all_deps = [zed]
 endif
 
 if not vm_config
@@ -76,7 +76,7 @@ speed_args = ['--use_fast_math']
 # Not sure if the arch_args help at all. Might be worth investigating
 # These are specific to GPU. If you run deviceQuery and see your compute compatibility the major/minor corresponds to the numver listed below
 # My compute compatibility for these flags was 7.5
-arch_args = ['-arch=compute_72', '-code=sm_72']
+arch_args = ['-arch=compute_70', '-code=sm_70']
 
 exe = executable('percep_obs_detect', 'src/obs-detector.cpp', 'src/common.cu', 'src/euclidean-cluster.cu', 'src/find-clear.cu', 'src/GLViewer.cpp', 
                 'src/pass-through.cu', 'src/pcl.cpp', 'src/plane-ransac.cu', 'src/voxel-grid.cu', install : true, dependencies : all_deps, include_directories : incdir,

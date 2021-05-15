@@ -3,7 +3,7 @@
 #include <chrono>
 using namespace std;
 using namespace std::chrono;
-using namespace boost::interprocess;
+//using namespace boost::interprocess;
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewer) : source(source), mode(mode), viewer(viewer), record(false)
 {
@@ -49,7 +49,7 @@ void ObsDetector::pclKeyCallback(const pcl::visualization::KeyboardEvent &event,
 void ObsDetector::setupParamaters(std::string parameterFile) {
     //Operating resolution
     cloud_res = sl::Resolution(320/2, 180/2);
-    readDir = "/home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data";
+    readDir = "/home/mgmii/mrover-workspace/jetson/percep_obs_detect/data";
 
     //Zed params
     init_params.coordinate_units = sl::UNIT::MILLIMETER;
@@ -84,35 +84,36 @@ void ObsDetector::update() {
         sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::CPU);
         fileReader.load(frameNum, frame, true);
         update(frame);
-    } else if(source == DataSource::GPUMEM){
-        sl::float4* dataGPU;
-        unsigned char *handleBuffer;
-        cudaIpcMemHandle_t my_handle;
-
-        //Get the handleBuffer to check the parity bit appended to the end of the address
-        handleBuffer = static_cast<unsigned char *>(region.get_address());
-
-        //if parity bit is set to 1, perform operations
-        if(handleBuffer[sizeof(my_handle)] == 1){
-            cout << "got frame" << endl;
-
-            for(int i = 0; i < sizeof(my_handle); i++) {
-                cout << (int)handleBuffer[i] << " ";
-            }
-            cout << endl;
-
-            //Get cloud data
-            memcpy((unsigned char *)(&my_handle), handleBuffer, sizeof(my_handle));
-            checkStatus(cudaIpcOpenMemHandle((void **)&dataGPU, my_handle, cudaIpcMemLazyEnablePeerAccess));
-
-            //Run processing on cloud frame
-            sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, (sl::uchar1*)dataGPU, 2560, sl::MEM::GPU);
-            update(frame);
-
-            //Set parity bit back to 0 to allow new frame to be written in
-            handleBuffer[sizeof(my_handle)] = 0;
-        }
     }
+    //  else if(source == DataSource::GPUMEM){
+    //     sl::float4* dataGPU;
+    //     unsigned char *handleBuffer;
+    //     cudaIpcMemHandle_t my_handle;
+
+    //     //Get the handleBuffer to check the parity bit appended to the end of the address
+    //     handleBuffer = static_cast<unsigned char *>(region.get_address());
+
+    //     //if parity bit is set to 1, perform operations
+    //     if(handleBuffer[sizeof(my_handle)] == 1){
+    //         cout << "got frame" << endl;
+
+    //         for(int i = 0; i < sizeof(my_handle); i++) {
+    //             cout << (int)handleBuffer[i] << " ";
+    //         }
+    //         cout << endl;
+
+    //         //Get cloud data
+    //         memcpy((unsigned char *)(&my_handle), handleBuffer, sizeof(my_handle));
+    //         checkStatus(cudaIpcOpenMemHandle((void **)&dataGPU, my_handle, cudaIpcMemLazyEnablePeerAccess));
+
+    //         //Run processing on cloud frame
+    //         sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, (sl::uchar1*)dataGPU, 2560, sl::MEM::GPU);
+    //         update(frame);
+
+    //         //Set parity bit back to 0 to allow new frame to be written in
+    //         handleBuffer[sizeof(my_handle)] = 0;
+    //     }
+    //}
 } 
 
 // Call this directly with ZED GPU Memory
@@ -247,7 +248,7 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::PCLV);
     //obs.startRecording("test-record3");
     //obs.update();
     std::thread viewerTick( [&]{while(true) { obs.update();} });

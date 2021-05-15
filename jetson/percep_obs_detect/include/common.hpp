@@ -10,7 +10,7 @@
 #define HALF_ROVER 584
 #define VIEWER_BGR_COLOR 2.14804915479e-38
 // Temporary #define we can use until voxel grid is fully implemented
-#define VOXEL 1
+#define VOXEL 0
 
 /**
  * \struct GPU_Cloud_F4

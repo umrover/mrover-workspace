@@ -10,8 +10,8 @@
 #include "common.hpp"
 #include "pcl.hpp"
 #include "voxel-grid.hpp"
-#include <lcm/lcm-cpp.hpp>
-#include "rover_msgs/Obstacle.hpp"
+//#include <lcm/lcm-cpp.hpp>
+//#include "rover_msgs/Obstacle.hpp"
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/containers/vector.hpp>
@@ -99,8 +99,8 @@ class ObsDetector {
 
     private: 
         //Lcm
-        lcm::LCM lcm_;
-        rover_msgs::Obstacle obstacleMessage;
+        //lcm::LCM lcm_;
+        //rover_msgs::Obstacle obstacleMessage;
 
         //Data sources
         sl::Camera zed;
