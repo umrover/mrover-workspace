@@ -358,9 +358,9 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
     #endif
 
     bool end = true; 
-    double previousDistance = DBL_MAX;
+    double previousDistance = -1;
 
-    //if there are no interest points, the distance from the last obstacle should be DBL_MAX
+    //if there are no interest points, the distance from the last obstacle should be -1
     distance = previousDistance;
     
     //Iterate through interest points
@@ -405,7 +405,7 @@ bool PCL::CheckPath(const std::vector<std::vector<int>> &interest_points,
         currentDistance = 1.0 * currentDistance / sizeOfCluster;
 
         //if the last obstacle distance from a CheckPath loop was smaller, keep the smaller value, otherwise keep the current distance value
-        if(currentDistance < previousDistance) {
+        if(currentDistance < previousDistance || (previousDistance == -1 && sizeOfCluster != 0)) {
             previousDistance = currentDistance;
             distance = previousDistance;
         }
