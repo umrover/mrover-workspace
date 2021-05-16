@@ -61,7 +61,7 @@ class obstacle_return {
   
   obstacle_return() {
     bearing = 0;
-    distance = 0;
+    distance = -1;
   }
 
   obstacle_return(double bearing_in, double distance_in) : 
