@@ -28,6 +28,15 @@ struct GPU_Cloud_F4 {
 enum class Axis {X, Y, Z};
 
 /**
+ * \struct GPU_Cloud_F4
+ * \brief GPU point cloud struct that can be passed to cuda kernels and represents a point cloud
+ */
+struct GPU_Cloud {
+    float4* data;
+    int size;
+};
+
+/**
  * \class CompareFloat4
  * \brief Functor that compares Float4 values
 */

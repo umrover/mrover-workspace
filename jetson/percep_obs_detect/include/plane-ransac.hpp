@@ -1,5 +1,4 @@
 #pragma once
-
 #include "common.hpp"
 
 /** 
@@ -14,9 +13,9 @@ class RansacPlane {
          * \brief Defines the found plane by 3 points
          */
         struct Plane {
-            sl::float3 p1;
-            sl::float3 p2;
-            sl::float3 p3;
+            float3 p1;
+            float3 p2;
+            float3 p3;
         };
 
         /**
@@ -28,7 +27,7 @@ class RansacPlane {
          * \param pcSize The maximum expected size of a point cloud passed to this algorithm (use the frame resolution area)
          * \param removalRadius The max distance of points from the detected plane to be removed 
          */
-        RansacPlane(sl::float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius);
+        RansacPlane(float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius);
 
         ~RansacPlane();
 
@@ -38,7 +37,7 @@ class RansacPlane {
          * \param pc Point cloud to search 
          * \return Plane found by RANSAC segmentation
          */
-        Plane computeModel(GPU_Cloud_F4 pc);
+        Plane computeModel(GPU_Cloud pc);
 
         /**
          * \brief Computes the RANSAC model on the GPU and returns the optimal model. Removes inliers from the cloud and changes its size
@@ -46,12 +45,12 @@ class RansacPlane {
          * \param flag Dummy parameter to distinguish from the debug version of this function
          * \return Plane found by RANSAC segmentation
          */
-        Plane computeModel(GPU_Cloud_F4 &pc, bool flag);
+        Plane computeModel(GPU_Cloud &pc, bool flag);
 
     private:
         //user given model parms
-        GPU_Cloud_F4 pc;
-        sl::float3 axis;
+        GPU_Cloud pc;
+        float3 axis;
         float epsilon;
         int iterations;
         float threshold;

@@ -20,7 +20,7 @@ class WithinBounds {
     public:
         WithinBounds(float min, float max, char axis) : min(min), max(max), axis(axis) {}
 
-        __host__ __device__ bool operator()(const sl::float4 val) {
+        __host__ __device__ bool operator()(const float4 val) {
             float test;
             if(axis == 'z') test = val.z;
             else if(axis == 'y') test = val.y;
@@ -33,20 +33,21 @@ class WithinBounds {
 };
 
 //Execute pass through
-void PassThrough::run(GPU_Cloud_F4 &cloud){
+void PassThrough::run(GPU_Cloud &cloud){
     if(cloud.size == 0) return;
     
     //Instansiate a predicate functor and copy the contents of the cloud
     WithinBounds pred(min, max, axis);
-    thrust::device_vector<sl::float4> buffer(cloud.data, cloud.data+cloud.size);
+    thrust::device_vector<float4> buffer(cloud.data, cloud.data+cloud.size);
 
     //Copy from the temp buffer back into the cloud only the points that pass the predicate 
-    sl::float4* end = thrust::copy_if(thrust::device, buffer.begin(), buffer.end(), cloud.data, pred);
+    float4* end = thrust::copy_if(thrust::device, buffer.begin(), buffer.end(), cloud.data, pred);
 
     //Clear the remainder of the cloud of points that failed pass through
-    thrust::fill(thrust::device, end, cloud.data+cloud.size, sl::float4(0, 0, 0, 0));
+    thrust::fill(thrust::device, end, cloud.data+cloud.size, float4{0, 0, 0, 0});
 
     //update the cloud size
     cloud.size = end - cloud.data;
+    printf("Cloud Size: %i\n", cloud.size);
 }
 

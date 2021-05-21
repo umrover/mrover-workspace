@@ -11,9 +11,9 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
     
     //Init data stream from source
     if(source == DataSource::ZED) {
-        zed.open(init_params); 
-        auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
-        defParams = camera_config.calibration_parameters.left_cam;
+        //zed.open(init_params); 
+        //auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
+        //defParams = camera_config.calibration_parameters.left_cam;
     } else if(source == DataSource::FILESYSTEM) {
         fileReader.open(readDir);
     }
@@ -65,7 +65,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     defParams.image_size.height = 90;
 
     //Obs Detecting Algorithm Params
-    passZ = new PassThrough('z', 200.0, 7000.0); //7000
+    passZ = new PassThrough('z', 1.0, 3.0); //7000
     ransacPlane = new RansacPlane(sl::float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
@@ -75,8 +75,8 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 void ObsDetector::update() {
     if(source == DataSource::ZED) {
         sl::Mat frame; // (cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
-        zed.grab();
-        zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
+        //zed.grab();
+        //zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
         update(frame);
     } else if(source == DataSource::FILESYSTEM) {
         //DEBUG 
@@ -117,6 +117,7 @@ void ObsDetector::update() {
 
 // Call this directly with ZED GPU Memory
 void ObsDetector::update(sl::Mat &frame) {
+    /*
     // Get a copy if debug is enabled
     sl::Mat orig; 
     if(mode != OperationMode::SILENT) {
@@ -126,39 +127,32 @@ void ObsDetector::update(sl::Mat &frame) {
     // Convert ZED format into CUDA compatible 
     GPU_Cloud_F4 pc; 
     pc = getRawCloud(frame);
-
-    // Processing 
-    passZ->run(pc);
-    //std::cout << "pre ransac:" << pc.size << endl;
-    ransacPlane->computeModel(pc, 1);
-    
-    
-    
-
-
-
-
-
-
-    // Voxel Grid Testing Code
-    /*
+*/
     int size = 4;
-    sl::float4 testCPU[size] = {
+    float4 testCPU[size] = {
         {1,-3,-2,4},
         {2,2,2,4},
         {0,0,0,4},
         {0,0,0,1}
+    }; 
+ 
+    GPU_Cloud testCPUpc {
+        testCPU, size
     };
-    
-    GPU_Cloud_F4 testCPUpc {
-        testCPU, size, size
-    };
-    
-    sl::float4* testGPU;
-    cudaMalloc(&testGPU, sizeof(sl::float4)*size);
+    cout << "Constructed\n";
+    float4* testGPU;
+    cudaMalloc(&testGPU, sizeof(float4)*size);
     cudaMemcpy(testGPU, testCPU, sizeof(sl::float4)*size, cudaMemcpyHostToDevice);
-    GPU_Cloud_F4 testPC = { testGPU, size, size};
-    */
+    GPU_Cloud testPC = { testGPU, size};
+  cout << "Copied over \n";
+    // Processing 
+    passZ->run(testPC);
+    cout << "Pass-Through ran\n";
+    //std::cout << "pre ransac:" << pc.size << endl;
+   /* ransacPlane->computeModel(pc, 1);
+    
+    
+    
     Bins bins;
 
     #if VOXEL
@@ -198,6 +192,7 @@ void ObsDetector::update(sl::Mat &frame) {
     }
 
     if(framePlay) frameNum++;
+    */
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
@@ -250,6 +245,7 @@ int main() {
     ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
     //obs.update();
+    cout << "Here we go\n";
     std::thread viewerTick( [&]{while(true) { obs.update();} });
     
 

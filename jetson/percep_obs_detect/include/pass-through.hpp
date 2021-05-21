@@ -1,5 +1,4 @@
 #pragma once
-#include <sl/Camera.hpp>
 #include "common.hpp"
 
 
@@ -26,7 +25,7 @@ class PassThrough {
          * \brief Runs the pass through on the given cloud
          * \param cloud Point cloud to be filtered
          */    
-        void run(GPU_Cloud_F4 &cloud);
+        void run(GPU_Cloud &cloud);
 
     private:
 

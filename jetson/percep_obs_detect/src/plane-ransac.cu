@@ -32,7 +32,7 @@ EFFECTS:
     participate in a parallel reduction to give the total number of inliers for that block/model, 
     which will be returned from the kernel in the inlierCounts buffer. 
 */
-__global__ void ransacKernel(GPU_Cloud_F4 pc, float* inlierCounts, int* modelPoints, float threshold, sl::float3 axis, float epsilon) { 
+__global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints, float threshold, float3 axis, float epsilon) { 
     __shared__ float inlierField[MAX_THREADS];
     inlierField[threadIdx.x] = 0;
 
@@ -49,20 +49,20 @@ __global__ void ransacKernel(GPU_Cloud_F4 pc, float* inlierCounts, int* modelPoi
         return;
     }
 
-    sl::float3 modelPt0(pc.data[randIdx0]);
-    sl::float3 modelPt1(pc.data[randIdx1]);
-    sl::float3 modelPt2(pc.data[randIdx2]);    
+    float3 modelPt0(pc.data[randIdx0]);
+    float3 modelPt1(pc.data[randIdx1]);
+    float3 modelPt2(pc.data[randIdx2]);    
 
     // get the two vectors on the plane defined by the model points
-    sl::float3 v1 (modelPt1 - modelPt0);
-    sl::float3 v2 (modelPt2 - modelPt0);
+    float3 v1 (modelPt1 - modelPt0);
+    float3 v2 (modelPt2 - modelPt0);
     
     //get a vector normal to the plane model
-    sl::float3 n = sl::float3::cross(v1, v2);
+    float3 n = float3::cross(v1, v2);
 
     //add this constraint later
     //check that n dot desired axis is less than epsilon, if so, return here 
-    if(abs(sl::float3::dot(n/n.norm(), axis/axis.norm())) < epsilon) {
+    if(abs(float3::dot(n/n.norm(), axis/axis.norm())) < epsilon) {
         //if(threadIdx.x == 0) printf("eliminating model for axis tolerance failure %d \n", iteration);
         if(threadIdx.x == 0) inlierCounts[iteration] = 0; //make it -1 to show invalid model?
         return;
@@ -77,13 +77,13 @@ __global__ void ransacKernel(GPU_Cloud_F4 pc, float* inlierCounts, int* modelPoi
         if(pointIdx >= pc.size) continue; //TODO Should this be return??? 
         
         // point in the point cloud that could be an inlier or outlier
-        sl::float3 curPt(pc.data[pointIdx]);
+        float3 curPt(pc.data[pointIdx]);
         if(curPt.x == 0 && curPt.y == 0 && curPt.z == 0) continue; //TEMPORARY (0,0,0 removal) until passthru
         
         //calculate distance of cur pt to the plane formed by the 3 model points [see doc for the complete derrivation]
-        sl::float3 d_to_model_pt = (curPt - modelPt1);
+        float3 d_to_model_pt = (curPt - modelPt1);
         
-        float d = abs(sl::float3::dot(n, d_to_model_pt)) / n.norm();
+        float d = abs(float3::dot(n, d_to_model_pt)) / n.norm();
         
         //add a 0 if inlier, 1 if not 
         inliers += (d < threshold) ? 1 : 0; //very probalmatic line, how can we reduce these checks
@@ -132,7 +132,7 @@ EFFECTS:
     - Outputs the points of this model 
 */
 // optimalMOdel out = { p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z}
-__global__ void selectOptimalRansacModel(GPU_Cloud_F4 pc, float* inlierCounts, int* modelPoints, float* optimalModelOut, int iterations, int* optimalModelIndex) {
+__global__ void selectOptimalRansacModel(GPU_Cloud pc, float* inlierCounts, int* modelPoints, float* optimalModelOut, int iterations, int* optimalModelIndex) {
     
     __shared__ float inlierCountsLocal[MAX_THREADS];
     __shared__ int modelIndiciesLocal[MAX_THREADS];
@@ -167,7 +167,7 @@ __global__ void selectOptimalRansacModel(GPU_Cloud_F4 pc, float* inlierCounts, i
         //printf("--> model with most inliers is model: %d \n", modelIndiciesLocal[0]);
        // pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x]].w =  9.14767637511e-41;//; //debug featre color model pt
 
-        sl::float3 pt = pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ];
+        float3 pt = pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ];
 
         optimalModelOut[threadIdx.x*3] = pt.x; 
         optimalModelOut[threadIdx.x*3 + 1] = pt.y; 
@@ -185,20 +185,20 @@ __global__ void selectOptimalRansacModel(GPU_Cloud_F4 pc, float* inlierCounts, i
 // this kernel is for DEBUGGING only. It will get the list of inliers so they can 
 // be displayed. In competition, it is not necessary to have this information. 
 
-__global__ void computeInliers(GPU_Cloud_F4 pc , int* optimalModelIndex, int* modelPoints, float threshold, sl::float3 axis) {
+__global__ void computeInliers(GPU_Cloud pc , int* optimalModelIndex, int* modelPoints, float threshold, float3 axis) {
     if(*optimalModelIndex < 0) return;
 
 
-    sl::float3 modelPt0 (pc.data[modelPoints[*optimalModelIndex*3]]);
-    sl::float3 modelPt1 (pc.data[modelPoints[*optimalModelIndex*3 + 1]]);
-    sl::float3 modelPt2 (pc.data[modelPoints[*optimalModelIndex*3 + 2]]);
+    float3 modelPt0 (pc.data[modelPoints[*optimalModelIndex*3]]);
+    float3 modelPt1 (pc.data[modelPoints[*optimalModelIndex*3 + 1]]);
+    float3 modelPt2 (pc.data[modelPoints[*optimalModelIndex*3 + 2]]);
 
     // get the two vectors on the plane defined by the model points
-    sl::float3 v1 (modelPt1 - modelPt0);
-    sl::float3 v2 (modelPt2 - modelPt0);
+    float3 v1 (modelPt1 - modelPt0);
+    float3 v2 (modelPt2 - modelPt0);
     
     //get a vector normal to the plane model
-    sl::float3 n = sl::float3::cross(v1, v2);
+    float3 n = float3::cross(v1, v2);
 
 
     //printf("mp0: %f %f %f and mp1: %f %f %f \n", modelPt0.x, modelPt0.y, modelPt0.z, modelPt1.x, modelPt1.y, modelPt1.z);
@@ -207,7 +207,7 @@ __global__ void computeInliers(GPU_Cloud_F4 pc , int* optimalModelIndex, int* mo
 
     //printf("normal %f %f %f --- axis %f %f %f \n", n.x, n.y, n.z, axis.x, axis.y, axis.z);
 
-  // printf("axis normal dot: %f \n", abs(sl::float3::dot(n/n.norm(), axis/axis.norm())));
+  // printf("axis normal dot: %f \n", abs(float3::dot(n/n.norm(), axis/axis.norm())));
     
 
     // figure out how many points each thread must compute distance for and determine if each is inlier/outlier
@@ -218,12 +218,12 @@ __global__ void computeInliers(GPU_Cloud_F4 pc , int* optimalModelIndex, int* mo
         if(pointIdx >= pc.size) return; 
         
         // point in the point cloud that could be an inlier or outlier
-        sl::float3 curPt(pc.data[pointIdx]);
+        float3 curPt(pc.data[pointIdx]);
         
         //calculate distance of cur pt to the plane formed by the 3 model points [see doc for the complete derrivation]
-        sl::float3 d_to_model_pt = (curPt - modelPt1);
+        float3 d_to_model_pt = (curPt - modelPt1);
         
-        float d = abs(sl::float3::dot(n, d_to_model_pt)) / n.norm();
+        float d = abs(float3::dot(n, d_to_model_pt)) / n.norm();
         
         //add a 0 if inlier, 1 if not 
         int flag = (d < threshold) ? 1 : 0; //very probalmatic line, how can we reduce these checks
@@ -260,7 +260,7 @@ __global__ void computeInliers(GPU_Cloud_F4 pc , int* optimalModelIndex, int* mo
     }
 }
 
-__global__ void removeInliers(GPU_Cloud_F4 pc, GPU_Cloud_F4 out, int* optimalModelIndex, int* modelPoints, float threshold, sl::float3 axis, int* newSize) {
+__global__ void removeInliers(GPU_Cloud pc, GPU_Cloud out, int* optimalModelIndex, int* modelPoints, float threshold, float3 axis, int* newSize) {
     int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;
     if(*optimalModelIndex < 0) {
         if(pointIdx < pc.size) {
@@ -274,28 +274,28 @@ __global__ void removeInliers(GPU_Cloud_F4 pc, GPU_Cloud_F4 out, int* optimalMod
     *newSize = pc.size; //pc.size/2;
     return;*/
 
-    sl::float4 datum;
+    float4 datum;
     int newIdx = pc.size-1;
 
     if(pointIdx < pc.size) {
-        sl::float3 modelPt0 (pc.data[modelPoints[*optimalModelIndex*3]]);
-        sl::float3 modelPt1 (pc.data[modelPoints[*optimalModelIndex*3 + 1]]);
-        sl::float3 modelPt2 (pc.data[modelPoints[*optimalModelIndex*3 + 2]]);
+        float3 modelPt0 (pc.data[modelPoints[*optimalModelIndex*3]]);
+        float3 modelPt1 (pc.data[modelPoints[*optimalModelIndex*3 + 1]]);
+        float3 modelPt2 (pc.data[modelPoints[*optimalModelIndex*3 + 2]]);
 
         // get the two vectors on the plane defined by the model points
-        sl::float3 v1 (modelPt1 - modelPt0);
-        sl::float3 v2 (modelPt2 - modelPt0);
+        float3 v1 (modelPt1 - modelPt0);
+        float3 v2 (modelPt2 - modelPt0);
         
         //get a vector normal to the plane model
-        sl::float3 n = sl::float3::cross(v1, v2);
+        float3 n = float3::cross(v1, v2);
     
         // point in the point cloud that could be an inlier or outlier
-        sl::float3 curPt(pc.data[pointIdx]);
+        float3 curPt(pc.data[pointIdx]);
         
         //calculate distance of cur pt to the plane formed by the 3 model points [see doc for the complete derrivation]
-        sl::float3 d_to_model_pt = (curPt - modelPt1);
+        float3 d_to_model_pt = (curPt - modelPt1);
         
-        float d = abs(sl::float3::dot(n, d_to_model_pt)) / n.norm();
+        float d = abs(float3::dot(n, d_to_model_pt)) / n.norm();
         
         //add a 0 if inlier, 1 if not 
         int flag = (d < threshold) ? 1 : 0; //very probalmatic line, how can we reduce these checks
@@ -318,7 +318,7 @@ __global__ void removeInliers(GPU_Cloud_F4 pc, GPU_Cloud_F4 out, int* optimalMod
 
 }
 
-RansacPlane::RansacPlane(sl::float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius)
+RansacPlane::RansacPlane(float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius)
 : pc(pc), axis(axis), epsilon(epsilon), iterations(iterations), threshold(threshold), removalRadius(removalRadius)  {
     //Set up buffers needed for RANSAC
     cudaMalloc(&inlierCounts, sizeof(float) * iterations); 
@@ -370,7 +370,7 @@ EFFECTS:
     2. [GPU] Select the canidate with the highest score and inform the CPU
     3. [CPU] Use the three model points to produce a plane equation in standard form and return to the user
 */
-RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud_F4 pc) {
+RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud pc) {
     this->pc = pc;
 
     int blocks = iterations;
@@ -389,17 +389,17 @@ RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud_F4 pc) {
     //for(int i = 0; i < 3; i++) {
     //    cout << "model " << i << ":" << selectedModel[0] << selected 
     //}
-    Plane plane = {sl::float3(selectedModel[0], selectedModel[1], selectedModel[2]), 
-                         sl::float3(selectedModel[3], selectedModel[4], selectedModel[5]) ,
-                         sl::float3(selectedModel[6], selectedModel[7], selectedModel[8])};
+    Plane plane = {float3(selectedModel[0], selectedModel[1], selectedModel[2]), 
+                         float3(selectedModel[3], selectedModel[4], selectedModel[5]) ,
+                         float3(selectedModel[6], selectedModel[7], selectedModel[8])};
     
     return plane;
 }
 
-RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud_F4 &pc, bool flag) {
-    if(pc.size == 0) return {sl::float3(0,0,0), sl::float3(0,0,0), sl::float3(0,0,0)};
+RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud &pc, bool flag) {
+    if(pc.size == 0) return {float3(0,0,0), float3(0,0,0), float3(0,0,0)};
 
-    GPU_Cloud_F4 tmpCloud = createCloud(pc.size); //exp
+    GPU_Cloud tmpCloud = createCloud(pc.size); //exp
 
     this->pc = pc;
 
@@ -425,9 +425,9 @@ RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud_F4 &pc, bool flag) {
     //for(int i = 0; i < 3; i++) {
     //    cout << "model " << i << ":" << selectedModel[0] << selected 
     //}
-    Plane plane = {sl::float3(selectedModel[0], selectedModel[1], selectedModel[2]), 
-                         sl::float3(selectedModel[3], selectedModel[4], selectedModel[5]) ,
-                         sl::float3(selectedModel[6], selectedModel[7], selectedModel[8])};
+    Plane plane = {float3(selectedModel[0], selectedModel[1], selectedModel[2]), 
+                        float3(selectedModel[3], selectedModel[4], selectedModel[5]) ,
+                        float3(selectedModel[6], selectedModel[7], selectedModel[8])};
 
     cudaFree(size);
     
