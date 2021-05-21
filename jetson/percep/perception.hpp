@@ -63,7 +63,7 @@ class obstacle_return {
   obstacle_return() {
     leftBearing = 0;
     rightBearing = 0;
-    distance = 0;
+    distance = -1;
   }
 
   obstacle_return(double left_bearing_in, double right_bearing_in, double distance_in) : 
