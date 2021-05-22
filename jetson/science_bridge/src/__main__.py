@@ -28,7 +28,7 @@ class ScienceBridge():
             # "PUMP" : self.pump_transmit
         }
         self.max_error_count = 20
-        self.sleep = 1
+        self.sleep = .01
 
     def __enter__(self):
         '''
