@@ -80,7 +80,8 @@ High   |   Low - Motor load open (OPD) \
 Low    |   High - Over current (ISD) \
 Low    |   Low - Over thermal (TSD)
 
-The nucleo will send a NMEA style message describing the error to the bridge program.
+The nucleo will send a NMEA style message describing the error to the bridge program. \
+Using pins PA7 and PC4 on the nucleo - seem to cause no errors/issues.
 #### UART Message
 Format of the error message.
 - `$HBRIDGE,<error>`
