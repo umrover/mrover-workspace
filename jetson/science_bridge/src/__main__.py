@@ -141,12 +141,11 @@ class ScienceBridge():
         # Off, Done, Else
         
         struct = NavStatus.decode(msg)
-        message = "$Mosfet,{device},{enable},1111111"
-        
+        message = "$Mosfet,{device},{enable},11111111"
+        # All Leds are 1 digit so hardcode in padding
         
         # Off = Blue
         if struct.nav_state_name == "Off":
-            # Blue is 2 = 1 digit, needs added padding
             print("navstatus off")
             offmessage = message.format(device=2, enable=1) + "1"
             self.ser.write(bytes(offmessage, encoding='utf8'))
@@ -157,24 +156,24 @@ class ScienceBridge():
             # Flashing by turning on and off for 1 second intervals
             # Maybe change to 
             for i in range(0, 6):
-                self.ser.write(bytes(message.format(device=11, enable=1), encoding='utf8'))
+                self.ser.write(bytes(message.format(device=1, enable=1), encoding='utf8'))
                 time.sleep(1)
-                self.ser.write(bytes(message.format(device=11, enable=0), encoding='utf8'))
+                self.ser.write(bytes(message.format(device=1, enable=0), encoding='utf8'))
                 time.sleep(1)
                 prev = 1
         # Everytime else = Red
         else:
             print("navstatus else")
-            messageon = message.format(device=10, enable=1)
+            messageon = message.format(device=0, enable=1)
             self.ser.write(bytes(messageon, encoding='utf8'))
             prev = 0
         time.sleep(1)
+        # Green should be in a finished state so no need to turn it off
         if (prev != 2):
-            offmessage = message.format(device=2, enable=0) + "1"
-            self.ser.write(bytes(offmessage,
+            self.ser.write(bytes(message.format(device=2, enable=0),
                                  encoding='utf8'))
         if (prev != 0):
-            self.ser.write(bytes(message.format(device=10, enable=0),
+            self.ser.write(bytes(message.format(device=0, enable=0),
                                  encoding='utf8'))
 
     def ammonia_transmit(self, channel, msg):
