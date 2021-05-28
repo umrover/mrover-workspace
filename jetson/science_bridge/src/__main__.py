@@ -105,10 +105,18 @@ class ScienceBridge():
         # parse data into expected format
         # Currently expects mosfet, device number, and enable bit along
         # with padding to reach 30 bytes
-        message = "$Mosfet,{device},{enable},1"
+        message = "$Mosfet,{device},{enable},1111111"
         message = message.format(device=struct.device,
                                  enable=int(struct.enable))
         print(message)
+
+        # Assumes that only single or double digit devices are used
+        # No way we use 100 devices
+        # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
+        # single digits have 7 + 1 + 1 + 1 + 1 + 1 + 7 = 19, need to add one
+        if(int(struct.device) < 10):
+            # Add an extra 1 for padding
+            message += "1"
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
@@ -119,9 +127,10 @@ class ScienceBridge():
     def rr_drop(self, channel, msg):
         print("Received rr_drop req")
         # Struct is expected to be empty so no need for decoding
-        message = "$Mosfet,{device},{enable},1"
+        message = "$Mosfet,{device},{enable},11111111"
         # This is always an enable
         # Should be tied to SA UV = 4
+        # Always a single digit so no need to check for double
         message = message.format(device=4, enable=1)
         self.ser.write(bytes(message, encoding='utf8'))
         # Publish to drop complete after sending the message.
@@ -130,13 +139,17 @@ class ScienceBridge():
         print("Received nav req")
         # Want the name of the status I guess?
         # Off, Done, Else
-        # Off = Bluee
+        
         struct = NavStatus.decode(msg)
-        message = "$Mosfet,{device},{enable},1"
+        message = "$Mosfet,{device},{enable},1111111"
+        
+        
+        # Off = Blue
         if struct.nav_state_name == "Off":
+            # Blue is 2 = 1 digit, needs added padding
             print("navstatus off")
-            message = message.format(device=2, enable=1)
-            self.ser.write(bytes(message, encoding='utf8'))
+            offmessage = message.format(device=2, enable=1) + "1"
+            self.ser.write(bytes(offmessage, encoding='utf8'))
             prev = 2
         # Done = Flashing green
         elif struct.nav_state_name == "Done":
@@ -144,23 +157,24 @@ class ScienceBridge():
             # Flashing by turning on and off for 1 second intervals
             # Maybe change to 
             for i in range(0, 6):
-                self.ser.write(bytes(message.format(device=1, enable=1), encoding='utf8'))
+                self.ser.write(bytes(message.format(device=11, enable=1), encoding='utf8'))
                 time.sleep(1)
-                self.ser.write(bytes(message.format(device=1, enable=0), encoding='utf8'))
+                self.ser.write(bytes(message.format(device=11, enable=0), encoding='utf8'))
                 time.sleep(1)
                 prev = 1
         # Everytime else = Red
         else:
             print("navstatus else")
-            messageon = message.format(device=0, enable=1)
+            messageon = message.format(device=10, enable=1)
             self.ser.write(bytes(messageon, encoding='utf8'))
             prev = 0
         time.sleep(1)
         if (prev != 2):
-            self.ser.write(bytes(message.format(device=2, enable=0),
+            offmessage = message.format(device=2, enable=0) + "1"
+            self.ser.write(bytes(offmessage,
                                  encoding='utf8'))
         if (prev != 0):
-            self.ser.write(bytes(message.format(device=0, enable=0),
+            self.ser.write(bytes(message.format(device=10, enable=0),
                                  encoding='utf8'))
 
     def ammonia_transmit(self, channel, msg):
@@ -172,7 +186,7 @@ class ScienceBridge():
         message = "$AMMONIA,{speed}"
         message = message.format(speed=struct.speed)
         print(len(message))
-        while(len(message) < 13):
+        while(len(message) < 20):
             message += ","
         print(message)
         self.ser.close()
