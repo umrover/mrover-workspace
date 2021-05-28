@@ -66,12 +66,24 @@ Writes NMEA like messages over UART to the Nucleo in order to run the ammonia te
 Messsages: [AmmoniaCmd.lcm](https://github.com/jnnanni/mrover-workspace/blob/sagui/rover_msgs/AmmoniaCmd.lcm) "/ammonia_cmd" \
 Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
-### UART Message
+#### UART Message
 Format of the UART NMEA command
 - `$AMMONIA,<speed>,<padding commas>`
 - String is 13 characters long
 - Speed can range from -1 to 1 & is capped at those two points 
 
+### HBridge Errors
+There are two pins on the hbridge, LO1 and LO2, that designate error status. \
+LO1    |   LO2  \
+High   |   High - Normal \
+High   |   Low - Motor load open (OPD) \
+Low    |   High - Over current (ISD) \
+Low    |   Low - Over thermal (TSD)
+
+The nucleo will send a NMEA style message describing the error to the bridge program.
+#### UART Message
+Format of the error message.
+- `$HBRIDGE,<error>`
 
 ## TODO
 - [ ] Finish this readme
@@ -79,5 +91,5 @@ Format of the UART NMEA command
 - [ ] Fix bug where the mosfet handler is a 13 byte buffer but if it's a double digit device it will send 14 bytes 
 - [ ] Revert mosfet struct back to what is in the ICD once this ^ bug has been fixed 
 - [ ] Pass the linter
-- [ ] Receive handler for hbridge errors
+- [ ] Receive handler for hbridge errors - WIP
 
