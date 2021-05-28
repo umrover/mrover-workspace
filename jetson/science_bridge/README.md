@@ -78,4 +78,6 @@ Format of the UART NMEA command
 - [ ] Increase mosfet buffer to probably around 20 (whatever the buffer size is on the science nucleo) (this is to handle more precise ammonia motor speeds (i.e -0.25) / more importantly handle double digit mosfet devices
 - [ ] Fix bug where the mosfet handler is a 13 byte buffer but if it's a double digit device it will send 14 bytes 
 - [ ] Revert mosfet struct back to what is in the ICD once this ^ bug has been fixed 
+- [ ] Pass the linter
+- [ ] Receive handler for hbridge errors
 
