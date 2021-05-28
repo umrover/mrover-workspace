@@ -24,7 +24,7 @@
         MAX_CLUSTER_SIZE{mRoverConfig["pt_cloud"]["euclidean_cluster"]["max_cluster_size"].GetInt()},
         
         //Other Values
-        bearing{0}, distance{0}, detected{false},
+        leftBearing{0}, rightBearing{0}, distance{0}, detected{false},
         pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
 
         #if PERCEPTION_DEBUG
@@ -300,8 +300,8 @@ double PCL::getAngleOffCenter(int buffer, int direction, const std::vector<std::
 }
 
 /* --- Find Clear Path --- */
-//Returns the angle to a clear path
-double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
+// Calculates left and right bearings
+void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t("Find Clear Path");
     #endif
@@ -310,12 +310,14 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) 
 
     //Check Center Path
     if(CheckPath(interest_points, obstacles, compareLine(0,-HALF_ROVER), compareLine(0,HALF_ROVER))) {
-        #if PERCEPTION_DEBUG
+      leftBearing = 0; // When no obstacles detected, reset bearings
+      rightBearing = 0;
+      #if PERCEPTION_DEBUG
             std::cout << "CENTER PATH IS CLEAR!!!" << std::endl;
-        #endif
-        return 0;
+      #endif
     }
-    else { //otherwise, check to find left and right paths
+    
+    else {
 
         //Values that store the distances of the last obstacle from a given CheckPath. Center value gets its distance from previous loop of CheckPath
         double centerDistance = distance, leftDistance, rightDistance;
@@ -323,8 +325,8 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) 
         //Initialize base cases outside of scope
         vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
-        //Find Clear left path
-        double leftAngle = getAngleOffCenter(10, 0, interest_points, obstacles);
+        //Find clear left path, set left bearing
+        leftBearing = getAngleOffCenter(10, 0, interest_points, obstacles);
         leftDistance = distance; 
 
         //Reset global variables
@@ -332,17 +334,14 @@ double PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) 
         obstacles.at(0) = centerObstacles.at(0);
         obstacles.at(1) = centerObstacles.at(1);
 
-        //Find clear right path
-        double rightAngle = getAngleOffCenter(10, 1, interest_points, obstacles);
+        //Find clear right path, set right bearing
+        rightBearing = getAngleOffCenter(10, 1, interest_points, obstacles);
         rightDistance = distance;
 
         //return smallest distance of an obstacle from all the paths
         if(rightDistance < leftDistance && rightDistance < centerDistance) distance = rightDistance/1000.0;
         else if(leftDistance < rightDistance && leftDistance < centerDistance) distance = leftDistance/1000.0;
         else distance = centerDistance/1000.0;
-
-        //Return the smallest angle (left if equal)
-        return fabs(rightAngle) < fabs(leftAngle) ? rightAngle : leftAngle;
     }
 }
 
@@ -501,7 +500,7 @@ void PCL::pcl_obstacle_detection() {
     CPUEuclidianClusterExtraction(cluster_indices);
     std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (6));
     FindInterestPoints(cluster_indices, interest_points);
-    bearing = FindClearPath(interest_points);
+    FindClearPath(interest_points); 
 }
 
 
