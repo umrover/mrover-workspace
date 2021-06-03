@@ -6,19 +6,21 @@ import serial
 import asyncio
 # import Adafruit_BBIO.UART as UART
 import numpy as np
-import re
+# import re
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, NavStatus, AmmoniaCmd
+
+
 class ScienceBridge():
     def __init__(self):
         # UART.setup("UART4")  #  Specific to beaglebone
         # maps NMEA msgs to their handler
         # mosfet, ammonia, and pump only send msgs
         self.NMEA_HANDLE_MAPPER = {
-            "SPECTRAL" : self.spectral_handler,
-            "THERMISTOR" : self.thermistor_handler,
+            "SPECTRAL": self.spectral_handler,
+            "THERMISTOR": self.thermistor_handler,
             "TXT": self.txt_handler,
             "REPEATER": self.repeater_handler
         }
@@ -73,7 +75,7 @@ class ScienceBridge():
         # parse the spectral UART msg
         # add in relevant error handling
         # set the struct variables
-        
+
     def thermistor_handler(self, msg, thermistor_struct):
         # msg format: <"$THERMISTOR,temperature">
         try:
@@ -139,11 +141,11 @@ class ScienceBridge():
         print("Received nav req")
         # Want the name of the status I guess?
         # Off, Done, Else
-        
+
         struct = NavStatus.decode(msg)
         message = "$Mosfet,{device},{enable},11111111"
         # All Leds are 1 digit so hardcode in padding
-        
+
         # Off = Blue
         if struct.nav_state_name == "Off":
             print("navstatus off")
@@ -154,7 +156,7 @@ class ScienceBridge():
         elif struct.nav_state_name == "Done":
             print("navstatus Done")
             # Flashing by turning on and off for 1 second intervals
-            # Maybe change to 
+            # Maybe change to
             for i in range(0, 6):
                 self.ser.write(bytes(message.format(device=1, enable=1), encoding='utf8'))
                 time.sleep(1)
@@ -240,7 +242,7 @@ class ScienceBridge():
                                 lcm.publish('/thermistor_data', thermistor.encode())
                             if(tag == "REPEATER"):
                                 # Empty message so no handler required.
-                                lcm.publish('/rr_drop_complete',rr_drop.encode()) 
+                                lcm.publish('/rr_drop_complete', rr_drop.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
@@ -259,8 +261,8 @@ def main():
     with ScienceBridge() as bridge:
         _lcm = aiolcm.AsyncLCM()
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
-        _lcm.subscribe("/nav_status",bridge.nav_status)
+        _lcm.subscribe("/rr_drop_init", bridge.rr_drop)
+        _lcm.subscribe("/nav_status", bridge.nav_status)
         _lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         print("properly started")
         # lcm.subscribe("/pump_cmd", bridge.pump_transmit)
