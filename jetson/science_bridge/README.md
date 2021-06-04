@@ -58,7 +58,7 @@ Subscribers: jetson/nav
 #### UART Message
 Format of the UART NMEA command
 - `$Mosfet,<device>,<enable>,<extra padding>`
-- String is 13 characters long
+- String is 20 characters long
 
 ### Ammonia
 Writes NMEA like messages over UART to the Nucleo in order to run the ammonia test linear actuator forward/backwards at a given speed. 
@@ -69,7 +69,7 @@ Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
 - `$AMMONIA,<speed>,<padding commas>`
-- String is 13 characters long
+- String is 20 characters long
 - Speed can range from -1 to 1 & is capped at those two points 
 
 ### HBridge Errors
