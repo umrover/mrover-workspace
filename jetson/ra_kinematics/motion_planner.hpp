@@ -1,14 +1,15 @@
 #ifndef MOTION_PLANNER_H
 #define MOTION_PLANNER_H
 
-#include <Eigen/Dense>
 #include <vector>
-#include "arm_state.hpp"
-#include "kinematics.hpp"
 #include <map>
 #include <random>
 
-#include "spline.h"
+#include <eigen3/Eigen/Dense>
+#include "kluge/spline.h"
+
+#include "arm_state.hpp"
+#include "kinematics.hpp"
 
 using namespace Eigen;
 using namespace std;

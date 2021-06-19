@@ -2,7 +2,6 @@
 #include "arm_state.hpp"
 #include "motion_planner.hpp"
 #include "kinematics.hpp"
-#include "spline.h"
 #include "utils.hpp"
 
 #include <chrono>
@@ -269,7 +268,7 @@ void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {
 void MRoverArm::plan_path(Vector6d goal) {
     bool path_found = motion_planner.rrt_connect(state, goal);
     if (path_found) {
-        cout << "planned path\n";
+        cout << "Planned path\n";
     }
     else {
         cout << "No path found\n";

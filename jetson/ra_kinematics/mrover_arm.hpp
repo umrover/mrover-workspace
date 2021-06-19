@@ -1,14 +1,18 @@
 #ifndef MROVER_ARM_H
 #define MROVER_ARM_H
- 
-#include "json.hpp"
+
+// 3rd party
 #include <lcm/lcm-cpp.hpp>
-#include <Eigen/Dense>
+#include "nlohmann/json.hpp"
+#include <eigen3/Eigen/Dense>
+#include "kluge/spline.h"
+
 #include "mrover_arm.hpp"
 #include "arm_state.hpp"
 #include "motion_planner.hpp"
 #include "kinematics.hpp"
-#include "spline.h"
+
+// LCM messages
 #include "rover_msgs/ArmPosition.hpp"
 #include "rover_msgs/MotionExecute.hpp"
 #include "rover_msgs/FKTransform.hpp"

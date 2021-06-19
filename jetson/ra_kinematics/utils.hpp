@@ -1,8 +1,8 @@
 #ifndef KINEMATICS_UTILS
 #define KINEMATICS_UTILS
 
-#include "json.hpp"
-#include <Eigen/Dense>
+#include "nlohmann/json.hpp"
+#include <eigen3/Eigen/Dense>
 
 using namespace std;
 using namespace nlohmann;

@@ -1,7 +1,7 @@
 #ifndef KINEMATICS_H
 #define KINEMATICS_H
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include "arm_state.hpp"
 #include <stack>
 

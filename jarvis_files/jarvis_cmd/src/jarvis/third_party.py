@@ -90,6 +90,90 @@ def ensure_rapidjson(ctx):
         ctx.run("cmake --build . --target install")
         print("Done")
 
+def check_nlohmann(ctx):
+    """
+    Checks for the existence of nlohmann in the product venv.
+    """
+    return os.path.exists(ctx.get_product_file('include', 'nlohmann'))
+
+def ensure_nlohmann(ctx):
+    """
+    Installs nlohmann into the product venv.
+    """
+    if check_nlohmann(ctx):
+        print("nlohmann already installed, skipping.")
+        return
+
+    nlohmann_dir = os.path.join(ctx.third_party_root, 'nlohmann')
+    ctx.ensure_product_env()
+    with ctx.intermediate('nlohmann'):
+        ctx.run("cp -r {}/* .".format(nlohmann_dir))
+        print("Configuring nlohmann...")
+        ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} .".format(
+            ctx.product_env))
+        print("Building nlohmann...")
+        ctx.run("cmake --build .")
+        print("Installing nlohmann...")
+        ctx.run("cmake --build . --target install")
+        print("Done")
+
+def check_eigen(ctx):
+    """
+    Check for the existence of eigen in the product venv.
+    """
+    return os.path.exists(ctx.get_product_file('include', 'eigen3'))
+
+def ensure_eigen(ctx):
+    """
+    Install eigen into the product venv.
+    """
+    if check_eigen(ctx):
+        print("eigen already installed, skipping.")
+        return
+
+    eigen_dir = os.path.join(ctx.third_party_root, 'eigen')
+    ctx.ensure_product_env()
+    with ctx.intermediate('eigen'):
+        ctx.run("cp -r {}/* .".format(eigen_dir))
+        print("Configuring eigen...")
+        ctx.run("mkdir -p build")
+        with ctx.cd("build"):
+            ctx.run("rm -f ../CMakeCache.txt")
+            ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} ..".format(
+                ctx.product_env))
+            print("Building eigen...")
+            ctx.run("cmake --build .")
+            print("Installing eigen...")
+            ctx.run("cmake --build . --target install")
+            print("Done")
+
+def check_kluge(ctx):
+    """
+    Check for the existence of kluge in the product venv.
+    """
+    return os.path.exists(ctx.get_product_file('include', 'kluge'))
+
+def ensure_kluge(ctx):
+    """
+    Install kluge into the product venv.
+    """
+    if check_kluge(ctx):
+        print("kluge already installed, skipping.")
+        return
+
+    kluge_dir = os.path.join(ctx.third_party_root, 'kluge')
+    ctx.ensure_product_env()
+    with ctx.intermediate('kluge'):
+        ctx.run("cp -r {}/* .".format(kluge_dir))
+        print("Configuring kluge...")
+        ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} .".format(
+            ctx.product_env))
+        print("Building kluge...")
+        ctx.run("cmake --build .")
+        print("Installing kluge...")
+        ctx.run("cmake --build . --target install")
+        print("Done")
+
 def check_phoenix(ctx):
     """
     Checks for the existence of Phoenix in the product venv.

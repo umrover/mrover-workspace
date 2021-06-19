@@ -2,11 +2,12 @@
 #define ARM_STATE_H
 
 #include <fstream>
-#include "json.hpp"
 #include <vector>
 #include <map>
-#include <Eigen/Dense>
 #include <iostream>
+
+#include "nlohmann/json.hpp"
+#include <eigen3/Eigen/Dense>
 
 using namespace Eigen;
 using namespace nlohmann;

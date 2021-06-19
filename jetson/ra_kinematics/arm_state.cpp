@@ -1,9 +1,7 @@
 #include "arm_state.hpp"
-#include "json.hpp"
 #include "utils.hpp"
 #include <iostream>
 #include <iomanip>
-#include <Eigen/Dense>
 
 using namespace Eigen;
 using namespace nlohmann;
