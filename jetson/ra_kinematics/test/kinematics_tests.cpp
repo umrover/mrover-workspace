@@ -60,9 +60,7 @@ bool vec3dAlmostEqual(Vector3d a, Vector3d b, double epsilon) {
 
 TEST(kinematics_initialization) {
     cout << setprecision(8);
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-    
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver();
 }
@@ -70,9 +68,7 @@ TEST(kinematics_initialization) {
 TEST(fk_test) {
     cout << setprecision(8);
     // Create the arm to be tested on:
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -175,9 +171,7 @@ TEST(is_safe_test) {
     // TODO: Modify the configuration paths as necessary
 
     // Create the arm to be tested on:
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -191,9 +185,7 @@ TEST(is_safe_test) {
 
 TEST(ik_test1) {
     // cout << setprecision(8);
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
     // Create target point vector:
@@ -219,9 +211,7 @@ TEST(ik_test1) {
 
 TEST(ik_test2) {
     cout << setprecision(9);
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -242,9 +232,7 @@ TEST(ik_test2) {
 }
 
 TEST(ik_test3) {
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -266,9 +254,7 @@ TEST(ik_test3) {
 }
 
 TEST(ik_test4) {
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -290,9 +276,7 @@ TEST(ik_test4) {
 }
 
 TEST(ik_test_short) {
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 

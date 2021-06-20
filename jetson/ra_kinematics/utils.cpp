@@ -9,6 +9,11 @@ using namespace Eigen;
 
 typedef Matrix<double, 6, 1> Vector6d;
 
+string get_mrover_arm_geom() {
+    string config_folder = getenv("MROVER_CONFIG");
+    return config_folder + "/config_kinematics/mrover_arm_geom.json";
+}
+
 json read_json_from_file(const string &filepath) {
     ifstream file(filepath);
 

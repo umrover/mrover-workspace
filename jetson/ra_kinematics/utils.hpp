@@ -11,6 +11,8 @@ using namespace Eigen;
 typedef Matrix<double, 6, 1> Vector6d;
 
 
+string get_mrover_arm_geom();
+
 json read_json_from_file(const string &filepath);
 
 double point_line_distance(const Vector3d &end1, const Vector3d &end2, const Vector3d &point);

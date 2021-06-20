@@ -9,27 +9,18 @@ using namespace nlohmann;
 using namespace std;
 
 TEST(arm_initialization_test) {
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
 }
 
 TEST(read_geom_file) {
-    // string config_path = "../../config";
-    // string geom_file = config_path + "/kinematics/mrover_arm_geom.json";
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 }
 
 TEST(joint_creation_test) {
-    // TODO: Change configuration paths as needed.
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
 
     json joint_a_json = geom["joints"]["joint_a"];
 
@@ -51,28 +42,12 @@ TEST(joint_creation_test) {
 }
 
 TEST(avoidance_link_creation_test) {
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
 
     json joint_a_json = geom["joints"]["joint_a"];
 
     ArmState arm = ArmState(geom);
 }
-
-// TEST(delete_joints_test) {
-//     // TODO: Change the configuration path as needed
-//     string config_path = getenv("MROVER_CONFIG");
-//     string geom_file = config_path + "/config_kinematics/mrover_arm_geom.json";
-
-//     json geom = read_json_from_file(geom_file);
-//     ArmState* arm = new ArmState(geom);
-
-//     // Todo: Change the number of joints as needed
-//     ASSERT_EQUAL(6, arm->num_joints());
-//     delete arm;
-//     // Just tests to make sure there's no bugs in the destructor
-// }
 
 TEST(set_joint_angles_test) {
     // Create the angles vector that will be used to test
@@ -80,11 +55,7 @@ TEST(set_joint_angles_test) {
     vector<double> set_angles{1.1, 0.9, -0.5, 0.1, 0.01, -1.2};
     
     // Create the arm object:
-    // TODO: Modify the configuration path as necessary
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
-
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
 
     // Set the angles on the arm to be from the set_angles vector
@@ -108,10 +79,7 @@ TEST(set_joint_angles_test) {
 }
 
 TEST(json_read_test) {
-    // TODO: Modify the configuration paths as necessary
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
 }
 

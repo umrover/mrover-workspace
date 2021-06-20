@@ -11,8 +11,7 @@ using namespace std;
 
 TEST(motion_planner_init) {
     // read arm geometry
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 
@@ -29,8 +28,7 @@ TEST(motion_planner_init) {
 TEST(rrt_connect_simple) {
 
     // read arm geometry
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 
@@ -86,10 +84,8 @@ TEST(rrt_connect_simple) {
  * target is the same as starting postition
  * */
 TEST(anti_motion_planner) {
-
     // read arm geometry
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 
@@ -141,10 +137,8 @@ TEST(anti_motion_planner) {
 
 
 TEST(rrt_connect) {
-
     // read arm geometry
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 

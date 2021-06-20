@@ -132,9 +132,7 @@ private:
 };
 
 TEST(config_space) {
-
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-    json geom = read_json_from_file(geom_file);
+    json geom = read_json_from_file(get_mrover_arm_geom());
 
     ArmState arm(geom);
     KinematicsSolver solver;
