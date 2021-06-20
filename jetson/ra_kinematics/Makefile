@@ -1,3 +1,5 @@
+.PHONY: all build build_run unit_tests arm_state_tests kinematics_tests motion_planner_tests config_space_test exe
+
 all: build_run
 
 build :
@@ -8,10 +10,7 @@ build_run:
 	cp test/main_build.txt meson.build
 	cd ../.. && pwd && ./jarvis build jetson/ra_kinematics/ && ./jarvis exec jetson/ra_kinematics/
 
-tests :
-	cp test/arm_state_test_build.txt meson.build
-	cd ../.. && pwd && ./jarvis build jetson/ra_kinematics/ && ./jarvis exec jetson/ra_kinematics/
-	cp test/main_build.txt meson.build
+unit_tests: arm_state_tests kinematics_tests motion_planner_tests
 
 arm_state_tests:
 	cp test/arm_state_test_build.txt meson.build

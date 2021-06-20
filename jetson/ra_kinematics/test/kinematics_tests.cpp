@@ -1,5 +1,5 @@
 #include "unit_test_framework.h"
-#include "../json.hpp"
+#include "nlohmann/json.hpp"
 #include "../arm_state.hpp"
 #include "../utils.hpp"
 #include "../kinematics.hpp"
@@ -169,6 +169,24 @@ TEST(fk_test) {
     ASSERT_TRUE(vec3dAlmostEqual(joint_e, arm.get_joint_pos_world("joint_e"), epsilon));
     ASSERT_TRUE(vec3dAlmostEqual(joint_f, arm.get_joint_pos_world("joint_f"), epsilon));
     // FK working , yay!!!
+}
+
+TEST(is_safe_test) {
+    // TODO: Modify the configuration paths as necessary
+
+    // Create the arm to be tested on:
+    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
+
+    json geom = read_json_from_file(geom_file);
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+
+    string presets_file = "/vagrant/base_station/kineval_stencil/dist/mrover_arm_presets.json";
+
+    json presets = read_json_from_file(presets_file);
+    for (json::iterator it = presets.begin(); it != presets.end(); it++) {
+        ASSERT_TRUE(solver.is_safe(arm, it.value()));
+    }
 }
 
 TEST(ik_test1) {

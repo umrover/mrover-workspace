@@ -49,8 +49,11 @@ private:
             // TODO check if mass is necessary. If so, initialize here
 
             // joints b and c get an angle of 0, the rest should get 0   
-            if (name_in == "joint_b" || name_in == "joint_c") {
+            if (name_in == "joint_b") {
                 angle = 1.0;
+            }
+            else if (name_in == "joint_c") {
+                angle = 0.5;
             }
             else {
                 angle = 0;

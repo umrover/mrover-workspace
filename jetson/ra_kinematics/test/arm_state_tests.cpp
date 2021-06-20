@@ -1,5 +1,5 @@
 #include "unit_test_framework.h"
-#include "../json.hpp"
+#include "nlohmann/json.hpp"
 #include "../arm_state.hpp"
 #include "../utils.hpp"
 
@@ -105,16 +105,6 @@ TEST(set_joint_angles_test) {
     for (int i = 0; i < 6; ++i) {
         ASSERT_EQUAL(set_angles[i], return_angles_vec[i]);
     }
-}
-
-TEST(link_link_check_test) {
-    // TODO: Modify the configuration paths as necessary
-    string geom_file = "/vagrant/config/kinematics/mrover_arm_geom.json";
-
-    json geom = read_json_from_file(geom_file);
-    ArmState arm = ArmState(geom);
-    // Links and joints automatically initialized at onset of arm creation
-    ASSERT_TRUE(arm.obstacle_free());
 }
 
 TEST(json_read_test) {

@@ -1,5 +1,5 @@
 #include "unit_test_framework.h"
-#include "../json.hpp"
+#include "nlohmann/json.hpp"
 #include "../arm_state.hpp"
 #include "../kinematics.hpp"
 #include "../motion_planner.hpp"
@@ -19,14 +19,6 @@ TEST(motion_planner_init) {
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
     MotionPlanner planner = MotionPlanner(arm, solver);
-
-    /*
-    vector<double> set_angles{-0.10851897208699646,
-                                -0.48035061172641025,
-                                0.42750147611540207,
-                                -0.4536622798173834,
-                                1.5091481179603654,
-                                0.2809788467090569};*/
     
     vector<double> set_angles{0, 1, 1, 0, 0, 0};
 
