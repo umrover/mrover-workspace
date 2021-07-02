@@ -166,9 +166,9 @@ void ObsDetector::update(sl::Mat &frame) {
     auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
 
     //LCM
-    //obstacleMessage.bearing = 
-    //obstacleMessage.distance = 
-    //lcm_.publish("/obstacle", &obstacleMessage);
+    obstacleMessage.bearing = 9;
+    obstacleMessage.distance = 9;
+    lcm_.publish("/obstacle", &obstacleMessage);
 
     // Rendering
     if(mode != OperationMode::SILENT) {

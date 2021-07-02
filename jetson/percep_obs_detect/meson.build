@@ -79,6 +79,8 @@ speed_args = ['--use_fast_math']
 #arch_args = ['-arch=compute_72', '-code=sm_72'] this is breaking things on great lakes, its prob the wrong version like you said but we should automate that
 arch_args = []
 
+all_deps+=[lcm]
+
 # disables all warns, ideally we'd like warns for our own code, but the log spam is unbearable
 # TODO don't do this 
 add_global_arguments('-w', language : 'cpp')
