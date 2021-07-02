@@ -254,7 +254,6 @@ int main() {
     std::thread viewerTick( [&]{while(true) { obs.update();} });
     
 
-
     while(true) {
         //obs.update();
         obs.spinViewer();
