@@ -15,6 +15,9 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
         defParams = camera_config.calibration_parameters.left_cam;
     } else if(source == DataSource::FILESYSTEM) {
+        cout << "File data dir: " << endl;
+        cout << "[e.g: /home/ashmg/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
+        getline(cin, readDir);
         fileReader.open(readDir);
     }
 
@@ -124,22 +127,13 @@ void ObsDetector::update(sl::Mat &frame) {
         frame.copyTo(orig, sl::COPY_TYPE::GPU_GPU);
     }
 
-    // Convert ZED format into CUDA compatible 
+    // Convert ZED format into CUDA compatible type
     GPU_Cloud_F4 pc; 
     pc = getRawCloud(frame);
 
     // Processing 
     passZ->run(pc);
-    //std::cout << "pre ransac:" << pc.size << endl;
     ransacPlane->computeModel(pc, 1);
-    
-    
-    
-
-
-
-
-
 
     // Voxel Grid Testing Code
     /*
@@ -166,15 +160,10 @@ void ObsDetector::update(sl::Mat &frame) {
         bins = voxelGrid->run(pc);
     #endif
 
-
-
-
-    //std::cout << "post ransac:" << pc.size << endl;
     auto grabStart = high_resolution_clock::now();
     obstacles = ece->extractClusters(pc, bins); 
     auto grabEnd = high_resolution_clock::now();
     auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
-    //cout << "ECE time: " << (grabDuration.count()/1.0e3) << " ms" << endl; 
 
     //LCM
     //obstacleMessage.bearing = 
@@ -206,6 +195,7 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
     this->rightBearing = rightBearing;
     this->distance = distance;
     //obstacleMessage.leftBearing = leftBearing;
+    //lcm_.publish("/obstacle", &obstacleMessage);
 }
 
 void ObsDetector::spinViewer() {

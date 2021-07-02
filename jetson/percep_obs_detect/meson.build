@@ -76,7 +76,14 @@ speed_args = ['--use_fast_math']
 # Not sure if the arch_args help at all. Might be worth investigating
 # These are specific to GPU. If you run deviceQuery and see your compute compatibility the major/minor corresponds to the numver listed below
 # My compute compatibility for these flags was 7.5
-arch_args = ['-arch=compute_72', '-code=sm_72']
+#arch_args = ['-arch=compute_72', '-code=sm_72'] this is breaking things on great lakes, its prob the wrong version like you said but we should automate that
+arch_args = []
+
+# disables all warns, ideally we'd like warns for our own code, but the log spam is unbearable
+# TODO don't do this 
+add_global_arguments('-w', language : 'cpp')
+add_global_arguments('-w', language : 'cuda')
+
 
 exe = executable('percep_obs_detect', 'src/obs-detector.cpp', 'src/common.cu', 'src/euclidean-cluster.cu', 'src/find-clear.cu', 'src/GLViewer.cpp', 
                 'src/pass-through.cu', 'src/pcl.cpp', 'src/plane-ransac.cu', 'src/voxel-grid.cu', install : true, dependencies : all_deps, include_directories : incdir,

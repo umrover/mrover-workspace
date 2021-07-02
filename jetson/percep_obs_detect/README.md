@@ -13,13 +13,18 @@ Follow the install guide for your desired workflow.
    
 ## Usage
 
-**Great Lakes Only:** 
+**Great Lakes:** 
 1. Connect to UMich VPN (if off campus) and log into: https://greatlakes-oncampus.arc-ts.umich.edu/pun/sys/dashboard
 2. Go to My Interactive Sessions and launch a new session on GPU partition with 1 GPU 
 3. Run `./launchme` to open the Singularity container for development 
 4. Run `source sourceme` to add CUDA compiler to your shell  
+5. From `mrover-workspace` do:
+```
+./jarvis build jetson/percep_obs_detect
+./jarvis sing percep_obs_detect
+```
 
-**All:**
+**Local:**
 1. From `mrover-workspace` do:
 ```
 ./jarvis build jetson/percep_obs_detect
