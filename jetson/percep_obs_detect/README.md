@@ -51,6 +51,9 @@ Follow the install guide for your desired workflow.
 - Silent Mode
 - Fix logic in find clear path
 - Enable compiler optimizations 
+- Statistical 'unit' testing 
+    - Time 
+    - Correctness (RANSAC Plane Equation, Detections for known keyfames)
 
 ## Other
 Deprecated documentation: https://docs.google.com/document/d/1WPW7yxcCp_EcDjPbGVOtrZl3A5krSXDas_pcxD3N2IM/edit
