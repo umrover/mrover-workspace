@@ -76,8 +76,8 @@ speed_args = ['--use_fast_math']
 # Not sure if the arch_args help at all. Might be worth investigating
 # These are specific to GPU. If you run deviceQuery and see your compute compatibility the major/minor corresponds to the numver listed below
 # My compute compatibility for these flags was 7.5
-#arch_args = ['-arch=compute_72', '-code=sm_72'] this is breaking things on great lakes, its prob the wrong version like you said but we should automate that
-arch_args = []
+arch_args = ['-arch=compute_75', '-code=sm_75'] # this is breaking things on great lakes, its prob the wrong version like you said but we should automate that
+#arch_args = []
 
 all_deps+=[lcm]
 

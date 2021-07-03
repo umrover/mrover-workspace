@@ -264,17 +264,18 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::PCLV);
+    ObsDetector obs(DataSource::ZED, OperationMode::SILENT, ViewerType::PCLV);
     //obs.startRecording("test-record3");
     //obs.update();
     cout << "Here we go\n";
-    std::thread viewerTick( [&]{while(true) { obs.update();} });
+    //std::thread viewerTick( [&]{while(true) { obs.update();} });
     
 
     while(true) {
-        //obs.update();
-        obs.spinViewer();
+        obs.update();
+       // obs.spinViewer();
     }
+    
 
     return 0;
 }

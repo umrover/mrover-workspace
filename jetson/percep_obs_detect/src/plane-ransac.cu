@@ -1,6 +1,7 @@
 #include "plane-ransac.hpp"
 #include "common.hpp"
 #include <stdlib.h>
+#include<unistd.h>
 
 __device__ int ceilDivGPU(int a, int b) {
     return (a + b - 1) / b;
@@ -329,7 +330,8 @@ __global__ void removeInliers(GPU_Cloud pc, GPU_Cloud out, int* optimalModelInde
     }
 
     out.data[newIdx] = datum;
-
+    if (pointIdx == 0) printf("Point: {%f, %f, %f}\n", datum.x, datum.y, datum.z);
+    __syncthreads();
 }
 
 RansacPlane::RansacPlane(float3d axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius)
@@ -424,6 +426,7 @@ RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud &pc, bool flag) {
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
     std::cout << "Malloced\n";
+    usleep(1000000);
     this->pc = pc;
     tmpCloud.data = temp;
     int blocks = iterations;
