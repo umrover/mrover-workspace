@@ -5,7 +5,7 @@ project('percep_obs_detect', 'cuda', 'cpp')
 
 #cuda = dependency('cuda', version : '>=10', modules : ['cublas'])
 #all_deps = [cuda]
-
+all_deps = []
 lcm = dependency('lcm')
 
 with_zed = get_option('with_zed')
@@ -32,7 +32,7 @@ if with_zed
             '-lnppim', '-lnppist', '-lnppitc', '-lnppc'
 
         ])
-    all_deps = [zed, lcm]
+    all_deps = [zed]
 endif
 
 if not vm_config
@@ -62,7 +62,8 @@ elif vm_config
 			'-L/usr/local/lib',
 			'-lpcl_common', '-lpcl_visualization', '-lpcl_filters', '-lpcl_segmentation', '-lpcl_search', '-lpcl_kdtree', '-lpcl_sample_consensus',
 			'-lpcl_io','-lboost_system','-lvtksys-6.3', '-lvtkRenderingCore-6.3', '-lvtkCommonCore-6.3',
-			'-lvtkCommonDataModel-6.3', '-lvtkCommonMath-6.3', '-lvtkFiltersCore-6.3', '-lvtkCommonExecutionModel-6.3', '-lvtkFiltersGeometry-6.3'
+			'-lvtkCommonDataModel-6.3', '-lvtkCommonMath-6.3', '-lvtkFiltersCore-6.3', '-lvtkCommonExecutionModel-6.3', '-lvtkFiltersGeometry-6.3',
+			'-lpthread', '-lGL', '-lglut', '-lGLEW'
 	])
 	all_deps += [obs]
 
@@ -75,7 +76,16 @@ speed_args = ['--use_fast_math']
 # Not sure if the arch_args help at all. Might be worth investigating
 # These are specific to GPU. If you run deviceQuery and see your compute compatibility the major/minor corresponds to the numver listed below
 # My compute compatibility for these flags was 7.5
-arch_args = ['-arch=compute_75', '-code=sm_75']
+#arch_args = ['-arch=compute_72', '-code=sm_72'] this is breaking things on great lakes, its prob the wrong version like you said but we should automate that
+arch_args = []
+
+all_deps+=[lcm]
+
+# disables all warns, ideally we'd like warns for our own code, but the log spam is unbearable
+# TODO don't do this 
+add_global_arguments('-w', language : 'cpp')
+add_global_arguments('-w', language : 'cuda')
+
 
 exe = executable('percep_obs_detect', 'src/obs-detector.cpp', 'src/common.cu', 'src/euclidean-cluster.cu', 'src/find-clear.cu', 'src/GLViewer.cpp', 
                 'src/pass-through.cu', 'src/pcl.cpp', 'src/plane-ransac.cu', 'src/voxel-grid.cu', install : true, dependencies : all_deps, include_directories : incdir,
