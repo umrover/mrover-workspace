@@ -66,7 +66,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 
     //Obs Detecting Algorithm Params
     passZ = new PassThrough('z', 1.0, 3.0); //7000
-    ransacPlane = new RansacPlane(sl::float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
+    ransacPlane = new RansacPlane(float3d(0, 1, 0), 8, 600, 80, 8, 80);
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
 }
@@ -128,14 +128,35 @@ void ObsDetector::update(sl::Mat &frame) {
     GPU_Cloud_F4 pc; 
     pc = getRawCloud(frame);
 */
-    int size = 4;
+    int size = 8;
     float4 testCPU[size] = {
-        {1,-3,-2,4},
-        {2,2,2,4},
+        {1,0,-2,4},
+        {2,0,2,4},
         {0,0,0,4},
-        {0,0,0,1}
+        {10000,10000,10000,10000},
+        {1,0,-1,4},
+        {2,0,3,4},
+        {0,0,1,4},
+        {10000,-1,10001,10000}
     }; 
- 
+  /*
+    cout << "Test for float3d\n";
+    float3d fish (testCPU[0]);
+    cout << fish.x << ", " << fish.y << ", " << fish.z << "\n";
+    float3d fish1 (1,2,3);
+    fish = fish1 - fish;
+    cout << fish.x << ", " << fish.y << ", " << fish.z << "\n";
+    float3d test;
+    fish = fish - test;
+    cout << fish.x << ", " << fish.y << ", " << fish.z << "\n";
+    float3d out = float3d::cross(fish,fish1);
+    cout << out.x << ", " << out.y << ", " << out.z << "\n";
+    cout << "normal: " << out.norm() << "\n";
+    cout << "dot: " << float3d::dot(fish, fish1) << "\n";
+    out = out / 2;
+    cout << "Division " << out.x << ", " << out.y << ", " << out.z << "\n";
+*/
+
     GPU_Cloud testCPUpc {
         testCPU, size
     };
@@ -144,14 +165,14 @@ void ObsDetector::update(sl::Mat &frame) {
     cudaMalloc(&testGPU, sizeof(float4)*size);
     cudaMemcpy(testGPU, testCPU, sizeof(sl::float4)*size, cudaMemcpyHostToDevice);
     GPU_Cloud testPC = { testGPU, size};
-  cout << "Copied over \n";
+    cout << "Copied over \n";
     // Processing 
-    passZ->run(testPC);
+    //passZ->run(testPC);
     cout << "Pass-Through ran\n";
-    //std::cout << "pre ransac:" << pc.size << endl;
-   /* ransacPlane->computeModel(pc, 1);
-    
-    
+    std::cout << "pre ransac:" << testPC.size << endl;
+    ransacPlane->computeModel(testPC, 1);
+    std::cout << "post ransac:" << testPC.size << endl;
+    /*
     
     Bins bins;
 
@@ -162,7 +183,7 @@ void ObsDetector::update(sl::Mat &frame) {
 
 
 
-    //std::cout << "post ransac:" << pc.size << endl;
+    //
     auto grabStart = high_resolution_clock::now();
     obstacles = ece->extractClusters(pc, bins); 
     auto grabEnd = high_resolution_clock::now();

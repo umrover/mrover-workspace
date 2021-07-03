@@ -36,6 +36,37 @@ struct GPU_Cloud {
     int size;
 };
 
+class float3d : public float3 {
+public:  
+
+    __host__ __device__ float3d () : float3{0, 0, 0} {}
+
+    __host__ __device__ float3d (float a, float b, float c) : float3{a,b,c} {}
+    
+    __host__ __device__ float3d (float4 in) : float3{in.x, in.y, in.z} {}
+    
+    __host__ __device__ float3d operator- (float3d b) {
+        return float3d(this->x - b.x, this->y - b.y, this->z - b.z);
+    }
+
+    __host__ __device__ static float3d cross (float3d a, float3d b) {
+        return float3d(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y-a.y*b.x);
+    }
+
+    __host__ __device__ static float dot (float3d a, float3d b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
+    }
+
+    __host__ __device__ float norm() {
+        return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
+    }
+
+    __host__ __device__ float3d operator/ (float a) {
+        return float3d(this->x/a, this->y/a, this->z/a);
+    }
+
+};
+
 /**
  * \class CompareFloat4
  * \brief Functor that compares Float4 values
@@ -111,6 +142,11 @@ GPU_Cloud_F4 createCloud(int size);
  * \brief Copys one GPU cloud's data to another
  */
 void copyCloud(GPU_Cloud_F4 &to, GPU_Cloud_F4 &from);
+
+/**
+ * \brief Copys one GPU cloud's data to another
+ */
+void copyCloud(GPU_Cloud &to, GPU_Cloud &from);
 
 /**
  * \brief Iterate through the unused memory in a GPU cloud and set it to zeros

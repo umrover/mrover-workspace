@@ -12,7 +12,7 @@
 #include <thrust/sequence.h>
 
 
-PassThrough::PassThrough(char axis, float min, float max) : min{min}, max{max}, axis(axis){};
+PassThrough::PassThrough(char axis, float min, float max) : min{min}, max{max}, axis{axis} {};
 
 
 //Functor predicate to check if a point is within some min and max bounds on a particular axis
@@ -21,7 +21,7 @@ class WithinBounds {
         WithinBounds(float min, float max, char axis) : min(min), max(max), axis(axis) {}
 
         __host__ __device__ bool operator()(const float4 val) {
-            float test;
+            float test = val.x;
             if(axis == 'z') test = val.z;
             else if(axis == 'y') test = val.y;
             return test > min && test < max;
