@@ -77,7 +77,7 @@ To get velocity estimates and current draw data \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo DriveVelData "./drive_vel_data"` 
 
 ### Setting Up A New Odrive 
-
+[Link to the most updated guide as of 2021](https://docs.google.com/document/d/1HmKRBJYMA4qaA--7KrE8OWiwN6Ck05E5CHhxUegaq0A/edit)
 #### Electrical Modifications
 <font size="4"> Typically the odrive does not have very good Hall Filtering capabilities, so some electrical modifications must be made prior to 
 our usage of it. Six 47nF capacitors will have to be soldered on to the odrive as shown 
