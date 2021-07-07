@@ -17,7 +17,7 @@ incdir = include_directories('include/')
 
 if with_zed
 
-    zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
+    zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include', '/usr/local/cuda/samples/common/inc')
     zed = declare_dependency(
         include_directories : zed_include_dirs,
         link_args : [
@@ -76,8 +76,8 @@ speed_args = ['--use_fast_math']
 # Not sure if the arch_args help at all. Might be worth investigating
 # These are specific to GPU. If you run deviceQuery and see your compute compatibility the major/minor corresponds to the numver listed below
 # My compute compatibility for these flags was 7.5
-# arch_args = ['-arch=compute_75', '-code=sm_75'] # this is breaking things on great lakes, its prob the wrong version like you said but we should automate that
-arch_args = []
+ arch_args = ['-arch=compute_75', '-code=sm_75'] # this is breaking things on great lakes, its prob the wrong version like you said but we should automate that
+#arch_args = []
 
 all_deps+=[lcm]
 

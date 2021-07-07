@@ -139,8 +139,8 @@ void ObsDetector::update(sl::Mat &frame) {
         {0,0,0,4},
         {10000,10000,10000,10000},
         {1,0,-1,4},
-        {2,0,3,4},
-        {0,0,1,4},
+        {2,0,2,4},
+        {0,0,2,4},
         {10000,-1,10001,10000}
     }; 
   /*
@@ -171,10 +171,10 @@ void ObsDetector::update(sl::Mat &frame) {
     GPU_Cloud testPC = { testGPU, size};
     cout << "Copied over \n";
     // Processing 
-    //passZ->run(testPC);
+    passZ->run(testPC);
     cout << "Pass-Through ran\n";
     std::cout << "pre ransac:" << testPC.size << endl;
-    ransacPlane->computeModel(testPC, 1);
+    //ransacPlane->computeModel(testPC, 1);
     std::cout << "post ransac:" << testPC.size << endl;
     /*
     
@@ -269,7 +269,8 @@ int main() {
     //obs.update();
     cout << "Here we go\n";
     //std::thread viewerTick( [&]{while(true) { obs.update();} });
-    
+    float3 corn = {1,2,3};
+    cout << dot(corn, corn) << "\n";
 
     while(true) {
         obs.update();

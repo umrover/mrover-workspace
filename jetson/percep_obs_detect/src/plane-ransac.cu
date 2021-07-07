@@ -276,12 +276,14 @@ __global__ void removeInliers(GPU_Cloud pc, GPU_Cloud out, int* optimalModelInde
         }
         return;
     }
+
+    if(pointIdx >= pc.size) return;
     /*
     if(pointIdx < pc.size) pc.data[pointIdx].w = 2.34184088514e-38;
     *newSize = pc.size; //pc.size/2;
     return;*/
 
-    float4 datum;
+    float4 datum = {0,0,0,0};
     int newIdx = pc.size-1;
     if (pointIdx == -1)
     {
@@ -291,7 +293,13 @@ __global__ void removeInliers(GPU_Cloud pc, GPU_Cloud out, int* optimalModelInde
 
         printf("Model points: {%f, %f, %f}\n", pc.data[modelPoints[*optimalModelIndex*3+2]].x, pc.data[modelPoints[*optimalModelIndex*3+2]].y, pc.data[modelPoints[*optimalModelIndex*3+2]].z);
     }
+
+    if (pointIdx == 0)
+    {
+        printf("Size: %i\n", pc.size);
+    }
     __syncthreads();
+
     if(pointIdx < pc.size) {
         float3d modelPt0 (pc.data[modelPoints[*optimalModelIndex*3]]);
         float3d modelPt1 (pc.data[modelPoints[*optimalModelIndex*3 + 1]]);
@@ -315,7 +323,7 @@ __global__ void removeInliers(GPU_Cloud pc, GPU_Cloud out, int* optimalModelInde
         //add a 0 if inlier, 1 if not 
         int flag = (d < threshold) ? 1 : 0; //very probalmatic line, how can we reduce these checks
         //int flag = (-1*abs(d - threshold)/(d - threshold) + 1 )/2;
-        
+        printf("Flag %i and d %f\n", flag, d);
         if(flag != 0) { //colors are ABGR in float space(LOL?????)
             pc.data[pointIdx].w = 2.35098856151e-38; //VIEWER_BGR_COLOR;
            // pc.data[pointIdx].x = 0;
@@ -421,14 +429,12 @@ RansacPlane::Plane RansacPlane::computeModel(GPU_Cloud &pc, bool flag) {
     GPU_Cloud tmpCloud; //exp
     tmpCloud.size = pc.size;
     std::cout << "Size: " << tmpCloud.size * sizeof(float4) << "\n";
-    float4* temp = nullptr;
-    cudaMalloc(&temp, tmpCloud.size * sizeof(float4));
+    cudaMalloc(&tmpCloud.data, tmpCloud.size * sizeof(float4));
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
     std::cout << "Malloced\n";
     usleep(1000000);
     this->pc = pc;
-    tmpCloud.data = temp;
     int blocks = iterations;
     int threads = MAX_THREADS;
     ransacKernel<<<blocks, threads>>>(pc, inlierCounts, modelPoints, threshold, axis, cos(epsilon*3.1415/180));

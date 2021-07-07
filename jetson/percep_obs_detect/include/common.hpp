@@ -1,5 +1,17 @@
 #include <sl/Camera.hpp>
 #include <thrust/functional.h>
+#include "helper_math.h"
+#include <stdlib.h>
+#include <cmath>
+#include <limits>
+#include <thrust/device_vector.h>
+#include <thrust/host_vector.h>
+#include <thrust/fill.h>
+#include <thrust/device_vector.h>
+#include <thrust/execution_policy.h>
+#include <thrust/iterator/transform_iterator.h>
+#include <thrust/sequence.h>
+#include <assert.h>
 
 #ifndef COMMON
 #define COMMON
@@ -36,6 +48,7 @@ struct GPU_Cloud {
     int size;
 };
 
+
 class float3d : public float3 {
 public:  
 
@@ -66,6 +79,7 @@ public:
     }
 
 };
+
 
 /**
  * \class CompareFloat4
@@ -175,7 +189,32 @@ __device__ __forceinline__ int hashToBin (sl::float4 &data, std::pair<float,floa
     return cpx*partitions*partitions+cpy*partitions+cpz;
 }
 
-#define MAX_THREADS 1024
+class IPredicateFunctor {
+public:
+    virtual __host__ __device__ bool operator()(const float4 val) = 0;
+};
 
+template<typename T>
+__host__ __device__ void filter(GPU_Cloud &cloud, T &pred) {
+    // Ensure pred is of the correct type
+    assert((std::is_base_of<IPredicateFunctor, T>::value));
+    
+    if(cloud.size == 0) return;
+
+    // Create thrust vector with all cloud point in it
+    thrust::device_vector<float4> buffer(cloud.data, cloud.data+cloud.size);
+
+    // Copy from the temp buffer back into the cloud only the points that pass the predicate 
+    float4* end = thrust::copy_if(thrust::device, buffer.begin(), buffer.end(), cloud.data, pred);
+
+    // Clear the remainder of the cloud of points that failed predicate
+    thrust::fill(thrust::device, end, cloud.data+cloud.size, float4{0, 0, 0, 0});
+
+    //update the cloud size
+    cloud.size = end - cloud.data;
+    printf("Cloud Size: %i\n", cloud.size);
+}
+
+#define MAX_THREADS 1024
 
 #endif
