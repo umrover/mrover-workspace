@@ -4,9 +4,8 @@ science nucleo to operate the science boxes and get relevant data
 '''
 import serial
 import asyncio
-import Adafruit_BBIO.UART as UART
+# import Adafruit_BBIO.UART as UART # for beaglebone use only
 import numpy as np
-# import re
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
@@ -15,20 +14,16 @@ from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, Na
 
 class ScienceBridge():
     def __init__(self):
-        UART.setup("UART4")  # Specific to beaglebone
+        # UART.setup("UART4")  # Specific to beaglebone
         # maps NMEA msgs to their handler
-        # mosfet, ammonia, and pump only send msgs
+        # mosfet, ammonia, and repeater only send msgs
         self.NMEA_HANDLE_MAPPER = {
             "SPECTRAL": self.spectral_handler,
             "THERMISTOR": self.thermistor_handler,
             "TXT": self.txt_handler,
             "REPEATER": self.repeater_handler
         }
-        self.NMEA_TRANSMIT_MAPPER = {
-            # "MOSFET" : self.mosfet_transmit,
-            # "AMMONIA" : self.ammonia_transmit,
-            # "PUMP" : self.pump_transmit
-        }
+
         self.max_error_count = 20
         self.sleep = .01
 
@@ -38,8 +33,8 @@ class ScienceBridge():
         Not sure what the uart port on the jetson is
         '''
         self.ser = serial.Serial(
-            port='/dev/ttyS4',
-            # port='/dev/ttyTHS0',
+            # port='/dev/ttyS4',
+            port='/dev/ttyTHS0',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -183,7 +178,6 @@ class ScienceBridge():
         struct = AmmoniaCmd.decode(msg)
         print("Received Ammonia Cmd")
         # parse data into expected format
-        # self.ser.write(bytes(struct.data))
         message = "$AMMONIA,{speed}"
         message = message.format(speed=struct.speed)
         print(len(message))
@@ -194,14 +188,6 @@ class ScienceBridge():
         self.ser.open()
         if self.ser.isOpen():
             self.ser.write(bytes(message, encoding='utf-8'))
-
-    # #if ser.isOpen():
-    # while(1):
-    #     print("Serial is open!")
-    #     ser.write("$AMMONIA,0,,,".encode('utf-8'))
-    #     time.sleep(1)
-    # ser.close()
-    # #
 
     async def recieve(self, lcm):
         spectral = SpectralData()
@@ -265,7 +251,6 @@ def main():
         _lcm.subscribe("/nav_status", bridge.nav_status)
         _lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         print("properly started")
-        # lcm.subscribe("/pump_cmd", bridge.pump_transmit)
         run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
 
 
