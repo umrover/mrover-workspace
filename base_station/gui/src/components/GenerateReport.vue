@@ -1,6 +1,6 @@
 <template>
     <div>
-        <button v-on:click="download_csv_file()">Generate Report</button>
+        <button v-on:click="download_csv_file(spectral_data)">Generate Report</button>
     </div>
 </template>
 
@@ -29,17 +29,19 @@ export default {
       })
     },
     methods:{    
-    download_csv_file: function() {  
-
+    download_csv_file: function(spectral_data) {  
+        const time = new Date(Date.now())
+        const timeString = time.toTimeString().substring(0,17) +" "+time.toDateString()
         this.csvFileData = [  
-        ['Alan Walker', 'Singer'],  
-        ['Cristiano Ronaldo', 'Footballer'],  
-        ['Saina Nehwal', 'Badminton Player'],  
-        ['Arijit Singh', 'Singer'],  
-        ['Terence Lewis', 'Dancer']  
+        [timeString, spectral_data.d0_1,spectral_data.d1_1,spectral_data.d2_1,this.temp0],  
+        [timeString, spectral_data.d0_2,spectral_data.d1_2,spectral_data.d2_2,this.temp1],  
+        [timeString, spectral_data.d0_3,spectral_data.d1_3,spectral_data.d2_3,this.temp2],  
+        [timeString, spectral_data.d0_4,spectral_data.d1_4,spectral_data.d2_4,],  
+        [timeString, spectral_data.d0_5,spectral_data.d1_5,spectral_data.d2_5,],  
+        [timeString, spectral_data.d0_6,spectral_data.d1_6,spectral_data.d2_6,]
         ];  
         //define the heading for each row of the data  
-        var csv = 'Name,Profession\n';  
+        var csv = 'Timestamp,Spectral 0,Spectral 1, Spectral 2, Temps\n';  
         
         //merge the data with CSV  
         this.csvFileData.forEach(function(row) {  
@@ -53,7 +55,7 @@ export default {
         hiddenElement.target = '_blank';  
         
         //provide the name for the CSV file to be downloaded  
-        hiddenElement.download = 'Famous Personalities.csv';  
+        hiddenElement.download = 'Report'+ timeString+'.csv';  
         hiddenElement.click();  
     }  
     }
