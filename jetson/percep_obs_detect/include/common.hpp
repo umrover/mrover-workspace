@@ -48,7 +48,7 @@ struct GPU_Cloud {
     int size;
 };
 
-
+/**
 class float3d : public float3 {
 public:  
 
@@ -79,7 +79,7 @@ public:
     }
 
 };
-
+*/
 
 /**
  * \class CompareFloat4

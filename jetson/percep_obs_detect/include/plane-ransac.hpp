@@ -13,9 +13,9 @@ class RansacPlane {
          * \brief Defines the found plane by 3 points
          */
         struct Plane {
-            float3d p1;
-            float3d p2;
-            float3d p3;
+            float3 p1;
+            float3 p2;
+            float3 p3;
         };
 
         /**
@@ -27,7 +27,7 @@ class RansacPlane {
          * \param pcSize The maximum expected size of a point cloud passed to this algorithm (use the frame resolution area)
          * \param removalRadius The max distance of points from the detected plane to be removed 
          */
-        RansacPlane(float3d axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius);
+        RansacPlane(float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius);
 
         ~RansacPlane();
 
@@ -50,7 +50,7 @@ class RansacPlane {
     private:
         //user given model parms
         GPU_Cloud pc;
-        float3d axis;
+        float3 axis;
         float epsilon;
         int iterations;
         float threshold;
