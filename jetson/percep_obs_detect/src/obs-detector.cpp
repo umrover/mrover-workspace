@@ -70,8 +70,8 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     //Obs Detecting Algorithm Params
     passZ = new PassThrough('z', 1.0, 3.0); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, 8, 80);
-    voxelGrid = new VoxelGrid(10);
-    ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
+    // voxelGrid = new VoxelGrid(10);
+    // ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
 }
         
 
@@ -227,11 +227,11 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 void ObsDetector::spinViewer() {
     if(viewer == ViewerType::GL) {
         glViewer.isAvailable();
-        updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
-        updateProjectedLines(ece->bearingRight, ece->bearingLeft);
+        // updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
+        // updateProjectedLines(ece->bearingRight, ece->bearingLeft);
     } else if(viewer == ViewerType::PCLV) {
         pclViewer->removeAllShapes();
-        for(int i = 0; i < obstacles.size; i++) {
+        /*for(int i = 0; i < obstacles.size; i++) {
             float xMin = obstacles.minX[i];
             float xMax = obstacles.maxX[i];
             float yMin = obstacles.minY[i];
@@ -245,7 +245,7 @@ void ObsDetector::spinViewer() {
             pclViewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, to_string(i));
             pclViewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 3, to_string(i));
 
-        }
+        }*/
         pclViewer->spinOnce(10);
     }
 }
@@ -258,7 +258,7 @@ void ObsDetector::startRecording(std::string directory) {
  ObsDetector::~ObsDetector() {
      delete passZ;
      delete ransacPlane;
-     delete ece;
+     // delete ece;
  }
 
 

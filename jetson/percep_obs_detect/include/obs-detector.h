@@ -4,12 +4,12 @@
 #include "plane-ransac.hpp"
 #include "pass-through.hpp"
 #include "GLViewer.hpp"
-#include "euclidean-cluster.hpp"
+// #include "euclidean-cluster.hpp"
 #include <thread>
 #include "Timer.hpp"
 #include "common.hpp"
 #include "pcl.hpp"
-#include "voxel-grid.hpp"
+// #include "voxel-grid.hpp"
 #include <lcm/lcm-cpp.hpp>
 #include "rover_msgs/Obstacle.hpp"
 #include <boost/interprocess/shared_memory_object.hpp>
@@ -120,8 +120,8 @@ class ObsDetector {
         //Detection algorithms 
         PassThrough *passZ;
         RansacPlane *ransacPlane;
-        VoxelGrid *voxelGrid;
-        EuclideanClusterExtractor *ece;
+        //VoxelGrid *voxelGrid;
+        //EuclideanClusterExtractor *ece;
 
         //Paramaters
         sl::Resolution cloud_res;
@@ -131,7 +131,7 @@ class ObsDetector {
         
         //Output data
         Plane planePoints;
-        EuclideanClusterExtractor::ObsReturn obstacles;
+        // EuclideanClusterExtractor::ObsReturn obstacles;
         float leftBearing;
         float rightBearing;
         float distance;

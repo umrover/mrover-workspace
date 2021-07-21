@@ -87,7 +87,7 @@ add_global_arguments('-w', language : 'cpp')
 add_global_arguments('-w', language : 'cuda')
 
 
-exe = executable('percep_obs_detect', 'src/obs-detector.cpp', 'src/common.cu', 'src/euclidean-cluster.cu', 'src/find-clear.cu', 'src/GLViewer.cpp', 
-                'src/pass-through.cu', 'src/pcl.cpp', 'src/plane-ransac.cu', 'src/voxel-grid.cu', install : true, dependencies : all_deps, include_directories : incdir,
+exe = executable('percep_obs_detect', 'src/obs-detector.cpp', 'src/common.cu', 'src/GLViewer.cpp', 
+                'src/pass-through.cu', 'src/pcl.cpp', 'src/plane-ransac.cu', install : true, dependencies : all_deps, include_directories : incdir,
                 cuda_args : arch_args )
 #exe = executable('jetson_obs_detector', 'src/driver.cpp' , install : true, dependencies : all_deps, include_directories : incdir)
