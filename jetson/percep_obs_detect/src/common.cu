@@ -117,11 +117,40 @@ __global__ __forceinline__ void colorKernel(GPU_Cloud &cloud, T &pred, float col
         cloud.data[pointIdx].w = color;
     }
 }
-
+/*
 template <typename T>
 void kernel_wrapper(GPU_Cloud &cloud, T &pred, float color) {
 colorKernel<T><<<ceilDiv(cloud.size, MAX_THREADS), MAX_THREADS>>>(cloud, pred, color);
   cudaDeviceSynchronize();
+}
+*/
+template<typename T>
+void Filter(GPU_Cloud &cloud, T &pred, FilterOp operation, float color) {
+    // Ensure pred is of the correct type
+    assert((std::is_base_of<IPredicateFunctor, T>::value));
+    
+    if(cloud.size == 0) return;
+
+    if (operation == FilterOp::REMOVE) {
+        // Create thrust vector with all cloud point in it
+        thrust::device_vector<float4> buffer(cloud.data, cloud.data+cloud.size);
+
+        // Copy from the temp buffer back into the cloud only the points that pass the predicate 
+        float4* end = thrust::copy_if(thrust::device, buffer.begin(), buffer.end(), cloud.data, pred);
+
+        // Clear the remainder of the cloud of points that failed predicate
+        thrust::fill(thrust::device, end, cloud.data+cloud.size, float4{0, 0, 0, 0});
+
+        //update the cloud size
+        cloud.size = end - cloud.data;
+    }
+    else if (operation == FilterOp::COLOR) {
+        // Color in the points
+        // kernel_wrapper<T>(cloud, pred, color);
+        colorKernel<T><<<ceilDiv(cloud.size, MAX_THREADS), MAX_THREADS>>>(cloud, pred, color);
+    }
+    
+    printf("Cloud Size: %i\n", cloud.size);
 }
 
 template void Filter(GPU_Cloud &cloud, WithinBounds &pred, FilterOp operation, float color);

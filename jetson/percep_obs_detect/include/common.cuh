@@ -163,38 +163,12 @@ public:
 };
 
 enum class FilterOp {REMOVE, COLOR};
-
+/*
 template <typename T>
 void kernel_wrapper(GPU_Cloud &cloud, T &pred, float color);
-
+*/
 template<typename T>
-void Filter(GPU_Cloud &cloud, T &pred, FilterOp operation, float color) {
-    // Ensure pred is of the correct type
-    assert((std::is_base_of<IPredicateFunctor, T>::value));
-    
-    if(cloud.size == 0) return;
-
-    if (operation == FilterOp::REMOVE) {
-        // Create thrust vector with all cloud point in it
-        thrust::device_vector<float4> buffer(cloud.data, cloud.data+cloud.size);
-
-        // Copy from the temp buffer back into the cloud only the points that pass the predicate 
-        float4* end = thrust::copy_if(thrust::device, buffer.begin(), buffer.end(), cloud.data, pred);
-
-        // Clear the remainder of the cloud of points that failed predicate
-        thrust::fill(thrust::device, end, cloud.data+cloud.size, float4{0, 0, 0, 0});
-
-        //update the cloud size
-        cloud.size = end - cloud.data;
-    }
-    else if (operation == FilterOp::COLOR) {
-        // Color in the points
-        kernel_wrapper<T>(cloud, pred, color);
-        
-    }
-    
-    printf("Cloud Size: %i\n", cloud.size);
-}
+void Filter(GPU_Cloud &cloud, T &pred, FilterOp operation, float color);
 
 //Functor predicate to check if a point is within some min and max bounds on a particular axis
 class WithinBounds : public IPredicateFunctor {
