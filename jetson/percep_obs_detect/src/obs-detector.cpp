@@ -1,5 +1,5 @@
 #include "obs-detector.h"
-#include "common.hpp"
+#include "common.cuh"
 #include <chrono>
 using namespace std;
 using namespace std::chrono;
@@ -132,6 +132,8 @@ void ObsDetector::update(sl::Mat &frame) {
     GPU_Cloud_F4 pc; 
     pc = getRawCloud(frame);
 */
+
+// TEST CODE
     int size = 8;
     float4 testCPU[size] = {
         {1,0,-2,4},
@@ -143,23 +145,6 @@ void ObsDetector::update(sl::Mat &frame) {
         {0,0,2,4},
         {10000,-10000,10001,10000}
     }; 
-  /*
-    cout << "Test for float3d\n";
-    float3d fish (testCPU[0]);
-    cout << fish.x << ", " << fish.y << ", " << fish.z << "\n";
-    float3d fish1 (1,2,3);
-    fish = fish1 - fish;
-    cout << fish.x << ", " << fish.y << ", " << fish.z << "\n";
-    float3d test;
-    fish = fish - test;
-    cout << fish.x << ", " << fish.y << ", " << fish.z << "\n";
-    float3d out = float3d::cross(fish,fish1);
-    cout << out.x << ", " << out.y << ", " << out.z << "\n";
-    cout << "normal: " << out.norm() << "\n";
-    cout << "dot: " << float3d::dot(fish, fish1) << "\n";
-    out = out / 2;
-    cout << "Division " << out.x << ", " << out.y << ", " << out.z << "\n";
-*/
 
     GPU_Cloud testCPUpc {
         testCPU, size
@@ -170,6 +155,8 @@ void ObsDetector::update(sl::Mat &frame) {
     cudaMemcpy(testGPU, testCPU, sizeof(sl::float4)*size, cudaMemcpyHostToDevice);
     GPU_Cloud testPC = { testGPU, size};
     cout << "Copied over \n";
+
+
     // Processing 
     // passZ->run(testPC);
     cout << "Pass-Through ran\n";
@@ -264,17 +251,15 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::ZED, OperationMode::SILENT, ViewerType::PCLV);
+    ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
     //obs.update();
     cout << "Here we go\n";
     //std::thread viewerTick( [&]{while(true) { obs.update();} });
-    float3 corn = {1,2,3};
-    cout << dot(corn, corn) << "\n";
 
+    obs.update();
     while(true) {
-        obs.update();
-       // obs.spinViewer();
+        obs.spinViewer();
     }
     
 

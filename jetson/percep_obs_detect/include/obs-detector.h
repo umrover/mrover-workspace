@@ -6,8 +6,8 @@
 #include "GLViewer.hpp"
 // #include "euclidean-cluster.hpp"
 #include <thread>
-#include "Timer.hpp"
-#include "common.hpp"
+#include "timer.hpp"
+#include "common.cuh"
 #include "pcl.hpp"
 // #include "voxel-grid.hpp"
 #include <lcm/lcm-cpp.hpp>

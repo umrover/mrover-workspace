@@ -23,6 +23,7 @@
 #define VIEWER_BGR_COLOR 2.14804915479e-38
 // Temporary #define we can use until voxel grid is fully implemented
 #define VOXEL 0
+#define MAX_THREADS 1024
 
 /**
  * \struct GPU_Cloud_F4
@@ -161,27 +162,77 @@ public:
     virtual __host__ __device__ bool operator()(const float4 val) = 0;
 };
 
+enum class FilterOp {REMOVE, COLOR};
+
+template <typename T>
+void kernel_wrapper(GPU_Cloud &cloud, T &pred, float color);
+
 template<typename T>
-__host__ __device__ void Filter(GPU_Cloud &cloud, T &pred) {
+void Filter(GPU_Cloud &cloud, T &pred, FilterOp operation, float color) {
     // Ensure pred is of the correct type
     assert((std::is_base_of<IPredicateFunctor, T>::value));
     
     if(cloud.size == 0) return;
 
-    // Create thrust vector with all cloud point in it
-    thrust::device_vector<float4> buffer(cloud.data, cloud.data+cloud.size);
+    if (operation == FilterOp::REMOVE) {
+        // Create thrust vector with all cloud point in it
+        thrust::device_vector<float4> buffer(cloud.data, cloud.data+cloud.size);
 
-    // Copy from the temp buffer back into the cloud only the points that pass the predicate 
-    float4* end = thrust::copy_if(thrust::device, buffer.begin(), buffer.end(), cloud.data, pred);
+        // Copy from the temp buffer back into the cloud only the points that pass the predicate 
+        float4* end = thrust::copy_if(thrust::device, buffer.begin(), buffer.end(), cloud.data, pred);
 
-    // Clear the remainder of the cloud of points that failed predicate
-    thrust::fill(thrust::device, end, cloud.data+cloud.size, float4{0, 0, 0, 0});
+        // Clear the remainder of the cloud of points that failed predicate
+        thrust::fill(thrust::device, end, cloud.data+cloud.size, float4{0, 0, 0, 0});
 
-    //update the cloud size
-    cloud.size = end - cloud.data;
+        //update the cloud size
+        cloud.size = end - cloud.data;
+    }
+    else if (operation == FilterOp::COLOR) {
+        // Color in the points
+        kernel_wrapper<T>(cloud, pred, color);
+        
+    }
+    
     printf("Cloud Size: %i\n", cloud.size);
 }
 
-#define MAX_THREADS 1024
+//Functor predicate to check if a point is within some min and max bounds on a particular axis
+class WithinBounds : public IPredicateFunctor {
+    
+public:
+    WithinBounds(float min, float max, char axis) : min(min), max(max), axis(axis) {}
+
+    virtual __host__ __device__ bool operator()(const float4 val) override {
+        float test = val.x;
+        if(axis == 'z') test = val.z;
+        else if(axis == 'y') test = val.y;
+        return test > min && test < max;
+    }
+
+private:
+    float min, max;
+    char axis;
+};
+
+// Functor predicate to check if a point is 
+class InPlane : public IPredicateFunctor {
+    public:
+    InPlane(float3 planeNormal, int threshold) : planeNormal{ planeNormal }, threshold{ threshold } {}
+
+    virtual __host__ __device__ bool operator()(const float4 val) override {
+        
+        // Compute distsance point is from plane
+        float3 curPt = make_float3(val.x, val.y, val.z);
+        float3 d_to_model_pt = curPt - planeNormal;
+        float d = abs(dot(planeNormal, d_to_model_pt));
+
+        // Check distance against threshold
+        return (d < threshold) ? 1 : 0;
+    }
+
+private:
+    float3 planeNormal;
+    int threshold;
+};
 
 #endif

@@ -1,5 +1,5 @@
 #pragma once
-#include "common.hpp"
+#include "common.cuh"
 
 /** 
  * \class Plane
@@ -43,26 +43,6 @@ public:
     };
 };
 
-// Functor predicate to check if a point is 
-class InPlane : public IPredicateFunctor {
-    public:
-    InPlane(float3 planeNormal, int threshold) : planeNormal{ planeNormal }, threshold{ threshold } {}
-
-    virtual __host__ __device__ bool operator()(const float4 val) override {
-        
-        // Compute distsance point is from plane
-        float3 curPt = make_float3(val.x, val.y, val.z);
-        float3 d_to_model_pt = curPt - planeNormal;
-        float d = abs(dot(planeNormal, d_to_model_pt));
-
-        // Check distance against threshold
-        return (d < threshold) ? 1 : 0;
-    }
-
-private:
-    float3 planeNormal;
-    int threshold;
-};
 
 /** 
  * \class RansacPlane

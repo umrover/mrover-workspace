@@ -1,26 +1,8 @@
 #pragma once
-#include "common.hpp"
+#include "common.cuh"
 
 #ifndef PASS_THROUGH
 #define PASS_THROUGH
-
-//Functor predicate to check if a point is within some min and max bounds on a particular axis
-class WithinBounds : public IPredicateFunctor {
-    
-public:
-    WithinBounds(float min, float max, char axis) : min(min), max(max), axis(axis) {}
-
-    virtual __host__ __device__ bool operator()(const float4 val) override {
-        float test = val.x;
-        if(axis == 'z') test = val.z;
-        else if(axis == 'y') test = val.y;
-        return test > min && test < max;
-    }
-
-private:
-    float min, max;
-    char axis;
-};
 
 /** 
  * \class PassThrough

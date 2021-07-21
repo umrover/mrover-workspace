@@ -1,4 +1,4 @@
-#include "common.hpp"
+#include "common.cuh"
 #include <iostream>
 #include <sl/Camera.hpp>
 
@@ -100,7 +100,6 @@ __device__ __forceinline__ float atomicMinFloat (float * addr, float value) {
     return old;
 }
 
-
 __device__ __forceinline__ float atomicMaxFloat (float * addr, float value) {
     float old;
     old = (value >= 0) ? __int_as_float(atomicMax((int *)addr, __float_as_int(value))) :
@@ -108,3 +107,22 @@ __device__ __forceinline__ float atomicMaxFloat (float * addr, float value) {
 
     return old;
 }
+
+template<typename T>
+__global__ __forceinline__ void colorKernel(GPU_Cloud &cloud, T &pred, float color) {
+    int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;
+    if (pointIdx >= cloud.size) return;
+
+    if (pred(cloud.data[pointIdx])) {
+        cloud.data[pointIdx].w = color;
+    }
+}
+
+template <typename T>
+void kernel_wrapper(GPU_Cloud &cloud, T &pred, float color) {
+colorKernel<T><<<ceilDiv(cloud.size, MAX_THREADS), MAX_THREADS>>>(cloud, pred, color);
+  cudaDeviceSynchronize();
+}
+
+template void Filter(GPU_Cloud &cloud, WithinBounds &pred, FilterOp operation, float color);
+template void Filter(GPU_Cloud &cloud, InPlane &pred, FilterOp operation, float color);

@@ -1,5 +1,4 @@
 #include "plane-ransac.hpp"
-#include "common.hpp"
 #include <stdlib.h>
 #include<unistd.h>
 
@@ -59,7 +58,6 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
     float3 v2 (modelPt2 - modelPt0);
     
     //get a vector normal to the plane model
-    // TODO-MGM check this
     float3 n = cross(v1, v2);
 
     //add this constraint later
@@ -90,7 +88,6 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
         
         //add a 0 if inlier, 1 if not 
         inliers += (d < threshold) ? 1 : 0; //very probalmatic line, how can we reduce these checks
-        //inliers += (-1*abs(d - threshold)/(d - threshold) + 1 )/2;
     }
     
     //parallel reduction to get an aggregate sum of the number of inliers for this model
@@ -164,11 +161,9 @@ __global__ void selectOptimalRansacModel(GPU_Cloud pc, float* inlierCounts, int*
 
     //at the final thread, write to global memory
     if(threadIdx.x < 3) {
-       // printf("--> model with most inliers is model: %d \n", modelIndiciesLocal[0]);
-       // pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x]].w =  9.14767637511e-41;//; //debug featre color model pt
-
         float3 pt = make_float3(pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ].x, pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ].y, pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ].z);
 
+        // Set output model
         optimalModelOut[threadIdx.x].x = pt.x; 
         optimalModelOut[threadIdx.x].y = pt.y; 
         optimalModelOut[threadIdx.x].z = pt.z;
@@ -340,14 +335,13 @@ void removeInliers(GPU_Cloud pc, GPU_Cloud out, int* optimalModelIndex, int* mod
 }
 */
 RansacPlane::RansacPlane(float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius)
-: pc(pc), axis(axis), epsilon(epsilon), iterations(iterations), threshold(threshold), removalRadius(removalRadius)  {
+    : pc(pc), axis(axis), epsilon(epsilon), iterations(iterations), threshold(threshold), removalRadius(removalRadius)  {
+    
     //Set up buffers needed for RANSAC
     cudaMalloc(&inlierCounts, sizeof(float) * iterations); 
     cudaMalloc(&modelPoints, sizeof(int) * iterations * 3);
     cudaMalloc(&selection, sizeof(Plane));
     cudaMalloc(&optimalModelIndex, sizeof(int));
-
-    std::cout << "RANSAC Constructor, random indicies: " << std::endl;
 
     //Generate random numbers in CPU to use in RANSAC kernel
     int* randomNumsCPU = (int*) malloc(sizeof(int) * iterations* 3);
@@ -365,24 +359,13 @@ RansacPlane::RansacPlane(float3 axis, float epsilon, int iterations, float thres
         randomNumsCPU[i*3] = a;
         randomNumsCPU[i*3 + 1] = b;
         randomNumsCPU[i*3 + 2] = c; 
-        
-       // std::cout << a <<  ", " << b << ", " << c << std::endl;
     }
-    /*
-    randomNumsCPU[0] = 2;
-    randomNumsCPU[1] = 8;
-    randomNumsCPU[2] = 1;
-    */
-
-    std::cout << std::endl << std::endl;
 
     cudaMemcpy(modelPoints, randomNumsCPU, sizeof(int) * iterations * 3, cudaMemcpyHostToDevice);
     free(randomNumsCPU);
 
-    //Generate a buffer for retreiving the selected model from CUDA Kernels
+    // Generate a buffer for retreiving the selected model from CUDA Kernels
     selectedModel = (Plane*) malloc(sizeof(Plane)); 
-
-
 }
 
 /*  
@@ -468,7 +451,7 @@ Plane RansacPlane::computeModel(GPU_Cloud &pc, bool flag) {
     // Remove points lying in the plane
     cudaMemcpy(selectedModel, selection, sizeof(Plane), cudaMemcpyDeviceToHost);
     InPlane predicate(selectedModel->normal, threshold); 
-    Filter<InPlane>(pc, predicate);
+    Filter<InPlane>(pc, predicate, FilterOp::REMOVE, 0);
 
     //for(int i = 0; i < 3; i++) {
     //    cout << "model " << i << ":" << selectedModel[0] << selected 
