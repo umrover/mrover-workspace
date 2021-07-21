@@ -195,7 +195,7 @@ public:
 };
 
 template<typename T>
-__host__ __device__ void filter(GPU_Cloud &cloud, T &pred) {
+__host__ __device__ void Filter(GPU_Cloud &cloud, T &pred) {
     // Ensure pred is of the correct type
     assert((std::is_base_of<IPredicateFunctor, T>::value));
     

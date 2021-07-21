@@ -2,22 +2,75 @@
 #include "common.hpp"
 
 /** 
+ * \class Plane
+ * \brief Defines the found plane by 3 points
+ */
+class Plane {
+public:
+    float3 p0;
+    float3 p1;
+    float3 p2;
+    float3 normal;
+
+    Plane() {
+        float3 zero = make_float3(0,0,0);
+        p0 = zero;
+        p1 = zero;
+        p2 = zero;
+        normal = zero;
+    };
+
+    Plane(float3 p0, float3 p1, float3 p2) : p0{ p0 }, p1{ p1 }, p2{ p2 } {
+        ComputeNormal();
+    };
+
+    __host__ __device__ void ComputeNormal() {
+        // Get the two vectors on the plane
+        float3 v1 (p1 - p0);
+        float3 v2 (p2 - p0);
+
+        //Get vector normal to plane
+        normal = cross(v1, v2);
+    }
+
+    __host__ __device__ float3 &operator[](int pt) {
+        if (pt == 0)
+            return p0;
+        else if (pt == 1)
+            return p1;
+        else
+            return p2;
+    };
+};
+
+// Functor predicate to check if a point is 
+class InPlane : public IPredicateFunctor {
+    public:
+    InPlane(float3 planeNormal, int threshold) : planeNormal{ planeNormal }, threshold{ threshold } {}
+
+    virtual __host__ __device__ bool operator()(const float4 val) override {
+        
+        // Compute distsance point is from plane
+        float3 curPt = make_float3(val.x, val.y, val.z);
+        float3 d_to_model_pt = curPt - planeNormal;
+        float d = abs(dot(planeNormal, d_to_model_pt));
+
+        // Check distance against threshold
+        return (d < threshold) ? 1 : 0;
+    }
+
+private:
+    float3 planeNormal;
+    int threshold;
+};
+
+/** 
  * \class RansacPlane
  * \brief Uses RANSAC segmentation method to extract a plane in the point cloud. Computes a plane perpendicular to the given axis within the tolerance that fits 
  * the most data using the RANSAC algorithm
  */
 class RansacPlane {
     public:
-        /** 
-         * \class Plane
-         * \brief Defines the found plane by 3 points
-         */
-        struct Plane {
-            float3 p1;
-            float3 p2;
-            float3 p3;
-        };
-
         /**
          * \brief RansacPlane constructor 
          * \param axis Unit vector giving the axis normal to the plane we're trying to find
@@ -59,12 +112,12 @@ class RansacPlane {
         //internal info [GPU]
         float* inlierCounts; 
         int* modelPoints; 
-        float* selection;
+        Plane* selection;
         int* inlierListGPU;
         int* optimalModelIndex;
 
         //internal info [CPU]
-        float* selectedModel;
+        Plane* selectedModel;
         //int* inlierList;
         
 

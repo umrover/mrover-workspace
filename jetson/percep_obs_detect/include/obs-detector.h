@@ -130,7 +130,7 @@ class ObsDetector {
         std::string readDir;
         
         //Output data
-        RansacPlane::Plane planePoints;
+        Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
         float leftBearing;
         float rightBearing;

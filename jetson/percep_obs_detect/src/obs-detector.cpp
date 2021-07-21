@@ -69,7 +69,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 
     //Obs Detecting Algorithm Params
     passZ = new PassThrough('z', 1.0, 3.0); //7000
-    ransacPlane = new RansacPlane(float3d(0, 1, 0), 8, 600, 80, 8, 80);
+    ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, 8, 80);
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
 }
@@ -141,7 +141,7 @@ void ObsDetector::update(sl::Mat &frame) {
         {1,0,-1,4},
         {2,0,2,4},
         {0,0,2,4},
-        {10000,-1,10001,10000}
+        {10000,-10000,10001,10000}
     }; 
   /*
     cout << "Test for float3d\n";
@@ -171,10 +171,10 @@ void ObsDetector::update(sl::Mat &frame) {
     GPU_Cloud testPC = { testGPU, size};
     cout << "Copied over \n";
     // Processing 
-    passZ->run(testPC);
+    // passZ->run(testPC);
     cout << "Pass-Through ran\n";
     std::cout << "pre ransac:" << testPC.size << endl;
-    //ransacPlane->computeModel(testPC, 1);
+    ransacPlane->computeModel(testPC, 1);
     std::cout << "post ransac:" << testPC.size << endl;
     /*
     

@@ -6,7 +6,7 @@ PassThrough::PassThrough(char axis, float min, float max) :
 
 //Execute pass through
 void PassThrough::run(GPU_Cloud &cloud){
-    filter<WithinBounds> (cloud, *withinBoundsPtr);
+    Filter<WithinBounds> (cloud, *withinBoundsPtr);
 }
 
 // PassThrough Destructor
