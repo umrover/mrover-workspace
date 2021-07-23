@@ -20,7 +20,7 @@ public:
         normal = zero;
     };
 
-    Plane(float3 p0, float3 p1, float3 p2) : p0{ p0 }, p1{ p1 }, p2{ p2 } {
+    __host__ __device__ Plane(float3 p0, float3 p1, float3 p2) : p0{ p0 }, p1{ p1 }, p2{ p2 } {
         ComputeNormal();
     };
 

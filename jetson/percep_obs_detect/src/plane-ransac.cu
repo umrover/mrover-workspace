@@ -53,21 +53,19 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
     float3 modelPt1 = make_float3(pc.data[randIdx1].x, pc.data[randIdx1].y, pc.data[randIdx1].z);
     float3 modelPt2 = make_float3(pc.data[randIdx2].x, pc.data[randIdx2].y, pc.data[randIdx2].z);    
 
-    // get the two vectors on the plane defined by the model points
-    float3 v1 (modelPt1 - modelPt0);
-    float3 v2 (modelPt2 - modelPt0);
-    
-    //get a vector normal to the plane model
-    float3 n = cross(v1, v2);
+    // Create a plane from the 3 points
+    Plane plane(modelPt0, modelPt1, modelPt2);
 
     //add this constraint later
     //check that n dot desired axis is less than epsilon, if so, return here 
-    if(abs(dot(normalize(n), normalize(axis))) < epsilon) {
+    if(abs(dot(normalize(plane.normal), normalize(axis))) < epsilon) {
         //if(threadIdx.x == 0) printf("eliminating model for axis tolerance failure %d \n", iteration);
         if(threadIdx.x == 0) inlierCounts[iteration] = 0; //make it -1 to show invalid model?
         return;
     }
 
+    // Construct predicate to chek if a point is in the plane
+    InPlane pred(plane.normal, threshold, modelPt1);
 
     // figure out how many points each thread must compute distance for and determine if each is inlier/outlier
     int pointsPerThread = ceilDivGPU(pc.size, MAX_THREADS);
@@ -77,17 +75,17 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
         if(pointIdx >= pc.size) continue; //TODO Should this be return??? 
         
         // point in the point cloud that could be an inlier or outlier
-        float3 curPt = make_float3(pc.data[pointIdx].x, pc.data[pointIdx].y, pc.data[pointIdx].z);
-        if(curPt.x == 0 && curPt.y == 0 && curPt.z == 0) continue; //TEMPORARY (0,0,0 removal) until passthru
+        float4 curPt = make_float4(pc.data[pointIdx].x, pc.data[pointIdx].y, pc.data[pointIdx].z, 0);
+        // if(curPt.x == 0 && curPt.y == 0 && curPt.z == 0) continue; //TEMPORARY (0,0,0 removal) until passthru
         
         //calculate distance of cur pt to the plane formed by the 3 model points [see doc for the complete derrivation]
-        float3 d_to_model_pt = (curPt - modelPt1);
+        // float3 d_to_model_pt = (curPt - modelPt1);
         
         // float d = abs(float3(n, d_to_model_pt)) / n.norm();
-        float d = abs( dot( normalize(n), d_to_model_pt));
+        // float d = abs( dot( normalize(n), d_to_model_pt));
         
         //add a 0 if inlier, 1 if not 
-        inliers += (d < threshold) ? 1 : 0; //very probalmatic line, how can we reduce these checks
+        inliers += (pred(curPt)) ? 1 : 0; //very probalmatic line, how can we reduce these checks
     }
     
     //parallel reduction to get an aggregate sum of the number of inliers for this model
@@ -456,8 +454,9 @@ Plane RansacPlane::computeModel(GPU_Cloud &pc, bool flag) {
 
     // Remove points lying in the plane
     cudaMemcpy(selectedModel, selection, sizeof(Plane), cudaMemcpyDeviceToHost);
-    InPlane predicate(selectedModel->normal, threshold);
-    Filter<InPlane>(pc, predicate, FilterOp::COLOR, 0);
+    std::cout << "Normal CPU: " << selectedModel->normal.x << " " << selectedModel->normal.y << " " << selectedModel->normal.z << "\n";
+    InPlane predicate(selectedModel->normal, threshold, selectedModel->p1);
+    Filter<InPlane>(pc, predicate, FilterOp::REMOVE, 0);
     // colorKernel<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, predicate, 0);
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());

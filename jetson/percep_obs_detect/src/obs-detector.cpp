@@ -68,7 +68,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     defParams.image_size.height = 90;
 
     //Obs Detecting Algorithm Params
-    passZ = new PassThrough('z', 100, 2000); //7000
+    passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     // voxelGrid = new VoxelGrid(10);
     // ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
@@ -163,7 +163,7 @@ void ObsDetector::update(sl::Mat &frame) {
     passZ->run(pc);
     cout << "Pass-Through ran\n";
     std::cout << "pre ransac:" << pc.size << endl;
-    //ransacPlane->computeModel(pc, 1);
+    ransacPlane->computeModel(pc, 1);
     std::cout << "post ransac:" << pc.size << endl;
     /*
     

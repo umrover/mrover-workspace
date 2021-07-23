@@ -184,25 +184,26 @@ private:
     char axis;
 };
 
-// Functor predicate to check if a point is 
+// Functor predicate to check if a point is considered within the plane
 class InPlane : public IPredicateFunctor {
 public:
-    InPlane(float3 planeNormal, int threshold) : planeNormal{ planeNormal }, threshold{ threshold } {}
+    __host__ __device__ InPlane(float3 planeNormal, int threshold, float3 ptInPlane) : planeNormal{ normalize(planeNormal) }, threshold{ threshold }, ptInPlane { ptInPlane} {}
 
     virtual __host__ __device__ bool operator()(const float4 val) override {
         
         // Compute distsance point is from plane
         float3 curPt = make_float3(val.x, val.y, val.z);
-        float3 d_to_model_pt = curPt - planeNormal;
+        float3 d_to_model_pt = curPt - ptInPlane;
         float d = abs(dot(planeNormal, d_to_model_pt));
 
         // Check distance against threshold
-        return (d < threshold) ? 1 : 0;
+        return (d < threshold) ? true : false;
     }
 
 private:
     float3 planeNormal;
     int threshold;
+    float3 ptInPlane;
 };
 
 #endif
