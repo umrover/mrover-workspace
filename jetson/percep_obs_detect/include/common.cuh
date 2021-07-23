@@ -113,7 +113,7 @@ int ceilDiv(int x, int y);
 /**
  * \brief Get a CUDA workable gpu point cloud struct from Zed GPU cloud
  */
-GPU_Cloud_F4 getRawCloud(sl::Mat zed_cloud);
+void getRawCloud(GPU_Cloud &pc, sl::Mat zed_cloud);
 
 /**
  * \brief Crete an empty GPU Cloud of given size
@@ -163,16 +163,12 @@ public:
 };
 
 enum class FilterOp {REMOVE, COLOR};
-/*
-template <typename T>
-void kernel_wrapper(GPU_Cloud &cloud, T &pred, float color);
-*/
+
 template<typename T>
 void Filter(GPU_Cloud &cloud, T &pred, FilterOp operation, float color);
 
 //Functor predicate to check if a point is within some min and max bounds on a particular axis
 class WithinBounds : public IPredicateFunctor {
-    
 public:
     WithinBounds(float min, float max, char axis) : min(min), max(max), axis(axis) {}
 
@@ -190,7 +186,7 @@ private:
 
 // Functor predicate to check if a point is 
 class InPlane : public IPredicateFunctor {
-    public:
+public:
     InPlane(float3 planeNormal, int threshold) : planeNormal{ planeNormal }, threshold{ threshold } {}
 
     virtual __host__ __device__ bool operator()(const float4 val) override {

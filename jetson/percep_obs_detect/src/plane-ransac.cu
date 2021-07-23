@@ -401,6 +401,12 @@ Plane RansacPlane::computeModel(GPU_Cloud pc) {
     return plane;
 }
 
+__global__ void kernelListPoints(GPU_Cloud pc) {
+    if (threadIdx.x >= pc.size) return;
+    printf("Color: %f\n", pc.data[threadIdx.x].w);
+    __syncthreads();
+}
+
 Plane RansacPlane::computeModel(GPU_Cloud &pc, bool flag) {
     if(pc.size == 0) return {make_float3(0,0,0), make_float3(0,0,0), make_float3(0,0,0)};
 
@@ -450,9 +456,14 @@ Plane RansacPlane::computeModel(GPU_Cloud &pc, bool flag) {
 
     // Remove points lying in the plane
     cudaMemcpy(selectedModel, selection, sizeof(Plane), cudaMemcpyDeviceToHost);
-    InPlane predicate(selectedModel->normal, threshold); 
-    Filter<InPlane>(pc, predicate, FilterOp::REMOVE, 0);
-
+    InPlane predicate(selectedModel->normal, threshold);
+    Filter<InPlane>(pc, predicate, FilterOp::COLOR, 0);
+    // colorKernel<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, predicate, 0);
+    checkStatus(cudaGetLastError());
+    checkStatus(cudaDeviceSynchronize());
+    //kernelListPoints<<<1, MAX_THREADS>>>(pc);
+    checkStatus(cudaGetLastError());
+    checkStatus(cudaDeviceSynchronize());
     //for(int i = 0; i < 3; i++) {
     //    cout << "model " << i << ":" << selectedModel[0] << selected 
     //}

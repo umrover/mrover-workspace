@@ -34,11 +34,10 @@ inline float convertColor(float colorIn) {
     return *reinterpret_cast<float *> (&color_uint);
 }
 
-GPU_Cloud_F4 getRawCloud(sl::Mat zed_cloud) {
-    GPU_Cloud_F4 g;
-    g.data = zed_cloud.getPtr<sl::float4>(sl::MEM::GPU);
-    g.size = zed_cloud.getWidth() * zed_cloud.getHeight();
-    return g;
+void getRawCloud(GPU_Cloud &pc, sl::Mat zed_cloud) {
+    sl::float4* ptr = zed_cloud.getPtr<sl::float4>(sl::MEM::GPU);
+    pc.data = (float4*)ptr;
+    pc.size = zed_cloud.getWidth() * zed_cloud.getHeight();
 }
 
 GPU_Cloud_F4 createCloud(int size) {
@@ -109,21 +108,15 @@ __device__ __forceinline__ float atomicMaxFloat (float * addr, float value) {
 }
 
 template<typename T>
-__global__ __forceinline__ void colorKernel(GPU_Cloud &cloud, T &pred, float color) {
+__global__ void colorKernel(GPU_Cloud cloud, T pred, float color) {
     int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;
     if (pointIdx >= cloud.size) return;
 
-    if (pred(cloud.data[pointIdx])) {
+    if (!pred(cloud.data[pointIdx])) {
         cloud.data[pointIdx].w = color;
     }
 }
-/*
-template <typename T>
-void kernel_wrapper(GPU_Cloud &cloud, T &pred, float color) {
-colorKernel<T><<<ceilDiv(cloud.size, MAX_THREADS), MAX_THREADS>>>(cloud, pred, color);
-  cudaDeviceSynchronize();
-}
-*/
+
 template<typename T>
 void Filter(GPU_Cloud &cloud, T &pred, FilterOp operation, float color) {
     // Ensure pred is of the correct type
@@ -146,12 +139,14 @@ void Filter(GPU_Cloud &cloud, T &pred, FilterOp operation, float color) {
     }
     else if (operation == FilterOp::COLOR) {
         // Color in the points
-        // kernel_wrapper<T>(cloud, pred, color);
         colorKernel<T><<<ceilDiv(cloud.size, MAX_THREADS), MAX_THREADS>>>(cloud, pred, color);
     }
     
     printf("Cloud Size: %i\n", cloud.size);
 }
 
-template void Filter(GPU_Cloud &cloud, WithinBounds &pred, FilterOp operation, float color);
-template void Filter(GPU_Cloud &cloud, InPlane &pred, FilterOp operation, float color);
+// Have to explicitly instantiate all possible template types
+// Needed to compile template with cuda, so it had to be put in the .cu file
+// Only way to put in .cu file is to explicitly instantiate, so linker knows which types are possible
+template void Filter<WithinBounds>(GPU_Cloud &cloud, WithinBounds &pred, FilterOp operation, float color);
+template void Filter<InPlane>(GPU_Cloud &cloud, InPlane &pred, FilterOp operation, float color);

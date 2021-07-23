@@ -11,9 +11,9 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
     
     //Init data stream from source
     if(source == DataSource::ZED) {
-        //zed.open(init_params); 
-        //auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
-        //defParams = camera_config.calibration_parameters.left_cam;
+        zed.open(init_params); 
+        auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
+        defParams = camera_config.calibration_parameters.left_cam;
     } else if(source == DataSource::FILESYSTEM) {
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashmg/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
@@ -68,8 +68,8 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     defParams.image_size.height = 90;
 
     //Obs Detecting Algorithm Params
-    passZ = new PassThrough('z', 1.0, 3.0); //7000
-    ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, 8, 80);
+    passZ = new PassThrough('z', 100, 2000); //7000
+    ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     // voxelGrid = new VoxelGrid(10);
     // ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
 }
@@ -77,9 +77,9 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 
 void ObsDetector::update() {
     if(source == DataSource::ZED) {
-        sl::Mat frame; // (cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
-        //zed.grab();
-        //zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
+        sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
+        zed.grab();
+        zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
         update(frame);
     } else if(source == DataSource::FILESYSTEM) {
         //DEBUG 
@@ -121,7 +121,7 @@ void ObsDetector::update() {
 
 // Call this directly with ZED GPU Memory
 void ObsDetector::update(sl::Mat &frame) {
-    /*
+
     // Get a copy if debug is enabled
     sl::Mat orig; 
     if(mode != OperationMode::SILENT) {
@@ -129,11 +129,12 @@ void ObsDetector::update(sl::Mat &frame) {
     }
 
     // Convert ZED format into CUDA compatible type
-    GPU_Cloud_F4 pc; 
-    pc = getRawCloud(frame);
-*/
+    GPU_Cloud pc; 
+    getRawCloud(pc, frame);
 
-// TEST CODE
+
+// TEST CODE 
+/*
     int size = 8;
     float4 testCPU[size] = {
         {1,0,-2,4},
@@ -156,13 +157,14 @@ void ObsDetector::update(sl::Mat &frame) {
     GPU_Cloud testPC = { testGPU, size};
     cout << "Copied over \n";
 
-
-    // Processing 
-    // passZ->run(testPC);
+*/
+    // Processing
+    cout << "Original Size: "<< pc.size << "\n";
+    passZ->run(pc);
     cout << "Pass-Through ran\n";
-    std::cout << "pre ransac:" << testPC.size << endl;
-    ransacPlane->computeModel(testPC, 1);
-    std::cout << "post ransac:" << testPC.size << endl;
+    std::cout << "pre ransac:" << pc.size << endl;
+    //ransacPlane->computeModel(pc, 1);
+    std::cout << "post ransac:" << pc.size << endl;
     /*
     
     Bins bins;
@@ -181,10 +183,10 @@ void ObsDetector::update(sl::Mat &frame) {
     obstacleMessage.bearing = 9;
     obstacleMessage.distance = 9;
     lcm_.publish("/obstacle", &obstacleMessage);
-
+*/
     // Rendering
     if(mode != OperationMode::SILENT) {
-        clearStale(pc, cloud_res.area());
+        // clearStale(pc, cloud_res.area());
         if(viewer == ViewerType::GL) {
             glViewer.updatePointCloud(frame);
         } else {
@@ -200,7 +202,7 @@ void ObsDetector::update(sl::Mat &frame) {
     }
 
     if(framePlay) frameNum++;
-    */
+    
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
@@ -255,11 +257,12 @@ int main() {
     //obs.startRecording("test-record3");
     //obs.update();
     cout << "Here we go\n";
-    //std::thread viewerTick( [&]{while(true) { obs.update();} });
+    std::thread viewerTick( [&]{while(true) { obs.update();} });
 
-    obs.update();
+    //obs.update();
     while(true) {
         obs.spinViewer();
+        // obs.update();
     }
     
 
