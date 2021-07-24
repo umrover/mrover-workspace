@@ -1,5 +1,5 @@
 #pragma once
-#include "common.cuh"
+#include "common.hpp"
 
 /** 
  * \class Plane
@@ -65,20 +65,11 @@ class RansacPlane {
         ~RansacPlane();
 
         /**
-         * 
-         * \brief [DEBUG-Only] Computes the RANSAC model on the GPU and returns the optimal model. Colors inliers
-         * \param pc Point cloud to search 
-         * \return Plane found by RANSAC segmentation
-         */
-        Plane computeModel(GPU_Cloud pc);
-
-        /**
          * \brief Computes the RANSAC model on the GPU and returns the optimal model. Removes inliers from the cloud and changes its size
          * \param pc Point cloud to search 
-         * \param flag Dummy parameter to distinguish from the debug version of this function
          * \return Plane found by RANSAC segmentation
          */
-        Plane computeModel(GPU_Cloud &pc, bool flag);
+        Plane computeModel(GPU_Cloud &pc);
 
     private:
         //user given model parms

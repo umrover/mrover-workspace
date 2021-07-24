@@ -1,6 +1,6 @@
 #include "obs-detector.h"
-#include "common.cuh"
 #include <chrono>
+
 using namespace std;
 using namespace std::chrono;
 //using namespace boost::interprocess;
@@ -51,7 +51,7 @@ void ObsDetector::pclKeyCallback(const pcl::visualization::KeyboardEvent &event,
 //TODO: Make it read params from a file
 void ObsDetector::setupParamaters(std::string parameterFile) {
     //Operating resolution
-    cloud_res = sl::Resolution(320/2, 180/2);
+    cloud_res = sl::Resolution(320, 180);
     readDir = "/home/mrover/mrover-workspace/jetson/percep_obs_detect/data";
 
     //Zed params
@@ -70,7 +70,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     //Obs Detecting Algorithm Params
     passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
-    // voxelGrid = new VoxelGrid(10);
+    voxelGrid = new VoxelGrid(10);
     // ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
 }
         
@@ -163,10 +163,10 @@ void ObsDetector::update(sl::Mat &frame) {
     passZ->run(pc);
     cout << "Pass-Through ran\n";
     std::cout << "pre ransac:" << pc.size << endl;
-    ransacPlane->computeModel(pc, 1);
+    ransacPlane->computeModel(pc);
     std::cout << "post ransac:" << pc.size << endl;
-    /*
     
+    /*
     Bins bins;
 
     #if VOXEL
@@ -178,12 +178,12 @@ void ObsDetector::update(sl::Mat &frame) {
     obstacles = ece->extractClusters(pc, bins); 
     auto grabEnd = high_resolution_clock::now();
     auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
-
+*/
     //LCM
     obstacleMessage.bearing = 9;
     obstacleMessage.distance = 9;
     lcm_.publish("/obstacle", &obstacleMessage);
-*/
+
     // Rendering
     if(mode != OperationMode::SILENT) {
         // clearStale(pc, cloud_res.area());
@@ -247,6 +247,7 @@ void ObsDetector::startRecording(std::string directory) {
  ObsDetector::~ObsDetector() {
      delete passZ;
      delete ransacPlane;
+     delete voxelGrid;
      // delete ece;
  }
 
@@ -259,10 +260,8 @@ int main() {
     cout << "Here we go\n";
     std::thread viewerTick( [&]{while(true) { obs.update();} });
 
-    //obs.update();
     while(true) {
         obs.spinViewer();
-        // obs.update();
     }
     
 

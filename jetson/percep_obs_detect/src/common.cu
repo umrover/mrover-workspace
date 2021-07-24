@@ -1,4 +1,4 @@
-#include "common.cuh"
+#include "common.hpp"
 #include <iostream>
 #include <sl/Camera.hpp>
 
@@ -40,9 +40,9 @@ void getRawCloud(GPU_Cloud &pc, sl::Mat zed_cloud) {
     pc.size = zed_cloud.getWidth() * zed_cloud.getHeight();
 }
 
-GPU_Cloud_F4 createCloud(int size) {
-    GPU_Cloud_F4 g;
-    cudaMalloc(&g.data, sizeof(sl::float4)*size);
+GPU_Cloud createCloud(int size) {
+    GPU_Cloud g;
+    cudaMalloc(&g.data, sizeof(float4)*size);
     g.size = size;
     return g;
 }
@@ -62,7 +62,7 @@ __global__ void copyKernel(GPU_Cloud to, GPU_Cloud from) {
     to.data[pointIdx] = from.data[pointIdx];
 }
 
-__global__ void removeJunkKernel(GPU_Cloud_F4 cloud, int start, int maxSize) {
+__global__ void removeJunkKernel(GPU_Cloud cloud, int start, int maxSize) {
     int pointIdx = start + threadIdx.x + blockIdx.x * blockDim.x;
     if(pointIdx >= maxSize) return;
     cloud.data[pointIdx].x = 0;
@@ -86,7 +86,7 @@ void copyCloud(GPU_Cloud &to, GPU_Cloud &from) {
     checkStatus(cudaDeviceSynchronize());
 }
 
-void clearStale(GPU_Cloud_F4 &cloud, int maxSize) {
+void clearStale(GPU_Cloud &cloud, int maxSize) {
     removeJunkKernel<<<ceilDiv(maxSize-cloud.size, MAX_THREADS), MAX_THREADS>>>(cloud, cloud.size, maxSize);
     checkStatus(cudaDeviceSynchronize());
 }
@@ -106,47 +106,3 @@ __device__ __forceinline__ float atomicMaxFloat (float * addr, float value) {
 
     return old;
 }
-
-template<typename T>
-__global__ void colorKernel(GPU_Cloud cloud, T pred, float color) {
-    int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;
-    if (pointIdx >= cloud.size) return;
-
-    if (!pred(cloud.data[pointIdx])) {
-        cloud.data[pointIdx].w = color;
-    }
-}
-
-template<typename T>
-void Filter(GPU_Cloud &cloud, T &pred, FilterOp operation, float color) {
-    // Ensure pred is of the correct type
-    assert((std::is_base_of<IPredicateFunctor, T>::value));
-    
-    if(cloud.size == 0) return;
-
-    if (operation == FilterOp::REMOVE) {
-        // Create thrust vector with all cloud point in it
-        thrust::device_vector<float4> buffer(cloud.data, cloud.data+cloud.size);
-
-        // Copy from the temp buffer back into the cloud only the points that pass the predicate 
-        float4* end = thrust::copy_if(thrust::device, buffer.begin(), buffer.end(), cloud.data, pred);
-
-        // Clear the remainder of the cloud of points that failed predicate
-        thrust::fill(thrust::device, end, cloud.data+cloud.size, float4{0, 0, 0, 0});
-
-        //update the cloud size
-        cloud.size = end - cloud.data;
-    }
-    else if (operation == FilterOp::COLOR) {
-        // Color in the points
-        colorKernel<T><<<ceilDiv(cloud.size, MAX_THREADS), MAX_THREADS>>>(cloud, pred, color);
-    }
-    
-    printf("Cloud Size: %i\n", cloud.size);
-}
-
-// Have to explicitly instantiate all possible template types
-// Needed to compile template with cuda, so it had to be put in the .cu file
-// Only way to put in .cu file is to explicitly instantiate, so linker knows which types are possible
-template void Filter<WithinBounds>(GPU_Cloud &cloud, WithinBounds &pred, FilterOp operation, float color);
-template void Filter<InPlane>(GPU_Cloud &cloud, InPlane &pred, FilterOp operation, float color);

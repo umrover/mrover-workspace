@@ -1,5 +1,6 @@
 #pragma once
-#include "common.cuh"
+#include "common.hpp"
+#include "filter.hpp"
 
 #ifndef PASS_THROUGH
 #define PASS_THROUGH

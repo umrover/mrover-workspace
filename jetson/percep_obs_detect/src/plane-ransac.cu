@@ -1,7 +1,9 @@
 #include "plane-ransac.hpp"
+#include "filter.hpp"
 #include <stdlib.h>
-#include<unistd.h>
+#include <unistd.h>
 
+// TODO: move this into common
 __device__ int ceilDivGPU(int a, int b) {
     return (a + b - 1) / b;
 }
@@ -56,16 +58,14 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
     // Create a plane from the 3 points
     Plane plane(modelPt0, modelPt1, modelPt2);
 
-    //add this constraint later
     //check that n dot desired axis is less than epsilon, if so, return here 
     if(abs(dot(normalize(plane.normal), normalize(axis))) < epsilon) {
-        //if(threadIdx.x == 0) printf("eliminating model for axis tolerance failure %d \n", iteration);
         if(threadIdx.x == 0) inlierCounts[iteration] = 0; //make it -1 to show invalid model?
         return;
     }
 
-    // Construct predicate to chek if a point is in the plane
-    InPlane pred(plane.normal, threshold, modelPt1);
+    // Construct predicate to chek if a point is an inlier in the plane
+    NotInPlane pred(plane.normal, modelPt1, threshold);
 
     // figure out how many points each thread must compute distance for and determine if each is inlier/outlier
     int pointsPerThread = ceilDivGPU(pc.size, MAX_THREADS);
@@ -76,16 +76,9 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
         
         // point in the point cloud that could be an inlier or outlier
         float4 curPt = make_float4(pc.data[pointIdx].x, pc.data[pointIdx].y, pc.data[pointIdx].z, 0);
-        // if(curPt.x == 0 && curPt.y == 0 && curPt.z == 0) continue; //TEMPORARY (0,0,0 removal) until passthru
         
-        //calculate distance of cur pt to the plane formed by the 3 model points [see doc for the complete derrivation]
-        // float3 d_to_model_pt = (curPt - modelPt1);
-        
-        // float d = abs(float3(n, d_to_model_pt)) / n.norm();
-        // float d = abs( dot( normalize(n), d_to_model_pt));
-        
-        //add a 0 if inlier, 1 if not 
-        inliers += (pred(curPt)) ? 1 : 0; //very probalmatic line, how can we reduce these checks
+        //add a 1 if inlier in plane, 0 if not 
+        inliers += (pred(curPt)) ? 0 : 1; //very probalmatic line, how can we reduce these checks
     }
     
     //parallel reduction to get an aggregate sum of the number of inliers for this model
@@ -96,7 +89,6 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
 	while (aliveThreads > 0) {
 		if (threadIdx.x < aliveThreads) {
             inliers += inlierField[aliveThreads + threadIdx.x];
-            //if(iteration == 0 && threadIdx.x == 0) printf("t0: %f \n", inliers);
 			if (threadIdx.x >= (aliveThreads) / 2) inlierField[threadIdx.x] = inliers;
 		}
 		__syncthreads();
@@ -106,7 +98,6 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
     //at the final thread, write to global memory
     if(threadIdx.x == 0) {
         inlierCounts[iteration] = inliers;
-        //printf("iteration %d, inlier ct: %f == %f \n", iteration, inlierCounts[iteration], inliers);
     } 
 }
 
@@ -131,14 +122,18 @@ __global__ void selectOptimalRansacModel(GPU_Cloud pc, float* inlierCounts, int*
     
     __shared__ float inlierCountsLocal[MAX_THREADS];
     __shared__ int modelIndiciesLocal[MAX_THREADS];
-    //PROBLEM: This can easily index out of bounds if threadIdx.x > numPoints in the PC
+    
+    //TODO: This can easily index out of bounds if threadIdx.x > numPoints in the PC
     //another problem:  we must initalize the inlierCountsLocal with low valeus that wont be chosen
+    
+    // Populate the locally defined arrays
     float inliers = (threadIdx.x < iterations) ? inlierCounts[threadIdx.x] : 0;
     int optimalModel = threadIdx.x;
     inlierCountsLocal[threadIdx.x] = inliers;
     modelIndiciesLocal[threadIdx.x] = optimalModel;
     __syncthreads();
 
+    // Parallel reduction to determine the model with the largest number of inliers
     int aliveThreads = (blockDim.x) / 2;
 	while (aliveThreads > 0) {
 		if (threadIdx.x < aliveThreads) {
@@ -162,176 +157,22 @@ __global__ void selectOptimalRansacModel(GPU_Cloud pc, float* inlierCounts, int*
         float3 pt = make_float3(pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ].x, pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ].y, pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ].z);
 
         // Set output model
-        optimalModelOut[threadIdx.x].x = pt.x; 
-        optimalModelOut[threadIdx.x].y = pt.y; 
-        optimalModelOut[threadIdx.x].z = pt.z;
-        printf("Optimal Model Set: %f, %f, %f\n", pt.x, pt.y, pt.z);
-    } 
+        optimalModelOut[threadIdx.x] = pt;
+    }
+    
+    __syncthreads();
+
     if(threadIdx.x == 0) {
         // Find normal to the plane
         optimalModelOut.ComputeNormal();
 
-        printf("winner model inliers: %f \n", inlierCountsLocal[0]);
+        printf("winner model inlier count: %f \n", inlierCountsLocal[0]);
+        
         //check here if the inlier counts local is 0, if so return -1 instead
-        if(inlierCountsLocal[0] > 1.0) {
-            *optimalModelIndex = modelIndiciesLocal[0];
-        } else *optimalModelIndex = -1;
+        *optimalModelIndex = (inlierCountsLocal[0] > 1.0) ? modelIndiciesLocal[0] : -1;
     }
 }
 
-// this kernel is for DEBUGGING only. It will get the list of inliers so they can 
-// be displayed. In competition, it is not necessary to have this information. 
-
-__global__ void computeInliers(GPU_Cloud pc , int* optimalModelIndex, int* modelPoints, float threshold, float3 axis) {
-    if(*optimalModelIndex < 0) return;
-
-
-    float3 modelPt0 = make_float3(pc.data[modelPoints[*optimalModelIndex*3]].x, pc.data[modelPoints[*optimalModelIndex*3]].y, pc.data[modelPoints[*optimalModelIndex*3]].z);
-    float3 modelPt1 = make_float3(pc.data[modelPoints[*optimalModelIndex*3 + 1]].x, pc.data[modelPoints[*optimalModelIndex*3 + 1]].y, pc.data[modelPoints[*optimalModelIndex*3 + 1]].z);
-    float3 modelPt2 = make_float3(pc.data[modelPoints[*optimalModelIndex*3 + 2]].x, pc.data[modelPoints[*optimalModelIndex*3 + 2]].y, pc.data[modelPoints[*optimalModelIndex*3 + 2]].z);
-
-    // get the two vectors on the plane defined by the model points
-    float3 v1 (modelPt1 - modelPt0);
-    float3 v2 (modelPt2 - modelPt0);
-    
-    //get a vector normal to the plane model
-    float3 n = cross(v1, v2);
-
-
-/*
-        printf("mp0: %f %f %f and mp1: %f %f %f \n", modelPt0.x, modelPt0.y, modelPt0.z, modelPt1.x, modelPt1.y, modelPt1.z);
-
-        printf("v1: %f %f %f and v2: %f %f %f \n", v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
-    
-        printf("normal %f %f %f --- axis %f %f %f \n", n.x, n.y, n.z, axis.x, axis.y, axis.z);
-    
-       printf("axis normal dot: %f \n", abs(float3::dot(n/n.norm(), axis/axis.norm())));
-  
-*/
-    __syncthreads();
-
-    // figure out how many points each thread must compute distance for and determine if each is inlier/outlier
-    int pointsPerThread = ceilDivGPU(pc.size, MAX_THREADS);
-    for(int i = 0; i < pointsPerThread; i++) {
-        // select a point index or return if this isn't a valid point
-        int pointIdx = threadIdx.x * pointsPerThread + i;
-        if(pointIdx >= pc.size) return; 
-        
-        // point in the point cloud that could be an inlier or outlier
-        float3 curPt = make_float3(pc.data[pointIdx].x, pc.data[pointIdx].y, pc.data[pointIdx].z);
-        
-        //calculate distance of cur pt to the plane formed by the 3 model points [see doc for the complete derrivation]
-        float3 d_to_model_pt = (curPt - modelPt1);
-        
-        // TODO-MGM check this float d = abs(dot(n, d_to_model_pt)) / n.norm();
-        float d = abs( dot( normalize(n), d_to_model_pt));
-
-        //add a 0 if inlier, 1 if not 
-        int flag = (d < threshold) ? 1 : 0; //very probalmatic line, how can we reduce these checks
-        //int flag = (-1*abs(d - threshold)/(d - threshold) + 1 )/2;
-        
-        if(flag != 0) { //colors are ABGR in float space(LOL?????)
-            pc.data[pointIdx].w = 100;
-        } else {
-            uint32_t* color_uint = (uint32_t *) & pc.data[pointIdx].w;
-            unsigned char* abgr = (unsigned char*) color_uint;
-        }
-
-        
-    }
-
-    //*debug color model points 3.57331108403e-43; // (red)
-    __syncthreads();
-    if(threadIdx.x == 0) {
-        pc.data[modelPoints[*optimalModelIndex*3]].w = 3.57331108403e-43;
-        pc.data[modelPoints[*optimalModelIndex*3 + 1]].w = 3.57331108403e-43;
-        pc.data[modelPoints[*optimalModelIndex*3 + 2]].w = 3.57331108403e-43;
-
-        //printf("optimal idx: %d %d %d \n",  modelPoints[*optimalModelIndex*3],  modelPoints[*optimalModelIndex*3+1], modelPoints[*optimalModelIndex*3+2]);
-        //printf("> pt0: %f %f %f \n", modelPt0.x, modelPt0.y, modelPt0.z );
-   //     printf("> pt1: %f %f %f \n", modelPt1.x, modelPt1.y, modelPt1.z );
-     //   printf("> pt2: %f %f %f \n", modelPt2.x, modelPt2.y, modelPt2.z );
-
-
-    }
-}
-/*
-void removeInliers(GPU_Cloud pc, GPU_Cloud out, int* optimalModelIndex, int* modelPoints, float threshold, float3 axis, int* newSize) {
-    int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;
-    if(*optimalModelIndex < 0) {
-        if(pointIdx < pc.size) {
-            out.data[pointIdx] = pc.data[pointIdx];
-            *newSize = pc.size;
-        }
-        return;
-    }
-
-    if(pointIdx >= pc.size) return;
-    
-    if(pointIdx < pc.size) pc.data[pointIdx].w = 2.34184088514e-38;
-    *newSize = pc.size; //pc.size/2;
-    return;
-
-    float4 datum = {0,0,0,0};
-    int newIdx = pc.size-1;
-    if (pointIdx == -1)
-    {
-        printf("Model points: {%f, %f, %f}\n", pc.data[modelPoints[*optimalModelIndex*3]].x, pc.data[modelPoints[*optimalModelIndex*3]].y, pc.data[modelPoints[*optimalModelIndex*3]].z);
-
-        printf("Model points: {%f, %f, %f}\n",pc.data[modelPoints[*optimalModelIndex*3+1]].x, pc.data[modelPoints[*optimalModelIndex*3+1]].y, pc.data[modelPoints[*optimalModelIndex*3+1]].z);
-
-        printf("Model points: {%f, %f, %f}\n", pc.data[modelPoints[*optimalModelIndex*3+2]].x, pc.data[modelPoints[*optimalModelIndex*3+2]].y, pc.data[modelPoints[*optimalModelIndex*3+2]].z);
-    }
-
-    if (pointIdx == 0)
-    {
-        printf("Size: %i\n", pc.size);
-    }
-    __syncthreads();
-
-    if(pointIdx < pc.size) {
-        float3 modelPt0 = make_float3(pc.data[modelPoints[*optimalModelIndex*3]].x, pc.data[modelPoints[*optimalModelIndex*3]].y, pc.data[modelPoints[*optimalModelIndex*3]].z);
-        float3 modelPt1 = make_float3(pc.data[modelPoints[*optimalModelIndex*3 + 1]].x, pc.data[modelPoints[*optimalModelIndex*3 + 1]].y, pc.data[modelPoints[*optimalModelIndex*3 + 1]].z);
-        float3 modelPt2 = make_float3(pc.data[modelPoints[*optimalModelIndex*3 + 2]].x, pc.data[modelPoints[*optimalModelIndex*3 + 2]].y, pc.data[modelPoints[*optimalModelIndex*3 + 2]].z);
-
-        // get the two vectors on the plane defined by the model points
-        float3 v1 (modelPt1 - modelPt0);
-        float3 v2 (modelPt2 - modelPt0);
-        
-        //get a vector normal to the plane model
-        float3 n = cross(v1, v2);
-    
-        // point in the point cloud that could be an inlier or outlier
-        float3 curPt = make_float3(pc.data[pointIdx].x, pc.data[pointIdx].y, pc.data[pointIdx].z);
-        
-        //calculate distance of cur pt to the plane formed by the 3 model points [see doc for the complete derrivation]
-        float3 d_to_model_pt = (curPt - modelPt1);
-        
-        // float d = abs(dot(n, d_to_model_pt)) / n.norm();
-        float d = abs( dot( normalize(n), d_to_model_pt));
-
-        //add a 0 if inlier, 1 if not 
-        int flag = (d < threshold) ? 1 : 0; //very probalmatic line, how can we reduce these checks
-        //int flag = (-1*abs(d - threshold)/(d - threshold) + 1 )/2;
-        printf("Flag %i and d %f\n", flag, d);
-        if(flag != 0) { //colors are ABGR in float space(LOL?????)
-            pc.data[pointIdx].w = 2.35098856151e-38; //VIEWER_BGR_COLOR;
-           // pc.data[pointIdx].x = 0;
-           // pc.data[pointIdx].y = 0;
-           // pc.data[pointIdx].z = 0;
-        } else {
-            //pc.data[pointIdx].w =  9.18340948595e-41;
-            
-            datum = pc.data[pointIdx];
-            newIdx = atomicAdd(newSize, 1);
-        }
-    }
-
-    out.data[newIdx] = datum;
-    if (pointIdx == 0) printf("Point: {%f, %f, %f}\n", datum.x, datum.y, datum.z);
-    __syncthreads();
-}
-*/
 RansacPlane::RansacPlane(float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius)
     : pc(pc), axis(axis), epsilon(epsilon), iterations(iterations), threshold(threshold), removalRadius(removalRadius)  {
     
@@ -366,112 +207,34 @@ RansacPlane::RansacPlane(float3 axis, float epsilon, int iterations, float thres
     selectedModel = (Plane*) malloc(sizeof(Plane)); 
 }
 
-/*  
-EFFECTS:
-    1. [GPU] Use the RANSAC kernel to evaluate all the canidate models and report their associated inlier count
-    2. [GPU] Select the canidate with the highest score and inform the CPU
-    3. [CPU] Use the three model points to produce a plane equation in standard form and return to the user
-*/
-Plane RansacPlane::computeModel(GPU_Cloud pc) {
-    this->pc = pc;
-
-    int blocks = iterations;
-    int threads = MAX_THREADS;
-    std::cout<<"Doing more computing\n";
-    ransacKernel<<<blocks, threads>>>(pc, inlierCounts, modelPoints, threshold, axis, cos(epsilon*3.1415/180));
-    std::cout<<"Computing model\n";
-    selectOptimalRansacModel<<<1, MAX_THREADS>>>(pc, inlierCounts, modelPoints, *selection, iterations, optimalModelIndex);
-    std::cout << "Model selected\n";
-    computeInliers<<<1, threads>>>(pc, optimalModelIndex, modelPoints, removalRadius, axis);
-    std::cout << "Computing finished\n";
-    //might be able to use memcpyAsync() here, double check
-    checkStatus(cudaGetLastError());
-    checkStatus(cudaDeviceSynchronize());
-
-    std::cout << "finishing ransac " << pc.size << std::endl;
-
-    cudaMemcpy(selectedModel, selection, sizeof(Plane), cudaMemcpyDeviceToHost);
-    //for(int i = 0; i < 3; i++) {
-    //    cout << "model " << i << ":" << selectedModel[0] << selected 
-    //}
-    Plane plane = *selectedModel;
-    
-    return plane;
-}
-
-__global__ void kernelListPoints(GPU_Cloud pc) {
-    if (threadIdx.x >= pc.size) return;
-    printf("Color: %f\n", pc.data[threadIdx.x].w);
-    __syncthreads();
-}
-
-Plane RansacPlane::computeModel(GPU_Cloud &pc, bool flag) {
+Plane RansacPlane::computeModel(GPU_Cloud &pc) {
     if(pc.size == 0) return {make_float3(0,0,0), make_float3(0,0,0), make_float3(0,0,0)};
 
-    // GPU_Cloud tmpCloud; //exp
-    // tmpCloud.size = pc.size;
-    // std::cout << "Size: " << tmpCloud.size * sizeof(float4) << "\n";
-    // cudaMalloc(&tmpCloud.data, tmpCloud.size * sizeof(float4));
-    checkStatus(cudaGetLastError());
-    checkStatus(cudaDeviceSynchronize());
-    std::cout << "Malloced\n";
-    // usleep(1000000);
+    // Copy vars locally
     this->pc = pc;
     int blocks = iterations;
     int threads = MAX_THREADS;
+    
+    // Get a list of models and corresponding inlier count
     ransacKernel<<<blocks, threads>>>(pc, inlierCounts, modelPoints, threshold, axis, cos(epsilon*3.1415/180));
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
-    std::cout << "ransacKernel\n";
+
+    // Choose the model with the greatest inlier count
     selectOptimalRansacModel<<<1, MAX_THREADS>>>(pc, inlierCounts, modelPoints, *selection, iterations, optimalModelIndex);
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());   
-    std::cout <<"optimalRansacModel " << "\n";
-    int* size;
-    cudaMalloc(&size, sizeof(int));
-    cudaMemset(size, 0, sizeof(int));
- 
-    /*
-    std::cout << "all should be good up to here\n";
-    removeInliers<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tmpCloud, optimalModelIndex, modelPoints, removalRadius, axis, size);
-    checkStatus(cudaGetLastError());
-    checkStatus(cudaDeviceSynchronize());
-   // while(true){}
-    std::cout << "I'm expecting issues\n";
-    int sizeCpu;
-    cudaMemcpy(&sizeCpu, size, sizeof(int), cudaMemcpyDeviceToHost);
-    std::cout << "Size after removal " << sizeCpu << "\n";
-    */
-    //tmpCloud.size = sizeCpu;
-    // if(sizeCpu > 0) copyCloud(pc, tmpCloud);
-    // std::cout << "Copy cloud called\n";
-    // cudaFree(tmpCloud.data); //exp
-    // std:: cout << "Freed stuff\n";
-   // pc.size = 320/2*180/2;
-    //std::cout << sizeCpu << std::endl;
-    //might be able to u
-    //cout << "b4: " << pc.size << endl;
 
-    // Remove points lying in the plane
+    // Copy selected plane to CPU
     cudaMemcpy(selectedModel, selection, sizeof(Plane), cudaMemcpyDeviceToHost);
-    std::cout << "Normal CPU: " << selectedModel->normal.x << " " << selectedModel->normal.y << " " << selectedModel->normal.z << "\n";
-    InPlane predicate(selectedModel->normal, threshold, selectedModel->p1);
-    Filter<InPlane>(pc, predicate, FilterOp::REMOVE, 0);
-    // colorKernel<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, predicate, 0);
+    
+    // Filter out all the points in the plane
+    NotInPlane predicate(selectedModel->normal, selectedModel->p1, threshold);
+    Filter<NotInPlane>(pc, predicate, FilterOp::COLOR, 0);
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
-    //kernelListPoints<<<1, MAX_THREADS>>>(pc);
-    checkStatus(cudaGetLastError());
-    checkStatus(cudaDeviceSynchronize());
-    //for(int i = 0; i < 3; i++) {
-    //    cout << "model " << i << ":" << selectedModel[0] << selected 
-    //}
-     //std::cout << "Surprised as usual\n";
 
-    Plane plane = *selectedModel;
-    //cudaFree(size);
-    std::cout << "cleaned things up\n";
-    return plane;
+    return *selectedModel;
 }
 
 RansacPlane::~RansacPlane() {

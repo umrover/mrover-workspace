@@ -4,10 +4,11 @@
 #include "plane-ransac.hpp"
 #include "pass-through.hpp"
 #include "GLViewer.hpp"
+#include "voxel-grid.hpp"
 // #include "euclidean-cluster.hpp"
 #include <thread>
 #include "timer.hpp"
-#include "common.cuh"
+#include "common.hpp"
 #include "pcl.hpp"
 // #include "voxel-grid.hpp"
 #include <lcm/lcm-cpp.hpp>
@@ -17,7 +18,7 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <cstring>
 #include <iostream>
-
+// TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;
 
 /*
@@ -120,7 +121,7 @@ class ObsDetector {
         //Detection algorithms 
         PassThrough *passZ;
         RansacPlane *ransacPlane;
-        //VoxelGrid *voxelGrid;
+        VoxelGrid *voxelGrid;
         //EuclideanClusterExtractor *ece;
 
         //Paramaters
