@@ -5,14 +5,14 @@
 #include "pass-through.hpp"
 #include "GLViewer.hpp"
 #include "voxel-grid.hpp"
-// #include "euclidean-cluster.hpp"
+#include "euclidean-cluster.hpp"
 #include <thread>
 #include "timer.hpp"
 #include "common.hpp"
 #include "pcl.hpp"
-// #include "voxel-grid.hpp"
-#include <lcm/lcm-cpp.hpp>
-#include "rover_msgs/Obstacle.hpp"
+#include "voxel-grid.hpp"
+//#include <lcm/lcm-cpp.hpp>
+//#include "rover_msgs/Obstacle.hpp"
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/containers/vector.hpp>
@@ -100,8 +100,8 @@ class ObsDetector {
 
     private: 
         //Lcm
-        lcm::LCM lcm_;
-        rover_msgs::Obstacle obstacleMessage;
+        //lcm::LCM lcm_;
+        //rover_msgs::Obstacle obstacleMessage;
 
         //Data sources
         sl::Camera zed;
@@ -122,7 +122,7 @@ class ObsDetector {
         PassThrough *passZ;
         RansacPlane *ransacPlane;
         VoxelGrid *voxelGrid;
-        //EuclideanClusterExtractor *ece;
+        EuclideanClusterExtractor *ece;
 
         //Paramaters
         sl::Resolution cloud_res;
@@ -132,7 +132,7 @@ class ObsDetector {
         
         //Output data
         Plane planePoints;
-        // EuclideanClusterExtractor::ObsReturn obstacles;
+        EuclideanClusterExtractor::ObsReturn obstacles;
         float leftBearing;
         float rightBearing;
         float distance;

@@ -43,11 +43,11 @@ class EuclideanClusterExtractor {
          * \param pc Point cloud to search 
          * \param bins Bins which sub-divide space from VoxelFilter
          */
-        ObsReturn extractClusters(GPU_Cloud_F4 pc, Bins &bins);
+        ObsReturn extractClusters(GPU_Cloud &pc, Bins &bins);
 
     private:
         //user given model parms
-        GPU_Cloud_F4 pc;
+        GPU_Cloud pc;
         float tolerance;
         int minSize;
         float maxSize;

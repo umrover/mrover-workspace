@@ -71,7 +71,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
-    // ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
+    ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
 }
         
 
@@ -166,7 +166,7 @@ void ObsDetector::update(sl::Mat &frame) {
     ransacPlane->computeModel(pc);
     std::cout << "post ransac:" << pc.size << endl;
     
-    /*
+
     Bins bins;
 
     #if VOXEL
@@ -178,12 +178,12 @@ void ObsDetector::update(sl::Mat &frame) {
     obstacles = ece->extractClusters(pc, bins); 
     auto grabEnd = high_resolution_clock::now();
     auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
-*/
+/*
     //LCM
     obstacleMessage.bearing = 9;
     obstacleMessage.distance = 9;
     lcm_.publish("/obstacle", &obstacleMessage);
-
+*/
     // Rendering
     if(mode != OperationMode::SILENT) {
         // clearStale(pc, cloud_res.area());
@@ -216,8 +216,8 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 void ObsDetector::spinViewer() {
     if(viewer == ViewerType::GL) {
         glViewer.isAvailable();
-        // updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
-        // updateProjectedLines(ece->bearingRight, ece->bearingLeft);
+        updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
+        updateProjectedLines(ece->bearingRight, ece->bearingLeft);
     } else if(viewer == ViewerType::PCLV) {
         pclViewer->removeAllShapes();
         /*for(int i = 0; i < obstacles.size; i++) {
@@ -248,7 +248,7 @@ void ObsDetector::startRecording(std::string directory) {
      delete passZ;
      delete ransacPlane;
      delete voxelGrid;
-     // delete ece;
+     delete ece;
  }
 
 
@@ -256,7 +256,7 @@ void ObsDetector::startRecording(std::string directory) {
 int main() {
     ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
-    //obs.update();
+
     cout << "Here we go\n";
     std::thread viewerTick( [&]{while(true) { obs.update();} });
 

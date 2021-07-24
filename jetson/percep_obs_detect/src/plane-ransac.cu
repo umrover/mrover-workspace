@@ -230,7 +230,7 @@ Plane RansacPlane::computeModel(GPU_Cloud &pc) {
     
     // Filter out all the points in the plane
     NotInPlane predicate(selectedModel->normal, selectedModel->p1, threshold);
-    Filter<NotInPlane>(pc, predicate, FilterOp::COLOR, 0);
+    Filter<NotInPlane>(pc, predicate, FilterOp::REMOVE, 0);
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
 
