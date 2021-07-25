@@ -8,6 +8,12 @@
 #include <thrust/sequence.h>
 #include <assert.h>
 
+/**
+ * \brief templated kernel used for coloring points in the point cloud
+ * \param cloud: cloud of points that will be colored
+ * \param pred: predicate used for evaluating points. If pred returns false point is colored
+ * \param color: color the point will be assigned
+ */
 template<typename T>
 __global__ void colorKernel(GPU_Cloud cloud, T pred, float color) {
     int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;

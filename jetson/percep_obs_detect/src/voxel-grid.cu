@@ -119,6 +119,14 @@ __global__ void makeCubeKernel(GPU_Cloud pc, pair<float,float>* extrema, float* 
     return;   
 }
 
+/**
+* \brief assigns each point to a bin
+* \param pc: GPU point cloud containing points to be assigned
+* \param bins: object points will be assigned to
+* \param extrema: array of floats used to indicate the cube that encloses the point cloud
+* \param partitions: the number of divisions made on each axis of the cube. Yeilds a total of partitions^3 bins
+* \return void
+*/
 __global__ void hashToBinsKernel(GPU_Cloud pc, Bins bins, pair<float,float>* extrema, int partitions) {
     int ptIdx = threadIdx.x + blockIdx.x * blockDim.x;
     if(ptIdx >= pc.size) return;
@@ -128,6 +136,14 @@ __global__ void hashToBinsKernel(GPU_Cloud pc, Bins bins, pair<float,float>* ext
     pc.data[ptIdx].w = atomicAdd(&bins.data[binNum],1);
 }
 
+/**
+* \brief sorts all points in the cloud based on the bin that they were assigne
+* \param pc: GPU point cloud containing points to be assigned
+* \param bins: object points will be assigned to
+* \param extrema: array of floats used to indicate the cube that encloses the point cloud
+* \param partitions: the number of divisions made on each axis of the cube. Yeilds a total of partitions^3 bins
+* \return void
+*/
 __global__ void sortCloud(GPU_Cloud pc, Bins bins, pair<float,float>* extrema, int partitions) {
     int ptIdx = threadIdx.x + blockIdx.x * blockDim.x;
     if(ptIdx >= pc.size) return;
