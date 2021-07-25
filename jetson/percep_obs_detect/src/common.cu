@@ -11,6 +11,7 @@
 #include <vector>
 #include <algorithm>
 
+// TODO: add comments explaining the purpose of these functions
 //Cuda error checking function
 bool checkStatus(cudaError_t status) {
 	if (status != cudaSuccess) {
@@ -47,13 +48,6 @@ GPU_Cloud createCloud(int size) {
     return g;
 }
 
-/*
-__global__ void copyKernel(GPU_Cloud_F4 to, GPU_Cloud_F4 from) {
-    int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;
-    if(pointIdx >= from.size) return;
-    to.data[pointIdx] = from.data[pointIdx];
-}
-*/
 __global__ void copyKernel(GPU_Cloud to, GPU_Cloud from) {
     int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;
     if(pointIdx >= from.size) return;
@@ -71,13 +65,7 @@ __global__ void removeJunkKernel(GPU_Cloud cloud, int start, int maxSize) {
     cloud.data[pointIdx].w = VIEWER_BGR_COLOR;
 
 }
-/*
-void copyCloud(GPU_Cloud_F4 &to, GPU_Cloud_F4 &from) {
-    to.size = from.size;
-    copyKernel<<<ceilDiv(from.size, MAX_THREADS), MAX_THREADS>>>(to, from);
-    checkStatus(cudaDeviceSynchronize());
-}
-*/
+
 void copyCloud(GPU_Cloud &to, GPU_Cloud &from) {
     to.size = from.size;
     printf("Size moved\n");
