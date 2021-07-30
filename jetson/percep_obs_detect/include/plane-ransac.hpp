@@ -72,6 +72,11 @@ class RansacPlane {
         Plane computeModel(GPU_Cloud &pc);
 
     private:
+        /**
+         * \brief Picks the model with the highest inlier count and updates the Plane "selection"
+         */
+        void selectOptimalModel();
+
         //user given model parms
         GPU_Cloud pc;
         float3 axis;

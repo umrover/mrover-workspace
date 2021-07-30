@@ -167,7 +167,7 @@ void ObsDetector::update(sl::Mat &frame) {
     ransacPlane->computeModel(pc);
     std::cout << "post ransac:" << pc.size << endl; 
     
-
+    /*
     Bins bins;
 
     #if VOXEL

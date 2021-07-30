@@ -2,6 +2,10 @@
 #include "filter.hpp"
 #include <stdlib.h>
 #include <unistd.h>
+#include <thrust/extrema.h>
+
+
+#define DEBUG
 
 // TODO: move this into common
 __device__ int ceilDivGPU(int a, int b) {
@@ -38,7 +42,7 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
     __shared__ float inlierField[MAX_THREADS];
     inlierField[threadIdx.x] = 0;
 
-    int iteration = blockIdx.x; //which "iteration" 
+    int iteration = blockIdx.x; //which "iteration" of RANSAC
     float inliers = 0; //number of inliers in this thread
 
     // select 3 random points from the cloud as the model that this particular block will evaluate
@@ -101,76 +105,34 @@ __global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints
     } 
 }
 
-//to avoid kernel launch time, this could actually be appended to the bottom of the ransacKernel,
-//after a syncthreads() call. But for now it will be left seperate for the purpose of clarity.
-//kernel launch time is likely in tens of microseconds. TODO test to confirm this theory
-/* 
-LAUNCH:
-    - [Block] 1
-    - [Thread] Number of attempted models ("iterations")
+ /**
+  * \brief Updates the plane selection from the cloud using the given model index 
+  */
+__global__ void getOptimalModelPoints(GPU_Cloud pc, Plane &selection, int idx, int* modelPoints, float* maxCount) {
+    int pt = threadIdx.x;
+    float4 point = pc.data[modelPoints[3*idx + pt]];
+    selection[pt] = make_float3(point.x, point.y, point.z);
 
-REQUIRES:
-    - Buffer with inlier counts for each attempted model in RANSAC
-    - Output in memory the 3 points of the selected model
-
-EFFECTS:
-    - Selects the optimal model (the one with the greatest inlier count)
-    - Outputs the points of this model 
-*/
-// optimalMOdel out = { p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z}
-__global__ void selectOptimalRansacModel(GPU_Cloud pc, float* inlierCounts, int* modelPoints, Plane& optimalModelOut, int iterations, int* optimalModelIndex) {
-    
-    __shared__ float inlierCountsLocal[MAX_THREADS];
-    __shared__ int modelIndiciesLocal[MAX_THREADS];
-    
-    //TODO: This can easily index out of bounds if threadIdx.x > numPoints in the PC
-    //another problem:  we must initalize the inlierCountsLocal with low valeus that wont be chosen
-    
-    // Populate the locally defined arrays
-    float inliers = (threadIdx.x < iterations) ? inlierCounts[threadIdx.x] : 0;
-    int optimalModel = threadIdx.x;
-    inlierCountsLocal[threadIdx.x] = inliers;
-    modelIndiciesLocal[threadIdx.x] = optimalModel;
+    // Use one thread to compute the normal
     __syncthreads();
-
-    // Parallel reduction to determine the model with the largest number of inliers
-    int aliveThreads = (blockDim.x) / 2;
-	while (aliveThreads > 0) {
-		if (threadIdx.x < aliveThreads) {
-            int temp = max(inlierCountsLocal[aliveThreads + threadIdx.x], inliers);
-            if(temp > inliers) {
-                inliers = temp;
-                optimalModel = modelIndiciesLocal[aliveThreads + threadIdx.x];
-            }
-
-			if (threadIdx.x >= (aliveThreads) / 2) {
-                modelIndiciesLocal[threadIdx.x] = optimalModel;
-                inlierCountsLocal[threadIdx.x] = inliers;
-            }
-		}
-		__syncthreads();
-		aliveThreads /= 2;
-	}
-
-    //at the final thread, write to global memory
-    if(threadIdx.x < 3) {
-        float3 pt = make_float3(pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ].x, pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ].y, pc.data[ modelPoints[modelIndiciesLocal[0]*3 + threadIdx.x] ].z);
-
-        // Set output model
-        optimalModelOut[threadIdx.x] = pt;
-    }
-    
-    __syncthreads();
-
     if(threadIdx.x == 0) {
-        // Find normal to the plane
-        optimalModelOut.ComputeNormal();
+        selection.ComputeNormal();
 
-        printf("winner model inlier count: %f \n", inlierCountsLocal[0]);
-        
-        //check here if the inlier counts local is 0, if so return -1 instead
-        *optimalModelIndex = (inlierCountsLocal[0] > 1.0) ? modelIndiciesLocal[0] : -1;
+        #ifdef DEBUG
+        printf("Winner model inlier count: %f \n", *maxCount);
+        #endif
     }
+}
+
+void RansacPlane::selectOptimalModel() {
+    float* maxCount = thrust::max_element(thrust::device, inlierCounts, inlierCounts + iterations);
+    // Pointer arithmetic gives us the model index with most inliers
+    int maxIdx = maxCount - inlierCounts;
+    // Send the index to GPU
+    cudaMemcpy(optimalModelIndex, &maxIdx , sizeof(int), cudaMemcpyHostToDevice);
+    // Now launch a kernel to write the Plane of this model into selection
+    getOptimalModelPoints<<<1, 3>>>(pc, *selection, maxIdx, modelPoints, maxCount);
+    checkStatus(cudaDeviceSynchronize());
 }
 
 RansacPlane::RansacPlane(float3 axis, float epsilon, int iterations, float threshold, int pcSize, float removalRadius)
@@ -221,7 +183,8 @@ Plane RansacPlane::computeModel(GPU_Cloud &pc) {
     checkStatus(cudaDeviceSynchronize());
 
     // Choose the model with the greatest inlier count
-    selectOptimalRansacModel<<<1, MAX_THREADS>>>(pc, inlierCounts, modelPoints, *selection, iterations, optimalModelIndex);
+    selectOptimalModel();
+
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());   
 
