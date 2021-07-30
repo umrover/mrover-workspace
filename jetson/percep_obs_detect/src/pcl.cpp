@@ -35,6 +35,7 @@ void loadPCD(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pc, std::string full_path)
 	cerr << "> Loaded point cloud of " << pc->width << "*" << pc->height << endl;
 
 	//Reduce resolution
+  /*
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr downsampled(new pcl::PointCloud<pcl::PointXYZRGB>(pc->width/2, pc->height/2));
 	for(size_t y = 0; y < pc->height/2; y++) {
 			for(size_t x = 0; x < pc->width/2; x++) {
@@ -42,7 +43,7 @@ void loadPCD(pcl::PointCloud<pcl::PointXYZRGB>::Ptr & pc, std::string full_path)
 				downsampled->at(x, y) = p;
 			}
 	}
-	pc = downsampled;
+	pc = downsampled; */
 }
 
 inline float convertColor(float colorIn) {

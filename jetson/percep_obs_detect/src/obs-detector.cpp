@@ -64,8 +64,8 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     defParams.fy = 80.275;
     defParams.cx = 78.8623;
     defParams.cy = 43.6901;
-    defParams.image_size.width = 160;
-    defParams.image_size.height = 90;
+    defParams.image_size.width = cloud_res.width;
+    defParams.image_size.height = cloud_res.height;
 
     //Obs Detecting Algorithm Params
     passZ = new PassThrough('z', 100, 7000); //7000
@@ -159,12 +159,13 @@ void ObsDetector::update(sl::Mat &frame) {
 
 */
     // Processing
+    
     cout << "Original Size: "<< pc.size << "\n";
     passZ->run(pc);
     cout << "Pass-Through ran\n";
     std::cout << "pre ransac:" << pc.size << endl;
     ransacPlane->computeModel(pc);
-    std::cout << "post ransac:" << pc.size << endl;
+    std::cout << "post ransac:" << pc.size << endl; 
     
 
     Bins bins;
@@ -254,7 +255,7 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
     //obs.startRecording("test-record3");
 
     cout << "Here we go\n";
