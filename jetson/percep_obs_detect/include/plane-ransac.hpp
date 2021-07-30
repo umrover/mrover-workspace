@@ -54,7 +54,7 @@ class RansacPlane {
         /**
          * \brief RansacPlane constructor 
          * \param axis Unit vector giving the axis normal to the plane we're trying to find
-         * \param epsilon How far off-angle a plane can be from the input axis and still be considered. Unit of degree
+         * \param epsilon How far off-angle a plane can be from the input axis and still be considered. Unit of degrees
          * \param iterations The number of randomly selected models to attempt to fit to the data, must be less than 1024
          * \param threshold The maximum allowed distance from the model for a point to be considered an inlier
          * \param pcSize The maximum expected size of a point cloud passed to this algorithm (use the frame resolution area)
@@ -77,7 +77,7 @@ class RansacPlane {
          */
         void selectOptimalModel();
 
-        //user given model parms
+        // user given model parms
         GPU_Cloud pc;
         float3 axis;
         float epsilon;
@@ -85,16 +85,13 @@ class RansacPlane {
         float threshold;
         float removalRadius;
 
-        //internal info [GPU]
-        float* inlierCounts; 
-        int* modelPoints; 
+        // internal info [GPU]
+        int* inlierCounts; 
+        int3* candidatePlanePoints; 
         Plane* selection;
-        int* inlierListGPU;
-        int* optimalModelIndex;
 
         //internal info [CPU]
-        Plane* selectedModel;
-        //int* inlierList;
+        Plane* selectionCPU;
         
 
 };

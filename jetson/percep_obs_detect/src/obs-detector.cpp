@@ -132,34 +132,7 @@ void ObsDetector::update(sl::Mat &frame) {
     GPU_Cloud pc; 
     getRawCloud(pc, frame);
 
-
-// TEST CODE 
-/*
-    int size = 8;
-    float4 testCPU[size] = {
-        {1,0,-2,4},
-        {2,0,2,4},
-        {0,0,0,4},
-        {10000,10000,10000,10000},
-        {1,0,-1,4},
-        {2,0,2,4},
-        {0,0,2,4},
-        {10000,-10000,10001,10000}
-    }; 
-
-    GPU_Cloud testCPUpc {
-        testCPU, size
-    };
-    cout << "Constructed\n";
-    float4* testGPU;
-    cudaMalloc(&testGPU, sizeof(float4)*size);
-    cudaMemcpy(testGPU, testCPU, sizeof(sl::float4)*size, cudaMemcpyHostToDevice);
-    GPU_Cloud testPC = { testGPU, size};
-    cout << "Copied over \n";
-
-*/
     // Processing
-    
     cout << "Original Size: "<< pc.size << "\n";
     passZ->run(pc);
     cout << "Pass-Through ran\n";
@@ -167,7 +140,7 @@ void ObsDetector::update(sl::Mat &frame) {
     ransacPlane->computeModel(pc);
     std::cout << "post ransac:" << pc.size << endl; 
     
-    /*
+    
     Bins bins;
 
     #if VOXEL

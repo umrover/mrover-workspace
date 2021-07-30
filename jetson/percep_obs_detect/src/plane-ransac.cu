@@ -7,111 +7,118 @@
 
 #define DEBUG
 
-// TODO: move this into common
+// does ceiling division
 __device__ int ceilDivGPU(int a, int b) {
     return (a + b - 1) / b;
 }
 
-/* 
-LAUNCH:
-    - [Block] # iterations [aka, randomly selected models] to try
-    - [Thread] MAX_THREADS
-
-REQUIRES:
-    - GPU point cloud
-    - A buffer to write inlier counts for each attempted model
-    - A buffer that tells the kernel what the randomly selected points were for each model
-    - Threshold distance for a pt to be considered an inlier
-EFFECTS:
-
-    [Block]: 
-    Each block represents an "iteration" of the traditional RANSAC algorithm. 
-    That is, every block has a different set of randomly chosen 3 points that define the
-    model (a plane is minimally defined by 3 points). The threads in the block then check
-    every point in the point cloud against the model for that block.
-
-    [Thread]:
-    Threads are used to decide how many points are inliers to the model. If
-    thread max = 1024 and there are 2048 points, each thread will process 2
-    points. Each thread will write the number of inliers in the set of points it evaluated
-    to its specific spot in shared memory. Threads are synced, and then threads will 
-    participate in a parallel reduction to give the total number of inliers for that block/model, 
-    which will be returned from the kernel in the inlierCounts buffer. 
+/**
+* Launch with iteration [aka, number of candidate models] many blocks and MAX_THREADS 
+* \brief Runs through RANSAC 'iterations' and computes the number of inliers for each iteration's candidate 
+* \param pc Point cloud to process 
+* \param candidatePlanePoints Array len(iterations) of randomly generated candidate planes. Each elt is an int3 containing 
+*  the INDICIES of three points from the point cloud data array which form a candidate plane
+* \param threshold How far a point may be from the candidate plane to be considered an inlier
+* \param axis The axis normal to the plane we are looking for
+* \param epsilon How far off the given axis a candidate plane can be without being rejected 
+* \param inlierCountOut An output array len(iterations) where the number of inliers for each candidate tried is stored
 */
-__global__ void ransacKernel(GPU_Cloud pc, float* inlierCounts, int* modelPoints, float threshold, float3 axis, float epsilon) { 
-    __shared__ float inlierField[MAX_THREADS];
-    inlierField[threadIdx.x] = 0;
 
-    int iteration = blockIdx.x; //which "iteration" of RANSAC
-    float inliers = 0; //number of inliers in this thread
+/* 
+    Each block represents an "iteration" of the traditional RANSAC algorithm. 
+    The threads in the block then check every point in the point cloud against 
+    the candidate for that iteration. Each thread is responsible for 
+    total_points/num_threads many points. The thread computes how many of its 
+    own points are inliers. It then participates in parallel reduction to give
+    the total number of inliers for that iteration in the output buffer
+*/
 
-    // select 3 random points from the cloud as the model that this particular block will evaluate
-    int randIdx0 = modelPoints[iteration*3 + 0];
-    int randIdx1 = modelPoints[iteration*3 + 1];
-    int randIdx2 = modelPoints[iteration*3 + 2];
+__global__ void ransacKernel(GPU_Cloud pc, int3* candidatePlanePoints, float threshold, float3 axis, float epsilon, int* inlierCountsOut) { 
+    // Set up internal inlier counts for each thread of this block to write to 
+    __shared__ float inlierCountInternal[MAX_THREADS];
+    inlierCountInternal[threadIdx.x] = 0;
 
-    if(randIdx0 >= pc.size || randIdx1 >= pc.size || randIdx2 >= pc.size) {
-        inlierCounts[iteration] = 0;
+    // Which "iteration" of RANSAC
+    int iteration = blockIdx.x; 
+    int3 candidateModelIndicies = candidatePlanePoints[iteration];
+
+    // Number of inliers in this thread
+    float inliers = 0;
+
+    // Verify that this candidate plane is actually valid and doesn't consist of a point that goes out of bounds
+    if(candidateModelIndicies.x >= pc.size || candidateModelIndicies.y >= pc.size || candidateModelIndicies.z >= pc.size) {
+        // Mark as an invalid model so its not chosen 
+        inlierCountsOut[iteration] = -1;
         return;
     }
 
-    float3 modelPt0 = make_float3(pc.data[randIdx0].x, pc.data[randIdx0].y, pc.data[randIdx0].z);
-    float3 modelPt1 = make_float3(pc.data[randIdx1].x, pc.data[randIdx1].y, pc.data[randIdx1].z);
-    float3 modelPt2 = make_float3(pc.data[randIdx2].x, pc.data[randIdx2].y, pc.data[randIdx2].z);    
+    float3 modelPt0 = make_float3(pc.data[candidateModelIndicies.x]);
+    float3 modelPt1 = make_float3(pc.data[candidateModelIndicies.y]);
+    float3 modelPt2 = make_float3(pc.data[candidateModelIndicies.z]);    
 
-    // Create a plane from the 3 points
+    // Create the candidate plane from the 3 points
     Plane plane(modelPt0, modelPt1, modelPt2);
 
-    //check that n dot desired axis is less than epsilon, if so, return here 
+    // Verify that the candidate plane's normal is within epsilon of desired axis
     if(abs(dot(normalize(plane.normal), normalize(axis))) < epsilon) {
-        if(threadIdx.x == 0) inlierCounts[iteration] = 0; //make it -1 to show invalid model?
+        // Mark as an invalid model so its not chosen 
+        inlierCountsOut[iteration] = 0; 
         return;
     }
 
     // Construct predicate to chek if a point is an inlier in the plane
     NotInPlane pred(plane.normal, modelPt1, threshold);
 
-    // figure out how many points each thread must compute distance for and determine if each is inlier/outlier
+    // Figure out how many points each thread must check 
     int pointsPerThread = ceilDivGPU(pc.size, MAX_THREADS);
     for(int i = 0; i < pointsPerThread; i++) {
-        // select a point index or return if this isn't a valid point
+        // Select a point index or return if this isn't a valid point
         int pointIdx = threadIdx.x * pointsPerThread + i;
-        if(pointIdx >= pc.size) continue; //TODO Should this be return??? 
+        if(pointIdx >= pc.size) continue; 
         
-        // point in the point cloud that could be an inlier or outlier
-        float4 curPt = make_float4(pc.data[pointIdx].x, pc.data[pointIdx].y, pc.data[pointIdx].z, 0);
+        // Point in the point cloud that could be an inlier or outlier
+        float4 curPt = pc.data[pointIdx];
         
-        //add a 1 if inlier in plane, 0 if not 
-        inliers += (pred(curPt)) ? 0 : 1; //very probalmatic line, how can we reduce these checks
+        // Add a 1 if inlier in plane, 0 if not 
+        inliers += (pred(curPt)) ? 0 : 1; 
     }
     
-    //parallel reduction to get an aggregate sum of the number of inliers for this model
-    //this is all equivalent to sum(inlierField), but it does it in parallel
-    inlierField[threadIdx.x] = inliers;
+    // Load the inliers for this thread into the shared memory that all threads can access
+    inlierCountInternal[threadIdx.x] = inliers;
     __syncthreads();
+
+    // Parallel reduction to get an aggregate sum of the number of inliers for this model
+    // This is all equivalent to sum(inlierCountInternal), but it does it in parallel
     int aliveThreads = (blockDim.x) / 2;
 	while (aliveThreads > 0) {
 		if (threadIdx.x < aliveThreads) {
-            inliers += inlierField[aliveThreads + threadIdx.x];
-			if (threadIdx.x >= (aliveThreads) / 2) inlierField[threadIdx.x] = inliers;
+            inliers += inlierCountInternal[aliveThreads + threadIdx.x];
+			if (threadIdx.x >= (aliveThreads) / 2) inlierCountInternal[threadIdx.x] = inliers;
 		}
 		__syncthreads();
 		aliveThreads /= 2;
 	}
 
-    //at the final thread, write to global memory
+    // At the final thread, write the number of inliers for this iteration's model to global memory
     if(threadIdx.x == 0) {
-        inlierCounts[iteration] = inliers;
+        inlierCountsOut[iteration] = inliers;
     } 
 }
 
  /**
   * \brief Updates the plane selection from the cloud using the given model index 
   */
-__global__ void getOptimalModelPoints(GPU_Cloud pc, Plane &selection, int idx, int* modelPoints, float* maxCount) {
-    int pt = threadIdx.x;
-    float4 point = pc.data[modelPoints[3*idx + pt]];
-    selection[pt] = make_float3(point.x, point.y, point.z);
+__global__ void getOptimalModelPoints(GPU_Cloud pc, Plane &selection, int optimalCandidateIndex, int3* candidatePlanePoints, int* maxInliersCount) {
+    // Each thread is responsible for one point in the output candidate plane, there will be 3 threads
+    int candidatePtNum = threadIdx.x;
+
+    // Copy the point from the cloud into the output plane object
+    float4 point;
+    if(candidatePtNum == 0) point = pc.data[candidatePlanePoints[optimalCandidateIndex].x];
+    if(candidatePtNum == 1) point = pc.data[candidatePlanePoints[optimalCandidateIndex].y];
+    if(candidatePtNum == 2) point = pc.data[candidatePlanePoints[optimalCandidateIndex].z];
+
+    selection[candidatePtNum] = make_float3(point);
 
     // Use one thread to compute the normal
     __syncthreads();
@@ -119,19 +126,18 @@ __global__ void getOptimalModelPoints(GPU_Cloud pc, Plane &selection, int idx, i
         selection.ComputeNormal();
 
         #ifdef DEBUG
-        printf("Winner model inlier count: %f \n", *maxCount);
+        printf("Winner model inlier count: %d \n", *maxInliersCount);
         #endif
     }
 }
 
 void RansacPlane::selectOptimalModel() {
-    float* maxCount = thrust::max_element(thrust::device, inlierCounts, inlierCounts + iterations);
-    // Pointer arithmetic gives us the model index with most inliers
-    int maxIdx = maxCount - inlierCounts;
-    // Send the index to GPU
-    cudaMemcpy(optimalModelIndex, &maxIdx , sizeof(int), cudaMemcpyHostToDevice);
-    // Now launch a kernel to write the Plane of this model into selection
-    getOptimalModelPoints<<<1, 3>>>(pc, *selection, maxIdx, modelPoints, maxCount);
+    // Get a pointer to the elt in inlierCounts that is the greatest
+    int* maxCount = thrust::max_element(thrust::device, inlierCounts, inlierCounts + iterations);
+    // Pointer arithmetic gives us the optimal model index with most inliers
+    int optIdx = maxCount - inlierCounts;
+    // Now launch a kernel to construct the Plane object 'selection'
+    getOptimalModelPoints<<<1, 3>>>(pc, *selection, optIdx, candidatePlanePoints, maxCount);
     checkStatus(cudaDeviceSynchronize());
 }
 
@@ -139,38 +145,38 @@ RansacPlane::RansacPlane(float3 axis, float epsilon, int iterations, float thres
     : pc(pc), axis(axis), epsilon(epsilon), iterations(iterations), threshold(threshold), removalRadius(removalRadius)  {
     
     //Set up buffers needed for RANSAC
-    cudaMalloc(&inlierCounts, sizeof(float) * iterations); 
-    cudaMalloc(&modelPoints, sizeof(int) * iterations * 3);
+    cudaMalloc(&inlierCounts, sizeof(int) * iterations); 
+    cudaMalloc(&candidatePlanePoints, sizeof(int3) * iterations);
     cudaMalloc(&selection, sizeof(Plane));
-    cudaMalloc(&optimalModelIndex, sizeof(int));
 
     //Generate random numbers in CPU to use in RANSAC kernel
-    int* randomNumsCPU = (int*) malloc(sizeof(int) * iterations* 3);
-
+    int3* randomNumsCPU = (int3*) malloc(sizeof(int3) * iterations);
     for(int i = 0; i < iterations; i++) {
         int a = 0;
         int b = 0;
         int c = 0;
+        // Prevent duplicate points in a particular model
         while(a == b || b == c || a == c) {
             a = rand() % pcSize;
             b = rand() % pcSize;
             c = rand() % pcSize;
         }
-    
-        randomNumsCPU[i*3] = a;
-        randomNumsCPU[i*3 + 1] = b;
-        randomNumsCPU[i*3 + 2] = c; 
+        randomNumsCPU[i].x = a;
+        randomNumsCPU[i].y = b;
+        randomNumsCPU[i].z = c;
     }
-
-    cudaMemcpy(modelPoints, randomNumsCPU, sizeof(int) * iterations * 3, cudaMemcpyHostToDevice);
+    cudaMemcpy(candidatePlanePoints, randomNumsCPU, sizeof(int3) * iterations, cudaMemcpyHostToDevice);
     free(randomNumsCPU);
 
-    // Generate a buffer for retreiving the selected model from CUDA Kernels
-    selectedModel = (Plane*) malloc(sizeof(Plane)); 
+    // Generate a CPU buffer for retreiving the selected model from CUDA Kernels
+    selectionCPU = (Plane*) malloc(sizeof(Plane)); 
 }
 
 Plane RansacPlane::computeModel(GPU_Cloud &pc) {
-    if(pc.size == 0) return {make_float3(0,0,0), make_float3(0,0,0), make_float3(0,0,0)};
+    if(pc.size == 0) {
+        std::cout << "[WARNING] Can't run RANSAC on empty plane." << std::endl;
+        return {make_float3(0,0,0), make_float3(0,0,0), make_float3(0,0,0)};
+    }
 
     // Copy vars locally
     this->pc = pc;
@@ -178,32 +184,28 @@ Plane RansacPlane::computeModel(GPU_Cloud &pc) {
     int threads = MAX_THREADS;
     
     // Get a list of models and corresponding inlier count
-    ransacKernel<<<blocks, threads>>>(pc, inlierCounts, modelPoints, threshold, axis, cos(epsilon*3.1415/180));
+    ransacKernel<<<blocks, threads>>>(pc, candidatePlanePoints, threshold, axis, cos(epsilon*3.1415/180), inlierCounts);
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
 
     // Choose the model with the greatest inlier count
     selectOptimalModel();
 
-    checkStatus(cudaGetLastError());
-    checkStatus(cudaDeviceSynchronize());   
-
     // Copy selected plane to CPU
-    cudaMemcpy(selectedModel, selection, sizeof(Plane), cudaMemcpyDeviceToHost);
+    cudaMemcpy(selectionCPU, selection, sizeof(Plane), cudaMemcpyDeviceToHost);
     
     // Filter out all the points in the plane
-    NotInPlane predicate(selectedModel->normal, selectedModel->p1, threshold);
+    NotInPlane predicate(selectionCPU->normal, selectionCPU->p1, threshold);
     Filter<NotInPlane>(pc, predicate, FilterOp::REMOVE, 0);
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
 
-    return *selectedModel;
+    return *selectionCPU;
 }
 
 RansacPlane::~RansacPlane() {
     cudaFree(inlierCounts);
-    cudaFree(modelPoints);
+    cudaFree(candidatePlanePoints);
     cudaFree(selection);
-    cudaFree(optimalModelIndex);
-    free(selectedModel);
+    free(selectionCPU);
 }
