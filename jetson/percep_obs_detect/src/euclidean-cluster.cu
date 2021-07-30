@@ -10,7 +10,7 @@
 #include <limits>     //for std::numeric_limits<> 
 
 //Helper functions
-__device__ float getFloatData(int axis, sl::float4 &val) {
+__device__ float getFloatData(int axis, float4 &val) {
     if(!axis)
         return val.x;
     else if(axis == 1)
@@ -19,40 +19,44 @@ __device__ float getFloatData(int axis, sl::float4 &val) {
         return val.z;
 }
             
-__device__ float getData(int axis, int index, sl::float4 *data) {
-    return getFloatData(axis, data[index]);    
+__device__ float getData(int axis, int index, float4 *data) {
+    return getFloatData(axis, data[index]); 
 }
 
-__global__ void determineGraphStructureKernelN2(GPU_Cloud_F4 pc, float tolerance, int* listStart) {
+__global__ void determineGraphStructureKernelN2(GPU_Cloud pc, float tolerance, int* listStart) {
     int ptIdx = blockIdx.x * blockDim.x + threadIdx.x;
     if(ptIdx >= pc.size) return;
+    if (ptIdx == 0) printf("OK\n");
 
-    sl::float3 pt = pc.data[ptIdx];
+    float4 ptLocal = pc.data[ptIdx];
+    float3 pt = make_float3(ptLocal.x, ptLocal.y, ptLocal.z);
     int neighborCount = 0;
     
     //horrible slow way of doing this that is TEMPORARY --> please switch to radix sorted bins
     for(int i = 0; i < pc.size; i++) {
-        sl::float3 dvec = (pt - sl::float3(pc.data[i]));
+        float4 tmpPtLocal = pc.data[i];
+        float3 dvec = (pt - make_float3(tmpPtLocal.x, tmpPtLocal.y, tmpPtLocal.z));
         //this is a neighbor
-        if( dvec.norm() < tolerance && i != ptIdx) {
+        if( length(dvec) < tolerance && i != ptIdx) {
             neighborCount++;
         }
     }
     listStart[ptIdx] = neighborCount;
 
     //we must do an exclusive scan using thrust after this kernel
-    //printf("%d: %d \n",ptIdx, neighborCount );
+    if (ptIdx == 0) printf("Nice\n");
 }
 
 
 /* This kernel builds the graph 
 Fairly standard adjacency list structure. 
 */
-__global__ void buildGraphKernelN2(GPU_Cloud_F4 pc, float tolerance, int* neighborLists, int* listStart, int* labels, bool* f1, bool* f2) {
+__global__ void buildGraphKernelN2(GPU_Cloud pc, float tolerance, int* neighborLists, int* listStart, int* labels, bool* f1, bool* f2) {
     int ptIdx = blockIdx.x * blockDim.x + threadIdx.x;
     if(ptIdx >= pc.size) return;
 
-    sl::float3 pt = pc.data[ptIdx];
+    float4 ptLocal = pc.data[ptIdx];
+    float3 pt = make_float3(ptLocal.x, ptLocal.y, ptLocal.z);
     int neighborCount = 0;
     //get the adjacency list for this point
     int* list = neighborLists + listStart[ptIdx];
@@ -60,9 +64,10 @@ __global__ void buildGraphKernelN2(GPU_Cloud_F4 pc, float tolerance, int* neighb
     //horrible slow way of doing this that is TEMPORARY --> please switch to radix sorted bins
     for(int i = 0; i < pc.size; i++) {
 
-        sl::float3 dvec = (pt - sl::float3(pc.data[i]));
+        float4 tmpPtLocal = pc.data[i];
+        float3 dvec = (pt - make_float3(tmpPtLocal.x, tmpPtLocal.y, tmpPtLocal.z));
         //this is a neighbor
-        if( dvec.norm() < tolerance && i != ptIdx) {
+        if( length(dvec) < tolerance && i != ptIdx) {
             list[neighborCount] = i;
             neighborCount++;
         }
@@ -73,11 +78,11 @@ __global__ void buildGraphKernelN2(GPU_Cloud_F4 pc, float tolerance, int* neighb
     f2[ptIdx] = false;
 }
 
-__global__ void determineGraphStructureKernel(GPU_Cloud_F4 pc, float tolerance, int* listStart, Bins bins) {
+__global__ void determineGraphStructureKernel(GPU_Cloud pc, float tolerance, int* listStart, Bins bins) {
     int ptIdx = blockIdx.x * blockDim.x + threadIdx.x;
     if(ptIdx >= pc.size) return;
 
-    sl::float3 pt = pc.data[ptIdx];
+    float3 pt = make_float3(pc.data[ptIdx].x, pc.data[ptIdx].y, pc.data[ptIdx].z);
     int neighborCount = 0;
     float partitionLength = bins.partitionLength;
     int binNum = pc.data[ptIdx].w;
@@ -133,9 +138,9 @@ __global__ void determineGraphStructureKernel(GPU_Cloud_F4 pc, float tolerance, 
                 if(ptIdx== check) printf("Differece: %i\n", bins.data[k+1] - bins.data[k]);
                 if(ptIdx == check) printf("k Val: %i\n", k);
                 for(int l = 0; l < bins.data[k+1] - bins.data[k]; ++l) {
-                    sl::float3 dvec = (pt - sl::float3(pc.data[l+bins.data[k]]));
+                    float3 dvec = (pt - make_float3(pc.data[l+bins.data[k]].x, pc.data[l+bins.data[k]].y, pc.data[l+bins.data[k]].z));
                     //this is a neighbor
-                    if( dvec.norm() < tolerance && l+bins.data[k] != ptIdx) {
+                    if( length(dvec) < tolerance && l+bins.data[k] != ptIdx) {
                         neighborCount++;
                     }
                     if(ptIdx == check) {
@@ -156,11 +161,11 @@ __global__ void determineGraphStructureKernel(GPU_Cloud_F4 pc, float tolerance, 
 /* This kernel builds the graph 
 Fairly standard adjacency list structure. 
 */
-__global__ void buildGraphKernel(GPU_Cloud_F4 pc, float tolerance, int* neighborLists, int* listStart, int* labels, bool* f1, bool* f2, Bins bins) {
+__global__ void buildGraphKernel(GPU_Cloud pc, float tolerance, int* neighborLists, int* listStart, int* labels, bool* f1, bool* f2, Bins bins) {
     int ptIdx = blockIdx.x * blockDim.x + threadIdx.x;
     if(ptIdx >= pc.size) return;
 
-    sl::float3 pt = pc.data[ptIdx];
+    float3 pt = make_float3(pc.data[ptIdx].x, pc.data[ptIdx].y, pc.data[ptIdx].z);
     int neighborCount = 0;
     float partitionLength = bins.partitionLength;
     int startBin = pc.data[ptIdx].w;
@@ -214,9 +219,9 @@ __global__ void buildGraphKernel(GPU_Cloud_F4 pc, float tolerance, int* neighbor
                 if(ptIdx == check) printf("Differece: %i\n", bins.data[k+1] - bins.data[k]);
                 if(ptIdx == check) printf("k Val: %i\n", k);
                 for(int l = 0; l < bins.data[k+1] - bins.data[k]; ++l) {
-                    sl::float3 dvec = (pt - sl::float3(pc.data[l+bins.data[k]]));
+                    float3 dvec = (pt - make_float3(pc.data[l+bins.data[k]].x, pc.data[l+bins.data[k]].y, pc.data[l+bins.data[k]].z));
                     //this is a neighbor
-                    if( dvec.norm() < tolerance && l+bins.data[k] != ptIdx) {
+                    if( length(dvec) < tolerance && l+bins.data[k] != ptIdx) {
                         list[neighborCount] = l+bins.data[k];
                         neighborCount++;
                     }
@@ -240,7 +245,7 @@ this kernel propogates labels, it must be called in a loop until its flag "m" is
 no more changes are pending. 
 */
 //each thread is a point 
-__global__ void propogateLabels(GPU_Cloud_F4 pc, int* neighborLists, int* listStart, int* labels, bool* f1, bool* f2, bool* m) {
+__global__ void propogateLabels(GPU_Cloud pc, int* neighborLists, int* listStart, int* labels, bool* f1, bool* f2, bool* m) {
     int ptIdx = blockIdx.x * blockDim.x + threadIdx.x;
     if(ptIdx >= pc.size) return;
 
@@ -318,7 +323,7 @@ __device__ __forceinline__ float atomicMaxFloat (float * addr, float value) {
 }
 
 //this debug kernel colors points based on their label
-__global__ void colorClusters(GPU_Cloud_F4 pc, int* labels, int* keys, int* values, int minCloudSize, int numClusters, float* minX, float* maxX, float* minY, float* maxY, float* minZ, float* maxZ) {
+__global__ void colorClusters(GPU_Cloud pc, int* labels, int* keys, int* values, int minCloudSize, int numClusters, float* minX, float* maxX, float* minY, float* maxY, float* minZ, float* maxZ) {
     int ptIdx = blockIdx.x * blockDim.x + threadIdx.x;
     if(ptIdx >= pc.size) return;
 
@@ -360,7 +365,7 @@ __global__ void colorClusters(GPU_Cloud_F4 pc, int* labels, int* keys, int* valu
 }
 
 //this is practically serial, can we just color using OpenGL functions
-__global__ void colorExtrema(GPU_Cloud_F4 pc, int* values, int minSize, int* labels, int numClustersOrig, int* validClustersCount, float* minX, float* maxX,  float* minY, float* maxY, float* minZ, float* maxZ) {
+__global__ void colorExtrema(GPU_Cloud pc, int* values, int minSize, int* labels, int numClustersOrig, int* validClustersCount, float* minX, float* maxX,  float* minY, float* maxY, float* minZ, float* maxZ) {
     int clusterIdx = blockIdx.x * blockDim.x + threadIdx.x;
     if(clusterIdx >= numClustersOrig) return;
 
@@ -369,13 +374,13 @@ __global__ void colorExtrema(GPU_Cloud_F4 pc, int* values, int minSize, int* lab
     else return;
 
   
-    pc.data[place*2] = sl::float4(minX[clusterIdx], (minY[clusterIdx] + maxY[clusterIdx])/2, minZ[clusterIdx], 0.0);
-    pc.data[place*2+1] = sl::float4(maxX[clusterIdx], (minY[clusterIdx] + maxY[clusterIdx])/2, minZ[clusterIdx], 0.0);
+    pc.data[place*2] = make_float4(minX[clusterIdx], (minY[clusterIdx] + maxY[clusterIdx])/2, minZ[clusterIdx], 0.0);
+    pc.data[place*2+1] = make_float4(maxX[clusterIdx], (minY[clusterIdx] + maxY[clusterIdx])/2, minZ[clusterIdx], 0.0);
         
     //serailze the extrema into a float4 vector using the "place"
 }
 
-__global__ void colorClustersNew(GPU_Cloud_F4 pc, int* labels, int* keys, int numClusters) {
+__global__ void colorClustersNew(GPU_Cloud pc, int* labels, int* keys, int numClusters) {
     int ptIdx = blockIdx.x * blockDim.x + threadIdx.x;
     if(ptIdx >= pc.size) return;
 
@@ -417,7 +422,7 @@ EuclideanClusterExtractor::EuclideanClusterExtractor(float tolerance, int minSiz
 EuclideanClusterExtractor::EuclideanClusterExtractor() {}
 
 //perhaps use dynamic parallelism 
-EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(GPU_Cloud_F4 pc, Bins &bins) {
+EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(GPU_Cloud &pc, Bins &bins) {
     ObsReturn empty;
     empty.size = 0;
     if(pc.size == 0) return empty;
@@ -425,13 +430,18 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     // Find the structure for adjacency list of all points
     printf("Partition Length: %f\n", bins.partitionLength);
     std::cerr <<"Determining Graph Structure\n";
+    std::cerr << "Size: " << pc.size << "\n";
     #if !VOXEL
         determineGraphStructureKernelN2<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tolerance, listStart);
+        checkStatus(cudaGetLastError());
+        checkStatus(cudaDeviceSynchronize());
     #endif
     #if VOXEL
-        determineGraphStructureKernel<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tolerance, listStart, bins);
+       determineGraphStructureKernel<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tolerance, listStart, bins);
+       checkStatus(cudaGetLastError());
+       checkStatus(cudaDeviceSynchronize());
     #endif
-    
+    std::cerr <<"Start exclusive\n";
     thrust::exclusive_scan(thrust::device, listStart, listStart+pc.size+1, listStart, 0);
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
@@ -440,19 +450,23 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     int totalAdjanecyListsSize;
     checkStatus(cudaMemcpy(&totalAdjanecyListsSize, &listStart[pc.size], sizeof(int), cudaMemcpyDeviceToHost));
     cudaMalloc(&neighborLists, sizeof(int)*totalAdjanecyListsSize);
-
+    std::cerr <<"Start build graph\n";
     // Populate adjacency list structure
     #if !VOXEL
         buildGraphKernelN2<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tolerance, neighborLists, listStart, labels, f1, f2);
+        checkStatus(cudaGetLastError());
+        checkStatus(cudaDeviceSynchronize());
     #endif
     #if VOXEL
         buildGraphKernel<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tolerance, neighborLists, listStart, labels, f1, f2, bins);
+        checkStatus(cudaGetLastError());
+        checkStatus(cudaDeviceSynchronize());
     #endif
 
     //std::cerr<<"Graph kernel built\n";
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
-
+    std::cerr <<"Loop\n";
     bool stillGoingCPU = true;    
     while(stillGoingCPU) {
         //one iteration of label propogation
@@ -476,7 +490,7 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     thrust::device_vector<int> count(pc.size, 1); //buffer of all 1s. Len(N)
     thrust::device_vector<int> keys(pc.size); //Each clusters unique ID in ascending order Len(C)
     thrust::device_vector<int> values(pc.size); //The number of points in each cluster in ascending order by ID. Len(C)
-
+    std::cerr <<"Copy and Sort\n";
     thrust::copy(thrust::device, labels, labels+pc.size, labelsSorted.begin()); //first make the labels sorted contain the labels in order of points
     thrust::sort(thrust::device, labelsSorted.begin(), labelsSorted.end()); //now sort the labels by their label idx, 
     auto pair = thrust::reduce_by_key(thrust::device, labelsSorted.begin(), labelsSorted.end(), count.begin(), keys.begin(), values.begin()); //remove duplicate labels and determine the number of points belonging to each label    
@@ -526,7 +540,7 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     cudaMalloc(&validClustersCount, sizeof(int));
     cudaMemset(validClustersCount, 0, sizeof(int));
     //colorExtrema<<<ceilDiv(numClustersOrig, MAX_THREADS), MAX_THREADS >>>(pc, gpuVals, minSize, labels, numClustersOrig, validClustersCount, minX, maxX, minY, maxY, minZ, maxZ);
-
+    // TODO: make maxSize do something
     float *minXCPU, *maxXCPU, *minYCPU, *maxYCPU, *minZCPU, *maxZCPU; 
     minXCPU = (float*) malloc(sizeof(float)*numClustersOrig);
     maxXCPU = (float*) malloc(sizeof(float)*numClustersOrig);

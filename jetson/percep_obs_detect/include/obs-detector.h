@@ -4,20 +4,21 @@
 #include "plane-ransac.hpp"
 #include "pass-through.hpp"
 #include "GLViewer.hpp"
+#include "voxel-grid.hpp"
 #include "euclidean-cluster.hpp"
 #include <thread>
-#include "Timer.hpp"
+#include "timer.hpp"
 #include "common.hpp"
 #include "pcl.hpp"
 #include "voxel-grid.hpp"
-#include <lcm/lcm-cpp.hpp>
-#include "rover_msgs/Obstacle.hpp"
+//#include <lcm/lcm-cpp.hpp>
+//#include "rover_msgs/Obstacle.hpp"
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <cstring>
 #include <iostream>
-
+// TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;
 
 /*
@@ -99,8 +100,8 @@ class ObsDetector {
 
     private: 
         //Lcm
-        lcm::LCM lcm_;
-        rover_msgs::Obstacle obstacleMessage;
+        //lcm::LCM lcm_;
+        //rover_msgs::Obstacle obstacleMessage;
 
         //Data sources
         sl::Camera zed;
@@ -130,7 +131,7 @@ class ObsDetector {
         std::string readDir;
         
         //Output data
-        RansacPlane::Plane planePoints;
+        Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
         float leftBearing;
         float rightBearing;

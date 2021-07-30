@@ -17,7 +17,7 @@ incdir = include_directories('include/')
 
 if with_zed
 
-    zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include')
+    zed_include_dirs = include_directories('/usr/local/zed/include', '/usr/local/cuda/include', '/usr/local/cuda/samples/common/inc')
     zed = declare_dependency(
         include_directories : zed_include_dirs,
         link_args : [
@@ -76,9 +76,8 @@ speed_args = ['--use_fast_math']
 # Not sure if the arch_args help at all. Might be worth investigating
 # These are specific to GPU. If you run deviceQuery and see your compute compatibility the major/minor corresponds to the numver listed below
 # My compute compatibility for these flags was 7.5
-#arch_args = ['-arch=compute_72', '-code=sm_72'] this is breaking things on great lakes, its prob the wrong version like you said but we should automate that
-arch_args = []
-
+arch_args = ['-arch=compute_75', '-code=sm_75', '--use_fast_math'] # this is breaking things on great lakes, its prob the wrong version like you said but we should automate that
+#arch_args = []
 all_deps+=[lcm]
 
 # disables all warns, ideally we'd like warns for our own code, but the log spam is unbearable
@@ -87,7 +86,7 @@ add_global_arguments('-w', language : 'cpp')
 add_global_arguments('-w', language : 'cuda')
 
 
-exe = executable('percep_obs_detect', 'src/obs-detector.cpp', 'src/common.cu', 'src/euclidean-cluster.cu', 'src/find-clear.cu', 'src/GLViewer.cpp', 
+exe = executable('percep_obs_detect', 'src/find-clear.cu', 'src/euclidean-cluster.cu', 'src/common.cu', 'src/filter.cu', 'src/obs-detector.cpp',  'src/GLViewer.cpp', 
                 'src/pass-through.cu', 'src/pcl.cpp', 'src/plane-ransac.cu', 'src/voxel-grid.cu', install : true, dependencies : all_deps, include_directories : incdir,
                 cuda_args : arch_args )
 #exe = executable('jetson_obs_detector', 'src/driver.cpp' , install : true, dependencies : all_deps, include_directories : incdir)
