@@ -195,6 +195,8 @@ public:
 
     void publishGimbal();
 
+    bool sendGimbalSetpoint(double desired_yaw);
+
 private:
     /*************************************************************************/
     /* Private Member Functions */

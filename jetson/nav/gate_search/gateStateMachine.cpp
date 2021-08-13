@@ -145,7 +145,7 @@ NavState GateStateMachine::executeGateSearchGimbal()
 
     //set the desired_yaw to wherever the next stop on the gimbals path is
     //enter the if if the gimbal is at the next stop
-    if( mPhoebe->gimbal().setDesiredGimbalYaw( nextStop ) )
+    if( mPhoebe->sendGimbalSetpoint( nextStop ) )
     {
         //if the next stop is at the desired_yaw for the phase (150, -150, 0)
         if ( nextStop == desired_yaw )
@@ -186,7 +186,7 @@ NavState GateStateMachine::executeGateSearchGimbal()
         return NavState::GateWait;
     }
 
-    mPhoebe->publishGimbal( );
+    
 
     return NavState::GateSearchGimbal;
 }//executeGateSearchGimbal()

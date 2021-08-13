@@ -332,9 +332,16 @@ Gimbal& Rover::gimbal()
     return mGimbal;
 }
 
-// tells the gimbal to go to its requested location
+// tells the gimbal to go to its requested location, DEPRECATED
 void Rover::publishGimbal(){
     mGimbal.publishControlSignal( mLcmObject, mRoverConfig );
+}
+
+// sends the gimbal a desired yaw setpoint, gimbal publishes command
+bool Rover::sendGimbalSetpoint(double desired_yaw){
+    bool r = mGimbal.setDesiredGimbalYaw(desired_yaw);
+    mGimbal.publishControlSignal( mLcmObject, mRoverConfig );
+    return r;
 }
 
 
