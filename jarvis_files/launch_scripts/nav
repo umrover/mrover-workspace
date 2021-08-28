@@ -6,7 +6,7 @@ xdotool windowfocus $WID
 
 # Enter commands you want to be executed in the window here
 
-# Run Perception
+# Run Navigation
 xdotool key type "./jarvis exec jetson/nav"
 xdotool key KP_Enter
 
