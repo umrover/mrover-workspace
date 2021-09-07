@@ -7,3 +7,6 @@ Environment="XAUTHORITY=/home/mrover/.Xauthority"
 User=mrover
 ExecStart=bash /mrover-workspace/base_station/cameras/run.sh
 Restart=always
+
+[Install]
+WantedBy=multi-user.target
