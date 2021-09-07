@@ -7,9 +7,9 @@
         <span v-if="scoopUV == 1" class="toggle__label" >Scoop UV On</span>
         <span v-if="scoopUV == 0" class="toggle__label" >Scoop UV Off</span>
 
-        <input type="checkbox" id="toggle_button" v-model="checkedValue">
-        <span class="toggle__switch" v-if="scoopUV == 0" v-on:click="scoopUV=1,setPart(mosfetIDs.uvBulb,true)"></span>
-        <span class="toggle__switch" v-if="scoopUV == 1" v-on:click="scoopUV=0,setPart(mosfetIDs.uvBulb,false)"></span>
+        <input type="checkbox" id="toggle_button">
+        <span class="toggle__switch" v-if="scoopUV == 0" v-on:click="scoopUV = 1, setPart(mosfetIDs.uvBulb, true)"></span>
+        <span class="toggle__switch" v-if="scoopUV == 1" v-on:click="scoopUV = 0, setPart(mosfetIDs.uvBulb, false)"></span>
     </label>
 
 </div>  
@@ -87,13 +87,6 @@ export default {
   data () {
     return {
       scoopUV: 0,
-    }
-  },
-  created:{ 
-    function () {
-      this.$parent.subscribe('/mosfet_cmd', (msg) => {
-        this.scoopUV = msg.scoopUV
-      })
     }
   },
   props: {

@@ -16,7 +16,7 @@
             <span v-if="nichWire2 == 1" class="toggle__label" >Heater A On</span>
             <span v-if="nichWire2 == 0" class="toggle__label" >Heater A Off</span>
 
-            <input type="checkbox" id="toggle_button" v-model="checkedValue">
+            <input type="checkbox" id="toggle_button">
             <span class="toggle__switch" v-if="nichWire2 == 0" v-on:click="nichWire2=1,setPart(mosfetIDs.nichWire2,true)"></span>
             <span class="toggle__switch" v-if="nichWire2 == 1" v-on:click="nichWire2=0,setPart(mosfetIDs.nichWire2,false)"></span>
         </label>
@@ -28,7 +28,7 @@
             <span v-if="nichWire1 == 1" class="toggle__label" >Heater B On</span>
             <span v-if="nichWire1 == 0" class="toggle__label" >Heater B Off</span>
 
-            <input type="checkbox" id="toggle_button" v-model="checkedValue">
+            <input type="checkbox" id="toggle_button">
             <span class="toggle__switch" v-if="nichWire1 == 0" v-on:click="nichWire1=1,setPart(mosfetIDs.nichWire1,true)"></span>
             <span class="toggle__switch" v-if="nichWire1 == 1" v-on:click="nichWire1=0,setPart(mosfetIDs.nichWire1,false)"></span>
         </label>
@@ -40,7 +40,7 @@
             <span v-if="nichWire0 == 1" class="toggle__label" >Heater C On</span>
             <span v-if="nichWire0 == 0" class="toggle__label" >Heater C Off</span>
 
-            <input type="checkbox" id="toggle_button" v-model="checkedValue">
+            <input type="checkbox" id="toggle_button">
             <span class="toggle__switch" v-if="nichWire0 == 0" v-on:click="nichWire0=1,setPart(mosfetIDs.nichWire0,true)"></span>
             <span class="toggle__switch" v-if="nichWire0 == 1" v-on:click="nichWire0=0,setPart(mosfetIDs.nichWire0,false)"></span>
         </label>
