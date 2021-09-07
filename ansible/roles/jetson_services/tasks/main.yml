@@ -11,7 +11,7 @@
       - rover-jetson-microscope
       - rover-jetson-nav
       - rover-jetson-raman
-      - rover-jetson-science_bridge
+      - rover-jetson-science-bridge
       - rover-jetson-teleop
 
 - name: Copy environment variable definitions
@@ -38,5 +38,5 @@
       - rover-jetson-microscope.service
       - rover-jetson-nav.service
       - rover-jetson-raman.service
-      - rover-jetson-science_bridge.service
+      - rover-jetson-science-bridge.service
       - rover-jetson-teleop.service
