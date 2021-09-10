@@ -51,6 +51,12 @@ vector<uint8_t> Map::extractObstacles(){
     // from here, get the equilateral triangle of side length 25
     // to "simulate" the camera view of the rover 
 
+    // Approach 1: set a length for the median/altitude 
+    // Approach 2: instead of lengths, work with vectors 
+    // Approach 3:
+
+    // --> So far, all these approaches will be tricky for 1 condition => non 0, 90, 180, 360 angles 
+    // may have to do a case by case??
 }
 
 void Map::colorMap(){
