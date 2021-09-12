@@ -58,7 +58,7 @@ Subscribers: jetson/nav
 #### UART Message
 Format of the UART NMEA command
 - `$Mosfet,<device>,<enable>,<extra padding>`
-- String is 13 characters long
+- String is 20 characters long
 
 ### Ammonia
 Writes NMEA like messages over UART to the Nucleo in order to run the ammonia test linear actuator forward/backwards at a given speed. 
@@ -66,9 +66,30 @@ Writes NMEA like messages over UART to the Nucleo in order to run the ammonia te
 Messsages: [AmmoniaCmd.lcm](https://github.com/jnnanni/mrover-workspace/blob/sagui/rover_msgs/AmmoniaCmd.lcm) "/ammonia_cmd" \
 Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
-### UART Message
+#### UART Message
 Format of the UART NMEA command
 - `$AMMONIA,<speed>,<padding commas>`
-- String is 13 characters long
+- String is 20 characters long
 - Speed can range from -1 to 1 & is capped at those two points 
+
+### HBridge Errors
+There are two pins on the hbridge, LO1 and LO2, that designate error status. \
+LO1    |   LO2  \
+High   |   High - Normal \
+High   |   Low - Motor load open (OPD) \
+Low    |   High - Over current (ISD) \
+Low    |   Low - Over thermal (TSD)
+
+The nucleo will send a NMEA style message describing the error to the bridge program. \
+Using pins PA7 and PC4 on the nucleo - seem to cause no errors/issues.
+#### UART Message
+Format of the error message.
+- `$HBRIDGE,<error>`
+## TODO
+- [ ] Finish this readme
+- [x] Increase mosfet buffer to probably around 20 (whatever the buffer size is on the science nucleo) (this is to handle more precise ammonia motor speeds (i.e -0.25) / more importantly handle double digit mosfet devices
+- [x] Fix bug where the mosfet handler is a 13 byte buffer but if it's a double digit device it will send 14 bytes 
+- [x] Revert mosfet struct back to what is in the ICD once this ^ bug has been fixed 
+- [x] Pass the linter
+- [ ] Receive handler for hbridge errors - WIP
 

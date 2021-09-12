@@ -4,29 +4,26 @@ science nucleo to operate the science boxes and get relevant data
 '''
 import serial
 import asyncio
-# import Adafruit_BBIO.UART as UART
+# import Adafruit_BBIO.UART as UART # for beaglebone use only
 import numpy as np
-import re
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, NavStatus, AmmoniaCmd
+
+
 class ScienceBridge():
     def __init__(self):
-        # UART.setup("UART4")  #  Specific to beaglebone
+        # UART.setup("UART4")  # Specific to beaglebone
         # maps NMEA msgs to their handler
-        # mosfet, ammonia, and pump only send msgs
+        # mosfet, ammonia, and repeater only send msgs
         self.NMEA_HANDLE_MAPPER = {
-            "SPECTRAL" : self.spectral_handler,
-            "THERMISTOR" : self.thermistor_handler,
+            "SPECTRAL": self.spectral_handler,
+            "THERMISTOR": self.thermistor_handler,
             "TXT": self.txt_handler,
             "REPEATER": self.repeater_handler
         }
-        self.NMEA_TRANSMIT_MAPPER = {
-            # "MOSFET" : self.mosfet_transmit,
-            # "AMMONIA" : self.ammonia_transmit,
-            # "PUMP" : self.pump_transmit
-        }
+
         self.max_error_count = 20
         self.sleep = .01
 
@@ -59,7 +56,7 @@ class ScienceBridge():
             struct_variables = ["d0_1", "d0_2", "d0_3", "d0_4", "d0_5", "d0_6",
                                 "d1_1", "d1_2", "d1_3", "d1_4", "d1_5", "d1_6",
                                 "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
-            print(arr)
+            # print(arr)
             count = 1
             for var in struct_variables:
                 if (not (count >= len(arr))):
@@ -73,7 +70,7 @@ class ScienceBridge():
         # parse the spectral UART msg
         # add in relevant error handling
         # set the struct variables
-        
+
     def thermistor_handler(self, msg, thermistor_struct):
         # msg format: <"$THERMISTOR,temperature">
         try:
@@ -105,10 +102,18 @@ class ScienceBridge():
         # parse data into expected format
         # Currently expects mosfet, device number, and enable bit along
         # with padding to reach 30 bytes
-        message = "$Mosfet,{device},{enable},1"
+        message = "$Mosfet,{device},{enable},1111111"
         message = message.format(device=struct.device,
                                  enable=int(struct.enable))
         print(message)
+
+        # Assumes that only single or double digit devices are used
+        # No way we use 100 devices
+        # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
+        # single digits have 7 + 1 + 1 + 1 + 1 + 1 + 7 = 19, need to add one
+        if(int(struct.device) < 10):
+            # Add an extra 1 for padding
+            message += "1"
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
@@ -119,9 +124,10 @@ class ScienceBridge():
     def rr_drop(self, channel, msg):
         print("Received rr_drop req")
         # Struct is expected to be empty so no need for decoding
-        message = "$Mosfet,{device},{enable},1"
+        message = "$Mosfet,{device},{enable},11111111"
         # This is always an enable
         # Should be tied to SA UV = 4
+        # Always a single digit so no need to check for double
         message = message.format(device=4, enable=1)
         self.ser.write(bytes(message, encoding='utf8'))
         # Publish to drop complete after sending the message.
@@ -130,19 +136,22 @@ class ScienceBridge():
         print("Received nav req")
         # Want the name of the status I guess?
         # Off, Done, Else
-        # Off = Bluee
+
         struct = NavStatus.decode(msg)
-        message = "$Mosfet,{device},{enable},1"
+        message = "$Mosfet,{device},{enable},11111111"
+        # All Leds are 1 digit so hardcode in padding
+
+        # Off = Blue
         if struct.nav_state_name == "Off":
             print("navstatus off")
-            message = message.format(device=2, enable=1)
-            self.ser.write(bytes(message, encoding='utf8'))
+            offmessage = message.format(device=2, enable=1) + "1"
+            self.ser.write(bytes(offmessage, encoding='utf8'))
             prev = 2
         # Done = Flashing green
         elif struct.nav_state_name == "Done":
             print("navstatus Done")
             # Flashing by turning on and off for 1 second intervals
-            # Maybe change to 
+            # Maybe change to
             for i in range(0, 6):
                 self.ser.write(bytes(message.format(device=1, enable=1), encoding='utf8'))
                 time.sleep(1)
@@ -156,6 +165,7 @@ class ScienceBridge():
             self.ser.write(bytes(messageon, encoding='utf8'))
             prev = 0
         time.sleep(1)
+        # Green should be in a finished state so no need to turn it off
         if (prev != 2):
             self.ser.write(bytes(message.format(device=2, enable=0),
                                  encoding='utf8'))
@@ -168,25 +178,16 @@ class ScienceBridge():
         struct = AmmoniaCmd.decode(msg)
         print("Received Ammonia Cmd")
         # parse data into expected format
-        # self.ser.write(bytes(struct.data))
         message = "$AMMONIA,{speed}"
         message = message.format(speed=struct.speed)
         print(len(message))
-        while(len(message) < 13):
+        while(len(message) < 20):
             message += ","
         print(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
             self.ser.write(bytes(message, encoding='utf-8'))
-
-    # #if ser.isOpen():
-    # while(1):
-    #     print("Serial is open!")
-    #     ser.write("$AMMONIA,0,,,".encode('utf-8'))
-    #     time.sleep(1)
-    # ser.close()
-    # #
 
     async def recieve(self, lcm):
         spectral = SpectralData()
@@ -227,7 +228,7 @@ class ScienceBridge():
                                 lcm.publish('/thermistor_data', thermistor.encode())
                             if(tag == "REPEATER"):
                                 # Empty message so no handler required.
-                                lcm.publish('/rr_drop_complete',rr_drop.encode()) 
+                                lcm.publish('/rr_drop_complete', rr_drop.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
@@ -246,11 +247,10 @@ def main():
     with ScienceBridge() as bridge:
         _lcm = aiolcm.AsyncLCM()
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        _lcm.subscribe("/rr_drop_init",bridge.rr_drop)
-        _lcm.subscribe("/nav_status",bridge.nav_status)
+        _lcm.subscribe("/rr_drop_init", bridge.rr_drop)
+        _lcm.subscribe("/nav_status", bridge.nav_status)
         _lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
         print("properly started")
-        # lcm.subscribe("/pump_cmd", bridge.pump_transmit)
         run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
 
 
