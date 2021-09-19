@@ -33,6 +33,8 @@ private:
     bool e_locked;
     int num_iterations;
 
+    vector<bool> locked_joints;
+
     stack<vector<double>> arm_state_backup;
 
     /**
@@ -73,6 +75,8 @@ public:
     bool is_safe(ArmState &robot_state, const vector<double> &angles);
 
     int get_num_iterations();
+
+    void set_joint_locks(const std::vector<bool>& locks);
 
 };
 

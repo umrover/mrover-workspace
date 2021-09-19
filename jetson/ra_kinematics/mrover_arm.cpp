@@ -13,6 +13,7 @@ using nlohmann::json;
 
 MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     state(geom),
+    solver(),
     motion_planner(state, solver),
     lcm_(lcm),
     done_previewing(false),
@@ -271,10 +272,6 @@ void MRoverArm::publish_transforms(const ArmState& pub_state) {
     lcm_.publish("/fk_transform", &tm);
 }
 
-void MRoverArm::lock_e_callback(string channel, LockJointE msg) {
-    // cout << "joint e locked" << endl;
-    // solver.lock_joint_e(msg.locked); //no function lock_joint_e in kinematics.cpp
-}
 void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {  
     ik_enabled = msg.enabled;
 
@@ -297,6 +294,28 @@ void MRoverArm::plan_path(Vector6d goal) {
 void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg) {
     sim_mode = msg.sim_mode;
     // publish_transforms(state);
+}
+
+void MRoverArm::lock_joints_callback(string channel, LockJoints msg) {
+    cout << "running lock_joints_callback\n";
+
+    vector<bool> joints;
+    joints.push_back((bool)msg.jointa);
+    joints.push_back((bool)msg.jointb);
+    joints.push_back((bool)msg.jointc);
+    joints.push_back((bool)msg.jointd);
+    joints.push_back((bool)msg.jointe);
+    joints.push_back((bool)msg.jointf);
+
+    cout << "backend joint vals\n";
+    for (int i = 0; i < (int)joints.size(); ++i) {
+        cout << joints[i] << " ";
+    }
+    cout << "\n";
+
+    // Reset solver member variable with updated lcked angles:
+    solver.set_joint_locks(joints);
+
 }
 
 // void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {
