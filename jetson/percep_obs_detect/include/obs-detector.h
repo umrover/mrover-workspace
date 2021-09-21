@@ -1,15 +1,13 @@
 #include <string>
 #include <sl/Camera.hpp>
-#include "recorder.hpp"
 #include "plane-ransac.hpp"
 #include "pass-through.hpp"
-#include "GLViewer.hpp"
+#include "viewer.h"
 #include "voxel-grid.hpp"
 #include "euclidean-cluster.hpp"
 #include <thread>
 #include "timer.hpp"
 #include "common.hpp"
-#include "pcl.hpp"
 #include "voxel-grid.hpp"
 //#include <lcm/lcm-cpp.hpp>
 //#include "rover_msgs/Obstacle.hpp"
@@ -18,6 +16,7 @@
 #include <boost/interprocess/containers/vector.hpp>
 #include <cstring>
 #include <iostream>
+
 // TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;
 
@@ -37,7 +36,7 @@ enum class OperationMode {DEBUG, SILENT};
 /*
  *** Choose which viewer to use ***
  */
-enum ViewerType {NONE, PCLV, GL};
+enum ViewerType {NONE, GL};
 
 /** 
  * \class ObsDetector
@@ -105,12 +104,10 @@ class ObsDetector {
 
         //Data sources
         sl::Camera zed;
-        Reader fileReader;
+        PCDReader fileReader;
 
         //Viwers
-        GLViewer glViewer;
-        shared_ptr<pcl::visualization::PCLVisualizer> pclViewer; 
-        void pclKeyCallback(const pcl::visualization::KeyboardEvent &event, void* junk);
+        Viewer viewer;
 
         //Operation paramaters
         DataSource source;
@@ -138,7 +135,6 @@ class ObsDetector {
         float distance;
 
         //Other
-        Recorder recorder;
         int frameNum = 0;
         bool framePlay = true;
 

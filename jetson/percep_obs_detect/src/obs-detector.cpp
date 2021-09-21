@@ -4,6 +4,8 @@
 using namespace std;
 using namespace std::chrono;
 //using namespace boost::interprocess;
+#include <glm/vec4.hpp> // glm::vec4
+#include <glm/glm.hpp>
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewer) : source(source), mode(mode), viewer(viewer), record(false)
 {
@@ -22,31 +24,16 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
     }
 
     //Init Viewers
-    if(mode != OperationMode::SILENT && viewer == ViewerType::PCLV) {
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_pcl(new pcl::PointCloud<pcl::PointXYZRGB>);
-        pclViewer = createRGBVisualizer(pc_pcl);
-        pclViewer->registerKeyboardCallback(&ObsDetector::pclKeyCallback, *this);
-    } else if(mode != OperationMode::SILENT && viewer == ViewerType::GL) {
+    if(mode != OperationMode::SILENT && viewer == ViewerType::GL) {
         int argc = 1;
         char *argv[1] = {(char*)"Window"};
-        glViewer.init(argc, argv, defParams, &framePlay, &frameNum);
+        viewer.init(argc, argv);
+        viewer.addPointCloud();
     }
 
    // shm = shared_memory_object(open_only, "gpuhandle", read_write);
    // region = mapped_region(shm, read_write);
 };
-
-void ObsDetector::pclKeyCallback(const pcl::visualization::KeyboardEvent &event, void* junk) {
-    if (event.getKeySym() == "d" && event.keyDown()){
-        frameNum++;
-    }
-    if (event.getKeySym() == "a" && event.keyDown()){
-        frameNum--;
-    }
-    if (event.getKeySym() == "p" && event.keyUp()){
-        framePlay = !framePlay;
-    }
-}
 
 //TODO: Make it read params from a file
 void ObsDetector::setupParamaters(std::string parameterFile) {
@@ -85,38 +72,9 @@ void ObsDetector::update() {
         //DEBUG 
         //frameNum = 250;
         sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::CPU);
-        fileReader.load(frameNum, frame, true);
+        fileReader.readCloud(frameNum, frame, true);
         update(frame);
     }
-    //  else if(source == DataSource::GPUMEM){
-    //     sl::float4* dataGPU;
-    //     unsigned char *handleBuffer;
-    //     cudaIpcMemHandle_t my_handle;
-
-    //     //Get the handleBuffer to check the parity bit appended to the end of the address
-    //     handleBuffer = static_cast<unsigned char *>(region.get_address());
-
-    //     //if parity bit is set to 1, perform operations
-    //     if(handleBuffer[sizeof(my_handle)] == 1){
-    //         cout << "got frame" << endl;
-
-    //         for(int i = 0; i < sizeof(my_handle); i++) {
-    //             cout << (int)handleBuffer[i] << " ";
-    //         }
-    //         cout << endl;
-
-    //         //Get cloud data
-    //         memcpy((unsigned char *)(&my_handle), handleBuffer, sizeof(my_handle));
-    //         checkStatus(cudaIpcOpenMemHandle((void **)&dataGPU, my_handle, cudaIpcMemLazyEnablePeerAccess));
-
-    //         //Run processing on cloud frame
-    //         sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, (sl::uchar1*)dataGPU, 2560, sl::MEM::GPU);
-    //         update(frame);
-
-    //         //Set parity bit back to 0 to allow new frame to be written in
-    //         handleBuffer[sizeof(my_handle)] = 0;
-    //     }
-    //}
 } 
 
 // Call this directly with ZED GPU Memory
@@ -133,41 +91,19 @@ void ObsDetector::update(sl::Mat &frame) {
     getRawCloud(pc, frame);
 
     // Processing
-    cout << "Original Size: "<< pc.size << "\n";
     passZ->run(pc);
-    cout << "Pass-Through ran\n";
-    std::cout << "pre ransac:" << pc.size << endl;
     ransacPlane->computeModel(pc);
-    std::cout << "post ransac:" << pc.size << endl; 
-    
-    
     Bins bins;
-
     #if VOXEL
         bins = voxelGrid->run(pc);
     #endif
-
-    //
-    auto grabStart = high_resolution_clock::now();
     obstacles = ece->extractClusters(pc, bins); 
-    auto grabEnd = high_resolution_clock::now();
-    auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
-/*
-    //LCM
-    obstacleMessage.bearing = 9;
-    obstacleMessage.distance = 9;
-    lcm_.publish("/obstacle", &obstacleMessage);
-*/
+
     // Rendering
     if(mode != OperationMode::SILENT) {
-        // clearStale(pc, cloud_res.area());
         if(viewer == ViewerType::GL) {
-            glViewer.updatePointCloud(frame);
-        } else {
-           pcl::PointCloud<pcl::PointXYZRGB>::Ptr pc_pcl(new pcl::PointCloud<pcl::PointXYZRGB>);
-           ZedToPcl(pc_pcl, frame);
-           pclViewer->updatePointCloud(pc_pcl); //update the viewer 
-        }
+            viewer.updatePointCloud(frame);
+        } 
     }
 
     // Recording
@@ -189,33 +125,11 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 
 void ObsDetector::spinViewer() {
     if(viewer == ViewerType::GL) {
-        glViewer.isAvailable();
-        updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
-        updateProjectedLines(ece->bearingRight, ece->bearingLeft);
-    } else if(viewer == ViewerType::PCLV) {
-        pclViewer->removeAllShapes();
-        /*for(int i = 0; i < obstacles.size; i++) {
-            float xMin = obstacles.minX[i];
-            float xMax = obstacles.maxX[i];
-            float yMin = obstacles.minY[i];
-            float yMax = obstacles.maxY[i];
-            float zMin = obstacles.minZ[i];
-            float zMax = obstacles.maxZ[i];
-            if(zMax < 0.01) {
-                xMin = 0; xMax = 0; yMin = 0; yMax = 0; zMin = 0; zMax = 0;
-            };
-            pclViewer->addCube(xMin, xMax, yMin, yMax, zMin, zMax, 0.0, 1.0, 0.0, to_string(i));
-            pclViewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, to_string(i));
-            pclViewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 3, to_string(i));
-
-        }*/
-        pclViewer->spinOnce(10);
-    }
-}
-
-void ObsDetector::startRecording(std::string directory) {
-    recorder.open(directory);
-    record = true;
+        //updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
+        //updateProjectedLines(ece->bearingRight, ece->bearingLeft);
+        viewer.update();
+        viewer.clearEphemerals();
+    } 
 }
 
  ObsDetector::~ObsDetector() {
@@ -229,10 +143,8 @@ void ObsDetector::startRecording(std::string directory) {
 
 int main() {
     ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
-    //obs.startRecording("test-record3");
 
-    cout << "Here we go\n";
-    std::thread viewerTick( [&]{while(true) { obs.update();} });
+    std::thread updateTick( [&]{while(true) { obs.update();} });
 
     while(true) {
         obs.spinViewer();
