@@ -7,7 +7,7 @@ using namespace std::chrono;
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/glm.hpp>
 
-ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewer) : source(source), mode(mode), viewer(viewer), record(false)
+ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType) : source(source), mode(mode), viewerType(viewerType), record(false)
 {
     setupParamaters("");
     
@@ -20,11 +20,11 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashmg/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
-        fileReader.open(readDir);
+        fileReader.readCloud(readDir);
     }
 
     //Init Viewers
-    if(mode != OperationMode::SILENT && viewer == ViewerType::GL) {
+    if(mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
         int argc = 1;
         char *argv[1] = {(char*)"Window"};
         viewer.init(argc, argv);
@@ -101,14 +101,17 @@ void ObsDetector::update(sl::Mat &frame) {
 
     // Rendering
     if(mode != OperationMode::SILENT) {
-        if(viewer == ViewerType::GL) {
+        if(viewerType == ViewerType::GL) {
+            glm::vec4* pc_raw = new glm::vec4[pc.size]; 
+            cudaMemcpy()  
             viewer.updatePointCloud(frame);
+            delete[] pc_raw; 
         } 
     }
 
     // Recording
     if(record) {
-        recorder.writeFrame(frame);
+        //recorder.writeFrame(frame);
     }
 
     if(framePlay) frameNum++;
@@ -124,7 +127,7 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 }
 
 void ObsDetector::spinViewer() {
-    if(viewer == ViewerType::GL) {
+    if(viewerType == ViewerType::GL) {
         //updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
         //updateProjectedLines(ece->bearingRight, ece->bearingLeft);
         viewer.update();

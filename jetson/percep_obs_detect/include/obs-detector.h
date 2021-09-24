@@ -112,7 +112,7 @@ class ObsDetector {
         //Operation paramaters
         DataSource source;
         OperationMode mode;
-        ViewerType viewer;
+        ViewerType viewerType;
         bool record = false;
 
         //Detection algorithms 

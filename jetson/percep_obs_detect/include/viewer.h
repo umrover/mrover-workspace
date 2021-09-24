@@ -142,7 +142,9 @@ private:
 class Viewer {
     public:
         // Creates a window
-        Viewer(int argc, char **argv);
+        Viewer();
+
+        init(int argc, char **argv);
 
         // Updates the window and draws graphics (graphics thread)
         void update();
