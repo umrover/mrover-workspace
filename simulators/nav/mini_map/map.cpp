@@ -4,7 +4,7 @@
 using namespace std;
 class Map  {
     public:
-        vector<uint8_t> ReadInputImage(){
+        vector<uint8_t> ReadInputImage() {
             
         }
 
