@@ -4,6 +4,12 @@
 #include <vector>
 #include <sstream>
 
+
+#include <string>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "common.hpp"
 
 typedef glm::vec4 vec4;
@@ -13,6 +19,43 @@ class PCDReader {
     public:
         PCDReader() {
         }
+
+        void open(string dir) {	
+            this->dir = dir;
+            map<int, string> fData;
+
+            //Long-winded directory opening (no glob, sad)
+            DIR * pcd_dir;
+            pcd_dir = opendir(dir.c_str());
+            if (NULL == pcd_dir) std::cerr<<"Input folder not exist\n";    
+            
+            struct dirent *dp = NULL;
+            do {
+                if ((dp = readdir(pcd_dir)) != NULL) {
+                    std::string file_name(dp->d_name);
+                    // the lengh of the tail str is at least 4
+                    if (file_name.size() < 5) continue; //make it 5 to get the single digit
+                    std::cout<<"file_name is "<<file_name<<std::endl;
+
+                    pcd_names.push_back(file_name);
+                    
+                    int s = file_name.find_first_of("0123456789");
+                    int l = file_name.find(".");
+                    string keyS = file_name.substr(s,l-s );
+                    int key = stoi(keyS);
+                    //cout << key << endl;
+                    fData[key] = file_name;
+            
+                }
+            } while (dp != NULL);
+            std::sort(pcd_names.begin(), pcd_names.end());
+
+            pcd_names.clear();
+            for(auto i : fData) {
+                pcd_names.push_back(i.second);
+                cout << "reader says: " <<  i.second << endl;
+            }
+	    }
 
         std::vector<vec4> readCloudCPU(string file) {
             ifstream fin(file);
@@ -55,4 +98,17 @@ class PCDReader {
             cudaMemcpy(pc.data, &pc_raw[0], sizeof(glm::vec4) * pc_raw.size(), cudaMemcpyHostToDevice);
             return pc;
         }
+
+        GPU_Cloud readCloudGPU(int i) {
+            i = i % pcd_names.size();
+
+            std::vector<glm::vec4> pc_raw = readCloudCPU(dir + pcd_names[i]);
+            GPU_Cloud pc = createCloud(pc_raw.size());
+            cudaMemcpy(pc.data, &pc_raw[0], sizeof(glm::vec4) * pc_raw.size(), cudaMemcpyHostToDevice);
+            return pc;
+        }
+
+    private:
+        string dir;
+        std::vector<std::string> pcd_names;
 };

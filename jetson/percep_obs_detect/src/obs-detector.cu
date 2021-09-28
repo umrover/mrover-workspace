@@ -17,6 +17,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
         defParams = camera_config.calibration_parameters.left_cam;
     } else if(source == DataSource::FILESYSTEM) {
+        fileReader.open("data/");
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashmg/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
@@ -60,21 +61,21 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
         
 
 void ObsDetector::update() {
+    GPU_Cloud pc; 
 
     if(source == DataSource::ZED) {
 
         sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
-        GPU_Cloud pc; 
         getRawCloud(pc, frame);
-        update(pc);
-
+        
     } else if(source == DataSource::FILESYSTEM) {
-       
-        GPU_Cloud pc = fileReader.readCloudGPU("data/pcl28.pcd");
-        update(pc);
+
+        pc = fileReader.readCloudGPU(frameNum);
     }
+    update(pc);
+
 } 
 
 // Call this directly with ZED GPU Memory
