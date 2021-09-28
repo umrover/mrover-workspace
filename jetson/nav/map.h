@@ -27,12 +27,13 @@ class Map  {
     private:
         struct Square {
             int x, y; 
-            unsigned char color; 
+            uint32_t color; 
         };
 
         std::string inputPath;
-        std::vector< std::vector<Square> > inputMap;
-        std::vector< std::vector<Square> > navigationMap;
+        //RGB vector of squares
+        std::vector< std::vector <std::vector<Square> > > inputMap;
+        std::vector< std::vector <std::vector<Square> > > navigationMap;
         std::pair <int,int> startIndices;
         std::pair <int,int> currentIndices;
         double xTotalDisplacement;
@@ -43,22 +44,13 @@ class Map  {
 
         const static int dimension = 1000; 
         int ContourX[dimension][2];
-
-        void SetPixel(int x, int y, char color) {
-            if ((x < 0) || (x >= dimension) || (y < 0) || (y >= dimension)) { return; }
-
-            if (navigationMap[y][x].color == ' ') {
-                navigationMap[y][x].color = color;
-                navigationMap[y][x].x = x; 
-                navigationMap[y][x].x = y;
-            }
-        }
+        void SetPixel(int x, int y, uint32_t color);
 
         void ScanLine(int x1, int x2, int y1, int y2); 
 
         void DrawTriangle(Square p0, Square p1, Square p2);
 
-        Square getTriangleVertex(Square& start);
+        std::pair<Square, Square> getTriangleVertex(Square& start);
 };
 
 #endif

@@ -50,8 +50,6 @@ void Map::updatePosition(double time, double joystickMagnitude, double joystickH
     currentIndices.second = startIndices.second + number_cells_y;
 }
 
-
-
 void Map::displayLCM(){
     
 }
@@ -173,7 +171,32 @@ void Map::DrawTriangle(Square p0, Square p1, Square p2) {
   }
 }
 
-Map::Square Map::getTriangleVertex(Map::Square& start){
-    Square triangleVertex; 
-    return triangleVertex; 
+void Map::SetPixel(int x, int y, uint32_t color) {
+    if ((x < 0) || (x >= dimension) || (y < 0) || (y >= dimension)) { return; }
+
+    if (navigationMap[y][x].color == ' ') {
+        navigationMap[y][x].color = color;
+        navigationMap[y][x].x = x; 
+        navigationMap[y][x].x = y;
+    }
+}
+
+pair<Map::Square, Map::Square> Map::getTriangleVertex(Map::Square& start){
+    pair<Square, Square> triangleVertices; 
+    double theta_1 = getHeading() - 30; // this is in degrees
+    double theta_2 = getHeading() + 30; // this is in degrees
+    
+    //naive approach
+    Square vertex_1;
+    vertex_1.x = 25*cos(theta_1*PI/180.0); 
+    vertex_1.y = 25*sin(theta_1*PI/180.0); 
+
+    Square vertex_2;
+    vertex_2.x = 25*cos(theta_2*PI/180.0); 
+    vertex_2.y = 25*sin(theta_2*PI/180.0);
+
+    triangleVertices.first = vertex_1;
+    triangleVertices.second = vertex_2; 
+
+    return triangleVertices; 
 }
