@@ -348,6 +348,13 @@ void Viewer::updatePointCloud(int idx, vec4* pts, int size) {
     pc_mutex.unlock();
 }
 
+void Viewer::updatePointCloud(GPU_Cloud pc) {
+    glm::vec4* pc_cpu = new glm::vec4[pc.size];
+    cudaMemcpy(pc_cpu, pc.data, sizeof(float4)*pc.size, cudaMemcpyDeviceToHost);
+    updatePointCloud(0, pc_cpu, pc.size);
+    delete[] pc_cpu;
+}
+
 void Viewer::addPointCloud() {
     pc_mutex.lock();
     pointClouds.push_back(PointCloud());

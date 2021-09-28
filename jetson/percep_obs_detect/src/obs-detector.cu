@@ -20,7 +20,6 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashmg/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
-        fileReader.readCloud("data/pcl28.pcd");
     }
 
     //Init Viewer
@@ -72,10 +71,8 @@ void ObsDetector::update() {
         update(pc);
 
     } else if(source == DataSource::FILESYSTEM) {
-        std::vector<glm::vec4> pc_raw = fileReader.readCloud("data/pcl28.pcd");
-        //viewer.updatePointCloud(0, &pc_raw[0], pc_raw.size());
-        GPU_Cloud pc = createCloud(pc_raw.size());
-        cudaMemcpy(pc.data, &pc_raw[0], sizeof(glm::vec4) * pc_raw.size(), cudaMemcpyHostToDevice);
+       
+        GPU_Cloud pc = fileReader.readCloudGPU("data/pcl28.pcd");
         update(pc);
     }
 } 
@@ -85,38 +82,22 @@ void ObsDetector::update(GPU_Cloud pc) {
 
     // Get a copy if debug is enabled
 
-    // Convert ZED format into CUDA compatible type
-
     // Processing
     passZ->run(pc);
-    //ransacPlane->computeModel(pc);
-
-    glm::vec4* pc_cpu = new glm::vec4[pc.size];
-    cudaMemcpy(pc_cpu, pc.data, sizeof(float4)*pc.size, cudaMemcpyDeviceToHost);
-    viewer.updatePointCloud(0, pc_cpu, pc.size);
-
-    /*
+    ransacPlane->computeModel(pc);    
     Bins bins;
     #if VOXEL
         bins = voxelGrid->run(pc);
     #endif
     obstacles = ece->extractClusters(pc, bins); 
-    */
-
+    
     // Rendering
     if(mode != OperationMode::SILENT) {
-        if(viewerType == ViewerType::GL) {
-            glm::vec4* pc_raw = new glm::vec4[pc.size]; 
-            //cudaMemcpy()  
-            //viewer.updatePointCloud(frame);
-            delete[] pc_raw; 
-        } 
+        viewer.updatePointCloud(pc);
     }
 
     // Recording
-    if(record) {
-        //recorder.writeFrame(frame);
-    }
+    if(record) record = true;
 
     if(framePlay) frameNum++;
     
@@ -131,12 +112,11 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 }
 
 void ObsDetector::spinViewer() {
-    if(viewerType == ViewerType::GL) {
-        //updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
-        //updateProjectedLines(ece->bearingRight, ece->bearingLeft);
-        viewer.update();
-        viewer.clearEphemerals();
-    } 
+    //updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
+    //updateProjectedLines(ece->bearingRight, ece->bearingLeft);
+    viewer.update();
+    viewer.clearEphemerals();
+    
 }
 
  ObsDetector::~ObsDetector() {

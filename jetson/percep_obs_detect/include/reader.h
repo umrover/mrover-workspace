@@ -4,6 +4,8 @@
 #include <vector>
 #include <sstream>
 
+#include "common.hpp"
+
 typedef glm::vec4 vec4;
 using namespace std;
 
@@ -12,7 +14,7 @@ class PCDReader {
         PCDReader() {
         }
 
-        std::vector<vec4> readCloud(string file) {
+        std::vector<vec4> readCloudCPU(string file) {
             ifstream fin(file);
             if (!fin.is_open()) cerr << "Could not open file!" << endl;
             string line;
@@ -44,6 +46,13 @@ class PCDReader {
             }
 
             std::cout << "Read a point cloud of size " << width << " x " << height << endl;
+            return pc;
+        }
+
+        GPU_Cloud readCloudGPU(string file) {
+            std::vector<glm::vec4> pc_raw = readCloudCPU(file);
+            GPU_Cloud pc = createCloud(pc_raw.size());
+            cudaMemcpy(pc.data, &pc_raw[0], sizeof(glm::vec4) * pc_raw.size(), cudaMemcpyHostToDevice);
             return pc;
         }
 };
