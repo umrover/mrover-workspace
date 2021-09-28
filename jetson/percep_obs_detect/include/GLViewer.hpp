@@ -264,6 +264,6 @@ private:
 };
 
 void updateRansacPlane(sl::float3 p1, sl::float3 p2, sl::float3 p3, float scale);
-void updateObjectBoxes(int num, std::vector<Obstacle>);
+void updateObjectBoxes(int num, std::vector<Obstacle> obs);
 void updateProjectedLines(int bearingRight, int bearingLeft);
 #endif /* __VIEWER_INCLUDE__ */
