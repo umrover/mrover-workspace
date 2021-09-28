@@ -73,7 +73,7 @@ void ObsDetector::update() {
 
     } else if(source == DataSource::FILESYSTEM) {
         std::vector<glm::vec4> pc_raw = fileReader.readCloud("data/pcl28.pcd");
-        viewer.updatePointCloud(0, &pc_raw[0], pc_raw.size());
+        //viewer.updatePointCloud(0, &pc_raw[0], pc_raw.size());
         GPU_Cloud pc = createCloud(pc_raw.size());
         cudaMemcpy(pc.data, &pc_raw[0], sizeof(glm::vec4) * pc_raw.size(), cudaMemcpyHostToDevice);
         update(pc);
@@ -89,12 +89,19 @@ void ObsDetector::update(GPU_Cloud pc) {
 
     // Processing
     passZ->run(pc);
-    ransacPlane->computeModel(pc);
+    //ransacPlane->computeModel(pc);
+
+    glm::vec4* pc_cpu = new glm::vec4[pc.size];
+    cudaMemcpy(pc_cpu, pc.data, sizeof(float4)*pc.size, cudaMemcpyDeviceToHost);
+    viewer.updatePointCloud(0, pc_cpu, pc.size);
+
+    /*
     Bins bins;
     #if VOXEL
         bins = voxelGrid->run(pc);
     #endif
     obstacles = ece->extractClusters(pc, bins); 
+    */
 
     // Rendering
     if(mode != OperationMode::SILENT) {
