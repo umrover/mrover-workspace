@@ -190,7 +190,7 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 void ObsDetector::spinViewer() {
     if(viewer == ViewerType::GL) {
         glViewer.isAvailable();
-        updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
+        updateObjectBoxes(obstacles.size, obstacles.obs);
         updateProjectedLines(ece->bearingRight, ece->bearingLeft);
     } else if(viewer == ViewerType::PCLV) {
         pclViewer->removeAllShapes();
