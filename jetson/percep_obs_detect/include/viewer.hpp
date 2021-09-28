@@ -144,7 +144,7 @@ class Viewer {
         // Creates a window
         Viewer();
 
-        init(int argc, char **argv);
+        void init(int argc, char **argv);
 
         // Updates the window and draws graphics (graphics thread)
         void update();

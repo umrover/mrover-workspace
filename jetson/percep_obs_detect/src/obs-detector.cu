@@ -3,9 +3,9 @@
 
 using namespace std;
 using namespace std::chrono;
-//using namespace boost::interprocess;
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/glm.hpp>
+#include <vector>
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType) : source(source), mode(mode), viewerType(viewerType), record(false)
 {
@@ -20,10 +20,10 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashmg/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
-        fileReader.readCloud(readDir);
+        fileReader.readCloud("data/pcl28.pcd");
     }
 
-    //Init Viewers
+    //Init Viewer
     if(mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
         int argc = 1;
         char *argv[1] = {(char*)"Window"};
@@ -31,8 +31,6 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         viewer.addPointCloud();
     }
 
-   // shm = shared_memory_object(open_only, "gpuhandle", read_write);
-   // region = mapped_region(shm, read_write);
 };
 
 //TODO: Make it read params from a file
@@ -63,32 +61,31 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
         
 
 void ObsDetector::update() {
+
     if(source == DataSource::ZED) {
+
         sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
-        update(frame);
+        GPU_Cloud pc; 
+        getRawCloud(pc, frame);
+        update(pc);
+
     } else if(source == DataSource::FILESYSTEM) {
-        //DEBUG 
-        //frameNum = 250;
-        sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::CPU);
-        fileReader.readCloud(frameNum, frame, true);
-        update(frame);
+        std::vector<glm::vec4> pc_raw = fileReader.readCloud("data/pcl28.pcd");
+        viewer.updatePointCloud(0, &pc_raw[0], pc_raw.size());
+        GPU_Cloud pc = createCloud(pc_raw.size());
+        cudaMemcpy(pc.data, &pc_raw[0], sizeof(glm::vec4) * pc_raw.size(), cudaMemcpyHostToDevice);
+        update(pc);
     }
 } 
 
 // Call this directly with ZED GPU Memory
-void ObsDetector::update(sl::Mat &frame) {
+void ObsDetector::update(GPU_Cloud pc) {
 
     // Get a copy if debug is enabled
-    sl::Mat orig; 
-    if(mode != OperationMode::SILENT) {
-        frame.copyTo(orig, sl::COPY_TYPE::GPU_GPU);
-    }
 
     // Convert ZED format into CUDA compatible type
-    GPU_Cloud pc; 
-    getRawCloud(pc, frame);
 
     // Processing
     passZ->run(pc);
@@ -103,8 +100,8 @@ void ObsDetector::update(sl::Mat &frame) {
     if(mode != OperationMode::SILENT) {
         if(viewerType == ViewerType::GL) {
             glm::vec4* pc_raw = new glm::vec4[pc.size]; 
-            cudaMemcpy()  
-            viewer.updatePointCloud(frame);
+            //cudaMemcpy()  
+            //viewer.updatePointCloud(frame);
             delete[] pc_raw; 
         } 
     }
@@ -147,10 +144,11 @@ void ObsDetector::spinViewer() {
 int main() {
     ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
 
-    std::thread updateTick( [&]{while(true) { obs.update();} });
+    //std::thread updateTick( [&]{while(true) { obs.update();} });
 
     while(true) {
-        obs.spinViewer();
+       obs.update();
+       obs.spinViewer();
     }
     
 

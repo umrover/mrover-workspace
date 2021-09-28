@@ -1,4 +1,4 @@
-#include "viewer.h"
+#include "viewer.hpp"
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -258,7 +258,7 @@ Viewer::Viewer() : camera(glm::perspective(glm::radians(35.0f), 1920.0f/1080.0f,
     
 }
 
-Viewer::init(int argc, char **argv) {
+void Viewer::init(int argc, char **argv) {
     // Window stuff
     glutInit(&argc, argv);
     int wnd_w = 1920*0.7;//glutGet(GLUT_SCREEN_WIDTH);

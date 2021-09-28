@@ -2,7 +2,7 @@
 #include <sl/Camera.hpp>
 #include "plane-ransac.hpp"
 #include "pass-through.hpp"
-#include "viewer.h"
+#include "viewer.hpp"
 #include "voxel-grid.hpp"
 #include "euclidean-cluster.hpp"
 #include <thread>
@@ -11,9 +11,6 @@
 #include "voxel-grid.hpp"
 //#include <lcm/lcm-cpp.hpp>
 //#include "rover_msgs/Obstacle.hpp"
-#include <boost/interprocess/shared_memory_object.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-#include <boost/interprocess/containers/vector.hpp>
 #include <cstring>
 #include <iostream>
 
@@ -65,7 +62,7 @@ class ObsDetector {
          * of the function directly with a pointer to your frame in GPU memory
          * \param frame: sl::Mat frame to do detection on with memory allocated on the GPU
          */
-        void update(sl::Mat &frame);
+        void update(GPU_Cloud pc);
 
         /**
          * \brief Do viewer update tick, it may be desirable to call this in its own thread 
@@ -137,9 +134,5 @@ class ObsDetector {
         //Other
         int frameNum = 0;
         bool framePlay = true;
-
-        //Shared mem
-        boost::interprocess::shared_memory_object shm;
-        boost::interprocess::mapped_region region;
         
 };

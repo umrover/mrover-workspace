@@ -2,12 +2,6 @@
 #include <iostream>
 #include <sl/Camera.hpp>
 
-#include <pcl/common/common_headers.h>
-#include <pcl/point_types.h>
-
-
-#include <pcl/common/time.h>
-
 #include <vector>
 #include <algorithm>
 
