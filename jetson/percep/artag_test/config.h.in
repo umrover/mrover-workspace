@@ -1,3 +1,0 @@
-#pragma once
-#mesondefine SINGLE_IMAGE
-#mesondefine ARTAG_TEST
