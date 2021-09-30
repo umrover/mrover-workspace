@@ -10,6 +10,10 @@ from rover_msgs import IMUData
 
 # Converting binary to float
 
+# Picocom - picocom -b 115200 /dev/ttyS4
+# 
+# LCM_DEFAULT_URL="udpm://239.255.76.67:76?ttl=255" ./jarvis exec lcm_tools_echo IMUData "/imu_data"
+
 
 def binaryToFloat(value):
     hx = hex(int(value, 2))
@@ -52,6 +56,8 @@ class IMU_Manager():
         # mag data is unit-nrom (unitless)
         try:
             arr = msg.split(",")
+
+            
 
             # Checksum checking
             checksum = int(arr[6][1:3], 16)
