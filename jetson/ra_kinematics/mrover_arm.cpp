@@ -62,7 +62,7 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
     pair<Vector6d, bool> ik_solution = solver.IK(state, point, false, use_orientation);
 
     // attempt to find ik_solution, starting at up to 10 random positions
-    for(int i = 0; i < 10; ++i) {
+    for(int i = 0; i < 20; ++i) {
         if(ik_solution.second) {
             cout << "Solved IK with " << i << " random starting positions\n";
             break;
