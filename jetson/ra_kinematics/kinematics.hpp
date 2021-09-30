@@ -10,11 +10,10 @@ using namespace Eigen;
 typedef Matrix<double, 6, 1> Vector6d;
 
 static constexpr int MAX_ITERATIONS = 500;
-static constexpr double POS_THRESHOLD = 0.01;
-static constexpr double ANGLE_THRESHOLD = 10.0;
-static constexpr int ANG_WEIGHT = 1;
-static constexpr double j_kp = 0.1;
-static constexpr double j_kd = 0;
+static constexpr double POS_THRESHOLD = 0.05;
+static constexpr double ANGLE_THRESHOLD = 0.2;
+static constexpr double k_position_step = 0.1;
+static constexpr double k_angle_step = 0.1;
 static constexpr double DELTA_THETA = 0.0001;
 
 
@@ -38,6 +37,7 @@ private:
     void recover_from_backup(ArmState &robot_state);
 
     Matrix4d apply_joint_xform(const ArmState &robot_state, const string &joint, double theta);
+    Matrix4d apply_joint_xform_new(const ArmState &robot_state, const string &joint, double theta);
 
     void IK_step(ArmState &robot_state, const Vector6d &d_ef, bool use_pi, bool use_euler_angles);
 
@@ -52,7 +52,7 @@ public:
 
     KinematicsSolver();
 
-    Vector3d FK(ArmState &robot_state);
+    void FK(ArmState &robot_state);
 
     pair<Vector6d, bool> IK(ArmState &robot_state, const Vector6d &target_point, bool set_random_angles, bool use_euler_angles);
 

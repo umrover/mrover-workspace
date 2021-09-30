@@ -87,6 +87,8 @@ TEST(fk_test) {
     solver.FK(arm);
     cout << "ef_pos after FK:\n";
     cout << arm.get_ef_pos_world() << "\n";
+    cout << "ef_ang after FK:\n";
+    cout << arm.get_ef_ang_world() << "\n";
 
     Matrix4d a_b;
     double epsilon = 0.001;
@@ -134,14 +136,6 @@ TEST(fk_test) {
     ASSERT_TRUE(transMatAlmostEqual(hand, arm.get_link_xform("hand"), epsilon));
     ASSERT_TRUE(transMatAlmostEqual(ef, arm.get_ef_transform(), epsilon));
 
-    cout << "a-b\n" << arm.get_link_xform("a-b") << "\n\n";
-    cout << "b-c\n" << arm.get_link_xform("b-c") << "\n\n";
-    cout << "c-d\n" << arm.get_link_xform("c-d") << "\n\n";
-    cout << "d-e\n" << arm.get_link_xform("d-e") << "\n\n";
-    cout << "e-f\n" << arm.get_link_xform("e-f") << "\n\n";
-    cout << "hand\n" << arm.get_link_xform("hand") << "\n\n";
-    cout << "ef\n" << arm.get_ef_transform() << "\n\n";
-
     // Assert joints are being created accurately:
     Vector3d joint_a(0, 0, 0);
     Vector3d joint_b(0,           0.03429,     0.02858);
@@ -149,14 +143,6 @@ TEST(fk_test) {
     Vector3d joint_d(-0.102723,   0.31556032,  0.57520578);
     Vector3d joint_e(-0.0443284,  0.13792929,  0.96333666);
     Vector3d joint_f(-0.0236782,  0.0953546,   1.1250297);
-
-    cout << "a\n" << arm.get_joint_pos_world("joint_a") << "\n\n";
-    cout << "b\n" << arm.get_joint_pos_world("joint_b") << "\n\n";
-    cout << "c\n" << arm.get_joint_pos_world("joint_c") << "\n\n";
-    cout << "d\n" << arm.get_joint_pos_world("joint_d") << "\n\n";
-    cout << "e\n" << arm.get_joint_pos_world("joint_e") << "\n\n";
-    cout << "f\n" << arm.get_joint_pos_world("joint_f") << "\n\n";
-
     
     ASSERT_TRUE(vec3dAlmostEqual(joint_a, arm.get_joint_pos_world("joint_a"), epsilon));
     ASSERT_TRUE(vec3dAlmostEqual(joint_b, arm.get_joint_pos_world("joint_b"), epsilon));
@@ -298,6 +284,18 @@ TEST(ik_test_short) {
     }
 
     ASSERT_TRUE(success);
+}
+
+TEST(ik_orientation) {
+    json geom = read_json_from_file(get_mrover_arm_geom());
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+
+    arm.set_joint_angles({0, 1, -2, 0, 0, 0});
+    Vector6d target;
+    target << 0, 0.95, 0.35, 0.0, 0.0, 0.0;
+
+    ASSERT_TRUE(solver.IK(arm, target, false, true).second);
 }
 
 

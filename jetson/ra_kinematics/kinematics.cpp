@@ -15,72 +15,37 @@ using namespace Eigen;
 
 KinematicsSolver::KinematicsSolver() : e_locked(false) { }
 
-Vector3d KinematicsSolver::FK(ArmState &robot_state) {
-    Matrix4d global_transform;
-    Matrix4d parent_mat = Matrix4d::Identity();
+void KinematicsSolver::FK(ArmState &robot_state) {
+    Matrix4d global_tranformation = Matrix4d::Identity();
 
     // TODO: Edit name of base ("chassis-a") as necessary:
     robot_state.set_link_transform("base", Matrix4d::Identity());
     for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
-        Vector3d xyz = robot_state.get_joint_pos_local(it->first);
-        Vector3d rot_axis_child = robot_state.get_joint_axis(it->first);
-        double theta = it->second.angle;
-
-        Matrix4d rot_theta = Matrix4d::Identity();
+        Matrix4d rot_theta = apply_joint_xform_new(robot_state, it->first, it->second.angle);
+        
+        // Set up transformation matrix based on position of joint with respect to previous joint.
         Matrix4d trans = Matrix4d::Identity();
+        trans.block(0,3,3,1) = robot_state.get_joint_pos_local(it->first);
 
-        double ctheta = cos(theta);
-        double stheta = sin(theta);
-
-        // PB: This needs to be tested for correct indice manipulation
-        trans.block(0,3,3,1) = xyz;
-
-        // Make rotation about rot axis by theta:
-        if (rot_axis_child(0) == 1) {
-            rot_theta(1,1) = ctheta;
-            rot_theta(2,1) = stheta;
-            rot_theta(1,2) = -1*stheta;
-            rot_theta(2,2) = ctheta;
-        }
-        else if(rot_axis_child(1) == 1) {
-            rot_theta(0,0) = ctheta;
-            rot_theta(2,0) = -1*stheta;
-            rot_theta(0,2) = stheta;
-            rot_theta(2,2) = ctheta;
-        }
-        else if(rot_axis_child(2) == 1) {
-            rot_theta(0,0) = ctheta;
-            rot_theta(1,0) = stheta;
-            rot_theta(0,1) = -1*stheta;
-            rot_theta(1,1) = ctheta;
-        }
-        else if (rot_axis_child(2) == -1) {
-            rot_theta(0,0) = ctheta;
-            rot_theta(0,1) = stheta;
-            rot_theta(1,0) = -1*stheta;
-            rot_theta(1,1) = ctheta;
-        }
-
-        Matrix4d T = trans*rot_theta;
-        global_transform = parent_mat*T;
+        // Find transformation of current joint in global frame, using transformation from previous joint.
+        global_tranformation = global_tranformation * (trans * rot_theta);
 
         string link = robot_state.get_child_link(it->first);
 
-        robot_state.set_joint_transform(it->first, global_transform);
-        robot_state.set_link_transform(link, global_transform);
-
-        parent_mat = global_transform;
+        robot_state.set_joint_transform(it->first, global_tranformation);
+        robot_state.set_link_transform(link, global_tranformation);
     }
 
-    // Set ef position and orientation:
+    // Get end effector position in frame of joint f
     Vector3d ef_xyz = robot_state.get_ef_xyz();
     Matrix4d T = Matrix4d::Identity();
-    T.block(0,3,3,1) = ef_xyz;
-    global_transform = parent_mat*T;
-    robot_state.set_ef_transform(global_transform);
 
-    Vector4d mult(0,0,0,1);
-    Vector4d ef_pos_world = global_transform*mult;
+    // set 4th row (index 3) as ef_xyz
+    T.block(0,3,3,1) = ef_xyz;
+
+    robot_state.set_ef_transform(global_tranformation * T);
+
+    // Torque calculations (not currently used)
 
     // Vector3d prev_com(0,0,0);
     // double total_mass = 0;
@@ -102,9 +67,44 @@ Vector3d KinematicsSolver::FK(ArmState &robot_state) {
     //     robot_state.set_joint_torque(it->first, torque);
     //     prev_com = curr_com;
     // }
+}
+Matrix4d KinematicsSolver::apply_joint_xform_new(const ArmState& robot_state, const string& joint, double theta) {
+    // Get rotation axis of current joint.
+    Vector3d rot_axis_child = robot_state.get_joint_axis(joint);
 
-    Vector3d return_vec(ef_pos_world(0), ef_pos_world(1), ef_pos_world(2));
-    return return_vec;
+    double cos_theta = cos(theta);
+    double sin_theta = sin(theta);
+
+    Matrix4d rot_theta = Matrix4d::Identity();
+
+    // Make rotation about rot axis by theta:
+
+    // if rotating about x-axis (x-axis points right)
+    // joints b, c, and e
+    if (rot_axis_child(0) == 1) {
+        rot_theta(1,1) = cos_theta;
+        rot_theta(2,1) = sin_theta;
+        rot_theta(1,2) = -1*sin_theta;
+        rot_theta(2,2) = cos_theta;
+    }
+    // if rotating about y-axis (y-axis points forward)
+    // joints d, f
+    else if(rot_axis_child(1) == 1) {
+        rot_theta(0,0) = cos_theta;
+        rot_theta(2,0) = -1*sin_theta;
+        rot_theta(0,2) = sin_theta;
+        rot_theta(2,2) = cos_theta;
+    }
+    // if rotating about z-axis (z-axis points up)
+    // joint a
+    else if(rot_axis_child(2) == 1) {
+        rot_theta(0,0) = cos_theta;
+        rot_theta(1,0) = sin_theta;
+        rot_theta(0,1) = -1*sin_theta;
+        rot_theta(1,1) = cos_theta;
+    }
+
+    return rot_theta;
 }
 
 Matrix4d KinematicsSolver::apply_joint_xform(const ArmState& robot_state, const string& joint, double theta) {
@@ -128,7 +128,6 @@ Matrix4d KinematicsSolver::apply_joint_xform(const ArmState& robot_state, const 
     Vector3d rot_arr_one(1, 0, 0);
     Vector3d rot_arr_two(0, 1, 0);
     Vector3d rot_arr_three(0, 0, 1);
-    Vector3d rot_arr_four(0, 0, -1);
 
     // make rotation around rot_axis by theta
     if (rot_axis_child == rot_arr_one) {
@@ -147,12 +146,6 @@ Matrix4d KinematicsSolver::apply_joint_xform(const ArmState& robot_state, const 
         rot_theta(0, 0) = ctheta;
         rot_theta(0, 1) = -stheta;
         rot_theta(1, 0) = stheta;
-        rot_theta(1, 1) = ctheta;
-    }
-    else if (rot_axis_child == rot_arr_four) {
-        rot_theta(0, 0) = ctheta;
-        rot_theta(0, 1) = stheta;
-        rot_theta(1, 0) = -stheta;
         rot_theta(1, 1) = ctheta;
     }
 
@@ -197,6 +190,15 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
 
         // ((double) rand() / (RAND_MAX)) yields random number [0,1)
         // RAND_MAX is defined in a library
+
+        // TODO: make this actually depend on joint limits, and test whether using full range of values is best
+        // rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5) * 6.28;
+        // rand_angs[1] = ((double) rand() / RAND_MAX) * 1.57;
+        // rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5) * 4.72;
+        // rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5) * 6.28;
+        // rand_angs[4] = ((double) rand() / RAND_MAX) * 3.23 - 2.36;
+        // rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5) * 6.28;
+
         rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
         rand_angs[1] = ((double) rand() / (RAND_MAX))*0.25*M_PI;
         rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
@@ -210,36 +212,21 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
     // Update transforms using FK
     FK(robot_state);
     
-    // Get position the end effector:
-    Vector3d ef_ang_world = robot_state.get_ef_ang_world();
+    // Get position of the end effector
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
+    Vector3d ef_ang_world = robot_state.get_ef_ang_world();
 
     double dist = (ef_pos_world - target_pos_world).norm();
     double angle_dist = (ef_ang_world - target_ang_world).norm();
 
-    // cout << "Current EF position: \n";
-    // cout << ef_pos_world << "\n";
-    // cout << ef_ang_world << "\n";
-    // cout << "\n";
-    // cout << "Initial Joint Angles: ";
-    // for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
-    //     cout << it->second.angle << "\n";
-    // }
-    // cout << "\n";
+    Vector6d d_ef;
 
     while (dist > POS_THRESHOLD or (angle_dist > ANGLE_THRESHOLD && use_euler_angles)) {
+    // while (angle_dist > ANGLE_THRESHOLD && use_euler_angles) {
         if (num_iterations > MAX_ITERATIONS) {
-            // cout << "Max ik iterations hit\n";
-            // vector<double> ef_pos = robot_state.get_ef_pos_and_euler_angles();
-            // cout << "position reached: ";
-            // for (int i = 0; i < 6; ++i) {
-            //     cout << ef_pos[i] << " ";
-            // }
-            // cout << "\ntarget position:\n";
-            // for (int i = 0; i < 6; ++i) {
-            //     cout << target_point(i) << " ";
-            // }
-            // cout << "\n";
+            cout << "final dist:" << dist << "\n";
+            cout << "final angle dist:" << angle_dist << "\n\n";
+
             Vector6d joint_angles;
             int index = 0;
             for (auto it = robot_state.joints.begin(); it != robot_state.joints.end(); ++it) {
@@ -252,13 +239,16 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
             return pair<Vector6d, bool> (joint_angles, false);
         }
 
-        Vector6d ef_to_target_vec_world;
-        ef_to_target_vec_world.head(3) = target_point.head(3) - ef_pos_world;
-        ef_to_target_vec_world.tail(3) = (target_point.tail(3) - ef_pos_world) * (use_euler_angles ? ANG_WEIGHT : 0);
+        // d_ef is the vector we want the end effector to move in this step
+        d_ef.head(3) = k_position_step * (target_point.head(3) - ef_pos_world);
+        if (use_euler_angles) {
+            d_ef.tail(3) = k_angle_step * (target_point.tail(3) - ef_ang_world);
+        }
+        else {
+            d_ef.tail(3) = Vector3d{0, 0, 0};
+        }
 
-        // d_ef is the vector we want the ef to move in this step
-        Vector6d d_ef = j_kp * ef_to_target_vec_world;
-
+        // Move the end effector a small amount towards the target
         IK_step(robot_state, d_ef, false, use_euler_angles);
         
         ef_pos_world = robot_state.get_ef_pos_world();
@@ -302,7 +292,6 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
     jacobian.setZero();
 
     // 6-D matrix
-    MatrixXd jacobian_inverse;
     for (int i = 0; i < (int)joints.size(); ++i) {
 
         // don't move joint e if it's locked
@@ -355,6 +344,7 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
         }
     }
 
+    MatrixXd jacobian_inverse;
     // if using pseudo inverse (usually corresponds to using euler angles)
     if (use_pi) {
         jacobian_inverse = jacobian.completeOrthogonalDecomposition().pseudoInverse();

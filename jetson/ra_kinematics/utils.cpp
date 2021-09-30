@@ -111,13 +111,16 @@ double closest_dist_bet_lines(const Vector3d &a0, const Vector3d &a1, const Vect
     return dP.norm();
 }
 
-Vector3d compute_euler_angles(const Matrix3d &xform_mat) {
-    double alpha = atan2((double) xform_mat(0,2), - (double) xform_mat(1,2));
-    double beta = acos((double) xform_mat(2,2));
-    double gamma = atan2((double) xform_mat(2,0), (double) xform_mat(2,1));
+/**
+ * See pages 15-16 of https://www.geometrictools.com/Documentation/EulerAngles.pdf
+ * */
+Vector3d compute_euler_angles(const Matrix3d &rotation_matrix) {
+    // atan2(a, b) computes arctan(a / b)
+    double alpha = atan2((double) rotation_matrix(0, 2), - (double) rotation_matrix(1, 2));
+    double beta = acos((double) rotation_matrix(2, 2));
+    double gamma = atan2((double) rotation_matrix(2, 0), (double) rotation_matrix(2, 1));
 
-    Vector3d angles(alpha, beta, gamma);
-    return angles;
+    return Vector3d(alpha, beta, gamma);
 }
 
 double degrees_to_radians(double degrees) {
