@@ -7,6 +7,7 @@ import struct
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import IMUData
+from bitstring import BitStream
 
 # Converting binary to float
 
@@ -255,6 +256,7 @@ class IMU_Manager():
 
         # sends reques for data
         self.ser.write(cmd_buffer)
+        print("cmd_buff: \n", cmd_buffer)
         time.sleep(.5)
 
         # um7 sends back same message as request for data but with payload
@@ -265,16 +267,23 @@ class IMU_Manager():
         # Filters the buffer looking for the has data packets and prints it
         run = True
         iterator = 0
+        print("received: \n", received)
+        bstream = BitStream(bytes=received)
+        print("BitStream: ", bstream[0:32])
+        snp_hex = (b'snp\x80').hex()
+        print("snp_hex: ", snp_hex)
         while (run):
-            if(received[iterator:(iterator + 4)] == b'snp\x80'):
+            # if(received[iterator:(iterator + 4)] == b'snp\x80'):
+            if(bstream[0:32] == (b'snp\x80').hex()):
                 run = False
                 # get data
                 count = 0
                 for b in received:
                     data[count] = b
                     count += 1
-                
-                # print(received[iterator:(iterator + 11)])
+                print("count \n", count)
+                print("data \n", data[count])
+                print("test \n", received[iterator:(iterator + 11)])
                 data = [0x00, 0x00, 0x00, 0x00]
                 # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
                 data = received[(iterator + 5):(iterator + 9)]
@@ -352,8 +361,8 @@ def main():
             manager.get_calibrated(r)
             print("\n")
 
-        # print("RAW_GYRO")
-        # manager.get_raw(0x56, 0x57)
+        print("RAW_GYRO")
+        manager.get_raw(0x56, 0x57)
 
         # print("RAW_ACCEL")
         # manager.get_raw(0x59, 0x5A)
