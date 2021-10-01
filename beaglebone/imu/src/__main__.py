@@ -255,41 +255,36 @@ class IMU_Manager():
 
         # um7 sends back same message as request for data but with payload
         # containing IEEE 754 32bit number (= to python float)
-        data = []*32
+        # data = []*32
         received = self.ser.readline()
         # print(received)
         # Filters the buffer looking for the has data packets and prints it
         run = True
         iterator = 0
         print("received: \n", received)
+        print("received hex: ", received.hex()[0:16])
         bstream = BitStream(bytes=received)
-        print("BitStream: ", bstream[0:32])
+        print("BitStream: ", bstream[32:64])
         snp_hex = (b'snp\x80').hex()
         print("snp_hex: ", snp_hex)
+        # probably don't need this loop anymore with this implem.
         while (run):
-            # if(received[iterator:(iterator + 4)] == b'snp\x80'):
-            if(bstream[0:32] == (b'snp\x80').hex()):
+            # received = self.ser.readline()
+            if(received.hex()[0:8] == (b'snp\x80').hex()):
+                print("inside loop")
                 run = False
                 # get data
-                count = 0
-                for b in received:
-                    data[count] = b
-                    count += 1
-                print("count \n", count)
-                print("data \n", data[count])
-                print("test \n", received[iterator:(iterator + 11)])
-                data = [0x00, 0x00, 0x00, 0x00]
-                # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
-                data = received[(iterator + 5):(iterator + 9)]
-                print("recieved: ", received)
-                print("data: ", data)
-                print((received[iterator + 5]))
-                valx = (int(received[iterator + 5]) << 8) | int(received[iterator + 6])
-                print(valx)
-                f = struct.unpack('f', bytes(valx, 'utf-8'))
-                print(f)
-                # valy = (hex(ord(received[iterator + 7])) << 8) | hex(ord(received[iterator + 8]))
-                # print(valy)
+                data_x = received.hex()[10:14]
+                print("data: ", data_x)
+                # might need to fix this to get correct 2's complement from hex
+                data_xf = struct.unpack('>i', struct.pack(">i", int(data_x, 16)))[0]
+                print("data_xf: ", data_xf)
+                data_y = received.hex()[14:18]
+                data_yf = struct.unpack('>i', struct.pack(">i", int(data_y, 16)))[0]
+                print("data_yf: ", data_yf)
+            if(iterator == 1000):
+                print("No Data received, aborting search")
+                run = False
             iterator = iterator + 1
 
         # now for the z value
@@ -301,16 +296,18 @@ class IMU_Manager():
         time.sleep(.5)
 
         received = self.ser.readline()
-
+        
         run = True
         iterator = 0
         while (run):
-            if(received[iterator:(iterator + 4)] == b'snp\x80'):
+            if(received.hex()[0:8] == (b'snp\x80').hex()):
                 run = False
-                data = [0x00, 0x00, 0x00, 0x00]
-                data = received[(iterator + 5):(iterator + 9)]
-                valz = data[0] << 8 | data[1]
-                print(valz)
+                data_z = received.hex()[10:14]
+                data_zf = struct.unpack('>i', struct.pack(">i", int(data_z, 16)))[0]
+                print("data_zf: ", data_zf)
+            if(iterator == 1000):
+                print("No Data Received, aborting search")
+                run = False
             iterator = iterator + 1
 
     # returns hex value of calculated checksum fromt the message
