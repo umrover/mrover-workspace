@@ -275,6 +275,22 @@ class IMU_Manager():
                 print(val)
             iterator = iterator + 1
 
+    # gets calibration matrix values as 32 bit IEEE f-point 
+    def get_cal_vals(self, reg):
+        checksum = ord('s') + ord('n') + ord('p') + reg
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, reg,
+                      checksum >> 8, checksum & 0xff]
+        
+        self.ser.write(cmd_buffer)
+        time.sleep(0.5)
+        received = self.ser.readline()
+        data = received.hex()[10:18]
+        data_f = struct.unpack('>f', struct.pack(">i", int(data, 16)))[0]
+        print("cal_val: ", data_f)
+
+        return data_f
+
+
     def get_raw(self, registerxy, registerz):
         checksum = ord('s') + ord('n') + ord('p') + registerxy
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerxy,
@@ -299,6 +315,9 @@ class IMU_Manager():
         print("BitStream: ", bstream[32:64])
         snp_hex = (b'snp\x80').hex()
         print("snp_hex: ", snp_hex)
+        data_xf=0
+        data_yf=0
+        data_yz=0
         # probably don't need this loop anymore with this implem.
         while (run):
             # received = self.ser.readline()
@@ -341,6 +360,7 @@ class IMU_Manager():
                 print("No Data Received, aborting search")
                 run = False
             iterator = iterator + 1
+        return data_xf, data_yf, data_zf
 
     # returns hex value of calculated checksum fromt the message
     # checksum is computed using XOR of every byte in the packet
@@ -354,13 +374,18 @@ class IMU_Manager():
         c_checksum = int(c_checksum, 16)
         return c_checksum
 
-    def calculate_bearing(self, imu_struct):
+    def calculate_bearing(self):
+        CAL_REG = [[0x0F, 0x10, 0x11], [0x12, 0x13, 0x14], [0x15, 0x16, 0x17]]
         # get raw values for mag
-        self.get_raw(0x5C, 0x5D)
-
+        data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
+        calibration = [[0]*3]*3
         #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
         # Magnetometer reads in unitless
+        for i in range(3):
+            for j in range(3):
+                calibration[i][j] = self.get_cal_vals(CAL_REG[i][j])
 
+        print("calibration[0][0]: ", calibration[0][0])
         # Hard-Iron calibration
         mag_offsets = [offsetx, offsety, offsetz]
 
@@ -369,9 +394,9 @@ class IMU_Manager():
                         [d, e, f]
                         [g, h, i]]
         
-        mag_x = (fromsensorx) - mag_offsets[0]
-        mag_y = (fromsensory) - mag_offsets[1]
-        mag_z = (fromsensorz) - mag_offsets[2]
+        mag_x = (data_xf) - mag_offsets[0]
+        mag_y = (data_yf) - mag_offsets[1]
+        mag_z = (data_zf) - mag_offsets[2]
 
         
 
@@ -395,9 +420,9 @@ class IMU_Manager():
         print(bearing)
 
         # Adds to struct
-        imu_struct.mag_x_uT = float(mag_calibrated_x)
-        imu_struct.mag_y_uT = float(mag_calibrated_y)
-        imu_struct.mag_z_uT = float(mag_calibrated_z)
+        # imu_struct.mag_x_uT = float(mag_calibrated_x)
+        # imu_struct.mag_y_uT = float(mag_calibrated_y)
+        # imu_struct.mag_z_uT = float(mag_calibrated_z)
 
         #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
 
@@ -436,8 +461,8 @@ def main():
             print("\n")
 
         print("RAW_GYRO")
-        manager.get_raw(0x56, 0x57)
-
+        # manager.get_raw(0x56, 0x57)
+        manager.calculate_bearing()
         # print("RAW_ACCEL")
         # manager.get_raw(0x59, 0x5A)
         
