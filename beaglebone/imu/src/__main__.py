@@ -16,6 +16,32 @@ from bitstring import BitStream
 # LCM_DEFAULT_URL="udpm://239.255.76.67:76?ttl=255" ./jarvis exec lcm_tools_echo IMUData "/imu_data"
 
 
+# Calibration Matrix Values
+# CREG MAG CAL1_1 0x0F
+# CREG MAG CAL1_2 0x10
+# CREG MAG CAL1_3 0x11
+# CREG MAG CAL2_1 0x12
+# CREG MAG CAL2_2 0x13
+# CREG MAG CAL2_3 0x14
+# CREG MAG CAL3_1 0x15
+# CREG MAG CAL3_2 0x16
+# CREG MAG CAL3_3 0x17
+
+# In Matrix:
+# 0x0F 0x10 0x11
+# 0x12 0x13 0x14
+# 0x15 0x16 0x17
+
+# 0x18 X-Axis Mag Bias 
+# 0x19 Y-Axis Mag Bias
+# 0x1A Z-Axis Mag Bias
+
+# Raw Mag Values
+# Mag Raw XY: 0x5C
+# Mag Raw Z : 0x5D
+# Mag Raw TI: 0x5E
+
+
 def binaryToFloat(value):
     hx = hex(int(value, 2))
     return struct.unpack("d", struct.pack("q", int(hx, 16)))[0]
@@ -331,6 +357,57 @@ class IMU_Manager():
         c_checksum = int(c_checksum, 16)
         return c_checksum
 
+    def calculate_bearing(self, imu_struct):
+        # get raw values for mag
+        self.get_raw(0x5C, 0x5D)
+
+        #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
+        # Magnetometer reads in unitless
+
+        # Hard-Iron calibration
+        mag_offsets = [offsetx, offsety, offsetz]
+
+        # Soft-Iron calibration
+        calibration =  [[a, b, c]
+                        [d, e, f]
+                        [g, h, i]]
+        
+        mag_x = (fromsensorx) - mag_offsets[0]
+        mag_y = (fromsensory) - mag_offsets[1]
+        mag_z = (fromsensorz) - mag_offsets[2]
+
+        
+
+        # Apply mag soft iron error compensation
+        mag_calibrated_x = mag_x * calibration[0][0] + \
+            mag_y * calibration[0][1] + mag_z * calibration[0][2]
+
+        mag_calibrated_y = mag_x * calibration[1][0] + \
+            mag_y * calibration[1][1] + mag_z * calibration[1][2]
+
+        mag_calibrated_z = mag_x * calibration[2][0] + \
+            mag_y * calibration[2][1] + mag_z * calibration[2][2]
+
+
+        # Bearing Calculation
+        bearing = -(math.arctan2(mag_calibrated_y, mag_calibrated_x) * (180.0 / math.pi))
+
+        if (bearing < 0):
+            bearing += 360
+
+        print(bearing)
+
+        # Adds to struct
+        imu_struct.mag_x_uT = float(mag_calibrated_x)
+        imu_struct.mag_y_uT = float(mag_calibrated_y)
+        imu_struct.mag_z_uT = float(mag_calibrated_z)
+
+        #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
+
+
+
+
+
 # end of class
 
 
@@ -366,6 +443,9 @@ def main():
 
         # print("RAW_ACCEL")
         # manager.get_raw(0x59, 0x5A)
+        
+        
+
 
         # print("RAW_MAG")
         # manager.get_raw(0x5C, 0x5D)
