@@ -390,17 +390,21 @@ class IMU_Manager():
 
         # Gets calibration matrix values
         # Soft-Iron Calibration
-        for i in range(3):
-            for j in range(3):
-                print("matrix coord: ", i, " ", j) 
-                val = self.get_cal_vals(CAL_REG[i][j])
-                print("val: ", val)
-                IMU_Manager.calibration_matrix[i][j] = val
+        # for i in range(3):
+        #    for j in range(3):
+                # print("matrix coord: ", i, " ", j, " \n") 
+        #        IMU_Manager.calibration_matrix[i][j] = self.get_cal_vals(CAL_REG[i][j])
+        #manual cal_matrix
+        IMU_Manager.calibration_matrix = [[0.1645294, 0.1290768, 0.00037273],
+                                          [0,         0.7418654, -0.3292478],
+                                          [0,         0,          0.0202561]]
 
         # Gets Magnetometer biases
         # Hard-Iron calibration
-        for i in range(3):
-            IMU_Manager.mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
+        # for i in range(3):
+        #    IMU_Manager.mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
+        #manual mag_offsets
+        IMU_Manager.mag_offsets = [2, 106, -26]
     
     def calculate_bearing(self):
         
