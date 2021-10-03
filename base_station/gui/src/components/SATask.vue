@@ -185,6 +185,8 @@ export default {
           this.odom = msg.message
         } else if (msg.topic ==='/spectral_data'){
           this.spectral_data = msg.message
+        } else if (msg.topic ==='/thermistor_data'){
+          this.thermistor_data = msg.message
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/debugMessage') {
