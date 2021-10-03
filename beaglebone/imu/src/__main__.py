@@ -295,8 +295,13 @@ class IMU_Manager():
 
 
     def get_raw(self, registerxy, registerz):
+        # checksum = ord('s') + ord('n') + ord('p') + registerxy
+        # cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerxy,
+        #               checksum >> 8, checksum & 0xff]
+
+        # batch cmd
         checksum = ord('s') + ord('n') + ord('p') + registerxy
-        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerxy,
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x48, registerxy,
                       checksum >> 8, checksum & 0xff]
 
         # sends reques for data
@@ -316,12 +321,12 @@ class IMU_Manager():
             # um7 sends back same message as request for data but with payload
             # containing 2's complement data for mag
             received = self.ser.readline()
+            print("received: ", received.hex())
             # received = self.ser.readline()
-            if(received.hex()[0:10] == (b'snp\x80\x5C').hex()):
+            if(received.hex()[0:8] == (b'snp\xC8').hex()):
                 run = False
                 # get data
                 bits = bitstring.BitArray(hex=received.hex())
-                # print("received: ", received.hex())
                 if(bits[40:56].len > 0):
                     data_x = bits[40:56].unpack('int:16')
                 else:
@@ -330,6 +335,10 @@ class IMU_Manager():
                     data_y = bits[56:72].unpack('int:16')
                 else:
                     data_y = [0]
+                if(bits[72:88].len > 0):
+                    data_z = bits[72:88].unpack('int:16')
+                else:
+                    data_z = [0]
                 # print("data_x: ", data_x)
                 # print("data_y: ", data_y)
             if(iterator == 1000):
@@ -338,28 +347,28 @@ class IMU_Manager():
             iterator = iterator + 1
 
         # now for the z value
-        checksum = ord('s') + ord('n') + ord('p') + registerz
-        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerz,
-                      checksum >> 8, checksum & 0xff]
+        # checksum = ord('s') + ord('n') + ord('p') + registerz
+        # cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerz,
+        #               checksum >> 8, checksum & 0xff]
 
-        self.ser.write(cmd_buffer)
-        time.sleep(0.01)
-        run = True
-        iterator = 0
-        while (run):
-            received = self.ser.readline()
-            if(received.hex()[0:10] == (b'snp\x80\x5D').hex()):
-                run = False
-                bits = bitstring.BitArray(hex=received.hex())
-                if(bits[40:56].len > 0):
-                    data_z = bits[40:56].unpack('int:16')
-                else:
-                    data_z = [0]
-                # print("data_z: ", data_z)
-            #if(iterator == 1000):
-                #print("No Data Received, aborting search")
-                #run = False
-            iterator = iterator + 1
+        # self.ser.write(cmd_buffer)
+        # time.sleep(0.01)
+        # run = True
+        # iterator = 0
+        # while (run):
+        #     received = self.ser.readline()
+        #     if(received.hex()[0:10] == (b'snp\x80\x5D').hex()):
+        #         run = False
+        #         bits = bitstring.BitArray(hex=received.hex())
+        #         if(bits[40:56].len > 0):
+        #             data_z = bits[40:56].unpack('int:16')
+        #         else:
+        #             data_z = [0]
+        #         # print("data_z: ", data_z)
+        #     #if(iterator == 1000):
+        #         #print("No Data Received, aborting search")
+        #         #run = False
+        #     iterator = iterator + 1
 
         return data_x, data_y, data_z
 
