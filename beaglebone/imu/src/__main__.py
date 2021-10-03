@@ -7,7 +7,7 @@ import struct
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import IMUData
-from bitstring import BitStream
+import bitstring
 
 # Converting binary to float
 
@@ -142,7 +142,10 @@ class IMU_Manager():
             # raw values are in degrees, need to convert to radians
             imu_struct.roll_rad = float(arr[2]) * pi / 180
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
-            imu_struct.yaw_rad = float(arr[4]) * pi / 180
+            yaw = float(arr[4])
+            if(yaw < 0):
+                yaw += 360
+            imu_struct.yaw_rad = yaw
             # fill with zeroes if something goes wrong
         except Exception as b:
             print("Error with PCHRA handler")
@@ -285,8 +288,13 @@ class IMU_Manager():
         time.sleep(0.5)
         received = self.ser.readline()
         data = received.hex()[10:18]
-        data_f = struct.unpack('>f', struct.pack(">i", int(data, 16)))[0]
-        print("cal_val: ", data_f)
+        # print("data: \n", data)
+        # data_f = struct.unpack('>f', struct.pack(">i", int(data, 16)))[0]
+        # convert IEEE to float
+        bits = bitstring.BitArray(hex = data)
+        # print("bits: \n", bits)
+        data_f = bits.float
+        # print("cal_val: ", data_f)
 
         return data_f
 
@@ -298,41 +306,36 @@ class IMU_Manager():
 
         # sends reques for data
         self.ser.write(cmd_buffer)
-        print("cmd_buff: \n", cmd_buffer)
+        # print("cmd_buff: \n", cmd_buffer)
         time.sleep(.5)
 
         # um7 sends back same message as request for data but with payload
-        # containing IEEE 754 32bit number (= to python float)
-        # data = []*32
+        # containing 2's complement data for mag
         received = self.ser.readline()
-        # print(received)
         # Filters the buffer looking for the has data packets and prints it
         run = True
         iterator = 0
-        print("received: \n", received)
-        print("received hex: ", received.hex()[0:16])
-        bstream = BitStream(bytes=received)
-        print("BitStream: ", bstream[32:64])
-        snp_hex = (b'snp\x80').hex()
-        print("snp_hex: ", snp_hex)
-        data_xf=0
-        data_yf=0
-        data_yz=0
-        # probably don't need this loop anymore with this implem.
+        # print("received: \n", received)
+        # print("received hex: ", received.hex()[0:16])
+        # bits = bitstring.BitArray(hex=received.hex())
+        # print("raw data_xf: ", bits[32:47])
+        # print("data_xf: ", bits[32:47].int)
+        # print("data_yf: ", bits[48:63].int)
+        # snp_hex = (b'snp\x80').hex()
+        data_x=0
+        data_y=0
+        data_z=0
+        # Waits for snp packet to come through
         while (run):
             # received = self.ser.readline()
             if(received.hex()[0:8] == (b'snp\x80').hex()):
-                print("inside loop")
                 run = False
                 # get data
-                data_x = received.hex()[10:14]
-                print("data: ", data_x)
-                # might need to fix this to get correct 2's complement from hex
-                data_xf = struct.unpack('>i', struct.pack(">i", int(data_x, 16)))[0]
-                print("data_xf: ", data_xf)
-                data_y = received.hex()[14:18]
-                data_yf = struct.unpack('>i', struct.pack(">i", int(data_y, 16)))[0]
-                print("data_yf: ", data_yf)
+                bits = bitstring.BitArray(hex=received.hex())
+                data_x = bits[32:47].int
+                data_y = bits[48:63].int
+                print("data_x: ", data_x)
+                print("data_y: ", data_y)
             if(iterator == 1000):
                 print("No Data received, aborting search")
                 run = False
@@ -353,14 +356,14 @@ class IMU_Manager():
         while (run):
             if(received.hex()[0:8] == (b'snp\x80').hex()):
                 run = False
-                data_z = received.hex()[10:14]
-                data_zf = struct.unpack('>i', struct.pack(">i", int(data_z, 16)))[0]
-                print("data_zf: ", data_zf)
+                bits = bitstring.BitArray(hex=received.hex())
+                data_z = bits[32:47].int
+                print("data_z: ", data_z)
             if(iterator == 1000):
                 print("No Data Received, aborting search")
                 run = False
             iterator = iterator + 1
-        return data_xf, data_yf, data_zf
+        return data_x, data_y, data_z
 
     # returns hex value of calculated checksum fromt the message
     # checksum is computed using XOR of every byte in the packet
@@ -387,9 +390,9 @@ class IMU_Manager():
         # Soft-Iron Calibration
         for i in range(3):
             for j in range(3):
+                # print("matrix coord: ", i, " ", j, " \n") 
                 calibration[i][j] = self.get_cal_vals(CAL_REG[i][j])
         
-        print("calibration[0][0]: ", calibration[0][0])
         # Gets Magnetometer biases
         # Hard-Iron calibration
         for i in range(3):
@@ -414,12 +417,12 @@ class IMU_Manager():
 
 
         # Bearing Calculation
-        bearing = -(math.arctan2(mag_calibrated_y, mag_calibrated_x) * (180.0 / math.pi))
+        bearing = -(math.atan2(mag_calibrated_y, mag_calibrated_x) * (180.0 / math.pi))
 
         if (bearing < 0):
             bearing += 360
 
-        print(bearing)
+        print("bearing: ", bearing)
 
         # Adds to struct
         # imu_struct.mag_x_uT = float(mag_calibrated_x)
@@ -464,7 +467,8 @@ def main():
 
         print("RAW_GYRO")
         # manager.get_raw(0x56, 0x57)
-        manager.calculate_bearing()
+        while(True):
+            manager.calculate_bearing()
         # print("RAW_ACCEL")
         # manager.get_raw(0x59, 0x5A)
         
