@@ -72,7 +72,7 @@ void ObsDetector::update() {
         
     } else if(source == DataSource::FILESYSTEM) {
 
-        pc = fileReader.readCloudGPU(frameNum);
+        pc = fileReader.readCloudGPU(28);
     }
     update(pc);
 
@@ -82,6 +82,7 @@ void ObsDetector::update() {
 void ObsDetector::update(GPU_Cloud pc) {
 
     // Get a copy if debug is enabled
+    viewer.updatePointCloud(pc);
 
     // Processing
     passZ->run(pc);
@@ -94,7 +95,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     
     // Rendering
     if(mode != OperationMode::SILENT) {
-        viewer.updatePointCloud(pc);
+     //   viewer.updatePointCloud(pc);
     }
 
     // Recording
