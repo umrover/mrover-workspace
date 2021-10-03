@@ -9,12 +9,8 @@ from rover_common import aiolcm
 from rover_msgs import IMUData
 import bitstring
 
-# Converting binary to float
-
 # Picocom - picocom -b 115200 /dev/ttyS4
-# 
 # LCM_DEFAULT_URL="udpm://239.255.76.67:76?ttl=255" ./jarvis exec lcm_tools_echo IMUData "/imu_data"
-
 
 # Calibration Matrix Values
 # CREG MAG CAL1_1 0x0F
@@ -42,12 +38,11 @@ import bitstring
 # Mag Raw TI: 0x5E
 
 
-def binaryToFloat(value):
-    hx = hex(int(value, 2))
-    return struct.unpack("d", struct.pack("q", int(hx, 16)))[0]
-
 
 class IMU_Manager():
+    # data for clibration
+    calibration_matrix = [[0]*3]*3
+    mag_offsets = [0]*3
 
     def __init__(self):
         UART.setup("UART4")
@@ -307,26 +302,19 @@ class IMU_Manager():
         # sends reques for data
         self.ser.write(cmd_buffer)
         # print("cmd_buff: \n", cmd_buffer)
-        time.sleep(.5)
-
-        # um7 sends back same message as request for data but with payload
-        # containing 2's complement data for mag
-        received = self.ser.readline()
+        
         # Filters the buffer looking for the has data packets and prints it
         run = True
         iterator = 0
-        # print("received: \n", received)
-        # print("received hex: ", received.hex()[0:16])
-        # bits = bitstring.BitArray(hex=received.hex())
-        # print("raw data_xf: ", bits[32:47])
-        # print("data_xf: ", bits[32:47].int)
-        # print("data_yf: ", bits[48:63].int)
-        # snp_hex = (b'snp\x80').hex()
+
         data_x=0
         data_y=0
         data_z=0
         # Waits for snp packet to come through
         while (run):
+            # um7 sends back same message as request for data but with payload
+            # containing 2's complement data for mag
+            received = self.ser.readline()
             # received = self.ser.readline()
             if(received.hex()[0:8] == (b'snp\x80').hex()):
                 run = False
@@ -347,13 +335,11 @@ class IMU_Manager():
                       checksum >> 8, checksum & 0xff]
 
         self.ser.write(cmd_buffer)
-        time.sleep(.5)
-
-        received = self.ser.readline()
         
         run = True
         iterator = 0
         while (run):
+            received = self.ser.readline()
             if(received.hex()[0:8] == (b'snp\x80').hex()):
                 run = False
                 bits = bitstring.BitArray(hex=received.hex())
@@ -363,6 +349,7 @@ class IMU_Manager():
                 print("No Data Received, aborting search")
                 run = False
             iterator = iterator + 1
+
         return data_x, data_y, data_z
 
     # returns hex value of calculated checksum fromt the message
@@ -377,43 +364,44 @@ class IMU_Manager():
         c_checksum = int(c_checksum, 16)
         return c_checksum
 
-    def calculate_bearing(self):
+    # Gets calibration values from registers - only need to run once at beginning
+    def get_calibration_vals(self, calibration_matrix, mag_offsets):
         CAL_REG = [[0x0F, 0x10, 0x11], [0x12, 0x13, 0x14], [0x15, 0x16, 0x17]]
         BIAS_REG = [0x18, 0x19, 0x1A]
-        # get raw values for mag
-        data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
-        calibration = [[0]*3]*3
-        mag_offsets = [0]*3
-        #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
-        # Magnetometer reads in unitless
+
         # Gets calibration matrix values
         # Soft-Iron Calibration
         for i in range(3):
             for j in range(3):
                 # print("matrix coord: ", i, " ", j, " \n") 
-                calibration[i][j] = self.get_cal_vals(CAL_REG[i][j])
-        
+                IMU_Manager.calibration_matrix[i][j] = self.get_cal_vals(CAL_REG[i][j])
+
         # Gets Magnetometer biases
         # Hard-Iron calibration
         for i in range(3):
-            mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
-
+            IMU_Manager.mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
+    
+    def calculate_bearing(self):
         
-        mag_x = (data_xf) - mag_offsets[0]
-        mag_y = (data_yf) - mag_offsets[1]
-        mag_z = (data_zf) - mag_offsets[2]
-
+        # get raw values for mag
+        data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
         
+        #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
+        # Magnetometer reads in unitless
+        
+        mag_x = (data_xf) - IMU_Manager.mag_offsets[0]
+        mag_y = (data_yf) - IMU_Manager.mag_offsets[1]
+        mag_z = (data_zf) - IMU_Manager.mag_offsets[2]
 
         # Apply mag soft iron error compensation
-        mag_calibrated_x = mag_x * calibration[0][0] + \
-            mag_y * calibration[0][1] + mag_z * calibration[0][2]
+        mag_calibrated_x = mag_x * IMU_Manager.calibration_matrix[0][0] + \
+            mag_y * IMU_Manager.calibration_matrix[0][1] + mag_z * IMU_Manager.calibration_matrix[0][2]
 
-        mag_calibrated_y = mag_x * calibration[1][0] + \
-            mag_y * calibration[1][1] + mag_z * calibration[1][2]
+        mag_calibrated_y = mag_x * IMU_Manager.calibration_matrix[1][0] + \
+            mag_y * IMU_Manager.calibration_matrix[1][1] + mag_z * IMU_Manager.calibration_matrix[1][2]
 
-        mag_calibrated_z = mag_x * calibration[2][0] + \
-            mag_y * calibration[2][1] + mag_z * calibration[2][2]
+        mag_calibrated_z = mag_x * IMU_Manager.calibration_matrix[2][0] + \
+            mag_y * IMU_Manager.calibration_matrix[2][1] + mag_z * IMU_Manager.calibration_matrix[2][2]
 
 
         # Bearing Calculation
@@ -452,21 +440,20 @@ def main():
             manager.turnOffRegister(reg)
 
         # spits out calibrated values from registers
-        for r in GYRO_PROC:
-            print("GYRO_PROC")
-            manager.get_calibrated(r)
-            print("\n")
-        for r in ACCEL_PROC:
-            print("ACCEL_PROC")
-            manager.get_calibrated(r)
-            print("\n")
-        for r in MAG_PROC:
-            print("MAG_PROC")
-            manager.get_calibrated(r)
-            print("\n")
+        # for r in GYRO_PROC:
+        #     print("GYRO_PROC")
+        #     manager.get_calibrated(r)
+        #     print("\n")
+        # for r in ACCEL_PROC:
+        #     print("ACCEL_PROC")
+        #     manager.get_calibrated(r)
+        #     print("\n")
+        # for r in MAG_PROC:
+        #     print("MAG_PROC")
+        #     manager.get_calibrated(r)
+        #     print("\n")
 
-        print("RAW_GYRO")
-        # manager.get_raw(0x56, 0x57)
+        manager.get_calibration_vals(manager.calibration_matrix, manager.mag_offsets)        
         while(True):
             manager.calculate_bearing()
         # print("RAW_ACCEL")
