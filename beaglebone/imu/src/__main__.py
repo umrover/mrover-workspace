@@ -384,22 +384,17 @@ class IMU_Manager():
         #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
         # Magnetometer reads in unitless
         # Gets calibration matrix values
+        # Soft-Iron Calibration
         for i in range(3):
             for j in range(3):
                 calibration[i][j] = self.get_cal_vals(CAL_REG[i][j])
         
         print("calibration[0][0]: ", calibration[0][0])
         # Gets Magnetometer biases
+        # Hard-Iron calibration
         for i in range(3):
             mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
 
-        # Hard-Iron calibration
-        # mag_offsets = [offsetx, offsety, offsetz]
-
-        # Soft-Iron calibration
-        calibration =  [[a, b, c]
-                        [d, e, f]
-                        [g, h, i]]
         
         mag_x = (data_xf) - mag_offsets[0]
         mag_y = (data_yf) - mag_offsets[1]
