@@ -301,6 +301,7 @@ class IMU_Manager():
 
         # sends reques for data
         self.ser.write(cmd_buffer)
+        time.sleep(.01)
         # print("cmd_buff: \n", cmd_buffer)
         
         # Filters the buffer looking for the has data packets and prints it
@@ -316,14 +317,21 @@ class IMU_Manager():
             # containing 2's complement data for mag
             received = self.ser.readline()
             # received = self.ser.readline()
-            if(received.hex()[0:8] == (b'snp\x80').hex()):
+            if(received.hex()[0:10] == (b'snp\x80\x5C').hex()):
                 run = False
                 # get data
                 bits = bitstring.BitArray(hex=received.hex())
-                data_x = bits[32:47].int
-                data_y = bits[48:63].int
-                print("data_x: ", data_x)
-                print("data_y: ", data_y)
+                # print("received: ", received.hex())
+                if(bits[40:56].len > 0):
+                    data_x = bits[40:56].unpack('int:16')
+                else:
+                    data_x = [0]
+                if(bits[56:72].len > 0):
+                    data_y = bits[56:72].unpack('int:16')
+                else:
+                    data_y = [0]
+                # print("data_x: ", data_x)
+                # print("data_y: ", data_y)
             if(iterator == 1000):
                 print("No Data received, aborting search")
                 run = False
@@ -335,19 +343,22 @@ class IMU_Manager():
                       checksum >> 8, checksum & 0xff]
 
         self.ser.write(cmd_buffer)
-        
+        time.sleep(0.01)
         run = True
         iterator = 0
         while (run):
             received = self.ser.readline()
-            if(received.hex()[0:8] == (b'snp\x80').hex()):
+            if(received.hex()[0:10] == (b'snp\x80\x5D').hex()):
                 run = False
                 bits = bitstring.BitArray(hex=received.hex())
-                data_z = bits[32:47].int
-                print("data_z: ", data_z)
-            if(iterator == 1000):
-                print("No Data Received, aborting search")
-                run = False
+                if(bits[40:56].len > 0):
+                    data_z = bits[40:56].unpack('int:16')
+                else:
+                    data_z = [0]
+                # print("data_z: ", data_z)
+            #if(iterator == 1000):
+                #print("No Data Received, aborting search")
+                #run = False
             iterator = iterator + 1
 
         return data_x, data_y, data_z
@@ -385,14 +396,15 @@ class IMU_Manager():
         
         # get raw values for mag
         data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
-        
+        print("data: ", data_xf, " ", data_yf, " ", data_zf)
         #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
         # Magnetometer reads in unitless
         
-        mag_x = (data_xf) - IMU_Manager.mag_offsets[0]
-        mag_y = (data_yf) - IMU_Manager.mag_offsets[1]
-        mag_z = (data_zf) - IMU_Manager.mag_offsets[2]
-
+        mag_x = data_xf[0] - IMU_Manager.mag_offsets[0]
+        mag_y = data_yf[0] - IMU_Manager.mag_offsets[1]
+        mag_z = data_zf[0] - IMU_Manager.mag_offsets[2]
+        print("offsets: ", IMU_Manager.mag_offsets[0], " ", IMU_Manager.mag_offsets[1], " ", IMU_Manager.mag_offsets[2])
+        print("cal_mat: ", IMU_Manager.calibration_matrix[0][1], " ", IMU_Manager.calibration_matrix[0][2])
         # Apply mag soft iron error compensation
         mag_calibrated_x = mag_x * IMU_Manager.calibration_matrix[0][0] + \
             mag_y * IMU_Manager.calibration_matrix[0][1] + mag_z * IMU_Manager.calibration_matrix[0][2]
@@ -403,7 +415,7 @@ class IMU_Manager():
         mag_calibrated_z = mag_x * IMU_Manager.calibration_matrix[2][0] + \
             mag_y * IMU_Manager.calibration_matrix[2][1] + mag_z * IMU_Manager.calibration_matrix[2][2]
 
-
+        print("cal_xyz: ", mag_calibrated_x, " ", mag_calibrated_y, " ", mag_calibrated_z)
         # Bearing Calculation
         bearing = -(math.atan2(mag_calibrated_y, mag_calibrated_x) * (180.0 / math.pi))
 
