@@ -138,7 +138,7 @@ void updateRansacPlane(sl::float3 p1, sl::float3 p2, sl::float3 p3, float scale)
 
 std::vector<Simple3DObject*> objectBoxes;
 
-void updateObjectBoxes(int num, std::vector<Obstacle> obs) { //int num, Obstacle {float minX, float maxX, minY...maxZ}
+void updateObjectBoxes(int num, std::vector<EuclideanClusterExtractor::Obstacle> obs) { //int num, Obstacle {float minX, float maxX, minY...maxZ}
     for(int i = 0; i < objectBoxes.size(); i++) delete objectBoxes[i];
     objectBoxes.clear();
     
@@ -208,7 +208,7 @@ Simple3DObject projPath;
 int i = 0; 
 
 void updateProjectedLines(int bearingRight, int bearingLeft) {
-    float PI = 3.141592;
+    //float PI = 3.141592;
     sl::float3 startLeft(-584,1000,0);
     sl::float3 startRight(584,1000,0);
     sl::float3 endLeftBR(-584,1000,7000);
