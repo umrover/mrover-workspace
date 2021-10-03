@@ -376,18 +376,25 @@ class IMU_Manager():
 
     def calculate_bearing(self):
         CAL_REG = [[0x0F, 0x10, 0x11], [0x12, 0x13, 0x14], [0x15, 0x16, 0x17]]
+        BIAS_REG = [0x18, 0x19, 0x1A]
         # get raw values for mag
         data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
         calibration = [[0]*3]*3
+        mag_offsets = [0]*3
         #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
         # Magnetometer reads in unitless
+        # Gets calibration matrix values
         for i in range(3):
             for j in range(3):
                 calibration[i][j] = self.get_cal_vals(CAL_REG[i][j])
-
+        
         print("calibration[0][0]: ", calibration[0][0])
+        # Gets Magnetometer biases
+        for i in range(3):
+            mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
+
         # Hard-Iron calibration
-        mag_offsets = [offsetx, offsety, offsetz]
+        # mag_offsets = [offsetx, offsety, offsetz]
 
         # Soft-Iron calibration
         calibration =  [[a, b, c]
