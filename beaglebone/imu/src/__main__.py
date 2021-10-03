@@ -260,17 +260,13 @@ class IMU_Manager():
         run = True
         iterator = 0
         while (run):
-            if(received[iterator:(iterator + 4)] == b'snp\x80'):
-                # print(received[iterator:(iterator + 11)])
+            if(received.hex()[0:8] == b'snp\x80'):
                 run = False
-                data = [0x00, 0x00, 0x00, 0x00]
-                # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
-                data = received[(iterator + 5):(iterator + 9)]
-                # print(data)
-                # plaincontent = (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3])
-                # print(plaincontent)
-                val = struct.unpack('>f', data)
-                print(val)
+                bits = bitstring.BitArray(hex=received.hex())
+                if(bits[40:72].len > 0):
+                    data = bits[40:72].float
+                else:
+                    data = 0;
             iterator = iterator + 1
 
     # gets calibration matrix values as 32 bit IEEE f-point 
@@ -282,14 +278,15 @@ class IMU_Manager():
         self.ser.write(cmd_buffer)
         time.sleep(0.5)
         received = self.ser.readline()
-        data = received.hex()[10:18]
-        # print("data: \n", data)
+        data = received.hex()
+        print("reg: ", reg)
+        print("data: ", data)
         # data_f = struct.unpack('>f', struct.pack(">i", int(data, 16)))[0]
         # convert IEEE to float
-        bits = bitstring.BitArray(hex = data)
+        bits = bitstring.BitArray(hex = received.hex())
         # print("bits: \n", bits)
-        data_f = bits.float
-        # print("cal_val: ", data_f)
+        data_f = bits[40:72].float
+        print("cal_val: ", data_f)
 
         return data_f
 
@@ -300,15 +297,15 @@ class IMU_Manager():
         #               checksum >> 8, checksum & 0xff]
 
         # batch cmd
-        checksum = ord('s') + ord('n') + ord('p') + registerxy
+        checksum = ord('s') + ord('n') + ord('p') + registerxy + 0x48
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x48, registerxy,
                       checksum >> 8, checksum & 0xff]
-
+        print("cmd_buf: ", cmd_buffer)
         # sends reques for data
         self.ser.write(cmd_buffer)
-        time.sleep(.01)
-        # print("cmd_buff: \n", cmd_buffer)
-        
+        time.sleep(.5)
+        # received = self.ser.readline()
+        # print("received: ", received.hex())
         # Filters the buffer looking for the has data packets and prints it
         run = True
         iterator = 0
@@ -321,8 +318,7 @@ class IMU_Manager():
             # um7 sends back same message as request for data but with payload
             # containing 2's complement data for mag
             received = self.ser.readline()
-            print("received: ", received.hex())
-            # received = self.ser.readline()
+            # print("received: ", received.hex())
             if(received.hex()[0:8] == (b'snp\xC8').hex()):
                 run = False
                 # get data
@@ -341,8 +337,11 @@ class IMU_Manager():
                     data_z = [0]
                 # print("data_x: ", data_x)
                 # print("data_y: ", data_y)
-            if(iterator == 1000):
+            if(iterator == 100):
                 print("No Data received, aborting search")
+                data_x = [0]
+                data_y = [0]
+                data_z = [0]
                 run = False
             iterator = iterator + 1
 
@@ -393,8 +392,10 @@ class IMU_Manager():
         # Soft-Iron Calibration
         for i in range(3):
             for j in range(3):
-                # print("matrix coord: ", i, " ", j, " \n") 
-                IMU_Manager.calibration_matrix[i][j] = self.get_cal_vals(CAL_REG[i][j])
+                print("matrix coord: ", i, " ", j) 
+                val = self.get_cal_vals(CAL_REG[i][j])
+                print("val: ", val)
+                IMU_Manager.calibration_matrix[i][j] = val
 
         # Gets Magnetometer biases
         # Hard-Iron calibration
@@ -413,7 +414,12 @@ class IMU_Manager():
         mag_y = data_yf[0] - IMU_Manager.mag_offsets[1]
         mag_z = data_zf[0] - IMU_Manager.mag_offsets[2]
         print("offsets: ", IMU_Manager.mag_offsets[0], " ", IMU_Manager.mag_offsets[1], " ", IMU_Manager.mag_offsets[2])
-        print("cal_mat: ", IMU_Manager.calibration_matrix[0][1], " ", IMU_Manager.calibration_matrix[0][2])
+        print("cal_mat_r0: ",IMU_Manager.calibration_matrix[0][0], " ", 
+                            IMU_Manager.calibration_matrix[0][1], " ",
+                            IMU_Manager.calibration_matrix[0][2])
+        print("cal_mat_r1: ", IMU_Manager.calibration_matrix[1][0], " ",
+                                IMU_Manager.calibration_matrix[1][1], " ",
+                                IMU_Manager.calibration_matrix[1][2])
         # Apply mag soft iron error compensation
         mag_calibrated_x = mag_x * IMU_Manager.calibration_matrix[0][0] + \
             mag_y * IMU_Manager.calibration_matrix[0][1] + mag_z * IMU_Manager.calibration_matrix[0][2]
@@ -426,8 +432,12 @@ class IMU_Manager():
 
         print("cal_xyz: ", mag_calibrated_x, " ", mag_calibrated_y, " ", mag_calibrated_z)
         # Bearing Calculation
+  
         bearing = -(math.atan2(mag_calibrated_y, mag_calibrated_x) * (180.0 / math.pi))
-
+        #use calibrated values
+        # mag_cal_y = self.get_cal_vals(0x6A)
+        # mag_cal_x = self.get_cal_vals(0x69)
+        # bearing = -(math.atan2(mag_cal_y, mag_cal_x)*(180.0/math.pi))
         if (bearing < 0):
             bearing += 360
 
