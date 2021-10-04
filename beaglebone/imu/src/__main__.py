@@ -404,7 +404,7 @@ class IMU_Manager():
         # for i in range(3):
         #    IMU_Manager.mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
         #manual mag_offsets
-        IMU_Manager.mag_offsets = [2, 106, -26]
+        IMU_Manager.mag_offsets = [2.0, 106.0, -26.0]
     
     def calculate_bearing(self):
         
@@ -414,9 +414,9 @@ class IMU_Manager():
         #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
         # Magnetometer reads in unitless
         
-        mag_x = data_xf[0] - IMU_Manager.mag_offsets[0]
-        mag_y = data_yf[0] - IMU_Manager.mag_offsets[1]
-        mag_z = data_zf[0] - IMU_Manager.mag_offsets[2]
+        mag_x = data_xf[0]*1.0  - IMU_Manager.mag_offsets[0]
+        mag_y = data_yf[0]*1.0 - IMU_Manager.mag_offsets[1]
+        mag_z = data_zf[0]*1.0 - IMU_Manager.mag_offsets[2]
         print("offsets: ", IMU_Manager.mag_offsets[0], " ", IMU_Manager.mag_offsets[1], " ", IMU_Manager.mag_offsets[2])
         print("cal_mat_r0: ",IMU_Manager.calibration_matrix[0][0], " ", 
                             IMU_Manager.calibration_matrix[0][1], " ",
@@ -437,7 +437,7 @@ class IMU_Manager():
         print("cal_xyz: ", mag_calibrated_x, " ", mag_calibrated_y, " ", mag_calibrated_z)
         # Bearing Calculation
   
-        bearing = -(math.atan2(mag_calibrated_y, mag_calibrated_x) * (180.0 / math.pi))
+        bearing = -(math.atan2(mag_calibrated_y, mag_calibrated_x )) * (180.0 / math.pi))
         #use calibrated values
         # mag_cal_y = self.get_cal_vals(0x6A)
         # mag_cal_x = self.get_cal_vals(0x69)
