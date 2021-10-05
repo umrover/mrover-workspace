@@ -18,55 +18,52 @@
 
 using namespace std;
 
-Map::Map(string inputPath) 
-: xTotalDisplacement(0.0), yTotalDisplacement(0.0) {
-    ReadInputImage(inputPath);
-} 
+Map::Map(const vector< vector <vector<uint8_t> > > &inputMap, uint32_t row_start, uint32_t col_start) : 
+inputMap(inputMap), navigationMap(3,vector<vector<uint8_t> >(dimension, vector<uint8_t> (dimension, 128))), 
+startIndices(row_start,col_start), 
+xTotalDisplacement(0.0), yTotalDisplacement(0.0),currentHeading(0.0) {}; 
 
-vector<uint8_t> Map::ReadInputImage(string inputPath){
-    
-}
+double Map::updateHeading(double oldHeading, Joystick joystick){
+    double newHeading;
 
-double Map::updateHeading(const double &oldHeading, const double &joystickHeading){
-    double newHeading = oldHeading + joystickHeading;
-    if(newHeading >= 360){
-        newHeading -= 360;
+    if(joystick.forward_back >=0){
+        newHeading = acos(joystick.left_right);
+    }else{
+        newHeading = acos(joystick.left_right) + PI/2;
+    }
+
+    newHeading = oldHeading + joystickHeading;
+    if(newHeading >= 2*PI) {
+        newHeading -= 2*PI;
     }
     return newHeading;
 }
 
-// temporary paramenters: joystickHeading is in degrees
-void Map::updatePosition(double time, double joystickMagnitude, double joystickHeading) {
+vector< vector <vector<uint8_t> > >& Map::updateNavMap(double time, Joystick joystick) {
     // calculate distance rover is to be moved
     // test negative displacements
-    xTotalDisplacement += time*joystickMagnitude*cos(joystickHeading*PI / 180.0); 
-    yTotalDisplacement += time*joystickMagnitude*sin(joystickHeading*PI / 180.0);
-    currentHeading = updateHeading(currentHeading, joystickHeading);
+
+    currentHeading = updateHeading(currentHeading, joystick);
+    xTotalDisplacement += time*speed*abs(joystick.forward_back)*cos(currentHeading*PI/180.0)); 
+    yTotalDisplacement += time*speed*abs(joystick.forward_back)*sin(currentHeading*PI/180.0));
 
     int number_cells_x = floor(xTotalDisplacement / cellLength);  
     int number_cells_y = floor(yTotalDisplacement / cellLength);  
 
-    currentIndices.first = startIndices.first + number_cells_x; 
-    currentIndices.second = startIndices.second + number_cells_y;
+    currentIndices.x = startIndices.x + number_cells_x; 
+    currentIndices.y = startIndices.y + number_cells_y;
+
+    pair<Map::Square, Map::Square> twoVertices = getTriangleVertex(currentIndices);
+    DrawTriangle(currentIndices, twoVertices.first, twoVertices.second);
+    return navigationMap;
 }
 
 void Map::displayLCM(){
-    
+    std::cout << "Current x and y indices: " << currentIndices.x << " " << currentIndices.y << std::endl;
+    std::cout << "Current heading: " << currentHeading << std::endl;
+    std::cout << "Joystick LCM:  forward_back: " << joystick.forward_back << std::endl;
+    std::cout << "Joystick LCM:  left_right: " << joystick.left_right << std::endl;
 }
-
-void Map::colorMap(){
-    // after Update position, the rover is at currentIndices (x and y coordinates)
-    // from here, get the equilateral triangle of side length 25
-    // to "simulate" the camera view of the rover 
-
-    // look at the corresponding area on the Input Map (which is colored with obstacles) 
-    // on the Navigation Map, color the map 
-}
-
-void Map::saveMapToImage(){
-    
-}
-
 
 // PRIVATE MEMBER FUNCTION DECLARATIONS
 void Map::ScanLine(int x1, int x2, int y1, int y2) {
@@ -165,19 +162,23 @@ void Map::DrawTriangle(Square p0, Square p1, Square p2) {
 
       // Can draw a horizontal line instead of individual pixels here
       while (len--) {
-        SetPixel(x++, y, p0.color);
+        Color c;
+        c.r = inputMap[0][x][y];
+        c.g = inputMap[1][x][y];
+        c.b = inputMap[2][x][y];
+        SetPixel(x++, y, c);
       }
     }
   }
 }
 
-void Map::SetPixel(int x, int y, uint32_t color) {
+void Map::SetPixel(int x, int y, Color color) {
     if ((x < 0) || (x >= dimension) || (y < 0) || (y >= dimension)) { return; }
-
-    if (navigationMap[y][x].color == ' ') {
-        navigationMap[y][x].color = color;
-        navigationMap[y][x].x = x; 
-        navigationMap[y][x].x = y;
+    
+    if(navigationMap[0][x][y]==128 && navigationMap[1][x][y]==128 && navigationMap[2][x][y]==128){
+        navigationMap[0][y][x] = color.r;
+        navigationMap[1][y][x] = color.g; 
+        navigationMap[2][y][x] = color.b;
     }
 }
 
@@ -187,13 +188,9 @@ pair<Map::Square, Map::Square> Map::getTriangleVertex(Map::Square& start){
     double theta_2 = getHeading() + 30; // this is in degrees
     
     //naive approach
-    Square vertex_1;
-    vertex_1.x = 25*cos(theta_1*PI/180.0); 
-    vertex_1.y = 25*sin(theta_1*PI/180.0); 
+    Square vertex_1(25*cos(theta_1*PI/180.0), 25*sin(theta_1*PI/180.0));
 
-    Square vertex_2;
-    vertex_2.x = 25*cos(theta_2*PI/180.0); 
-    vertex_2.y = 25*sin(theta_2*PI/180.0);
+    Square vertex_2(25*cos(theta_2*PI/180.0), 25*sin(theta_2*PI/180.0));
 
     triangleVertices.first = vertex_1;
     triangleVertices.second = vertex_2; 
