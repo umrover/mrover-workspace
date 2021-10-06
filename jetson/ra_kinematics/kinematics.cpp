@@ -176,7 +176,8 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
     */
     // cout << "Running IK!" << endl;
     // cout << "target point: " << target_point << "\n";
-    int num_iterations = 0;
+    num_iterations = 0;
+    int num_iterations_low_movement = 0;
     Vector3d target_pos_world = target_point.head(3);
     Vector3d target_ang_world = target_point.tail(3);
 
@@ -221,9 +222,10 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
 
     Vector6d d_ef;
 
-    while (dist > POS_THRESHOLD or (angle_dist > ANGLE_THRESHOLD && use_euler_angles)) {
+    while (dist > POS_THRESHOLD || (angle_dist > ANGLE_THRESHOLD && use_euler_angles)) {
     // while (angle_dist > ANGLE_THRESHOLD && use_euler_angles) {
-        if (num_iterations > MAX_ITERATIONS) {
+        
+        if (num_iterations_low_movement > MAX_ITERATIONS_LOW_MOVEMENT || num_iterations > MAX_ITERATIONS) {
             cout << "final dist:" << dist << "\n";
             cout << "final angle dist:" << angle_dist << "\n\n";
 
@@ -254,8 +256,18 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
         ef_pos_world = robot_state.get_ef_pos_world();
         ef_ang_world = robot_state.get_ef_ang_world();
 
+        double dist_original = dist;
+        double angle_dist_original = angle_dist;
+
         dist = (ef_pos_world - target_pos_world).norm();
         angle_dist = (ef_ang_world - target_ang_world).norm();
+
+        if (abs(dist - dist_original) < EPSILON_DIST && abs(angle_dist - angle_dist_original) < EPSILON_ANGLE_DIST) {
+            ++num_iterations_low_movement;
+        }
+        else {
+            num_iterations_low_movement = 0;
+        }
 
         ++num_iterations;
     }
@@ -439,4 +451,9 @@ void KinematicsSolver::recover_from_backup(ArmState &robot_state) {
         // update state based on new angles
         FK(robot_state);
     }
+}
+
+int KinematicsSolver::get_num_iterations()
+{
+    return num_iterations;
 }
