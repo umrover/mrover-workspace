@@ -215,7 +215,6 @@ export default {
         {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/thermistor_data', 'type': 'ThermistorData'}
       ]
     )
 
