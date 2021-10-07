@@ -317,6 +317,8 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
 
             // calculate end effector orientation jacobian values
             if (use_euler_angles) {
+
+                // Delta theta is the amount to move euler angles by in order to determine partial derivatives for euler angles
                 Matrix4d n_xform = apply_joint_xform(robot_state, joints[i], DELTA_THETA);
 
                 Vector3d euler_angles;
