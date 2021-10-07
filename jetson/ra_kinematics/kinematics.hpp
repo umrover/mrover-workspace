@@ -10,18 +10,21 @@ using namespace Eigen;
 typedef Matrix<double, 6, 1> Vector6d;
 
 static constexpr int MAX_ITERATIONS = 500;
+static constexpr int MAX_ITERATIONS_LOW_MOVEMENT = 10;
 static constexpr double POS_THRESHOLD = 0.05;
 static constexpr double ANGLE_THRESHOLD = 0.2;
 static constexpr double k_position_step = 0.1;
 static constexpr double k_angle_step = 0.1;
 static constexpr double DELTA_THETA = 0.0001;
-
+static constexpr double EPSILON_DIST = 0.0000000001;                //TODO: Experiment with epsilon values
+static constexpr double EPSILON_ANGLE_DIST = 0.0000000001;
 
 class KinematicsSolver {
 
 private:
 
     bool e_locked;
+    int num_iterations;
 
     stack<vector<double>> arm_state_backup;
 
@@ -61,6 +64,8 @@ public:
      * @return true if all angles are within bounds and don't cause collisions
      * */
     bool is_safe(ArmState &robot_state, const vector<double> &angles);
+
+    int get_num_iterations();
 
 };
 

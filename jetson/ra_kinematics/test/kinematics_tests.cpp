@@ -298,5 +298,24 @@ TEST(ik_orientation) {
     ASSERT_TRUE(solver.IK(arm, target, false, true).second);
 }
 
+TEST(ik_local_min) {
+    json geom = read_json_from_file(get_mrover_arm_geom());
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+
+    arm.set_joint_angles({0, 1, -1, 0, 0, 0});
+    solver.FK(arm);
+    cout << "ef_pos after FK:\n";
+    cout << arm.get_ef_pos_world() << "\n";
+
+    // Create target point vector:
+    Vector6d target;
+    target << 38, 400, 14, 0.0, 0.0, 0.0;
+
+    solver.IK(arm, target, false, false);
+
+    cout << "num iterations: " << solver.get_num_iterations() << "\n";
+    ASSERT_FALSE(solver.get_num_iterations() > 500);
+}
 
 TEST_MAIN()
