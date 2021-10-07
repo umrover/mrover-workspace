@@ -388,19 +388,18 @@ class IMU_Manager():
         for i in range(3):
             for j in range(3):
                 calibration[i][j] = self.get_cal_vals(CAL_REG[i][j])
-        
+
         print("calibration[0][0]: ", calibration[0][0])
         # Gets Magnetometer biases
         # Hard-Iron calibration
         for i in range(3):
             mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
 
-        
+
         mag_x = (data_xf) - mag_offsets[0]
         mag_y = (data_yf) - mag_offsets[1]
         mag_z = (data_zf) - mag_offsets[2]
 
-        
 
         # Apply mag soft iron error compensation
         mag_calibrated_x = mag_x * calibration[0][0] + \
@@ -427,10 +426,6 @@ class IMU_Manager():
         # imu_struct.mag_z_uT = float(mag_calibrated_z)
 
         #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
-
-
-
-
 
 # end of class
 
@@ -467,9 +462,6 @@ def main():
         manager.calculate_bearing()
         # print("RAW_ACCEL")
         # manager.get_raw(0x59, 0x5A)
-        
-        
-
 
         # print("RAW_MAG")
         # manager.get_raw(0x5C, 0x5D)
