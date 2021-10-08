@@ -56,7 +56,6 @@ class IMU_Manager():
         self.sleep = .01
 
     def __enter__(self):
-
         self.ser = serial.Serial(
             port='/dev/ttyS4',
             baudrate=115200,
@@ -78,8 +77,6 @@ class IMU_Manager():
         # mag data is unit-nrom (unitless)
         try:
             arr = msg.split(",")
-
-            
 
             # Checksum checking
             checksum = int(arr[6][1:3], 16)
@@ -242,7 +239,6 @@ class IMU_Manager():
 
         self.ser.write(cmd_buffer)
 
-
     def get_calibrated(self, register):
         checksum = ord('s') + ord('n') + ord('p') + register
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, register,
@@ -266,7 +262,7 @@ class IMU_Manager():
                 if(bits[40:72].len > 0):
                     data = bits[40:72].float
                 else:
-                    data = 0;
+                    data = 0
             iterator = iterator + 1
 
     # gets calibration matrix values as 32 bit IEEE f-point 
@@ -274,7 +270,7 @@ class IMU_Manager():
         checksum = ord('s') + ord('n') + ord('p') + reg
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, reg,
                       checksum >> 8, checksum & 0xff]
-        
+
         self.ser.write(cmd_buffer)
         time.sleep(0.5)
         received = self.ser.readline()
@@ -349,30 +345,6 @@ class IMU_Manager():
                 run = False
             iterator = iterator + 1
 
-        # now for the z value
-        # checksum = ord('s') + ord('n') + ord('p') + registerz
-        # cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerz,
-        #               checksum >> 8, checksum & 0xff]
-
-        # self.ser.write(cmd_buffer)
-        # time.sleep(0.01)
-        # run = True
-        # iterator = 0
-        # while (run):
-        #     received = self.ser.readline()
-        #     if(received.hex()[0:10] == (b'snp\x80\x5D').hex()):
-        #         run = False
-        #         bits = bitstring.BitArray(hex=received.hex())
-        #         if(bits[40:56].len > 0):
-        #             data_z = bits[40:56].unpack('int:16')
-        #         else:
-        #             data_z = [0]
-        #         # print("data_z: ", data_z)
-        #     #if(iterator == 1000):
-        #         #print("No Data Received, aborting search")
-        #         #run = False
-        #     iterator = iterator + 1
-
         return data_x, data_y, data_z
 
     # returns hex value of calculated checksum fromt the message
@@ -393,32 +365,22 @@ class IMU_Manager():
         CAL_REG = [[0x0F, 0x10, 0x11], [0x12, 0x13, 0x14], [0x15, 0x16, 0x17]]
         BIAS_REG = [0x18, 0x19, 0x1A]
 
-        # Gets calibration matrix values
-        # Soft-Iron Calibration
+        # Gets calibration matrix values (Soft-Iron)
         for i in range(3):
             for j in range(3):
-                # print("matrix coord: ", i, " ", j, " \n") 
                 IMU_Manager.calibration_matrix[i][j] = self.get_cal_vals(CAL_REG[i][j])
-        #manual cal_matrix
-        #IMU_Manager.calibration_matrix = [[0.1645294, 0.1290768, 0.00037273],
-        #                                 [0,         0.7418654, -0.3292478],
-        #                                  [0,         0,          0.0202561]]
 
-        # Gets Magnetometer biases
-        # Hard-Iron calibration
+        # Gets Magnetometer biases (Hard-Iron)
         for i in range(3):
            IMU_Manager.mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
-        #manual mag_offsets
-        # IMU_Manager.mag_offsets = [2.0, 106.0, -26.0]
-    
+
     def calculate_bearing(self):
-        
         # get raw values for mag
         data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
         print("data: ", data_xf, " ", data_yf, " ", data_zf)
         #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
         # Magnetometer reads in unitless
-        
+
         mag_x = data_xf[0]*1.0  - IMU_Manager.mag_offsets[0]
         mag_y = data_yf[0]*1.0 - IMU_Manager.mag_offsets[1]
         mag_z = data_zf[0]*1.0 - IMU_Manager.mag_offsets[2]
@@ -441,7 +403,7 @@ class IMU_Manager():
 
         print("cal_xyz: ", mag_calibrated_x, " ", mag_calibrated_y, " ", mag_calibrated_z)
         # Bearing Calculation
-  
+
         # bearing = -(math.atan2(mag_calibrated_y, mag_calibrated_x )) * (180.0 / math.pi))
         #use calibrated values
         mag_cal_y = self.get_cal_vals(0x6A)
@@ -452,12 +414,6 @@ class IMU_Manager():
 
         print("bearing: ", bearing)
 
-        # Adds to struct
-        # imu_struct.mag_x_uT = float(mag_calibrated_x)
-        # imu_struct.mag_y_uT = float(mag_calibrated_y)
-        # imu_struct.mag_z_uT = float(mag_calibrated_z)
-
-        #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
 
 # end of class
 
@@ -475,28 +431,10 @@ def main():
         for reg in l:
             manager.turnOffRegister(reg)
 
-        # spits out calibrated values from registers
-        # for r in GYRO_PROC:
-        #     print("GYRO_PROC")
-        #     manager.get_calibrated(r)
-        #     print("\n")
-        # for r in ACCEL_PROC:
-        #     print("ACCEL_PROC")
-        #     manager.get_calibrated(r)
-        #     print("\n")
-        # for r in MAG_PROC:
-        #     print("MAG_PROC")
-        #     manager.get_calibrated(r)
-        #     print("\n")
 
         manager.get_calibration_vals(manager.calibration_matrix, manager.mag_offsets)        
         while(True):
             manager.calculate_bearing()
-        # print("RAW_ACCEL")
-        # manager.get_raw(0x59, 0x5A)
-
-        # print("RAW_MAG")
-        # manager.get_raw(0x5C, 0x5D)
 
         manager.enable_nmea(NMEA_RATE_REG)
 
