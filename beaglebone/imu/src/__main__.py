@@ -7,14 +7,10 @@ import struct
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import IMUData
-from bitstring import BitStream
-
-# Converting binary to float
+import bitstring
 
 # Picocom - picocom -b 115200 /dev/ttyS4
-# 
 # LCM_DEFAULT_URL="udpm://239.255.76.67:76?ttl=255" ./jarvis exec lcm_tools_echo IMUData "/imu_data"
-
 
 # Calibration Matrix Values
 # CREG MAG CAL1_1 0x0F
@@ -42,12 +38,11 @@ from bitstring import BitStream
 # Mag Raw TI: 0x5E
 
 
-def binaryToFloat(value):
-    hx = hex(int(value, 2))
-    return struct.unpack("d", struct.pack("q", int(hx, 16)))[0]
-
 
 class IMU_Manager():
+    # data for clibration
+    calibration_matrix = [[0]*3]*3
+    mag_offsets = [0]*3
 
     def __init__(self):
         UART.setup("UART4")
@@ -142,7 +137,10 @@ class IMU_Manager():
             # raw values are in degrees, need to convert to radians
             imu_struct.roll_rad = float(arr[2]) * pi / 180
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
-            imu_struct.yaw_rad = float(arr[4]) * pi / 180
+            yaw = float(arr[4])
+            if(yaw < 0):
+                yaw += 360
+            imu_struct.yaw_rad = yaw
             # fill with zeroes if something goes wrong
         except Exception as b:
             print("Error with PCHRA handler")
@@ -262,17 +260,13 @@ class IMU_Manager():
         run = True
         iterator = 0
         while (run):
-            if(received[iterator:(iterator + 4)] == b'snp\x80'):
-                # print(received[iterator:(iterator + 11)])
+            if(received.hex()[0:8] == b'snp\x80'):
                 run = False
-                data = [0x00, 0x00, 0x00, 0x00]
-                # What happens when a byte in received is empty? Does it get ignored or is it kept as all 0
-                data = received[(iterator + 5):(iterator + 9)]
-                # print(data)
-                # plaincontent = (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3])
-                # print(plaincontent)
-                val = struct.unpack('>f', data)
-                print(val)
+                bits = bitstring.BitArray(hex=received.hex())
+                if(bits[40:72].len > 0):
+                    data = bits[40:72].float
+                else:
+                    data = 0;
             iterator = iterator + 1
 
     # gets calibration matrix values as 32 bit IEEE f-point 
@@ -284,83 +278,98 @@ class IMU_Manager():
         self.ser.write(cmd_buffer)
         time.sleep(0.5)
         received = self.ser.readline()
-        data = received.hex()[10:18]
-        data_f = struct.unpack('>f', struct.pack(">i", int(data, 16)))[0]
+        data = received.hex()
+        print("reg: ", reg)
+        print("data: ", data)
+        # data_f = struct.unpack('>f', struct.pack(">i", int(data, 16)))[0]
+        # convert IEEE to float
+        bits = bitstring.BitArray(hex = received.hex())
+        # print("bits: \n", bits)
+        data_f = bits[40:72].float
         print("cal_val: ", data_f)
 
         return data_f
 
 
     def get_raw(self, registerxy, registerz):
-        checksum = ord('s') + ord('n') + ord('p') + registerxy
-        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerxy,
-                      checksum >> 8, checksum & 0xff]
+        # checksum = ord('s') + ord('n') + ord('p') + registerxy
+        # cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerxy,
+        #               checksum >> 8, checksum & 0xff]
 
+        # batch cmd
+        checksum = ord('s') + ord('n') + ord('p') + registerxy + 0x48
+        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x48, registerxy,
+                      checksum >> 8, checksum & 0xff]
+        print("cmd_buf: ", cmd_buffer)
         # sends reques for data
         self.ser.write(cmd_buffer)
-        print("cmd_buff: \n", cmd_buffer)
         time.sleep(.5)
-
-        # um7 sends back same message as request for data but with payload
-        # containing IEEE 754 32bit number (= to python float)
-        # data = []*32
-        received = self.ser.readline()
-        # print(received)
+        # received = self.ser.readline()
+        # print("received: ", received.hex())
         # Filters the buffer looking for the has data packets and prints it
         run = True
         iterator = 0
-        print("received: \n", received)
-        print("received hex: ", received.hex()[0:16])
-        bstream = BitStream(bytes=received)
-        print("BitStream: ", bstream[32:64])
-        snp_hex = (b'snp\x80').hex()
-        print("snp_hex: ", snp_hex)
-        data_xf=0
-        data_yf=0
-        data_yz=0
-        # probably don't need this loop anymore with this implem.
+
+        data_x=0
+        data_y=0
+        data_z=0
+        # Waits for snp packet to come through
         while (run):
-            # received = self.ser.readline()
-            if(received.hex()[0:8] == (b'snp\x80').hex()):
-                print("inside loop")
+            # um7 sends back same message as request for data but with payload
+            # containing 2's complement data for mag
+            received = self.ser.readline()
+            # print("received: ", received.hex())
+            if(received.hex()[0:8] == (b'snp\xC8').hex()):
                 run = False
                 # get data
-                data_x = received.hex()[10:14]
-                print("data: ", data_x)
-                # might need to fix this to get correct 2's complement from hex
-                data_xf = struct.unpack('>i', struct.pack(">i", int(data_x, 16)))[0]
-                print("data_xf: ", data_xf)
-                data_y = received.hex()[14:18]
-                data_yf = struct.unpack('>i', struct.pack(">i", int(data_y, 16)))[0]
-                print("data_yf: ", data_yf)
-            if(iterator == 1000):
+                bits = bitstring.BitArray(hex=received.hex())
+                if(bits[40:56].len > 0):
+                    data_x = bits[40:56].unpack('int:16')
+                else:
+                    data_x = [0]
+                if(bits[56:72].len > 0):
+                    data_y = bits[56:72].unpack('int:16')
+                else:
+                    data_y = [0]
+                if(bits[72:88].len > 0):
+                    data_z = bits[72:88].unpack('int:16')
+                else:
+                    data_z = [0]
+                # print("data_x: ", data_x)
+                # print("data_y: ", data_y)
+            if(iterator == 100):
                 print("No Data received, aborting search")
+                data_x = [0]
+                data_y = [0]
+                data_z = [0]
                 run = False
             iterator = iterator + 1
 
         # now for the z value
-        checksum = ord('s') + ord('n') + ord('p') + registerz
-        cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerz,
-                      checksum >> 8, checksum & 0xff]
+        # checksum = ord('s') + ord('n') + ord('p') + registerz
+        # cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, registerz,
+        #               checksum >> 8, checksum & 0xff]
 
-        self.ser.write(cmd_buffer)
-        time.sleep(.5)
+        # self.ser.write(cmd_buffer)
+        # time.sleep(0.01)
+        # run = True
+        # iterator = 0
+        # while (run):
+        #     received = self.ser.readline()
+        #     if(received.hex()[0:10] == (b'snp\x80\x5D').hex()):
+        #         run = False
+        #         bits = bitstring.BitArray(hex=received.hex())
+        #         if(bits[40:56].len > 0):
+        #             data_z = bits[40:56].unpack('int:16')
+        #         else:
+        #             data_z = [0]
+        #         # print("data_z: ", data_z)
+        #     #if(iterator == 1000):
+        #         #print("No Data Received, aborting search")
+        #         #run = False
+        #     iterator = iterator + 1
 
-        received = self.ser.readline()
-        
-        run = True
-        iterator = 0
-        while (run):
-            if(received.hex()[0:8] == (b'snp\x80').hex()):
-                run = False
-                data_z = received.hex()[10:14]
-                data_zf = struct.unpack('>i', struct.pack(">i", int(data_z, 16)))[0]
-                print("data_zf: ", data_zf)
-            if(iterator == 1000):
-                print("No Data Received, aborting search")
-                run = False
-            iterator = iterator + 1
-        return data_xf, data_yf, data_zf
+        return data_x, data_y, data_z
 
     # returns hex value of calculated checksum fromt the message
     # checksum is computed using XOR of every byte in the packet
@@ -374,51 +383,69 @@ class IMU_Manager():
         c_checksum = int(c_checksum, 16)
         return c_checksum
 
-    def calculate_bearing(self):
+    # Gets calibration values from registers - only need to run once at beginning
+    def get_calibration_vals(self, calibration_matrix, mag_offsets):
         CAL_REG = [[0x0F, 0x10, 0x11], [0x12, 0x13, 0x14], [0x15, 0x16, 0x17]]
         BIAS_REG = [0x18, 0x19, 0x1A]
-        # get raw values for mag
-        data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
-        calibration = [[0]*3]*3
-        mag_offsets = [0]*3
-        #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
-        # Magnetometer reads in unitless
+
         # Gets calibration matrix values
         # Soft-Iron Calibration
-        for i in range(3):
-            for j in range(3):
-                calibration[i][j] = self.get_cal_vals(CAL_REG[i][j])
+        # for i in range(3):
+        #    for j in range(3):
+                # print("matrix coord: ", i, " ", j, " \n") 
+        #        IMU_Manager.calibration_matrix[i][j] = self.get_cal_vals(CAL_REG[i][j])
+        #manual cal_matrix
+        IMU_Manager.calibration_matrix = [[0.01094432, -0.004320249, 0.007360301],
+                                          [0,         0.01377817, -0.007566686],
+                                          [0,         0,          0.01814491]]
 
-        print("calibration[0][0]: ", calibration[0][0])
         # Gets Magnetometer biases
         # Hard-Iron calibration
-        for i in range(3):
-            mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
-
-
-        mag_x = (data_xf) - mag_offsets[0]
-        mag_y = (data_yf) - mag_offsets[1]
-        mag_z = (data_zf) - mag_offsets[2]
-
-
+        # for i in range(3):
+        #    IMU_Manager.mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
+        #manual mag_offsets
+        IMU_Manager.mag_offsets = [-4.0, 40.0, -117.0]
+    
+    def calculate_bearing(self):
+        
+        # get raw values for mag
+        data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
+        print("data: ", data_xf, " ", data_yf, " ", data_zf)
+        #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
+        # Magnetometer reads in unitless
+        
+        mag_x = data_xf[0]*1.0  - IMU_Manager.mag_offsets[0]
+        mag_y = data_yf[0]*1.0 - IMU_Manager.mag_offsets[1]
+        mag_z = data_zf[0]*1.0 - IMU_Manager.mag_offsets[2]
+        print("offsets: ", IMU_Manager.mag_offsets[0], " ", IMU_Manager.mag_offsets[1], " ", IMU_Manager.mag_offsets[2])
+        print("cal_mat_r0: ",IMU_Manager.calibration_matrix[0][0], " ", 
+                            IMU_Manager.calibration_matrix[0][1], " ",
+                            IMU_Manager.calibration_matrix[0][2])
+        print("cal_mat_r1: ", IMU_Manager.calibration_matrix[1][0], " ",
+                                IMU_Manager.calibration_matrix[1][1], " ",
+                                IMU_Manager.calibration_matrix[1][2])
         # Apply mag soft iron error compensation
-        mag_calibrated_x = mag_x * calibration[0][0] + \
-            mag_y * calibration[0][1] + mag_z * calibration[0][2]
+        mag_calibrated_x = mag_x * IMU_Manager.calibration_matrix[0][0] + \
+            mag_y * IMU_Manager.calibration_matrix[0][1] + mag_z * IMU_Manager.calibration_matrix[0][2]
 
-        mag_calibrated_y = mag_x * calibration[1][0] + \
-            mag_y * calibration[1][1] + mag_z * calibration[1][2]
+        mag_calibrated_y = mag_x * IMU_Manager.calibration_matrix[1][0] + \
+            mag_y * IMU_Manager.calibration_matrix[1][1] + mag_z * IMU_Manager.calibration_matrix[1][2]
 
-        mag_calibrated_z = mag_x * calibration[2][0] + \
-            mag_y * calibration[2][1] + mag_z * calibration[2][2]
+        mag_calibrated_z = mag_x * IMU_Manager.calibration_matrix[2][0] + \
+            mag_y * IMU_Manager.calibration_matrix[2][1] + mag_z * IMU_Manager.calibration_matrix[2][2]
 
-
+        print("cal_xyz: ", mag_calibrated_x, " ", mag_calibrated_y, " ", mag_calibrated_z)
         # Bearing Calculation
-        bearing = -(math.arctan2(mag_calibrated_y, mag_calibrated_x) * (180.0 / math.pi))
-
+  
+        bearing = -(math.atan2(mag_calibrated_y, mag_calibrated_x )) * (180.0 / math.pi))
+        #use calibrated values
+        # mag_cal_y = self.get_cal_vals(0x6A)
+        # mag_cal_x = self.get_cal_vals(0x69)
+        # bearing = -(math.atan2(mag_cal_y, mag_cal_x)*(180.0/math.pi))
         if (bearing < 0):
             bearing += 360
 
-        print(bearing)
+        print("bearing: ", bearing)
 
         # Adds to struct
         # imu_struct.mag_x_uT = float(mag_calibrated_x)
@@ -444,22 +471,22 @@ def main():
             manager.turnOffRegister(reg)
 
         # spits out calibrated values from registers
-        for r in GYRO_PROC:
-            print("GYRO_PROC")
-            manager.get_calibrated(r)
-            print("\n")
-        for r in ACCEL_PROC:
-            print("ACCEL_PROC")
-            manager.get_calibrated(r)
-            print("\n")
-        for r in MAG_PROC:
-            print("MAG_PROC")
-            manager.get_calibrated(r)
-            print("\n")
+        # for r in GYRO_PROC:
+        #     print("GYRO_PROC")
+        #     manager.get_calibrated(r)
+        #     print("\n")
+        # for r in ACCEL_PROC:
+        #     print("ACCEL_PROC")
+        #     manager.get_calibrated(r)
+        #     print("\n")
+        # for r in MAG_PROC:
+        #     print("MAG_PROC")
+        #     manager.get_calibrated(r)
+        #     print("\n")
 
-        print("RAW_GYRO")
-        # manager.get_raw(0x56, 0x57)
-        manager.calculate_bearing()
+        manager.get_calibration_vals(manager.calibration_matrix, manager.mag_offsets)        
+        while(True):
+            manager.calculate_bearing()
         # print("RAW_ACCEL")
         # manager.get_raw(0x59, 0x5A)
 
