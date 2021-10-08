@@ -279,14 +279,18 @@ class IMU_Manager():
         time.sleep(0.5)
         received = self.ser.readline()
         data = received.hex()
-        print("reg: ", reg)
-        print("data: ", data)
+        # print("reg: ", reg)
+        # print("data: ", data)
         # data_f = struct.unpack('>f', struct.pack(">i", int(data, 16)))[0]
         # convert IEEE to float
         bits = bitstring.BitArray(hex = received.hex())
         # print("bits: \n", bits)
-        data_f = bits[40:72].float
-        print("cal_val: ", data_f)
+        data_f = 0.0
+        if(len(bits[40:72]) == 32):
+            data_f = bits[40:72].float
+        else:
+            print("Empty Packet Received\n")
+        # print("cal_val: ", data_f)
 
         return data_f
 
@@ -300,7 +304,7 @@ class IMU_Manager():
         checksum = ord('s') + ord('n') + ord('p') + registerxy + 0x48
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x48, registerxy,
                       checksum >> 8, checksum & 0xff]
-        print("cmd_buf: ", cmd_buffer)
+        # print("cmd_buf: ", cmd_buffer)
         # sends reques for data
         self.ser.write(cmd_buffer)
         time.sleep(.5)
@@ -384,27 +388,28 @@ class IMU_Manager():
         return c_checksum
 
     # Gets calibration values from registers - only need to run once at beginning
+    # Calls "get_cal_vals" function which handles reading byte data
     def get_calibration_vals(self, calibration_matrix, mag_offsets):
         CAL_REG = [[0x0F, 0x10, 0x11], [0x12, 0x13, 0x14], [0x15, 0x16, 0x17]]
         BIAS_REG = [0x18, 0x19, 0x1A]
 
         # Gets calibration matrix values
         # Soft-Iron Calibration
-        # for i in range(3):
-        #    for j in range(3):
+        for i in range(3):
+            for j in range(3):
                 # print("matrix coord: ", i, " ", j, " \n") 
-        #        IMU_Manager.calibration_matrix[i][j] = self.get_cal_vals(CAL_REG[i][j])
+                IMU_Manager.calibration_matrix[i][j] = self.get_cal_vals(CAL_REG[i][j])
         #manual cal_matrix
-        IMU_Manager.calibration_matrix = [[0.1645294, 0.1290768, 0.00037273],
-                                          [0,         0.7418654, -0.3292478],
-                                          [0,         0,          0.0202561]]
+        #IMU_Manager.calibration_matrix = [[0.1645294, 0.1290768, 0.00037273],
+        #                                 [0,         0.7418654, -0.3292478],
+        #                                  [0,         0,          0.0202561]]
 
         # Gets Magnetometer biases
         # Hard-Iron calibration
-        # for i in range(3):
-        #    IMU_Manager.mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
+        for i in range(3):
+           IMU_Manager.mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
         #manual mag_offsets
-        IMU_Manager.mag_offsets = [2.0, 106.0, -26.0]
+        # IMU_Manager.mag_offsets = [2.0, 106.0, -26.0]
     
     def calculate_bearing(self):
         
@@ -437,11 +442,11 @@ class IMU_Manager():
         print("cal_xyz: ", mag_calibrated_x, " ", mag_calibrated_y, " ", mag_calibrated_z)
         # Bearing Calculation
   
-        bearing = -(math.atan2(mag_calibrated_y, mag_calibrated_x )) * (180.0 / math.pi))
+        # bearing = -(math.atan2(mag_calibrated_y, mag_calibrated_x )) * (180.0 / math.pi))
         #use calibrated values
-        # mag_cal_y = self.get_cal_vals(0x6A)
-        # mag_cal_x = self.get_cal_vals(0x69)
-        # bearing = -(math.atan2(mag_cal_y, mag_cal_x)*(180.0/math.pi))
+        mag_cal_y = self.get_cal_vals(0x6A)
+        mag_cal_x = self.get_cal_vals(0x69)
+        bearing = -(math.atan2(mag_cal_y, mag_cal_x)*(180.0/math.pi))
         if (bearing < 0):
             bearing += 360
 
