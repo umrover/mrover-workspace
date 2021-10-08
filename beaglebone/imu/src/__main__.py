@@ -239,6 +239,7 @@ class IMU_Manager():
 
         self.ser.write(cmd_buffer)
 
+    # not currently used
     def get_calibrated(self, register):
         checksum = ord('s') + ord('n') + ord('p') + register
         cmd_buffer = [ord('s'), ord('n'), ord('p'), 0x00, register,
@@ -413,6 +414,8 @@ class IMU_Manager():
             bearing += 360
 
         print("bearing: ", bearing)
+
+        
 
 
 # end of class
