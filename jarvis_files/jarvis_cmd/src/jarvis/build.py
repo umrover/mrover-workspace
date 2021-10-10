@@ -8,6 +8,7 @@ from buildsys.rollupjs import RollupJSBuilder
 from buildsys.meson import MesonBuilder
 from buildsys.shell import ShellBuilder
 from buildsys.config import ConfigBuilder
+from buildsys.cmake_builder import CMakeBuilder
 
 from . import third_party
 from .hash import Hasher
@@ -54,6 +55,9 @@ def get_builder(ctx, d, lint, opts=None):
     elif lang == 'cpp':
         print('Building C++ package')
         return MesonBuilder(d, ctx, opts)
+    elif lang == 'cmake':
+        print('Building with CMake')
+        return CMakeBuilder(d, ctx, opts)
     elif lang == 'lcm':
         print('Building LCM package')
         return LCMBuilder(d, ctx)
