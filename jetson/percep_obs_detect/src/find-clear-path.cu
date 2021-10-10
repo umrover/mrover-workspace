@@ -1,22 +1,5 @@
 #include "find-clear-path.hpp"
 
-int rovWidth; //TODO, get actual rovWidth 
-
-int bearingNum = 1024; 
-
-struct Obstacle {
-  float minX;
-  float maxX;
-  float minY;
-  float maxY;
-  float minZ; 
-  float maxZ; 
-}
-
-struct ObsReturn {
-  int size =0; 
-  std::vector<Obstacle> obs; 
-}
 
 
 //Default Ctor
@@ -45,8 +28,8 @@ __device__ FindClearPath::BearingLines::BearingLines(float heading_in) : heading
 void FindClearPath::find_clear_path_initiate(ObsReturn obsVec){
   //Allocate and copy obstacle structs array
   Obstacle* gpuObstacles; 
-  cudaMalloc(&gpuObstacles, obsVec.obs.size()*sizeof(ObsReturn));
-  cudaMemcpy(gpuObstacles, &obsVec[0], obsVec.obs.size(), cudaMemcpyHostToDevice);
+  cudaMalloc(&gpuObstacles, obsVec.obs.size()*sizeof(Obstacle));
+  cudaMemcpy(gpuObstacles, &obsVec.obs[0], obsVec.obs.size()*sizeof(Obstacle), cudaMemcpyHostToDevice);
   
   //Allocate heading checks array
   bool* heading_checks;
@@ -75,7 +58,7 @@ __global__ void FindClearPath::find_clear_path(Obstacle* obstacles, bool* headin
 
   //Create bearing lines based on threadIdx
   //NB: threadIdx 511 is the 0 heading
-  BearingLines bearings = BearingLines((80*(i-511))/511) //Create bearing lines from threadIdx
+  BearingLines bearings((80*(i-511))/511) //Create bearing lines from threadIdx
   for(int j = 0; j < obsArrSize; ++j){ //Check all obstacles in obstacles array
     float detectL = (bearings.n.x * (obstacles.x - bLeft.x)) + (bearings.n.y * (obstacles.y - bLeft.y));
     float detectR = (bearings.n.x * (obstacles.x - bRight.y)) + (bearings.n.y * (obstacles.y - bRight.y));

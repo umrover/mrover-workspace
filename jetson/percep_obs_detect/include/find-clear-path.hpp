@@ -2,12 +2,29 @@
 #include <float.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <cudamath>
+//#include <cudamath>
+
+
+
+struct Obstacle {
+  float minX;
+  float maxX;
+  float minY;
+  float maxY;
+  float minZ; 
+  float maxZ; 
+};
+
+struct ObsReturn {
+  int size =0; 
+  std::vector<Obstacle> obs; 
+};
+
 
 class FindClearPath {
   public:
-    int rovWidth; //Width of rover TODO: get actual size
-    int bearingNum; //Number of bearings, tentatively 1024 (Max threadcount)
+    //int rovWidth; //Width of rover TODO: get actual size
+    //int bearingNum; //Number of bearings, tentatively 1024 (Max threadcount)
 
     class BearingLines{
       public:
@@ -20,7 +37,7 @@ class FindClearPath {
         __device__ BearingLines();
 
         //Ctor with heading in
-        __device__ BearingLines(float heading_in) : heading{heading_in};
+        __device__ BearingLines(float heading_in);
     };
 
     //Allocate host and device memory
@@ -30,5 +47,9 @@ class FindClearPath {
     void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize);
 
     int find_closest_clear_path(bool* headings);
+
+    static const int rovWidth = 10; //TODO, get actual rovWidth 
+
+    static const int bearingNum = 1024; 
 
 };

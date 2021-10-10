@@ -39,7 +39,7 @@ add_definitions(${PCL_DEFINITIONS})
 #set_property(TARGET test-kernel PROPERTY CUDA_STANDARD 11)
 
 
-add_executable (driver src/filter.cu src/obs-detector.cpp src/GLViewer.cpp src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/pcl.cpp src/euclidean-cluster.cu src/pass-through.cu src/find-clear.cu)
+add_executable (driver src/filter.cu src/obs-detector.cpp src/GLViewer.cpp src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/pcl.cpp src/euclidean-cluster.cu src/pass-through.cu src/find-clear.cu src/find-clear-path.cu)
 target_link_libraries (driver Eigen3::Eigen)
 target_link_libraries (driver ${ZED_LIBRARIES})
 target_link_libraries (driver ${PCL_LIBRARIES})
