@@ -1,7 +1,6 @@
-//#include "../artag_detector.hpp"
-#include "test_framework.hpp"
 #include <iostream>
+#include "artag_test_framework.hpp"
 
 int main() {
-    std::cout << "Testing Build Setup\n";
+    
 }
