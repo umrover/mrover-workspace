@@ -6,28 +6,29 @@
 
 class FindClearPath {
   public:
-    int rovWidth;
-    int bearingNum;
+    int rovWidth; //Width of rover TODO: get actual size
+    int bearingNum; //Number of bearings, tentatively 1024 (Max threadcount)
 
     class BearingLines{
       public:
-        float heading;
-        float2 n;
-        float2 bLeft;
-        float2 bRight;
+        float heading; //Each bearingline defined by a heading
+        float2 n; //Normal vector to bearingline
+        float2 bLeft; //Left offset
+        float2 bRight; //Right offset
 
         //Default Ctor
-        __device__ BearingLines() {};
+        __device__ BearingLines();
 
         //Ctor with heading in
-        __device__ BearingLines(float heading_in) : heading{heading_in} {};
+        __device__ BearingLines(float heading_in) : heading{heading_in};
     };
 
     //Allocate host and device memory
-    void find_clear_path_initiate(ObsReturn obsVec){};
+    void find_clear_path_initiate(ObsReturn obsVec);
 
     //Run find clear 
-    bool* find_clear_path(){};
+    void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize);
 
+    int find_closest_clear_path(bool* headings);
 
 };
