@@ -19,7 +19,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
     } else if(source == DataSource::FILESYSTEM) {
         fileReader.open("data/");
         cout << "File data dir: " << endl;
-        cout << "[e.g: /home/ashmg/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
+        cout << "[e.g: /home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
     }
 
@@ -72,30 +72,38 @@ void ObsDetector::update() {
         
     } else if(source == DataSource::FILESYSTEM) {
 
-        pc = fileReader.readCloudGPU(28);
+        pc = fileReader.readCloudGPU(58);
     }
     update(pc);
 
 } 
-
+///home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data
 // Call this directly with ZED GPU Memory
 void ObsDetector::update(GPU_Cloud pc) {
 
     // Get a copy if debug is enabled
-    viewer.updatePointCloud(pc);
+    //viewer.updatePointCloud(pc);
 
     // Processing
+    std::cout << pc.data << std::endl;
+    if(frameNum % 2 == 0) {
     passZ->run(pc);
+    
     ransacPlane->computeModel(pc);    
+    
     Bins bins;
     #if VOXEL
         bins = voxelGrid->run(pc);
     #endif
     obstacles = ece->extractClusters(pc, bins); 
+    }
     
+    ///*/
     // Rendering
     if(mode != OperationMode::SILENT) {
-     //   viewer.updatePointCloud(pc);
+        //viewer.addPointCloud();
+        //viewer.remove
+        viewer.updatePointCloud(pc);
     }
 
     // Recording
