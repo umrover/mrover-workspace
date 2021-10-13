@@ -106,6 +106,8 @@ void copyCloud(GPU_Cloud &to, GPU_Cloud &from);
 
 GPU_Cloud createCloud(int size);
 
+void deleteCloud(GPU_Cloud &cloud);
+
 /**
  * \brief Iterate through the unused memory in a GPU cloud and set it to zeros
  */

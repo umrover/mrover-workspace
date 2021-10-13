@@ -42,6 +42,10 @@ GPU_Cloud createCloud(int size) {
     return g;
 }
 
+void deleteCloud(GPU_Cloud &cloud) {
+    cudaFree(cloud.data);
+}
+
 __global__ void copyKernel(GPU_Cloud to, GPU_Cloud from) {
     int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;
     if(pointIdx >= from.size) return;

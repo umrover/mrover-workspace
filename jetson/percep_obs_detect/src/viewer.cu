@@ -12,6 +12,7 @@ using namespace std;
 // Took the shaders from the ZED code :) 
 GLchar* OBJ_VERTEX_SHADER =
 "#version 130\n"
+//"#version 330 core\n"
 "in vec3 in_Vertex;\n"
 "in vec3 in_Color;\n"
 "uniform mat4 u_mvpMatrix;\n"
@@ -23,6 +24,7 @@ GLchar* OBJ_VERTEX_SHADER =
 
 GLchar* OBJ_FRAGMENT_SHADER =
 "#version 130\n"
+//"#version 330 core\n"
 "in vec3 b_color;\n"
 "out vec4 out_Color;\n"
 "void main() {\n"
@@ -31,6 +33,7 @@ GLchar* OBJ_FRAGMENT_SHADER =
 
 GLchar* PC_VERTEX_SHADER =
 "#version 130\n"
+//"#version 330 core\n"
 "in vec3 in_Vertex;\n"
 "in uint in_Color;\n"
 "uniform mat4 u_mvpMatrix;\n"
@@ -48,6 +51,7 @@ GLchar* PC_VERTEX_SHADER =
 
 GLchar* PC_FRAGMENT_SHADER =
 "#version 130\n"
+//"#version 330 core\n"
 "in vec4 b_color;\n"
 "out vec4 out_Color;\n"
 "void main() {\n"
@@ -190,10 +194,12 @@ void Object3D::update(std::vector<vec3> &pts, std::vector<vec3> &colors, std::ve
     glBindVertexArray(0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    std::cout << vaoID << std::endl;
 }
 
 Object3D::~Object3D() {
-    glDeleteVertexArrays(1, &vaoID);
+    //glDeleteVertexArrays(1, &vaoID);
     glDeleteBuffers(1, &pointsGPU);
     glDeleteBuffers(1, &colorsGPU);
     glDeleteBuffers(1, &indiciesGPU);
@@ -209,7 +215,7 @@ PointCloud::PointCloud() {
 }
 
 PointCloud::~PointCloud() {
-    glDeleteVertexArrays(1, &vaoID);
+    //glDeleteVertexArrays(1, &vaoID);
     glDeleteBuffers(1, &pointsGPU);
 }
 
@@ -240,6 +246,7 @@ void PointCloud::draw() {
     glBindVertexArray(vaoID);
     glDrawArrays(GL_POINTS, 0, size);
     glBindVertexArray(0);
+    std::cout << vaoID << std::endl;
 }
 
 /* 
@@ -275,7 +282,8 @@ void Viewer::init(int argc, char **argv) {
 
     // Options
     glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-    glEnable(GL_DEPTH_TEST | GL_PROGRAM_POINT_SIZE);
+    //glEnable(GL_DEPTH_TEST | GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_DEPTH_TEST);
 
     // Callbacks
     cout << "creating callbacks" << endl;
@@ -321,6 +329,9 @@ void Viewer::update() {
         glUniformMatrix4fv(glGetUniformLocation(objectShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp_mat));
         pc.draw();
     }
+
+    //std::cout << pointClouds.size() << std::endl; 
+    //std::cout << ephemeralObjects.size() << std::endl;
     pc_mutex.unlock();
 
     // Update display
