@@ -77,6 +77,7 @@ public:
 
             Vector6d target;
             target.head(3) = arm.get_ef_pos_world();
+            target.tail(3) = arm.get_ef_ang_world();
 
             // attempt to find ik_solution with random starting position
             pair<Vector6d, bool> ik_solution = solver.IK(arm, target, true, false);
@@ -94,6 +95,36 @@ public:
             }
             
             ++tot_attempts;
+
+            if (tot_attempts % 20 == 0) {
+                cout << "total success: " << tot_success << " out of " << tot_attempts << " attempts.\n";
+                // if (ik_solution.second) {
+
+                //     vector<double> sol_angs;
+                //     sol_angs.reserve(6);
+                //     for (size_t i = 0; i < 6; ++i) {
+                //         sol_angs.push_back(ik_solution.first[i]);
+                //     }
+
+                //     cout << "transferred angles";
+
+                //     arm.set_joint_angles(sol_angs);
+                //     solver.FK(arm);
+
+                //     Vector6d sol;
+                //     sol.head(3) = arm.get_ef_pos_world();
+                //     sol.tail(3) = arm.get_ef_ang_world();
+
+                //     cout << "target point: " << "\n" << target[0] << "\n" << target[1] << "\n" << target[2] << "\n";
+                //     cout << "solution point: " << "\n" << sol[0] << "\n" << sol[1] << "\n" << sol[2] << "\n";
+
+                //     cout << "target orientation: " << "\n" << target[3] << "\n" << target[4] << "\n" << target[5] << "\n";
+                //     cout << "solution orientation: " << "\n" << sol[3] << "\n" << sol[4] << "\n" << sol[5] << "\n\n";
+                // }
+                // else {
+                //     cout << "(previous attempt failed)\n\n";
+                // }
+            }
         }
 
         std::cout << "Number of successes: " << tot_success << "\n";
