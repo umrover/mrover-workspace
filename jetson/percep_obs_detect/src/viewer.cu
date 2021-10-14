@@ -161,7 +161,15 @@ Object3D::Object3D(std::vector<vec3> &pts, std::vector<vec3> &colors, std::vecto
 void Object3D::draw() {
     glBindVertexArray(vaoID);
     //std::cout << indicies.size() << std::endl;
+    if(wireframe) {
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        glLineWidth(3);
+    }
+        
     glDrawElements(GL_TRIANGLES, (GLsizei) indicies.size(), GL_UNSIGNED_INT, 0);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     glBindVertexArray(0);
 }
 
@@ -195,7 +203,7 @@ void Object3D::update(std::vector<vec3> &pts, std::vector<vec3> &colors, std::ve
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    std::cout << vaoID << std::endl;
+    //std::cout << vaoID << std::endl;
 }
 
 Object3D::~Object3D() {
@@ -215,7 +223,7 @@ PointCloud::PointCloud() {
 }
 
 PointCloud::~PointCloud() {
-    //glDeleteVertexArrays(1, &vaoID);
+    glDeleteVertexArrays(1, &vaoID);
     glDeleteBuffers(1, &pointsGPU);
 }
 

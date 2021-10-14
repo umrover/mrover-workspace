@@ -61,6 +61,8 @@ class Object3D {
         void setRotation(float pitch, float roll, float yaw);
 
         glm::mat4 getModelMat();
+
+        bool wireframe = true;
     
     private:
         // Model

@@ -83,7 +83,7 @@ void ObsDetector::update() {
 void ObsDetector::update(GPU_Cloud pc) {
 
     // Get a copy if debug is enabled
-    viewer.updatePointCloud(pc);
+    //viewer.updatePointCloud(pc);
 
     // Processing
 
@@ -103,7 +103,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     if(mode != OperationMode::SILENT) {
         //viewer.addPointCloud();
         //viewer.remove
-        //viewer.updatePointCloud(pc);
+        viewer.updatePointCloud(pc);
     }
 
 
@@ -133,25 +133,13 @@ void ObsDetector::spinViewer() {
                                     vec3(obstacles.maxX[i], obstacles.minY[i], obstacles.maxZ[i]), 
                                     vec3(obstacles.maxX[i], obstacles.maxY[i], obstacles.maxZ[i]), 
                                     vec3(obstacles.minX[i], obstacles.maxY[i], obstacles.maxZ[i])};
-        std::vector<vec3> colors;// = {vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f)};
+        std::vector<vec3> colors;
         for(int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f));
-        std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 0, 1, 2, 2, 3, 0};
+        std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
         Object3D obj(points, colors, indicies);
         viewer.addObject(obj, true);
     }
     
-    /*
-    vector<vec3> points = {vec3(-0.5f, 0.5f, -0.5f), vec3(0.5f, 0.5f, -0.5f), vec3(0.5f, -0.5f, -0.5f), vec3(-0.5f, -0.5f, -0.5f)};
-    vector<vec3> colors = {vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f)};
-    vector<int> indicies = {0, 1, 2, 3, 2, 0};
-    Object3D obj(points, colors, indicies); */
-    //Object3D obj1(points, colors, indicies); 
-    //Object3D obj2(points, colors, indicies); 
-
-    //viewer.addObject(obj, true);
-
-    //updateObjectBoxes(obstacles.size, obstacles.minX, obstacles.maxX, obstacles.minY, obstacles.maxY, obstacles.minZ, obstacles.maxZ );
-    //updateProjectedLines(ece->bearingRight, ece->bearingLeft);
     viewer.update();
     viewer.clearEphemerals();
     
