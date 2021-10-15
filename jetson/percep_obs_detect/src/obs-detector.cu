@@ -72,7 +72,7 @@ void ObsDetector::update() {
         
     } else if(source == DataSource::FILESYSTEM) {
 
-        pc = fileReader.readCloudGPU(58);
+        pc = fileReader.readCloudGPU(frameNum);
     }
     update(pc);
 
@@ -83,7 +83,7 @@ void ObsDetector::update() {
 void ObsDetector::update(GPU_Cloud pc) {
 
     // Get a copy if debug is enabled
-    //viewer.updatePointCloud(pc);
+    viewer.updatePointCloud(pc);
 
     // Processing
 
@@ -103,7 +103,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     if(mode != OperationMode::SILENT) {
         //viewer.addPointCloud();
         //viewer.remove
-        viewer.updatePointCloud(pc);
+        //viewer.updatePointCloud(pc);
     }
 
 
@@ -123,16 +123,17 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 }
 
 void ObsDetector::spinViewer() {
-    
-    for(int i = 0; i < obstacles.size; i++) {
-        std::vector<vec3> points = {vec3(obstacles.minX[i], obstacles.minY[i], obstacles.minZ[i]), 
-                                    vec3(obstacles.maxX[i], obstacles.minY[i], obstacles.minZ[i]), 
-                                    vec3(obstacles.maxX[i], obstacles.maxY[i], obstacles.minZ[i]), 
-                                    vec3(obstacles.minX[i], obstacles.maxY[i], obstacles.minZ[i]),
-                                    vec3(obstacles.minX[i], obstacles.minY[i], obstacles.maxZ[i]), 
-                                    vec3(obstacles.maxX[i], obstacles.minY[i], obstacles.maxZ[i]), 
-                                    vec3(obstacles.maxX[i], obstacles.maxY[i], obstacles.maxZ[i]), 
-                                    vec3(obstacles.minX[i], obstacles.maxY[i], obstacles.maxZ[i])};
+    // This creates bounding boxes for visualization
+    // There might be a clever automatic indexing scheme to optimize this
+    for(int i = 0; i < obstacles.obs.size(); i++) {
+        std::vector<vec3> points = {vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
+                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
+                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].minZ), 
+                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].minZ),
+                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
+                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
+                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ), 
+                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ),};
         std::vector<vec3> colors;
         for(int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f));
         std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
