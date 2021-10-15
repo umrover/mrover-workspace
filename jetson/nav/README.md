@@ -1,4 +1,4 @@
-# <img src="../simulators/nav/src/static/mrover.png" alt="MRover Logo" width="30"/> MRover Navigation Codebase
+# <img src="../../simulators/nav/src/static/mrover.png" alt="MRover Logo" width="30"/> MRover Navigation Codebase
 
 ## Table of Contents
 [Project Overview](#project-overview)<br/>
