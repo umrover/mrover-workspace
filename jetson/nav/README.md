@@ -3,9 +3,9 @@
 ## Table of Contents
 [Project Overview](#project-overview)<br/>
 [Top-Level Code](#Top-Level-Code)<br/>
-[Gate Search (gate_search/ folder)](#Gate-Search)<br/>
-[Obstacle Avoidance (obstacle_avoidance/)](#obstacle-avoidance)</br>
-[Search (search/)](#search)<br/>
+[Gate Search (`gate_search/`)](#Gate-Search)<br/>
+[Obstacle Avoidance (`obstacle_avoidance/`)](#obstacle-avoidance)</br>
+[Search (`search/`)](#search)<br/>
 [Variables and Utilities](#vars-and-utils)<br/>
 
 
@@ -37,7 +37,7 @@ This file defines the rover and rover status objects. The rover object is used t
 
 ---
 
-!----------------------------- Gate Search ----------------------------->
+<!----------------------------- Gate Search ----------------------------->
 ## Gate Search (`gate_search/` folder)
 
 #### `diamondGateSearch.cpp`
@@ -49,7 +49,7 @@ Defines gate search/traversal states and functions.
 
 ---
 
-!----------------------------- Obstacle Avoidance ----------------------------->
+<!----------------------------- Obstacle Avoidance ----------------------------->
 ## Obstacle Avoidance
 
 #### `obstacleAvoidanceStateMachine.cpp`
@@ -61,14 +61,14 @@ This contains our current only implementation of obstacle avoidance behavior. In
 
 ---
 
-!----------------------------- Search ----------------------------->
+<!----------------------------- Search ----------------------------->
 ## Search
 Similar to the `gate_search/` folder, this folder for search logic contains a `searchStateMachine` object and files to define the waypoints for different types of searches. First we follow a square spiral outwards with points generated in spiralOutSearch.cpp, then if the search completes and the target is not found, we will move onto trying the lawnmower search and the spiral in search.
 
 
 ---
 
-!----------------------------- Vars and Utils ----------------------------->
+<!----------------------------- Vars and Utils ----------------------------->
 ## Variables and Utilities
 
 #### Nav State
