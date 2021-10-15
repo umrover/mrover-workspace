@@ -1,11 +1,11 @@
-# <img src="src/static/mrover.png" alt="MRover Logo" width="30"/> MRover Navigation Codebase
+# <img src="../simulators/nav/src/static/mrover.png" alt="MRover Logo" width="30"/> MRover Navigation Codebase
 
 ## Table of Contents
 [Project Overview](#project-overview)<br/>
 [Top-Level Code](#Top-Level-Code)<br/>
 [Gate Search (gate_search/ folder)](#Gate-Search)<br/>
-[Obstacle Avoidance (obstacle_avoidance/)](#obstacle-avoidance)
-[Search (search/)](#search)
+[Obstacle Avoidance (obstacle_avoidance/)](#obstacle-avoidance)</br>
+[Search (search/)](#search)<br/>
 [Variables and Utilities](#vars-and-utils)<br/>
 
 
@@ -20,7 +20,7 @@ The nav codebase contains logic for commanding the rover during the Autonomous T
 
 ---
 
-!----------------------------- Top-Level Code ----------------------------->
+<!----------------------------- Top-Level Code ----------------------------->
 ## Top-Level Code
 
 #### `main.cpp`
@@ -40,10 +40,10 @@ This file defines the rover and rover status objects. The rover object is used t
 !----------------------------- Gate Search ----------------------------->
 ## Gate Search (`gate_search/` folder)
 
-#### diamondGateSearch.cpp
+#### `diamondGateSearch.cpp`
 This file creates the search waypoints in the shape of a diamond for completing a search for the second gate post.
 
-#### gateStateMachine.cpp
+#### `gateStateMachine.cpp`
 Defines gate search/traversal states and functions.
 
 
@@ -52,10 +52,10 @@ Defines gate search/traversal states and functions.
 !----------------------------- Obstacle Avoidance ----------------------------->
 ## Obstacle Avoidance
 
-#### obstacleAvoidanceStateMachine.cpp
+#### `obstacleAvoidanceStateMachine.cpp`
 Defines an obstacle avoidance state machine with minimal functionality, intended to be a parent class for different types of obstacle avoidance strategies
 
-#### simpleAvoidance.cpp
+#### `simpleAvoidance.cpp`
 This contains our current only implementation of obstacle avoidance behavior. Inherited from the obstacle state machine, it is a very simple algorithm and just drops a waypoint at the front of the queue, with a position at a safe location away from the obstacle, for the rover to drive to before continuing to its previous destination.
 
 
