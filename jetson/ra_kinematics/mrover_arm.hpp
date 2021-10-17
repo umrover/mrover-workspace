@@ -50,7 +50,6 @@ private:
     bool sim_mode;
     bool ik_enabled;
 
-
 public:
 
     /**

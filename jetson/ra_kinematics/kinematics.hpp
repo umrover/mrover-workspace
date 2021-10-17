@@ -11,11 +11,18 @@ typedef Matrix<double, 6, 1> Vector6d;
 
 static constexpr int MAX_ITERATIONS = 500;
 static constexpr int MAX_ITERATIONS_LOW_MOVEMENT = 10;
+
+// The acceptable distance from a solution to the target
 static constexpr double POS_THRESHOLD = 0.05;
-static constexpr double ANGLE_THRESHOLD = 0.2;
+static constexpr double ANGLE_THRESHOLD = 0.02;
+
+// The percentage of the remaining distance to try to move
 static constexpr double k_position_step = 0.1;
-static constexpr double k_angle_step = 0.1;
+static constexpr double k_angle_step = 0.24;
+
+// The amount to change an angle to find the corresponding change in euler angles
 static constexpr double DELTA_THETA = 0.0001;
+
 static constexpr double EPSILON_DIST = 0.0000000001;                //TODO: Experiment with epsilon values
 static constexpr double EPSILON_ANGLE_DIST = 0.0000000001;
 
@@ -40,9 +47,9 @@ private:
     void recover_from_backup(ArmState &robot_state);
 
     Matrix4d apply_joint_xform(const ArmState &robot_state, const string &joint, double theta);
-    Matrix4d apply_joint_xform_new(const ArmState &robot_state, const string &joint, double theta);
+    Matrix4d get_joint_xform(const ArmState &robot_state, const string &joint, double theta);
 
-    void IK_step(ArmState &robot_state, const Vector6d &d_ef, bool use_pi, bool use_euler_angles);
+    void IK_step(ArmState &robot_state, const Vector6d &d_ef, bool use_euler_angles);
 
     /**
      * called by is_safe to check that angles are within bounds

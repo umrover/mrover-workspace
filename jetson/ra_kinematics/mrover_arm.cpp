@@ -110,20 +110,6 @@ void MRoverArm::motion_execute_callback(string channel, MotionExecute msg) {
 
 void MRoverArm::execute_spline() { 
     double spline_t = 0.0;
-
-    /** vector<double> init_angles = motion_planner.get_spline_pos(0);
-    vector<double> final_angles = motion_planner.get_spline_pos(1);
-
-    double max_time = -1; //in ms
-
-    for (int i = 0; i < 6; ++i) {
-        double joint_time = abs(final_angles[i] - init_angles[i]) 
-            / motion_planner.get_joint_step_limit(i) / 1000; //in ms
-        max_time = max_time < joint_time ? joint_time : max_time;
-    }
-
-    double spline_t_iterator = 1 / (max_time / 10); //assumes 'for' loop iterates every 10 ms
-    */
     double spline_t_iterator = 0.001;        
 
     while (true) {
