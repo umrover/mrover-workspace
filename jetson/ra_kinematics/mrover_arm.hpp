@@ -30,7 +30,9 @@ using namespace std;
 using namespace Eigen;
  
 typedef Matrix<double, 6, 1> Vector6d;
- 
+static constexpr double D_SPLINE_T = 0.01;      //percentage of path to calculate move time
+static constexpr double SPLINE_WAIT_TIME = 10;  //in ms, wait time for execute_spline loop
+
 /**
 * This is the MRoverArm class, responsible for
 * initiating callback functions and sending calculations
@@ -47,6 +49,7 @@ private:
     bool enable_execute;
     bool sim_mode;
     bool ik_enabled;
+
 
 public:
 

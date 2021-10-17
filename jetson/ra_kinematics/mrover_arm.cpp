@@ -111,17 +111,50 @@ void MRoverArm::motion_execute_callback(string channel, MotionExecute msg) {
 void MRoverArm::execute_spline() { 
     double spline_t = 0.0;
 
+    /** vector<double> init_angles = motion_planner.get_spline_pos(0);
+    vector<double> final_angles = motion_planner.get_spline_pos(1);
+
+    double max_time = -1; //in ms
+
+    for (int i = 0; i < 6; ++i) {
+        double joint_time = abs(final_angles[i] - init_angles[i]) 
+            / motion_planner.get_joint_step_limit(i) / 1000; //in ms
+        max_time = max_time < joint_time ? joint_time : max_time;
+    }
+
+    double spline_t_iterator = 1 / (max_time / 10); //assumes 'for' loop iterates every 10 ms
+    */
+    double spline_t_iterator = 0.001;        
+
     while (true) {
         if (enable_execute) {
+                        
+            //find arm's current angles
+            vector<double> init_angles = state.get_angles_vector(); 
+            //find angles D_SPLINE_T (%) further down the spline path
+            vector<double> final_angles = motion_planner.get_spline_pos(spline_t + D_SPLINE_T);
+
+            double max_time = -1; //in ms
+
+            for (int i = 0; i < 6; ++i) {
+                //in ms, time needed to move D_SPLINE_T (%)
+                double joint_time = abs(final_angles[i] - init_angles[i]) 
+                    / (state.get_joint_max_speed(i) / 1000.0); 
+                //sets max_time to greater value
+                max_time = max_time < joint_time ? joint_time : max_time;
+            }
+
+            //determines size of iteration by dividing number of iterations by distance
+            spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
+            spline_t += spline_t_iterator;
 
             // get next set of angles in path
             vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
-            
+
             // if not in sim_mode, send physical arm a new target
             if (!sim_mode) {
                 // TODO make publish function names more intuitive?
                 publish_config(target_angles, "/ik_ra_control");
-                spline_t += 0.003;
             }
 
             // TODO: make sure transition from not self.sim_mode
@@ -130,7 +163,6 @@ void MRoverArm::execute_spline() {
             // if in sim_mode, simulate that we have gotten a new current position
             else if (sim_mode) {
                 publish_config(target_angles, "/arm_position");
-                spline_t += 0.005;
             }
 
             // break out of loop if necessary
@@ -140,11 +172,12 @@ void MRoverArm::execute_spline() {
                 ik_enabled = false;
             }
 
-            this_thread::sleep_for(chrono::milliseconds(10));
+            this_thread::sleep_for(chrono::milliseconds((int) SPLINE_WAIT_TIME));
         }
         else {
             this_thread::sleep_for(chrono::milliseconds(200));
             spline_t = 0;
+            spline_t_iterator = 0.001;
         }   
     }
 }

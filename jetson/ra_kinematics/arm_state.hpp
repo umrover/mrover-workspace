@@ -46,6 +46,7 @@ private:
 
             child_link = joint_geom["child"];
 
+            max_speed = joint_geom["max_speed"];
             // TODO check if mass is necessary. If so, initialize here
 
             // joints b and c get an angle of 0, the rest should get 0   
@@ -72,6 +73,7 @@ private:
         Vector3d rot_axis;
         Vector3d joint_axis_world;
         map<string, double> joint_limits;
+        double max_speed; // radians/s
     };
 
     struct Avoidance_Link {
@@ -163,6 +165,8 @@ public:
 
     map<string, double> get_joint_angles() const;
 
+    vector<double> get_angles_vector() const;
+
     void set_joint_angles(const vector<double> &angles);
 
     void transform_avoidance_links();
@@ -191,6 +195,9 @@ public:
 
     Vector3d get_ef_xyz() const;
 
+    double get_joint_max_speed(const string &joint) const;
+
+    double get_joint_max_speed(size_t joint_index) const;
 };
 
 #endif

@@ -171,6 +171,15 @@ map<string, double> ArmState::get_joint_angles() const {
     return angles;
 }
 
+vector<double> ArmState::get_angles_vector() const {
+    vector<double> angles;
+    angles.reserve(6);
+    for (auto it = joints.begin(); it != joints.end(); ++it) {
+        angles.push_back(it->second.angle);
+    }
+    return angles;
+}
+
 void ArmState::transform_avoidance_links() {
     for (size_t i = 0; i < collision_avoidance_links.size(); ++i) {
         Avoidance_Link &link = collision_avoidance_links.at(i);
@@ -266,4 +275,12 @@ void ArmState::set_ef_xyz(vector<double> ef_xyz_vec){
     ef_xyz(0) = ef_xyz_vec[0];
     ef_xyz(1) = ef_xyz_vec[1];
     ef_xyz(2) = ef_xyz_vec[2];
+}
+
+double ArmState::get_joint_max_speed(const string &joint) const {
+    return joints.at(joint).max_speed;
+}
+
+double ArmState::get_joint_max_speed(size_t joint_index) const {
+    return joints.at(joint_names[joint_index]).max_speed;
 }

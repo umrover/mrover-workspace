@@ -6,8 +6,9 @@
 
 
 MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in) :
-        solver(solver_in) {
-    
+        solver(solver_in) { 
+    step_limits.reserve(6);
+
     // add limits for each joint to joint_limits, after converting to degrees
     for (string &joint : robot.get_all_joints()) {
       map<string, double> limits = robot.get_joint_limits(joint);
@@ -16,17 +17,8 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in)
       limits["upper"] = limits["upper"] * 180 / M_PI;
 
       joint_limits.push_back(limits);
+      step_limits.push_back(robot.get_joint_max_speed(joint)); //TODO scale if path planning takes too long
     }
-
-    step_limits.reserve(6);
-
-    // limits for an individual step for each joint in degrees
-    step_limits.push_back(1);
-    step_limits.push_back(1);
-    step_limits.push_back(2);
-    step_limits.push_back(3);
-    step_limits.push_back(5);
-    step_limits.push_back(1);
 
     //time_t timer;
     std::default_random_engine eng(clock());
