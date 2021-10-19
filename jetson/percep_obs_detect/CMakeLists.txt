@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 SET(CMAKE_CUDA_COMPILER_ENV_VAR /usr/local/cuda-10.0/bin/nvcc)
-SET(CMAKE_CUDA_COMPILER /usr/local/cuda-10.0/bin/nvcc) 
+SET(CMAKE_CUDA_COMPILER /usr/local/cuda-10.0/bin/nvcc)
 enable_language(CUDA)
 
 project(obs_detection)
@@ -11,7 +11,7 @@ find_package(ZED 3 REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 
 include_directories(${PCL_INCLUDE_DIRS})
@@ -21,8 +21,8 @@ include_directories(${GLUT_INCLUDE_PATH})
 include_directories(${CUDA_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(/usr/local/cuda-10.0/samples/common/inc)
-include_directories(/home/matt/mrover-workspace/3rdparty/lcm)
-include_directories(/home/matt/mrover-workspace/)
+include_directories(${HOME}/mrover-workspace/3rdparty/lcm)
+include_directories(${HOME}/mrover-workspace/)
 
 link_directories(${PCL_LIBRARY_DIRS})
 link_directories(${ZED_LIBRARY_DIR})
@@ -43,9 +43,9 @@ add_executable (driver src/filter.cu src/obs-detector.cpp src/GLViewer.cpp src/c
 target_link_libraries (driver Eigen3::Eigen)
 target_link_libraries (driver ${ZED_LIBRARIES})
 target_link_libraries (driver ${PCL_LIBRARIES})
-target_link_libraries(driver 
-                        ${SPECIAL_OS_LIBS} 
-                        ${ZED_LIBS} 
+target_link_libraries(driver
+                        ${SPECIAL_OS_LIBS}
+                        ${ZED_LIBS}
                         ${OPENGL_LIBRARIES}
                         ${GLUT_LIBRARY}
                         ${GLEW_LIBRARIES})
