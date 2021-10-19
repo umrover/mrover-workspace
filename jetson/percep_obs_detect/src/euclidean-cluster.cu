@@ -500,6 +500,8 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     int numClustersOrig = thrust::distance(keys.begin(), pair.first);
     std::cout << "CLUSTERS ORIG: " << numClustersOrig << std::endl; 
 
+    
+
     float *minX, *maxX, *minY, *maxY, *minZ, *maxZ; 
     cudaMalloc(&minX, sizeof(float)*numClustersOrig);
     cudaMalloc(&maxX, sizeof(float)*numClustersOrig);
@@ -607,11 +609,30 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
 
     ObsReturn obsReturn;
     obsReturn.size = numClustersOrig;
-    obsReturn.minX = minXCPU;
-    obsReturn.maxX = maxXCPU;
-    obsReturn.minY = minYCPU;
-    obsReturn.maxY = maxYCPU;
-    obsReturn.minZ = minZCPU;
-    obsReturn.maxZ = maxZCPU;
+    //copy over elements so we can free the memory later
+    Obstacle add;
+    for (size_t i = 0; i < numClustersOrig; ++i) {
+        //build an obstacle to add to the vector
+        add.minX = minXCPU[i];
+        add.maxX = maxXCPU[i];
+        add.minY = minYCPU[i];
+        add.maxY = maxYCPU[i];
+        add.minZ = minZCPU[i];
+        add.maxZ = maxZCPU[i];
+
+        obsReturn.obs.push_back(add);
+    }
+
+    //free memory
+    free(minXCPU);
+    free(maxXCPU);
+    free(minYCPU);
+    free(maxYCPU);
+    free(minZCPU);
+    free(maxZCPU);
+    /*
+    * obsReturn has a vector of obstacles(named obs),
+    which have the min and max of each axis as data members
+    */
     return obsReturn;
 }

@@ -11,6 +11,7 @@
 
 #include <cuda.h>
 #include <cuda_gl_interop.h>
+#include "euclidean-cluster.hpp"
 
 #ifndef M_PI
 #define M_PI 3.141592653f
@@ -264,6 +265,6 @@ private:
 };
 
 void updateRansacPlane(sl::float3 p1, sl::float3 p2, sl::float3 p3, float scale);
-void updateObjectBoxes(int num, float* minX, float* maxX, float* minY, float* maxY, float* minZ, float* maxZ);
+void updateObjectBoxes(int num, std::vector<EuclideanClusterExtractor::Obstacle> obs);
 void updateProjectedLines(int bearingRight, int bearingLeft);
 #endif /* __VIEWER_INCLUDE__ */
