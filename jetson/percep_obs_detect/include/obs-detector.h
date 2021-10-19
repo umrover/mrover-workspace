@@ -11,6 +11,7 @@
 #include "common.hpp"
 #include "pcl.hpp"
 #include "voxel-grid.hpp"
+#include "find-clear-path.hpp"
 //#include <lcm/lcm-cpp.hpp>
 //#include "rover_msgs/Obstacle.hpp"
 #include <boost/interprocess/shared_memory_object.hpp>

@@ -4,8 +4,6 @@
 #include <unistd.h>
 //#include <cudamath>
 
-
-
 struct Obstacle {
   float minX;
   float maxX;
@@ -20,13 +18,15 @@ struct ObsReturn {
   std::vector<Obstacle> obs; 
 };
 
+//TODO: where to put these constants in the final code
 
-class FindClearPath {
-  public:
-    //int rovWidth; //Width of rover TODO: get actual size
-    //int bearingNum; //Number of bearings, tentatively 1024 (Max threadcount)
+static const int rovWidth = 10; //TODO, get actual rovWidth 
 
-    class BearingLines{
+static const int bearingNum = 1024; 
+
+static const int fov = 80; //Degree fov from straight ahead (0 degrees)
+
+class BearingLines{
       public:
         float heading; //Each bearingline defined by a heading
         float2 n; //Normal vector to bearingline
@@ -38,18 +38,27 @@ class FindClearPath {
 
         //Ctor with heading in
         __device__ BearingLines(float heading_in);
-    };
+};
+
+class FindClearPath {
+  public:
+    //int rovWidth; //Width of rover TODO: get actual size
+    //int bearingNum; //Number of bearings, tentatively 1024 (Max threadcount)
+    __device__ FindClearPath();
 
     //Allocate host and device memory
     void find_clear_path_initiate(ObsReturn obsVec);
 
     //Run find clear 
-    void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize);
+    //void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize);
 
-    int find_closest_clear_path(bool* headings);
-
-    static const int rovWidth = 10; //TODO, get actual rovWidth 
-
-    static const int bearingNum = 1024; 
+    //Find closest bearing to the left that is clear
+    int find_left_closest(bool* headings);
+    
+    //Find closest bearing to the right that is clear
+    int find_right_closest(bool* headings);
 
 };
+
+//Kernel for find clear path parallelization 
+__global__ void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize);

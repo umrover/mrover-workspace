@@ -72,6 +72,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
+    findClear = new FindClearPath();
 }
         
 
@@ -141,6 +142,7 @@ void ObsDetector::update(sl::Mat &frame) {
     std::cout << "post ransac:" << pc.size << endl; 
     
     
+    
     Bins bins;
 
     #if VOXEL
@@ -152,6 +154,8 @@ void ObsDetector::update(sl::Mat &frame) {
     obstacles = ece->extractClusters(pc, bins); 
     auto grabEnd = high_resolution_clock::now();
     auto grabDuration = duration_cast<microseconds>(grabEnd - grabStart); 
+
+    findClear->find_clear_path_initiate(obstacles);
 /*
     //LCM
     obstacleMessage.bearing = 9;
@@ -228,7 +232,7 @@ void ObsDetector::startRecording(std::string directory) {
 
 
 int main() {
-    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::PCLV);
     //obs.startRecording("test-record3");
 
     cout << "Here we go\n";
