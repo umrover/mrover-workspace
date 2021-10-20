@@ -28,7 +28,8 @@ Vector6d MotionPlanner::sample(Vector6d start, const ArmState &robot) {
     Vector6d z_rand;
 
     for (size_t i = 0; i < joint_limits.size(); ++i) {
-        if (robot.joints[robot.get_all_joints()[i]].locked) {
+        auto it = robot.joints.find(robot.get_all_joints()[i]);
+        if (it != robot.joints.end() && it->second.locked) {
             //if joint is locked, z_rand matches start
             z_rand(i) = start(i);
         }

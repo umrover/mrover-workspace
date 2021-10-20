@@ -378,7 +378,8 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
     for (int i = 0; i < (int)joint_names.size(); ++i) {
 
         // don't move joint i if it's locked
-        if (robot_state.joints[joint_names[i]].locked) {
+        auto it = robot_state.joints.find(joint_names[i]);
+        if (it != robot_state.joints.end() && it->second.locked) {
             d_theta[i] = 0;
         }
 
