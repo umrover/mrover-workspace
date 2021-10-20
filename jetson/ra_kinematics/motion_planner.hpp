@@ -86,7 +86,7 @@ private:
     /**
      * Generate a random config based on the joint limits
      * */
-    Vector6d sample();
+    Vector6d sample(Vector6d start, const ArmState &robot);
 
     /**
      * @param tree_root the root of the RRT tree

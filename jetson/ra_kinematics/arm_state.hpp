@@ -59,6 +59,8 @@ private:
             else {
                 angle = 0;
             }
+
+            locked = false;
         }
 
         string name;
@@ -74,6 +76,7 @@ private:
         Vector3d joint_axis_world;
         map<string, double> joint_limits;
         double max_speed; // radians/s
+        bool locked;
     };
 
     struct Avoidance_Link {

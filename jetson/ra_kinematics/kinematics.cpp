@@ -13,14 +13,6 @@ typedef Eigen::Matrix<double, -1, -1> MatrixXd;
 
 using namespace Eigen;
 
-KinematicsSolver::KinematicsSolver() {
-
-    // TODO: Pull in the number of joints from somewhere else
-    locked_joints.resize(6);
-    for (size_t i = 0; i < locked_joints.size(); ++i) {
-        locked_joints[i] = false;
-    }
-}
 
 void KinematicsSolver::FK(ArmState &robot_state) {
     Matrix4d global_transf = Matrix4d::Identity();
@@ -323,7 +315,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
 
 void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool use_euler_angles) {
 
-    vector<string> joints = robot_state.get_all_joints();
+    vector<string> joint_names = robot_state.get_all_joints();
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
     Vector3d ef_euler_world = robot_state.get_ef_ang_world();
 
@@ -331,15 +323,15 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
     jacobian.setZero();
 
     // 6-D matrix
-    for (int i = 0; i < (int)joints.size(); ++i) {
+    for (int i = 0; i < (int)joint_names.size(); ++i) {
 
         // calculate vector from joint i to end effector
-        Vector3d joint_pos_world = robot_state.get_link_point_world(robot_state.get_child_link(joints[i]));
+        Vector3d joint_pos_world = robot_state.get_link_point_world(robot_state.get_child_link(joint_names[i]));
         Vector3d joint_to_ef_vec_world = ef_pos_world - joint_pos_world;
 
         // find rotation axis of joint in world frame
-        Vector3d rot_axis_local = robot_state.get_joint_axis(joints[i]);
-        Matrix4d joint_xform = robot_state.get_joint_transform(joints[i]);
+        Vector3d rot_axis_local = robot_state.get_joint_axis(joint_names[i]);
+        Matrix4d joint_xform = robot_state.get_joint_transform(joint_names[i]);
         Vector3d rot_axis_world = apply_transformation(joint_xform, rot_axis_local);
 
         Vector6d joint_col;
@@ -347,7 +339,7 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
 
         // calculate end effector orientation jacobian values
         if (use_euler_angles) {
-            Matrix4d n_xform = apply_joint_xform(robot_state, joints[i], DELTA_THETA);
+            Matrix4d n_xform = apply_joint_xform(robot_state, joint_names[i], DELTA_THETA);
 
             Vector3d euler_angles;
             euler_angles = compute_euler_angles(n_xform.block(0,0,3,3));
@@ -383,16 +375,16 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
 
     // find the angle of each joint
     vector<double> angle_vec;
-    for (int i = 0; i < (int)joints.size(); ++i) {
+    for (int i = 0; i < (int)joint_names.size(); ++i) {
 
         // don't move joint i if it's locked
-        if (locked_joints[i]) {
+        if (robot_state.joints[joint_names[i]].locked) {
             d_theta[i] = 0;
         }
 
-        map<string, double> limits = robot_state.get_joint_limits(joints[i]);
+        map<string, double> limits = robot_state.get_joint_limits(joint_names[i]);
 
-        double angle = robot_state.get_joint_angles()[joints[i]] + d_theta[i];
+        double angle = robot_state.get_joint_angles()[joint_names[i]] + d_theta[i];
 
         // clip angle to within joint limits
         if (angle < limits["lower"]) {
@@ -430,10 +422,10 @@ bool KinematicsSolver::is_safe(ArmState &robot_state, const vector<double> &angl
 }
 
 bool KinematicsSolver::limit_check(ArmState &robot_state, const vector<double> &angles) {
-    vector<string> joints = robot_state.get_all_joints();
+    vector<string> joint_names = robot_state.get_all_joints();
 
-    for (size_t i = 0; i < joints.size(); ++i) {
-        map<string, double> limits = robot_state.get_joint_limits(joints[i]);
+    for (size_t i = 0; i < joint_names.size(); ++i) {
+        map<string, double> limits = robot_state.get_joint_limits(joint_names[i]);
         
         // if any angle is outside of bounds
         if (!(limits["lower"] <= angles[i] && angles[i] < limits["upper"])) {
@@ -474,6 +466,3 @@ int KinematicsSolver::get_num_iterations() {
     return num_iterations;
 }
 
-void KinematicsSolver::set_joint_locks(const std::vector<bool>& locks) {
-    locked_joints = locks;
-}

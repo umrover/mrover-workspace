@@ -24,13 +24,19 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in)
     std::default_random_engine eng(clock());
 }
 
-Vector6d MotionPlanner::sample() {
+Vector6d MotionPlanner::sample(Vector6d start, const ArmState &robot) {
     Vector6d z_rand;
 
     for (size_t i = 0; i < joint_limits.size(); ++i) {
-        // create distribution of angles between limits and choose an angle
-        std::uniform_real_distribution<double> distr(joint_limits[i]["lower"], joint_limits[i]["upper"]);
-        z_rand(i) = distr(eng);
+        if (robot.joints[robot.get_all_joints()[i]].locked) {
+            //if joint is locked, z_rand matches start
+            z_rand(i) = start(i);
+        }
+        else { 
+            // create distribution of angles between limits and choose an angle
+            std::uniform_real_distribution<double> distr(joint_limits[i]["lower"], joint_limits[i]["upper"]);
+            z_rand(i) = distr(eng);
+        }
     }
 
     return z_rand;
@@ -223,7 +229,7 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
     for (int i = 0; i < MAX_RRT_ITERATIONS; ++i) {
         Node* a_root = i % 2 == 0 ? start_root : goal_root;
         Node* b_root = i % 2 == 0 ? goal_root : start_root;
-        Vector6d z_rand = sample();
+        Vector6d z_rand = sample(start, robot);
 
         Node* a_new = extend(robot, a_root, z_rand);
 

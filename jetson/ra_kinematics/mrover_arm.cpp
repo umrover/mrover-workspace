@@ -86,7 +86,7 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
     }
 
     // create path of the angles IK found
-    plan_path(ik_solution.first);
+    plan_path(ik_solution.first, solver.get_joint_locks());
 
     // view path on GUI without moving the physical arm
     preview();
@@ -253,7 +253,7 @@ void MRoverArm::target_angles_callback(string channel, ArmPosition msg) {
     }
     cout << "\n";
 
-    plan_path(target);
+    plan_path(target, solver.get_joint_locks());
 
     preview();
 
@@ -281,8 +281,8 @@ void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {
     }
 }       
 
-void MRoverArm::plan_path(Vector6d goal) {
-    bool path_found = motion_planner.rrt_connect(state, goal);
+void MRoverArm::plan_path(Vector6d goal, vector<bool> &locked_joints) {
+    bool path_found = motion_planner.rrt_connect(state, goal, locked_joints);
     if (path_found) {
         cout << "Planned path\n";
     }
@@ -299,23 +299,12 @@ void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg) {
 void MRoverArm::lock_joints_callback(string channel, LockJoints msg) {
     cout << "running lock_joints_callback\n";
 
-    vector<bool> joints;
-    joints.push_back((bool)msg.jointa);
-    joints.push_back((bool)msg.jointb);
-    joints.push_back((bool)msg.jointc);
-    joints.push_back((bool)msg.jointd);
-    joints.push_back((bool)msg.jointe);
-    joints.push_back((bool)msg.jointf);
-
-    cout << "backend joint vals\n";
-    for (int i = 0; i < (int)joints.size(); ++i) {
-        cout << joints[i] << " ";
-    }
-    cout << "\n";
-
-    // Reset solver member variable with updated lcked angles:
-    solver.set_joint_locks(joints);
-
+    state.joints["joint_a"] = (bool)msg.jointa;
+    state.joints["joint_b"] = (bool)msg.jointb;
+    state.joints["joint_c"] = (bool)msg.jointc;
+    state.joints["joint_d"] = (bool)msg.jointd;
+    state.joints["joint_e"] = (bool)msg.jointe;
+    state.joints["joint_f"] = (bool)msg.jointf;
 }
 
 // void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {

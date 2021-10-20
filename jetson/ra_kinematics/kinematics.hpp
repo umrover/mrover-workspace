@@ -33,8 +33,6 @@ private:
     bool e_locked;
     int num_iterations;
 
-    vector<bool> locked_joints;
-
     stack<vector<double>> arm_state_backup;
 
     /**
@@ -62,8 +60,6 @@ private:
 
 public:
 
-    KinematicsSolver();
-
     void FK(ArmState &robot_state);
 
     pair<Vector6d, bool> IK(ArmState &robot_state, const Vector6d &target_point, bool set_random_angles, bool use_euler_angles);
@@ -75,8 +71,6 @@ public:
     bool is_safe(ArmState &robot_state, const vector<double> &angles);
 
     int get_num_iterations();
-
-    void set_joint_locks(const std::vector<bool>& locks);
 
 };
 
