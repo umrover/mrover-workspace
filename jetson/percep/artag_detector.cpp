@@ -124,3 +124,7 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     return discoveredTags;
 }
 
+pair<vector<vector<cv::Point2f> >, vector<int> > TagDetector::getCornersAndIds() {
+    return make_pair(corners, ids);
+}
+

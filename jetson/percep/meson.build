@@ -51,6 +51,7 @@ obs_record = get_option('obs_record')
 perception_debug = get_option('perception_debug')
 write_frame = get_option('write_frame')
 data_folder = get_option('data_folder')
+artag_tests = get_option('artag_tests')
 
 
 conf_data = configuration_data()
@@ -67,7 +68,16 @@ configure_file(
 	output: 'config.h',
 	configuration: conf_data)
 
-executable('jetson_percep',
-		   'main.cpp', 'camera.cpp', 'artag_detector.cpp', 'pcl.cpp',
-		   dependencies : all_deps, cpp_args : '-mavx',
-		   install : true)
+if not artag_tests
+	executable('jetson_percep',
+			'main.cpp', 'camera.cpp', 'artag_detector.cpp', 'pcl.cpp',
+			dependencies : all_deps, cpp_args : '-mavx',
+			install : true)
+endif
+
+if artag_tests
+	executable('jetson_percep_artag', 
+				'artag_test/main.cpp', 'artag_test/artag_test_errors.cpp', 'artag_test/artag_test_framework.cpp', 'artag_detector.cpp',
+				dependencies : all_deps, cpp_args : '-mavx',
+				install : true)
+endif

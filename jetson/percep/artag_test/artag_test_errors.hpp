@@ -8,11 +8,19 @@ public:
     virtual void print() = 0;
 protected:
     enum ErrorString {
-        corners = "corners",
-        artag = "artags",
-        id = "to be the tag's id",
-        intersection = "intersection over union"
+        corners = 0,
+        artag = 1,
+        id = 2,
+        intersection = 3
     };
+
+    const std::string ErrorValues[4] = {
+        "corners", 
+        "artags", 
+        "to be the tag's id", 
+        "intersection over union"
+    };
+
 };
 
 class CountingError : public TestError {
@@ -22,7 +30,7 @@ public:
     void print() override;
 
 private:
-    TestError::ErrorString type;
+    std::string type;
     int actual;
     int correct;
 };
@@ -34,7 +42,7 @@ public:
     void print() override;
 
 private:
-    TestError::ErrorString type;
+    std::string type;
     float value;
     float threshold;
 };
