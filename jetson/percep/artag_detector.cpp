@@ -123,3 +123,4 @@ cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     }
     return discoveredTags;
 }
+
