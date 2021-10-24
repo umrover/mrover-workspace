@@ -249,33 +249,36 @@ class IMU_Manager():
         data_z = 0
         # Waits for snp packet to come through
         while (run):
-            # um7 sends back same message as request for data but with payload
-            # containing 2's complement data for mag
-            received = self.ser.readline()
-            # print("received: ", received.hex())
-            if(received.hex()[0:8] == (b'snp\xC8').hex()):
-                run = False
-                # get data
-                bits = bitstring.BitArray(hex=received.hex())
-                if(bits[40:56].len > 0):
-                    data_x = bits[40:56].unpack('int:16')
-                else:
+            try:
+                # um7 sends back same message as request for data but with payload
+                # containing 2's complement data for mag
+                received = self.ser.readline()
+                # print("received: ", received.hex())
+                if(received.hex()[0:8] == (b'snp\xC8').hex()):
+                    run = False
+                    # get data
+                    bits = bitstring.BitArray(hex=received.hex())
+                    if(bits[40:56].len > 0):
+                        data_x = bits[40:56].unpack('int:16')
+                    else:
+                        data_x = [0]
+                    if(bits[56:72].len > 0):
+                        data_y = bits[56:72].unpack('int:16')
+                    else:
+                        data_y = [0]
+                    if(bits[72:88].len > 0):
+                        data_z = bits[72:88].unpack('int:16')
+                    else:
+                        data_z = [0]
+                if(iterator == 100):
+                    print("No Data received, aborting search")
                     data_x = [0]
-                if(bits[56:72].len > 0):
-                    data_y = bits[56:72].unpack('int:16')
-                else:
                     data_y = [0]
-                if(bits[72:88].len > 0):
-                    data_z = bits[72:88].unpack('int:16')
-                else:
                     data_z = [0]
-            if(iterator == 100):
-                print("No Data received, aborting search")
-                data_x = [0]
-                data_y = [0]
-                data_z = [0]
-                run = False
-            iterator = iterator + 1
+                    run = False
+                iterator = iterator + 1
+            except:
+                print("-=-=-=-=-=-=-=--=-=-=-=-= Failed To Read Raw Data! =-=-=-=-=-=-=-=--=-=-=-=-")
 
         return data_x, data_y, data_z
 
@@ -359,7 +362,10 @@ def main():
 
         manager.get_calibration_vals(manager.calibration_matrix, manager.mag_offsets)
         while(True):
-            manager.calculate_bearing()
+            try:
+                manager.calculate_bearing()
+            except:
+                print("-=-=-=-=-=-=-=--=-=-=-=-= Failed To Calculate Bearing! =-=-=-=-=-=-=-=--=-=-=-=-")
 
         manager.enable_nmea(NMEA_RATE_REG)
 
