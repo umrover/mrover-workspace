@@ -17,10 +17,11 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
         defParams = camera_config.calibration_parameters.left_cam;
     } else if(source == DataSource::FILESYSTEM) {
-        fileReader.open("data/");
+	//fileReader.open("data/");
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
+        fileReader.open(readDir);
     }
 
     //Init Viewer
