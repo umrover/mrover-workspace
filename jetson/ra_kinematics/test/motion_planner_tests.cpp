@@ -222,5 +222,41 @@ TEST(rrt_connect) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
 }
 
+// Test that motion planning respects the locking of joints
+TEST(test_lock) {
+    json geom = read_json_from_file(get_mrover_arm_geom());
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+    MotionPlanner planner = MotionPlanner(arm, solver);
+
+    // Starting and target angles. Joint C does not move.
+    vector<double> start = {0, 1, -1, 0, 0, 0};
+    vector<double> target = {0.1, 0.9, -1, 0.1, -0.1, 0};
+
+    ASSERT_TRUE(solver.is_safe(arm, start));
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    // Lock Joint C.
+    auto it = arm.joints.find("joint_c");
+    if (it != arm.joints.end()) {
+        it->second.locked = true;
+    }
+
+    Vector6d target_angs;
+    for (size_t i = 0; i < 6; ++i) {
+        target_angs[i] = target[i];
+    }
+
+    arm.set_joint_angles(start);
+    solver.FK(arm);
+
+    planner.rrt_connect(arm, target_angs);
+
+    // Check that Joint C did not move from the start position anywhere along the path.
+    for (double i = 0; i <= 1; i += 0.05) {
+        ASSERT_ALMOST_EQUAL(-1, planner.get_spline_pos(i)[2], 0.0000001);
+    }
+}
+
 
 TEST_MAIN()
