@@ -426,11 +426,7 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     ObsReturn empty;
     empty.size = 0;
     if(pc.size == 0) return empty;
-    std::cerr<<"VOX Val: "<<VOXEL<<std::endl;
     // Find the structure for adjacency list of all points
-    printf("Partition Length: %f\n", bins.partitionLength);
-    std::cerr <<"Determining Graph Structure\n";
-    std::cerr << "Size: " << pc.size << "\n";
     #if !VOXEL
         determineGraphStructureKernelN2<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tolerance, listStart);
         checkStatus(cudaGetLastError());
@@ -441,7 +437,6 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
        checkStatus(cudaGetLastError());
        checkStatus(cudaDeviceSynchronize());
     #endif
-    std::cerr <<"Start exclusive\n";
     thrust::exclusive_scan(thrust::device, listStart, listStart+pc.size+1, listStart, 0);
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
@@ -450,7 +445,6 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     int totalAdjanecyListsSize;
     checkStatus(cudaMemcpy(&totalAdjanecyListsSize, &listStart[pc.size], sizeof(int), cudaMemcpyDeviceToHost));
     cudaMalloc(&neighborLists, sizeof(int)*totalAdjanecyListsSize);
-    std::cerr <<"Start build graph\n";
     // Populate adjacency list structure
     #if !VOXEL
         buildGraphKernelN2<<<ceilDiv(pc.size, MAX_THREADS), MAX_THREADS>>>(pc, tolerance, neighborLists, listStart, labels, f1, f2);
@@ -466,7 +460,6 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     //std::cerr<<"Graph kernel built\n";
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
-    std::cerr <<"Loop\n";
     bool stillGoingCPU = true;    
     while(stillGoingCPU) {
         //one iteration of label propogation
@@ -490,7 +483,6 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     thrust::device_vector<int> count(pc.size, 1); //buffer of all 1s. Len(N)
     thrust::device_vector<int> keys(pc.size); //Each clusters unique ID in ascending order Len(C)
     thrust::device_vector<int> values(pc.size); //The number of points in each cluster in ascending order by ID. Len(C)
-    std::cerr <<"Copy and Sort\n";
     thrust::copy(thrust::device, labels, labels+pc.size, labelsSorted.begin()); //first make the labels sorted contain the labels in order of points
     thrust::sort(thrust::device, labelsSorted.begin(), labelsSorted.end()); //now sort the labels by their label idx, 
     auto pair = thrust::reduce_by_key(thrust::device, labelsSorted.begin(), labelsSorted.end(), count.begin(), keys.begin(), values.begin()); //remove duplicate labels and determine the number of points belonging to each label    
@@ -498,7 +490,6 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     //Determine how many clusters there actually are
     
     int numClustersOrig = thrust::distance(keys.begin(), pair.first);
-    std::cout << "CLUSTERS ORIG: " << numClustersOrig << std::endl; 
 
     
 

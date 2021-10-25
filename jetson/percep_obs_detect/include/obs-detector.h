@@ -1,23 +1,19 @@
 #include <string>
 #include <sl/Camera.hpp>
-#include "recorder.hpp"
 #include "plane-ransac.hpp"
 #include "pass-through.hpp"
-#include "GLViewer.hpp"
+#include "viewer.hpp"
 #include "voxel-grid.hpp"
 #include "euclidean-cluster.hpp"
 #include <thread>
 #include "timer.hpp"
 #include "common.hpp"
-#include "pcl.hpp"
 #include "voxel-grid.hpp"
 //#include <lcm/lcm-cpp.hpp>
 //#include "rover_msgs/Obstacle.hpp"
-#include <boost/interprocess/shared_memory_object.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-#include <boost/interprocess/containers/vector.hpp>
 #include <cstring>
 #include <iostream>
+
 // TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;
 
@@ -37,7 +33,7 @@ enum class OperationMode {DEBUG, SILENT};
 /*
  *** Choose which viewer to use ***
  */
-enum ViewerType {NONE, PCLV, GL};
+enum ViewerType {NONE, GL};
 
 /** 
  * \class ObsDetector
@@ -66,7 +62,7 @@ class ObsDetector {
          * of the function directly with a pointer to your frame in GPU memory
          * \param frame: sl::Mat frame to do detection on with memory allocated on the GPU
          */
-        void update(sl::Mat &frame);
+        void update(GPU_Cloud pc);
 
         /**
          * \brief Do viewer update tick, it may be desirable to call this in its own thread 
@@ -105,17 +101,15 @@ class ObsDetector {
 
         //Data sources
         sl::Camera zed;
-        Reader fileReader;
+        PCDReader fileReader;
 
         //Viwers
-        GLViewer glViewer;
-        shared_ptr<pcl::visualization::PCLVisualizer> pclViewer; 
-        void pclKeyCallback(const pcl::visualization::KeyboardEvent &event, void* junk);
+        Viewer viewer;
 
         //Operation paramaters
         DataSource source;
         OperationMode mode;
-        ViewerType viewer;
+        ViewerType viewerType;
         bool record = false;
 
         //Detection algorithms 
@@ -138,12 +132,7 @@ class ObsDetector {
         float distance;
 
         //Other
-        Recorder recorder;
         int frameNum = 0;
         bool framePlay = true;
-
-        //Shared mem
-        boost::interprocess::shared_memory_object shm;
-        boost::interprocess::mapped_region region;
         
 };

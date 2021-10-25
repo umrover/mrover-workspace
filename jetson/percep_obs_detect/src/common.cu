@@ -2,12 +2,6 @@
 #include <iostream>
 #include <sl/Camera.hpp>
 
-#include <pcl/common/common_headers.h>
-#include <pcl/point_types.h>
-
-
-#include <pcl/common/time.h>
-
 #include <vector>
 #include <algorithm>
 
@@ -46,6 +40,10 @@ GPU_Cloud createCloud(int size) {
     cudaMalloc(&g.data, sizeof(float4)*size);
     g.size = size;
     return g;
+}
+
+void deleteCloud(GPU_Cloud &cloud) {
+    cudaFree(cloud.data);
 }
 
 __global__ void copyKernel(GPU_Cloud to, GPU_Cloud from) {
