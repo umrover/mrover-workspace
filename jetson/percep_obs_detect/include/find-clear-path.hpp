@@ -2,21 +2,8 @@
 #include <float.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "euclidean-cluster.hpp"
 //#include <cudamath>
-
-struct Obstacle {
-  float minX;
-  float maxX;
-  float minY;
-  float maxY;
-  float minZ; 
-  float maxZ; 
-};
-
-struct ObsReturn {
-  int size =0; 
-  std::vector<Obstacle> obs; 
-};
 
 //TODO: where to put these constants in the final code
 
@@ -44,10 +31,12 @@ class FindClearPath {
   public:
     //int rovWidth; //Width of rover TODO: get actual size
     //int bearingNum; //Number of bearings, tentatively 1024 (Max threadcount)
+
+    //Default Ctor
     __device__ FindClearPath();
 
     //Allocate host and device memory
-    void find_clear_path_initiate(ObsReturn obsVec);
+    void find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec);
 
     //Run find clear 
     //void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize);
@@ -61,4 +50,4 @@ class FindClearPath {
 };
 
 //Kernel for find clear path parallelization 
-__global__ void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize);
+__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, int obsArrSize);

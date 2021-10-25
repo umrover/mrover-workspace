@@ -27,11 +27,11 @@ __device__ BearingLines::BearingLines(float heading_in) : heading{heading_in} {
   bRight.y = (-rovWidth/2) * sin(heading_in); //Calculate bRight y offset from heading_in
 }
 
-void FindClearPath::find_clear_path_initiate(ObsReturn obsVec){
+void FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec){
   //Allocate and copy obstacle structs array
-  Obstacle* gpuObstacles; 
-  cudaMalloc(&gpuObstacles, obsVec.obs.size()*sizeof(Obstacle));
-  cudaMemcpy(gpuObstacles, &obsVec.obs[0], obsVec.obs.size()*sizeof(Obstacle), cudaMemcpyHostToDevice);
+  EuclideanClusterExtractor::Obstacle* gpuObstacles; 
+  cudaMalloc(&gpuObstacles, obsVec.obs.size()*sizeof(EuclideanClusterExtractor::Obstacle));
+  cudaMemcpy(gpuObstacles, &obsVec.obs[0], obsVec.obs.size()*sizeof(EuclideanClusterExtractor::Obstacle), cudaMemcpyHostToDevice);
   
   //Allocate heading checks array
   bool* heading_checks;
@@ -50,6 +50,7 @@ void FindClearPath::find_clear_path_initiate(ObsReturn obsVec){
   int heading_left = find_left_closest(cpu_heading_checks);
   int heading_right = find_right_closest(cpu_heading_checks);
 
+  //TODO cout in the driver
   std::cout << "left heading: " << heading_left << std::endl;
   std::cout << "right heading: " << heading_right << std::endl;
 
@@ -58,7 +59,7 @@ void FindClearPath::find_clear_path_initiate(ObsReturn obsVec){
   cudaFree(heading_checks);
 }
 
-__global__ void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize){
+__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, int obsArrSize){
   
   int i = threadIdx.x;
   heading_checks[i] = 1; //Assume a clear heading
@@ -72,6 +73,7 @@ __global__ void find_clear_path(Obstacle* obstacles, bool* heading_checks, int o
     float detectRmin = (bearings.n.x * (obstacles[j].minX - bearings.bRight.y)) + (bearings.n.y * (obstacles[j].minY - bearings.bRight.y));
     float detectRmax = (bearings.n.x * (obstacles[j].maxX - bearings.bRight.y)) + (bearings.n.y * (obstacles[j].maxY - bearings.bRight.y));
 
+    //TODO link tne lmin and lmax checks
     if(detectLmin < 0  && detectLmax < 0 && detectRmin > 0 && detectRmax > 0){ //If to the left of left bearing and right of right bearing
       heading_checks[i] = 0; //This is not a clear heading
     }

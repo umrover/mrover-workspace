@@ -124,6 +124,7 @@ class ObsDetector {
         RansacPlane *ransacPlane;
         VoxelGrid *voxelGrid;
         EuclideanClusterExtractor *ece;
+        FindClearPath *findClear;
 
         //Paramaters
         sl::Resolution cloud_res;
