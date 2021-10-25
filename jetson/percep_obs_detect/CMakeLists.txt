@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
-SET(CMAKE_CUDA_COMPILER_ENV_VAR /usr/local/cuda-10.0/bin/nvcc)
-SET(CMAKE_CUDA_COMPILER /usr/local/cuda-10.0/bin/nvcc) 
+SET(CMAKE_CUDA_COMPILER_ENV_VAR /usr/local/cuda/bin/nvcc)
+SET(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc) 
 enable_language(CUDA)
 
 project(obs_detection)

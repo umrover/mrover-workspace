@@ -416,6 +416,7 @@ void Viewer::mouseMotionCallback(int x, int y) {
 
 }
 
+// Responds to key presses, TODO: more features here :)
 void Viewer::keyPressedCallback(unsigned char c, int x, int y) {
     cout << "key press" << endl;
 }

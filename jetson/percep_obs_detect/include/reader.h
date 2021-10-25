@@ -57,6 +57,7 @@ class PCDReader {
             }
 	    }
 
+        // Reads a PCD file from a given filename into a vector of vec4 on the CPU
         std::vector<vec4> readCloudCPU(string file) {
             ifstream fin(file);
             if (!fin.is_open()) cerr << "Could not open file!" << endl;
@@ -92,6 +93,7 @@ class PCDReader {
             return pc;
         }
 
+        // Reads a cloud from a specified file name into a GPU_Cloud on the GPU
         GPU_Cloud readCloudGPU(string file) {
             std::vector<glm::vec4> pc_raw = readCloudCPU(file);
             GPU_Cloud pc = createCloud(pc_raw.size());
@@ -99,6 +101,7 @@ class PCDReader {
             return pc;
         }
 
+        // Read a cloud by sequentially loaded indicies after calling open in a directory
         GPU_Cloud readCloudGPU(int i) {
             i = i % pcd_names.size();
 
