@@ -150,7 +150,7 @@ void ObsDetector::spinViewer() {
 void ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list)
 {
   vector<ObsReturn> measured;
-  actual.reserve(raw_data.size());
+  measured.reserve(raw_data.size());
 
   for(size_t i = 0; i < raw_data.size(); i++)
   {
