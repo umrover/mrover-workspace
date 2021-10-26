@@ -1,6 +1,26 @@
 #include "voxel-grid.hpp"
+#include <thrust/extrema.h>
+#include <thrust/execution_policy.h>
+#include <thrust/device_ptr.h>
 
 using namespace std;
+
+/* --- Helper Functions --- */
+/**
+ * \brief function that given required info will hash point to bin based on coords
+ * \param data: float4 with x,y,z data of a point
+ * \param extrema: array with pairs of maxes and mins of each axis
+ * \param partitions: number of divisions on each axis
+ * \return int containing the bin number a point hashed to
+ */
+ __device__ __forceinline__ int hashToBin (float4 data, std::pair<float,float>* extrema, int partitions) {
+    int cpx = (data.x-extrema[0].first)/(extrema[0].second-extrema[0].first)*partitions;
+    int cpy = (data.y-extrema[1].first)/(extrema[1].second-extrema[1].first)*partitions;
+    int cpz = (data.z-extrema[2].first)/(extrema[2].second-extrema[2].first)*partitions;
+    return cpx*partitions*partitions+cpy*partitions+cpz;
+}
+
+
 
 /* --- Kernels --- */
 /**
@@ -9,13 +29,13 @@ using namespace std;
 * \param pc: GPU point cloud
 * \return void
 */
-__global__ void makeCubeKernel(GPU_Cloud_F4 pc, pair<float,float>* extrema, float* partitionLength) {
+__global__ void makeCubeKernel(GPU_Cloud pc, pair<float,float>* extrema, float* partitionLength) {
     if(threadIdx.x >= 6) return; // Only need 6 threads
 
     // Variable Declarations
     int idx = threadIdx.x;
     int axis = idx/2;
-    sl::float4 pt;
+    float4 pt;
     __shared__ float dif[3];
     enum axis{x=0, y=1, z=2};
 
@@ -35,7 +55,7 @@ __global__ void makeCubeKernel(GPU_Cloud_F4 pc, pair<float,float>* extrema, floa
     __syncthreads();
 
     // Obnoxiously long system for making sure all mins and maxes have same difference
-    
+    // TODO: There must be a better way to do this
     // If z is largest difference add offset to other values
     if(dif[z] >= dif[y] && dif[z] >= dif[x]) {
 
@@ -99,7 +119,15 @@ __global__ void makeCubeKernel(GPU_Cloud_F4 pc, pair<float,float>* extrema, floa
     return;   
 }
 
-__global__ void hashToBinsKernel(GPU_Cloud_F4 pc, Bins bins, pair<float,float>* extrema, int partitions) {
+/**
+* \brief assigns each point to a bin
+* \param pc: GPU point cloud containing points to be assigned
+* \param bins: object points will be assigned to
+* \param extrema: array of floats used to indicate the cube that encloses the point cloud
+* \param partitions: the number of divisions made on each axis of the cube. Yeilds a total of partitions^3 bins
+* \return void
+*/
+__global__ void hashToBinsKernel(GPU_Cloud pc, Bins bins, pair<float,float>* extrema, int partitions) {
     int ptIdx = threadIdx.x + blockIdx.x * blockDim.x;
     if(ptIdx >= pc.size) return;
 
@@ -108,11 +136,19 @@ __global__ void hashToBinsKernel(GPU_Cloud_F4 pc, Bins bins, pair<float,float>* 
     pc.data[ptIdx].w = atomicAdd(&bins.data[binNum],1);
 }
 
-__global__ void sortCloud(GPU_Cloud_F4 pc, Bins bins, pair<float,float>* extrema, int partitions) {
+/**
+* \brief sorts all points in the cloud based on the bin that they were assigne
+* \param pc: GPU point cloud containing points to be assigned
+* \param bins: object points will be assigned to
+* \param extrema: array of floats used to indicate the cube that encloses the point cloud
+* \param partitions: the number of divisions made on each axis of the cube. Yeilds a total of partitions^3 bins
+* \return void
+*/
+__global__ void sortCloud(GPU_Cloud pc, Bins bins, pair<float,float>* extrema, int partitions) {
     int ptIdx = threadIdx.x + blockIdx.x * blockDim.x;
     if(ptIdx >= pc.size) return;
 
-    sl::float4 pt = pc.data[ptIdx]; // Is it unsafe to read and write so closely?
+    float4 pt = pc.data[ptIdx]; // Is it unsafe to read and write so closely?
     
     __syncthreads();
     int offset = pt.w;
@@ -130,30 +166,32 @@ __global__ void sortCloud(GPU_Cloud_F4 pc, Bins bins, pair<float,float>* extrema
     
 }
 
+
+
 /* --- Host Functions --- */
 
 VoxelGrid::VoxelGrid(int partitions) : partitions{partitions} {}
 
-Bins VoxelGrid::run(GPU_Cloud_F4 &pc) {
+Bins VoxelGrid::run(GPU_Cloud &pc) {
 
     // Create place to store maxes
-    thrust::pair< thrust::device_ptr<sl::float4>, thrust::device_ptr<sl::float4>> extrema[3];
+    thrust::pair< thrust::device_ptr<float4>, thrust::device_ptr<float4>> extrema[3];
 
     // Find 6 maxes of Point Cloud
-    extrema[x] = thrust::minmax_element(thrust::device_ptr<sl::float4>(pc.data), 
-                                        thrust::device_ptr<sl::float4>(pc.data) + pc.size, 
+    extrema[x] = thrust::minmax_element(thrust::device_ptr<float4>(pc.data), 
+                                        thrust::device_ptr<float4>(pc.data) + pc.size, 
                                         CompareFloat4(Axis::X));
-    extrema[y] = thrust::minmax_element(thrust::device_ptr<sl::float4>(pc.data), 
-                                        thrust::device_ptr<sl::float4>(pc.data) + pc.size, 
+    extrema[y] = thrust::minmax_element(thrust::device_ptr<float4>(pc.data), 
+                                        thrust::device_ptr<float4>(pc.data) + pc.size, 
                                         CompareFloat4(Axis::Y));
-    extrema[z] = thrust::minmax_element(thrust::device_ptr<sl::float4>(pc.data), 
-                                        thrust::device_ptr<sl::float4>(pc.data) + pc.size, 
+    extrema[z] = thrust::minmax_element(thrust::device_ptr<float4>(pc.data), 
+                                        thrust::device_ptr<float4>(pc.data) + pc.size, 
                                         CompareFloat4(Axis::Z));    
 
     pair<float,float> extremaVals[3] = {
-        {extrema[x].first - thrust::device_ptr<sl::float4>(pc.data), extrema[x].second - thrust::device_ptr<sl::float4>(pc.data)},
-        {extrema[y].first - thrust::device_ptr<sl::float4>(pc.data), extrema[y].second - thrust::device_ptr<sl::float4>(pc.data)},
-        {extrema[z].first - thrust::device_ptr<sl::float4>(pc.data), extrema[z].second - thrust::device_ptr<sl::float4>(pc.data)}
+        {extrema[x].first - thrust::device_ptr<float4>(pc.data), extrema[x].second - thrust::device_ptr<float4>(pc.data)},
+        {extrema[y].first - thrust::device_ptr<float4>(pc.data), extrema[y].second - thrust::device_ptr<float4>(pc.data)},
+        {extrema[z].first - thrust::device_ptr<float4>(pc.data), extrema[z].second - thrust::device_ptr<float4>(pc.data)}
     };
 
     // Adjust extrema to form a cube

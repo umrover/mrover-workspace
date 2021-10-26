@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.hpp"
-
+#include <vector>
  /** 
  * \class EuclideanClusterExtractor
  * \brief Finds distinct clusters in the point cloud and identifies them
@@ -9,19 +9,24 @@
 class EuclideanClusterExtractor {
     public:
 
+        /*
+        * Obstacle struct, will fill the vector in ObsReturn
+        */
+        struct Obstacle {
+            float minX;
+            float maxX;
+            float minY;
+            float maxY;
+            float minZ;
+            float maxZ;
+        };
         /** 
-         * \class ObsReturn
+         * \struct ObsReturn
          * \brief Basic datatype to return found clusters
          */
         struct ObsReturn {
             int size = 0;
-            float* minX;
-            float* maxX;
-            float* minY;
-            float* maxY;
-            float* minZ;
-            float* maxZ;
-            
+            std::vector<Obstacle> obs;
         };
 
         int bearingRight;
@@ -43,11 +48,11 @@ class EuclideanClusterExtractor {
          * \param pc Point cloud to search 
          * \param bins Bins which sub-divide space from VoxelFilter
          */
-        ObsReturn extractClusters(GPU_Cloud_F4 pc, Bins &bins);
+        ObsReturn extractClusters(GPU_Cloud &pc, Bins &bins);
 
     private:
         //user given model parms
-        GPU_Cloud_F4 pc;
+        GPU_Cloud pc;
         float tolerance;
         int minSize;
         float maxSize;

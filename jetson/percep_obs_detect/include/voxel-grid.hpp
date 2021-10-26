@@ -1,7 +1,4 @@
 #include "common.hpp"
-#include <thrust/extrema.h>
-#include <thrust/execution_policy.h>
-#include <thrust/device_ptr.h>
 
 #pragma once
 
@@ -24,7 +21,7 @@ public:
      * \param pc: GPU point cloud will be modified by in place sort
      * \return structure containing start value of each bin in sorted GPU cloud
      */
-    Bins run(GPU_Cloud_F4 &pc);
+    Bins run(GPU_Cloud &pc);
 
 private:
 
@@ -34,4 +31,3 @@ private:
     Bins bins;
 
 };
-
