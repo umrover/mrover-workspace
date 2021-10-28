@@ -152,6 +152,7 @@ void ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn
   vector<ObsReturn> measured;
   measured.reserve(raw_data.size());
 
+  //run the raw_data through the code and store the ObsReturn structs in measured
   for(size_t i = 0; i < raw_data.size(); i++)
   {
     Bins b;
@@ -160,6 +161,40 @@ void ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn
     b = voxelGrid->run(raw_data[i]);
     measured.push_back(ece->extractClusters(raw_data[i],b));
   }
+
+  //calculate the total volume of the truth obstacles for each ObsReturn in truth_list
+  vector<float> true_volumes;
+  true_volumes.reserve(truth_list.size());
+  for (size_t i = 0; i < truth_list.size(); ++i) {
+      float volume = 0;
+      for (size_t j = 0; j < truth_list[i].obs.size(); ++j) {
+          volume += (truth_list[i].obs[j].maxX - truth_list[i].obs[j].minX)
+              * (truth_list[i].obs[j].maxY - truth_list[i].obs[j].minY) 
+              * (truth_list[i].obs[j].maxZ - truth_list[i].obs[j].minZ); //volume calculation for this obstacle
+      }
+      true_volumes.push_back(volume); 
+  }
+  //now true_volumes has total volume for each cloud in the same indices as truth_list and raw_data
+  
+  //need to find volume of truth detected / volume truth for each ObsReturn
+  vector<float> voldet_voltru;
+  voldet_voltru.reserve(truth_list.size());
+  for (size_t i = 0; i < measured.size(); ++i) {
+      //i can be the index for both measured and truth since they are the same size
+      float running_intersection = 0;
+      for (size_t tru_ob = 0; tru_ob < truth_list[i].obs.size(); ++tru_ob) { //loop through truth objects for this cloud
+          for (size_t exp_ob = 0; exp_ob < measured[i].obs.size(); ++exp_ob) { //loop through experimental objects for this cloud
+              //calculate intersection and add to running total
+              running_intersection += calculateIntersection(truth_list[i].obs[tru_ob], measured[i].obs[exp_ob]);
+          }
+      }
+      //divide the total intersection found by the total truth volume - this is one of the indicators of performance
+      float evaluation = running_intersection / true_volumes[i];
+      voldet_voltru.push_back(evaluation);
+      //Ideally, they would be 1, the further from 1 any of the values in voldet_voltru are, the lower the accuracy
+ }
+
+  //TODO: find the vol false positive over volume of truth for each point cloud 
 
   for(size_t i = 0; i < measured.size(); i++)
   {
@@ -195,6 +230,15 @@ void ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn
   }
 }
 
+float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstacle*& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst) {
+    float xa = (std::max(truth_obst->minX, eval_obst->minX));
+    float xb = (std::min(truth_obst->maxX, eval_obst->maxX));
+    float ya = (std::max(truth_obst->minY, eval_obst->minY));
+    float yb = (std::min(truth_obst->maxY, eval_obst->maxY));
+    float za = (std::max(truth_obst->minZ, eval_obst->minZ));
+    float zb = (std::min(truth_obst->maxZ, eval_obst->maxZ));
+    return (xa - xb) * (ya - yb) * (za - zb);
+}
 double ObsDetector::calculateIOU(const EuclideanClusterExtractor::Obstacle*& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst)
 {
   float xa = (std::max(truth_obst->minX,eval_obst->minX));
