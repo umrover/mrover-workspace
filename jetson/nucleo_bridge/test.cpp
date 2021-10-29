@@ -62,32 +62,29 @@ void on(int addr)
     }   
 }
 
-uint32_t openPlus(int addr, float speed)
+void openPlus(int addr, float speed)
 {
     try 
     {
         uint8_t buffer[4];
         memcpy(buffer, UINT8_POINTER_T(&(speed)), 4);
 
-        uint32_t raw_angle;
-        I2C::transact(addr, CONFIG_PWM, nullptr, UINT8_POINTER_T(&(raw_angle)));
-
         printf("test open plus transaction successful on slave %i \n", addr);
-        return raw_angle; 
+	return;
     }
     catch (IOFailure &e)
     {
         printf("test open plus failed on slave %i \n", addr);
-        return 0; 
+        return; 
     }
 }
 
-void configPWM(int addr, float max_speed)
+void configPWM(int addr, int max_speed)
 {
     try 
     {
-        uint8_t buffer[4];
-        memcpy(buffer, UINT8_POINTER_T(&(max_speed)), 4);
+        uint8_t buffer[2];
+        memcpy(buffer, UINT8_POINTER_T(&(max_speed)), 2);
 
         I2C::transact(addr, CONFIG_PWM, buffer, nullptr);
         printf("test config pwm transaction successful on slave %i \n", addr);
@@ -150,7 +147,7 @@ void testConfigPWM()
     for (auto address : i2c_address)
     {
         // test off 
-        configPWM(address, 1.0);
+        configPWM(address, 100);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     } 
     PRINT_TEST_END  
@@ -175,9 +172,8 @@ void testOpenPlus()
     for (auto address : i2c_address)
     {
         // sets speed to half speed 
-        uint32_t raw_angle = openPlus(address, 0.5);
-        printf("raw angle: %i \n", raw_angle);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        openPlus(address, 0.5);
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     }
     PRINT_TEST_END 
 }
@@ -194,18 +190,16 @@ void allDevBoardFunctions(int address)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     printf("setting pwm max to 0.75");    
-    configPWM(address, 0.75);
+    configPWM(address, 75);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     printf("turning setting speed to 0.5");
-    uint32_t enc_value = openPlus(address, 0.5);
-    printf("raw angle: %i \n", enc_value);
+    openPlus(address, 0.5);
     // runs for five seconds
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     printf("turning setting speed to 0");
-    enc_value = openPlus(address, 0.0);
-    printf("raw angle: %i \n", enc_value);
+    openPlus(address, 0.0);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     printf("turning rib %i off", address);
@@ -228,28 +222,25 @@ void testMax(int address)
 {
     PRINT_TEST_START
     printf("setting max to 1.0");
-    configPWM(address, 1.0);
+    configPWM(address, 100);
     std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
 
     printf("setting speed to 0.5");
-    uint32_t enc_value = openPlus(address, 0.5);
-    printf("raw angle: %i \n", enc_value);
+    openPlus(address, 50);
     // runs for five seconds
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     printf("setting max to 0.5");
-    configPWM(address, 0.5);
+    configPWM(address, 50);
     std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
 
     printf("trying to set speed to 0.75 (should not change)");
-    enc_value = openPlus(address, 0.75);
-    printf("raw angle: %i \n", enc_value);
+    openPlus(address, 75);
     // runs for five seconds
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     printf("setting speed to 0.0");
-    enc_value = openPlus(address, 0.0);
-    printf("raw angle: %i \n", enc_value);
+    openPlus(address, 0);
     // runs for five seconds
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     PRINT_TEST_END
@@ -257,16 +248,17 @@ void testMax(int address)
 
 int main()
 {
-    for (int i = 0; i < 3; ++i)
+    for (int i = 1; i < 4; ++i)
     {
         i2c_address.push_back(get_addr(i));
     }
+    I2C::init();
     // testing if transactions are successful 
     testOff();
     testOn();
-    // testConfigPWM();
+    testConfigPWM();
     // testQuadEnc();
-    // testOpenPlus();
+    testOpenPlus();
 
     // // functionality tests
     // testAllFunctions(); 
