@@ -18,7 +18,7 @@ using namespace std;
 
 // TODO might fix this later
 // unsure about the 0 (channel)
-#define ADDR ((1 << 4) | 0)
+#define ADDR ((2 << 4) | 0)
 
 #define PRINT_TEST_START printf("Running Test #%2d, %s\n", ++num_tests_ran, __FUNCTION__);
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
