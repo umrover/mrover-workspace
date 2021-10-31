@@ -33,7 +33,7 @@ class FindClearPath {
     //int bearingNum; //Number of bearings, tentatively 1024 (Max threadcount)
 
     //Default Ctor
-    __device__ FindClearPath();
+    FindClearPath();
 
     //Allocate host and device memory
     void find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec);
