@@ -1,4 +1,3 @@
-# Suchir
 import json
 import time
 import asyncio
