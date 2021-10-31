@@ -9,15 +9,12 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in)
         solver(solver_in) { 
     step_limits.reserve(6);
 
-    // add limits for each joint to joint_limits, after converting to degrees
+    // add limits for each joint to joint_limits
     for (string &joint : robot.get_all_joints()) {
       map<string, double> limits = robot.get_joint_limits(joint);
 
-      limits["lower"] = limits["lower"] * 180 / M_PI;
-      limits["upper"] = limits["upper"] * 180 / M_PI;
-
       joint_limits.push_back(limits);
-      step_limits.push_back(robot.get_joint_max_speed(joint)); //TODO scale if path planning takes too long
+      step_limits.push_back(robot.get_joint_max_speed(joint) / 50.0); //TODO scale if path planning takes too long
     }
 
     //time_t timer;
@@ -123,7 +120,7 @@ vector<Vector6d> MotionPlanner::backtrace_path(MotionPlanner::Node* end, MotionP
 
     // starting at end, add each position config to path
     while (true) {
-        path.push_back(get_radians(end->config));
+        path.push_back(end->config);
 
         if (end == root) {
             return path;
@@ -154,31 +151,18 @@ void MotionPlanner::delete_tree_helper(MotionPlanner::Node* root) {
     }
 }
 
-Vector6d MotionPlanner::get_radians(Vector6d &config) {
-    for (int i = 0; i < 6; ++i) {
-        config[i] *= (M_PI / 180);
-    }
-
-    return config;
-}
-
 MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const Vector6d &z_rand) {
 
     // z_nearest is the nearest node in the tree to z_rand
     Node* z_nearest = nearest(tree, z_rand);
 
     // z_new is the set of angles extending from z_nearest towards z_rand, within step_limits
-    Vector6d z_new = steer(z_nearest, z_rand);
+    Vector6d z_new_6d = steer(z_nearest, z_rand);
 
-    // convert z_new to radians
-    vector<double> z_new_radians;
-    z_new_radians.resize(6);
-    for (size_t i = 0; i < 6; ++i) {
-        z_new_radians[i] = z_new(i) * M_PI / 180;
-    }
+    vector<double> z_new = vector6dToVec(z_new_6d);
 
     // check that we have not violated joint limits or created collisions
-    if (!solver.is_safe(robot, z_new_radians)) {
+    if (!solver.is_safe(robot, z_new)) {
         return nullptr;
     }
 
@@ -217,12 +201,6 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
     start(5) = robot.get_joint_angles()["joint_f"];
 
     Vector6d target = target_angles;
-
-    // convert target to degrees
-    for (int i = 0; i < target.size(); ++i) {
-        target(i) = target(i) * 180 / M_PI;
-        start(i) = start(i) * 180 / M_PI;
-    }
 
     start_root = new Node(start);
     goal_root =  new Node(target);

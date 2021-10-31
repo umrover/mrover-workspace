@@ -109,8 +109,6 @@ private:
     void delete_tree(Node* twig);
     void delete_tree_helper(Node* root);
 
-    Vector6d get_radians(Vector6d &config);
-
     Node* extend(ArmState &robot, Node* tree, const Vector6d &z_rand);
 
     Node* connect(ArmState &robot, Node* tree, const Vector6d &a_new);
