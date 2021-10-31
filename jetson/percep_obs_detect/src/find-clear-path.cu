@@ -86,16 +86,50 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
     float detectLmax = (bearings.n.x * (obstacles[j].maxX - bearings.bLeft.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bLeft.y));
 
     //checks the right bearing at the minimum y of the object
-    float detectRmin = (bearings.n.x * (obstacles[j].minX - bearings.bRight.y)) + (bearings.n.y * (obstacles[j].minY - bearings.bRight.y));
+    float detectRmin = (bearings.n.x * (obstacles[j].minX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].minY - bearings.bRight.y));
 
     //check the right bearing at the maximum y of the object
-    float detectRmax = (bearings.n.x * (obstacles[j].maxX - bearings.bRight.y)) + (bearings.n.y * (obstacles[j].maxY - bearings.bRight.y));
+    float detectRmax = (bearings.n.x * (obstacles[j].maxX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bRight.y));
 
-    bool min_test = (detectLmin < 0 && detectRmin < 0) || (detectLmin > 0 && detectRmin > 0); //checks that the left bearing and the right bearing are on the same side for 
-    bool max_test = (detectLmax < 0 && detectRmax < 0) || (detectLmax > 0 && detectRmax > 0);
-    if(min_test && max_test){ //If to the left of left bearing and right of right bearing
+    bool allNegative = detectLmin < 0 && detectLmax < 0 
+                          && detectRmin < 0 && detectRmax < 0; 
+
+    bool allPositive = detectLmin > 0 && detectLmax > 0 
+                          && detectRmin > 0 && detectRmax > 0;    
+
+    if(!allNegative && !allPositive)
+    {
       heading_checks[i] = 0; //This is not a clear heading
     }
+    else if(allNegative)
+    {
+      //check left bearing line with xmax, ymin to see if its to the left
+      //if its to the left, then that is a collision
+      float detectBottomRight = (bearings.n.x * (obstacles[j].maxX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].minY - bearings.bRight.y));
+
+      if(detectBottomRight > 0)
+      {
+        heading_checks[i] = 0; //This is not a clear heading
+      }
+    }
+    else if(allPositive)
+    {
+      //check right bearing line with xmin, ymax to see if its to the right
+      //if its to the right, then that is a collision
+      float detectTopLeft = (bearings.n.x * (obstacles[j].minX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bRight.y));
+      
+      if(detectTopLeft < 0)
+      {
+        heading_checks[i] = 0; //This is not a clear heading
+      }
+    }
+
+
+    // bool min_test = (detectLmin < 0 && detectRmin < 0) || (detectLmin > 0 && detectRmin > 0); //checks that the left bearing and the right bearing are on the same side for 
+    // bool max_test = (detectLmax < 0 && detectRmax < 0) || (detectLmax > 0 && detectRmax > 0);
+    // if(min_test && max_test){ //If to the left of left bearing and right of right bearing
+    //   heading_checks[i] = 0; //This is not a clear heading
+    // }
   }
 }
 
