@@ -280,9 +280,9 @@ export default {
     .wrapper {
         display: grid;
         grid-gap: 10px;
-        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-columns: 1.5fr 1.25fr 1fr;
         grid-template-rows: 60px 3fr 1fr 2fr 1.5fr 1.5fr;
-        grid-template-areas: "header header header" "map cameras cameras" "map spectral drives" "map chlorophyll drives" "odom ammonia drives" "report amino drives";
+        grid-template-areas: "header header header" "map cameras cameras" "map chlorophyll drives" "map ammonia drives" "odom amino drives" "spectral report drives";
         font-family: sans-serif;
         height: 98vh;
         overflow: auto;
