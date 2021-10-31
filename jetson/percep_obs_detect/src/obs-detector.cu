@@ -150,53 +150,61 @@ void ObsDetector::spinViewer() {
 void ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list)
 {
   vector<ObsReturn> measured;
-  measured.reserve(raw_data.size()); //vector of experimental ObsReturns
+  measured.reserve(truth_list.size());
 
-  //run the raw_data through the code and store the ObsReturn structs in measured
-  for(size_t i = 0; i < raw_data.size(); i++)
+  vector<float> truth_volumes;
+  volumes.reserve(truth_list.size());
+
+  vector<float> g_t;
+  intersection_totals.reserve(truth_list.size());
+
+  vector<float> false_positive_vol;
+  false_positive_vol.reserve(truth_list.size());
+
+  /* Calculate total truth volume */
+  /* Evaluate raw test data */
+  for(size_t i = 0; i < truth_list.size(); i++)
   {
+    /* Evaluate Raw Data */
     Bins b;
     passZ->run(raw_data[i]);
     ransacPlane->computeModel(raw_data[i]);
     b = voxelGrid->run(raw_data[i]);
     measured.push_back(ece->extractClusters(raw_data[i],b));
+    /* --------------- */
+
+    float current_volume_sum = 0;
+    float current_intersection_sum = 0;
+    for(size_t j = 0; j < truth_list[i].obs.size(); j++)
+      for(size_t k = 0; k < measured[i].obs.size(); k++)
+      {
+        current_intersection_sum +=
+        calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]) > 0 ? calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]) : 0;
+        current_volume_sum += (truth_list[i].obs[j].maxX - truth_list[i].obs[j].minX)
+            * (truth_list[i].obs[j].maxY - truth_list[i].obs[j].minY)
+            * (truth_list[i].obs[j].maxZ - truth_list[i].obs[j].minZ);
+      }
+    volumes.push_back(current_volume_sum);
+    g_t.push_back(current_intersection_sum / current_volume_sum);
   }
 
-  //calculate the total volume of the truth obstacles for each ObsReturn in truth_list
-  vector<float> true_volumes; //total volume of all truth obstacles
-  true_volumes.reserve(truth_list.size());
+  /* Now calculate false positives / ground truth */
+  for(size_t x = 0; x < truth_list.size(); x++)
+  {
+    float volsum = 0;
+    float temp_intersection = 0;
+    for(size_t y = 0; y < measured[x].obs.size(); y++)
+      for(size_t z = 0; z < truth_list[x].obs.size(); z++)
+      {
+        volsum += (measured[x].obs[y].maxX - measured[x].obs[y].minX)
+            * (measured[x].obs[y].maxY - measured[x].obs[y].minY)
+            * (measured[x].obs[y].maxZ - measured[x].obs[y].minZ);
 
-  for (size_t i = 0; i < truth_list.size(); ++i) { //all ObsReturns
-      float volume = 0;
-      for (size_t j = 0; j < truth_list[i].obs.size(); ++j) { // all Obstacles
-          volume += (truth_list[i].obs[j].maxX - truth_list[i].obs[j].minX)
-              * (truth_list[i].obs[j].maxY - truth_list[i].obs[j].minY)
-              * (truth_list[i].obs[j].maxZ - truth_list[i].obs[j].minZ); //volume calculation for this obstacle
+        temp_intersection +=
+        calculateIntersection(truth_list[x].obs[z], measured[x].obs[y]) > 0 ? calculateIntersection(truth_list[x].obs[z], measured[x].obs[y]) : 0;
       }
-      true_volumes.push_back(volume);
+      false_positive_vol.push_back((volsum - temp_intersection)/truth_volumes[x]);
   }
-  //now true_volumes has total volume for each cloud in the same indices as truth_list and raw_data
-
-  //need to find volume of truth detected / volume truth for each ObsReturn
-  vector<float> voldet_voltru;
-  voldet_voltru.reserve(truth_list.size());
-  for (size_t i = 0; i < measured.size(); ++i) {
-      //i can be the index for both measured and truth since they are the same size
-      float running_intersection = 0;
-      for (size_t tru_ob = 0; tru_ob < truth_list[i].obs.size(); ++tru_ob) { //loop through truth objects for this cloud
-          for (size_t exp_ob = 0; exp_ob < measured[i].obs.size(); ++exp_ob) { //loop through experimental objects for this cloud
-              //calculate intersection and add to running total
-              running_intersection += calculateIntersection(truth_list[i].obs[tru_ob], measured[i].obs[exp_ob]);
-          }
-      }
-      //divide the total intersection found by the total truth volume - this is one of the indicators of performance
-      float evaluation = running_intersection / true_volumes[i];
-      voldet_voltru.push_back(evaluation);
-      //Ideally, they would be 1, the further from 1 any of the values in voldet_voltru are, the lower the accuracy
- }
-
-  //TODO: find the vol false positive over volume of truth for each point cloud
-
 }
 
 float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst) {
@@ -227,40 +235,7 @@ double ObsDetector::calculateIOU(const EuclideanClusterExtractor::Obstacle& trut
   return intersection / u;
 }
 
-void test_test_test()
-{
-  vector<ObsReturn> measured;
-  measured.reserve(truth_list.size());
-  vector<float> volumes;
-  volumes.reserve(truth_list.size());
-  vector<float> g_t;
-  intersection_totals.reserve(truth_list.size());
 
-  for(size_t i = 0; i < truth_list.size(); i++)
-  {
-    /* Evaluate Raw Data */
-    Bins b;
-    passZ->run(raw_data[i]);
-    ransacPlane->computeModel(raw_data[i]);
-    b = voxelGrid->run(raw_data[i]);
-    measured.push_back(ece->extractClusters(raw_data[i],b));
-    /* --------------- */
-
-    float current_volume_sum = 0;
-    float current_intersection_sum = 0;
-    for(size_t j = 0; j < truth_list[i].obs.size(); j++)
-      for(size_t k = 0; k < measured[i].obs.size(); k++)
-      {
-        current_intersection_sum +=
-        calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]) > 0 ? calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]) : 0;
-        current_volume_sum += (truth_list[i].obs[j].maxX - truth_list[i].obs[j].minX)
-            * (truth_list[i].obs[j].maxY - truth_list[i].obs[j].minY)
-            * (truth_list[i].obs[j].maxZ - truth_list[i].obs[j].minZ);
-      }
-    volumes.push_back(current_volume_sum);
-    g_t.push_back(current_intersection_sum / current_volume_sum);
-  }
-}
 
  ObsDetector::~ObsDetector() {
      delete passZ;
