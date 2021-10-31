@@ -66,7 +66,8 @@ if [ "$1" = "exec" ]; then
         remove_trail=${1%/}
         arg_no_slash=${remove_trail//"/"/"_"}
         clean_args=${@/$1/$arg_no_slash}
-        
+        echo LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu"\
+         $clean_args
         exec env LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu"\
          $clean_args
     else
@@ -75,7 +76,7 @@ if [ "$1" = "exec" ]; then
     exit 0
 fi
 
-# This is a version of jarvis exec that is to be used in perception singularity containers 
+# This is a version of jarvis exec that is to be used in perception singularity containers
 if [ "$1" = "sing" ]; then
     if [ -d "${PRODUCT_ENV}" ]; then
         # shellcheck source=/dev/null
@@ -87,7 +88,7 @@ if [ "$1" = "sing" ]; then
         remove_trail=${1%/}
         arg_no_slash=${remove_trail//"/"/"_"}
         clean_args=${@/$1/$arg_no_slash}
-        
+
         exec env LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu:/.singularity.d/libs"\
          $clean_args
     else

@@ -26,10 +26,10 @@ class CMakeBuilder(BuildContext):
 
             os.mkdir(cmake_build_path)
             with self.cd(full_dir):
-                self.run("cmake -B{} -H{} -DCMAKE_INSTALL_PREFIX={}".format(
+                self.run("cmake -B{} -H{} -DCMAKE_PREFIX_PATH={}".format(
                     cmake_build_path,
                     full_dir,
-                    self.wksp.product_env))
+                    pkg_cfg_path))
 
             with self.cd(cmake_build_path):
                 self.run("make all")
