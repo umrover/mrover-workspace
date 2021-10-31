@@ -38,7 +38,7 @@ add_definitions(${PCL_DEFINITIONS})
 #add_executable(test-kernel src/test-kernel.cu)
 #set_property(TARGET test-kernel PROPERTY CUDA_STANDARD 11)
 
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/.mrover/build_env/)
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/.mrover/build_env/bin)
 
 add_executable (jetson_percep_obs_detect src/filter.cu src/obs-detector.cpp src/GLViewer.cpp src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/pcl.cpp src/euclidean-cluster.cu src/pass-through.cu src/find-clear.cu)
 target_link_libraries (jetson_percep_obs_detect Eigen3::Eigen)
