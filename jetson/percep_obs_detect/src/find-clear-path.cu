@@ -66,15 +66,34 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
 
   //Create bearing lines based on threadIdx
   //NB: threadIdx 511 is the 0 heading
-  BearingLines bearings((fov*(i-(int)(bearingNum/2)))/(int)(bearingNum/2)); //Create bearing lines from threadIdx
+
+  //fov: one directional field of view, currently 80 degrees
+  //bearingNum: number of gpu threads
+  //i is index of thread
+  int bearing = int(i - bearingNum/2);
+  bearing = (bearing * fov) / (bearingNum / 2); //converts thread # to degrees
+  BearingLines bearings(bearing); //Create bearing lines from bearing
+
+  //TODO: FIX LOGIC
+  // if detect variables are negative, obs is to the left of bearing line
+  // if detect variables are positive, obs is to the right of bearing line
+  // if detect variables are 0, obs is on the bearing line
   for(int j = 0; j < obsArrSize; ++j){ //Check all obstacles in obstacles array
+    //checks the left bearing at the minimum y of the object
     float detectLmin = (bearings.n.x * (obstacles[j].minX - bearings.bLeft.x)) + (bearings.n.y * (obstacles[j].minY - bearings.bLeft.y));
+
+    //checks the left bearing at the maximum y of the object
     float detectLmax = (bearings.n.x * (obstacles[j].maxX - bearings.bLeft.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bLeft.y));
+
+    //checks the right bearing at the minimum y of the object
     float detectRmin = (bearings.n.x * (obstacles[j].minX - bearings.bRight.y)) + (bearings.n.y * (obstacles[j].minY - bearings.bRight.y));
+
+    //check the right bearing at the maximum y of the object
     float detectRmax = (bearings.n.x * (obstacles[j].maxX - bearings.bRight.y)) + (bearings.n.y * (obstacles[j].maxY - bearings.bRight.y));
 
-    //TODO link tne lmin and lmax checks
-    if(detectLmin < 0  && detectLmax < 0 && detectRmin > 0 && detectRmax > 0){ //If to the left of left bearing and right of right bearing
+    bool min_test = (detectLmin < 0 && detectRmin < 0) || (detectLmin > 0 && detectRmin > 0); //checks that the left bearing and the right bearing are on the same side for 
+    bool max_test = (detectLmax < 0 && detectRmax < 0) || (detectLmax > 0 && detectRmax > 0);
+    if(min_test && max_test){ //If to the left of left bearing and right of right bearing
       heading_checks[i] = 0; //This is not a clear heading
     }
   }
