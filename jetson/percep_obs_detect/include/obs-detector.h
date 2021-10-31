@@ -9,6 +9,7 @@
 #include "timer.hpp"
 #include "common.hpp"
 #include "voxel-grid.hpp"
+#include "TestStats.h"
 //#include <lcm/lcm-cpp.hpp>
 //#include "rover_msgs/Obstacle.hpp"
 #include <cstring>
@@ -23,19 +24,19 @@
  *      GPUMEM: receives a pointer to cloud GPU memory from external source
  *      FILESYSTEM: reads .pc files from specified location
  */
-enum class DataSource {ZED, GPUMEM, FILESYSTEM}; 
+enum class DataSource {ZED, GPUMEM, FILESYSTEM};
 
 /*
  *** Set up debugging level ***
  */
-enum class OperationMode {DEBUG, SILENT};
+enum class OperationMode {DEBUG, SILENT, TEST};
 
 /*
  *** Choose which viewer to use ***
  */
 enum ViewerType {NONE, GL};
 
-/** 
+/**
  * \class ObsDetector
  * \brief class that contains framework, algorithm instances, and state variables to perform obstacle detection
  */
@@ -49,7 +50,7 @@ class ObsDetector {
          */
         ObsDetector(DataSource source, OperationMode mode, ViewerType viewer);
 
-        //Destructor 
+        //Destructor
         ~ObsDetector();
 
         /**
@@ -58,14 +59,14 @@ class ObsDetector {
         void update();
 
         /**
-         * \brief This is the underlying method called by update(), if DataSource::GPUMEM is selected, call this version 
+         * \brief This is the underlying method called by update(), if DataSource::GPUMEM is selected, call this version
          * of the function directly with a pointer to your frame in GPU memory
          * \param frame: sl::Mat frame to do detection on with memory allocated on the GPU
          */
         void update(GPU_Cloud pc);
 
         /**
-         * \brief Do viewer update tick, it may be desirable to call this in its own thread 
+         * \brief Do viewer update tick, it may be desirable to call this in its own thread
          */
         void spinViewer();
 
@@ -93,8 +94,13 @@ class ObsDetector {
         //Sets up detection paramaters from a JSON file
         void setupParamaters(std::string parameterFile);
 
+    /* TESTING FUNCTIONS */
+    public:
+      TestStats test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list);
+    private:
+      float calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst);
 
-    private: 
+    private:
         //Lcm
         //lcm::LCM lcm_;
         //rover_msgs::Obstacle obstacleMessage;
@@ -112,7 +118,7 @@ class ObsDetector {
         ViewerType viewerType;
         bool record = false;
 
-        //Detection algorithms 
+        //Detection algorithms
         PassThrough *passZ;
         RansacPlane *ransacPlane;
         VoxelGrid *voxelGrid;
@@ -123,7 +129,7 @@ class ObsDetector {
         sl::InitParameters init_params;
         sl::CameraParameters defParams;
         std::string readDir;
-        
+
         //Output data
         Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
@@ -134,5 +140,5 @@ class ObsDetector {
         //Other
         int frameNum = 0;
         bool framePlay = true;
-        
+
 };
