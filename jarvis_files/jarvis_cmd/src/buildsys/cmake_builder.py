@@ -1,5 +1,4 @@
 import os
-import time
 
 from . import BuildContext
 
@@ -15,11 +14,22 @@ class CMakeBuilder(BuildContext):
         full_dir = os.path.join(self.wksp.root, self.dir_)
         with self.scratch_space() as intermediate:
             print("Compiling CMake project...")
+            pkg_cfg_path = self.run(
+                    'pkg-config --variable pc_path pkg-config').stdout.strip()
+            pkg_cfg_path = '{}:{}:{}'.format(
+                    os.path.join(self.wksp.product_env, 'lib', 'x86_64-linux-gnu', 'pkgconfig'),  # noqa XXX
+                    os.path.join(self.wksp.product_env, 'lib', 'pkgconfig'),
+                    pkg_cfg_path)
+
             cmake_buildir = "build"
             cmake_build_path = os.path.join(intermediate, cmake_buildir)
 
             os.mkdir(cmake_build_path)
             with self.cd(full_dir):
-                self.run("cmake -B{} -H{}".format(
+                self.run("cmake -B{} -H{} -DCMAKE_INSTALL_PREFIX={}".format(
                     cmake_build_path,
-                    full_dir))
+                    full_dir,
+                    self.wksp.product_env))
+
+            with self.cd(cmake_build_path):
+                self.run("make all")
