@@ -14,9 +14,6 @@ class MesonBuilder(BuildContext):
         self.wksp.ensure_product_env()
         full_dir = os.path.join(self.wksp.root, self.dir_)
         with self.scratch_space() as intermediate:
-            print("Intermediate: %s", intermediate)
-            print("self.wksp.product_env: %s", self.wksp.product_env)
-            print("full dir: %s", full_dir)
             print("Compiling C++ project...")
             pkg_cfg_path = self.run(
                     'pkg-config --variable pc_path pkg-config').stdout.strip()
