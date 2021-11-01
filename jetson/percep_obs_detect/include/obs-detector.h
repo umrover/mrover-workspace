@@ -96,7 +96,7 @@ class ObsDetector {
 
     /* TESTING FUNCTIONS */
     public:
-      TestStats test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list);
+      TestStats::TestStats test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list);
     private:
       float calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst);
 

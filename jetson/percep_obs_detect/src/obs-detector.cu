@@ -147,7 +147,7 @@ void ObsDetector::spinViewer() {
 
 }
 
-TestStats ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list)
+TestStats::TestStats ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list)
 {
   vector<ObsReturn> measured; // Raw data put through obs detector
   measured.reserve(truth_list.size());
@@ -176,7 +176,7 @@ TestStats ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsR
   for(size_t i = 0; i < truth_list.size(); i++)
   {
     /* Evaluate Raw Data */
-    Timer clock_count("testing timer");
+    Timer clock_count("testing timer"); // GPU Obs detect runtime counter
     Bins b;
     passZ->run(raw_data[i]);
     ransacPlane->computeModel(raw_data[i]);
@@ -184,13 +184,13 @@ TestStats ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsR
     measured.push_back(ece->extractClusters(raw_data[i],b));
     clock_times.push_back(clock_count.getTime());
     clock_count.reset();
-    /* --------------- */
+    /* ––––––––––––––––––––––––––––––––– */
 
     float current_volume_sum = 0;
     float current_intersection_sum = 0;
     true_count.push_back(static_cast<int>(truth_list[i].obs.size()));
     obs_count.push_back(static_cast<int>(measured[i].obs.size()));
-    
+
     for(size_t j = 0; j < truth_list[i].obs.size(); j++)
       for(size_t k = 0; k < measured[i].obs.size(); k++)
       {
@@ -222,7 +222,7 @@ TestStats ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsR
       }
       false_positive_vol.push_back((volsum - temp_intersection)/truth_volumes[x]);
   }
-  return TestStats solution(g_t,false_positive_vol,clock_times,true_count,obs_count);
+  return TestStats::TestStats solution(g_t,false_positive_vol,clock_times,true_count,obs_count);
 }
 
 float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst) {
