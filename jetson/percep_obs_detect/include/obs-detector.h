@@ -96,8 +96,19 @@ class ObsDetector {
 
     /* TESTING FUNCTIONS */
     public:
+      /**
+       * \brief Unit Testing for GPS Obs Detection
+       * \param raw_data: unprocessed GPU cloud
+       * \param truth_list: ground truth for comparison
+       */
       TestStats::TestStats test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list);
+
     private:
+      /**
+       * \brief Utility function for test(), finds global intersection
+       * \param truth_obst: ground truth obstacle
+       * \param eval_obst: experimental obstacle
+       */
       float calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst);
 
     private:

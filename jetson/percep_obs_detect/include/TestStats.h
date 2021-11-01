@@ -39,7 +39,6 @@ class TestStats {
           cout << "Percent Truth Detected: " << iot[i] << "\n";
           cout << "False Positive over True Volume: " << fot[i] << "\n";
 
-        }
       }
 
 };
