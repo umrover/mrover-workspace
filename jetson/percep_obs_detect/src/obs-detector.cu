@@ -232,6 +232,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector
     float volsum = 0;
     float temp_intersection = 0;
     for(size_t y = 0; y < measured[x].obs.size(); y++)
+    {
       for(size_t z = 0; z < truth_list[x].obs.size(); z++)
       {
         temp_intersection +=
@@ -241,12 +242,13 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector
       volsum += (measured[x].obs[y].maxX - measured[x].obs[y].minX)
           * (measured[x].obs[y].maxY - measured[x].obs[y].minY)
           * (measured[x].obs[y].maxZ - measured[x].obs[y].minZ);
-
+    }
       /* return total false positive volume for current obsreturn */
       false_positive_vol.push_back((volsum - temp_intersection)/truth_volumes[x]);
   }
   /* return custom class ("TestStats.h") */
-  return TestStats::TestStats solution(g_t,false_positive_vol,clock_times,true_count,obs_count,discrete_truth_pct);
+  TestStats::TestStats tsolution(g_t,false_positive_vol,clock_times,true_count,obs_count,discrete_truth_pct);
+  return tsolution;
 }
 
 float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst) {

@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <iomanip>
 class TestStats {
   private:
     std::vector<float> iot; //intersection of true over total true vol
@@ -9,13 +10,18 @@ class TestStats {
     std::vector<int> num_det_obs; //number of test obstacles
     std::vector<vector<float>> discrete_truths; //%-detected for each truth obs
 
+    std::vector<float> avg_truth_detected; // avg truth %detected
+
   private:
     /*
-    float avg_pct_truth()
+    void avg_pct_truth()
     {
       for(size_t i = 0; i < discrete_truths.size(); i++)
       {
-        for(size_t j = 0;)
+        for(size_t j = 0; j < discrete_truths[i].size(); i++)
+        {
+
+        }
       }
     }
     */
@@ -26,7 +32,7 @@ class TestStats {
 
       }
 
-      TestStats(std::vector<float> iot_, std::vector<float> fot_, std::vector<float> times_, std::vector<int> nt, std::vector<int> nd, std::vector<vector<float>> dscrt) :
+      TestStats(std::vector<float> iot_, std::vector<float> fot_, std::vector<float> times_, std::vector<int> nt_, std::vector<int> nd, std::vector<vector<float>> dscrt) :
       iot(iot_), fot(fot_), times(times_), num_true_obs(nt_), num_det_obs(nd), discrete_truths(dscrt){}
 
       void print()
@@ -38,13 +44,13 @@ class TestStats {
         std::cout << "Number of True Obstacles: [NUMTRUE]\n";
         std::cout << "\t(What Should be detected)\n";
         std::cout << "Percent Truth Detected: [TRUE]\n";
-        std::cout << "\t(Total intersection divided by total true area)\n\tShould be clsoe to 1\n"
+        std::cout << "\t(Total intersection divided by total true area)\n\tShould be clsoe to 1\n";
         std::cout << "False Positive over True Volume: [FALSE]\n";
         std::cout << "\t(Total detected volume not contained in set of true obstacles)\n\t(Divided by total true volume)\n";
 
         for(size_t i = 0; i < iot.size(); i++)
         {
-          std::cout << "\n–––––––––––––––––––––––\n–––––––––––––––––––––––\n\n"
+          std::cout << "\n–––––––––––––––––––––––\n–––––––––––––––––––––––\n\n";
           std::cout << "Evaluating GPU Cloud #" << i << "\n";
           std::cout << "GPU Obstacle Detection Runtime: " << times[i]; << "\n";
           std::cout << "Number of Detected Obstacles: " << num_det_obs[i] << "\n";
