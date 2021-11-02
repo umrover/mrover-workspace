@@ -37,7 +37,7 @@ class TestStats {
 
       void print()
       {
-        std::cout.setprecision(4);
+        //std::cout.setprecision(4);
         std::cout << "Evaluating GPU Cloud #[NUMBER]\n";
         std::cout << "GPU Obstacle Detection Runtime: [TIME]\n";
         std::cout << "Number of Detected Obstacles: [NUMDET]\n";
@@ -52,7 +52,7 @@ class TestStats {
         {
           std::cout << "\n–––––––––––––––––––––––\n–––––––––––––––––––––––\n\n";
           std::cout << "Evaluating GPU Cloud #" << i << "\n";
-          std::cout << "GPU Obstacle Detection Runtime: " << times[i]; << "\n";
+          std::cout << "GPU Obstacle Detection Runtime: " << times[i] << "\n";
           std::cout << "Number of Detected Obstacles: " << num_det_obs[i] << "\n";
           std::cout << "Number of True Obstacles: " << num_true_obs[i] << "\n";
           std::cout << "Percent Truth Detected: " << iot[i] << "\n";

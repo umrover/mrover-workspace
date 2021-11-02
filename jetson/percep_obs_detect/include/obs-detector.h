@@ -101,7 +101,7 @@ class ObsDetector {
        * \param raw_data: unprocessed GPU cloud
        * \param truth_list: ground truth for comparison
        */
-      TestStats::TestStats test(std::vector<GPU_Cloud>& raw_data, const std::vector<EuclideanClusterExtractor::ObsReturn>& truth_list);
+      TestStats::TestStats test(vector<GPU_Cloud>& raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list);
 
     private:
       /**

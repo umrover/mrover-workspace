@@ -147,9 +147,9 @@ void ObsDetector::spinViewer() {
 
 }
 
-TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list)
+TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list)
 {
-  std::vector<ObsReturn> measured; // Raw data put through obs detector
+  std::vector<EuclideanClusterExtractor::ObsReturn> measured; // Raw data put through obs detector
   measured.reserve(truth_list.size());
 
   std::vector<float> truth_volumes; // Total vol of all ground truths
