@@ -10,6 +10,7 @@ class TestStats {
     std::vector<vector<float>> discrete_truths; //%-detected for each truth obs
 
   private:
+    /*
     float avg_pct_truth()
     {
       for(size_t i = 0; i < discrete_truths.size(); i++)
@@ -17,6 +18,7 @@ class TestStats {
         for(size_t j = 0;)
       }
     }
+    */
 
   public:
       TestStats()
