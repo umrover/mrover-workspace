@@ -147,16 +147,16 @@ void ObsDetector::spinViewer() {
 
 }
 
-TestStats::TestStats ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list)
+TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list)
 {
   std::vector<ObsReturn> measured; // Raw data put through obs detector
   measured.reserve(truth_list.size());
 
   std::vector<float> truth_volumes; // Total vol of all ground truths
-  volumes.reserve(truth_list.size());
+  truth_volumes.reserve(truth_list.size());
 
   std::vector<float> g_t; //Output of I / total true vol
-  intersection_totals.reserve(truth_list.size());
+  g_t.reserve(truth_list.size());
 
   std::vector<float> false_positive_vol; // False positive vol / true vol
   false_positive_vol.reserve(truth_list.size());
@@ -220,7 +220,7 @@ TestStats::TestStats ObsDetector::test(const vector<GPU_Cloud>& raw_data, const 
       /* push %-detected of each truth obs to current ObsReturn index */
       discrete_truth_pct[i].push_back(current_intersection / current_volume);
     }
-    volumes.push_back(current_volume_sum); //global volume
+    truth_volumes.push_back(current_volume_sum); //global volume
     g_t.push_back(current_intersection / current_volume); //global quasi-IOU
 
   }
