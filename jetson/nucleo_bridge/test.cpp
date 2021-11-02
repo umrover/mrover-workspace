@@ -6,7 +6,7 @@
 #define OFF         0x00,   0,  0
 #define ON          0x0F,   0,  0
 #define OPEN        0x10,   2,  0
-#define OPEN_PLUS   0x1F,   4,  0
+#define OPEN_PLUS   0x1F,   4,  4
 #define CLOSED      0x20,   8,  0
 #define CLOSED_PLUS 0x2F,   8,  4
 #define CONFIG_PWM  0x30,   2,  0
@@ -63,20 +63,21 @@ void on(int addr)
     }
 }
 
-void openPlus(int addr, float speed)
+uint32_t openPlus(int addr, float speed)
 {
     try
     {
         uint8_t buffer[4];
         memcpy(buffer, UINT8_POINTER_T(&speed), 4);
-
+        uint32_t raw_angle;
+        I2C::transact(addr, OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
         printf("test open plus transaction successful on slave %i \n", addr);
-        return;
+        return raw_angle;
     }
     catch (IOFailure &e)
     {
         printf("test open plus failed on slave %i \n", addr);
-        return;
+        return 0;
     }
 }
 
@@ -86,7 +87,6 @@ void configPWM(int addr, int max_speed)
     {
         uint8_t buffer[2];
         memcpy(buffer, UINT8_POINTER_T(&(max_speed)), 2);
-
         I2C::transact(addr, CONFIG_PWM, buffer, nullptr);
         printf("test config pwm transaction successful on slave %i \n", addr);
     }
@@ -248,7 +248,8 @@ void testOpenPlus()
     for (auto address: i2c_address)
     {
         // sets speed to half speed 
-        openPlus(address, 0.5);
+        uint32_t raw_angle = openPlus(address, 0.5);
+        printf("raw abs angle: %i \n", raw_angle);
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     }
     PRINT_TEST_END
