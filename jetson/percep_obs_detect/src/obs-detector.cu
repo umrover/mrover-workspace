@@ -149,26 +149,29 @@ void ObsDetector::spinViewer() {
 
 TestStats::TestStats ObsDetector::test(const vector<GPU_Cloud>& raw_data, const vector<ObsReturn>& truth_list)
 {
-  vector<ObsReturn> measured; // Raw data put through obs detector
+  std::vector<ObsReturn> measured; // Raw data put through obs detector
   measured.reserve(truth_list.size());
 
-  vector<float> truth_volumes; // Total vol of all ground truths
+  std::vector<float> truth_volumes; // Total vol of all ground truths
   volumes.reserve(truth_list.size());
 
-  vector<float> g_t; //Output of I / total true vol
+  std::vector<float> g_t; //Output of I / total true vol
   intersection_totals.reserve(truth_list.size());
 
-  vector<float> false_positive_vol; // False positive vol / true vol
+  std::vector<float> false_positive_vol; // False positive vol / true vol
   false_positive_vol.reserve(truth_list.size());
 
-  vector<float> clock_times;
+  std::vector<float> clock_times; // GPU obs det runtimes
   clock_times.reserve(truth_list.size());
 
-  vector<int> true_count;
+  std::vector<int> true_count; // num true obs
   true_count.reserve(truth_list.size());
 
-  vector<int> obs_count;
+  std::vector<int> obs_count; // num test obs
   obs_count.reserve(truth_list.size());
+
+  std::vector<vector<float>> discrete_truth_pct;
+  discrete_truth_pct.resize(truth_list.size());
 
 
   /* Calculate total truth volume */
@@ -186,46 +189,68 @@ TestStats::TestStats ObsDetector::test(const vector<GPU_Cloud>& raw_data, const 
     clock_count.reset();
     /* ––––––––––––––––––––––––––––––––– */
 
-    float current_volume_sum = 0;
-    float current_intersection_sum = 0;
+
+    float current_volume_sum = 0; //global volume sum
+    float current_intersection_sum = 0; //global intersection sum
     true_count.push_back(static_cast<int>(truth_list[i].obs.size()));
     obs_count.push_back(static_cast<int>(measured[i].obs.size()));
 
+    /* loop through all truth obs in vector */
     for(size_t j = 0; j < truth_list[i].obs.size(); j++)
+    {
+      float current_intersection = 0; // Intsct for each truth obs
+      float current_volume = 0; // vol of each truh obs
+
+      /* Loop through all test obs */
       for(size_t k = 0; k < measured[i].obs.size(); k++)
       {
-        current_intersection_sum +=
+        /* find intersection between test and truth */
+        /* if intersection > 0, add vol of intersection */
+        current_intersection +=
         calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]) > 0 ? calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]) : 0;
-        current_volume_sum += (truth_list[i].obs[j].maxX - truth_list[i].obs[j].minX)
-            * (truth_list[i].obs[j].maxY - truth_list[i].obs[j].minY)
-            * (truth_list[i].obs[j].maxZ - truth_list[i].obs[j].minZ);
+
       }
-    volumes.push_back(current_volume_sum);
-    g_t.push_back(current_intersection_sum / current_volume_sum);
+      // Volume of current ground truth obs
+      current_volume = (truth_list[i].obs[j].maxX - truth_list[i].obs[j].minX)
+          * (truth_list[i].obs[j].maxY - truth_list[i].obs[j].minY)
+          * (truth_list[i].obs[j].maxZ - truth_list[i].obs[j].minZ);
+
+      current_intersection_sum += current_intersection; //global int sum
+      current_volume_sum += current_volume; //global vol sum
+      /* push %-detected of each truth obs to current ObsReturn index */
+      discrete_truth_pct[i].push_back(current_intersection / current_volume);
+    }
+    volumes.push_back(current_volume_sum); //global volume
+    g_t.push_back(current_intersection / current_volume); //global quasi-IOU
 
   }
 
-  /* Now calculate false positives / ground truth */
-  for(size_t x = 0; x < truth_list.size(); x++)
+  /* Now calculate false positives over ground truth */
+  /* More or less the same calculation, but reversed */
+  for(size_t x = 0; x < truth_list.size(); x++) //loop of ObsReturns
   {
     float volsum = 0;
     float temp_intersection = 0;
     for(size_t y = 0; y < measured[x].obs.size(); y++)
       for(size_t z = 0; z < truth_list[x].obs.size(); z++)
       {
-        volsum += (measured[x].obs[y].maxX - measured[x].obs[y].minX)
-            * (measured[x].obs[y].maxY - measured[x].obs[y].minY)
-            * (measured[x].obs[y].maxZ - measured[x].obs[y].minZ);
-
         temp_intersection +=
         calculateIntersection(truth_list[x].obs[z], measured[x].obs[y]) > 0 ? calculateIntersection(truth_list[x].obs[z], measured[x].obs[y]) : 0;
       }
+      /* volume of current test obs */
+      volsum += (measured[x].obs[y].maxX - measured[x].obs[y].minX)
+          * (measured[x].obs[y].maxY - measured[x].obs[y].minY)
+          * (measured[x].obs[y].maxZ - measured[x].obs[y].minZ);
+
+      /* return total false positive volume for current obsreturn */
       false_positive_vol.push_back((volsum - temp_intersection)/truth_volumes[x]);
   }
-  return TestStats::TestStats solution(g_t,false_positive_vol,clock_times,true_count,obs_count);
+  /* return custom class ("TestStats.h") */
+  return TestStats::TestStats solution(g_t,false_positive_vol,clock_times,true_count,obs_count,discrete_truth_pct);
 }
 
 float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst) {
+    /* Find coordinates of rect prism of intersection */
     float xa = (std::max(truth_obst.minX, eval_obst.minX));
     float xb = (std::min(truth_obst.maxX, eval_obst.maxX));
     float ya = (std::max(truth_obst.minY, eval_obst.minY));
