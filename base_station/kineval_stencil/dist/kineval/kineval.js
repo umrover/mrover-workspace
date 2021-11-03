@@ -585,6 +585,14 @@ kineval.initParameters = function initParameters() {
     kineval.params.update_pd_dance = false;
     kineval.params.update_ik = false;
     kineval.params.persist_ik = false;
+    kineval.params.locked_joints = {
+        "joint_a":false, 
+        "joint_b":false,
+        "joint_c":false,
+        "joint_d":false,
+        "joint_e":false,
+        "joint_f":false,
+    }
 
 
     // initialize the active joint for user control
@@ -873,6 +881,8 @@ kineval.initGUIDisplay = function initGUIDisplay () {
 
     var primary_gui = new dat.GUI();
 
+    // console.log(kineval.params);
+
     primary_gui.add(kineval.params, 'simulation_mode').onChange(function () {
         var SimulationModeMsg = {
             'type': 'SimulationMode',
@@ -949,6 +959,30 @@ kineval.initGUIDisplay = function initGUIDisplay () {
 
     var preset_gui = new dat.GUI();
     presets_init(preset_gui);
+
+    // Allows user to control which joints are locked:
+    var locked_gui = new dat.GUI();
+
+    function sendLockedJoints() {
+        var LockedJointsMsg = {
+            'type': 'LockJoints',
+            'jointa': kineval.params.locked_joints["joint_a"],
+            'jointb': kineval.params.locked_joints["joint_b"],
+            'jointc': kineval.params.locked_joints["joint_c"],
+            'jointd': kineval.params.locked_joints["joint_d"],
+            'jointe': kineval.params.locked_joints["joint_e"],
+            'jointf': kineval.params.locked_joints["joint_f"],
+        };
+        kineval.publish('/locked_joints', LockedJointsMsg);
+    }
+
+    locked_gui.add(kineval.params.locked_joints, 'joint_a').onChange(sendLockedJoints);
+    locked_gui.add(kineval.params.locked_joints, 'joint_b').onChange(sendLockedJoints);
+    locked_gui.add(kineval.params.locked_joints, 'joint_c').onChange(sendLockedJoints);
+    locked_gui.add(kineval.params.locked_joints, 'joint_d').onChange(sendLockedJoints);
+    locked_gui.add(kineval.params.locked_joints, 'joint_e').onChange(sendLockedJoints);
+    locked_gui.add(kineval.params.locked_joints, 'joint_f').onChange(sendLockedJoints);
+    
 }
 
 kineval.initRobotLinksGeoms = function initRobotLinksGeoms() {

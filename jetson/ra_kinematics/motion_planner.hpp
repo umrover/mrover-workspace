@@ -86,7 +86,7 @@ private:
     /**
      * Generate a random config based on the joint limits
      * */
-    Vector6d sample();
+    Vector6d sample(Vector6d start, const ArmState &robot);
 
     /**
      * @param tree_root the root of the RRT tree
@@ -108,8 +108,6 @@ private:
 
     void delete_tree(Node* twig);
     void delete_tree_helper(Node* root);
-
-    Vector6d get_radians(Vector6d &config);
 
     Node* extend(ArmState &robot, Node* tree, const Vector6d &z_rand);
 

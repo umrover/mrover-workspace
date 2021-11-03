@@ -678,6 +678,7 @@
                 "lower": -3.14,
                 "upper": 3.14
             },
+            "max_speed": 0.52,
             "mass_data":{
                 "mass": 0.69,
                 "com": {
@@ -712,6 +713,7 @@
                 "lower": 0,
                 "upper": 1.57
             },
+            "max_speed": 0.52,
             "mass_data":{
                 "mass": 0,
                 "com": {
@@ -746,6 +748,7 @@
                 "lower": -2.36,
                 "upper": 2.36
             },
+            "max_speed": 0.52,
             "mass_data":{
                 "mass": 1.11,
                 "com": {
@@ -780,6 +783,7 @@
                 "lower": -3.14,
                 "upper": 3.14
             },
+            "max_speed": 0.52,
             "mass_data":{
                 "mass": 0,
                 "com": {
@@ -814,6 +818,7 @@
                 "lower": -2.36,
                 "upper": 0.87
             },
+            "max_speed": 0.52,
             "mass_data":{
                 "mass": 0,
                 "com": {
@@ -848,6 +853,7 @@
                 "lower": -3.14,
                 "upper": 3.14
             },
+            "max_speed": 0.52,
             "mass_data":{
                 "mass": 0.16,
                 "com": {

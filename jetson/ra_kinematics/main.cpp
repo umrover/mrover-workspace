@@ -14,6 +14,15 @@ class lcmHandlers {
 public:
     lcmHandlers (MRoverArm* robot_arm) : arm(robot_arm) {}
 
+    void lockJointsCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const LockJoints* lj_execute
+        )
+    {
+        arm->lock_joints_callback( channel, *lj_execute );
+    }
+
     void executeCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const string& channel,
@@ -92,6 +101,7 @@ int main() {
     lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
     lcmObject.subscribe( "/ik_enabled", &lcmHandlers::ikEnabledCallback, &handler );
     lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
+    lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
     
     thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
 

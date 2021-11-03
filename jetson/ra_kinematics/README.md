@@ -87,6 +87,11 @@ Message: [TargetOrientation.lcm](https://github.com/umrover/mrover-workspace/blo
 Publisher: base_station/kineval_stencil \
 Subscriber: jetson/ra_kinematics
 
+#### Lock Joints \[Subscriber\] "/lock_joints" ####
+Message: [LockJoints.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/LockJoints.lcm) \
+Publisher: base_station/kineval_stencil \
+Subscriber: jetson/ra_kinematics
+
 #### Preset Angles \[Subscriber\] "/preset_angles" ####
 Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
 Publisher: base_station/kineval_stencil \

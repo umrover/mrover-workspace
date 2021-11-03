@@ -13,6 +13,7 @@ using nlohmann::json;
 
 MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     state(geom),
+    solver(),
     motion_planner(state, solver),
     lcm_(lcm),
     done_previewing(false),
@@ -110,18 +111,37 @@ void MRoverArm::motion_execute_callback(string channel, MotionExecute msg) {
 
 void MRoverArm::execute_spline() { 
     double spline_t = 0.0;
+    double spline_t_iterator = 0.001;        
 
     while (true) {
         if (enable_execute) {
+                        
+            //find arm's current angles
+            vector<double> init_angles = state.get_angles_vector(); 
+            //find angles D_SPLINE_T (%) further down the spline path
+            vector<double> final_angles = motion_planner.get_spline_pos(spline_t + D_SPLINE_T);
+
+            double max_time = -1; //in ms
+
+            for (int i = 0; i < 6; ++i) {
+                //in ms, time needed to move D_SPLINE_T (%)
+                double joint_time = abs(final_angles[i] - init_angles[i]) 
+                    / (state.get_joint_max_speed(i) / 1000.0); 
+                //sets max_time to greater value
+                max_time = max_time < joint_time ? joint_time : max_time;
+            }
+
+            //determines size of iteration by dividing number of iterations by distance
+            spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
+            spline_t += spline_t_iterator;
 
             // get next set of angles in path
             vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
-            
+
             // if not in sim_mode, send physical arm a new target
             if (!sim_mode) {
                 // TODO make publish function names more intuitive?
                 publish_config(target_angles, "/ik_ra_control");
-                spline_t += 0.003;
             }
 
             // TODO: make sure transition from not self.sim_mode
@@ -130,7 +150,6 @@ void MRoverArm::execute_spline() {
             // if in sim_mode, simulate that we have gotten a new current position
             else if (sim_mode) {
                 publish_config(target_angles, "/arm_position");
-                spline_t += 0.005;
             }
 
             // break out of loop if necessary
@@ -140,11 +159,12 @@ void MRoverArm::execute_spline() {
                 ik_enabled = false;
             }
 
-            this_thread::sleep_for(chrono::milliseconds(10));
+            this_thread::sleep_for(chrono::milliseconds((int) SPLINE_WAIT_TIME));
         }
         else {
             this_thread::sleep_for(chrono::milliseconds(200));
             spline_t = 0;
+            spline_t_iterator = 0.001;
         }   
     }
 }
@@ -252,10 +272,6 @@ void MRoverArm::publish_transforms(const ArmState& pub_state) {
     lcm_.publish("/fk_transform", &tm);
 }
 
-void MRoverArm::lock_e_callback(string channel, LockJointE msg) {
-    // cout << "joint e locked" << endl;
-    // solver.lock_joint_e(msg.locked); //no function lock_joint_e in kinematics.cpp
-}
 void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {  
     ik_enabled = msg.enabled;
 
@@ -278,6 +294,40 @@ void MRoverArm::plan_path(Vector6d goal) {
 void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg) {
     sim_mode = msg.sim_mode;
     // publish_transforms(state);
+}
+
+void MRoverArm::lock_joints_callback(string channel, LockJoints msg) {
+    cout << "running lock_joints_callback\n";
+
+    auto it = state.joints.find("joint_a");
+    if (it != state.joints.end()) {
+        it->second.locked = (bool)msg.jointa;
+    }
+
+    it = state.joints.find("joint_b");
+    if (it != state.joints.end()) {
+        it->second.locked = (bool)msg.jointb;
+    }
+
+    it = state.joints.find("joint_c");
+    if (it != state.joints.end()) {
+        it->second.locked = (bool)msg.jointc;
+    }
+    
+    it = state.joints.find("joint_d");
+    if (it != state.joints.end()) {
+        it->second.locked = (bool)msg.jointd;
+    }
+    
+    it = state.joints.find("joint_e");
+    if (it != state.joints.end()) {
+        it->second.locked = (bool)msg.jointe;
+    }
+
+    it = state.joints.find("joint_f");
+    if (it != state.joints.end()) {
+        it->second.locked = (bool)msg.jointf;
+    }
 }
 
 // void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {

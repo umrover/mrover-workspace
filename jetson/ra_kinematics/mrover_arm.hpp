@@ -20,7 +20,7 @@
 #include "rover_msgs/IkEnabled.hpp"
 #include "rover_msgs/SimulationMode.hpp"
 #include "rover_msgs/IkArmControl.hpp"
-#include "rover_msgs/LockJointE.hpp"
+#include "rover_msgs/LockJoints.hpp"
 #include "rover_msgs/DebugMessage.hpp"
  
 using namespace rover_msgs;
@@ -30,7 +30,9 @@ using namespace std;
 using namespace Eigen;
  
 typedef Matrix<double, 6, 1> Vector6d;
- 
+static constexpr double D_SPLINE_T = 0.01;      //percentage of path to calculate move time
+static constexpr double SPLINE_WAIT_TIME = 10;  //in ms, wait time for execute_spline loop
+
 /**
 * This is the MRoverArm class, responsible for
 * initiating callback functions and sending calculations
@@ -96,7 +98,10 @@ public:
 
     void preview();
 
-    void lock_e_callback(string channel, LockJointE msg);
+    /**
+    * Allows for locking individual joints
+    * */
+    void lock_joints_callback(string channel, LockJoints msg);
 
     /**
      * Handle request to go to specific set of angles

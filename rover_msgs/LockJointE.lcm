@@ -1,5 +1,0 @@
-package rover_msgs;
-
-struct LockJointE {
-    boolean locked;
-}

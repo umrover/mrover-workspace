@@ -35,5 +35,7 @@ Vector3d apply_transformation(const Matrix4d &transform, const Vector3d &point);
 
 Vector6d vecTo6d(const vector<double> &inVec);
 
+vector<double> vector6dToVec(const Vector6d &inVector6d);
+
 
 #endif

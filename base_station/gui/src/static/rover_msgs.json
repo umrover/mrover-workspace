@@ -321,6 +321,32 @@
             "locked"
         ]
     ],
+    "LockJoints": [
+        [
+            "boolean",
+            "jointa"
+        ],
+        [
+            "boolean",
+            "jointb"
+        ],
+        [
+            "boolean",
+            "jointc"
+        ],
+        [
+            "boolean",
+            "jointd"
+        ],
+        [
+            "boolean",
+            "jointe"
+        ],
+        [
+            "boolean",
+            "jointf"
+        ]
+    ],
     "MicroCam": [
         [
             "string",
