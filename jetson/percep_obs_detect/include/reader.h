@@ -1,3 +1,5 @@
+#pragma once
+
 #include <fstream>
 #include <glm/vec4.hpp> // glm::vec4
 #include <iostream>
