@@ -128,12 +128,12 @@ TEST(fk_test) {
             0,          0,           0,           1;
 
     // Assert links are being created accurately
-    ASSERT_TRUE(transMatAlmostEqual(a_b, arm.get_link_xform("a-b"), epsilon));
-    ASSERT_TRUE(transMatAlmostEqual(b_c, arm.get_link_xform("b-c"), epsilon));
-    ASSERT_TRUE(transMatAlmostEqual(c_d, arm.get_link_xform("c-d"), epsilon));
-    ASSERT_TRUE(transMatAlmostEqual(d_e, arm.get_link_xform("d-e"), epsilon));
-    ASSERT_TRUE(transMatAlmostEqual(e_f, arm.get_link_xform("e-f"), epsilon));
-    ASSERT_TRUE(transMatAlmostEqual(hand, arm.get_link_xform("hand"), epsilon));
+    ASSERT_TRUE(transMatAlmostEqual(a_b, arm.get_link_xform(1), epsilon));
+    ASSERT_TRUE(transMatAlmostEqual(b_c, arm.get_link_xform(2), epsilon));
+    ASSERT_TRUE(transMatAlmostEqual(c_d, arm.get_link_xform(3), epsilon));
+    ASSERT_TRUE(transMatAlmostEqual(d_e, arm.get_link_xform(4), epsilon));
+    ASSERT_TRUE(transMatAlmostEqual(e_f, arm.get_link_xform(5), epsilon));
+    ASSERT_TRUE(transMatAlmostEqual(hand, arm.get_link_xform(6), epsilon));
     ASSERT_TRUE(transMatAlmostEqual(ef, arm.get_ef_transform(), epsilon));
 
     // Assert joints are being created accurately:
@@ -144,12 +144,12 @@ TEST(fk_test) {
     Vector3d joint_e(-0.0443284,  0.13792929,  0.96333666);
     Vector3d joint_f(-0.0236782,  0.0953546,   1.1250297);
     
-    ASSERT_TRUE(vec3dAlmostEqual(joint_a, arm.get_joint_pos_world("joint_a"), epsilon));
-    ASSERT_TRUE(vec3dAlmostEqual(joint_b, arm.get_joint_pos_world("joint_b"), epsilon));
-    ASSERT_TRUE(vec3dAlmostEqual(joint_c, arm.get_joint_pos_world("joint_c"), epsilon));
-    ASSERT_TRUE(vec3dAlmostEqual(joint_d, arm.get_joint_pos_world("joint_d"), epsilon));
-    ASSERT_TRUE(vec3dAlmostEqual(joint_e, arm.get_joint_pos_world("joint_e"), epsilon));
-    ASSERT_TRUE(vec3dAlmostEqual(joint_f, arm.get_joint_pos_world("joint_f"), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_a, arm.get_joint_pos_world(0), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_b, arm.get_joint_pos_world(1), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_c, arm.get_joint_pos_world(2), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_d, arm.get_joint_pos_world(3), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_e, arm.get_joint_pos_world(4), epsilon));
+    ASSERT_TRUE(vec3dAlmostEqual(joint_f, arm.get_joint_pos_world(5), epsilon));
     // FK working , yay!!!
 }
 
@@ -342,10 +342,7 @@ TEST(ik_test_lock) {
     target_pos.tail(3) = arm.get_ef_ang_world();
 
     // Lock joint c
-    auto it = arm.joints.find("joint_c");
-    if (it != arm.joints.end()) {
-        it->second.locked = true;
-    }
+    arm.set_joint_locked(2, true);
 
     // Reset arm to starting position.
     arm.set_joint_angles(start);

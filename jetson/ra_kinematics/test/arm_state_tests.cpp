@@ -33,12 +33,12 @@ TEST(joint_creation_test) {
     double joint_c_lower_limit = -2.36;
     double joint_c_upper_limit = 2.36;
 
-    ASSERT_EQUAL(joint_c_local, arm.get_joint_pos_local("joint_c"));
-    ASSERT_EQUAL(joint_c_com, arm.get_joint_com("joint_c"));
-    ASSERT_EQUAL(joint_c_axis, arm.get_joint_axis("joint_c"));
+    ASSERT_EQUAL(joint_c_local, arm.get_joint_pos_local(2));
+    ASSERT_EQUAL(joint_c_com, arm.get_joint_com(2));
+    ASSERT_EQUAL(joint_c_axis, arm.get_joint_axis(2));
 
-    ASSERT_EQUAL(joint_c_lower_limit, arm.get_joint_limits("joint_c")["lower"]);
-    ASSERT_EQUAL(joint_c_upper_limit, arm.get_joint_limits("joint_c")["upper"]);
+    ASSERT_EQUAL(joint_c_lower_limit, arm.get_joint_limits(2)[0]);
+    ASSERT_EQUAL(joint_c_upper_limit, arm.get_joint_limits(2)[1]);
 }
 
 TEST(avoidance_link_creation_test) {
@@ -61,20 +61,14 @@ TEST(set_joint_angles_test) {
     // Set the angles on the arm to be from the set_angles vector
     arm.set_joint_angles(set_angles);
     // Retrieve the new arm angles and make sure they are identical to set_angles
-    map<string, double> return_angles_map = arm.get_joint_angles();
-    vector<double> return_angles_vec;
-    int ind = 0;
-    // print contents of return_angles_map:
-    for (auto it = return_angles_map.begin(); it != return_angles_map.end(); ++it) {
-        cout << it->first << " " << it->second << "\n";
+    vector<double> return_angles = arm.get_joint_angles();
+    // print contents of return_angles:
+    for (double x : return_angles) {
+        cout << x << "\n";
     }
-    // Set return angles vec:
-    for (auto it = return_angles_map.begin(); it != return_angles_map.end(); ++it) {
-        return_angles_vec.push_back(it->second);
-        ++ind;
-    }
+
     for (int i = 0; i < 6; ++i) {
-        ASSERT_EQUAL(set_angles[i], return_angles_vec[i]);
+        ASSERT_EQUAL(set_angles[i], return_angles[i]);
     }
 }
 

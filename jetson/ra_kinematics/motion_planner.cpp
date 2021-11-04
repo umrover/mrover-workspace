@@ -9,12 +9,12 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in)
         solver(solver_in) { 
     step_limits.reserve(6);
 
-    // add limits for each joint to joint_limits
-    for (string &joint : robot.get_all_joints()) {
-      map<string, double> limits = robot.get_joint_limits(joint);
+    // add limits for each joint to joint_limits, after converting to degrees
+    for (size_t i = 0; i < 6; ++i) {
+      vector<double> limits = robot.get_joint_limits(i);
 
       joint_limits.push_back(limits);
-      step_limits.push_back(robot.get_joint_max_speed(joint) / 50.0); //TODO scale if path planning takes too long
+      step_limits.push_back(robot.get_joint_max_speed(i) / 50.0); //TODO scale if path planning takes too long
     }
 
     //time_t timer;
@@ -25,14 +25,13 @@ Vector6d MotionPlanner::sample(Vector6d start, const ArmState &robot) {
     Vector6d z_rand;
 
     for (size_t i = 0; i < joint_limits.size(); ++i) {
-        auto it = robot.joints.find(robot.get_all_joints()[i]);
-        if (it != robot.joints.end() && it->second.locked) {
-            //if joint is locked, z_rand matches start
+        if (robot.get_joint_locked(i)) {
+            // if joint is locked, z_rand matches start
             z_rand(i) = start(i);
         }
         else { 
             // create distribution of angles between limits and choose an angle
-            std::uniform_real_distribution<double> distr(joint_limits[i]["lower"], joint_limits[i]["upper"]);
+            std::uniform_real_distribution<double> distr(joint_limits[i][0], joint_limits[i][1]);
             z_rand(i) = distr(eng);
         }
     }
@@ -193,12 +192,12 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
 
     // retrieve starting and target joint angles
     Vector6d start;
-    start(0) = robot.get_joint_angles()["joint_a"];
-    start(1) = robot.get_joint_angles()["joint_b"];
-    start(2) = robot.get_joint_angles()["joint_c"];
-    start(3) = robot.get_joint_angles()["joint_d"];
-    start(4) = robot.get_joint_angles()["joint_e"];
-    start(5) = robot.get_joint_angles()["joint_f"];
+    start(0) = robot.get_joint_angle(0);
+    start(1) = robot.get_joint_angle(1);
+    start(2) = robot.get_joint_angle(2);
+    start(3) = robot.get_joint_angle(3);
+    start(4) = robot.get_joint_angle(4);
+    start(5) = robot.get_joint_angle(5);
 
     Vector6d target = target_angles;
 

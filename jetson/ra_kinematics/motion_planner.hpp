@@ -46,9 +46,9 @@ private:
     vector<tk::spline> splines;
 
     /**
-     * joint_limits[i]["lower | upper"] returns i'th limit in degrees
+     * joint_limits[i][0 | 1] returns i'th lower/upper limit in degrees
      * */
-    vector< map<string, double> > joint_limits;
+    vector< vector<double> > joint_limits;
 
     vector<double> step_limits;
 

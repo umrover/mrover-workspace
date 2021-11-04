@@ -17,7 +17,7 @@
         "chassis-a": {
             "visual": {
                 "origin": {
-                    "joint_origin": "joint_a",
+                    "joint_origin": 0,
                     "xyz": [
                         0,
                         0,
@@ -72,7 +72,7 @@
         "a-b": {
             "visual": {
                 "origin": {
-                    "joint_origin": "joint_a",
+                    "joint_origin": 0,
                     "xyz": [
                         0,
                         0,
@@ -148,7 +148,7 @@
         "b-c": {
             "visual": {
                 "origin": {
-                    "joint_origin": "joint_b",
+                    "joint_origin": 1,
                     "xyz": [
                         0,
                         0.03429,
@@ -278,7 +278,7 @@
         "c-d": {
             "visual": {
                 "origin": {
-                    "joint_origin": "joint_c",
+                    "joint_origin": 2,
                     "xyz": [
                         -0.05840,
                         0.58039,
@@ -353,7 +353,7 @@
         "d-e": {
             "visual": {
                 "origin": {
-                    "joint_origin": "joint_d",
+                    "joint_origin": 3,
                     "xyz": [
                         -0.044323,
                         0.0583946,
@@ -453,7 +453,7 @@
         "e-f": {
             "visual": {
                 "origin": {
-                    "joint_origin": "joint_e",
+                    "joint_origin": 4,
                     "xyz": [
                         0.0583946,
                         0.426847,
@@ -511,7 +511,7 @@
         "hand": {
             "visual": {
                 "origin": {
-                    "joint_origin": "joint_f",
+                    "joint_origin": 5,
                     "xyz": [
                         0.0206502,
                         0.1647444,

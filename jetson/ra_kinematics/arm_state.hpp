@@ -3,7 +3,6 @@
 
 #include <fstream>
 #include <vector>
-#include <map>
 #include <iostream>
 
 #include "nlohmann/json.hpp"
@@ -41,8 +40,8 @@ private:
             rot_axis << joint_geom["axis"][0], joint_geom["axis"][1], joint_geom["axis"][2];
 
             // TODO check with RA whether joint limits are correct
-            joint_limits["lower"] = joint_geom["limit"]["lower"];
-            joint_limits["upper"] = joint_geom["limit"]["upper"];
+            joint_limits.push_back(joint_geom["limit"]["lower"]);
+            joint_limits.push_back(joint_geom["limit"]["upper"]);
 
             child_link = joint_geom["child"];
 
@@ -74,15 +73,15 @@ private:
         Vector3d local_center_of_mass;
         Vector3d rot_axis;
         Vector3d joint_axis_world;
-        map<string, double> joint_limits;
+        vector<double> joint_limits;
         double max_speed; // radians/s
         bool locked;
     };
 
     struct Avoidance_Link {
 
-        Avoidance_Link(string joint_origin_name, json &link_json, vector<size_t> collisions) : 
-                           joint_origin(joint_origin_name), collisions(collisions) {
+        Avoidance_Link(size_t joint_origin_index, json &link_json, vector<size_t> collisions) : 
+                           joint_origin(joint_origin_index), collisions(collisions) {
 
             type = link_json["type"];
             radius = link_json["radius"];
@@ -101,7 +100,7 @@ private:
         }
 
         int link_num;
-        string joint_origin;
+        size_t joint_origin;
         string type;
         vector<Vector3d> points;
         double radius;
@@ -110,6 +109,9 @@ private:
 
     vector<string> joint_names;
     vector<string> link_names;
+
+    vector<Joint> joints;
+    vector<Link> links;
 
     vector<Avoidance_Link> collision_avoidance_links; // could make this an array
     // TODO: Change num_collision_parts value as necessary
@@ -130,35 +132,33 @@ private:
     void set_ef_xyz(vector<double> ef_xyz_vec);
 
 public:
-    map<string, Joint> joints;
-    map<string, Link> links;
     ArmState(json &geom);
 
     vector<string> get_all_joints() const;
 
-    Vector3d get_joint_com(const string &joint) const;
+    Vector3d get_joint_com(size_t joint_index) const;
 
-    double get_joint_mass(const string &joint) const;
+    double get_joint_mass(size_t joint_index) const;
 
-    Vector3d get_joint_axis(const string &joint) const;
+    Vector3d get_joint_axis(size_t joint_index) const;
 
-    Vector3d get_joint_axis_world(const string &joint) const;
+    Vector3d get_joint_axis_world(size_t joint_index) const;
 
-    map<string, double> get_joint_limits(string joint) const;
+    vector<double> get_joint_limits(size_t joint_index) const;
 
-    Matrix4d get_joint_transform(const string &joint) const;
+    Matrix4d get_joint_transform(size_t joint_index) const;
 
-    void set_joint_transform(const string &joint, const Matrix4d &xform);
+    void set_joint_transform(size_t joint_index, const Matrix4d &xform);
 
-    void set_link_transform(const string &link, const Matrix4d &xform);
+    void set_link_transform(size_t link_index, const Matrix4d &xform);
 
     Matrix4d get_ef_transform() const;
 
     void set_ef_transform(const Matrix4d &xform);
 
-    Vector3d get_joint_pos_world(const string &joint) const;
+    Vector3d get_joint_pos_world(size_t joint_index) const;
 
-    Vector3d get_joint_pos_local(const string &joint) const;
+    Vector3d get_joint_pos_local(size_t joint_index) const;
 
     Vector3d get_ef_pos_world() const;
 
@@ -166,9 +166,7 @@ public:
 
     vector<double> get_ef_pos_and_euler_angles() const;
 
-    map<string, double> get_joint_angles() const;
-
-    vector<double> get_angles_vector() const;
+    vector<double> get_joint_angles() const;
 
     void set_joint_angles(const vector<double> &angles);
 
@@ -186,21 +184,25 @@ public:
 
     int num_joints() const;
 
-    string get_child_link(const string &joint) const;
+    string get_child_link(size_t joint_index) const;
 
-    Vector3d get_joint_torque(const string &joint) const;
+    Vector3d get_joint_torque(size_t joint_index) const;
 
-    void set_joint_torque(const string &joint, const Vector3d &torque);
+    void set_joint_torque(size_t joint_index, const Vector3d &torque);
 
-    Vector3d get_link_point_world(const string &link);
+    Vector3d get_link_point_world(size_t link_index);
 
-    Matrix4d get_link_xform(const string &link);
+    Matrix4d get_link_xform(size_t link_index);
 
     Vector3d get_ef_xyz() const;
 
-    double get_joint_max_speed(const string &joint) const;
-
     double get_joint_max_speed(size_t joint_index) const;
+
+    bool get_joint_locked(size_t joint_index) const;
+
+    void set_joint_locked(size_t joint_index, bool is_locked);
+
+    double get_joint_angle(size_t joint_index) const;
 };
 
 #endif

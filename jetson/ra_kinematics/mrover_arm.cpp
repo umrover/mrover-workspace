@@ -118,7 +118,7 @@ void MRoverArm::execute_spline() {
         if (enable_execute) {
                         
             //find arm's current angles
-            vector<double> init_angles = state.get_angles_vector(); 
+            vector<double> init_angles = state.get_joint_angles(); 
             //find angles D_SPLINE_T (%) further down the spline path
             vector<double> final_angles = motion_planner.get_spline_pos(spline_t + D_SPLINE_T);
 
@@ -195,11 +195,7 @@ void MRoverArm::preview() {
     previewing = true;
 
     // backup angles
-    vector<double> backup;
-    map<string, double> start = state.get_joint_angles();
-    for (string& joint_name : state.get_all_joints()) {
-        backup.push_back(start[joint_name]);
-    }
+    vector<double> backup = state.get_joint_angles();
 
     double num_steps = 500.0;
     double t = 0.0;
@@ -266,12 +262,12 @@ void MRoverArm::target_angles_callback(string channel, ArmPosition msg) {
 
 void MRoverArm::publish_transforms(const ArmState& pub_state) {
     FKTransform tm;
-    matrix_helper(tm.transform_a, pub_state.get_joint_transform("joint_a"));
-    matrix_helper(tm.transform_b, pub_state.get_joint_transform("joint_b"));
-    matrix_helper(tm.transform_c, pub_state.get_joint_transform("joint_c"));
-    matrix_helper(tm.transform_d, pub_state.get_joint_transform("joint_d"));
-    matrix_helper(tm.transform_e, pub_state.get_joint_transform("joint_e"));
-    matrix_helper(tm.transform_f, pub_state.get_joint_transform("joint_f"));
+    matrix_helper(tm.transform_a, pub_state.get_joint_transform(0));
+    matrix_helper(tm.transform_b, pub_state.get_joint_transform(1));
+    matrix_helper(tm.transform_c, pub_state.get_joint_transform(2));
+    matrix_helper(tm.transform_d, pub_state.get_joint_transform(3));
+    matrix_helper(tm.transform_e, pub_state.get_joint_transform(4));
+    matrix_helper(tm.transform_f, pub_state.get_joint_transform(5));
 
     lcm_.publish("/fk_transform", &tm);
 }
@@ -303,35 +299,12 @@ void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg) {
 void MRoverArm::lock_joints_callback(string channel, LockJoints msg) {
     cout << "running lock_joints_callback\n";
 
-    auto it = state.joints.find("joint_a");
-    if (it != state.joints.end()) {
-        it->second.locked = (bool)msg.jointa;
-    }
-
-    it = state.joints.find("joint_b");
-    if (it != state.joints.end()) {
-        it->second.locked = (bool)msg.jointb;
-    }
-
-    it = state.joints.find("joint_c");
-    if (it != state.joints.end()) {
-        it->second.locked = (bool)msg.jointc;
-    }
-    
-    it = state.joints.find("joint_d");
-    if (it != state.joints.end()) {
-        it->second.locked = (bool)msg.jointd;
-    }
-    
-    it = state.joints.find("joint_e");
-    if (it != state.joints.end()) {
-        it->second.locked = (bool)msg.jointe;
-    }
-
-    it = state.joints.find("joint_f");
-    if (it != state.joints.end()) {
-        it->second.locked = (bool)msg.jointf;
-    }
+    state.set_joint_locked(0, (bool)msg.jointa);
+    state.set_joint_locked(1, (bool)msg.jointb);
+    state.set_joint_locked(2, (bool)msg.jointc);
+    state.set_joint_locked(3, (bool)msg.jointd);
+    state.set_joint_locked(4, (bool)msg.jointe);
+    state.set_joint_locked(5, (bool)msg.jointf);
 }
 
 // void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {

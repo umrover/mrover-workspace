@@ -10,26 +10,29 @@ using namespace std;
 // Tested in joint creation test
 ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix4d::Identity()) {
 
+    joints.reserve(6);
+    links.reserve(7);
+    
     // Create all Joint instances from mrover_arm json
     set_ef_xyz(geom["endeffector"]["origin"]["xyz"]);
 
     json joints_json = geom["joints"];
-    for (json::iterator it = joints_json.begin(); it != joints_json.end(); it++) {
+    for (json::iterator it = joints_json.begin(); it != joints_json.end(); ++it) {
         add_joint(it.key(), it.value());
     }
 
     // Create all Avoidance_Link instances from mrover_arm json (for collision avoidance)
     json links_json = geom["links"];
-    for (json::iterator it = links_json.begin(); it != links_json.end(); it++) {
+    for (json::iterator it = links_json.begin(); it != links_json.end(); ++it) {
         // Create the link object:
-        links[it.key()].name = it.key();
-        links[it.key()].global_transform = Matrix4d::Identity();
+        Link link = {it.key(), Matrix4d::Identity()};
+        links.push_back(link);
 
-        string joint_origin = it.value()["visual"]["origin"]["joint_origin"];
+        size_t joint_origin = it.value()["visual"]["origin"]["joint_origin"];
         vector<size_t> collisions = it.value()["collisions"];
         
         json link_shapes = it.value()["link_shapes"];
-        for (json::iterator jt = link_shapes.begin(); jt != link_shapes.end(); jt++) {
+        for (json::iterator jt = link_shapes.begin(); jt != link_shapes.end(); ++jt) {
             try {
                 collision_avoidance_links.emplace_back(joint_origin, jt.value(), collisions);
             }
@@ -51,54 +54,51 @@ bool ArmState::Link_Comp::operator()(const Avoidance_Link &a, const Avoidance_Li
 
 // Tested in joint_creation_test
 void ArmState::add_joint(string name, json &joint_geom) {
-    // Add joint with given configuration to map of joints - used during initialization
-    // Joint(name, joint_geom);
-    joints.emplace(std::piecewise_construct, std::forward_as_tuple(name), std::forward_as_tuple(name, joint_geom));
+    // Add joint with given configuration to vector of joints - used during initialization
+    joints.emplace_back(name, joint_geom);
     joint_names.push_back(name);
 }
 
-Vector3d ArmState::get_joint_pos_local(const string &joint) const {
+Vector3d ArmState::get_joint_pos_local(size_t joint_index) const {
     // Return joint position relatice to local frame (position relative to previous joint)
 
     // TODO write function to handle possible exceptions with call to at()
-    return joints.at(joint).pos_local;
+    return joints[joint_index].pos_local;
 }
 
-Vector3d ArmState::get_joint_axis(const string &joint) const {
+Vector3d ArmState::get_joint_axis(size_t joint_index) const {
     // Return local axis of rotation
-    return joints.at(joint).rot_axis;
+    return joints[joint_index].rot_axis;
 }
 
-Vector3d ArmState::get_joint_com(const string &joint) const {
+Vector3d ArmState::get_joint_com(size_t joint_index) const {
     // Return center of mass of specific link relative to the joint origin
-    Matrix4d transform = get_joint_transform(joint);
+    Matrix4d transform = get_joint_transform(joint_index);
     Matrix4d translation = Matrix4d::Identity();
-    translation.block(0,3,3,1) = joints.find(joint)->second.local_center_of_mass;
+    translation.block(0,3,3,1) = joints[joint_index].local_center_of_mass;
     Matrix4d output = transform*translation;
     Vector3d out_vec(output(0,3), output(1,3), output(2,3));
     return out_vec;
 }
 
-double ArmState::get_joint_mass(const string &joint) const {
+double ArmState::get_joint_mass(size_t joint_index) const {
     // TODO: Consider adding mass to the joint struct?
-    return joints.at(joint).mass;
+    return joints[joint_index].mass;
 }
 
-map<string, double> ArmState::get_joint_limits(string joint) const {
-    // Returns a map of the joint rotation limits in radians.
-    // Map should have a "lower" value and "upper" value.
-    return joints.at(joint).joint_limits;
+vector<double> ArmState::get_joint_limits(size_t joint_index) const {
+    // Returns a vector of the joint rotation limits in radians.
+    // Vector should have a "lower" value (index 0) and "upper" value (index 1).
+    return joints[joint_index].joint_limits;
 }
 // Tested in set_joint_angles_test
 void ArmState::set_joint_angles(const vector<double> &angles) {
     // TODO consider clipping invalid angles or throwing error
 
     // Iterate through all angles and joints adding the angles to each corresponding joint.
-    // angles vector should be same size as internal joints map.
-    int i = 0;
-    for (auto it = joints.begin(); it != joints.end(); ++it) {
-        it->second.angle = angles[i];
-        ++i;
+    // angles vector should be same size as internal joints vector.
+    for (size_t i = 0; i < 6; ++i) {
+        joints[i].angle = angles[i];
     }
 }
 
@@ -107,20 +107,20 @@ vector<string> ArmState::get_all_joints() const {
     return joint_names;
 }
 
-Vector3d ArmState::get_joint_axis_world(const string &joint) const {
-    return joints.at(joint).joint_axis_world;
+Vector3d ArmState::get_joint_axis_world(size_t joint_index) const {
+    return joints[joint_index].joint_axis_world;
 }
 
-Matrix4d ArmState::get_joint_transform(const string &joint) const {
-    return joints.at(joint).global_transform;
+Matrix4d ArmState::get_joint_transform(size_t joint_index) const {
+    return joints[joint_index].global_transform;
 }
 
-void ArmState::set_joint_transform(const string &joint, const Matrix4d &xform) {
-    joints.at(joint).global_transform = xform;
+void ArmState::set_joint_transform(size_t joint_index, const Matrix4d &xform) {
+    joints[joint_index].global_transform = xform;
 }
 
-void ArmState::set_link_transform(const string &link, const Matrix4d &xform) {
-    links[link].global_transform = xform;
+void ArmState::set_link_transform(size_t link_index, const Matrix4d &xform) {
+    links[link_index].global_transform = xform;
 }
 
 Matrix4d ArmState::get_ef_transform() const {
@@ -131,8 +131,8 @@ void ArmState::set_ef_transform(const Matrix4d &xform) {
     ef_xform = xform;
 }
 
-Vector3d ArmState::get_joint_pos_world(const string &joint) const {
-    Matrix4d joint_xform = get_joint_transform(joint);
+Vector3d ArmState::get_joint_pos_world(size_t joint_index) const {
+    Matrix4d joint_xform = get_joint_transform(joint_index);
     Vector3d joint_pos(joint_xform(0,3), joint_xform(1,3), joint_xform(2,3));
     return joint_pos;
 }
@@ -163,19 +163,11 @@ vector<double> ArmState::get_ef_pos_and_euler_angles() const {
 }
 
 // Tested in set_joint_angles_test
-map<string, double> ArmState::get_joint_angles() const {
-    map<string, double> angles;
-    for (auto it = joints.begin(); it != joints.end(); ++it) {
-        angles[it->first] = it->second.angle;
-    }
-    return angles;
-}
-
-vector<double> ArmState::get_angles_vector() const {
+vector<double> ArmState::get_joint_angles() const {
     vector<double> angles;
     angles.reserve(6);
-    for (auto it = joints.begin(); it != joints.end(); ++it) {
-        angles.push_back(it->second.angle);
+    for (size_t i = 0; i < 6; ++i) {
+        angles.push_back(joints[i].angle);
     }
     return angles;
 }
@@ -221,6 +213,12 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) const {
         closest_dist = (link_1.points[0] - link_2.points[0]).norm();
     }
 
+    cout << "Link 1 type: " << link_1.type << "\n";
+    cout << "Link 2 type: " << link_2.type << "\n";
+    cout << "Link 1 radius: " << link_1.radius << "\n";
+    cout << "Link 2 radius: " << link_2.radius << "\n";
+    cout << "Closest Distance : " << closest_dist << "\n";
+
     return closest_dist < (link_1.radius + link_2.radius);
 }
 
@@ -231,6 +229,8 @@ bool ArmState::obstacle_free() {
     for (size_t i = 1; i < collision_avoidance_links.size(); ++i) {
         for (size_t possible_collision : collision_avoidance_links[i].collisions) {
             if (link_link_check(i, possible_collision)) {
+                cout << "obstacle free i: " << i << "\n";
+                cout << "obstacle free possible_collision: " << possible_collision << "\n";
                 return false;
             }
         }
@@ -243,28 +243,28 @@ int ArmState::num_joints() const {
     return joints.size();
 }
 
-string ArmState::get_child_link(const string &joint) const {
-    return joints.at(joint).child_link;
+string ArmState::get_child_link(size_t joint_index) const {
+    return joints[joint_index].child_link;
 }
 
-Vector3d ArmState::get_joint_torque(const string &joint) const {
-    return joints.at(joint).torque;
+Vector3d ArmState::get_joint_torque(size_t joint_index) const {
+    return joints[joint_index].torque;
 }
 
-void ArmState::set_joint_torque(const string &joint, const Vector3d &torque) {
-    joints.at(joint).torque = torque;
+void ArmState::set_joint_torque(size_t joint_index, const Vector3d &torque) {
+    joints[joint_index].torque = torque;
 }
 
-Vector3d ArmState::get_link_point_world(const string &link) {
+Vector3d ArmState::get_link_point_world(size_t link_index) {
     Vector3d link_point_world;
-    link_point_world(0) = links[link].global_transform(0,3);
-    link_point_world(1) = links[link].global_transform(1,3);
-    link_point_world(2) = links[link].global_transform(2,3);
+    link_point_world(0) = links[link_index].global_transform(0,3);
+    link_point_world(1) = links[link_index].global_transform(1,3);
+    link_point_world(2) = links[link_index].global_transform(2,3);
     return link_point_world;
 }
 
-Matrix4d ArmState::get_link_xform(const string &link) {
-    return links[link].global_transform;
+Matrix4d ArmState::get_link_xform(size_t link_index) {
+    return links[link_index].global_transform;
 }
 
 Vector3d ArmState::get_ef_xyz() const {
@@ -277,10 +277,18 @@ void ArmState::set_ef_xyz(vector<double> ef_xyz_vec){
     ef_xyz(2) = ef_xyz_vec[2];
 }
 
-double ArmState::get_joint_max_speed(const string &joint) const {
-    return joints.at(joint).max_speed;
+double ArmState::get_joint_max_speed(size_t joint_index) const {
+    return joints[joint_index].max_speed;
 }
 
-double ArmState::get_joint_max_speed(size_t joint_index) const {
-    return joints.at(joint_names[joint_index]).max_speed;
+bool ArmState::get_joint_locked(size_t joint_index) const {
+    return joints[joint_index].locked;
+}
+
+void ArmState::set_joint_locked(size_t joint_index, bool locked) {
+    joints[joint_index].locked = locked;
+}
+
+double ArmState::get_joint_angle(size_t joint_index) const {
+    return joints[joint_index].angle;
 }

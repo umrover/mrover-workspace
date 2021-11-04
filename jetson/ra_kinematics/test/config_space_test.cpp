@@ -21,7 +21,7 @@ private:
 
     size_t num_valid_points;
     size_t num_joints;
-    vector< map<string, double> > limits;
+    vector< vector<double> > limits;
 
 public:
 
@@ -33,10 +33,9 @@ public:
 
         vector<double> curr_angles;
 
-        vector<string> joint_names = arm.get_all_joints();
-        for (const string& joint : joint_names) {
-            limits.push_back(arm.get_joint_limits(joint));
-            curr_angles.push_back(arm.get_joint_limits(joint)["lower"]);
+        for (size_t i = 0; i < 6; ++i) {
+            limits.push_back(arm.get_joint_limits(i));
+            curr_angles.push_back(arm.get_joint_limits(i)[0]);
         }
 
         increment_loop(arm, solver, file, 0, curr_angles);
@@ -152,12 +151,12 @@ private:
             return;
         }
 
-        while (curr_angles[current_joint] <= limits[current_joint]["upper"]) {
+        while (curr_angles[current_joint] <= limits[current_joint][1]) {
             increment_loop(arm, solver, file, current_joint + 1, curr_angles);
             curr_angles[current_joint] += ANGLE_INCREMENT;
         }
 
-        curr_angles[current_joint] = limits[current_joint]["lower"];
+        curr_angles[current_joint] = limits[current_joint][0];
     }
 
 };

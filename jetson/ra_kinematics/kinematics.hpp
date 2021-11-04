@@ -46,8 +46,8 @@ private:
      * */
     void recover_from_backup(ArmState &robot_state);
 
-    Matrix4d apply_joint_xform(const ArmState &robot_state, const string &joint, double theta);
-    Matrix4d get_joint_xform(const ArmState &robot_state, const string &joint, double theta);
+    Matrix4d apply_joint_xform(const ArmState &robot_state, size_t joint_index, double theta);
+    Matrix4d get_joint_xform(const ArmState &robot_state, size_t joint_index, double theta);
 
     void IK_step(ArmState &robot_state, const Vector6d &d_ef, bool use_euler_angles);
 
