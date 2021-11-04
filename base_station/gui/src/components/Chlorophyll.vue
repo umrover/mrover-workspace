@@ -4,13 +4,13 @@
       <h3> Chlorophyll Data</h3>
     </div>
 
-    <label for="toggle_button" :class="{'active': whiteLEDS == 1}" class="toggle__button">
-        <span v-if="whiteLEDS == 1" class="toggle__label" >White LEDs On</span>
-        <span v-if="whiteLEDS == 0" class="toggle__label" >White LEDs Off</span>
+    <label for="toggle_button" :class="{'active': whiteLEDS == 0}" class="toggle__button">
+        <span v-if="whiteLEDS == 0" class="toggle__label" >White LEDs On</span>
+        <span v-if="whiteLEDS == 1" class="toggle__label" >White LEDs Off</span>
 
         <input type="checkbox" id="toggle_button" v-model="checkedValue">
-        <span class="toggle__switch" v-if="whiteLEDS == 1" v-on:click="whiteLEDS=0,setPart(mosfetIDs.sciWLed,false)"></span>
-        <span class="toggle__switch" v-if="whiteLEDS == 0" v-on:click="whiteLEDS=1,setPart(mosfetIDs.sciWLed,true)"></span>
+        <span class="toggle__switch" v-if="whiteLEDS == 1" v-on:click="whiteLEDS=0,setPart(mosfetIDs.sciWLed,true)"></span>
+        <span class="toggle__switch" v-if="whiteLEDS == 0" v-on:click="whiteLEDS=1,setPart(mosfetIDs.sciWLed,false)"></span>
     </label>
 
     <!-- div class="box1" v-if="whiteLEDS == 0">
