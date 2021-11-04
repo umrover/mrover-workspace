@@ -11,18 +11,24 @@ find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 
+
 include_directories(SYSTEM ${ZED_INCLUDE_DIRS})
 include_directories(SYSTEM ${GLEW_INCLUDE_DIRS})
 include_directories(SYSTEM ${GLUT_INCLUDE_PATH})
 include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(/usr/local/cuda-10.0/samples/common/inc)
+include_directories($ENV{HOME}/.mrover/build_env/include)
+
 
 link_directories(${ZED_LIBRARY_DIR})
 link_directories(${GLEW_LIBRARY_DIRS})
 link_directories(${GLUT_LIBRARY_DIRS})
 link_directories(${OpenGL_LIBRARY_DIRS})
 link_directories(${CUDA_LIBRARY_DIRS})
+link_directories($ENV{HOME}/.mrover/build_env/lib)
+link_directories($ENV{HOME}/.mrover/build_env/lib64)
+
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/.mrover/build_env/bin/)
 
@@ -34,6 +40,8 @@ target_link_libraries(jetson_percep_obs_detect
                         ${OPENGL_LIBRARIES}
                         ${GLUT_LIBRARY}
                         ${GLEW_LIBRARIES})
+target_link_libraries (jetson_percep_obs_detect lcm)
+
 target_compile_options(jetson_percep_obs_detect PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
                        #-res-usage
                        --use_fast_math

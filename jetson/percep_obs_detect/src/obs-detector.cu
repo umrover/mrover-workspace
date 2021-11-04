@@ -106,6 +106,7 @@ void ObsDetector::update(GPU_Cloud pc) {
         //viewer.remove
         //viewer.updatePointCloud(pc);
     }
+    populateMessage(9, 10, 11);
 
 
     // Recording
@@ -119,8 +120,8 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
     this->leftBearing = leftBearing;
     this->rightBearing = rightBearing;
     this->distance = distance;
-    //obstacleMessage.leftBearing = leftBearing;
-    //lcm_.publish("/obstacle", &obstacleMessage);
+    obstacleMessage.bearing = leftBearing;
+    lcm_.publish("/obstacle", &obstacleMessage);
 }
 
 void ObsDetector::spinViewer() {
