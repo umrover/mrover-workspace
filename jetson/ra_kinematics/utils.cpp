@@ -161,8 +161,7 @@ Vector6d vecTo6d(const vector<double> &inVec) {
     return retVec;
 }
 
-vector<double> vector6dToVec(const Vector6d &inVector6d);
-{
+vector<double> vector6dToVec(const Vector6d &inVector6d) {
     vector<double> retVec;
     retVec.reserve(6);
     for (int i = 0; i < 6; ++i) {

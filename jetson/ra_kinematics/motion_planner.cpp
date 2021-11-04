@@ -167,11 +167,11 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const Ve
     }
 
     // create dynamic node branching from tree
-    Node* new_node = new Node(z_new);
+    Node* new_node = new Node(z_new_6d);
     new_node->parent = z_nearest;
 
     // cost is previous cost + distance to new set of angles
-    new_node->cost = z_nearest->cost + (z_nearest->config - z_new).norm();
+    new_node->cost = z_nearest->cost + (z_nearest->config - z_new_6d).norm();
 
     // add new_node to tree
     z_nearest->children.push_back(new_node);

@@ -10,6 +10,7 @@
 
 #include "arm_state.hpp"
 #include "kinematics.hpp"
+#include "utils.hpp"
 
 using namespace Eigen;
 using namespace std;
