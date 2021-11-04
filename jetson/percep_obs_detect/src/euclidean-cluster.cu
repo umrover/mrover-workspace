@@ -78,87 +78,77 @@ __global__ void buildGraphKernelN2(GPU_Cloud pc, float tolerance, int* neighborL
     f2[ptIdx] = false;
 }
 
+__device__ int numNeighborsForBin(GPU_Cloud pc, float tolerance, Bins bins, int ptIdx, int partitions, float3 pt, int binNum) {
+    if ((binNum < 0) || (binNum >= partitions * partitions * partitions)) return 0;
+    int neighborCount = 0;
+    for(int j = 0; j < bins.data[binNum + 1] - bins.data[binNum]; ++j) {
+        // Iterates through points in the bin
+        float4 pcPointData = pc.data[j + bins.data[binNum]];
+        float3 dvec = (pt - make_float3(pcPointData.x, pcPointData.y, pcPointData.z));
+        if (length(dvec) < tolerance && j + bins.data[binNum] != ptIdx) ++neighborCount;
+    }
+    return neighborCount;
+}
+
 __global__ void determineGraphStructureKernel(GPU_Cloud pc, float tolerance, int* listStart, Bins bins) {
     int ptIdx = blockIdx.x * blockDim.x + threadIdx.x;
     if(ptIdx >= pc.size) return;
 
     float3 pt = make_float3(pc.data[ptIdx].x, pc.data[ptIdx].y, pc.data[ptIdx].z);
     int neighborCount = 0;
-    float partitionLength = bins.partitionLength;
-    int binNum = pc.data[ptIdx].w;
+    int currBinNum = pc.data[ptIdx].w;
     int partitions = bins.partition;
+    int partitionsSquared = partitions * partitions;
 
-    // Assume that the point is 1/4 the way from the edge of the bin, subtract this from
-    // the tolerance and then figure out how many bins outward need to be traversed to satisfy the tolerance
-    // Can make 1/4 larger to search fewer bins or smaller to search more bins
-    int check = 3;
-    if(ptIdx == check) printf("partitionLength: %f\n", partitionLength);
-    int binsWithinThreshold = (tolerance - 0.25 * partitionLength)/partitionLength;
-    int totalBinsSearch = (binsWithinThreshold*2+1)^3; 
-    int partitionsCubed = partitions*partitions*partitions;
-    
-    if(ptIdx == check) printf("BinsWithinThreshold: %i\n", binsWithinThreshold);
+    int currBinX = currBinNum / partitionsSquared;
+    int currBinY = (currBinNum % partitionsSquared) / partitions;
+    int currBinZ = currBinNum % partitions;
 
     /*
-    The bin one away from currBin in Z direction is binNum +1
-    The bin one away from currBin in Y direction is binNum +partitions
-    The bin one away from currBin in X direction is binNum +partitions^2
+    The bin one away from currBin in Z direction is binNum + 1
+    The bin one away from currBin in Y direction is binNum + partitions
+    The bin one away from currBin in X direction is binNum + partitions^2
     */
-    //Start at lower left, iterate front to back, bottom to top, left to right 
-    //Iterate left to right
-    // Create array of bins to search through 
-
-    // Method for making sure you don't try to access negative bins. Definitely could use some revising to account for
-    // other out of bounds cases that aren't necessarily negative
-
-    int binsX, binsY, binsZ;
-    binsX = binsY = binsZ = binsWithinThreshold;
-    int startBin = binNum;
-    int partitionsSquared = partitions*partitions;
-    
-    if(startBin - binsWithinThreshold >= 0) startBin -= binsWithinThreshold;
-    else binsX = 0;
-    
-    if(startBin - binsWithinThreshold*partitions >= 0) startBin -= partitions*binsWithinThreshold; 
-    else binsY = 0;
-
-    if(startBin - binsWithinThreshold*partitions*partitions >=0) startBin -= partitionsSquared*binsWithinThreshold;
-    else binsZ = 0;
-
-    int binsSearched = 0;
-    if(ptIdx == check) printf("PC Size: %i\n", pc.size);
-    if(ptIdx == check) printf("PtMain: (%f, %f, %f)\n", pt.x, pt.y, pt.z);
-    if(ptIdx == check) printf("BinNum: %i\n StartBin: %i\n", binNum, startBin);
-    for(int i = startBin; i <= startBin + binsZ*2*partitionsSquared && i < partitionsCubed; i += partitionsSquared) {
-        //Iterate bottom to top
-        for(int j = i; j <= i + binsY*2*partitions && j < partitionsCubed; j += partitions) {
-            //Iterate front to back
-            for(int k = j; k <= j + binsX*2 && k < partitionsCubed; ++k){
-                //Iterate through points in cloud
-                if(ptIdx== check) printf("Differece: %i\n", bins.data[k+1] - bins.data[k]);
-                if(ptIdx == check) printf("k Val: %i\n", k);
-                for(int l = 0; l < bins.data[k+1] - bins.data[k]; ++l) {
-                    float3 dvec = (pt - make_float3(pc.data[l+bins.data[k]].x, pc.data[l+bins.data[k]].y, pc.data[l+bins.data[k]].z));
-                    //this is a neighbor
-                    if( length(dvec) < tolerance && l+bins.data[k] != ptIdx) {
-                        neighborCount++;
-                    }
-                    if(ptIdx == check) {
-                        //printf("PtECE: (%f, %f, %f)\n", pc.data[l+bins.data[k]].x, pc.data[l+bins.data[k]].y, pc.data[l+bins.data[k]].z);
-                    }
-                }
-                binsSearched++;
-            }
-        }
-    }
-
-    if(ptIdx == 0) printf("Bins Searched: %i\n", binsSearched);
+    // Check the current bin
+    neighborCount += numNeighborsForBin(pc, tolerance, bins, ptIdx, partitions, pt, currBinNum);
+    // Check bin with coordinate x + 1
+    if (currBinX != (partitions - 1))
+        neighborCount += numNeighborsForBin(pc, tolerance, bins, ptIdx, partitions, pt, currBinNum + partitionsSquared);
+    // Check bin with coordinate y + 1
+    if (currBinY != (partitions - 1))
+        neighborCount += numNeighborsForBin(pc, tolerance, bins, ptIdx, partitions, pt, currBinNum + partitions);
+    // Check bin with coordinate z + 1
+    if (currBinZ != (partitions - 1))
+        neighborCount += numNeighborsForBin(pc, tolerance, bins, ptIdx, partitions, pt, currBinNum + 1);
+    // Check bin with coordinate x - 1
+    if (currBinX != 0)
+        neighborCount += numNeighborsForBin(pc, tolerance, bins, ptIdx, partitions, pt, currBinNum - partitionsSquared);
+    // Check bin with coordinate y - 1
+    if (currBinY != 0)
+        neighborCount += numNeighborsForBin(pc, tolerance, bins, ptIdx, partitions, pt, currBinNum - partitions);
+    // Check bin with coordinate z - 1
+    if (currBinZ != 0)
+        neighborCount += numNeighborsForBin(pc, tolerance, bins, ptIdx, partitions, pt, currBinNum - 1);
     listStart[ptIdx] = neighborCount;
 
 }
 
 
-/* This kernel builds the graph 
+__device__ int populateNeighborList(GPU_Cloud pc, float tolerance, Bins bins, int ptIdx, int partitions, float3 pt, int* list, int binNum, int count) {
+    if ((binNum < 0) || (binNum >= partitions * partitions * partitions)) return;
+    for(int j = 0; j < bins.data[binNum + 1] - bins.data[binNum]; ++j) {
+        // Iterates through points in the bin
+        float4 pcPointData = pc.data[j + bins.data[binNum]];
+        float3 dvec = (pt - make_float3(pcPointData.x, pcPointData.y, pcPointData.z));
+        if (length(dvec) < tolerance && j + bins.data[binNum] != ptIdx) {
+            list[count] = j + bins.data[binNum];
+            count++;
+        }
+    }
+    return count;
+}
+
+/* This kernel builds the graph
 Fairly standard adjacency list structure. 
 */
 __global__ void buildGraphKernel(GPU_Cloud pc, float tolerance, int* neighborLists, int* listStart, int* labels, bool* f1, bool* f2, Bins bins) {
@@ -167,74 +157,42 @@ __global__ void buildGraphKernel(GPU_Cloud pc, float tolerance, int* neighborLis
 
     float3 pt = make_float3(pc.data[ptIdx].x, pc.data[ptIdx].y, pc.data[ptIdx].z);
     int neighborCount = 0;
-    float partitionLength = bins.partitionLength;
-    int startBin = pc.data[ptIdx].w;
+    int currBinNum = pc.data[ptIdx].w;
     int partitions = bins.partition;
+    int partitionsSquared = partitions * partitions;
 
-    // Assume that the point is 1/4 the way from the edge of the bin, subtract this from
-    // the tolerance and then figure out how many bins outward need to be traversed to satisfy the tolerance
-    // Can make 1/4 larger to search fewer bins or smaller to search more bins
-    int binsWithinThreshold = (tolerance - 0.25 * partitionLength)/partitionLength;
-    int totalBinsSearch = (binsWithinThreshold*2+1)^3; 
-    int partitionsCubed = partitions*partitions*partitions;
-    int check = 3;
-    if(ptIdx == check) printf("BinsWithinThreshold: %i\n", binsWithinThreshold);
+    int currBinX = currBinNum / partitionsSquared;
+    int currBinY = (currBinNum % partitionsSquared) / partitions;
+    int currBinZ = currBinNum % partitions;
 
-    /*
-    The bin one away from currBin in Z direction is binNum +1
-    The bin one away from currBin in Y direction is binNum +partitions
-    The bin one away from currBin in X direction is binNum +partitions^2
-    */
-    //Start at lower left, iterate front to back, bottom to top, left to right 
-    //Iterate left to right
-    // Create array of bins to search through 
-
-    // Method for making sure you don't try to access negative bins. Definitely could use some revising to account for
-    // other out of bounds cases that aren't necessarily negative
-    int binsX, binsY, binsZ;
-    binsX = binsY = binsZ = binsWithinThreshold;
-
-    //int partitionsSquared = partitions*partitions;
     int* list = neighborLists + listStart[ptIdx];
 
-    if(startBin - binsWithinThreshold >= 0) startBin -= binsWithinThreshold;
-    else binsX = 0;
-    
-    if(startBin - binsWithinThreshold*partitions >= 0) startBin -= partitions*binsWithinThreshold; 
-    else binsY = 0;
+    /*
+    The bin one away from currBin in Z direction is binNum + 1
+    The bin one away from currBin in Y direction is binNum + partitions
+    The bin one away from currBin in X direction is binNum + partitions^2
+    */
+    // Check the current bin
+    neighborCount = populateNeighborList(pc, tolerance, bins, ptIdx, partitions, pt, list, currBinNum, neighborCount);
+    // Check bin with coordinate x + 1
+    if (currBinX != (partitions - 1))
+        neighborCount = populateNeighborList(pc, tolerance, bins, ptIdx, partitions, pt, list, currBinNum + partitionsSquared, neighborCount);
+    // Check bin with coordinate y + 1
+    if (currBinY != (partitions - 1))
+        neighborCount = populateNeighborList(pc, tolerance, bins, ptIdx, partitions, pt, list, currBinNum + partitions, neighborCount);
+    // Check bin with coordinate z + 1
+    if (currBinZ != (partitions - 1))
+        neighborCount = populateNeighborList(pc, tolerance, bins, ptIdx, partitions, pt, list, currBinNum + 1, neighborCount);
+    // Check bin with coordinate x - 1
+    if (currBinX != 0)
+        neighborCount = populateNeighborList(pc, tolerance, bins, ptIdx, partitions, pt, list, currBinNum - partitionsSquared, neighborCount);
+    // Check bin with coordinate y - 1
+    if (currBinY != 0)
+        neighborCount = populateNeighborList(pc, tolerance, bins, ptIdx, partitions, pt, list, currBinNum - partitions, neighborCount);
+    // Check bin with coordinate z - 1
+    if (currBinZ != 0)
+        neighborCount = populateNeighborList(pc, tolerance, bins, ptIdx, partitions, pt, list, currBinNum - 1, neighborCount);
 
-    if(startBin - binsWithinThreshold*partitions*partitions >=0) startBin -= partitions*partitions*binsWithinThreshold;
-    else binsZ = 0;
-
-    //int binsSearched = 0;
-    //if(ptIdx == check) printf("PC Size: %i\n", pc.size);
-    //if(ptIdx == check) printf("PtMain: (%f, %f, %f)\n", pt.x, pt.y, pt.z);
-    //if(ptIdx == check) printf("BinNum: %i\n StartBin: %i\n", binNum, startBin);
-    for(int i = startBin; i <= startBin + binsZ*2*partitions*partitions && i < partitionsCubed; i += partitions*partitions) {
-        //Iterate bottom to top
-        for(int j = i; j <= i + binsY*2*partitions && j < partitionsCubed; j += partitions) {
-            //Iterate front to back
-            for(int k = j; k <= j + binsX*2 && k < partitionsCubed; ++k){
-                //Iterate through points in cloud
-                if(ptIdx == check) printf("Differece: %i\n", bins.data[k+1] - bins.data[k]);
-                if(ptIdx == check) printf("k Val: %i\n", k);
-                for(int l = 0; l < bins.data[k+1] - bins.data[k]; ++l) {
-                    float3 dvec = (pt - make_float3(pc.data[l+bins.data[k]].x, pc.data[l+bins.data[k]].y, pc.data[l+bins.data[k]].z));
-                    //this is a neighbor
-                    if( length(dvec) < tolerance && l+bins.data[k] != ptIdx) {
-                        list[neighborCount] = l+bins.data[k];
-                        neighborCount++;
-                    }
-                    if(ptIdx == check) {
-                        //printf("PtECE: (%f, %f, %f)\n", pc.data[l+bins.data[k]].x, pc.data[l+bins.data[k]].y, pc.data[l+bins.data[k]].z);
-                    }
-                }
-                //binsSearched++;
-            }
-        }
-    }
-
-    //if(ptIdx == 0) printf("Bins Searched: %i\n", binsSearched);
     labels[ptIdx] = ptIdx;
     f1[ptIdx] = true;
     f2[ptIdx] = false;
@@ -457,7 +415,7 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
         checkStatus(cudaDeviceSynchronize());
     #endif
 
-    //std::cerr<<"Graph kernel built\n";
+    std::cerr<<"Graph kernel built\n";
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
     bool stillGoingCPU = true;    
