@@ -31,7 +31,7 @@ using namespace std;
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
 
 // reductions per motor 
-int cpr[6] = { 1, 1, 1, 1, 1, 1 };
+int cpr[6] = { 9600, 1, 1216, 640, 640, 18144 };
 
 int num_tests_ran = 0;
 

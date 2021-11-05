@@ -47,7 +47,8 @@ void Controller::make_live()
 //Helper function to convert raw angle to radians. Also checks if new angle is close to old angle
 void Controller::record_angle(int32_t angle)
 {
-    float other_angle = (static_cast<float>(angle) / quad_cpr) * 2.0 * M_PI;
+    //float other_angle = (static_cast<float>(angle) / quad_cpr) * 2.0 * M_PI;
+    float other_angle = static_cast<float>((angle / quad_cpr) * 2.0 * M_PI);
     //if (std::abs(other_angle - current_angle) < M_PI / 16.0)
     //{
         current_angle = other_angle;
@@ -71,9 +72,9 @@ void Controller::open_loop(float input)
 	    memcpy(buffer, UINT8_POINTER_T(&throttle), 4);
 
         int32_t angle;
-       // transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&angle));
-	transact(OPEN_PLUS, buffer, nullptr);
-       // record_angle(angle);
+        transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&angle));
+	    //transact(OPEN_PLUS, buffer, nullptr);
+        record_angle(angle);
     }
     catch (IOFailure &e)
     {
@@ -156,14 +157,15 @@ void Controller::angle()
     try
     {
         int32_t angle;
-      //  if (name == "RA_1") {
-      //      int16_t temp;
-      //      transact(ABS_ENC, nullptr, UINT8_POINTER_T(&temp));
-      //      angle = static_cast<int32_t>(temp);
-      //  }
-      //  else {
-      //      transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
-      //  }
+       if (name == "RA_1") {
+        //    int16_t temp;
+        //    transact(ABS_ENC, nullptr, UINT8_POINTER_T(&temp));
+        //    angle = static_cast<int32_t>(temp);
+            angle = 0;
+       }
+       else {
+           transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
+       }
         record_angle(angle);
     }
     catch (IOFailure &e)
