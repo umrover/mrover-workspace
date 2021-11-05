@@ -638,7 +638,7 @@
                 "lower": -3.14,
                 "upper": 3.14
             },
-            "max_speed": 0.05,
+            "max_speed": 0.45,
             "encoder_offset": 2.45,
             "encoder_multiplier": -1,
             "mass_data":{
@@ -675,7 +675,7 @@
                 "lower": 0.035,
                 "upper": 1.09
             },
-            "max_speed": 0.2,
+            "max_speed": 0.25,
             "encoder_offset": 3.62,
             "encoder_multiplier": -1,
             "mass_data":{
@@ -712,8 +712,8 @@
                 "lower": -3.01,
                 "upper": 2.73
             },
-            "max_speed": 0.05,
-            "encoder_offset": 1.55,
+            "max_speed": 0.45,
+            "encoder_offset": 1.50,
             "encoder_multiplier": 1,
             "mass_data":{
                 "mass": 1.11,
@@ -749,8 +749,8 @@
                 "lower": -3.14,
                 "upper": 3.14
             },
-            "max_speed": 0.1,
-            "encoder_offset": 3.36,
+            "max_speed": 0.5,
+            "encoder_offset": -2.77,
             "encoder_multiplier": -1,
             "mass_data":{
                 "mass": 0,
@@ -786,7 +786,7 @@
                 "lower": -2.68,
                 "upper": 2.68
             },
-            "max_speed": 0.1,
+            "max_speed": 0.5,
             "encoder_offset": 1.91,
             "encoder_multiplier": -1,
             "mass_data":{
