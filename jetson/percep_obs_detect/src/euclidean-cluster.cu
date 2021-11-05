@@ -547,7 +547,7 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     cudaMemcpy(maxYCPU, maxY, sizeof(float)*numClustersOrig, cudaMemcpyDeviceToHost);
     cudaMemcpy(minZCPU, minZ, sizeof(float)*numClustersOrig, cudaMemcpyDeviceToHost);
     cudaMemcpy(maxZCPU, maxZ, sizeof(float)*numClustersOrig, cudaMemcpyDeviceToHost);
-
+/* 
     int* leftBearing;
     int* rightBearing;
     int* leftCPU;
@@ -584,7 +584,7 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
     cudaFree(rightBearing);
     free(leftCPU);
     free(rightCPU);
-    
+     */
     checkStatus(cudaDeviceSynchronize()); //not needed?
     cudaFree(neighborLists);
     cudaFree(minX);

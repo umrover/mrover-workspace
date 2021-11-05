@@ -28,6 +28,9 @@ __device__ BearingLines::BearingLines(float heading_in) : heading{heading_in} {
 }
 
 void FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec){
+
+  std::cout << "size of obsVec: " << obsVec.obs.size() << std::endl;
+
   //Allocate and copy obstacle structs array
   EuclideanClusterExtractor::Obstacle* gpuObstacles; 
   cudaMalloc(&gpuObstacles, obsVec.obs.size()*sizeof(EuclideanClusterExtractor::Obstacle));
