@@ -169,7 +169,7 @@ uint32_t quadEnc(int addr)
     {
         uint32_t raw_angle;
         I2C::transact(addr, QUAD, nullptr, UINT8_POINTER_T(&(raw_angle)));
-        printf("test quad transaction successful on slave %i \n", addr);
+        // printf("test quad transaction successful on slave %i \n", addr);
         return raw_angle;
     }
     catch (IOFailure &e)
@@ -185,7 +185,7 @@ uint32_t absEnc(int addr)
     {
         uint32_t abs_raw_angle;
         I2C::transact(addr, ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
-        printf("test abs quad transaction successful on slave %i \n", addr);
+        // printf("test abs quad transaction successful on slave %i \n", addr);
         return abs_raw_angle;
     }
     catch (IOFailure &e)
@@ -231,7 +231,7 @@ void testConfigPWM()
     for (auto address : i2c_address)
     {
         // test off
-        configPWM(address, 100);
+        configPWM(address, 30);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     PRINT_TEST_END
@@ -239,15 +239,13 @@ void testConfigPWM()
 
 void testQuadEnc()
 {
-    PRINT_TEST_START
     for (auto address : i2c_address)
     {
         // test off
         uint32_t raw_angle = quadEnc(address);
-        printf("raw angle: %i \n", raw_angle);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        printf("[%i] raw quad angle: %i \n", address, raw_angle);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-    PRINT_TEST_END
 }
 
 void testAbsEnc()
@@ -257,7 +255,7 @@ void testAbsEnc()
     {
         // test off
         uint32_t raw_angle = absEnc(address);
-        printf("raw abs angle: %i \n", raw_angle);
+        printf("[%i] raw abs angle: %i \n", address, raw_angle);
         sleep(10);
     }
     PRINT_TEST_END
@@ -276,9 +274,9 @@ void testClosed()
         for (auto address : i2c_address)
         {
             closedPlus(address, 1.0);
-            sleep(1000);
+            sleep(500);
             closedPlus(address, 0.0);
-            sleep(1000);
+            sleep(500);
         }
     }
     PRINT_TEST_END
@@ -300,11 +298,28 @@ void testOpenPlus()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        // sets speed to half speed
-        openPlus(address, 0.5);
-        sleep(1500);
-        openPlus(address, 0.0);
-        sleep(1500);
+        // openPlus(address, 0.5);
+        // sleep(300);
+        // openPlus(address, 0);
+        // sleep(300);
+        float speed = 0.5f;
+        if (address == 16)
+        {
+            speed = 0.25f;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            openPlus(address, speed);
+            sleep(200);
+        }
+        for (int i = 0; i < 3; i++) {
+            openPlus(address, -speed);
+            sleep(200);
+        }
+        for (int i = 0; i < 5; i++) {
+            openPlus(address, 0.0f);
+            sleep(200);
+        }
     }
     PRINT_TEST_END
 }
@@ -391,17 +406,31 @@ void testOnOff()
 
 int main()
 {
-    for (int i = 1; i <= 3; ++i)
+    for (int i = 3; i <= 3; ++i)
     {
-        i2c_address.push_back(get_addr(i, 0));
-        i2c_address.push_back(get_addr(i, 1));
+        // i2c_address.push_back(get_addr(i, 0));
+        // i2c_address.push_back(get_addr(i, 1));
+        if (i == 3 || i == 2) i2c_address.push_back(get_addr(i, 2));
+        sleep(20);
     }
     I2C::init();
     testOn();
-    // testConfigPWM();
-    while (1)
-    testOpenPlus();
+    testConfigPWM();
     //testClosed();
+    // openPlus(get_addr(1, 1), 0.5);
+    // sleep(1000);
+    // openPlus(get_addr(1, 1), 0.0);
+    while (1)
+    {
+        testOpenPlus();
+        printf("sleeping \n");
+        //sleep(1000);
+        printf("waking up\n");
+    }
+
+    //     testQuadEnc();
+    // while (1)
+    //     testAbsEnc();
     testOff();
     return 0;
 }
