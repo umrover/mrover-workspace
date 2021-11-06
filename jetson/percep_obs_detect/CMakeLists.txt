@@ -29,12 +29,7 @@ target_link_libraries(viewer
 
 else() 
 SET(CMAKE_CUDA_COMPILER_ENV_VAR /usr/local/cuda/bin/nvcc)
-<<<<<<< HEAD
-SET(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc) 
-
-=======
 SET(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
->>>>>>> origin/gpuObsDetection
 enable_language(CUDA)
 
 
@@ -62,21 +57,13 @@ link_directories($ENV{HOME}/.mrover/build_env/lib)
 link_directories($ENV{HOME}/.mrover/build_env/lib64)
 
 
-<<<<<<< HEAD
-add_executable (driver src/filter.cu src/obs-detector.cu src/viewer.cpp src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/euclidean-cluster.cu src/pass-through.cu src/find-clear.cu)
-target_link_libraries (driver ${ZED_LIBRARIES})
-target_link_libraries(driver 
-                        ${SPECIAL_OS_LIBS} 
-                        ${ZED_LIBS} 
-=======
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/.mrover/build_env/bin/)
 
-add_executable (jetson_percep_obs_detect src/filter.cu src/obs-detector.cu src/viewer.cu src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/euclidean-cluster.cu src/pass-through.cu src/find-clear.cu)
+add_executable (jetson_percep_obs_detect src/filter.cu src/obs-detector.cu src/viewer.cpp src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/euclidean-cluster.cu src/pass-through.cu src/find-clear.cu)
 target_link_libraries (jetson_percep_obs_detect ${ZED_LIBRARIES})
 target_link_libraries(jetson_percep_obs_detect
                         ${SPECIAL_OS_LIBS}
                         ${ZED_LIBS}
->>>>>>> origin/gpuObsDetection
                         ${OPENGL_LIBRARIES}
                         ${GLUT_LIBRARY}
                         ${GLEW_LIBRARIES})
