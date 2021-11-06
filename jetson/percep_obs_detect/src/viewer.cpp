@@ -428,8 +428,11 @@ int main(int argc, char** argv) {
     Viewer viewer;
     viewer.init(argc, argv);
     PCDReader reader;
-    reader.open("/home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data/");
-    std::vector<vec4> cloud = reader.readCloudCPU("/home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data/pcl50.pcd");
+    std::string dir = ROOT_DIR;
+    dir += "/data/";
+    std::cout << dir << std::endl;
+    reader.open(dir);
+    std::vector<vec4> cloud = reader.readCloudCPU(dir+"pcl50.pcd");
     viewer.addPointCloud();
     viewer.updatePointCloud(0, &cloud[0], cloud.size());
     while(true) {
