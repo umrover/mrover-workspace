@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 option(VIEWER_ONLY "run without CUDA" OFF)
 project(obs_detection)
 #add_compile_definitions(ROOT_DIR=${CMAKE_CURRENT_LIST_DIR})
-add_compile_options(-D ROOT_DIR="${CMAKE_CURRENT_LIST_DIR}")
+add_compile_options(-DROOT_DIR="${CMAKE_CURRENT_LIST_DIR}")
 
 if(VIEWER_ONLY)
 #add_compile_definitions(VIEWER_ONLY)
-add_compile_options(-D VIEWER_ONLY)
+add_compile_options(-DVIEWER_ONLY)
 
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
