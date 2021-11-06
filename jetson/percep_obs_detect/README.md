@@ -8,7 +8,7 @@ GPU and CUDA installation to run.
 ## Dev Enviornment Setup
 
 Follow the install guide for your desired workflow. 
-- Local: https://docs.google.com/document/d/1jtzjvUUpiLEiejbV9COK71ptNZa-lYFNbLgSvGArAa0/edit?usp=sharing
+- Local: https://docs.google.com/document/d/1MELSAlFY7PWr0ZisBeJtXIB8x-YFIi4BrLiyycQkH5Y/edit
 - GreatLakes: https://docs.google.com/document/d/1Xkk615z5T1gS0-P0z-_xr7CUilrxN_Vcua-Uol290bg/edit?usp=sharing
    
 ## Usage
@@ -21,7 +21,7 @@ Follow the install guide for your desired workflow.
 5. From `mrover-workspace` do:
 ```
 ./jarvis build jetson/percep_obs_detect
-./jarvis sing percep_obs_detect
+./jarvis exec percep_obs_detect
 ```
 
 **Local:**
@@ -42,18 +42,6 @@ Follow the install guide for your desired workflow.
 **euclidean-cluster:** Detects obstacle bounding boxes after all filtering 
 
 **path-finder:** Solves a clear path based on bounding box detections 
-
-
-## TODO
-- Remove ZED API and PCL dependencies 
-    - Write custom viewer 
-    - Write vector type 
-- Silent Mode
-- Fix logic in find clear path
-- Enable compiler optimizations 
-- Statistical 'unit' testing 
-    - Time 
-    - Correctness (RANSAC Plane Equation, Detections for known keyfames)
 
 ## Other
 Deprecated documentation: https://docs.google.com/document/d/1WPW7yxcCp_EcDjPbGVOtrZl3A5krSXDas_pcxD3N2IM/edit
