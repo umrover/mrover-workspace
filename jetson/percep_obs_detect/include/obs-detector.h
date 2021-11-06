@@ -9,8 +9,8 @@
 #include "timer.hpp"
 #include "common.hpp"
 #include "voxel-grid.hpp"
-//#include <lcm/lcm-cpp.hpp>
-//#include "rover_msgs/Obstacle.hpp"
+#include <lcm/lcm-cpp.hpp>
+#include "rover_msgs/Obstacle.hpp"
 #include <cstring>
 #include <iostream>
 
@@ -96,8 +96,8 @@ class ObsDetector {
 
     private: 
         //Lcm
-        //lcm::LCM lcm_;
-        //rover_msgs::Obstacle obstacleMessage;
+        lcm::LCM lcm_;
+        rover_msgs::Obstacle obstacleMessage;
 
         //Data sources
         sl::Camera zed;
