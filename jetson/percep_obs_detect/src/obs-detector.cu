@@ -10,17 +10,20 @@ using namespace std::chrono;
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType) : source(source), mode(mode), viewerType(viewerType), record(false)
 {
     setupParamaters("");
-    
+
     //Init data stream from source
     if(source == DataSource::ZED) {
         zed.open(init_params); 
         auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
         defParams = camera_config.calibration_parameters.left_cam;
     } else if(source == DataSource::FILESYSTEM) {
-	//fileReader.open("data/");
+        std::string s = ROOT_DIR;
+        s+= "/data/";
+        
         cout << "File data dir: " << endl;
-        cout << "[e.g: /home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
+        cout << "[defaulting to: " << s << endl;
         getline(cin, readDir);
+        if(readDir == "")  readDir = s;
         fileReader.open(readDir);
     }
 

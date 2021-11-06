@@ -3,14 +3,18 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-
+#include <stdlib.h>
+#include <map>
+#include <algorithm>
 
 #include <string>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifndef VIEWER_ONLY
 #include "common.hpp"
+#endif
 
 typedef glm::vec4 vec4;
 using namespace std;
@@ -92,7 +96,7 @@ class PCDReader {
             std::cout << "Read a point cloud of size " << width << " x " << height << endl;
             return pc;
         }
-
+        #ifndef VIEWER_ONLY
         // Reads a cloud from a specified file name into a GPU_Cloud on the GPU
         GPU_Cloud readCloudGPU(string file) {
             std::vector<glm::vec4> pc_raw = readCloudCPU(file);
@@ -110,6 +114,7 @@ class PCDReader {
             cudaMemcpy(pc.data, &pc_raw[0], sizeof(glm::vec4) * pc_raw.size(), cudaMemcpyHostToDevice);
             return pc;
         }
+        #endif
 
     private:
         string dir;

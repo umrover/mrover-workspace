@@ -367,12 +367,14 @@ void Viewer::updatePointCloud(int idx, vec4* pts, int size) {
     pc_mutex.unlock();
 }
 
+#ifndef VIEWER_ONLY
 void Viewer::updatePointCloud(GPU_Cloud pc) {
     glm::vec4* pc_cpu = new glm::vec4[pc.size];
     cudaMemcpy(pc_cpu, pc.data, sizeof(float4)*pc.size, cudaMemcpyDeviceToHost);
     updatePointCloud(0, pc_cpu, pc.size);
     delete[] pc_cpu;
 }
+#endif
 
 void Viewer::addPointCloud() {
     pc_mutex.lock();
@@ -420,3 +422,19 @@ void Viewer::mouseMotionCallback(int x, int y) {
 void Viewer::keyPressedCallback(unsigned char c, int x, int y) {
     cout << "key press" << endl;
 }
+
+#ifdef VIEWER_ONLY
+int main(int argc, char** argv) {
+    Viewer viewer;
+    viewer.init(argc, argv);
+    PCDReader reader;
+    reader.open("/home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data/");
+    std::vector<vec4> cloud = reader.readCloudCPU("/home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data/pcl50.pcd");
+    viewer.addPointCloud();
+    viewer.updatePointCloud(0, &cloud[0], cloud.size());
+    while(true) {
+        viewer.update();
+    }
+    return 0;
+}
+#endif
