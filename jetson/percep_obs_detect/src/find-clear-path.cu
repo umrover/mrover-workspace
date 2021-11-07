@@ -49,7 +49,7 @@ void FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsRetur
   bool* cpu_heading_checks = new bool[bearingNum];
   cudaMemcpy(cpu_heading_checks, heading_checks, bearingNum, cudaMemcpyDeviceToHost);
 
-  for(int i = 0; i < bearingNum, ++i){
+  for(int i = 0; i < bearingNum; ++i){
     std::cout << cpu_heading_checks[i] << " ";
   }
   std::cout << std::endl;

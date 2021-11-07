@@ -77,7 +77,7 @@ void ObsDetector::update() {
         
     } else if(source == DataSource::FILESYSTEM) {
 
-        pc = fileReader.readCloudGPU(frameNum);
+        pc = fileReader.readCloudGPU(49);
     }
     update(pc);
 
@@ -126,8 +126,8 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
     this->leftBearing = leftBearing;
     this->rightBearing = rightBearing;
     this->distance = distance;
-    obstacleMessage.bearing = leftBearing;
-    lcm_.publish("/obstacle", &obstacleMessage);
+//    obstacleMessage.bearing = leftBearing;
+//    lcm_.publish("/obstacle", &obstacleMessage);
 }
 
 void ObsDetector::spinViewer() {
