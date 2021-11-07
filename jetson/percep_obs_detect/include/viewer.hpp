@@ -7,7 +7,9 @@
 #include "reader.h"
 #include <utility>
 
+#ifndef VIEWER_ONLY
 #include "common.hpp"
+#endif
 
 // change this to cuda floatX types
 #include <glm/vec3.hpp> // glm::vec3
@@ -164,7 +166,9 @@ class Viewer {
 
         // need to provide thread safe ways to update viewer internals
         void updatePointCloud(int idx, vec4* pts, int size);
+        #ifndef VIEWER_ONLY
         void updatePointCloud(GPU_Cloud pc);
+        #endif
         void updateObjectModel(int idx, glm::mat4 rotation, glm::mat4 translation);
 
     private:

@@ -5,6 +5,7 @@ import shutil
 from buildsys.python import PythonBuilder
 from buildsys.lcm import LCMBuilder
 from buildsys.rollupjs import RollupJSBuilder
+from buildsys.cmake_builder import CMakeBuilder
 from buildsys.meson import MesonBuilder
 from buildsys.shell import ShellBuilder
 from buildsys.config import ConfigBuilder
@@ -51,6 +52,9 @@ def get_builder(ctx, d, lint, opts=None):
         app = build_defs.get('app', 'False') == 'True'
         port = build_defs.get('port', None)
         return RollupJSBuilder(d, ctx, deps, app, port)
+    elif lang == 'cmake':
+        print('Building C++ package with CMake')
+        return CMakeBuilder(d, ctx, opts)
     elif lang == 'cpp':
         print('Building C++ package')
         return MesonBuilder(d, ctx, opts)
