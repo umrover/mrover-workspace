@@ -32,6 +32,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         viewer.addPointCloud();
     }
 
+    test_input_file();
 };
 
 //TODO: Make it read params from a file
@@ -144,6 +145,30 @@ void ObsDetector::spinViewer() {
 
     viewer.update();
     viewer.clearEphemerals();
+
+}
+
+void ObsDetector::test_input_file()
+{
+
+  //fileReader.open("");
+
+  GPU_Cloud gpuc = fileReader.readCloudGPU(2);
+
+  vector<GPU_Cloud> raw_data;
+  raw_data.push_back(gpuc);
+
+  vector<EuclideanClusterExtractor::ObsReturns> a;
+
+
+  Bins b;
+  passZ->run(raw_data[i]);
+  ransacPlane->computeModel(raw_data[i]);
+  b = voxelGrid->run(raw_data[i]);
+
+  a.push_back(ece->extractClusters(raw_data[i],b));
+
+  test(raw_data,a);
 
 }
 
