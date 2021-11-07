@@ -12,7 +12,7 @@ TestStats::TestStats()
 TestStats::TestStats(std::vector<float> iot_, std::vector<float> fot_, std::vector<float> times_, std::vector<int> nt_, std::vector<int> nd, std::vector<vector<float>> dscrt) :
 iot(iot_), fot(fot_), times(times_), num_true_obs(nt_), num_det_obs(nd), discrete_truths(dscrt)
 {
-
+  this->print();
 }
 
 
