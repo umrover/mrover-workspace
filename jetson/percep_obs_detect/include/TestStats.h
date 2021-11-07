@@ -33,7 +33,6 @@ class TestStats {
       void print() //prints out all info
       {
         /* Output Log Format */
-        //std::cout.setprecision(4);
         std::cout << "Evaluating GPU Cloud #[NUMBER]\n";
         std::cout << "GPU Obstacle Detection Runtime: [TIME]\n";
         std::cout << "Number of Detected Obstacles: [NUMDET]\n";
@@ -43,8 +42,8 @@ class TestStats {
         std::cout << "\t(Total intersection divided by total true area)\n\tShould be clsoe to 1\n";
         std::cout << "False Positive over True Volume: [FALSE]\n";
         std::cout << "\t(Total detected volume not contained in set of true obstacles)\n\t(Divided by total true volume)\n";
-        std::cout << "Mean % Truth: [TRUEPCT]\n"
-        std::cout << "Average volume of a truth detected\n"
+        std::cout << "Mean % Truth: [TRUEPCT]\n";
+        std::cout << "Average volume of a truth detected\n";
 
 
         for(size_t i = 0; i < iot.size(); i++) // Loop through each cloud
