@@ -49,6 +49,11 @@ void FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsRetur
   bool* cpu_heading_checks = new bool[bearingNum];
   cudaMemcpy(cpu_heading_checks, heading_checks, bearingNum, cudaMemcpyDeviceToHost);
 
+  for(int i = 0; i < bearingNum, ++i){
+    std::cout << cpu_heading_checks[i] << " ";
+  }
+  std::cout << std::endl;
+
   //Find closest heading to the left and right of our current heading
   int heading_left = find_left_closest(cpu_heading_checks);
   int heading_right = find_right_closest(cpu_heading_checks);
