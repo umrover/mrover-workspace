@@ -221,7 +221,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector
       discrete_truth_pct[i].push_back(current_intersection / current_volume);
     }
     truth_volumes.push_back(current_volume_sum); //global volume
-    g_t.push_back(current_intersection / current_volume); //global quasi-IOU
+    g_t.push_back(current_intersection_sum / current_volume_sum); //global quasi-IOU
 
   }
 
