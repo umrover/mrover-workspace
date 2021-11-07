@@ -49,6 +49,7 @@ private:
     bool enable_execute;
     bool sim_mode;
     bool ik_enabled;
+    bool previewing;
 
 public:
 

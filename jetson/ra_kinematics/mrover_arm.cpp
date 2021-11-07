@@ -19,11 +19,12 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     done_previewing(false),
     enable_execute(false),
     sim_mode(true),
-    ik_enabled(false)  { }
+    ik_enabled(false),
+    previewing(false)  { }
 
 void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
     // if previewing, don't update state based on arm position
-    if (ik_enabled && !enable_execute) {
+    if (previewing) {
         return;
     }
 
@@ -191,6 +192,7 @@ void MRoverArm::matrix_helper(double arr[4][4], const Matrix4d &mat) {
 void MRoverArm::preview() {
     cout << "Previewing" << endl;
     ik_enabled = true;
+    previewing = true;
 
     // backup angles
     vector<double> backup;
@@ -231,6 +233,8 @@ void MRoverArm::preview() {
 
     // update state based on new angles
     solver.FK(state);
+
+    previewing = false;
 }
 
 void MRoverArm::target_angles_callback(string channel, ArmPosition msg) {
