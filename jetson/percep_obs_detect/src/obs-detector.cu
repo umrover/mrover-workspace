@@ -1,4 +1,5 @@
 #include "obs-detector.h"
+#include "TestStats.h"
 #include <chrono>
 
 using namespace std;
