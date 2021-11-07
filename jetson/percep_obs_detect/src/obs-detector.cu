@@ -1,5 +1,4 @@
 #include "obs-detector.h"
-#include "TestStats.h"
 #include <chrono>
 
 using namespace std;
@@ -249,6 +248,8 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector
   }
   /* return custom class ("TestStats.h") */
   TestStats::TestStats tsolution(g_t,false_positive_vol,clock_times,true_count,obs_count,discrete_truth_pct);
+
+  tsolution.print();
   return tsolution;
 }
 
