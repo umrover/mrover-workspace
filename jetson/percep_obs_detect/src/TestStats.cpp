@@ -21,12 +21,13 @@ TestStats::~TestStats()
 
 }
 
+/*
 void TestStats::analyze_test()
 {
   std::for_each(discrete_truths.begin(),discrete_truths.end(),
     std::accumulate(discrete_truths[i]))
 }
-
+*/
 
 void TestStats::print() //prints out all info
 {
@@ -41,8 +42,8 @@ void TestStats::print() //prints out all info
   std::cout << "\t(Total intersection divided by total true area)\n\tShould be clsoe to 1\n";
   std::cout << "False Positive over True Volume: [FALSE]\n";
   std::cout << "\t(Total detected volume not contained in set of true obstacles)\n\t(Divided by total true volume)\n";
-  std::cout << "Mean % Truth: [TRUEPCT]\n"
-  std::cout << "Average volume of a truth detected\n"
+  std::cout << "Mean % Truth: [TRUEPCT]\n";
+  std::cout << "Average volume of a truth detected\n";
 
 
   for(size_t i = 0; i < iot.size(); i++) // Loop through each cloud
