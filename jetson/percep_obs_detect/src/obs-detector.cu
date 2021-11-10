@@ -159,7 +159,7 @@ void ObsDetector::test_input_file()
   vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
 
-  vector<EuclideanClusterExtractor::ObsReturns> a;
+  vector<EuclideanClusterExtractor::ObsReturn> a;
 
 
 
