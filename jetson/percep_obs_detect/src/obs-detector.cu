@@ -32,7 +32,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         viewer.addPointCloud();
     }
 
-    test_input_file();
+
 };
 
 //TODO: Make it read params from a file
@@ -148,17 +148,19 @@ void ObsDetector::spinViewer() {
 
 }
 
+
 void ObsDetector::test_input_file()
 {
 
   //fileReader.open("");
 
-  GPU_Cloud gpuc = fileReader.readCloudGPU(2);
+  GPU_Cloud gpuc = fileReader.readCloudGPU(999);
 
   vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
 
   vector<EuclideanClusterExtractor::ObsReturns> a;
+
 
 
   Bins b;
@@ -168,9 +170,12 @@ void ObsDetector::test_input_file()
 
   a.push_back(ece->extractClusters(raw_data[i],b));
 
+
+
   test(raw_data,a);
 
 }
+
 
 TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list)
 {
@@ -303,8 +308,9 @@ int main() {
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
+    test_input_file();
     while(true) {
-       obs.update();
+       //obs.update();
        obs.spinViewer();
     }
 
