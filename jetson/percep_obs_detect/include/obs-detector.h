@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <sl/Camera.hpp>
 #include "plane-ransac.hpp"

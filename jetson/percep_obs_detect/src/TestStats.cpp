@@ -1,3 +1,5 @@
+#pragma once
+
 #include "TestStats.h"
 #include <numeric>
 #include <iomanip>
