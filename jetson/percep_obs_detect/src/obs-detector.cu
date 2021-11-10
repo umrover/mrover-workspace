@@ -164,11 +164,11 @@ void ObsDetector::test_input_file()
 
 
   Bins b;
-  passZ->run(raw_data[i]);
-  ransacPlane->computeModel(raw_data[i]);
-  b = voxelGrid->run(raw_data[i]);
+  passZ->run(raw_data[0]);
+  ransacPlane->computeModel(raw_data[0]);
+  b = voxelGrid->run(raw_data[0]);
 
-  a.push_back(ece->extractClusters(raw_data[i],b));
+  a.push_back(ece->extractClusters(raw_data[0],b));
 
 
 
@@ -308,7 +308,7 @@ int main() {
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
-    test_input_file();
+    obs.test_input_file();
     while(true) {
        //obs.update();
        obs.spinViewer();

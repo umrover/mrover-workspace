@@ -103,7 +103,7 @@ class ObsDetector {
        */
       TestStats::TestStats test(std::vector<GPU_Cloud>& raw_data, const std::vector<EuclideanClusterExtractor::ObsReturn>& truth_list);
 
-      void ObsDetector::test_input_file();
+      void test_input_file();
 
     private:
       /**
