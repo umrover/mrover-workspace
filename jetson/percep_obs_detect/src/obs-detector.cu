@@ -154,7 +154,7 @@ void ObsDetector::test_input_file()
 
   //fileReader.open("");
 
-  GPU_Cloud gpuc = fileReader.readCloudGPU(999);
+  GPU_Cloud gpuc = fileReader.readCloudGPU(20); //an arbitrary GPUCloud
 
   vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
