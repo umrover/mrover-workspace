@@ -13,7 +13,7 @@ class TestStats {
     std::vector<float> times; //gpu obs detect runtimes
     std::vector<int> num_true_obs; //number of true obstacles
     std::vector<int> num_det_obs; //number of test obstacles
-    std::vector<vector<float>> discrete_truths; //%-detected for each truth obs
+    std::vector<std::vector<float>> discrete_truths; //%-detected for each truth obs
 
   private: //(non-parametric) instance variables
     std::vector<float> avg_truth_detected; // avg truth %detected
@@ -24,7 +24,7 @@ class TestStats {
 
   public:
       TestStats();
-      TestStats(std::vector<float> iot_, std::vector<float> fot_, std::vector<float> times_, std::vector<int> nt_, std::vector<int> nd, std::vector<vector<float>> dscrt);
+      TestStats(std::vector<float> iot_, std::vector<float> fot_, std::vector<float> times_, std::vector<int> nt_, std::vector<int> nd, std::vector<std::vector<float>> dscrt);
      ~TestStats();
 
       auto print()          -> void; //prints out all info
