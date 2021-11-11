@@ -180,25 +180,25 @@ void ObsDetector::test_input_file()
 TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list)
 {
   std::vector<EuclideanClusterExtractor::ObsReturn> measured; // Raw data put through obs detector
-  measured.reserve(truth_list.size());
+  //measured.reserve(truth_list.size());
 
   std::vector<float> truth_volumes; // Total vol of all ground truths
-  truth_volumes.reserve(truth_list.size());
+  //truth_volumes.reserve(truth_list.size());
 
   std::vector<float> g_t; //Output of I / total true vol
-  g_t.reserve(truth_list.size());
+ //g_t.reserve(truth_list.size());
 
   std::vector<float> false_positive_vol; // False positive vol / true vol
-  false_positive_vol.reserve(truth_list.size());
+  //false_positive_vol.reserve(truth_list.size());
 
   std::vector<float> clock_times; // GPU obs det runtimes
-  clock_times.reserve(truth_list.size());
+  //clock_times.reserve(truth_list.size());
 
   std::vector<int> true_count; // num true obs
-  true_count.reserve(truth_list.size());
+  //true_count.reserve(truth_list.size());
 
   std::vector<int> obs_count; // num test obs
-  obs_count.reserve(truth_list.size());
+  //obs_count.reserve(truth_list.size());
 
   std::vector<vector<float>> discrete_truth_pct;
   discrete_truth_pct.resize(truth_list.size());
