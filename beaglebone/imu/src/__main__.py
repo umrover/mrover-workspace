@@ -227,7 +227,7 @@ class IMU_Manager():
         if(len(bits[40:72]) == 32):
             data_f = bits[40:72].float
         else:
-            print("Empty Packet Received\n")
+            print("Empty Packet Received")
 
         return data_f
 
@@ -239,7 +239,7 @@ class IMU_Manager():
         # print("cmd_buf: ", cmd_buffer)
         # sends reques for data
         self.ser.write(cmd_buffer)
-        time.sleep(.5)
+        # time.sleep(.5)
         # Filters the buffer looking for the has data packets and prints it
         run = True
         iterator = 0
@@ -312,20 +312,20 @@ class IMU_Manager():
     def calculate_bearing(self):
         # get raw values for mag
         data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
-        print("data: ", data_xf, " ", data_yf, " ", data_zf)
+        # print("data: ", data_xf, " ", data_yf, " ", data_zf)
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
         # Magnetometer reads in unitless
 
         mag_x = data_xf[0]*1.0 - IMU_Manager.mag_offsets[0]
         mag_y = data_yf[0]*1.0 - IMU_Manager.mag_offsets[1]
         mag_z = data_zf[0]*1.0 - IMU_Manager.mag_offsets[2]
-        print("offsets: ", IMU_Manager.mag_offsets[0], " ", IMU_Manager.mag_offsets[1], " ", IMU_Manager.mag_offsets[2])
-        print("cal_mat_r0: ", IMU_Manager.calibration_matrix[0][0], " ",
-              IMU_Manager.calibration_matrix[0][1], " ",
-              IMU_Manager.calibration_matrix[0][2])
-        print("cal_mat_r1: ", IMU_Manager.calibration_matrix[1][0], " ",
-              IMU_Manager.calibration_matrix[1][1], " ",
-              IMU_Manager.calibration_matrix[1][2])
+        # print("offsets: ", IMU_Manager.mag_offsets[0], " ", IMU_Manager.mag_offsets[1], " ", IMU_Manager.mag_offsets[2])
+        # print("cal_mat_r0: ", IMU_Manager.calibration_matrix[0][0], " ",
+        #       IMU_Manager.calibration_matrix[0][1], " ",
+        #       IMU_Manager.calibration_matrix[0][2])
+        # print("cal_mat_r1: ", IMU_Manager.calibration_matrix[1][0], " ",
+        #       IMU_Manager.calibration_matrix[1][1], " ",
+        #       IMU_Manager.calibration_matrix[1][2])
         # Apply mag soft iron error compensation
         mag_calibrated_x = mag_x * IMU_Manager.calibration_matrix[0][0] + \
             mag_y * IMU_Manager.calibration_matrix[0][1] + mag_z * IMU_Manager.calibration_matrix[0][2]
@@ -336,7 +336,7 @@ class IMU_Manager():
         mag_calibrated_z = mag_x * IMU_Manager.calibration_matrix[2][0] + \
             mag_y * IMU_Manager.calibration_matrix[2][1] + mag_z * IMU_Manager.calibration_matrix[2][2]
 
-        print("cal_xyz: ", mag_calibrated_x, " ", mag_calibrated_y, " ", mag_calibrated_z)
+        # print("cal_xyz: ", mag_calibrated_x, " ", mag_calibrated_y, " ", mag_calibrated_z)
         # Bearing Calculation
         # use calibrated values
         mag_cal_y = self.get_cal_vals(0x6A)
@@ -344,8 +344,9 @@ class IMU_Manager():
         bearing = -(math.atan2(mag_cal_y, mag_cal_x)*(180.0/math.pi))
         if (bearing < 0):
             bearing += 360
-
-        print("bearing: ", bearing)
+        
+        if (bearing != 270):
+            print("bearing: ", bearing)
 
 # end of class
 
