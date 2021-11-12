@@ -1,11 +1,11 @@
 sudo: required
 services:
 - docker
-before_install:
-- docker build -t mrover .
 script:
-- docker run --rm -it -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro -v /dev/tty:/dev/i2c-0 -v /dev/tty:/dev/i2c-1 -v /dev/tty:/dev/i2c-2
-  mrover jarvis build -a .
+- docker pull umrover/travis
+- docker run --rm -it -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro
+  -v /dev/tty:/dev/i2c-0 -v /dev/tty:/dev/i2c-1 -v /dev/tty:/dev/i2c-2 umrover/travis
+  jarvis build -a .
 notifications:
   slack:
-    secure: TKHqHOuPuvJl87ATPscoCmWrCCd1NKROuFcuWpCZRXcgfWlVQ5g/Gql7izzWuWMXaqVqt9XksRRYYgGujdQcxJwxkODzyh6G6a0sROqJxFqVAVGB5RXEGr1QIoWR6l5VQi0T1sKnzGVVsJ6BTeUe6t2m2XKPZbWNKtyjjxINb72ps6gKEHvbu4H8mRVJKHQg3MJuvyez9JEiRGemxIndXF5BicebWigG3iET3AJBTKRKB39hfDyPeU769DFfg6x0cGZXJpe3+sGB8MqUkZYzgsMjEPEfjI/n8DdXiMyrHcrpTkYhP+oZGDWvpa5ZWKaNXYosYPtnTS/sWBWalWv9dHe05XwPWYQdYKs33XPX8frvbVJ3HtgkBVy+F1GvLZjQQD6zWhPoz5wJS5HCecuxJnyo0/K9qrch+hUKnsXL7YTofy6vPXgVkunkrmMVrI/+NsOBrNA+0qwcPRtm2BJzyWok0e7qtRGCV+qixhGJrcOQa1Y6crtz/v1as+snsmBseGfDOupZcL5IwhidygUyATx+BglX20GFM5FUImvzhFtS9i40xPu1QYbd9MHnoFrxJnMWq7b8BPYHQWP0wZcs7h0U3TcDErPNmbi2RlJB7nTxGO+W/82NU3Bn2BBX8FEH+rxgGrMtBF3hqAkF0aoVNowKm1tj1X3WEENbb5SYFyQ=
+    secure: BErC5eAsqNAgsEwtvaNmcyCUMSdy7oiUSjIPQL8tAdPOBgXmdJFPq55wNwTjW57x3lQZZQxkF8DIJv2EHpKlQEc58bARZi0QudaET2055agHNie8yZ5lo6yDG7yPMSw38Nm+jKtqV67Q9rVWxK6vTBtDosfgx5xUQnn3v8IhsTYrNfB6oUjzhHwAGsX+50H87YzahEGLmxse4+r4BGF5iDAx8HHN6gVo7EpdfKr4yLJBNeH84dAYMdauUsCcAdVgk7WvZ4yurb+GzNOiHeotoa9BEWd9FPZbfENPi3SRioA+/h6MT7YEmGVirqKQDxEwoRQkHKRGy99Qr329kHNKagjcAt0+QVxnKHf47zu4CPZJkL6VteoQINaP60kXX4WYqDrv6x8VkP+ZjOpJNoHkMHSgju3ixFXBjMEYVykYYSCTBVqLOCEVUumP1WLUsVN2DTUe33BMkkqNeu7PXCKMtr0MKRBvAH3eG1iyoC2pdgV/yqDlHIAm8TPli9YkdSpKoip89zKRnRGOcpbczM8csh92GYw/hpKCqlRHXAarB13RjrDi0D3OYgl5yMj9V+MDMW9n/Ef1eCvq76/BjRgkgSevlwlm3sWC7PbM4ckrVhryZUaajBW//BdAmcDMTNhlecz6YvtPntQ53qs+x4V5dMMNXMvYA8UIt/7zmuGCSyE=
