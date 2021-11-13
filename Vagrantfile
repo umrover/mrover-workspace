@@ -8,8 +8,7 @@
 Vagrant.configure("2") do |config|
   # Use Ubuntu 16.04 box
   config.vm.box = "bento/ubuntu-18.04"
-  config.ssh.forward_agent = true
-  config.ssh.forward_x11 = true
+  
   config.vm.hostname = "mrover-devbox"
 
   # Map all ports 8000-8020 for development work
