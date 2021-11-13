@@ -177,7 +177,7 @@ void ObsDetector::test_input_file()
 }
 
 
-TestStats::TestStats ObsDetector::test(vector<GPU_Cloud>& raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list)
+TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list)
 {
   std::vector<EuclideanClusterExtractor::ObsReturn> measured; // Raw data put through obs detector
   //measured.reserve(truth_list.size());
