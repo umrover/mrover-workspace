@@ -78,6 +78,6 @@ endif
 if artag_tests
 	executable('jetson_percep_artag', 
 				'artag_test/main.cpp', 'artag_test/artag_test_errors.cpp', 'artag_test/artag_test_framework.cpp', 'artag_detector.cpp',
-				dependencies : all_deps, cpp_args : '-mavx',
+				dependencies : all_deps, cpp_args : '-mavx', link_args: '-lstdc++fs',
 				install : true)
 endif

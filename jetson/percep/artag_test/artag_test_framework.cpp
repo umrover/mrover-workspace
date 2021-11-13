@@ -42,7 +42,7 @@ pair<std::vector<std::vector<cv::Point2f> >, std::vector<int> > ArtagTest::getLa
 
     std::ifstream label_file(filename);
 
-    if(!label_file.is_open()) throw 
+    if(!label_file.is_open()) throw FileError(filename);
 
     while(label_file >> label_id >> corner1_x >> corner1_y >> corner2_x >> corner2_y >> corner3_x >> corner3_y >> corner4_x >> corner4_y) {
         vector<cv::Point2f> corners;
@@ -67,7 +67,7 @@ void ArtagTest::run(TagDetector * detector) {
         detector->findARTags(image, depth_src, rgb);
 
         pair<std::vector<std::vector<cv::Point2f> >, std::vector<int> > cornersAndIds = detector->getCornersAndIds();
-        std::vector< pair<std::vector<cv::Point2f>, int> > labels = getLabels();
+        pair<std::vector<std::vector<cv::Point2f> >, std::vector<int> > labels = getLabels();
 
         for(size_t i = 0; i < std::max(cornersAndIds.first.size(), labels.first.size()); ++i) {
             
@@ -94,7 +94,7 @@ void ArtagTest::run(TagDetector * detector) {
 
 ArtagTestSuite::ArtagTestSuite() 
     : detector(new TagDetector()) {
-        std::cout << "created test suite\n";
+        std::cout << "Test Suite Results\n\n";
     }
 
 void ArtagTestSuite::run() {
@@ -103,9 +103,10 @@ void ArtagTestSuite::run() {
     const string label_path = "jetson/percep/artag_test/labels/";
     const string label_postfix = ".tag";
 
-    for(const auto & image_file : std::filesystem::directory_iterator(image_path)) {
-        string label_file = label_path + image_file.string().substr(image_path.length(), ((image_file.string().length - label_postfix.length()) - image_path.length())) + label_postfix;
-        ArtagTest test(image_file, label_file);
+    for(const auto & image_file : std::experimental::filesystem::directory_iterator(image_path)) {
+        string image_file_string = image_file.path().string();
+        string label_file = label_path + image_file_string.substr(image_path.length(), ((image_file_string.length() - label_postfix.length()) - image_path.length())) + label_postfix;
+        ArtagTest test(image_file_string, label_file);
         test.run(detector);
     }
 }

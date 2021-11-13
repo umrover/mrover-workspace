@@ -6,7 +6,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <filesystem>
+#include <experimental/filesystem>
 #define IoUThreshold 0.5
 
 
@@ -26,6 +26,7 @@ class ArtagTestSuite {
 public:
     ArtagTestSuite();
     void run();
+    ~ArtagTestSuite();
 private:
     TagDetector * detector;
 };

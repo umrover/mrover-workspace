@@ -6,13 +6,14 @@
 class TestError : public std::exception {
 public:
     virtual void print() = 0;
-protected:
+
     enum ErrorString {
         artag = 0,
         id = 1,
         intersection = 2
     };
 
+protected:
     const std::string ErrorValues[4] = {
         "artags", 
         "to be the tag's id", 
@@ -46,6 +47,7 @@ private:
 };
 
 class FileError : public TestError {
+public:
     FileError(std::string filename_);
 
     void print() override;
