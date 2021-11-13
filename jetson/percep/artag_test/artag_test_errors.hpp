@@ -8,14 +8,12 @@ public:
     virtual void print() = 0;
 protected:
     enum ErrorString {
-        corners = 0,
-        artag = 1,
-        id = 2,
-        intersection = 3
+        artag = 0,
+        id = 1,
+        intersection = 2
     };
 
     const std::string ErrorValues[4] = {
-        "corners", 
         "artags", 
         "to be the tag's id", 
         "intersection over union"

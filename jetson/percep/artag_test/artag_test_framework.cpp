@@ -2,10 +2,10 @@
 
 using namespace cv;
 
-ArtagTest::ArtagTest(string & image_, string & filename_, string & testcase_name_) {
+ArtagTest::ArtagTest(string & image_, string & filename_) {
     image = imread(image_, IMREAD_UNCHANGED);
     filename = filename_;
-    testcase_name = testcase_name_;
+    testcase_name = image_;
 }
 
 float ArtagTest::intersectionOverUnion(const vector<Point2f> &predicted_corners, const vector<Point2f> &label_corners) {
@@ -31,37 +31,65 @@ float ArtagTest::intersectionOverUnion(const vector<Point2f> &predicted_corners,
     return intersection_polygons/union_polygons;
 }
 
-/*std::vector<pair<pair<std::vector<cv::Point2f>, int>, pair<std::vector<cv::Point2f>, int> > > ArtagTest::matchPredictionsAndLabels(
-    pair<std::vector<std::vector<cv::Point2f> >, std::vector<int> > &corners_and_ids,
-    pair<std::vector<std::vector<cv::Point2f> >, std::vector<int> > &ground_truth
-) {
-    return {};
-}*/
 
-std::vector< pair<std::vector<cv::Point2f>, int> > ArtagTest::getLabels() {
+pair<std::vector<std::vector<cv::Point2f> >, std::vector<int> > ArtagTest::getLabels() {
+    
     int label_id = 0;
     float corner1_x, corner1_y, corner2_x, corner2_y, corner3_x, corner3_y, corner4_x, corner4_y = 0;
-    std::vector< pair<std::vector<cv::Point2f>, int> > labels;
-    vector<cv::Point2f> corners;
+
+    vector<vector<cv::Point2f> > allCorners;
+    vector<int> ids;
+
     std::ifstream label_file(filename);
+
+    if(!label_file.is_open()) throw 
+
     while(label_file >> label_id >> corner1_x >> corner1_y >> corner2_x >> corner2_y >> corner3_x >> corner3_y >> corner4_x >> corner4_y) {
+        vector<cv::Point2f> corners;
         corners.push_back(Point2f(corner1_x, corner1_y));
         corners.push_back(Point2f(corner2_x, corner2_y));
         corners.push_back(Point2f(corner3_x, corner3_y));
         corners.push_back(Point2f(corner4_x, corner4_y));
-        labels.push_back({corners, label_id});
+        allCorners.push_back(corners);
+        ids.push_back(label_id);
     }
-    return labels;
+
+    return {allCorners, ids};
 }
 
 void ArtagTest::run(TagDetector * detector) {
-    Mat rgb;
-    Mat depth_src;
-    std::cout << testcase_name << "\n";
-    detector->findARTags(image, depth_src, rgb);
-    pair<std::vector<std::vector<cv::Point2f> >, std::vector<int> >cornersAndIds = detector->getCornersAndIds();
-    std::vector< pair<std::vector<cv::Point2f>, int> > labels = getLabels();
-    std::cout << "IoU - " << intersectionOverUnion(cornersAndIds.first[0], labels[0].first) << "\n";
+    try {
+        std::cout << testcase_name << "\n";
+
+        Mat rgb;
+        Mat depth_src;
+
+        detector->findARTags(image, depth_src, rgb);
+
+        pair<std::vector<std::vector<cv::Point2f> >, std::vector<int> > cornersAndIds = detector->getCornersAndIds();
+        std::vector< pair<std::vector<cv::Point2f>, int> > labels = getLabels();
+
+        for(size_t i = 0; i < std::max(cornersAndIds.first.size(), labels.first.size()); ++i) {
+            
+            if (i == cornersAndIds.first.size() || i == labels.first.size()) throw CountingError(TestError::ErrorString::artag, cornersAndIds.first.size(), labels.first.size());
+            
+            std::cout << " Tag " << i << ":\n";
+
+            float IoU = intersectionOverUnion(cornersAndIds.first[i], labels.first[i]);
+            if(IoU < IoUThreshold) throw ThresholdError(TestError::ErrorString::intersection, IoU, IoUThreshold);
+            else std::cout << "  IoU - " << intersectionOverUnion(cornersAndIds.first[i], labels.first[i]) << "\n";
+
+            if(cornersAndIds.second[i] != labels.second[i]) throw CountingError(TestError::ErrorString::id, cornersAndIds.second[i], labels.second[i]);
+            else std::cout << "  Correct Id: " << labels.second[i] << " Detected Id: " << cornersAndIds.second[i] << "\n";
+
+        }
+
+        std::cout << "\n";
+
+    } catch(TestError & err) {
+        err.print();
+        std::cout << "\n";
+    }
 }
 
 ArtagTestSuite::ArtagTestSuite() 
@@ -70,11 +98,20 @@ ArtagTestSuite::ArtagTestSuite()
     }
 
 void ArtagTestSuite::run() {
-    string image = "jetson/percep/artag_test/images/image1.jpg";
-    string label = "jetson/percep/artag_test/labels/image1.tag";
-    string testcase_name = "Test 1:";
-    ArtagTest t1(image, label, testcase_name);
-    t1.run(detector);
+
+    const string image_path = "jetson/percep/artag_test/images/";
+    const string label_path = "jetson/percep/artag_test/labels/";
+    const string label_postfix = ".tag";
+
+    for(const auto & image_file : std::filesystem::directory_iterator(image_path)) {
+        string label_file = label_path + image_file.string().substr(image_path.length(), ((image_file.string().length - label_postfix.length()) - image_path.length())) + label_postfix;
+        ArtagTest test(image_file, label_file);
+        test.run(detector);
+    }
+}
+
+ArtagTestSuite::~ArtagTestSuite() {
+    delete detector;
 }
 
 
