@@ -49,8 +49,10 @@ public:
 
     void updateRepeaterComplete( );
 
-    void setSearcher(SearchType type);
+    void setSearcher( SearchType type );
 
+    void updateGimbalPosition(double curYaw);
+    
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
@@ -82,8 +84,6 @@ private:
     bool addFourPointsToSearch();
 
     string stringifyNavState() const;
-
-    bool isObstacleDetected() const;
 
     double getOptimalAvoidanceAngle() const;
 

@@ -7,7 +7,7 @@
     <fieldset class="obstacle">
       <legend>Obstacle</legend>
       <p>Distance: {{ dist }} m</p>
-      <p>Bearing: {{ bear }} º</p>
+      <p>Bearing: {{ bear }}º</p>
     </fieldset>
   </div>
 </template>

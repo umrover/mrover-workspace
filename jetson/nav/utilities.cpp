@@ -57,15 +57,15 @@ Odometry createOdom( const Odometry & current, double bearing, const double dist
 
 // Caclulates the bearing between the current odometry and the
 // destination odometry.
-double calcBearing( const Odometry& current, const Odometry& dest )
+double calcBearing( const Odometry& start, const Odometry& dest )
 {
-    double currentLat = degreeToRadian( current.latitude_deg, current.latitude_min );
-    double currentLon = degreeToRadian( current.longitude_deg, current.longitude_min );
+    double currentLat = degreeToRadian( start.latitude_deg, start.latitude_min );
+    double currentLon = degreeToRadian( start.longitude_deg, start.longitude_min );
     double destLat = degreeToRadian( dest.latitude_deg, dest.latitude_min );
     double destLon = degreeToRadian( dest.longitude_deg, dest.longitude_min );
 
     double verticleComponentDist = EARTH_RADIUS * sin( destLat - currentLat );
-    double noneuclidDist = estimateNoneuclid( current, dest );
+    double noneuclidDist = estimateNoneuclid( start, dest );
 
     double bearing = acos( verticleComponentDist / noneuclidDist );
     if( currentLon > destLon )
@@ -126,11 +126,14 @@ void clear( deque<Waypoint>& aDeque )
 // Checks to see if target is reachable before hitting obstacle
 // If the x component of the distance to obstacle is greater than
 // half the width of the rover the obstacle if reachable
+// OR the obstacle is a post
 bool isTargetReachable( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    double distToTarget = phoebe->roverStatus().target().distance;
+    double distToTarget = phoebe->roverStatus().leftTarget().distance;
     double distThresh = roverConfig["navThresholds"]["targetDistance"].GetDouble();
-    return isLocationReachable( phoebe, roverConfig, distToTarget, distThresh );
+
+    return isLocationReachable( phoebe, roverConfig, distToTarget, distThresh ) ||
+            isObstaclePost( phoebe, roverConfig );
 } // istargetReachable()
 
 // Returns true if the rover can reach the input location without hitting the obstacle.
@@ -141,7 +144,7 @@ bool isLocationReachable( Rover* phoebe, const rapidjson::Document& roverConfig,
     double distToObs = phoebe->roverStatus().obstacle().distance;
     double bearToObs = phoebe->roverStatus().obstacle().bearing;
     double bearToObsComplement = 90 - bearToObs;
-    double xComponentOfDistToObs = distToObs * cos(bearToObsComplement);
+    double xComponentOfDistToObs = distToObs * cos( bearToObsComplement );
 
     bool isReachable = false;
 
@@ -153,3 +156,23 @@ bool isLocationReachable( Rover* phoebe, const rapidjson::Document& roverConfig,
 
     return isReachable;
 } // isLocationReachable()
+
+// Returns true if an obstacle is detected, false otherwise.
+bool isObstacleDetected( Rover* phoebe )
+{
+    return phoebe->roverStatus().obstacle().distance >= 0;
+} // isObstacleDetected()
+
+
+// returns true if the detected obstacle is likely to be a post supporting an AR tag
+// ASSUMPTION: real obstacles are not within {tagToPostThreshold} meters of the tag
+// NOTE: at beginning of subsequent early legs, we will start directly in front of a post
+// but this function will only be called when a target is detected, which is also when we have
+// already reached a waypoint, so we will treat the post as a regular obstacle
+bool isObstaclePost( Rover* phoebe, const rapidjson::Document& roverConfig )
+{
+    double tagToPostThreshold = roverConfig["navThresholds"]["tagToPostDistance"].GetDouble();
+    double tagToObsDist = abs( phoebe->roverStatus().obstacle().distance
+                                - phoebe->roverStatus().leftTarget().distance );
+    return tagToObsDist <= tagToPostThreshold;
+}

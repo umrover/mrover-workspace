@@ -7,7 +7,8 @@ import {
   Gate,
   Odom,
   TargetMessage,
-  TargetListMessage
+  TargetListMessage,
+  ZedGimbalPosition
 } from '../../utils/types';
 import {
   arTagCompare,
@@ -19,7 +20,7 @@ import {
   radToDeg
 } from '../../utils/utils';
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
-import { POST, ROVER } from '../../utils/constants';
+import { PERCEPTION, POST, ROVER } from '../../utils/constants';
 
 /* Class that performs target dectection calculations. */
 export default class TargetDetector {
@@ -28,6 +29,9 @@ export default class TargetDetector {
    ************************************************************************************************/
   /* list of all ar tags on field */
   private arTags!:ArTag[];
+
+  /* Current rover GPS location */
+  private currOdom!:Odom;
 
   /* GPS point of the center of the canvas */
   private fieldCenterOdom!:Odom;
@@ -44,6 +48,9 @@ export default class TargetDetector {
   /* posts visible to the rover */
   private visiblePosts!:ArTag[];
 
+  /* position of the ZED's gimbal */
+  private zedGimbalPos!:ZedGimbalPosition;
+
   /* location of the ZED (i.e. rover's eyes) */
   private zedOdom!:Odom;
 
@@ -53,45 +60,22 @@ export default class TargetDetector {
   /* Initialize ObstacleDetector. */
   constructor(
       currOdom:Odom,
+      zedGimbalPos:ZedGimbalPosition,
       arTags:ArTag[],
       gates:Gate[],
       fov:FieldOfViewOptions,
       fieldCenterOdom:Odom
   ) {
+    this.currOdom = currOdom;
+    this.zedGimbalPos = zedGimbalPos;
     this.arTags = arTags;
     this.gates = gates;
     this.fov = fov;
     this.fieldCenterOdom = fieldCenterOdom;
 
     this.getPosts();
-    this.zedOdom = calcRelativeOdom(currOdom, currOdom.bearing_deg,
-                                    ROVER.length / 2, fieldCenterOdom);
-    this.zedOdom.bearing_deg = currOdom.bearing_deg;
+    this.updateZedOdom();
   } /* constructor() */
-
-  /* Update zedOdom on currOdom change. */
-  updateCurrOdom(newCurrOdom:Odom):void {
-    this.zedOdom = calcRelativeOdom(newCurrOdom, newCurrOdom.bearing_deg,
-                                    ROVER.length / 2, this.fieldCenterOdom);
-    this.zedOdom.bearing_deg = newCurrOdom.bearing_deg;
-  } /* updateCurrOdom() */
-
-  /* Update posts list on change. */
-  updateArTags(newArTags:ArTag[]):void {
-    this.arTags = Object.assign([], newArTags);
-    this.getPosts();
-  } /* updateArTags() */
-
-  /* Update field of view options on change. */
-  updateFov(newFov:FieldOfViewOptions):void {
-    this.fov = newFov;
-  } /* updateFov() */
-
-  /* Update gates list on change. */
-  updateGates(newGates:Gate[]):void {
-    this.gates = Object.assign([], newGates);
-    this.getPosts();
-  } /* updateGates() */
 
   /* Calculate the TargetList LCM message. */
   computeTargetList():TargetListMessage {
@@ -135,7 +119,36 @@ export default class TargetDetector {
     }
 
     return [targetLeft, targetRight];
-  } /* compare_target_list() */
+  } /* computeTargetList() */
+
+  /* Update posts list on change. */
+  updateArTags(newArTags:ArTag[]):void {
+    this.arTags = Object.assign([], newArTags);
+    this.getPosts();
+  } /* updateArTags() */
+
+  /* Update zedOdom on currOdom change. */
+  updateCurrOdom(newCurrOdom:Odom):void {
+    this.currOdom = newCurrOdom;
+    this.updateZedOdom();
+  } /* updateCurrOdom() */
+
+  /* Update field of view options on change. */
+  updateFov(newFov:FieldOfViewOptions):void {
+    this.fov = newFov;
+  } /* updateFov() */
+
+  /* Update gates list on change. */
+  updateGates(newGates:Gate[]):void {
+    this.gates = Object.assign([], newGates);
+    this.getPosts();
+  } /* updateGates() */
+
+  /* Update ZED gimbal position on change. */
+  updateZedGimbalPos(newZedGimbalPos:ZedGimbalPosition):void {
+    this.zedGimbalPos = newZedGimbalPos;
+    this.updateZedOdom();
+  }
 
   /************************************************************************************************
    * Private Methods
@@ -261,14 +274,19 @@ export default class TargetDetector {
     }
 
     /* Step 2: Check if post is in field of view */
-    /* Case 1: post center is within field of view */
-    if (dist <= this.fov.depth &&
+    /* Case 1: post is too close to see */
+    if (dist < PERCEPTION.minVisibleDistTag) {
+      return false;
+    }
+
+    /* Case 2: post center is within field of view */
+    else if (dist <= this.fov.depth &&
         relBear >= -this.fov.angle / 2 &&
         relBear <= this.fov.angle / 2) {
       return true;
     }
 
-    /* Case 2: post center is within field of view angles but beyond depth.
+    /* Case 3: post center is within field of view angles but beyond depth.
                We consider these posts visible if we can see at 2 of the 3
                corners. */
     else if (relBear >= -this.fov.angle / 2 && relBear <= this.fov.angle / 2) {
@@ -285,9 +303,16 @@ export default class TargetDetector {
       return visibleCorners >= 2;
     }
 
-    /* Case 3: post is outside field of view angles */
+    /* Case 4: post is outside field of view angles */
     else {
       return false;
     }
   } /* isPostVisible() */
+
+  /* Calculate the odometry of the ZED */
+  private updateZedOdom():void {
+    this.zedOdom = calcRelativeOdom(this.currOdom, this.currOdom.bearing_deg,
+                                    ROVER.length / 2, this.fieldCenterOdom);
+    this.zedOdom.bearing_deg = compassModDeg(this.currOdom.bearing_deg + this.zedGimbalPos.angle);
+  } /* updateZedOdom() */
 } /* TargetDetector */

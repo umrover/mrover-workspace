@@ -9,13 +9,13 @@
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/RepeaterDropInit.hpp"
-#include "rover_msgs/RepeaterDropComplete.hpp"
+#include "rover_msgs/RepeaterDrop.hpp"
 #include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
+#include "gimbal.hpp"
 
 using namespace rover_msgs;
 using namespace std;
@@ -34,37 +34,41 @@ enum class NavState
     // Search States
     SearchFaceNorth = 20,
     SearchSpin = 21,
-    SearchSpinWait = 22,
-    SearchTurn = 24,
-    SearchDrive = 25,
-    ChangeSearchAlg = 26,
+    SearchGimbal = 22,
+    SearchWait = 24,
+    SearchTurn = 25,
+    SearchDrive = 26,
+    ChangeSearchAlg = 27,
 
     // Target Found States
-    TurnToTarget = 27,
-    TurnedToTargetWait = 28,
-    DriveToTarget = 29,
+    TurnToTarget = 28,
+    TurnedToTargetWait = 29,
+    DriveToTarget = 30,
 
     // Obstacle Avoidance States
-    TurnAroundObs = 30,
-    DriveAroundObs = 31,
-    SearchTurnAroundObs = 32,
-    SearchDriveAroundObs = 33,
+    TurnAroundObs = 31,
+    DriveAroundObs = 32,
+    SearchTurnAroundObs = 33,
+    SearchDriveAroundObs = 34,
 
     // Gate Search States
     GateSpin = 40,
-    GateSpinWait = 41,
+    GateWait = 41,
     GateTurn = 42,
     GateDrive = 43,
     GateTurnToCentPoint = 44,
     GateDriveToCentPoint = 45,
     GateFace = 46,
-    GateShimmy = 47,
-    GateDriveThrough = 48,
+    GateDriveThrough = 47,
+    GateTurnToFarPost = 48,
+    GateDriveToFarPost = 49,
+    GateTurnToGateCenter = 50,
+    GateSearchGimbal = 51,
 
     // Radio Repeater States
-    RadioRepeaterTurn = 50,
-    RadioRepeaterDrive = 51,
-    RepeaterDropWait = 52,
+    RadioRepeaterTurn = 60,
+    RadioRepeaterDrive = 61,
+    RepeaterDropWait = 62,
 
     // Unknown State
     Unknown = 255
@@ -114,9 +118,9 @@ public:
 
         Odometry& odometry();
 
-        Target& target();
+        Target& leftTarget();
 
-        Target& target2();
+        Target& rightTarget();
 
         RadioSignalStrength& radio();
 
@@ -165,7 +169,7 @@ public:
 
     DriveStatus drive( const double distance, const double bearing, const bool target = false );
 
-    void drive(const int direction, const double bearing);
+    void drive( const int direction, const double bearing );
 
     bool turn( Odometry& destination );
 
@@ -186,6 +190,12 @@ public:
     void updateRepeater( RadioSignalStrength& signal);
 
     bool isTimeToDropRepeater();
+
+    Gimbal& gimbal();
+
+    void publishGimbal();
+
+    bool sendGimbalSetpoint(double desired_yaw);
 
 private:
     /*************************************************************************/
@@ -227,6 +237,9 @@ private:
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.
     double mLongMeterInMinutes;
+
+    // Gimbal object.
+    Gimbal mGimbal;
 };
 
 #endif // ROVER_HPP

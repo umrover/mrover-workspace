@@ -13,6 +13,12 @@
 		"kD": 0
 	},
 
+	"gateAdjustment":
+	{
+		"adjustmentDistance": 0.3,
+		"farCenterPointDistAdjustment": 1.0
+	},
+
 	"joystick":
 	{
 		"bearingPower": 0.5,
@@ -26,6 +32,7 @@
 		"drivingBearing": 50,
 		"waypointDistance": 2.0,
 		"targetDistance": 1.0,
+		"tagToPostDistance": 1.5,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20
 	},
@@ -33,6 +40,11 @@
 	"roverMeasurements":
 	{
 		"width": 1.5
+	},
+
+	"gimbal":
+	{
+		"tolerance":1.0
 	},
 
 	"computerVision":
@@ -47,7 +59,9 @@
 		"navStatusChannel": "/nav_status",
 		"repeaterDropInitChannel": "/rr_drop_init",
 		"repeaterDropCompleteChannel": "/rr_drop_complete",
-		"joystickChannel": "/autonomous"
+		"joystickChannel": "/autonomous",
+		"zedGimbalCommand": "/zed_gimbal_cmd",
+		"zedGimbalPosition": "/zed_gimbal_data"
 	},
 
 	"radioRepeaterThresholds":
@@ -62,6 +76,9 @@
 		"numSearches": 2,
 		"bailThresh": 10.0,
 		"searchWaitStepSize": 90.0,
-		"searchWaitTime": 1.0
+		"gimbalSearchWaitStepSize": 75.0,
+		"searchWaitTime": 1.0,
+		"useGimbal": false,
+		"gimbalSearchAngleMag": 150
 	}
 }

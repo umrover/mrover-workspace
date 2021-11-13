@@ -2,11 +2,19 @@
    canvas. */
 
 import {
+  FieldOfViewOptions,
+  Odom,
+  Point2D,
+  WheelLocs,
+  ZedGimbalPosition
+} from '../../utils/types';
+import {
   compassToCanvasRad,
   degToRad,
   odomToCanvas
+
+  // rotatePoint
 } from '../../utils/utils';
-import { FieldOfViewOptions, Odom, Point2D } from '../../utils/types';
 import { ROVER } from '../../utils/constants';
 
 /**************************************************************************************************
@@ -50,8 +58,20 @@ export default class CanvasRover {
   /* Field of view options */
   private fov!:FieldOfViewOptions;
 
+  /* rover's path */
+  private path!:Odom[];
+
+  /* Whether or not to draw the rover's path */
+  private pathVisible!:boolean;
+
+  /* Function to push a point to the rover's path */
+  private pushToPath!:(currLoc:Odom)=>void;
+
   /* scale of the canvas in pixels/meter */
   private scale!:number;
+
+  /* Current position of the ZED Gimbal */
+  private zedGimbalPos!:ZedGimbalPosition;
 
   /************************************************************************************************
    * Public Methods
@@ -61,12 +81,20 @@ export default class CanvasRover {
       currOdom:Odom,
       canvasCent:Odom,
       scale:number, /* pixels/meter */
-      fov:FieldOfViewOptions
+      path:Odom[],
+      fov:FieldOfViewOptions,
+      pathVisible:boolean,
+      pushToPath:(currLoc:Odom)=>void,
+      zedGimbalPos:ZedGimbalPosition
   ) {
     this.currOdom = currOdom;
     this.canvasCent = canvasCent;
     this.scale = scale;
+    this.path = path;
     this.fov = fov;
+    this.pathVisible = pathVisible;
+    this.pushToPath = pushToPath;
+    this.zedGimbalPos = zedGimbalPos;
 
     this.scaledEdgeOffset = EDGE_OFFSET * this.scale;
     this.scaledEboxLen = EBOX_LEN * this.scale;
@@ -86,10 +114,20 @@ export default class CanvasRover {
       return;
     }
 
+    /* Add current point to path */
+    this.pushToPath(this.currOdom);
+
     /* get canvas context */
     this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
     const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
+
+    /* Draw path */
+    if (this.pathVisible) {
+      this.drawPath(canvas);
+    }
+
+    /* Draw rover */
     this.ctx.translate(loc.x, loc.y);
     this.ctx.rotate(degToRad(this.currOdom.bearing_deg));
 
@@ -143,28 +181,64 @@ export default class CanvasRover {
     this.ctx.beginPath();
     this.ctx.moveTo(roverEyeLoc.x, roverEyeLoc.y);
     this.ctx.arc(roverEyeLoc.x, roverEyeLoc.y, this.scaledFovDepth,
-                 compassToCanvasRad(-degToRad(this.fov.angle / 2)),
-                 compassToCanvasRad(degToRad(this.fov.angle / 2)),
+                 compassToCanvasRad(degToRad((-this.fov.angle / 2) + this.zedGimbalPos.angle)),
+                 compassToCanvasRad(degToRad((this.fov.angle / 2) + this.zedGimbalPos.angle)),
                  false);
     this.ctx.lineTo(roverEyeLoc.x, roverEyeLoc.y);
     this.ctx.stroke();
   } /* drawFov() */
 
+  /* Draw the rover's path. */
+  private drawPath(canvas:HTMLCanvasElement):void {
+    if (this.path.length === 0) {
+      return;
+    }
+
+    this.ctx.strokeStyle = 'black';
+    this.ctx.lineWidth = 1;
+    this.ctx.beginPath();
+
+    const centerStart:Point2D = odomToCanvas(this.path[0], this.canvasCent,
+                                             canvas.height, this.scale);
+    this.ctx.moveTo(centerStart.x, centerStart.y);
+    this.path.forEach((loc) => {
+      const pt:Point2D = odomToCanvas(loc, this.canvasCent, canvas.height, this.scale);
+      this.ctx.lineTo(pt.x, pt.y);
+    });
+
+    this.ctx.stroke();
+
+    this.ctx.strokeStyle = '#d19b62';
+    this.ctx.lineWidth = this.scaledWheelDpth;
+    this.ctx.beginPath();
+
+    const wheelLocs:WheelLocs = this.getRelWheelLocs();
+    for (let i = 0; i < wheelLocs.length; i += 1) {
+      this.ctx.translate(centerStart.x, centerStart.y);
+      this.ctx.rotate(degToRad(this.path[0].bearing_deg));
+      this.ctx.moveTo(wheelLocs[i].x, wheelLocs[i].y);
+      this.ctx.rotate(-degToRad(this.path[0].bearing_deg));
+      this.ctx.translate(-centerStart.x, -centerStart.y);
+
+      this.path.forEach((loc) => {
+        const pt:Point2D = odomToCanvas(loc, this.canvasCent, canvas.height, this.scale);
+        this.ctx.translate(pt.x, pt.y);
+        this.ctx.rotate(degToRad(loc.bearing_deg));
+        this.ctx.lineTo(wheelLocs[i].x, wheelLocs[i].y);
+        this.ctx.rotate(-degToRad(loc.bearing_deg));
+        this.ctx.translate(-pt.x, -pt.y);
+      });
+    }
+
+    this.ctx.stroke();
+  } /* drawPath() */
+
   /* Draw the wheels on the rover. */
   private drawWheels():void {
-    const distToWheel:Point2D = {
-      x: (this.scaledRoverWdth - this.scaledWheelDpth) / 2,
-      y: (this.scaledRoverLen - this.scaledWheelDiam) / 2
-    };
-    const wheelLocations:Point2D[] = [
-      { x: -distToWheel.x, y: -distToWheel.y },
-      { x: -distToWheel.x, y:  distToWheel.y },
-      { x:  distToWheel.x, y: -distToWheel.y },
-      { x:  distToWheel.x, y:  distToWheel.y }
-    ];
+    const wheelLocs:WheelLocs = this.getRelWheelLocs();
 
     this.ctx.fillStyle = '#404040';
-    wheelLocations.forEach((wheelLoc:Point2D) => {
+    wheelLocs.forEach((wheelLoc:Point2D) => {
       const startCorner:Point2D = {
         x: wheelLoc.x - (this.scaledWheelDpth / 2),
         y: wheelLoc.y - (this.scaledWheelDiam / 2)
@@ -187,4 +261,19 @@ export default class CanvasRover {
     this.ctx.fillStyle = 'silver';
     this.ctx.fillRect(startCorner.x, startCorner.y, this.scaledZedWdth, this.scaledZedLen);
   } /* drawZed() */
+
+
+  /* Get the wheel locations in pixels relative to the center of the rover. */
+  private getRelWheelLocs():WheelLocs {
+    const distToWheel:Point2D = {
+      x: (this.scaledRoverWdth - this.scaledWheelDpth) / 2,
+      y: (this.scaledRoverLen - this.scaledWheelDiam) / 2
+    };
+    return [
+      { x: -distToWheel.x, y: -distToWheel.y },
+      { x: -distToWheel.x, y:  distToWheel.y },
+      { x:  distToWheel.x, y: -distToWheel.y },
+      { x:  distToWheel.x, y:  distToWheel.y }
+    ];
+  }
 } /* CanvasRover */

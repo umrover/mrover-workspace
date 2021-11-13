@@ -99,9 +99,10 @@ void StateMachine::updateObstacleElements( double bearing, double distance )
 // Will call the corresponding function based on the current state.
 void StateMachine::run()
 {
+   
+    publishNavState();
     if( isRoverReady() )
     {
-        publishNavState();
         mStateChanged = false;
         NavState nextState = NavState::Unknown;
 
@@ -109,7 +110,6 @@ void StateMachine::run()
         {
             nextState = NavState::Off;
             mPhoebe->roverStatus().currentState() = executeOff(); // turn off immediately
-            publishNavState();
             clear( mPhoebe->roverStatus().path() );
             if( nextState != mPhoebe->roverStatus().currentState() )
             {
@@ -154,7 +154,8 @@ void StateMachine::run()
 
             case NavState::SearchFaceNorth:
             case NavState::SearchSpin:
-            case NavState::SearchSpinWait:
+            case NavState::SearchWait:
+            case NavState::SearchGimbal:
             case NavState::SearchTurn:
             case NavState::SearchDrive:
             case NavState::TurnToTarget:
@@ -213,14 +214,17 @@ void StateMachine::run()
             }
 
             case NavState::GateSpin:
-            case NavState::GateSpinWait:
+            case NavState::GateWait:
             case NavState::GateTurn:
             case NavState::GateDrive:
             case NavState::GateTurnToCentPoint:
             case NavState::GateDriveToCentPoint:
             case NavState::GateFace:
-            case NavState::GateShimmy:
             case NavState::GateDriveThrough:
+            case NavState::GateTurnToFarPost:
+            case NavState::GateDriveToFarPost:
+            case NavState::GateTurnToGateCenter:
+            case NavState::GateSearchGimbal:
             {
                 nextState = mGateStateMachine->run();
                 break;
@@ -276,8 +280,8 @@ void StateMachine::updateRoverStatus( TargetList targetList )
 {
     Target target1 = targetList.targetList[0];
     Target target2 = targetList.targetList[1];
-    mNewRoverStatus.target() = target1;
-    mNewRoverStatus.target2() = target2;
+    mNewRoverStatus.leftTarget() = target1;
+    mNewRoverStatus.rightTarget() = target2;
 } // updateRoverStatus( Target )
 
 // Updates the radio signal strength information of the rover's status.
@@ -292,10 +296,12 @@ bool StateMachine::isRoverReady() const
 {
     return mStateChanged || // internal data has changed
            mPhoebe->updateRover( mNewRoverStatus ) || // external data has changed
-           mPhoebe->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
+           mPhoebe->roverStatus().currentState() == NavState::SearchWait || // continue even if no data has changed
            mPhoebe->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
            mPhoebe->roverStatus().currentState() == NavState::RepeaterDropWait ||
-           mPhoebe->roverStatus().currentState() == NavState::GateSpinWait;
+           mPhoebe->roverStatus().currentState() == NavState::SearchGimbal ||
+           mPhoebe->roverStatus().currentState() == NavState::GateSearchGimbal ||
+           mPhoebe->roverStatus().currentState() == NavState::GateWait;
 
 } // isRoverReady()
 
@@ -346,30 +352,34 @@ NavState StateMachine::executeTurn()
 {
     if( mPhoebe->roverStatus().path().empty() )
     {
+        cout << "path is empty" << endl;
         return NavState::Done;
     }
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
-    {
-        addRepeaterDropPoint();
-        return NavState::RadioRepeaterTurn;
-    }
+    // if ( isAddRepeaterDropPoint() )
+    // {
+    //     cout << "add repeater drop point\n";
+    //     addRepeaterDropPoint();
+    //     return NavState::RadioRepeaterTurn;
+    // }
 
     Odometry& nextPoint = mPhoebe->roverStatus().path().front().odom;
     if( mPhoebe->turn( nextPoint ) )
     {
-        if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
-        {
-            return NavState::RadioRepeaterDrive;
-        }
+        // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
+        // {
+        //     cout << "radio drive\n";
+        //     return NavState::RadioRepeaterDrive;
+        // }
         return NavState::Drive;
     }
 
-    if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
-    {
-        return NavState::RadioRepeaterTurn;
-    }
+    // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
+    // {
+    //     cout << "radio turn\n";
+    //     return NavState::RadioRepeaterTurn;
+    // }
     return NavState::Turn;
 } // executeTurn()
 
@@ -386,13 +396,13 @@ NavState StateMachine::executeDrive()
 
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
-    {
-        addRepeaterDropPoint();
-        return NavState::RadioRepeaterTurn;
-    }
+    // if ( isAddRepeaterDropPoint() )
+    // {
+    //     addRepeaterDropPoint();
+    //     return NavState::RadioRepeaterTurn;
+    // }
 
-    if( isObstacleDetected() && !isWaypointReachable( distance ) )
+    if( isObstacleDetected( mPhoebe ) && !isWaypointReachable( distance ) )
     {
         mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
                                                                 getOptimalAvoidanceDistance() );
@@ -403,29 +413,34 @@ NavState StateMachine::executeDrive()
     {
         if( nextWaypoint.search )
         {
-            return NavState::SearchSpin;
+            if ( mRoverConfig[ "search" ][ "useGimbal" ].GetBool() ){
+                return NavState::SearchGimbal; // Entry point to gimbal process
+            }
+            else{
+                return NavState::SearchSpin;
+            }
         }
         mPhoebe->roverStatus().path().pop_front();
-        if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
-        {
-            return NavState::RepeaterDropWait;
-        }
+        // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+        // {
+        //     return NavState::RepeaterDropWait;
+        // }
         ++mCompletedWaypoints;
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
-        if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
-        {
-            return NavState::RadioRepeaterDrive;
-        }
+        // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+        // {
+        //     return NavState::RadioRepeaterDrive;
+        // }
         return NavState::Drive;
     }
     // else driveStatus == DriveStatus::OffCourse (must turn to waypoint)
-    if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
-    {
-        return NavState::RadioRepeaterTurn;
-    }
+    // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+    // {
+    //     return NavState::RadioRepeaterTurn;
+    // }
 
     return NavState::Turn;
 } // executeDrive()
@@ -436,7 +451,7 @@ NavState StateMachine::executeDrive()
 NavState StateMachine::executeRepeaterDropWait( )
 {
 
-    RepeaterDropInit rr_init;
+    RepeaterDrop rr_init;
     const string& radioRepeaterInitChannel = mRoverConfig[ "lcmChannels" ][ "repeaterDropInitChannel" ].GetString();
     mLcmObject.publish( radioRepeaterInitChannel, &rr_init );
 
@@ -458,7 +473,8 @@ string StateMachine::stringifyNavState() const
             { NavState::Drive, "Drive" },
             { NavState::SearchFaceNorth, "Search Face North" },
             { NavState::SearchSpin, "Search Spin" },
-            { NavState::SearchSpinWait, "Search Spin Wait" },
+            { NavState::SearchGimbal, "Search Gimbal" },
+            { NavState::SearchWait, "Search Wait" },
             { NavState::ChangeSearchAlg, "Change Search Algorithm" },
             { NavState::SearchTurn, "Search Turn" },
             { NavState::SearchDrive, "Search Drive" },
@@ -470,14 +486,17 @@ string StateMachine::stringifyNavState() const
             { NavState::SearchTurnAroundObs, "Search Turn Around Obstacle" },
             { NavState::SearchDriveAroundObs, "Search Drive Around Obstacle" },
             { NavState::GateSpin, "Gate Spin" },
-            { NavState::GateSpinWait, "Gate Spin Wait" },
+            { NavState::GateWait, "Gate Wait" },
             { NavState::GateTurn, "Gate Turn" },
             { NavState::GateDrive, "Gate Drive" },
             { NavState::GateTurnToCentPoint, "Gate Turn to Center Point" },
             { NavState::GateDriveToCentPoint, "Gate Drive to Center Point" },
             { NavState::GateFace, "Gate Face" },
-            { NavState::GateShimmy, "Gate Shimmy" },
+            { NavState::GateTurnToFarPost, "Gate Turn to Far Post"},
+            { NavState::GateDriveToFarPost, "Gate Drive to Far Post"},
+            { NavState::GateTurnToGateCenter, "Gate Turn to Gate Center"},
             { NavState::GateDriveThrough, "Gate Drive Through" },
+            { NavState::GateSearchGimbal, "Gate Search Gimbal" },
             { NavState::RadioRepeaterTurn, "Radio Repeater Turn" },
             { NavState::RadioRepeaterDrive, "Radio Repeater Drive" },
             { NavState::RepeaterDropWait, "Radio Repeater Drop" },
@@ -486,12 +505,6 @@ string StateMachine::stringifyNavState() const
 
     return navStateNames.at( mPhoebe->roverStatus().currentState() );
 } // stringifyNavState()
-
-// Returns true if an obstacle is detected, false otherwise.
-bool StateMachine::isObstacleDetected() const
-{
-    return mPhoebe->roverStatus().obstacle().detected;
-} // isObstacleDetected()
 
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceAngle() const
@@ -521,7 +534,7 @@ bool StateMachine::isAddRepeaterDropPoint() const
              mPhoebe->roverStatus().currentState() != NavState::RadioRepeaterDrive &&
              mPhoebe->isTimeToDropRepeater() &&
              mRepeaterDropComplete == false );
-} //isAddRepeaterDropPoint
+} // isAddRepeaterDropPoint
 
 // Returns whether or not to enter RadioRepeaterTurn state.
 void StateMachine::addRepeaterDropPoint()
@@ -536,6 +549,11 @@ void StateMachine::addRepeaterDropPoint()
     mPhoebe->roverStatus().path().push_front(way);
 } // addRepeaterDropPoint
 
+
+//updates the gimbal object with its current position read in from the LCM
+void StateMachine::updateGimbalPosition(double cur_yaw){
+    mPhoebe->gimbal().setCurrentYaw(cur_yaw);
+}
 
 // TODOS:
 // [drive to target] obstacle and target

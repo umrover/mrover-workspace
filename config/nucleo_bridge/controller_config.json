@@ -1,0 +1,157 @@
+[
+    {
+        "name":"HAND_FINGER_POS",
+        "type":"HBridgePos",
+        "nucleo": 0,
+        "channel": 2
+    },
+    {
+        "name":"HAND_FINGER_NEG",
+        "type":"HBridgeNeg",
+        "nucleo": 0,
+        "channel": 3
+    },
+    {
+        "name":"HAND_GRIP_POS",
+        "type":"HBridgePos",
+        "nucleo": 0,
+        "channel": 4
+    },
+    {
+        "name":"HAND_GRIP_NEG",
+        "type":"HBridgeNeg",
+        "nucleo": 0,
+        "channel": 5
+    },
+    {
+        "name":"FOOT_CLAW",
+        "type":"Talon12V",
+        "nucleo": 2,
+        "channel": 0
+    },
+    {
+        "name":"FOOT_SENSOR",
+        "type":"Talon12V",
+        "nucleo": 1,
+        "channel": 1
+    },
+    {
+        "name":"GIMBAL_PITCH_0_POS",
+        "type":"HBridgePos",
+        "nucleo": 1,
+        "channel": 2
+    },
+    {
+        "name":"GIMBAL_PITCH_0_NEG",
+        "type":"HBridgeNeg",
+        "nucleo": 1,
+        "channel": 3
+    },
+    {
+        "name":"GIMBAL_PITCH_1_POS",
+        "type":"HBridgePos",
+        "nucleo": 2,
+        "channel": 2
+    },
+    {
+        "name":"GIMBAL_PITCH_1_NEG",
+        "type":"HBridgeNeg",
+        "nucleo": 2,
+        "channel": 3
+    },
+    {
+        "name":"GIMBAL_YAW_0_POS",
+        "type":"HBridgePos",
+        "nucleo": 1,
+        "channel": 4
+    },
+    {
+        "name":"GIMBAL_YAW_0_NEG",
+        "type":"HBridgeNeg",
+        "nucleo": 1,
+        "channel": 5
+    },
+    {
+        "name":"GIMBAL_YAW_1_POS",
+        "type":"HBridgePos",
+        "nucleo": 2,
+        "channel": 4
+    },
+    {
+        "name":"GIMBAL_YAW_1_NEG",
+        "type":"HBridgeNeg",
+        "nucleo": 2,
+        "channel": 5
+    },
+    {
+        "name":"SA_0",
+        "type":"Talon12V",
+        "nucleo": 0,
+        "channel": 0,
+        "quadCPR": 464.64
+    },
+    {
+        "name":"SA_1",
+        "type":"Talon24V",
+        "nucleo": 0,
+        "channel": 1,
+        "quadCPR": 23945.84
+    },
+    {
+        "name":"SA_2",
+        "type":"Talon12V",
+        "nucleo": 1,
+        "channel": 0,
+        "quadCPR": 23945.84
+    },
+    {
+        "name":"RA_0",
+        "type":"Talon24V",
+        "nucleo": 0,
+        "channel": 0,
+        "quadCPR": 994.0
+    },
+    {
+        "name":"RA_1",
+        "type":"Talon12V",
+        "nucleo": 0,
+        "channel": 1,
+        "quadCPR": 1.0
+    },
+    {
+        "name":"RA_2",
+        "type":"Talon12V",
+        "nucleo": 1,
+        "channel": 0,
+        "quadCPR": 342506.67,
+        "kP": 0.001,
+        "kI": 0.00005
+    },
+    {
+        "name":"RA_3",
+        "type":"Talon24V",
+        "nucleo": 1,
+        "channel": 1,
+        "quadCPR": 180266.67,
+        "kP": 0.001,
+        "kI": 0.00005
+    },
+    {
+        "name":"RA_4",
+        "type":"Talon24V",
+        "nucleo": 2,
+        "channel": 0,
+        "quadCPR": 180266.67,
+        "kP": -0.001,
+        "kI": -0.00005
+    },
+    {
+        "name":"RA_5",
+        "type":"Talon12V",
+        "nucleo": 2,
+        "channel": 1,
+        "quadCPR": 18144,
+        "kP": 0.005,
+        "kI": 0.00005
+    }
+]

@@ -145,7 +145,7 @@ module.exports = {
     "no-useless-call": "error",
     "no-useless-concat": "error",
     "no-useless-return": "error",
-    "no-warning-comments": "error",
+    // "no-warning-comments": "error",
     "no-whitespace-before-property": "error",
     "nonblock-statement-body-position": ["error", "beside"],
     "object-curly-spacing": ["error", "always"],
