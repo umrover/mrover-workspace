@@ -93,9 +93,25 @@ void ArtagTest::run(TagDetector * detector) {
 }
 
 ArtagTestSuite::ArtagTestSuite() 
-    : detector(new TagDetector()) {
+    : detector(getDetector) {
         std::cout << "Test Suite Results\n\n";
     }
+
+TagDetector * ArtagTestSuite::getDetector() {
+    rapidjson::Document mRoverConfig;
+    ifstream configFile;
+    string configPath = getenv("MROVER_CONFIG");
+    configPath += "/config_percep/config.json";
+    configFile.open( configPath );
+    string config = "";
+    string setting;
+    while( configFile >> setting ) {
+        config += setting;
+    }
+    configFile.close();
+    mRoverConfig.Parse( config.c_str() );
+    return new TagDetector(mRoverConfig);
+}
 
 void ArtagTestSuite::run() {
 

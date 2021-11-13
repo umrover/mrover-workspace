@@ -25,6 +25,7 @@ private:
 class ArtagTestSuite {
 public:
     ArtagTestSuite();
+    TagDetector * getDetector();
     void run();
     ~ArtagTestSuite();
 private:

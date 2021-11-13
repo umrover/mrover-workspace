@@ -85,7 +85,7 @@ configure_file(
 if not artag_tests
 	executable('jetson_percep',
 			'main.cpp', 'camera.cpp', 'artag_detector.cpp', 'pcl.cpp',
-			dependencies : all_deps
+			dependencies : all_deps,
 			install : true)
 endif
 
