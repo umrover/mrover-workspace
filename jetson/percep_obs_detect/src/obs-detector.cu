@@ -39,7 +39,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
 void ObsDetector::setupParamaters(std::string parameterFile) {
     //Operating resolution
     cloud_res = sl::Resolution(320, 180);
-    readDir = "/home/mrover/mrover-workspace/jetson/percep_obs_detect/data";
+    readDir = "/home/mrover/mrover-workspace/jetson/percep_obs_detect/data/";
 
     //Zed params
     init_params.coordinate_units = sl::UNIT::MILLIMETER;
