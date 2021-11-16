@@ -107,33 +107,7 @@ void ObsDetector::update(GPU_Cloud pc) {
         //viewer.remove
         //viewer.updatePointCloud(pc);
     }
-    //testing
-    if (frameNum == 20) {
-        //run test algorithm
-        
 
-        vector<GPU_Cloud> raw_data;
-        raw_data.push_back(pc);
-
-        cout << "AAAAAA";
-
-        vector<EuclideanClusterExtractor::ObsReturn> a;
-
-
-
-        Bins b;
-        passZ->run(raw_data[0]);
-        cout << "BBBBBB";
-        ransacPlane->computeModel(raw_data[0]);
-        cout << "CCCCCCC";
-        b = voxelGrid->run(raw_data[0]);
-        cout << "DDDDDDD";
-        a.push_back(ece->extractClusters(raw_data[0], b));
-        cout << "EEEEEEE";
-
-
-        test(raw_data, a);
-    }
 
     // Recording
     if(record) record = true;
@@ -180,31 +154,31 @@ void ObsDetector::test_input_file()
 
   //fileReader.open("");
 
-  //std::cout << "\nXXXXXXXXXXX\n";
-  //GPU_Cloud gpuc = fileReader.readCloudGPU(frameNum); //an arbitrary GPUCloud
-  //std::cout << "\nYYYYYYYYYY\n";
+  std::cout << "\nXXXXXXXXXXX\n";
+  GPU_Cloud gpuc = fileReader.readCloudGPU(frameNum); //an arbitrary GPUCloud
+  std::cout << "\nYYYYYYYYYY\n";
 
-  //vector<GPU_Cloud> raw_data;
-  //raw_data.push_back(gpuc);
+  vector<GPU_Cloud> raw_data;
+  raw_data.push_back(gpuc);
 
-  //cout << "AAAAAA";
+  cout << "AAAAAA";
 
-  //vector<EuclideanClusterExtractor::ObsReturn> a;
-
-
-
-  //Bins b;
-  //passZ->run(raw_data[0]);
-  //cout << "BBBBBB";
-  //ransacPlane->computeModel(raw_data[0]);
-  //cout << "CCCCCCC";
-  //b = voxelGrid->run(raw_data[0]);
-  //cout << "DDDDDDD";
-  //a.push_back(ece->extractClusters(raw_data[0],b));
-  //cout << "EEEEEEE";
+  vector<EuclideanClusterExtractor::ObsReturn> a;
 
 
-  //test(raw_data,a);
+
+  Bins b;
+  passZ->run(raw_data[0]);
+  cout << "BBBBBB";
+  ransacPlane->computeModel(raw_data[0]);
+  cout << "CCCCCCC";
+  b = voxelGrid->run(raw_data[0]);
+  cout << "DDDDDDD";
+  a.push_back(ece->extractClusters(raw_data[0],b));
+  cout << "EEEEEEE";
+
+
+  test(raw_data,a);
 
 }
 
@@ -340,7 +314,7 @@ int main() {
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
-    //obs.test_input_file();
+    obs.test_input_file();
     while(true) {
        //obs.update();
        obs.spinViewer();
