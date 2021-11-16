@@ -77,7 +77,7 @@ void ObsDetector::update() {
         
     } else if(source == DataSource::FILESYSTEM) {
 
-        pc = fileReader.readCloudGPU(49);
+        pc = fileReader.readCloudGPU(59);
     }
     update(pc);
 

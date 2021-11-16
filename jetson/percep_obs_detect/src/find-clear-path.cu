@@ -72,73 +72,86 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
   int i = threadIdx.x;
   heading_checks[i] = 1; //Assume a clear heading
 
+  //printf("%d\n", (heading_checks[i]) ? 1 : 0);
+
   //Create bearing lines based on threadIdx
   //NB: threadIdx 511 is the 0 heading
 
   //fov: one directional field of view, currently 80 degrees
   //bearingNum: number of gpu threads
   //i is index of thread
-  int bearing = int(i - bearingNum/2);
-  bearing = (bearing * fov) / (bearingNum / 2); //converts thread # to degrees
+  int map = (i - bearingNum/2);
+  float bearing = float(map * fov) / (bearingNum / 2); //converts thread # to degrees
+  //printf("%f\n", bearing);
   BearingLines bearings(bearing); //Create bearing lines from bearing
 
-  //TODO: FIX LOGIC
+
   // if detect variables are negative, obs is to the left of bearing line
   // if detect variables are positive, obs is to the right of bearing line
   // if detect variables are 0, obs is on the bearing line
   for(int j = 0; j < obsArrSize; ++j){ //Check all obstacles in obstacles array
-    //checks the left bearing at the minimum y of the object
-    float detectLmin = (bearings.n.x * (obstacles[j].minX - bearings.bLeft.x)) + (bearings.n.y * (obstacles[j].minY - bearings.bLeft.y));
+  //printf("obstacle %d minx: %f maxX: %f minY: %f maxY: %f\n", j, obstacles[j].minX, obstacles[j].maxX, obstacles[j].minY, obstacles[j].maxY);
 
-    //checks the left bearing at the maximum y of the object
-    float detectLmax = (bearings.n.x * (obstacles[j].maxX - bearings.bLeft.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bLeft.y));
+      if(obstacles[j].minX < obstacles[j].maxX && obstacles[j].minY < obstacles[j].maxY){
+      //checks the left bearing at the minimum y of the object
+      float detectLmin = (bearings.n.x * (obstacles[j].minX - bearings.bLeft.x)) + (bearings.n.y * (obstacles[j].minY - bearings.bLeft.y));
 
-    //checks the right bearing at the minimum y of the object
-    float detectRmin = (bearings.n.x * (obstacles[j].minX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].minY - bearings.bRight.y));
+      //checks the left bearing at the maximum y of the object
+      float detectLmax = (bearings.n.x * (obstacles[j].maxX - bearings.bLeft.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bLeft.y));
 
-    //check the right bearing at the maximum y of the object
-    float detectRmax = (bearings.n.x * (obstacles[j].maxX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bRight.y));
+      //checks the right bearing at the minimum y of the object
+      float detectRmin = (bearings.n.x * (obstacles[j].minX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].minY - bearings.bRight.y));
 
-    bool allNegative = detectLmin < 0 && detectLmax < 0 
-                          && detectRmin < 0 && detectRmax < 0; 
+      //check the right bearing at the maximum y of the object
+      float detectRmax = (bearings.n.x * (obstacles[j].maxX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bRight.y));
 
-    bool allPositive = detectLmin > 0 && detectLmax > 0 
-                          && detectRmin > 0 && detectRmax > 0;    
+      //printf("bearing %f detectLmin: %f detectLmax: %f detectRmin: %f detectRmax: %f\n", bearing, detectLmin, detectLmax, detectRmin, detectRmax);
 
-    if(!allNegative && !allPositive)
-    {
-      heading_checks[i] = 0; //This is not a clear heading
-    }
-    else if(allNegative)
-    {
-      //check left bearing line with xmax, ymin to see if its to the left
-      //if its to the left, then that is a collision
-      float detectBottomRight = (bearings.n.x * (obstacles[j].maxX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].minY - bearings.bRight.y));
+      bool allNegative = detectLmin < 0 && detectLmax < 0 
+                            && detectRmin < 0 && detectRmax < 0; 
 
-      if(detectBottomRight > 0)
+      bool allPositive = detectLmin > 0 && detectLmax > 0 
+                            && detectRmin > 0 && detectRmax > 0;  
+
+
+      // printf("%f all negative : %d\n", bearing, (allNegative) ? 1 : 0);
+      // printf("%f all positive : %d\n", bearing, (allPositive) ? 1 : 0);
+
+      if(!allNegative && !allPositive)
       {
         heading_checks[i] = 0; //This is not a clear heading
       }
-    }
-    else if(allPositive)
-    {
-      //check right bearing line with xmin, ymax to see if its to the right
-      //if its to the right, then that is a collision
-      float detectTopLeft = (bearings.n.x * (obstacles[j].minX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bRight.y));
-      
-      if(detectTopLeft < 0)
+      else if(allNegative)
       {
-        heading_checks[i] = 0; //This is not a clear heading
+        //check left bearing line with xmax, ymin to see if its to the left
+        //if its to the left, then that is a collision
+        float detectBottomRight = (bearings.n.x * (obstacles[j].maxX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].minY - bearings.bRight.y));
+
+        if(detectBottomRight > 0)
+        {
+          heading_checks[i] = 0; //This is not a clear heading
+        }
       }
-    }
+      else if(allPositive)
+      {
+        //check right bearing line with xmin, ymax to see if its to the right
+        //if its to the right, then that is a collision
+        float detectTopLeft = (bearings.n.x * (obstacles[j].minX - bearings.bRight.x)) + (bearings.n.y * (obstacles[j].maxY - bearings.bRight.y));
+        
+        if(detectTopLeft < 0)
+        {
+          heading_checks[i] = 0; //This is not a clear heading
+      }
+      }
+  }
 
 
     // bool min_test = (detectLmin < 0 && detectRmin < 0) || (detectLmin > 0 && detectRmin > 0); //checks that the left bearing and the right bearing are on the same side for 
     // bool max_test = (detectLmax < 0 && detectRmax < 0) || (detectLmax > 0 && detectRmax > 0);
     // if(min_test && max_test){ //If to the left of left bearing and right of right bearing
     //   heading_checks[i] = 0; //This is not a clear heading
-    // }
-  }
+     }
+  // }
 }
 
 //Find first clear bearing to the left of our straight ahead bearing and convert it to a degree bearing

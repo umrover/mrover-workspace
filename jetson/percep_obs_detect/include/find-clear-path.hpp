@@ -7,11 +7,11 @@
 
 //TODO: where to put these constants in the final code
 
-static const int rovWidth = 10; //TODO, get actual rovWidth 
+static const float rovWidth = 0.1; //TODO, get actual rovWidth 
 
 static const int bearingNum = 1024; 
 
-static const int fov = 80; //Degree fov from straight ahead (0 degrees)
+static const float fov = 80; //Degree fov from straight ahead (0 degrees)
 
 class BearingLines{
       public:
