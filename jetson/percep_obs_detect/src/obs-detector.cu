@@ -161,17 +161,21 @@ void ObsDetector::test_input_file()
   vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
 
+  cout << "AAAAAA";
+
   vector<EuclideanClusterExtractor::ObsReturn> a;
 
 
 
   Bins b;
   passZ->run(raw_data[0]);
+  cout << "BBBBBB";
   ransacPlane->computeModel(raw_data[0]);
+  cout << "CCCCCCC";
   b = voxelGrid->run(raw_data[0]);
-
+  cout << "DDDDDDD";
   a.push_back(ece->extractClusters(raw_data[0],b));
-
+  cout << "EEEEEEE";
 
 
   test(raw_data,a);
