@@ -155,7 +155,7 @@ void ObsDetector::test_input_file()
   //fileReader.open("");
 
   std::cout << "\nXXXXXXXXXXX\n";
-  GPU_Cloud gpuc = fileReader.readCloudGPU(readDir + "pcl300.pcd"); //an arbitrary GPUCloud
+  GPU_Cloud gpuc = fileReader.readCloudGPU(frameNum); //an arbitrary GPUCloud
   std::cout << "\nYYYYYYYYYY\n";
 
   vector<GPU_Cloud> raw_data;
