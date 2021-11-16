@@ -254,7 +254,6 @@ void PointCloud::draw() {
     glBindVertexArray(vaoID);
     glDrawArrays(GL_POINTS, 0, size);
     glBindVertexArray(0);
-    std::cout << vaoID << std::endl;
 }
 
 /* 
@@ -269,8 +268,6 @@ void PointCloud::draw() {
 Viewer* curInstance; 
 
 Viewer::Viewer() : camera(glm::perspective(glm::radians(35.0f), 1920.0f/1080.0f, 0.01f, 100000.0f)) {
-    
-    
 }
 
 void Viewer::init(int argc, char **argv) {
@@ -363,6 +360,16 @@ void Viewer::clearEphemerals() {
 
 void Viewer::updatePointCloud(int idx, vec4* pts, int size) {
     pc_mutex.lock();
+    // Calculate
+    float maxX = numeric_limits<float>::min(), maxZ = numeric_limits<float>::min();
+    float minX = numeric_limits<float>::max(), minZ = numeric_limits<float>::max();
+    for(int i = 0; i < size; ++i) {
+        maxX = max(maxX, pts[i].x);
+        maxZ = max(maxZ, pts[i].z);
+        minX = min(minX, pts[i].x);
+        minZ = min(minZ, pts[i].z);
+    }
+    pcCenter = glm::vec3((minX + maxX) / 2, 0.0f, (minZ + maxZ) / 2);
     pointClouds[idx].update(pts, size);
     pc_mutex.unlock();
 }
@@ -382,6 +389,14 @@ void Viewer::addPointCloud() {
     pc_mutex.unlock();
 }
 
+void Viewer::setTarget() {
+    curInstance->camera.setTarget(pcCenter);
+}
+
+void Viewer::setTarget(vec3 target) {
+    curInstance->camera.setTarget(target);
+}
+
 void Viewer::mouseButtonCallback(int button, int state, int x, int y) {
     // We need to reset the previous mouse X on the click to avoid a jump in look dir
     curInstance->prevMouseX = x;
@@ -391,12 +406,12 @@ void Viewer::mouseButtonCallback(int button, int state, int x, int y) {
     // wheel up
     if(button == 3) {
         // curInstance->camera.setEye(lookDir * 0.75f + curInstance->camera.getTarget());
-        curInstance->camera.scaleEye(0.75f);
-    } 
-    // wheel down
+        curInstance->camera.scaleEye(-0.15f);
+    }
+        // wheel down
     else if(button == 4) {
-         //curInstance->camera.setEye(lookDir * 1.25f + curInstance->camera.getTarget());
-        curInstance->camera.scaleEye(1.25f);
+        //curInstance->camera.setEye(lookDir * 1.25f + curInstance->camera.getTarget());
+        curInstance->camera.scaleEye(0.15f);
 
     }
 
@@ -405,8 +420,7 @@ void Viewer::mouseButtonCallback(int button, int state, int x, int y) {
 }
 
 void Viewer::mouseMotionCallback(int x, int y) {
-    cout << "mouse" << endl;
-    
+
     int deltaX = x - curInstance->prevMouseX;
     int deltaY = y - curInstance->prevMouseY;
 
@@ -435,6 +449,7 @@ int main(int argc, char** argv) {
     std::vector<vec4> cloud = reader.readCloudCPU(dir+"pcl50.pcd");
     viewer.addPointCloud();
     viewer.updatePointCloud(0, &cloud[0], cloud.size());
+    viewer.setTarget();
     while(true) {
         viewer.update();
     }
