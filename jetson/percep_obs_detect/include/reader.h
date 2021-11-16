@@ -105,15 +105,9 @@ class PCDReader {
         GPU_Cloud readCloudGPU(int i) {
             i = i % pcd_names.size();
 
-            std::cout << "AAAAAA";
-
             std::vector<glm::vec4> pc_raw = readCloudCPU(dir + pcd_names[i]);
-
-            std::cout << "BBBB";
             GPU_Cloud pc = createCloud(pc_raw.size());
-            std::cout << "CCCCCCC";
             cudaMemcpy(pc.data, &pc_raw[0], sizeof(glm::vec4) * pc_raw.size(), cudaMemcpyHostToDevice);
-            std::cout << "DDDDDDDD";
             return pc;
         }
 
