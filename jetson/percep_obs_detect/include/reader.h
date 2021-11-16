@@ -20,15 +20,15 @@ class PCDReader {
         PCDReader() {
         }
 
-        void open(string dir) {	
+        void open(string dir) {
             this->dir = dir;
             map<int, string> fData;
 
             //Long-winded directory opening (no glob, sad)
             DIR * pcd_dir;
             pcd_dir = opendir(dir.c_str());
-            if (NULL == pcd_dir) std::cerr<<"Input folder not exist\n";    
-            
+            if (NULL == pcd_dir) std::cerr<<"Input folder not exist\n";
+
             struct dirent *dp = NULL;
             do {
                 if ((dp = readdir(pcd_dir)) != NULL) {
@@ -38,14 +38,14 @@ class PCDReader {
                     std::cout<<"file_name is "<<file_name<<std::endl;
 
                     pcd_names.push_back(file_name);
-                    
+
                     int s = file_name.find_first_of("0123456789");
                     int l = file_name.find(".");
                     string keyS = file_name.substr(s,l-s );
                     int key = stoi(keyS);
                     //cout << key << endl;
                     fData[key] = file_name;
-            
+
                 }
             } while (dp != NULL);
             std::sort(pcd_names.begin(), pcd_names.end());
@@ -68,16 +68,16 @@ class PCDReader {
             int width, height;
 
             while(getline(fin, line)) {
-                // Get the tokens of this line 
+                // Get the tokens of this line
                 stringstream ss(line);
                 string token;
                 vector<string> tokens;
                 while(ss >> token) tokens.push_back(token);
 
-                // Process line 
+                // Process line
                 if(tokens[0] == "WIDTH") width = stoi(tokens[1]);
                 if(tokens[0] == "HEIGHT") height = stoi(tokens[1]);
-                if(tokens[0] == "DATA") break;    
+                if(tokens[0] == "DATA") break;
             }
 
             pc.reserve(width * height);
@@ -105,9 +105,15 @@ class PCDReader {
         GPU_Cloud readCloudGPU(int i) {
             i = i % pcd_names.size();
 
+            std::cout << "AAAAAA";
+
             std::vector<glm::vec4> pc_raw = readCloudCPU(dir + pcd_names[i]);
+
+            std::cout << "BBBB";
             GPU_Cloud pc = createCloud(pc_raw.size());
+            std::cout << "CCCCCCC";
             cudaMemcpy(pc.data, &pc_raw[0], sizeof(glm::vec4) * pc_raw.size(), cudaMemcpyHostToDevice);
+            std::cout << "DDDDDDDD";
             return pc;
         }
 
