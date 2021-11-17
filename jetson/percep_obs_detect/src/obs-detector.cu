@@ -254,6 +254,9 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
       current_intersection_sum += current_intersection; //global int sum
       current_volume_sum += current_volume; //global vol sum
       /* push %-detected of each truth obs to current ObsReturn index */
+
+      std::cout << current_intersection_sum << "\n";
+      
       discrete_truth_pct[i].push_back(current_intersection / current_volume);
     }
     truth_volumes.push_back(current_volume_sum); //global volume
@@ -285,7 +288,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
   /* return custom class ("TestStats.h") */
   TestStats::TestStats tsolution(g_t,false_positive_vol,clock_times,true_count,obs_count,discrete_truth_pct);
 
-  tsolution.print();
+
   return tsolution;
 }
 

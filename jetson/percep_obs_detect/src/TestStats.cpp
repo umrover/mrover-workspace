@@ -41,7 +41,7 @@ void TestStats::print() //prints out all info
   std::cout << "Number of True Obstacles: [NUMTRUE]\n";
   std::cout << "\t(What Should be detected)\n";
   std::cout << "Percent Truth Detected: [TRUE]\n";
-  std::cout << "\t(Total intersection divided by total true area)\n\tShould be clsoe to 1\n";
+  std::cout << "\t(Total intersection divided by total true area)\n\tShould be close to 1\n";
   std::cout << "False Positive over True Volume: [FALSE]\n";
   std::cout << "\t(Total detected volume not contained in set of true obstacles)\n\t(Divided by total true volume)\n";
   std::cout << "Mean % Truth: [TRUEPCT]\n";
