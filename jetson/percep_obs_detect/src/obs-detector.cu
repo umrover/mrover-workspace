@@ -293,7 +293,8 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
 
 float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst) {
     /* Find coordinates of rect prism of intersection */
-
+    if (truth_obst.minX > truth_obst.maxX || truth_obst.minY > truth_obst.maxY || truth_obst.minZ > truth_obst.maxZ
+        || eval_obst.minX > eval_obst.maxX || eval_obst.minY > eval_obst.maxY || eval_obst.minZ > eval_obst.maxZ) return 0;
     float xa = (std::max(truth_obst.minX, eval_obst.minX));
     float xb = (std::min(truth_obst.maxX, eval_obst.maxX));
     float ya = (std::max(truth_obst.minY, eval_obst.minY));
