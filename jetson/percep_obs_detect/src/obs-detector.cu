@@ -151,32 +151,20 @@ void ObsDetector::spinViewer() {
 
 void ObsDetector::test_input_file()
 {
-
   //fileReader.open("");
 
-  std::cout << "\nXXXXXXXXXXX\n";
   GPU_Cloud gpuc = fileReader.readCloudGPU("/home/seanaa/mrover-workspace/jetson/percep_obs_detect/data/pcl300.pcd"); //an arbitrary GPUCloud
-  std::cout << "\nYYYYYYYYYY\n";
 
   vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
 
-  cout << "AAAAAA";
-
   vector<EuclideanClusterExtractor::ObsReturn> a;
-
-
 
   Bins b;
   passZ->run(raw_data[0]);
-  cout << "BBBBBB";
   ransacPlane->computeModel(raw_data[0]);
-  cout << "CCCCCCC";
   b = voxelGrid->run(raw_data[0]);
-  cout << "DDDDDDD";
   a.push_back(ece->extractClusters(raw_data[0],b));
-  cout << "EEEEEEE";
-
 
   test(raw_data,a);
 
@@ -255,8 +243,8 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
       current_volume_sum += current_volume; //global vol sum
       /* push %-detected of each truth obs to current ObsReturn index */
 
-      std::cout << current_intersection_sum << "\n";
-      
+      std::cout << current_intersection << "\n";
+
       discrete_truth_pct[i].push_back(current_intersection / current_volume);
     }
     truth_volumes.push_back(current_volume_sum); //global volume
