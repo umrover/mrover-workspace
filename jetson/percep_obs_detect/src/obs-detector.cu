@@ -230,8 +230,9 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
       {
         /* find intersection between test and truth */
         /* if intersection > 0, add vol of intersection */
+        float cinter = calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]);
         current_intersection +=
-        calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]) > 0 ? calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]) : 0;
+        cinter > 0 && !isinf(cinter) ? cinter : 0;
 
       }
       // Volume of current ground truth obs
@@ -282,6 +283,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
 
 float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst) {
     /* Find coordinates of rect prism of intersection */
+
     float xa = (std::max(truth_obst.minX, eval_obst.minX));
     float xb = (std::min(truth_obst.maxX, eval_obst.maxX));
     float ya = (std::max(truth_obst.minY, eval_obst.minY));
