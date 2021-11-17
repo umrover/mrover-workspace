@@ -300,7 +300,7 @@ float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstac
     float yb = (std::min(truth_obst.maxY, eval_obst.maxY));
     float za = (std::max(truth_obst.minZ, eval_obst.minZ));
     float zb = (std::min(truth_obst.maxZ, eval_obst.maxZ));
-    return (xa - xb) * (ya - yb) * (za - zb);
+    return (xb - xa) * (yb - ya) * (zb - za);
 }
 
  ObsDetector::~ObsDetector() {
