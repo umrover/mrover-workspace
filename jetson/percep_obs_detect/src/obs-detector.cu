@@ -232,7 +232,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
         /* if intersection > 0, add vol of intersection */
         float cinter = calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]);
         if (!std::isinf(cinter) && cinter > 0) {
-            current_intersection += cinter
+            current_intersection += cinter;
         }//only add if valid
 
       }
