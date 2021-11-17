@@ -250,8 +250,14 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
       if(current_volume != 0)
         discrete_truth_pct[i].push_back(current_intersection / current_volume);
     }
-    truth_volumes.push_back(current_volume_sum); //global volume
-    g_t.push_back(current_intersection_sum / current_volume_sum); //global quasi-IOU
+    if (current_volume_sum != 0) {
+        truth_volumes.push_back(current_volume_sum); //global volume
+        g_t.push_back(current_intersection_sum / current_volume_sum); //global quasi-IOU
+    }
+    //else {
+    //    truth_volumes.push_back(0); //invalid object - there is no volume
+    //    g_t.push_back(0); //invalid -
+    //}
 
   }
 
