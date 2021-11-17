@@ -10,6 +10,7 @@
 #include <thread>
 #include "timer.hpp"
 #include "common.hpp"
+#include <math.h>
 #include "voxel-grid.hpp"
 #include "TestStats.h"
 //#include <lcm/lcm-cpp.hpp>

@@ -232,7 +232,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
         /* if intersection > 0, add vol of intersection */
         float cinter = calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]);
         current_intersection +=
-        cinter > 0 && !isinf(cinter) ? cinter : 0;
+        cinter > 0 && !std::isinf(cinter) ? cinter : 0;
 
       }
       // Volume of current ground truth obs
