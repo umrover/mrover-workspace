@@ -75,8 +75,8 @@ void ObsDetector::update() {
         getRawCloud(pc, frame);
         
     } else if(source == DataSource::FILESYSTEM) {
-
         pc = fileReader.readCloudGPU(frameNum);
+        if (frameNum == 1) viewer.setTarget();
     }
     update(pc);
 
