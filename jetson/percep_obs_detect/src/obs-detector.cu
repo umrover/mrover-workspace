@@ -231,8 +231,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
         /* find intersection between test and truth */
         /* if intersection > 0, add vol of intersection */
         float cinter = calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]);
-        current_intersection +=
-        cinter > 0 && !std::isinf(cinter) ? cinter : 0;
+        current_intersection += cinter > 0 && !std::isinf(cinter) ? cinter : 0;
 
       }
       // Volume of current ground truth obs
@@ -240,13 +239,16 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
           * (truth_list[i].obs[j].maxY - truth_list[i].obs[j].minY)
           * (truth_list[i].obs[j].maxZ - truth_list[i].obs[j].minZ);
 
+      if(std::isinf(current_volume)) // sometimes it's NaN (infinty or 0/0)
+        current_volume = 0;
+
       current_intersection_sum += current_intersection; //global int sum
       current_volume_sum += current_volume; //global vol sum
       /* push %-detected of each truth obs to current ObsReturn index */
 
-      std::cout << current_intersection << "\n";
 
-      discrete_truth_pct[i].push_back(current_intersection / current_volume);
+      if(current_volume != 0)
+        discrete_truth_pct[i].push_back(current_intersection / current_volume);
     }
     truth_volumes.push_back(current_volume_sum); //global volume
     g_t.push_back(current_intersection_sum / current_volume_sum); //global quasi-IOU
