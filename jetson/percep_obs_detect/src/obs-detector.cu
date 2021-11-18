@@ -153,7 +153,7 @@ void ObsDetector::test_input_file()
 {
   //fileReader.open("");
 
-  GPU_Cloud gpuc = fileReader.readCloudGPU("/home/seanaa/mrover-workspace/jetson/percep_obs_detect/data/pcl300.pcd"); //an arbitrary GPUCloud
+  GPU_Cloud gpuc = fileReader.readCloudGPU("/home/seanaa/mrover-workspace/jetson/percep_obs_detect/data/pcl300.pcd"); //read the cloud
 
   vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);

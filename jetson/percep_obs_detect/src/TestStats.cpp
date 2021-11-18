@@ -55,15 +55,15 @@ void TestStats::print() //prints out all info
     std::cout << "GPU Obstacle Detection Runtime: " << times[i] << "\n";
     std::cout << "Number of Detected Obstacles: " << num_det_obs[i] << "\n";
     std::cout << "Number of True Obstacles: " << num_true_obs[i] << "\n";
-    std::cout << "Percent Truth Detected: " << iot[i] << "\n";
+    std::cout << "Percent Truth Detected: " << iot[i]*100 << "\n";
     std::cout << "False Positive over True Volume: " << fot[i] << "\n";
-    std::cout << "Mean % Truth: " <<
+    std::cout << "Mean % Truth: " << //TODO Make this an actual percent
       std::accumulate(discrete_truths[i].begin(),
                       discrete_truths[i].end(),
                       static_cast<float>(0),
                       [&](const float& a, const float& b){
                         return a + b / discrete_truths[i].size();
                       }) << "\n";
-  }
+    //TODO: Loop through the discrete_truths and output obstacle-by-obstacle  }
 
 }//End print()
