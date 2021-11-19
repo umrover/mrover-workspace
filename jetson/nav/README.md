@@ -16,7 +16,7 @@
 
 <!----------------------------- Project Overview ----------------------------->
 ## Project Overview
-The nav codebase contains logic for commanding the rover during the Autonomous Traversal task. The task consists of several legs that increase in difficulty. During a leg, the operator starts inputs the destination GPS waypoint and end behavior for the leg (search and/or gate), then starts the Auton system from the base station. The rover will first drive autonomously to the destination waypoint without responding to target data from Perception. It will avoid obstacles as they appear. Once the waypoint is reached, the rover will start a search pattern if the leg was a search leg. The search algorithm first attempts a spiral out search pattern and approaches the tag once it is found. Finally, if there is a second tag composing the gate, the gate search and traversal algorithm will start.
+The nav codebase contains logic for commanding the rover during the Autonomous Traversal task. The task consists of several legs that increase in difficulty. During a leg, the operator inputs the destination GPS waypoint and end behavior for the leg (search and/or gate), then starts the Auton system from the base station. The rover will first drive autonomously to the destination waypoint without responding to target data from Perception. It will avoid obstacles as they appear. Once the waypoint is reached, the rover will start a search pattern if the leg was a search leg. The search algorithm first attempts a spiral out search pattern and approaches the tag once it is found. Finally, if the operator indicated the leg is a gate leg, there is another post to find, so the gate search and traversal algorithm will start.
 
 ---
 
@@ -27,7 +27,7 @@ The nav codebase contains logic for commanding the rover during the Autonomous T
 The `main.cpp` file contains the `main()` function. In the main function, we create an instance of the state machine, create the LCM handlers class, and subscribe to the LCM channels that we will read messages from. (For more about LCM’s, see below.) Then we call the outermost function of the state machine, `run()`, which begins executing the state machine logic.
 
 #### `stateMachine.hpp`
-This is an example of a header file, commonly used in C and C++. The header file for a class (an object) contains the class declaration. A class declaration lists the class’s member variables and declares the member functions, which are then implemented (“defined”) in the .cpp file. The `stateMachine.hpp` file contains the state machine variables, including, notably, pointers to the search state machine and obstacle avoidance state machine, which are derived classes from the regular state machine.
+This is an example of a header file, commonly used in C and C++. The header file for a class (an object) contains the class declaration. A class declaration lists the class’s member variables and declares the member functions, which are then implemented (“defined”) in the .cpp file. The `stateMachine.hpp` file contains the state machine variables, including pointers to the search state machine and obstacle avoidance state machine, which are derived classes from the regular state machine.
 
 #### `stateMachine.cpp`
 This file contains implementations of the stateMachine object’s member functions, including the `run()` function, which executes the logic for switching between navigation states and calling the functions to run in each state.
@@ -56,7 +56,7 @@ Defines gate search/traversal states and functions.
 Defines an obstacle avoidance state machine with minimal functionality, intended to be a parent class for different types of obstacle avoidance strategies
 
 #### `simpleAvoidance.cpp`
-This contains our current only implementation of obstacle avoidance behavior. Inherited from the obstacle state machine, it is a very simple algorithm and just drops a waypoint at the front of the queue, with a position at a safe location away from the obstacle, for the rover to drive to before continuing to its previous destination.
+This contains what is currently our only implementation of obstacle avoidance behavior. Inherited from the obstacle state machine, it is a very simple algorithm and just drops a waypoint at the front of the queue, with a position at a safe location away from the obstacle, for the rover to drive to before continuing to its previous destination. If we developed another behavior algorithm, we would make another obstacle state machine child class like simpleAvoidance.
 
 
 ---
