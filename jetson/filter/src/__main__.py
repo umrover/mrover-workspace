@@ -122,7 +122,7 @@ class SensorFusion:
         self.gps = Gps()
         self.imu = Imu(self.config["IMU_accel_filter_bias"], self.config["IMU_accel_threshold"])
         self.nav_state = None
-        self.static_nav_states = {"Off", "Done", "Search Spin Wait", "Turned to Target Wait", "Gate Spin Wait",
+        self.static_nav_states = {None, "Off", "Done", "Search Spin Wait", "Turned to Target Wait", "Gate Spin Wait",
                                   "Turn", "Search Turn", "Turn to Target", "Turn Around Obstacle",
                                   "Search Turn Around Obstacle", "Gate Turn", "Gate Turn to Center Point",
                                   "Radio Repeater Turn"}

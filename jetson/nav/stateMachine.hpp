@@ -99,7 +99,7 @@ private:
     /* Private Member Variables */
     /*************************************************************************/
     // Rover object to do basic rover operations in the state machine.
-    Rover* mPhoebe;
+    Rover* mRover;
 
     // RoverStatus object for updating the rover's status.
     Rover::RoverStatus mNewRoverStatus;

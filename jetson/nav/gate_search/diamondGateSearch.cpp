@@ -13,6 +13,7 @@ DiamondGateSearch::~DiamondGateSearch() {}
 void DiamondGateSearch::initializeSearch()
 {
     mGateSearchPoints.clear();
+
     Odometry currOdom = mPhoebe->roverStatus().odometry();
     double diamondWidth = mPhoebe->roverStatus().path().front().gate_width * 1.5;
     const double targetBearing = mPhoebe->roverStatus().leftTarget().bearing;

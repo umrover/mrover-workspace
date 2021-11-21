@@ -18,11 +18,11 @@ SearchStateMachine::SearchStateMachine( StateMachine* roverStateMachine )
 // StateMachine  when NavState is in a search state. This will call the corresponding
 NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    switch ( phoebe->roverStatus().currentState() )
+    switch ( mRover->roverStatus().currentState() )
     {
         case NavState::SearchSpin:
         {
-            return executeSearchSpin( phoebe, roverConfig );
+            return executeSearchSpin();
         }
 
         case NavState::SearchGimbal:
@@ -32,12 +32,12 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
         case NavState::SearchWait:
         case NavState::TurnedToTargetWait:
         {
-            return executeRoverWait( phoebe, roverConfig );
+            return executeRoverWait();
         }
 
         case NavState::SearchTurn:
         {
-            return executeSearchTurn( phoebe, roverConfig );
+            return executeSearchTurn();
         }
 
         case NavState::SearchDrive:
@@ -47,12 +47,12 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
 
         case NavState::TurnToTarget:
         {
-            return executeTurnToTarget( phoebe );
+            return executeTurnToTarget();
         }
 
         case NavState::DriveToTarget:
         {
-            return executeDriveToTarget( phoebe, roverConfig );
+            return executeDriveToTarget();
         }
 
         default:
@@ -68,10 +68,10 @@ NavState SearchStateMachine::run( Rover* phoebe, const rapidjson::Document& rove
 // detects the target, it proceeds to the target. If finished with a 360,
 // the rover moves on to the next phase of the search. Else continues
 // to search spin.
-NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::Document& roverConfig )
+NavState SearchStateMachine::executeSearchSpin()
 {
     // degrees to turn to before performing a search wait.
-    double waitStepSize = roverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
+    double waitStepSize = mRoverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; // initialize, is corrected on first call
 
@@ -87,7 +87,7 @@ NavState SearchStateMachine::executeSearchSpin( Rover* phoebe, const rapidjson::
         mOriginalSpinAngle = phoebe->roverStatus().odometry().bearing_deg; // doublecheck
         nextStop = mOriginalSpinAngle;
     }
-    if( phoebe->turn( nextStop ) )
+    if( mRover->turn( nextStop ) )
     {
         if( nextStop - mOriginalSpinAngle >= 360 )
         {
@@ -172,7 +172,7 @@ NavState SearchStateMachine::executeSearchGimbal( Rover* phoebe, const rapidjson
 // look for the target. If the rover detects the target, it proceeds
 // to the target. If the rover is done waiting, it continues the search
 // spin. Else the rover keeps waiting.
-NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::Document& roverConfig )
+NavState SearchStateMachine::executeRoverWait()
 {
     static bool started = false;
     static time_t startTime;
@@ -185,11 +185,11 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
     }
     if( !started )
     {
-        phoebe->stop();
+        mRover->stop();
         startTime = time( nullptr );
         started = true;
     }
-    double waitTime = roverConfig[ "search" ][ "searchWaitTime" ].GetDouble();
+    double waitTime = mRoverConfig[ "search" ][ "searchWaitTime" ].GetDouble();
     if( difftime( time( nullptr ), startTime ) > waitTime )
     {
         started = false;
@@ -218,7 +218,7 @@ NavState SearchStateMachine::executeRoverWait( Rover* phoebe, const rapidjson::D
 // If the rover detects the target, it proceeds to the target.
 // If the rover finishes turning, it proceeds to driving while searching.
 // Else the rover keeps turning to the next Waypoint.
-NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::Document& roverConfig )
+NavState SearchStateMachine::executeSearchTurn()
 {
     cout << "search size: " << mSearchPoints.size() << endl;
     if( mSearchPoints.empty() )
@@ -233,7 +233,7 @@ NavState SearchStateMachine::executeSearchTurn( Rover* phoebe, const rapidjson::
         return NavState::TurnToTarget;
     }
     Odometry& nextSearchPoint = mSearchPoints.front();
-    if( phoebe->turn( nextSearchPoint ) )
+    if( mRover->turn( nextSearchPoint ) )
     {
         return NavState::SearchDrive;
     }
@@ -254,14 +254,14 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson:
                                            phoebe->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    if( isObstacleDetected( phoebe ) )
+    if( isObstacleDetected( mRover ) )
     {
-        roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
-        roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
+        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing );
+        roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
     const Odometry& nextSearchPoint = mSearchPoints.front();
-    DriveStatus driveStatus = phoebe->drive( nextSearchPoint );
+    DriveStatus driveStatus = mRover->drive( nextSearchPoint );
 
     if( driveStatus == DriveStatus::Arrived )
     {
@@ -287,12 +287,12 @@ NavState SearchStateMachine::executeSearchDrive( Rover* phoebe, const rapidjson:
 // If the rover finishes turning to the target, it goes into waiting state to
 // give CV time to relocate the target
 // Else the rover continues to turn to to the target.
-NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
+NavState SearchStateMachine::executeTurnToTarget()
 {
     if( phoebe->roverStatus().leftTarget().distance < 0 )
     {
         cerr << "Lost the target. Continuing to turn to last known angle\n";
-        if( phoebe->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
+        if( mRover->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
         {
             return NavState::TurnedToTargetWait;
         }
@@ -315,18 +315,18 @@ NavState SearchStateMachine::executeTurnToTarget( Rover* phoebe )
 // If the rover finishes driving to the target, it moves on to the next Waypoint.
 // If the rover is on course, it keeps driving to the target.
 // Else, it turns back to face the target.
-NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjson::Document& roverConfig )
+NavState SearchStateMachine::executeDriveToTarget()
 {
     if( phoebe->roverStatus().leftTarget().distance < 0 )
     {
         cerr << "Lost the target\n";
         return NavState::SearchTurn; // NavState::SearchSpin
     }
-    if( isObstacleDetected( phoebe ) &&
-        !isTargetReachable( phoebe, roverConfig ) )
+    if( isObstacleDetected( mRover ) &&
+        !isTargetReachable( mRover, mRoverConfig ) )
     {
-        roverStateMachine->updateObstacleAngle( phoebe->roverStatus().obstacle().bearing );
-        roverStateMachine->updateObstacleDistance( phoebe->roverStatus().obstacle().distance );
+        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing );
+        roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
     
@@ -354,7 +354,7 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.clear();
-        if( phoebe->roverStatus().path().front().gate )
+        if( mRover->roverStatus().path().front().gate )
         {
             roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
             const double absAngle = mod( phoebe->roverStatus().odometry().bearing_deg +
@@ -374,7 +374,7 @@ NavState SearchStateMachine::executeDriveToTarget( Rover* phoebe, const rapidjso
             }
            
         }
-        phoebe->roverStatus().path().pop_front();
+        mRover->roverStatus().path().pop_front();
         roverStateMachine->updateCompletedPoints();
         return NavState::Turn;
     }
@@ -410,9 +410,9 @@ void SearchStateMachine::updateTargetDetectionElements( double target_bearing, d
 
 // add intermediate points between the existing search points in a path generated by a search algorithm.
 // The maximum separation between any points in the search point list is determined by the rover's sight distance.
-void SearchStateMachine::insertIntermediatePoints( Rover * phoebe, const rapidjson::Document& roverConfig )
+void SearchStateMachine::insertIntermediatePoints()
 {
-    double visionDistance = roverConfig[ "computerVision" ][ "visionDistance" ].GetDouble();
+    double visionDistance = mRoverConfig[ "computerVision" ][ "visionDistance" ].GetDouble();
     const double maxDifference = 2 * visionDistance;
 
     for( int i = 0; i < int( mSearchPoints.size() ) - 1; ++i )
@@ -428,7 +428,7 @@ void SearchStateMachine::insertIntermediatePoints( Rover * phoebe, const rapidjs
             for ( int j = 0; j < numPoints; ++j )
             {
                 Odometry startPoint = mSearchPoints.at( i );
-                Odometry newOdom = createOdom( startPoint, bearing, newDifference, phoebe );
+                Odometry newOdom = createOdom( startPoint, bearing, newDifference, mRover );
                 auto insertPosition = mSearchPoints.begin() + i + 1;
                 mSearchPoints.insert( insertPosition, newOdom );
                 ++i;
@@ -439,26 +439,26 @@ void SearchStateMachine::insertIntermediatePoints( Rover * phoebe, const rapidjs
 
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms
-SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type )  //TODO
+SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig )  //TODO
 {
     SearchStateMachine* search = nullptr;
     switch ( type )
     {
         case SearchType::SPIRALOUT:
-            search = new SpiralOut( stateMachine );
+            search = new SpiralOut( stateMachine, rover, roverConfig );
             break;
 
         case SearchType::LAWNMOWER:
-            search = new LawnMower( stateMachine );
+            search = new LawnMower( stateMachine, rover, roverConfig );
             break;
 
         case SearchType::SPIRALIN:
-            search = new SpiralIn( stateMachine );
+            search = new SpiralIn( stateMachine, rover, roverConfig );
             break;
 
         default:
             std::cerr << "Unkown Search Type. Defaulting to Spiral\n";
-            search = new SpiralOut( stateMachine );
+            search = new SpiralOut( stateMachine, rover, roverConfig );
             break;
     }
     return search;

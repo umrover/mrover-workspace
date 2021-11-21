@@ -21,7 +21,7 @@
 // and the lcmObject. Sets mStateChanged to true so that on the first
 // iteration of run the rover is updated.
 StateMachine::StateMachine( lcm::LCM& lcmObject )
-    : mPhoebe( nullptr )
+    : mRover( nullptr )
     , mLcmObject( lcmObject )
     , mTotalWaypoints( 0 )
     , mCompletedWaypoints( 0 )
@@ -40,24 +40,24 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     }
     configFile.close();
     mRoverConfig.Parse( config.c_str() );
-    mPhoebe = new Rover( mRoverConfig, lcmObject );
-    mSearchStateMachine = SearchFactory( this, SearchType::SPIRALOUT );
-    mGateStateMachine = GateFactory( this, mPhoebe, mRoverConfig );
-    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( this, ObstacleAvoidanceAlgorithm::SimpleAvoidance );
+    mRover = new Rover( mRoverConfig, lcmObject );
+    mSearchStateMachine = SearchFactory( this, SearchType::SPIRALOUT, mRover, mRoverConfig );
+    mGateStateMachine = GateFactory( this, mRover, mRoverConfig );
+    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( this, ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mRoverConfig );
 } // StateMachine()
 
 // Destructs the StateMachine object. Deallocates memory for the Rover
 // object.
 StateMachine::~StateMachine( )
 {
-    delete mPhoebe;
+    delete mRover;
 }
 
-void StateMachine::setSearcher( SearchType type )
+void StateMachine::setSearcher( SearchType type, Rover* rover, const rapidjson::Document& roverConfig )
 {
     assert( mSearchStateMachine );
     delete mSearchStateMachine;
-    mSearchStateMachine = SearchFactory( this, type );
+    mSearchStateMachine = SearchFactory( this, type, rover, roverConfig );
 }
 
 void StateMachine::updateCompletedPoints( )
@@ -106,19 +106,19 @@ void StateMachine::run()
         mStateChanged = false;
         NavState nextState = NavState::Unknown;
 
-        if( !mPhoebe->roverStatus().autonState().is_auton )
+        if( !mRover->roverStatus().autonState().is_auton )
         {
             nextState = NavState::Off;
-            mPhoebe->roverStatus().currentState() = executeOff(); // turn off immediately
-            clear( mPhoebe->roverStatus().path() );
-            if( nextState != mPhoebe->roverStatus().currentState() )
+            mRover->roverStatus().currentState() = executeOff(); // turn off immediately
+            clear( mRover->roverStatus().path() );
+            if( nextState != mRover->roverStatus().currentState() )
             {
-                mPhoebe->roverStatus().currentState() = nextState;
+                mRover->roverStatus().currentState() = nextState;
                 mStateChanged = true;
             }
             return;
         }
-        switch( mPhoebe->roverStatus().currentState() )
+        switch( mRover->roverStatus().currentState() )
         {
             case NavState::Off:
             {
@@ -162,7 +162,7 @@ void StateMachine::run()
             case NavState::TurnedToTargetWait:
             case NavState::DriveToTarget:
             {
-                nextState = mSearchStateMachine->run( mPhoebe, mRoverConfig );
+                nextState = mSearchStateMachine->run();
                 break;
             }
 
@@ -171,7 +171,7 @@ void StateMachine::run()
             case NavState::DriveAroundObs:
             case NavState::SearchDriveAroundObs:
             {
-                nextState = mObstacleAvoidanceStateMachine->run( mPhoebe, mRoverConfig );
+                nextState = mObstacleAvoidanceStateMachine->run();
                 break;
             }
 
@@ -184,26 +184,26 @@ void StateMachine::run()
                 {
                     case 0:
                     {
-                        setSearcher(SearchType::SPIRALOUT);
+                        setSearcher(SearchType::SPIRALOUT, mRover, mRoverConfig);
                         break;
                     }
                     case 1:
                     {
-                        setSearcher(SearchType::LAWNMOWER);
+                        setSearcher(SearchType::LAWNMOWER, mRover, mRoverConfig);
                         break;
                     }
                     case 2:
                     {
-                        setSearcher(SearchType::SPIRALIN);
+                        setSearcher(SearchType::SPIRALIN, mRover, mRoverConfig);
                         break;
                     }
                     default:
                     {
-                        setSearcher(SearchType::SPIRALOUT);
+                        setSearcher(SearchType::SPIRALOUT, mRover, mRoverConfig);
                         break;
                     }
                 }
-                mSearchStateMachine->initializeSearch( mPhoebe, mRoverConfig, visionDistance );
+                mSearchStateMachine->initializeSearch( mRover, mRoverConfig, visionDistance );
                 if( searchFails % 2 == 1 && visionDistance > 0.5 )
                 {
                     visionDistance *= 0.5;
@@ -237,12 +237,12 @@ void StateMachine::run()
             }
         } // switch
 
-        if( nextState != mPhoebe->roverStatus().currentState() )
+        if( nextState != mRover->roverStatus().currentState() )
         {
             mStateChanged = true;
-            mPhoebe->roverStatus().currentState() = nextState;
-            mPhoebe->distancePid().reset();
-            mPhoebe->bearingPid().reset();
+            mRover->roverStatus().currentState() = nextState;
+            mRover->distancePid().reset();
+            mRover->bearingPid().reset();
         }
         cerr << flush;
     } // if
@@ -302,7 +302,6 @@ bool StateMachine::isRoverReady() const
            mPhoebe->roverStatus().currentState() == NavState::SearchGimbal ||
            mPhoebe->roverStatus().currentState() == NavState::GateSearchGimbal ||
            mPhoebe->roverStatus().currentState() == NavState::GateWait;
-
 } // isRoverReady()
 
 // Publishes the current navigation state to the nav status lcm channel.
@@ -322,10 +321,10 @@ void StateMachine::publishNavState() const
 // rover is still off.
 NavState StateMachine::executeOff()
 {
-    if( mPhoebe->roverStatus().autonState().is_auton )
+    if( mRover->roverStatus().autonState().is_auton )
     {
         mCompletedWaypoints = 0;
-        mTotalWaypoints = mPhoebe->roverStatus().course().num_waypoints;
+        mTotalWaypoints = mRover->roverStatus().course().num_waypoints;
 
         if( !mTotalWaypoints )
         {
@@ -333,7 +332,7 @@ NavState StateMachine::executeOff()
         }
         return NavState::Turn;
     }
-    mPhoebe->stop();
+    mRover->stop();
     return NavState::Off;
 } // executeOff()
 
@@ -341,7 +340,7 @@ NavState StateMachine::executeOff()
 // rover.
 NavState StateMachine::executeDone()
 {
-    mPhoebe->stop();
+    mRover->stop();
     return NavState::Done;
 } // executeDone()
 
@@ -350,7 +349,7 @@ NavState StateMachine::executeDone()
 // next Waypoint. Else the rover keeps turning to the Waypoint.
 NavState StateMachine::executeTurn()
 {
-    if( mPhoebe->roverStatus().path().empty() )
+    if( mRover->roverStatus().path().empty() )
     {
         cout << "path is empty" << endl;
         return NavState::Done;
@@ -364,8 +363,8 @@ NavState StateMachine::executeTurn()
     //     return NavState::RadioRepeaterTurn;
     // }
 
-    Odometry& nextPoint = mPhoebe->roverStatus().path().front().odom;
-    if( mPhoebe->turn( nextPoint ) )
+    Odometry& nextPoint = mRover->roverStatus().path().front().odom;
+    if( mRover->turn( nextPoint ) )
     {
         // if (mPhoebe->roverStatus().currentState() == NavState::RadioRepeaterTurn)
         // {
@@ -391,8 +390,8 @@ NavState StateMachine::executeTurn()
 // keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive()
 {
-    const Waypoint& nextWaypoint = mPhoebe->roverStatus().path().front();
-    double distance = estimateNoneuclid( mPhoebe->roverStatus().odometry(), nextWaypoint.odom );
+    const Waypoint& nextWaypoint = mRover->roverStatus().path().front();
+    double distance = estimateNoneuclid( mRover->roverStatus().odometry(), nextWaypoint.odom );
 
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
@@ -402,13 +401,13 @@ NavState StateMachine::executeDrive()
     //     return NavState::RadioRepeaterTurn;
     // }
 
-    if( isObstacleDetected( mPhoebe ) && !isWaypointReachable( distance ) )
+    if( isObstacleDetected( mRover ) && !isWaypointReachable( distance ) )
     {
         mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
                                                                 getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
     }
-    DriveStatus driveStatus = mPhoebe->drive( nextWaypoint.odom );
+    DriveStatus driveStatus = mRover->drive( nextWaypoint.odom );
     if( driveStatus == DriveStatus::Arrived )
     {
         if( nextWaypoint.search )
@@ -441,7 +440,6 @@ NavState StateMachine::executeDrive()
     // {
     //     return NavState::RadioRepeaterTurn;
     // }
-
     return NavState::Turn;
 } // executeDrive()
 
@@ -503,24 +501,24 @@ string StateMachine::stringifyNavState() const
             { NavState::Unknown, "Unknown" }
         };
 
-    return navStateNames.at( mPhoebe->roverStatus().currentState() );
+    return navStateNames.at( mRover->roverStatus().currentState() );
 } // stringifyNavState()
 
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceAngle() const
 {
-    return mPhoebe->roverStatus().obstacle().bearing;
+    return mRover->roverStatus().obstacle().bearing;
 } // optimalAvoidanceAngle()
 
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceDistance() const
 {
-    return mPhoebe->roverStatus().obstacle().distance + mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble();
+    return mRover->roverStatus().obstacle().distance + mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble();
 } // optimalAvoidanceAngle()
 
 bool StateMachine::isWaypointReachable( double distance )
 {
-    return isLocationReachable( mPhoebe, mRoverConfig, distance, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
+    return isLocationReachable( mRover, mRoverConfig, distance, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
 } // isWaypointReachable
 
 // If we have not already begun to drop radio repeater
@@ -530,9 +528,9 @@ bool StateMachine::isWaypointReachable( double distance )
 bool StateMachine::isAddRepeaterDropPoint() const
 {
 
-    return ( mPhoebe->roverStatus().currentState() != NavState::RadioRepeaterTurn &&
-             mPhoebe->roverStatus().currentState() != NavState::RadioRepeaterDrive &&
-             mPhoebe->isTimeToDropRepeater() &&
+    return ( mRover->roverStatus().currentState() != NavState::RadioRepeaterTurn &&
+             mRover->roverStatus().currentState() != NavState::RadioRepeaterDrive &&
+             mRover->isTimeToDropRepeater() &&
              mRepeaterDropComplete == false );
 } // isAddRepeaterDropPoint
 
@@ -542,11 +540,11 @@ void StateMachine::addRepeaterDropPoint()
     // TODO: signal drops before first completed waypoint
     // Get last waypoint in path (where signal was good) and set search and gate
     // to false in order to not repeat search
-    Waypoint way = (mPhoebe->roverStatus().course().waypoints)[mCompletedWaypoints-1];
+    Waypoint way = (mRover->roverStatus().course().waypoints)[mCompletedWaypoints-1];
     way.search = false;
     way.gate = false;
 
-    mPhoebe->roverStatus().path().push_front(way);
+    mRover->roverStatus().path().push_front(way);
 } // addRepeaterDropPoint
 
 
