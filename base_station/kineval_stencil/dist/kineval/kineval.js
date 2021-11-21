@@ -730,24 +730,9 @@ kineval.initScene = function initScene() {
     endeffector_geom = new THREE.Mesh(temp_geom, temp_material); // comment this for coolness
     scene.add(endeffector_geom);
     endeffector_geom.visible = false;
-    temp_geom = new THREE.CubeGeometry(0.1, 0.1, 0.1);
-    temp_material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ) // green cube
-    target_geom = new THREE.Mesh(temp_geom, temp_material); // comment this for coolness
-    
-    
-    robot_material = new THREE.MeshLambertMaterial( { color: 0x00234c, transparent: true, opacity: 0.9 } );
-    var stl_loader = new THREE.STLLoader();
-    stl_loader.load("./robots/mrover_arm/hand.stl",
-        function (geometry) {
-            var material_color = new THREE.color(1, 0, 0);
-            var material = new THREE.MeshLambertMaterial( {color: material_color, side: THREE.doubleSide});
-            var m = new THREE.Matrix4().makeScale(0.0254, 0.0254, 0.0254);
-            geometry.applyMatrix(m);
-            target_geom = new THREE.Mesh(geometry, material);
-        }
-    );
-    // target_geom = new Three.Mesh(, robot_material)
-    
+
+    // Add target to look like hand (see mrover_arm_urdf.js)
+    target_geom = links_geom["target"];
     scene.add(target_geom);
     target_geom.visible = false;
 

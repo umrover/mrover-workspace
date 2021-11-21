@@ -180,6 +180,9 @@ for (linkname in robot.links) {
     console.log("Robot geometry: progressLinkLoading " + progressLinkLoading*100);
 }
 
+// Add "target" to links_geom with yellow color of b-c
+assignMRoverModelSTL("./robots/mrover_arm/hand.stl", robot.links["b-c"].visual.material, "target")
+
 function assignFetchModelSTL(filename,material_urdf,linkname) {
     console.log("assignFetchModel : "+filename+" - "+linkname); 
     var stl_loader = new THREE.STLLoader();
