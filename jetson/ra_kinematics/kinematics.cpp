@@ -29,8 +29,6 @@ void KinematicsSolver::FK(ArmState &robot_state) {
         // Find transformation of current joint in global frame, using transformation from previous joint.
         global_transf = global_transf * (local_transf * rot_theta);
 
-        cout << "global transform: \n" << global_transf << "\n";
-
         robot_state.set_joint_transform(i, global_transf);
         robot_state.set_link_transform(i+1, global_transf);
     }

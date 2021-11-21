@@ -213,12 +213,6 @@ bool ArmState::link_link_check(size_t index_1, size_t index_2) const {
         closest_dist = (link_1.points[0] - link_2.points[0]).norm();
     }
 
-    cout << "Link 1 type: " << link_1.type << "\n";
-    cout << "Link 2 type: " << link_2.type << "\n";
-    cout << "Link 1 radius: " << link_1.radius << "\n";
-    cout << "Link 2 radius: " << link_2.radius << "\n";
-    cout << "Closest Distance : " << closest_dist << "\n";
-
     return closest_dist < (link_1.radius + link_2.radius);
 }
 
