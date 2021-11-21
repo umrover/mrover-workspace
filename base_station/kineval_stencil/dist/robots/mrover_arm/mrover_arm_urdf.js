@@ -86,7 +86,7 @@ robot.links = {
     }
 };
 
-robot.target_material = { color : {rgba : [1, 1, 1, 0.75] } };
+robot.target_material = { color : {rgba : [1, 1, 0.5, 1] } };
 
 //////////////////////////////////////////////////
 /////     DEFINE JOINTS AND KINEMATIC HIERARCHY
@@ -175,7 +175,8 @@ for (linkname in robot.links) {
     //                     linkname);
     assignMRoverModelSTL('./robots/mrover_arm/'+robot.links[linkname].visual.geometry.mesh.filename,
                         robot.links[linkname].visual.material,
-                        linkname);
+                        linkname,
+                        scale_factor);
     i++;
   
     progressLinkLoading = i/imax; 
@@ -185,9 +186,10 @@ for (linkname in robot.links) {
 // Add "target" to links_geom with yellow color of b-c
 assignMRoverModelSTL("./robots/mrover_arm/"+robot.links["hand"].visual.geometry.mesh.filename,
                      robot.target_material,
-                     "target");
+                     "target",
+                     scale_factor * 0.6);
 
-function assignMRoverModelSTL(filename,material_urdf,linkname) {
+function assignMRoverModelSTL(filename, material_urdf, linkname, scale) {
     console.log("assignMRoverModel : "+filename+" - "+linkname); 
     var stl_loader = new THREE.STLLoader();
     var val = stl_loader.load(filename, 
@@ -195,7 +197,7 @@ function assignMRoverModelSTL(filename,material_urdf,linkname) {
             // TODO: add transparency
             var material_color = new THREE.Color(material_urdf.color.rgba[0], material_urdf.color.rgba[1], material_urdf.color.rgba[2]);
             var material = new THREE.MeshLambertMaterial( {color: material_color, side: THREE.DoubleSide} );
-            var m = new THREE.Matrix4().makeScale(scale_factor, scale_factor, scale_factor);
+            var m = new THREE.Matrix4().makeScale(scale, scale, scale);
 
             geometry.applyMatrix(m);
             links_geom[linkname] = new THREE.Mesh( geometry, material );

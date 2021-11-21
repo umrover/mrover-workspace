@@ -2,6 +2,9 @@
 /////     USER INTERACTION SUPPORT ROUTINES
 //////////////////////////////////////////////////
 
+// Controls how fast the target rotates, higher values make the target rotate slower!
+kineval.targetRotateSpeed = 100;
+
 kineval.handleUserInput = function user_input() {
 
     if (keyboard.pressed("shift+left")) {
@@ -9,48 +12,48 @@ kineval.handleUserInput = function user_input() {
     }
 
     if ( keyboard.pressed("z") ) {
-        camera.position.x += 0.1*(robot.origin.xyz[0]-camera.position.x);
-        camera.position.y += 0.1*(robot.origin.xyz[1]+0.5-camera.position.y);
-        camera.position.z += 0.1*(robot.origin.xyz[2]-camera.position.z);
+        camera.position.x += 0.04*(robot.origin.xyz[0]-camera.position.x);
+        camera.position.y += 0.04*(robot.origin.xyz[1]+0.5-camera.position.y);
+        camera.position.z += 0.04*(robot.origin.xyz[2]-camera.position.z);
     }
     else if ( keyboard.pressed("x") ) {
-        camera.position.x -= 0.1*(robot.origin.xyz[0]-camera.position.x);
-        camera.position.y -= 0.1*(robot.origin.xyz[1]+0.5-camera.position.y);
-        camera.position.z -= 0.1*(robot.origin.xyz[2]-camera.position.z);
+        camera.position.x -= 0.04*(robot.origin.xyz[0]-camera.position.x);
+        camera.position.y -= 0.04*(robot.origin.xyz[1]+0.5-camera.position.y);
+        camera.position.z -= 0.04*(robot.origin.xyz[2]-camera.position.z);
     }
 
     if ( keyboard.pressed("shift+r") ) {
-        kineval.params.ik_target.orientation[0] += Math.PI / 24;
+        kineval.params.ik_target.orientation[0] += Math.PI / kineval.targetRotateSpeed;
     }
     else if ( keyboard.pressed("r") ) {
         kineval.params.ik_target.position[1][0] += 0.01;
     }
     if ( keyboard.pressed("shift+f") ) {
-        kineval.params.ik_target.orientation[0] -= Math.PI / 24;
+        kineval.params.ik_target.orientation[0] -= Math.PI / kineval.targetRotateSpeed;
     }
     else if ( keyboard.pressed("f") ) {
         kineval.params.ik_target.position[1][0] -= 0.01;
     }
     if ( keyboard.pressed("shift+a") ) {
-        kineval.params.ik_target.orientation[1] += Math.PI / 24;
+        kineval.params.ik_target.orientation[1] += Math.PI / kineval.targetRotateSpeed;
     }
     else if ( keyboard.pressed("a") ) {
         kineval.params.ik_target.position[0][0] -= 0.02;
     }
     if (keyboard.pressed("shift+d") ) {
-        kineval.params.ik_target.orientation[1] -= Math.PI / 24;
+        kineval.params.ik_target.orientation[1] -= Math.PI / kineval.targetRotateSpeed;
     }
     else if ( keyboard.pressed("d") ) {
         kineval.params.ik_target.position[0][0] += 0.02;
     }
     if ( keyboard.pressed("shift+w") ) {
-        kineval.params.ik_target.orientation[2] += Math.PI / 24;
+        kineval.params.ik_target.orientation[2] += Math.PI / kineval.targetRotateSpeed;
     }
     else if ( keyboard.pressed("w") ) {
         kineval.params.ik_target.position[2][0] -= 0.02;
     }
     if (keyboard.pressed("shift+s") ) {
-        kineval.params.ik_target.orientation[2] -= Math.PI / 24;
+        kineval.params.ik_target.orientation[2] -= Math.PI / kineval.targetRotateSpeed;
     }
     else if ( keyboard.pressed("s") ) {
         kineval.params.ik_target.position[2][0] += 0.02;

@@ -413,9 +413,9 @@ kineval.robotDraw = function drawRobot() {
     simpleApplyMatrix(cart_controller_z_pos,robot.links.hand.xform);
 
     // display endeffector target
-    var three_d_rot = new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[0])
-    three_d_rot.multiply(new THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[1]))
-    three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[2]))
+    var three_d_rot = new THREE.Matrix4().makeRotationX(-kineval.params.ik_target.orientation[0])
+    three_d_rot.multiply(new THREE.Matrix4().makeRotationY(-kineval.params.ik_target.orientation[2]))
+    three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(-kineval.params.ik_target.orientation[1]))
 
     var trans = new THREE.Matrix4().makeTranslation(kineval.params.ik_target.position[0][0],
                                                 kineval.params.ik_target.position[1][0],
@@ -426,14 +426,28 @@ kineval.robotDraw = function drawRobot() {
     simpleApplyMatrix(cart_controller_x1_pos,target_mat);
     simpleApplyMatrix(cart_controller_y1_pos,target_mat);
     simpleApplyMatrix(cart_controller_z1_pos,target_mat);
-
-    posRef.innerHTML = kineval.params.ik_target.position[0][0].toFixed(2).toString()
-    posRef.innerHTML += " " + kineval.params.ik_target.position[1][0].toFixed(2).toString()
-    posRef.innerHTML += " " + kineval.params.ik_target.position[2][0].toFixed(2).toString()
-    angRef.innerHTML = " (" + kineval.params.ik_target.orientation[0].toFixed(3).toString()
-    angRef.innerHTML += ", " + kineval.params.ik_target.orientation[1].toFixed(3).toString()
-    angRef.innerHTML += ", " + kineval.params.ik_target.orientation[2].toFixed(3).toString() + ")"
     
+    // Displays the current target position and orientation 
+    posRef.innerHTML = " pos: &nbsp;&nbsp;(" + kineval.params.ik_target.position[0][0].toFixed(2).toString();
+    posRef.innerHTML += " " + kineval.params.ik_target.position[1][0].toFixed(2).toString();
+    posRef.innerHTML += " " + kineval.params.ik_target.position[2][0].toFixed(2).toString() + ")";
+    angRef.innerHTML = " rpy: &nbsp;&nbsp;(" + kineval.params.ik_target.orientation[0].toFixed(3).toString();
+    angRef.innerHTML += ", " + kineval.params.ik_target.orientation[1].toFixed(3).toString();
+    angRef.innerHTML += ", " + kineval.params.ik_target.orientation[2].toFixed(3).toString() + ")";
+    
+    // Caluclate and display euler angles:
+    // TODO: Convert this to a function (currently duplicated)
+    var three_d_rot = new THREE.Matrix4().makeRotationX(-kineval.params.ik_target.orientation[0]);
+    three_d_rot.multiply(new THREE.Matrix4().makeRotationY(-kineval.params.ik_target.orientation[2]));
+    three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(-kineval.params.ik_target.orientation[1]));
+    three_d_rot.multiply(new THREE.Matrix4().makeRotationX(-Math.PI / 2))
+
+    var alpha = Math.atan2(three_d_rot.elements[2], -(three_d_rot.elements[6]));
+    var beta = Math.acos(three_d_rot.elements[10]);
+    var gamma = Math.atan2(three_d_rot.elements[8], three_d_rot.elements[9]);
+    angRef.innerHTML += " <br>euler: (" + alpha.toFixed(3).toString();
+    angRef.innerHTML += ", " + beta.toFixed(3).toString();
+    angRef.innerHTML += ", " + gamma.toFixed(3).toString() + ")";
     } // hacked for stencil
 
     endeffector_geom.visible = true;
@@ -697,16 +711,16 @@ var angles = function() {
     this.x = 0.0;
     this.y = 0.0;
     this.z = 0.0;
-    this.alpha = 0.0;
-    this.beta = 0.0;
-    this.gamma = 0.0;
+    this.roll = 0.0;
+    this.pitch = 0.0;
+    this.yaw = 0.0;
     this.submit = function() {
         kineval.params.ik_target.position[0][0] = this.x;
         kineval.params.ik_target.position[1][0] = this.y;
         kineval.params.ik_target.position[2][0] = this.z;
-        kineval.params.ik_target.orientation[0] = this.alpha;
-        kineval.params.ik_target.orientation[1] = this.beta;
-        kineval.params.ik_target.orientation[2] = this.gamma;
+        kineval.params.ik_target.orientation[0] = this.roll;
+        kineval.params.ik_target.orientation[1] = this.pitch;
+        kineval.params.ik_target.orientation[2] = this.yaw;
     }
 };
 
@@ -757,9 +771,10 @@ kineval.initGUIDisplay = function initGUIDisplay () {
     var primary_display = {};
     primary_display.send_target_orientation = function() {
         
+        // rpy to euler angles conversion
         var three_d_rot = new THREE.Matrix4().makeRotationX(kineval.params.ik_target.orientation[0])
-        three_d_rot.multiply(new THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[1]))
-        three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[2]))
+        three_d_rot.multiply(new THREE.Matrix4().makeRotationY(kineval.params.ik_target.orientation[2]))
+        three_d_rot.multiply(new THREE.Matrix4().makeRotationZ(kineval.params.ik_target.orientation[1]))
         three_d_rot.multiply(new THREE.Matrix4().makeRotationX(-Math.PI / 2))
 
         var alph = Math.atan2(three_d_rot.elements[2], -(three_d_rot.elements[6]));
@@ -802,9 +817,9 @@ kineval.initGUIDisplay = function initGUIDisplay () {
     target_gui.add(text, 'x');
     target_gui.add(text, 'y');
     target_gui.add(text, 'z');
-    target_gui.add(text, 'alpha');
-    target_gui.add(text, 'beta');
-    target_gui.add(text, 'gamma');
+    target_gui.add(text, 'roll');
+    target_gui.add(text, 'pitch');
+    target_gui.add(text, 'yaw');
     target_gui.add(text, 'submit');
 
     //../config/kinematics/mrover_arm_presets.json
@@ -1005,7 +1020,7 @@ function loadJSON(callback) {
     xobj.overrideMimeType("application/json");
 
     // open json preset file
-    xobj.open('GET', 'mrover_arm_presets.json', true);
+    xobj.open('GET', './mrover_arm_presets.json', true);
 
     // once file is loaded
     xobj.onreadystatechange = function () {
