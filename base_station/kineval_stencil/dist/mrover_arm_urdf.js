@@ -179,6 +179,20 @@ robot.links = {
     }
 };
 
+robot.target = {
+    visual: {
+        origin : { xyz: [-2.5166*scale_factor_neg,2.7226*scale_factor_neg,34.3566*scale_factor_neg], rpy:[0,0,0] },
+        //origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
+        geometry : { mesh : { filename : "hand.stl" } },
+        material : { color : { rgba : [0.356, 0.361, 0.376, 0.5] } }
+    },
+    link_shape: {
+        type: 'sphere',
+        center: { x1: -1.5141*scale_factor, y1: 0, z1: 14.7835*scale_factor },
+        radius: 5*scale_factor
+    }
+}
+
 //////////////////////////////////////////////////
 /////     DEFINE JOINTS AND KINEMATIC HIERARCHY
 //////////////////////////////////////////////////
