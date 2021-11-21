@@ -11,11 +11,11 @@
     "R_Dynamic": [1, 1, 1, 1],
     "R_Static": [4, 0.01, 4, 0.01],
 
-    "dt" : 0.1,
+    "dt" : 0.01,
 
     "UpdateRate" : 0.1,
 
-    "IMU_fresh_timeout" : 1,    
+    "IMU_fresh_timeout" : 5,    
     "GPS_fresh_timeout" : 1,
     "IMU_accel_filter_bias" : 0.8,
     "IMU_accel_threshold": 0.5,

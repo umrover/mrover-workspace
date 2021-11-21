@@ -512,7 +512,12 @@
             "depths[numDepths]"
         ]
     ],
-    "RepeaterDrop": [],
+    "RadioSignalStrength": [
+        [
+            "float",
+            "signal_strength"
+        ]
+    ],
     "RGB": [
         [
             "string",
@@ -859,12 +864,6 @@
             "y"
         ]
     ],
-    "ZedGimbalPosition": [
-        [
-            "double",
-            "angle"
-        ]
-    ],
     "message_types": [
         "ArmPosition",
         "ArmToggles",
@@ -900,7 +899,6 @@
         "PiPicture",
         "PiSettings",
         "ProximitySensors",
-        "RepeaterDrop",
         "RGB",
         "RGBFrame",
         "RGBLED",
@@ -915,13 +913,13 @@
         "StartTest",
         "TalonConfig",
         "TargetAngles",
+        "TargetList",
         "TargetPoint",
         "Temperature",
         "TennisBall",
         "TestEnable",
         "Waypoint",
         "WheelSpeeds",
-        "Xbox",
-        "ZedGimbalPosition"
+        "Xbox"
     ]
 }

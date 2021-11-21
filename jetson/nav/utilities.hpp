@@ -38,4 +38,6 @@ bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, 
 
 bool isObstacleDetected( Rover* rover );
 
+bool isObstaclePost( Rover* phoebe, const rapidjson::Document& roverConfig );
+
 #endif // NAV_UTILITES

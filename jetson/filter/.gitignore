@@ -1,1 +1,3 @@
-*/__pycache__/
+tools/__pycache__/
+logs/
+src/__pycache__/
