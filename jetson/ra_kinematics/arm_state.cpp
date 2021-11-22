@@ -281,6 +281,7 @@ bool ArmState::get_joint_locked(size_t joint_index) const {
 
 void ArmState::set_joint_locked(size_t joint_index, bool locked) {
     joints[joint_index].locked = locked;
+    cout << locked << "\t";
 }
 
 double ArmState::get_joint_angle(size_t joint_index) const {

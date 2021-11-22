@@ -16,7 +16,6 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     solver(),
     motion_planner(state, solver),
     lcm_(lcm),
-    done_previewing(false),
     enable_execute(false),
     sim_mode(true),
     ik_enabled(false),
@@ -42,15 +41,20 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
 }
 
 void MRoverArm::target_orientation_callback(string channel, TargetOrientation msg) {
-    cout << "received target orientation, starting callback\n";
+    cout << "Received target!\n";
+    cout << "Target position: " << msg.x << "\t" << msg.y << "\t" << msg.z << "\n";
+    if (msg.use_orientation) {
+        cout << "Target orientation: " << msg.alpha << "\t" << msg.beta << "\t" << msg.gamma << "\n";
+    }
+    cout << "Initial joint angles: ";
+    for (double ang : state.get_joint_angles()) {
+        cout << ang << "\t"; 
+    }
+    cout << "\n";
 
     enable_execute = false;
 
-    // cout << "alpha beta gamma\n";
-    // cout << msg.alpha << " , " << msg.beta << " , " << msg.gamma << "\n";
-
     bool use_orientation = msg.use_orientation;
-    cout << "use orientation: " << use_orientation << "\n";
 
     Vector6d point;
     point(0) = (double) msg.x;
@@ -86,13 +90,14 @@ void MRoverArm::target_orientation_callback(string channel, TargetOrientation ms
         return;
     }
 
-    // create path of the angles IK found
+    cout << "Final joint angles: ";
+    for (size_t i = 0; i < 6; ++i) {
+        cout << ik_solution.first[i] << "\t"; 
+    }
+    cout << "\n";
+
+    // create path of the angles IK found and preview on GUI
     plan_path(ik_solution.first);
-
-    // view path on GUI without moving the physical arm
-    preview();
-
-    cout << "ended target orientation callback\n";
 }
 
 void MRoverArm::motion_execute_callback(string channel, MotionExecute msg) {
@@ -197,7 +202,7 @@ void MRoverArm::preview() {
     // backup angles
     vector<double> backup = state.get_joint_angles();
 
-    double num_steps = 500.0;
+    double num_steps = 100.0;
     double t = 0.0;
 
     while (t <= 1) {
@@ -213,7 +218,7 @@ void MRoverArm::preview() {
         publish_transforms(state);
 
         t += 1.0 / num_steps;
-        this_thread::sleep_for(chrono::milliseconds(2));
+        this_thread::sleep_for(chrono::milliseconds(15));
     }
     cout <<  "Preview Done" << endl;
 
@@ -234,7 +239,7 @@ void MRoverArm::preview() {
 }
 
 void MRoverArm::target_angles_callback(string channel, ArmPosition msg) {
-    cout << "running target_angles_callback\n";
+    cout << "Received target angles\n";
 
     enable_execute = false;
 
@@ -247,17 +252,13 @@ void MRoverArm::target_angles_callback(string channel, ArmPosition msg) {
     target[4] = (double) msg.joint_e;
     target[5] = (double) msg.joint_f;
     
-    cout << "requested angles: ";
+    cout << "Requested angles: ";
     for (size_t i = 0; i < 6; ++i) {
         cout << target[i] << " ";
     }
     cout << "\n";
 
     plan_path(target);
-
-    preview();
-
-    cout << "finished target_angles_callback\n";
 }
 
 void MRoverArm::publish_transforms(const ArmState& pub_state) {
@@ -283,21 +284,30 @@ void MRoverArm::ik_enabled_callback(string channel, IkEnabled msg) {
 
 void MRoverArm::plan_path(Vector6d goal) {
     bool path_found = motion_planner.rrt_connect(state, goal);
+
     if (path_found) {
-        cout << "Planned path\n";
+        preview();
     }
     else {
-        cout << "No path found\n";
+        DebugMessage msg;
+        msg.isError = false;
+        msg.message = "Unable to plan path!";
+        
+        // send popup message to GUI
+        lcm_.publish("/debug_message", &msg);
     }
 }
 
 void MRoverArm::simulation_mode_callback(string channel, SimulationMode msg) {
+    cout << "Received Simulation Mode value: " << msg.sim_mode;
+
+    if (previewing)
     sim_mode = msg.sim_mode;
     // publish_transforms(state);
 }
 
 void MRoverArm::lock_joints_callback(string channel, LockJoints msg) {
-    cout << "running lock_joints_callback\n";
+    cout << "Running lock_joints_callback: ";
 
     state.set_joint_locked(0, (bool)msg.jointa);
     state.set_joint_locked(1, (bool)msg.jointb);
@@ -305,6 +315,8 @@ void MRoverArm::lock_joints_callback(string channel, LockJoints msg) {
     state.set_joint_locked(3, (bool)msg.jointd);
     state.set_joint_locked(4, (bool)msg.jointe);
     state.set_joint_locked(5, (bool)msg.jointf);
+
+    cout << "\n";
 }
 
 // void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {

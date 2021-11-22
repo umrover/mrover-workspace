@@ -5,6 +5,7 @@
 #include <lcm/lcm-cpp.hpp>
 #include <iostream>
 #include <thread>
+#include <iomanip>
 
 using nlohmann::json;
 using namespace std;
@@ -84,11 +85,11 @@ private:
 
 int main() {
     
+    cout << std::fixed;
+    cout << std::setprecision(4);
     cout << "INITIALIZING KINEMATICS FOR ROBOT ARM\n";
 
     json geom = read_json_from_file(get_mrover_arm_geom());
-
-    cout << "INITIALIZING ROBOT ARM OBJECT\n";
 
     lcm::LCM lcmObject;
     MRoverArm robot_arm(geom, lcmObject);

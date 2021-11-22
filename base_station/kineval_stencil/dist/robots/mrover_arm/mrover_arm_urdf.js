@@ -86,6 +86,8 @@ robot.links = {
     }
 };
 
+robot.target_material = { color : {rgba : [1, 1, 1, 0.75] } };
+
 //////////////////////////////////////////////////
 /////     DEFINE JOINTS AND KINEMATIC HIERARCHY
 //////////////////////////////////////////////////
@@ -181,45 +183,22 @@ for (linkname in robot.links) {
 }
 
 // Add "target" to links_geom with yellow color of b-c
-assignMRoverModelSTL("./robots/mrover_arm/hand.stl", robot.links["b-c"].visual.material, "target")
-
-function assignFetchModelSTL(filename,material_urdf,linkname) {
-    console.log("assignFetchModel : "+filename+" - "+linkname); 
-    var stl_loader = new THREE.STLLoader();
-    var val = stl_loader.load(filename, 
-       function ( geometry ) {
-            // ocj: add transparency
-            // idk if we have color <- anthony
-            var material_color = new THREE.Color(material_urdf.color.rgba[0], material_urdf.color.rgba[1], material_urdf.color.rgba[2]);
-            var material = new THREE.MeshLambertMaterial( {color: material_color, side: THREE.DoubleSide} );
-            links_geom[linkname] = new THREE.Mesh( geometry, material ) ;
-        } //,
-        //function (xhr) {
-        //    console.log(filename+" - "+linkname+": "+(xhr.loaded / xhr.total * 100) + '% loaded' );
-        //}
-    );
-}
+assignMRoverModelSTL("./robots/mrover_arm/"+robot.links["hand"].visual.geometry.mesh.filename,
+                     robot.target_material,
+                     "target");
 
 function assignMRoverModelSTL(filename,material_urdf,linkname) {
     console.log("assignMRoverModel : "+filename+" - "+linkname); 
     var stl_loader = new THREE.STLLoader();
     var val = stl_loader.load(filename, 
        function ( geometry ) {
-            // ocj: add transparency
-            // idk if we have color <- anthony
+            // TODO: add transparency
             var material_color = new THREE.Color(material_urdf.color.rgba[0], material_urdf.color.rgba[1], material_urdf.color.rgba[2]);
             var material = new THREE.MeshLambertMaterial( {color: material_color, side: THREE.DoubleSide} );
-            //geometry.scale(0.001, 0.001, 0.001);
-            //var mesh = new THREE.Mesh( geometry, material ) ;
-            //mesh.Mesh.scale(0.001/25.4, 0.001/25.4, 0.001/25.4);
             var m = new THREE.Matrix4().makeScale(scale_factor, scale_factor, scale_factor);
-            //mesh.geometry.applyMatrix( m );
-            //links_geom[linkname] = mesh;
+
             geometry.applyMatrix(m);
             links_geom[linkname] = new THREE.Mesh( geometry, material );
-        } //,
-        //function (xhr) {
-        //    console.log(filename+" - "+linkname+": "+(xhr.loaded / xhr.total * 100) + '% loaded' );
-        //}
+        }
     );
 }

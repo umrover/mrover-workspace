@@ -154,11 +154,6 @@ Matrix4d KinematicsSolver::apply_joint_xform(const ArmState& robot_state, size_t
 pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d& target_point, bool set_random_angles, bool use_euler_angles) {
     // Print inital joint angles:
     vector<double> init_joint_angs = robot_state.get_joint_angles();
-    cout << "Initial Joint angs:\n";
-    for (size_t i = 0; i < 6; ++i) {
-        cout << init_joint_angs[i] << " "; 
-    }
-    cout << "\n";
 
     /*
         Inverse kinematics for MRover arm using cyclic
@@ -178,9 +173,6 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
             http://www.cs.cmu.edu/~15464-s13/assignments/assignment2/jlander_gamedev_nov98.pdf
             http://www.cs.cmu.edu/~15464-s13/lectures/lecture6/IK.pdf
     */
-    // cout << "Running IK!" << endl;
-    // cout << "target point: " << "\n" << target_point[0] << "\n" << target_point[1] << "\n" << target_point[2] << "\n";
-    // cout << "target orientation: " << "\n" << target_point[3] << "\n" << target_point[4] << "\n" << target_point[5] << "\n";
 
     num_iterations = 0;
     int num_iterations_low_movement = 0;

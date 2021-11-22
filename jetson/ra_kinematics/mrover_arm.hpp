@@ -45,7 +45,6 @@ private:
     KinematicsSolver solver;
     MotionPlanner motion_planner;
     lcm::LCM &lcm_;
-    bool done_previewing;
     bool enable_execute;
     bool sim_mode;
     bool ik_enabled;

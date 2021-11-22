@@ -38,7 +38,7 @@ http://localhost:3000/
 The subdirectories "robots" and "worlds" contains descriptions of various robots and worlds as js files that can be used with KinEval.  These robots and worlds can be included by including the appropriate js files in home.html.  For example:
 
 <script src="robots/robot_br2.js"></script> 
-<script src="worlds/world_local_minima.js"></script> 
+<script src="worlds/world_empty.js"></script> 
 
 ## Sub-Projects
 
