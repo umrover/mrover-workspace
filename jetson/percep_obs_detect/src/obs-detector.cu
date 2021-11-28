@@ -149,11 +149,13 @@ void ObsDetector::spinViewer() {
 }
 
 
+//TESTING: Edit this file for each unit test
+//Instructions: When running the code, stop the run after it print sthe test output so it isn't lost
 void ObsDetector::test_input_file()
 {
   //fileReader.open("");
 
-    //If you are testing a cloud, change the filepath to work for your computer and change the PCD file name to the one you want
+  //If you are testing a cloud, change the filepath to work for your computer and change the PCD file name to the one you want
   GPU_Cloud gpuc = fileReader.readCloudGPU("/home/seanaa/mrover-workspace/jetson/percep_obs_detect/data/pcl300.pcd"); //read the cloud
 
   vector<GPU_Cloud> raw_data;
@@ -162,6 +164,7 @@ void ObsDetector::test_input_file()
   vector<EuclideanClusterExtractor::ObsReturn> a;
 
   //If testing: change the following 5 lines by hardcoding in the obsreturn struct the computer should treat as the "truth"
+  //TODO: change this to refelct automatic home folder detection
   Bins b;
   passZ->run(raw_data[0]);
   ransacPlane->computeModel(raw_data[0]);
