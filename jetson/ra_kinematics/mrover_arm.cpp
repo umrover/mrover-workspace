@@ -19,18 +19,78 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     enable_execute(false),
     sim_mode(true),
     ik_enabled(false),
-    previewing(false)  { }
+    previewing(false)  {
 
-void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
-    // if previewing, don't update state based on arm position
-    if (previewing) {
-        return;
+        prev_angles.clear();
+        prev_angles.resize(6);
+        faulty_encoders.resize(6);
+
+        for (size_t joint = 0; joint < faulty_encoders.size(); ++joint) {
+            faulty_encoders[joint] = false;
+        }
     }
 
-    if (channel == "/arm_position") {
-        vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
-                               msg.joint_d, msg.joint_e, msg.joint_f };
+void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
 
+    vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
+                            msg.joint_d, msg.joint_e, msg.joint_f };
+
+    // If we have less than 5 previous angles to compare to
+    if (prev_angles[0].size() < MAX_NUM_PREV_ANGLES) {
+
+        // For each joint
+        for (size_t joint = 0; joint < 6; ++joint) {
+            
+            // For each previous angle we have to compare to
+            for (size_t i = 0; i < prev_angles[joint].size(); ++i) {
+                if (abs(angles[joint] - prev_angles[joint][i]) > ENCODER_ERROR_THRESHOLD * (i + 1)) {
+                    faulty_encoders[joint] = true;
+                    break;
+                }
+
+                // If all joints were not faulty,
+                if (i == prev_angles[joint].size() - 1) {
+                    faulty_encoders[joint] = false;
+                }
+            }                
+        }
+    }
+    else {
+        // For each joint
+        for (size_t joint = 0; joint < 6; ++joint) {
+
+            size_t num_fishy_vals = 0;
+            
+            // For each previous angle we have to compare to
+            for (size_t i = 0; i < MAX_NUM_PREV_ANGLES; ++i) {
+                if (abs(angles[joint] - prev_angles[joint][i]) > ENCODER_ERROR_THRESHOLD * (i + 1)) {
+                    ++num_fishy_vals;
+                }
+            }
+
+            if (num_fishy_vals > MAX_FISHY_VALS) {
+                faulty_encoders[joint] = true;
+            }
+            else {
+                faulty_encoders[joint] = false;
+            }
+        }
+    }
+
+    // Give each angle to prev_angles (stores up to 5 latest values)
+    for (size_t joint = 0; joint < 6; ++joint) {
+        if (prev_angles[joint].size() >= MAX_NUM_PREV_ANGLES) {
+            prev_angles[joint].pop_back();
+        }
+
+        prev_angles[joint].push_front(angles[joint]);
+        if (faulty_encoders[joint]) {
+            angles[joint] = state.get_joint_angle(joint);
+        }
+    }
+
+    // if previewing, don't update state based on arm position
+    if (!previewing) {
         // update state
         state.set_joint_angles(angles);
         solver.FK(state);
@@ -117,52 +177,84 @@ void MRoverArm::motion_execute_callback(string channel, MotionExecute msg) {
 
 void MRoverArm::execute_spline() { 
     double spline_t = 0.0;
-    double spline_t_iterator = 0.001;        
+    double spline_t_iterator = 0.001;
+
+    bool fault = false;
 
     while (true) {
         if (enable_execute) {
+
+            fault = false;
+
+            for (size_t joint = 0; joint < 6; ++joint) {
+                if (faulty_encoders[joint]) {
+                    enable_execute = false;
+                    spline_t = 0.0;
+                    ik_enabled = false;
+
+                    DebugMessage msg;
+                    msg.isError = true;
+                    msg.message = "Encoder Error in encoder " + std::to_string(joint) + " (joint A = 0, F = 5)";
+                    
+                    // send popup message to GUI
+                    lcm_.publish("/debug_message", &msg);
+
+                    fault = true;
+                    cout << "Found fault for joint " << joint << "!\n";
+                }
+            }
+
+            if (fault) {
+                if (sim_mode) {
+                    for (size_t i = 0; i < MAX_NUM_PREV_ANGLES; ++i) {
+                        publish_config(state.get_joint_angles(), "/arm_position");
+                    }
+                }
+            }
+            else {
                         
-            //find arm's current angles
-            vector<double> init_angles = state.get_joint_angles(); 
-            //find angles D_SPLINE_T (%) further down the spline path
-            vector<double> final_angles = motion_planner.get_spline_pos(spline_t + D_SPLINE_T);
+                //find arm's current angles
+                vector<double> init_angles = state.get_joint_angles(); 
+                //find angles D_SPLINE_T (%) further down the spline path
+                vector<double> final_angles = motion_planner.get_spline_pos(spline_t + D_SPLINE_T);
 
-            double max_time = -1; //in ms
+                double max_time = -1; //in ms
 
-            for (int i = 0; i < 6; ++i) {
-                //in ms, time needed to move D_SPLINE_T (%)
-                double joint_time = abs(final_angles[i] - init_angles[i]) 
-                    / (state.get_joint_max_speed(i) / 1000.0); 
-                //sets max_time to greater value
-                max_time = max_time < joint_time ? joint_time : max_time;
-            }
+                for (int i = 0; i < 6; ++i) {
+                    //in ms, time needed to move D_SPLINE_T (%)
+                    double joint_time = abs(final_angles[i] - init_angles[i]) 
+                        / (state.get_joint_max_speed(i) / 1000.0); 
+                    //sets max_time to greater value
+                    max_time = max_time < joint_time ? joint_time : max_time;
+                }
 
-            //determines size of iteration by dividing number of iterations by distance
-            spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
-            spline_t += spline_t_iterator;
+                //determines size of iteration by dividing number of iterations by distance
+                spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
+                spline_t += spline_t_iterator;
 
-            // get next set of angles in path
-            vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
+                // get next set of angles in path
+                vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
 
-            // if not in sim_mode, send physical arm a new target
-            if (!sim_mode) {
-                // TODO make publish function names more intuitive?
-                publish_config(target_angles, "/ik_ra_control");
-            }
+                // if not in sim_mode, send physical arm a new target
+                if (!sim_mode) {
+                    // TODO make publish function names more intuitive?
+                    publish_config(target_angles, "/ik_ra_control");
+                }
 
-            // TODO: make sure transition from not self.sim_mode
-            //   to self.sim_mode is safe!!      previously commented
+                // TODO: make sure transition from not self.sim_mode
+                //   to self.sim_mode is safe!!      previously commented
 
-            // if in sim_mode, simulate that we have gotten a new current position
-            else if (sim_mode) {
-                publish_config(target_angles, "/arm_position");
-            }
+                // if in sim_mode, simulate that we have gotten a new current position
+                else if (sim_mode) {
+                    publish_config(target_angles, "/arm_position");
+                }
 
-            // break out of loop if necessary
-            if (spline_t > 1) {
-                enable_execute = false;
-                spline_t = 0.0;
-                ik_enabled = false;
+                // break out of loop if necessary
+                if (spline_t > 1) {
+                    enable_execute = false;
+                    spline_t = 0.0;
+                    ik_enabled = false;
+                }
             }
 
             this_thread::sleep_for(chrono::milliseconds((int) SPLINE_WAIT_TIME));
@@ -175,7 +267,7 @@ void MRoverArm::execute_spline() {
     }
 }
 
-void MRoverArm::publish_config(vector<double> &config, string channel) {
+void MRoverArm::publish_config(const vector<double> &config, string channel) {
        ArmPosition arm_position;
        arm_position.joint_a = config[0];
        arm_position.joint_b = config[1];

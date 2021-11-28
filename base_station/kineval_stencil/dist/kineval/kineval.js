@@ -167,25 +167,12 @@ kineval.initlcmbridge = function initlcmbridge() {
                 } else {
                     console.log(msg['message']['message'])
                 }
-                if (msg['message']['message'] === 'Solved IK') {
-                    target_geom.color = 0x00ff00
-                }
-                else if (msg['message']['message'] === 'No IK solution') {
+
+                if (msg['message']['message'] === 'No IK solution') {
                     target_geom.color = 0xff3300
                     window.alert("No IK solution found. Please try a different configuration.")
                 }
-                else if (msg['message']['message'].includes("Planned path")) {
-                    shouldPreview = window.confirm("Planned Path. View Path?");
-                    if (shouldPreview) {
-                        var MotionPreviewMsg = {
-                            'type': 'MotionExecute',
-                            'preview': true,
-                        }
-                        console.log('Previewing plan')
-                        kineval.publish('/motion_execute', MotionPreviewMsg)
-                    }
-                }
-                else if (msg['message']['message'].includes("Preview")) {
+                else if (msg['message']['message'].includes("Preview Done")) {
 
                     // focus window to ensure popup appears
                     while (!document.hasFocus()) {
@@ -212,6 +199,9 @@ kineval.initlcmbridge = function initlcmbridge() {
                         }
                         kineval.publish('/ik_enabled', IKenabled)
                     }
+                }
+                else if (msg['message']['message'].includes("Encoder Error")) {
+                    window.alert(msg['message']['message'])
                 }
 
             }

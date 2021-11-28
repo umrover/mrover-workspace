@@ -7,6 +7,8 @@
 #include <eigen3/Eigen/Dense>
 #include "kluge/spline.h"
 
+#include <deque>
+
 #include "mrover_arm.hpp"
 #include "arm_state.hpp"
 #include "motion_planner.hpp"
@@ -33,6 +35,13 @@ typedef Matrix<double, 6, 1> Vector6d;
 static constexpr double D_SPLINE_T = 0.01;      //percentage of path to calculate move time
 static constexpr double SPLINE_WAIT_TIME = 10;  //in ms, wait time for execute_spline loop
 
+// Angle in radians to determine when encoders are sending faulty values
+static constexpr double ENCODER_ERROR_THRESHOLD = 0.2;
+
+static constexpr size_t MAX_NUM_PREV_ANGLES = 5;
+static constexpr size_t MAX_FISHY_VALS = 1;
+
+
 /**
 * This is the MRoverArm class, responsible for
 * initiating callback functions and sending calculations
@@ -49,6 +58,9 @@ private:
     bool sim_mode;
     bool ik_enabled;
     bool previewing;
+
+    vector< deque<double> > prev_angles;
+    vector<bool> faulty_encoders;
 
 public:
 
@@ -114,7 +126,7 @@ public:
     void cartesian_control_callback(string channel, IkArmControl msg);
 
 private:
-    void publish_config(vector<double> &config, string channel);
+    void publish_config(const vector<double> &config, string channel);
 
     void publish_transforms(const ArmState &state);
 
