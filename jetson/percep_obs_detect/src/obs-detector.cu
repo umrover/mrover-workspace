@@ -21,7 +21,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
-        fileReader.open(readDir);
+        //fileReader.open(readDir);
     }
 
     //Init Viewer
@@ -149,29 +149,27 @@ void ObsDetector::spinViewer() {
 }
 
 
-//TESTING: Edit this file for each unit test
+//TESTING: edit SimpleSceneGenerator main function to make the cloud and obsreturn
+//          This lets you make the obstacles you want, edit noise settings etc. (jetson/percep_obs_detect/tools/SimpleSceneGenerator.cpp)
 //Instructions: When running the code, stop the run after it print sthe test output so it isn't lost
 void ObsDetector::test_input_file()
 {
-  //fileReader.open("");
+  //If you are testing a cloud, change the filepath to work for your computer and change the PCD file name to the one selected in SimpleSceneGenerator
+  GPU_Cloud gpuc = fileReader.readCloudGPU("/home/seanaa/mrover-workspace/jetson/percep_obs_detect/tools/pc.pcd"); //read the cloud
 
-  //If you are testing a cloud, change the filepath to work for your computer and change the PCD file name to the one you want
-  GPU_Cloud gpuc = fileReader.readCloudGPU("/home/seanaa/mrover-workspace/jetson/percep_obs_detect/data/pcl300.pcd"); //read the cloud
-
-  vector<GPU_Cloud> raw_data;
+  std::vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
 
-  vector<EuclideanClusterExtractor::ObsReturn> a;
+  std::vector<EuclideanClusterExtractor::ObsReturn> truths;
+  EuclideanClusterExtractor::ObsReturn objects;
 
-  //If testing: change the following 5 lines by hardcoding in the obsreturn struct the computer should treat as the "truth"
-  //TODO: change this to refelct automatic home folder detection
-  Bins b;
-  passZ->run(raw_data[0]);
-  ransacPlane->computeModel(raw_data[0]);
-  b = voxelGrid->run(raw_data[0]);
-  a.push_back(ece->extractClusters(raw_data[0],b));
+  //Init all obstacles to be added to the scene and push them to ObsReturn.obs
+  //Obstacle <name> = {minX, maxX, minY, maxY, minZ, maxZ};
+  EuclideanClusterExtractor::Obstacle one = { 0, 1, 0, 1, 0, 1 };
+  objects.obs.push_back(one);
 
-  test(raw_data,a);
+
+  test(raw_data, truths);
 
 }
 
