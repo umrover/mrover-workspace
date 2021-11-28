@@ -71,10 +71,11 @@ class IMU_Manager():
                 imu_struct.mag_x_uT = float(arr[3])
                 imu_struct.mag_y_uT = float(arr[4])
                 imu_struct.mag_z_uT = float(arr[5])
-                bearing = -(math.atan2(float(arr[4]), float(arr[3])) * (180.0 / math.pi))
-                if(bearing < 0):
-                    bearing += 360
-                imu_struct.bearing_deg = bearing
+                # bearing = -(math.atan2(float(arr[4]), float(arr[3])) * (180.0 / math.pi))
+                # if(bearing < 0):
+                #     bearing += 360
+                # Hopefully did not break anything by calling the function here
+                imu_struct.bearing_deg = self.calculate_bearing()
             else:
                 # this shouldnt happen
                 print("Passed")
@@ -108,9 +109,9 @@ class IMU_Manager():
             imu_struct.roll_rad = float(arr[2]) * pi / 180
             imu_struct.pitch_rad = float(arr[3]) * pi / 180
             yaw = float(arr[4])
-            if(yaw < 0):
+            if (yaw < 0):
                 yaw += 360
-            imu_struct.yaw_rad = yaw
+            imu_struct.yaw_rad = yaw * pi / 180
             # fill with zeroes if something goes wrong
         except Exception as b:
             print("Error with PCHRA handler")
@@ -345,8 +346,10 @@ class IMU_Manager():
         if (bearing < 0):
             bearing += 360
         
-        if (bearing != 270):
-            print("bearing: ", bearing)
+        # if (bearing != 270):
+        #     print("bearing: ", bearing)
+
+        return bearing
 
 # end of class
 
