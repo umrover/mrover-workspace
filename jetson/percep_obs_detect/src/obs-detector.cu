@@ -282,9 +282,12 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
         calculateIntersection(truth_list[x].obs[z], measured[x].obs[y]) > 0 ? calculateIntersection(truth_list[x].obs[z], measured[x].obs[y]) : 0;
       }
       /* volume of current test obs */
-      volsum += (measured[x].obs[y].maxX - measured[x].obs[y].minX)
-          * (measured[x].obs[y].maxY - measured[x].obs[y].minY)
-          * (measured[x].obs[y].maxZ - measured[x].obs[y].minZ);
+      if (!(measured[x].obs[y].minX > measured[x].obs[y].maxX || measured[x].obs[y].minY > measured[x].obs[y].maxY || measured[x].obs[y].minZ > measured[x].obs[y].maxZ)) {
+          //valid obstacle
+          volsum += (measured[x].obs[y].maxX - measured[x].obs[y].minX)
+              * (measured[x].obs[y].maxY - measured[x].obs[y].minY)
+              * (measured[x].obs[y].maxZ - measured[x].obs[y].minZ);
+      }
     }
       /* return total false positive volume for current obsreturn */
       false_positive_vol.push_back((volsum - temp_intersection)/truth_volumes[x]);
