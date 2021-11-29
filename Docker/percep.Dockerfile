@@ -1,3 +1,7 @@
+# DESCRIPTION #
+# Dockerfile for creating a container that can test the full
+# perception code stack including PCL
+
 # INSTRUCTIONS #
 #This Dockerfile needs to be built into an image prior to testing
 #This image, once build, should be pushed to umrover/travis
