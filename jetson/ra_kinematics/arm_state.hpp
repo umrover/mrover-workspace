@@ -59,6 +59,8 @@ private:
                 angle = 0;
             }
 
+            continuous_range = (joint_limits[0] < -3.1399 && joint_limits[1] > 3.1399);
+
             locked = false;
         }
 
@@ -76,6 +78,7 @@ private:
         vector<double> joint_limits;
         double max_speed; // radians/s
         bool locked;
+        bool continuous_range;
     };
 
     struct Avoidance_Link {
@@ -203,6 +206,10 @@ public:
     void set_joint_locked(size_t joint_index, bool is_locked);
 
     double get_joint_angle(size_t joint_index) const;
+
+    void set_joint_angle(size_t joint_index, double angle);
+
+    bool is_continuous(size_t joint_index);
 };
 
 #endif

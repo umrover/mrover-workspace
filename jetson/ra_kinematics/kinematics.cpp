@@ -191,19 +191,12 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
         // RAND_MAX is defined in a library
 
         // TODO: make this actually depend on joint limits, and test whether using full range of values is best
-        // rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5) * 6.28;
-        // rand_angs[1] = ((double) rand() / RAND_MAX) * 1.57;
-        // rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5) * 4.72;
-        // rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5) * 6.28;
-        // rand_angs[4] = ((double) rand() / RAND_MAX) * 3.23 - 2.36;
-        // rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5) * 6.28;
-
-        rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
-        rand_angs[1] = ((double) rand() / (RAND_MAX))*0.25*M_PI;
-        rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
-        rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;;
-        rand_angs[4] = ((double) rand() / (RAND_MAX) - 0.5)*M_PI;
-        rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5)*2*M_PI;
+        rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5) * 4;  // -2   ... 2
+        rand_angs[1] = ((double) rand() / (RAND_MAX)) + 0.25;     // 0.25 ... 1.25
+        rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5) * 3;  // -1.5 ... 1.5
+        rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
+        rand_angs[4] = ((double) rand() / (RAND_MAX) - 0.75) * 2; // -1.5 ... 0.5
+        rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
 
         robot_state.set_joint_angles(rand_angs);
     }
@@ -215,17 +208,25 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
     Vector3d ef_ang_world = robot_state.get_ef_ang_world();
 
+    // Compute euclidean distance to target
     double dist = (ef_pos_world - target_pos_world).norm();
-    double angle_dist = (ef_ang_world - target_ang_world).norm();
+
+    // Compute angular distance to target (using each euler angle)
+    double angle_dist = 0;
+    for (size_t i = 0; i < 3; ++i) {
+        double abs_angle_dist = abs(ef_ang_world[i] - target_ang_world[i]);
+        angle_dist += pow(min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
+    }
 
     Vector6d d_ef;
 
-    // While we have not reached an acceptable solution
+    // While distance is bad or angle is bad
     while (dist > POS_THRESHOLD || (angle_dist > ANGLE_THRESHOLD && use_euler_angles)) {
-        
+
+        // If we need to break out of loop
         if (num_iterations_low_movement > MAX_ITERATIONS_LOW_MOVEMENT || num_iterations > MAX_ITERATIONS) {
-            // cout << "final dist:" << dist << "\n";
-            // cout << "final angle dist:" << angle_dist << "\n\n";
+            cout << "FAILURE --- broke out of loop in " << num_iterations << " iterations --- dist: " << dist << "\t";
+            cout << "angle dist: " << angle_dist << "\n";
 
             Vector6d joint_angles;
             for (int i = 0; i < 6; ++i) {
@@ -239,9 +240,35 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
         }
 
         // d_ef is the vector we want the end effector to move in this step
+
+        // First 3 values of d_ef represent euclidean direction we want to move
         d_ef.head(3) = k_position_step * (target_point.head(3) - ef_pos_world);
+
+        // Last 3 values of d_ef represent direction for each euler angle
         if (use_euler_angles) {
-            d_ef.tail(3) = k_angle_step * (target_point.tail(3) - ef_ang_world);
+
+            // For each euler angle
+            for (size_t i = 3; i < 6; ++i) {
+
+                // If not crossing the 2pi --> 0 line
+                if (abs(target_point[i] - ef_ang_world[i - 3]) <= M_PI) {
+                    d_ef[i] = k_angle_step * (target_point[i] - ef_ang_world[i - 3]);
+                }
+                else {
+                    double targ_ang = target_point[i];
+                    double curr_ang = ef_ang_world[i - 3];
+
+                    // Adjust angles as necessary
+                    if (targ_ang < 0) {
+                        targ_ang += 2 * M_PI;
+                    }
+                    if (curr_ang < 0) {
+                        curr_ang += 2 * M_PI;
+                    }
+
+                    d_ef[i] = k_angle_step * (targ_ang - curr_ang);
+                }
+            }
         }
         else {
             d_ef.tail(3) = Vector3d{0, 0, 0};
@@ -249,16 +276,24 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
 
         // Move the end effector a small amount towards the target
         IK_step(robot_state, d_ef, use_euler_angles);
-        
-        ef_pos_world = robot_state.get_ef_pos_world();
-        ef_ang_world = robot_state.get_ef_ang_world();
 
         double dist_original = dist;
         double angle_dist_original = angle_dist;
 
-        dist = (ef_pos_world - target_pos_world).norm();
-        angle_dist = (ef_ang_world - target_ang_world).norm();
+        // Calculate progress towards target
 
+        ef_pos_world = robot_state.get_ef_pos_world();
+        ef_ang_world = robot_state.get_ef_ang_world();
+
+        dist = (ef_pos_world - target_pos_world).norm();
+
+        angle_dist = 0;
+        for (size_t i = 0; i < 3; ++i) {
+            double abs_angle_dist = abs(ef_ang_world[i] - target_ang_world[i]);
+            angle_dist += pow(min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
+        }
+
+        // If only a very small change has been made (change in angles approximated by change in distance)
         if (abs(dist - dist_original) < EPSILON_DIST && abs(angle_dist - angle_dist_original) < EPSILON_ANGLE_DIST) {
             ++num_iterations_low_movement;
         }
@@ -269,21 +304,18 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
         ++num_iterations;
     }
 
-    // cout << angle_dist << "  <=  " << ANGLE_THRESHOLD << "\n";
-    // cout << "bool: " << (angle_dist > ANGLE_THRESHOLD && use_euler_angles) << "\n";
-    // cout << "AHH, safe checking!!!\n";
-
-    // Vector3d ef_pos = robot_state.get_ef_pos_world();
-    // cout << "End effector positions [ " << ef_pos(0) << " " << ef_pos(1) << " " << ef_pos(2) << "]\n";
-
     vector<double> angles_vec = robot_state.get_joint_angles();
 
-    if (!is_safe(robot_state, angles_vec)){
-        // cout << "Found IK solution, but solution is not safe!\n";
+    // Check for collisions
+    if (!is_safe(robot_state, angles_vec)) {
+        cout << "UNSAFE IK solution!\n";
 
         recover_from_backup(robot_state);
         return pair<Vector6d, bool> (vecTo6d(angles_vec), false);
     }
+
+    cout << "SUCCESS in " << num_iterations << " iterations --- dist: " << dist << "\t";
+    cout << "angle dist: " << angle_dist << "\n";
 
     // restore robot_state to previous values
     recover_from_backup(robot_state);
@@ -314,17 +346,23 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
 
         // calculate end effector orientation jacobian values
         if (use_euler_angles) {
-            Matrix4d n_xform = apply_joint_xform(robot_state, i, DELTA_THETA);
 
-            Vector3d euler_angles;
-            euler_angles = compute_euler_angles(n_xform.block(0,0,3,3));
-            // cout << " blocking\n";
-            Vector3d diff_angs = (euler_angles - ef_euler_world);
-            Vector3d delta_angs = diff_angs / DELTA_THETA;
+            double curr_angle = robot_state.get_joint_angle(i);
 
-            Transpose<Vector3d> joint_col_euler = delta_angs.transpose();
+            // Calculate euler angle of end effector after moving joint i by DELTA_THETA
+            double new_angle = robot_state.get_joint_angle(i) + DELTA_THETA;
+            robot_state.set_joint_angle(i, new_angle);
+            FK(robot_state);
 
-            joint_col.tail(3) = joint_col_euler;
+            Vector3d euler_angles = compute_euler_angles(robot_state.get_ef_transform().block(0, 0, 3, 3));
+
+            // Calculate angle difference and scale by DELTA_THETA
+            Vector3d diff_angs = euler_angles - ef_euler_world;
+            joint_col.tail(3) = diff_angs / DELTA_THETA;
+
+            // Reset arm
+            robot_state.set_joint_angle(i, curr_angle);
+            FK(robot_state);
         }
         else {
             joint_col.tail(3) = Vector3d(0, 0, 0);
@@ -335,6 +373,8 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
             jacobian(j, i) = joint_col[j];
         }
     }
+
+    FK(robot_state);
 
     MatrixXd jacobian_inverse;
     // if using pseudo inverse (usually corresponds to using euler angles)
@@ -353,7 +393,6 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
     for (size_t i = 0; i < 6; ++i) {
 
         // don't move joint i if it's locked
-
         if (robot_state.get_joint_locked(i)) {
             d_theta[i] = 0;
         }
@@ -364,10 +403,22 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
 
         // clip angle to within joint limits
         if (angle < limits[0]) {
-            angle = limits[0];
+            // If joint can reach all 2pi options
+            if (robot_state.is_continuous(i)) {
+                angle = limits[1];
+            }
+            else {
+                angle = limits[0];   
+            }
         }
         else if (angle > limits[1]) {
-            angle = limits[1];
+            // If joint can reach all 2pi options
+            if (robot_state.is_continuous(i)) {
+                angle = limits[0];
+            }
+            else {
+                angle = limits[1];   
+            }
         }
 
         angle_vec.push_back(angle);

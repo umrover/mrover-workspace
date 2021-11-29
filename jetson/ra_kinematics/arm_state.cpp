@@ -287,3 +287,11 @@ void ArmState::set_joint_locked(size_t joint_index, bool locked) {
 double ArmState::get_joint_angle(size_t joint_index) const {
     return joints[joint_index].angle;
 }
+
+void ArmState::set_joint_angle(size_t joint_index, double angle) {
+    joints[joint_index].angle = angle;
+}
+
+bool ArmState::is_continuous(size_t joint_index) {
+    return joints[joint_index].continuous_range;
+}

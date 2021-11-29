@@ -9,22 +9,22 @@ using namespace Eigen;
 
 typedef Matrix<double, 6, 1> Vector6d;
 
-static constexpr int MAX_ITERATIONS = 500;
+static constexpr int MAX_ITERATIONS = 200;
 static constexpr int MAX_ITERATIONS_LOW_MOVEMENT = 10;
 
 // The acceptable distance from a solution to the target
-static constexpr double POS_THRESHOLD = 0.05;
-static constexpr double ANGLE_THRESHOLD = 0.02;
+static constexpr double POS_THRESHOLD = 0.03;
+static constexpr double ANGLE_THRESHOLD = 0.01;
 
 // The percentage of the remaining distance to try to move
-static constexpr double k_position_step = 0.1;
-static constexpr double k_angle_step = 0.24;
+static constexpr double k_position_step = 0.07;
+static constexpr double k_angle_step = 0.05;
 
 // The amount to change an angle to find the corresponding change in euler angles
 static constexpr double DELTA_THETA = 0.0001;
 
-static constexpr double EPSILON_DIST = 0.0000000001;                //TODO: Experiment with epsilon values
-static constexpr double EPSILON_ANGLE_DIST = 0.0000000001;
+static constexpr double EPSILON_DIST = 0.0001;
+static constexpr double EPSILON_ANGLE_DIST = 0.01;
 
 class KinematicsSolver {
 

@@ -286,18 +286,6 @@ TEST(ik_test_short) {
     ASSERT_TRUE(success);
 }
 
-TEST(ik_orientation) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
-    ArmState arm = ArmState(geom);
-    KinematicsSolver solver = KinematicsSolver();
-
-    arm.set_joint_angles({0, 1, -2, 0, 0, 0});
-    Vector6d target;
-    target << 0, 0.95, 0.35, 0.0, 0.0, 0.0;
-
-    ASSERT_TRUE(solver.IK(arm, target, false, true).second);
-}
-
 TEST(ik_local_min) {
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
@@ -353,6 +341,40 @@ TEST(ik_test_lock) {
 
     // Check that joint c did not move from the start position.
     ASSERT_ALMOST_EQUAL(-1, result.first[2], 0.0000001);
+
+    // Check that IK found a solution.
+    ASSERT_TRUE(result.second);
+}
+
+// Test that IK respects the locking of joints
+TEST(ik_test_orientation_experiment) {
+    json geom = read_json_from_file(get_mrover_arm_geom());
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+
+    // Starting angles.
+    vector<double> start = {0, 1, -1, 0, 0, 0};
+
+    // Angles to find a target position.
+    vector<double> target = {0.1, 0.9, -1, 0, 0, 0};
+
+    ASSERT_TRUE(solver.is_safe(arm, start));
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    // Generate the target position.
+    arm.set_joint_angles(target);
+    solver.FK(arm);
+
+    Vector6d target_pos;
+    target_pos.head(3) = arm.get_ef_pos_world();
+    target_pos.tail(3) = arm.get_ef_ang_world();
+
+    // Reset arm to starting position.
+    arm.set_joint_angles(start);
+    solver.FK(arm);
+
+    // Run IK
+    std::pair<Vector6d, bool> result = solver.IK(arm, target_pos, false, true);
 
     // Check that IK found a solution.
     ASSERT_TRUE(result.second);
