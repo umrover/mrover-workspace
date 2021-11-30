@@ -149,7 +149,8 @@ void ObsDetector::spinViewer() {
         viewer.addObject(obj, true);
     }
 
-    // Test bearing
+    // Test bearing one
+    /*
     float d = 7000;
     float theta = 20 * 3.14159/180.0;
     std::vector<vec3> pts = {
@@ -162,7 +163,37 @@ void ObsDetector::spinViewer() {
     };
     std::vector<int> indicies = {0, 1, 0}; 
     Object3D bearing(pts, colors, indicies);
-    viewer.addObject(bearing, true);
+    viewer.addObject(bearing, true); */
+
+    // test double bearing
+    float d = 7000;
+    float theta = 40 * 3.14159/180.0;
+    float roverWidthDiv2 = 1500/2;
+
+    vec3 bearing = vec3(d*sin(theta), 0, d*cos(theta));
+
+    vec3 leftBearingStart = vec3(-roverWidthDiv2 * cos(theta), 500, roverWidthDiv2 * sin(theta));
+    vec3 rightBearingStart = vec3(roverWidthDiv2 * cos(theta), 500, -roverWidthDiv2 * sin(theta));
+
+    std::vector<vec3> ptsLft = {
+        leftBearingStart,
+        leftBearingStart + bearing
+    };
+    std::vector<vec3> ptsRght = {
+        rightBearingStart,
+        rightBearingStart + bearing
+    };
+    std::vector<vec3> colors = {
+        vec3(1.0f, 0.0f, 0.0f),
+        vec3(1.0f, 0.0f, 0.0f)
+    };
+    std::vector<int> indicies = {0, 1, 0}; 
+
+    Object3D leftBearing(ptsLft, colors, indicies);
+    Object3D rightBearing(ptsRght, colors, indicies);
+
+    viewer.addObject(leftBearing, true);
+    viewer.addObject(rightBearing, true);
     
     viewer.update();
     viewer.clearEphemerals();
