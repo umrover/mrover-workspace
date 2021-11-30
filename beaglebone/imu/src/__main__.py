@@ -53,11 +53,11 @@ class IMU_Manager():
                 imu_struct.accel_y_g = float(arr[4])
                 imu_struct.accel_z_g = float(arr[5])
             elif (packetType == '2'):
-                imu_struct.mag_x = float(arr[3])
-                imu_struct.mag_y = float(arr[4])
-                imu_struct.mag_z = float(arr[5])
+                imu_struct.mag_x_uT = float(arr[3])
+                imu_struct.mag_y_uT = float(arr[4])
+                imu_struct.mag_z_uT = float(arr[5])
 
-                bearing = -math.atan2(imu_struct.mag_y, imu_struct.mag_x) * (180.0 / math.pi)
+                bearing = -math.atan2(imu_struct.mag_y_uT, imu_struct.mag_x_uT) * (180.0 / math.pi)
                 if(bearing < 0):
                     bearing += 360
                 imu_struct.bearing_deg = bearing
@@ -74,9 +74,9 @@ class IMU_Manager():
             imu_struct.accel_x_g = 0
             imu_struct.accel_y_g = 0
             imu_struct.accel_z_g = 0
-            imu_struct.mag_x = 0
-            imu_struct.mag_y = 0
-            imu_struct.mag_z = 0
+            imu_struct.mag_x_uT = 0
+            imu_struct.mag_y_uT = 0
+            imu_struct.mag_z_uT = 0
 
     def pchra_handler(self, msg, imu_struct):
         pi = 3.14159265359
