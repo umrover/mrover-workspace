@@ -148,6 +148,21 @@ void ObsDetector::spinViewer() {
         Object3D obj(points, colors, indicies);
         viewer.addObject(obj, true);
     }
+
+    // Test bearing
+    float d = 7000;
+    float theta = 20 * 3.14159/180.0;
+    std::vector<vec3> pts = {
+        vec3(0, 0, 0), 
+        vec3(d*sin(theta), 0, d*cos(theta))
+    };
+    std::vector<vec3> colors = {
+        vec3(1.0f, 0.0f, 0.0f),
+        vec3(1.0f, 0.0f, 0.0f)
+    };
+    std::vector<int> indicies = {0, 1, 0}; 
+    Object3D bearing(pts, colors, indicies);
+    viewer.addObject(bearing, true);
     
     viewer.update();
     viewer.clearEphemerals();
