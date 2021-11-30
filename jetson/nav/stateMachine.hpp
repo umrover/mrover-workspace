@@ -49,8 +49,10 @@ public:
 
     void updateRepeaterComplete( );
 
-    void setSearcher(SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
+    void setSearcher( SearchType type );
 
+    void updateGimbalPosition(double curYaw);
+    
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/

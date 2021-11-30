@@ -126,11 +126,14 @@ void clear( deque<Waypoint>& aDeque )
 // Checks to see if target is reachable before hitting obstacle
 // If the x component of the distance to obstacle is greater than
 // half the width of the rover the obstacle if reachable
-bool isTargetReachable( Rover* rover, const rapidjson::Document& roverConfig )
+// OR the obstacle is a post
+bool isTargetReachable( Rover* phoebe, const rapidjson::Document& roverConfig )
 {
-    double distToTarget = rover->roverStatus().target().distance;
+    double distToTarget = phoebe->roverStatus().leftTarget().distance;
     double distThresh = roverConfig["navThresholds"]["targetDistance"].GetDouble();
-    return isLocationReachable( rover, roverConfig, distToTarget, distThresh );
+
+    return isLocationReachable( phoebe, roverConfig, distToTarget, distThresh ) ||
+            isObstaclePost( phoebe, roverConfig );
 } // istargetReachable()
 
 // Returns true if the rover can reach the input location without hitting the obstacle.
@@ -141,7 +144,7 @@ bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, 
     double distToObs = rover->roverStatus().obstacle().distance;
     double bearToObs = rover->roverStatus().obstacle().bearing;
     double bearToObsComplement = 90 - bearToObs;
-    double xComponentOfDistToObs = distToObs * cos(bearToObsComplement);
+    double xComponentOfDistToObs = distToObs * cos( bearToObsComplement );
 
     bool isReachable = false;
 
@@ -159,3 +162,17 @@ bool isObstacleDetected( Rover* rover )
 {
     return rover->roverStatus().obstacle().distance >= 0;
 } // isObstacleDetected()
+
+
+// returns true if the detected obstacle is likely to be a post supporting an AR tag
+// ASSUMPTION: real obstacles are not within {tagToPostThreshold} meters of the tag
+// NOTE: at beginning of subsequent early legs, we will start directly in front of a post
+// but this function will only be called when a target is detected, which is also when we have
+// already reached a waypoint, so we will treat the post as a regular obstacle
+bool isObstaclePost( Rover* phoebe, const rapidjson::Document& roverConfig )
+{
+    double tagToPostThreshold = roverConfig["navThresholds"]["tagToPostDistance"].GetDouble();
+    double tagToObsDist = abs( phoebe->roverStatus().obstacle().distance
+                                - phoebe->roverStatus().leftTarget().distance );
+    return tagToObsDist <= tagToPostThreshold;
+}
