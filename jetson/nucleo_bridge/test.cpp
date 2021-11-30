@@ -3,6 +3,8 @@
 #include <vector>
 #include <thread>
 
+# define M_PI           3.14159265358979323846  /* pi */
+
 #define OFF         0x00,   0,  0
 #define ON          0x0F,   0,  0
 #define OPEN        0x10,   2,  0
@@ -27,6 +29,9 @@ using namespace std;
 
 #define PRINT_TEST_START printf("Running Test #%2d, %s\n", ++num_tests_ran, __FUNCTION__);
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
+
+// reductions per motor 
+int cpr[6] = { 1, 1, 1, 1, 1, 1 };
 
 int num_tests_ran = 0;
 
@@ -147,20 +152,64 @@ uint32_t quadEnc(int addr)
     }
 }
 
-uint32_t absEnc(int addr)
+//uint32_t absEnc(int addr)
+uint16_t absEnc(int addr)
 {
     try
     {
-        uint32_t abs_raw_angle;
+        //uint32_t abs_raw_angle;
+        uint16_t abs_raw_angle;
         I2C::transact(addr, ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
         printf("test abs quad transaction successful on slave %i \n", addr);
-        return abs_raw_angle;
+        return abs_raw_angle; // in radians 
     }
     catch (IOFailure &e)
     {
         printf("test abs quad transaction failed on slave %i \n", addr);
         return 0;
     }
+}
+
+void adjust(int addr, int joint)
+{
+    try
+    {
+        // gets initial angles
+        uint32_t quad_angle = quadEnc(addr);
+        uint16_t abs_angle = absEnc(addr);
+
+        printf("before adjust quadrature value: %u, absolute value: %u on slave %i\n", quad_angle, abs_angle, addr);
+
+        // gets absolute angle in quadrature counts
+        // quad_angle = (quad_angle / cpr[joint]) * (2 * M_PI); // counts to radians
+        abs_angle = static_cast<uint32_t>(abs_angle); // comes out in 'radians' 
+        uint32_t adjusted_quad = (abs_angle / (2 * M_PI)) * cpr[joint];
+
+        // adjust transaction 
+        uint8_t buffer[4];
+        memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), 4);
+        I2C::transact(addr, ADJUST, buffer, nullptr);
+
+        // checks values after
+        uint32_t quad_angle = quadEnc(addr);
+        uint16_t abs_angle = absEnc(addr);
+
+        printf("after adjust quadrature value: %u, absolute value: %u on slave %i\n", quad_angle, abs_angle, addr);
+
+        if (quad_angle - adjusted_quad > 25)
+        {
+            printf("test adjust transaction numerically failed on slave %i \n", addr);
+        }
+        else
+        {
+            printf("test adjust transaction successful on slave %i \n", addr);
+        }
+    }
+    catch (IOFailure &e)
+    {
+        printf("test adjust transaction failed on slave %i \n", addr);
+        return 0;
+    }    
 }
 
 //tests
@@ -229,6 +278,20 @@ void testAbsEnc()
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     PRINT_TEST_END
+}
+
+void testAdjust()
+{
+    PRINT_TEST_START
+    for (auto address : i2c_address)
+    {
+        int joint = (address & 0b1) + (address >> 4);
+
+        adjust(address, joint);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    PRINT_TEST_END   
 }
 
 void testSetKPID()
