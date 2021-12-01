@@ -248,6 +248,6 @@ int main() {
 
 
     PCDWriter writer;
-    writer.writeCloud("pc.pcd", cloud, 1000, 1000);
+    writer.writeCloud("pc.pcd", cloud, 400, 400);
 
 }
