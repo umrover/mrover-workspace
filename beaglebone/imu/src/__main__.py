@@ -1,9 +1,3 @@
-# Change based on wether or not you are running the code on a beaglebone - true for beaglebone, false for jetson
-beaglebone = True
-
-if (beaglebone):
-    import Adafruit_BBIO.UART as UART
-
 import serial
 import asyncio
 import math
@@ -12,6 +6,10 @@ from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import IMUData
 import bitstring
+# Change based on wether or not you are running the code on a beaglebone - true for beaglebone, false for jetson
+beaglebone = True
+if (beaglebone):
+    import Adafruit_BBIO.UART as UART
 
 # Picocom - picocom -b 115200 /dev/ttyS4
 # LCM_DEFAULT_URL="udpm://239.255.76.67:76?ttl=255" ./jarvis exec lcm_tools_echo IMUData "/imu_data"
@@ -332,22 +330,15 @@ class IMU_Manager():
         mag_x = data_xf[0]*1.0 - IMU_Manager.mag_offsets[0]
         mag_y = data_yf[0]*1.0 - IMU_Manager.mag_offsets[1]
         mag_z = data_zf[0]*1.0 - IMU_Manager.mag_offsets[2]
-        # print("offsets: ", IMU_Manager.mag_offsets[0], " ", IMU_Manager.mag_offsets[1], " ", IMU_Manager.mag_offsets[2])
-        # print("cal_mat_r0: ", IMU_Manager.calibration_matrix[0][0], " ",
-        #       IMU_Manager.calibration_matrix[0][1], " ",
-        #       IMU_Manager.calibration_matrix[0][2])
-        # print("cal_mat_r1: ", IMU_Manager.calibration_matrix[1][0], " ",
-        #       IMU_Manager.calibration_matrix[1][1], " ",
-        #       IMU_Manager.calibration_matrix[1][2])
         # Apply mag soft iron error compensation
-        mag_calibrated_x = mag_x * IMU_Manager.calibration_matrix[0][0] + \
-            mag_y * IMU_Manager.calibration_matrix[0][1] + mag_z * IMU_Manager.calibration_matrix[0][2]
+        # mag_calibrated_x = mag_x * IMU_Manager.calibration_matrix[0][0] + \
+        #     mag_y * IMU_Manager.calibration_matrix[0][1] + mag_z * IMU_Manager.calibration_matrix[0][2]
 
-        mag_calibrated_y = mag_x * IMU_Manager.calibration_matrix[1][0] + \
-            mag_y * IMU_Manager.calibration_matrix[1][1] + mag_z * IMU_Manager.calibration_matrix[1][2]
+        # mag_calibrated_y = mag_x * IMU_Manager.calibration_matrix[1][0] + \
+        #     mag_y * IMU_Manager.calibration_matrix[1][1] + mag_z * IMU_Manager.calibration_matrix[1][2]
 
-        mag_calibrated_z = mag_x * IMU_Manager.calibration_matrix[2][0] + \
-            mag_y * IMU_Manager.calibration_matrix[2][1] + mag_z * IMU_Manager.calibration_matrix[2][2]
+        # mag_calibrated_z = mag_x * IMU_Manager.calibration_matrix[2][0] + \
+        #     mag_y * IMU_Manager.calibration_matrix[2][1] + mag_z * IMU_Manager.calibration_matrix[2][2]
 
         # print("cal_xyz: ", mag_calibrated_x, " ", mag_calibrated_y, " ", mag_calibrated_z)
         # Bearing Calculation
@@ -357,7 +348,7 @@ class IMU_Manager():
         bearing = -(math.atan2(mag_cal_y, mag_cal_x)*(180.0/math.pi))
         if (bearing < 0):
             bearing += 360
-        
+
         # if (bearing != 270):
         #     print("bearing: ", bearing)
 
