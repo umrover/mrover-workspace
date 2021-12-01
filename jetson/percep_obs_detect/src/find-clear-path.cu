@@ -21,10 +21,10 @@ __device__ BearingLines::BearingLines(float heading_in) : heading{heading_in} {
   //NB: Defines heading = 0 as straight, heading > 0 right, heading < 0 left
   n.x = -cos(heading_in); //Calculate x component of orthogonal vec from heading_in
   n.y = sin(heading_in); //Calculate y component of orthogonal vec from heading_in
-  bLeft.x = (-rovWidth/2) * cos(heading_in); //Calculate bLeft x offset from heading_in
-  bLeft.y = (rovWidth/2) * sin(heading_in); //Calculate bLeft y offset from heading_in
-  bRight.x = (rovWidth/2) * cos(heading_in); //Calculate bRight x offset from heading_in
-  bRight.y = (-rovWidth/2) * sin(heading_in); //Calculate bRight y offset from heading_in
+  bLeft.x = (-rovWidth/2) * cos(heading_in); //Calculate bLeft x offset from heading_in //POSSIBLE ISSUE, LEFT IS POS x TODO: CHECK
+  bLeft.y = (rovWidth/2) * sin(heading_in); //Calculate bLeft y offset from heading_in //POSSIBLE ISSUE, LEFT IS POS x
+  bRight.x = (rovWidth/2) * cos(heading_in); //Calculate bRight x offset from heading_in //POSSIBLE ISSUE, LEFT IS POS x
+  bRight.y = (-rovWidth/2) * sin(heading_in); //Calculate bRight y offset from heading_in //POSSIBLE ISSUE, LEFT IS POS x
 }
 
 void FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec){
