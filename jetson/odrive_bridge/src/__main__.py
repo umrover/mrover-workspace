@@ -7,7 +7,7 @@ import fibre
 from rover_msgs import DriveStateCmd, DriveVelCmd, \
     DriveStateData, DriveVelData
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
-    CTRL_MODE_VELOCITY_CONTROL, AXIS_STATE_FULL_CALIBRATION_SEQUENCE, \
+    CONTROL_MODE_VELOCITY_CONTROL, AXIS_STATE_FULL_CALIBRATION_SEQUENCE, \
     AXIS_STATE_IDLE, ENCODER_MODE_HALL
 
 from odrive.utils import dump_errors
@@ -439,7 +439,7 @@ class Modrive:
         self.back_axis.controller.config.control_mode = mode
 
     def set_velocity_ctrl(self):
-        self._set_control_mode(CTRL_MODE_VELOCITY_CONTROL)
+        self._set_control_mode(CONTROL_MODE_VELOCITY_CONTROL)
 
     def get_iq_measured(self, axis):
         # measured current [Amps]
@@ -487,7 +487,7 @@ class Modrive:
         m_axis.controller.config.vel_gain = 0.02
         m_axis.controller.config.vel_integrator_gain = 0.1
         m_axis.controller.config.vel_limit = 1000
-        m_axis.controller.config.control_mode = CTRL_MODE_VELOCITY_CONTROL
+        m_axis.controller.config.control_mode = CONTROL_MODE_VELOCITY_CONTROL
 
     def _pre_calibrate(self, m_axis):
         m_axis.motor.config.pre_calibrated = True
