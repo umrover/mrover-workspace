@@ -179,7 +179,7 @@ void ObsDetector::spinViewer() {
 
     //TESTING: draw double bearing
     //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
-    float degAngle = 0; //Change angle of bearing to draw here
+    float degAngle = 13; //Change angle of bearing to draw here
     float d = 7000;
     float theta = degAngle * 3.14159/180.0;
     float roverWidthDiv2 = 1500/2;

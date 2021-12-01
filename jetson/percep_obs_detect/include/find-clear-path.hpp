@@ -7,7 +7,7 @@
 
 //TODO: where to put these constants in the final code
 
-static const float rovWidth = 0.1; //TODO, get actual rovWidth 
+static const float rovWidth = 1500; //TODO, get actual rovWidth 
 
 static const int bearingNum = 1024; 
 
@@ -42,10 +42,10 @@ class FindClearPath {
     //void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize);
 
     //Find closest bearing to the left that is clear
-    int find_left_closest(bool* headings);
+    float find_left_closest(bool* headings);
     
     //Find closest bearing to the right that is clear
-    int find_right_closest(bool* headings);
+    float find_right_closest(bool* headings);
 
 };
 
