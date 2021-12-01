@@ -74,7 +74,8 @@ class PCL {
         int MAX_CLUSTER_SIZE;
         
         //member variables
-        double bearing;
+        double leftBearing;
+        double rightBearing;
         double distance;
         bool detected;
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr;
@@ -90,7 +91,6 @@ class PCL {
             viewer_original -> close();
         #endif
         };
-
 
     private:
 
@@ -110,7 +110,7 @@ class PCL {
         void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, std::vector<std::vector<int>> &interest_points);
         
         //Finds a clear path given the obstacle corners
-        double FindClearPath(const std::vector<std::vector<int>> &interest_points);
+        void FindClearPath(const std::vector<std::vector<int>> &interest_points);
 
         //Determines whether the input path is obstructed
         bool CheckPath(const std::vector<std::vector<int>> &interest_points,
