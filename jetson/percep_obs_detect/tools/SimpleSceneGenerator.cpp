@@ -232,7 +232,7 @@ int main() {
 
     //Init all obstacles to be added to the scene and push them to ObsReturn.obs
     //Obstacle <name> = {minX, maxX, minY, maxY, minZ, maxZ};
-    Obstacle one = { 0, 500, 0, 500, 0, 500 };
+    Obstacle one = { 0, 200, 0, 200, 0, 200 };
     objects.obs.push_back(one);
 
     //Init an object of PcGenerator Class using one of the following constructors 
@@ -243,7 +243,7 @@ int main() {
     float4 normalVector = make_float4(0, 0, 1, 0);
     float4 center = make_float4(0, 0, 0, 0);
 
-    PcGenerator scene(objects, 0.33f, 10.0, normalVector, center, false, false);
+    PcGenerator scene(objects, 1f, 10.0, normalVector, center, false, false);
     GPU_Cloud cloud = scene.getGPU();
 
 

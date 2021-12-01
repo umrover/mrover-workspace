@@ -166,7 +166,7 @@ void ObsDetector::test_input_file()
 
   //Init all obstacles to be added to the scene and push them to ObsReturn.obs
   //Obstacle <name> = {minX, maxX, minY, maxY, minZ, maxZ};
-  EuclideanClusterExtractor::Obstacle one = { 0, 500, 0, 500, 0, 500 };
+  EuclideanClusterExtractor::Obstacle one = { 0, 200, 0, 200, 0, 200 };
   objects.obs.push_back(one);
 
 
