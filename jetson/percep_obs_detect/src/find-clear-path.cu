@@ -80,15 +80,20 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
   //fov: one directional field of view, currently 80 degrees
   //bearingNum: number of gpu threads
   //i is index of thread
+
+  //Test individual threads
   int map = (i - bearingNum/2);
+
+  //Temporary thread manual overwrite
+  //int map = (555 - bearingNum/2);
 
   //Test individual bearings
   float bearing_deg = float(map * fov) / (bearingNum / 2); //converts thread # to degrees //TODO Bring this back
 
   //Temporary bearing manual overwrite
-  //float bearing_deg = 13;
+  //float bearing_deg = 7.3;
 
-  //printf("%f\n", bearing);
+  //printf("%f\n", bearing_deg);
   BearingLines bearings(bearing_deg * 3.1415926535/180.0); //Create bearing lines from bearing //TODO how accurate should pi be?
 
   // if detect variables are negative, obs is to the left of bearing line     MAYBE RIGHT?? TODO I think this is right
@@ -121,6 +126,8 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
 
         //printf("LBL_topRight: %f RBL_topRight: %f\n", LBL_topRight, RBL_topRight);
 
+        //CHECK IF OBSTACLE IS BETWEEN BEARING LINES
+
         if((LBL_botLeft > 0 && RBL_botLeft < 0) || (LBL_botLeft < 0 && RBL_botLeft > 0)
             || LBL_botLeft == 0 || RBL_botLeft == 0){ 
           heading_checks[i] = 0; // This is not a clear path
@@ -141,6 +148,10 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
           heading_checks[i] = 0; // This is not a clear path
         }
 
+        //CHECK IF OBSTACLE IS LARGER THAN SPAN OF BEARING LINES
+        if((LBL_botLeft > 0 && RBL_botRight < 0) || (LBL_topLeft > 0 && RBL_topRight < 0)){
+          heading_checks[i] = 0; // This is not a clear path
+        }
 
 
         // //checks the left bearing at the minimum z of the object

@@ -102,17 +102,17 @@ void ObsDetector::update(GPU_Cloud pc) {
     #endif
     obstacles = ece->extractClusters(pc, bins); 
 
-    //TESTING: Make our own obstacles
-    obstacles.obs.clear();
-    EuclideanClusterExtractor::Obstacle test; // Change parameters of obstacle below
-    test.minX = -250;
-    test.maxX = 250; //"Right" is positive X direction
-    test.minY = 250; 
-    test.maxY = 750; //"Down" is positive Y direction
-    test.minZ = 3500;
-    test.maxZ = 4000; //"Forward" is positive Z direction
+    // //TESTING: Make our own obstacles
+    // obstacles.obs.clear();
+    // EuclideanClusterExtractor::Obstacle test; // Change parameters of obstacle below
+    // test.minX = -250;
+    // test.maxX = 250; //"Right" is positive X direction
+    // test.minY = 250; 
+    // test.maxY = 750; //"Down" is positive Y direction
+    // test.minZ = 3500;
+    // test.maxZ = 4000; //"Forward" is positive Z direction
 
-    obstacles.obs.push_back(test);
+    // obstacles.obs.push_back(test);
 
     findClear->find_clear_path_initiate(obstacles);
     
@@ -179,7 +179,7 @@ void ObsDetector::spinViewer() {
 
     //TESTING: draw double bearing
     //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
-    float degAngle = 13; //Change angle of bearing to draw here
+    float degAngle = 6.718750; //Change angle of bearing to draw here
     float d = 7000;
     float theta = degAngle * 3.14159/180.0;
     float roverWidthDiv2 = 1500/2;
