@@ -16,7 +16,7 @@
 #define GET_K       0x5F,   0,  12
 #define QUAD        0x40,   0,  4
 #define ADJUST      0x4F,   4,  0
-#define ABS_ENC     0x50,   0,  2
+#define ABS_ENC     0x50,   0,  4
 #define LIMIT       0x60,   0,  1
 
 #define UINT8_POINTER_T reinterpret_cast<uint8_t *>
@@ -152,13 +152,13 @@ uint32_t quadEnc(int addr)
     }
 }
 
-//uint32_t absEnc(int addr)
-uint16_t absEnc(int addr)
+//uint16_t absEnc(int addr)
+uint32_t absEnc(int addr)
 {
     try
     {
-        //uint32_t abs_raw_angle;
-        uint16_t abs_raw_angle;
+        uint32_t abs_raw_angle;
+        //uint16_t abs_raw_angle;
         I2C::transact(addr, ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
         printf("test abs quad transaction successful on slave %i \n", addr);
         return abs_raw_angle; // in radians 
@@ -176,13 +176,13 @@ void adjust(int addr, int joint)
     {
         // gets initial angles
         uint32_t quad_angle = quadEnc(addr);
-        uint16_t abs_angle = absEnc(addr);
+        uint32_t abs_angle = absEnc(addr);
 
         printf("before adjust quadrature value: %u, absolute value: %u on slave %i\n", quad_angle, abs_angle, addr);
 
         // gets absolute angle in quadrature counts
         // quad_angle = (quad_angle / cpr[joint]) * (2 * M_PI); // counts to radians
-        abs_angle = static_cast<uint32_t>(abs_angle); // comes out in 'radians' 
+        //abs_angle = static_cast<uint32_t>(abs_angle); // comes out in 'radians' 
         uint32_t adjusted_quad = (abs_angle / (2 * M_PI)) * cpr[joint];
 
         // adjust transaction 
@@ -192,7 +192,7 @@ void adjust(int addr, int joint)
 
         // checks values after
         uint32_t quad_angle = quadEnc(addr);
-        uint16_t abs_angle = absEnc(addr);
+        uint32_t abs_angle = absEnc(addr);
 
         printf("after adjust quadrature value: %u, absolute value: %u on slave %i\n", quad_angle, abs_angle, addr);
 
