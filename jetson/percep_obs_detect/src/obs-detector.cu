@@ -102,17 +102,26 @@ void ObsDetector::update(GPU_Cloud pc) {
     #endif
     obstacles = ece->extractClusters(pc, bins); 
 
-    // //TESTING: Make our own obstacles
-    // obstacles.obs.clear();
-    // EuclideanClusterExtractor::Obstacle test; // Change parameters of obstacle below
-    // test.minX = -250;
-    // test.maxX = 250; //"Right" is positive X direction
-    // test.minY = 250; 
-    // test.maxY = 750; //"Down" is positive Y direction
-    // test.minZ = 3500;
-    // test.maxZ = 4000; //"Forward" is positive Z direction
+    //TESTING: Make our own obstacles
+    obstacles.obs.clear();
+    EuclideanClusterExtractor::Obstacle test; // Change parameters of obstacle below
+    test.minX = 250;
+    test.maxX = 750; //"Right" is positive X direction
+    test.minY = 250; 
+    test.maxY = 750; //"Down" is positive Y direction
+    test.minZ = 3500;
+    test.maxZ = 4000; //"Forward" is positive Z direction
 
-    // obstacles.obs.push_back(test);
+    EuclideanClusterExtractor::Obstacle test2; // Change parameters of obstacle below
+    test2.minX = -2500;
+    test2.maxX = -2000; //"Right" is positive X direction
+    test2.minY = 250; 
+    test2.maxY = 750; //"Down" is positive Y direction
+    test2.minZ = 3500;
+    test2.maxZ = 4000; //"Forward" is positive Z direction
+
+    obstacles.obs.push_back(test);
+    obstacles.obs.push_back(test2);
 
     findClear->find_clear_path_initiate(obstacles);
     
@@ -179,21 +188,27 @@ void ObsDetector::spinViewer() {
 
     //TESTING: draw double bearing
     //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
-    float degAngle = 6.718750; //Change angle of bearing to draw here
+    float degAngle = -8; //Change angle of bearing to draw here
+    float degAngle2 = 24;
     float d = 7000;
     float theta = degAngle * 3.14159/180.0;
+    float theta2 = degAngle2 * 3.14159/180.0;
     float roverWidthDiv2 = 1500/2;
 
     vec3 bearing = vec3(d*sin(theta), 0, d*cos(theta));
+    vec3 bearing2 = vec3(d*sin(theta2), 0, d*cos(theta2));
 
     vec3 leftBearingStart = vec3(-roverWidthDiv2 * cos(theta), 500, roverWidthDiv2 * sin(theta));
     vec3 rightBearingStart = vec3(roverWidthDiv2 * cos(theta), 500, -roverWidthDiv2 * sin(theta));
 
-    std::vector<vec3> ptsLft = {
+    vec3 leftBearingStart2 = vec3(-roverWidthDiv2 * cos(theta2), 500, roverWidthDiv2 * sin(theta2));
+    vec3 rightBearingStart2 = vec3(roverWidthDiv2 * cos(theta2), 500, -roverWidthDiv2 * sin(theta2));
+
+    std::vector<vec3> ptsLft1 = {
         leftBearingStart,
         leftBearingStart + bearing
     };
-    std::vector<vec3> ptsRght = {
+    std::vector<vec3> ptsRght1 = {
         rightBearingStart,
         rightBearingStart + bearing
     };
@@ -201,13 +216,29 @@ void ObsDetector::spinViewer() {
         vec3(1.0f, 0.0f, 0.0f),
         vec3(1.0f, 0.0f, 0.0f)
     };
+
+    std::vector<vec3> ptsLft2 = {
+      leftBearingStart2,
+      leftBearingStart2 + bearing2
+  };
+  std::vector<vec3> ptsRght2 = {
+      rightBearingStart2,
+      rightBearingStart2 + bearing2
+  };
+
     std::vector<int> indicies = {0, 1, 0}; 
 
-    Object3D leftBearing(ptsLft, colors, indicies);
-    Object3D rightBearing(ptsRght, colors, indicies);
+    Object3D leftBearing(ptsLft1, colors, indicies);
+    Object3D rightBearing(ptsRght1, colors, indicies);
+
+    Object3D leftBearing2(ptsLft2, colors, indicies);
+    Object3D rightBearing2(ptsRght2, colors, indicies);
 
     viewer.addObject(leftBearing, true);
     viewer.addObject(rightBearing, true);
+
+    viewer.addObject(leftBearing2, true);
+    viewer.addObject(rightBearing2, true);
     
     viewer.update();
     viewer.clearEphemerals();
