@@ -254,7 +254,7 @@ void PointCloud::draw() {
     glBindVertexArray(vaoID);
     glDrawArrays(GL_POINTS, 0, size);
     glBindVertexArray(0);
-    std::cout << vaoID << std::endl;
+    //std::cout << vaoID << std::endl;
 }
 
 /* 

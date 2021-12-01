@@ -4,6 +4,7 @@
 #include <numeric>
 #include <iomanip>
 #include <algorithm>
+#include <fstream>
 
 TestStats::TestStats()
 {
@@ -48,6 +49,7 @@ void TestStats::print() //prints out all info
     std::cout << "Average volume of a truth detected\n";
     std::cout << "Obstacle #[NUMBER] % detected: [PERCENT]\n";
     std::cout << "Processed Clouds: " << iot.size() << "\n";
+
     for (size_t i = 0; i < iot.size(); i++) // Loop through each cloud
     {
         std::cout << "\n–––––––––––––––––––––––\n–––––––––––––––––––––––\n\n";
