@@ -21,6 +21,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
+        //TESTING: comment out the line below
         //fileReader.open(readDir);
     }
 
