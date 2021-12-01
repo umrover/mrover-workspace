@@ -1,4 +1,9 @@
-import Adafruit_BBIO.UART as UART
+# Change based on wether or not you are running the code on a beaglebone - true for beaglebone, false for jetson
+beaglebone = True
+
+if (beaglebone):
+    import Adafruit_BBIO.UART as UART
+
 import serial
 import asyncio
 import math
@@ -18,7 +23,8 @@ class IMU_Manager():
     mag_offsets = [0]*3
 
     def __init__(self):
-        UART.setup("UART4")
+        if (beaglebone):
+            UART.setup("UART4")
 
         # Mapping NMEA messages to their handlers
         self.NMEA_TAGS_MAPPER = {
@@ -29,8 +35,14 @@ class IMU_Manager():
         self.sleep = .01
 
     def __enter__(self):
+        # Based on the type of device, a port is selected
+        if (beaglebone):
+            pt = '/dev/ttyS4'
+        else:
+            pt = '/dev/ttyTHS0'
+        
         self.ser = serial.Serial(
-            port='/dev/ttyS4',
+            port=pt,
             baudrate=115200,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
