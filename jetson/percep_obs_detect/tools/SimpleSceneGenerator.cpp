@@ -243,7 +243,7 @@ int main() {
     float4 normalVector = make_float4(0, 0, 1, 0);
     float4 center = make_float4(0, 0, 0, 0);
 
-    PcGenerator scene(objects, 1f, 10.0, normalVector, center, false, false);
+    PcGenerator scene(objects, .99f, 10.0, normalVector, center, false, false);
     GPU_Cloud cloud = scene.getGPU();
 
 
