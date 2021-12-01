@@ -21,6 +21,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
+        //TESTING: comment out the line below
         //fileReader.open(readDir);
     }
 
@@ -165,7 +166,7 @@ void ObsDetector::test_input_file()
 
   //Init all obstacles to be added to the scene and push them to ObsReturn.obs
   //Obstacle <name> = {minX, maxX, minY, maxY, minZ, maxZ};
-  EuclideanClusterExtractor::Obstacle one = { 0, 1, 0, 1, 0, 1 };
+  EuclideanClusterExtractor::Obstacle one = { 0, 2, 0, 2, 0, 2 };
   objects.obs.push_back(one);
 
 
