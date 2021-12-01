@@ -232,7 +232,7 @@ int main() {
 
     //Init all obstacles to be added to the scene and push them to ObsReturn.obs
     //Obstacle <name> = {minX, maxX, minY, maxY, minZ, maxZ};
-    Obstacle one = { 0, 1, 0, 1, 0, 1 };
+    Obstacle one = { 0, 2, 0, 2, 0, 2 };
     objects.obs.push_back(one);
 
     //Init an object of PcGenerator Class using one of the following constructors 
@@ -248,6 +248,6 @@ int main() {
 
 
     PCDWriter writer;
-    writer.writeCloud("pc.pcd", cloud, 10, 10);
+    writer.writeCloud("pc.pcd", cloud, 1, 1);
 
 }
