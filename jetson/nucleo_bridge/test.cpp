@@ -191,12 +191,12 @@ float absEnc(int addr)
         float abs_raw_angle = 0;;
         //uint16_t abs_raw_angle;
         I2C::transact(addr, ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
-        printf("test abs quad transaction successful on slave %i \n", addr);
+        printf("test abs transaction successful on slave %i, %f \n", addr, abs_raw_angle);
         return abs_raw_angle; // in radians 
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test abs quad transaction failed on slave %i \n", addr);
+        fprintf(stderr, "test abs transaction failed on slave %i \n", addr);
         return 0;
     }
 }
@@ -209,7 +209,7 @@ void adjust(int addr, int joint)
         uint32_t quad_angle = quadEnc(addr);
         uint32_t abs_angle = absEnc(addr);
 
-        printf("before adjust quadrature value: %u, absolute value: %u on slave %i\n", quad_angle, abs_angle, addr);
+        printf("before adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
         // gets absolute angle in quadrature counts
         // quad_angle = (quad_angle / cpr[joint]) * (2 * M_PI); // counts to radians
@@ -225,7 +225,7 @@ void adjust(int addr, int joint)
         quad_angle = quadEnc(addr);
         abs_angle = absEnc(addr);
 
-        printf("after adjust quadrature value: %u, absolute value: %u on slave %i\n", quad_angle, abs_angle, addr);
+        printf("after adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
         if (quad_angle - adjusted_quad > 25)
         {
@@ -345,7 +345,7 @@ void testAdjust()
 
 void testSetKPID()
 {
-    PRINT_TEST_START
+    PRINT_TEST_START 
     for (auto address : i2c_address)
     {
         getKPID(address);
@@ -383,6 +383,44 @@ void testOpenPlus()
         }
     }
     PRINT_TEST_END
+}
+
+void testOpenPlusWithAbs()
+{
+    PRINT_TEST_START
+    for (auto address : i2c_address)
+    {
+        // openPlus(address, 0.5);
+        // sleep(300);
+        // openPlus(address, 0);
+        // sleep(300);
+        float speed = 0.5f;
+        if (address == 16)
+        {
+            speed = 0.25f;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            openPlus(address, speed);
+            sleep(200);
+            absEnc(address);
+            sleep(200);
+        }
+        for (int i = 0; i < 3; i++) {
+            openPlus(address, -speed);
+            sleep(200);
+            absEnc(address);
+            sleep(200);
+        }
+        for (int i = 0; i < 5; i++) {
+            openPlus(address, 0.0f);
+            sleep(200);
+            absEnc(address);
+            sleep(200);
+        }
+        std::cout << std::endl;
+    }
+    PRINT_TEST_END    
 }
 
 void allDevBoardFunctions(int address)
@@ -467,7 +505,7 @@ void testOnOff()
 
 int main()
 {
-    for (int i = 1; i <= 3; ++i)
+    for (int i = 1; i <= 1; ++i)
     {
         i2c_address.push_back(get_addr(i, 0));
         i2c_address.push_back(get_addr(i, 1));
@@ -483,11 +521,13 @@ int main()
     // openPlus(get_addr(1, 1), 0.0);
     while (1)
     {
-        // testOpenPlus();
+        testOpenPlusWithAbs();
+        //testOpenPlus();
         // printf("sleeping \n");
         // //sleep(1000);
         // printf("waking up\n");
-        testAbsEnc();
+        //testAbsEnc();
+        //testAdjust();
         sleep(1000);
 
     }
