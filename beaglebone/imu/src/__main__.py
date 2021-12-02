@@ -38,7 +38,7 @@ class IMU_Manager():
             pt = '/dev/ttyS4'
         else:
             pt = '/dev/ttyTHS0'
-        
+
         self.ser = serial.Serial(
             port=pt,
             baudrate=115200,
@@ -321,15 +321,15 @@ class IMU_Manager():
             IMU_Manager.mag_offsets[i] = self.get_cal_vals(BIAS_REG[i])
 
     def calculate_bearing(self):
-        # get raw values for mag
-        data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
+        # # get raw values for mag
+        # data_xf, data_yf, data_zf = self.get_raw(0x5C, 0x5D)
         # print("data: ", data_xf, " ", data_yf, " ", data_zf)
         # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-
         # Magnetometer reads in unitless
 
-        mag_x = data_xf[0]*1.0 - IMU_Manager.mag_offsets[0]
-        mag_y = data_yf[0]*1.0 - IMU_Manager.mag_offsets[1]
-        mag_z = data_zf[0]*1.0 - IMU_Manager.mag_offsets[2]
+        # mag_x = data_xf[0]*1.0 - IMU_Manager.mag_offsets[0]
+        # mag_y = data_yf[0]*1.0 - IMU_Manager.mag_offsets[1]
+        # mag_z = data_zf[0]*1.0 - IMU_Manager.mag_offsets[2]
         # Apply mag soft iron error compensation
         # mag_calibrated_x = mag_x * IMU_Manager.calibration_matrix[0][0] + \
         #     mag_y * IMU_Manager.calibration_matrix[0][1] + mag_z * IMU_Manager.calibration_matrix[0][2]
