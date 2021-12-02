@@ -12,8 +12,8 @@
       <p v-if="this.min_enabled">{{formatted_odom.lon.m}}'</p>
       <p  v-if="this.sec_enabled">{{formatted_odom.lon.s}}"</p>
       W
-      <br/>
-      <p>Bearing: {{odom.bearing_deg.toFixed(2)}}º</p>
+      <!-- <br/>
+      <p>Bearing: {{odom.bearing_deg.toFixed(2)}}º</p> -->
     </div>
   </div>
 </template>

@@ -35,12 +35,9 @@
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveVelDataH/>
      </div>
-
-    <!--div class="box2">
-      < <div class="box odom light-bg">
-        <OdometryReading v-bind:odom="odom"/>
-      </div> >
-  </div-->
+    </div>
+    <div class="box odom light-bg">
+      <OdometryReading v-bind:odom="odom"/>
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
@@ -48,6 +45,7 @@
     <div class="box waypoints light-bg">
       <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped" v-bind:Joystick="Joystick"/>
     </div>
+    
      <!-- <div class="box raw_sensors light-bg">
       <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
     </div> -->
@@ -60,7 +58,7 @@ import Cameras from './Cameras.vue'
 import RoverMap from './RoverMapAuton.vue'
 import CommIndicator from './CommIndicator.vue'
 import RadioSignalStrength from './RadioSignalStrength.vue'
-// import OdometryReading from './OdometryReading.vue'
+import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
@@ -128,7 +126,7 @@ export default {
 
       Joystick: {
         forward_back: 0,
-        left_right: 0,
+        left_right: 0.000000001,
         dampen: 0,
         kill: false,
         restart: false
@@ -287,7 +285,7 @@ export default {
     ArmControls,
     DriveControls,
     EncoderCounts,
-    // OdometryReading,
+    OdometryReading,
     // AutonJoystickReading,
     RawSensorData,
     WaypointEditor,
@@ -306,14 +304,16 @@ export default {
     overflow:hidden;
     min-height: 98vh;
     grid-gap: 10px;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 50px 2fr 1fr 30vh;
-    grid-template-areas: "header header" 
-                         "map waypoints"
-                         "map waypoints" 
-                         "data waypoints";
+    grid-template-columns: 2fr 1.25fr 0.75fr;
+    grid-template-rows: 50px 2fr 1fr 15vh 15vh;
+    grid-template-areas: "header header header" 
+                         "map waypoints waypoints"
+                         "map waypoints waypoints" 
+                         "data waypoints waypoints" 
+                         "data low_prio odom";
     font-family: sans-serif;
     height: auto;
+    width: auto;
   }
 
   .box {
@@ -409,9 +409,10 @@ export default {
   }
 
   .odom {
-    font-size: 1em;
+    /* font-size: 1em;
     height: 41%;
-    display: inline-block;
+    display: inline-block; */
+    grid-area: odom;
   }
 
   .cameras{
@@ -449,6 +450,10 @@ export default {
 
   .IMU{
     grid-area: imu;
+  }
+
+  .data{
+    grid-area: data;
   }
 
   .radio_repeater {

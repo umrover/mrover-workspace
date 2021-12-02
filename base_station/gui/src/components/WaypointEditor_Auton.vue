@@ -47,14 +47,11 @@
             
           </p>
         </div>
-        <div class="odom">
-         <OdometryReading v-bind:odom="odom"/>
-        </div>
         <div class="joystick light-bg">
           <AutonJoystickReading v-bind:Joystick="Joystick"/>
         </div>
       </div>
-      <div class="box2">
+      <div class="box1">
         <h3>Current Course</h3>
         <draggable v-model="route" class="dragArea" draggable=".item'">
           <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-bind:name="name" v-bind:id="id" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
@@ -68,7 +65,6 @@
 import Checkbox from './CheckboxBig.vue'
 import draggable from 'vuedraggable'
 import {convertDMS} from '../utils.js';
-import OdometryReading from './OdometryReading.vue'
 import AutonJoystickReading from './AutonJoystickReading.vue'
 import WaypointItem from './WaypointItem_Auton.vue'
 import {mapMutations, mapGetters} from 'vuex'
@@ -298,7 +294,6 @@ export default {
     draggable,
     WaypointItem,
     Checkbox,
-    OdometryReading,
     AutonJoystickReading
   }
 
@@ -312,6 +307,7 @@ export default {
     display: flex;
     flex-direction: row;
     height: 100%;
+    margin: auto;
   }
 
   .col-wrap {
@@ -340,6 +336,7 @@ export default {
     padding: 10px;
     border: 1px solid black;
     min-height: min-content;
+    max-height: 29%;
     overflow: auto;
     margin-bottom: 6px;
   }
@@ -354,26 +351,18 @@ export default {
     border: 1px solid black;
     overflow: scroll;
     min-height: min-content;
-    max-height: 80%;
-  }
-  
-  .box2 {
-    border-radius: 5px;
-    padding: 10px;
-    border: 1px solid black;
-    overflow: scroll;
-    min-height: min-content;
-    max-height: 70%;
+    max-height: 60%;
   }
 
   .datagrid {
       display: grid;
       grid-gap: 3px;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
-      grid-template-areas: "autonmode stats" "odom joystick";
+      grid-template-rows: 1fr 0.25fr;
+      grid-template-areas: "autonmode stats"
+                           "joystick stats";
       font-family: sans-serif;
-      height: 24vh;
+      min-height: min-content;
   }
 
   .autonmode{
