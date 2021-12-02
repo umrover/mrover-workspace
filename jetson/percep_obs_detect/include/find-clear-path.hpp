@@ -7,7 +7,7 @@
 
 //TODO: where to put these constants in the final code
 
-static const float rovWidth = 1500; //TODO, get actual rovWidth 
+static const float rovWidth = 1500; 
 
 static const int bearingNum = 1024; 
 
@@ -29,17 +29,12 @@ class BearingLines{
 
 class FindClearPath {
   public:
-    //int rovWidth; //Width of rover TODO: get actual size
-    //int bearingNum; //Number of bearings, tentatively 1024 (Max threadcount)
 
     //Default Ctor
     FindClearPath();
 
     //Allocate host and device memory
-    void find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec);
-
-    //Run find clear 
-    //void find_clear_path(Obstacle* obstacles, bool* heading_checks, int obsArrSize);
+    float2 find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec);
 
     //Find closest bearing to the left that is clear
     float find_left_closest(bool* headings);
