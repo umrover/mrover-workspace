@@ -88,32 +88,42 @@ class Object3D {
 // Defines the view 
 class FirstPersonCamera {}; // TODO
 
-// TODO add support for non origin target (lazy math)
 class PointLockedCamera{
     public:
-        PointLockedCamera(glm::mat4 projection) : projection(projection), target(glm::vec3(0.0f, 0.0f, 0.0f)), up(glm::vec3(0.0f, -1.0f, 0.0f)) {
-            eye = glm::vec3(0.0f, 0.0f, -1.0f);
+    PointLockedCamera(glm::mat4 projection)
+                : projection(projection) {
+            setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
             view = glm::lookAt(eye, target, up);
         };
 
         void rotateY(int deltaX) {
             up = glm::rotate(up, 0.003f * deltaX, glm::vec3(0.0f, 1.0f, 0.0f));
-            eye = glm::rotate(eye, 0.003f * deltaX, glm::vec3(0.0f, 1.0f, 0.0f));
-            //up = glm::rotate(up, 0.003f * deltaX, up);
-            //eye = glm::rotate(eye, 0.003f * deltaX, up);
+            eye = glm::rotate(eye - target, 0.003f * deltaX, glm::vec3(0.0f, 1.0f, 0.0f)) + target;
             view = glm::lookAt(eye, target, up);
         }
 
         void rotateX(int deltaY) {
-            //up = glm::rotate(up, 0.003f * deltaY, glm::cross(eye, up));
-            //eye = glm::rotate(eye, 0.003f * deltaY, glm::cross(eye, up));
-            up = glm::rotate(up, 0.003f * deltaY, glm::cross(eye, up));
-            eye = glm::rotate(eye, 0.003f * deltaY, glm::cross(eye, up));
+            up = glm::rotate(up, 0.003f * deltaY, glm::cross(eye - target, up));
+            eye = glm::rotate(eye - target, 0.003f * deltaY, glm::cross(eye - target, up)) + target;
             view = glm::lookAt(eye, target, up);
         }
 
         void scaleEye(float s) {
-            eye *= s;
+            float oldScale = scale;
+            scale = max(0.0f, scale + s);
+            float zoomMultiplier = scale - oldScale + 1;
+            if (glm::length(eye - target) >= 1000.0f || zoomMultiplier > 1) {
+                eye = (eye - target) * zoomMultiplier + target;
+            }
+            view = glm::lookAt(eye, target, up);
+        }
+
+        void setTarget(glm::vec3 targetIn) {
+            target = targetIn;
+            up = glm::vec3(0.0f, -1.0f, 0.0f);
+            scale = 1.0f;
+            eye = glm::vec3(target.x, target.y, target.z - 4000.0f);
+            cout << "Viewer target set to (" << target.x << ", " << target.y << ", " << target.z << ")\n";
             view = glm::lookAt(eye, target, up);
         }
 
@@ -122,6 +132,7 @@ class PointLockedCamera{
 
     private:
         glm::vec3 target, eye, up;
+        float scale;
 };
 
 
@@ -164,6 +175,10 @@ class Viewer {
         // Empty the ephemeral objects array
         void clearEphemerals();
 
+        // Sets the viewer target
+        void setTarget();
+        void setTarget(vec3 target);
+
         // need to provide thread safe ways to update viewer internals
         void updatePointCloud(int idx, vec4* pts, int size);
         #ifndef VIEWER_ONLY
@@ -182,6 +197,8 @@ class Viewer {
         std::mutex viewer_mutex;
         std::mutex pc_mutex;
 
+        glm::vec3 pcCenter;
+
         // which ps is being used
         int active_pc = -1;
 
@@ -195,4 +212,3 @@ class Viewer {
         int prevMouseX, prevMouseY;
 
 };
-
