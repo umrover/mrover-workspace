@@ -1,20 +1,22 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<fcntl.h>
-#include<unistd.h>
-#include<assert.h>
-#include<termios.h>
-#include<string.h>
-#include<sys/time.h>
-#include<time.h>
-#include<sys/types.h>
-#include<errno.h>
-
-
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <assert.h>
+#include <termios.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+#include <sys/types.h>
+#include <errno.h>
+#include<lcm/lcm-cpp.hpp>
+#include <rover_msgs/IMUData.hpp>
 
 static int ret;
 static int fd;
+
+// creates lcm object
+auto lcm_ = new lcm::LCM();
 
 #define BAUD 9600 //115200 for JY61 ,9600 for others
 
@@ -153,31 +155,103 @@ void ParseData(char chr)
 		if (chrCnt<11) return;
 		for (i=0;i<10;i++) cTemp+=chrBuf[i];
 		if ((chrBuf[0]!=0x55)||((chrBuf[1]&0x50)!=0x50)||(cTemp!=chrBuf[10])) {printf("Error:%x %x\r\n",chrBuf[0],chrBuf[1]);memcpy(&chrBuf[0],&chrBuf[1],10);chrCnt--;return;}
+
+        // Uncomment commented code for fuller implementation
+        // bool accelCollected = false, gyroCollected = false, angleCollected = false, magCollected = false;
 		
 		memcpy(&sData[0],&chrBuf[2],8);
 		switch(chrBuf[1])
 		{
 				case 0x51:
-					for (i=0;i<3;i++) a[i] = (float)sData[i]/32768.0*16.0;
+					//Acceleration pack
+                    for (i=0;i<3;i++) a[i] = (float)sData[i]/32768.0*16.0;
 					time(&now);
 					printf("\r\nT:%s a:%6.3f %6.3f %6.3f ",asctime(localtime(&now)),a[0],a[1],a[2]);
-					
+                    
+                    //Code for adding accelereometer data to struct
+                    // data.accel_x_g = a[0];
+                    // data.accel_y_g = a[1];
+                    // data.accel_y_g = a[2];
+
+                    // accelCollected = true;
+
+
 					break;
 				case 0x52:
+                    //Angular velocity pack
 					for (i=0;i<3;i++) w[i] = (float)sData[i]/32768.0*2000.0;
-					printf("w:%7.3f %7.3f %7.3f ",w[0],w[1],w[2]);					
+					printf("w:%7.3f %7.3f %7.3f ",w[0],w[1],w[2]);
+
+                    //Code for adding accelereometer data to struct
+                    // data.gyro_x_dps = w[0];
+                    // data.gyro_y_dps = w[1];
+                    // data.gyro_z_dps = w[2];
+                    
+                    // gyroCollected = true;
+
 					break;
 				case 0x53:
+                    //Angle Pack
 					for (i=0;i<3;i++) Angle[i] = (float)sData[i]/32768.0*180.0;
 					printf("A:%7.3f %7.3f %7.3f ",Angle[0],Angle[1],Angle[2]);
+                    
+                    rover_msgs::IMUData data;
+
+                    // For now - set all other imu struct data to 0
+                    //-=-=-=-==-=-=-=-=-=-=Remove for actual=-=-=-=-==-=-=-=-=
+                    data.accel_x_g = 0.0;
+                    data.accel_y_g = 0.0;
+                    data.accel_z_g = 0.0;
+                    data.gyro_x_dps = 0.0;
+                    data.gyro_y_dps = 0.0;
+                    data.gyro_z_dps = 0.0;
+                    data.mag_x_uT = 0.0;
+                    data.mag_y_uT = 0.0;
+                    data.mag_z_uT = 0.0;
+                    
+                    data.beraing_deg = 0.0;
+                    //-=-==-=-=-=-=-=--=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+                    data.roll_rad = Angle[0];
+                    data.pitch_rad = Angle[1];
+                    data.yaw_rad = Angle[2];
+
+                    //-=-=-=-=-=-=-Remove For actual=-=-=-=-=--=
+                    lcm_->publish("/imu_data", &data);
+                    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+                    // angleCollected = true;
+
 					break;
 				case 0x54:
+                    //Magnetic Pack
 					for (i=0;i<3;i++) h[i] = (float)sData[i];
 					printf("h:%4.0f %4.0f %4.0f ",h[0],h[1],h[2]);
-					
+
+                    //Code for adding magnetometer data to struct
+                    // data.data.mag_x_uT = h[0];
+                    // data.data.mag_y_uT = h[1];
+                    // data.data.mag_z_uT = h[2];
+
+                    // magCollected = true;
+
 					break;
 		}		
-		chrCnt=0;		
+
+        //If all of the elements of the struct have been filled, publish data
+        // if (accelCollected && gyroCollected && angleCollected && magCollected) {
+        //     //Push
+        //     lcm_->publish("/imu_data", &data);
+
+        //     //Reset for next collection
+        //     accelCollected = false;
+        //     gyroCollected = false;
+        //     angleCollected = false;
+        //     magCollected = false;
+        // }
+
+
+		chrCnt=0;
 }
 
 int main(void)
