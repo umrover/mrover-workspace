@@ -1,0 +1,12 @@
+[Unit]
+Description=MRover Cameras
+
+[Service]
+EnvironmentFile=/etc/default/rover.env
+User={{ running_user }}
+ExecStart={{ workspace_dir }}/jetson/camera/run.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
