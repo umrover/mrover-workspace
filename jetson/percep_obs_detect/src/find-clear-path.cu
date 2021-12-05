@@ -40,8 +40,9 @@ float2 FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsRet
   bool* heading_checks;
   cudaMalloc(&heading_checks, bearingNum*sizeof(bool));
 
+  double min_distance = 0; 
   //Run find_clear_path on each of the 1024 headings (threads)
-  find_clear_path<<<1, bearingNum>>>(gpuObstacles, heading_checks, obsVec.obs.size());
+  find_clear_path<<<1, bearingNum>>>(gpuObstacles, heading_checks, min_distance, obsVec.obs.size());
 
   checkStatus(cudaDeviceSynchronize());
 
@@ -67,13 +68,14 @@ float2 FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsRet
   cudaFree(gpuObstacles);
   cudaFree(heading_checks);
 
-  float2 output;
+  float3 output;
   output.x = heading_left;
   output.y = heading_right;
+  output.min_dist = min_distance; 
   return output;
 }
 
-__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, int obsArrSize){
+__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, double &min_distance, int obsArrSize){
   
   int i = threadIdx.x;
   heading_checks[i] = 1; //Assume a clear heading
@@ -84,6 +86,7 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
 
   BearingLines bearings(bearing_deg * 3.1415926535/180.0); //Create bearing lines from bearing //TODO how accurate should pi be?
 
+  min_distance = std::numeric_limits<double>::max();         
   // if detect variables are negative, obs is to the right of bearing line
   // if detect variables are positive, obs is to the left of bearing line
   // if detect variables are 0, obs is on the bearing line
@@ -125,11 +128,23 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
         }
 
         // Check if obstacle is larger than span of bearing lines
-        if((LBL_botLeft > 0 && RBL_botRight < 0) || (LBL_topLeft > 0 && RBL_topRight < 0)){
+        if((LBL_botLeft > 0 && RBL_botRight < 0) || (LBL_topLeft > 0 && RBL_topRight < 0))
+        {
           heading_checks[i] = 0; // This is not a clear path
         }
-      }
-  }
+
+        //MIN DISTANCE
+        if(i == 0) //run once per obstacle
+        {
+          double dist = std::sqrt(std::min(pow(obstacles[i].minX, 2), pow(obstacles[i].maxX, 2)) 
+                        + std::min(pow(obstacles[i].minZ, 2), pow(obstacles[i].maxZ, 2)));
+          if(dist < min_distance)
+          {
+            min_distance = dist; 
+          }
+        } 
+      } //end valid obstacle check (if)
+  } // end loop 
 }
 
 //Find first clear bearing to the left of our straight ahead bearing and convert it to a degree bearing

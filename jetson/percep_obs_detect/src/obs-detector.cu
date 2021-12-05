@@ -104,13 +104,13 @@ void ObsDetector::update(GPU_Cloud pc) {
     bearingCombined = findClear->find_clear_path_initiate(obstacles);
     leftBearing = bearingCombined.x;
     rightBearing = bearingCombined.y;
+    min_distance = bearingCombined.min_dist; 
     
     ///*/
     // Rendering
     if(mode != OperationMode::SILENT) {
     }
-    populateMessage(leftBearing, rightBearing, 0);
-
+    populateMessage(leftBearing, rightBearing, min_distance);
 
     // Recording
     if(record) record = true;
