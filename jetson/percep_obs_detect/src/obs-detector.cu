@@ -61,6 +61,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
+    findClear = new FindClearPath();
 }
         
 
@@ -75,8 +76,8 @@ void ObsDetector::update() {
         getRawCloud(pc, frame);
         
     } else if(source == DataSource::FILESYSTEM) {
-        pc = fileReader.readCloudGPU(frameNum);
-        if (frameNum == 1) viewer.setTarget();
+        pc = fileReader.readCloudGPU(viewer.frame);
+        if (viewer.frame == 1) viewer.setTarget();
     }
     update(pc);
 
@@ -100,22 +101,21 @@ void ObsDetector::update(GPU_Cloud pc) {
         bins = voxelGrid->run(pc);
     #endif
     obstacles = ece->extractClusters(pc, bins); 
-    
+    bearingCombined = findClear->find_clear_path_initiate(obstacles);
+    leftBearing = bearingCombined.x;
+    rightBearing = bearingCombined.y;
     
     ///*/
     // Rendering
     if(mode != OperationMode::SILENT) {
-        //viewer.addPointCloud();
-        //viewer.remove
-        //viewer.updatePointCloud(pc);
     }
-    populateMessage(9, 10, 11);
+    populateMessage(leftBearing, rightBearing, 0);
 
 
     // Recording
     if(record) record = true;
 
-    if(framePlay) frameNum++;
+    if(viewer.framePlay) viewer.frame++;
     
 }
 
@@ -131,20 +131,77 @@ void ObsDetector::spinViewer() {
     // This creates bounding boxes for visualization
     // There might be a clever automatic indexing scheme to optimize this
     for(int i = 0; i < obstacles.obs.size(); i++) {
-        std::vector<vec3> points = {vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].minZ), 
-                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].minZ),
-                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ), 
-                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ),};
-        std::vector<vec3> colors;
-        for(int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f));
-        std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
-        Object3D obj(points, colors, indicies);
-        viewer.addObject(obj, true);
+         if(obstacles.obs[i].minX < obstacles.obs[i].maxX && obstacles.obs[i].minZ < obstacles.obs[i].maxZ){ 
+            std::vector<vec3> points = {vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
+                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
+                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].minZ), 
+                                        vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].minZ),
+                                        vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
+                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
+                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ), 
+                                        vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ),};
+            std::vector<vec3> colors;
+            for(int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f));
+            std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
+            Object3D obj(points, colors, indicies);
+            viewer.addObject(obj, true);
+         }
     }
+
+  //----start TESTING: draw double bearing------------------------------------------------
+    //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
+    float degAngle = leftBearing; //Change angle of bearing to draw here
+    float degAngle2 = rightBearing;
+    float d = 7000;
+    float theta = degAngle * 3.14159/180.0;
+    float theta2 = degAngle2 * 3.14159/180.0;
+    float roverWidthDiv2 = 1500/2;
+
+    vec3 bearing = vec3(d*sin(theta), 0, d*cos(theta));
+    vec3 bearing2 = vec3(d*sin(theta2), 0, d*cos(theta2));
+
+    vec3 leftBearingStart = vec3(-roverWidthDiv2 * cos(theta), 500, roverWidthDiv2 * sin(theta));
+    vec3 rightBearingStart = vec3(roverWidthDiv2 * cos(theta), 500, -roverWidthDiv2 * sin(theta));
+
+    vec3 leftBearingStart2 = vec3(-roverWidthDiv2 * cos(theta2), 500, roverWidthDiv2 * sin(theta2));
+    vec3 rightBearingStart2 = vec3(roverWidthDiv2 * cos(theta2), 500, -roverWidthDiv2 * sin(theta2));
+
+    std::vector<vec3> ptsLft1 = {
+        leftBearingStart,
+        leftBearingStart + bearing
+    };
+    std::vector<vec3> ptsRght1 = {
+        rightBearingStart,
+        rightBearingStart + bearing
+    };
+    std::vector<vec3> colors = {
+        vec3(1.0f, 0.0f, 0.0f),
+        vec3(1.0f, 0.0f, 0.0f)
+    };
+
+    std::vector<vec3> ptsLft2 = {
+      leftBearingStart2,
+      leftBearingStart2 + bearing2
+  };
+    std::vector<vec3> ptsRght2 = {
+        rightBearingStart2,
+        rightBearingStart2 + bearing2
+    };
+
+    std::vector<int> indicies = {0, 1, 0}; 
+
+    Object3D leftBearing(ptsLft1, colors, indicies);
+    Object3D rightBearing(ptsRght1, colors, indicies);
+
+    Object3D leftBearing2(ptsLft2, colors, indicies);
+    Object3D rightBearing2(ptsRght2, colors, indicies);
+
+    viewer.addObject(leftBearing, true);
+    viewer.addObject(rightBearing, true);
+
+    viewer.addObject(leftBearing2, true);
+    viewer.addObject(rightBearing2, true);
+  //---end TESTING add double bearing ----------------------------------------------------
     
     viewer.update();
     viewer.clearEphemerals();

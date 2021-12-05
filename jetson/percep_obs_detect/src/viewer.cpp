@@ -294,13 +294,17 @@ void Viewer::init(int argc, char **argv) {
     cout << "creating callbacks" << endl;
     glutMouseFunc(Viewer::mouseButtonCallback);
     glutMotionFunc(Viewer::mouseMotionCallback);
-    //glutKeyboardFunc(keyboard);
+    glutKeyboardFunc(Viewer::keyPressedCallback);
+    glutKeyboardUpFunc(Viewer::keyReleasedCallback);
     cout << "callbacks created" << endl;
     curInstance = this;
 
     // Shader
     objectShader = Shader(OBJ_VERTEX_SHADER, OBJ_FRAGMENT_SHADER);
     pcShader = Shader(PC_VERTEX_SHADER, PC_FRAGMENT_SHADER);
+
+    curInstance->frame = 0;
+    curInstance->framePlay = true;
 }
 
 // Viewer tick
@@ -435,7 +439,21 @@ void Viewer::mouseMotionCallback(int x, int y) {
 // Responds to key presses, TODO: more features here :)
 void Viewer::keyPressedCallback(unsigned char c, int x, int y) {
     cout << "key press" << endl;
+
+    //if(c == " ") framePlay = 
 }
+
+void Viewer::keyReleasedCallback(unsigned char c, int x, int y) {
+    if(c == ' ') {
+        curInstance->framePlay = !curInstance->framePlay;
+    } if(c =='d') {
+        curInstance->frame++;
+    } 
+    if(c =='a') {
+        curInstance->frame--;
+    }
+}   
+
 
 #ifdef VIEWER_ONLY
 int main(int argc, char** argv) {

@@ -9,6 +9,7 @@
 #include "timer.hpp"
 #include "common.hpp"
 #include "voxel-grid.hpp"
+#include "find-clear-path.hpp"
 #include <lcm/lcm-cpp.hpp>
 #include "rover_msgs/Obstacle.hpp"
 #include <cstring>
@@ -88,6 +89,7 @@ class ObsDetector {
          */
         void populateMessage(float leftBearing, float rightBearing, float distance);
 
+
     private:
 
         //Sets up detection paramaters from a JSON file
@@ -117,6 +119,7 @@ class ObsDetector {
         RansacPlane *ransacPlane;
         VoxelGrid *voxelGrid;
         EuclideanClusterExtractor *ece;
+        FindClearPath *findClear;
 
         //Paramaters
         sl::Resolution cloud_res;
@@ -127,6 +130,7 @@ class ObsDetector {
         //Output data
         Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
+        float2 bearingCombined;
         float leftBearing;
         float rightBearing;
         float distance;
