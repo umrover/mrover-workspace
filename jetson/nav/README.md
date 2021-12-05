@@ -81,4 +81,46 @@ This is just a boolean hidden as a type called AutonState and it tells us if Aut
 Contains functions used commonly throughout auton code. 
 
 
+---
 
+<!----------------------------- Vars and Utils ----------------------------->
+#### LCM Channels Publishing/Subscribed To 
+**Target [subscriber]** \
+Messages: [ AutonState.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Auton State.lcm) “/auton_state” \
+Publishers: jetson/teleop \
+Subscribers: jetson/nav
+
+**Course [subscriber]** \
+Messages: [ Course.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Course.lcm) “/course” \
+Publishers: base_station \
+Subscribers: jetson/nav
+
+**Obstacle [subscriber]** \
+Messages: [ Obstacle.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Obstacle.lcm) “/obstacle” \
+Publishers: jetson/percep \
+Subscribers: jetson/nav
+
+**Odometry [subscriber]** \
+Messages: [ Odometry.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Odometry.lcm) “/odometry” \
+Publishers: jetson/gps \
+Subscribers: jetson/nav
+
+**Target List [subscriber]** \
+Messages: [ TargetList.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/TargetList.lcm) “/target_list” \
+Publishers: jetson/percep \
+Subscribers: jetson/nav
+
+**ZED Gimbal Data [subscriber]** \
+Messages: [ ZedGimalPosition.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/TargetList.lcm) “/target_list” \
+Publishers: jetson/percep \
+Subscribers: jetson/nav
+
+**Joystick [publisher]** \
+Messages: [ Joystick.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Joystick.lcm) “/autonomous” \
+Publishers: jetson/nav \
+Subscribers: jetson/teleop, simulators/nav, base_station
+
+**NavStatus [publisher]** \
+Messages: [ NavStatus.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/NavStatus.lcm) “/nav_status” \
+Publishers: jetson/nav \
+Subscribers: jetson/teleop, simulators/nav, base_station
