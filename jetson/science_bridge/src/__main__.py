@@ -9,7 +9,7 @@ import numpy as np
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, NavStatus, AmmoniaCmd
+from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, NavStatus, ServoCmd
 
 
 class ScienceBridge():
@@ -173,17 +173,17 @@ class ScienceBridge():
             self.ser.write(bytes(message.format(device=0, enable=0),
                                  encoding='utf8'))
 
-    def ammonia_transmit(self, channel, msg):
+    def servo_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
-        struct = AmmoniaCmd.decode(msg)
-        print("Received Ammonia Cmd")
+        struct = ServoCmd.decode(msg)
+        print("Received Servo Cmd")
         # parse data into expected format
-        message = "$AMMONIA,{speed}"
-        message = message.format(speed=struct.speed)
+        message = "$Servo,{angle},{ID},"
+        message = message.format(angle=struct.position, ID=struct.id)
         print(len(message))
-        while(len(message) < 20):
+        """while(len(message) < 20):
             message += ","
-        print(message)
+        print(message)"""
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
