@@ -92,7 +92,7 @@ Subscribers: jetson/nav
 
 **Course [subscriber]** \
 Messages: [ Course.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Course.lcm) “/course” \
-Publishers: base_station \
+Publishers: simulators/nav, base_station \
 Subscribers: jetson/nav
 
 **Obstacle [subscriber]** \
@@ -111,8 +111,8 @@ Publishers: jetson/percep \
 Subscribers: jetson/nav
 
 **ZED Gimbal Data [subscriber]** \
-Messages: [ ZedGimalPosition.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/TargetList.lcm) “/target_list” \
-Publishers: jetson/percep \
+Messages: [ ZedGimalPosition.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/TargetList.lcm) “/zed_gimbal_data” \
+Publishers: simulators/nav \
 Subscribers: jetson/nav
 
 **Joystick [publisher]** \
