@@ -101,29 +101,6 @@ void ObsDetector::update(GPU_Cloud pc) {
         bins = voxelGrid->run(pc);
     #endif
     obstacles = ece->extractClusters(pc, bins); 
-    /*
-    //---start TESTING: Make our own obstacles--------------------------------------------
-    obstacles.obs.clear();
-    EuclideanClusterExtractor::Obstacle test; // Change parameters of obstacle below
-    test.minX = 250;
-    test.maxX = 750; //"Right" is positive X direction
-    test.minY = 250; 
-    test.maxY = 750; //"Down" is positive Y direction
-    test.minZ = 3500;
-    test.maxZ = 4000; //"Forward" is positive Z direction
-
-    EuclideanClusterExtractor::Obstacle test2; // Change parameters of obstacle below
-    test2.minX = -2500;
-    test2.maxX = -2000; //"Right" is positive X direction
-    test2.minY = 250; 
-    test2.maxY = 750; //"Down" is positive Y direction
-    test2.minZ = 3500;
-    test2.maxZ = 4000; //"Forward" is positive Z direction
-
-    obstacles.obs.push_back(test);
-    obstacles.obs.push_back(test2); */
-    //---end TESTING add our own obstacles------------------------------------------------
-
     bearingCombined = findClear->find_clear_path_initiate(obstacles);
     leftBearing = bearingCombined.x;
     rightBearing = bearingCombined.y;
@@ -131,9 +108,6 @@ void ObsDetector::update(GPU_Cloud pc) {
     ///*/
     // Rendering
     if(mode != OperationMode::SILENT) {
-        //viewer.addPointCloud();
-        //viewer.remove
-        //viewer.updatePointCloud(pc);
     }
     populateMessage(leftBearing, rightBearing, 0);
 
