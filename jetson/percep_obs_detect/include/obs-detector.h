@@ -89,6 +89,7 @@ class ObsDetector {
          */
         void populateMessage(float leftBearing, float rightBearing, float distance);
 
+
     private:
 
         //Sets up detection paramaters from a JSON file

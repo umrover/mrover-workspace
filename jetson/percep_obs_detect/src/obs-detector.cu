@@ -76,8 +76,8 @@ void ObsDetector::update() {
         getRawCloud(pc, frame);
         
     } else if(source == DataSource::FILESYSTEM) {
-        pc = fileReader.readCloudGPU(59);
-        if (frameNum == 1) viewer.setTarget();
+        pc = fileReader.readCloudGPU(viewer.frame);
+        if (viewer.frame == 1) viewer.setTarget();
     }
     update(pc);
 
@@ -101,7 +101,7 @@ void ObsDetector::update(GPU_Cloud pc) {
         bins = voxelGrid->run(pc);
     #endif
     obstacles = ece->extractClusters(pc, bins); 
-
+    /*
     //---start TESTING: Make our own obstacles--------------------------------------------
     obstacles.obs.clear();
     EuclideanClusterExtractor::Obstacle test; // Change parameters of obstacle below
@@ -121,7 +121,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     test2.maxZ = 4000; //"Forward" is positive Z direction
 
     obstacles.obs.push_back(test);
-    obstacles.obs.push_back(test2);
+    obstacles.obs.push_back(test2); */
     //---end TESTING add our own obstacles------------------------------------------------
 
     bearingCombined = findClear->find_clear_path_initiate(obstacles);
@@ -141,7 +141,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     // Recording
     if(record) record = true;
 
-    if(framePlay) frameNum++;
+    if(viewer.framePlay) viewer.frame++;
     
 }
 
@@ -157,25 +157,27 @@ void ObsDetector::spinViewer() {
     // This creates bounding boxes for visualization
     // There might be a clever automatic indexing scheme to optimize this
     for(int i = 0; i < obstacles.obs.size(); i++) {
-        std::vector<vec3> points = {vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].minZ), 
-                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].minZ),
-                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ), 
-                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ),};
-        std::vector<vec3> colors;
-        for(int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f));
-        std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
-        Object3D obj(points, colors, indicies);
-        viewer.addObject(obj, true);
+         if(obstacles.obs[i].minX < obstacles.obs[i].maxX && obstacles.obs[i].minZ < obstacles.obs[i].maxZ){ 
+            std::vector<vec3> points = {vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
+                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].minZ), 
+                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].minZ), 
+                                        vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].minZ),
+                                        vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
+                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].maxZ), 
+                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ), 
+                                        vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ),};
+            std::vector<vec3> colors;
+            for(int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f));
+            std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
+            Object3D obj(points, colors, indicies);
+            viewer.addObject(obj, true);
+         }
     }
 
   //----start TESTING: draw double bearing------------------------------------------------
     //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
-    float degAngle = -8; //Change angle of bearing to draw here
-    float degAngle2 = 24;
+    float degAngle = leftBearing; //Change angle of bearing to draw here
+    float degAngle2 = rightBearing;
     float d = 7000;
     float theta = degAngle * 3.14159/180.0;
     float theta2 = degAngle2 * 3.14159/180.0;
@@ -207,10 +209,10 @@ void ObsDetector::spinViewer() {
       leftBearingStart2,
       leftBearingStart2 + bearing2
   };
-  std::vector<vec3> ptsRght2 = {
-      rightBearingStart2,
-      rightBearingStart2 + bearing2
-  };
+    std::vector<vec3> ptsRght2 = {
+        rightBearingStart2,
+        rightBearingStart2 + bearing2
+    };
 
     std::vector<int> indicies = {0, 1, 0}; 
 

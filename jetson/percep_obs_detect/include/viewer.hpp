@@ -186,6 +186,9 @@ class Viewer {
         #endif
         void updateObjectModel(int idx, glm::mat4 rotation, glm::mat4 translation);
 
+        int frame;
+        bool framePlay; 
+
     private:
         // Internals
         PointLockedCamera camera;
@@ -210,5 +213,6 @@ class Viewer {
 
         // states 
         int prevMouseX, prevMouseY;
+        
 
 };
