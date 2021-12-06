@@ -139,6 +139,13 @@ Run the command `$./jarvis build jetson/nav`, this command will compile all the 
 Run the command `$./jarvis build lcm_bridge/server`, this command will build the LCM messages. If it compiles successful, no errors will be returned. Then, run `$./jarvis exec lcm_bridge/server` to run the LCM messages.
 
 ### Terminal 3 (Navigation Simulator)
-Run the command `$./jarvis build simulators/nav`, this command will build the Navigation Simulator. If it compiles successful, no errors will be returned. Then, run `$./jarvis exec simulators/na` to run the Simulator.
+Run the command `$./jarvis build simulators/nav`, this command will build the Navigation Simulator. If it compiles successful, no errors will be returned. Then, run `$./jarvis exec simulators/nav` to run the Simulator.
 
-If desired, you can run a fourth terminal for debugging purposes via LCM messages. To do so, make sure you have another terminal, and starting in the `mrover-workspace` directory, run `vagrant ssh`. Once we are ssh'ed into the virtual machine, run `$./jarvis build lcm_tools/echo` to build the echo tool for LCMs. This will return the messages that are being communicated between publishers and subscribers. To run, enter the command `$./jarvis exec lcm_tools/echo TYPE_NAME CHANNEL` to run the specified LCM and channel. (These are described in our LCMs and ICDs)
+If desired, you can run a fourth terminal for debugging purposes via LCM messages. To do so, make sure you have another terminal, and starting in the `mrover-workspace` directory, run `vagrant ssh`. Once we are ssh'ed into the virtual machine, run `$./jarvis build lcm_tools/echo` to build the echo tool for LCMs. This will return the messages that are being communicated between publishers and subscribers. To run, enter the command `$./jarvis exec lcm_tools/echo TYPE_NAME CHANNEL` to echo the specified LCM and channel. (These are described in our LCM section and ICDs on the Drive)
+
+
+---
+
+<!----------------------------- Rover Testing ----------------------------->
+## Rover Testing (in-person)
+To run the rover at testing, all that needs to be executing is `$./jarvis build jetson/nav` and `$./jarvis exec jetson/nav` to run our code. This should be done AFTER the Perception and GPS executables and necessary programs are running. To start, use the Base Station GUI to create waypoints via dropping. (dropping will place a waypoint at the current GPS location of the rover) Additionally, the GUI has an option to create a waypoint by directly inputting the GPS information Then, drag the newly created waypoint to the course.  Repeat this process until all desired waypoints are added. Finally, to start the Navigation code, hit the "Autonomy" button on the GUI.
