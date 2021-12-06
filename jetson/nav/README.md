@@ -10,7 +10,7 @@
 
 
 **Created:** Ana Warner, Oct 3, 2021
-**Updated:** A.Warner, 10/14/2021
+**Updated:** Zachary Goldston, December 5, 2021
 
 ---
 
@@ -83,10 +83,10 @@ Contains functions used commonly throughout auton code.
 
 ---
 
-<!----------------------------- Vars and Utils ----------------------------->
-#### LCM Channels Publishing/Subscribed To 
+<!----------------------------- LCMs ----------------------------->
+## LCM Channels Publishing/Subscribed To 
 **Target [subscriber]** \
-Messages: [ AutonState.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Auton State.lcm) “/auton_state” \
+Messages: [ AutonState.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/AutonState.lcm) “/auton_state” \
 Publishers: jetson/teleop \
 Subscribers: jetson/nav
 
@@ -124,3 +124,21 @@ Subscribers: jetson/teleop, simulators/nav, base_station
 Messages: [ NavStatus.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/NavStatus.lcm) “/nav_status” \
 Publishers: jetson/nav \
 Subscribers: jetson/teleop, simulators/nav, base_station
+
+
+---
+
+<!----------------------------- Simulator Usage ----------------------------->
+## Simulator Usage
+To run the Navigation Simulator, you will need to open at least 3 terminals from the `mrover-workspace` directory (at the top level). Run `vagrant up` in one of the terminals, and once that completes, run `vagrant ssh` in all three of them. You will then follow these commands in order, one set of commands for each terminal. Once the three sets of commands are run and in use, go to the [ Navigation Simulator Website ](http://localhost:8010/). Note, this will not show anything until the last set of commands are run.
+
+### Terminal 1 (`jetson/nav` code)
+Run the command `$./jarvis build jetson/nav`, this command will compile all the navigation directory code. If it compiles succecssful, no errors will be returned. Then, run `$./jarvis exec jetson/nav` to start the navigation code.
+
+### Terminal 2 (LCMs)
+Run the command `$./jarvis build lcm_bridge/server`, this command will build the LCM messages. If it compiles successful, no errors will be returned. Then, run `$./jarvis exec lcm_bridge/server` to run the LCM messages.
+
+### Terminal 3 (Navigation Simulator)
+Run the command `$./jarvis build simulators/nav`, this command will build the Navigation Simulator. If it compiles successful, no errors will be returned. Then, run `$./jarvis exec simulators/na` to run the Simulator.
+
+If desired, you can run a fourth terminal for debugging purposes via LCM messages. To do so, make sure you have another terminal, and starting in the `mrover-workspace` directory, run `vagrant ssh`. Once we are ssh'ed into the virtual machine, run `$./jarvis build lcm_tools/echo` to build the echo tool for LCMs. This will return the messages that are being communicated between publishers and subscribers. To run, enter the command `$./jarvis exec lcm_tools/echo TYPE_NAME CHANNEL` to run the specified LCM and channel. (These are described in our LCMs and ICDs)
