@@ -57,13 +57,15 @@ enum class NavState
     GateTurnToCentPoint = 44,
     GateDriveToCentPoint = 45,
     GateFace = 46,
-    GateShimmy = 47,
-    GateDriveThrough = 48,
+    GateDriveThrough = 47,
+    GateTurnToFarPost = 48,
+    GateDriveToFarPost = 49,
+    GateTurnToGateCenter = 50,
 
     // Radio Repeater States
-    RadioRepeaterTurn = 50,
-    RadioRepeaterDrive = 51,
-    RepeaterDropWait = 52,
+    RadioRepeaterTurn = 60,
+    RadioRepeaterDrive = 61,
+    RepeaterDropWait = 62,
 
     // Unknown State
     Unknown = 255
@@ -113,9 +115,9 @@ public:
 
         Odometry& odometry();
 
-        Target& target();
+        Target& leftTarget();
 
-        Target& target2();
+        Target& rightTarget();
 
         RadioSignalStrength& radio();
 
@@ -164,7 +166,7 @@ public:
 
     DriveStatus drive( const double distance, const double bearing, const bool target = false );
 
-    void drive(const int direction, const double bearing);
+    void drive( const int direction, const double bearing );
 
     bool turn( Odometry& destination );
 
