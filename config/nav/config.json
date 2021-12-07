@@ -13,6 +13,11 @@
 		"kD": 0
 	},
 
+	"gateAdjustment":
+	{
+		"adjustmentDistance": 0.3
+	},
+
 	"joystick":
 	{
 		"bearingPower": 0.5,

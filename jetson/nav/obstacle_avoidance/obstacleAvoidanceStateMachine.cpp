@@ -68,7 +68,7 @@ NavState ObstacleAvoidanceStateMachine::run()
 bool ObstacleAvoidanceStateMachine::isTargetDetected ()
 {
     return ( mRover->roverStatus().currentState() == NavState::SearchTurnAroundObs &&
-             mRover->roverStatus().target().distance >= 0 );
+             mRover->roverStatus().leftTarget().distance >= 0 );
 }
 
 // The obstacle avoidance factory allows for the creation of obstacle avoidance objects and
