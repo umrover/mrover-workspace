@@ -10,7 +10,7 @@
 
 
 **Created:** Ana Warner, Oct 3, 2021
-**Updated:** Zachary Goldston, December 5, 2021
+**Updated:** Zachary Goldston, December 7, 2021
 
 ---
 
@@ -92,7 +92,7 @@ Subscribers: jetson/nav
 
 **Course [subscriber]** \
 Messages: [ Course.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Course.lcm) “/course” \
-Publishers: simulators/nav, base_station \
+Publishers: simulators/nav, base_station/gui \
 Subscribers: jetson/nav
 
 **Obstacle [subscriber]** \
@@ -102,7 +102,7 @@ Subscribers: jetson/nav
 
 **Odometry [subscriber]** \
 Messages: [ Odometry.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Odometry.lcm) “/odometry” \
-Publishers: jetson/gps \
+Publishers: jetson/filter \
 Subscribers: jetson/nav
 
 **Target List [subscriber]** \
@@ -111,19 +111,19 @@ Publishers: jetson/percep \
 Subscribers: jetson/nav
 
 **ZED Gimbal Data [subscriber]** \
-Messages: [ ZedGimalPosition.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/TargetList.lcm) “/zed_gimbal_data” \
-Publishers: simulators/nav \
+Messages: [ ZedGimablPosition.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/TargetList.lcm) “/zed_gimbal_data” \
+Publishers: simulators/nav, raspi/zed_gimbal, jetson/nav \
 Subscribers: jetson/nav
 
 **Joystick [publisher]** \
 Messages: [ Joystick.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Joystick.lcm) “/autonomous” \
 Publishers: jetson/nav \
-Subscribers: jetson/teleop, simulators/nav, base_station
+Subscribers: jetson/teleop, simulators/nav, base_station/gui
 
 **NavStatus [publisher]** \
 Messages: [ NavStatus.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/NavStatus.lcm) “/nav_status” \
 Publishers: jetson/nav \
-Subscribers: jetson/teleop, simulators/nav, base_station
+Subscribers: simulators/nav, base_station/gui, jetson/science_bridge
 
 
 ---
