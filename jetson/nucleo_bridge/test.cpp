@@ -31,7 +31,7 @@ using namespace std;
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
 
 // reductions per motor 
-float cpr[6] = { 28800.0, 1.0, 155040.0, 81600.0, 81600.0, 9072.0 };
+float cpr[6] = { -28800.0, 1.0, 155040.0, -81600.0, 81600.0, -9072.0 };
 
 int num_tests_ran = 0;
 
