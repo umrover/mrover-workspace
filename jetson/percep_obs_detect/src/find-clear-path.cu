@@ -27,7 +27,7 @@ __device__ BearingLines::BearingLines(float heading_in) : heading{heading_in} {
   bRight.y = (-rovWidth/2) * sin(heading_in); //Calculate bRight y offset from heading_in //POSSIBLE ISSUE, LEFT IS POS x
 }
 
-float2 FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec){
+float3 FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec){
 
   std::cout << "size of obsVec: " << obsVec.obs.size() << std::endl;
 
@@ -71,7 +71,7 @@ float2 FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsRet
   float3 output;
   output.x = heading_left;
   output.y = heading_right;
-  output.min_dist = min_distance; 
+  output.z = min_distance; 
   return output;
 }
 
@@ -85,8 +85,9 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
   float bearing_deg = float(map * fov) / (bearingNum / 2); //converts thread # to degrees //TODO Bring this back
 
   BearingLines bearings(bearing_deg * 3.1415926535/180.0); //Create bearing lines from bearing //TODO how accurate should pi be?
-
-  min_distance = std::numeric_limits<double>::max();         
+ 
+  //max float value, can't use std::numeric_limits here as this is a cuda kernel
+  min_distance = 3.4e+038;   
   // if detect variables are negative, obs is to the right of bearing line
   // if detect variables are positive, obs is to the left of bearing line
   // if detect variables are 0, obs is on the bearing line
@@ -136,8 +137,20 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
         //MIN DISTANCE
         if(i == 0) //run once per obstacle
         {
-          double dist = std::sqrt(std::min(pow(obstacles[i].minX, 2), pow(obstacles[i].maxX, 2)) 
-                        + std::min(pow(obstacles[i].minZ, 2), pow(obstacles[i].maxZ, 2)));
+          float closest_x = 0; 
+          if(obstacles[i].minX >= 0 && obstacles[i].maxX >= 0)
+            closest_x = obstacles[i].minX;
+          else if(obstacles[i].minX <= 0 && obstacles[i].maxX <= 0)
+            closest_x = obstacles[i].maxX;
+          
+          float closest_z = 0; 
+          if(obstacles[i].minZ >= 0 && obstacles[i].maxZ >= 0)
+            closest_z = obstacles[i].minZ;
+          else if(obstacles[i].minZ <= 0 && obstacles[i].maxZ <= 0)
+            closest_z = obstacles[i].maxZ;
+
+          float dist = std::sqrt(closest_x * closest_x + closest_z * closest_z); 
+
           if(dist < min_distance)
           {
             min_distance = dist; 

@@ -130,7 +130,7 @@ class ObsDetector {
         //Output data
         Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
-        float2 bearingCombined;
+        float3 bearingCombined;
         float leftBearing;
         float rightBearing;
         float distance;
