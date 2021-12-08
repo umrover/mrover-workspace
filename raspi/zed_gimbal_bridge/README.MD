@@ -21,8 +21,6 @@ from the mrover-workspace directory.
 
 None known so far
 
-#### "Assertation failed" while initializing a virtual controller
-
 ### Notes
 
-Reference.md for moteus is [here] (https://github.com/mjbots/moteus/blob/main/docs/reference.md).
+Reference.md for moteus is [here](https://github.com/mjbots/moteus/blob/main/docs/reference.md).
