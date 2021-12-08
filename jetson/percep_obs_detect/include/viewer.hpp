@@ -156,6 +156,11 @@ private:
     GLuint programId_;
 };
 
+/*
+ *** Define which stage of the filtering process will be shown in the viewer
+ */
+enum class ProcStage {RAW, RAWBOUNDED, POSTPASS, POSTRANSAC, POSTECE};
+
 class Viewer {
     public:
         // Creates a window
@@ -188,6 +193,7 @@ class Viewer {
 
         int frame;
         bool framePlay; 
+        ProcStage procStage;
 
     private:
         // Internals

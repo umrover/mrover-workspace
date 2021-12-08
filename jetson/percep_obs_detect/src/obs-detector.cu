@@ -91,16 +91,22 @@ void ObsDetector::update(GPU_Cloud pc) {
     viewer.updatePointCloud(pc);
 
     // Processing
+    if(viewer.procStage != ProcStage::RAW && viewer.procStage != ProcStage::RAWBOUNDED) {
+        passZ->run(pc);
+    }
 
-    passZ->run(pc);
-    
-    ransacPlane->computeModel(pc);    
+    if(viewer.procStage != ProcStage::RAW && viewer.procStage != ProcStage::RAWBOUNDED && viewer.procStage != ProcStage::POSTPASS) {
+        ransacPlane->computeModel(pc);
+    }   
     
     Bins bins;
     #if VOXEL
-        bins = voxelGrid->run(pc);
+            bins = voxelGrid->run();
     #endif
-    obstacles = ece->extractClusters(pc, bins); 
+    if(viewer.procStage == ProcStage::POSTECE || viewer.procStage == ProcStage::POSTBEARING) {
+        obstacles = ece->extractClusters(pc, bins);
+    }
+
     bearingCombined = findClear->find_clear_path_initiate(obstacles);
     leftBearing = bearingCombined.x;
     rightBearing = bearingCombined.y;
@@ -108,9 +114,10 @@ void ObsDetector::update(GPU_Cloud pc) {
     ///*/
     // Rendering
     if(mode != OperationMode::SILENT) {
+        viewer.updatePointCloud(pc);
     }
-    populateMessage(leftBearing, rightBearing, 0);
 
+    populateMessage(leftBearing, rightBearing, 0);
 
     // Recording
     if(record) record = true;
@@ -223,8 +230,10 @@ int main() {
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
     while(true) {
-       obs.update();
-       obs.spinViewer();
+        obs.update();
+        if(viewer.procStage == ProcStage::POSTECE || viewer.procStage == ProcStage::RAWBOUNDED) {
+            obs.spinViewer();
+        }
     }
     
 
