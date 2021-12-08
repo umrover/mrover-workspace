@@ -2,7 +2,7 @@ import time
 import numpy as np
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from .conversions import min2decimal, decimal2min
+from .conversions import min2decimal, decimal2min, euler2mat
 
 
 class Sensor(ABC):
@@ -106,6 +106,17 @@ class AccelComponent(SensorComponent):
         '''
         return value if abs(value) > threshold_value else 0.0
 
+    def removeGravity(self, transform):
+        '''
+        Returns acceleration in world frame
+        @param ndarray(3,3) transform: transform from robot frame to world frame
+        @return ndarray(3): acceleration in world frame
+        '''
+        grav = transform @ np.array([0, 0, -1])
+        self.accel_x -= grav[0]
+        self.accel_y -= grav[1]
+        self.accel_z -= grav[2]
+    
     def update(self, new_accel_sensor):
         if hasattr(new_accel_sensor, "accel_x_g"):
             self.accel_x = self.lowPass(new_accel_sensor.accel_x_g * 9.8, self.accel_x, self.filter_bias)
@@ -352,6 +363,8 @@ class Imu(Sensor):
                     self.yaw_deg = np.degrees(new_imu.yaw_rad)
             else:
                 raise AttributeError("No roll/pitch/yaw attributes found")
+            rot = euler2mat(np.radians(self.roll_deg), np.radians(self.pitch_deg), np.radians(self.yaw_deg))
+            self.accel.removeGravity(rot)
             self.fresh = True
             self.last_fresh = time.time()
         except AttributeError as e:
