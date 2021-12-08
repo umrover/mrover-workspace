@@ -31,7 +31,7 @@ using namespace std;
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
 
 // reductions per motor 
-int cpr[6] = { 9600, 1, 1216, 640, 640, 18144 };
+float cpr[6] = { 28800.0, 1.0, 155040.0, 81600.0, 81600.0, 9072.0 };
 
 int num_tests_ran = 0;
 
@@ -87,10 +87,16 @@ uint32_t openPlus(int addr, float speed)
     {
         uint8_t buffer[4];
         memcpy(buffer, UINT8_POINTER_T(&speed), 4);
-        uint32_t raw_angle;
+        int32_t raw_angle;
+
         I2C::transact(addr, OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
-        printf("test open plus transaction successful on slave %i, %d \n", addr, raw_angle);
-        return raw_angle;
+
+        int joint = (addr & 0b1) + (((addr >> 4) - 1) * 2); 
+        float rad_angle = (raw_angle / cpr[joint]) * 2 * M_PI;
+        float deg_angle = (raw_angle / cpr[joint]) * 360; 
+
+        printf("test open plus transaction successful on slave %i, raw quad: %i, cpr: % f, in radians: %f \n", addr, raw_angle, cpr[joint], deg_angle);
+        return rad_angle;
     }
     catch (IOFailure &e)
     {
@@ -171,10 +177,15 @@ float quadEnc(int addr)
 {
     try
     {
-        float raw_angle;
+        int32_t raw_angle;
         I2C::transact(addr, QUAD, nullptr, UINT8_POINTER_T(&(raw_angle)));
-        // printf("test quad transaction successful on slave %i \n", addr);
-        return raw_angle;
+
+        int joint = (addr & 0b1) + (((addr >> 4) - 1) * 2); 
+        float rad_angle = (raw_angle / cpr[joint]) * 2 * M_PI;
+
+        printf("test quad enc transaction successful on slave %i, raw quad: %i, cpr: % f, in radians: %f \n", addr, raw_angle, cpr[joint], rad_angle);
+        
+        return rad_angle;
     }
     catch (IOFailure &e)
     {
@@ -191,7 +202,7 @@ float absEnc(int addr)
         float abs_raw_angle = 0;;
         //uint16_t abs_raw_angle;
         I2C::transact(addr, ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
-        printf("test abs transaction successful on slave %i, %f \n", addr, abs_raw_angle);
+        printf("test abs transaction successful on slave %i, %f \n", addr, abs_raw_angle * (180/M_PI));
         return abs_raw_angle; // in radians 
     }
     catch (IOFailure &e)
@@ -206,15 +217,18 @@ void adjust(int addr, int joint)
     try
     {
         // gets initial angles
-        uint32_t quad_angle = quadEnc(addr);
-        uint32_t abs_angle = absEnc(addr);
+        float quad_angle = quadEnc(addr);
+        float abs_angle = absEnc(addr);
 
         printf("before adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
+        int joint = (addr & 0b1) + (((addr >> 4) - 1) * 2); 
+
         // gets absolute angle in quadrature counts
         // quad_angle = (quad_angle / cpr[joint]) * (2 * M_PI); // counts to radians
-        //abs_angle = static_cast<uint32_t>(abs_angle); // comes out in 'radians' 
-        uint32_t adjusted_quad = (abs_angle / (2 * M_PI)) * cpr[joint];
+        // abs_angle = static_cast<uint32_t>(abs_angle); // comes out in 'radians'
+
+        int32_t adjusted_quad = (abs_angle / (2 * M_PI)) * cpr[joint];
 
         // adjust transaction 
         uint8_t buffer[4];
@@ -227,18 +241,18 @@ void adjust(int addr, int joint)
 
         printf("after adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
-        if (quad_angle - adjusted_quad > 25)
+        if (quad_angle - adjusted_quad > .2)
         {
-            printf("test adjust transaction numerically failed on slave %i \n", addr);
+            printf("test adjust transaction numerically failed on slave %i \n\n", addr);
         }
         else
         {
-            printf("test adjust transaction successful on slave %i \n", addr);
+            printf("test adjust transaction successful on slave %i \n\n", addr);
         }
     }
     catch (IOFailure &e)
     {
-        printf("test adjust transaction failed on slave %i \n", addr);
+        printf("test adjust transaction failed on slave %i \n\n", addr);
     }    
 }
 
@@ -400,19 +414,25 @@ void testOpenPlusWithAbs()
             speed = 0.25f;
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             openPlus(address, speed);
             sleep(200);
             absEnc(address);
             sleep(200);
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
+            openPlus(address, 0.0f);
+            sleep(200);
+            absEnc(address);
+            sleep(200);
+        }
+        for (int i = 0; i < 6; i++) {
             openPlus(address, -speed);
             sleep(200);
             absEnc(address);
             sleep(200);
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             openPlus(address, 0.0f);
             sleep(200);
             absEnc(address);
@@ -505,7 +525,7 @@ void testOnOff()
 
 int main()
 {
-    for (int i = 1; i <= 1; ++i)
+    for (int i = 1; i <= 3; ++i)
     {
         i2c_address.push_back(get_addr(i, 0));
         i2c_address.push_back(get_addr(i, 1));
@@ -515,6 +535,7 @@ int main()
     I2C::init();
     testOn();
     testConfigPWM();
+    testAdjust();
     //testClosed();
     // openPlus(get_addr(1, 1), 0.5);
     // sleep(1000);
@@ -527,7 +548,6 @@ int main()
         // //sleep(1000);
         // printf("waking up\n");
         //testAbsEnc();
-        //testAdjust();
         sleep(1000);
 
     }
