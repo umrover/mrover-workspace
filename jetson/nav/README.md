@@ -112,8 +112,8 @@ Subscribers: jetson/nav
 
 **ZED Gimbal Data [subscriber]** \
 Messages: [ ZedGimablPosition.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/TargetList.lcm) “/zed_gimbal_data” \
-Publishers: simulators/nav, raspi/zed_gimbal, jetson/nav \
-Subscribers: jetson/nav
+Publishers: simulators/nav, raspi/zed_gimbal, jetson/nav (TODO) \
+Subscribers: jetson/nav 
 
 **Joystick [publisher]** \
 Messages: [ Joystick.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Joystick.lcm) “/autonomous” \
