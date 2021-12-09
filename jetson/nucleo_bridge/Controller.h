@@ -20,7 +20,7 @@
 #define CONFIG_K    0x3F,   12, 0
 #define QUAD        0x40,   0,  4
 #define ADJUST      0x4F,   4,  0
-#define ABS_ENC     0x50,   0,  2
+#define ABS_ENC     0x50,   0,  4
 #define LIMIT       0x60,   0,  1
 
 #define UINT8_POINTER_T reinterpret_cast<uint8_t *>

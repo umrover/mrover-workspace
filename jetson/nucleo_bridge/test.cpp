@@ -81,7 +81,7 @@ void on(int addr)
     }
 }
 
-uint32_t openPlus(int addr, float speed)
+float openPlus(int addr, float speed)
 {
     try
     {
@@ -105,7 +105,7 @@ uint32_t openPlus(int addr, float speed)
     }
 }
 
-uint32_t closedPlus(int addr, float target)
+float closedPlus(int addr, float target)
 {
     try
     {
