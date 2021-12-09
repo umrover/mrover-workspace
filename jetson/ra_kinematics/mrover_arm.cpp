@@ -64,7 +64,7 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
                     break;
                 }
 
-                if (i = prev_angles[joint].size() - 1) {
+                if (i == prev_angles[joint].size() - 1) {
                     faulty_encoders[joint] = false;
                 }
             }                
@@ -230,7 +230,8 @@ void MRoverArm::execute_spline() {
 
                 double max_time = -1; //in ms
 
-                for (int i = 0; i < 6; ++i) {
+                // Get max time to travel for joints a through e
+                for (int i = 0; i < 5; ++i) {
                     //in ms, time needed to move D_SPLINE_T (%)
                     double joint_time = abs(final_angles[i] - init_angles[i]) 
                         / (state.get_joint_max_speed(i) / 1000.0); 
@@ -422,7 +423,7 @@ void MRoverArm::lock_joints_callback(string channel, LockJoints msg) {
 }
 
 bool MRoverArm::check_zero_encoder(const vector<double> &angles) const {
-    int num_faulty = 0;
+    size_t num_faulty = 0;
     for (size_t i = 0; i < angles.size(); ++i) {
         if (abs(angles[i] - ZERO_ENCODER_VALUE) < ZERO_ENCODER_EPSILON) {
             ++num_faulty;
@@ -432,7 +433,7 @@ bool MRoverArm::check_zero_encoder(const vector<double> &angles) const {
     return num_faulty > angles.size()/2;
 }
 
-bool MRoverArm::check_joint_limits(const vector<double> &angles) const {
+bool MRoverArm::check_joint_limits(const vector<double> &angles) {
     for (size_t i = 0; i < angles.size(); ++i) {
         vector<double> limits = state.get_joint_limits(i);
         if (angles[i] < limits[0] || angles[i] > limits[1]) {

@@ -146,7 +146,7 @@ private:
 
     bool check_zero_encoder(const vector<double> &angles) const;
 
-    bool check_joint_limits(const vector<double> &angles) const;
+    bool check_joint_limits(const vector<double> &angles);
 };
 
 
