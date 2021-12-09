@@ -37,7 +37,6 @@ async def publish_zed_gimbal_position():
 
 
 async def main():
-    await c.set_stop()
 
     lcm_.subscribe("/zed_gimbal_data", zed_gimbal_position_callback)
 
