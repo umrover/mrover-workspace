@@ -101,9 +101,9 @@ void ObsDetector::update(GPU_Cloud pc) {
     
     Bins bins;
     #if VOXEL
-            bins = voxelGrid->run();
+            bins = voxelGrid->run(pc);
     #endif
-    if(viewer.procStage == ProcStage::POSTECE || viewer.procStage == ProcStage::POSTBEARING) {
+    if(viewer.procStage == ProcStage::POSTECE) {
         obstacles = ece->extractClusters(pc, bins);
     }
 
@@ -231,9 +231,8 @@ int main() {
 
     while(true) {
         obs.update();
-        if(viewer.procStage == ProcStage::POSTECE || viewer.procStage == ProcStage::RAWBOUNDED) {
-            obs.spinViewer();
-        }
+        //if(viewer.procStage == ProcStage::POSTECE || viewer.procStage == ProcStage::RAWBOUNDED) {
+        obs.spinViewer();
     }
     
 
