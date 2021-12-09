@@ -2,7 +2,7 @@ sudo: required
 services:
 - docker
 script:
-- docker pull umrover/travis
+- docker pull umrover1/travis
 - docker run --rm -it -v $(pwd):/root -v /dev/tty:/dev/ttyUSB0 -v /dev/null:/run/udev:ro
   -v /dev/tty:/dev/i2c-0 -v /dev/tty:/dev/i2c-1 -v /dev/tty:/dev/i2c-2 umrover/travis
   jarvis build -a .
