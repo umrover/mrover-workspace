@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="box header">
       <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
-      <h1>SA Dashboard</h1>
+      <h1>Science Dashboard</h1>
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
@@ -47,8 +47,11 @@
     <div class="box drives light-bg">
       <DriveVelDataV/>
     </div>
-    <div class="box report light-bg">
+    <!--<div class="box report light-bg">
       <GenerateReport v-bind:spectral_data="spectral_data"/>
+    </div>-->
+    <div class="box carousel light-bg">
+      <Carousel/>
     </div>
   </div>
 </template>
@@ -67,6 +70,7 @@ import Ammonia from './Ammonia.vue'
 import DriveVelDataV from './DriveVelDataV.vue'
 import Amino from './Amino.vue'
 import GenerateReport from './GenerateReport.vue'
+import Carousel from './Carousel.vue'
 
 let interval;
 
@@ -271,7 +275,8 @@ export default {
     Ammonia,
     DriveVelDataV,
     Amino,
-    GenerateReport
+    GenerateReport,
+    Carousel
   }
 }</script>
 
@@ -281,10 +286,15 @@ export default {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: 1.5fr 1.25fr 1fr;
-        grid-template-rows: 60px 3fr 1fr 2fr 1.5fr 1.5fr;
-        grid-template-areas: "header header header" "map cameras cameras" "map chlorophyll drives" "map ammonia drives" "odom amino drives" "spectral report drives";
+        grid-template-rows: 60px 3fr 1fr 2fr 1fr 2fr;
+        grid-template-areas: "header header header" 
+                             "map cameras cameras" 
+                             "map odom drives" 
+                             "map chlorophyll drives" 
+                             "carousel ammonia drives" 
+                             "spectral amino drives";
         font-family: sans-serif;
-        height: 98vh;
+        height: 150vh;
         overflow: auto;
     }
 
@@ -308,7 +318,7 @@ export default {
         display: flex;
         align-items: center;
     }
-
+    
         .header h1 {
             margin-left: 5px;
         }
@@ -409,13 +419,13 @@ export default {
       grid-area: spectral;
     }
 
-    .report {
-      grid-area: report;
-    }
-
     .controls {
         grid-area: controls;
         font-size: 1em;
+    }
+
+    .carousel {
+      grid-area: carousel;
     }
 
     ul#vitals li {

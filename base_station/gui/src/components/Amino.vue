@@ -21,12 +21,6 @@
             <span class="toggle__switch" v-if="heater0 == 0" v-on:click="heater0=1,setPart(mosfetIDs.heater0,true)"></span>
         </label>
 
-        <!-- button v-if="heater0==0" v-on:click="heater0 = 1, setPart(mosfetIDs.heater0,true)" v-bind:style="{color: color0}">
-            Heater A on
-        </button>
-        <button v-if="heater0==1" v-on:click="heater0 = 0, setPart(mosfetIDs.heater0,false)" v-bind:style="{color: color0}">
-            Heater A off
-        </button -->
         <p>Thermistor A: {{temp0}} C°</p>
     </div>
     <div class="box1" v-if="site == 1">
@@ -39,12 +33,6 @@
             <span class="toggle__switch" v-if="heater1 == 0" v-on:click="heater1=1,setPart(mosfetIDs.heater1,true)"></span>
         </label>
 
-        <!-- button v-if="heater1==0" v-on:click="heater1 = 1, setPart(mosfetIDs.heater1,true)" v-bind:style="{color: color1}">
-            Heater B on
-        </button>
-        <button v-if="heater1==1" v-on:click="heater1 = 0, setPart(mosfetIDs.heater1,false)" v-bind:style="{color: color1}">
-            Heater B off
-        </button -->
         <p>Thermistor B: {{temp1}} C°</p>
     </div>
     <div class="box1" v-if="site == 2">
@@ -57,12 +45,6 @@
             <span class="toggle__switch" v-if="heater2 == 0" v-on:click="heater2=1,setPart(mosfetIDs.heater2,true)"></span>
         </label>
 
-        <!-- button v-if="heater2==0" v-on:click="heater2 = 1, setPart(mosfetIDs.heater2,true)" v-bind:style="{color: color2}">
-            Heater C on
-        </button>
-        <button v-if="heater2==1" v-on:click="heater2 = 0, setPart(mosfetIDs.heater2,false)" v-bind:style="{color: color2}">
-            Heater C off
-        </button -->
         <p>Thermistor C: {{temp2}} C°</p>
     </div>
     <div>
@@ -77,11 +59,8 @@
     display: inline-block;
     vertical-align: top;
     align-content: left;
-    /* height: 300px; */
   }
   .box1 {
-    /*border-radius: 5px;
-    border: 1px solid black;*/
     text-align: left;
     vertical-align: top;
     display: inline-block;

@@ -48,7 +48,7 @@
   .wrap {
     display: inline-block;
     align-content: center;
-    /* height: 300px; */
+    height: 18vh;
   }
   .box1 {
     /*border-radius: 5px;

@@ -1,28 +1,7 @@
 <template>
   <div class="odom-wrap">
-    <div class="sacontrols odom">
-      <p>Current odometry reading:</p>
-      <div>
-        <p>{{formatted_odom.lat.d}}º</p>
-        <p v-if="this.min_enabled">{{formatted_odom.lat.m}}'</p>
-        <p  v-if="this.sec_enabled">{{formatted_odom.lat.s}}"</p>
-        N
-      </div>
-      <div>
-        <p>{{formatted_odom.lon.d}}º</p>
-        <p v-if="this.min_enabled">{{formatted_odom.lon.m}}'</p>
-        <p  v-if="this.sec_enabled">{{formatted_odom.lon.s}}"</p>
-        W
-        <br/>
-        <p>Bearing: {{odom.bearing_deg.toFixed(2)}}º</p>
-      </div>
-    </div>
-    <!--div class = "pdb">
-    <PDBData/>
-    </div-->
     <div class="sacontrols buttons">
     <button ref="raman" class=raman v-on:click="sendCollect(mosfetIDs.ramanLaser)"> <span>Raman Test</span> </button>
-    <SAControls/>
     </div>
   </div>
 </template>
@@ -30,8 +9,6 @@
 <script>
 import {convertDMS} from '../utils.js';
 import {mapGetters} from 'vuex';
-import SAControls from './SAControls.vue';
-//import PDBData from './PDBData.vue';
 
 export default {
   props: {
@@ -86,45 +63,27 @@ export default {
           })
       }
     },
-  components: {
-    SAControls
-    //PDBData
-  }
 }
 </script>
 
 <style scoped>
   .odom-wrap {
-      padding: 0px;
-      padding-left: 10px;
-      padding-right: 0px;
-      border: none;
-      margin-top: 0.5rem;
-      display: grid;
-      grid-gap: 3px;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
-      grid-template-areas: "odom buttons" "pdb buttons";
+      display: flex;
+      align-items: center;
+      justify-items: center;
       font-family: sans-serif;
-      height: 24vh;
-  }
-  .odom{
-    grid-area: odom;
-  }
-  .buttons{
-    grid-area: buttons;
-  }
-  .raman{
-    margin-left: 20px;
-  }
-  /*.pdb{
-    grid-area: pdb;
-  }*/
-  .odom-wrap p {
-    display: inline;
+      height: 10vh;
   }
 
-  .sacontrols{
-    display:inline-block;
+  .odom {
+    grid-area: odom;
+  }
+
+  .buttons {
+    grid-area: buttons;
+  }
+
+  .odom-wrap p {
+    display: inline;
   }
 </style>

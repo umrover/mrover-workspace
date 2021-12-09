@@ -63,6 +63,16 @@
             "tilt"
         ]
     ],
+    "CarouselCmd": [
+        [
+            "position"
+        ]
+    ],
+    "CarouselData": [
+        [
+            "position"
+        ]
+    ],
     "Course": [
         [
             "int32_t",

@@ -1,7 +1,7 @@
 <template>
 <div>
     <div>
-        <h4> Spectral Data </h4>
+        <h3> Spectral Data </h3>
     </div>
   <table class="tableFormat" style="undefined;table-layout: fixed; width: 434px">
   <colgroup>
@@ -55,6 +55,10 @@
     </tr>
   </tbody>
   </table>
+  <br>
+  <div class="report">
+    <GenerateReport v-bind:spectral_data="spectral_data"/>
+  </div>
 </div>
 </template>
 
@@ -62,11 +66,8 @@
   .wrap {
     display: inline-block;
     align-content: center;
-    /* height: 300px; */
   }
   .box {
-    /*border-radius: 5px;
-    padding: 10px;*/
     border: 1px solid black;
     text-align: right;
     vertical-align: top;
@@ -99,15 +100,27 @@
     text-align:center;
     vertical-align:top
   }
+
+  .report {
+    height: 7vh;
+    align-items: center;
+  }
 </style>
 
 <script>
+import GenerateReport from './GenerateReport.vue';
+
 export default {
   props: {
     spectral_data: {
       type: Object,
       required: true
-    },
+    }
+  },
+
+  components: {
+    GenerateReport
   }
+
 }
 </script>
