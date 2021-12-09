@@ -111,7 +111,8 @@ uint32_t closedPlus(int addr, float target)
     {
         uint8_t buffer[4];
         memcpy(buffer, UINT8_POINTER_T(&target), 4);
-        uint32_t raw_angle;
+        int32_t raw_angle;
+        
         I2C::transact(addr, OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
         printf("test closed plus transaction successful on slave %i, %d \n", addr, raw_angle);
         return raw_angle;
