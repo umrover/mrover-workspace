@@ -16,9 +16,13 @@ void Controller::make_live()
 
     try
     {
+        // turn on 
+        transact(ON, nullptr, nullptr);
         uint8_t buffer[32];
         //buffer sends max percentage speed  
         memcpy(buffer, UINT8_POINTER_T(&(hardware.speed_max)), 2);
+
+
         transact(CONFIG_PWM, buffer, nullptr);
 
         memcpy(buffer, UINT8_POINTER_T(&(kP)), 4);
@@ -26,14 +30,11 @@ void Controller::make_live()
         memcpy(buffer + 8, UINT8_POINTER_T(&(kD)), 4);
         transact(CONFIG_K, buffer, nullptr);
 
-        uint16_t input = 0;
-        //Uncomment this when we get to 2021 IK testing
-        //transact(SPI, nullptr, UINT8_POINTER_T(&input));
+        float abs_raw_angle = 0;;
+        transact(addr, ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
 
         int32_t angle = static_cast<int32_t>(quad_cpr * ((static_cast<float>(input) / spi_cpr) + (start_angle / (2.0 * M_PI))));
         transact(ADJUST, UINT8_POINTER_T(&angle), nullptr);
-
-        transact(ON, nullptr, nullptr);
 
         ControllerMap::make_live(name);
     }
@@ -66,7 +67,7 @@ void Controller::open_loop(float input)
         make_live();
 
         // sent as a number between -1.0 and 1.0
-	uint8_t buffer[32];
+	    uint8_t buffer[32];
         float throttle = hardware.throttle(input);
         // print("throttle: ", throttle);
 	    memcpy(buffer, UINT8_POINTER_T(&throttle), 4);
