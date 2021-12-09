@@ -35,7 +35,7 @@ void Controller::make_live()
         transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
 
         // get value in quad counts adjust quadrature encoder 
-        int32_t adjusted_quad = (abs_raw_angle / (2 * M_PI)) * quad_cpr);
+        int32_t adjusted_quad = (abs_raw_angle / (2 * M_PI)) * quad_cpr;
         memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), 4);
         transact(ADJUST,buffer, nullptr);
 
@@ -92,18 +92,27 @@ void Controller::open_loop(float input)
 }
 
 //Sends a closed loop command with target angle in radians and optional precalculated torque in Nm
-void Controller::closed_loop(float torque, float angle)
+void Controller::closed_loop(float torque, float target)
 {
     try
     {
         make_live();
 
         float feed_forward = 0; //torque * torque_scale;
-        int32_t closed_setpoint = static_cast<int32_t>((angle / (2.0 * M_PI)) * quad_cpr);
         uint8_t buffer[32];
         int32_t angle;
         memcpy(buffer, UINT8_POINTER_T(&feed_forward), 4);
-        memcpy(buffer + 4, UINT8_POINTER_T(&closed_setpoint), 4);
+
+        if (name == "RA1")
+        {
+            memcpy(buffer + 4, UINT8_POINTER_T(&target), 4);
+        }
+        else
+        {
+            int32_t closed_setpoint = static_cast<int32_t>((target / (2.0 * M_PI)) * quad_cpr);
+            memcpy(buffer + 4, UINT8_POINTER_T(&closed_setpoint), 4);
+        }
+
         transact(CLOSED_PLUS, buffer, UINT8_POINTER_T(&angle));
 
         // handles if is joint B

@@ -42,8 +42,8 @@ void LCMHandler::handle_incoming()
 //Decide whether outgoing messages need to be sent, and if so, send them
 void LCMHandler::handle_outgoing()
 {
-    //If the last time arm position messages were outputted was over 100 ms ago, get new data from Controllers to be sent
-    std::chrono::duration deadTime = std::chrono::milliseconds(100);
+    //If the last time arm position messages were outputted was over 20 ms ago, get new data from Controllers to be sent
+    std::chrono::duration deadTime = std::chrono::milliseconds(20);
     if (NOW - last_output_time > deadTime)
     {
         internal_object->refreshAngles();
@@ -160,15 +160,6 @@ void LCMHandler::InternalHandler::sa_pos_data()
 
     last_output_time = NOW;
 }
-
-void LCMHandler::InternalHandler::zed_gimbal_data()
-{
-	ZedGimbalPosition msg;
-    msg.angle = ControllerMap::controllers["ZED_GIMBAL_YAW"]->current_angle;
-    lcm_bus->publish("/zed_gimbal_data", &msg);
-    last_output_time = NOW;
-}
-
 
 /*
 The following functions may be reimplemented when IK is tested
