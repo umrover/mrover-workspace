@@ -194,7 +194,7 @@ public:
 
     bool obstacle_free();
 
-    int num_joints() const;
+    size_t num_joints() const;
 
     std::string get_child_link(size_t joint_index) const;
 

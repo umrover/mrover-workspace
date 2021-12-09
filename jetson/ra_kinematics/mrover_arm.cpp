@@ -196,7 +196,7 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
     ArmState hypo_state = arm_state;
 
     // attempt to find ik_solution, starting at current position
-    std::pair<Vector6d, bool> ik_solution = solver.IK(hypo_state, point, false, use_orientation);
+    std::pair<vector<double>, bool> ik_solution = solver.IK(hypo_state, point, false, use_orientation);
 
     // attempt to find ik_solution, starting at up to 25 random positions
     for(int i = 0; i < 25; ++i) {
@@ -229,7 +229,7 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
     }
 
     std::cout << "Final ik joint angles: \n";
-    for (size_t i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < arm_state.num_joints(); ++i) {
         std::cout << ik_solution.first[i] << "\t"; 
     }
     std::cout << "\n";
@@ -641,6 +641,80 @@ double MRoverArm::joint_b_stabilizer(double angle) {
     return prev_angle_b;
 }
 
+StandardArm::StandardArm(json &geom, lcm::LCM &lcm) : MRoverArm(geom, lcm) { }
+
+void StandardArm::arm_position_callback(string channel, ArmPosition msg) {
+
+    vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
+                            msg.joint_d, msg.joint_e, msg.joint_f };
+
+    // If we have less than 5 previous angles to compare to
+    if (prev_angles[0].size() < MAX_NUM_PREV_ANGLES) {
+
+        // For each joint
+        for (size_t joint = 0; joint < 6; ++joint) {
+            
+            // For each previous angle we have to compare to
+            for (size_t i = 0; i < prev_angles[joint].size(); ++i) {
+                if (abs(angles[joint] - prev_angles[joint][i]) > ENCODER_ERROR_THRESHOLD * (i + 1)) {
+                    faulty_encoders[joint] = true;
+                    break;
+                }
+
+                // If all joints were not faulty,
+                if (i == prev_angles[joint].size() - 1) {
+                    faulty_encoders[joint] = false;
+                }
+            }                
+        }
+    }
+    else {
+        // For each joint
+        for (size_t joint = 0; joint < 6; ++joint) {
+
+            size_t num_fishy_vals = 0;
+            
+            // For each previous angle we have to compare to
+            for (size_t i = 0; i < MAX_NUM_PREV_ANGLES; ++i) {
+                if (abs(angles[joint] - prev_angles[joint][i]) > ENCODER_ERROR_THRESHOLD * (i + 1)) {
+                    ++num_fishy_vals;
+                }
+            }
+
+            if (num_fishy_vals > MAX_FISHY_VALS) {
+                faulty_encoders[joint] = true;
+            }
+            else {
+                faulty_encoders[joint] = false;
+            }
+        }
+    }
+
+    // Give each angle to prev_angles (stores up to 5 latest values)
+    for (size_t joint = 0; joint < 6; ++joint) {
+        if (prev_angles[joint].size() >= MAX_NUM_PREV_ANGLES) {
+            prev_angles[joint].pop_back();
+        }
+
+        prev_angles[joint].push_front(angles[joint]);
+        if (faulty_encoders[joint]) {
+            angles[joint] = state.get_joint_angle(joint);
+        }
+    }
+
+    // if previewing, don't update state based on arm position
+    if (!previewing) {
+        // update state
+        state.set_joint_angles(angles);
+        solver.FK(state);
+
+        // update GUI
+        publish_transforms(state);
+    }
+}
+
+void StandardArm::lock_joints_callback(string channel, LockJoints msg) {
+    cout << "Running lock_joints_callback: ";
 
 void MRoverArm::send_kill_cmd() {
     std::cout << "Sending kill command!\n";
@@ -656,3 +730,164 @@ void MRoverArm::send_kill_cmd() {
     hand_cmd.grip = 0.0;
     lcm_.publish("/hand_openloop_cmd", &hand_cmd);
 }
+void StandardArm::target_angles_callback(string channel, ArmPosition msg) {
+    cout << "Received target angles\n";
+
+    enable_execute = false;
+
+    // convert to Vector6d
+    vector<double> target;
+    target.push_back((double) msg.joint_a);
+    target.push_back((double) msg.joint_b);
+    target.push_back((double) msg.joint_c);
+    target.push_back((double) msg.joint_d);
+    target.push_back((double) msg.joint_e);
+    target.push_back((double) msg.joint_f);
+    
+    cout << "Requested angles: ";
+    for (size_t i = 0; i < 6; ++i) {
+        cout << target[i] << " ";
+    }
+    cout << "\n";
+
+    plan_path(target);
+}
+
+ScienceArm::ScienceArm(json &geom, lcm::LCM &lcm) : MRoverArm(geom, lcm) { }
+
+void ScienceArm::arm_position_callback(string channel, ArmPosition msg) {
+    vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c, msg.joint_d };
+
+    // If we have less than 5 previous angles to compare to
+    if (prev_angles[0].size() < MAX_NUM_PREV_ANGLES) {
+
+        // For each joint
+        for (size_t joint = 0; joint < 4; ++joint) {
+            
+            // For each previous angle we have to compare to
+            for (size_t i = 0; i < prev_angles[joint].size(); ++i) {
+                if (abs(angles[joint] - prev_angles[joint][i]) > ENCODER_ERROR_THRESHOLD * (i + 1)) {
+                    faulty_encoders[joint] = true;
+                    break;
+                }
+
+                // If all joints were not faulty,
+                if (i == prev_angles[joint].size() - 1) {
+                    faulty_encoders[joint] = false;
+                }
+            }                
+        }
+    }
+    else {
+        // For each joint
+        for (size_t joint = 0; joint < 6; ++joint) {
+
+            size_t num_fishy_vals = 0;
+            
+            // For each previous angle we have to compare to
+            for (size_t i = 0; i < MAX_NUM_PREV_ANGLES; ++i) {
+                if (abs(angles[joint] - prev_angles[joint][i]) > ENCODER_ERROR_THRESHOLD * (i + 1)) {
+                    ++num_fishy_vals;
+                }
+            }
+
+            if (num_fishy_vals > MAX_FISHY_VALS) {
+                faulty_encoders[joint] = true;
+            }
+            else {
+                faulty_encoders[joint] = false;
+            }
+        }
+    }
+
+    // Give each angle to prev_angles (stores up to 5 latest values)
+    for (size_t joint = 0; joint < 6; ++joint) {
+        if (prev_angles[joint].size() >= MAX_NUM_PREV_ANGLES) {
+            prev_angles[joint].pop_back();
+        }
+
+        prev_angles[joint].push_front(angles[joint]);
+        if (faulty_encoders[joint]) {
+            angles[joint] = state.get_joint_angle(joint);
+        }
+    }
+
+    // if previewing, don't update state based on arm position
+    if (!previewing) {
+        // update state
+        state.set_joint_angles(angles);
+        solver.FK(state);
+
+        // update GUI
+        publish_transforms(state);
+    }
+}
+    
+void ScienceArm::lock_joints_callback(string channel, LockJoints msg) {
+    cout << "Running lock_joints_callback: ";
+
+    state.set_joint_locked(0, (bool)msg.jointa);
+    state.set_joint_locked(1, (bool)msg.jointb);
+    state.set_joint_locked(2, (bool)msg.jointc);
+    state.set_joint_locked(3, (bool)msg.jointd);
+
+    cout << "\n";
+}
+
+void ScienceArm::target_angles_callback(string channel, ArmPosition msg) {
+    cout << "Received target angles\n";
+
+    enable_execute = false;
+
+    // convert to vector
+    vector<double> target;
+    target.push_back((double) msg.joint_a);
+    target.push_back((double) msg.joint_b);
+    target.push_back((double) msg.joint_c);
+    target.push_back((double) msg.joint_d);
+    
+    cout << "Requested angles: ";
+    for (size_t i = 0; i < 4; ++i) {
+        cout << target[i] << " ";
+    }
+    cout << "\n";
+
+    plan_path(target); // TODO: change Vector6d to vector where necessary
+}
+
+// void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {
+//    if(enable_execute) {
+//        return;
+//    }
+ 
+//    IkArmControl cart_msg = msg;
+//    double delta[3] = {cart_msg.deltaX, cart_msg.deltaY, cart_msg.deltaZ};
+//    //idk if this line is right down here
+//    pair<vector<double> joint_angles, bool is_safe> = solver.IK_delta(delta, 3); // IK_delta takes in a Vector6d. ik arm control only has 3 values.
+//    if(is_safe) {
+//        ArmPosition arm_position = ArmPosition();
+//        map<string,double> gja = state.get_joint_angles();
+//        arm_position.joint_a = gja["joint_a"];
+//        arm_position.joint_b = gja["joint_b"];
+//        arm_position.joint_c = gja["joint_c"];
+//        arm_position.joint_d = gja["joint_d"];
+//        arm_position.joint_e = gja["joint_e"];
+//        arm_position.joint_f = gja["joint_f"];
+//        vector<double> angles = {gja["joint_a"], gja["joint_b"], gja["joint_c"], gja["joint_d"], gja["joint_e"], gja["joint_f"]};
+//        state.set_joint_angles(angles);
+//        solver.FK(state);  
+//        publish_transforms(state);
+//        //again, running into the issue of encode(), should we even have it there
+//        if(sim_mode) {
+//            cout << "Printing sim_mode" << endl;
+//            lcm_.publish("/arm_position", arm_position.encode());
+//        }
+//        else{
+//            cout << "Printing" << endl;
+//            lcm_.publish("/ik_ra_control", arm_position.encode());
+//        }
+//    }
+ 
+ 
+// }
+ 

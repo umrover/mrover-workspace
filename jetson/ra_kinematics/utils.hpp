@@ -36,5 +36,9 @@ Vector6d vecTo6d(const std::vector<double> &inVec);
 
 std::vector<double> vector6dToVec(const Vector6d &inVector6d);
 
+double squared_norm(const vector<double>& a, const vector<double>& b);
+
+bool vec_almost_equal(const vector<double>& a, const vector<double>& b, double epsilon);
+bool check_science();
 
 #endif

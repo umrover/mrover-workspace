@@ -112,7 +112,7 @@ public:
 };
 
 TEST(config_space) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
 
     ArmState arm(geom);
     KinematicsSolver solver;

@@ -17,7 +17,7 @@ void KinematicsSolver::FK(ArmState &robot_state) {
 
     // TODO: Edit name of base ("chassis-a") as necessary:
     robot_state.set_link_transform(0, Matrix4d::Identity());
-    for (size_t i = 0; i < 6; ++i) {
+    for (int i = 0; i < robot_state.num_joints(); ++i) {
         Matrix4d rot_theta = get_joint_xform(robot_state, i, robot_state.get_joint_angle(i));
 
         // Set up transformation matrix based on position of joint with respect to previous joint.
@@ -262,9 +262,9 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
             std::cout << "FAILURE --- broke out of loop in " << num_iterations << " iterations --- dist: " << dist << "\t";
             std::cout << "angle dist: " << angle_dist << "\n";
 
-            Vector6d joint_angles;
-            for (int i = 0; i < 6; ++i) {
-                joint_angles(i) = robot_state.get_joint_angle(i);
+            vector<double> joint_angles;
+            for (size_t i = 0; i < robot_state.num_joints(); ++i) {
+                joint_angles.push_back(robot_state.get_joint_angle(i));
             }
 
             // restore previous robot_state angles
@@ -360,11 +360,11 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
     Vector3d ef_euler_world = robot_state.get_ef_ang_world();
 
-    MatrixXd jacobian(6, 6);
+    MatrixXd jacobian(6, robot_state.num_joints());
     jacobian.setZero();
 
     // 6-D matrix
-    for (size_t i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < robot_state.num_joints(); ++i) {
 
         // calculate vector from joint i to end effector
         Vector3d joint_pos_world = robot_state.get_link_point_world(i+1);

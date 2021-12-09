@@ -9,7 +9,7 @@
 
 TEST(motion_planner_init) {
     // read arm geometry
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 
@@ -26,7 +26,7 @@ TEST(motion_planner_init) {
 TEST(rrt_connect_simple) {
 
     // read arm geometry
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 
@@ -60,7 +60,7 @@ TEST(rrt_connect_simple) {
     std::cout << "entering rrt...\n";
 
     // run rrt_connect and confirm it found a path
-    ASSERT_TRUE(planner.rrt_connect(arm, target6d));
+    ASSERT_TRUE(planner.rrt_connect(arm, target));
 
     // confirm spline positions
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start[0], 0.01);
@@ -70,12 +70,12 @@ TEST(rrt_connect_simple) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[4], start[4], 0.01);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[5], start[5], 0.01);
 
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target6d(0), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target6d(1), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target6d(2), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target6d(3), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target6d(4), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target[3], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target[4], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target[5], 0.01);
 }
 
 /**
@@ -83,7 +83,7 @@ TEST(rrt_connect_simple) {
  * */
 TEST(anti_motion_planner) {
     // read arm geometry
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 
@@ -112,10 +112,8 @@ TEST(anti_motion_planner) {
 
     ASSERT_TRUE(solver.is_safe(arm, target));
 
-    Vector6d target6d = vecTo6d(target);
-
     // run rrt_connect and confirm it found a path
-    ASSERT_TRUE(planner.rrt_connect(arm, target6d));
+    ASSERT_TRUE(planner.rrt_connect(arm, target));
 
     // confirm spline positions
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start[0], 0.01);
@@ -125,17 +123,17 @@ TEST(anti_motion_planner) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[4], start[4], 0.01);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[5], start[5], 0.01);
 
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target6d(0), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target6d(1), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target6d(2), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target6d(3), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target6d(4), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target[3], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target[4], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target[5], 0.01);
 }
 
 TEST(rrt_connect) {
     // read arm geometry
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 
@@ -164,10 +162,8 @@ TEST(rrt_connect) {
 
     ASSERT_TRUE(solver.is_safe(arm, target));
 
-    Vector6d target6d = vecTo6d(target);
-
     // run rrt_connect and confirm it found a path
-    ASSERT_TRUE(planner.rrt_connect(arm, target6d));
+    ASSERT_TRUE(planner.rrt_connect(arm, target));
 
     // confirm spline positions
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start[0], 0.01);
@@ -177,12 +173,12 @@ TEST(rrt_connect) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[4], start[4], 0.01);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[5], start[5], 0.01);
 
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target6d(0), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target6d(1), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target6d(2), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target6d(3), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target6d(4), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target[3], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target[4], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target[5], 0.01);
     
     arm.set_joint_angles(target);
 
@@ -198,10 +194,8 @@ TEST(rrt_connect) {
 
     ASSERT_TRUE(solver.is_safe(arm, target));
 
-    target6d = vecTo6d(target);
-
     // run rrt_connect and confirm it found a path
-    ASSERT_TRUE(planner.rrt_connect(arm, target6d));
+    ASSERT_TRUE(planner.rrt_connect(arm, target));
 
     // confirm spline positions
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start[0], 0.01);
@@ -211,17 +205,17 @@ TEST(rrt_connect) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[4], start[4], 0.01);
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[5], start[5], 0.01);
 
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target6d(0), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target6d(1), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target6d(2), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target6d(3), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target6d(4), 0.01);
-    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target6d(5), 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target[3], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[4], target[4], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target[5], 0.01);
 }
 
 // Test that motion planning respects the locking of joints
 TEST(test_lock) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
     MotionPlanner planner = MotionPlanner(arm, solver);
@@ -236,15 +230,10 @@ TEST(test_lock) {
     // Lock Joint C.
     arm.set_joint_locked(2, true);
 
-    Vector6d target_angs;
-    for (size_t i = 0; i < 6; ++i) {
-        target_angs[i] = target[i];
-    }
-
     arm.set_joint_angles(start);
     solver.FK(arm);
 
-    planner.rrt_connect(arm, target_angs);
+    planner.rrt_connect(arm, target);
 
     // Check that Joint C did not move from the start position anywhere along the path.
     for (double i = 0; i <= 1; i += 0.05) {

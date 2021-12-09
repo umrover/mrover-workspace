@@ -2,13 +2,14 @@
 
 #include <random>
 #include <queue>
+#include <math.h>
 #include <time.h>
 #include <cmath>
 
 
 MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in) :
         solver(solver_in) { 
-    step_limits.reserve(6);
+    step_limits.reserve(robot.num_joints());
 
     // add limits for each joint to joint_limits, after converting to degrees
     for (size_t i = 0; i < 6; ++i) {
@@ -22,18 +23,19 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in)
     std::default_random_engine eng(clock());
 }
 
-Vector6d MotionPlanner::sample(Vector6d start, const ArmState &robot) {
-    Vector6d z_rand;
+vector<double> MotionPlanner::sample(vector<double> start, const ArmState &robot) {
+    vector<double> z_rand;
 
     for (size_t i = 0; i < joint_limits.size(); ++i) {
+        
         if (robot.get_joint_locked(i)) {
             // if joint is locked, z_rand matches start
-            z_rand(i) = start(i);
+            z_rand.push_back(start[i]);
         }
         else { 
             // create distribution of angles between limits and choose an angle
             std::uniform_real_distribution<double> distr(joint_limits[i][0], joint_limits[i][1]);
-            z_rand(i) = distr(eng);
+            z_rand.push_back(distr(eng));
         }
     }
 
@@ -68,11 +70,14 @@ MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, cons
 }
 
 
-Vector6d MotionPlanner::steer(MotionPlanner::Node* start, const Vector6d &end) {
+vector<double> MotionPlanner::steer(MotionPlanner::Node* start, const vector<double> &end) {
 
     // calculate the vector from start position to end (each value is a change in angle)
-    Vector6d vec = end - start->config;
-
+    vector<double> vec;
+    for (size_t i = 0; i < start->config.size(); ++i) {
+        vec.push_back(end[i] - start->config[i]);
+    }
+    
     // check for any steps that are outside acceptable range
     bool step_too_big = false;
     for (size_t i = 0; i < step_limits.size(); ++i) {
@@ -106,9 +111,9 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, const Vector6d &end) {
     }
     
     // find the biggest possible step from start directly towards end
-    Vector6d new_config = start->config;
-    for (int i = 0; i < vec.size(); ++i) {
-        new_config(i) += min_t * vec[i];
+    vector<double> new_config = start->config;
+    for (size_t i = 0; i < vec.size(); ++i) {
+        new_config[i] += min_t * vec[i];
     }
 
     return new_config;
@@ -150,7 +155,7 @@ void MotionPlanner::delete_tree_helper(MotionPlanner::Node* root) {
     }
 }
 
-MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const Vector6d &z_rand) {
+MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const vector<double> &z_rand) {
 
     // z_nearest is the nearest node in the tree to z_rand
     Node* z_nearest = nearest(tree, z_rand);
@@ -166,11 +171,8 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const Ve
     }
 
     // create dynamic node branching from tree
-    Node* new_node = new Node(z_new_6d);
+    Node* new_node = new Node(z_new);
     new_node->parent = z_nearest;
-
-    // cost is previous cost + distance to new set of angles
-    new_node->cost = z_nearest->cost + (z_nearest->config - z_new_6d).norm();
 
     // add new_node to tree
     z_nearest->children.push_back(new_node);
@@ -178,28 +180,23 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const Ve
     return new_node;
 }
 
-MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, const Vector6d &a_new) {
+MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, const vector<double> &a_new) {
     Node* extension;
 
     do {
         extension = extend(robot, tree, a_new);
-    } while (extension && extension->config != a_new);
+    } while (extension && !vec_almost_equal(extension->config, a_new, VEC_ANGLE_EPSILON));
 
     return extension;
 }
 
-bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) {
+bool MotionPlanner::rrt_connect(ArmState &robot, const vector<double> &target_angles) {
 
     // retrieve starting and target joint angles
-    Vector6d start;
-    start(0) = robot.get_joint_angle(0);
-    start(1) = robot.get_joint_angle(1);
-    start(2) = robot.get_joint_angle(2);
-    start(3) = robot.get_joint_angle(3);
-    start(4) = robot.get_joint_angle(4);
-    start(5) = robot.get_joint_angle(5);
+    vector<double> start;
+    start = robot.get_joint_angles();
 
-    Vector6d target = target_angles;
+    vector<double> target = target_angles;
 
     start_root = new Node(start);
     goal_root =  new Node(target);
@@ -207,7 +204,7 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
     for (int i = 0; i < MAX_RRT_ITERATIONS; ++i) {
         Node* a_root = i % 2 == 0 ? start_root : goal_root;
         Node* b_root = i % 2 == 0 ? goal_root : start_root;
-        Vector6d z_rand = sample(start, robot);
+        vector<double> z_rand = sample(start, robot);
 
         Node* a_new = extend(robot, a_root, z_rand);
 
@@ -226,15 +223,15 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
                 }
 
                 // add the intersection of the paths to a_path
-                Vector6d middle;
+                vector<double> middle;
                 for (int j = 0; j < 6; ++j) {
-                    middle(j) = a_new->config(j);
+                    middle.push_back(a_new->config[j]);
                 }
 
                 a_path.push_back(middle);
                 a_path.reserve(a_path.size() + b_path.size());
 
-                for (Vector6d b : b_path) {
+                for (vector<double> b : b_path) {
                     a_path.push_back(b);
                 }
 
@@ -278,7 +275,7 @@ void MotionPlanner::spline_fitting(const std::vector<Vector6d> &path) {
     // convert path to vectors
     for (size_t i = 0; i < path.size(); ++i) {
         for (size_t j = 0; j < 6; ++j) {
-            separate_paths[j][i] = path[i](j);
+            separate_paths[j][i] = path[i][j];
         }
     }
 

@@ -93,6 +93,10 @@ private:
     
     std::vector<double> DUD_ENCODER_VALUES;
 
+    void publish_transforms(const ArmState &state);
+
+    void plan_path(const vector<double> &goal);
+
 public:
 
     /**
@@ -111,6 +115,8 @@ public:
      */
     void ra_control_callback(std::string channel, ArmControlState msg);
 
+    virtual ~MRoverArm() = default;
+
     /**
      * Handle message with updated joint angles from encoders,
      * update arm_state and call FK() to adjust transforms
@@ -118,7 +124,7 @@ public:
      * @param channel expected: "/arm_position"
      * @param msg format: double joint_a, joint_b, ... , joint_f
      * */
-    void arm_position_callback(std::string channel, ArmPosition msg);
+    virtual void arm_position_callback(string channel, ArmPosition msg) = 0;
 
     /**
      * Handle new target position by calculating angles and plotting path,
@@ -135,7 +141,7 @@ public:
      * @param channel expected: "/preset_angles", but could handle others
      * @param msg format: double joint_a, joint_b, joint_c, joint_d, joint_e, joint_f
      * */
-    void target_angles_callback(std::string channel, ArmPosition msg);
+    virtual void target_angles_callback(string channel, ArmPosition msg) = 0;
 
     /**
      * Handle request to move arm through previously calculated path, or to cancel
@@ -160,7 +166,7 @@ public:
      * @param channel expected: "/locked_joints"
      * @param msg format: bool jointa ... jointf
      */
-    void lock_joints_callback(std::string channel, LockJoints msg);
+    virtual void lock_joints_callback(string channel, LockJoints msg) = 0;
 
     /**
      * Handle request to set current position as the zero position
@@ -183,8 +189,8 @@ public:
     void encoder_angles_sender();
 
 private:
-
     void plan_path(ArmState& hypo_state, Vector6d goal);
+    
     void preview(ArmState& hypo_state);
 
     void publish_config(const std::vector<double> &config, std::string channel);
@@ -200,6 +206,34 @@ private:
     double joint_b_stabilizer(double angle);
 
     void send_kill_cmd();
+    void matrix_helper(double arr[4][4], const Matrix4d &mat);
+};
+
+class StandardArm : public MRoverArm {
+public:
+    StandardArm(json &geom, lcm::LCM &lcm);
+
+    ~StandardArm() = default;
+
+    void arm_position_callback(string channel, ArmPosition msg) override;
+    
+    void lock_joints_callback(string channel, LockJoints msg) override;
+
+    void target_angles_callback(string channel, ArmPosition msg) override;
+};
+
+class ScienceArm : public MRoverArm {
+public:
+
+    ScienceArm(json &geom, lcm::LCM &lcm);
+
+    ~ScienceArm() = default;
+
+    void arm_position_callback(string channel, ArmPosition msg) override;
+    
+    void lock_joints_callback(string channel, LockJoints msg) override;
+
+    void target_angles_callback(string channel, ArmPosition msg) override;
 };
 
 
