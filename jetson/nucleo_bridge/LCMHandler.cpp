@@ -23,7 +23,6 @@ void LCMHandler::init()
     lcm_bus->subscribe("/gimbal_openloop_cmd",  &LCMHandler::InternalHandler::gimbal_cmd,           internal_object);
     lcm_bus->subscribe("/hand_openloop_cmd",    &LCMHandler::InternalHandler::hand_openloop_cmd,    internal_object);
     lcm_bus->subscribe("/foot_openloop_cmd",    &LCMHandler::InternalHandler::foot_openloop_cmd,    internal_object);
-    lcm_bus->subscribe("/zed_gimbal_cmd",       &LCMHandler::InternalHandler::zed_gimbal_cmd,       internal_object);
     /*
     The following functions may be reimplemented when IK is tested
     lcmBus->subscribe("/ra_config_cmd",         &LCMHandler::InternalHandler::ra_config_cmd,        internal_object);
@@ -50,7 +49,6 @@ void LCMHandler::handle_outgoing()
         internal_object->refreshAngles();
         internal_object->sa_pos_data();
         internal_object->ra_pos_data();
-        internal_object->zed_gimbal_data();
     }
 }
 
@@ -124,14 +122,6 @@ void LCMHandler::InternalHandler::gimbal_cmd(LCM_INPUT, const GimbalCmd *msg)
     ControllerMap::controllers["GIMBAL_PITCH_0"]->open_loop(msg->pitch[0]);
     ControllerMap::controllers["GIMBAL_YAW_0"]->open_loop(msg->yaw[0]);
 }
-
-
-void LCMHandler::InternalHandler::zed_gimbal_cmd(LCM_INPUT, const ZedGimbalPosition *msg) {
-    ControllerMap::controllers["ZED_GIMBAL_YAW"]->closed_loop(0, msg->angle);
-    zed_gimbal_data();
-    //FF term isn't used 
-}
-
 
 void LCMHandler::InternalHandler::refreshAngles()
 {

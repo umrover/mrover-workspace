@@ -38,9 +38,8 @@ public:
     float start_angle = 0.0;
     float torque_scale = 1.0;
     float quad_cpr = std::numeric_limits<float>::infinity();
-    float spi_cpr = std::numeric_limits<float>::infinity();
     float current_angle = 0.0;
-    float kP = 0.0;
+    float kP = 0.01;
     float kI = 0.0; 
     float kD = 0.0;
 
