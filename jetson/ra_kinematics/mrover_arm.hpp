@@ -32,14 +32,21 @@ using namespace std;
 using namespace Eigen;
  
 typedef Matrix<double, 6, 1> Vector6d;
-static constexpr double D_SPLINE_T = 0.01;      //percentage of path to calculate move time
-static constexpr double SPLINE_WAIT_TIME = 10;  //in ms, wait time for execute_spline loop
+
+// percentage of path to calculate move time
+static constexpr double D_SPLINE_T = 0.01;
+
+// in ms, wait time for execute_spline loop
+static constexpr double SPLINE_WAIT_TIME = 100;
 
 // Angle in radians to determine when encoders are sending faulty values
 static constexpr double ENCODER_ERROR_THRESHOLD = 0.2;
 
 static constexpr size_t MAX_NUM_PREV_ANGLES = 5;
 static constexpr size_t MAX_FISHY_VALS = 1;
+
+static constexpr double ZERO_ENCODER_VALUE = 0;
+static constexpr double ZERO_ENCODER_EPSILON = 0.00000001;
 
 
 /**
@@ -58,6 +65,9 @@ private:
     bool sim_mode;
     bool ik_enabled;
     bool previewing;
+
+    bool encoder_error;
+    string encoder_error_message;
 
     vector< deque<double> > prev_angles;
     vector<bool> faulty_encoders;
@@ -133,6 +143,10 @@ private:
     void plan_path(Vector6d goal);
 
     void matrix_helper(double arr[4][4], const Matrix4d &mat);
+
+    bool check_zero_encoder(const vector<double> &angles) const;
+
+    bool check_joint_limits(const vector<double> &angles) const;
 };
 
 

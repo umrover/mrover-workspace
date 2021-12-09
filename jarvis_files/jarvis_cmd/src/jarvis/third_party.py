@@ -117,36 +117,6 @@ def ensure_nlohmann(ctx):
         ctx.run("cmake --build . --target install")
         print("Done")
 
-def check_eigen(ctx):
-    """
-    Check for the existence of eigen in the product venv.
-    """
-    return os.path.exists(ctx.get_product_file('include', 'eigen3'))
-
-def ensure_eigen(ctx):
-    """
-    Install eigen into the product venv.
-    """
-    if check_eigen(ctx):
-        print("eigen already installed, skipping.")
-        return
-
-    eigen_dir = os.path.join(ctx.third_party_root, 'eigen')
-    ctx.ensure_product_env()
-    with ctx.intermediate('eigen'):
-        ctx.run("cp -r {}/* .".format(eigen_dir))
-        print("Configuring eigen...")
-        ctx.run("mkdir -p build")
-        with ctx.cd("build"):
-            ctx.run("rm -f ../CMakeCache.txt")
-            ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} ..".format(
-                ctx.product_env))
-            print("Building eigen...")
-            ctx.run("cmake --build .")
-            print("Installing eigen...")
-            ctx.run("cmake --build . --target install")
-            print("Done")
-
 def check_kluge(ctx):
     """
     Check for the existence of kluge in the product venv.

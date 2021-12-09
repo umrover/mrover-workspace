@@ -23,8 +23,6 @@ static constexpr int MAX_RRT_ITERATIONS = 500;
 class MotionPlanner {
 private:
 
-    // TODO convert everything to radians
-
     /**
      * RRT Node
      * */

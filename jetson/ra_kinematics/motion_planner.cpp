@@ -14,7 +14,7 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in)
       vector<double> limits = robot.get_joint_limits(i);
 
       joint_limits.push_back(limits);
-      step_limits.push_back(robot.get_joint_max_speed(i) / 50.0); //TODO scale if path planning takes too long
+      step_limits.push_back(robot.get_joint_max_speed(i) / 50.0);
     }
 
     //time_t timer;
@@ -51,7 +51,6 @@ MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, cons
         Node* node = q.front();
         q.pop();
 
-        // TODO consider taking into account cost
         double dist = (node->config - rand).norm();
 
         if (dist < min_dist) {

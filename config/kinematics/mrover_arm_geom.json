@@ -670,8 +670,8 @@
             ],
             "type": "revolute",
             "limit": {
-                "lower": 0,
-                "upper": 1.57
+                "lower": 0.035,
+                "upper": 1.09
             },
             "max_speed": 0.52,
             "mass_data":{
@@ -705,8 +705,8 @@
             ],
             "type": "revolute",
             "limit": {
-                "lower": -2.36,
-                "upper": 2.36
+                "lower": -3.01,
+                "upper": 2.73
             },
             "max_speed": 0.52,
             "mass_data":{
@@ -775,8 +775,8 @@
             ],
             "type": "revolute",
             "limit": {
-                "lower": -2.36,
-                "upper": 0.87
+                "lower": -2.68,
+                "upper": 2.68
             },
             "max_speed": 0.52,
             "mass_data":{

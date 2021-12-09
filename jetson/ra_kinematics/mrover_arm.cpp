@@ -35,6 +35,17 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
     vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
 
+    encoder_error = false;
+    encoder_error_message = "Encoder Error in encoder(s) (joint A = 0, F = 5): ";
+
+    if (check_zero_encoder(angles)) {
+        return;
+    }
+
+    if (check_joint_limits(angles)) {
+        return;
+    }
+
     // If we have less than 5 previous angles to compare to
     if (prev_angles[0].size() < MAX_NUM_PREV_ANGLES) {
 
@@ -43,13 +54,17 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
             
             // For each previous angle we have to compare to
             for (size_t i = 0; i < prev_angles[joint].size(); ++i) {
-                if (abs(angles[joint] - prev_angles[joint][i]) > ENCODER_ERROR_THRESHOLD * (i + 1)) {
+                double diff = abs(angles[joint] - prev_angles[joint][i]);
+
+                if ((!sim_mode && diff < ZERO_ENCODER_EPSILON) ||
+                            diff > ENCODER_ERROR_THRESHOLD * (i + 1)) {
                     faulty_encoders[joint] = true;
+                    encoder_error_message += ", " + std::to_string(joint);
+                    encoder_error = true;
                     break;
                 }
 
-                // If all joints were not faulty,
-                if (i == prev_angles[joint].size() - 1) {
+                if (i = prev_angles[joint].size() - 1) {
                     faulty_encoders[joint] = false;
                 }
             }                
@@ -63,13 +78,18 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
             
             // For each previous angle we have to compare to
             for (size_t i = 0; i < MAX_NUM_PREV_ANGLES; ++i) {
-                if (abs(angles[joint] - prev_angles[joint][i]) > ENCODER_ERROR_THRESHOLD * (i + 1)) {
+                double diff = abs(angles[joint] - prev_angles[joint][i]);
+
+                if ((!sim_mode && diff < ZERO_ENCODER_EPSILON) ||
+                            diff > ENCODER_ERROR_THRESHOLD * (i + 1)) {
                     ++num_fishy_vals;
                 }
             }
 
             if (num_fishy_vals > MAX_FISHY_VALS) {
                 faulty_encoders[joint] = true;
+                encoder_error = true;
+                encoder_error_message += ", " + std::to_string(joint);
             }
             else {
                 faulty_encoders[joint] = false;
@@ -179,32 +199,22 @@ void MRoverArm::execute_spline() {
     double spline_t = 0.0;
     double spline_t_iterator = 0.001;
 
-    bool fault = false;
 
     while (true) {
         if (enable_execute) {
 
-            fault = false;
+            if (encoder_error) {
+                enable_execute = false;
+                spline_t = 0.0;
+                ik_enabled = false;
 
-            for (size_t joint = 0; joint < 6; ++joint) {
-                if (faulty_encoders[joint]) {
-                    enable_execute = false;
-                    spline_t = 0.0;
-                    ik_enabled = false;
+                DebugMessage msg;
+                msg.isError = true;
+                msg.message = encoder_error_message;
 
-                    DebugMessage msg;
-                    msg.isError = true;
-                    msg.message = "Encoder Error in encoder " + std::to_string(joint) + " (joint A = 0, F = 5)";
-                    
-                    // send popup message to GUI
-                    lcm_.publish("/debug_message", &msg);
+                // send popup message to GUI
+                lcm_.publish("/debug_message", &msg);
 
-                    fault = true;
-                    cout << "Found fault for joint " << joint << "!\n";
-                }
-            }
-
-            if (fault) {
                 if (sim_mode) {
                     for (size_t i = 0; i < MAX_NUM_PREV_ANGLES; ++i) {
                         publish_config(state.get_joint_angles(), "/arm_position");
@@ -409,6 +419,29 @@ void MRoverArm::lock_joints_callback(string channel, LockJoints msg) {
     state.set_joint_locked(5, (bool)msg.jointf);
 
     cout << "\n";
+}
+
+bool MRoverArm::check_zero_encoder(const vector<double> &angles) const {
+    int num_faulty = 0;
+    for (size_t i = 0; i < angles.size(); ++i) {
+        if (abs(angles[i] - ZERO_ENCODER_VALUE) < ZERO_ENCODER_EPSILON) {
+            ++num_faulty;
+        }
+    }
+
+    return num_faulty > angles.size()/2;
+}
+
+bool MRoverArm::check_joint_limits(const vector<double> &angles) const {
+    for (size_t i = 0; i < angles.size(); ++i) {
+        vector<double> limits = state.get_joint_limits(i);
+        if (angles[i] < limits[0] || angles[i] > limits[1]) {
+            encoder_error = true;
+            encoder_error_message = "Encoder Error: " + std::to_string(angles[i]) + " beyond joint " + std::to_string(i) + " limits (joint A = 0, F = 5)"; 
+            return true;
+        }
+    }
+    return false;
 }
 
 // void MRoverArm::cartesian_control_callback(string channel, IkArmControl msg) {

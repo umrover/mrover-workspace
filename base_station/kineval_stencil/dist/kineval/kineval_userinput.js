@@ -4,6 +4,7 @@
 
 // Controls how fast the target rotates, higher values make the target rotate slower!
 kineval.targetRotateSpeed = 100;
+kineval.zoomSpeed = 0.04;
 
 kineval.handleUserInput = function user_input() {
 
@@ -12,14 +13,14 @@ kineval.handleUserInput = function user_input() {
     }
 
     if ( keyboard.pressed("z") ) {
-        camera.position.x += 0.04*(robot.origin.xyz[0]-camera.position.x);
-        camera.position.y += 0.04*(robot.origin.xyz[1]+0.5-camera.position.y);
-        camera.position.z += 0.04*(robot.origin.xyz[2]-camera.position.z);
+        camera.position.x += kineval.zoomSpeed*(robot.origin.xyz[0]-camera.position.x);
+        camera.position.y += kineval.zoomSpeed*(robot.origin.xyz[1]+0.5-camera.position.y);
+        camera.position.z += kineval.zoomSpeed*(robot.origin.xyz[2]-camera.position.z);
     }
     else if ( keyboard.pressed("x") ) {
-        camera.position.x -= 0.04*(robot.origin.xyz[0]-camera.position.x);
-        camera.position.y -= 0.04*(robot.origin.xyz[1]+0.5-camera.position.y);
-        camera.position.z -= 0.04*(robot.origin.xyz[2]-camera.position.z);
+        camera.position.x -= kineval.zoomSpeed*(robot.origin.xyz[0]-camera.position.x);
+        camera.position.y -= kineval.zoomSpeed*(robot.origin.xyz[1]+0.5-camera.position.y);
+        camera.position.z -= kineval.zoomSpeed*(robot.origin.xyz[2]-camera.position.z);
     }
 
     if ( keyboard.pressed("shift+r") ) {

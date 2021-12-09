@@ -191,11 +191,11 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
         // RAND_MAX is defined in a library
 
         // TODO: make this actually depend on joint limits, and test whether using full range of values is best
-        rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5) * 4;  // -2   ... 2
-        rand_angs[1] = ((double) rand() / (RAND_MAX)) + 0.25;     // 0.25 ... 1.25
-        rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5) * 3;  // -1.5 ... 1.5
+        rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
+        rand_angs[1] = ((double) rand() / (RAND_MAX)) + 0.05;     // 0.05 ... 1.05
+        rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
         rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
-        rand_angs[4] = ((double) rand() / (RAND_MAX) - 0.75) * 2; // -1.5 ... 0.5
+        rand_angs[4] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
         rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
 
         robot_state.set_joint_angles(rand_angs);
