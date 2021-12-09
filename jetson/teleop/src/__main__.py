@@ -5,7 +5,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
                         SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, FootCmd)
+                        Keyboard, FootCmd, ReverseDrive)
 
 
 class Toggle:
@@ -37,6 +37,7 @@ lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
 connection = None
+reverse = False
 
 
 def send_drive_kill():
@@ -128,6 +129,11 @@ def drive_control_callback(channel, msg):
         theta = deadzone(input_data.left_right, 0.1)
 
         joystick_math(new_motor, magnitude, theta)
+
+        if(reverse):
+            temp = new_motor.left
+            new_motor.left = -1 * new_motor.right
+            new_motor.right = -1 * temp
 
         damp = (input_data.dampen - 1)/(-2)
         new_motor.left *= damp
@@ -242,6 +248,8 @@ def gimbal_control_callback(channel, msg):
 
     lcm_.publish('/gimbal_openloop_cmd', gimbal_msg.encode())
 
+def reverse_drive_callback(channel, msg):
+    reverse = ReverseDrive.decode(msg).reverse
 
 def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
@@ -252,6 +260,7 @@ def main():
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
+    lcm_.subscribe('/reverse_drive', reverse_drive_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())
