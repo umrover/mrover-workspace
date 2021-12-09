@@ -100,7 +100,26 @@ uint32_t openPlus(int addr, float speed)
     }
     catch (IOFailure &e)
     {
-        printf("test open plus failed on slave %i \n", addr);
+        fprintf(stderr, "test open plus failed on slave %i \n", addr);
+        return 0;
+    }
+}
+
+uint32_t closedPlus(int addr, float target)
+{
+    try
+    {
+        uint8_t buffer[4];
+        memcpy(buffer, UINT8_POINTER_T(&target), 4);
+        int32_t raw_angle;
+        
+        I2C::transact(addr, OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
+        printf("test closed plus transaction successful on slave %i, %d \n", addr, raw_angle);
+        return raw_angle;
+    }
+    catch (IOFailure &e)
+    {
+        fprintf(stderr, "test closed plus failed on slave %i \n", addr);
         return 0;
     }
 }
