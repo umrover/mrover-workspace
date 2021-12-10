@@ -34,8 +34,6 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
 
     vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
-
-    cout << "received angles\n";
     
     // Adjust for encoders not being properly zeroed.
     if (!sim_mode) {
@@ -48,13 +46,13 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
     encoder_error = false;
     encoder_error_message = "Encoder Error in encoder(s) (joint A = 0, F = 5): ";
 
-    if (check_zero_encoder(angles)) {
-        return;
-    }
+    // if (check_zero_encoder(angles)) {
+    //     return;
+    // }
 
-    if (check_joint_limits(angles)) {
-        return;
-    }
+    // if (check_joint_limits(angles)) {
+    //     return;
+    // }
 
     // If we have less than 5 previous angles to compare to
     if (prev_angles[0].size() < MAX_NUM_PREV_ANGLES) {

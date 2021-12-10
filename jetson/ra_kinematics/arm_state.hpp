@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 #include <eigen3/Eigen/Dense>
 
 using namespace Eigen;
