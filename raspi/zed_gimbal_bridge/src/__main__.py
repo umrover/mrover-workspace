@@ -10,7 +10,7 @@ from rover_msgs import ZedGimbalPosition, ZedGimbalCmd
 lcm_ = aiolcm.AsyncLCM()
 
 f = moteus_pi3hat.Pi3HatRouter(
-    servo_bus_map={...},
+        servo_bus_map={1: [1]},
 )
 
 c = moteus.Controller(transport=f, id=1)
