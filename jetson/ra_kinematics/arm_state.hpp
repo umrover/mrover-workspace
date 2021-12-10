@@ -47,6 +47,8 @@ private:
 
             max_speed = joint_geom["max_speed"];
             encoder_offset = joint_geom["encoder_offset"];
+            encoder_multiplier = joint_geom["encoder_multiplier"];
+
             // TODO check if mass is necessary. If so, initialize here
 
             // joints b and c get an angle of 0, the rest should get 0   
@@ -79,6 +81,7 @@ private:
         vector<double> joint_limits;
         double max_speed; // radians/s
         double encoder_offset;
+        double encoder_multiplier;
         bool locked;
         bool continuous_range;
     };
@@ -204,6 +207,8 @@ public:
     double get_joint_max_speed(size_t joint_index) const;
 
     double get_joint_encoder_offset(size_t joint_index) const;
+
+    double get_joint_encoder_multiplier(size_t joint_index) const;
 
     bool get_joint_locked(size_t joint_index) const;
 

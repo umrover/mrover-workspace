@@ -41,6 +41,7 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
     if (!sim_mode) {
         for (size_t i = 0; i < 6; ++i) {
             angles[i] -= state.get_joint_encoder_offset(i);
+            angles[i] *= state.get_joint_encoder_multiplier(i);
         }
     }
 

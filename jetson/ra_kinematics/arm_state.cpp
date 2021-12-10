@@ -279,6 +279,10 @@ double ArmState::get_joint_encoder_offset(size_t joint_index) const {
     return joints[joint_index].encoder_offset;
 }
 
+double ArmState::get_joint_encoder_multiplier(size_t joint_index) const {
+    return joints[joint_index].encoder_multiplier;
+}
+
 bool ArmState::get_joint_locked(size_t joint_index) const {
     return joints[joint_index].locked;
 }
