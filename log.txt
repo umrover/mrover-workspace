@@ -1,0 +1,75 @@
+Running Test # 1, testOn
+test on transaction successful on slave 16 
+test on transaction successful on slave 17 
+test on transaction successful on slave 32 
+test on transaction successful on slave 33 
+test on transaction successful on slave 48 
+test on transaction successful on slave 49 
+Finished Test # 1, testOn
+
+Running Test # 2, testConfigPWM
+test config pwm transaction successful on slave 16 
+test config pwm transaction successful on slave 17 
+test config pwm transaction successful on slave 32 
+test config pwm transaction successful on slave 33 
+test config pwm transaction successful on slave 48 
+test config pwm transaction successful on slave 49 
+Finished Test # 2, testConfigPWM
+
+Running Test # 3, testOpenPlus
+test open plus transaction successful on slave 16, -2491 
+test open plus transaction successful on slave 16, -2624 
+test open plus transaction successful on slave 16, -2826 
+test open plus transaction successful on slave 16, -3039 
+test open plus transaction successful on slave 16, -2968 
+test open plus transaction successful on slave 16, -2770 
+test open plus transaction successful on slave 16, -2528 
+test open plus transaction successful on slave 16, -2490 
+test open plus transaction successful on slave 16, -2490 
+test open plus transaction successful on slave 16, -2490 
+test open plus transaction successful on slave 16, -2490 
+test open plus transaction successful on slave 17, -4915889 
+test open plus transaction successful on slave 17, -4920125 
+test open plus transaction successful on slave 17, -4926034 
+test open plus transaction successful on slave 17, -4930467 
+test open plus transaction successful on slave 17, -4936699 
+test open plus transaction successful on slave 17, -4942888 
+test open plus transaction successful on slave 17, -4943031 
+test open plus transaction successful on slave 17, -4943031 
+test open plus transaction successful on slave 17, -4943031 
+test open plus transaction successful on slave 17, -4943031 
+test open plus transaction successful on slave 32, -4639035 
+test open plus transaction successful on slave 32, -4639350 
+test open plus transaction successful on slave 32, -4639819 
+test open plus transaction successful on slave 32, -4640258 
+test open plus transaction successful on slave 32, -4640085 
+test open plus transaction successful on slave 32, -4639677 
+test open plus transaction successful on slave 32, -4639253 
+test open plus transaction successful on slave 32, -4639199 
+test open plus transaction successful on slave 32, -4639199 
+test open plus transaction successful on slave 32, -4639199 
+test open plus transaction successful on slave 32, -4639199 
+test open plus transaction successful on slave 33, -3057558 
+test open plus transaction successful on slave 33, -3057780 
+test open plus transaction successful on slave 33, -3058159 
+test open plus transaction successful on slave 33, -3058554 
+test open plus transaction successful on slave 33, -3058388 
+test open plus transaction successful on slave 33, -3058026 
+test open plus transaction successful on slave 33, -3057652 
+test open plus transaction successful on slave 33, -3057590 
+test open plus transaction successful on slave 33, -3057590 
+test open plus transaction successful on slave 33, -3057590 
+test open plus transaction successful on slave 33, -3057590 
+test open plus transaction successful on slave 48, -2335686 
+test open plus transaction successful on slave 48, -2335903 
+test open plus transaction successful on slave 48, -2336170 
+test open plus transaction successful on slave 48, -2336446 
+test open plus transaction successful on slave 48, -2336317 
+test open plus transaction successful on slave 48, -2336010 
+test open plus transaction successful on slave 48, -2335711 
+test open plus transaction successful on slave 48, -2335678 
+test open plus transaction successful on slave 48, -2335678 
+test open plus transaction successful on slave 48, -2335678 
+test open plus transaction successful on slave 48, -2335678 
+test open plus transaction successful on slave 49, -3725828 
+test open plus transaction successful on slave 49

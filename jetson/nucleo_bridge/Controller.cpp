@@ -215,17 +215,17 @@ void Controller::make_live()
 //Helper function to convert raw angle to radians. Also checks if new angle is close to old angle <depreciated>
 void Controller::record_angle(int32_t raw_angle)
 {
-    if (name == "RA1")
+    if (name == "RA_1")
     {
         float abs_raw_angle = 0;;
         transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
         // record absolute value 
-        current_angle = abs_raw_angle;            
+        current_angle = abs_raw_angle - M_PI;            
     }
     else 
     {
         // record quadrature 
-        current_angle = (raw_angle / quad_cpr) * 2 * M_PI;
+        current_angle = ((raw_angle / quad_cpr) * 2 * M_PI) - M_PI;
     } 
 }
 
@@ -247,6 +247,8 @@ void Controller::open_loop(float input)
         transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
 
         // handles if joint B 
+        //printf("%s quad angle: %i\n", name.c_str(), raw_angle);
+
         record_angle(raw_angle);       
     }
     catch (IOFailure &e)
@@ -267,7 +269,9 @@ void Controller::closed_loop(float torque, float target)
         int32_t angle;
         memcpy(buffer, UINT8_POINTER_T(&feed_forward), 4);
 
-        if (name == "RA1")
+        // we read values from 0 - 2pi, teleop sends in -pi to pi
+        target += M_PI;
+        if (name == "RA_1")
         {
             memcpy(buffer + 4, UINT8_POINTER_T(&target), 4);
         }
@@ -339,11 +343,11 @@ void Controller::angle()
 
     try
     {
-        int32_t angle;
-        transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
+        int32_t quad_angle;
+        transact(QUAD, nullptr, UINT8_POINTER_T(&quad_angle));
         
         // handles if joint B
-        record_angle(angle);
+        record_angle(quad_angle);
     }
     catch (IOFailure &e)
     {
