@@ -31,7 +31,7 @@ using namespace std;
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
 
 // reductions per motor 
-float cpr[6] = { -28800.0, 1.0, 155040.0, -81600.0, 81600.0, -9072.0 };
+float cpr[6] = { -28800.0, 1.0, 155040.0, -81600.0, -81600.0, -9072.0 };
 
 int num_tests_ran = 0;
 
@@ -242,7 +242,7 @@ void adjust(int addr, int joint)
 
         printf("after adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
-        if (quad_angle - adjusted_quad > .2)
+        if (std::abs(quad_angle - adjusted_quad) > .2)
         {
             printf("test adjust transaction numerically failed on slave %i \n\n", addr);
         }
@@ -543,7 +543,8 @@ int main()
     // openPlus(get_addr(1, 1), 0.0);
     while (1)
     {
-        testOpenPlusWithAbs();
+        testQuadEnc();
+        //testOpenPlusWithAbs();
         //testOpenPlus();
         // printf("sleeping \n");
         // //sleep(1000);
