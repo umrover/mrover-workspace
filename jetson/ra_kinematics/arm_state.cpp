@@ -275,6 +275,10 @@ double ArmState::get_joint_max_speed(size_t joint_index) const {
     return joints[joint_index].max_speed;
 }
 
+double ArmState::get_joint_encoder_offset(size_t joint_index) const {
+    return joints[joint_index].encoder_offset;
+}
+
 bool ArmState::get_joint_locked(size_t joint_index) const {
     return joints[joint_index].locked;
 }

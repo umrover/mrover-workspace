@@ -46,6 +46,7 @@ private:
             child_link = joint_geom["child"];
 
             max_speed = joint_geom["max_speed"];
+            encoder_offset = joint_geom["encoder_offset"];
             // TODO check if mass is necessary. If so, initialize here
 
             // joints b and c get an angle of 0, the rest should get 0   
@@ -77,6 +78,7 @@ private:
         Vector3d joint_axis_world;
         vector<double> joint_limits;
         double max_speed; // radians/s
+        double encoder_offset;
         bool locked;
         bool continuous_range;
     };
@@ -200,6 +202,8 @@ public:
     Vector3d get_ef_xyz() const;
 
     double get_joint_max_speed(size_t joint_index) const;
+
+    double get_joint_encoder_offset(size_t joint_index) const;
 
     bool get_joint_locked(size_t joint_index) const;
 

@@ -35,6 +35,15 @@ void MRoverArm::arm_position_callback(string channel, ArmPosition msg) {
     vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
 
+    cout << "received angles\n";
+    
+    // Adjust for encoders not being properly zeroed.
+    if (!sim_mode) {
+        for (size_t i = 0; i < 6; ++i) {
+            angles[i] -= state.get_joint_encoder_offset(i);
+        }
+    }
+
     encoder_error = false;
     encoder_error_message = "Encoder Error in encoder(s) (joint A = 0, F = 5): ";
 
@@ -245,6 +254,15 @@ void MRoverArm::execute_spline() {
 
                 // get next set of angles in path
                 vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
+
+                for (size_t i = 0; i < 6; ++i) {
+                    if (target_angles[i] < state.get_joint_limits(i)[0]) {
+                        target_angles[i] = state.get_joint_limits(i)[0];
+                    }
+                    else if (target_angles[i] > state.get_joint_limits(i)[1]) {
+                        target_angles[i] = state.get_joint_limits(i)[1];
+                    }
+                }
 
                 // if not in sim_mode, send physical arm a new target
                 if (!sim_mode) {
