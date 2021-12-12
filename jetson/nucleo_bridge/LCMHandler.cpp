@@ -102,7 +102,6 @@ void LCMHandler::InternalHandler::ra_config_cmd(LCM_INPUT, const RAConfigCmd *ms
     ControllerMap::controllers["RA_4"]->config(msg->Kp[4], msg->Ki[4], msg->Kd[4]);
     ControllerMap::controllers["RA_5"]->config(msg->Kp[5], msg->Ki[5], msg->Kd[5]);
 }
-
 void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *msg)
 {
     ControllerMap::controllers["SA_0"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
@@ -169,7 +168,6 @@ void LCMHandler::InternalHandler::sa_zero_trigger(LCM_INPUT, const SAZeroTrigger
     ControllerMap::controllers["SA_1"]->zero();
     ControllerMap::controllers["SA_2"]->zero();
 }
-
 void LCMHandler::ra_zero_trigger(LCM_INPUT, const RAZeroTrigger *msg)
 {
     ControllerMap::controllers["RA_0"]->zero();

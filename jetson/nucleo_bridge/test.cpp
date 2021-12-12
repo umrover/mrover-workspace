@@ -174,7 +174,7 @@ void getKPID(int addr)
     }
 }
 
-uint32_t quadEnc(int addr)
+float quadEnc(int addr)
 {
     try
     {
@@ -196,11 +196,11 @@ uint32_t quadEnc(int addr)
 }
 
 //uint16_t absEnc(int addr)
-uint32_t absEnc(int addr)
+float absEnc(int addr)
 {
     try
     {
-        uint32_t abs_raw_angle;
+        float abs_raw_angle = 0;;
         //uint16_t abs_raw_angle;
         I2C::transact(addr, ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
         printf("test abs transaction successful on slave %i, %f \n", addr, abs_raw_angle * (180/M_PI));
@@ -237,8 +237,8 @@ void adjust(int addr, int joint)
         I2C::transact(addr, ADJUST, buffer, nullptr);
 
         // checks values after
-        uint32_t quad_angle = quadEnc(addr);
-        uint32_t abs_angle = absEnc(addr);
+        quad_angle = quadEnc(addr);
+        abs_angle = absEnc(addr);
 
         printf("after adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
@@ -316,28 +316,14 @@ void testAbsEnc()
     for (auto address : i2c_address)
     {
         // test off
-        uint32_t raw_angle = absEnc(address);
-        printf("[%i] raw abs angle: %i \n", address, raw_angle);
+        float raw_angle = static_cast<float>(absEnc(address));
+        printf("[%i] raw abs angle: %f \n", address, raw_angle);
         sleep(10);
     }
     PRINT_TEST_END
 }
 
-void testAdjust()
-{
-    PRINT_TEST_START
-    for (auto address : i2c_address)
-    {
-        int joint = (address & 0b1) + (address >> 4);
-
-        adjust(address, joint);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    PRINT_TEST_END   
-}
-
-void testSetKPID()
+void testClosed()
 {
     PRINT_TEST_START
     for (auto address : i2c_address)
@@ -358,7 +344,21 @@ void testSetKPID()
     PRINT_TEST_END
 }
 
-void testGetKPID()
+void testAdjust()
+{
+    PRINT_TEST_START
+    for (auto address : i2c_address)
+    {
+        int joint = (address & 0b1) + (address >> 4);
+
+        adjust(address, joint);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    PRINT_TEST_END   
+}
+
+void testSetKPID()
 {
     PRINT_TEST_START 
     for (auto address : i2c_address)
@@ -374,10 +374,28 @@ void testOpenPlus()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        // sets speed to half speed 
-        uint32_t raw_angle = openPlus(address, 0.5);
-        printf("raw abs angle: %i \n", raw_angle);
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        // openPlus(address, 0.5);
+        // sleep(300);
+        // openPlus(address, 0);
+        // sleep(300);
+        float speed = 0.5f;
+        if (address == 16)
+        {
+            speed = 0.25f;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            openPlus(address, speed);
+            sleep(200);
+        }
+        for (int i = 0; i < 3; i++) {
+            openPlus(address, -speed);
+            sleep(200);
+        }
+        for (int i = 0; i < 5; i++) {
+            openPlus(address, 0.0f);
+            sleep(200);
+        }
     }
     PRINT_TEST_END
 }
@@ -510,9 +528,9 @@ int main()
 {
     for (int i = 1; i <= 3; ++i)
     {
-        // i2c_address.push_back(get_addr(i, 0));
-        // i2c_address.push_back(get_addr(i, 1));
-        if (i == 3 || i == 2) i2c_address.push_back(get_addr(i, 2));
+        i2c_address.push_back(get_addr(i, 0));
+        i2c_address.push_back(get_addr(i, 1));
+        //if (i == 3 || i == 2) i2c_address.push_back(get_addr(i, 2));
         sleep(20);
     }
     I2C::init();
