@@ -20,6 +20,12 @@ desired_position_revolutions = 0
 def zed_gimbal_position_callback(channel, msg):
     zed_struct = ZedGimbalCmd.decode(msg)
     desired_position_degrees = zed_struct.angle
+
+    if desired_position_degrees > 180:
+        desired_position_degrees = 180
+    elif desired_position_degrees < -180:
+        desired_position_degrees = -180
+
     global desired_position_revolutions
     desired_position_revolutions = desired_position_degrees / 360.0
     c.make_position(position=math.nan, velocity=0.2, maximum_torque=0.3,
@@ -34,6 +40,10 @@ async def publish_zed_gimbal_position():
 
         position_revolutions = state.values[moteus.Register.POSITION]
         position_degrees = 360.0 * position_revolutions
+        if position_degrees > 180:
+            position_degrees = 180
+        elif position_degrees < -180:
+            position_degrees = -180
         zed_struct = ZedGimbalPosition()
         zed_struct.angle = position_degrees
         lcm_.publish('/zed_gimbal_data', zed_struct.encode())
