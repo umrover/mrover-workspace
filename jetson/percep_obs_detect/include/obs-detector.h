@@ -14,6 +14,9 @@
 #include "rover_msgs/Obstacle.hpp"
 #include <cstring>
 #include <iostream>
+#include <float.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 // TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;

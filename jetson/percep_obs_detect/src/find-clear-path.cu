@@ -40,15 +40,20 @@ float3 FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsRet
   bool* heading_checks;
   cudaMalloc(&heading_checks, bearingNum*sizeof(bool));
 
-  double min_distance = 0; 
+  float* min_dist_ptr;
+  cudaMalloc(&min_dist_ptr, sizeof(float));
+
   //Run find_clear_path on each of the 1024 headings (threads)
-  find_clear_path<<<1, bearingNum>>>(gpuObstacles, heading_checks, min_distance, obsVec.obs.size());
+  find_clear_path<<<1, bearingNum>>>(gpuObstacles, heading_checks, min_dist_ptr, obsVec.obs.size());
 
   checkStatus(cudaDeviceSynchronize());
 
   //TODO: what to do with heading_checks array
   bool* cpu_heading_checks = new bool[bearingNum];
   cudaMemcpy(cpu_heading_checks, heading_checks, bearingNum, cudaMemcpyDeviceToHost);
+
+  float* cpu_min_dist_ptr = new float(0.0); 
+  cudaMemcpy(cpu_min_dist_ptr, min_dist_ptr, sizeof(float), cudaMemcpyDeviceToHost);
 
   // Prints out heading_check array
   // for(int i = 0; i < bearingNum; ++i){
@@ -63,19 +68,21 @@ float3 FindClearPath::find_clear_path_initiate(EuclideanClusterExtractor::ObsRet
   //TODO cout in the driver
   // std::cout << "left heading: " << heading_left << std::endl;
   // std::cout << "right heading: " << heading_right << std::endl;
+  // std::cout << "min distance to obstacle: " << *cpu_min_dist_ptr << std::endl; 
 
   //Free memory
   cudaFree(gpuObstacles);
   cudaFree(heading_checks);
+  cudaFree(min_dist_ptr);
 
   float3 output;
   output.x = heading_left;
   output.y = heading_right;
-  output.z = min_distance; 
+  output.z = *cpu_min_dist_ptr / 1000;  //convert from mm to m
   return output;
 }
 
-__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, double &min_distance, int obsArrSize){
+__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, float *min_dist_ptr, int obsArrSize){
   
   int i = threadIdx.x;
   heading_checks[i] = 1; //Assume a clear heading
@@ -86,8 +93,9 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
 
   BearingLines bearings(bearing_deg * 3.1415926535/180.0); //Create bearing lines from bearing //TODO how accurate should pi be?
  
-  //max float value, can't use std::numeric_limits here as this is a cuda kernel
-  min_distance = 3.4e+038;   
+  //DELETE LATER -- max float value, can't use std::numeric_limits here as this is a cuda kernel
+  *min_dist_ptr = 3.4e+038; 
+
   // if detect variables are negative, obs is to the right of bearing line
   // if detect variables are positive, obs is to the left of bearing line
   // if detect variables are 0, obs is on the bearing line
@@ -151,9 +159,9 @@ __global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, 
 
           float dist = std::sqrt(closest_x * closest_x + closest_z * closest_z); 
 
-          if(dist < min_distance)
+          if(dist < *min_dist_ptr)
           {
-            min_distance = dist; 
+            *min_dist_ptr = dist; 
           }
         } 
       } //end valid obstacle check (if)

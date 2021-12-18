@@ -45,4 +45,4 @@ class FindClearPath {
 };
 
 //Kernel for find clear path parallelization 
-__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, double &min_distance, int obsArrSize);
+__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, float *min_dist_ptr, int obsArrSize);
