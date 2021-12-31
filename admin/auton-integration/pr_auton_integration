@@ -1,0 +1,109 @@
+#! /bin/bash
+
+stop_if_fail(){
+if ! $1
+then 
+    echo "Couldn't $1"
+    exit
+fi
+}
+
+install_dependencies(){
+    # install git
+    stop_if_fail "sudo apt-get install -y git"
+}
+
+get_info(){
+    read -p "$1" input
+    echo "$input"
+}
+
+execute_commands(){
+    for i in "${!1}"
+    do
+        stop_if_fail "$i"
+    done
+}
+
+update_to_main(){
+    question="Enter path to mrover-workspace: "
+    path=$(get_info "$question")
+
+    question="Enter path of folder to revert to main, relative to start of workspace: "
+    folder_to_revert=$(get_info "$question")
+
+    # Enter into the workspace
+    stop_if_fail "cd $path"
+
+    stop_if_fail "git fetch upstream"
+    stop_if_fail "git checkout upstream/main $folder_to_revert"
+}
+
+pr_auton_integration(){
+    question="Enter path to mrover-workspace: "
+    path=$(get_info "$question")
+
+    question="Enter name of branch to be PR'd into main: "
+    branch=$(get_info "$question")
+
+    # Enter into the workspace
+    stop_if_fail "cd $path"
+
+    # Check that the repo is correctly setup
+    mrover_repo_url="https://github.com/umrover/mrover-workspace.git"
+    upstream_url=$(git remote get-url upstream)
+
+    if [ "$upstream_url" != "$mrover_repo_url" ]
+    then
+        echo "Upstream url is not correct"
+        echo "Current: $upstream_url"
+        echo "Expected: $mrover_repo_url"
+        exit
+    fi
+
+    # Squash the commit on the specified branch
+    squash_commit_commands=(
+        "git fetch upstream"
+        "git checkout -b new_$branch upstream/main"
+        "git merge --squash $branch"
+        "git add ."
+        "git commit"
+    )
+    execute_commands squash_commit_commands[@]
+    
+    # Apply the commit to auton-integration branch
+    squashed_commit_hash=$(git rev-parse --verify HEAD)
+    pr_branch="pr_auton_integration_$branch"
+
+    stop_if_fail "git checkout -b $pr_branch upstream/auton-integration"
+    if ! git cherry-pick $squashed_commit_hash
+    then
+        echo "Merge conflicts detected. Consider using the update functionality to resolve this issue"
+    fi
+    stop_if_fail "git branch -D new_$branch"
+
+    echo "$pr_branch is ready to be merged into auton-integration"
+}
+
+if [ "$1" == "setup" ]
+then
+    install_dependencies
+elif [ "$1" == "update" ]
+then
+    update_to_main
+elif [ "$1" == "" ]
+then
+    pr_auton_integration
+else
+    echo "usage: pr_auton_integration
+    or pr_auton_integration setup
+    or pr_auton_integration update
+
+    * setup: install dependencies
+    * update: updates specified folder on current branch to code in main
+    * default: requests a branch that is ready to be PR'd into main and the folder that houses your changes.
+        It will squash all of your changes being PR'd into main into a single commit,
+        then create a new branch b that is up to date with auton-integration, 
+        then apply your changes to branch b
+"
+fi
