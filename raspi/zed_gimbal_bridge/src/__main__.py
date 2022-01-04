@@ -5,7 +5,7 @@ import moteus
 import moteus_pi3hat
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ZedGimbalPosition, ZedGimbalCmd
+from rover_msgs import ZedGimbalPosition
 
 lcm_ = aiolcm.AsyncLCM()
 
@@ -18,7 +18,7 @@ desired_position_revolutions = 0
 
 
 def zed_gimbal_position_callback(channel, msg):
-    zed_struct = ZedGimbalCmd.decode(msg)
+    zed_struct = ZedGimbalPosition.decode(msg)
     desired_position_degrees = zed_struct.angle
 
     if desired_position_degrees > 180:
