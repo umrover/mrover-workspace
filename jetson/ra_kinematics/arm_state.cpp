@@ -5,7 +5,6 @@
 
 using namespace Eigen;
 using namespace nlohmann;
-using namespace std;
 
 // Tested in joint creation test
 ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix4d::Identity()) {
@@ -29,7 +28,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
         links.push_back(link);
 
         size_t joint_origin = it.value()["visual"]["origin"]["joint_origin"];
-        vector<size_t> collisions = it.value()["collisions"];
+        std::vector<size_t> collisions = it.value()["collisions"];
         
         json link_shapes = it.value()["link_shapes"];
         for (json::iterator jt = link_shapes.begin(); jt != link_shapes.end(); ++jt) {
@@ -37,8 +36,8 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
                 collision_avoidance_links.emplace_back(joint_origin, jt.value(), collisions);
             }
             catch (json::exception &e) {
-                cout << "Error creating avoidance link: " << e.what() << "\n"
-                     << "exception id: " << e.id << std::endl;
+                std::cout << "Error creating avoidance link: " << e.what() << "\n"
+                     << "exception id: " << e.id << "\n";
             }
         }
     }
@@ -53,7 +52,7 @@ bool ArmState::Link_Comp::operator()(const Avoidance_Link &a, const Avoidance_Li
 }
 
 // Tested in joint_creation_test
-void ArmState::add_joint(string name, json &joint_geom) {
+void ArmState::add_joint(std::string name, json &joint_geom) {
     // Add joint with given configuration to vector of joints - used during initialization
     joints.emplace_back(name, joint_geom);
     joint_names.push_back(name);
@@ -86,13 +85,13 @@ double ArmState::get_joint_mass(size_t joint_index) const {
     return joints[joint_index].mass;
 }
 
-vector<double> ArmState::get_joint_limits(size_t joint_index) const {
+std::vector<double> ArmState::get_joint_limits(size_t joint_index) const {
     // Returns a vector of the joint rotation limits in radians.
     // Vector should have a "lower" value (index 0) and "upper" value (index 1).
     return joints[joint_index].joint_limits;
 }
 // Tested in set_joint_angles_test
-void ArmState::set_joint_angles(const vector<double> &angles) {
+void ArmState::set_joint_angles(const std::vector<double> &angles) {
     // TODO consider clipping invalid angles or throwing error
 
     // Iterate through all angles and joints adding the angles to each corresponding joint.
@@ -102,7 +101,7 @@ void ArmState::set_joint_angles(const vector<double> &angles) {
     }
 }
 
-vector<string> ArmState::get_all_joints() const {
+std::vector<std::string> ArmState::get_all_joints() const {
     // Return a vector containing all of the joint names
     return joint_names;
 }
@@ -149,10 +148,10 @@ Vector3d ArmState::get_ef_ang_world() const {
 }
 
 // TODO: Do we need to implement this function?
-vector<double> ArmState::get_ef_pos_and_euler_angles() const {
+std::vector<double> ArmState::get_ef_pos_and_euler_angles() const {
     Vector3d ef_pos_vec = get_ef_pos_world();
     Vector3d ef_ang_world = get_ef_ang_world();
-    vector<double> ef_pos_and_angles;
+    std::vector<double> ef_pos_and_angles;
     for (int i = 0; i < 3; ++i) {
         ef_pos_and_angles.push_back(ef_pos_vec(i));
     }
@@ -163,8 +162,8 @@ vector<double> ArmState::get_ef_pos_and_euler_angles() const {
 }
 
 // Tested in set_joint_angles_test
-vector<double> ArmState::get_joint_angles() const {
-    vector<double> angles;
+std::vector<double> ArmState::get_joint_angles() const {
+    std::vector<double> angles;
     angles.reserve(6);
     for (size_t i = 0; i < 6; ++i) {
         angles.push_back(joints[i].angle);
@@ -223,8 +222,8 @@ bool ArmState::obstacle_free() {
     for (size_t i = 1; i < collision_avoidance_links.size(); ++i) {
         for (size_t possible_collision : collision_avoidance_links[i].collisions) {
             if (link_link_check(i, possible_collision)) {
-                cout << "obstacle free i: " << i << "\n";
-                cout << "obstacle free possible_collision: " << possible_collision << "\n";
+                std::cout << "obstacle free i: " << i << "\n";
+                std::cout << "obstacle free possible_collision: " << possible_collision << "\n";
                 return false;
             }
         }
@@ -237,7 +236,7 @@ int ArmState::num_joints() const {
     return joints.size();
 }
 
-string ArmState::get_child_link(size_t joint_index) const {
+std::string ArmState::get_child_link(size_t joint_index) const {
     return joints[joint_index].child_link;
 }
 
@@ -265,7 +264,7 @@ Vector3d ArmState::get_ef_xyz() const {
     return ef_xyz;
 }
 
-void ArmState::set_ef_xyz(vector<double> ef_xyz_vec){
+void ArmState::set_ef_xyz(std::vector<double> ef_xyz_vec){
     ef_xyz(0) = ef_xyz_vec[0];
     ef_xyz(1) = ef_xyz_vec[1];
     ef_xyz(2) = ef_xyz_vec[2];
@@ -289,7 +288,7 @@ bool ArmState::get_joint_locked(size_t joint_index) const {
 
 void ArmState::set_joint_locked(size_t joint_index, bool locked) {
     joints[joint_index].locked = locked;
-    cout << locked << "\t";
+    std::cout << locked << "\t";
 }
 
 double ArmState::get_joint_angle(size_t joint_index) const {

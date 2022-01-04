@@ -11,7 +11,7 @@ MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in)
 
     // add limits for each joint to joint_limits, after converting to degrees
     for (size_t i = 0; i < 6; ++i) {
-      vector<double> limits = robot.get_joint_limits(i);
+      std::vector<double> limits = robot.get_joint_limits(i);
 
       joint_limits.push_back(limits);
       step_limits.push_back(robot.get_joint_max_speed(i) / 50.0);
@@ -40,10 +40,10 @@ Vector6d MotionPlanner::sample(Vector6d start, const ArmState &robot) {
 }
 
 MotionPlanner::Node* MotionPlanner::nearest(MotionPlanner::Node* tree_root, const Vector6d &rand) {
-    queue<Node*> q;
+    std::queue<Node*> q;
     q.push(tree_root);
 
-    double min_dist = numeric_limits<double>::max();
+    double min_dist = std::numeric_limits<double>::max();
     Node* min_node = nullptr;
 
     // Run breadth-first search for nearest node in tree
@@ -88,11 +88,11 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, const Vector6d &end) {
 
     // min_t will be the reciprocal of the largest number of steps required
     // to reach from start to end
-    double min_t = numeric_limits<double>::max();
+    double min_t = std::numeric_limits<double>::max();
 
     //parametrize the line
     for (int i = 0; i < vec.size(); ++i) {
-        double t = numeric_limits<double>::max();
+        double t = std::numeric_limits<double>::max();
 
         // if the difference (from start to end) in angles at joint i is not 0
         if (vec[i] != 0) {
@@ -113,8 +113,8 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, const Vector6d &end) {
     return new_config;
 }
 
-vector<Vector6d> MotionPlanner::backtrace_path(MotionPlanner::Node* end, MotionPlanner::Node* root) {
-    vector<Vector6d> path;
+std::vector<Vector6d> MotionPlanner::backtrace_path(MotionPlanner::Node* end, MotionPlanner::Node* root) {
+    std::vector<Vector6d> path;
 
     // starting at end, add each position config to path
     while (true) {
@@ -157,7 +157,7 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const Ve
     // z_new is the set of angles extending from z_nearest towards z_rand, within step_limits
     Vector6d z_new_6d = steer(z_nearest, z_rand);
 
-    vector<double> z_new = vector6dToVec(z_new_6d);
+    std::vector<double> z_new = vector6dToVec(z_new_6d);
 
     // check that we have not violated joint limits or created collisions
     if (!solver.is_safe(robot, z_new)) {
@@ -216,12 +216,12 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
 
             // if the trees are connected
             if (b_new && a_new->config == b_new->config) {
-                vector<Vector6d> a_path = backtrace_path(a_new, a_root);
-                vector<Vector6d> b_path = backtrace_path(b_new, b_root);
+                std::vector<Vector6d> a_path = backtrace_path(a_new, a_root);
+                std::vector<Vector6d> b_path = backtrace_path(b_new, b_root);
 
                 // reverse a_path
                 for (size_t j = 0; j < a_path.size() / 2; ++j) {
-                    swap(a_path[j], a_path[a_path.size() - 1 - j]);
+                    std::swap(a_path[j], a_path[a_path.size() - 1 - j]);
                 }
 
                 // add the intersection of the paths to a_path
@@ -240,7 +240,7 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
                 // reverse entire path if a_root is the goal
                 if (i % 2 != 0) {
                     for (size_t j = 0; j < a_path.size() / 2; ++j) {
-                        swap(a_path[j], a_path[a_path.size() - 1 - j]);
+                        std::swap(a_path[j], a_path[a_path.size() - 1 - j]);
                     }
                 }
 
@@ -263,16 +263,16 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
     delete_tree(goal_root);
 
     // if no path found, make sure splines is empty
-    splines = vector<tk::spline>();
+    splines = std::vector<tk::spline>();
     return false;
 
 }
 
-void MotionPlanner::spline_fitting(const vector<Vector6d> &path) {
+void MotionPlanner::spline_fitting(const std::vector<Vector6d> &path) {
 
     // six vectors, each with the path of a single component
-    vector< vector<double> > separate_paths;
-    separate_paths.resize(6, vector<double>(path.size()));
+    std::vector< std::vector<double> > separate_paths;
+    separate_paths.resize(6, std::vector<double>(path.size()));
 
     // convert path to vectors
     for (size_t i = 0; i < path.size(); ++i) {
@@ -282,7 +282,7 @@ void MotionPlanner::spline_fitting(const vector<Vector6d> &path) {
     }
 
     // create a linear space between 0 and 1 with path.size() increments
-    vector<double> x_;
+    std::vector<double> x_;
     x_.reserve(path.size());
 
     // find ideal step size for x_, handling edge cases
@@ -297,7 +297,7 @@ void MotionPlanner::spline_fitting(const vector<Vector6d> &path) {
         spline_step = 1.0;
     }
     else {
-        cout << "Error! Path is of size 0.\n";
+        std::cout << "Error! Path is of size 0.\n";
     }
 
     // create evenly distributed range from 0 to 1 with path.size() steps
@@ -313,7 +313,7 @@ void MotionPlanner::spline_fitting(const vector<Vector6d> &path) {
         x_.push_back(1.0);
     }
     else {
-        cout << "Error! Could not create properly sized spline.\n";
+        std::cout << "Error! Could not create properly sized spline.\n";
     }
 
     // use tk to create six different splines, representing a spline in 6 dimensions
@@ -324,8 +324,8 @@ void MotionPlanner::spline_fitting(const vector<Vector6d> &path) {
     }
 }
 
-vector<double> MotionPlanner::get_spline_pos(double spline_t) {
-    vector<double> angles;
+std::vector<double> MotionPlanner::get_spline_pos(double spline_t) {
+    std::vector<double> angles;
     angles.reserve(6);
 
     for (const tk::spline &spline : splines) {

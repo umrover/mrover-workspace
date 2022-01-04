@@ -4,7 +4,6 @@
 #include "../kinematics.hpp"
 #include "../utils.hpp"
 
-using namespace std;
 
 #define CREATE_FILE true
 #define IK_TEST true
@@ -20,16 +19,16 @@ class ConfigSpaceTest {
 private:
 
     size_t num_valid_points;
-    vector< vector<double> > limits;
+    std::vector< std::vector<double> > limits;
 
 public:
 
-    void write_valid_configs(ArmState &arm, KinematicsSolver &solver, string filename) {
+    void write_valid_configs(ArmState &arm, KinematicsSolver &solver, std::string filename) {
         ofstream file(filename);
 
         num_valid_points = 0;
 
-        vector<double> rand_angs;
+        std::vector<double> rand_angs;
         rand_angs.resize(6);
 
         Vector6d pos;
@@ -62,9 +61,9 @@ public:
         file.close();
     }
     
-    void test_IK(ArmState &arm, KinematicsSolver &solver, string input_filename) {
-        ifstream file(input_filename);
-        string line, cell;
+    void test_IK(ArmState &arm, KinematicsSolver &solver, std::string input_filename) {
+        std::ifstream file(input_filename);
+        std::string line, cell;
 
         size_t tot_attempts = 0;
         size_t tot_success = 0;
@@ -85,7 +84,7 @@ public:
                 ++i;
             }
 
-            pair<Vector6d, bool> ik_solution;
+            std::pair<Vector6d, bool> ik_solution;
 
             // attempt to find ik_solution, starting at up to 25 random positions
             for(int i = 0; i < 25; ++i) {
@@ -100,7 +99,7 @@ public:
             ++tot_attempts;
 
             if (tot_attempts % 10 == 0) {
-                cout << "total success: " << tot_success << " out of " << tot_attempts << " attempts.\n";
+                std::cout << "total success: " << tot_success << " out of " << tot_attempts << " attempts.\n";
             }
         }
 
@@ -120,7 +119,7 @@ TEST(config_space) {
 
     ConfigSpaceTest tester;
 
-    string filename = "jetson/ra_kinematics/test/valid_configurations_2022.csv";
+    std::string filename = "jetson/ra_kinematics/test/valid_configurations_2022.csv";
 
     srand (time(NULL));
 

@@ -28,7 +28,6 @@
 using namespace rover_msgs;
  
 using nlohmann::json;
-using namespace std;
 using namespace Eigen;
  
 typedef Matrix<double, 6, 1> Vector6d;
@@ -67,10 +66,10 @@ private:
     bool previewing;
 
     bool encoder_error;
-    string encoder_error_message;
+    std::string encoder_error_message;
 
-    vector< deque<double> > prev_angles;
-    vector<bool> faulty_encoders;
+    std::vector< std::deque<double> > prev_angles;
+    std::vector<bool> faulty_encoders;
 
 public:
 
@@ -89,7 +88,7 @@ public:
      * @param channel expected: "/arm_position"
      * @param msg format: double joint_a, joint_b, ... , joint_f
      * */
-    void arm_position_callback(string channel, ArmPosition msg);
+    void arm_position_callback(std::string channel, ArmPosition msg);
 
     /**
      * Handle new target position by calculating angles and plotting path,
@@ -98,7 +97,7 @@ public:
      * @param channel expected: "/target_orientation"
      * @param msg float x, y, z, alpha, beta, gamma; bool use_orientation
      * */
-    void target_orientation_callback(string channel, TargetOrientation msg);
+    void target_orientation_callback(std::string channel, TargetOrientation msg);
 
     /**
      * Handle request to move arm through previously calculated path
@@ -106,11 +105,11 @@ public:
      * @param channel expected: "/motion_execute"
      * @param msg format: bool preview
      * */
-    void motion_execute_callback(string channel, MotionExecute msg);
+    void motion_execute_callback(std::string channel, MotionExecute msg);
 
-    void ik_enabled_callback(string channel, IkEnabled msg);
+    void ik_enabled_callback(std::string channel, IkEnabled msg);
 
-    void simulation_mode_callback(string channel, SimulationMode msg);
+    void simulation_mode_callback(std::string channel, SimulationMode msg);
 
     /**
      * Asynchronous function, when enable_execute is set to true:
@@ -123,7 +122,7 @@ public:
     /**
     * Allows for locking individual joints
     * */
-    void lock_joints_callback(string channel, LockJoints msg);
+    void lock_joints_callback(std::string channel, LockJoints msg);
 
     /**
      * Handle request to go to specific set of angles
@@ -131,12 +130,12 @@ public:
      * @param channel expected: "/preset_angles", but could handle others
      * @param msg format: double joint_a, joint_b, joint_c, joint_d, joint_e, joint_f
      * */
-    void target_angles_callback(string channel, ArmPosition msg);
+    void target_angles_callback(std::string channel, ArmPosition msg);
 
-    void cartesian_control_callback(string channel, IkArmControl msg);
+    void cartesian_control_callback(std::string channel, IkArmControl msg);
 
 private:
-    void publish_config(const vector<double> &config, string channel);
+    void publish_config(const std::vector<double> &config, std::string channel);
 
     void publish_transforms(const ArmState &state);
 
@@ -144,9 +143,9 @@ private:
 
     void matrix_helper(double arr[4][4], const Matrix4d &mat);
 
-    bool check_zero_encoder(const vector<double> &angles) const;
+    bool check_zero_encoder(const std::vector<double> &angles) const;
 
-    bool check_joint_limits(const vector<double> &angles);
+    bool check_joint_limits(const std::vector<double> &angles);
 };
 
 

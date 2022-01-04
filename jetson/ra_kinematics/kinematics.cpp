@@ -151,9 +151,9 @@ Matrix4d KinematicsSolver::apply_joint_xform(const ArmState& robot_state, size_t
     return parent_mat * T;
 }
 
-pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d& target_point, bool set_random_angles, bool use_euler_angles) {
+std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d& target_point, bool set_random_angles, bool use_euler_angles) {
     // Print inital joint angles:
-    vector<double> init_joint_angs = robot_state.get_joint_angles();
+    std::vector<double> init_joint_angs = robot_state.get_joint_angles();
 
     /*
         Inverse kinematics for MRover arm using cyclic
@@ -182,9 +182,9 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
     // backup current angles
     perform_backup(robot_state);
 
-    vector<string> joints_vec = robot_state.get_all_joints();
+    std::vector<std::string> joints_vec = robot_state.get_all_joints();
     if (set_random_angles) {
-        vector<double> rand_angs;
+        std::vector<double> rand_angs;
         rand_angs.resize(6);
 
         // ((double) rand() / (RAND_MAX)) yields random number [0,1)
@@ -215,7 +215,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
     double angle_dist = 0;
     for (size_t i = 0; i < 3; ++i) {
         double abs_angle_dist = abs(ef_ang_world[i] - target_ang_world[i]);
-        angle_dist += pow(min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
+        angle_dist += pow(std::min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
     }
 
     Vector6d d_ef;
@@ -225,8 +225,8 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
 
         // If we need to break out of loop
         if (num_iterations_low_movement > MAX_ITERATIONS_LOW_MOVEMENT || num_iterations > MAX_ITERATIONS) {
-            cout << "FAILURE --- broke out of loop in " << num_iterations << " iterations --- dist: " << dist << "\t";
-            cout << "angle dist: " << angle_dist << "\n";
+            std::cout << "FAILURE --- broke out of loop in " << num_iterations << " iterations --- dist: " << dist << "\t";
+            std::cout << "angle dist: " << angle_dist << "\n";
 
             Vector6d joint_angles;
             for (int i = 0; i < 6; ++i) {
@@ -236,7 +236,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
             // restore previous robot_state angles
             recover_from_backup(robot_state);
 
-            return pair<Vector6d, bool> (joint_angles, false);
+            return std::pair<Vector6d, bool> (joint_angles, false);
         }
 
         // d_ef is the vector we want the end effector to move in this step
@@ -290,7 +290,7 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
         angle_dist = 0;
         for (size_t i = 0; i < 3; ++i) {
             double abs_angle_dist = abs(ef_ang_world[i] - target_ang_world[i]);
-            angle_dist += pow(min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
+            angle_dist += pow(std::min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
         }
 
         // If only a very small change has been made (change in angles approximated by change in distance)
@@ -304,22 +304,22 @@ pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d&
         ++num_iterations;
     }
 
-    vector<double> angles_vec = robot_state.get_joint_angles();
+    std::vector<double> angles_vec = robot_state.get_joint_angles();
 
     // Check for collisions
     if (!is_safe(robot_state, angles_vec)) {
-        cout << "UNSAFE IK solution!\n";
+        std::cout << "UNSAFE IK solution!\n";
 
         recover_from_backup(robot_state);
-        return pair<Vector6d, bool> (vecTo6d(angles_vec), false);
+        return std::pair<Vector6d, bool> (vecTo6d(angles_vec), false);
     }
 
-    cout << "SUCCESS in " << num_iterations << " iterations --- dist: " << dist << "\t";
-    cout << "angle dist: " << angle_dist << "\n";
+    std::cout << "SUCCESS in " << num_iterations << " iterations --- dist: " << dist << "\t";
+    std::cout << "angle dist: " << angle_dist << "\n";
 
     // restore robot_state to previous values
     recover_from_backup(robot_state);
-    return pair<Vector6d, bool> (vecTo6d(angles_vec), true);
+    return std::pair<Vector6d, bool> (vecTo6d(angles_vec), true);
 }
 
 void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool use_euler_angles) {
@@ -389,7 +389,7 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
     Vector6d d_theta = jacobian_inverse * d_ef;
 
     // find the angle of each joint
-    vector<double> angle_vec;
+    std::vector<double> angle_vec;
     for (size_t i = 0; i < 6; ++i) {
 
         // don't move joint i if it's locked
@@ -397,7 +397,7 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
             d_theta[i] = 0;
         }
 
-        vector<double> limits = robot_state.get_joint_limits(i);
+        std::vector<double> limits = robot_state.get_joint_limits(i);
 
         double angle = robot_state.get_joint_angle(i) + d_theta[i];
 
@@ -429,7 +429,7 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
     FK(robot_state);
 }
 
-bool KinematicsSolver::is_safe(ArmState &robot_state, const vector<double> &angles) {
+bool KinematicsSolver::is_safe(ArmState &robot_state, const std::vector<double> &angles) {
     perform_backup(robot_state);
 
     // if any angles are outside bounds
@@ -448,9 +448,9 @@ bool KinematicsSolver::is_safe(ArmState &robot_state, const vector<double> &angl
     return obstacle_free;
 }
 
-bool KinematicsSolver::limit_check(ArmState &robot_state, const vector<double> &angles) {
+bool KinematicsSolver::limit_check(ArmState &robot_state, const std::vector<double> &angles) {
     for (size_t i = 0; i < 6; ++i) {
-        vector<double> limits = robot_state.get_joint_limits(i);
+        std::vector<double> limits = robot_state.get_joint_limits(i);
         
         // if any angle is outside of bounds
         if (!(limits[0] <= angles[i] && angles[i] < limits[1])) {
@@ -463,7 +463,7 @@ bool KinematicsSolver::limit_check(ArmState &robot_state, const vector<double> &
 }
 
 void KinematicsSolver::perform_backup(ArmState &robot_state) {
-    vector<double> backup = robot_state.get_joint_angles();
+    std::vector<double> backup = robot_state.get_joint_angles();
 
     // save all angles to stack
     arm_state_backup.push(backup);
@@ -471,7 +471,7 @@ void KinematicsSolver::perform_backup(ArmState &robot_state) {
 
 void KinematicsSolver::recover_from_backup(ArmState &robot_state) {
     if (arm_state_backup.empty()) {
-        cout << "ERROR: no backup arm_state to revert to!\n";
+        std::cout << "ERROR: no backup arm_state to revert to!\n";
     }
     else {
         // pop angles from stack

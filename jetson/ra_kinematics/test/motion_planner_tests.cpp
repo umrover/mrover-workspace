@@ -7,8 +7,6 @@
 #include "../utils.hpp"
 #include <iostream>
 
-using namespace std;
-
 TEST(motion_planner_init) {
     // read arm geometry
     json geom = read_json_from_file(get_mrover_arm_geom());
@@ -19,7 +17,7 @@ TEST(motion_planner_init) {
     KinematicsSolver solver = KinematicsSolver();
     MotionPlanner planner = MotionPlanner(arm, solver);
     
-    vector<double> set_angles{0, 1, 1, 0, 0, 0};
+    std::vector<double> set_angles{0, 1, 1, 0, 0, 0};
 
     ASSERT_TRUE(solver.is_safe(arm, set_angles));
 }
@@ -37,15 +35,15 @@ TEST(rrt_connect_simple) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // set angles and confirm there are no collisions
-    vector<double> set_angles{0, 1, 1, 0, 0, 0};
+    std::vector<double> set_angles{0, 1, 1, 0, 0, 0};
     ASSERT_TRUE(solver.is_safe(arm, set_angles));
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
 
     // move target slightly away from starting position
-    vector<double> start = arm.get_joint_angles();
+    std::vector<double> start = arm.get_joint_angles();
 
-    vector<double> target;
+    std::vector<double> target;
     target.resize(6);
 
     target[0] = start[0] + 0.1;
@@ -59,7 +57,7 @@ TEST(rrt_connect_simple) {
 
     Vector6d target6d = vecTo6d(target);
 
-    cout << "entering rrt...\n";
+    std::cout << "entering rrt...\n";
 
     // run rrt_connect and confirm it found a path
     ASSERT_TRUE(planner.rrt_connect(arm, target6d));
@@ -94,15 +92,15 @@ TEST(anti_motion_planner) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // set angles and confirm there are no collisions
-    vector<double> set_angles{0, 1, 1, 0, 0, 0};
+    std::vector<double> set_angles{0, 1, 1, 0, 0, 0};
     ASSERT_TRUE(solver.is_safe(arm, set_angles));
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
 
     // move target slightly away from starting position
-    vector<double> start = arm.get_joint_angles();
+    std::vector<double> start = arm.get_joint_angles();
 
-    vector<double> target;
+    std::vector<double> target;
     target.resize(6);
 
     target[0] = start[0];
@@ -146,15 +144,15 @@ TEST(rrt_connect) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // set angles and confirm there are no collisions
-    vector<double> set_angles{1, 0, 0, -1, 0, 0};
+    std::vector<double> set_angles{1, 0, 0, -1, 0, 0};
     ASSERT_TRUE(solver.is_safe(arm, set_angles));
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
 
     // move target slightly away from starting position
-    vector<double> start = arm.get_joint_angles();
+    std::vector<double> start = arm.get_joint_angles();
 
-    vector<double> target;
+    std::vector<double> target;
     target.resize(6);
 
     target[0] = start[0] + 0.1;
@@ -229,8 +227,8 @@ TEST(test_lock) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // Starting and target angles. Joint C does not move.
-    vector<double> start = {0, 1, -1, 0, 0, 0};
-    vector<double> target = {0.1, 0.9, -1, 0.1, -0.1, 0};
+    std::vector<double> start = {0, 1, -1, 0, 0, 0};
+    std::vector<double> target = {0.1, 0.9, -1, 0.1, -0.1, 0};
 
     ASSERT_TRUE(solver.is_safe(arm, start));
     ASSERT_TRUE(solver.is_safe(arm, target));

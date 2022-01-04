@@ -13,7 +13,6 @@
 #include "utils.hpp"
 
 using namespace Eigen;
-using namespace std;
 
 static constexpr int MAX_RRT_ITERATIONS = 500;
 
@@ -32,7 +31,7 @@ private:
         Vector6d config;
         
         Node* parent;
-        vector<Node*> children;
+        std::vector<Node*> children;
         double cost;
 
     public:
@@ -41,14 +40,14 @@ private:
 
     KinematicsSolver solver;
 
-    vector<tk::spline> splines;
+    std::vector<tk::spline> splines;
 
     /**
      * joint_limits[i][0 | 1] returns i'th lower/upper limit in degrees
      * */
-    vector< vector<double> > joint_limits;
+    std::vector< std::vector<double> > joint_limits;
 
-    vector<double> step_limits;
+    std::vector<double> step_limits;
 
     Node* start_root;
     Node* goal_root;
@@ -77,7 +76,7 @@ public:
      * @param spline_t a time between 0 and 1
      * @return a vector of six doubles representing the angles of each joint at time spline_t
      * */
-    vector<double> get_spline_pos(double spline_t);
+    std::vector<double> get_spline_pos(double spline_t);
 
 
 private:
@@ -103,7 +102,7 @@ private:
      * */
     Vector6d steer(Node* start, const Vector6d &end);
 
-    vector<Vector6d> backtrace_path(Node* end, Node* root);
+    std::vector<Vector6d> backtrace_path(Node* end, Node* root);
 
     void delete_tree(Node* twig);
     void delete_tree_helper(Node* root);
@@ -112,7 +111,7 @@ private:
 
     Node* connect(ArmState &robot, Node* tree, const Vector6d &a_new);
 
-    void spline_fitting(const vector<Vector6d> &path);
+    void spline_fitting(const std::vector<Vector6d> &path);
 
 };
 

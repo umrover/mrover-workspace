@@ -10,7 +10,6 @@
 
 using namespace Eigen;
 using namespace nlohmann;
-using namespace std;
 
 typedef Matrix<double, 6, 1> Vector6d;
 
@@ -21,7 +20,7 @@ class ArmState{
 private:
 
     struct Link {
-        string name;
+        std::string name;
         Matrix4d global_transform;
     };
 
@@ -30,7 +29,7 @@ private:
         /**
          * Construct joint from json input
          * */
-        Joint(string name_in, const json &joint_geom)
+        Joint(std::string name_in, const json &joint_geom)
             : name(name_in), angle(0), pos_world(Vector3d::Zero(3)), 
               global_transform(Matrix4d::Identity()), torque(Vector3d::Zero(3)) 
         {
@@ -67,18 +66,18 @@ private:
             locked = false;
         }
 
-        string name;
+        std::string name;
         double angle;
         double mass;
         Vector3d pos_world;
         Matrix4d global_transform;
-        string child_link;
+        std::string child_link;
         Vector3d torque;
         Vector3d pos_local;
         Vector3d local_center_of_mass;
         Vector3d rot_axis;
         Vector3d joint_axis_world;
-        vector<double> joint_limits;
+        std::vector<double> joint_limits;
         double max_speed; // radians/s
         double encoder_offset;
         double encoder_multiplier;
@@ -88,7 +87,7 @@ private:
 
     struct Avoidance_Link {
 
-        Avoidance_Link(size_t joint_origin_index, json &link_json, vector<size_t> collisions) : 
+        Avoidance_Link(size_t joint_origin_index, json &link_json, std::vector<size_t> collisions) : 
                            joint_origin(joint_origin_index), collisions(collisions) {
 
             type = link_json["type"];
@@ -109,19 +108,19 @@ private:
 
         int link_num;
         size_t joint_origin;
-        string type;
-        vector<Vector3d> points;
+        std::string type;
+        std::vector<Vector3d> points;
         double radius;
-        vector<size_t> collisions;
+        std::vector<size_t> collisions;
     };
 
-    vector<string> joint_names;
-    vector<string> link_names;
+    std::vector<std::string> joint_names;
+    std::vector<std::string> link_names;
 
-    vector<Joint> joints;
-    vector<Link> links;
+    std::vector<Joint> joints;
+    std::vector<Link> links;
 
-    vector<Avoidance_Link> collision_avoidance_links; // could make this an array
+    std::vector<Avoidance_Link> collision_avoidance_links; // could make this an array
     // TODO: Change num_collision_parts value as necessary
     static const int num_collision_parts = 23;
     Vector3d ef_pos_world;
@@ -129,7 +128,7 @@ private:
     Vector3d ef_xyz;
 
 
-    void add_joint(string joint, json &joint_geom);
+    void add_joint(std::string joint, json &joint_geom);
 
     void transform_parts();
 
@@ -137,12 +136,12 @@ private:
         bool operator()(const Avoidance_Link &a, const Avoidance_Link &b);
     };
 
-    void set_ef_xyz(vector<double> ef_xyz_vec);
+    void set_ef_xyz(std::vector<double> ef_xyz_vec);
 
 public:
     ArmState(json &geom);
 
-    vector<string> get_all_joints() const;
+    std::vector<std::string> get_all_joints() const;
 
     Vector3d get_joint_com(size_t joint_index) const;
 
@@ -152,7 +151,7 @@ public:
 
     Vector3d get_joint_axis_world(size_t joint_index) const;
 
-    vector<double> get_joint_limits(size_t joint_index) const;
+    std::vector<double> get_joint_limits(size_t joint_index) const;
 
     Matrix4d get_joint_transform(size_t joint_index) const;
 
@@ -172,11 +171,11 @@ public:
 
     Vector3d get_ef_ang_world() const;
 
-    vector<double> get_ef_pos_and_euler_angles() const;
+    std::vector<double> get_ef_pos_and_euler_angles() const;
 
-    vector<double> get_joint_angles() const;
+    std::vector<double> get_joint_angles() const;
 
-    void set_joint_angles(const vector<double> &angles);
+    void set_joint_angles(const std::vector<double> &angles);
 
     void transform_avoidance_links();
 
@@ -192,7 +191,7 @@ public:
 
     int num_joints() const;
 
-    string get_child_link(size_t joint_index) const;
+    std::string get_child_link(size_t joint_index) const;
 
     Vector3d get_joint_torque(size_t joint_index) const;
 

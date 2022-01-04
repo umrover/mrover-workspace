@@ -4,18 +4,17 @@
 #include <iostream>
 
 using namespace nlohmann;
-using namespace std;
 using namespace Eigen;
 
 typedef Matrix<double, 6, 1> Vector6d;
 
-string get_mrover_arm_geom() {
-    string config_folder = getenv("MROVER_CONFIG");
+std::string get_mrover_arm_geom() {
+    std::string config_folder = getenv("MROVER_CONFIG");
     return config_folder + "/config_kinematics/mrover_arm_geom.json";
 }
 
-json read_json_from_file(const string &filepath) {
-    ifstream file(filepath);
+json read_json_from_file(const std::string &filepath) {
+    std::ifstream file(filepath);
 
     json config;
 
@@ -32,7 +31,7 @@ double point_line_distance(const Vector3d &end1, const Vector3d &end2, const Vec
         t = 0;
     }
     else {
-        t = min(t, 1.0);
+        t = std::min(t, 1.0);
     }
     Vector3d closest_point (0, 0, 0);
     for (int i = 0; i < 3; ++i){
@@ -153,7 +152,7 @@ Vector3d apply_transformation(const Matrix4d &transform, const Vector3d &point) 
     return vector_transformed;
 }
 
-Vector6d vecTo6d(const vector<double> &inVec) {
+Vector6d vecTo6d(const std::vector<double> &inVec) {
     Vector6d retVec;
     for (int i = 0; i < 6; ++i) {
         retVec(i) = inVec[i];
@@ -161,8 +160,8 @@ Vector6d vecTo6d(const vector<double> &inVec) {
     return retVec;
 }
 
-vector<double> vector6dToVec(const Vector6d &inVector6d) {
-    vector<double> retVec;
+std::vector<double> vector6dToVec(const Vector6d &inVector6d) {
+    std::vector<double> retVec;
     retVec.reserve(6);
     for (int i = 0; i < 6; ++i) {
         retVec.push_back(inVector6d[i]);

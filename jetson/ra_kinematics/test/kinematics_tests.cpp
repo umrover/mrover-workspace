@@ -7,11 +7,8 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
-#include <chrono>
 
 using namespace nlohmann;
-using namespace std;
-using namespace std::chrono;
 
 typedef Eigen::Matrix<double, -1, -1> MatrixXd;
 typedef Eigen::Matrix<double, 6, 1> Vector6d;
@@ -59,20 +56,20 @@ bool vec3dAlmostEqual(Vector3d a, Vector3d b, double epsilon) {
 }
 
 TEST(kinematics_initialization) {
-    cout << setprecision(8);
+    std::cout << setprecision(8);
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver();
 }
 
 TEST(fk_test) {
-    cout << setprecision(8);
+    std::cout << setprecision(8);
     // Create the arm to be tested on:
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
-    vector<double> angles;
+    std::vector<double> angles;
     angles.push_back(0);
     angles.push_back(1);
     angles.push_back(1);
@@ -82,13 +79,13 @@ TEST(fk_test) {
 
     arm.set_joint_angles(angles);
 
-    cout << "ef_pos:\n";
-    cout << arm.get_ef_pos_world() << "\n";
+    std::cout << "ef_pos:\n";
+    std::cout << arm.get_ef_pos_world() << "\n";
     solver.FK(arm);
-    cout << "ef_pos after FK:\n";
-    cout << arm.get_ef_pos_world() << "\n";
-    cout << "ef_ang after FK:\n";
-    cout << arm.get_ef_ang_world() << "\n";
+    std::cout << "ef_pos after FK:\n";
+    std::cout << arm.get_ef_pos_world() << "\n";
+    std::cout << "ef_ang after FK:\n";
+    std::cout << arm.get_ef_ang_world() << "\n";
 
     Matrix4d a_b;
     double epsilon = 0.001;
@@ -161,7 +158,7 @@ TEST(is_safe_test) {
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
-    string presets_file = "/vagrant/base_station/kineval_stencil/dist/mrover_arm_presets.json";
+    std::string presets_file = "/vagrant/base_station/kineval_stencil/dist/mrover_arm_presets.json";
 
     json presets = read_json_from_file(presets_file);
     for (json::iterator it = presets.begin(); it != presets.end(); it++) {
@@ -170,7 +167,7 @@ TEST(is_safe_test) {
 }
 
 TEST(ik_test1) {
-    // cout << setprecision(8);
+    // std::cout << setprecision(8);
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
@@ -192,11 +189,11 @@ TEST(ik_test1) {
     
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop-start);
-    cout << "Time to run FK: " << duration.count() << " milliseconds!\n";
+    std::cout << "Time to run FK: " << duration.count() << " milliseconds!\n";
 }
 
 TEST(ik_test2) {
-    cout << setprecision(9);
+    std::cout << setprecision(9);
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
@@ -268,8 +265,8 @@ TEST(ik_test_short) {
 
     arm.set_joint_angles({0, 1, -1, 0, 0, 0});
     solver.FK(arm);
-    cout << "ef_pos after FK:\n";
-    cout << arm.get_ef_pos_world() << "\n";
+    std::cout << "ef_pos after FK:\n";
+    std::cout << arm.get_ef_pos_world() << "\n";
 
     // Create target point vector:
     Vector6d target;
@@ -293,8 +290,8 @@ TEST(ik_local_min) {
 
     arm.set_joint_angles({0, 1, -1, 0, 0, 0});
     solver.FK(arm);
-    cout << "ef_pos after FK:\n";
-    cout << arm.get_ef_pos_world() << "\n";
+    std::cout << "ef_pos after FK:\n";
+    std::cout << arm.get_ef_pos_world() << "\n";
 
     // Create target point vector:
     Vector6d target;
@@ -302,7 +299,7 @@ TEST(ik_local_min) {
 
     solver.IK(arm, target, false, false);
 
-    cout << "num iterations: " << solver.get_num_iterations() << "\n";
+    std::cout << "num iterations: " << solver.get_num_iterations() << "\n";
     ASSERT_FALSE(solver.get_num_iterations() > 500);
 }
 
@@ -313,10 +310,10 @@ TEST(ik_test_lock) {
     KinematicsSolver solver = KinematicsSolver();
 
     // Starting angles.
-    vector<double> start = {0, 1, -1, 0, 0, 0};
+    std::vector<double> start = {0, 1, -1, 0, 0, 0};
 
     // Angles to find a target position.
-    vector<double> target = {0.1, 0.9, -1.1, 0.1, -0.1, 0};
+    std::vector<double> target = {0.1, 0.9, -1.1, 0.1, -0.1, 0};
 
     ASSERT_TRUE(solver.is_safe(arm, start));
     ASSERT_TRUE(solver.is_safe(arm, target));
@@ -353,10 +350,10 @@ TEST(ik_test_orientation_experiment) {
     KinematicsSolver solver = KinematicsSolver();
 
     // Starting angles.
-    vector<double> start = {0, 1, -1, 0, 0, 0};
+    std::vector<double> start = {0, 1, -1, 0, 0, 0};
 
     // Angles to find a target position.
-    vector<double> target = {0.1, 0.9, -1, 0, 0, 0};
+    std::vector<double> target = {0.1, 0.9, -1, 0, 0, 0};
 
     ASSERT_TRUE(solver.is_safe(arm, start));
     ASSERT_TRUE(solver.is_safe(arm, target));

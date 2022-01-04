@@ -6,7 +6,6 @@
 #include <iostream>
 
 using namespace nlohmann;
-using namespace std;
 
 TEST(arm_initialization_test) {
     json geom = read_json_from_file(get_mrover_arm_geom());
@@ -52,7 +51,7 @@ TEST(avoidance_link_creation_test) {
 TEST(set_joint_angles_test) {
     // Create the angles vector that will be used to test
     // TODO: Modify the length of set_angles as necessary
-    vector<double> set_angles{1.1, 0.9, -0.5, 0.1, 0.01, -1.2};
+    std::vector<double> set_angles{1.1, 0.9, -0.5, 0.1, 0.01, -1.2};
     
     // Create the arm object:
     json geom = read_json_from_file(get_mrover_arm_geom());
@@ -61,10 +60,10 @@ TEST(set_joint_angles_test) {
     // Set the angles on the arm to be from the set_angles vector
     arm.set_joint_angles(set_angles);
     // Retrieve the new arm angles and make sure they are identical to set_angles
-    vector<double> return_angles = arm.get_joint_angles();
+    std::vector<double> return_angles = arm.get_joint_angles();
     // print contents of return_angles:
     for (double x : return_angles) {
-        cout << x << "\n";
+        std::cout << x << "\n";
     }
 
     for (int i = 0; i < 6; ++i) {

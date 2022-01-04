@@ -33,7 +33,7 @@ private:
     bool e_locked;
     int num_iterations;
 
-    stack<vector<double>> arm_state_backup;
+    std::stack< std::vector<double> > arm_state_backup;
 
     /**
      * Push the angles of robot_state into the arm_state_backup stack
@@ -56,19 +56,19 @@ private:
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds
      * */
-    bool limit_check(ArmState &robot_state, const vector<double> &angles);
+    bool limit_check(ArmState &robot_state, const std::vector<double> &angles);
 
 public:
 
     void FK(ArmState &robot_state);
 
-    pair<Vector6d, bool> IK(ArmState &robot_state, const Vector6d &target_point, bool set_random_angles, bool use_euler_angles);
+    std::pair<Vector6d, bool> IK(ArmState &robot_state, const Vector6d &target_point, bool set_random_angles, bool use_euler_angles);
 
     /**
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds and don't cause collisions
      * */
-    bool is_safe(ArmState &robot_state, const vector<double> &angles);
+    bool is_safe(ArmState &robot_state, const std::vector<double> &angles);
 
     int get_num_iterations();
 

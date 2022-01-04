@@ -4,16 +4,15 @@
 #include "nlohmann/json.hpp"
 #include <eigen3/Eigen/Dense>
 
-using namespace std;
 using namespace nlohmann;
 using namespace Eigen;
 
 typedef Matrix<double, 6, 1> Vector6d;
 
 
-string get_mrover_arm_geom();
+std::string get_mrover_arm_geom();
 
-json read_json_from_file(const string &filepath);
+json read_json_from_file(const std::string &filepath);
 
 double point_line_distance(const Vector3d &end1, const Vector3d &end2, const Vector3d &point);
 
@@ -33,9 +32,9 @@ Vector3d calculate_torque(const Vector3d &r, double mass, const Vector3d &rot_ax
 
 Vector3d apply_transformation(const Matrix4d &transform, const Vector3d &point);
 
-Vector6d vecTo6d(const vector<double> &inVec);
+Vector6d vecTo6d(const std::vector<double> &inVec);
 
-vector<double> vector6dToVec(const Vector6d &inVector6d);
+std::vector<double> vector6dToVec(const Vector6d &inVector6d);
 
 
 #endif

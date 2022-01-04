@@ -8,7 +8,6 @@
 #include <iomanip>
 
 using nlohmann::json;
-using namespace std;
 
 
 class lcmHandlers {
@@ -17,7 +16,7 @@ public:
 
     void lockJointsCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
+        const std::string& channel,
         const LockJoints* lj_execute
         )
     {
@@ -26,7 +25,7 @@ public:
 
     void executeCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
+        const std::string& channel,
         const TargetOrientation* m_execute
         )
     {
@@ -35,7 +34,7 @@ public:
     
     void motionExecuteCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
+        const std::string& channel,
         const MotionExecute* m_execute
     )
     {
@@ -44,7 +43,7 @@ public:
 
     void executePresetCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
+        const std::string& channel,
         const ArmPosition* p_execute
         )
     {
@@ -53,7 +52,7 @@ public:
       
     void armPositionCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
+        const std::string& channel,
         const ArmPosition* arm_pos
     )
     {
@@ -62,7 +61,7 @@ public:
 
     void ikEnabledCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
+        const std::string& channel,
         const IkEnabled* enable
     )
     {
@@ -71,7 +70,7 @@ public:
 
     void simModeCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
+        const std::string& channel,
         const SimulationMode* sim_mode
     )
     {
@@ -85,9 +84,9 @@ private:
 
 int main() {
     
-    cout << std::fixed;
-    cout << std::setprecision(4);
-    cout << "INITIALIZING KINEMATICS FOR ROBOT ARM\n";
+    std::cout << std::fixed;
+    std::cout << std::setprecision(4);
+    std::cout << "INITIALIZING KINEMATICS FOR ROBOT ARM\n";
 
     json geom = read_json_from_file(get_mrover_arm_geom());
 
@@ -104,7 +103,7 @@ int main() {
     lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
     lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
     
-    thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
+    std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
 
     while( lcmObject.handle() == 0 ) {
         // run kinematics
