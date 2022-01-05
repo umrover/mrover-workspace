@@ -420,9 +420,7 @@ void MRoverArm::plan_path(Vector6d goal) {
 void MRoverArm::simulation_mode_callback(std::string channel, SimulationMode msg) {
     std::cout << "Received Simulation Mode value: " << msg.sim_mode;
 
-    if (previewing)
     sim_mode = msg.sim_mode;
-    // publish_transforms(state);
 }
 
 void MRoverArm::lock_joints_callback(std::string channel, LockJoints msg) {
