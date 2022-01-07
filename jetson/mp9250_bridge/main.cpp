@@ -143,7 +143,7 @@ int recv_data(int fd, char* recv_buffer,int length)
 	return length;
 }
 float a[3],w[3],Angle[3],h[3];
-void ParseData(char chr)
+void ParseData(char chr, bool &accelCollected, bool &gyroCollected, bool &angleCollected, bool &magCollected, rover_msgs::IMUData &data)
 {
 		static char chrBuf[100];
 		static unsigned char chrCnt=0;
@@ -157,88 +157,91 @@ void ParseData(char chr)
 		if ((chrBuf[0]!=0x55)||((chrBuf[1]&0x50)!=0x50)||(cTemp!=chrBuf[10])) {printf("Error:%x %x\r\n",chrBuf[0],chrBuf[1]);memcpy(&chrBuf[0],&chrBuf[1],10);chrCnt--;return;}
 
         // Uncomment commented code for fuller implementation
+        // moved code below to outside of ParseData
         // bool accelCollected = false, gyroCollected = false, angleCollected = false, magCollected = false;
-		
+		// rover_msgs::IMUData data;
+
 		memcpy(&sData[0],&chrBuf[2],8);
 		switch(chrBuf[1])
 		{
 				case 0x51:
-					//Acceleration pack
+					// Acceleration pack
                     for (i=0;i<3;i++) a[i] = (float)sData[i]/32768.0*16.0;
 					time(&now);
 					printf("\r\nT:%s a:%6.3f %6.3f %6.3f ",asctime(localtime(&now)),a[0],a[1],a[2]);
                     
-                    //Code for adding accelereometer data to struct
-                    // data.accel_x_g = a[0];
-                    // data.accel_y_g = a[1];
-                    // data.accel_y_g = a[2];
+                    // Code for adding accelereometer data to struct
+                    data.accel_x_g = a[0];
+                    data.accel_y_g = a[1];
+                    data.accel_y_g = a[2];
 
-                    // accelCollected = true;
+                    accelCollected = true;
 
 
 					break;
 				case 0x52:
-                    //Angular velocity pack
+                    // Angular velocity pack
 					for (i=0;i<3;i++) w[i] = (float)sData[i]/32768.0*2000.0;
-					printf("w:%7.3f %7.3f %7.3f ",w[0],w[1],w[2]);
+					// printf("w:%7.3f %7.3f %7.3f ",w[0],w[1],w[2]);
 
-                    //Code for adding accelereometer data to struct
-                    // data.gyro_x_dps = w[0];
-                    // data.gyro_y_dps = w[1];
-                    // data.gyro_z_dps = w[2];
+                    // Code for adding accelereometer data to struct
+                    data.gyro_x_dps = w[0];
+                    data.gyro_y_dps = w[1];
+                    data.gyro_z_dps = w[2];
                     
-                    // gyroCollected = true;
+                    gyroCollected = true;
 
 					break;
 				case 0x53:
-                    //Angle Pack
+                    // Angle Pack
 					for (i=0;i<3;i++) Angle[i] = (float)sData[i]/32768.0*180.0;
-					printf("A:%7.3f %7.3f %7.3f ",Angle[0],Angle[1],Angle[2]);
+					// printf("A:%7.3f %7.3f %7.3f ",Angle[0],Angle[1],Angle[2]);
                     
-                    rover_msgs::IMUData data;
+                    
 
                     // For now - set all other imu struct data to 0
                     //-=-=-=-==-=-=-=-=-=-=Remove for actual=-=-=-=-==-=-=-=-=
-                    data.accel_x_g = 0.0;
-                    data.accel_y_g = 0.0;
-                    data.accel_z_g = 0.0;
-                    data.gyro_x_dps = 0.0;
-                    data.gyro_y_dps = 0.0;
-                    data.gyro_z_dps = 0.0;
-                    data.mag_x_uT = 0.0;
-                    data.mag_y_uT = 0.0;
-                    data.mag_z_uT = 0.0;
+                    // data.accel_x_g = 0.0;
+                    // data.accel_y_g = 0.0;
+                    // data.accel_z_g = 0.0;
+                    // data.gyro_x_dps = 0.0;
+                    // data.gyro_y_dps = 0.0;
+                    // data.gyro_z_dps = 0.0;
+                    // data.mag_x_uT = 0.0;
+                    // data.mag_y_uT = 0.0;
+                    // data.mag_z_uT = 0.0;
                     
-                    data.beraing_deg = 0.0;
+                    // data.bearing_deg = 0.0;
                     //-=-==-=-=-=-=-=--=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+                    //-=-=-=-=-=-=-Remove For actual=-=-=-=-=--=
+                    // lcm_->publish("/imu_data", &data);
+                    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
                     data.roll_rad = Angle[0];
                     data.pitch_rad = Angle[1];
                     data.yaw_rad = Angle[2];
 
-                    //-=-=-=-=-=-=-Remove For actual=-=-=-=-=--=
-                    lcm_->publish("/imu_data", &data);
-                    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-                    // angleCollected = true;
+                    angleCollected = true;
 
 					break;
 				case 0x54:
                     //Magnetic Pack
 					for (i=0;i<3;i++) h[i] = (float)sData[i];
-					printf("h:%4.0f %4.0f %4.0f ",h[0],h[1],h[2]);
+					// printf("h:%4.0f %4.0f %4.0f ",h[0],h[1],h[2]);
 
-                    //Code for adding magnetometer data to struct
-                    // data.data.mag_x_uT = h[0];
-                    // data.data.mag_y_uT = h[1];
-                    // data.data.mag_z_uT = h[2];
+                    // Code for adding magnetometer data to struct
+                    data.mag_x_uT = h[0];
+                    data.mag_y_uT = h[1];
+                    data.mag_z_uT = h[2];
 
-                    // magCollected = true;
+                    magCollected = true;
 
 					break;
 		}		
 
         //If all of the elements of the struct have been filled, publish data
+        // MOVED TO OUTSIDE OF ParseData
         // if (accelCollected && gyroCollected && angleCollected && magCollected) {
         //     //Push
         //     lcm_->publish("/imu_data", &data);
@@ -259,7 +262,7 @@ int main(void)
     char r_buf[1024];
     bzero(r_buf,1024);
 
-    fd = uart_open(fd,"/dev/ttyUSB0");/*串口号/dev/ttySn,USB口号/dev/ttyUSBn */ 
+    fd = uart_open(fd,"/dev/ttyS4");/*串口号/dev/ttySn,USB口号/dev/ttyUSBn */ 
     if(fd == -1)
     {
         fprintf(stderr,"uart_open error\n");
@@ -274,6 +277,11 @@ int main(void)
 
 	FILE *fp;
 	fp = fopen("Record.txt","w");
+
+    // Start with none collected
+    bool accelCollected = false, gyroCollected = false, angleCollected = false, magCollected = false;
+	rover_msgs::IMUData data;
+
     while(1)
     {
         ret = recv_data(fd,r_buf,44);
@@ -282,8 +290,21 @@ int main(void)
             fprintf(stderr,"uart read failed!\n");
             exit(EXIT_FAILURE);
         }
-		for (int i=0;i<ret;i++) {fprintf(fp,"%2X ",r_buf[i]);ParseData(r_buf[i]);}
+		for (int i=0;i<ret;i++) {fprintf(fp,"%2X ",r_buf[i]);ParseData(r_buf[i], accelCollected, gyroCollected, angleCollected, magCollected, data);}
         usleep(1000);
+
+        // If all data collected, publish
+        if (accelCollected && gyroCollected && angleCollected && magCollected) {
+            //Push
+            lcm_->publish("/imu_data", &data);
+
+            //Reset for next collection
+            accelCollected = false;
+            gyroCollected = false;
+            angleCollected = false;
+            magCollected = false;
+        }
+
     }
 
     ret = uart_close(fd);
