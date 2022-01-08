@@ -7,7 +7,23 @@
       - libtinyxml-dev
       - cmake
       - build-essential
-      - nodejs
       - yarn
       - mercurial
+    state: present
+
+# Install nodejs 13
+- name: "Add nodejs apt key"
+  apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    state: present
+
+- name: "Add nodejs 16node.x ppa for apt repo"
+  apt_repository:
+    repo: deb https://deb.nodesource.com/node_16.x bionic main
+    update_cache: yes
+
+- name: "Install nodejs"
+  apt:
+    update_cache: yes
+    name: nodejs
     state: present
