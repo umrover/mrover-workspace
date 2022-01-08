@@ -11,7 +11,7 @@
       - mercurial
     state: present
 
-# Install nodejs 13
+# Install nodejs 16
 - name: "Add nodejs apt key"
   apt_key:
     url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
