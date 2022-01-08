@@ -2,7 +2,7 @@
 <div class = "main-content">
  <h3>Raw Data Reading</h3>
   <div class="wrap">
-    <div>
+    <!-- <div>
       <p>GPS:</p>
       <p>Lat:</p>
       <p>{{formatted_gps.lat.d}}º</p>
@@ -15,7 +15,7 @@
       <p v-if="this.sec_enabled">{{formatted_gps.lon.s}}"</p>
       W
       <p>&nbsp;Bearing: {{GPS.bearing_deg.toFixed(2)}}º</p>
-    </div>
+    </div> -->
     <div>
       <p>IMU: accel_x: {{ IMU.accel_x }} accel_y: {{ IMU.accel_y  }} accel_z: {{ IMU.accel_z }} &nbsp;gyro_x: {{ IMU.gyro_x }} gyro_y: {{ IMU.gyro_y }} gyro_z: {{ IMU.gyro_z }}
       &nbsp;mag_x: {{ IMU.mag_x }} mag_y: {{ IMU.mag_y  }} mag_z: {{ IMU.mag_z }} bearing: {{ IMU.bearing.toFixed(2) }}</p>
@@ -41,26 +41,26 @@ export default {
     },
   },
 
-  computed: {
-    ...mapGetters('autonomy', {
-      odom_format: 'odomFormat'
-    }),
+  // computed: {
+  //   ...mapGetters('autonomy', {
+  //     odom_format: 'odomFormat'
+  //   }),
 
-    formatted_gps: function() {
-      return {
-        lat: convertDMS({d: this.GPS.latitude_deg, m: this.GPS.latitude_min, s: 0}, this.odom_format),
-        lon: convertDMS({d: -this.GPS.longitude_deg, m: -this.GPS.longitude_min, s: 0}, this.odom_format)
-      };
-    },
+  //   formatted_gps: function() {
+  //     return {
+  //       lat: convertDMS({d: this.GPS.latitude_deg, m: this.GPS.latitude_min, s: 0}, this.odom_format),
+  //       lon: convertDMS({d: -this.GPS.longitude_deg, m: -this.GPS.longitude_min, s: 0}, this.odom_format)
+  //     };
+  //   },
 
-    min_enabled: function() {
-      return this.odom_format != 'D';
-    },
+  //   min_enabled: function() {
+  //     return this.odom_format != 'D';
+  //   },
 
-    sec_enabled: function() {
-      return this.odom_format == 'DMS';
-    }
-  }
+  //   sec_enabled: function() {
+  //     return this.odom_format == 'DMS';
+  //   }
+  // }
 }
 </script>
 

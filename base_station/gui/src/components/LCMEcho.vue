@@ -98,7 +98,6 @@
           '/temperature': false,
           '/tennis_ball': false,
           '/thermistor_data': false,
-          '/zed_gimbal_cmd': false,
           '/zed_gimbal_data': false
         },
         subscriptions: [
@@ -150,7 +149,6 @@
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
           {'topic': '/microscope', 'type': 'Microscope'},
-          {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
         ]
       }

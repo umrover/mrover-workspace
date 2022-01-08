@@ -27,9 +27,8 @@
       <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
      </div>
-     <div class="box light-bg">
-        <br/>
-        <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU" v-bind:TargetList="TargetList" v-bind:Obstacle="Obstacle" v-bind:RadioSignalStrength="RadioSignalStrength"/>
+     <div class="raw-data raw-sensors light-bg">
+        <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
         <RadioSignalStrength v-bind:RadioSignalStrength="RadioSignalStrength"/>
         <Obstacle v-bind:Obstacle="Obstacle"/>
         <TargetList v-bind:TargetList="TargetList"/>
@@ -45,7 +44,9 @@
     <div class="box waypoints light-bg">
       <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped" v-bind:Joystick="Joystick"/>
     </div>
-    
+    <div class="box angles light-bg">
+      <ZedGimbalAngles></ZedGimbalAngles>
+    </div>
      <!-- <div class="box raw_sensors light-bg">
       <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
     </div> -->
@@ -69,6 +70,7 @@ import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import Obstacle from './Obstacle.vue'
 import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
+import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
 let interval;
 
@@ -77,6 +79,8 @@ export default {
   data () {
     return {
       lcm_: null,
+
+      repeater_dropped: false,
 
       lastServosMessage: {
         pan: 0,
@@ -233,7 +237,8 @@ export default {
         {'topic': '/radio', 'type': 'RadioSignalStrength'},
         {'topic': '/target_list', 'type': 'TargetList'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
-        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
+        {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
       ]
     )
 
@@ -292,7 +297,8 @@ export default {
     RadioSignalStrength,
     Obstacle,
     TargetList,
-    DriveVelDataH
+    DriveVelDataH,
+    ZedGimbalAngles
   }
 }
 </script>
@@ -310,7 +316,7 @@ export default {
                          "map waypoints waypoints"
                          "map waypoints waypoints" 
                          "data waypoints waypoints" 
-                         "data low_prio odom";
+                         "data angles odom";
     font-family: sans-serif;
     height: auto;
     width: auto;
@@ -428,6 +434,9 @@ export default {
     grid-area: map;
   }
 
+  .angles{
+    grid-area: angles;
+  }
   .waypoints {
     grid-area: waypoints;
   }
@@ -439,9 +448,9 @@ export default {
     display: inline-block;
   }
 
-  .raw_sensors{
+  .raw-sensors{
     font-size: 1em;
-    height: 100px;
+    margin-top: 80px;
   }
 
   .GPS{

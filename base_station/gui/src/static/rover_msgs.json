@@ -391,13 +391,6 @@
     ],
     "NavStatus": [
         [
-            ""
-        ],
-        [
-            "int8_t",
-            "nav_state"
-        ],
-        [
             "string",
             "nav_state_name"
         ],
@@ -407,19 +400,7 @@
         ],
         [
             "int32_t",
-            "missed_wps"
-        ],
-        [
-            "int32_t",
             "total_wps"
-        ],
-        [
-            "int32_t",
-            "found_tbs"
-        ],
-        [
-            "int32_t",
-            "total_tbs"
         ]
     ],
     "Obstacle": [
@@ -992,6 +973,12 @@
             "y"
         ]
     ],
+    "ZedGimbalPosition":[
+        [
+            "double",
+            "angle"
+        ]
+    ],
     "message_types": [
         "AmmoniaCmd",
         "ArmPosition",
@@ -1050,6 +1037,7 @@
         "TestEnable",
         "Waypoint",
         "WheelSpeeds",
-        "Xbox"
+        "Xbox",
+        "ZedGimbalPosition"
     ]
 }
