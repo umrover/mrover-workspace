@@ -120,11 +120,14 @@ void ObsDetector::update(GPU_Cloud pc) {
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
+    #ifndef NO_JARVIS
     this->leftBearing = leftBearing;
     this->rightBearing = rightBearing;
     this->distance = distance;
     obstacleMessage.bearing = leftBearing;
+    obstacleMessage.distance = distance;
     lcm_.publish("/obstacle", &obstacleMessage);
+    #endif
 }
 
 void ObsDetector::spinViewer() {
