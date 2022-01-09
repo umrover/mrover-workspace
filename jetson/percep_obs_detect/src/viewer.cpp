@@ -445,15 +445,12 @@ void Viewer::keyPressedCallback(unsigned char c, int x, int y) {
         curInstance->procStage = ProcStage::RAW;
     }
     else if(c == '2') {
-        curInstance->procStage = ProcStage::RAWBOUNDED;
-    }
-    else if(c == '3') {
         curInstance->procStage = ProcStage::POSTPASS;
     }
-    else if(c == '4') {
+    else if(c == '3') {
         curInstance->procStage = ProcStage::POSTRANSAC;
     }
-    else if(c == '5') {
+    else if(c == '4') {
         curInstance->procStage = ProcStage::POSTECE;
     }
 }
