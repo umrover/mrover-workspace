@@ -231,7 +231,8 @@ int main() {
     while(true) {
         obs.update();
         //if(viewer.procStage == ProcStage::POSTECE || viewer.procStage == ProcStage::RAWBOUNDED) {
-        obs.spinViewer();
+        if(procStage != ProcStage::RAW) obs.spinViewer();
+        else viewer.clearEphemerals();
     }
     
 
