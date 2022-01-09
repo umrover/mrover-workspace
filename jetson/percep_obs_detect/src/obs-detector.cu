@@ -93,11 +93,10 @@ void ObsDetector::update(GPU_Cloud pc) {
     // Processing
     if(viewer.procStage != ProcStage::RAW && viewer.procStage != ProcStage::RAWBOUNDED) {
         passZ->run(pc);
-    }
-
-    if(viewer.procStage != ProcStage::RAW && viewer.procStage != ProcStage::RAWBOUNDED && viewer.procStage != ProcStage::POSTPASS) {
-        ransacPlane->computeModel(pc);
-    }   
+        if(viewer.procStage != ProcStage::POSTPASS) {
+            ransacPlane->computeModel(pc);
+        }
+    }    
     
     Bins bins;
     #if VOXEL
