@@ -83,3 +83,23 @@ def min2decimal(deg, min):
     @return float: decimal degrees
     '''
     return deg + min / 60
+
+
+def euler2mat(roll, pitch, yaw):
+    '''
+    Takes in RPY and returns a matching static rotation matrix
+    @param float roll: roll
+    @param float pitch: pitch
+    @param float yaw: yaw
+    @return ndarray(3,3): rotation matrix
+    '''
+    roll_rot = np.array([[1, 0, 0],
+                         [0, np.cos(roll), np.sin(roll)],
+                         [0, -np.sin(roll), np.cos(roll)]])
+    pitch_rot = np.array([[np.cos(pitch), 0, -np.sin(pitch)],
+                          [0, 1, 0],
+                          [np.sin(pitch), 0, np.cos(pitch)]])
+    yaw_rot = np.array([[np.cos(yaw), np.sin(yaw), 0],
+                        [-np.sin(yaw), np.cos(yaw), 0],
+                        [0, 0, 1]])
+    return roll_rot @ pitch_rot @ yaw_rot
