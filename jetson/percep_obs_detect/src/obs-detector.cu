@@ -21,8 +21,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         cout << "File data dir: " << endl;
         cout << "[e.g: /home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data]" << endl;
         getline(cin, readDir);
-        //TESTING: comment out the line below
-        //fileReader.open(readDir);
+        fileReader.open(readDir);
     }
 
     //Init Viewer
@@ -32,7 +31,9 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         viewer.init(argc, argv);
         viewer.addPointCloud();
     }
-
+    if (mode == OperationMode::TEST) {
+        test_input_file();
+    }
 
 };
 
@@ -169,7 +170,7 @@ void ObsDetector::test_input_file()
   EuclideanClusterExtractor::ObsReturn objects;
   //Init all obstacles to be added to the scene and push them to ObsReturn.obs
   //Obstacle <name> = {minX, maxX, minY, maxY, minZ, maxZ};
-  EuclideanClusterExtractor::Obstacle one = { 0, 200, 0, 200, 0, 200 };
+  EuclideanClusterExtractor::Obstacle one = { 0, 50, 0, 50, 0, 50 };
   objects.obs.push_back(one);
   truths.push_back(objects);
   test(raw_data, truths);
@@ -323,13 +324,12 @@ float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstac
 
 
 int main() {
-    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::TEST, ViewerType::GL);
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
-    obs.test_input_file();
     while(true) {
-       obs.update();
+       //obs.update();
        obs.spinViewer();
     }
 
