@@ -213,9 +213,15 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
     Timer clock_count("testing timer"); // GPU Obs detect runtime counter
     Bins b;
     passZ->run(raw_data[i]);
+    
     ransacPlane->computeModel(raw_data[i]);
+    std::cout << "after ransac\n";
     b = voxelGrid->run(raw_data[i]);
+    std::cout << "after voxel\n";
+
     measured.push_back(ece->extractClusters(raw_data[i],b));
+    std::cout << "after cluster\n";
+
     clock_times.push_back(clock_count.getTime());
     clock_count.reset();
     /* ––––––––––––––––––––––––––––––––– */
