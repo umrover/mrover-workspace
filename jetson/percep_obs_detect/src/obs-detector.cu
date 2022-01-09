@@ -102,7 +102,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     #if VOXEL
             bins = voxelGrid->run(pc);
     #endif
-    if(viewer.procStage == ProcStage::POSTECE) {
+    if(viewer.procStage == ProcStage::POSTECE || viewer.procStage == ProcStage::POSTBOUNDING || viewer.procStage == ProcStage::POSTBEARING) {
         obstacles = ece->extractClusters(pc, bins);
     }
 
@@ -215,8 +215,11 @@ void ObsDetector::createBearing() {
 }
 
 void ObsDetector::spinViewer() {
-    createBoundingBoxes();
-    createBearing();
+    if(viewer.procStage == ProcStage::POSTBEARING || viewer.procStage == ProcStage::POSTBOUNDING) {
+        createBoundingBoxes();
+        if(viewer.procStage == ProcStage::POSTBEARING) createBearing();
+    }
+    
     //---end TESTING add double bearing ----------------------------------------------------
     viewer.update();
     viewer.clearEphemerals();
