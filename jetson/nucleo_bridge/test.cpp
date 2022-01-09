@@ -543,8 +543,8 @@ int main()
     // openPlus(get_addr(1, 1), 0.0);
     while (1)
     {
-        testQuadEnc();
-        //testOpenPlusWithAbs();
+        //testQuadEnc();
+        testOpenPlusWithAbs();
         //testOpenPlus();
         // printf("sleeping \n");
         // //sleep(1000);
