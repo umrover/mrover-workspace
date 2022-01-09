@@ -122,9 +122,6 @@ void ObsDetector::update(GPU_Cloud pc) {
     if(record) record = true;
 
     if(viewer.framePlay) viewer.frame++;
-
-    if(viewer.procStage != ProcStage::RAW) spinViewer();
-    else viewer.clearEphemerals();
     
 }
 
@@ -233,6 +230,7 @@ int main() {
 
     while(true) {
         obs.update();
+        obs.spinViewer();
     }
     
 
