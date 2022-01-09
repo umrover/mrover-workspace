@@ -31,9 +31,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         viewer.init(argc, argv);
         viewer.addPointCloud();
     }
-    if (mode == OperationMode::TEST) {
-        test_input_file();
-    }
+    test_input_file();
 
 };
 
@@ -170,7 +168,7 @@ void ObsDetector::test_input_file()
   EuclideanClusterExtractor::ObsReturn objects;
   //Init all obstacles to be added to the scene and push them to ObsReturn.obs
   //Obstacle <name> = {minX, maxX, minY, maxY, minZ, maxZ};
-  EuclideanClusterExtractor::Obstacle one = { 0, 150, 0, 150, 0, 150 };
+  EuclideanClusterExtractor::Obstacle one = { 0, 100, 0, 100, 0, 100 };
   objects.obs.push_back(one);
   truths.push_back(objects);
   test(raw_data, truths);
@@ -215,12 +213,9 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
     passZ->run(raw_data[i]);
     
     ransacPlane->computeModel(raw_data[i]);
-    std::cout << "after ransac\n";
-    b = voxelGrid->run(raw_data[i]);
-    std::cout << "after voxel\n";
+    b = voxelGrid->run(raw_data[i]); //this causes invalid config
 
     measured.push_back(ece->extractClusters(raw_data[i],b));
-    std::cout << "after cluster\n";
 
     clock_times.push_back(clock_count.getTime());
     clock_count.reset();
@@ -330,7 +325,7 @@ float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstac
 
 
 int main() {
-    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::TEST, ViewerType::GL);
+    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
