@@ -208,7 +208,7 @@ void ObsDetector::spinViewer() {
     viewer.addObject(leftBearing2, true);
     viewer.addObject(rightBearing2, true);
   //---end TESTING add double bearing ----------------------------------------------------
-    if(viewer.procStage == ProcStage::RAW) {
+    if(viewer.procStage != ProcStage::POSTECE) {
         viewer.clearEphemerals();
     }
     viewer.update();
