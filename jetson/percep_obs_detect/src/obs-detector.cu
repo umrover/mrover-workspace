@@ -219,7 +219,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
     clock_times.push_back(clock_count.getTime());
     clock_count.reset();
     /* ––––––––––––––––––––––––––––––––– */
-    std::cout << "Detected " << measured[i].obs.size() << " Obstacles for GPU Cloud " << i;
+    std::cout << "Detected " << measured[i].obs.size() << " Obstacles for GPU Cloud " << i << "\n";
 
     float current_volume_sum = 0; //global volume sum
     float current_intersection_sum = 0; //global intersection sum
