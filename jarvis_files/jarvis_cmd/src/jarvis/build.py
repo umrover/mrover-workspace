@@ -92,7 +92,7 @@ def build_dir(ctx, d, lint, opts=None):
 
 
 def get_site_cfg():
-    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix', 'jetson']
+    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix', 'nlohmann', 'kluge', 'jetson']
     site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
     site_cfg = configparser.ConfigParser()
     site_cfg['third_party'] = {}
@@ -114,6 +114,10 @@ def build_deps(ctx):
         third_party.ensure_phoenix(ctx)
     if site_cfg['rapidjson']:
         third_party.ensure_rapidjson(ctx)
+    if site_cfg['nlohmann']:
+        third_party.ensure_nlohmann(ctx)
+    if site_cfg['kluge']:
+        third_party.ensure_kluge(ctx)
     if site_cfg['lcm']:
         third_party.ensure_lcm(ctx)
 

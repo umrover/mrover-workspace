@@ -65,6 +65,7 @@
 
 <!-- kineval includes -->
 <script src="kineval/kineval.js"></script>
+<script src="mrover_arm_presets.json"></script>
 <script src="kineval/kineval_startingpoint.js"></script>
 <script src="kineval/kineval_robot_init.js"></script>
 <script src="kineval/kineval_threejs.js"></script>
@@ -143,7 +144,6 @@ function my_animate() {
 
     if (kineval.params.just_starting) {
         kineval.params.just_starting = false
-        //kineval.publish_joint_angles();
         startingPlaceholderAnimate();
         //kineval.robotDraw();
         return;

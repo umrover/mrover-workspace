@@ -1,0 +1,10 @@
+package rover_msgs;
+
+struct LockJoints {
+	boolean jointa;
+	boolean jointb;
+	boolean jointc;
+    boolean jointd;
+	boolean jointe;
+	boolean jointf;
+}
