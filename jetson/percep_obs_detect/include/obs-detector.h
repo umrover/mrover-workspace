@@ -72,6 +72,16 @@ class ObsDetector {
         void update(GPU_Cloud pc);
 
         /**
+         * \brief Create bounding box and add viewer object for each obstacle
+         */
+        void createBoundingBoxes();
+
+        /**
+         * \brief Find and make viewer object for path bearings
+         */
+        void createBearing();
+
+        /**
          * \brief Do viewer update tick, it may be desirable to call this in its own thread 
          */
         void spinViewer();
