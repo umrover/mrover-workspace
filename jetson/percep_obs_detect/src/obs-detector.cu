@@ -88,7 +88,6 @@ void ObsDetector::update() {
 void ObsDetector::update(GPU_Cloud pc) {
 
     // Get a copy if debug is enabled
-
     viewer.updatePointCloud(pc);
 
     // Processing
@@ -124,7 +123,7 @@ void ObsDetector::update(GPU_Cloud pc) {
 
     if(viewer.framePlay) viewer.frame++;
 
-    if(viewer.procStage != ProcStage::RAW) obs.spinViewer();
+    if(viewer.procStage != ProcStage::RAW) spinViewer();
     else viewer.clearEphemerals();
     
 }
