@@ -10,10 +10,16 @@
 #include "common.hpp"
 #include "voxel-grid.hpp"
 #include "find-clear-path.hpp"
-#include <lcm/lcm-cpp.hpp>
-#include "rover_msgs/Obstacle.hpp"
 #include <cstring>
 #include <iostream>
+#include <float.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#ifndef NO_JARVIS
+#include <lcm/lcm-cpp.hpp>
+#include "rover_msgs/Obstacle.hpp"
+#endif
 
 // TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;
@@ -98,8 +104,10 @@ class ObsDetector {
 
     private: 
         //Lcm
+        #ifndef NO_JARVIS
         lcm::LCM lcm_;
         rover_msgs::Obstacle obstacleMessage;
+        #endif
 
         //Data sources
         sl::Camera zed;
@@ -130,7 +138,7 @@ class ObsDetector {
         //Output data
         Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
-        float2 bearingCombined;
+        float3 bearingCombined;
         float leftBearing;
         float rightBearing;
         float distance;
