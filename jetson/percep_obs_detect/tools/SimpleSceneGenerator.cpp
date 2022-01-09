@@ -232,7 +232,7 @@ int main() {
 
     //Init all obstacles to be added to the scene and push them to ObsReturn.obs
     //Obstacle <name> = {minX, maxX, minY, maxY, minZ, maxZ};
-    Obstacle one = { 0, 500, 0, 500, 0, 500 };
+    Obstacle one = { 0, 100, 0, 100, 0, 100 };
     objects.obs.push_back(one);
 
     //Init an object of PcGenerator Class using one of the following constructors 
