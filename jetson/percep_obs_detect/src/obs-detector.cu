@@ -109,14 +109,14 @@ void ObsDetector::update(GPU_Cloud pc) {
     bearingCombined = findClear->find_clear_path_initiate(obstacles);
     leftBearing = bearingCombined.x;
     rightBearing = bearingCombined.y;
+    distance = bearingCombined.z; 
     
     ///*/
     // Rendering
     if(mode != OperationMode::SILENT) {
         viewer.updatePointCloud(pc);
     }
-
-    populateMessage(leftBearing, rightBearing, 0);
+    populateMessage(leftBearing, rightBearing, distance);
 
     // Recording
     if(record) record = true;
@@ -126,11 +126,14 @@ void ObsDetector::update(GPU_Cloud pc) {
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
+    #ifndef NO_JARVIS
     this->leftBearing = leftBearing;
     this->rightBearing = rightBearing;
     this->distance = distance;
     obstacleMessage.bearing = leftBearing;
+    obstacleMessage.distance = distance;
     lcm_.publish("/obstacle", &obstacleMessage);
+    #endif
 }
 
 void ObsDetector::spinViewer() {

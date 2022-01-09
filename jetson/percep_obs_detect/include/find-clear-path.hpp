@@ -34,7 +34,7 @@ class FindClearPath {
     FindClearPath();
 
     //Allocate host and device memory
-    float2 find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec);
+    float3 find_clear_path_initiate(EuclideanClusterExtractor::ObsReturn obsVec);
 
     //Find closest bearing to the left that is clear
     float find_left_closest(bool* headings);
@@ -45,4 +45,4 @@ class FindClearPath {
 };
 
 //Kernel for find clear path parallelization 
-__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, int obsArrSize);
+__global__ void find_clear_path(EuclideanClusterExtractor::Obstacle* obstacles, bool* heading_checks, float *min_dist_ptr, int obsArrSize);
