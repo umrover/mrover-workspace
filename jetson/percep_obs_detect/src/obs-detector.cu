@@ -215,10 +215,8 @@ void ObsDetector::createBearing() {
 }
 
 void ObsDetector::spinViewer() {
-    if(viewer.procStage == ProcStage::POSTBOUNDING || viewer.procStage == ProcStage::POSTBEARING) {
-        createBoundingBoxes();
-        if(viewer.procStage == ProcStage::POSTBEARING) createBearing();
-    }
+    createBoundingBoxes();
+    createBearing();
     //---end TESTING add double bearing ----------------------------------------------------
     viewer.update();
     viewer.clearEphemerals();
