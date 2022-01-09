@@ -173,7 +173,7 @@ void ParseData(char chr, bool &accelCollected, bool &gyroCollected, bool &angleC
                     // Code for adding accelereometer data to struct
                     data.accel_x_g = a[0];
                     data.accel_y_g = a[1];
-                    data.accel_y_g = a[2];
+                    data.accel_z_g = a[2];
 
                     accelCollected = true;
 
@@ -214,15 +214,15 @@ void ParseData(char chr, bool &accelCollected, bool &gyroCollected, bool &angleC
                     //data.bearing_deg = 0.0;
                     //-=-==-=-=-=-=-=--=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-                    //-=-=-=-=-=-=-Remove For actual=-=-=-=-=--=
-                    // lcm_->publish("/imu_data", &data);
-                    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
                     data.roll_rad = Angle[0];
                     data.pitch_rad = Angle[1];
                     data.yaw_rad = Angle[2];
-
-		    //lcm_->publish("/imu_data", &data);
+		    if(Angle[2] < 0){
+			data.bearing_deg = -Angle[2];
+	  	    }
+		    else{
+		    	data.bearing_deg = (-Angle[2] + 360.0);
+	            }	
                     angleCollected = true;
 
 					break;
@@ -232,27 +232,15 @@ void ParseData(char chr, bool &accelCollected, bool &gyroCollected, bool &angleC
 					printf("h:%4.0f %4.0f %4.0f ",h[0],h[1],h[2]);
 
                     // Code for adding magnetometer data to struct
-                    data.mag_x_uT = h[0];
-                    data.mag_y_uT = h[1];
-                    data.mag_z_uT = h[2];
+		    // Not using for 6-axis mode
+                    data.mag_x_uT = 0; // h[0];
+                    data.mag_y_uT = 0; // h[1];
+                    data.mag_z_uT = 0; // h[2];
 
                     magCollected = true;
 
 					break;
 		}		
-
-        //If all of the elements of the struct have been filled, publish data
-        // MOVED TO OUTSIDE OF ParseData
-        // if (accelCollected && gyroCollected && angleCollected && magCollected) {
-        //     //Push
-        //     lcm_->publish("/imu_data", &data);
-
-        //     //Reset for next collection
-        //     accelCollected = false;
-        //     gyroCollected = false;
-        //     angleCollected = false;
-        //     magCollected = false;
-        // }
 
 
 		chrCnt=0;
@@ -263,7 +251,7 @@ int main(void)
     char r_buf[1024];
     bzero(r_buf,1024);
 
-    fd = uart_open(fd,"/dev/ttyS4");/*串口号/dev/ttySn,USB口号/dev/ttyUSBn */ 
+    fd = uart_open(fd,"/dev/ttyS1");/*串口号/dev/ttySn,USB口号/dev/ttyUSBn */ 
     if(fd == -1)
     {
         fprintf(stderr,"uart_open error\n");
