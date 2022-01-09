@@ -136,7 +136,7 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
     #endif
 }
 
-void ObsDetector::spinViewer() {
+void ObsDetector::createBoundingBoxes() {
     // This creates bounding boxes for visualization
     // There might be a clever automatic indexing scheme to optimize this
     for(int i = 0; i < obstacles.obs.size(); i++) {
@@ -156,8 +156,10 @@ void ObsDetector::spinViewer() {
             viewer.addObject(obj, true);
          }
     }
+}
 
-  //----start TESTING: draw double bearing------------------------------------------------
+void ObsDetector::createBearing() {
+    //----start TESTING: draw double bearing------------------------------------------------
     //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
     float degAngle = leftBearing; //Change angle of bearing to draw here
     float degAngle2 = rightBearing;
@@ -191,7 +193,7 @@ void ObsDetector::spinViewer() {
     std::vector<vec3> ptsLft2 = {
       leftBearingStart2,
       leftBearingStart2 + bearing2
-  };
+    };
     std::vector<vec3> ptsRght2 = {
         rightBearingStart2,
         rightBearingStart2 + bearing2
@@ -210,10 +212,14 @@ void ObsDetector::spinViewer() {
 
     viewer.addObject(leftBearing2, true);
     viewer.addObject(rightBearing2, true);
-  //---end TESTING add double bearing ----------------------------------------------------
-    if(viewer.procStage != ProcStage::POSTECE) {
-        viewer.clearEphemerals();
+}
+
+void ObsDetector::spinViewer() {
+    if(viewer.procStage == ProcStage::POSTBOUNDING) {
+        createBoundingBoxes();
+        if(viewer.procStage == ProcStage::POSTBEARING) createBearing();
     }
+    //---end TESTING add double bearing ----------------------------------------------------
     viewer.update();
     viewer.clearEphemerals();
     

@@ -441,18 +441,12 @@ void Viewer::keyPressedCallback(unsigned char c, int x, int y) {
     cout << "key press" << endl;
 
     //change viewer stage based on number press
-    if(c == '1') {
-        curInstance->procStage = ProcStage::RAW;
-    }
-    else if(c == '2') {
-        curInstance->procStage = ProcStage::POSTPASS;
-    }
-    else if(c == '3') {
-        curInstance->procStage = ProcStage::POSTRANSAC;
-    }
-    else if(c == '4') {
-        curInstance->procStage = ProcStage::POSTECE;
-    }
+    if(c == '1') curInstance->procStage = ProcStage::RAW;
+    else if(c == '2') curInstance->procStage = ProcStage::POSTPASS;
+    else if(c == '3') curInstance->procStage = ProcStage::POSTRANSAC;
+    else if(c == '4') curInstance->procStage = ProcStage::POSTECE;
+    else if(c == '5') curInstance->procStage = ProcStage::POSTBOUNDING;
+    else if(c == '6') curInstance->procStage = ProcStage::POSTBEARING;
 }
 
 void Viewer::keyReleasedCallback(unsigned char c, int x, int y) {
