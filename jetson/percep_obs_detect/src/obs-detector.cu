@@ -91,7 +91,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     viewer.updatePointCloud(pc);
 
     // Processing
-    if(viewer.procStage != ProcStage::RAW && viewer.procStage != ProcStage::RAWBOUNDED) {
+    if(viewer.procStage != ProcStage::RAW) {
         passZ->run(pc);
         if(viewer.procStage != ProcStage::POSTPASS) {
             ransacPlane->computeModel(pc);
@@ -231,7 +231,7 @@ int main() {
     while(true) {
         obs.update();
         //if(viewer.procStage == ProcStage::POSTECE || viewer.procStage == ProcStage::RAWBOUNDED) {
-        if(procStage != ProcStage::RAW) obs.spinViewer();
+        if(viewer.procStage != ProcStage::RAW) obs.spinViewer();
         else viewer.clearEphemerals();
     }
     
