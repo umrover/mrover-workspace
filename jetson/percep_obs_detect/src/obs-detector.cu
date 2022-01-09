@@ -156,7 +156,7 @@ void ObsDetector::spinViewer() {
 
 //TESTING: edit SimpleSceneGenerator main function to make the cloud and obsreturn
 //          This lets you make the obstacles you want, edit noise settings etc. (jetson/percep_obs_detect/tools/SimpleSceneGenerator.cpp)
-//Instructions: When running the code, stop the run after it print sthe test output so it isn't lost
+//Instructions: When running the code, stop the run after it prints the test output so it isn't lost
 void ObsDetector::test_input_file()
 {
   //If you are testing a cloud, change the filepath to work for your computer and change the PCD file name to the one selected in SimpleSceneGenerator
@@ -329,7 +329,7 @@ int main() {
 
     obs.test_input_file();
     while(true) {
-       //obs.update();
+       obs.update();
        obs.spinViewer();
     }
 
