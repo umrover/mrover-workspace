@@ -107,7 +107,7 @@ class PCDReader {
             return pc;
         }
 
-        // Read a cloud by sequentially loaded indicies after calling open in a directory
+        // Read a cloud by sequentially loaded indices after calling open in a directory
         GPU_Cloud readCloudGPU(int i) {
             i = i % pcd_names.size();
 

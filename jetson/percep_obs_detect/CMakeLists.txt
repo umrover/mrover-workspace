@@ -3,6 +3,7 @@ option(VIEWER_ONLY "run without CUDA" OFF)
 option(NO_JARVIS "compile without jarvis" OFF)
 
 project(obs_detection)
+set(CMAKE_CXX_STANDARD 11)
 #add_compile_definitions(ROOT_DIR=${CMAKE_CURRENT_LIST_DIR})
 add_compile_options(-DROOT_DIR="${CMAKE_CURRENT_LIST_DIR}")
 
@@ -10,26 +11,20 @@ if(VIEWER_ONLY)
 #add_compile_definitions(VIEWER_ONLY)
 add_compile_options(-DVIEWER_ONLY)
 
-find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
-include_directories(SYSTEM ${GLEW_INCLUDE_DIRS})
-include_directories(SYSTEM ${GLUT_INCLUDE_PATH})
-include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/include)
-link_directories(${GLEW_LIBRARY_DIRS})
-link_directories(${GLUT_LIBRARY_DIRS})
-link_directories(${OpenGL_LIBRARY_DIRS})
-add_executable (viewer src/viewer.cpp)
+find_package(glfw3 REQUIRED)
+message("${GLFW_INCLUDE_DIR}")
+include_directories(SYSTEM ${GLFW_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+file(GLOB SOURCE_FILES CONFIGURE_DEPENDS "src/*.cpp")
+add_executable (viewer ${SOURCE_FILES})
 set_target_properties(viewer PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(viewer 
-                        ${SPECIAL_OS_LIBS} 
-                        ${OPENGL_LIBRARIES}
-                        ${GLUT_LIBRARY}
-                        ${GLEW_LIBRARIES})
+target_link_libraries(viewer ${SPECIAL_OS_LIBS} OpenGL::GL glfw GLEW::glew)
 
 
-else() 
+else()
 SET(CMAKE_CUDA_COMPILER_ENV_VAR /usr/local/cuda/bin/nvcc)
 SET(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
 enable_language(CUDA)
