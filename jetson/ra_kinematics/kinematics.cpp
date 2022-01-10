@@ -191,12 +191,48 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
         // RAND_MAX is defined in a library
 
         // TODO: make this actually depend on joint limits, and test whether using full range of values is best
-        rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
-        rand_angs[1] = ((double) rand() / (RAND_MAX)) + 0.05;     // 0.05 ... 1.05
-        rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
-        rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
-        rand_angs[4] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
-        rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
+
+        if (robot_state.get_joint_locked(0)) {
+            rand_angs[0] = robot_state.get_joint_angle(0);
+        }
+        else {
+            rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3 ... 3
+        }
+
+        if (robot_state.get_joint_locked(1)) {
+            rand_angs[1] = robot_state.get_joint_angle(1);
+        }
+        else {
+            rand_angs[1] = ((double) rand() / (RAND_MAX)) + 0.05;     // 0.05 ... 1.05
+        }
+
+        if (robot_state.get_joint_locked(2)) {
+            rand_angs[2] = robot_state.get_joint_angle(2);
+        }
+        else {
+            rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
+        }
+
+        if (robot_state.get_joint_locked(3)) {
+            rand_angs[3] = robot_state.get_joint_angle(3);
+        }
+        else {
+            rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
+        }
+
+        if (robot_state.get_joint_locked(4)) {
+            rand_angs[4] = robot_state.get_joint_angle(4);
+        }
+        else {
+            rand_angs[4] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
+        }
+
+        if (robot_state.get_joint_locked(5)) {
+            rand_angs[5] = robot_state.get_joint_angle(5);
+        }
+        else {
+            rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
+        }
 
         robot_state.set_joint_angles(rand_angs);
     }
