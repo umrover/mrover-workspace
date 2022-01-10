@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <chrono>
 
 using namespace nlohmann;
 
@@ -56,14 +57,14 @@ bool vec3dAlmostEqual(Vector3d a, Vector3d b, double epsilon) {
 }
 
 TEST(kinematics_initialization) {
-    std::cout << setprecision(8);
+    std::cout << std::setprecision(8);
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver();
 }
 
 TEST(fk_test) {
-    std::cout << setprecision(8);
+    std::cout << std::setprecision(8);
     // Create the arm to be tested on:
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
@@ -151,8 +152,6 @@ TEST(fk_test) {
 }
 
 TEST(is_safe_test) {
-    // TODO: Modify the configuration paths as necessary
-
     // Create the arm to be tested on:
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
@@ -167,7 +166,7 @@ TEST(is_safe_test) {
 }
 
 TEST(ik_test1) {
-    // std::cout << setprecision(8);
+    // std::cout << std::setprecision(8);
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
@@ -177,7 +176,7 @@ TEST(ik_test1) {
                 -0.19091988273941293, 0.5705597354134033, -2.8999168062356357;
     solver.FK(arm);
     bool success = false;
-    auto start = high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
     for (size_t i = 0; i < 10; ++i) {
         if (solver.IK(arm, target, true, false).second) {
             success = true;
@@ -187,13 +186,13 @@ TEST(ik_test1) {
 
     ASSERT_TRUE(success);
     
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(stop-start);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop-start);
     std::cout << "Time to run FK: " << duration.count() << " milliseconds!\n";
 }
 
 TEST(ik_test2) {
-    std::cout << setprecision(9);
+    std::cout << std::setprecision(9);
     json geom = read_json_from_file(get_mrover_arm_geom());
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
