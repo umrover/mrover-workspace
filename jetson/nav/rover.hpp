@@ -118,13 +118,10 @@ public:
         Target& leftTarget();
 
         Target& rightTarget();
-<<<<<<< HEAD
-=======
 
         Target& leftCacheTarget();
         
         Target& rightCacheTarget();
->>>>>>> b5fa5c8a (Target Caching System for Nav.)
 
         RadioSignalStrength& radio();
 

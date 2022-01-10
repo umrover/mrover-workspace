@@ -129,13 +129,10 @@ void clear( deque<Waypoint>& aDeque )
 bool isTargetReachable( Rover* rover, const rapidjson::Document& roverConfig )
 {
     double distToTarget = rover->roverStatus().leftTarget().distance;
-<<<<<<< HEAD
-=======
     if ( rover->roverStatus().leftTarget().distance < 0 && rover->roverStatus().leftCacheTarget().distance != -1 )
     {
         distToTarget = rover->roverStatus().leftCacheTarget().distance;   
     } 
->>>>>>> b5fa5c8a (Target Caching System for Nav.)
     double distThresh = roverConfig["navThresholds"]["targetDistance"].GetDouble();
     return isLocationReachable( rover, roverConfig, distToTarget, distThresh );
 } // istargetReachable()

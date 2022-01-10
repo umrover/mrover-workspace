@@ -59,9 +59,6 @@ Target& Rover::RoverStatus::rightTarget()
 {
     return mTarget2;
 } // rightTarget()
-<<<<<<< HEAD
-
-=======
 
 Target& Rover::RoverStatus::leftCacheTarget()
 {
@@ -73,7 +70,6 @@ Target& Rover::RoverStatus::rightCacheTarget()
     return mCTarget2;
 } // rightCacheTarget()
 
->>>>>>> b5fa5c8a (Target Caching System for Nav.)
 RadioSignalStrength& Rover::RoverStatus::radio() 
 {
     return mSignal;
@@ -114,11 +110,8 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     mOdometry = newRoverStatus.odometry();
     mTarget1 = newRoverStatus.leftTarget();
     mTarget2 = newRoverStatus.rightTarget();
-<<<<<<< HEAD
-=======
     mCTarget1 = newRoverStatus.leftCacheTarget();
     mCTarget2 = newRoverStatus.rightCacheTarget();
->>>>>>> b5fa5c8a (Target Caching System for Nav.)
     mSignal = newRoverStatus.radio();
     countMisses = newRoverStatus.getMisses();
     return *this;
@@ -268,8 +261,6 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
-<<<<<<< HEAD
-=======
 
             // Perform basic caching, include special case when
             // we store for the first time, but store an empty one
@@ -311,7 +302,6 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             cout << "RIGHT CACHE (distance, bearing): (" << mRoverStatus.rightCacheTarget().distance << "," << mRoverStatus.rightCacheTarget().bearing << ")" << endl;
             cout << "MISSES COUNT: " << mRoverStatus.getMisses() << endl;
 
->>>>>>> b5fa5c8a (Target Caching System for Nav.)
             mRoverStatus.radio() = newRoverStatus.radio();
             updateRepeater( mRoverStatus.radio() );
             return true;
