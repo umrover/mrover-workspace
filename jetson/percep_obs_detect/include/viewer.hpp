@@ -156,12 +156,7 @@ public:
 
     ~Shader();
 
-    Shader& operator=(Shader&& other) noexcept {
-        std::swap(verterxId_, other.verterxId_);
-        std::swap(fragmentId_, other.fragmentId_);
-        std::swap(programId_, other.programId_);
-        return *this;
-    };
+    Shader& operator=(Shader&& other) noexcept;
 
     GLuint getProgramId();
 
@@ -170,9 +165,9 @@ public:
 private:
     bool compile(GLuint& shaderId, GLenum type, GLchar* src);
 
-    GLuint verterxId_;
-    GLuint fragmentId_;
-    GLuint programId_;
+    GLuint vertexShaderId{};
+    GLuint fragmentShaderId{};
+    GLuint programShaderId{};
 };
 
 /*
