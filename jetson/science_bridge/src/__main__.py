@@ -106,10 +106,15 @@ class ScienceBridge():
         translated_device = struct.device
         # Translate individual pins to their respective nucleo pin
         # According to https://docs.google.com/spreadsheets/d/1x291oHOigmm7G-pxjsBUFsEbyl81ZurAz7vuSyXmgXo/edit#gid=0
+        
+        # Laser and UV LED share pins 1 and 2
         if (translated_device == 3):
             translated_device = 1
         elif (translated_device == 4):
             translated_device = 2
+        # Everything past these is now offset by 2
+        elif(translated_device > 4):
+            translated_device -= 2
         message = message.format(device=translated_device,
                                  enable=int(struct.enable))
         print(message)
