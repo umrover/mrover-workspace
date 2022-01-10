@@ -135,11 +135,17 @@ bool Shader::compile(GLuint& shaderId, GLenum type, GLchar* src) {
     return true;
 }
 
-Shader& Shader::operator=(Shader&& other) noexcept {
+Shader& Shader::operator=(Shader other) {
+    swap(other);
+    return *this;
+}
+
+Shader::Shader(Shader&& other) noexcept: Shader() { swap(other); }
+
+void Shader::swap(Shader& other) {
     std::swap(vertexShaderId, other.vertexShaderId);
     std::swap(fragmentShaderId, other.fragmentShaderId);
     std::swap(programShaderId, other.programShaderId);
-    return *this;
 }
 
 

@@ -154,9 +154,13 @@ public:
 
     Shader(GLchar* vs, GLchar* fs);
 
+    Shader(Shader&& other) noexcept;
+
     ~Shader();
 
-    Shader& operator=(Shader&& other) noexcept;
+    Shader& operator=(Shader other);
+
+    void swap(Shader& other);
 
     GLuint getProgramId();
 
