@@ -190,6 +190,8 @@ public:
     // Updates the window and draws graphics (graphics thread)
     void update();
 
+    void drawUI();
+
     bool open();
 
     // Add an object, either ephemeral or permanent

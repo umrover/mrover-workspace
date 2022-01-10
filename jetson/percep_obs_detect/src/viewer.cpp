@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -269,7 +270,7 @@ Viewer::Viewer()
     if (!window) {
         throw runtime_error("Window init failed");
     }
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window);
     if (glewInit()) {
         throw runtime_error("Failed to init glew");
@@ -293,7 +294,8 @@ Viewer::Viewer()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    ImGui_ImplOpenGL3_Init(reinterpret_cast<char const*>(glGetString(GL_VERSION)));
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
     ImGui::StyleColorsDark();
 }
 
@@ -362,6 +364,10 @@ void Viewer::update() {
     glPointSize(6.0f); // 1, 3
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
     // Draw 3D Objects
     glm::mat4 mvp_mat = camera.projection * camera.getView();
     glUseProgram(objectShader.getProgramId());
@@ -383,11 +389,46 @@ void Viewer::update() {
         glUniformMatrix4fv(i, 1, GL_FALSE, glm::value_ptr(mvp_mat));
         pc.draw();
     }
-
     pc_mutex.unlock();
+
+    drawUI();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(window);
     glfwPollEvents();
+}
+
+void Viewer::drawUI() {
+    // Create a window called "My First Tool", with a menu bar.
+    bool active = false;
+    ImGui::Begin("My First Tool", &active, ImGuiWindowFlags_MenuBar);
+    if (ImGui::BeginMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
+            if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+            if (ImGui::MenuItem("Close", "Ctrl+W")) { active = false; }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+
+    // Edit a color (stored as ~4 floats)
+    float my_color[4]{};
+    ImGui::ColorEdit4("Color", my_color);
+
+    // Plot some values
+    const float my_values[] = {0.2f, 0.1f, 1.0f, 0.5f, 0.9f, 2.2f};
+    ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
+
+    // Display contents in a scrolling region
+    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
+    ImGui::BeginChild("Scrolling");
+    for (int n = 0; n < 50; n++)
+        ImGui::Text("%04d: Some text", n);
+    ImGui::EndChild();
+    ImGui::End();
 }
 
 void Viewer::addObject(Object3D& obj, bool ephemeral) {
