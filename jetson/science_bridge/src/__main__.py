@@ -261,7 +261,7 @@ def main():
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         _lcm.subscribe("/rr_drop_init", bridge.rr_drop)
         _lcm.subscribe("/nav_status", bridge.nav_status)
-        _lcm.subscribe("/ammonia_cmd", bridge.ammonia_transmit)
+        _lcm.subscribe("/servo_cmd", bridge.servo_transmit)
         print("properly started")
         run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
 
