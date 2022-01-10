@@ -33,7 +33,8 @@
 		"targetDistance": 1.0,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20,
-		"obstacleDistanceThreshold": 2.5
+		"obstacleDistanceThreshold": 2.5,
+		"cacheMissMax":20
 	},
 
 	"roverMeasurements":

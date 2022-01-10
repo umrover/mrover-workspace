@@ -118,10 +118,19 @@ public:
         Target& leftTarget();
 
         Target& rightTarget();
+<<<<<<< HEAD
+=======
+
+        Target& leftCacheTarget();
+        
+        Target& rightCacheTarget();
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
 
         RadioSignalStrength& radio();
 
         unsigned getPathTargets();
+
+        int& getMisses();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
@@ -153,11 +162,19 @@ public:
 
         Target mTarget2;
 
+        // Cached Target information
+        Target mCTarget1;
+
+        Target mCTarget2;
+
         // the rover's current signal strength to the base station
         RadioSignalStrength mSignal;
 
         // Total targets to seach for in the course
         unsigned mPathTargets;
+
+        // Count of misses with cache
+        int countMisses = 0;
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );

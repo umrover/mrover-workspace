@@ -93,6 +93,7 @@ NavState GateStateMachine::executeGateSpin()
     if( mRover->roverStatus().rightTarget().distance >= 0 ||
         ( mRover->roverStatus().leftTarget().distance >= 0 && mRover->roverStatus().leftTarget().id != lastKnownRightPost.id ) )
     {
+        mRover->roverStatus().getMisses() = 0; // reset
         updatePost2Info();
         calcCenterPoint();
         return NavState::GateTurnToCentPoint;

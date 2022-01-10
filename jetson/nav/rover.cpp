@@ -59,7 +59,21 @@ Target& Rover::RoverStatus::rightTarget()
 {
     return mTarget2;
 } // rightTarget()
+<<<<<<< HEAD
 
+=======
+
+Target& Rover::RoverStatus::leftCacheTarget()
+{
+    return mCTarget1;
+} // leftCacheTarget()
+
+Target& Rover::RoverStatus::rightCacheTarget() 
+{
+    return mCTarget2;
+} // rightCacheTarget()
+
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
 RadioSignalStrength& Rover::RoverStatus::radio() 
 {
     return mSignal;
@@ -69,6 +83,11 @@ unsigned Rover::RoverStatus::getPathTargets()
 {
   return mPathTargets;
 } // getPathTargets()
+
+int& Rover::RoverStatus::getMisses()
+{
+    return countMisses;
+}
 
 // Assignment operator for the rover status object. Does a "deep" copy
 // where necessary.
@@ -90,11 +109,18 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
             ++mPathTargets;
         }
     }
+    countMisses = newRoverStatus.getMisses();
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();
     mTarget1 = newRoverStatus.leftTarget();
     mTarget2 = newRoverStatus.rightTarget();
+<<<<<<< HEAD
+=======
+    mCTarget1 = newRoverStatus.leftCacheTarget();
+    mCTarget2 = newRoverStatus.rightCacheTarget();
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
     mSignal = newRoverStatus.radio();
+    countMisses = newRoverStatus.getMisses();
     return *this;
 } // operator=
 
@@ -242,6 +268,50 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
+<<<<<<< HEAD
+=======
+
+            // Perform basic caching, include special case when
+            // we store for the first time, but store an empty one
+            // so we don't just have "junk" in the target Cache.
+            if ( mRoverStatus.leftTarget().distance != -1 ) 
+            {
+                mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
+                mRoverStatus.getMisses() = 0;
+            }
+            else 
+            { // if this is empty, then so is rightTarget. increment misses
+                mRoverStatus.getMisses()++;
+            }
+
+            // Note: The only time this updates is ONLY if the leftTarget updates (by default
+            // the first target seen will be stored in leftTarget, and even if only 1 is seen
+            // this won't update, so we should be fine)
+            if ( mRoverStatus.rightTarget().distance != -1 ) 
+            {
+                mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
+                mRoverStatus.getMisses() = 0;
+            }
+
+
+            // If we have too many misses in a row, then we know we definitely are missing the Tag,
+            // so we can set the cache to the left/right target (which both should be empty)
+            // Must also do the reset once we finish a gate search
+            if ( mRoverStatus.getMisses() > mRoverConfig[ "navThresholds" ][ "cacheMissMax" ].GetDouble() )
+            {
+                mRoverStatus.getMisses() = 0;
+                // these will be zero, so set them as such since we know
+                // they definitely aren't there
+                mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
+                mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
+            }
+
+
+            cout << "LEFT CACHE (distance, bearing): (" << mRoverStatus.leftCacheTarget().distance << "," << mRoverStatus.leftCacheTarget().bearing << ")" << endl;
+            cout << "RIGHT CACHE (distance, bearing): (" << mRoverStatus.rightCacheTarget().distance << "," << mRoverStatus.rightCacheTarget().bearing << ")" << endl;
+            cout << "MISSES COUNT: " << mRoverStatus.getMisses() << endl;
+
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
             mRoverStatus.radio() = newRoverStatus.radio();
             updateRepeater( mRoverStatus.radio() );
             return true;

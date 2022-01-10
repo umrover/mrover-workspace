@@ -81,6 +81,15 @@ NavState SearchStateMachine::executeSearchSpin()
                                            mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
+<<<<<<< HEAD
+=======
+    else if( mRover->roverStatus().leftTarget().distance == -1 && 
+        mRover->roverStatus().leftCacheTarget().distance >= 0 ) {
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+                                           mRover->roverStatus().odometry().bearing_deg );
+        return NavState::TurnToTarget;
+    }
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
     if( nextStop == 0 )
     {
         // get current angle and set as origAngle
@@ -114,6 +123,12 @@ NavState SearchStateMachine::executeRoverWait()
     {
         updateTargetDetectionElements( mRover->roverStatus().leftTarget().bearing,
                                        mRover->roverStatus().odometry().bearing_deg );
+        return NavState::TurnToTarget;
+    }
+    else if( mRover->roverStatus().leftTarget().distance == -1 && 
+        mRover->roverStatus().leftCacheTarget().distance >= 0 ) {
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+                                           mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
     if( !started )
@@ -159,6 +174,12 @@ NavState SearchStateMachine::executeSearchTurn()
                                        mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
+    else if( mRover->roverStatus().leftTarget().distance == -1 && 
+        mRover->roverStatus().leftCacheTarget().distance >= 0 ) {
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+                                           mRover->roverStatus().odometry().bearing_deg );
+        return NavState::TurnToTarget;
+    }
     Odometry& nextSearchPoint = mSearchPoints.front();
     if( mRover->turn( nextSearchPoint ) )
     {
@@ -179,6 +200,14 @@ NavState SearchStateMachine::executeSearchDrive()
     if( mRover->roverStatus().leftTarget().distance >= 0 )
     {
         updateTargetDetectionElements( mRover->roverStatus().leftTarget().bearing,
+<<<<<<< HEAD
+=======
+                                           mRover->roverStatus().odometry().bearing_deg );
+        return NavState::TurnToTarget;
+    }
+    else if( mRover->roverStatus().leftTarget().distance == -1 && mRover->roverStatus().leftCacheTarget().distance >= 0 ) {
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
                                            mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
@@ -213,19 +242,48 @@ NavState SearchStateMachine::executeTurnToTarget()
 {
     if( mRover->roverStatus().leftTarget().distance < 0 )
     {
-        cerr << "Lost the target. Continuing to turn to last known angle\n";
-        if( mRover->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
-        {
-            return NavState::TurnedToTargetWait;
+        // TODO: Clean this up and/or move it to avoid duplication
+        if ( mRover->roverStatus().leftCacheTarget().distance != -1 ) {
+            if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing +
+                      mRover->roverStatus().odometry().bearing_deg ) )
+            {
+                return NavState::DriveToTarget;
+            }
+            updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+                                       mRover->roverStatus().odometry().bearing_deg );
+            return NavState::TurnToTarget;
         }
-        return NavState::TurnToTarget;
+        else {
+            cerr << "Lost the target. Continuing to turn to last known angle\n";
+            if( mRover->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
+            {
+                return NavState::TurnedToTargetWait;
+            }
+            return NavState::TurnToTarget;
+        }
     }
+<<<<<<< HEAD
     if( mRover->turn( mRover->roverStatus().leftTarget().bearing +
+=======
+
+    // Consider if we have a valid cache. If we do, use it. Otherwise, 
+    // can just use the regular leftTarget since it will be filled or empty
+    // (with the empty being verified by cache failing)
+    double bearing = ( mRover->roverStatus().leftTarget().distance == -1 
+        && mRover->roverStatus().leftCacheTarget().distance != -1 ) ? mRover->roverStatus().leftCacheTarget().bearing 
+            : mRover->roverStatus().leftTarget().bearing;
+
+    if( mRover->turn( bearing +
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
                       mRover->roverStatus().odometry().bearing_deg ) )
     {
         return NavState::DriveToTarget;
     }
+<<<<<<< HEAD
     updateTargetDetectionElements( mRover->roverStatus().leftTarget().bearing,
+=======
+    updateTargetDetectionElements( bearing,
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
                                        mRover->roverStatus().odometry().bearing_deg );
     return NavState::TurnToTarget;
 } // executeTurnToTarget()
@@ -240,12 +298,18 @@ NavState SearchStateMachine::executeTurnToTarget()
 // Else, it turns back to face the target.
 NavState SearchStateMachine::executeDriveToTarget()
 {
+<<<<<<< HEAD
     if( mRover->roverStatus().leftTarget().distance < 0 )
+=======
+    // Definitely cannot find the target
+    if( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance < 0 )
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
     {
         cerr << "Lost the target\n";
         return NavState::SearchTurn; // NavState::SearchSpin
     }
 
+    // Obstacle Detected
     if( isObstacleDetected( mRover ) &&
         !isTargetReachable( mRover, mRoverConfig )  && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
@@ -259,6 +323,16 @@ NavState SearchStateMachine::executeDriveToTarget()
     double distance = mRover->roverStatus().leftTarget().distance;
     double bearing = mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
 
+<<<<<<< HEAD
+=======
+    // Update if we have an empty leftTarget, BUT we have a valid cached leftTarget
+    if ( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance != -1 ) {
+        distance = mRover->roverStatus().leftCacheTarget().distance;
+        bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
+        cout << "USING CACHE" << endl;
+    }
+
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
     // Executes the logic for driving with 0, 1, or 2 targets in sight
     // If we have a second target detected, determine which post is closer
     // If the distance to the second target is less than the first,
@@ -266,11 +340,48 @@ NavState SearchStateMachine::executeDriveToTarget()
     // Else, use the initialized values from target 1 when driving
     if( mRover->roverStatus().rightTarget().distance > 0 )
     {
+<<<<<<< HEAD
+=======
+        // Valid leftTarget, perform comp.
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
         if( mRover->roverStatus().leftTarget().distance > mRover->roverStatus().rightTarget().distance ) 
         {
             distance = mRover->roverStatus().rightTarget().distance;
             bearing = mRover->roverStatus().rightTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
         }
+<<<<<<< HEAD
+=======
+        // If invalid leftTarget, check Cached target
+        else if( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance != -1 ) 
+        {
+            if( mRover->roverStatus().leftCacheTarget().distance > mRover->roverStatus().rightTarget().distance ) 
+            {
+                cout << "USING CACHE" << endl;
+                distance = mRover->roverStatus().rightTarget().distance;
+                bearing = mRover->roverStatus().rightTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
+            }
+        }
+    }
+    // Consider Cached rightTarget (in event we lose it for a sec)
+    else if ( mRover->roverStatus().rightTarget().distance < 0 && mRover->roverStatus().rightCacheTarget().distance != -1 ) 
+    {
+        // Main Case 2: Using right target and considering swap
+        if( mRover->roverStatus().leftTarget().distance > mRover->roverStatus().rightCacheTarget().distance ) 
+        {
+            cout << "USING CACHE" << endl;
+            distance = mRover->roverStatus().rightCacheTarget().distance;
+            bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
+        }
+        else if( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance != -1 ) 
+        {
+            if( mRover->roverStatus().leftCacheTarget().distance > mRover->roverStatus().rightCacheTarget().distance ) 
+            {
+                cout << "USING CACHE" << endl;
+                distance = mRover->roverStatus().rightCacheTarget().distance;
+                bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
+            }
+        }
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
     }
 
     driveStatus = mRover->drive( distance, bearing, true );
@@ -281,6 +392,7 @@ NavState SearchStateMachine::executeDriveToTarget()
         if( mRover->roverStatus().path().front().gate )
         {
             roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
+<<<<<<< HEAD
             const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
                                         mRover->roverStatus().leftTarget().bearing,
                                         360);
@@ -289,6 +401,32 @@ NavState SearchStateMachine::executeDriveToTarget()
                                                                                     mRover->roverStatus().leftTarget().distance,
                                                                                     mRover );
             roverStateMachine->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftTarget().id;
+=======
+            
+            if ( mRover->roverStatus().leftTarget().distance != -1 )
+            {
+                const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
+                                        mRover->roverStatus().leftTarget().bearing,
+                                        360);
+                roverStateMachine->mGateStateMachine->lastKnownRightPost.odom = createOdom( mRover->roverStatus().odometry(),
+                                                                                    absAngle,
+                                                                                    mRover->roverStatus().leftTarget().distance,
+                                                                                    mRover );
+                roverStateMachine->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftTarget().id;
+            }
+            else 
+            {
+                cout << "USING CACHE" << endl;
+                const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
+                                        mRover->roverStatus().leftCacheTarget().bearing,
+                                        360);
+                roverStateMachine->mGateStateMachine->lastKnownRightPost.odom = createOdom( mRover->roverStatus().odometry(),
+                                                                                    absAngle,
+                                                                                    mRover->roverStatus().leftCacheTarget().distance,
+                                                                                    mRover );
+                roverStateMachine->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftCacheTarget().id;
+            }
+>>>>>>> b5fa5c8a (Target Caching System for Nav.)
             return NavState::GateSpin;
         }
         mRover->roverStatus().path().pop_front();
