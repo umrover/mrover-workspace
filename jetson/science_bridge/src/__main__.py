@@ -108,12 +108,20 @@ class ScienceBridge():
         # According to https://docs.google.com/spreadsheets/d/1x291oHOigmm7G-pxjsBUFsEbyl81ZurAz7vuSyXmgXo/edit#gid=0
         
         # Laser and UV LED share pins 1 and 2
-        if (translated_device == 3):
-            translated_device = 1
-        elif (translated_device == 4):
-            translated_device = 2
-        # Everything past these is now offset by 2
-        elif(translated_device > 4):
+        # const int8_t rLed = 0;
+        # const int8_t gLed = 1;
+        # const int8_t bLed = 2;
+        # const int8_t Laser = 3;
+        # const int8_t UVLED = 4;
+        # const int8_t whiteLED = 5;
+        # const int8_t uvBulb = 6;
+        # const int8_t nichWire0 = 7;
+        # const int8_t nichWire1 = 8;
+        # const int8_t nichWire2 = 9;
+        # const int8_t ramanLaser = 10;
+        # Starts from 0-2 for all the leds
+        # Resets to 1 starting at Laser(3) so offset by 2
+        if(translated_device > 2):
             translated_device -= 2
         message = message.format(device=translated_device,
                                  enable=int(struct.enable))
@@ -123,7 +131,7 @@ class ScienceBridge():
         # No way we use 100 devices
         # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
         # single digits have 7 + 1 + 1 + 1 + 1 + 1 + 7 = 19, need to add one
-        if(int(struct.device) < 10):
+        if(int(translated_device) < 10):
             # Add an extra 1 for padding
             message += "1"
         self.ser.close()
