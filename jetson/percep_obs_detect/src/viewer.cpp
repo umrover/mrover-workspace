@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-//#include "imgui_impl_opengl3.h"
+#include "imgui_impl_opengl3.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 
@@ -290,11 +290,11 @@ Viewer::Viewer()
     glfwSetKeyCallback(window, keyCallback);
     glfwSetCursorPosCallback(window, cursorPosCallback);
 
-//    IMGUI_CHECKVERSION();
-//    ImGui::CreateContext();
-//    ImGuiIO& io = ImGui::GetIO();
-//    ImGui_ImplOpenGL3_Init(reinterpret_cast<char const*>(glGetString(GL_VERSION)));
-//    ImGui::StyleColorsDark();
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui_ImplOpenGL3_Init(reinterpret_cast<char const*>(glGetString(GL_VERSION)));
+    ImGui::StyleColorsDark();
 }
 
 Viewer::~Viewer() {
