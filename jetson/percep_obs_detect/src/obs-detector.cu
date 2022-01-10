@@ -124,31 +124,34 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
     //lcm_.publish("/obstacle", &obstacleMessage);
 }
 
+void ObsDetector::drawCubes(EuclideanClusterExtractor::ObsReturn obsList, bool color_flag)
+{
+  for(int i = 0; i < obsList.obs.size(); i++) {
+      std::vector<vec3> points = {vec3(obsList.obs[i].minX, obsList.obs[i].minY, obsList.obs[i].minZ),
+                                  vec3(obslist.obs[i].maxX, obsList.obs[i].minY, obsList.obs[i].minZ),
+                                  vec3(obsList.obs[i].maxX, obsList.obs[i].maxY, obsList.obs[i].minZ),
+                                  vec3(obsList.obs[i].minX, obsList.obs[i].maxY, obsList.obs[i].minZ),
+                                  vec3(obsList.obs[i].minX, obsList.obs[i].minY, obsList.obs[i].maxZ),
+                                  vec3(obsList.obs[i].maxX, obsList.obs[i].minY, obslist.obs[i].maxZ),
+                                  vec3(obsList.obs[i].maxX, obsList.obs[i].maxY, obsList.obs[i].maxZ),
+                                  vec3(obsList.obs[i].minX, obsList.obs[i].maxY, obsList.obs[i].maxZ),};
+      std::vector<vec3> colors;
+      if(color_flag)
+        for(int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f)); //green
+      else
+        for(int q = 0; q < 8; q++) colors.push_back(vec3(1.0f, 0.0f, 0.0f)); //red
+      std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
+      Object3D obj(points, colors, indicies);
+      viewer.addObject(obj, true);
+}
+
 void ObsDetector::spinViewer() {
     // This creates bounding boxes for visualization
     // There might be a clever automatic indexing scheme to optimize this
-
-    /* MAKE THIS ITS OWN FUNCTION */
-    /* CALL IT DRAWCUBE OR SOMETHING */
-    for(int i = 0; i < obstacles.obs.size(); i++) {
-        std::vector<vec3> points = {vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].minZ),
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].minZ),
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].minZ),
-                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].minZ),
-                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].maxZ),
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].maxZ),
-                                    vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ),
-                                    vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ),};
-        std::vector<vec3> colors;
-        for(int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f));
-        std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
-        Object3D obj(points, colors, indicies);
-        viewer.addObject(obj, true);
-        /*MAKE ABOVE OWN FUNCTION */
-    }
-
-    viewer.update();
-    viewer.clearEphemerals();
+    if(!OperationMode::TEST)
+        drawCubes(obstacles,1); // 1 for green, 0 for red
+        viewer.update();
+        viewer.clearEphemerals();
 
 }
 
@@ -219,6 +222,13 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
 
     clock_times.push_back(clock_count.getTime());
     clock_count.reset();
+
+    /* Add time delay in viewer */
+    drawCubes(measured[i],   1);
+    drawCubes(truth_list[i], 0);
+    viewer.update();
+    viewer.clearEphemerals();
+
     /* ––––––––––––––––––––––––––––––––– */
     std::cout << "Detected " << measured[i].obs.size() << " Obstacles for GPU Cloud " << i << "\n";
 
@@ -329,10 +339,20 @@ int main() {
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
+<<<<<<< Updated upstream
     while(true) {
        //obs.update();
        obs.spinViewer();
     }
+=======
+    obs.test_input_file();
+
+    if(mode != OperationMode::TEST)
+      while(true) {
+        //obs.update();
+        obs.spinViewer();
+      }
+>>>>>>> Stashed changes
 
 
     return 0;

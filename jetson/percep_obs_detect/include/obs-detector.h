@@ -69,6 +69,13 @@ class ObsDetector {
         void update(GPU_Cloud pc);
 
         /**
+         * \brief Draws cubes for spinViewer()
+         * \param obsList: vector of Obstacles
+         * \param color_flag: flag for the color of the drawn obstacles
+         */
+        void drawCubes(EuclideanClusterExtractor::ObsReturn obsList, bool color_flag);
+
+        /**
          * \brief Do viewer update tick, it may be desirable to call this in its own thread
          */
         void spinViewer();
