@@ -104,12 +104,14 @@ int main() {
     lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
     
     std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
+    std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);
 
     while( lcmObject.handle() == 0 ) {
         // run kinematics
     }
 
     execute_spline.join();
+    send_arm_position.join();
 
     return 0;
 }

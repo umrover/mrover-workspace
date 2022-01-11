@@ -5,7 +5,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
                         SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, FootCmd)
+                        Keyboard, FootCmd, ArmControlState)
 
 
 class Toggle:
@@ -33,6 +33,7 @@ class Toggle:
 lcm_ = aiolcm.AsyncLCM()
 prev_killed = False
 kill_motor = False
+arm_control_state = "open-loop"
 lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
@@ -107,7 +108,7 @@ def joystick_math(new_motor, magnitude, theta):
 
 
 def drive_control_callback(channel, msg):
-    global kill_motor, connection
+    global kill_motor, connection, arm_control_state
 
     if not connection:
         return
@@ -121,7 +122,7 @@ def drive_control_callback(channel, msg):
 
     if kill_motor:
         send_drive_kill()
-    else:
+    elif arm_control_state:
         new_motor = DriveVelCmd()
         input_data.forward_back = -quadratic(input_data.forward_back)
         magnitude = deadzone(input_data.forward_back, 0.04)
@@ -135,28 +136,64 @@ def drive_control_callback(channel, msg):
 
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
-
-def ra_control_callback(channel, msg):
-    xboxData = Xbox.decode(msg)
-
-    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
-                    -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    deadzone(quadratic(xboxData.right_js_y), 0.09),
-                    deadzone(quadratic(xboxData.right_js_x), 0.09),
-                    quadratic(xboxData.right_trigger -
-                              xboxData.left_trigger),
-                    (xboxData.right_bumper - xboxData.left_bumper)]
+def send_zero_arm_command():
+    motor_speeds = [0,0,0,0,0,0]
 
     openloop_msg = RAOpenLoopCmd()
     openloop_msg.throttle = motor_speeds
 
     lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
 
+
+
     hand_msg = HandCmd()
-    hand_msg.finger = xboxData.y - xboxData.a
-    hand_msg.grip = xboxData.b - xboxData.x
+    hand_msg.finger = 0
+    hand_msg.grip = 0
 
     lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+
+
+def arm_control_state_callback(channel, msg):
+    global arm_control_state
+
+    input_data = ArmControlState.decode(msg)
+
+    arm_control_state = input_data.state
+    
+    if arm_control_state == 'ik' or arm_control_state == 'idle':
+        send_zero_arm_command()
+    
+
+def ra_control_callback(channel, msg):
+
+    # if arm_control_state == idle, send 0 values
+    if arm_control_state == "idle":
+        send_zero_arm_command()
+
+    # if arm_control_state == open-loop, send xbox input
+    elif arm_control_state == "open-loop":
+        xboxData = Xbox.decode(msg)
+
+        motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
+                        -deadzone(quadratic(xboxData.left_js_y), 0.09),
+                        deadzone(quadratic(xboxData.right_js_y), 0.09),
+                        deadzone(quadratic(xboxData.right_js_x), 0.09),
+                        quadratic(xboxData.right_trigger -
+                                xboxData.left_trigger),
+                        (xboxData.right_bumper - xboxData.left_bumper)]
+
+        openloop_msg = RAOpenLoopCmd()
+        openloop_msg.throttle = motor_speeds
+
+        lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+
+        hand_msg = HandCmd()
+        hand_msg.finger = xboxData.y - xboxData.a
+        hand_msg.grip = xboxData.b - xboxData.x
+
+        lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+
+    # otherwise, if arm_control_state == ik, do nothing
 
 
 def autonomous_callback(channel, msg):
@@ -247,7 +284,9 @@ def main():
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
+    lcm_.subscribe('/arm_control_state', arm_control_state_callback)
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())
+

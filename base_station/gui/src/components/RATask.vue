@@ -148,7 +148,7 @@ export default {
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
-        {'topic': '/encoder', 'type': 'Encoder'},
+        {'topic': '/arm_position', 'type': 'ArmPosition'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'}
       ]

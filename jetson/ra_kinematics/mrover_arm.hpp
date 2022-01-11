@@ -8,6 +8,7 @@
 #include "kluge/spline.h"
 
 #include <deque>
+#include <mutex>
 
 #include "mrover_arm.hpp"
 #include "arm_state.hpp"
@@ -36,7 +37,7 @@ typedef Matrix<double, 6, 1> Vector6d;
 static constexpr double D_SPLINE_T = 0.01;
 
 // in ms, wait time for execute_spline loop
-static constexpr double SPLINE_WAIT_TIME = 100;
+static constexpr int SPLINE_WAIT_TIME = 100;
 
 // Angle in radians to determine when encoders are sending faulty values
 static constexpr double ENCODER_ERROR_THRESHOLD = 0.2;
@@ -44,9 +45,10 @@ static constexpr double ENCODER_ERROR_THRESHOLD = 0.2;
 static constexpr size_t MAX_NUM_PREV_ANGLES = 5;
 static constexpr size_t MAX_FISHY_VALS = 1;
 
-static constexpr double ZERO_ENCODER_VALUE = 0;
-static constexpr double ZERO_ENCODER_EPSILON = 0.00000001;
+static constexpr double DUD_ENCODER_EPSILON = 0.00000001;
 
+//Angle in radians that physical arm can be without causing problems
+static constexpr double ACCEPTABLE_BEYOND_LIMIT = 0.05;
 
 /**
 * This is the MRoverArm class, responsible for
@@ -70,6 +72,11 @@ private:
 
     std::vector< std::deque<double> > prev_angles;
     std::vector<bool> faulty_encoders;
+
+    std::mutex encoder_angles_sender_mtx;
+
+    
+    std::vector<double> DUD_ENCODER_VALUES;
 
 public:
 
@@ -117,7 +124,7 @@ public:
      * */
     void execute_spline();
 
-    void preview();
+    void preview(ArmState& hypo_state);
 
     /**
     * Allows for locking individual joints
@@ -134,18 +141,20 @@ public:
 
     void cartesian_control_callback(std::string channel, IkArmControl msg);
 
+    void encoder_angles_sender();
+
 private:
     void publish_config(const std::vector<double> &config, std::string channel);
 
     void publish_transforms(const ArmState &state);
 
-    void plan_path(Vector6d goal);
+    void plan_path(ArmState& hypo_state, Vector6d goal);
 
     void matrix_helper(double arr[4][4], const Matrix4d &mat);
 
-    bool check_zero_encoder(const std::vector<double> &angles) const;
+    void check_dud_encoder(std::vector<double> &angles) const;
 
-    bool check_joint_limits(const std::vector<double> &angles);
+    void check_joint_limits(std::vector<double> &angles);
 };
 
 

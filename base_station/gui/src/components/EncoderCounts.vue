@@ -25,7 +25,7 @@ export default {
   },
 
   created: function () {
-    this.$parent.subscribe('/encoder', (msg) => {
+    this.$parent.subscribe('/arm_position', (msg) => {
       this.encoderCounts = msg
     })
   }

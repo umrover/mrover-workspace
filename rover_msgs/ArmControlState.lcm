@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct ArmControlState {
+    string state; // "open-loop" for Open Loop Control, "ik" for Inverse Kinematics, "idle" for neither
+}
