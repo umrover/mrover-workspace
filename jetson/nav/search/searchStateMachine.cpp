@@ -210,7 +210,7 @@ NavState SearchStateMachine::executeTurnToTarget()
     if( mRover->roverStatus().leftTarget().distance < 0 )
     {
         // TODO: Clean this up and/or move it to avoid duplication
-        if ( mRover->roverStatus().leftCacheTarget().distance != -1 ) {
+        if ( mRover->roverStatus().leftCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) {
             if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing +
                       mRover->roverStatus().odometry().bearing_deg ) )
             {
@@ -233,8 +233,8 @@ NavState SearchStateMachine::executeTurnToTarget()
     // Consider if we have a valid cache. If we do, use it. Otherwise, 
     // can just use the regular leftTarget since it will be filled or empty
     // (with the empty being verified by cache failing)
-    double bearing = ( mRover->roverStatus().leftTarget().distance == -1 
-        && mRover->roverStatus().leftCacheTarget().distance != -1 ) 
+    double bearing = ( mRover->roverStatus().leftTarget().distance == mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble()
+        && mRover->roverStatus().leftCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
             ? mRover->roverStatus().leftCacheTarget().bearing 
                 : mRover->roverStatus().leftTarget().bearing;
 
@@ -259,7 +259,9 @@ NavState SearchStateMachine::executeTurnToTarget()
 NavState SearchStateMachine::executeDriveToTarget()
 {
     // Definitely cannot find the target
-    if( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance < 0 )
+    if( mRover->roverStatus().leftTarget().distance == mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() 
+        && mRover->roverStatus().leftCacheTarget().distance == 
+            mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
         cerr << "Lost the target\n";
         return NavState::SearchTurn; // NavState::SearchSpin
@@ -280,7 +282,9 @@ NavState SearchStateMachine::executeDriveToTarget()
     double bearing = mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
 
     // Update if we have an empty leftTarget, BUT we have a valid cached leftTarget
-    if( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance != -1 ) 
+    if( mRover->roverStatus().leftTarget().distance == 
+        mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() && 
+            mRover->roverStatus().leftCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
     {
         distance = mRover->roverStatus().leftCacheTarget().distance;
         bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
@@ -291,7 +295,7 @@ NavState SearchStateMachine::executeDriveToTarget()
     // If the distance to the second target is less than the first,
     // set our variables to the target 2's distance and bearing
     // Else, use the initialized values from target 1 when driving
-    if( mRover->roverStatus().rightTarget().distance > 0 )
+    if( mRover->roverStatus().rightTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
         // Valid rightTarget, which means we also have a valid leftTarget, so we can compare
         // those two rather than using cached ones.
@@ -301,12 +305,12 @@ NavState SearchStateMachine::executeDriveToTarget()
             bearing = mRover->roverStatus().rightTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
         }
     }
-    // Consider Cached rightTarget 
-    else if( mRover->roverStatus().rightTarget().distance < 0 && mRover->roverStatus().rightCacheTarget().distance != -1 ) 
+    // If we can't use the rightTarget, check if we can use the cached one
+    else if( mRover->roverStatus().rightCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
     {
         // Check leftTarget Validity (possibly that if rightTarget isn't valid, leftTarget is)
         if( mRover->roverStatus().leftTarget().distance > mRover->roverStatus().rightCacheTarget().distance &&
-            mRover->roverStatus().leftTarget().distance != -1 ) 
+            mRover->roverStatus().leftTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
         {
             distance = mRover->roverStatus().rightCacheTarget().distance;
             bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
@@ -314,7 +318,7 @@ NavState SearchStateMachine::executeDriveToTarget()
         // Check if leftCacheTarget is valid (above would fail is leftTarget isn't,
         // so no need to check again)
         else if( mRover->roverStatus().leftCacheTarget().distance > mRover->roverStatus().rightCacheTarget().distance &&
-            mRover->roverStatus().leftCacheTarget().distance != -1 ) 
+            mRover->roverStatus().leftCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
         {
                 distance = mRover->roverStatus().rightCacheTarget().distance;
                 bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;

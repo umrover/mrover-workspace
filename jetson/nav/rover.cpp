@@ -266,10 +266,10 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
 
             // Cache Target if we had detected one
-            if( mRoverStatus.leftTarget().distance != -1 ) 
+            if( mRoverStatus.leftTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
             {
                 mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
-                if( mRoverStatus.rightTarget().distance != -1 ) 
+                if( mRoverStatus.rightTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
                 {
                     mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
                 }

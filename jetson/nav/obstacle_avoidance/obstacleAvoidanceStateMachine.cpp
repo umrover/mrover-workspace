@@ -68,7 +68,7 @@ NavState ObstacleAvoidanceStateMachine::run()
 bool ObstacleAvoidanceStateMachine::isTargetDetected ()
 {
     // Second check is to see if we have either a valid target, or if we have a valid
-    // cached target
+    // cached target to view
     return ( mRover->roverStatus().currentState() == NavState::SearchTurnAroundObs &&
              ( mRover->roverStatus().leftTarget().distance >= 0 || 
                 ( mRover->roverStatus().leftTarget().distance < 0 && 
