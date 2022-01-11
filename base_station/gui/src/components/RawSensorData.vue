@@ -9,16 +9,16 @@
       <p v-if="this.min_enabled">{{formatted_gps.lat.m}}'</p>
       <p v-if="this.sec_enabled">{{formatted_gps.lat.s}}"</p>
       N,
-      <p>Lon:</p>
+      <p>&nbsp;Lon:</p>
       <p>{{formatted_gps.lon.d}}º</p>
       <p v-if="this.min_enabled">{{formatted_gps.lon.m}}'</p>
       <p v-if="this.sec_enabled">{{formatted_gps.lon.s}}"</p>
       W
-      <p>Bearing: {{GPS.bearing_deg.toFixed(2)}}º</p>
+      <p>&nbsp;Bearing: {{GPS.bearing_deg.toFixed(2)}}º</p>
     </div>
     <div>
-      <p>IMU: accel_x: {{ IMU.accel_x }} accel_y: {{ IMU.accel_y  }} accel_z: {{ IMU.accel_z }} gyro_x: {{ IMU.gyro_x }} gyro_y: {{ IMU.gyro_y }} gyro_z: {{ IMU.gyro_z }}
-      mag_x: {{ IMU.mag_x }} mag_y: {{ IMU.mag_y  }} mag_z: {{ IMU.mag_z }} bearing: {{ IMU.bearing.toFixed(2) }}</p>
+      <p>IMU: accel_x: {{ IMU.accel_x }} accel_y: {{ IMU.accel_y  }} accel_z: {{ IMU.accel_z }} &nbsp;gyro_x: {{ IMU.gyro_x }} gyro_y: {{ IMU.gyro_y }} gyro_z: {{ IMU.gyro_z }}
+      &nbsp;mag_x: {{ IMU.mag_x }} mag_y: {{ IMU.mag_y  }} mag_z: {{ IMU.mag_z }} bearing: {{ IMU.bearing.toFixed(2) }}</p>
     </div>
   </div>
 </div>
@@ -67,7 +67,7 @@ export default {
 <style scoped>
 
   .main-content h3{
-    margin: 0px 0px 5px 0px;
+    margin: 0px 0px 0px 5px;
     padding: 0px 0px 0px 0px;
   }
 
