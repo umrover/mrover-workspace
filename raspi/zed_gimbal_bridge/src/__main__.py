@@ -31,14 +31,11 @@ async def zed_gimbal_position_callback(channel, msg):
     await c.set_position(position=math.nan, velocity=0.2, maximum_torque=0.3,
                          stop_position=desired_position_revolutions, watchdog_timeout=70, query=False)
 
-    await c.set_stop()
-
 
 async def publish_zed_gimbal_position():
     while (True):
         global desired_position_revolutions
-        state = await c.set_position(position=math.nan, velocity=0.2, maximum_torque=0.3,
-                                     stop_position=desired_position_revolutions, watchdog_timeout=70, query=True)
+        state = await c.query()
 
         position_revolutions = state.values[moteus.Register.POSITION]
         position_degrees = 360.0 * position_revolutions
