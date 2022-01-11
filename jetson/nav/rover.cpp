@@ -11,6 +11,8 @@ Rover::RoverStatus::RoverStatus()
     : mCurrentState( NavState::Off )
 {
     mAutonState.is_auton = false;
+    mCTarget1 = {-1, 0, 0};
+    mCTarget2 = {-1, 0, 0};
 } // RoverStatus()
 
 // Gets a reference to the rover's current navigation state.
@@ -262,54 +264,36 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
 
-            // Perform basic caching, include special case when
-            // we store for the first time, but store an empty one
-            // so we don't just have "junk" in the target Cache.
-            if ( mRoverStatus.leftTarget().distance != -1 ) 
+            // Cache Target if we had detected one
+            if( mRoverStatus.leftTarget().distance != -1 ) 
             {
                 mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
+                if( mRoverStatus.rightTarget().distance != -1 ) 
+                {
+                    mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
+                }
                 mRoverStatus.getMisses() = 0;
             }
             else 
-            { // if this is empty, then so is rightTarget. increment misses
+            { // if leftTarget is empty, so is rightTarget
                 mRoverStatus.getMisses()++;
             }
 
-            // Note: The only time this updates is ONLY if the leftTarget updates (by default
-            // the first target seen will be stored in leftTarget, and even if only 1 is seen
-            // this won't update, so we should be fine)
-            if ( mRoverStatus.rightTarget().distance != -1 ) 
-            {
-                mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
-                mRoverStatus.getMisses() = 0;
-            }
-
-
-            // If we have too many misses in a row, then we know we definitely are missing the Tag,
-            // so we can set the cache to the left/right target (which both should be empty)
-            // Must also do the reset once we finish a gate search
-            if ( mRoverStatus.getMisses() > mRoverConfig[ "navThresholds" ][ "cacheMissMax" ].GetDouble() )
+            // Check if we need to reset
+            if( mRoverStatus.getMisses() > mRoverConfig[ "navThresholds" ][ "cacheMissMax" ].GetDouble() )
             {
                 mRoverStatus.getMisses() = 0;
-                // these will be zero, so set them as such since we know
-                // they definitely aren't there
-                mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
-                mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
+                // Set to empty target
+                mRoverStatus.leftCacheTarget() = {-1, 0, 0};
+                mRoverStatus.rightCacheTarget() = {-1, 0, 0};
             }
-
-
-            cout << "LEFT CACHE (distance, bearing): (" << mRoverStatus.leftCacheTarget().distance << "," << mRoverStatus.leftCacheTarget().bearing << ")" << endl;
-            cout << "RIGHT CACHE (distance, bearing): (" << mRoverStatus.rightCacheTarget().distance << "," << mRoverStatus.rightCacheTarget().bearing << ")" << endl;
-            cout << "MISSES COUNT: " << mRoverStatus.getMisses() << endl;
-
+            
             mRoverStatus.radio() = newRoverStatus.radio();
             updateRepeater( mRoverStatus.radio() );
             return true;
         }
-
         return false;
     }
-
     // Rover currently off.
     else
     {

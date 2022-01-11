@@ -75,18 +75,11 @@ NavState SearchStateMachine::executeSearchSpin()
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
 
-    if( mRover->roverStatus().leftTarget().distance >= 0 )
+    if ( checkTurnStatus() )
     {
-        updateTargetDetectionElements( mRover->roverStatus().leftTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    else if( mRover->roverStatus().leftTarget().distance == -1 && 
-        mRover->roverStatus().leftCacheTarget().distance >= 0 ) {
-        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToTarget;
-    }
+
     if( nextStop == 0 )
     {
         // get current angle and set as origAngle
@@ -116,18 +109,11 @@ NavState SearchStateMachine::executeRoverWait()
     static bool started = false;
     static time_t startTime;
 
-    if( mRover->roverStatus().leftTarget().distance >= 0 )
+    if ( checkTurnStatus() )
     {
-        updateTargetDetectionElements( mRover->roverStatus().leftTarget().bearing,
-                                       mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    else if( mRover->roverStatus().leftTarget().distance == -1 && 
-        mRover->roverStatus().leftCacheTarget().distance >= 0 ) {
-        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToTarget;
-    }
+
     if( !started )
     {
         mRover->stop();
@@ -165,18 +151,12 @@ NavState SearchStateMachine::executeSearchTurn()
     {
         return NavState::ChangeSearchAlg;
     }
-    if( mRover->roverStatus().leftTarget().distance >= 0 )
+
+    if ( checkTurnStatus() )
     {
-        updateTargetDetectionElements( mRover->roverStatus().leftTarget().bearing,
-                                       mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
-    else if( mRover->roverStatus().leftTarget().distance == -1 && 
-        mRover->roverStatus().leftCacheTarget().distance >= 0 ) {
-        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToTarget;
-    }
+
     Odometry& nextSearchPoint = mSearchPoints.front();
     if( mRover->turn( nextSearchPoint ) )
     {
@@ -194,15 +174,8 @@ NavState SearchStateMachine::executeSearchTurn()
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
 NavState SearchStateMachine::executeSearchDrive()
 {
-    if( mRover->roverStatus().leftTarget().distance >= 0 )
+    if ( checkTurnStatus() )
     {
-        updateTargetDetectionElements( mRover->roverStatus().leftTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToTarget;
-    }
-    else if( mRover->roverStatus().leftTarget().distance == -1 && mRover->roverStatus().leftCacheTarget().distance >= 0 ) {
-        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
 
@@ -261,8 +234,9 @@ NavState SearchStateMachine::executeTurnToTarget()
     // can just use the regular leftTarget since it will be filled or empty
     // (with the empty being verified by cache failing)
     double bearing = ( mRover->roverStatus().leftTarget().distance == -1 
-        && mRover->roverStatus().leftCacheTarget().distance != -1 ) ? mRover->roverStatus().leftCacheTarget().bearing 
-            : mRover->roverStatus().leftTarget().bearing;
+        && mRover->roverStatus().leftCacheTarget().distance != -1 ) 
+            ? mRover->roverStatus().leftCacheTarget().bearing 
+                : mRover->roverStatus().leftTarget().bearing;
 
     if( mRover->turn( bearing +
                       mRover->roverStatus().odometry().bearing_deg ) )
@@ -306,10 +280,10 @@ NavState SearchStateMachine::executeDriveToTarget()
     double bearing = mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
 
     // Update if we have an empty leftTarget, BUT we have a valid cached leftTarget
-    if ( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance != -1 ) {
+    if( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance != -1 ) 
+    {
         distance = mRover->roverStatus().leftCacheTarget().distance;
         bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-        cout << "USING CACHE" << endl;
     }
 
     // Executes the logic for driving with 0, 1, or 2 targets in sight
@@ -319,41 +293,31 @@ NavState SearchStateMachine::executeDriveToTarget()
     // Else, use the initialized values from target 1 when driving
     if( mRover->roverStatus().rightTarget().distance > 0 )
     {
-        // Valid leftTarget, perform comp.
+        // Valid rightTarget, which means we also have a valid leftTarget, so we can compare
+        // those two rather than using cached ones.
         if( mRover->roverStatus().leftTarget().distance > mRover->roverStatus().rightTarget().distance ) 
         {
             distance = mRover->roverStatus().rightTarget().distance;
             bearing = mRover->roverStatus().rightTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
         }
-        // If invalid leftTarget, check Cached target
-        else if( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance != -1 ) 
-        {
-            if( mRover->roverStatus().leftCacheTarget().distance > mRover->roverStatus().rightTarget().distance ) 
-            {
-                cout << "USING CACHE" << endl;
-                distance = mRover->roverStatus().rightTarget().distance;
-                bearing = mRover->roverStatus().rightTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-            }
-        }
     }
-    // Consider Cached rightTarget (in event we lose it for a sec)
-    else if ( mRover->roverStatus().rightTarget().distance < 0 && mRover->roverStatus().rightCacheTarget().distance != -1 ) 
+    // Consider Cached rightTarget 
+    else if( mRover->roverStatus().rightTarget().distance < 0 && mRover->roverStatus().rightCacheTarget().distance != -1 ) 
     {
-        // Main Case 2: Using right target and considering swap
-        if( mRover->roverStatus().leftTarget().distance > mRover->roverStatus().rightCacheTarget().distance ) 
+        // Check leftTarget Validity (possibly that if rightTarget isn't valid, leftTarget is)
+        if( mRover->roverStatus().leftTarget().distance > mRover->roverStatus().rightCacheTarget().distance &&
+            mRover->roverStatus().leftTarget().distance != -1 ) 
         {
-            cout << "USING CACHE" << endl;
             distance = mRover->roverStatus().rightCacheTarget().distance;
             bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
         }
-        else if( mRover->roverStatus().leftTarget().distance < 0 && mRover->roverStatus().leftCacheTarget().distance != -1 ) 
+        // Check if leftCacheTarget is valid (above would fail is leftTarget isn't,
+        // so no need to check again)
+        else if( mRover->roverStatus().leftCacheTarget().distance > mRover->roverStatus().rightCacheTarget().distance &&
+            mRover->roverStatus().leftCacheTarget().distance != -1 ) 
         {
-            if( mRover->roverStatus().leftCacheTarget().distance > mRover->roverStatus().rightCacheTarget().distance ) 
-            {
-                cout << "USING CACHE" << endl;
                 distance = mRover->roverStatus().rightCacheTarget().distance;
                 bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-            }
         }
     }
 
@@ -366,7 +330,7 @@ NavState SearchStateMachine::executeDriveToTarget()
         {
             roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
             
-            if ( mRover->roverStatus().leftTarget().distance != -1 )
+            if( mRover->roverStatus().leftTarget().distance != -1 )
             {
                 const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
                                         mRover->roverStatus().leftTarget().bearing,
@@ -379,7 +343,6 @@ NavState SearchStateMachine::executeDriveToTarget()
             }
             else 
             {
-                cout << "USING CACHE" << endl;
                 const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
                                         mRover->roverStatus().leftCacheTarget().bearing,
                                         360);
@@ -453,6 +416,26 @@ void SearchStateMachine::insertIntermediatePoints()
         }
     }
 } // insertIntermediatePoints()
+
+bool SearchStateMachine::checkTurnStatus() {
+    double updateBearing = ( mRover->roverStatus().leftTarget().distance == -1 
+        && mRover->roverStatus().leftCacheTarget().distance >= 0 ) 
+            ? mRover->roverStatus().leftCacheTarget().bearing
+                : mRover->roverStatus().leftTarget().bearing;
+
+    if( mRover->roverStatus().leftTarget().distance >= 0 ||
+        ( mRover->roverStatus().leftTarget().distance == -1 
+            && mRover->roverStatus().leftCacheTarget().distance >= 0 ) )
+    {
+        updateTargetDetectionElements( updateBearing,
+                                        mRover->roverStatus().odometry().bearing_deg );
+        return true;
+    }
+    else 
+    {
+        return false;
+    }
+} // checkTurnStatus()
 
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms
