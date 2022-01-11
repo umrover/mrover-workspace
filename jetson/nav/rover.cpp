@@ -11,8 +11,10 @@ Rover::RoverStatus::RoverStatus()
     : mCurrentState( NavState::Off )
 {
     mAutonState.is_auton = false;
-    mCTarget1 = {-1, 0, 0};
-    mCTarget2 = {-1, 0, 0};
+    // {-1, 0, 0} refers to the struct of an empty Target
+    // which means distance = -1, bearing = 0, id = 0
+    mCTargetLeft = {-1, 0, 0};
+    mCTargetRight = {-1, 0, 0};
 } // RoverStatus()
 
 // Gets a reference to the rover's current navigation state.
@@ -54,22 +56,22 @@ Odometry& Rover::RoverStatus::odometry()
 // Gets a reference to the rover's first target's current information.
 Target& Rover::RoverStatus::leftTarget()
 {
-    return mTarget1;
+    return mTargetLeft;
 } // leftTarget()
 
 Target& Rover::RoverStatus::rightTarget() 
 {
-    return mTarget2;
+    return mTargetRight;
 } // rightTarget()
 
 Target& Rover::RoverStatus::leftCacheTarget()
 {
-    return mCTarget1;
+    return mCTargetLeft;
 } // leftCacheTarget()
 
 Target& Rover::RoverStatus::rightCacheTarget() 
 {
-    return mCTarget2;
+    return mCTargetRight;
 } // rightCacheTarget()
 
 RadioSignalStrength& Rover::RoverStatus::radio() 
@@ -107,13 +109,12 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
             ++mPathTargets;
         }
     }
-    countMisses = newRoverStatus.getMisses();
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();
-    mTarget1 = newRoverStatus.leftTarget();
-    mTarget2 = newRoverStatus.rightTarget();
-    mCTarget1 = newRoverStatus.leftCacheTarget();
-    mCTarget2 = newRoverStatus.rightCacheTarget();
+    mTargetLeft = newRoverStatus.leftTarget();
+    mTargetRight = newRoverStatus.rightTarget();
+    mCTargetLeft = newRoverStatus.leftCacheTarget();
+    mCTargetRight = newRoverStatus.rightCacheTarget();
     mSignal = newRoverStatus.radio();
     countMisses = newRoverStatus.getMisses();
     return *this;

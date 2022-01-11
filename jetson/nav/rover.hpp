@@ -155,14 +155,14 @@ public:
 
         // The rover's current target information from computer
         // vision.
-        Target mTarget1;
+        Target mTargetLeft;
 
-        Target mTarget2;
+        Target mTargetRight;
 
         // Cached Target information
-        Target mCTarget1;
+        Target mCTargetLeft;
 
-        Target mCTarget2;
+        Target mCTargetRight;
 
         // the rover's current signal strength to the base station
         RadioSignalStrength mSignal;
