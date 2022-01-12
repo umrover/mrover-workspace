@@ -172,6 +172,10 @@ kineval.initlcmbridge = function initlcmbridge() {
                     target_geom.color = 0xff3300
                     window.alert("No IK solution found. Please try a different configuration.")
                 }
+                else if (msg['message']['message'] === 'Unsafe Starting Position') {
+                    target_geom.color = 0xff3300
+                    window.alert("Starting position deemed unsafe. Please adjust in Open Loop.")
+                }
                 else if (msg['message']['message'].includes("Preview Done")) {
 
                     // focus window to ensure popup appears

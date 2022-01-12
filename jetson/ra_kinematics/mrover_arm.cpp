@@ -130,13 +130,23 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
         std::cout << "Target orientation: " << msg.alpha << "\t" << msg.beta << "\t" << msg.gamma << "\n";
     }
 
-    ArmState hypo_state = state;
-
     std::cout << "Initial joint angles: ";
-    for (double ang : hypo_state.get_joint_angles()) {
+    for (double ang : state.get_joint_angles()) {
         std::cout << ang << "\t"; 
     }
     std::cout << "\n";
+
+    if (!solver.is_safe(state)) {
+        std::cout << "STARTING POSITION NOT SAFE, please adjust arm in Open Loop.\n";
+
+        DebugMessage msg;
+        msg.isError = false;
+        msg.message = "Unsafe Starting Position";
+        
+        // send popup message to GUI
+        lcm_.publish("/debug_message", &msg);
+        return;
+    }
 
     enable_execute = false;
 
@@ -149,6 +159,8 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
     point(3) = (double) msg.alpha;
     point(4) = (double) msg.beta;
     point(5) = (double) msg.gamma;
+
+    ArmState hypo_state = state;
 
     // attempt to find ik_solution, starting at current position
     std::pair<Vector6d, bool> ik_solution = solver.IK(hypo_state, point, false, use_orientation);

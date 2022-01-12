@@ -40,7 +40,7 @@ static constexpr double D_SPLINE_T = 0.01;
 static constexpr int SPLINE_WAIT_TIME = 100;
 
 // Angle in radians to determine when encoders are sending faulty values
-static constexpr double ENCODER_ERROR_THRESHOLD = 0.2;
+static constexpr double ENCODER_ERROR_THRESHOLD = 0.04;
 
 static constexpr size_t MAX_NUM_PREV_ANGLES = 5;
 static constexpr size_t MAX_FISHY_VALS = 1;

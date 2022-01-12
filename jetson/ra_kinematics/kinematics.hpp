@@ -26,6 +26,8 @@ static constexpr double DELTA_THETA = 0.0001;
 static constexpr double EPSILON_DIST = 0.0001;
 static constexpr double EPSILON_ANGLE_DIST = 0.01;
 
+static constexpr double LIMIT_CHECK_MARGIN = 0.0001;
+
 class KinematicsSolver {
 
 private:
@@ -65,10 +67,18 @@ public:
     std::pair<Vector6d, bool> IK(ArmState &robot_state, const Vector6d &target_point, bool set_random_angles, bool use_euler_angles);
 
     /**
+     * @param robot_state the state to use for testing purposes (will be returned in initial state)
      * @param angles the set of angles for a theoretical arm position
      * @return true if all angles are within bounds and don't cause collisions
      * */
     bool is_safe(ArmState &robot_state, const std::vector<double> &angles);
+
+    
+    /**
+     * @param robot_state the state to use for testing purposes (will be returned in initial state)
+     * @return true if all angles are within bounds and don't cause collisions
+     * */
+    bool is_safe(ArmState &robot_state);
 
     int get_num_iterations();
 

@@ -468,20 +468,23 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
 bool KinematicsSolver::is_safe(ArmState &robot_state, const std::vector<double> &angles) {
     perform_backup(robot_state);
 
+    robot_state.set_joint_angles(angles);
+    bool safe = is_safe(robot_state);
+
+    recover_from_backup(robot_state);
+    return safe;
+}
+
+bool KinematicsSolver::is_safe(ArmState &robot_state) {
     // if any angles are outside bounds
-    if (!limit_check(robot_state, angles)) {
-        recover_from_backup(robot_state);
+    if (!limit_check(robot_state, robot_state.get_joint_angles())) {
         return false;
     }
 
-    // run FK algorithm to update state
-    robot_state.set_joint_angles(angles);
+    // run FK algorithm to ensure update state
     FK(robot_state);
 
-    bool obstacle_free = robot_state.obstacle_free();
-
-    recover_from_backup(robot_state);
-    return obstacle_free;
+    return robot_state.obstacle_free();
 }
 
 bool KinematicsSolver::limit_check(ArmState &robot_state, const std::vector<double> &angles) {
@@ -489,7 +492,8 @@ bool KinematicsSolver::limit_check(ArmState &robot_state, const std::vector<doub
         std::vector<double> limits = robot_state.get_joint_limits(i);
         
         // if any angle is outside of bounds
-        if (!(limits[0] <= angles[i] && angles[i] < limits[1])) {
+        if (!(limits[0] - LIMIT_CHECK_MARGIN <= angles[i]
+              && angles[i] < limits[1] + LIMIT_CHECK_MARGIN)) {
             return false;
         }
     }
