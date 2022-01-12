@@ -29,9 +29,6 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
 
     //Init Viewer
     if(mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
-        int argc = 1;
-        char *argv[1] = {(char*)"Window"};
-        viewer.init(argc, argv);
         viewer.addPointCloud();
     }
 
@@ -76,7 +73,7 @@ void ObsDetector::update() {
         
     } else if(source == DataSource::FILESYSTEM) {
         pc = fileReader.readCloudGPU(viewer.frame);
-        if (viewer.frame == 1) viewer.setTarget();
+        if (viewer.frame == 1) viewer.setCenter();
     }
     update(pc);
 

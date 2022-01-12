@@ -3,7 +3,7 @@
 #include <utility>
 #include <numeric>
 #include <GL/glew.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <glm/mat4x4.hpp>
 #include "reader.h"
 
@@ -22,7 +22,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtx/string_cast.hpp>
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
