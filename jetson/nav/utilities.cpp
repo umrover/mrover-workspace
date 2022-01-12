@@ -128,12 +128,7 @@ void clear( deque<Waypoint>& aDeque )
 // half the width of the rover the obstacle if reachable
 bool isTargetReachable( Rover* rover, const rapidjson::Document& roverConfig )
 {
-    double distToTarget = rover->roverStatus().leftTarget().distance;
-    if ( rover->roverStatus().leftTarget().distance < 0 && rover->roverStatus().leftCacheTarget().distance != 
-        roverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble() )
-    {
-        distToTarget = rover->roverStatus().leftCacheTarget().distance;   
-    } 
+    double distToTarget = rover->roverStatus().leftCacheTarget().distance;
     double distThresh = roverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble();
     return isLocationReachable( rover, roverConfig, distToTarget, distThresh );
 } // istargetReachable()

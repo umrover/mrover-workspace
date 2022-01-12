@@ -230,13 +230,7 @@ NavState SearchStateMachine::executeTurnToTarget()
         }
     }
 
-    // Consider if we have a valid cache. If we do, use it. Otherwise, 
-    // can just use the regular leftTarget since it will be filled or empty
-    // (with the empty being verified by cache failing)
-    double bearing = ( mRover->roverStatus().leftTarget().distance == mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble()
-        && mRover->roverStatus().leftCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
-            ? mRover->roverStatus().leftCacheTarget().bearing 
-                : mRover->roverStatus().leftTarget().bearing;
+    double bearing = mRover->roverStatus().leftCacheTarget().bearing;
 
     if( mRover->turn( bearing +
                       mRover->roverStatus().odometry().bearing_deg ) )
@@ -259,8 +253,7 @@ NavState SearchStateMachine::executeTurnToTarget()
 NavState SearchStateMachine::executeDriveToTarget()
 {
     // Definitely cannot find the target
-    if( mRover->roverStatus().leftTarget().distance == mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() 
-        && mRover->roverStatus().leftCacheTarget().distance == 
+    if( mRover->roverStatus().leftCacheTarget().distance == 
             mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
         cerr << "Lost the target\n";
@@ -278,50 +271,20 @@ NavState SearchStateMachine::executeDriveToTarget()
 
     DriveStatus driveStatus;
     
-    double distance = mRover->roverStatus().leftTarget().distance;
-    double bearing = mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-
-    // Update if we have an empty leftTarget, BUT we have a valid cached leftTarget
-    if( mRover->roverStatus().leftTarget().distance == 
-        mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() && 
-            mRover->roverStatus().leftCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
-    {
-        distance = mRover->roverStatus().leftCacheTarget().distance;
-        bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-    }
+    double distance = mRover->roverStatus().leftCacheTarget().distance;
+    double bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
 
     // Executes the logic for driving with 0, 1, or 2 targets in sight
     // If we have a second target detected, determine which post is closer
     // If the distance to the second target is less than the first,
     // set our variables to the target 2's distance and bearing
     // Else, use the initialized values from target 1 when driving
-    if( mRover->roverStatus().rightTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
+    if( mRover->roverStatus().rightCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
-        // Valid rightTarget, which means we also have a valid leftTarget, so we can compare
-        // those two rather than using cached ones.
-        if( mRover->roverStatus().leftTarget().distance > mRover->roverStatus().rightTarget().distance ) 
-        {
-            distance = mRover->roverStatus().rightTarget().distance;
-            bearing = mRover->roverStatus().rightTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-        }
-    }
-    // If we can't use the rightTarget, check if we can use the cached one
-    else if( mRover->roverStatus().rightCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
-    {
-        // Check leftTarget Validity (possibly that if rightTarget isn't valid, leftTarget is)
-        if( mRover->roverStatus().leftTarget().distance > mRover->roverStatus().rightCacheTarget().distance &&
-            mRover->roverStatus().leftTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
+        if( mRover->roverStatus().leftCacheTarget().distance > mRover->roverStatus().rightCacheTarget().distance ) 
         {
             distance = mRover->roverStatus().rightCacheTarget().distance;
             bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-        }
-        // Check if leftCacheTarget is valid (above would fail is leftTarget isn't,
-        // so no need to check again)
-        else if( mRover->roverStatus().leftCacheTarget().distance > mRover->roverStatus().rightCacheTarget().distance &&
-            mRover->roverStatus().leftCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
-        {
-                distance = mRover->roverStatus().rightCacheTarget().distance;
-                bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
         }
     }
 
@@ -333,29 +296,14 @@ NavState SearchStateMachine::executeDriveToTarget()
         if( mRover->roverStatus().path().front().gate )
         {
             roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
-            
-            if( mRover->roverStatus().leftTarget().distance != -1 )
-            {
-                const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
-                                        mRover->roverStatus().leftTarget().bearing,
-                                        360);
-                roverStateMachine->mGateStateMachine->lastKnownRightPost.odom = createOdom( mRover->roverStatus().odometry(),
-                                                                                    absAngle,
-                                                                                    mRover->roverStatus().leftTarget().distance,
-                                                                                    mRover );
-                roverStateMachine->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftTarget().id;
-            }
-            else 
-            {
-                const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
-                                        mRover->roverStatus().leftCacheTarget().bearing,
-                                        360);
-                roverStateMachine->mGateStateMachine->lastKnownRightPost.odom = createOdom( mRover->roverStatus().odometry(),
-                                                                                    absAngle,
-                                                                                    mRover->roverStatus().leftCacheTarget().distance,
-                                                                                    mRover );
-                roverStateMachine->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftCacheTarget().id;
-            }
+            const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
+                                    mRover->roverStatus().leftCacheTarget().bearing,
+                                    360);
+            roverStateMachine->mGateStateMachine->lastKnownRightPost.odom = createOdom( mRover->roverStatus().odometry(),
+                                                                                absAngle,
+                                                                                mRover->roverStatus().leftCacheTarget().distance,
+                                                                                mRover );
+            roverStateMachine->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftCacheTarget().id;
             return NavState::GateSpin;
         }
         mRover->roverStatus().path().pop_front();
@@ -422,10 +370,7 @@ void SearchStateMachine::insertIntermediatePoints()
 } // insertIntermediatePoints()
 
 bool SearchStateMachine::checkTurnStatus() {
-    double updateBearing = ( mRover->roverStatus().leftTarget().distance == -1 
-        && mRover->roverStatus().leftCacheTarget().distance >= 0 ) 
-            ? mRover->roverStatus().leftCacheTarget().bearing
-                : mRover->roverStatus().leftTarget().bearing;
+    double updateBearing = mRover->roverStatus().leftCacheTarget().bearing;
 
     if( mRover->roverStatus().leftTarget().distance >= 0 ||
         ( mRover->roverStatus().leftTarget().distance == -1 
