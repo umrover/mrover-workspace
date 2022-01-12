@@ -17,7 +17,7 @@ c = moteus.Controller(transport=f, id=1)
 desired_position_revolutions = 0
 
 
-async def zed_gimbal_position_callback(channel, msg):
+def zed_gimbal_position_callback(channel, msg):
     zed_struct = ZedGimbalPosition.decode(msg)
     desired_position_degrees = zed_struct.angle
 
@@ -28,23 +28,29 @@ async def zed_gimbal_position_callback(channel, msg):
 
     global desired_position_revolutions
     desired_position_revolutions = desired_position_degrees / 360.0
-    await c.set_position(position=math.nan, velocity=0.2, maximum_torque=0.3,
-                         stop_position=desired_position_revolutions, watchdog_timeout=70, query=False)
+    c.make_position(position=math.nan, velocity=0.2, maximum_torque=0.3,
+                    stop_position=desired_position_revolutions, watchdog_timeout=10, query=True)
 
 
 async def publish_zed_gimbal_position():
     while (True):
         global desired_position_revolutions
-        state = await c.query()
+        state = await c.set_position(position=math.nan, velocity=0.2, maximum_torque=0.3,
+                                     stop_position=desired_position_revolutions, watchdog_timeout=70, query=True)
+
+        fault_value = state.values[moteus.Register.FAULT]
+        if fault_value != 0:
+            print(fault_value)
+            await c.set_stop()
+            await asyncio.sleep(0.5)
+            continue
 
         position_revolutions = state.values[moteus.Register.POSITION]
         position_degrees = 360.0 * position_revolutions
-
         if position_degrees > 180:
             position_degrees = 180
         elif position_degrees < -180:
             position_degrees = -180
-
         zed_struct = ZedGimbalPosition()
         zed_struct.angle = position_degrees
         lcm_.publish('/zed_gimbal_data', zed_struct.encode())
@@ -52,9 +58,7 @@ async def publish_zed_gimbal_position():
         await asyncio.sleep(0.5)
 
 
-async def main():
-
-    await c.set_stop()
+def main():
 
     lcm_.subscribe("/zed_gimbal_cmd", zed_gimbal_position_callback)
 
