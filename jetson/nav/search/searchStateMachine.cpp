@@ -75,8 +75,10 @@ NavState SearchStateMachine::executeSearchSpin()
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
 
-    if ( checkTurnStatus() )
+    if( mRover->roverStatus().leftCacheTarget().distance >= 0 )
     {
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+                                           mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
 
@@ -109,8 +111,10 @@ NavState SearchStateMachine::executeRoverWait()
     static bool started = false;
     static time_t startTime;
 
-    if ( checkTurnStatus() )
+    if( mRover->roverStatus().leftCacheTarget().distance >= 0 )
     {
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+                                           mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
 
@@ -152,8 +156,10 @@ NavState SearchStateMachine::executeSearchTurn()
         return NavState::ChangeSearchAlg;
     }
 
-    if ( checkTurnStatus() )
+    if( mRover->roverStatus().leftCacheTarget().distance >= 0 )
     {
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+                                           mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
 
@@ -174,8 +180,10 @@ NavState SearchStateMachine::executeSearchTurn()
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
 NavState SearchStateMachine::executeSearchDrive()
 {
-    if ( checkTurnStatus() )
+    if( mRover->roverStatus().leftCacheTarget().distance >= 0 )
     {
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+                                           mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
 
@@ -368,23 +376,6 @@ void SearchStateMachine::insertIntermediatePoints()
         }
     }
 } // insertIntermediatePoints()
-
-bool SearchStateMachine::checkTurnStatus() {
-    double updateBearing = mRover->roverStatus().leftCacheTarget().bearing;
-
-    if( mRover->roverStatus().leftTarget().distance >= 0 ||
-        ( mRover->roverStatus().leftTarget().distance == -1 
-            && mRover->roverStatus().leftCacheTarget().distance >= 0 ) )
-    {
-        updateTargetDetectionElements( updateBearing,
-                                        mRover->roverStatus().odometry().bearing_deg );
-        return true;
-    }
-    else 
-    {
-        return false;
-    }
-} // checkTurnStatus()
 
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms

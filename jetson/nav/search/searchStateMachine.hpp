@@ -75,8 +75,6 @@ private:
 
     void updateTargetDetectionElements( double target_bearing, double rover_bearing );
 
-    bool checkTurnStatus();
-
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
