@@ -215,37 +215,21 @@ NavState SearchStateMachine::executeSearchDrive()
 // Else the rover continues to turn to to the target.
 NavState SearchStateMachine::executeTurnToTarget()
 {
-    if( mRover->roverStatus().leftTarget().distance < 0 )
+    if( mRover->roverStatus().leftCacheTarget().distance == mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
-        // TODO: Clean this up and/or move it to avoid duplication
-        if ( mRover->roverStatus().leftCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) {
-            if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing +
-                      mRover->roverStatus().odometry().bearing_deg ) )
-            {
-                return NavState::DriveToTarget;
-            }
-            updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                       mRover->roverStatus().odometry().bearing_deg );
-            return NavState::TurnToTarget;
+        cerr << "Lost the target. Continuing to turn to last known angle\n";
+        if( mRover->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
+        {
+            return NavState::TurnedToTargetWait;
         }
-        else {
-            cerr << "Lost the target. Continuing to turn to last known angle\n";
-            if( mRover->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
-            {
-                return NavState::TurnedToTargetWait;
-            }
-            return NavState::TurnToTarget;
-        }
+        return NavState::TurnToTarget;
     }
-
-    double bearing = mRover->roverStatus().leftCacheTarget().bearing;
-
-    if( mRover->turn( bearing +
+    if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing +
                       mRover->roverStatus().odometry().bearing_deg ) )
     {
         return NavState::DriveToTarget;
     }
-    updateTargetDetectionElements( bearing,
+    updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
                                        mRover->roverStatus().odometry().bearing_deg );
     return NavState::TurnToTarget;
 } // executeTurnToTarget()
