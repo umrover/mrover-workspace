@@ -78,7 +78,7 @@ public:
     }
     
     void armControlCallback(
-        const lcm::RecieveBuffer* receiveBuffer,
+        const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
         const ArmControlState* arm_control
     )

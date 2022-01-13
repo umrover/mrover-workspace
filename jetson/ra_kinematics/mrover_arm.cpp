@@ -297,7 +297,7 @@ void MRoverArm::execute_spline() {
                 }
 
                 // break out of loop if necessary
-                if (spline_t > 1) {
+                if (spline_t > 1 || arm_control_state != "closed-loop") {
                     enable_execute = false;
                     spline_t = 0.0;
                     ik_enabled = false;

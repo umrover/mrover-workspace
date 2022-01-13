@@ -108,7 +108,7 @@ def joystick_math(new_motor, magnitude, theta):
 
 
 def drive_control_callback(channel, msg):
-    global kill_motor, connection, arm_control_state
+    global kill_motor, connection
 
     if not connection:
         return
@@ -122,7 +122,7 @@ def drive_control_callback(channel, msg):
 
     if kill_motor:
         send_drive_kill()
-    elif arm_control_state:
+    else:
         new_motor = DriveVelCmd()
         input_data.forward_back = -quadratic(input_data.forward_back)
         magnitude = deadzone(input_data.forward_back, 0.04)
@@ -137,14 +137,10 @@ def drive_control_callback(channel, msg):
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 def send_zero_arm_command():
-    motor_speeds = [0,0,0,0,0,0]
-
     openloop_msg = RAOpenLoopCmd()
-    openloop_msg.throttle = motor_speeds
+    openloop_msg.throttle = [0,0,0,0,0,0]
 
     lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
-
-
 
     hand_msg = HandCmd()
     hand_msg.finger = 0
@@ -165,6 +161,7 @@ def arm_control_state_callback(channel, msg):
     
 
 def ra_control_callback(channel, msg):
+    global arm_control_state
 
     # if arm_control_state == idle, send 0 values
     if arm_control_state == "idle":
@@ -193,7 +190,7 @@ def ra_control_callback(channel, msg):
 
         lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
-    # otherwise, if arm_control_state == ik, do nothing
+    # otherwise, if arm_control_state == closed-loop, do nothing
 
 
 def autonomous_callback(channel, msg):
