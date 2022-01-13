@@ -45,6 +45,9 @@
     <div class="box ik-gui light-bg">
       <iframe src="http://localhost:8020/#/" height="300" width="100%" title="IK gui"></iframe>
     </div>
+    <div class ="box pdb light-bg">
+      <PDBFuse/>
+    </div>
     <div class="spacer"></div>
   </div>
 </template>
@@ -60,6 +63,7 @@ import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
+import PDBFuse from './PDBFuse.vue'
 
 let interval;
 
@@ -237,7 +241,8 @@ export default {
     DriveControls,
     EncoderCounts,
     OdometryReading,
-    IKControls
+    IKControls,
+    PDBFuse
   }
 }
 </script>
