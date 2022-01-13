@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct FuseData {
+    double current[12];     //Cytron_<0-5> : 0-5;   Nichrome_wire_<0-2> : 6-8;  Hbridge_<0-1> : 9-10+
+    double voltage[12];    
+}

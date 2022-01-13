@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct PDBData {
+    double temp[3];     //[3V3, 5V, 12V]
+    double current[3];
+    double voltage[3];
+}
