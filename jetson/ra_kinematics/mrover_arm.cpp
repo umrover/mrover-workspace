@@ -90,6 +90,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
                 }
             }
 
+
             if (num_fishy_vals > MAX_FISHY_VALS) {
                 faulty_encoders[joint] = true;
                 encoder_error = true;
@@ -285,7 +286,13 @@ void MRoverArm::execute_spline() {
                 // if not in sim_mode, send physical arm a new target
                 if (!sim_mode) {
                     // TODO make publish function names more intuitive?
-                    publish_config(target_angles, "/ik_ra_control");
+                    
+		    // Adjust for encoders not being properly zeroed.
+                    for (size_t i = 0; i < 6; ++i) {
+                        target_angles[i] *= state.get_joint_encoder_multiplier(i);
+                        target_angles[i] += state.get_joint_encoder_offset(i);
+                    }	
+		    publish_config(target_angles, "/ik_ra_control");
                 }
 
                 // TODO: make sure transition from not self.sim_mode

@@ -63,7 +63,12 @@ private:
 
             continuous_range = (joint_limits[0] < -3.1399 && joint_limits[1] > 3.1399);
 
-            locked = false;
+            if (name == "joint_a") {
+		locked = false;
+	    }
+	    else {
+		locked = true;
+	    }
         }
 
         std::string name;
