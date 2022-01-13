@@ -163,32 +163,32 @@ def arm_control_state_callback(channel, msg):
 def ra_control_callback(channel, msg):
     global arm_control_state
 
-    # if arm_control_state == idle, send 0 values
-    if arm_control_state == "idle":
-        send_zero_arm_command()
+    # # if arm_control_state == idle, send 0 values
+    # if arm_control_state == "idle":
+    #     send_zero_arm_command()
 
-    # if arm_control_state == open-loop, send xbox input
-    elif arm_control_state == "open-loop":
-        xboxData = Xbox.decode(msg)
+    # # if arm_control_state == open-loop, send xbox input
+    # elif arm_control_state == "open-loop":
+    xboxData = Xbox.decode(msg)
 
-        motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
-                        -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                        deadzone(quadratic(xboxData.right_js_y), 0.09),
-                        deadzone(quadratic(xboxData.right_js_x), 0.09),
-                        quadratic(xboxData.right_trigger -
-                                xboxData.left_trigger),
-                        (xboxData.right_bumper - xboxData.left_bumper)]
+    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
+                    -deadzone(quadratic(xboxData.left_js_y), 0.09),
+                    deadzone(quadratic(xboxData.right_js_y), 0.09),
+                    deadzone(quadratic(xboxData.right_js_x), 0.09),
+                    quadratic(xboxData.right_trigger -
+                            xboxData.left_trigger),
+                    (xboxData.right_bumper - xboxData.left_bumper)]
 
-        openloop_msg = RAOpenLoopCmd()
-        openloop_msg.throttle = motor_speeds
+    openloop_msg = RAOpenLoopCmd()
+    openloop_msg.throttle = motor_speeds
 
-        lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
 
-        hand_msg = HandCmd()
-        hand_msg.finger = xboxData.y - xboxData.a
-        hand_msg.grip = xboxData.b - xboxData.x
+    hand_msg = HandCmd()
+    hand_msg.finger = xboxData.y - xboxData.a
+    hand_msg.grip = xboxData.b - xboxData.x
 
-        lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
     # otherwise, if arm_control_state == closed-loop, do nothing
 

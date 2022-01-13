@@ -125,9 +125,9 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 }
 
 void MRoverArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
-    if (arm_control_state != "closed-loop") {
-        return;
-    }
+    // if (arm_control_state != "closed-loop") {
+    //     return;
+    // }
     
     std::cout << "Received target!\n";
     std::cout << "Target position: " << msg.x << "\t" << msg.y << "\t" << msg.z << "\n";
@@ -205,9 +205,9 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
 
 void MRoverArm::motion_execute_callback(std::string channel, MotionExecute msg) {
 
-    if (arm_control_state != "closed-loop") {
-        return;
-    }
+    // if (arm_control_state != "closed-loop") {
+    //     return;
+    // }
 
     // TODO do we ever need to preview at this stage? Isn't that done before we get here?
     // TODO if user cancels after preview, figure out how to send current position to GUI
@@ -297,7 +297,7 @@ void MRoverArm::execute_spline() {
                 }
 
                 // break out of loop if necessary
-                if (spline_t > 1 || arm_control_state != "closed-loop") {
+                if (spline_t > 1/* || arm_control_state != "closed-loop"*/) {
                     enable_execute = false;
                     spline_t = 0.0;
                     ik_enabled = false;
@@ -370,9 +370,9 @@ void MRoverArm::preview(ArmState& hypo_state) {
 
 void MRoverArm::target_angles_callback(std::string channel, ArmPosition msg) {
     
-    if (arm_control_state != "closed-loop") {
-        return;
-    }
+    // if (arm_control_state != "closed-loop") {
+    //     return;
+    // }
     
     std::cout << "Received target angles\n";
 
