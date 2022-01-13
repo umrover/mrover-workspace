@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
-      <Checkbox ref="arm" v-bind:name="'Arm Controls'" v-on:toggle="updateControlMode('arm', $event)"/>
-      <Checkbox ref="arm_ik" v-bind:name="'Inverse Kinematics'" v-on:toggle="updateControlMode('arm_ik', $event)"/>
+      <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
+      <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
       <div class="keyboard">
         <GimbalControls/>
       </div>
@@ -21,7 +21,7 @@ export default {
   computed: {
 
     ...mapGetters('controls', {
-      controlMode: 'controlMode'
+      controlMode: 'idle'
     }),
   },
 
@@ -98,24 +98,42 @@ export default {
 
   methods: {
     updateControlMode: function (mode, checked) {
-      let ikEnabled = false
       if (checked) {
-        if (this.controlMode !== ''){
-          this.$refs[this.controlMode].toggle()
+        // control mode can either be open loop or control mode, not both
+        if (this.controlMode === 'open-loop' || this.controlMode === 'closed-loop') {
+          this.$refs[this.controlMode].toggle();
         }
 
-        ikEnabled = (mode === 'arm_ik')
-        this.setControlMode(mode)
-      } else {
-        this.setControlMode('')
+        this.setControlMode(mode);
+      }
+      else {
+        this.setControlMode('idle');
       }
 
-      const ikEnabledMsg = {
-        'type': 'IkEnabled',
-        'enabled': ikEnabled
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': this.controlMode
       }
 
-      this.$parent.publish('/ik_enabled', ikEnabledMsg)
+      this.$parent.publish('/arm_control_state', armStateMsg);
+      // let ikEnabled = false
+      // if (checked) {
+      //   if (this.controlMode !== ''){
+      //     this.$refs[this.controlMode].toggle()
+      //   }
+
+      //   ikEnabled = (mode === 'arm_ik')
+      //   this.setControlMode(mode)
+      // } else {
+      //   this.setControlMode('')
+      // }
+
+      // const ikEnabledMsg = {
+      //   'type': 'IkEnabled',
+      //   'enabled': ikEnabled
+      // }
+
+      // this.$parent.publish('/ik_enabled', ikEnabledMsg)
     },
 
     ...mapMutations('controls', {

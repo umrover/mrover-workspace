@@ -160,7 +160,7 @@ def arm_control_state_callback(channel, msg):
 
     arm_control_state = input_data.state
     
-    if arm_control_state == 'ik' or arm_control_state == 'idle':
+    if arm_control_state == 'closed-loop' or arm_control_state == 'idle':
         send_zero_arm_command()
     
 

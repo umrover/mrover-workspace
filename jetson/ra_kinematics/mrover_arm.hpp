@@ -25,6 +25,7 @@
 #include "rover_msgs/IkArmControl.hpp"
 #include "rover_msgs/LockJoints.hpp"
 #include "rover_msgs/DebugMessage.hpp"
+#include "rover_msgs/ArmControlState.hpp"
  
 using namespace rover_msgs;
  
@@ -66,6 +67,7 @@ private:
     bool sim_mode;
     bool ik_enabled;
     bool previewing;
+    std::string arm_control_state;
 
     bool encoder_error;
     std::string encoder_error_message;
@@ -74,7 +76,6 @@ private:
     std::vector<bool> faulty_encoders;
 
     std::mutex encoder_angles_sender_mtx;
-
     
     std::vector<double> DUD_ENCODER_VALUES;
 
@@ -140,6 +141,8 @@ public:
     void target_angles_callback(std::string channel, ArmPosition msg);
 
     void cartesian_control_callback(std::string channel, IkArmControl msg);
+
+    void ra_control_callback(std::string channel, ArmControlState msg);
 
     void encoder_angles_sender();
 

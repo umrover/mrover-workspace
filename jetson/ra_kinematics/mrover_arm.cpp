@@ -18,7 +18,8 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     enable_execute(false),
     sim_mode(true),
     ik_enabled(false),
-    previewing(false)  {
+    previewing(false),
+    arm_control_state("idle")  {
 
         prev_angles.clear();
         prev_angles.resize(6);
@@ -124,6 +125,10 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 }
 
 void MRoverArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
+    if (arm_control_state != "closed-loop") {
+        return;
+    }
+    
     std::cout << "Received target!\n";
     std::cout << "Target position: " << msg.x << "\t" << msg.y << "\t" << msg.z << "\n";
     if (msg.use_orientation) {
@@ -199,6 +204,10 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
 }
 
 void MRoverArm::motion_execute_callback(std::string channel, MotionExecute msg) {
+
+    if (arm_control_state != "closed-loop") {
+        return;
+    }
 
     // TODO do we ever need to preview at this stage? Isn't that done before we get here?
     // TODO if user cancels after preview, figure out how to send current position to GUI
@@ -360,6 +369,11 @@ void MRoverArm::preview(ArmState& hypo_state) {
 }
 
 void MRoverArm::target_angles_callback(std::string channel, ArmPosition msg) {
+    
+    if (arm_control_state != "closed-loop") {
+        return;
+    }
+    
     std::cout << "Received target angles\n";
 
     enable_execute = false;
@@ -438,6 +452,11 @@ void MRoverArm::lock_joints_callback(std::string channel, LockJoints msg) {
     state.set_joint_locked(5, (bool)msg.jointf);
 
     std::cout << "\n";
+}
+
+void MRoverArm::ra_control_callback(std::string channel, ArmControlState msg) {
+    std::cout << "Received Arm Control State: " << msg.state << "\n";
+    arm_control_state = msg.state;
 }
 
 void MRoverArm::encoder_angles_sender() {

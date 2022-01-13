@@ -76,6 +76,15 @@ public:
     {
         arm->simulation_mode_callback( channel, *sim_mode );
     }
+    
+    void armControlCallback(
+        const lcm::RecieveBuffer* receiveBuffer,
+        const std::string& channel,
+        const ArmControlState* arm_control
+    )
+    {
+        arm->ra_control_callback( channel, *arm_control );
+    }
 
 private:
     MRoverArm* arm;
@@ -102,6 +111,7 @@ int main() {
     lcmObject.subscribe( "/ik_enabled", &lcmHandlers::ikEnabledCallback, &handler );
     lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
     lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
+    lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );
     
     std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
     std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);
