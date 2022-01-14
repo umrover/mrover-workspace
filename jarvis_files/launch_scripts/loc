@@ -16,7 +16,7 @@ xdotool key ctrl+shift+t
 if [[ $1 ]]; then
     ./jarvis_files/launchScripts/ssh $WID
 fi
-xdotool key type "./jarvis exec beaglebone/imu"
+xdotool key type "./jarvis exec jetson/imu"
 xdotool key KP_Enter
 
 #Open a new tab for Obstacle LCM

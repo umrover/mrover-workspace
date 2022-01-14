@@ -59,10 +59,12 @@ def launch_navigation(ctx, opts, ssh):
 def launch_localization(ctx, opts, ssh):
     jetson_gps = 'jetson/gps'
     jetson_filter = 'jetson/filter'
+    jetson_imu = 'jetson/imu'
     use_linter = True
 
     build_dir(ctx, jetson_gps, use_linter, opts)
     build_dir(ctx, jetson_filter, use_linter, opts)
+    build_dir(ctx, jetson_imu, use_linter, opts)
 
     ctx.run(gen_terminal_launch_command("loc", ssh))
 
