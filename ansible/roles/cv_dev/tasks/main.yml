@@ -11,15 +11,15 @@
       - mercurial
     state: present
 
-# Install nodejs 16
+# Install nodejs 12
 - name: "Add nodejs apt key"
   apt_key:
     url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
     state: present
 
-- name: "Add nodejs 16node.x ppa for apt repo"
+- name: "Add nodejs 12node.x ppa for apt repo"
   apt_repository:
-    repo: deb https://deb.nodesource.com/node_16.x bionic main
+    repo: deb https://deb.nodesource.com/node_12.x bionic main
     update_cache: yes
 
 - name: "Install nodejs"
