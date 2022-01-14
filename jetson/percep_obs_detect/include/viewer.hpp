@@ -36,6 +36,12 @@ public:
 
     ~PointCloud();
 
+    PointCloud(PointCloud&& other) noexcept;
+
+    PointCloud& operator=(PointCloud other);
+
+    void swap(PointCloud& other);
+
     void update(std::vector<vec4>& pts);
 
     void update(vec4* pts, int size);
@@ -43,12 +49,12 @@ public:
     void draw();
 
     // control p/r/y with mouse??
-    void setRotation(float pitch, float roll, float yaw);
+//    void setRotation(float pitch, float roll, float yaw);
 
 private:
-    int size;
-    GLuint vaoId;
-    GLuint pointsGPU;
+    GLsizei size{};
+    GLuint vaoId{};
+    GLuint pointsGPU{};
 };
 
 // 3D Object
@@ -56,41 +62,41 @@ class Object3D {
 public:
     Object3D();
 
-    Object3D(std::vector<vec3>& pts, std::vector<vec3>& colors, std::vector<int>& idcs);
+    Object3D(std::vector<vec3>& points, std::vector<vec3>& colors, std::vector<int>& indices);
 
     ~Object3D();
 
-    // Change the underlying model
-    void update(std::vector<vec3>& pts, std::vector<vec3>& colors, std::vector<int>& idcs);
+    Object3D(Object3D&& other) noexcept;
 
-    void draw();
+    Object3D& operator=(Object3D other);
+
+    void swap(Object3D& other);
+
+    // Change the underlying model
+    void update(std::vector<vec3>& points, std::vector<vec3>& colors, std::vector<int>& indices);
+
+    void draw() const;
 
     // Allow rotation and translation of the underlying model
-    void setTranslation(float x, float y, float z);
-
-    void setRotation(float pitch, float roll, float yaw);
-
-    glm::mat4 getModelMat();
+//    void setTranslation(float x, float y, float z);
+//    void setRotation(float pitch, float roll, float yaw);
+//    glm::mat4 getModelMat();
 
     bool wireframe = true;
 
 private:
-    // Model
-    std::vector<vec3> points;
-    std::vector<vec3> colors;
-    std::vector<int> indices;
-    float alpha; // add support for this later as a uniform
-
     // State variables
-    glm::mat4 translation;
-    glm::mat4 rotation;
+//    glm::mat4 translation;
+//    glm::mat4 rotation;
 
     // GPU representation
     // https://gamedev.stackexchange.com/questions/8042/whats-the-purpose-of-opengls-vertex-array-objects
-    GLuint vaoID;
-    GLuint pointsGPU;
-    GLuint colorsGPU;
-    GLuint indicesGPU;
+
+    GLsizei size{};
+    GLuint vaoID{};
+    GLuint pointsGPU{};
+    GLuint colorsGPU{};
+    GLuint indicesGPU{};
 };
 
 class Camera {
@@ -151,7 +157,7 @@ public:
 
     Shader() = default;
 
-    Shader(GLchar* vs, GLchar* fs);
+    Shader(GLchar const* vs, GLchar const* fs);
 
     Shader(Shader&& other) noexcept;
 
@@ -166,7 +172,7 @@ public:
     static const GLint ATTRIB_VERTICES_POS = 0;
     static const GLint ATTRIB_COLOR_POS = 1;
 private:
-    bool compile(GLuint& shaderId, GLenum type, GLchar* src);
+    bool compile(GLuint& shaderId, GLenum type, GLchar const* src);
 
     GLuint vertexShaderId{};
     GLuint fragmentShaderId{};
@@ -193,7 +199,7 @@ public:
     bool open();
 
     // Add an object, either ephemeral or permanent
-    void addObject(Object3D& obj, bool ephemeral);
+    void addObject(Object3D&& obj, bool ephemeral);
 
     // Adds a point cloud
     void addPointCloud();

@@ -14,7 +14,7 @@
 using namespace std;
 
 // Took the shaders from the ZED code :) 
-GLchar* OBJ_VERTEX_SHADER =
+GLchar const* OBJ_VERTEX_SHADER =
         "#version 330 core\n"
         "in vec3 in_Vertex;\n"
         "in vec3 in_Color;\n"
@@ -25,7 +25,7 @@ GLchar* OBJ_VERTEX_SHADER =
         "	gl_Position = u_mvpMatrix * vec4(in_Vertex, 1);\n"
         "}";
 
-GLchar* OBJ_FRAGMENT_SHADER =
+GLchar const* OBJ_FRAGMENT_SHADER =
         "#version 330 core\n"
         "in vec3 b_color;\n"
         "out vec4 out_Color;\n"
@@ -33,7 +33,7 @@ GLchar* OBJ_FRAGMENT_SHADER =
         "   out_Color = vec4(b_color, 1);\n"
         "}";
 
-GLchar* PC_VERTEX_SHADER =
+GLchar const* PC_VERTEX_SHADER =
         "#version 330 core\n"
         "in vec4 in_Vertex;\n"
         "uniform mat4 u_mvpMatrix;\n"
@@ -47,7 +47,7 @@ GLchar* PC_VERTEX_SHADER =
         "	gl_Position = u_mvpMatrix * vec4(in_Vertex.xyz, 1);\n"
         "}";
 
-GLchar* PC_FRAGMENT_SHADER =
+GLchar const* PC_FRAGMENT_SHADER =
         "#version 330 core\n"
         "in vec4 b_color;\n"
         "out vec4 out_Color;\n"
@@ -59,7 +59,7 @@ GLchar* PC_FRAGMENT_SHADER =
  * Shader 
  */
 
-Shader::Shader(GLchar* vs, GLchar* fs) {
+Shader::Shader(GLchar const* vs, GLchar const* fs) {
     if (!compile(vertexShaderId, GL_VERTEX_SHADER, vs)) {
         cout << "ERROR: while compiling vertex shader" << endl;
     }
@@ -108,7 +108,7 @@ GLuint Shader::getProgramId() {
     return programShaderId;
 }
 
-bool Shader::compile(GLuint& shaderId, GLenum type, GLchar* src) {
+bool Shader::compile(GLuint& shaderId, GLenum type, GLchar const* src) {
     shaderId = glCreateShader(type);
     if (shaderId == 0) {
         return false;
@@ -160,65 +160,73 @@ Object3D::Object3D() {
     glGenBuffers(1, &indicesGPU);
 }
 
-Object3D::Object3D(std::vector<vec3>& pts, std::vector<vec3>& colors, std::vector<int>& idcs) {
-    glGenVertexArrays(1, &vaoID);
-    glGenBuffers(1, &pointsGPU);
-    glGenBuffers(1, &colorsGPU);
-    glGenBuffers(1, &indicesGPU);
-    update(pts, colors, idcs);
+Object3D::Object3D(std::vector<vec3>& points, std::vector<vec3>& colors, std::vector<int>& indices) : Object3D() {
+    update(points, colors, indices);
 }
 
 
-void Object3D::draw() {
-    glBindVertexArray(vaoID);
+void Object3D::draw() const {
     if (wireframe) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glLineWidth(3);
     }
+    glBindVertexArray(vaoID);
 
-    glDrawElements(GL_TRIANGLES, (GLsizei) indices.size(), GL_UNSIGNED_INT, nullptr);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, pointsGPU);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, colorsGPU);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    glBindVertexArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesGPU);
+    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 }
 
-void Object3D::update(std::vector<vec3>& pts, std::vector<vec3>& colors, std::vector<int>& idcs) {
-    // Update internal CPU representations 
-    // We might not actually even need this 
-    points = pts;
-    colors = colors;
-    indices = idcs;
-
-    //Provide default initialization with: ??
-    //std::iota(indices.begin(), indices.end(), 0);
-
-    // Update GPU data for rendering 
+void Object3D::update(std::vector<vec3>& points, std::vector<vec3>& colors, std::vector<int>& indices) {
+    size = indices.size();
+    // Update GPU data for rendering
     glBindVertexArray(vaoID);
     // Points
     glBindBuffer(GL_ARRAY_BUFFER, pointsGPU);
     glBufferData(GL_ARRAY_BUFFER, points.size() * sizeof(vec3), points.data(), GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glEnableVertexAttribArray(0);
     // Colors
     glBindBuffer(GL_ARRAY_BUFFER, colorsGPU);
     glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(vec3), colors.data(), GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glEnableVertexAttribArray(1);
     // Indices
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesGPU);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
     // Unbind 
-    glBindVertexArray(0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 Object3D::~Object3D() {
-    //glDeleteVertexArrays(1, &vaoId);
+    glDeleteVertexArrays(1, &vaoID);
     glDeleteBuffers(1, &pointsGPU);
     glDeleteBuffers(1, &colorsGPU);
     glDeleteBuffers(1, &indicesGPU);
+}
+
+Object3D::Object3D(Object3D&& other) noexcept {
+    swap(other);
+}
+
+Object3D& Object3D::operator=(Object3D other) {
+    swap(other);
+    return *this;
+}
+
+void Object3D::swap(Object3D& other) {
+    std::swap(size, other.size);
+    std::swap(vaoID, other.vaoID);
+    std::swap(pointsGPU, other.pointsGPU);
+    std::swap(colorsGPU, other.colorsGPU);
+    std::swap(indicesGPU, other.indicesGPU);
 }
 
 /*
@@ -256,6 +264,21 @@ void PointCloud::draw() {
     glDisableVertexAttribArray(0);
 }
 
+PointCloud::PointCloud(PointCloud&& other) noexcept {
+    swap(other);
+}
+
+PointCloud& PointCloud::operator=(PointCloud other) {
+    swap(other);
+    return *this;
+}
+
+void PointCloud::swap(PointCloud& other) {
+    std::swap(size, other.size);
+    std::swap(vaoId, other.vaoId);
+    std::swap(pointsGPU, other.pointsGPU);
+}
+
 /*
  * Camera
  */
@@ -291,7 +314,6 @@ Viewer::Viewer()
 
     // Options
     glEnable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
 
     // Shader
@@ -384,22 +406,20 @@ void Viewer::update() {
     // Draw 3D Objects
     glm::mat4 mvp_mat = camera.projection * camera.getView();
     glUseProgram(objectShader.getProgramId());
+    glUniformMatrix4fv(glGetUniformLocation(objectShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp_mat));
     for (auto& object: objects) {
-        glUniformMatrix4fv(glGetUniformLocation(objectShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp_mat));
         object.draw();
     }
     viewer_mutex.lock();
     for (auto& object: ephemeralObjects) {
-        glUniformMatrix4fv(glGetUniformLocation(objectShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp_mat));
         object.draw();
     }
     viewer_mutex.unlock();
 
     glUseProgram(pcShader.getProgramId());
+    glUniformMatrix4fv(glGetUniformLocation(pcShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp_mat));
     pc_mutex.lock();
     for (auto& pc: pointClouds) {
-        GLint i = glGetUniformLocation(pcShader.getProgramId(), "u_mvpMatrix");
-        glUniformMatrix4fv(i, 1, GL_FALSE, glm::value_ptr(mvp_mat));
         pc.draw();
     }
     pc_mutex.unlock();
@@ -444,10 +464,10 @@ void Viewer::drawUI() {
     ImGui::End();
 }
 
-void Viewer::addObject(Object3D& obj, bool ephemeral) {
+void Viewer::addObject(Object3D&& obj, bool ephemeral) {
     viewer_mutex.lock();
-    if (ephemeral) ephemeralObjects.push_back(obj);
-    else objects.push_back(obj);
+    if (ephemeral) ephemeralObjects.push_back(std::move(obj));
+    else objects.push_back(std::move(obj));
     viewer_mutex.unlock();
 }
 
@@ -474,12 +494,14 @@ void Viewer::updatePointCloud(int idx, vec4* pts, int size) {
 }
 
 #ifndef VIEWER_ONLY
+
 void Viewer::updatePointCloud(GPU_Cloud pc) {
-    glm::vec4* pc_cpu = new glm::vec4[pc.size];
-    cudaMemcpy(pc_cpu, pc.data, sizeof(float4)*pc.size, cudaMemcpyDeviceToHost);
+    auto* pc_cpu = new glm::vec4[pc.size];
+    cudaMemcpy(pc_cpu, pc.data, sizeof(float4) * pc.size, cudaMemcpyDeviceToHost);
     updatePointCloud(0, pc_cpu, pc.size);
     delete[] pc_cpu;
 }
+
 #endif
 
 void Viewer::addPointCloud() {

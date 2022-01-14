@@ -146,10 +146,9 @@ void ObsDetector::createBoundingBoxes() {
                                         vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ), 
                                         vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ),};
             std::vector<vec3> colors;
-            for(int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f));
-            std::vector<int> indicies = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
-            Object3D obj(points, colors, indicies);
-            viewer.addObject(obj, true);
+            for(int q = 0; q < 8; q++) colors.emplace_back(0.0f, 1.0f, 0.0f);
+            std::vector<int> indices = {0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5};
+            viewer.addObject({points, colors, indices}, true);
          }
     }
 }
@@ -203,11 +202,11 @@ void ObsDetector::createBearing() {
     Object3D leftBearing2(ptsLft2, colors, indicies);
     Object3D rightBearing2(ptsRght2, colors, indicies);
 
-    viewer.addObject(leftBearing, true);
-    viewer.addObject(rightBearing, true);
+    viewer.addObject(std::move(leftBearing), true);
+    viewer.addObject(std::move(rightBearing), true);
 
-    viewer.addObject(leftBearing2, true);
-    viewer.addObject(rightBearing2, true);
+    viewer.addObject(std::move(leftBearing2), true);
+    viewer.addObject(std::move(rightBearing2), true);
 }
 
 void ObsDetector::spinViewer() {
@@ -215,7 +214,7 @@ void ObsDetector::spinViewer() {
         createBoundingBoxes();
         if(viewer.procStage == ProcStage::POSTBEARING) createBearing();
     }
-    
+
     //---end TESTING add double bearing ----------------------------------------------------
     viewer.update();
     viewer.clearEphemerals();
@@ -229,6 +228,9 @@ void ObsDetector::spinViewer() {
      delete ece;
  }
 
+bool ObsDetector::open() {
+    return viewer.open();
+}
 
 
 int main() {
@@ -236,9 +238,9 @@ int main() {
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
-    while(true) {
-        obs.update();
-        obs.spinViewer();
+    while(obs.open()) {
+       obs.update();
+       obs.spinViewer();
     }
     
 

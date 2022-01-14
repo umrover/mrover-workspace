@@ -106,7 +106,9 @@ class ObsDetector {
         void populateMessage(float leftBearing, float rightBearing, float distance);
 
 
-    private:
+    bool open();
+
+private:
 
         //Sets up detection paramaters from a JSON file
         void setupParamaters(std::string parameterFile);
@@ -156,5 +158,5 @@ class ObsDetector {
         //Other
         int frameNum = 0;
         bool framePlay = true;
-        
+
 };
