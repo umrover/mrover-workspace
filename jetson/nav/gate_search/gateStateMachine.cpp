@@ -274,14 +274,12 @@ NavState GateStateMachine::executeGateDriveToFarPost()
     double distance = mRover->roverStatus().leftCacheTarget().distance - gateAdjustmentDist;
     double bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
 
-    if( mRover->roverStatus().rightCacheTarget().distance > 0 ) 
+    if( mRover->roverStatus().rightCacheTarget().distance > 0 &&
+        mRover->roverStatus().leftCacheTarget().distance < mRover->roverStatus().rightCacheTarget().distance ) 
     {
-        if( mRover->roverStatus().leftCacheTarget().distance < mRover->roverStatus().rightCacheTarget().distance ) 
-        {
-            // Set our variables to drive to target/post 2, which is farther away
-            distance = mRover->roverStatus().rightCacheTarget().distance - gateAdjustmentDist;
-            bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-        }
+        // Set our variables to drive to target/post 2, which is farther away
+        distance = mRover->roverStatus().rightCacheTarget().distance - gateAdjustmentDist;
+        bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
     }
 
     DriveStatus driveStatus = mRover->drive( distance, bearing, true );
@@ -314,7 +312,7 @@ NavState GateStateMachine::executeGateDriveThrough()
 
     if( driveStatus == DriveStatus::Arrived )
     {
-        if(!isCorrectGateDir) // Check if we drove through the incorrect direction
+        if( !isCorrectGateDir ) // Check if we drove through the incorrect direction
         {
             const Odometry temp = centerPoint1;
             centerPoint1 = centerPoint2;
