@@ -15,8 +15,17 @@
 #include "TestStats.h"
 //#include <lcm/lcm-cpp.hpp>
 //#include "rover_msgs/Obstacle.hpp"
+#include "find-clear-path.hpp"
 #include <cstring>
 #include <iostream>
+#include <float.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#ifndef NO_JARVIS
+#include <lcm/lcm-cpp.hpp>
+#include "rover_msgs/Obstacle.hpp"
+#endif
 
 // TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;
@@ -99,6 +108,7 @@ class ObsDetector {
          */
         void populateMessage(float leftBearing, float rightBearing, float distance);
 
+
     private:
 
         //Sets up detection paramaters from a JSON file
@@ -125,8 +135,10 @@ class ObsDetector {
 
     private:
         //Lcm
-        //lcm::LCM lcm_;
-        //rover_msgs::Obstacle obstacleMessage;
+        #ifndef NO_JARVIS
+        lcm::LCM lcm_;
+        rover_msgs::Obstacle obstacleMessage;
+        #endif
 
         //Data sources
         sl::Camera zed;
@@ -146,6 +158,7 @@ class ObsDetector {
         RansacPlane *ransacPlane;
         VoxelGrid *voxelGrid;
         EuclideanClusterExtractor *ece;
+        FindClearPath *findClear;
 
         //Paramaters
         sl::Resolution cloud_res;
@@ -156,6 +169,7 @@ class ObsDetector {
         //Output data
         Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
+        float3 bearingCombined;
         float leftBearing;
         float rightBearing;
         float distance;

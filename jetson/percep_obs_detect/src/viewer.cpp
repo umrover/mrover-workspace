@@ -254,7 +254,7 @@ void PointCloud::draw() {
     glBindVertexArray(vaoID);
     glDrawArrays(GL_POINTS, 0, size);
     glBindVertexArray(0);
-    //std::cout << vaoID << std::endl;
+
 }
 
 /* 
@@ -269,8 +269,6 @@ void PointCloud::draw() {
 Viewer* curInstance; 
 
 Viewer::Viewer() : camera(glm::perspective(glm::radians(35.0f), 1920.0f/1080.0f, 0.01f, 100000.0f)) {
-    
-    
 }
 
 void Viewer::init(int argc, char **argv) {
@@ -297,13 +295,17 @@ void Viewer::init(int argc, char **argv) {
     cout << "creating callbacks" << endl;
     glutMouseFunc(Viewer::mouseButtonCallback);
     glutMotionFunc(Viewer::mouseMotionCallback);
-    //glutKeyboardFunc(keyboard);
+    glutKeyboardFunc(Viewer::keyPressedCallback);
+    glutKeyboardUpFunc(Viewer::keyReleasedCallback);
     cout << "callbacks created" << endl;
     curInstance = this;
 
     // Shader
     objectShader = Shader(OBJ_VERTEX_SHADER, OBJ_FRAGMENT_SHADER);
     pcShader = Shader(PC_VERTEX_SHADER, PC_FRAGMENT_SHADER);
+
+    curInstance->frame = 0;
+    curInstance->framePlay = true;
 }
 
 // Viewer tick
@@ -363,21 +365,41 @@ void Viewer::clearEphemerals() {
 
 void Viewer::updatePointCloud(int idx, vec4* pts, int size) {
     pc_mutex.lock();
+    // Calculate
+    float maxX = numeric_limits<float>::min(), maxZ = numeric_limits<float>::min();
+    float minX = numeric_limits<float>::max(), minZ = numeric_limits<float>::max();
+    for(int i = 0; i < size; ++i) {
+        maxX = max(maxX, pts[i].x);
+        maxZ = max(maxZ, pts[i].z);
+        minX = min(minX, pts[i].x);
+        minZ = min(minZ, pts[i].z);
+    }
+    pcCenter = glm::vec3((minX + maxX) / 2, 0.0f, (minZ + maxZ) / 2);
     pointClouds[idx].update(pts, size);
     pc_mutex.unlock();
 }
 
+#ifndef VIEWER_ONLY
 void Viewer::updatePointCloud(GPU_Cloud pc) {
     glm::vec4* pc_cpu = new glm::vec4[pc.size];
     cudaMemcpy(pc_cpu, pc.data, sizeof(float4)*pc.size, cudaMemcpyDeviceToHost);
     updatePointCloud(0, pc_cpu, pc.size);
     delete[] pc_cpu;
 }
+#endif
 
 void Viewer::addPointCloud() {
     pc_mutex.lock();
     pointClouds.push_back(PointCloud());
     pc_mutex.unlock();
+}
+
+void Viewer::setTarget() {
+    curInstance->camera.setTarget(pcCenter);
+}
+
+void Viewer::setTarget(vec3 target) {
+    curInstance->camera.setTarget(target);
 }
 
 void Viewer::mouseButtonCallback(int button, int state, int x, int y) {
@@ -389,12 +411,12 @@ void Viewer::mouseButtonCallback(int button, int state, int x, int y) {
     // wheel up
     if(button == 3) {
         // curInstance->camera.setEye(lookDir * 0.75f + curInstance->camera.getTarget());
-        curInstance->camera.scaleEye(0.75f);
-    } 
-    // wheel down
+        curInstance->camera.scaleEye(-0.15f);
+    }
+        // wheel down
     else if(button == 4) {
-         //curInstance->camera.setEye(lookDir * 1.25f + curInstance->camera.getTarget());
-        curInstance->camera.scaleEye(1.25f);
+        //curInstance->camera.setEye(lookDir * 1.25f + curInstance->camera.getTarget());
+        curInstance->camera.scaleEye(0.15f);
 
     }
 
@@ -403,8 +425,7 @@ void Viewer::mouseButtonCallback(int button, int state, int x, int y) {
 }
 
 void Viewer::mouseMotionCallback(int x, int y) {
-    cout << "mouse" << endl;
-    
+
     int deltaX = x - curInstance->prevMouseX;
     int deltaY = y - curInstance->prevMouseY;
 
@@ -419,4 +440,38 @@ void Viewer::mouseMotionCallback(int x, int y) {
 // Responds to key presses, TODO: more features here :)
 void Viewer::keyPressedCallback(unsigned char c, int x, int y) {
     cout << "key press" << endl;
+
+    //if(c == " ") framePlay = 
 }
+
+void Viewer::keyReleasedCallback(unsigned char c, int x, int y) {
+    if(c == ' ') {
+        curInstance->framePlay = !curInstance->framePlay;
+    } if(c =='d') {
+        curInstance->frame++;
+    } 
+    if(c =='a') {
+        curInstance->frame--;
+    }
+}   
+
+
+#ifdef VIEWER_ONLY
+int main(int argc, char** argv) {
+    Viewer viewer;
+    viewer.init(argc, argv);
+    PCDReader reader;
+    std::string dir = ROOT_DIR;
+    dir += "/data/";
+    std::cout << dir << std::endl;
+    reader.open(dir);
+    std::vector<vec4> cloud = reader.readCloudCPU(dir+"pcl50.pcd");
+    viewer.addPointCloud();
+    viewer.updatePointCloud(0, &cloud[0], cloud.size());
+    viewer.setTarget();
+    while(true) {
+        viewer.update();
+    }
+    return 0;
+}
+#endif

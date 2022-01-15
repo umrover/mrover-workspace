@@ -30,7 +30,7 @@ struct Box {
 };
 
 float4 make_float4(float x, float y, float z, float w) {
-    float4 f = { x, y, z, w };
+    float4 f = {x, y, z, w};
     return f;
 }
 
@@ -106,7 +106,7 @@ private:
     float4 plane_center;
 
     void addPoint(float x, float y, float z, float w) {
-        if (noise) {
+        if(noise) {
             float mean = 0.0f;
             float stddev = 0.05f;
 
@@ -121,17 +121,17 @@ private:
         pc.push_back(make_float4(x, y, z, w));
 
     }
-
+    
     void planeGen() {
-
+        
         //Create matrix with numLines x numLines points spanning from (pointxy-size/2) to (pointxy+size/2) in x and y and 0 for z
-        if (normal_vector.z == 0) {
+        if(normal_vector.z == 0) {
             normal_vector.z = 0.0001f;
         }
-        for (float i = plane_center.x - plane_size / 2.0f; i <= plane_center.x + plane_size / 2.0f; i += plane_spacing) {
-            for (float j = plane_center.y - plane_size / 2.0f; j <= plane_center.y + plane_size / 2.0f; j += plane_spacing) {
+        for(float i = plane_center.x - plane_size / 2.0f; i <= plane_center.x + plane_size / 2.0f; i+= plane_spacing) {
+            for(float j = plane_center.y - plane_size / 2.0f; j <= plane_center.y + plane_size / 2.0f; j+= plane_spacing) {
                 //initialize points
-                float k = ((-1) * (i - plane_center.x) * normal_vector.x + (-1) * (j - plane_center.y) * normal_vector.y + normal_vector.z * plane_center.z) / normal_vector.z;
+                float k = ((-1)*(i-plane_center.x)*normal_vector.x + (-1)*(j-plane_center.y)*normal_vector.y + normal_vector.z*plane_center.z)/normal_vector.z;
                 addPoint(i, j, k, 1.0f);
             }
         }
@@ -142,17 +142,15 @@ private:
         for (float x = obstacles[i].minX; x <= obstacles[i].maxX; x += obj_spacing) {
             for (float y = obstacles[i].minY; y <= obstacles[i].maxY; y += obj_spacing) {
                 for (float z = obstacles[i].minZ; z <= obstacles[i].maxZ; z += obj_spacing) {
-                    if (hollow) {
-                        if ((x == obstacles[i].minX || (x <= obstacles[i].maxX && (x + obj_spacing > obstacles[i].maxX))) ||
-                            (y == obstacles[i].minY || (y <= obstacles[i].maxY && (y + obj_spacing > obstacles[i].maxY))) ||
-                            (z == obstacles[i].minZ || (z <= obstacles[i].maxZ && (z + obj_spacing > obstacles[i].maxZ)))) {
+                    if(hollow) {
+                        if((x == obstacles[i].minX || (x <= obstacles[i].maxX && (x+obj_spacing > obstacles[i].maxX))) ||
+                            (y == obstacles[i].minY || (y <= obstacles[i].maxY && (y+obj_spacing > obstacles[i].maxY))) ||
+                            (z == obstacles[i].minZ || (z <= obstacles[i].maxZ && (z+obj_spacing > obstacles[i].maxZ)))) {
                             addPoint(x, y, z, 0.0f);
                         }
-                    }
-                    else {
+                    } else {
                         addPoint(x, y, z, 0.0f);
                     }
-
                 }
             }
         }
@@ -166,8 +164,8 @@ private:
         }
     }
 
+    
 public:
-
     //Custom constructors to add customization
     PcGenerator(ObsReturn in, float spacing_in, float size_in, float4 normal_vector_in, float4 plane_center_in, bool hollow_in, bool noise_in) {
         obj_spacing = spacing_in;
@@ -192,24 +190,25 @@ public:
         float minY_total = INT16_MAX;
         float maxY_total = INT16_MIN;
 
-        for (size_t i = 0; i < obstacles.size(); i++) {
-            if (obstacles[i].minX < minX_total) {
+
+        for(size_t i = 0; i < obstacles.size(); i++) {
+            if(obstacles[i].minX < minX_total) {
                 minX_total = obstacles[i].minX;
             }
-            if (obstacles[i].maxX > maxX_total) {
+            if(obstacles[i].maxX > maxX_total) {
                 maxX_total = obstacles[i].maxX;
             }
-            if (obstacles[i].minY < minY_total) {
+            if(obstacles[i].minY < minY_total) {
                 minY_total = obstacles[i].minY;
             }
-            if (obstacles[i].maxY > maxY_total) {
+            if(obstacles[i].maxY > maxY_total) {
                 maxY_total = obstacles[i].maxY;
             }
         }
 
-        plane_center = make_float4((minX_total + maxX_total) / 2, (minY_total + maxY_total) / 2, 0, 0);
+        plane_center = make_float4((minX_total+maxX_total)/2, (minY_total+maxY_total)/2, 0, 0);
         normal_vector = make_float4(0, 0, 1, 0);
-        plane_size = max(maxX_total - minX_total, maxY_total - minY_total) * 1.5f;
+        plane_size = max(maxX_total-minX_total,maxY_total-minY_total) * 1.5f;
 
         hollow = hollow_in;
         noise = noise_in;
@@ -241,9 +240,11 @@ int main() {
     //OR     PcGenetator(ObsReturn, spacing, hollow, noise)
 
     float4 normalVector = make_float4(0, 0, 1, 0);
+
     float4 center = make_float4(0, 0, 0, 0);
 
     PcGenerator scene(objects, .25f, 10.0, normalVector, center, false, false);
+
     GPU_Cloud cloud = scene.getGPU();
 
 
