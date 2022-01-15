@@ -182,7 +182,7 @@ void ObsDetector::test_input_file()
 }
 
 
-TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list)
+void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list)
 {
   std::vector<EuclideanClusterExtractor::ObsReturn> measured; // Raw data put through obs detector
   //measured.reserve(truth_list.size());
@@ -220,7 +220,9 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
     //passZ->run(raw_data[i]); I think the filter gets rid of everything?
 
     //NOTE: the raw_data variable is empty
+    std::cout << "Raw_data cloud size before RANSAC " << raw_data[i].size;
     ransacPlane->computeModel(raw_data[i]);
+    std::cout << "Raw_data cloud size after RANSAC " << raw_data[i].size;
     b = voxelGrid->run(raw_data[i]); //this causes invalid config
 
     measured.push_back(ece->extractClusters(raw_data[i],b));
@@ -235,7 +237,6 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
     viewer.clearEphemerals();
 
     /* ––––––––––––––––––––––––––––––––– */
-    std::cout << "Detected " << measured[i].obs.size() << " Obstacles for GPU Cloud " << i << "\n";
 
     float current_volume_sum = 0; //global volume sum
     float current_intersection_sum = 0; //global intersection sum
@@ -311,10 +312,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
       false_positive_vol.push_back((volsum - temp_intersection)/truth_volumes[x]);
   }
   /* return custom class ("TestStats.h") */
-  TestStats::TestStats tsolution(g_t,false_positive_vol,clock_times,true_count,obs_count,discrete_truth_pct);
-
-
-  return tsolution;
+  TestStats::TestStats tsolution(g_t, false_positive_vol, clock_times, true_count, obs_count, discrete_truth_pct);
 }
 
 float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst) {
