@@ -373,6 +373,10 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 viewer->camera.move({0.0f, -speedMultiplier, 0.0f});
                 break;
             }
+            case GLFW_KEY_SPACE: {
+                viewer->framePlay = !viewer->framePlay;
+                break;
+            }
         }
     }
 }
