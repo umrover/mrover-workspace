@@ -1,10 +1,4 @@
 {
-    "AmmoniaCmd": [
-        [
-            "double",
-            "speed"
-        ]
-    ],
     "ArmPosition": [
         [
             "double",
@@ -327,6 +321,32 @@
             "locked"
         ]
     ],
+    "LockJoints": [
+        [
+            "boolean",
+            "jointa"
+        ],
+        [
+            "boolean",
+            "jointb"
+        ],
+        [
+            "boolean",
+            "jointc"
+        ],
+        [
+            "boolean",
+            "jointd"
+        ],
+        [
+            "boolean",
+            "jointe"
+        ],
+        [
+            "boolean",
+            "jointf"
+        ]
+    ],
     "MicroCam": [
         [
             "string",
@@ -343,16 +363,6 @@
         [
             "string",
             "id"
-        ],
-        [
-            "boolean",
-            "enable"
-        ]
-    ],
-    "MosfetCmd": [
-        [
-            "int8_t",
-            "device"
         ],
         [
             "boolean",
@@ -510,6 +520,12 @@
             "width"
         ]
     ],
+    "PresetAngles": [
+        [
+            "string",
+            "preset"
+        ]
+    ],
     "ProximitySensors": [
         [
             "boolean",
@@ -528,12 +544,7 @@
             "depths[numDepths]"
         ]
     ],
-    "RadioSignalStrength": [
-        [
-            "float",
-            "signal_strength"
-        ]
-    ],
+    "RepeaterDrop": [],
     "RGB": [
         [
             "string",
@@ -687,80 +698,6 @@
             "sim_mode"
         ]
     ],
-    "SpectralData": [
-        [
-            "int16_t",
-            "d0_1"    
-        ],
-        [
-            "int16_t",
-            "d0_2"    
-        ],
-        [
-            "int16_t",
-            "d0_3"    
-        ],
-        [
-            "int16_t",
-            "d0_4"    
-        ],
-        [
-            "int16_t",
-            "d0_5"    
-        ],
-        [
-            "int16_t",
-            "d0_6"    
-        ],
-        [
-            "int16_t",
-            "d1_1"    
-        ],
-        [
-            "int16_t",
-            "d1_2"    
-        ],
-        [
-            "int16_t",
-            "d1_3"    
-        ],
-        [
-            "int16_t",
-            "d1_4"    
-        ],
-        [
-            "int16_t",
-            "d1_5"    
-        ],
-        [
-            "int16_t",
-            "d1_6"    
-        ],
-        [
-            "int16_t",
-            "d2_1"    
-        ],
-        [
-            "int16_t",
-            "d2_2"    
-        ],
-        [
-            "int16_t",
-            "d2_3"    
-        ],
-        [
-            "int16_t",
-            "d2_4"    
-        ],
-        [
-            "int16_t",
-            "d2_5"    
-        ],
-        [
-            "int16_t",
-            "d2_6"    
-        ]
-    ],
     "StartTest": [
         [
             "string",
@@ -805,6 +742,36 @@
         [
             "float",
             "f"
+        ]
+    ],
+    "TargetOrientation": [
+        [
+            "float",
+            "x"
+        ],
+        [
+            "float",
+            "y"
+        ],
+        [
+            "float",
+            "z"
+        ],
+        [
+            "float",
+            "alpha"
+        ],
+        [
+            "float",
+            "beta"
+        ],
+        [
+            "float",
+            "gamma"
+        ],
+        [
+            "boolean",
+            "use_orientation"
         ]
     ],
     "TargetPoint": [
@@ -954,8 +921,13 @@
             "y"
         ]
     ],
+    "ZedGimbalPosition": [
+        [
+            "double",
+            "angle"
+        ]
+    ],
     "message_types": [
-        "AmmoniaCmd",
         "ArmPosition",
         "ArmToggles",
         "AutonState",
@@ -980,7 +952,6 @@
         "MicroCam",
         "Microscope",
         "Mosfet",
-        "MosfetCmd",
         "MotionExecute",
         "NavStatus",
         "Obstacle",
@@ -990,7 +961,9 @@
         "PIDConstants",
         "PiPicture",
         "PiSettings",
+        "PresetAngles",
         "ProximitySensors",
+        "RepeaterDrop",
         "RGB",
         "RGBFrame",
         "RGBLED",
@@ -1005,13 +978,14 @@
         "StartTest",
         "TalonConfig",
         "TargetAngles",
-        "TargetList",
+        "TargetOrientation",
         "TargetPoint",
         "Temperature",
         "TennisBall",
         "TestEnable",
         "Waypoint",
         "WheelSpeeds",
-        "Xbox"
+        "Xbox",
+        "ZedGimbalPosition"
     ]
 }

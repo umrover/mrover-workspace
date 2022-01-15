@@ -165,6 +165,10 @@ def autonomous_callback(channel, msg):
 
     joystick_math(new_motor, input_data.forward_back, input_data.left_right)
 
+    temp = new_motor.left
+    new_motor.left = -1 * new_motor.right
+    new_motor.right = -1 * temp
+
     lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
