@@ -342,15 +342,11 @@ int main() {
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
+    //if testing, uncomment test_input_file() line and comment out the loop
     obs.test_input_file();
-    if (obs.mode != OperationMode::TEST)
-    {
-        while (true) {
-            //obs.update();
-            obs.spinViewer();
-        }
-    }
-
-
+    //while (true) {
+    //    //obs.update();
+    //    obs.spinViewer();
+    //}
     return 0;
 }
