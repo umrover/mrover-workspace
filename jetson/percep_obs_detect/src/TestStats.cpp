@@ -67,7 +67,7 @@ void TestStats::print() //prints out all info
                     return a + b / discrete_truths[i].size();
                 }) * 100 << "\n";
         for (size_t j = 0; j < discrete_truths[i].size(); ++j) {
-            std::cout << "Obstacle #" << j << "% detected: " << discrete_truths[i][j] * static_cast<float>(100) << "\n";
+            std::cout << "Obstacle #" << j << " % detected: " << discrete_truths[i][j] * static_cast<float>(100) << "\n";
         }
     }
 }//End print()
