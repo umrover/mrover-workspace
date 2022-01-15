@@ -1,5 +1,5 @@
 <template>
-  <div class="wrap">
+  <div class="odom-wrap">
     <p>Current odometry reading:</p>
     <div>
       <p>{{formatted_odom.lat.d}}º</p>
@@ -12,6 +12,8 @@
       <p v-if="this.min_enabled">{{formatted_odom.lon.m}}'</p>
       <p  v-if="this.sec_enabled">{{formatted_odom.lon.s}}"</p>
       W
+      <!-- <br/>
+      <p>Bearing: {{odom.bearing_deg.toFixed(2)}}º</p> -->
     </div>
   </div>
 </template>
@@ -52,14 +54,15 @@ export default {
 </script>
 
 <style scoped>
-  .wrap {
+  .odom-wrap {
       padding: 0px;
-      padding-left: 5px;
-      padding-right: 5px;
+      padding-left: 10px;
+      padding-right: 0px;
       border: none;
+      margin-top: 0.5rem;
   }
 
-  .wrap p {
+  .odom-wrap p {
     display: inline;
   }
 </style>
