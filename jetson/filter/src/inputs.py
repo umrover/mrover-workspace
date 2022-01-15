@@ -116,7 +116,7 @@ class AccelComponent(SensorComponent):
         self.accel_x -= grav[0]
         self.accel_y -= grav[1]
         self.accel_z -= grav[2]
-    
+
     def update(self, new_accel_sensor):
         if hasattr(new_accel_sensor, "accel_x_g"):
             self.accel_x = self.lowPass(new_accel_sensor.accel_x_g * 9.8, self.accel_x, self.filter_bias)
