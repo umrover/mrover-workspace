@@ -62,7 +62,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
       voxelGrid = new VoxelGrid(10);
     }else{
         /* Test is magnitudes smaller, so needs higher resolution */
-        voxelGrid = new VoxelGrid(1e4);
+        voxelGrid = new VoxelGrid(1);
     }
 
     voxelGrid = new VoxelGrid(10);
