@@ -149,7 +149,7 @@ void ObsDetector::drawCubes(EuclideanClusterExtractor::ObsReturn obsList, bool c
 void ObsDetector::spinViewer() {
     // This creates bounding boxes for visualization
     // There might be a clever automatic indexing scheme to optimize this
-    if (!OperationMode::TEST)
+    if (mode != OperationMode::TEST)
     {
         drawCubes(obstacles, 1); // 1 for green, 0 for red
         viewer.update();
@@ -338,24 +338,18 @@ float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstac
 
 
 int main() {
-    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::TEST, ViewerType::GL);
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
-<<<<<<< Updated upstream
-    while(true) {
-       //obs.update();
-       obs.spinViewer();
-    }
-=======
     obs.test_input_file();
-
-    if(mode != OperationMode::TEST)
-      while(true) {
-        //obs.update();
-        obs.spinViewer();
-      }
->>>>>>> Stashed changes
+    if (mode != OperationMode::TEST)
+    {
+        while (true) {
+            //obs.update();
+            obs.spinViewer();
+        }
+    }
 
 
     return 0;
