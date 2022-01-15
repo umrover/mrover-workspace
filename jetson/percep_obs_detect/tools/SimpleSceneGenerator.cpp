@@ -235,7 +235,7 @@ int main() {
     Obstacle one = { 0, 20, 0, 20, 0, 20 };
     objects.obs.push_back(one);
 
-    //Init an object of PcGenerator Class using one of the following constructors 
+    //Init an object of PcGenerator Class using one of the following constructors
     //(Constructor purpose is shown in comments above the constructor)
     //FORMAT PcGenerator(ObsReturn, spacing, size, normal vector of plane, center point of plane, hollow, noise)
     //OR     PcGenetator(ObsReturn, spacing, hollow, noise)
@@ -243,7 +243,7 @@ int main() {
     float4 normalVector = make_float4(0, 0, 1, 0);
     float4 center = make_float4(0, 0, 0, 0);
 
-    PcGenerator scene(objects, .25f, 10.0, normalVector, center, false, false);
+    PcGenerator scene(objects, .25f, 10.0, normalVector, center, false, true);
     GPU_Cloud cloud = scene.getGPU();
 
 
