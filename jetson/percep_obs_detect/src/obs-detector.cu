@@ -148,10 +148,12 @@ void ObsDetector::drawCubes(EuclideanClusterExtractor::ObsReturn obsList, bool c
 void ObsDetector::spinViewer() {
     // This creates bounding boxes for visualization
     // There might be a clever automatic indexing scheme to optimize this
-    if(!OperationMode::TEST)
-        drawCubes(obstacles,1); // 1 for green, 0 for red
+    if (!OperationMode::TEST)
+    {
+        drawCubes(obstacles, 1); // 1 for green, 0 for red
         viewer.update();
         viewer.clearEphemerals();
+    }
 
 }
 
