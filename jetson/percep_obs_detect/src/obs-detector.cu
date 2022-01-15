@@ -216,9 +216,8 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
     /* Evaluate Raw Data */
     Timer clock_count("testing timer"); // GPU Obs detect runtime counter
     Bins b;
-    std::cout << "Raw_data GPU Cloud size before passZ: " << raw_data[i].size;
-    passZ->run(raw_data[i]);
-    std::cout << "Raw_data GPU Cloud size after passZ: " << raw_data[i].size;
+
+    //passZ->run(raw_data[i]); I think the filter gets rid of everything?
 
     //NOTE: the raw_data variable is empty
     ransacPlane->computeModel(raw_data[i]);
