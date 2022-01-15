@@ -170,8 +170,6 @@ void ObsDetector::test_input_file()
   std::vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
   
-  std::cout << "Raw_data GPU Cloud size: " << gpuc.size;
-
   std::vector<EuclideanClusterExtractor::ObsReturn> truths;
   EuclideanClusterExtractor::ObsReturn objects;
   //Init all obstacles to be added to the scene and push them to ObsReturn.obs
@@ -218,8 +216,10 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
     /* Evaluate Raw Data */
     Timer clock_count("testing timer"); // GPU Obs detect runtime counter
     Bins b;
+    std::cout << "Raw_data GPU Cloud size before passZ: " << raw_data[i].size;
     passZ->run(raw_data[i]);
-    
+    std::cout << "Raw_data GPU Cloud size after passZ: " << raw_data[i].size;
+
     //NOTE: the raw_data variable is empty
     ransacPlane->computeModel(raw_data[i]);
     b = voxelGrid->run(raw_data[i]); //this causes invalid config
