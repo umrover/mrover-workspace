@@ -90,9 +90,10 @@ NavState GateStateMachine::executeGateSpin()
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
 
-    if( mRover->roverStatus().rightTarget().distance >= 0 ||
-        ( mRover->roverStatus().leftTarget().distance >= 0 && mRover->roverStatus().leftTarget().id != lastKnownRightPost.id ) )
+    if( mRover->roverStatus().rightCacheTarget().distance >= 0 ||
+        ( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().leftCacheTarget().id != lastKnownRightPost.id ) )
     {
+        mRover->roverStatus().getMisses() = 0; // reset
         updatePost2Info();
         calcCenterPoint();
         return NavState::GateTurnToCentPoint;
@@ -123,8 +124,8 @@ NavState GateStateMachine::executeGateSpinWait()
     static bool started = false;
     static time_t startTime;
 
-    if( mRover->roverStatus().rightTarget().distance >= 0 ||
-        ( mRover->roverStatus().leftTarget().distance >= 0 && mRover->roverStatus().leftTarget().id != lastKnownRightPost.id ) )
+    if( mRover->roverStatus().rightCacheTarget().distance >= 0 ||
+        ( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().leftCacheTarget().id != lastKnownRightPost.id ) )
     {
         updatePost2Info();
         calcCenterPoint();
@@ -154,8 +155,8 @@ NavState GateStateMachine::executeGateTurn()
         initializeSearch();
     }
 
-    if( mRover->roverStatus().rightTarget().distance >= 0 ||
-        ( mRover->roverStatus().leftTarget().distance >= 0 && mRover->roverStatus().leftTarget().id != lastKnownRightPost.id ) )
+    if( mRover->roverStatus().rightCacheTarget().distance >= 0 ||
+        ( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().leftCacheTarget().id != lastKnownRightPost.id ) )
     {
         updatePost2Info();
         calcCenterPoint();
@@ -173,8 +174,8 @@ NavState GateStateMachine::executeGateTurn()
 // Drive to determined waypoint
 NavState GateStateMachine::executeGateDrive()
 {
-    if( mRover->roverStatus().rightTarget().distance >= 0 ||
-        ( mRover->roverStatus().leftTarget().distance >= 0 && mRover->roverStatus().leftTarget().id != lastKnownRightPost.id ) )
+    if( mRover->roverStatus().rightCacheTarget().distance >= 0 ||
+        ( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().leftCacheTarget().id != lastKnownRightPost.id ) )
     {
         updatePost2Info();
         calcCenterPoint();
@@ -235,18 +236,18 @@ NavState GateStateMachine::executeGateFace()
 // Turn to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
-    if( mRover->roverStatus().rightTarget().distance > 0 ) 
+    if( mRover->roverStatus().rightCacheTarget().distance > 0 ) 
     {
-        if( mRover->roverStatus().leftTarget().distance < mRover->roverStatus().rightTarget().distance ) 
+        if( mRover->roverStatus().leftCacheTarget().distance < mRover->roverStatus().rightCacheTarget().distance ) 
         {
-            if( mRover->turn( mRover->roverStatus().rightTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) )
+            if( mRover->turn( mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) )
             {
                 return NavState::GateDriveToFarPost;
             }
         }
         else 
         {
-            if( mRover->turn( mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) ) 
+            if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) ) 
             {
                 return NavState::GateDriveToFarPost;
             }   
@@ -254,7 +255,7 @@ NavState GateStateMachine::executeGateTurnToFarPost()
     }
     else
     {
-        if( mRover->turn( mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) ) 
+        if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) ) 
         {
             return NavState::GateDriveToFarPost;
         }
@@ -270,17 +271,15 @@ NavState GateStateMachine::executeGateDriveToFarPost()
     double gateAdjustmentDist = mRoverConfig[ "gateAdjustment" ][ "adjustmentDistance" ].GetDouble();
 
     // Set to first target, since we should have atleast one in sight/detected
-    double distance = mRover->roverStatus().leftTarget().distance - gateAdjustmentDist;
-    double bearing = mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
+    double distance = mRover->roverStatus().leftCacheTarget().distance - gateAdjustmentDist;
+    double bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
 
-    if( mRover->roverStatus().rightTarget().distance > 0 ) 
+    if( mRover->roverStatus().rightCacheTarget().distance > 0 &&
+        mRover->roverStatus().leftCacheTarget().distance < mRover->roverStatus().rightCacheTarget().distance ) 
     {
-        if( mRover->roverStatus().leftTarget().distance < mRover->roverStatus().rightTarget().distance ) 
-        {
-            // Set our variables to drive to target/post 2, which is farther away
-            distance = mRover->roverStatus().rightTarget().distance - gateAdjustmentDist;
-            bearing = mRover->roverStatus().rightTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-        }
+        // Set our variables to drive to target/post 2, which is farther away
+        distance = mRover->roverStatus().rightCacheTarget().distance - gateAdjustmentDist;
+        bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
     }
 
     DriveStatus driveStatus = mRover->drive( distance, bearing, true );
@@ -313,7 +312,7 @@ NavState GateStateMachine::executeGateDriveThrough()
 
     if( driveStatus == DriveStatus::Arrived )
     {
-        if(!isCorrectGateDir) // Check if we drove through the incorrect direction
+        if( !isCorrectGateDir ) // Check if we drove through the incorrect direction
         {
             const Odometry temp = centerPoint1;
             centerPoint1 = centerPoint2;
@@ -335,27 +334,27 @@ NavState GateStateMachine::executeGateDriveThrough()
 // Update stored location and id for second post.
 void GateStateMachine::updatePost2Info()
 {
-    if( mRover->roverStatus().rightTarget().distance >= 0 && mRover->roverStatus().leftTarget().id == lastKnownRightPost.id )
+    if( mRover->roverStatus().rightCacheTarget().distance >= 0 && mRover->roverStatus().leftCacheTarget().id == lastKnownRightPost.id )
     {
         const double targetAbsAngle = mod( mRover->roverStatus().odometry().bearing_deg +
-                                          mRover->roverStatus().rightTarget().bearing,
+                                          mRover->roverStatus().rightCacheTarget().bearing,
                                           360 );
         lastKnownLeftPost.odom = createOdom( mRover->roverStatus().odometry(),
                                           targetAbsAngle,
-                                          mRover->roverStatus().rightTarget().distance,
+                                          mRover->roverStatus().rightCacheTarget().distance,
                                           mRover );
-        lastKnownLeftPost.id = mRover->roverStatus().rightTarget().id;
+        lastKnownLeftPost.id = mRover->roverStatus().rightCacheTarget().id;
     }
     else
     {
         const double targetAbsAngle = mod( mRover->roverStatus().odometry().bearing_deg +
-                                          mRover->roverStatus().leftTarget().bearing,
+                                          mRover->roverStatus().leftCacheTarget().bearing,
                                           360 );
         lastKnownLeftPost.odom = createOdom( mRover->roverStatus().odometry(),
                                           targetAbsAngle,
-                                          mRover->roverStatus().leftTarget().distance,
+                                          mRover->roverStatus().leftCacheTarget().distance,
                                           mRover );
-        lastKnownLeftPost.id = mRover->roverStatus().leftTarget().id;
+        lastKnownLeftPost.id = mRover->roverStatus().leftCacheTarget().id;
     }
 } // updatePost2Info()
 

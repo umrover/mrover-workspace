@@ -119,9 +119,15 @@ public:
 
         Target& rightTarget();
 
+        Target& leftCacheTarget();
+        
+        Target& rightCacheTarget();
+
         RadioSignalStrength& radio();
 
         unsigned getPathTargets();
+
+        int& getMisses();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
@@ -149,15 +155,23 @@ public:
 
         // The rover's current target information from computer
         // vision.
-        Target mTarget1;
+        Target mTargetLeft;
 
-        Target mTarget2;
+        Target mTargetRight;
+
+        // Cached Target information
+        Target mCTargetLeft;
+
+        Target mCTargetRight;
 
         // the rover's current signal strength to the base station
         RadioSignalStrength mSignal;
 
         // Total targets to seach for in the course
         unsigned mPathTargets;
+
+        // Count of misses with cache
+        int countMisses = 0;
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );

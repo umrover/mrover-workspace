@@ -128,8 +128,8 @@ void clear( deque<Waypoint>& aDeque )
 // half the width of the rover the obstacle if reachable
 bool isTargetReachable( Rover* rover, const rapidjson::Document& roverConfig )
 {
-    double distToTarget = rover->roverStatus().leftTarget().distance;
-    double distThresh = roverConfig["navThresholds"]["targetDistance"].GetDouble();
+    double distToTarget = rover->roverStatus().leftCacheTarget().distance;
+    double distThresh = roverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble();
     return isLocationReachable( rover, roverConfig, distToTarget, distThresh );
 } // istargetReachable()
 
@@ -149,7 +149,7 @@ bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, 
     isReachable |= distToObs > locDist - distThresh;
 
     // if obstacle is farther away in "x direction" than rover's width, it's reachable
-    isReachable |= xComponentOfDistToObs > roverConfig["roverMeasurements"]["width"].GetDouble() / 2;
+    isReachable |= xComponentOfDistToObs > roverConfig[ "roverMeasurements" ][ "width" ].GetDouble() / 2;
 
     return isReachable;
 } // isLocationReachable()
@@ -163,5 +163,5 @@ bool isObstacleDetected( Rover* rover )
 // Returns true if distance from obstacle is within user-configurable threshold
 bool isObstacleInThreshold( Rover* rover, const rapidjson::Document& roverConfig )
 {
-    return rover->roverStatus().obstacle().distance <= roverConfig["navThresholds"]["obstacleDistanceThreshold"].GetDouble();
+    return rover->roverStatus().obstacle().distance <= roverConfig[ "navThresholds" ][ "obstacleDistanceThreshold" ].GetDouble();
 } // isObstacleInThreshold()

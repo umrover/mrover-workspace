@@ -11,6 +11,10 @@ Rover::RoverStatus::RoverStatus()
     : mCurrentState( NavState::Off )
 {
     mAutonState.is_auton = false;
+    // {-1, 0, 0} refers to the struct of an empty Target
+    // which means distance = -1, bearing = 0, id = 0
+    mCTargetLeft = {-1, 0, 0};
+    mCTargetRight = {-1, 0, 0};
 } // RoverStatus()
 
 // Gets a reference to the rover's current navigation state.
@@ -52,13 +56,23 @@ Odometry& Rover::RoverStatus::odometry()
 // Gets a reference to the rover's first target's current information.
 Target& Rover::RoverStatus::leftTarget()
 {
-    return mTarget1;
+    return mTargetLeft;
 } // leftTarget()
 
 Target& Rover::RoverStatus::rightTarget() 
 {
-    return mTarget2;
+    return mTargetRight;
 } // rightTarget()
+
+Target& Rover::RoverStatus::leftCacheTarget()
+{
+    return mCTargetLeft;
+} // leftCacheTarget()
+
+Target& Rover::RoverStatus::rightCacheTarget() 
+{
+    return mCTargetRight;
+} // rightCacheTarget()
 
 RadioSignalStrength& Rover::RoverStatus::radio() 
 {
@@ -69,6 +83,11 @@ unsigned Rover::RoverStatus::getPathTargets()
 {
   return mPathTargets;
 } // getPathTargets()
+
+int& Rover::RoverStatus::getMisses()
+{
+    return countMisses;
+}
 
 // Assignment operator for the rover status object. Does a "deep" copy
 // where necessary.
@@ -92,9 +111,12 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     }
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();
-    mTarget1 = newRoverStatus.leftTarget();
-    mTarget2 = newRoverStatus.rightTarget();
+    mTargetLeft = newRoverStatus.leftTarget();
+    mTargetRight = newRoverStatus.rightTarget();
+    mCTargetLeft = newRoverStatus.leftCacheTarget();
+    mCTargetRight = newRoverStatus.rightCacheTarget();
     mSignal = newRoverStatus.radio();
+    countMisses = newRoverStatus.getMisses();
     return *this;
 } // operator=
 
@@ -242,14 +264,37 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
+
+            // Cache Target if we had detected one
+            if( mRoverStatus.leftTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
+            {
+                mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
+                if( mRoverStatus.rightTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
+                {
+                    mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
+                }
+                mRoverStatus.getMisses() = 0;
+            }
+            else 
+            { // if leftTarget is empty, so is rightTarget
+                mRoverStatus.getMisses()++;
+            }
+
+            // Check if we need to reset
+            if( mRoverStatus.getMisses() > mRoverConfig[ "navThresholds" ][ "cacheMissMax" ].GetDouble() )
+            {
+                mRoverStatus.getMisses() = 0;
+                // Set to empty target
+                mRoverStatus.leftCacheTarget() = {-1, 0, 0};
+                mRoverStatus.rightCacheTarget() = {-1, 0, 0};
+            }
+            
             mRoverStatus.radio() = newRoverStatus.radio();
             updateRepeater( mRoverStatus.radio() );
             return true;
         }
-
         return false;
     }
-
     // Rover currently off.
     else
     {
