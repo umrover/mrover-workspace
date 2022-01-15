@@ -65,7 +65,7 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/.mrover/build_env/bin/)
 endif()
 
 
-add_executable (jetson_percep_obs_detect src/filter.cu src/obs-detector.cu src/viewer.cpp src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/euclidean-cluster.cu src/pass-through.cu src/find-clear-path.cu)
+add_executable (jetson_percep_obs_detect src/filter.cu src/obs-detector.cu src/viewer.cpp src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/euclidean-cluster.cu src/pass-through.cu src/find-clear-path.cu src/TestStats.cpp)
 target_link_libraries (jetson_percep_obs_detect ${ZED_LIBRARIES})
 target_link_libraries(jetson_percep_obs_detect
                         ${SPECIAL_OS_LIBS}
