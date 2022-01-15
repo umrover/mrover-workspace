@@ -128,11 +128,11 @@ void ObsDetector::drawCubes(EuclideanClusterExtractor::ObsReturn obsList, bool c
 {
     for (int i = 0; i < obsList.obs.size(); i++) {
         std::vector<vec3> points = { vec3(obsList.obs[i].minX, obsList.obs[i].minY, obsList.obs[i].minZ),
-                                    vec3(obslist.obs[i].maxX, obsList.obs[i].minY, obsList.obs[i].minZ),
+                                    vec3(obsList.obs[i].maxX, obsList.obs[i].minY, obsList.obs[i].minZ),
                                     vec3(obsList.obs[i].maxX, obsList.obs[i].maxY, obsList.obs[i].minZ),
                                     vec3(obsList.obs[i].minX, obsList.obs[i].maxY, obsList.obs[i].minZ),
                                     vec3(obsList.obs[i].minX, obsList.obs[i].minY, obsList.obs[i].maxZ),
-                                    vec3(obsList.obs[i].maxX, obsList.obs[i].minY, obslist.obs[i].maxZ),
+                                    vec3(obsList.obs[i].maxX, obsList.obs[i].minY, obsList.obs[i].maxZ),
                                     vec3(obsList.obs[i].maxX, obsList.obs[i].maxY, obsList.obs[i].maxZ),
                                     vec3(obsList.obs[i].minX, obsList.obs[i].maxY, obsList.obs[i].maxZ), };
         std::vector<vec3> colors;
