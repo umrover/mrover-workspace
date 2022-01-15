@@ -19,11 +19,6 @@ iot(iot_), fot(fot_), times(times_), num_true_obs(nt_), num_det_obs(nd), discret
 }
 
 
-TestStats::~TestStats()
-{
-
-}
-
 /*
 void TestStats::analyze_test()
 {

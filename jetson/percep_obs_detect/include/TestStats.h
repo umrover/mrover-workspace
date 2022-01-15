@@ -25,7 +25,6 @@ class TestStats {
   public:
       TestStats();
       TestStats(std::vector<float> iot_, std::vector<float> fot_, std::vector<float> times_, std::vector<int> nt_, std::vector<int> nd, std::vector<std::vector<float>> dscrt);
-     ~TestStats();
 
       //auto getTrue() const -> const std::vector<EuclideanClusterExtractor::ObsReturn>&;
       //auto getDet()  const -> const std::vector<EuclideanClusterExtractor::ObsReturn>&;
