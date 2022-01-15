@@ -16,7 +16,7 @@ xdotool key ctrl+shift+t
 if [[ $1 ]]; then
     ./jarvis_files/launchScripts/ssh $WID
 fi
-xdotool key type "./jarvis exec jetson/imu"
+xdotool key type "./jarvis exec jetson/mp9250_bridge"
 xdotool key KP_Enter
 
 #Open a new tab for Obstacle LCM
@@ -29,7 +29,7 @@ xdotool key type "./jarvis exec jetson/filter"
 xdotool key KP_Enter
 
 # Make window 1/4 of screen and align upper right
-dimensions=$(./jarvis_files/launchScripts/dim)
+dimensions=$(./jarvis_files/launch_scripts/dim)
 dim=($dimensions)
 dim[0]=$(expr ${dim[0]} / 2)
 dim[1]=$(expr ${dim[1]} / 2)
