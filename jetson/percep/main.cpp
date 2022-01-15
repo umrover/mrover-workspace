@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono_literals;
  
 int main() {
-  
+
  /* --- Reading in Config File --- */
   rapidjson::Document mRoverConfig;
   ifstream configFile;
