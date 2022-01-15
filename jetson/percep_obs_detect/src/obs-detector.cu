@@ -57,16 +57,14 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     //Obs Detecting Algorithm Params
     passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
-    switch(mode)
+    if(mode != OperationMode::TEST)
     {
-      case !OperationMode::TEST:
-        voxelGrid = new VoxelGrid(10);
-        break;
-      case OperationMode::TEST:
+      voxelGrid = new VoxelGrid(10);
+    }else{
         /* Test is magnitudes smaller, so needs higher resolution */
         voxelGrid = new VoxelGrid(1e4);
-        break;
     }
+
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9);
 }
