@@ -343,7 +343,7 @@ int main() {
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
     obs.test_input_file();
-    if (mode != OperationMode::TEST)
+    if (obs.mode != OperationMode::TEST)
     {
         while (true) {
             //obs.update();
