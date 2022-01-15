@@ -169,6 +169,8 @@ void ObsDetector::test_input_file()
 
   std::vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
+  
+  std::cout << "Raw_data GPU Cloud size: " << gpuc.size;
 
   std::vector<EuclideanClusterExtractor::ObsReturn> truths;
   EuclideanClusterExtractor::ObsReturn objects;
@@ -218,6 +220,7 @@ TestStats::TestStats ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<
     Bins b;
     passZ->run(raw_data[i]);
     
+    //NOTE: the raw_data variable is empty
     ransacPlane->computeModel(raw_data[i]);
     b = voxelGrid->run(raw_data[i]); //this causes invalid config
 
