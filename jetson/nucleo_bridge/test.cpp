@@ -105,16 +105,33 @@ float openPlus(int addr, float speed)
     }
 }
 
-float closedPlus(int addr, float target)
+float closedPlus(int addr, float angle) // -pi to pi
 {
     try
     {
-        uint8_t buffer[4];
-        memcpy(buffer, UINT8_POINTER_T(&target), 4);
-        int32_t raw_angle;
+        printf("test closed plus on slave %i sending target angle %d", addr, angle);
+        uint8_t buffer[12];
+
+        float ff = 0;
+        memcpy(buffer, UINT8_POINTER_T(&ff), 4);
+        memcpy(buffer + 4, UINT8_POINTER_T(&angle), 4);
         
-        I2C::transact(addr, OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
-        printf("test closed plus transaction successful on slave %i, %d \n", addr, raw_angle);
+        int32_t raw_angle;
+
+        int joint = (addr & 0b1) + (((addr >> 4) - 1) * 2);
+
+        if (joint != 1)
+        {
+            raw_angle = static_cast<int32_t>((angle / (2.0 * M_PI)) * cpr[joint]);
+        }
+        else 
+        {
+            memcpy(raw_angle, &angle);
+        }
+        
+        I2C::transact(addr, CLOSED_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
+        float deg_angle = (raw_angle / cpr[joint]) * 360; 
+        printf("test closed plus transaction successful on slave %i, %d \n", addr, deg_angle);
         return raw_angle;
     }
     catch (IOFailure &e)
@@ -328,17 +345,26 @@ void testClosed()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        setKPID(address, 1, 2, 3);
+        setKPID(address, 0.001, 0.0005, 0);
         sleep(10);
     }
     while (1)
     {
         for (auto address : i2c_address)
         {
-            closedPlus(address, 1.0);
-            sleep(500);
-            closedPlus(address, 0.0);
-            sleep(500);
+
+            for (int i = 0; i < 30; i++) {
+                closedPlus(address, M_PI);
+                sleep(20);
+            }
+            for (int i = 0; i < 30; i++) {
+                closedPlus(address, 0.0);
+                sleep(20);
+            }
+            for (int i = 0; i < 30; i++) {
+                closedPlus(address, M_PI);
+                sleep(20);
+            }
         }
     }
     PRINT_TEST_END
