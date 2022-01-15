@@ -217,12 +217,9 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
     Timer clock_count("testing timer"); // GPU Obs detect runtime counter
     Bins b;
 
-    //passZ->run(raw_data[i]); I think the filter gets rid of everything?
+    //passZ->run(raw_data[i]); The filter gets rid of the small obstacles we're testing
 
-    //NOTE: the raw_data variable is empty
-    std::cout << "Raw_data cloud size before RANSAC " << raw_data[i].size;
-    ransacPlane->computeModel(raw_data[i]);
-    std::cout << "Raw_data cloud size after RANSAC " << raw_data[i].size;
+    //ransacPlane->computeModel(raw_data[i]); RANSAC also makes the cloud 0
     b = voxelGrid->run(raw_data[i]); //this causes invalid config
 
     measured.push_back(ece->extractClusters(raw_data[i],b));
