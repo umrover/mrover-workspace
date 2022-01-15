@@ -57,6 +57,16 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     //Obs Detecting Algorithm Params
     passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
+    switch(mode)
+    {
+      case !OperationMode::TEST:
+        voxelGrid = new VoxelGrid(10);
+        break;
+      case OperationMode::TEST:
+        /* Test is magnitudes smaller, so needs higher resolution */
+        voxelGrid = new VoxelGrid(1e4);
+        break;
+    }
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9);
 }
@@ -127,7 +137,7 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 void ObsDetector::drawCubes(EuclideanClusterExtractor::ObsReturn obsList, bool color_flag)
 {
     for (int i = 0; i < obsList.obs.size(); i++) {
-        std::vector<vec3> points = { vec3(obsList.obs[i].minX, obsList.obs[i].minY, obsList.obs[i].minZ),
+        std::vector<vec3> points = {vec3(obsList.obs[i].minX, obsList.obs[i].minY, obsList.obs[i].minZ),
                                     vec3(obsList.obs[i].maxX, obsList.obs[i].minY, obsList.obs[i].minZ),
                                     vec3(obsList.obs[i].maxX, obsList.obs[i].maxY, obsList.obs[i].minZ),
                                     vec3(obsList.obs[i].minX, obsList.obs[i].maxY, obsList.obs[i].minZ),
@@ -169,7 +179,7 @@ void ObsDetector::test_input_file()
 
   std::vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
-  
+
   std::vector<EuclideanClusterExtractor::ObsReturn> truths;
   EuclideanClusterExtractor::ObsReturn objects;
   //Init all obstacles to be added to the scene and push them to ObsReturn.obs
@@ -216,9 +226,7 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
     /* Evaluate Raw Data */
     Timer clock_count("testing timer"); // GPU Obs detect runtime counter
     Bins b;
-
     //passZ->run(raw_data[i]); The filter gets rid of the small obstacles we're testing
-
     //ransacPlane->computeModel(raw_data[i]); RANSAC also makes the cloud 0
     b = voxelGrid->run(raw_data[i]); //this causes invalid config
 
@@ -341,9 +349,11 @@ int main() {
 
     //if testing, uncomment test_input_file() line and comment out the loop
     obs.test_input_file();
-    //while (true) {
-    //    //obs.update();
-    //    obs.spinViewer();
-    //}
+    /*
+    while (true) {
+       //obs.update();
+       obs.spinViewer();
+    }
+    */
     return 0;
 }
