@@ -141,7 +141,6 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
     #endif
 }
 
-<<<<<<< HEAD
 void ObsDetector::drawCubes(EuclideanClusterExtractor::ObsReturn obsList, bool color_flag)
 {
     for (int i = 0; i < obsList.obs.size(); i++) {
