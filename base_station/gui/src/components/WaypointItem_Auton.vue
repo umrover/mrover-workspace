@@ -14,9 +14,7 @@
         <p>{{waypoint.lat.d}}º</p>
         <p v-if="this.min_enabled">{{waypoint.lat.m}}'</p>
         <p  v-if="this.sec_enabled">{{waypoint.lat.s}}"</p>
-        N
-      </div>
-      <div>
+        N <b>&nbsp;|</b> 
         <p>{{waypoint.lon.d}}º</p>
         <p v-if="this.min_enabled">{{waypoint.lon.m}}'</p>
         <p  v-if="this.sec_enabled">{{waypoint.lon.s}}"</p>

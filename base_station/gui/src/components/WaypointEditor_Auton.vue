@@ -1,58 +1,71 @@
 <template>
   <div class="wrap">
-    <div class="box">
-      <div class="identification">
-        Name: <input v-model="name" v-on:click="select($event)" size="15">
-        ID: <input v-model="id" type="number" max="249" min="-1" step="1">
-        Gate Width: <input v-model="gate_width" type="number" max="3" min="2" step="1">
+    <div class="col-wrap" style="left: 0;">
+      <div class="box">
+        <div class="identification">
+          Name: <input v-model="name" v-on:click="select($event)" size="15">
+          ID: <input v-model="id" type="number" max="249" min="-1" step="1">
+          Gate Width: <input v-model="gate_width" type="number" max="3" min="2" step="1">
+        </div>
+        <br>
+        <input type="radio" v-model="odom_format_in" value="D" class="checkbox"><font size="2">D</font>
+        <input type="radio" v-model="odom_format_in" value="DM" class="checkbox"><font size="2">DM</font>
+        <input type="radio" v-model="odom_format_in" value="DMS" class="checkbox"><font size="2">DMS</font><br>
+        <div class="wp-input">
+          <p><input v-model.number="input.lat.d" size="13" v-on:click="select($event)">º</p>
+          <p v-if="this.min_enabled"><input v-model.number="input.lat.m" size="13" v-on:click="select($event)">'</p>
+          <p  v-if="this.sec_enabled"><input v-model.number="input.lat.s" size="13" v-on:click="select($event)">"</p>
+          N
+        </div>
+        <div class="wp-input">
+          <p><input v-model.number="input.lon.d" size="13" v-on:click="select($event)">º</p>
+          <p v-if="this.min_enabled"><input v-model.number="input.lon.m" size="13" v-on:click="select($event)">'</p>
+          <p  v-if="this.sec_enabled"><input v-model.number="input.lon.s" size="13" v-on:click="select($event)">"</p>
+          W
+        </div>
+        <br>
+        <button v-on:click="addWaypoint(input)">Add Waypoint</button>
+        <button v-on:click="addWaypoint(formatted_odom)">Drop Waypoint</button>
       </div>
-      <br>
-      <input type="radio" v-model="odom_format_in" value="D" class="checkbox"><font size="2">D</font>
-      <input type="radio" v-model="odom_format_in" value="DM" class="checkbox"><font size="2">DM</font>
-      <input type="radio" v-model="odom_format_in" value="DMS" class="checkbox"><font size="2">DMS</font><br>
-      <div class="wp-input">
-        <p><input v-model.number="input.lat.d" size="13" v-on:click="select($event)">º</p>
-        <p v-if="this.min_enabled"><input v-model.number="input.lat.m" size="13" v-on:click="select($event)">'</p>
-        <p  v-if="this.sec_enabled"><input v-model.number="input.lat.s" size="13" v-on:click="select($event)">"</p>
-        N
+      <div class="box1">
+        <h3>All Waypoints</h3>
+        <draggable v-model="storedWaypoints" class="dragArea" draggable=".item'">
+          <WaypointItem v-for="waypoint, i in storedWaypoints" :key="i" v-bind:waypoint="waypoint" v-bind:list="0" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
+        </draggable>
       </div>
-      <div class="wp-input">
-        <p><input v-model.number="input.lon.d" size="13" v-on:click="select($event)">º</p>
-        <p v-if="this.min_enabled"><input v-model.number="input.lon.m" size="13" v-on:click="select($event)">'</p>
-        <p  v-if="this.sec_enabled"><input v-model.number="input.lon.s" size="13" v-on:click="select($event)">"</p>
-        W
+    </div>
+    <div class="col-wrap" style="left: 50%">
+      <div class="box datagrid">
+        <div class="autonmode" >
+          <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/>
+        </div>
+        <div class="stats">
+          <p>
+            Navigation State: {{nav_status.nav_state_name}}<br>
+            Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
+            Radio Repeater Dropped: {{repeater_dropped}}<br>
+            
+          </p>
+        </div>
+        <div class="joystick light-bg">
+          <AutonJoystickReading v-bind:Joystick="Joystick"/>
+        </div>
       </div>
-      <br>
-      <button v-on:click="addWaypoint(input)">Add Waypoint</button>
-      <button v-on:click="addWaypoint(formatted_odom)">Drop Waypoint</button>
-    </div>
-    <div class="box">
-      <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/><br>
-      <span>
-        Navigation State: {{nav_status.nav_state_name}}<br>
-        Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
-        Radio Repeater Dropped: {{repeater_dropped}}
-      </span>
-    </div>
-    <div class="box1">
-      <h3>All Waypoints</h3>
-      <draggable v-model="storedWaypoints" class="dragArea" draggable=".item'">
-        <WaypointItem v-for="waypoint, i in storedWaypoints" :key="i" v-bind:waypoint="waypoint" v-bind:list="0" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
-      </draggable>
-    </div>
-    <div class="box1">
-      <h3>Current Course</h3>
-      <draggable v-model="route" class="dragArea" draggable=".item'">
-        <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-bind:name="name" v-bind:id="id" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
-      </draggable>
+      <div class="box1">
+        <h3>Current Course</h3>
+        <draggable v-model="route" class="dragArea" draggable=".item'">
+          <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-bind:name="name" v-bind:id="id" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
+        </draggable>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import Checkbox from './Checkbox.vue'
+import Checkbox from './CheckboxBig.vue'
 import draggable from 'vuedraggable'
 import {convertDMS} from '../utils.js';
+import AutonJoystickReading from './AutonJoystickReading.vue'
 import WaypointItem from './WaypointItem_Auton.vue'
 import {mapMutations, mapGetters} from 'vuex'
 import _ from 'lodash';
@@ -68,6 +81,10 @@ export default {
       type: Object,
       required: true
     },
+    Joystick: {
+      type: Object,
+      required: true
+    }
   },
 
   data () {
@@ -276,7 +293,8 @@ export default {
   components: {
     draggable,
     WaypointItem,
-    Checkbox
+    Checkbox,
+    AutonJoystickReading
   }
 
 }
@@ -285,11 +303,24 @@ export default {
 <style scoped>
 
   .wrap {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 10.5rem 1fr;
-    grid-gap: 6px;
+    position: relative;
+    display: flex;
+    flex-direction: row;
     height: 100%;
+    margin: auto;
+  }
+
+  .col-wrap {
+    position: absolute;
+    margin: 1.5px;
+    display: inline-block;
+    /*flex-direction: column; */
+    height: 100%;
+    width: 49.5%;
+  }
+  
+  .col-wrap span{
+    margin:-30px 0px 0px 0px;
   }
 
   .dragArea {
@@ -304,16 +335,51 @@ export default {
     border-radius: 5px;
     padding: 10px;
     border: 1px solid black;
-    height: 150px;
+    min-height: min-content;
+    max-height: 29%;
     overflow: auto;
+    margin-bottom: 6px;
   }
-    .box1 {
+    
+  /*.box span{
+    display:inline-block;
+  }*/
+
+  .box1 {
     border-radius: 5px;
     padding: 10px;
     border: 1px solid black;
-    overflow: auto;
+    overflow: scroll;
+    min-height: min-content;
+    max-height: 60%;
   }
 
+  .datagrid {
+      display: grid;
+      grid-gap: 3px;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 0.25fr;
+      grid-template-areas: "autonmode stats"
+                           "joystick stats";
+      font-family: sans-serif;
+      min-height: min-content;
+  }
+
+  .autonmode{
+    align-content: center;
+  }
+
+  .stats{
+    grid-area: stats;
+  }
+  
+  .joystick{
+    grid-area: joystick;
+  }
+  
+  .odom{
+    grid-area: odom;
+  }
   .wp-input p {
     display: inline;
   }

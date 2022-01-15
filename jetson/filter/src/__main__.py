@@ -149,6 +149,10 @@ class SensorFusion:
         new_imu = IMUData.decode(msg)
         self.imu.update(new_imu)
 
+        # In BearingOnlyPipe mode, init filter once IMU data is ready
+        if self.filter is None and self.imu.ready() and self.config["FilterType"] == "BearingOnlyPipe":
+            self.filter = "BearingOnlyPipe"
+
     def _navStatusCallback(self, channel, msg):
         new_nav_status = NavStatus.decode(msg)
         self.nav_state = new_nav_status.nav_state_name
@@ -162,6 +166,8 @@ class SensorFusion:
             self._constructLKF()
         elif self.config["FilterType"] == "Pipe":
             self.filter = "Pipe"
+        elif self.config["FilterType"] == "BearingOnlyPipe":
+            self.filter = "BearingOnlyPipe"
         else:
             raise ValueError("Invalid filter type!")
 
@@ -344,6 +350,7 @@ class SensorFusion:
             if self.filter is not None:
                 if self.config["FilterType"] == "LinearKalman":
                     self._runLKF()
+
                 elif self.config["FilterType"] == "Pipe":
                     bearing = self._getFreshBearing()
                     if bearing is None:
@@ -356,6 +363,24 @@ class SensorFusion:
                                                         bearing,
                                                         ref_lat=self.config["RefCoords"]["lat"],
                                                         ref_long=self.config["RefCoords"]["long"])
+
+                # Simulates a fixed position at the TargetCoords specified in config,
+                # only passes through valid bearing data
+                elif self.config["FilterType"] == "BearingOnlyPipe":
+                    bearing = self._getFreshBearing()
+                    if bearing is None:
+                        continue
+                    decimal_pos = self.config["TargetCoords"]
+                    pos = {}
+                    pos["lat_deg"], pos["lat_min"] = decimal2min(decimal_pos["lat"])
+                    pos["long_deg"], pos["long_min"] = decimal2min(decimal_pos["long"])
+
+                    self.state_estimate = StateEstimate(pos["lat_deg"], pos["lat_min"], 0.0,
+                                                        pos["long_deg"], pos["long_min"], 0.0,
+                                                        bearing,
+                                                        ref_lat=self.config["RefCoords"]["lat"],
+                                                        ref_long=self.config["RefCoords"]["long"])
+
                 odom = self.state_estimate.asOdom()
                 self.lcm.publish('/odometry', odom.encode())
             await asyncio.sleep(self.config["UpdateRate"])
