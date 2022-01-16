@@ -545,7 +545,7 @@ void MRoverArm::check_joint_limits(std::vector<double> &angles) {
 }
 
 double MRoverArm::joint_b_stabilizer(double angle) {
-    if (prev_angle_b.isnan()) {
+    if (isnan(prev_angle_b)) {
         prev_angle_b = angle;
         return angle;
     }
