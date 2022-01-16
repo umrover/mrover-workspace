@@ -261,10 +261,10 @@ void ObsDetector::test_input_file()
   //truths.push_back(objects);
   
   Bins b;
-  passZ->run(raw_data[i]); //The filter and RANSAC get rid of small scenes entirely
-  ransacPlane->computeModel(raw_data);
-  b = voxelGrid->run(raw_data);
-  objects = ece->extractClusters(raw_data, b);
+  passZ->run(raw_data[0]); //The filter and RANSAC get rid of small scenes entirely
+  ransacPlane->computeModel(raw_data[0]);
+  b = voxelGrid->run(raw_data[0]);
+  objects = ece->extractClusters(raw_data[0], b);
   truths.push_back(objects);
   test(raw_data, truths);
 
