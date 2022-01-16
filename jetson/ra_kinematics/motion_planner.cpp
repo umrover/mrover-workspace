@@ -328,10 +328,10 @@ std::vector<double> MotionPlanner::get_spline_pos(double spline_t) {
     std::vector<double> angles;
     angles.reserve(6);
 
-    double mod_spline_t = modify_spline_t(spline_t);
+    // double mod_spline_t = modify_spline_t(spline_t);
 
     for (const tk::spline &spline : splines) {
-        angles.emplace_back(spline(mod_spline_t));
+        angles.emplace_back(spline(spline_t));
     }
 
     // invert 5th angle for use purposes
@@ -344,10 +344,10 @@ double MotionPlanner::modify_spline_t(double spline_t) {
 
     return spline_t;
 
-    // // for 0 <= spline_t <= 0.2
+    // for 0 <= spline_t <= 0.2
     // if (spline_t <= 0.2) {
     //     // Ramp up spline_t from (0, 0) to (0.2, 0.1)
-    //     return pow(spline_t, 1.43506765581);
+    //     return pow(spline_t, 1.4306765581);
     // }
     
     // // for 0.2 < spline_t <= 0.8
@@ -357,5 +357,5 @@ double MotionPlanner::modify_spline_t(double spline_t) {
     // }
 
     // // for 0.2 < spline_t <= 0.8, ramp down spline_t from (0.8, 0.9) to (1, 1)
-    // return std::min(1 - pow(1 - spline_t, 1.43506765581), 1.0);
+    // return std::min(1.0 - pow(1.0 - spline_t, 1.4306765581), 1.0);
 }

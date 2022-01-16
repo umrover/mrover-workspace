@@ -34,14 +34,14 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
 
 void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
-    std::cout << "beginning of arm position callback: ";
+    // std::cout << "beginning of arm position callback: ";
     std::vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
 
-    for (double ang : angles) {
-        std::cout << ang << "\t";
-    }
-    std::cout << "\n";
+    // for (double ang : angles) {
+    //     std::cout << ang << "\t";
+    // }
+    // std::cout << "\n";
     
     // Adjust for encoders not being properly zeroed.
     if (!sim_mode) {
@@ -129,11 +129,11 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
         publish_transforms(state);
     }
 
-    std::cout << "end of arm position callback: ";
-    for (double ang : state.get_joint_angles()) {
-        std::cout << ang << "\t";
-    }
-    std::cout << "\n";
+    // std::cout << "end of arm position callback: ";
+    // for (double ang : state.get_joint_angles()) {
+    //     std::cout << ang << "\t";
+    // }
+    // std::cout << "\n";
 }
 
 void MRoverArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
@@ -283,12 +283,12 @@ void MRoverArm::execute_spline() {
                 spline_t += spline_t_iterator;
 
                 // break out of loop if necessary
-                if (spline_t > 1/* || arm_control_state != "closed-loop"*/) {
+                if (spline_t > 1.0/* || arm_control_state != "closed-loop"*/) {
                     std::cout << "Finished executing!\n";
                     enable_execute = false;
                     spline_t = 0.0;
                     ik_enabled = false;
-
+                    // exit(1);
                     continue;
                 }
 
