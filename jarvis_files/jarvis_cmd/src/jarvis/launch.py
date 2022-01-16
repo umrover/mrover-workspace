@@ -59,11 +59,7 @@ def launch_navigation(ctx, opts, ssh):
 def launch_localization(ctx, opts, ssh):
     jetson_gps = 'jetson/gps'
     jetson_filter = 'jetson/filter'
-<<<<<<< HEAD
-    jetson_imu = 'jetson/imu'
-=======
     jetson_imu = 'jetson/mp9250_bridge'
->>>>>>> auton-integration
     use_linter = True
 
     build_dir(ctx, jetson_gps, use_linter, opts)
