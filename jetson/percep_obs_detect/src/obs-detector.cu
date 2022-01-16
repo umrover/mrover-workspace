@@ -12,10 +12,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
 {
     setupParamaters("");
 
-    if (mode == OperationMode::TEST) {
-        test_input_file();
-    }
-    else {
+    if (mode != OperationMode::TEST) {
         //Init data stream from source
         if (source == DataSource::ZED) {
             zed.open(init_params);
@@ -41,8 +38,9 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
             viewer.init(argc, argv);
             viewer.addPointCloud();
         }
-    
-
+        if (mode == OperationMode::TEST) {
+            test_input_file();
+        }
 };
 
 //TODO: Make it read params from a file
@@ -431,7 +429,6 @@ int main() {
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
     //if testing, uncomment test_input_file() line and comment out the loop
-    obs.test_input_file();
     /*
     while (true) {
        //obs.update();
