@@ -6,6 +6,8 @@
 
 #include <chrono>
 #include <thread>
+#include <limits>
+#include <math.h>
 
 using namespace Eigen;
 using nlohmann::json;
@@ -19,7 +21,8 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     sim_mode(true),
     ik_enabled(false),
     previewing(false),
-    arm_control_state("idle")  {
+    arm_control_state("idle"),
+    prev_angle_b(std::numeric_limits<double>::quiet_NaN()) {
 
         prev_angles.clear();
         prev_angles.resize(6);
@@ -37,6 +40,9 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
     std::cout << "beginning of arm position callback: ";
     std::vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
+
+    // Adjust for shaky joint B values
+    angles[2] = joint_b_stabilizer(angles[2]);
 
     for (double ang : angles) {
         std::cout << ang << "\t";
@@ -536,6 +542,17 @@ void MRoverArm::check_joint_limits(std::vector<double> &angles) {
             encoder_error_message = "Encoder Error: " + std::to_string(angles[i]) + " beyond joint " + std::to_string(i) + " limits (joint A = 0, F = 5)"; 
         }
     }
+}
+
+double MRoverArm::joint_b_stabilizer(double angle) {
+    if (isnan(prev_angle_b)) {
+        prev_angle_b = angle;
+        return angle;
+    }
+
+    // Update prev angle to current angle
+    prev_angle_b = JOINT_B_STABILIZE_MULTIPLIER * prev_angle_b + (1 - JOINT_B_STABILIZE_MULTIPLIER) * angle;
+    return prev_angle_b;
 }
 
 // void MRoverArm::cartesian_control_callback(std::string channel, IkArmControl msg) {
