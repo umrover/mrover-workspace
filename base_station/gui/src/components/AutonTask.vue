@@ -46,6 +46,7 @@
       <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
     </div>
   </div>
+
 </template>
 
 <script>

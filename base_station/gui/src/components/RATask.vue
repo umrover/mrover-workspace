@@ -40,6 +40,28 @@
       <EncoderCounts/>
       <DriveControls/>
     </div>
+    <div class="spacer"></div>
+    <div class="fil-hori-now">
+      <span class="label-new">
+          <input id="item0" name="item0" type="checkbox" value="joint_a" v-model="locked_joints" @change="check(locked_joints)"> 
+          <label id="item0" for="item0">lock joint a</label>
+
+          <input id="item1" name="item1" type="checkbox" value="joint_b" v-model="locked_joints" @change="check(locked_joints)">
+          <label id="item1" for="item1">lock joint b</label>
+
+          <input id="item2" name="item2" type="checkbox" value="joint_c" v-model="locked_joints" @change="check(locked_joints)">
+          <label id="item2" for="item2">lock joint c</label>
+
+          <input id="item3" name="item3" type="checkbox" value="joint_d" v-model="locked_joints" @change="check(locked_joints)">
+          <label id="item3" for="item3">lock joint d</label>
+
+          <input id="item4" name="item4" type="checkbox" value="joint_e" v-model="locked_joints" @change="check(locked_joints)">
+          <label id="item4" for="item4">lock joint e</label>
+
+          <input id="item5" name="item5" type="checkbox" value="joint_f" v-model="locked_joints" @change="check(locked_joints)">
+          <label id="item5" for="item5">lock joint f</label>
+      </span>
+    </div>
   </div>
 </template>
 
@@ -67,6 +89,8 @@ export default {
         pan: 0,
         tilt: 0
       },
+
+      locked_joints: [],
 
       odom: {
         latitude_deg: 38,
@@ -101,7 +125,12 @@ export default {
         console.error("Callback Function is invalid (should take 1 parameter)")
       }
       this.lcm_.subscribe(channel, callbackFn)
-    }
+    },
+
+    check: function(e) {
+      // Process array to convert to lcm message:
+      // Publish lcm message:
+    },
   },
 
   computed: {
@@ -322,6 +351,14 @@ export default {
     font-size: 1em;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .new-select {
+    display: inline-block;
+  }
+
+  .fil-hori-now {
+    margin-top: 20px;
   }
 
   ul#vitals li {
