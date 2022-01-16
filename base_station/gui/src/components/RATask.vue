@@ -129,7 +129,19 @@ export default {
 
     check: function(e) {
       // Process array to convert to lcm message:
+      let msg = { 'type': 'LockJoints' }
+
+      msg['jointa'] = this.locked_joints.includes('joint_a');
+      msg['jointb'] = this.locked_joints.includes('joint_b');
+      msg['jointc'] = this.locked_joints.includes('joint_c');
+      msg['jointd'] = this.locked_joints.includes('joint_d');
+      msg['jointe'] = this.locked_joints.includes('joint_e');
+      msg['jointf'] = this.locked_joints.includes('joint_f');
+
       // Publish lcm message:
+      this.lcm_.publish('/locked_joints', msg);
+
+      console.log(msg);
     },
   },
 
