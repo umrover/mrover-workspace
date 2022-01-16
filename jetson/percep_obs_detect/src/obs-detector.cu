@@ -66,22 +66,13 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 
 
 void ObsDetector::update() {
-<<<<<<< HEAD
-    GPU_Cloud pc; 
-    sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
-
-    if(source == DataSource::ZED) {
-=======
     GPU_Cloud pc;
 
     if (source == DataSource::ZED) {
-
         sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
->>>>>>> c533c20f (Add comments about closest points)
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res);
         getRawCloud(pc, frame);
-
     } else if (source == DataSource::FILESYSTEM) {
         pc = fileReader.readCloudGPU(viewer.frame);
         if (viewer.frame == 1) viewer.setCenter();
@@ -124,62 +115,43 @@ void ObsDetector::drawGround(Plane const& plane) {
 // Call this directly with ZED GPU Memory
 void ObsDetector::update(GPU_Cloud pc) {
 
-    // Get a copy if debug is enabled
+    // Processing
+    if (viewer.procStage > ProcStage::RAW) {
+        passZ->run(pc);
+    }
+
     viewer.updatePointCloud(pc);
 
-    // Processing
-<<<<<<< HEAD
-    if(viewer.procStage != ProcStage::RAW) {
-        passZ->run(pc);
-        if(viewer.procStage != ProcStage::POSTPASS) {
-            ransacPlane->computeModel(pc);
-        }
-    }    
-    
-=======
-
-    passZ->run(pc);
-
-    Plane plane = ransacPlane->computeModel(pc);
-    drawGround(plane);
-
->>>>>>> b68db059 (Add draw plane function, minimal error detection for opening ZED camera)
-    Bins bins;
-<<<<<<< HEAD
-    #if VOXEL
-            bins = voxelGrid->run(pc);
-    #endif
-    if(viewer.procStage == ProcStage::POSTECE || viewer.procStage == ProcStage::POSTBOUNDING || viewer.procStage == ProcStage::POSTBEARING) {
-        obstacles = ece->extractClusters(pc, bins);
+    if (viewer.procStage > ProcStage::POSTPASS) {
+        Plane plane = ransacPlane->computeModel(pc);
+        drawGround(plane);
     }
 
-=======
 #if VOXEL
-    bins = voxelGrid->run(pc);
+    Bins bins = voxelGrid->run(pc);
 #endif
-    obstacles = ece->extractClusters(pc, bins);
->>>>>>> c533c20f (Add comments about closest points)
-    bearingCombined = findClear->find_clear_path_initiate(obstacles);
-    leftBearing = bearingCombined.x;
-    rightBearing = bearingCombined.y;
-    distance = bearingCombined.z;
 
-    ///*/
-    // Rendering
-<<<<<<< HEAD
-    if(mode != OperationMode::SILENT) {
-        viewer.updatePointCloud(pc);
-=======
-    if (mode != OperationMode::SILENT) {
->>>>>>> c533c20f (Add comments about closest points)
+    if (viewer.procStage > ProcStage::POSTRANSAC) {
+        obstacles = ece->extractClusters(pc, bins);
+        bearingCombined = findClear->find_clear_path_initiate(obstacles);
+        leftBearing = bearingCombined.x;
+        rightBearing = bearingCombined.y;
+        distance = bearingCombined.z;
+        populateMessage(leftBearing, rightBearing, distance);
     }
-    populateMessage(leftBearing, rightBearing, distance);
 
-    // Recording
+    if (viewer.procStage > ProcStage::POSTECE) {
+        createBoundingBoxes();
+    }
+
+    if (viewer.procStage > ProcStage::POSTBOUNDING) {
+        createBearing();
+    }
+
     if (record) record = true;
 
     if (viewer.framePlay) viewer.frame++;
-    std::cout << viewer.frame <<std::endl;
+    std::cout << viewer.frame << std::endl;
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
@@ -192,6 +164,7 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
     lcm_.publish("/obstacle", &obstacleMessage);
 #endif
 }
+
 
 void ObsDetector::createBoundingBoxes() {
     // This creates bounding boxes for visualization
@@ -214,10 +187,7 @@ void ObsDetector::createBoundingBoxes() {
     }
 }
 
-<<<<<<< HEAD
 void ObsDetector::createBearing() {
-=======
->>>>>>> c533c20f (Add comments about closest points)
     //----start TESTING: draw double bearing------------------------------------------------
     //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
     float degAngle = leftBearing; //Change angle of bearing to draw here
@@ -250,8 +220,8 @@ void ObsDetector::createBearing() {
     };
 
     std::vector<vec3> ptsLft2 = {
-      leftBearingStart2,
-      leftBearingStart2 + bearing2
+            leftBearingStart2,
+            leftBearingStart2 + bearing2
     };
     std::vector<vec3> ptsRght2 = {
             rightBearingStart2,
@@ -260,27 +230,20 @@ void ObsDetector::createBearing() {
 
     std::vector<int> indices{0, 1, 0};
 
-    Object3D leftBearing(ptsLft1, colors, indices);
-    Object3D rightBearing(ptsRght1, colors, indices);
+    Object3D leftBearing1(ptsLft1, colors, indices);
+    Object3D rightBearing1(ptsRght1, colors, indices);
 
     Object3D leftBearing2(ptsLft2, colors, indices);
     Object3D rightBearing2(ptsRght2, colors, indices);
 
-    viewer.addObject(std::move(leftBearing), true);
-    viewer.addObject(std::move(rightBearing), true);
+    viewer.addObject(std::move(leftBearing1), true);
+    viewer.addObject(std::move(rightBearing1), true);
 
     viewer.addObject(std::move(leftBearing2), true);
     viewer.addObject(std::move(rightBearing2), true);
 }
 
 void ObsDetector::spinViewer() {
-    if(viewer.procStage == ProcStage::POSTBEARING || viewer.procStage == ProcStage::POSTBOUNDING) {
-        createBoundingBoxes();
-        if(viewer.procStage == ProcStage::POSTBEARING) createBearing();
-    }
-
-    //---end TESTING add double bearing ----------------------------------------------------
-
     viewer.update();
     viewer.clearEphemerals();
 }
@@ -298,10 +261,6 @@ bool ObsDetector::open() {
 
 
 int main() {
-    ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
-
-    //std::thread updateTick( [&]{while(true) { obs.update();} });
-
     try {
         ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
         while (obs.open()) {

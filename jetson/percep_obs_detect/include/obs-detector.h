@@ -82,7 +82,7 @@ class ObsDetector {
         void createBearing();
 
         /**
-         * \brief Do viewer update tick, it may be desirable to call this in its own thread 
+         * \brief Do viewer update tick, it may be desirable to call this in its own thread
          */
         void spinViewer();
 

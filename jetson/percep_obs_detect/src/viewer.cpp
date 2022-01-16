@@ -230,7 +230,6 @@ void Object3D::swap(Object3D& other) {
 }
 
 
-
 /*
  * Point Cloud
  */
@@ -379,12 +378,44 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 viewer->framePlay = !viewer->framePlay;
                 break;
             }
+            case GLFW_KEY_1: {
+                viewer->procStage = ProcStage::RAW;
+                break;
+            }
+            case GLFW_KEY_2: {
+                viewer->procStage = ProcStage::POSTPASS;
+                break;
+            }
+            case GLFW_KEY_3: {
+                viewer->procStage = ProcStage::POSTRANSAC;
+                break;
+            }
+            case GLFW_KEY_4: {
+                viewer->procStage = ProcStage::POSTECE;
+                break;
+            }
+            case GLFW_KEY_5: {
+                viewer->procStage = ProcStage::POSTBOUNDING;
+                break;
+            }
+            case GLFW_KEY_6: {
+                viewer->procStage = ProcStage::POSTBEARING;
+                break;
+            }
+            case GLFW_KEY_ESCAPE: {
+                viewer->inMenu = !viewer->inMenu;
+            }
         }
     }
 }
 
 void Viewer::cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
     auto viewer = static_cast<Viewer*>(glfwGetWindowUserPointer(window));
+    if (viewer->inMenu) {
+        viewer->prevFocused = false;
+        return;
+    }
+
     bool focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
     if (focused == viewer->prevFocused) { // check to avoid look jumping when tabbing in and out
         auto deltaX = static_cast<float>((xpos - viewer->prevMouseX) * 0.01);
@@ -430,6 +461,7 @@ void Viewer::update() {
     }
     pc_mutex.unlock();
 
+    glfwSetInputMode(window, GLFW_CURSOR, inMenu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     drawUI();
 
     ImGui::Render();
@@ -441,32 +473,13 @@ void Viewer::update() {
 
 void Viewer::drawUI() {
     // Create a window called "My First Tool", with a menu bar.
-    bool active = false;
-    ImGui::Begin("My First Tool", &active, ImGuiWindowFlags_MenuBar);
-    if (ImGui::BeginMenuBar()) {
-        if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-            if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-            if (ImGui::MenuItem("Close", "Ctrl+W")) { active = false; }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-    }
-
-    // Edit a color (stored as ~4 floats)
-    float my_color[4]{};
-    ImGui::ColorEdit4("Color", my_color);
-
-    // Plot some values
-    const float my_values[] = {0.2f, 0.1f, 1.0f, 0.5f, 0.9f, 2.2f};
-    ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
-
-    // Display contents in a scrolling region
-    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
-    ImGui::BeginChild("Scrolling");
-    for (int n = 0; n < 50; n++)
-        ImGui::Text("%04d: Some text", n);
-    ImGui::EndChild();
+    ImGui::Begin("Layers");
+    if (ImGui::RadioButton("Raw", procStage == ProcStage::RAW)) procStage = ProcStage::RAW;
+    if (ImGui::RadioButton("Pass", procStage == ProcStage::POSTPASS)) procStage = ProcStage::POSTPASS;
+    if (ImGui::RadioButton("RANSAC", procStage == ProcStage::POSTRANSAC)) procStage = ProcStage::POSTRANSAC;
+    if (ImGui::RadioButton("ECE", procStage == ProcStage::POSTECE)) procStage = ProcStage::POSTECE;
+    if (ImGui::RadioButton("Bounding", procStage == ProcStage::POSTBOUNDING)) procStage = ProcStage::POSTBOUNDING;
+    if (ImGui::RadioButton("Bearing", procStage == ProcStage::POSTBEARING)) procStage = ProcStage::POSTBEARING;
     ImGui::End();
 }
 
@@ -522,19 +535,6 @@ void Viewer::setCenter() {
 
 void Viewer::setCenter(vec3 center) {
     camera.setCenter(center);
-}
-
-// Responds to key presses, TODO: more features here :)
-void Viewer::keyPressedCallback(unsigned char c, int x, int y) {
-    cout << "key press" << endl;
-
-    //change viewer stage based on number press
-    if(c == '1') curInstance->procStage = ProcStage::RAW;
-    else if(c == '2') curInstance->procStage = ProcStage::POSTPASS;
-    else if(c == '3') curInstance->procStage = ProcStage::POSTRANSAC;
-    else if(c == '4') curInstance->procStage = ProcStage::POSTECE;
-    else if(c == '5') curInstance->procStage = ProcStage::POSTBOUNDING;
-    else if(c == '6') curInstance->procStage = ProcStage::POSTBEARING;
 }
 
 bool Viewer::open() {

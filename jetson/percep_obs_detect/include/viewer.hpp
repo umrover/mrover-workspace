@@ -8,7 +8,9 @@
 #include "reader.h"
 
 #ifndef VIEWER_ONLY
+
 #include "common.hpp"
+
 #endif
 
 // change this to cuda floatX types
@@ -182,10 +184,17 @@ private:
 /*
  *** Define which stage of the filtering process will be shown in the viewer
  */
-enum class ProcStage {RAW, POSTPASS, POSTRANSAC, POSTECE, POSTBOUNDING, POSTBEARING};
+enum class ProcStage {
+    RAW, POSTPASS, POSTRANSAC, POSTECE, POSTBOUNDING, POSTBEARING
+};
 
 class Viewer {
 public:
+    int frame{};
+    bool framePlay{};
+    bool inMenu{};
+    ProcStage procStage = ProcStage::POSTBEARING;
+
     // Creates a window
     Viewer();
 
@@ -215,12 +224,10 @@ public:
     // need to provide thread safe ways to update viewer internals
     void updatePointCloud(int idx, vec4* pts, int size);
 
-        int frame;
-        bool framePlay; 
-        ProcStage procStage;
-
 #ifndef VIEWER_ONLY
+
     void updatePointCloud(GPU_Cloud pc);
+
 #endif
 
     void updateObjectModel(int idx, glm::mat4 rotation, glm::mat4 translation);
