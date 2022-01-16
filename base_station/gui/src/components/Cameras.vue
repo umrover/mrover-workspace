@@ -109,8 +109,9 @@
       return {
         dual_stream: false,
         pi_index_1: -1,
-        pi_index_2: -1
-      }
+        pi_index_2: -1,
+        cams : [false, false, false, false, false, false, false, false]
+        }
     },
 
     beforeDestroy: function () {
@@ -192,8 +193,17 @@
     methods: {
       setPiIndex: function (new_index, stream) {
         if (stream === 1 && new_index !== this.pi_index_2) {
+          if (new_index !== 0) {
+            this.cams[this.pi_index_1 - 1] = false
+            this.cams[new_index - 1] = true
+          }
           this.pi_index_1 = new_index
-        } else if (stream === 2 && new_index !== this.pi_index_1) {
+        } 
+        else if (stream === 2 && new_index !== this.pi_index_1) {
+          if (new_index !== 0) {
+             this.cams[this.pi_index_2 - 1] = false
+             this.cams[new_index - 1] = true
+           }
           this.pi_index_2 = new_index
         }
       },
@@ -203,6 +213,30 @@
         if (!this.dual_stream) {
           this.pi_index_2 = -1
         }
+      },
+
+      sendCameras: function() {
+      this.$parent.publish("/cameras_cmd", {
+        'type': 'Cameras',
+        'cam1': this.cams[0],
+        'cam2': this.cams[1],
+        'cam3': this.cams[2],
+        'cam4': this.cams[3],
+        'cam5': this.cams[4],
+        'cam6': this.cams[5],
+        'cam7': this.cams[6],
+        'cam8': this.cams[7]
+      })
+      }
+    },
+
+    watch: {
+      pi_index_1() {
+        this.sendCameras()
+      },
+
+      pi_index_2() {
+        this.sendCameras()
       }
     },
 

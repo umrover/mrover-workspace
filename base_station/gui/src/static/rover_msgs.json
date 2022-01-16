@@ -89,6 +89,40 @@
             "bearing"
         ]
     ],
+    "Cameras": [
+        [
+            "boolean",
+            "cam1"
+        ],
+        [
+            "boolean",
+            "cam2"
+        ],
+        [
+            "boolean",
+            "cam3"
+        ],
+        [
+            "boolean",
+            "cam4"
+        ],
+        [
+            "boolean",
+            "cam5"
+        ],
+        [
+            "boolean",
+            "cam6"
+        ],
+        [
+            "boolean",
+            "cam7"
+        ],
+        [
+            "boolean",
+            "cam8"
+        ]
+    ],
     "CameraServos": [
         [
             "float",
@@ -1139,6 +1173,7 @@
         "ArmToggles",
         "AutonState",
         "Bearing",
+        "Cameras",
         "CameraServos",
         "Course",
         "CurrentDraw",

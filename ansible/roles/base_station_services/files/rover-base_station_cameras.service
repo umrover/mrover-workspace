@@ -1,0 +1,9 @@
+[Unit]
+Description=Base Station Cameras Stream
+
+[Service]
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/mrover/.Xauthority"
+User={{ user }}
+ExecStart={{ workspace_dir }}/base_station/cameras/run.sh
+Restart=always

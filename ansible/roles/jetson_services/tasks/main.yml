@@ -11,6 +11,7 @@
       - rover-jetson-nav
       - rover-jetson-raman
       - rover-jetson-teleop
+      - rover-jetson-cameras
 
 - name: Copy environment variable definitions
   copy:
@@ -36,3 +37,4 @@
       - rover-jetson-nav.service
       - rover-jetson-raman.service
       - rover-jetson-teleop.service
+      - rover-jetson-cameras.service
