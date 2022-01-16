@@ -51,6 +51,8 @@ static constexpr double DUD_ENCODER_EPSILON = 0.00000001;
 //Angle in radians that physical arm can be without causing problems
 static constexpr double ACCEPTABLE_BEYOND_LIMIT = 0.05;
 
+static constexpr double JOINT_B_STABILIZE_MULTIPLIER = 0.3;
+
 /**
 * This is the MRoverArm class, responsible for
 * initiating callback functions and sending calculations
@@ -68,6 +70,7 @@ private:
     bool ik_enabled;
     bool previewing;
     std::string arm_control_state;
+    double prev_angle_b;
 
     bool encoder_error;
     std::string encoder_error_message;
@@ -158,6 +161,8 @@ private:
     void check_dud_encoder(std::vector<double> &angles) const;
 
     void check_joint_limits(std::vector<double> &angles);
+
+    double joint_b_stabilizer(double angle);
 };
 
 
