@@ -277,7 +277,6 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
                 mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
                 mRoverStatus.getLeftMisses() = 0;
 
-
                 // Cache Right Target if we had detected one (only can see right if we see the left one, otherwise
                 // results in some undefined behavior)
                 if( mRoverStatus.rightTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
