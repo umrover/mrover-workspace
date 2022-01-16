@@ -343,7 +343,7 @@ Viewer::~Viewer() {
 
 void Viewer::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
     auto viewer = static_cast<Viewer*>(glfwGetWindowUserPointer(window));
-    viewer->camera.zoom(static_cast<float>(yoffset * 100.0));
+    viewer->camera.zoom(static_cast<float>(yoffset * -500.0));
 }
 
 void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -352,11 +352,11 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_A: {
-                viewer->frame++;
+                viewer->frame--;
                 break;
             }
             case GLFW_KEY_D: {
-                viewer->frame--;
+                viewer->frame++;
                 break;
             }
             case GLFW_KEY_RIGHT: {

@@ -179,7 +179,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     if (record) record = true;
 
     if (viewer.framePlay) viewer.frame++;
-
+    std::cout << viewer.frame <<std::endl;
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
