@@ -5,6 +5,7 @@ using namespace std;
 using namespace std::chrono;
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 #include <vector>
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType) : source(source), mode(mode), viewerType(viewerType), record(false)
@@ -13,13 +14,16 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
 
     //Init data stream from source
     if(source == DataSource::ZED) {
-        zed.open(init_params); 
+        auto error = zed.open(init_params);
+        if (error != sl::ERROR_CODE::SUCCESS) {
+            throw std::runtime_error("Error opening ZED camera");
+        }
         auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
         defParams = camera_config.calibration_parameters.left_cam;
     } else if(source == DataSource::FILESYSTEM) {
         std::string s = ROOT_DIR;
         s+= "/data/";
-        
+
         cout << "File data dir: " << endl;
         cout << "[defaulting to: " << s << endl;
         getline(cin, readDir);
@@ -78,7 +82,35 @@ void ObsDetector::update() {
     update(pc);
 
     if(source == DataSource::FILESYSTEM) deleteCloud(pc);
-} 
+}
+
+vec3 closestPointOnPlane(Plane plane, vec3 point) {
+    vec3 normal{plane.normal.x, plane.normal.y, plane.normal.z};
+    vec3 p0{plane.p0.x, plane.p0.y, plane.p0.z};
+    float dist = (glm::dot(normal, point) - glm::dot(normal, p0)) / glm::length(normal);
+    return point - glm::normalize(normal) * dist;
+}
+
+void ObsDetector::drawGround(Plane const& plane) {
+    auto normal = glm::normalize(vec3{plane.normal.x, plane.normal.y, plane.normal.z});
+    // make the center of the plane quad lined up with point cloud center
+    vec3 centerProjOnPlane = closestPointOnPlane(plane, viewer.getCenter());
+    // have edge flush with camera, treating camera as (0, 0, 0)
+    vec3 cameraProjOnPlane = closestPointOnPlane(plane, {});
+    // "forward" as in facing center
+    vec3 cameraForward = centerProjOnPlane - cameraProjOnPlane;
+    vec3 cameraRight = glm::cross(cameraForward, normal);
+    vector<vec3> vertices {
+            cameraProjOnPlane + cameraRight,
+            cameraProjOnPlane - cameraRight,
+            cameraProjOnPlane + cameraForward * 2.0f + cameraRight,
+            cameraProjOnPlane + cameraForward * 2.0f - cameraRight,
+    };
+    vector<vec3> colors(vertices.size(), {1.0f, 1.0f, 0.0f});
+    vector<int> indices{0, 1, 2, 1, 2, 3};
+    viewer.addObject({vertices, colors, indices}, true);
+}
+
 ///home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data
 // Call this directly with ZED GPU Memory
 void ObsDetector::update(GPU_Cloud pc) {
@@ -87,6 +119,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     viewer.updatePointCloud(pc);
 
     // Processing
+<<<<<<< HEAD
     if(viewer.procStage != ProcStage::RAW) {
         passZ->run(pc);
         if(viewer.procStage != ProcStage::POSTPASS) {
@@ -94,6 +127,14 @@ void ObsDetector::update(GPU_Cloud pc) {
         }
     }    
     
+=======
+
+    passZ->run(pc);
+
+    Plane plane = ransacPlane->computeModel(pc);
+    drawGround(plane);
+
+>>>>>>> b68db059 (Add draw plane function, minimal error detection for opening ZED camera)
     Bins bins;
     #if VOXEL
             bins = voxelGrid->run(pc);
@@ -194,13 +235,13 @@ void ObsDetector::createBearing() {
         rightBearingStart2 + bearing2
     };
 
-    std::vector<int> indicies = {0, 1, 0}; 
+    std::vector<int> indices {0, 1, 0};
 
-    Object3D leftBearing(ptsLft1, colors, indicies);
-    Object3D rightBearing(ptsRght1, colors, indicies);
+    Object3D leftBearing(ptsLft1, colors, indices);
+    Object3D rightBearing(ptsRght1, colors, indices);
 
-    Object3D leftBearing2(ptsLft2, colors, indicies);
-    Object3D rightBearing2(ptsRght2, colors, indicies);
+    Object3D leftBearing2(ptsLft2, colors, indices);
+    Object3D rightBearing2(ptsRght2, colors, indices);
 
     viewer.addObject(std::move(leftBearing), true);
     viewer.addObject(std::move(rightBearing), true);
@@ -238,11 +279,15 @@ int main() {
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
-    while(obs.open()) {
-       obs.update();
-       obs.spinViewer();
+    try {
+        ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+        while(obs.open()) {
+            obs.update();
+            obs.spinViewer();
+        }
+        return EXIT_SUCCESS;
+    } catch (std::exception const& exception) {
+        std::cerr << "Exception: " << exception.what() << std::endl;
+        return EXIT_FAILURE;
     }
-    
-
-    return 0;
 }

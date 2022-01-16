@@ -229,6 +229,8 @@ void Object3D::swap(Object3D& other) {
     std::swap(indicesGPU, other.indicesGPU);
 }
 
+
+
 /*
  * Point Cloud
  */

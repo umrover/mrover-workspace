@@ -159,4 +159,5 @@ private:
         int frameNum = 0;
         bool framePlay = true;
 
+        void drawGround(Plane const& plane);
 };

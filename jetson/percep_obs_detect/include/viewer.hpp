@@ -225,6 +225,11 @@ public:
 
     void updateObjectModel(int idx, glm::mat4 rotation, glm::mat4 translation);
 
+
+    glm::vec3 getCenter() {
+        return pcCenter;
+    }
+
 private:
     // Internals
     Camera camera;
