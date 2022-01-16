@@ -6,6 +6,7 @@ using namespace std::chrono;
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/glm.hpp>
 #include <vector>
+#include <string>
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType) : source(source), mode(mode), viewerType(viewerType), record(false)
 {
@@ -63,7 +64,6 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
 
-    voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
     findClear = new FindClearPath();
 }
@@ -244,7 +244,9 @@ void ObsDetector::spinViewer() {
 void ObsDetector::test_input_file()
 {
   //If you are testing a cloud, change the filepath to work for your computer and change the PCD file name to the one selected in SimpleSceneGenerator
-  GPU_Cloud gpuc = fileReader.readCloudGPU("/home/seanaa/mrover-workspace/jetson/percep_obs_detect/data/pcl6.pcd"); //read the cloud
+    std::cout << "Enter filepath to data that you want to test:\n";
+    std::string fpath;
+  GPU_Cloud gpuc = fileReader.readCloudGPU(fpath); //read the cloud
 
   std::vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
