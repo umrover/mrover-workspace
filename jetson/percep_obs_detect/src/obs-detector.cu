@@ -114,16 +114,21 @@ void ObsDetector::drawGround(Plane const& plane) {
 void ObsDetector::handleParameters() {
     if (viewer.doParameterInit) {
         viewer.epsilon = ransacPlane->epsilon;
-        // TODO: this requires re-allocing memory
         viewer.iterations = ransacPlane->getIterations();
         viewer.threshold = ransacPlane->threshold;
         viewer.removalRadius = ransacPlane->removalRadius;
+        viewer.removeGround = true;
+        viewer.minSize = ece->minSize;
+        viewer.tolerance = ece->tolerance;
         viewer.doParameterInit = false;
     } else {
         ransacPlane->epsilon = viewer.epsilon;
         ransacPlane->setIterations(viewer.iterations);
         ransacPlane->threshold = viewer.threshold;
         ransacPlane->removalRadius = viewer.removalRadius;
+        ransacPlane->filterOp = viewer.removeGround ? FilterOp::REMOVE : FilterOp::COLOR;
+        ece->minSize = viewer.minSize;
+        ece->tolerance = viewer.tolerance;
     }
 }
 

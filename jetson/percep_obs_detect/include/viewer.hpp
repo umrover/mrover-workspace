@@ -233,6 +233,9 @@ public:
     int iterations;
     float threshold;
     float removalRadius;
+    bool removeGround;
+    float tolerance;
+    float minSize;
 
 #endif
 

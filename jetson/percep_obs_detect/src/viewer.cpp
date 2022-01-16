@@ -474,10 +474,14 @@ void Viewer::drawUI() {
 
 #ifndef VIEWER_ONLY
     ImGui::Begin("Parameters");
-    ImGui::SliderFloat("Epsilon", &epsilon, 0.0f, 10.0f);
+    ImGui::SliderFloat("Epsilon", &epsilon, 0.0f, 20.0f);
     ImGui::SliderInt("Iterations", &iterations, 1, 2000);
-    ImGui::SliderFloat("Threshold", &threshold, 0.0f, 300.0f);
-    ImGui::SliderFloat("Removal Radius", &removalRadius, 0.0f, 300.0f);
+    ImGui::SliderFloat("Threshold", &threshold, 0.0f, 500.0f);
+    ImGui::SliderFloat("Removal Radius", &removalRadius, 0.0f, 500.0f);
+    ImGui::Checkbox("Remove Ground", &removeGround);
+    ImGui::Separator();
+    ImGui::SliderFloat("Tolerance", &tolerance, 0.0f, 500.0f);
+    ImGui::SliderFloat("Minimum Size", &minSize, 0.0f, 1000.0f);
     ImGui::End();
 #endif
 

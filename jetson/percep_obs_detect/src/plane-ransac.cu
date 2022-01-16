@@ -1,5 +1,4 @@
 #include "plane-ransac.hpp"
-#include "filter.hpp"
 #include <stdlib.h>
 #include <unistd.h>
 #include <thrust/extrema.h>
@@ -172,7 +171,7 @@ Plane RansacPlane::computeModel(GPU_Cloud& pc) {
 
     // Filter out all the points in the plane
     NotInPlane predicate(selectionCPU->normal, selectionCPU->p1, threshold);
-    Filter<NotInPlane>(pc, predicate, FilterOp::REMOVE, 0);
+    Filter<NotInPlane>(pc, predicate, filterOp, 0);
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
 

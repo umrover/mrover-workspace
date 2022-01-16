@@ -1,13 +1,14 @@
 #pragma once
 
 #include "common.hpp"
+#include "filter.hpp"
 
 /** 
  * \class Plane
  * \brief Defines the found plane by 3 points
  */
 class Plane {
-    public:
+public:
     float3 p0;
     float3 p1;
     float3 p2;
@@ -51,11 +52,12 @@ class Plane {
  * the most data using the RANSAC algorithm
  */
 class RansacPlane {
-    public:
+public:
     // TODO: better way than making public?
     float epsilon;
     float threshold;
     float removalRadius;
+    FilterOp filterOp = FilterOp::REMOVE;
 
     /**
      * \brief RansacPlane constructor
@@ -81,7 +83,7 @@ class RansacPlane {
 
     void setIterations(int iterations);
 
-    private:
+private:
     /**
      * \brief Picks the model with the highest inlier count and updates the Plane "selection"
      */
