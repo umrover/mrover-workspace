@@ -61,13 +61,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     //Obs Detecting Algorithm Params
     passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
-    if(mode != OperationMode::TEST)
-    {
-      voxelGrid = new VoxelGrid(10);
-    }else{
-        /* Test is magnitudes smaller, so needs higher resolution */
-        voxelGrid = new VoxelGrid(1);
-    }
+    voxelGrid = new VoxelGrid(10);
 
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
@@ -250,7 +244,7 @@ void ObsDetector::spinViewer() {
 void ObsDetector::test_input_file()
 {
   //If you are testing a cloud, change the filepath to work for your computer and change the PCD file name to the one selected in SimpleSceneGenerator
-  GPU_Cloud gpuc = fileReader.readCloudGPU("/home/seanaa/mrover-workspace/jetson/percep_obs_detect/tools/pc.pcd"); //read the cloud
+  GPU_Cloud gpuc = fileReader.readCloudGPU("/home/seanaa/mrover-workspace/jetson/percep_obs_detect/data/pcl6.pcd"); //read the cloud
 
   std::vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
@@ -258,9 +252,17 @@ void ObsDetector::test_input_file()
   std::vector<EuclideanClusterExtractor::ObsReturn> truths;
   EuclideanClusterExtractor::ObsReturn objects;
   //Init all obstacles to be added to the scene and push them to ObsReturn.obs
+  // In th future (with scene generator): Use commented code below rather than running a cloud through the pipeline for the truth
   //Obstacle <name> = {minX, maxX, minY, maxY, minZ, maxZ};
-  EuclideanClusterExtractor::Obstacle one = { 0, 20, 0, 20, 0, 20 };
-  objects.obs.push_back(one);
+  //EuclideanClusterExtractor::Obstacle one = { 0, 20, 0, 20, 0, 20 };*/
+  //objects.obs.push_back(one);
+  //truths.push_back(objects);
+  
+  Bins b;
+  passZ->run(raw_data[i]); //The filter and RANSAC get rid of small scenes entirely
+  ransacPlane->computeModel(raw_data);
+  b = voxelGrid->run(raw_data);
+  objects = ece->extractClusters(raw_data, b);
   truths.push_back(objects);
   test(raw_data, truths);
 
@@ -301,9 +303,9 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
     /* Evaluate Raw Data */
     Timer clock_count("testing timer"); // GPU Obs detect runtime counter
     Bins b;
-    //passZ->run(raw_data[i]); The filter gets rid of the small obstacles we're testing
-    //ransacPlane->computeModel(raw_data[i]); RANSAC also makes the cloud 0
-    b = voxelGrid->run(raw_data[i]); //this causes invalid config
+    passZ->run(raw_data[i]); //The filter and RANSAC get rid of small scenes entirely
+    ransacPlane->computeModel(raw_data[i]);
+    b = voxelGrid->run(raw_data[i]);
 
     measured.push_back(ece->extractClusters(raw_data[i],b));
 
