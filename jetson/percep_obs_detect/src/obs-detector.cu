@@ -249,6 +249,7 @@ void ObsDetector::test_input_file()
   //If you are testing a cloud, change the filepath to work for your computer and change the PCD file name to the one selected in SimpleSceneGenerator
     std::cout << "Enter filepath to data that you want to test:\n";
     std::string fpath;
+    std::cin >> fpath;
   GPU_Cloud gpuc = fileReader.readCloudGPU(fpath); //read the cloud
 
   std::vector<GPU_Cloud> raw_data;
