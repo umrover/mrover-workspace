@@ -149,11 +149,10 @@ void ObsDetector::update(GPU_Cloud pc) {
 
     viewer.updatePointCloud(pc);
 
-#if VOXEL
-    Bins bins = voxelGrid->run(pc);
-#endif
-
     if (viewer.procStage > ProcStage::POSTRANSAC) {
+#if VOXEL
+        Bins bins = voxelGrid->run(pc);
+#endif
         obstacles = ece->extractClusters(pc, bins);
         bearingCombined = findClear->find_clear_path_initiate(obstacles);
         leftBearing = bearingCombined.x;
@@ -173,7 +172,6 @@ void ObsDetector::update(GPU_Cloud pc) {
     if (record) record = true;
 
     if (viewer.framePlay) viewer.frame++;
-    std::cout << viewer.frame << std::endl;
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {

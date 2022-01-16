@@ -486,7 +486,7 @@ void Viewer::drawUI() {
 #endif
 
     ImGui::Begin("Controls");
-    ImGui::Text("Escape: Open UI\nA/D: Next/previous frame\nSpace: Pause/resume playback\nArrow keys: First-person move");
+    ImGui::Text("Escape: Open UI\nA/D: Next/previous frame\nSpace: Pause/resume playback\nArrow keys: First-person move\n1-6: Choose layers");
     ImGui::End();
 }
 
