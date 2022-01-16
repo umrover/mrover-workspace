@@ -10,13 +10,8 @@ xdotool windowfocus $WID
 xdotool key type "./jarvis exec jetson/nav"
 xdotool key KP_Enter
 
-# Need to add code HERE that will launch a gnome-terminal
-# This terminal will build base_station gui and lcm_bridge/server
-# Have script wait until the PID of build is finished then continue
-# Gnome-terminal should close automatically
-
 # Make window 1/4 of screen and align lower left
-dimensions=$(./jarvis_files/launchScripts/dim)
+dimensions=$(./jarvis_files/launch_scripts/dim)
 dim=($dimensions)
 dim[0]=$(expr ${dim[0]} / 2)
 dim[1]=$(expr ${dim[1]} / 2)
