@@ -84,9 +84,14 @@ unsigned Rover::RoverStatus::getPathTargets()
   return mPathTargets;
 } // getPathTargets()
 
-int& Rover::RoverStatus::getMisses()
+int& Rover::RoverStatus::getLeftMisses()
 {
-    return countMisses;
+    return countLeftMisses;
+}
+
+int& Rover::RoverStatus::getRightMisses()
+{
+    return countRightMisses;
 }
 
 // Assignment operator for the rover status object. Does a "deep" copy
@@ -116,7 +121,8 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     mCTargetLeft = newRoverStatus.leftCacheTarget();
     mCTargetRight = newRoverStatus.rightCacheTarget();
     mSignal = newRoverStatus.radio();
-    countMisses = newRoverStatus.getMisses();
+    countLeftMisses = newRoverStatus.getLeftMisses();
+    countRightMisses = newRoverStatus.getRightMisses();
     return *this;
 } // operator=
 
@@ -265,27 +271,41 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
 
-            // Cache Target if we had detected one
+            // Cache Left Target if we had detected one
             if( mRoverStatus.leftTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
             {
                 mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
-                if( mRoverStatus.rightTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
-                {
-                    mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
-                }
-                mRoverStatus.getMisses() = 0;
+                mRoverStatus.getLeftMisses() = 0;
             }
             else 
-            { // if leftTarget is empty, so is rightTarget
-                mRoverStatus.getMisses()++;
+            { 
+                mRoverStatus.getLeftMisses()++;
             }
 
-            // Check if we need to reset
-            if( mRoverStatus.getMisses() > mRoverConfig[ "navThresholds" ][ "cacheMissMax" ].GetDouble() )
+            // Cache Right Target if we had detected one
+            if( mRoverStatus.rightTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
             {
-                mRoverStatus.getMisses() = 0;
+                mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
+                mRoverStatus.getRightMisses() = 0;
+            }
+            else 
+            {
+                mRoverStatus.getRightMisses()++;
+            }
+
+            // Check if we need to reset left cache
+            if( mRoverStatus.getLeftMisses() > mRoverConfig[ "navThresholds" ][ "cacheMissMax" ].GetDouble() )
+            {
+                mRoverStatus.getLeftMisses() = 0;
                 // Set to empty target
                 mRoverStatus.leftCacheTarget() = {-1, 0, 0};
+            }
+
+            // Check if we need to reset right cache
+            if( mRoverStatus.getRightMisses() > mRoverConfig[ "navThresholds" ][ "cacheMissMax" ].GetDouble() )
+            {
+                mRoverStatus.getRightMisses() = 0;
+                // Set to empty target
                 mRoverStatus.rightCacheTarget() = {-1, 0, 0};
             }
             

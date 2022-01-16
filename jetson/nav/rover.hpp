@@ -127,7 +127,9 @@ public:
 
         unsigned getPathTargets();
 
-        int& getMisses();
+        int& getLeftMisses();
+
+        int& getRightMisses();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
@@ -171,7 +173,9 @@ public:
         unsigned mPathTargets;
 
         // Count of misses with cache
-        int countMisses = 0;
+        int countLeftMisses = 0;
+
+        int countRightMisses = 0;
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
