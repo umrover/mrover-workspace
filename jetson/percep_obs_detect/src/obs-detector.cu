@@ -11,8 +11,9 @@ using namespace std::chrono;
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType) : source(source), mode(mode), viewerType(viewerType), record(false)
 {
     setupParamaters("");
-
-    if (mode != OperationMode::TEST) {
+    if (mode == OperationMode::TEST) {
+        std::cout << "In Testing Mode\n";
+    }
         //Init data stream from source
         if (source == DataSource::ZED) {
             zed.open(init_params);
@@ -30,7 +31,6 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
             if (readDir == "")  readDir = s;
             fileReader.open(readDir);
         }
-    }
         //Init Viewer
         if (mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
             int argc = 1;
