@@ -194,6 +194,7 @@ public:
     int maxFrame = 0;
     bool framePlay = false;
     bool inMenu = false;
+    bool record = false;
     ProcStage procStage = ProcStage::POSTBEARING;
 
     // Creates a window

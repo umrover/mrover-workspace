@@ -388,6 +388,11 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             }
             case GLFW_KEY_ESCAPE: {
                 viewer->inMenu = !viewer->inMenu;
+                break;
+            }
+            case GLFW_KEY_R: {
+                viewer->record = !viewer->record;
+                break;
             }
         }
     }
@@ -416,7 +421,8 @@ void Viewer::cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
 void Viewer::update() {
     // Basic drawing setup
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.2, 0.2, 0.2, 0.0f);
+    if (record) glClearColor(0.25f, 0.2f, 0.2f, 0.0f);
+    else glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
     glPointSize(6.0f); // 1, 3
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -487,10 +493,16 @@ void Viewer::drawUI() {
 
     ImGui::Begin("Playback");
     ImGui::SliderInt("Frame", &frame, 0, maxFrame);
+    ImGui::Checkbox("Record", &record);
     ImGui::End();
 
     ImGui::Begin("Controls");
-    ImGui::Text("Escape: Open UI\nA/D: Next/previous frame\nSpace: Pause/resume playback\nArrow keys: First-person move\n1-6: Choose layers");
+    ImGui::Text("Escape: Open UI\n"
+                "A/D: Next/previous frame\n"
+                "Space: Pause/resume playback\n"
+                "R: Record\n"
+                "Arrow keys: First-person move\n"
+                "1-6: Choose layers");
     ImGui::End();
 }
 
