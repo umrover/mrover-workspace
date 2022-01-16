@@ -12,31 +12,36 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
 {
     setupParamaters("");
 
-    //Init data stream from source
-    if(source == DataSource::ZED) {
-        zed.open(init_params);
-        auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
-        defParams = camera_config.calibration_parameters.left_cam;
-    } else if(source == DataSource::FILESYSTEM) {
-        std::string s = ROOT_DIR;
-        s+= "/data/";
-        
-        cout << "File data dir: " << endl;
-        cout << "[defaulting to: " << s << endl;
-        getline(cin, readDir);
-
-        if(readDir == "")  readDir = s;
-        fileReader.open(readDir);
+    if (mode == OperationMode::TEST) {
+        test_input_file();
     }
+    else {
+        //Init data stream from source
+        if (source == DataSource::ZED) {
+            zed.open(init_params);
+            auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
+            defParams = camera_config.calibration_parameters.left_cam;
+        }
+        else if (source == DataSource::FILESYSTEM) {
+            std::string s = ROOT_DIR;
+            s += "/data/";
 
-    //Init Viewer
-    if(mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
-        int argc = 1;
-        char *argv[1] = {(char*)"Window"};
-        viewer.init(argc, argv);
-        viewer.addPointCloud();
+            cout << "File data dir: " << endl;
+            cout << "[defaulting to: " << s << endl;
+            getline(cin, readDir);
+
+            if (readDir == "")  readDir = s;
+            fileReader.open(readDir);
+        }
     }
-    test_input_file();
+        //Init Viewer
+        if (mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
+            int argc = 1;
+            char* argv[1] = { (char*)"Window" };
+            viewer.init(argc, argv);
+            viewer.addPointCloud();
+        }
+    
 
 };
 
