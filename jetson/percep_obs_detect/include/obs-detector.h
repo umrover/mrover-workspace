@@ -30,7 +30,7 @@
  *      GPUMEM: receives a pointer to cloud GPU memory from external source
  *      FILESYSTEM: reads .pc files from specified location
  */
-enum class DataSource {ZED, GPUMEM, FILESYSTEM}; 
+enum class DataSource {ZED, GPUMEM, FILESYSTEM};
 
 /*
  *** Set up debugging level ***
@@ -56,7 +56,7 @@ class ObsDetector {
          */
         ObsDetector(DataSource source, OperationMode mode, ViewerType viewer);
 
-        //Destructor 
+        //Destructor
         ~ObsDetector();
 
         /**
@@ -64,8 +64,10 @@ class ObsDetector {
          */
         void update();
 
+        void handleParameters();
+
         /**
-         * \brief This is the underlying method called by update(), if DataSource::GPUMEM is selected, call this version 
+         * \brief This is the underlying method called by update(), if DataSource::GPUMEM is selected, call this version
          * of the function directly with a pointer to your frame in GPU memory
          * \param frame: sl::Mat frame to do detection on with memory allocated on the GPU
          */
@@ -114,7 +116,7 @@ private:
         void setupParamaters(std::string parameterFile);
 
 
-    private: 
+    private:
         //Lcm
         #ifndef NO_JARVIS
         lcm::LCM lcm_;
@@ -134,7 +136,7 @@ private:
         ViewerType viewerType;
         bool record = false;
 
-        //Detection algorithms 
+        //Detection algorithms
         PassThrough *passZ;
         RansacPlane *ransacPlane;
         VoxelGrid *voxelGrid;
@@ -146,7 +148,7 @@ private:
         sl::InitParameters init_params;
         sl::CameraParameters defParams;
         std::string readDir;
-        
+
         //Output data
         Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;

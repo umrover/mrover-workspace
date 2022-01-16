@@ -228,6 +228,12 @@ public:
 
     void updatePointCloud(GPU_Cloud pc);
 
+    bool doParameterInit = true;
+    float epsilon;
+    int iterations;
+    float threshold;
+    float removalRadius;
+
 #endif
 
     void updateObjectModel(int idx, glm::mat4 rotation, glm::mat4 translation);

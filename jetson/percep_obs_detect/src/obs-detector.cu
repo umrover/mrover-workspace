@@ -111,10 +111,27 @@ void ObsDetector::drawGround(Plane const& plane) {
     viewer.addObject({vertices, colors, indices}, true);
 }
 
+void ObsDetector::handleParameters() {
+    if (viewer.doParameterInit) {
+        viewer.epsilon = ransacPlane->epsilon;
+        // TODO: this requires re-allocing memory
+        viewer.iterations = ransacPlane->getIterations();
+        viewer.threshold = ransacPlane->threshold;
+        viewer.removalRadius = ransacPlane->removalRadius;
+        viewer.doParameterInit = false;
+    } else {
+        ransacPlane->epsilon = viewer.epsilon;
+        ransacPlane->setIterations(viewer.iterations);
+        ransacPlane->threshold = viewer.threshold;
+        ransacPlane->removalRadius = viewer.removalRadius;
+    }
+}
+
 ///home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data
 // Call this directly with ZED GPU Memory
 void ObsDetector::update(GPU_Cloud pc) {
-    
+    handleParameters();
+
     // Processing
     if (viewer.procStage > ProcStage::RAW) {
         passZ->run(pc);
@@ -258,7 +275,6 @@ ObsDetector::~ObsDetector() {
 bool ObsDetector::open() {
     return viewer.open();
 }
-
 
 int main() {
     try {

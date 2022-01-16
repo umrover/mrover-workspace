@@ -301,6 +301,7 @@ Viewer::Viewer()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwSwapInterval(1); // V-SYNC to avoid excessive framerate
 
     GLFWvidmode const* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     window = glfwCreateWindow(static_cast<int>(mode->width * 0.7), static_cast<int>(mode->height * 0.7), "Viewer", nullptr, nullptr);
@@ -347,7 +348,6 @@ void Viewer::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) 
 
 void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     auto viewer = static_cast<Viewer*>(glfwGetWindowUserPointer(window));
-    constexpr float speedMultiplier = 1000.0f;
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_A: {
@@ -356,22 +356,6 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             }
             case GLFW_KEY_D: {
                 viewer->frame++;
-                break;
-            }
-            case GLFW_KEY_RIGHT: {
-                viewer->camera.move({speedMultiplier, 0.0f, 0.0f});
-                break;
-            }
-            case GLFW_KEY_LEFT: {
-                viewer->camera.move({-speedMultiplier, 0.0f, 0.0f});
-                break;
-            }
-            case GLFW_KEY_UP: {
-                viewer->camera.move({0.0f, speedMultiplier, 0.0f});
-                break;
-            }
-            case GLFW_KEY_DOWN: {
-                viewer->camera.move({0.0f, -speedMultiplier, 0.0f});
                 break;
             }
             case GLFW_KEY_SPACE: {
@@ -461,6 +445,12 @@ void Viewer::update() {
     }
     pc_mutex.unlock();
 
+    constexpr float speed = 300.0f;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) camera.move({speed, 0.0f, 0.0f});
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) camera.move({-speed, 0.0f, 0.0f});
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) camera.move({0.0f, 0.0f, speed});
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) camera.move({0.0f, 0.0f, -speed});
+
     glfwSetInputMode(window, GLFW_CURSOR, inMenu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     drawUI();
 
@@ -480,6 +470,19 @@ void Viewer::drawUI() {
     if (ImGui::RadioButton("ECE", procStage == ProcStage::POSTECE)) procStage = ProcStage::POSTECE;
     if (ImGui::RadioButton("Bounding", procStage == ProcStage::POSTBOUNDING)) procStage = ProcStage::POSTBOUNDING;
     if (ImGui::RadioButton("Bearing", procStage == ProcStage::POSTBEARING)) procStage = ProcStage::POSTBEARING;
+    ImGui::End();
+
+#ifndef VIEWER_ONLY
+    ImGui::Begin("Parameters");
+    ImGui::SliderFloat("Epsilon", &epsilon, 0.0f, 10.0f);
+    ImGui::SliderInt("Iterations", &iterations, 1, 2000);
+    ImGui::SliderFloat("Threshold", &threshold, 0.0f, 300.0f);
+    ImGui::SliderFloat("Removal Radius", &removalRadius, 0.0f, 300.0f);
+    ImGui::End();
+#endif
+
+    ImGui::Begin("Controls");
+    ImGui::Text("Escape: Open UI\nA/D: Next/previous frame\nSpace: Pause/resume playback\nArrow keys: First-person move");
     ImGui::End();
 }
 
