@@ -28,8 +28,11 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
             cout << "[defaulting to: " << s << endl;
             getline(cin, readDir);
 
-            if (readDir == "")  readDir = s;
-            fileReader.open(readDir);
+            if (mode != OperationMode::TEST) {
+                //if we're testing, we only want one cloud
+                if (readDir == "")  readDir = s;
+                fileReader.open(readDir);
+            }
         }
         //Init Viewer
         if (mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
