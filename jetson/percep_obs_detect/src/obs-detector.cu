@@ -114,18 +114,18 @@ void ObsDetector::drawGround(Plane const& plane) {
 ///home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data
 // Call this directly with ZED GPU Memory
 void ObsDetector::update(GPU_Cloud pc) {
-
+    
     // Processing
     if (viewer.procStage > ProcStage::RAW) {
         passZ->run(pc);
     }
 
-    viewer.updatePointCloud(pc);
-
     if (viewer.procStage > ProcStage::POSTPASS) {
         Plane plane = ransacPlane->computeModel(pc);
         drawGround(plane);
     }
+
+    viewer.updatePointCloud(pc);
 
 #if VOXEL
     Bins bins = voxelGrid->run(pc);
