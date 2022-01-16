@@ -351,26 +351,26 @@ NavState StateMachine::executeTurn()
     }
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
+    /*if ( isAddRepeaterDropPoint() )
     {
         addRepeaterDropPoint();
         return NavState::RadioRepeaterTurn;
-    }
+    }*/
 
     Odometry& nextPoint = mRover->roverStatus().path().front().odom;
     if( mRover->turn( nextPoint ) )
     {
-        if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
+        /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
         {
             return NavState::RadioRepeaterDrive;
-        }
+        }*/
         return NavState::Drive;
     }
 
-    if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
+    /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
     {
         return NavState::RadioRepeaterTurn;
-    }
+    }*/
     return NavState::Turn;
 } // executeTurn()
 
@@ -387,11 +387,11 @@ NavState StateMachine::executeDrive()
 
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
+    /*if ( isAddRepeaterDropPoint() )
     {
         addRepeaterDropPoint();
         return NavState::RadioRepeaterTurn;
-    }
+    }*/
 
 
     if( isObstacleDetected( mRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( mRover, mRoverConfig ) )
@@ -408,26 +408,26 @@ NavState StateMachine::executeDrive()
             return NavState::SearchSpin;
         }
         mRover->roverStatus().path().pop_front();
-        if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+        /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
         {
             return NavState::RepeaterDropWait;
-        }
+        }*/
         ++mCompletedWaypoints;
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
-        if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+        /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
         {
             return NavState::RadioRepeaterDrive;
-        }
+        }*/
         return NavState::Drive;
     }
     // else driveStatus == DriveStatus::OffCourse (must turn to waypoint)
-    if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+    /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
     {
         return NavState::RadioRepeaterTurn;
-    }
+    }*/
 
     return NavState::Turn;
 } // executeDrive()
