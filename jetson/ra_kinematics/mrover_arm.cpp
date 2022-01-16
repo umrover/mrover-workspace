@@ -34,8 +34,14 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
 
 void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
+    std::cout << "beginning of arm position callback: ";
     std::vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
+
+    for (double ang : angles) {
+        std::cout << ang << "\t";
+    }
+    std::cout << "\n";
     
     // Adjust for encoders not being properly zeroed.
     if (!sim_mode) {
@@ -49,7 +55,6 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
     encoder_error_message = "Encoder Error in encoder(s) (joint A = 0, F = 5): ";
 
     check_dud_encoder(angles);
-
     check_joint_limits(angles);
     
     // If we have less than 5 previous angles to compare to
@@ -123,6 +128,12 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
         // update GUI
         publish_transforms(state);
     }
+
+    std::cout << "end of arm position callback: ";
+    for (double ang : state.get_joint_angles()) {
+        std::cout << ang << "\t";
+    }
+    std::cout << "\n";
 }
 
 void MRoverArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
@@ -210,8 +221,8 @@ void MRoverArm::motion_execute_callback(std::string channel, MotionExecute msg) 
     //     return;
     // }
 
-    // TODO do we ever need to preview at this stage? Isn't that done before we get here?
-    // TODO if user cancels after preview, figure out how to send current position to GUI
+    // TODO make this not stupid (why does MotionExecute have a preview bool?)
+    // We should have one message with one bool, whether or not to execute.
     if (msg.preview) {
         // enable_execute = false;
         // preview();
@@ -226,7 +237,6 @@ void MRoverArm::motion_execute_callback(std::string channel, MotionExecute msg) 
 void MRoverArm::execute_spline() { 
     double spline_t = 0.0;
     double spline_t_iterator = 0.001;
-
 
     while (true) {
         if (enable_execute) {
@@ -260,9 +270,10 @@ void MRoverArm::execute_spline() {
 
                 // Get max time to travel for joints a through e
                 for (int i = 0; i < 5; ++i) {
+                    double max_speed = state.get_joint_max_speed(i) * 3.0 / 4.0;
                     //in ms, time needed to move D_SPLINE_T (%)
                     double joint_time = abs(final_angles[i] - init_angles[i]) 
-                        / (state.get_joint_max_speed(i) / 1000.0); 
+                        / (max_speed / 1000.0); 
                     //sets max_time to greater value
                     max_time = max_time < joint_time ? joint_time : max_time;
                 }
@@ -270,6 +281,16 @@ void MRoverArm::execute_spline() {
                 //determines size of iteration by dividing number of iterations by distance
                 spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
                 spline_t += spline_t_iterator;
+
+                // break out of loop if necessary
+                if (spline_t > 1/* || arm_control_state != "closed-loop"*/) {
+                    std::cout << "Finished executing!\n";
+                    enable_execute = false;
+                    spline_t = 0.0;
+                    ik_enabled = false;
+
+                    continue;
+                }
 
                 // get next set of angles in path
                 std::vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
@@ -286,13 +307,14 @@ void MRoverArm::execute_spline() {
                 // if not in sim_mode, send physical arm a new target
                 if (!sim_mode) {
                     // TODO make publish function names more intuitive?
-                    
-		    // Adjust for encoders not being properly zeroed.
+
+		            // Adjust for encoders not being properly zeroed.
                     for (size_t i = 0; i < 6; ++i) {
                         target_angles[i] *= state.get_joint_encoder_multiplier(i);
                         target_angles[i] += state.get_joint_encoder_offset(i);
-                    }	
-		    publish_config(target_angles, "/ik_ra_control");
+                    }
+
+                    publish_config(target_angles, "/ik_ra_control");
                 }
 
                 // TODO: make sure transition from not self.sim_mode
@@ -303,12 +325,7 @@ void MRoverArm::execute_spline() {
                     state.set_joint_angles(target_angles);
                 }
 
-                // break out of loop if necessary
-                if (spline_t > 1/* || arm_control_state != "closed-loop"*/) {
-                    enable_execute = false;
-                    spline_t = 0.0;
-                    ik_enabled = false;
-                }
+                
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds((int) SPLINE_WAIT_TIME));
@@ -470,6 +487,12 @@ void MRoverArm::encoder_angles_sender() {
     while (true) {
         
         if (sim_mode) {
+            std::cout << "encoder sender: ";
+            for (double ang : state.get_joint_angles()) {
+                std::cout << ang << "\t";
+            }
+            std::cout << "\n";
+            
             encoder_angles_sender_mtx.lock();
             
             ArmPosition arm_position;

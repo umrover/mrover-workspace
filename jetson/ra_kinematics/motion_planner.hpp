@@ -82,6 +82,14 @@ public:
 private:
 
     /**
+     * @brief Convert spline_t for range [0, 1] to include ramping up and down
+     * 
+     * @param spline_t the percentage along a path
+     * @return double
+     */
+    double modify_spline_t(double spline_t);
+
+    /**
      * Generate a random config based on the joint limits
      * */
     Vector6d sample(Vector6d start, const ArmState &robot);
