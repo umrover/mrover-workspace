@@ -67,10 +67,9 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 
 void ObsDetector::update() {
     GPU_Cloud pc; 
+    sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
 
     if(source == DataSource::ZED) {
-
-        sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
         getRawCloud(pc, frame);
@@ -236,7 +235,7 @@ void ObsDetector::spinViewer() {
 
 
 int main() {
-    ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+    ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
 
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
