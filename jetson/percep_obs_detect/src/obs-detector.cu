@@ -75,6 +75,7 @@ void ObsDetector::update() {
         getRawCloud(pc, frame);
     } else if (source == DataSource::FILESYSTEM) {
         pc = fileReader.readCloudGPU(viewer.frame);
+        viewer.maxFrame = fileReader.size();
         if (viewer.frame == 1) viewer.setCenter();
     }
     update(pc);
@@ -171,7 +172,10 @@ void ObsDetector::update(GPU_Cloud pc) {
 
     if (record) record = true;
 
-    if (viewer.framePlay) viewer.frame++;
+    if (viewer.framePlay) {
+        viewer.frame++;
+        viewer.frame %= viewer.maxFrame;
+    }
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {

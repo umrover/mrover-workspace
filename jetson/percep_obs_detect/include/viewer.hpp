@@ -190,9 +190,10 @@ enum class ProcStage {
 
 class Viewer {
 public:
-    int frame{};
-    bool framePlay{};
-    bool inMenu{};
+    int frame = 0;
+    int maxFrame = 0;
+    bool framePlay = false;
+    bool inMenu = false;
     ProcStage procStage = ProcStage::POSTBEARING;
 
     // Creates a window

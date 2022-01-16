@@ -351,11 +351,11 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_A: {
-                viewer->frame--;
+                viewer->frame = std::max(viewer->maxFrame, viewer->frame - 1);
                 break;
             }
             case GLFW_KEY_D: {
-                viewer->frame++;
+                viewer->frame = std::min(viewer->maxFrame, viewer->frame + 1);
                 break;
             }
             case GLFW_KEY_SPACE: {
@@ -484,6 +484,10 @@ void Viewer::drawUI() {
     ImGui::SliderFloat("Minimum Size", &minSize, 0.0f, 1000.0f);
     ImGui::End();
 #endif
+
+    ImGui::Begin("Playback");
+    ImGui::SliderInt("Frame", &frame, 0, maxFrame);
+    ImGui::End();
 
     ImGui::Begin("Controls");
     ImGui::Text("Escape: Open UI\nA/D: Next/previous frame\nSpace: Pause/resume playback\nArrow keys: First-person move\n1-6: Choose layers");
