@@ -440,9 +440,14 @@ void Viewer::update() {
     ImGui::NewFrame();
 
     // Draw 3D Objects
-    glm::mat4 mvp_mat = camera.projection * camera.getView();
+    int width, height;
+    getWindowSize(&width, &height);
+    glm::mat4 projection = glm::perspectiveFov(glm::radians(45.0f), static_cast<float>(width), static_cast<float>(height), 0.1f, 100000.0f);
+    glViewport(0, 0, width, height);
+    glm::mat4 mvp = projection * camera.getView();
+
     glUseProgram(objectShader.getProgramId());
-    glUniformMatrix4fv(glGetUniformLocation(objectShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp_mat));
+    glUniformMatrix4fv(glGetUniformLocation(objectShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp));
     for (auto& object: objects) {
         object.draw();
     }
@@ -453,7 +458,7 @@ void Viewer::update() {
     viewer_mutex.unlock();
 
     glUseProgram(pcShader.getProgramId());
-    glUniformMatrix4fv(glGetUniformLocation(pcShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp_mat));
+    glUniformMatrix4fv(glGetUniformLocation(pcShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp));
     pc_mutex.lock();
     for (auto& pc: pointClouds) {
         pc.draw();
@@ -576,6 +581,10 @@ void Viewer::setCenter() {
 
 void Viewer::setCenter(vec3 center) {
     camera.setCenter(center);
+}
+
+void Viewer::getWindowSize(int* width, int* height) {
+    glfwGetFramebufferSize(window, width, height);
 }
 
 bool Viewer::open() {

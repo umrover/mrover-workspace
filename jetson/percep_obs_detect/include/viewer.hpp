@@ -104,6 +104,7 @@ private:
 class Camera {
 public:
     explicit Camera(glm::mat4 projection) : projection(projection) {
+
     }
 
     void setCenter(glm::vec3 inCenter) {
@@ -136,7 +137,7 @@ public:
         offset += displacement * getRotation();
     }
 
-    glm::mat4 getView() {
+    glm::mat4 getView() const {
         // rotate around y-axis then x-axis (order is reversed since it's essentially matrix multiplication)
         glm::quat rotation = getRotation();
         glm::vec3 target = center - offset;
@@ -228,6 +229,8 @@ public:
 
     // need to provide thread safe ways to update viewer internals
     void updatePointCloud(int idx, vec4* pts, int size);
+
+    void getWindowSize(int* width, int* height);
 
 #ifndef VIEWER_ONLY
 

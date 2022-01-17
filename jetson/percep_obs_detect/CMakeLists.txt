@@ -4,12 +4,14 @@ option(NO_JARVIS "compile without jarvis" OFF)
 
 project(obs_detection)
 set(CMAKE_CXX_STANDARD 11)
+set(OpenGL_GL_PREFERENCE GLVND)
 #add_compile_definitions(ROOT_DIR=${CMAKE_CURRENT_LIST_DIR})
 add_compile_options(-DROOT_DIR="${CMAKE_CURRENT_LIST_DIR}")
 
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 if (VIEWER_ONLY)
     #add_compile_definitions(VIEWER_ONLY)
@@ -33,7 +35,7 @@ else ()
 
     find_package(ZED 3 REQUIRED)
 
-    include_directories(SYSTEM ${GLFW_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${ZED_INCLUDE_DIRS} ${CUDA_INCLUDE_DIRS})
+    include_directories(SYSTEM ${GLFW_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${ZED_INCLUDE_DIRS} ${CUDA_INCLUDE_DIRS})
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui)
     include_directories(/usr/local/cuda-10.0/samples/common/inc)
     include_directories($ENV{HOME}/.mrover/build_env/include)
@@ -55,6 +57,7 @@ else ()
     ${GLUT_LIBRARY}
     ${GLEW_LIBRARIES}
     glfw
+    ${OpenCV_LIBS} OpenGL::GL
     )
     if (NO_JARVIS)
     else ()

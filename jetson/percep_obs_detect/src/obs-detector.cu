@@ -5,6 +5,8 @@ using namespace std;
 using namespace std::chrono;
 
 #include <glm/glm.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/videoio.hpp>
 #include <vector>
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType)
@@ -200,6 +202,8 @@ void ObsDetector::update(GPU_Cloud pc) {
             }
         }
     }
+
+//    writer.write()
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
@@ -312,9 +316,31 @@ bool ObsDetector::open() {
 int main() {
     try {
         ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+
+        std::string const gstLaunch = "appsrc ! video/x-raw, format=BGR !"
+                                      "queue ! videoconvert ! x264enc tune=zerolatency bitrate=1000000 speed-preset=superfast !"
+                                      "rtph264pay ! udpsink host=127.0.0.1 port=5000";
+        // Corresponding viewer command:
+        // gst-launch-1.0 udpsrc port=5000 ! "application/x-rtp, encoding-name=(string)H264" ! queue ! rtph264depay ! decodebin ! videoconvert ! autovideosink
+        cv::Size streamSize(640, 480);
+        cv::VideoWriter writer(gstLaunch, 0, 60, streamSize);
+        cv::Mat send(streamSize, CV_8UC3);
+
         while (obs.open()) {
             obs.update();
             obs.spinViewer();
+
+            if (writer.isOpened()) {
+                int width, height;
+                obs.viewer.getWindowSize(&width, &height);
+                cv::Mat framebuffer(height, width, CV_8UC3);
+                glPixelStorei(GL_PACK_ALIGNMENT, 1); // ensure no padding in between pixel rows, 1=byte alignment, see glPixelStorei documentation
+                glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, framebuffer.data);
+                cv::resize(framebuffer, send, send.size());
+                // TODO: use cv::copyMakeBorder for black bars
+                cv::flip(send, send, 0);
+                writer.write(send);
+            }
         }
         return EXIT_SUCCESS;
     } catch (std::exception const& exception) {
