@@ -37,17 +37,17 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
 
 void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
-    // std::cout << "beginning of arm position callback: ";
     std::vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
 
     // Adjust for shaky joint B values
     angles[2] = joint_b_stabilizer(angles[2]);
 
-    for (double ang : angles) {
-        std::cout << ang << "\t";
-    }
-    std::cout << "\n";
+    // std::cout << "beginning of arm position callback: ";
+    // for (double ang : angles) {
+    //     std::cout << ang << "\t";
+    // }
+    // std::cout << "\n";
     
     // Adjust for encoders not being properly zeroed.
     if (!sim_mode) {
@@ -493,11 +493,11 @@ void MRoverArm::encoder_angles_sender() {
     while (true) {
         
         if (sim_mode) {
-            std::cout << "encoder sender: ";
-            for (double ang : state.get_joint_angles()) {
-                std::cout << ang << "\t";
-            }
-            std::cout << "\n";
+            // std::cout << "encoder sender: ";
+            // for (double ang : state.get_joint_angles()) {
+            //     std::cout << ang << "\t";
+            // }
+            // std::cout << "\n";
             
             encoder_angles_sender_mtx.lock();
             
