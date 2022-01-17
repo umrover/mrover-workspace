@@ -308,7 +308,6 @@ Viewer::Viewer()
     if (!window) {
         throw runtime_error("Window init failed");
     }
-//    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window);
     if (glewInit()) {
         throw runtime_error("Failed to init glew");
@@ -351,11 +350,11 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_A: {
-                viewer->frame = std::max(viewer->maxFrame, viewer->frame - 1);
+                viewer->frame = std::max(0, viewer->frame - 1);
                 break;
             }
             case GLFW_KEY_D: {
-                viewer->frame = std::min(viewer->maxFrame, viewer->frame + 1);
+                viewer->frame = std::min(viewer->maxFrame - 1, viewer->frame + 1);
                 break;
             }
             case GLFW_KEY_SPACE: {
