@@ -74,7 +74,7 @@ void ObsDetector::update() {
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res);
         getRawCloud(pc, frame);
     } else if (source == DataSource::FILESYSTEM) {
-        pc = fileReader.readCloudGPU(viewer.frame);
+        pc = fileReader.getCloudGPU(viewer.frame);
         viewer.maxFrame = fileReader.size();
         if (viewer.frame == 1) viewer.setCenter();
     }

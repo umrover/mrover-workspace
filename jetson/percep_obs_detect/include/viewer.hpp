@@ -243,7 +243,6 @@ public:
 
     void updateObjectModel(int idx, glm::mat4 rotation, glm::mat4 translation);
 
-
     glm::vec3 getCenter() {
         return pcCenter;
     }
@@ -261,6 +260,7 @@ private:
     GLFWwindow* window;
 
     glm::vec3 pcCenter;
+    float mouseSensitivity = 1.0f;
 
     // which ps is being used
     int active_pc = -1;

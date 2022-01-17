@@ -407,8 +407,8 @@ void Viewer::cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
 
     bool focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
     if (focused == viewer->prevFocused) { // check to avoid look jumping when tabbing in and out
-        auto deltaX = static_cast<float>((xpos - viewer->prevMouseX) * 0.01);
-        auto deltaY = static_cast<float>((ypos - viewer->prevMouseY) * 0.01);
+        auto deltaX = static_cast<float>((xpos - viewer->prevMouseX) * viewer->mouseSensitivity * 0.01);
+        auto deltaY = static_cast<float>((ypos - viewer->prevMouseY) * viewer->mouseSensitivity * 0.01);
         viewer->camera.rotateX(-deltaY);
         viewer->camera.rotateY(-deltaX);
     }
@@ -503,6 +503,7 @@ void Viewer::drawUI() {
                 "R: Record\n"
                 "Arrow keys: First-person move\n"
                 "1-6: Choose layers");
+    ImGui::SliderFloat("Mouse", &mouseSensitivity, 0.1f, 10.0f);
     ImGui::End();
 }
 
