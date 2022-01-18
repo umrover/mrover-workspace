@@ -80,16 +80,16 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
         alvarDict = new cv::aruco::Dictionary(bits, mSize, mCBits);
 
     alvarParams = new cv::aruco::DetectorParameters();
-    alvarParams->markerBorderBits = 2; 
-    alvarParams->doCornerRefinement = 0;
-    alvarParams->polygonalApproxAccuracyRate = 0.08;
+    alvarParams.markerBorderBits = 2; 
+    alvarParams.doCornerRefinement = 0;
+    alvarParams.polygonalApproxAccuracyRate = 0.08;
 }
 
-Point2f ObsDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &corners) {  //gets coordinate of center of tag
+cv::Point2f ObsDetector::getAverageTagCoordinateFromCorners(const vector<cv::Point2f> &corners) {  //gets coordinate of center of tag
     // RETURN:
     // Point2f object containing the average location of the 4 corners
     // of the passed-in tag
-    Point2f avgCoord;
+    cv::Point2f avgCoord;
     for (auto &corner : corners) {
         avgCoord.x += corner.x;
         avgCoord.y += corner.y;
@@ -99,7 +99,7 @@ Point2f ObsDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
-pair<Tag, Tag> ObsDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
+pair<Tag, Tag> ObsDetector::findARTags(cv::Mat &src, cv::Mat &depth_src, cv::Mat &rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
     // RETURN:
     // pair of target objects- each object has an x and y for the center,
     // and the tag ID number return them such that the "leftmost" (x
@@ -117,16 +117,16 @@ pair<Tag, Tag> ObsDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     if (ids.size() == 0) {
         // no tags found, return invalid objects with tag set to -1
         discoveredTags.first.id = -1;
-        discoveredTags.first.loc = Point2f();
+        discoveredTags.first.loc = cv::Point2f();
         discoveredTags.second.id = -1;
-        discoveredTags.second.loc = Point2f();
+        discoveredTags.second.loc = cv::Point2f();
 
     } else if (ids.size() == 1) {  // exactly one tag found
         discoveredTags.first.id = ids[0];
         discoveredTags.first.loc = getAverageTagCoordinateFromCorners(corners[0]);
         // set second tag to invalid object with tag as -1
         discoveredTags.second.id = -1;
-        discoveredTags.second.loc = Point2f();
+        discoveredTags.second.loc = cv::Point2f();
     } else if (ids.size() == 2) {  // exactly two tags found
         Tag t0, t1;
         t0.id = ids[0];
@@ -166,10 +166,10 @@ void ObsDetector::update() {
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
 
-        sl::Mat zedDepth(zed.getResolution(), sl::MAT_TYPE::F32_C1, sl::MEM::GPU);
+        cv::Mat zedDepth(sl::RESOLUTION::VGA, sl::MAT_TYPE::F32_C1, sl::MEM::GPU);
         zed.retrieveMeasure(zedDepth, sl::MEASURE::DEPTH, sl::MEM::GPU, zed.getResolution());
 
-        sl::Mat zedImage(zed.getResolution(), MAT_TYPE::U8_C4, sl::MEM::GPU);
+        cv::Mat zedImage(sl::RESOLUTION::VGA, sl::MAT_TYPE::U8_C4, sl::MEM::GPU);
         zed.retrieveImage(zedImage, sl::VIEW::LEFT, sl::MEM::GPU, zed.getResolution());
 
         getRawCloud(pc, frame);
