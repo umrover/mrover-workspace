@@ -80,9 +80,9 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
         alvarDict = new cv::aruco::Dictionary(bits, mSize, mCBits);
 
     alvarParams = new cv::aruco::DetectorParameters();
-    alvarParams.markerBorderBits = 2; 
-    alvarParams.doCornerRefinement = 0;
-    alvarParams.polygonalApproxAccuracyRate = 0.08;
+    alvarParams->markerBorderBits = 2; 
+    alvarParams->doCornerRefinement = 0;
+    alvarParams->polygonalApproxAccuracyRate = 0.08;
 }
 
 cv::Point2f ObsDetector::getAverageTagCoordinateFromCorners(const vector<cv::Point2f> &corners) {  //gets coordinate of center of tag
@@ -163,17 +163,17 @@ cv::Mat ObsDetector::slMat2cvMat(sl::Mat& input) {
     // cv::Mat and sl::Mat will share a single memory structure
     int cvType = -1;
     switch (input.getDataType()) {
-        case sl::MAT_TYPE::F32_C1: cv_type = CV_32FC1; break;
-        case sl::MAT_TYPE::F32_C2: cv_type = CV_32FC2; break;
-        case sl::MAT_TYPE::F32_C3: cv_type = CV_32FC3; break;
-        case sl::MAT_TYPE::F32_C4: cv_type = CV_32FC4; break;
-        case sl::MAT_TYPE::U8_C1: cv_type = CV_8UC1; break;
-        case sl::MAT_TYPE::U8_C2: cv_type = CV_8UC2; break;
-        case sl::MAT_TYPE::U8_C3: cv_type = CV_8UC3; break;
-        case sl::MAT_TYPE::U8_C4: cv_type = CV_8UC4; break;
+        case sl::MAT_TYPE::F32_C1: cvType = CV_32FC1; break;
+        case sl::MAT_TYPE::F32_C2: cvType = CV_32FC2; break;
+        case sl::MAT_TYPE::F32_C3: cvType = CV_32FC3; break;
+        case sl::MAT_TYPE::F32_C4: cvType = CV_32FC4; break;
+        case sl::MAT_TYPE::U8_C1: cvType = CV_8UC1; break;
+        case sl::MAT_TYPE::U8_C2: cvType = CV_8UC2; break;
+        case sl::MAT_TYPE::U8_C3: cvType = CV_8UC3; break;
+        case sl::MAT_TYPE::U8_C4: cvType = CV_8UC4; break;
         default: break;
     }
-    return cv::Mat(input.getHeight(), input.getWidth(), cvType, input.getPtr<sl::uchar1>(MEM::CPU), input.getStepBytes(sl::MEM::CPU));
+    return cv::Mat(input.getHeight(), input.getWidth(), cvType, input.getPtr<sl::uchar1>(sl::MEM::CPU), input.getStepBytes(sl::MEM::CPU));
 }
 
 void ObsDetector::update() {
