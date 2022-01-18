@@ -59,6 +59,22 @@ class ObsDetector {
         //Destructor 
         ~ObsDetector();
 
+        struct Tag {
+        Point2f loc;
+        int id;
+        };
+
+        /**
+         * \brief Takes corners of a tag and returns the center coordinate
+         */
+        Point2f getAverageTagCoordinateFromCorners(const vector<Point2f> &corners);
+
+        /**
+         * \brief Finds AR tags given an image from the ZED camera
+         * 
+         */
+        pair<Tag, Tag> findARTags(Mat &src, Mat &depth_src, Mat &rgb);
+
         /**
          * \brief Grabs the next frame from either file or zed and performs an obstacle detection
          */
@@ -153,8 +169,15 @@ class ObsDetector {
         float rightBearing;
         float distance;
 
+        //AR Tag detection
+        std::vector<int> ids;
+        std::vector<std::vector<cv::Point2f> > corners;
+        Ptr<cv::aruco::Dictionary> alvarDict;
+        Ptr<cv::aruco::DetectorParameters> alvarParams;
+        
         //Other
         int frameNum = 0;
         bool framePlay = true;
+        
         
 };
