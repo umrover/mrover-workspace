@@ -24,6 +24,7 @@ xdotool key type "sudo ./jarvis exec jetson/mp9250_bridge"
 xdotool key KP_Enter
 sleep 0.4s
 xdotool key type "mrover"
+xdotool key KP_Enter
 
 #Open a new tab for Obstacle LCM
 xdotool key ctrl+shift+t
