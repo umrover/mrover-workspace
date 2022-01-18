@@ -38,7 +38,7 @@ typedef Matrix<double, 6, 1> Vector6d;
 static constexpr double D_SPLINE_T = 0.01;
 
 // in ms, wait time for execute_spline loop
-static constexpr int SPLINE_WAIT_TIME = 190;
+static constexpr int SPLINE_WAIT_TIME = 200;
 
 // Angle in radians to determine when encoders are sending faulty values
 static constexpr double ENCODER_ERROR_THRESHOLD = 0.2;

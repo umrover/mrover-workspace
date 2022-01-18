@@ -277,7 +277,7 @@ void MRoverArm::execute_spline() {
 
                 // Get max time to travel for joints a through e
                 for (int i = 0; i < 5; ++i) {
-                    double max_speed = state.get_joint_max_speed(i) * 3.0 / 4.0;
+                    double max_speed = state.get_joint_max_speed(i);
                     //in ms, time needed to move D_SPLINE_T (%)
                     double joint_time = abs(final_angles[i] - init_angles[i]) 
                         / (max_speed / 1000.0); 
