@@ -161,7 +161,7 @@ pair<ObsDetector::Tag, ObsDetector::Tag> ObsDetector::findARTags(cv::Mat &src, c
 void ObsDetector::update() {
     GPU_Cloud pc; 
     sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
-    Pair<ObsDetector::Tag, ObsDetector::Tag> tags;
+    pair<ObsDetector::Tag, ObsDetector::Tag> tags;
 
     if(source == DataSource::ZED) {
         zed.grab();
@@ -177,8 +177,8 @@ void ObsDetector::update() {
 
         cv::Mat rgb;
 
-        cv::Mat cvZedDepth = slMat2cvMat(zedDepth);
-        cv::Mat cvZedImage = slMat2cvMat(zedImage);
+        cv::Mat cvZedDepth = sl::slMat2cvMat(zedDepth);
+        cv::Mat cvZedImage = sl::slMat2cvMat(zedImage);
         tags = findARTags(zedImage, zedDepth, rgb);
         
     } else if(source == DataSource::FILESYSTEM) {
