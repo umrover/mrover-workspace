@@ -321,13 +321,13 @@ void testConfigPWM()
     {
         // test off
         int max = 30;
-        if (address < 39)
+        if (address < 17)
         {
             max = 16;
         }
         if (address == 16)
         {
-            max = 8;
+            max = 16;
         }
         configPWM(address, max);
 
@@ -651,9 +651,9 @@ int main()
     // openPlus(get_addr(1, 1), 0.0);
     while (1)
     {
-        testClosed();
+       // testClosed();
 	    //testQuadEnc();
-        //testOpenPlusWithAbs();
+        testOpenPlusWithAbs();
         //testOpenPlus();
         // printf("sleeping \n");
         // //sleep(1000);
