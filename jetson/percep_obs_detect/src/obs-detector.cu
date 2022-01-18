@@ -156,7 +156,13 @@ pair<ObsDetector::Tag, ObsDetector::Tag> ObsDetector::findARTags(cv::Mat &src, c
         }
     }
     return discoveredTags;
-}   
+} 
+
+cv::Mat ObsDetector::slMat2cvMat(sl::Mat& input) {
+    // Since cv::Mat data requires a uchar* pointer, we get the uchar1 pointer from sl::Mat (getPtr<T>())
+    // cv::Mat and sl::Mat will share a single memory structure
+    return cv::Mat(input.getHeight(), input.getWidth(), getOCVtype(input.getDataType()), input.getPtr<sl::uchar1>(MEM::CPU), input.getStepBytes(sl::MEM::CPU));
+}
 
 void ObsDetector::update() {
     GPU_Cloud pc; 
@@ -177,8 +183,8 @@ void ObsDetector::update() {
 
         cv::Mat rgb;
 
-        cv::Mat cvZedDepth = sl::slMat2cvMat(zedDepth);
-        cv::Mat cvZedImage = sl::slMat2cvMat(zedImage);
+        cv::Mat cvZedDepth = slMat2cvMat(zedDepth);
+        cv::Mat cvZedImage = slMat2cvMat(zedImage);
         tags = findARTags(zedImage, zedDepth, rgb);
         
     } else if(source == DataSource::FILESYSTEM) {

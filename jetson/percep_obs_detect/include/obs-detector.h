@@ -78,6 +78,12 @@ class ObsDetector {
         pair<Tag, Tag> findARTags(cv::Mat &src, cv::Mat &depth_src, cv::Mat &rgb);
 
         /**
+         * \brief Converts sl::Mat to cv::Mat
+         * 
+         */
+        cv::Mat slMat2cvMat(sl::Mat& input);
+
+        /**
          * \brief Grabs the next frame from either file or zed and performs an obstacle detection
          */
         void update();
@@ -175,7 +181,7 @@ class ObsDetector {
         std::vector<int> ids;
         std::vector<std::vector<cv::Point2f>> corners;
         cv::Ptr<cv::aruco::Dictionary> alvarDict;
-        cv::Ptr<aruco::DetectorParameters> alvarParams;
+        cv::Ptr<cv::aruco::DetectorParameters> alvarParams;
 
         //Other
         int frameNum = 0;
