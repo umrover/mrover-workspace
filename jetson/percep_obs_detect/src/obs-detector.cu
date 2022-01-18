@@ -161,29 +161,31 @@ pair<ObsDetector::Tag, ObsDetector::Tag> ObsDetector::findARTags(cv::Mat &src, c
 void ObsDetector::update() {
     GPU_Cloud pc; 
     sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
+    Pair<ObsDetector::Tag, ObsDetector::Tag> tags;
 
     if(source == DataSource::ZED) {
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
 
-        sl::Mat zedDepth(sl::RESOLUTION::VGA, sl::MAT_TYPE::F32_C1, sl::MEM::GPU);
-        zed.retrieveMeasure(zedDepth, sl::MEASURE::DEPTH, sl::MEM::GPU, sl::RESOLUTION::VGA);
+        sl::Mat zedDepth(sl::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::F32_C1, sl::MEM::GPU);
+        zed.retrieveMeasure(zedDepth, sl::MEASURE::DEPTH, sl::MEM::GPU);
 
-        sl::Mat zedImage(sl::RESOLUTION::VGA, sl::MAT_TYPE::U8_C4, sl::MEM::GPU);
-        zed.retrieveImage(zedImage, sl::VIEW::LEFT, sl::MEM::GPU, sl::RESOLUTION::VGA);
+        sl::Mat zedImage(sl::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::U8_C4, sl::MEM::GPU);
+        zed.retrieveImage(zedImage, sl::VIEW::LEFT, sl::MEM::GPU);
 
         getRawCloud(pc, frame);
 
-        sl::Mat rgb;
+        cv::Mat rgb;
 
-        pair<ObsDetector::Tag, ObsDetector::Tag> tags = findARTags(zedImage, zedDepth, rgb);
+        cv::Mat cvZedDepth = slMat2cvMat(zedDepth);
+        cv::Mat cvZedImage = slMat2cvMat(zedImage);
+        tags = findARTags(zedImage, zedDepth, rgb);
         
     } else if(source == DataSource::FILESYSTEM) {
         pc = fileReader.readCloudGPU(viewer.frame);
         if (viewer.frame == 1) viewer.setTarget();
     }
     update(pc);
-    findARTags(zedImage, zedDepth, rgb);
 
     if(source == DataSource::FILESYSTEM) deleteCloud(pc);
 } 
