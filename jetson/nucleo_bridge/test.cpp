@@ -33,6 +33,8 @@ using namespace std;
 // reductions per motor 
 float cpr[6] = { -28800.0, 1.0, 155040.0, -81600.0, -81600.0, -9072.0 };
 
+int invert[6] = {1, -1, -1, -1, -1, 1};
+
 int num_tests_ran = 0;
 
 std::vector<int> i2c_address;
@@ -109,12 +111,11 @@ float closedPlus(int addr, float angle) // -pi to pi
 {
     try
     {
-        printf("test closed plus on slave %i sending target angle %d", addr, angle);
+        //printf("test closed plus on slave %i sending target angle %f\n", addr, angle);
         uint8_t buffer[12];
 
         float ff = 0;
         memcpy(buffer, UINT8_POINTER_T(&ff), 4);
-        memcpy(buffer + 4, UINT8_POINTER_T(&angle), 4);
         
         int32_t raw_angle;
 
@@ -126,13 +127,22 @@ float closedPlus(int addr, float angle) // -pi to pi
         }
         else 
         {
-            memcpy(raw_angle, &angle);
+            memcpy(&raw_angle, &angle, 4);
         }
+
+        printf("test closed plus on slave %i sending target angle %f, raw angle %i\n", addr, angle, raw_angle);
+        memcpy(buffer + 4, UINT8_POINTER_T(&raw_angle), 4);
         
         I2C::transact(addr, CLOSED_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
         float deg_angle = (raw_angle / cpr[joint]) * 360; 
-        printf("test closed plus transaction successful on slave %i, %d \n", addr, deg_angle);
-        return raw_angle;
+        float rad_angle = (raw_angle / cpr[joint]) * 2 * M_PI; 
+
+        if (joint == 1)
+        {
+            memcpy(&rad_angle, &raw_angle, 4);
+        }
+        printf("test closed plus transaction successful on slave %i, at angle %f \n", addr, rad_angle);
+        return rad_angle;
     }
     catch (IOFailure &e)
     {
@@ -156,7 +166,7 @@ void configPWM(int addr, int max_speed)
     }
 }
 
-void setKPID(int addr, int p, int i, int d)
+void setKPID(int addr, float p, float i, float d)
 {
     try
     {
@@ -310,7 +320,17 @@ void testConfigPWM()
     for (auto address : i2c_address)
     {
         // test off
-        configPWM(address, 30);
+        int max = 30;
+        if (address < 39)
+        {
+            max = 16;
+        }
+        if (address == 16)
+        {
+            max = 8;
+        }
+        configPWM(address, max);
+
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     PRINT_TEST_END
@@ -345,26 +365,81 @@ void testClosed()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        setKPID(address, 0.001, 0.0005, 0);
+        int joint = (address & 0b1) + (((address >> 4) - 1) * 2); 
+
+        setKPID(address, 0.001 * invert[joint], 0.0005 * invert[joint], 0 * invert[joint]);
+        printf("joint %i, kp %f, ki, %f \n", joint, 0.001 * invert[joint], 0.0005 * invert[joint] );
         sleep(10);
     }
     while (1)
     {
         for (auto address : i2c_address)
         {
+            int joint = (address & 0b1) + (((address >> 4) - 1) * 2); 
+            float angle = quadEnc(address);
+            
+            float target = angle - 0.15;
+            if (joint == 1)
+            {
+                angle = absEnc(address);
+                target = angle - 0.25;
+            }
 
-            for (int i = 0; i < 30; i++) {
-                closedPlus(address, M_PI);
+            do 
+            {
+                angle = closedPlus(address, target);
                 sleep(20);
             }
-            for (int i = 0; i < 30; i++) {
-                closedPlus(address, 0.0);
+            while( abs(angle - target) > 0.01);
+	        printf("arrived at position 1\n");
+	        sleep(1000);
+
+            angle = quadEnc(address);
+            target = angle + 0.15;
+
+            if (joint == 1)
+            {
+                angle = absEnc(address);
+                target = angle + 0.25;
+            }
+            do 
+            {
+                angle = closedPlus(address, target);
                 sleep(20);
             }
-            for (int i = 0; i < 30; i++) {
-                closedPlus(address, M_PI);
+            while( abs(angle - target) > 0.01);
+	        printf("arrived at position 2\n");
+	        sleep(1000);
+
+            angle = quadEnc(address);
+            if (joint == 1)
+            {
+                angle = absEnc(address);
+            }
+            target = angle - 0.25;
+            do 
+            {
+                angle = closedPlus(address, target);
                 sleep(20);
             }
+            while( abs(angle - target) > 0.01);
+	        printf("arrived at position 3\n");
+	        sleep(1000);
+
+            angle = quadEnc(address);
+            if (joint == 1)
+            {
+                angle = absEnc(address);
+            }
+            target = angle + 0.25;
+            do 
+            {
+                angle = closedPlus(address, target);
+                sleep(20);
+            }
+            while( abs(angle - target) > 0.01);
+	        printf("arrived at position 4\n");
+	        sleep(1000);
         }
     }
     PRINT_TEST_END
@@ -439,6 +514,10 @@ void testOpenPlusWithAbs()
         if (address == 16)
         {
             speed = 0.25f;
+        }
+        if (address == 32 || address == 33)
+        {
+            speed = 1.0f;
         }
 
         for (int i = 0; i < 6; i++) {
@@ -555,7 +634,10 @@ int main()
     for (int i = 1; i <= 3; ++i)
     {
         i2c_address.push_back(get_addr(i, 0));
-        i2c_address.push_back(get_addr(i, 1));
+        if (i != 3)
+        {
+            i2c_address.push_back(get_addr(i, 1));
+        }
         //if (i == 3 || i == 2) i2c_address.push_back(get_addr(i, 2));
         sleep(20);
     }
@@ -569,8 +651,9 @@ int main()
     // openPlus(get_addr(1, 1), 0.0);
     while (1)
     {
-        //testQuadEnc();
-        testOpenPlusWithAbs();
+        testClosed();
+	    //testQuadEnc();
+        //testOpenPlusWithAbs();
         //testOpenPlus();
         // printf("sleeping \n");
         // //sleep(1000);
