@@ -174,8 +174,8 @@ class ObsDetector {
         //AR Tag detection
         std::vector<int> ids;
         std::vector<std::vector<cv::Point2f>> corners;
-        cv::aruco::Dictionary alvarDict;
-        cv::aruco::DetectorParameters alvarParams;
+        cv::Ptr<cv::aruco::Dictionary> alvarDict;
+        cv::Ptr<aruco::DetectorParameters> alvarParams;
 
         //Other
         int frameNum = 0;
