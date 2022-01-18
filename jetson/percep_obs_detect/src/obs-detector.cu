@@ -161,7 +161,19 @@ pair<ObsDetector::Tag, ObsDetector::Tag> ObsDetector::findARTags(cv::Mat &src, c
 cv::Mat ObsDetector::slMat2cvMat(sl::Mat& input) {
     // Since cv::Mat data requires a uchar* pointer, we get the uchar1 pointer from sl::Mat (getPtr<T>())
     // cv::Mat and sl::Mat will share a single memory structure
-    return cv::Mat(input.getHeight(), input.getWidth(), getOCVtype(input.getDataType()), input.getPtr<sl::uchar1>(MEM::CPU), input.getStepBytes(sl::MEM::CPU));
+    int cvType = -1;
+    switch (input.getDataType()) {
+        case sl::MAT_TYPE::F32_C1: cv_type = CV_32FC1; break;
+        case sl::MAT_TYPE::F32_C2: cv_type = CV_32FC2; break;
+        case sl::MAT_TYPE::F32_C3: cv_type = CV_32FC3; break;
+        case sl::MAT_TYPE::F32_C4: cv_type = CV_32FC4; break;
+        case sl::MAT_TYPE::U8_C1: cv_type = CV_8UC1; break;
+        case sl::MAT_TYPE::U8_C2: cv_type = CV_8UC2; break;
+        case sl::MAT_TYPE::U8_C3: cv_type = CV_8UC3; break;
+        case sl::MAT_TYPE::U8_C4: cv_type = CV_8UC4; break;
+        default: break;
+    }
+    return cv::Mat(input.getHeight(), input.getWidth(), cvType, input.getPtr<sl::uchar1>(MEM::CPU), input.getStepBytes(sl::MEM::CPU));
 }
 
 void ObsDetector::update() {
@@ -173,11 +185,11 @@ void ObsDetector::update() {
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
 
-        sl::Mat zedDepth(sl::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::F32_C1, sl::MEM::GPU);
-        zed.retrieveMeasure(zedDepth, sl::MEASURE::DEPTH, sl::MEM::GPU);
+        sl::Mat zedDepth(sl::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::F32_C1, sl::MEM::CPU);
+        zed.retrieveMeasure(zedDepth, sl::MEASURE::DEPTH);
 
-        sl::Mat zedImage(sl::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::U8_C4, sl::MEM::GPU);
-        zed.retrieveImage(zedImage, sl::VIEW::LEFT, sl::MEM::GPU);
+        sl::Mat zedImage(sl::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::U8_C4, sl::MEM::CPU);
+        zed.retrieveImage(zedImage, sl::VIEW::LEFT);
 
         getRawCloud(pc, frame);
 
