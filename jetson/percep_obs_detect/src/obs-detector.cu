@@ -7,6 +7,10 @@ using namespace std::chrono;
 #include <glm/glm.hpp>
 #include <vector>
 #include <string>
+#include <numeric>
+#include <iomanip>
+#include <algorithm>
+#include <fstream>
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType) : source(source), mode(mode), viewerType(viewerType), record(false)
 {
@@ -70,13 +74,13 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
 
-    ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9); 
+    ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9);
     findClear = new FindClearPath();
 }
 
 
 void ObsDetector::update() {
-    GPU_Cloud pc; 
+    GPU_Cloud pc;
     sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
 
 
@@ -101,7 +105,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     viewer.updatePointCloud(pc);
 
     // Processing
-    
+
     passZ->run(pc);
 
     ransacPlane->computeModel(pc);
@@ -111,12 +115,12 @@ void ObsDetector::update(GPU_Cloud pc) {
         bins = voxelGrid->run(pc);
     #endif
 
-    obstacles = ece->extractClusters(pc, bins); 
+    obstacles = ece->extractClusters(pc, bins);
     bearingCombined = findClear->find_clear_path_initiate(obstacles);
     leftBearing = bearingCombined.x;
     rightBearing = bearingCombined.y;
-    distance = bearingCombined.z; 
-    
+    distance = bearingCombined.z;
+
     ///*/
     // Rendering
     if(mode != OperationMode::SILENT) {
@@ -127,7 +131,7 @@ void ObsDetector::update(GPU_Cloud pc) {
     if(record) record = true;
 
     if(viewer.framePlay) viewer.frame++;
-    
+
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
@@ -266,7 +270,7 @@ void ObsDetector::test_input_file()
   //EuclideanClusterExtractor::Obstacle one = { 0, 20, 0, 20, 0, 20 };*/
   //objects.obs.push_back(one);
   //truths.push_back(objects);
-  
+
   Bins b;
   passZ->run(raw_data[0]); //The filter and RANSAC get rid of small scenes entirely
   ransacPlane->computeModel(raw_data[0]);
@@ -400,9 +404,53 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
       /* return total false positive volume for current obsreturn */
       false_positive_vol.push_back((volsum - temp_intersection)/truth_volumes[x]);
   }
-  /* return custom class ("TestStats.h") */
-  TestStats::TestStats tsolution(g_t, false_positive_vol, clock_times, true_count, obs_count, discrete_truth_pct);
+
+  test_print(g_t, false_positive_vol, clock_times, true_count, obs_count, discrete_truth_pct);
 }
+
+void ObsDetector::test_print(const std::vector<float>& iot,
+                             const std::vector<float>& fot,
+                             const std::vector<float>& times,
+                             const std::vector<int>& num_true_obs,
+                             const std::vector<int>& num_det_obs,
+                             const std::vector<std::vector<float>>& discrete_truths) {
+  /* Output Log Format */
+  //std::cout.setprecision(4);
+  std::cout << "Evaluating GPU Cloud #[NUMBER]\n";
+  std::cout << "GPU Obstacle Detection Runtime: [TIME]\n";
+  std::cout << "Number of Detected Obstacles: [NUMDET]\n";
+  std::cout << "Number of True Obstacles: [NUMTRUE]\n";
+  std::cout << "\t(What Should be detected)\n";
+  std::cout << "Percent Truth Detected: [TRUE]\n";
+  std::cout << "\t(Total intersection divided by total true area)\n\tShould be close to 1\n";
+  std::cout << "False Positive over True Volume: [FALSE]\n";
+  std::cout << "\t(Total detected volume not contained in set of true obstacles)\n\t(Divided by total true volume)\n";
+  std::cout << "Mean % Truth: [TRUEPCT]\n";
+  std::cout << "Average volume of a truth detected\n";
+  std::cout << "Obstacle #[NUMBER] % detected: [PERCENT]\n";
+  std::cout << "Processed Clouds: " << iot.size() << "\n";
+
+  for (size_t i = 0; i < iot.size(); i++) // Loop through each cloud
+  {
+      std::cout << "\n–––––––––––––––––––––––\n–––––––––––––––––––––––\n\n";
+      std::cout << "Evaluating GPU Cloud #" << i << "\n";
+      std::cout << "GPU Obstacle Detection Runtime: " << times[i] << "\n";
+      std::cout << "Number of Detected Obstacles: " << num_det_obs[i] << "\n";
+      std::cout << "Number of True Obstacles: " << num_true_obs[i] << "\n";
+      std::cout << "Percent Truth Detected: " << iot[i] * 100 << "\n";
+      std::cout << "False Positive over True Volume: " << fot[i] << "\n";
+      std::cout << "Mean % Truth: " <<
+          std::accumulate(discrete_truths[i].begin(),
+              discrete_truths[i].end(),
+              static_cast<float>(0),
+              [&](const float& a, const float& b) {
+                  return a + b / discrete_truths[i].size();
+              }) * 100 << "\n";
+      for (size_t j = 0; j < discrete_truths[i].size(); ++j) {
+          std::cout << "Obstacle #" << j << " % detected: " << discrete_truths[i][j] * static_cast<float>(100) << "\n";
+      }
+  }
+}//End print()
 
 float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst) {
     /* Find coordinates of rect prism of intersection */

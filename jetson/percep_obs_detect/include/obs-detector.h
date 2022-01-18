@@ -12,7 +12,6 @@
 #include "common.hpp"
 #include <math.h>
 #include "voxel-grid.hpp"
-#include "TestStats.h"
 //#include <lcm/lcm-cpp.hpp>
 //#include "rover_msgs/Obstacle.hpp"
 #include "find-clear-path.hpp"
@@ -132,6 +131,23 @@ class ObsDetector {
        * \param eval_obst: experimental obstacle
        */
       float calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst);
+
+      /**
+       * \brief prints out the results of test()
+       * \param iot: intersection of true over total true vol
+       * \param fot: false positive vol over total true vol
+       * \param times: gpu obs detect runtimes
+       * \param num_true_obs: number of true obstacles
+       * \param num_det_obs: number of test obstacles
+       * \param discrete_truths: %-detected for each truth obs
+       *                        Basically iot but for each ground truth obs
+       */
+      void ObsDetector::test_print(const std::vector<float>& iot,
+                                   const std::vector<float>& fot,
+                                   const std::vector<float>& times,
+                                   const std::vector<int>& num_true_obs,
+                                   const std::vector<int>& num_det_obs,
+                                   const std::vector<std::vector<float>>& discrete_truths);
 
     private:
         //Lcm

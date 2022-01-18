@@ -22,14 +22,14 @@ link_directories(${OpenGL_LIBRARY_DIRS})
 add_executable (viewer src/viewer.cpp)
 set_target_properties(viewer PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(viewer 
-                        ${SPECIAL_OS_LIBS} 
+target_link_libraries(viewer
+                        ${SPECIAL_OS_LIBS}
                         ${OPENGL_LIBRARIES}
                         ${GLUT_LIBRARY}
                         ${GLEW_LIBRARIES})
 
 
-else() 
+else()
 SET(CMAKE_CUDA_COMPILER_ENV_VAR /usr/local/cuda/bin/nvcc)
 SET(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
 enable_language(CUDA)
@@ -65,7 +65,7 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/.mrover/build_env/bin/)
 endif()
 
 
-add_executable (jetson_percep_obs_detect src/filter.cu src/obs-detector.cu src/viewer.cpp src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/euclidean-cluster.cu src/pass-through.cu src/find-clear-path.cu src/TestStats.cpp)
+add_executable (jetson_percep_obs_detect src/filter.cu src/obs-detector.cu src/viewer.cpp src/common.cu src/voxel-grid.cu src/plane-ransac.cu src/euclidean-cluster.cu src/pass-through.cu src/find-clear-path.cu)
 target_link_libraries (jetson_percep_obs_detect ${ZED_LIBRARIES})
 target_link_libraries(jetson_percep_obs_detect
                         ${SPECIAL_OS_LIBS}
