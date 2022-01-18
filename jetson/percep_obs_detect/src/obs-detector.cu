@@ -185,10 +185,10 @@ void ObsDetector::update() {
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res); 
 
-        sl::Mat zedDepth(sl::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::F32_C1, sl::MEM::CPU);
+        sl::Mat zedDepth(sl::Resolution::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::F32_C1, sl::MEM::CPU);
         zed.retrieveMeasure(zedDepth, sl::MEASURE::DEPTH);
 
-        sl::Mat zedImage(sl::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::U8_C4, sl::MEM::CPU);
+        sl::Mat zedImage(sl::Resolution::getResolution(sl::RESOLUTION::VGA), sl::MAT_TYPE::U8_C4, sl::MEM::CPU);
         zed.retrieveImage(zedImage, sl::VIEW::LEFT);
 
         getRawCloud(pc, frame);
