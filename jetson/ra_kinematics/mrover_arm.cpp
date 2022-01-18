@@ -86,6 +86,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
             }                
         }
     }
+
     else {
         // For each joint
         for (size_t joint = 0; joint < 6; ++joint) {
