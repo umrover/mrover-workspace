@@ -272,8 +272,10 @@ void ObsDetector::test_input_file()
   //truths.push_back(objects);
 
   Bins b;
+  /*
   passZ->run(raw_data[0]); //The filter and RANSAC get rid of small scenes entirely
   ransacPlane->computeModel(raw_data[0]);
+  */
   b = voxelGrid->run(raw_data[0]);
   objects = ece->extractClusters(raw_data[0], b);
   truths.push_back(objects);
@@ -447,7 +449,7 @@ void ObsDetector::test_print(const std::vector<float>& iot,
                   return a + b / discrete_truths[i].size();
               }) * 100 << "\n";
       for (size_t j = 0; j < discrete_truths[i].size(); ++j) {
-          std::cout << "Obstacle #" << j << " % detected: " << discrete_truths[i][j] * static_cast<float>(100) << "\n";
+          std::cout << "Obstacle #" << j << "\t" << discrete_truths[i].size() << " % detected: " << discrete_truths[i][j] * static_cast<float>(100) << "\n";
       }
   }
 }//End print()
