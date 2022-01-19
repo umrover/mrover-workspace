@@ -170,23 +170,7 @@ void ObsDetector::drawCubes(EuclideanClusterExtractor::ObsReturn obsList, bool c
 void ObsDetector::spinViewer() {
     // This creates bounding boxes for visualization
     // There might be a clever automatic indexing scheme to optimize this
-    for (int i = 0; i < obstacles.obs.size(); i++) {
-        if (obstacles.obs[i].minX < obstacles.obs[i].maxX && obstacles.obs[i].minZ < obstacles.obs[i].maxZ) {
-            std::vector<vec3> points = { vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].minZ),
-                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].minZ),
-                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].minZ),
-                                        vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].minZ),
-                                        vec3(obstacles.obs[i].minX, obstacles.obs[i].minY, obstacles.obs[i].maxZ),
-                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].minY, obstacles.obs[i].maxZ),
-                                        vec3(obstacles.obs[i].maxX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ),
-                                        vec3(obstacles.obs[i].minX, obstacles.obs[i].maxY, obstacles.obs[i].maxZ), };
-            std::vector<vec3> colors;
-            for (int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f));
-            std::vector<int> indicies = { 0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5 };
-            Object3D obj(points, colors, indicies);
-            viewer.addObject(obj, true);
-        }
-    }
+    drawCubes(obstacles, 1); // 1 is green, 0 is red
 
     //----start TESTING: draw double bearing------------------------------------------------
       //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
@@ -330,6 +314,8 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
     /* Add time delay in viewer */
     drawCubes(measured[i],   1);
     drawCubes(truth_list[i], 0);
+    viewer.update();
+    viewer.clearEphemerals();
 
     /* ––––––––––––––––––––––––––––––––– */
 
