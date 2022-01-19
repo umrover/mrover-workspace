@@ -470,11 +470,15 @@ float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstac
 }
 
  ObsDetector::~ObsDetector() {
-     std::cout << "\nGGGGGGGGG\n";
+     std::cout << "\n1111111111\n";
      delete passZ;
+     std::cout << "\n2222222222\n";
      delete ransacPlane;
+     std::cout << "\n3333333333\n";
      delete voxelGrid;
+     std::cout << "\n4444444444\n";
      delete ece;
+     std::cout << "\n5555555555\n";
  }
 
 
