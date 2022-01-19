@@ -17,8 +17,8 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         if (error != sl::ERROR_CODE::SUCCESS) {
             throw std::runtime_error("Error opening ZED camera");
         }
-        auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
-        defParams = camera_config.calibration_parameters.left_cam;
+        //auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
+        //defParams = camera_config.calibration_parameters.left_cam;
     } else if (source == DataSource::FILESYSTEM) {
         std::string s = ROOT_DIR;
         s += "/data/";

@@ -21,7 +21,9 @@ if (VIEWER_ONLY)
     add_executable(viewer ${SOURCE_FILES})
     set_target_properties(viewer PROPERTIES LINKER_LANGUAGE CXX)
 
-    target_link_libraries(viewer ${CMAKE_DL_LIBS} ${SPECIAL_OS_LIBS} OpenGL::GL glfw GLEW::glew)
+    target_link_libraries(viewer ${CMAKE_DL_LIBS} ${SPECIAL_OS_LIBS} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY}
+    ${GLEW_LIBRARIES}
+    glfw)
 
 
 else ()
@@ -49,7 +51,11 @@ else ()
     file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "src/*.cpp" "src/*.cu")
     add_executable(jetson_percep_obs_detect ${SOURCE_FILES})
     link_directories(/snap/code/85/usr/lib/x86_64-linux-gnu)
-    target_link_libraries(jetson_percep_obs_detect ${CMAKE_DL_LIBS} ${SPECIAL_OS_LIBS} ${ZED_LIBRARIES} OpenGL::GL glfw GLEW::glew)
+    target_link_libraries(jetson_percep_obs_detect ${CMAKE_DL_LIBS} ${SPECIAL_OS_LIBS} ${ZED_LIBRARIES} ${OPENGL_LIBRARIES}
+    ${GLUT_LIBRARY}
+    ${GLEW_LIBRARIES}
+    glfw
+    )
     if (NO_JARVIS)
     else ()
         target_link_libraries(jetson_percep_obs_detect lcm)
