@@ -174,6 +174,8 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const Ve
     // add new_node to tree
     z_nearest->children.push_back(new_node);
 
+    std::cout << "extend() joint a: " << new_node->config[0] << "\n";
+
     return new_node;
 }
 
@@ -245,6 +247,12 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
                 }
 
                 spline_size = a_path.size();
+
+
+		std::cout << "before spline fitting:\n";
+		for (Vector6d a : a_path) {
+		    std::cout << "joint a: " << a[0] << "\n";
+		}
 
                 spline_fitting(a_path);
 
@@ -321,6 +329,11 @@ void MotionPlanner::spline_fitting(const std::vector<Vector6d> &path) {
     splines.resize(6);
     for (size_t i = 0; i < 6; ++i) {
         splines[i].set_points(x_, separate_paths[i]);
+    }
+
+    std::cout << "\nAfter motion planning joint a:\n";
+    for (double t = 0; t <= 1; t += 0.05) {
+	 std::cout << splines[0](t) << "\n";
     }
 }
 
