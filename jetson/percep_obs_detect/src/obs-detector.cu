@@ -456,15 +456,15 @@ float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstac
 }
 
  ObsDetector::~ObsDetector() {
-     std::cout << "\n1111111111\n";
+     std::cout << "\nDESTRUCTOR\n";
      delete passZ;
-     std::cout << "\n2222222222\n";
+     std::cout << "\npassZ delete\n";
      delete ransacPlane;
-     std::cout << "\n3333333333\n";
+     std::cout << "\nransac delete\n";
      delete voxelGrid;
-     std::cout << "\n4444444444\n";
+     std::cout << "\nvoxel delete\n";
      delete ece;
-     std::cout << "\n5555555555\n";
+     std::cout << "\nece delete\n";
  }
 
 
@@ -473,7 +473,7 @@ int main() {
     ObsDetector obs(DataSource::FILESYSTEM, OperationMode::TEST, ViewerType::GL);
 
 
-    std::cout << "\n\n\n\ZZZZZZZZZZZZZZZZZ\n";
+    std::cout << "\n\n\n\After constructor\n";
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
     //if testing, uncomment test_input_file() line and comment out the loop
