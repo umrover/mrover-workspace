@@ -142,7 +142,7 @@ class ObsDetector {
        * \param discrete_truths: %-detected for each truth obs
        *                        Basically iot but for each ground truth obs
        */
-      void ObsDetector::test_print(const std::vector<float>& iot,
+      void test_print(const std::vector<float>& iot,
                                    const std::vector<float>& fot,
                                    const std::vector<float>& times,
                                    const std::vector<int>& num_true_obs,
