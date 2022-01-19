@@ -432,6 +432,8 @@ void ObsDetector::test_print(const std::vector<float>& iot,
   std::cout << "Obstacle #[NUMBER] % detected: [PERCENT]\n";
   std::cout << "Processed Clouds: " << iot.size() << "\n";
 
+  std::cout << "AAAAAAA";
+
   for (size_t i = 0; i < iot.size(); i++) // Loop through each cloud
   {
       std::cout << "\n–––––––––––––––––––––––\n–––––––––––––––––––––––\n\n";
