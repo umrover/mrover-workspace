@@ -22,25 +22,22 @@ import {
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
 import { PERCEPTION, POST, ROVER } from '../../utils/constants';
 
-function randnBm(min, max, skew):number {
+function randnBm(min, max, skew) {
   let u = 0;
   let v = 0;
-  while (u === 0) u = Math.random();
-  while (v === 0) v = Math.random();
-  const factor = 2.0;
-  let num:number = Math.sqrt(-1 * factor * Math.log(u)) * Math.cos(factor * Math.PI * v);
-  const a = 10.0;
-  const b = 0.5;
-  num = (num / a) + b;
-  if (num > 1 || num < 0) {
-    num = randnBm(min, max, skew);
-  }
+  while(u === 0) u = Math.random()//Converting [0,1) to (0,1)
+  while(v === 0) v = Math.random()
+  let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v )
+
+  num = num / 10.0 + 0.5// Translate to 0 -> 1
+  if (num > 1 || num < 0)
+    num = randnBm(min, max, skew)// resample between 0 and 1 if out of range
   else {
-    num **= skew;
-    num *= max - min;
-    num += min;
+    num = Math.pow(num, skew)// Skew
+    num *= max - min// Stretch to fill range
+    num += min// offset to min
   }
-  return num;
+  return num
 }
 
 /* Class that performs target dectection calculations. */
@@ -205,21 +202,9 @@ export default class TargetDetector {
   /* If the center is in view, then at least half the target is so consider
      it visible. If beyond depth of view, consider it visible if two corners
      are visible. */
-  private isPostVisible(orgPost:ArTag, index:number):boolean {
-    const post = orgPost;
+  private isPostVisible(post:ArTag, index:number):boolean {
     const [dist, bear]:[number, number] = calcDistAndBear(this.zedOdom, post.odom);
     const relBear:number = calcRelativeBearing(this.zedOdom.bearing_deg, radToDeg(bear));
-
-    /* Special Case: guassian noise */
-    const num:number = randnBm(0, 1, 1);
-    const thres = 0.4;
-    if (num < thres || num > 1.0 - thres) {
-      post.isHidden = true;
-      return false;
-    }
-    else {
-      post.isHidden = false;
-    }
 
     /* Step 1: Check if post is blocked by other posts */
     /* Find edges of current post */
@@ -300,6 +285,10 @@ export default class TargetDetector {
 
     const intervalHeap:OpenIntervalHeap = new OpenIntervalHeap(postLeftEdge[1], postRightEdge[1],
                                                                closedIntervals);
+
+    /* Special Case: guassian noise */
+    let randNum = randnBm(0,1,1);
+    
 
     /* If less than 50% of tag unblocked, we can't see it */
     const openInterval:Interval|null = intervalHeap.getNextOpenInterval();

@@ -7,7 +7,6 @@ export interface ArTag {
   id:number;
   odom:Odom;
   orientation:number; /* degrees from north */
-  isHidden:boolean;
 }
 
 

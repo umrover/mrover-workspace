@@ -98,11 +98,13 @@ export default class CanvasArTags {
       this.ctx.translate(loc.x, loc.y);
       if (post.isHidden === true) {
         this.drawPost(String(i), post.id, 0, '#d2b48c');
-        console.log('Hidden!!! ID: ', post.id);
+
+        // console.log('Hidden!!! ID: ', post.id);
       }
       else {
         this.drawPost(String(i), post.id, 0, '#bffcc6');
-        console.log('NOT Hidden!!! ID: ', post.id);
+
+        // console.log('NOT Hidden!!! ID: ', post.id);
       }
       this.ctx.translate(-loc.x, -loc.y);
     });

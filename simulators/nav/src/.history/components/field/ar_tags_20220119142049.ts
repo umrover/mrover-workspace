@@ -96,14 +96,13 @@ export default class CanvasArTags {
     this.posts.forEach((post, i) => {
       const loc:Point2D = odomToCanvas(post.odom, this.canvasCent, canvas.height, this.scale);
       this.ctx.translate(loc.x, loc.y);
-      if (post.isHidden === true) {
-        this.drawPost(String(i), post.id, 0, '#d2b48c');
-        console.log('Hidden!!! ID: ', post.id);
+      if(post.isHidden) {
+
       }
       else {
-        this.drawPost(String(i), post.id, 0, '#bffcc6');
-        console.log('NOT Hidden!!! ID: ', post.id);
+
       }
+      this.drawPost(String(i), post.id, 0, '#bffcc6');
       this.ctx.translate(-loc.x, -loc.y);
     });
 
