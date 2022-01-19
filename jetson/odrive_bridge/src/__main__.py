@@ -62,8 +62,8 @@ def main():
 
         try:
             odrive_bridge.update()
-        except fibre.protocol.ChannelBrokenException:
-            print("odrive has been unplugged")
+        except Exception:
+            print("CRASH!")
             lock.acquire()
             odrive_bridge.on_event("disconnected odrive")
             lock.release()
@@ -85,7 +85,7 @@ def lcmThreaderMan():
             pass
         except AttributeError:
             pass
-        except fibre.protocol.ChannelBrokenException:
+        except Exception:
             pass
 
 
@@ -239,7 +239,7 @@ class OdriveBridge(object):
         # odrive 1 --> middle motors
         # odrive 2 --> back motors
 
-        odrives = ["205F3883304E", "2091358E524B", "2084399C4D4D"]
+        odrives = ["206E37635753", "2091358E524B", "2084399C4D4D"]
         id = odrives[legal_controller]
 
         print(id)
@@ -417,7 +417,6 @@ class Modrive:
         # also says to reboot here...
 
     def disarm(self):
-        self.set_current_lim(100)
         self.closed_loop_ctrl()
         self.set_velocity_ctrl()
 
@@ -467,9 +466,9 @@ class Modrive:
 
     def set_vel(self, axis, vel):
         if (axis == "LEFT"):
-            self.front_axis.controller.vel_setpoint = vel * 205
+            self.front_axis.controller.input_vel = vel * 50
         elif axis == "RIGHT":
-            self.back_axis.controller.vel_setpoint = vel * -205
+            self.back_axis.controller.input_vel = vel * -50
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
