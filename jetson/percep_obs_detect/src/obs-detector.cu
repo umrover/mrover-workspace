@@ -410,6 +410,7 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
   test_print(g_t, false_positive_vol, clock_times, true_count, obs_count, discrete_truth_pct);
 }
 
+
 void ObsDetector::test_print(const std::vector<float>& iot,
                              const std::vector<float>& fot,
                              const std::vector<float>& times,
@@ -469,6 +470,7 @@ float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstac
 }
 
  ObsDetector::~ObsDetector() {
+     std::cout << "\nGGGGGGGGG\n";
      delete passZ;
      delete ransacPlane;
      delete voxelGrid;
@@ -481,6 +483,7 @@ int main() {
     ObsDetector obs(DataSource::FILESYSTEM, OperationMode::TEST, ViewerType::GL);
 
 
+    std::cout << "\n\n\n\ZZZZZZZZZZZZZZZZZ\n";
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
     //if testing, uncomment test_input_file() line and comment out the loop
