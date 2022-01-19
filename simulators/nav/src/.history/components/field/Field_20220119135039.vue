@@ -335,8 +335,7 @@ export default class Field extends Vue {
         this.pushArTag({
           id: this.arTagDrawOptions.id,
           odom: clickOdom,
-          orientation: 0,
-          isHidden: false
+          orientation: 0
         });
         break;
       }

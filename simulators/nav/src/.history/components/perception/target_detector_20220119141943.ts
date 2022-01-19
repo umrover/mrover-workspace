@@ -22,25 +22,22 @@ import {
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
 import { PERCEPTION, POST, ROVER } from '../../utils/constants';
 
-function randnBm(min, max, skew):number {
+function randnBm(min, max, skew) {
   let u = 0;
   let v = 0;
-  while (u === 0) u = Math.random();
-  while (v === 0) v = Math.random();
-  const factor = 2.0;
-  let num:number = Math.sqrt(-1 * factor * Math.log(u)) * Math.cos(factor * Math.PI * v);
-  const a = 10.0;
-  const b = 0.5;
-  num = (num / a) + b;
-  if (num > 1 || num < 0) {
-    num = randnBm(min, max, skew);
-  }
+  while(u === 0) u = Math.random()//Converting [0,1) to (0,1)
+  while(v === 0) v = Math.random()
+  let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v )
+
+  num = num / 10.0 + 0.5// Translate to 0 -> 1
+  if (num > 1 || num < 0)
+    num = randnBm(min, max, skew)// resample between 0 and 1 if out of range
   else {
-    num **= skew;
-    num *= max - min;
-    num += min;
+    num = Math.pow(num, skew)// Skew
+    num *= max - min// Stretch to fill range
+    num += min// offset to min
   }
-  return num;
+  return num
 }
 
 /* Class that performs target dectection calculations. */
@@ -211,14 +208,14 @@ export default class TargetDetector {
     const relBear:number = calcRelativeBearing(this.zedOdom.bearing_deg, radToDeg(bear));
 
     /* Special Case: guassian noise */
-    const num:number = randnBm(0, 1, 1);
-    const thres = 0.4;
-    if (num < thres || num > 1.0 - thres) {
+    let num = randnBm(0,1,1);
+    if (num < 0.4 || num > 0.4) {
       post.isHidden = true;
       return false;
     }
     else {
       post.isHidden = false;
+      return true;
     }
 
     /* Step 1: Check if post is blocked by other posts */

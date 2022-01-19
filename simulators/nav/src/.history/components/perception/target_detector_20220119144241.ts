@@ -27,8 +27,7 @@ function randnBm(min, max, skew):number {
   let v = 0;
   while (u === 0) u = Math.random();
   while (v === 0) v = Math.random();
-  const factor = 2.0;
-  let num:number = Math.sqrt(-1 * factor * Math.log(u)) * Math.cos(factor * Math.PI * v);
+  let num:number = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
   const a = 10.0;
   const b = 0.5;
   num = (num / a) + b;
@@ -213,7 +212,7 @@ export default class TargetDetector {
     /* Special Case: guassian noise */
     const num:number = randnBm(0, 1, 1);
     const thres = 0.4;
-    if (num < thres || num > 1.0 - thres) {
+    if (num < thres || num > thres) {
       post.isHidden = true;
       return false;
     }

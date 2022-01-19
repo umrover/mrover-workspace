@@ -22,27 +22,6 @@ import {
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
 import { PERCEPTION, POST, ROVER } from '../../utils/constants';
 
-function randnBm(min, max, skew):number {
-  let u = 0;
-  let v = 0;
-  while (u === 0) u = Math.random();
-  while (v === 0) v = Math.random();
-  const factor = 2.0;
-  let num:number = Math.sqrt(-1 * factor * Math.log(u)) * Math.cos(factor * Math.PI * v);
-  const a = 10.0;
-  const b = 0.5;
-  num = (num / a) + b;
-  if (num > 1 || num < 0) {
-    num = randnBm(min, max, skew);
-  }
-  else {
-    num **= skew;
-    num *= max - min;
-    num += min;
-  }
-  return num;
-}
-
 /* Class that performs target dectection calculations. */
 export default class TargetDetector {
   /************************************************************************************************
@@ -185,8 +164,7 @@ export default class TargetDetector {
       this.posts.push({
         id: gate.rightId,
         odom: rightPostLoc,
-        orientation: gate.orientation + 90,
-        isHidden: false
+        orientation: gate.orientation + 90
       });
 
       const leftPostLoc:Odom = calcRelativeOdom(gate.odom,
@@ -196,8 +174,7 @@ export default class TargetDetector {
       this.posts.push({
         id: gate.leftId,
         odom: leftPostLoc,
-        orientation: gate.orientation + 90,
-        isHidden: false
+        orientation: gate.orientation + 90
       });
     });
   } /* getPosts() */
@@ -205,21 +182,9 @@ export default class TargetDetector {
   /* If the center is in view, then at least half the target is so consider
      it visible. If beyond depth of view, consider it visible if two corners
      are visible. */
-  private isPostVisible(orgPost:ArTag, index:number):boolean {
-    const post = orgPost;
+  private isPostVisible(post:ArTag, index:number):boolean {
     const [dist, bear]:[number, number] = calcDistAndBear(this.zedOdom, post.odom);
     const relBear:number = calcRelativeBearing(this.zedOdom.bearing_deg, radToDeg(bear));
-
-    /* Special Case: guassian noise */
-    const num:number = randnBm(0, 1, 1);
-    const thres = 0.4;
-    if (num < thres || num > 1.0 - thres) {
-      post.isHidden = true;
-      return false;
-    }
-    else {
-      post.isHidden = false;
-    }
 
     /* Step 1: Check if post is blocked by other posts */
     /* Find edges of current post */
