@@ -9,19 +9,18 @@ import numpy as np
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd, RepeaterDrop, SpectralData, NavStatus, ServoCmd
+from rover_msgs import ThermistorData, MosfetCmd, SpectralData, NavStatus, ServoCmd
 
 
 class ScienceBridge():
     def __init__(self):
         # UART.setup("UART4")  # Specific to beaglebone
         # maps NMEA msgs to their handler
-        # mosfet, ammonia, and repeater only send msgs
+        # mosfet and servo only send msgs
         self.NMEA_HANDLE_MAPPER = {
             "SPECTRAL": self.spectral_handler,
             "THERMISTOR": self.thermistor_handler,
             "TXT": self.txt_handler,
-            "REPEATER": self.repeater_handler
         }
 
         self.max_error_count = 20
@@ -106,7 +105,7 @@ class ScienceBridge():
         translated_device = struct.device
         # Translate individual pins to their respective nucleo pin
         # According to https://docs.google.com/spreadsheets/d/1x291oHOigmm7G-pxjsBUFsEbyl81ZurAz7vuSyXmgXo/edit#gid=0
-        
+
         # Laser and UV LED share pins 1 and 2
         # const int8_t rLed = 0;
         # const int8_t gLed = 1;
@@ -140,17 +139,6 @@ class ScienceBridge():
             self.ser.write(bytes(message, encoding='utf8'))
         print("Mosfet Received")
         pass
-
-    def rr_drop(self, channel, msg):
-        print("Received rr_drop req")
-        # Struct is expected to be empty so no need for decoding
-        message = "$Mosfet,{device},{enable},11111111"
-        # This is always an enable
-        # Should be tied to SA UV = 4
-        # Always a single digit so no need to check for double
-        message = message.format(device=4, enable=1)
-        self.ser.write(bytes(message, encoding='utf8'))
-        # Publish to drop complete after sending the message.
 
     def nav_status(self, channel, msg):
         print("Received nav req")
@@ -198,8 +186,8 @@ class ScienceBridge():
         struct = ServoCmd.decode(msg)
         print("Received Servo Cmd")
         # parse data into expected format
-        message = "$Servo,{angle},{ID},"
-        message = message.format(angle=struct.position, ID=struct.id)
+        message = "$Servo,{angle0},{angle1},{angle2}"
+        message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
         print(len(message))
         """while(len(message) < 20):
             message += ","
@@ -209,10 +197,9 @@ class ScienceBridge():
         if self.ser.isOpen():
             self.ser.write(bytes(message, encoding='utf-8'))
 
-    async def recieve(self, lcm):
+    async def receive(self, lcm):
         spectral = SpectralData()
         thermistor = ThermistorData()
-        rr_drop = RepeaterDrop()
         # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
                      for tag in self.NMEA_HANDLE_MAPPER.keys()}
@@ -246,9 +233,6 @@ class ScienceBridge():
                             if(tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
                                 lcm.publish('/thermistor_data', thermistor.encode())
-                            if(tag == "REPEATER"):
-                                # Empty message so no handler required.
-                                lcm.publish('/rr_drop_complete', rr_drop.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
@@ -267,11 +251,10 @@ def main():
     with ScienceBridge() as bridge:
         _lcm = aiolcm.AsyncLCM()
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        _lcm.subscribe("/rr_drop_init", bridge.rr_drop)
         _lcm.subscribe("/nav_status", bridge.nav_status)
         _lcm.subscribe("/servo_cmd", bridge.servo_transmit)
         print("properly started")
-        run_coroutines(_lcm.loop(), bridge.recieve(_lcm))
+        run_coroutines(_lcm.loop(), bridge.receive(_lcm))
 
 
 if __name__ == "__main__":
