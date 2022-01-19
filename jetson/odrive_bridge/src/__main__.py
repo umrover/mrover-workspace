@@ -469,7 +469,7 @@ class Modrive:
             # TEMPORARY FIX FOR ROLLING ROVER SINCE
             # middle left odrive IS 2x more than the rest bc of the 48V maxon
             # TODO - fix when this is no longer the case! 
-            if (legal_controller == 2):
+            if (legal_controller == 1):
                 self.front_axis.controller.input_vel = vel * 100
             else:
                 self.front_axis.controller.input_vel = vel * 50
