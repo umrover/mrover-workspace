@@ -8,7 +8,7 @@ using namespace std::chrono;
 #include <vector>
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType)
-        : source(source), mode(mode), viewerType(viewerType), record(false) {
+        : source(source), mode(mode), viewerType(viewerType) {
     setupParamaters("");
 
     //Init data stream from source
@@ -35,6 +35,8 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         viewer.addPointCloud();
     }
 
+    frameCounter = 0;
+
 };
 
 //TODO: Make it read params from a file
@@ -47,6 +49,9 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     init_params.coordinate_units = sl::UNIT::MILLIMETER;
     init_params.camera_resolution = sl::RESOLUTION::VGA;
     init_params.camera_fps = 100;
+
+    // Set writer params
+    frameGap = 10;
 
     //Set the viewer paramas
     defParams.fx = 79.8502;
@@ -67,12 +72,19 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 
 void ObsDetector::update() {
     GPU_Cloud pc;
-
     if (source == DataSource::ZED) {
         sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res);
         getRawCloud(pc, frame);
+        if (viewer.record) {
+            if ((frameCounter % frameGap) == 0) {
+                std::stringstream ss;
+                ss << ROOT_DIR << "/data2/pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
+                fileWriter.writeCloud(ss.str(), pc, cloud_res.width, cloud_res.height);
+            }
+            ++frameCounter;
+        }
     } else if (source == DataSource::FILESYSTEM) {
         pc = fileReader.getCloudGPU(viewer.frame);
         viewer.maxFrame = fileReader.size();
@@ -169,8 +181,6 @@ void ObsDetector::update(GPU_Cloud pc) {
     if (viewer.procStage > ProcStage::POSTBOUNDING) {
         createBearing();
     }
-
-    if (record) record = true;
 
     if (viewer.framePlay) {
         viewer.frame++;

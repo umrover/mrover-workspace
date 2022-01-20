@@ -125,7 +125,7 @@ __global__ void getOptimalModelPoints(GPU_Cloud pc, Plane& selection, int optima
         selection.ComputeNormal();
 
 #ifdef DEBUG
-        printf("Winner model inlier count: %d \n", *maxInliersCount);
+//        printf("Winner model inlier count: %d \n", *maxInliersCount);
 #endif
     }
 }
