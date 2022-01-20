@@ -465,6 +465,7 @@ class Modrive:
         self.front_axis.requested_state = state
 
     def set_vel(self, axis, vel):
+        global legal_controller
         if (axis == "LEFT"):
             # TEMPORARY FIX FOR ROLLING ROVER SINCE
             # middle left odrive IS 2x more than the rest bc of the 48V maxon
