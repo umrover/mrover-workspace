@@ -3,9 +3,7 @@
 #include "arm_state.hpp"
 #include <cmath>
 #include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
-#include <math.h>
 #include <vector>
 #include <iomanip>
 
@@ -250,7 +248,7 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
     // Compute angular distance to target (using each euler angle)
     double angle_dist = 0;
     for (size_t i = 0; i < 3; ++i) {
-        double abs_angle_dist = abs(ef_ang_world[i] - target_ang_world[i]);
+        double abs_angle_dist = std::abs(ef_ang_world[i] - target_ang_world[i]);
         angle_dist += pow(std::min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
     }
 
@@ -287,7 +285,7 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
             for (size_t i = 3; i < 6; ++i) {
 
                 // If not crossing the 2pi --> 0 line
-                if (abs(target_point[i] - ef_ang_world[i - 3]) <= M_PI) {
+                if (std::abs(target_point[i] - ef_ang_world[i - 3]) <= M_PI) {
                     d_ef[i] = k_angle_step * (target_point[i] - ef_ang_world[i - 3]);
                 }
                 else {
@@ -325,12 +323,12 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
 
         angle_dist = 0;
         for (size_t i = 0; i < 3; ++i) {
-            double abs_angle_dist = abs(ef_ang_world[i] - target_ang_world[i]);
+            double abs_angle_dist = std::abs(ef_ang_world[i] - target_ang_world[i]);
             angle_dist += pow(std::min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
         }
 
         // If only a very small change has been made (change in angles approximated by change in distance)
-        if (abs(dist - dist_original) < EPSILON_DIST && abs(angle_dist - angle_dist_original) < EPSILON_ANGLE_DIST) {
+        if (std::abs(dist - dist_original) < EPSILON_DIST && std::abs(angle_dist - angle_dist_original) < EPSILON_ANGLE_DIST) {
             ++num_iterations_low_movement;
         }
         else {

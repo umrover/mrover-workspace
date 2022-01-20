@@ -39,7 +39,7 @@ NOTE: For more testing points, see valid_configurations_2.csv located towards th
 bool transMatAlmostEqual(Matrix4d a, Matrix4d b, double epsilon) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            if (abs(a(i, j) - b(i, j)) > epsilon) {
+            if (std::abs(a(i, j) - b(i, j)) > epsilon) {
                 return false;
             }
         }
@@ -49,7 +49,7 @@ bool transMatAlmostEqual(Matrix4d a, Matrix4d b, double epsilon) {
 
 bool vec3dAlmostEqual(Vector3d a, Vector3d b, double epsilon) {
     for (int i = 0; i < 3; ++i) {
-        if (abs(a(i)-b(i)) > epsilon) {
+        if (std::abs(a(i)-b(i)) > epsilon) {
             return false;
         }
     }

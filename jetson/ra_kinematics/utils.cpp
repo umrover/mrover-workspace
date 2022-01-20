@@ -101,8 +101,8 @@ double closest_dist_bet_lines(const Vector3d &a0, const Vector3d &a1, const Vect
         }
     }
     // finally do the division to get sc and tc
-    sc = (abs(sN) < SMALL_NUM ? 0.0 : sN / sD);
-    tc = (abs(tN) < SMALL_NUM ? 0.0 : tN / tD);
+    sc = (std::abs(sN) < SMALL_NUM ? 0.0 : sN / sD);
+    tc = (std::abs(tN) < SMALL_NUM ? 0.0 : tN / tD);
 
     // get the difference of the two closest points
     Vector3d dP = w + (sc * u) - (tc * v);  // =  S1(sc) - S2(tc)

@@ -3,6 +3,7 @@
 #include <random>
 #include <queue>
 #include <time.h>
+#include <cmath>
 
 
 MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in) :
@@ -75,7 +76,7 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, const Vector6d &end) {
     // check for any steps that are outside acceptable range
     bool step_too_big = false;
     for (size_t i = 0; i < step_limits.size(); ++i) {
-        if (step_limits[i] - abs(vec(i)) < 0) {
+        if (step_limits[i] - std::abs(vec(i)) < 0) {
             step_too_big = true;
             break;
         }
@@ -96,7 +97,7 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, const Vector6d &end) {
 
         // if the difference (from start to end) in angles at joint i is not 0
         if (vec[i] != 0) {
-            t = step_limits[i] / abs(vec[i]);
+            t = step_limits[i] / std::abs(vec[i]);
         }
 
         if (t < min_t) {
@@ -174,8 +175,6 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const Ve
     // add new_node to tree
     z_nearest->children.push_back(new_node);
 
-    std::cout << "extend() joint a: " << new_node->config[0] << "\n";
-
     return new_node;
 }
 
@@ -247,12 +246,6 @@ bool MotionPlanner::rrt_connect(ArmState &robot, const Vector6d &target_angles) 
                 }
 
                 spline_size = a_path.size();
-
-
-		std::cout << "before spline fitting:\n";
-		for (Vector6d a : a_path) {
-		    std::cout << "joint a: " << a[0] << "\n";
-		}
 
                 spline_fitting(a_path);
 
@@ -333,7 +326,7 @@ void MotionPlanner::spline_fitting(const std::vector<Vector6d> &path) {
 
     std::cout << "\nAfter motion planning joint a:\n";
     for (double t = 0; t <= 1; t += 0.05) {
-	 std::cout << splines[0](t) << "\n";
+	    std::cout << splines[0](t) << "\n";
     }
 }
 

@@ -7,7 +7,7 @@
 #include <chrono>
 #include <thread>
 #include <limits>
-#include <math.h>
+#include <cmath>
 
 using namespace Eigen;
 using nlohmann::json;
@@ -71,7 +71,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
             
             // For each previous angle we have to compare to
             for (size_t i = 0; i < prev_angles[joint].size(); ++i) {
-                double diff = abs(angles[joint] - prev_angles[joint][i]);
+                double diff = std::abs(angles[joint] - prev_angles[joint][i]);
 
                 if (diff > ENCODER_ERROR_THRESHOLD * (i + 1)) {
                     faulty_encoders[joint] = true;
@@ -95,7 +95,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
             
             // For each previous angle we have to compare to
             for (size_t i = 0; i < MAX_NUM_PREV_ANGLES; ++i) {
-                double diff = abs(angles[joint] - prev_angles[joint][i]);
+                double diff = std::abs(angles[joint] - prev_angles[joint][i]);
 
                 if (diff > ENCODER_ERROR_THRESHOLD * (i + 1)) {
                     ++num_fishy_vals;
@@ -279,7 +279,7 @@ void MRoverArm::execute_spline() {
                 for (int i = 0; i < 5; ++i) {
                     double max_speed = state.get_joint_max_speed(i);
                     //in ms, time needed to move D_SPLINE_T (%)
-                    double joint_time = abs(final_angles[i] - init_angles[i]) 
+                    double joint_time = std::abs(final_angles[i] - init_angles[i])
                         / (max_speed / 1000.0); 
                     //sets max_time to greater value
                     max_time = max_time < joint_time ? joint_time : max_time;
@@ -522,7 +522,7 @@ void MRoverArm::check_dud_encoder(std::vector<double> &angles) const {
     // size_t num_faulty = 0;
     for (size_t i = 0; i < angles.size(); ++i) {
         for (size_t j = 0; j < DUD_ENCODER_VALUES.size(); ++j) {
-             if (abs(angles[i] - DUD_ENCODER_VALUES[j]) < DUD_ENCODER_EPSILON) {
+             if (std::abs(angles[i] - DUD_ENCODER_VALUES[j]) < DUD_ENCODER_EPSILON) {
                 angles[i] = state.get_joint_angle(i);
             }
         }
@@ -532,10 +532,10 @@ void MRoverArm::check_dud_encoder(std::vector<double> &angles) const {
 void MRoverArm::check_joint_limits(std::vector<double> &angles) {
     for (size_t i = 0; i < angles.size(); ++i) {
         std::vector<double> limits = state.get_joint_limits(i);
-        if (angles[i] < limits[0] && abs(angles[i] - limits[0]) < ACCEPTABLE_BEYOND_LIMIT) {
+        if (angles[i] < limits[0] && std::abs(angles[i] - limits[0]) < ACCEPTABLE_BEYOND_LIMIT) {
             angles[i] = limits[0];
         }
-        else if (angles[i] > limits[1] && abs(angles[i] - limits[1]) < ACCEPTABLE_BEYOND_LIMIT) {
+        else if (angles[i] > limits[1] && std::abs(angles[i] - limits[1]) < ACCEPTABLE_BEYOND_LIMIT) {
             angles[i] = limits[1];
         }
         else if (angles[i] < limits[0] || angles[i] > limits[1]) {
@@ -546,7 +546,7 @@ void MRoverArm::check_joint_limits(std::vector<double> &angles) {
 }
 
 double MRoverArm::joint_b_stabilizer(double angle) {
-    if (isnan(prev_angle_b)) {
+    if (std::isnan(prev_angle_b)) {
         prev_angle_b = angle;
         return angle;
     }
