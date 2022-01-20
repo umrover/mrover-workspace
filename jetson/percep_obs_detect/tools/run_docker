@@ -1,0 +1,3 @@
+xhost local:root
+docker run -it --env="DISPLAY" --volume=/home/ashwin/Documents/:/mnt/ --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --gpus all -e NVIDIA_DRIVER_CAPABILITIES=all --privileged 66bd42494e57 /bin/bash
+#--env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" 
