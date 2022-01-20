@@ -268,6 +268,12 @@ void ObsDetector::test_input_file()
 }
 
 
+std::chrono::time_point<std::chrono::steady_clock> test_awake()
+{
+    //delays the viewer being cleared for testing
+    return std::chrono::steady_clock::now() + std::chrono::seconds(5);
+}
+
 void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list)
 {
   std::vector<EuclideanClusterExtractor::ObsReturn> measured; // Raw data put through obs detector
@@ -315,6 +321,7 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
     drawCubes(measured[i],   1);
     drawCubes(truth_list[i], 0);
     viewer.update();
+    std::this_thread::sleep_until(test_awake());
     viewer.clearEphemerals();
 
     /* ––––––––––––––––––––––––––––––––– */

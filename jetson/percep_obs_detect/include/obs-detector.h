@@ -136,6 +136,12 @@ class ObsDetector {
       float calculateIntersection(const EuclideanClusterExtractor::Obstacle& truth_obst, const EuclideanClusterExtractor::Obstacle& eval_obst);
 
       /**
+       * \brief Delay function for viewer in test
+       *    displays scene until this function calls
+       */
+      std::chrono::time_point<std::chrono::steady_clock> test_awake();
+
+      /**
        * \brief prints out the results of test()
        * \param iot: intersection of true over total true vol
        * \param fot: false positive vol over total true vol
