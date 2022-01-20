@@ -398,7 +398,11 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
       }
     }
       /* return total false positive volume for current obsreturn */
-      false_positive_vol.push_back(std::max((volsum - temp_intersection)/truth_volumes[x], 0f));
+      float f_p_v = (volsum - temp_intersection)/truth_volumes[x];
+      if(f_p_v > 0)
+        false_positive_vol.push_back(f_p_v);
+      else
+        false_positive_vol.push_back(0);
   }
 
   test_print(g_t, false_positive_vol, clock_times, true_count, obs_count, discrete_truth_pct);
