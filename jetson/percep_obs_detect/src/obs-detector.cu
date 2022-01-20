@@ -268,10 +268,10 @@ void ObsDetector::test_input_file()
 }
 
 
-std::chrono::time_point<std::chrono::steady_clock> ObsDetector::test_awake()
+std::chrono::time_point<std::chrono::steady_clock> ObsDetector::test_awake(int secs)
 {
     //delays the viewer being cleared for testing
-    return std::chrono::steady_clock::now() + std::chrono::seconds(5);
+    return std::chrono::steady_clock::now() + std::chrono::seconds(secs);
 }
 
 
@@ -322,7 +322,7 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
     drawCubes(measured[i],   1);
     drawCubes(truth_list[i], 0);
     viewer.update();
-    std::this_thread::sleep_until(test_awake());
+    std::this_thread::sleep_until(test_awake(5));
     viewer.clearEphemerals();
 
     /* ––––––––––––––––––––––––––––––––– */
@@ -444,9 +444,8 @@ void ObsDetector::test_print(const std::vector<float>& iot,
                   return a + b / discrete_truths[i].size();
               }) * 100 << "\n";
       for (size_t j = 0; j < discrete_truths[i].size(); ++j) {
-          std::cout << "Obstacle #" << j << "\t" << discrete_truths[i].size() << " % detected: " << discrete_truths[i][j] * static_cast<float>(100) << "\n";
+          std::cout << "Obstacle #" << j << "\t% detected: " << discrete_truths[i][j] * static_cast<float>(100) << "\n";
       }
-      std::cout << "AAAAAAAAAAAA" << std::endl;
   }
 }//End print()
 
@@ -464,15 +463,10 @@ float ObsDetector::calculateIntersection(const EuclideanClusterExtractor::Obstac
 }
 
  ObsDetector::~ObsDetector() {
-     std::cout << "\nDESTRUCTOR\n";
      delete passZ;
-     std::cout << "\npassZ delete\n";
      delete ransacPlane;
-     std::cout << "\nransac delete\n";
      delete voxelGrid;
-     std::cout << "\nvoxel delete\n";
      delete ece;
-     std::cout << "\nece delete\n";
  }
 
 

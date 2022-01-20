@@ -138,8 +138,9 @@ class ObsDetector {
       /**
        * \brief Delay function for viewer in test
        *    displays scene until this function calls
+       * \param secs: delay for viewer (in seconds)
        */
-      std::chrono::time_point<std::chrono::steady_clock> test_awake();
+      std::chrono::time_point<std::chrono::steady_clock> test_awake(int secs);
 
       /**
        * \brief prints out the results of test()
