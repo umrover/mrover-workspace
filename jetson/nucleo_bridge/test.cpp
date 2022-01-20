@@ -33,7 +33,7 @@ using namespace std;
 // reductions per motor 
 float cpr[6] = { -28800.0, 1.0, 155040.0, -81600.0, -81600.0, -9072.0 };
 
-int invert[6] = {1, -1, -1, -1, -1, 1};
+int invert[6] = {1, 1, 1, 1, 1, 1};
 
 int num_tests_ran = 0;
 
@@ -366,9 +366,17 @@ void testClosed()
     for (auto address : i2c_address)
     {
         int joint = (address & 0b1) + (((address >> 4) - 1) * 2); 
+        float p = 0.001; 
+        float i  = 0.0005;
+        float d = 0; 
 
-        setKPID(address, 0.001 * invert[joint], 0.0005 * invert[joint], 0 * invert[joint]);
-        printf("joint %i, kp %f, ki, %f \n", joint, 0.001 * invert[joint], 0.0005 * invert[joint] );
+        if (joint == 1)
+        {
+            p = 1.0;
+        }
+
+        setKPID(address, p * invert[joint], i * invert[joint], d * invert[joint]);
+        printf("joint %i, kp %f, ki, %f \n", joint, p * invert[joint], i * invert[joint] );
         sleep(10);
     }
     while (1)
@@ -382,7 +390,7 @@ void testClosed()
             if (joint == 1)
             {
                 angle = absEnc(address);
-                target = angle - 0.25;
+                target = angle - 0.15;
             }
 
             do 
@@ -390,7 +398,7 @@ void testClosed()
                 angle = closedPlus(address, target);
                 sleep(20);
             }
-            while( abs(angle - target) > 0.01);
+            while( joint != 1? abs(angle - target) > 0.01 : abs(angle - target) > 0.05);
 	        printf("arrived at position 1\n");
 	        sleep(1000);
 
@@ -400,14 +408,14 @@ void testClosed()
             if (joint == 1)
             {
                 angle = absEnc(address);
-                target = angle + 0.25;
+                target = angle + 0.15;
             }
             do 
             {
                 angle = closedPlus(address, target);
                 sleep(20);
             }
-            while( abs(angle - target) > 0.01);
+            while( joint != 1 ? abs(angle - target) > 0.01 : abs(angle - target) > 0.05 );
 	        printf("arrived at position 2\n");
 	        sleep(1000);
 
@@ -422,7 +430,7 @@ void testClosed()
                 angle = closedPlus(address, target);
                 sleep(20);
             }
-            while( abs(angle - target) > 0.01);
+            while( joint != 1 ? abs(angle - target) > 0.01 : abs(angle - target) > 0.05 );
 	        printf("arrived at position 3\n");
 	        sleep(1000);
 
@@ -437,7 +445,7 @@ void testClosed()
                 angle = closedPlus(address, target);
                 sleep(20);
             }
-            while( abs(angle - target) > 0.01);
+            while( joint != 1 ? abs(angle - target) > 0.01 : abs(angle - target) > 0.05 );
 	        printf("arrived at position 4\n");
 	        sleep(1000);
         }
@@ -651,9 +659,9 @@ int main()
     // openPlus(get_addr(1, 1), 0.0);
     while (1)
     {
-       // testClosed();
+        testClosed();
 	    //testQuadEnc();
-        testOpenPlusWithAbs();
+        //testOpenPlusWithAbs();
         //testOpenPlus();
         // printf("sleeping \n");
         // //sleep(1000);
