@@ -268,11 +268,12 @@ void ObsDetector::test_input_file()
 }
 
 
-std::chrono::time_point<std::chrono::steady_clock> test_awake()
+std::chrono::time_point<std::chrono::steady_clock> ObsDetector::test_awake()
 {
     //delays the viewer being cleared for testing
     return std::chrono::steady_clock::now() + std::chrono::seconds(5);
 }
+
 
 void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanClusterExtractor::ObsReturn>& truth_list)
 {
