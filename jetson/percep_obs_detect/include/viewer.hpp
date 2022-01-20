@@ -1,14 +1,16 @@
-#include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <vector>
-#include <numeric>
-#include <glm/mat4x4.hpp> 
 #include <mutex>
-#include "reader.h"
 #include <utility>
+#include <numeric>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm/mat4x4.hpp>
+#include "reader.h"
 
 #ifndef VIEWER_ONLY
+
 #include "common.hpp"
+
 #endif
 
 // change this to cuda floatX types
@@ -20,6 +22,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
+
 #include <glm/gtx/rotate_vector.hpp>
 
 typedef glm::vec3 vec3;
@@ -30,111 +33,123 @@ typedef glm::vec4 vec4;
 
 // Point Cloud Graphics Object
 class PointCloud {
-    public:
-        PointCloud();
-        ~PointCloud();
+public:
+    PointCloud();
 
-        void update(std::vector<vec4> &pts);
-        void update(vec4* pts, int size);
+    ~PointCloud();
 
-        void draw();
-        // control p/r/y with mouse??
-        void setRotation(float pitch, float roll, float yaw);
+    PointCloud(PointCloud&& other) noexcept;
 
-    private:
-        int size;
-        GLuint vaoID;
-        GLuint pointsGPU;
+    PointCloud& operator=(PointCloud other);
+
+    void swap(PointCloud& other);
+
+    void update(std::vector<vec4>& pts);
+
+    void update(vec4* pts, int size);
+
+    void draw();
+
+    // control p/r/y with mouse??
+//    void setRotation(float pitch, float roll, float yaw);
+
+private:
+    GLsizei size{};
+    GLuint vaoId{};
+    GLuint pointsGPU{};
 };
 
 // 3D Object
 class Object3D {
-    public:
-        Object3D();
-        Object3D(std::vector<vec3> &pts, std::vector<vec3> &colors, std::vector<int> &idcs);
-        ~Object3D();
+public:
+    Object3D();
 
-        // Change the underlying model 
-        void update(std::vector<vec3> &pts, std::vector<vec3> &colors, std::vector<int> &idcs);
-        void draw();
+    Object3D(std::vector<vec3>& points, std::vector<vec3>& colors, std::vector<int>& indices);
 
-        // Allow rotation and translation of the underlying model
-        void setTranslation(float x, float y, float z);
-        void setRotation(float pitch, float roll, float yaw);
+    ~Object3D();
 
-        glm::mat4 getModelMat();
+    Object3D(Object3D&& other) noexcept;
 
-        bool wireframe = true;
-    
-    private:
-        // Model
-        std::vector<vec3> points;
-        std::vector<vec3> colors;
-        std::vector<int> indicies;
-        float alpha; // add support for this later as a uniform
+    Object3D& operator=(Object3D other);
 
-        // State variables
-        glm::mat4 translation;
-        glm::mat4 rotation;
+    void swap(Object3D& other);
 
-        // GPU representation 
-        // https://gamedev.stackexchange.com/questions/8042/whats-the-purpose-of-opengls-vertex-array-objects
-        GLuint vaoID;
-        GLuint pointsGPU;
-        GLuint colorsGPU;
-        GLuint indiciesGPU;
+    // Change the underlying model
+    void update(std::vector<vec3>& points, std::vector<vec3>& colors, std::vector<int>& indices);
+
+    void draw() const;
+
+    // Allow rotation and translation of the underlying model
+//    void setTranslation(float x, float y, float z);
+//    void setRotation(float pitch, float roll, float yaw);
+//    glm::mat4 getModelMat();
+
+    bool wireframe = true;
+
+private:
+    // State variables
+//    glm::mat4 translation;
+//    glm::mat4 rotation;
+
+    // GPU representation
+    // https://gamedev.stackexchange.com/questions/8042/whats-the-purpose-of-opengls-vertex-array-objects
+
+    GLsizei size{};
+    GLuint vaoID{};
+    GLuint pointsGPU{};
+    GLuint colorsGPU{};
+    GLuint indicesGPU{};
 };
 
-// Defines the view 
-class FirstPersonCamera {}; // TODO
+class Camera {
+public:
+    explicit Camera(glm::mat4 projection) : projection(projection) {
+    }
 
-class PointLockedCamera{
-    public:
-    PointLockedCamera(glm::mat4 projection)
-                : projection(projection) {
-            setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
-            view = glm::lookAt(eye, target, up);
-        };
+    void setCenter(glm::vec3 inCenter) {
+        center = inCenter;
+    }
 
-        void rotateY(int deltaX) {
-            up = glm::rotate(up, 0.003f * deltaX, glm::vec3(0.0f, 1.0f, 0.0f));
-            eye = glm::rotate(eye - target, 0.003f * deltaX, glm::vec3(0.0f, 1.0f, 0.0f)) + target;
-            view = glm::lookAt(eye, target, up);
-        }
+    void rotateY(float deltaY) {
+        eulerOrientation.y += deltaY;
+        eulerOrientation.y = glm::mod(eulerOrientation.y, glm::radians(360.0f));
+    }
 
-        void rotateX(int deltaY) {
-            up = glm::rotate(up, 0.003f * deltaY, glm::cross(eye - target, up));
-            eye = glm::rotate(eye - target, 0.003f * deltaY, glm::cross(eye - target, up)) + target;
-            view = glm::lookAt(eye, target, up);
-        }
+    void rotateX(float deltaX) {
+        eulerOrientation.x += deltaX;
+        float limit = glm::radians(80.0f);
+        if (eulerOrientation.x < -limit) eulerOrientation.x = -limit;
+        if (eulerOrientation.x > +limit) eulerOrientation.x = +limit;
+    }
 
-        void scaleEye(float s) {
-            float oldScale = scale;
-            scale = max(0.0f, scale + s);
-            float zoomMultiplier = scale - oldScale + 1;
-            if (glm::length(eye - target) >= 1000.0f || zoomMultiplier > 1) {
-                eye = (eye - target) * zoomMultiplier + target;
-            }
-            view = glm::lookAt(eye, target, up);
-        }
+    void zoom(float scale) {
+        distance += scale;
+        distance = std::max(distance, 1.0f);
+    }
 
-        void setTarget(glm::vec3 targetIn) {
-            target = targetIn;
-            up = glm::vec3(0.0f, -1.0f, 0.0f);
-            scale = 1.0f;
-            eye = glm::vec3(target.x, target.y, target.z - 4000.0f);
-            cout << "Viewer target set to (" << target.x << ", " << target.y << ", " << target.z << ")\n";
-            view = glm::lookAt(eye, target, up);
-        }
+    glm::quat getRotation() const {
+        return glm::angleAxis(eulerOrientation.x, glm::vec3{1.0f, 0.0f, 0.0f}) *
+               glm::angleAxis(eulerOrientation.y, glm::vec3{0.0f, 1.0f, 0.0f});
+    }
 
-        glm::mat4 view;
-        glm::mat4 projection;
+    void move(glm::vec3 displacement) {
+        offset += displacement * getRotation();
+    }
 
-    private:
-        glm::vec3 target, eye, up;
-        float scale;
+    glm::mat4 getView() {
+        // rotate around y-axis then x-axis (order is reversed since it's essentially matrix multiplication)
+        glm::quat rotation = getRotation();
+        glm::vec3 target = center - offset;
+        glm::vec3 eye = target + glm::vec3{0.0f, 0.0f, distance} * rotation;
+        glm::vec3 up{0.0f, -1.0f, 0.0f}; // TODO: check logic on why inverted
+        return glm::lookAt(eye, target, up);
+    }
+
+    glm::mat4 projection;
+    float distance{5000.0f};
+    glm::vec3 center{}, offset{};
+    glm::vec3 eulerOrientation{};
 };
-
 
 // Vertex and Frag shader, stole this straight from ZED example 
 // but this is basically the same in every OpenGL program so 
@@ -142,77 +157,122 @@ class PointLockedCamera{
 class Shader {
 public:
 
-    Shader() {}
-    Shader(GLchar* vs, GLchar* fs);
+    Shader() = default;
+
+    Shader(GLchar const* vs, GLchar const* fs);
+
+    Shader(Shader&& other) noexcept;
+
     ~Shader();
+
+    Shader& operator=(Shader other);
+
+    void swap(Shader& other);
+
     GLuint getProgramId();
 
     static const GLint ATTRIB_VERTICES_POS = 0;
     static const GLint ATTRIB_COLOR_POS = 1;
 private:
-    bool compile(GLuint &shaderId, GLenum type, GLchar* src);
-    GLuint verterxId_;
-    GLuint fragmentId_;
-    GLuint programId_;
+    bool compile(GLuint& shaderId, GLenum type, GLchar const* src);
+
+    GLuint vertexShaderId{};
+    GLuint fragmentShaderId{};
+    GLuint programShaderId{};
+};
+
+/*
+ *** Define which stage of the filtering process will be shown in the viewer
+ */
+enum class ProcStage {
+    RAW, POSTPASS, POSTRANSAC, POSTECE, POSTBOUNDING, POSTBEARING
 };
 
 class Viewer {
-    public:
-        // Creates a window
-        Viewer();
+public:
+    int frame = 0;
+    int maxFrame = 0;
+    bool framePlay = false;
+    bool inMenu = false;
+    bool record = false;
+    ProcStage procStage = ProcStage::POSTBEARING;
 
-        void init(int argc, char **argv);
+    // Creates a window
+    Viewer();
 
-        // Updates the window and draws graphics (graphics thread)
-        void update();
+    ~Viewer();
 
-        // Add an object, either ephemeral or permanent 
-        void addObject(Object3D &obj, bool ephemeral);
+    // Updates the window and draws graphics (graphics thread)
+    void update();
 
-        // Adds a point cloud
-        void addPointCloud();
+    void drawUI();
 
-        // Empty the ephemeral objects array
-        void clearEphemerals();
+    bool open();
 
-        // Sets the viewer target
-        void setTarget();
-        void setTarget(vec3 target);
+    // Add an object, either ephemeral or permanent
+    void addObject(Object3D&& obj, bool ephemeral);
 
-        // need to provide thread safe ways to update viewer internals
-        void updatePointCloud(int idx, vec4* pts, int size);
-        #ifndef VIEWER_ONLY
-        void updatePointCloud(GPU_Cloud pc);
-        #endif
-        void updateObjectModel(int idx, glm::mat4 rotation, glm::mat4 translation);
+    // Adds a point cloud
+    void addPointCloud();
 
-        int frame;
-        bool framePlay; 
+    // Empty the ephemeral objects array
+    void clearEphemerals();
 
-    private:
-        // Internals
-        PointLockedCamera camera;
-        std::vector<Object3D> objects;
-        std::vector<Object3D> ephemeralObjects;
-        Shader objectShader;
-        Shader pcShader;
-        std::vector<PointCloud> pointClouds;
-        std::mutex viewer_mutex;
-        std::mutex pc_mutex;
+    // Sets the viewer target
+    void setCenter();
 
-        glm::vec3 pcCenter;
+    void setCenter(vec3 center);
 
-        // which ps is being used
-        int active_pc = -1;
+    // need to provide thread safe ways to update viewer internals
+    void updatePointCloud(int idx, vec4* pts, int size);
 
-        // Callbacks
-        static void mouseButtonCallback(int button, int state, int x, int y);
-        static void mouseMotionCallback(int x, int y);
-        static void keyPressedCallback(unsigned char c, int x, int y);
-        static void keyReleasedCallback(unsigned char c, int x, int y);
+#ifndef VIEWER_ONLY
 
-        // states 
-        int prevMouseX, prevMouseY;
-        
+    void updatePointCloud(GPU_Cloud pc);
 
+    bool doParameterInit = true;
+    float epsilon;
+    int iterations;
+    float threshold;
+    float removalRadius;
+    bool removeGround;
+    float tolerance;
+    float minSize;
+
+#endif
+
+    void updateObjectModel(int idx, glm::mat4 rotation, glm::mat4 translation);
+
+    glm::vec3 getCenter() {
+        return pcCenter;
+    }
+
+private:
+    // Internals
+    Camera camera;
+    std::vector<Object3D> objects;
+    std::vector<Object3D> ephemeralObjects;
+    Shader objectShader;
+    Shader pcShader;
+    std::vector<PointCloud> pointClouds;
+    std::mutex viewer_mutex;
+    std::mutex pc_mutex;
+    GLFWwindow* window;
+
+    glm::vec3 pcCenter;
+    float mouseSensitivity = 1.0f;
+
+    // which ps is being used
+    int active_pc = -1;
+
+    // Callbacks
+    static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+
+    static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+    static void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+
+    // states
+    double prevMouseX, prevMouseY;
+    bool prevFocused = false;
 };
