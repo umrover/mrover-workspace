@@ -150,7 +150,7 @@ class Bridge:
                 self.conn_state_pusher(websocket, path),
                 self.lcm_bridge(connection, path)
             )
-        except websockets.exceptions.ConnectionClosed as e:
+        except websockets.exceptions.ConnectionClosed as e:  # noqa: F841
             connection = None
             for i in range(len(self.socket_connections)):
                 if self.socket_connections[i].websocket == websocket:
