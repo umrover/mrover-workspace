@@ -369,7 +369,7 @@ void MRoverArm::preview(ArmState& hypo_state) {
     ik_enabled = true;
     previewing = true;
 
-    double num_steps = 50.0;
+    double num_steps = 20.0;
     double t = 0.0;
 
     while (t <= 1) {
@@ -385,7 +385,7 @@ void MRoverArm::preview(ArmState& hypo_state) {
         publish_transforms(hypo_state);
 
         t += 1.0 / num_steps;
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     std::cout <<  "Preview Done\n";
 
