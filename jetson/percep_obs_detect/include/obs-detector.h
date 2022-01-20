@@ -122,6 +122,9 @@ class ObsDetector {
        */
       void test(std::vector<GPU_Cloud> raw_data, const std::vector<EuclideanClusterExtractor::ObsReturn>& truth_list);
 
+      /**
+       * \brief Takese file input and calls test() with that file
+       */
       void test_input_file();
 
     private:

@@ -473,10 +473,9 @@ int main() {
     ObsDetector obs(DataSource::FILESYSTEM, OperationMode::TEST, ViewerType::GL);
 
 
-    std::cout << "\n\n\n\After constructor\n";
     //std::thread updateTick( [&]{while(true) { obs.update();} });
 
-    //if testing, uncomment test_input_file() line and comment out the loop
+    //if testing comment out the loop
     /*
     while (true) {
        //obs.update();
