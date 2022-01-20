@@ -415,7 +415,7 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
         checkStatus(cudaDeviceSynchronize());
     #endif
 
-    std::cerr<<"Graph kernel built\n";
+//    std::cerr<<"Graph kernel built\n";
     checkStatus(cudaGetLastError());
     checkStatus(cudaDeviceSynchronize());
     bool stillGoingCPU = true;    
@@ -554,7 +554,7 @@ EuclideanClusterExtractor::ObsReturn EuclideanClusterExtractor::extractClusters(
 
     int validClustersCPU;
     cudaMemcpy(&validClustersCPU, validClustersCount, sizeof(int), cudaMemcpyDeviceToHost);
-    std::cout << "valid cluster size: " << validClustersCPU << std::endl;
+//    std::cout << "valid cluster size: " << validClustersCPU << std::endl;
 
     ObsReturn obsReturn;
     obsReturn.size = numClustersOrig;
