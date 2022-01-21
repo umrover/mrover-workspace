@@ -3,7 +3,6 @@ import sys
 import time as t
 import odrive as odv
 import threading
-import fibre
 from rover_msgs import DriveStateCmd, DriveVelCmd, \
     DriveStateData, DriveVelData
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
@@ -469,7 +468,7 @@ class Modrive:
         if (axis == "LEFT"):
             # TEMPORARY FIX FOR ROLLING ROVER SINCE
             # middle left odrive IS 2x more than the rest bc of the 48V maxon
-            # TODO - fix when this is no longer the case! 
+            # TODO - fix when this is no longer the case!
             if (legal_controller == 1):
                 self.front_axis.controller.input_vel = vel * 100
             else:
