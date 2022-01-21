@@ -132,9 +132,9 @@ class DisconnectedState(State):
         global modrive
         if (event == "arm cmd"):
             modrive.disarm()
-            # modrive.arm()
             modrive.reset_watchdog()
             modrive.arm()
+            modrive.set_velocity_ctrl()
             return ArmedState()
 
         return self
@@ -164,6 +164,10 @@ class DisarmedState(State):
 
 
 class ArmedState(State):
+    def __init__(self):
+        global modrive
+        modrive.watchdog_feed()
+
     def on_event(self, event):
         """
         Handle events that are delegated to the Armed State.
@@ -208,7 +212,8 @@ class ErrorState(State):
         Handle events that are delegated to the Error State.
         """
         global modrive
-        # modrive.watchdog_feed()
+        dump_errors(modrive.odrive, True)
+        modrive.watchdog_feed()
         if (event == "odrive error"):
             try:
                 modrive.reboot()  # only runs after initial pairing
@@ -265,9 +270,11 @@ class OdriveBridge(object):
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
     def update(self):
+        print(str(self.state))
 
         if (str(self.state) != "DisconnectedState"):
             modrive.watchdog_feed()
+            modrive.print_debug()
 
         if (str(self.state) == "ArmedState"):
 
@@ -277,10 +284,10 @@ class OdriveBridge(object):
             speedlock.acquire()
             modrive.set_vel("LEFT", left_speed)
             modrive.set_vel("RIGHT", right_speed)
+            modrive.watchdog_feed()
             speedlock.release()
 
         elif (str(self.state) == "DisconnectedState"):
-            print("debug disconnected")
             self.connect()
             lock.acquire()
             self.on_event("arm cmd")
@@ -404,11 +411,19 @@ class Modrive:
         self.odrive.save_configuration()
         # the guide says to reboot here...
 
+    def print_debug(self):
+        print("Print control mode")
+        print(self.front_axis.controller.config.control_mode)
+        print(self.back_axis.controller.config.control_mode)
+        print("Printing requested state")
+        print(self.front_axis.current_state)
+        print(self.back_axis.current_state)
+
     def enable_watchdog(self):
         print("Enabling watchdog")
         self.front_axis.config.watchdog_timeout = 1
         self.back_axis.config.watchdog_timeout = 1
-        # self.watchdog_feed()
+        self.watchdog_feed()
         self.front_axis.config.enable_watchdog = True
         self.back_axis.config.enable_watchdog = True
 
