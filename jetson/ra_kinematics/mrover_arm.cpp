@@ -302,6 +302,9 @@ void MRoverArm::execute_spline() {
                 // get next set of angles in path
                 std::vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
 
+                std::cout << "joint a current pos: " << state.get_joint_angle(0) << "\n";
+                std::cout << "joint a target pos:  " << target_angles[0] << "\n\n";
+
                 for (size_t i = 0; i < 6; ++i) {
                     if (target_angles[i] < state.get_joint_limits(i)[0]) {
                         target_angles[i] = state.get_joint_limits(i)[0];
