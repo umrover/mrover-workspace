@@ -41,7 +41,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
                             msg.joint_d, msg.joint_e, msg.joint_f };
 
     // Adjust for shaky joint B values
-    angles[2] = joint_b_stabilizer(angles[2]);
+    angles[1] = joint_b_stabilizer(angles[1]);
 
     // std::cout << "beginning of arm position callback: ";
     // for (double ang : angles) {
@@ -310,6 +310,9 @@ void MRoverArm::execute_spline() {
                         target_angles[i] = state.get_joint_limits(i)[1];
                     }
                 }
+
+		std::cout << "joint b current position: " << state.get_joint_angle(1) << "\n";
+		std::cout << "joint b target:           " << target_angles[1] << "\n\n";
 
                 // if not in sim_mode, send physical arm a new target
                 if (!sim_mode) {
