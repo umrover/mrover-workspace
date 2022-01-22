@@ -261,6 +261,7 @@ export interface RoverState {
 export interface SimulationSettings {
   simulateLoc:boolean;
   simulatePercep:boolean;
+  noisePercent:number;
 }
 
 

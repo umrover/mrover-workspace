@@ -70,7 +70,8 @@ const state:SimulatorState = {
 
   simSettings: {
     simulateLoc: true,
-    simulatePercep: true
+    simulatePercep: true,
+    noisePercent: 33
   },
 
   startLoc: {
@@ -118,6 +119,8 @@ const getters = {
   simulateLoc: (simState:SimulatorState):boolean => simState.simSettings.simulateLoc,
 
   simulatePercep: (simState:SimulatorState):boolean => simState.simSettings.simulatePercep,
+
+  noisePercent: (simState:SimulatorState):number => simState.simSettings.noisePercent,
 
   startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
