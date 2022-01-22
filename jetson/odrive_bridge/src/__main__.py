@@ -130,12 +130,15 @@ class DisconnectedState(State):
         Handle events that are delegated to the Disconnected State.
         """
         global modrive
-        if (event == "arm cmd"):
-            modrive.disarm()
-            modrive.reset_watchdog()
-            modrive.arm()
-            modrive.set_velocity_ctrl()
-            return ArmedState()
+        try:
+            if (event == "arm cmd"):
+                modrive.disarm()
+                modrive.reset_watchdog()
+                modrive.arm()
+                modrive.set_velocity_ctrl()
+                return ArmedState()
+        except:
+            print("trying to arm")
 
         return self
 
@@ -281,11 +284,17 @@ class OdriveBridge(object):
             global speedlock
             global left_speed
             global right_speed
+            print("speed lock acquiring in armed state here")
             speedlock.acquire()
-            modrive.set_vel("LEFT", left_speed)
-            modrive.set_vel("RIGHT", right_speed)
-            modrive.watchdog_feed()
+            print("speed lock acquired in armed state here")
+            try:
+                modrive.set_vel("LEFT", left_speed)
+                modrive.set_vel("RIGHT", right_speed)
+                modrive.watchdog_feed()
+            except Exception:
+                print("trying to arm unplugged odrive failed")
             speedlock.release()
+            print("speed lock released armed state")
 
         elif (str(self.state) == "DisconnectedState"):
             self.connect()
@@ -377,10 +386,13 @@ def drive_vel_cmd_callback(channel, msg):
             global left_speed
             global right_speed
 
+            print("speed lock acquiring callback")
             speedlock.acquire()
+            print("speed lock acquired callback")
             left_speed = cmd.left
             right_speed = cmd.right
             speedlock.release()
+            print("speed lock released callback")
     except NameError:
         pass
 
@@ -412,38 +424,58 @@ class Modrive:
         # the guide says to reboot here...
 
     def print_debug(self):
-        print("Print control mode")
-        print(self.front_axis.controller.config.control_mode)
-        print(self.back_axis.controller.config.control_mode)
-        print("Printing requested state")
-        print(self.front_axis.current_state)
-        print(self.back_axis.current_state)
+        try:
+            print("Print control mode")
+            print(self.front_axis.controller.config.control_mode)
+            print(self.back_axis.controller.config.control_mode)
+            print("Printing requested state")
+            print(self.front_axis.current_state)
+            print(self.back_axis.current_state)
+        except Exception as e:
+            print("Failed in print_debug. Error:")
+            print(e)
 
     def enable_watchdog(self):
-        print("Enabling watchdog")
-        self.front_axis.config.watchdog_timeout = 1
-        self.back_axis.config.watchdog_timeout = 1
-        self.watchdog_feed()
-        self.front_axis.config.enable_watchdog = True
-        self.back_axis.config.enable_watchdog = True
+        try:
+            print("Enabling watchdog")
+            self.front_axis.config.watchdog_timeout = 1
+            self.back_axis.config.watchdog_timeout = 1
+            self.watchdog_feed()
+            self.front_axis.config.enable_watchdog = True
+            self.back_axis.config.enable_watchdog = True
+        except Exception as e:
+            print("Failed in enable_watchdog. Error:")
+            print(e)
 
     def disable_watchdog(self):
-        print("Disabling watchdog")
-        self.front_axis.config.watchdog_timeout = 0
-        self.back_axis.config.watchdog_timeout = 0
-        self.front_axis.config.enable_watchdog = False
-        self.back_axis.config.enable_watchdog = False
+        try:
+            print("Disabling watchdog")
+            self.front_axis.config.watchdog_timeout = 0
+            self.back_axis.config.watchdog_timeout = 0
+            self.front_axis.config.enable_watchdog = False
+            self.back_axis.config.enable_watchdog = False
+        except Exception as e:
+            print("Failed in disable_watchdog. Error:")
+            print(e)
 
     def reset_watchdog(self):
-        print("Resetting watchdog")
-        self.disable_watchdog()
-        dump_errors(self.odrive, True)
-        self.enable_watchdog()
-        self.set_velocity_ctrl()
+        try:
+            print("Resetting watchdog")
+            self.disable_watchdog()
+            dump_errors(self.odrive, True)
+            self.enable_watchdog()
+        except Exception as e:
+            print("Failed in disable_watchdog. Error:")
+            print(e)
 
     def watchdog_feed(self):
-        self.front_axis.watchdog_feed()
-        self.back_axis.watchdog_feed()
+        try:
+            self.front_axis.watchdog_feed()
+            self.back_axis.watchdog_feed()
+        except Exception as e:
+            print("Failed in watchdog_feed. Error:")
+            print(e)
+
 
     def calibrate(self):
         dump_errors(self.odrive, True)  # clears all odrive encoder errors
@@ -549,3 +581,5 @@ class Modrive:
         front = self.front_axis.error
         back = self.back_axis.error
         return back + front
+
+
