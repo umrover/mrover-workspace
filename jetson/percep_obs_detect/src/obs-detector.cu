@@ -21,7 +21,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         //defParams = camera_config.calibration_parameters.left_cam;
     } else if (source == DataSource::FILESYSTEM) {
         std::string s = ROOT_DIR;
-        s += "/data/";
+        s += "/data2/";
 
         cout << "File data dir: " << endl;
         cout << "[defaulting to: " << s << endl;
