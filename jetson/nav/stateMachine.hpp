@@ -115,7 +115,7 @@ private:
     unsigned mCompletedWaypoints;
 
     // Bool of whether radio repeater has been dropped.
-    bool mRepeaterDropComplete = false;
+   
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;

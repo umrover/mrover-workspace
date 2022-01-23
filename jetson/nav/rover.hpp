@@ -9,8 +9,6 @@
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/RepeaterDrop.hpp"
-#include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
@@ -62,11 +60,7 @@ enum class NavState
     GateDriveToFarPost = 49,
     GateTurnToGateCenter = 50,
 
-    // Radio Repeater States
-    RadioRepeaterTurn = 60,
-    RadioRepeaterDrive = 61,
-    RepeaterDropWait = 62,
-
+  
     // Unknown State
     Unknown = 255
 
@@ -100,7 +94,7 @@ public:
             Odometry odometryIn,
             Target targetIn,
             Target target2In,
-            RadioSignalStrength signalIn
+          
             );
 
         NavState& currentState();
@@ -122,8 +116,6 @@ public:
         Target& leftCacheTarget();
         
         Target& rightCacheTarget();
-
-        RadioSignalStrength& radio();
 
         unsigned getPathTargets();
 
@@ -166,9 +158,6 @@ public:
 
         Target mCTargetRight;
 
-        // the rover's current signal strength to the base station
-        RadioSignalStrength mSignal;
-
         // Total targets to seach for in the course
         unsigned mPathTargets;
 
@@ -202,10 +191,7 @@ public:
 
     const double longMeterInMinutes() const;
 
-    void updateRepeater( RadioSignalStrength& signal);
-
-    bool isTimeToDropRepeater();
-
+  
 private:
     /*************************************************************************/
     /* Private Member Functions */
@@ -240,8 +226,7 @@ private:
     // The pid loop for turning.
     PidLoop mBearingPid;
 
-    // If it is time to drop a radio repeater
-    bool mTimeToDropRepeater;
+  
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.

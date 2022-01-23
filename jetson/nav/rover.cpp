@@ -59,25 +59,14 @@ Target& Rover::RoverStatus::leftTarget()
     return mTargetLeft;
 } // leftTarget()
 
-Target& Rover::RoverStatus::rightTarget() 
-{
-    return mTargetRight;
-} // rightTarget()
-
-Target& Rover::RoverStatus::leftCacheTarget()
-{
-    return mCTargetLeft;
-} // leftCacheTarget()
-
-Target& Rover::RoverStatus::rightCacheTarget() 
-{
-    return mCTargetRight;
-} // rightCacheTarget()
-
-RadioSignalStrength& Rover::RoverStatus::radio() 
-{
+Target& Rover::RoverStatus::target2() {
+    return mTarget2;
+}
+RadioSignalStrength& Rover::RoverStatus::radio() {
     return mSignal;
 } // radio()
+
+
 
 unsigned Rover::RoverStatus::getPathTargets()
 {
@@ -137,7 +126,6 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
-    , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
 {
 } // Rover()
@@ -312,7 +300,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             }
             
             mRoverStatus.radio() = newRoverStatus.radio();
-            updateRepeater( mRoverStatus.radio() );
+         
             return true;
         }
         return false;
@@ -341,38 +329,10 @@ const double Rover::longMeterInMinutes() const
 }
 
 // Executes the logic starting the clock to time how long it's been
-// since the rover has gotten a strong radio signal. If the signal drops
+
 // below the signalStrengthCutOff and the timer hasn't started, begin the clock.
 // Otherwise, the signal is good so the timer should be stopped.
-void Rover::updateRepeater( RadioSignalStrength& radioSignal )
-{
-    static bool started = false;
-    static time_t startTime;
 
-    // If we haven't already dropped a repeater, the time hasn't already started
-    // and our signal is below the threshold, start the timer
-    if( !mTimeToDropRepeater &&
-        !started &&
-        radioSignal.signal_strength <=
-        mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble() )
-    {
-        startTime = time( nullptr );
-        started = true;
-    }
-
-    double waitTime = mRoverConfig[ "radioRepeaterThresholds" ][ "lowSignalWaitTime" ].GetDouble();
-    if( started && difftime( time( nullptr ), startTime ) > waitTime )
-    {
-        started = false;
-        mTimeToDropRepeater = true;
-    }
-}
-
-// Returns whether or not enough time has passed to drop a radio repeater.
-bool Rover::isTimeToDropRepeater()
-{
-    return mTimeToDropRepeater;
-}
 
 // Gets the rover's status object.
 Rover::RoverStatus& Rover::roverStatus()
