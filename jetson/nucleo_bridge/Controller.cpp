@@ -53,9 +53,8 @@ void Controller::record_angle(int32_t raw_angle)
 {
     if (name == "RA_1")
     {
-        float abs_raw_angle = 0;;
-        transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
-        // record absolute value 
+        float abs_raw_angle = 0;
+        memcpy(&abs_raw_angle, &raw_angle);
         current_angle = abs_raw_angle - M_PI;            
     }
     else 
