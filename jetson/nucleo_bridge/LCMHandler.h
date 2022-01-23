@@ -23,6 +23,7 @@
 #include <rover_msgs/SAZeroTrigger.hpp>
 #include <rover_msgs/FootCmd.hpp>
 #include <rover_msgs/ArmPosition.hpp>
+#include <rover_msgs/ZedGimbalPosition.hpp>
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()
@@ -59,6 +60,10 @@ private:
         void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
 
         void gimbal_cmd(LCM_INPUT, const GimbalCmd *msg);
+
+        void zed_gimbal_cmd(LCM_INPUT, const ZedGimbalPosition *msg);
+
+        void zed_gimbal_data();
 
         void refreshAngles();
 
