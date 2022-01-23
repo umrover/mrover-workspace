@@ -65,7 +65,7 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
-    ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9);
+    ece = new EuclideanClusterExtractor(128, 30, 0, cloud_res.area(), 9);
     findClear = new FindClearPath();
 }
 

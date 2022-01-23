@@ -85,9 +85,22 @@ public:
         }
 
         pc.reserve(width * height);
+
+
         float x, y, z;
         unsigned int rgba;
-        while (fin >> x >> y >> z >> rgba) {
+
+        std::string x_s, y_s, z_s, rgba_s;
+
+        while (fin >> x_s >> y_s >> z_s >> rgba_s) {
+            //if(x_s[0] == 'n' || x_s[0] == 'i' || x_s[1] = 'i') {
+            //    pc.emplace_back(0, 0, 0, 0);
+            //}
+            x = std::stof(x_s);
+            y = std::stof(y_s);
+            z = std::stof(z_s);
+            rgba = std::stof(rgba_s);
+
             rgba = (rgba & 0xFF) << 16 | (rgba & 0xFF00) | (rgba & 0xFF0000) >> 16;
             float rgba_float = *((float*) &rgba);
             pc.emplace_back(x, y, z, rgba_float);
