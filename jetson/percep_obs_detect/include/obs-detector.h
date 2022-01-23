@@ -10,7 +10,9 @@
 #include "common.hpp"
 #include "voxel-grid.hpp"
 #include "find-clear-path.hpp"
+#include "writer.h"
 #include <cstring>
+#include <sstream>
 #include <iostream>
 #include <float.h>
 #include <stdlib.h>
@@ -89,17 +91,6 @@ class ObsDetector {
         void spinViewer();
 
         /**
-         * \brief [TODO] Start recording frames from ZED
-         * \param frame: string directory in which to write the pcd files, directory should already exist
-         */
-        void startRecording(std::string directory);
-
-        /**
-         * \brief [TODO] Stop recording frames (this does not need to be called if you want to record until program exit)
-         */
-        void stopRecording();
-
-        /**
          * \brief Populates the LCM message
          * \param leftBearing left bearing of path
          * \param rightBearing right bearing of path
@@ -117,39 +108,43 @@ private:
 
 
     private:
-        //Lcm
+        // Lcm
         #ifndef NO_JARVIS
         lcm::LCM lcm_;
         rover_msgs::Obstacle obstacleMessage;
         #endif
 
-        //Data sources
+        // Data sources
         sl::Camera zed;
         PCDReader fileReader;
 
-        //Viwers
+        // Recorder
+        PCDWriter fileWriter;
+        int frameCounter;
+        int frameGap;
+
+        // Viewers
         Viewer viewer;
 
-        //Operation paramaters
+        // Operation parameters
         DataSource source;
         OperationMode mode;
         ViewerType viewerType;
-        bool record = false;
 
-        //Detection algorithms
+        // Detection algorithms
         PassThrough *passZ;
         RansacPlane *ransacPlane;
         VoxelGrid *voxelGrid;
         EuclideanClusterExtractor *ece;
         FindClearPath *findClear;
 
-        //Paramaters
+        // Parameters
         sl::Resolution cloud_res;
         sl::InitParameters init_params;
         sl::CameraParameters defParams;
         std::string readDir;
 
-        //Output data
+        // Output data
         Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
         float3 bearingCombined;
@@ -157,7 +152,7 @@ private:
         float rightBearing;
         float distance;
 
-        //Other
+        // Other
         int frameNum = 0;
         bool framePlay = true;
 

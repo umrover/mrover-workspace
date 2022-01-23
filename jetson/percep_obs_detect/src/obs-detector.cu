@@ -8,7 +8,7 @@ using namespace std::chrono;
 #include <vector>
 
 ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType)
-        : source(source), mode(mode), viewerType(viewerType), record(false) {
+        : source(source), mode(mode), viewerType(viewerType) {
     setupParamaters("");
 
     //Init data stream from source
@@ -21,7 +21,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         //defParams = camera_config.calibration_parameters.left_cam;
     } else if (source == DataSource::FILESYSTEM) {
         std::string s = ROOT_DIR;
-        s += "/data/";
+        s += "/data2/";
 
         cout << "File data dir: " << endl;
         cout << "[defaulting to: " << s << endl;
@@ -34,6 +34,8 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
     if (mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
         viewer.addPointCloud();
     }
+
+    frameCounter = 0;
 
 };
 
@@ -48,6 +50,9 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     init_params.camera_resolution = sl::RESOLUTION::VGA;
     init_params.camera_fps = 100;
 
+    // Set writer params
+    frameGap = 10;
+
     //Set the viewer paramas
     defParams.fx = 79.8502;
     defParams.fy = 80.275;
@@ -60,19 +65,27 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
-    ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9);
+    ece = new EuclideanClusterExtractor(128, 30, 0, cloud_res.area(), 9);
     findClear = new FindClearPath();
 }
 
 
 void ObsDetector::update() {
     GPU_Cloud pc;
-
+    // sl::Mat frame is outside of if statement scope since it owns the memory and we don't want that to de-allocate sooner than expected
+    sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
     if (source == DataSource::ZED) {
-        sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res);
         getRawCloud(pc, frame);
+        if (viewer.record) {
+            if ((frameCounter % frameGap) == 0) {
+                std::stringstream ss;
+                ss << ROOT_DIR << "/data2/pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
+                fileWriter.writeCloud(ss.str(), pc, cloud_res.width, cloud_res.height);
+            }
+            ++frameCounter;
+        }
     } else if (source == DataSource::FILESYSTEM) {
         pc = fileReader.getCloudGPU(viewer.frame);
         viewer.maxFrame = fileReader.size();
@@ -169,8 +182,6 @@ void ObsDetector::update(GPU_Cloud pc) {
     if (viewer.procStage > ProcStage::POSTBOUNDING) {
         createBearing();
     }
-
-    if (record) record = true;
 
     if (viewer.framePlay) {
         viewer.frame++;

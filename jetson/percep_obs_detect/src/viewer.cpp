@@ -301,7 +301,6 @@ Viewer::Viewer()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwSwapInterval(1); // V-SYNC to avoid excessive framerate
 
     GLFWvidmode const* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     window = glfwCreateWindow(static_cast<int>(mode->width * 0.7), static_cast<int>(mode->height * 0.7), "Viewer", nullptr, nullptr);
@@ -313,6 +312,8 @@ Viewer::Viewer()
         throw runtime_error("Failed to init glew");
     }
 
+    glfwSwapInterval(1); // V-SYNC to avoid excessive framerate
+
     // Options
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -322,6 +323,11 @@ Viewer::Viewer()
     pcShader = Shader(PC_VERTEX_SHADER, PC_FRAGMENT_SHADER);
 
     glfwSetWindowUserPointer(window, this);
+
+    int major, minor, rev;
+    std::cout << glfwGetVersionString() << std::endl;
+//    if (glfwRawMouseMotionSupported())
+//        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
     glfwSetScrollCallback(window, scrollCallback);
     glfwSetKeyCallback(window, keyCallback);
@@ -349,11 +355,11 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
     auto viewer = static_cast<Viewer*>(glfwGetWindowUserPointer(window));
     if (action == GLFW_PRESS) {
         switch (key) {
-            case GLFW_KEY_A: {
+            case GLFW_KEY_LEFT_BRACKET: {
                 viewer->frame = std::max(0, viewer->frame - 1);
                 break;
             }
-            case GLFW_KEY_D: {
+            case GLFW_KEY_RIGHT_BRACKET: {
                 viewer->frame = std::min(viewer->maxFrame - 1, viewer->frame + 1);
                 break;
             }
@@ -403,16 +409,19 @@ void Viewer::cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
         viewer->prevFocused = false;
         return;
     }
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
 
     bool focused = glfwGetWindowAttrib(window, GLFW_FOCUSED);
     if (focused == viewer->prevFocused) { // check to avoid look jumping when tabbing in and out
-        auto deltaX = static_cast<float>((xpos - viewer->prevMouseX) * viewer->mouseSensitivity * 0.01);
-        auto deltaY = static_cast<float>((ypos - viewer->prevMouseY) * viewer->mouseSensitivity * 0.01);
+        auto deltaX = static_cast<float>((xpos - width / 2) * viewer->mouseSensitivity * 0.01);
+        auto deltaY = static_cast<float>((ypos - height / 2) * viewer->mouseSensitivity * 0.01);
+//        std::cout << "dx: " << xpos << "\n";
+//        std::cout << "dy: " << ypos << "\n";
         viewer->camera.rotateX(-deltaY);
         viewer->camera.rotateY(-deltaX);
+        glfwSetCursorPos(window, width / 2, height / 2);
     }
-    viewer->prevMouseX = xpos;
-    viewer->prevMouseY = ypos;
     viewer->prevFocused = focused;
 }
 
@@ -451,12 +460,16 @@ void Viewer::update() {
     pc_mutex.unlock();
 
     constexpr float speed = 300.0f;
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) camera.move({speed, 0.0f, 0.0f});
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) camera.move({-speed, 0.0f, 0.0f});
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) camera.move({0.0f, 0.0f, speed});
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) camera.move({0.0f, 0.0f, -speed});
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.move({speed, 0.0f, 0.0f});
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.move({-speed, 0.0f, 0.0f});
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.move({0.0f, 0.0f, speed});
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.move({0.0f, 0.0f, -speed});
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) camera.rotateX(mouseSensitivity * 0.05f);
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) camera.rotateX(-mouseSensitivity * 0.05f);
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) camera.rotateY(-mouseSensitivity * 0.05f);
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) camera.rotateY(mouseSensitivity * 0.05f);
 
-    glfwSetInputMode(window, GLFW_CURSOR, inMenu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, inMenu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
     drawUI();
 
     ImGui::Render();
@@ -497,10 +510,11 @@ void Viewer::drawUI() {
 
     ImGui::Begin("Controls");
     ImGui::Text("Escape: Open UI\n"
-                "A/D: Next/previous frame\n"
+                "[/]: Next/previous frame\n"
                 "Space: Pause/resume playback\n"
-                "R: Record\n"
-                "Arrow keys: First-person move\n"
+                "R: Record (requires ZED DataSource)\n"
+                "WASD: First-person move\n"
+                "Arrow keys: Camera move\n"
                 "1-6: Choose layers");
     ImGui::SliderFloat("Mouse", &mouseSensitivity, 0.1f, 10.0f);
     ImGui::End();

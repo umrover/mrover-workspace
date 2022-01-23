@@ -49,7 +49,7 @@ void Filter(GPU_Cloud &cloud, T &pred, FilterOp operation, float color) {
         colorKernel<T><<<ceilDiv(cloud.size, MAX_THREADS), MAX_THREADS>>>(cloud, pred, color);
     }
     
-    printf("Cloud Size: %i\n", cloud.size);
+//    printf("Cloud Size: %i\n", cloud.size);
 }
 
 // Have to explicitly instantiate all possible template types
