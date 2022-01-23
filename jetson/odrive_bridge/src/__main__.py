@@ -167,10 +167,6 @@ class DisarmedState(State):
 
 
 class ArmedState(State):
-    def __init__(self):
-        global modrive
-        modrive.watchdog_feed()
-
     def on_event(self, event):
         """
         Handle events that are delegated to the Armed State.
@@ -216,7 +212,7 @@ class ErrorState(State):
         """
         global modrive
         dump_errors(modrive.odrive, True)
-        modrive.watchdog_feed()
+        
         if (event == "odrive error"):
             try:
                 modrive.reboot()  # only runs after initial pairing
@@ -238,6 +234,9 @@ class OdriveBridge(object):
         global modrive
         self.state = DisconnectedState()  # default is disarmed
         self.encoder_time = 0
+        self.errors = 0
+        self.left_speed = 0
+        self.right_speed = 0
 
     def connect(self):
         global modrive
@@ -273,28 +272,28 @@ class OdriveBridge(object):
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
     def update(self):
-        print(str(self.state))
-
         if (str(self.state) != "DisconnectedState"):
             modrive.watchdog_feed()
-            modrive.print_debug()
 
         if (str(self.state) == "ArmedState"):
 
             global speedlock
             global left_speed
             global right_speed
-            print("speed lock acquiring in armed state here")
+
+            modrive.watchdog_feed()
+
+            print("trying to acquire speed lock in update")
             speedlock.acquire()
-            print("speed lock acquired in armed state here")
-            try:
-                modrive.set_vel("LEFT", left_speed)
-                modrive.set_vel("RIGHT", right_speed)
-                modrive.watchdog_feed()
-            except Exception:
-                print("trying to arm unplugged odrive failed")
+            print("acquired speed lock in update")
+            self.left_speed = left_speed
+            self.right_speed = right_speed
+
+            print("released speed lock in update")
             speedlock.release()
-            print("speed lock released armed state")
+
+            modrive.set_vel("LEFT", self.left_speed)
+            modrive.set_vel("RIGHT", self.right_speed)
 
         elif (str(self.state) == "DisconnectedState"):
             self.connect()
@@ -312,7 +311,11 @@ class OdriveBridge(object):
             self.on_event("arm cmd")
             lock.release()
 
-        errors = modrive.check_errors()
+        try:
+            errors = modrive.check_errors()
+        except Exception:
+            print("unable to check errors of unplugged odrive")
+
         if errors:
             # if (errors == 0x800 or erros == 0x1000):
 
@@ -386,13 +389,14 @@ def drive_vel_cmd_callback(channel, msg):
             global left_speed
             global right_speed
 
-            print("speed lock acquiring callback")
+            print("trying to acquire speed lock in drive vel callback")
             speedlock.acquire()
-            print("speed lock acquired callback")
+            print("speed lock acquired in drive call back")
+            
             left_speed = cmd.left
             right_speed = cmd.right
+            print("speed lock released in drive call back")
             speedlock.release()
-            print("speed lock released callback")
     except NameError:
         pass
 
@@ -462,7 +466,8 @@ class Modrive:
         try:
             print("Resetting watchdog")
             self.disable_watchdog()
-            dump_errors(self.odrive, True)
+            # clears errors cleanly
+            self.odrive.clear_errors()
             self.enable_watchdog()
         except Exception as e:
             print("Failed in disable_watchdog. Error:")
