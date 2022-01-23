@@ -56,8 +56,13 @@ def main():
         watchdog = t.clock() - start_time
         if (watchdog > 1.0):
             print("loss of comms")
+            print("attempting to acquire speed lock in watch dog")
+            speedlock.acquire()
+            print("acquired speed lock in watchdog")
             left_speed = 0
             right_speed = 0
+            print("released speed lock in watchdog")
+            speedlock.release()
 
         try:
             odrive_bridge.update()
@@ -135,7 +140,6 @@ class DisconnectedState(State):
                 modrive.disarm()
                 modrive.reset_watchdog()
                 modrive.arm()
-                modrive.set_velocity_ctrl()
                 return ArmedState()
         except:
             print("trying to arm")
@@ -218,7 +222,6 @@ class ErrorState(State):
                 modrive.reboot()  # only runs after initial pairing
             except:
                 print('channel error caught')
-
             return DisconnectedState()
 
         return self
@@ -281,15 +284,13 @@ class OdriveBridge(object):
             global left_speed
             global right_speed
 
-            modrive.watchdog_feed()
-
-            print("trying to acquire speed lock in update")
+            # print("trying to acquire speed lock in update")
             speedlock.acquire()
-            print("acquired speed lock in update")
+            # print("acquired speed lock in update")
             self.left_speed = left_speed
             self.right_speed = right_speed
 
-            print("released speed lock in update")
+            # print("released speed lock in update")
             speedlock.release()
 
             modrive.set_vel("LEFT", self.left_speed)
@@ -312,8 +313,14 @@ class OdriveBridge(object):
             lock.release()
 
         try:
+            print("checking for errors...")
             errors = modrive.check_errors()
+            print("errors: ", errors)
         except Exception:
+            errors = 0
+            lock.acquire()
+            self.on_event("disconnected odrive")
+            lock.release()
             print("unable to check errors of unplugged odrive")
 
         if errors:
@@ -389,13 +396,13 @@ def drive_vel_cmd_callback(channel, msg):
             global left_speed
             global right_speed
 
-            print("trying to acquire speed lock in drive vel callback")
+            # print("trying to acquire speed lock in drive vel callback")
             speedlock.acquire()
-            print("speed lock acquired in drive call back")
+            # print("speed lock acquired in drive call back")
             
             left_speed = cmd.left
             right_speed = cmd.right
-            print("speed lock released in drive call back")
+            # print("speed lock released in drive call back")
             speedlock.release()
     except NameError:
         pass
@@ -583,8 +590,9 @@ class Modrive:
         m_axis.encoder.config.pre_calibrated = True
 
     def check_errors(self):
-        front = self.front_axis.error
-        back = self.back_axis.error
-        return back + front
+        return self._check_error_on_axis(self.front_axis) +self._check_error_on_axis(self.back_axis)
+
+    def _check_error_on_axis(self, axis):
+        return axis.error + axis.encoder.error + axis.controller.error + axis.motor.error
 
 
