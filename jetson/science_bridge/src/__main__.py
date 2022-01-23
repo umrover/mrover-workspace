@@ -20,6 +20,7 @@ class ScienceBridge():
         self.NMEA_HANDLE_MAPPER = {
             "SPECTRAL": self.spectral_handler,
             "THERMISTOR": self.thermistor_handler,
+            "TRIAD": self.triad_handler,
             "TXT": self.txt_handler,
         }
 
@@ -81,6 +82,28 @@ class ScienceBridge():
             pass
         # parse the thermistor UART msg
         # adding relevant error handling
+        # set the struct variables
+
+    def triad_handler(self, m, triad_struct):
+        try:
+            m.split(',')
+            arr = [s.strip().strip('\x00') for s in m.split(',')]
+            struct_variables = ["d0_1", "d0_2", "d0_3", "d0_4", "d0_5", "d0_6",
+                                "d1_1", "d1_2", "d1_3", "d1_4", "d1_5", "d1_6",
+                                "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
+            # print(arr)
+            count = 1
+            for var in struct_variables:
+                if (not (count >= len(arr))):
+                    setattr(triad_struct, var, ((np.int16(arr[count]) << 8) | (np.int16(arr[count + 1]))))
+                else:
+                    setattr(triad_struct, var, 0)
+                count += 2
+        except:
+            pass
+
+        # parse the spectral UART msg
+        # add in relevant error handling
         # set the struct variables
 
     def txt_handler(self, msg, struct):
@@ -200,6 +223,7 @@ class ScienceBridge():
     async def receive(self, lcm):
         spectral = SpectralData()
         thermistor = ThermistorData()
+        triad = SpectralData()
         # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
                      for tag in self.NMEA_HANDLE_MAPPER.keys()}
@@ -233,6 +257,9 @@ class ScienceBridge():
                             if(tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
                                 lcm.publish('/thermistor_data', thermistor.encode())
+                            if(tag == "TRIAD"):
+                                self.triad_handler(msg, triad)
+                                lcm.publish('/spectral_triad_data', triad.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
