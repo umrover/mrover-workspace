@@ -212,7 +212,7 @@ class OdriveBridge(object):
         # odrive 1 --> middle motors
         # odrive 2 --> back motors
 
-        odrives = ["206937905753", "2073378C5753", "206F35843056"]
+        odrives = ["206937905753", "2066378F5753", "205535833056"]
         id = odrives[legal_controller]
 
         print(id)
@@ -394,9 +394,9 @@ class Modrive:
 
     def set_vel(self, axis, vel):
         if (axis == "LEFT"):
-            self.front_axis.controller.input_vel = -vel * 1.5
+            self.front_axis.controller.input_vel = -vel * 3
         elif axis == "RIGHT":
-            self.back_axis.controller.input_vel = vel * 1.5
+            self.back_axis.controller.input_vel = vel * 3
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
