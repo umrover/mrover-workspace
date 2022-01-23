@@ -289,8 +289,10 @@ void PointCloud::swap(PointCloud& other) {
  * Viewer
  */
 
-Viewer::Viewer()
-        : camera(glm::perspectiveFov(glm::radians(35.0f), 1920.0f, 1080.0f, 0.1f, 100000.0f)) {
+Viewer::Viewer() : camera(glm::perspectiveFov(glm::radians(35.0f), 1920.0f, 1080.0f, 0.1f, 100000.0f)) {
+}
+
+void Viewer::initGraphics() {
     if (!glfwInit()) {
         throw runtime_error("GLFW init failed");
     }
@@ -313,7 +315,6 @@ Viewer::Viewer()
     }
 
     glfwSwapInterval(1); // V-SYNC to avoid excessive framerate
-    previousTime = glfwGetTime();
 
     // Options
     glEnable(GL_DEPTH_TEST);
@@ -325,7 +326,6 @@ Viewer::Viewer()
 
     glfwSetWindowUserPointer(window, this);
 
-    int major, minor, rev;
     std::cout << glfwGetVersionString() << std::endl;
 //    if (glfwRawMouseMotionSupported())
 //        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
@@ -428,13 +428,6 @@ void Viewer::cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
 
 // Viewer tick
 void Viewer::update() {
-    frameCount++;
-    double currentTime = glfwGetTime();
-    if (currentTime - previousTime >= 1.0) {
-        currentFPS = frameCount;
-        frameCount = 0;
-        previousTime = currentTime;
-    }
     // Basic drawing setup
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (record) glClearColor(0.25f, 0.2f, 0.2f, 0.0f);
@@ -513,6 +506,8 @@ void Viewer::drawUI() {
 
     ImGui::Begin("Playback");
     ImGui::SliderInt("Frame", &frame, 0, maxFrame);
+    frame = std::min(frame, maxFrame - 1);
+    frame = std::max(frame, 0);
     ImGui::Text("FPS: %d", currentFPS);
     ImGui::Checkbox("Record", &record);
     ImGui::End();

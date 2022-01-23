@@ -14,9 +14,10 @@
 #include <cstring>
 #include <sstream>
 #include <iostream>
-#include <float.h>
-#include <stdlib.h>
+#include <cfloat>
+#include <cstdlib>
 #include <unistd.h>
+#include <chrono>
 
 #ifndef NO_JARVIS
 #include <lcm/lcm-cpp.hpp>
@@ -42,7 +43,7 @@ enum class OperationMode {DEBUG, SILENT};
 /*
  *** Choose which viewer to use ***
  */
-enum ViewerType {NONE, GL};
+enum class ViewerType {NONE, GL};
 
 /** 
  * \class ObsDetector
@@ -78,12 +79,12 @@ class ObsDetector {
         /**
          * \brief Create bounding box and add viewer object for each obstacle
          */
-        void createBoundingBoxes();
+        void drawBoundingBoxes();
 
         /**
          * \brief Find and make viewer object for path bearings
          */
-        void createBearing();
+        void drawBearing();
 
         /**
          * \brief Do viewer update tick, it may be desirable to call this in its own thread
@@ -153,8 +154,9 @@ private:
         float distance;
 
         // Other
-        int frameNum = 0;
-        bool framePlay = true;
+        int frameCount = 0;
+        std::chrono::steady_clock::time_point previousTime;
+        int currentFPS = 0;
 
         void drawGround(Plane const& plane);
 };

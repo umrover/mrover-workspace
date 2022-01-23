@@ -30,8 +30,11 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         fileReader.open(readDir);
     }
 
+    previousTime = std::chrono::steady_clock::now();
+
     //Init Viewer
-    if (mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
+    if (viewerType == ViewerType::GL) {
+        viewer.initGraphics();
         viewer.addPointCloud();
     }
 
@@ -71,6 +74,14 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 
 
 void ObsDetector::update() {
+    auto now = chrono::steady_clock::now();
+    auto delta = now - previousTime;
+    frameCount++;
+    if (delta > chrono::seconds(1)) {
+        currentFPS = viewer.currentFPS = frameCount;
+        previousTime = now;
+        frameCount = 0;
+    }
     GPU_Cloud pc;
     // sl::Mat frame is outside of if statement scope since it owns the memory and we don't want that to de-allocate sooner than expected
     sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
@@ -81,7 +92,7 @@ void ObsDetector::update() {
         if (viewer.record) {
             if ((frameCounter % frameGap) == 0) {
                 std::stringstream ss;
-                ss << ROOT_DIR << "/data3/pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
+                ss << ROOT_DIR << "/data3/pcl" << std::to_string(frameCounter / frameGap) << ".pcd";
                 fileWriter.writeCloud(ss.str(), pc, cloud_res.width, cloud_res.height);
             }
             ++frameCounter;
@@ -107,7 +118,7 @@ vec3 closestPointOnPlane(Plane plane, vec3 point) {
 
 void ObsDetector::drawGround(Plane const& plane) {
     auto normal = glm::normalize(vec3{plane.normal.x, plane.normal.y, plane.normal.z});
-    // make the center of the plane quad lined up with point cloud center
+    // make the center of the plane quad lined up with point cloud centerf
     vec3 centerProjOnPlane = closestPointOnPlane(plane, viewer.getCenter());
     // have edge flush with camera, treating camera as (0, 0, 0)
     vec3 cameraProjOnPlane = closestPointOnPlane(plane, {});
@@ -158,15 +169,13 @@ void ObsDetector::update(GPU_Cloud pc) {
 
     if (viewer.procStage > ProcStage::POSTPASS) {
         Plane plane = ransacPlane->computeModel(pc);
-        drawGround(plane);
+        if (viewerType == ViewerType::GL) drawGround(plane);
     }
 
-    viewer.updatePointCloud(pc);
+    if (viewerType == ViewerType::GL) viewer.updatePointCloud(pc);
 
     if (viewer.procStage > ProcStage::POSTRANSAC) {
-#if VOXEL
         Bins bins = voxelGrid->run(pc);
-#endif
         obstacles = ece->extractClusters(pc, bins);
         bearingCombined = findClear->find_clear_path_initiate(obstacles);
         leftBearing = bearingCombined.x;
@@ -175,17 +184,21 @@ void ObsDetector::update(GPU_Cloud pc) {
         populateMessage(leftBearing, rightBearing, distance);
     }
 
-    if (viewer.procStage > ProcStage::POSTECE) {
-        createBoundingBoxes();
-    }
+    if (viewerType == ViewerType::GL) {
+        if (viewer.procStage > ProcStage::POSTECE) {
+            drawBoundingBoxes();
+        }
 
-    if (viewer.procStage > ProcStage::POSTBOUNDING) {
-        createBearing();
-    }
+        if (viewer.procStage > ProcStage::POSTBOUNDING) {
+            drawBearing();
+        }
 
-    if (viewer.framePlay) {
-        viewer.frame++;
-        viewer.frame %= viewer.maxFrame;
+        if (viewer.framePlay) {
+            viewer.frame++;
+            if (viewer.frame >= viewer.maxFrame) {
+                viewer.frame = 0;
+            }
+        }
     }
 }
 
@@ -201,7 +214,7 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 }
 
 
-void ObsDetector::createBoundingBoxes() {
+void ObsDetector::drawBoundingBoxes() {
     // This creates bounding boxes for visualization
     // There might be a clever automatic indexing scheme to optimize this
     for (int i = 0; i < obstacles.obs.size(); i++) {
@@ -222,7 +235,7 @@ void ObsDetector::createBoundingBoxes() {
     }
 }
 
-void ObsDetector::createBearing() {
+void ObsDetector::drawBearing() {
     //----start TESTING: draw double bearing------------------------------------------------
     //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
     float degAngle = leftBearing; //Change angle of bearing to draw here
@@ -279,8 +292,10 @@ void ObsDetector::createBearing() {
 }
 
 void ObsDetector::spinViewer() {
-    viewer.update();
-    viewer.clearEphemerals();
+    if (viewerType == ViewerType::GL) {
+        viewer.update();
+        viewer.clearEphemerals();
+    }
 }
 
 ObsDetector::~ObsDetector() {
@@ -291,12 +306,12 @@ ObsDetector::~ObsDetector() {
 }
 
 bool ObsDetector::open() {
-    return viewer.open();
+    return viewerType == ViewerType::NONE || viewer.open();
 }
 
 int main() {
     try {
-        ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
+        ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
         while (obs.open()) {
             obs.update();
             obs.spinViewer();
