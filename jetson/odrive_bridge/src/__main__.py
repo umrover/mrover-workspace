@@ -6,8 +6,8 @@ import threading
 from rover_msgs import DriveVelCmd, \
     DriveStateData, DriveVelData
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
-    CONTROL_MODE_VELOCITY_CONTROL, AXIS_STATE_FULL_CALIBRATION_SEQUENCE, \
-    AXIS_STATE_IDLE, ENCODER_MODE_HALL
+    CONTROL_MODE_VELOCITY_CONTROL, \
+    AXIS_STATE_IDLE
 
 from odrive.utils import dump_errors
 
@@ -535,7 +535,8 @@ class Modrive:
         m_axis.encoder.config.pre_calibrated = True
 
     def check_errors(self):
-        return self._check_error_on_axis(self.front_axis) + self._check_error_on_axis(self.back_axis)
+        return self._check_error_on_axis(self.front_axis) + \
+                                self._check_error_on_axis(self.back_axis)
 
     def _check_error_on_axis(self, axis):
         return axis.error + axis.encoder.error + axis.controller.error + axis.motor.error
