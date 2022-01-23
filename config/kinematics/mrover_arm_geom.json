@@ -675,7 +675,7 @@
                 "lower": 0.035,
                 "upper": 1.09
             },
-            "max_speed": 5,
+            "max_speed": 0.5,
             "encoder_offset": 3.62,
             "encoder_multiplier": -1,
             "mass_data":{
@@ -713,7 +713,7 @@
                 "upper": 2.73
             },
             "max_speed": 0.2,
-            "encoder_offset": 1.27,
+            "encoder_offset": 2.72,
             "encoder_multiplier": 1,
             "mass_data":{
                 "mass": 1.11,
@@ -750,7 +750,7 @@
                 "upper": 3.14
             },
             "max_speed": 0.4,
-            "encoder_offset": -2.75,
+            "encoder_offset": 7.32,
             "encoder_multiplier": -1,
             "mass_data":{
                 "mass": 0,
