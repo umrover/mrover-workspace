@@ -11,25 +11,41 @@
             <option value=2>C</option>
         </select>
         <div class="commands">
-          <p>Turning to position {{this.position}}</p>
+          <p>{{reachedPos?  "Reached": "Turning to"}} position {{this.posMap.get(this.position)}}</p>
         </div>
     </div>
   </div>
 </template>
 
 <script>
+
 export default {
   data () {
     return {
-        position: 1
+        position: '1',
+        reachedPos: true,
+        posMap:new Map([
+        ['1', 'A'],
+        ['0', 'B'],
+        ['2', 'C'],
+        ])
     }
   },
+  created:
+  function () {
+      this.$parent.subscribe('/carousel_data', (msg) => {
+        if (msg.position == Number(this.position)) {
+          this.reachedPos = true
+        }
+      })
+    },
   methods: {
       setPart: function() {
         this.$parent.publish("/carousel_cmd", {
         'type': 'CarouselCmd',
         'position': Number(this.position)
       })
+      this.reachedPos = false
     }
   },
   watch: {
