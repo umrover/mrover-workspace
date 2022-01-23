@@ -43,7 +43,8 @@
         <NumberInput
           :val.sync="noisePercentIn"
           :min="0"
-          :max="100"
+          :max="1"
+          :step="0.05555555555"
         />
       </div>
     </div>

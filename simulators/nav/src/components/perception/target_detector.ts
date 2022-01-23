@@ -4,7 +4,6 @@
 import {
   ArTag,
   FieldOfViewOptions,
-  FieldState,
   Gate,
   Odom,
   TargetMessage,
@@ -22,6 +21,7 @@ import {
 } from '../../utils/utils';
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
 import { PERCEPTION, POST, ROVER } from '../../utils/constants';
+import { state } from '../../store/modules/simulatorState';
 
 function randnBm(min, max, skew):number {
   let u = 0;
@@ -42,6 +42,41 @@ function randnBm(min, max, skew):number {
     num += min;
   }
   return num;
+}
+
+// indZscore is from 0 to 19
+function getGaussianThres(indZscore):number {
+  const sd = 0.2;
+  const mu = 0.5;
+
+  // 0 --> 0
+  // 0.055 --> -1.6
+  // 0.11 --> -1.22
+  // 0.166 --> -0.97
+  // 0.22 --> -0.77
+  // 0.27 -->  -0.61
+  // 0.33 --> -0.43
+  // 0.38 --> -0.3
+  // 0.44 --> -0.14
+  // 0.5 --> 0.5
+  const num1 = 0;
+  const num2 = 1.6;
+  const num3 = 1.22;
+  const num4 = 0.97;
+  const num5 = 0.77;
+  const num6 = 0.61;
+  const num7 = 0.43;
+  const num8 = 0.3;
+  const num9 = 0.14;
+  const num10 = 0.5;
+
+  const z = [num1, num2, num3, num4, num5, num6, num7, num8, num9, num10];
+  const x = z[indZscore % z.length] * sd;
+
+  if (indZscore > z.length) {
+    return mu + x;
+  }
+  return mu - x;
 }
 
 /* Class that performs target dectection calculations. */
@@ -213,8 +248,17 @@ export default class TargetDetector {
 
     /* Special Case: guassian noise */
     const num:number = randnBm(0, 1, 1);
-    const thres = 0.4;
-    if (num < thres || num > 1.0 - thres) {
+
+    // console.log(state.simSettings.noisePercent);
+    const divisor = 18.0;
+    const factor = 1.0 / divisor;
+    const indThres = Math.round(state.simSettings.noisePercent / factor);
+    const thres = getGaussianThres(indThres);
+    console.log('noisePercent: ', state.simSettings.noisePercent);
+    console.log('indThres: ', indThres);
+    console.log('thres: ', thres);
+
+    if (num < thres) {
       post.isHidden = true;
       return false;
     }
