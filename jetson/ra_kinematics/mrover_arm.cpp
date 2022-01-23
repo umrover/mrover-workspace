@@ -40,9 +40,6 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
     std::vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
 
-    // Adjust for shaky joint B values
-    angles[1] = joint_b_stabilizer(angles[1]);
-
     // std::cout << "beginning of arm position callback: ";
     // for (double ang : angles) {
     //     std::cout << ang << "\t";
@@ -56,6 +53,9 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
             angles[i] *= state.get_joint_encoder_multiplier(i);
         }
     }
+
+    // Adjust for shaky joint B values
+    angles[1] = joint_b_stabilizer(angles[1]);
 
     encoder_error = false;
     encoder_error_message = "Encoder Error in encoder(s) (joint A = 0, F = 5): ";
@@ -278,10 +278,12 @@ void MRoverArm::execute_spline() {
                 // Get max time to travel for joints a through e
                 for (int i = 0; i < 5; ++i) {
                     double max_speed = state.get_joint_max_speed(i);
+
                     //in ms, time needed to move D_SPLINE_T (%)
                     double joint_time = std::abs(final_angles[i] - init_angles[i])
-                        / (max_speed / 1000.0); 
-                    //sets max_time to greater value
+                        / (max_speed / 1000.0); // convert max_speed to rad/ms
+                    
+		    //sets max_time to greater value
                     max_time = max_time < joint_time ? joint_time : max_time;
                 }
 
@@ -292,18 +294,14 @@ void MRoverArm::execute_spline() {
                 // break out of loop if necessary
                 if (spline_t > 1.0/* || arm_control_state != "closed-loop"*/) {
                     std::cout << "Finished executing!\n";
-                    enable_execute = false;
-                    spline_t = 0.0;
-                    ik_enabled = false;
-                    // exit(1);
-                    continue;
+                    spline_t = 0.999999999999;
+                    
+		            enable_execute = false;
+		            ik_enabled = false;
                 }
 
                 // get next set of angles in path
                 std::vector<double> target_angles = motion_planner.get_spline_pos(spline_t);
-
-                std::cout << "joint a current pos: " << state.get_joint_angle(0) << "\n";
-                std::cout << "joint a target pos:  " << target_angles[0] << "\n\n";
 
                 for (size_t i = 0; i < 6; ++i) {
                     if (target_angles[i] < state.get_joint_limits(i)[0]) {
@@ -314,8 +312,12 @@ void MRoverArm::execute_spline() {
                     }
                 }
 
-		std::cout << "joint b current position: " << state.get_joint_angle(1) << "\n";
-		std::cout << "joint b target:           " << target_angles[1] << "\n\n";
+		        // std::cout << "joint a current pos: " << state.get_joint_angle(0) << "\n";
+                // std::cout << "joint a target pos:  " << target_angles[0] << "\n\n";
+
+
+                std::cout << "joint b current position: " << state.get_joint_angle(1) << "\n";
+                std::cout << "joint b target:           " << target_angles[1] << "\n\n";
 
                 // if not in sim_mode, send physical arm a new target
                 if (!sim_mode) {
@@ -473,7 +475,7 @@ void MRoverArm::plan_path(ArmState& hypo_state, Vector6d goal) {
 }
 
 void MRoverArm::simulation_mode_callback(std::string channel, SimulationMode msg) {
-    std::cout << "Received Simulation Mode value: " << msg.sim_mode;
+    std::cout << "Received Simulation Mode value: " << msg.sim_mode << "\n";
 
     sim_mode = msg.sim_mode;
 }
@@ -555,6 +557,10 @@ double MRoverArm::joint_b_stabilizer(double angle) {
     if (std::isnan(prev_angle_b)) {
         prev_angle_b = angle;
         return angle;
+    }
+
+    if (std::isnan(angle) || std::abs(angle - prev_angle_b) > 0.3) {
+        return prev_angle_b;
     }
 
     // Update prev angle to current angle

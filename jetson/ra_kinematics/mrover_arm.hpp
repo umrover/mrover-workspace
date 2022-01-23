@@ -51,7 +51,7 @@ static constexpr double DUD_ENCODER_EPSILON = 0.00000001;
 //Angle in radians that physical arm can be without causing problems
 static constexpr double ACCEPTABLE_BEYOND_LIMIT = 0.05;
 
-static constexpr double JOINT_B_STABILIZE_MULTIPLIER = 0.3;
+static constexpr double JOINT_B_STABILIZE_MULTIPLIER = 0.6;
 
 /**
 * This is the MRoverArm class, responsible for
