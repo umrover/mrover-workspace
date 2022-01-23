@@ -196,6 +196,9 @@ public:
     bool inMenu = false;
     bool record = false;
     ProcStage procStage = ProcStage::POSTBEARING;
+    int frameCount = 0;
+    double previousTime = 0.0;
+    int currentFPS = 0;
 
     // Creates a window
     Viewer();

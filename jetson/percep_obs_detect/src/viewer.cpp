@@ -313,6 +313,7 @@ Viewer::Viewer()
     }
 
     glfwSwapInterval(1); // V-SYNC to avoid excessive framerate
+    previousTime = glfwGetTime();
 
     // Options
     glEnable(GL_DEPTH_TEST);
@@ -427,6 +428,13 @@ void Viewer::cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
 
 // Viewer tick
 void Viewer::update() {
+    frameCount++;
+    double currentTime = glfwGetTime();
+    if (currentTime - previousTime >= 1.0) {
+        currentFPS = frameCount;
+        frameCount = 0;
+        previousTime = currentTime;
+    }
     // Basic drawing setup
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (record) glClearColor(0.25f, 0.2f, 0.2f, 0.0f);
@@ -505,6 +513,7 @@ void Viewer::drawUI() {
 
     ImGui::Begin("Playback");
     ImGui::SliderInt("Frame", &frame, 0, maxFrame);
+    ImGui::Text("FPS: %d", currentFPS);
     ImGui::Checkbox("Record", &record);
     ImGui::End();
 

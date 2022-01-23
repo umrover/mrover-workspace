@@ -81,7 +81,7 @@ void ObsDetector::update() {
         if (viewer.record) {
             if ((frameCounter % frameGap) == 0) {
                 std::stringstream ss;
-                ss << ROOT_DIR << "/data2/pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
+                ss << ROOT_DIR << "/data3/pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
                 fileWriter.writeCloud(ss.str(), pc, cloud_res.width, cloud_res.height);
             }
             ++frameCounter;
@@ -296,7 +296,7 @@ bool ObsDetector::open() {
 
 int main() {
     try {
-        ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+        ObsDetector obs(DataSource::ZED, OperationMode::DEBUG, ViewerType::GL);
         while (obs.open()) {
             obs.update();
             obs.spinViewer();
