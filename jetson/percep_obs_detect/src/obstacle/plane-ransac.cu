@@ -147,10 +147,11 @@ RansacPlane::RansacPlane(float3 axis, float epsilon, int iterations, float thres
     selectionCPU = (Plane*) malloc(sizeof(Plane));
 }
 
-Plane RansacPlane::computeModel(GPU_Cloud& pc) {
+Plane& RansacPlane::computeModel(GPU_Cloud& pc) {
     if (pc.size == 0) {
         std::cout << "[WARNING] Can't run RANSAC on empty plane." << std::endl;
-        return {make_float3(0, 0, 0), make_float3(0, 0, 0), make_float3(0, 0, 0)};
+        *selectionCPU = {make_float3(0, 0, 0), make_float3(0, 0, 0), make_float3(0, 0, 0)};
+        return *selectionCPU;
     }
 
     // Copy vars locally

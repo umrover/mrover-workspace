@@ -281,8 +281,10 @@ void PointCloud::swap(PointCloud& other) {
  * Viewer
  */
 
-Viewer::Viewer()
-        : camera(glm::perspectiveFov(glm::radians(35.0f), 1920.0f, 1080.0f, 0.1f, 100000.0f)) {
+Viewer::Viewer() : camera(glm::perspectiveFov(glm::radians(35.0f), 1920.0f, 1080.0f, 0.1f, 100000.0f)) {
+}
+
+void Viewer::initGraphics() {
     if (!glfwInit()) {
         throw runtime_error("GLFW init failed");
     }
@@ -316,7 +318,6 @@ Viewer::Viewer()
 
     glfwSetWindowUserPointer(window, this);
 
-    int major, minor, rev;
     std::cout << glfwGetVersionString() << std::endl;
 //    if (glfwRawMouseMotionSupported())
 //        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
@@ -488,12 +489,18 @@ void Viewer::drawUI() {
     ImGui::Separator();
     ImGui::SliderFloat("Tolerance", &tolerance, 0.0f, 500.0f);
     ImGui::SliderFloat("Minimum Size", &minSize, 0.0f, 1000.0f);
+    ImGui::Separator();
+    ImGui::SliderFloat("Refine Dist", &refineDistance, 0.0f, 1000.0f);
+    ImGui::SliderFloat("Refine Height", &refineHeight, 0.0f, 1000.0f);
     ImGui::End();
 #endif
 
     if (maxFrame != -1) {
         ImGui::Begin("Playback");
         ImGui::SliderInt("Frame", &frame, 0, maxFrame);
+        frame = std::min(frame, maxFrame - 1);
+        frame = std::max(frame, 0);
+        ImGui::Text("FPS: %d", currentFPS);
         ImGui::Checkbox("Record", &record);
         ImGui::End();
     }

@@ -9,12 +9,14 @@
 #include "common.hpp"
 #include "voxel-grid.hpp"
 #include "find-clear-path.hpp"
+#include "refine-ground.hpp"
 #include <cstring>
 #include <sstream>
 #include <iostream>
 #include <cfloat>
 #include <cstdlib>
 #include <unistd.h>
+#include <chrono>
 
 // TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;
@@ -32,7 +34,7 @@ enum class DataSource {
 /*
  *** Choose which viewer to use ***
  */
-enum ViewerType {
+enum class ViewerType {
     NONE, GL
 };
 
@@ -70,12 +72,12 @@ class ObsDetector {
         /**
          * \brief Create bounding box and add viewer object for each obstacle
          */
-        void createBoundingBoxes();
+        void drawBoundingBoxes();
 
         /**
          * \brief Find and make viewer object for path bearings
          */
-        void createBearing();
+        void drawBearing();
 
         /**
          * \brief Do viewer update tick, it may be desirable to call this in its own thread
@@ -124,6 +126,7 @@ class ObsDetector {
         VoxelGrid* voxelGrid;
         EuclideanClusterExtractor* ece;
         FindClearPath* findClear;
+        RefineGround* refineGround;
 
         // Parameters
         sl::Resolution cloud_res;
@@ -138,6 +141,11 @@ class ObsDetector {
         float leftBearing;
         float rightBearing;
         float distance;
+
+        // Other
+        int frameCount = 0;
+        std::chrono::steady_clock::time_point previousTime;
+        int currentFPS = 0;
 
         void drawGround(Plane const& plane);
 };
