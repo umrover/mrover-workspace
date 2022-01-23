@@ -29,8 +29,8 @@
     </tr>
     <tr>
       <td class = "tableElement">Velocity</td>
-      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity}} counts/sec</td>
-      <td class = "tableElement">{{drive_vel_data.frontRight.velocity}} counts/sec</td>
+      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity*60}} rpm</td>
+      <td class = "tableElement">{{drive_vel_data.frontRight.velocity*60}} rpm</td>
     </tr>
     <tr class="bold">
       <td class = "tableElement">Middle</td>
@@ -44,8 +44,8 @@
     </tr>
     <tr>
       <td class = "tableElement">Velocity</td>
-      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity}} counts/sec</td>
-      <td class = "tableElement">{{drive_vel_data.middleRight.velocity}} counts/sec</td>
+      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity*60}} rpm</td>
+      <td class = "tableElement">{{drive_vel_data.middleRight.velocity*60}} rpm</td>
     </tr>
     <tr class="bold">
       <td class = "tableElement">Back</td>
@@ -59,8 +59,8 @@
     </tr>
     <tr>
       <td class = "tableElement">Velocity</td>
-      <td class = "tableElement">{{drive_vel_data.backLeft.velocity}} counts/sec</td>
-      <td class = "tableElement">{{drive_vel_data.backRight.velocity}} counts/sec</td>
+      <td class = "tableElement">{{drive_vel_data.backLeft.velocity*60}} rpm</td>
+      <td class = "tableElement">{{drive_vel_data.backRight.velocity*60}} rpm</td>
     </tr>
   </tbody>
   </table>
