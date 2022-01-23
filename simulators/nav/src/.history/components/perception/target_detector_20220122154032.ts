@@ -213,7 +213,7 @@ export default class TargetDetector {
 
     /* Special Case: guassian noise */
     const num:number = randnBm(0, 1, 1);
-    const thres = 0.4;
+    const thres = ;
     if (num < thres || num > 1.0 - thres) {
       post.isHidden = true;
       return false;

@@ -9,7 +9,7 @@ import {
   Odom,
   TargetMessage,
   TargetListMessage,
-  ZedGimbalPosition
+  ZedGimbalPosition,
 } from '../../utils/types';
 import {
   arTagCompare,

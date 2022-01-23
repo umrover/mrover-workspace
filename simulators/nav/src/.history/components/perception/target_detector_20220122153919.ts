@@ -4,12 +4,12 @@
 import {
   ArTag,
   FieldOfViewOptions,
-  FieldState,
   Gate,
   Odom,
   TargetMessage,
   TargetListMessage,
-  ZedGimbalPosition
+  ZedGimbalPosition,
+  FieldState
 } from '../../utils/types';
 import {
   arTagCompare,
