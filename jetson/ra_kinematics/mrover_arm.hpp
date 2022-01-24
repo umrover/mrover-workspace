@@ -61,15 +61,23 @@ static constexpr double JOINT_B_STABILIZE_MULTIPLIER = 0.6;
 class MRoverArm {
  
 private:
-    ArmState state;
+    ArmState arm_state;
     KinematicsSolver solver;
     MotionPlanner motion_planner;
     lcm::LCM &lcm_;
-    bool enable_execute;
+    
+    enum ControlState {
+        OFF,                // Not in closed-loop mode
+        WAITING_FOR_TARGET, // In closed-loop mode, waiting for target position
+        CALCULATING,        // Running IK and motion planning
+        PREVIEWING,         // Showing the preview on hypothetical arm
+        READY_TO_EXECUTE,   // Previewed, ready for execution
+        EXECUTING           // Executing arm movement
+    };
+
+    ControlState control_state;
+
     bool sim_mode;
-    bool ik_enabled;
-    bool previewing;
-    std::string arm_control_state;
     double prev_angle_b;
 
     bool encoder_error;
@@ -91,10 +99,18 @@ public:
      * @param lcm empty lcm object to communicate with other systems
      * */
     MRoverArm(json &geom, lcm::LCM &lcm);
+    
+    /**
+     * Handle message meant to update control_state
+     * 
+     * @param channel expected: "/arm_control_state"
+     * @param msg format: string state ("open-loop", "closed-loop", or "off")
+     */
+    void ra_control_callback(std::string channel, ArmControlState msg);
 
     /**
      * Handle message with updated joint angles from encoders,
-     * update state and call FK() to adjust transforms
+     * update arm_state and call FK() to adjust transforms
      * 
      * @param channel expected: "/arm_position"
      * @param msg format: double joint_a, joint_b, ... , joint_f
@@ -111,31 +127,6 @@ public:
     void target_orientation_callback(std::string channel, TargetOrientation msg);
 
     /**
-     * Handle request to move arm through previously calculated path
-     * 
-     * @param channel expected: "/motion_execute"
-     * @param msg format: bool preview
-     * */
-    void motion_execute_callback(std::string channel, MotionExecute msg);
-
-    void ik_enabled_callback(std::string channel, IkEnabled msg);
-
-    void simulation_mode_callback(std::string channel, SimulationMode msg);
-
-    /**
-     * Asynchronous function, when enable_execute is set to true:
-     * Executes current path on physical rover, unless sim_mode is true
-     * */
-    void execute_spline();
-
-    void preview(ArmState& hypo_state);
-
-    /**
-    * Allows for locking individual joints
-    * */
-    void lock_joints_callback(std::string channel, LockJoints msg);
-
-    /**
      * Handle request to go to specific set of angles
      * 
      * @param channel expected: "/preset_angles", but could handle others
@@ -143,18 +134,51 @@ public:
      * */
     void target_angles_callback(std::string channel, ArmPosition msg);
 
-    void cartesian_control_callback(std::string channel, IkArmControl msg);
+    /**
+     * Handle request to move arm through previously calculated path, or to cancel
+     * 
+     * @param channel expected: "/motion_execute"
+     * @param msg format: bool execute
+     * */
+    void motion_execute_callback(std::string channel, MotionExecute msg);
 
-    void ra_control_callback(std::string channel, ArmControlState msg);
+    /**
+     * Handle request to move in or out of simulation mode
+     * 
+     * @param channel expected: "/simulation_mode"
+     * @param msg format: bool sim_mode
+     */
+    void simulation_mode_callback(std::string channel, SimulationMode msg);
 
+    
+    /**
+     * Handle request to lock specific joints
+     * 
+     * @param channel expected: "/locked_joints"
+     * @param msg format: bool jointa ... jointf
+     */
+    void lock_joints_callback(std::string channel, LockJoints msg);
+
+    /**
+     * Asynchronous function, runs when control_state is "EXECUTING"
+     * Executes current path on physical rover, unless sim_mode is true
+     * */
+    void execute_spline();
+
+    /**
+     * Asynchronous function, runs when sim_mode is true
+     * Sends mock encoder values based on arm_state
+     */
     void encoder_angles_sender();
 
 private:
-    void publish_config(const std::vector<double> &config, std::string channel);
-
-    void publish_transforms(const ArmState &state);
 
     void plan_path(ArmState& hypo_state, Vector6d goal);
+    void preview(ArmState& hypo_state);
+
+    void publish_config(const std::vector<double> &config, std::string channel);
+
+    void publish_transforms(const ArmState& arbitrary_state);
 
     void matrix_helper(double arr[4][4], const Matrix4d &mat);
 

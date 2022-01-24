@@ -122,6 +122,7 @@
           {'topic': '/autonomous', 'type': 'Joystick'},
           {'topic': '/kill_switch', 'type': 'KillSwitch'},
           {'topic': '/locked_joints', 'type': 'LockJoints'},
+          {'topic': '/motion_executre', 'type': 'MotionExecute'},
           {'topic': '/nav_status', 'type': 'NavStatus'},
           {'topic': '/obstacle', 'type': 'Obstacle'},
           {'topic': '/odometry', 'type': 'Odometry'},

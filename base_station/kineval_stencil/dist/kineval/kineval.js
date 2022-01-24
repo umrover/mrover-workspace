@@ -187,22 +187,12 @@ kineval.initlcmbridge = function initlcmbridge() {
                     shouldExecute = window.confirm("Previewed path. Execute path?");
 
                     // send lcm accordingly
-                    if (shouldExecute) {
-                        console.log("confirmed path execution")
-                        var MotionPreviewMsg = {
-                            'type': 'MotionExecute',
-                            'preview': false,
-                        }
-                        kineval.publish('/motion_execute', MotionPreviewMsg)
+                    console.log("confirmed path execution: " + shouldExecute)
+                    var MotionPreviewMsg = {
+                        'type': 'MotionExecute',
+                        'execute': shouldExecute,
                     }
-                    else {
-                        console.log("declined path execution")
-                        var IKenabled = {
-                            'type': 'IkEnabled',
-                            'enabled': false,
-                        }
-                        kineval.publish('/ik_enabled', IKenabled)
-                    }
+                    kineval.publish('/motion_execute', MotionPreviewMsg)
                 }
                 else if (msg['message']['message'].includes("Encoder Error")) {
                     window.alert(msg['message']['message'])

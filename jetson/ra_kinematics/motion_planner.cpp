@@ -323,11 +323,6 @@ void MotionPlanner::spline_fitting(const std::vector<Vector6d> &path) {
     for (size_t i = 0; i < 6; ++i) {
         splines[i].set_points(x_, separate_paths[i]);
     }
-
-    std::cout << "\nAfter motion planning joint a:\n";
-    for (double t = 0; t <= 1; t += 0.05) {
-	    std::cout << splines[0](t) << "\n";
-    }
 }
 
 std::vector<double> MotionPlanner::get_spline_pos(double spline_t) {

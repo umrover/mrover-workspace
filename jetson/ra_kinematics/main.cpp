@@ -59,15 +59,6 @@ public:
         arm->arm_position_callback( channel, *arm_pos );
     }
 
-    void ikEnabledCallback(
-        const lcm::ReceiveBuffer* receiveBuffer,
-        const std::string& channel,
-        const IkEnabled* enable
-    )
-    {
-        arm->ik_enabled_callback( channel, *enable );
-    }
-
     void simModeCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
@@ -108,7 +99,6 @@ int main() {
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
     lcmObject.subscribe( "/preset_angles" , &lcmHandlers::executePresetCallback, &handler );
     lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
-    lcmObject.subscribe( "/ik_enabled", &lcmHandlers::ikEnabledCallback, &handler );
     lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
     lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
     lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );
