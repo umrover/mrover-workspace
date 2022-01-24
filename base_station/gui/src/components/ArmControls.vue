@@ -21,7 +21,7 @@ export default {
   computed: {
 
     ...mapGetters('controls', {
-      controlMode: 'idle'
+      controlMode: 'controlMode'
     }),
   },
 
@@ -57,51 +57,48 @@ export default {
 
     const updateRate = 0.1
     interval = window.setInterval(() => {
-      const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 4; i++) {
-        const gamepad = gamepads[i]
-        if (gamepad) {
-          if (gamepad.id.includes('Microsoft') || gamepad.id.includes('Xbox')) {
-            const xboxData = {
-              'type': 'Xbox',
-              'left_js_x': gamepad.axes[XBOX_CONFIG['left_js_x']], // shoulder rotate
-              'left_js_y': gamepad.axes[XBOX_CONFIG['left_js_y']], // shoulder tilt
-              'left_trigger': gamepad.buttons[XBOX_CONFIG['left_trigger']]['value'], // elbow forward
-              'right_trigger': gamepad.buttons[XBOX_CONFIG['right_trigger']]['value'], // elbow back
-              'right_js_x': gamepad.axes[XBOX_CONFIG['right_js_x']], // hand rotate
-              'right_js_y': gamepad.axes[XBOX_CONFIG['right_js_y']], // hand tilt
-              'right_bumper': gamepad.buttons[XBOX_CONFIG['right_bumper']]['pressed'], // grip close
-              'left_bumper': gamepad.buttons[XBOX_CONFIG['left_bumper']]['pressed'], // grip open
-              'd_pad_up': gamepad.buttons[XBOX_CONFIG['d_pad_up']]['pressed'],
-              'd_pad_down': gamepad.buttons[XBOX_CONFIG['d_pad_down']]['pressed'],
-              'd_pad_right': gamepad.buttons[XBOX_CONFIG['d_pad_right']]['pressed'],
-              'd_pad_left': gamepad.buttons[XBOX_CONFIG['d_pad_left']]['pressed'],
-              'a': gamepad.buttons[XBOX_CONFIG['a']]['pressed'],
-              'b': gamepad.buttons[XBOX_CONFIG['b']]['pressed'],
-              'x': gamepad.buttons[XBOX_CONFIG['x']]['pressed'],
-              'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
-            }
+      if (this.controlMode === 'open-loop') {
+        const gamepads = navigator.getGamepads()
+        for (let i = 0; i < 4; i++) {
+          const gamepad = gamepads[i]
+          if (gamepad) {
+            if (gamepad.id.includes('Microsoft') || gamepad.id.includes('Xbox')) {
+              const xboxData = {
+                'type': 'Xbox',
+                'left_js_x': gamepad.axes[XBOX_CONFIG['left_js_x']], // shoulder rotate
+                'left_js_y': gamepad.axes[XBOX_CONFIG['left_js_y']], // shoulder tilt
+                'left_trigger': gamepad.buttons[XBOX_CONFIG['left_trigger']]['value'], // elbow forward
+                'right_trigger': gamepad.buttons[XBOX_CONFIG['right_trigger']]['value'], // elbow back
+                'right_js_x': gamepad.axes[XBOX_CONFIG['right_js_x']], // hand rotate
+                'right_js_y': gamepad.axes[XBOX_CONFIG['right_js_y']], // hand tilt
+                'right_bumper': gamepad.buttons[XBOX_CONFIG['right_bumper']]['pressed'], // grip close
+                'left_bumper': gamepad.buttons[XBOX_CONFIG['left_bumper']]['pressed'], // grip open
+                'd_pad_up': gamepad.buttons[XBOX_CONFIG['d_pad_up']]['pressed'],
+                'd_pad_down': gamepad.buttons[XBOX_CONFIG['d_pad_down']]['pressed'],
+                'd_pad_right': gamepad.buttons[XBOX_CONFIG['d_pad_right']]['pressed'],
+                'd_pad_left': gamepad.buttons[XBOX_CONFIG['d_pad_left']]['pressed'],
+                'a': gamepad.buttons[XBOX_CONFIG['a']]['pressed'],
+                'b': gamepad.buttons[XBOX_CONFIG['b']]['pressed'],
+                'x': gamepad.buttons[XBOX_CONFIG['x']]['pressed'],
+                'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
+              }
 
-            this.$parent.publish('/ra_control', xboxData)
+              this.$parent.publish('/ra_control', xboxData)
+            }
           }
         }
       }
-      const talonConfig = {
-        'type': 'TalonConfig',
-        'enable_arm': true,
-        'enable_sa': false
-      }
-
-      this.$parent.publish('/talon_config', talonConfig)
     }, updateRate*1000)
   },
 
   methods: {
     updateControlMode: function (mode, checked) {
+
       if (checked) {
+
         // control mode can either be open loop or control mode, not both
-        if (this.controlMode === 'open-loop' || this.controlMode === 'closed-loop') {
-          this.$refs[this.controlMode].toggle();
+        if (this.controlMode !== '' && this.controlMode !== 'idle'){
+          this.$refs[this.controlMode].toggle()
         }
 
         this.setControlMode(mode);
