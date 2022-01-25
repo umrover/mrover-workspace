@@ -55,8 +55,8 @@ Target& Rover::RoverStatus::target()
     return mTarget1;
 } // target()
 
-Target& Rover::RoverStatus::target2() {
-    return mTarget2;
+Target& Rover::RoverStatus::mCTargetRight() {
+    return mCTargetRight;
 }
 RadioSignalStrength& Rover::RoverStatus::radio() {
     return mSignal;

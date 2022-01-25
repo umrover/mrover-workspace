@@ -3,12 +3,12 @@
 
 #include <lcm/lcm-cpp.hpp>
 #include <queue>
-
 #include "rover_msgs/AutonState.hpp"
 #include "rover_msgs/Bearing.hpp"
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
+#include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
@@ -92,7 +92,7 @@ public:
             Odometry odometryIn,
             Target targetIn,
             Target target2In,
-          
+            RadioSignalStrength signalIn
             );
 
         NavState& currentState();
@@ -107,11 +107,16 @@ public:
 
         Odometry& odometry();
 
-        Target& target();
+        Target& target1();
 
         Target& target2();
 
+        RadioSignalStrength& radio();
+
         unsigned getPathTargets();
+        
+        RadioSignalStrength mSignal;
+
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 

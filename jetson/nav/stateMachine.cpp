@@ -336,10 +336,7 @@ NavState StateMachine::executeTurn()
     if( mRover->roverStatus().path().empty() )
     {
         return NavState::Done;
-    }
-    
-    // point where connection was good to front of path and turn
-   
+    }  
 
     Odometry& nextPoint = mRover->roverStatus().path().front().odom;
     if( mRover->turn( nextPoint ) )
@@ -348,7 +345,6 @@ NavState StateMachine::executeTurn()
         return NavState::Drive;
     }
 
-  
     return NavState::Turn;
 } // executeTurn()
 
@@ -362,10 +358,6 @@ NavState StateMachine::executeDrive()
 {
     const Waypoint& nextWaypoint = mRover->roverStatus().path().front();
     double distance = estimateNoneuclid( mRover->roverStatus().odometry(), nextWaypoint.odom );
-
-   
-    // point where connection was good to front of path and turn
-
 
     if( isObstacleDetected( mRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
@@ -390,14 +382,9 @@ NavState StateMachine::executeDrive()
        
         return NavState::Drive;
     }
-    // else driveStatus == DriveStatus::OffCourse (must turn to waypoint)
     
     return NavState::Turn;
 } // executeDrive()
-
-// If the rover is done waiting, it continues the original course.
-// Else the rover keeps waiting.
-
 
 // Gets the string representation of a nav state.
 string StateMachine::stringifyNavState() const
