@@ -43,24 +43,24 @@ typedef struct imu_data
   float bearing;
 } imu_data;
 
-imu_data data = {0, 0, 0, 0, 0, 0, 0}; // create an IMU data struct to synchronize sensor readings, init with 0s
+imu_data current_data = {0, 0, 0, 0, 0, 0, 0}; // create an IMU data struct to synchronize sensor readings, init with 0s
 ICM_20948_I2C myICM; // create an ICM_20948_I2C object
 
-void send_data()
+void send_current_data()
 {
-  SERIAL_PORT.print(data.accel_x);
+  SERIAL_PORT.print(current_data.accel_x);
   SERIAL_PORT.print(F(" "));
-  SERIAL_PORT.print(data.accel_y);
+  SERIAL_PORT.print(current_data.accel_y);
   SERIAL_PORT.print(F(" "));
-  SERIAL_PORT.print(data.accel_z);
+  SERIAL_PORT.print(current_data.accel_z);
   SERIAL_PORT.print(F(" "));
-  SERIAL_PORT.print(data.gyro_x);
+  SERIAL_PORT.print(current_data.gyro_x);
   SERIAL_PORT.print(F(" "));
-  SERIAL_PORT.print(data.gyro_y);
+  SERIAL_PORT.print(current_data.gyro_y);
   SERIAL_PORT.print(F(" "));
-  SERIAL_PORT.print(data.gyro_z);
+  SERIAL_PORT.print(current_data.gyro_z);
   SERIAL_PORT.print(F(" "));
-  SERIAL_PORT.print(data.bearing, 3);
+  SERIAL_PORT.print(current_data.bearing, 3);
 }
 
 void setup()
@@ -146,18 +146,18 @@ void setup()
 
   // Enable any additional sensors / features
   success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
-  success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
-  //success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED) == ICM_20948_Stat_Ok);
+  // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
+  success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
 
   // Configuring DMP to output data at multiple ODRs:
   // DMP is capable of outputting multiple sensor data at different rates to FIFO.
   // Setting value can be calculated as follows:
   // Value = (DMP running rate / ODR ) - 1
   // E.g. For a 5Hz ODR rate when DMP is running at 55Hz, value = (55/5) - 1 = 10.
-  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-  //success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 0) == ICM_20948_Stat_Ok); // Set to the maximum
+  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 10) == ICM_20948_Stat_Ok); // Set to the maximum
+  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 54) == ICM_20948_Stat_Ok); // Set to the maximum
+  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro, 54) == ICM_20948_Stat_Ok); // Set to the maximum
+  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 54) == ICM_20948_Stat_Ok); // Set to the maximum
   //success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok); // Set to the maximum
   //success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass_Calibr, 0) == ICM_20948_Stat_Ok); // Set to the maximum
 
@@ -201,6 +201,7 @@ void loop()
   // if valid data was available
   if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
   {
+
     // if we received Quat9 orientation data
     if ((data.header & DMP_header_bitmap_Quat9) > 0)
     {
@@ -252,13 +253,13 @@ void loop()
       SERIAL_PORT.print(F(" Accuracy:"));
       SERIAL_PORT.println(data.Quat9.Data.Accuracy);
       #else
-      data.bearing = bearing;
-      send_data();
+      current_data.bearing = bearing;
+      send_current_data();
       #endif
     }
 
     // if we recieved acceleration data
-    else if ((data.header & DMP_header_bitmap_Accel) > 0)
+    if ((data.header & DMP_header_bitmap_Accel) > 0)
     {
       // Extract the raw accelerometer data
       float acc_x = (float)data.Raw_Accel.Data.X;
@@ -273,15 +274,15 @@ void loop()
       SERIAL_PORT.print(F(" Z:"));
       SERIAL_PORT.println(acc_z);
       #else
-      data.accel_x = acc_x;
-      data.accel_y = acc_y;
-      data.accel_z = acc_z;
-      send_data();
+      current_data.accel_x = acc_x;
+      current_data.accel_y = acc_y;
+      current_data.accel_z = acc_z;
+      send_current_data();
       #endif
     }
 
     // if we received gyro data
-    else if ((data.header & DMP_header_bitmap_Gyro) > 0)
+    if ((data.header & DMP_header_bitmap_Gyro) > 0)
     {
       // Extract the raw gyroscope data
       float gyro_x = (float)data.Raw_Gyro.Data.X;
@@ -296,10 +297,10 @@ void loop()
       SERIAL_PORT.print(F(" Z:"));
       SERIAL_PORT.println(gyro_z);
       #else
-      data.gyro_x = gyro_x;
-      data.gyro_y = gyro_y;
-      data.gyro_z = gyro_z;
-      send_data();
+      current_data.gyro_x = gyro_x;
+      current_data.gyro_y = gyro_y;
+      current_data.gyro_z = gyro_z;
+      send_current_data();
       #endif
     }
   }
