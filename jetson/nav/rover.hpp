@@ -58,7 +58,6 @@ enum class NavState
     GateShimmy = 47,
     GateDriveThrough = 48,
 
-  
     // Unknown State
     Unknown = 255
 
@@ -114,9 +113,8 @@ public:
         RadioSignalStrength& radio();
 
         unsigned getPathTargets();
-        
-        RadioSignalStrength mSignal;
 
+        RadioSignalStrength mSignal;
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
