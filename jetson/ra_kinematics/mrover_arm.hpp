@@ -26,7 +26,9 @@
 #include "rover_msgs/LockJoints.hpp"
 #include "rover_msgs/DebugMessage.hpp"
 #include "rover_msgs/ArmControlState.hpp"
- 
+#include "rover_msgs/RAOpenLoopCmd.hpp"
+#include "rover_msgs/HandCmd.hpp"
+
 using namespace rover_msgs;
  
 using nlohmann::json;
@@ -187,6 +189,8 @@ private:
     void check_joint_limits(std::vector<double> &angles);
 
     double joint_b_stabilizer(double angle);
+
+    void send_kill_cmd();
 };
 
 
