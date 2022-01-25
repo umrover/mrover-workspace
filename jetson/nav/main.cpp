@@ -66,7 +66,15 @@ public:
         mStateMachine->updateRoverStatus( *targetListIn );
     }
 
-  
+    // Sends the radio lcm message to the state machine.
+    void radioSignalStrength(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const string& channel,
+        const RadioSignalStrength* signalIn
+        )
+    {
+        mStateMachine->updateRoverStatus( *signalIn );
+    }
 
 private:
     // The state machine to send the lcm messages to.

@@ -59,14 +59,24 @@ Target& Rover::RoverStatus::leftTarget()
     return mTargetLeft;
 } // leftTarget()
 
-Target& Rover::RoverStatus::target2() {
-    return mTarget2;
-}
+Target& Rover::RoverStatus::rightTarget() 
+{
+    return mTargetRight;
+} // rightTarget()
+
+Target& Rover::RoverStatus::leftCacheTarget()
+{
+    return mCTargetLeft;
+} // leftCacheTarget()
+
+Target& Rover::RoverStatus::rightCacheTarget() 
+{
+    return mCTargetRight;
+} // rightCacheTarget()
+
 RadioSignalStrength& Rover::RoverStatus::radio() {
     return mSignal;
 } // radio()
-
-
 
 unsigned Rover::RoverStatus::getPathTargets()
 {
@@ -76,12 +86,12 @@ unsigned Rover::RoverStatus::getPathTargets()
 int& Rover::RoverStatus::getLeftMisses()
 {
     return countLeftMisses;
-}
+} // getLeftMisses()
 
 int& Rover::RoverStatus::getRightMisses()
 {
     return countRightMisses;
-}
+} // getRightMisses()
 
 // Assignment operator for the rover status object. Does a "deep" copy
 // where necessary.
@@ -300,7 +310,6 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             }
             
             mRoverStatus.radio() = newRoverStatus.radio();
-         
             return true;
         }
         return false;
@@ -327,12 +336,6 @@ const double Rover::longMeterInMinutes() const
 {
     return mLongMeterInMinutes;
 }
-
-// Executes the logic starting the clock to time how long it's been
-
-// below the signalStrengthCutOff and the timer hasn't started, begin the clock.
-// Otherwise, the signal is good so the timer should be stopped.
-
 
 // Gets the rover's status object.
 Rover::RoverStatus& Rover::roverStatus()
