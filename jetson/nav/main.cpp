@@ -75,7 +75,6 @@ public:
     {
         mStateMachine->updateRoverStatus( *signalIn );
     }
-    
 private:
     // The state machine to send the lcm messages to.
     StateMachine* mStateMachine;

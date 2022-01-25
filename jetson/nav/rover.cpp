@@ -57,12 +57,11 @@ Target& Rover::RoverStatus::target()
 
 Target& Rover::RoverStatus::target2() {
     return mTarget2;
+}
 
 RadioSignalStrength& Rover::RoverStatus::radio() {
     return mSignal;
 }
-
-
 
 unsigned Rover::RoverStatus::getPathTargets()
 {
@@ -240,7 +239,6 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.target() = newRoverStatus.target();
             mRoverStatus.radio() = newRoverStatus.radio();
-         
             return true;
         }
 
