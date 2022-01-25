@@ -29,8 +29,13 @@
                        // On the SparkFun 9DoF IMU breakout the default is 1, and when \
                        // the ADR jumper is closed the value becomes 0
 
-#define ACCEL_FSR gpm2 // set accel full scale range to +/- 2g
-#define GYRO_FSR dps2000 // set gyro full scale range to +/- 2000 degrees per second
+// set accel full scale range to +/- 2g
+#define ACCEL_FSR_SETTING gpm2
+#define ACCEL_FSR 2
+
+// set gyro full scale range to +/- 2000 degrees per second
+#define GYRO_FSR_SETTING dps2000
+#define GYRO_FSR 2000
 
 typedef struct imu_data
 {
@@ -121,45 +126,19 @@ void setup()
   // Use success to show if the DMP configuration was successful
   bool success = true;
 
-  // Initialize the DMP. initializeDMP is a weak function. You can overwrite it if you want to e.g. to change the sample rate
+  // Initialize the DMP
   success &= (myICM.initializeDMP() == ICM_20948_Stat_Ok);
 
-  // DMP sensor options are defined in ICM_20948_DMP.h
-  //    INV_ICM20948_SENSOR_ACCELEROMETER               (16-bit accel)
-  //    INV_ICM20948_SENSOR_GYROSCOPE                   (16-bit gyro + 32-bit calibrated gyro)
-  //    INV_ICM20948_SENSOR_RAW_ACCELEROMETER           (16-bit accel)
-  //    INV_ICM20948_SENSOR_RAW_GYROSCOPE               (16-bit gyro + 32-bit calibrated gyro)
-  //    INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED (16-bit compass)
-  //    INV_ICM20948_SENSOR_GYROSCOPE_UNCALIBRATED      (16-bit gyro)
-  //    INV_ICM20948_SENSOR_STEP_DETECTOR               (Pedometer Step Detector)
-  //    INV_ICM20948_SENSOR_STEP_COUNTER                (Pedometer Step Detector)
-  //    INV_ICM20948_SENSOR_GAME_ROTATION_VECTOR        (32-bit 6-axis quaternion)
-  //    INV_ICM20948_SENSOR_ROTATION_VECTOR             (32-bit 9-axis quaternion + heading accuracy)
-  //    INV_ICM20948_SENSOR_GEOMAGNETIC_ROTATION_VECTOR (32-bit Geomag RV + heading accuracy)
-  //    INV_ICM20948_SENSOR_GEOMAGNETIC_FIELD           (32-bit calibrated compass)
-  //    INV_ICM20948_SENSOR_GRAVITY                     (32-bit 6-axis quaternion)
-  //    INV_ICM20948_SENSOR_LINEAR_ACCELERATION         (16-bit accel + 32-bit 6-axis quaternion)
-  //    INV_ICM20948_SENSOR_ORIENTATION                 (32-bit 9-axis quaternion + heading accuracy)
-
-  // Enable the DMP orientation sensor
+  // enable 9DoF quaternion, accelerometer, raw gyroscope, and calibrated gyroscope in the DMP
   success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ORIENTATION) == ICM_20948_Stat_Ok);
-
-  // Enable any additional sensors / features
   success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_GYROSCOPE) == ICM_20948_Stat_Ok);
-  // success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_RAW_ACCELEROMETER) == ICM_20948_Stat_Ok);
   success &= (myICM.enableDMPSensor(INV_ICM20948_SENSOR_ACCELEROMETER) == ICM_20948_Stat_Ok);
 
-  // Configuring DMP to output data at multiple ODRs:
-  // DMP is capable of outputting multiple sensor data at different rates to FIFO.
-  // Setting value can be calculated as follows:
-  // Value = (DMP running rate / ODR ) - 1
-  // E.g. For a 5Hz ODR rate when DMP is running at 55Hz, value = (55/5) - 1 = 10.
-  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 10) == ICM_20948_Stat_Ok); // Set to the maximum
-  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 54) == ICM_20948_Stat_Ok); // Set to the maximum
-  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro, 54) == ICM_20948_Stat_Ok); // Set to the maximum
-  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 54) == ICM_20948_Stat_Ok); // Set to the maximum
-  //success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass, 0) == ICM_20948_Stat_Ok); // Set to the maximum
-  //success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Cpass_Calibr, 0) == ICM_20948_Stat_Ok); // Set to the maximum
+  // set all of the sensor output rates to 55Hz (maximum value)
+  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);
+  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);
+  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok);
+  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 0) == ICM_20948_Stat_Ok);
 
   // Enable the FIFO
   success &= (myICM.enableFIFO() == ICM_20948_Stat_Ok);
@@ -192,13 +171,11 @@ void setup()
 void loop()
 {
   // Read any DMP data waiting in the FIFO
-  // Note:
-  //    readDMPdataFromFIFO will return ICM_20948_Stat_Ok if a valid frame was read.
-  //    readDMPdataFromFIFO will return ICM_20948_Stat_FIFOMoreDataAvail if a valid frame was read _and_ the FIFO contains more (unread) data.
   icm_20948_DMP_data_t data;
   myICM.readDMPdataFromFIFO(&data);
 
-  // if valid data was available
+  // if valid data was read
+  // (ICM_20948_Stat_Ok means valid data was read, ICM_20948_Stat_FIFOMoreDataAvail means valid data was read and more is available)
   if ((myICM.status == ICM_20948_Stat_Ok) || (myICM.status == ICM_20948_Stat_FIFOMoreDataAvail))
   {
 
@@ -209,12 +186,10 @@ void loop()
       // In case of drift, the sum will not add to 1, therefore, quaternion data need to be corrected with right bias values.
       // The quaternion data is scaled by 2^30.
 
-      //SERIAL_PORT.printf("Quat9 data is: Q1:%ld Q2:%ld Q3:%ld Accuracy:%d\r\n", data.Quat9.Data.Q1, data.Quat9.Data.Q2, data.Quat9.Data.Q3, data.Quat9.Data.Accuracy);
-
       // Scale to +/- 1
-      float q1 = ((float)data.Quat9.Data.Q1) / 1073741824.0; // Convert to float. Divide by 2^30
-      float q2 = ((float)data.Quat9.Data.Q2) / 1073741824.0; // Convert to float. Divide by 2^30
-      float q3 = ((float)data.Quat9.Data.Q3) / 1073741824.0; // Convert to float. Divide by 2^30
+      float q1 = ((float)data.Quat9.Data.Q1) / 1073741824.0; 
+      float q2 = ((float)data.Quat9.Data.Q2) / 1073741824.0;
+      float q3 = ((float)data.Quat9.Data.Q3) / 1073741824.0;
       float q0 = sqrt(1.0 - ((q1 * q1) + (q2 * q2) + (q3 * q3)));
 
       // roll (x-axis rotation)
@@ -235,7 +210,7 @@ void loop()
       float cosy_cosp = 1 - 2 * (q2 * q2 + q3 * q3);
       float yaw = atan2(siny_cosp, cosy_cosp);
 
-      // bearing (degrees East of North, 0-360)
+      // convert yaw to bearing (degrees East of North, 0-360)
       float bearing = yaw * 180/PI;
       if (bearing < 0)
         bearing += 360;
@@ -266,6 +241,11 @@ void loop()
       float acc_y = (float)data.Raw_Accel.Data.Y;
       float acc_z = (float)data.Raw_Accel.Data.Z;
 
+      // convert raw values to gs using full scale range
+      acc_x = (acc_x / 32767) * ACCEL_FSR;
+      acc_y = (acc_y / 32767) * ACCEL_FSR;
+      acc_z = (acc_z / 32767) * ACCEL_FSR;
+
       #ifdef HUMAN_READABLE
       SERIAL_PORT.print(F("accel X:"));
       SERIAL_PORT.print(acc_x);
@@ -289,6 +269,11 @@ void loop()
       float gyro_y = (float)data.Raw_Gyro.Data.Y;
       float gyro_z = (float)data.Raw_Gyro.Data.Z;
 
+      // convert raw values to dps using full scale range
+      gyro_x = (gyro_x / 32767) * GYRO_FSR;
+      gyro_y = (gyro_y / 32767) * GYRO_FSR;
+      gyro_z = (gyro_z / 32767) * GYRO_FSR;
+
       #ifdef HUMAN_READABLE
       SERIAL_PORT.print(F("gyro X:"));
       SERIAL_PORT.print(gyro_x);
@@ -305,7 +290,8 @@ void loop()
     }
   }
 
-  if (myICM.status != ICM_20948_Stat_FIFOMoreDataAvail) // If more data is available then we should read it right away - and not delay
+  // If more data is available then we should read it right away, otherwise delay
+  if (myICM.status != ICM_20948_Stat_FIFOMoreDataAvail)
   {
     delay(10);
   }
@@ -399,12 +385,12 @@ ICM_20948_Status_e ICM_20948::initializeDMP(void)
   // Set Gyro FSR (Full scale range) to 2000dps through GYRO_CONFIG_1
   // Set Accel FSR (Full scale range) to 4g through ACCEL_CONFIG
   ICM_20948_fss_t myFSS; // This uses a "Full Scale Settings" structure that can contain values for all configurable sensors
-  myFSS.a = ACCEL_FSR;        // (ICM_20948_ACCEL_CONFIG_FS_SEL_e)
+  myFSS.a = ACCEL_FSR_SETTING;        // (ICM_20948_ACCEL_CONFIG_FS_SEL_e)
                          // gpm2
                          // gpm4
                          // gpm8
                          // gpm16
-  myFSS.g = GYRO_FSR;     // (ICM_20948_GYRO_CONFIG_1_FS_SEL_e)
+  myFSS.g = GYRO_FSR_SETTING;     // (ICM_20948_GYRO_CONFIG_1_FS_SEL_e)
                          // dps250
                          // dps500
                          // dps1000
