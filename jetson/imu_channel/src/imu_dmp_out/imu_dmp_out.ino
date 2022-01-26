@@ -8,26 +8,22 @@
  * 
  * ** Important note: by default the DMP functionality is disabled in the library
  * ** as the DMP firmware takes up 14301 Bytes of program memory.
- * ** To use the DMP, you will need to:
- * ** Edit ICM_20948_C.h
- * ** Uncomment line 29: #define ICM_20948_USE_DMP
- * ** Save changes
- * ** If you are using Windows, you can find ICM_20948_C.h in:
- * ** Documents\Arduino\libraries\SparkFun_ICM-20948_ArduinoLibrary\src\util
+ * ** To use the DMP, you will need to
+ * ** Uncomment line 29: #define ICM_20948_USE_DMP in ICM_20948_C.h
  ***************************************************************/
 
 #include "ICM_20948.h" // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
 
 // Uncomment this to output human readable data to the serial monitor. In this mode,
 // the IMU driver won't work, so IMU data won't be published to LCM
-#define HUMAN_READABLE 
+// #define HUMAN_READABLE 
 
 #define SERIAL_PORT Serial
 
 #define WIRE_PORT Wire
-#define AD0_VAL 1      // The value of the last bit of the I2C address.                \
-                       // On the SparkFun 9DoF IMU breakout the default is 1, and when \
-                       // the ADR jumper is closed the value becomes 0
+#define AD0_VAL 1      // The value of the last bit of the I2C address.
+                       // on the SparkFun breakout board this will be 1 
+                       // unless the ADR jumper is closed, which will make it 0
 
 // set accel full scale range to +/- 2g
 #define ACCEL_FSR_SETTING gpm2
@@ -48,8 +44,11 @@ typedef struct imu_data
   float bearing;
 } imu_data;
 
-imu_data current_data = {0, 0, 0, 0, 0, 0, 0}; // create an IMU data struct to synchronize sensor readings, init with 0s
-ICM_20948_I2C myICM; // create an ICM_20948_I2C object
+// create an IMU data struct to keep track of different sensor readings, init with 0s
+imu_data current_data = {0, 0, 0, 0, 0, 0, 0};
+
+// create an ICM_20948_I2C object
+ICM_20948_I2C myICM;
 
 void send_current_data()
 {
@@ -65,7 +64,7 @@ void send_current_data()
   SERIAL_PORT.print(F(" "));
   SERIAL_PORT.print(current_data.gyro_z);
   SERIAL_PORT.print(F(" "));
-  SERIAL_PORT.print(current_data.bearing, 3);
+  SERIAL_PORT.println(current_data.bearing, 3);
 }
 
 void setup()
