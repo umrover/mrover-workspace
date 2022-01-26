@@ -11,6 +11,10 @@ namespace Source {
  */
 class ICamera {
 public:
+    const std::string PCD_FOLDER = "pcd";
+    const std::string RGB_FOLDER = "rgb";
+    const std::string DEPTH_FOLDER = "depth";
+    
     sl::Resolution res;
     cv::Mat image;
 	cv::Mat depth;

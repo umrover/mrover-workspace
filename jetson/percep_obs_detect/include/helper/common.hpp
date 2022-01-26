@@ -120,6 +120,8 @@ GPU_Cloud createCloud(int size);
 
 void deleteCloud(GPU_Cloud &cloud);
 
+OperationMode parse_operation_mode(const rapidjson::Document &mRoverConfig);
+
 /**
  * \brief Iterate through the unused memory in a GPU cloud and set it to zeros
  */

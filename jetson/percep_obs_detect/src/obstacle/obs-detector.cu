@@ -8,23 +8,9 @@ using namespace std::chrono;
 #include <glm/glm.hpp>
 #include <vector>
 
-ObsDetector::ObsDetector(const rapidjson::Document &mRoverConfig, Source::Camera* cam)
-        : cam{cam} {
-    setupParamaters(mRoverConfig);
-    // Find operation mode
-    std::string op_mode = mRoverConfig["startup"]["operation_mode"].GetString();
-    if (op_mode == "debug"){
-        mode = OperationMode::DEBUG;
-    }
-    else if(op_mode == "silent") {
-        mode = OperationMode::SILENT;
-    }
-    else {
-        std::cerr << "Invalid Operation Mode\n";
-        exit(-1);
-    }
-    
+ViewerType parse_viewer_type(const rapidjson::Document &mRoverConfig) {
     // Find viewer type
+    ViewerType viewerType;
     std::string v_type = mRoverConfig["startup"]["viewer_type"].GetString();
     if (v_type == "gl"){
         viewerType = ViewerType::GL;
@@ -36,6 +22,15 @@ ObsDetector::ObsDetector(const rapidjson::Document &mRoverConfig, Source::Camera
         std::cerr << "Invalid viewer type\n";
         exit(-1);
     }
+    return viewerType;
+}
+
+ObsDetector::ObsDetector(const rapidjson::Document &mRoverConfig, Source::Camera* cam)
+        : cam{cam} {
+    setupParamaters(mRoverConfig);
+    
+    mode = parse_operation_mode(mRoverConfig);
+    viewerType = parse_viewer_type(mRoverConfig);
 
     //Init Viewer
     if (mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
@@ -101,6 +96,9 @@ void ObsDetector::update() {
     //     viewer.maxFrame = fileReader.size();
     //     if (viewer.frame == 1) viewer.setCenter();
     // }
+    if (viewer.record) {
+        cam->write_data();
+    }
 
     update(pc);
 

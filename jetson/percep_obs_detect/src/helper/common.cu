@@ -92,3 +92,21 @@ __device__ __forceinline__ float atomicMaxFloat (float * addr, float value) {
 
     return old;
 }
+
+OperationMode parse_operation_mode(const rapidjson::Document &mRoverConfig) {
+    // Find operation mode
+    OperationMode mode;
+    std::string op_mode = mRoverConfig["startup"]["operation_mode"].GetString();
+    if (op_mode == "debug"){
+        mode = OperationMode::DEBUG;
+    }
+    else if(op_mode == "silent") {
+        mode = OperationMode::SILENT;
+    }
+    else {
+        std::cerr << "Invalid Operation Mode\n";
+        exit(-1);
+    }
+
+    return mode;
+}

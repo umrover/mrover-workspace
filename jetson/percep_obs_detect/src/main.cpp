@@ -31,21 +31,25 @@ using namespace cv;
  * Constructs AR Tag Detector
  * while true
  *      grab frame from camera
- *      run obs detector
  *      run ar tag detector
+ *      run obs detector
  * @return int 
  */
 int main() {
     try {
+        // Parse Config
         rapidjson::Document mRoverConfig = parse_config();
 
+        // Initialize Objects
         Source::Camera cam(mRoverConfig);
         TagDetector detector(mRoverConfig, &cam);
         ObsDetector obs(mRoverConfig, &cam);
         
         while (cam.grab_frame()) {
+            // AR Tag Detection
             detector.update();
             
+            // Obstacle Detection
             obs.open();
             obs.update();
             obs.spinViewer();
@@ -55,26 +59,4 @@ int main() {
         std::cerr << "Exception: " << exception.what() << std::endl;
         return EXIT_FAILURE;
     }
-    
-
-
-    // cv::VideoWriter vidWrite;
-    // string s = "artag_number_.avi";
-    // vidWrite =  VideoWriter(s, VideoWriter::fourcc('M','J','P','G'),10,img.size(),true);
-    // vidWrite.write(img);
-    // vidWrite.release();
-
-
-    // try {
-    //     ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
-    //     while (cam.grab_frame()) {
-    //         obs.open();
-    //         obs.update();
-    //         obs.spinViewer();
-    //     }
-    //     return EXIT_SUCCESS;
-    // } catch (std::exception const& exception) {
-    //     std::cerr << "Exception: " << exception.what() << std::endl;
-    //     return EXIT_FAILURE;
-    // }
 }

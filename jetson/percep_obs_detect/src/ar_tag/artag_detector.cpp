@@ -30,17 +30,7 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig, Source::Camera
    DEFAULT_TAG_VAL{mRoverConfig["ar_tag"]["default_tag_val"].GetInt()},
    cam{cam} {
 
-    std::string op_mode = mRoverConfig["startup"]["operation_mode"].GetString();
-    if (op_mode == "debug"){
-        mode = OperationMode::DEBUG;
-    }
-    else if(op_mode == "silent") {
-        mode = OperationMode::SILENT;
-    }
-    else {
-        std::cerr << "Invalid Operation Mode\n";
-        exit(-1);
-    }
+    mode = parse_operation_mode(mRoverConfig);
 
     cv::FileStorage fsr("alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
@@ -215,8 +205,6 @@ void TagDetector::update() {
         waitKey(1);
     }
 
-    cout << arTags[0].distance << "\n";
-    
     // Publish messages
     #ifndef NO_JARVIS
     lcm_.publish("/target_list", &arTagsMessage);

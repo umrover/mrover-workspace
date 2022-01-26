@@ -12,6 +12,10 @@ private:
     sl::Mat image_zed;
     sl::Mat depth_zed;
     sl::Mat frame;
+    std::string write_location;
+    int frame_counter;
+    int frame_gap;
+
 
 public:
     Zed(){}
