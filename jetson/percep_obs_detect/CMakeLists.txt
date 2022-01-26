@@ -81,6 +81,7 @@ else ()
     target_compile_options(jetson_percep_obs_detect PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
             #-res-usage
             --use_fast_math
+            >
             -g # TODOD: REMOVE WHEN done debugging
-            >)
+            )
 endif ()
