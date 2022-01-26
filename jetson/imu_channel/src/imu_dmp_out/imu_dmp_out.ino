@@ -16,7 +16,7 @@
 
 // Uncomment this to output human readable data to the serial monitor. In this mode,
 // the IMU driver won't work, so IMU data won't be published to LCM
-// #define HUMAN_READABLE 
+// #define DEBUG
 
 #define SERIAL_PORT Serial
 
@@ -72,7 +72,7 @@ void setup()
   // Start the serial console
   SERIAL_PORT.begin(115200); 
 
-  #ifdef HUMAN_READABLE
+  #ifdef DEBUG
   SERIAL_PORT.println(F("ICM-20948 human readable IMU data"));
   #endif
   delay(100);
@@ -82,7 +82,7 @@ void setup()
     SERIAL_PORT.read();
 
   // Wait for the user to press a key (in human readable mode)
-  #ifdef HUMAN_READABLE
+  #ifdef DEBUG
   SERIAL_PORT.println(F("Press any key to continue..."));
   while (!SERIAL_PORT.available());
   #endif
@@ -100,14 +100,14 @@ void setup()
   {
     myICM.begin(WIRE_PORT, AD0_VAL);
 
-    #ifdef HUMAN_READABLE
+    #ifdef DEBUG
     SERIAL_PORT.print(F("Initialization of the sensor returned: "));
     SERIAL_PORT.println(myICM.statusString());
     #endif
 
     if (myICM.status != ICM_20948_Stat_Ok)
     {
-      #ifdef HUMAN_READABLE
+      #ifdef DEBUG
       SERIAL_PORT.println(F("Trying again..."));
       #endif
       delay(500);
@@ -118,7 +118,7 @@ void setup()
     }
   }
 
-  #ifdef HUMAN_READABLE
+  #ifdef DEBUG
   SERIAL_PORT.println(F("Device connected!"));
   #endif
 
@@ -137,7 +137,6 @@ void setup()
   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Quat9, 0) == ICM_20948_Stat_Ok);
   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Accel, 0) == ICM_20948_Stat_Ok);
   success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro, 0) == ICM_20948_Stat_Ok);
-  success &= (myICM.setDMPODRrate(DMP_ODR_Reg_Gyro_Calibr, 0) == ICM_20948_Stat_Ok);
 
   // Enable the FIFO
   success &= (myICM.enableFIFO() == ICM_20948_Stat_Ok);
@@ -154,7 +153,7 @@ void setup()
   // Check success
   if (success)
   {
-    #ifdef HUMAN_READABLE
+    #ifdef DEBUG
     SERIAL_PORT.println(F("DMP enabled!"));
     #endif
   }
@@ -215,7 +214,7 @@ void loop()
         bearing += 360;
       bearing = 360 - bearing;
 
-      #ifdef HUMAN_READABLE
+      #ifdef DEBUG
       SERIAL_PORT.print(F("Pitch:"));
       SERIAL_PORT.print(pitch * 180/PI, 3);
       SERIAL_PORT.print(F(" Roll:"));
@@ -245,7 +244,7 @@ void loop()
       acc_y = (acc_y / 32767) * ACCEL_FSR;
       acc_z = (acc_z / 32767) * ACCEL_FSR;
 
-      #ifdef HUMAN_READABLE
+      #ifdef DEBUG
       SERIAL_PORT.print(F("accel X:"));
       SERIAL_PORT.print(acc_x);
       SERIAL_PORT.print(F(" Y:"));
@@ -273,7 +272,7 @@ void loop()
       gyro_y = (gyro_y / 32767) * GYRO_FSR;
       gyro_z = (gyro_z / 32767) * GYRO_FSR;
 
-      #ifdef HUMAN_READABLE
+      #ifdef DEBUG
       SERIAL_PORT.print(F("gyro X:"));
       SERIAL_PORT.print(gyro_x);
       SERIAL_PORT.print(F(" Y:"));
