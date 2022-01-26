@@ -36,29 +36,24 @@ using namespace cv;
  * @return int 
  */
 int main() {
-    rapidjson::Document mRoverConfig = parse_config();
+    try {
+        rapidjson::Document mRoverConfig = parse_config();
 
-    /* --- AR Tag Initializations --- */
-    TagDetector detector(mRoverConfig);
-    pair<Tag, Tag> tagPair;
-    Source::Camera cam(mRoverConfig);
-    
-    while (true) {
-        cam.grab_frame();
-        rover_msgs::TargetList arTagsMessage;
-        rover_msgs::Target* arTags = arTagsMessage.targetList;
-
-        Mat rgb;
-        Mat src = cam.get_image();
-        Mat depth_img = cam.get_depth();
-
-        /* --- AR Tag Processing --- */
-        arTags[0].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
-        arTags[1].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
-        tagPair = detector.findARTags(src, depth_img, rgb);
-        detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
-        imshow("depth", src);
-        waitKey(1);  
+        Source::Camera cam(mRoverConfig);
+        TagDetector detector(mRoverConfig, &cam);
+        ObsDetector obs(mRoverConfig, &cam);
+        
+        while (cam.grab_frame()) {
+            detector.update();
+            
+            obs.open();
+            obs.update();
+            obs.spinViewer();
+        }
+        return EXIT_SUCCESS;
+    } catch (std::exception const& exception) {
+        std::cerr << "Exception: " << exception.what() << std::endl;
+        return EXIT_FAILURE;
     }
     
 
@@ -69,17 +64,17 @@ int main() {
     // vidWrite.write(img);
     // vidWrite.release();
 
-    exit(0);
 
-    try {
-        ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
-        while (obs.open()) {
-            obs.update();
-            obs.spinViewer();
-        }
-        return EXIT_SUCCESS;
-    } catch (std::exception const& exception) {
-        std::cerr << "Exception: " << exception.what() << std::endl;
-        return EXIT_FAILURE;
-    }
+    // try {
+    //     ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
+    //     while (cam.grab_frame()) {
+    //         obs.open();
+    //         obs.update();
+    //         obs.spinViewer();
+    //     }
+    //     return EXIT_SUCCESS;
+    // } catch (std::exception const& exception) {
+    //     std::cerr << "Exception: " << exception.what() << std::endl;
+    //     return EXIT_FAILURE;
+    // }
 }

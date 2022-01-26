@@ -1,5 +1,5 @@
 #include <string>
-#include <sl/Camera.hpp>
+#include "camera.hpp"
 #include "plane-ransac.hpp"
 #include "pass-through.hpp"
 #include "viewer.hpp"
@@ -34,11 +34,6 @@
 enum class DataSource {ZED, GPUMEM, FILESYSTEM};
 
 /*
- *** Set up debugging level ***
- */
-enum class OperationMode {DEBUG, SILENT};
-
-/*
  *** Choose which viewer to use ***
  */
 enum ViewerType {NONE, GL};
@@ -55,7 +50,7 @@ class ObsDetector {
          * \param mode: Debugging level, either DEBUG for testing or SILENT for competition
          * \param viewer: Viewer type, use NONE for competition, PCLV if you are on Great Lakes, and GL otherwise
          */
-        ObsDetector(DataSource source, OperationMode mode, ViewerType viewer);
+        ObsDetector(const rapidjson::Document &mRoverConfig, Source::Camera* cam);
 
         //Destructor
         ~ObsDetector();
@@ -100,13 +95,10 @@ class ObsDetector {
 
     bool open();
 
-private:
-
-        //Sets up detection paramaters from a JSON file
-        void setupParamaters(std::string parameterFile);
-
-
     private:
+        //Sets up detection paramaters from a JSON file
+        void setupParamaters(const rapidjson::Document &mRoverConfig);
+        
         // Lcm
         #ifndef NO_JARVIS
         lcm::LCM lcm_;
@@ -114,7 +106,7 @@ private:
         #endif
 
         // Data sources
-        sl::Camera zed;
+        Source::Camera* cam;
         PCDReader fileReader;
 
         // Recorder
@@ -126,7 +118,6 @@ private:
         Viewer viewer;
 
         // Operation parameters
-        DataSource source;
         OperationMode mode;
         ViewerType viewerType;
 

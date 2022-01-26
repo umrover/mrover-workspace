@@ -8,27 +8,33 @@ using namespace std::chrono;
 #include <glm/glm.hpp>
 #include <vector>
 
-ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewerType)
-        : source(source), mode(mode), viewerType(viewerType) {
-    setupParamaters("");
-
-    //Init data stream from source
-    if (source == DataSource::ZED) {
-        auto error = zed.open(init_params);
-        if (error != sl::ERROR_CODE::SUCCESS) {
-            throw std::runtime_error("Error opening ZED camera");
-        }
-        //auto camera_config = zed.getCameraInformation(cloud_res).camera_configuration;
-        //defParams = camera_config.calibration_parameters.left_cam;
-    } else if (source == DataSource::FILESYSTEM) {
-        std::string s = ROOT_DIR;
-        s += "/data2/";
-
-        cout << "File data dir: " << endl;
-        cout << "[defaulting to: " << s << endl;
-        getline(cin, readDir);
-        if (readDir == "") readDir = s;
-        fileReader.open(readDir);
+ObsDetector::ObsDetector(const rapidjson::Document &mRoverConfig, Source::Camera* cam)
+        : cam{cam} {
+    setupParamaters(mRoverConfig);
+    // Find operation mode
+    std::string op_mode = mRoverConfig["startup"]["operation_mode"].GetString();
+    if (op_mode == "debug"){
+        mode = OperationMode::DEBUG;
+    }
+    else if(op_mode == "silent") {
+        mode = OperationMode::SILENT;
+    }
+    else {
+        std::cerr << "Invalid Operation Mode\n";
+        exit(-1);
+    }
+    
+    // Find viewer type
+    std::string v_type = mRoverConfig["startup"]["viewer_type"].GetString();
+    if (v_type == "gl"){
+        viewerType = ViewerType::GL;
+    }
+    else if (v_type == "none") {
+        viewerType = ViewerType::NONE;
+    }
+    else {
+        std::cerr << "Invalid viewer type\n";
+        exit(-1);
     }
 
     //Init Viewer
@@ -41,28 +47,30 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
 };
 
 //TODO: Make it read params from a file
-void ObsDetector::setupParamaters(std::string parameterFile) {
+void ObsDetector::setupParamaters(const rapidjson::Document &config) {
     //Operating resolution
-    cloud_res = sl::Resolution(320, 180);
-    readDir = "/home/mrover/mrover-workspace/jetson/percep_obs_detect/data";
+    cloud_res = sl::Resolution(
+        config["camera"]["resolution_width"].GetInt(),
+        config["camera"]["resolution_height"].GetInt());
 
     //Zed params
-    init_params.coordinate_units = sl::UNIT::MILLIMETER;
-    init_params.camera_resolution = sl::RESOLUTION::VGA;
-    init_params.camera_fps = 100;
+    // init_params.coordinate_units = sl::UNIT::MILLIMETER;
+    // init_params.camera_resolution = sl::RESOLUTION::VGA;
+    // init_params.camera_fps = 100;
 
-    // Set writer params
-    frameGap = 10;
+    // // Set writer params
+    // frameGap = 10;
 
-    //Set the viewer paramas
-    defParams.fx = 79.8502;
-    defParams.fy = 80.275;
-    defParams.cx = 78.8623;
-    defParams.cy = 43.6901;
-    defParams.image_size.width = cloud_res.width;
-    defParams.image_size.height = cloud_res.height;
+    // Set the viewer paramas
+    // defParams.fx = 79.8502;
+    // defParams.fy = 80.275;
+    // defParams.cx = 78.8623;
+    // defParams.cy = 43.6901;
+    // defParams.image_size.width = cloud_res.width;
+    // defParams.image_size.height = cloud_res.height;
 
     //Obs Detecting Algorithm Params
+    // TODO: add these to the config file
     passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
@@ -72,29 +80,31 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
 
 
 void ObsDetector::update() {
-    GPU_Cloud pc;
+    GPU_Cloud pc = cam->get_cloud();
+    
     // sl::Mat frame is outside of if statement scope since it owns the memory and we don't want that to de-allocate sooner than expected
-    sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
-    if (source == DataSource::ZED) {
-        zed.grab();
-        zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res);
-        getRawCloud(pc, frame);
-        if (viewer.record) {
-            if ((frameCounter % frameGap) == 0) {
-                std::stringstream ss;
-                ss << ROOT_DIR << "/data2/pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
-                fileWriter.writeCloud(ss.str(), pc, cloud_res.width, cloud_res.height);
-            }
-            ++frameCounter;
-        }
-    } else if (source == DataSource::FILESYSTEM) {
-        pc = fileReader.getCloudGPU(viewer.frame);
-        viewer.maxFrame = fileReader.size();
-        if (viewer.frame == 1) viewer.setCenter();
-    }
+    // sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
+    // if (source == DataSource::ZED) {
+    //     zed.grab();
+    //     zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res);
+    //     getRawCloud(pc, frame);
+    //     if (viewer.record) {
+    //         if ((frameCounter % frameGap) == 0) {
+    //             std::stringstream ss;
+    //             ss << ROOT_DIR << "/data2/pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
+    //             fileWriter.writeCloud(ss.str(), pc, cloud_res.width, cloud_res.height);
+    //         }
+    //         ++frameCounter;
+    //     }
+    // } else if (source == DataSource::FILESYSTEM) {
+    //     pc = fileReader.getCloudGPU(viewer.frame);
+    //     viewer.maxFrame = fileReader.size();
+    //     if (viewer.frame == 1) viewer.setCenter();
+    // }
+
     update(pc);
 
-    if (source == DataSource::FILESYSTEM) deleteCloud(pc);
+    // if (source == DataSource::FILESYSTEM) deleteCloud(pc);
 }
 
 vec3 closestPointOnPlane(Plane plane, vec3 point) {
@@ -184,10 +194,10 @@ void ObsDetector::update(GPU_Cloud pc) {
         createBearing();
     }
 
-    if (viewer.framePlay) {
-        viewer.frame++;
-        viewer.frame %= viewer.maxFrame;
-    }
+    // if (viewer.framePlay) {
+    //     viewer.frame++;
+    //     viewer.frame %= viewer.maxFrame;
+    // }
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {

@@ -10,6 +10,7 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <opencv2/aruco.hpp>
+#include <lcm/lcm-cpp.hpp>
 
 #ifndef COMMON
 #define COMMON
@@ -29,6 +30,11 @@
  * \brief Enum for x,y,z axis
  */
 enum class Axis {X, Y, Z};
+
+/*
+ *** Set up debugging level ***
+ */
+enum class OperationMode {DEBUG, SILENT};
 
 /**
  * \struct GPU_Cloud_F4

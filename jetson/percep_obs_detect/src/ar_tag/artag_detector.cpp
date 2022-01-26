@@ -19,7 +19,7 @@ void onMouse(int event, int x, int y, int flags, void *userdata) {
 }
 
 //initializes detector object with pre-generated dictionary of tags 
-TagDetector::TagDetector(const rapidjson::Document &mRoverConfig) :  
+TagDetector::TagDetector(const rapidjson::Document &mRoverConfig, Source::Camera* cam) :  
 
    //Populate Constants from Config File
    BUFFER_ITERATIONS{mRoverConfig["ar_tag"]["buffer_iterations"].GetInt()},
@@ -27,7 +27,20 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig) :
    DO_CORNER_REFINEMENT{!!mRoverConfig["alvar_params"]["do_corner_refinement"].GetInt()},
    POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonal_approx_accuracy_rate"].GetDouble()},
    MM_PER_M{1000},
-   DEFAULT_TAG_VAL{mRoverConfig["ar_tag"]["default_tag_val"].GetInt()} {
+   DEFAULT_TAG_VAL{mRoverConfig["ar_tag"]["default_tag_val"].GetInt()},
+   cam{cam} {
+
+    std::string op_mode = mRoverConfig["startup"]["operation_mode"].GetString();
+    if (op_mode == "debug"){
+        mode = OperationMode::DEBUG;
+    }
+    else if(op_mode == "silent") {
+        mode = OperationMode::SILENT;
+    }
+    else {
+        std::cerr << "Invalid Operation Mode\n";
+        exit(-1);
+    }
 
     cv::FileStorage fsr("alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
@@ -77,20 +90,18 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
 
     // Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
-#if AR_RECORD
-cv::aruco::drawDetectedMarkers(rgb, corners, ids);
-#endif
 
-    // Draw detected tags
-    cv::aruco::drawDetectedMarkers(rgb, corners, ids);
-    cv::imshow("AR Tags", rgb);
+    if (mode == OperationMode::DEBUG){
+        // Draw detected tags
+        cv::aruco::drawDetectedMarkers(rgb, corners, ids);
+        cv::imshow("AR Tags", rgb);
 
-    // on click debugging for color
-    DEPTH = depth_src;
-    cvtColor(rgb, HSV, COLOR_RGB2HSV);
-    setMouseCallback("Obstacle", onMouse);
-
-
+        // on click debugging for color
+        DEPTH = depth_src;
+        cvtColor(rgb, HSV, COLOR_RGB2HSV);
+        setMouseCallback("Obstacle", onMouse);
+    }
+    
     // create Tag objects for the detected tags and return them
     pair<Tag, Tag> discoveredTags;
     if (ids.size() == 0) {
@@ -178,4 +189,36 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
         tags.buffer[i] = 0;
    }
   }
+}
+
+void TagDetector::update() {
+    // Initializations
+    #ifndef NO_JARVIS
+    lcm::LCM lcm_;
+    #endif
+    rover_msgs::TargetList arTagsMessage;
+    rover_msgs::Target* arTags = arTagsMessage.targetList;
+    arTags[0].distance = DEFAULT_TAG_VAL;
+    arTags[1].distance = DEFAULT_TAG_VAL;
+    
+    Mat rgb;
+    Mat src = cam->get_image();
+    Mat depth_img = cam->get_depth();
+
+    // AR Tag Processing
+    pair<Tag, Tag> tagPair;
+    tagPair = findARTags(src, depth_img, rgb);
+    updateDetectedTagInfo(arTags, tagPair, depth_img, src);
+    
+    if (mode == OperationMode::DEBUG){
+        imshow("depth", src);
+        waitKey(1);
+    }
+
+    cout << arTags[0].distance << "\n";
+    
+    // Publish messages
+    #ifndef NO_JARVIS
+    lcm_.publish("/target_list", &arTagsMessage);
+    #endif
 }

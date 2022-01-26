@@ -4,6 +4,7 @@
 #include <opencv2/aruco.hpp>
 #include "common.hpp"
 
+namespace Source {
 /**
  * @brief Interface class designed as a template that all camera 
  * camera classses should comply by
@@ -15,8 +16,10 @@ public:
 	cv::Mat depth;
 
     virtual bool grab_frame() = 0;
-    virtual cv::Mat get_image() = 0;
+    virtual cv::Mat& get_image() = 0;
     virtual cv::Mat& get_depth() = 0;
     virtual GPU_Cloud get_cloud() = 0;
     virtual void write_data() = 0;
 };
+
+}

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "camera.hpp"
 #include <vector>
 #include "common.hpp"
-#include "rover_msgs/Target.hpp"
 
 using namespace std;
 using namespace cv;
@@ -13,14 +13,14 @@ struct Tag {
 };
 
 class TagDetector {
-   private:
+private:
     Ptr<cv::aruco::Dictionary> alvarDict;
     Ptr<cv::aruco::DetectorParameters> alvarParams;
     std::vector<int> ids;
     std::vector<std::vector<cv::Point2f> > corners;
     cv::Mat rgb;
     
-   public:
+public:
    //Constants:
    int BUFFER_ITERATIONS;
    int MARKER_BORDER_BITS;
@@ -28,9 +28,11 @@ class TagDetector {
    double POLYGONAL_APPROX_ACCURACY_RATE;
    int MM_PER_M;
    int DEFAULT_TAG_VAL;
+   Source::Camera* cam;
+   OperationMode mode;
 
     //constructor loads alvar dictionary data from file that defines tag bit configurations
-    TagDetector(const rapidjson::Document &mRoverConfig);    
+    TagDetector(const rapidjson::Document &mRoverConfig, Source::Camera* cam);
     //takes detected AR tag and finds center coordinate for use with ZED                                                                 
     Point2f getAverageTagCoordinateFromCorners(const vector<Point2f> &corners);
     //detects AR tags in a given Mat     
@@ -40,4 +42,8 @@ class TagDetector {
     //if AR tag found, updates distance, bearing, and id                              
     void updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src); 
     
+    /**
+     * @brief Processes image from ZED and sends findings across LCM
+     */
+    void update();
 };

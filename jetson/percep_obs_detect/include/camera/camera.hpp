@@ -34,7 +34,7 @@ public:
     }
     ~Camera() {}
     virtual bool grab_frame() override {return cam_impl->grab_frame();}
-    virtual cv::Mat get_image() override {return cam_impl->get_image();}
+    virtual cv::Mat& get_image() override {return cam_impl->get_image();}
     virtual cv::Mat& get_depth() override {return cam_impl->get_depth();}
     virtual GPU_Cloud get_cloud() override {return cam_impl->get_cloud();}
     virtual void write_data() override {cam_impl->write_data();}
