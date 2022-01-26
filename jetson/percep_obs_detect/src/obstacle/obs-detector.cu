@@ -1,4 +1,5 @@
 #include "obs-detector.h"
+
 #include <chrono>
 
 using namespace std;
@@ -292,18 +293,4 @@ ObsDetector::~ObsDetector() {
 
 bool ObsDetector::open() {
     return viewer.open();
-}
-
-int main() {
-    try {
-        ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);
-        while (obs.open()) {
-            obs.update();
-            obs.spinViewer();
-        }
-        return EXIT_SUCCESS;
-    } catch (std::exception const& exception) {
-        std::cerr << "Exception: " << exception.what() << std::endl;
-        return EXIT_FAILURE;
-    }
 }

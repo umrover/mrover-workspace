@@ -16,7 +16,13 @@ if (VIEWER_ONLY)
     add_compile_options(-DVIEWER_ONLY)
 
     include_directories(SYSTEM ${GLFW_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/viewer
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/viewer/imgui
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/obstacle
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/helper
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/camera
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/ar_tag)
     file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "src/*.cpp")
     add_executable(viewer ${SOURCE_FILES})
     set_target_properties(viewer PROPERTIES LINKER_LANGUAGE CXX)
@@ -34,10 +40,20 @@ else ()
     find_package(ZED 3 REQUIRED)
 
     include_directories(SYSTEM ${GLFW_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${ZED_INCLUDE_DIRS} ${CUDA_INCLUDE_DIRS})
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui)
     include_directories(/usr/local/cuda-10.0/samples/common/inc)
     include_directories($ENV{HOME}/.mrover/build_env/include)
-
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/viewer
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/viewer/imgui
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/obstacle
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/helper
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/camera
+                        ${CMAKE_CURRENT_SOURCE_DIR}/include/ar_tag)
+    # TODO: Update this
+    find_package( OpenCV REQUIRED )
+    include_directories( ${OpenCV_INCLUDE_DIRS} )
+    include_directories($ENV{HOME}/mrover-workspace/3rdparty/rapidjson) 
+    # END
 
     link_directories($ENV{HOME}/.mrover/build_env/lib)
     link_directories($ENV{HOME}/.mrover/build_env/lib64)
@@ -55,6 +71,7 @@ else ()
     ${GLUT_LIBRARY}
     ${GLEW_LIBRARIES}
     glfw
+    ${OpenCV_LIBS}
     )
     if (NO_JARVIS)
     else ()
@@ -64,5 +81,6 @@ else ()
     target_compile_options(jetson_percep_obs_detect PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
             #-res-usage
             --use_fast_math
+            -g # TODOD: REMOVE WHEN done debugging
             >)
 endif ()

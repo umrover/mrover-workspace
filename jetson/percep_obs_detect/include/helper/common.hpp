@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <cmath>
 #include <limits>
+#include "rapidjson/document.h"
 
 #ifndef COMMON
 #define COMMON

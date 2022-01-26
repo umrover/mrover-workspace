@@ -6,7 +6,6 @@
 #include "voxel-grid.hpp"
 #include "euclidean-cluster.hpp"
 #include <thread>
-#include "timer.hpp"
 #include "common.hpp"
 #include "voxel-grid.hpp"
 #include "find-clear-path.hpp"

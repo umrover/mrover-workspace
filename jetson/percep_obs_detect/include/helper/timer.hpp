@@ -1,6 +1,7 @@
 #include <chrono>
 #include <string> 
 #include <iostream>
+
 class Timer {
     public:
         Timer(std::string name) : name(name) {
