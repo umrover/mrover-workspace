@@ -1,32 +1,44 @@
-#ifndef CAMERA
-#define CAMERA
+#pragma once
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/aruco.hpp>
-#include "common.hpp"
+#include "icamera.hpp"
+#include "zed.hpp"
 
-class Camera_impl {
+namespace Source {
+
+// typedef std::shared_ptr<ICamera> Camera_impl_ptr
+// typedef Zed_ptr std::shared_ptr<Zed>
+
+/**
+ * @brief Camera shell, which stores a pointer to an actual 
+ * implementation of a camera class
+ */
+class Camera : public ICamera{
 private:
-    Camera_impl* cam;
-    int FRAME_WRITE_INTERVAL;
+    std::shared_ptr<ICamera> cam_impl;
 
 public:
-    Camera_impl(){}
-    Camera_impl(const rapidjson::Document &config) {
-        FRAME_WRITE_INTERVAL = config["camera"]["frame_write_interval"].GetInt();
-        cout << "FRAME WRITE INTERVAL: " << FRAME_WRITE_INTERVAL << "\n";
-        cam = new Camera_impl;
-    }
-    ~Camera_impl() {
-        if (cam) {
-            delete cam;
+    Camera(){}
+    Camera(const rapidjson::Document &config) {
+        std::string data_source = config["startup"]["data_source_type"].GetString();
+        
+        if (data_source == "filesystem") {
+
+        }
+        else if (data_source == "zed") {
+            cam_impl = std::shared_ptr<Source::Zed>(new Source::Zed(config));
+        }
+        else {
+            std::cerr << "Invalid data_source_type field\n";
+            exit(-1);
         }
     }
-    bool grab_frame() {return cam->grab_frame();}
-    cv::Mat get_image() {return cam->get_image();}
-    cv::Mat get_depth() {return cam->get_depth();}
-    GPU_Cloud get_cloud() {return cam->get_cloud();}
-    void write_data() {cam->write_data();}
+    ~Camera() {}
+    virtual bool grab_frame() override {return cam_impl->grab_frame();}
+    virtual cv::Mat get_image() override {return cam_impl->get_image();}
+    virtual cv::Mat& get_depth() override {return cam_impl->get_depth();}
+    virtual GPU_Cloud get_cloud() override {return cam_impl->get_cloud();}
+    virtual void write_data() override {cam_impl->write_data();}
 };
 
-#endif
+}
+

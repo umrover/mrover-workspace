@@ -1,6 +1,7 @@
 #include "obs-detector.h"
 #include "camera.hpp"
 #include "common.hpp"
+#include "artag_detector.hpp"
 
 rapidjson::Document parse_config() {
     /* --- Reading in Config File --- */
@@ -19,6 +20,9 @@ rapidjson::Document parse_config() {
     return mRoverConfig;
 }
 
+using namespace std;
+using namespace cv;
+
 /**
  * @brief 
  * Parses configuration file
@@ -34,7 +38,38 @@ rapidjson::Document parse_config() {
 int main() {
     rapidjson::Document mRoverConfig = parse_config();
 
-    Camera_impl cam(mRoverConfig);
+    /* --- AR Tag Initializations --- */
+    TagDetector detector(mRoverConfig);
+    pair<Tag, Tag> tagPair;
+    Source::Camera cam(mRoverConfig);
+    
+    while (true) {
+        cam.grab_frame();
+        rover_msgs::TargetList arTagsMessage;
+        rover_msgs::Target* arTags = arTagsMessage.targetList;
+
+        Mat rgb;
+        Mat src = cam.get_image();
+        Mat depth_img = cam.get_depth();
+
+        /* --- AR Tag Processing --- */
+        arTags[0].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
+        arTags[1].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
+        tagPair = detector.findARTags(src, depth_img, rgb);
+        detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
+        imshow("depth", src);
+        waitKey(1);  
+    }
+    
+
+
+    // cv::VideoWriter vidWrite;
+    // string s = "artag_number_.avi";
+    // vidWrite =  VideoWriter(s, VideoWriter::fourcc('M','J','P','G'),10,img.size(),true);
+    // vidWrite.write(img);
+    // vidWrite.release();
+
+    exit(0);
 
     try {
         ObsDetector obs(DataSource::FILESYSTEM, OperationMode::DEBUG, ViewerType::GL);

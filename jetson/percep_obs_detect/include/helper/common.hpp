@@ -5,6 +5,11 @@
 #include <cmath>
 #include <limits>
 #include "rapidjson/document.h"
+#include "rover_msgs/Target.hpp"
+#include "rover_msgs/TargetList.hpp"
+#include <memory>
+#include <opencv2/opencv.hpp>
+#include <opencv2/aruco.hpp>
 
 #ifndef COMMON
 #define COMMON
