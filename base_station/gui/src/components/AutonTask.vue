@@ -35,6 +35,7 @@
     </div>
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
+      <ZedGimbalAngles></ZedGimbalAngles>
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
@@ -43,7 +44,6 @@
       <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped" v-bind:Joystick="Joystick"/>
     </div>
     <div class="box angles light-bg">
-      <ZedGimbalAngles></ZedGimbalAngles>
     </div>
      <!-- <div class="box raw_sensors light-bg">
       <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
@@ -86,10 +86,10 @@ export default {
       },
 
       odom: {
-        latitude_deg: 38,
-        latitude_min: 24.38226,
-        longitude_deg: -110,
-        longitude_min: -47.51724,
+        latitude_deg: 0,
+        latitude_min: 0,
+        longitude_deg: 0,
+        longitude_min: 0,
         bearing_deg: 0,
         speed: 0
       },
@@ -340,7 +340,7 @@ export default {
     min-height: 98vh;
     grid-gap: 10px;
     grid-template-columns: 2fr 1.25fr 0.75fr;
-    grid-template-rows: 50px 2fr 1fr 15vh 15vh;
+    grid-template-rows: 50px 2fr 1fr 6vh 24vh;
     grid-template-areas: "header header header" 
                          "map waypoints waypoints"
                          "map waypoints waypoints" 
