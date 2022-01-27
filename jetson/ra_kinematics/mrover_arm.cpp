@@ -111,6 +111,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
                 }
             }
 
+
             if (num_fishy_vals > MAX_FISHY_VALS) {
                 faulty_encoders[joint] = true;
                 // encoder_error = true;
@@ -408,6 +409,8 @@ void MRoverArm::execute_spline() {
 
             double max_time = -1; //in ms
 
+            size_t temp_max_joint = 6;
+
             // Get max time to travel for joints a through e
             for (int i = 0; i < 5; ++i) {
                 double max_speed = arm_state.get_joint_max_speed(i);
@@ -417,8 +420,13 @@ void MRoverArm::execute_spline() {
                     / (max_speed / 1000.0); // convert max_speed to rad/ms
                 
                 //sets max_time to greater value
-                max_time = max_time < joint_time ? joint_time : max_time;
+                if (max_time < joint_time) {
+                    max_time = joint_time;
+                    temp_max_joint = i;
+                }
             }
+
+            // std:: cout << "slowest joint: " << temp_max_joint << "\n";
 
             //determines size of iteration by dividing number of iterations by distance
             spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
@@ -443,10 +451,10 @@ void MRoverArm::execute_spline() {
                 }
             }
 
-            // std::cout << "joint a current position: " << arm_state.get_joint_angle(0) << "\n";
-            // std::cout << "joint a target:           " << target_angles[0] << "\n";
-            // std::cout << "joint c current position: " << arm_state.get_joint_angle(1) << "\n";
-            // std::cout << "joint c target:           " << target_angles[1] << "\n\n";
+            std::cout << "joint a current position: " << arm_state.get_joint_angle(0) << "\n";
+            std::cout << "joint a target:           " << target_angles[0] << "\n";
+            std::cout << "joint b current position: " << arm_state.get_joint_angle(1) << "\n";
+            std::cout << "joint b target:           " << target_angles[1] << "\n\n";
 
             // if not in sim_mode, send physical arm a new target
             if (!sim_mode) {
