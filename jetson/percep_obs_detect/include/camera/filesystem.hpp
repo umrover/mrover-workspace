@@ -6,6 +6,10 @@
 
 namespace Source {
 
+/**
+ * @brief Imitates camera functionality while actually reading
+ * from the file system
+ */
 class FileSystem : public ICamera {
 private:
     int max_frame;
@@ -15,15 +19,14 @@ private:
     
 public:
     PCDReader reader;
-    FileSystem(){}
     FileSystem(const rapidjson::Document &config);
     ~FileSystem();
-    bool grab_frame();
-    void ignore_grab();
-    cv::Mat& get_image();
-    cv::Mat& get_depth(); 
-    GPU_Cloud get_cloud();
-    void write_data();
+    virtual bool grab_frame() override;
+    virtual void ignore_grab() override;
+    virtual cv::Mat& get_image() override;
+    virtual cv::Mat& get_depth() override; 
+    virtual GPU_Cloud get_cloud() override;
+    virtual void write_data() override;
 };
 
 }
