@@ -58,8 +58,10 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
         }
     }
 
+    // std::cout << "Original joint b: " << angles[1] << "\n";
     // Adjust for shaky joint B values
     angles[1] = joint_b_stabilizer(angles[1]);
+    // std::cout << "Filtered joint b: " << angles[1] << "\n";
 
     encoder_error = false;
     encoder_error_message = "Encoder Error in encoder(s) (joint A = 0, F = 5): ";
@@ -80,7 +82,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
                 if (diff > ENCODER_ERROR_THRESHOLD * (i + 1)) {
                     faulty_encoders[joint] = true;
                     encoder_error_message += ", " + std::to_string(joint);
-                    encoder_error = true;
+                    // encoder_error = true;
                     break;
                 }
 
@@ -103,12 +105,16 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
                 if (diff > ENCODER_ERROR_THRESHOLD * (i + 1)) {
                     ++num_fishy_vals;
+
+                    std::cout << "joint " << joint << ": " << angles[joint]
+                              << ", prev: " << prev_angles[joint][i] << "\n";
                 }
             }
 
+
             if (num_fishy_vals > MAX_FISHY_VALS) {
                 faulty_encoders[joint] = true;
-                encoder_error = true;
+                // encoder_error = true;
                 encoder_error_message += ", " + std::to_string(joint);
             }
             else {
@@ -343,7 +349,9 @@ void MRoverArm::preview(ArmState& hypo_state) {
 }
 
 void MRoverArm::motion_execute_callback(std::string channel, MotionExecute msg) {
-    bool execute = msg.execute;
+    std::cout << "Entering motion execute callback\n";
+    std::cout << msg.execute << "\n";
+    bool execute = (bool) msg.execute;
     std::cout << "Received execute message: " << execute << "\n";
 
     if (control_state != ControlState::READY_TO_EXECUTE) {
@@ -362,6 +370,7 @@ void MRoverArm::motion_execute_callback(std::string channel, MotionExecute msg) 
     }
     else {
         control_state = ControlState::WAITING_FOR_TARGET;
+        std::cout << "Changed to waiting for target\n";
     }
 }
 
@@ -389,6 +398,7 @@ void MRoverArm::execute_spline() {
                 }
 
                 control_state = ControlState::WAITING_FOR_TARGET;
+                send_kill_cmd();
                 continue;
             }
 
@@ -399,6 +409,8 @@ void MRoverArm::execute_spline() {
 
             double max_time = -1; //in ms
 
+            size_t temp_max_joint = 6;
+
             // Get max time to travel for joints a through e
             for (int i = 0; i < 5; ++i) {
                 double max_speed = arm_state.get_joint_max_speed(i);
@@ -408,15 +420,20 @@ void MRoverArm::execute_spline() {
                     / (max_speed / 1000.0); // convert max_speed to rad/ms
                 
                 //sets max_time to greater value
-                max_time = max_time < joint_time ? joint_time : max_time;
+                if (max_time < joint_time) {
+                    max_time = joint_time;
+                    temp_max_joint = i;
+                }
             }
+
+            // std:: cout << "slowest joint: " << temp_max_joint << "\n";
 
             //determines size of iteration by dividing number of iterations by distance
             spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
             spline_t += spline_t_iterator;
 
             // break out of loop if necessary
-            if (spline_t > 1.0) {
+            if (spline_t >= 1.0) {
                 std::cout << "Finished executing!\n";
                 spline_t = 0.999999999999;
                 control_state = ControlState::WAITING_FOR_TARGET;
@@ -434,8 +451,10 @@ void MRoverArm::execute_spline() {
                 }
             }
 
-            // std::cout << "joint b current position: " << arm_state.get_joint_angle(1) << "\n";
-            // std::cout << "joint b target:           " << target_angles[1] << "\n\n";
+            std::cout << "joint a current position: " << arm_state.get_joint_angle(0) << "\n";
+            std::cout << "joint a target:           " << target_angles[0] << "\n";
+            std::cout << "joint b current position: " << arm_state.get_joint_angle(1) << "\n";
+            std::cout << "joint b target:           " << target_angles[1] << "\n\n";
 
             // if not in sim_mode, send physical arm a new target
             if (!sim_mode) {
@@ -453,6 +472,10 @@ void MRoverArm::execute_spline() {
             // if in sim_mode, simulate that we have gotten a new current position
             else if (sim_mode) {
                 arm_state.set_joint_angles(target_angles);
+            }
+
+            if (control_state != ControlState::EXECUTING) {
+                send_kill_cmd();
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds((int) SPLINE_WAIT_TIME));
@@ -566,7 +589,7 @@ void MRoverArm::check_joint_limits(std::vector<double> &angles) {
 
         // If angle is far outside limits
         else if (angles[i] < limits[0] || angles[i] > limits[1]) {
-            encoder_error = true;
+            // encoder_error = true;
             encoder_error_message = "Encoder Error: " + std::to_string(angles[i]) + " beyond joint " + std::to_string(i) + " limits (joint A = 0, F = 5)";
         }
     }
@@ -587,4 +610,20 @@ double MRoverArm::joint_b_stabilizer(double angle) {
     // Update prev angle to current angle
     prev_angle_b = JOINT_B_STABILIZE_MULTIPLIER * prev_angle_b + (1 - JOINT_B_STABILIZE_MULTIPLIER) * angle;
     return prev_angle_b;
+}
+
+
+void MRoverArm::send_kill_cmd() {
+    std::cout << "Sending kill command!\n";
+
+    RAOpenLoopCmd ra_cmd;
+    for (size_t i = 0; i < arm_state.num_joints(); ++i) {
+        ra_cmd.throttle[i] = 0.0;
+    }
+    lcm_.publish("/ra_openloop_cmd", &ra_cmd);
+
+    HandCmd hand_cmd;
+    hand_cmd.finger = 0.0;
+    hand_cmd.grip = 0.0;
+    lcm_.publish("/hand_openloop_cmd", &hand_cmd);
 }

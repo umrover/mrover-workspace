@@ -26,7 +26,9 @@
 #include "rover_msgs/LockJoints.hpp"
 #include "rover_msgs/DebugMessage.hpp"
 #include "rover_msgs/ArmControlState.hpp"
- 
+#include "rover_msgs/RAOpenLoopCmd.hpp"
+#include "rover_msgs/HandCmd.hpp"
+
 using namespace rover_msgs;
  
 using nlohmann::json;
@@ -38,7 +40,7 @@ typedef Matrix<double, 6, 1> Vector6d;
 static constexpr double D_SPLINE_T = 0.01;
 
 // in ms, wait time for execute_spline loop
-static constexpr int SPLINE_WAIT_TIME = 200;
+static constexpr int SPLINE_WAIT_TIME = 50;
 
 // Angle in radians to determine when encoders are sending faulty values
 static constexpr double ENCODER_ERROR_THRESHOLD = 0.2;
@@ -187,6 +189,8 @@ private:
     void check_joint_limits(std::vector<double> &angles);
 
     double joint_b_stabilizer(double angle);
+
+    void send_kill_cmd();
 };
 
 

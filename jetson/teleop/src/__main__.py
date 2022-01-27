@@ -33,7 +33,6 @@ class Toggle:
 lcm_ = aiolcm.AsyncLCM()
 prev_killed = False
 kill_motor = False
-arm_control_state = "open-loop"
 lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
@@ -136,9 +135,10 @@ def drive_control_callback(channel, msg):
 
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
+
 def send_zero_arm_command():
     openloop_msg = RAOpenLoopCmd()
-    openloop_msg.throttle = [0,0,0,0,0,0]
+    openloop_msg.throttle = [0, 0, 0, 0, 0, 0]
 
     lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
 
@@ -150,25 +150,14 @@ def send_zero_arm_command():
 
 
 def arm_control_state_callback(channel, msg):
-    global arm_control_state
+    arm_control_state = ArmControlState.decode(msg)
 
-    input_data = ArmControlState.decode(msg)
-
-    arm_control_state = input_data.state
-    
-    if arm_control_state == 'closed-loop' or arm_control_state == 'idle':
+    if arm_control_state != 'open-loop':
         send_zero_arm_command()
-    
+
 
 def ra_control_callback(channel, msg):
-    global arm_control_state
 
-    # # if arm_control_state == idle, send 0 values
-    # if arm_control_state == "idle":
-    #     send_zero_arm_command()
-
-    # # if arm_control_state == open-loop, send xbox input
-    # elif arm_control_state == "open-loop":
     xboxData = Xbox.decode(msg)
 
     motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
@@ -176,7 +165,7 @@ def ra_control_callback(channel, msg):
                     deadzone(quadratic(xboxData.right_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_x), 0.09),
                     quadratic(xboxData.right_trigger -
-                            xboxData.left_trigger),
+                              xboxData.left_trigger),
                     (xboxData.right_bumper - xboxData.left_bumper)]
 
     openloop_msg = RAOpenLoopCmd()
@@ -189,8 +178,6 @@ def ra_control_callback(channel, msg):
     hand_msg.grip = xboxData.b - xboxData.x
 
     lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
-
-    # otherwise, if arm_control_state == closed-loop, do nothing
 
 
 def autonomous_callback(channel, msg):
@@ -290,4 +277,3 @@ def main():
 
     run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())
-
