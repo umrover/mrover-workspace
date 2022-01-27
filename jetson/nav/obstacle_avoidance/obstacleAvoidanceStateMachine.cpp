@@ -67,8 +67,10 @@ NavState ObstacleAvoidanceStateMachine::run()
 // Checks that both rover is in search state and that target is detected
 bool ObstacleAvoidanceStateMachine::isTargetDetected ()
 {
+    // Second check is to see if we have either a valid target, or if we have a valid
+    // cached target to view
     return ( mRover->roverStatus().currentState() == NavState::SearchTurnAroundObs &&
-             mRover->roverStatus().target().distance >= 0 );
+             ( mRover->roverStatus().leftCacheTarget().distance >= 0 ) );
 }
 
 // The obstacle avoidance factory allows for the creation of obstacle avoidance objects and

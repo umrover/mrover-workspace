@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Focus in on the current window
+WID=$(xdotool selectwindow)
+xdotool windowfocus $WID
+
+# Enter commands you want to be executed in the window here
+
+# Run Navigation
+xdotool key type "./jarvis exec jetson/nav"
+xdotool key KP_Enter
+
+# Make window 1/4 of screen and align lower left
+dimensions=$(./jarvis_files/launch_scripts/dim)
+dim=($dimensions)
+dim[0]=$(expr ${dim[0]} / 2)
+dim[1]=$(expr ${dim[1]} / 2)
+xdotool windowsize $WID ${dim[0]} ${dim[1]} 
+xdotool windowmove $WID 0 0
+xdotool windowminimize $WID
