@@ -222,7 +222,9 @@ export default {
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/thermistor_data', 'type': 'ThermistorData'}
+        {'topic': '/thermistor_data', 'type': 'ThermistorData'},
+        {'topic': '/carousel_data', 'type': 'CarouselData'},
+        {'topic': '/carousel_cmd', 'type': 'CarouselCmd'}
       ]
     )
 
