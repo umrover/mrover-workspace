@@ -36,9 +36,6 @@ ObsDetector::ObsDetector(const rapidjson::Document &mRoverConfig, Source::Camera
     if (mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
         viewer.addPointCloud();
     }
-
-    frameCounter = 0;
-
 };
 
 //TODO: Make it read params from a file
@@ -47,22 +44,6 @@ void ObsDetector::setupParamaters(const rapidjson::Document &config) {
     cloud_res = sl::Resolution(
         config["camera"]["resolution_width"].GetInt(),
         config["camera"]["resolution_height"].GetInt());
-
-    //Zed params
-    // init_params.coordinate_units = sl::UNIT::MILLIMETER;
-    // init_params.camera_resolution = sl::RESOLUTION::VGA;
-    // init_params.camera_fps = 100;
-
-    // // Set writer params
-    // frameGap = 10;
-
-    // Set the viewer paramas
-    // defParams.fx = 79.8502;
-    // defParams.fy = 80.275;
-    // defParams.cx = 78.8623;
-    // defParams.cy = 43.6901;
-    // defParams.image_size.width = cloud_res.width;
-    // defParams.image_size.height = cloud_res.height;
 
     //Obs Detecting Algorithm Params
     // TODO: add these to the config file
@@ -76,33 +57,12 @@ void ObsDetector::setupParamaters(const rapidjson::Document &config) {
 
 void ObsDetector::update() {
     GPU_Cloud pc = cam->get_cloud();
-    
-    // sl::Mat frame is outside of if statement scope since it owns the memory and we don't want that to de-allocate sooner than expected
-    // sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
-    // if (source == DataSource::ZED) {
-    //     zed.grab();
-    //     zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res);
-    //     getRawCloud(pc, frame);
-    //     if (viewer.record) {
-    //         if ((frameCounter % frameGap) == 0) {
-    //             std::stringstream ss;
-    //             ss << ROOT_DIR << "/data2/pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
-    //             fileWriter.writeCloud(ss.str(), pc, cloud_res.width, cloud_res.height);
-    //         }
-    //         ++frameCounter;
-    //     }
-    // } else if (source == DataSource::FILESYSTEM) {
-    //     pc = fileReader.getCloudGPU(viewer.frame);
-    //     viewer.maxFrame = fileReader.size();
-    //     if (viewer.frame == 1) viewer.setCenter();
-    // }
+
     if (viewer.record) {
         cam->write_data();
     }
 
     update(pc);
-
-    // if (source == DataSource::FILESYSTEM) deleteCloud(pc);
 }
 
 vec3 closestPointOnPlane(Plane plane, vec3 point) {
@@ -192,10 +152,9 @@ void ObsDetector::update(GPU_Cloud pc) {
         createBearing();
     }
 
-    // if (viewer.framePlay) {
-    //     viewer.frame++;
-    //     viewer.frame %= viewer.maxFrame;
-    // }
+    if (!viewer.framePlay) {
+        cam->ignore_grab();
+    }
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {

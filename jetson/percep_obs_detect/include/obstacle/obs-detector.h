@@ -9,7 +9,6 @@
 #include "common.hpp"
 #include "voxel-grid.hpp"
 #include "find-clear-path.hpp"
-#include "writer.h"
 #include <cstring>
 #include <sstream>
 #include <iostream>
@@ -110,9 +109,8 @@ class ObsDetector {
         PCDReader fileReader;
 
         // Recorder
-        PCDWriter fileWriter;
-        int frameCounter;
-        int frameGap;
+        // int frameCounter;
+        // int frameGap;
 
         // Viewers
         Viewer viewer;

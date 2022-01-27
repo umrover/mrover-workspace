@@ -39,7 +39,17 @@ Zed::Zed(const rapidjson::Document &config) {
 }
 
 bool Zed::grab_frame() {
-    return zed.grab() == sl::ERROR_CODE::SUCCESS;
+    if (no_grab){
+        no_grab = false;
+        return true;
+    }
+    else {
+        return zed.grab() == sl::ERROR_CODE::SUCCESS;
+    }
+}
+
+void Zed::ignore_grab() {
+    no_grab = true;
 }
 
 GPU_Cloud Zed::get_cloud() {

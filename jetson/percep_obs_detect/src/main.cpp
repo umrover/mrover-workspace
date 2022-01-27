@@ -47,12 +47,16 @@ int main() {
         
         while (cam.grab_frame()) {
             // AR Tag Detection
-            detector.update();
+            if (mRoverConfig["startup"]["ar_tag_enabled"].GetInt()) {
+                detector.update();
+            }
             
             // Obstacle Detection
-            obs.open();
-            obs.update();
-            obs.spinViewer();
+            if (mRoverConfig["startup"]["obs_enabled"].GetInt()) {
+                obs.open();
+                obs.update();
+                obs.spinViewer();
+            }
         }
         return EXIT_SUCCESS;
     } catch (std::exception const& exception) {

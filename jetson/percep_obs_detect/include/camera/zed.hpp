@@ -21,6 +21,7 @@ public:
     Zed(){}
     Zed(const rapidjson::Document &config);
     bool grab_frame();
+    void ignore_grab();
     cv::Mat& get_image();
     cv::Mat& get_depth(); 
     GPU_Cloud get_cloud();
