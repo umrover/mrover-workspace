@@ -49,7 +49,6 @@
         },
         messages: [],
         viewing: {
-          '/ammonia_cmd': false,
           '/arm_motors': false,
           '/arm_toggles_button_data': false,
           '/arm_toggles_toggle_data': false,
@@ -94,6 +93,7 @@
           '/sa_zero_trigger': false,
           '/sensor_switch': false,
           '/sensors': false,
+          '/servo_cmd': false,
           '/set_demand': false,
           '/spectral_data': false,
           '/target_list': false,
@@ -104,7 +104,6 @@
           '/zed_gimbal_data': false
         },
         subscriptions: [
-          {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
           {'topic': '/arm_toggles_toggle_data', 'type': 'ArmToggles'},
           {'topic': '/ik_ra_control', 'type': 'ArmPosition'},
@@ -137,6 +136,7 @@
           {'topic': '/sa_motors', 'type': 'SAMotors'},
           {'topic': '/sensors', 'type': 'Sensors'},
           {'topic': '/sensor_switch', 'type': 'SensorSwitch'},
+          {'topic': '/servo_cmd', 'type': 'ServoCmd'},
           {'topic': '/set_demand', 'type': 'SetDemand'},
           {'topic': '/spectral_data', 'type': 'SpectralData'},
           {'topic': '/ra_control', 'type': 'Xbox'},

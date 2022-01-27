@@ -3,26 +3,84 @@
     <div>
         <h3> Strip Test Controls </h3>
     </div>
-    <div class="box">
-        <button v-on:click="setPart(1)">
-            Up
-        </button>
-        <button v-on:click="setPart(-1)">
-            Down
-        </button>
+    <div class="controls">
+        <div class="strip_test">
+            <label for="strip">Perform strip test on strip:</label>
+                <select v-model = "strip" name="strip" id="strip">
+                    <option value=0>A</option>
+                    <option value=1>B</option>
+                    <option value=2>C</option>
+                </select>
+            <div class="commands" v-if="strip == 0">
+                <button v-on:click="stripTestA()"> Start Strip A Test </button>
+            </div>
+            <div class="commands" v-if="strip == 1">
+                <button v-on:click="stripTestB()"> Start Strip B Test </button>
+            </div>
+            <div class="commands" v-if="strip == 2">
+                <button v-on:click="stripTestC()"> Start Strip C Test </button>
+            </div>
+        </div>
     </div>
 </div>
 </template>
-<!-- Reminder to attach github page for AmmoniaCmd to Teleop/ESW Interface google doc -->
 
 <script>
 export default {
+    data () {
+        return {
+            strip: 0,
+            servo_0: false,
+            servo_1: false,
+            servo_2: false
+        }
+    },
+    
+    created:
+        function () {
+            this.$parent.subscribe('/servo_cmd', (msg) => {
+                this.servo_0 = msg.servo_0
+                this.servo_1 = msg.servo_1
+                this.servo_2 = msg.servo_2
+            })
+        },
+
     methods: {
-        setPart: function(speed) {
-        this.$parent.publish("/ammonia_cmd", {
-            'type': 'AmmoniaCmd',
-            'speed': speed
-        })
+
+        stripTestA: function() {
+            alert("Strip A test started");
+            this.servo_0 = true;
+            setTimeout(() => {
+                alert("Taking strips out");
+                this.servo_0 = false;
+                }, 10000);
+            setTimeout(() => {
+                alert("Strip test completed");
+                }, 15000);
+        },
+
+        stripTestB: function() {
+            alert("Strip B Test Started");
+            this.servo_1 = true;
+            setTimeout(() => {
+                alert("Taking strips out");
+                this.servo_1 = false;
+                }, 10000);
+            setTimeout(() => {
+                alert("Strip test completed")
+                }, 15000);
+        },
+        
+        stripTestC: function() {
+            alert("Strip C Test Started");
+            this.servo_2 = true;
+            setTimeout(() => {
+                alert("Taking strips out");
+                this.servo_2 = false;
+                }, 10000);
+            setTimeout(() => {
+                alert("Strip test completed")
+                }, 15000);
         }
     }
 }
@@ -32,16 +90,16 @@ export default {
     .wrap {
         display: inline-block;
         align-content: center;
-        /* height: 300px; */
     }
-    .box {
-        display: flex;
-        border-radius: 5px;
-        padding: 10px;
-        border: 1px solid black;
-        text-align: right;
+
+    .controls {
+        display: inline-block;
         vertical-align: top;
-        align-items: center;
-        justify-content: center;
+        align-content: left;
+    }
+
+    .commands{
+        text-align: left;
+        display: inline-block;
     }
 </style>

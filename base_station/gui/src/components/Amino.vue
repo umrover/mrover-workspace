@@ -159,7 +159,7 @@ export default {
         this.tempLimitHelper();
       })
     },
-    props: {
+  props: {
     mosfetIDs: {
       type: Object,
       required: true

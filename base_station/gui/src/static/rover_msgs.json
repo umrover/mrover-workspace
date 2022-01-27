@@ -1,10 +1,4 @@
 {
-    "AmmoniaCmd": [
-        [
-            "double",
-            "speed"
-        ]
-    ],
     "ArmPosition": [
         [
             "double",
@@ -700,6 +694,20 @@
             "degrees"
         ]
     ],
+    "ServoCmd": [
+        [
+            "bool",
+            "servo_0"
+        ],
+        [
+            "bool",
+            "servo_1"
+        ],
+        [
+            "bool",
+            "servo_2"
+        ]
+    ],
     "SetDemand": [
         [
             "int8_t",
@@ -1003,7 +1011,6 @@
         ]
     ],
     "message_types": [
-        "AmmoniaCmd",
         "ArmPosition",
         "ArmToggles",
         "AutonState",
@@ -1047,6 +1054,7 @@
         "Sensors",
         "SensorSwitch",
         "Servo",
+        "ServoCmd",
         "SetDemand",
         "Signal",
         "SimulationMode",

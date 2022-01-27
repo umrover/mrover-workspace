@@ -10,8 +10,16 @@
             <option value=0>B</option>
             <option value=2>C</option>
         </select>
-        <div class="commands">
-          <p>Turning to position {{this.position}}</p>
+        <div class="commands" v-if="strip == 1">
+            <p> Turning to position A </p>
+        </div>
+        <div class="commands" v-if="strip == 1">
+            <p> Turning to position A </p>
+        </div>
+        <div class="commands" v-if="strip == 1">
+            <p> Turning to position A </p>
+        </div>
+          <!--<p>Turning to position {{this.position}}</p>-->
         </div>
     </div>
   </div>
@@ -24,10 +32,17 @@ export default {
         position: 1
     }
   },
+  created: {
+    function () {
+      this.$parent.subscribe('/carousel_cmd', (msg) => {
+        this.position = msg.position;
+      })
+    }
+  },
   methods: {
       setPart: function() {
-        this.$parent.publish("/carousel_cmd", {
-        'type': 'CarouselCmd',
+        this.$parent.publish("/carousel_data", {
+        'type': 'CarouselData',
         'position': Number(this.position)
       })
     }
@@ -37,17 +52,13 @@ export default {
       this.setPart()
     }
   }
-
 }
-
 </script>
 
 <style scoped>
   .carousel-wrap {
     display: inline-block;
-    vertical-align: top;
-    align-content: left;
-    height: 23vh;
+    align-content: center;
   }
   .box1 {
     text-align: left;

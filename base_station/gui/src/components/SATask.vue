@@ -37,6 +37,7 @@
     </div>
     <div class = "box light-bg chlorophyll">
       <Chlorophyll v-bind:mosfetIDs="mosfetIDs"/>
+      <Chlorophyll v-bind:spectral_data="spectral_data"/>
     </div>
     <div class="box ammonia light-bg">
       <Ammonia/>
@@ -47,11 +48,14 @@
     <div class="box drives light-bg">
       <DriveVelDataV/>
     </div>
-    <!--<div class="box report light-bg">
-      <GenerateReport v-bind:spectral_data="spectral_data"/>
-    </div>-->
     <div class="box carousel light-bg">
       <Carousel/>
+    </div>
+    <div class="box scoopUV light-bg">
+      <ScoopUV/>
+    </div>
+    <div class="box armData light-bg">
+      <ArmData/>
     </div>
   </div>
 </template>
@@ -71,6 +75,8 @@ import DriveVelDataV from './DriveVelDataV.vue'
 import Amino from './Amino.vue'
 import GenerateReport from './GenerateReport.vue'
 import Carousel from './Carousel.vue'
+import ScoopUV from './ScoopUV.vue'
+import ArmData from './ArmData.vue'
 
 let interval;
 
@@ -128,16 +134,14 @@ export default {
         rLed: 0,
         gLed: 1,
         bLed: 2,
-        sciUV: 3,
+        laser: 1,
+        sciUV: 2,
+        sciWLed: 3,
         SAUV: 4,
-        sciWLed: 5,
-        perPump0: 6,
-        perPump1: 7,
-        perPump2: 8,
-        heater0: 9,
-        heater1: 10,
-        heater2: 11,
-        ramanLaser: 12
+        heater0: 5,
+        heater1: 6,
+        heater2: 7,
+        ramanLaser: 8
       }
 
 }
@@ -216,7 +220,6 @@ export default {
         {'topic': '/spectral_data', 'type': 'SpectralData'},
         {'topic': '/thermistor_data', 'type': 'ThermistorData'},
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
-        {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/thermistor_data', 'type': 'ThermistorData'}
@@ -276,26 +279,29 @@ export default {
     DriveVelDataV,
     Amino,
     GenerateReport,
-    Carousel
+    Carousel,
+    ScoopUV,
+    ArmData
   }
-}</script>
+}
+</script>
 
 <style scoped>
 
     .wrapper {
         display: grid;
         grid-gap: 10px;
-        grid-template-columns: 1.5fr 1.25fr 1fr;
-        grid-template-rows: 60px 3fr 1fr 2fr 1fr 2fr;
+        grid-template-columns: 1.25fr 1.25fr 0.5fr;
+        grid-template-rows: 60px 0.75fr 0.25fr 0.75fr 1fr 1.75fr;
         grid-template-areas: "header header header" 
-                             "map cameras cameras" 
-                             "map odom drives" 
-                             "map chlorophyll drives" 
-                             "carousel ammonia drives" 
-                             "spectral amino drives";
+                             "cameras cameras cameras" 
+                             "carousel chlorophyll odom" 
+                             "spectral chlorophyll scoopUV" 
+                             "spectral chlorophyll drives"
+                             "armData ammonia drives"
+                             "armData amino drives";
         font-family: sans-serif;
-        height: 150vh;
-        overflow: auto;
+        height: 202vh;
     }
 
     .box {
@@ -426,6 +432,14 @@ export default {
 
     .carousel {
       grid-area: carousel;
+    }
+
+    .scoopUV {
+      grid-area: scoopUV;
+    }
+
+    .armData {
+      grid-area: armData;
     }
 
     ul#vitals li {

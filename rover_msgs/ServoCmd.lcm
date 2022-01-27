@@ -1,6 +1,7 @@
 package rover_msgs;
 
 struct ServoCmd {
-	string id;
-	double position; //degrees
+	boolean servo_0;
+	boolean servo_1;
+	boolean servo_2;
 }

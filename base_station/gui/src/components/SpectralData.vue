@@ -1,7 +1,7 @@
 <template>
 <div>
     <div>
-        <h3> Spectral Data </h3>
+        <h3> End Effector Spectral Triad Data </h3>
     </div>
   <table class="tableFormat" style="undefined;table-layout: fixed; width: 434px">
   <colgroup>
@@ -63,15 +63,6 @@
 </template>
 
 <style scoped>
-  .wrap {
-    display: inline-block;
-    align-content: center;
-  }
-  .box {
-    border: 1px solid black;
-    text-align: right;
-    vertical-align: top;
-  }
   .tableFormat{
     border-collapse:collapse;
     border-spacing:0;
