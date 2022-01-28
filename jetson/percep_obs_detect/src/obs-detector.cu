@@ -244,7 +244,6 @@ void ObsDetector::test_input_file()
     std::string fpath;
     std::cin >> fpath;
   GPU_Cloud gpuc = fileReader.readCloudGPU(fpath); //read the cloud
-  std::cout << "AAAAAAAA\n\n";
 
   std::vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
@@ -266,7 +265,6 @@ void ObsDetector::test_input_file()
   b = voxelGrid->run(raw_data[0]);
   objects = ece->extractClusters(raw_data[0], b);
   truths.push_back(objects);
-  cout << "\n\nBBBBBBB\n\n";
   test(raw_data, truths);
 
 }
@@ -452,6 +450,7 @@ void ObsDetector::test_print(const std::vector<float>& iot,
                   return a + b / discrete_truths[i].size();
               }) * 100 << "\n";
       for (size_t j = 0; j < discrete_truths[i].size(); ++j) {
+        std::cout << i << "\t" << j << endl;
           std::cout << "Obstacle #" << j << "\t% detected: " << discrete_truths[i][j] * static_cast<float>(100) << "\n";
       }
   }
