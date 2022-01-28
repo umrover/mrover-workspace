@@ -54,7 +54,7 @@ void Controller::record_angle(int32_t raw_angle)
     if (name == "RA_1")
     {
         float abs_raw_angle = 0;
-        memcpy(&abs_raw_angle, &raw_angle);
+        memcpy(&abs_raw_angle, &raw_angle, 4);
         current_angle = abs_raw_angle - M_PI;            
     }
     else 

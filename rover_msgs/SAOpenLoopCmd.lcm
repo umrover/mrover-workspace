@@ -1,5 +1,5 @@
 package rover_msgs;
 
 struct SAOpenLoopCmd {
-	double throttle[3]; //[-1.0, 1.0]
+	double throttle[4]; //[-1.0, 1.0]
 }

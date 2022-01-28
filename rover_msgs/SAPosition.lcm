@@ -1,0 +1,8 @@
+package rover_msgs;
+
+struct SAPosition {
+	double joint_a;
+    double joint_b;
+    double joint_c;
+    double joint_e;
+}

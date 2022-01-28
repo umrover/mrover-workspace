@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct MastGimbalCmd {
+	double pitch; //[-1.0,1.0]
+	double yaw; //[-1.0,1.0]
+}
