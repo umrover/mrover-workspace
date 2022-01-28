@@ -349,9 +349,9 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
         float cinter = calculateIntersection(truth_list[i].obs[j], measured[i].obs[k]);
         if (!std::isinf(cinter) && cinter > 0) {
             current_intersection += cinter;
-        }//only add if valid
-
+        }//only add if valid and intersecting
       }
+
       // Volume of current ground truth obs
       current_volume = (truth_list[i].obs[j].maxX - truth_list[i].obs[j].minX)
           * (truth_list[i].obs[j].maxY - truth_list[i].obs[j].minY)
@@ -366,11 +366,20 @@ void ObsDetector::test(vector<GPU_Cloud> raw_data, const vector<EuclideanCluster
 
 
       if(current_volume != 0)
+      {
         discrete_truth_pct[i].push_back(current_intersection / current_volume);
+      }else{
+        /* if the current volume is actually 0 */
+        discrete_truth_pct[i].push_back(-1);
+      }
     }
     if (current_volume_sum != 0) {
         truth_volumes.push_back(current_volume_sum); //global volume
         g_t.push_back(current_intersection_sum / current_volume_sum); //global quasi-IOU
+    }else{
+      /* if current vol sum is 0 */
+      truth_volumes.push_back(-1);
+      g_t.push_back(-1);
     }
     //else {
     //    truth_volumes.push_back(0); //invalid object - there is no volume
