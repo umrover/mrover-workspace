@@ -6,8 +6,8 @@
         "data_source_type": "filesystem",
         "operation_mode": "debug",
         "viewer_type": "gl",
-        "read_location" : "/home/mgmii/perception-files/data",
-        "write_location": "/",
+        "read_location" : "/home/matt/perception-files/test1",
+        "write_location": "/home/matt/perception-files/data",
         "ar_tag_enabled" : 1,
         "obs_enabled" : 1
     },

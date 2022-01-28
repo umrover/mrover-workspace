@@ -2,10 +2,18 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 option(VIEWER_ONLY "run without CUDA" OFF)
 option(NO_JARVIS "compile without jarvis" OFF)
 
+
 project(obs_detection)
+set(CMAKE_MODULE_PATH "/home/matt/mrover-workspace/jetson/percep_obs_detect")
+
 set(CMAKE_CXX_STANDARD 11)
 #add_compile_definitions(ROOT_DIR=${CMAKE_CURRENT_LIST_DIR})
 add_compile_options(-DROOT_DIR="${CMAKE_CURRENT_LIST_DIR}")
+add_subdirectory(/home/matt/glfw /home/matt/glfw/src)
+
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
