@@ -32,7 +32,10 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig, Source::Camera
 
     mode = parse_operation_mode(mRoverConfig);
 
-    cv::FileStorage fsr("alvar_dict.yml", cv::FileStorage::READ);
+
+    std::string configPath = getenv("MROVER_CONFIG");
+    configPath += "/config_percep_obs/alvar_dict.yml";
+    cv::FileStorage fsr(configPath, cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
         throw Exception();
