@@ -9,7 +9,6 @@ rapidjson::Document parse_config() {
     ifstream configFile;
     std::string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_percep_obs/config.json";
-    cout << "Config Path: " << configPath << "\n";
     configFile.open( configPath );
     std::string config = "";
     std::string setting;
