@@ -17,7 +17,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
     setupParamaters("");
     if (mode == OperationMode::TEST) {
         std::cout << "In Testing Mode\n";
-    }
+    }else{
         //Init data stream from source
         if (source == DataSource::ZED) {
             zed.open(init_params);
@@ -38,6 +38,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
                 fileReader.open(readDir);
             }
         }
+      }//end if not test
         //Init Viewer
         if (mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
             int argc = 1;
@@ -161,6 +162,7 @@ void ObsDetector::drawCubes(EuclideanClusterExtractor::ObsReturn obsList, bool c
             for (int q = 0; q < 8; q++) colors.push_back(vec3(0.0f, 1.0f, 0.0f)); //green
         else
             for (int q = 0; q < 8; q++) colors.push_back(vec3(1.0f, 0.0f, 0.0f)); //red
+
         std::vector<int> indicies = { 0, 1, 2, 2, 3, 0, 1, 2, 5, 5, 6, 2, 0, 3, 4, 3, 7, 4, 4, 5, 6, 7, 6, 5 };
         Object3D obj(points, colors, indicies);
         viewer.addObject(obj, true);
@@ -242,6 +244,7 @@ void ObsDetector::test_input_file()
     std::string fpath;
     std::cin >> fpath;
   GPU_Cloud gpuc = fileReader.readCloudGPU(fpath); //read the cloud
+  std::cout << "AAAAAAAA\n\n";
 
   std::vector<GPU_Cloud> raw_data;
   raw_data.push_back(gpuc);
@@ -256,13 +259,14 @@ void ObsDetector::test_input_file()
   //truths.push_back(objects);
 
   Bins b;
-  /*
+
   passZ->run(raw_data[0]); //The filter and RANSAC get rid of small scenes entirely
   ransacPlane->computeModel(raw_data[0]);
-  */
+
   b = voxelGrid->run(raw_data[0]);
   objects = ece->extractClusters(raw_data[0], b);
   truths.push_back(objects);
+  cout << "\n\nBBBBBBB\n\n";
   test(raw_data, truths);
 
 }
