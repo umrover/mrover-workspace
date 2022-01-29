@@ -78,10 +78,14 @@ else ()
         target_link_libraries(jetson_percep_obs_detect lcm)
     endif ()
 
-    target_compile_options(jetson_percep_obs_detect PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
-            #-res-usage
+    if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+        target_compile_options(jetson_percep_obs_detect PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
             --use_fast_math
             >
-            -g # TODOD: REMOVE WHEN done debugging
+            -g
             )
+    else ()
+        target_compile_options(jetson_percep_obs_detect PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
+            #-res-usage
+            --use_fast_math>)
 endif ()

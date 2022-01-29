@@ -6,9 +6,6 @@
 
 namespace Source {
 
-// typedef std::shared_ptr<ICamera> Camera_impl_ptr
-// typedef Zed_ptr std::shared_ptr<Zed>
-
 /**
  * @brief Camera shell, which stores a pointer to an actual 
  * implementation of a camera class
@@ -45,3 +42,4 @@ public:
 
 }
 
+typedef std::shared_ptr<Source::Camera> camera_ptr;

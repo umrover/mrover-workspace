@@ -19,7 +19,7 @@ void onMouse(int event, int x, int y, int flags, void *userdata) {
 }
 
 //initializes detector object with pre-generated dictionary of tags 
-TagDetector::TagDetector(const rapidjson::Document &mRoverConfig, Source::Camera* cam) :  
+TagDetector::TagDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam) :  
 
    //Populate Constants from Config File
    BUFFER_ITERATIONS{mRoverConfig["ar_tag"]["buffer_iterations"].GetInt()},
@@ -195,8 +195,8 @@ void TagDetector::update() {
     arTags[1].distance = DEFAULT_TAG_VAL;
     
     Mat rgb;
-    Mat src = cam->get_image();
-    Mat depth_img = cam->get_depth();
+    Mat& src = cam->get_image();
+    Mat& depth_img = cam->get_depth();
 
     // AR Tag Processing
     pair<Tag, Tag> tagPair;

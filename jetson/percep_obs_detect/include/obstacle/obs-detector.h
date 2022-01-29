@@ -49,7 +49,7 @@ class ObsDetector {
          * \param mode: Debugging level, either DEBUG for testing or SILENT for competition
          * \param viewer: Viewer type, use NONE for competition, PCLV if you are on Great Lakes, and GL otherwise
          */
-        ObsDetector(const rapidjson::Document &mRoverConfig, Source::Camera* cam);
+        ObsDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam);
 
         //Destructor
         ~ObsDetector();
@@ -105,7 +105,7 @@ class ObsDetector {
         #endif
 
         // Data sources
-        Source::Camera* cam;
+        camera_ptr cam;
         PCDReader fileReader;
 
         // Recorder

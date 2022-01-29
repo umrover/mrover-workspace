@@ -42,9 +42,9 @@ int main() {
         rapidjson::Document mRoverConfig = parse_config();
 
         // Initialize Objects
-        Source::Camera cam(mRoverConfig);
-        TagDetector detector(mRoverConfig, &cam);
-        ObsDetector obs(mRoverConfig, &cam);
+        camera_ptr cam(new Source::Camera(mRoverConfig));
+        TagDetector detector(mRoverConfig, cam);
+        ObsDetector obs(mRoverConfig, cam);
         
         while (cam.grab_frame()) {
             // AR Tag Detection

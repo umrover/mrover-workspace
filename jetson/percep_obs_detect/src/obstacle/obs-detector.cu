@@ -25,7 +25,7 @@ ViewerType parse_viewer_type(const rapidjson::Document &mRoverConfig) {
     return viewerType;
 }
 
-ObsDetector::ObsDetector(const rapidjson::Document &mRoverConfig, Source::Camera* cam)
+ObsDetector::ObsDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam)
         : cam{cam} {
     setupParamaters(mRoverConfig);
     
