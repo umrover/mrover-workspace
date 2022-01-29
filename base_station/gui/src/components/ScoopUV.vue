@@ -19,7 +19,7 @@
   .wrap {
     display: inline-block;
     align-content: center;
-    height: 13vh;
+    height: 10vh;
   }
 
   .toggle__button {
@@ -87,7 +87,7 @@
 export default {
   data () {
     return {
-      scoopUV: 0,
+      scoopUV: 1,
     }
   },
   created:{ 

@@ -33,7 +33,7 @@
       <RoverMap v-bind:odom="odom"/>
     </div>
     <div class="box spectral light-bg">
-      <SpectralData v-bind:spectral_data="spectral_data"/>
+      <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
     </div>
     <div class = "box light-bg chlorophyll">
       <Chlorophyll v-bind:mosfetIDs="mosfetIDs"/>
@@ -130,6 +130,26 @@ export default {
           d2_5:0,
           d2_6:0
       },
+      spectral_triad_data: {
+          d0_1:0,
+          d0_2:0,
+          d0_3:0,
+          d0_4:0,
+          d0_5:0,
+          d0_6:0,
+          d1_1:0,
+          d1_2:0,
+          d1_3:0,
+          d1_4:0,
+          d1_5:0,
+          d1_6:0,
+          d2_1:0,
+          d2_2:0,
+          d2_3:0,
+          d2_4:0,
+          d2_5:0,
+          d2_6:0
+      },
       mosfetIDs: {
         rLed: 0,
         gLed: 1,
@@ -193,6 +213,8 @@ export default {
           this.odom = msg.message
         } else if (msg.topic ==='/spectral_data'){
           this.spectral_data = msg.message
+        } else if (msg.topic ==='/spectral_triad_data'){
+          this.spectral_triad_data = msg.message
         } else if (msg.topic ==='/thermistor_data'){
           this.thermistor_data = msg.message
         } else if (msg.topic === '/kill_switch') {
@@ -218,11 +240,11 @@ export default {
         {'topic': '/test_enable', 'type': 'TestEnable'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/spectral_data', 'type': 'SpectralData'},
+        {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
         {'topic': '/thermistor_data', 'type': 'ThermistorData'},
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/thermistor_data', 'type': 'ThermistorData'},
         {'topic': '/carousel_data', 'type': 'CarouselData'},
         {'topic': '/carousel_cmd', 'type': 'CarouselCmd'}
       ]
@@ -294,7 +316,7 @@ export default {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: 1.25fr 1.25fr 0.5fr;
-        grid-template-rows: 60px 0.75fr 0.25fr 1.5fr 1fr 2fr;
+        grid-template-rows: 60px 0.75fr 0.25fr 1.25fr 1fr 2fr;
         grid-template-areas: "header header header" 
                              "cameras cameras cameras" 
                              "carousel chlorophyll odom" 

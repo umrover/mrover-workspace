@@ -1,7 +1,7 @@
 package rover_msgs;
 
 struct ServoCmd {
-	boolean servo_0;
-	boolean servo_1;
-	boolean servo_2;
+	double angle0;
+	double angle1;
+	double angle2; 
 }

@@ -194,11 +194,12 @@ export default {
 <style scoped>
 
 .wrap {
-  display: flex;
+  display: inline-block;
   align-items: center;
+  justify-items: center;
 }
 .controls {
-  display:flex;
+  display: flex;
   align-items:center;
 }
 .header {

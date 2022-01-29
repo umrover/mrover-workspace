@@ -213,12 +213,12 @@ import GenerateReport from './GenerateReport.vue';
 export default {
   data () {
     return {
-      whiteLEDS: 0,
+      whiteLEDS: 1,
       chloroSite: 0,
       siteUVs:{
-        UV0: 0,
-        UV1: 0,
-        UV2: 0
+        UV0: 1,
+        UV1: 1,
+        UV2: 1
       }
     }
   },
