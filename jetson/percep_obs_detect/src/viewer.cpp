@@ -322,6 +322,8 @@ Viewer::Viewer()
     objectShader = Shader(OBJ_VERTEX_SHADER, OBJ_FRAGMENT_SHADER);
     pcShader = Shader(PC_VERTEX_SHADER, PC_FRAGMENT_SHADER);
 
+    strcpy(recordingDirectory, (std::string(ROOT_DIR) + "/recordings/").c_str());
+
     glfwSetWindowUserPointer(window, this);
 
     int major, minor, rev;
@@ -344,6 +346,7 @@ Viewer::Viewer()
 Viewer::~Viewer() {
     glfwDestroyWindow(window);
     glfwTerminate();
+    delete[] recordingDirectory;
 }
 
 void Viewer::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -502,6 +505,7 @@ void Viewer::drawUI() {
     ImGui::Begin("Playback");
     ImGui::SliderInt("Frame", &frame, 0, maxFrame);
     ImGui::Checkbox("Record", &record);
+    ImGui::InputText("Save Dir", recordingDirectory, recordingDirectoryMaxSize);
     ImGui::End();
 
     ImGui::Begin("Controls");

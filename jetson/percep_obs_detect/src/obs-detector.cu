@@ -79,9 +79,10 @@ void ObsDetector::update() {
         getRawCloud(pc, frame);
         if (viewer.record) {
             if ((frameCounter % frameGap) == 0) {
+                std::string writeDir = viewer.recordingDirectory;
                 std::stringstream ss;
-                ss << ROOT_DIR << "/data2/pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
-                fileWriter.writeCloud(ss.str(), pc, cloud_res.width, cloud_res.height);
+                ss << "pcl" << std::to_string(frameCounter/frameGap) << ".pcd";
+                fileWriter.writeCloud(writeDir, ss.str(), pc, cloud_res.width, cloud_res.height);
             }
             ++frameCounter;
         }
@@ -306,3 +307,4 @@ int main() {
         return EXIT_FAILURE;
     }
 }
+

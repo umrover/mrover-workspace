@@ -16,8 +16,13 @@ public:
     PCDWriter() {
     }
 
-    void writeCloud(string filename, GPU_Cloud gpu_pc, int width, int height) {
-        ofstream fout(filename);
+    void writeCloud(string dir, const string &filename, GPU_Cloud gpu_pc, int width, int height) {
+        system(("mkdir -p " + dir).c_str());
+
+        if (dir.back() != '/')
+            dir += '/';
+
+        ofstream fout(dir + filename);
         if (!fout.is_open()) cerr << "Could not open file!" << endl;
 
         glm::vec4 *pc = new glm::vec4[gpu_pc.size];

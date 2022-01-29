@@ -195,6 +195,8 @@ public:
     bool framePlay = false;
     bool inMenu = false;
     bool record = false;
+    const int recordingDirectoryMaxSize = 200;
+    char* recordingDirectory = new char[recordingDirectoryMaxSize];
     ProcStage procStage = ProcStage::POSTBEARING;
 
     // Creates a window
