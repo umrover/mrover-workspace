@@ -8,7 +8,7 @@ struct MosfetCmd {
     const int8_t UVLED = 4;
     const int8_t whiteLED = 5;
     const int8_t uvBulb = 6;
-    const int8_t nichWire0 = 7; 
+    const int8_t nichWire0 = 7;
     const int8_t nichWire1 = 8;
     const int8_t nichWire2 = 9;
     const int8_t ramanLaser = 10;

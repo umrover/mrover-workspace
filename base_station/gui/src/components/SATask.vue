@@ -38,6 +38,7 @@
     <div class = "box light-bg chlorophyll">
       <Chlorophyll v-bind:mosfetIDs="mosfetIDs"/>
       <Chlorophyll v-bind:spectral_data="spectral_data"/>
+      <GenerateReport v-bind:spectral_data="spectral_data"/>
     </div>
     <div class="box ammonia light-bg">
       <Ammonia/>

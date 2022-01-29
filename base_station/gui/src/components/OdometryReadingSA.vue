@@ -7,7 +7,7 @@
         <span v-if="ramanLaser == true" class="toggle__label" >Raman Laser On</span>
 
         <input type="checkbox" id="toggle_button" v-model="checkedValue">
-          <span class="toggle__switch" v-if="ramanLaser== true" v-on:click="ramanLaser=false,pubHelper(mosfetIDs.ramanLaser)"></span>
+          <span class="toggle__switch" v-if="ramanLaser== true" v-on:click="ramanLaser=false,sendCollect(mosfetIDs.ramanLaser)"></span>
           <span class="toggle__switch" v-if="ramanLaser == false" v-on:click="ramanLaser=true,sendCollect(mosfetIDs.ramanLaser)"></span>
       </label>
     </div>

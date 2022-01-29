@@ -80,9 +80,6 @@
       </tr>
     </tbody>
     </table>
-    <div class="report">
-      <GenerateReport v-bind:spectral_data="spectral_data"/>
-    </div>
   </div>  
 </div>
 </template>
