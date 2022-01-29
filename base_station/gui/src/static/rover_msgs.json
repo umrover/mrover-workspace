@@ -59,11 +59,13 @@
     ],
     "CarouselCmd": [
         [
+            "int8_t",
             "position"
         ]
     ],
     "CarouselData": [
         [
+            "int8_t",
             "position"
         ]
     ],

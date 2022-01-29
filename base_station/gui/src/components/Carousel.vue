@@ -6,9 +6,9 @@
     <div class="box1">
         <label for="position">Rotate carousel to position:</label>
         <select v-model = "position" name="position" id="position">
-            <option value=1>A</option>
-            <option value=0>B</option>
-            <option value=2>C</option>
+            <option value="1">A</option>
+            <option value="0">B</option>
+            <option value="2">C</option>
         </select>
         <div class="commands">
           <p>{{reachedPos?  "Reached": "Turning to"}} position {{this.posMap.get(this.position)}}</p>
@@ -31,18 +31,18 @@ export default {
         ])
     }
   },
-  created:
-  function () {
-      this.$parent.subscribe('/carousel_data', (msg) => {
-        if (msg.position == Number(this.position)) {
-          this.reachedPos = true
-        }
-      })
-    },
+  created: 
+    function () {
+        this.$parent.subscribe('/carousel_data', (msg) => {
+          if (msg.position == Number(this.position)) {
+            this.reachedPos = true
+          }
+        })
+      },
   methods: {
       setPart: function() {
-        this.$parent.publish("/carousel_data", {
-        'type': 'CarouselData',
+        this.$parent.publish("/carousel_cmd", {
+        'type': 'CarouselCmd',
         'position': Number(this.position)
       })
       this.reachedPos = false

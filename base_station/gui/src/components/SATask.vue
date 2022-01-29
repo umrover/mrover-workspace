@@ -54,8 +54,8 @@
     <div class="box scoopUV light-bg">
       <ScoopUV/>
     </div>
-    <div class="box armData light-bg">
-      <ArmData/>
+    <div class="box armControls light-bg">
+      <ArmControls/>
     </div>
   </div>
 </template>
@@ -76,7 +76,7 @@ import Amino from './Amino.vue'
 import GenerateReport from './GenerateReport.vue'
 import Carousel from './Carousel.vue'
 import ScoopUV from './ScoopUV.vue'
-import ArmData from './ArmData.vue'
+import ArmControls from './ArmControls.vue'
 
 let interval;
 
@@ -134,14 +134,14 @@ export default {
         rLed: 0,
         gLed: 1,
         bLed: 2,
-        laser: 1,
-        sciUV: 2,
-        sciWLed: 3,
-        SAUV: 4,
-        heater0: 5,
-        heater1: 6,
-        heater2: 7,
-        ramanLaser: 8
+        Laser: 3,
+        UVLED: 4,
+        whiteLED: 5,
+        uvBulb: 6,
+        nichWire0: 7,
+        nichWire1: 8,
+        nichWire2: 9,
+        ramanLaser: 10
       }
 
 }
@@ -283,7 +283,7 @@ export default {
     GenerateReport,
     Carousel,
     ScoopUV,
-    ArmData
+    ArmControls
   }
 }
 </script>
@@ -294,16 +294,17 @@ export default {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: 1.25fr 1.25fr 0.5fr;
-        grid-template-rows: 60px 0.75fr 0.25fr 0.75fr 1fr 1.75fr;
+        grid-template-rows: 60px 0.75fr 0.25fr 1.5fr 1fr 2fr;
         grid-template-areas: "header header header" 
                              "cameras cameras cameras" 
                              "carousel chlorophyll odom" 
                              "spectral chlorophyll scoopUV" 
                              "spectral chlorophyll drives"
-                             "armData ammonia drives"
-                             "armData amino drives";
+                             "armControls ammonia drives"
+                             "armControls amino drives"
+                             "armControls amino drives";
         font-family: sans-serif;
-        height: 202vh;
+        height: 220vh;
     }
 
     .box {
@@ -440,8 +441,8 @@ export default {
       grid-area: scoopUV;
     }
 
-    .armData {
-      grid-area: armData;
+    .armControls {
+      grid-area: armControls;
     }
 
     ul#vitals li {

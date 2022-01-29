@@ -1,10 +1,15 @@
 <template>
   <div class="wrap">
-      <Checkbox ref="arm" v-bind:name="'Arm Controls'" v-on:toggle="updateControlMode('arm', $event)"/>
-      <Checkbox ref="arm_ik" v-bind:name="'Inverse Kinematics'" v-on:toggle="updateControlMode('arm_ik', $event)"/>
+    <div class="header">
+      <h3> Arm Controls </h3>
+    </div>
+    <div class="controls">
+      <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
+      <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
       <div class="keyboard">
         <GimbalControls/>
       </div>
+    </div>
   </div>
 </template>
 
@@ -18,6 +23,12 @@ import GimbalControls from './GimbalControls.vue'
 let interval;
 
 export default {
+  data() {
+    return {
+      xboxControlEpsilon: 0.15
+    }
+  },
+
   computed: {
 
     ...mapGetters('controls', {
@@ -81,41 +92,91 @@ export default {
               'x': gamepad.buttons[XBOX_CONFIG['x']]['pressed'],
               'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
             }
-
-            this.$parent.publish('/ra_control', xboxData)
+            if (this.controlMode !== 'open-loop' && checkXboxInput(xboxData)) {
+              updateControlMode('open-loop', true)
+            }
+            if (this.controlMode === 'open-loop') {
+              this.$parent.publish('/ra_control', xboxData)
+            }
           }
         }
       }
-      const talonConfig = {
-        'type': 'TalonConfig',
-        'enable_arm': true,
-        'enable_sa': false
-      }
-
-      this.$parent.publish('/talon_config', talonConfig)
     }, updateRate*1000)
   },
 
   methods: {
     updateControlMode: function (mode, checked) {
-      let ikEnabled = false
+
       if (checked) {
-        if (this.controlMode !== ''){
+        // control mode can either be open loop or control mode, not both
+        if (this.controlMode !== '' && this.controlMode !== 'off'){
           this.$refs[this.controlMode].toggle()
         }
 
-        ikEnabled = (mode === 'arm_ik')
-        this.setControlMode(mode)
-      } else {
-        this.setControlMode('')
+        this.setControlMode(mode);
+      }
+      else {
+        this.setControlMode('off');
       }
 
-      const ikEnabledMsg = {
-        'type': 'IkEnabled',
-        'enabled': ikEnabled
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': this.controlMode
       }
 
-      this.$parent.publish('/ik_enabled', ikEnabledMsg)
+      this.$parent.publish('/arm_control_state', armStateMsg);
+    },
+
+    checkXboxInput: function (xboxData) {
+      if (abs(xboxData[left_js_x]) > this.xboxControlEpsilon) {
+        return true
+      }
+      if (abs(xboxData[left_js_y]) > this.xboxControlEpsilon) {
+        return true
+      }
+      if (abs(xboxData[left_trigger]) > this.xboxControlEpsilon) {
+        return true
+      }
+      if (abs(xboxData[right_trigger]) > this.xboxControlEpsilon) {
+        return true
+      }
+      if (abs(xboxData[right_js_x]) > this.xboxControlEpsilon) {
+        return true
+      }
+      if (abs(xboxData[right_js_y] - 0) > this.xboxControlEpsilon) {
+        return true
+      }
+      if (xboxData[left_bumper] !== 0) {
+        return true
+      }
+      if (xboxData[right_bumper] !== 0) {
+        return true
+      }
+      if (xboxData[a] !== 0) {
+        return true
+      }
+      if (xboxData[b] !== 0) {
+        return true
+      }
+      if (xboxData[x] !== 0) {
+        return true
+      }
+      if (xboxData[y] !== 0) {
+        return true
+      }
+      if (xboxData[d_pad_up] !== 0) {
+        return true
+      }
+      if (xboxData[d_pad_down] !== 0) {
+        return true
+      }
+      if (xboxData[d_pad_right] !== 0) {
+        return true
+      }
+      if (xboxData[d_pad_left] !== 0) {
+        return true
+      }
+      return false
     },
 
     ...mapMutations('controls', {
@@ -135,6 +196,14 @@ export default {
 .wrap {
   display: flex;
   align-items: center;
+}
+.controls {
+  display:flex;
+  align-items:center;
+}
+.header {
+  display:flex;
+  align-items:center;
 }
 
 </style>
