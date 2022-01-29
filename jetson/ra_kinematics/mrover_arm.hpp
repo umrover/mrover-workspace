@@ -28,6 +28,7 @@
 #include "rover_msgs/ArmControlState.hpp"
 #include "rover_msgs/RAOpenLoopCmd.hpp"
 #include "rover_msgs/HandCmd.hpp"
+#include "rover_msgs/ZeroPosition.hpp"
 
 using namespace rover_msgs;
  
@@ -165,7 +166,7 @@ public:
      * Handle request to set current position as the zero position
      * 
      * @param channel expected: "/zero_position"
-     * @param msg format: double joint_a ... joint_f
+     * @param msg format: empty
      */
     void zero_position_callback(std::string channel, ZeroPosition msg);
 

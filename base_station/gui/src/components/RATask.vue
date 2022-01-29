@@ -42,9 +42,6 @@
     </div>
     <div class="spacer"></div>
     <div class="fil-hori-now">
-      <button v-on:click="zero_position_callback()">
-        Set Zero Position
-      </button>
       <span class="label-new">
           <input id="item0" name="item0" type="checkbox" value="joint_a" v-model="locked_joints" @change="locked_joints_callback(locked_joints)"> 
           <label id="item0" for="item0">lock joint a</label>
@@ -64,6 +61,9 @@
           <input id="item5" name="item5" type="checkbox" value="joint_f" v-model="locked_joints" @change="locked_joints_callback(locked_joints)">
           <label id="item5" for="item5">lock joint f</label>
       </span>
+      <button class="zero-button" v-on:click="zero_position_callback()">
+        Set Zero Position
+      </button>
     </div>
   </div>
 </template>

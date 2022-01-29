@@ -76,6 +76,15 @@ public:
     {
         arm->ra_control_callback( channel, *arm_control );
     }
+    
+    void zeroPositionCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const ZeroPosition* zero_position
+    )
+    {
+        arm->zero_position_callback( channel, *zero_position );
+    }
 
 private:
     MRoverArm* arm;
@@ -102,6 +111,7 @@ int main() {
     lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
     lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
     lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );
+    lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
     
     std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
     std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);

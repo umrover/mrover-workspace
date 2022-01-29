@@ -234,8 +234,8 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
     std::cout << "\n";
 
     // Set goal so joint f doesn't move
-    Vector6d goal = ik.first;
-    goal(5) = arm_state.get_joint_angles[5];
+    Vector6d goal = ik_solution.first;
+    goal(5) = arm_state.get_joint_angle(5);
     // Lock hypostate joint f for testing:
     hypo_state.set_joint_locked(5, true);
     // create path of the angles IK found and preview on GUI
@@ -516,12 +516,12 @@ void MRoverArm::lock_joints_callback(std::string channel, LockJoints msg) {
 }
 
 void MRoverArm::zero_position_callback(std::string channel, ZeroPosition msg) {
-    arm_state.set_joint_encoder_offset(0, (double) msg.joint_a);
-    arm_state.set_joint_encoder_offset(1, (double) msg.joint_b);
-    arm_state.set_joint_encoder_offset(2, (double) msg.joint_c);
-    arm_state.set_joint_encoder_offset(3, (double) msg.joint_d);
-    arm_state.set_joint_encoder_offset(4, (double) msg.joint_e);
-    arm_state.set_joint_encoder_offset(5, (double) msg.joint_f);
+    arm_state.set_joint_encoder_offset(0, arm_state.get_joint_angle(0));
+    arm_state.set_joint_encoder_offset(1, arm_state.get_joint_angle(1) + 1.09);
+    arm_state.set_joint_encoder_offset(2, arm_state.get_joint_angle(2));
+    arm_state.set_joint_encoder_offset(3, arm_state.get_joint_angle(3));
+    arm_state.set_joint_encoder_offset(4, arm_state.get_joint_angle(4));
+    arm_state.set_joint_encoder_offset(5, arm_state.get_joint_angle(5));
 }
 
 void MRoverArm::encoder_angles_sender() {
