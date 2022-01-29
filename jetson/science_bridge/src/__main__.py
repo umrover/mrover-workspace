@@ -34,7 +34,7 @@ class ScienceBridge():
         '''
         self.ser = serial.Serial(
             # port='/dev/ttyS4',
-            port='/dev/ttyTHS0',
+            port='/dev/ttyTHS1',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -91,11 +91,14 @@ class ScienceBridge():
             struct_variables = ["d0_1", "d0_2", "d0_3", "d0_4", "d0_5", "d0_6",
                                 "d1_1", "d1_2", "d1_3", "d1_4", "d1_5", "d1_6",
                                 "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
-            # print(arr)
+            print(arr)
             count = 1
             for var in struct_variables:
                 if (not (count >= len(arr))):
-                    setattr(triad_struct, var, ((np.int16(arr[count]) << 8) | (np.int16(arr[count + 1]))))
+                    pass
+                    x = 3
+                    print(((np.int16(arr[count+1]) << 8) | (np.int16(arr[count]))))
+                    setattr(triad_struct, var, ((np.int16(arr[count+1]) << 8) | (np.int16(arr[count]))))
                 else:
                     setattr(triad_struct, var, 0)
                 count += 2
@@ -259,6 +262,7 @@ class ScienceBridge():
                                 lcm.publish('/thermistor_data', thermistor.encode())
                             if(tag == "TRIAD"):
                                 self.triad_handler(msg, triad)
+                                print(triad)
                                 lcm.publish('/spectral_triad_data', triad.encode())
                             seen_tags[tag] = True
                         except Exception as e:
