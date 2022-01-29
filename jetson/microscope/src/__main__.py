@@ -13,8 +13,8 @@ streaming = False
 def start_pipeline():
     global pipeline
 
-    pipeline_string = ("v4l2src device=/dev/v4l/by-id/usb-05e3_USB2.0_Digital_"
-                       "Camera_USB2.0_Digital_Camera-video-index0 ! "
+    pipeline_string = ("v4l2src device=/dev/v4l/by-id/usb-GenesysLogic_Technology_Co.__Ltd."
+                       "_USB2.0_UVC_PC_Camera-video-index0 ! "
                        "videoscale ! videoconvert ! x264enc tune=zerolatency "
                        "bitrate=500 speed-preset=superfast ! rtph264pay ! "
                        "udpsink host=10.0.0.1 port=5002")
