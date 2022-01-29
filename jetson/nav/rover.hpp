@@ -9,6 +9,7 @@
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
+#include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
@@ -94,7 +95,7 @@ public:
             Odometry odometryIn,
             Target targetIn,
             Target target2In,
-          
+            RadioSignalStrength signalIn
             );
 
         NavState& currentState();
@@ -116,6 +117,8 @@ public:
         Target& leftCacheTarget();
         
         Target& rightCacheTarget();
+
+        RadioSignalStrength& radio();
 
         unsigned getPathTargets();
 
@@ -158,6 +161,7 @@ public:
 
         Target mCTargetRight;
 
+        RadioSignalStrength mSignal;
         // Total targets to seach for in the course
         unsigned mPathTargets;
 
@@ -202,7 +206,7 @@ private:
 
     bool isEqual( const Odometry& odometry1, const Odometry& odometry2 ) const;
 
-    bool isEqual( const Target& target1, const Target& target2 ) const;
+    bool isEqual( const Target& target, const Target& target2 ) const;
 
     bool isTurningAroundObstacle( const NavState currentState ) const;
 
