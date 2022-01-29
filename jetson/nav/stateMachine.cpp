@@ -264,9 +264,9 @@ void StateMachine::updateRoverStatus( Odometry odometry )
 // Updates the target information of the rover's status.
 void StateMachine::updateRoverStatus( TargetList targetList )
 {
-    Target target1 = targetList.targetList[0];
+    Target target = targetList.targetList[0];
     Target target2 = targetList.targetList[1];
-    mNewRoverStatus.target() = target1;
+    mNewRoverStatus.target() = target;
     mNewRoverStatus.target2() = target2;
 } // updateRoverStatus( Target )
 

@@ -52,7 +52,7 @@ Odometry& Rover::RoverStatus::odometry()
 // Gets a reference to the rover's first target's current information.
 Target& Rover::RoverStatus::target()
 {
-    return mTarget1;
+    return mTarget;
 } // target()
 
 Target& Rover::RoverStatus::target2() {
@@ -90,7 +90,7 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     }
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();
-    mTarget1 = newRoverStatus.target();
+    mTarget = newRoverStatus.target();
     mTarget2 = newRoverStatus.target2();
     mSignal = newRoverStatus.radio();
     return *this;
@@ -331,10 +331,10 @@ bool Rover::isEqual( const Odometry& odometry1, const Odometry& odometry2 ) cons
 
 // Returns true if the two target messages are equal, false
 // otherwise.
-bool Rover::isEqual( const Target& target1, const Target& target2 ) const
+bool Rover::isEqual( const Target& target, const Target& target2 ) const
 {
-    if( target1.distance == target2.distance &&
-        target1.bearing == target2.bearing )
+    if( target.distance == target2.distance &&
+        target.bearing == target2.bearing )
     {
         return true;
     }

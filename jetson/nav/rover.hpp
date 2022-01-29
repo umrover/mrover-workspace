@@ -106,7 +106,7 @@ public:
 
         Odometry& odometry();
 
-        Target& target1();
+        Target& target();
 
         Target& target2();
 
@@ -142,7 +142,7 @@ public:
 
         // The rover's current target information from computer
         // vision.
-        Target mTarget1;
+        Target mTarget;
 
         Target mTarget2;
 
@@ -185,7 +185,7 @@ private:
 
     bool isEqual( const Odometry& odometry1, const Odometry& odometry2 ) const;
 
-    bool isEqual( const Target& target1, const Target& target2 ) const;
+    bool isEqual( const Target& target, const Target& target2 ) const;
 
     bool isTurningAroundObstacle( const NavState currentState ) const;
 
