@@ -212,6 +212,8 @@ public:
 
     double get_joint_encoder_offset(size_t joint_index) const;
 
+    void set_joint_encoder_offset(size_t joint_index, double offset);
+
     double get_joint_encoder_multiplier(size_t joint_index) const;
 
     bool get_joint_locked(size_t joint_index) const;

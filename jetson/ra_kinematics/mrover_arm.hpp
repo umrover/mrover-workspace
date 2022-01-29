@@ -162,6 +162,14 @@ public:
     void lock_joints_callback(std::string channel, LockJoints msg);
 
     /**
+     * Handle request to set current position as the zero position
+     * 
+     * @param channel expected: "/zero_position"
+     * @param msg format: double joint_a ... joint_f
+     */
+    void zero_position_callback(std::string channel, ZeroPosition msg);
+
+    /**
      * Asynchronous function, runs when control_state is "EXECUTING"
      * Executes current path on physical rover, unless sim_mode is true
      * */

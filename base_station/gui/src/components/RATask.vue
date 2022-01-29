@@ -42,6 +42,9 @@
     </div>
     <div class="spacer"></div>
     <div class="fil-hori-now">
+      <button v-on:click="zero_position_callback()">
+        Set Zero Position
+      </button>
       <span class="label-new">
           <input id="item0" name="item0" type="checkbox" value="joint_a" v-model="locked_joints" @change="locked_joints_callback(locked_joints)"> 
           <label id="item0" for="item0">lock joint a</label>
@@ -140,9 +143,11 @@ export default {
 
       // Publish lcm message:
       this.lcm_.publish('/locked_joints', msg);
-
-      console.log(msg);
     },
+
+    zero_position_callback: function() {
+      this.lcm_.publish('/zero_position', { 'type': 'ZeroPosition' } )
+    }
   },
 
   computed: {
