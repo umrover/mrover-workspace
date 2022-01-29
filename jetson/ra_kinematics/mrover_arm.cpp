@@ -151,6 +151,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
 void MRoverArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
     if (control_state != ControlState::WAITING_FOR_TARGET) {
+        std::cout << "control_state: " << control_state << "\n";
         std::cout << "Received target but not currently waiting for target.\n";
         return;
     }
@@ -227,19 +228,21 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
         return;
     }
 
-    std::cout << "Final joint angles: ";
+    std::cout << "Final ik joint angles: \n";
     for (size_t i = 0; i < 6; ++i) {
         std::cout << ik_solution.first[i] << "\t"; 
     }
     std::cout << "\n";
 
     // Set goal so joint f doesn't move
-    Vector6d goal = ik.first;
-    goal(5) = arm_state.get_joint_angles[5];
+    Vector6d goal = ik_solution.first;
+    goal(5) = arm_state.get_joint_angles()[5];
     // Lock hypostate joint f for testing:
+    bool joint_f_locked = hypo_state.get_joint_locked(5);
     hypo_state.set_joint_locked(5, true);
     // create path of the angles IK found and preview on GUI
     plan_path(hypo_state, goal);
+    hypo_state.set_joint_locked(5, joint_f_locked);
 }
 
 void MRoverArm::target_angles_callback(std::string channel, ArmPosition msg) {
@@ -436,7 +439,7 @@ void MRoverArm::execute_spline() {
                 }
             }
 
-            // std:: cout << "slowest joint: " << temp_max_joint << "\n";
+            std:: cout << "slowest joint: " << temp_max_joint << "\n";
 
             //determines size of iteration by dividing number of iterations by distance
             spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
@@ -461,10 +464,17 @@ void MRoverArm::execute_spline() {
                 }
             }
 
-            std::cout << "joint a current position: " << arm_state.get_joint_angle(0) << "\n";
-            std::cout << "joint a target:           " << target_angles[0] << "\n";
-            std::cout << "joint b current position: " << arm_state.get_joint_angle(1) << "\n";
-            std::cout << "joint b target:           " << target_angles[1] << "\n\n";
+            // std::cout << "joint a current position: " << arm_state.get_joint_angle(0) << "\n";
+            // std::cout << "joint a target:           " << target_angles[0] << "\n";
+            // std::cout << "joint b current position: " << arm_state.get_joint_angle(1) << "\n";
+            // std::cout << "joint b target:           " << target_angles[1] << "\n\n";
+
+            // cout executed angles
+            std::cout << "joint angles after executing spline:\n";
+            for (int i = 0; i < 6; ++i) {
+                std::cout << arm_state.get_joint_angles()[i] << " ";
+            }
+            std::cout << "\n";
 
             // if not in sim_mode, send physical arm a new target
             if (!sim_mode) {
@@ -636,7 +646,7 @@ void MRoverArm::send_kill_cmd() {
     std::cout << "Sending kill command!\n";
 
     RAOpenLoopCmd ra_cmd;
-    for (size_t i = 0; i < arm_state.num_joints(); ++i) {
+    for (int i = 0; i < arm_state.num_joints(); ++i) {
         ra_cmd.throttle[i] = 0.0;
     }
     lcm_.publish("/ra_openloop_cmd", &ra_cmd);
