@@ -413,16 +413,18 @@ void MRoverArm::execute_spline() {
 
             // Get max time to travel for joints a through e
             for (int i = 0; i < 5; ++i) {
-                double max_speed = arm_state.get_joint_max_speed(i);
+                if (!arm_state.get_joint_locked(i)) {
+                    double max_speed = arm_state.get_joint_max_speed(i);
 
-                //in ms, time needed to move D_SPLINE_T (%)
-                double joint_time = std::abs(final_angles[i] - init_angles[i])
-                    / (max_speed / 1000.0); // convert max_speed to rad/ms
-                
-                //sets max_time to greater value
-                if (max_time < joint_time) {
-                    max_time = joint_time;
-                    temp_max_joint = i;
+                    //in ms, time needed to move D_SPLINE_T (%)
+                    double joint_time = std::abs(final_angles[i] - init_angles[i])
+                        / (max_speed / 1000.0); // convert max_speed to rad/ms
+                    
+                    //sets max_time to greater value
+                    if (max_time < joint_time) {
+                        max_time = joint_time;
+                        temp_max_joint = i;
+                    }
                 }
             }
 
