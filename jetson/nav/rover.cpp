@@ -1,5 +1,4 @@
 #include "rover.hpp"
-
 #include "utilities.hpp"
 #include "rover_msgs/Joystick.hpp"
 #include <cmath>
@@ -59,10 +58,6 @@ Target& Rover::RoverStatus::target2() {
     return mTarget2;
 }
 
-RadioSignalStrength& Rover::RoverStatus::radio() {
-    return mSignal;
-}
-
 unsigned Rover::RoverStatus::getPathTargets()
 {
   return mPathTargets;
@@ -92,7 +87,6 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     mOdometry = newRoverStatus.odometry();
     mTarget = newRoverStatus.target();
     mTarget2 = newRoverStatus.target2();
-    mSignal = newRoverStatus.radio();
     return *this;
 } // operator=
 
@@ -238,7 +232,6 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.target() = newRoverStatus.target();
-            mRoverStatus.radio() = newRoverStatus.radio();
             return true;
         }
 

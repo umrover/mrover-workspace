@@ -36,9 +36,6 @@ public:
     void updateRoverStatus( Odometry odometry );
 
     void updateRoverStatus( TargetList targetList );
-
-    void updateRoverStatus( RadioSignalStrength radioSignalStrength );
-
     void updateCompletedPoints( );
 
     void updateObstacleAngle( double bearing );

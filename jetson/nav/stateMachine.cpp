@@ -1,5 +1,4 @@
 #include "stateMachine.hpp"
-
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -7,7 +6,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <map>
-
 #include "rover_msgs/NavStatus.hpp"
 #include "utilities.hpp"
 #include "search/spiralOutSearch.hpp"
@@ -269,12 +267,6 @@ void StateMachine::updateRoverStatus( TargetList targetList )
     mNewRoverStatus.target() = target;
     mNewRoverStatus.target2() = target2;
 } // updateRoverStatus( Target )
-
-// Updates the radio signal strength information of the rover's status.
-void StateMachine::updateRoverStatus( RadioSignalStrength radioSignalStrength )
-{
-    mNewRoverStatus.radio() = radioSignalStrength;
-} // updateRoverStatus( RadioSignalStrength )
 
 // Return true if we want to execute a loop in the state machine, false
 // otherwise.

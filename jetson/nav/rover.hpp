@@ -8,7 +8,6 @@
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
@@ -90,9 +89,9 @@ public:
             Obstacle obstacleIn,
             Odometry odometryIn,
             Target targetIn,
-            Target target2In,
-            RadioSignalStrength signalIn
-            );
+            Target target2In
+
+        );
 
         NavState& currentState();
 
@@ -110,11 +109,7 @@ public:
 
         Target& target2();
 
-        RadioSignalStrength& radio();
-
         unsigned getPathTargets();
-
-        RadioSignalStrength mSignal;
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
