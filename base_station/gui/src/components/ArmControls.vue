@@ -96,7 +96,7 @@ export default {
               updateControlMode('open-loop', true)
             }
             if (this.controlMode === 'open-loop') {
-              this.$parent.publish('/ra_control', xboxData)
+              this.$parent.publish('/ra_control', xboxData)   //how to change to ra/sa depending on which gui we're on?
             }
           }
         }
