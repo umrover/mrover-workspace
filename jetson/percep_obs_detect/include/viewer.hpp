@@ -185,7 +185,7 @@ private:
  *** Define which stage of the filtering process will be shown in the viewer
  */
 enum class ProcStage {
-    RAW, POSTPASS, POSTRANSAC, POSTECE, POSTBOUNDING, POSTBEARING
+    RAW, POSTPASS, POSTRANSAC, POSTECE, POSTBOUNDING, POSTBEARING, RAW_BOUNDING_BEARING
 };
 
 class Viewer {

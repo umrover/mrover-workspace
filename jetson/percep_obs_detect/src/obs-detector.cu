@@ -151,6 +151,18 @@ void ObsDetector::handleParameters() {
 void ObsDetector::update(GPU_Cloud pc) {
     handleParameters();
 
+    if (viewer.framePlay) {
+        viewer.frame++;
+        viewer.frame %= viewer.maxFrame;
+    }
+
+    if (viewer.procStage == ProcStage::RAW_BOUNDING_BEARING) {
+        createBoundingBoxes();
+        createBearing();
+        viewer.updatePointCloud(pc);
+        return;
+    }
+
     // Processing
     if (viewer.procStage > ProcStage::RAW) {
         passZ->run(pc);
@@ -181,11 +193,6 @@ void ObsDetector::update(GPU_Cloud pc) {
 
     if (viewer.procStage > ProcStage::POSTBOUNDING) {
         createBearing();
-    }
-
-    if (viewer.framePlay) {
-        viewer.frame++;
-        viewer.frame %= viewer.maxFrame;
     }
 }
 
