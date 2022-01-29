@@ -3,6 +3,7 @@
 
 #include <lcm/lcm-cpp.hpp>
 #include <queue>
+
 #include "rover_msgs/AutonState.hpp"
 #include "rover_msgs/Bearing.hpp"
 #include "rover_msgs/Course.hpp"
@@ -90,7 +91,6 @@ public:
             Odometry odometryIn,
             Target targetIn,
             Target target2In
-
         );
 
         NavState& currentState();

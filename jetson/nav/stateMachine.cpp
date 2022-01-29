@@ -1,4 +1,5 @@
 #include "stateMachine.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -6,6 +7,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <map>
+
 #include "rover_msgs/NavStatus.hpp"
 #include "utilities.hpp"
 #include "search/spiralOutSearch.hpp"
@@ -62,8 +64,6 @@ void StateMachine::updateCompletedPoints( )
     mCompletedWaypoints += 1;
     return;
 }
-
-
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
