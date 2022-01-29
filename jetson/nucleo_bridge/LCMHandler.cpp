@@ -186,6 +186,6 @@ void LCMHandler::ra_zero_trigger(LCM_INPUT, const RAZeroTrigger *msg)
 
 void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
 {
-    ControllerMap::controllers["FOOT_CLAW"]->open_loop(msg->microscope_triad);
+    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad);
     ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop);
 }

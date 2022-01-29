@@ -9,6 +9,7 @@ enum HardwareType
     Motor6V,
     Motor9V,
     Motor12V,
+    Motor24V,
     None
 };
 
@@ -30,6 +31,9 @@ public:
         else if(input == "Motor12V") {
             return Motor12V;
         }
+        else if(input == "Motor24V") {
+            return Motor24V;
+        }
         else 
         {
             return None;
@@ -50,7 +54,10 @@ public:
             break;
         case Motor12V:
             speed_max = 33;
-	    break;
+            break;
+        case Motor24V:
+            speed_max = 60;
+	        break;
         case None:
             break;
         }

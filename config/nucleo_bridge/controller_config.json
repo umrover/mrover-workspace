@@ -12,7 +12,7 @@
         "channel": 2
     },
     {
-        "name":"FOOT_CLAW",
+        "name":"FOOT_SCOOP",
         "type":"Motor6V",
         "nucleo": 2,
         "channel": 0
@@ -82,7 +82,7 @@
     },
     {
         "name":"RA_0",
-        "type":"Motor12V",
+        "type":"Motor24V",
         "nucleo": 0,
         "channel": 0,
         "quadCPR": -28800.0, 
@@ -100,7 +100,7 @@
     },
     {
         "name":"RA_2",
-        "type":"Motor12V",
+        "type":"Motor24V",
         "nucleo": 1,
         "channel": 0,
         "quadCPR": 155040.0,
@@ -109,7 +109,7 @@
     },
     {
         "name":"RA_3",
-        "type":"Motor12V",
+        "type":"Motor24V",
         "nucleo": 1,
         "channel": 1,
         "quadCPR": -81600.0,
@@ -118,7 +118,7 @@
     },
     {
         "name":"RA_4",
-        "type":"Motor12V",
+        "type":"Motor24V",
         "nucleo": 2,
         "channel": 0,
         "quadCPR": -81600.0,
