@@ -659,9 +659,9 @@ int main()
     // openPlus(get_addr(1, 1), 0.0);
     while (1)
     {
-        testClosed();
+       // testClosed();
 	    //testQuadEnc();
-        //testOpenPlusWithAbs();
+        testOpenPlusWithAbs();
         //testOpenPlus();
         // printf("sleeping \n");
         // //sleep(1000);
