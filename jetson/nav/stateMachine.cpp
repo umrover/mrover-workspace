@@ -153,7 +153,8 @@ void StateMachine::run()
 
             case NavState::SearchFaceNorth:
             case NavState::SearchSpin:
-            case NavState::SearchSpinWait:
+            case NavState::SearchGimbal:
+            case NavState::SearchWait:
             case NavState::SearchTurn:
             case NavState::SearchDrive:
             case NavState::TurnToTarget:
@@ -212,7 +213,7 @@ void StateMachine::run()
             }
 
             case NavState::GateSpin:
-            case NavState::GateSpinWait:
+            case NavState::GateWait:
             case NavState::GateTurn:
             case NavState::GateDrive:
             case NavState::GateTurnToCentPoint:
@@ -222,6 +223,7 @@ void StateMachine::run()
             case NavState::GateTurnToFarPost:
             case NavState::GateDriveToFarPost:
             case NavState::GateTurnToGateCenter:
+            case NavState::GateSearchGimbal:
             {
                 nextState = mGateStateMachine->run();
                 break;
@@ -293,10 +295,12 @@ bool StateMachine::isRoverReady() const
 {
     return mStateChanged || // internal data has changed
            mRover->updateRover( mNewRoverStatus ) || // external data has changed
-           mRover->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
+           mRover->roverStatus().currentState() == NavState::SearchWait || // continue even if no data has changed
            mRover->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
            mRover->roverStatus().currentState() == NavState::RepeaterDropWait ||
-           mRover->roverStatus().currentState() == NavState::GateSpinWait;
+           mRover->roverStatus().currentState() == NavState::SearchGimbal ||
+           mRover->roverStatus().currentState() == NavState::GateSearchGimbal ||
+           mRover->roverStatus().currentState() == NavState::GateWait;
 
 } // isRoverReady()
 
@@ -336,6 +340,8 @@ NavState StateMachine::executeOff()
 // rover.
 NavState StateMachine::executeDone()
 {
+    mRover->gimbal().setDesiredGimbalYaw(0.0);
+    mRover->publishGimbal();
     mRover->stop();
     return NavState::Done;
 } // executeDone()
@@ -406,7 +412,13 @@ NavState StateMachine::executeDrive()
     {
         if( nextWaypoint.search )
         {
-            return NavState::SearchSpin;
+            if ( mRoverConfig[ "search" ][ "useGimbal" ].GetBool() ){
+                //std::cout << "gimbal" << std::endl;
+                return NavState::SearchGimbal; // Entry point to gimbal process
+            }
+            else{
+                return NavState::SearchSpin;
+            }
         }
         mRover->roverStatus().path().pop_front();
         /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
@@ -461,7 +473,8 @@ string StateMachine::stringifyNavState() const
             { NavState::Drive, "Drive" },
             { NavState::SearchFaceNorth, "Search Face North" },
             { NavState::SearchSpin, "Search Spin" },
-            { NavState::SearchSpinWait, "Search Spin Wait" },
+            { NavState::SearchGimbal, "Search Gimbal" },
+            { NavState::SearchWait, "Search Wait" },
             { NavState::ChangeSearchAlg, "Change Search Algorithm" },
             { NavState::SearchTurn, "Search Turn" },
             { NavState::SearchDrive, "Search Drive" },
@@ -473,7 +486,8 @@ string StateMachine::stringifyNavState() const
             { NavState::SearchTurnAroundObs, "Search Turn Around Obstacle" },
             { NavState::SearchDriveAroundObs, "Search Drive Around Obstacle" },
             { NavState::GateSpin, "Gate Spin" },
-            { NavState::GateSpinWait, "Gate Spin Wait" },
+            { NavState::GateSearchGimbal, "Gate Search Gimbal" },
+            { NavState::GateWait, "Gate Wait" },
             { NavState::GateTurn, "Gate Turn" },
             { NavState::GateDrive, "Gate Drive" },
             { NavState::GateTurnToCentPoint, "Gate Turn to Center Point" },
@@ -502,6 +516,11 @@ bool StateMachine::isWaypointReachable( double distance )
 {
     return isLocationReachable( mRover, mRoverConfig, distance, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
 } // isWaypointReachable
+
+//updates the gimbal object with its current position read in from the LCM
+void StateMachine::updateGimbalPosition(double cur_yaw){
+    mRover->gimbal().setCurrentYaw(cur_yaw);
+}
 
 // If we have not already begun to drop radio repeater
 //  (RadioRepeaterTurn or RadioRepeaterDrive)

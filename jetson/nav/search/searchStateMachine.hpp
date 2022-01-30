@@ -59,6 +59,8 @@ private:
     /*************************************************************************/
     NavState executeSearchSpin();
 
+    NavState executeSearchGimbal();
+
     NavState executeRoverWait();
 
     NavState executeSearchTurn();

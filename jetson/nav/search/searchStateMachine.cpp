@@ -29,7 +29,11 @@ NavState SearchStateMachine::run()
             return executeSearchSpin();
         }
 
-        case NavState::SearchSpinWait:
+        case NavState::SearchGimbal:
+        {
+            return executeSearchGimbal();
+        }
+        case NavState::SearchWait:
         case NavState::TurnedToTargetWait:
         {
             return executeRoverWait();
@@ -64,7 +68,7 @@ NavState SearchStateMachine::run()
 } // run()
 
 // Executes the logic for a search spin. If at a multiple of
-// waitStepSize, the rover will go to SearchSpinWait. If the rover
+// waitStepSize, the rover will go to SearchWait. If the rover
 // detects the target, it proceeds to the target. If finished with a 360,
 // the rover moves on to the next phase of the search. Else continues
 // to search spin.
@@ -96,10 +100,81 @@ NavState SearchStateMachine::executeSearchSpin()
             return NavState::SearchTurn;
         }
         nextStop += waitStepSize;
-        return NavState::SearchSpinWait;
+        return NavState::SearchWait;
     }
     return NavState::SearchSpin;
 } // executeSearchSpin()
+
+//Executes the logic for a gimbal search spin. The main objective of a gimbal search spin is to spin the gimbal
+//to positive "gimbalSearchAngleMag" (150) then to -150 then to 0. Every "wait step size" we stop the gimbal
+//in order to give it time to find the target. Only use the wait step size on the 1st phase of the rotation
+//this is because its unnecsesary to double check
+NavState SearchStateMachine::executeSearchGimbal( )
+{
+    //initially set the waitstepsize to be the same as the gimbalSearchAngleMag so we just go straight to
+    //the extremity without waiting.
+    static double waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchMax" ].GetDouble();
+    static double nextStop = 0; // to force the rover to wait initially
+    static double phase = 0; // if 0, go to max angle. if 1 go to min angle, if 2 go to 0
+    static double desiredYaw = mRoverConfig[ "search" ][ "gimbalSearchMax" ].GetDouble(); 
+
+    //if target aquired, turn to it
+    if( mRover->roverStatus().leftTarget().distance >= 0 )
+    {
+        updateTargetDetectionElements( mRover->roverStatus().leftTarget().bearing,
+                                           mRover->roverStatus().odometry().bearing_deg );
+        return NavState::TurnToTarget;
+    }
+    //set the desiredYaw to wherever the next stop on the gimbals path is
+    //enter the if if the gimbal is at the next stop
+    if( mRover->gimbal().setDesiredGimbalYaw( nextStop ) )
+    {   
+        //if the next stop is at the desiredYaw for the phase (150, -150, 0)
+        if ( nextStop == desiredYaw || nextStop > mRoverConfig[ "search" ][ "gimbalSearchMax" ].GetDouble() || nextStop < mRoverConfig[ "search" ][ "gimbalSearchMin" ].GetDouble())
+        {
+            //if there are more phases, increment the phase
+            if ( phase <= 2 )
+                ++phase;
+            //if the phase is one, set the waitstepsize to the specified config value and flip desired yaw
+            //goal of this phase is to go in waitstepsize increments from positive gimbalSearchAngleMag to 
+            //negative gimbalSearchAngleMag
+            if ( phase == 1 ) {
+                double degrees_to_travel = -mRoverConfig[ "search" ][ "gimbalSearchMin" ].GetDouble() + desiredYaw;
+                
+                waitStepSize = -degrees_to_travel / 5;//-mRoverConfig[ "search" ][ "gimbalSearchWaitStepSize" ].GetDouble(); put in const
+                
+                desiredYaw = mRoverConfig["search"]["gimbalSearchMin"].GetDouble();// *= -1;
+            }
+            //Go straight to zero, set the waitstep size to the difference between 0 and currentPosition
+            else if ( phase == 2 ) 
+            {
+                waitStepSize = 0 - nextStop;
+                desiredYaw = 0;
+            }
+        }
+
+        //if we are done with all phases
+        if ( phase == 3 )
+        {
+            //reset static vars
+            waitStepSize = mRoverConfig[ "search" ][ "gimbalSearchMax" ].GetDouble();
+            nextStop = 0;
+            phase = 0;
+            desiredYaw = mRoverConfig[ "search" ][ "gimbalSearchMax" ].GetDouble( );
+            //Turn to next search point
+            return NavState::SearchTurn;
+        }
+        //set the next stop for the gimbal to increment by the waitStepSize
+        nextStop += waitStepSize;
+        
+        //we are at our stopping point for the camera so go into search gimbal wait
+        return NavState::SearchWait;
+    }
+    //publish gimbal lcm command
+    mRover->publishGimbal( );
+
+    return NavState::SearchGimbal;
+}
 
 
 // Executes the logic for waiting during a search spin so that CV can
@@ -128,7 +203,12 @@ NavState SearchStateMachine::executeRoverWait()
     if( difftime( time( nullptr ), startTime ) > waitTime )
     {
         started = false;
-        if ( mRover->roverStatus().currentState() == NavState::SearchSpinWait )
+        // Determine wwhich Spin we are executing then go back to the correct method
+        if (mRoverConfig[ "search" ][ "useGimbal" ].GetBool())
+        {
+            return NavState::SearchGimbal;
+        }
+        else
         {
             return NavState::SearchSpin;
         }
@@ -136,9 +216,9 @@ NavState SearchStateMachine::executeRoverWait()
     }
     else
     {
-        if ( mRover->roverStatus().currentState() == NavState::SearchSpinWait )
+        if ( mRover->roverStatus().currentState() == NavState::SearchWait )
         {
-            return NavState::SearchSpinWait;
+            return NavState::SearchWait;
         }
         return NavState::TurnedToTargetWait;
     }
@@ -199,7 +279,14 @@ NavState SearchStateMachine::executeSearchDrive()
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.pop_front();
-        return NavState::SearchSpin;
+        
+        //if the rover uses the gimbal use it, otherwise dont.
+        if ( mRoverConfig[ "search" ][ "useGimbal" ].GetBool() ){
+            return NavState::SearchGimbal;
+        }
+        else{
+            return NavState::SearchSpin;
+        }
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
@@ -224,8 +311,15 @@ NavState SearchStateMachine::executeTurnToTarget()
         }
         return NavState::TurnToTarget;
     }
+    double gimbalAddition = 0.0;
+    if ( mRoverConfig[ "search" ][ "useGimbal" ].GetBool() ){
+        gimbalAddition = mRover->gimbal().getYaw();
+        mRover->gimbal().setDesiredGimbalYaw(mRover->roverStatus().leftCacheTarget().bearing);
+        mRover->publishGimbal();
+    }
     if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing +
-                      mRover->roverStatus().odometry().bearing_deg ) )
+                      mRover->roverStatus().odometry().bearing_deg +
+                      gimbalAddition ) )
     {
         return NavState::DriveToTarget;
     }
@@ -296,7 +390,13 @@ NavState SearchStateMachine::executeDriveToTarget()
                                                                                 mRover->roverStatus().leftCacheTarget().distance,
                                                                                 mRover );
             roverStateMachine->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftCacheTarget().id;
-            return NavState::GateSpin;
+            if (mRoverConfig["search"]["useGimbal"].GetBool()) {
+                cout << "going into gate search gimbal. Last known right post ID: " <<  roverStateMachine->mGateStateMachine->lastKnownRightPost.id << endl;
+                return NavState::GateSearchGimbal;
+            }
+            else {
+                 return NavState::GateSpin;
+            }
         }
         mRover->roverStatus().path().pop_front();
         roverStateMachine->updateCompletedPoints();
@@ -329,7 +429,12 @@ void SearchStateMachine::updateTurnToTargetRoverAngle( double bearing )
 void SearchStateMachine::updateTargetDetectionElements( double target_bearing, double rover_bearing )
 {
     updateTargetAngle( target_bearing );
-    updateTurnToTargetRoverAngle( rover_bearing );
+    if ( mRoverConfig[ "search" ][ "useGimbal" ].GetBool() ){
+        updateTurnToTargetRoverAngle( rover_bearing + mRover->gimbal().getYaw() );
+    }
+    else{
+        updateTurnToTargetRoverAngle( rover_bearing );
+    }
 } // updateTargetDetectionElements
 
 // add intermediate points between the existing search points in a path generated by a search algorithm.

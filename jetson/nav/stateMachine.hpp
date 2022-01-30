@@ -51,6 +51,8 @@ public:
 
     void setSearcher( SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
 
+    void updateGimbalPosition(double curYaw);
+
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
