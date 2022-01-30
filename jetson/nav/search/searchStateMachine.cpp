@@ -189,7 +189,7 @@ NavState SearchStateMachine::executeSearchDrive()
 
     if( isObstacleDetected( mRover )  && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
-        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing );
+        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
         roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
@@ -256,7 +256,7 @@ NavState SearchStateMachine::executeDriveToTarget()
     if( isObstacleDetected( mRover ) &&
         !isTargetReachable( mRover, mRoverConfig )  && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
-        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing );
+        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
         roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }

@@ -74,9 +74,9 @@ void StateMachine::updateRepeaterComplete( )
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleAngle( double bearing )
+void StateMachine::updateObstacleAngle( double bearing, double rightBearing )
 {
-    mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing );
+    mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing, rightBearing );
 }
 
 // Allows outside objects to set the original obstacle angle
@@ -88,9 +88,9 @@ void StateMachine::updateObstacleDistance( double distance )
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleElements( double bearing, double distance )
+void StateMachine::updateObstacleElements( double bearing, double rightBearing, double distance )
 {
-    updateObstacleAngle( bearing );
+    updateObstacleAngle( bearing, rightBearing );
     updateObstacleDistance( distance );
 }
 
@@ -396,7 +396,8 @@ NavState StateMachine::executeDrive()
 
     if( isObstacleDetected( mRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
-        mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
+        mObstacleAvoidanceStateMachine->updateObstacleElements( mRover->roverStatus().obstacle().bearing, 
+                                                                mRover->roverStatus().obstacle().rightBearing,
                                                                 getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
     }
@@ -490,12 +491,6 @@ string StateMachine::stringifyNavState() const
 
     return navStateNames.at( mRover->roverStatus().currentState() );
 } // stringifyNavState()
-
-// Returns the optimal angle to avoid the detected obstacle.
-double StateMachine::getOptimalAvoidanceAngle() const
-{
-    return mRover->roverStatus().obstacle().bearing;
-} // optimalAvoidanceAngle()
 
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceDistance() const
