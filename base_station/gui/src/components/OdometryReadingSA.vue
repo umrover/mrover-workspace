@@ -64,6 +64,7 @@ export default {
         'device': ramanLaser,
         'enable': true
       })
+      // delete obj and disabled, do publish inside set timeout
         let obj = this.$refs["raman"]
         obj.disabled = true
         setTimeout(this.pubHelper, 2000, ramanLaser);

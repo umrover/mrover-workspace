@@ -5,22 +5,22 @@
       <h3> Chlorophyll Data</h3>
     </div>
 
-    <label for="toggle_button" :class="{'active': whiteLEDS == 0}" class="toggle__button">
-      <span v-if="whiteLEDS == 0" class="toggle__label" >White LEDs On</span>
-      <span v-if="whiteLEDS == 1" class="toggle__label" >White LEDs Off</span>
+    <label for="toggle_button" :class="{'active': whiteLEDS == false}" class="toggle__button">
+      <span v-if="whiteLEDS == false" class="toggle__label" >White LEDs On</span>
+      <span v-if="whiteLEDS == true" class="toggle__label" >White LEDs Off</span>
 
       <input type="checkbox" id="toggle_button" v-model="checkedValue">
-        <span class="toggle__switch" v-if="whiteLEDS == 1" v-on:click="whiteLEDS=0,setPart(mosfetIDs.sciWLed,true)"></span>
-        <span class="toggle__switch" v-if="whiteLEDS == 0" v-on:click="whiteLEDS=1,setPart(mosfetIDs.sciWLed,false)"></span>
+        <span class="toggle__switch" v-if="whiteLEDS == true" v-on:click="whiteLEDS=false,setPart(mosfetIDs.sciWLed,true)"></span>
+        <span class="toggle__switch" v-if="whiteLEDS == false" v-on:click="whiteLEDS=true,setPart(mosfetIDs.sciWLed,false)"></span>
     </label>
 
-    <label for="toggle_button" :class="{'active': siteUVs.UV0 == 0}" class="toggle__button">
-      <span v-if="siteUVs.UV0 == 0" class="toggle__label" >UV LEDs On</span>
-      <span v-if="siteUVs.UV0 == 1" class="toggle__label" >UV LEDs Off</span>
+    <label for="toggle_button" :class="{'active': siteUVs.UV0 == false}" class="toggle__button">
+      <span v-if="siteUVs.UV0 == false" class="toggle__label" >UV LEDs On</span>
+      <span v-if="siteUVs.UV0 == true" class="toggle__label" >UV LEDs Off</span>
 
       <input type="checkbox" id="toggle_button" v-model="checkedValue">
-      <span class="toggle__switch" v-if="siteUVs.UV0 == 0" v-on:click="siteUVs.UV0=1,setPart(mosfetIDs.sciUV,true)"></span>
-      <span class="toggle__switch" v-if="siteUVs.UV0 == 1" v-on:click="siteUVs.UV0=0,setPart(mosfetIDs.sciUV,false)"></span>
+      <span class="toggle__switch" v-if="siteUVs.UV0 == false" v-on:click="siteUVs.UV0=true,setPart(mosfetIDs.sciUV,true)"></span>
+      <span class="toggle__switch" v-if="siteUVs.UV0 == true" v-on:click="siteUVs.UV0=false,setPart(mosfetIDs.sciUV,false)"></span>
     </label>
   </div>
   <br>
@@ -210,12 +210,12 @@ import GenerateReport from './GenerateReport.vue';
 export default {
   data () {
     return {
-      whiteLEDS: 1,
+      whiteLEDS: false,
       chloroSite: 0,
       siteUVs:{
-        UV0: 1,
-        UV1: 1,
-        UV2: 1
+        UV0: false,
+        UV1: false,
+        UV2: false
       }
     }
   },
@@ -238,6 +238,7 @@ export default {
   },  
   methods: {
     setPart: function(id, enabled) {
+      console.log("help");
       this.$parent.publish("/mosfet_cmd", {
         'type': 'MosfetCmd',
         'device': id,
