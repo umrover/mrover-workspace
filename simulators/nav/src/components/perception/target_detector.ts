@@ -290,9 +290,6 @@ export default class TargetDetector {
     const factor = 1.0 / divisor;
     const indThres = Math.round(state.simSettings.noisePercent / factor);
     const thres = getGaussianThres(indThres);
-    console.log('noisePercent: ', state.simSettings.noisePercent);
-    console.log('indThres: ', indThres);
-    console.log('thres: ', thres);
 
     if (num < thres) {
       post.isHidden = true;
