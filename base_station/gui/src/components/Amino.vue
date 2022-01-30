@@ -137,7 +137,7 @@ export default {
         pump2: 0,
         nichWire0: 0,
         nichWire1: 0,
-        nichWire2: 1,
+        nichWire2: 0,
         temp0: 0,
         temp1: 0,
         temp2: 0,
