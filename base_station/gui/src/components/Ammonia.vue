@@ -34,7 +34,7 @@ const picture = 20;
 export default {
     data () {
         return {
-            strip: 0,
+            strip: 1,
             angle0: start,
             angle1: start,
             angle2: start,
