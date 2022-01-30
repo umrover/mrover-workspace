@@ -97,7 +97,7 @@ int ceilDiv(int x, int y);
 /**
  * \brief Get a CUDA workable gpu point cloud struct from Zed GPU cloud
  */
-void getRawCloud(GPU_Cloud &pc, sl::Mat zed_cloud);
+void getRawCloud(GPU_Cloud &pc, sl::Mat &zed_cloud);
 
 /**
  * \brief Copys one GPU cloud's data to another

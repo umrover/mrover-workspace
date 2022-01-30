@@ -9,10 +9,19 @@
 #include "timer.hpp"
 #include "common.hpp"
 #include "voxel-grid.hpp"
+#include "find-clear-path.hpp"
+#include "writer.h"
+#include <cstring>
+#include <sstream>
+#include <iostream>
+#include <float.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#ifndef NO_JARVIS
 #include <lcm/lcm-cpp.hpp>
 #include "rover_msgs/Obstacle.hpp"
-#include <cstring>
-#include <iostream>
+#endif
 
 // TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;
@@ -23,7 +32,7 @@
  *      GPUMEM: receives a pointer to cloud GPU memory from external source
  *      FILESYSTEM: reads .pc files from specified location
  */
-enum class DataSource {ZED, GPUMEM, FILESYSTEM}; 
+enum class DataSource {ZED, GPUMEM, FILESYSTEM};
 
 /*
  *** Set up debugging level ***
@@ -49,7 +58,7 @@ class ObsDetector {
          */
         ObsDetector(DataSource source, OperationMode mode, ViewerType viewer);
 
-        //Destructor 
+        //Destructor
         ~ObsDetector();
 
         /**
@@ -57,28 +66,29 @@ class ObsDetector {
          */
         void update();
 
+        void handleParameters();
+
         /**
-         * \brief This is the underlying method called by update(), if DataSource::GPUMEM is selected, call this version 
+         * \brief This is the underlying method called by update(), if DataSource::GPUMEM is selected, call this version
          * of the function directly with a pointer to your frame in GPU memory
          * \param frame: sl::Mat frame to do detection on with memory allocated on the GPU
          */
         void update(GPU_Cloud pc);
 
         /**
-         * \brief Do viewer update tick, it may be desirable to call this in its own thread 
+         * \brief Create bounding box and add viewer object for each obstacle
+         */
+        void createBoundingBoxes();
+
+        /**
+         * \brief Find and make viewer object for path bearings
+         */
+        void createBearing();
+
+        /**
+         * \brief Do viewer update tick, it may be desirable to call this in its own thread
          */
         void spinViewer();
-
-        /**
-         * \brief [TODO] Start recording frames from ZED
-         * \param frame: string directory in which to write the pcd files, directory should already exist
-         */
-        void startRecording(std::string directory);
-
-        /**
-         * \brief [TODO] Stop recording frames (this does not need to be called if you want to record until program exit)
-         */
-        void stopRecording();
 
         /**
          * \brief Populates the LCM message
@@ -88,51 +98,63 @@ class ObsDetector {
          */
         void populateMessage(float leftBearing, float rightBearing, float distance);
 
-    private:
+
+    bool open();
+
+private:
 
         //Sets up detection paramaters from a JSON file
         void setupParamaters(std::string parameterFile);
 
 
-    private: 
-        //Lcm
+    private:
+        // Lcm
+        #ifndef NO_JARVIS
         lcm::LCM lcm_;
         rover_msgs::Obstacle obstacleMessage;
+        #endif
 
-        //Data sources
+        // Data sources
         sl::Camera zed;
         PCDReader fileReader;
 
-        //Viwers
+        // Recorder
+        PCDWriter fileWriter;
+        int frameCounter;
+        int frameGap;
+
+        // Viewers
         Viewer viewer;
 
-        //Operation paramaters
+        // Operation parameters
         DataSource source;
         OperationMode mode;
         ViewerType viewerType;
-        bool record = false;
 
-        //Detection algorithms 
+        // Detection algorithms
         PassThrough *passZ;
         RansacPlane *ransacPlane;
         VoxelGrid *voxelGrid;
         EuclideanClusterExtractor *ece;
+        FindClearPath *findClear;
 
-        //Paramaters
+        // Parameters
         sl::Resolution cloud_res;
         sl::InitParameters init_params;
         sl::CameraParameters defParams;
         std::string readDir;
-        
-        //Output data
+
+        // Output data
         Plane planePoints;
         EuclideanClusterExtractor::ObsReturn obstacles;
+        float3 bearingCombined;
         float leftBearing;
         float rightBearing;
         float distance;
 
-        //Other
+        // Other
         int frameNum = 0;
         bool framePlay = true;
-        
+
+        void drawGround(Plane const& plane);
 };

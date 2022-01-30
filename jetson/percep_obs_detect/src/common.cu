@@ -29,7 +29,7 @@ inline float convertColor(float colorIn) {
     return *reinterpret_cast<float *> (&color_uint);
 }
 
-void getRawCloud(GPU_Cloud &pc, sl::Mat zed_cloud) {
+void getRawCloud(GPU_Cloud &pc, sl::Mat &zed_cloud) {
     sl::float4* ptr = zed_cloud.getPtr<sl::float4>(sl::MEM::GPU);
     pc.data = (float4*)ptr;
     pc.size = zed_cloud.getWidth() * zed_cloud.getHeight();
