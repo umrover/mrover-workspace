@@ -12,37 +12,37 @@
         </select>
     </div>
     <div class="box1" v-if="site == 0">
-        <label for="toggle_button" :class="{'active': heater0 == 0}" class="toggle__button">
-            <span v-if="heater0 == 0" class="toggle__label" >Heater A On</span>
-            <span v-if="heater0 == 1" class="toggle__label" >Heater A Off</span>
+        <label for="toggle_button" :class="{'active': nichWire0 == 1}" class="toggle__button">
+            <span v-if="nichWire0 == 1" class="toggle__label" >Heater A On</span>
+            <span v-if="nichWire0 == 0" class="toggle__label" >Heater A Off</span>
 
             <input type="checkbox" id="toggle_button" v-model="checkedValue">
-            <span class="toggle__switch" v-if="heater0 == 1" v-on:click="heater0=0,setPart(mosfetIDs.heater0,false)"></span>
-            <span class="toggle__switch" v-if="heater0 == 0" v-on:click="heater0=1,setPart(mosfetIDs.heater0,true)"></span>
+            <span class="toggle__switch" v-if="nichWire0 == 0" v-on:click="nichWire0=1,setPart(mosfetIDs.nichWire0,true)"></span>
+            <span class="toggle__switch" v-if="nichWire0 == 1" v-on:click="nichWire0=0,setPart(mosfetIDs.nichWire0,false)"></span>
         </label>
 
         <p>Thermistor A: {{temp0}} C°</p>
     </div>
     <div class="box1" v-if="site == 1">
-        <label for="toggle_button" :class="{'active': heater1 == 0}" class="toggle__button">
-            <span v-if="heater1 == 0" class="toggle__label" >Heater B On</span>
-            <span v-if="heater1 == 1" class="toggle__label" >Heater B Off</span>
+        <label for="toggle_button" :class="{'active': nichWire1 == 1}" class="toggle__button">
+            <span v-if="nichWire1 == 1" class="toggle__label" >Heater B On</span>
+            <span v-if="nichWire1 == 0" class="toggle__label" >Heater B Off</span>
 
             <input type="checkbox" id="toggle_button" v-model="checkedValue">
-            <span class="toggle__switch" v-if="heater1 == 1" v-on:click="heater1=0,setPart(mosfetIDs.heater1,false)"></span>
-            <span class="toggle__switch" v-if="heater1 == 0" v-on:click="heater1=1,setPart(mosfetIDs.heater1,true)"></span>
+            <span class="toggle__switch" v-if="nichWire1 == 0" v-on:click="nichWire1=1,setPart(mosfetIDs.nichWire1,true)"></span>
+            <span class="toggle__switch" v-if="nichWire1 == 1" v-on:click="nichWire1=0,setPart(mosfetIDs.nichWire1,false)"></span>
         </label>
 
         <p>Thermistor B: {{temp1}} C°</p>
     </div>
     <div class="box1" v-if="site == 2">
-        <label for="toggle_button" :class="{'active': heater2 == 0}" class="toggle__button">
-            <span v-if="heater2 == 0" class="toggle__label" >Heater C On</span>
-            <span v-if="heater2 == 1" class="toggle__label" >Heater C Off</span>
+        <label for="toggle_button" :class="{'active': nichWire2 == 1}" class="toggle__button">
+            <span v-if="nichWire2 == 1" class="toggle__label" >Heater C On</span>
+            <span v-if="nichWire2 == 0" class="toggle__label" >Heater C Off</span>
 
             <input type="checkbox" id="toggle_button" v-model="checkedValue">
-            <span class="toggle__switch" v-if="heater2 == 1" v-on:click="heater2=0,setPart(mosfetIDs.heater2,false)"></span>
-            <span class="toggle__switch" v-if="heater2 == 0" v-on:click="heater2=1,setPart(mosfetIDs.heater2,true)"></span>
+            <span class="toggle__switch" v-if="nichWire2 == 0" v-on:click="nichWire2=1,setPart(mosfetIDs.nichWire2,true)"></span>
+            <span class="toggle__switch" v-if="nichWire2 == 1" v-on:click="nichWire2=0,setPart(mosfetIDs.nichWire2,false)"></span>
         </label>
 
         <p>Thermistor C: {{temp2}} C°</p>
@@ -135,9 +135,9 @@ export default {
         pump0: 0,
         pump1: 0,
         pump2: 0,
-        heater0: 1,
-        heater1: 1,
-        heater2: 1,
+        nichWire0: 0,
+        nichWire1: 0,
+        nichWire2: 1,
         temp0: 0,
         temp1: 0,
         temp2: 0,
@@ -177,60 +177,60 @@ export default {
             console.log("tempLimit");
             if(this.temp0>100 && this.temp0hook == 0){
                 this.temp0hook = 1;
-                this.heater0 = 0;
-                this.setPart(9,false);
+                this.nichWire0 = 0;
+                this.setPart(mosfetIDs.nichWire0,false);
                 this.color0 = "red";
                 alert("Thermistor 0 over temp limit, shuttting down till 90°")
             }
             else if (this.temp0hook == 1 && this.heater0 == 1){
                 this.temp0hook = 0;
-                this.setPart(9,true);
+                this.setPart(mosfetIDs.nichWire0,true);
                 this.color0 = "black";
             }
             else if (this.temp0hook == 1 && this.temp0 <= 90){
                 this.temp0hook = 0;
-                this.heater0 = 1;
-                this.setPart(9,true);
+                this.nichWire0 = 1;
+                this.setPart(mosfetIDs.nichWire0,true);
                 this.color0 = "black";
                 alert("Thermistor 0 turned back on")
             }
             if(this.temp1>100 && this.temp1hook == 0){
                 this.temp1hook = 1;
-                this.heater1 = 0;
-                this.setPart(10,false);
+                this.nichWire1 = 0;
+                this.setPart(mosfetIDs.nichWire1,false);
                 this.color1 = "red";
                 alert("Thermistor 1 over temp limit, shuttting down till 90°")
             }
-            else if (this.temp1hook == 1 && this.heater1 == 1){
+            else if (this.temp1hook == 1 && this.nichWire1 == 1){
                 this.temp1hook = 0;
-                this.setPart(10,true);
+                this.setPart(mosfetIDs.nichWire1,true);
                 this.color1 = "black";
             }
             else if (this.temp1hook == 1 && this.temp1 <= 90){
                 this.temp1hook = 0;
-                this.heater1 = 1;
+                this.nichWire1 = 1;
                 this.color1 = "black";
-                this.setPart(10,true);
+                this.setPart(mosfetIDs.nichWire1,true);
                 alert("Thermistor 1 turned back on")
                 
             }
             if(this.temp2>100 && this.temp2hook == 0){
                 this.temp2hook = 1;
-                this.heater2 = 0;
-                this.setPart(11,false);
+                this.nichWire2 = 0;
+                this.setPart(mosfetIDs.nichWire2,false);
                 this.color2 = "red";
                 alert("Thermistor 2 over temp limit, shuttting down till 90°")
             }
-            else if (this.temp2hook == 1 && this.heater2 == 1){
+            else if (this.temp2hook == 1 && this.nichWire2 == 1){
                 this.temp2hook = 0;
-                this.setPart(11,true);
+                this.setPart(mosfetIDs.nichWire2,true);
                 this.color2 = "black";
             }
             else if (this.temp2hook == 1 && this.temp2 <= 90){
                 this.temp2hook = 0;
-                this.heater2 = 1;
+                this.nichWire2 = 1;
                 this.color2 = "black";
-                this.setPart(11,true);
+                this.setPart(mosfetIDs.nichWire2,true);
                 alert("Thermistor 2 turned back on")
             }
     },

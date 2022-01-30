@@ -2,13 +2,13 @@
   <div class="odom-wrap">
     <h3> Raman laser </h3>
     <div class="sacontrols buttons">
-      <label for="toggle_button" :class="{'active': ramanLaser == true}" class="toggle__button">
-        <span v-if="ramanLaser == false" class="toggle__label" >Raman Laser Off</span>
-        <span v-if="ramanLaser == true" class="toggle__label" >Raman Laser On</span>
+      <label for="toggle_button" :class="{'active': ramanLaser == 1}" class="toggle__button">
+        <span v-if="ramanLaser == 1" class="toggle__label" >Raman Laser On</span>
+        <span v-if="ramanLaser == 0" class="toggle__label" >Raman Laser Off</span>
 
         <input type="checkbox" id="toggle_button" v-model="checkedValue">
-          <span class="toggle__switch" v-if="ramanLaser== true" v-on:click="ramanLaser=false,sendCollect(mosfetIDs.ramanLaser)"></span>
-          <span class="toggle__switch" v-if="ramanLaser == false" v-on:click="ramanLaser=true,sendCollect(mosfetIDs.ramanLaser)"></span>
+          <span class="toggle__switch" v-if="ramanLaser== 0" v-on:click="ramanLaser=1,setPart(mosfetIDs.ramanLaser, true)"></span>
+          <span class="toggle__switch" v-if="ramanLaser == 1" v-on:click="ramanLaser=0,setPart(mosfetIDs.ramanLaser, false)"></span>
       </label>
     </div>
   </div>
@@ -21,73 +21,59 @@ import {mapGetters} from 'vuex';
 export default {
   data () {
     return {
-      ramanLaser: false
+      ramanLaser: 0
     }
   },
-  
+  created:{ 
+    function () {
+      this.$parent.subscribe('/mosfet_cmd', (msg) => {
+        this.ramanLaser = msg.ramanLaser
+      })
+    }
+  },
   props: {
-    odom: {
-      type: Object,
-      required: true
-    },
     mosfetIDs: {
       type: Object,
       required: true
     },
   },
 
-  computed: {
-    ...mapGetters('autonomy', {
-      odom_format: 'odomFormat'
-    }),
-
-    formatted_odom: function() {
-      return {
-        lat: convertDMS({d: this.odom.latitude_deg, m: this.odom.latitude_min, s: 0}, this.odom_format),
-        lon: convertDMS({d: -this.odom.longitude_deg, m: -this.odom.longitude_min, s: 0}, this.odom_format)
-      };
-    },
-
-    min_enabled: function() {
-      return this.odom_format != 'D';
-    },
-
-    sec_enabled: function() {
-      return this.odom_format == 'DMS';
-    }
-  },
-
     methods: {
-      sendCollect: function (ramanLaser) {
+      setPart: function(id, enabled) {
         this.$parent.publish("/mosfet_cmd", {
-        'type': 'MosfetCmd',
-        'device': ramanLaser,
-        'enable': true
-      })
-      // delete obj and disabled, do publish inside set timeout
-        let obj = this.$refs["raman"]
-        obj.disabled = true
-        setTimeout(this.pubHelper, 2000, ramanLaser);
+          'type': 'MosfetCmd',
+          'device': id,
+          'enable': enabled
+        })
       },
-      pubHelper: function (ramanLaser){
-        this.$refs["raman"].disabled = false;
-        this.$parent.publish("/mosfet_cmd", {
-            'type': 'MosfetCmd',
-            'device': ramanLaser,
-            'enable': false
-          })
-      }
+      // sendCollect: function (ramanLaser) {
+      //   this.$parent.publish("/mosfet_cmd", {
+      //   'type': 'MosfetCmd',
+      //   'device': ramanLaser,
+      //   'enable': true
+      // })
+      // // delete obj and disabled, do publish inside set timeout
+      //   let obj = this.$refs["raman"]
+      //   obj.disabled = true
+      //   setTimeout(this.pubHelper, 2000, ramanLaser);
+      // },
+      // pubHelper: function (ramanLaser){
+      //   this.$refs["raman"].disabled = false;
+      //   this.$parent.publish("/mosfet_cmd", {
+      //       'type': 'MosfetCmd',
+      //       'device': ramanLaser,
+      //       'enable': false
+      //     })
+      // }
     },
 }
 </script>
 
 <style scoped>
   .odom-wrap {
-      display: inline-block;
-      align-items: center;
-      justify-items: center;
-      font-family: sans-serif;
-      height: 10vh;
+    display: inline-block;
+    align-items: center;
+    justify-items: center;
   }
 
   .odom {

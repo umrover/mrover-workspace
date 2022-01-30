@@ -3,13 +3,13 @@
     <div>
       <h3> Scoop UV Bulb </h3>
     </div>
-    <label for="toggle_button" :class="{'active': scoopUV == 0}" class="toggle__button">
-        <span v-if="scoopUV == 0" class="toggle__label" >Scoop UV On</span>
-        <span v-if="scoopUV == 1" class="toggle__label" >Scoop UV Off</span>
+    <label for="toggle_button" :class="{'active': scoopUV == 1}" class="toggle__button">
+        <span v-if="scoopUV == 1" class="toggle__label" >Scoop UV On</span>
+        <span v-if="scoopUV == 0" class="toggle__label" >Scoop UV Off</span>
 
         <input type="checkbox" id="toggle_button" v-model="checkedValue">
-        <span class="toggle__switch" v-if="scoopUV == 0" v-on:click="scoopUV=1,setPart(mosfetIDs.SAUV,true)"></span>
-        <span class="toggle__switch" v-if="scoopUV == 1" v-on:click="scoopUV=0,setPart(mosfetIDs.SAUV,false)"></span>
+        <span class="toggle__switch" v-if="scoopUV == 0" v-on:click="scoopUV=1,setPart(mosfetIDs.uvBulb,true)"></span>
+        <span class="toggle__switch" v-if="scoopUV == 1" v-on:click="scoopUV=0,setPart(mosfetIDs.uvBulb,false)"></span>
     </label>
 
 </div>  
@@ -19,7 +19,6 @@
   .wrap {
     display: inline-block;
     align-content: center;
-    height: 10vh;
   }
 
   .toggle__button {
@@ -87,13 +86,13 @@
 export default {
   data () {
     return {
-      scoopUV: 1,
+      scoopUV: 0,
     }
   },
   created:{ 
     function () {
       this.$parent.subscribe('/mosfet_cmd', (msg) => {
-        this.siteUVs = msg
+        this.scoopUV = msg.scoopUV
       })
     }
   },

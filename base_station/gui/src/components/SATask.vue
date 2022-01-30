@@ -23,21 +23,17 @@
       </div>
     </div>
 
-    <div class="box odom light-bg">
-      <OdometryReading v-bind:odom="odom" v-bind:mosfetIDs="mosfetIDs"/>
+    <div class="box raman light-bg">
+      <Raman v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
-    </div>
-    <div class="box map light-bg">
-      <RoverMap v-bind:odom="odom"/>
     </div>
     <div class="box spectral light-bg">
       <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
     </div>
     <div class = "box light-bg chlorophyll">
-      <Chlorophyll v-bind:mosfetIDs="mosfetIDs"/>
-      <Chlorophyll v-bind:spectral_data="spectral_data"/>
+      <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/> 
       <GenerateReport v-bind:spectral_data="spectral_data"/>
     </div>
     <div class="box ammonia light-bg">
@@ -53,7 +49,7 @@
       <Carousel/>
     </div>
     <div class="box scoopUV light-bg">
-      <ScoopUV/>
+      <ScoopUV v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box armControls light-bg">
       <ArmControls/>
@@ -62,11 +58,9 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
-import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
-import OdometryReading from './OdometryReadingSA.vue'
+import Raman from './Raman.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import SpectralData from './SpectralData.vue'
@@ -181,16 +175,6 @@ export default {
     }
   },
 
-  computed: {
-    ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
-    }),
-
-    ...mapGetters('controls', {
-      controlMode: 'controlMode'
-    }),
-  },
-
   beforeDestroy: function () {
     window.clearInterval(interval);
   },
@@ -293,10 +277,9 @@ export default {
   },
 
   components: {
-    RoverMap,
     Cameras,
     CommIndicator,
-    OdometryReading,
+    Raman,
     WaypointEditor,
     SpectralData,
     Chlorophyll,
@@ -316,18 +299,18 @@ export default {
     .wrapper {
         display: grid;
         grid-gap: 10px;
-        grid-template-columns: 1.25fr 1.25fr 0.5fr;
-        grid-template-rows: 60px 0.75fr 0.25fr 1.25fr 1fr 2fr;
+        grid-template-columns: auto auto auto;
+        grid-template-rows: 60px auto auto auto auto auto;
         grid-template-areas: "header header header" 
                              "cameras cameras cameras" 
-                             "carousel chlorophyll odom" 
+                             "carousel chlorophyll raman" 
                              "spectral chlorophyll scoopUV" 
                              "spectral chlorophyll drives"
                              "armControls ammonia drives"
                              "armControls amino drives"
                              "armControls amino drives";
         font-family: sans-serif;
-        height: 220vh;
+        height: auto;
     }
 
     .box {
@@ -410,8 +393,8 @@ export default {
                 visibility: visible;
             }
 
-    .odom {
-        grid-area: odom;
+    .raman {
+        grid-area: raman;
         font-size: 1em;
     }
 
@@ -429,10 +412,6 @@ export default {
 
     .diags {
         grid-area: diags;
-    }
-
-    .map {
-        grid-area: map;
     }
 
     .waypoints {
