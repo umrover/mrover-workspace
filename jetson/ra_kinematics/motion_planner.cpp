@@ -3,6 +3,7 @@
 #include <random>
 #include <queue>
 #include <time.h>
+#include <cmath>
 
 
 MotionPlanner::MotionPlanner(const ArmState &robot, KinematicsSolver &solver_in) :
@@ -75,7 +76,7 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, const Vector6d &end) {
     // check for any steps that are outside acceptable range
     bool step_too_big = false;
     for (size_t i = 0; i < step_limits.size(); ++i) {
-        if (step_limits[i] - abs(vec(i)) < 0) {
+        if (step_limits[i] - std::abs(vec(i)) < 0) {
             step_too_big = true;
             break;
         }
@@ -96,7 +97,7 @@ Vector6d MotionPlanner::steer(MotionPlanner::Node* start, const Vector6d &end) {
 
         // if the difference (from start to end) in angles at joint i is not 0
         if (vec[i] != 0) {
-            t = step_limits[i] / abs(vec[i]);
+            t = step_limits[i] / std::abs(vec[i]);
         }
 
         if (t < min_t) {
@@ -328,6 +329,8 @@ std::vector<double> MotionPlanner::get_spline_pos(double spline_t) {
     std::vector<double> angles;
     angles.reserve(6);
 
+    // double mod_spline_t = modify_spline_t(spline_t);
+
     for (const tk::spline &spline : splines) {
         angles.emplace_back(spline(spline_t));
     }
@@ -336,4 +339,24 @@ std::vector<double> MotionPlanner::get_spline_pos(double spline_t) {
     //angles[4] *= -1;
 
     return angles;
+}
+
+double MotionPlanner::modify_spline_t(double spline_t) {
+
+    return spline_t;
+
+    // for 0 <= spline_t <= 0.2
+    // if (spline_t <= 0.2) {
+    //     // Ramp up spline_t from (0, 0) to (0.2, 0.1)
+    //     return pow(spline_t, 1.4306765581);
+    // }
+    
+    // // for 0.2 < spline_t <= 0.8
+    // if (spline_t <= 0.8) {
+    //     // Give linear scaling of spline_t from (0.2, 0.1) to (0.8, 0.9)
+    //     return (4.0 / 3.0) * (spline_t - 0.5) + 0.5;
+    // }
+
+    // // for 0.2 < spline_t <= 0.8, ramp down spline_t from (0.8, 0.9) to (1, 1)
+    // return std::min(1.0 - pow(1.0 - spline_t, 1.4306765581), 1.0);
 }

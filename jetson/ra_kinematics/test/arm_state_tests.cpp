@@ -29,8 +29,8 @@ TEST(joint_creation_test) {
     Vector3d joint_c_com(0, 0, 0);
     Vector3d joint_c_axis(1, 0, 0);
 
-    double joint_c_lower_limit = -2.36;
-    double joint_c_upper_limit = 2.36;
+    double joint_c_lower_limit = -3.01;
+    double joint_c_upper_limit = 2.73;
 
     ASSERT_EQUAL(joint_c_local, arm.get_joint_pos_local(2));
     ASSERT_EQUAL(joint_c_com, arm.get_joint_com(2));

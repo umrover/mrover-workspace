@@ -3,9 +3,7 @@
 #include "arm_state.hpp"
 #include <cmath>
 #include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
-#include <math.h>
 #include <vector>
 #include <iomanip>
 
@@ -191,12 +189,48 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
         // RAND_MAX is defined in a library
 
         // TODO: make this actually depend on joint limits, and test whether using full range of values is best
-        rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
-        rand_angs[1] = ((double) rand() / (RAND_MAX)) + 0.05;     // 0.05 ... 1.05
-        rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
-        rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
-        rand_angs[4] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
-        rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
+
+        if (robot_state.get_joint_locked(0)) {
+            rand_angs[0] = robot_state.get_joint_angle(0);
+        }
+        else {
+            rand_angs[0] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3 ... 3
+        }
+
+        if (robot_state.get_joint_locked(1)) {
+            rand_angs[1] = robot_state.get_joint_angle(1);
+        }
+        else {
+            rand_angs[1] = ((double) rand() / (RAND_MAX)) + 0.05;     // 0.05 ... 1.05
+        }
+
+        if (robot_state.get_joint_locked(2)) {
+            rand_angs[2] = robot_state.get_joint_angle(2);
+        }
+        else {
+            rand_angs[2] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
+        }
+
+        if (robot_state.get_joint_locked(3)) {
+            rand_angs[3] = robot_state.get_joint_angle(3);
+        }
+        else {
+            rand_angs[3] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
+        }
+
+        if (robot_state.get_joint_locked(4)) {
+            rand_angs[4] = robot_state.get_joint_angle(4);
+        }
+        else {
+            rand_angs[4] = ((double) rand() / (RAND_MAX) - 0.5) * 5;  // -2.5 ... 2.5
+        }
+
+        if (robot_state.get_joint_locked(5)) {
+            rand_angs[5] = robot_state.get_joint_angle(5);
+        }
+        else {
+            rand_angs[5] = ((double) rand() / (RAND_MAX) - 0.5) * 6;  // -3   ... 3
+        }
 
         robot_state.set_joint_angles(rand_angs);
     }
@@ -214,7 +248,7 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
     // Compute angular distance to target (using each euler angle)
     double angle_dist = 0;
     for (size_t i = 0; i < 3; ++i) {
-        double abs_angle_dist = abs(ef_ang_world[i] - target_ang_world[i]);
+        double abs_angle_dist = std::abs(ef_ang_world[i] - target_ang_world[i]);
         angle_dist += pow(std::min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
     }
 
@@ -251,7 +285,7 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
             for (size_t i = 3; i < 6; ++i) {
 
                 // If not crossing the 2pi --> 0 line
-                if (abs(target_point[i] - ef_ang_world[i - 3]) <= M_PI) {
+                if (std::abs(target_point[i] - ef_ang_world[i - 3]) <= M_PI) {
                     d_ef[i] = k_angle_step * (target_point[i] - ef_ang_world[i - 3]);
                 }
                 else {
@@ -289,12 +323,12 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
 
         angle_dist = 0;
         for (size_t i = 0; i < 3; ++i) {
-            double abs_angle_dist = abs(ef_ang_world[i] - target_ang_world[i]);
+            double abs_angle_dist = std::abs(ef_ang_world[i] - target_ang_world[i]);
             angle_dist += pow(std::min(abs_angle_dist, 2*M_PI - abs_angle_dist), 2);
         }
 
         // If only a very small change has been made (change in angles approximated by change in distance)
-        if (abs(dist - dist_original) < EPSILON_DIST && abs(angle_dist - angle_dist_original) < EPSILON_ANGLE_DIST) {
+        if (std::abs(dist - dist_original) < EPSILON_DIST && std::abs(angle_dist - angle_dist_original) < EPSILON_ANGLE_DIST) {
             ++num_iterations_low_movement;
         }
         else {
@@ -432,20 +466,23 @@ void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool
 bool KinematicsSolver::is_safe(ArmState &robot_state, const std::vector<double> &angles) {
     perform_backup(robot_state);
 
+    robot_state.set_joint_angles(angles);
+    bool safe = is_safe(robot_state);
+
+    recover_from_backup(robot_state);
+    return safe;
+}
+
+bool KinematicsSolver::is_safe(ArmState &robot_state) {
     // if any angles are outside bounds
-    if (!limit_check(robot_state, angles)) {
-        recover_from_backup(robot_state);
+    if (!limit_check(robot_state, robot_state.get_joint_angles())) {
         return false;
     }
 
-    // run FK algorithm to update state
-    robot_state.set_joint_angles(angles);
+    // run FK algorithm to ensure update state
     FK(robot_state);
 
-    bool obstacle_free = robot_state.obstacle_free();
-
-    recover_from_backup(robot_state);
-    return obstacle_free;
+    return robot_state.obstacle_free();
 }
 
 bool KinematicsSolver::limit_check(ArmState &robot_state, const std::vector<double> &angles) {
@@ -453,7 +490,8 @@ bool KinematicsSolver::limit_check(ArmState &robot_state, const std::vector<doub
         std::vector<double> limits = robot_state.get_joint_limits(i);
         
         // if any angle is outside of bounds
-        if (!(limits[0] <= angles[i] && angles[i] < limits[1])) {
+        if (!(limits[0] - LIMIT_CHECK_MARGIN <= angles[i]
+              && angles[i] < limits[1] + LIMIT_CHECK_MARGIN)) {
             return false;
         }
     }

@@ -19,6 +19,10 @@
         [
             "double",
             "joint_e"
+        ],
+        [
+            "double",
+            "joint_f"
         ]
     ],
     "ArmToggles": [
@@ -372,7 +376,7 @@
     "MotionExecute": [
         [
             "boolean",
-            "preview"
+            "execute"
         ]
     ],
     "NavStatus": [
@@ -927,6 +931,32 @@
             "angle"
         ]
     ],
+    "ZeroPosition": [
+        [
+            "double",
+            "joint_a"
+        ],
+        [
+            "double",
+            "joint_b"
+        ],
+        [
+            "double",
+            "joint_c"
+        ],
+        [
+            "double",
+            "joint_d"
+        ],
+        [
+            "double",
+            "joint_e"
+        ],
+        [
+            "double",
+            "joint_f"
+        ]
+    ],
     "message_types": [
         "ArmPosition",
         "ArmToggles",
@@ -986,6 +1016,7 @@
         "Waypoint",
         "WheelSpeeds",
         "Xbox",
-        "ZedGimbalPosition"
+        "ZedGimbalPosition",
+        "ZeroPosition"
     ]
 }
