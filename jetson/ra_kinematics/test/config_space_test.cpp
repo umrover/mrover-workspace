@@ -48,7 +48,7 @@ public:
                 pos.head(3) = arm.get_ef_pos_world();
                 pos.tail(3) = arm.get_ef_ang_world();
 
-                for (size_t i = 0; i < 6; ++i) {
+                for (size_t i = 0; i < arm.num_joints(); ++i) {
                     file << pos[i] << ",";
                 }
                 file << "\n";

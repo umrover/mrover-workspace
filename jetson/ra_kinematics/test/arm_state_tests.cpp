@@ -66,7 +66,7 @@ TEST(set_joint_angles_test) {
         std::cout << x << "\n";
     }
 
-    for (int i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < arm.num_joints(); ++i) {
         ASSERT_EQUAL(set_angles[i], return_angles[i]);
     }
 }

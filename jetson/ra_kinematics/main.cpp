@@ -115,8 +115,6 @@ int main() {
 
         lcmHandlers handler(&robot_arm);
 
-        lcmHandlers handler(&robot_arm);
-
         lcmObject.subscribe( "/arm_position", &lcmHandlers::armPositionCallback, &handler );
         lcmObject.subscribe( "/preset_angles" , &lcmHandlers::executePresetCallback, &handler );
         lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );

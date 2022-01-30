@@ -9,9 +9,9 @@ using namespace Eigen;
 typedef Matrix<double, 6, 1> Vector6d;
 
 bool check_science() {
-    cout << "Science? (y/n)\n";
+    std::cout << "Science? (y/n)\n";
     std::string science;
-    cin >> science;
+    std::cin >> science;
     if (science == "Y" || science == "y") {
         return true;
     }
@@ -19,13 +19,13 @@ bool check_science() {
         return false;
     }
     else {
-        cout << "Invalid input. Type \"y\" for science or \"n\" for ES/ERD.\n";
+        std::cout << "Invalid input. Type \"y\" for science or \"n\" for ES/ERD.\n";
         return check_science();
     }
 }
 
-string get_mrover_arm_geom(bool science) {
-    string config_folder = getenv("MROVER_CONFIG");
+std::string get_mrover_arm_geom(bool science) {
+    std::string config_folder = getenv("MROVER_CONFIG");
     if (science) {
         return config_folder + "/config_kinematics/science_arm_geom.json"; //science geom
     }
@@ -188,7 +188,7 @@ std::vector<double> vector6dToVec(const Vector6d &inVector6d) {
     return retVec;
 }
 
-double squared_norm(const vector<double>& a, const vector<double>& b) {
+double squared_norm(const std::vector<double>& a, const std::vector<double>& b) {
     double dist = 0.0;
     for (size_t i = 0; i < a.size(); ++i) {
         dist += pow(a[i] - b[i], 2);
@@ -196,7 +196,7 @@ double squared_norm(const vector<double>& a, const vector<double>& b) {
     return dist;
 }
 
-bool vec_almost_equal(const vector<double>& a, const vector<double>& b, double epsilon) {
+bool vec_almost_equal(const std::vector<double>& a, const std::vector<double>& b, double epsilon) {
     if (a.size() != b.size()) {
         return false;
     }

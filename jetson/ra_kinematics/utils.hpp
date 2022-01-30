@@ -10,7 +10,7 @@ using namespace Eigen;
 typedef Matrix<double, 6, 1> Vector6d;
 
 
-std::string get_mrover_arm_geom();
+std::string get_mrover_arm_geom(bool science);
 
 json read_json_from_file(const std::string &filepath);
 
@@ -36,9 +36,9 @@ Vector6d vecTo6d(const std::vector<double> &inVec);
 
 std::vector<double> vector6dToVec(const Vector6d &inVector6d);
 
-double squared_norm(const vector<double>& a, const vector<double>& b);
+double squared_norm(const std::vector<double>& a, const std::vector<double>& b);
 
-bool vec_almost_equal(const vector<double>& a, const vector<double>& b, double epsilon);
+bool vec_almost_equal(const std::vector<double>& a, const std::vector<double>& b, double epsilon);
 bool check_science();
 
 #endif

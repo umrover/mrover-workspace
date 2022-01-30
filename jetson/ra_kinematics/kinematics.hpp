@@ -64,7 +64,7 @@ public:
 
     void FK(ArmState &robot_state);
 
-    std::pair<Vector6d, bool> IK(ArmState &robot_state, const Vector6d &target_point, bool set_random_angles, bool use_euler_angles);
+    std::pair<std::vector<double>, bool> IK(ArmState &robot_state, const Vector6d &target_point, bool set_random_angles, bool use_euler_angles);
 
     /**
      * @param robot_state the state to use for testing purposes (will be returned in initial state)

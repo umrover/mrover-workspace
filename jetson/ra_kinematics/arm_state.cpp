@@ -165,7 +165,7 @@ std::vector<double> ArmState::get_ef_pos_and_euler_angles() const {
 std::vector<double> ArmState::get_joint_angles() const {
     std::vector<double> angles;
     angles.reserve(6);
-    for (size_t i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < joints.size(); ++i) {
         angles.push_back(joints[i].angle);
     }
     return angles;
