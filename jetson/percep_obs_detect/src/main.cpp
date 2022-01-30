@@ -42,11 +42,11 @@ int main() {
         rapidjson::Document mRoverConfig = parse_config();
 
         // Initialize Objects
-        camera_ptr cam(new Source::Camera(mRoverConfig));
+        auto cam = std::make_shared<Source::Camera>(mRoverConfig);
         TagDetector detector(mRoverConfig, cam);
         ObsDetector obs(mRoverConfig, cam);
         
-        while (cam.grab_frame()) {
+        while (cam->grab_frame()) {
             // AR Tag Detection
             if (mRoverConfig["startup"]["ar_tag_enabled"].GetInt()) {
                 detector.update();

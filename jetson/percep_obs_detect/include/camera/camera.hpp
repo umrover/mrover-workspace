@@ -21,10 +21,10 @@ public:
         std::string data_source = config["startup"]["data_source_type"].GetString();
         
         if (data_source == "filesystem") {
-            cam_impl = std::shared_ptr<Source::FileSystem>(new Source::FileSystem(config));
+            cam_impl = std::make_shared<Source::FileSystem>(config);
         }
         else if (data_source == "zed") {
-            cam_impl = std::shared_ptr<Source::Zed>(new Source::Zed(config));
+            cam_impl = std::make_shared<Source::Zed>(config);
         }
         else {
             std::cerr << "Invalid data_source_type field\n";
