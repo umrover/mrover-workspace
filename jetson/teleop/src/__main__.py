@@ -160,7 +160,7 @@ def ra_control_callback(channel, msg):
 
     xboxData = Xbox.decode(msg)
 
-    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
+    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_x), 0.09),

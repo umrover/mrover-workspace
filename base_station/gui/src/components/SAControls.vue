@@ -119,7 +119,7 @@ export default {
             this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']]
 
             if (!this.autonEnabled) {
-              this.$parent.publish('/drive_control', joystickData)
+              this.$parent.$parent.publish('/drive_control', joystickData)
             }
           } else if (gamepad.id.includes('Microsoft') || gamepad.id.includes('xinput') || gamepad.id.includes('Xbox')) {
             const xboxData = {
@@ -143,7 +143,7 @@ export default {
               //one of the buttoms to turn on drone motor, servos
             }
 
-            this.$parent.publish('/sa_control', xboxData)
+            this.$parent.$parent.publish('/sa_control', xboxData)
 
             esc_0_on.new_reading(xboxData['x'])
             if (esc_0_on.toggle && esc_1_on.toggle) {
@@ -155,13 +155,13 @@ export default {
               esc_0_on.toggle = false
             }
 
-            this.$parent.publish('/esc_toggle', {
+            this.$parent.$parent.publish('/esc_toggle', {
               'type': 'ESCToggle',
               'id': 'vacuum_1',
               'enable': esc_0_on.toggle
             })
 
-            this.$parent.publish('/esc_toggle', {
+            this.$parent.$parent.publish('/esc_toggle', {
               'type': 'ESCToggle',
               'id': 'vacuum_2',
               'enable': esc_1_on.toggle
@@ -176,10 +176,10 @@ export default {
         'enable_sa': true,
       }
 
-      this.$parent.publish('/talon_config', talonConfig)
+      this.$parent.$parent.publish('/talon_config', talonConfig)
     }, updateRate*1000)
 
-    this.$parent.subscribe('/sa_motors', (msg) => {
+    this.$parent.$parent.subscribe('/sa_motors', (msg) => {
       this.saMotor = msg
     })
   },

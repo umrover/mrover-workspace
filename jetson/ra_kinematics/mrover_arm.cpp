@@ -71,7 +71,6 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
     check_dud_encoder(angles);
     check_joint_limits(angles);
-    
     // If we have less than 5 previous angles to compare to
     if (prev_angles[0].size() < MAX_NUM_PREV_ANGLES) {
 
@@ -95,7 +94,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
             }                
         }
     }
-
+  
     else {
         // For each joint
         for (size_t joint = 0; joint < 6; ++joint) {
@@ -503,6 +502,7 @@ void MRoverArm::execute_spline() {
         else {
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
             spline_t = 0;
+            spline_t_iterator = 0.001;
         }   
     }
 }

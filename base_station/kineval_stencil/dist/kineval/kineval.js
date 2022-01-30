@@ -749,7 +749,6 @@ var presetAngles = function() {
 kineval.initGUIDisplay = function initGUIDisplay () {
 
     var primary_gui = new dat.GUI();
-
     // console.log(kineval.params);
 
     primary_gui.add(kineval.params, 'simulation_mode').onChange(function () {

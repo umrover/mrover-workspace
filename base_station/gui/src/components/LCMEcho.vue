@@ -49,6 +49,7 @@
         },
         messages: [],
         viewing: {
+          '/ammonia_cmd': false,
           '/arm_motors': false,
           '/arm_position': false,
           '/arm_toggles_button_data': false,
@@ -72,6 +73,7 @@
           '/kill_switch': false,
           '/locked_joints': false,
           '/microscope': false,
+          '/mosfet_cmd': false,
           '/drive_vel_cmd': false,
           '/nav_status': false,
           '/obstacle': false,
@@ -104,6 +106,7 @@
           '/zero_position': false
         },
         subscriptions: [
+          {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
           {'topic': '/arm_position', 'type': 'ArmPosition'},
           {'topic': '/arm_toggles_toggle_data', 'type': 'ArmToggles'},
@@ -154,6 +157,7 @@
           {'topic': '/imu', 'type': 'IMU'},
           {'topic': '/gps', 'type': 'GPS'},
           {'topic': '/microscope', 'type': 'Microscope'},
+          {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'},
           {'topic': '/zero_position', 'type': 'ZeroPosition'}
