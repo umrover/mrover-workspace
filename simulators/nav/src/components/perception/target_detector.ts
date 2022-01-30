@@ -49,34 +49,70 @@ function getGaussianThres(indZscore):number {
   const sd = 0.2;
   const mu = 0.5;
 
-  // 0 --> 0
+  // 0 --> -3.4
   // 0.055 --> -1.6
   // 0.11 --> -1.22
   // 0.166 --> -0.97
   // 0.22 --> -0.77
   // 0.27 -->  -0.61
-  // 0.33 --> -0.43
+  // 0.33 --> -0.44
   // 0.38 --> -0.3
   // 0.44 --> -0.14
-  // 0.5 --> 0.5
-  const num1 = 0;
-  const num2 = 1.6;
-  const num3 = 1.22;
-  const num4 = 0.97;
-  const num5 = 0.77;
-  const num6 = 0.61;
-  const num7 = 0.43;
-  const num8 = 0.3;
-  const num9 = 0.14;
-  const num10 = 0.5;
+  // 0.5 --> 0
 
-  const z = [num1, num2, num3, num4, num5, num6, num7, num8, num9, num10];
-  const x = z[indZscore % z.length] * sd;
+  // 0.55 --> 0.13
+  // 0.61 --> 0.28
+  // 0.66 --> 0.42
+  // 0.72 --> 0.58
+  // 0.77 --> 0.74
+  // 0.83 --> 0.96
+  // 0.88 --> 1.22
+  // 0.94 --> 1.56
+  // 1.00 --> 3.49
 
-  if (indZscore > z.length) {
-    return mu + x;
-  }
-  return mu - x;
+  const num1 = -3.4;
+  const num2 = -1.6;
+  const num3 = -1.22;
+  const num4 = -0.97;
+  const num5 = -0.77;
+  const num6 = -0.61;
+  const num7 = -0.44;
+  const num8 = -0.3;
+  const num9 = -0.14;
+  const num10 = 0;
+
+  const num11 = 0.13;
+  const num12 = 0.28;
+  const num13 = 0.42;
+  const num14 = 0.58;
+  const num15 = 0.74;
+  const num16 = 0.96;
+  const num17 = 1.22;
+  const num18 = 1.56;
+  const num19 = 3.49;
+
+  const z = [num1,
+    num2,
+    num3,
+    num4,
+    num5,
+    num6,
+    num7,
+    num8,
+    num9,
+    num10,
+    num11,
+    num12,
+    num13,
+    num14,
+    num15,
+    num16,
+    num17,
+    num18,
+    num19];
+  const x = z[indZscore] * sd;
+
+  return mu + x;
 }
 
 /* Class that performs target dectection calculations. */
