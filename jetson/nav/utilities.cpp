@@ -139,7 +139,7 @@ bool isTargetReachable( Rover* rover, const rapidjson::Document& roverConfig )
 bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, const double locDist, const double distThresh )
 {
     double distToObs = rover->roverStatus().obstacle().distance;
-    double bearToObs = rover->roverStatus().obstacle().bearing;
+    double bearToObs = std::min( rover->roverStatus().obstacle().bearing, rover->roverStatus().obstacle().rightBearing );
     double bearToObsComplement = 90 - bearToObs;
     double xComponentOfDistToObs = distToObs * cos( bearToObsComplement );
 
