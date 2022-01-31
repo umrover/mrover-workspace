@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="box header">
       <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
-      <h1>Dashboard</h1>
+      <h1>ERD/ES Dashboard</h1>
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
@@ -29,55 +29,32 @@
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
     </div>
+    <div class="box ik-controls light-bg">
+      <IKControls/>
+    </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
-    </div>
-    <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" />
+      <DriveControls/>
     </div>
     <div class="box controls light-bg">
       <ArmControls/>
       <EncoderCounts/>
-      <DriveControls/>
     </div>
+    
     <div class="spacer"></div>
-    <div class="fil-hori-now">
-      <span class="label-new">
-          <input id="item0" name="item0" type="checkbox" value="joint_a" v-model="locked_joints" @change="locked_joints_callback(locked_joints)"> 
-          <label id="item0" for="item0">lock joint a</label>
-
-          <input id="item1" name="item1" type="checkbox" value="joint_b" v-model="locked_joints" @change="locked_joints_callback(locked_joints)">
-          <label id="item1" for="item1">lock joint b</label>
-
-          <input id="item2" name="item2" type="checkbox" value="joint_c" v-model="locked_joints" @change="locked_joints_callback(locked_joints)">
-          <label id="item2" for="item2">lock joint c</label>
-
-          <input id="item3" name="item3" type="checkbox" value="joint_d" v-model="locked_joints" @change="locked_joints_callback(locked_joints)">
-          <label id="item3" for="item3">lock joint d</label>
-
-          <input id="item4" name="item4" type="checkbox" value="joint_e" v-model="locked_joints" @change="locked_joints_callback(locked_joints)">
-          <label id="item4" for="item4">lock joint e</label>
-
-          <input id="item5" name="item5" type="checkbox" value="joint_f" v-model="locked_joints" @change="locked_joints_callback(locked_joints)">
-          <label id="item5" for="item5">lock joint f</label>
-      </span>
-      <button class="zero-button" v-on:click="zero_position_callback()">
-        Set Zero Position
-      </button>
-    </div>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
+import IKControls from './IKControls.vue'
 import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
-import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 
 let interval;
@@ -134,12 +111,12 @@ export default {
       // Process array to convert to lcm message:
       let msg = { 'type': 'LockJoints' }
 
-      msg['jointa'] = this.locked_joints.includes('joint_a');
-      msg['jointb'] = this.locked_joints.includes('joint_b');
-      msg['jointc'] = this.locked_joints.includes('joint_c');
-      msg['jointd'] = this.locked_joints.includes('joint_d');
-      msg['jointe'] = this.locked_joints.includes('joint_e');
-      msg['jointf'] = this.locked_joints.includes('joint_f');
+      msg['joint_a'] = this.locked_joints.includes('joint_a');
+      msg['joint_b'] = this.locked_joints.includes('joint_b');
+      msg['joint_c'] = this.locked_joints.includes('joint_c');
+      msg['joint_d'] = this.locked_joints.includes('joint_d');
+      msg['joint_e'] = this.locked_joints.includes('joint_e');
+      msg['joint_f'] = this.locked_joints.includes('joint_f');
 
       // Publish lcm message:
       this.lcm_.publish('/locked_joints', msg);
@@ -249,7 +226,7 @@ export default {
     DriveControls,
     EncoderCounts,
     OdometryReading,
-    WaypointEditor
+    IKControls
   }
 }
 </script>
@@ -359,15 +336,10 @@ export default {
     grid-area: map;
   }
 
-  .waypoints {
-    grid-area: waypoints;
-  }
-
   .controls {
     grid-area: controls;
     font-size: 1em;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    display: flex;
   }
 
   .new-select {

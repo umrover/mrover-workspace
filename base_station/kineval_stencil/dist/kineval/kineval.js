@@ -204,7 +204,6 @@ kineval.initlcmbridge = function initlcmbridge() {
         // Subscriptions
         [
             {'topic': '/debug_message', 'type': 'DebugMessage'},
-            {'topic': '/arm_position', 'type': 'ArmPosition'},
             {'topic': '/fk_transform', 'type': 'FKTransform'}
         ]
     )
@@ -701,65 +700,10 @@ kineval.initScene = function initScene() {
     scene.add( sphereInter );
 }
 
-var angles = function() {
-    this.x = 0.0;
-    this.y = 0.0;
-    this.z = 0.0;
-    this.roll = 0.0;
-    this.pitch = 0.0;
-    this.yaw = 0.0;
-    this.submit = function() {
-        kineval.params.ik_target.position[0][0] = this.x;
-        kineval.params.ik_target.position[1][0] = this.y;
-        kineval.params.ik_target.position[2][0] = this.z;
-        kineval.params.ik_target.orientation[0] = this.roll;
-        kineval.params.ik_target.orientation[1] = this.pitch;
-        kineval.params.ik_target.orientation[2] = this.yaw;
-    }
-};
-
-var presetAngles = function() {
-    this.presetToggles = {};
-    this.actual_JSON = {};
-    this.size = 0;
-
-    this.submit = function() {
-
-        for (i = 0; i < this.size; i++) {
-            // if key i is toggled
-            if (this.presetToggles[Object.keys(this.actual_JSON)[i]]) {
-                var msg = {
-                    'type': 'ArmPosition',
-                    'joint_a': this.actual_JSON[Object.keys(this.actual_JSON)[i]][0],
-                    'joint_b': this.actual_JSON[Object.keys(this.actual_JSON)[i]][1],
-                    'joint_c': this.actual_JSON[Object.keys(this.actual_JSON)[i]][2],
-                    'joint_d': this.actual_JSON[Object.keys(this.actual_JSON)[i]][3],
-                    'joint_e': this.actual_JSON[Object.keys(this.actual_JSON)[i]][4],
-                    'joint_f': this.actual_JSON[Object.keys(this.actual_JSON)[i]][5]
-                }
-
-                // send message to kinematics and exit loop
-                kineval.publish('/preset_angles', msg);
-                break;
-            }
-        }
-   }
-};
-
 kineval.initGUIDisplay = function initGUIDisplay () {
 
     var primary_gui = new dat.GUI();
     // console.log(kineval.params);
-
-    primary_gui.add(kineval.params, 'simulation_mode').onChange(function () {
-        var SimulationModeMsg = {
-            'type': 'SimulationMode',
-            'sim_mode': kineval.params.simulation_mode
-        }
-        kineval.publish('/simulation_mode', SimulationModeMsg)
-    });
-
-    primary_gui.add(kineval.params, 'use_orientation').onChange(function () {});
 
     var primary_display = {};
     primary_display.send_target_orientation = function() {
@@ -782,7 +726,6 @@ kineval.initGUIDisplay = function initGUIDisplay () {
             'alpha': alph,
             'beta': bet,
             'gamma': gam,
-            'use_orientation': kineval.params.use_orientation,
         }
 
         kineval.publish('/target_orientation', TargetOrientationMsg)
@@ -790,58 +733,10 @@ kineval.initGUIDisplay = function initGUIDisplay () {
         console.log(kineval.params.use_orientation)
     }
 
-    primary_display.halt_motion = function() {
-        var IkEnabledMsg = {
-            'type': 'IkEnabled',
-            'enabled': false,
-        }
-        kineval.publish('/ik_enabled', IkEnabledMsg)
-    }
-
     // 1. send point
     // 2. preview 
     // 3. execute 
     primary_gui.add(primary_display, 'send_target_orientation');
-    primary_gui.add(primary_display, 'halt_motion');
-
-    
-    var text = new angles();
-    var target_gui = new dat.GUI();
-    target_gui.add(text, 'x');
-    target_gui.add(text, 'y');
-    target_gui.add(text, 'z');
-    target_gui.add(text, 'roll');
-    target_gui.add(text, 'pitch');
-    target_gui.add(text, 'yaw');
-    target_gui.add(text, 'submit');
-
-    //../config/kinematics/mrover_arm_presets.json
-
-    var preset_gui = new dat.GUI();
-    presets_init(preset_gui);
-
-    // Allows user to control which joints are locked:
-    var locked_gui = new dat.GUI();
-
-    function sendLockedJoints() {
-        var LockedJointsMsg = {
-            'type': 'LockJoints',
-            'jointa': kineval.params.locked_joints["joint_a"],
-            'jointb': kineval.params.locked_joints["joint_b"],
-            'jointc': kineval.params.locked_joints["joint_c"],
-            'jointd': kineval.params.locked_joints["joint_d"],
-            'jointe': kineval.params.locked_joints["joint_e"],
-            'jointf': kineval.params.locked_joints["joint_f"],
-        };
-        kineval.publish('/locked_joints', LockedJointsMsg);
-    }
-
-    locked_gui.add(kineval.params.locked_joints, 'joint_a').onChange(sendLockedJoints);
-    locked_gui.add(kineval.params.locked_joints, 'joint_b').onChange(sendLockedJoints);
-    locked_gui.add(kineval.params.locked_joints, 'joint_c').onChange(sendLockedJoints);
-    locked_gui.add(kineval.params.locked_joints, 'joint_d').onChange(sendLockedJoints);
-    locked_gui.add(kineval.params.locked_joints, 'joint_e').onChange(sendLockedJoints);
-    locked_gui.add(kineval.params.locked_joints, 'joint_f').onChange(sendLockedJoints);
     
 }
 
@@ -1027,28 +922,4 @@ function loadJSON(callback) {
         }
     };
     xobj.send(null);  
-}
-
-// create menu for presets
-function presets_init(gui) {
-
-    // pass callback to loadJSON to be called when it gets data from json file
-    loadJSON(function(response) {
-        // Parse JSON string into object
-        actual_JSON = JSON.parse(response);
-        console.log("presets json =" + JSON.stringify(actual_JSON));
-
-        var size = Object.keys(actual_JSON).length;
-        var presetToggles = { };
-        for(i = 0; i < size; i++) {
-            presetToggles[Object.keys(actual_JSON)[i]] = false;
-            gui.add(presetToggles, Object.keys(actual_JSON)[i]);
-        }
-
-        var submit = new presetAngles();
-        submit.presetToggles = presetToggles;
-        submit.actual_JSON = actual_JSON;
-        submit.size = size;
-        gui.add(submit, "submit");
-    });
 }

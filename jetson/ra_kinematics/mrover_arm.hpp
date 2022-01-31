@@ -29,6 +29,7 @@
 #include "rover_msgs/RAOpenLoopCmd.hpp"
 #include "rover_msgs/HandCmd.hpp"
 #include "rover_msgs/ZeroPosition.hpp"
+#include "rover_msgs/UseOrientation.hpp"
 
 using namespace rover_msgs;
  
@@ -81,6 +82,8 @@ private:
     ControlState control_state;
 
     bool sim_mode;
+    bool use_orientation;
+
     double prev_angle_b;
 
     bool encoder_error;
@@ -125,7 +128,7 @@ public:
      * then preview path
      * 
      * @param channel expected: "/target_orientation"
-     * @param msg float x, y, z, alpha, beta, gamma; bool use_orientation
+     * @param msg float x, y, z, alpha, beta, gamma
      * */
     void target_orientation_callback(std::string channel, TargetOrientation msg);
 
@@ -153,12 +156,19 @@ public:
      */
     void simulation_mode_callback(std::string channel, SimulationMode msg);
 
-    
+    /**
+     * Handle request to move in or out of simulation mode
+     * 
+     * @param channel expected: "/use_orientation"
+     * @param msg format: bool use_orientation
+     */
+    void use_orientation_callback(std::string channel, UseOrientation msg);
+
     /**
      * Handle request to lock specific joints
      * 
      * @param channel expected: "/locked_joints"
-     * @param msg format: bool jointa ... jointf
+     * @param msg format: bool joint_a ... joint_f
      */
     void lock_joints_callback(std::string channel, LockJoints msg);
 

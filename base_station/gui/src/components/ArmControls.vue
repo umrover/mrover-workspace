@@ -12,7 +12,6 @@
 import Checkbox from './Checkbox.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
-import {Toggle, quadratic, deadzone, joystick_math} from '../utils.js'
 import GimbalControls from './GimbalControls.vue'
 
 let interval;
@@ -56,9 +55,6 @@ export default {
       'x': 2,
       'y': 3
     }
-
-    const electromagnet_toggle = new Toggle(false)
-    const laser_toggle = new Toggle(false)
 
 
     const updateRate = 0.1

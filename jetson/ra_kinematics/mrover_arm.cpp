@@ -19,6 +19,7 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     lcm_(lcm),
     control_state(ControlState::OFF),
     sim_mode(true),
+    use_orientation(false),
     prev_angle_b(std::numeric_limits<double>::quiet_NaN())
 {
     prev_angles.clear();
@@ -158,7 +159,7 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
 
     std::cout << "Received target!\n";
     std::cout << "Target position: " << msg.x << "\t" << msg.y << "\t" << msg.z << "\n";
-    if (msg.use_orientation) {
+    if (use_orientation) {
         std::cout << "Target orientation: " << msg.alpha << "\t" << msg.beta << "\t" << msg.gamma << "\n";
     }
 
@@ -181,8 +182,6 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
         control_state = ControlState::WAITING_FOR_TARGET;
         return;
     }
-
-    bool use_orientation = msg.use_orientation;
 
     Vector6d point;
     point(0) = (double) msg.x;
@@ -512,20 +511,27 @@ void MRoverArm::simulation_mode_callback(std::string channel, SimulationMode msg
     std::cout << "Received Simulation Mode value: " << sim_mode << "\n";
 }
 
+void MRoverArm::use_orientation_callback(std::string channel, UseOrientation msg) {
+    use_orientation = msg.use_orientation;
+    std::cout << "Received Use Orientation value: " << use_orientation << "\n";
+}
+
 void MRoverArm::lock_joints_callback(std::string channel, LockJoints msg) {
     std::cout << "Running lock_joints_callback:   ";
 
-    arm_state.set_joint_locked(0, (bool) msg.jointa);
-    arm_state.set_joint_locked(1, (bool) msg.jointb);
-    arm_state.set_joint_locked(2, (bool) msg.jointc);
-    arm_state.set_joint_locked(3, (bool) msg.jointd);
-    arm_state.set_joint_locked(4, (bool) msg.jointe);
-    arm_state.set_joint_locked(5, (bool) msg.jointf);
+    arm_state.set_joint_locked(0, (bool) msg.joint_a);
+    arm_state.set_joint_locked(1, (bool) msg.joint_b);
+    arm_state.set_joint_locked(2, (bool) msg.joint_c);
+    arm_state.set_joint_locked(3, (bool) msg.joint_d);
+    arm_state.set_joint_locked(4, (bool) msg.joint_e);
+    arm_state.set_joint_locked(5, (bool) msg.joint_f);
 
     std::cout << "\n";
 }
 
 void MRoverArm::zero_position_callback(std::string channel, ZeroPosition msg) {
+    std::cout << "Zeroed IK Position.\n";
+
     arm_state.set_joint_encoder_offset(0, arm_state.get_joint_angle(0));
     arm_state.set_joint_encoder_offset(1, arm_state.get_joint_angle(1) + 1.09);
     arm_state.set_joint_encoder_offset(2, arm_state.get_joint_angle(2));
