@@ -18,7 +18,7 @@ public:
 
     // Sends the auton state lcm message to the state machine.
     void autonState(
-        const lcm::ReceiveBuffer* receiveBuffer,
+        const lcm::ReceiveBuffer* recieveBuffer,
         const string& channel,
         const AutonState* autonState
         )
@@ -28,7 +28,7 @@ public:
 
     // Sends the course lcm message to the state machine.
     void course(
-        const lcm::ReceiveBuffer* receiveBuffer,
+        const lcm::ReceiveBuffer* recieveBuffer,
         const string& channel,
         const Course* course
         )
@@ -48,7 +48,7 @@ public:
 
     // Sends the odometry lcm message to the state machine.
     void odometry(
-        const lcm::ReceiveBuffer* receiveBuffer,
+        const lcm::ReceiveBuffer* recieveBuffer,
         const string& channel,
         const Odometry* odometry
         )
