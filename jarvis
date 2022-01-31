@@ -73,7 +73,7 @@ if [ "$1" = "exec" ]; then
         clean_args=${@/$1/$arg_no_slash}
         clean_args=${clean_args/"-gdb"/""} # remove -gdb if necessary
 
-        if [ $gdb ]; then
+        if [ $gdb = true ]; then
             export LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu"
             gdb $clean_args
         else
