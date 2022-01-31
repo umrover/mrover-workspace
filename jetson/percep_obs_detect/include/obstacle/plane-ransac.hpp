@@ -3,18 +3,20 @@
 #include "common.hpp"
 #include "filter.hpp"
 
-/** 
+/**
  * \class Plane
  * \brief Defines the found plane by 3 points
  */
-class Plane {
+class Plane
+{
 public:
     float3 p0;
     float3 p1;
     float3 p2;
     float3 normal;
 
-    Plane() {
+    Plane()
+    {
         float3 zero = make_float3(0, 0, 0);
         p0 = zero;
         p1 = zero;
@@ -22,20 +24,23 @@ public:
         normal = zero;
     };
 
-    __host__ __device__ Plane(float3 p0, float3 p1, float3 p2) : p0{p0}, p1{p1}, p2{p2} {
+    __host__ __device__ Plane(float3 p0, float3 p1, float3 p2) : p0{p0}, p1{p1}, p2{p2}
+    {
         ComputeNormal();
     };
 
-    __host__ __device__ void ComputeNormal() {
+    __host__ __device__ void ComputeNormal()
+    {
         // Get the two vectors on the plane
         float3 v1(p1 - p0);
         float3 v2(p2 - p0);
 
-        //Get vector normal to plane
+        // Get vector normal to plane
         normal = cross(v1, v2);
     }
 
-    __host__ __device__ float3& operator[](int pt) {
+    __host__ __device__ float3 &operator[](int pt)
+    {
         if (pt == 0)
             return p0;
         else if (pt == 1)
@@ -45,13 +50,13 @@ public:
     };
 };
 
-
-/** 
+/**
  * \class RansacPlane
- * \brief Uses RANSAC segmentation method to extract a plane in the point cloud. Computes a plane perpendicular to the given axis within the tolerance that fits 
+ * \brief Uses RANSAC segmentation method to extract a plane in the point cloud. Computes a plane perpendicular to the given axis within the tolerance that fits
  * the most data using the RANSAC algorithm
  */
-class RansacPlane {
+class RansacPlane
+{
 public:
     // TODO: better way than making public?
     float epsilon;
@@ -77,7 +82,7 @@ public:
      * \param pc Point cloud to search
      * \return Plane found by RANSAC segmentation
      */
-    Plane computeModel(GPU_Cloud& pc);
+    Plane computeModel(GPU_Cloud &pc);
 
     int getIterations() const;
 
@@ -96,10 +101,10 @@ private:
     int pcSize;
 
     // internal info [GPU]
-    int* inlierCounts = nullptr;
-    int3* candidatePlanePoints = nullptr;
-    Plane* selection = nullptr;
+    int *inlierCounts = nullptr;
+    int3 *candidatePlanePoints = nullptr;
+    Plane *selection = nullptr;
 
-    //internal info [CPU]
-    Plane* selectionCPU = nullptr;
+    // internal info [CPU]
+    Plane *selectionCPU = nullptr;
 };

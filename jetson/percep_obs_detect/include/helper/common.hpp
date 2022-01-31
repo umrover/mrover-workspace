@@ -29,29 +29,39 @@
  * \enum Axis
  * \brief Enum for x,y,z axis
  */
-enum class Axis {X, Y, Z};
+enum class Axis
+{
+    X,
+    Y,
+    Z
+};
 
 /*
  *** Set up debugging level ***
  */
-enum class OperationMode {DEBUG, SILENT};
+enum class OperationMode
+{
+    DEBUG,
+    SILENT
+};
 
 /**
  * \struct GPU_Cloud_F4
  * \brief GPU point cloud struct that can be passed to cuda kernels and represents a point cloud
  */
-struct GPU_Cloud {
-    float4* data;
+struct GPU_Cloud
+{
+    float4 *data;
     int size;
 };
 
 /**
  * \class CompareFloat4
  * \brief Functor that compares Float4 values
-*/
-class CompareFloat4 : public thrust::binary_function<bool,float4,float4> {
-public: 
-
+ */
+class CompareFloat4 : public thrust::binary_function<bool, float4, float4>
+{
+public:
     /**
      * \brief CompareFloat4 construct
      * \param axis axis to compare
@@ -64,33 +74,34 @@ public:
      * \param rhs: float to compare
      * \return bool
      */
-    __host__ __device__ bool operator() (float4 lhs, float4 rhs) {
-        
-        switch (axis) {
-        
-            case Axis::X :
-                return lhs.x < rhs.x;
-        
-            case Axis::Y :
-                return lhs.y < rhs.y;
-        
-            case Axis::Z :
-                return lhs.z < rhs.z;
+    __host__ __device__ bool operator()(float4 lhs, float4 rhs)
+    {
+
+        switch (axis)
+        {
+
+        case Axis::X:
+            return lhs.x < rhs.x;
+
+        case Axis::Y:
+            return lhs.y < rhs.y;
+
+        case Axis::Z:
+            return lhs.z < rhs.z;
         }
     };
 
 private:
-
     Axis axis;
-
 };
 
 /**
  * \struct bins
  * \brief struct containing bin info
  */
-struct Bins {
-    int* data;
+struct Bins
+{
+    int *data;
     int size;
     int partition;
     float partitionLength;
@@ -127,12 +138,12 @@ OperationMode parse_operation_mode(const rapidjson::Document &mRoverConfig);
  */
 void clearStale(GPU_Cloud &cloud, int maxSize);
 
-__global__ void findClearPathKernel(float* minXG, float* maxXG, float* minZG, float* maxZ, int numClusters, int* leftBearing, int* rightBearing);
+__global__ void findClearPathKernel(float *minXG, float *maxXG, float *minZG, float *maxZ, int numClusters, int *leftBearing, int *rightBearing);
 
-__global__ void findAngleOffCenterKernel(float* minXG, float* maxXG, float* minZG, float* maxZ, int numClusters, int* bearing, int direction);
+__global__ void findAngleOffCenterKernel(float *minXG, float *maxXG, float *minZG, float *maxZ, int numClusters, int *bearing, int direction);
 
-__device__ float atomicMinFloat (float* addr, float value);
+__device__ float atomicMinFloat(float *addr, float value);
 
-__device__ float atomicMaxFloat (float* addr, float value);
+__device__ float atomicMaxFloat(float *addr, float value);
 
 #endif

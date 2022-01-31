@@ -4,15 +4,17 @@
 #include <vector>
 
 /**
-* \class EuclideanClusterExtractor
-* \brief Finds distinct clusters in the point cloud and identifies them
-*/
-class EuclideanClusterExtractor {
+ * \class EuclideanClusterExtractor
+ * \brief Finds distinct clusters in the point cloud and identifies them
+ */
+class EuclideanClusterExtractor
+{
 public:
     /*
-    * Obstacle struct, will fill the vector in ObsReturn
-    */
-    struct Obstacle {
+     * Obstacle struct, will fill the vector in ObsReturn
+     */
+    struct Obstacle
+    {
         float minX;
         float maxX;
         float minY;
@@ -24,7 +26,8 @@ public:
      * \struct ObsReturn
      * \brief Basic datatype to return found clusters
      */
-    struct ObsReturn {
+    struct ObsReturn
+    {
         int size = 0;
         std::vector<Obstacle> obs;
     };
@@ -53,24 +56,24 @@ public:
      * \param pc Point cloud to search
      * \param bins Bins which sub-divide space from VoxelFilter
      */
-    ObsReturn extractClusters(GPU_Cloud& pc, Bins& bins);
+    ObsReturn extractClusters(GPU_Cloud &pc, Bins &bins);
 
 private:
-    //user given model parms
+    // user given model parms
     GPU_Cloud pc;
 
-    //internal information
-    int* neighborLists; //lists of neighbors for each point inline
-    int* listStart; //starting indexes of adjacency lists for each pt (size of max pt cloud)
-    int* labels; //labels for each point (size of max pt cloud)
-    bool* f1; //frontier array 1 (size of max pt cloud)
-    bool* f2; //frontier array 2 (size of max pt cloud)
-    bool* stillGoing;
+    // internal information
+    int *neighborLists; // lists of neighbors for each point inline
+    int *listStart;     // starting indexes of adjacency lists for each pt (size of max pt cloud)
+    int *labels;        // labels for each point (size of max pt cloud)
+    bool *f1;           // frontier array 1 (size of max pt cloud)
+    bool *f2;           // frontier array 2 (size of max pt cloud)
+    bool *stillGoing;
 
-    //Bin creation search data
-    float* mins;
-    float* maxes;
-    int** bins;
-    int* binCount;
+    // Bin creation search data
+    float *mins;
+    float *maxes;
+    int **bins;
+    int *binCount;
     int partitions;
 };
