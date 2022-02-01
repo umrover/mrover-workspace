@@ -31,13 +31,17 @@ void Controller::make_live()
         transact(CONFIG_K, buffer, nullptr);
 
         // get absolute encoder correction #
-        float abs_raw_angle = 0;;
-        transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
+        // not needed for joint F
+        if (name != "RA_5")
+        {
+            float abs_raw_angle = 0;;
+            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
 
-        // get value in quad counts adjust quadrature encoder 
-        int32_t adjusted_quad = (abs_raw_angle / (2 * M_PI)) * quad_cpr;
-        memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), 4);
-        transact(ADJUST,buffer, nullptr);
+            // get value in quad counts adjust quadrature encoder 
+            int32_t adjusted_quad = (abs_raw_angle / (2 * M_PI)) * quad_cpr;
+            memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), 4);
+            transact(ADJUST,buffer, nullptr);
+        }
 
         ControllerMap::make_live(name);
     }
