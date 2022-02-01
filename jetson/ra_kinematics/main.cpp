@@ -14,20 +14,10 @@ class lcmHandlers {
 public:
     lcmHandlers (MRoverArm* robot_arm) : arm(robot_arm) {}
 
-    void lockJointsCallback(
-        const lcm::ReceiveBuffer* receiveBuffer,
-        const std::string& channel,
-        const LockJoints* lj_execute
-        )
-    {
-        arm->lock_joints_callback( channel, *lj_execute );
-    }
-
     void executeCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
-        const TargetOrientation* m_execute
-        )
+        const TargetOrientation* m_execute)
     {
         arm->target_orientation_callback( channel, *m_execute );
     }
@@ -35,8 +25,7 @@ public:
     void motionExecuteCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
-        const MotionExecute* m_execute
-    )
+        const MotionExecute* m_execute)
     {
         arm->motion_execute_callback( channel, *m_execute );
     }
@@ -44,8 +33,7 @@ public:
     void executePresetCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
-        const ArmPosition* p_execute
-        )
+        const ArmPosition* p_execute)
     {
         arm->target_angles_callback( channel, *p_execute );
     }
@@ -53,28 +41,49 @@ public:
     void armPositionCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
-        const ArmPosition* arm_pos
-    )
+        const ArmPosition* arm_pos)
     {
         arm->arm_position_callback( channel, *arm_pos );
-    }
-
-    void ikEnabledCallback(
-        const lcm::ReceiveBuffer* receiveBuffer,
-        const std::string& channel,
-        const IkEnabled* enable
-    )
-    {
-        arm->ik_enabled_callback( channel, *enable );
     }
 
     void simModeCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
-        const SimulationMode* sim_mode
-    )
+        const SimulationMode* sim_mode)
     {
         arm->simulation_mode_callback( channel, *sim_mode );
+    }
+    
+    void armControlCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const ArmControlState* arm_control)
+    {
+        arm->ra_control_callback( channel, *arm_control );
+    }
+
+    void useOrientationCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const UseOrientation* use_orientation)
+    {
+        arm->use_orientation_callback( channel, *use_orientation );
+    }
+
+    void lockJointsCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const LockJoints* lj_execute)
+    {
+        arm->lock_joints_callback( channel, *lj_execute );
+    }
+
+    void zeroPositionCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const ZeroPosition* zero_position)
+    {
+        arm->zero_position_callback( channel, *zero_position );
     }
 
 private:
@@ -99,17 +108,21 @@ int main() {
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
     lcmObject.subscribe( "/preset_angles" , &lcmHandlers::executePresetCallback, &handler );
     lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
-    lcmObject.subscribe( "/ik_enabled", &lcmHandlers::ikEnabledCallback, &handler );
     lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
+    lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );
+    lcmObject.subscribe( "/use_orientation", &lcmHandlers::useOrientationCallback, &handler );
     lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
+    lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
     
     std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
+    std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);
 
     while( lcmObject.handle() == 0 ) {
         // run kinematics
     }
 
     execute_spline.join();
+    send_arm_position.join();
 
     return 0;
 }

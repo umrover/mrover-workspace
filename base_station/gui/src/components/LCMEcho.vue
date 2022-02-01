@@ -71,6 +71,7 @@
           '/ik_ra_control': false,
           '/imu': false,
           '/kill_switch': false,
+          '/locked_joints': false,
           '/microscope': false,
           '/mosfet_cmd': false,
           '/drive_vel_cmd': false,
@@ -101,7 +102,8 @@
           '/temperature': false,
           '/tennis_ball': false,
           '/zed_gimbal_cmd': false,
-          '/zed_gimbal_data': false
+          '/zed_gimbal_data': false,
+          '/zero_position': false
         },
         subscriptions: [
           {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
@@ -123,6 +125,8 @@
           {'topic': '/drive_control', 'type': 'Joystick'},
           {'topic': '/autonomous', 'type': 'Joystick'},
           {'topic': '/kill_switch', 'type': 'KillSwitch'},
+          {'topic': '/locked_joints', 'type': 'LockJoints'},
+          {'topic': '/motion_execute', 'type': 'MotionExecute'},
           {'topic': '/nav_status', 'type': 'NavStatus'},
           {'topic': '/obstacle', 'type': 'Obstacle'},
           {'topic': '/odometry', 'type': 'Odometry'},
@@ -155,7 +159,8 @@
           {'topic': '/microscope', 'type': 'Microscope'},
           {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
-          {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
+          {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'},
+          {'topic': '/zero_position', 'type': 'ZeroPosition'}
         ]
       }
     },

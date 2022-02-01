@@ -1,8 +1,4 @@
-<template>
-  <div class="wrap">
-    <span>Speed Limiter: {{ dampenDisplay }}%</span>
-  </div>
-</template>
+
 
 <script>
 import Checkbox from './Checkbox.vue'

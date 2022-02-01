@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct ArmControlState {
+    string state; // "open-loop" for Open Loop Control, "closed-loop" for Closed Loop Control, "off" for neither
+}

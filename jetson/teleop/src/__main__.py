@@ -5,7 +5,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
                         SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, FootCmd)
+                        Keyboard, FootCmd, ArmControlState)
 
 
 class Toggle:
@@ -129,14 +129,35 @@ def drive_control_callback(channel, msg):
 
         joystick_math(new_motor, magnitude, theta)
 
-        damp = (input_data.dampen - 1)/(-2)
+        damp = (input_data.dampen - 1)/(2)
         new_motor.left *= damp
         new_motor.right *= damp
 
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
+def send_zero_arm_command():
+    openloop_msg = RAOpenLoopCmd()
+    openloop_msg.throttle = [0, 0, 0, 0, 0, 0]
+
+    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+
+    hand_msg = HandCmd()
+    hand_msg.finger = 0
+    hand_msg.grip = 0
+
+    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+
+
+def arm_control_state_callback(channel, msg):
+    arm_control_state = ArmControlState.decode(msg)
+
+    if arm_control_state != 'open-loop':
+        send_zero_arm_command()
+
+
 def ra_control_callback(channel, msg):
+
     xboxData = Xbox.decode(msg)
 
     motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
@@ -166,8 +187,8 @@ def autonomous_callback(channel, msg):
     joystick_math(new_motor, input_data.forward_back, input_data.left_right)
 
     temp = new_motor.left
-    new_motor.left = -1 * new_motor.right
-    new_motor.right = -1 * temp
+    new_motor.left = new_motor.right
+    new_motor.right = temp
 
     lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
@@ -251,6 +272,7 @@ def main():
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
+    lcm_.subscribe('/arm_control_state', arm_control_state_callback)
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),
