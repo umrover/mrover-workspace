@@ -459,7 +459,10 @@ void testAdjust()
     for (auto address : i2c_address)
     {
         int joint = (address & 0b1) + (address >> 4);
-
+        if (joint == 5)
+        {
+            continue;
+        }
         adjust(address, joint);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
