@@ -248,6 +248,11 @@ void adjust(int addr, int joint)
         float quad_angle = quadEnc(addr);
         float abs_angle = absEnc(addr);
 
+        if (joint == 5)
+        {
+            abs_angle = M_PI;
+        }
+
         printf("before adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
         int joint = (addr & 0b1) + (((addr >> 4) - 1) * 2); 
@@ -266,6 +271,10 @@ void adjust(int addr, int joint)
         // checks values after
         quad_angle = quadEnc(addr);
         abs_angle = absEnc(addr);
+        if (joint == 5)
+        {
+            abs_angle = M_PI;
+        }
 
         printf("after adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
@@ -459,10 +468,6 @@ void testAdjust()
     for (auto address : i2c_address)
     {
         int joint = (address & 0b1) + (address >> 4);
-        if (joint == 5)
-        {
-            continue;
-        }
         adjust(address, joint);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -644,8 +649,8 @@ int main()
 {
     for (int i = 1; i <= 3; ++i)
     {
-        i2c_address.push_back(get_addr(i, 0));
-        if (i != 3)
+        //i2c_address.push_back(get_addr(i, 0));
+        if (i == 3)
         {
             i2c_address.push_back(get_addr(i, 1));
         }
@@ -662,9 +667,9 @@ int main()
     // openPlus(get_addr(1, 1), 0.0);
     while (1)
     {
-       // testClosed();
+        testClosed();
 	    //testQuadEnc();
-        testOpenPlusWithAbs();
+        //testOpenPlusWithAbs();
         //testOpenPlus();
         // printf("sleeping \n");
         // //sleep(1000);
