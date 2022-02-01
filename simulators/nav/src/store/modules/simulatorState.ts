@@ -71,7 +71,7 @@ export const state:SimulatorState = {
   simSettings: {
     simulateLoc: true,
     simulatePercep: true,
-    noisePercent: 0.33
+    noisePercent: 33.3
   },
 
   startLoc: {

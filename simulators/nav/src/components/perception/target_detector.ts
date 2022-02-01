@@ -230,7 +230,8 @@ export default class TargetDetector {
 
     // console.log(state.simSettings.noisePercent);
     const divisor = 18.0;
-    const factor = 1.0 / divisor;
+    const percentFactor = 100.0;
+    const factor = percentFactor / divisor;
     const indThres = Math.round(state.simSettings.noisePercent / factor);
     const thres = getGaussianThres(indThres);
 

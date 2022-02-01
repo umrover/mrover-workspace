@@ -42,9 +42,10 @@
         <p>Perception Noise (%):</p>
         <NumberInput
           :val.sync="noisePercentIn"
+          :precision="2"
           :min="0"
-          :max="1"
-          :step="0.05555555555"
+          :max="100"
+          :step="5.55"
         />
       </div>
     </div>
