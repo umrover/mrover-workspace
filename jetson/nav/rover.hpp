@@ -137,7 +137,7 @@ public:
 
         // The rover's current target information from computer
         // vision.
-        Target mTarget;
+        Target mTarget1;
 
         Target mTarget2;
 

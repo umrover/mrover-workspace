@@ -52,7 +52,7 @@ Odometry& Rover::RoverStatus::odometry()
 // Gets a reference to the rover's first target's current information.
 Target& Rover::RoverStatus::target()
 {
-    return mTarget;
+    return mTarget1;
 } // target()
 
 Target& Rover::RoverStatus::target2() {
@@ -86,7 +86,7 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     }
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();
-    mTarget = newRoverStatus.target();
+    mTarget1 = newRoverStatus.target();
     mTarget2 = newRoverStatus.target2();
     return *this;
 } // operator=
