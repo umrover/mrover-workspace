@@ -156,7 +156,7 @@ class ScienceBridge():
         # No way we use 100 devices
         # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
         # single digits have 7 + 1 + 1 + 1 + 1 + 1 + 7 = 19, need to add one
-        if(int(translated_device) < 10):
+        while(len(message) < 30):
             # Add an extra 1 for padding
             message += "1"
         self.ser.close()
@@ -215,9 +215,9 @@ class ScienceBridge():
         message = "$Servo,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
         print(len(message))
-        """while(len(message) < 20):
+        while(len(message) < 30):
             message += ","
-        print(message)"""
+        print(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
