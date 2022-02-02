@@ -83,6 +83,7 @@ private:
 
     bool sim_mode;
     bool use_orientation;
+    bool zero_encoders;
 
     double prev_angle_b;
 
