@@ -1,4 +1,10 @@
 {
+    "ArmPreset": [
+        [
+            "string",
+            "position"
+        ]
+    ],
     "ArmPosition": [
         [
             "double",
@@ -624,6 +630,24 @@
             "micro_z"
         ]
     ],
+    "SAPosition": [
+        [
+            "double",
+            "joint_a"
+        ],
+        [
+            "double",
+            "joint_b"
+        ],
+        [
+            "double",
+            "joint_c"
+        ],
+        [
+            "double",
+            "joint_e"
+        ]
+    ],
     "SensorPackage": [
         [
             "double",
@@ -1013,6 +1037,7 @@
         ]
     ],
     "message_types": [
+        "ArmPreset",
         "ArmPosition",
         "ArmToggles",
         "AutonState",
@@ -1052,6 +1077,7 @@
         "RGBFrame",
         "RGBLED",
         "SAMotors",
+        "SAPosition",
         "SensorPackage",
         "Sensors",
         "SensorSwitch",

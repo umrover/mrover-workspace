@@ -51,8 +51,8 @@
     <div class="box scoopUV light-bg">
       <ScoopUV v-bind:mosfetIDs="mosfetIDs"/>
     </div>
-    <div class="box armControls light-bg">
-      <ArmControls/>
+    <div class="box SAArm light-bg">
+      <SAArm/>
     </div>
   </div>
 </template>
@@ -71,7 +71,7 @@ import Amino from './Amino.vue'
 import GenerateReport from './GenerateReport.vue'
 import Carousel from './Carousel.vue'
 import ScoopUV from './ScoopUV.vue'
-import ArmControls from './ArmControls.vue'
+import SAArm from './SAArm.vue'
 
 let interval;
 
@@ -289,7 +289,7 @@ export default {
     GenerateReport,
     Carousel,
     ScoopUV,
-    ArmControls
+    SAArm
   }
 }
 </script>
@@ -306,9 +306,9 @@ export default {
                              "carousel chlorophyll raman" 
                              "spectral chlorophyll scoopUV" 
                              "spectral chlorophyll drives"
-                             "armControls ammonia drives"
-                             "armControls amino drives"
-                             "armControls amino drives";
+                             "SAArm ammonia drives"
+                             "SAArm amino drives"
+                             "SAArm amino drives";
         font-family: sans-serif;
         height: auto;
     }
@@ -443,8 +443,8 @@ export default {
       grid-area: scoopUV;
     }
 
-    .armControls {
-      grid-area: armControls;
+    .SAArm {
+      grid-area: SAArm;
     }
 
     ul#vitals li {
