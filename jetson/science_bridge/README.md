@@ -65,7 +65,7 @@ Format of the UART NMEA command
 Writes NMEA like messages over UART to the Nucleo in order to move servo to specific angles (in degrees). 
 #### LCM Channels Publishing/Subscribed To 
 **Servo Command [subscriber]** \
-Messsages: [ServoCmd.lcm](https://github.com/tabiosg/mrover-workspace/blob/new_science_bridge/rover_msgs/ServoCmd.lcm) "/ammonia_cmd" \
+Messsages: [ServoCmd.lcm](https://github.com/tabiosg/mrover-workspace/blob/new_science_bridge/rover_msgs/ServoCmd.lcm) "/servo_cmd" \
 Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
