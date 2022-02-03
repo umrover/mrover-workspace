@@ -40,7 +40,12 @@ void MRoverArm::ra_control_callback(std::string channel, ArmControlState msg) {
     std::cout << "Received Arm Control State: " << new_state << "\n";
 
     if (new_state == "closed-loop") {
-        control_state = ControlState::WAITING_FOR_TARGET;
+        if (control_state == ControlState::OFF) {
+            control_state = ControlState::WAITING_FOR_TARGET;
+        }
+        else {
+            std::cout << "Already in closed-loop, doing nothing.\n";
+        }
     }
     else {
         control_state = ControlState::OFF;
@@ -166,6 +171,16 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 }
 
 void MRoverArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
+    if (control_state == ControlState::OFF) {
+        ArmControlState new_state;
+        new_state.state = "closed-loop";
+
+        lcm_.publish("/arm_control_state_to_gui", &new_state);
+        std::cout << "Changed mode to closed-loop.\n";
+
+        control_state = ControlState::WAITING_FOR_TARGET;
+    }
+
     if (control_state != ControlState::WAITING_FOR_TARGET) {
         std::cout << "control_state: " << control_state << "\n";
         std::cout << "Received target but not currently waiting for target.\n";
@@ -439,8 +454,8 @@ void MRoverArm::execute_spline() {
 
             size_t temp_max_joint = 6;
 
-            // Get max time to travel for joints a through e
-            for (int i = 0; i < 6; ++i) {
+            // Get max time to travel for joints a through e // for testing (should be through joint f)
+            for (int i = 0; i < 5; ++i) {
                 if (!arm_state.get_joint_locked(i)) {
                     double max_speed = arm_state.get_joint_max_speed(i);
 
@@ -481,10 +496,13 @@ void MRoverArm::execute_spline() {
                 }
             }
 
+            // Just for during joint f problems:
+            target_angles[5] = arm_state.get_joint_angle(5);
+
             // std::cout << "joint a current position: " << arm_state.get_joint_angle(0) << "\n";
             // std::cout << "joint a target:           " << target_angles[0] << "\n";
-            // std::cout << "joint b current position: " << arm_state.get_joint_angle(1) << "\n";
-            // std::cout << "joint b target:           " << target_angles[1] << "\n\n";
+            std::cout << "joint f current position/target: " << arm_state.get_joint_angle(5) << "\n";
+            // std::cout << "joint f target:           " << target_angles[5] << "\n\n";
 
             // cout executed angles
             std::cout << "joint angles after executing spline:\n";

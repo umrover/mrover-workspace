@@ -843,7 +843,7 @@
             },
             "max_speed": 0.5,
             "encoder_offset": 0,
-            "encoder_multiplier": -1,
+            "encoder_multiplier": 1,
             "mass_data":{
                 "mass": 0.16,
                 "com": {
