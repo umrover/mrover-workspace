@@ -141,7 +141,7 @@ float closedPlus(int addr, float angle) // -pi to pi
         {
             memcpy(&rad_angle, &raw_angle, 4);
         }
-        printf("test closed plus transaction successful on slave %i, at angle %f \n", addr, rad_angle);
+        printf("test closed plus transaction successful on slave %i, at angle raw: %i, rad: %f \n", addr, raw_angle, rad_angle);
         return rad_angle;
     }
     catch (IOFailure &e)
@@ -376,7 +376,7 @@ void testClosed()
     {
         int joint = (address & 0b1) + (((address >> 4) - 1) * 2); 
         float p = 0.001; 
-        float i  = 0.0005;
+        float i  = 0.00;
         float d = 0; 
 
         if (joint == 1)
@@ -675,7 +675,7 @@ int main()
         // //sleep(1000);
         // printf("waking up\n");
         //testAbsEnc();
-        sleep(1000);
+        sleep(100);
 
     }
 

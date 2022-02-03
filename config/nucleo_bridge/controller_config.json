@@ -112,11 +112,11 @@
     },
     {
         "name":"RA_5",
-        "type":"Motor12V",
+        "type":"Motor6V",
         "nucleo": 2,
         "channel": 1,
-        "quadCPR": -9072.0,
+        "quadCPR": -888.0,
         "kP": 0.001,
-        "kI": 0.00005
+        "kI": 0.00
     }
 ]
