@@ -34,7 +34,7 @@ class ScienceBridge():
         '''
         self.ser = serial.Serial(
             # port='/dev/ttyS4',
-            port='/dev/ttyTHS0',
+            port='/dev/ttyTHS1',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -91,11 +91,14 @@ class ScienceBridge():
             struct_variables = ["d0_1", "d0_2", "d0_3", "d0_4", "d0_5", "d0_6",
                                 "d1_1", "d1_2", "d1_3", "d1_4", "d1_5", "d1_6",
                                 "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
-            # print(arr)
+            print(arr)
             count = 1
             for var in struct_variables:
                 if (not (count >= len(arr))):
-                    setattr(triad_struct, var, ((np.int16(arr[count]) << 8) | (np.int16(arr[count + 1]))))
+                    pass
+                    x = 3
+                    print(((np.int16(arr[count+1]) << 8) | (np.int16(arr[count]))))
+                    setattr(triad_struct, var, ((np.int16(arr[count+1]) << 8) | (np.int16(arr[count]))))
                 else:
                     setattr(triad_struct, var, 0)
                 count += 2
@@ -153,7 +156,7 @@ class ScienceBridge():
         # No way we use 100 devices
         # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
         # single digits have 7 + 1 + 1 + 1 + 1 + 1 + 7 = 19, need to add one
-        if(int(translated_device) < 10):
+        while(len(message) < 30):
             # Add an extra 1 for padding
             message += "1"
         self.ser.close()
@@ -212,9 +215,9 @@ class ScienceBridge():
         message = "$Servo,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
         print(len(message))
-        """while(len(message) < 20):
+        while(len(message) < 30):
             message += ","
-        print(message)"""
+        print(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
@@ -259,6 +262,7 @@ class ScienceBridge():
                                 lcm.publish('/thermistor_data', thermistor.encode())
                             if(tag == "TRIAD"):
                                 self.triad_handler(msg, triad)
+                                print(triad)
                                 lcm.publish('/spectral_triad_data', triad.encode())
                             seen_tags[tag] = True
                         except Exception as e:
