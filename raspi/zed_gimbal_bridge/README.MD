@@ -17,10 +17,20 @@ Subscriber: raspi/zed_gimbal_bridge
 
 ### Usage
 
-To build zed_gimbal_bridge use `$./jarvis build raspi/zed_gimbal_bridge/ ` from the mrover-workspace directory.
+SSH into the raspberrypi.
 
-To run zed_gimbal_bridge use `$./jarvis exec raspi/zed_gimbal_bridge/ `
+Enable multicast by running `sudo ifconfig eth0 multicast` and `sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0`.
+Replace eth0 with whatever the connection is if that does not work.
+
+To build zed_gimbal_bridge use `sudo ./jarvis build raspi/zed_gimbal_bridge/` from the mrover-workspace directory.
+
+To run zed_gimbal_bridge use `sudo LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec raspi/zed_gimbal_bridge/`
 from the mrover-workspace directory.
+
+If you want to listen to channels, on the basestation use `LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo ZedGimbalPosition "/zed_gimbal_data"`.
+
+To command it to go specific angles, one can use `LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_send "/zed_gimbal_cmd" "{'type' : 'ZedGimbalPosition', 'angle' : 0}"` where the angle is in degrees.
+
 
 ### Common Errors
 
@@ -29,3 +39,9 @@ None known so far
 ### Notes
 
 Reference.md for moteus is [here](https://github.com/mjbots/moteus/blob/main/docs/reference.md).
+
+## TODO
+- [ ] Finish this readme
+- [ ] Change from left-handed coordinate system to right
+- [ ] Figure how to ssh into pi through linux system
+- [ ] Enable multicast be default
