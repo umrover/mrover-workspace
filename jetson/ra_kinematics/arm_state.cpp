@@ -46,18 +46,11 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
     json presets = geom["presets"];
     for (json::iterator it = presets.begin(); it != presets.end(); ++it) {
         preset_positions[it.key()] = {};
+        preset_positions[it.key()].resize(num_joints());
 
-        for (json::iterator angle = presets.begin(); angle != presets.end(); ++angle) {
-            preset_positions[it.key()].push_back(*angle);
+        for (int i = 0; i < num_joints(); ++i) {
+            preset_positions[it.key()][i] = it.value()[i];
         }
-        // preset_positions[it.key()] = it.value();
-        
-        // for testing
-        std::cout << it.key() << " preset positions:\n";
-        for (double x : it.value()) {
-            std::cout << x << " ";
-        }
-        std::cout << "\n";
     }
 
     // Sort links by link_num, since they may not be in order from the json
