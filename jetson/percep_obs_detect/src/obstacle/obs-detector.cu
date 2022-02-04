@@ -8,27 +8,25 @@ using namespace std::chrono;
 #include <glm/glm.hpp>
 #include <vector>
 
-ViewerType parse_viewer_type(const rapidjson::Document &mRoverConfig) {
+ViewerType parse_viewer_type(const rapidjson::Document& mRoverConfig) {
     // Find viewer type
     ViewerType viewerType;
     std::string v_type = mRoverConfig["startup"]["viewer_type"].GetString();
-    if (v_type == "gl"){
+    if (v_type == "gl") {
         viewerType = ViewerType::GL;
-    }
-    else if (v_type == "none") {
+    } else if (v_type == "none") {
         viewerType = ViewerType::NONE;
-    }
-    else {
+    } else {
         std::cerr << "Invalid viewer type\n";
         exit(-1);
     }
     return viewerType;
 }
 
-ObsDetector::ObsDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam)
+ObsDetector::ObsDetector(const rapidjson::Document& mRoverConfig, camera_ptr cam)
         : cam{cam} {
     setupParamaters(mRoverConfig);
-    
+
     mode = parse_operation_mode(mRoverConfig);
     viewerType = parse_viewer_type(mRoverConfig);
 
@@ -39,11 +37,11 @@ ObsDetector::ObsDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam
 };
 
 //TODO: Make it read params from a file
-void ObsDetector::setupParamaters(const rapidjson::Document &config) {
+void ObsDetector::setupParamaters(const rapidjson::Document& config) {
     //Operating resolution
     cloud_res = sl::Resolution(
-        config["camera"]["resolution_width"].GetInt(),
-        config["camera"]["resolution_height"].GetInt());
+            config["camera"]["resolution_width"].GetInt(),
+            config["camera"]["resolution_height"].GetInt());
 
     //Obs Detecting Algorithm Params
     // TODO: add these to the config file
@@ -130,7 +128,9 @@ void ObsDetector::update(GPU_Cloud pc) {
     }
 
     viewer.maxFrame = cam->get_max_frame();
-    if (viewer.maxFrame != -1) {
+    if (viewer.framePlay || viewer.maxFrame == -1) {
+        viewer.frame = cam->get_frame();
+    } else {
         cam->set_frame(viewer.frame);
     }
     viewer.updatePointCloud(pc);

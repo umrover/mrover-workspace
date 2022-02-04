@@ -14,7 +14,7 @@ rapidjson::Document parse_config() {
     if (!configFile.is_open()) {
         throw std::runtime_error("Config file not found");
     }
-    std::string config = "";
+    std::string config;
     std::string setting;
     while (configFile >> setting) {
         config += setting;
