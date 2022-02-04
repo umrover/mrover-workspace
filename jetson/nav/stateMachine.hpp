@@ -41,11 +41,11 @@ public:
 
     void updateCompletedPoints( );
 
-    void updateObstacleAngle( double bearing );
+    void updateObstacleAngle( double bearing, double rightBearing );
 
     void updateObstacleDistance( double distance );
 
-    void updateObstacleElements( double bearing, double distance );
+    void updateObstacleElements( double bearing, double rightBearing, double distance );
 
     void updateRepeaterComplete( );
 
@@ -82,8 +82,6 @@ private:
     bool addFourPointsToSearch();
 
     string stringifyNavState() const;
-
-    double getOptimalAvoidanceAngle() const;
 
     double getOptimalAvoidanceDistance() const;
 
