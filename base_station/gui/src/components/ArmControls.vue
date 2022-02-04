@@ -37,6 +37,32 @@ export default {
 
   created: function () {
 
+    // Subscribe to requests to change state from IK backend
+    this.$parent.subscribe('/arm_control_state_to_gui', (msg) => {
+      console.log('received new state:' + msg)
+
+      new_state = msg.state
+
+      // If new state matches current state
+      if (new_state === this.controlMode) {
+        return
+      }
+
+      // If new state is not current state, turn off current state
+      if (this.controlMode === 'closed-loop') {
+        this.$refs['closed-loop'].toggle()
+      }
+      else if (this.controlMode === 'open-loop') {
+        this.$refs['open-loop'].toggle()
+      }
+
+      if (new_state === 'closed-loop' || new_state === 'open-loop') {
+        this.$refs[new_state].toggle()
+      }
+
+      this.setControlMode(new_state);
+    })
+
     const XBOX_CONFIG = {
       'left_js_x': 0,
       'left_js_y': 1,

@@ -1,4 +1,10 @@
 {
+    "ArmControlState": [
+        [
+            "string",
+            "state"
+        ]
+    ],
     "ArmPosition": [
         [
             "double",
@@ -958,6 +964,7 @@
         ]
     ],
     "message_types": [
+        "ArmControlState",
         "ArmPosition",
         "ArmToggles",
         "AutonState",
