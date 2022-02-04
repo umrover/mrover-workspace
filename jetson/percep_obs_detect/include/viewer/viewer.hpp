@@ -193,12 +193,15 @@ class Viewer {
         bool framePlay = false;
         bool inMenu = false;
         bool record = false;
+        int currentFPS = 0;
         ProcStage procStage = ProcStage::POSTBEARING;
 
         // Creates a window
         Viewer();
 
         ~Viewer();
+
+        void initGraphics();
 
         // Updates the window and draws graphics (graphics thread)
         void update();
@@ -236,6 +239,8 @@ class Viewer {
         bool removeGround;
         float tolerance;
         float minSize;
+        float refineHeight;
+        float refineDistance;
 
 #endif
 
