@@ -7,9 +7,12 @@ rapidjson::Document parse_config() {
     /* --- Reading in Config File --- */
     rapidjson::Document mRoverConfig;
     ifstream configFile;
+#if WITH_JARVIS
     std::string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_percep_obs/config.json";
-//    std::string configPath = "./config.json";
+#else
+    std::string configPath = std::string(ROOT_DIR) + "/config.json";
+#endif
     configFile.open(configPath);
     if (!configFile.is_open()) {
         throw std::runtime_error("Config file not found");

@@ -31,12 +31,16 @@
  * \enum Axis
  * \brief Enum for x,y,z axis
  */
-enum class Axis {X, Y, Z};
+enum class Axis {
+    X, Y, Z
+};
 
 /*
  *** Set up debugging level ***
  */
-enum class OperationMode {DEBUG, SILENT};
+enum class OperationMode {
+    DEBUG, SILENT
+};
 
 /**
  * \struct GPU_Cloud_F4
@@ -51,39 +55,39 @@ struct GPU_Cloud {
  * \class CompareFloat4
  * \brief Functor that compares Float4 values
 */
-class CompareFloat4 : public thrust::binary_function<bool,float4,float4> {
-public: 
+class CompareFloat4 : public thrust::binary_function<bool, float4, float4> {
+    public:
 
-    /**
-     * \brief CompareFloat4 construct
-     * \param axis axis to compare
-     */
-    CompareFloat4(Axis axisIn) : axis{axisIn} {}
+        /**
+         * \brief CompareFloat4 construct
+         * \param axis axis to compare
+         */
+        CompareFloat4(Axis axisIn) : axis{axisIn} {}
 
-    /**
-     * \brief overloaded operator for comparing if lhs < rhs on given axis
-     * \param lhs: float to compare
-     * \param rhs: float to compare
-     * \return bool
-     */
-    __host__ __device__ bool operator() (float4 lhs, float4 rhs) {
-        
-        switch (axis) {
-        
-            case Axis::X :
-                return lhs.x < rhs.x;
-        
-            case Axis::Y :
-                return lhs.y < rhs.y;
-        
-            case Axis::Z :
-                return lhs.z < rhs.z;
-        }
-    };
+        /**
+         * \brief overloaded operator for comparing if lhs < rhs on given axis
+         * \param lhs: float to compare
+         * \param rhs: float to compare
+         * \return bool
+         */
+        __host__ __device__ bool operator()(float4 lhs, float4 rhs) {
 
-private:
+            switch (axis) {
 
-    Axis axis;
+                case Axis::X :
+                    return lhs.x < rhs.x;
+
+                case Axis::Y :
+                    return lhs.y < rhs.y;
+
+                case Axis::Z :
+                    return lhs.z < rhs.z;
+            }
+        };
+
+    private:
+
+        Axis axis;
 
 };
 
@@ -111,30 +115,30 @@ int ceilDiv(int x, int y);
 /**
  * \brief Get a CUDA workable gpu point cloud struct from Zed GPU cloud
  */
-void getRawCloud(GPU_Cloud &pc, sl::Mat &zed_cloud);
+void getRawCloud(GPU_Cloud& pc, sl::Mat& zed_cloud);
 
 /**
  * \brief Copys one GPU cloud's data to another
  */
-void copyCloud(GPU_Cloud &to, GPU_Cloud &from);
+void copyCloud(GPU_Cloud& to, GPU_Cloud& from);
 
 GPU_Cloud createCloud(int size);
 
-void deleteCloud(GPU_Cloud &cloud);
+void deleteCloud(GPU_Cloud& cloud);
 
-OperationMode parse_operation_mode(const rapidjson::Document &mRoverConfig);
+OperationMode parse_operation_mode(const rapidjson::Document& mRoverConfig);
 
 /**
  * \brief Iterate through the unused memory in a GPU cloud and set it to zeros
  */
-void clearStale(GPU_Cloud &cloud, int maxSize);
+void clearStale(GPU_Cloud& cloud, int maxSize);
 
 __global__ void findClearPathKernel(float* minXG, float* maxXG, float* minZG, float* maxZ, int numClusters, int* leftBearing, int* rightBearing);
 
 __global__ void findAngleOffCenterKernel(float* minXG, float* maxXG, float* minZG, float* maxZ, int numClusters, int* bearing, int direction);
 
-__device__ float atomicMinFloat (float* addr, float value);
+__device__ float atomicMinFloat(float* addr, float value);
 
-__device__ float atomicMaxFloat (float* addr, float value);
+__device__ float atomicMaxFloat(float* addr, float value);
 
 #endif

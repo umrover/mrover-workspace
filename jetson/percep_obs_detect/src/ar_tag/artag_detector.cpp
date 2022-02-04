@@ -7,35 +7,38 @@ static Mat HSV;
 static Mat DEPTH;
 
 /* For debug use: print the HSV values at mouseclick locations */
-void onMouse(int event, int x, int y, int flags, void *userdata) {
+void onMouse(int event, int x, int y, int flags, void* userdata) {
     if (event == EVENT_LBUTTONUP) {
         Vec3b p = HSV.at<Vec3b>(y, x);
         float d = DEPTH.at<float>(y, x);
         printf(
-            "Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, "
-            "depth is %.2f meters \n",
-            y, x, p.val[0], p.val[1], p.val[2], d);
+                "Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, "
+                "depth is %.2f meters \n",
+                y, x, p.val[0], p.val[1], p.val[2], d);
     }
 }
 
 //initializes detector object with pre-generated dictionary of tags 
-TagDetector::TagDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam) :  
+TagDetector::TagDetector(const rapidjson::Document& mRoverConfig, camera_ptr cam) :
 
-   //Populate Constants from Config File
-   BUFFER_ITERATIONS{mRoverConfig["ar_tag"]["buffer_iterations"].GetInt()},
-   MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["marker_border_bits"].GetInt()},
-   DO_CORNER_REFINEMENT{!!mRoverConfig["alvar_params"]["do_corner_refinement"].GetInt()},
-   POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonal_approx_accuracy_rate"].GetDouble()},
-   MM_PER_M{1000},
-   DEFAULT_TAG_VAL{mRoverConfig["ar_tag"]["default_tag_val"].GetInt()},
-   cam{cam} {
+//Populate Constants from Config File
+        BUFFER_ITERATIONS{mRoverConfig["ar_tag"]["buffer_iterations"].GetInt()},
+        MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["marker_border_bits"].GetInt()},
+        DO_CORNER_REFINEMENT{!!mRoverConfig["alvar_params"]["do_corner_refinement"].GetInt()},
+        POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonal_approx_accuracy_rate"].GetDouble()},
+        MM_PER_M{1000},
+        DEFAULT_TAG_VAL{mRoverConfig["ar_tag"]["default_tag_val"].GetInt()},
+        cam{cam} {
 
     mode = parse_operation_mode(mRoverConfig);
 
 
+#ifdef WITH_JARVIS
     std::string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_percep_obs/alvar_dict.yml";
-//    std::string configPath = "./src/ar_tag/alvar_dict.yml";
+#else
+    std::string configPath = std::string(ROOT_DIR) + "/src/ar_tag/alvar_dict.yml";
+#endif
     cv::FileStorage fsr(configPath, cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
@@ -58,12 +61,12 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam
     alvarParams->polygonalApproxAccuracyRate = POLYGONAL_APPROX_ACCURACY_RATE;
 }
 
-Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &corners) {  //gets coordinate of center of tag
+Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f>& corners) {  //gets coordinate of center of tag
     // RETURN:
     // Point2f object containing the average location of the 4 corners
     // of the passed-in tag
     Point2f avgCoord;
-    for (auto &corner : corners) {
+    for (auto& corner: corners) {
         avgCoord.x += corner.x;
         avgCoord.y += corner.y;
     }
@@ -72,7 +75,7 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
-pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
+pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
     // RETURN:
     // pair of target objects- each object has an x and y for the center,
     // and the tag ID number return them such that the "leftmost" (x
@@ -85,7 +88,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     // Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
 
-    if (mode == OperationMode::DEBUG){
+    if (mode == OperationMode::DEBUG) {
         // Draw detected tags
         cv::aruco::drawDetectedMarkers(rgb, corners, ids);
         cv::imshow("AR Tags", rgb);
@@ -95,7 +98,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
         cvtColor(rgb, HSV, COLOR_RGB2HSV);
         setMouseCallback("Obstacle", onMouse);
     }
-    
+
     // create Tag objects for the detected tags and return them
     pair<Tag, Tag> discoveredTags;
     if (ids.size() == 0) {
@@ -142,9 +145,9 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     return discoveredTags;
 }
 
-double TagDetector::getAngle(float xPixel, float wPixel){
-    double fieldofView = 110 * PI/180;
-    return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
+double TagDetector::getAngle(float xPixel, float wPixel) {
+    double fieldofView = 110 * PI / 180;
+    return atan((xPixel - wPixel / 2) / (wPixel / 2) * tan(fieldofView / 2)) * 180.0 / PI;
 }
 
 #ifdef WITH_JARVIS
@@ -208,13 +211,13 @@ void TagDetector::update() {
     updateDetectedTagInfo(arTags, tagPair, depth_img, src);
 #endif
 
-    if (mode == OperationMode::DEBUG){
+    if (mode == OperationMode::DEBUG) {
         imshow("depth", src);
         waitKey(1);
     }
 
     // Publish messages
-    #ifdef WITH_JARVIS
+#ifdef WITH_JARVIS
     lcm_.publish("/target_list", &arTagsMessage);
-    #endif
+#endif
 }

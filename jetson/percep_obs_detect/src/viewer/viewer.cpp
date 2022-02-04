@@ -523,7 +523,7 @@ void Viewer::updatePointCloud(int idx, std::vector<vec4>&& pts) {
     // Calculate
     float maxX = numeric_limits<float>::min(), maxZ = numeric_limits<float>::min();
     float minX = numeric_limits<float>::max(), minZ = numeric_limits<float>::max();
-    for (vec4& pt : pts) {
+    for (vec4& pt: pts) {
         maxX = max(maxX, pt.x);
         maxZ = max(maxZ, pt.z);
         minX = min(minX, pt.x);
