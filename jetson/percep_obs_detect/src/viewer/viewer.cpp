@@ -473,6 +473,11 @@ void Viewer::update() {
 
 void Viewer::drawUI() {
 #ifndef VIEWER_ONLY
+    ImGui::Begin("Timings");
+    for (long long time : stageTimings)
+        ImGui::Text("%09lld", time);
+    ImGui::End();
+
     ImGui::Begin("Layers");
     if (ImGui::RadioButton("Raw", procStage == ProcStage::RAW)) procStage = ProcStage::RAW;
     if (ImGui::RadioButton("Pass", procStage == ProcStage::POSTPASS)) procStage = ProcStage::POSTPASS;

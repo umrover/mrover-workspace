@@ -3,8 +3,8 @@
     "data_source_type": "filesystem",
     "operation_mode": "debug",
     "viewer_type": "gl",
-    "read_location": "/mnt/Downloads/perception-files/data",
-    "write_location": "/mnt/Downloads/perception-files/data5",
+    "read_location": "/home/quintin/Downloads/perception-files/data",
+    "write_location": "/home/quintin/Downloads/perception-files/data5",
     "ar_tag_enabled": 0,
     "obs_enabled": 1
   },

@@ -233,6 +233,7 @@ class Viewer {
 
         bool doParameterInit = true;
         ProcStage procStage = ProcStage::POSTBEARING;
+        std::vector<long long> stageTimings;
         float epsilon;
         int iterations;
         float threshold;

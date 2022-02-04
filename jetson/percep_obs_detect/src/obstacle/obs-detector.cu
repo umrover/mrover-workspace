@@ -24,7 +24,7 @@ ViewerType parse_viewer_type(const rapidjson::Document& mRoverConfig) {
 }
 
 ObsDetector::ObsDetector(const rapidjson::Document& mRoverConfig, camera_ptr cam)
-        : cam{cam} {
+        : cam{cam}, timer("Update") {
     setupParamaters(mRoverConfig);
 
     mode = parse_operation_mode(mRoverConfig);
@@ -61,7 +61,8 @@ void ObsDetector::update() {
     auto now = chrono::steady_clock::now();
     auto delta = now - previousTime;
     frameCount++;
-    if (delta > chrono::seconds(1)) {
+    isEverySecondMarker = delta > chrono::seconds(1);
+    if (isEverySecondMarker) {
         currentFPS = viewer.currentFPS = frameCount;
         previousTime = now;
         frameCount = 0;
@@ -72,7 +73,7 @@ void ObsDetector::update() {
         cam->write_data();
     }
 
-    update(pc);
+    process(pc);
 }
 
 vec3 closestPointOnPlane(Plane plane, vec3 point) {
@@ -130,19 +131,23 @@ void ObsDetector::handleParameters() {
 }
 
 // Call this directly with ZED GPU Memory
-void ObsDetector::update(GPU_Cloud pc) {
+void ObsDetector::process(GPU_Cloud pc) {
     handleParameters();
 
     Plane plane;
 
+    timer.reset();
+
     // Processing
     if (viewer.procStage > ProcStage::RAW) {
         passZ->run(pc);
+        averages[0].add(timer.reset());
     }
 
     if (viewer.procStage > ProcStage::POSTPASS) {
         plane = ransacPlane->computeModel(pc);
         if (viewerType == ViewerType::GL) drawGround(plane);
+        averages[1].add(timer.reset());
     }
 
     viewer.maxFrame = cam->get_max_frame();
@@ -152,17 +157,23 @@ void ObsDetector::update(GPU_Cloud pc) {
         cam->set_frame(viewer.frame);
     }
     if (viewerType == ViewerType::GL) viewer.updatePointCloud(pc);
+    averages[2].add(timer.reset());
 
     if (viewer.procStage > ProcStage::POSTRANSAC) {
         Bins bins = voxelGrid->run(pc);
         obstacles = ece->extractClusters(pc, bins);
+        averages[3].add(timer.reset());
         refineGround->pruneObstacles(plane, obstacles);
+        averages[4].add(timer.reset());
         bearingCombined = findClear->find_clear_path_initiate(obstacles);
+        averages[5].add(timer.reset());
         leftBearing = bearingCombined.x;
         rightBearing = bearingCombined.y;
         distance = bearingCombined.z;
         populateMessage(leftBearing, rightBearing, distance);
     }
+
+    std::cout << std::flush;
 
     if (viewerType == ViewerType::GL) {
         if (viewer.procStage > ProcStage::POSTECE) {
@@ -176,6 +187,14 @@ void ObsDetector::update(GPU_Cloud pc) {
 
     if (!viewer.framePlay) {
         cam->ignore_grab();
+    }
+    averages[6].add(timer.reset());
+    if (isEverySecondMarker) {
+        viewer.stageTimings.clear();
+        for (auto& average: averages) {
+            viewer.stageTimings.push_back(average.getAverage());
+            average.reset();
+        }
     }
 }
 

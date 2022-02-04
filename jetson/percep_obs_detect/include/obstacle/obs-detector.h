@@ -10,6 +10,7 @@
 #include "voxel-grid.hpp"
 #include "find-clear-path.hpp"
 #include "refine-ground.hpp"
+#include "timer.hpp"
 #include <cstring>
 #include <sstream>
 #include <iostream>
@@ -55,7 +56,7 @@ class ObsDetector {
          * of the function directly with a pointer to your frame in GPU memory
          * \param frame: sl::Mat frame to do detection on with memory allocated on the GPU
          */
-        void update(GPU_Cloud pc);
+        void process(GPU_Cloud pc);
 
         /**
          * \brief Create bounding box and add viewer object for each obstacle
@@ -134,6 +135,9 @@ class ObsDetector {
         int frameCount = 0;
         std::chrono::steady_clock::time_point previousTime;
         int currentFPS = 0;
+        bool isEverySecondMarker = false;
+        Timer timer;
+        std::array<RollingAverage, 7> averages{};
 
         void drawGround(Plane const& plane);
 };

@@ -27,7 +27,7 @@ else ()
     enable_language(CUDA)
     find_package(ZED 3 REQUIRED)
     include_directories(SYSTEM ${GLFW_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${ZED_INCLUDE_DIRS} ${CUDA_INCLUDE_DIRS})
-    include_directories(/usr/local/cuda-10.0/samples/common/inc)
+    include_directories(/usr/local/cuda/samples/common/inc)
     include_directories($ENV{HOME}/.mrover/build_env/include)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
             ${CMAKE_CURRENT_SOURCE_DIR}/include/viewer
