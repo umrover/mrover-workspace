@@ -40,7 +40,7 @@ public:
     //finds the angle from center given pixel coordinates              
     double getAngle(float xPixel, float wPixel);     
     //if AR tag found, updates distance, bearing, and id
-#ifndef NO_JARVIS
+#ifdef WITH_JARVIS
     void updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src);
 #endif
     

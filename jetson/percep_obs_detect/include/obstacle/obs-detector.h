@@ -94,7 +94,7 @@ class ObsDetector {
         void setupParamaters(const rapidjson::Document &mRoverConfig);
         
         // Lcm
-        #ifndef NO_JARVIS
+        #ifdef WITH_JARVIS
         lcm::LCM lcm_;
         rover_msgs::Obstacle obstacleMessage;
         #endif

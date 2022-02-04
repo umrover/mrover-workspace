@@ -161,7 +161,7 @@ void ObsDetector::update(GPU_Cloud pc) {
 }
 
 void ObsDetector::populateMessage(float leftBearing, float rightBearing, float distance) {
-#ifndef NO_JARVIS
+#ifdef WITH_JARVIS
     this->leftBearing = leftBearing;
     this->rightBearing = rightBearing;
     this->distance = distance;

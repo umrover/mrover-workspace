@@ -147,7 +147,7 @@ double TagDetector::getAngle(float xPixel, float wPixel){
     return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
 }
 
-#ifndef NO_JARVIS
+#ifdef WITH_JARVIS
 void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
     struct tagPairs {
         vector<int> id;
@@ -189,7 +189,7 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
 
 void TagDetector::update() {
     // Initializations
-#ifndef NO_JARVIS
+#ifdef WITH_JARVIS
     lcm::LCM lcm_;
     rover_msgs::TargetList arTagsMessage;
     rover_msgs::Target* arTags = arTagsMessage.targetList;
@@ -204,7 +204,7 @@ void TagDetector::update() {
     // AR Tag Processing
     pair<Tag, Tag> tagPair;
     tagPair = findARTags(src, depth_img, rgb);
-#ifndef NO_JARVIS
+#ifdef WITH_JARVIS
     updateDetectedTagInfo(arTags, tagPair, depth_img, src);
 #endif
 
@@ -214,7 +214,7 @@ void TagDetector::update() {
     }
 
     // Publish messages
-    #ifndef NO_JARVIS
+    #ifdef WITH_JARVIS
     lcm_.publish("/target_list", &arTagsMessage);
     #endif
 }

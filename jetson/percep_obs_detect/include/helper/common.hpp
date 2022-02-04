@@ -8,7 +8,7 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <opencv2/aruco.hpp>
-#ifndef NO_JARVIS
+#ifdef WITH_JARVIS
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include <lcm/lcm-cpp.hpp>
