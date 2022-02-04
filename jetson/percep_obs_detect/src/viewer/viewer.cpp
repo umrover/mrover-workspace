@@ -240,8 +240,9 @@ PointCloud::~PointCloud() {
     glDeleteBuffers(1, &pointsGPU);
 }
 
-void PointCloud::update(std::vector<vec4>&& pts) {
+void PointCloud::update(std::vector<vec4>& pts) {
     this->size = pts.size();
+//    this->pointsCPU.assign(pts.begin(), pts.end()); // enable when you need
     // Update GPU data for rendering
     glBindVertexArray(vaoId);
     // Points
@@ -360,6 +361,7 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 viewer->framePlay = !viewer->framePlay;
                 break;
             }
+#ifndef VIEWER_ONLY
             case GLFW_KEY_1: {
                 viewer->procStage = ProcStage::RAW;
                 break;
@@ -384,6 +386,7 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 viewer->procStage = ProcStage::POSTBEARING;
                 break;
             }
+#endif
             case GLFW_KEY_ESCAPE: {
                 viewer->inMenu = !viewer->inMenu;
                 break;
@@ -469,7 +472,7 @@ void Viewer::update() {
 }
 
 void Viewer::drawUI() {
-    // Create a window called "My First Tool", with a menu bar.
+#ifndef VIEWER_ONLY
     ImGui::Begin("Layers");
     if (ImGui::RadioButton("Raw", procStage == ProcStage::RAW)) procStage = ProcStage::RAW;
     if (ImGui::RadioButton("Pass", procStage == ProcStage::POSTPASS)) procStage = ProcStage::POSTPASS;
@@ -479,7 +482,6 @@ void Viewer::drawUI() {
     if (ImGui::RadioButton("Bearing", procStage == ProcStage::POSTBEARING)) procStage = ProcStage::POSTBEARING;
     ImGui::End();
 
-#ifndef VIEWER_ONLY
     ImGui::Begin("Parameters");
     ImGui::SliderFloat("Epsilon", &epsilon, 0.0f, 20.0f);
     ImGui::SliderInt("Iterations", &iterations, 1, 2000);
@@ -500,8 +502,10 @@ void Viewer::drawUI() {
         ImGui::SliderInt("Frame", &frame, 0, maxFrame);
         frame = std::min(frame, maxFrame - 1);
         frame = std::max(frame, 0);
+#ifndef VIEWER_ONLY
         ImGui::Text("FPS: %d", currentFPS);
         ImGui::Checkbox("Record", &record);
+#endif
         ImGui::End();
     }
 
@@ -526,7 +530,7 @@ void Viewer::clearEphemerals() {
     ephemeralObjects.clear();
 }
 
-void Viewer::updatePointCloud(int idx, std::vector<vec4>&& pts) {
+void Viewer::updatePointCloud(int idx, std::vector<vec4>& pts) {
     // Calculate
     float maxX = numeric_limits<float>::min(), maxZ = numeric_limits<float>::min();
     float minX = numeric_limits<float>::max(), minZ = numeric_limits<float>::max();
@@ -537,7 +541,7 @@ void Viewer::updatePointCloud(int idx, std::vector<vec4>&& pts) {
         minZ = min(minZ, pt.z);
     }
     pcCenter = glm::vec3((minX + maxX) / 2, 0.0f, (minZ + maxZ) / 2);
-    pointClouds[idx].update(std::move(pts));
+    pointClouds[idx].update(pts);
 }
 
 #ifndef VIEWER_ONLY
@@ -545,7 +549,7 @@ void Viewer::updatePointCloud(int idx, std::vector<vec4>&& pts) {
 void Viewer::updatePointCloud(GPU_Cloud pc) {
     auto pc_cpu = std::vector<vec4>(pc.size);
     cudaMemcpy(pc_cpu.data(), pc.data, sizeof(float4) * pc.size, cudaMemcpyDeviceToHost);
-    updatePointCloud(0, std::move(pc_cpu));
+    updatePointCloud(0, pc_cpu);
 }
 
 #endif
@@ -568,18 +572,22 @@ bool Viewer::open() {
 
 #ifdef VIEWER_ONLY
 
-int main(int argc, char** argv) {
+int main() {
     Viewer viewer;
+    viewer.initGraphics();
     PCDReader reader;
-    std::string dir = ROOT_DIR;
-    dir += "/data/";
+    std::string dir = "/home/quintin/Downloads/perception-files/data/pcd/";
     std::cout << dir << std::endl;
     reader.open(dir);
-    std::vector<vec4> cloud = reader.readCloudCPU(dir + "pcl50.pcd");
     viewer.addPointCloud();
-    viewer.updatePointCloud(0, cloud.data(), cloud.size());
+    viewer.frame = 0;
+    viewer.maxFrame = static_cast<int>(reader.size());
     viewer.setCenter();
     while (viewer.open()) {
+        if (viewer.framePlay) {
+            viewer.frame = (viewer.frame + 1) % viewer.maxFrame;
+        }
+        viewer.updatePointCloud(0, reader.readCloudCPU(viewer.frame));
         viewer.update();
     }
     return 0;

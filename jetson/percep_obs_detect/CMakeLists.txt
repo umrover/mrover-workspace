@@ -13,12 +13,9 @@ if (VIEWER_ONLY)
     include_directories(SYSTEM ${GLFW_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
             ${CMAKE_CURRENT_SOURCE_DIR}/include/viewer
-            ${CMAKE_CURRENT_SOURCE_DIR}/include/viewer/imgui
-            ${CMAKE_CURRENT_SOURCE_DIR}/include/obstacle
-            ${CMAKE_CURRENT_SOURCE_DIR}/include/helper
-            ${CMAKE_CURRENT_SOURCE_DIR}/include/camera
-            ${CMAKE_CURRENT_SOURCE_DIR}/include/ar_tag)
-    file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "src/*.cpp")
+            ${CMAKE_CURRENT_SOURCE_DIR}/include/reader
+            ${CMAKE_CURRENT_SOURCE_DIR}/include/viewer/imgui)
+    file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/viewer/*.cpp")
     add_executable(viewer ${SOURCE_FILES})
     set_target_properties(viewer PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(viewer ${CMAKE_DL_LIBS} ${SPECIAL_OS_LIBS} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY}
@@ -38,6 +35,7 @@ else ()
             ${CMAKE_CURRENT_SOURCE_DIR}/include/obstacle
             ${CMAKE_CURRENT_SOURCE_DIR}/include/helper
             ${CMAKE_CURRENT_SOURCE_DIR}/include/camera
+            ${CMAKE_CURRENT_SOURCE_DIR}/include/reader
             ${CMAKE_CURRENT_SOURCE_DIR}/include/ar_tag)
     # TODO: Update this
     find_package(OpenCV REQUIRED)
@@ -49,7 +47,9 @@ else ()
     if (WITH_JARVIS)
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/.mrover/build_env/bin/)
     endif ()
-    file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "src/*.cpp" "src/*.cu")
+    file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cu")
     add_executable(jetson_percep_obs_detect ${SOURCE_FILES})
     link_directories(/snap/code/85/usr/lib/x86_64-linux-gnu)
     target_link_libraries(jetson_percep_obs_detect ${CMAKE_DL_LIBS} ${SPECIAL_OS_LIBS} ${ZED_LIBRARIES} ${OPENGL_LIBRARIES}
