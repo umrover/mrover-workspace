@@ -39,8 +39,10 @@ public:
     pair<Tag, Tag> findARTags(Mat &src, Mat &depth_src, Mat &rgb);    
     //finds the angle from center given pixel coordinates              
     double getAngle(float xPixel, float wPixel);     
-    //if AR tag found, updates distance, bearing, and id                              
-    void updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src); 
+    //if AR tag found, updates distance, bearing, and id
+#ifndef NO_JARVIS
+    void updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src);
+#endif
     
     /**
      * @brief Processes image from ZED and sends findings across LCM

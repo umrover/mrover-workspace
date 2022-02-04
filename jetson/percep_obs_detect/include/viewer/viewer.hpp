@@ -44,9 +44,7 @@ public:
 
     void swap(PointCloud& other);
 
-    void update(std::vector<vec4>& pts);
-
-    void update(vec4* pts, int size);
+    void update(std::vector<vec4>&& pts);
 
     void draw();
 
@@ -191,7 +189,7 @@ enum class ProcStage {
 class Viewer {
 public:
     int frame = 0;
-    int maxFrame = 0;
+    int maxFrame = -1;
     bool framePlay = false;
     bool inMenu = false;
     bool record = false;
@@ -224,7 +222,7 @@ public:
     void setCenter(vec3 center);
 
     // need to provide thread safe ways to update viewer internals
-    void updatePointCloud(int idx, vec4* pts, int size);
+    void updatePointCloud(int idx, std::vector<vec4>&& pts);
 
 #ifndef VIEWER_ONLY
 
@@ -255,8 +253,6 @@ private:
     Shader objectShader;
     Shader pcShader;
     std::vector<PointCloud> pointClouds;
-    std::mutex viewer_mutex;
-    std::mutex pc_mutex;
     GLFWwindow* window;
 
     glm::vec3 pcCenter;

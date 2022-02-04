@@ -115,7 +115,6 @@ void ObsDetector::handleParameters() {
     }
 }
 
-///home/ashwin/Documents/mrover-workspace/jetson/percep_obs_detect/data
 // Call this directly with ZED GPU Memory
 void ObsDetector::update(GPU_Cloud pc) {
     handleParameters();
@@ -130,6 +129,10 @@ void ObsDetector::update(GPU_Cloud pc) {
         drawGround(plane);
     }
 
+    viewer.maxFrame = cam->get_max_frame();
+    if (viewer.maxFrame != -1) {
+        cam->set_frame(viewer.frame);
+    }
     viewer.updatePointCloud(pc);
 
     if (viewer.procStage > ProcStage::POSTRANSAC) {

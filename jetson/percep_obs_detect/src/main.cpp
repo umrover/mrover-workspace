@@ -9,14 +9,18 @@ rapidjson::Document parse_config() {
     ifstream configFile;
     std::string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_percep_obs/config.json";
-    configFile.open( configPath );
+//    std::string configPath = "./config.json";
+    configFile.open(configPath);
+    if (!configFile.is_open()) {
+        throw std::runtime_error("Config file not found");
+    }
     std::string config = "";
     std::string setting;
-    while( configFile >> setting ) {
+    while (configFile >> setting) {
         config += setting;
     }
     configFile.close();
-    mRoverConfig.Parse( config.c_str() );
+    mRoverConfig.Parse(config.c_str());
 
     return mRoverConfig;
 }
@@ -45,13 +49,13 @@ int main() {
         auto cam = std::make_shared<Source::Camera>(mRoverConfig);
         TagDetector detector(mRoverConfig, cam);
         ObsDetector obs(mRoverConfig, cam);
-        
+
         while (cam->grab_frame()) {
             // AR Tag Detection
             if (mRoverConfig["startup"]["ar_tag_enabled"].GetInt()) {
                 detector.update();
             }
-            
+
             // Obstacle Detection
             if (mRoverConfig["startup"]["obs_enabled"].GetInt()) {
                 obs.open();

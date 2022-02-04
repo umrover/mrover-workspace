@@ -35,10 +35,11 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam
 
     std::string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_percep_obs/alvar_dict.yml";
+//    std::string configPath = "./src/ar_tag/alvar_dict.yml";
     cv::FileStorage fsr(configPath, cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
-        throw Exception();
+        throw std::runtime_error("ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n");
     }
 
     // read dictionary from file
@@ -53,7 +54,7 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam
     // initialize other special parameters that we need to properly detect the URC (Alvar) tags
     alvarParams = new cv::aruco::DetectorParameters();
     alvarParams->markerBorderBits = MARKER_BORDER_BITS;
-    alvarParams->doCornerRefinement = DO_CORNER_REFINEMENT;
+//    alvarParams->doCornerRefinement = DO_CORNER_REFINEMENT;
     alvarParams->polygonalApproxAccuracyRate = POLYGONAL_APPROX_ACCURACY_RATE;
 }
 
@@ -146,6 +147,7 @@ double TagDetector::getAngle(float xPixel, float wPixel){
     return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
 }
 
+#ifndef NO_JARVIS
 void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
     struct tagPairs {
         vector<int> id;
@@ -183,17 +185,18 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
    }
   }
 }
+#endif
 
 void TagDetector::update() {
     // Initializations
-    #ifndef NO_JARVIS
+#ifndef NO_JARVIS
     lcm::LCM lcm_;
-    #endif
     rover_msgs::TargetList arTagsMessage;
     rover_msgs::Target* arTags = arTagsMessage.targetList;
     arTags[0].distance = DEFAULT_TAG_VAL;
     arTags[1].distance = DEFAULT_TAG_VAL;
-    
+#endif
+
     Mat rgb;
     Mat& src = cam->get_image();
     Mat& depth_img = cam->get_depth();
@@ -201,8 +204,10 @@ void TagDetector::update() {
     // AR Tag Processing
     pair<Tag, Tag> tagPair;
     tagPair = findARTags(src, depth_img, rgb);
+#ifndef NO_JARVIS
     updateDetectedTagInfo(arTags, tagPair, depth_img, src);
-    
+#endif
+
     if (mode == OperationMode::DEBUG){
         imshow("depth", src);
         waitKey(1);

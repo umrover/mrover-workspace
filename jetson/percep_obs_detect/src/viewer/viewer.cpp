@@ -7,10 +7,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-
-#include <glm/gtx/rotate_vector.hpp>
-
 using namespace std;
 
 // Took the shaders from the ZED code :) 
@@ -244,17 +240,13 @@ PointCloud::~PointCloud() {
     glDeleteBuffers(1, &pointsGPU);
 }
 
-void PointCloud::update(std::vector<vec4>& pts) {
-    update(pts.data(), pts.size());
-}
-
-void PointCloud::update(vec4* pts, int size) {
-    this->size = size;
+void PointCloud::update(std::vector<vec4>&& pts) {
+    this->size = pts.size();
     // Update GPU data for rendering
     glBindVertexArray(vaoId);
     // Points
     glBindBuffer(GL_ARRAY_BUFFER, pointsGPU);
-    glBufferData(GL_ARRAY_BUFFER, size * sizeof(vec4), pts, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size * sizeof(vec4), pts.data(), GL_DYNAMIC_DRAW);
 }
 
 void PointCloud::draw() {
@@ -445,19 +437,15 @@ void Viewer::update() {
     for (auto& object: objects) {
         object.draw();
     }
-    viewer_mutex.lock();
     for (auto& object: ephemeralObjects) {
         object.draw();
     }
-    viewer_mutex.unlock();
 
     glUseProgram(pcShader.getProgramId());
     glUniformMatrix4fv(glGetUniformLocation(pcShader.getProgramId(), "u_mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvp_mat));
-    pc_mutex.lock();
     for (auto& pc: pointClouds) {
         pc.draw();
     }
-    pc_mutex.unlock();
 
     constexpr float speed = 300.0f;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.move({speed, 0.0f, 0.0f});
@@ -503,10 +491,12 @@ void Viewer::drawUI() {
     ImGui::End();
 #endif
 
-    ImGui::Begin("Playback");
-    ImGui::SliderInt("Frame", &frame, 0, maxFrame);
-    ImGui::Checkbox("Record", &record);
-    ImGui::End();
+    if (maxFrame != -1) {
+        ImGui::Begin("Playback");
+        ImGui::SliderInt("Frame", &frame, 0, maxFrame);
+        ImGui::Checkbox("Record", &record);
+        ImGui::End();
+    }
 
     ImGui::Begin("Controls");
     ImGui::Text("Escape: Open UI\n"
@@ -521,49 +511,40 @@ void Viewer::drawUI() {
 }
 
 void Viewer::addObject(Object3D&& obj, bool ephemeral) {
-    viewer_mutex.lock();
     if (ephemeral) ephemeralObjects.push_back(std::move(obj));
     else objects.push_back(std::move(obj));
-    viewer_mutex.unlock();
 }
 
 void Viewer::clearEphemerals() {
-    viewer_mutex.lock();
     ephemeralObjects.clear();
-    viewer_mutex.unlock();
 }
 
-void Viewer::updatePointCloud(int idx, vec4* pts, int size) {
-    pc_mutex.lock();
+void Viewer::updatePointCloud(int idx, std::vector<vec4>&& pts) {
     // Calculate
     float maxX = numeric_limits<float>::min(), maxZ = numeric_limits<float>::min();
     float minX = numeric_limits<float>::max(), minZ = numeric_limits<float>::max();
-    for (int i = 0; i < size; ++i) {
-        maxX = max(maxX, pts[i].x);
-        maxZ = max(maxZ, pts[i].z);
-        minX = min(minX, pts[i].x);
-        minZ = min(minZ, pts[i].z);
+    for (vec4& pt : pts) {
+        maxX = max(maxX, pt.x);
+        maxZ = max(maxZ, pt.z);
+        minX = min(minX, pt.x);
+        minZ = min(minZ, pt.z);
     }
     pcCenter = glm::vec3((minX + maxX) / 2, 0.0f, (minZ + maxZ) / 2);
-    pointClouds[idx].update(pts, size);
-    pc_mutex.unlock();
+    pointClouds[idx].update(std::move(pts));
 }
 
 #ifndef VIEWER_ONLY
 
 void Viewer::updatePointCloud(GPU_Cloud pc) {
-    auto* pc_cpu = new glm::vec4[pc.size];
-    cudaMemcpy(pc_cpu, pc.data, sizeof(float4) * pc.size, cudaMemcpyDeviceToHost);
-    updatePointCloud(0, pc_cpu, pc.size);
-    delete[] pc_cpu;
+    auto pc_cpu = std::vector<vec4>(pc.size);
+    cudaMemcpy(pc_cpu.data(), pc.data, sizeof(float4) * pc.size, cudaMemcpyDeviceToHost);
+    updatePointCloud(0, std::move(pc_cpu));
 }
 
 #endif
 
 void Viewer::addPointCloud() {
-    pc_mutex.lock();
     pointClouds.emplace_back();
-    pc_mutex.unlock();
 }
 
 void Viewer::setCenter() {

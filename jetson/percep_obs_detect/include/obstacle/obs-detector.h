@@ -12,14 +12,9 @@
 #include <cstring>
 #include <sstream>
 #include <iostream>
-#include <float.h>
-#include <stdlib.h>
+#include <cfloat>
+#include <cstdlib>
 #include <unistd.h>
-
-#ifndef NO_JARVIS
-#include <lcm/lcm-cpp.hpp>
-#include "rover_msgs/Obstacle.hpp"
-#endif
 
 // TODO: move as many of these includes to cpp as possible
 //using namespace boost::interprocess;
@@ -139,10 +134,6 @@ class ObsDetector {
         float leftBearing;
         float rightBearing;
         float distance;
-
-        // Other
-        int frameNum = 0;
-        bool framePlay = true;
 
         void drawGround(Plane const& plane);
 };
