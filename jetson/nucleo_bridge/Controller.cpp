@@ -188,11 +188,18 @@ void Controller::angle()
 
     try
     {
-        int32_t quad_angle;
-        transact(QUAD, nullptr, UINT8_POINTER_T(&quad_angle));
+        float recorded_angle = 0;
+        if (name == "RA_1") 
+        {
+            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(recorded_angle)));
+        }
+        else 
+        {
+            transact(QUAD, nullptr, UINT8_POINTER_T(&recorded_angle));
+        }
         
         // handles if joint B
-        record_angle(quad_angle);
+        record_angle(recorded_angle);
     }
     catch (IOFailure &e)
     {
