@@ -18,18 +18,6 @@
 #include <unistd.h>
 #include <chrono>
 
-// TODO: move as many of these includes to cpp as possible
-//using namespace boost::interprocess;
-
-/*
- *** Determines where to input clouds for obstacle detection ***
- *      ZED: inputs clouds directly from a connected ZED
- *      GPUMEM: receives a pointer to cloud GPU memory from external source
- *      FILESYSTEM: reads .pc files from specified location
- */
-enum class DataSource {
-    ZED, GPUMEM, FILESYSTEM
-};
 
 /*
  *** Choose which viewer to use ***
