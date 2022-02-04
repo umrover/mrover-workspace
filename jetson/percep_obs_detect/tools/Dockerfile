@@ -28,7 +28,7 @@ RUN wget -O lcm.zip https://github.com/lcm-proj/lcm/releases/download/v1.4.0/lcm
     make all -j && \
     make install
 RUN apt-get install -y libglm-dev libglfw3-dev libglew-dev x11-apps \
-    python3-venv pkg-config autoconf dh-autoreconf libgtk2.0-dev python3-dev libgirepository1.0-dev
+    python3-venv pkg-config autoconf dh-autoreconf libgtk2.0-dev python3-dev libgirepository1.0-dev rapidjson-dev
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get install -y build-essential unzip cmake ninja-build \
     libgtk-3-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev \

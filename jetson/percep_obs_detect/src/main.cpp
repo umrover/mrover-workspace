@@ -53,7 +53,7 @@ int main() {
         TagDetector detector(mRoverConfig, cam);
         ObsDetector obs(mRoverConfig, cam);
 
-        while (cam->grab_frame()) {
+        while (cam->grab_frame() && obs.open()) {
             // AR Tag Detection
             if (mRoverConfig["startup"]["ar_tag_enabled"].GetInt()) {
                 detector.update();
