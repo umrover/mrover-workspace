@@ -30,6 +30,8 @@
 #include "rover_msgs/HandCmd.hpp"
 #include "rover_msgs/ZeroPosition.hpp"
 #include "rover_msgs/UseOrientation.hpp"
+#include "rover_msgs/ArmPreset.hpp"
+#include "rover_msgs/ArmAdjustments.hpp"
 
 using namespace rover_msgs;
  
@@ -128,7 +130,7 @@ public:
      * Handle new target position by calculating angles and plotting path,
      * then preview path
      * 
-     * @param channel expected: "/target_orientation"
+     * @param channel expected: "/target_orientation" or "/arm_adjustments"
      * @param msg float x, y, z, alpha, beta, gamma
      * */
     void target_orientation_callback(std::string channel, TargetOrientation msg);
@@ -180,6 +182,23 @@ public:
      * @param msg format: empty
      */
     void zero_position_callback(std::string channel, ZeroPosition msg);
+
+    /**
+     * Calculate new target orientation using current pos and adjustments and
+     * call target_orientation_callback 
+     * 
+     * @param channel expected: "/arm_adjustments"
+     * @param msg float x, y, z, alpha, beta, gamma
+     * */
+    void arm_adjust_callback(std::string channel, ArmAdjustments msg);
+
+    /**
+     * Handle request to go to a preset position
+     * 
+     * @param channel expected: "/arm_preset"
+     * @param msg format: string preset
+     */
+    void arm_preset_callback(std::string channel, ArmPreset msg);
 
     /**
      * Asynchronous function, runs when control_state is "EXECUTING"

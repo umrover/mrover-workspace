@@ -36,5 +36,4 @@ Vector6d vecTo6d(const std::vector<double> &inVec);
 
 std::vector<double> vector6dToVec(const Vector6d &inVector6d);
 
-
 #endif

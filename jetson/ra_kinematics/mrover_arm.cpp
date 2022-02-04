@@ -184,7 +184,7 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
         std::cout << ang << "\t"; 
     }
     std::cout << "\n";
-
+    
     if (!solver.is_safe(arm_state)) {
         std::cout << "STARTING POSITION NOT SAFE, please adjust arm in Open Loop.\n";
 
@@ -552,6 +552,39 @@ void MRoverArm::zero_position_callback(std::string channel, ZeroPosition msg) {
     std::cout << "Received zero-encoders request.\n";
 
     zero_encoders = true;
+}
+
+void MRoverArm::arm_adjust_callback(std::string channel, ArmAdjustments msg) {
+    if (control_state != ControlState::WAITING_FOR_TARGET) {
+        std::cout << "Received target but not in closed-loop waiting state.\n";
+        return;
+    }
+
+    std::vector<double> current_pos = arm_state.get_ef_pos_and_euler_angles();
+
+    TargetOrientation target;
+    target.x = current_pos[0] + msg.x;
+    target.y = current_pos[1] + msg.y;
+    target.z = current_pos[2] + msg.z;
+    target.alpha = current_pos[3] + msg.alpha;
+    target.beta = current_pos[4] + msg.beta;
+    target.gamma = current_pos[5] + msg.gamma;
+
+    target_orientation_callback("", target);
+}
+
+void MRoverArm::arm_preset_callback(std::string channel, ArmPreset msg) {
+    std::vector<double> angles = arm_state.get_preset_position(msg.preset);
+    
+    ArmPosition new_msg;
+    new_msg.joint_a = angles[0];
+    new_msg.joint_b = angles[1];
+    new_msg.joint_c = angles[2];
+    new_msg.joint_d = angles[3];
+    new_msg.joint_e = angles[4];
+    new_msg.joint_f = angles[5];
+
+    target_angles_callback("", new_msg);
 }
 
 void MRoverArm::encoder_angles_sender() {

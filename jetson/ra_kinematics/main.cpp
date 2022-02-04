@@ -86,6 +86,22 @@ public:
         arm->zero_position_callback( channel, *zero_position );
     }
 
+    void armAdjustCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const ArmAdjustments* arm_adjustments)
+    {
+        arm->arm_adjust_callback( channel, *arm_adjustments );
+    }
+
+    void armPresetCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const ArmPreset* arm_preset)
+    {
+        arm->arm_preset_callback( channel, *arm_preset );
+    }
+
 private:
     MRoverArm* arm;
 };
@@ -113,6 +129,8 @@ int main() {
     lcmObject.subscribe( "/use_orientation", &lcmHandlers::useOrientationCallback, &handler );
     lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
     lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
+    lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
+    lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
     
     std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
     std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);

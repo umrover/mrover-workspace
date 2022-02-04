@@ -50,6 +50,7 @@
         messages: [],
         viewing: {
           '/ammonia_cmd': false,
+          '/arm_adjustments': false,
           '/arm_motors': false,
           '/arm_control_state': false,
           '/arm_control_state_to_gui': false,
@@ -109,6 +110,7 @@
         },
         subscriptions: [
           {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
+          {'topic': '/arm_adjusments', 'type': 'ArmAdjustments'},
           {'topic': '/arm_control_state', 'type': 'ArmControlState'},
           {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
