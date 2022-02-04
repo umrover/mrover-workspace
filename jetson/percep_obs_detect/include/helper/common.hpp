@@ -8,6 +8,7 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <opencv2/aruco.hpp>
+
 #ifdef WITH_JARVIS
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
@@ -62,7 +63,7 @@ class CompareFloat4 : public thrust::binary_function<bool, float4, float4> {
          * \brief CompareFloat4 construct
          * \param axis axis to compare
          */
-        CompareFloat4(Axis axisIn) : axis{axisIn} {}
+        explicit CompareFloat4(Axis axisIn) : axis{axisIn} {}
 
         /**
          * \brief overloaded operator for comparing if lhs < rhs on given axis
@@ -71,18 +72,16 @@ class CompareFloat4 : public thrust::binary_function<bool, float4, float4> {
          * \return bool
          */
         __host__ __device__ bool operator()(float4 lhs, float4 rhs) {
-
             switch (axis) {
-
                 case Axis::X :
                     return lhs.x < rhs.x;
-
                 case Axis::Y :
                     return lhs.y < rhs.y;
-
                 case Axis::Z :
                     return lhs.z < rhs.z;
             }
+            assert(false);
+            return false;
         };
 
     private:
@@ -118,7 +117,7 @@ int ceilDiv(int x, int y);
 void getRawCloud(GPU_Cloud& pc, sl::Mat& zed_cloud);
 
 /**
- * \brief Copys one GPU cloud's data to another
+ * \brief Copies one GPU cloud's data to another
  */
 void copyCloud(GPU_Cloud& to, GPU_Cloud& from);
 

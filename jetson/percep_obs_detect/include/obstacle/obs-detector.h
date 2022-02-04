@@ -25,12 +25,16 @@
  *      GPUMEM: receives a pointer to cloud GPU memory from external source
  *      FILESYSTEM: reads .pc files from specified location
  */
-enum class DataSource {ZED, GPUMEM, FILESYSTEM};
+enum class DataSource {
+    ZED, GPUMEM, FILESYSTEM
+};
 
 /*
  *** Choose which viewer to use ***
  */
-enum ViewerType {NONE, GL};
+enum ViewerType {
+    NONE, GL
+};
 
 /** 
  * \class ObsDetector
@@ -44,7 +48,7 @@ class ObsDetector {
          * \param mode: Debugging level, either DEBUG for testing or SILENT for competition
          * \param viewer: Viewer type, use NONE for competition, PCLV if you are on Great Lakes, and GL otherwise
          */
-        ObsDetector(const rapidjson::Document &mRoverConfig, camera_ptr cam);
+        ObsDetector(const rapidjson::Document& mRoverConfig, camera_ptr cam);
 
         //Destructor
         ~ObsDetector();
@@ -87,17 +91,17 @@ class ObsDetector {
         void populateMessage(float leftBearing, float rightBearing, float distance);
 
 
-    bool open();
+        bool open();
 
     private:
         //Sets up detection paramaters from a JSON file
-        void setupParamaters(const rapidjson::Document &mRoverConfig);
-        
+        void setupParamaters(const rapidjson::Document& mRoverConfig);
+
         // Lcm
-        #ifdef WITH_JARVIS
+#ifdef WITH_JARVIS
         lcm::LCM lcm_;
         rover_msgs::Obstacle obstacleMessage;
-        #endif
+#endif
 
         // Data sources
         camera_ptr cam;
@@ -115,11 +119,11 @@ class ObsDetector {
         ViewerType viewerType;
 
         // Detection algorithms
-        PassThrough *passZ;
-        RansacPlane *ransacPlane;
-        VoxelGrid *voxelGrid;
-        EuclideanClusterExtractor *ece;
-        FindClearPath *findClear;
+        PassThrough* passZ;
+        RansacPlane* ransacPlane;
+        VoxelGrid* voxelGrid;
+        EuclideanClusterExtractor* ece;
+        FindClearPath* findClear;
 
         // Parameters
         sl::Resolution cloud_res;

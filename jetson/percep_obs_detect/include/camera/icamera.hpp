@@ -5,10 +5,10 @@
 #include "common.hpp"
 
 namespace Source {
-    
+
     /**
      * @brief Interface class designed as a template that all camera
-     * camera classses should comply by
+     * camera classes should comply by
      */
     class ICamera {
         public:
@@ -45,6 +45,9 @@ namespace Source {
 
             virtual void set_frame(int frame) = 0;
 
+            /**
+             * @return Max frame in series or -1 if a streaming input
+             */
             virtual int get_max_frame() = 0;
     };
 }
