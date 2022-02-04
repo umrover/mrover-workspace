@@ -19,7 +19,11 @@ let interval;
 export default {
   data() {
     return {
-      xboxControlEpsilon: 0.4
+      xboxControlEpsilon: 0.4,
+
+      stateInput: {
+        state: "off"
+      }
     }
   },
 
@@ -31,7 +35,7 @@ export default {
   },
 
   beforeDestroy: function () {
-    window.clearInterval(interval);
+    window.clearInterval(interval)
   },
 
 
@@ -39,9 +43,9 @@ export default {
 
     // Subscribe to requests to change state from IK backend
     this.$parent.subscribe('/arm_control_state_to_gui', (msg) => {
-      console.log('received new state:' + msg)
+      console.log('received new state: ' + msg.state)
 
-      new_state = msg.state
+      var new_state = msg.state
 
       // If new state matches current state
       if (new_state === this.controlMode) {
@@ -49,18 +53,18 @@ export default {
       }
 
       // If new state is not current state, turn off current state
-      if (this.controlMode === 'closed-loop') {
-        this.$refs['closed-loop'].toggle()
-      }
-      else if (this.controlMode === 'open-loop') {
-        this.$refs['open-loop'].toggle()
+      if (this.controlMode === 'closed-loop' || this.controlMode === 'open-loop') {
+        this.$refs[this.controlMode].toggle()
       }
 
       if (new_state === 'closed-loop' || new_state === 'open-loop') {
         this.$refs[new_state].toggle()
+        this.setControlMode(new_state)
+      }
+      else {
+        this.setControlMode('off')
       }
 
-      this.setControlMode(new_state);
     })
 
     const XBOX_CONFIG = {
@@ -129,14 +133,14 @@ export default {
 
       if (checked) {
         // control mode can either be open loop or control mode, not both
-        if (this.controlMode !== '' && this.controlMode !== 'off') {
+        if (this.controlMode === 'closed-loop' || this.controlMode === 'open-loop') {
           this.$refs[this.controlMode].toggle()
         }
 
-        this.setControlMode(mode);
+        this.setControlMode(mode)
       }
       else {
-        this.setControlMode('off');
+        this.setControlMode('off')
       }
 
       const armStateMsg = {
@@ -144,7 +148,7 @@ export default {
         'state': this.controlMode
       }
 
-      this.$parent.publish('/arm_control_state', armStateMsg);
+      this.$parent.publish('/arm_control_state', armStateMsg)
     },
 
     forceOpenLoop: function () {
@@ -157,14 +161,14 @@ export default {
       }
 
       this.$refs['open-loop'].toggle()
-      this.setControlMode('open-loop');
+      this.setControlMode('open-loop')
 
       const armStateMsg = {
         'type': 'ArmControlState',
         'state': this.controlMode
       }
 
-      this.$parent.publish('/arm_control_state', armStateMsg);
+      this.$parent.publish('/arm_control_state', armStateMsg)
     },
 
     checkXboxInput: function (xboxData) {
