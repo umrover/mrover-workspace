@@ -47,6 +47,7 @@ def main():
     threading._start_new_thread(lcmThreaderMan, ())
     global odrive_bridge
     odrive_bridge = OdriveBridge()
+    odrive_bridge.connect()
     # starting state is DisconnectedState()
     # start up sequence is called, disconnected-->disarm-->arm
 
@@ -54,8 +55,13 @@ def main():
         watchdog = t.clock() - start_time
         if (watchdog > 1.0):
             print("loss of comms")
+
+            speedlock.acquire()
+
             left_speed = 0
             right_speed = 0
+
+            speedlock.release()
 
         try:
             odrive_bridge.update()
@@ -129,6 +135,7 @@ class DisconnectedState(State):
         global modrive
         if (event == "arm cmd"):
             modrive.disarm()
+            modrive.reset_watchdog()
             modrive.arm()
             return ArmedState()
 
@@ -202,6 +209,8 @@ class OdriveBridge(object):
         global modrive
         self.state = DisconnectedState()  # default is disarmed
         self.encoder_time = 0
+        self.left_speed = 0.0
+        self.right_speed = 0.0
 
     def connect(self):
         global modrive
@@ -220,7 +229,7 @@ class OdriveBridge(object):
 
         print("found odrive")
         modrive = Modrive(odrive)  # arguments = odr
-        modrive.set_current_lim(30)
+        modrive.set_current_lim(4)
         self.encoder_time = t.time()
 
     def on_event(self, event):
@@ -237,26 +246,18 @@ class OdriveBridge(object):
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
     def update(self):
-        if (str(self.state) == "ArmedState"):
-            global speedlock
-            global left_speed
-            global right_speed
+        try:
+            errors = modrive.check_errors()
+            modrive.watchdog_feed()
 
-            speedlock.acquire()
-            modrive.set_vel("LEFT", left_speed)
-            modrive.set_vel("RIGHT", right_speed)
-            speedlock.release()
-
-        elif (str(self.state) == "DisconnectedState"):
-            self.connect()
+        except fibre.protocol.ChannelBrokenException:
+            errors = 0
             lock.acquire()
-            self.on_event("arm cmd")
+            self.on_event("disconnected odrive")
             lock.release()
-
-        errors = modrive.check_errors()
+            print("unable to check errors of unplugged odrive")
 
         if errors:
-            # if (errors == 0x800 or erros == 0x1000):
 
             lock.acquire()
             self.on_event("odrive error")
@@ -264,6 +265,32 @@ class OdriveBridge(object):
             # first time will set to ErrorState
             # second time will reboot
             # because the error flag is still true
+            return
+
+        if (str(self.state) == "ArmedState"):
+            modrive.watchdog_feed()
+
+            global speedlock
+            global left_speed
+            global right_speed
+
+            # print("trying to acquire speed lock in update")
+            speedlock.acquire()
+            # print("acquired speed lock in update")
+            self.left_speed = left_speed
+            self.right_speed = right_speed
+
+            # print("released speed lock in update")
+            speedlock.release()
+
+            modrive.set_vel("LEFT", self.left_speed)
+            modrive.set_vel("RIGHT", self.right_speed)
+
+        elif (str(self.state) == "DisconnectedState"):
+            self.connect()
+            lock.acquire()
+            self.on_event("arm cmd")
+            lock.release()
 
     def get_state(self):
         return str(self.state)
@@ -328,7 +355,7 @@ if __name__ == "__main__":
 
 
 class Modrive:
-    CURRENT_LIM = 30
+    CURRENT_LIM = 4
 
     def __init__(self, odr):
         self.odrive = odr
@@ -343,8 +370,48 @@ class Modrive:
             return getattr(self, attr)
         return getattr(self.odrive, attr)
 
+    def enable_watchdog(self):
+        try:
+            print("Enabling watchdog")
+            self.front_axis.config.watchdog_timeout = 0.1
+            self.back_axis.config.watchdog_timeout = 0.1
+            self.watchdog_feed()
+            self.front_axis.config.enable_watchdog = True
+            self.back_axis.config.enable_watchdog = True
+        except Exception as e:
+            print("Failed in enable_watchdog. Error:")
+            print(e)
+
+    def disable_watchdog(self):
+        try:
+            print("Disabling watchdog")
+            self.front_axis.config.watchdog_timeout = 0
+            self.back_axis.config.watchdog_timeout = 0
+            self.front_axis.config.enable_watchdog = False
+            self.back_axis.config.enable_watchdog = False
+        except fibre.protocol.ChannelBrokenException:
+            print("Failed in disable_watchdog. Unplugged")
+
+    def reset_watchdog(self):
+        try:
+            print("Resetting watchdog")
+            self.disable_watchdog()
+            # clears errors cleanly
+            self.front_axis.clear_errors()
+            self.back_axis.clear_errors()
+            self.enable_watchdog()
+        except fibre.protocol.ChannelBrokenException:
+            print("Failed in disable_watchdog. Unplugged")
+
+    def watchdog_feed(self):
+        try:
+            self.front_axis.watchdog_feed()
+            self.back_axis.watchdog_feed()
+        except fibre.protocol.ChannelBrokenException:
+            print("Failed in watchdog_feed. Unplugged")
+
     def disarm(self):
-        self.set_current_lim(30)
+        self.set_current_lim(self.CURRENT_LIM)
         self.closed_loop_ctrl()
         self.set_velocity_ctrl()
 
@@ -378,9 +445,9 @@ class Modrive:
     def get_vel_estimate(self, axis):
         # divide by 1.5 to scale by percent
         if (axis == "LEFT"):
-            return self.front_axis.encoder.vel_estimate / 1.5
+            return self.front_axis.encoder.vel_estimate
         elif(axis == "RIGHT"):
-            return self.back_axis.encoder.vel_estimate / 1.5
+            return self.back_axis.encoder.vel_estimate
 
     def idle(self):
         self._requested_state(AXIS_STATE_IDLE)
@@ -394,9 +461,9 @@ class Modrive:
 
     def set_vel(self, axis, vel):
         if (axis == "LEFT"):
-            self.front_axis.controller.input_vel = -vel * 3
+            self.front_axis.controller.input_vel = -vel * 50
         elif axis == "RIGHT":
-            self.back_axis.controller.input_vel = vel * 3
+            self.back_axis.controller.input_vel = vel * 50
 
     def get_current_state(self):
         return (self.front_axis.current_state, self.back_axis.current_state)
