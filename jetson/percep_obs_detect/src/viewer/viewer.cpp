@@ -502,17 +502,17 @@ void Viewer::drawUI() {
     ImGui::End();
 #endif
 
+    ImGui::Begin("Playback");
     if (maxFrame != -1) {
-        ImGui::Begin("Playback");
         ImGui::SliderInt("Frame", &frame, 0, maxFrame);
         frame = std::min(frame, maxFrame - 1);
         frame = std::max(frame, 0);
+    }
 #ifndef VIEWER_ONLY
         ImGui::Text("FPS: %d", currentFPS);
         ImGui::Checkbox("Record", &record);
 #endif
-        ImGui::End();
-    }
+    ImGui::End();
 
     ImGui::Begin("Controls");
     ImGui::Text("Escape: Open UI\n"
@@ -522,7 +522,7 @@ void Viewer::drawUI() {
                 "WASD: First-person move\n"
                 "Arrow keys: Camera move\n"
                 "1-6: Choose layers");
-    ImGui::SliderFloat("Mouse", &mouseSensitivity, 0.1f, 10.0f);
+    ImGui::SliderFloat("Mouse", &mouseSensitivity, 0.0f, 10.0f);
     ImGui::End();
 }
 

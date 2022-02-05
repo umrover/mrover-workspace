@@ -36,6 +36,9 @@ ObsDetector::ObsDetector(const rapidjson::Document& mRoverConfig, camera_ptr cam
     if (viewerType == ViewerType::GL) {
         viewer.initGraphics();
         viewer.addPointCloud();
+        if (cam->get_max_frame() == -1) {
+            viewer.framePlay = true;
+        }
     }
 };
 
