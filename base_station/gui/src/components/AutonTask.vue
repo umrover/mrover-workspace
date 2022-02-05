@@ -71,6 +71,10 @@ import DriveVelDataH from './DriveVelDataH.vue'
 import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
 let interval;
+const navBlue = "#4695FF"
+const navGreen = "yellowgreen"
+const navRed = "lightcoral"
+const navGrey = "lightgrey"
 
 export default {
   name: 'AutonTask',
@@ -182,23 +186,23 @@ export default {
   created: function () {
     setInterval(() => {
       if(this.nav_status.nav_state_name == "Off"){
-        this.nav_state_color = "#4695FF"
+        this.nav_state_color = navBlue
       }
       else if(this.nav_status.nav_state_name == "Done"){
-        if(this.nav_state_color == "#4695FF" || this.nav_state_color == "lightcoral"){
-          this.nav_state_color = "yellowgreen"
+        if(this.nav_state_color == navBlue || this.nav_state_color == navRed){
+          this.nav_state_color = navGreen
         }
-        else if(this.nav_counter >= 5 && this.nav_state_color == "yellowgreen"){
-          this.nav_state_color = "lightgrey"
+        else if(this.nav_counter >= 5 && this.nav_state_color == navGreen){
+          this.nav_state_color = navGrey
           this.nav_counter = 0
         }
-        else if(this.nav_counter >= 5 && this.nav_state_color == "lightgrey"){
-          this.nav_state_color = "yellowgreen"
+        else if(this.nav_counter >= 5 && this.nav_state_color == navGrey){
+          this.nav_state_color = navGreen
           this.nav_counter = 0
         }
       }
       else{
-        this.nav_state_color = "lightcoral"
+        this.nav_state_color = navRed
       }
       this.nav_counter = this.nav_counter + 1
       if(this.nav_counter >= 5){
