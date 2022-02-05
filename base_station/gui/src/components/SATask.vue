@@ -41,7 +41,12 @@
       <Amino v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box drives light-bg">
-      <DriveVelDataV/>
+      <div>
+        <ReverseToggle v-bind:reverse_toggle="reverse_toggle"/>
+      </div>
+      <div>
+        <DriveVelDataV/>
+      </div>
     </div>
     <div class="box carousel light-bg">
       <Carousel/>
@@ -70,6 +75,7 @@ import GenerateReport from './GenerateReport.vue'
 import Carousel from './Carousel.vue'
 import ScoopUV from './ScoopUV.vue'
 import SAArm from './SAArm.vue'
+import ReverseToggle from './ReverseToggle.vue'
 
 let interval;
 
@@ -231,7 +237,8 @@ export default {
         {'topic': '/carousel_data', 'type': 'CarouselData'},
         {'topic': '/carousel_cmd', 'type': 'CarouselCmd'},
         {'topic': '/sa_position', 'type': 'SAPosition'},
-        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'}
+        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
+        {'topic': '/reverse_drive', 'type': 'ReverseDrive'}
       ]
     )
 
@@ -289,7 +296,8 @@ export default {
     GenerateReport,
     Carousel,
     ScoopUV,
-    SAArm
+    SAArm, 
+    ReverseToggle
   }
 }
 </script>

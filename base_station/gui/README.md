@@ -81,6 +81,13 @@ Subscriptions: SATask.vue
 Publishers: N/A
 Usage: Values are passed to SpectralData vue component and read out in table on Science GUI
 
+AmmoniaCmd
+"ammonia_cmd"
+File: AmmoniaCmd.lcm
+Subscriptions: N/A
+Publishers: Ammonia.vue
+Usage: Used in Ammonia.vue to control Ammonia test apparatus
+
 ThermistorData
 "thermistor_data"
 ThermistorData.lcm
@@ -95,3 +102,5 @@ File: Autonomous.lcm
 Subscriptions: 
 Publishers: N/A
 Usage: 
+
+

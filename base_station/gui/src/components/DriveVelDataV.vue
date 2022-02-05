@@ -3,6 +3,7 @@
     <div>
         <h3> Motor Data </h3>
     </div>
+
     <table class="tableFormat" style="undefined;table-layout: fixed; width: 250px">
   <colgroup>
     <col style="width: 80px">
@@ -138,7 +139,10 @@
     }
 </style>
 
+
 <script>
+import ReverseToggle from './ReverseToggle.vue';
+
 export default {
     data() {
       return {
@@ -225,6 +229,10 @@ export default {
           }
         }
       })
+    },
+
+    components: {
+      ReverseToggle
     }
 }
 </script>

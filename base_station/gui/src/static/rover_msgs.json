@@ -632,6 +632,12 @@
             "signal_strength"
         ]
     ],
+    "ReverseDrive": [
+        [
+            "boolean",
+            "reverse"
+        ]
+    ],
     "RGB": [
         [
             "string",
