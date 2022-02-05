@@ -45,9 +45,6 @@
     <div class="box angles light-bg">
       <ZedGimbalAngles></ZedGimbalAngles>
     </div>
-     <!-- <div class="box raw_sensors light-bg">
-      <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
-    </div> -->
   </div>
 </template>
 
@@ -62,7 +59,6 @@ import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
 import WaypointEditor from './WaypointEditor_Auton.vue'
-// import AutonJoystickReading from './AutonJoystickReading.vue'
 import RawSensorData from './RawSensorData.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import Obstacle from './Obstacle.vue'
@@ -70,7 +66,6 @@ import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
-let interval;
 const navBlue = "#4695FF"
 const navGreen = "yellowgreen"
 const navRed = "lightcoral"
@@ -234,8 +229,6 @@ export default {
           this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
          }else if (msg.topic === '/autonomous') {
           this.Joystick = msg.message
-        } else if (msg.topic === '/rr_drop_complete') {
-          this.repeater_dropped = true
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/obstacle') {
@@ -324,7 +317,6 @@ export default {
     DriveControls,
     EncoderCounts,
     OdometryReading,
-    // AutonJoystickReading,
     RawSensorData,
     WaypointEditor,
     RadioSignalStrength,

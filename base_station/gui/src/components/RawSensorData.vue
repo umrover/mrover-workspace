@@ -1,6 +1,6 @@
 <template>
 <div class = "main-content">
- <h3>Raw Data Reading</h3>
+ <h3>Raw Data Readings</h3>
   <div class="wrap">
     <!-- <div>
       <p>GPS:</p>
