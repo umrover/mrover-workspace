@@ -15,9 +15,9 @@ ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine( StateMachine* stat
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void ObstacleAvoidanceStateMachine::updateObstacleAngle( double bearing )
+void ObstacleAvoidanceStateMachine::updateObstacleAngle( double bearing, double rightBearing )
 {
-    mOriginalObstacleAngle = bearing;
+    mOriginalObstacleAngle = std::min(bearing, rightBearing);
 }
 
 // Allows outside objects to set the original obstacle distance
@@ -29,9 +29,9 @@ void ObstacleAvoidanceStateMachine::updateObstacleDistance( double distance )
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void ObstacleAvoidanceStateMachine::updateObstacleElements( double bearing, double distance )
+void ObstacleAvoidanceStateMachine::updateObstacleElements( double bearing, double rightBearing, double distance )
 {
-    updateObstacleAngle( bearing );
+    updateObstacleAngle( bearing, rightBearing );
     updateObstacleDistance( distance );
 }
 
