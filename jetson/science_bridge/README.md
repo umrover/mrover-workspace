@@ -38,7 +38,7 @@ Publishers: jetson/science_bridge\
 Subscribers: jetson/teleop
 #### UART Message
 Format of the data string
-- `$THERMISTOR,<temp0>,<temp1>,<temp2>`
+- `$THERMISTOR,<temp0>,<temp1>,<temp2>,<extra padding>`
 - String is 50 characters long
 
 ### Mosfet
