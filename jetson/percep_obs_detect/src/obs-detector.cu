@@ -21,7 +21,7 @@ ObsDetector::ObsDetector(DataSource source, OperationMode mode, ViewerType viewe
         //defParams = camera_config.calibration_parameters.left_cam;
     } else if (source == DataSource::FILESYSTEM) {
         std::string s = ROOT_DIR;
-        s += "/data/";
+        s += "/data2/";
 
         cout << "File data dir: " << endl;
         cout << "[defaulting to: " << s << endl;
@@ -65,15 +65,16 @@ void ObsDetector::setupParamaters(std::string parameterFile) {
     passZ = new PassThrough('z', 100, 7000); //7000
     ransacPlane = new RansacPlane(make_float3(0, 1, 0), 8, 600, 80, cloud_res.area(), 80);
     voxelGrid = new VoxelGrid(10);
-    ece = new EuclideanClusterExtractor(300, 30, 0, cloud_res.area(), 9);
+    ece = new EuclideanClusterExtractor(128, 30, 0, cloud_res.area(), 9);
     findClear = new FindClearPath();
 }
 
 
 void ObsDetector::update() {
     GPU_Cloud pc;
+    // sl::Mat frame is outside of if statement scope since it owns the memory and we don't want that to de-allocate sooner than expected
+    sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
     if (source == DataSource::ZED) {
-        sl::Mat frame(cloud_res, sl::MAT_TYPE::F32_C4, sl::MEM::GPU);
         zed.grab();
         zed.retrieveMeasure(frame, sl::MEASURE::XYZRGBA, sl::MEM::GPU, cloud_res);
         getRawCloud(pc, frame);
