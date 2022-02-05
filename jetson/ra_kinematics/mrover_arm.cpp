@@ -383,8 +383,6 @@ void MRoverArm::preview(ArmState& hypo_state) {
 }
 
 void MRoverArm::motion_execute_callback(std::string channel, MotionExecute msg) {
-    std::cout << "Entering motion execute callback\n";
-    std::cout << msg.execute << "\n";
     bool execute = (bool) msg.execute;
     std::cout << "Received execute message: " << execute << "\n";
 
@@ -416,6 +414,8 @@ void MRoverArm::execute_spline() {
         if (control_state == ControlState::EXECUTING) {
 
             if (encoder_error) {
+                std::cout << encoder_error_message << "\n";
+                std::cout << "Sending kill command due to encoder error!\n";
                 spline_t = 0.0;
 
                 DebugMessage msg;
@@ -462,15 +462,18 @@ void MRoverArm::execute_spline() {
                 }
             }
 
-            std:: cout << "slowest joint: " << temp_max_joint << "\n";
+            std::cout << "slowest joint: " << temp_max_joint << "\n";
+            std::cout << init_angles[temp_max_joint] << " --> " << final_angles[temp_max_joint] << "\n";
+            std::cout << "max time: " << max_time << "\n";
 
             //determines size of iteration by dividing number of iterations by distance
             spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
             spline_t += spline_t_iterator;
+            std::cout << "spline_t: " << spline_t << "\n";
 
             // break out of loop if necessary
             if (spline_t >= 1.0) {
-                std::cout << "Finished executing!\n";
+                std::cout << "Finished executing succesfully!\n";
                 spline_t = 0.999999999999;
                 control_state = ControlState::WAITING_FOR_TARGET;
             }
@@ -492,15 +495,8 @@ void MRoverArm::execute_spline() {
 
             // std::cout << "joint a current position: " << arm_state.get_joint_angle(0) << "\n";
             // std::cout << "joint a target:           " << target_angles[0] << "\n";
-            std::cout << "joint f current position/target: " << arm_state.get_joint_angle(5) << "\n";
+            // std::cout << "joint f current position/target: " << arm_state.get_joint_angle(5) << "\n";
             // std::cout << "joint f target:           " << target_angles[5] << "\n\n";
-
-            // cout executed angles
-            std::cout << "joint angles after executing spline:\n";
-            for (int i = 0; i < 6; ++i) {
-                std::cout << arm_state.get_joint_angles()[i] << " ";
-            }
-            std::cout << "\n";
 
             // if not in sim_mode, send physical arm a new target
             if (!sim_mode) {
@@ -520,7 +516,15 @@ void MRoverArm::execute_spline() {
                 arm_state.set_joint_angles(target_angles);
             }
 
+            // cout executed angles
+            std::cout << "joint angles after executing spline:\n";
+            for (int i = 0; i < 6; ++i) {
+                std::cout << arm_state.get_joint_angles()[i] << " ";
+            }
+            std::cout << "\n";
+
             if (control_state != ControlState::EXECUTING) {
+                std::cout << "Sending kill command!\n";
                 send_kill_cmd();
             }
 
@@ -693,19 +697,30 @@ double MRoverArm::joint_b_stabilizer(double angle) {
         return angle;
     }
 
-    // If angle seems bad, ignore it
-    if (std::isnan(angle) || std::abs(angle - prev_angle_b) > ENCODER_ERROR_THRESHOLD) {
-        return prev_angle_b;
+    double prev_multiplier;
+
+    // If angle seems very bad
+    if (std::isnan(angle) ||
+        angle < arm_state.get_joint_limits(1)[0] ||
+        angle > arm_state.get_joint_limits(1)[1]) {
+
+        prev_multiplier = 1.0;
+    }
+    // Else if angle seems kinda bad
+    else if (std::abs(angle - prev_angle_b) > ENCODER_ERROR_THRESHOLD) {
+        prev_multiplier = JOINT_B_STABILIZE_BAD_MULTIPLIER;
+    }
+    else {
+        prev_multiplier = JOINT_B_STABILIZE_MULTIPLIER;
     }
 
     // Update prev angle to current angle
-    prev_angle_b = JOINT_B_STABILIZE_MULTIPLIER * prev_angle_b + (1 - JOINT_B_STABILIZE_MULTIPLIER) * angle;
+    prev_angle_b = prev_multiplier * prev_angle_b + (1 - prev_multiplier) * angle;
     return prev_angle_b;
 }
 
 
 void MRoverArm::send_kill_cmd() {
-    std::cout << "Sending kill command!\n";
 
     RAOpenLoopCmd ra_cmd;
     for (int i = 0; i < arm_state.num_joints(); ++i) {

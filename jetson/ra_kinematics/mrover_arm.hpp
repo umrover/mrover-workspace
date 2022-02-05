@@ -41,7 +41,7 @@ using namespace Eigen;
 typedef Matrix<double, 6, 1> Vector6d;
 
 // percentage of path to calculate move time
-static constexpr double D_SPLINE_T = 0.01;
+static constexpr double D_SPLINE_T = 0.1;
 
 // in ms, wait time for execute_spline loop
 static constexpr int SPLINE_WAIT_TIME = 50;
@@ -57,7 +57,8 @@ static constexpr double DUD_ENCODER_EPSILON = 0.00000001;
 //Angle in radians that physical arm can be without causing problems
 static constexpr double ACCEPTABLE_BEYOND_LIMIT = 0.05;
 
-static constexpr double JOINT_B_STABILIZE_MULTIPLIER = 0.6;
+static constexpr double JOINT_B_STABILIZE_MULTIPLIER = 0.5;
+static constexpr double JOINT_B_STABILIZE_BAD_MULTIPLIER = 0.96;
 
 /**
 * This is the MRoverArm class, responsible for
