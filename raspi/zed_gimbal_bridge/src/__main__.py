@@ -1,6 +1,6 @@
 # import lcm
 import asyncio
-import math # needed for math.nan
+import math  # needed for math.nan
 import moteus
 import moteus_pi3hat
 from rover_common.aiohelper import run_coroutines
