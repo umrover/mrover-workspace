@@ -6,27 +6,26 @@ xdotool windowfocus $WID
 
 # Enter commands you want to be executed in the window here
 
-# Run Localization
+# Check If need to ssh first
+if [[ $1 ]]; then
+    ./jarvis_files/launchScripts/ssh $WID
+fi
 xdotool key type "sudo ./jarvis exec jetson/gps"
 xdotool key KP_Enter
 sleep 0.4s
 xdotool key type "mrover"
 xdotool key KP_Enter
 
-#Open a new tab for Obstacle LCM
+#Open a new tab
 xdotool key ctrl+shift+t
 # Check If need to ssh first
 if [[ $1 ]]; then
     ./jarvis_files/launchScripts/ssh $WID
 fi
-
-xdotool key type "sudo ./jarvis exec jetson/mp9250_bridge"
-xdotool key KP_Enter
-sleep 0.4s
-xdotool key type "mrover"
+xdotool key type "./jarvis exec jetson/imu_channel"
 xdotool key KP_Enter
 
-#Open a new tab for Obstacle LCM
+#Open a new tab
 xdotool key ctrl+shift+t
 # Check If need to ssh first
 if [[ $1 ]]; then
@@ -34,6 +33,16 @@ if [[ $1 ]]; then
 fi
 xdotool key type "./jarvis exec jetson/filter"
 xdotool key KP_Enter
+
+# Open a tab for LCM Echo
+xdotool key ctrl+shift+t
+# Check If need to ssh first
+if [[ $1 ]]; then
+    ./jarvis_files/launchScripts/ssh $WID
+fi
+xdotool key type "./jarvis exec lcm_tools/echo IMUData /imu_data"
+xdotool key KP_Enter
+
 
 # Make window 1/4 of screen and align upper right
 dimensions=$(./jarvis_files/launch_scripts/dim)

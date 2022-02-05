@@ -7,7 +7,20 @@ xdotool windowfocus $WID
 # Enter commands you want to be executed in the window here
 
 # Run Navigation
+# Check If need to ssh first
+if [[ $1 ]]; then
+    ./jarvis_files/launchScripts/ssh $WID
+fi
 xdotool key type "./jarvis exec jetson/nav"
+xdotool key KP_Enter
+
+#Open a new tab
+xdotool key ctrl+shift+t
+# Check If need to ssh first
+if [[ $1 ]]; then
+    ./jarvis_files/launchScripts/ssh $WID
+fi
+xdotool key type "./jarvis exec lcm_tools/echo Joystick /autonomous"
 xdotool key KP_Enter
 
 # Make window 1/4 of screen and align lower left
