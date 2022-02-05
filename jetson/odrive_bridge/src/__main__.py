@@ -47,7 +47,6 @@ def main():
     threading._start_new_thread(lcmThreaderMan, ())
     global odrive_bridge
     odrive_bridge = OdriveBridge()
-    odrive_bridge.connect()
     # starting state is DisconnectedState()
     # start up sequence is called, disconnected-->disarm-->arm
 
@@ -221,11 +220,12 @@ class OdriveBridge(object):
         # odrive 1 --> middle motors
         # odrive 2 --> back motors
 
-        odrives = ["335D36623539", "335B36563539", "335536553539"]
-        
+        odrives = ["206E37635753", "335B36563539", "335536553539"]
+
         id = odrives[legal_controller]
 
         print(id)
+        # import pdb; pdb.set_trace()
         odrive = odv.find_any(serial_number=id)
 
         print("found odrive")
@@ -247,27 +247,6 @@ class OdriveBridge(object):
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
     def update(self):
-        try:
-            errors = modrive.check_errors()
-            modrive.watchdog_feed()
-
-        except fibre.protocol.ChannelBrokenException:
-            errors = 0
-            lock.acquire()
-            self.on_event("disconnected odrive")
-            lock.release()
-            print("unable to check errors of unplugged odrive")
-
-        if errors:
-
-            lock.acquire()
-            self.on_event("odrive error")
-            lock.release()
-            # first time will set to ErrorState
-            # second time will reboot
-            # because the error flag is still true
-            return
-
         if (str(self.state) == "ArmedState"):
             modrive.watchdog_feed()
 
@@ -292,6 +271,29 @@ class OdriveBridge(object):
             lock.acquire()
             self.on_event("arm cmd")
             lock.release()
+
+        try:
+            errors = modrive.check_errors()
+            modrive.watchdog_feed()
+
+        except fibre.protocol.ChannelBrokenException:
+            errors = 0
+            lock.acquire()
+            self.on_event("disconnected odrive")
+            lock.release()
+            print("unable to check errors of unplugged odrive")
+
+        if errors:
+
+            lock.acquire()
+            self.on_event("odrive error")
+            lock.release()
+            # first time will set to ErrorState
+            # second time will reboot
+            # because the error flag is still true
+            return
+
+
 
     def get_state(self):
         return str(self.state)
@@ -398,8 +400,8 @@ class Modrive:
             print("Resetting watchdog")
             self.disable_watchdog()
             # clears errors cleanly
-            self.front_axis.clear_errors()
-            self.back_axis.clear_errors()
+            self.front_axis.error = 0
+            self.back_axis.error = 0
             self.enable_watchdog()
         except fibre.protocol.ChannelBrokenException:
             print("Failed in disable_watchdog. Unplugged")
