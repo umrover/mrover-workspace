@@ -8,10 +8,27 @@
                     <Checkbox ref="use-orientation" v-bind:name="'Use Orientation'" v-on:toggle="updateUseOrientation($event)"/>
                 </div>
                 <div class="zero-position-wrapper">
-                    <button class="zero-button" v-on:click="zero_position_callback()">
+                    <button class="zero-button" v-on:click="zeroPositionCallback()">
                         Set Zero Position
                     </button>
                 </div>
+            </div>
+
+            <h4>Increment Control</h4>
+            <div class="increment-control">
+                <button type="button" v-on:click="send_increment()">Send</button>
+                <label style="float: left" for="'x-inc'">R/L :  </label>
+                <input class="increment-box" id='x-inc' type="text" v-model='x_inc' />
+                <label style="float: left" for="'y-inc'">F/B :  </label>
+                <input class="increment-box" id='y-inc' type="text" v-model='y_inc' />
+                <label style="float: left" for="'z-inc'">U/D :  </label>
+                <input class="increment-box" id='z-inc' type="text" v-model='z_inc' />
+                <label style="float: left" for="'alpha-inc'">alpha :  </label>
+                <input class="increment-box" id='alpha-inc' type="text" v-model='alpha_inc' />
+                <label style="float: left" for="'beta-inc'">beta :  </label>
+                <input class="increment-box" id='beta-inc' type="text" v-model='beta_inc' />
+                <label style="float: left" for="'gamma-inc'">gamma :  </label>
+                <input class="increment-box" id='gamma-inc' type="text" v-model='gamma_inc' />
             </div>
 
             <h4>Joint Locks</h4>
@@ -26,8 +43,11 @@
 
             <h4>Preset Position</h4>
             <div class="presets">
-                <button class="preset-button" v-on:click="preset_position_callback('stowed')">
+                <button class="preset-button" v-on:click="presetPositionCallback('stowed')">
                     Stowed
+                </button>
+                <button class="preset-button" v-on:click="presetPositionCallback('weight_in')">
+                    Weight In
                 </button>
             </div>
         </div>
@@ -44,6 +64,13 @@ export default {
         return {
             sim_mode: true,
             use_orientation: false,
+
+            x_inc: 0.0,
+            y_inc: 0.0,
+            z_inc: 0.0,
+            alpha_inc: 0.0,
+            beta_inc: 0.0,
+            gamma_inc: 0.0,
 
             locked_joints: {
                 'joint_a': false,
@@ -73,6 +100,19 @@ export default {
             this.$parent.publish('/use_orientation', useOrientationMsg);
         },
 
+        sendIncrement: function() {
+            const msg = {
+                'type': 'ArmAdjustments',
+                'x': this.x_inc,
+                'y': this.y_inc,
+                'z': this.z_inc,
+                'alpha': this.alpha_inc,
+                'beta': this.beta_inc,
+                'gamma': this.gamma_inc
+            }
+            this.$parent.publish('/arm_adjustments', msg);
+        },
+
         updateJointsLocked: function(joint, locked) {
             this.locked_joints[joint] = locked;
 
@@ -83,6 +123,7 @@ export default {
         },
 
         zeroPositionCallback: function() {
+	    console.log("publishing zero position")
             this.$parent.publish('/zero_position', { 'type': 'ZeroPosition' });
         },
 
@@ -120,9 +161,22 @@ export default {
     justify-content: space-between;
 }
 
-.preset-button {
+.increment-control {
     display: flex;
     justify-content: space-between;
+}
+
+.increment-box {
+    width: 20px;
+}
+
+.presets {
+    display: flex;
+    justify-content: left;
+}
+
+.preset-button {
+    margin: 0px 10px;
 }
 
 

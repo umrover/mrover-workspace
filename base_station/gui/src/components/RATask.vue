@@ -172,6 +172,7 @@ export default {
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/arm_position', 'type': 'ArmPosition'},
+        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'}
       ]

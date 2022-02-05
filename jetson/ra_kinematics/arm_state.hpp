@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <map>
 
 #include <nlohmann/json.hpp>
 #include <eigen3/Eigen/Dense>
@@ -116,6 +117,7 @@ private:
 
     std::vector<std::string> joint_names;
     std::vector<std::string> link_names;
+    std::map<std::string, std::vector<double>> preset_positions;
 
     std::vector<Joint> joints;
     std::vector<Link> links;
@@ -220,6 +222,8 @@ public:
     void set_joint_angle(size_t joint_index, double angle);
 
     bool is_continuous(size_t joint_index);
+
+    std::vector<double> get_preset_position(const std::string &pos);
 };
 
 #endif

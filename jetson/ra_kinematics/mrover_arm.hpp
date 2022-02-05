@@ -30,6 +30,8 @@
 #include "rover_msgs/HandCmd.hpp"
 #include "rover_msgs/ZeroPosition.hpp"
 #include "rover_msgs/UseOrientation.hpp"
+#include "rover_msgs/ArmPreset.hpp"
+#include "rover_msgs/ArmAdjustments.hpp"
 
 using namespace rover_msgs;
  
@@ -39,13 +41,13 @@ using namespace Eigen;
 typedef Matrix<double, 6, 1> Vector6d;
 
 // percentage of path to calculate move time
-static constexpr double D_SPLINE_T = 0.01;
+static constexpr double D_SPLINE_T = 0.1;
 
 // in ms, wait time for execute_spline loop
 static constexpr int SPLINE_WAIT_TIME = 50;
 
 // Angle in radians to determine when encoders are sending faulty values
-static constexpr double ENCODER_ERROR_THRESHOLD = 0.2;
+static constexpr double ENCODER_ERROR_THRESHOLD = 0.1;
 
 static constexpr size_t MAX_NUM_PREV_ANGLES = 5;
 static constexpr size_t MAX_FISHY_VALS = 1;
@@ -55,7 +57,8 @@ static constexpr double DUD_ENCODER_EPSILON = 0.00000001;
 //Angle in radians that physical arm can be without causing problems
 static constexpr double ACCEPTABLE_BEYOND_LIMIT = 0.05;
 
-static constexpr double JOINT_B_STABILIZE_MULTIPLIER = 0.6;
+static constexpr double JOINT_B_STABILIZE_MULTIPLIER = 0.5;
+static constexpr double JOINT_B_STABILIZE_BAD_MULTIPLIER = 0.96;
 
 /**
 * This is the MRoverArm class, responsible for
@@ -83,6 +86,7 @@ private:
 
     bool sim_mode;
     bool use_orientation;
+    bool zero_encoders;
 
     double prev_angle_b;
 
@@ -127,7 +131,7 @@ public:
      * Handle new target position by calculating angles and plotting path,
      * then preview path
      * 
-     * @param channel expected: "/target_orientation"
+     * @param channel expected: "/target_orientation" or "/arm_adjustments"
      * @param msg float x, y, z, alpha, beta, gamma
      * */
     void target_orientation_callback(std::string channel, TargetOrientation msg);
@@ -179,6 +183,23 @@ public:
      * @param msg format: empty
      */
     void zero_position_callback(std::string channel, ZeroPosition msg);
+
+    /**
+     * Calculate new target orientation using current pos and adjustments and
+     * call target_orientation_callback 
+     * 
+     * @param channel expected: "/arm_adjustments"
+     * @param msg float x, y, z, alpha, beta, gamma
+     * */
+    void arm_adjust_callback(std::string channel, ArmAdjustments msg);
+
+    /**
+     * Handle request to go to a preset position
+     * 
+     * @param channel expected: "/arm_preset"
+     * @param msg format: string preset
+     */
+    void arm_preset_callback(std::string channel, ArmPreset msg);
 
     /**
      * Asynchronous function, runs when control_state is "EXECUTING"

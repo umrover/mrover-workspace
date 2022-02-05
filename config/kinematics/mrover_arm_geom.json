@@ -12,6 +12,24 @@
             0
         ]
     },
+    "presets": {
+        "weight_in": [
+            0.0,
+            1.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "stowed": [
+            0.0,
+            1.0,
+            -2.36,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
     "base": "chassis-a",
     "links": {
         "chassis-a": {
@@ -639,7 +657,7 @@
                 "upper": 3.14
             },
             "max_speed": 0.45,
-            "encoder_offset": 2.84,
+            "encoder_offset": 2.457,
             "encoder_multiplier": -1,
             "mass_data":{
                 "mass": 0.69,
@@ -675,8 +693,8 @@
                 "lower": 0.035,
                 "upper": 1.09
             },
-            "max_speed": 0.3,
-            "encoder_offset": 4.11,
+            "max_speed": 0.5,
+            "encoder_offset": -1.47,
             "encoder_multiplier": -1,
             "mass_data":{
                 "mass": 0,
@@ -713,7 +731,7 @@
                 "upper": 2.73
             },
             "max_speed": 0.3,
-            "encoder_offset": 1.60,
+            "encoder_offset": 1.47,
             "encoder_multiplier": 1,
             "mass_data":{
                 "mass": 1.11,
@@ -750,7 +768,7 @@
                 "upper": 3.14
             },
             "max_speed": 0.4,
-            "encoder_offset": -2.41,
+            "encoder_offset": -2.78,
             "encoder_multiplier": -1,
             "mass_data":{
                 "mass": 0,
@@ -787,7 +805,7 @@
                 "upper": 2.68
             },
             "max_speed": 0.4,
-            "encoder_offset": 1.99,
+            "encoder_offset": 1.93,
             "encoder_multiplier": -1,
             "mass_data":{
                 "mass": 0,
@@ -824,7 +842,7 @@
                 "upper": 3.14
             },
             "max_speed": 0.5,
-            "encoder_offset": 3.11,
+            "encoder_offset": 0,
             "encoder_multiplier": 1,
             "mass_data":{
                 "mass": 0.16,

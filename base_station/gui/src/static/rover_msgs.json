@@ -1,4 +1,36 @@
 {
+    "ArmAdjustments": [
+        [
+            "float",
+            "x"
+        ],
+        [
+            "float",
+            "y"
+        ],
+        [
+            "float",
+            "z"
+        ],
+        [
+            "float",
+            "alpha"
+        ],
+        [
+            "float",
+            "beta"
+        ],
+        [
+            "float",
+            "gamma"
+        ]
+    ],
+    "ArmControlState": [
+        [
+            "string",
+            "state"
+        ]
+    ],
     "ArmPosition": [
         [
             "double",
@@ -958,6 +990,7 @@
         ]
     ],
     "message_types": [
+        "ArmControlState",
         "ArmPosition",
         "ArmToggles",
         "AutonState",
