@@ -74,9 +74,6 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
     
     // Adjust for encoders not being properly zeroed.
     if (!sim_mode) {
-        // if (angles[1] < 0) { // If joint b is negative we need to add 2*PI to the reading
-        //     angles[1] += 2 * M_PI;
-        // }
         for (size_t i = 0; i < 6; ++i) {
             angles[i] -= arm_state.get_joint_encoder_offset(i);
             angles[i] *= arm_state.get_joint_encoder_multiplier(i);
@@ -98,6 +95,8 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
         // For each joint
         for (size_t joint = 0; joint < 6; ++joint) {
+
+            faulty_encoders[joint] = false;
             
             // For each previous angle we have to compare to
             for (size_t i = 0; i < prev_angles[joint].size(); ++i) {
@@ -106,12 +105,8 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
                 if (diff > ENCODER_ERROR_THRESHOLD * (i + 1)) {
                     faulty_encoders[joint] = true;
                     encoder_error_message += ", " + std::to_string(joint);
-                    // encoder_error = true;
+                    encoder_error = true;
                     break;
-                }
-
-                if (i == prev_angles[joint].size() - 1) {
-                    faulty_encoders[joint] = false;
                 }
             }                
         }
@@ -121,6 +116,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
         // For each joint
         for (size_t joint = 0; joint < 6; ++joint) {
 
+            faulty_encoders[joint] = false;
             size_t num_fishy_vals = 0;
             
             // For each previous angle we have to compare to
@@ -129,20 +125,13 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
                 if (diff > ENCODER_ERROR_THRESHOLD * (i + 1)) {
                     ++num_fishy_vals;
-
-                    // std::cout << "joint " << joint << ": " << angles[joint]
-                    //           << ", prev: " << prev_angles[joint][i] << "\n";
+                    faulty_encoders[joint] = true;
                 }
             }
 
-
             if (num_fishy_vals > MAX_FISHY_VALS) {
-                faulty_encoders[joint] = true;
-                // encoder_error = true;
+                encoder_error = true;
                 encoder_error_message += ", " + std::to_string(joint);
-            }
-            else {
-                faulty_encoders[joint] = false;
             }
         }
     }
@@ -154,6 +143,8 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
         }
 
         prev_angles[joint].push_front(angles[joint]);
+
+        // If the new angle for this joint was considered faulty, replace with last good angle
         if (faulty_encoders[joint]) {
             angles[joint] = arm_state.get_joint_angle(joint);
         }
@@ -689,7 +680,7 @@ void MRoverArm::check_joint_limits(std::vector<double> &angles) {
 
         // If angle is far outside limits
         else if (angles[i] < limits[0] || angles[i] > limits[1]) {
-            // encoder_error = true;
+            encoder_error = true;
             encoder_error_message = "Encoder Error: " + std::to_string(angles[i]) + " beyond joint " + std::to_string(i) + " limits (joint A = 0, F = 5)";
         }
     }
@@ -703,7 +694,7 @@ double MRoverArm::joint_b_stabilizer(double angle) {
     }
 
     // If angle seems bad, ignore it
-    if (std::isnan(angle) || std::abs(angle - prev_angle_b) > 0.3) {
+    if (std::isnan(angle) || std::abs(angle - prev_angle_b) > ENCODER_ERROR_THRESHOLD) {
         return prev_angle_b;
     }
 
