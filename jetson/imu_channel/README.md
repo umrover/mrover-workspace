@@ -7,6 +7,10 @@ We are using an Arduino to read this data from the sensor and send it over seria
 
 BNO055 Sensor -> Arduino -> IMU driver -> LCM -> rover software
 
+[Adafruit BNO055 Guide](https://cdn-learn.adafruit.com/downloads/pdf/adafruit-bno055-absolute-orientation-sensor.pdf)
+
+[BNO055 Datasheet](https://cdn-shop.adafruit.com/datasheets/BST_BNO055_DS000_12.pdf6)
+
 ## Setting up the Arduino
 Since our Arduino program doesn't use much memory or processing power, just about any standard Arduino board should work. We're using an Arduino Nano Every, since it's really small.
 
@@ -23,6 +27,8 @@ to connect the BNO055 to the Arduino, connect the following pins:
 
 ### Uploading the code
 In the Arduino IDE (download [here](https://www.arduino.cc/en/software)), open `BNO055_serial.ino` and Plug in the Arduino over USB.
+
+We are using Adafruit's [BNO055 Arduino Library](https://github.com/adafruit/Adafruit_BNO055) to read data from the IMU, so we need to install it in order to compile the code. Go to Tools -> Manage Libraries to open the library manager, search for "Adafruit BNO055", and click install on the library with that name. It will probably ask you if you want to install dependencies for the library, which you should do. once installed, close the library manager.
 
 Because the Arduino Nano Every uses a newer chip than older Arduino boards, we need to install some drivers for it. Go to Tools -> Board -> Boards Manager, search for "Arduino megaAVR Boards" in the board manager window, and click install on the board package with that name. Close the board manager.
 
@@ -61,3 +67,8 @@ Now just detach the BNO055 from its mount and wave it around in the air. Watch [
 _(There's also a 4th calibration status called sys, but that one usually sorts itself out. I'll add it to the LCM struct in the future)_
 
 The BNO055 should now be ready to go and outputting good data, so you can run whatever other programs need to use it.
+
+## TODO
+- update `IMUData` LCM struct to include all 4 calibration status values and maybe get rid of values we don't need?
+- add feature to allow axes to be rearranged easily (to account for different sensor orientation relative to rover)
+- try it out on Arduino IDE 2.0 and change tutorial to work with that, or try it on Arduino Pro CMD and write a script that does everything using that
