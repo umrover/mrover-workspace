@@ -137,7 +137,7 @@ class ObsDetector {
         int currentFPS = 0;
         bool isEverySecondMarker = false;
         Timer timer;
-        std::array<RollingAverage, 7> averages{};
+        std::unordered_map<std::string, RollingAverage> averages;
 
         void drawGround(Plane const& plane);
 };

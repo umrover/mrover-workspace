@@ -143,13 +143,13 @@ void ObsDetector::process(GPU_Cloud pc) {
     // Processing
     if (viewer.procStage > ProcStage::RAW) {
         passZ->run(pc);
-        averages[0].add(timer.reset());
+        averages["Pass Z"].add(timer.reset());
     }
 
     if (viewer.procStage > ProcStage::POSTPASS) {
         plane = ransacPlane->computeModel(pc);
         if (viewerType == ViewerType::GL) drawGround(plane);
-        averages[1].add(timer.reset());
+        averages["RANSAC"].add(timer.reset());
     }
 
     viewer.maxFrame = cam->get_max_frame();
@@ -159,16 +159,16 @@ void ObsDetector::process(GPU_Cloud pc) {
         cam->set_frame(viewer.frame);
     }
     if (viewerType == ViewerType::GL) viewer.updatePointCloud(pc);
-    averages[2].add(timer.reset());
+    averages["Update PC"].add(timer.reset());
 
     if (viewer.procStage > ProcStage::POSTRANSAC) {
         Bins bins = voxelGrid->run(pc);
         obstacles = ece->extractClusters(pc, bins);
-        averages[3].add(timer.reset());
+        averages["Cluster"].add(timer.reset());
         refineGround->pruneObstacles(plane, obstacles);
-        averages[4].add(timer.reset());
+        averages["Refine Ground"].add(timer.reset());
         bearingCombined = findClear->find_clear_path_initiate(obstacles);
-        averages[5].add(timer.reset());
+        averages["Clear Path"].add(timer.reset());
         leftBearing = bearingCombined.x;
         rightBearing = bearingCombined.y;
         distance = bearingCombined.z;
@@ -190,12 +190,12 @@ void ObsDetector::process(GPU_Cloud pc) {
     if (!viewer.framePlay) {
         cam->ignore_grab();
     }
-    averages[6].add(timer.reset());
+    averages["Draw"].add(timer.reset());
     if (isEverySecondMarker) {
         viewer.stageTimings.clear();
         for (auto& average: averages) {
-            viewer.stageTimings.push_back(average.getAverage());
-            average.reset();
+            viewer.stageTimings[average.first] = average.second.getAverage();
+            average.second.reset();
         }
     }
 }

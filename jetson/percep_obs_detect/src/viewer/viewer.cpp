@@ -473,9 +473,9 @@ void Viewer::update() {
 
 void Viewer::drawUI() {
 #ifndef VIEWER_ONLY
-    ImGui::Begin("Timings");
-    for (long long time : stageTimings)
-        ImGui::Text("%09lld", time);
+    ImGui::Begin("Debug Timings");
+    for (auto const& timing : stageTimings)
+        ImGui::Text("%14s: %09lld", timing.first.data(), timing.second);
     ImGui::End();
 
     ImGui::Begin("Layers");
