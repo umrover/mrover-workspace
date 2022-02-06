@@ -43,8 +43,11 @@
 
             <h4>Preset Position</h4>
             <div class="presets">
-                <button class="preset-button" v-on:click="preset_position_callback('stowed')">
+                <button class="preset-button" v-on:click="presetPositionCallback('stowed')">
                     Stowed
+                </button>
+                <button class="preset-button" v-on:click="presetPositionCallback('weight_in')">
+                    Weight In
                 </button>
             </div>
         </div>
@@ -167,9 +170,13 @@ export default {
     width: 20px;
 }
 
-.preset-button {
+.presets {
     display: flex;
-    justify-content: space-between;
+    justify-content: left;
+}
+
+.preset-button {
+    margin: 0px 10px;
 }
 
 
