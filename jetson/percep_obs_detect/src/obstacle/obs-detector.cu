@@ -17,8 +17,7 @@ ViewerType parse_viewer_type(const rapidjson::Document& mRoverConfig) {
     } else if (v_type == "none") {
         viewerType = ViewerType::NONE;
     } else {
-        std::cerr << "Invalid viewer type\n";
-        exit(-1);
+        throw std::runtime_error("Invalid viewer type");
     }
     return viewerType;
 }

@@ -121,7 +121,7 @@ namespace Source {
 
         //creates new folder in the system
         if (-1 == system(mkdir_pcl.c_str()) || -1 == system(mkdir_rgb.c_str()) || -1 == system(mkdir_depth.c_str())) {
-            exit(1);
+            throw std::runtime_error("Failed to make folders");
         }
     }
 

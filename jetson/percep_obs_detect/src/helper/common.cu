@@ -102,8 +102,7 @@ OperationMode parse_operation_mode(const rapidjson::Document& mRoverConfig) {
     } else if (op_mode == "silent") {
         mode = OperationMode::SILENT;
     } else {
-        std::cerr << "Invalid Operation Mode\n";
-        exit(-1);
+        throw std::runtime_error("Invalid operation mode");
     }
 
     return mode;
