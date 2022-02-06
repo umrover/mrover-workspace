@@ -53,7 +53,7 @@ static constexpr double ENCODER_ERROR_THRESHOLD = 0.1;
 static constexpr size_t MAX_NUM_PREV_ANGLES = 5;
 static constexpr size_t MAX_FISHY_VALS = 1;
 
-static constexpr double DUD_ENCODER_EPSILON = 0.00000001;
+static constexpr double DUD_ENCODER_EPSILON = 0.00001;
 
 //Angle in radians that physical arm can be without causing problems
 static constexpr double ACCEPTABLE_BEYOND_LIMIT = 0.05;

@@ -31,7 +31,7 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
         faulty_encoders[joint] = false;
     }
 
-    DUD_ENCODER_VALUES.push_back(0.0);
+    DUD_ENCODER_VALUES.push_back(5.598375);
 }
 
 void MRoverArm::ra_control_callback(std::string channel, ArmControlState msg) {
@@ -82,7 +82,7 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
     // std::cout << "Original joint b: " << angles[1] << "\n";
     // Adjust for shaky joint B values
-    angles[1] = joint_b_stabilizer(angles[1]);
+    // angles[1] = joint_b_stabilizer(angles[1]);
     // std::cout << "Filtered joint b: " << angles[1] << "\n";
 
     encoder_error = false;
