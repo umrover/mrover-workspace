@@ -41,7 +41,8 @@ using namespace Eigen;
 typedef Matrix<double, 6, 1> Vector6d;
 
 // percentage of path to calculate move time
-static constexpr double D_SPLINE_T = 0.1;
+static constexpr double D_SPLINE_T = 0.05;
+static constexpr double MAX_SPLINE_T_IT = 0.02;
 
 // in ms, wait time for execute_spline loop
 static constexpr int SPLINE_WAIT_TIME = 50;

@@ -443,7 +443,7 @@ void MRoverArm::execute_spline() {
 
             double max_time = -1; //in ms
 
-            size_t temp_max_joint = 6;
+            // size_t temp_max_joint = 6;
 
             // Get max time to travel for joints a through e // for testing (should be through joint f)
             for (int i = 0; i < 5; ++i) {
@@ -457,17 +457,23 @@ void MRoverArm::execute_spline() {
                     //sets max_time to greater value
                     if (max_time < joint_time) {
                         max_time = joint_time;
-                        temp_max_joint = i;
+                        // temp_max_joint = i;
                     }
                 }
             }
 
-            std::cout << "slowest joint: " << temp_max_joint << "\n";
-            std::cout << init_angles[temp_max_joint] << " --> " << final_angles[temp_max_joint] << "\n";
-            std::cout << "max time: " << max_time << "\n";
+            // std::cout << "slowest joint: " << temp_max_joint << "\n";
+            // std::cout << init_angles[temp_max_joint] << " --> " << final_angles[temp_max_joint] << "\n";
+            // std::cout << "max time: " << max_time << "\n";
 
             //determines size of iteration by dividing number of iterations by distance
             spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
+
+            // Guard against moving too quickly due to uneven path
+            if (spline_t_iterator > MAX_SPLINE_T_IT) {
+                spline_t_iterator = MAX_SPLINE_T_IT;
+            }
+
             spline_t += spline_t_iterator;
             std::cout << "spline_t: " << spline_t << "\n";
 
@@ -524,6 +530,8 @@ void MRoverArm::execute_spline() {
             std::cout << "\n";
 
             if (control_state != ControlState::EXECUTING) {
+                std::cout << "Waiting for final movements...\n";
+                std::this_thread::sleep_for(std::chrono::milliseconds(2000));
                 std::cout << "Sending kill command!\n";
                 send_kill_cmd();
             }
