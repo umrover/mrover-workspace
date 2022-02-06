@@ -16,7 +16,7 @@
 
             <h4>Increment Control</h4>
             <div class="increment-control">
-                <button type="button" v-on:click="send_increment()">Send</button>
+                <button type="button" v-on:click="sendIncrement()">Send</button>
                 <label style="float: left" for="'x-inc'">R/L :  </label>
                 <input class="increment-box" id='x-inc' type="text" v-model='x_inc' />
                 <label style="float: left" for="'y-inc'">F/B :  </label>
@@ -103,12 +103,12 @@ export default {
         sendIncrement: function() {
             const msg = {
                 'type': 'ArmAdjustments',
-                'x': this.x_inc,
-                'y': this.y_inc,
-                'z': this.z_inc,
-                'alpha': this.alpha_inc,
-                'beta': this.beta_inc,
-                'gamma': this.gamma_inc
+                'x': parseFloat(this.x_inc),
+                'y': parseFloat(this.y_inc),
+                'z': parseFloat(this.z_inc),
+                'alpha': parseFloat(this.alpha_inc),
+                'beta': parseFloat(this.beta_inc),
+                'gamma': parseFloat(this.gamma_inc)
             }
             this.$parent.publish('/arm_adjustments', msg);
         },
