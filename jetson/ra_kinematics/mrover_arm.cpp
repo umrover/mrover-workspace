@@ -576,12 +576,12 @@ void MRoverArm::arm_adjust_callback(std::string channel, ArmAdjustments msg) {
     std::vector<double> current_pos = arm_state.get_ef_pos_and_euler_angles();
 
     TargetOrientation target;
-    target.x = current_pos[0] + msg.x;
-    target.y = current_pos[1] + msg.y;
-    target.z = current_pos[2] + msg.z;
-    target.alpha = current_pos[3] + msg.alpha;
-    target.beta = current_pos[4] + msg.beta;
-    target.gamma = current_pos[5] + msg.gamma;
+    target.x = current_pos[0] + (msg.x * 0.0254); // 1 inch = 0.0254 meters
+    target.y = current_pos[1] + (msg.z * 0.0254);
+    target.z = current_pos[2] - (msg.y * 0.0254);
+    target.alpha = current_pos[3] + (msg.alpha * 0.0174533); // 1 degree = 0.0174533 radians
+    target.beta = current_pos[4] + (msg.beta * 0.0174533);
+    target.gamma = current_pos[5] + (msg.gamma * 0.0174533);
 
     target_orientation_callback("", target);
 }
