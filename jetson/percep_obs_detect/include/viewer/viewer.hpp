@@ -44,7 +44,7 @@ class PointCloud {
 
         void swap(PointCloud& other);
 
-        void update(std::vector<vec4>&& pts);
+        void update(std::vector<vec4>& pts);
 
         void draw();
 
@@ -52,6 +52,7 @@ class PointCloud {
 //    void setRotation(float pitch, float roll, float yaw);
 
     private:
+        std::vector<vec4> pointsCPU;
         GLsizei size{};
         GLuint vaoId{};
         GLuint pointsGPU{};
@@ -193,12 +194,14 @@ class Viewer {
         bool framePlay = false;
         bool inMenu = false;
         bool record = false;
-        ProcStage procStage = ProcStage::POSTBEARING;
+        int currentFPS = -1;
 
         // Creates a window
         Viewer();
 
         ~Viewer();
+
+        void initGraphics();
 
         // Updates the window and draws graphics (graphics thread)
         void update();
@@ -222,13 +225,15 @@ class Viewer {
         void setCenter(vec3 center);
 
         // need to provide thread safe ways to update viewer internals
-        void updatePointCloud(int idx, std::vector<vec4>&& pts);
+        void updatePointCloud(int idx, std::vector<vec4>& pts);
 
 #ifndef VIEWER_ONLY
 
         void updatePointCloud(GPU_Cloud pc);
 
         bool doParameterInit = true;
+        ProcStage procStage = ProcStage::POSTBEARING;
+        std::unordered_map<std::string, long long> stageTimings;
         float epsilon;
         int iterations;
         float threshold;
@@ -236,6 +241,8 @@ class Viewer {
         bool removeGround;
         float tolerance;
         float minSize;
+        float refineHeight;
+        float refineDistance;
 
 #endif
 

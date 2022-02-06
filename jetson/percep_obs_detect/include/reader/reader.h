@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <map>
 #include <algorithm>
 
@@ -38,7 +38,7 @@ class PCDReader {
                 throw std::runtime_error("Input folder does not exist");
             }
 
-            struct dirent* dp = nullptr;
+            struct dirent* dp;
             do {
                 if ((dp = readdir(pcd_dir)) != nullptr) {
                     std::string file_name(dp->d_name);
@@ -62,8 +62,15 @@ class PCDReader {
             pcds.resize(fData.size());
         }
 
+        std::vector<vec4>& readCloudCPU(int i) {
+            if (pcds.at(i).empty()) {
+                pcds[i] = readCloudCPU(dir + pcd_names[i]);
+            }
+            return pcds[i];
+        }
+
         // Reads a PCD file from a given filename into a vector of vec4 on the CPU
-        std::vector<vec4> readCloudCPU(const string& file) {
+        static std::vector<vec4> readCloudCPU(const string& file) {
             ifstream fin(file);
             if (!fin.is_open()) cerr << "Could not open file!" << endl;
             string line;
@@ -132,11 +139,11 @@ class PCDReader {
             return pc;
         }
 
-        int size() {
+#endif
+
+        size_t size() {
             return pcd_names.size();
         }
-
-#endif
 
     private:
         string dir;

@@ -25,8 +25,7 @@ namespace Source {
                 } else if (data_source == "zed") {
                     cam_impl = std::make_shared<Source::Zed>(config);
                 } else {
-                    std::cerr << "Invalid data_source_type field\n";
-                    exit(-1);
+                    throw std::runtime_error("Invalid data source type");
                 }
             }
 

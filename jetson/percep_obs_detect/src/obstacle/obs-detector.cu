@@ -17,22 +17,27 @@ ViewerType parse_viewer_type(const rapidjson::Document& mRoverConfig) {
     } else if (v_type == "none") {
         viewerType = ViewerType::NONE;
     } else {
-        std::cerr << "Invalid viewer type\n";
-        exit(-1);
+        throw std::runtime_error("Invalid viewer type");
     }
     return viewerType;
 }
 
 ObsDetector::ObsDetector(const rapidjson::Document& mRoverConfig, camera_ptr cam)
-        : cam{cam} {
+        : cam{cam}, timer("Update") {
     setupParamaters(mRoverConfig);
 
     mode = parse_operation_mode(mRoverConfig);
     viewerType = parse_viewer_type(mRoverConfig);
 
+    previousTime = std::chrono::steady_clock::now();
+
     //Init Viewer
-    if (mode != OperationMode::SILENT && viewerType == ViewerType::GL) {
+    if (viewerType == ViewerType::GL) {
+        viewer.initGraphics();
         viewer.addPointCloud();
+        if (cam->get_max_frame() == -1) {
+            viewer.framePlay = true;
+        }
     }
 };
 
@@ -50,17 +55,27 @@ void ObsDetector::setupParamaters(const rapidjson::Document& config) {
     voxelGrid = new VoxelGrid(10);
     ece = new EuclideanClusterExtractor(128, 30, 0, cloud_res.area(), 9);
     findClear = new FindClearPath();
+    refineGround = new RefineGround();
 }
 
 
 void ObsDetector::update() {
+    auto now = chrono::steady_clock::now();
+    auto delta = now - previousTime;
+    frameCount++;
+    isEverySecondMarker = delta > chrono::seconds(1);
+    if (isEverySecondMarker) {
+        currentFPS = viewer.currentFPS = frameCount;
+        previousTime = now;
+        frameCount = 0;
+    }
     GPU_Cloud pc = cam->get_cloud();
 
     if (viewer.record) {
         cam->write_data();
     }
 
-    update(pc);
+    process(pc);
 }
 
 vec3 closestPointOnPlane(Plane plane, vec3 point) {
@@ -102,6 +117,8 @@ void ObsDetector::handleParameters() {
         viewer.minSize = ece->minSize;
         viewer.tolerance = ece->tolerance;
         viewer.doParameterInit = false;
+        viewer.refineDistance = refineGround->refineDistance;
+        viewer.refineHeight = refineGround->refineHeight;
     } else {
         ransacPlane->epsilon = viewer.epsilon;
         ransacPlane->setIterations(viewer.iterations);
@@ -110,21 +127,29 @@ void ObsDetector::handleParameters() {
         ransacPlane->filterOp = viewer.removeGround ? FilterOp::REMOVE : FilterOp::COLOR;
         ece->minSize = viewer.minSize;
         ece->tolerance = viewer.tolerance;
+        refineGround->refineDistance = viewer.refineDistance;
+        refineGround->refineHeight = viewer.refineHeight;
     }
 }
 
 // Call this directly with ZED GPU Memory
-void ObsDetector::update(GPU_Cloud pc) {
+void ObsDetector::process(GPU_Cloud pc) {
     handleParameters();
+
+    Plane plane;
+
+    timer.reset();
 
     // Processing
     if (viewer.procStage > ProcStage::RAW) {
         passZ->run(pc);
+        averages["Pass Z"].add(timer.reset());
     }
 
     if (viewer.procStage > ProcStage::POSTPASS) {
-        Plane plane = ransacPlane->computeModel(pc);
-        drawGround(plane);
+        plane = ransacPlane->computeModel(pc);
+        if (viewerType == ViewerType::GL) drawGround(plane);
+        averages["RANSAC"].add(timer.reset());
     }
 
     viewer.maxFrame = cam->get_max_frame();
@@ -133,30 +158,45 @@ void ObsDetector::update(GPU_Cloud pc) {
     } else {
         cam->set_frame(viewer.frame);
     }
-    viewer.updatePointCloud(pc);
+    if (viewerType == ViewerType::GL) viewer.updatePointCloud(pc);
+    averages["Update PC"].add(timer.reset());
 
     if (viewer.procStage > ProcStage::POSTRANSAC) {
-#if VOXEL
         Bins bins = voxelGrid->run(pc);
-#endif
         obstacles = ece->extractClusters(pc, bins);
+        averages["Cluster"].add(timer.reset());
+        refineGround->pruneObstacles(plane, obstacles);
+        averages["Refine Ground"].add(timer.reset());
         bearingCombined = findClear->find_clear_path_initiate(obstacles);
+        averages["Clear Path"].add(timer.reset());
         leftBearing = bearingCombined.x;
         rightBearing = bearingCombined.y;
         distance = bearingCombined.z;
         populateMessage(leftBearing, rightBearing, distance);
     }
 
-    if (viewer.procStage > ProcStage::POSTECE) {
-        createBoundingBoxes();
-    }
+    std::cout << std::flush;
 
-    if (viewer.procStage > ProcStage::POSTBOUNDING) {
-        createBearing();
+    if (viewerType == ViewerType::GL) {
+        if (viewer.procStage > ProcStage::POSTECE) {
+            drawBoundingBoxes();
+        }
+
+        if (viewer.procStage > ProcStage::POSTBOUNDING) {
+            drawBearing();
+        }
     }
 
     if (!viewer.framePlay) {
         cam->ignore_grab();
+    }
+    averages["Draw"].add(timer.reset());
+    if (isEverySecondMarker) {
+        viewer.stageTimings.clear();
+        for (auto& average: averages) {
+            viewer.stageTimings[average.first] = average.second.getAverage();
+            average.second.reset();
+        }
     }
 }
 
@@ -172,7 +212,7 @@ void ObsDetector::populateMessage(float leftBearing, float rightBearing, float d
 }
 
 
-void ObsDetector::createBoundingBoxes() {
+void ObsDetector::drawBoundingBoxes() {
     // This creates bounding boxes for visualization
     // There might be a clever automatic indexing scheme to optimize this
     for (int i = 0; i < obstacles.obs.size(); i++) {
@@ -193,7 +233,7 @@ void ObsDetector::createBoundingBoxes() {
     }
 }
 
-void ObsDetector::createBearing() {
+void ObsDetector::drawBearing() {
     //----start TESTING: draw double bearing------------------------------------------------
     //Note: "straight ahead" is 0 degree bearing, -80 degree on left, +80 degree to right
     float degAngle = leftBearing; //Change angle of bearing to draw here
@@ -250,8 +290,10 @@ void ObsDetector::createBearing() {
 }
 
 void ObsDetector::spinViewer() {
-    viewer.update();
-    viewer.clearEphemerals();
+    if (viewerType == ViewerType::GL) {
+        viewer.update();
+        viewer.clearEphemerals();
+    }
 }
 
 ObsDetector::~ObsDetector() {
@@ -262,5 +304,5 @@ ObsDetector::~ObsDetector() {
 }
 
 bool ObsDetector::open() {
-    return viewer.open();
+    return viewerType == ViewerType::NONE || viewer.open();
 }

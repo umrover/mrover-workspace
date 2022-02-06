@@ -17,7 +17,15 @@ namespace Source {
                 config["camera"]["resolution_width"].GetInt(),
                 config["camera"]["resolution_height"].GetInt());
         init_params.coordinate_units = sl::UNIT::MILLIMETER; // TODO: Read from config
-        init_params.camera_resolution = sl::RESOLUTION::VGA; // TODO: This only works for 180x320
+        sl::RESOLUTION resolution;
+        if (config["camera"]["resolution_type"] == "VGA") {
+            resolution = sl::RESOLUTION::VGA;
+        } else if (config["camera"]["resolution_type"] == "HD720") {
+            resolution = sl::RESOLUTION::HD720;
+        } else {
+            throw std::runtime_error("Unsupported resolution type");
+        }
+        init_params.camera_resolution = resolution;
         init_params.camera_fps = config["camera"]["zed_params"]["camera_fps"].GetInt();
         write_location = config["startup"]["write_location"].GetString();
         frame_gap = config["camera"]["frame_write_interval"].GetInt();
@@ -113,7 +121,7 @@ namespace Source {
 
         //creates new folder in the system
         if (-1 == system(mkdir_pcl.c_str()) || -1 == system(mkdir_rgb.c_str()) || -1 == system(mkdir_depth.c_str())) {
-            exit(1);
+            throw std::runtime_error("Failed to make folders");
         }
     }
 

@@ -9,30 +9,21 @@
 #include "common.hpp"
 #include "voxel-grid.hpp"
 #include "find-clear-path.hpp"
+#include "refine-ground.hpp"
+#include "timer.hpp"
 #include <cstring>
 #include <sstream>
 #include <iostream>
 #include <cfloat>
 #include <cstdlib>
 #include <unistd.h>
+#include <chrono>
 
-// TODO: move as many of these includes to cpp as possible
-//using namespace boost::interprocess;
-
-/*
- *** Determines where to input clouds for obstacle detection ***
- *      ZED: inputs clouds directly from a connected ZED
- *      GPUMEM: receives a pointer to cloud GPU memory from external source
- *      FILESYSTEM: reads .pc files from specified location
- */
-enum class DataSource {
-    ZED, GPUMEM, FILESYSTEM
-};
 
 /*
  *** Choose which viewer to use ***
  */
-enum ViewerType {
+enum class ViewerType {
     NONE, GL
 };
 
@@ -65,17 +56,17 @@ class ObsDetector {
          * of the function directly with a pointer to your frame in GPU memory
          * \param frame: sl::Mat frame to do detection on with memory allocated on the GPU
          */
-        void update(GPU_Cloud pc);
+        void process(GPU_Cloud pc);
 
         /**
          * \brief Create bounding box and add viewer object for each obstacle
          */
-        void createBoundingBoxes();
+        void drawBoundingBoxes();
 
         /**
          * \brief Find and make viewer object for path bearings
          */
-        void createBearing();
+        void drawBearing();
 
         /**
          * \brief Do viewer update tick, it may be desirable to call this in its own thread
@@ -124,6 +115,7 @@ class ObsDetector {
         VoxelGrid* voxelGrid;
         EuclideanClusterExtractor* ece;
         FindClearPath* findClear;
+        RefineGround* refineGround;
 
         // Parameters
         sl::Resolution cloud_res;
@@ -138,6 +130,14 @@ class ObsDetector {
         float leftBearing;
         float rightBearing;
         float distance;
+
+        // Other
+        int frameCount = 0;
+        std::chrono::steady_clock::time_point previousTime;
+        int currentFPS = 0;
+        bool isEverySecondMarker = false;
+        Timer timer;
+        std::unordered_map<std::string, RollingAverage> averages;
 
         void drawGround(Plane const& plane);
 };
