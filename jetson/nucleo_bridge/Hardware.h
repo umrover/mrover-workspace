@@ -10,6 +10,8 @@ enum HardwareType
     Motor9V,
     Motor12V,
     Motor24V,
+    Motor44Percent,
+    Motor33Percent,
     None
 };
 
@@ -28,11 +30,17 @@ public:
         else if (input == "Motor9V") {
             return Motor9V;
         }
-        else if(input == "Motor12V") {
+        else if (input == "Motor12V") {
             return Motor12V;
         }
-        else if(input == "Motor24V") {
+        else if (input == "Motor24V") {
             return Motor24V;
+        }
+        else if (input == "Motor33Percent") {
+            return Motor33Percent;
+        }
+        else if(input == "Motor44Percent") {
+            return Motor44Percent;
         }
         else 
         {
@@ -57,6 +65,12 @@ public:
             break;
         case Motor24V:
             speed_max = 60;
+	        break;
+        case Motor33Percent:
+            speed_max = 33;
+	        break;
+        case Motor44Percent:
+            speed_max = 44;
 	        break;
         case None:
             break;
