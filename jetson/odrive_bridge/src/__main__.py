@@ -50,15 +50,13 @@ def main():
     # starting state is DisconnectedState()
     # start up sequence is called, disconnected-->disarm-->arm
 
-    prev_no_comms = False
-    prev_comms = True
+    prev_comms = False
 
     while True:
         watchdog = t.clock() - start_time
         if (watchdog > 1.0):
-            if (not prev_no_comms and prev_comms):
+            if (prev_comms):
                 print("loss of comms")
-                prev_no_comms = True
                 prev_comms = False
 
             speedlock.acquire()
@@ -68,11 +66,9 @@ def main():
 
             speedlock.release()
         else:
-            if (prev_no_comms and not prev_comms):
-                prev_no_comms = False
+            if (not prev_comms):
                 prev_comms = True
                 print("regained comms")
-
 
         try:
             odrive_bridge.update()
@@ -297,12 +293,11 @@ class OdriveBridge(object):
             lock.acquire()
             self.on_event("arm cmd")
             lock.release()
-        
+
         elif (str(self.state) == "ErrorState"):
             lock.acquire()
             self.on_event("odrive error")
-            lock.release()            
-
+            lock.release()
 
     def get_state(self):
         return str(self.state)
