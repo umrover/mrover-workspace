@@ -34,11 +34,13 @@
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
-      <DriveControls/>
     </div>
     <div class="box controls light-bg">
       <ArmControls/>
       <EncoderCounts/>
+    </div>
+    <div class="box light-bg">
+      <DriveControls/>
     </div>
     
     <div class="spacer"></div>

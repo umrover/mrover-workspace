@@ -31,7 +31,8 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
         faulty_encoders[joint] = false;
     }
 
-    DUD_ENCODER_VALUES.push_back(0.0);
+    DUD_ENCODER_VALUES.push_back(3.1415);
+    DUD_ENCODER_VALUES.push_back(-3.1415);
 }
 
 void MRoverArm::ra_control_callback(std::string channel, ArmControlState msg) {
@@ -56,6 +57,8 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
 
     std::vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
+
+    check_dud_encoder(angles);
     
     if (zero_encoders) {
         for (size_t i = 0; i < 6; ++i)  {
@@ -80,16 +83,11 @@ void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
         }
     }
 
-    // std::cout << "Original joint b: " << angles[1] << "\n";
-    // Adjust for shaky joint B values
-    angles[1] = joint_b_stabilizer(angles[1]);
-    // std::cout << "Filtered joint b: " << angles[1] << "\n";
-
     encoder_error = false;
     encoder_error_message = "Encoder Error in encoder(s) (joint A = 0, F = 5): ";
 
-    check_dud_encoder(angles);
     check_joint_limits(angles);
+
     // If we have less than 5 previous angles to compare to
     if (prev_angles[0].size() < MAX_NUM_PREV_ANGLES) {
 
@@ -443,10 +441,10 @@ void MRoverArm::execute_spline() {
 
             double max_time = -1; //in ms
 
-            size_t temp_max_joint = 6;
+            // size_t temp_max_joint = 6;
 
             // Get max time to travel for joints a through e // for testing (should be through joint f)
-            for (int i = 0; i < 5; ++i) {
+            for (int i = 0; i < 6; ++i) {
                 if (!arm_state.get_joint_locked(i)) {
                     double max_speed = arm_state.get_joint_max_speed(i);
 
@@ -457,17 +455,23 @@ void MRoverArm::execute_spline() {
                     //sets max_time to greater value
                     if (max_time < joint_time) {
                         max_time = joint_time;
-                        temp_max_joint = i;
+                        // temp_max_joint = i;
                     }
                 }
             }
 
-            std::cout << "slowest joint: " << temp_max_joint << "\n";
-            std::cout << init_angles[temp_max_joint] << " --> " << final_angles[temp_max_joint] << "\n";
-            std::cout << "max time: " << max_time << "\n";
+            // std::cout << "slowest joint: " << temp_max_joint << "\n";
+            // std::cout << init_angles[temp_max_joint] << " --> " << final_angles[temp_max_joint] << "\n";
+            // std::cout << "max time: " << max_time << "\n";
 
             //determines size of iteration by dividing number of iterations by distance
             spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
+
+            // Guard against moving too quickly due to uneven path
+            if (spline_t_iterator > MAX_SPLINE_T_IT) {
+                spline_t_iterator = MAX_SPLINE_T_IT;
+            }
+
             spline_t += spline_t_iterator;
             std::cout << "spline_t: " << spline_t << "\n";
 
@@ -491,7 +495,7 @@ void MRoverArm::execute_spline() {
             }
 
             // Just for during joint f problems:
-            target_angles[5] = arm_state.get_joint_angle(5);
+            // target_angles[5] = arm_state.get_joint_angle(5);
 
             // std::cout << "joint a current position: " << arm_state.get_joint_angle(0) << "\n";
             // std::cout << "joint a target:           " << target_angles[0] << "\n";
@@ -524,6 +528,8 @@ void MRoverArm::execute_spline() {
             std::cout << "\n";
 
             if (control_state != ControlState::EXECUTING) {
+                std::cout << "Waiting for final movements...\n";
+                std::this_thread::sleep_for(std::chrono::milliseconds(2000));
                 std::cout << "Sending kill command!\n";
                 send_kill_cmd();
             }
@@ -661,7 +667,13 @@ void MRoverArm::check_dud_encoder(std::vector<double> &angles) const {
 
             // If angle is very nearly dud value
             if (std::abs(angles[i] - DUD_ENCODER_VALUES[j]) < DUD_ENCODER_EPSILON) {
-                angles[i] = arm_state.get_joint_angle(i);
+                double known_angle = arm_state.get_joint_angle(i);
+
+                // Get angle before offset
+                known_angle *= arm_state.get_joint_encoder_multiplier(i);
+                known_angle += arm_state.get_joint_encoder_offset(i);
+
+                angles[i] = known_angle;
             }
         }
     }
@@ -686,6 +698,10 @@ void MRoverArm::check_joint_limits(std::vector<double> &angles) {
         else if (angles[i] < limits[0] || angles[i] > limits[1]) {
             encoder_error = true;
             encoder_error_message = "Encoder Error: " + std::to_string(angles[i]) + " beyond joint " + std::to_string(i) + " limits (joint A = 0, F = 5)";
+
+            double offset_angle = angles[i] * arm_state.get_joint_encoder_multiplier(i);
+            offset_angle += arm_state.get_joint_encoder_offset(i);
+            std::cout << "Current angle beyond limits, before offset: " << offset_angle << "\n";
         }
     }
 }

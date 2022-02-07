@@ -41,7 +41,8 @@ using namespace Eigen;
 typedef Matrix<double, 6, 1> Vector6d;
 
 // percentage of path to calculate move time
-static constexpr double D_SPLINE_T = 0.1;
+static constexpr double D_SPLINE_T = 0.05;
+static constexpr double MAX_SPLINE_T_IT = 0.02;
 
 // in ms, wait time for execute_spline loop
 static constexpr int SPLINE_WAIT_TIME = 50;
@@ -52,7 +53,7 @@ static constexpr double ENCODER_ERROR_THRESHOLD = 0.1;
 static constexpr size_t MAX_NUM_PREV_ANGLES = 5;
 static constexpr size_t MAX_FISHY_VALS = 1;
 
-static constexpr double DUD_ENCODER_EPSILON = 0.00000001;
+static constexpr double DUD_ENCODER_EPSILON = 0.005;
 
 //Angle in radians that physical arm can be without causing problems
 static constexpr double ACCEPTABLE_BEYOND_LIMIT = 0.05;

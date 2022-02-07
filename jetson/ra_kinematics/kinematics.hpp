@@ -13,8 +13,8 @@ static constexpr int MAX_ITERATIONS = 200;
 static constexpr int MAX_ITERATIONS_LOW_MOVEMENT = 10;
 
 // The acceptable distance from a solution to the target
-static constexpr double POS_THRESHOLD = 0.01;
-static constexpr double ANGLE_THRESHOLD = 0.01;
+static constexpr double POS_THRESHOLD = 0.02;
+static constexpr double ANGLE_THRESHOLD = 0.04;
 
 // The percentage of the remaining distance to try to move
 static constexpr double k_position_step = 0.07;
