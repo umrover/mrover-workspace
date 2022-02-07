@@ -13,8 +13,8 @@ Rover::RoverStatus::RoverStatus()
     mAutonState.is_auton = false;
     // {-1, 0, 0} refers to the struct of an empty Target
     // which means distance = -1, bearing = 0, id = 0
-    mCTargetLeft = {-1, 0, 0};
-    mCTargetRight = {-1, 0, 0};
+    mCTargetLeft = {-1.0, 0, 0};
+    mCTargetRight = {-1.0, 0, 0};
     mObstacle = {0, 0, -1.0}; // empty obstacle --> distance is  -1
     mTargetLeft = {-1.0, 0, 0};
     mTargetRight = {-1.0, 0, 0};
