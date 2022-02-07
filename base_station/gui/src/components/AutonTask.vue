@@ -23,11 +23,9 @@
       </div>
     </div>
 
-    <div class="box1 data">
-      <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
-     </div>
-     <div class="raw-data raw-sensors light-bg">
+    <div class="box1 data" v-bind:style="{backgroundColor: nav_state_color}">
+     <h1>Nav State: {{this.nav_status.nav_state_name}}</h1>
+     <div class="raw-data raw-sensors">
         <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
         <RadioSignalStrength v-bind:RadioSignalStrength="RadioSignalStrength"/>
         <Obstacle v-bind:Obstacle="Obstacle"/>
@@ -37,6 +35,7 @@
     </div>
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
+      <ZedGimbalAngles></ZedGimbalAngles>
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
@@ -45,7 +44,6 @@
       <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped" v-bind:Joystick="Joystick"/>
     </div>
     <div class="box angles light-bg">
-      <ZedGimbalAngles></ZedGimbalAngles>
     </div>
      <!-- <div class="box raw_sensors light-bg">
       <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
@@ -88,10 +86,10 @@ export default {
       },
 
       odom: {
-        latitude_deg: 38,
-        latitude_min: 24.38226,
-        longitude_deg: -110,
-        longitude_min: -47.51724,
+        latitude_deg: 0,
+        latitude_min: 0,
+        longitude_deg: 0,
+        longitude_min: 0,
         bearing_deg: 0,
         speed: 0
       },
@@ -104,9 +102,12 @@ export default {
       },
 
       nav_status: {
+        nav_state_name: "Off",
         completed_wps: 0,
         total_wps: 0
       },
+      nav_state_color: "red",
+      nav_counter: 0,
 
       GPS: {
         latitude_deg: 38,
@@ -179,6 +180,32 @@ export default {
   },
 
   created: function () {
+    setInterval(() => {
+      if(this.nav_status.nav_state_name == "Off"){
+        this.nav_state_color = "#4695FF"
+      }
+      else if(this.nav_status.nav_state_name == "Done"){
+        if(this.nav_state_color == "#4695FF" || this.nav_state_color == "lightcoral"){
+          this.nav_state_color = "yellowgreen"
+        }
+        else if(this.nav_counter >= 5 && this.nav_state_color == "yellowgreen"){
+          this.nav_state_color = "lightgrey"
+          this.nav_counter = 0
+        }
+        else if(this.nav_counter >= 5 && this.nav_state_color == "lightgrey"){
+          this.nav_state_color = "yellowgreen"
+          this.nav_counter = 0
+        }
+      }
+      else{
+        this.nav_state_color = "lightcoral"
+      }
+      this.nav_counter = this.nav_counter + 1
+      if(this.nav_counter >= 5){
+        this.nav_count = 0
+      }
+    }, 100);
+
     this.lcm_ = new LCMBridge(
       'ws://localhost:8001',
       // Update WebSocket connection state
@@ -211,6 +238,8 @@ export default {
           this.Obstacle = msg.message
         } else if (msg.topic === '/target_list') {
           this.TargetList = msg.message
+        } else if (msg.topic === '/nav_status') {
+          this.nav_status = msg.message
         } else if (msg.topic === '/debugMessage') {
           if (msg['message']['isError']) {
             console.error(msg['message']['message'])
@@ -311,7 +340,7 @@ export default {
     min-height: 98vh;
     grid-gap: 10px;
     grid-template-columns: 2fr 1.25fr 0.75fr;
-    grid-template-rows: 50px 2fr 1fr 15vh 15vh;
+    grid-template-rows: 50px 2fr 1fr 6vh 24vh;
     grid-template-areas: "header header header" 
                          "map waypoints waypoints"
                          "map waypoints waypoints" 
@@ -450,7 +479,6 @@ export default {
 
   .raw-sensors{
     font-size: 1em;
-    margin-top: 80px;
   }
 
   .GPS{
