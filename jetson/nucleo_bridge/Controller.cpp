@@ -43,7 +43,6 @@ void Controller::make_live()
             abs_raw_angle = M_PI;
         }
 
-
         // get value in quad counts adjust quadrature encoder 
         int32_t adjusted_quad = (abs_raw_angle / (2 * M_PI)) * quad_cpr;
         memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), 4);

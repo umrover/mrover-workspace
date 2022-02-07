@@ -376,11 +376,7 @@ void testClosed()
     {
         int joint = (address & 0b1) + (((address >> 4) - 1) * 2); 
         float p = 0.001; 
-<<<<<<< HEAD
-        float i  = 0.0005;
-=======
         float i  = 0.00;
->>>>>>> nucleo_bridge
         float d = 0; 
 
         if (joint == 1)
@@ -653,13 +649,8 @@ int main()
 {
     for (int i = 1; i <= 3; ++i)
     {
-<<<<<<< HEAD
-        i2c_address.push_back(get_addr(i, 0));
-        if (i != 3)
-=======
         //i2c_address.push_back(get_addr(i, 0));
         if (i == 3)
->>>>>>> nucleo_bridge
         {
             i2c_address.push_back(get_addr(i, 1));
         }

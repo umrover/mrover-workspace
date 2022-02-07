@@ -43,15 +43,7 @@ void LCMHandler::handle_incoming()
 void LCMHandler::handle_outgoing()
 {
     //If the last time arm position messages were outputted was over 20 ms ago, get new data from Controllers to be sent
-<<<<<<< HEAD
-<<<<<<< HEAD
-    std::chrono::duration deadTime = std::chrono::milliseconds(20);
-=======
     std::chrono::duration deadTime = std::chrono::milliseconds(200);
->>>>>>> nucleo_bridge
-=======
-    std::chrono::duration deadTime = std::chrono::milliseconds(200);
->>>>>>> nucleo_bridge
     if (NOW - last_output_time > deadTime)
     {
         internal_object->refreshAngles();
@@ -61,11 +53,7 @@ void LCMHandler::handle_outgoing()
 }
 
 //The following functions are handlers for the corresponding lcm messages
-<<<<<<< HEAD
-void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const ArmPosition *msg)
-=======
 void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg)
->>>>>>> nucleo_bridge
 {
     ControllerMap::controllers["RA_0"]->closed_loop(0, msg->joint_a);
     ControllerMap::controllers["RA_1"]->closed_loop(0, msg->joint_b);
@@ -76,20 +64,12 @@ void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition
     ra_pos_data();
 }
 
-<<<<<<< HEAD
-void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAClosedLoopCmd *msg)
-{
-    ControllerMap::controllers["SA_0"]->closed_loop(msg->torque[0], msg->angle[0]);
-    ControllerMap::controllers["SA_1"]->closed_loop(msg->torque[1], msg->angle[1]);
-    ControllerMap::controllers["SA_2"]->closed_loop(msg->torque[2], msg->angle[2]);
-=======
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)
 {
     ControllerMap::controllers["SA_0"]->closed_loop(0, msg->joint_a);
     ControllerMap::controllers["SA_1"]->closed_loop(0, msg->joint_b);
     ControllerMap::controllers["SA_2"]->closed_loop(0, msg->joint_c);
     ControllerMap::controllers["SA_3"]->closed_loop(0, msg->joint_e);
->>>>>>> nucleo_bridge
     sa_pos_data();
 }
 
@@ -109,10 +89,7 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
     ControllerMap::controllers["SA_0"]->open_loop(msg->throttle[0]);
     ControllerMap::controllers["SA_1"]->open_loop(msg->throttle[1]);
     ControllerMap::controllers["SA_2"]->open_loop(msg->throttle[2]);
-<<<<<<< HEAD
-=======
     ControllerMap::controllers["SA_3"]->open_loop(msg->throttle[3]);
->>>>>>> nucleo_bridge
     sa_pos_data();
 }
 
