@@ -16,13 +16,8 @@ void LCMHandler::init()
     internal_object = new InternalHandler();
     
     //Subscription to lcm channels 
-<<<<<<< HEAD
-    lcm_bus->subscribe("/ik_ra_control",        &LCMHandler::InternalHandler::ra_closed_loop_cmd,   internal_object);
-    lcm_bus->subscribe("/sa_closedloop_cmd",    &LCMHandler::InternalHandler::sa_closed_loop_cmd,   internal_object);
-=======
     lcm_bus->subscribe("/ra_ik_cmd",            &LCMHandler::InternalHandler::ra_closed_loop_cmd,   internal_object);
     lcm_bus->subscribe("/sa_ik_cmd",            &LCMHandler::InternalHandler::sa_closed_loop_cmd,   internal_object);
->>>>>>> nucleo_bridge
     lcm_bus->subscribe("/ra_openloop_cmd",      &LCMHandler::InternalHandler::ra_open_loop_cmd,     internal_object);
     lcm_bus->subscribe("/sa_openloop_cmd",      &LCMHandler::InternalHandler::sa_open_loop_cmd,     internal_object);
     lcm_bus->subscribe("/gimbal_openloop_cmd",  &LCMHandler::InternalHandler::gimbal_cmd,           internal_object);
@@ -49,7 +44,11 @@ void LCMHandler::handle_outgoing()
 {
     //If the last time arm position messages were outputted was over 20 ms ago, get new data from Controllers to be sent
 <<<<<<< HEAD
+<<<<<<< HEAD
     std::chrono::duration deadTime = std::chrono::milliseconds(20);
+=======
+    std::chrono::duration deadTime = std::chrono::milliseconds(200);
+>>>>>>> nucleo_bridge
 =======
     std::chrono::duration deadTime = std::chrono::milliseconds(200);
 >>>>>>> nucleo_bridge
@@ -101,7 +100,7 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
     ControllerMap::controllers["RA_2"]->open_loop(msg->throttle[2]);
     ControllerMap::controllers["RA_3"]->open_loop(msg->throttle[3]);
     ControllerMap::controllers["RA_4"]->open_loop(msg->throttle[4]);
-    ControllerMap::controllers["RA_5"]->open_loop(msg->throttle[5]);
+    ControllerMap::controllers["RA_5"]->open_loop(msg->throttle[5] / 1.5);
     ra_pos_data();
 }
 

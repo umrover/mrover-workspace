@@ -141,7 +141,7 @@ float closedPlus(int addr, float angle) // -pi to pi
         {
             memcpy(&rad_angle, &raw_angle, 4);
         }
-        printf("test closed plus transaction successful on slave %i, at angle %f \n", addr, rad_angle);
+        printf("test closed plus transaction successful on slave %i, at angle raw: %i, rad: %f \n", addr, raw_angle, rad_angle);
         return rad_angle;
     }
     catch (IOFailure &e)
@@ -248,6 +248,11 @@ void adjust(int addr, int joint)
         float quad_angle = quadEnc(addr);
         float abs_angle = absEnc(addr);
 
+        if (joint == 5)
+        {
+            abs_angle = M_PI;
+        }
+
         printf("before adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
         int joint = (addr & 0b1) + (((addr >> 4) - 1) * 2); 
@@ -266,6 +271,10 @@ void adjust(int addr, int joint)
         // checks values after
         quad_angle = quadEnc(addr);
         abs_angle = absEnc(addr);
+        if (joint == 5)
+        {
+            abs_angle = M_PI;
+        }
 
         printf("after adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
@@ -367,7 +376,11 @@ void testClosed()
     {
         int joint = (address & 0b1) + (((address >> 4) - 1) * 2); 
         float p = 0.001; 
+<<<<<<< HEAD
         float i  = 0.0005;
+=======
+        float i  = 0.00;
+>>>>>>> nucleo_bridge
         float d = 0; 
 
         if (joint == 1)
@@ -459,7 +472,6 @@ void testAdjust()
     for (auto address : i2c_address)
     {
         int joint = (address & 0b1) + (address >> 4);
-
         adjust(address, joint);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -641,8 +653,13 @@ int main()
 {
     for (int i = 1; i <= 3; ++i)
     {
+<<<<<<< HEAD
         i2c_address.push_back(get_addr(i, 0));
         if (i != 3)
+=======
+        //i2c_address.push_back(get_addr(i, 0));
+        if (i == 3)
+>>>>>>> nucleo_bridge
         {
             i2c_address.push_back(get_addr(i, 1));
         }
@@ -667,7 +684,7 @@ int main()
         // //sleep(1000);
         // printf("waking up\n");
         //testAbsEnc();
-        sleep(1000);
+        sleep(100);
 
     }
 
