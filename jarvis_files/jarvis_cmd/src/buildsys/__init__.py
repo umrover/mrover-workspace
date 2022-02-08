@@ -63,7 +63,7 @@ class WorkspaceContext:
         self.ensure_build_dirs()
         if not os.path.isdir(self.product_env) and not clear:
             venv.create(self.product_env, clear=clear,
-                        symlinks=True, with_pip=True)
+                    symlinks=False, with_pip=True, prompt="jarvis build venv")
 
     @contextmanager
     def inside_product_env(self):
