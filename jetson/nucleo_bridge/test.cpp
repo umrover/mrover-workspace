@@ -21,12 +21,6 @@
 
 #define UINT8_POINTER_T reinterpret_cast<uint8_t *>
 
-using namespace std;
-
-// TODO might fix this later
-// unsure about the 0 (channel)
-// #define ADDR ((2 << 4) | 0)
-
 #define PRINT_TEST_START printf("Running Test #%2d, %s\n", ++num_tests_ran, __FUNCTION__);
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
 
@@ -278,7 +272,7 @@ void adjust(int addr, int joint)
 
         printf("after adjust quadrature value: %f, absolute value: %f on slave %i\n", quad_angle, abs_angle, addr);
 
-        if (std::abs(quad_angle - adjusted_quad) > .2)
+        if (std::abs(quad_angle - abs_angle) > .2)
         {
             printf("test adjust transaction numerically failed on slave %i \n\n", addr);
         }
@@ -661,27 +655,18 @@ int main()
     testOn();
     testConfigPWM();
     testAdjust();
-    //testClosed();
-    // openPlus(get_addr(1, 1), 0.5);
-    // sleep(1000);
-    // openPlus(get_addr(1, 1), 0.0);
+
     while (1)
     {
         testClosed();
 	    //testQuadEnc();
         //testOpenPlusWithAbs();
         //testOpenPlus();
-        // printf("sleeping \n");
-        // //sleep(1000);
-        // printf("waking up\n");
         //testAbsEnc();
         sleep(100);
 
     }
 
-    //     testQuadEnc();
-    // while (1)
-    //     testAbsEnc();
     testOff();
     return 0;
 }
