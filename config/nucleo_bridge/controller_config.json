@@ -70,14 +70,18 @@
         "type":"Motor12V",
         "nucleo": 0,
         "channel": 0,
-        "quadCPR": -28800.0 
+        "quadCPR": -28800.0, 
+        "kP": 0.001,
+        "kI":0.00005
     },
     {
         "name":"RA_1",
         "type":"Motor12V",
         "nucleo": 0,
         "channel": 1,
-        "quadCPR": 1.0
+        "quadCPR": 1.0,
+        "kP": 2.25,
+        "kI":0.0007
     },
     {
         "name":"RA_2",
@@ -108,11 +112,11 @@
     },
     {
         "name":"RA_5",
-        "type":"Motor12V",
+        "type":"Motor6V",
         "nucleo": 2,
         "channel": 1,
         "quadCPR": -9072.0,
-        "kP": 0.01,
-        "kI": 0.00005
+        "kP": 0.001,
+        "kI": 0.00
     }
 ]

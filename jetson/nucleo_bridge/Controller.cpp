@@ -31,8 +31,18 @@ void Controller::make_live()
         transact(CONFIG_K, buffer, nullptr);
 
         // get absolute encoder correction #
-        float abs_raw_angle = 0;;
-        transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
+        // not needed for joint F
+
+        float abs_raw_angle = 0;
+        if (name != "RA_5")
+        {
+            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
+        }
+        else 
+        {
+            abs_raw_angle = M_PI;
+        }
+
 
         // get value in quad counts adjust quadrature encoder 
         int32_t adjusted_quad = (abs_raw_angle / (2 * M_PI)) * quad_cpr;
@@ -53,9 +63,8 @@ void Controller::record_angle(int32_t raw_angle)
 {
     if (name == "RA_1")
     {
-        float abs_raw_angle = 0;;
-        transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
-        // record absolute value 
+        float abs_raw_angle = 0;
+        memcpy(&abs_raw_angle, &raw_angle, 4);
         current_angle = abs_raw_angle - M_PI;            
     }
     else 
