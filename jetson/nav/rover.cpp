@@ -13,8 +13,11 @@ Rover::RoverStatus::RoverStatus()
     mAutonState.is_auton = false;
     // {-1, 0, 0} refers to the struct of an empty Target
     // which means distance = -1, bearing = 0, id = 0
-    mCTargetLeft = {-1, 0, 0};
-    mCTargetRight = {-1, 0, 0};
+    mCTargetLeft = {-1.0, 0, 0};
+    mCTargetRight = {-1.0, 0, 0};
+    mObstacle = {0, 0, -1.0}; // empty obstacle --> distance is  -1
+    mTargetLeft = {-1.0, 0, 0};
+    mTargetRight = {-1.0, 0, 0};
 } // RoverStatus()
 
 // Gets a reference to the rover's current navigation state.
@@ -177,7 +180,7 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
     {
         double distanceEffort = mDistancePid.update( -1 * distance, 0 );
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
-        publishJoystick( distanceEffort, turningEffort, false );
+        publishJoystick( 0.75 * distanceEffort, 0.75 * turningEffort, false );
         return DriveStatus::OnCourse;
     }
     cerr << "offcourse\n";
@@ -195,7 +198,7 @@ void Rover::drive( const int direction, const double bearing )
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg );
     const double distanceEffort = mDistancePid.update( -1 * direction, 0 );
     const double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
-    publishJoystick( distanceEffort, turningEffort, false );
+    publishJoystick( 0.75 * distanceEffort, 0.75 * turningEffort, false );
 } // drive()
 
 // Sends a joystick command to turn the rover toward the destination
@@ -233,7 +236,7 @@ bool Rover::turn( double bearing )
     {
         turningEffort = minTurningEffort;
     }
-    publishJoystick( 0, turningEffort, false );
+    publishJoystick( 0, 0.75 * turningEffort, false );
     return false;
 } // turn()
 
