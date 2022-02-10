@@ -50,7 +50,7 @@ def main():
     # starting state is DisconnectedState()
     # start up sequence is called, disconnected-->disarm-->arm
 
-    # flag for state where we have comms with base_station vs not
+    # flag for state when we have comms with base_station vs not
     prev_comms = False
 
     while True:
