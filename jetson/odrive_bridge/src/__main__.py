@@ -50,12 +50,13 @@ def main():
     # starting state is DisconnectedState()
     # start up sequence is called, disconnected-->disarm-->arm
 
+    # flag for state where we have comms with base_station vs not
     prev_comms = False
 
     while True:
         watchdog = t.clock() - start_time
-        if (watchdog > 1.0):
-            if (prev_comms):
+        if watchdog > 1.0:
+            if prev_comms:
                 print("loss of comms")
                 prev_comms = False
 
@@ -66,7 +67,7 @@ def main():
 
             speedlock.release()
         else:
-            if (not prev_comms):
+            if not prev_comms:
                 prev_comms = True
                 print("regained comms")
 
@@ -229,12 +230,11 @@ class OdriveBridge(object):
         id = odrives[legal_controller]
 
         print(id)
-        # import pdb; pdb.set_trace()
         odrive = odv.find_any(serial_number=id)
 
         print("found odrive")
         modrive = Modrive(odrive)  # arguments = odr
-        modrive.set_current_lim(4)
+        modrive.set_current_lim(modrive.CURRENT_LIM)
         self.encoder_time = t.time()
 
     def on_event(self, event):
