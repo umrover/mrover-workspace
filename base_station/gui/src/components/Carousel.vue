@@ -6,9 +6,9 @@
     <div class="box1">
         <label for="position">Rotate carousel to position:</label>
         <select v-model = "position" name="position" id="position">
-            <option value="1">A</option>
-            <option value="0">B</option>
-            <option value="2">C</option>
+            <option value="2">A</option>
+            <option value="1">B</option>
+            <option value="0">C</option>
         </select>
         <div class="commands">
           <p>{{reachedPos?  "Reached": "Turning to"}} position {{this.posMap.get(this.position)}}</p>
@@ -22,12 +22,12 @@
 export default {
   data () {
     return {
-        position: '1',
+        position: '2',
         reachedPos: true,
         posMap:new Map([
-        ['1', 'A'],
-        ['0', 'B'],
-        ['2', 'C'],
+        ['2', 'A'],
+        ['1', 'B'],
+        ['0', 'C'],
         ])
     }
   },

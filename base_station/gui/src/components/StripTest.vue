@@ -7,17 +7,17 @@
         <div class="strip_test">
             <label for="strip">Perform strip test on strip:</label>
                 <select v-model = "strip" name="strip" id="strip">
-                    <option value=1>A</option>
-                    <option value=0>B</option>
-                    <option value=2>C</option>
+                    <option value=2>A</option>
+                    <option value=1>B</option>
+                    <option value=0>C</option>
                 </select>
-            <div class="commands" v-if="strip == 1">
+            <div class="commands" v-if="strip == 2">
                 <button v-on:click="stripTestA()"> Start Strip A Test </button>
             </div>
-            <div class="commands" v-if="strip == 0">
+            <div class="commands" v-if="strip == 1">
                 <button v-on:click="stripTestB()"> Start Strip B Test </button>
             </div>
-            <div class="commands" v-if="strip == 2">
+            <div class="commands" v-if="strip == 0">
                 <button v-on:click="stripTestC()"> Start Strip C Test </button>
             </div>
         </div>
@@ -34,7 +34,7 @@ const picture = 20;
 export default {
     data () {
         return {
-            strip: 1,
+            strip: 2,
             angle0: start,
             angle1: start,
             angle2: start,
@@ -55,38 +55,6 @@ export default {
 
         stripTestA: function() {
             alert("Strip A test started");
-            this.angle1 = this.dip;
-            this.setPart();
-            setTimeout(() => {
-                alert("Taking strips out");
-                this.angle1 = this.picture;
-                this.setPart();
-                }, 10000);
-            setTimeout(() => {
-                this.angle1 = this.start;
-                this.setPart()
-                alert("Strip test completed");
-                }, 15000);
-        },
-
-        stripTestB: function() {
-            alert("Strip B Test Started");
-            this.angle0 = this.dip;
-            this.setPart();
-            setTimeout(() => {
-                alert("Taking strips out");
-                this.angle0 = this.picture;
-                this.setPart();
-                }, 10000);
-            setTimeout(() => {
-                this.angle0 = this.start;
-                this.setPart();
-                alert("Strip test completed");
-                }, 15000);
-        },
-        
-        stripTestC: function() {
-            alert("Strip C Test Started");
             this.angle2 = this.dip;
             this.setPart();
             setTimeout(() => {
@@ -96,6 +64,38 @@ export default {
                 }, 10000);
             setTimeout(() => {
                 this.angle2 = this.start;
+                this.setPart()
+                alert("Strip test completed");
+                }, 15000);
+        },
+
+        stripTestB: function() {
+            alert("Strip B Test Started");
+            this.angle1 = this.dip;
+            this.setPart();
+            setTimeout(() => {
+                alert("Taking strips out");
+                this.angle1 = this.picture;
+                this.setPart();
+                }, 10000);
+            setTimeout(() => {
+                this.angle1 = this.start;
+                this.setPart();
+                alert("Strip test completed");
+                }, 15000);
+        },
+        
+        stripTestC: function() {
+            alert("Strip C Test Started");
+            this.angle0 = this.dip;
+            this.setPart();
+            setTimeout(() => {
+                alert("Taking strips out");
+                this.angle0 = this.picture;
+                this.setPart();
+                }, 10000);
+            setTimeout(() => {
+                this.angle0 = this.start;
                 this.setPart();
                 alert("Strip test completed");
                 }, 15000);

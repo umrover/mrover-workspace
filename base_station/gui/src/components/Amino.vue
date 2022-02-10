@@ -6,22 +6,22 @@
     <div class="box1">
         <label for="site">Choose a site:</label>
         <select v-model = "site" name="site" id="site">
-            <option value="0">Site A</option>
+            <option value="2">Site A</option>
             <option value="1">Site B</option>
-            <option value="2">Site C</option>
+            <option value="0">Site C</option>
         </select>
     </div>
-    <div class="box1" v-if="site == 0">
-        <label for="toggle_button" :class="{'active': nichWire0 == 1}" class="toggle__button">
-            <span v-if="nichWire0 == 1" class="toggle__label" >Heater A On</span>
-            <span v-if="nichWire0 == 0" class="toggle__label" >Heater A Off</span>
+    <div class="box1" v-if="site == 2">
+        <label for="toggle_button" :class="{'active': nichWire2 == 1}" class="toggle__button">
+            <span v-if="nichWire2 == 1" class="toggle__label" >Heater A On</span>
+            <span v-if="nichWire2 == 0" class="toggle__label" >Heater A Off</span>
 
             <input type="checkbox" id="toggle_button" v-model="checkedValue">
-            <span class="toggle__switch" v-if="nichWire0 == 0" v-on:click="nichWire0=1,setPart(mosfetIDs.nichWire0,true)"></span>
-            <span class="toggle__switch" v-if="nichWire0 == 1" v-on:click="nichWire0=0,setPart(mosfetIDs.nichWire0,false)"></span>
+            <span class="toggle__switch" v-if="nichWire2 == 0" v-on:click="nichWire2=1,setPart(mosfetIDs.nichWire2,true)"></span>
+            <span class="toggle__switch" v-if="nichWire2 == 1" v-on:click="nichWire2=0,setPart(mosfetIDs.nichWire2,false)"></span>
         </label>
 
-        <p>Thermistor A: {{temp0}} C°</p>
+        <p>Thermistor A: {{temp2}} C°</p>
     </div>
     <div class="box1" v-if="site == 1">
         <label for="toggle_button" :class="{'active': nichWire1 == 1}" class="toggle__button">
@@ -35,17 +35,17 @@
 
         <p>Thermistor B: {{temp1}} C°</p>
     </div>
-    <div class="box1" v-if="site == 2">
-        <label for="toggle_button" :class="{'active': nichWire2 == 1}" class="toggle__button">
-            <span v-if="nichWire2 == 1" class="toggle__label" >Heater C On</span>
-            <span v-if="nichWire2 == 0" class="toggle__label" >Heater C Off</span>
+    <div class="box1" v-if="site == 0">
+        <label for="toggle_button" :class="{'active': nichWire0 == 1}" class="toggle__button">
+            <span v-if="nichWire0 == 1" class="toggle__label" >Heater C On</span>
+            <span v-if="nichWire0 == 0" class="toggle__label" >Heater C Off</span>
 
             <input type="checkbox" id="toggle_button" v-model="checkedValue">
-            <span class="toggle__switch" v-if="nichWire2 == 0" v-on:click="nichWire2=1,setPart(mosfetIDs.nichWire2,true)"></span>
-            <span class="toggle__switch" v-if="nichWire2 == 1" v-on:click="nichWire2=0,setPart(mosfetIDs.nichWire2,false)"></span>
+            <span class="toggle__switch" v-if="nichWire0 == 0" v-on:click="nichWire0=1,setPart(mosfetIDs.nichWire0,true)"></span>
+            <span class="toggle__switch" v-if="nichWire0 == 1" v-on:click="nichWire0=0,setPart(mosfetIDs.nichWire0,false)"></span>
         </label>
 
-        <p>Thermistor C: {{temp2}} C°</p>
+        <p>Thermistor C: {{temp0}} C°</p>
     </div>
     <div>
         <input type="checkbox" id="autoShutdown" name="autoShutdown" v-model="autoShutdown">
@@ -131,7 +131,7 @@
 export default {
   data () {
     return {
-        site: 0,
+        site: 2,
         pump0: 0,
         pump1: 0,
         pump2: 0,

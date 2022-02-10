@@ -36,8 +36,8 @@
       <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/> 
       <GenerateReport v-bind:spectral_data="spectral_data"/>
     </div>
-    <div class="box ammonia light-bg">
-      <Ammonia/>
+    <div class="box striptest light-bg">
+      <StripTest/>
     </div>
     <div class="box amino light-bg">
       <Amino v-bind:mosfetIDs="mosfetIDs"/>
@@ -65,7 +65,7 @@ import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import SpectralData from './SpectralData.vue'
 import Chlorophyll from './Chlorophyll.vue'
-import Ammonia from './Ammonia.vue'
+import StripTest from './StripTest.vue'
 import DriveVelDataV from './DriveVelDataV.vue'
 import Amino from './Amino.vue'
 import GenerateReport from './GenerateReport.vue'
@@ -283,7 +283,7 @@ export default {
     WaypointEditor,
     SpectralData,
     Chlorophyll,
-    Ammonia,
+    StripTest,
     DriveVelDataV,
     Amino,
     GenerateReport,
@@ -306,7 +306,7 @@ export default {
                              "carousel chlorophyll raman" 
                              "spectral chlorophyll scoopUV" 
                              "spectral chlorophyll drives"
-                             "SAArm ammonia drives"
+                             "SAArm striptest drives"
                              "SAArm amino drives"
                              "SAArm amino drives";
         font-family: sans-serif;
@@ -402,8 +402,8 @@ export default {
       grid-area: amino;
     } 
 
-    .ammonia{
-      grid-area: ammonia;
+    .striptest{
+      grid-area: striptest;
     }
     
     .chlorophyll{
