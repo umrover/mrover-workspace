@@ -80,7 +80,7 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
     ControllerMap::controllers["RA_2"]->open_loop(msg->throttle[2]);
     ControllerMap::controllers["RA_3"]->open_loop(msg->throttle[3]);
     ControllerMap::controllers["RA_4"]->open_loop(msg->throttle[4]);
-    ControllerMap::controllers["RA_5"]->open_loop(msg->throttle[5] / 1.5);
+    ControllerMap::controllers["RA_5"]->open_loop(msg->throttle[5]);
     ra_pos_data();
 }
 

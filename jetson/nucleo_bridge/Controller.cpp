@@ -84,6 +84,12 @@ void Controller::open_loop(float input)
         make_live();
 
         uint8_t buffer[4];
+
+        if (name == "RA_5") 
+        {
+            input = input / 1.5;
+        }
+
         float speed = hardware.throttle(input);
         memcpy(buffer, UINT8_POINTER_T(&speed), 4);
     
