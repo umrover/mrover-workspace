@@ -18,7 +18,7 @@
 #Travis is configured to download whatever the latest umrover/travis image is, so once your changes are pushed they
 #should be picked up by travis
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 #Setup Ansible
 ENV ANSIBLE_VERSION 2.9.4
@@ -61,7 +61,7 @@ RUN apt-get update -y && \
     apt-get upgrade -y && \
     apt-get autoremove -y && \
     apt-get install -y --no-install-recommends cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev \ 
-    libswscale-dev python3.6-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev jasper \
+    libswscale-dev python3.8-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev jasper \
     libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common libtbb-dev \
     yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev libgstreamer-plugins-base1.0-dev \
     libavutil-dev libavfilter-dev libavresample-dev
@@ -93,11 +93,11 @@ RUN cd /opt && \
 RUN  cd /usr/local && rm -rf opencv-3.2.0
 
 #Install CUDA Driver
-COPY cuda-repo-ubuntu1804_10.0.130-1_amd64.deb /usr/local
+COPY cuda-repo-ubuntu2004_10.0.130-1_amd64.deb /usr/local
 RUN cd /usr/local && \
     apt-get update -y && apt-get upgrade -y && apt-get update && apt-get install -y gnupg2 && \
-    dpkg -i cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
-RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+    dpkg -i cuda-repo-ubuntu2004_10.0.130-1_amd64.deb
+RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
 RUN apt-get update -y
 RUN apt-get install -y cuda-10-0   
 
@@ -106,10 +106,10 @@ RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get install -y libturbojpeg0-dev
 RUN apt-get install --no-install-recommends lsb-release wget less udev sudo apt-transport-https -y && \
     apt-get update -y && \
-    wget -O ZED_SDK_Linux_Ubuntu18.run https://download.stereolabs.com/zedsdk/3.2/cu100/ubuntu18 && \
-    chmod +x ZED_SDK_Linux_Ubuntu18.run && \
-    ./ZED_SDK_Linux_Ubuntu18.run silent && \
-    rm ZED_SDK_Linux_Ubuntu18.run && \
+    wget -O ZED_SDK_Linux_Ubuntu20.run https://download.stereolabs.com/zedsdk/3.2/cu100/ubuntu20 && \
+    chmod +x ZED_SDK_Linux_Ubuntu20.run && \
+    ./ZED_SDK_Linux_Ubuntu20.run silent && \
+    rm ZED_SDK_Linux_Ubuntu20.run && \
     cd /usr/local && \
     chmod a+xwr --preserve-root --recursive zed
 
@@ -118,7 +118,7 @@ ENV TERM xterm
 RUN echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!INSTALLING VTK" && \
     apt-get update -y && apt-get upgrade -y && apt-get install -y keyboard-configuration libboost-all-dev curl cmake libxt-dev && \
     apt-get install -y --no-install-recommends cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev \
-    libswscale-dev python3.6-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev jasper \
+    libswscale-dev python3.8-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff5-dev jasper \
     libdc1394-22-dev libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common \
     libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev \
     libgstreamer-plugins-base1.0-dev libavutil-dev libavfilter-dev libavresample-dev && \
