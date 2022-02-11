@@ -61,7 +61,7 @@ class ScienceBridge():
             count = 1
             for var in struct_variables:
                 if (not (count >= len(arr))):
-                    setattr(spectral_struct, var, ((np.int8(arr[count]) << 8) | (np.int8(arr[count + 1]))))
+                    setattr(spectral_struct, var, 0xFFFF & ((np.int8(arr[count]) << 8) | (np.int16(arr[count + 1]))))
                 else:
                     setattr(spectral_struct, var, 0)
                 count += 2
@@ -98,7 +98,7 @@ class ScienceBridge():
                 if (not (count >= len(arr))):
                     pass
                     print(((np.int8(arr[count+1]) << 8) | (np.int8(arr[count]))))
-                    setattr(triad_struct, var, ((np.int8(arr[count+1]) << 8) | (np.int8(arr[count]))))
+                    setattr(triad_struct, var, 0xFFFF & ((np.int8(arr[count+1]) << 8) | (np.int16(arr[count]))))
                 else:
                     setattr(triad_struct, var, 0)
                 count += 2
