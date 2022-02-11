@@ -9,7 +9,7 @@ import numpy as np
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd, SpectralData, NavStatus, ServoCmd
+from rover_msgs import ThermistorData, MosfetCmd, SpectralData, NavStatus, ServoCmd, CarouselData, CarouselCmd
 
 
 class ScienceBridge():
@@ -22,6 +22,7 @@ class ScienceBridge():
             "THERMISTOR": self.thermistor_handler,
             "TRIAD": self.triad_handler,
             "TXT": self.txt_handler,
+            "CAROUSEL":self.carousel_handler,
         }
 
         self.max_error_count = 20
@@ -113,6 +114,14 @@ class ScienceBridge():
         Prints info messages revieved from nucleo to screen
         '''
         print(msg)
+
+    def carousel_handler(self,msg,carousel_struct):
+        try:
+            arr = msg.split(",")
+            carousel_struct.position = np.int8(arr[0])
+        except:
+            pass
+
 
     def repeater_handler(self, msg, struct):
         # Expected to be an empty message so nothing is done
@@ -222,10 +231,26 @@ class ScienceBridge():
         if self.ser.isOpen():
             self.ser.write(bytes(message, encoding='utf-8'))
 
+    def carousel_transmit(self,channel,msg):
+        struct = CarouselCmd.decode(msg)
+        print("Received Servo Cmd")
+        # parse data into expected format
+        message = "$Carousel,{position}"
+        message = message.format(position=struct.position)
+        print(len(message))
+        while(len(message) < 30):
+            message += ","
+        print(message)
+        self.ser.close()
+        self.ser.open()
+        if self.ser.isOpen():
+            self.ser.write(bytes(message, encoding='utf-8'))
+
     async def receive(self, lcm):
         spectral = SpectralData()
         thermistor = ThermistorData()
         triad = SpectralData()
+        carousel = CarouselData()
         # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
                      for tag in self.NMEA_HANDLE_MAPPER.keys()}
@@ -263,6 +288,10 @@ class ScienceBridge():
                                 self.triad_handler(msg, triad)
                                 print(triad)
                                 lcm.publish('/spectral_triad_data', triad.encode())
+                            if(tag == "CAROUSEL"):
+                                self.carousel_handler(msg,carousel)
+                                print(carousel)
+                                lcm.publish('/carousel_data',carousel.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
@@ -283,6 +312,7 @@ def main():
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         _lcm.subscribe("/nav_status", bridge.nav_status)
         _lcm.subscribe("/servo_cmd", bridge.servo_transmit)
+        _lcm.subscribe("/carousel_cmd", bridge.carousel_transmit)
         print("properly started")
         run_coroutines(_lcm.loop(), bridge.receive(_lcm))
 
