@@ -129,7 +129,7 @@ def drive_control_callback(channel, msg):
 
         joystick_math(new_motor, magnitude, theta)
 
-        damp = (input_data.dampen - 1)/(-2)
+        damp = (input_data.dampen - 1)/(2)
         new_motor.left *= damp
         new_motor.right *= damp
 
@@ -164,6 +164,10 @@ def autonomous_callback(channel, msg):
     new_motor = DriveVelCmd()
 
     joystick_math(new_motor, input_data.forward_back, input_data.left_right)
+
+    temp = new_motor.left
+    new_motor.left = new_motor.right
+    new_motor.right = temp
 
     lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
