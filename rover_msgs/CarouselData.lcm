@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct CarouselData {
+	// 0 is B, 1 is A, 2 is C
+	int8_t position;
+}
