@@ -22,7 +22,7 @@ class ScienceBridge():
             "THERMISTOR": self.thermistor_handler,
             "TRIAD": self.triad_handler,
             "TXT": self.txt_handler,
-            "CAROUSEL":self.carousel_handler,
+            "CAROUSEL": self.carousel_handler,
         }
 
         self.max_error_count = 20
@@ -61,7 +61,7 @@ class ScienceBridge():
             count = 1
             for var in struct_variables:
                 if (not (count >= len(arr))):
-                    setattr(spectral_struct, var, 0xFFFF & ((np.uint8(arr[count]) << 8) | (np.uint16(arr[count + 1]))))
+                    setattr(spectral_struct, var, 0xFFFF & ((np.uint8(arr[count]) << 8) | (np.uint8(arr[count + 1]))))
                 else:
                     setattr(spectral_struct, var, 0)
                 count += 2
@@ -97,8 +97,7 @@ class ScienceBridge():
             for var in struct_variables:
                 if (not (count >= len(arr))):
                     pass
-                    print(((np.int8(arr[count+1]) << 8) | (np.int8(arr[count]))))
-                    setattr(triad_struct, var, 0xFFFF & ((np.uint8(arr[count+1]) << 8) | (np.uint16(arr[count]))))
+                    setattr(triad_struct, var, 0xFFFF & ((np.uint8(arr[count+1]) << 8) | (np.uint8(arr[count]))))
                 else:
                     setattr(triad_struct, var, 0)
                 count += 2
@@ -115,13 +114,12 @@ class ScienceBridge():
         '''
         print(msg)
 
-    def carousel_handler(self,msg,carousel_struct):
+    def carousel_handler(self, msg, carousel_struct):
         try:
             arr = msg.split(",")
             carousel_struct.position = np.int8(arr[0])
         except:
             pass
-
 
     def repeater_handler(self, msg, struct):
         # Expected to be an empty message so nothing is done
@@ -154,7 +152,7 @@ class ScienceBridge():
         # const int8_t ramanLaser = 10;
         # Starts from 0-2 for all the leds
         # Resets to 1 starting at Laser(3) so offset by 2
-        if(translated_device > 2):
+        if (translated_device > 2):
             translated_device -= 2
         message = message.format(device=translated_device,
                                  enable=int(struct.enable))
@@ -231,7 +229,7 @@ class ScienceBridge():
         if self.ser.isOpen():
             self.ser.write(bytes(message, encoding='utf-8'))
 
-    def carousel_transmit(self,channel,msg):
+    def carousel_transmit(self, channel, msg):
         struct = CarouselCmd.decode(msg)
         print("Received Servo Cmd")
         # parse data into expected format
@@ -261,7 +259,6 @@ class ScienceBridge():
                     error_counter = 0
                     tx = self.ser.readline()
                     msg = str(tx)
-                    print(msg)
 
                 except Exception as e:
                     print("Errored")
@@ -275,23 +272,24 @@ class ScienceBridge():
                 match_found = False
                 for tag, func in self.NMEA_HANDLE_MAPPER.items():
                     if tag in msg:
+                        print(msg)
                         match_found = True
                         try:
-                            if(tag == "SPECTRAL"):
+                            if (tag == "SPECTRAL"):
                                 self.spectral_handler(tx.decode(), spectral)
                                 lcm.publish('/spectral_data', spectral.encode())
                                 print('published spectral struct?')
-                            if(tag == "THERMISTOR"):
+                            if (tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
                                 lcm.publish('/thermistor_data', thermistor.encode())
-                            if(tag == "TRIAD"):
+                            if (tag == "TRIAD"):
                                 self.triad_handler(msg, triad)
                                 print(triad)
                                 lcm.publish('/spectral_triad_data', triad.encode())
-                            if(tag == "CAROUSEL"):
-                                self.carousel_handler(msg,carousel)
+                            if (tag == "CAROUSEL"):
+                                self.carousel_handler(msg, carousel)
                                 print(carousel)
-                                lcm.publish('/carousel_data',carousel.encode())
+                                lcm.publish('/carousel_data', carousel.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
