@@ -39,7 +39,6 @@ private:
 
             rot_axis << joint_geom["axis"][0], joint_geom["axis"][1], joint_geom["axis"][2];
 
-            // TODO check with RA whether joint limits are correct
             joint_limits.push_back(joint_geom["limit"]["lower"]);
             joint_limits.push_back(joint_geom["limit"]["upper"]);
 

@@ -151,20 +151,6 @@ TEST(fk_test) {
     // FK working , yay!!!
 }
 
-TEST(is_safe_test) {
-    // Create the arm to be tested on:
-    json geom = read_json_from_file(get_mrover_arm_geom());
-    ArmState arm = ArmState(geom);
-    KinematicsSolver solver = KinematicsSolver();
-
-    std::string presets_file = "/vagrant/base_station/kineval_stencil/dist/mrover_arm_presets.json";
-
-    json presets = read_json_from_file(presets_file);
-    for (json::iterator it = presets.begin(); it != presets.end(); it++) {
-        ASSERT_TRUE(solver.is_safe(arm, it.value()));
-    }
-}
-
 TEST(ik_test1) {
     // std::cout << std::setprecision(8);
     json geom = read_json_from_file(get_mrover_arm_geom());

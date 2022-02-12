@@ -9,7 +9,6 @@
 
 using nlohmann::json;
 
-
 class lcmHandlers {
 public:
     lcmHandlers (MRoverArm* robot_arm) : arm(robot_arm) {}
@@ -28,14 +27,6 @@ public:
         const MotionExecute* m_execute)
     {
         arm->motion_execute_callback( channel, *m_execute );
-    }
-
-    void executePresetCallback(
-        const lcm::ReceiveBuffer* receiveBuffer,
-        const std::string& channel,
-        const ArmPosition* p_execute)
-    {
-        arm->target_angles_callback( channel, *p_execute );
     }
       
     void armPositionCallback(
@@ -122,7 +113,6 @@ int main() {
 
     lcmObject.subscribe( "/arm_position", &lcmHandlers::armPositionCallback, &handler );
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
-    lcmObject.subscribe( "/preset_angles" , &lcmHandlers::executePresetCallback, &handler );
     lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
     lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
     lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );

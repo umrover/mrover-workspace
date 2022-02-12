@@ -902,24 +902,3 @@ kineval.loadJSFile = function loadJSFile(filename,kineval_object) {
         console.warn("kineval: JS file loaded, object type "+kineval_object+" not recognized");
 
 }
-
-function loadJSON(callback) {
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("application/json");
-
-    // open json preset file
-    xobj.open('GET', './mrover_arm_presets.json', true);
-
-    // once file is loaded
-    xobj.onreadystatechange = function () {
-        if (xobj.readyState == 4 && xobj.status == "200") {
-            console.log('Loaded presets json');
-            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-            callback(xobj.responseText);
-        }
-        else {
-            console.log('Could not load presets json');
-        }
-    };
-    xobj.send(null);  
-}

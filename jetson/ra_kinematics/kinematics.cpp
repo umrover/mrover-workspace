@@ -38,29 +38,6 @@ void KinematicsSolver::FK(ArmState &robot_state) {
     T.block(0,3,3,1) = robot_state.get_ef_xyz();
 
     robot_state.set_ef_transform(global_transf * T);
-
-    // Torque calculations (not currently used)
-
-    // Vector3d prev_com(0,0,0);
-    // double total_mass = 0;
-
-    // for (auto it = robot_state.joints.rbegin(); it != robot_state.joints.rend(); ++it) {
-    //     Vector3d joint_pos = robot_state.get_joint_pos_world(it->first);
-    //     Vector3d com_cur_link = robot_state.get_joint_com(it->first);
-    //     double cur_link_mass = robot_state.get_joint_mass(it->first);
-
-    //     // Calculate center of mass of current link:
-    //     Vector3d curr_com = prev_com * total_mass + com_cur_link * cur_link_mass;
-    //     total_mass += cur_link_mass;
-    //     curr_com /= total_mass;
-
-    //     // Calculate torque for current joint:
-    //     Vector3d r = curr_com - joint_pos;
-    //     Vector3d rot_axis_world = robot_state.get_joint_axis_world(it->first);
-    //     Vector3d torque = calculate_torque(r, total_mass, rot_axis_world);
-    //     robot_state.set_joint_torque(it->first, torque);
-    //     prev_com = curr_com;
-    // }
 }
 Matrix4d KinematicsSolver::get_joint_xform(const ArmState& robot_state, size_t joint_index, double theta) {
     // Get rotation axis of current joint.
@@ -524,4 +501,3 @@ void KinematicsSolver::recover_from_backup(ArmState &robot_state) {
 int KinematicsSolver::get_num_iterations() {
     return num_iterations;
 }
-
