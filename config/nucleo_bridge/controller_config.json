@@ -36,15 +36,6 @@
         "channel": 3
     },
     {
-        "name":"ZED_GIMBAL_YAW",
-        "type":"Motor12V",
-        "nucleo": 2,
-        "channel": 1,
-        "quadCPR": 1.0,
-        "kP": 0.001,
-        "kI":0.00005
-    },
-    {
         "name":"SA_0",
         "type":"Motor44Percent",
         "nucleo": 0,
