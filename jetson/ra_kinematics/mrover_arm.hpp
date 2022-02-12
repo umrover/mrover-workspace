@@ -139,11 +139,9 @@ public:
 
     /**
      * Handle request to go to specific set of angles
-     * 
-     * @param channel expected: "/preset_angles", but could handle others
      * @param msg format: double joint_a, joint_b, joint_c, joint_d, joint_e, joint_f
      * */
-    void target_angles_callback(std::string channel, ArmPosition msg);
+    void go_to_target_angles(ArmPosition msg);
 
     /**
      * Handle request to move arm through previously calculated path, or to cancel

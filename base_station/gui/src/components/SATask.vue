@@ -32,20 +32,14 @@
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
     </div>
-    <!--div class="box sa_testing light-bg">
+    <div class="box sa_testing light-bg">
       <SATestingControls/>
-    </div-->
-    <div class="box light-bg">
-      <SpectralData v-bind:spectral_data="spectral_data"/>
     </div>
-    <!--div class="box sa_controls light-bg">
+    <div class="box waypoints light-bg">
+      <WaypointEditor v-bind:odom="odom" />
+    </div>
+    <div class="box sa_controls light-bg">
       <SAControls/>
-    </div-->
-    <div class = "box light-bg chlorophyll">
-      <Chlorophyll/>
-    </div>
-    <div class="box ammonia light-bg">
-      <Ammonia/>
     </div>
   </div>
 </template>
@@ -55,13 +49,11 @@ import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
 import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
-import OdometryReading from './OdometryReadingSA.vue'
+import OdometryReading from './OdometryReading.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
+import SAControls from './SAControls.vue'
 import SATestingControls from './SATestingControls.vue'
-import SpectralData from './SpectralData.vue'
-import Chlorophyll from './Chlorophyll.vue'
-import Ammonia from './Ammonia.vue'
 
 let interval;
 
@@ -94,26 +86,6 @@ export default {
       nav_status: {
         completed_wps: 0,
         total_wps: 0
-      },
-      spectral_data: {
-          d0_1:0,
-          d0_2:0,
-          d0_3:0,
-          d0_4:0,
-          d0_5:0,
-          d0_6:0,
-          d1_1:0,
-          d1_2:0,
-          d1_3:0,
-          d1_4:0,
-          d1_5:0,
-          d1_6:0,
-          d2_1:0,
-          d2_2:0,
-          d2_3:0,
-          d2_4:0,
-          d2_5:0,
-          d2_6:0
       }
     }
   },
@@ -162,8 +134,6 @@ export default {
       (msg) => {
         if (msg.topic === '/odometry') {
           this.odom = msg.message
-        } else if (msg.topic ==='/spectral_data'){
-          this.spectral_data = msg.message
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/debugMessage') {
@@ -185,11 +155,7 @@ export default {
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/sa_motors', 'type': 'SAMotors'},
         {'topic': '/test_enable', 'type': 'TestEnable'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'},
-        {'topic': '/spectral_data', 'type': 'SpectralData'},
-        {'topic': '/thermistor_data', 'type': 'ThermistorData'},
-        {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
-        {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'}
+        {'topic': '/debugMessage', 'type': 'DebugMessage'}
       ]
     )
 
@@ -240,10 +206,8 @@ export default {
     CommIndicator,
     OdometryReading,
     WaypointEditor,
-    SATestingControls,
-    SpectralData,
-    Chlorophyll,
-    Ammonia
+    SAControls,
+    SATestingControls
   }
 }</script>
 
@@ -253,8 +217,8 @@ export default {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: 60px 3fr 1fr 2fr 3fr;
-        grid-template-areas: "header header" "map cameras" "map sa_testing" "map chlorophyll" "odom ammonia";
+        grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
+        grid-template-areas: "header header" "map cameras" "map sa_testing" "map waypoints" "controls waypoints" "odom waypoints";
         font-family: sans-serif;
         height: 98vh;
     }
@@ -342,14 +306,6 @@ export default {
     .odom {
         grid-area: odom;
         font-size: 1em;
-    }
-
-    .ammonia{
-      grid-area: ammonia;
-    }
-    
-    .chlorophyll{
-      grid-area: chlorophyll;
     }
 
     .diags {

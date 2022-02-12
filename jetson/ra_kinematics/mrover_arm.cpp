@@ -255,18 +255,11 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
     // Set goal so joint f doesn't move
     Vector6d goal = ik_solution.first;
 
-    // goal(5) = arm_state.get_joint_angle(5);
-    // // Lock hypostate joint f for testing:
-    // bool joint_f_locked = hypo_state.get_joint_locked(5);
-    // hypo_state.set_joint_locked(5, true);
-
     // create path of the angles IK found and preview on GUI
     plan_path(hypo_state, goal);
-
-    // hypo_state.set_joint_locked(5, joint_f_locked);
 }
 
-void MRoverArm::target_angles_callback(std::string channel, ArmPosition msg) {
+void MRoverArm::go_to_target_angles(ArmPosition msg) {
     if (control_state != ControlState::WAITING_FOR_TARGET) {
         std::cout << "Received target but not in closed-loop waiting state.\n";
         return;
@@ -441,8 +434,6 @@ void MRoverArm::execute_spline() {
 
             double max_time = -1; //in ms
 
-            // size_t temp_max_joint = 6;
-
             // Get max time to travel for joints a through e // for testing (should be through joint f)
             for (int i = 0; i < 6; ++i) {
                 if (!arm_state.get_joint_locked(i)) {
@@ -455,14 +446,9 @@ void MRoverArm::execute_spline() {
                     //sets max_time to greater value
                     if (max_time < joint_time) {
                         max_time = joint_time;
-                        // temp_max_joint = i;
                     }
                 }
             }
-
-            // std::cout << "slowest joint: " << temp_max_joint << "\n";
-            // std::cout << init_angles[temp_max_joint] << " --> " << final_angles[temp_max_joint] << "\n";
-            // std::cout << "max time: " << max_time << "\n";
 
             //determines size of iteration by dividing number of iterations by distance
             spline_t_iterator = D_SPLINE_T / (max_time / SPLINE_WAIT_TIME);
@@ -473,7 +459,6 @@ void MRoverArm::execute_spline() {
             }
 
             spline_t += spline_t_iterator;
-            std::cout << "spline_t: " << spline_t << "\n";
 
             // break out of loop if necessary
             if (spline_t >= 1.0) {
@@ -494,14 +479,6 @@ void MRoverArm::execute_spline() {
                 }
             }
 
-            // Just for during joint f problems:
-            // target_angles[5] = arm_state.get_joint_angle(5);
-
-            // std::cout << "joint a current position: " << arm_state.get_joint_angle(0) << "\n";
-            // std::cout << "joint a target:           " << target_angles[0] << "\n";
-            // std::cout << "joint f current position/target: " << arm_state.get_joint_angle(5) << "\n";
-            // std::cout << "joint f target:           " << target_angles[5] << "\n\n";
-
             // if not in sim_mode, send physical arm a new target
             if (!sim_mode) {
                 // TODO make publish function names more intuitive?
@@ -516,16 +493,9 @@ void MRoverArm::execute_spline() {
             }
 
             // if in sim_mode, simulate that we have gotten a new current position
-            else if (sim_mode) {
+            else {
                 arm_state.set_joint_angles(target_angles);
             }
-
-            // cout executed angles
-            std::cout << "joint angles after executing spline:\n";
-            for (int i = 0; i < 6; ++i) {
-                std::cout << arm_state.get_joint_angles()[i] << " ";
-            }
-            std::cout << "\n";
 
             if (control_state != ControlState::EXECUTING) {
                 std::cout << "Waiting for final movements...\n";
@@ -603,7 +573,7 @@ void MRoverArm::arm_preset_callback(std::string channel, ArmPreset msg) {
     new_msg.joint_e = angles[4];
     new_msg.joint_f = angles[5];
 
-    target_angles_callback("", new_msg);
+    go_to_target_angles(new_msg);
 }
 
 void MRoverArm::encoder_angles_sender() {

@@ -87,14 +87,14 @@ Message: [TargetOrientation.lcm](https://github.com/umrover/mrover-workspace/blo
 Publisher: base_station/kineval_stencil \
 Subscriber: jetson/ra_kinematics
 
-#### Lock Joints \[Subscriber\] "/lock_joints" ####
+#### Lock Joints \[Subscriber\] "/locked_joints" ####
 Message: [LockJoints.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/LockJoints.lcm) \
-Publisher: base_station/kineval_stencil \
+Publisher: base_station/gui \
 Subscriber: jetson/ra_kinematics
 
-#### Preset Angles \[Subscriber\] "/preset_angles" ####
-Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
-Publisher: base_station/kineval_stencil \
+#### Arm Preset \[Subscriber\] "/arm_preset" ####
+Message: [ArmPreset.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPreset.lcm) \
+Publisher: base_station/gui \
 Subscriber: jetson/ra_kinematics
 
 #### Motion Execute \[Subscriber\] "/motion_execute" ####
@@ -102,12 +102,27 @@ Message: [MotionExecute.lcm](https://github.com/umrover/mrover-workspace/blob/ma
 Publisher: base_station/kineval_stencil \
 Subscriber: jetson/ra_kinematics
 
-#### IK Enabled \[Subscriber\] "/ik_enabled" ####
-Message: [IkEnabled.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/IkEnabled.lcm) \
-Publisher: base_station/kineval_stencil \
-Subscriber: jetson/ra_kinematics
-
 #### Simulation Mode \[Subscriber\] "/simulation_mode" ####
 Message: [SimulationMode.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SimulationMode.lcm) \
-Publisher: base_station/kineval_stencil \
+Publisher: base_station/gui \
+Subscriber: jetson/ra_kinematics
+
+#### Arm Control State \[Subscriber\] "/arm_control_state" ####
+Message: [ArmControlState.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmControlState.lcm) \
+Publisher: base_station/gui \
+Subscriber: jetson/ra_kinematics
+
+#### Use Orientation \[Subscriber\] "/use_orientation" ####
+Message: [UseOrientation.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/UseOrientation.lcm) \
+Publisher: base_station/gui \
+Subscriber: jetson/ra_kinematics
+
+#### Zero Position \[Subscriber\] "/zero_position" ####
+Message: [ArmControlState.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ZeroPosition.lcm) \
+Publisher: base_station/gui \
+Subscriber: jetson/ra_kinematics
+
+#### Arm Adjustments \[Subscriber\] "/arm_adjustments" ####
+Message: [ArmAdjustments.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmAdjustments.lcm) \
+Publisher: base_station/gui \
 Subscriber: jetson/ra_kinematics
