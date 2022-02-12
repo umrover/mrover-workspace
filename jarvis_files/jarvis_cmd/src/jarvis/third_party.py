@@ -40,14 +40,14 @@ def ensure_lcm(ctx):
 
     lcmdir = os.path.join(ctx.third_party_root, 'lcm')
     with ctx.intermediate('lcm'):
-        ctx.run("cp -r {}/* .".format(lcmdir))  # TODO: Use python's own cp
+        ctx.run("cp -r \"{}\"/* .".format(lcmdir))  # TODO: Use python's own cp
         print("Configuring LCM...")
-        ctx.run("./bootstrap.sh", hide='both')
-        ctx.run("./configure --prefix={}".format(ctx.product_env), hide='both')
+        ctx.run("./bootstrap.sh")
+        ctx.run("./configure --prefix={}".format(ctx.product_env))
         print("Building LCM...")
-        ctx.run("make", hide='both')
+        ctx.run("make")
         print("Installing LCM...")
-        ctx.run("make install", hide='both')
+        ctx.run("make install")
         # Copy the lcm-gen binary into the Jarvis venv so it may be accessible
         # for other parts of the build process.
         shutil.copy("{}/bin/lcm-gen".format(ctx.product_env),
@@ -56,7 +56,7 @@ def ensure_lcm(ctx):
         # Install Python library
         with ctx.inside_product_env():
             with ctx.cd('lcm-python'):
-                ctx.run("python setup.py install", hide='both')
+                ctx.run("python setup.py install")
 
     print("Finished installing LCM.")
 
@@ -78,7 +78,7 @@ def ensure_rapidjson(ctx):
     rapidjson_dir = os.path.join(ctx.third_party_root, 'rapidjson')
     ctx.ensure_product_env()
     with ctx.intermediate('rapidjson'):
-        ctx.run("cp -r {}/* .".format(rapidjson_dir))
+        ctx.run("cp -r \"{}\"/* .".format(rapidjson_dir))
         print("Configuring rapidjson...")
         #ctx.run("mkdir -p build")
         #with ctx.cd("build"):
@@ -107,7 +107,7 @@ def ensure_phoenix(ctx):
     phoenix_dir = os.path.join(ctx.third_party_root, 'phoenix')
     ctx.ensure_product_env()
     with ctx.intermediate('phoenix'):
-        ctx.run("cp -r {}/* .".format(phoenix_dir))
+        ctx.run("cp -r \"{}\"/* .".format(phoenix_dir))
         print("Configuring phoenix...")
         ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} .".format(
             ctx.product_env))
