@@ -13,6 +13,11 @@
 		"kD": 0
 	},
 
+	"gateAdjustment":
+	{
+		"adjustmentDistance": 0.3
+	},
+
 	"joystick":
 	{
 		"bearingPower": 0.5,
@@ -28,7 +33,9 @@
 		"targetDistance": 1.0,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20,
-		"obstacleDistanceThreshold": 2.5
+		"obstacleDistanceThreshold": 2.5,
+		"cacheMissMax": 20,
+		"noTargetDist": -1
 	},
 
 	"roverMeasurements":

@@ -4,7 +4,7 @@ from buildsys import WorkspaceContext
 from invoke.exceptions import UnexpectedExit
 
 from .build import build_dir, clean, build_deps, build_all
-
+from .launch import launch_dir
 
 def clean_dir_name(d):
     if d[-1] == '/':
@@ -42,6 +42,16 @@ def main():
     subcommands.add_parser('upgrade',
                            help='Re-installs the Jarvis CLI')
 
+    # Launch Subcommands
+    parser_launch = subcommands.add_parser('launch', help='Builds and runs a system')
+    parser_launch.add_argument('sys', help='System to launch')
+    parser_launch.add_argument('-o', '--option', nargs='+', dest='launch_opts',
+                               help='A launch option to pass to the underlying '
+                               'build system')
+    parser_launch.add_argument('-s', '--ssh', action='store_true',
+                               help='Specify whether we are ssh\'d in or not')
+                              
+
     args = parser.parse_args()
 
     try:
@@ -57,6 +67,9 @@ def main():
             clean(ctx)
         elif args.subcommand_name == 'dep':
             build_deps(ctx)
+        elif args.subcommand_name == 'launch':
+            launch_dir(ctx, clean_dir_name(args.sys), args.launch_opts, args.ssh)
+
     except UnexpectedExit as e:
         sys.exit(e.result.exited)
 

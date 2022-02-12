@@ -1,18 +1,20 @@
 package rover_msgs;
 
 struct MosfetCmd {
-	// TODO: name device constants
-	const int8_t DEV0 = 0;
-	const int8_t DEV1 = 1;
-	const int8_t DEV2 = 2;
-	const int8_t DEV3 = 3;
-	const int8_t DEV4 = 4;
-	const int8_t DEV5 = 5;
-	const int8_t DEV6 = 6;
-	const int8_t DEV7 = 7;
-	const int8_t DEV8 = 8;
-	const int8_t DEV9 = 9;
-
+    const int8_t rLed = 0;
+    const int8_t gLed = 1;
+    const int8_t bLed = 2;
+    const int8_t sciUV = 3;
+    const int8_t SAUV = 4;
+    const int8_t sciWLed = 5;
+    const int8_t perPump0 = 6;
+    const int8_t perPump1 = 7;
+    const int8_t perPump2 = 8;
+    const int8_t heater0 = 9; 
+    const int8_t heater1 = 10;
+    const int8_t heater2 = 11;
+    const int8_t ramanLaser = 12;
+ 
     int8_t device;
     boolean enable;
 }

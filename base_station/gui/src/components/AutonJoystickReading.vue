@@ -1,8 +1,8 @@
 <template>
 <div class = "main-content">
- <h3>Joystick Reading</h3>
-  <div class="wrap">
-    <span>forward_back: {{Joystick.forward_back}}<br>left_right: {{Joystick.left_right}}<br>dampen: {{Joystick.dampen}}</span>
+ <h4>Joystick Reading</h4>
+  <div class="joystick-wrap">
+    <span>F_B: {{Joystick.forward_back.toFixed(3)}}<br>L_R: {{Joystick.left_right.toFixed(3)}}</span>
   </div>
 </div>
 </template>
@@ -20,12 +20,21 @@ export default {
 
 <style scoped>
 
-  .main-content h3{
-    margin: 0px 0px 5px 0px; 
-    padding: 0px 0px 0px 0px;
+  .main-content{
+    margin-top: 0.5rem;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid black;
+    align-content: center;
   }
 
-  .wrap {
+  .main-content h4{
+    margin: 0px 0px 5px 0px; 
+    padding: 0px 0px 0px 0px;
+    padding-left: 5px;
+  }
+
+  .joystick-wrap {
       padding: 0px;
       padding-left: 5px;
       padding-right: 5px;
@@ -37,7 +46,7 @@ export default {
     margin: 0px;
   }
 
-  .h3{
+  .h4{
     padding: 0px;
     margin: 0px;
   }
