@@ -32,9 +32,9 @@ public:
     void armPositionCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
-        const ArmPosition* arm_pos)
+        const RAPosition* ra_pos)
     {
-        arm->arm_position_callback( channel, *arm_pos );
+        arm->arm_position_callback( channel, *ra_pos );
     }
 
     void simModeCallback(
@@ -111,7 +111,7 @@ int main() {
 
     lcmHandlers handler(&robot_arm);
 
-    lcmObject.subscribe( "/arm_position", &lcmHandlers::armPositionCallback, &handler );
+    lcmObject.subscribe( "/ra_ik_cmd", &lcmHandlers::armPositionCallback, &handler );
     lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
     lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
     lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );

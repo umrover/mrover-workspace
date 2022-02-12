@@ -31,7 +31,7 @@
             "state"
         ]
     ],
-    "ArmPosition": [
+    "RAPosition": [
         [
             "double",
             "joint_a"
@@ -991,7 +991,7 @@
     ],
     "message_types": [
         "ArmControlState",
-        "ArmPosition",
+        "RAPosition",
         "ArmToggles",
         "AutonState",
         "Bearing",
