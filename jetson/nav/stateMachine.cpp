@@ -74,9 +74,9 @@ void StateMachine::updateRepeaterComplete( )
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleAngle( double bearing )
+void StateMachine::updateObstacleAngle( double bearing, double rightBearing )
 {
-    mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing );
+    mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing, rightBearing );
 }
 
 // Allows outside objects to set the original obstacle angle
@@ -88,9 +88,9 @@ void StateMachine::updateObstacleDistance( double distance )
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleElements( double bearing, double distance )
+void StateMachine::updateObstacleElements( double bearing, double rightBearing, double distance )
 {
-    updateObstacleAngle( bearing );
+    updateObstacleAngle( bearing, rightBearing );
     updateObstacleDistance( distance );
 }
 
@@ -218,8 +218,10 @@ void StateMachine::run()
             case NavState::GateTurnToCentPoint:
             case NavState::GateDriveToCentPoint:
             case NavState::GateFace:
-            case NavState::GateShimmy:
             case NavState::GateDriveThrough:
+            case NavState::GateTurnToFarPost:
+            case NavState::GateDriveToFarPost:
+            case NavState::GateTurnToGateCenter:
             {
                 nextState = mGateStateMachine->run();
                 break;
@@ -275,8 +277,8 @@ void StateMachine::updateRoverStatus( TargetList targetList )
 {
     Target target1 = targetList.targetList[0];
     Target target2 = targetList.targetList[1];
-    mNewRoverStatus.target() = target1;
-    mNewRoverStatus.target2() = target2;
+    mNewRoverStatus.leftTarget() = target1;
+    mNewRoverStatus.rightTarget() = target2;
 } // updateRoverStatus( Target )
 
 // Updates the radio signal strength information of the rover's status.
@@ -349,26 +351,26 @@ NavState StateMachine::executeTurn()
     }
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
+    /*if ( isAddRepeaterDropPoint() )
     {
         addRepeaterDropPoint();
         return NavState::RadioRepeaterTurn;
-    }
+    }*/
 
     Odometry& nextPoint = mRover->roverStatus().path().front().odom;
     if( mRover->turn( nextPoint ) )
     {
-        if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
+        /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
         {
             return NavState::RadioRepeaterDrive;
-        }
+        }*/
         return NavState::Drive;
     }
 
-    if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
+    /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
     {
         return NavState::RadioRepeaterTurn;
-    }
+    }*/
     return NavState::Turn;
 } // executeTurn()
 
@@ -385,16 +387,17 @@ NavState StateMachine::executeDrive()
 
     // If we should drop a repeater and have not already, add last
     // point where connection was good to front of path and turn
-    if ( isAddRepeaterDropPoint() )
+    /*if ( isAddRepeaterDropPoint() )
     {
         addRepeaterDropPoint();
         return NavState::RadioRepeaterTurn;
-    }
+    }*/
 
 
     if( isObstacleDetected( mRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
-        mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
+        mObstacleAvoidanceStateMachine->updateObstacleElements( mRover->roverStatus().obstacle().bearing, 
+                                                                mRover->roverStatus().obstacle().rightBearing,
                                                                 getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
     }
@@ -406,26 +409,26 @@ NavState StateMachine::executeDrive()
             return NavState::SearchSpin;
         }
         mRover->roverStatus().path().pop_front();
-        if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+        /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
         {
             return NavState::RepeaterDropWait;
-        }
+        }*/
         ++mCompletedWaypoints;
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
-        if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+        /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
         {
             return NavState::RadioRepeaterDrive;
-        }
+        }*/
         return NavState::Drive;
     }
     // else driveStatus == DriveStatus::OffCourse (must turn to waypoint)
-    if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
+    /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
     {
         return NavState::RadioRepeaterTurn;
-    }
+    }*/
 
     return NavState::Turn;
 } // executeDrive()
@@ -476,7 +479,9 @@ string StateMachine::stringifyNavState() const
             { NavState::GateTurnToCentPoint, "Gate Turn to Center Point" },
             { NavState::GateDriveToCentPoint, "Gate Drive to Center Point" },
             { NavState::GateFace, "Gate Face" },
-            { NavState::GateShimmy, "Gate Shimmy" },
+            { NavState::GateTurnToFarPost, "Gate Turn to Far Post"},
+            { NavState::GateDriveToFarPost, "Gate Drive to Far Post"},
+            { NavState::GateTurnToGateCenter, "Gate Turn to Gate Center"},
             { NavState::GateDriveThrough, "Gate Drive Through" },
             { NavState::RadioRepeaterTurn, "Radio Repeater Turn" },
             { NavState::RadioRepeaterDrive, "Radio Repeater Drive" },
@@ -486,12 +491,6 @@ string StateMachine::stringifyNavState() const
 
     return navStateNames.at( mRover->roverStatus().currentState() );
 } // stringifyNavState()
-
-// Returns the optimal angle to avoid the detected obstacle.
-double StateMachine::getOptimalAvoidanceAngle() const
-{
-    return mRover->roverStatus().obstacle().bearing;
-} // optimalAvoidanceAngle()
 
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceDistance() const

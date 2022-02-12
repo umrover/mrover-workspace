@@ -22,4 +22,5 @@
       - libcairo2-dev
       - libgirepository1.0-dev
       - gfortran
+      - xdotool
     state: present

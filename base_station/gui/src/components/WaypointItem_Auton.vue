@@ -14,9 +14,7 @@
         <p>{{waypoint.lat.d}}º</p>
         <p v-if="this.min_enabled">{{waypoint.lat.m}}'</p>
         <p  v-if="this.sec_enabled">{{waypoint.lat.s}}"</p>
-        N
-      </div>
-      <div>
+        N <b>&nbsp;|</b> 
         <p>{{waypoint.lon.d}}º</p>
         <p v-if="this.min_enabled">{{waypoint.lon.m}}'</p>
         <p  v-if="this.sec_enabled">{{waypoint.lon.s}}"</p>
@@ -68,7 +66,7 @@ export default {
   .waypoint-item {
     background-color: rgb(180, 180, 180);
     border-radius: 5px;
-    padding: 10px;
+    padding: 1px 10px 10px 10px;
     border: 1px solid black;
 
     margin: 5px;

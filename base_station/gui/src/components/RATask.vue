@@ -32,8 +32,8 @@
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
     </div>
-    <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" />
+    <div class="box drives light-bg">
+      <DriveVelDataH/>
     </div>
     <div class="box controls light-bg">
       <ArmControls/>
@@ -52,7 +52,7 @@ import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
-import WaypointEditor from './WaypointEditor.vue'
+import DriveVelDataH from './DriveVelDataH.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 
 let interval;
@@ -150,7 +150,9 @@ export default {
         {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'}
+        {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
       ]
     )
 
@@ -203,7 +205,7 @@ export default {
     DriveControls,
     EncoderCounts,
     OdometryReading,
-    WaypointEditor
+    DriveVelDataH
   }
 }
 </script>
@@ -215,7 +217,7 @@ export default {
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
-    grid-template-areas: "header header" "map cameras" "map waypoints" "map waypoints" "controls waypoints" "odom waypoints";
+    grid-template-areas: "header header" "map cameras" "map drives" "map drives" "controls drives" "odom drives";
     font-family: sans-serif;
     height: 98vh;
   }
@@ -313,8 +315,8 @@ export default {
     grid-area: map;
   }
 
-  .waypoints {
-    grid-area: waypoints;
+  .drives {
+    grid-area: drives;
   }
 
   .controls {
