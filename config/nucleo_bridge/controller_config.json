@@ -3,37 +3,37 @@
         "name":"HAND_FINGER",
         "type":"Motor12V",
         "nucleo": 2,
-        "channel": 4
+        "channel": 2
     },
     {
         "name":"HAND_GRIP",
         "type":"Motor12V",
         "nucleo": 1,
-        "channel": 4
+        "channel": 2
     },
     {
         "name":"FOOT_SCOOP",
         "type":"Motor6V",
         "nucleo": 2,
-        "channel": 4
+        "channel": 2
     },
     {
         "name":"FOOT_SENSOR",
         "type":"Motor6V",
         "nucleo": 1,
-        "channel": 4
+        "channel": 2
     },
     {
         "name":"GIMBAL_PITCH",
         "type":"Motor6V",
         "nucleo": 1,
-        "channel": 5
+        "channel": 3
     },
     {
         "name":"GIMBAL_YAW",
         "type":"Motor6V",
         "nucleo": 2,
-        "channel": 5
+        "channel": 3
     },
     {
         "name":"ZED_GIMBAL_YAW",
