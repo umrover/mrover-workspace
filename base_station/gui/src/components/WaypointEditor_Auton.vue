@@ -24,11 +24,16 @@
           W
         </div>
         <br>
-        <button v-on:click="addWaypoint(input)">Add Waypoint</button>
-        <button v-on:click="addWaypoint(formatted_odom)">Drop Waypoint</button>
+        <div style="display:inline-block">
+          <button v-on:click="addWaypoint(input)">Add Waypoint</button>
+          <button v-on:click="addWaypoint(formatted_odom)">Drop Waypoint</button>
+        </div>
       </div>
       <div class="box1">
-        <h4 class="waypoint-headers">All Waypoints</h4>
+        <div class="all-waypoints">
+          <h4 class="waypoint-headers">All Waypoints</h4>
+          <button v-on:click="clearWaypoint">Clear Waypoints</button>
+        </div>
         <draggable v-model="storedWaypoints" class="dragArea" draggable=".item'">
           <WaypointItem v-for="waypoint, i in storedWaypoints" :key="i" v-bind:waypoint="waypoint" v-bind:list="0" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
         </draggable>
@@ -222,6 +227,10 @@ export default {
       });
     },
 
+    clearWaypoint: function () {
+      this.storedWaypoints = [];
+    },
+
     select: function(payload) {
       console.log(payload.toElement);
       payload.toElement.select();
@@ -363,6 +372,16 @@ export default {
                            "joystick stats";
       font-family: sans-serif;
       min-height: min-content;
+  }
+
+  .all-waypoints{
+    display: inline-flex;
+  }
+
+  .all-waypoints button{
+    margin: 5px;
+    width: 115px;
+    height: 20px;
   }
 
   .autonmode{
