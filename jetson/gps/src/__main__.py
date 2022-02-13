@@ -99,13 +99,13 @@ class GPS_Manager():
         # degrees relative to true north
         try:
             track_made_good = float(fields[1])
-        except Exception as e:
+        except Exception as e:  # noqa: F841
             track_made_good = float(999)
 
         # kilometers / hour
         try:
             speed_over_ground = float(fields[7])
-        except Exception as e:
+        except Exception as e:  # noqa: F841
             speed_over_ground = float(0)
 
         gps_struct.bearing_deg = track_made_good
