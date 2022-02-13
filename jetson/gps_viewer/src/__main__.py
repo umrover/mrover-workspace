@@ -1,5 +1,4 @@
 import json
-import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import lcm
@@ -8,12 +7,26 @@ from rover_msgs import Odometry, IMUData, GPS
 
 PORT: int = 8000
 
+__data: dict = {
+    "gps": {
+        "longitude": 42.29328577670418,
+        "latitude": -83.71098762021397
+    },
+    "odo": {
+        "longitude": 42.29328577670418,
+        "latitude": -83.71098762021397
+    },
+    "heading": 0.0
+}
+
 __lcm: lcm.LCM
 
-start = 0
 
+class GPSRequestHandler(BaseHTTPRequestHandler):
+    def __init__(self, data, request, client_address, server):
+        self.data = data
+        super(GPSRequestHandler, self).__init__(request, client_address, server)
 
-class GPSServer(BaseHTTPRequestHandler):
     def do_HEAD(self):
         self.send_response(200)
 
@@ -28,44 +41,41 @@ class GPSServer(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.end_headers()
-            global start
-            point = {
-                "longitude": 42.29328577670418,
-                "latitude": -83.71098762021397 + start
-            }
-            start += 0.001
-            self.wfile.write(json.dumps(point).encode("utf-8"))
+            self.wfile.write(json.dumps(self.data).encode("utf-8"))
         else:
             self.send_response(404)
 
 
 def odometry_callback(channel, msg):
+    global __lcm, __data
     msg = Odometry.decode(msg)
     print(msg.val)
-
-    long = str(msg.longitude_min)
-    lat = str(msg.latitude_min)
-
-    global __lcm
+    __data["odo"]["longitude"] = msg.longitude_min
+    __data["odo"]["latitude"] = msg.latitude_min
     __lcm.handle()
 
 
 def imu_callback(channel, msg):
+    global __lcm, __data
     msg = IMUData.decode(msg)
     print(msg.val)
-
-    angle = str(msg.bearing_deg)
-
-    global __lcm
+    __data["heading"] = msg.bearing_deg
     __lcm.handle()
 
 
 def gps_callback(channel, msg):
+    global __lcm, __data
     msg = GPS.decode(msg)
     print(msg.val)
+    __data["gps"]["longitude"] = msg.longitude_min
+    __data["gps"]["latitude"] = msg.latitude_min
 
-    gps_long = str(msg.longitude_min)
-    gps_lat = str(msg.latitude_min)
+
+def make_handler(request, client_address, server):
+    global __data
+    # __data["gps"]["longitude"] += 0.001
+    # __data["odo"]["latitude"] += 0.001
+    return GPSRequestHandler(__data, request, client_address, server)
 
 
 def main():
@@ -74,7 +84,7 @@ def main():
     __lcm.subscribe("/Odometry", odometry_callback)
     __lcm.subscribe("/IMUData", imu_callback)
     __lcm.subscribe("/GPS", imu_callback)
-    with HTTPServer(("0.0.0.0", 8080), GPSServer) as web_server:
+    with HTTPServer(("0.0.0.0", 8080), make_handler) as web_server:
         try:
             web_server.serve_forever()
         except KeyboardInterrupt:

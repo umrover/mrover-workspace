@@ -3,9 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Hello, world!</title>
-
+    <title>GPS Viewer</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
           integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
           crossorigin=""/>
@@ -17,7 +15,9 @@
 <div id="map" style="height: 600px">
 </div>
 <script>
+    const maxPoints = 1024;
     const wilsonCenter = [42.29328577670418, -83.71098762021397];
+
     const map = L.map('map').setView(wilsonCenter, 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -25,9 +25,14 @@
         tileSize: 512,
         zoomOffset: -1,
     }).addTo(map);
-    const points = [wilsonCenter]
-    let polyline = L.polyline([]).addTo(map);
-    let point = L.marker(wilsonCenter).addTo(map);
+
+    const gpsPoints = [wilsonCenter];
+    let gpsLine = L.polyline([]).addTo(map);
+    let gpsMarker = L.marker(wilsonCenter).addTo(map);
+    const odoPoints = [wilsonCenter];
+    let odoLine = L.polyline([]).addTo(map);
+    let dirLine = L.polyline([wilsonCenter, wilsonCenter]);
+
     setInterval(() => {
         const xhr = new XMLHttpRequest();
         const url = "http://localhost:8080/data/";
@@ -36,18 +41,38 @@
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 const json = JSON.parse(xhr.responseText);
-                const newPoint = [json.longitude, json.latitude];
-                if (newPoint[0] !== points[points.length - 1][0]
-                    || newPoint[1] !== points[points.length - 1][1]) {
-                    map.removeLayer(polyline)
-                    map.removeLayer(point)
-                    points.push(newPoint);
-                    while (points.length > 1024) {
-                        points.shift()
+
+                const gpsPoint = [json.gps.longitude, json.gps.latitude];
+                if (gpsPoint[0] !== gpsPoints[gpsPoints.length - 1][0]
+                    || gpsPoint[1] !== gpsPoints[gpsPoints.length - 1][1]) {
+                    map.removeLayer(gpsLine);
+                    map.removeLayer(gpsMarker);
+                    gpsPoints.push(gpsPoint);
+                    while (gpsPoints.length > maxPoints) {
+                        gpsPoints.shift()
                     }
-                    polyline = L.polyline(points).addTo(map);
-                    point = L.marker(newPoint).addTo(map);
+                    gpsLine = L.polyline(gpsPoints).addTo(map);
+                    gpsMarker = L.marker(gpsPoint).addTo(map);
                 }
+
+                const odoPoint = [json.odo.longitude, json.odo.latitude];
+                if (odoPoint[0] !== odoPoints[odoPoints.length - 1][0]
+                    || odoPoint[1] !== odoPoints[odoPoints.length - 1][1]) {
+                    map.removeLayer(odoLine);
+                    odoPoints.push(odoPoint);
+                    while (odoPoints.length > maxPoints) {
+                        odoPoints.shift()
+                    }
+                    odoLine = L.polyline(odoPoints).setStyle({color: 'red'}).addTo(map);
+                }
+
+                map.removeLayer(dirLine);
+                const odoPointTip = [
+                    odoPoint[0] + Math.cos(json.heading * 0.01745327) * 0.005,
+                    odoPoint[1] + Math.sin(json.heading * 0.01745327) * 0.005
+                ];
+                dirLine = L.polyline([odoPoint, odoPointTip]).addTo(map);
+                dirLine.setStyle({color: 'purple'})
             }
         };
         xhr.send();
