@@ -9,7 +9,7 @@
       <span v-if="whiteLEDS == 1" class="toggle__label" >White LEDs On</span>
       <span v-if="whiteLEDS == 0" class="toggle__label" >White LEDs Off</span>
 
-      <input type="checkbox" id="toggle_button" v-model="checkedValue">
+      <input type="checkbox" id="toggle_button">
         <span class="toggle__switch" v-if="whiteLEDS == 0" v-on:click="whiteLEDS=1,setPart(mosfetIDs.whiteLED,true)"></span>
         <span class="toggle__switch" v-if="whiteLEDS == 1" v-on:click="whiteLEDS=0,setPart(mosfetIDs.whiteLED,false)"></span>
     </label>
@@ -18,7 +18,7 @@
       <span v-if="UVLED == 1" class="toggle__label" >UV LEDs On</span>
       <span v-if="UVLED == 0" class="toggle__label" >UV LEDs Off</span>
 
-      <input type="checkbox" id="toggle_button" v-model="checkedValue">
+      <input type="checkbox" id="toggle_button">
       <span class="toggle__switch" v-if="UVLED == 0" v-on:click="UVLED=1,setPart(mosfetIDs.UVLED,true)"></span>
       <span class="toggle__switch" v-if="UVLED == 1" v-on:click="UVLED=0,setPart(mosfetIDs.UVLED,false)"></span>
     </label>
