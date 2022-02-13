@@ -372,11 +372,13 @@ export default {
   }
 
   .all-waypoints{
-    display: inline-block;
+    display: inline-flex;
   }
 
-  .all-waypoints {
-    width: 100px;
+  .all-waypoints button{
+    margin: 18px;
+    width: 115px;
+    height: 20px;
   }
 
   .autonmode{
