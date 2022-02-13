@@ -15,11 +15,9 @@
     - rover-lcm_bridge_server.service
     - rover-base_station_microscope.service
     - rover-base_station_kineval.service
-    - rover-base_station_cameras.service
     - rover-base_station_gstreamer.timer
     - rover-base_station_gstreamer_2.timer
     - rover-base_station_microscope.timer
-    - rover-base_station_cameras.timer
 
 - name: Copy environment variable definitions
   copy:
