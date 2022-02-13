@@ -280,7 +280,7 @@ export default class NavSimulator extends Vue {
      odometry based on this movement. */
   private applyGPSNoise():Odom {
     console.log('lat old: ', this.currOdom.latitude_min, 'long old: ', this.currOdom.longitude_min);
-    const maxOffDist = 1;
+    const maxOffDist = 0.75;
 
     /* eslint no-magic-numbers: ["error", { "ignore": [100, 0, 1] }] */
     const factor = 100;
