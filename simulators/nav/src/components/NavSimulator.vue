@@ -112,6 +112,9 @@ export default class NavSimulator extends Vue {
   private readonly currOdom!:Odom;
 
   @Getter
+  private readonly realOdom!:Odom;
+
+  @Getter
   private readonly currSpeed!:Speeds;
 
   @Getter
@@ -179,6 +182,9 @@ export default class NavSimulator extends Vue {
 
   @Mutation
   private readonly setCurrOdom!:(newOdom:Odom)=>void;
+
+  @Mutation
+  private readonly setRealOdom!:(newOdom:Odom)=>void;
 
   @Mutation
   private readonly setJoystick!:(newJoystick:Joystick)=>void;
@@ -279,7 +285,6 @@ export default class NavSimulator extends Vue {
   /* Apply the current joystick message to move the rover. Update the current
      odometry based on this movement. */
   private applyGPSNoise():Odom {
-    console.log('lat old: ', this.currOdom.latitude_min, 'long old: ', this.currOdom.longitude_min);
     const maxOffDist = 0.75;
 
     /* eslint no-magic-numbers: ["error", { "ignore": [100, 0, 1] }] */
@@ -288,14 +293,13 @@ export default class NavSimulator extends Vue {
     factor, state.simSettings.noiseGPSPercent * maxOffDist / factor, 1);
     const num2:number = randnBm(-state.simSettings.noiseGPSPercent * maxOffDist /
     factor, state.simSettings.noiseGPSPercent * maxOffDist / factor, 1);
-    const nextPointMeters:Point2D = odomToMeters(this.currOdom,  this.fieldCenterOdom);
+    const nextPointMeters:Point2D = odomToMeters(this.realOdom, this.fieldCenterOdom);
     nextPointMeters.x += num1;
     nextPointMeters.y += num2;
-    const nextOdom:Odom = metersToOdom(nextPointMeters,  this.fieldCenterOdom);
+    const nextOdom:Odom = metersToOdom(nextPointMeters, this.fieldCenterOdom);
 
     /* Calculate new bearing without bearing noise */
-    nextOdom.bearing_deg = compassModDeg(this.currOdom.bearing_deg);
-    console.log('lat new: ', nextOdom.latitude_min, 'long new: ', nextOdom.longitude_min);
+    nextOdom.bearing_deg = compassModDeg(this.realOdom.bearing_deg);
     return nextOdom;
   }
 
@@ -304,11 +308,13 @@ export default class NavSimulator extends Vue {
     if (!this.simulateLoc) {
       return;
     }
+    console.log('lat old: ', this.currOdom.latitude_min, 'long old: ', this.currOdom.longitude_min);
+    console.log('lat2 old: ', this.realOdom.latitude_min, 'long2 old: ', this.realOdom.longitude_min);
     const deltaTimeSeconds:number = TIME_INTERVAL_MILLI / ONE_SECOND_MILLI;
-
-    this.setCurrOdom(this.applyGPSNoise());
-    this.setCurrOdom(applyJoystickCmdUtil(this.currOdom, this.fieldCenterOdom, this.joystick,
+    this.setRealOdom(applyJoystickCmdUtil(this.realOdom, this.fieldCenterOdom, this.joystick,
                                           deltaTimeSeconds, this.currSpeed));
+    this.setCurrOdom(this.applyGPSNoise());
+    console.log('lat new: ', this.currOdom.latitude_min, 'long new: ', this.currOdom.longitude_min);
   }
 
   /* Apply the current ZED gimbal command. Update the ZED gimbal based on the
@@ -391,6 +397,7 @@ export default class NavSimulator extends Vue {
           if (!this.simulateLoc) {
             this.locPulse = true;
             this.setCurrOdom(msg.message);
+            this.setRealOdom(this.currOdom);
           }
         }
         else if (msg.topic === '/rr_drop_init') {
@@ -475,7 +482,6 @@ export default class NavSimulator extends Vue {
       const zedGimbalPos:any = Object.assign(this.zedGimbalPos, { type: 'ZedGimbalPosition' });
       this.publish('/zed_gimbal_data', zedGimbalPos);
     }, TIME_INTERVAL_MILLI);
-
     /* eslint-enable @typescript-eslint/no-explicit-any */
   } /* created() */
 

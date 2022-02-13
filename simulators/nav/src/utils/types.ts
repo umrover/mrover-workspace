@@ -245,6 +245,7 @@ export enum RoverLocationSource {
    store. */
 export interface RoverState {
   currOdom:Odom;
+  realOdom:Odom;
   currSpeed:Speeds;
   joystick:Joystick;
   navStatus:NavStatus;
