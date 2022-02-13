@@ -722,16 +722,16 @@
     ],
     "ServoCmd": [
         [
-            "bool",
-            "servo_0"
+            "double",
+            "angle0"
         ],
         [
-            "bool",
-            "servo_1"
+            "double",
+            "angle1"
         ],
         [
-            "bool",
-            "servo_2"
+            "double",
+            "angle2"
         ]
     ],
     "SetDemand": [
@@ -757,75 +757,75 @@
     ],
     "SpectralData": [
         [
-            "int16_t",
+            "int32_t",
             "d0_1"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d0_2"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d0_3"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d0_4"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d0_5"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d0_6"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d1_1"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d1_2"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d1_3"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d1_4"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d1_5"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d1_6"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d2_1"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d2_2"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d2_3"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d2_4"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d2_5"    
         ],
         [
-            "int16_t",
+            "int32_t",
             "d2_6"    
         ]
     ],
