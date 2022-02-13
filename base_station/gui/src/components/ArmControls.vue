@@ -197,7 +197,7 @@ export default {
       if (Math.abs(xboxData['right_js_x']) > this.xboxControlEpsilon) {
         return true
       }
-      if (Math.abs(xboxData['right_js_y'] - 0) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_js_y']) > this.xboxControlEpsilon) {
         return true
       }
       if (xboxData['left_bumper']) {

@@ -124,7 +124,7 @@ export default {
               'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
             }
             if (this.controlMode !== 'open-loop' && this.checkXboxInput(xboxData)) {
-              updateControlMode('open-loop', true)
+              this.forceOpenLoop()
             }
             if (this.controlMode === 'open-loop') {
               this.$parent.publish('/sa_control', xboxData)
@@ -165,53 +165,76 @@ export default {
       this.$parent.publish('/arm_control_state', armStateMsg);
     },
 
+    forceOpenLoop: function () {
+      console.log(this.controlMode)
+
+      if (this.controlMode === 'open-loop') {
+        return
+      }
+
+      if (this.controlMode === 'closed-loop') {
+        this.$refs['closed-loop'].toggle()
+      }
+
+      this.$refs['open-loop'].toggle()
+      this.controlMode = 'open-loop'
+
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': this.controlMode
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+    },
+
     checkXboxInput: function (xboxData) {
-      if (abs(xboxData[left_js_x]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['left_js_x']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[left_js_y]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['left_js_y']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[left_trigger]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['left_trigger']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[right_trigger]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_trigger']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[right_js_x]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_js_x']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[right_js_y] - 0) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_js_y']) > this.xboxControlEpsilon) {
         return true
       }
-      if (xboxData[left_bumper] !== 0) {
+      if (xboxData['left_bumper']) {
         return true
       }
-      if (xboxData[right_bumper] !== 0) {
+      if (xboxData['right_bumper']) {
         return true
       }
-      if (xboxData[a] !== 0) {
+      if (xboxData['a']) {
         return true
       }
-      if (xboxData[b] !== 0) {
+      if (xboxData['b']) {
         return true
       }
-      if (xboxData[x] !== 0) {
+      if (xboxData['x']) {
         return true
       }
-      if (xboxData[y] !== 0) {
+      if (xboxData['y']) {
         return true
       }
-      if (xboxData[d_pad_up] !== 0) {
+      if (xboxData['d_pad_up']) {
+        console.log('d')
         return true
       }
-      if (xboxData[d_pad_down] !== 0) {
+      if (xboxData['d_pad_down']) {
         return true
       }
-      if (xboxData[d_pad_right] !== 0) {
+      if (xboxData['d_pad_left']) {
         return true
       }
-      if (xboxData[d_pad_left] !== 0) {
+      if (xboxData['d_pad_right']) {
         return true
       }
       return false
