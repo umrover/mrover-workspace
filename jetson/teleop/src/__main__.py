@@ -4,8 +4,8 @@ from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
-                        SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, FootCmd)
+                        SAOpenLoopCmd, MastGimbalCmd, HandCmd,
+                        Keyboard, FootCmd, ArmControlState)
 
 
 class Toggle:
@@ -129,17 +129,38 @@ def drive_control_callback(channel, msg):
 
         joystick_math(new_motor, magnitude, theta)
 
-        damp = (input_data.dampen - 1)/(-2)
+        damp = (input_data.dampen - 1)/(2)
         new_motor.left *= damp
         new_motor.right *= damp
 
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
+def send_zero_arm_command():
+    openloop_msg = RAOpenLoopCmd()
+    openloop_msg.throttle = [0, 0, 0, 0, 0, 0]
+
+    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+
+    hand_msg = HandCmd()
+    hand_msg.finger = 0
+    hand_msg.grip = 0
+
+    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+
+
+def arm_control_state_callback(channel, msg):
+    arm_control_state = ArmControlState.decode(msg)
+
+    if arm_control_state != 'open-loop':
+        send_zero_arm_command()
+
+
 def ra_control_callback(channel, msg):
+
     xboxData = Xbox.decode(msg)
 
-    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
+    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_x), 0.09),
@@ -166,8 +187,8 @@ def autonomous_callback(channel, msg):
     joystick_math(new_motor, input_data.forward_back, input_data.left_right)
 
     temp = new_motor.left
-    new_motor.left = -1 * new_motor.right
-    new_motor.right = -1 * temp
+    new_motor.left = new_motor.right
+    new_motor.right = temp
 
     lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
@@ -224,8 +245,8 @@ def sa_control_callback(channel, msg):
     lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
 
     foot_msg = FootCmd()
-    foot_msg.microscope_triad = xboxData.a - xboxData.y
-    foot_msg.scoop = 0.5 * (xboxData.left_bumper - xboxData.right_bumper)
+    foot_msg.scoop = xboxData.a - xboxData.y
+    foot_msg.microscope_triad = 0.5 * (xboxData.left_bumper - xboxData.right_bumper)
     lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
 
@@ -238,11 +259,11 @@ def gimbal_control_callback(channel, msg):
     yawData = [keyboardData.a - keyboardData.d,
                keyboardData.j - keyboardData.l]
 
-    gimbal_msg = GimbalCmd()
+    gimbal_msg = MastGimbalCmd()
     gimbal_msg.pitch = pitchData
     gimbal_msg.yaw = yawData
 
-    lcm_.publish('/gimbal_openloop_cmd', gimbal_msg.encode())
+    lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
 
 
 def main():
@@ -253,6 +274,7 @@ def main():
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
+    lcm_.subscribe('/arm_control_state', arm_control_state_callback)
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),

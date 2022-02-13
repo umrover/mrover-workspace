@@ -19,12 +19,11 @@ run_jarvis() {
 
 make_jarvis_env() {
     # Make virtualenv for Jarvis
-    python3 -m venv "${JARVIS_VENV}"
-    # shellcheck source=/dev/null
+    python3 -m venv --copies --clear --prompt "jarvis boot venv" "${JARVIS_VENV}"
     source "${JARVIS_VENV}/bin/activate"
-	pip install --upgrade pip >/dev/null
-    pip install -r "${JARVIS_ROOT}/requirements.txt" >/dev/null
-    pip install "${JARVIS_ROOT}/jarvis_cmd" >/dev/null
+    pip3 install --upgrade pip
+    pip3 install --quiet -r "${JARVIS_ROOT}/requirements.txt"
+    pip3 install --quiet "${JARVIS_ROOT}/jarvis_cmd"
 }
 
 if [ ! -d "${MROVER_BUILD_ROOT}" ]; then
@@ -50,8 +49,8 @@ if [ "$1" = "upgrade" ]; then
     # Delete Jarvis env and rebuild it
     # shellcheck source=/dev/null
     source "${JARVIS_VENV}/bin/activate"
-    pip install -r "${JARVIS_ROOT}/requirements.txt" >/dev/null
-    pip install --upgrade "${JARVIS_ROOT}/jarvis_cmd" >/dev/null
+    pip3 install -r "${JARVIS_ROOT}/requirements.txt"
+    pip3 install --upgrade "${JARVIS_ROOT}/jarvis_cmd"
     exit 0
 fi
 

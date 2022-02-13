@@ -1,9 +1,5 @@
 <template>
   <div class="wrap">
-    <div class="header">
-      <h3> Arm Controls </h3>
-    </div>
-    <div class="controls">
       <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
       <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
       <div class="keyboard">
@@ -17,7 +13,6 @@
 import Checkbox from './Checkbox.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
-import {Toggle, quadratic, deadzone, joystick_math} from '../utils.js'
 import GimbalControls from './GimbalControls.vue'
 
 let interval;
@@ -25,7 +20,11 @@ let interval;
 export default {
   data() {
     return {
-      xboxControlEpsilon: 0.15
+      xboxControlEpsilon: 0.4,
+
+      stateInput: {
+        state: "off"
+      }
     }
   },
 
@@ -37,11 +36,37 @@ export default {
   },
 
   beforeDestroy: function () {
-    window.clearInterval(interval);
+    window.clearInterval(interval)
   },
 
 
   created: function () {
+
+    // Subscribe to requests to change state from IK backend
+    this.$parent.subscribe('/arm_control_state_to_gui', (msg) => {
+      console.log('received new state: ' + msg.state)
+
+      var new_state = msg.state
+
+      // If new state matches current state
+      if (new_state === this.controlMode) {
+        return
+      }
+
+      // If new state is not current state, turn off current state
+      if (this.controlMode === 'closed-loop' || this.controlMode === 'open-loop') {
+        this.$refs[this.controlMode].toggle()
+      }
+
+      if (new_state === 'closed-loop' || new_state === 'open-loop') {
+        this.$refs[new_state].toggle()
+        this.setControlMode(new_state)
+      }
+      else {
+        this.setControlMode('off')
+      }
+
+    })
 
     const XBOX_CONFIG = {
       'left_js_x': 0,
@@ -61,9 +86,6 @@ export default {
       'x': 2,
       'y': 3
     }
-
-    const electromagnet_toggle = new Toggle(false)
-    const laser_toggle = new Toggle(false)
 
 
     const updateRate = 0.1
@@ -92,11 +114,12 @@ export default {
               'x': gamepad.buttons[XBOX_CONFIG['x']]['pressed'],
               'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
             }
-            if (this.controlMode !== 'open-loop' && checkXboxInput(xboxData)) {
-              updateControlMode('open-loop', true)
+            if (this.controlMode !== 'open-loop' && this.checkXboxInput(xboxData)) {
+              console.log('forcing open loop')
+              this.forceOpenLoop()
             }
             if (this.controlMode === 'open-loop') {
-              this.$parent.publish('/ra_control', xboxData)   //how to change to ra/sa depending on which gui we're on?
+              this.$parent.publish('/ra_control', xboxData)
             }
           }
         }
@@ -107,16 +130,18 @@ export default {
   methods: {
     updateControlMode: function (mode, checked) {
 
+      console.log("updating control mode")
+
       if (checked) {
         // control mode can either be open loop or control mode, not both
-        if (this.controlMode !== '' && this.controlMode !== 'off'){
+        if (this.controlMode === 'closed-loop' || this.controlMode === 'open-loop') {
           this.$refs[this.controlMode].toggle()
         }
 
-        this.setControlMode(mode);
+        this.setControlMode(mode)
       }
       else {
-        this.setControlMode('off');
+        this.setControlMode('off')
       }
 
       const armStateMsg = {
@@ -124,56 +149,76 @@ export default {
         'state': this.controlMode
       }
 
-      this.$parent.publish('/arm_control_state', armStateMsg);
+      this.$parent.publish('/arm_control_state', armStateMsg)
+    },
+
+    forceOpenLoop: function () {
+      if (this.controlMode === 'open-loop') {
+        return
+      }
+
+      if (this.controlMode === 'closed-loop') {
+        this.$refs['closed-loop'].toggle()
+      }
+
+      this.$refs['open-loop'].toggle()
+      this.setControlMode('open-loop')
+
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': this.controlMode
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
     },
 
     checkXboxInput: function (xboxData) {
-      if (abs(xboxData[left_js_x]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['left_js_x']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[left_js_y]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['left_js_y']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[left_trigger]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['left_trigger']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[right_trigger]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_trigger']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[right_js_x]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_js_x']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[right_js_y] - 0) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_js_y'] - 0) > this.xboxControlEpsilon) {
         return true
       }
-      if (xboxData[left_bumper] !== 0) {
+      if (xboxData['left_bumper']) {
         return true
       }
-      if (xboxData[right_bumper] !== 0) {
+      if (xboxData['right_bumper']) {
         return true
       }
-      if (xboxData[a] !== 0) {
+      if (xboxData['a']) {
         return true
       }
-      if (xboxData[b] !== 0) {
+      if (xboxData['b']) {
         return true
       }
-      if (xboxData[x] !== 0) {
+      if (xboxData['x']) {
         return true
       }
-      if (xboxData[y] !== 0) {
+      if (xboxData['y']) {
         return true
       }
-      if (xboxData[d_pad_up] !== 0) {
+      if (xboxData['d_pad_up']) {
         return true
       }
-      if (xboxData[d_pad_down] !== 0) {
+      if (xboxData['d_pad_down']) {
         return true
       }
-      if (xboxData[d_pad_right] !== 0) {
+      if (xboxData['d_pad_left']) {
         return true
       }
-      if (xboxData[d_pad_left] !== 0) {
+      if (xboxData['d_pad_right']) {
         return true
       }
       return false
