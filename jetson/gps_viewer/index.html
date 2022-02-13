@@ -25,7 +25,33 @@
         tileSize: 512,
         zoomOffset: -1,
     }).addTo(map);
-    L.marker(wilsonCenter,).addTo(map)
+    const points = [wilsonCenter]
+    let polyline = L.polyline([]).addTo(map);
+    let point = L.marker(wilsonCenter).addTo(map);
+    setInterval(() => {
+        const xhr = new XMLHttpRequest();
+        const url = "http://localhost:8080/data/";
+        xhr.open("GET", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const json = JSON.parse(xhr.responseText);
+                const newPoint = [json.longitude, json.latitude];
+                if (newPoint[0] !== points[points.length - 1][0]
+                    || newPoint[1] !== points[points.length - 1][1]) {
+                    map.removeLayer(polyline)
+                    map.removeLayer(point)
+                    points.push(newPoint);
+                    while (points.length > 1024) {
+                        points.shift()
+                    }
+                    polyline = L.polyline(points).addTo(map);
+                    point = L.marker(newPoint).addTo(map);
+                }
+            }
+        };
+        xhr.send();
+    }, 100)
 </script>
 </body>
 </html>
