@@ -1176,6 +1176,7 @@
         "PiPicture",
         "PiSettings",
         "ProximitySensors",
+        "ReverseDrive",
         "RGB",
         "RGBFrame",
         "RGBLED",

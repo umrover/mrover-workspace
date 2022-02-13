@@ -22,13 +22,6 @@ export default {
       ramanLaser: 0
     }
   },
-  created:{ 
-    function () {
-      this.$parent.subscribe('/mosfet_cmd', (msg) => {
-        this.ramanLaser = msg.ramanLaser
-      })
-    }
-  },
   props: {
     mosfetIDs: {
       type: Object,

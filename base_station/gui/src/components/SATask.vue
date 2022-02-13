@@ -42,7 +42,7 @@
     </div>
     <div class="box drives light-bg">
       <div>
-        <ReverseToggle v-bind:reverse_toggle="reverse_toggle"/>
+        <ReverseToggle/>
       </div>
       <div>
         <DriveVelDataV/>

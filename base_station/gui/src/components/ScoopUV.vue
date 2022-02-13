@@ -89,13 +89,6 @@ export default {
       scoopUV: 0,
     }
   },
-  created:{ 
-    function () {
-      this.$parent.subscribe('/mosfet_cmd', (msg) => {
-        this.scoopUV = msg.scoopUV
-      })
-    }
-  },
   props: {
     mosfetIDs: {
       type: Object,

@@ -8,7 +8,7 @@
         <span v-if="reverse == 1" class="toggle__label" >Reverse</span>
         <span v-if="reverse == 0" class="toggle__label" >Forward</span>
 
-        <input type="checkbox" id="toggle_button" v-model="checkedValue">
+        <input type="checkbox" id="toggle_button">
         <span class="toggle__switch" v-if="reverse == 1" v-on:click="reverse=0, setPart(false)"></span>
         <span class="toggle__switch" v-if="reverse == 0" v-on:click="reverse=1, setPart(true)"></span>
     </label>

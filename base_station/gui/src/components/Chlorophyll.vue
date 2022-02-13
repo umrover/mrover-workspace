@@ -214,14 +214,6 @@ export default {
       UVLED: 0
     }
   },
-  created:{ 
-    function () {
-      this.$parent.subscribe('/mosfet_cmd', (msg) => {
-        this.whiteLEDS = msg.whiteLEDS
-        this.UVLED = msg.UVLED
-      })
-    }
-  },
   props: {
     mosfetIDs: {
       type: Object,
