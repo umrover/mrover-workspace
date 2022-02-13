@@ -82,9 +82,9 @@ protected:
     /* Protected Member Variables */
     /*************************************************************************/
     // Pointer to rover object
-    Rover* mPhoebe;
+    Rover* mRover;
 };
 
-GateStateMachine* GateFactory( StateMachine* stateMachine, Rover* phoebe, const rapidjson::Document& roverConfig );
+GateStateMachine* GateFactory( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig );
 
 #endif //GATE_STATE_MACHINE_HPP

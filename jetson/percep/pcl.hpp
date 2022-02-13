@@ -49,26 +49,48 @@ public:
 
 class PCL {
     public:
+        shared_ptr<pcl::visualization::PCLVisualizer> viewer;
+        shared_ptr<pcl::visualization::PCLVisualizer> viewer_original;
 
-    //Constructor
-    PCL() : 
-        bearing{0}, distance{0}, detected{false},
-        pt_cloud_ptr{new pcl::PointCloud<pcl::PointXYZRGB>} {
+        //Constants
+        int MAX_FIELD_OF_VIEW_ANGLE;
+        int PT_CLOUD_WIDTH;
+        int PT_CLOUD_HEIGHT;
+        int HALF_ROVER;
+        double UP_BD_Z;
+        double UP_BD_Y;
+        double LOW_BD ;
+        double ROVER_W_MM;
+        float LEAF_SIZE;
 
-        #if ZED_SDK_PRESENT
-        sl::Resolution cloud_res = sl::Resolution(PT_CLOUD_WIDTH, PT_CLOUD_HEIGHT);
-        cloudArea = cloud_res.area();
-        #else
-        cloudArea = PT_CLOUD_WIDTH*PT_CLOUD_HEIGHT;
+        //RANSAC constants
+        int MAX_ITERATIONS;
+        double SEGMENTATION_EPSLION;
+        double DISTANCE_THRESHOLD;
+
+        //Euclidean cluster constants
+        int CLUSTER_TOLERANCE;
+        int MIN_CLUSTER_SIZE;
+        int MAX_CLUSTER_SIZE;
+        
+        //member variables
+        double leftBearing;
+        double rightBearing;
+        double distance;
+        bool detected;
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr;
+        int cloudArea;
+
+        //Constructor
+        PCL(const rapidjson::Document &mRoverConfig);
+
+        //Destructor for PCL
+        ~PCL() {
+        #if OBSTACLE_DETECTION && PERCEPTION_DEBUG 
+            viewer -> close();
+            viewer_original -> close();
         #endif
-
-    };
-
-    double bearing;
-    double distance;
-    bool detected;
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr pt_cloud_ptr;
-    int cloudArea;
+        };
 
     private:
 
@@ -88,12 +110,10 @@ class PCL {
         void FindInterestPoints(std::vector<pcl::PointIndices> &cluster_indices, std::vector<std::vector<int>> &interest_points);
         
         //Finds a clear path given the obstacle corners
-        double FindClearPath(const std::vector<std::vector<int>> &interest_points,
-                           shared_ptr<pcl::visualization::PCLVisualizer> viewer);
+        void FindClearPath(const std::vector<std::vector<int>> &interest_points);
 
         //Determines whether the input path is obstructed
         bool CheckPath(const std::vector<std::vector<int>> &interest_points,
-               shared_ptr<pcl::visualization::PCLVisualizer> viewer,
                std::vector<int> &obstacles, compareLine leftLine, compareLine rightLine);
         
         /**
@@ -101,12 +121,16 @@ class PCL {
         \param direction: given 0 finds left clear path given 1 find right clear path
         */
         double getAngleOffCenter(int buffer, int direction, const std::vector<std::vector<int>> &interest_points,
-                    shared_ptr<pcl::visualization::PCLVisualizer> viewer, std::vector<int> &obstacles);
+                    std::vector<int> &obstacles);
 
     public:
         //Main function that runs the above 
-        void pcl_obstacle_detection(shared_ptr<pcl::visualization::PCLVisualizer> viewer);
+        void pcl_obstacle_detection();
 
+        //Updates point cloud in the visualizer
+        //Note: if bool is_original is true, we are using the original viewer
+        void updateViewer(bool is_original);
+        
         //Creates a point cloud visualizer
         shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer();
 

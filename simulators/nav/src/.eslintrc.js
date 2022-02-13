@@ -56,7 +56,7 @@ module.exports = {
         "total_wps"
        ]
     }],
-    "class-methods-use-this": "off",
+    "class-methods-use-this": "error",
     "comma-dangle": ["error", "never"],
     "comma-style": ["error", "last"],
     "consistent-return": "error",
@@ -241,7 +241,6 @@ module.exports = {
     {
       "files": ["store/modules/*State.ts"],
       "rules": {
-        "no-magic-numbers": "off",
         "no-param-reassign": "off"
       }
     },

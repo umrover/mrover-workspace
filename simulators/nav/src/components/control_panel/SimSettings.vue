@@ -25,17 +25,17 @@
       </div>
 
       <div class="setting">
-        <Button
+        <Checkbox
+          :on="simulateLoc"
           name="Simulate Localization"
-          :color-scheme="simulateLocColor"
-          @clicked="flipSimLoc"
+          @clicked="flipSimulateLoc(!simulateLoc)"
         />
       </div>
       <div class="setting">
-        <Button
+        <Checkbox
+          :on="simulatePercep"
           name="Simulate Perception"
-          :color-scheme="simulatePercepColor"
-          @clicked="flipSimPercep"
+          @clicked="flipSimulatePercep(!simulatePercep)"
         />
       </div>
     </div>
@@ -47,22 +47,14 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { BUTTON_COLOR_SCHEMES } from '../../utils/constants';
-import {
-  ColorScheme,
-  ColorSchemeName,
-  OdomFormat,
-  RadioOption,
-  SensorSimulationMode
-} from '../../utils/types';
-import { rotateSensorSimulationMode } from '../../utils/utils';
-import Button from '../common/Button.vue';
+import { OdomFormat, RadioOption } from '../../utils/types';
+import Checkbox from '../common/Checkbox.vue';
 import NumberInput from '../common/NumberInput.vue';
 import RadioSelector from '../common/RadioSelector.vue';
 
 @Component({
   components: {
-    Button,
+    Checkbox,
     NumberInput,
     RadioSelector
   }
@@ -78,10 +70,10 @@ export default class SimSettings extends Vue {
   private readonly odomFormat!:OdomFormat;
 
   @Getter
-  private readonly simulateLoc!:SensorSimulationMode;
+  private readonly simulateLoc!:boolean;
 
   @Getter
-  private readonly simulatePercep!:SensorSimulationMode;
+  private readonly simulatePercep!:boolean;
 
   /************************************************************************************************
    * Vuex Mutations
@@ -93,10 +85,10 @@ export default class SimSettings extends Vue {
   private readonly setOdomFormat!:(newOdomFormat:OdomFormat)=>void;
 
   @Mutation
-  private readonly flipSimulateLoc!:(newMode:SensorSimulationMode)=>void;
+  private readonly flipSimulateLoc!:(onOff:boolean)=>void;
 
   @Mutation
-  private readonly flipSimulatePercep!:(newMode:SensorSimulationMode)=>void;
+  private readonly flipSimulatePercep!:(onOff:boolean)=>void;
 
   /************************************************************************************************
    * Private Members
@@ -119,63 +111,9 @@ export default class SimSettings extends Vue {
     this.setFieldSize(newFieldSize);
   }
 
-  /* Color of the simulate localization button */
-  private get simulateLocColor():ColorScheme {
-    switch (this.simulateLoc) {
-      case SensorSimulationMode.OnWithNoise: {
-        return BUTTON_COLOR_SCHEMES[ColorSchemeName.Green];
-      }
-
-      case SensorSimulationMode.OnNoNoise: {
-        return BUTTON_COLOR_SCHEMES[ColorSchemeName.Yellow];
-      }
-
-      case SensorSimulationMode.Off: {
-        return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
-      }
-
-      default: {
-        console.log('ERROR: Unknown sensor simulation mode.');
-        return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
-      }
-    }
-  }
-
-  /* Color of the simulate perception button */
-  private get simulatePercepColor():ColorScheme {
-    switch (this.simulatePercep) {
-      case SensorSimulationMode.OnWithNoise: {
-        return BUTTON_COLOR_SCHEMES[ColorSchemeName.Green];
-      }
-
-      case SensorSimulationMode.OnNoNoise: {
-        return BUTTON_COLOR_SCHEMES[ColorSchemeName.Yellow];
-      }
-
-      case SensorSimulationMode.Off: {
-        return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
-      }
-
-      default: {
-        console.log('ERROR: Unknown sensor simulation mode.');
-        return BUTTON_COLOR_SCHEMES[ColorSchemeName.Red];
-      }
-    }
-  }
-
   /************************************************************************************************
    * Private Methods
    ************************************************************************************************/
-  /* Rotate to next simulation mode for localization. */
-  private flipSimLoc():void {
-    this.flipSimulateLoc(rotateSensorSimulationMode(this.simulateLoc));
-  } /* flipSimLoc() */
-
-  /* Rotate to next simulation mode for perception. */
-  private flipSimPercep():void {
-    this.flipSimulatePercep(rotateSensorSimulationMode(this.simulatePercep));
-  } /* flipSimPercep() */
-
   /* Change current odom format selection. */
   private selectOdomFormat(selectedOdomFormat:OdomFormat):void {
     this.setOdomFormat(selectedOdomFormat);
@@ -215,9 +153,5 @@ p {
 .sim-settings {
   display: flex;
   flex-wrap: wrap;
-}
-
-::v-deep .button-container input {
-  min-height: 26px;
 }
 </style>

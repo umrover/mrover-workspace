@@ -109,8 +109,4 @@ export default class NumberInput extends Vue {
 .number-input {
   display: inline-block;
 }
-
-.number-input input {
-  transition: 0.5s;
-}
 </style>

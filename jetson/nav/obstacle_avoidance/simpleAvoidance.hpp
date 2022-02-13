@@ -9,15 +9,17 @@
 class SimpleAvoidance : public ObstacleAvoidanceStateMachine
 {
 public:
-    SimpleAvoidance( StateMachine* roverStateMachine );
+    SimpleAvoidance( StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig );
 
     ~SimpleAvoidance();
 
-    NavState executeTurnAroundObs( Rover* phoebe, const rapidjson::Document& roverConfig );
+    NavState executeTurnAroundObs( Rover* rover, const rapidjson::Document& roverConfig );
 
-    NavState executeDriveAroundObs( Rover* phoebe );
 
-    Odometry createAvoidancePoint( Rover* phoebe, const double distance );
+    NavState executeDriveAroundObs( Rover* rover, const rapidjson::Document& roverConfig );
+
+
+    Odometry createAvoidancePoint( Rover* rover, const double distance );
 };
 
 #endif //SIMPLE_AVOIDANCE_HPP

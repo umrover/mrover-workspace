@@ -9,7 +9,7 @@ SpiralOut::~SpiralOut() {}
 
 // Initializes the search ponit multipliers to be the intermost loop
 // of the search.
-void SpiralOut::initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, const double visionDistance )
+void SpiralOut::initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, const double visionDistance )
 {
     mSearchPoints.clear();
 
@@ -22,11 +22,11 @@ void SpiralOut::initializeSearch( Rover* phoebe, const rapidjson::Document& rove
     while( mSearchPointMultipliers[ 0 ].second * visionDistance < roverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
-            Odometry nextSearchPoint = phoebe->roverStatus().path().front().odom;
+            Odometry nextSearchPoint = rover->roverStatus().path().front().odom;
             double totalLatitudeMinutes = nextSearchPoint.latitude_min +
                 ( mSearchPointMultiplier.first * visionDistance  * LAT_METER_IN_MINUTES );
             double totalLongitudeMinutes = nextSearchPoint.longitude_min +
-                ( mSearchPointMultiplier.second * visionDistance * phoebe->longMeterInMinutes() );
+                ( mSearchPointMultiplier.second * visionDistance * rover->longMeterInMinutes() );
             nextSearchPoint.latitude_deg += totalLatitudeMinutes / 60;
             nextSearchPoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes ) / 60 ) * 60 );
             nextSearchPoint.longitude_deg += totalLongitudeMinutes / 60;
@@ -39,5 +39,5 @@ void SpiralOut::initializeSearch( Rover* phoebe, const rapidjson::Document& rove
 
         }
     }
-    insertIntermediatePoints( phoebe, roverConfig );
+    insertIntermediatePoints();
 } // initializeSearch()

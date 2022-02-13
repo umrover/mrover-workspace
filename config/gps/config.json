@@ -1,0 +1,16 @@
+{
+    "onboard":
+    {
+        "baudrate": 115200,
+        "filename": "/dev/ttyACM0",
+        "max_error_count": 5,
+        "sleep": 0.1
+    },
+
+    "base_station":
+    {
+       "baudrate": 115200,
+       "filename": "/dev/ttyACM0",
+       "buffsize": 1024
+    }
+}

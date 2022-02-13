@@ -7,7 +7,7 @@
 
 LawnMower::~LawnMower() {}
 
-void LawnMower::initializeSearch( Rover* phoebe, const rapidjson::Document& roverConfig, const double visionDistance )
+void LawnMower::initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, const double visionDistance )
 {
     const double searchBailThresh = roverConfig[ "search" ][ "bailThresh" ].GetDouble();
 
@@ -25,12 +25,12 @@ void LawnMower::initializeSearch( Rover* phoebe, const rapidjson::Document& rove
     {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
-            Odometry nextSearchPoint = phoebe->roverStatus().odometry();
+            Odometry nextSearchPoint = rover->roverStatus().odometry();
 
             double totalLatitudeMinutes = nextSearchPoint.latitude_min +
                 ( mSearchPointMultiplier.first * visionDistance  * LAT_METER_IN_MINUTES );
             double totalLongitudeMinutes = nextSearchPoint.longitude_min +
-                ( mSearchPointMultiplier.second * (2 * searchBailThresh) * phoebe->longMeterInMinutes() );
+                ( mSearchPointMultiplier.second * (2 * searchBailThresh) * rover->longMeterInMinutes() );
 
             nextSearchPoint.latitude_deg += totalLatitudeMinutes / 60;
             nextSearchPoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes ) / 60 ) * 60 );
@@ -41,5 +41,5 @@ void LawnMower::initializeSearch( Rover* phoebe, const rapidjson::Document& rove
             mSearchPoints.push_back( nextSearchPoint );
         }
     }
-    insertIntermediatePoints( phoebe, roverConfig );
+    insertIntermediatePoints();
 } // initializeSearch()

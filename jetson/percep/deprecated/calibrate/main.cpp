@@ -12,6 +12,7 @@ using namespace std;
 #define PI 3.14159265
 
 int main(){
+
 	Camera cam;
 	int counter_fail = 0;
 	while (!cam.grab()) {

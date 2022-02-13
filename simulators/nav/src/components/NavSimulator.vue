@@ -56,7 +56,6 @@ import {
   NavStatus,
   ObstacleMessage,
   Odom,
-  SensorSimulationMode,
   Speeds,
   TargetListMessage,
   Waypoint,
@@ -107,9 +106,6 @@ export default class NavSimulator extends Vue {
   private readonly currOdom!:Odom;
 
   @Getter
-  private readonly currOdomNoisy!:Odom;
-
-  @Getter
   private readonly currSpeed!:Speeds;
 
   @Getter
@@ -128,9 +124,6 @@ export default class NavSimulator extends Vue {
   private readonly obstacleMessage!:ObstacleMessage;
 
   @Getter
-  private readonly obstacleMessageNoisy!:ObstacleMessage;
-
-  @Getter
   private readonly paused!:boolean;
 
   @Getter
@@ -143,10 +136,10 @@ export default class NavSimulator extends Vue {
   private readonly repeaterLoc!:Odom|null;
 
   @Getter
-  private readonly simulateLoc!:SensorSimulationMode;
+  private readonly simulateLoc!:boolean;
 
   @Getter
-  private readonly simulatePercep!:SensorSimulationMode;
+  private readonly simulatePercep!:boolean;
 
   @Getter
   private readonly takeStep!:boolean;
@@ -281,7 +274,7 @@ export default class NavSimulator extends Vue {
      odometry based on this movement. */
   private applyJoystickCmd():void {
     /* if not simulating localization, nothing to do */
-    if (this.simulateLoc === SensorSimulationMode.Off) {
+    if (!this.simulateLoc) {
       return;
     }
     const deltaTimeSeconds:number = TIME_INTERVAL_MILLI / ONE_SECOND_MILLI;
@@ -360,13 +353,13 @@ export default class NavSimulator extends Vue {
           this.setNavStatus(msg.message);
         }
         else if (msg.topic === '/obstacle') {
-          if (this.simulatePercep === SensorSimulationMode.Off) {
+          if (!this.simulatePercep) {
             this.percepPulse = true;
             this.setObstacleMessage(msg.message);
           }
         }
         else if (msg.topic === '/odometry') {
-          if (this.simulateLoc === SensorSimulationMode.Off) {
+          if (!this.simulateLoc) {
             this.locPulse = true;
             this.setCurrOdom(msg.message);
           }
@@ -375,7 +368,7 @@ export default class NavSimulator extends Vue {
           this.dropRepeater();
         }
         else if (msg.topic === '/target_list') {
-          if (this.simulatePercep === SensorSimulationMode.Off) {
+          if (!this.simulatePercep) {
             this.percepPulse = true;
             this.setTargetList(msg.message.targetList);
           }
@@ -413,25 +406,13 @@ export default class NavSimulator extends Vue {
     this.intervalLcmPublish = window.setInterval(() => {
       this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn });
 
-      if (this.simulateLoc !== SensorSimulationMode.Off) {
-        let odom:any;
-        if (this.simulateLoc === SensorSimulationMode.OnWithNoise) {
-          odom = Object.assign(this.currOdomNoisy, { type: 'Odometry' });
-        }
-        else {
-          odom = Object.assign(this.currOdom, { type: 'Odometry' });
-        }
+      if (this.simulateLoc) {
+        const odom:any = Object.assign(this.currOdom, { type: 'Odometry' });
         this.publish('/odometry', odom);
       }
 
-      if (this.simulatePercep !== SensorSimulationMode.Off) {
-        let obs:any;
-        if (this.simulatePercep === SensorSimulationMode.OnWithNoise) {
-          obs = Object.assign(this.obstacleMessageNoisy, { type: 'Obstacle' });
-        }
-        else {
-          obs = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
-        }
+      if (this.simulatePercep) {
+        const obs:any = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
         this.publish('/obstacle', obs);
 
         const targetList:any = { targetList: this.targetList, type: 'TargetList' };

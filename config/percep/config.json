@@ -1,0 +1,67 @@
+{ 
+    "mm_per_m": 1000,
+
+    "camera":
+    {
+        "threshold_confidence": 90,
+        "frame_write_interval": 10
+    },
+
+    "ar_tag": 
+    {
+        "default_tag_val": -1,
+        "buffer_iterations": 20
+    },
+    
+
+    "pt_cloud":
+    {   
+        "max_field_of_view_angle": 70,
+        "pt_cloud_width": 320,
+        "pt_cloud_height": 180,
+        "rover_w_mm": 1168,
+        "half_rover": 584,
+        "center_x": 0,
+        "downsample_voxel_filter": 20.0,
+       
+        "ransac": {
+            "max_iterations": 400,
+            "segmentation_epsilon": 10,
+            "distance_threshold": 100
+        },
+
+        "pass_through": {
+            "upper_bd_z": 7000.0,
+            "upper_bd_y": 3000.0, 
+            "lower_bd": 0.0
+        },
+
+        "euclidean_cluster": {
+            "cluster_tolerance": 60,
+            "min_cluster_size": 20, 
+            "max_cluster_size": 10000
+        }
+    },
+
+    "zed_specs":
+    {
+        "resolution_width": 1280,
+        "resolution_height": 720,
+        "focalLength": 2.8
+    },
+
+    "rover_specs":
+    {
+        "zed_height": 0.4318000078,
+        "real_width": 1168.400024,
+        "angle_offset": 0.1745329201
+    },
+
+    "alvar_params":
+    {
+        "marker_border_bits": 2,
+        "do_corner_refinement": 0,
+        "polygonal_approx_accuracy_rate": 0.08
+
+    }
+} 

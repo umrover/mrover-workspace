@@ -1,0 +1,10 @@
+package rover_msgs;
+
+struct RTCM {
+
+    // This struct carries the binary encoding of RTCM messsages
+    // frome the base station gps to the onboard gps
+
+    int32_t size;
+    int32_t data[size];
+}

@@ -18,10 +18,8 @@ import {
   Joystick,
   Odom,
   OdomFormat,
-  SensorSimulationMode,
   ZedGimbalPosition
 } from '../utils/types';
-import { rotateSensorSimulationMode } from '../utils/utils';
 
 @Component({})
 export default class HotKeys extends Vue {
@@ -44,10 +42,10 @@ export default class HotKeys extends Vue {
   private readonly paused!:boolean;
 
   @Getter
-  private readonly simulateLoc!:SensorSimulationMode;
+  private readonly simulateLoc!:boolean;
 
   @Getter
-  private readonly simulatePercep!:SensorSimulationMode;
+  private readonly simulatePercep!:boolean;
 
   @Getter
   private readonly zedGimbalPos!:ZedGimbalPosition;
@@ -59,10 +57,10 @@ export default class HotKeys extends Vue {
   private readonly clearRoverPath!:()=>void;
 
   @Mutation
-  private readonly flipSimulateLoc!:(newMode:SensorSimulationMode)=>void;
+  private readonly flipSimulateLoc!:(onOff:boolean)=>void;
 
   @Mutation
-  private readonly flipSimulatePercep!:(newMode:SensorSimulationMode)=>void;
+  private readonly flipSimulatePercep!:(onOff:boolean)=>void;
 
   @Mutation
   private readonly setAutonState!:(onOff:boolean)=>void;
@@ -146,12 +144,12 @@ export default class HotKeys extends Vue {
 
   /* Turn on and off simulating localization. */
   private flipSimLoc():void {
-    this.flipSimulateLoc(rotateSensorSimulationMode(this.simulateLoc));
+    this.flipSimulateLoc(!this.simulateLoc);
   } /* flipSimLoc() */
 
   /* Turn on and off simulating perception. */
   private flipSimPercep():void {
-    this.flipSimulatePercep(rotateSensorSimulationMode(this.simulatePercep));
+    this.flipSimulatePercep(!this.simulatePercep);
   } /* flipSimPercep() */
 
   /* Apply one joystick command based on "manual" input. */

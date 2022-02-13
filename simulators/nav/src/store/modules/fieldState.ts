@@ -40,7 +40,7 @@ const getters = {
 
   fieldSize: (fieldState:FieldState):number => fieldState.size,
 
-  fldState: (fieldState:FieldState):FieldState => fieldState,
+  fieldState: (fieldState:FieldState):FieldState => fieldState,
 
   gates: (fieldState:FieldState):Gate[] => fieldState.gates,
 

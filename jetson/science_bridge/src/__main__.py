@@ -22,7 +22,7 @@ class ScienceBridge():
             "THERMISTOR": self.thermistor_handler,
             "TRIAD": self.triad_handler,
             "TXT": self.txt_handler,
-            "CAROUSEL":self.carousel_handler,
+            "CAROUSEL": self.carousel_handler,
         }
 
         self.max_error_count = 20
@@ -57,11 +57,10 @@ class ScienceBridge():
             struct_variables = ["d0_1", "d0_2", "d0_3", "d0_4", "d0_5", "d0_6",
                                 "d1_1", "d1_2", "d1_3", "d1_4", "d1_5", "d1_6",
                                 "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
-            # print(arr)
             count = 1
             for var in struct_variables:
                 if (not (count >= len(arr))):
-                    setattr(spectral_struct, var, ((np.int16(arr[count]) << 8) | (np.int16(arr[count + 1]))))
+                    setattr(spectral_struct, var, 0xFFFF & ((np.uint8(arr[count]) << 8) | (np.uint8(arr[count + 1]))))
                 else:
                     setattr(spectral_struct, var, 0)
                 count += 2
@@ -92,14 +91,11 @@ class ScienceBridge():
             struct_variables = ["d0_1", "d0_2", "d0_3", "d0_4", "d0_5", "d0_6",
                                 "d1_1", "d1_2", "d1_3", "d1_4", "d1_5", "d1_6",
                                 "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
-            print(arr)
             count = 1
             for var in struct_variables:
                 if (not (count >= len(arr))):
                     pass
-                    x = 3
-                    print(((np.int16(arr[count+1]) << 8) | (np.int16(arr[count]))))
-                    setattr(triad_struct, var, ((np.int16(arr[count+1]) << 8) | (np.int16(arr[count]))))
+                    setattr(triad_struct, var, 0xFFFF & ((np.uint8(arr[count+1]) << 8) | (np.uint8(arr[count]))))
                 else:
                     setattr(triad_struct, var, 0)
                 count += 2
@@ -116,13 +112,12 @@ class ScienceBridge():
         '''
         print(msg)
 
-    def carousel_handler(self,msg,carousel_struct):
+    def carousel_handler(self, msg, carousel_struct):
         try:
             arr = msg.split(",")
             carousel_struct.position = np.int8(arr[0])
         except:
             pass
-
 
     def repeater_handler(self, msg, struct):
         # Expected to be an empty message so nothing is done
@@ -155,7 +150,7 @@ class ScienceBridge():
         # const int8_t ramanLaser = 10;
         # Starts from 0-2 for all the leds
         # Resets to 1 starting at Laser(3) so offset by 2
-        if(translated_device > 2):
+        if (translated_device > 2):
             translated_device -= 2
         message = message.format(device=translated_device,
                                  enable=int(struct.enable))
@@ -166,12 +161,12 @@ class ScienceBridge():
         # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
         # single digits have 7 + 1 + 1 + 1 + 1 + 1 + 7 = 19, need to add one
         while(len(message) < 30):
-            # Add an extra 1 for padding
-            message += "1"
+            # Add an extra , for padding
+            message += ","
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf8'))
+            self.ser.write(bytes(message, encoding='utf-8'))
         print("Mosfet Received")
         pass
 
@@ -188,7 +183,7 @@ class ScienceBridge():
         if struct.nav_state_name == "Off":
             print("navstatus off")
             offmessage = message.format(device=2, enable=1) + "1"
-            self.ser.write(bytes(offmessage, encoding='utf8'))
+            self.ser.write(bytes(offmessage, encoding='utf-8'))
             prev = 2
         # Done = Flashing green
         elif struct.nav_state_name == "Done":
@@ -196,25 +191,25 @@ class ScienceBridge():
             # Flashing by turning on and off for 1 second intervals
             # Maybe change to
             for i in range(0, 6):
-                self.ser.write(bytes(message.format(device=1, enable=1), encoding='utf8'))
+                self.ser.write(bytes(message.format(device=1, enable=1), encoding='utf-8'))
                 time.sleep(1)
-                self.ser.write(bytes(message.format(device=1, enable=0), encoding='utf8'))
+                self.ser.write(bytes(message.format(device=1, enable=0), encoding='utf-8'))
                 time.sleep(1)
                 prev = 1
         # Everytime else = Red
         else:
             print("navstatus else")
             messageon = message.format(device=0, enable=1)
-            self.ser.write(bytes(messageon, encoding='utf8'))
+            self.ser.write(bytes(messageon, encoding='utf-8'))
             prev = 0
         time.sleep(1)
         # Green should be in a finished state so no need to turn it off
         if (prev != 2):
             self.ser.write(bytes(message.format(device=2, enable=0),
-                                 encoding='utf8'))
+                                 encoding='utf-8'))
         if (prev != 0):
             self.ser.write(bytes(message.format(device=0, enable=0),
-                                 encoding='utf8'))
+                                 encoding='utf-8'))
 
     def servo_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
@@ -223,25 +218,23 @@ class ScienceBridge():
         # parse data into expected format
         message = "$Servo,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
-        print(len(message))
+        print(message)
         while(len(message) < 30):
             message += ","
-        print(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
             self.ser.write(bytes(message, encoding='utf-8'))
 
-    def carousel_transmit(self,channel,msg):
+    def carousel_transmit(self, channel, msg):
         struct = CarouselCmd.decode(msg)
         print("Received Servo Cmd")
         # parse data into expected format
         message = "$CAROUSEL,{position}"
         message = message.format(position=struct.position)
-        print(len(message))
+        print(message)
         while(len(message) < 30):
             message += ","
-        print(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
@@ -262,7 +255,6 @@ class ScienceBridge():
                     error_counter = 0
                     tx = self.ser.readline()
                     msg = str(tx)
-                    print(msg)
 
                 except Exception as e:
                     print("Errored")
@@ -276,23 +268,21 @@ class ScienceBridge():
                 match_found = False
                 for tag, func in self.NMEA_HANDLE_MAPPER.items():
                     if tag in msg:
+                        print(msg)
                         match_found = True
                         try:
-                            if(tag == "SPECTRAL"):
+                            if (tag == "SPECTRAL"):
                                 self.spectral_handler(tx.decode(), spectral)
                                 lcm.publish('/spectral_data', spectral.encode())
-                                print('published spectral struct?')
-                            if(tag == "THERMISTOR"):
+                            if (tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
                                 lcm.publish('/thermistor_data', thermistor.encode())
-                            if(tag == "TRIAD"):
+                            if (tag == "TRIAD"):
                                 self.triad_handler(msg, triad)
-                                print(triad)
                                 lcm.publish('/spectral_triad_data', triad.encode())
-                            if(tag == "CAROUSEL"):
-                                self.carousel_handler(msg,carousel)
-                                print(carousel)
-                                lcm.publish('/carousel_data',carousel.encode())
+                            if (tag == "CAROUSEL"):
+                                self.carousel_handler(msg, carousel)
+                                lcm.publish('/carousel_data', carousel.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
