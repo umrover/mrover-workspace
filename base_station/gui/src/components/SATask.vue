@@ -17,8 +17,6 @@
       </div>
       <div class="helpscreen"></div>
       <div class="helpimages" style="display: flex; align-items: center; justify-content: space-evenly">
-        <img v-if="controlMode === 'arm'" src="/static/arm.png" alt="Robot Arm" title="Robot Arm Controls" style="width: auto; height: 70%; display: inline-block" />
-        <img v-else-if="controlMode === 'soil_ac'" src="/static/soil_ac.png" alt="Soil Acquisition" title="Soil Acquisition Controls" style="width: auto; height: 70%; display: inline-block" />
         <img src="/static/joystick.png" alt="Joystick" title="Joystick Controls" style="width: auto; height: 70%; display: inline-block" />
       </div>
     </div>
@@ -231,7 +229,9 @@ export default {
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/carousel_data', 'type': 'CarouselData'},
-        {'topic': '/carousel_cmd', 'type': 'CarouselCmd'}
+        {'topic': '/carousel_cmd', 'type': 'CarouselCmd'},
+        {'topic': '/sa_position', 'type': 'SAPosition'},
+        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'}
       ]
     )
 

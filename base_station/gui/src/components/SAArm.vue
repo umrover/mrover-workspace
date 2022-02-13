@@ -27,9 +27,6 @@
 
 <script>
 import Checkbox from './Checkbox.vue'
-import { mapGetters, mapMutations } from 'vuex'
-
-import {Toggle, quadratic, deadzone, joystick_math} from '../utils.js'
 import GimbalControls from './GimbalControls.vue'
 
 let interval;
@@ -37,22 +34,16 @@ let interval;
 export default {
   data() {
     return {
-        xboxControlEpsilon: 0.15,
-        SAPosition: {
-            joint_a: 0,
-            joint_b: 0,
-            joint_c: 0,
-            joint_e: 0
-        },
-        position: "stowed"
+      controlMode: 'off',
+      xboxControlEpsilon: 0.4,
+      SAPosition: {
+        joint_a: 0,
+        joint_b: 0,
+        joint_c: 0,
+        joint_e: 0
+      },
+      position: "stowed"
     }
-  },
-
-  computed: {
-
-    ...mapGetters('controls', {
-      controlMode: 'controlMode'
-    }),
   },
 
   beforeDestroy: function () {
@@ -60,14 +51,33 @@ export default {
   },
 
 
-  created: 
-    function () {
-        this.$parent.subscribe('/sa_position', (msg) => {
-        this.SAPosition = msg
-        })
-    },
+  created: function () {
+    this.$parent.subscribe('/sa_position', (msg) => {
+      console.log("Received SAPosition")
+      this.SAPosition = msg
+    })
+
+    // Subscribe to requests to change state from IK backend
+    this.$parent.subscribe('/arm_control_state_to_gui', (msg) => {
+      console.log('received new state: ' + msg.state)
+      var new_state = msg.state
+      // If new state matches current state
+      if (new_state === this.controlMode) {
+        return
+      }
+      // If new state is not current state, turn off current state
+      if (this.controlMode === 'closed-loop' || this.controlMode === 'open-loop') {
+        this.$refs[this.controlMode].toggle()
+      }
+      if (new_state === 'closed-loop' || new_state === 'open-loop') {
+        this.$refs[new_state].toggle()
+        this.controlMode = new_state
+      }
+      else {
+        this.controlMode = 'off'
+      }
+    })
   
-    function () {
     const XBOX_CONFIG = {
       'left_js_x': 0,
       'left_js_y': 1,
@@ -86,11 +96,6 @@ export default {
       'x': 2,
       'y': 3
     }
-
-
-    const electromagnet_toggle = new Toggle(false)
-    const laser_toggle = new Toggle(false)
-
 
     const updateRate = 0.1
     interval = window.setInterval(() => {
@@ -137,8 +142,7 @@ export default {
         'position': position
       })
     },
-    
-    
+
     updateControlMode: function (mode, checked) {
 
       if (checked) {
@@ -147,10 +151,10 @@ export default {
           this.$refs[this.controlMode].toggle()
         }
 
-        this.setControlMode(mode);
+        this.controlMode = mode;
       }
       else {
-        this.setControlMode('off');
+        this.controlMode = 'off';
       }
 
       const armStateMsg = {
@@ -211,11 +215,7 @@ export default {
         return true
       }
       return false
-    },
-
-    ...mapMutations('controls', {
-      setControlMode: 'setControlMode'
-    })
+    }
   },
 
   components: {

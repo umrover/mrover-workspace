@@ -49,6 +49,7 @@
         },
         messages: [],
         viewing: {
+          '/arm_control_state': false,
           '/arm_preset': false,
           '/arm_motors': false,
           '/arm_toggles_button_data': false,
@@ -109,6 +110,7 @@
         subscriptions: [
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
           {'topic': '/arm_toggles_toggle_data', 'type': 'ArmToggles'},
+          {'topic': '/arm_control_state', 'type': 'ArmControlState'},
           {'topic': '/arm_preset', 'type': 'ArmPreset'},
           {'topic': '/ik_ra_control', 'type': 'ArmPosition'},
           {'topic': '/auton', 'type': 'AutonState'},
