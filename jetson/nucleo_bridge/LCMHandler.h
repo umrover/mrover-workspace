@@ -12,17 +12,14 @@
 
 #include <rover_msgs/RAOpenLoopCmd.hpp>
 #include <rover_msgs/SAOpenLoopCmd.hpp>
-#include <rover_msgs/ArmPosition.hpp>
-#include <rover_msgs/SAClosedLoopCmd.hpp>
+#include <rover_msgs/RAPosition.hpp>
+#include <rover_msgs/SAPosition.hpp>
+#include <rover_msgs/MastGimbalCmd.hpp>
+#include <rover_msgs/HandCmd.hpp>
+#include <rover_msgs/FootCmd.hpp>
 #include <rover_msgs/RAConfigCmd.hpp>
 #include <rover_msgs/SAConfigCmd.hpp>
-#include <rover_msgs/HandCmd.hpp>
-#include <rover_msgs/GimbalCmd.hpp>
-#include <rover_msgs/RAPosData.hpp>
-#include <rover_msgs/SAPosData.hpp>
 #include <rover_msgs/SAZeroTrigger.hpp>
-#include <rover_msgs/FootCmd.hpp>
-#include <rover_msgs/ArmPosition.hpp>
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()
@@ -46,9 +43,9 @@ private:
     {
     public: 
     	//The following functions are handlers for the corresponding lcm messages
-        void ra_closed_loop_cmd(LCM_INPUT, const ArmPosition *msg);
+        void ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg);
 
-        void sa_closed_loop_cmd(LCM_INPUT, const SAClosedLoopCmd *msg);
+        void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
 
         void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
 
@@ -58,7 +55,7 @@ private:
 
         void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
 
-        void gimbal_cmd(LCM_INPUT, const GimbalCmd *msg);
+        void gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
 
         void refreshAngles();
 
