@@ -34,7 +34,7 @@ def main():
     global start_time
     global watchdog
 
-    start_time = t.clock()
+    start_time = t.process_time()
 
     legal_controller = int(sys.argv[1])
 
@@ -51,7 +51,7 @@ def main():
     # start up sequence is called, disconnected-->disarm-->arm
 
     while True:
-        watchdog = t.clock() - start_time
+        watchdog = t.process_time() - start_time
         if (watchdog > 1.0):
             print("loss of comms")
 
@@ -139,7 +139,7 @@ class DisconnectedState(State):
                 modrive.reset_watchdog()
                 modrive.arm()
                 return ArmedState()
-        except:
+        except Exception as e:  # noqa: F841
             print("trying to arm")
 
         return self
@@ -203,7 +203,7 @@ class ErrorState(State):
         if (event == "odrive error"):
             try:
                 modrive.reboot()  # only runs after initial pairing
-            except:
+            except Exception as e:  # noqa: F841
                 print('channel error caught')
             return DisconnectedState()
 

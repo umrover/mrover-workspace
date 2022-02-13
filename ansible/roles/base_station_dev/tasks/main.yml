@@ -18,6 +18,12 @@
     repo: deb https://dl.yarnpkg.com/debian/ stable main
     state: present
 
+- name: Set up chromium repository
+  apt_repository:
+          repo: "deb https://ppa.launchpadcontent.net/phd/chromium-browser/ubuntu {{ ubuntu_release }} main"
+          state: present
+          validate_certs: no
+
 - name: Install developer packages
   apt: 
     name:
