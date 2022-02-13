@@ -236,7 +236,7 @@ class ScienceBridge():
         struct = CarouselCmd.decode(msg)
         print("Received Servo Cmd")
         # parse data into expected format
-        message = "$Carousel,{position}"
+        message = "$CAROUSEL,{position}"
         message = message.format(position=struct.position)
         print(len(message))
         while(len(message) < 30):
