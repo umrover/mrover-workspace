@@ -4,7 +4,7 @@ from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
-                        SAOpenLoopCmd, GimbalCmd, HandCmd,
+                        SAOpenLoopCmd, MastGimbalCmd, HandCmd,
                         Keyboard, FootCmd, ArmControlState)
 
 
@@ -235,7 +235,9 @@ def sa_control_callback(channel, msg):
 
     saMotorsData = [deadzone(quadratic(xboxData.left_js_x), 0.09),
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    -deadzone(quadratic(xboxData.right_js_y), 0.09)]
+                    -deadzone(quadratic(xboxData.right_js_y), 0.09),
+                    quadratic(xboxData.right_trigger -
+                              xboxData.left_trigger)]
 
     openloop_msg = SAOpenLoopCmd()
     openloop_msg.throttle = saMotorsData
@@ -243,8 +245,8 @@ def sa_control_callback(channel, msg):
     lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
 
     foot_msg = FootCmd()
-    foot_msg.claw = xboxData.a - xboxData.y
-    foot_msg.sensor = 0.5 * (xboxData.left_bumper - xboxData.right_bumper)
+    foot_msg.scoop = xboxData.a - xboxData.y
+    foot_msg.microscope_triad = 0.5 * (xboxData.left_bumper - xboxData.right_bumper)
     lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
 
@@ -257,11 +259,11 @@ def gimbal_control_callback(channel, msg):
     yawData = [keyboardData.a - keyboardData.d,
                keyboardData.j - keyboardData.l]
 
-    gimbal_msg = GimbalCmd()
+    gimbal_msg = MastGimbalCmd()
     gimbal_msg.pitch = pitchData
     gimbal_msg.yaw = yawData
 
-    lcm_.publish('/gimbal_openloop_cmd', gimbal_msg.encode())
+    lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
 
 
 def main():

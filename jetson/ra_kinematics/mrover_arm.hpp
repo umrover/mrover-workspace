@@ -16,7 +16,7 @@
 #include "kinematics.hpp"
 
 // LCM messages
-#include "rover_msgs/ArmPosition.hpp"
+#include "rover_msgs/RAPosition.hpp"
 #include "rover_msgs/MotionExecute.hpp"
 #include "rover_msgs/FKTransform.hpp"
 #include "rover_msgs/TargetOrientation.hpp"
@@ -123,10 +123,10 @@ public:
      * Handle message with updated joint angles from encoders,
      * update arm_state and call FK() to adjust transforms
      * 
-     * @param channel expected: "/arm_position"
+     * @param channel expected: "/ra_position"
      * @param msg format: double joint_a, joint_b, ... , joint_f
      * */
-    void arm_position_callback(std::string channel, ArmPosition msg);
+    void arm_position_callback(std::string channel, RAPosition msg);
 
     /**
      * Handle new target position by calculating angles and plotting path,
@@ -141,7 +141,7 @@ public:
      * Handle request to go to specific set of angles
      * @param msg format: double joint_a, joint_b, joint_c, joint_d, joint_e, joint_f
      * */
-    void go_to_target_angles(ArmPosition msg);
+    void go_to_target_angles(RAPosition msg);
 
     /**
      * Handle request to move arm through previously calculated path, or to cancel
