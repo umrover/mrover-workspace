@@ -6,7 +6,7 @@
         <span v-if="ramanLaser == 1" class="toggle__label" >Raman Laser On</span>
         <span v-if="ramanLaser == 0" class="toggle__label" >Raman Laser Off</span>
 
-        <input type="checkbox" id="toggle_button" v-model="checkedValue">
+        <input type="checkbox" id="toggle_button">
           <span class="toggle__switch" v-if="ramanLaser== 0" v-on:click="ramanLaser=1,setPart(mosfetIDs.ramanLaser, true)"></span>
           <span class="toggle__switch" v-if="ramanLaser == 1" v-on:click="ramanLaser=0,setPart(mosfetIDs.ramanLaser, false)"></span>
       </label>
@@ -15,8 +15,6 @@
 </template>
 
 <script>
-import {convertDMS} from '../utils.js';
-import {mapGetters} from 'vuex';
 
 export default {
   data () {
