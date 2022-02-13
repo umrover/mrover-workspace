@@ -71,7 +71,8 @@ export const state:SimulatorState = {
   simSettings: {
     simulateLoc: true,
     simulatePercep: true,
-    noisePercent: 33.3
+    noisePercent: 33.3,
+    noiseGPSPercent: 50
   },
 
   startLoc: {
@@ -122,6 +123,8 @@ const getters = {
 
   noisePercent: (simState:SimulatorState):number => simState.simSettings.noisePercent,
 
+  noiseGPSPercent: (simState:SimulatorState):number => simState.simSettings.noiseGPSPercent,
+
   startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
   takeStep: (simState:SimulatorState):boolean => simState.debugOptions.takeStep,
@@ -162,6 +165,10 @@ const mutations = {
 
   setNoisePercent: (simState:SimulatorState, newNoisePercent:number):void => {
     simState.simSettings.noisePercent = newNoisePercent;
+  },
+
+  setGPSNoisePercent: (simState:SimulatorState, newNoisePercent:number):void => {
+    simState.simSettings.noiseGPSPercent = newNoisePercent;
   },
 
   pushToRoverPath: (simState:SimulatorState, currLoc:Odom):void => {

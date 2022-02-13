@@ -262,6 +262,7 @@ export interface SimulationSettings {
   simulateLoc:boolean;
   simulatePercep:boolean;
   noisePercent:number;
+  noiseGPSPercent:number;
 }
 
 

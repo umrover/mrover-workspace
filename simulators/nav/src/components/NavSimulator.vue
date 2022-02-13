@@ -49,7 +49,11 @@ import { Getter, Mutation } from 'vuex-class';
 import { RADIO } from '../utils/constants';
 import {
   applyJoystickCmdUtil,
-  applyZedGimbalCmdUtil
+  applyZedGimbalCmdUtil,
+  randnBm,
+  metersToOdom,
+  odomToMeters,
+  compassModDeg
 } from '../utils/utils';
 import {
   Joystick,
@@ -59,7 +63,8 @@ import {
   Speeds,
   TargetListMessage,
   Waypoint,
-  ZedGimbalPosition
+  ZedGimbalPosition,
+  Point2D
 } from '../utils/types';
 import ControlPanel from './control_panel/ControlPanel.vue';
 import Field from './field/Field.vue';
@@ -70,6 +75,7 @@ import HotKeys from './HotKeys.vue';
 import LCMBridge from '../../deps/lcm_bridge_client/dist/bridge.js';
 import LCMCenter from './lcm_center/LCMCenter.vue';
 import Perception from './perception/Perception.vue';
+import { state } from '../store/modules/simulatorState';
 
 /**************************************************************************************************
  * Constants
@@ -272,12 +278,35 @@ export default class NavSimulator extends Vue {
    ************************************************************************************************/
   /* Apply the current joystick message to move the rover. Update the current
      odometry based on this movement. */
+  private applyGPSNoise():Odom {
+    console.log('lat old: ', this.currOdom.latitude_min, 'long old: ', this.currOdom.longitude_min);
+    const maxOffDist = 1;
+
+    /* eslint no-magic-numbers: ["error", { "ignore": [100, 0, 1] }] */
+    const factor = 100;
+    const num1:number = randnBm(-state.simSettings.noiseGPSPercent * maxOffDist /
+    factor, state.simSettings.noiseGPSPercent * maxOffDist / factor, 1);
+    const num2:number = randnBm(-state.simSettings.noiseGPSPercent * maxOffDist /
+    factor, state.simSettings.noiseGPSPercent * maxOffDist / factor, 1);
+    const nextPointMeters:Point2D = odomToMeters(this.currOdom,  this.fieldCenterOdom);
+    nextPointMeters.x += num1;
+    nextPointMeters.y += num2;
+    const nextOdom:Odom = metersToOdom(nextPointMeters,  this.fieldCenterOdom);
+
+    /* Calculate new bearing without bearing noise */
+    nextOdom.bearing_deg = compassModDeg(this.currOdom.bearing_deg);
+    console.log('lat new: ', nextOdom.latitude_min, 'long new: ', nextOdom.longitude_min);
+    return nextOdom;
+  }
+
   private applyJoystickCmd():void {
     /* if not simulating localization, nothing to do */
     if (!this.simulateLoc) {
       return;
     }
     const deltaTimeSeconds:number = TIME_INTERVAL_MILLI / ONE_SECOND_MILLI;
+
+    this.setCurrOdom(this.applyGPSNoise());
     this.setCurrOdom(applyJoystickCmdUtil(this.currOdom, this.fieldCenterOdom, this.joystick,
                                           deltaTimeSeconds, this.currSpeed));
   }
@@ -415,6 +444,7 @@ export default class NavSimulator extends Vue {
         const obs:any = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
         this.publish('/obstacle', obs);
 
+        /* eslint no-magic-numbers: ["error", { "ignore": [0, 1] }] */
         const targetList:any = { targetList: this.targetList, type: 'TargetList' };
         targetList.targetList[0].type = 'Target';
         targetList.targetList[1].type = 'Target';

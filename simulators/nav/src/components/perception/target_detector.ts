@@ -17,7 +17,8 @@ import {
   calcRelativeOdom,
   compassModDeg,
   degToRad,
-  radToDeg
+  radToDeg,
+  randnBm
 } from '../../utils/utils';
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
 import {
@@ -27,27 +28,6 @@ import {
   Zscores
 } from '../../utils/constants';
 import { state } from '../../store/modules/simulatorState';
-
-function randnBm(min, max, skew):number {
-  let u = 0;
-  let v = 0;
-  while (u === 0) u = Math.random();
-  while (v === 0) v = Math.random();
-  const factor = 2.0;
-  let num:number = Math.sqrt(-1 * factor * Math.log(u)) * Math.cos(factor * Math.PI * v);
-  const a = 10.0;
-  const b = 0.5;
-  num = (num / a) + b;
-  if (num > 1 || num < 0) {
-    num = randnBm(min, max, skew);
-  }
-  else {
-    num **= skew;
-    num *= max - min;
-    num += min;
-  }
-  return num;
-}
 
 // indZscore is from 0 to 19
 function getGaussianThres(indZscore):number {
