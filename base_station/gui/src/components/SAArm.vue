@@ -123,7 +123,7 @@ export default {
               'x': gamepad.buttons[XBOX_CONFIG['x']]['pressed'],
               'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
             }
-            if (this.controlMode !== 'open-loop' && checkXboxInput(xboxData)) {
+            if (this.controlMode !== 'open-loop' && this.checkXboxInput(xboxData)) {
               updateControlMode('open-loop', true)
             }
             if (this.controlMode === 'open-loop') {
