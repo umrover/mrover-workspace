@@ -13,31 +13,31 @@
     },
     {
         "name":"FOOT_SCOOP",
-        "type":"Motor6V",
+        "type":"Motor12V",
         "nucleo": 1,
         "channel": 2
     },
     {
         "name":"FOOT_SENSOR",
-        "type":"Motor6V",
+        "type":"Motor12V",
         "nucleo": 2,
         "channel": 2
     },
     {
         "name":"GIMBAL_PITCH",
-        "type":"Motor6V",
+        "type":"Motor12V",
         "nucleo": 1,
         "channel": 3
     },
     {
         "name":"GIMBAL_YAW",
-        "type":"Motor6V",
+        "type":"Motor12V",
         "nucleo": 2,
         "channel": 3
     },
     {
         "name":"SA_0",
-        "type":"Motor44Percent",
+        "type":"Motor29Percent",
         "nucleo": 0,
         "channel": 0,
         "quadCPR": -28800.0, 
@@ -73,7 +73,7 @@
     },
     {
         "name":"RA_0",
-        "type":"Motor44Percent",
+        "type":"Motor29Percent",
         "nucleo": 0,
         "channel": 0,
         "quadCPR": -28800.0, 

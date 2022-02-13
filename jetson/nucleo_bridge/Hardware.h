@@ -10,8 +10,8 @@ enum HardwareType
     Motor9V,
     Motor12V,
     Motor24V,
-    Motor44Percent,
-    Motor33Percent,
+    Motor22Percent,
+    Motor29Percent,
     None
 };
 
@@ -36,11 +36,11 @@ public:
         else if (input == "Motor24V") {
             return Motor24V;
         }
-        else if (input == "Motor33Percent") {
-            return Motor33Percent;
+        else if (input == "Motor22Percent") {
+            return Motor22Percent;
         }
-        else if(input == "Motor44Percent") {
-            return Motor44Percent;
+        else if(input == "Motor29Percent") {
+            return Motor29Percent;
         }
         else 
         {
@@ -55,22 +55,22 @@ public:
         switch (type)
         {
         case Motor6V:
-            speed_max = 16;           
+            speed_max = 16;  // 5.76 V        
             break;
         case Motor9V:
-            speed_max = 25;
+            speed_max = 25;  // 9 V
             break;
         case Motor12V:
-            speed_max = 33;
+            speed_max = 33;  // 11.88 V
             break;
         case Motor24V:
-            speed_max = 60;
+            speed_max = 60;  // 21.6 V
 	        break;
-        case Motor33Percent:
-            speed_max = 33;
+        case Motor22Percent:
+            speed_max = 22;  // 7.92 V, or 24V * 0.33 / 36 %
 	        break;
-        case Motor44Percent:
-            speed_max = 44;
+        case Motor29Percent:
+            speed_max = 29;  // 10.44 V, or 24V * 0.44 / 36 %
 	        break;
         case None:
             break;

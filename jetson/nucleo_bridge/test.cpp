@@ -643,11 +643,11 @@ int main()
 {
     for (int i = 1; i <= 3; ++i)
     {
-        //i2c_address.push_back(get_addr(i, 0));
-        if (i == 3)
-        {
-            i2c_address.push_back(get_addr(i, 1));
-        }
+        i2c_address.push_back(get_addr(i, 0));
+        // if (i == 3)
+        // {
+        i2c_address.push_back(get_addr(i, 1));
+        // }
         //if (i == 3 || i == 2) i2c_address.push_back(get_addr(i, 2));
         sleep(20);
     }
@@ -658,10 +658,10 @@ int main()
 
     while (1)
     {
-        testClosed();
+        //testClosed();
 	    //testQuadEnc();
         //testOpenPlusWithAbs();
-        //testOpenPlus();
+        testOpenPlus();
         //testAbsEnc();
         sleep(100);
 
