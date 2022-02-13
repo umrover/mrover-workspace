@@ -28,7 +28,7 @@
 #include "rover_msgs/ArmControlState.hpp"
 #include "rover_msgs/RAOpenLoopCmd.hpp"
 #include "rover_msgs/HandCmd.hpp"
-#include "rover_msgs/ZeroPosition.hpp"
+#include "rover_msgs/Signal.hpp"
 #include "rover_msgs/UseOrientation.hpp"
 #include "rover_msgs/ArmPreset.hpp"
 #include "rover_msgs/ArmAdjustments.hpp"
@@ -181,7 +181,7 @@ public:
      * @param channel expected: "/zero_position"
      * @param msg format: empty
      */
-    void zero_position_callback(std::string channel, ZeroPosition msg);
+    void zero_position_callback(std::string channel, Signal msg);
 
     /**
      * Calculate new target orientation using current pos and adjustments and

@@ -125,7 +125,7 @@ export default {
     },
 
     zero_position_callback: function() {
-      this.lcm_.publish('/zero_position', { 'type': 'ZeroPosition' } )
+      this.lcm_.publish('/zero_position', { 'type': 'Signal' } )
     }
   },
 
@@ -165,6 +165,9 @@ export default {
             console.log(msg['message']['message'])
           }
         }
+        // } else if (msg.topic === '/ik_reset') {
+        //   console.log('is this working?')
+        // }
       },
       // Subscriptions
       [
@@ -178,7 +181,8 @@ export default {
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
-        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
+        {'topic': '/ik_reset', 'type': 'Signal'}
       ]
     )
 

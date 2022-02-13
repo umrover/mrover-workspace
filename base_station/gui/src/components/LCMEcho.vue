@@ -178,7 +178,7 @@
           {'topic': '/microscope', 'type': 'Microscope'},
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'},
-          {'topic': '/zero_position', 'type': 'ZeroPosition'}
+          {'topic': '/zero_position', 'type': 'Signal'}
         ]
       }
     },

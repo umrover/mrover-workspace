@@ -537,7 +537,7 @@ void MRoverArm::lock_joints_callback(std::string channel, LockJoints msg) {
     std::cout << "\n";
 }
 
-void MRoverArm::zero_position_callback(std::string channel, ZeroPosition msg) {
+void MRoverArm::zero_position_callback(std::string channel, Signal msg) {
     std::cout << "Received zero-encoders request.\n";
 
     zero_encoders = true;

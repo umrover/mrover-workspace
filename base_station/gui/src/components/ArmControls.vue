@@ -68,6 +68,15 @@ export default {
 
     })
 
+    this.$parent.subscribe('/ik_reset', (msg) => {
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': this.controlMode
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+    })
+
     const XBOX_CONFIG = {
       'left_js_x': 0,
       'left_js_y': 1,

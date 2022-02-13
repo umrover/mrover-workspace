@@ -1130,8 +1130,6 @@
             "angle"
         ]
     ],
-    "ZeroPosition": [
-    ],
     "message_types": [
         "ArmControlState",
         "RAPosition",
@@ -1195,7 +1193,6 @@
         "Waypoint",
         "WheelSpeeds",
         "Xbox",
-        "ZedGimbalPosition",
-        "ZeroPosition"
+        "ZedGimbalPosition"
     ]
 }

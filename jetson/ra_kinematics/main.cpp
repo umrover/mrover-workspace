@@ -72,7 +72,7 @@ public:
     void zeroPositionCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
-        const ZeroPosition* zero_position)
+        const Signal* zero_position)
     {
         arm->zero_position_callback( channel, *zero_position );
     }
@@ -121,6 +121,9 @@ int main() {
     lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
     lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
     lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
+
+    Signal signal;
+    lcmObject.publish("/ik_reset", &signal);
     
     std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
     std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);

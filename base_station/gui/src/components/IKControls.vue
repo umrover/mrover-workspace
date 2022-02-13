@@ -83,8 +83,31 @@ export default {
         }
     },
 
+    created: function() {
+        this.$parent.subscribe('/ik_reset', (msg) => {
+            let lockedJointsMsg = this.locked_joints;
+            lockedJointsMsg['type'] = 'LockJoints';
+
+            this.$parent.publish('/locked_joints', lockedJointsMsg);
+
+            const simModeMsg = {
+                'type': 'SimulationMode',
+                'sim_mode': this.sim_mode
+            }
+            this.$parent.publish('/simulation_mode', simModeMsg);
+
+            const useOrientationMsg = {
+                'type': 'UseOrientation',
+                'use_orientation': this.use_orientation
+            }
+            this.$parent.publish('/use_orientation', useOrientationMsg);
+        })
+    },
+
     methods: {
         updateSimMode: function(checked) {
+            this.sim_mode = checked
+
             const simModeMsg = {
                 'type': 'SimulationMode',
                 'sim_mode': checked
@@ -93,6 +116,8 @@ export default {
         },
 
         updateUseOrientation: function(checked) {
+            this.use_orientation = checked
+
             const useOrientationMsg = {
                 'type': 'UseOrientation',
                 'use_orientation': checked
@@ -116,7 +141,7 @@ export default {
         updateJointsLocked: function(joint, locked) {
             this.locked_joints[joint] = locked;
 
-            var lockedJointsMsg = this.locked_joints;
+            let lockedJointsMsg = this.locked_joints;
             lockedJointsMsg['type'] = 'LockJoints';
 
             this.$parent.publish('/locked_joints', lockedJointsMsg);
@@ -124,7 +149,7 @@ export default {
 
         zeroPositionCallback: function() {
 	    console.log("publishing zero position")
-            this.$parent.publish('/zero_position', { 'type': 'ZeroPosition' });
+            this.$parent.publish('/zero_position', { 'type': 'Signal' });
         },
 
         presetPositionCallback: function(position) {
