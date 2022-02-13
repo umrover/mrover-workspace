@@ -235,7 +235,9 @@ def sa_control_callback(channel, msg):
 
     saMotorsData = [deadzone(quadratic(xboxData.left_js_x), 0.09),
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    -deadzone(quadratic(xboxData.right_js_y), 0.09)]
+                    -deadzone(quadratic(xboxData.right_js_y), 0.09),
+                    quadratic(xboxData.right_trigger -
+                              xboxData.left_trigger)]
 
     openloop_msg = SAOpenLoopCmd()
     openloop_msg.throttle = saMotorsData
