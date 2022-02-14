@@ -21,13 +21,13 @@ void Controller::make_live()
 
         uint8_t buffer[32];
         //buffer sends max percentage speed  
-        memcpy(buffer, UINT8_POINTER_T(&(hardware.speed_max)), 2);
+        memcpy(buffer, UINT8_POINTER_T(&(hardware.speed_max)), sizeof(hardware.speed_max));
         transact(CONFIG_PWM, buffer, nullptr);
 
         // config kp, ki, pd
-        memcpy(buffer, UINT8_POINTER_T(&(kP)), 4);
-        memcpy(buffer + 4, UINT8_POINTER_T(&(kI)), 4);
-        memcpy(buffer + 8, UINT8_POINTER_T(&(kD)), 4);
+        memcpy(buffer, UINT8_POINTER_T(&(kP)), sizeof(kP));
+        memcpy(buffer + 4, UINT8_POINTER_T(&(kI)), sizeof(kI));
+        memcpy(buffer + 8, UINT8_POINTER_T(&(kD)), sizeof(kD));
         transact(CONFIG_K, buffer, nullptr);
 
         // get absolute encoder correction #
@@ -46,7 +46,7 @@ void Controller::make_live()
 
         // get value in quad counts adjust quadrature encoder 
         int32_t adjusted_quad = (abs_raw_angle / (2 * M_PI)) * quad_cpr;
-        memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), 4);
+        memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), sizeof(adjusted_quad));
         transact(ADJUST,buffer, nullptr);
 
         ControllerMap::make_live(name);
@@ -64,7 +64,7 @@ void Controller::record_angle(int32_t raw_angle)
     if (name == "RA_1")
     {
         float abs_raw_angle = 0;
-        memcpy(&abs_raw_angle, &raw_angle, 4);
+        memcpy(&abs_raw_angle, &raw_angle, sizeof(raw_angle));
         current_angle = abs_raw_angle - M_PI;            
     }
     else 
@@ -86,7 +86,7 @@ void Controller::open_loop(float input)
 
         uint8_t buffer[4];
         float speed = hardware.throttle(input);
-        memcpy(buffer, UINT8_POINTER_T(&speed), 4);
+        memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
     
         int32_t raw_angle;
         transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
@@ -112,18 +112,18 @@ void Controller::closed_loop(float torque, float target)
         float feed_forward = 0; //torque * torque_scale;
         uint8_t buffer[32];
         int32_t angle;
-        memcpy(buffer, UINT8_POINTER_T(&feed_forward), 4);
+        memcpy(buffer, UINT8_POINTER_T(&feed_forward), sizeof(feed_forward));
 
         // we read values from 0 - 2pi, teleop sends in -pi to pi
         target += M_PI;
         if (name == "RA_1")
         {
-            memcpy(buffer + 4, UINT8_POINTER_T(&target), 4);
+            memcpy(buffer + 4, UINT8_POINTER_T(&target), sizeof(target));
         }
         else
         {
             int32_t closed_setpoint = static_cast<int32_t>((target / (2.0 * M_PI)) * quad_cpr);
-            memcpy(buffer + 4, UINT8_POINTER_T(&closed_setpoint), 4);
+            memcpy(buffer + 4, UINT8_POINTER_T(&closed_setpoint), sizeof(closed_setpoint));
         }
 
         transact(CLOSED_PLUS, buffer, UINT8_POINTER_T(&angle));
@@ -147,9 +147,9 @@ void Controller::config(float KP, float KI, float KD)
             make_live();
 
             uint8_t buffer[32];
-            memcpy(buffer, UINT8_POINTER_T(&KP), 4);
-            memcpy(buffer + 4, UINT8_POINTER_T(&KI), 4);
-            memcpy(buffer + 8, UINT8_POINTER_T(&KD), 4);
+            memcpy(buffer, UINT8_POINTER_T(&KP), sizeof(KP));
+            memcpy(buffer + 4, UINT8_POINTER_T(&KI), sizeof(KI));
+            memcpy(buffer + 8, UINT8_POINTER_T(&KD), sizeof(KD));
             transact(CONFIG_K, buffer, nullptr);
         }
         catch (IOFailure &e)
