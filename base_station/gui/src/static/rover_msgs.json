@@ -89,6 +89,40 @@
             "bearing"
         ]
     ],
+    "Cameras": [
+        [
+            "boolean",
+            "cam1"
+        ],
+        [
+            "boolean",
+            "cam2"
+        ],
+        [
+            "boolean",
+            "cam3"
+        ],
+        [
+            "boolean",
+            "cam4"
+        ],
+        [
+            "boolean",
+            "cam5"
+        ],
+        [
+            "boolean",
+            "cam6"
+        ],
+        [
+            "boolean",
+            "cam7"
+        ],
+        [
+            "boolean",
+            "cam8"
+        ]
+    ],
     "CameraServos": [
         [
             "float",
@@ -97,6 +131,28 @@
         [
             "float",
             "tilt"
+        ]
+    ],
+    "CamSettings": [
+        [
+            "int8_t",
+            "cam_index"
+        ],
+        [
+            "int32_t",
+            "shutter_speed"
+        ],
+        [
+            "boolean",
+            "vflip"
+        ],
+        [
+            "int32_t",
+            "height"
+        ],
+        [
+            "int32_t",
+            "width"
         ]
     ],
     "CarouselCmd": [
@@ -570,44 +626,6 @@
             "kF"
         ]
     ],
-    "PiCamera": [
-        [
-            "int8_t",
-            "active_index_1"
-        ],
-        [
-            "int8_t",
-            "active_index_2"
-        ]
-    ],
-    "PiPicture": [
-        [
-            "int8_t",
-            "index"
-        ]
-    ],
-    "PiSettings": [
-        [
-            "int8_t",
-            "pi_index"
-        ],
-        [
-            "int32_t",
-            "shutter_speed"
-        ],
-        [
-            "boolean",
-            "vflip"
-        ],
-        [
-            "int32_t",
-            "height"
-        ],
-        [
-            "int32_t",
-            "width"
-        ]
-    ],
     "ProximitySensors": [
         [
             "boolean",
@@ -900,6 +918,12 @@
             "int8_t",
             "site"
         ]
+    ],    
+    "TakePictureCmd": [
+        [
+            "int8_t",
+            "index"
+        ]
     ],
     "TalonConfig": [
         [
@@ -1139,7 +1163,9 @@
         "ArmToggles",
         "AutonState",
         "Bearing",
+        "Cameras",
         "CameraServos",
+        "CamSettings",
         "Course",
         "CurrentDraw",
         "DebugMessage",
@@ -1164,10 +1190,7 @@
         "Obstacle",
         "Odometry",
         "OpenLoopRAMotor",
-        "PiCamera",
         "PIDConstants",
-        "PiPicture",
-        "PiSettings",
         "ProximitySensors",
         "RGB",
         "RGBFrame",
@@ -1183,6 +1206,7 @@
         "Signal",
         "SimulationMode",
         "StartTest",
+        "TakePictureCmd",
         "TalonConfig",
         "TargetAngles",
         "TargetList",

@@ -5,7 +5,7 @@
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
-          <li v-for="connection, i in connections" :key="i"><CommIndicator v-bind:connected="connection" v-bind:name="'Pi'+(i+1)"/></li>
+          <li v-for="connection, i in connections" :key="i"><CommIndicator v-bind:connected="connection" v-bind:name="'Cam'+(i+1)"/></li>
         </ul>
         </div>
     </div>
@@ -18,8 +18,8 @@
       <Checkbox v-bind:name="'Dual Stream'" v-on:toggle="toggleDualStream()" ref="dualstream"/>
       <!-- For formatting... -->
       <div></div>
-      <CameraSelection class="cameraspace1" v-bind:pi_index="pi_index_1" v-bind:dual_stream="dual_stream" v-on:pi_index="setPiIndex($event, 1)"/>
-      <CameraSelection class="cameraspace2" v-show="dual_stream" v-bind:pi_index="pi_index_2" v-bind:dual_stream="dual_stream" v-on:pi_index="setPiIndex($event, 2)"/>
+      <CameraSelection class="cameraspace1" v-bind:cam_index="cam_index_1" v-bind:dual_stream="dual_stream" v-on:cam_index="setCamIndex($event, 1)"/>
+      <CameraSelection class="cameraspace2" v-show="dual_stream" v-bind:cam_index="cam_index_2" v-bind:dual_stream="dual_stream" v-on:cam_index="setCamIndex($event, 2)"/>
     </div>
   </div>
 </template>
@@ -92,7 +92,7 @@
 
 <script>
   // TODO: 
-  // Rename pi_index to switchCameraText
+  // Rename cam_index to switchCameraText
   // Set slider label instead of text to side
   // Get conf.json working
   // Add take picture button in class options
@@ -108,9 +108,10 @@
     data() {
       return {
         dual_stream: false,
-        pi_index_1: -1,
-        pi_index_2: -1
-      }
+        cam_index_1: -1,
+        cam_index_2: -1,
+        cams : [false, false, false, false, false, false, false, false]
+        }
     },
 
     beforeDestroy: function () {
@@ -146,10 +147,10 @@
         }
 
         if(e.keyCode>=49 && e.keyCode<=54)  //keys 1 to 6
-          this.pi_index_1 = e.keyCode-48
+          this.cam_index_1 = e.keyCode-48
       })
 
-      // Change PI index based on joystick button
+      // Change cam index based on joystick button
       interval = window.setInterval(() => {
         const gamepads = navigator.getGamepads()
         for (let i = 0; i < 2; i++) {
@@ -157,23 +158,22 @@
           if (gamepad) {
             if (gamepad.id.includes('Logitech')) {
               if (gamepad.buttons[JOYSTICK_CONFIG['down_left_button']]['pressed']) {
-                this.pi_index_1 = CAMERA_NUM['down_left_button']
+                this.cam_index_1 = CAMERA_NUM['down_left_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['up_left_button']]['pressed']) {
-                this.pi_index_1 = CAMERA_NUM['up_left_button']
+                this.cam_index_1 = CAMERA_NUM['up_left_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['down_middle_button']]['pressed']) {
-                this.pi_index_1 = CAMERA_NUM['down_middle_button']
+                this.cam_index_1 = CAMERA_NUM['down_middle_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['up_middle_button']]['pressed']) {
-                this.pi_index_1 = CAMERA_NUM['up_middle_button']
+                this.cam_index_1 = CAMERA_NUM['up_middle_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['down_right_button']]['pressed']) {
-                this.pi_index_1 = CAMERA_NUM['down_right_button']
+                this.cam_index_1 = CAMERA_NUM['down_right_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['up_right_button']]['pressed']) {
-                this.pi_index_1 = CAMERA_NUM['up_right_button']
+                this.cam_index_1 = CAMERA_NUM['up_right_button']
               }
             }
           }
         }
-        this.$parent.publish('/microscope', {type: "Microscope", streaming: this.pi_index_1 === 0 || this.pi_index_2 === 0})
-        this.$parent.publish('/pi_camera', {type: "PiCamera", active_index_1: this.pi_index_1, active_index_2: this.pi_index_2})
+        this.$parent.publish('/microscope', {type: "Microscope", streaming: this.cam_index_1 === 0 || this.cam_index_2 === 0})
       }, 250)
     },
 
@@ -190,19 +190,52 @@
     },
 
     methods: {
-      setPiIndex: function (new_index, stream) {
-        if (stream === 1 && new_index !== this.pi_index_2) {
-          this.pi_index_1 = new_index
-        } else if (stream === 2 && new_index !== this.pi_index_1) {
-          this.pi_index_2 = new_index
+      setCamIndex: function (new_index, stream) {
+        if (stream === 1 && new_index !== this.cam_index_2) {
+          if (new_index !== 0) {
+            this.cams[this.cam_index_1 - 1] = false
+            this.cams[new_index - 1] = true
+          }
+          this.cam_index_1 = new_index
+        } 
+        else if (stream === 2 && new_index !== this.cam_index_1) {
+          if (new_index !== 0) {
+             this.cams[this.cam_index_2 - 1] = false
+             this.cams[new_index - 1] = true
+           }
+          this.cam_index_2 = new_index
         }
       },
 
       toggleDualStream: function () {
         this.dual_stream = !this.dual_stream
         if (!this.dual_stream) {
-          this.pi_index_2 = -1
+          this.cam_index_2 = -1
         }
+      },
+
+      sendCameras: function() {
+      this.$parent.publish("/cameras_cmd", {
+        'type': 'Cameras',
+        'cam1': this.cams[0],
+        'cam2': this.cams[1],
+        'cam3': this.cams[2],
+        'cam4': this.cams[3],
+        'cam5': this.cams[4],
+        'cam6': this.cams[5],
+        'cam7': this.cams[6],
+        'cam8': this.cams[7]
+      })
+      }
+    },
+
+    watch: {
+      cam_index_1() {
+        this.sendCameras()
+      },
+
+      cam_index_2() {
+        this.sendCameras()
       }
     },
 
