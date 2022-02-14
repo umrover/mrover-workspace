@@ -133,6 +133,28 @@
             "tilt"
         ]
     ],
+    "CamSettings": [
+        [
+            "int8_t",
+            "cam_index"
+        ],
+        [
+            "int32_t",
+            "shutter_speed"
+        ],
+        [
+            "boolean",
+            "vflip"
+        ],
+        [
+            "int32_t",
+            "height"
+        ],
+        [
+            "int32_t",
+            "width"
+        ]
+    ],
     "CarouselCmd": [
         [
             "int8_t",
@@ -604,44 +626,6 @@
             "kF"
         ]
     ],
-    "PiCamera": [
-        [
-            "int8_t",
-            "active_index_1"
-        ],
-        [
-            "int8_t",
-            "active_index_2"
-        ]
-    ],
-    "PiPicture": [
-        [
-            "int8_t",
-            "index"
-        ]
-    ],
-    "PiSettings": [
-        [
-            "int8_t",
-            "pi_index"
-        ],
-        [
-            "int32_t",
-            "shutter_speed"
-        ],
-        [
-            "boolean",
-            "vflip"
-        ],
-        [
-            "int32_t",
-            "height"
-        ],
-        [
-            "int32_t",
-            "width"
-        ]
-    ],
     "ProximitySensors": [
         [
             "boolean",
@@ -934,6 +918,12 @@
             "int8_t",
             "site"
         ]
+    ],    
+    "TakePictureCmd": [
+        [
+            "int8_t",
+            "index"
+        ]
     ],
     "TalonConfig": [
         [
@@ -1175,6 +1165,7 @@
         "Bearing",
         "Cameras",
         "CameraServos",
+        "CamSettings",
         "Course",
         "CurrentDraw",
         "DebugMessage",
@@ -1200,10 +1191,7 @@
         "Obstacle",
         "Odometry",
         "OpenLoopRAMotor",
-        "PiCamera",
         "PIDConstants",
-        "PiPicture",
-        "PiSettings",
         "ProximitySensors",
         "RGB",
         "RGBFrame",
@@ -1219,6 +1207,7 @@
         "Signal",
         "SimulationMode",
         "StartTest",
+        "TakePictureCmd",
         "TalonConfig",
         "TargetAngles",
         "TargetList",
