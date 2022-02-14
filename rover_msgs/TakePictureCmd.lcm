@@ -1,5 +1,5 @@
 package rover_msgs;
 
-struct PiPicture {
+struct TakePictureCmd {
     int8_t index;
 }

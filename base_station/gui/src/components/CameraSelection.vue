@@ -1,21 +1,21 @@
 <template>
   <div class="wrap2">
-    <span v-if="pi_index >= 0" class="title">Current Camera: {{pi_index}}</span>
+    <span v-if="cam_index >= 0" class="title">Current Camera: {{cam_index}}</span>
     <div class="buttons">
       <template v-for="i in 3">
-        <button class="pi_buttons" ref="cams" v-on:click="$emit('pi_index', i-1)"> <span>{{cameras[i-1]}}</span> </button>
+        <button class="cam_buttons" ref="cams" v-on:click="$emit('cam_index', i-1)"> <span>{{cameras[i-1]}}</span> </button>
         <div class="fixed-spacer"></div>
       </template>
     </div>
     <div class="buttons">
       <template v-for="i in 3">
-        <button class="pi_buttons" ref="cams" v-on:click="$emit('pi_index', i+2)"> <span>{{cameras[i+2]}}</span> </button>
+        <button class="cam_buttons" ref="cams" v-on:click="$emit('cam_index', i+2)"> <span>{{cameras[i+2]}}</span> </button>
         <div class="fixed-spacer"></div>
       </template>
     </div>
     <div class="buttons">
       <template v-for="i in 3">
-        <button class="pi_buttons" ref="cams" v-on:click="$emit('pi_index', i+5)"> <span>{{cameras[i+5]}}</span> </button>
+        <button class="cam_buttons" ref="cams" v-on:click="$emit('cam_index', i+5)"> <span>{{cameras[i+5]}}</span> </button>
         <div class="fixed-spacer"></div>
       </template>
     </div>
@@ -45,7 +45,7 @@
     },
 
     props: {
-      pi_index: {
+      cam_index: {
         type: Number,
         required: true
         },
@@ -60,7 +60,7 @@
     },
 
     watch: {
-      pi_index: function (newIdx) {
+      cam_index: function (newIdx) {
         for (let i = 0; i <= 8; i++) {
           this.$refs["cams"][i].disabled = (i == newIdx)
         }
@@ -75,9 +75,9 @@
 
     methods: {
       sendSettings: function() {
-        this.$parent.$parent.publish("/pi_settings", {
-          type: 'PiSettings',
-          pi_index: this.pi_index,
+        this.$parent.$parent.publish("/cam_settings", {
+          type: 'CamSettings',
+          cam_index: this.cam_index,
           shutter_speed: Math.round(Math.pow(10, parseInt(this.sspeed)/4)),
           vflip: this.vflip,
           height: 480,
@@ -90,9 +90,9 @@
       },
 
       takePicture: function () {
-        this.$parent.$parent.publish("/pi_picture", {
-          type: 'PiPicture',
-          index: this.pi_index
+        this.$parent.$parent.publish("/_picture", {
+          type: 'TakePictureCmd',
+          index: this.cam_index
         })
       }
     }
@@ -135,7 +135,7 @@
     grid-area: buttons;
   }
 
-  .pi_buttons {
+  .cam_buttons {
     height:20px;
     width:100px;
   }
