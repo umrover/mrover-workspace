@@ -93,11 +93,11 @@ RUN cd /opt && \
 RUN  cd /usr/local && rm -rf opencv-3.2.0
 
 #Install CUDA Driver
-COPY cuda-repo-ubuntu1804_10.0.130-1_amd64.deb /usr/local
+COPY cuda-repo-ubuntu2004_10.0.130-1_amd64.deb /usr/local
 RUN cd /usr/local && \
     apt-get update -y && apt-get upgrade -y && apt-get update && apt-get install -y gnupg2 && \
-    dpkg -i cuda-repo-ubuntu1804_10.0.130-1_amd64.deb
-RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+    dpkg -i cuda-repo-ubuntu2004_10.0.130-1_amd64.deb
+RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
 RUN apt-get update -y
 RUN apt-get install -y cuda-10-0   
 
@@ -106,10 +106,10 @@ RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get install -y libturbojpeg0-dev
 RUN apt-get install --no-install-recommends lsb-release wget less udev sudo apt-transport-https -y && \
     apt-get update -y && \
-    wget -O ZED_SDK_Linux_Ubuntu18.run https://download.stereolabs.com/zedsdk/3.2/cu100/ubuntu18 && \
-    chmod +x ZED_SDK_Linux_Ubuntu18.run && \
-    ./ZED_SDK_Linux_Ubuntu18.run silent && \
-    rm ZED_SDK_Linux_Ubuntu18.run && \
+    wget -O ZED_SDK_Linux_Ubuntu20.run https://download.stereolabs.com/zedsdk/3.2/cu100/ubuntu20 && \
+    chmod +x ZED_SDK_Linux_Ubuntu20.run && \
+    ./ZED_SDK_Linux_Ubuntu20.run silent && \
+    rm ZED_SDK_Linux_Ubuntu20.run && \
     cd /usr/local && \
     chmod a+xwr --preserve-root --recursive zed
 
