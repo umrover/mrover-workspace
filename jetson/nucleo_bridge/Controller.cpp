@@ -86,10 +86,7 @@ void Controller::open_loop(float input)
         uint8_t buffer[4];
         float speed = hardware.throttle(input);
         if (name == "RA_0" || name == "SA_0") {
-            // TODO - CHANGE BEFORE STUFF GETS MERGED.
-            // RIGHT NOW TELEOP DIVIDES THROTTLE BY 4.
-            // BUT ESW CAN DO THAT IN THE FUTURE
-            speed *= 4;
+            speed /= 4;
         }
 
         memcpy(buffer, UINT8_POINTER_T(&speed), 4);

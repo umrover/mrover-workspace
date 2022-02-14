@@ -121,8 +121,8 @@ void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *ms
 
 void LCMHandler::InternalHandler::gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg)
 {
-    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch);
-    ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw);
+    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch[0]);
+    ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw[0]);
 }
 
 void LCMHandler::InternalHandler::refreshAngles()
