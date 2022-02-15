@@ -8,17 +8,18 @@ from gi.repository import Gst # noqa
 lcm_ = aiolcm.AsyncLCM()
 pipeline = [None, None, None, None, None, None, None, None]
 streaming = [False, False, False, False, False, False, False, False]
-video_names = [0, 1, 2, 3, 4, 5, 6, 7]
+video_names = [3, 4, 5, 6, 7, 0, 1, 2]
 ports = [0, 1, 3, 4, 5, 6, 7, 8]
 
 
 def start_pipeline(index):
     global pipeline
-    pipeline_string = ("v4l2src device=/dev/video" + str(video_names[index]) +
-                       "! videoscale ! videoconvert ! x264enc tune=zerolatency "
+    pipeline_string = ("v4l2src device=/dev/v4l/by-path/platform-70090000.xuxb-usb-0:" + str(video_names[index]) +
+                       ".1:1.0-video-index0 ! videoscale ! videoconvert ! x264enc tune=zerolatency "
                        "bitrate=500 speed-preset=superfast ! rtph264pay ! "
                        "udpsink host=10.0.0.1 port=500" + str(ports[index]))
 
+    print(pipeline_string)
     if pipeline[index] is None:
         pipeline[index] = Gst.parse_launch(pipeline_string)
 
@@ -34,7 +35,6 @@ def stop_pipeline(index):
 
 
 def camera_callback(channel, msg):
-    global pipeline
     global streaming
 
     camera_cmd = Cameras.decode(msg)
