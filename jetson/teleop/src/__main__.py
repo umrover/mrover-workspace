@@ -252,16 +252,19 @@ def sa_control_callback(channel, msg):
 
 def gimbal_control_callback(channel, msg):
     keyboardData = Keyboard.decode(msg)
+    print("mast gimbal call back")
 
-    pitchData = [keyboardData.s - keyboardData.w,
-                 keyboardData.i - keyboardData.k]
+    pitchData = [float(keyboardData.s - keyboardData.w),
+                 float(keyboardData.i - keyboardData.k)]
 
-    yawData = [keyboardData.a - keyboardData.d,
-               keyboardData.j - keyboardData.l]
+    yawData = [float(keyboardData.a - keyboardData.d),
+               float(keyboardData.j - keyboardData.l)]
 
     gimbal_msg = MastGimbalCmd()
     gimbal_msg.pitch = pitchData
     gimbal_msg.yaw = yawData
+
+    print("mast gimbal call back end")
 
     lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
 
