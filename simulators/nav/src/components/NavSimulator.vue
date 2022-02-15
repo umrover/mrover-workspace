@@ -308,13 +308,10 @@ export default class NavSimulator extends Vue {
     if (!this.simulateLoc) {
       return;
     }
-    console.log('lat old: ', this.currOdom.latitude_min, 'long old: ', this.currOdom.longitude_min);
-    console.log('lat2 old: ', this.realOdom.latitude_min, 'long2 old: ', this.realOdom.longitude_min);
     const deltaTimeSeconds:number = TIME_INTERVAL_MILLI / ONE_SECOND_MILLI;
     this.setRealOdom(applyJoystickCmdUtil(this.realOdom, this.fieldCenterOdom, this.joystick,
                                           deltaTimeSeconds, this.currSpeed));
     this.setCurrOdom(this.applyGPSNoise());
-    console.log('lat new: ', this.currOdom.latitude_min, 'long new: ', this.currOdom.longitude_min);
   }
 
   /* Apply the current ZED gimbal command. Update the ZED gimbal based on the

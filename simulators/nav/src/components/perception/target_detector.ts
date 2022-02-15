@@ -207,8 +207,6 @@ export default class TargetDetector {
 
     /* Special Case: guassian noise */
     const num:number = randnBm(0, 1, 1);
-
-    // console.log(state.simSettings.noisePercent);
     const divisor = 18.0;
     const percentFactor = 100.0;
     const factor = percentFactor / divisor;
