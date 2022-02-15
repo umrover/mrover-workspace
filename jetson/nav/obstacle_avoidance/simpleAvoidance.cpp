@@ -28,9 +28,10 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* rover,
     }
     if( !isObstacleDetected( rover ) )
     {
-        double distanceAroundObs = mOriginalObstacleDistance /
-                                   cos( fabs( degreeToRadian( mOriginalObstacleAngle ) ) );
+        const double horizontalLeg = 2.5;
+        double distanceAroundObs = sqrt(pow(mOriginalObstacleDistance, 2) + pow(horizontalLeg, 2));  
         mObstacleAvoidancePoint = createAvoidancePoint( rover, distanceAroundObs );
+
         if( rover->roverStatus().currentState() == NavState::TurnAroundObs )
         {
             return NavState::DriveAroundObs;
