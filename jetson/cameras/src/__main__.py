@@ -14,7 +14,7 @@ ports = [0, 1, 3, 4, 5, 6, 7, 8]
 
 def start_pipeline(index):
     global pipeline
-    pipeline_string = ("v4l2src /dev/video" + str(video_names[index]) +
+    pipeline_string = ("v4l2src device=/dev/video" + str(video_names[index]) +
                        "! videoscale ! videoconvert ! x264enc tune=zerolatency "
                        "bitrate=500 speed-preset=superfast ! rtph264pay ! "
                        "udpsink host=10.0.0.1 port=500" + str(ports[index]))
