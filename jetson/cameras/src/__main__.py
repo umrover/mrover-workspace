@@ -57,6 +57,7 @@ def main():
         current_time = time.process_time()
         elapsed_time = current_time - last_time
         if elapsed_time >= 8:
+            last_time = time.process_time()
             global streaming
             global pipeline
             for i in range(len(pipeline)):
