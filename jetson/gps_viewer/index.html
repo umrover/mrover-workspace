@@ -21,7 +21,7 @@
     const map = L.map('map').setView(wilsonCenter, 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
+        maxZoom: 32,
         tileSize: 512,
         zoomOffset: -1,
     }).addTo(map);
@@ -42,7 +42,7 @@
             if (xhr.readyState === 4 && xhr.status === 200) {
                 const json = JSON.parse(xhr.responseText);
 
-                const gpsPoint = [json.gps.longitude, json.gps.latitude];
+                const gpsPoint = [json.gps.latitude, json.gps.longitude];
                 if (gpsPoint[0] !== gpsPoints[gpsPoints.length - 1][0]
                     || gpsPoint[1] !== gpsPoints[gpsPoints.length - 1][1]) {
                     map.removeLayer(gpsLine);
@@ -55,7 +55,7 @@
                     gpsMarker = L.marker(gpsPoint).addTo(map);
                 }
 
-                const odoPoint = [json.odo.longitude, json.odo.latitude];
+                const odoPoint = [json.odo.latitude, json.odo.longitude];
                 if (odoPoint[0] !== odoPoints[odoPoints.length - 1][0]
                     || odoPoint[1] !== odoPoints[odoPoints.length - 1][1]) {
                     map.removeLayer(odoLine);
