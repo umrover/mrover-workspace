@@ -8,7 +8,7 @@ pipeline = [None, None, None, None, None, None, None, None]
 streaming = [False, False, False, False, False, False, False, False]
 video_names = [0, 1, 2, 3, 4, 5, 6, 7]
 ports = [0, 1, 3, 4, 5, 6, 7, 8]
-last_time = time.clock()
+last_time = time.process_time()
 
 
 def start_pipeline(index):
@@ -54,7 +54,7 @@ def main():
     while True:
         lcm_.handle()
         global last_time
-        current_time = time.clock()
+        current_time = time.process_time()
         elapsed_time = current_time - last_time
         if elapsed_time >= 8:
             global streaming
