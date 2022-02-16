@@ -4,6 +4,6 @@ Description=Base Station Cameras Stream
 [Service]
 Environment="DISPLAY=:0"
 Environment="XAUTHORITY=/home/mrover/.Xauthority"
-User={{ user }}
-ExecStart=bash {{ workspace_dir }}/base_station/cameras/run.sh
+User=mrover
+ExecStart=bash /mrover-workspace/base_station/cameras/run.sh
 Restart=always
