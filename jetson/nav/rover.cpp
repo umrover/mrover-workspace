@@ -178,9 +178,8 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
 
     if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() )
     {
-        double distanceEffort = mDistancePid.update( -1 * distance, 0 );
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
-        publishJoystick( 0.75 * distanceEffort, 0.75 * turningEffort, false );
+        publishJoystick( 1.0, turningEffort, false );
         return DriveStatus::OnCourse;
     }
     cerr << "offcourse\n";
@@ -196,9 +195,8 @@ void Rover::drive( const int direction, const double bearing )
 {
     double destinationBearing = mod( bearing, 360 );
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg );
-    const double distanceEffort = mDistancePid.update( -1 * direction, 0 );
     const double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
-    publishJoystick( 0.75 * distanceEffort, 0.75 * turningEffort, false );
+    publishJoystick( 1.0, turningEffort, false );
 } // drive()
 
 // Sends a joystick command to turn the rover toward the destination
@@ -236,7 +234,7 @@ bool Rover::turn( double bearing )
     {
         turningEffort = minTurningEffort;
     }
-    publishJoystick( 0, 0.75 * turningEffort, false );
+    publishJoystick( 0, turningEffort, false );
     return false;
 } // turn()
 
