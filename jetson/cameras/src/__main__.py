@@ -1,9 +1,9 @@
-from rover_common import aiolcm
+import lcm
 from rover_msgs import Cameras
 import subprocess
 import time
 
-lcm_ = aiolcm.AsyncLCM()
+lcm_ = lcm.LCM()
 pipeline = [None, None, None, None, None, None, None, None]
 streaming = [False, False, False, False, False, False, False, False]
 video_names = [0, 1, 2, 3, 4, 5, 6, 7]
