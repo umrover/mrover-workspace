@@ -1,9 +1,11 @@
-import lcm
+import asyncio
 from rover_msgs import Cameras
 import subprocess
 import time
+from rover_common.aiohelper import run_coroutines
+from rover_common import aiolcm
 
-lcm_ = lcm.LCM()
+lcm_ = aiolcm.AsyncLCM()
 pipeline = [None, None, None, None, None, None, None, None]
 streaming = [False, False, False, False, False, False, False, False]
 video_names = [0, 1, 2, 3, 4, 5, 6, 7]
@@ -47,15 +49,13 @@ def camera_callback(channel, msg):
             stop_pipeline(i)
 
 
-def main():
-
-    lcm_.subscribe("/cameras_cmd", camera_callback)
+async def refresh_cameras():
 
     while True:
-        lcm_.handle()
         global last_time
         current_time = time.process_time()
         elapsed_time = current_time - last_time
+        print(elapsed_time)
         if elapsed_time >= 8:
             last_time = time.process_time()
             global streaming
@@ -65,3 +65,16 @@ def main():
                 if streaming[i]:
                     stop_pipeline(i)
                     start_pipeline(i)
+
+        await asyncio.sleep(0.5)
+
+
+def main():
+
+    lcm_.subscribe("/cameras_cmd", camera_callback)
+
+    run_coroutines(lcm_.loop(), refresh_cameras())
+
+
+if __name__ == "__main__":
+    main()
