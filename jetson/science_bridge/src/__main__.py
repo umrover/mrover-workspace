@@ -120,9 +120,8 @@ class ScienceBridge():
     def carousel_handler(self, msg, carousel_struct):
         try:
             arr = msg.split(",")
-            carousel_struct.position = np.int8(arr[0])
-        except Exception as e:
-            print("carousel exception:", e)
+            carousel_struct.position = np.int8(arr[1])
+        except:
             pass
 
     def repeater_handler(self, msg, struct):
