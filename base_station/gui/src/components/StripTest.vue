@@ -27,9 +27,9 @@
 
 
 <script>
-const start = 90;
+const start = 100;
 const dip = 70;
-const picture = 100;
+const picture = 120;
 
 export default {
     data () {
