@@ -117,7 +117,7 @@ class ScienceBridge():
     def carousel_handler(self, msg, carousel_struct):
         try:
             arr = msg.split(",")
-            carousel_struct.position = np.int8(arr[0])
+            carousel_struct.position = np.int8(arr[1])
         except:
             pass
 
