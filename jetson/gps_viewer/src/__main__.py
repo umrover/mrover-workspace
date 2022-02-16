@@ -57,7 +57,6 @@ def odometry_callback(channel, msg):
 
 def imu_callback(channel, msg):
     global __lcm, __data
-    print("penis")
     msg = IMUData.decode(msg)
     __data["heading"] = msg.bearing_deg
 
@@ -73,8 +72,6 @@ def gps_callback(channel, msg):
 
 def make_handler(request, client_address, server):
     global __data, __lcm
-    # __data["gps"]["longitude"] += 0.001
-    # __data["odo"]["latitude"] += 0.001
     while __lcm.handle_timeout(1):
         pass
     return GPSRequestHandler(__data, request, client_address, server)
@@ -82,7 +79,7 @@ def make_handler(request, client_address, server):
 
 def main():
     global __lcm
-    __lcm = lcm.LCM() #aiolcm.AsyncLCM()
+    __lcm = lcm.LCM()
     __lcm.subscribe("/odometry", odometry_callback)
     __lcm.subscribe("/imu_data", imu_callback)
     __lcm.subscribe("/gps", gps_callback)
@@ -90,8 +87,6 @@ def main():
     with HTTPServer(("0.0.0.0", 8080), make_handler) as web_server:
         try:
             web_server.serve_forever()
-            #__lcm.loop()
-            #run_coroutines(web_server.serve_forever(), __lcm.loop())
         except KeyboardInterrupt:
             pass
 
