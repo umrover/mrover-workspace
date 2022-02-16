@@ -60,6 +60,7 @@ def main():
             last_time = time.process_time()
             global streaming
             global pipeline
+            print("restart timers")
             for i in range(len(pipeline)):
                 if streaming[i]:
                     stop_pipeline(i)
