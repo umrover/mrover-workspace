@@ -43,14 +43,11 @@
     </div>
     <div class="box angles light-bg">
     </div>
-     <!-- <div class="box raw_sensors light-bg">
-      <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
-    </div> -->
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters } from 'vuex'
 import Cameras from './Cameras.vue'
 import RoverMap from './RoverMapAuton.vue'
 import CommIndicator from './CommIndicator.vue'
@@ -58,17 +55,13 @@ import RadioSignalStrength from './RadioSignalStrength.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
-import EncoderCounts from './EncoderCounts.vue'
 import WaypointEditor from './WaypointEditor.vue'
-// import AutonJoystickReading from './AutonJoystickReading.vue'
 import RawSensorData from './RawSensorData.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import Obstacle from './Obstacle.vue'
 import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import ZedGimbalAngles from './ZedGimbalAngles.vue'
-
-let interval;
 
 export default {
   name: 'AutonTask',
@@ -250,7 +243,6 @@ export default {
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
-        {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu', 'type': 'IMU'},
@@ -311,9 +303,7 @@ export default {
     CommIndicator,
     ArmControls,
     DriveControls,
-    EncoderCounts,
     OdometryReading,
-    // AutonJoystickReading,
     RawSensorData,
     WaypointEditor,
     RadioSignalStrength,

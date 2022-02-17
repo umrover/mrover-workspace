@@ -343,10 +343,6 @@ export default {
     overflow: none;
     margin-bottom: 6px;
   }
-    
-  /*.box span{
-    display:inline-block;
-  }*/
 
   .box1 {
     border-radius: 5px;
