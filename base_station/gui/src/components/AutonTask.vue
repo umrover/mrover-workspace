@@ -35,6 +35,7 @@
     </div>
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
+      <ZedGimbalAngles></ZedGimbalAngles>
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
@@ -43,7 +44,6 @@
       <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped" v-bind:Joystick="Joystick"/>
     </div>
     <div class="box angles light-bg">
-      <ZedGimbalAngles></ZedGimbalAngles>
     </div>
   </div>
 </template>
@@ -85,10 +85,10 @@ export default {
       },
 
       odom: {
-        latitude_deg: 38,
-        latitude_min: 24.38226,
-        longitude_deg: -110,
-        longitude_min: -47.51724,
+        latitude_deg: 0,
+        latitude_min: 0,
+        longitude_deg: 0,
+        longitude_min: 0,
         bearing_deg: 0,
         speed: 0
       },
@@ -180,27 +180,27 @@ export default {
 
   created: function () {
     setInterval(() => {
-      if(this.nav_status.nav_state_name == "Off"){
+      if(this.nav_status.nav_state_name == "Off") {
         this.nav_state_color = navBlue
       }
-      else if(this.nav_status.nav_state_name == "Done"){
-        if(this.nav_state_color == navBlue || this.nav_state_color == navRed){
+      else if(this.nav_status.nav_state_name == "Done") {
+        if(this.nav_state_color == navBlue || this.nav_state_color == navRed) {
           this.nav_state_color = navGreen
         }
-        else if(this.nav_counter >= 5 && this.nav_state_color == navGreen){
+        else if(this.nav_counter >= 5 && this.nav_state_color == navGreen) {
           this.nav_state_color = navGrey
           this.nav_counter = 0
         }
-        else if(this.nav_counter >= 5 && this.nav_state_color == navGrey){
+        else if(this.nav_counter >= 5 && this.nav_state_color == navGrey) {
           this.nav_state_color = navGreen
           this.nav_counter = 0
         }
       }
-      else{
+      else {
         this.nav_state_color = navRed
       }
       this.nav_counter = this.nav_counter + 1
-      if(this.nav_counter >= 5){
+      if(this.nav_counter >= 5) {
         this.nav_count = 0
       }
     }, 100);
@@ -336,7 +336,7 @@ export default {
     min-height: 98vh;
     grid-gap: 10px;
     grid-template-columns: 2fr 1.25fr 0.75fr;
-    grid-template-rows: 50px 2fr 1fr 15vh 15vh;
+    grid-template-rows: 50px 2fr 1fr 6vh 24vh;
     grid-template-areas: "header header header" 
                          "map waypoints waypoints"
                          "map waypoints waypoints" 

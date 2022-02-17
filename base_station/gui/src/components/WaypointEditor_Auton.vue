@@ -56,7 +56,7 @@
         </div>
       </div>
       <div class="box1">
-        <h3>Current Course</h3>
+        <h4 class="waypoint-headers">Current Course</h4>
         <draggable v-model="route" class="dragArea" draggable=".item'">
           <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-bind:name="name" v-bind:id="id" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
         </draggable>
@@ -342,8 +342,8 @@ export default {
     padding: 10px;
     border: 1px solid black;
     min-height: min-content;
-    max-height: 29%;
-    overflow: auto;
+    max-height: 32%;
+    overflow: none;
     margin-bottom: 6px;
   }
     
@@ -353,11 +353,11 @@ export default {
 
   .box1 {
     border-radius: 5px;
-    padding: 10px;
+    padding: 0px 5px 0px 5px;
     border: 1px solid black;
     overflow: scroll;
     min-height: min-content;
-    max-height: 60%;
+    max-height: 63%;
   }
 
   .datagrid {
@@ -398,6 +398,10 @@ export default {
   }
   .wp-input p {
     display: inline;
+  }
+
+  .waypoint-headers{
+    margin: 5px 0px 0px 5px;
   }
 
 </style>

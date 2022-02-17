@@ -66,7 +66,7 @@ export default {
   .waypoint-item {
     background-color: rgb(180, 180, 180);
     border-radius: 5px;
-    padding: 10px;
+    padding: 1px 10px 10px 10px;
     border: 1px solid black;
 
     margin: 5px;
