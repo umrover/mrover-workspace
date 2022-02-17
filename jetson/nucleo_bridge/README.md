@@ -109,6 +109,13 @@ nucleo_bridge will continue to attempt i2c bus transactions as commands come in 
 #### "Assertation failed" while initializing a virtual controller
 There is an issue with mrover-workspace/config/nucleo_bridge/Controller.cpp. Resolve the configuration file's issues before running the program.
 
+### ToDo
+- [ ] Add back in closed loop controls 
+- [ ] Add back in limits 
+- [ ] Try electrical fixes to the pinouts/redo them in software if necessary 
+- [ ] LCM message to teleop about joint B being at its limit or not 
+- [ ] Absolute encoder functionality (potentially will not be implemented) 
+- [ ] Investigate relative and absolute encoder limits (do they ever go above 360/below 0?)  
 ### Notes
 
 To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/raytitan/NucleoHAL/tree/master/Core). A README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.

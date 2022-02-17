@@ -115,7 +115,7 @@ class ScienceBridge():
     def carousel_handler(self, msg, carousel_struct):
         try:
             arr = msg.split(",")
-            carousel_struct.position = np.int8(arr[0])
+            carousel_struct.position = np.int8(arr[1])
         except:
             pass
 
@@ -230,7 +230,7 @@ class ScienceBridge():
         struct = CarouselCmd.decode(msg)
         print("Received Servo Cmd")
         # parse data into expected format
-        message = "$CAROUSEL,{position}"
+        message = "$Carousel,{position}"
         message = message.format(position=struct.position)
         print(message)
         while(len(message) < 30):
