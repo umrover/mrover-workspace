@@ -17,8 +17,6 @@
       </div>
       <div class="helpscreen"></div>
       <div class="helpimages" style="display: flex; align-items: center; justify-content: space-evenly">
-        <img v-if="controlMode === 'arm'" src="/static/arm.png" alt="Robot Arm" title="Robot Arm Controls" style="width: auto; height: 70%; display: inline-block" />
-        <img v-else-if="controlMode === 'soil_ac'" src="/static/soil_ac.png" alt="Soil Acquisition" title="Soil Acquisition Controls" style="width: auto; height: 70%; display: inline-block" />
         <img src="/static/joystick.png" alt="Joystick" title="Joystick Controls" style="width: auto; height: 70%; display: inline-block" />
       </div>
     </div>
@@ -41,7 +39,7 @@
       <RoverMap v-bind:odom="odom"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped" v-bind:Joystick="Joystick"/>
+      <WaypointEditor v-bind:odom="odom" v-bind:Joystick="Joystick"/>
     </div>
     <div class="box angles light-bg">
     </div>
@@ -61,7 +59,7 @@ import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
-import WaypointEditor from './WaypointEditor_Auton.vue'
+import WaypointEditor from './WaypointEditor.vue'
 // import AutonJoystickReading from './AutonJoystickReading.vue'
 import RawSensorData from './RawSensorData.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
@@ -77,8 +75,6 @@ export default {
   data () {
     return {
       lcm_: null,
-
-      repeater_dropped: false,
 
       lastServosMessage: {
         pan: 0,
@@ -230,8 +226,6 @@ export default {
           this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
          }else if (msg.topic === '/autonomous') {
           this.Joystick = msg.message
-        } else if (msg.topic === '/rr_drop_complete') {
-          this.repeater_dropped = true
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/obstacle') {
@@ -260,7 +254,6 @@ export default {
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu', 'type': 'IMU'},
-        {'topic': '/rr_drop_complete', 'type': 'RepeaterDropComplete'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/obstacle', 'type': 'Obstacle'},
         {'topic': '/radio', 'type': 'RadioSignalStrength'},
@@ -491,11 +484,6 @@ export default {
 
   .data{
     grid-area: data;
-  }
-
-  .radio_repeater {
-    font-size: 1em;
-    height: 100px;
   }
 
   .controls {

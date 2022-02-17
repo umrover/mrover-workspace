@@ -1,19 +1,32 @@
 <template>
   <div class="waypoint-item">
-    <div class="name">
-      <p>{{waypoint.name}}</p>
-    </div>
-    <div class="location">
-      <p>{{waypoint.latLng.lat}}ºN, {{-waypoint.latLng.lng}}ºW</p>
+    <div class="identification">
+      <p>{{waypoint.name}}, ID: {{waypoint.id}} Gate Width: {{waypoint.gate ? waypoint.gate_width : 'n/a'}}</p>
     </div>
     <div class="buttons">
-      <button v-bind:class="[waypoint.search ? 'green' : 'red']" v-on:click="$emit('toggleSearch', {'list': list, 'index': index})"></button>
-      <button class="red" v-on:click="$emit('delete', {'list': list, 'index': index})">X</button>
+      <button class="red" v-on:click="$emit('add', {'list': list, 'index': index})">Add</button>
+      <button v-bind:class="[waypoint.search ? 'green' : 'red']" v-on:click="$emit('toggleSearch', {'list': list, 'index': index})">Search</button>
+      <button v-bind:class="[waypoint.gate ? 'green' : 'red']" v-on:click="$emit('toggleGate', {'list': list, 'index': index})">Gate</button>
+      <button class="red" v-on:click="$emit('delete', {'list': list, 'index': index})">Delete</button>
+    </div>
+    <div class="location">
+      <div>
+        <p>{{waypoint.lat.d}}º</p>
+        <p v-if="this.min_enabled">{{waypoint.lat.m}}'</p>
+        <p  v-if="this.sec_enabled">{{waypoint.lat.s}}"</p>
+        N <b>&nbsp;|</b> 
+        <p>{{waypoint.lon.d}}º</p>
+        <p v-if="this.min_enabled">{{waypoint.lon.m}}'</p>
+        <p  v-if="this.sec_enabled">{{waypoint.lon.s}}"</p>
+        W
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import {mapGetters} from 'vuex';
+
 export default {
 
   props: {
@@ -30,44 +43,47 @@ export default {
     index: {
       type: Number,
       required: true
+    }
+  },
+
+  computed: {
+    ...mapGetters('autonomy', {
+      odom_format: 'odomFormat'
+    }),
+
+    min_enabled: function() {
+      return this.odom_format != 'D';
     },
 
-    gate: {
-      type: Boolean,
-      required: true
+    sec_enabled: function() {
+      return this.odom_format == 'DMS';
     }
-  }
-
+  },
 }
 </script>
 
 <style scoped>
   .waypoint-item {
-    display: grid;
-    grid-template-columns: 4fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    grid-template-areas: "name buttons" "location buttons";
-
     background-color: rgb(180, 180, 180);
     border-radius: 5px;
-    padding: 10px;
+    padding: 1px 10px 10px 10px;
     border: 1px solid black;
 
     margin: 5px;
   }
-
-  .name {
-    grid-area: name;
-  }
-
   .location {
     grid-area: location;
+  }
+
+  .location p {
+    display: inline;
   }
 
   .buttons {
     grid-area: buttons;
     align-self: center;
     justify-self: center;
+    display: block;
   }
 
   .red {
@@ -79,12 +95,13 @@ export default {
   }
 
   button {
-    width: 20px;
-    height: 20px;
-    padding: 0px;
+    width: auto;
+    height: auto;
+    padding: 7px;
+    font-weight: bold;
   }
 
   p {
-    margin: 0px
+    margin: 5px
   }
 </style>
