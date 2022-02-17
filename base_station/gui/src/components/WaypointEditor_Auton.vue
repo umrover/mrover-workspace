@@ -135,9 +135,6 @@ export default {
     })
 
     interval = window.setInterval(() => {
-        if(this.auton_enabled && this.nav_status.nav_state_name === 'Done'){
-          this.$refs.checkbox.toggleAndEmit()
-        }
 
         this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.auton_enabled})
 
