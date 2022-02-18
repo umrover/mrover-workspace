@@ -30,7 +30,7 @@
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
-        <SaveAutonData v-bind:odom="odom"/>
+        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick"/>
      </div>
     </div>
     <div class="box odom light-bg">
