@@ -162,11 +162,11 @@ def ra_control_callback(channel, msg):
 
     motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    deadzone(quadratic(xboxData.right_js_y), 0.09),
+                    -deadzone(quadratic(xboxData.right_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_x), 0.09),
                     quadratic(xboxData.right_trigger -
                               xboxData.left_trigger),
-                    (xboxData.right_bumper - xboxData.left_bumper)]
+                    -(xboxData.right_bumper - xboxData.left_bumper)]
 
     openloop_msg = RAOpenLoopCmd()
     openloop_msg.throttle = motor_speeds
