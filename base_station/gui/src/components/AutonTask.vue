@@ -30,6 +30,7 @@
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
+        <SaveAutonData v-bind:odom="odom"/>
      </div>
     </div>
     <div class="box odom light-bg">
@@ -62,6 +63,7 @@ import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import Obstacle from './Obstacle.vue'
 import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
+import SaveAutonData from './SaveAutonData.vue'
 import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
 const navBlue = "#4695FF"
@@ -316,6 +318,7 @@ export default {
     Obstacle,
     TargetList,
     DriveVelDataH,
+    SaveAutonData,
     ZedGimbalAngles
   }
 }
