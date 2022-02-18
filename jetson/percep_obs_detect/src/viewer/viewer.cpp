@@ -319,6 +319,7 @@ void Viewer::initGraphics() {
 
     glfwSetWindowUserPointer(window, this);
 
+    int major, minor, rev;
     std::cout << glfwGetVersionString() << std::endl;
 //    if (glfwRawMouseMotionSupported())
 //        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
@@ -384,6 +385,10 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             }
             case GLFW_KEY_6: {
                 viewer->procStage = ProcStage::POSTBEARING;
+                break;
+            }
+            case GLFW_KEY_7: {
+                viewer->procStage = ProcStage::RAW_BOUNDING_BEARING;
                 break;
             }
 #endif
@@ -485,6 +490,7 @@ void Viewer::drawUI() {
     if (ImGui::RadioButton("ECE", procStage == ProcStage::POSTECE)) procStage = ProcStage::POSTECE;
     if (ImGui::RadioButton("Bounding", procStage == ProcStage::POSTBOUNDING)) procStage = ProcStage::POSTBOUNDING;
     if (ImGui::RadioButton("Bearing", procStage == ProcStage::POSTBEARING)) procStage = ProcStage::POSTBEARING;
+    if (ImGui::RadioButton("Raw+Bounding+Bearing", procStage == ProcStage::RAW_BOUNDING_BEARING)) procStage = ProcStage::RAW_BOUNDING_BEARING;
     ImGui::End();
 
     ImGui::Begin("Parameters");

@@ -140,6 +140,12 @@ void ObsDetector::process(GPU_Cloud pc) {
 
     timer.reset();
 
+    GPU_Cloud pcRaw;
+    if (viewer.procStage == ProcStage::RAW_BOUNDING_BEARING) {
+        pcRaw = createCloud(pc.size);
+        copyCloud(pcRaw, pc);
+    }
+
     // Processing
     if (viewer.procStage > ProcStage::RAW) {
         passZ->run(pc);
@@ -148,7 +154,7 @@ void ObsDetector::process(GPU_Cloud pc) {
 
     if (viewer.procStage > ProcStage::POSTPASS) {
         plane = ransacPlane->computeModel(pc);
-        if (viewerType == ViewerType::GL) drawGround(plane);
+        if (viewerType == ViewerType::GL && viewer.procStage != ProcStage::RAW_BOUNDING_BEARING) drawGround(plane);
         averages["RANSAC"].add(timer.reset());
     }
 
@@ -158,7 +164,7 @@ void ObsDetector::process(GPU_Cloud pc) {
     } else {
         cam->set_frame(viewer.frame);
     }
-    if (viewerType == ViewerType::GL) viewer.updatePointCloud(pc);
+    if (viewerType == ViewerType::GL && viewer.procStage != ProcStage::RAW_BOUNDING_BEARING) viewer.updatePointCloud(pc);
     averages["Update PC"].add(timer.reset());
 
     if (viewer.procStage > ProcStage::POSTRANSAC) {
@@ -184,6 +190,10 @@ void ObsDetector::process(GPU_Cloud pc) {
 
         if (viewer.procStage > ProcStage::POSTBOUNDING) {
             drawBearing();
+        }
+
+        if (viewer.procStage == ProcStage::RAW_BOUNDING_BEARING) {
+            viewer.updatePointCloud(pcRaw);
         }
     }
 
@@ -306,3 +316,4 @@ ObsDetector::~ObsDetector() {
 bool ObsDetector::open() {
     return viewerType == ViewerType::NONE || viewer.open();
 }
+
