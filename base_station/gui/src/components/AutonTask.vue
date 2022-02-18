@@ -28,12 +28,13 @@
         <RadioSignalStrength v-bind:RadioSignalStrength="RadioSignalStrength"/>
         <Obstacle v-bind:Obstacle="Obstacle"/>
         <TargetList v-bind:TargetList="TargetList"/>
+        <DriveControls/>
         <DriveVelDataH/>
      </div>
     </div>
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
-      <ZedGimbalAngles></ZedGimbalAngles>
+      <ZedGimbalAngles/>
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
