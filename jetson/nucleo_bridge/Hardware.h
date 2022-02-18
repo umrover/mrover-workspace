@@ -12,6 +12,7 @@ enum HardwareType
     Motor24V,
     Motor22Percent,
     Motor29Percent,
+    HBridge,
     None
 };
 
@@ -41,6 +42,9 @@ public:
         }
         else if(input == "Motor29Percent") {
             return Motor29Percent;
+        }
+        else if (input == "HBridge") {
+            return HBridge;
         }
         else 
         {
@@ -72,6 +76,8 @@ public:
         case Motor29Percent:
             speed_max = 29;  // 10.44 V, or 24V * 0.44 / 36 %
 	        break;
+        case HBridge:
+            speed_max = 95;
         case None:
             break;
         }
