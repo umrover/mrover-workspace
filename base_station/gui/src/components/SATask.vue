@@ -229,7 +229,7 @@ export default {
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/carousel_data', 'type': 'CarouselData'},
-        {'topic': '/carousel_cmd', 'type': 'CarouselCmd'},
+        {'topic': '/carousel_closedloop_cmd', 'type': 'CarouselClosedLoopCmd'},
         {'topic': '/sa_position', 'type': 'SAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'}
       ]

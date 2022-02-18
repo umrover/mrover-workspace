@@ -127,7 +127,7 @@
           {'topic': '/cameras_cmd', 'type': 'Cameras'},
           {'topic': '/camera_servos', 'type': 'CameraServos'},
           {'topic': '/cam_settings', 'type': 'CamSettings'},
-          {'topic': '/carousel_cmd', 'type': 'CarouselCmd'},
+          {'topic': '/carousel_closedloop_cmd', 'type': 'CarouselClosedLoopCmd'},
           {'topic': '/carousel_data', 'type': 'CarouselData'},
           {'topic': '/course', 'type': 'Course'},
           {'topic': '/debugMessage', 'type': 'DebugMessage'},

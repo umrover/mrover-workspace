@@ -9,7 +9,8 @@ import numpy as np
 import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
-from rover_msgs import ThermistorData, MosfetCmd, SpectralData, NavStatus, ServoCmd, CarouselData, CarouselCmd
+from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
+    NavStatus, ServoCmd, CarouselData, CarouselClosedLoopCmd, CarouselOpenLoopCmd
 
 
 class ScienceBridge():
@@ -226,9 +227,23 @@ class ScienceBridge():
         if self.ser.isOpen():
             self.ser.write(bytes(message, encoding='utf-8'))
 
-    def carousel_transmit(self, channel, msg):
-        struct = CarouselCmd.decode(msg)
-        print("Received Servo Cmd")
+    def carousel_openloop_transmit(self, channel, msg):
+        struct = CarouselOpenloopCmd.decode(msg)
+        print("Received Carousel (OL) Cmd")
+        # parse data into expected format
+        message = "$OpenCarousel,{throttle}"
+        message = message.format(throttle=struct.throttle)
+        print(message)
+        while(len(message) < 30):
+            message += ","
+        self.ser.close()
+        self.set.open()
+        if self.ser.isOpen():
+            self.ser.write(bytes(message, encoding='utf-8'))
+
+    def carousel_closedloop_transmit(self, channel, msg):
+        struct = CarouselClosedLoopCmd.decode(msg)
+        print("Received Carousel (CL) Cmd")
         # parse data into expected format
         message = "$Carousel,{position}"
         message = message.format(position=struct.position)
@@ -303,7 +318,8 @@ def main():
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         _lcm.subscribe("/nav_status", bridge.nav_status)
         _lcm.subscribe("/servo_cmd", bridge.servo_transmit)
-        _lcm.subscribe("/carousel_cmd", bridge.carousel_transmit)
+        _lcm.subscribe("/carousel_openloop_cmd", bridge.carousel_openloop_transmit)
+        _lcm.subscribe("/carousel_closedloop_cmd", bridge.carousel_closedloop_transmit)
         print("properly started")
         run_coroutines(_lcm.loop(), bridge.receive(_lcm))
 

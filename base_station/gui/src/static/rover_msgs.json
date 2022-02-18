@@ -155,7 +155,7 @@
             "width"
         ]
     ],
-    "CarouselCmd": [
+    "CarouselClosedLoopCmd": [
         [
             "int8_t",
             "position"
