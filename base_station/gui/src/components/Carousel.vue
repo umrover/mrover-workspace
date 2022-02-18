@@ -41,8 +41,8 @@ export default {
       },
   methods: {
       setPart: function() {
-        this.$parent.publish("/carousel_cmd", {
-        'type': 'CarouselCmd',
+        this.$parent.publish("/carousel_closedloop_cmd", {
+        'type': 'CarouselClosedLoopCmd',
         'position': Number(this.position)
       })
       this.reachedPos = false
