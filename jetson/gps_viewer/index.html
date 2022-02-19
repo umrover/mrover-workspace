@@ -70,8 +70,8 @@
 
                 if (dirLine !== undefined) map.removeLayer(dirLine);
                 const odoPointTip = [
-                    odoPoint[0] + Math.cos(json.heading * 0.01745327) * 0.005,
-                    odoPoint[1] + Math.sin(json.heading * 0.01745327) * 0.005
+                    odoPoint[0] + Math.cos(json.heading * 0.01745327) * 0.0005,
+                    odoPoint[1] + Math.sin(json.heading * 0.01745327) * 0.0006
                 ];
                 dirLine = L.polyline([odoPoint, odoPointTip]).addTo(map);
                 dirLine.setStyle({color: 'purple'})
