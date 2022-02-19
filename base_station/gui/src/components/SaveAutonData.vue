@@ -15,11 +15,15 @@ export default {
             num_logs: 0,
             timestamp: [],
 
-            degrees_north: [],
-            minutes_north: [],
-            degrees_west: [],
-            minutes_west: [],
+            // odom
+            degrees_lat: [],
+            minutes_lat: [],
+            degrees_lon: [],
+            minutes_lon: [],
+            odom_bearing: [],
+            odom_speed: [],
 
+            // IMU
             accel_x: [],
             accel_y: [],
             accel_z: [],
@@ -29,12 +33,22 @@ export default {
             mag_x: [],
             mag_y: [],
             mag_z: [],
-            bearing: [],
+            imu_bearing: [],
 
+            // GPS
+            gps_lat_deg: [],
+            gps_lat_min: [],
+            gps_lon_deg: [],
+            gps_lon_min: [],
+            gps_bearing: [],
+            gps_speed: [],
+
+            // nav_state
             nav_state: [],
             completed_wps: [],
             total_wps: [],
 
+            // Joystick
             forward_back: [],
             left_right: [],
             dampen: [],
@@ -50,6 +64,11 @@ export default {
         },
 
         IMU: {
+            type: Object,
+            required: true
+        },
+
+        GPS: {
             type: Object,
             required: true
         },
@@ -80,7 +99,7 @@ export default {
 
     created: function() {
         // time between interations in seconds
-        const update_rate = 1
+        const update_rate = 0.5
 
         const seconds_to_save = 1800
         const overflow_amt = 60
@@ -92,10 +111,12 @@ export default {
             const time_string = time.toTimeString().substring(0,17) + ' ' + time.toDateString()
             this.timestamp.push(time_string)
 
-            this.degrees_north.push(this.formatted_odom.lat.d)
-            this.minutes_north.push(this.formatted_odom.lat.m)
-            this.degrees_west.push(this.formatted_odom.lon.d)
-            this.minutes_west.push(this.formatted_odom.lon.m)
+            this.degrees_lat.push(this.formatted_odom.lat.d)
+            this.minutes_lat.push(this.formatted_odom.lat.m)
+            this.degrees_lon.push(this.formatted_odom.lon.d)
+            this.minutes_lon.push(this.formatted_odom.lon.m)
+            this.odom_bearing.push(this.odom.bearing_deg)
+            this.odom_speed.push(this.odom.speed)
 
             this.accel_x.push(this.IMU.accel_x)
             this.accel_y.push(this.IMU.accel_y)
@@ -106,11 +127,18 @@ export default {
             this.mag_x.push(this.IMU.mag_x)
             this.mag_y.push(this.IMU.mag_y)
             this.mag_z.push(this.IMU.mag_z)
-            this.bearing.push(this.IMU.bearing)
+            this.imu_bearing.push(this.IMU.bearing)
+
+            this.gps_lat_deg.push(this.GPS.latitude_deg)
+            this.gps_lat_min.push(this.GPS.latitude_min)
+            this.gps_lon_deg.push(this.GPS.longitude_deg)
+            this.gps_lon_min.push(this.GPS.longitude_min)
+            this.gps_bearing.push(this.GPS.bearing_deg)
+            this.gps_speed.push(this.GPS.speed)
 
             this.nav_state.push(this.nav_status.nav_state_name)
-            this.completed_wps.push(this.completed_wps)
-            this.total_wps.push(this.total_wps)
+            this.completed_wps.push(this.nav_status.completed_wps)
+            this.total_wps.push(this.nav_status.total_wps)
 
             this.forward_back.push(this.Joystick.forward_back)
             this.left_right.push(this.Joystick.left_right)
@@ -121,10 +149,12 @@ export default {
             if (this.num_logs > (seconds_to_save / update_rate) + overflow_amt) {
                 this.num_logs -= overflow_amt
 
-                this.degrees_north.splice(0, overflow_amt)
-                this.minutes_north.splice(0, overflow_amt)
-                this.degrees_west.splice(0, overflow_amt)
-                this.minutes_west.splice(0, overflow_amt)
+                this.degrees_lat.splice(0, overflow_amt)
+                this.minutes_lat.splice(0, overflow_amt)
+                this.degrees_lon.splice(0, overflow_amt)
+                this.minutes_lon.splice(0, overflow_amt)
+                this.odom_bearing.splice(0, overflow_amt)
+                this.odom_speed.splice(0, overflow_amt)
 
                 this.accel_x.splice(0, overflow_amt)
                 this.accel_y.splice(0, overflow_amt)
@@ -135,7 +165,14 @@ export default {
                 this.mag_x.splice(0, overflow_amt)
                 this.mag_y.splice(0, overflow_amt)
                 this.mag_z.splice(0, overflow_amt)
-                this.bearing.splice(0, overflow_amt)
+                this.imu_bearing.splice(0, overflow_amt)
+
+                this.gps_lat_deg.splice(0, overflow_amt)
+                this.gps_lat_min.splice(0, overflow_amt)
+                this.gps_lon_deg.splice(0, overflow_amt)
+                this.gps_lon_min.splice(0, overflow_amt)
+                this.gps_bearing.splice(0, overflow_amt)
+                this.gps_speed.splice(0, overflow_amt)
 
                 this.nav_state.splice(0, overflow_amt)
                 this.completed_wps.splice(0, overflow_amt)
@@ -153,15 +190,17 @@ export default {
 
     methods: {
         download_log() {
-            var csv = 'Timestamp,Degrees North,Minutes North,Degrees East,Minutes East,Accel X, Accel Y, Accel Z, Gyro X, Gyro Y, Gyro Z, Mag X, Mag Y, Mag Z, Bearing, Nav State, Waypoints Completed, Total Waypoints, Forward/Back, Left/Right, Dampen, Kill, Restart\n'
+            var csv = 'Timestamp,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,Forward/Back,Left/Right,Dampen,Kill,Restart\n'
 
             for (let i = 0; i < this.num_logs; i++) {
                 csv += this.timestamp[i] + ','
                 
-                csv += this.degrees_north[i] + ','
-                csv += this.minutes_north[i] + ','
-                csv += this.degrees_west[i] + ','
-                csv += this.minutes_west[i]
+                csv += this.degrees_lat[i] + ','
+                csv += this.minutes_lat[i] + ','
+                csv += this.degrees_lon[i] + ','
+                csv += this.minutes_lon[i] + ','
+                csv += this.odom_bearing[i] + ','
+                csv += this.odom_speed[i] + ','
 
                 csv += this.accel_x[i] + ','
                 csv += this.accel_y[i] + ','
@@ -172,7 +211,14 @@ export default {
                 csv += this.mag_x[i] + ','
                 csv += this.mag_y[i] + ','
                 csv += this.mag_z[i] + ','
-                csv += this.bearing[i] + ','
+                csv += this.imu_bearing[i] + ','
+
+                csv += this.gps_lat_deg[i] + ','
+                csv += this.gps_lat_min[i] + ','
+                csv += this.gps_lon_deg[i] + ','
+                csv += this.gps_lon_min[i] + ','
+                csv += this.gps_bearing[i] + ','
+                csv += this.gps_speed[i] + ','
 
                 csv += this.nav_state[i] + ','
                 csv += this.completed_wps[i] + ','
