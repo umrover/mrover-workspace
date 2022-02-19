@@ -2,8 +2,6 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import lcm
-from rover_common import aiolcm
-from rover_common.aiohelper import run_coroutines
 
 from rover_msgs import Odometry, IMUData, GPS
 
@@ -51,8 +49,8 @@ class GPSRequestHandler(BaseHTTPRequestHandler):
 def odometry_callback(channel, msg):
     global __lcm, __data
     msg = Odometry.decode(msg)
-    __data["odo"]["longitude"] = msg.longitude_min
-    __data["odo"]["latitude"] = msg.latitude_min
+    __data["odo"]["longitude"] = msg.longitude_deg + msg.longitude_min / 60
+    __data["odo"]["latitude"] = msg.latitude_deg + msg.latitude_min / 60
 
 
 def imu_callback(channel, msg):
@@ -64,8 +62,6 @@ def imu_callback(channel, msg):
 def gps_callback(channel, msg):
     global __lcm, __data
     msg = GPS.decode(msg)
-    print(msg.longitude_min)
-    print(msg.latitude_min)
     __data["gps"]["longitude"] = msg.longitude_deg + msg.longitude_min / 60
     __data["gps"]["latitude"] = msg.latitude_deg + msg.latitude_min / 60
 

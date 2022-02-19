@@ -26,12 +26,12 @@
         zoomOffset: -1,
     }).addTo(map);
 
-    const gpsPoints = [wilsonCenter];
-    let gpsLine = L.polyline([]).addTo(map);
-    let gpsMarker = L.marker(wilsonCenter).addTo(map);
-    const odoPoints = [wilsonCenter];
-    let odoLine = L.polyline([]).addTo(map);
-    let dirLine = L.polyline([wilsonCenter, wilsonCenter]);
+    const gpsPoints = [];
+    let gpsLine = undefined;
+    let gpsMarker = undefined;
+    const odoPoints = [];
+    let odoLine = undefined;
+    let dirLine = undefined;
 
     setInterval(() => {
         const xhr = new XMLHttpRequest();
@@ -43,10 +43,11 @@
                 const json = JSON.parse(xhr.responseText);
 
                 const gpsPoint = [json.gps.latitude, json.gps.longitude];
-                if (gpsPoint[0] !== gpsPoints[gpsPoints.length - 1][0]
+                if (gpsPoints.length === 0
+                    || gpsPoint[0] !== gpsPoints[gpsPoints.length - 1][0]
                     || gpsPoint[1] !== gpsPoints[gpsPoints.length - 1][1]) {
-                    map.removeLayer(gpsLine);
-                    map.removeLayer(gpsMarker);
+                    if (gpsLine !== undefined) map.removeLayer(gpsLine);
+                    if (gpsMarker !== undefined) map.removeLayer(gpsMarker);
                     gpsPoints.push(gpsPoint);
                     while (gpsPoints.length > maxPoints) {
                         gpsPoints.shift()
@@ -56,9 +57,10 @@
                 }
 
                 const odoPoint = [json.odo.latitude, json.odo.longitude];
-                if (odoPoint[0] !== odoPoints[odoPoints.length - 1][0]
+                if (odoPoints.length === 0
+                    || odoPoint[0] !== odoPoints[odoPoints.length - 1][0]
                     || odoPoint[1] !== odoPoints[odoPoints.length - 1][1]) {
-                    map.removeLayer(odoLine);
+                    if (odoLine !== undefined) map.removeLayer(odoLine);
                     odoPoints.push(odoPoint);
                     while (odoPoints.length > maxPoints) {
                         odoPoints.shift()
@@ -66,7 +68,7 @@
                     odoLine = L.polyline(odoPoints).setStyle({color: 'red'}).addTo(map);
                 }
 
-                map.removeLayer(dirLine);
+                if (dirLine !== undefined) map.removeLayer(dirLine);
                 const odoPointTip = [
                     odoPoint[0] + Math.cos(json.heading * 0.01745327) * 0.005,
                     odoPoint[1] + Math.sin(json.heading * 0.01745327) * 0.005
