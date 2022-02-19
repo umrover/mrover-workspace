@@ -42,8 +42,13 @@ def main():
             imu_data.gyro_x_dps = vals[3]
             imu_data.gyro_y_dps = vals[4]
             imu_data.gyro_z_dps = vals[5]
+            
+            imu_data.sys_calibration = vals[6]
+            imu_data.gyro_calibration = vals[7]
+            imu_data.accel_calibration = vals[8]
+            imu_data.mag_calibration = vals[9]
 
-            imu_data.bearing_deg = vals[6]
+            imu_data.bearing_deg = vals[10]
 
             lcm_.publish("/imu_data", imu_data.encode())
         except IndexError:
