@@ -133,7 +133,8 @@ export default {
 
     interval = window.setInterval(() => {
 
-        this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.auton_enabled})
+        this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.autonEnabled})
+        console.log("Sent auton enabled to nav: " + this.autonEnabled)
 
         let course = {
             num_waypoints: this.route.length,
@@ -273,7 +274,7 @@ export default {
 
   computed: {
     ...mapGetters('autonomy', {
-      auton_enabled: 'autonEnabled',
+      autonEnabled: 'autonEnabled',
       odom_format: 'odomFormat'
     }),
 
