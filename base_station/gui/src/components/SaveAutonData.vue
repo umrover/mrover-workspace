@@ -148,6 +148,7 @@ export default {
 
             if (this.num_logs > (seconds_to_save / update_rate) + overflow_amt) {
                 this.num_logs -= overflow_amt
+                this.timestamp.splice(0, overflow_amt)
 
                 this.degrees_lat.splice(0, overflow_amt)
                 this.minutes_lat.splice(0, overflow_amt)
@@ -242,6 +243,46 @@ export default {
 
             hiddenElement.download = 'AutonLog-' + time_string + '.csv'
             hiddenElement.click()
+
+            // Remove data that was just saved
+
+            this.num_logs = 0
+            this.timestamp = []
+
+            this.degrees_lat = []
+            this.minutes_lat = []
+            this.degrees_lon = []
+            this.minutes_lon = []
+            this.odom_bearing = []
+            this.odom_speed = []
+
+            this.accel_x = []
+            this.accel_y = []
+            this.accel_z = []
+            this.gyro_x = []
+            this.gyro_y = []
+            this.gyro_z = []
+            this.mag_x = []
+            this.mag_y = []
+            this.mag_z = []
+            this.imu_bearing = []
+
+            this.gps_lat_deg = []
+            this.gps_lat_min = []
+            this.gps_lon_deg = []
+            this.gps_lon_min = []
+            this.gps_bearing = []
+            this.gps_speed = []
+
+            this.nav_state = []
+            this.completed_wps = []
+            this.total_wps = []
+
+            this.forward_back = []
+            this.left_right = []
+            this.dampen = []
+            this.kill = []
+            this.restart = []
         }
     }
 }
@@ -249,6 +290,6 @@ export default {
 
 <style scoped>
     .log {
-        padding: auto;
+        padding: 10px
     }
 </style>
