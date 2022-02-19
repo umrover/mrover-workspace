@@ -58,6 +58,13 @@
           :step="5"
         />
       </div>
+      <div class="setting">
+        <Checkbox
+          :on="enableLCM"
+          name="Enable LCM"
+          @clicked="flipEnableLCM(!enableLCM)"
+        />
+      </div>
     </div>
   </fieldset>
 </template>
@@ -101,6 +108,9 @@ export default class SimSettings extends Vue {
   @Getter
   private readonly noiseGPSPercent!:number;
 
+  @Getter
+  private readonly enableLCM!:boolean;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
@@ -121,6 +131,9 @@ export default class SimSettings extends Vue {
 
   @Mutation
   private readonly setGPSNoisePercent!:(newNoisePercent:number)=>void;
+
+  @Mutation
+  private readonly flipEnableLCM!:(onOff:boolean)=>void;
 
   /************************************************************************************************
    * Private Members

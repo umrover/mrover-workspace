@@ -264,6 +264,7 @@ export interface SimulationSettings {
   simulatePercep:boolean;
   noisePercent:number;
   noiseGPSPercent:number;
+  enableLCM:boolean;
 }
 
 
