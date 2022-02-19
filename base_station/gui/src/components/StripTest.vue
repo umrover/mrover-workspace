@@ -23,12 +23,6 @@
         </div>
     <button v-on:click="back_to_start()">Back to start</button>
     <div class="input">
-        Strip:
-        <select v-model = "newStrip" name="newStrip" id="newStrip">
-            <option value=2>A</option>
-            <option value=1>B</option>
-            <option value=0>C</option>
-        </select>        
         Angle: <input type='number' v-model.number='angle'>
         <button v-on:click="userInput()"> Move to angle</button>
     </div>
@@ -51,8 +45,7 @@ export default {
             start: start,
             dip: dip,
             picture: picture,
-            angle: start,
-            newStrip: 2
+            angle: start
         }
     },
     methods: {
@@ -114,22 +107,30 @@ export default {
         },
 
         back_to_start: function() {
-            this.angle0 = this.start;
-            this.angle1 = this.start;
-            this.angle2 = this.start;
-            this.setPart();
+            if (this.strip == 2) {
+                this.angle2 = this.start;
+                this.setPart();
+            }
+            else if (this.strip == 1) {
+                this.angle1 = this.start;
+                this.setPart();
+            }
+            else if (this.strip == 0) {
+                this.angle0 = this.start;
+                this.setPart();
+            }
         },
 
         userInput: function() {
-            if (this.newStrip == 2) {
+            if (this.strip == 2) {
                 this.angle2 = this.angle;
                 this.setPart();
             }
-            else if (this.newStrip == 1) {
+            else if (this.strip == 1) {
                 this.angle1 = this.angle;
                 this.setPart();
             }
-            else if (this.newStrip == 0) {
+            else if (this.strip == 0) {
                 this.angle0 = this.angle;
                 this.setPart();
             }
