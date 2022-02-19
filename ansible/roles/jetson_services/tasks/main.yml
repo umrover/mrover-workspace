@@ -11,6 +11,9 @@
       - rover-jetson-nav
       - rover-jetson-raman
       - rover-jetson-teleop
+      - rover-jetson-odrive-bridge-0
+      - rover-jetson-odrive-bridge-1
+      - rover-jetson-odrive-bridge-2
 
 - name: Copy environment variable definitions
   copy:
@@ -36,3 +39,6 @@
       - rover-jetson-nav.service
       - rover-jetson-raman.service
       - rover-jetson-teleop.service
+      - rover-jetson-odrive-bridge-0
+      - rover-jetson-odrive-bridge-1
+      - rover-jetson-odrive-bridge-2
