@@ -58,7 +58,7 @@ bool vec3dAlmostEqual(Vector3d a, Vector3d b, double epsilon) {
 
 TEST(kinematics_initialization) {
     std::cout << std::setprecision(8);
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false)); // Using RA, not SA 
     ArmState arm = ArmState(geom);
     KinematicsSolver solver();
 }
@@ -66,7 +66,7 @@ TEST(kinematics_initialization) {
 TEST(fk_test) {
     std::cout << std::setprecision(8);
     // Create the arm to be tested on:
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -151,9 +151,23 @@ TEST(fk_test) {
     // FK working , yay!!!
 }
 
+TEST(is_safe_test) {
+    // Create the arm to be tested on:
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+
+    std::string presets_file = "/vagrant/base_station/kineval_stencil/dist/mrover_arm_presets.json";
+
+    json presets = read_json_from_file(presets_file);
+    for (json::iterator it = presets.begin(); it != presets.end(); it++) {
+        ASSERT_TRUE(solver.is_safe(arm, it.value()));
+    }
+}
+
 TEST(ik_test1) {
-    // std::cout << std::setprecision(8);
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    // cout << setprecision(8);
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
     // Create target point vector:
@@ -200,7 +214,7 @@ TEST(ik_test2) {
 }
 
 TEST(ik_test3) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -222,7 +236,7 @@ TEST(ik_test3) {
 }
 
 TEST(ik_test4) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -244,7 +258,7 @@ TEST(ik_test4) {
 }
 
 TEST(ik_test_short) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -269,7 +283,7 @@ TEST(ik_test_short) {
 }
 
 TEST(ik_local_min) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -290,7 +304,7 @@ TEST(ik_local_min) {
 
 // Test that IK respects the locking of joints
 TEST(ik_test_lock) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -319,7 +333,7 @@ TEST(ik_test_lock) {
     solver.FK(arm);
 
     // Run IK
-    std::pair<Vector6d, bool> result = solver.IK(arm, target_pos, false, false);
+    std::pair<vector<double>, bool> result = solver.IK(arm, target_pos, false, false);
 
     // Check that joint c did not move from the start position.
     ASSERT_ALMOST_EQUAL(-1, result.first[2], 0.0000001);
@@ -330,7 +344,7 @@ TEST(ik_test_lock) {
 
 // Test that IK respects the locking of joints
 TEST(ik_test_orientation_experiment) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -356,7 +370,7 @@ TEST(ik_test_orientation_experiment) {
     solver.FK(arm);
 
     // Run IK
-    std::pair<Vector6d, bool> result = solver.IK(arm, target_pos, false, true);
+    std::pair<vector<double>, bool> result = solver.IK(arm, target_pos, false, true);
 
     // Check that IK found a solution.
     ASSERT_TRUE(result.second);

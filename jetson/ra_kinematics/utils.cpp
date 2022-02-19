@@ -8,9 +8,30 @@ using namespace Eigen;
 
 typedef Matrix<double, 6, 1> Vector6d;
 
-std::string get_mrover_arm_geom() {
+bool check_science() {
+    std::cout << "Science? (y/n)\n";
+    std::string science;
+    std::cin >> science;
+    if (science == "Y" || science == "y") {
+        return true;
+    }
+    else if (science == "N" || science == "n") {
+        return false;
+    }
+    else {
+        std::cout << "Invalid input. Type \"y\" for science or \"n\" for ES/ERD.\n";
+        return check_science();
+    }
+}
+
+std::string get_mrover_arm_geom(bool science) {
     std::string config_folder = getenv("MROVER_CONFIG");
-    return config_folder + "/config_kinematics/mrover_arm_geom.json";
+    if (science) {
+        return config_folder + "/config_kinematics/science_arm_geom.json"; //science geom
+    }
+    else {
+        return config_folder + "/config_kinematics/mrover_arm_geom.json"; //standard (ES/ERD) geom
+    }
 }
 
 json read_json_from_file(const std::string &filepath) {
@@ -167,4 +188,24 @@ std::vector<double> vector6dToVec(const Vector6d &inVector6d) {
         retVec.push_back(inVector6d[i]);
     }
     return retVec;
+}
+
+double squared_norm(const std::vector<double>& a, const std::vector<double>& b) {
+    double dist = 0.0;
+    for (size_t i = 0; i < a.size(); ++i) {
+        dist += pow(a[i] - b[i], 2);
+    }
+    return dist;
+}
+
+bool vec_almost_equal(const std::vector<double>& a, const std::vector<double>& b, double epsilon) {
+    if (a.size() != b.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < a.size(); ++i) {
+        if (abs(a[i] - b[i]) > epsilon) {
+            return false;
+        }
+    }
+    return true;
 }

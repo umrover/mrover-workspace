@@ -67,9 +67,10 @@ static constexpr double JOINT_B_STABILIZE_BAD_MULTIPLIER = 0.96;
 * over LCM.
 */
 class MRoverArm {
+protected:
+    ArmState arm_state;
  
 private:
-    ArmState arm_state;
     KinematicsSolver solver;
     MotionPlanner motion_planner;
     lcm::LCM &lcm_;
@@ -110,6 +111,8 @@ public:
      * @param lcm empty lcm object to communicate with other systems
      * */
     MRoverArm(json &geom, lcm::LCM &lcm);
+
+    virtual ~MRoverArm() = default;
     
     /**
      * Handle message meant to update control_state
@@ -118,15 +121,6 @@ public:
      * @param msg format: string state ("open-loop", "closed-loop", or "off")
      */
     void ra_control_callback(std::string channel, ArmControlState msg);
-
-    /**
-     * Handle message with updated joint angles from encoders,
-     * update arm_state and call FK() to adjust transforms
-     * 
-     * @param channel expected: "/ra_position"
-     * @param msg format: double joint_a, joint_b, ... , joint_f
-     * */
-    void arm_position_callback(std::string channel, RAPosition msg);
 
     /**
      * Handle new target position by calculating angles and plotting path,
@@ -168,14 +162,6 @@ public:
     void use_orientation_callback(std::string channel, UseOrientation msg);
 
     /**
-     * Handle request to lock specific joints
-     * 
-     * @param channel expected: "/locked_joints"
-     * @param msg format: bool joint_a ... joint_f
-     */
-    void lock_joints_callback(std::string channel, LockJoints msg);
-
-    /**
      * Handle request to set current position as the zero position
      * 
      * @param channel expected: "/zero_position"
@@ -193,12 +179,37 @@ public:
     void arm_adjust_callback(std::string channel, ArmAdjustments msg);
 
     /**
+     * Handle message with updated joint angles from encoders,
+     * update arm_state and call FK() to adjust transforms
+     * 
+     * @param channel expected: "/ra_position"
+     * @param msg format: double joint_a, joint_b, ... , joint_f
+     * */
+    virtual void arm_position_callback(std::string channel, RAPosition msg) = 0;
+
+    /**
+     * Handle request to lock specific joints
+     * 
+     * @param channel expected: "/locked_joints"
+     * @param msg format: bool joint_a ... joint_f
+     */
+    virtual void lock_joints_callback(std::string channel, LockJoints msg) = 0;
+
+    /**
      * Handle request to go to a preset position
      * 
      * @param channel expected: "/arm_preset"
      * @param msg format: string preset
      */
-    void arm_preset_callback(std::string channel, ArmPreset msg);
+    virtual void arm_preset_callback(std::string channel, ArmPreset msg) = 0;
+
+    /**
+     * Update arm_state and call FK() to adjust transforms
+     * 
+     * @param angles arm position from encoders
+     * @param standard true for standard arm, false for science arm
+     */
+    void set_arm_position(std::vector<double> &angles);
 
     /**
      * Asynchronous function, runs when control_state is "EXECUTING"
@@ -214,7 +225,8 @@ public:
 
 private:
 
-    void plan_path(ArmState& hypo_state, Vector6d goal);
+    void plan_path(ArmState& hypo_state, const std::vector<double> &goal);
+    
     void preview(ArmState& hypo_state);
 
     void publish_config(const std::vector<double> &config, std::string channel);
@@ -227,9 +239,34 @@ private:
 
     void check_joint_limits(std::vector<double> &angles);
 
-    double joint_b_stabilizer(double angle);
-
     void send_kill_cmd();
+};
+
+class StandardArm : public MRoverArm {
+public:
+    StandardArm(json &geom, lcm::LCM &lcm);
+
+    ~StandardArm() = default;
+
+    void arm_position_callback(std::string channel, RAPosition msg) override;
+    
+    void lock_joints_callback(std::string channel, LockJoints msg) override;
+
+    void arm_preset_callback(std::string channel, ArmPreset msg) override;
+};
+
+class ScienceArm : public MRoverArm {
+public:
+
+    ScienceArm(json &geom, lcm::LCM &lcm);
+
+    ~ScienceArm() = default;
+
+    void arm_position_callback(std::string channel, RAPosition msg) override;
+    
+    void lock_joints_callback(std::string channel, LockJoints msg) override;
+
+    void arm_preset_callback(std::string channel, ArmPreset msg) override;
 };
 
 

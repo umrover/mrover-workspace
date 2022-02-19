@@ -48,7 +48,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
         preset_positions[it.key()] = {};
         preset_positions[it.key()].resize(num_joints());
 
-        for (int i = 0; i < num_joints(); ++i) {
+        for (size_t i = 0; i < num_joints(); ++i) {
             preset_positions[it.key()][i] = it.value()[i];
         }
     }
@@ -107,7 +107,7 @@ void ArmState::set_joint_angles(const std::vector<double> &angles) {
 
     // Iterate through all angles and joints adding the angles to each corresponding joint.
     // angles vector should be same size as internal joints vector.
-    for (size_t i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < joints.size(); ++i) {
         joints[i].angle = angles[i];
     }
 }
@@ -175,8 +175,8 @@ std::vector<double> ArmState::get_ef_pos_and_euler_angles() const {
 // Tested in set_joint_angles_test
 std::vector<double> ArmState::get_joint_angles() const {
     std::vector<double> angles;
-    angles.reserve(6);
-    for (size_t i = 0; i < 6; ++i) {
+    angles.reserve(joints.size());
+    for (size_t i = 0; i < joints.size(); ++i) {
         angles.push_back(joints[i].angle);
     }
     return angles;
@@ -243,7 +243,7 @@ bool ArmState::obstacle_free() {
 }
 
 // Used for testing ArmState functions
-int ArmState::num_joints() const {
+size_t ArmState::num_joints() const {
     return joints.size();
 }
 

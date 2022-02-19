@@ -16,7 +16,8 @@ public:
     void executeCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
-        const TargetOrientation* m_execute)
+        const TargetOrientation* m_execute
+        )
     {
         arm->target_orientation_callback( channel, *m_execute );
     }
@@ -24,7 +25,8 @@ public:
     void motionExecuteCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
-        const MotionExecute* m_execute)
+        const MotionExecute* m_execute
+    )
     {
         arm->motion_execute_callback( channel, *m_execute );
     }
@@ -104,36 +106,70 @@ int main() {
     std::cout << std::setprecision(4);
     std::cout << "INITIALIZING KINEMATICS FOR ROBOT ARM\n";
 
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    bool science = check_science();
+    json geom = read_json_from_file(get_mrover_arm_geom(science));
 
     lcm::LCM lcmObject;
-    MRoverArm robot_arm(geom, lcmObject);
 
-    lcmHandlers handler(&robot_arm);
+    if (science) {
+        ScienceArm robot_arm(geom, lcmObject);
 
-    lcmObject.subscribe( "/ra_ik_cmd", &lcmHandlers::armPositionCallback, &handler );
-    lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
-    lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
-    lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
-    lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );
-    lcmObject.subscribe( "/use_orientation", &lcmHandlers::useOrientationCallback, &handler );
-    lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
-    lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
-    lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
-    lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
+        lcmHandlers handler(&robot_arm);
 
-    Signal signal;
-    lcmObject.publish("/ik_reset", &signal);
-    
-    std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
-    std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);
+        lcmObject.subscribe( "/ra_ik_cmd", &lcmHandlers::armPositionCallback, &handler );
+        lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
+        lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
+        lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );
+        lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
+        lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
+        lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
+        lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
 
-    while( lcmObject.handle() == 0 ) {
-        // run kinematics
+        Signal signal;
+        lcmObject.publish("/ik_reset", &signal);
+
+        std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
+        std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);
+        
+
+        while( lcmObject.handle() == 0 ) {
+            // run kinematics
+        }
+
+        execute_spline.join();
+        send_arm_position.join();
+
+        return 0;
     }
+    else {
+        StandardArm robot_arm(geom, lcmObject);
 
-    execute_spline.join();
-    send_arm_position.join();
+        lcmHandlers handler(&robot_arm);
 
-    return 0;
+        lcmObject.subscribe( "/ra_ik_cmd", &lcmHandlers::armPositionCallback, &handler );
+        lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
+        lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
+        lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
+        lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );
+        lcmObject.subscribe( "/use_orientation", &lcmHandlers::useOrientationCallback, &handler );
+        lcmObject.subscribe( "/locked_joints", &lcmHandlers::lockJointsCallback, &handler );
+        lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
+        lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
+        lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
+
+        Signal signal;
+        lcmObject.publish("/ik_reset", &signal);
+
+        std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
+        std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);
+
+        while( lcmObject.handle() == 0 ) {
+            // run kinematics
+        }
+
+        execute_spline.join();
+        send_arm_position.join();
+
+        return 0;
+    }
 }

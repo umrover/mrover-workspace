@@ -359,6 +359,14 @@ export default {
     margin-top: 20px;
   }
 
+  .new-select {
+    display: inline-block;
+  }
+
+  .fil-hori-now {
+    margin-top: 20px;
+  }
+
   ul#vitals li {
     display: inline;
     float: left;
