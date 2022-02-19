@@ -13,12 +13,11 @@ window_execute() {
 # Param2: Window ID to execute command in
 # Param3: ssh flag passed to the file
 execute_command() {
-    echo $3
-    if [ "$3" == "--ssh" ]
+    window_execute "echo Execute this!" $2
+    if [ "$3" == "ssh" ]
     then
-        ./jarvis_files/launch_scripts/ssh $2 10.1.0.2
+        ./jarvis_files/launch_scripts/ssh "none" $2 10.1.0.2
     else
-        echo "Window Execute"
         window_execute "$1" $2
     fi
 }
