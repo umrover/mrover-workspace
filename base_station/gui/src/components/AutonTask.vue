@@ -135,16 +135,19 @@ export default {
       },
 
       IMU: {
-        accel_x: 0,
-        accel_y: 0,
-        accel_z: 0,
-        gyro_x: 0,
-        gyro_y: 0,
-        gyro_z: 0,
-        mag_x: 0,
-        mag_y: 0,
-        mag_z: 0,
-        bearing: 0
+        accel_x_g: 0,
+        accel_y_g: 0,
+        accel_z_g: 0,
+        gyro_x_dps: 0,
+        gyro_y_dps: 0,
+        gyro_z_dps: 0,
+        mag_x_uT: 0,
+        mag_y_uT: 0,
+        mag_z_uT: 0,
+        roll_rad: 0,
+        pitch_rad: 0,
+        yaw_rad: 0,
+        bearing_deg: 0
       },
       
       RadioSignalStrength: {
@@ -217,7 +220,7 @@ export default {
           this.odom = msg.message
         } else if (msg.topic === '/gps') {
           this.GPS = msg.message
-        } else if (msg.topic === '/imu') {
+        } else if (msg.topic === '/imu_data') {
           this.IMU = msg.message
         } else if (msg.topic === '/radio') {
           this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
@@ -249,7 +252,7 @@ export default {
         {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
-        {'topic': '/imu', 'type': 'IMU'},
+        {'topic': '/imu_data', 'type': 'IMUData'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/obstacle', 'type': 'Obstacle'},
         {'topic': '/radio', 'type': 'RadioSignalStrength'},
@@ -276,7 +279,7 @@ export default {
       'tilt': 5
     }
 
-    interval = window.setInterval(() => {
+    window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 2; i++) {
         const gamepad = gamepads[i]

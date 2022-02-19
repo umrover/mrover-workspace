@@ -134,7 +134,6 @@ export default {
     interval = window.setInterval(() => {
 
         this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.autonEnabled})
-        console.log("Sent auton enabled to nav: " + this.autonEnabled)
 
         let course = {
             num_waypoints: this.route.length,

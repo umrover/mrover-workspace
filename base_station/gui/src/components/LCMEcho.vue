@@ -67,7 +67,7 @@
           '/hand_openloop_cmd': false,
           '/ik_arm_control': false,
           '/ik_ra_control': false,
-          '/imu': false,
+          '/imu_data': false,
           '/kill_switch': false,
           '/microscope': false,
           '/mosfet_cmd': false,
@@ -142,7 +142,7 @@
           {'topic': '/temperature', 'type': 'Temperature'},
           {'topic': '/tennis_ball', 'type': 'TennisBall'},
           {'topic': '/thermistor_data', 'type': 'ThermistorData'},
-          {'topic': '/imu', 'type': 'IMU'},
+          {'topic': '/imu_data', 'type': 'IMUData'},
           {'topic': '/gps', 'type': 'GPS'},
           {'topic': '/microscope', 'type': 'Microscope'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
