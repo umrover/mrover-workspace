@@ -47,10 +47,11 @@ void loop(void)
 {
   // get orientation, acceleration, and gyroscope data,
   // each from their own sensor event
-  sensors_event_t orientationData, accelData, gyroData;
+  sensors_event_t orientationData, accelData, gyroData, magData;
   bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
   bno.getEvent(&accelData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
   bno.getEvent(&gyroData, Adafruit_BNO055::VECTOR_GYROSCOPE);
+  bno.getEvent(&magData, Adafruit_BNO055::VECTOR_MAGNETOMETER);
 
   // get calibration status for each sensor
   uint8_t system_cal, gyro_cal, accel_cal, mag_cal;
@@ -71,6 +72,13 @@ void loop(void)
   Serial.print(gyroData.gyro.y * (180/PI), 4);
   Serial.print(" ");
   Serial.print(gyroData.gyro.z * (180/PI), 4);
+
+  Serial.print(" ");
+  Serial.print(magData.magnetic.x, 4);
+  Serial.print(" ");
+  Serial.print(magData.magnetic.y, 4);
+  Serial.print(" ");
+  Serial.print(magData.magnetic.z, 4);
 
   Serial.print(" ");
   Serial.print(system_cal, DEC);

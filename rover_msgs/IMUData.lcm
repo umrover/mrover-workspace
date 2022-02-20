@@ -18,10 +18,10 @@ struct IMUData {
     double yaw_rad;
 
     // calibration status for BNO055
-    double sys_calibration;
-    double gyro_calibration;
-    double accel_calibration;
-    double mag_calibration;
+    double calibration_sys;
+    double calibration_gyro;
+    double calibration_accel;
+    double calibration_mag;
 
     double bearing_deg;
 }
