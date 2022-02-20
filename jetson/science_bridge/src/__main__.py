@@ -66,7 +66,7 @@ class ScienceBridge():
                     setattr(spectral_struct, var, 0)
                 count += 2
         except Exception as e:
-            pass
+            print(e)
 
         # parse the spectral UART msg
         # add in relevant error handling
@@ -80,7 +80,7 @@ class ScienceBridge():
             thermistor_struct.temp1 = float(arr[2])
             thermistor_struct.temp2 = float(arr[3])
         except Exception as e:
-            pass
+            print(e)
         # parse the thermistor UART msg
         # adding relevant error handling
         # set the struct variables
@@ -101,7 +101,7 @@ class ScienceBridge():
                     setattr(triad_struct, var, 0)
                 count += 2
         except Exception as e:
-            pass
+            print(e)
 
         # parse the spectral UART msg
         # add in relevant error handling
@@ -118,7 +118,7 @@ class ScienceBridge():
             arr = msg.split(",")
             carousel_struct.position = np.int8(arr[1])
         except Exception as e:
-            pass
+            print(e)
 
     def repeater_handler(self, msg, struct):
         # Expected to be an empty message so nothing is done
