@@ -45,7 +45,7 @@
           :precision="2"
           :min="0"
           :max="100"
-          :step="5.55"
+          :step="10"
         />
       </div>
       <div class="noiseGPS">

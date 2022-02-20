@@ -64,22 +64,14 @@ export const ZED:ZedConstants = {
   1.56,
   3.49] }] */
 
-export const Zscores = [-3.4,
-  -1.6,
-  -1.22,
-  -0.97,
-  -0.77,
-  -0.61,
-  -0.44,
-  -0.3,
-  -0.14,
-  0,
-  0.13,
-  0.28,
-  0.42,
-  0.58,
-  0.74,
-  0.96,
-  1.22,
-  1.56,
-  3.49];
+// cut positive - z scores need to change 
+export const Zscores = [
+  -3.49, // 0   index 0 = -1
+  -1.28  // 0.1 index 1 = -0.9
+  -0.84, // 0.2 index 2 = -0.8
+  -0.52, // 0.3 index 3 = -0.7
+  -0.25, // 0.4 index 4 = -0.6
+  0 // 0.5 index 5
+];
+
+
