@@ -116,7 +116,7 @@ int main() {
 
         lcmHandlers handler(&robot_arm);
 
-        lcmObject.subscribe( "/ra_ik_cmd", &lcmHandlers::armPositionCallback, &handler );
+        lcmObject.subscribe( "/sa_position", &lcmHandlers::armPositionCallback, &handler );
         lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
         lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
         lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );
@@ -130,7 +130,6 @@ int main() {
 
         std::thread execute_spline(&MRoverArm::execute_spline, &robot_arm);
         std::thread send_arm_position(&MRoverArm::encoder_angles_sender, &robot_arm);
-        
 
         while( lcmObject.handle() == 0 ) {
             // run kinematics
@@ -146,7 +145,7 @@ int main() {
 
         lcmHandlers handler(&robot_arm);
 
-        lcmObject.subscribe( "/ra_ik_cmd", &lcmHandlers::armPositionCallback, &handler );
+        lcmObject.subscribe( "/ra_position", &lcmHandlers::armPositionCallback, &handler );
         lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
         lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
         lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
