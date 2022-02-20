@@ -40,6 +40,8 @@ double squared_norm(const std::vector<double>& a, const std::vector<double>& b);
 
 bool vec_almost_equal(const std::vector<double>& a, const std::vector<double>& b, double epsilon);
 
+void matrix_helper(double arr[4][4], const Matrix4d &mat);
+
 bool check_science();
 
 #endif

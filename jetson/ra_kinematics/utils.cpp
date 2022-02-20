@@ -209,3 +209,11 @@ bool vec_almost_equal(const std::vector<double>& a, const std::vector<double>& b
     }
     return true;
 }
+
+void matrix_helper(double arr[4][4], const Matrix4d &mat) {
+   for (int i = 0; i < 4; ++i) {
+       for (int j = 0; j < 4; ++j) {
+           arr[i][j] = mat(i,j);
+       }
+   }
+}
