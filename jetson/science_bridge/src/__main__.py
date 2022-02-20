@@ -228,7 +228,7 @@ class ScienceBridge():
             self.ser.write(bytes(message, encoding='utf-8'))
 
     def carousel_openloop_transmit(self, channel, msg):
-        struct = CarouselOpenloopCmd.decode(msg)
+        struct = CarouselOpenLoopCmd.decode(msg)
         print("Received Carousel (OL) Cmd")
         # parse data into expected format
         message = "$OpenCarousel,{throttle}"
