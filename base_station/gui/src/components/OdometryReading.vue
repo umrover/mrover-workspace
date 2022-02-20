@@ -11,7 +11,7 @@
       <p>{{formatted_odom.lon.d}}º</p>
       <p v-if="this.min_enabled">{{formatted_odom.lon.m}}'</p>
       <p  v-if="this.sec_enabled">{{formatted_odom.lon.s}}"</p>
-      W
+      E
       <br/>
       <p>Bearing: {{odom.bearing_deg.toFixed(2)}}º</p>
     </div>
@@ -38,7 +38,7 @@ export default {
     formatted_odom: function() {
       return {
         lat: convertDMS({d: this.odom.latitude_deg, m: this.odom.latitude_min, s: 0}, this.odom_format),
-        lon: convertDMS({d: -this.odom.longitude_deg, m: -this.odom.longitude_min, s: 0}, this.odom_format)
+        lon: convertDMS({d: this.odom.longitude_deg, m: this.odom.longitude_min, s: 0}, this.odom_format)
       };
     },
 

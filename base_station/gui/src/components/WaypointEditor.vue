@@ -152,8 +152,8 @@ export default {
                   odom: {
                       latitude_deg: latitude_deg,
                       latitude_min: (lat - latitude_deg) * 60,
-                      longitude_deg: -longitude_deg,
-                      longitude_min: -1 * (lon - longitude_deg) * 60,
+                      longitude_deg: longitude_deg,
+                      longitude_min: (lon - longitude_deg) * 60,
                       bearing_deg: 0,
                       speed: -1,
                       type: "Odometry"
@@ -280,7 +280,7 @@ export default {
     formatted_odom: function() {
       return {
         lat: convertDMS({d: this.odom.latitude_deg, m: this.odom.latitude_min, s: 0}, this.odom_format),
-        lon: convertDMS({d: -this.odom.longitude_deg, m: -this.odom.longitude_min, s: 0}, this.odom_format)
+        lon: convertDMS({d: this.odom.longitude_deg, m: this.odom.longitude_min, s: 0}, this.odom_format)
       }
     },
 
