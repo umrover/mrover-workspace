@@ -182,6 +182,9 @@ export default class Field extends Vue {
   private readonly roverPath!:Odom[];
 
   @Getter
+  private readonly FOVAreaPath!:Path2D;
+
+  @Getter
   private readonly roverPathVisible!:boolean;
 
   @Getter
@@ -200,6 +203,9 @@ export default class Field extends Vue {
   private readonly clearRoverPath!:()=>void;
 
   @Mutation
+  private readonly clearFOVAreaPath!:()=>void;
+
+  @Mutation
   private readonly pushArTag!:(newArTag:ArTag)=>void;
 
   @Mutation
@@ -213,6 +219,9 @@ export default class Field extends Vue {
 
   @Mutation
   private readonly pushToRoverPath!:(currLoc:Odom)=>void;
+
+  @Mutation
+  private readonly pushToFOVAreaPath!:(area:Path2D)=>void;
 
   @Mutation
   private readonly pushWaypoint!:(newWaypoint:Waypoint)=>void;
@@ -287,8 +296,8 @@ export default class Field extends Vue {
   /* Object for drawing rover on canvas. */
   private get canvasRover():CanvasRover {
     return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale, this.roverPath,
-                           this.fieldOfViewOptions, this.roverPathVisible, this.pushToRoverPath,
-                           this.zedGimbalPos);
+                           this.FOVAreaPath, this.fieldOfViewOptions, this.roverPathVisible,
+                           this.pushToRoverPath, this.pushToFOVAreaPath, this.zedGimbalPos);
   }
 
   /* Object for drawing waypoints on canvas. */
@@ -410,6 +419,8 @@ export default class Field extends Vue {
     if (!this.autonOn) {
       this.setCurrOdom(newCurrOdom);
       this.clearRoverPath();
+
+      // this.clearFOVAreaPath();
     }
   } /* moveRover() */
 
@@ -419,6 +430,8 @@ export default class Field extends Vue {
       this.setStartLoc(newStartLoc);
       this.setCurrOdom(newStartLoc);
       this.clearRoverPath();
+
+      // this.clearFOVAreaPath();
     }
   } /* moveStartLoc() */
 

@@ -67,13 +67,14 @@ export const state:SimulatorState = {
   odomFormat: OdomFormat.DM,
 
   path: [],
+  FOVAreaPath: new Path2D('M10 10 h 80 v 80 h -80 Z'),
 
   simSettings: {
     simulateLoc: true,
     simulatePercep: true,
     enableLCM: true,
-    noisePercent: 33.3,
-    noiseGPSPercent: 20
+    noisePercent: 0,
+    noiseGPSPercent: 0
   },
 
   startLoc: {
@@ -116,6 +117,8 @@ const getters = {
 
   roverPath: (simState:SimulatorState):Odom[] => simState.path,
 
+  FOVAreaPath: (simState:SimulatorState):Path2D => simState.FOVAreaPath,
+
   roverPathVisible: (simState:SimulatorState):boolean => simState.debugOptions.roverPathVisible,
 
   simulateLoc: (simState:SimulatorState):boolean => simState.simSettings.simulateLoc,
@@ -140,6 +143,10 @@ const getters = {
 const mutations = {
   clearRoverPath: (simState:SimulatorState):void => {
     simState.path = [];
+  },
+
+  clearFOVAreaPath: (simState:SimulatorState):void => {
+    simState.FOVAreaPath = new Path2D();
   },
 
   flipLcmConnected: (simState:SimulatorState, onOff:boolean):void => {
@@ -192,6 +199,11 @@ const mutations = {
         Math.abs(prevLoc.longitude_min - currLoc.longitude_min) > MINUTE_DIFF_THRESHOLD) {
       simState.path.push(JSON.parse(JSON.stringify(currLoc)));
     }
+  },
+
+  pushToFOVAreaPath: (simState:SimulatorState, area:Path2D):void => {
+    simState.FOVAreaPath.addPath(area);
+    console.log('pushed to FOVArea');
   },
 
   setArTagDrawOptions: (simState:SimulatorState, options:ArTagDrawOptions):void => {

@@ -277,6 +277,7 @@ export interface SimulatorState {
   lcmConnections:LCMConnections;
   odomFormat:OdomFormat;
   path:Odom[];
+  FOVAreaPath:Path2D;
   simSettings:SimulationSettings;
   startLoc:Odom;
 }

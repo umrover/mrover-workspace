@@ -29,43 +29,24 @@ import {
 } from '../../utils/constants';
 import { state } from '../../store/modules/simulatorState';
 
-function randnBm(min, max, skew):number {
-  let u = 0;
-  let v = 0;
-  while (u === 0) u = Math.random();
-  while (v === 0) v = Math.random();
-  const factor = 2.0;
-  let num:number = Math.sqrt(-1 * factor * Math.log(u)) * Math.cos(factor * Math.PI * v);
-  const a = 10.0;
-  const b = 0.5;
-  num = (num / a) + b;
-  if (num > 1 || num < 0) {
-    num = randnBm(min, max, skew);
-  }
-  else {
-    num **= skew;
-    num *= max - min;
-    num += min;
-  }
-  return num;
-}
-
-// state.simSettings.noisePercent - global 
+// state.simSettings.noisePercent - global
 function getGaussianThres():number {
   const sd = 0.2;
   const mu = 0.5;
   const percentFactor = 100.0;
-  const divisor = 10; 
-  const factor = percentFactor / divisor; // 10 
+  const divisor = 10;
+  const factor = percentFactor / divisor; // 10
   // check and invert the values of z scores
-  const neg = -1; 
-  let indZscore = state.simSettings.noisePercent / factor; 
+  const neg = -1;
+  let indZscore = state.simSettings.noisePercent / factor;
 
-  if (indZscore > 5) {
-    indZscore = factor - indZscore; 
-    const x = neg * Zscores[indZscore] * sd; 
-    return mu + x; 
-  } else {
+  const half = 5;
+  if (indZscore > half) {
+    indZscore = factor - indZscore;
+    const x = neg * Zscores[indZscore] * sd;
+    return mu + x;
+  }
+  else {
     const x = Zscores[indZscore] * sd;
     return mu + x;
   }
@@ -241,11 +222,6 @@ export default class TargetDetector {
     /* Special Case: guassian noise */
     const num:number = randnBm(0, 1, 1);
 
-    // console.log(state.simSettings.noisePercent);
-    // const divisor = 18.0;
-    // const percentFactor = 100.0;
-    // const factor = percentFactor / divisor;
-    // const indThres = Math.round(state.simSettings.noisePercent / factor);
     const thres = getGaussianThres();
 
     if (num < thres) {

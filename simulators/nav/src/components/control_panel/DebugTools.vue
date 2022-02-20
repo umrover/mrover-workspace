@@ -136,6 +136,9 @@ export default class DebugTools extends Vue {
   @Getter
   private readonly roverPath!:Odom[];
 
+   @Getter
+  private readonly FOVAreaPath!:Path2D;
+
   @Getter
   private readonly roverPathVisible!:boolean;
 
@@ -153,6 +156,9 @@ export default class DebugTools extends Vue {
    ************************************************************************************************/
   @Mutation
   private readonly clearRoverPath!:()=>void;
+
+   @Mutation
+  private readonly clearFOVAreaPath!:()=>void;
 
   @Mutation
   private readonly setAutonState!:(onOff:boolean)=>void;
