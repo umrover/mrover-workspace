@@ -57,8 +57,6 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    NavState executeSearchSpin();
-
     NavState executeRoverWait();
 
     NavState executeSearchTurn();

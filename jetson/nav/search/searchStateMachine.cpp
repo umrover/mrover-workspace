@@ -24,12 +24,6 @@ NavState SearchStateMachine::run()
 {
     switch ( mRover->roverStatus().currentState() )
     {
-        case NavState::SearchSpin:
-        {
-            return executeSearchSpin();
-        }
-
-        case NavState::SearchSpinWait:
         case NavState::TurnedToTargetWait:
         {
             return executeRoverWait();
@@ -63,45 +57,6 @@ NavState SearchStateMachine::run()
     } // switch
 } // run()
 
-// Executes the logic for a search spin. If at a multiple of
-// waitStepSize, the rover will go to SearchSpinWait. If the rover
-// detects the target, it proceeds to the target. If finished with a 360,
-// the rover moves on to the next phase of the search. Else continues
-// to search spin.
-NavState SearchStateMachine::executeSearchSpin()
-{
-    // degrees to turn to before performing a search wait.
-    double waitStepSize = mRoverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
-    static double nextStop = 0; // to force the rover to wait initially
-    static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
-
-    if( mRover->roverStatus().leftCacheTarget().distance >= 0 )
-    {
-        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToTarget;
-    }
-
-    if( nextStop == 0 )
-    {
-        // get current angle and set as origAngle
-        mOriginalSpinAngle = mRover->roverStatus().odometry().bearing_deg; // doublecheck
-        nextStop = mOriginalSpinAngle;
-    }
-    if( mRover->turn( nextStop ) )
-    {
-        if( nextStop - mOriginalSpinAngle >= 360 )
-        {
-            nextStop = 0;
-            return NavState::SearchTurn;
-        }
-        nextStop += waitStepSize;
-        return NavState::SearchSpinWait;
-    }
-    return NavState::SearchSpin;
-} // executeSearchSpin()
-
-
 // Executes the logic for waiting during a search spin so that CV can
 // look for the target. If the rover detects the target, it proceeds
 // to the target. If the rover is done waiting, it continues the search
@@ -128,18 +83,10 @@ NavState SearchStateMachine::executeRoverWait()
     if( difftime( time( nullptr ), startTime ) > waitTime )
     {
         started = false;
-        if ( mRover->roverStatus().currentState() == NavState::SearchSpinWait )
-        {
-            return NavState::SearchSpin;
-        }
         return NavState::SearchTurn;
     }
     else
     {
-        if ( mRover->roverStatus().currentState() == NavState::SearchSpinWait )
-        {
-            return NavState::SearchSpinWait;
-        }
         return NavState::TurnedToTargetWait;
     }
 }
@@ -199,7 +146,7 @@ NavState SearchStateMachine::executeSearchDrive()
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.pop_front();
-        return NavState::SearchSpin;
+        return NavState::SearchTurn;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
@@ -249,7 +196,7 @@ NavState SearchStateMachine::executeDriveToTarget()
             mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
         cerr << "Lost the target\n";
-        return NavState::SearchTurn; // NavState::SearchSpin
+        return NavState::SearchTurn;
     }
 
     // Obstacle Detected
