@@ -152,8 +152,6 @@ void StateMachine::run()
             }
 
             case NavState::SearchFaceNorth:
-            case NavState::SearchSpin:
-            case NavState::SearchSpinWait:
             case NavState::SearchTurn:
             case NavState::SearchDrive:
             case NavState::TurnToTarget:
@@ -187,12 +185,12 @@ void StateMachine::run()
                     }
                     case 1:
                     {
-                        setSearcher(SearchType::LAWNMOWER, mRover, mRoverConfig);
+                        setSearcher(SearchType::SPIRALOUT, mRover, mRoverConfig);
                         break;
                     }
                     case 2:
                     {
-                        setSearcher(SearchType::SPIRALIN, mRover, mRoverConfig);
+                        setSearcher(SearchType::SPIRALOUT, mRover, mRoverConfig);
                         break;
                     }
                     default:
@@ -293,7 +291,6 @@ bool StateMachine::isRoverReady() const
 {
     return mStateChanged || // internal data has changed
            mRover->updateRover( mNewRoverStatus ) || // external data has changed
-           mRover->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
            mRover->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
            mRover->roverStatus().currentState() == NavState::RepeaterDropWait ||
            mRover->roverStatus().currentState() == NavState::GateSpinWait;
@@ -406,7 +403,7 @@ NavState StateMachine::executeDrive()
     {
         if( nextWaypoint.search )
         {
-            return NavState::SearchSpin;
+            return NavState::SearchTurn;
         }
         mRover->roverStatus().path().pop_front();
         /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
@@ -460,8 +457,6 @@ string StateMachine::stringifyNavState() const
             { NavState::Turn, "Turn" },
             { NavState::Drive, "Drive" },
             { NavState::SearchFaceNorth, "Search Face North" },
-            { NavState::SearchSpin, "Search Spin" },
-            { NavState::SearchSpinWait, "Search Spin Wait" },
             { NavState::ChangeSearchAlg, "Change Search Algorithm" },
             { NavState::SearchTurn, "Search Turn" },
             { NavState::SearchDrive, "Search Drive" },

@@ -1,82 +1,121 @@
 import time
 import subprocess
+import errno
+import os
 
-from .build import build_dir, build_deps
-
+#########################
+#
 # Function that parses launch command
+#
+########################
 def launch_dir(ctx, package, opts, ssh):
     if package == "percep":
-        launch_perception(ctx, opts, ssh)
+        launch_perception(opts, ssh)
     if package == "nav":
-        launch_navigation(ctx, opts, ssh)
+        launch_navigation(opts, ssh)
     if package == "loc":
-        launch_localization(ctx, opts, ssh)
+        launch_localization(opts, ssh)
     if package == "auton":
-        launch_auton(ctx, opts, ssh)
+        launch_auton(ssh)
 
-def get_process_id(name):
-
-    child = subprocess.Popen(['pgrep', '-f', name], stdout=subprocess.PIPE, shell=False)
-    response = child.communicate()[0]
-    return [int(pid) for pid in response.split()]
-
-def wait_for_click():
-    pid = get_process_id("xdotool selectwindow")
-    while pid:
-        pid = get_process_id("xdotool selectwindow")
-        time.sleep(.1)
-
-def gen_terminal_launch_command(script_name, ssh):
-    command = "gnome-terminal -- bash -c './jarvis_files/launch_scripts/"
-    command = command + script_name
-
-    if ssh:
-        return command + " ssh; $SHELL'"
-
-    return command + "; $SHELL'"
-
+#########################
+#
 # Functions that build and execute auton subteam code
-def launch_perception(ctx, opts, ssh):
+#
+########################
+drive_ip = "10.1.0.1"
+auton_ip = "10.1.0.2"
+
+def launch_perception(ssh, opts=""):
+    wid = launch_terminal()
+    build_and_run_package(wid, 'jetson/percep', ssh=ssh, ip=auton_ip)
+    new_tab(wid)
+    exec_cmd(wid, "./jarvis exec lcm_tools_echo Obstacle /obstacle", ssh=ssh, ip=auton_ip)
+
+def launch_navigation(ssh, opts=""):
+    wid = launch_terminal()
+    build_and_run_package(wid, 'jetson/nav', ssh=ssh, ip=auton_ip)
+
+def launch_localization(ssh, opts=""):
+    wid = launch_terminal()
+    exec_cmd(wid, "./jarvis build jetson/gps; sudo ./jarvis exec jetson/gps", ssh=ssh, ip=auton_ip)
+    # unable to enter sudo password because have no idea when the build will end
+    new_tab(wid)
+    build_and_run_package(wid, 'jetson/filter', ssh=ssh, ip=auton_ip)
+
+def launch_auton(ssh):
+    launch_localization(ssh)
+    launch_navigation(ssh)
+    launch_perception(ssh)
+
+#########################
+#
+# Functions for interacting with the terminal
+#
+########################
+def build_and_run_package(wid:str, package:str, ssh:str="", ip:str="", build_opts:str=""):
     jetson_percep = 'jetson/percep'
-    use_linter = True
+    
+    build = "./jarvis build " + package + " " + build_opts
+    exec = "./jarvis exec " + package
 
-    build_dir(ctx, jetson_percep, use_linter, opts)
+    # Combine build and exec command into one, that way
+    # the build finishes before the exec
+    exec_cmd(wid, build + "; " + exec, ssh, ip)
 
-    ctx.run(gen_terminal_launch_command("percep", ssh))
+def launch_terminal() -> str:
+    # Construct a Fifo (Named Pipe) if it doesn't exist 
+    path = "/tmp/mrover_pipe"
+    try:
+        os.mkfifo(path)
+    except OSError as oe:
+        if oe.errno != errno.EEXIST:
+            raise
 
-    wait_for_click()
+    # Launch a gnome terminal, which will write its window id to a pipe
+    subprocess.Popen(["gnome-terminal -- bash -c  'xdotool selectwindow > " + path + "; $SHELL'"], shell=True)
 
-def launch_navigation(ctx, opts, ssh):
-    jetson_nav = 'jetson/nav'
-    use_linter = True
+    # Read window ID from the pipe and close it
+    fifo = open(path, "r")
+    wid = fifo.readline()
+    os.remove(path)
+    return str(int(wid))
 
-    build_dir(ctx, jetson_nav, use_linter, opts)
+def exec_cmd(wid:str, command:str, ssh:str="", ip:str=""):
+    
+    if ssh == "ssh" :
+        exec_ssh(wid, ip)
 
-    ctx.run(gen_terminal_launch_command("nav", ssh))
+    focus = gen_focus(wid)
+    cmd = "xdotool key type \'" + command + "\'"
+    enter = "xdotool key KP_Enter"
+  
+    commands = focus + "; " + cmd + "; " + enter
 
-    wait_for_click()
+    proc = subprocess.Popen('/bin/bash', stdin=subprocess.PIPE, shell=True)
+    proc.communicate(commands.encode('utf-8'))
 
-def launch_localization(ctx, opts, ssh):
-    jetson_gps = 'jetson/gps'
-    jetson_filter = 'jetson/filter'
-    jetson_imu = 'jetson/mp9250_bridge'
-    use_linter = True
+def new_tab(wid):
+    focus = gen_focus(wid)
+    new_tab_cmd = "xdotool key ctrl+shift+t"
 
-    build_dir(ctx, jetson_gps, use_linter, opts)
-    build_dir(ctx, jetson_filter, use_linter, opts)
-    build_dir(ctx, jetson_imu, use_linter, opts)
+    commands = focus + "; " + new_tab_cmd
 
-    ctx.run(gen_terminal_launch_command("loc", ssh))
+    proc = subprocess.Popen('/bin/bash', stdin=subprocess.PIPE, shell=True)
+    proc.communicate(commands.encode('utf-8'))
 
-    wait_for_click()
+def exec_ssh(wid:str, ip:str):
+    exec_cmd(wid, "ssh mrover@" + ip)
+    time.sleep(1)
+    exec_cmd(wid, "mrover")
+    time.sleep(1)
+    exec_cmd(wid, "cd ~/mrover-workspace")
 
-def launch_auton(ctx, opts, ssh):
-    build_deps(ctx)
-
-    lcm_echo = "lcm_tools/echo"
-    use_linter = True
-    build_dir(ctx, lcm_echo, use_linter, opts)
-
-    launch_navigation(ctx, opts, ssh)
-    launch_localization(ctx, opts, ssh)
-    launch_perception(ctx, opts, ssh)
+#########################
+#
+# Helper Functions
+#
+########################
+def gen_focus(wid:str):
+    return "xdotool windowfocus " + wid
+    
