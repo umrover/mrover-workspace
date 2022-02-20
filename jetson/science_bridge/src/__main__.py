@@ -237,7 +237,7 @@ class ScienceBridge():
         while(len(message) < 30):
             message += ","
         self.ser.close()
-        self.set.open()
+        self.ser.open()
         if self.ser.isOpen():
             self.ser.write(bytes(message, encoding='utf-8'))
 
