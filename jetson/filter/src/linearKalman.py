@@ -183,7 +183,9 @@ def block_diag(*arrs):
         [[A, 0, 0],
          [0, B, 0],
          [0, 0, C]]
-    Copied from scipy (https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.block_diag.html#scipy.linalg.block_diag)
+    Copied from scipy
+    (https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.block_diag.html#scipy.linalg.block_diag)
+
     Parameters
     ----------
     A, B, C, ... : array_like, up to 2-D
@@ -202,7 +204,7 @@ def block_diag(*arrs):
     Noteworthy, both [] and [[]] are treated as matrices with shape ``(1,0)``.
     Examples
     --------
-    >>> from scipy.linalg import block_diag
+    # >>> from scipy.linalg import block_diag
     >>> A = [[1, 0],
     ...      [0, 1]]
     >>> B = [[3, 4, 5],
@@ -224,10 +226,10 @@ def block_diag(*arrs):
            [0, 0, 6, 7, 8, 0],
            [0, 0, 0, 0, 0, 7]])
     >>> block_diag(1.0, [2, 3], [[4, 5], [6, 7]])
-    array([[ 1.,  0.,  0.,  0.,  0.],
-           [ 0.,  2.,  3.,  0.,  0.],
-           [ 0.,  0.,  0.,  4.,  5.],
-           [ 0.,  0.,  0.,  6.,  7.]])
+    array([[1., 0., 0., 0., 0.],
+           [0., 2., 3., 0., 0.],
+           [0., 0., 0., 4., 5.],
+           [0., 0., 0., 6., 7.]])
     """
     if arrs == ():
         arrs = ([],)
