@@ -604,6 +604,20 @@
             "speed"
         ]
     ],
+    "PDBData": [
+        [
+            "double",
+            "temp[3]"
+        ],
+        [
+            "double",
+            "current[3]"
+        ],
+        [
+            "double",
+            "voltage[3]"
+        ]
+    ],
     "PIDConstants": [
         [
             "int8_t",
@@ -1191,6 +1205,7 @@
         "Obstacle",
         "Odometry",
         "OpenLoopRAMotor",
+        "PDBData",
         "PIDConstants",
         "ProximitySensors",
         "RGB",

@@ -85,7 +85,8 @@
           '/nav_status': false,
           '/obstacle': false,
           '/odometry': false,
-         '/radio_update': false,
+          '/pdb_data': false,
+          '/radio_update': false,
           '/radio_setup': false,
           '/ra_control': false,
           '/ra_openloop_cmd': false,
@@ -178,7 +179,8 @@
           {'topic': '/microscope', 'type': 'Microscope'},
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'},
-          {'topic': '/zero_position', 'type': 'ZeroPosition'}
+          {'topic': '/zero_position', 'type': 'ZeroPosition'},
+          {'topic': '/pdb_data', 'type': 'PDBData'}
         ]
       }
     },

@@ -3,117 +3,137 @@
     <div>
         <h3> PDB and Fuse Data </h3>
     </div>
-    <table class="tableFormat" style="undefined;table-layout: fixed; width: 250px">
-  <colgroup>
-    <col style="width: 80px">
-    <col style="width: 85px">
-    <col style="width: 85px">
-    <col style="width: 85px">
-  </colgroup>
-  <thead>
-    <tr>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">Temperature</td>
-      <td class = "tableElement">Current</td>
-      <td class = "tableElement">Voltage</td>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td class = "tableElement">3V3</td>
-      <td class = "tableElement">{{pdb_data['3V3'].temp}}</td>
-      <td class = "tableElement">{{pdb_data['3V3'].current}}</td>
-      <td class = "tableElement">{{pdb_data['3V3'].voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">5V</td>
-      <td class = "tableElement">{{pdb_data['5V'].temp}}</td>
-      <td class = "tableElement">{{pdb_data['5V'].current}}</td>
-      <td class = "tableElement">{{pdb_data['5V'].voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">12V</td>
-      <td class = "tableElement">{{pdb_data['12V'].temp}}</td>
-      <td class = "tableElement">{{pdb_data['12V'].current}}</td>
-      <td class = "tableElement">{{pdb_data['12V'].voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 1</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron1.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron1.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 2</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron2.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron2.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 3</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron3.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron3.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 4</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron4.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron4.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 5</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron5.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron5.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 6</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron6.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron6.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Nichrome 1</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.nichrome1.current}}</td>
-      <td class = "tableElement">{{fuse_data.nichrome1.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Nichrome 2</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.nichrome2.current}}</td>
-      <td class = "tableElement">{{fuse_data.nichrome2.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Nichrome 3</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.nichrome3.current}}</td>
-      <td class = "tableElement">{{fuse_data.nichrome3.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">HBridge 1</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.hbridge1.current}}</td>
-      <td class = "tableElement">{{fuse_data.hbridge1.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">HBridge 2</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.hbridge2.current}}</td>
-      <td class = "tableElement">{{fuse_data.hbridge2.voltage}}</td>
-    </tr>
-  </tbody>
-  </table>
+    <div class="tables">
+      <div class="table1">
+      <table class="tableFormat" style="undefined;table-layout: fixed; width: 250px">
+        <colgroup>
+          <col style="width: 80px">
+          <col style="width: 85px">
+        </colgroup>
+        <thead>
+          <tr>
+            <td class = "tableElement"></td>
+            <td class = "tableElement">Temperature</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class = "tableElement">3V3</td>
+            <td class = "tableElement">{{pdb_data['3V3'].temp}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">5V</td>
+            <td class = "tableElement">{{pdb_data['5V'].temp}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">12V</td>
+            <td class = "tableElement">{{pdb_data['12V'].temp}}</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="table2">
+      <table class="tableFormat" style="undefined;table-layout: fixed; width: 250px">
+        <colgroup>
+          <col style="width: 80px">
+          <col style="width: 85px">
+          <col style="width: 85px">
+        </colgroup>
+        <thead>
+          <tr>
+            <td class = "tableElement"></td>
+            <td class = "tableElement">Current</td>
+            <td class = "tableElement">Voltage</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class = "tableElement">3V3</td>
+            <td class = "tableElement">{{pdb_data['3V3'].current}}</td>
+            <td class = "tableElement">{{pdb_data['3V3'].voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">5V</td>
+            <td class = "tableElement">{{pdb_data['5V'].current}}</td>
+            <td class = "tableElement">{{pdb_data['5V'].voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">12V</td>
+            <td class = "tableElement">{{pdb_data['12V'].current}}</td>
+            <td class = "tableElement">{{pdb_data['12V'].voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">Cytron 1</td>
+            <td class = "tableElement">{{fuse_data.cytron1.current}}</td>
+            <td class = "tableElement">{{fuse_data.cytron1.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">Cytron 2</td>
+            <td class = "tableElement">{{fuse_data.cytron2.current}}</td>
+            <td class = "tableElement">{{fuse_data.cytron2.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">Cytron 3</td>
+            <td class = "tableElement">{{fuse_data.cytron3.current}}</td>
+            <td class = "tableElement">{{fuse_data.cytron3.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">Cytron 4</td>
+            <td class = "tableElement">{{fuse_data.cytron4.current}}</td>
+            <td class = "tableElement">{{fuse_data.cytron4.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">Cytron 5</td>
+            <td class = "tableElement">{{fuse_data.cytron5.current}}</td>
+            <td class = "tableElement">{{fuse_data.cytron5.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">Cytron 6</td>
+            <td class = "tableElement">{{fuse_data.cytron6.current}}</td>
+            <td class = "tableElement">{{fuse_data.cytron6.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">Nichrome 1</td>
+            <td class = "tableElement">{{fuse_data.nichrome1.current}}</td>
+            <td class = "tableElement">{{fuse_data.nichrome1.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">Nichrome 2</td>
+            <td class = "tableElement">{{fuse_data.nichrome2.current}}</td>
+            <td class = "tableElement">{{fuse_data.nichrome2.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">Nichrome 3</td>
+            <td class = "tableElement">{{fuse_data.nichrome3.current}}</td>
+            <td class = "tableElement">{{fuse_data.nichrome3.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">HBridge 1</td>
+            <td class = "tableElement">{{fuse_data.hbridge1.current}}</td>
+            <td class = "tableElement">{{fuse_data.hbridge1.voltage}}</td>
+          </tr>
+          <tr>
+            <td class = "tableElement">HBridge 2</td>
+            <td class = "tableElement">{{fuse_data.hbridge2.current}}</td>
+            <td class = "tableElement">{{fuse_data.hbridge2.voltage}}</td>
+          </tr>
+        </tbody>
+    </table>
+    </div>
+  </div>
 </div>
 </template>
 
 <style scoped>
+    .tables {
+      display: flex;
+    }
+
     .wrap {
         display: inline-block;
         align-content: center;
-        /* height: 300px; */
     }
+
     .box {
         border-radius: 5px;
         padding: 10px;
@@ -121,37 +141,40 @@
         text-align: right;
         vertical-align: top;
     }
+
     .tableFormat{
-    border-collapse:collapse;
-    border-spacing:0;
+      border-collapse:collapse;
+      border-spacing:0;
     }
+
     .tableFormat td{
-    border-color:black;
-    border-style:solid;
-    border-width:1px;
-    font-size:13px;
-    overflow:hidden;
-    padding:10px 5px;
-    word-break:normal
+      border-color:black;
+      border-style:solid;
+      border-width:1px;
+      font-size:13px;
+      overflow:hidden;
+      padding:10px 5px;
+      word-break:normal
     }
+
     .tableFormat th{
-    border-color:black;
-    border-style:solid;
-    border-width:1px;
-    font-size:13px;
-    font-weight:normal;
-    overflow:hidden;
-    padding:10px 5px;
-    word-break:normal;
+      border-color:black;
+      border-style:solid;
+      border-width:1px;
+      font-size:13px;
+      font-weight:normal;
+      overflow:hidden;
+      padding:10px 5px;
+      word-break:normal;
     }
     .bold{
       font-weight: bold;
       border: 2px solid black;
     }
     .tableFormat .tableElement{
-    border-color:inherit;
-    text-align:center;
-    vertical-align:top
+      border-color:inherit;
+      text-align:center;
+      vertical-align:top
     }
 </style>
 
