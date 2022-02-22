@@ -75,7 +75,7 @@ async def refresh_cameras():
 
 
 def main():
-
+    Gst.init(None)
     lcm_.subscribe("/cameras_cmd", camera_callback)
 
     run_coroutines(lcm_.loop(), refresh_cameras())
