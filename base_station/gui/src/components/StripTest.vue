@@ -21,10 +21,14 @@
                 <button v-on:click="stripTestC()"> Start Strip C Test </button>
             </div>
         </div>
+    <button v-on:click="back_to_start()">Back to start</button>
+    <div class="input">
+        Angle: <input type='number' v-model.number='angle'>
+        <button v-on:click="userInput()"> Move to angle</button>
+    </div>
     </div>
 </div>
 </template>
-
 
 <script>
 const start = 100;
@@ -40,7 +44,8 @@ export default {
             angle2: start,
             start: start,
             dip: dip,
-            picture: picture
+            picture: picture,
+            angle: start
         }
     },
     methods: {
@@ -99,6 +104,36 @@ export default {
                 this.setPart();
                 alert("Strip test completed");
                 }, 15000);
+        },
+
+        back_to_start: function() {
+            if (this.strip == 2) {
+                this.angle2 = this.start;
+                this.setPart();
+            }
+            else if (this.strip == 1) {
+                this.angle1 = this.start;
+                this.setPart();
+            }
+            else if (this.strip == 0) {
+                this.angle0 = this.start;
+                this.setPart();
+            }
+        },
+
+        userInput: function() {
+            if (this.strip == 2) {
+                this.angle2 = this.angle;
+                this.setPart();
+            }
+            else if (this.strip == 1) {
+                this.angle1 = this.angle;
+                this.setPart();
+            }
+            else if (this.strip == 0) {
+                this.angle0 = this.angle;
+                this.setPart();
+            }
         }
     }
 }
