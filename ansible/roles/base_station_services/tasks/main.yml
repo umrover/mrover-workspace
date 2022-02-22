@@ -12,7 +12,6 @@
     - rover-base_station_gui.service
     - rover-base_station_gstreamer.service
     - rover-base_station_gstreamer_2.service
-    - rover-base_station_gstreamer_2.service
     - rover-base_station_gstreamer_3.service
     - rover-base_station_gstreamer_4.service
     - rover-base_station_gstreamer_5.service
