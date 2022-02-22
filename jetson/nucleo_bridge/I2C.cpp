@@ -1,5 +1,7 @@
 #include "I2C.h"
 
+#include <cerrno>
+
 //Abstraction for I2C/Hardware related functions
 void I2C::init()
 {
@@ -28,15 +30,19 @@ void I2C::transact(uint8_t addr, uint8_t cmd, uint8_t writeNum, uint8_t readNum,
 
     if (writeNum + 1 != 0)
     {
+        // errno = 0;
         if (write(file, buffer, writeNum + 1) != writeNum + 1)
         {
+            fprintf(stderr, "write error %d\n", errno);
             throw IOFailure();
         }
     }
     if (readNum != 0)
     {
+        //errno = 0;
         if (read(file, buffer, readNum) != readNum)
         {
+            fprintf(stderr, "read error %d\n", errno);
             throw IOFailure();
         }
     }
