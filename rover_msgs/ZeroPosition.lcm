@@ -1,0 +1,3 @@
+package rover_msgs;
+
+struct ZeroPosition { }
