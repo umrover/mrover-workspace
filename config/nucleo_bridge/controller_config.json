@@ -55,7 +55,7 @@
     },
     {
         "name":"SA_2",
-        "type":"Motor12V",
+        "type":"Motor24V",
         "nucleo": 1,
         "channel": 0,
         "quadCPR": 155040.0,
@@ -64,7 +64,7 @@
     },
     {
         "name":"SA_3",
-        "type":"Motor12V",
+        "type":"Motor24V",
         "nucleo": 2,
         "channel": 0,
         "quadCPR": -81600.0,
