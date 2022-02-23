@@ -77,7 +77,7 @@ def main():
         except (fibre.protocol.ChannelBrokenException, AttributeError):
             print("odrive has been unplugged")
             lock.acquire()
-            odrive_bridge.on_event("disconnected odrive")
+            odrive_bridge.on_event(Event.DISCONNECTED_ODRIVE)
             lock.release()
 
     exit()
