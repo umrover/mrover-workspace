@@ -1,11 +1,11 @@
  <template>
   <div class="encoders">
-    <div>joint a: {{encoderCounts.joint_a}}</div>
-    <div>joint b: {{encoderCounts.joint_b}}</div>
-    <div>joint c: {{encoderCounts.joint_c}}</div>
-    <div>joint d: {{encoderCounts.joint_d}}</div>
-    <div>joint e: {{encoderCounts.joint_e}}</div>
-    <div>joint f: {{encoderCounts.joint_f}}</div>
+    <div>joint a: {{Math.round((encoderCounts.joint_a + Number.EPSILON) * 10000) / 10000}}</div>
+    <div>joint b: {{Math.round((encoderCounts.joint_b + Number.EPSILON) * 10000) / 10000}}</div>
+    <div>joint c: {{Math.round((encoderCounts.joint_c + Number.EPSILON) * 10000) / 10000}}</div>
+    <div>joint d: {{Math.round((encoderCounts.joint_d + Number.EPSILON) * 10000) / 10000}}</div>
+    <div>joint e: {{Math.round((encoderCounts.joint_e + Number.EPSILON) * 10000) / 10000}}</div>
+    <div>joint f: {{Math.round((encoderCounts.joint_f + Number.EPSILON) * 10000) / 10000}}</div>
   </div>
 </template>
 
@@ -25,7 +25,7 @@ export default {
   },
 
   created: function () {
-    this.$parent.subscribe('/encoder', (msg) => {
+    this.$parent.subscribe('/arm_position', (msg) => {
       this.encoderCounts = msg
     })
   }
@@ -36,8 +36,9 @@ export default {
 
 .encoders {
   display: grid;
-  grid-template-rows: 1fr 1fr 1fr;
-  grid-auto-flow: column;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-auto-flow: column;
+    column-gap: 20px;
 }
 
 </style>
