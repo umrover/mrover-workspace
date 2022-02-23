@@ -10,6 +10,7 @@ from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
     CONTROL_MODE_VELOCITY_CONTROL, AXIS_STATE_IDLE
 
 from odrive.utils import dump_errors
+from enum import Enum
 
 
 def main():
@@ -95,10 +96,16 @@ def lcmThreaderMan():
             pass
 
 
-events = ["disconnected odrive", "disarm cmd", "arm cmd", "odrive error"]
 states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
 # Program states possible - BOOT,  DISARMED, ARMED, ERROR
 #                            1		 2	      3	      4
+
+
+class Event(Enum):
+    DISCONNECTED_ODRIVE = 1
+    DISARM_CMD = 2
+    ARM_CMD = 3
+    ODRIVE_ERROR = 4
 
 
 class State(object):
@@ -137,7 +144,7 @@ class DisconnectedState(State):
         Handle events that are delegated to the Disconnected State.
         """
         global modrive
-        if (event == "arm cmd"):
+        if (event == Event.ARM_CMD):
             modrive.disarm()
             modrive.reset_watchdog()
             modrive.arm()
@@ -152,14 +159,14 @@ class DisarmedState(State):
         Handle events that are delegated to the Disarmed State.
         """
         global modrive
-        if (event == "disconnected odrive"):
+        if (event == Event.DISCONNECTED_ODRIVE):
             return DisconnectedState()
 
-        elif (event == "arm cmd"):
+        elif (event == Event.ARM_CMD):
             modrive.arm()
             return ArmedState()
 
-        elif (event == "odrive error"):
+        elif (event == Event.ODRIVE_ERROR):
             return ErrorState()
 
         return self
@@ -172,14 +179,14 @@ class ArmedState(State):
         """
         global modrive
 
-        if (event == "disarm cmd"):
+        if (event == Event.DISARM_CMD):
             modrive.disarm()
             return DisarmedState()
 
-        elif (event == "disconnected odrive"):
+        elif (event == Event.DISCONNECTED_ODRIVE):
             return DisconnectedState()
 
-        elif (event == "odrive error"):
+        elif (event == Event.ODRIVE_ERROR):
             return ErrorState()
 
         return self
@@ -192,7 +199,7 @@ class ErrorState(State):
         """
         global modrive
         print(dump_errors(modrive.odrive, True))
-        if (event == "odrive error"):
+        if (event == Event.ODRIVE_ERROR):
             try:
                 modrive.reboot()  # only runs after initial pairing
             except:
@@ -259,14 +266,14 @@ class OdriveBridge(object):
             except (fibre.protocol.ChannelBrokenException, AttributeError):
                 errors = 0
                 lock.acquire()
-                self.on_event("disconnected odrive")
+                self.on_event(Event.DISCONNECTED_ODRIVE)
                 lock.release()
                 print("unable to check errors of unplugged odrive")
 
             if errors:
 
                 lock.acquire()
-                self.on_event("odrive error")
+                self.on_event(Event.ODRIVE_ERROR)
                 lock.release()
                 return
 
@@ -291,12 +298,12 @@ class OdriveBridge(object):
         elif (str(self.state) == "DisconnectedState"):
             self.connect()
             lock.acquire()
-            self.on_event("arm cmd")
+            self.on_event(Event.ARM_CMD)
             lock.release()
 
         elif (str(self.state) == "ErrorState"):
             lock.acquire()
-            self.on_event("odrive error")
+            self.on_event(Event.ODRIVE_ERROR)
             lock.release()
 
     def get_state(self):
