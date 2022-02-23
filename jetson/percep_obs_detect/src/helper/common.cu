@@ -49,7 +49,6 @@ void deleteCloud(GPU_Cloud& cloud) {
 __global__ void copyKernel(GPU_Cloud to, GPU_Cloud from) {
     int pointIdx = threadIdx.x + blockIdx.x * blockDim.x;
     if (pointIdx >= from.size) return;
-    if (pointIdx == 0) printf("We're using the right one\n");
     __syncthreads();
     to.data[pointIdx] = from.data[pointIdx];
 }
@@ -66,9 +65,7 @@ __global__ void removeJunkKernel(GPU_Cloud cloud, int start, int maxSize) {
 
 void copyCloud(GPU_Cloud& to, GPU_Cloud& from) {
     to.size = from.size;
-    printf("Size moved\n");
     copyKernel<<<ceilDiv(from.size, MAX_THREADS), MAX_THREADS>>>(to, from);
-    printf("From moved\n");
     checkStatus(cudaDeviceSynchronize());
 }
 
