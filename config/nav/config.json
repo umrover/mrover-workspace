@@ -28,8 +28,8 @@
 	"navThresholds":
 	{
 		"turningBearing": 10,
-		"drivingBearing": 20,
-		"waypointDistance": 0.5,
+		"drivingBearing": 35,
+		"waypointDistance": 1.25,
 		"targetDistance": 1.0,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20,
