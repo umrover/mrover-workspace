@@ -283,13 +283,9 @@ class OdriveBridge(object):
             global left_speed
             global right_speed
 
-            # print("trying to acquire speed lock in update")
             speedlock.acquire()
-            # print("acquired speed lock in update")
             self.left_speed = left_speed
             self.right_speed = right_speed
-
-            # print("released speed lock in update")
             speedlock.release()
 
             modrive.set_vel("LEFT", self.left_speed)
