@@ -236,7 +236,8 @@ export default {
         {'topic': '/carousel_cmd', 'type': 'CarouselCmd'},
         {'topic': '/sa_position', 'type': 'SAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
-        {'topic': '/pdb_fuse', 'type': 'PDBFuse'},
+        {'topic': '/pdb_data', 'type': 'PDBData'},
+        {'topic': '/fuse_data', 'type': 'FuseData'}
       ]
     )
 
