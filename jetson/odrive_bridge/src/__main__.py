@@ -62,10 +62,8 @@ def main():
                 prev_comms = False
 
             speedlock.acquire()
-
             left_speed = 0
             right_speed = 0
-
             speedlock.release()
         else:
             if not prev_comms:
@@ -285,10 +283,6 @@ class OdriveBridge(object):
                 self.on_event(Event.ODRIVE_ERROR)
                 usblock.release()
                 return
-
-            usblock.acquire()
-            modrive.watchdog_feed()
-            usblock.release()
 
             global speedlock
             global left_speed
