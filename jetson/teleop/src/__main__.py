@@ -5,7 +5,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
                         SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, FootCmd)
+                        Keyboard, FootCmd, ArmControlState)
 
 
 class Toggle:
@@ -136,10 +136,31 @@ def drive_control_callback(channel, msg):
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
+def send_zero_arm_command():
+    openloop_msg = RAOpenLoopCmd()
+    openloop_msg.throttle = [0, 0, 0, 0, 0, 0]
+
+    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+
+    hand_msg = HandCmd()
+    hand_msg.finger = 0
+    hand_msg.grip = 0
+
+    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+
+
+def arm_control_state_callback(channel, msg):
+    arm_control_state = ArmControlState.decode(msg)
+
+    if arm_control_state != 'open-loop':
+        send_zero_arm_command()
+
+
 def ra_control_callback(channel, msg):
+
     xboxData = Xbox.decode(msg)
 
-    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
+    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_x), 0.09),
@@ -251,6 +272,7 @@ def main():
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
+    lcm_.subscribe('/arm_control_state', arm_control_state_callback)
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),

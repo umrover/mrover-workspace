@@ -1,0 +1,15 @@
+################################################################################
+# nlohmann source dir
+set( nlohmann_SOURCE_DIR "@CONFIG_SOURCE_DIR@")
+
+################################################################################
+# nlohmann build dir
+set( nlohmann_DIR "@CONFIG_DIR@")
+
+################################################################################
+# Compute paths
+get_filename_component(nlohmann_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+set( nlohmann_INCLUDE_DIR  "@nlohmann_INCLUDE_DIR@" )
+set( nlohmann_INCLUDE_DIRS  "@nlohmann_INCLUDE_DIR@" )
+message(STATUS "nlohmann found. Headers: ${nlohmann_INCLUDE_DIRS}")

@@ -23,7 +23,6 @@ function matrix_copy(m1) {
     // STENCIL: reference matrix code has the following functions:
     //   matrix_multiply
     //   matrix_transpose
-    //   matrix_pseudoinverse
     //   matrix_invert_affine
     //   vector_normalize
     //   vector_cross
@@ -40,11 +39,6 @@ function matrix_multiply(m1, m2){
 
 function matrix_transpose(m1) {
     return math.transpose(math.matrix(m1))
-}
-
-
-function matrix_pseudoinverse(m1) {
-
 }
 
 //   matrix_invert_affine

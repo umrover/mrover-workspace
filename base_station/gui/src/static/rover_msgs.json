@@ -1,4 +1,36 @@
 {
+    "ArmAdjustments": [
+        [
+            "float",
+            "x"
+        ],
+        [
+            "float",
+            "y"
+        ],
+        [
+            "float",
+            "z"
+        ],
+        [
+            "float",
+            "alpha"
+        ],
+        [
+            "float",
+            "beta"
+        ],
+        [
+            "float",
+            "gamma"
+        ]
+    ],
+    "ArmControlState": [
+        [
+            "string",
+            "state"
+        ]
+    ],
     "ArmPosition": [
         [
             "double",
@@ -19,6 +51,16 @@
         [
             "double",
             "joint_e"
+        ],
+        [
+            "double",
+            "joint_f"
+        ]
+    ],
+    "ArmPreset": [
+        [
+            "string",
+            "preset"
         ]
     ],
     "ArmToggles": [
@@ -321,6 +363,32 @@
             "locked"
         ]
     ],
+    "LockJoints": [
+        [
+            "boolean",
+            "jointa"
+        ],
+        [
+            "boolean",
+            "jointb"
+        ],
+        [
+            "boolean",
+            "jointc"
+        ],
+        [
+            "boolean",
+            "jointd"
+        ],
+        [
+            "boolean",
+            "jointe"
+        ],
+        [
+            "boolean",
+            "jointf"
+        ]
+    ],
     "MicroCam": [
         [
             "string",
@@ -346,7 +414,7 @@
     "MotionExecute": [
         [
             "boolean",
-            "preview"
+            "execute"
         ]
     ],
     "NavStatus": [
@@ -712,6 +780,36 @@
             "f"
         ]
     ],
+    "TargetOrientation": [
+        [
+            "float",
+            "x"
+        ],
+        [
+            "float",
+            "y"
+        ],
+        [
+            "float",
+            "z"
+        ],
+        [
+            "float",
+            "alpha"
+        ],
+        [
+            "float",
+            "beta"
+        ],
+        [
+            "float",
+            "gamma"
+        ],
+        [
+            "boolean",
+            "use_orientation"
+        ]
+    ],
     "TargetPoint": [
         [
             "float",
@@ -865,7 +963,34 @@
             "angle"
         ]
     ],
+    "ZeroPosition": [
+        [
+            "double",
+            "joint_a"
+        ],
+        [
+            "double",
+            "joint_b"
+        ],
+        [
+            "double",
+            "joint_c"
+        ],
+        [
+            "double",
+            "joint_d"
+        ],
+        [
+            "double",
+            "joint_e"
+        ],
+        [
+            "double",
+            "joint_f"
+        ]
+    ],
     "message_types": [
+        "ArmControlState",
         "ArmPosition",
         "ArmToggles",
         "AutonState",
@@ -899,6 +1024,7 @@
         "PIDConstants",
         "PiPicture",
         "PiSettings",
+        "PresetAngles",
         "ProximitySensors",
         "RepeaterDrop",
         "RGB",
@@ -915,6 +1041,7 @@
         "StartTest",
         "TalonConfig",
         "TargetAngles",
+        "TargetOrientation",
         "TargetPoint",
         "Temperature",
         "TennisBall",
@@ -922,6 +1049,7 @@
         "Waypoint",
         "WheelSpeeds",
         "Xbox",
-        "ZedGimbalPosition"
+        "ZedGimbalPosition",
+        "ZeroPosition"
     ]
 }
