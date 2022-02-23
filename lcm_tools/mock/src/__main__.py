@@ -24,17 +24,17 @@ def main():
 
     while True:
 
-        pdb_msg['temp'][0] = normalvariate(45, 0.55)
-        pdb_msg['temp'][1] = normalvariate(50, 0.7)
-        pdb_msg['temp'][2] = normalvariate(47, 0.5)
+        pdb_msg['temp'][0] = normalvariate(45.05, 0.55)
+        pdb_msg['temp'][1] = normalvariate(49.8, 0.7)
+        pdb_msg['temp'][2] = normalvariate(65.2, 0.5)
 
         pdb_msg['current'][0] = normalvariate(1.5, 0.01)
         pdb_msg['current'][1] = normalvariate(3.4, 0.03)
         pdb_msg['current'][2] = normalvariate(5.2, 0.03)
 
-        pdb_msg['voltage'][0] = normalvariate(3.2, 0.1)
-        pdb_msg['voltage'][1] = normalvariate(5.1, 0.1)
-        pdb_msg['voltage'][2] = normalvariate(12.6, 0.2)
+        pdb_msg['voltage'][0] = normalvariate(3.2815, 0.001)
+        pdb_msg['voltage'][1] = normalvariate(4.899, 0.001)
+        pdb_msg['voltage'][2] = normalvariate(11.805, 0.0015)
 
         lcm_.publish(pdb_channel, lcmutil.dict_to_lcm(pdb_msg).encode())
 
