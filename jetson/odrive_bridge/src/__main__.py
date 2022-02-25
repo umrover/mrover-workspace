@@ -14,39 +14,16 @@ from enum import Enum
 
 
 def main():
-    global lcm_
-    lcm_ = lcm.LCM()
+    global lcm_, modrive, left_speed, right_speed, legal_controller, \
+        vel_msg, state_msg, usblock, speedlock, start_time, watchdog, odrive_bridge
 
-    global modrive
-    global left_speed
-    global right_speed
-
-    left_speed = 0.0
-    right_speed = 0.0
-
-    global legal_controller
-
-    global vel_msg
-    global state_msg
-
-    global usblock
-    global speedlock
-
-    global start_time
-    global watchdog
-
-    start_time = t.clock()
-
-    legal_controller = int(sys.argv[1])
-
-    vel_msg = DriveVelData()
-    state_msg = DriveStateData()
+    lcm_, left_speed, right_speed, start_time, legal_controller, \
+        vel_msg, state_msg = lcm.LCM(), 0.0, 0.0, t.clock(), int(sys.argv[1]), DriveVelData(), DriveStateData()
 
     speedlock = threading.Lock()
     usblock = threading.Lock()
 
     threading._start_new_thread(lcmThreaderMan, ())
-    global odrive_bridge
     odrive_bridge = OdriveBridge()
     # starting state is DisconnectedState()
     # start up sequence is called, disconnected-->disarm-->arm
@@ -62,8 +39,7 @@ def main():
                 prev_comms = False
 
             speedlock.acquire()
-            left_speed = 0
-            right_speed = 0
+            left_speed = right_speed = 0
             speedlock.release()
         else:
             if not prev_comms:
@@ -98,7 +74,6 @@ def lcmThreaderMan():
 
 states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
 # Program states possible - BOOT,  DISARMED, ARMED, ERROR
-#                            1		 2	      3	      4
 
 
 class Event(Enum):
@@ -219,13 +194,10 @@ class OdriveBridge(object):
         """
         global modrive
         self.state = DisconnectedState()  # default is disarmed
-        self.encoder_time = 0
-        self.left_speed = 0.0
-        self.right_speed = 0.0
+        self.encoder_time = self.left_speed = self.right_speed = 0.0
 
     def connect(self):
-        global modrive
-        global legal_controller
+        global modrive, legal_controller
         print("looking for odrive")
 
         # odrive 0 --> front motors
@@ -282,13 +254,10 @@ class OdriveBridge(object):
                 usblock.release()
                 return
 
-            global speedlock
-            global left_speed
-            global right_speed
+            global speedlock, left_speed, right_speed
 
             speedlock.acquire()
-            self.left_speed = left_speed
-            self.right_speed = right_speed
+            self.left_speed, self.right_speed = left_speed, right_speed
             speedlock.release()
 
             usblock.acquire()
@@ -325,9 +294,7 @@ def publish_state_msg(msg, state):
 
 
 def publish_encoder_helper(axis):
-    global modrive
-    global legal_controller
-    global usblock
+    global modrive, legal_controller, usblock
     msg = DriveVelData()
 
     usblock.acquire()
@@ -353,17 +320,14 @@ def drive_vel_cmd_callback(channel, msg):
     # set the odrive's velocity to the float specified in the message
     # no state change
 
-    global speedlock
-    global odrive_bridge
+    global speedlock, odrive_bridge
     try:
         cmd = DriveVelCmd.decode(msg)
         if (odrive_bridge.get_state() == "ArmedState"):
-            global left_speed
-            global right_speed
+            global left_speed, right_speed
 
             speedlock.acquire()
-            left_speed = cmd.left
-            right_speed = cmd.right
+            left_speed, right_speed = cmd.left, cmd.right
             speedlock.release()
     except NameError:
         pass
@@ -416,8 +380,7 @@ class Modrive:
             print("Resetting watchdog")
             self.disable_watchdog()
             # clears errors cleanly
-            self.front_axis.error = 0
-            self.back_axis.error = 0
+            self.front_axis.error = self.back_axis.error = 0
             self.enable_watchdog()
         except fibre.protocol.ChannelBrokenException:
             print("Failed in disable_watchdog. Unplugged")
@@ -488,6 +451,4 @@ class Modrive:
         return (self.front_axis.current_state, self.back_axis.current_state)
 
     def check_errors(self):
-        front = self.front_axis.error
-        back = self.back_axis.error
-        return back + front
+        return self.front_axis.error + self.back_axis.error
