@@ -1,6 +1,6 @@
 import subprocess
 
-ports = [0, 1, 3, 4, 5, 6, 7, 8]
+ports = [3, 4, 5, 6, 7, 8, 9, 10, 11]
 pipeline = [None, None, None, None, None, None, None, None]
 
 for i, val in enumerate(ports):
