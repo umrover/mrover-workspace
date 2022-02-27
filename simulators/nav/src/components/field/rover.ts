@@ -146,8 +146,7 @@ export default class CanvasRover {
     this.drawZed();
     if (this.fov.visible) {
       this.drawFov();
-
-      // this.fillFov(canvas);
+      this.fillFov(canvas);
     }
 
     this.ctx.rotate(-degToRad(this.currOdom.bearing_deg));
