@@ -1,9 +1,0 @@
-[Unit]
-Description=Base Station Video Stream
-
-[Service]
-Environment="DISPLAY=:0"
-Environment="XAUTHORITY=/home/mrover/.Xauthority"
-User={{ user }}
-ExecStart=/usr/bin/gst-launch-1.0 udpsrc port=5000 caps="application/x-rtp,encoding-name=H264,payload=96" ! rtph264depay ! h264parse ! decodebin ! autovideosink
-Restart=always
