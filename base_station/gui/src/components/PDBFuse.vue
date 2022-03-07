@@ -1,110 +1,122 @@
 <template>
 <div class="wrap">
-    <div>
-        <h3> PDB and Fuse Data </h3>
-    </div>
-    <table class="tableFormat" style="undefined;table-layout: fixed; width: 250px">
-  <colgroup>
-    <col style="width: 80px">
-    <col style="width: 85px">
-    <col style="width: 85px">
-    <col style="width: 85px">
-  </colgroup>
-  <thead>
-    <tr>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">Temperature</td>
-      <td class = "tableElement">Current</td>
-      <td class = "tableElement">Voltage</td>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td class = "tableElement">3V3</td>
-      <td class = "tableElement">{{pdb_data['3V3'].temp}}</td>
-      <td class = "tableElement">{{pdb_data['3V3'].current}}</td>
-      <td class = "tableElement">{{pdb_data['3V3'].voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">5V</td>
-      <td class = "tableElement">{{pdb_data['5V'].temp}}</td>
-      <td class = "tableElement">{{pdb_data['5V'].current}}</td>
-      <td class = "tableElement">{{pdb_data['5V'].voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">12V</td>
-      <td class = "tableElement">{{pdb_data['12V'].temp}}</td>
-      <td class = "tableElement">{{pdb_data['12V'].current}}</td>
-      <td class = "tableElement">{{pdb_data['12V'].voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 1</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron1.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron1.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 2</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron2.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron2.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 3</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron3.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron3.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 4</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron4.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron4.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 5</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron5.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron5.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Cytron 6</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.cytron6.current}}</td>
-      <td class = "tableElement">{{fuse_data.cytron6.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Nichrome 1</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.nichrome1.current}}</td>
-      <td class = "tableElement">{{fuse_data.nichrome1.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Nichrome 2</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.nichrome2.current}}</td>
-      <td class = "tableElement">{{fuse_data.nichrome2.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">Nichrome 3</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.nichrome3.current}}</td>
-      <td class = "tableElement">{{fuse_data.nichrome3.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">HBridge 1</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.hbridge1.current}}</td>
-      <td class = "tableElement">{{fuse_data.hbridge1.voltage}}</td>
-    </tr>
-    <tr>
-      <td class = "tableElement">HBridge 2</td>
-      <td class = "tableElement"></td>
-      <td class = "tableElement">{{fuse_data.hbridge2.current}}</td>
-      <td class = "tableElement">{{fuse_data.hbridge2.voltage}}</td>
-    </tr>
-  </tbody>
-  </table>
+  <div>
+    <h3>Power Distribution Board</h3>
+  </div>
+  <div class="table">
+    <table class="tableFormat" style="undefined;table-layout: fixed">
+      <colgroup>
+        <col style="width: 80px">
+        <col style="width: 100px">
+        <col style="width: 100px">
+        <col style="width: 100px">
+      </colgroup>
+      <thead>
+        <tr>
+          <td class = "tableElement"></td>
+          <td class = "tableElement">Temperature</td>
+          <td class = "tableElement">Current</td>
+          <td class = "tableElement">Voltage</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class = "tableElement">3.3V</td>
+          <td class = "tableElement" v-bind:style="{color: pdb_data[0].temp.color}">{{pdb_data[0].temp.val.toFixed(5)}}°C</td>
+          <td class = "tableElement" v-bind:style="{color: pdb_data[0].current.color}">{{pdb_data[0].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: pdb_data[0].voltage.color}">{{pdb_data[0].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class = "tableElement">5V</td>
+          <td class = "tableElement" v-bind:style="{color: pdb_data[1].temp.color}">{{pdb_data[1].temp.val.toFixed(5)}}°C</td>
+          <td class = "tableElement" v-bind:style="{color: pdb_data[1].current.color}">{{pdb_data[1].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: pdb_data[1].voltage.color}">{{pdb_data[1].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class = "tableElement">12V</td>
+          <td class = "tableElement" v-bind:style="{color: pdb_data[2].temp.color}">{{pdb_data[2].temp.val.toFixed(5)}}°C</td>
+          <td class = "tableElement" v-bind:style="{color: pdb_data[2].current.color}">{{pdb_data[2].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: pdb_data[2].voltage.color}">{{pdb_data[2].voltage.val.toFixed(5)}}V</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>Fuse Board</h3>
+  </div>
+  <div class="table">
+    <table class="tableFormat" style="undefined;table-layout: fixed">
+      <colgroup>
+        <col style="width: 80px">
+        <col style="width: 100px">
+        <col style="width: 100px">
+      </colgroup>
+      <thead>
+        <tr>
+          <td class="tableElement"></td>
+          <td class="tableElement">Current</td>
+          <td class="tableElement">Voltage</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="tableElement">Joint A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[0].current.color}">{{fuse_data[0].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[0].voltage.color}">{{fuse_data[0].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Joint B</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[1].current.color}">{{fuse_data[1].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[1].voltage.color}">{{fuse_data[1].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Joint C</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[2].current.color}">{{fuse_data[2].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[2].voltage.color}">{{fuse_data[2].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Joint D</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[3].current.color}">{{fuse_data[3].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[3].voltage.color}">{{fuse_data[3].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Joint E</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[4].current.color}">{{fuse_data[4].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[4].voltage.color}">{{fuse_data[4].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Joint F</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[5].current.color}">{{fuse_data[5].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[5].voltage.color}">{{fuse_data[5].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Heater A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[8].current.color}">{{fuse_data[8].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[8].voltage.color}">{{fuse_data[8].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Heater B</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[7].current.color}">{{fuse_data[7].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[7].voltage.color}">{{fuse_data[7].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Heater C</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[6].current.color}">{{fuse_data[6].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[6].voltage.color}">{{fuse_data[6].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Gripper/scoop + gimbal pitch</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[9].current.color}">{{fuse_data[9].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[9].voltage.color}">{{fuse_data[9].voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Finger/sensor + gimbal yaw</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[10].current.color}">{{fuse_data[10].current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data[10].voltage.color}">{{fuse_data[10].voltage.val.toFixed(5)}}V</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 </template>
 
@@ -156,148 +168,123 @@
 </style>
 
 <script>
-export default {
-    data() {
-      return {
-        // drive_vel_data: {
-        //   frontLeft:{current: 0, velocity: 0},
-        //   frontRight:{current: 0, velocity: 0},
-        //   middleLeft:{current: 0, velocity: 0},
-        //   middleRight:{current: 0, velocity: 0},
-        //   backLeft:{current: 0, velocity: 0},
-        //   backRight:{current: 0, velocity: 0}
-        // },
-        // drive_state_data: {
-        //   leftState: "Boot",
-        //   rightState: "Boot"
-        // }
-        pdb_data: {
-          '3V3':{temp: 0, current: 0, voltage: 0},
-          '5V':{temp: 0, current: 0, voltage: 0},
-          '12V':{temp: 0, current: 0, voltage: 0}
-        },
-        fuse_data: {
-          cytron1:{current: 0, voltage: 0},
-          cytron2:{current: 0, voltage: 0},
-          cytron3:{current: 0, voltage: 0},
-          cytron4:{current: 0, voltage: 0},
-          cytron5:{current: 0, voltage: 0},
-          cytron6:{current: 0, voltage: 0},
-          nichrome1:{current: 0, voltage: 0},
-          nichrome2:{current: 0, voltage: 0},
-          nichrome3:{current: 0, voltage: 0},
-          hbridge1:{current: 0, voltage: 0},
-          hbridge2:{current: 0, voltage: 0}
-        }
-      }
-    },
-    created: function(){
-      this.$parent.subscribe('/pdb_data', (msg) => {
-        this.pdb_data['3V3'].temp = msg.temp[0];
-        this.pdb_data['3V3'].current = msg.current[0];
-        this.pdb_data['3V3'].voltage = msg.voltage[0];
-        this.pdb_data['5V'].temp = msg.temp[1];
-        this.pdb_data['5V'].current = msg.current[1];
-        this.pdb_data['5V'].voltage = msg.voltage[1];
-        this.pdb_data['12V'].temp = msg.temp[2];
-        this.pdb_data['12V'].current = msg.current[2];
-        this.pdb_data['12V'].voltage = msg.voltage[2];
-      })
-      this.$parent.subscribe('/fuse_data', (msg) => {
-        this.fuse_data.cytron1.current = msg.current[0];
-        this.fuse_data.cytron2.current = msg.current[1];
-        this.fuse_data.cytron3.current = msg.current[2];
-        this.fuse_data.cytron4.current = msg.current[3];
-        this.fuse_data.cytron5.current = msg.current[4];
-        this.fuse_data.cytron6.current = msg.current[5];
-        this.fuse_data.nichrome1.current = msg.current[6];
-        this.fuse_data.nichrome2.current = msg.current[7];
-        this.fuse_data.nichrome3.current = msg.current[8];
-        this.fuse_data.hbridge1.current = msg.current[9];
-        this.fuse_data.hbridge2.current = msg.current[10];
 
-        this.fuse_data.cytron1.voltage = msg.voltage[0];
-        this.fuse_data.cytron2.voltage = msg.voltage[1];
-        this.fuse_data.cytron3.voltage = msg.voltage[2];
-        this.fuse_data.cytron4.voltage = msg.voltage[3];
-        this.fuse_data.cytron5.voltage = msg.voltage[4];
-        this.fuse_data.cytron6.voltage = msg.voltage[5];
-        this.fuse_data.nichrome1.voltage = msg.voltage[6];
-        this.fuse_data.nichrome2.voltage = msg.voltage[7];
-        this.fuse_data.nichrome3.voltage = msg.voltage[8];
-        this.fuse_data.hbridge1.voltage = msg.voltage[9];
-        this.fuse_data.hbridge2.voltage = msg.voltage[10];
-      })
+const pdb_temp_limit = 100
+
+const pdb_current_limits = [
+  2,
+  8,
+  8
+]
+
+const pdb_volt_limits = [
+  3.6,
+  5.3,
+  14
+]
+
+const fuse_current_limit = 2.5
+const fuse_volt_limit = 45
+
+export default {
+  data() {
+    return {
+      pdb_data: [
+        {
+          temp: {val: 0.0, color: "grey"},
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          temp: {val: 0.0, color: "grey"},
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          temp: {val: 0.0, color: "grey"},
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        }
+      ],
+
+      fuse_data: [
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        },
+        {
+          current: {val: 0.0, color: "grey"},
+          voltage: {val: 0.0, color: "grey"}
+        }
+      ],
     }
-    // created: function(){
-    //   this.$parent.subscribe('/drive_vel_data', (msg) => {
-    //     if(msg.axis == 0){
-    //       this.drive_vel_data.frontLeft.current = msg.measuredCurrent;
-    //       this.drive_vel_data.frontLeft.velocity = msg.estimatedVel;
-    //     }
-    //     if(msg.axis == 1){
-    //       this.drive_vel_data.frontRight.current = msg.measuredCurrent;
-    //       this.drive_vel_data.frontRight.velocity = msg.estimatedVel;
-    //     }
-    //     if(msg.axis == 2){
-    //       this.drive_vel_data.middleLeft.current = msg.measuredCurrent;
-    //       this.drive_vel_data.middleLeft.velocity = msg.estimatedVel;
-    //     }
-    //     if(msg.axis == 3){
-    //       this.drive_vel_data.middleRight.current = msg.measuredCurrent;
-    //       this.drive_vel_data.middleRight.velocity = msg.estimatedVel;
-    //     }
-    //     if(msg.axis == 4){
-    //       this.drive_vel_data.backLeft.current = msg.measuredCurrent;
-    //       this.drive_vel_data.backLeft.velocity = msg.estimatedVel;
-    //     }
-    //     if(msg.axis == 5){
-    //       this.drive_vel_data.backRight.current = msg.measuredCurrent;
-    //       this.drive_vel_data.backRight.velocity = msg.estimatedVel;
-    //     }
-    //   })
-    //   this.$parent.subscribe('/drive_state_data', (msg) => {
-    //     if(msg.controller == 0){
-    //       if(msg.state == 0){
-    //         this.drive_state_data.leftState = "Boot";
-    //       }
-    //       if(msg.state == 1){
-    //         this.drive_state_data.leftState = "Disarmed";
-    //       }
-    //       if(msg.state == 2){
-    //         this.drive_state_data.leftState = "Armed";
-    //       }
-    //       if(msg.state == 3){
-    //         this.drive_state_data.leftState = "Calibrating";
-    //       }
-    //       if(msg.state == 4){
-    //         this.drive_state_data.leftState = "Error";
-    //       }
-    //       if(msg.state == 5){
-    //         this.drive_state_data.leftState = "Exit";
-    //       }
-    //     }
-    //     if(msg.controller == 1){
-    //       if(msg.state == 0){
-    //         this.drive_state_data.rightState = "Boot";
-    //       }
-    //       if(msg.state == 1){
-    //         this.drive_state_data.rightState = "Disarmed";
-    //       }
-    //       if(msg.state == 2){
-    //         this.drive_state_data.rightState = "Armed";
-    //       }
-    //       if(msg.state == 3){
-    //         this.drive_state_data.rightState = "Calibrating";
-    //       }
-    //       if(msg.state == 4){
-    //         this.drive_state_data.rightState = "Error";
-    //       }
-    //       if(msg.state == 5){
-    //         this.drive_state_data.rightState = "Exit";
-    //       }
-    //     }
-    //   })
-    // }
+  },
+
+  created: function() {
+
+    this.$parent.subscribe('/pdb_data', (msg) => {
+      for (let i = 0; i < this.pdb_data.length; i++) {
+        this.updateVal(this.pdb_data[i].temp, msg.temp_celsius[i], pdb_temp_limit)
+        this.updateVal(this.pdb_data[i].current, msg.current_amps[i], pdb_current_limits[i])
+        this.updateVal(this.pdb_data[i].voltage, msg.voltage_volts[i], pdb_volt_limits[i])
+      }
+    })
+
+    this.$parent.subscribe('/fuse_data', (msg) => {
+      for (let i = 0; i < this.fuse_data.length; i++) {
+        this.updateVal(this.fuse_data[i].current, msg.current_amps[i], fuse_current_limit)
+        this.updateVal(this.fuse_data[i].voltage, msg.voltage_volts[i], fuse_volt_limit)
+      }
+    })
+  },
+
+  methods: {
+    updateVal: function(struct, val, threshold) {
+      struct.val = val
+
+      if (val > threshold || val < 0.0) {
+        struct.color = "red"
+      }
+      else {
+        struct.color = "black"
+      }
+    }
+  }
 }
 </script>

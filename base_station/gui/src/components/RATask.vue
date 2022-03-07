@@ -48,6 +48,9 @@
     <div class ="box pdb light-bg">
       <PDBFuse/>
     </div>
+    <div class="box drive-motor light-bg">
+      <DriveVelDataV/>
+    </div>
     <div class="spacer"></div>
   </div>
 </template>
@@ -64,6 +67,7 @@ import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
+import DriveVelDataV from './DriveVelDataV.vue' 
 
 let interval;
 
@@ -242,7 +246,8 @@ export default {
     EncoderCounts,
     OdometryReading,
     IKControls,
-    PDBFuse
+    PDBFuse,
+    DriveVelDataV
   }
 }
 </script>
@@ -252,13 +257,14 @@ export default {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1.5fr;
-    grid-template-rows: 60px auto auto auto auto auto;
+    grid-template-rows: 60px auto auto auto auto auto auto;
     grid-template-areas: "header header"
                          "map cameras"
                          "map ik-controls"
                          "ik-gui ik-controls"
                          "odom controls"
-                         "odom drive";
+                         "odom drive"
+                         "pdb drive-motor";
     font-family: sans-serif;
     height: auto;
   }
@@ -366,12 +372,20 @@ export default {
     display: flex;
   }
 
+  .drive-motor {
+    grid-area: drive-motor;
+  }
+
+  .pdb {
+    grid-area: pdb;
+  }
+
   .drive {
     grid-area: drive;
   }
 
   .ik-gui {
-    grid-area: ik-gui
+    grid-area: ik-gui;
   }
 
   .new-select {
