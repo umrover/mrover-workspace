@@ -1,7 +1,7 @@
 #include "rover.hpp"
-
 #include "utilities.hpp"
 #include "rover_msgs/Joystick.hpp"
+
 #include <cmath>
 #include <iostream>
 
@@ -67,6 +67,7 @@ Target& Rover::RoverStatus::rightTarget()
     return mTargetRight;
 } // rightTarget()
 
+<<<<<<< HEAD
 Target& Rover::RoverStatus::leftCacheTarget()
 {
     return mCTargetLeft;
@@ -82,6 +83,8 @@ RadioSignalStrength& Rover::RoverStatus::radio()
     return mSignal;
 } // radio()
 
+=======
+>>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
 unsigned Rover::RoverStatus::getPathTargets()
 {
   return mPathTargets;
@@ -119,6 +122,7 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     }
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();
+<<<<<<< HEAD
     mTargetLeft = newRoverStatus.leftTarget();
     mTargetRight = newRoverStatus.rightTarget();
     mCTargetLeft = newRoverStatus.leftCacheTarget();
@@ -126,6 +130,10 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     mSignal = newRoverStatus.radio();
     countLeftMisses = newRoverStatus.getLeftMisses();
     countRightMisses = newRoverStatus.getRightMisses();
+=======
+    mTarget1 = newRoverStatus.target();
+    mTarget2 = newRoverStatus.target2();
+>>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     return *this;
 } // operator=
 
@@ -140,7 +148,6 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
-    , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
 {
 } // Rover()
@@ -269,6 +276,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
+<<<<<<< HEAD
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
 
@@ -314,6 +322,9 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             
             mRoverStatus.radio() = newRoverStatus.radio();
             updateRepeater( mRoverStatus.radio() );
+=======
+            mRoverStatus.target() = newRoverStatus.target();
+>>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
             return true;
         }
         return false;
@@ -341,6 +352,7 @@ const double Rover::longMeterInMinutes() const
     return mLongMeterInMinutes;
 }
 
+<<<<<<< HEAD
 // Executes the logic starting the clock to time how long it's been
 // since the rover has gotten a strong radio signal. If the signal drops
 // below the signalStrengthCutOff and the timer hasn't started, begin the clock.
@@ -375,6 +387,8 @@ bool Rover::isTimeToDropRepeater()
     return mTimeToDropRepeater;
 }
 
+=======
+>>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
 // Gets the rover's status object.
 Rover::RoverStatus& Rover::roverStatus()
 {
@@ -438,10 +452,10 @@ bool Rover::isEqual( const Odometry& odometry1, const Odometry& odometry2 ) cons
 
 // Returns true if the two target messages are equal, false
 // otherwise.
-bool Rover::isEqual( const Target& target1, const Target& target2 ) const
+bool Rover::isEqual( const Target& target, const Target& target2 ) const
 {
-    if( target1.distance == target2.distance &&
-        target1.bearing == target2.bearing )
+    if( target.distance == target2.distance &&
+        target.bearing == target2.bearing )
     {
         return true;
     }

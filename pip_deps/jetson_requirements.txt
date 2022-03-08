@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 cython==0.29.14
 numpy==1.16.2
 odrive==0.5.4
+=======
+numpy==1.16.2
+scipy==1.5.4
+odrive==0.5.4
+>>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566

@@ -5,8 +5,8 @@
   apt: 
     name:
       - build-essential
-      - python3-dev
       - python3-venv
+      - python3-dev
       - python-virtualenv
       - libglib2.0-dev
       - ninja-build
@@ -21,5 +21,9 @@
       - libcairo2-dev
       - libgirepository1.0-dev
       - gfortran
+<<<<<<< HEAD
       - xdotool
+=======
+      - libeigen3-dev
+>>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     state: present
