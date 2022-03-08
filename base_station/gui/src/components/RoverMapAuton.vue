@@ -74,7 +74,7 @@ export default {
   data () {
     return {
       center: L.latLng(38.406371, -110.791954),
-      url: '/static/map/{z}/{x}/{-y}.png',
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       roverMarker: null,
       waypointIcon: null,
