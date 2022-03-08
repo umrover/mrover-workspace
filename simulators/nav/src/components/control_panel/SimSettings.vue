@@ -38,6 +38,26 @@
           @clicked="flipSimulatePercep(!simulatePercep)"
         />
       </div>
+      <div class="noise">
+        <p>Perception Noise (%):</p>
+        <NumberInput
+          :val.sync="noisePercentIn"
+          :precision="2"
+          :min="0"
+          :max="100"
+          :step="5.55"
+        />
+      </div>
+      <div class="noiseGPS">
+        <p>GPS Noise (%):</p>
+        <NumberInput
+          :val.sync="noiseGPSPercentIn"
+          :precision="2"
+          :min="0"
+          :max="100"
+          :step="5"
+        />
+      </div>
     </div>
   </fieldset>
 </template>
@@ -75,6 +95,12 @@ export default class SimSettings extends Vue {
   @Getter
   private readonly simulatePercep!:boolean;
 
+  @Getter
+  private readonly noisePercent!:number;
+
+  @Getter
+  private readonly noiseGPSPercent!:number;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
@@ -89,6 +115,12 @@ export default class SimSettings extends Vue {
 
   @Mutation
   private readonly flipSimulatePercep!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly setNoisePercent!:(newNoisePercent:number)=>void;
+
+  @Mutation
+  private readonly setGPSNoisePercent!:(newNoisePercent:number)=>void;
 
   /************************************************************************************************
    * Private Members
@@ -109,6 +141,19 @@ export default class SimSettings extends Vue {
   }
   private set fieldSizeIn(newFieldSize:number) {
     this.setFieldSize(newFieldSize);
+  }
+
+  private get noisePercentIn():number {
+    return this.noisePercent;
+  }
+  private set noisePercentIn(newNoisePercent:number) {
+    this.setNoisePercent(newNoisePercent);
+  }
+  private get noiseGPSPercentIn():number {
+    return this.noiseGPSPercent;
+  }
+  private set noiseGPSPercentIn(newNoisePercent:number) {
+    this.setGPSNoisePercent(newNoisePercent);
   }
 
   /************************************************************************************************
