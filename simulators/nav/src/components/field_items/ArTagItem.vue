@@ -84,7 +84,8 @@ export default class ArTagItem extends Vue {
     this.editArTag([{
       id: newId,
       odom: this.arTag.odom,
-      orientation: this.arTag.orientation
+      orientation: this.arTag.orientation,
+      isHidden: this.arTag.isHidden
     }, this.index]);
   }
 
