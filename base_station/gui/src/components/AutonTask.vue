@@ -147,6 +147,10 @@ export default {
         roll_rad: 0,
         pitch_rad: 0,
         yaw_rad: 0,
+        calibration_sys: 0,
+        calibration_gyro: 0,
+        calibration_accel: 0,
+        calibration_mag: 0,
         bearing_deg: 0
       },
       
