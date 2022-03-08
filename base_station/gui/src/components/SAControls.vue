@@ -118,9 +118,8 @@ export default {
             }
             this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']]
 
-            if (!this.autonEnabled) {
-              this.$parent.$parent.publish('/drive_control', joystickData)
-            }
+            this.$parent.$parent.publish('/drive_control', joystickData)
+
           } else if (gamepad.id.includes('Microsoft') || gamepad.id.includes('xinput') || gamepad.id.includes('Xbox')) {
             const xboxData = {
               'type': 'Xbox',

@@ -17,8 +17,8 @@
       <p>&nbsp;Bearing: {{GPS.bearing_deg.toFixed(2)}}º</p>
     </div> -->
     <div>
-      <p>IMU: accel_x: {{ IMU.accel_x }} accel_y: {{ IMU.accel_y  }} accel_z: {{ IMU.accel_z }} &nbsp;gyro_x: {{ IMU.gyro_x }} gyro_y: {{ IMU.gyro_y }} gyro_z: {{ IMU.gyro_z }}
-      &nbsp;mag_x: {{ IMU.mag_x }} mag_y: {{ IMU.mag_y  }} mag_z: {{ IMU.mag_z }} bearing: {{ IMU.bearing.toFixed(2) }}</p>
+      <p>IMU: accel_x_g: {{ IMU.accel_x_g }} accel_y_g: {{ IMU.accel_y_g  }} accel_z_g: {{ IMU.accel_z_g }} &nbsp;gyro_x_dps: {{ IMU.gyro_x_dps }} gyro_y_dps: {{ IMU.gyro_y_dps }} gyro_z_dps: {{ IMU.gyro_z_dps }}
+      &nbsp;mag_x_uT: {{ IMU.mag_x_uT }} mag_y_uT: {{ IMU.mag_y_uT  }} mag_z_uT: {{ IMU.mag_z_uT }} roll_rad: {{ IMU.roll_rad }} pitch_rad: {{ IMU.pitch_rad}} yaw_rad: {{ IMU.yaw_rad }} bearing_deg: {{ IMU.bearing_deg.toFixed(2) }}</p>
     </div>
   </div>
 </div>
