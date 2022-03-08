@@ -32,11 +32,9 @@ enum class NavState
 
     // Search States
     SearchFaceNorth = 20,
-    SearchSpin = 21,
-    SearchSpinWait = 22,
-    SearchTurn = 24,
-    SearchDrive = 25,
-    ChangeSearchAlg = 26,
+    SearchTurn = 21,
+    SearchDrive = 22,
+    ChangeSearchAlg = 23,
 
     // Target Found States
     TurnToTarget = 27,

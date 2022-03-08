@@ -27,9 +27,9 @@
 
 	"navThresholds":
 	{
-		"turningBearing": 20,
-		"drivingBearing": 50,
-		"waypointDistance": 2.0,
+		"turningBearing": 10,
+		"drivingBearing": 35,
+		"waypointDistance": 1.25,
 		"targetDistance": 1.0,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20,
@@ -70,7 +70,7 @@
 	{
 		"order": [0, 1],
 		"numSearches": 2,
-		"bailThresh": 10.0,
+		"bailThresh": 20.0,
 		"searchWaitStepSize": 90.0,
 		"searchWaitTime": 1.0
 	}
