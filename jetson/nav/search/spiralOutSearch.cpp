@@ -17,5 +17,6 @@ void SpiralOut::initializeSearch( Rover* rover, const rapidjson::Document& rover
         Odometry nextSearchPoint = createOdom(rover->roverStatus().path().front().odom, phi, rho, rover);
         mSearchPoints.push_back( nextSearchPoint );
     }
+    coordinate_file.close();
     insertIntermediatePoints();
 } // initializeSearch()
