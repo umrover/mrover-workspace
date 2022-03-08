@@ -2,7 +2,7 @@ package rover_msgs;
 
 struct PDBData {
     // Each array is [3.3V, 5V, 12V]
-    double temp_degrees[3];
+    double temp_celsius[3];
     double current_amps[3];
     double voltage_volts[3];
 }
