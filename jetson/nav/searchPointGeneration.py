@@ -53,15 +53,17 @@ def cart2pol(x, y):
 
 print("\n-----Search types-----\nRadially Equidistant Spiral: 0\nPoint Equidistant Spiral: 1\nSquare Spiral: 2\n")
 search_type = input("Select a search type: ")
-if search_type == '0': # Point Equidistant Spiral
+if search_type == '0': # POINT EQUIDISTANCE SPIRAL
     # generateSpiralSearchPoints 
     #           (Radius of spiral, Number of Points, Number of coils)
     coords = generateSpiralSearchPoints(20, 200, 10)
-elif search_type == '1': # Radially Equidistant Spiral
+elif search_type == '1': # RADIALLY EQUIDISTANT SPIRAL
     # generateSpiralSearchPoints 
     #           (Radius of spiral, Distance between points, Number of coils, Rotation from start)
     coords = generateEquidistantSpiralSearchPoints(20, 1.2, 10, 90)
-elif search_type == '2':
+elif search_type == '2': # SQUARE SPIRAL SEARCH
+    # generateSquareSpiral
+    #           (number of points, distance between each coil of the spiral)
     coords = generateSquareSpiral(13, 3)
 else:
     print ("Not a valid type")
