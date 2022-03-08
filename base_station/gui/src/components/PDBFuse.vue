@@ -60,57 +60,57 @@
       </thead>
       <tbody>
         <tr>
-          <td class="tableElement">Cytron 1</td>
+          <td class="tableElement">Joint A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron1.current.color}">{{fuse_data.cytron1.current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron1.voltage.color}">{{fuse_data.cytron1.voltage.val.toFixed(5)}}V</td>
         </tr>
         <tr>
-          <td class="tableElement">Cytron 2</td>
+          <td class="tableElement">Joint B</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron2.current.color}">{{fuse_data.cytron2.current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron2.voltage.color}">{{fuse_data.cytron2.voltage.val.toFixed(5)}}V</td>
         </tr>
         <tr>
-          <td class="tableElement">Cytron 3</td>
+          <td class="tableElement">Joint C</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron3.current.color}">{{fuse_data.cytron3.current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron3.voltage.color}">{{fuse_data.cytron3.voltage.val.toFixed(5)}}V</td>
         </tr>
         <tr>
-          <td class="tableElement">Cytron 4</td>
+          <td class="tableElement">Joint D</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron4.current.color}">{{fuse_data.cytron4.current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron4.voltage.color}">{{fuse_data.cytron4.voltage.val.toFixed(5)}}V</td>
         </tr>
         <tr>
-          <td class="tableElement">Cytron 5</td>
+          <td class="tableElement">Joint E</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron5.current.color}">{{fuse_data.cytron5.current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron5.voltage.color}">{{fuse_data.cytron5.voltage.val.toFixed(5)}}V</td>
         </tr>
         <tr>
-          <td class="tableElement">Cytron 6</td>
+          <td class="tableElement">Joint F</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron6.current.color}">{{fuse_data.cytron6.current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.cytron6.voltage.color}">{{fuse_data.cytron6.voltage.val.toFixed(5)}}V</td>
         </tr>
         <tr>
-          <td class="tableElement">Nichrome 1</td>
-          <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome1.current.color}">{{fuse_data.nichrome1.current.val.toFixed(5)}}A</td>
-          <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome1.voltage.color}">{{fuse_data.nichrome1.voltage.val.toFixed(5)}}V</td>
-        </tr>
-        <tr>
-          <td class="tableElement">Nichrome 2</td>
-          <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome2.current.color}">{{fuse_data.nichrome2.current.val.toFixed(5)}}A</td>
-          <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome2.voltage.color}">{{fuse_data.nichrome2.voltage.val.toFixed(5)}}V</td>
-        </tr>
-        <tr>
-          <td class="tableElement">Nichrome 3</td>
+          <td class="tableElement">Heater A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome3.current.color}">{{fuse_data.nichrome3.current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome3.voltage.color}">{{fuse_data.nichrome3.voltage.val.toFixed(5)}}V</td>
         </tr>
         <tr>
-          <td class="tableElement">HBridge 1</td>
+          <td class="tableElement">Heater B</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome2.current.color}">{{fuse_data.nichrome2.current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome2.voltage.color}">{{fuse_data.nichrome2.voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Heater C</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome1.current.color}">{{fuse_data.nichrome1.current.val.toFixed(5)}}A</td>
+          <td class = "tableElement" v-bind:style="{color: fuse_data.nichrome1.voltage.color}">{{fuse_data.nichrome1.voltage.val.toFixed(5)}}V</td>
+        </tr>
+        <tr>
+          <td class="tableElement">Gripper/scoop + gimbal pitch</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.hbridge1.current.color}">{{fuse_data.hbridge1.current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.hbridge1.voltage.color}">{{fuse_data.hbridge1.voltage.val.toFixed(5)}}V</td>
         </tr>
         <tr>
-          <td class="tableElement">HBridge 2</td>
+          <td class="tableElement">finger/sensor + gimbal yaw</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.hbridge2.current.color}">{{fuse_data.hbridge2.current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data.hbridge2.voltage.color}">{{fuse_data.hbridge2.voltage.val.toFixed(5)}}V</td>
         </tr>

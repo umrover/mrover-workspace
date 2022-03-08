@@ -323,6 +323,16 @@
             "transform_f[4][4]"
         ]
     ],
+    "FuseData": [
+        [
+            "double",
+            "current_amps[12]"
+        ],
+        [
+            "double",
+            "voltage_volts[12]"
+        ]
+    ],
     "GPS": [
         [
             "int32_t",
@@ -607,15 +617,15 @@
     "PDBData": [
         [
             "double",
-            "temp[3]"
+            "temp_degrees[3]"
         ],
         [
             "double",
-            "current[3]"
+            "current_amps[3]"
         ],
         [
             "double",
-            "voltage[3]"
+            "voltage_volts[3]"
         ]
     ],
     "PIDConstants": [
@@ -1188,6 +1198,7 @@
         "ESCThrottle",
         "ESCToggle",
         "FKTransform",
+        "FuseData",
         "GPS",
         "Heartbeat",
         "IkArmControl",

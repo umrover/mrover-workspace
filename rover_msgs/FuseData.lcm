@@ -6,6 +6,6 @@ struct FuseData {
     //   Nichrome_wire_<0-2>: 6-8;
     //   Hbridge_<0-1>: 9-10+
 
-    double current[12];
-    double voltage[12];    
+    double current_amps[12];
+    double voltage_volts[12];    
 }
