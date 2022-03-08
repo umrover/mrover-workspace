@@ -161,6 +161,9 @@ export default class DebugTools extends Vue {
   private readonly setCurrOdom!:(newOdom:Odom)=>void;
 
   @Mutation
+  private readonly setRealOdom!:(newOdom:Odom)=>void;
+
+  @Mutation
   private readonly setCurrSpeed!:(newSpeeds:Speeds)=>void;
 
   @Mutation
@@ -292,6 +295,7 @@ export default class DebugTools extends Vue {
   /* Reset the rover to the starting state. */
   private resetRover():void {
     this.setCurrOdom(this.startLoc);
+    this.setRealOdom(this.startLoc);
     this.setAutonState(false);
     this.setPaused(false);
     this.setZedGimbalPos({ angle: 0 });

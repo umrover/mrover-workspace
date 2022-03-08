@@ -17,10 +17,26 @@ import {
   calcRelativeOdom,
   compassModDeg,
   degToRad,
-  radToDeg
+  radToDeg,
+  randnBm
 } from '../../utils/utils';
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
-import { PERCEPTION, POST, ROVER } from '../../utils/constants';
+import {
+  PERCEPTION,
+  POST,
+  ROVER,
+  Zscores
+} from '../../utils/constants';
+import { state } from '../../store/modules/simulatorState';
+
+// indZscore is from 0 to 19
+function getGaussianThres(indZscore):number {
+  const sd = 0.2;
+  const mu = 0.5;
+  const x = Zscores[indZscore] * sd;
+
+  return mu + x;
+}
 
 /* Class that performs target dectection calculations. */
 export default class TargetDetector {
@@ -164,7 +180,8 @@ export default class TargetDetector {
       this.posts.push({
         id: gate.rightId,
         odom: rightPostLoc,
-        orientation: gate.orientation + 90
+        orientation: gate.orientation + 90,
+        isHidden: false
       });
 
       const leftPostLoc:Odom = calcRelativeOdom(gate.odom,
@@ -174,7 +191,8 @@ export default class TargetDetector {
       this.posts.push({
         id: gate.leftId,
         odom: leftPostLoc,
-        orientation: gate.orientation + 90
+        orientation: gate.orientation + 90,
+        isHidden: false
       });
     });
   } /* getPosts() */
@@ -182,9 +200,26 @@ export default class TargetDetector {
   /* If the center is in view, then at least half the target is so consider
      it visible. If beyond depth of view, consider it visible if two corners
      are visible. */
-  private isPostVisible(post:ArTag, index:number):boolean {
+  private isPostVisible(orgPost:ArTag, index:number):boolean {
+    const post = orgPost;
     const [dist, bear]:[number, number] = calcDistAndBear(this.zedOdom, post.odom);
     const relBear:number = calcRelativeBearing(this.zedOdom.bearing_deg, radToDeg(bear));
+
+    /* Special Case: guassian noise */
+    const num:number = randnBm(0, 1, 1);
+    const divisor = 18.0;
+    const percentFactor = 100.0;
+    const factor = percentFactor / divisor;
+    const indThres = Math.round(state.simSettings.noisePercent / factor);
+    const thres = getGaussianThres(indThres);
+
+    if (num < thres) {
+      post.isHidden = true;
+      return false;
+    }
+    else {
+      post.isHidden = false;
+    }
 
     /* Step 1: Check if post is blocked by other posts */
     /* Find edges of current post */
