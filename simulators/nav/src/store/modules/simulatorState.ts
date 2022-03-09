@@ -21,7 +21,7 @@ import {
 const BEARING_DIFF_THRESHOLD = 0.1;
 const MINUTE_DIFF_THRESHOLD = 0.00000001;
 
-const state:SimulatorState = {
+export const state:SimulatorState = {
   autonOn: false,
 
   debugOptions: {
@@ -70,7 +70,9 @@ const state:SimulatorState = {
 
   simSettings: {
     simulateLoc: true,
-    simulatePercep: true
+    simulatePercep: true,
+    noisePercent: 33.3,
+    noiseGPSPercent: 20
   },
 
   startLoc: {
@@ -119,6 +121,10 @@ const getters = {
 
   simulatePercep: (simState:SimulatorState):boolean => simState.simSettings.simulatePercep,
 
+  noisePercent: (simState:SimulatorState):number => simState.simSettings.noisePercent,
+
+  noiseGPSPercent: (simState:SimulatorState):number => simState.simSettings.noiseGPSPercent,
+
   startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
   takeStep: (simState:SimulatorState):boolean => simState.debugOptions.takeStep,
@@ -155,6 +161,14 @@ const mutations = {
 
   flipSimulatePercep: (simState:SimulatorState, onOff:boolean):void => {
     simState.simSettings.simulatePercep = onOff;
+  },
+
+  setNoisePercent: (simState:SimulatorState, newNoisePercent:number):void => {
+    simState.simSettings.noisePercent = newNoisePercent;
+  },
+
+  setGPSNoisePercent: (simState:SimulatorState, newNoisePercent:number):void => {
+    simState.simSettings.noiseGPSPercent = newNoisePercent;
   },
 
   pushToRoverPath: (simState:SimulatorState, currLoc:Odom):void => {
