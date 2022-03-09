@@ -221,7 +221,6 @@ export default class TargetDetector {
 
     /* Special Case: guassian noise */
     const num:number = randnBm(0, 1, 1);
-
     const thres = getGaussianThres();
 
     if (num < thres) {

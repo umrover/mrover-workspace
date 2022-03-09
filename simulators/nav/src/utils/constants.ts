@@ -61,5 +61,3 @@ export const Zscores = [
   -0.25, // 0.4 index 4 = -0.6
   0 // 0.5 index 5
 ];
-
-

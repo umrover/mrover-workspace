@@ -46,6 +46,7 @@
           :min="0"
           :max="100"
           :step="10"
+
         />
       </div>
       <div class="noiseGPS">
@@ -120,7 +121,6 @@ export default class SimSettings extends Vue {
 
   @Getter
   private readonly enableFOVView!:boolean;
-
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
