@@ -47,38 +47,47 @@ void loop(void)
 {
   // get orientation, acceleration, and gyroscope data,
   // each from their own sensor event
-  sensors_event_t orientationData, accelData, gyroData;
+  sensors_event_t orientationData, accelData, gyroData, magData;
   bno.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
   bno.getEvent(&accelData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
   bno.getEvent(&gyroData, Adafruit_BNO055::VECTOR_GYROSCOPE);
+  bno.getEvent(&magData, Adafruit_BNO055::VECTOR_MAGNETOMETER);
+
+  // get calibration status for each sensor
+  uint8_t system_cal, gyro_cal, accel_cal, mag_cal;
+  system_cal = gyro_cal = accel_cal = mag_cal = 0;
+  bno.getCalibration(&system_cal, &gyro_cal, &accel_cal, &mag_cal);
 
   // send the floating point data over serial in the following format:
-  // accel_x accel_y accel_z gyro_x gyro_y gyro_z bearing
+  // accel_x accel_y accel_z gyro_x gyro_y gyro_z bearing sys_calibration gyro_calibration accel_calibration mag_calibration
   Serial.print(accelData.acceleration.x / G, 4);
   Serial.print(" ");
   Serial.print(accelData.acceleration.y / G, 4);
   Serial.print(" ");
   Serial.print(accelData.acceleration.z / G, 4);
 
-  // Serial.print(" ");
-  // Serial.print(gyroData.gyro.x * (180/PI), 4);
-  // Serial.print(" ");
-  // Serial.print(gyroData.gyro.y * (180/PI), 4);
-  // Serial.print(" ");
-  // Serial.print(gyroData.gyro.z * (180/PI), 4);
+  Serial.print(" ");
+  Serial.print(gyroData.gyro.x * (180/PI), 4);
+  Serial.print(" ");
+  Serial.print(gyroData.gyro.y * (180/PI), 4);
+  Serial.print(" ");
+  Serial.print(gyroData.gyro.z * (180/PI), 4);
 
-  // currently, instead of printing gyro data,
-  // we are sending the gyro, accel, and mag calibration values in its place
-  // if this continues to be necessary, we will change the LCM struct and the driver
-  uint8_t system, gyro, accel, mag;
-  system = gyro = accel = mag = 0;
-  bno.getCalibration(&system, &gyro, &accel, &mag);
   Serial.print(" ");
-  Serial.print(gyro, DEC);
+  Serial.print(magData.magnetic.x, 4);
   Serial.print(" ");
-  Serial.print(accel, DEC);
+  Serial.print(magData.magnetic.y, 4);
   Serial.print(" ");
-  Serial.print(mag, DEC);
+  Serial.print(magData.magnetic.z, 4);
+
+  Serial.print(" ");
+  Serial.print(system_cal, DEC);
+  Serial.print(" ");
+  Serial.print(gyro_cal, DEC);
+  Serial.print(" ");
+  Serial.print(accel_cal, DEC);
+  Serial.print(" ");
+  Serial.print(mag_cal, DEC);
 
   // print the bearing around the axis perpendicular to the board,
   // for some reason it is labeled as the x axis for orientation data,

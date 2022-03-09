@@ -41,6 +41,10 @@ export default {
             roll: [],
             pitch: [],
             yaw: [],
+            calib_sys: [],
+            calib_gyro: [],
+            calib_accel: [],
+            calib_mag: [],
             imu_bearing: [],
 
             // GPS
@@ -140,7 +144,11 @@ export default {
                 this.mag_z.push(this.IMU.mag_z_uT)
                 this.roll.push(this.IMU.roll_rad)
                 this.pitch.push(this.IMU.pitch_rad)
-                this.pitch.push(this.IMU.yaw_rad)
+                this.yaw.push(this.IMU.yaw_rad)
+                this.calib_sys.push(this.IMU.calibration_sys)
+                this.calib_gyro.push(this.IMU.calibration_gyro)
+                this.calib_accel.push(this.IMU.calibration_accel)
+                this.calib_mag.push(this.IMU.calibration_mag)
                 this.imu_bearing.push(this.IMU.bearing_deg)
 
                 this.gps_lat_deg.push(this.GPS.latitude_deg)
@@ -184,6 +192,10 @@ export default {
                     this.roll.splice(0, overflow_amt)
                     this.pitch.splice(0, overflow_amt)
                     this.yaw.splice(0, overflow_amt)
+                    this.calib_sys.splice(0, overflow_amt)
+                    this.calib_gyro.splice(0, overflow_amt)
+                    this.calib_accel.splice(0, overflow_amt)
+                    this.calib_mag.splice(0, overflow_amt)
                     this.imu_bearing.splice(0, overflow_amt)
 
                     this.gps_lat_deg.splice(0, overflow_amt)
@@ -209,7 +221,7 @@ export default {
 
     methods: {
         download_log() {
-            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,Forward/Back,Left/Right,Dampen,Kill,Restart\n'
+            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,Forward/Back,Left/Right,Dampen,Kill,Restart\n'
 
             for (let i = 0; i < this.num_logs; i++) {
                 csv += this.timestamp[i] + ','
@@ -234,6 +246,10 @@ export default {
                 csv += this.roll[i] + ','
                 csv += this.pitch[i] + ','
                 csv += this.yaw[i] + ','
+                csv += this.calib_sys[i] + ','
+                csv += this.calib_gyro[i] + ','
+                csv += this.calib_accel[i] + ','
+                csv += this.calib_mag[i] + ','
                 csv += this.imu_bearing[i] + ','
 
                 csv += this.gps_lat_deg[i] + ','
@@ -291,6 +307,10 @@ export default {
             this.roll = []
             this.pitch = []
             this.yaw = []
+            this.calib_sys = []
+            this.calib_gyro = []
+            this.calib_accel = []
+            this.calib_mag = []
             this.imu_bearing = []
 
             this.gps_lat_deg = []
