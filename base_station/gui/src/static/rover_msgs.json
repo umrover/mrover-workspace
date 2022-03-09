@@ -359,6 +359,22 @@
             "new_ack_id"
         ]
     ],
+    "Heater": [
+        [
+            "int8_t",
+            "device"
+        ],
+        [
+            "boolean",
+            "enabled"
+        ]
+    ],
+    "HeaterAutoShutdown": [
+        [
+            "boolean",
+            "auto_shutdown_enabled"
+        ]
+    ],
     "IMU": [
         [
             "double",
@@ -1176,6 +1192,8 @@
         "FKTransform",
         "GPS",
         "Heartbeat",
+        "Heater",
+        "HeaterAutoShutdown",
         "IkArmControl",
         "IkEnabled",
         "IMU",
