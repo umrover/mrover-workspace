@@ -67,12 +67,13 @@ export const state:SimulatorState = {
   odomFormat: OdomFormat.DM,
 
   path: [],
-  FOVAreaPath: new Path2D('M10 10 h 80 v 80 h -80 Z'),
+  FOVAreaPath: new Path2D(),
 
   simSettings: {
     simulateLoc: true,
     simulatePercep: true,
     enableLCM: true,
+    enableFOVView: false,
     noisePercent: 0,
     noiseGPSPercent: 0
   },
@@ -131,6 +132,8 @@ const getters = {
 
   enableLCM: (simState:SimulatorState):boolean => simState.simSettings.enableLCM,
 
+  enableFOVView: (simState:SimulatorState):boolean => simState.simSettings.enableFOVView,
+
   startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
   takeStep: (simState:SimulatorState):boolean => simState.debugOptions.takeStep,
@@ -185,6 +188,10 @@ const mutations = {
     simState.simSettings.enableLCM = onOff;
   },
 
+  flipEnableFOVView: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.enableFOVView = onOff;
+  },
+
   pushToRoverPath: (simState:SimulatorState, currLoc:Odom):void => {
     if (simState.path.length === 0) {
       simState.path.push(JSON.parse(JSON.stringify(currLoc)));
@@ -203,7 +210,6 @@ const mutations = {
 
   pushToFOVAreaPath: (simState:SimulatorState, area:Path2D):void => {
     simState.FOVAreaPath.addPath(area);
-    console.log('pushed to FOVArea');
   },
 
   setArTagDrawOptions: (simState:SimulatorState, options:ArTagDrawOptions):void => {

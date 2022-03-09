@@ -196,6 +196,9 @@ export default class Field extends Vue {
   @Getter
   private readonly zedGimbalPos!:ZedGimbalPosition;
 
+  @Getter
+  private readonly enableFOVView!:boolean;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
@@ -297,7 +300,8 @@ export default class Field extends Vue {
   private get canvasRover():CanvasRover {
     return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale, this.roverPath,
                            this.FOVAreaPath, this.fieldOfViewOptions, this.roverPathVisible,
-                           this.pushToRoverPath, this.pushToFOVAreaPath, this.zedGimbalPos);
+                           this.pushToRoverPath, this.pushToFOVAreaPath, this.zedGimbalPos,
+                           this.enableFOVView);
   }
 
   /* Object for drawing waypoints on canvas. */

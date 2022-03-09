@@ -58,7 +58,14 @@
           :step="5"
         />
       </div>
-      <div class="setting">
+      <div class="enableFOVView">
+        <Checkbox
+          :on="enableFOVView"
+          name="FOV Visualization"
+          @clicked="flipEnableFOVView(!enableFOVView)"
+        />
+      </div>
+      <div class="enableLCM">
         <Checkbox
           :on="enableLCM"
           name="Enable LCM"
@@ -111,6 +118,9 @@ export default class SimSettings extends Vue {
   @Getter
   private readonly enableLCM!:boolean;
 
+  @Getter
+  private readonly enableFOVView!:boolean;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
@@ -134,6 +144,9 @@ export default class SimSettings extends Vue {
 
   @Mutation
   private readonly flipEnableLCM!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipEnableFOVView!:(onOff:boolean)=>void;
 
   /************************************************************************************************
    * Private Members

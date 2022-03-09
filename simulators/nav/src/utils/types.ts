@@ -265,6 +265,7 @@ export interface SimulationSettings {
   noisePercent:number;
   noiseGPSPercent:number;
   enableLCM:boolean;
+  enableFOVView:boolean;
 }
 
 
