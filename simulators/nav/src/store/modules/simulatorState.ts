@@ -146,9 +146,6 @@ const getters = {
 const mutations = {
   clearRoverPath: (simState:SimulatorState):void => {
     simState.path = [];
-  },
-
-  clearFOVAreaPath: (simState:SimulatorState):void => {
     simState.FOVAreaPath = new Path2D();
   },
 

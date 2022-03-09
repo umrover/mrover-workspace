@@ -189,6 +189,10 @@ export default class CanvasRover {
 
   /* Draw the field of view on the canvas. */
   private drawFov(canvas):void {
+    if (this.path.length === 0) {
+      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
     const roverEyeLoc:Point2D = {
       x: this.scaledRoverLen / 2,
       y: this.scaledRoverLen / 2

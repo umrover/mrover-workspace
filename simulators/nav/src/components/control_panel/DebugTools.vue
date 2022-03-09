@@ -157,9 +157,6 @@ export default class DebugTools extends Vue {
   @Mutation
   private readonly clearRoverPath!:()=>void;
 
-   @Mutation
-  private readonly clearFOVAreaPath!:()=>void;
-
   @Mutation
   private readonly setAutonState!:(onOff:boolean)=>void;
 
