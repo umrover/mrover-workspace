@@ -423,8 +423,7 @@ export default class Field extends Vue {
     if (!this.autonOn) {
       this.setCurrOdom(newCurrOdom);
       this.clearRoverPath();
-
-      // this.clearFOVAreaPath();
+      this.clearFOVAreaPath();
     }
   } /* moveRover() */
 
@@ -434,8 +433,7 @@ export default class Field extends Vue {
       this.setStartLoc(newStartLoc);
       this.setCurrOdom(newStartLoc);
       this.clearRoverPath();
-
-      // this.clearFOVAreaPath();
+      this.clearFOVAreaPath();
     }
   } /* moveStartLoc() */
 
