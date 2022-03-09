@@ -77,12 +77,12 @@ export default {
     },
 
     keydown: function(event) {
-      this.closedLoop = false
-
       if (event.key === 'ArrowLeft') {
+        this.closedLoop = false
         this.openLoopSpeed = -1.0
       }
       else if (event.key === 'ArrowRight') {
+        this.closedLoop = false
         this.openLoopSpeed = 1.0
       }
     },
