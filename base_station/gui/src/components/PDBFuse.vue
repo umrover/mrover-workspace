@@ -110,7 +110,7 @@
           <td class = "tableElement" v-bind:style="{color: fuse_data[9].voltage.color}">{{fuse_data[9].voltage.val.toFixed(5)}}V</td>
         </tr>
         <tr>
-          <td class="tableElement">finger/sensor + gimbal yaw</td>
+          <td class="tableElement">Finger/sensor + gimbal yaw</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data[10].current.color}">{{fuse_data[10].current.val.toFixed(5)}}A</td>
           <td class = "tableElement" v-bind:style="{color: fuse_data[10].voltage.color}">{{fuse_data[10].voltage.val.toFixed(5)}}V</td>
         </tr>

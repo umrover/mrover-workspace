@@ -617,7 +617,7 @@
     "PDBData": [
         [
             "double",
-            "temp_degrees[3]"
+            "temp_celsius[3]"
         ],
         [
             "double",
