@@ -7,13 +7,19 @@ import jetson.utils
 
 __lcm: lcm.LCM
 __pipelines = [None] * 8
+__devices_enabled = 0
+__oldest_pipeline = -1
+__oldest_port = -1
+__most_recent_pipeline = -1
+__most_recent_port = -1
+
 
 ARGUMENTS = ['--headless']
 
 class Pipeline:
     def __init__(self, index):
         self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
-        self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{index + 3}", argv=ARGUMENTS)
+        self.video_output = None
 
     def update(self):
         image = self.video_source.Capture()
@@ -23,10 +29,11 @@ class Pipeline:
         return True
 
 
-def start_pipelines(index):
+def start_pipeline(index, port):
     global __pipelines
 
     try:
+        self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
         __pipelines[index] = Pipeline(index)
         print(f"Playing camera {index} __pipelines.")
     except Exception as e:
@@ -34,11 +41,50 @@ def start_pipelines(index):
 
 
 
-def stop_pipelines(index):
+def stop_pipeline(index):
     global __pipelines
 
     __pipelines[index] = None
     print(f"Stopping camera {index} __pipelines.")
+
+
+def start_pipeline_and_update_globals(pipeline):
+    global __devices_enabled, __oldest_pipeline, __oldest_port, __most_recent_pipeline, __most_recent_port
+    if __devices_enabled == 2:
+        stop_pipeline(__oldest_pipeline)
+        start_pipeline(pipeline, __oldest_port)
+        __oldest_port, __most_recent_port = __most_recent_port, __oldest_port
+        __oldest_pipeline, __most_recent_pipeline = __most_recent_pipeline, __oldest_pipeline
+    elif __devices_enabled == 1:
+        if __most_recent_port == 0:
+            start_pipeline(pipeline, 1)
+            __oldest_port, __most_recent_port = 0, 1
+            __oldest_pipeline, __most_recent_pipeline = __most_recent_pipeline, pipeline
+        elif __most_recent_port == 1:
+            start_pipeline(pipeline, 0)
+            __oldest_port, __most_recent_port = 1, 0
+        __devices_enabled += 1
+    elif __devices == 0:
+        start_pipeline(pipeline, 0)
+        __oldest_port, __most_recent_port = 0, 0
+        __oldest_pipeline, __most_recent_pipeline = pipeline, pipeline
+        __devices_enabled += 1
+
+
+def stop_pipeline_and_update_globals(pipeline):
+    global __devices_enabled, __oldest_pipeline, __oldest_port, __most_recent_pipeline, __most_recent_port
+    stop_pipeline(pipeline)
+    if __devices_enabled == 1:
+        __oldest_port, __most_recent_port = -1, -1
+        __oldest_pipeline, __most_recent_pipeline = -1, -1
+    elif __devices_enabled == 2:
+        if pipeline == __oldest_pipeline:
+            __oldest_pipeline = __most_recent_pipeline
+            __oldest_port = __most_recent_port
+        elif pipeline == __most_recent_pipeline:
+            __most_recent_pipeline = __oldest_pipeline
+            __most_recent_port = __oldest_port
+    __devices_enabled -= 1
 
 
 def camera_callback(channel, msg):
@@ -51,14 +97,16 @@ def camera_callback(channel, msg):
 
     # print(enabled_cameras)
 
+    global __devices_enabled, __oldest_pipeline, __oldest_port, __most_recent_pipeline, __most_recent_port
+
     for i, is_enabled in enumerate(enabled_cameras):
         current_is_enabled = __pipelines[i] is not None
         if is_enabled == current_is_enabled:
             continue
         if is_enabled:
-            start_pipelines(i)
+            start_pipeline_and_update_globals(i)
         else:
-            stop_pipelines(i)
+            stop_pipeline_and_update_globals(i)
 
 
 def main():
