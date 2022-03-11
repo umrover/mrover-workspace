@@ -58,6 +58,7 @@ import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
+import PDBFuse from './PDBFuse.vue'
 
 let interval;
 
