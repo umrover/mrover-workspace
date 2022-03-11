@@ -67,7 +67,6 @@ class Pipeline:
             __oldest_port, __most_recent_port = __most_recent_port, __oldest_port
             __oldest_pipeline, __most_recent_pipeline = __most_recent_pipeline, __oldest_pipeline
 
-
     def stop_pipeline_and_update_globals(self, index):
         global __devices_enabled, __oldest_pipeline, __oldest_port, __most_recent_pipeline, __most_recent_port
         self.stop_pipeline(index)
