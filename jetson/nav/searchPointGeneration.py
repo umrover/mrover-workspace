@@ -62,15 +62,24 @@ search_type = input("Select a search type: ")
 if search_type == SearchType.point_equidistant_spiral.value: # POINT EQUIDISTANCE SPIRAL
     # generateSpiralSearchPoints 
     #           (Radius of spiral, Number of Points, Number of coils)
-    coords = generateSpiralSearchPoints(20, 200, 10)
+    radius = float(input("Enter a radius: "))
+    sides = int(input("Enter the number of points: "))
+    coils = int(input("Enter the number of coils: "))
+    coords = generateSpiralSearchPoints(radius, sides, coils) # Try (20, 200, 10) to see basic example
 elif search_type == SearchType.radially_equidistant_spiral.value: # RADIALLY EQUIDISTANT SPIRAL
     # generateSpiralSearchPoints 
     #           (Radius of spiral, Distance between points, Number of coils, Rotation from start)
-    coords = generateEquidistantSpiralSearchPoints(20, 1.2, 10, 90)
+    radius = float(input("Enter a radius: "))
+    distance = float(input("Enter distance between points: "))
+    coils = int(input("Enter number of coils: "))
+    rotation = float(input("Enter rotation of spiral start (degrees): "))
+    coords = generateEquidistantSpiralSearchPoints(radius, distance, coils, rotation) # Try (20, 1.2, 10, 90) to see basic example
 elif search_type == SearchType.square_spiral.value: # SQUARE SPIRAL SEARCH
     # generateSquareSpiral
     #           (number of points, distance between each coil of the spiral)
-    coords = generateSquareSpiral(13, 3)
+    number_of_points = int(input("Enter Number of Points: "))
+    distance = float(input("Enter Distance Between Points: "))
+    coords = generateSquareSpiral(number_of_points, distance) # Currently, we use (13,3) as arguements
 else:
     print ("Not a valid type")
     exit(1)
