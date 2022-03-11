@@ -50,11 +50,11 @@ def stop_pipeline(index):
 
 def start_pipeline_and_update_globals(pipeline):
     global __devices_enabled, __oldest_pipeline, __oldest_port, __most_recent_pipeline, __most_recent_port
-    if __devices_enabled == 2:
-        stop_pipeline(__oldest_pipeline)
-        start_pipeline(pipeline, __oldest_port)
-        __oldest_port, __most_recent_port = __most_recent_port, __oldest_port
-        __oldest_pipeline, __most_recent_pipeline = __most_recent_pipeline, __oldest_pipeline
+    if __devices == 0:
+        start_pipeline(pipeline, 0)
+        __oldest_port, __most_recent_port = 0, 0
+        __oldest_pipeline, __most_recent_pipeline = pipeline, pipeline
+        __devices_enabled += 1
     elif __devices_enabled == 1:
         if __most_recent_port == 0:
             start_pipeline(pipeline, 1)
@@ -64,11 +64,11 @@ def start_pipeline_and_update_globals(pipeline):
             start_pipeline(pipeline, 0)
             __oldest_port, __most_recent_port = 1, 0
         __devices_enabled += 1
-    elif __devices == 0:
-        start_pipeline(pipeline, 0)
-        __oldest_port, __most_recent_port = 0, 0
-        __oldest_pipeline, __most_recent_pipeline = pipeline, pipeline
-        __devices_enabled += 1
+    elif __devices_enabled == 2:
+        stop_pipeline(__oldest_pipeline)
+        start_pipeline(pipeline, __oldest_port)
+        __oldest_port, __most_recent_port = __most_recent_port, __oldest_port
+        __oldest_pipeline, __most_recent_pipeline = __most_recent_pipeline, __oldest_pipeline
 
 
 def stop_pipeline_and_update_globals(pipeline):
@@ -97,8 +97,6 @@ def camera_callback(channel, msg):
 
     # print(enabled_cameras)
 
-    global __devices_enabled, __oldest_pipeline, __oldest_port, __most_recent_pipeline, __most_recent_port
-
     for i, is_enabled in enumerate(enabled_cameras):
         current_is_enabled = __pipelines[i] is not None
         if is_enabled == current_is_enabled:
@@ -122,7 +120,7 @@ def main():
                 if pipeline.is_open():
                     pipeline.update()
                 else:
-                    __pipelines[i] = None
+                    stop_pipeline_and_update_globals(i)
                     print(f'Closing {i} becuase it stopped streaming!')
 
 
