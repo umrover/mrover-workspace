@@ -264,13 +264,8 @@ void StateMachine::updateRoverStatus( TargetList targetList )
 {
     Target target = targetList.targetList[0];
     Target target2 = targetList.targetList[1];
-<<<<<<< HEAD
-    mNewRoverStatus.leftTarget() = target1;
+    mNewRoverStatus.leftTarget() = target;
     mNewRoverStatus.rightTarget() = target2;
-=======
-    mNewRoverStatus.target() = target;
-    mNewRoverStatus.target2() = target2;
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
 } // updateRoverStatus( Target )
 
 // Return true if we want to execute a loop in the state machine, false
@@ -332,40 +327,15 @@ NavState StateMachine::executeTurn()
     if( mRover->roverStatus().path().empty() )
     {
         return NavState::Done;
-<<<<<<< HEAD
-    }
-    // If we should drop a repeater and have not already, add last
-    // point where connection was good to front of path and turn
-    /*if ( isAddRepeaterDropPoint() )
-    {
-        addRepeaterDropPoint();
-        return NavState::RadioRepeaterTurn;
-    }*/
-=======
     }  
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
 
     Odometry& nextPoint = mRover->roverStatus().path().front().odom;
     if( mRover->turn( nextPoint ) )
     {
-<<<<<<< HEAD
-        /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
-        {
-            return NavState::RadioRepeaterDrive;
-        }*/
-        return NavState::Drive;
-    }
-
-    /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterTurn)
-    {
-        return NavState::RadioRepeaterTurn;
-    }*/
-=======
        
         return NavState::Drive;
     }
 
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     return NavState::Turn;
 } // executeTurn()
 
@@ -380,18 +350,6 @@ NavState StateMachine::executeDrive()
     const Waypoint& nextWaypoint = mRover->roverStatus().path().front();
     double distance = estimateNoneuclid( mRover->roverStatus().odometry(), nextWaypoint.odom );
 
-<<<<<<< HEAD
-    // If we should drop a repeater and have not already, add last
-    // point where connection was good to front of path and turn
-    /*if ( isAddRepeaterDropPoint() )
-    {
-        addRepeaterDropPoint();
-        return NavState::RadioRepeaterTurn;
-    }*/
-
-
-=======
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     if( isObstacleDetected( mRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
         mObstacleAvoidanceStateMachine->updateObstacleElements( mRover->roverStatus().obstacle().bearing, 
@@ -407,38 +365,16 @@ NavState StateMachine::executeDrive()
             return NavState::SearchTurn;
         }
         mRover->roverStatus().path().pop_front();
-<<<<<<< HEAD
-        /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
-        {
-            return NavState::RepeaterDropWait;
-        }*/
-=======
        
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         ++mCompletedWaypoints;
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
-<<<<<<< HEAD
-        /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
-        {
-            return NavState::RadioRepeaterDrive;
-        }*/
-        return NavState::Drive;
-    }
-    // else driveStatus == DriveStatus::OffCourse (must turn to waypoint)
-    /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
-    {
-        return NavState::RadioRepeaterTurn;
-    }*/
-
-=======
        
         return NavState::Drive;
     }
     
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     return NavState::Turn;
 } // executeDrive()
 

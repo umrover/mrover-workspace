@@ -44,13 +44,7 @@ public:
 
     void updateObstacleElements( double bearing, double rightBearing, double distance );
 
-<<<<<<< HEAD
-    void updateRepeaterComplete( );
-
-    void setSearcher( SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
-=======
     void setSearcher(SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
 
     /*************************************************************************/
     /* Public Member Variables */

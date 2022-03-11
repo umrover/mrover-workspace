@@ -58,14 +58,6 @@ enum class NavState
     GateDriveToFarPost = 49,
     GateTurnToGateCenter = 50,
 
-<<<<<<< HEAD
-    // Radio Repeater States
-    RadioRepeaterTurn = 60,
-    RadioRepeaterDrive = 61,
-    RepeaterDropWait = 62,
-
-=======
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     // Unknown State
     Unknown = 255
 
