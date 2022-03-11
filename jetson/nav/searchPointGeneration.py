@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import enum
 
 def generateSpiralSearchPoints(radius, sides, coils):
     awayStep = radius/sides
@@ -51,17 +52,22 @@ def cart2pol(x, y):
     phi = -1 * (np.arctan2(y, x) * 180 / math.pi - 90)
     return(rho, phi)
 
+class SearchType(enum.Enum):
+    point_equidistant_spiral = '0'
+    radially_equidistant_spiral = '1'
+    square_spiral = '2'
+
 print("\n-----Search types-----\nRadially Equidistant Spiral: 0\nPoint Equidistant Spiral: 1\nSquare Spiral: 2\n")
 search_type = input("Select a search type: ")
-if search_type == '0': # POINT EQUIDISTANCE SPIRAL
+if search_type == SearchType.point_equidistant_spiral.value: # POINT EQUIDISTANCE SPIRAL
     # generateSpiralSearchPoints 
     #           (Radius of spiral, Number of Points, Number of coils)
     coords = generateSpiralSearchPoints(20, 200, 10)
-elif search_type == '1': # RADIALLY EQUIDISTANT SPIRAL
+elif search_type == SearchType.radially_equidistant_spiral.value: # RADIALLY EQUIDISTANT SPIRAL
     # generateSpiralSearchPoints 
     #           (Radius of spiral, Distance between points, Number of coils, Rotation from start)
     coords = generateEquidistantSpiralSearchPoints(20, 1.2, 10, 90)
-elif search_type == '2': # SQUARE SPIRAL SEARCH
+elif search_type == SearchType.square_spiral.value: # SQUARE SPIRAL SEARCH
     # generateSquareSpiral
     #           (number of points, distance between each coil of the spiral)
     coords = generateSquareSpiral(13, 3)
