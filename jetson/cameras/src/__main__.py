@@ -16,6 +16,7 @@ __most_recent_port = -1
 
 ARGUMENTS = ['--headless']
 
+
 class Pipeline:
     def __init__(self, index):
         self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
@@ -28,8 +29,7 @@ class Pipeline:
     def is_open(self):
         return True
 
-
-    def start_pipeline(index, port):
+    def start_pipeline(self, index, port):
         global __pipelines
 
         try:
@@ -39,15 +39,13 @@ class Pipeline:
         except Exception:
             pass
 
-
-    def stop_pipeline(index):
+    def stop_pipeline(self, index):
         global __pipelines
 
         __pipelines[index] = None
         print(f"Stopping camera {index} __pipelines.")
 
-
-    def start_pipeline_and_update_globals(index):
+    def start_pipeline_and_update_globals(self, index):
         global __devices_enabled, __oldest_pipeline, __oldest_port, __most_recent_pipeline, __most_recent_port
         if __devices_enabled == 0:
             self.start_pipeline(index, 0)
@@ -70,7 +68,7 @@ class Pipeline:
             __oldest_pipeline, __most_recent_pipeline = __most_recent_pipeline, __oldest_pipeline
 
 
-    def stop_pipeline_and_update_globals(index):
+    def stop_pipeline_and_update_globals(self, index):
         global __devices_enabled, __oldest_pipeline, __oldest_port, __most_recent_pipeline, __most_recent_port
         self.stop_pipeline(index)
         if __devices_enabled == 1:
