@@ -194,8 +194,6 @@ public:
 
     RoverStatus& roverStatus();
 
-    PidLoop& distancePid();
-
     PidLoop& bearingPid();
 
     const double longMeterInMinutes() const;
@@ -231,9 +229,6 @@ private:
     // A reference to the lcm object that will be used for
     // communicating with the actual rover and the base station.
     lcm::LCM& mLcmObject;
-
-    // The pid loop for driving.
-    PidLoop mDistancePid;
 
     // The pid loop for turning.
     PidLoop mBearingPid;
