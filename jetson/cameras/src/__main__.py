@@ -35,7 +35,7 @@ def start_pipeline(index, port):
 
     try:
         __pipelines[index] = Pipeline(index, port)
-        print(f"Playing camera {index} __pipelines.")
+        print(f"Playing camera {index} __pipelines on port {port}.")
     except Exception:
         pass
 
