@@ -52,7 +52,7 @@ def start_pipeline_and_update_globals(index):
     if __dev_enabled == 0:
         start_pipeline(index, 0)
         __oldest_port, __most_recent_port = 0, 0
-        __oldest_pipeline, __most_recent_pl = index, index
+        __oldest_pipeline, __most_recent_pipeline = index, index
         __dev_enabled += 1
     elif __dev_enabled == 1:
         if __most_recent_port == 0:
