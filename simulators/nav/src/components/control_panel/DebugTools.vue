@@ -47,7 +47,7 @@
           <NumberInput
             :val.sync="fovAngleIn"
             :min="0"
-            :max="360"
+            :max="359"
           />
           <p>º</p>
         </div>
