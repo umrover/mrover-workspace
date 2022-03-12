@@ -48,22 +48,22 @@ export default {
 
     const updateRate = 0.05;
     interval = window.setInterval(() => {
-      const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 4; i++) {
-        const gamepad = gamepads[i]
-        if (gamepad) {
-          if (gamepad.id.includes('Logitech')) {
-            const joystickData = {
-              'type': 'Joystick',
-              'forward_back': gamepad.axes[JOYSTICK_CONFIG['forward_back']],
-              'left_right': gamepad.axes[JOYSTICK_CONFIG['left_right']],
-              'dampen': gamepad.axes[JOYSTICK_CONFIG['dampen']],
-              'kill': gamepad.buttons[JOYSTICK_CONFIG['kill']]['pressed'],
-              'restart': gamepad.buttons[JOYSTICK_CONFIG['restart']]['pressed']
-            }
-            this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']]
+      if (!this.autonEnabled) {
+        const gamepads = navigator.getGamepads()
+        for (let i = 0; i < 4; i++) {
+          const gamepad = gamepads[i]
+          if (gamepad) {
+            if (gamepad.id.includes('Logitech')) {
+              const joystickData = {
+                'type': 'Joystick',
+                'forward_back': gamepad.axes[JOYSTICK_CONFIG['forward_back']],
+                'left_right': gamepad.axes[JOYSTICK_CONFIG['left_right']],
+                'dampen': gamepad.axes[JOYSTICK_CONFIG['dampen']],
+                'kill': gamepad.buttons[JOYSTICK_CONFIG['kill']]['pressed'],
+                'restart': gamepad.buttons[JOYSTICK_CONFIG['restart']]['pressed']
+              }
+              this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']]
 
-            if (!this.autonEnabled) {
               this.$parent.publish('/drive_control', joystickData)
             }
           }
