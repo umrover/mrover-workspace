@@ -14,7 +14,6 @@ from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
     Heater, HeaterAutoShutdown
 
 
-
 class ScienceBridge():
     def __init__(self):
         # UART.setup("UART4")  # Specific to beaglebone
@@ -129,8 +128,8 @@ class ScienceBridge():
         # Expected to be an empty message so nothing is done
         # Only included to fit struct
         pass
-    
-    def heater_state_handler(self,msg,struct):
+
+    def heater_state_handler(self, msg, struct):
         # Receives the heater state from the nucleo
         # Sends a response
         try:
@@ -141,15 +140,15 @@ class ScienceBridge():
         except:
             pass
 
-    def heater_shutoff_handler(self,msg,struct):
+    def heater_shutoff_handler(self, msg, struct):
         # Receives whether or not the nucleo actually got the changed status.
         try:
             arr = msg.split(",")
             struct.enable = bool(arr[1])
         except:
             pass
-    
-    def heater_transmit(self,channel, msg):
+
+    def heater_transmit(self, channel, msg):
         # Upon Receiving a heater on/off command, send a command for the appropriate mosfet
         print("Heater cmd callback")
         struct = Heater.decode(msg)
@@ -162,7 +161,7 @@ class ScienceBridge():
         translated_device = struct.device + 7
         message = message.format(device=translated_device,
                                  enable=int(struct.enable))
-        
+
         # Assumes that only single or double digit devices are used
         # No way we use 100 devices
         # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
@@ -177,7 +176,7 @@ class ScienceBridge():
             self.ser.write(bytes(message, encoding='utf8'))
         pass
 
-    def heater_auto_transmit(self,channel,msg):
+    def heater_auto_transmit(self, channel, msg):
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
         struct = HeaterAutoShutdown.decode(msg)
         message = "$AutoShutoff,{enable},1111"
@@ -191,7 +190,6 @@ class ScienceBridge():
         if self.ser.isOpen():
             self.ser.write(bytes(message, encoding='utf8'))
         pass
-
 
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
@@ -374,9 +372,9 @@ class ScienceBridge():
                                 print(heater)
                                 lcm.publish('/heater_state_data', heater.encode())
                             if (tag == "AUTOSHUTOFF"):
-                                self.heater_shutoff_handler(msg,heater_auto)
+                                self.heater_shutoff_handler(msg, heater_auto)
                                 print(heater_auto)
-                                lcm.publish('/heater_auto_shutdown_data',heater_auto.encode())
+                                lcm.publish('/heater_auto_shutdown_data', heater_auto.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
