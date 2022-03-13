@@ -70,7 +70,7 @@ def camera_callback(channel, msg):
         if requested_port_device == -1:
             stop_pipeline(port_number)
         else:
-            if __pipelines.is_currently_streaming():
+            if __pipelines[port_number].is_currently_streaming():
                 stop_pipeline(port_number)
             start_pipeline(requested_port_device, port_number)
 
