@@ -12,11 +12,10 @@ ARGUMENTS = ['--headless']
 
 
 class Pipeline:
-    def __init__(self, index, port):
-        if index != -1:
-            self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
+    def __init__(self, port):
+        self.video_source = None
         self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
-        self.device_number = index
+        self.device_number = -1
         self.port = port
 
     def update(self):
@@ -78,7 +77,7 @@ def camera_callback(channel, msg):
 def main():
     global __pipelines, __lcm
 
-    __pipelines = [ Pipeline(-1, 0), Pipeline(-1, 1) ]
+    __pipelines = [ Pipeline(0), Pipeline(1) ]
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)
