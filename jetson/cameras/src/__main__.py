@@ -13,9 +13,9 @@ ARGUMENTS = ['--headless']
 
 class Pipeline:
     def __init__(self, index, port):
-        self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
         if index != -1:
-            self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
+            self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
+        self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
         self.device_number = index
         self.port = port
 
