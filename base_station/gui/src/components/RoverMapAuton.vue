@@ -82,6 +82,7 @@ export default {
       odomCount: 0,
       locationIcon: null,
       odomPath: [],
+      findRover: false,
       options: {
         type: Object,
         default: () => ({})
@@ -97,7 +98,6 @@ export default {
   },
 
   watch: {
-
     odom: function (val) {
       // Trigger every time rover odom is changed
 
@@ -105,6 +105,12 @@ export default {
       const lng = val.longitude_deg + val.longitude_min / 60
       const angle = val.bearing_deg
 
+      //Move to rover on first odom message
+      if(!this.findRover){
+        this.findRover = true
+        this.center = L.latLng(lat, lng)
+      }
+      
       // Update the rover marker
       this.roverMarker.setRotationAngle(angle)
 
