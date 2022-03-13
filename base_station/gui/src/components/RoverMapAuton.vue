@@ -88,7 +88,7 @@ export default {
       },
       tileLayerOptions: {
         maxNativeZoom: 18,
-        maxZoom: 20
+        maxZoom: 100
       }
     }
   },
