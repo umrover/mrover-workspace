@@ -10,7 +10,9 @@ import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
-    NavStatus, ServoCmd, CarouselData, CarouselClosedLoopCmd, CarouselOpenLoopCmd
+    NavStatus, ServoCmd, CarouselData, CarouselClosedLoopCmd, CarouselOpenLoopCmd, \
+    Heater, HeaterAutoShutdown
+
 
 
 class ScienceBridge():
@@ -24,6 +26,9 @@ class ScienceBridge():
             "TRIAD": self.triad_handler,
             "TXT": self.txt_handler,
             "CAROUSEL": self.carousel_handler,
+            "HEATER": self.heater_state_handler,
+            "AUTOSHUTOFF": self.heater_shutoff_handler
+
         }
 
         self.max_error_count = 20
@@ -124,6 +129,69 @@ class ScienceBridge():
         # Expected to be an empty message so nothing is done
         # Only included to fit struct
         pass
+    
+    def heater_state_handler(self,msg,struct):
+        # Receives the heater state from the nucleo
+        # Sends a response
+        try:
+            arr = msg.split(",")
+            # Send back the heater and the state
+            struct.device = int(arr[1])
+            struct.enable = bool(arr[2])
+        except:
+            pass
+
+    def heater_shutoff_handler(self,msg,struct):
+        # Receives whether or not the nucleo actually got the changed status.
+        try:
+            arr = msg.split(",")
+            struct.enable = bool(arr[1])
+        except:
+            pass
+    
+    def heater_transmit(self,channel, msg):
+        # Upon Receiving a heater on/off command, send a command for the appropriate mosfet
+        print("Heater cmd callback")
+        struct = Heater.decode(msg)
+        # parse data into expected format
+        # Currently expects mosfet, device number, and enable bit along
+        # with padding to reach 30 bytes
+        message = "$Mosfet,{device},{enable},1111111"
+
+        # Heater/Nichromes are 7-9 so(assuming 0 index) add 7 to get the appropriate mosfet
+        translated_device = struct.device + 7
+        message = message.format(device=translated_device,
+                                 enable=int(struct.enable))
+        
+        # Assumes that only single or double digit devices are used
+        # No way we use 100 devices
+        # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
+        # single digits have 7 + 1 + 1 + 1 + 1 + 1 + 7 = 19, need to add one
+        while(len(message) < 30):
+            # Add an extra 1 for padding
+            message += "1"
+        print(message)
+        self.ser.close()
+        self.ser.open()
+        if self.ser.isOpen():
+            self.ser.write(bytes(message, encoding='utf8'))
+        pass
+
+    def heater_auto_transmit(self,channel,msg):
+        # Send the nucleo a message telling if auto shutoff for heaters is off or on
+        struct = HeaterAutoShutdown.decode(msg)
+        message = "$AutoShutoff,{enable},1111"
+        message = message.format(enable=int(struct.enable))
+        while(len(message) < 30):
+            # Add an extra 1 for padding
+            message += "1"
+        print(message)
+        self.ser.close()
+        self.ser.open()
+        if self.ser.isOpen():
+            self.ser.write(bytes(message, encoding='utf8'))
+        pass
+
 
     def mosfet_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
@@ -260,6 +328,9 @@ class ScienceBridge():
         thermistor = ThermistorData()
         triad = SpectralData()
         carousel = CarouselData()
+        heater = Heater()
+        heater_auto = HeaterAutoShutdown()
+
         # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
                      for tag in self.NMEA_HANDLE_MAPPER.keys()}
@@ -298,6 +369,14 @@ class ScienceBridge():
                             if (tag == "CAROUSEL"):
                                 self.carousel_handler(msg, carousel)
                                 lcm.publish('/carousel_data', carousel.encode())
+                            if (tag == "HEATER"):
+                                self.heater_state_handler(msg, heater)
+                                print(heater)
+                                lcm.publish('/heater_state_data', heater.encode())
+                            if (tag == "AUTOSHUTOFF"):
+                                self.heater_shutoff_handler(msg,heater_auto)
+                                print(heater_auto)
+                                lcm.publish('/heater_auto_shutdown_data',heater_auto.encode())
                             seen_tags[tag] = True
                         except Exception as e:
                             print(e)
