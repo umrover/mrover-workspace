@@ -4,7 +4,7 @@
 
     <l-map ref="map" class="map" :zoom="15" :center="center">
       <l-control-scale :imperial="false"/>
-      <l-tile-layer :url="url" :attribution="attribution"/>
+      <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in route" :key="waypoint.id" >
         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
@@ -85,6 +85,10 @@ export default {
       options: {
         type: Object,
         default: () => ({})
+      },
+      tileLayerOptions: {
+        maxNativeZoom: 18,
+        maxZoom: 100
       }
     }
   },
