@@ -32,7 +32,10 @@ class Pipeline:
         return self.port
 
     def update_device_number(self, index):
-        self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
+        if index != -1:
+            self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
+        else:
+            self.video_source = None
         self.device_number = index
 
     def is_currently_streaming(self):
