@@ -25,7 +25,7 @@ class Pipeline:
     def is_open(self):
         return True
 
-    def device_number(self):
+    def is_device_number(self):
         return self.device_number
 
     def port(self):
@@ -55,7 +55,7 @@ def start_pipeline(index, port):
 def stop_pipeline(port):
     global __pipelines
 
-    print(f"Stopping camera {__pipelines[port].device_number()} on port 500{port}.")
+    print(f"Stopping camera {__pipelines[port].device_number} on port 500{port}.")
     __pipelines[port].update_device_number(-1)
 
 
@@ -67,7 +67,7 @@ def camera_callback(channel, msg):
     port_devices = [camera_cmd.port_0, camera_cmd.port_1]
 
     for port_number, requested_port_device in enumerate(port_devices):
-        if __pipelines[port_number].device_number == requested_port_device:
+        if __pipelines[port_number].is_device_number() == requested_port_device:
             continue
         if requested_port_device == -1:
             stop_pipeline(port_number)
