@@ -14,7 +14,8 @@ ARGUMENTS = ['--headless']
 class Pipeline:
     def __init__(self, index, port):
         self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
-        self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
+        if index != -1:
+            self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
         self.device_number = index
         self.port = port
 
@@ -67,7 +68,7 @@ def camera_callback(channel, msg):
         if __pipelines[port_number].device_number == requested_port_device:
             continue
         if requested_port_device == -1:
-            stop_pipeline(port_number):
+            stop_pipeline(port_number)
         else:
             if __pipelines.is_currently_streaming():
                 stop_pipeline(port_number)
