@@ -1,21 +1,21 @@
 <template>
   <div class="wrap2">
-    <span v-if="cam_index >= 0" class="title">Current Camera: {{cam_index}}</span>
+    <span v-if="cam_index > -1" class="title">Current Camera: {{cam_index}}</span>
     <div class="buttons">
       <template v-for="i in 3">
-        <button class="cam_buttons" ref="cams" v-on:click="$emit('cam_index', i-1)"> <span>{{cameras[i-1]}}</span> </button>
+        <button class="cam_buttons" ref="cams" v-on:click="$emit('cam_index', i-2)"> <span>{{cameras[i-2]}}</span> </button>
         <div class="fixed-spacer"></div>
       </template>
     </div>
     <div class="buttons">
       <template v-for="i in 3">
-        <button class="cam_buttons" ref="cams" v-on:click="$emit('cam_index', i+2)"> <span>{{cameras[i+2]}}</span> </button>
+        <button class="cam_buttons" ref="cams" v-on:click="$emit('cam_index', i+1)"> <span>{{cameras[i+1]}}</span> </button>
         <div class="fixed-spacer"></div>
       </template>
     </div>
     <div class="buttons">
       <template v-for="i in 3">
-        <button class="cam_buttons" ref="cams" v-on:click="$emit('cam_index', i+5)"> <span>{{cameras[i+5]}}</span> </button>
+        <button class="cam_buttons" ref="cams" v-on:click="$emit('cam_index', i+4)"> <span>{{cameras[i+4]}}</span> </button>
         <div class="fixed-spacer"></div>
       </template>
     </div>
@@ -62,7 +62,7 @@
     watch: {
       cam_index: function (newIdx) {
         for (let i = 0; i <= 8; i++) {
-          this.$refs["cams"][i].disabled = (i == newIdx)
+          this.$refs["cams"][i].disabled = (i - 1 == newIdx)
         }
       },
       vflip: function(newFlip) {

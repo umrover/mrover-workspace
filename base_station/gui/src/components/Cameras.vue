@@ -5,13 +5,17 @@
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
-          <li v-for="connection, i in connections" :key="i"><CommIndicator v-bind:connected="connection" v-bind:name="'Cam'+(i+1)"/></li>
+          <li v-for="connection, i in connections" :key="i"><CommIndicator v-bind:connected="connection" v-bind:name="'Cam'+(i)"/></li>
         </ul>
         </div>
     </div>
 
     <div class="servos">
       <span>Servos pan: {{servosData.pan.toFixed(2)}}, Servos tilt: {{servosData.tilt.toFixed(2)}}</span>
+    </div>
+
+    <div>
+      <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscopeCam()" ref="micro"/>
     </div>
 
     <div class="cameraselection">
@@ -40,6 +44,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas: "cameraspace1 cameraspace2"
+  }
+
+  .cam_buttons {
+    height:20px;
+    width:100px;
   }
 
   .box {
@@ -110,6 +119,7 @@
         dual_stream: false,
         cam_index_1: -1,
         cam_index_2: -1,
+        microscope_cam: false,
         cams : [false, false, false, false, false, false, false, false]
         }
     },
@@ -173,7 +183,7 @@
             }
           }
         }
-        this.$parent.publish('/microscope', {type: "Microscope", streaming: this.cam_index_1 === 0 || this.cam_index_2 === 0})
+        this.$parent.publish('/microscope', {type: "Microscope", streaming: this.microscope_cam === true})
       }, 250)
     },
 
@@ -192,40 +202,48 @@
     methods: {
       setCamIndex: function (new_index, stream) {
         if (stream === 1 && new_index !== this.cam_index_2) {
-          if (new_index !== 0) {
-            this.cams[this.cam_index_1 - 1] = false
-            this.cams[new_index - 1] = true
+          if (new_index !== -1) {
+            this.cams[this.cam_index_1] = false
+            this.cams[new_index] = true
+            this.cam_index_1 = new_index
+          } else {
+            this.cams[this.cam_index_1] = false
+            this.cam_index_1 = -1
           }
-          this.cam_index_1 = new_index
+          
+
+          
         } 
         else if (stream === 2 && new_index !== this.cam_index_1) {
-          if (new_index !== 0) {
-             this.cams[this.cam_index_2 - 1] = false
-             this.cams[new_index - 1] = true
-           }
-          this.cam_index_2 = new_index
+          if (new_index !== -1) {
+            this.cams[this.cam_index_2] = false
+            this.cams[new_index] = true
+            this.cam_index_2 = new_index
+          } else {
+            this.cams[this.cam_index_2] = false
+            this.cam_index_2 = -1
+          }
         }
       },
 
       toggleDualStream: function () {
         this.dual_stream = !this.dual_stream
         if (!this.dual_stream) {
+          this.cams[this.cam_index_2] = false
           this.cam_index_2 = -1
         }
       },
 
+      toggleMicroscopeCam: function () {
+        this.microscope_cam = !this.microscope_cam
+      },
+
       sendCameras: function() {
-      this.$parent.publish("/cameras_cmd", {
-        'type': 'Cameras',
-        'cam1': this.cams[0],
-        'cam2': this.cams[1],
-        'cam3': this.cams[2],
-        'cam4': this.cams[3],
-        'cam5': this.cams[4],
-        'cam6': this.cams[5],
-        'cam7': this.cams[6],
-        'cam8': this.cams[7]
-      })
+        this.$parent.publish("/cameras_cmd", {
+          'type': 'Cameras',
+          'port_0': this.cam_index_1,
+          'port_1': this.cam_index_2,
+        })
       }
     },
 
