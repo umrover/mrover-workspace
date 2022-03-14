@@ -264,6 +264,8 @@ export interface SimulationSettings {
   simulatePercep:boolean;
   noisePercent:number;
   noiseGPSPercent:number;
+  enableLCM:boolean;
+  enableFOVView:boolean;
 }
 
 
@@ -276,6 +278,7 @@ export interface SimulatorState {
   lcmConnections:LCMConnections;
   odomFormat:OdomFormat;
   path:Odom[];
+  FOVAreaPath:Path2D;
   simSettings:SimulationSettings;
   startLoc:Odom;
 }
