@@ -51,6 +51,8 @@ public:
 
     void setSearcher( SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
 
+    bool pushNewRoverStatus();
+    
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/

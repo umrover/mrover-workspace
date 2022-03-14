@@ -60,6 +60,11 @@ void StateMachine::setSearcher( SearchType type, Rover* rover, const rapidjson::
     mSearchStateMachine = SearchFactory( this, type, rover, roverConfig );
 }
 
+// Updates the rover status. Returns true if a change occurred
+bool StateMachine::pushNewRoverStatus() {
+    return mRover->updateRover( mNewRoverStatus );
+} // pushNewRoverStatus()
+
 void StateMachine::updateCompletedPoints( )
 {
     mCompletedWaypoints += 1;

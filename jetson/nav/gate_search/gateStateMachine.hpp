@@ -57,13 +57,18 @@ private:
 
     NavState executeGateDriveToFarPost();
 
-    NavState executeGateTurnToGateCenter();;
+    NavState executeGateTurnToGateCenter();
+    
+    NavState executeGateShimmy();
 
     NavState executeGateDriveThrough();
 
     void updatePost2Info();
 
     void calcCenterPoint();
+    
+    // Helper function to find the distance between the posts
+    double distanceBetweenPosts();
 
     /*************************************************************************/
     /* Private Member Variables */

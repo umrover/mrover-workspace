@@ -17,6 +17,15 @@ GateStateMachine::~GateStateMachine() {}
 // Execute loop through gate state machine.
 NavState GateStateMachine::run()
 {
+    double maximumPostWidth = mRoverConfig[ "navThresholds" ][ "maximumPostWidth" ].GetDouble();
+    if (distanceBetweenPosts() > maximumPostWidth) {
+
+        // Invalid posts were found, so resort to spinning
+        std::cout << "Gate posts should not be greater than " << maximumPostWidth << 
+            " (at " << distanceBetweenPosts() << ") meters apart!" << std::endl;
+        return executeGateSpin();
+    }
+    
     switch ( mRover->roverStatus().currentState() )
     {
         case NavState::GateSpin:
@@ -89,9 +98,12 @@ NavState GateStateMachine::executeGateSpin()
     double waitStepSize = mRoverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
+    double maximumPostWidth = mRoverConfig[ "navThresholds" ][ "maximumPostWidth" ].GetDouble();
 
-    if( mRover->roverStatus().rightCacheTarget().distance >= 0 ||
-        ( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().leftCacheTarget().id != lastKnownRightPost.id ) )
+    if( (mRover->roverStatus().rightCacheTarget().distance >= 0 ||
+        mRover->roverStatus().leftCacheTarget().distance >= 0)
+        && mRover->roverStatus().leftCacheTarget().id != lastKnownRightPost.id
+        && distanceBetweenPosts() <= maximumPostWidth)
     {
         mRover->roverStatus().getLeftMisses() = 0; // reset
         mRover->roverStatus().getRightMisses() = 0; // reset
@@ -403,3 +415,23 @@ GateStateMachine* GateFactory( StateMachine* stateMachine, Rover* rover, const r
 {
     return new DiamondGateSearch( stateMachine, rover, roverConfig );
 } // GateFactory()
+
+// Helper function to find the distance between the posts
+double GateStateMachine::distanceBetweenPosts() {
+    mRoverStateMachine->pushNewRoverStatus();
+    const Target &t1 = mRover->roverStatus().leftTarget();
+    const Target &t2 = mRover->roverStatus().rightTarget();
+    double a = t1.distance;
+    double b = t2.distance;
+
+    // Both posts must exist
+    if (a < 0 || b < 0) {
+        return -1;
+    }
+    else {
+        double angle = fabs(t1.bearing - t2.bearing) * 3.141592653 / 180.0;
+        double distance = sqrt(a * a + b * b - 2.0 * a * b * cos(angle));
+        
+        return distance;
+    }
+} // distanceBetweenPosts()

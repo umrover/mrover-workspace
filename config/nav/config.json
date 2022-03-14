@@ -35,7 +35,8 @@
 		"gateCenteredAngleDiff": 20,
 		"obstacleDistanceThreshold": 2.5,
 		"cacheMissMax": 20,
-		"noTargetDist": -1
+		"noTargetDist": -1,
+		"maximumPostWidth": 3.0
 	},
 
 	"roverMeasurements":
