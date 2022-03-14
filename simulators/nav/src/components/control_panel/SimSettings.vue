@@ -45,7 +45,7 @@
           :precision="2"
           :min="0"
           :max="100"
-          :step="5.55"
+          :step="10"
         />
       </div>
       <div class="noiseGPS">
@@ -56,6 +56,20 @@
           :min="0"
           :max="100"
           :step="5"
+        />
+      </div>
+      <div class="enableFOVView">
+        <Checkbox
+          :on="enableFOVView"
+          name="FOV Visualization"
+          @clicked="flipEnableFOVView(!enableFOVView)"
+        />
+      </div>
+      <div class="enableLCM">
+        <Checkbox
+          :on="enableLCM"
+          name="Enable LCM"
+          @clicked="flipEnableLCM(!enableLCM)"
         />
       </div>
     </div>
@@ -101,9 +115,16 @@ export default class SimSettings extends Vue {
   @Getter
   private readonly noiseGPSPercent!:number;
 
+  @Getter
+  private readonly enableLCM!:boolean;
+
+  @Getter
+  private readonly enableFOVView!:boolean;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
+
   @Mutation
   private readonly setFieldSize!:(newFieldSize:number)=>void;
 
@@ -121,6 +142,12 @@ export default class SimSettings extends Vue {
 
   @Mutation
   private readonly setGPSNoisePercent!:(newNoisePercent:number)=>void;
+
+  @Mutation
+  private readonly flipEnableLCM!:(onOff:boolean)=>void;
+
+  @Mutation
+  private readonly flipEnableFOVView!:(onOff:boolean)=>void;
 
   /************************************************************************************************
    * Private Members

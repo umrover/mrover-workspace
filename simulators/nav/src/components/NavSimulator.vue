@@ -151,6 +151,9 @@ export default class NavSimulator extends Vue {
   private readonly simulatePercep!:boolean;
 
   @Getter
+  private readonly enableLCM!:boolean;
+
+  @Getter
   private readonly takeStep!:boolean;
 
   @Getter
@@ -345,7 +348,10 @@ export default class NavSimulator extends Vue {
   /* eslint-disable @typescript-eslint/no-explicit-any */
 
   /* Publish the given LCM message on the given channel. */
-  private publish(channel:string, payload:any):void {
+  private publish(channel:string, payload:any, odomOrObstacle:boolean):void {
+    if (!this.enableLCM && !odomOrObstacle) {
+      return;
+    }
     this.lcmBridge.publish(channel, payload);
   }
 
@@ -437,29 +443,29 @@ export default class NavSimulator extends Vue {
 
     /* Set up publishing LCMs */
     this.intervalLcmPublish = window.setInterval(() => {
-      this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn });
+      this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn }, false);
 
       if (this.simulateLoc) {
         const odom:any = Object.assign(this.currOdom, { type: 'Odometry' });
-        this.publish('/odometry', odom);
+        this.publish('/odometry', odom, true);
       }
 
       if (this.simulatePercep) {
         const obs:any = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
-        this.publish('/obstacle', obs);
+        this.publish('/obstacle', obs, true);
 
         /* eslint no-magic-numbers: ["error", { "ignore": [0, 1] }] */
         const targetList:any = { targetList: this.targetList, type: 'TargetList' };
         targetList.targetList[0].type = 'Target';
         targetList.targetList[1].type = 'Target';
-        this.publish('/target_list', targetList);
+        this.publish('/target_list', targetList, false);
       }
 
       if (this.repeaterLoc !== null) {
-        this.publish('/rr_drop_complete', { type: 'RepeaterDrop' });
+        this.publish('/rr_drop_complete', { type: 'RepeaterDrop' }, false);
       }
 
-      this.publish('/radio', { type: 'RadioSignalStrength', signal_strength: this.radioStrength });
+      this.publish('/radio', { type: 'RadioSignalStrength', signal_strength: this.radioStrength }, false);
 
       const course:any = {
         type: 'Course',
@@ -474,10 +480,10 @@ export default class NavSimulator extends Vue {
         }))
       };
       course.hash = fnvPlus.fast1a52(JSON.stringify(course));
-      this.publish('/course', course);
+      this.publish('/course', course, false);
 
       const zedGimbalPos:any = Object.assign(this.zedGimbalPos, { type: 'ZedGimbalPosition' });
-      this.publish('/zed_gimbal_data', zedGimbalPos);
+      this.publish('/zed_gimbal_data', zedGimbalPos, false);
     }, TIME_INTERVAL_MILLI);
     /* eslint-enable @typescript-eslint/no-explicit-any */
   } /* created() */

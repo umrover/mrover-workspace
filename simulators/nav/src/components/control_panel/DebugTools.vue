@@ -47,7 +47,7 @@
           <NumberInput
             :val.sync="fovAngleIn"
             :min="0"
-            :max="360"
+            :max="359"
           />
           <p>º</p>
         </div>
@@ -135,6 +135,9 @@ export default class DebugTools extends Vue {
 
   @Getter
   private readonly roverPath!:Odom[];
+
+   @Getter
+  private readonly FOVAreaPath!:Path2D;
 
   @Getter
   private readonly roverPathVisible!:boolean;
