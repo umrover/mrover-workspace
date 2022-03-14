@@ -283,6 +283,13 @@ void PointCloud::swap(PointCloud& other) {
  */
 
 Viewer::Viewer() : camera(glm::perspectiveFov(glm::radians(35.0f), 1920.0f, 1080.0f, 0.1f, 100000.0f)) {
+    //get home orientations
+    home_center = camera.center; 
+    home_offset = camera.offset;
+    home_orientation.x = camera.eulerOrientation.x; 
+    home_orientation.y = camera.eulerOrientation.y + glm::radians(180.0);
+    home_orientation.z = camera.eulerOrientation.z;
+    home_distance = camera.distance;
 }
 
 void Viewer::initGraphics() {
@@ -399,6 +406,12 @@ void Viewer::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_R: {
                 viewer->record = !viewer->record;
                 break;
+            }
+            case GLFW_KEY_H: {
+                viewer->camera.center = viewer->home_center;
+                viewer->camera.offset = viewer->home_offset;
+                viewer->camera.eulerOrientation = viewer->home_orientation;
+                viewer->camera.distance = viewer->home_distance;
             }
         }
     }

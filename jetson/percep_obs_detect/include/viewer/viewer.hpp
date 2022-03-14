@@ -195,6 +195,10 @@ class Viewer {
         bool inMenu = false;
         bool record = false;
         int currentFPS = -1;
+        glm::vec3 home_center{};
+        glm::vec3 home_offset{};
+        glm::vec3 home_orientation{};
+        float home_distance;
 
         // Creates a window
         Viewer();
