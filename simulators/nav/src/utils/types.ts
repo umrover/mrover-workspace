@@ -7,6 +7,7 @@ export interface ArTag {
   id:number;
   odom:Odom;
   orientation:number; /* degrees from north */
+  isHidden:boolean;
 }
 
 
@@ -244,6 +245,7 @@ export enum RoverLocationSource {
    store. */
 export interface RoverState {
   currOdom:Odom;
+  realOdom:Odom;
   currSpeed:Speeds;
   joystick:Joystick;
   navStatus:NavStatus;
@@ -260,6 +262,10 @@ export interface RoverState {
 export interface SimulationSettings {
   simulateLoc:boolean;
   simulatePercep:boolean;
+  noisePercent:number;
+  noiseGPSPercent:number;
+  enableLCM:boolean;
+  enableFOVView:boolean;
 }
 
 
@@ -272,6 +278,7 @@ export interface SimulatorState {
   lcmConnections:LCMConnections;
   odomFormat:OdomFormat;
   path:Odom[];
+  FOVAreaPath:Path2D;
   simSettings:SimulationSettings;
   startLoc:Odom;
 }
