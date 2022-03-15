@@ -133,37 +133,37 @@ export default {
 
     interval = window.setInterval(() => {
 
-        this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.autonEnabled})
+      this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.autonEnabled})
 
-        let course = {
-            num_waypoints: this.route.length,
-            waypoints: _.map(this.route, (waypoint) => {
-              const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
-              const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
-              const latitude_deg = Math.trunc(lat);
-              const longitude_deg = Math.trunc(lon);
+      let course = {
+        num_waypoints: this.route.length,
+        waypoints: _.map(this.route, (waypoint) => {
+          const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
+          const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
+          const latitude_deg = Math.trunc(lat);
+          const longitude_deg = Math.trunc(lon);
 
-              return {
-                  type: "Waypoint",
-                  search: waypoint.search,
-                  gate: waypoint.gate,
-                  gate_width: parseFloat(waypoint.gate_width),
-                  id: parseFloat(waypoint.id),
-                  odom: {
-                      latitude_deg: latitude_deg,
-                      latitude_min: (lat - latitude_deg) * 60,
-                      longitude_deg: longitude_deg,
-                      longitude_min: (lon - longitude_deg) * 60,
-                      bearing_deg: 0,
-                      speed: -1,
-                      type: "Odometry"
-                  },
-              }
-            })
-        };
-        course.hash = fnvPlus.fast1a52(JSON.stringify(course));
-        course.type = 'Course'
-        this.$parent.publish('/course', course)
+          return {
+            type: "Waypoint",
+            search: waypoint.search,
+            gate: waypoint.gate,
+            gate_width: parseFloat(waypoint.gate_width),
+            id: parseFloat(waypoint.id),
+            odom: {
+              latitude_deg: latitude_deg,
+              latitude_min: (lat - latitude_deg) * 60,
+              longitude_deg: longitude_deg,
+              longitude_min: (lon - longitude_deg) * 60,
+              bearing_deg: 0,
+              speed: -1,
+              type: "Odometry"
+            },
+          }
+        })
+      };
+      course.hash = fnvPlus.fast1a52(JSON.stringify(course));
+      course.type = 'Course'
+      this.$parent.publish('/course', course)
 
     }, 100);
   },
