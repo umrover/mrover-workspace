@@ -82,7 +82,7 @@ float openPlus(int addr, float speed)
     try
     {
         uint8_t buffer[4];
-        memcpy(buffer, UINT8_POINTER_T(&speed), 4);
+        memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
         int32_t raw_angle;
 
         I2C::transact(addr, OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
@@ -109,7 +109,7 @@ float closedPlus(int addr, float angle) // -pi to pi
         uint8_t buffer[12];
 
         float ff = 0;
-        memcpy(buffer, UINT8_POINTER_T(&ff), 4);
+        memcpy(buffer, UINT8_POINTER_T(&ff), sizeof(ff));
         
         int32_t raw_angle;
 
@@ -121,11 +121,11 @@ float closedPlus(int addr, float angle) // -pi to pi
         }
         else 
         {
-            memcpy(&raw_angle, &angle, 4);
+            memcpy(&raw_angle, &angle, sizeof(angle));
         }
 
         printf("test closed plus on slave %i sending target angle %f, raw angle %i\n", addr, angle, raw_angle);
-        memcpy(buffer + 4, UINT8_POINTER_T(&raw_angle), 4);
+        memcpy(buffer + 4, UINT8_POINTER_T(&raw_angle), sizeof(raw_angle));
         
         I2C::transact(addr, CLOSED_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
         float deg_angle = (raw_angle / cpr[joint]) * 360; 
@@ -133,7 +133,7 @@ float closedPlus(int addr, float angle) // -pi to pi
 
         if (joint == 1)
         {
-            memcpy(&rad_angle, &raw_angle, 4);
+            memcpy(&rad_angle, &raw_angle, sizeof(rad_angle));
         }
         printf("test closed plus transaction successful on slave %i, at angle raw: %i, rad: %f \n", addr, raw_angle, rad_angle);
         return rad_angle;
@@ -150,7 +150,7 @@ void configPWM(int addr, int max_speed)
     try
     {
         uint8_t buffer[2];
-        memcpy(buffer, UINT8_POINTER_T(&(max_speed)), 2);
+        memcpy(buffer, UINT8_POINTER_T(&(max_speed)), sizeof(max_speed));
         I2C::transact(addr, CONFIG_PWM, buffer, nullptr);
         printf("test config pwm transaction successful on slave %i \n", addr);
     }
@@ -165,9 +165,9 @@ void setKPID(int addr, float p, float i, float d)
     try
     {
         uint8_t buffer[12];
-        memcpy(buffer + 0, UINT8_POINTER_T(&p), 4);
-        memcpy(buffer + 4, UINT8_POINTER_T(&i), 4);
-        memcpy(buffer + 8, UINT8_POINTER_T(&d), 4);
+        memcpy(buffer + 0, UINT8_POINTER_T(&p), sizeof(p));
+        memcpy(buffer + 4, UINT8_POINTER_T(&i), sizeof(i));
+        memcpy(buffer + 8, UINT8_POINTER_T(&d), sizeof(d));
         I2C::transact(addr, CONFIG_K, buffer, nullptr);
         printf("test set kpid transaction successful on slave %i \n", addr);
     }
@@ -184,9 +184,9 @@ void getKPID(int addr)
         uint8_t buffer[12];
         I2C::transact(addr, GET_K, nullptr, buffer);
         int p, i, d;
-        memcpy(UINT8_POINTER_T(&p), buffer + 0, 4);
-        memcpy(UINT8_POINTER_T(&i), buffer + 4, 4);
-        memcpy(UINT8_POINTER_T(&d), buffer + 8, 4);
+        memcpy(UINT8_POINTER_T(&p), buffer + 0, sizeof(p));
+        memcpy(UINT8_POINTER_T(&i), buffer + 4, sizeof(i));
+        memcpy(UINT8_POINTER_T(&d), buffer + 8, sizeof(d));
         printf("test get kpid transaction successful on slave %i %d %d %d \n", addr, p, i, d);
     }
     catch (IOFailure &e)
@@ -216,13 +216,11 @@ float quadEnc(int addr)
     }
 }
 
-//uint16_t absEnc(int addr)
 float absEnc(int addr)
 {
     try
     {
         float abs_raw_angle = 0;;
-        //uint16_t abs_raw_angle;
         I2C::transact(addr, ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
         printf("test abs transaction successful on slave %i, %f \n", addr, abs_raw_angle * (180/M_PI));
         return abs_raw_angle; // in radians 
@@ -251,15 +249,11 @@ void adjust(int addr, int joint)
 
         int joint = (addr & 0b1) + (((addr >> 4) - 1) * 2); 
 
-        // gets absolute angle in quadrature counts
-        // quad_angle = (quad_angle / cpr[joint]) * (2 * M_PI); // counts to radians
-        // abs_angle = static_cast<uint32_t>(abs_angle); // comes out in 'radians'
-
         int32_t adjusted_quad = (abs_angle / (2 * M_PI)) * cpr[joint];
 
         // adjust transaction 
         uint8_t buffer[4];
-        memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), 4);
+        memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), sizeof(adjusted_quad));
         I2C::transact(addr, ADJUST, buffer, nullptr);
 
         // checks values after
@@ -401,7 +395,8 @@ void testClosed()
                 angle = closedPlus(address, target);
                 sleep(20);
             }
-            while( joint != 1? abs(angle - target) > 0.01 : abs(angle - target) > 0.05);
+            while(joint != 1 ? abs(angle - target) > 0.01 : abs(angle - target) > 0.05);
+
 	        printf("arrived at position 1\n");
 	        sleep(1000);
 
@@ -485,10 +480,6 @@ void testOpenPlus()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        // openPlus(address, 0.5);
-        // sleep(300);
-        // openPlus(address, 0);
-        // sleep(300);
         float speed = 0.5f;
         if (address == 16)
         {
@@ -516,10 +507,6 @@ void testOpenPlusWithAbs()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        // openPlus(address, 0.5);
-        // sleep(300);
-        // openPlus(address, 0);
-        // sleep(300);
         float speed = 0.5f;
         if (address == 16)
         {
@@ -644,11 +631,7 @@ int main()
     for (int i = 1; i <= 3; ++i)
     {
         i2c_address.push_back(get_addr(i, 0));
-        // if (i == 3)
-        // {
         i2c_address.push_back(get_addr(i, 1));
-        // }
-        //if (i == 3 || i == 2) i2c_address.push_back(get_addr(i, 2));
         sleep(20);
     }
     I2C::init();
