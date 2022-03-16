@@ -146,7 +146,7 @@ class ScienceBridge():
         try:
             arr = msg.split(",")
             enabled = False
-            if (arr[1] == "1"):
+            if (arr[2] == "1"):
                 enabled = True
             print(enabled)
             struct.auto_shutdown_enabled = enabled
