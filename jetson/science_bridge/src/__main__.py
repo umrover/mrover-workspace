@@ -137,16 +137,16 @@ class ScienceBridge():
             # Send back the heater and the state
             struct.device = int(arr[1])
             struct.enable = bool(arr[2])
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     def heater_shutoff_handler(self, msg, struct):
         # Receives whether or not the nucleo actually got the changed status.
         try:
             arr = msg.split(",")
             struct.enable = bool(arr[1])
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     def heater_transmit(self, channel, msg):
         # Upon Receiving a heater on/off command, send a command for the appropriate mosfet
