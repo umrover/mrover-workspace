@@ -27,7 +27,7 @@
       <span class="toggle__switch" v-if="heaters[1].enabled" v-on:click="sendHeaterCmd(1, false)"></span>
       <span class="toggle__switch" v-if="!heaters[1].enabled" v-on:click="sendHeaterCmd(1, true)"></span>
     </label>
-    <p v-bind:style="{color: heaters[1].color}">Thermistor B: {{heaters[1].temp.toFixed(1)}} C°</p>
+    <p v-bind:style="{color: heaters[1].color}">Thermistor B: {{heaters[1].temp.toFixed(2)}} C°</p>
   </div>
   <div class="box1" v-if="site == 0">
     <label for="toggle_button" :class="{'active': heaters[0].enabled}" class="toggle__button">
@@ -36,7 +36,7 @@
       <span class="toggle__switch" v-if="heaters[0].enabled" v-on:click="sendHeaterCmd(0, false)"></span>
       <span class="toggle__switch" v-if="!heaters[0].enabled" v-on:click="sendHeaterCmd(0, true)"></span>
     </label>
-    <p v-bind:style="{color: heaters[0].color}">Thermistor C: {{heaters[0].temp.toFixed(0)}} C°</p>
+    <p v-bind:style="{color: heaters[0].color}">Thermistor C: {{heaters[0].temp.toFixed(2)}} C°</p>
   </div>
   <div>
     <label for="toggle_button" :class="{'active': autoShutdown}" class="toggle__button">
