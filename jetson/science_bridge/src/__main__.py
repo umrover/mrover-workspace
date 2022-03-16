@@ -4,7 +4,7 @@ science nucleo to operate the science boxes and get relevant data
 '''
 import serial
 import asyncio
-# import Adafruit_BBIO.UART as UART # for beaglebone use only
+import Adafruit_BBIO.UART as UART  # for beaglebone use only
 import numpy as np
 import time
 from rover_common.aiohelper import run_coroutines
@@ -16,7 +16,7 @@ from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
 
 class ScienceBridge():
     def __init__(self):
-        # UART.setup("UART4")  # Specific to beaglebone
+        UART.setup("UART4")  # Specific to beaglebone
         # maps NMEA msgs to their handler
         # mosfet and servo only send msgs
         self.NMEA_HANDLE_MAPPER = {
@@ -39,8 +39,8 @@ class ScienceBridge():
         Not sure what the uart port on the jetson is
         '''
         self.ser = serial.Serial(
-            # port='/dev/ttyS4',
-            port='/dev/ttyTHS1',
+            port='/dev/ttyS4',
+            #  port='/dev/ttyTHS1',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -133,10 +133,11 @@ class ScienceBridge():
         # Receives the heater state from the nucleo
         # Sends a response
         try:
+            print(msg)
             arr = msg.split(",")
             # Send back the heater and the state
             struct.device = int(arr[1])
-            struct.enable = bool(arr[2])
+            struct.enabled = bool(int(arr[2]))
         except:
             pass
 
@@ -144,7 +145,11 @@ class ScienceBridge():
         # Receives whether or not the nucleo actually got the changed status.
         try:
             arr = msg.split(",")
-            struct.enable = bool(arr[1])
+            enabled = False
+            if (arr[1] == "1"):
+                enabled = True
+            print(enabled)
+            struct.auto_shutdown_enabled = enabled
         except:
             pass
 
@@ -157,10 +162,10 @@ class ScienceBridge():
         # with padding to reach 30 bytes
         message = "$Mosfet,{device},{enable},1111111"
 
-        # Heater/Nichromes are 7-9 so(assuming 0 index) add 7 to get the appropriate mosfet
-        translated_device = struct.device + 7
+        # Heater/Nichromes are 5-7 so(assuming 0 index) add 7 to get the appropriate mosfet
+        translated_device = struct.device + 5
         message = message.format(device=translated_device,
-                                 enable=int(struct.enable))
+                                 enable=int(struct.enabled))
 
         # Assumes that only single or double digit devices are used
         # No way we use 100 devices
@@ -180,7 +185,7 @@ class ScienceBridge():
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
         struct = HeaterAutoShutdown.decode(msg)
         message = "$AutoShutoff,{enable},1111"
-        message = message.format(enable=int(struct.enable))
+        message = message.format(enable=int(struct.auto_shutdown_enabled))
         while(len(message) < 30):
             # Add an extra 1 for padding
             message += "1"
@@ -339,7 +344,8 @@ class ScienceBridge():
                     error_counter = 0
                     tx = self.ser.readline()
                     msg = str(tx)
-
+                    if (len(msg) > 0):
+                        print(msg)
                 except Exception as e:
                     print("Errored")
                     if error_counter < self.max_error_count:
@@ -397,6 +403,8 @@ def main():
         _lcm.subscribe("/servo_cmd", bridge.servo_transmit)
         _lcm.subscribe("/carousel_openloop_cmd", bridge.carousel_openloop_transmit)
         _lcm.subscribe("/carousel_closedloop_cmd", bridge.carousel_closedloop_transmit)
+        _lcm.subscribe("/heater_cmd", bridge.heater_transmit)
+        _lcm.subscribe("/heater_auto_shutdown_cmd", bridge.heater_auto_transmit)
         print("properly started")
         run_coroutines(_lcm.loop(), bridge.receive(_lcm))
 
