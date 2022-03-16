@@ -4,7 +4,7 @@
 
     <l-map ref="map" class="map" :zoom="15" :center="center">
       <l-control-scale :imperial="false"/>
-      <l-tile-layer :url="url" :attribution="attribution"/>
+      <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in route" :key="waypoint.id" >
         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
@@ -82,9 +82,14 @@ export default {
       odomCount: 0,
       locationIcon: null,
       odomPath: [],
+      findRover: false,
       options: {
         type: Object,
         default: () => ({})
+      },
+      tileLayerOptions: {
+        maxNativeZoom: 18,
+        maxZoom: 100
       }
     }
   },
@@ -97,7 +102,6 @@ export default {
   },
 
   watch: {
-
     odom: function (val) {
       // Trigger every time rover odom is changed
 
@@ -105,6 +109,12 @@ export default {
       const lng = val.longitude_deg + val.longitude_min / 60
       const angle = val.bearing_deg
 
+      //Move to rover on first odom message
+      if(!this.findRover){
+        this.findRover = true
+        this.center = L.latLng(lat, lng)
+      }
+      
       // Update the rover marker
       this.roverMarker.setRotationAngle(angle)
 
