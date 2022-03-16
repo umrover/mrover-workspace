@@ -4,7 +4,7 @@ science nucleo to operate the science boxes and get relevant data
 '''
 import serial
 import asyncio
-import Adafruit_BBIO.UART as UART  # for beaglebone use only
+# import Adafruit_BBIO.UART as UART  # for beaglebone use only
 import numpy as np
 import time
 from rover_common.aiohelper import run_coroutines
@@ -16,7 +16,7 @@ from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
 
 class ScienceBridge():
     def __init__(self):
-        UART.setup("UART4")  # Specific to beaglebone
+        # UART.setup("UART4")  # Specific to beaglebone
         # maps NMEA msgs to their handler
         # mosfet and servo only send msgs
         self.NMEA_HANDLE_MAPPER = {
@@ -39,8 +39,8 @@ class ScienceBridge():
         Not sure what the uart port on the jetson is
         '''
         self.ser = serial.Serial(
-            port='/dev/ttyS4',
-            #  port='/dev/ttyTHS1',
+            # port='/dev/ttyS4',
+            port='/dev/ttyTHS1',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
