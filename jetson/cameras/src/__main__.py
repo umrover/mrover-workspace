@@ -12,10 +12,10 @@ ARGUMENTS = ['--headless']
 
 
 class Pipeline:
-    def __init__(self, index, port):
-        self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
+    def __init__(self, port):
+        self.video_source = None
         self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
-        self.device_number = index
+        self.device_number = -1
         self.port = port
 
     def update(self):
@@ -25,14 +25,17 @@ class Pipeline:
     def is_open(self):
         return True
 
-    def device_number(self):
+    def is_device_number(self):
         return self.device_number
 
     def port(self):
         return self.port
 
     def update_device_number(self, index):
-        self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
+        if index != -1:
+            self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
+        else:
+            self.video_source = None
         self.device_number = index
 
     def is_currently_streaming(self):
@@ -52,7 +55,7 @@ def start_pipeline(index, port):
 def stop_pipeline(port):
     global __pipelines
 
-    print(f"Stopping camera {__pipelines[port].device_number()} on port 500{port}.")
+    print(f"Stopping camera {__pipelines[port].device_number} on port 500{port}.")
     __pipelines[port].update_device_number(-1)
 
 
@@ -64,12 +67,12 @@ def camera_callback(channel, msg):
     port_devices = [camera_cmd.port_0, camera_cmd.port_1]
 
     for port_number, requested_port_device in enumerate(port_devices):
-        if __pipelines[port_number].device_number == requested_port_device:
+        if __pipelines[port_number].is_device_number() == requested_port_device:
             continue
         if requested_port_device == -1:
-            stop_pipeline(port_number):
+            stop_pipeline(port_number)
         else:
-            if __pipelines.is_currently_streaming():
+            if __pipelines[port_number].is_currently_streaming():
                 stop_pipeline(port_number)
             start_pipeline(requested_port_device, port_number)
 
@@ -77,7 +80,7 @@ def camera_callback(channel, msg):
 def main():
     global __pipelines, __lcm
 
-    __pipelines = [ Pipeline(-1, 0), Pipeline(-1, 1) ]
+    __pipelines = [ Pipeline(0), Pipeline(1) ]
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)

@@ -22,94 +22,16 @@
       <Checkbox v-bind:name="'Dual Stream'" v-on:toggle="toggleDualStream()" ref="dualstream"/>
       <!-- For formatting... -->
       <div></div>
-      <CameraSelection class="cameraspace1" v-bind:cam_index="cam_index_1" v-bind:dual_stream="dual_stream" v-on:cam_index="setCamIndex($event, 1)"/>
-      <CameraSelection class="cameraspace2" v-show="dual_stream" v-bind:cam_index="cam_index_2" v-bind:dual_stream="dual_stream" v-on:cam_index="setCamIndex($event, 2)"/>
+      <CameraSelection class="cameraspace1" v-bind:cam_index="cam_index_1" v-on:cam_index="setCamIndex($event, 1)"/>
+      <CameraSelection class="cameraspace2" v-show="dual_stream" v-bind:cam_index="cam_index_2" v-on:cam_index="setCamIndex($event, 2)"/>
     </div>
   </div>
 </template>
 
-
-<style>
-  .wrap {
-    display: grid;
-    grid-gap: 10px;
-    grid-template-columns: 1fr;
-    grid-template-rows: 60px 20px;
-    grid-template-areas: "header" "servos";
-    font-family: sans-serif;
-    height: 100%;
-  }
-
-  .cameraselection {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas: "cameraspace1 cameraspace2"
-  }
-
-  .cam_buttons {
-    height:20px;
-    width:100px;
-  }
-
-  .box {
-    border-radius: 5px;
-    padding: 10px;
-    border: 1px solid black;
-  }
-
-  img {
-    border: none;
-    border-radius: 0px;
-  }
-
-  .servos {
-    grid-area: servos;
-    margin: auto;
-  }
-
-  .header {
-    grid-area: header;
-    display: flex;
-    align-items: center;
-  }
-
-  .header h1 {
-    margin-left: 5px;
-  }
-
-  .spacer {
-    flex-grow: 0.8;
-  }
-
-  .comms {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .comms * {
-    margin-top: 2px;
-    margin-bottom: 2px;
-    display: flex;
-  }
-
-  ul#vitals li {
-    display: inline;
-    padding: 0px 10px 0px 0px;
-  }
-</style>
-
 <script>
-  // TODO: 
-  // Rename cam_index to switchCameraText
-  // Set slider label instead of text to side
-  // Get conf.json working
-  // Add take picture button in class options
-  // Set watchers for everything in options except take pic (used to have button to set)
   import CommIndicator from './CommIndicator.vue'
   import CameraSelection from './CameraSelection.vue'
   import Checkbox from "./Checkbox.vue"
-
 
   let interval;
 
@@ -119,9 +41,8 @@
         dual_stream: false,
         cam_index_1: -1,
         cam_index_2: -1,
-        microscope_cam: false,
-        cams : [false, false, false, false, false, false, false, false]
-        }
+        microscope_cam: false
+      }
     },
 
     beforeDestroy: function () {
@@ -201,28 +122,11 @@
 
     methods: {
       setCamIndex: function (new_index, stream) {
-        if (stream === 1 && new_index !== this.cam_index_2) {
-          if (new_index !== -1) {
-            this.cams[this.cam_index_1] = false
-            this.cams[new_index] = true
-            this.cam_index_1 = new_index
-          } else {
-            this.cams[this.cam_index_1] = false
-            this.cam_index_1 = -1
-          }
-          
-
-          
+        if (stream === 1 && (new_index !== this.cam_index_2 || new_index === -1)) {
+          this.cam_index_1 = new_index
         } 
-        else if (stream === 2 && new_index !== this.cam_index_1) {
-          if (new_index !== -1) {
-            this.cams[this.cam_index_2] = false
-            this.cams[new_index] = true
-            this.cam_index_2 = new_index
-          } else {
-            this.cams[this.cam_index_2] = false
-            this.cam_index_2 = -1
-          }
+        else if (stream === 2 && (new_index !== this.cam_index_1 || new_index === -1)) {
+          this.cam_index_2 = new_index
         }
       },
 
@@ -264,3 +168,73 @@
     }
   }
 </script>
+
+<style>
+  .wrap {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 60px 20px;
+    grid-template-areas: "header" "servos";
+    font-family: sans-serif;
+    height: 100%;
+  }
+
+  .cameraselection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "cameraspace1 cameraspace2"
+  }
+
+  .cam_buttons {
+    height:20px;
+    width:100px;
+  }
+
+  .box {
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid black;
+  }
+
+  img {
+    border: none;
+    border-radius: 0px;
+  }
+
+  .servos {
+    grid-area: servos;
+    margin: auto;
+  }
+
+  .header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+  }
+
+  .header h1 {
+    margin-left: 5px;
+  }
+
+  .spacer {
+    flex-grow: 0.8;
+  }
+
+  .comms {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .comms * {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    display: flex;
+  }
+
+  ul#vitals li {
+    display: inline;
+    padding: 0px 10px 0px 0px;
+  }
+</style>
