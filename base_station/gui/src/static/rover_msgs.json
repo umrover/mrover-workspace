@@ -1,10 +1,4 @@
 {
-<<<<<<< HEAD
-    "AmmoniaCmd": [
-        [
-            "double",
-            "speed"
-=======
     "ArmAdjustments": [
         [
             "float",
@@ -35,7 +29,6 @@
         [
             "string",
             "state"
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         ]
     ],
     "ArmPosition": [
@@ -58,8 +51,6 @@
         [
             "double",
             "joint_e"
-<<<<<<< HEAD
-=======
         ],
         [
             "double",
@@ -70,7 +61,6 @@
         [
             "string",
             "preset"
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         ]
     ],
     "ArmToggles": [
@@ -169,33 +159,6 @@
             "right"
         ]
     ],
-<<<<<<< HEAD
-    "DriveStateData": [
-        [
-            "int8_t",
-            "controller"
-        ],
-        [
-            "int8_t",
-            "state"
-        ]
-    ],
-    "DriveVelData": [
-        [
-            "int8_t",
-            "axis"
-        ],
-        [
-            "float",
-            "measuredCurrent"
-        ],
-        [
-            "float",
-            "estimatedVel"
-        ]
-    ],
-=======
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     "ESCThrottle": [
         [
             "string",
@@ -304,7 +267,6 @@
             "new_ack_id"
         ]
     ],
-<<<<<<< HEAD
     "IMUData": [
         [
             "double",
@@ -373,48 +335,6 @@
         [
             "double",
             "bearing_deg"
-=======
-    "IMU": [
-        [
-            "double",
-            "accel_x"
-        ],
-        [
-            "double",
-            "accel_y"
-        ],
-        [
-            "double",
-            "accel_z"
-        ],
-        [
-            "double",
-            "gyro_x"
-        ],
-        [
-            "double",
-            "gyro_y"
-        ],
-        [
-            "double",
-            "gyro_z"
-        ],
-        [
-            "double",
-            "mag_x"
-        ],
-        [
-            "double",
-            "mag_y"
-        ],
-        [
-            "double",
-            "mag_z"
-        ],
-        [
-            "double",
-            "bearing"
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         ]
     ],
     "IkArmControl": [
@@ -471,8 +391,6 @@
             "locked"
         ]
     ],
-<<<<<<< HEAD
-=======
     "LockJoints": [
         [
             "boolean",
@@ -499,7 +417,6 @@
             "jointf"
         ]
     ],
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     "MicroCam": [
         [
             "string",
@@ -522,41 +439,14 @@
             "enable"
         ]
     ],
-<<<<<<< HEAD
-    "MosfetCmd": [
-        [
-            "int8_t",
-            "device"
-        ],
-        [
-            "boolean",
-            "enable"
-        ]
-    ],
-    "MotionExecute": [
-        [
-            "boolean",
-            "preview"
-=======
     "MotionExecute": [
         [
             "boolean",
             "execute"
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         ]
     ],
     "NavStatus": [
         [
-<<<<<<< HEAD
-=======
-            ""
-        ],
-        [
-            "int8_t",
-            "nav_state"
-        ],
-        [
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
             "string",
             "nav_state_name"
         ],
@@ -566,23 +456,7 @@
         ],
         [
             "int32_t",
-<<<<<<< HEAD
             "total_wps"
-=======
-            "missed_wps"
-        ],
-        [
-            "int32_t",
-            "total_wps"
-        ],
-        [
-            "int32_t",
-            "found_tbs"
-        ],
-        [
-            "int32_t",
-            "total_tbs"
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         ]
     ],
     "Obstacle": [
@@ -715,16 +589,12 @@
             "depths[numDepths]"
         ]
     ],
-<<<<<<< HEAD
     "RadioSignalStrength": [
         [
             "float",
             "signal_strength"
         ]
     ],
-=======
-    "RepeaterDrop": [],
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     "RGB": [
         [
             "string",
@@ -878,83 +748,6 @@
             "sim_mode"
         ]
     ],
-<<<<<<< HEAD
-    "SpectralData": [
-        [
-            "int16_t",
-            "d0_1"    
-        ],
-        [
-            "int16_t",
-            "d0_2"    
-        ],
-        [
-            "int16_t",
-            "d0_3"    
-        ],
-        [
-            "int16_t",
-            "d0_4"    
-        ],
-        [
-            "int16_t",
-            "d0_5"    
-        ],
-        [
-            "int16_t",
-            "d0_6"    
-        ],
-        [
-            "int16_t",
-            "d1_1"    
-        ],
-        [
-            "int16_t",
-            "d1_2"    
-        ],
-        [
-            "int16_t",
-            "d1_3"    
-        ],
-        [
-            "int16_t",
-            "d1_4"    
-        ],
-        [
-            "int16_t",
-            "d1_5"    
-        ],
-        [
-            "int16_t",
-            "d1_6"    
-        ],
-        [
-            "int16_t",
-            "d2_1"    
-        ],
-        [
-            "int16_t",
-            "d2_2"    
-        ],
-        [
-            "int16_t",
-            "d2_3"    
-        ],
-        [
-            "int16_t",
-            "d2_4"    
-        ],
-        [
-            "int16_t",
-            "d2_5"    
-        ],
-        [
-            "int16_t",
-            "d2_6"    
-        ]
-    ],
-=======
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     "StartTest": [
         [
             "string",
@@ -1001,8 +794,6 @@
             "f"
         ]
     ],
-<<<<<<< HEAD
-=======
     "TargetOrientation": [
         [
             "float",
@@ -1033,7 +824,6 @@
             "use_orientation"
         ]
     ],
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     "TargetPoint": [
         [
             "float",
@@ -1087,23 +877,6 @@
             "enabled"
         ]
     ],
-<<<<<<< HEAD
-    "ThermistorData": [
-        [
-            "double",
-            "temp0"
-        ],
-        [
-            "double",
-            "temp1"
-        ],
-        [
-            "double",
-            "temp2"
-        ]
-    ],
-=======
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     "Waypoint": [
         [
             "boolean",
@@ -1198,20 +971,12 @@
             "y"
         ]
     ],
-<<<<<<< HEAD
-    "ZedGimbalPosition":[
-=======
     "ZedGimbalPosition": [
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         [
             "double",
             "angle"
         ]
     ],
-<<<<<<< HEAD
-    "message_types": [
-        "AmmoniaCmd",
-=======
     "ZeroPosition": [
         [
             "double",
@@ -1240,7 +1005,6 @@
     ],
     "message_types": [
         "ArmControlState",
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         "ArmPosition",
         "ArmToggles",
         "AutonState",
@@ -1258,21 +1022,13 @@
         "Heartbeat",
         "IkArmControl",
         "IkEnabled",
-<<<<<<< HEAD
         "IMUData",
-=======
-        "IMU",
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         "Joystick",
         "KillSwitch",
         "LockJointE",
         "MicroCam",
         "Microscope",
         "Mosfet",
-<<<<<<< HEAD
-        "MosfetCmd",
-=======
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         "MotionExecute",
         "NavStatus",
         "Obstacle",
@@ -1282,13 +1038,9 @@
         "PIDConstants",
         "PiPicture",
         "PiSettings",
-<<<<<<< HEAD
-        "ProximitySensors",
-=======
         "PresetAngles",
         "ProximitySensors",
         "RepeaterDrop",
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         "RGB",
         "RGBFrame",
         "RGBLED",
@@ -1303,11 +1055,7 @@
         "StartTest",
         "TalonConfig",
         "TargetAngles",
-<<<<<<< HEAD
-        "TargetList",
-=======
         "TargetOrientation",
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         "TargetPoint",
         "Temperature",
         "TennisBall",
@@ -1315,11 +1063,7 @@
         "Waypoint",
         "WheelSpeeds",
         "Xbox",
-<<<<<<< HEAD
-        "ZedGimbalPosition"
-=======
         "ZedGimbalPosition",
         "ZeroPosition"
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     ]
 }

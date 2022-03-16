@@ -35,12 +35,6 @@
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
     </div>
-<<<<<<< HEAD
-    <div class="box drives light-bg">
-      <DriveVelDataH/>
-    </div>
-=======
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
     <div class="box controls light-bg">
       <ArmControls/>
       <EncoderCounts/>
@@ -63,10 +57,6 @@ import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
-<<<<<<< HEAD
-import DriveVelDataH from './DriveVelDataH.vue'
-=======
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 
 let interval;
@@ -237,11 +227,7 @@ export default {
     DriveControls,
     EncoderCounts,
     OdometryReading,
-<<<<<<< HEAD
-    DriveVelDataH
-=======
     IKControls
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
   }
 }
 </script>
@@ -351,13 +337,6 @@ export default {
     grid-area: map;
   }
 
-<<<<<<< HEAD
-  .drives {
-    grid-area: drives;
-  }
-
-=======
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
   .controls {
     grid-area: controls;
     font-size: 1em;

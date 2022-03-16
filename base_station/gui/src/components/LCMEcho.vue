@@ -49,11 +49,7 @@
         },
         messages: [],
         viewing: {
-<<<<<<< HEAD
-          '/ammonia_cmd': false,
-=======
           '/arm_adjustments': false,
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
           '/arm_motors': false,
           '/arm_control_state': false,
           '/arm_control_state_to_gui': false,
@@ -106,13 +102,6 @@
           '/target_orientation': false,
           '/temperature': false,
           '/tennis_ball': false,
-<<<<<<< HEAD
-          '/thermistor_data': false,
-          '/zed_gimbal_data': false
-        },
-        subscriptions: [
-          {'topic': '/ammonia_cmd', 'type': 'AmmoniaCmd'},
-=======
           '/zed_gimbal_cmd': false,
           '/zed_gimbal_data': false,
           '/zero_position': false
@@ -121,7 +110,6 @@
           {'topic': '/arm_adjusments', 'type': 'ArmAdjustments'},
           {'topic': '/arm_control_state', 'type': 'ArmControlState'},
           {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
           {'topic': '/arm_position', 'type': 'ArmPosition'},
           {'topic': '/arm_preset', 'type': 'ArmPreset'},
@@ -141,12 +129,8 @@
           {'topic': '/drive_control', 'type': 'Joystick'},
           {'topic': '/autonomous', 'type': 'Joystick'},
           {'topic': '/kill_switch', 'type': 'KillSwitch'},
-<<<<<<< HEAD
-          {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
-=======
           {'topic': '/locked_joints', 'type': 'LockJoints'},
           {'topic': '/motion_execute', 'type': 'MotionExecute'},
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
           {'topic': '/nav_status', 'type': 'NavStatus'},
           {'topic': '/obstacle', 'type': 'Obstacle'},
           {'topic': '/odometry', 'type': 'Odometry'},
@@ -176,13 +160,9 @@
           {'topic': '/imu_data', 'type': 'IMUData'},
           {'topic': '/gps', 'type': 'GPS'},
           {'topic': '/microscope', 'type': 'Microscope'},
-<<<<<<< HEAD
-          {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
-=======
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'},
           {'topic': '/zero_position', 'type': 'ZeroPosition'}
->>>>>>> ae5fd46ce85234bcd60ee3dfda4890defa0f7566
         ]
       }
     },
