@@ -137,7 +137,7 @@ class ScienceBridge():
             arr = msg.split(",")
             # Send back the heater and the state
             struct.device = int(arr[1])
-            struct.enable = bool(arr[2])
+            struct.enabled = bool(int(arr[2]))
         except Exception as e:
             print(e)
 
@@ -146,7 +146,7 @@ class ScienceBridge():
         try:
             arr = msg.split(",")
             enabled = False
-            if (arr[2] == "1"):
+            if (arr[1] == "1"):
                 enabled = True
             print(enabled)
             struct.auto_shutdown_enabled = enabled
