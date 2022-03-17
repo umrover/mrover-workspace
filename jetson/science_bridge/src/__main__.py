@@ -18,7 +18,6 @@ class ScienceBridge():
     def __init__(self):
         # UART.setup("UART4")  # Specific to beaglebone
         # maps NMEA msgs to their handler
-        # mosfet and servo only send msgs
         self.NMEA_HANDLE_MAPPER = {
             "SPECTRAL": self.spectral_handler,
             "THERMISTOR": self.thermistor_handler,
@@ -56,6 +55,7 @@ class ScienceBridge():
         self.ser.close()
 
     def spectral_handler(self, m, spectral_struct):
+        # msg format: <"$SPECTRAL,d0_1,d0_2, .... , d2_6">
         try:
             m.split(',')
             arr = [s.strip().strip('\x00') for s in m.split(',')]
@@ -72,12 +72,8 @@ class ScienceBridge():
         except Exception as e:
             print(e)
 
-        # parse the spectral UART msg
-        # add in relevant error handling
-        # set the struct variables
-
     def thermistor_handler(self, msg, thermistor_struct):
-        # msg format: <"$THERMISTOR,temperature">
+        # msg format: <"$THERMISTOR,temp0,temp1,temp2">
         try:
             arr = msg.split(",")
             thermistor_struct.temp0 = float(arr[1])
@@ -85,11 +81,9 @@ class ScienceBridge():
             thermistor_struct.temp2 = float(arr[3])
         except Exception as e:
             print(e)
-        # parse the thermistor UART msg
-        # adding relevant error handling
-        # set the struct variables
 
     def triad_handler(self, m, triad_struct):
+        # msg format: <"$SPECTRAL,d0_1,d0_2, .... , d2_6">
         try:
             m.split(',')
             arr = [s.strip().strip('\x00') for s in m.split(',')]
@@ -107,10 +101,6 @@ class ScienceBridge():
         except Exception as e:
             print(e)
 
-        # parse the spectral UART msg
-        # add in relevant error handling
-        # set the struct variables
-
     def txt_handler(self, msg, struct):
         '''
         Prints info messages revieved from nucleo to screen
@@ -118,20 +108,15 @@ class ScienceBridge():
         print(msg)
 
     def carousel_handler(self, msg, carousel_struct):
+        # msg format: <"$CAROUSEL,position>
         try:
             arr = msg.split(",")
             carousel_struct.position = np.int8(arr[1])
         except Exception as e:
             print(e)
 
-    def repeater_handler(self, msg, struct):
-        # Expected to be an empty message so nothing is done
-        # Only included to fit struct
-        pass
-
     def heater_state_handler(self, msg, struct):
-        # Receives the heater state from the nucleo
-        # Sends a response
+        # msg format: <"$HEATER,device,enabled">
         try:
             print(msg)
             arr = msg.split(",")
@@ -142,7 +127,7 @@ class ScienceBridge():
             print(e)
 
     def heater_shutoff_handler(self, msg, struct):
-        # Receives whether or not the nucleo actually got the changed status.
+        # msg format: <"$auto_shutoff,device,enabled">
         try:
             arr = msg.split(",")
             enabled = False
@@ -157,9 +142,6 @@ class ScienceBridge():
         # Upon Receiving a heater on/off command, send a command for the appropriate mosfet
         print("Heater cmd callback")
         struct = Heater.decode(msg)
-        # parse data into expected format
-        # Currently expects mosfet, device number, and enable bit along
-        # with padding to reach 30 bytes
         message = "$Mosfet,{device},{enable},1111111"
 
         # Heater/Nichromes are 5-7 so(assuming 0 index) add 7 to get the appropriate mosfet
@@ -167,10 +149,6 @@ class ScienceBridge():
         message = message.format(device=translated_device,
                                  enable=int(struct.enabled))
 
-        # Assumes that only single or double digit devices are used
-        # No way we use 100 devices
-        # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
-        # single digits have 7 + 1 + 1 + 1 + 1 + 1 + 7 = 19, need to add one
         while(len(message) < 30):
             # Add an extra 1 for padding
             message += "1"
@@ -197,17 +175,12 @@ class ScienceBridge():
         pass
 
     def mosfet_transmit(self, channel, msg):
-        # get cmd lcm and send to nucleo
         print("Mosfet callback")
         struct = MosfetCmd.decode(msg)
-        # parse data into expected format
-        # Currently expects mosfet, device number, and enable bit along
-        # with padding to reach 30 bytes
+
         message = "$Mosfet,{device},{enable},1111111"
         translated_device = struct.device
         # Translate individual pins to their respective nucleo pin
-        # According to https://docs.google.com/spreadsheets/d/1x291oHOigmm7G-pxjsBUFsEbyl81ZurAz7vuSyXmgXo/edit#gid=0
-
         # Laser and UV LED share pins 1 and 2
         # const int8_t rLed = 0;
         # const int8_t gLed = 1;
@@ -227,13 +200,7 @@ class ScienceBridge():
         message = message.format(device=translated_device,
                                  enable=int(struct.enable))
         print(message)
-
-        # Assumes that only single or double digit devices are used
-        # No way we use 100 devices
-        # Double digits have 7 + 1 + 2 + 1 + 1 + 1 + 7 = 20
-        # single digits have 7 + 1 + 1 + 1 + 1 + 1 + 7 = 19, need to add one
         while(len(message) < 30):
-            # Add an extra , for padding
             message += ","
         self.ser.close()
         self.ser.open()
@@ -244,7 +211,6 @@ class ScienceBridge():
 
     def nav_status(self, channel, msg):
         print("Received nav req")
-        # Want the name of the status I guess?
         # Off, Done, Else
 
         struct = NavStatus.decode(msg)
@@ -344,8 +310,6 @@ class ScienceBridge():
                     error_counter = 0
                     tx = self.ser.readline()
                     msg = str(tx)
-                    if (len(msg) > 0):
-                        print(msg)
                 except Exception as e:
                     print("Errored")
                     if error_counter < self.max_error_count:
