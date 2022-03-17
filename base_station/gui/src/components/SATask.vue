@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="box header">
       <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
-      <h1>Science Dashboard</h1>
+      <h1>SA Dashboard</h1>
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
@@ -17,59 +17,43 @@
       </div>
       <div class="helpscreen"></div>
       <div class="helpimages" style="display: flex; align-items: center; justify-content: space-evenly">
+        <img v-if="controlMode === 'arm'" src="/static/arm.png" alt="Robot Arm" title="Robot Arm Controls" style="width: auto; height: 70%; display: inline-block" />
+        <img v-else-if="controlMode === 'soil_ac'" src="/static/soil_ac.png" alt="Soil Acquisition" title="Soil Acquisition Controls" style="width: auto; height: 70%; display: inline-block" />
         <img src="/static/joystick.png" alt="Joystick" title="Joystick Controls" style="width: auto; height: 70%; display: inline-block" />
       </div>
     </div>
 
-    <div class="box raman light-bg">
-      <Raman v-bind:mosfetIDs="mosfetIDs"/>
+    <div class="box odom light-bg">
+      <OdometryReading v-bind:odom="odom"/>
     </div>
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
     </div>
-    <div class="box spectral light-bg">
-      <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
+    <div class="box map light-bg">
+      <RoverMap v-bind:odom="odom"/>
     </div>
-    <div class = "box light-bg chlorophyll">
-      <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/> 
-      <GenerateReport v-bind:spectral_data="spectral_data"/>
+    <div class="box sa_testing light-bg">
+      <SATestingControls/>
     </div>
-    <div class="box striptest light-bg">
-      <StripTest/>
+    <div class="box waypoints light-bg">
+      <WaypointEditor v-bind:odom="odom" />
     </div>
-    <div class="box amino light-bg">
-      <Amino v-bind:mosfetIDs="mosfetIDs"/>
-    </div>
-    <div class="box drives light-bg">
-      <DriveVelDataV/>
-    </div>
-    <div class="box carousel light-bg">
-      <Carousel/>
-    </div>
-    <div class="box scoopUV light-bg">
-      <ScoopUV v-bind:mosfetIDs="mosfetIDs"/>
-    </div>
-    <div class="box SAArm light-bg">
-      <SAArm/>
+    <div class="box sa_controls light-bg">
+      <SAControls/>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
+import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
-import Raman from './Raman.vue'
+import OdometryReading from './OdometryReading.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
-import SpectralData from './SpectralData.vue'
-import Chlorophyll from './Chlorophyll.vue'
-import StripTest from './StripTest.vue'
-import DriveVelDataV from './DriveVelDataV.vue'
-import Amino from './Amino.vue'
-import GenerateReport from './GenerateReport.vue'
-import Carousel from './Carousel.vue'
-import ScoopUV from './ScoopUV.vue'
-import SAArm from './SAArm.vue'
+import SAControls from './SAControls.vue'
+import SATestingControls from './SATestingControls.vue'
 
 let interval;
 
@@ -102,62 +86,8 @@ export default {
       nav_status: {
         completed_wps: 0,
         total_wps: 0
-      },
-      spectral_data: {
-          d0_1:0,
-          d0_2:0,
-          d0_3:0,
-          d0_4:0,
-          d0_5:0,
-          d0_6:0,
-          d1_1:0,
-          d1_2:0,
-          d1_3:0,
-          d1_4:0,
-          d1_5:0,
-          d1_6:0,
-          d2_1:0,
-          d2_2:0,
-          d2_3:0,
-          d2_4:0,
-          d2_5:0,
-          d2_6:0
-      },
-      spectral_triad_data: {
-          d0_1:0,
-          d0_2:0,
-          d0_3:0,
-          d0_4:0,
-          d0_5:0,
-          d0_6:0,
-          d1_1:0,
-          d1_2:0,
-          d1_3:0,
-          d1_4:0,
-          d1_5:0,
-          d1_6:0,
-          d2_1:0,
-          d2_2:0,
-          d2_3:0,
-          d2_4:0,
-          d2_5:0,
-          d2_6:0
-      },
-      mosfetIDs: {
-        rLed: 0,
-        gLed: 1,
-        bLed: 2,
-        Laser: 3,
-        UVLED: 4,
-        whiteLED: 5,
-        uvBulb: 6,
-        nichWire0: 7,
-        nichWire1: 8,
-        nichWire2: 9,
-        ramanLaser: 10
       }
-
-}
+    }
   },
 
   methods: {
@@ -171,6 +101,16 @@ export default {
       }
       this.lcm_.subscribe(channel, callbackFn)
     }
+  },
+
+  computed: {
+    ...mapGetters('autonomy', {
+      autonEnabled: 'autonEnabled'
+    }),
+
+    ...mapGetters('controls', {
+      controlMode: 'controlMode'
+    }),
   },
 
   beforeDestroy: function () {
@@ -194,12 +134,6 @@ export default {
       (msg) => {
         if (msg.topic === '/odometry') {
           this.odom = msg.message
-        } else if (msg.topic ==='/spectral_data'){
-          this.spectral_data = msg.message
-        } else if (msg.topic ==='/spectral_triad_data'){
-          this.spectral_triad_data = msg.message
-        } else if (msg.topic ==='/thermistor_data'){
-          this.thermistor_data = msg.message
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/debugMessage') {
@@ -221,17 +155,7 @@ export default {
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/sa_motors', 'type': 'SAMotors'},
         {'topic': '/test_enable', 'type': 'TestEnable'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'},
-        {'topic': '/spectral_data', 'type': 'SpectralData'},
-        {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
-        {'topic': '/thermistor_data', 'type': 'ThermistorData'},
-        {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
-        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
-        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/carousel_data', 'type': 'CarouselData'},
-        {'topic': '/carousel_cmd', 'type': 'CarouselCmd'},
-        {'topic': '/sa_position', 'type': 'SAPosition'},
-        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'}
+        {'topic': '/debugMessage', 'type': 'DebugMessage'}
       ]
     )
 
@@ -277,40 +201,26 @@ export default {
   },
 
   components: {
+    RoverMap,
     Cameras,
     CommIndicator,
-    Raman,
+    OdometryReading,
     WaypointEditor,
-    SpectralData,
-    Chlorophyll,
-    StripTest,
-    DriveVelDataV,
-    Amino,
-    GenerateReport,
-    Carousel,
-    ScoopUV,
-    SAArm
+    SAControls,
+    SATestingControls
   }
-}
-</script>
+}</script>
 
 <style scoped>
 
     .wrapper {
         display: grid;
         grid-gap: 10px;
-        grid-template-columns: auto auto auto;
-        grid-template-rows: 60px auto auto auto auto auto;
-        grid-template-areas: "header header header" 
-                             "cameras cameras cameras" 
-                             "carousel chlorophyll raman" 
-                             "spectral chlorophyll scoopUV" 
-                             "spectral chlorophyll drives"
-                             "SAArm striptest drives"
-                             "SAArm amino drives"
-                             "SAArm amino drives";
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
+        grid-template-areas: "header header" "map cameras" "map sa_testing" "map waypoints" "controls waypoints" "odom waypoints";
         font-family: sans-serif;
-        height: auto;
+        height: 98vh;
     }
 
     .box {
@@ -333,7 +243,7 @@ export default {
         display: flex;
         align-items: center;
     }
-    
+
         .header h1 {
             margin-left: 5px;
         }
@@ -393,58 +303,26 @@ export default {
                 visibility: visible;
             }
 
-    .raman {
-        grid-area: raman;
+    .odom {
+        grid-area: odom;
         font-size: 1em;
-    }
-
-    .amino{
-      grid-area: amino;
-    } 
-
-    .striptest{
-      grid-area: striptest;
-    }
-    
-    .chlorophyll{
-      grid-area: chlorophyll;
     }
 
     .diags {
         grid-area: diags;
     }
 
+    .map {
+        grid-area: map;
+    }
+
     .waypoints {
         grid-area: waypoints;
-    }
-
-    .drives {
-      grid-area: drives;
-    }
-
-    .cameras {
-      grid-area: cameras;
-    }
-
-    .spectral {
-      grid-area: spectral;
     }
 
     .controls {
         grid-area: controls;
         font-size: 1em;
-    }
-
-    .carousel {
-      grid-area: carousel;
-    }
-
-    .scoopUV {
-      grid-area: scoopUV;
-    }
-
-    .SAArm {
-      grid-area: SAArm;
     }
 
     ul#vitals li {
