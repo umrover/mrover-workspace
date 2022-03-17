@@ -36,9 +36,6 @@ public:
     void updateRoverStatus( Odometry odometry );
 
     void updateRoverStatus( TargetList targetList );
-
-    void updateRoverStatus( RadioSignalStrength radioSignalStrength );
-
     void updateCompletedPoints( );
 
     void updateObstacleAngle( double bearing, double rightBearing );
@@ -47,9 +44,7 @@ public:
 
     void updateObstacleElements( double bearing, double rightBearing, double distance );
 
-    void updateRepeaterComplete( );
-
-    void setSearcher( SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
+    void setSearcher(SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
 
     /*************************************************************************/
     /* Public Member Variables */
@@ -73,8 +68,6 @@ private:
 
     NavState executeDrive();
 
-    NavState executeRepeaterDropWait();
-
     NavState executeSearch();
 
     void initializeSearch();
@@ -86,10 +79,6 @@ private:
     double getOptimalAvoidanceDistance() const;
 
     bool isWaypointReachable( double distance );
-
-    bool isAddRepeaterDropPoint() const;
-
-    void addRepeaterDropPoint();
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -110,10 +99,7 @@ private:
     unsigned mTotalWaypoints;
 
     // Number of waypoints completed.
-    unsigned mCompletedWaypoints;
-
-    // Bool of whether radio repeater has been dropped.
-    bool mRepeaterDropComplete = false;
+    unsigned mCompletedWaypoints; 
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;

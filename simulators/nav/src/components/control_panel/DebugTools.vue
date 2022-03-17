@@ -47,7 +47,7 @@
           <NumberInput
             :val.sync="fovAngleIn"
             :min="0"
-            :max="360"
+            :max="359"
           />
           <p>º</p>
         </div>
@@ -136,6 +136,9 @@ export default class DebugTools extends Vue {
   @Getter
   private readonly roverPath!:Odom[];
 
+   @Getter
+  private readonly FOVAreaPath!:Path2D;
+
   @Getter
   private readonly roverPathVisible!:boolean;
 
@@ -159,6 +162,9 @@ export default class DebugTools extends Vue {
 
   @Mutation
   private readonly setCurrOdom!:(newOdom:Odom)=>void;
+
+  @Mutation
+  private readonly setRealOdom!:(newOdom:Odom)=>void;
 
   @Mutation
   private readonly setCurrSpeed!:(newSpeeds:Speeds)=>void;
@@ -292,6 +298,7 @@ export default class DebugTools extends Vue {
   /* Reset the rover to the starting state. */
   private resetRover():void {
     this.setCurrOdom(this.startLoc);
+    this.setRealOdom(this.startLoc);
     this.setAutonState(false);
     this.setPaused(false);
     this.setZedGimbalPos({ angle: 0 });

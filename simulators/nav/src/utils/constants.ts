@@ -44,3 +44,20 @@ export const ZED:ZedConstants = {
     maxAngle: 180
   }
 };
+
+/* eslint no-magic-numbers: ["error", { "ignore": [-3.49,
+ -1.28,
+ -0.84,
+ -0.52,
+ -0.25,
+  0] }] */
+
+// cut positive - z scores need to change
+export const Zscores = [
+  -3.49, // 0   index 0 = -1
+  -1.28, // 0.1 index 1 = -0.9
+  -0.84, // 0.2 index 2 = -0.8
+  -0.52, // 0.3 index 3 = -0.7
+  -0.25, // 0.4 index 4 = -0.6
+  0 // 0.5 index 5
+];

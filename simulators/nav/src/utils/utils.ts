@@ -395,7 +395,7 @@ function metersToLonRad(meters:number, canvasCentRad:Point2D):number {
 
 
 /* Convert point in meters to latitude and longitude */
-function metersToOdom(point:Point2D, canvasCent:Odom):Odom {
+export function metersToOdom(point:Point2D, canvasCent:Odom):Odom {
   const canvasCentRad:Point2D = degToRad2D(odomToPoint(canvasCent));
 
   /* Calculate change in latitude using:
@@ -415,7 +415,7 @@ function metersToOdom(point:Point2D, canvasCent:Odom):Odom {
 
 
 /* Convert from Odom to Point2D in meters (origin at middle of canvas) */
-function odomToMeters(point:Odom, canvasCent:Odom):Point2D {
+export function odomToMeters(point:Odom, canvasCent:Odom):Point2D {
   const [dist, bearing]:[number, number] = calcDistAndBear(canvasCent, point);
   const theta:number = compassToCanvasRad(bearing);
   return {
@@ -465,3 +465,24 @@ function translatePoint(point:Point2D, origin:Point2D):Point2D {
     y: origin.y - point.y
   };
 } /* translatePoint() */
+
+export function randnBm(min, max, skew):number {
+  let u = 0;
+  let v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  const factor = 2.0;
+  let num:number = Math.sqrt(-1 * factor * Math.log(u)) * Math.cos(factor * Math.PI * v);
+  const a = 10.0;
+  const b = 0.5;
+  num = (num / a) + b;
+  if (num > 1 || num < 0) {
+    num = randnBm(min, max, skew);
+  }
+  else {
+    num **= skew;
+    num *= max - min;
+    num += min;
+  }
+  return num;
+}
