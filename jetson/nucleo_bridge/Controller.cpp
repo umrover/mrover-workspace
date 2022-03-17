@@ -16,25 +16,38 @@ void Controller::make_live()
 
     try
     {
+        // turn on 
+        transact(ON, nullptr, nullptr);
+
         uint8_t buffer[32];
-        memcpy(buffer, UINT8_POINTER_T(&(hardware.pwm_min)), 2);
-        memcpy(buffer + 2, UINT8_POINTER_T(&(hardware.pwm_max)), 2);
-        memcpy(buffer + 4, UINT8_POINTER_T(&(hardware.pwm_period)), 2);
+        //buffer sends max percentage speed  
+        memcpy(buffer, UINT8_POINTER_T(&(hardware.speed_max)), sizeof(hardware.speed_max));
         transact(CONFIG_PWM, buffer, nullptr);
 
-        memcpy(buffer, UINT8_POINTER_T(&(kP)), 4);
-        memcpy(buffer + 4, UINT8_POINTER_T(&(kI)), 4);
-        memcpy(buffer + 8, UINT8_POINTER_T(&(kD)), 4);
+        // config kp, ki, pd
+        memcpy(buffer, UINT8_POINTER_T(&(kP)), sizeof(kP));
+        memcpy(buffer + 4, UINT8_POINTER_T(&(kI)), sizeof(kI));
+        memcpy(buffer + 8, UINT8_POINTER_T(&(kD)), sizeof(kD));
         transact(CONFIG_K, buffer, nullptr);
 
-        uint16_t input = 0;
-        //Uncomment this when we get to 2021 IK testing
-        //transact(SPI, nullptr, UINT8_POINTER_T(&input));
+        // get absolute encoder correction #
+        // not needed for joint F
 
-        int32_t angle = static_cast<int32_t>(quad_cpr * ((static_cast<float>(input) / spi_cpr) + (start_angle / (2.0 * M_PI))));
-        transact(ADJUST, UINT8_POINTER_T(&angle), nullptr);
+        float abs_raw_angle = 0;
+        if (name != "RA_5")
+        {
+            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
+        }
+        else 
+        {
+            abs_raw_angle = M_PI;
+        }
 
-        transact(ON, nullptr, nullptr);
+
+        // get value in quad counts adjust quadrature encoder 
+        int32_t adjusted_quad = (abs_raw_angle / (2 * M_PI)) * quad_cpr;
+        memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), sizeof(adjusted_quad));
+        transact(ADJUST,buffer, nullptr);
 
         ControllerMap::make_live(name);
     }
@@ -45,14 +58,20 @@ void Controller::make_live()
     }
 }
 
-//Helper function to convert raw angle to radians. Also checks if new angle is close to old angle
-void Controller::record_angle(int32_t angle)
+//Helper function to convert raw angle to radians. Also checks if new angle is close to old angle <depreciated>
+void Controller::record_angle(int32_t raw_angle)
 {
-    float other_angle = (static_cast<float>(angle) / quad_cpr) * 2.0 * M_PI;
-    if (std::abs(other_angle - current_angle) < M_PI / 16.0)
+    if (name == "RA_1")
     {
-        current_angle = other_angle;
+        float abs_raw_angle = 0;
+        memcpy(&abs_raw_angle, &raw_angle, sizeof(raw_angle));
+        current_angle = abs_raw_angle - M_PI;            
     }
+    else 
+    {
+        // record quadrature 
+        current_angle = ((raw_angle / quad_cpr) * 2 * M_PI) - M_PI;
+    } 
 }
 
 //Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use
@@ -65,11 +84,17 @@ void Controller::open_loop(float input)
     {
         make_live();
 
-        uint16_t throttle = hardware.throttle(input);
-        int32_t angle;
-        transact(OPEN_PLUS, UINT8_POINTER_T(&throttle), UINT8_POINTER_T(&angle));
+        uint8_t buffer[4];
+        float speed = hardware.throttle(input);
+        memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
+    
+        int32_t raw_angle;
+        transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
 
-        record_angle(angle);
+        // handles if joint B 
+        //printf("%s quad angle: %i\n", name.c_str(), raw_angle);
+
+        record_angle(raw_angle);       
     }
     catch (IOFailure &e)
     {
@@ -78,20 +103,32 @@ void Controller::open_loop(float input)
 }
 
 //Sends a closed loop command with target angle in radians and optional precalculated torque in Nm
-void Controller::closed_loop(float torque, float angle)
+void Controller::closed_loop(float torque, float target)
 {
     try
     {
         make_live();
 
         float feed_forward = 0; //torque * torque_scale;
-        int32_t closed_setpoint = static_cast<int32_t>((angle / (2.0 * M_PI)) * quad_cpr);
         uint8_t buffer[32];
         int32_t angle;
-        memcpy(buffer, UINT8_POINTER_T(&feed_forward), 4);
-        memcpy(buffer + 4, UINT8_POINTER_T(&closed_setpoint), 4);
+        memcpy(buffer, UINT8_POINTER_T(&feed_forward), sizeof(feed_forward));
+
+        // we read values from 0 - 2pi, teleop sends in -pi to pi
+        target += M_PI;
+        if (name == "RA_1")
+        {
+            memcpy(buffer + 4, UINT8_POINTER_T(&target), sizeof(target));
+        }
+        else
+        {
+            int32_t closed_setpoint = static_cast<int32_t>((target / (2.0 * M_PI)) * quad_cpr);
+            memcpy(buffer + 4, UINT8_POINTER_T(&closed_setpoint), sizeof(closed_setpoint));
+        }
+
         transact(CLOSED_PLUS, buffer, UINT8_POINTER_T(&angle));
 
+        // handles if is joint B
         record_angle(angle);
     }
     catch (IOFailure &e)
@@ -110,9 +147,9 @@ void Controller::config(float KP, float KI, float KD)
             make_live();
 
             uint8_t buffer[32];
-            memcpy(buffer, UINT8_POINTER_T(&KP), 4);
-            memcpy(buffer + 4, UINT8_POINTER_T(&KI), 4);
-            memcpy(buffer + 8, UINT8_POINTER_T(&KD), 4);
+            memcpy(buffer, UINT8_POINTER_T(&KP), sizeof(KP));
+            memcpy(buffer + 4, UINT8_POINTER_T(&KI), sizeof(KI));
+            memcpy(buffer + 8, UINT8_POINTER_T(&KD), sizeof(KD));
             transact(CONFIG_K, buffer, nullptr);
         }
         catch (IOFailure &e)
@@ -152,7 +189,16 @@ void Controller::angle()
     try
     {
         int32_t angle;
-        transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
+        if (name == "RA_1")
+        {
+            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&angle));
+        }
+        else 
+        {
+            transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
+        }
+        
+        // handles if joint B
         record_angle(angle);
     }
     catch (IOFailure &e)

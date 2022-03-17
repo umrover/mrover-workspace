@@ -49,7 +49,11 @@ import { Getter, Mutation } from 'vuex-class';
 import { RADIO } from '../utils/constants';
 import {
   applyJoystickCmdUtil,
-  applyZedGimbalCmdUtil
+  applyZedGimbalCmdUtil,
+  randnBm,
+  metersToOdom,
+  odomToMeters,
+  compassModDeg
 } from '../utils/utils';
 import {
   Joystick,
@@ -59,7 +63,8 @@ import {
   Speeds,
   TargetListMessage,
   Waypoint,
-  ZedGimbalPosition
+  ZedGimbalPosition,
+  Point2D
 } from '../utils/types';
 import ControlPanel from './control_panel/ControlPanel.vue';
 import Field from './field/Field.vue';
@@ -70,6 +75,7 @@ import HotKeys from './HotKeys.vue';
 import LCMBridge from '../../deps/lcm_bridge_client/dist/bridge.js';
 import LCMCenter from './lcm_center/LCMCenter.vue';
 import Perception from './perception/Perception.vue';
+import { state } from '../store/modules/simulatorState';
 
 /**************************************************************************************************
  * Constants
@@ -104,6 +110,9 @@ export default class NavSimulator extends Vue {
 
   @Getter
   private readonly currOdom!:Odom;
+
+  @Getter
+  private readonly realOdom!:Odom;
 
   @Getter
   private readonly currSpeed!:Speeds;
@@ -142,6 +151,9 @@ export default class NavSimulator extends Vue {
   private readonly simulatePercep!:boolean;
 
   @Getter
+  private readonly enableLCM!:boolean;
+
+  @Getter
   private readonly takeStep!:boolean;
 
   @Getter
@@ -173,6 +185,9 @@ export default class NavSimulator extends Vue {
 
   @Mutation
   private readonly setCurrOdom!:(newOdom:Odom)=>void;
+
+  @Mutation
+  private readonly setRealOdom!:(newOdom:Odom)=>void;
 
   @Mutation
   private readonly setJoystick!:(newJoystick:Joystick)=>void;
@@ -272,14 +287,34 @@ export default class NavSimulator extends Vue {
    ************************************************************************************************/
   /* Apply the current joystick message to move the rover. Update the current
      odometry based on this movement. */
+  private applyGPSNoise():Odom {
+    const maxOffDist = 0.75;
+
+    /* eslint no-magic-numbers: ["error", { "ignore": [100, 0, 1] }] */
+    const factor = 100;
+    const num1:number = randnBm(-state.simSettings.noiseGPSPercent * maxOffDist /
+    factor, state.simSettings.noiseGPSPercent * maxOffDist / factor, 1);
+    const num2:number = randnBm(-state.simSettings.noiseGPSPercent * maxOffDist /
+    factor, state.simSettings.noiseGPSPercent * maxOffDist / factor, 1);
+    const nextPointMeters:Point2D = odomToMeters(this.realOdom, this.fieldCenterOdom);
+    nextPointMeters.x += num1;
+    nextPointMeters.y += num2;
+    const nextOdom:Odom = metersToOdom(nextPointMeters, this.fieldCenterOdom);
+
+    /* Calculate new bearing without bearing noise */
+    nextOdom.bearing_deg = compassModDeg(this.realOdom.bearing_deg);
+    return nextOdom;
+  }
+
   private applyJoystickCmd():void {
     /* if not simulating localization, nothing to do */
     if (!this.simulateLoc) {
       return;
     }
     const deltaTimeSeconds:number = TIME_INTERVAL_MILLI / ONE_SECOND_MILLI;
-    this.setCurrOdom(applyJoystickCmdUtil(this.currOdom, this.fieldCenterOdom, this.joystick,
+    this.setRealOdom(applyJoystickCmdUtil(this.realOdom, this.fieldCenterOdom, this.joystick,
                                           deltaTimeSeconds, this.currSpeed));
+    this.setCurrOdom(this.applyGPSNoise());
   }
 
   /* Apply the current ZED gimbal command. Update the ZED gimbal based on the
@@ -313,7 +348,10 @@ export default class NavSimulator extends Vue {
   /* eslint-disable @typescript-eslint/no-explicit-any */
 
   /* Publish the given LCM message on the given channel. */
-  private publish(channel:string, payload:any):void {
+  private publish(channel:string, payload:any, odomOrObstacle:boolean):void {
+    if (!this.enableLCM && !odomOrObstacle) {
+      return;
+    }
     this.lcmBridge.publish(channel, payload);
   }
 
@@ -362,6 +400,7 @@ export default class NavSimulator extends Vue {
           if (!this.simulateLoc) {
             this.locPulse = true;
             this.setCurrOdom(msg.message);
+            this.setRealOdom(this.currOdom);
           }
         }
         else if (msg.topic === '/rr_drop_init') {
@@ -404,28 +443,29 @@ export default class NavSimulator extends Vue {
 
     /* Set up publishing LCMs */
     this.intervalLcmPublish = window.setInterval(() => {
-      this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn });
+      this.publish('/auton', { type: 'AutonState', is_auton: this.autonOn }, false);
 
       if (this.simulateLoc) {
         const odom:any = Object.assign(this.currOdom, { type: 'Odometry' });
-        this.publish('/odometry', odom);
+        this.publish('/odometry', odom, true);
       }
 
       if (this.simulatePercep) {
         const obs:any = Object.assign(this.obstacleMessage, { type: 'Obstacle' });
-        this.publish('/obstacle', obs);
+        this.publish('/obstacle', obs, true);
 
+        /* eslint no-magic-numbers: ["error", { "ignore": [0, 1] }] */
         const targetList:any = { targetList: this.targetList, type: 'TargetList' };
         targetList.targetList[0].type = 'Target';
         targetList.targetList[1].type = 'Target';
-        this.publish('/target_list', targetList);
+        this.publish('/target_list', targetList, false);
       }
 
       if (this.repeaterLoc !== null) {
-        this.publish('/rr_drop_complete', { type: 'RepeaterDrop' });
+        this.publish('/rr_drop_complete', { type: 'RepeaterDrop' }, false);
       }
 
-      this.publish('/radio', { type: 'RadioSignalStrength', signal_strength: this.radioStrength });
+      this.publish('/radio', { type: 'RadioSignalStrength', signal_strength: this.radioStrength }, false);
 
       const course:any = {
         type: 'Course',
@@ -440,12 +480,11 @@ export default class NavSimulator extends Vue {
         }))
       };
       course.hash = fnvPlus.fast1a52(JSON.stringify(course));
-      this.publish('/course', course);
+      this.publish('/course', course, false);
 
       const zedGimbalPos:any = Object.assign(this.zedGimbalPos, { type: 'ZedGimbalPosition' });
-      this.publish('/zed_gimbal_data', zedGimbalPos);
+      this.publish('/zed_gimbal_data', zedGimbalPos, false);
     }, TIME_INTERVAL_MILLI);
-
     /* eslint-enable @typescript-eslint/no-explicit-any */
   } /* created() */
 

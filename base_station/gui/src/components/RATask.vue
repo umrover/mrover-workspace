@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="box header">
       <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
-      <h1>Dashboard</h1>
+      <h1>ERD/ES Dashboard</h1>
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
@@ -29,30 +29,34 @@
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
     </div>
+    <div class="box ik-controls light-bg">
+      <IKControls/>
+    </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
-    </div>
-    <div class="box drives light-bg">
-      <DriveVelDataH/>
     </div>
     <div class="box controls light-bg">
       <ArmControls/>
       <EncoderCounts/>
+    </div>
+    <div class="box light-bg">
       <DriveControls/>
     </div>
+    
+    <div class="spacer"></div>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
+import IKControls from './IKControls.vue'
 import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
-import DriveVelDataH from './DriveVelDataH.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 
 let interval;
@@ -67,6 +71,8 @@ export default {
         pan: 0,
         tilt: 0
       },
+
+      locked_joints: [],
 
       odom: {
         latitude_deg: 38,
@@ -101,6 +107,25 @@ export default {
         console.error("Callback Function is invalid (should take 1 parameter)")
       }
       this.lcm_.subscribe(channel, callbackFn)
+    },
+
+    locked_joints_callback: function(e) {
+      // Process array to convert to lcm message:
+      let msg = { 'type': 'LockJoints' }
+
+      msg['joint_a'] = this.locked_joints.includes('joint_a');
+      msg['joint_b'] = this.locked_joints.includes('joint_b');
+      msg['joint_c'] = this.locked_joints.includes('joint_c');
+      msg['joint_d'] = this.locked_joints.includes('joint_d');
+      msg['joint_e'] = this.locked_joints.includes('joint_e');
+      msg['joint_f'] = this.locked_joints.includes('joint_f');
+
+      // Publish lcm message:
+      this.lcm_.publish('/locked_joints', msg);
+    },
+
+    zero_position_callback: function() {
+      this.lcm_.publish('/zero_position', { 'type': 'ZeroPosition' } )
     }
   },
 
@@ -144,7 +169,8 @@ export default {
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
-        {'topic': '/encoder', 'type': 'Encoder'},
+        {'topic': '/arm_position', 'type': 'ArmPosition'},
+        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
@@ -201,7 +227,7 @@ export default {
     DriveControls,
     EncoderCounts,
     OdometryReading,
-    DriveVelDataH
+    IKControls
   }
 }
 </script>
@@ -311,15 +337,18 @@ export default {
     grid-area: map;
   }
 
-  .drives {
-    grid-area: drives;
-  }
-
   .controls {
     grid-area: controls;
     font-size: 1em;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    display: flex;
+  }
+
+  .new-select {
+    display: inline-block;
+  }
+
+  .fil-hori-now {
+    margin-top: 20px;
   }
 
   ul#vitals li {

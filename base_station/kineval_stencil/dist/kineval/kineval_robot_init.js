@@ -17,10 +17,6 @@ kineval.initRobot = function initRobot() {
 
     // initialize robot joints and create threejs mesh objects for robot joints and form kinematic hiearchy
     kineval.initRobotJoints();
-
-    // initialize robot collision state
-    robot.collision = false;
-
 }
 
 kineval.initRobotLinks = function initRobotLinks() {
@@ -48,16 +44,10 @@ kineval.initRobotJoints = function initRobotJoints() {
 
         // initialize joint angle value and control input value
         robot.joints[x].angle = 0;
-        robot.joints[x].control = 0;
-        robot.joints[x].servo = {};
-    // STENCIL: set appropriate servo gains for arm setpoint control
-        robot.joints[x].servo.p_gain = 0; 
-        robot.joints[x].servo.p_desired = 0;
-        robot.joints[x].servo.d_gain = 0; 
 
-    // STENCIL: complete kinematic hierarchy of robot for convenience.
-    //   robot description only specifies parent and child links for joints.
-    //   additionally specify parent and child joints for each link
+        // STENCIL: complete kinematic hierarchy of robot for convenience.
+        //   robot description only specifies parent and child links for joints.
+        //   additionally specify parent and child joints for each link
         var tempParent = robot.joints[x].parent;
         var tempChild = robot.joints[x].child;
         if (typeof robot.links[tempParent].children === 'undefined'){
