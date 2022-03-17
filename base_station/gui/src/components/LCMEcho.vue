@@ -52,7 +52,6 @@
           '/arm_control_state': false,
           '/arm_control_state_to_gui': false,
           '/arm_adjustments': false,
-          '/arm_motors': false,
           '/arm_preset': false,
           '/arm_toggles_button_data': false,
           '/arm_toggles_toggle_data': false,
