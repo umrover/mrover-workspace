@@ -67,7 +67,16 @@ export default {
             left_right: [],
             dampen: [],
             kill: [],
-            restart: []
+            restart: [],
+
+            // TargetList
+            bearing0: [],
+            distance0: [],
+            id0: [],
+            bearing1: [],
+            distance1: [],
+            id1: []
+
         }
     },
 
@@ -100,6 +109,11 @@ export default {
         Joystick: {
             type: Object,
             required: true
+        },
+
+        TargetList: {
+            type: Object,
+            required: true
         }
     },
 
@@ -126,6 +140,9 @@ export default {
         const overflow_amt = 60
 
         window.setInterval(() => {
+            console.log(this.TargetList)
+            console.log(this.TargetList[0])
+            console.log(this.TargetList[1])
             if (this.logging_on == 1) {
                 this.num_logs += 1
 
@@ -185,6 +202,13 @@ export default {
                 this.kill.push(this.Joystick.kill)
                 this.restart.push(this.Joystick.restart)
 
+                this.bearing0.push(this.TargetList[0].bearing)
+                this.distance0.push(this.TargetList[0].distance)
+                this.id0.push(this.TargetList[0].id)
+                this.bearing1.push(this.TargetList[1].bearing)
+                this.distance1.push(this.TargetList[1].distance)
+                this.id1.push(this.TargetList[1].id)
+
                 if (this.num_logs > (seconds_to_save / update_rate) + overflow_amt) {
                     this.num_logs -= overflow_amt
                     this.timestamp.splice(0, overflow_amt)
@@ -233,6 +257,13 @@ export default {
                     this.dampen.splice(0, overflow_amt)
                     this.kill.splice(0, overflow_amt)
                     this.restart.splice(0, overflow_amt)
+
+                    this.bearing0.splice(0,overflow_amt)
+                    this.distance0.splice(0,overflow_amt)
+                    this.id0.splice(0,overflow_amt)
+                    this.bearing1.splice(0,overflow_amt)
+                    this.distance1.splice(0,overflow_amt)
+                    this.id1.splice(0,overflow_amt)
                 }
             }
         }, update_rate * 1000)
@@ -240,7 +271,7 @@ export default {
 
     methods: {
         download_log() {
-            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Forward/Back,Left/Right,Dampen,Kill,Restart\n'
+            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Forward/Back,Left/Right,Dampen,Kill,Restart,Bearing0,Distance0,id0,Bearing1,Distance1,id1\n'
 
             for (let i = 0; i < this.num_logs; i++) {
                 csv += this.timestamp[i] + ','
@@ -288,7 +319,14 @@ export default {
                 csv += this.left_right[i] + ','
                 csv += this.dampen[i] + ','
                 csv += this.kill[i] + ','
-                csv += this.restart[i]
+                csv += this.restart[i] + ','
+
+                csv += this.bearing0[i] + ','
+                csv += this.distance0[i] + ','
+                csv += this.id0[i] + ','
+                csv += this.bearing1[i] + ','
+                csv += this.distance1[i] + ','
+                csv += this.id1[i]
 
                 csv += '\n'
             }
@@ -352,6 +390,13 @@ export default {
             this.dampen = []
             this.kill = []
             this.restart = []
+
+            this.bearing0 = []
+            this.distance0 = []
+            this.id0 = []
+            this.bearing1 = []
+            this.distance1 = []
+            this.id1 = []
         }
     }
 }
