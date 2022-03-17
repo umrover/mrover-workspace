@@ -496,16 +496,6 @@
             "speed"
         ]
     ],
-    "OpenLoopRAMotor": [
-        [
-            "int8_t",
-            "joint_id"
-        ],
-        [
-            "double",
-            "speed"
-        ]
-    ],
     "PIDConstants": [
         [
             "int8_t",
@@ -982,7 +972,6 @@
     ],
     "message_types": [
         "ArmControlState",
-        "RAPosition",
         "ArmPreset",
         "ArmToggles",
         "AutonState",
@@ -1012,12 +1001,12 @@
         "NavStatus",
         "Obstacle",
         "Odometry",
-        "OpenLoopRAMotor",
         "PiCamera",
         "PIDConstants",
         "PiPicture",
         "PiSettings",
         "ProximitySensors",
+        "RAPosition",
         "RGB",
         "RGBFrame",
         "RGBLED",
