@@ -34,6 +34,7 @@
 #include "rover_msgs/Signal.hpp"
 #include "rover_msgs/UseOrientation.hpp"
 #include "rover_msgs/ArmPreset.hpp"
+#include "rover_msgs/CustomPreset.hpp"
 #include "rover_msgs/ArmAdjustments.hpp"
 
 using namespace rover_msgs;
@@ -186,6 +187,14 @@ public:
      * @param msg float x, y, z, alpha, beta, gamma
      * */
     void arm_adjust_callback(std::string channel, ArmAdjustments msg);
+
+    /**
+     * Handle request to go to a preset position
+     * 
+     * @param channel expected: "/custom_preset"
+     * @param msg format: string preset
+     */
+    void custom_preset_callback(std::string channel, CustomPreset msg);
 
     /**
      * Handle request to lock specific joints

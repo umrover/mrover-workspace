@@ -50,6 +50,18 @@
                     Weight In
                 </button>
             </div>
+            <div class="input">
+                 Preset name: <input type='message' v-model ='name'>
+                 Button number: <input type='message' v-model ='buttonIdx'>
+                <button v-on:click="addPreset()">Add preset</button>
+            </div>
+            <div class="add-presets">
+                <button class="preset-button" v-on:click="presetPositionCallback(button1)">{{ button1 }}</button>
+                <button class="preset-button" v-on:click="presetPositionCallback(button2)">{{ button2 }}</button>
+                <button class="preset-button" v-on:click="presetPositionCallback(button3)">{{ button3 }}</button>
+                <button class="preset-button" v-on:click="presetPositionCallback(button4)">{{ button4 }}</button>
+                <button class="preset-button" v-on:click="presetPositionCallback(button5)">{{ button5 }}</button>
+            </div>
         </div>
     </div>
 </template>
@@ -79,7 +91,15 @@ export default {
                 'joint_d': false,
                 'joint_e': false,
                 'joint_f': false
-            }
+            },
+
+            name: "",
+            buttonIdx: 1,
+            button1:"default",
+            button2:"default",
+            button3:"default",
+            button4:"default",
+            button5:"default"
         }
     },
 
@@ -154,6 +174,25 @@ export default {
 
         presetPositionCallback: function(position) {
             this.$parent.publish('/arm_preset', { 'type': 'ArmPreset', 'preset': position });
+        },
+
+        addPreset: function() {
+            if (this.buttonIdx == 1) {
+                this.button1 = this.name;
+            }
+            else if (this.buttonIdx == 2) {
+                this.button2 = this.name;
+            }
+            else if (this.buttonIdx == 3) {
+                this.button3 = this.name;
+            }
+            else if (this.buttonIdx == 4) {
+                this.button4 = this.name;
+            }
+            else if (this.buttonIdx == 5) {
+                this.button5 = this.name;
+            }
+            this.$parent.publish('/custom_preset', { 'type': 'CustomPreset', 'preset': this.name });
         }
     },
 
@@ -204,5 +243,16 @@ export default {
     margin: 0px 10px;
 }
 
+.input {
+    display: flex;
+    padding-top: 5%;
+    justify-content: space-between;
+}
+
+.add-presets {
+    display: flex;
+    padding-top: 2%;
+    justify-content: left;
+}
 
 </style>

@@ -224,6 +224,8 @@ public:
     bool is_continuous(size_t joint_index);
 
     std::vector<double> get_preset_position(const std::string &pos);
+
+    void set_preset_position(const std::string &pos);
 };
 
 #endif

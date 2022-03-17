@@ -139,6 +139,13 @@
             "current_f"
         ]
     ],
+    "CustomPreset": [
+        [
+            "string",
+            "preset"
+        ]
+
+    ],
     "DebugMessage": [
         [
             "boolean",
@@ -979,6 +986,7 @@
         "CameraServos",
         "Course",
         "CurrentDraw",
+        "CustomPreset",
         "DebugMessage",
         "DriveMotors",
         "Encoder",

@@ -321,3 +321,7 @@ bool ArmState::is_continuous(size_t joint_index) {
 std::vector<double> ArmState::get_preset_position(const std::string &pos) { 
     return preset_positions.at(pos);
 }
+
+void ArmState::set_preset_position(const std::string &pos) { 
+    preset_positions[pos] = get_joint_angles(); 
+}

@@ -95,6 +95,14 @@ public:
         arm->arm_preset_callback( channel, *arm_preset );
     }
 
+    void customPresetCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const CustomPreset* custom_preset)
+    {
+        arm->custom_preset_callback( channel, *custom_preset );
+    }
+
 private:
     MRoverArm* arm;
 };
@@ -124,6 +132,7 @@ int main() {
         lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
         lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
         lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
+        lcmObject.subscribe( "/custom_preset", &lcmHandlers::customPresetCallback, &handler );
 
         Signal signal;
         lcmObject.publish("/ik_reset", &signal);
@@ -155,6 +164,7 @@ int main() {
         lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
         lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
         lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
+        lcmObject.subscribe( "/custom_preset", &lcmHandlers::customPresetCallback, &handler );
 
         Signal signal;
         lcmObject.publish("/ik_reset", &signal);
