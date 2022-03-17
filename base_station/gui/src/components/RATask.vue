@@ -165,9 +165,6 @@ export default {
             console.log(msg['message']['message'])
           }
         }
-        // } else if (msg.topic === '/ik_reset') {
-        //   console.log('is this working?')
-        // }
       },
       // Subscriptions
       [

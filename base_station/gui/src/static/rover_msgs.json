@@ -99,18 +99,6 @@
             "tilt"
         ]
     ],
-    "CarouselCmd": [
-        [
-            "int8_t",
-            "position"
-        ]
-    ],
-    "CarouselData": [
-        [
-            "int8_t",
-            "position"
-        ]
-    ],
     "Course": [
         [
             "int32_t",
@@ -169,30 +157,6 @@
         [
             "double",
             "right"
-        ]
-    ],
-    "DriveStateData": [
-        [
-            "int8_t",
-            "controller"
-        ],
-        [
-            "int8_t",
-            "state"
-        ]
-    ],
-    "DriveVelData": [
-        [
-            "int8_t",
-            "axis"
-        ],
-        [
-            "float",
-            "measuredCurrent"
-        ],
-        [
-            "float",
-            "estimatedVel"
         ]
     ],
     "ESCThrottle": [
@@ -393,12 +357,6 @@
             "killed"
         ]
     ],
-    "LockJointE": [
-        [
-            "boolean",
-            "locked"
-        ]
-    ],
     "LockJoints": [
         [
             "boolean",
@@ -425,6 +383,16 @@
             "jointf"
         ]
     ],
+    "MastGimbalCmd": [
+        [
+            "double[2]",
+            "pitch"
+        ],
+        [
+            "double[2]",
+            "yaw"
+        ]
+    ],
     "MicroCam": [
         [
             "string",
@@ -441,16 +409,6 @@
         [
             "string",
             "id"
-        ],
-        [
-            "boolean",
-            "enable"
-        ]
-    ],
-    "MosfetCmd": [
-        [
-            "int8_t",
-            "device"
         ],
         [
             "boolean",
@@ -626,12 +584,6 @@
             "depths[numDepths]"
         ]
     ],
-    "RadioSignalStrength": [
-        [
-            "float",
-            "signal_strength"
-        ]
-    ],
     "RGB": [
         [
             "string",
@@ -782,20 +734,6 @@
             "degrees"
         ]
     ],
-    "ServoCmd": [
-        [
-            "double",
-            "angle0"
-        ],
-        [
-            "double",
-            "angle1"
-        ],
-        [
-            "double",
-            "angle2"
-        ]
-    ],
     "SetDemand": [
         [
             "int8_t",
@@ -815,80 +753,6 @@
         [
             "boolean",
             "sim_mode"
-        ]
-    ],
-    "SpectralData": [
-        [
-            "int32_t",
-            "d0_1"    
-        ],
-        [
-            "int32_t",
-            "d0_2"    
-        ],
-        [
-            "int32_t",
-            "d0_3"    
-        ],
-        [
-            "int32_t",
-            "d0_4"    
-        ],
-        [
-            "int32_t",
-            "d0_5"    
-        ],
-        [
-            "int32_t",
-            "d0_6"    
-        ],
-        [
-            "int32_t",
-            "d1_1"    
-        ],
-        [
-            "int32_t",
-            "d1_2"    
-        ],
-        [
-            "int32_t",
-            "d1_3"    
-        ],
-        [
-            "int32_t",
-            "d1_4"    
-        ],
-        [
-            "int32_t",
-            "d1_5"    
-        ],
-        [
-            "int32_t",
-            "d1_6"    
-        ],
-        [
-            "int32_t",
-            "d2_1"    
-        ],
-        [
-            "int32_t",
-            "d2_2"    
-        ],
-        [
-            "int32_t",
-            "d2_3"    
-        ],
-        [
-            "int32_t",
-            "d2_4"    
-        ],
-        [
-            "int32_t",
-            "d2_5"    
-        ],
-        [
-            "int32_t",
-            "d2_6"    
         ]
     ],
     "StartTest": [
@@ -1016,20 +880,6 @@
             "enabled"
         ]
     ],
-    "ThermistorData": [
-        [
-            "double",
-            "temp0"
-        ],
-        [
-            "double",
-            "temp1"
-        ],
-        [
-            "double",
-            "temp2"
-        ]
-    ],
     "Waypoint": [
         [
             "boolean",
@@ -1153,11 +1003,11 @@
         "IMU",
         "Joystick",
         "KillSwitch",
-        "LockJointE",
+        "LockJoints",
+        "MastGimbalCmd",
         "MicroCam",
         "Microscope",
         "Mosfet",
-        "MosfetCmd",
         "MotionExecute",
         "NavStatus",
         "Obstacle",
@@ -1177,14 +1027,12 @@
         "Sensors",
         "SensorSwitch",
         "Servo",
-        "ServoCmd",
         "SetDemand",
         "Signal",
         "SimulationMode",
         "StartTest",
         "TalonConfig",
         "TargetAngles",
-        "TargetList",
         "TargetOrientation",
         "TargetPoint",
         "Temperature",
