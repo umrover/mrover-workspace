@@ -83,7 +83,7 @@ class ScienceBridge():
             print(e)
 
     def triad_handler(self, m, triad_struct):
-        # msg format: <"$SPECTRAL,d0_1,d0_2, .... , d2_6">
+        # msg format: <"$TRIAD,d0_1,d0_2, .... , d2_6">
         try:
             m.split(',')
             arr = [s.strip().strip('\x00') for s in m.split(',')]
@@ -156,7 +156,7 @@ class ScienceBridge():
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf8'))
+            self.ser.write(bytes(message, encoding='utf-8'))
         pass
 
     def heater_auto_transmit(self, channel, msg):
@@ -171,7 +171,7 @@ class ScienceBridge():
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf8'))
+            self.ser.write(bytes(message, encoding='utf-8'))
         pass
 
     def mosfet_transmit(self, channel, msg):
