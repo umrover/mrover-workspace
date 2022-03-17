@@ -339,11 +339,9 @@ class ScienceBridge():
                                 lcm.publish('/carousel_data', carousel.encode())
                             if (tag == "HEATER"):
                                 self.heater_state_handler(msg, heater)
-                                print(heater)
                                 lcm.publish('/heater_state_data', heater.encode())
                             if (tag == "AUTOSHUTOFF"):
                                 self.heater_shutoff_handler(msg, heater_auto)
-                                print(heater_auto)
                                 lcm.publish('/heater_auto_shutdown_data', heater_auto.encode())
                             seen_tags[tag] = True
                         except Exception as e:
