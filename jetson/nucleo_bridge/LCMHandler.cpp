@@ -20,7 +20,7 @@ void LCMHandler::init()
     lcm_bus->subscribe("/sa_ik_cmd",            &LCMHandler::InternalHandler::sa_closed_loop_cmd,   internal_object);
     lcm_bus->subscribe("/ra_openloop_cmd",      &LCMHandler::InternalHandler::ra_open_loop_cmd,     internal_object);
     lcm_bus->subscribe("/sa_openloop_cmd",      &LCMHandler::InternalHandler::sa_open_loop_cmd,     internal_object);
-    lcm_bus->subscribe("/mast_gimbal_cmd",  &LCMHandler::InternalHandler::gimbal_cmd,           internal_object);
+    lcm_bus->subscribe("/mast_gimbal_cmd",      &LCMHandler::InternalHandler::gimbal_cmd,           internal_object);
     lcm_bus->subscribe("/hand_openloop_cmd",    &LCMHandler::InternalHandler::hand_openloop_cmd,    internal_object);
     lcm_bus->subscribe("/foot_openloop_cmd",    &LCMHandler::InternalHandler::foot_openloop_cmd,    internal_object);
     /*
@@ -55,41 +55,41 @@ void LCMHandler::handle_outgoing()
 //The following functions are handlers for the corresponding lcm messages
 void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg)
 {
-    ControllerMap::controllers["RA_0"]->closed_loop(0, msg->joint_a);
-    ControllerMap::controllers["RA_1"]->closed_loop(0, msg->joint_b);
-    ControllerMap::controllers["RA_2"]->closed_loop(0, msg->joint_c);
-    ControllerMap::controllers["RA_3"]->closed_loop(0, msg->joint_d);
-    ControllerMap::controllers["RA_4"]->closed_loop(0, msg->joint_e);
-    ControllerMap::controllers["RA_5"]->closed_loop(0, msg->joint_f);
+    ControllerMap::controllers["RA_A"]->closed_loop(0, msg->joint_a);
+    ControllerMap::controllers["RA_B"]->closed_loop(0, msg->joint_b);
+    ControllerMap::controllers["RA_C"]->closed_loop(0, msg->joint_c);
+    ControllerMap::controllers["RA_D"]->closed_loop(0, msg->joint_d);
+    ControllerMap::controllers["RA_E"]->closed_loop(0, msg->joint_e);
+    ControllerMap::controllers["RA_F"]->closed_loop(0, msg->joint_f);
     ra_pos_data();
 }
 
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)
 {
-    ControllerMap::controllers["SA_0"]->closed_loop(0, msg->joint_a);
-    ControllerMap::controllers["SA_1"]->closed_loop(0, msg->joint_b);
-    ControllerMap::controllers["SA_2"]->closed_loop(0, msg->joint_c);
-    ControllerMap::controllers["SA_3"]->closed_loop(0, msg->joint_e);
+    ControllerMap::controllers["SA_A"]->closed_loop(0, msg->joint_a);
+    ControllerMap::controllers["SA_B"]->closed_loop(0, msg->joint_b);
+    ControllerMap::controllers["SA_C"]->closed_loop(0, msg->joint_c);
+    ControllerMap::controllers["SA_E"]->closed_loop(0, msg->joint_e);
     sa_pos_data();
 }
 
 void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg)
 {
-    ControllerMap::controllers["RA_0"]->open_loop(msg->throttle[0]);
-    ControllerMap::controllers["RA_1"]->open_loop(msg->throttle[1]);
-    ControllerMap::controllers["RA_2"]->open_loop(msg->throttle[2]);
-    ControllerMap::controllers["RA_3"]->open_loop(msg->throttle[3]);
-    ControllerMap::controllers["RA_4"]->open_loop(msg->throttle[4]);
-    ControllerMap::controllers["RA_5"]->open_loop(msg->throttle[5]);
+    ControllerMap::controllers["RA_A"]->open_loop(msg->throttle[0]);
+    ControllerMap::controllers["RA_B"]->open_loop(msg->throttle[1]);
+    ControllerMap::controllers["RA_C"]->open_loop(msg->throttle[2]);
+    ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3]);
+    ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4]);
+    ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
     ra_pos_data();
 }
 
 void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg)
 {
-    ControllerMap::controllers["SA_0"]->open_loop(msg->throttle[0]);
-    ControllerMap::controllers["SA_1"]->open_loop(msg->throttle[1]);
-    ControllerMap::controllers["SA_2"]->open_loop(msg->throttle[2]);
-    ControllerMap::controllers["SA_3"]->open_loop(msg->throttle[3]);
+    ControllerMap::controllers["SA_A"]->open_loop(msg->throttle[0]);
+    ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1]);
+    ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2]);
+    ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3]);
     sa_pos_data();
 }
 
@@ -97,19 +97,20 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
 The following functions may be reimplemented when IK is tested
 void LCMHandler::InternalHandler::ra_config_cmd(LCM_INPUT, const RAConfigCmd *msg)
 {
-    ControllerMap::controllers["RA_0"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
-    ControllerMap::controllers["RA_1"]->config(msg->Kp[1], msg->Ki[1], msg->Kd[1]);
-    ControllerMap::controllers["RA_2"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
-    ControllerMap::controllers["RA_3"]->config(msg->Kp[3], msg->Ki[3], msg->Kd[3]);
-    ControllerMap::controllers["RA_4"]->config(msg->Kp[4], msg->Ki[4], msg->Kd[4]);
-    ControllerMap::controllers["RA_5"]->config(msg->Kp[5], msg->Ki[5], msg->Kd[5]);
+    ControllerMap::controllers["RA_A"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
+    ControllerMap::controllers["RA_B"]->config(msg->Kp[1], msg->Ki[1], msg->Kd[1]);
+    ControllerMap::controllers["RA_C"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
+    ControllerMap::controllers["RA_D"]->config(msg->Kp[3], msg->Ki[3], msg->Kd[3]);
+    ControllerMap::controllers["RA_E"]->config(msg->Kp[4], msg->Ki[4], msg->Kd[4]);
+    ControllerMap::controllers["RA_F"]->config(msg->Kp[5], msg->Ki[5], msg->Kd[5]);
 }
 
 void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *msg)
 {
-    ControllerMap::controllers["SA_0"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
-    ControllerMap::controllers["SA_1"]->config(msg->Kp[1], msg->Ki[1], msg->Kd[1]);
-    ControllerMap::controllers["SA_2"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
+    ControllerMap::controllers["SA_A"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
+    ControllerMap::controllers["SA_B"]->config(msg->Kp[1], msg->Ki[1], msg->Kd[1]);
+    ControllerMap::controllers["SA_C"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
+    ControllerMap::controllers["SA_E"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
 }
 */
 
@@ -127,26 +128,27 @@ void LCMHandler::InternalHandler::gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg
 
 void LCMHandler::InternalHandler::refreshAngles()
 {
-    ControllerMap::controllers["RA_0"]->angle();
-    ControllerMap::controllers["RA_1"]->angle();
-    ControllerMap::controllers["RA_2"]->angle();
-    ControllerMap::controllers["RA_3"]->angle();
-    ControllerMap::controllers["RA_4"]->angle();
-    ControllerMap::controllers["RA_5"]->angle();
-    ControllerMap::controllers["SA_0"]->angle();
-    ControllerMap::controllers["SA_1"]->angle();
-    ControllerMap::controllers["SA_2"]->angle();
+    ControllerMap::controllers["RA_A"]->angle();
+    ControllerMap::controllers["RA_B"]->angle();
+    ControllerMap::controllers["RA_C"]->angle();
+    ControllerMap::controllers["RA_D"]->angle();
+    ControllerMap::controllers["RA_E"]->angle();
+    ControllerMap::controllers["RA_F"]->angle();
+    ControllerMap::controllers["SA_A"]->angle();
+    ControllerMap::controllers["SA_B"]->angle();
+    ControllerMap::controllers["SA_C"]->angle();
+    ControllerMap::controllers["SA_E"]->angle();
 }
 
 void LCMHandler::InternalHandler::ra_pos_data()
 {
     RAPosition msg;
-    msg.joint_a = ControllerMap::controllers["RA_0"]->current_angle;
-    msg.joint_b = ControllerMap::controllers["RA_1"]->current_angle;
-    msg.joint_c = ControllerMap::controllers["RA_2"]->current_angle;
-    msg.joint_d = ControllerMap::controllers["RA_3"]->current_angle;
-    msg.joint_e = ControllerMap::controllers["RA_4"]->current_angle;
-    msg.joint_f = ControllerMap::controllers["RA_5"]->current_angle;
+    msg.joint_a = ControllerMap::controllers["RA_A"]->current_angle;
+    msg.joint_b = ControllerMap::controllers["RA_B"]->current_angle;
+    msg.joint_c = ControllerMap::controllers["RA_C"]->current_angle;
+    msg.joint_d = ControllerMap::controllers["RA_D"]->current_angle;
+    msg.joint_e = ControllerMap::controllers["RA_E"]->current_angle;
+    msg.joint_f = ControllerMap::controllers["RA_F"]->current_angle;
     lcm_bus->publish("/ra_position", &msg);
 
     last_output_time = NOW;
@@ -155,10 +157,10 @@ void LCMHandler::InternalHandler::ra_pos_data()
 void LCMHandler::InternalHandler::sa_pos_data()
 {
     SAPosition msg;
-    msg.joint_a = ControllerMap::controllers["SA_0"]->current_angle;
-    msg.joint_b = ControllerMap::controllers["SA_1"]->current_angle;
-    msg.joint_c = ControllerMap::controllers["SA_2"]->current_angle;
-    msg.joint_e = ControllerMap::controllers["SA_3"]->current_angle;
+    msg.joint_a = ControllerMap::controllers["SA_A"]->current_angle;
+    msg.joint_b = ControllerMap::controllers["SA_B"]->current_angle;
+    msg.joint_c = ControllerMap::controllers["SA_C"]->current_angle;
+    msg.joint_e = ControllerMap::controllers["SA_E"]->current_angle;
     lcm_bus->publish("/sa_position", &msg);
 
     last_output_time = NOW;
@@ -168,19 +170,20 @@ void LCMHandler::InternalHandler::sa_pos_data()
 The following functions may be reimplemented when IK is tested
 void LCMHandler::InternalHandler::sa_zero_trigger(LCM_INPUT, const SAZeroTrigger *msg)
 {
-    ControllerMap::controllers["SA_0"]->zero();
-    ControllerMap::controllers["SA_1"]->zero();
-    ControllerMap::controllers["SA_2"]->zero();
+    ControllerMap::controllers["SA_A"]->zero();
+    ControllerMap::controllers["SA_B"]->zero();
+    ControllerMap::controllers["SA_C"]->zero();
+    ControllerMap::controllers["SA_E"]->zero();
 }
 
 void LCMHandler::ra_zero_trigger(LCM_INPUT, const RAZeroTrigger *msg)
 {
-    ControllerMap::controllers["RA_0"]->zero();
-    ControllerMap::controllers["RA_1"]->zero();
- 	ControllerMap::controllers["RA_2"]->zero();
- 	ControllerMap::controllers["RA_3"]->zero();
- 	ControllerMap::controllers["RA_4"]->zero();
- 	ControllerMap::controllers["RA_5"]->zero();
+    ControllerMap::controllers["RA_A"]->zero();
+    ControllerMap::controllers["RA_B"]->zero();
+ 	ControllerMap::controllers["RA_C"]->zero();
+ 	ControllerMap::controllers["RA_D"]->zero();
+ 	ControllerMap::controllers["RA_E"]->zero();
+ 	ControllerMap::controllers["RA_F"]->zero();
 }
 */
 

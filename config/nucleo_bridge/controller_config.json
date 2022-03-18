@@ -36,7 +36,7 @@
         "channel": 3
     },
     {
-        "name":"SA_0",
+        "name":"SA_A",
         "type":"Motor29Percent",
         "nucleo": 0,
         "channel": 0,
@@ -45,7 +45,7 @@
         "kI": 0.00005
     },
     {
-        "name":"SA_1",
+        "name":"SA_B",
         "type":"Motor12V",
         "nucleo": 0,
         "channel": 1,
@@ -54,7 +54,7 @@
         "kI": 0.0007
     },
     {
-        "name":"SA_2",
+        "name":"SA_C",
         "type":"Motor24V",
         "nucleo": 1,
         "channel": 0,
@@ -63,7 +63,7 @@
         "kI": 0.00005
     },
     {
-        "name":"SA_3",
+        "name":"SA_E",
         "type":"Motor24V",
         "nucleo": 2,
         "channel": 0,
@@ -72,7 +72,7 @@
         "kI": 0.00005
     },
     {
-        "name":"RA_0",
+        "name":"RA_A",
         "type":"Motor29Percent",
         "nucleo": 0,
         "channel": 0,
@@ -81,7 +81,7 @@
         "kI": 0.00005
     },
     {
-        "name":"RA_1",
+        "name":"RA_B",
         "type":"Motor12V",
         "nucleo": 0,
         "channel": 1,
@@ -90,7 +90,7 @@
         "kI": 0.0007
     },
     {
-        "name":"RA_2",
+        "name":"RA_C",
         "type":"Motor24V",
         "nucleo": 1,
         "channel": 0,
@@ -99,7 +99,7 @@
         "kI": 0.00005
     },
     {
-        "name":"RA_3",
+        "name":"RA_D",
         "type":"Motor24V",
         "nucleo": 1,
         "channel": 1,
@@ -108,7 +108,7 @@
         "kI": 0.00005
     },
     {
-        "name":"RA_4",
+        "name":"RA_E",
         "type":"Motor24V",
         "nucleo": 2,
         "channel": 0,
@@ -117,7 +117,7 @@
         "kI": 0.00005
     },
     {
-        "name":"RA_5",
+        "name":"RA_F",
         "type":"Motor6V",
         "nucleo": 2,
         "channel": 1,

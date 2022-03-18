@@ -9,6 +9,7 @@
 #include "Hardware.h"
 #include "I2C.h"
 #include "ControllerMap.h"
+#include <chrono>
 
 #define OFF         0x00,   0,  0
 #define ON          0x0F,   0,  0
@@ -75,6 +76,9 @@ public:
 
     //Sends a get angle command
     void angle();
+
+    // Calibrate joint -- should only be used for joint b
+    void calibrate_joint();
 };
 
 #endif

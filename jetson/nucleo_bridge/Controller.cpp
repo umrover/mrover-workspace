@@ -34,7 +34,7 @@ void Controller::make_live()
         // not needed for joint F
 
         float abs_raw_angle = 0;
-        if (name != "RA_5")
+        if (name != "RA_F")
         {
             transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
         }
@@ -49,6 +49,10 @@ void Controller::make_live()
         transact(ADJUST,buffer, nullptr);
 
         ControllerMap::make_live(name);
+        
+        if (name == "RA_B" || name == "SA_B") {
+            calibrate_joint();
+        }
     }
     catch (IOFailure &e)
     {
@@ -60,7 +64,7 @@ void Controller::make_live()
 //Helper function to convert raw angle to radians. Also checks if new angle is close to old angle <depreciated>
 void Controller::record_angle(int32_t raw_angle)
 {
-    if (name == "RA_1")
+    if (name == "RA_B" || name == "SA_B")
     {
         float abs_raw_angle = 0;
         memcpy(&abs_raw_angle, &raw_angle, sizeof(raw_angle));
@@ -116,7 +120,7 @@ void Controller::closed_loop(float torque, float target)
 
         // we read values from 0 - 2pi, teleop sends in -pi to pi
         target += M_PI;
-        if (name == "RA_1")
+        if (name == "RA_B" || name == "SA_B")
         {
             memcpy(buffer + 4, UINT8_POINTER_T(&target), sizeof(target));
         }
@@ -189,7 +193,7 @@ void Controller::angle()
     try
     {
         int32_t angle;
-        if (name == "RA_1")
+        if (name == "RA_B" || name == "SA_B")
         {
             transact(ABS_ENC, nullptr, UINT8_POINTER_T(&angle));
         }
@@ -204,5 +208,34 @@ void Controller::angle()
     catch (IOFailure &e)
     {
         printf("angle failed on %s\n", name.c_str());
+    }
+}
+
+// Calibrate joint -- should only be used for joint b
+void Controller::calibrate_joint()
+{
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+
+    try
+    {
+        if (name == "RA_B" || name == "SA_B")
+        {
+            printf("calibration not supported on %s\n", name.c_str());
+        }
+        std::chrono::high_resolution_clock::time_point calibration_start_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration calibration_duration_time = std::chrono::seconds(5);
+        open_loop(0.5);
+        while (std::chrono::high_resolution_clock::now() - calibration_start_time < calibration_duration_time) {
+            continue;  // stay in loop until 3 seconds passes
+        }
+        open_loop(0);
+        zero();
+    }
+    catch (IOFailure &e)
+    {
+        printf("calibrate joint failed on %s\n", name.c_str());
     }
 }
