@@ -228,9 +228,7 @@ void Controller::calibrate_joint()
         std::chrono::high_resolution_clock::time_point calibration_start_time = std::chrono::high_resolution_clock::now();
         std::chrono::duration calibration_duration_time = std::chrono::seconds(5);
         open_loop(0.5);
-        while (std::chrono::high_resolution_clock::now() - calibration_start_time < calibration_duration_time) {
-            continue;  // stay in loop until 3 seconds passes
-        }
+        std::this_thread::sleep_for(calibration_duration_time);
         open_loop(0);
         zero();
     }
