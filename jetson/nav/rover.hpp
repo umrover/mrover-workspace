@@ -38,8 +38,7 @@ enum class NavState
 
     // Target Found States
     TurnToTarget = 27,
-    TurnedToTargetWait = 28,
-    DriveToTarget = 29,
+    DriveToTarget = 28,
 
     // Obstacle Avoidance States
     TurnAroundObs = 30,

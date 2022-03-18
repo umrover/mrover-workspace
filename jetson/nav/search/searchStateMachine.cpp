@@ -24,11 +24,6 @@ NavState SearchStateMachine::run()
 {
     switch ( mRover->roverStatus().currentState() )
     {
-        case NavState::TurnedToTargetWait:
-        {
-            return executeRoverWait();
-        }
-
         case NavState::SearchTurn:
         {
             return executeSearchTurn();
@@ -56,40 +51,6 @@ NavState SearchStateMachine::run()
         }
     } // switch
 } // run()
-
-// Executes the logic for waiting during a search spin so that CV can
-// look for the target. If the rover detects the target, it proceeds
-// to the target. If the rover is done waiting, it continues the search
-// spin. Else the rover keeps waiting.
-NavState SearchStateMachine::executeRoverWait()
-{
-    static bool started = false;
-    static time_t startTime;
-
-    if( mRover->roverStatus().leftCacheTarget().distance >= 0 )
-    {
-        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToTarget;
-    }
-
-    if( !started )
-    {
-        mRover->stop();
-        startTime = time( nullptr );
-        started = true;
-    }
-    double waitTime = mRoverConfig[ "search" ][ "searchWaitTime" ].GetDouble();
-    if( difftime( time( nullptr ), startTime ) > waitTime )
-    {
-        started = false;
-        return NavState::SearchTurn;
-    }
-    else
-    {
-        return NavState::TurnedToTargetWait;
-    }
-}
 
 // Executes the logic for turning while searching.
 // If no remaining search points, it proceeds to change search algorithms.
@@ -164,12 +125,7 @@ NavState SearchStateMachine::executeTurnToTarget()
 {
     if( mRover->roverStatus().leftCacheTarget().distance == mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
-        cerr << "Lost the target. Continuing to turn to last known angle\n";
-        if( mRover->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
-        {
-            return NavState::TurnedToTargetWait;
-        }
-        return NavState::TurnToTarget;
+        return NavState::SearchTurn;
     }
     if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing +
                       mRover->roverStatus().odometry().bearing_deg ) )

@@ -113,7 +113,7 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     {
         auto &wp = mCourse.waypoints[ courseIndex ];
         mPath.push_back( wp );
-        if ( wp.search ) {
+        if ( wp.search || wp.gate ) {
             ++mPathTargets;
         }
     }
