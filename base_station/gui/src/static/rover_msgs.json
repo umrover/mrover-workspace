@@ -133,28 +133,6 @@
             "tilt"
         ]
     ],
-    "CamSettings": [
-        [
-            "int8_t",
-            "cam_index"
-        ],
-        [
-            "int32_t",
-            "shutter_speed"
-        ],
-        [
-            "boolean",
-            "vflip"
-        ],
-        [
-            "int32_t",
-            "height"
-        ],
-        [
-            "int32_t",
-            "width"
-        ]
-    ],
     "CarouselClosedLoopCmd": [
         [
             "int8_t",
@@ -165,6 +143,12 @@
         [
             "int8_t",
             "position"
+        ]
+    ],
+    "CarouselOpenLoopCmd": [
+        [
+            "double",
+            "throttle"
         ]
     ],
     "Course": [
