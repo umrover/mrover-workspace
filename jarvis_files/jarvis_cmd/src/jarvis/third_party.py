@@ -40,14 +40,14 @@ def ensure_lcm(ctx):
 
     lcmdir = os.path.join(ctx.third_party_root, 'lcm')
     with ctx.intermediate('lcm'):
-        ctx.run("cp -r {}/* .".format(lcmdir))  # TODO: Use python's own cp
+        ctx.run("cp -r \"{}\"/* .".format(lcmdir))  # TODO: Use python's own cp
         print("Configuring LCM...")
-        ctx.run("./bootstrap.sh", hide='both')
-        ctx.run("./configure --prefix={}".format(ctx.product_env), hide='both')
+        ctx.run("./bootstrap.sh")
+        ctx.run("./configure --prefix={}".format(ctx.product_env))
         print("Building LCM...")
-        ctx.run("make", hide='both')
+        ctx.run("make")
         print("Installing LCM...")
-        ctx.run("make install", hide='both')
+        ctx.run("make install")
         # Copy the lcm-gen binary into the Jarvis venv so it may be accessible
         # for other parts of the build process.
         shutil.copy("{}/bin/lcm-gen".format(ctx.product_env),
@@ -56,7 +56,7 @@ def ensure_lcm(ctx):
         # Install Python library
         with ctx.inside_product_env():
             with ctx.cd('lcm-python'):
-                ctx.run("python setup.py install", hide='both')
+                ctx.run("python setup.py install")
 
     print("Finished installing LCM.")
 
@@ -78,7 +78,7 @@ def ensure_rapidjson(ctx):
     rapidjson_dir = os.path.join(ctx.third_party_root, 'rapidjson')
     ctx.ensure_product_env()
     with ctx.intermediate('rapidjson'):
-        ctx.run("cp -r {}/* .".format(rapidjson_dir))
+        ctx.run("cp -r \"{}\"/* .".format(rapidjson_dir))
         print("Configuring rapidjson...")
         #ctx.run("mkdir -p build")
         #with ctx.cd("build"):
@@ -87,6 +87,60 @@ def ensure_rapidjson(ctx):
         print("Building rapidjson...")
         ctx.run("cmake --build .")
         print("Installing rapidjson...")
+        ctx.run("cmake --build . --target install")
+        print("Done")
+
+def check_nlohmann(ctx):
+    """
+    Checks for the existence of nlohmann in the product venv.
+    """
+    return os.path.exists(ctx.get_product_file('include', 'nlohmann'))
+
+def ensure_nlohmann(ctx):
+    """
+    Installs nlohmann into the product venv.
+    """
+    if check_nlohmann(ctx):
+        print("nlohmann already installed, skipping.")
+        return
+
+    nlohmann_dir = os.path.join(ctx.third_party_root, 'nlohmann')
+    ctx.ensure_product_env()
+    with ctx.intermediate('nlohmann'):
+        ctx.run("cp -r {}/* .".format(nlohmann_dir))
+        print("Configuring nlohmann...")
+        ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} .".format(
+            ctx.product_env))
+        print("Building nlohmann...")
+        ctx.run("cmake --build .")
+        print("Installing nlohmann...")
+        ctx.run("cmake --build . --target install")
+        print("Done")
+
+def check_kluge(ctx):
+    """
+    Check for the existence of kluge in the product venv.
+    """
+    return os.path.exists(ctx.get_product_file('include', 'kluge'))
+
+def ensure_kluge(ctx):
+    """
+    Install kluge into the product venv.
+    """
+    if check_kluge(ctx):
+        print("kluge already installed, skipping.")
+        return
+
+    kluge_dir = os.path.join(ctx.third_party_root, 'kluge')
+    ctx.ensure_product_env()
+    with ctx.intermediate('kluge'):
+        ctx.run("cp -r {}/* .".format(kluge_dir))
+        print("Configuring kluge...")
+        ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} .".format(
+            ctx.product_env))
+        print("Building kluge...")
+        ctx.run("cmake --build .")
+        print("Installing kluge...")
         ctx.run("cmake --build . --target install")
         print("Done")
 
@@ -107,7 +161,7 @@ def ensure_phoenix(ctx):
     phoenix_dir = os.path.join(ctx.third_party_root, 'phoenix')
     ctx.ensure_product_env()
     with ctx.intermediate('phoenix'):
-        ctx.run("cp -r {}/* .".format(phoenix_dir))
+        ctx.run("cp -r \"{}\"/* .".format(phoenix_dir))
         print("Configuring phoenix...")
         ctx.run("cmake -DCMAKE_INSTALL_PREFIX={} .".format(
             ctx.product_env))

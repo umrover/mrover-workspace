@@ -59,6 +59,8 @@ export default {
             nav_state: [],
             completed_wps: [],
             total_wps: [],
+            first_waypoint_lat: [],
+            first_waypoint_lon: [],
 
             // Joystick
             forward_back: [],
@@ -90,6 +92,11 @@ export default {
             required: true
         },
 
+        route: {
+            type: Object,
+            required: true
+        },
+
         Joystick: {
             type: Object,
             required: true
@@ -99,7 +106,8 @@ export default {
     computed: {
         ...mapGetters('autonomy', {
             autonEnabled: 'autonEnabled',
-            odom_format: 'odomFormat'
+            odom_format: 'odomFormat',
+            route: 'route'
         }),
 
         formatted_odom: function() {
@@ -162,6 +170,15 @@ export default {
                 this.completed_wps.push(this.nav_status.completed_wps)
                 this.total_wps.push(this.nav_status.total_wps)
 
+                if (this.route.length > 0) {
+                    this.first_waypoint_lat.push(this.route[0].latLng.lat)
+                    this.first_waypoint_lon.push(this.route[0].latLng.lng)
+                }
+                else {
+                    this.first_waypoint_lat.push("(empty course)")
+                    this.first_waypoint_lon.push("(empty course)")
+                }
+
                 this.forward_back.push(this.Joystick.forward_back)
                 this.left_right.push(this.Joystick.left_right)
                 this.dampen.push(this.Joystick.dampen)
@@ -208,6 +225,8 @@ export default {
                     this.nav_state.splice(0, overflow_amt)
                     this.completed_wps.splice(0, overflow_amt)
                     this.total_wps.splice(0, overflow_amt)
+                    this.first_waypoint_lat.splice(0, overflow_amt)
+                    this.first_waypoint_lon.splice(0, overflow_amt)
 
                     this.forward_back.splice(0, overflow_amt)
                     this.left_right.splice(0, overflow_amt)
@@ -221,7 +240,7 @@ export default {
 
     methods: {
         download_log() {
-            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,Forward/Back,Left/Right,Dampen,Kill,Restart\n'
+            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Forward/Back,Left/Right,Dampen,Kill,Restart\n'
 
             for (let i = 0; i < this.num_logs; i++) {
                 csv += this.timestamp[i] + ','
@@ -262,6 +281,8 @@ export default {
                 csv += this.nav_state[i] + ','
                 csv += this.completed_wps[i] + ','
                 csv += this.total_wps[i] + ','
+                csv += this.first_waypoint_lat[i] + ','
+                csv += this.first_waypoint_lon[i] + ','
 
                 csv += this.forward_back[i] + ','
                 csv += this.left_right[i] + ','
@@ -323,6 +344,8 @@ export default {
             this.nav_state = []
             this.completed_wps = []
             this.total_wps = []
+            this.first_waypoint_lat = []
+            this.first_waypoint_lon = []
 
             this.forward_back = []
             this.left_right = []

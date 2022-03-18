@@ -1,11 +1,12 @@
 import asyncio
+from hashlib import new
 import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
                         SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, FootCmd)
+                        Keyboard, FootCmd, ArmControlState, ReverseDrive)
 
 
 class Toggle:
@@ -33,6 +34,7 @@ class Toggle:
 lcm_ = aiolcm.AsyncLCM()
 prev_killed = False
 kill_motor = False
+auton_reverse = True
 lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
@@ -136,10 +138,54 @@ def drive_control_callback(channel, msg):
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
+def autonomous_callback(channel, msg):
+    global auton_reverse
+
+    input_data = Joystick.decode(msg)
+    drive_command = DriveVelCmd()
+
+    joystick_math(drive_command, input_data.forward_back, input_data.left_right)
+
+    if auton_reverse:
+        temp = drive_command.left
+        drive_command.left = drive_command.right
+        drive_command.right = temp
+    else:
+        drive_command.left = -1 * drive_command.left
+        drive_command.right = -1 * drive_command.right
+
+    lcm_.publish('/drive_vel_cmd', drive_command.encode())
+
+
+def auton_reverse_callback(channel, msg):
+    global auton_reverse
+    auton_reverse = ReverseDrive.decode(msg).reverse
+
+
+def send_zero_arm_command():
+    openloop_msg = RAOpenLoopCmd()
+    openloop_msg.throttle = [0, 0, 0, 0, 0, 0]
+
+    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+
+    hand_msg = HandCmd()
+    hand_msg.finger = 0
+    hand_msg.grip = 0
+
+    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+
+
+def arm_control_state_callback(channel, msg):
+    arm_control_state = ArmControlState.decode(msg)
+
+    if arm_control_state != 'open-loop':
+        send_zero_arm_command()
+
+
 def ra_control_callback(channel, msg):
     xboxData = Xbox.decode(msg)
 
-    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
+    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_x), 0.09),
@@ -157,19 +203,6 @@ def ra_control_callback(channel, msg):
     hand_msg.grip = xboxData.b - xboxData.x
 
     lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
-
-
-def autonomous_callback(channel, msg):
-    input_data = Joystick.decode(msg)
-    new_motor = DriveVelCmd()
-
-    joystick_math(new_motor, input_data.forward_back, input_data.left_right)
-
-    temp = new_motor.left
-    new_motor.left = new_motor.right
-    new_motor.right = temp
-
-    lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
 async def transmit_temperature():
@@ -248,9 +281,11 @@ def main():
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/drive_control", drive_control_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
+    lcm_.subscribe("/auton_reverse", auton_reverse_callback)
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
+    lcm_.subscribe('/arm_control_state', arm_control_state_callback)
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),

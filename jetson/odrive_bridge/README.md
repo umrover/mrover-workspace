@@ -77,22 +77,21 @@ To get velocity estimates and current draw data \
 `$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" ./jarvis exec lcm_tools_echo DriveVelData "./drive_vel_data"` 
 
 ### Setting Up A New Odrive 
-
+[Link to the most updated guide as of 2021](https://docs.google.com/document/d/1HmKRBJYMA4qaA--7KrE8OWiwN6Ck05E5CHhxUegaq0A/edit)
 #### Electrical Modifications
 <font size="4"> Typically the odrive does not have very good Hall Filtering capabilities, so some electrical modifications must be made prior to 
 our usage of it. Six 47nF capacitors will have to be soldered on to the odrive as shown 
 [here](https://discourse.odriverobotics.com/t/encoder-error-error-illegal-hall-state/1047/7?u=madcowswe). </font>
 
 #### Getting The ID 
-<font size="4"> Each odrive has a unique serial ID. In order to determine that this ID is, either you can follow the steps on 
-[this](https://docs.odriverobotics.com/#downloading-and-installing-tools)  
-odrive webiste page to get odrivetool on your own computer or connect the 
-odrive to the jetson and follow the steps below to get it. You must change the USB permissions (how to in the next section)
-before doing this though, and make sure the odrive_bridge program on the jetson is [deactivated](Debugging). \
+<font size="4"> Each odrive has a unique serial ID. In order to determine that this ID is, follow the steps on 
+[this](https://docs.odriverobotics.com/#downloading-and-installing-tools) website on the hoverboard guide page. To activate odrivetool
+ follow the steps below. You can do this on the base station or the jetson. On the jetson make sure the \
+ odrive_bridge program on the jetson is [deactivated](Debugging). \
 `$ ssh mrover@10.1.0.1` \
 `$ mrover` \
 `$ cd ~/.mrover` \
-`$ source bin/activate` \
+`$ source build_env/bin/activate` \
 `$ odrivetool` \
 This will start up odrivetool, and after a few seconds *Connected to Odrive [ID number] as odrvX* should appear on the screen. \
 Type \
@@ -102,7 +101,7 @@ to get out of this state. \
 In the odrive_bridge program, go to the **connect** function in the OdriveBridge class, and look at the line that sets the IDs. 
 Depending on which odrive you replaced, change its ID to the new one. The first ID on the 2020 rover controls the back motors
 and the seconds controls the front. Rebuild the program. \
-`$ ./jarvis build onboard/odrive_bridge`
+`$ ./jarvis build jetson/odrive_bridge`
 </font>
 
 #### Changing The USB Permissions
@@ -111,7 +110,10 @@ Make sure the odrive is connected via USB and ssh into the jetson. Type \
 `$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics
 device. \
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
-`$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="mrover", MODE="[__MODE__]" ` \
+add \
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="0d32", GROUP="mrover", MODE="0666" \
+ to the file \
+ If this is on your virtual machine change the group name to be vagrant. \
  Restart the jetson.
 </font>
 
@@ -121,23 +123,9 @@ and start running odrivetool. \
 `$ ssh mrover@10.1.0.1` \
 `$ mrover` \
 `$ cd ~/.mrover` \
-`$ source bin/activate` \
+`$ source build_env/bin/activate` \
 `$ odrivetool` \
 The odrives should automatically connect. Using the odrvX.axisY (0 or 1 depending on the odrive with the id) in place of m_axis, execute all of the following commands for axis0 and axis1. \
-`$ m_axis.motor.config.pole_pairs = 15 `\
-`$ m_axis.motor.config.resistance_calib_max_voltage = 4 ` \
-`$ m_axis.motor.config.requested_current_range = 25 `\
-`$ m_axis.motor.config.current_control_bandwidth = 100 `\
-`$ m_axis.encoder.config.mode = ENCODER_MODE_HALL ` \
-`$ m_axis.encoder.config.cpr = 90 ` \
-`$ m_axis.encoder.config.bandwidth = 100`\
-`$ m_axis.controller.config.pos_gain = 1 `\
-`$ m_axis.controller.config.vel_gain = 0.02 `\
-`$ m_axis.controller.config.vel_integrator_gain = 0.1 `\
-`$ m_axis.controller.config.vel_limit = 1000 `\
-`$ m_axis.controller.config.control_mode = CTRL_MODE_VELOCITY_CONTROL `\
-`$ odrvX.reboot()` \
-A ChannelBrokenExceptionError will be thrown however in a few minutes the odrive will reconnect. Upon reconnection type \
 `$ odrvX.axis0.requestedstate = AXIS_STATE_FULL_CALIBRATION_SEQUENCE ` \
  The motor should beep and start calibrating now. If it does not go to the **Errors** section below. 
  Once it has finished, type \
@@ -145,16 +133,7 @@ A ChannelBrokenExceptionError will be thrown however in a few minutes the odrive
 `$ odrvX.axis0.encoder.config.pre_calibrated = True ` \
  Repeat these three commands for axis1 as well. Then type \
 `$ odrvX.reboot()` 
- 
- *ALTERNATE METHOD* \
- Make sure the .mrover virtual environment is active. \
- Clone the umrover/embedded-testbench repo, and go to the motor_testing branch \
- Open the run.py folder and change the odrive and axis you want to calibrate in the program. \
- Run the run.py file found in the odriver folder \
- If you enter 'r' into the cmd line and the 'c' the motor will begin calibration. 
 
-Go to the ~/mrover-workspace folder on the base station and re-enable the odrive_bridge program. \
-`$ LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" systemctl start service.mrover-onboard-odrive_bridge@{FRONT|BACK}_MOTOR `  
 </font>
 
 ### Off Nominal Behavior Handling
@@ -207,7 +186,7 @@ The terminal should now display that you are in mrover@mrover-jetson  \
 `$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics 
 device. \
 `$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
-`$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="vagrant", MODE="[__MODE__]" ` \
+`$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="mrover", MODE="[__MODE__]" ` \
  Restart the VM. </font>
  
 #### ERROR_ILLEGAL_HALL_STATE
@@ -253,11 +232,3 @@ As of right now we are unsure whether or not we are using odrives for the 2021 R
 
 ### Notes
 The odrive code has been modified to work for 3 odrives on the 2021 rover for SAR. We do not plan on using odrives for URC.
-<<<<<<< HEAD
-
-
-
-
-
-=======
->>>>>>> 70cf3ced601a9e93fa807b3149b1ecbe65643d79

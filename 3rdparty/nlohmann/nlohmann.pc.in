@@ -1,0 +1,8 @@
+libdir=@LIB_INSTALL_DIR@
+includedir=@INCLUDE_INSTALL_DIR@
+
+Name: nlohmann
+Description: Niels Lohmann JSON Library
+Version: 3.5.0
+Libs: -L${libdir} -lJSON
+Cflags: -I${includedir}
