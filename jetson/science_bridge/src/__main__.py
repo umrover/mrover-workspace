@@ -34,7 +34,6 @@ class ScienceBridge():
     def __enter__(self):
         '''
         Opens a serial connection to the nucleo
-        Not sure what the uart port on the jetson is
         '''
         self.ser = serial.Serial(
             # port='/dev/ttyS4',
