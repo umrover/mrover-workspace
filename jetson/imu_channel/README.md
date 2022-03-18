@@ -9,7 +9,7 @@ BNO055 Sensor -> Arduino -> IMU driver -> LCM -> rover software
 
 [Adafruit BNO055 Guide](https://cdn-learn.adafruit.com/downloads/pdf/adafruit-bno055-absolute-orientation-sensor.pdf)
 
-[BNO055 Datasheet](https://cdn-shop.adafruit.com/datasheets/BST_BNO055_DS000_12.pdf6)
+[BNO055 Datasheet](https://cdn-shop.adafruit.com/datasheets/BST_BNO055_DS000_12.pdf)
 
 ## Setting up the Arduino
 Since our Arduino program doesn't use much memory or processing power, just about any standard Arduino board should work. We're using an Arduino Nano Every, since it's really small.
@@ -58,17 +58,49 @@ You should see a stream of `IMUData` structs being printed to the terminal, try 
 
 The BNO055 doesn't have any flash memory, so it cannot save a calibration state while powered off. This means we have to recalibrate the sensor every time it is turned on. While the BNO055 is on, it's internal chip is constantly trying to recalibrate itself. All we have to do to get it calibrated correctly is to move the sensor around in certain patterns until it says it's calibrated.
 
-You can see the calibration status of each onboard sensor via the LCM data. `gyro_x_dps` refers to the gyro calibration status, `gyro_y_dps` is for the accelerometer calibration status, and `gyro_z_dps` is for the magnetometer calibration status. Each of these variables should be an integer from 0 to 3, with 0 meaning the sensor isn't calibrated at all, and 3 meaning it's fully calibrated.
+You can see the calibration status of each onboard sensor via the LCM data. `calibration_gyro` refers to the gyro calibration status, `calibration_accel` is for the accelerometer calibration status, and `calibration_mag` is for the magnetometer calibration status. Additionally, there is `calibration_sys`, which represents the calibration of the whole system (read about it on page 67 of the datasheet). Each of these variables should be an integer from 0 to 3, with 0 meaning the sensor isn't calibrated at all, and 3 meaning it's fully calibrated.
 
-_(This is a sketchy temporary solution that works bc nothing uses the gyro data but it's built into the IMU driver and the LCM struct. In the future I'll add calibration fields to the LCM struct and do it properly)._
+Now just detach the BNO055 from its mount and wave it around in the air. Watch [this video](https://www.youtube.com/watch?v=Bw0WuAyGsnY) on what patterns to move it in for optimal results. You'll know you're done when all four calibration status variables read 3. 
 
-Now just detach the BNO055 from its mount and wave it around in the air. Watch [this video](https://www.youtube.com/watch?v=Bw0WuAyGsnY) on what patterns to move it in for optimal results. You'll know you're done when all three calibration status variables read 3.
-
-_(There's also a 4th calibration status called sys, but that one usually sorts itself out. I'll add it to the LCM struct in the future)_
+Be aware that the accelerometer can be very tricky to calibrate, sometimes taking upwards of 10 minutes to get the calibration status to 3. It's also worth noting that the magnetometer calibration status often drops to a 2 or a 1 after a while.
 
 The BNO055 should now be ready to go and outputting good data, so you can run whatever other programs need to use it.
 
+## Arduino Pro CLI
+
+Instead of using the Arduino IDE to upload to the Arduino, you can use the Arduino Pro CLI tool. This is better since it can be done over SSH purely from the command line.
+
+### Installation
+Download the `arduino-cli` binaries from [here](https://arduino.github.io/arduino-cli/0.21/installation/), then put them in `/bin/`
+
+Install the BNO055 library: \
+`arduino-cli lib install "Adafruit BNO055"`
+
+Install `screen` with `sudo apt install screen`
+
+### Compile/Upload
+First install the necessary core for your board: \
+`arduino-cli core install arduino:megaavr` 
+
+Then find your board: \
+`arduino-cli board list`
+
+Then compile, specifying the board type and the sketch path: \
+`arduino-cli compile -b arduino:megaavr:nona4809 Desktop/my_sketch.ino`
+
+Then upload, specifying the port, board type, and sketch: \
+`arduino-cli upload -p /dev/ttyACM0 -b arduino:megaavr:nona4809 \Desktop/my_sketch.ino`
+
+(the Arduino Nano Every uses board type `arduino:megaavr:nona4809`)
+
+### Viewing Serial Output
+Use GNU screen tool, specifying port and baud rate: \
+`screen /dev/ttyACM0 9600`
+
+Exit screen by pressing _ctrl+a_ then _k_
+
+
 ## TODO
-- update `IMUData` LCM struct to include all 4 calibration status values and maybe get rid of values we don't need?
 - add feature to allow axes to be rearranged easily (to account for different sensor orientation relative to rover)
-- try it out on Arduino IDE 2.0 and change tutorial to work with that, or try it on Arduino Pro CMD and write a script that does everything using that
+- try it out on Arduino IDE 2.0 and change tutorial to work with that
+- write a script that uses arduino cli to do everything automatically
