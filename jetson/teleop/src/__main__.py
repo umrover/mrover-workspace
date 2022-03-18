@@ -250,8 +250,9 @@ def sa_control_callback(channel, msg):
     lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
 
-def mast_gimbal_control_callback(channel, msg):
+def gimbal_control_callback(channel, msg):
     keyboardData = Keyboard.decode(msg)
+    print("mast gimbal call back")
 
     pitchData = [float(keyboardData.s - keyboardData.w),
                  float(keyboardData.i - keyboardData.k)]
@@ -275,7 +276,7 @@ def main():
     lcm_.subscribe("/autonomous", autonomous_callback)
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
-    lcm_.subscribe('/gimbal_control', mast_gimbal_control_callback)
+    lcm_.subscribe('/gimbal_control', gimbal_control_callback)
     lcm_.subscribe('/arm_control_state', arm_control_state_callback)
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 

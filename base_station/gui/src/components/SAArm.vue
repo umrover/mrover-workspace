@@ -1,18 +1,32 @@
 <template>
   <div class="wrap">
+    <div class="header">
+      <h3> Arm Controls </h3>
+    </div>
+    <div class="controls">
       <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
       <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
       <div class="keyboard">
         <GimbalControls/>
       </div>
     </div>
+    <div class="joints">
+        <div>joint a: {{SAPosition.joint_a}}</div>
+        <div>joint b: {{SAPosition.joint_b}}</div>
+        <div>joint c: {{SAPosition.joint_c}}</div>
+        <div>joint e: {{SAPosition.joint_e}}</div>
+    </div>
+    <h4> Preset values </h4>
+    <div class="buttons">
+      <button v-on:click="send_position('stowed')">Stowed</button>
+      <button v-on:click="send_position('scoop')">Scoop</button>
+      <button v-on:click="send_position('deposit')">Deposit</button>
+    </div>
   </div>
 </template>
 
 <script>
 import Checkbox from './Checkbox.vue'
-import { mapGetters, mapMutations } from 'vuex'
-
 import GimbalControls from './GimbalControls.vue'
 
 let interval;
@@ -20,63 +34,50 @@ let interval;
 export default {
   data() {
     return {
+      controlMode: 'off',
       xboxControlEpsilon: 0.4,
-
-      stateInput: {
-        state: "off"
-      }
+      SAPosition: {
+        joint_a: 0,
+        joint_b: 0,
+        joint_c: 0,
+        joint_e: 0
+      },
+      position: "stowed"
     }
   },
 
-  computed: {
-
-    ...mapGetters('controls', {
-      controlMode: 'controlMode'
-    }),
-  },
-
   beforeDestroy: function () {
-    window.clearInterval(interval)
+    window.clearInterval(interval);
   },
 
 
   created: function () {
+    this.$parent.subscribe('/sa_position', (msg) => {
+      console.log("Received SAPosition")
+      this.SAPosition = msg
+    })
 
     // Subscribe to requests to change state from IK backend
     this.$parent.subscribe('/arm_control_state_to_gui', (msg) => {
       console.log('received new state: ' + msg.state)
-
       var new_state = msg.state
-
       // If new state matches current state
       if (new_state === this.controlMode) {
         return
       }
-
       // If new state is not current state, turn off current state
       if (this.controlMode === 'closed-loop' || this.controlMode === 'open-loop') {
         this.$refs[this.controlMode].toggle()
       }
-
       if (new_state === 'closed-loop' || new_state === 'open-loop') {
         this.$refs[new_state].toggle()
-        this.setControlMode(new_state)
+        this.controlMode = new_state
       }
       else {
-        this.setControlMode('off')
+        this.controlMode = 'off'
       }
-
     })
-
-    this.$parent.subscribe('/ik_reset', (msg) => {
-      const armStateMsg = {
-        'type': 'ArmControlState',
-        'state': this.controlMode
-      }
-
-      this.$parent.publish('/arm_control_state', armStateMsg)
-    })
-
+  
     const XBOX_CONFIG = {
       'left_js_x': 0,
       'left_js_y': 1,
@@ -95,7 +96,6 @@ export default {
       'x': 2,
       'y': 3
     }
-
 
     const updateRate = 0.1
     interval = window.setInterval(() => {
@@ -124,11 +124,10 @@ export default {
               'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
             }
             if (this.controlMode !== 'open-loop' && this.checkXboxInput(xboxData)) {
-              console.log('forcing open loop')
               this.forceOpenLoop()
             }
             if (this.controlMode === 'open-loop') {
-              this.$parent.publish('/ra_control', xboxData)
+              this.$parent.publish('/sa_control', xboxData)
             }
           }
         }
@@ -137,20 +136,25 @@ export default {
   },
 
   methods: {
-    updateControlMode: function (mode, checked) {
+    send_position: function(position) {
+      this.$parent.publish("/arm_preset", {
+        'type': 'ArmPreset',
+        'position': position
+      })
+    },
 
-      console.log("updating control mode")
+    updateControlMode: function (mode, checked) {
 
       if (checked) {
         // control mode can either be open loop or control mode, not both
-        if (this.controlMode === 'closed-loop' || this.controlMode === 'open-loop') {
+        if (this.controlMode !== '' && this.controlMode !== 'off'){
           this.$refs[this.controlMode].toggle()
         }
 
-        this.setControlMode(mode)
+        this.controlMode = mode;
       }
       else {
-        this.setControlMode('off')
+        this.controlMode = 'off';
       }
 
       const armStateMsg = {
@@ -158,10 +162,12 @@ export default {
         'state': this.controlMode
       }
 
-      this.$parent.publish('/arm_control_state', armStateMsg)
+      this.$parent.publish('/arm_control_state', armStateMsg);
     },
 
     forceOpenLoop: function () {
+      console.log(this.controlMode)
+
       if (this.controlMode === 'open-loop') {
         return
       }
@@ -171,7 +177,7 @@ export default {
       }
 
       this.$refs['open-loop'].toggle()
-      this.setControlMode('open-loop')
+      this.controlMode = 'open-loop'
 
       const armStateMsg = {
         'type': 'ArmControlState',
@@ -219,6 +225,7 @@ export default {
         return true
       }
       if (xboxData['d_pad_up']) {
+        console.log('d')
         return true
       }
       if (xboxData['d_pad_down']) {
@@ -231,11 +238,7 @@ export default {
         return true
       }
       return false
-    },
-
-    ...mapMutations('controls', {
-      setControlMode: 'setControlMode'
-    })
+    }
   },
 
   components: {
@@ -255,10 +258,23 @@ export default {
 .controls {
   display: flex;
   align-items:center;
+  padding-bottom: 2vh;
 }
 .header {
   display:flex;
   align-items:center;
+}
+
+.joints {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-auto-flow: column;
+  padding-bottom: 2vh;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
 </style>

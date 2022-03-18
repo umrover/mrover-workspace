@@ -1,0 +1,7 @@
+package rover_msgs;
+
+struct ServoCmd {
+	double angle0;
+	double angle1;
+	double angle2; 
+}
