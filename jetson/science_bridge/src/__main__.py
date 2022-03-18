@@ -26,7 +26,6 @@ class ScienceBridge():
             "CAROUSEL": self.carousel_handler,
             "HEATER": self.heater_state_handler,
             "AUTOSHUTOFF": self.heater_shutoff_handler
-
         }
         self.last_openloop_cmd = -100
         self.max_error_count = 20
@@ -333,19 +332,19 @@ class ScienceBridge():
                             if (tag == "SPECTRAL"):
                                 self.spectral_handler(tx.decode(), spectral)
                                 lcm.publish('/spectral_data', spectral.encode())
-                            if (tag == "THERMISTOR"):
+                            elif (tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
                                 lcm.publish('/thermistor_data', thermistor.encode())
-                            if (tag == "TRIAD"):
+                            elif (tag == "TRIAD"):
                                 self.triad_handler(msg, triad)
                                 lcm.publish('/spectral_triad_data', triad.encode())
-                            if (tag == "CAROUSEL"):
+                            elif (tag == "CAROUSEL"):
                                 self.carousel_handler(msg, carousel)
                                 lcm.publish('/carousel_data', carousel.encode())
-                            if (tag == "HEATER"):
+                            elif (tag == "HEATER"):
                                 self.heater_state_handler(msg, heater)
                                 lcm.publish('/heater_state_data', heater.encode())
-                            if (tag == "AUTOSHUTOFF"):
+                            elif (tag == "AUTOSHUTOFF"):
                                 self.heater_shutoff_handler(msg, heater_auto)
                                 lcm.publish('/heater_auto_shutdown_data', heater_auto.encode())
                             seen_tags[tag] = True
