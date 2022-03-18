@@ -27,20 +27,31 @@
 
 
 <script>
-const start = 100;
-const dip = 70;
-const picture = 120;
+const serv2_start = 100;
+const serv2_dip = 30;
+const serv1_start = 100;
+const serv1_dip = 30;
+const serv0_start = 80;
+const serv0_dip = 10;
+
+// const undipped = '#A54657';
+// const dipping = '#FABC2A';
+// const dipped = '#AEF78E';
+
 
 export default {
     data () {
         return {
             strip: 2,
-            angle0: start,
-            angle1: start,
-            angle2: start,
-            start: start,
-            dip: dip,
-            picture: picture
+            angle0: serv0_start,
+            angle1: serv1_start,
+            angle2: serv2_start,
+            serv2_start: serv2_start,
+            serv2_dip: serv2_dip,
+            serv1_start: serv1_start,
+            serv1_dip: serv1_dip,
+            serv0_start: serv0_start,
+            serv0_dip: serv0_dip,
         }
     },
     methods: {
@@ -54,53 +65,74 @@ export default {
         },
 
         stripTestA: function() {
-            alert("Strip A test started");
-            this.angle2 = this.dip;
+            this.angle2 = this.serv2_dip;
             this.setPart();
             setTimeout(() => {
-                alert("Taking strips out");
-                this.angle2 = this.picture;
+                this.angle2 = this.serv2_start;
+                // this.serv2_has_dip = true;
                 this.setPart();
                 }, 10000);
-            setTimeout(() => {
-                this.angle2 = this.start;
-                this.setPart()
-                alert("Strip test completed");
-                }, 15000);
         },
 
         stripTestB: function() {
-            alert("Strip B Test Started");
-            this.angle1 = this.dip;
+            this.angle1 = this.serv1_dip;
             this.setPart();
             setTimeout(() => {
-                alert("Taking strips out");
-                this.angle1 = this.picture;
+                this.angle1 = this.serv1_start;
+                // this.serv1_has_dip = true;
                 this.setPart();
                 }, 10000);
-            setTimeout(() => {
-                this.angle1 = this.start;
-                this.setPart();
-                alert("Strip test completed");
-                }, 15000);
         },
         
         stripTestC: function() {
-            alert("Strip C Test Started");
-            this.angle0 = this.dip;
+            this.angle0 = this.serv0_dip;
             this.setPart();
             setTimeout(() => {
-                alert("Taking strips out");
-                this.angle0 = this.picture;
+                this.angle0 = this.serv0_start;
+                // this.serv0_has_dip = true;
                 this.setPart();
                 }, 10000);
-            setTimeout(() => {
-                this.angle0 = this.start;
-                this.setPart();
-                alert("Strip test completed");
-                }, 15000);
-        }
-    }
+        },
+
+        // changeStripColor: function(event) {
+        //     if (event.target.value == 2) {
+        //         if (angle2 == 100) {
+        //             if (serv2_has_dip) {
+        //                 this.background_color = this.dipped;
+        //             } else {
+        //                 this.background_color = this.undipped;
+        //             }
+        //         } else if (angle2 == 30) {
+        //             this.background_color = this.dipping;
+        //         }
+        //     } else if (event.target.value == 1) {
+        //         if (angle1 == 100) {
+        //             if (serv1_has_dip) {
+        //                 this.background_color = this.dipped;
+        //             } else {
+        //                 this.background_color = this.undipped;
+        //             }
+        //         } else if (angle1 == 30) {
+        //             this.background_color = this.dipping;
+        //         }
+        //     } else {
+        //         if (angle0 == 80) {
+        //             if (serv0_has_dip) {
+        //                 this.background_color = this.dipped;
+        //             } else {
+        //                 this.background_color = this.undipped;
+        //             }
+        //         } else if (angle0 == 10) {
+        //             this.background_color = this.dipping;
+        //         }
+        //     }
+        // }
+    },
+    // watch: {
+    //     strip: function (val) {
+            
+    //     }
+    // }
 }
 </script>
 
