@@ -28,7 +28,7 @@ class ScienceBridge():
             "AUTOSHUTOFF": self.heater_shutoff_handler
 
         }
-
+        self.last_openloop_cmd = -100
         self.max_error_count = 20
         self.sleep = .01
 
@@ -266,7 +266,11 @@ class ScienceBridge():
 
     def carousel_openloop_transmit(self, channel, msg):
         struct = CarouselOpenLoopCmd.decode(msg)
+
+        if (self.last_openloop_cmd == struct.throttle):
+            return
         print("Received Carousel (OL) Cmd")
+        self.last_openloop_cmd = struct.throttle
         # parse data into expected format
         message = "$OpenCarousel,{throttle}"
         message = message.format(throttle=struct.throttle)
@@ -279,6 +283,7 @@ class ScienceBridge():
             self.ser.write(bytes(message, encoding='utf-8'))
 
     def carousel_closedloop_transmit(self, channel, msg):
+        self.last_openloop_cmd = -100
         struct = CarouselClosedLoopCmd.decode(msg)
         print("Received Carousel (CL) Cmd")
         # parse data into expected format
