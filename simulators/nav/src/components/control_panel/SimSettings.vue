@@ -6,71 +6,75 @@
   <fieldset class="box">
     <legend>Settings</legend>
     <div class="sim-settings">
-      <div class="field-size first setting">
-        <p>Field Size (m):</p>
-        <NumberInput
-          :val.sync="fieldSizeIn"
-          :min="5"
-          :max="1000"
-        />
-      </div>
-
-      <div class="odom-format setting">
-        <p>Odom Format:</p>
-        <RadioSelector
-          :options="odomFormatOptions"
-          :selection="odomFormat"
-          @selected="selectOdomFormat"
-        />
-      </div>
-
-      <div class="setting">
-        <Checkbox
-          :on="simulateLoc"
-          name="Simulate Localization"
-          @clicked="flipSimulateLoc(!simulateLoc)"
-        />
-      </div>
-      <div class="setting">
-        <Checkbox
-          :on="simulatePercep"
-          name="Simulate Perception"
-          @clicked="flipSimulatePercep(!simulatePercep)"
-        />
-      </div>
-      <div class="noise">
-        <p>Perception Noise (%):</p>
-        <NumberInput
-          :val.sync="noisePercentIn"
-          :precision="2"
-          :min="0"
-          :max="100"
-          :step="10"
-        />
-      </div>
-      <div class="noiseGPS">
-        <p>GPS Noise (%):</p>
-        <NumberInput
-          :val.sync="noiseGPSPercentIn"
-          :precision="2"
-          :min="0"
-          :max="100"
-          :step="5"
-        />
-      </div>
-      <div class="enableFOVView">
-        <Checkbox
-          :on="enableFOVView"
-          name="FOV Visualization"
-          @clicked="flipEnableFOVView(!enableFOVView)"
-        />
-      </div>
-      <div class="enableLCM">
-        <Checkbox
-          :on="enableLCM"
-          name="Enable LCM"
-          @clicked="flipEnableLCM(!enableLCM)"
-        />
+      <div class="row">
+        <div class="column1">
+            <div class="field-size first setting">
+              <p>Field Size (m):</p>
+              <NumberInput
+                :val.sync="fieldSizeIn"
+                :min="5"
+                :max="1000"
+              />
+            </div>
+            <div class="odom-format setting">
+              <p>Odom Format:</p>
+              <RadioSelector
+                :options="odomFormatOptions"
+                :selection="odomFormat"
+                @selected="selectOdomFormat"
+              />
+            </div>
+            <div class="setting">
+              <Checkbox
+                :on="simulateLoc"
+                name="Simulate Localization"
+                @clicked="flipSimulateLoc(!simulateLoc)"
+              />
+            </div>
+            <div class="setting">
+              <Checkbox
+                :on="simulatePercep"
+                name="Simulate Perception"
+                @clicked="flipSimulatePercep(!simulatePercep)"
+              />
+            </div>
+        </div>
+        <div class="column2">
+          <div class="noise">
+            <p>Perception Noise (%):</p>
+            <NumberInput
+              :val.sync="noisePercentIn"
+              :precision="2"
+              :min="0"
+              :max="100"
+              :step="10"
+            />
+          </div>
+          <div class="noiseGPS">
+            <p>GPS Noise (%):</p>
+            <NumberInput
+              :val.sync="noiseGPSPercentIn"
+              :precision="2"
+              :min="0"
+              :max="100"
+              :step="5"
+            />
+          </div>
+          <div class="enableFOVView">
+            <Checkbox
+              :on="enableFOVView"
+              name="FOV Visualization"
+              @clicked="flipEnableFOVView(!enableFOVView)"
+            />
+          </div>
+          <div class="enableLCM">
+            <Checkbox
+              :on="enableLCM"
+              name="Enable LCM"
+              @clicked="flipEnableLCM(!enableLCM)"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </fieldset>
@@ -202,7 +206,6 @@ export default class SimSettings extends Vue {
 
 .odom-format {
   display: flex;
-  flex-wrap: wrap;
 }
 
 .odom-format p {
@@ -225,5 +228,21 @@ p {
 .sim-settings {
   display: flex;
   flex-wrap: wrap;
+}
+
+.row {
+  flex-direction: row;
+  display: flex;
+  width: 100%;
+}
+.column1 {
+  flex: 50%;
+  width: 100%;
+  border-right: 1px solid black;
+  margin-right: 5px;
+}
+.column2 {
+  width: 100%;
+  flex: 50%;
 }
 </style>
