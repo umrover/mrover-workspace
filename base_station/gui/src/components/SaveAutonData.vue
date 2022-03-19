@@ -4,10 +4,6 @@
         <input type="checkbox" v-model="logging_on" id="logging_toggle">
 
         <button v-on:click="download_log()">Save log</button>
-        <div>
-            <input type="file" id="read_log" accept=".csv"/>
-            <button v-on:click="upload_log()">Upload log</button>
-        </div>
     </div>
 </template>
 
@@ -351,37 +347,6 @@ export default {
             this.dampen = []
             this.kill = []
             this.restart = []
-        },
-
-        upload_log() {
-            console.log('Uploading file...')
-
-            let files = document.getElementById('read_log').files
-            if (files && files[0]) {
-                let file = files[0]
-                console.log('file:', file)
-
-                let reader = new FileReader()
-
-                reader.addEventListener('load', function(e) {
-                    let raw_data = e.target.result
-                    let parsed_data = []
-
-                    let lines = raw_data.split('\n')
-                    for (let i = 0; i < lines.length; i++) {
-                        parsed_data.push(lines[i].split(','))
-                    }
-
-                    console.log(parsed_data[0][0])
-                    console.log(parsed_data[0])
-                    console.table(parsed_data)
-                })
-
-                reader.readAsBinaryString(file)
-            }
-            else {
-                console.error("AUTON LOG NOT FOUND!")
-            }
         }
     }
 }

@@ -98,6 +98,11 @@ export default {
     odom: {
       type: Object,
       required: true
+    },
+
+    playback: {
+      type: Boolean,
+      required: true
     }
   },
 
@@ -109,8 +114,8 @@ export default {
       const lng = val.longitude_deg + val.longitude_min / 60
       const angle = val.bearing_deg
 
-      //Move to rover on first odom message
-      if(!this.findRover){
+      // Move to rover on first odom message
+      if (!this.findRover) {
         this.findRover = true
         this.center = L.latLng(lat, lng)
       }
@@ -121,15 +126,26 @@ export default {
       this.roverMarker.setLatLng(L.latLng(lat, lng))
 
       // Update the rover path
-      this.odomCount++
-      if (this.odomCount % DRAW_FREQUENCY === 0) {
-        if (this.odomCount > MAX_ODOM_COUNT * DRAW_FREQUENCY) {
-          this.odomPath.splice(0, 1)
+      if (!playback) {
+        this.odomCount++
+        if (this.odomCount % DRAW_FREQUENCY === 0) {
+          if (this.odomCount > MAX_ODOM_COUNT * DRAW_FREQUENCY) {
+            this.odomPath.splice(0, 1)
+          }
+          this.odomPath.push(L.latLng(lat, lng))
         }
+
+        this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
+      }
+      else {
         this.odomPath.push(L.latLng(lat, lng))
       }
+    },
 
-      this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
+    playback: function (val) {
+      if (val) {
+        this.odomPath = []
+      }
     }
   },
 
