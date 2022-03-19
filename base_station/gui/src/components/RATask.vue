@@ -39,10 +39,12 @@
       <ArmControls/>
       <EncoderCounts/>
     </div>
-    <div class="box light-bg">
+    <div class="box drive light-bg">
       <DriveControls/>
     </div>
-    <iframe src="http://localhost:8020/#/" width="100%" height="400" style="border:none;" title="IK gui"></iframe>
+    <div class="box ik-gui light-bg">
+      <iframe src="http://localhost:8020/#/" height="300" width="100%" title="IK gui"></iframe>
+    </div>
     <div class="spacer"></div>
   </div>
 </template>
@@ -240,21 +242,20 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .wrapper {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1.5fr;
-    grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
+    grid-template-rows: 60px auto auto auto auto auto;
     grid-template-areas: "header header"
                          "map cameras"
-                         "map drives"
-                         "map drives"
-                         "controls drives"
-                         "odom drives";
+                         "map ik-controls"
+                         "ik-gui ik-controls"
+                         "odom controls"
+                         "odom drive";
     font-family: sans-serif;
-    height: 98vh;
+    height: auto;
   }
 
   .box {
@@ -350,10 +351,22 @@ export default {
     grid-area: map;
   }
 
+  .ik-controls {
+    grid-area: ik-controls;
+  }
+
   .controls {
     grid-area: controls;
     font-size: 1em;
     display: flex;
+  }
+
+  .drive {
+    grid-area: drive;
+  }
+
+  .ik-gui {
+    grid-area: ik-gui
   }
 
   .new-select {
