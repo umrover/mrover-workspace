@@ -8,15 +8,17 @@ import os
 # Function that parses launch command
 #
 ########################
-def launch_dir(ctx, package, opts, ssh):
+def launch_dir(ctx, package, ssh, opts):
     if package == "percep":
-        launch_perception(opts, ssh)
+        launch_perception(ssh, opts)
     if package == "nav":
-        launch_navigation(opts, ssh)
+        launch_navigation(ssh, opts)
     if package == "loc":
-        launch_localization(opts, ssh)
+        launch_localization(ssh, opts)
     if package == "auton":
         launch_auton(ssh)
+    if package == "odrive":
+        launch_odrive(ssh)
 
 #########################
 #
@@ -43,6 +45,14 @@ def launch_localization(ssh, opts=""):
     new_tab(wid)
     build_and_run_package(wid, 'jetson/filter', ssh=ssh, ip=auton_ip)
 
+def launch_odrive(ssh, opts=""):
+    wid = launch_terminal()
+    build_and_run_package(wid, 'jetson/odrive_bridge', ssh, ip=drive_ip, exec_opts="0")
+    new_tab(wid)
+    build_and_run_package(wid, 'jetson/odrive_bridge', ssh, ip=drive_ip, exec_opts="1")
+    new_tab(wid)
+    build_and_run_package(wid, 'jetson/odrive_bridge', ssh, ip=drive_ip, exec_opts="2")
+
 def launch_auton(ssh):
     launch_localization(ssh)
     launch_navigation(ssh)
@@ -53,11 +63,11 @@ def launch_auton(ssh):
 # Functions for interacting with the terminal
 #
 ########################
-def build_and_run_package(wid:str, package:str, ssh:str="", ip:str="", build_opts:str=""):
+def build_and_run_package(wid:str, package:str, ssh:str="", ip:str="", build_opts:str="", exec_opts:str=""):
     jetson_percep = 'jetson/percep'
     
     build = "./jarvis build " + package + " " + build_opts
-    exec = "./jarvis exec " + package
+    exec = "./jarvis exec " + package + " " + exec_opts
 
     # Combine build and exec command into one, that way
     # the build finishes before the exec
@@ -81,9 +91,8 @@ def launch_terminal() -> str:
     os.remove(path)
     return str(int(wid))
 
-def exec_cmd(wid:str, command:str, ssh:str="", ip:str=""):
-    
-    if ssh == "ssh" :
+def exec_cmd(wid:str, command:str, ssh:bool=False, ip:str=""):
+    if ssh :
         exec_ssh(wid, ip)
 
     focus = gen_focus(wid)
