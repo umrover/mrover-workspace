@@ -47,13 +47,13 @@ TEST(rrt_connect_simple) {
     target.resize(6);
 
     target[0] = start[0] + 0.1;
-    target[1] = start[1] + 0.1;
+    target[1] = start[1] - 0.1;
     target[2] = start[2] + 0.1;
     target[3] = start[3] - 0.1;
     target[4] = start[4] - 0.1;
     target[5] = start[5] - 0.1;
 
-    ASSERT_TRUE(solver.is_safe(arm, target));
+    ASSERT_TRUE(solver.is_safe(arm, target));   // TODO: fail
 
     std::cout << "entering rrt...\n";
 
@@ -140,8 +140,8 @@ TEST(rrt_connect) {
     MotionPlanner planner = MotionPlanner(arm, solver);
 
     // set angles and confirm there are no collisions
-    std::vector<double> set_angles{1, 0, 0, -1, 0, 0};
-    ASSERT_TRUE(solver.is_safe(arm, set_angles));
+    std::vector<double> set_angles{1, 0.5, 0, -1, 0, 0};
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));       // TODO: fail
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
 
