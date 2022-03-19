@@ -121,8 +121,10 @@ export default {
         distance: 0
       },
 
-      TargetList: [{bearing: 0, distance: 0, id: 0},
-      {bearing: 0, distance: 0, id: 0}],
+      TargetList: [
+        {bearing: 0, distance: -1, id: 0},
+        {bearing: 0, distance: -1, id: 0}
+      ],
 
       Joystick: {
         forward_back: 0,
