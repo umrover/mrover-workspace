@@ -48,7 +48,7 @@ float mag_to_bearing(float mag_x, float mag_y) {
   if (raw < 0) {
     raw += 360.0;
   }
-  return raw - 90.0;
+  return raw;
 }
 
 void loop(void)
