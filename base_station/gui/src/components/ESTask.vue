@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="box header">
       <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
-      <h1>ERD/ES Dashboard</h1>
+      <h1>ES Dashboard</h1>
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
@@ -23,26 +23,30 @@
       </div>
     </div>
 
-    <div class="box odom light-bg">
-      <OdometryReading v-bind:odom="odom"/>
-    </div>
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
     </div>
-    <div class="box map light-bg">
-      <RoverMap v-bind:odom="odom"/>
-    </div>
     <div class="box controls light-bg">
       <ArmControls/>
+    </div>
+    <div class="box encoder light-bg">
       <EncoderCounts/>
     </div>
-    <div class="box light-bg">
+    <div class="box drive light-bg">
       <DriveControls/>
     </div>
-    <iframe src="http://localhost:8020/#/" width="100%" height="400" style="border:none;" title="IK gui"></iframe>
+    <div class="box ik-gui light-bg">
+      <iframe src="http://localhost:8020/#/" height="300" width="100%" title="IK gui"></iframe>
+    </div>
+    <div class ="box pdb light-bg">
+      <PDBFuse/>
+    </div>
+    <div class="box drive-motor light-bg">
+      <DriveVelDataV/>
+    </div>
     <div class="spacer"></div>
   </div>
 </template>
@@ -51,13 +55,13 @@
 import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
 import IKControls from './IKControls.vue'
-import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
-import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
+import PDBFuse from './PDBFuse.vue'
+import DriveVelDataV from './DriveVelDataV.vue' 
 
 let interval;
 
@@ -171,7 +175,6 @@ export default {
       },
       // Subscriptions
       [
-        {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
@@ -228,33 +231,33 @@ export default {
   },
 
   components: {
-    RoverMap,
     Cameras,
     CommIndicator,
     ArmControls,
     DriveControls,
     EncoderCounts,
-    OdometryReading,
-    IKControls
+    IKControls,
+    PDBFuse,
+    DriveVelDataV
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .wrapper {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1.5fr;
-    grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
+    grid-template-rows: 60px auto auto auto auto auto auto;
     grid-template-areas: "header header"
-                         "map cameras"
-                         "map drives"
-                         "map drives"
-                         "controls drives"
-                         "odom drives";
+                         "ik-gui cameras"
+                         "controls ik-controls"
+                         "encoder ik-controls"
+                         "drive ik-controls"
+                         "pdb drive-motor"
+                         "pdb drive-motor";
     font-family: sans-serif;
-    height: 98vh;
+    height: auto;
   }
 
   .box {
@@ -337,23 +340,38 @@ export default {
     visibility: visible;
   }
 
-  .odom {
-    grid-area: odom;
-    font-size: 1em;
-  }
-
   .diags {
     grid-area: diags;
   }
 
-  .map {
-    grid-area: map;
+  .ik-controls {
+    grid-area: ik-controls;
   }
 
   .controls {
     grid-area: controls;
     font-size: 1em;
     display: flex;
+  }
+
+  .drive-motor {
+    grid-area: drive-motor;
+  }
+
+  .pdb {
+    grid-area: pdb;
+  }
+
+  .drive {
+    grid-area: drive;
+  }
+
+  .ik-gui {
+    grid-area: ik-gui;
+  }
+
+  .encoder {
+    grid-area: encoder;
   }
 
   .new-select {
