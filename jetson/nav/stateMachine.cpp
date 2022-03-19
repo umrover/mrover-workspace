@@ -245,7 +245,6 @@ bool StateMachine::isRoverReady() const
 {
     return mStateChanged || // internal data has changed
            mRover->updateRover( mNewRoverStatus ) || // external data has changed
-           mRover->roverStatus().currentState() == NavState::RepeaterDropWait ||
            mRover->roverStatus().currentState() == NavState::GateSpinWait;
 
 } // isRoverReady()

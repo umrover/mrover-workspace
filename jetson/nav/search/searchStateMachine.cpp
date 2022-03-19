@@ -64,7 +64,8 @@ NavState SearchStateMachine::executeSearchTurn()
         return NavState::ChangeSearchAlg;
     }
 
-    if( mRover->roverStatus().leftCacheTarget().distance >= 0 )
+    if( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().path().front().id ==
+        mRover->roverStatus().leftCacheTarget().id )
     {
         updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
                                            mRover->roverStatus().odometry().bearing_deg );
@@ -88,7 +89,8 @@ NavState SearchStateMachine::executeSearchTurn()
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
 NavState SearchStateMachine::executeSearchDrive()
 {
-    if( mRover->roverStatus().leftCacheTarget().distance >= 0 )
+    if( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().path().front().id ==
+            mRover->roverStatus().leftCacheTarget().id )
     {
         updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
                                            mRover->roverStatus().odometry().bearing_deg );
