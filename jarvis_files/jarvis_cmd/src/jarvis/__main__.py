@@ -68,7 +68,7 @@ def main():
         elif args.subcommand_name == 'dep':
             build_deps(ctx)
         elif args.subcommand_name == 'launch':
-            launch_dir(ctx, clean_dir_name(args.sys), args.launch_opts, args.ssh)
+            launch_dir(ctx, clean_dir_name(args.sys), args.ssh, args.launch_opts)
 
     except UnexpectedExit as e:
         sys.exit(e.result.exited)
