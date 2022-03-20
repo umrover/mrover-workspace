@@ -52,6 +52,9 @@
     <div class="box SAArm light-bg">
       <SAArm/>
     </div>
+    <div class="box PDB light-bg">
+      <PDBFuse/>
+    </div>
   </div>
 </template>
 
@@ -70,6 +73,7 @@ import GenerateReport from './GenerateReport.vue'
 import Carousel from './Carousel.vue'
 import ScoopUV from './ScoopUV.vue'
 import SAArm from './SAArm.vue'
+import PDBFuse from './PDBFuse.vue'
 
 let interval;
 
@@ -233,6 +237,8 @@ export default {
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/heater_state_data', 'type': 'Heater'},
         {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'}
+        {'topic': '/pdb_data', 'type': 'PDBData'},
+        {'topic': '/fuse_data', 'type': 'FuseData'}
       ]
     )
 
@@ -290,7 +296,8 @@ export default {
     GenerateReport,
     Carousel,
     ScoopUV,
-    SAArm
+    SAArm,
+    PDBFuse
   }
 }
 </script>
@@ -309,7 +316,7 @@ export default {
                              "spectral chlorophyll drives"
                              "SAArm striptest drives"
                              "SAArm amino drives"
-                             "SAArm amino drives";
+                             "PDBFuse amino drives";
         font-family: sans-serif;
         height: auto;
     }
@@ -446,6 +453,10 @@ export default {
 
     .SAArm {
       grid-area: SAArm;
+    }
+
+    .PDBFuse {
+      grid-area: PDBFuse;
     }
 
     ul#vitals li {

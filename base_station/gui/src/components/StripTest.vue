@@ -23,10 +23,14 @@
                 </div>
             </div>
         </div>
+    <button v-on:click="back_to_start()">Back to start</button>
+    <div class="input">
+        Angle: <input type='number' v-model.number='angle'>
+        <button v-on:click="userInput()"> Move to angle</button>
+    </div>
     </div>
 </div>
 </template>
-
 
 <script>
 const serv2_start = 100;
@@ -67,7 +71,6 @@ export default {
             undipped: undipped,
             dipping: dipping,
             dipped: dipped
-
         }
     },
     methods: {
