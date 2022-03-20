@@ -6,90 +6,121 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex'
+
 export default {
-    props: {
-        playback: {
-            type: Boolean,
-            required: true
-        }
-    },
 
-    methods: {
+  computed: {
+    ...mapGetters('autonomy', {
+      playback: 'playback'
+    })
+  },
 
-        upload_log() {
-            console.log('Uploading file...')
+  methods: {
+    ...mapMutations('autonomy', {
+      setPlaybackEnabled: 'setPlaybackEnabled',
+      setPlaybackLat: 'setPlaybackLat',
+      setPlaybackLon: 'setPlaybackLon',
+      setPlaybackWaypointLat: 'setPlaybackWaypointLat',
+      setPlaybackWaypointLon: 'setPlaybackWaypointLon',
+    }),
 
-            let files = document.getElementById('read_log').files
-            if (files && files[0]) {
-                let file = files[0]
-                console.log('file:', file)
+    upload_log: function() {
+      console.log('Uploading file...')
+      console.log(this.playback)
 
-                let reader = new FileReader()
+      let files = document.getElementById('read_log').files
+      if (files && files[0]) {
+        let file = files[0]
 
-                reader.addEventListener('load', function(e) {
-                    let raw_data = e.target.result
-                    let parsed_data = []
+        let reader = new FileReader()
 
-                    let lines = raw_data.split('\n')
-                    for (let i = 0; i < lines.length; i++) {
-                        parsed_data.push(lines[i].split(','))
-                    }
+        reader.addEventListener('load', (e) => {
 
-                    let rover_lat_deg_idx = 0
-                    let rover_lat_min_idx = 0
-                    let rover_lon_deg_idx = 0
-                    let rover_lon_min_idx = 0
+          let raw_data = e.target.result
+          let parsed_data = []
 
-                    let waypoint_lat_idx = 0
-                    let waypoint_lon_idx = 0
+          let lines = raw_data.split('\n')
+          for (let i = 0; i < lines.length; i++) {
+            parsed_data.push(lines[i].split(','))
+          }
 
-                    for (let i = 0; i < parsed_data[0].length; i++) {
-                        switch (parsed_data[0][i]) {
-                            case 'Odom Degrees Lat':
-                                rover_lat_deg_idx = i
-                                break;
-                            case 'Odom Minutes Lat':
-                                rover_lat_min_idx = i
-                                break;
-                            case 'Odom Degrees Lon':
-                                rover_lon_deg_idx = i
-                                break;
-                            case 'Odom Minutes Lon':
-                                rover_lon_min_idx = i
-                                break;
-                            case 'First Waypoint Lat':
-                                waypoint_lat_idx = i
-                                break;
-                            case 'First Waypoint Lon':
-                                waypoint_lon_idx = i
-                                break;
-                        }
-                    }
+          let rover_lat_deg_idx = 0
+          let rover_lat_min_idx = 0
+          let rover_lon_deg_idx = 0
+          let rover_lon_min_idx = 0
 
-                    console.log(parsed_data[0][0])
-                    console.log(parsed_data[0])
-                    console.table(parsed_data)
+          let waypoint_lat_idx = 0
+          let waypoint_lon_idx = 0
 
-                    console.log(rover_lat_deg_idx)
-                    console.log(rover_lat_min_idx)
-                    console.log(rover_lon_deg_idx)
-                    console.log(rover_lon_min_idx)
-                    console.log(waypoint_lat_idx)
-                    console.log(waypoint_lon_idx)
-                })
+          for (let i = 0; i < parsed_data[0].length; i++) {
+            switch (parsed_data[0][i]) {
+              case 'Odom Degrees Lat':
+                  rover_lat_deg_idx = i
+                  break
+              case 'Odom Minutes Lat':
+                  rover_lat_min_idx = i
+                  break
+              case 'Odom Degrees Lon':
+                  rover_lon_deg_idx = i
+                  break
+              case 'Odom Minutes Lon':
+                  rover_lon_min_idx = i
+                  break
+              case 'First Waypoint Lat':
+                  waypoint_lat_idx = i
+                  break
+              case 'First Waypoint Lon':
+                  waypoint_lon_idx = i
+                  break
+            }
+          }
 
-                reader.readAsBinaryString(file)
+          for (let i = 1; i < parsed_data.length - 1; i++) {
+            this.playback.lat.push(
+              parseFloat(parsed_data[i][rover_lat_deg_idx]) + parseFloat(parsed_data[i][rover_lat_min_idx])/60.0
+            )
+            this.playback.lon.push(
+              parseFloat(parsed_data[i][rover_lon_deg_idx]) + parseFloat(parsed_data[i][rover_lon_min_idx])/60.0
+            )
+
+            let new_waypoint = true
+            let waypoint_lat = parseFloat(parsed_data[i][waypoint_lat_idx])
+            let waypoint_lon = parseFloat(parsed_data[i][waypoint_lon_idx])
+
+            if (isNaN(waypoint_lat) || isNaN(waypoint_lon)) {
+              new_waypoint = false
             }
             else {
-                console.error("AUTON LOG NOT FOUND!")
+              for (let j = 0; j < this.playback.waypoint_lat.length; j++) {
+                if (waypoint_lat == this.playback.waypoint_lat[j] && waypoint_lon == this.playback.waypoint_lon[j]) {
+                  new_waypoint = false
+                }
+              }
             }
-        }
+
+            if (new_waypoint) {
+              this.playback.waypoint_lat.push(waypoint_lat)
+              this.playback.waypoint_lon.push(waypoint_lon)
+            }
+          }
+
+          console.log("SUCCESSFULLY READ DATA!")
+          this.playback.enabled = true
+        }) // end callback
+
+        reader.readAsBinaryString(file)
+      }
+      else {
+          console.error("AUTON LOG NOT FOUND!")
+      }
     }
+  }
 }
 </script>
 
 <style scoped>
-    .playback {
-        padding: 10px
-    }
+  .playback {
+      padding: 10px
+  }
 </style>

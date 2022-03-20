@@ -1,7 +1,6 @@
 <template>
   <div class="wrap">
     <!-- Map goes here       -->
-
     <l-map ref="map" class="map" :zoom="15" :center="center">
       <l-control-scale :imperial="false"/>
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
@@ -11,13 +10,17 @@
       </l-marker>
 
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in list" :key="waypoint.id">
-         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
+        <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
       </l-marker>
 
       <l-polyline :lat-lngs="polylinePath" :color="'red'" :dash-array="'5, 5'"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
+      <l-polyline :lat-lngs="playback.view" :color="'green'"/>
     </l-map>
-
+    <div class="log">
+        <input type="file" id="read_log" accept=".csv"/>
+        <button v-on:click="upload_log()">Upload log</button>
+    </div>
   </div>
 </template>
 
@@ -90,6 +93,14 @@ export default {
       tileLayerOptions: {
         maxNativeZoom: 18,
         maxZoom: 100
+      },
+      playback: {
+        enabled: false,
+        lat: [],
+        lon: [],
+        view: [],
+        waypoint_lat: [],
+        waypoint_lon: []
       }
     }
   },
@@ -97,11 +108,6 @@ export default {
   props: {
     odom: {
       type: Object,
-      required: true
-    },
-
-    playback: {
-      type: Boolean,
       required: true
     }
   },
@@ -126,25 +132,107 @@ export default {
       this.roverMarker.setLatLng(L.latLng(lat, lng))
 
       // Update the rover path
-      if (!playback) {
-        this.odomCount++
-        if (this.odomCount % DRAW_FREQUENCY === 0) {
-          if (this.odomCount > MAX_ODOM_COUNT * DRAW_FREQUENCY) {
-            this.odomPath.splice(0, 1)
-          }
-          this.odomPath.push(L.latLng(lat, lng))
+      this.odomCount++
+      if (this.odomCount % DRAW_FREQUENCY === 0) {
+        if (this.odomCount > MAX_ODOM_COUNT * DRAW_FREQUENCY) {
+          this.odomPath.splice(0, 1)
         }
-
-        this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
-      }
-      else {
         this.odomPath.push(L.latLng(lat, lng))
       }
-    },
 
-    playback: function (val) {
-      if (val) {
-        this.odomPath = []
+      this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
+    }
+  },
+
+  methods: {
+    upload_log: function () {
+      console.log('Uploading file...')
+      console.log(this.playback)
+
+      let files = document.getElementById('read_log').files
+      if (files && files[0]) {
+        let file = files[0]
+
+        let reader = new FileReader()
+
+        reader.addEventListener('load', (e) => {
+
+          let raw_data = e.target.result
+          let parsed_data = []
+
+          let lines = raw_data.split('\n')
+          for (let i = 0; i < lines.length; i++) {
+            parsed_data.push(lines[i].split(','))
+          }
+
+          let rover_lat_deg_idx = 0
+          let rover_lat_min_idx = 0
+          let rover_lon_deg_idx = 0
+          let rover_lon_min_idx = 0
+
+          let waypoint_lat_idx = 0
+          let waypoint_lon_idx = 0
+
+          for (let i = 0; i < parsed_data[0].length; i++) {
+            switch (parsed_data[0][i]) {
+              case 'Odom Degrees Lat':
+                  rover_lat_deg_idx = i
+                  break
+              case 'Odom Minutes Lat':
+                  rover_lat_min_idx = i
+                  break
+              case 'Odom Degrees Lon':
+                  rover_lon_deg_idx = i
+                  break
+              case 'Odom Minutes Lon':
+                  rover_lon_min_idx = i
+                  break
+              case 'First Waypoint Lat':
+                  waypoint_lat_idx = i
+                  break
+              case 'First Waypoint Lon':
+                  waypoint_lon_idx = i
+                  break
+            }
+          }
+
+          for (let i = 1; i < parsed_data.length - 1; i++) {
+            this.playback.lat.push(
+              parseFloat(parsed_data[i][rover_lat_deg_idx]) + parseFloat(parsed_data[i][rover_lat_min_idx])/60.0
+            )
+            this.playback.lon.push(
+              parseFloat(parsed_data[i][rover_lon_deg_idx]) + parseFloat(parsed_data[i][rover_lon_min_idx])/60.0
+            )
+
+            let new_waypoint = true
+            let waypoint_lat = parseFloat(parsed_data[i][waypoint_lat_idx])
+            let waypoint_lon = parseFloat(parsed_data[i][waypoint_lon_idx])
+
+            if (isNaN(waypoint_lat) || isNaN(waypoint_lon)) {
+              new_waypoint = false
+            }
+            else {
+              for (let j = 0; j < this.playback.waypoint_lat.length; j++) {
+                if (waypoint_lat == this.playback.waypoint_lat[j] && waypoint_lon == this.playback.waypoint_lon[j]) {
+                  new_waypoint = false
+                }
+              }
+            }
+
+            if (new_waypoint) {
+              this.playback.waypoint_lat.push(waypoint_lat)
+              this.playback.waypoint_lon.push(waypoint_lon)
+            }
+          }
+
+          console.log("SUCCESSFULLY READ DATA!")
+          this.playback.enabled = true
+        }) // end callback
+
+        reader.readAsBinaryString(file)
+      }
+      else {
+          console.error("AUTON LOG NOT FOUND!")
       }
     }
   },
