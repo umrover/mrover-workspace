@@ -9,8 +9,7 @@ using namespace std;
 
 // This class handles all incoming LCM messages for the autonomous
 // navigation of the rover.
-class LcmHandlers
-{
+class LcmHandlers {
 public:
     // Constructs an LcmHandler with the given state machine to work
     // with.
@@ -19,52 +18,47 @@ public:
 
     // Sends the auton state lcm message to the state machine.
     void autonState(
-        const lcm::ReceiveBuffer* recieveBuffer,
-        const string& channel,
-        const AutonState* autonState
-        )
-    {
-        mStateMachine->updateRoverStatus( *autonState );
+            const lcm::ReceiveBuffer* receiveBuffer,
+            const string& channel,
+            const AutonState* autonState
+    ) {
+        mStateMachine->updateRoverStatus(*autonState);
     }
 
     // Sends the course lcm message to the state machine.
     void course(
-        const lcm::ReceiveBuffer* recieveBuffer,
-        const string& channel,
-        const Course* course
-        )
-    {
-        mStateMachine->updateRoverStatus( *course );
+            const lcm::ReceiveBuffer* receiveBuffer,
+            const string& channel,
+            const Course* course
+    ) {
+        mStateMachine->updateRoverStatus(*course);
     }
 
     // Sends the obstacle lcm message to the state machine.
     void obstacle(
-        const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
-        const Obstacle* obstacle
-        )
-    {
-        mStateMachine->updateRoverStatus( *obstacle );
+            const lcm::ReceiveBuffer* receiveBuffer,
+            const string& channel,
+            const Obstacle* obstacle
+    ) {
+        mStateMachine->updateRoverStatus(*obstacle);
     }
 
     // Sends the odometry lcm message to the state machine.
     void odometry(
-        const lcm::ReceiveBuffer* recieveBuffer,
-        const string& channel,
-        const Odometry* odometry
-        )
-    {
-        mStateMachine->updateRoverStatus( *odometry );
+            const lcm::ReceiveBuffer* receiveBuffer,
+            const string& channel,
+            const Odometry* odometry
+    ) {
+        mStateMachine->updateRoverStatus(*odometry);
     }
 
     // Sends the target lcm message to the state machine.
     void targetList(
-        const lcm::ReceiveBuffer* receiveBuffer,
-        const string& channel,
-        const TargetList* targetListIn
-        )
-    {
-        mStateMachine->updateRoverStatus( *targetListIn );
+            const lcm::ReceiveBuffer* receiveBuffer,
+            const string& channel,
+            const TargetList* targetListIn
+    ) {
+        mStateMachine->updateRoverStatus(*targetListIn);
     }
 
 private:
@@ -73,23 +67,21 @@ private:
 };
 
 // Runs the autonomous navigation of the rover.
-int main()
-{
+int main() {
     lcm::LCM lcmObject;
-    if( !lcmObject.good() )
-    {
+    if (!lcmObject.good()) {
         cerr << "Error: cannot create LCM\n";
         return 1;
     }
 
-    auto roverStateMachine = make_shared<StateMachine>( lcmObject );
-    LcmHandlers lcmHandlers( roverStateMachine );
+    auto roverStateMachine = make_shared<StateMachine>(lcmObject);
+    LcmHandlers lcmHandlers(roverStateMachine);
 
-    lcmObject.subscribe( "/auton", &LcmHandlers::autonState, &lcmHandlers );
-    lcmObject.subscribe( "/course", &LcmHandlers::course, &lcmHandlers );
-    lcmObject.subscribe( "/obstacle", &LcmHandlers::obstacle, &lcmHandlers );
-    lcmObject.subscribe( "/odometry", &LcmHandlers::odometry, &lcmHandlers );
-    lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
+    lcmObject.subscribe("/auton", &LcmHandlers::autonState, &lcmHandlers);
+    lcmObject.subscribe("/course", &LcmHandlers::course, &lcmHandlers);
+    lcmObject.subscribe("/obstacle", &LcmHandlers::obstacle, &lcmHandlers);
+    lcmObject.subscribe("/odometry", &LcmHandlers::odometry, &lcmHandlers);
+    lcmObject.subscribe("/target_list", &LcmHandlers::targetList, &lcmHandlers);
 
     while (lcmObject.handle() == 0) {
         roverStateMachine->run();

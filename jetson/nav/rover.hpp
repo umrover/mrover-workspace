@@ -75,7 +75,7 @@ enum class DriveStatus
 class Rover
 {
 public:
-    // This class holds all the status informatin of the rover.
+    // This class holds all the status information of the rover.
     class RoverStatus
     {
     public:
@@ -98,7 +98,7 @@ public:
         Target& rightTarget();
 
         Target& leftCacheTarget();
-        
+
         Target& rightCacheTarget();
 
         unsigned getPathTargets();
@@ -118,10 +118,10 @@ public:
         NavState mCurrentState;
 
         // The rover's current auton state.
-        AutonState mAutonState;
+        AutonState mAutonState{};
 
         // The rover's overall course.
-        Course mCourse;
+        Course mCourse{};
 
         // The rover's current path. The path is initially the same as
         // the rover's course, however, as waypoints are visited, the
@@ -130,24 +130,24 @@ public:
 
         // The rover's current obstacle information from computer
         // vision.
-        Obstacle mObstacle;
+        Obstacle mObstacle{};
 
         // The rover's current odometry information.
-        Odometry mOdometry;
+        Odometry mOdometry{};
 
         // The rover's current target information from computer
         // vision.
-        Target mTargetLeft;
+        Target mTargetLeft{};
 
-        Target mTargetRight;
+        Target mTargetRight{};
 
         // Cached Target information
-        Target mCTargetLeft;
+        Target mCTargetLeft{};
 
-        Target mCTargetRight;
+        Target mCTargetRight{};
 
-        // Total targets to seach for in the course
-        unsigned mPathTargets;
+        // Total targets to search for in the course
+        unsigned mPathTargets{};
 
         // Count of misses with cache
         int countLeftMisses = 0;
@@ -184,12 +184,12 @@ public:
 
     double longMeterInMinutes() const;
 
-  
+
 private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    void publishJoystick( const double forwardBack, const double leftRight, const bool kill );
+    void publishJoystick( double forwardBack, double leftRight, bool kill );
 
     bool isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const;
 
@@ -197,7 +197,7 @@ private:
 
     bool isEqual( const Target& target, const Target& target2 ) const;
 
-    bool isTurningAroundObstacle( const NavState currentState ) const;
+    bool isTurningAroundObstacle( NavState currentState ) const;
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -219,7 +219,7 @@ private:
     // The pid loop for turning.
     PidLoop mBearingPid;
 
-  
+
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.

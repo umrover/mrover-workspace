@@ -20,7 +20,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    StateMachine( lcm::LCM& lcmObject );
+    explicit StateMachine( lcm::LCM& lcmObject );
 
     ~StateMachine();
 

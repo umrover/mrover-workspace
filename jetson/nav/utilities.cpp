@@ -88,28 +88,18 @@ double calcBearing( const Odometry& start, const Odometry& dest )
 } // calcBearing()
 
 // // Calculates the modulo of degree with the given modulus.
-double mod( const double degree, const int modulus )
-{
-    double mod = fmod( degree, modulus );
-    if( mod < 0 )
-    {
-        return ( mod + modulus );
-    }
-    return mod;
+double mod(const double degree, const int modulus) {
+    double mod = fmod(degree, modulus);
+    return mod < 0 ? mod + modulus : mod;
 }
 
 // Corrects the destination bearing to account for the ability to turn
 // through zero degrees.
-void throughZero( double& destinationBearing, const double currentBearing )
-{
-    if( fabs( currentBearing - destinationBearing ) > 180 )
-    {
-        if( currentBearing < 180 )
-        {
+void throughZero(double& destinationBearing, const double currentBearing) {
+    if (fabs(currentBearing - destinationBearing) > 180) {
+        if (currentBearing < 180) {
             destinationBearing -= 360;
-        }
-        else
-        {
+        } else {
             destinationBearing += 360;
         }
     }
