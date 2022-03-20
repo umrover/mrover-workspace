@@ -14,39 +14,16 @@ from enum import Enum
 
 
 def main():
-    global lcm_
-    lcm_ = lcm.LCM()
+    global lcm_, modrive, left_speed, right_speed, legal_controller, \
+        vel_msg, state_msg, usblock, speedlock, start_time, watchdog, odrive_bridge
 
-    global modrive
-    global left_speed
-    global right_speed
-
-    left_speed = 0.0
-    right_speed = 0.0
-
-    global legal_controller
-
-    global vel_msg
-    global state_msg
-
-    global lock
-    global speedlock
-
-    global start_time
-    global watchdog
-
-    start_time = t.clock()
-
-    legal_controller = int(sys.argv[1])
-
-    vel_msg = DriveVelData()
-    state_msg = DriveStateData()
+    lcm_, left_speed, right_speed, start_time, legal_controller, \
+        vel_msg, state_msg = lcm.LCM(), 0.0, 0.0, t.clock(), int(sys.argv[1]), DriveVelData(), DriveStateData()
 
     speedlock = threading.Lock()
-    lock = threading.Lock()
+    usblock = threading.Lock()
 
     threading._start_new_thread(lcmThreaderMan, ())
-    global odrive_bridge
     odrive_bridge = OdriveBridge()
     # starting state is DisconnectedState()
     # start up sequence is called, disconnected-->disarm-->arm
@@ -62,10 +39,7 @@ def main():
                 prev_comms = False
 
             speedlock.acquire()
-
-            left_speed = 0
-            right_speed = 0
-
+            left_speed = right_speed = 0
             speedlock.release()
         else:
             if not prev_comms:
@@ -76,9 +50,12 @@ def main():
             odrive_bridge.update()
         except (fibre.protocol.ChannelBrokenException, AttributeError):
             print("odrive has been unplugged")
-            lock.acquire()
+            if usblock.locked():
+                usblock.release()
+
+            usblock.acquire()
             odrive_bridge.on_event(Event.DISCONNECTED_ODRIVE)
-            lock.release()
+            usblock.release()
 
     exit()
 
@@ -88,17 +65,15 @@ def lcmThreaderMan():
     lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
     while True:
         lcm_1.handle()
-        global start_time
-        start_time = t.clock()
         try:
             publish_encoder_msg()
         except (NameError, AttributeError, fibre.protocol.ChannelBrokenException):
-            pass
+            if usblock.locked():
+                usblock.release()
 
 
 states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
 # Program states possible - BOOT,  DISARMED, ARMED, ERROR
-#                            1		 2	      3	      4
 
 
 class Event(Enum):
@@ -219,13 +194,10 @@ class OdriveBridge(object):
         """
         global modrive
         self.state = DisconnectedState()  # default is disarmed
-        self.encoder_time = 0
-        self.left_speed = 0.0
-        self.right_speed = 0.0
+        self.encoder_time = self.left_speed = self.right_speed = 0.0
 
     def connect(self):
-        global modrive
-        global legal_controller
+        global modrive, legal_controller
         print("looking for odrive")
 
         # odrive 0 --> front motors
@@ -240,8 +212,10 @@ class OdriveBridge(object):
         odrive = odv.find_any(serial_number=id)
 
         print("found odrive")
+        usblock.acquire()
         modrive = Modrive(odrive)  # arguments = odr
         modrive.set_current_lim(modrive.CURRENT_LIM)
+        usblock.release()
         self.encoder_time = t.time()
 
     def on_event(self, event):
@@ -260,47 +234,47 @@ class OdriveBridge(object):
     def update(self):
         if (str(self.state) == "ArmedState"):
             try:
+                usblock.acquire()
                 errors = modrive.check_errors()
                 modrive.watchdog_feed()
+                usblock.release()
 
             except (fibre.protocol.ChannelBrokenException, AttributeError):
+                if usblock.locked():
+                    usblock.release()
                 errors = 0
-                lock.acquire()
+                usblock.acquire()
                 self.on_event(Event.DISCONNECTED_ODRIVE)
-                lock.release()
+                usblock.release()
                 print("unable to check errors of unplugged odrive")
 
             if errors:
-
-                lock.acquire()
+                usblock.acquire()
                 self.on_event(Event.ODRIVE_ERROR)
-                lock.release()
+                usblock.release()
                 return
 
-            modrive.watchdog_feed()
-
-            global speedlock
-            global left_speed
-            global right_speed
+            global speedlock, left_speed, right_speed
 
             speedlock.acquire()
-            self.left_speed = left_speed
-            self.right_speed = right_speed
+            self.left_speed, self.right_speed = left_speed, right_speed
             speedlock.release()
 
+            usblock.acquire()
             modrive.set_vel("LEFT", self.left_speed)
             modrive.set_vel("RIGHT", self.right_speed)
+            usblock.release()
 
         elif (str(self.state) == "DisconnectedState"):
             self.connect()
-            lock.acquire()
+            usblock.acquire()
             self.on_event(Event.ARM_CMD)
-            lock.release()
+            usblock.release()
 
         elif (str(self.state) == "ErrorState"):
-            lock.acquire()
+            usblock.acquire()
             self.on_event(Event.ODRIVE_ERROR)
-            lock.release()
+            usblock.release()
 
     def get_state(self):
         return str(self.state)
@@ -320,11 +294,13 @@ def publish_state_msg(msg, state):
 
 
 def publish_encoder_helper(axis):
-    global modrive
-    global legal_controller
+    global modrive, legal_controller, usblock
     msg = DriveVelData()
+
+    usblock.acquire()
     msg.current_amps = modrive.get_iq_measured(axis)
     msg.vel_percent = modrive.get_vel_estimate(axis)
+    usblock.release()
 
     motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
                  ("LEFT", 1): 2, ("RIGHT", 1): 3,
@@ -344,17 +320,14 @@ def drive_vel_cmd_callback(channel, msg):
     # set the odrive's velocity to the float specified in the message
     # no state change
 
-    global speedlock
-    global odrive_bridge
+    global speedlock, odrive_bridge
     try:
         cmd = DriveVelCmd.decode(msg)
         if (odrive_bridge.get_state() == "ArmedState"):
-            global left_speed
-            global right_speed
+            global left_speed, right_speed
 
             speedlock.acquire()
-            left_speed = cmd.left
-            right_speed = cmd.right
+            left_speed, right_speed = cmd.left, cmd.right
             speedlock.release()
     except NameError:
         pass
@@ -407,8 +380,7 @@ class Modrive:
             print("Resetting watchdog")
             self.disable_watchdog()
             # clears errors cleanly
-            self.front_axis.error = 0
-            self.back_axis.error = 0
+            self.front_axis.error = self.back_axis.error = 0
             self.enable_watchdog()
         except fibre.protocol.ChannelBrokenException:
             print("Failed in disable_watchdog. Unplugged")
@@ -479,6 +451,4 @@ class Modrive:
         return (self.front_axis.current_state, self.back_axis.current_state)
 
     def check_errors(self):
-        front = self.front_axis.error
-        back = self.back_axis.error
-        return back + front
+        return self.front_axis.error + self.back_axis.error
