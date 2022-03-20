@@ -16,8 +16,8 @@ int main() {
     }
 
     auto env = make_shared<Environment>();
-    auto courseState = make_shared<CourseState>();
-    auto stateMachine = make_shared<StateMachine>(env, lcmObject);
+    auto courseState = make_shared<CourseProgress>();
+    auto stateMachine = make_shared<StateMachine>(env, courseState, lcmObject);
 
     auto autonCallback = [stateMachine](const lcm::ReceiveBuffer* recBuf, const string& channel, const AutonState* autonState) mutable {
         stateMachine->updateRoverStatus(*autonState);

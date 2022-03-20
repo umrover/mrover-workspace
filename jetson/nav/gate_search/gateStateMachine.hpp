@@ -10,13 +10,12 @@
 
 class StateMachine;
 
-class GateStateMachine
-{
+class GateStateMachine {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    GateStateMachine( std::weak_ptr<StateMachine> stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig );
+    GateStateMachine(std::weak_ptr<StateMachine> stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
     virtual ~GateStateMachine();
 
@@ -69,8 +68,6 @@ private:
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
-    // Pointer to rover State Machine to access member functions
-    std::weak_ptr<StateMachine> mRoverStateMachine;
 
     // Reference to config variables
     const rapidjson::Document& mRoverConfig;
@@ -93,8 +90,12 @@ protected:
     /*************************************************************************/
     // Pointer to rover object
     std::shared_ptr<Rover> mRover;
+
+    // Pointer to rover State Machine to access member functions
+    std::weak_ptr<StateMachine> mStateMachine;
 };
 
-std::shared_ptr<GateStateMachine> GateFactory( std::weak_ptr<StateMachine> stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig );
+std::shared_ptr<GateStateMachine>
+GateFactory(std::weak_ptr<StateMachine> stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
 #endif //GATE_STATE_MACHINE_HPP

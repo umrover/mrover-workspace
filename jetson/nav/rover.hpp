@@ -156,7 +156,7 @@ public:
 
     void drive(int direction, double bearing);
 
-    bool turn(Odometry& destination);
+    bool turn(Odometry const& destination);
 
     bool turn(double bearing);
 

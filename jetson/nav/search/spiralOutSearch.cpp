@@ -16,7 +16,7 @@ void SpiralOut::initializeSearch(shared_ptr<Rover> rover, const rapidjson::Docum
     }
     float rho, phi;
     while (coordinate_file >> rho >> phi) {
-        Odometry nextSearchPoint = createOdom(rover->roverStatus().path().front().odom, phi, rho, rover);
+        Odometry nextSearchPoint = createOdom(mStateMachine.lock()->getCourseState()->getRemainingWaypoints().front().odom, phi, rho, rover);
         mSearchPoints.push_back(nextSearchPoint);
     }
     coordinate_file.close();

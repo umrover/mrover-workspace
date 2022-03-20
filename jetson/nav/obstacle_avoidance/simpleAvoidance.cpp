@@ -21,7 +21,7 @@ SimpleAvoidance::~SimpleAvoidance() = default;
 // If in search state and target is both detected and reachable, return NavState TurnToTarget.
 // ASSUMPTION: There is no rock that is more than 8 meters (pathWidth * 2) in diameter
 NavState SimpleAvoidance::executeTurnAroundObs(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) {
-    shared_ptr<Environment> env = mStateMachine.lock()->getEnvironment();
+    shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
     if (isTargetDetected() && isTargetReachable(rover, env, roverConfig)) {
         return NavState::TurnToTarget;
     }
@@ -54,7 +54,7 @@ NavState SimpleAvoidance::executeTurnAroundObs(shared_ptr<Rover> rover, const ra
 // Drives to dummy waypoint. Once arrived, rover will drive to original waypoint
 // ( original waypoint is the waypoint before obstacle avoidance was triggered )
 NavState SimpleAvoidance::executeDriveAroundObs(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) {
-    shared_ptr<Environment> env = mStateMachine.lock()->getEnvironment();
+    shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
     if (isObstacleDetected(rover, env) && isObstacleInThreshold(rover, env, roverConfig)) {
         if (rover->roverStatus().currentState() == NavState::DriveAroundObs) {
             return NavState::TurnAroundObs;

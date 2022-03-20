@@ -19,8 +19,11 @@
 // Reads the configuartion file and constructs a Rover objet with this
 // and the lcmObject. Sets mStateChanged to true so that on the first
 // iteration of run the rover is updated.
-StateMachine::StateMachine(shared_ptr<Environment> env, lcm::LCM& lcmObject)
-        : mEnv(move(env)), mLcmObject(lcmObject), mTotalWaypoints(0), mCompletedWaypoints(0), mStateChanged(true) {
+StateMachine::StateMachine(std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseState, lcm::LCM& lcmObject) :
+        mEnv(move(env)), mCourseState(move(courseState)),
+        mLcmObject(lcmObject),
+        mTotalWaypoints(0), mCompletedWaypoints(0),
+        mStateChanged(true) {
     ifstream configFile;
     string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_nav/config.json";
@@ -80,7 +83,7 @@ void StateMachine::run() {
         if (!mRover->roverStatus().autonState().is_auton) {
             nextState = NavState::Off;
             mRover->roverStatus().currentState() = executeOff(); // turn off immediately
-            mRover->roverStatus().path().clear();
+            mCourseState->clearProgress();
             if (nextState != mRover->roverStatus().currentState()) {
                 mRover->roverStatus().currentState() = nextState;
                 mStateChanged = true;
@@ -174,10 +177,8 @@ void StateMachine::updateRoverStatus(AutonState autonState) {
 } // updateRoverStatus( AutonState )
 
 // Updates the course of the rover's status if it has changed.
-void StateMachine::updateRoverStatus(Course course) {
-    if (mNewRoverStatus.course().hash != course.hash) {
-        mNewRoverStatus.course() = course;
-    }
+void StateMachine::updateRoverStatus(Course const& course) {
+    throw logic_error("StateMachine::updateRoverStatus not implemented. IMPLEMENT ME!");
 } // updateRoverStatus( Course )
 
 // Updates the odometry information of the rover's status.
@@ -212,7 +213,7 @@ void StateMachine::publishNavState() const {
 NavState StateMachine::executeOff() {
     if (mRover->roverStatus().autonState().is_auton) {
         mCompletedWaypoints = 0;
-        mTotalWaypoints = mRover->roverStatus().course().num_waypoints;
+        mTotalWaypoints = mCourseState->getRemainingWaypoints().size();
 
         if (!mTotalWaypoints) {
             return NavState::Done;
@@ -234,13 +235,12 @@ NavState StateMachine::executeDone() {
 // proceeds to Off. If the rover finishes turning, it drives to the
 // next Waypoint. Else the rover keeps turning to the Waypoint.
 NavState StateMachine::executeTurn() {
-    if (mRover->roverStatus().path().empty()) {
+    if (mCourseState->getRemainingWaypoints().empty()) {
         return NavState::Done;
     }
 
-    Odometry& nextPoint = mRover->roverStatus().path().front().odom;
+    Odometry const& nextPoint = mCourseState->getRemainingWaypoints().front().odom;
     if (mRover->turn(nextPoint)) {
-
         return NavState::Drive;
     }
 
@@ -254,12 +254,12 @@ NavState StateMachine::executeTurn() {
 // detects an obstacle and is within the obstacle distance threshold, 
 // it goes to turn around it. Else the rover keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive() {
-    const Waypoint& nextWaypoint = mRover->roverStatus().path().front();
+    Waypoint const& nextWaypoint = mCourseState->getRemainingWaypoints().front();
     double distance = estimateNoneuclid(mRover->roverStatus().odometry(), nextWaypoint.odom);
 
-    if (isObstacleDetected(mRover, getEnvironment())
+    if (isObstacleDetected(mRover, getEnv())
         && !isWaypointReachable(distance)
-        && isObstacleInThreshold(mRover, getEnvironment(), mRoverConfig)) {
+        && isObstacleInThreshold(mRover, getEnv(), mRoverConfig)) {
         mObstacleAvoidanceStateMachine->updateObstacleElements(mEnv->getObstacle().bearing,
                                                                mEnv->getObstacle().rightBearing,
                                                                getOptimalAvoidanceDistance());
@@ -270,7 +270,7 @@ NavState StateMachine::executeDrive() {
         if (nextWaypoint.search || nextWaypoint.gate) {
             return NavState::ChangeSearchAlg;
         }
-        mRover->roverStatus().path().pop_front();
+        mCourseState->completeCurrentWaypoint();
 
         ++mCompletedWaypoints;
         return NavState::Turn;
@@ -328,12 +328,15 @@ bool StateMachine::isWaypointReachable(double distance) {
     return isLocationReachable(mRover, mEnv, mRoverConfig, distance, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
 }
 
-std::shared_ptr<Environment> StateMachine::getEnvironment() {
+std::shared_ptr<Environment> StateMachine::getEnv() {
     return mEnv;
 }
+
+std::shared_ptr<CourseProgress> StateMachine::getCourseState() {
+    return mCourseState;
+}
+
 // isWaypointReachable
-
-
 
 // TODOS:
 // [drive to target] obstacle and target

@@ -150,7 +150,7 @@ void Rover::drive(const int direction, const double bearing) {
 // Sends a joystick command to turn the rover toward the destination
 // odometry. Returns true if the rover has finished turning, false
 // otherwise.
-bool Rover::turn(Odometry& destination) {
+bool Rover::turn(Odometry const& destination) {
     double bearing = calcBearing(mRoverStatus.odometry(), destination);
     return turn(bearing);
 } // turn()

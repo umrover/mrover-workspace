@@ -8,8 +8,8 @@
 #include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 #include "environment.hpp"
+#include "course_state.hpp"
 
-using namespace std;
 using namespace rover_msgs;
 
 // This class implements the logic for the state machine for the
@@ -19,7 +19,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    StateMachine(std::shared_ptr<Environment> env, lcm::LCM& lcmObject);
+    StateMachine(std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseState, lcm::LCM& lcmObject);
 
     ~StateMachine();
 
@@ -27,7 +27,7 @@ public:
 
     void updateRoverStatus(AutonState autonState);
 
-    void updateRoverStatus(Course course);
+    void updateRoverStatus(const Course& course);
 
     void updateRoverStatus(Odometry odometry);
 
@@ -41,7 +41,9 @@ public:
 
     void setSearcher(SearchType type, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
-    std::shared_ptr<Environment> getEnvironment();
+    std::shared_ptr<Environment> getEnv();
+
+    std::shared_ptr<CourseProgress> getCourseState();
 
     /*************************************************************************/
     /* Public Member Variables */
@@ -65,12 +67,6 @@ private:
 
     NavState executeDrive();
 
-    NavState executeSearch();
-
-    void initializeSearch();
-
-    bool addFourPointsToSearch();
-
     string stringifyNavState() const;
 
     double getOptimalAvoidanceDistance() const;
@@ -84,6 +80,8 @@ private:
     std::shared_ptr<Rover> mRover;
 
     std::shared_ptr<Environment> mEnv;
+
+    std::shared_ptr<CourseProgress> mCourseState;
 
     // RoverStatus object for updating the rover's status.
     Rover::RoverStatus mNewRoverStatus;
@@ -108,5 +106,4 @@ private:
 
     // Avoidance pointer to control obstacle avoidance states
     std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
-
 }; // StateMachine
