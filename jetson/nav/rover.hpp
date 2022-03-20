@@ -36,8 +36,7 @@ enum class NavState
 
     // Target Found States
     TurnToTarget = 27,
-    TurnedToTargetWait = 28,
-    DriveToTarget = 29,
+    DriveToTarget = 28,
 
     // Obstacle Avoidance States
     TurnAroundObs = 30,
@@ -119,6 +118,10 @@ public:
 
         int& getRightMisses();
 
+        int& getLeftHits();
+
+        int& getRightHits();
+
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
     private:
@@ -161,6 +164,11 @@ public:
         int countLeftMisses = 0;
 
         int countRightMisses = 0;
+
+        // Count hits for avoiding FPs
+        int countLeftHits = 0;
+
+        int countRightHits = 0;
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
