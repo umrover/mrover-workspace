@@ -8,16 +8,15 @@
 // Constructs a rover status object and initializes the navigation
 // state to off.
 Rover::RoverStatus::RoverStatus()
-    : mCurrentState( NavState::Off )
-{
+        : mCurrentState(NavState::Off),
+        // {-1, 0, 0} refers to the struct of an empty Target
+        // which means distance = -1, bearing = 0, id = 0
+          mCTargetLeft({-1.0, 0, 0}),
+          mCTargetRight({-1.0, 0, 0}),
+          mObstacle({0, 0, -1.0}),
+          mTargetRight({-1.0, 0, 0}),
+          mTargetLeft({-1.0, 0, 0}) {
     mAutonState.is_auton = false;
-    // {-1, 0, 0} refers to the struct of an empty Target
-    // which means distance = -1, bearing = 0, id = 0
-    mCTargetLeft = {-1.0, 0, 0};
-    mCTargetRight = {-1.0, 0, 0};
-    mObstacle = {0, 0, -1.0}; // empty obstacle --> distance is  -1
-    mTargetLeft = {-1.0, 0, 0};
-    mTargetRight = {-1.0, 0, 0};
 } // RoverStatus()
 
 // Gets a reference to the rover's current navigation state.
@@ -62,7 +61,7 @@ Target& Rover::RoverStatus::leftTarget()
     return mTargetLeft;
 } // leftTarget()
 
-Target& Rover::RoverStatus::rightTarget() 
+Target& Rover::RoverStatus::rightTarget()
 {
     return mTargetRight;
 } // rightTarget()
@@ -72,7 +71,7 @@ Target& Rover::RoverStatus::leftCacheTarget()
     return mCTargetLeft;
 } // leftCacheTarget()
 
-Target& Rover::RoverStatus::rightCacheTarget() 
+Target& Rover::RoverStatus::rightCacheTarget()
 {
     return mCTargetRight;
 } // rightCacheTarget()
@@ -276,7 +275,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
 
             // Cache Left Target if we had detected one
-            if( mRoverStatus.leftTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
+            if( mRoverStatus.leftTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
             {
 
                 // Associate with single post
@@ -298,18 +297,18 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
 
                 // Cache Right Target if we had detected one (only can see right if we see the left one, otherwise
                 // results in some undefined behavior)
-                if( mRoverStatus.rightTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
+                if( mRoverStatus.rightTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
                 {
                     mRoverStatus.rightCacheTarget() = mRoverStatus.rightTarget();
                     mRoverStatus.getRightMisses() = 0;
                 }
-                else 
+                else
                 {
                     mRoverStatus.getRightMisses()++;
                 }
             }
-            else 
-            { 
+            else
+            {
                 mRoverStatus.getLeftMisses()++;
                 mRoverStatus.getRightMisses()++; // need to increment since we don't see both
                 mRoverStatus.getLeftHits() = 0;
@@ -333,7 +332,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
                 // Set to empty target
                 mRoverStatus.rightCacheTarget() = {-1, 0, 0};
             }
-            
+
             return true;
         }
         return false;

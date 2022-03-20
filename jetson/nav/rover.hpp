@@ -130,21 +130,21 @@ public:
 
         // The rover's current obstacle information from computer
         // vision.
-        Obstacle mObstacle{};
+        Obstacle mObstacle;
 
         // The rover's current odometry information.
         Odometry mOdometry{};
 
         // The rover's current target information from computer
         // vision.
-        Target mTargetLeft{};
+        Target mTargetLeft;
 
-        Target mTargetRight{};
+        Target mTargetRight;
 
         // Cached Target information
-        Target mCTargetLeft{};
+        Target mCTargetLeft;
 
-        Target mCTargetRight{};
+        Target mCTargetRight;
 
         // Total targets to search for in the course
         unsigned mPathTargets{};
