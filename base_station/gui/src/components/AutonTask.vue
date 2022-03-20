@@ -31,6 +31,7 @@
         <DriveControls/>
         <DriveVelDataH/>
         <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick"/>
+        <PlaybackAutonData/>
      </div>
     </div>
     <div class="box odom light-bg">

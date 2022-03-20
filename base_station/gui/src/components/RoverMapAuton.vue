@@ -4,7 +4,7 @@
     <l-map ref="map" class="map" :zoom="15" :center="center">
       <l-control-scale :imperial="false"/>
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
-      <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
+      <l-marker ref="rover" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="locationIcon"/>
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in route" :key="waypoint.id" >
         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
       </l-marker>
@@ -13,13 +13,12 @@
         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
       </l-marker>
 
-      <l-polyline :lat-lngs="polylinePath" :color="'red'" :dash-array="'5, 5'"/>
+      <l-polyline :lat-lngs="this.playbackEnabled ? polylinePlaybackPath : polylinePath" :color="'red'" :dash-array="'5, 5'"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
-      <l-polyline :lat-lngs="playback.view" :color="'green'"/>
+      <l-polyline :lat-lngs="playbackPath" :color="'green'"/>
     </l-map>
-    <div class="log">
-        <input type="file" id="read_log" accept=".csv"/>
-        <button v-on:click="upload_log()">Upload log</button>
+    <div class="slider" v-if="this.playbackEnabled">
+      <input type="range" min="0" :max='this.playbackLength-1' value ='0' v-model='playbackSlider'>
     </div>
   </div>
 </template>
@@ -62,7 +61,15 @@ export default {
   computed: {
     ...mapGetters('autonomy', {
       route: 'route',
-      list: 'waypointList'
+      list: 'waypointList',
+      playbackEnabled: 'playbackEnabled',
+      playbackLength: 'playbackLength',
+      playback: 'playback',
+      playbackLat: 'playbackLat',
+      playbackLon: 'playbackLon',
+      playbackBearing: 'playbackBearing',
+      playbackWaypointLat: 'playbackWaypointLat',
+      playbackWaypointLon: 'playbackWaypointLon'
     }),
 
     odomLatLng: function () {
@@ -71,6 +78,10 @@ export default {
 
     polylinePath: function () {
       return [this.odomLatLng].concat(this.route.map(waypoint => waypoint.latLng))
+    },
+
+    polylinePlaybackPath: function () {
+      return this.route.map(waypoint => waypoint.latLng)
     }
   },
 
@@ -86,6 +97,10 @@ export default {
       locationIcon: null,
       odomPath: [],
       findRover: false,
+
+      playbackPath: [],
+      playbackSlider: 0,
+
       options: {
         type: Object,
         default: () => ({})
@@ -93,14 +108,6 @@ export default {
       tileLayerOptions: {
         maxNativeZoom: 18,
         maxZoom: 100
-      },
-      playback: {
-        enabled: false,
-        lat: [],
-        lon: [],
-        view: [],
-        waypoint_lat: [],
-        waypoint_lon: []
       }
     }
   },
@@ -141,6 +148,39 @@ export default {
       }
 
       this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
+    },
+    
+    playbackEnabled: function (val) {
+      console.log('val:', val)
+      if (val) {
+        console.log(this.playbackLon[0])
+        this.center = L.latLng(this.playbackLat[0], this.playbackLon[0])
+        this.roverMarker.setRotationAngle(this.playbackBearing[0])
+        this.roverMarker.setLatLng(L.latLng(this.playbackLat[0], this.playbackLon[0]))
+
+        for (let i = 0; i < this.playbackWaypointLat.length; i++) {
+          this.route.push( {latLng: L.latLng(this.playbackWaypointLat[i], this.playbackWaypointLon[i])} )
+        }
+      }
+    },
+
+    playbackSlider: function (val) {
+      this.roverMarker.setRotationAngle(this.playbackBearing[val])
+      this.roverMarker.setLatLng(L.latLng(this.playbackLat[val], this.playbackLon[val]))
+
+      let length_diff = val - this.playbackPath.length
+
+      if (length_diff > 0) {
+        for (let i = this.playbackPath.length; i < val; i++) {
+          this.playbackPath.push(L.latLng(
+            this.playbackLat[i],
+            this.playbackLon[i]
+          ))
+        }
+      }
+      else if (length_diff < 0) {
+        this.playbackPath.splice(val, -1*length_diff)
+      }
     }
   },
 
@@ -250,14 +290,25 @@ export default {
 .map {
   height: 100%;
   width: 100%;
+  grid-area: "map";
+}
+
+.slider {
+  grid-area: "slider";
 }
 
 .wrap {
-  display: flex;
   align-items: center;
   height: 100%;
+  display: grid;
+  overflow:hidden;
+  min-height: 100%;
+  grid-gap: 5px;
+  grid-template-columns: 1fr;
+  grid-template-rows: 96% 4%;
+  grid-template-areas:"map" 
+                      "slider";
 }
-
 .custom-tooltip {
     display: inline-block;
     margin: 10px 20px;
