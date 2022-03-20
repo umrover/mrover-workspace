@@ -1,10 +1,8 @@
 package rover_msgs;
 
-struct ArmPosition {
+struct SAPosition {
     double joint_a;
     double joint_b;
     double joint_c;
-    double joint_d;
     double joint_e;
-    double joint_f;
 }

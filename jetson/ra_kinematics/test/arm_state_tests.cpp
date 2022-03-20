@@ -8,18 +8,18 @@
 using namespace nlohmann;
 
 TEST(arm_initialization_test) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
 }
 
 TEST(read_geom_file) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
 
     ASSERT_EQUAL(geom["name"], "mrover_arm");
 }
 
 TEST(joint_creation_test) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
 
     json joint_a_json = geom["joints"]["joint_a"];
 
@@ -41,7 +41,7 @@ TEST(joint_creation_test) {
 }
 
 TEST(avoidance_link_creation_test) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
 
     json joint_a_json = geom["joints"]["joint_a"];
 
@@ -54,7 +54,7 @@ TEST(set_joint_angles_test) {
     std::vector<double> set_angles{1.1, 0.9, -0.5, 0.1, 0.01, -1.2};
     
     // Create the arm object:
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
 
     // Set the angles on the arm to be from the set_angles vector
@@ -66,13 +66,13 @@ TEST(set_joint_angles_test) {
         std::cout << x << "\n";
     }
 
-    for (int i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < arm.num_joints(); ++i) {
         ASSERT_EQUAL(set_angles[i], return_angles[i]);
     }
 }
 
 TEST(json_read_test) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
 }
 

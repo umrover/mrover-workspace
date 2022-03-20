@@ -641,10 +641,10 @@ int main()
 
     while (1)
     {
-        testClosed();
+        //testClosed();
 	    //testQuadEnc();
         //testOpenPlusWithAbs();
-        //testOpenPlus();
+        testOpenPlus();
         //testAbsEnc();
         sleep(100);
 
