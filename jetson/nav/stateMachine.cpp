@@ -30,7 +30,7 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     configPath += "/config_nav/config.json";
     configFile.open( configPath );
     if (!configFile) {
-        throw std::runtime_error("Could not open config file");
+        throw std::runtime_error("Could not open config file at: " + configPath);
     }
     string config;
     string setting;
@@ -42,7 +42,7 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     mRoverConfig.Parse( config.c_str() );
     mRover = make_shared<Rover>( mRoverConfig, lcmObject );
     mSearchStateMachine = SearchFactory( weak_from_this(), SearchType::SPIRALOUT, mRover, mRoverConfig );
-    mGateStateMachine = GateFactory( this, mRover, mRoverConfig );
+    mGateStateMachine = GateFactory( weak_from_this(), mRover, mRoverConfig );
     mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( weak_from_this(), ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mRoverConfig );
 } // StateMachine()
 

@@ -5,10 +5,10 @@
 #include <iostream>
 #include <cmath>
 
-DiamondGateSearch::DiamondGateSearch( StateMachine* stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
+DiamondGateSearch::DiamondGateSearch( std::weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
     : GateStateMachine( stateMachine, rover, roverConfig ) {}
 
-DiamondGateSearch::~DiamondGateSearch() {}
+DiamondGateSearch::~DiamondGateSearch() = default;
 
 void DiamondGateSearch::initializeSearch()
 {

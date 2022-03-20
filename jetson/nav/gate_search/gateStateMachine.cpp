@@ -7,7 +7,7 @@
 #include <iostream>
 
 // Constructs a GateStateMachine object with roverStateMachine
-GateStateMachine::GateStateMachine( StateMachine* stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
+GateStateMachine::GateStateMachine( std::weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
     : mRoverStateMachine( stateMachine )
     , mRoverConfig( roverConfig )
     , mRover( rover ) {}
@@ -322,7 +322,7 @@ NavState GateStateMachine::executeGateDriveThrough()
             return NavState::GateSpin;
         }
         mRover->roverStatus().path().pop_front();
-        mRoverStateMachine->updateCompletedPoints();
+        mRoverStateMachine.lock()->updateCompletedPoints();
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
@@ -399,7 +399,7 @@ void GateStateMachine::calcCenterPoint()
 } // calcCenterPoint()
 
 // Creates an GateStateMachine object
-shared_ptr<GateStateMachine> GateFactory( StateMachine* stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
+shared_ptr<GateStateMachine> GateFactory( weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
 {
     return make_shared<DiamondGateSearch>( stateMachine, rover, roverConfig );
 } // GateFactory()
