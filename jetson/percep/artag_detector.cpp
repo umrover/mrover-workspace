@@ -82,6 +82,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     // Draw detected tags
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     cv::imshow("AR Tags", rgb);
+    cv::imshow("Thresholded Mat", cv::aruco::getThresholdedMat());
 
     // on click debugging for color
     DEPTH = depth_src;
