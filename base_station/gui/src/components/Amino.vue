@@ -6,37 +6,37 @@
   <div class="box1">
     <label for="site">Choose a site:</label>
     <select v-model = "site" name="site" id="site">
-      <option value="2">Site A</option>
-      <option value="1">Site B</option>
-      <option value="0">Site C</option>
+      <option value="0">Site 0</option>
+      <option value="1">Site 1</option>
+      <option value="2">Site 2</option>
     </select>
   </div>
   <div class="box1" v-if="site == 2">
     <label for="toggle_button" :class="{'active': heaters[2].enabled}" class="toggle__button">
-      <span class="toggle__label" >Heater A {{heaters[2].message}}</span>
+      <span class="toggle__label" >Heater 2 {{heaters[2].message}}</span>
       <input type="checkbox" id="toggle_button">
       <span class="toggle__switch" v-if="heaters[2].enabled" v-on:click="sendHeaterCmd(2, false)"></span>
       <span class="toggle__switch" v-if="!heaters[2].enabled" v-on:click="sendHeaterCmd(2, true)"></span>
     </label>
-    <p v-bind:style="{color: heaters[2].color}">Thermistor A: {{heaters[2].temp.toFixed(2)}} C°</p>
+    <p v-bind:style="{color: heaters[2].color}">Thermistor 2: {{heaters[2].temp.toFixed(2)}} C°</p>
   </div>
   <div class="box1" v-if="site == 1">
     <label for="toggle_button" :class="{'active': heaters[1].enabled}" class="toggle__button">
-      <span class="toggle__label" >Heater B {{heaters[1].message}}</span>
+      <span class="toggle__label" >Heater 1 {{heaters[1].message}}</span>
       <input type="checkbox" id="toggle_button">
       <span class="toggle__switch" v-if="heaters[1].enabled" v-on:click="sendHeaterCmd(1, false)"></span>
       <span class="toggle__switch" v-if="!heaters[1].enabled" v-on:click="sendHeaterCmd(1, true)"></span>
     </label>
-    <p v-bind:style="{color: heaters[1].color}">Thermistor B: {{heaters[1].temp.toFixed(2)}} C°</p>
+    <p v-bind:style="{color: heaters[1].color}">Thermistor 1: {{heaters[1].temp.toFixed(2)}} C°</p>
   </div>
   <div class="box1" v-if="site == 0">
     <label for="toggle_button" :class="{'active': heaters[0].enabled}" class="toggle__button">
-      <span class="toggle__label" >Heater C {{heaters[0].message}}</span>
+      <span class="toggle__label" >Heater 0 {{heaters[0].message}}</span>
       <input type="checkbox" id="toggle_button">
       <span class="toggle__switch" v-if="heaters[0].enabled" v-on:click="sendHeaterCmd(0, false)"></span>
       <span class="toggle__switch" v-if="!heaters[0].enabled" v-on:click="sendHeaterCmd(0, true)"></span>
     </label>
-    <p v-bind:style="{color: heaters[0].color}">Thermistor C: {{heaters[0].temp.toFixed(2)}} C°</p>
+    <p v-bind:style="{color: heaters[0].color}">Thermistor 0: {{heaters[0].temp.toFixed(2)}} C°</p>
   </div>
   <div>
     <label for="toggle_button" :class="{'active': autoShutdown}" class="toggle__button">
@@ -53,7 +53,7 @@
 export default {
   data () {
     return {
-      site: 2,
+      site: 0,
 
       heaters: [
         {
