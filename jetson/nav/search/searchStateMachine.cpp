@@ -254,26 +254,26 @@ void SearchStateMachine::insertIntermediatePoints()
 
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms
-SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig )  //TODO
+shared_ptr<SearchStateMachine>
+SearchFactory(StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig)  //TODO
 {
-    SearchStateMachine* search = nullptr;
-    switch ( type )
-    {
+    shared_ptr<SearchStateMachine> search = nullptr;
+    switch (type) {
         case SearchType::SPIRALOUT:
-            search = new SpiralOut( stateMachine, rover, roverConfig );
+            search = make_shared<SpiralOut>(stateMachine, rover, roverConfig);
             break;
 
         case SearchType::LAWNMOWER:
-            search = new LawnMower( stateMachine, rover, roverConfig );
+            search = make_shared<LawnMower>(stateMachine, rover, roverConfig);
             break;
 
         case SearchType::SPIRALIN:
-            search = new SpiralIn( stateMachine, rover, roverConfig );
+            search = make_shared<SpiralIn>(stateMachine, rover, roverConfig);
             break;
 
         default:
             std::cerr << "Unkown Search Type. Defaulting to Spiral\n";
-            search = new SpiralOut( stateMachine, rover, roverConfig );
+            search = make_shared<SpiralOut>(stateMachine, rover, roverConfig);
             break;
     }
     return search;

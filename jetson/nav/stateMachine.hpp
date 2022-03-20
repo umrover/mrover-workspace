@@ -1,6 +1,7 @@
 #ifndef STATE_MACHINE_HPP
 #define STATE_MACHINE_HPP
 
+#include <memory>
 #include <lcm/lcm-cpp.hpp>
 #include "rapidjson/document.h"
 #include "rover.hpp"
@@ -50,7 +51,7 @@ public:
     /* Public Member Variables */
     /*************************************************************************/
     // Gate State Machine instance
-    GateStateMachine* mGateStateMachine;
+    std::shared_ptr<GateStateMachine> mGateStateMachine;
 
 private:
     /*************************************************************************/
@@ -105,10 +106,10 @@ private:
     bool mStateChanged;
 
     // Search pointer to control search states
-    SearchStateMachine* mSearchStateMachine;
+    std::shared_ptr<SearchStateMachine> mSearchStateMachine;
 
     // Avoidance pointer to control obstacle avoidance states
-    ObstacleAvoidanceStateMachine* mObstacleAvoidanceStateMachine;
+    std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
 
 }; // StateMachine
 

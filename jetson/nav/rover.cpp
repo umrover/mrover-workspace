@@ -356,7 +356,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
 
 // Calculates the conversion from minutes to meters based on the
 // rover's current latitude.
-const double Rover::longMeterInMinutes() const
+double Rover::longMeterInMinutes() const
 {
     return mLongMeterInMinutes;
 }
@@ -381,18 +381,17 @@ PidLoop& Rover::bearingPid()
 
 // Publishes a joystick command with the given forwardBack and
 // leftRight efforts.
-void Rover::publishJoystick( const double forwardBack, const double leftRight, const bool kill )
-{
-    Joystick joystick;
+void Rover::publishJoystick(const double forwardBack, const double leftRight, const bool kill) {
+    Joystick joystick{};
     // power limit (0 = 50%, 1 = 0%, -1 = 100% power)
-    joystick.dampen = mRoverConfig[ "joystick" ][ "dampen" ].GetDouble();
-    double drivingPower = mRoverConfig[ "joystick" ][ "drivingPower" ].GetDouble();
+    joystick.dampen = mRoverConfig["joystick"]["dampen"].GetDouble();
+    double drivingPower = mRoverConfig["joystick"]["drivingPower"].GetDouble();
     joystick.forward_back = drivingPower * forwardBack;
-    double bearingPower = mRoverConfig[ "joystick" ][ "bearingPower" ].GetDouble();
+    double bearingPower = mRoverConfig["joystick"]["bearingPower"].GetDouble();
     joystick.left_right = bearingPower * leftRight;
-    joystick.kill = kill;
-    string joystickChannel = mRoverConfig[ "lcmChannels" ][ "joystickChannel" ].GetString();
-    mLcmObject.publish( joystickChannel, &joystick );
+    joystick.kill = static_cast<int8_t>(kill);
+    string joystickChannel = mRoverConfig["lcmChannels"]["joystickChannel"].GetString();
+    mLcmObject.publish(joystickChannel, &joystick);
 } // publishJoystick()
 
 // Returns true if the two obstacle messages are equal, false

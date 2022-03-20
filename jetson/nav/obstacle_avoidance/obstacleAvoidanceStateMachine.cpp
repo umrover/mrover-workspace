@@ -75,19 +75,17 @@ bool ObstacleAvoidanceStateMachine::isTargetDetected ()
 
 // The obstacle avoidance factory allows for the creation of obstacle avoidance objects and
 // an ease of transition between obstacle avoidance algorithms
-ObstacleAvoidanceStateMachine* ObstacleAvoiderFactory ( StateMachine* roverStateMachine,
-                                                        ObstacleAvoidanceAlgorithm algorithm, Rover* rover, const rapidjson::Document& roverConfig )
-{
-    ObstacleAvoidanceStateMachine* avoid = nullptr;
-    switch ( algorithm )
-    {
+shared_ptr <ObstacleAvoidanceStateMachine> ObstacleAvoiderFactory
+        (StateMachine* roverStateMachine, ObstacleAvoidanceAlgorithm algorithm, Rover* rover, const rapidjson::Document& roverConfig) {
+    shared_ptr <ObstacleAvoidanceStateMachine> avoid = nullptr;
+    switch (algorithm) {
         case ObstacleAvoidanceAlgorithm::SimpleAvoidance:
-            avoid = new SimpleAvoidance( roverStateMachine, rover, roverConfig );
+            avoid = make_shared<SimpleAvoidance>(roverStateMachine, rover, roverConfig);
             break;
 
         default:
             std::cerr << "Unkown Search Type. Defaulting to original\n";
-            avoid = new SimpleAvoidance( roverStateMachine, rover, roverConfig );
+            avoid = make_shared<SimpleAvoidance>(roverStateMachine, rover, roverConfig);
             break;
     } // switch
     return avoid;

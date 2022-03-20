@@ -3,8 +3,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <sstream>
-#include <cmath>
 #include <cstdlib>
 #include <map>
 
@@ -31,7 +29,10 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_nav/config.json";
     configFile.open( configPath );
-    string config = "";
+    if (!configFile) {
+        throw std::runtime_error("Could not open config file");
+    }
+    string config;
     string setting;
     while( configFile >> setting )
     {
@@ -52,17 +53,14 @@ StateMachine::~StateMachine( )
     delete mRover;
 }
 
-void StateMachine::setSearcher( SearchType type, Rover* rover, const rapidjson::Document& roverConfig )
-{
-    assert( mSearchStateMachine );
-    delete mSearchStateMachine;
-    mSearchStateMachine = SearchFactory( this, type, rover, roverConfig );
+void StateMachine::setSearcher(SearchType type, Rover* rover, const rapidjson::Document& roverConfig) {
+    assert(mSearchStateMachine);
+    mSearchStateMachine = SearchFactory(this, type, rover, roverConfig);
 }
 
 void StateMachine::updateCompletedPoints( )
 {
     mCompletedWaypoints += 1;
-    return;
 }
 
 // Allows outside objects to set the original obstacle angle

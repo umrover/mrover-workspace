@@ -399,7 +399,7 @@ void GateStateMachine::calcCenterPoint()
 } // calcCenterPoint()
 
 // Creates an GateStateMachine object
-GateStateMachine* GateFactory( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig )
+shared_ptr<GateStateMachine> GateFactory( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig )
 {
-    return new DiamondGateSearch( stateMachine, rover, roverConfig );
+    return make_shared<DiamondGateSearch>( stateMachine, rover, roverConfig );
 } // GateFactory()

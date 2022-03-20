@@ -1,5 +1,7 @@
+#include <memory>
 #include <iostream>
 #include <lcm/lcm-cpp.hpp>
+#include <utility>
 #include "stateMachine.hpp"
 
 using namespace rover_msgs;
@@ -12,9 +14,8 @@ class LcmHandlers
 public:
     // Constructs an LcmHandler with the given state machine to work
     // with.
-    LcmHandlers( StateMachine* stateMachine )
-        : mStateMachine( stateMachine )
-    {}
+    explicit LcmHandlers(shared_ptr<StateMachine> stateMachine)
+            : mStateMachine(std::move(stateMachine)) {}
 
     // Sends the auton state lcm message to the state machine.
     void autonState(
@@ -68,7 +69,7 @@ public:
 
 private:
     // The state machine to send the lcm messages to.
-    StateMachine* mStateMachine;
+    shared_ptr<StateMachine> mStateMachine;
 };
 
 // Runs the autonomous navigation of the rover.
@@ -81,8 +82,8 @@ int main()
         return 1;
     }
 
-    StateMachine roverStateMachine( lcmObject );
-    LcmHandlers lcmHandlers( &roverStateMachine );
+    auto roverStateMachine = make_shared<StateMachine>( lcmObject );
+    LcmHandlers lcmHandlers( roverStateMachine );
 
     lcmObject.subscribe( "/auton", &LcmHandlers::autonState, &lcmHandlers );
     lcmObject.subscribe( "/course", &LcmHandlers::course, &lcmHandlers );
@@ -90,9 +91,9 @@ int main()
     lcmObject.subscribe( "/odometry", &LcmHandlers::odometry, &lcmHandlers );
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
 
-    while( lcmObject.handle() == 0 )
-    {
-        roverStateMachine.run();
-    }
+//    while( lcmObject.handle() == 0 )
+//    {
+        roverStateMachine->run();
+//    }
     return 0;
 } // main()

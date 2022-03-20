@@ -1,6 +1,7 @@
 #ifndef OBSTACLE_AVOIDANCE_STATE_MACHINE_HPP
 #define OBSTACLE_AVOIDANCE_STATE_MACHINE_HPP
 
+#include <memory>
 #include "rover.hpp"
 
 class StateMachine;
@@ -21,7 +22,7 @@ public:
     /*************************************************************************/
     ObstacleAvoidanceStateMachine( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig );
 
-    virtual ~ObstacleAvoidanceStateMachine() {}
+    virtual ~ObstacleAvoidanceStateMachine() = default;
 
     void updateObstacleAngle( double bearing, double rightBearing );
 
@@ -80,7 +81,7 @@ private:
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle 
 // avoidance algorithm. This allows for an an ease of transition between obstacle 
 // avoidance algorithms
-ObstacleAvoidanceStateMachine* ObstacleAvoiderFactory( StateMachine* roverStateMachine,
-                                                       ObstacleAvoidanceAlgorithm algorithm, Rover* rover, const rapidjson::Document& roverConfig );
+std::shared_ptr<ObstacleAvoidanceStateMachine> ObstacleAvoiderFactory
+(StateMachine* roverStateMachine,ObstacleAvoidanceAlgorithm algorithm, Rover* rover,const rapidjson::Document& roverConfig);
 
 #endif //OBSTACLE_AVOIDANCE_STATE_MACHINE_HPP

@@ -2,6 +2,7 @@
 #define GATE_STATE_MACHINE_HPP
 
 #include <deque>
+#include <memory>
 
 #include "../rover.hpp"
 #include "rover_msgs/Odometry.hpp"
@@ -94,6 +95,6 @@ protected:
     Rover* mRover;
 };
 
-GateStateMachine* GateFactory( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig );
+std::shared_ptr<GateStateMachine> GateFactory( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig );
 
 #endif //GATE_STATE_MACHINE_HPP

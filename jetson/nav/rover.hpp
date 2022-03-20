@@ -193,7 +193,7 @@ public:
 
     PidLoop& bearingPid();
 
-    const double longMeterInMinutes() const;
+    double longMeterInMinutes() const;
 
   
 private:

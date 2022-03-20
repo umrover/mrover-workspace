@@ -1,6 +1,7 @@
 #ifndef SEARCH_STATE_MACHINE_HPP
 #define SEARCH_STATE_MACHINE_HPP
 
+#include <memory>
 #include "rover.hpp"
 #include "utilities.hpp"
 
@@ -89,6 +90,6 @@ private:
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle
 // avoidance algorithm. This allows for an an ease of transition between obstacle
 // avoidance algorithms
-SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
+std::shared_ptr<SearchStateMachine> SearchFactory(StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig);
 
 #endif //SEARCH_STATE_MACHINE_HPP
