@@ -1,24 +1,26 @@
 <template>
-<div class="wrap">
-    <div>
-        <h3> Strip Test Controls </h3>
-    </div>
-    <div class="controls">
-        <div class="strip_test">
-            <label for="strip">Perform strip test on strip:</label>
-                <select v-model = "strip" name="strip" id="strip">
-                    <option value=2>A</option>
-                    <option value=1>B</option>
-                    <option value=0>C</option>
-                </select>
-            <div class="commands" v-if="strip == 2">
-                <button v-on:click="stripTestA()"> Start Strip A Test </button>
-            </div>
-            <div class="commands" v-if="strip == 1">
-                <button v-on:click="stripTestB()"> Start Strip B Test </button>
-            </div>
-            <div class="commands" v-if="strip == 0">
-                <button v-on:click="stripTestC()"> Start Strip C Test </button>
+<div class="status wrap" v-bind:style="{backgroundColor: background_color}">
+    <div class="inner_pad">
+        <div>
+            <h3> Strip Test Controls </h3>
+        </div>
+        <div class="controls">
+            <div>
+                <label for="strip">Perform strip test on strip:</label>
+                    <select v-model = "strip" name="strip" id="strip">
+                        <option value=2>A</option>
+                        <option value=1>B</option>
+                        <option value=0>C</option>
+                    </select>
+                <div class="commands" v-if="strip == 2">
+                    <button v-on:click="stripTestA()"> Start Strip A Test </button>
+                </div>
+                <div class="commands" v-if="strip == 1">
+                    <button v-on:click="stripTestB()"> Start Strip B Test </button>
+                </div>
+                <div class="commands" v-if="strip == 0">
+                    <button v-on:click="stripTestC()"> Start Strip C Test </button>
+                </div>
             </div>
         </div>
     </div>
@@ -34,9 +36,12 @@ const serv1_dip = 30;
 const serv0_start = 80;
 const serv0_dip = 10;
 
-// const undipped = '#A54657';
-// const dipping = '#FABC2A';
-// const dipped = '#AEF78E';
+
+const undipped = '#A54657';
+const dipping = '#FABC2A';
+const dipped = '#AEF78E';
+
+
 
 
 export default {
@@ -48,10 +53,21 @@ export default {
             angle2: serv2_start,
             serv2_start: serv2_start,
             serv2_dip: serv2_dip,
+            serv2_has_dip: false,
+            serv2_color: undipped,
             serv1_start: serv1_start,
             serv1_dip: serv1_dip,
+            serv1_has_dip: false,
+            serv1_color: undipped,
             serv0_start: serv0_start,
             serv0_dip: serv0_dip,
+            serv0_has_dip: false,
+            serv0_color: undipped,
+            background_color: undipped,
+            undipped: undipped,
+            dipping: dipping,
+            dipped: dipped
+
         }
     },
     methods: {
@@ -69,7 +85,7 @@ export default {
             this.setPart();
             setTimeout(() => {
                 this.angle2 = this.serv2_start;
-                // this.serv2_has_dip = true;
+                this.serv2_has_dip = true;
                 this.setPart();
                 }, 10000);
         },
@@ -79,7 +95,7 @@ export default {
             this.setPart();
             setTimeout(() => {
                 this.angle1 = this.serv1_start;
-                // this.serv1_has_dip = true;
+                this.serv1_has_dip = true;
                 this.setPart();
                 }, 10000);
         },
@@ -89,50 +105,64 @@ export default {
             this.setPart();
             setTimeout(() => {
                 this.angle0 = this.serv0_start;
-                // this.serv0_has_dip = true;
+                this.serv0_has_dip = true;
                 this.setPart();
                 }, 10000);
         },
-
-        // changeStripColor: function(event) {
-        //     if (event.target.value == 2) {
-        //         if (angle2 == 100) {
-        //             if (serv2_has_dip) {
-        //                 this.background_color = this.dipped;
-        //             } else {
-        //                 this.background_color = this.undipped;
-        //             }
-        //         } else if (angle2 == 30) {
-        //             this.background_color = this.dipping;
-        //         }
-        //     } else if (event.target.value == 1) {
-        //         if (angle1 == 100) {
-        //             if (serv1_has_dip) {
-        //                 this.background_color = this.dipped;
-        //             } else {
-        //                 this.background_color = this.undipped;
-        //             }
-        //         } else if (angle1 == 30) {
-        //             this.background_color = this.dipping;
-        //         }
-        //     } else {
-        //         if (angle0 == 80) {
-        //             if (serv0_has_dip) {
-        //                 this.background_color = this.dipped;
-        //             } else {
-        //                 this.background_color = this.undipped;
-        //             }
-        //         } else if (angle0 == 10) {
-        //             this.background_color = this.dipping;
-        //         }
-        //     }
-        // }
     },
-    // watch: {
-    //     strip: function (val) {
-            
-    //     }
-    // }
+    watch: {
+        strip: function (val) {
+            if (val == 2) {
+                this.background_color = this.serv2_color;
+            } else if (val == 1) {
+                this.background_color = this.serv1_color;
+            } else {
+                this.background_color = this.serv0_color;
+            }
+        },
+        angle2: function (val) {
+            if (val == 100) {
+                if (this.serv2_has_dip) {
+                    this.serv2_color = this.dipped;
+                } else {
+                    this.serv2_color = this.undipped;
+                }
+            } else if (val == 30) {
+                this.serv2_color = this.dipping;
+            }
+            if (this.strip == 2) {
+                this.background_color = this.serv2_color;
+            }
+        },
+        angle1: function (val) {
+            if (val == 100) {
+                if (this.serv1_has_dip) {
+                    this.serv1_color = this.dipped;
+                } else {
+                    this.serv1_color = this.undipped;
+                }
+            } else if (val == 30) {
+                this.serv1_color = this.dipping;
+            }
+            if (this.strip == 1) {
+                this.background_color = this.serv1_color;
+            }
+        },
+        angle0: function (val) {
+            if (val == 80) {
+                if (this.serv0_has_dip) {
+                    this.serv0_color = this.dipped;
+                } else {
+                    this.serv0_color = this.undipped;
+                }
+            } else if (val == 10) {
+                this.serv0_color = this.dipping;
+            }
+            if (this.strip == 0) {
+                this.background_color = this.serv0_color;
+            }
+        }
+    }
 }
 </script>
 
@@ -140,6 +170,17 @@ export default {
     .wrap {
         display: inline-block;
         align-content: center;
+    }
+    .status {
+        border-radius: 5px;
+        border: 1px solid black;
+        display: flex;
+        justify-content: space-around;
+        flex-direction: column;
+    }
+
+    .inner_pad {
+        padding: 10px;
     }
 
     .controls {
