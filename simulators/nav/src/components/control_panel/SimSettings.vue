@@ -204,10 +204,6 @@ export default class SimSettings extends Vue {
   margin-top: 4px;
 }
 
-.odom-format {
-  display: flex;
-}
-
 .odom-format p {
   margin-right: 3px;
 }
@@ -239,7 +235,7 @@ p {
   flex: 50%;
   width: 100%;
   border-right: 1px solid black;
-  margin-right: 5px;
+  margin-right: 10px;
 }
 .column2 {
   width: 100%;
