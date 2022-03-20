@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdlib>
 #include <map>
+#include "rapidjson/istreamwrapper.h"
 
 #include "rover_msgs/NavStatus.hpp"
 #include "utilities.hpp"
@@ -32,14 +33,8 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     if (!configFile) {
         throw std::runtime_error("Could not open config file at: " + configPath);
     }
-    string config;
-    string setting;
-    while( configFile >> setting )
-    {
-        config += setting;
-    }
-    configFile.close();
-    mRoverConfig.Parse( config.c_str() );
+    rapidjson::IStreamWrapper isw(configFile);
+    mRoverConfig.ParseStream(isw);
     mRover = make_shared<Rover>( mRoverConfig, lcmObject );
     mSearchStateMachine = SearchFactory( weak_from_this(), SearchType::SPIRALOUT, mRover, mRoverConfig );
     mGateStateMachine = GateFactory( weak_from_this(), mRover, mRoverConfig );
