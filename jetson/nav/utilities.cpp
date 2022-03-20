@@ -46,7 +46,7 @@ double estimateNoneuclid( const Odometry& current, const Odometry& dest )
 
 // create a new Odometry point at a bearing and distance from a given odometry point
 // Note this uses the absolute bearing not a bearing relative to the rover.
-Odometry createOdom( const Odometry & current, double bearing, const double distance, Rover * rover )
+Odometry createOdom( const Odometry & current, double bearing, const double distance, shared_ptr<Rover> rover )
 {
     bearing = degreeToRadian( bearing );
     double latChange = distance * cos( bearing ) * LAT_METER_IN_MINUTES;
@@ -126,7 +126,7 @@ void clear( deque<Waypoint>& aDeque )
 // Checks to see if target is reachable before hitting obstacle
 // If the x component of the distance to obstacle is greater than
 // half the width of the rover the obstacle if reachable
-bool isTargetReachable( Rover* rover, const rapidjson::Document& roverConfig )
+bool isTargetReachable( std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
 {
     double distToTarget = rover->roverStatus().leftCacheTarget().distance;
     double distThresh = roverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble();
@@ -136,7 +136,7 @@ bool isTargetReachable( Rover* rover, const rapidjson::Document& roverConfig )
 // Returns true if the rover can reach the input location without hitting the obstacle.
 // ASSUMPTION: There is an obstacle detected.
 // ASSUMPTION: The rover is driving straight.
-bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, const double locDist, const double distThresh )
+bool isLocationReachable( shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, const double locDist, const double distThresh )
 {
     double distToObs = rover->roverStatus().obstacle().distance;
     double bearToObs = std::min( rover->roverStatus().obstacle().bearing, rover->roverStatus().obstacle().rightBearing );
@@ -155,13 +155,13 @@ bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, 
 } // isLocationReachable()
 
 // Returns true if an obstacle is detected, false otherwise.
-bool isObstacleDetected( Rover* rover )
+bool isObstacleDetected( shared_ptr<Rover> rover )
 {
     return rover->roverStatus().obstacle().distance >= 0;
 } // isObstacleDetected()
 
 // Returns true if distance from obstacle is within user-configurable threshold
-bool isObstacleInThreshold( Rover* rover, const rapidjson::Document& roverConfig )
+bool isObstacleInThreshold( shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
 {
     return rover->roverStatus().obstacle().distance <= roverConfig[ "navThresholds" ][ "obstacleDistanceThreshold" ].GetDouble();
 } // isObstacleInThreshold()

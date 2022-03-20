@@ -3,17 +3,16 @@
 
 #include "searchStateMachine.hpp"
 
-class SpiralOut : public SearchStateMachine
-{
+class SpiralOut : public SearchStateMachine {
 public:
-    SpiralOut( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig )
-    : SearchStateMachine(stateMachine_, rover, roverConfig) {}
+    SpiralOut(std::weak_ptr<StateMachine> stateMachine_, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
+            : SearchStateMachine(stateMachine_, rover, roverConfig) {}
 
-    ~SpiralOut();
+    ~SpiralOut() override;
 
     // Initializes the search ponit multipliers to be the intermost loop
     // of the search.
-    void initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, const double pathWidth );
+    void initializeSearch(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, double pathWidth) override;
 };
 
 #endif //SPIRAL_OUT_SEARCH_HPP

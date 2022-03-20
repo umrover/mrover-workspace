@@ -81,17 +81,6 @@ public:
     public:
         RoverStatus();
 
-        RoverStatus(
-            NavState navState,
-            AutonState autonStateIn,
-            Bearing bearingIn,
-            Course courseIn,
-            Obstacle obstacleIn,
-            Odometry odometryIn,
-            Target targetIn,
-            Target target2In
-        );
-
         NavState& currentState();
 
         AutonState& autonState();
@@ -175,9 +164,9 @@ public:
 
     DriveStatus drive( const Odometry& destination );
 
-    DriveStatus drive( const double distance, const double bearing, const bool target = false );
+    DriveStatus drive( double distance, double bearing, bool target = false );
 
-    void drive( const int direction, const double bearing );
+    void drive( int direction, double bearing );
 
     bool turn( Odometry& destination );
 

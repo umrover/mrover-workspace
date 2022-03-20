@@ -7,13 +7,13 @@
 #include "lawnMowerSearch.hpp"
 
 #include <iostream>
-#include <time.h>
 #include <cmath>
+#include <utility>
 
 // Constructs an SearchStateMachine object with roverStateMachine, mRoverConfig, and mRover
-SearchStateMachine::SearchStateMachine( StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig )
-    : roverStateMachine( roverStateMachine ) 
-    , mRover( rover ) 
+SearchStateMachine::SearchStateMachine( weak_ptr<StateMachine> roverStateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
+    : roverStateMachine(std::move( roverStateMachine ))
+    , mRover(std::move( rover ))
     , mRoverConfig( roverConfig ) {}
 
 
@@ -99,8 +99,8 @@ NavState SearchStateMachine::executeSearchDrive()
 
     if( isObstacleDetected( mRover )  && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
-        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
-        roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
+        roverStateMachine.lock()->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
+        roverStateMachine.lock()->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
     const Odometry& nextSearchPoint = mSearchPoints.front();
@@ -161,8 +161,8 @@ NavState SearchStateMachine::executeDriveToTarget()
     if( isObstacleDetected( mRover ) &&
         !isTargetReachable( mRover, mRoverConfig )  && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
-        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
-        roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
+        roverStateMachine.lock()->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
+        roverStateMachine.lock()->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
 
@@ -178,19 +178,19 @@ NavState SearchStateMachine::executeDriveToTarget()
         mSearchPoints.clear();
         if( mRover->roverStatus().path().front().gate )
         {
-            roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
+            roverStateMachine.lock()->mGateStateMachine->mGateSearchPoints.clear();
             const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
                                     mRover->roverStatus().leftCacheTarget().bearing,
                                     360);
-            roverStateMachine->mGateStateMachine->lastKnownRightPost.odom = createOdom( mRover->roverStatus().odometry(),
+            roverStateMachine.lock()->mGateStateMachine->lastKnownRightPost.odom = createOdom( mRover->roverStatus().odometry(),
                                                                                 absAngle,
                                                                                 mRover->roverStatus().leftCacheTarget().distance,
                                                                                 mRover );
-            roverStateMachine->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftCacheTarget().id;
+            roverStateMachine.lock()->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftCacheTarget().id;
             return NavState::GateSpin;
         }
         mRover->roverStatus().path().pop_front();
-        roverStateMachine->updateCompletedPoints();
+        roverStateMachine.lock()->updateCompletedPoints();
         return NavState::Turn;
     }
     if( driveStatus == DriveStatus::OnCourse )
@@ -255,7 +255,7 @@ void SearchStateMachine::insertIntermediatePoints()
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms
 shared_ptr<SearchStateMachine>
-SearchFactory(StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig)  //TODO
+SearchFactory(weak_ptr<StateMachine> stateMachine, SearchType type, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)  //TODO
 {
     shared_ptr<SearchStateMachine> search = nullptr;
     switch (type) {

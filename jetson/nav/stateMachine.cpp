@@ -40,22 +40,19 @@ StateMachine::StateMachine( lcm::LCM& lcmObject )
     }
     configFile.close();
     mRoverConfig.Parse( config.c_str() );
-    mRover = new Rover( mRoverConfig, lcmObject );
-    mSearchStateMachine = SearchFactory( this, SearchType::SPIRALOUT, mRover, mRoverConfig );
+    mRover = make_shared<Rover>( mRoverConfig, lcmObject );
+    mSearchStateMachine = SearchFactory( weak_from_this(), SearchType::SPIRALOUT, mRover, mRoverConfig );
     mGateStateMachine = GateFactory( this, mRover, mRoverConfig );
-    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( this, ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mRoverConfig );
+    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( weak_from_this(), ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mRoverConfig );
 } // StateMachine()
 
 // Destructs the StateMachine object. Deallocates memory for the Rover
 // object.
-StateMachine::~StateMachine( )
-{
-    delete mRover;
-}
+StateMachine::~StateMachine() = default;
 
-void StateMachine::setSearcher(SearchType type, Rover* rover, const rapidjson::Document& roverConfig) {
+void StateMachine::setSearcher(SearchType type, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) {
     assert(mSearchStateMachine);
-    mSearchStateMachine = SearchFactory(this, type, rover, roverConfig);
+    mSearchStateMachine = SearchFactory(weak_from_this(), type, rover, roverConfig);
 }
 
 void StateMachine::updateCompletedPoints( )

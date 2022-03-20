@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cmath>
 
-DiamondGateSearch::DiamondGateSearch( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig )
+DiamondGateSearch::DiamondGateSearch( StateMachine* stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
     : GateStateMachine( stateMachine, rover, roverConfig ) {}
 
 DiamondGateSearch::~DiamondGateSearch() {}

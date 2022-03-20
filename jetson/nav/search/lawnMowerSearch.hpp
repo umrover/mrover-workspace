@@ -6,17 +6,16 @@
 /*************************************************************************/
 /* LawnMower Search */
 /*************************************************************************/
-class LawnMower : public SearchStateMachine
-{
+class LawnMower : public SearchStateMachine {
 public:
-    LawnMower( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig )
-    : SearchStateMachine( stateMachine_, rover, roverConfig ) {}
+    LawnMower(std::weak_ptr<StateMachine> stateMachine_, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
+            : SearchStateMachine(stateMachine_, rover, roverConfig) {}
 
-    ~LawnMower();
+    ~LawnMower() override;
 
     // Initializes the search point multipliers to be the intermost loop
     // of the search.
-    void initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, const double pathWidth );
+    void initializeSearch(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, double pathWidth);
 };
 
 #endif //LAWN_MOWER_SEARCH_HPP

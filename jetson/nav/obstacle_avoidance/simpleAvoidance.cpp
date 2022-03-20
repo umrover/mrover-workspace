@@ -10,16 +10,16 @@
 // SimpleAvoidance is abstacted from ObstacleAvoidanceStateMachine object so it creates an
 // ObstacleAvoidanceStateMachine object with the roverStateMachine, rover, and roverConfig. 
 // The SimpleAvoidance object will execute the logic for the simple avoidance algorithm
-SimpleAvoidance::SimpleAvoidance( StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig )
+SimpleAvoidance::SimpleAvoidance( weak_ptr<StateMachine> roverStateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
     : ObstacleAvoidanceStateMachine( roverStateMachine, rover, roverConfig ) {}
 
 // Destructs the SimpleAvoidance object.
-SimpleAvoidance::~SimpleAvoidance() {}
+SimpleAvoidance::~SimpleAvoidance() = default;
 
 // Turn away from obstacle until it is no longer detected.
 // If in search state and target is both detected and reachable, return NavState TurnToTarget.
 // ASSUMPTION: There is no rock that is more than 8 meters (pathWidth * 2) in diameter
-NavState SimpleAvoidance::executeTurnAroundObs( Rover* rover,
+NavState SimpleAvoidance::executeTurnAroundObs( shared_ptr<Rover> rover,
                                                 const rapidjson::Document& roverConfig )
 {
     if( isTargetDetected () && isTargetReachable( rover, roverConfig ) )
@@ -56,7 +56,7 @@ NavState SimpleAvoidance::executeTurnAroundObs( Rover* rover,
 
 // Drives to dummy waypoint. Once arrived, rover will drive to original waypoint
 // ( original waypoint is the waypoint before obstacle avoidance was triggered )
-NavState SimpleAvoidance::executeDriveAroundObs( Rover* rover, const rapidjson::Document& roverConfig )
+NavState SimpleAvoidance::executeDriveAroundObs( shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
 {
     if( isObstacleDetected( rover )  && isObstacleInThreshold( rover, roverConfig ) )
 
@@ -89,7 +89,7 @@ NavState SimpleAvoidance::executeDriveAroundObs( Rover* rover, const rapidjson::
 } // executeDriveAroundObs()
 
 // Create the odometry point used to drive around an obstacle
-Odometry SimpleAvoidance::createAvoidancePoint( Rover* rover, const double distance )
+Odometry SimpleAvoidance::createAvoidancePoint( shared_ptr<Rover> rover, const double distance )
 {
     Odometry avoidancePoint = rover->roverStatus().odometry();
     double totalLatitudeMinutes = avoidancePoint.latitude_min +

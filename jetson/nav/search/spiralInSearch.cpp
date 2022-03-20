@@ -9,7 +9,7 @@ SpiralIn::~SpiralIn() {}
 
 // Initializes the search ponit multipliers to be the intermost loop
 // of the search.
-void SpiralIn::initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, const double visionDistance )
+void SpiralIn::initializeSearch( shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, const double visionDistance )
 {
     mSearchPoints.clear();
 

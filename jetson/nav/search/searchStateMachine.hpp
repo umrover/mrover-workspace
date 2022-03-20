@@ -21,15 +21,15 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    SearchStateMachine( StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig );
+    SearchStateMachine( std::weak_ptr<StateMachine> roverStateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig );
 
-    virtual ~SearchStateMachine() {}
+    virtual ~SearchStateMachine() = default;
 
     NavState run();
 
-    bool targetReachable( Rover* rover, double distance, double bearing );
+    bool targetReachable( std::shared_ptr<Rover> rover, double distance, double bearing );
 
-    virtual void initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
+    virtual void initializeSearch( std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
 
 protected:
     /*************************************************************************/
@@ -43,7 +43,7 @@ protected:
     /*************************************************************************/
 
     // Pointer to rover State Machine to access member functions
-    StateMachine* roverStateMachine;
+    std::weak_ptr<StateMachine> roverStateMachine;
 
     // Vector of search point multipliers used as a base for the search points.
     vector< pair<short, short> > mSearchPointMultipliers;
@@ -52,7 +52,7 @@ protected:
     deque<Odometry> mSearchPoints;
 
     // Pointer to rover object
-    Rover* mRover;
+    std::shared_ptr<Rover> mRover;
 
 private:
     /*************************************************************************/
@@ -90,6 +90,6 @@ private:
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle
 // avoidance algorithm. This allows for an an ease of transition between obstacle
 // avoidance algorithms
-std::shared_ptr<SearchStateMachine> SearchFactory(StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig);
+std::shared_ptr<SearchStateMachine> SearchFactory(std::weak_ptr<StateMachine> stateMachine, SearchType type, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
 #endif //SEARCH_STATE_MACHINE_HPP

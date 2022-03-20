@@ -16,7 +16,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    GateStateMachine( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig );
+    GateStateMachine( StateMachine* stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig );
 
     virtual ~GateStateMachine();
 
@@ -92,9 +92,9 @@ protected:
     /* Protected Member Variables */
     /*************************************************************************/
     // Pointer to rover object
-    Rover* mRover;
+    std::shared_ptr<Rover> mRover;
 };
 
-std::shared_ptr<GateStateMachine> GateFactory( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig );
+std::shared_ptr<GateStateMachine> GateFactory( StateMachine* stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig );
 
 #endif //GATE_STATE_MACHINE_HPP

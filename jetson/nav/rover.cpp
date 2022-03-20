@@ -270,7 +270,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             !isEqual( mRoverStatus.leftTarget(), newRoverStatus.leftTarget()) ||
             !isEqual( mRoverStatus.rightTarget(), newRoverStatus.rightTarget()) )
         {
-            mRoverStatus.obstacle() = newRoverStatus.obstacle();
+            mRoverStatus.obstacle() = Obstacle(newRoverStatus.obstacle());
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();

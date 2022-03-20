@@ -91,9 +91,9 @@ int main()
     lcmObject.subscribe( "/odometry", &LcmHandlers::odometry, &lcmHandlers );
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
 
-//    while( lcmObject.handle() == 0 )
-//    {
+    while( lcmObject.handle() == 0 )
+    {
         roverStateMachine->run();
-//    }
+    }
     return 0;
 } // main()

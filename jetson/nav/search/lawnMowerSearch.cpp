@@ -7,7 +7,7 @@
 
 LawnMower::~LawnMower() {}
 
-void LawnMower::initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, const double visionDistance )
+void LawnMower::initializeSearch( shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, const double visionDistance )
 {
     const double searchBailThresh = roverConfig[ "search" ][ "bailThresh" ].GetDouble();
 

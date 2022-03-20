@@ -14,7 +14,7 @@ using namespace rover_msgs;
 
 // This class implements the logic for the state machine for the
 // autonomous navigation of the rover.
-class StateMachine
+class StateMachine : std::enable_shared_from_this<StateMachine>
 {
 public:
     /*************************************************************************/
@@ -45,7 +45,7 @@ public:
 
     void updateObstacleElements( double bearing, double rightBearing, double distance );
 
-    void setSearcher(SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
+    void setSearcher(SearchType type, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig );
 
     /*************************************************************************/
     /* Public Member Variables */
@@ -85,7 +85,7 @@ private:
     /* Private Member Variables */
     /*************************************************************************/
     // Rover object to do basic rover operations in the state machine.
-    Rover* mRover;
+    std::shared_ptr<Rover> mRover;
 
     // RoverStatus object for updating the rover's status.
     Rover::RoverStatus mNewRoverStatus;

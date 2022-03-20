@@ -6,7 +6,7 @@
 class DiamondGateSearch : public GateStateMachine
 {
 public:
-    DiamondGateSearch( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig );
+    DiamondGateSearch( StateMachine* stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig );
 
     virtual ~DiamondGateSearch() override;
 

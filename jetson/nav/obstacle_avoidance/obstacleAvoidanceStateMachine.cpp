@@ -7,10 +7,10 @@
 #include <iostream>
 
 // Constructs an ObstacleAvoidanceStateMachine object with roverStateMachine, mRoverConfig, and mRover
-ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig )
+ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine( weak_ptr<StateMachine> stateMachine_, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
     : roverStateMachine( stateMachine_ )
     , mJustDetectedObstacle( false )
-    , mRover( rover ) 
+    , mRover( rover )
     , mRoverConfig( roverConfig ) {}
 
 // Allows outside objects to set the original obstacle angle
@@ -75,9 +75,11 @@ bool ObstacleAvoidanceStateMachine::isTargetDetected ()
 
 // The obstacle avoidance factory allows for the creation of obstacle avoidance objects and
 // an ease of transition between obstacle avoidance algorithms
-shared_ptr <ObstacleAvoidanceStateMachine> ObstacleAvoiderFactory
-        (StateMachine* roverStateMachine, ObstacleAvoidanceAlgorithm algorithm, Rover* rover, const rapidjson::Document& roverConfig) {
-    shared_ptr <ObstacleAvoidanceStateMachine> avoid = nullptr;
+shared_ptr<ObstacleAvoidanceStateMachine> ObstacleAvoiderFactory(
+        weak_ptr<StateMachine> roverStateMachine, ObstacleAvoidanceAlgorithm algorithm, shared_ptr<Rover> rover,
+        const rapidjson::Document& roverConfig
+) {
+    shared_ptr<ObstacleAvoidanceStateMachine> avoid = nullptr;
     switch (algorithm) {
         case ObstacleAvoidanceAlgorithm::SimpleAvoidance:
             avoid = make_shared<SimpleAvoidance>(roverStateMachine, rover, roverConfig);
