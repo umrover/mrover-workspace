@@ -60,6 +60,26 @@
               :step="5"
             />
           </div>
+          <div class="noiseFalsePos">
+            <p>False Positives Noise (%):</p>
+            <NumberInput
+              :val.sync="noiseFalsePosPercentIn"
+              :precision="2"
+              :min="0"
+              :max="100"
+              :step="5"
+            />
+          </div>
+          <div class="maxFalsePos">
+            <p>Max # of False Positives:</p>
+            <NumberInput
+              :val.sync="maxFalsePosIn"
+              :precision="2"
+              :min="0"
+              :max="100"
+              :step="5"
+            />
+          </div>
           <div class="enableFOVView">
             <Checkbox
               :on="enableFOVView"

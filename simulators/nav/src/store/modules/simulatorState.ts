@@ -75,7 +75,9 @@ export const state:SimulatorState = {
     enableLCM: true,
     enableFOVView: false,
     noisePercent: 0,
-    noiseGPSPercent: 0
+    noiseGPSPercent: 0,
+    noiseFalsePosPercent: 0,
+    maxFalsePos: 0
   },
 
   startLoc: {
@@ -129,6 +131,11 @@ const getters = {
   noisePercent: (simState:SimulatorState):number => simState.simSettings.noisePercent,
 
   noiseGPSPercent: (simState:SimulatorState):number => simState.simSettings.noiseGPSPercent,
+
+  noiseFalsePosPercent: (simState:SimulatorState):number => simState.simSettings.
+      noiseFalsePosPercent,
+
+  maxFalsePos: (simState:SimulatorState):number => simState.simSettings.maxFalsePos,
 
   enableLCM: (simState:SimulatorState):boolean => simState.simSettings.enableLCM,
 
