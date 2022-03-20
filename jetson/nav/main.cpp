@@ -1,90 +1,51 @@
 #include <memory>
 #include <iostream>
 #include <lcm/lcm-cpp.hpp>
-#include <utility>
 #include "stateMachine.hpp"
+#include "environment.hpp"
+#include "course_state.hpp"
 
 using namespace rover_msgs;
 using namespace std;
-
-// This class handles all incoming LCM messages for the autonomous
-// navigation of the rover.
-class LcmHandlers {
-public:
-    // Constructs an LcmHandler with the given state machine to work
-    // with.
-    explicit LcmHandlers(shared_ptr<StateMachine> stateMachine)
-            : mStateMachine(std::move(stateMachine)) {}
-
-    // Sends the auton state lcm message to the state machine.
-    void autonState(
-            const lcm::ReceiveBuffer* receiveBuffer,
-            const string& channel,
-            const AutonState* autonState
-    ) {
-        mStateMachine->updateRoverStatus(*autonState);
-    }
-
-    // Sends the course lcm message to the state machine.
-    void course(
-            const lcm::ReceiveBuffer* receiveBuffer,
-            const string& channel,
-            const Course* course
-    ) {
-        mStateMachine->updateRoverStatus(*course);
-    }
-
-    // Sends the obstacle lcm message to the state machine.
-    void obstacle(
-            const lcm::ReceiveBuffer* receiveBuffer,
-            const string& channel,
-            const Obstacle* obstacle
-    ) {
-        mStateMachine->updateRoverStatus(*obstacle);
-    }
-
-    // Sends the odometry lcm message to the state machine.
-    void odometry(
-            const lcm::ReceiveBuffer* receiveBuffer,
-            const string& channel,
-            const Odometry* odometry
-    ) {
-        mStateMachine->updateRoverStatus(*odometry);
-    }
-
-    // Sends the target lcm message to the state machine.
-    void targetList(
-            const lcm::ReceiveBuffer* receiveBuffer,
-            const string& channel,
-            const TargetList* targetListIn
-    ) {
-        mStateMachine->updateRoverStatus(*targetListIn);
-    }
-
-private:
-    // The state machine to send the lcm messages to.
-    shared_ptr<StateMachine> mStateMachine;
-};
 
 // Runs the autonomous navigation of the rover.
 int main() {
     lcm::LCM lcmObject;
     if (!lcmObject.good()) {
-        cerr << "Error: cannot create LCM\n";
-        return 1;
+        throw runtime_error("Cannot create LCM");
     }
 
-    auto roverStateMachine = make_shared<StateMachine>(lcmObject);
-    LcmHandlers lcmHandlers(roverStateMachine);
+    auto env = make_shared<Environment>();
+    auto courseState = make_shared<CourseState>();
+    auto stateMachine = make_shared<StateMachine>(env, lcmObject);
 
-    lcmObject.subscribe("/auton", &LcmHandlers::autonState, &lcmHandlers);
-    lcmObject.subscribe("/course", &LcmHandlers::course, &lcmHandlers);
-    lcmObject.subscribe("/obstacle", &LcmHandlers::obstacle, &lcmHandlers);
-    lcmObject.subscribe("/odometry", &LcmHandlers::odometry, &lcmHandlers);
-    lcmObject.subscribe("/target_list", &LcmHandlers::targetList, &lcmHandlers);
+    auto autonCallback = [stateMachine](const lcm::ReceiveBuffer* recBuf, const string& channel, const AutonState* autonState) mutable {
+        stateMachine->updateRoverStatus(*autonState);
+    };
+    lcmObject.subscribe("/auton", &decltype(autonCallback)::operator(), &autonCallback);
+
+    auto courseCallback = [courseState](const lcm::ReceiveBuffer* recBuf, const string& channel, const Course* course) mutable {
+        courseState->update(*course);
+    };
+    lcmObject.subscribe("/course", &decltype(courseCallback)::operator(), &courseCallback);
+
+    auto obstacleCallback = [env](const lcm::ReceiveBuffer* recBuf, const string& channel, const Obstacle* obstacle) mutable {
+        env->setObstacle(*obstacle);
+    };
+    lcmObject.subscribe("/obstacle", &decltype(obstacleCallback)::operator(), &obstacleCallback);
+
+    auto odometryCallback = [stateMachine](const lcm::ReceiveBuffer* recBuf, const string& channel, const Odometry* odometry) mutable {
+
+    };
+    lcmObject.subscribe("/odometry", &decltype(odometryCallback)::operator(), &odometryCallback);
+
+    auto targetCallback = [env](const lcm::ReceiveBuffer* recBuf, const string& channel, const TargetList* targetList) mutable {
+        env->setTargets(*targetList);
+    };
+    lcmObject.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback);
 
     while (lcmObject.handle() == 0) {
-        roverStateMachine->run();
+        stateMachine->run();
     }
     return 0;
 } // main()

@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 
-// Constructs a GateStateMachine object with roverStateMachine
+// Constructs a GateStateMachine object with mStateMachine
 GateStateMachine::GateStateMachine( std::weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
     : mRoverStateMachine( stateMachine )
     , mRoverConfig( roverConfig )

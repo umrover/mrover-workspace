@@ -10,42 +10,33 @@
 #include <cmath>
 #include <utility>
 
-// Constructs an SearchStateMachine object with roverStateMachine, mRoverConfig, and mRover
-SearchStateMachine::SearchStateMachine( weak_ptr<StateMachine> roverStateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig )
-    : roverStateMachine(std::move( roverStateMachine ))
-    , mRover(std::move( rover ))
-    , mRoverConfig( roverConfig ) {}
+// Constructs an SearchStateMachine object with mStateMachine, mRoverConfig, and mRover
+SearchStateMachine::SearchStateMachine(weak_ptr<StateMachine> roverStateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
+        : mStateMachine(move(roverStateMachine)), mRover(move(rover)), mRoverConfig(roverConfig) {}
 
 
 // Runs the search state machine through one iteration. This will be called by
 // StateMachine  when NavState is in a search state. This will call the corresponding
 // function based on the current state and return the next NavState
-NavState SearchStateMachine::run()
-{
-    switch ( mRover->roverStatus().currentState() )
-    {
-        case NavState::SearchTurn:
-        {
+NavState SearchStateMachine::run() {
+    switch (mRover->roverStatus().currentState()) {
+        case NavState::SearchTurn: {
             return executeSearchTurn();
         }
 
-        case NavState::SearchDrive:
-        {
+        case NavState::SearchDrive: {
             return executeSearchDrive();
         }
 
-        case NavState::TurnToTarget:
-        {
+        case NavState::TurnToTarget: {
             return executeTurnToTarget();
         }
 
-        case NavState::DriveToTarget:
-        {
+        case NavState::DriveToTarget: {
             return executeDriveToTarget();
         }
 
-        default:
-        {
+        default: {
             cerr << "Entered Unknown NavState in search state machine" << endl;
             return NavState::Unknown;
         }
@@ -57,24 +48,20 @@ NavState SearchStateMachine::run()
 // If the rover detects the target, it proceeds to the target.
 // If the rover finishes turning, it proceeds to driving while searching.
 // Else the rover keeps turning to the next Waypoint.
-NavState SearchStateMachine::executeSearchTurn()
-{
-    if( mSearchPoints.empty() )
-    {
+NavState SearchStateMachine::executeSearchTurn() {
+    if (mSearchPoints.empty()) {
         return NavState::ChangeSearchAlg;
     }
 
-    if( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().path().front().id ==
-        mRover->roverStatus().leftCacheTarget().id )
-    {
-        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
+    if (mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().path().front().id ==
+                                                                 mRover->roverStatus().leftCacheTarget().id) {
+        updateTargetDetectionElements(mRover->roverStatus().leftCacheTarget().bearing,
+                                      mRover->roverStatus().odometry().bearing_deg);
         return NavState::TurnToTarget;
     }
 
     Odometry& nextSearchPoint = mSearchPoints.front();
-    if( mRover->turn( nextSearchPoint ) )
-    {
+    if (mRover->turn(nextSearchPoint)) {
         return NavState::SearchDrive;
     }
     return NavState::SearchTurn;
@@ -87,32 +74,29 @@ NavState SearchStateMachine::executeSearchTurn()
 // If the rover finishes driving, it proceeds to turning to the next Waypoint.
 // If the rover is still on course, it keeps driving to the next Waypoint.
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
-NavState SearchStateMachine::executeSearchDrive()
-{
-    if( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().path().front().id ==
-            mRover->roverStatus().leftCacheTarget().id )
-    {
-        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
+NavState SearchStateMachine::executeSearchDrive() {
+    shared_ptr<Environment> env = mStateMachine.lock()->getEnvironment();
+
+    if (mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().path().front().id ==
+                                                                 mRover->roverStatus().leftCacheTarget().id) {
+        updateTargetDetectionElements(mRover->roverStatus().leftCacheTarget().bearing,
+                                      mRover->roverStatus().odometry().bearing_deg);
         return NavState::TurnToTarget;
     }
 
-    if( isObstacleDetected( mRover )  && isObstacleInThreshold( mRover, mRoverConfig ) )
-    {
-        roverStateMachine.lock()->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
-        roverStateMachine.lock()->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
+    if (isObstacleDetected(mRover, env) && isObstacleInThreshold(mRover, env, mRoverConfig)) {
+        mStateMachine.lock()->updateObstacleAngle(mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing);
+        mStateMachine.lock()->updateObstacleDistance(mRover->roverStatus().obstacle().distance);
         return NavState::SearchTurnAroundObs;
     }
     const Odometry& nextSearchPoint = mSearchPoints.front();
-    DriveStatus driveStatus = mRover->drive( nextSearchPoint );
+    DriveStatus driveStatus = mRover->drive(nextSearchPoint);
 
-    if( driveStatus == DriveStatus::Arrived )
-    {
+    if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.pop_front();
         return NavState::SearchTurn;
     }
-    if( driveStatus == DriveStatus::OnCourse )
-    {
+    if (driveStatus == DriveStatus::OnCourse) {
         return NavState::SearchDrive;
     }
     return NavState::SearchTurn;
@@ -123,19 +107,16 @@ NavState SearchStateMachine::executeSearchDrive()
 // If the rover finishes turning to the target, it goes into waiting state to
 // give CV time to relocate the target
 // Else the rover continues to turn to to the target.
-NavState SearchStateMachine::executeTurnToTarget()
-{
-    if( mRover->roverStatus().leftCacheTarget().distance == mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
-    {
+NavState SearchStateMachine::executeTurnToTarget() {
+    if (mRover->roverStatus().leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
         return NavState::SearchTurn;
     }
-    if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing +
-                      mRover->roverStatus().odometry().bearing_deg ) )
-    {
+    if (mRover->turn(mRover->roverStatus().leftCacheTarget().bearing +
+                     mRover->roverStatus().odometry().bearing_deg)) {
         return NavState::DriveToTarget;
     }
-    updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
-                                       mRover->roverStatus().odometry().bearing_deg );
+    updateTargetDetectionElements(mRover->roverStatus().leftCacheTarget().bearing,
+                                  mRover->roverStatus().odometry().bearing_deg);
     return NavState::TurnToTarget;
 } // executeTurnToTarget()
 
@@ -147,54 +128,50 @@ NavState SearchStateMachine::executeTurnToTarget()
 // If the rover finishes driving to the target, it moves on to the next Waypoint.
 // If the rover is on course, it keeps driving to the target.
 // Else, it turns back to face the target.
-NavState SearchStateMachine::executeDriveToTarget()
-{
+NavState SearchStateMachine::executeDriveToTarget() {
+    shared_ptr<Environment> env = mStateMachine.lock()->getEnvironment();
+
     // Definitely cannot find the target
-    if( mRover->roverStatus().leftCacheTarget().distance == 
-            mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
-    {
+    if (mRover->roverStatus().leftCacheTarget().distance ==
+        mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
         cerr << "Lost the target\n";
         return NavState::SearchTurn;
     }
 
     // Obstacle Detected
-    if( isObstacleDetected( mRover ) &&
-        !isTargetReachable( mRover, mRoverConfig )  && isObstacleInThreshold( mRover, mRoverConfig ) )
-    {
-        roverStateMachine.lock()->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
-        roverStateMachine.lock()->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
+    if (isObstacleDetected(mRover, env) &&
+        !isTargetReachable(mRover, env, mRoverConfig) && isObstacleInThreshold(mRover, env, mRoverConfig)) {
+        mStateMachine.lock()->updateObstacleAngle(mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing);
+        mStateMachine.lock()->updateObstacleDistance(mRover->roverStatus().obstacle().distance);
         return NavState::SearchTurnAroundObs;
     }
 
     DriveStatus driveStatus;
-    
+
     double distance = mRover->roverStatus().leftCacheTarget().distance;
     double bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
 
-    driveStatus = mRover->drive( distance, bearing, true );
+    driveStatus = mRover->drive(distance, bearing, true);
 
-    if( driveStatus == DriveStatus::Arrived )
-    {
+    if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.clear();
-        if( mRover->roverStatus().path().front().gate )
-        {
-            roverStateMachine.lock()->mGateStateMachine->mGateSearchPoints.clear();
+        if (mRover->roverStatus().path().front().gate) {
+            mStateMachine.lock()->mGateStateMachine->mGateSearchPoints.clear();
             const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
-                                    mRover->roverStatus().leftCacheTarget().bearing,
-                                    360);
-            roverStateMachine.lock()->mGateStateMachine->lastKnownRightPost.odom = createOdom( mRover->roverStatus().odometry(),
-                                                                                absAngle,
-                                                                                mRover->roverStatus().leftCacheTarget().distance,
-                                                                                mRover );
-            roverStateMachine.lock()->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftCacheTarget().id;
+                                        mRover->roverStatus().leftCacheTarget().bearing,
+                                        360);
+            mStateMachine.lock()->mGateStateMachine->lastKnownRightPost.odom = createOdom(mRover->roverStatus().odometry(),
+                                                                                          absAngle,
+                                                                                          mRover->roverStatus().leftCacheTarget().distance,
+                                                                                          mRover);
+            mStateMachine.lock()->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftCacheTarget().id;
             return NavState::GateSpin;
         }
         mRover->roverStatus().path().pop_front();
-        roverStateMachine.lock()->updateCompletedPoints();
+        mStateMachine.lock()->updateCompletedPoints();
         return NavState::Turn;
     }
-    if( driveStatus == DriveStatus::OnCourse )
-    {
+    if (driveStatus == DriveStatus::OnCourse) {
         return NavState::DriveToTarget;
     }
     return NavState::TurnToTarget;
@@ -202,50 +179,43 @@ NavState SearchStateMachine::executeDriveToTarget()
 
 // Sets last known target angle, so if target is lost, we
 // continue to turn to that angle
-void SearchStateMachine::updateTargetAngle( double bearing )
-{
+void SearchStateMachine::updateTargetAngle(double bearing) {
     mTargetAngle = bearing;
 } // updateTargetAngle
 
 // Sets last known rover angle while it is turning to the target
 // in case target is lost while turning
-void SearchStateMachine::updateTurnToTargetRoverAngle( double bearing )
-{
+void SearchStateMachine::updateTurnToTargetRoverAngle(double bearing) {
     mTurnToTargetRoverAngle = bearing;
 } // updateTurnToTargetRoverAngle
 
 // Sets last known angles for both the target and the rover
 // these bearings are used to turn towards the target in case target
 // is lost while turning
-void SearchStateMachine::updateTargetDetectionElements( double target_bearing, double rover_bearing )
-{
-    updateTargetAngle( target_bearing );
-    updateTurnToTargetRoverAngle( rover_bearing );
+void SearchStateMachine::updateTargetDetectionElements(double target_bearing, double rover_bearing) {
+    updateTargetAngle(target_bearing);
+    updateTurnToTargetRoverAngle(rover_bearing);
 } // updateTargetDetectionElements
 
 // add intermediate points between the existing search points in a path generated by a search algorithm.
 // The maximum separation between any points in the search point list is determined by the rover's sight distance.
-void SearchStateMachine::insertIntermediatePoints()
-{
-    double visionDistance = mRoverConfig[ "computerVision" ][ "visionDistance" ].GetDouble();
+void SearchStateMachine::insertIntermediatePoints() {
+    double visionDistance = mRoverConfig["computerVision"]["visionDistance"].GetDouble();
     const double maxDifference = 2 * visionDistance;
 
-    for( int i = 0; i < int( mSearchPoints.size() ) - 1; ++i )
-    {
-        Odometry point1 = mSearchPoints.at( i );
-        Odometry point2 = mSearchPoints.at( i + 1 );
-        double distance = estimateNoneuclid( point1, point2 );
-        if ( distance > maxDifference )
-        {
-            int numPoints = int( ceil( distance / maxDifference ) - 1 );
-            double newDifference = distance / ( numPoints + 1 );
-            double bearing = calcBearing( point1, point2 );
-            for ( int j = 0; j < numPoints; ++j )
-            {
-                Odometry startPoint = mSearchPoints.at( i );
-                Odometry newOdom = createOdom( startPoint, bearing, newDifference, mRover );
+    for (int i = 0; i < int(mSearchPoints.size()) - 1; ++i) {
+        Odometry point1 = mSearchPoints.at(i);
+        Odometry point2 = mSearchPoints.at(i + 1);
+        double distance = estimateNoneuclid(point1, point2);
+        if (distance > maxDifference) {
+            int numPoints = int(ceil(distance / maxDifference) - 1);
+            double newDifference = distance / (numPoints + 1);
+            double bearing = calcBearing(point1, point2);
+            for (int j = 0; j < numPoints; ++j) {
+                Odometry startPoint = mSearchPoints.at(i);
+                Odometry newOdom = createOdom(startPoint, bearing, newDifference, mRover);
                 auto insertPosition = mSearchPoints.begin() + i + 1;
-                mSearchPoints.insert( insertPosition, newOdom );
+                mSearchPoints.insert(insertPosition, newOdom);
                 ++i;
             }
         }

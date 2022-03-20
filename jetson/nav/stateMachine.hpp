@@ -1,5 +1,4 @@
-#ifndef STATE_MACHINE_HPP
-#define STATE_MACHINE_HPP
+#pragma once
 
 #include <memory>
 #include <lcm/lcm-cpp.hpp>
@@ -8,44 +7,41 @@
 #include "search/searchStateMachine.hpp"
 #include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
+#include "environment.hpp"
 
 using namespace std;
 using namespace rover_msgs;
 
 // This class implements the logic for the state machine for the
 // autonomous navigation of the rover.
-class StateMachine : std::enable_shared_from_this<StateMachine>
-{
+class StateMachine : std::enable_shared_from_this<StateMachine> {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    explicit StateMachine( lcm::LCM& lcmObject );
+    StateMachine(std::shared_ptr<Environment> env, lcm::LCM& lcmObject);
 
     ~StateMachine();
 
-    void run( );
+    void run();
 
-    void updateRoverStatus( AutonState autonState );
+    void updateRoverStatus(AutonState autonState);
 
-    void updateRoverStatus( Bearing bearing );
+    void updateRoverStatus(Course course);
 
-    void updateRoverStatus( Course course );
+    void updateRoverStatus(Odometry odometry);
 
-    void updateRoverStatus( Obstacle obstacle );
+    void updateCompletedPoints();
 
-    void updateRoverStatus( Odometry odometry );
+    void updateObstacleAngle(double bearing, double rightBearing);
 
-    void updateRoverStatus( TargetList targetList );
-    void updateCompletedPoints( );
+    void updateObstacleDistance(double distance);
 
-    void updateObstacleAngle( double bearing, double rightBearing );
+    void updateObstacleElements(double bearing, double rightBearing, double distance);
 
-    void updateObstacleDistance( double distance );
+    void setSearcher(SearchType type, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
-    void updateObstacleElements( double bearing, double rightBearing, double distance );
-
-    void setSearcher(SearchType type, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig );
+    std::shared_ptr<Environment> getEnvironment();
 
     /*************************************************************************/
     /* Public Member Variables */
@@ -79,13 +75,15 @@ private:
 
     double getOptimalAvoidanceDistance() const;
 
-    bool isWaypointReachable( double distance );
+    bool isWaypointReachable(double distance);
 
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
     // Rover object to do basic rover operations in the state machine.
     std::shared_ptr<Rover> mRover;
+
+    std::shared_ptr<Environment> mEnv;
 
     // RoverStatus object for updating the rover's status.
     Rover::RoverStatus mNewRoverStatus;
@@ -100,7 +98,7 @@ private:
     unsigned mTotalWaypoints;
 
     // Number of waypoints completed.
-    unsigned mCompletedWaypoints; 
+    unsigned mCompletedWaypoints;
 
     // Indicates if the state changed on a given iteration of run.
     bool mStateChanged;
@@ -112,5 +110,3 @@ private:
     std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
 
 }; // StateMachine
-
-#endif // STATE_MACHINE_HPP

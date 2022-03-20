@@ -18,8 +18,7 @@ using namespace rover_msgs;
 using namespace std;
 
 // This class is the representation of the navigation states.
-enum class NavState
-{
+enum class NavState {
     // Base States
     Off = 0,
     Done = 1,
@@ -63,8 +62,7 @@ enum class NavState
 }; // AutonState
 
 // This class is the representation of the drive status.
-enum class DriveStatus
-{
+enum class DriveStatus {
     Arrived,
     OnCourse,
     OffCourse
@@ -72,12 +70,10 @@ enum class DriveStatus
 
 // This class creates a Rover object which can perform operations that
 // the real rover can perform.
-class Rover
-{
+class Rover {
 public:
     // This class holds all the status information of the rover.
-    class RoverStatus
-    {
+    class RoverStatus {
     public:
         RoverStatus();
 
@@ -111,7 +107,7 @@ public:
 
         int& getRightHits();
 
-        RoverStatus& operator=( RoverStatus& newRoverStatus );
+        RoverStatus& operator=(RoverStatus& newRoverStatus);
 
     private:
         // The rover's current navigation state.
@@ -120,17 +116,9 @@ public:
         // The rover's current auton state.
         AutonState mAutonState{};
 
-        // The rover's overall course.
-        Course mCourse{};
-
         // The rover's current path. The path is initially the same as
         // the rover's course, however, as waypoints are visited, the
         // are removed from the path but not the course.
-        deque<Waypoint> mPath;
-
-        // The rover's current obstacle information from computer
-        // vision.
-        Obstacle mObstacle;
 
         // The rover's current odometry information.
         Odometry mOdometry{};
@@ -160,21 +148,21 @@ public:
         int countRightHits = 0;
     };
 
-    Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
+    Rover(const rapidjson::Document& config, lcm::LCM& lcm_in);
 
-    DriveStatus drive( const Odometry& destination );
+    DriveStatus drive(const Odometry& destination);
 
-    DriveStatus drive( double distance, double bearing, bool target = false );
+    DriveStatus drive(double distance, double bearing, bool target = false);
 
-    void drive( int direction, double bearing );
+    void drive(int direction, double bearing);
 
-    bool turn( Odometry& destination );
+    bool turn(Odometry& destination);
 
-    bool turn( double bearing );
+    bool turn(double bearing);
 
     void stop();
 
-    bool updateRover( RoverStatus newRoverStatus );
+    bool updateRover(RoverStatus newRoverStatus);
 
     RoverStatus& roverStatus();
 
@@ -189,15 +177,15 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    void publishJoystick( double forwardBack, double leftRight, bool kill );
+    void publishJoystick(double forwardBack, double leftRight, bool kill);
 
-    bool isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const;
+    bool isEqual(const Obstacle& obstacle1, const Obstacle& obstacle2) const;
 
-    bool isEqual( const Odometry& odometry1, const Odometry& odometry2 ) const;
+    bool isEqual(const Odometry& odometry1, const Odometry& odometry2) const;
 
-    bool isEqual( const Target& target, const Target& target2 ) const;
+    bool isEqual(const Target& target, const Target& target2) const;
 
-    bool isTurningAroundObstacle( NavState currentState ) const;
+    bool isTurningAroundObstacle(NavState currentState) const;
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -218,8 +206,6 @@ private:
 
     // The pid loop for turning.
     PidLoop mBearingPid;
-
-
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.
