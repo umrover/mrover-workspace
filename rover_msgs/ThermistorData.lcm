@@ -1,8 +1,7 @@
 package rover_msgs;
 
 struct ThermistorData {
-  // In Celcius
-	double temp0;
+	double temp0; //Celsius
 	double temp1; 
 	double temp2; 
 }

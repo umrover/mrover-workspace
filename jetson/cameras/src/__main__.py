@@ -1,53 +1,100 @@
-from rover_common import aiolcm
-from rover_common.aiohelper import run_coroutines
 from rover_msgs import Cameras
-import subprocess
+import lcm
 
-lcm_ = aiolcm.AsyncLCM()
-pipeline = [None, None, None, None, None, None, None, None]
-streaming = [False, False, False, False, False, False, False, False]
-video_names = [0, 1, 2, 3, 4, 5, 6, 7]
-ports = [0, 1, 3, 4, 5, 6, 7, 8]
+import sys
+sys.path.insert(0, "/usr/lib/python3.8/dist-packages")
+import jetson.utils
 
+__lcm: lcm.LCM
+__pipelines = [None] * 2
 
-def start_pipeline(index):
-    global pipeline
-    # this program assumes that the jetson has git cloned video viewer
-    cmd = ("./../jetson-utils/build/aarch64/bin/video-viewer /dev/video" + str(video_names[index]) +
-           " rtp://10.0.0.1:500" + str(ports[index]) + " --headless")
-
-    pipeline[index] = subprocess.Popen("exec " + cmd, stdout=subprocess.PIPE, shell=True)
-    print("Playing camera " + str(index) + " pipeline.")
+ARGUMENTS = ['--headless']
 
 
-def stop_pipeline(index):
-    global pipeline
+class Pipeline:
+    def __init__(self, port):
+        self.video_source = None
+        self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
+        self.device_number = -1
+        self.port = port
 
-    pipeline[index].kill()
-    print("Stopping camera " + str(index) + " pipeline.")
+    def update(self):
+        image = self.video_source.Capture()
+        self.video_output.Render(image)
+
+    def is_open(self):
+        return True
+
+    def is_device_number(self):
+        return self.device_number
+
+    def port(self):
+        return self.port
+
+    def update_device_number(self, index):
+        if index != -1:
+            self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
+        else:
+            self.video_source = None
+        self.device_number = index
+
+    def is_currently_streaming(self):
+        return self.device_number != -1
+
+
+def start_pipeline(index, port):
+    global __pipelines
+
+    try:
+        __pipelines[port].update_device_number(index)
+        print(f"Playing camera {index} __pipelines on port 500{port}.")
+    except Exception:
+        pass
+
+
+def stop_pipeline(port):
+    global __pipelines
+
+    print(f"Stopping camera {__pipelines[port].device_number} on port 500{port}.")
+    __pipelines[port].update_device_number(-1)
 
 
 def camera_callback(channel, msg):
-    global pipeline
-    global streaming
+    global __pipelines
 
     camera_cmd = Cameras.decode(msg)
 
-    requests_array = [camera_cmd.cam1, camera_cmd.cam2, camera_cmd.cam3, camera_cmd.cam4,
-                      camera_cmd.cam5, camera_cmd.cam6, camera_cmd.cam7, camera_cmd.cam8]
+    port_devices = [camera_cmd.port_0, camera_cmd.port_1]
 
-    for i in range(len(requests_array)):
-        if streaming[i] == requests_array[i]:
+    for port_number, requested_port_device in enumerate(port_devices):
+        if __pipelines[port_number].is_device_number() == requested_port_device:
             continue
-        streaming[i] = requests_array[i]
-        if streaming[i]:
-            start_pipeline(i)
+        if requested_port_device == -1:
+            stop_pipeline(port_number)
         else:
-            stop_pipeline(i)
+            if __pipelines[port_number].is_currently_streaming():
+                stop_pipeline(port_number)
+            start_pipeline(requested_port_device, port_number)
 
 
 def main():
+    global __pipelines, __lcm
 
-    lcm_.subscribe("/cameras_cmd", camera_callback)
+    __pipelines = [ Pipeline(0), Pipeline(1) ]
 
-    run_coroutines(lcm_.loop())
+    __lcm = lcm.LCM()
+    __lcm.subscribe("/cameras_cmd", camera_callback)
+    while True:
+        while __lcm.handle_timeout(0):
+            pass
+        for port_number, pipeline in enumerate(__pipelines):
+            if pipeline.is_currently_streaming():
+                if pipeline.is_open():
+                    pipeline.update()
+                else:
+                    stop_pipeline(port_number)
+                    print(f'Closing {port_number} becuase it stopped streaming!')
+
+
+if __name__ == "__main__":
+    main()
