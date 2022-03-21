@@ -171,20 +171,6 @@ NavState SearchStateMachine::executeDriveToTarget()
     double distance = mRover->roverStatus().leftCacheTarget().distance;
     double bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
 
-    // Executes the logic for driving with 0, 1, or 2 targets in sight
-    // If we have a second target detected, determine which post is closer
-    // If the distance to the second target is less than the first,
-    // set our variables to the target 2's distance and bearing
-    // Else, use the initialized values from target 1 when driving
-    if( mRover->roverStatus().rightCacheTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
-    {
-        if( mRover->roverStatus().leftCacheTarget().distance > mRover->roverStatus().rightCacheTarget().distance ) 
-        {
-            distance = mRover->roverStatus().rightCacheTarget().distance;
-            bearing = mRover->roverStatus().rightCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
-        }
-    }
-
     driveStatus = mRover->drive( distance, bearing, true );
 
     if( driveStatus == DriveStatus::Arrived )
