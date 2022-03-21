@@ -233,9 +233,10 @@ export default {
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/carousel_data', 'type': 'CarouselData'},
-        {'topic': '/carousel_cmd', 'type': 'CarouselCmd'},
         {'topic': '/sa_position', 'type': 'SAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
+        {'topic': '/heater_state_data', 'type': 'Heater'},
+        {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'}
         {'topic': '/pdb_data', 'type': 'PDBData'},
         {'topic': '/fuse_data', 'type': 'FuseData'}
       ]

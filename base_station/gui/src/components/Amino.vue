@@ -1,58 +1,147 @@
 <template>
 <div class="wrap">
-    <div>
-      <h3>Amino Test Controls</h3>
-    </div>
-    <div class="box1">
-        <label for="site">Choose a site:</label>
-        <select v-model = "site" name="site" id="site">
-            <option value="2">Site A</option>
-            <option value="1">Site B</option>
-            <option value="0">Site C</option>
-        </select>
-    </div>
-    <div class="box1" v-if="site == 2">
-        <label for="toggle_button" :class="{'active': nichWire2 == 1}" class="toggle__button">
-            <span v-if="nichWire2 == 1" class="toggle__label" >Heater A On</span>
-            <span v-if="nichWire2 == 0" class="toggle__label" >Heater A Off</span>
-
-            <input type="checkbox" id="toggle_button">
-            <span class="toggle__switch" v-if="nichWire2 == 0" v-on:click="nichWire2=1,setPart(mosfetIDs.nichWire2,true)"></span>
-            <span class="toggle__switch" v-if="nichWire2 == 1" v-on:click="nichWire2=0,setPart(mosfetIDs.nichWire2,false)"></span>
-        </label>
-
-        <p>Thermistor A: {{temp2}} C°</p>
-    </div>
-    <div class="box1" v-if="site == 1">
-        <label for="toggle_button" :class="{'active': nichWire1 == 1}" class="toggle__button">
-            <span v-if="nichWire1 == 1" class="toggle__label" >Heater B On</span>
-            <span v-if="nichWire1 == 0" class="toggle__label" >Heater B Off</span>
-
-            <input type="checkbox" id="toggle_button">
-            <span class="toggle__switch" v-if="nichWire1 == 0" v-on:click="nichWire1=1,setPart(mosfetIDs.nichWire1,true)"></span>
-            <span class="toggle__switch" v-if="nichWire1 == 1" v-on:click="nichWire1=0,setPart(mosfetIDs.nichWire1,false)"></span>
-        </label>
-
-        <p>Thermistor B: {{temp1}} C°</p>
-    </div>
-    <div class="box1" v-if="site == 0">
-        <label for="toggle_button" :class="{'active': nichWire0 == 1}" class="toggle__button">
-            <span v-if="nichWire0 == 1" class="toggle__label" >Heater C On</span>
-            <span v-if="nichWire0 == 0" class="toggle__label" >Heater C Off</span>
-
-            <input type="checkbox" id="toggle_button">
-            <span class="toggle__switch" v-if="nichWire0 == 0" v-on:click="nichWire0=1,setPart(mosfetIDs.nichWire0,true)"></span>
-            <span class="toggle__switch" v-if="nichWire0 == 1" v-on:click="nichWire0=0,setPart(mosfetIDs.nichWire0,false)"></span>
-        </label>
-
-        <p>Thermistor C: {{temp0}} C°</p>
-    </div>
-    <div>
-        <input type="checkbox" id="autoShutdown" name="autoShutdown" v-model="autoShutdown">
-        <label for="autoShutdown"> Nichrome Auto-shutdown</label><br>
-    </div>
+  <div>
+    <h3>Amino Test Controls</h3>
+  </div>
+  <div class="box1">
+    <label for="site">Choose a site:</label>
+    <select v-model = "site" name="site" id="site">
+      <option value="2">Site A</option>
+      <option value="1">Site B</option>
+      <option value="0">Site C</option>
+    </select>
+  </div>
+  <div class="box1" v-if="site == 2">
+    <label for="toggle_button" :class="{'active': heaters[2].enabled}" class="toggle__button">
+      <span class="toggle__label" >Heater A {{heaters[2].message}}</span>
+      <input type="checkbox" id="toggle_button">
+      <span class="toggle__switch" v-if="heaters[2].enabled" v-on:click="sendHeaterCmd(2, false)"></span>
+      <span class="toggle__switch" v-if="!heaters[2].enabled" v-on:click="sendHeaterCmd(2, true)"></span>
+    </label>
+    <p v-bind:style="{color: heaters[2].color}">Thermistor A: {{heaters[2].temp.toFixed(2)}} C°</p>
+  </div>
+  <div class="box1" v-if="site == 1">
+    <label for="toggle_button" :class="{'active': heaters[1].enabled}" class="toggle__button">
+      <span class="toggle__label" >Heater B {{heaters[1].message}}</span>
+      <input type="checkbox" id="toggle_button">
+      <span class="toggle__switch" v-if="heaters[1].enabled" v-on:click="sendHeaterCmd(1, false)"></span>
+      <span class="toggle__switch" v-if="!heaters[1].enabled" v-on:click="sendHeaterCmd(1, true)"></span>
+    </label>
+    <p v-bind:style="{color: heaters[1].color}">Thermistor B: {{heaters[1].temp.toFixed(2)}} C°</p>
+  </div>
+  <div class="box1" v-if="site == 0">
+    <label for="toggle_button" :class="{'active': heaters[0].enabled}" class="toggle__button">
+      <span class="toggle__label" >Heater C {{heaters[0].message}}</span>
+      <input type="checkbox" id="toggle_button">
+      <span class="toggle__switch" v-if="heaters[0].enabled" v-on:click="sendHeaterCmd(0, false)"></span>
+      <span class="toggle__switch" v-if="!heaters[0].enabled" v-on:click="sendHeaterCmd(0, true)"></span>
+    </label>
+    <p v-bind:style="{color: heaters[0].color}">Thermistor C: {{heaters[0].temp.toFixed(2)}} C°</p>
+  </div>
+  <div>
+    <label for="toggle_button" :class="{'active': autoShutdown}" class="toggle__button">
+      <span class="toggle__label" >Auto Shutdown {{autoShutdownMessage}}</span>
+      <input type="checkbox" id="toggle_button">
+      <span class="toggle__switch" v-if="autoShutdown" v-on:click="sendAutoShutdownCmd(false)"></span>
+      <span class="toggle__switch" v-if="!autoShutdown" v-on:click="sendAutoShutdownCmd(true)"></span>
+    </label>
+  </div>
 </div>  
 </template>
+
+<script>
+export default {
+  data () {
+    return {
+      site: 2,
+
+      heaters: [
+        {
+          enabled: false,
+          message: 'Off',
+          temp: 0,
+          color: 'grey'
+        },
+        {
+          enabled: false,
+          message: 'Off',
+          temp: 0,
+          color: 'grey'
+        },
+        {
+          enabled: false,
+          message: 'Off',
+          temp: 0,
+          color: 'grey'
+        }
+      ],
+
+      autoShutdown: true,
+      autoShutdownMessage: 'On'
+    }
+  },
+
+  created: function () {
+    this.$parent.subscribe('/thermistor_data', (msg) => {
+      
+      // For some reason, splice has to be used to reactively update array
+      this.heaters[0].temp = msg.temp0
+      this.heaters[1].temp = msg.temp1
+      this.heaters[2].temp = msg.temp2
+
+      for (let i = 0; i < this.heaters.length; i++) {
+        if (this.heaters[i].temp > 100) {
+          this.heaters[i].color = 'red'
+        }
+        else {
+          this.heaters[i].color = 'black'
+        }
+      }
+    })
+
+    this.$parent.subscribe('/heater_state_data', (msg) => {
+      this.heaters[msg.device].enabled = msg.enabled
+
+      let enabled = 'Off'
+      if (msg.enabled == 1) {
+        enabled = 'On'
+      }
+      this.heaters[msg.device].message = enabled
+    })
+
+    this.$parent.subscribe('/heater_auto_shutdown_data', (msg) => {
+      this.autoShutdown = msg.auto_shutdown_enabled
+
+      let enabled = 'Off'
+      if (msg.auto_shutdown_enabled == 1) {
+        enabled = 'On'
+      }
+      this.autoShutdownMessage = enabled
+    })
+  },
+
+  methods: {
+    sendHeaterCmd: function(id, enabled) {
+      this.heaters[id].message = '...'
+
+      this.$parent.publish('/heater_cmd', {
+        'type': 'Heater',
+        'device': id,
+        'enabled': enabled
+      })
+    },
+
+    sendAutoShutdownCmd: function(enabled) {
+      this.autoShutdownMessage = '...'
+
+      this.$parent.publish('/heater_auto_shutdown_cmd', {
+        'type': 'HeaterAutoShutdown',
+        'auto_shutdown_enabled': enabled
+      })
+    }
+  }
+}
+</script>
 
 <style scoped>
   .wrap {
@@ -126,127 +215,3 @@
       box-shadow: 0 0 1px #FFCB05;
   }
 </style>
-
-<script>
-export default {
-  data () {
-    return {
-        site: 2,
-        pump0: 0,
-        pump1: 0,
-        pump2: 0,
-        nichWire0: 0,
-        nichWire1: 0,
-        nichWire2: 0,
-        temp0: 0,
-        temp1: 0,
-        temp2: 0,
-        temp0hook: 0,
-        temp1hook: 0,
-        temp2hook: 0,
-        color0: "black",
-        color1: "black",
-        color2: "black",
-        autoShutdown: true
-    }
-  },
-  created:
-    function () {
-      this.$parent.subscribe('/thermistor_data', (msg) => {
-        this.temp0 = msg.temp0
-        this.temp1 = msg.temp1
-        this.temp2 = msg.temp2
-        this.tempLimitHelper();
-      })
-    },
-  props: {
-    mosfetIDs: {
-      type: Object,
-      required: true
-    },
-  },
-  methods: {
-    setPart: function(id, enabled) {
-      this.$parent.publish("/mosfet_cmd", {
-        'type': 'MosfetCmd',
-        'device': id,
-        'enable': enabled
-      })
-    },
-    tempLimit: function() {
-            console.log("tempLimit");
-            if(this.temp0>100 && this.temp0hook == 0){
-                this.temp0hook = 1;
-                this.nichWire0 = 0;
-                this.setPart(mosfetIDs.nichWire0,false);
-                this.color0 = "red";
-                alert("Thermistor 0 over temp limit, shuttting down till 90°")
-            }
-            else if (this.temp0hook == 1 && this.heater0 == 1){
-                this.temp0hook = 0;
-                this.setPart(mosfetIDs.nichWire0,true);
-                this.color0 = "black";
-            }
-            else if (this.temp0hook == 1 && this.temp0 <= 90){
-                this.temp0hook = 0;
-                this.nichWire0 = 1;
-                this.setPart(mosfetIDs.nichWire0,true);
-                this.color0 = "black";
-                alert("Thermistor 0 turned back on")
-            }
-            if(this.temp1>100 && this.temp1hook == 0){
-                this.temp1hook = 1;
-                this.nichWire1 = 0;
-                this.setPart(mosfetIDs.nichWire1,false);
-                this.color1 = "red";
-                alert("Thermistor 1 over temp limit, shuttting down till 90°")
-            }
-            else if (this.temp1hook == 1 && this.nichWire1 == 1){
-                this.temp1hook = 0;
-                this.setPart(mosfetIDs.nichWire1,true);
-                this.color1 = "black";
-            }
-            else if (this.temp1hook == 1 && this.temp1 <= 90){
-                this.temp1hook = 0;
-                this.nichWire1 = 1;
-                this.color1 = "black";
-                this.setPart(mosfetIDs.nichWire1,true);
-                alert("Thermistor 1 turned back on")
-                
-            }
-            if(this.temp2>100 && this.temp2hook == 0){
-                this.temp2hook = 1;
-                this.nichWire2 = 0;
-                this.setPart(mosfetIDs.nichWire2,false);
-                this.color2 = "red";
-                alert("Thermistor 2 over temp limit, shuttting down till 90°")
-            }
-            else if (this.temp2hook == 1 && this.nichWire2 == 1){
-                this.temp2hook = 0;
-                this.setPart(mosfetIDs.nichWire2,true);
-                this.color2 = "black";
-            }
-            else if (this.temp2hook == 1 && this.temp2 <= 90){
-                this.temp2hook = 0;
-                this.nichWire2 = 1;
-                this.color2 = "black";
-                this.setPart(mosfetIDs.nichWire2,true);
-                alert("Thermistor 2 turned back on")
-            }
-    },
-    tempLimitHelper: function(){
-        if(this.autoShutdown){
-            this.tempLimit();
-        }
-        else{
-            this.color0 = "black"
-            this.color1 = "black"
-            this.color2 = "black"
-            this.temp0hook = 0
-            this.temp1hook = 0
-            this.temp2hook = 0
-        }
-    }
-  }
-}
-</script>

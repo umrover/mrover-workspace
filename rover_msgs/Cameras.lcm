@@ -1,12 +1,6 @@
 package rover_msgs;
 
 struct Cameras {
-    boolean cam1;
-    boolean cam2;
-    boolean cam3;
-    boolean cam4;
-    boolean cam5;
-    boolean cam6;
-    boolean cam7;
-    boolean cam8;
+    int8_t port_0;
+    int8_t port_1;
 }

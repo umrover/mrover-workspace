@@ -133,29 +133,7 @@
             "tilt"
         ]
     ],
-    "CamSettings": [
-        [
-            "int8_t",
-            "cam_index"
-        ],
-        [
-            "int32_t",
-            "shutter_speed"
-        ],
-        [
-            "boolean",
-            "vflip"
-        ],
-        [
-            "int32_t",
-            "height"
-        ],
-        [
-            "int32_t",
-            "width"
-        ]
-    ],
-    "CarouselCmd": [
+    "CarouselClosedLoopCmd": [
         [
             "int8_t",
             "position"
@@ -165,6 +143,12 @@
         [
             "int8_t",
             "position"
+        ]
+    ],
+    "CarouselOpenLoopCmd": [
+        [
+            "double",
+            "throttle"
         ]
     ],
     "Course": [
@@ -367,6 +351,22 @@
         [
             "int32_t",
             "new_ack_id"
+        ]
+    ],
+    "Heater": [
+        [
+            "int8_t",
+            "device"
+        ],
+        [
+            "boolean",
+            "enabled"
+        ]
+    ],
+    "HeaterAutoShutdown": [
+        [
+            "boolean",
+            "auto_shutdown_enabled"
         ]
     ],
     "IMU": [
@@ -1201,6 +1201,8 @@
         "FuseData",
         "GPS",
         "Heartbeat",
+        "Heater",
+        "HeaterAutoShutdown",
         "IkArmControl",
         "IkEnabled",
         "IMU",
