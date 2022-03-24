@@ -246,13 +246,9 @@ void Controller::calibrate_joint()
         if (name == "RA_B" || name == "SA_B")
         {
             printf("calibration not supported on %s\n", name.c_str());
+            return;
         }
-        std::chrono::high_resolution_clock::time_point calibration_start_time = std::chrono::high_resolution_clock::now();
-        std::chrono::duration calibration_duration_time = std::chrono::seconds(5);
-        open_loop(0.5);
-        std::this_thread::sleep_for(calibration_duration_time);
-        open_loop(0);
-        zero();
+        open_loop(0.3);
     }
     catch (IOFailure &e)
     {
