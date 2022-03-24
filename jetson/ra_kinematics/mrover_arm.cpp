@@ -23,8 +23,8 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     zero_encoders(false)
 {
     prev_angles.clear();
-    prev_angles.resize(6);
-    faulty_encoders.resize(6);
+    prev_angles.resize(arm_state.num_joints());
+    faulty_encoders.resize(arm_state.num_joints());
 
     for (size_t joint = 0; joint < faulty_encoders.size(); ++joint) {
         faulty_encoders[joint] = false;
@@ -556,6 +556,8 @@ void MRoverArm::check_dud_encoder(std::vector<double> &angles) const {
                 known_angle += arm_state.get_joint_encoder_offset(i);
 
                 angles[i] = known_angle;
+
+                break;
             }
         }
     }

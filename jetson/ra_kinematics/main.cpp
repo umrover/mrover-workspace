@@ -31,12 +31,20 @@ public:
         arm->motion_execute_callback( channel, *m_execute );
     }
       
-    void armPositionCallback(
+    void raPositionCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
         const RAPosition* ra_pos)
     {
         arm->arm_position_callback( channel, *ra_pos );
+    }
+
+    void saPositionCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const SAPosition* sa_pos)
+    {
+        arm->arm_position_callback( channel, *sa_pos );
     }
 
     void simModeCallback(
@@ -124,7 +132,7 @@ int main() {
 
         lcmHandlers handler(&robot_arm);
 
-        lcmObject.subscribe( "/sa_position", &lcmHandlers::armPositionCallback, &handler );
+        lcmObject.subscribe( "/sa_position", &lcmHandlers::saPositionCallback, &handler );
         lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
         lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
         lcmObject.subscribe( "/arm_control_state", &lcmHandlers::armControlCallback, &handler );
@@ -154,7 +162,7 @@ int main() {
 
         lcmHandlers handler(&robot_arm);
 
-        lcmObject.subscribe( "/ra_position", &lcmHandlers::armPositionCallback, &handler );
+        lcmObject.subscribe( "/ra_position", &lcmHandlers::raPositionCallback, &handler );
         lcmObject.subscribe( "/target_orientation" , &lcmHandlers::executeCallback, &handler );
         lcmObject.subscribe( "/motion_execute", &lcmHandlers::motionExecuteCallback, &handler );
         lcmObject.subscribe( "/simulation_mode", &lcmHandlers::simModeCallback, &handler );
