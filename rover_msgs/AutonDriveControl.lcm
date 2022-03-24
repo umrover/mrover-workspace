@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct AutonDriveControl {
+    double linear_velocity_ms;
+    double angular_velocity_rads;
+}

@@ -280,7 +280,7 @@ def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/drive_control", drive_control_callback)
-    lcm_.subscribe("/autonomous", autonomous_callback)
+    lcm_.subscribe("/auton_drive_control", autonomous_callback)
     lcm_.subscribe("/auton_reverse", auton_reverse_callback)
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
