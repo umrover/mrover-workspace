@@ -136,10 +136,11 @@ export default {
   },
 
   methods: {
-    send_position: function(position) {
+    send_position: function(preset) {
+      console.log(preset);
       this.$parent.publish("/arm_preset", {
         'type': 'ArmPreset',
-        'position': position
+        'preset': preset
       })
     },
 

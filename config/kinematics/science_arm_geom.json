@@ -12,6 +12,26 @@
             0
         ]
     },
+    "presets": {
+        "stowed": [
+            0.0,
+            1.0,
+            -2.36,
+            0.0
+        ],
+        "scoop": [
+            1.0,
+            0.5,
+            2.0,
+            1.0
+        ],
+        "deposit": [
+            -1.0,
+            0.3,
+            0,
+            -1.0
+        ]
+    },
     "base": "chassis-a",
     "links": {
         "chassis-a": {
@@ -46,7 +66,7 @@
                 }
             },
             "collisions": [
-                7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+                
             ],
             "link_shapes": {
                 "shape_1": {
@@ -83,9 +103,9 @@
             "mass_data" : {
                 "mass": 0.46,
                 "com": {
-                    "x": 0.0001778,
-                    "y": -0.0555963,
-                    "z": -0.0406400
+                    "x": 0.0189901,
+                    "y": 0.0174,
+                    "z": -0.0474154
                 }
             }
         },
@@ -121,7 +141,7 @@
                 }
             },
             "collisions": [
-                7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+                
             ],
             "link_shapes":
              {
@@ -159,9 +179,9 @@
             "mass_data":{
                 "mass": 0.353802,
                 "com": {
-                    "x": 0.0045798,
-                    "y": -0.0000315,
-                    "z": 0.0274948
+                    "x": 0.0004141,
+                    "y": -0.0162243,
+                    "z": 0.0452425
                 }
             }
         },
@@ -197,7 +217,7 @@
                 }
             },
             "collisions": [
-                9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+                
             ],
             "link_shapes": {
                 "shape_1": {
@@ -249,13 +269,13 @@
             "mass_data":{
                 "mass": 1.48,
                 "com": {
-                    "x": 0.0009431,
-                    "y": -0.2501456,
-                    "z": 0.0450619
+                    "x": 0.0039156,
+                    "y": 0.3109823,
+                    "z": 0.0647561
                 }
             }
         },
-        "c-d": {
+        "c-e": {
             "visual": {
                 "origin": {
                     "joint_origin": 2,
@@ -272,7 +292,7 @@
                 },
                 "geometry": {
                     "mesh": {
-                        "filename": "c-d.stl"
+                        "filename": "c-e.stl"
                     }
                 },
                 "material": {
@@ -287,7 +307,7 @@
                 }
             },
             "collisions": [
-                12, 13, 14, 15, 16, 17, 18
+                
             ],
             "link_shapes": {
                 "shape_1":{
@@ -324,157 +344,9 @@
             "mass_data":{
                 "mass": 0,
                 "com": {
-                    "x": 0.0004201,
-                    "y": -0.0052498,
-                    "z": 0.0177556
-                }
-            }
-        },
-        "d-e": {
-            "visual": {
-                "origin": {
-                    "joint_origin": 3,
-                    "xyz": [
-                        -0.044323,
-                        0.0583946,
-                        0.0
-                    ],
-                    "rpy": [
-                        0,
-                        0,
-                        0
-                    ]
-                },
-                "geometry": {
-                    "mesh": {
-                        "filename": "d-e.stl"
-                    }
-                },
-                "material": {
-                    "color": {
-                        "rgba": [
-                            0.356,
-                            0.361,
-                            0.376,
-                            1
-                        ]
-                    }
-                }
-            },
-            "collisions": [
-                13, 14, 15, 16, 17, 18
-            ],
-            "link_shapes": {
-                "shape_1": {
-                    "type": "capsule",
-                    "point_1": {
-                        "x1": 0,
-                        "y1": 0.00635,
-                        "z1": 0
-                    },
-                    "point_2": {
-                        "x2": 0,
-                        "y2": 0.37465,
-                        "z2": 0
-                    },
-                    "radius": 0.03175,
-                    "link_num": 9
-                },
-                "shape_2": {
-                    "type": "capsule",
-                    "point_1": {
-                        "x1": -0.010922,
-                        "y1": 0.426847,
-                        "z1": 0
-                    },
-                    "point_2": {
-                        "x2": 0.014478,
-                        "y2": 0.426847,
-                        "z2": 0
-                    },
-                    "radius": 0.05715,
-                    "link_num": 10
-                },
-                "shape_3": {
-                    "type": "capsule",
-                    "point_1": {
-                        "x1": -0.037008,
-                        "y1": 0.426847,
-                        "z1": 0.0582
-                    },
-                    "point_2": {
-                        "x2": 0.0201412,
-                        "y2": 0.426847,
-                        "z2": 0.0582
-                    },
-                    "radius": 0.03175,
-                    "link_num": 11
-                }
-            },
-            "mass_data":{
-                "mass": 1.21,
-                "com": {
-                    "x": -0.0022314,
-                    "y": -0.0331522,
-                    "z": -0.0136509
-                }
-            }
-        },
-        "e-f": {
-            "visual": {
-                "origin": {
-                    "joint_origin": 4,
-                    "xyz": [
-                        0.0583946,
-                        0.426847,
-                        0.0
-                    ],
-                    "rpy": [
-                        0,
-                        0,
-                        0
-                    ]
-                },
-                "geometry": {
-                    "mesh": {
-                        "filename": "e-f.stl"
-                    }
-                },
-                "material": {
-                    "color": {
-                        "rgba": [
-                            0.356,
-                            0.361,
-                            0.376,
-                            1
-                        ]
-                    }
-                }
-            },
-            "collisions": [],
-            "link_shapes": {
-                "shape_1":{
-                    "type": "capsule",
-                    "point_1": {
-                        "x1": 0.0206375,
-                        "y1": 0.010033,
-                        "z1": 0
-                    },
-                    "point_2": {
-                        "x2": 0.206375,
-                        "y2": 0.143383,
-                        "z2": 0
-                    },
-                    "radius": 0.0381,
-                    "link_num": 12
-                }
-            },
-            "mass_data":{
-                "mass": 1.08,
-                "com": {
-                    "x": 0.0042447,
-                    "y": 0.0858236,
-                    "z": -0.0001020
+                    "x": -0.0222849,
+                    "y": 0.2506623,
+                    "z": 0.0108216
                 }
             }
         },
@@ -638,7 +510,9 @@
                 "lower": -3.14,
                 "upper": 3.14
             },
-            "max_speed": 0.52,
+            "max_speed": 0.45,
+            "encoder_offset": 2.457,
+            "encoder_multiplier": -1,
             "mass_data":{
                 "mass": 0.69,
                 "com": {
@@ -670,10 +544,12 @@
             ],
             "type": "revolute",
             "limit": {
-                "lower": 0,
-                "upper": 1.57
+                "lower": 0.035,
+                "upper": 1.09
             },
-            "max_speed": 0.52,
+            "max_speed": 0.2,
+            "encoder_offset": -1.47,
+            "encoder_multiplier": -1,
             "mass_data":{
                 "mass": 0,
                 "com": {
@@ -685,11 +561,11 @@
         },
         "joint_c": {
             "parent": "b-c",
-            "child": "c-d",
+            "child": "c-e",
             "origin": {
                 "xyz": [
                     -0.05840,
-                    0.58039,
+                    0.580,
                     0.009525
                 ],
                 "rpy": [
@@ -705,10 +581,12 @@
             ],
             "type": "revolute",
             "limit": {
-                "lower": -2.36,
-                "upper": 2.36
+                "lower": -3.01,
+                "upper": 2.73
             },
-            "max_speed": 0.52,
+            "max_speed": 0.3,
+            "encoder_offset": 1.47,
+            "encoder_multiplier": 1,
             "mass_data":{
                 "mass": 1.11,
                 "com": {
@@ -718,84 +596,14 @@
                 }
             }
         },
-        "joint_d": {
-            "parent": "c-d",
-            "child": "d-e",
-            "origin": {
-                "xyz": [
-                    -0.044,
-                    0.05840025,
-                    0.0
-                ],
-                "rpy": [
-                    0,
-                    0,
-                    0
-                ]
-            },
-            "axis": [
-                0,
-                1,
-                0
-            ],
-            "type": "revolute",
-            "limit": {
-                "lower": -3.14,
-                "upper": 3.14
-            },
-            "max_speed": 0.52,
-            "mass_data":{
-                "mass": 0,
-                "com": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                }
-            }
-        },
         "joint_e": {
-            "parent": "d-e",
-            "child": "e-f",
-            "origin": {
-                "xyz": [
-                    0.058401009944,
-                    0.427,
-                    0.0
-                ],
-                "rpy": [
-                    0,
-                    0,
-                    0
-                ]
-            },
-            "axis": [
-                1,
-                0,
-                0
-            ],
-            "type": "revolute",
-            "limit": {
-                "lower": -2.36,
-                "upper": 0.87
-            },
-            "max_speed": 0.52,
-            "mass_data":{
-                "mass": 0,
-                "com": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                }
-            }
-        },
-        "joint_f": {
-            "parent": "e-f",
+            "parent": "c-e",
             "child": "hand",
             "origin": {
                 "xyz": [
-                    0.021,
-                    0.1647412250,
-                    0
+                    0.03458851,
+                    0.298,
+                    0.0
                 ],
                 "rpy": [
                     0,
@@ -814,8 +622,10 @@
                 "upper": 3.14
             },
             "max_speed": 0.52,
+            "encoder_offset": 1.93,
+            "encoder_multiplier": -1,
             "mass_data":{
-                "mass": 0.16,
+                "mass": 0,
                 "com": {
                     "x": 0,
                     "y": 0,
@@ -825,12 +635,12 @@
         } 
     },
     "endeffector": {
-        "frame": "joint_f",
+        "frame": "joint_e",
         "origin": {
             "xyz": [
-                -0.02829814000,
-                0.1338834000,
-                0
+                -0.0238135,
+                0.913,
+                0.0381
             ]
         },
         "position": [
