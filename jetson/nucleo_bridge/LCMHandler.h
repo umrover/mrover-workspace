@@ -20,6 +20,7 @@
 #include <rover_msgs/RAConfigCmd.hpp>
 #include <rover_msgs/SAConfigCmd.hpp>
 #include <rover_msgs/SAZeroTrigger.hpp>
+#include <rover_msgs/JointBCalibration.hpp>
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()
@@ -58,6 +59,10 @@ private:
         void gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
 
         void refreshAngles();
+
+        void refresh_calib_data();
+
+        void joint_b_calib_data();
 
         void ra_pos_data();
 

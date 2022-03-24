@@ -211,6 +211,30 @@ void Controller::angle()
     }
 }
 
+//Sends a get angle command
+void Controller::calibration_data()
+{
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+
+    try
+    {
+        int8_t calib_data;
+        else 
+        {
+            transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calib_data));
+        }
+        
+        calibrated = calib_data == 0xF ? true : false;
+    }
+    catch (IOFailure &e)
+    {
+        printf("calibration data failed on %s\n", name.c_str());
+    }
+}
+
 // Calibrate joint -- should only be used for joint b
 void Controller::calibrate_joint()
 {
