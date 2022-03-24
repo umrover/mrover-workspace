@@ -1,6 +1,0 @@
-#!/bin/bash
-
-dimensions=$(xdpyinfo | grep dimensions)
-dim=($dimensions)
-IFS="x" read -a dimsReal <<< ${dim[1]}
-echo "${dimsReal[0]} ${dimsReal[1]}"

@@ -30,7 +30,7 @@
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
-        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick"/>
+        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick" v-bind:TargetList="TargetList"/>
      </div>
     </div>
     <div class="box odom light-bg">
@@ -121,10 +121,10 @@ export default {
         distance: 0
       },
 
-      TargetList: {
-        targetList: [{bearing: 0, distance: 0, id: 0},
-        {bearing: 0, distance: 0, id: 0}]
-      },
+      TargetList: [
+        {bearing: 0, distance: -1, id: 0},
+        {bearing: 0, distance: -1, id: 0}
+      ],
 
       Joystick: {
         forward_back: 0,
@@ -235,7 +235,7 @@ export default {
         } else if (msg.topic === '/obstacle') {
           this.Obstacle = msg.message
         } else if (msg.topic === '/target_list') {
-          this.TargetList = msg.message
+          this.TargetList = msg.message.targetList
         } else if (msg.topic === '/nav_status') {
           this.nav_status = msg.message
         } else if (msg.topic === '/debugMessage') {
