@@ -8,18 +8,18 @@
             <div>
                 <label for="strip">Perform strip test on strip:</label>
                     <select v-model = "strip" name="strip" id="strip">
-                        <option value=2>A</option>
-                        <option value=1>B</option>
-                        <option value=0>C</option>
+                        <option value=0>0</option>
+                        <option value=1>1</option>
+                        <option value=2>2</option>
                     </select>
-                <div class="commands" v-if="strip == 2">
-                    <button v-on:click="stripTestA()"> Start Strip A Test </button>
+                <div class="commands" v-if="strip == 0">
+                    <button v-on:click="stripTest0()"> Start Strip 0 Test </button>
                 </div>
                 <div class="commands" v-if="strip == 1">
-                    <button v-on:click="stripTestB()"> Start Strip B Test </button>
+                    <button v-on:click="stripTest1()"> Start Strip 1 Test </button>
                 </div>
-                <div class="commands" v-if="strip == 0">
-                    <button v-on:click="stripTestC()"> Start Strip C Test </button>
+                <div class="commands" v-if="strip == 2">
+                    <button v-on:click="stripTest2()"> Start Strip 2 Test </button>
                 </div>
             </div>
         </div>
@@ -51,7 +51,7 @@ const dipped = '#AEF78E';
 export default {
     data () {
         return {
-            strip: 2,
+            strip: 0,
             angle0: serv0_start,
             angle1: serv1_start,
             angle2: serv2_start,
@@ -83,7 +83,7 @@ export default {
             })
         },
 
-        stripTestA: function() {
+        stripTest2: function() {
             this.angle2 = this.serv2_dip;
             this.setPart();
             setTimeout(() => {
@@ -93,7 +93,7 @@ export default {
                 }, 10000);
         },
 
-        stripTestB: function() {
+        stripTest1: function() {
             this.angle1 = this.serv1_dip;
             this.setPart();
             setTimeout(() => {
@@ -103,7 +103,7 @@ export default {
                 }, 10000);
         },
         
-        stripTestC: function() {
+        stripTest0: function() {
             this.angle0 = this.serv0_dip;
             this.setPart();
             setTimeout(() => {
