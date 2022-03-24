@@ -222,10 +222,8 @@ void Controller::calibration_data()
     try
     {
         int8_t calib_data;
-        else 
-        {
-            transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calib_data));
-        }
+         
+        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calib_data));
         
         calibrated = calib_data == 0xF ? true : false;
     }
