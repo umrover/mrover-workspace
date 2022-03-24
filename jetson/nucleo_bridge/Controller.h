@@ -25,6 +25,7 @@
 #define ABS_ENC     0x50,   0,  4
 #define LIMIT       0x60,   0,  1
 #define CALIBRATED  0x6F,   0,  1
+#define TURN_COUNT  0x70,   0,  1
 #define UINT8_POINTER_T reinterpret_cast<uint8_t *>
 
 /*
@@ -45,6 +46,7 @@ public:
     float kI = 0.0; 
     float kD = 0.0;
     bool calibrated = false;
+    int8_t turn_count = -1;
 
     std::string name;
 
