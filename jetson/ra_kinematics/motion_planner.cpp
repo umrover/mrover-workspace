@@ -272,7 +272,7 @@ void MotionPlanner::spline_fitting(const std::vector< std::vector<double> > &pat
 
     // six vectors, each with the path of a single component
     std::vector< std::vector<double> > separate_paths;
-    separate_paths.resize(6, std::vector<double>(path.size()));
+    separate_paths.resize(step_limits.size(), std::vector<double>(path.size()));
 
     // convert path to vectors
     for (size_t i = 0; i < path.size(); ++i) {
@@ -318,7 +318,7 @@ void MotionPlanner::spline_fitting(const std::vector< std::vector<double> > &pat
 
     // use tk to create six different splines, representing a spline in 6 dimensions
     splines.clear();
-    splines.resize(6);
+    splines.resize(step_limits.size());
     for (size_t i = 0; i < step_limits.size(); ++i) {   //for each joint
         splines[i].set_points(x_, separate_paths[i]);
     }
@@ -326,7 +326,7 @@ void MotionPlanner::spline_fitting(const std::vector< std::vector<double> > &pat
 
 std::vector<double> MotionPlanner::get_spline_pos(double spline_t) {
     std::vector<double> angles;
-    angles.reserve(6);
+    angles.reserve(step_limits.size());
 
     // double mod_spline_t = modify_spline_t(spline_t);
 
