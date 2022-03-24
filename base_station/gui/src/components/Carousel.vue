@@ -6,22 +6,22 @@
     <div class="box1">
         <label for="position">Rotate carousel to position:</label>
         <select v-model="target" name="target" id="target">
-            <option value="2">A</option>
-            <option value="1">B</option>
-            <option value="0">C</option>
+            <option value=0>0</option>
+            <option value=1>1</option>
+            <option value=2>2</option>
         </select>
         <br>
         <div class="commands">
           <div v-if="closedLoop">
             <div v-if="reachedPos">
-              <p>At position {{this.posMap.get(this.position)}}</p>
+              <p>At position {{this.position}}</p>
             </div>
             <div v-else>
-              <p>Turning to {{this.posMap.get(this.target)}}</p>
+              <p>Turning to {{this.target}}</p>
             </div>
           </div>
           <div v-else>
-            <p>Last at position {{this.posMap.get(this.position)}}</p>
+            <p>Last at position {{this.position}}</p>
           </div>
         </div>
         <br>
@@ -36,27 +36,23 @@
 export default {
   data () {
     return {
-      target: '2',
-      position: '2',
+      target: 0,
+      position: 0,
       reachedPos: true,
 
       closedLoop: true,
       openLoopSpeed: 0.0,
 
-      posMap:new Map([
-        ['2', 'A'],
-        ['1', 'B'],
-        ['0', 'C'],
-      ]),
+      
     }
   },
 
   created: function () {
     this.$parent.subscribe('/carousel_data', (msg) => {
-      this.position = msg.position.toString()
+      this.position = msg.position
 
       if (this.closedLoop) {
-        if (msg.position == Number(this.target)) {
+        if (msg.position == this.target) {
           this.reachedPos = true
         }
       }
