@@ -24,7 +24,7 @@
 #define ADJUST      0x4F,   4,  0
 #define ABS_ENC     0x50,   0,  4
 #define LIMIT       0x60,   0,  1
-
+#define CALIBRATED  0x6F,   0,  1
 #define UINT8_POINTER_T reinterpret_cast<uint8_t *>
 
 /*
@@ -44,6 +44,7 @@ public:
     float kP = 0.01;
     float kI = 0.0; 
     float kD = 0.0;
+    bool calibrated = false;
 
     std::string name;
 
@@ -78,7 +79,10 @@ public:
     //Sends a get angle command
     void angle();
 
-    // Calibrate joint -- should only be used for joint b
+    //Sends a calibrated command
+    void calibration_data();
+
+    //Calibrate joint -- should only be used for joint b
     void calibrate_joint();
 };
 

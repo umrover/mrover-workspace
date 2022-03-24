@@ -42,13 +42,15 @@ void LCMHandler::handle_incoming()
 //Decide whether outgoing messages need to be sent, and if so, send them
 void LCMHandler::handle_outgoing()
 {
-    //If the last time arm position messages were outputted was over 20 ms ago, get new data from Controllers to be sent
+    //If the last time arm position messages were outputted was over 200 ms ago, get new data from Controllers to be sent
     std::chrono::duration deadTime = std::chrono::milliseconds(200);
     if (NOW - last_output_time > deadTime)
     {
         internal_object->refreshAngles();
+        internal_object->refresh_calib_data();
         internal_object->sa_pos_data();
         internal_object->ra_pos_data();
+        internal_object->joint_b_calib_data();
     }
 }
 
@@ -140,6 +142,11 @@ void LCMHandler::InternalHandler::refreshAngles()
     ControllerMap::controllers["SA_E"]->angle();
 }
 
+void LCMHandler::InternalHandler::refresh_calib_data()
+{
+    ControllerMap::controllers["RA_B"]->calibration_data();
+}
+
 void LCMHandler::InternalHandler::ra_pos_data()
 {
     RAPosition msg;
@@ -162,6 +169,15 @@ void LCMHandler::InternalHandler::sa_pos_data()
     msg.joint_c = ControllerMap::controllers["SA_C"]->current_angle;
     msg.joint_e = ControllerMap::controllers["SA_E"]->current_angle;
     lcm_bus->publish("/sa_position", &msg);
+
+    last_output_time = NOW;
+}
+
+void LCMHandler::InternalHandler::joint_b_calib_data()
+{
+    JointBCalibration msg;
+    msg.calibrated = ControllerMap::controllers["RA_B"]->calibrated;
+    lcm_bus->publish("/joint_b_calibration_data", &msg);
 
     last_output_time = NOW;
 }
