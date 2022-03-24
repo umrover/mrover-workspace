@@ -48,9 +48,11 @@ void LCMHandler::handle_outgoing()
     {
         internal_object->refreshAngles();
         internal_object->refresh_calib_data();
+        // internal_object->refresh_turn_count();
         internal_object->sa_pos_data();
         internal_object->ra_pos_data();
         internal_object->joint_b_calib_data();
+        // internal_object->turn_count_data();
     }
 }
 
@@ -147,6 +149,11 @@ void LCMHandler::InternalHandler::refresh_calib_data()
     ControllerMap::controllers["RA_B"]->calibration_data();
 }
 
+void LCMHandler::InternalHandler::refresh_turn_count()
+{
+    ControllerMap::controllers["RA_B"]->turn_count_data();
+}
+
 void LCMHandler::InternalHandler::ra_pos_data()
 {
     RAPosition msg;
@@ -178,6 +185,15 @@ void LCMHandler::InternalHandler::joint_b_calib_data()
     JointBCalibration msg;
     msg.calibrated = ControllerMap::controllers["RA_B"]->calibrated;
     lcm_bus->publish("/joint_b_calibration_data", &msg);
+
+    last_output_time = NOW;
+}
+
+void LCMHandler::InternalHandler::turn_count_data()
+{
+    WristTurnCount msg;
+    msg.turn_count = ControllerMap::controllers["RA_F"]->turn_count;
+    lcm_bus->publish("/wrist_turn_count", &msg);
 
     last_output_time = NOW;
 }

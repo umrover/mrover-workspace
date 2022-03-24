@@ -233,6 +233,29 @@ void Controller::calibration_data()
     }
 }
 
+//Sends a get angle command
+void Controller::turn_count_data()
+{
+    
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+
+    try
+    {
+        int8_t turn_count_data;
+         
+        transact(TURN_COUNT, nullptr, UINT8_POINTER_T(&turn_count_data));
+        
+        turn_count = turn_count_data;
+    }
+    catch (IOFailure &e)
+    {
+        printf("turn count data failed on %s\n", name.c_str());
+    }
+}
+
 // Calibrate joint -- should only be used for joint b
 void Controller::calibrate_joint()
 {

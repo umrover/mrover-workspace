@@ -21,6 +21,7 @@
 #include <rover_msgs/SAConfigCmd.hpp>
 #include <rover_msgs/SAZeroTrigger.hpp>
 #include <rover_msgs/JointBCalibration.hpp>
+#include <rover_msgs/WristTurnCount.hpp>
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()
@@ -62,11 +63,15 @@ private:
 
         void refresh_calib_data();
 
+        void refresh_turn_count_data();
+
         void joint_b_calib_data();
 
         void ra_pos_data();
 
         void sa_pos_data();
+
+        void turn_count_data();
     };
 
     inline static InternalHandler *internal_object = nullptr;
