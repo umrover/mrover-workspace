@@ -6,6 +6,7 @@
       <l-control-scale :imperial="false"/>
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
+      <l-marker ref="tangent" :lat-lng="odomLatLng" :icon="tangentIcon"/>
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in route" :key="waypoint.id" >
         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
       </l-marker>
@@ -48,6 +49,11 @@ export default {
       iconSize: [64, 64],
       iconAnchor: [32, 32]
     })
+    this.tangentIcon = L.icon({
+      iconUrl: '/static/gps_tangent_icon.png',
+      iconSize: [44, 80],
+      iconAnchor: [22, 60]
+    })
     this.waypointIcon = L.icon({
       iconUrl: '/static/map_marker.png',
       iconSize: [64, 64],
@@ -77,10 +83,12 @@ export default {
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       roverMarker: null,
+      tangentMarker: null,
       waypointIcon: null,
       map: null,
       odomCount: 0,
       locationIcon: null,
+      tangentIcon: null,
       odomPath: [],
       findRover: false,
       options: {
@@ -96,6 +104,10 @@ export default {
 
   props: {
     odom: {
+      type: Object,
+      required: true
+    },
+    GPS: {
       type: Object,
       required: true
     }
@@ -119,6 +131,7 @@ export default {
       this.roverMarker.setRotationAngle(angle)
 
       this.roverMarker.setLatLng(L.latLng(lat, lng))
+      this.tangentMarker.setLatLng(L.latLng(lat, lng))
 
       // Update the rover path
       this.odomCount++
@@ -130,6 +143,11 @@ export default {
       }
 
       this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
+    },
+
+    GPS: function (val) {
+      const angle = val.bearing_deg
+      this.tangentMarker.setRotationAngle(angle)
     }
   },
 
@@ -137,6 +155,7 @@ export default {
     this.$nextTick(() => {
       this.map = this.$refs.map.mapObject
       this.roverMarker = this.$refs.rover.mapObject
+      this.tangentMarker = this.$refs.tangent.mapObject
     })
   }
 }

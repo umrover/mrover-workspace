@@ -38,7 +38,7 @@
       <ZedGimbalAngles/>
     </div>
     <div class="box map light-bg">
-      <RoverMap v-bind:odom="odom"/>
+      <RoverMap v-bind:odom="odom" v-bind:GPS="GPS"/>
     </div>
     <div class="box waypoints light-bg">
       <WaypointEditor v-bind:odom="odom" v-bind:Joystick="Joystick"/>
