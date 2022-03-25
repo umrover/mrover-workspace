@@ -160,13 +160,13 @@ def ra_control_callback(channel, msg):
 
     xboxData = Xbox.decode(msg)
 
-    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
-                    -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    -deadzone(quadratic(xboxData.right_js_y), 0.09),
+    motor_speeds = [deadzone(quadratic(xboxData.left_js_x), 0.09),
+                    deadzone(quadratic(xboxData.left_js_y), 0.09),
+                    deadzone(quadratic(xboxData.right_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_x), 0.09),
                     quadratic(xboxData.right_trigger -
                               xboxData.left_trigger),
-                    -(xboxData.right_bumper - xboxData.left_bumper)]
+                    (xboxData.right_bumper - xboxData.left_bumper)]
 
     openloop_msg = RAOpenLoopCmd()
     openloop_msg.throttle = motor_speeds
@@ -254,11 +254,11 @@ def gimbal_control_callback(channel, msg):
     keyboardData = Keyboard.decode(msg)
     print("mast gimbal call back")
 
-    pitchData = [float(keyboardData.s - keyboardData.w),
+    pitchData = [float(keyboardData.w - keyboardData.s),
                  float(keyboardData.i - keyboardData.k)]
 
-    yawData = [float(keyboardData.a - keyboardData.d),
-               float(keyboardData.j - keyboardData.l)]
+    yawData = [float(keyboardData.d - keyboardData.a),
+               float(keyboardData.l - keyboardData.j)]
 
     gimbal_msg = MastGimbalCmd()
     gimbal_msg.pitch = pitchData

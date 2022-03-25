@@ -75,21 +75,21 @@ void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition
 
 void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg)
 {
-    ControllerMap::controllers["RA_A"]->open_loop(msg->throttle[0]);
-    ControllerMap::controllers["RA_B"]->open_loop(msg->throttle[1]);
-    ControllerMap::controllers["RA_C"]->open_loop(msg->throttle[2]);
-    ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3]);
-    ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4]);
-    ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
+    ControllerMap::controllers["RA_A"]->open_loop(msg->throttle[0] * -1.0);
+    ControllerMap::controllers["RA_B"]->open_loop(msg->throttle[1] * -1.0);
+    ControllerMap::controllers["RA_C"]->open_loop(msg->throttle[2] * -1.0);
+    ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3] * 1.0);
+    ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4] * 1.0);
+    ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5] * -1.0);
     ra_pos_data();
 }
 
 void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg)
 {
-    ControllerMap::controllers["SA_A"]->open_loop(msg->throttle[0]);
-    ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1]);
-    ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2]);
-    ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3]);
+    ControllerMap::controllers["SA_A"]->open_loop(msg->throttle[0] * -1.0);
+    ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1] * -1.0);
+    ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2] * -1.0);
+    ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3] * 1.0);
     sa_pos_data();
 }
 
@@ -116,14 +116,14 @@ void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *ms
 
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
 {
-    ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger);
-    ControllerMap::controllers["HAND_GRIP"]->open_loop(msg->grip);
+    ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger * 1.0);
+    ControllerMap::controllers["HAND_GRIP"]->open_loop(msg->grip * 1.0);
 }
 
 void LCMHandler::InternalHandler::gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg)
 {
-    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch[0]);
-    ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw[0]);
+    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch[0] * 1.0);
+    ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw[0] * 1.0);
 }
 
 void LCMHandler::InternalHandler::refreshAngles()
@@ -189,6 +189,6 @@ void LCMHandler::ra_zero_trigger(LCM_INPUT, const RAZeroTrigger *msg)
 
 void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
 {
-    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad);
-    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop);
+    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad * 1.0);
+    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop * 1.0);
 }
