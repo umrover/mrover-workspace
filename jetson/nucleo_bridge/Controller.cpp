@@ -87,6 +87,12 @@ void Controller::open_loop(float input)
     {
         make_live();
 
+        if (name == "RA_B" && !calibrated)
+        {
+            printf("RA_B is not yet calibrated");
+            return;
+        }
+
         uint8_t buffer[4];
         float speed = hardware.throttle(input);
         memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
@@ -112,6 +118,12 @@ void Controller::closed_loop(float torque, float target)
     try
     {
         make_live();
+
+        if (name == "RA_B" && !calibrated)
+        {
+            printf("RA_B is not yet calibrated");
+            return;
+        }
 
         float feed_forward = 0; //torque * torque_scale;
         uint8_t buffer[32];
