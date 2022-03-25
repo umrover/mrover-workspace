@@ -1,12 +1,15 @@
 import asyncio
-from hashlib import new
 import math
+from typing import Final
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
-                        Xbox, Temperature, RAOpenLoopCmd,
-                        SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, FootCmd, ArmControlState, ReverseDrive)
+from rover_msgs import (Joystick, Xbox, Keyboard,
+                        DriveVelCmd, GimbalCmd,
+                        KillSwitch, Temperature,
+                        RAOpenLoopCmd, HandCmd,
+                        SAOpenLoopCmd, FootCmd,
+                        ArmControlState,
+                        AutonDriveControl, ReverseDrive)
 
 
 class Toggle:
@@ -34,11 +37,13 @@ class Toggle:
 lcm_ = aiolcm.AsyncLCM()
 prev_killed = False
 kill_motor = False
-auton_reverse = True
 lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
 connection = None
+
+MAX_SPEED_MS: Final[float] = 2
+TURNING_RADIUS: Final[float] = 0.5
 
 
 def send_drive_kill():
@@ -138,28 +143,55 @@ def drive_control_callback(channel, msg):
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
-def autonomous_callback(channel, msg):
-    global auton_reverse
+class Auton:
+    def __init__(self, reverse):
+        self.reverse = reverse
+        self.vel_left = 0
+        self.vel_right = 0
 
-    input_data = Joystick.decode(msg)
-    drive_command = DriveVelCmd()
+    def reverse_callback(self, channel, msg):
+        self.reverse = ReverseDrive.decode(msg).reverse
 
-    joystick_math(drive_command, input_data.forward_back, input_data.left_right)
+    def scale_drive_velocities(self):
+        # Scale velocities to percentages
+        self.vel_left /= MAX_SPEED_MS
+        self.vel_right /= MAX_SPEED_MS
 
-    if auton_reverse:
-        temp = drive_command.left
-        drive_command.left = drive_command.right
-        drive_command.right = temp
-    else:
-        drive_command.left = -1 * drive_command.left
-        drive_command.right = -1 * drive_command.right
+        # Rover is already in reverse, so reverse if not commanded
+        if not self.reverse:
+            tmp = self.vel_left
+            self.vel_left = -1 * self.vel_right
+            self.vel_right = -1 * tmp
 
-    lcm_.publish('/drive_vel_cmd', drive_command.encode())
+        # If both velocities are within [-1, 1], return
+        if abs(self.vel_left) <= 1 and abs(self.vel_right) <= 1:
+            return
 
+        # Else, scale to be within [-1, 1]
 
-def auton_reverse_callback(channel, msg):
-    global auton_reverse
-    auton_reverse = ReverseDrive.decode(msg).reverse
+        if abs(self.vel_left) > abs(self.vel_right):
+            self.vel_right /= abs(self.vel_left)
+            self.vel_left /= abs(self.vel_left)
+        else:
+            self.vel_left /= abs(self.vel_right)
+            self.vel_right /= abs(self.vel_right)
+
+    def drive_callback(self, channel, msg):
+        input = AutonDriveControl.decode(msg)
+        vel = input.linear_velocity_ms
+        ang_vel = input.angular_velocity_rads
+
+        # Convert arcade drive to tank drive
+        self.vel_left = vel + (TURNING_RADIUS * ang_vel / 2)
+        self.vel_right = vel - (TURNING_RADIUS * ang_vel / 2)
+
+        self.scale_drive_velocities()
+
+        command = DriveVelCmd()
+        command.left = self.vel_left
+        command.right = self.vel_right
+
+        lcm_.publish('/drive_vel_cmd', command.encode())
 
 
 def send_zero_arm_command():
@@ -279,9 +311,12 @@ def gimbal_control_callback(channel, msg):
 def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
+
+    auton = Auton(True)
+
     lcm_.subscribe("/drive_control", drive_control_callback)
-    lcm_.subscribe("/auton_drive_control", autonomous_callback)
-    lcm_.subscribe("/auton_reverse", auton_reverse_callback)
+    lcm_.subscribe("/auton_drive_control", auton.drive_callback)
+    lcm_.subscribe("/auton_reverse", auton.reverse_callback)
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)

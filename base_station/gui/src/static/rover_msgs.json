@@ -77,6 +77,16 @@
             "laser"
         ]
     ],
+    "AutonDriveControl": [
+        [
+            "double",
+            "linear_velocity_ms"
+        ],
+        [
+            "double",
+            "angular_velocity_rads"
+        ]
+    ],
     "AutonState": [
         [
             "boolean",
@@ -150,6 +160,16 @@
         ]
     ],
     "DriveMotors": [
+        [
+            "double",
+            "left"
+        ],
+        [
+            "double",
+            "right"
+        ]
+    ],
+    "DriveVelCmd": [
         [
             "double",
             "left"
@@ -1013,6 +1033,7 @@
         "ArmControlState",
         "ArmPosition",
         "ArmToggles",
+        "AutonDriveControl",
         "AutonState",
         "Bearing",
         "CameraServos",
@@ -1020,6 +1041,7 @@
         "CurrentDraw",
         "DebugMessage",
         "DriveMotors",
+        "DriveVelCmd",
         "Encoder",
         "ESCThrottle",
         "ESCToggle",
@@ -1047,6 +1069,7 @@
         "PresetAngles",
         "ProximitySensors",
         "RepeaterDrop",
+        "ReverseDrive",
         "RGB",
         "RGBFrame",
         "RGBLED",
