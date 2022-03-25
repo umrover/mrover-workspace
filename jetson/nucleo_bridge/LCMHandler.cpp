@@ -76,8 +76,8 @@ void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition
 void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg)
 {
     ControllerMap::controllers["RA_A"]->open_loop(msg->throttle[0] * -1.0);
-    ControllerMap::controllers["RA_B"]->open_loop(msg->throttle[1] * -1.0);
-    ControllerMap::controllers["RA_C"]->open_loop(msg->throttle[2] * -1.0);
+    ControllerMap::controllers["RA_B"]->open_loop(msg->throttle[1] * 1.0);
+    ControllerMap::controllers["RA_C"]->open_loop(msg->throttle[2] * 1.0);
     ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3] * 1.0);
     ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4] * 1.0);
     ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5] * -1.0);
@@ -87,8 +87,8 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
 void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg)
 {
     ControllerMap::controllers["SA_A"]->open_loop(msg->throttle[0] * -1.0);
-    ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1] * -1.0);
-    ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2] * -1.0);
+    ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1] * 1.0);
+    ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2] * 1.0);
     ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3] * 1.0);
     sa_pos_data();
 }
