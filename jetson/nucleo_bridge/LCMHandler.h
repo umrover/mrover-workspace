@@ -22,6 +22,7 @@
 #include <rover_msgs/SAZeroTrigger.hpp>
 #include <rover_msgs/JointBCalibration.hpp>
 #include <rover_msgs/WristTurnCount.hpp>
+#include <rover_msgs/ScoopLimitSwitchEnable.hpp>
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()

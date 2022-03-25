@@ -23,6 +23,7 @@ void LCMHandler::init()
     lcm_bus->subscribe("/mast_gimbal_cmd",      &LCMHandler::InternalHandler::gimbal_cmd,           internal_object);
     lcm_bus->subscribe("/hand_openloop_cmd",    &LCMHandler::InternalHandler::hand_openloop_cmd,    internal_object);
     lcm_bus->subscribe("/foot_openloop_cmd",    &LCMHandler::InternalHandler::foot_openloop_cmd,    internal_object);
+    lcm_bus->subscribe("/scoop_limit_switch_enable_cmd",    &LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd,    internal_object);
     /*
     The following functions may be reimplemented when IK is tested
     lcmBus->subscribe("/ra_config_cmd",         &LCMHandler::InternalHandler::ra_config_cmd,        internal_object);
@@ -86,6 +87,11 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
     ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4]);
     ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
     ra_pos_data();
+}
+
+void LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg)
+{
+    ControllerMap::controllers["FOOT_SCOOP"]->limit_switch_enable(msg->enable);
 }
 
 void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg)
