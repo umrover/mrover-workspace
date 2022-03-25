@@ -23,6 +23,15 @@ const state:RoverState = {
     speed: -1
   },
 
+  realOdom: {
+    latitude_deg: 38,
+    latitude_min: 24.38,
+    longitude_deg: -110,
+    longitude_min: -47.51,
+    bearing_deg: 0,
+    speed: -1
+  },
+
   currSpeed: {
     drive: 2,
     turn: 30
@@ -72,6 +81,8 @@ const state:RoverState = {
 const getters = {
   currOdom: (roverState:RoverState):Odom => roverState.currOdom,
 
+  realOdom: (roverState:RoverState):Odom => roverState.realOdom,
+
   joystick: (roverState:RoverState):Joystick => roverState.joystick,
 
   currSpeed: (roverState:RoverState):Speeds => roverState.currSpeed,
@@ -93,6 +104,10 @@ const getters = {
 const mutations = {
   setCurrOdom: (roverState:RoverState, newOdom:Odom):void => {
     Object.assign(roverState.currOdom, newOdom);
+  },
+
+  setRealOdom: (roverState:RoverState, newOdom:Odom):void => {
+    Object.assign(roverState.realOdom, newOdom);
   },
 
   setCurrSpeed: (roverState:RoverState, newSpeeds:Speeds):void => {

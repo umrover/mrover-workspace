@@ -9,8 +9,6 @@
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/RepeaterDrop.hpp"
-#include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
@@ -60,11 +58,6 @@ enum class NavState
     GateShimmy = 47,
     GateDriveThrough = 48,
 
-    // Radio Repeater States
-    RadioRepeaterTurn = 50,
-    RadioRepeaterDrive = 51,
-    RepeaterDropWait = 52,
-
     // Unknown State
     Unknown = 255
 
@@ -97,9 +90,8 @@ public:
             Obstacle obstacleIn,
             Odometry odometryIn,
             Target targetIn,
-            Target target2In,
-            RadioSignalStrength signalIn
-            );
+            Target target2In
+        );
 
         NavState& currentState();
 
@@ -116,8 +108,6 @@ public:
         Target& target();
 
         Target& target2();
-
-        RadioSignalStrength& radio();
 
         unsigned getPathTargets();
 
@@ -151,9 +141,6 @@ public:
 
         Target mTarget2;
 
-        // the rover's current signal strength to the base station
-        RadioSignalStrength mSignal;
-
         // Total targets to seach for in the course
         unsigned mPathTargets;
     };
@@ -182,10 +169,7 @@ public:
 
     const double longMeterInMinutes() const;
 
-    void updateRepeater( RadioSignalStrength& signal);
-
-    bool isTimeToDropRepeater();
-
+  
 private:
     /*************************************************************************/
     /* Private Member Functions */
@@ -196,7 +180,7 @@ private:
 
     bool isEqual( const Odometry& odometry1, const Odometry& odometry2 ) const;
 
-    bool isEqual( const Target& target1, const Target& target2 ) const;
+    bool isEqual( const Target& target, const Target& target2 ) const;
 
     bool isTurningAroundObstacle( const NavState currentState ) const;
 
@@ -220,8 +204,7 @@ private:
     // The pid loop for turning.
     PidLoop mBearingPid;
 
-    // If it is time to drop a radio repeater
-    bool mTimeToDropRepeater;
+  
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.

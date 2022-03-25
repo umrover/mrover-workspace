@@ -38,18 +38,18 @@ Message: [SAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/ma
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### RA Closed Loop \[Subscriber\] "/ik_ra_control"
-Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
+#### RA Closed Loop \[Subscriber\] "/ra_ik_cmd"
+Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
 Publisher: jetson/kinematics \
 Subscriber: jetson/nucleo_bridge
 
-#### SA Closed Loop \[Subscriber\] "/sa_closedloop_cmd"
-Message: [SAClosedLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAClosedLoopCmd.lcm) \
+#### SA Closed Loop \[Subscriber\] "/sa_ik_cmd"
+Message: [SAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAPosition.lcm) \
 Publisher: jetson/kinematics \
 Subscriber: jetson/nucleo_bridge
 
-#### Gimbal Open Loop \[Subscriber\] "/gimbal_openloop_cmd"
-Message: [GimbalCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/GimbalCmd.lcm) \
+#### Mast Gimbal Open Loop \[Subscriber\] "/mast_gimbal_cmd"
+Message: [MastGimbalCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/MastGimbalCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
@@ -63,8 +63,8 @@ Message: [FootCmd.lcm](https://github.com/raytitan/mrover-workspace/blob/rnucleo
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### RA Pos Data \[Publisher\] "/arm_posiiton"
-Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
+#### RA Pos Data \[Publisher\] "/ra_pos_data"
+Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
 Publisher: jetson/nucleo_bridge \
 Subscriber: jetson/kinematics
 
@@ -114,8 +114,8 @@ There is an issue with mrover-workspace/config/nucleo_bridge/Controller.cpp. Res
 - [ ] Add back in limits 
 - [ ] Try electrical fixes to the pinouts/redo them in software if necessary 
 - [ ] LCM message to teleop about joint B being at its limit or not 
-- [ ] Absolute encoder functionality (potentially will not be implemented) 
-- [ ] Investigate relative and absolute encoder limits (do they ever go above 360/below 0?)  
+- [ ] Joint B new quadrature encoder functionality
+- [ ] Investigate relative and absolute encoder limits (do they ever go above 360/below 0)  
 ### Notes
 
 To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/raytitan/NucleoHAL/tree/master/Core). A README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.

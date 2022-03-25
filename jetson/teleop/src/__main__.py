@@ -4,7 +4,7 @@ from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
-                        SAOpenLoopCmd, GimbalCmd, HandCmd,
+                        SAOpenLoopCmd, MastGimbalCmd, HandCmd,
                         Keyboard, FootCmd, ArmControlState)
 
 
@@ -55,7 +55,7 @@ def send_arm_kill():
 
 def send_sa_kill():
     sa_motor = SAOpenLoopCmd()
-    sa_motor.throttle = [0.0, 0.0, 0.0]
+    sa_motor.throttle = [0.0, 0.0, 0.0, 0.0]
 
     lcm_.publish('/sa_openloop_cmd', sa_motor.encode())
 
@@ -160,13 +160,13 @@ def ra_control_callback(channel, msg):
 
     xboxData = Xbox.decode(msg)
 
-    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
+    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    deadzone(quadratic(xboxData.right_js_y), 0.09),
+                    -deadzone(quadratic(xboxData.right_js_y), 0.09),
                     deadzone(quadratic(xboxData.right_js_x), 0.09),
                     quadratic(xboxData.right_trigger -
                               xboxData.left_trigger),
-                    (xboxData.right_bumper - xboxData.left_bumper)]
+                    -(xboxData.right_bumper - xboxData.left_bumper)]
 
     openloop_msg = RAOpenLoopCmd()
     openloop_msg.throttle = motor_speeds
@@ -233,9 +233,11 @@ async def transmit_drive_status():
 def sa_control_callback(channel, msg):
     xboxData = Xbox.decode(msg)
 
-    saMotorsData = [deadzone(quadratic(xboxData.left_js_x), 0.09),
+    saMotorsData = [-deadzone(quadratic(xboxData.left_js_x), 0.09),
                     -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    -deadzone(quadratic(xboxData.right_js_y), 0.09)]
+                    -deadzone(quadratic(xboxData.right_js_y), 0.09),
+                    quadratic(xboxData.right_trigger -
+                              xboxData.left_trigger)]
 
     openloop_msg = SAOpenLoopCmd()
     openloop_msg.throttle = saMotorsData
@@ -243,25 +245,28 @@ def sa_control_callback(channel, msg):
     lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
 
     foot_msg = FootCmd()
-    foot_msg.claw = xboxData.a - xboxData.y
-    foot_msg.sensor = 0.5 * (xboxData.left_bumper - xboxData.right_bumper)
+    foot_msg.scoop = xboxData.a - xboxData.y
+    foot_msg.microscope_triad = -(xboxData.left_bumper - xboxData.right_bumper)
     lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
 
 def gimbal_control_callback(channel, msg):
     keyboardData = Keyboard.decode(msg)
+    print("mast gimbal call back")
 
-    pitchData = [keyboardData.s - keyboardData.w,
-                 keyboardData.i - keyboardData.k]
+    pitchData = [float(keyboardData.s - keyboardData.w),
+                 float(keyboardData.i - keyboardData.k)]
 
-    yawData = [keyboardData.a - keyboardData.d,
-               keyboardData.j - keyboardData.l]
+    yawData = [float(keyboardData.a - keyboardData.d),
+               float(keyboardData.j - keyboardData.l)]
 
-    gimbal_msg = GimbalCmd()
+    gimbal_msg = MastGimbalCmd()
     gimbal_msg.pitch = pitchData
     gimbal_msg.yaw = yawData
 
-    lcm_.publish('/gimbal_openloop_cmd', gimbal_msg.encode())
+    print("mast gimbal call back end")
+
+    lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
 
 
 def main():
