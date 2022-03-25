@@ -51,7 +51,7 @@ void Controller::make_live()
         ControllerMap::make_live(name);
         
         if (name == "RA_B" || name == "SA_B") {
-            calibrate_joint();
+            // calibrate_joint();
         }
     }
     catch (IOFailure &e)
