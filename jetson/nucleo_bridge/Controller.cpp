@@ -182,6 +182,25 @@ void Controller::zero()
     }
 }
 
+//Sends a limit switch enable command
+void Controller::limit_switch_enable(bool enable)
+{
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+    try
+    {
+        int8_t limit_enabled = enable ? 0xFF : 0x00;
+        transact(LIMIT_ON, nullptr, UINT8_POINTER_T(&limit_enabled));
+    }
+    catch (IOFailure &e)
+    {
+        printf("limit switch enable failed on %s\n", name.c_str());
+    }
+}
+
+
 //Sends a get angle command
 void Controller::angle()
 {
