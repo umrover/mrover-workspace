@@ -89,7 +89,7 @@ void Controller::open_loop(float input)
 
         if (name == "RA_B" && !calibrated)
         {
-            printf("RA_B is not yet calibrated");
+            printf("open loop failed because RA_B is not yet calibrated");
             return;
         }
 
@@ -121,7 +121,7 @@ void Controller::closed_loop(float torque, float target)
 
         if (name == "RA_B" && !calibrated)
         {
-            printf("RA_B is not yet calibrated");
+            printf("closed_loop failed because RA_B is not yet calibrated");
             return;
         }
 
