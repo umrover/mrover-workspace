@@ -196,7 +196,6 @@ void StateMachine::run()
         {
             mStateChanged = true;
             mRover->roverStatus().currentState() = nextState;
-            mRover->distancePid().reset();
             mRover->bearingPid().reset();
         }
         cerr << flush;
