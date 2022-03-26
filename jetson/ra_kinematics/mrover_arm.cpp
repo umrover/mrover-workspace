@@ -171,13 +171,7 @@ void MRoverArm::set_arm_position(std::vector<double> &angles) {
 
 void MRoverArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
     if (control_state == ControlState::OFF) {
-        ArmControlState new_state;
-        new_state.state = "closed-loop";
-
-        lcm_.publish("/arm_control_state_to_gui", &new_state);
-        std::cout << "Changed mode to closed-loop.\n";
-
-        control_state = ControlState::WAITING_FOR_TARGET;
+        set_to_closed_loop();
     }
 
     if (control_state != ControlState::WAITING_FOR_TARGET) {
@@ -502,6 +496,10 @@ void MRoverArm::zero_position_callback(std::string channel, Signal msg) {
 }
 
 void MRoverArm::arm_adjust_callback(std::string channel, ArmAdjustments msg) {
+    if (control_state == ControlState::OFF) {
+        set_to_closed_loop();
+    }
+
     if (control_state != ControlState::WAITING_FOR_TARGET) {
         std::cout << "Received target but not in closed-loop waiting state.\n";
         return;
@@ -593,6 +591,16 @@ void MRoverArm::custom_preset_callback(std::string channel, CustomPreset msg) {
     std::cout << "adding new preset " << msg.preset << "\n";
 }
 
+void MRoverArm::set_to_closed_loop() {
+    ArmControlState new_state;
+    new_state.state = "closed-loop";
+
+    lcm_.publish("/arm_control_state_to_gui", &new_state);
+    std::cout << "Changed mode to closed-loop.\n";
+
+    control_state = ControlState::WAITING_FOR_TARGET;
+}
+
 StandardArm::StandardArm(json &geom, lcm::LCM &lcm) : MRoverArm(geom, lcm) { }
 
 void StandardArm::lock_joints_callback(std::string channel, LockJoints msg) {
@@ -645,6 +653,10 @@ void StandardArm::encoder_angles_sender() {
 }
 
 void StandardArm::go_to_target_angles(RAPosition msg) {
+    if (control_state == ControlState::OFF) {
+        set_to_closed_loop();
+    }
+
     if (control_state != ControlState::WAITING_FOR_TARGET) {
         std::cout << "Received target but not in closed-loop waiting state.\n";
         return;
@@ -765,6 +777,10 @@ void ScienceArm::encoder_angles_sender() {
 }
  
 void ScienceArm::go_to_target_angles(SAPosition msg) {
+    if (control_state == ControlState::OFF) {
+        set_to_closed_loop();
+    }
+
     if (control_state != ControlState::WAITING_FOR_TARGET) {
         std::cout << "Received target but not in closed-loop waiting state.\n";
         return;

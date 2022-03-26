@@ -247,6 +247,8 @@ protected:
     void check_dud_encoder(std::vector<double> &angles) const;
 
     void check_joint_limits(std::vector<double> &angles);
+
+    void set_to_closed_loop();
 };
 
 class StandardArm : public MRoverArm {
