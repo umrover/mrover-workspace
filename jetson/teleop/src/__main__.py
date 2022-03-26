@@ -1,6 +1,5 @@
 import asyncio
 import math
-from typing import Final
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
@@ -41,9 +40,6 @@ lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
 connection = None
-
-MAX_SPEED_MS: Final[float] = 2
-TURNING_RADIUS: Final[float] = 0.5
 
 
 def send_drive_kill():
@@ -143,53 +139,19 @@ def drive_control_callback(channel, msg):
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
-class Auton:
+class Drive:
     def __init__(self, reverse):
         self.reverse = reverse
-        self.vel_left = 0
-        self.vel_right = 0
 
     def reverse_callback(self, channel, msg):
         self.reverse = ReverseDrive.decode(msg).reverse
 
-    def scale_drive_velocities(self):
-        # Scale velocities to percentages
-        self.vel_left /= MAX_SPEED_MS
-        self.vel_right /= MAX_SPEED_MS
-
-        # Rover is already in reverse, so reverse if not commanded
-        if not self.reverse:
-            tmp = self.vel_left
-            self.vel_left = -1 * self.vel_right
-            self.vel_right = -1 * tmp
-
-        # If both velocities are within [-1, 1], return
-        if abs(self.vel_left) <= 1 and abs(self.vel_right) <= 1:
-            return
-
-        # Else, scale to be within [-1, 1]
-
-        if abs(self.vel_left) > abs(self.vel_right):
-            self.vel_right /= abs(self.vel_left)
-            self.vel_left /= abs(self.vel_left)
-        else:
-            self.vel_left /= abs(self.vel_right)
-            self.vel_right /= abs(self.vel_right)
-
-    def drive_callback(self, channel, msg):
+    def auton_drive_callback(self, channel, msg):
         input = AutonDriveControl.decode(msg)
-        vel = input.linear_velocity_ms
-        ang_vel = input.angular_velocity_rads
-
-        # Convert arcade drive to tank drive
-        self.vel_left = vel + (TURNING_RADIUS * ang_vel / 2)
-        self.vel_right = vel - (TURNING_RADIUS * ang_vel / 2)
-
-        self.scale_drive_velocities()
 
         command = DriveVelCmd()
-        command.left = self.vel_left
-        command.right = self.vel_right
+        command.left = input.left_percent_velocity
+        command.right = input.right_percent_velocity
 
         lcm_.publish('/drive_vel_cmd', command.encode())
 
@@ -312,11 +274,10 @@ def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
 
-    auton = Auton(True)
+    drive = Drive(False)
 
     lcm_.subscribe("/drive_control", drive_control_callback)
-    lcm_.subscribe("/auton_drive_control", auton.drive_callback)
-    lcm_.subscribe("/auton_reverse", auton.reverse_callback)
+    lcm_.subscribe("/auton_drive_control", drive.auton_drive_callback)
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)

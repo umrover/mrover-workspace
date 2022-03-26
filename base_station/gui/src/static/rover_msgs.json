@@ -80,11 +80,11 @@
     "AutonDriveControl": [
         [
             "double",
-            "linear_velocity_ms"
+            "left_percent_velocity"
         ],
         [
             "double",
-            "angular_velocity_rads"
+            "right_percent_velocity"
         ]
     ],
     "AutonState": [
