@@ -18,5 +18,4 @@ void SpiralOut::initializeSearch( Rover* rover, const rapidjson::Document& rover
         mSearchPoints.push_back( nextSearchPoint );
     }
     coordinate_file.close();
-    insertIntermediatePoints();
 } // initializeSearch()
