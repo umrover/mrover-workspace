@@ -170,6 +170,9 @@ DriveStatus Rover::drive( const Odometry& destination )
 // on-course or off-course.
 DriveStatus Rover::drive( const double distance, const double bearing, const bool target )
 {
+    //if (target){
+       //std::cout << roverStatus().leftCacheTarget().distance << std::endl;
+   //}
     if( ( !target && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble() ) ||
         ( target && distance < mRoverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble() ) )
     {
@@ -182,6 +185,7 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
     if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() )
     {
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
+        //std::cout << "turning effort TO TARGET: " << turningEffort << std::endl;
         double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
         double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
         publishAutonDriveCmd(left_vel, right_vel);
@@ -201,6 +205,7 @@ void Rover::drive( const int direction, const double bearing )
     double destinationBearing = mod( bearing, 360 );
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg );
     const double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
+    //std::cout << "turning effort: " << turningEffort << std::endl;
     double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
     double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
     publishAutonDriveCmd(left_vel, right_vel);
@@ -241,8 +246,8 @@ bool Rover::turn( double bearing )
     {
         turningEffort = minTurningEffort;
     }
-    double left_vel = min(max(1, turningEffort), -1);
-    double right_vel = min(max(1, -turningEffort), -1);
+    double left_vel = max(min(1.0, turningEffort), -1.0);
+    double right_vel = max(min(1.0, -turningEffort), -1.0);
     publishAutonDriveCmd(left_vel, right_vel);
     return false;
 } // turn()
@@ -390,6 +395,7 @@ void Rover::publishAutonDriveCmd( const double leftVel, const double rightVel)
     AutonDriveControl driveControl;
     driveControl.left_percent_velocity = leftVel;
     driveControl.right_percent_velocity = rightVel;
+    //std::cout << leftVel << " " << rightVel << std::endl;
     string autonDriveControlChannel = mRoverConfig[ "lcmChannels" ][ "autonDriveControlChannel" ].GetString();
     mLcmObject.publish( autonDriveControlChannel, &driveControl) ;
 }

@@ -11,7 +11,7 @@
 #include "rover_msgs/Odometry.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
-#include "rover_msgs/AutonDriveControl.lcm"
+#include "rover_msgs/AutonDriveControl.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
 
@@ -201,8 +201,6 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    void publishJoystick( const double forwardBack, const double leftRight, const bool kill );
-
     void publishAutonDriveCmd( const double leftVel, const double rightVel);
 
     bool isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const;
