@@ -81,6 +81,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     #if PERCEPTION_DEBUG
     // Draw detected tags
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);
+    cv::drawContours(rgb, cv::aruco::getContours(), 3, (0, 255, 0), 3);
     cv::imshow("AR Tags", rgb);
     cv::imshow("Thresholded Mat", cv::aruco::getThresholdedMat());
 
