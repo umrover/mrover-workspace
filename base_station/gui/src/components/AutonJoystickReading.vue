@@ -1,8 +1,8 @@
 <template>
 <div class = "main-content">
- <h4>Joystick Reading</h4>
+ <h4>Auton Commands</h4>
   <div class="joystick-wrap">
-    <span>F_B: {{Joystick.forward_back.toFixed(3)}}<br>L_R: {{Joystick.left_right.toFixed(3)}}</span>
+    <span>Left: {{AutonDriveControl.left_percent_velocity.toFixed(3)}}<br>Right: {{AutonDriveControl.right_percent_velocity.toFixed(3)}}</span>
   </div>
 </div>
 </template>
@@ -10,7 +10,7 @@
 <script>
 export default {
   props: {
-    Joystick: {
+    AutonDriveControl: {
       type: Object,
       required: true
     },
