@@ -182,7 +182,9 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
     if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() )
     {
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
-        publishJoystick( 1.0, turningEffort, false );
+        double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
+        double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
+        publishAutonDriveCmd(left_vel, right_vel);
         return DriveStatus::OnCourse;
     }
     cerr << "offcourse\n";
@@ -199,7 +201,9 @@ void Rover::drive( const int direction, const double bearing )
     double destinationBearing = mod( bearing, 360 );
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg );
     const double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
-    publishJoystick( 1.0, turningEffort, false );
+    double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
+    double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
+    publishAutonDriveCmd(left_vel, right_vel);
 } // drive()
 
 // Sends a joystick command to turn the rover toward the destination
@@ -237,14 +241,16 @@ bool Rover::turn( double bearing )
     {
         turningEffort = minTurningEffort;
     }
-    publishJoystick( 0, turningEffort, false );
+    double left_vel = min(max(1, turningEffort), -1);
+    double right_vel = min(max(1, -turningEffort), -1);
+    publishAutonDriveCmd(left_vel, right_vel);
     return false;
 } // turn()
 
 // Sends a joystick command to stop the rover.
 void Rover::stop()
 {
-    publishJoystick( 0, 0, false );
+    publishAutonDriveCmd(0.0, 0.0);
 } // stop()
 
 // Checks if the rover should be updated based on what information in
@@ -379,21 +385,14 @@ PidLoop& Rover::bearingPid()
     return mBearingPid;
 } // bearingPid()
 
-// Publishes a joystick command with the given forwardBack and
-// leftRight efforts.
-void Rover::publishJoystick( const double forwardBack, const double leftRight, const bool kill )
+void Rover::publishAutonDriveCmd( const double leftVel, const double rightVel)
 {
-    Joystick joystick;
-    // power limit (0 = 50%, 1 = 0%, -1 = 100% power)
-    joystick.dampen = mRoverConfig[ "joystick" ][ "dampen" ].GetDouble();
-    double drivingPower = mRoverConfig[ "joystick" ][ "drivingPower" ].GetDouble();
-    joystick.forward_back = drivingPower * forwardBack;
-    double bearingPower = mRoverConfig[ "joystick" ][ "bearingPower" ].GetDouble();
-    joystick.left_right = bearingPower * leftRight;
-    joystick.kill = kill;
-    string joystickChannel = mRoverConfig[ "lcmChannels" ][ "joystickChannel" ].GetString();
-    mLcmObject.publish( joystickChannel, &joystick );
-} // publishJoystick()
+    AutonDriveControl driveControl;
+    driveControl.left_percent_velocity = leftVel;
+    driveControl.right_percent_velocity = rightVel;
+    string autonDriveControlChannel = mRoverConfig[ "lcmChannels" ][ "autonDriveControlChannel" ].GetString();
+    mLcmObject.publish( autonDriveControlChannel, &driveControl) ;
+}
 
 // Returns true if the two obstacle messages are equal, false
 // otherwise.
