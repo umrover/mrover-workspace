@@ -131,7 +131,6 @@
           {'topic': '/hand_openloop_cmd', 'type': 'HandCmd'},
           {'topic': '/ik_arm_control', 'type': 'IkArmControl'},
           {'topic': '/drive_control', 'type': 'Joystick'},
-          {'topic': '/autonomous', 'type': 'Joystick'},
           {'topic': '/kill_switch', 'type': 'KillSwitch'},
           {'topic': '/locked_joints', 'type': 'LockJoints'},
           {'topic': '/motion_execute', 'type': 'MotionExecute'},
