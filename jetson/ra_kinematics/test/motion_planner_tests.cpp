@@ -53,7 +53,7 @@ TEST(rrt_connect_simple) {
     target[4] = start[4] - 0.1;
     target[5] = start[5] - 0.1;
 
-    ASSERT_TRUE(solver.is_safe(arm, target));   // TODO: fail
+    ASSERT_TRUE(solver.is_safe(arm, target));
 
     std::cout << "entering rrt...\n";
 
@@ -141,7 +141,7 @@ TEST(rrt_connect) {
 
     // set angles and confirm there are no collisions
     std::vector<double> set_angles{1, 0.5, 0, -1, 0, 0};
-    ASSERT_TRUE(solver.is_safe(arm, set_angles));       // TODO: fail
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));
     arm.set_joint_angles(set_angles);
     solver.FK(arm);
 
