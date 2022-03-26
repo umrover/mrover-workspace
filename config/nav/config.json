@@ -56,6 +56,7 @@
 		"repeaterDropInitChannel": "/rr_drop_init",
 		"repeaterDropCompleteChannel": "/rr_drop_complete",
 		"joystickChannel": "/autonomous",
+		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
 		"zedGimbalPosition": "/zed_gimbal_data"
 	},
