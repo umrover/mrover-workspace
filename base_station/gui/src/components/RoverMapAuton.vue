@@ -3,7 +3,7 @@
     <!-- Map goes here       -->
     <l-map ref="map" class="map" :zoom="15" :center="center" v-on:click="getClickedLatLon($event)">
       <l-control-scale :imperial="false"/>
-      <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
+      <l-tile-layer :url="this.online ? this.onlineUrl : this.offlineUrl" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="tangent" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="tangentIcon"/>
       <l-marker ref="target_bearing" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="targetBearingIcon"/>
       <l-marker ref="rover" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="locationIcon"/>
@@ -28,8 +28,13 @@
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
       <l-polyline :lat-lngs="playbackPath" :color="'green'"/>
     </l-map>
-    <div class="slider" v-if="this.playbackEnabled">
-      <input type="range" min="0" :max='this.playbackLength-1' value ='0' v-model='playbackSlider'>
+    <div class="controls">
+      <div v-if="this.playbackEnabled">
+        <input type="range" min="0" :max='this.playbackLength-1' value ='0' v-model='playbackSlider'>
+      </div>
+      <div class="online">
+        <label><input type="checkbox" v-model="online" />Online</label>
+      </div> 
     </div>
   </div>
 </template>
@@ -41,6 +46,8 @@ import L from '../leaflet-rotatedmarker.js'
 
 const MAX_ODOM_COUNT = 1000
 const DRAW_FREQUENCY = 10
+const onlineUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+const offlineUrl = '/static/map/{z}/{x}/{y}.png'
 
 export default {
   name: 'RoverMap',
@@ -151,8 +158,10 @@ export default {
   data () {
     return {
       center: L.latLng(38.406371, -110.791954),
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      online: true,
+      onlineUrl: onlineUrl,
+      offlineUrl: offlineUrl,
       roverMarker: null,
       waypointIcon: null,
       map: null,
@@ -331,8 +340,21 @@ export default {
   grid-area: "map";
 }
 
-.slider {
-  grid-area: "slider";
+.controls {
+  grid-area: "controls";
+  display: inline;
+}
+
+.controls label{
+  font-size: 12px;
+}
+
+.controls div{
+  display: inline-block;
+}
+
+.online{
+  float:right;
 }
 
 .wrap {
@@ -341,11 +363,11 @@ export default {
   display: grid;
   overflow:hidden;
   min-height: 100%;
-  grid-gap: 5px;
+  grid-gap: 3px;
   grid-template-columns: 1fr;
-  grid-template-rows: 96% 4%;
+  grid-template-rows: 94% 6%;
   grid-template-areas:"map" 
-                      "slider";
+                      "controls";
 }
 .custom-tooltip {
     display: inline-block;
