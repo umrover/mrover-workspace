@@ -65,8 +65,7 @@ RUN echo "==================== Installing ZED SDK ====================" && \
     chmod +x ZED_SDK_Linux_Ubuntu18.run && \
     ./ZED_SDK_Linux_Ubuntu18.run -- silent && \
     rm ZED_SDK_Linux_Ubuntu18.run && \
-    cd /usr/local && \
-    chmod a+xwr --preserve-root --recursive zed
+    chmod a+xwr --preserve-root --recursive /usr/local/zed
 
 # GStreamer
 RUN apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
@@ -75,12 +74,22 @@ RUN apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
     gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-x \
     gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
 
-# Install PCL
-RUN apt-get install -y libvtk6-dev libpcl-dev
+# Install VTK 6
+RUN apt-get install -y libvtk6-dev
+
+# Install PCL 11.1, not available via apt
+RUN echo "==================== Building & Installing PCL ====================" && \
+    apt-get install -y libflann-dev libgtest-dev libboost-all-dev && \
+    cd /usr/local && \
+    wget https://codeload.github.com/PointCloudLibrary/pcl/tar.gz/pcl-1.11.1 -qO- | tar xz && \
+    cd pcl-pcl-1.11.1 && \
+    cmake -DCMAKE_BUILD_TYPE=Release . -GNinja -Bbuild && \
+    cd build && \
+    ninja -j $(($(nproc) - 1)) && ninja install && ldconfig && \
+    rm -rf /usr/local/pcl-1.11.1
 
 # Set up ease of use shell tools
 ENV TERM xterm
-ENV ZSH_THEME dstufft
 RUN apt-get install -y zsh net-tools neovim tmux
 RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
 
