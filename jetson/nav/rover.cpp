@@ -5,79 +5,6 @@
 #include <cmath>
 #include <iostream>
 
-// Constructs a rover status object and initializes the navigation
-// state to off.
-Rover::RoverStatus()
-    mAutonState.is_auton = false;
-} // RoverStatus()
-
-// Gets a reference to the rover's current navigation state.
-NavState& Rover::currentState() {
-    return mCurrentState;
-} // currentState()
-
-// Gets a reference to the rover's current auton state.
-AutonState& Rover::autonState() {
-    return mAutonState;
-} // autonState()
-
-// Gets a reference to the rover's current odometry information.
-Odometry& Rover::odometry() {
-    return mOdometry;
-} // odometry()
-
-// Gets a reference to the rover's first target's current information.
-Target& Rover::leftTarget() {
-    return mTargetLeft;
-} // leftTarget()
-
-Target& Rover::RoverStatus::rightTarget() {
-    return mTargetRight;
-} // rightTarget()
-
-Target& Rover::leftCacheTarget() {
-    return mCTargetLeft;
-} // leftCacheTarget()
-
-Target& Rover::rightCacheTarget() {
-    return mCTargetRight;
-} // rightCacheTarget()
-
-unsigned Rover::getPathTargets() {
-    return mPathTargets;
-} // getPathTargets()
-
-int& Rover::getLeftMisses() {
-    return countLeftMisses;
-}
-
-int& Rover::getRightMisses() {
-    return countRightMisses;
-}
-
-int& Rover::getLeftHits() {
-    return mCountLeftHits;
-}
-
-int& Rover::getRightHits() {
-    return mCountRightHits;
-}
-
-// Assignment operator for the rover status object. Does a "deep" copy
-// where necessary.
-Rover::RoverStatus& Rover::RoverStatus::operator=(Rover::RoverStatus& newRoverStatus) {
-    mAutonState = newRoverStatus.autonState();
-    mPathTargets = 0;
-    mOdometry = newRoverStatus.odometry();
-    mTargetLeft = newRoverStatus.leftTarget();
-    mTargetRight = newRoverStatus.rightTarget();
-    mCTargetLeft = newRoverStatus.leftCacheTarget();
-    mCTargetRight = newRoverStatus.rightCacheTarget();
-    countLeftMisses = newRoverStatus.getLeftMisses();
-    countRightMisses = newRoverStatus.getRightMisses();
-    return *this;
-} // operator=
-
 // Constructs a rover object with the given configuration file and lcm
 // object with which to use for communications.
 Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
@@ -97,8 +24,8 @@ Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
 // The return value indicates if the rover has arrived or if it is
 // on-course or off-course.
 DriveStatus Rover::drive(const Odometry& destination) {
-    double distance = estimateNoneuclid(mRoverStatus.odometry(), destination);
-    double bearing = calcBearing(mRoverStatus.odometry(), destination);
+    double distance = estimateNoneuclid(mOdometry, destination);
+    double bearing = calcBearing(mOdometry, destination);
     return drive(distance, bearing, false);
 } // drive()
 
@@ -117,26 +44,26 @@ DriveStatus Rover::drive(const double distance, const double bearing, const bool
     }
 
     double destinationBearing = mod(bearing, 360);
-    throughZero(destinationBearing, mRoverStatus.odometry().bearing_deg); // will go off course if inside if because through zero not calculated
+    throughZero(destinationBearing, mOdometry.bearing_deg); // will go off course if inside if because through zero not calculated
 
-    if (fabs(destinationBearing - mRoverStatus.odometry().bearing_deg) < mRoverConfig["navThresholds"]["drivingBearing"].GetDouble()) {
-        double turningEffort = mBearingPid.update(mRoverStatus.odometry().bearing_deg, destinationBearing);
+    if (fabs(destinationBearing - mOdometry.bearing_deg) < mRoverConfig["navThresholds"]["drivingBearing"].GetDouble()) {
+        double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing);
         publishJoystick(1.0, turningEffort, false);
         return DriveStatus::OnCourse;
     }
-    cerr << "offcourse\n";
+    cerr << "off course\n";
     return DriveStatus::OffCourse;
 } // drive()
 
 // Sends a joystick command to drive in the given direction and to
 // turn in the direction of bearing. Note that this version of drive
-// does not calculate if you have arrive at a specific location and
-// this must be handled outside of this function.
+// does not calculate if you have arrived at a specific location and
+// this must be handled outside this function.
 // The input bearing is an absolute bearing.
 void Rover::drive(const int direction, const double bearing) {
     double destinationBearing = mod(bearing, 360);
-    throughZero(destinationBearing, mRoverStatus.odometry().bearing_deg);
-    const double turningEffort = mBearingPid.update(mRoverStatus.odometry().bearing_deg, destinationBearing);
+    throughZero(destinationBearing, mOdometry.bearing_deg);
+    const double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing);
     publishJoystick(1.0, turningEffort, false);
 } // drive()
 
@@ -144,7 +71,7 @@ void Rover::drive(const int direction, const double bearing) {
 // odometry. Returns true if the rover has finished turning, false
 // otherwise.
 bool Rover::turn(Odometry const& destination) {
-    double bearing = calcBearing(mRoverStatus.odometry(), destination);
+    double bearing = calcBearing(mOdometry, destination);
     return turn(bearing);
 } // turn()
 
@@ -153,19 +80,19 @@ bool Rover::turn(Odometry const& destination) {
 // otherwise.
 bool Rover::turn(double bearing) {
     bearing = mod(bearing, 360);
-    throughZero(bearing, mRoverStatus.odometry().bearing_deg);
+    throughZero(bearing, mOdometry.bearing_deg);
     double turningBearingThreshold;
-    if (isTurningAroundObstacle(mRoverStatus.currentState())) {
+    if (isTurningAroundObstacle(mCurrentState)) {
         turningBearingThreshold = 0;
     } else {
         turningBearingThreshold = mRoverConfig["navThresholds"]["turningBearing"].GetDouble();
     }
-    if (fabs(bearing - mRoverStatus.odometry().bearing_deg) <= turningBearingThreshold) {
+    if (fabs(bearing - mOdometry.bearing_deg) <= turningBearingThreshold) {
         return true;
     }
-    double turningEffort = mBearingPid.update(mRoverStatus.odometry().bearing_deg, bearing);
+    double turningEffort = mBearingPid.update(mOdometry.bearing_deg, bearing);
     double minTurningEffort = mRoverConfig["navThresholds"]["minTurningEffort"].GetDouble() * (turningEffort < 0 ? -1 : 1);
-    if (isTurningAroundObstacle(mRoverStatus.currentState()) && fabs(turningEffort) < minTurningEffort) {
+    if (isTurningAroundObstacle(mCurrentState) && fabs(turningEffort) < minTurningEffort) {
         turningEffort = minTurningEffort;
     }
     publishJoystick(0, turningEffort, false);
@@ -183,11 +110,6 @@ void Rover::stop() {
 double Rover::longMeterInMinutes() const {
     return mLongMeterInMinutes;
 }
-
-// Gets the rover's status object.
-Rover::RoverStatus& Rover::roverStatus() {
-    return mRoverStatus;
-} // roverStatus()
 
 // Gets the rover's driving pid object.
 PidLoop& Rover::distancePid() {
@@ -214,49 +136,71 @@ void Rover::publishJoystick(const double forwardBack, const double leftRight, co
     mLcmObject.publish(joystickChannel, &joystick);
 } // publishJoystick()
 
-// Returns true if the two obstacle messages are equal, false
-// otherwise.
-bool Rover::isEqual(const Obstacle& obstacle1, const Obstacle& obstacle2) const {
-    if (obstacle1.distance == obstacle2.distance &&
-        obstacle1.bearing == obstacle2.bearing) {
-        return true;
-    }
-    return false;
-} // isEqual( Obstacle )
-
-// Returns true if the two odometry messages are equal, false
-// otherwise.
-bool Rover::isEqual(const Odometry& odometry1, const Odometry& odometry2) const {
-    if (odometry1.latitude_deg == odometry2.latitude_deg &&
-        odometry1.latitude_min == odometry2.latitude_min &&
-        odometry1.longitude_deg == odometry2.longitude_deg &&
-        odometry1.longitude_min == odometry2.longitude_min &&
-        odometry1.bearing_deg == odometry2.bearing_deg) {
-        return true;
-    }
-    return false;
-} // isEqual( Odometry )
-
-// Returns true if the two target messages are equal, false
-// otherwise.
-bool Rover::isEqual(const Target& target, const Target& target2) const {
-    if (target.distance == target2.distance &&
-        target.bearing == target2.bearing) {
-        return true;
-    }
-    return false;
-} // isEqual( Target )
-
-// Return true if the current state is TurnAroundObs or SearchTurnAroundObs,
-// false otherwise.
-bool Rover::isTurningAroundObstacle(const NavState currentState) const {
-    if (currentState == NavState::TurnAroundObs ||
-        currentState == NavState::SearchTurnAroundObs) {
-        return true;
-    }
-    return false;
+bool Rover::isTurningAroundObstacle(NavState currentState) {
+    return currentState == NavState::TurnAroundObs || currentState == NavState::SearchTurnAroundObs;
 } // isTurningAroundObstacle()
 
-/*************************************************************************/
-/* TODOS */
-/*************************************************************************/
+// Gets a reference to the rover's current navigation state.
+NavState const& Rover::currentState() const {
+    return mCurrentState;
+} // currentState()
+
+// Gets a reference to the rover's current auton state.
+AutonState const& Rover::autonState() const {
+    return mAutonState;
+} // autonState()
+
+// Gets a reference to the rover's current odometry information.
+Odometry const& Rover::odometry() const {
+    return mOdometry;
+} // odometry()
+
+// Gets a reference to the rover's first target's current information.
+Target const& Rover::leftTarget() const {
+    return mTargetLeft;
+} // leftTarget()
+
+Target const& Rover::rightTarget() const {
+    return mTargetRight;
+} // rightTarget()
+
+Target const& Rover::leftCacheTarget() const {
+    return mCTargetLeft;
+} // leftCacheTarget()
+
+Target const& Rover::rightCacheTarget() const {
+    return mCTargetRight;
+} // rightCacheTarget()
+
+int Rover::getLeftMisses() const {
+    return mCountLeftMisses;
+}
+
+int Rover::getRightMisses() const {
+    return mCountRightMisses;
+}
+
+int Rover::getLeftHits() const {
+    return mCountLeftHits;
+}
+
+int Rover::getRightHits() const {
+    return mCountRightHits;
+}
+
+void Rover::setAutonState(AutonState state) {
+    mAutonState = state;
+}
+
+void Rover::setOdometry(const Odometry& odometry) {
+    mOdometry = odometry;
+}
+
+void Rover::setState(NavState state) {
+    mCurrentState = state;
+}
+
+void Rover::resetMisses() {
+    mCountLeftMisses = 0;
+    mCountRightMisses = 0;
+}

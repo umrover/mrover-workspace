@@ -4,7 +4,7 @@ void CourseProgress::update(Course const& course) {
     mCourse = course;
 }
 
-std::deque<Waypoint> const& CourseProgress::getRemainingWaypoints() const {
+deque <Waypoint> const& CourseProgress::getRemainingWaypoints() const {
     return mRemainingWaypoints;
 }
 

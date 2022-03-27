@@ -2,8 +2,6 @@
 
 #include <memory>
 #include <lcm/lcm-cpp.hpp>
-
-#include "rapidjson/document.h"
 #include "rover.hpp"
 #include "search/searchStateMachine.hpp"
 #include "gate_search/gateStateMachine.hpp"
@@ -11,42 +9,39 @@
 #include "environment.hpp"
 #include "courseState.hpp"
 
+using namespace std;
 using namespace rover_msgs;
 
 // This class implements the logic for the state machine for the
 // autonomous navigation of the rover.
-class StateMachine : std::enable_shared_from_this<StateMachine> {
+class StateMachine : enable_shared_from_this<StateMachine> {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    StateMachine(std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseState, lcm::LCM& lcmObject);
-
-    ~StateMachine();
+    StateMachine(rapidjson::Document& config,
+                 shared_ptr<Rover> rover, shared_ptr<Environment> env, shared_ptr<CourseProgress> courseState,
+                 lcm::LCM& lcmObject);
 
     void run();
 
-    void updateRoverStatus(AutonState autonState);
-
-    void updateRoverStatus(Odometry odometry);
-
     void updateCompletedPoints();
 
-    void updateObstacleAngle(double bearing, double rightBearing);
+    void updateObstacleElements(double leftBearing, double rightBearing, double distance);
 
     void updateObstacleDistance(double distance);
 
-    void setSearcher(SearchType type, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
+    void setSearcher(SearchType type, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
-    std::shared_ptr<Environment> getEnv();
+    shared_ptr<Environment> getEnv();
 
-    std::shared_ptr<CourseProgress> getCourseState();
+    shared_ptr<CourseProgress> getCourseState();
 
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
     // Gate State Machine instance
-    std::shared_ptr<GateStateMachine> mGateStateMachine;
+    shared_ptr<GateStateMachine> mGateStateMachine;
 
 private:
     /*************************************************************************/
@@ -72,27 +67,27 @@ private:
     /* Private Member Variables */
     /*************************************************************************/
     // Rover object to do basic rover operations in the state machine.
-    std::shared_ptr<Rover> mRover;
+    shared_ptr<Rover> mRover;
 
-    std::shared_ptr<Environment> mEnv;
+    shared_ptr<Environment> mEnv;
 
-    std::shared_ptr<CourseProgress> mCourseProgress;
+    shared_ptr<CourseProgress> mCourseProgress;
 
     // Lcm object for sending and receiving messages.
     lcm::LCM& mLcmObject;
 
     // Configuration file for the rover.
-    rapidjson::Document mRoverConfig;
+    rapidjson::Document& mConfig;
 
     // Number of waypoints in course.
-    unsigned mTotalWaypoints;
+    int32_t mTotalWaypoints = 0;
 
     // Number of waypoints completed.
-    unsigned mCompletedWaypoints;
+    int32_t mCompletedWaypoints = 0;
 
     // Search pointer to control search states
-    std::shared_ptr<SearchStateMachine> mSearchStateMachine;
+    shared_ptr<SearchStateMachine> mSearchStateMachine;
 
     // Avoidance pointer to control obstacle avoidance states
-    std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
+    shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
 }; // StateMachine

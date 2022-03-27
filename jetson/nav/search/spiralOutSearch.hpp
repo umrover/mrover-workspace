@@ -1,18 +1,15 @@
-#ifndef SPIRAL_OUT_SEARCH_HPP
-#define SPIRAL_OUT_SEARCH_HPP
+#pragma once
+
+#include <utility>
 
 #include "searchStateMachine.hpp"
 
 class SpiralOut : public SearchStateMachine {
 public:
-    SpiralOut(std::weak_ptr<StateMachine> stateMachine_, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
-            : SearchStateMachine(stateMachine_, rover, roverConfig) {}
+    SpiralOut(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& config)
+            : SearchStateMachine(move(stateMachine), move(rover), config) {}
 
-    ~SpiralOut() override;
-
-    // Initializes the search ponit multipliers to be the intermost loop
+    // Initializes the search point multipliers to be the innermost loop
     // of the search.
-    void initializeSearch(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, double pathWidth) override;
+    void initializeSearch(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, double pathWidth) override;
 };
-
-#endif //SPIRAL_OUT_SEARCH_HPP

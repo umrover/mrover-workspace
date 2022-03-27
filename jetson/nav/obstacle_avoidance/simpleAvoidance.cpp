@@ -1,11 +1,9 @@
-#include "simpleAvoidance.hpp"
-
-#include "stateMachine.hpp"
 #include "utilities.hpp"
+#include "stateMachine.hpp"
+#include "simpleAvoidance.hpp"
 
 #include <cmath>
 #include <utility>
-#include <iostream>
 
 // Constructs a SimpleAvoidance object with the input mStateMachine, rover, and roverConfig.
 // SimpleAvoidance is abstacted from ObstacleAvoidanceStateMachine object so it creates an
@@ -29,7 +27,7 @@ NavState SimpleAvoidance::executeTurnAroundObs(shared_ptr<Rover> rover, const ra
         double distanceAroundObs = mOriginalObstacleDistance /
                                    cos(fabs(degreeToRadian(mOriginalObstacleAngle)));
         mObstacleAvoidancePoint = createAvoidancePoint(rover, distanceAroundObs);
-        if (rover->roverStatus().currentState() == NavState::TurnAroundObs) {
+        if (rover->currentState() == NavState::TurnAroundObs) {
             return NavState::DriveAroundObs;
         }
         mJustDetectedObstacle = false;
@@ -44,11 +42,11 @@ NavState SimpleAvoidance::executeTurnAroundObs(shared_ptr<Rover> rover, const ra
         obstacleBearing *= -1;
     }
 
-    double desiredBearing = mod(rover->roverStatus().odometry().bearing_deg + obstacleBearing, 360);
+    double desiredBearing = mod(rover->odometry().bearing_deg + obstacleBearing, 360);
     mJustDetectedObstacle = true;
     mLastObstacleAngle = obstacleBearing;
     rover->turn(desiredBearing);
-    return rover->roverStatus().currentState();
+    return rover->currentState();
 } // executeTurnAroundObs()
 
 // Drives to dummy waypoint. Once arrived, rover will drive to original waypoint
@@ -56,7 +54,7 @@ NavState SimpleAvoidance::executeTurnAroundObs(shared_ptr<Rover> rover, const ra
 NavState SimpleAvoidance::executeDriveAroundObs(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) {
     shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
     if (isObstacleDetected(rover, env) && isObstacleInThreshold(rover, env, roverConfig)) {
-        if (rover->roverStatus().currentState() == NavState::DriveAroundObs) {
+        if (rover->currentState() == NavState::DriveAroundObs) {
             return NavState::TurnAroundObs;
         }
         return NavState::SearchTurnAroundObs;
@@ -64,15 +62,15 @@ NavState SimpleAvoidance::executeDriveAroundObs(shared_ptr<Rover> rover, const r
 
     DriveStatus driveStatus = rover->drive(mObstacleAvoidancePoint);
     if (driveStatus == DriveStatus::Arrived) {
-        if (rover->roverStatus().currentState() == NavState::DriveAroundObs) {
+        if (rover->currentState() == NavState::DriveAroundObs) {
             return NavState::Turn;
         }
         return NavState::SearchTurn;
     }
     if (driveStatus == DriveStatus::OnCourse) {
-        return rover->roverStatus().currentState();
+        return rover->currentState();
     }
-    if (rover->roverStatus().currentState() == NavState::DriveAroundObs) {
+    if (rover->currentState() == NavState::DriveAroundObs) {
         return NavState::TurnAroundObs;
     }
     return NavState::SearchTurnAroundObs;
@@ -80,15 +78,15 @@ NavState SimpleAvoidance::executeDriveAroundObs(shared_ptr<Rover> rover, const r
 
 // Create the odometry point used to drive around an obstacle
 Odometry SimpleAvoidance::createAvoidancePoint(shared_ptr<Rover> rover, const double distance) {
-    Odometry avoidancePoint = rover->roverStatus().odometry();
+    Odometry avoidancePoint = rover->odometry();
     double totalLatitudeMinutes = avoidancePoint.latitude_min +
                                   cos(degreeToRadian(avoidancePoint.bearing_deg)) * distance * LAT_METER_IN_MINUTES;
     double totalLongitudeMinutes = avoidancePoint.longitude_min +
                                    sin(degreeToRadian(avoidancePoint.bearing_deg)) * distance * rover->longMeterInMinutes();
-    avoidancePoint.latitude_deg += totalLatitudeMinutes / 60;
-    avoidancePoint.latitude_min = (totalLatitudeMinutes - (((int) totalLatitudeMinutes) / 60) * 60);
-    avoidancePoint.longitude_deg += totalLongitudeMinutes / 60;
-    avoidancePoint.longitude_min = (totalLongitudeMinutes - (((int) totalLongitudeMinutes) / 60) * 60);
+    avoidancePoint.latitude_deg += static_cast<int32_t>(totalLatitudeMinutes / 60);
+    avoidancePoint.latitude_min = totalLatitudeMinutes - (totalLatitudeMinutes / 60) * 60;
+    avoidancePoint.longitude_deg += static_cast<int32_t>(totalLongitudeMinutes / 60);
+    avoidancePoint.longitude_min = totalLongitudeMinutes - (totalLongitudeMinutes / 60) * 60;
 
     return avoidancePoint;
 

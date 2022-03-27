@@ -3,10 +3,9 @@
 
 #include "gateStateMachine.hpp"
 
-class DiamondGateSearch : public GateStateMachine
-{
+class DiamondGateSearch : public GateStateMachine {
 public:
-    DiamondGateSearch( std::weak_ptr<StateMachine> stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig );
+    DiamondGateSearch(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
     ~DiamondGateSearch() override;
 

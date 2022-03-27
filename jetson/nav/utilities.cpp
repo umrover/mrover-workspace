@@ -18,16 +18,16 @@ Odometry addMinToDegrees(const Odometry& current, const double lat_minutes, cons
     double total_lat_min = current.latitude_min + lat_minutes;
     int sign_lat = total_lat_min < 0 ? -1 : 1;
     newOdom.latitude_min = mod(fabs(total_lat_min), 60) * sign_lat;
-    newOdom.latitude_deg += (total_lat_min) / 60;
+    newOdom.latitude_deg += static_cast<int32_t>(total_lat_min) / 60;
     double total_lon_min = current.longitude_min + lon_minutes;
     int sign_lon = total_lon_min < 0 ? -1 : 1;
     newOdom.longitude_min = mod(fabs(total_lon_min), 60) * sign_lon;
-    newOdom.longitude_deg += (total_lon_min) / 60;
+    newOdom.longitude_deg += static_cast<int32_t>(total_lon_min) / 60;
 
     return newOdom;
 }
 
-// Caclulates the non-euclidean distance between the current odometry and the
+// Calculates the non-euclidean distance between the current odometry and the
 // destination odometry.
 double estimateNoneuclid(const Odometry& current, const Odometry& dest) {
     double currentLat = degreeToRadian(current.latitude_deg, current.latitude_min);
@@ -42,7 +42,7 @@ double estimateNoneuclid(const Odometry& current, const Odometry& dest) {
 
 // create a new Odometry point at a bearing and distance from a given odometry point
 // Note this uses the absolute bearing not a bearing relative to the rover.
-Odometry createOdom(const Odometry& current, double bearing, const double distance, shared_ptr<Rover> rover) {
+Odometry createOdom(const Odometry& current, double bearing, const double distance, const shared_ptr<Rover>& rover) {
     bearing = degreeToRadian(bearing);
     double latChange = distance * cos(bearing) * LAT_METER_IN_MINUTES;
     double lonChange = distance * sin(bearing) * rover->longMeterInMinutes();
@@ -50,7 +50,7 @@ Odometry createOdom(const Odometry& current, double bearing, const double distan
     return newOdom;
 }
 
-// Caclulates the bearing between the current odometry and the
+// Calculates the bearing between the current odometry and the
 // destination odometry.
 double calcBearing(const Odometry& start, const Odometry& dest) {
     double currentLat = degreeToRadian(start.latitude_deg, start.latitude_min);
@@ -97,21 +97,22 @@ void throughZero(double& destinationBearing, const double currentBearing) {
 // Checks to see if target is reachable before hitting obstacle
 // If the x component of the distance to obstacle is greater than
 // half the width of the rover the obstacle if reachable
-bool isTargetReachable(std::shared_ptr<Rover> rover, shared_ptr<Environment> env, const rapidjson::Document& roverConfig) {
-    double distToTarget = rover->roverStatus().leftCacheTarget().distance;
+bool isTargetReachable(const shared_ptr<Rover>& rover, const shared_ptr<Environment>& env, const rapidjson::Document& roverConfig) {
+    double distToTarget = rover->leftCacheTarget().distance;
     double distThresh = roverConfig["navThresholds"]["targetDistance"].GetDouble();
     return isLocationReachable(rover, env, roverConfig, distToTarget, distThresh);
-} // istargetReachable()
+} // isTargetReachable()
 
 // Returns true if the rover can reach the input location without hitting the obstacle.
 // ASSUMPTION: There is an obstacle detected.
 // ASSUMPTION: The rover is driving straight.
 bool isLocationReachable(
-        shared_ptr<Rover> rover, shared_ptr<Environment> env, const rapidjson::Document& roverConfig, const double locDist, const double distThresh
+        const shared_ptr<Rover>& rover, const shared_ptr<Environment>& env, const rapidjson::Document& roverConfig,
+        double locDist, double distThresh
 ) {
     Obstacle const& obstacle = env->getObstacle();
     double distToObs = obstacle.distance;
-    double bearToObs = std::min(obstacle.bearing, obstacle.rightBearing);
+    double bearToObs = min(obstacle.bearing, obstacle.rightBearing);
     double bearToObsComplement = 90 - bearToObs;
     double xComponentOfDistToObs = distToObs * cos(bearToObsComplement);
 
@@ -127,11 +128,11 @@ bool isLocationReachable(
 } // isLocationReachable()
 
 // Returns true if an obstacle is detected, false otherwise.
-bool isObstacleDetected(shared_ptr<Rover> rover, shared_ptr<Environment> env) {
+bool isObstacleDetected(const shared_ptr<Rover>& rover, const shared_ptr<Environment>& env) {
     return env->getObstacle().distance >= 0;
 } // isObstacleDetected()
 
 // Returns true if distance from obstacle is within user-configurable threshold
-bool isObstacleInThreshold(shared_ptr<Rover> rover, shared_ptr<Environment> env, const rapidjson::Document& roverConfig) {
+bool isObstacleInThreshold(const shared_ptr<Rover>& rover, const shared_ptr<Environment>& env, const rapidjson::Document& roverConfig) {
     return env->getObstacle().distance <= roverConfig["navThresholds"]["obstacleDistanceThreshold"].GetDouble();
 } // isObstacleInThreshold()

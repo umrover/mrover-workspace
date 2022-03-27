@@ -6,7 +6,9 @@
 
 #include "../rover.hpp"
 #include "rover_msgs/Odometry.hpp"
-// #include "../gate_search/gateStateMachine.hpp"
+
+using namespace std;
+using namespace rover_msgs;
 
 class StateMachine;
 
@@ -15,7 +17,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    GateStateMachine(std::weak_ptr<StateMachine> stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
+    GateStateMachine(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
     virtual ~GateStateMachine();
 
@@ -89,13 +91,13 @@ protected:
     /* Protected Member Variables */
     /*************************************************************************/
     // Pointer to rover object
-    std::shared_ptr<Rover> mRover;
+    shared_ptr<Rover> mRover;
 
     // Pointer to rover State Machine to access member functions
-    std::weak_ptr<StateMachine> mStateMachine;
+    weak_ptr<StateMachine> mStateMachine;
 };
 
-std::shared_ptr<GateStateMachine>
-GateFactory(std::weak_ptr<StateMachine> stateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
+shared_ptr<GateStateMachine>
+GateFactory(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
 #endif //GATE_STATE_MACHINE_HPP

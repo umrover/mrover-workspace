@@ -5,17 +5,17 @@
 #include <iostream>
 #include <cmath>
 
-DiamondGateSearch::DiamondGateSearch(std::weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
+DiamondGateSearch::DiamondGateSearch(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
         : GateStateMachine(stateMachine, rover, roverConfig) {}
 
 DiamondGateSearch::~DiamondGateSearch() = default;
 
 void DiamondGateSearch::initializeSearch() {
 //    mGateSearchPoints.clear();
-//    Odometry currOdom = mRover->roverStatus().odometry();
-//    double diamondWidth = mRover->roverStatus().path().front().gate_width * 1.5;
-//    const double targetBearing = mRover->roverStatus().leftCacheTarget().bearing;
-//    const double targetDist = mRover->roverStatus().leftCacheTarget().distance;
+//    Odometry currOdom = mRover->odometry();
+//    double diamondWidth = mRover->path().front().gate_width * 1.5;
+//    const double targetBearing = mRover->leftCacheTarget().bearing;
+//    const double targetDist = mRover->leftCacheTarget().distance;
 //
 //    // TODO: make figure explaining this in drive and link here
 //    double distance = sqrt(pow(targetDist, 2) + pow(diamondWidth, 2));

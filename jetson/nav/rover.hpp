@@ -17,7 +17,6 @@
 #include "pid.hpp"
 
 using namespace rover_msgs;
-using namespace std;
 
 // This class is the representation of the navigation states.
 enum class NavState {
@@ -94,6 +93,35 @@ public:
 
     double longMeterInMinutes() const;
 
+    NavState const& currentState() const;
+
+    AutonState const& autonState() const;
+
+    Odometry const& odometry() const;
+
+    Target const& leftTarget() const;
+
+    Target const& rightTarget() const;
+
+    Target const& leftCacheTarget() const;
+
+    Target const& rightCacheTarget() const;
+
+    int getLeftMisses() const;
+
+    int getRightMisses() const;
+
+    int getLeftHits() const;
+
+    int getRightHits() const;
+
+    void setAutonState(AutonState state);
+
+    void setOdometry(Odometry const& odometry);
+
+    void setState(NavState state);
+
+    void resetMisses();
 
 private:
     /*************************************************************************/
@@ -101,7 +129,7 @@ private:
     /*************************************************************************/
     void publishJoystick(double forwardBack, double leftRight, bool kill);
 
-    bool isTurningAroundObstacle(NavState currentState) const;
+    static bool isTurningAroundObstacle(NavState currentState);
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -125,7 +153,7 @@ private:
     double mLongMeterInMinutes;
 
     // The rover's current navigation state.
-    NavState mCurrentState;
+    NavState mCurrentState{NavState::Off};
 
     // The rover's current auton state.
     AutonState mAutonState{};
@@ -139,17 +167,14 @@ private:
 
     // The rover's current target information from computer
     // vision.
-    Target mTargetLeft;
+    Target mTargetLeft{-1.0, 0.0, 0};
 
-    Target mTargetRight;
+    Target mTargetRight{-1.0, 0.0, 0};;
 
     // Cached Target information
-    Target mCTargetLeft;
+    Target mCTargetLeft{-1.0, 0.0, 0};;
 
-    Target mCTargetRight;
-
-    // Total targets to search for in the course
-    unsigned mPathTargets{};
+    Target mCTargetRight{-1.0, 0.0, 0};;
 
     // Count of misses with cache
     int mCountLeftMisses = 0;

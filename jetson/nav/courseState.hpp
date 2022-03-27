@@ -3,6 +3,7 @@
 #include <deque>
 #include "rover_msgs/Course.hpp"
 
+using namespace std;
 using namespace rover_msgs;
 
 /**
@@ -11,12 +12,12 @@ using namespace rover_msgs;
 class CourseProgress {
 private:
     Course mCourse;
-    std::deque<Waypoint> mRemainingWaypoints;
+    deque<Waypoint> mRemainingWaypoints;
 
 public:
     void update(Course const& course);
 
-    std::deque<Waypoint> const& getRemainingWaypoints() const;
+    deque<Waypoint> const& getRemainingWaypoints() const;
 
     void completeCurrentWaypoint();
 

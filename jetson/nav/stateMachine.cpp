@@ -19,28 +19,13 @@
 // Reads the configuartion file and constructs a Rover objet with this
 // and the lcmObject. Sets mStateChanged to true so that on the first
 // iteration of run the rover is updated.
-StateMachine::StateMachine(std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseState, lcm::LCM& lcmObject) :
-        mEnv(move(env)), mCourseProgress(move(courseState)),
-        mLcmObject(lcmObject),
-        mTotalWaypoints(0), mCompletedWaypoints(0) {
-    ifstream configFile;
-    string configPath = getenv("MROVER_CONFIG");
-    configPath += "/nav/config.json";
-    configFile.open(configPath);
-    if (!configFile) {
-        throw runtime_error("Could not open config file at: " + configPath);
-    }
-    rapidjson::IStreamWrapper isw(configFile);
-    mRoverConfig.ParseStream(isw);
-    mRover = make_shared<Rover>(mRoverConfig, lcmObject);
-    mSearchStateMachine = SearchFactory(weak_from_this(), SearchType::SPIRALOUT, mRover, mRoverConfig);
-    mGateStateMachine = GateFactory(weak_from_this(), mRover, mRoverConfig);
-    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory(weak_from_this(), ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mRoverConfig);
+StateMachine::StateMachine(
+        rapidjson::Document& config, shared_ptr<Rover> rover, shared_ptr<Environment> env, shared_ptr<CourseProgress> courseState, lcm::LCM& lcmObject
+) : mConfig(config), mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseState)), mLcmObject(lcmObject) {
+    mSearchStateMachine = SearchFactory(weak_from_this(), SearchType::SPIRALOUT, mRover, mConfig);
+    mGateStateMachine = GateFactory(weak_from_this(), mRover, mConfig);
+    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory(weak_from_this(), ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mConfig);
 } // StateMachine()
-
-// Destructs the StateMachine object. Deallocates memory for the Rover
-// object.
-StateMachine::~StateMachine() = default;
 
 void StateMachine::setSearcher(SearchType type, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) {
     assert(mSearchStateMachine);
@@ -53,20 +38,14 @@ void StateMachine::updateCompletedPoints() {
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleAngle(double bearing, double rightBearing) {
-    mObstacleAvoidanceStateMachine->updateObstacleAngle(bearing, rightBearing);
-}
-
-// Allows outside objects to set the original obstacle angle
-// This will allow the variable to be set before the rover turns
 void StateMachine::updateObstacleDistance(double distance) {
     mObstacleAvoidanceStateMachine->updateObstacleDistance(distance);
 }
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleElements(double bearing, double rightBearing, double distance) {
-    updateObstacleAngle(bearing, rightBearing);
+void StateMachine::updateObstacleElements(double leftBearing, double rightBearing, double distance) {
+    mObstacleAvoidanceStateMachine->updateObstacleAngle(leftBearing, rightBearing);
     updateObstacleDistance(distance);
 }
 
@@ -77,17 +56,16 @@ void StateMachine::run() {
     publishNavState();
     NavState nextState = NavState::Unknown;
 
-    if (!mRover->roverStatus().autonState().is_auton) {
+    if (!mRover->autonState().is_auton) {
         nextState = NavState::Off;
-        mRover->roverStatus().currentState() = executeOff(); // turn off immediately
+        mRover->setState(executeOff()); // turn off immediately
         mCourseProgress->clearProgress();
-        if (nextState != mRover->roverStatus().currentState()) {
-            mRover->roverStatus().currentState() = nextState;
-            mStateChanged = true;
+        if (nextState != mRover->currentState()) {
+            mRover->setState(nextState);
         }
         return;
     }
-    switch (mRover->roverStatus().currentState()) {
+    switch (mRover->currentState()) {
         case NavState::Off: {
             nextState = executeOff();
             break;
@@ -129,10 +107,10 @@ void StateMachine::run() {
         }
 
         case NavState::ChangeSearchAlg: {
-            static double visionDistance = mRoverConfig["computerVision"]["visionDistance"].GetDouble();
-            setSearcher(SearchType::SPIRALOUT, mRover, mRoverConfig);
+            static double visionDistance = mConfig["computerVision"]["visionDistance"].GetDouble();
+            setSearcher(SearchType::SPIRALOUT, mRover, mConfig);
 
-            mSearchStateMachine->initializeSearch(mRover, mRoverConfig, visionDistance);
+            mSearchStateMachine->initializeSearch(mRover, mConfig, visionDistance);
             nextState = NavState::SearchTurn;
             break;
         }
@@ -158,25 +136,13 @@ void StateMachine::run() {
         }
     } // switch
 
-    if (nextState != mRover->roverStatus().currentState()) {
-        mStateChanged = true;
-        mRover->roverStatus().currentState() = nextState;
+    if (nextState != mRover->currentState()) {
+        mRover->setState(nextState);
         mRover->distancePid().reset();
         mRover->bearingPid().reset();
     }
     cerr << flush;
 } // run()
-
-// Updates the auton state (on/off) of the rover's status.
-void StateMachine::updateRoverStatus(AutonState autonState) {
-    mNewRoverStatus.autonState() = autonState;
-} // updateRoverStatus( AutonState )
-
-// Updates the odometry information of the rover's status.
-void StateMachine::updateRoverStatus(Odometry odometry) {
-    mNewRoverStatus.odometry() = odometry;
-} // updateRoverStatus( Odometry )
-
 
 // Publishes the current navigation state to the nav status lcm channel.
 void StateMachine::publishNavState() const {
@@ -184,7 +150,7 @@ void StateMachine::publishNavState() const {
     navStatus.nav_state_name = stringifyNavState();
     navStatus.completed_wps = mCompletedWaypoints;
     navStatus.total_wps = mTotalWaypoints;
-    const string& navStatusChannel = mRoverConfig["lcmChannels"]["navStatusChannel"].GetString();
+    const string& navStatusChannel = mConfig["lcmChannels"]["navStatusChannel"].GetString();
     mLcmObject.publish(navStatusChannel, &navStatus);
 } // publishNavState()
 
@@ -193,7 +159,7 @@ void StateMachine::publishNavState() const {
 // the course otherwise it will turn to the first waypoing. Else the
 // rover is still off.
 NavState StateMachine::executeOff() {
-    if (mRover->roverStatus().autonState().is_auton) {
+    if (mRover->autonState().is_auton) {
         mCompletedWaypoints = 0;
         mTotalWaypoints = mCourseProgress->getRemainingWaypoints().size();
 
@@ -237,11 +203,11 @@ NavState StateMachine::executeTurn() {
 // it goes to turn around it. Else the rover keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive() {
     Waypoint const& nextWaypoint = mCourseProgress->getRemainingWaypoints().front();
-    double distance = estimateNoneuclid(mRover->roverStatus().odometry(), nextWaypoint.odom);
+    double distance = estimateNoneuclid(mRover->odometry(), nextWaypoint.odom);
 
     if (isObstacleDetected(mRover, getEnv())
         && !isWaypointReachable(distance)
-        && isObstacleInThreshold(mRover, getEnv(), mRoverConfig)) {
+        && isObstacleInThreshold(mRover, getEnv(), mConfig)) {
         mObstacleAvoidanceStateMachine->updateObstacleElements(mEnv->getObstacle().bearing,
                                                                mEnv->getObstacle().rightBearing,
                                                                getOptimalAvoidanceDistance());
@@ -267,7 +233,7 @@ NavState StateMachine::executeDrive() {
 
 // Gets the string representation of a nav state.
 string StateMachine::stringifyNavState() const {
-    static const map<NavState, std::string> navStateNames =
+    static const map<NavState, string> navStateNames =
             {
                     {NavState::Off,                  "Off"},
                     {NavState::Done,                 "Done"},
@@ -298,23 +264,23 @@ string StateMachine::stringifyNavState() const {
                     {NavState::Unknown,              "Unknown"}
             };
 
-    return navStateNames.at(mRover->roverStatus().currentState());
+    return navStateNames.at(mRover->currentState());
 } // stringifyNavState()
 
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceDistance() const {
-    return mEnv->getObstacle().distance + mRoverConfig["navThresholds"]["waypointDistance"].GetDouble();
+    return mEnv->getObstacle().distance + mConfig["navThresholds"]["waypointDistance"].GetDouble();
 } // optimalAvoidanceAngle()
 
 bool StateMachine::isWaypointReachable(double distance) {
-    return isLocationReachable(mRover, mEnv, mRoverConfig, distance, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
+    return isLocationReachable(mRover, mEnv, mConfig, distance, mConfig["navThresholds"]["waypointDistance"].GetDouble());
 }
 
-std::shared_ptr<Environment> StateMachine::getEnv() {
+shared_ptr<Environment> StateMachine::getEnv() {
     return mEnv;
 }
 
-std::shared_ptr<CourseProgress> StateMachine::getCourseState() {
+shared_ptr<CourseProgress> StateMachine::getCourseState() {
     return mCourseProgress;
 }
 
