@@ -22,4 +22,5 @@
       - libgirepository1.0-dev
       - gfortran
       - xdotool
+      - libeigen3-dev
     state: present

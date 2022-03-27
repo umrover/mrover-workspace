@@ -1,2 +1,2 @@
 numpy==1.16.2
-odrive==0.5.4
+odrive==0.5.1

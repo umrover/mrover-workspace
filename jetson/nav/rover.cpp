@@ -138,9 +138,6 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
 Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
     : mRoverConfig( config )
     , mLcmObject( lcmObject )
-    , mDistancePid( config[ "distancePid" ][ "kP" ].GetDouble(),
-                    config[ "distancePid" ][ "kI" ].GetDouble(),
-                    config[ "distancePid" ][ "kD" ].GetDouble() )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
@@ -366,12 +363,6 @@ Rover::RoverStatus& Rover::roverStatus()
 {
     return mRoverStatus;
 } // roverStatus()
-
-// Gets the rover's driving pid object.
-PidLoop& Rover::distancePid()
-{
-    return mDistancePid;
-} // distancePid()
 
 // Gets the rover's turning pid object.
 PidLoop& Rover::bearingPid()
