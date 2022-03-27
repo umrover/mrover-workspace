@@ -3,6 +3,7 @@
 
 #include <lcm/lcm-cpp.hpp>
 #include <queue>
+#include <memory>
 
 #include "rover_msgs/AutonState.hpp"
 #include "rover_msgs/Bearing.hpp"
@@ -12,6 +13,8 @@
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
+#include "course_state.hpp"
+#include "environment.hpp"
 #include "pid.hpp"
 
 using namespace rover_msgs;
@@ -80,12 +83,6 @@ public:
         NavState& currentState();
 
         AutonState& autonState();
-
-        Course& course();
-
-        deque<Waypoint>& path();
-
-        Obstacle& obstacle();
 
         Odometry& odometry();
 
@@ -162,7 +159,7 @@ public:
 
     void stop();
 
-    bool updateRover(RoverStatus newRoverStatus);
+    bool updateRover(RoverStatus newRoverStatus, std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> course);
 
     RoverStatus& roverStatus();
 

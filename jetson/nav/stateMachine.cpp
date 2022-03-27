@@ -20,7 +20,7 @@
 // and the lcmObject. Sets mStateChanged to true so that on the first
 // iteration of run the rover is updated.
 StateMachine::StateMachine(std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseState, lcm::LCM& lcmObject) :
-        mEnv(move(env)), mCourseState(move(courseState)),
+        mEnv(move(env)), mCourseProgress(move(courseState)),
         mLcmObject(lcmObject),
         mTotalWaypoints(0), mCompletedWaypoints(0),
         mStateChanged(true) {
@@ -83,7 +83,7 @@ void StateMachine::run() {
         if (!mRover->roverStatus().autonState().is_auton) {
             nextState = NavState::Off;
             mRover->roverStatus().currentState() = executeOff(); // turn off immediately
-            mCourseState->clearProgress();
+            mCourseProgress->clearProgress();
             if (nextState != mRover->roverStatus().currentState()) {
                 mRover->roverStatus().currentState() = nextState;
                 mStateChanged = true;
@@ -191,7 +191,7 @@ void StateMachine::updateRoverStatus(Odometry odometry) {
 // otherwise.
 bool StateMachine::isRoverReady() const {
     return mStateChanged || // internal data has changed
-           mRover->updateRover(mNewRoverStatus) || // external data has changed
+           mRover->updateRover(mNewRoverStatus, mEnv, mCourseProgress) || // external data has changed
            mRover->roverStatus().currentState() == NavState::GateSpinWait;
 
 } // isRoverReady()
@@ -213,7 +213,7 @@ void StateMachine::publishNavState() const {
 NavState StateMachine::executeOff() {
     if (mRover->roverStatus().autonState().is_auton) {
         mCompletedWaypoints = 0;
-        mTotalWaypoints = mCourseState->getRemainingWaypoints().size();
+        mTotalWaypoints = mCourseProgress->getRemainingWaypoints().size();
 
         if (!mTotalWaypoints) {
             return NavState::Done;
@@ -235,11 +235,11 @@ NavState StateMachine::executeDone() {
 // proceeds to Off. If the rover finishes turning, it drives to the
 // next Waypoint. Else the rover keeps turning to the Waypoint.
 NavState StateMachine::executeTurn() {
-    if (mCourseState->getRemainingWaypoints().empty()) {
+    if (mCourseProgress->getRemainingWaypoints().empty()) {
         return NavState::Done;
     }
 
-    Odometry const& nextPoint = mCourseState->getRemainingWaypoints().front().odom;
+    Odometry const& nextPoint = mCourseProgress->getRemainingWaypoints().front().odom;
     if (mRover->turn(nextPoint)) {
         return NavState::Drive;
     }
@@ -254,7 +254,7 @@ NavState StateMachine::executeTurn() {
 // detects an obstacle and is within the obstacle distance threshold, 
 // it goes to turn around it. Else the rover keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive() {
-    Waypoint const& nextWaypoint = mCourseState->getRemainingWaypoints().front();
+    Waypoint const& nextWaypoint = mCourseProgress->getRemainingWaypoints().front();
     double distance = estimateNoneuclid(mRover->roverStatus().odometry(), nextWaypoint.odom);
 
     if (isObstacleDetected(mRover, getEnv())
@@ -270,7 +270,7 @@ NavState StateMachine::executeDrive() {
         if (nextWaypoint.search || nextWaypoint.gate) {
             return NavState::ChangeSearchAlg;
         }
-        mCourseState->completeCurrentWaypoint();
+        mCourseProgress->completeCurrentWaypoint();
 
         ++mCompletedWaypoints;
         return NavState::Turn;
@@ -333,7 +333,7 @@ std::shared_ptr<Environment> StateMachine::getEnv() {
 }
 
 std::shared_ptr<CourseProgress> StateMachine::getCourseState() {
-    return mCourseState;
+    return mCourseProgress;
 }
 
 // isWaypointReachable

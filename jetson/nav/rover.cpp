@@ -189,7 +189,7 @@ void Rover::stop() {
 // updated, false otherwise.
 // TODO: unconditionally update everything. When abstracting search class
 // we got rid of NavStates TurnToTarget and DriveToTarget (oops) fix this soon :P
-bool Rover::updateRover(RoverStatus newRoverStatus) {
+bool Rover::updateRover(RoverStatus newRoverStatus, shared_ptr<Environment> env, shared_ptr<CourseProgress> course) {
     // Rover currently on.
     if (mRoverStatus.autonState().is_auton) {
         // Rover turned off
@@ -199,11 +199,9 @@ bool Rover::updateRover(RoverStatus newRoverStatus) {
         }
 
         // If any data has changed, update all data
-        if (!isEqual(mRoverStatus.obstacle(), newRoverStatus.obstacle()) ||
-            !isEqual(mRoverStatus.odometry(), newRoverStatus.odometry()) ||
+        if (!isEqual(mRoverStatus.odometry(), newRoverStatus.odometry()) ||
             !isEqual(mRoverStatus.leftTarget(), newRoverStatus.leftTarget()) ||
             !isEqual(mRoverStatus.rightTarget(), newRoverStatus.rightTarget())) {
-            mRoverStatus.obstacle() = Obstacle(newRoverStatus.obstacle());
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
@@ -212,7 +210,7 @@ bool Rover::updateRover(RoverStatus newRoverStatus) {
             if (mRoverStatus.leftTarget().distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
 
                 // Associate with single post
-                if (mRoverStatus.leftTarget().id == mRoverStatus.path().front().id) {
+                if (mRoverStatus.leftTarget().id == course->getCourse().waypoints.front().id) {
                     mRoverStatus.getLeftHits()++;
                 } else {
                     mRoverStatus.getLeftHits() = 0;

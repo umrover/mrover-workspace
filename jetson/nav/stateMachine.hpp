@@ -81,7 +81,7 @@ private:
 
     std::shared_ptr<Environment> mEnv;
 
-    std::shared_ptr<CourseProgress> mCourseState;
+    std::shared_ptr<CourseProgress> mCourseProgress;
 
     // RoverStatus object for updating the rover's status.
     Rover::RoverStatus mNewRoverStatus;
