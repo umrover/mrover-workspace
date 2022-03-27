@@ -147,6 +147,7 @@
           {'topic': '/nav_status', 'type': 'NavStatus'},
           {'topic': '/obstacle', 'type': 'Obstacle'},
           {'topic': '/odometry', 'type': 'Odometry'},
+          {'topic': '/pdb_data', 'type': 'PDBData'},
           {'topic': '/pi_camera', 'type': 'PiCamera'},
           {'topic': '/pi_settings', 'type': 'PiSettings'},
           {'topic': '/preset_angles', 'type': 'PresetAngles'},
