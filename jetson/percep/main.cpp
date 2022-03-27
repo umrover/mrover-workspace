@@ -3,6 +3,7 @@
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
 #include <deque>
+#include <iostream>
 
 using namespace cv;
 using namespace std;
@@ -88,6 +89,9 @@ int main() {
     cam.record_ar_init();
     #endif
 
+    /* --- AR Tag Debugging --- */
+    bool entering_input = false;
+
   /* --- Main Processing Stuff --- */
   while (true) {
         //Check to see if we were able to grab the frame
@@ -129,6 +133,15 @@ int main() {
             detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
 
         #if PERCEPTION_DEBUG && AR_DETECTION
+            if (cvWaitKey(1) == 13) entering_input = true;
+            if (entering_input) {
+                cout << "parameterName value\n";
+                string paramStr;
+                string valStr;
+                cin >> paramStr >> valStr;
+                detector.setParam(paramStr, stod(valStr));
+                entering_input = false;
+            }
             imshow("depth", src);
             waitKey(1);  
         #endif

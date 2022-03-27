@@ -38,6 +38,8 @@ class TagDetector {
     //finds the angle from center given pixel coordinates              
     double getAngle(float xPixel, float wPixel);     
     //if AR tag found, updates distance, bearing, and id                              
-    void updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src); 
-    
+    void updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src);
+
+    //set params from string
+    void setParam(const string& paramStr, double datum);
 };

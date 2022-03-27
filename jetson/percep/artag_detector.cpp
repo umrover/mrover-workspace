@@ -81,7 +81,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     #if PERCEPTION_DEBUG
     // Draw detected tags
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);
-    cv::drawContours(rgb, cv::aruco::getContours(), 3, (0, 255, 0), 3);
+    // cv::drawContours(rgb, cv::aruco::getContours(), 3, (0, 255, 0), 3);
     cv::imshow("AR Tags", rgb);
     cv::imshow("Thresholded Mat", cv::aruco::getThresholdedMat());
 
@@ -180,3 +180,27 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
   }
 }
 
+
+// set a parameter from string
+void TagDetector::setParam(const string& paramStr, double datum) {
+    if(paramStr ==  "adaptiveThreshWinSizeMin")                     alvarParams->adaptiveThreshWinSizeMin = datum;
+    else if(paramStr ==  "adaptiveThreshWinSizeStep")               alvarParams->adaptiveThreshWinSizeStep = datum;
+    else if(paramStr ==  "adaptiveThreshWinSizeMax")                alvarParams->adaptiveThreshWinSizeMax = datum;
+    else if(paramStr ==  "adaptiveThreshConstant")                  alvarParams->adaptiveThreshConstant = datum;
+    else if(paramStr ==  "minMarkerPerimeterRate")                  alvarParams->minMarkerPerimeterRate = datum;
+    else if(paramStr ==  "maxMarkerPerimeterRate")                  alvarParams->maxMarkerPerimeterRate = datum;
+    else if(paramStr ==  "polygonalApproxAccuracyRate")             alvarParams->polygonalApproxAccuracyRate = datum;
+    else if(paramStr ==  "minCornerDistanceRate")                   alvarParams->minCornerDistanceRate = datum;
+    else if(paramStr ==  "minDistanceToBorder")                     alvarParams->minDistanceToBorder = datum;
+    else if(paramStr ==  "minMarkerDistanceRate")                   alvarParams->minMarkerDistanceRate = datum;
+    else if(paramStr ==  "cornerRefinementMethod")                  alvarParams->cornerRefinementMethod = datum;
+    else if(paramStr ==  "cornerRefinementWinSize")                 alvarParams->cornerRefinementWinSize = datum;
+    else if(paramStr ==  "cornerRefinementMaxIterations")           alvarParams->cornerRefinementMaxIterations = datum;
+    else if(paramStr ==  "cornerRefinementMinAccuracy")             alvarParams->cornerRefinementMinAccuracy = datum;
+    else if(paramStr ==  "markerBorderBits")                        alvarParams->markerBorderBits = datum;
+    else if(paramStr ==  "perspectiveRemovePixelPerCell")           alvarParams->perspectiveRemovePixelPerCell = datum;
+    else if(paramStr ==  "perspectiveRemoveIgnoredMarginPerCell")   alvarParams->perspectiveRemoveIgnoredMarginPerCell = datum;
+    else if(paramStr ==  "maxErroneousBitsInBorderRate")            alvarParams->maxErroneousBitsInBorderRate = datum;
+    else if(paramStr ==  "minOtsuStdDev")                           alvarParams->minOtsuStdDev = datum;
+    else if(paramStr ==  "errorCorrectionRate")                     alvarParams->errorCorrectionRate = datum;
+}
