@@ -1,14 +1,15 @@
 import asyncio
-import math
+from math import copysign
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
                         DriveVelCmd, GimbalCmd,
+                        AutonState, AutonDriveControl,
                         KillSwitch, Temperature,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
                         ArmControlState,
-                        AutonDriveControl, ReverseDrive)
+                        ReverseDrive)
 
 
 class Toggle:
@@ -39,7 +40,6 @@ kill_motor = False
 lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
-connection = None
 
 
 def send_drive_kill():
@@ -64,13 +64,11 @@ def send_sa_kill():
 
 
 def connection_state_changed(c, _):
-    global kill_motor, prev_killed, connection
+    global kill_motor, prev_killed
     if c:
         print("Connection established.")
         kill_motor = prev_killed
-        connection = True
     else:
-        connection = False
         print("Disconnected.")
         prev_killed = kill_motor
         send_drive_kill()
@@ -79,7 +77,7 @@ def connection_state_changed(c, _):
 
 
 def quadratic(val):
-    return math.copysign(val**2, val)
+    return copysign(val**2, val)
 
 
 def deadzone(magnitude, threshold):
@@ -89,64 +87,61 @@ def deadzone(magnitude, threshold):
     else:
         temp_mag = (temp_mag - threshold)/(1 - threshold)
 
-    return math.copysign(temp_mag, magnitude)
-
-
-def joystick_math(new_motor, magnitude, theta):
-    new_motor.left = abs(magnitude)
-    new_motor.right = new_motor.left
-
-    if theta > 0:
-        new_motor.right *= 1 - (theta * 0.75)
-    elif theta < 0:
-        new_motor.left *= 1 + (theta * 0.75)
-
-    if magnitude < 0:
-        new_motor.left *= -1
-        new_motor.right *= -1
-    elif magnitude == 0:
-        new_motor.left += theta
-        new_motor.right -= theta
-
-
-def drive_control_callback(channel, msg):
-    global kill_motor, connection
-
-    if not connection:
-        return
-
-    input_data = Joystick.decode(msg)
-
-    if input_data.kill:
-        kill_motor = True
-    elif input_data.restart:
-        kill_motor = False
-
-    if kill_motor:
-        send_drive_kill()
-    else:
-        new_motor = DriveVelCmd()
-        input_data.forward_back = -quadratic(input_data.forward_back)
-        magnitude = deadzone(input_data.forward_back, 0.04)
-        theta = deadzone(input_data.left_right, 0.1)
-
-        joystick_math(new_motor, magnitude, theta)
-
-        damp = (input_data.dampen - 1)/(2)
-        new_motor.left *= damp
-        new_motor.right *= damp
-
-        lcm_.publish('/drive_vel_cmd', new_motor.encode())
+    return copysign(temp_mag, magnitude)
 
 
 class Drive:
-    def __init__(self, reverse):
+    def __init__(self, reverse: bool):
+        self.auton_enabled = False
         self.reverse = reverse
 
     def reverse_callback(self, channel, msg):
         self.reverse = ReverseDrive.decode(msg).reverse
 
+    def auton_enabled_callback(self, channel, msg):
+        self.auton_enabled = AutonState.decode(msg).is_auton
+
+    def teleop_drive_callback(self, channel, msg):
+        if self.auton_enabled:
+            return
+
+        input = Joystick.decode(msg)
+
+        # TODO: possibly add quadratic control
+        linear = deadzone(input.forward_back, 0.05) * input.dampen
+        angular = deadzone(input.left_right, 0.1) * input.dampen
+
+        # Convert arcade drive to tank drive
+        # TODO: possibly flip signs of rotation if necessary
+        angular_op = (angular / 2) / (abs(linear) + 0.5)
+        vel_left = linear + angular_op
+        vel_right = linear - angular_op
+
+        # Account for reverse
+        if self.reverse:
+            tmp = vel_left
+            vel_left = -1 * vel_right
+            vel_right = -1 * tmp
+
+        # Scale to be within [-1, 1], if necessary
+        if abs(vel_left) > 1 or abs(vel_right) > 1:
+            if abs(vel_left) > abs(vel_right):
+                vel_right /= abs(vel_left)
+                vel_left /= abs(vel_left)
+            else:
+                vel_left /= abs(vel_right)
+                vel_right /= abs(vel_right)
+
+        command = DriveVelCmd()
+        command.left = vel_left
+        command.right = vel_right
+
+        lcm_.publish('/drive_vel_cmd', command.encode())
+
     def auton_drive_callback(self, channel, msg):
+        if not self.auton_enabled:
+            return
+
         input = AutonDriveControl.decode(msg)
 
         command = DriveVelCmd()
@@ -274,14 +269,17 @@ def main():
     hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
 
-    drive = Drive(False)
+    drive = Drive(reverse=False)
 
-    lcm_.subscribe("/drive_control", drive_control_callback)
+    lcm_.subscribe("/auton", drive.auton_enabled_callback)
+
+    lcm_.subscribe("/drive_control", drive.teleop_drive_callback)
     lcm_.subscribe("/auton_drive_control", drive.auton_drive_callback)
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
     lcm_.subscribe('/arm_control_state', arm_control_state_callback)
+    lcm_.subscribe('/teleop_reverse_drive', drive.reverse_callback)
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),

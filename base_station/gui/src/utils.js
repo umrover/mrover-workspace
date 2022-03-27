@@ -22,40 +22,6 @@ class Toggle {
     }
 }
 
-const quadratic = function(val) {
-    return val*val * Math.sign(val)
-}
-
-const deadzone = function(magnitude, threshold) {
-    let temp_mag = Math.abs(magnitude)
-    if(temp_mag <= threshold) {
-        temp_mag = 0
-    } else {
-        temp_mag = (temp_mag - threshold)/(1-threshold)
-    }
-
-    return temp_mag * Math.sign(magnitude)
-}
-
-const joystick_math =  function(new_motor, magnitude, theta) {
-    new_motor.left = Math.abs(magnitude)
-    new_motor.right = new_motor.left
-
-    if(theta > 0) {
-        new_motor.right *= 1 - (theta * 0.75)
-    }else if(theta < 0){
-        new_motor.left *= 1 + (theta * 0.75)
-    }
-
-    if(magnitude < 0){
-        new_motor.left *= -1
-        new_motor.right *= -1
-    } else if(magnitude == 0) {
-        new_motor.left += theta
-        new_motor.right -= theta
-    }
-}
-
 const convertDMS = function(coord_in, odom_format) {
     const DEG_DECIMALS = 8;
     const MIN_DECIMALS = 6;
@@ -78,4 +44,4 @@ const convertDMS = function(coord_in, odom_format) {
     return coord_out;
 }
 
-export {Toggle, quadratic, deadzone, joystick_math, convertDMS}
+export {Toggle, convertDMS}

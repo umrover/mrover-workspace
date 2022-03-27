@@ -389,14 +389,6 @@
         [
             "double",
             "dampen"
-        ],
-        [
-            "boolean",
-            "kill"
-        ],
-        [
-            "boolean",
-            "restart"
         ]
     ],
     "KillSwitch": [

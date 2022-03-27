@@ -224,8 +224,6 @@ export default {
       'forward_back': 1,
       'left_right': 2,
       'dampen': 3,
-      'kill': 4,
-      'restart': 5,
       'pan': 4,
       'tilt': 5
     }
