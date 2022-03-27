@@ -58,7 +58,7 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
-import RoverMap from './RoverMapAuton.vue'
+import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
 import RadioSignalStrength from './RadioSignalStrength.vue'
 // import OdometryReading from './OdometryReading.vue'

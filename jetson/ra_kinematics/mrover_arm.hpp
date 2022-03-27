@@ -122,12 +122,17 @@ public:
      * update arm_state and call FK() to adjust transforms
      * 
      * @param channel expected: "/ra_position"
-     * @param msg format: double joint_a, joint_b, ... , joint_f
+     * @param msg format: double joint_a, joint_b, ... , joint_f   
+     * */
+    void arm_position_callback(std::string channel, RAPosition msg);
+
+    /**
+     * Handle message with updated joint angles from encoders,
+     * update arm_state and call FK() to adjust transforms
      * 
      * @param channel expected: "/sa_position"
      * @param msg format: double joint_a, joint_b, joint_c, joint_e     
      * */
-    void arm_position_callback(std::string channel, RAPosition msg);
     void arm_position_callback(std::string channel, SAPosition msg);
     
     /**

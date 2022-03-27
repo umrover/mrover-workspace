@@ -1,19 +1,19 @@
 <template>
   <div class="wrap">
-    <!-- Map goes here -->
+    <!-- Map goes here       -->
 
     <l-map ref="map" class="map" :zoom="15" :center="center">
       <l-control-scale :imperial="false"/>
       <l-tile-layer :url="url" :attribution="attribution"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in route" :key="waypoint.id">
-        <l-tooltip :content="waypoint.name" />
+      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in route" :key="waypoint.id" >
+        <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
       </l-marker>
 
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in list" :key="waypoint.id">
-        <l-tooltip :content="waypoint.name" />
+      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in list" :key="waypoint.id">
+         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
       </l-marker>
-      
+
       <l-polyline :lat-lngs="polylinePath" :color="'red'" :dash-array="'5, 5'"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
     </l-map>
@@ -74,14 +74,18 @@ export default {
   data () {
     return {
       center: L.latLng(38.406371, -110.791954),
-      url: '/static/map/{z}/{x}/{-y}.png',
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       roverMarker: null,
       waypointIcon: null,
       map: null,
       odomCount: 0,
       locationIcon: null,
-      odomPath: []
+      odomPath: [],
+      options: {
+        type: Object,
+        default: () => ({})
+      }
     }
   },
 
@@ -139,4 +143,21 @@ export default {
   align-items: center;
   height: 100%;
 }
+
+.custom-tooltip {
+    display: inline-block;
+    margin: 10px 20px;
+    opacity: 1;
+    position: relative;
+}
+
+.custom-tooltip .tooltip-inner {
+	background: #0088cc;
+}
+
+.custom-tooltip.top .tooltip-arrow {
+	border-top-color: #0088cc;
+}
+
+
 </style>
