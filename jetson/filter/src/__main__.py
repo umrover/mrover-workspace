@@ -370,7 +370,6 @@ class SensorFusion:
                     vel = self._getFreshVel(bearing)
 
                     # if we aren't receiving fresh data from IMU or GPS, don't send any odometry data
-                    # print(f"bearing: {bearing}, pos: {pos}, vel: {vel}")
                     if bearing is None or pos is None or vel is None:
                         print("data not available")
                         await asyncio.sleep(self.config["UpdateRate"])
