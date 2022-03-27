@@ -9,8 +9,7 @@ const state = {
   playbackLat: [],
   playbackLon: [],
   playbackBearing: [],
-  playbackWaypointLat: [],
-  playbackWaypointLon: []
+  playbackGpsBearing: []
 }
 
 // getters
@@ -24,8 +23,7 @@ const getters = {
   playbackLat: state => state.playbackLat,
   playbackLon: state => state.playbackLon,
   playbackBearing: state => state.playbackBearing,
-  playbackWaypointLat: state => state.playbackWaypointLat,
-  playbackWaypointLon: state => state.playbackWaypointLon,
+  playbackGpsBearing: state => state.playbackGpsBearing,
   playbackLength: state => state.playbackLat.length
 }
 
@@ -63,12 +61,8 @@ const mutations = {
     state.playbackBearing = bearing
   },
 
-  setPlaybackWaypointLat (commit, lat) {
-    state.playbackWaypointLat = lat
-  },
-
-  setPlaybackWaypointLon (commit, lon) {
-    state.playbackWaypointLon = lon
+  setPlaybackGpsBearing (commit, bearing) {
+    state.playbackGpsBearing = bearing
   }
 }
 
