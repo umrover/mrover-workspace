@@ -31,6 +31,7 @@
         <DriveControls/>
         <DriveVelDataH/>
         <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick" v-bind:TargetList="TargetList"/>
+        <PlaybackAutonData/>
      </div>
     </div>
     <div class="box odom light-bg">
@@ -64,6 +65,7 @@ import Obstacle from './Obstacle.vue'
 import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import SaveAutonData from './SaveAutonData.vue'
+import PlaybackAutonData from './PlaybackAutonData.vue'
 import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
 const navBlue = "#4695FF"
@@ -156,7 +158,7 @@ export default {
       
       RadioSignalStrength: {
         signal_strength: '0'
-      }
+      },
     }
   },
 
@@ -322,6 +324,7 @@ export default {
     TargetList,
     DriveVelDataH,
     SaveAutonData,
+    PlaybackAutonData,
     ZedGimbalAngles
   }
 }

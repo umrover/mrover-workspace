@@ -1,7 +1,7 @@
 <template>
     <div class="log">
-        <label for="loggin_toggle">{{logging_on ? 'Logging On':'Logging Off'}}</label>
-        <input type="checkbox" v-model="logging_on" id="loggin_toggle">
+        <label for="logging_toggle">{{logging_on ? 'Logging On':'Logging Off'}}</label>
+        <input type="checkbox" v-model="logging_on" id="logging_toggle">
 
         <button v-on:click="download_log()">Save log</button>
     </div>
@@ -97,11 +97,6 @@ export default {
         },
 
         nav_status: {
-            type: Object,
-            required: true
-        },
-
-        route: {
             type: Object,
             required: true
         },

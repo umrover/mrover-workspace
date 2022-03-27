@@ -183,6 +183,7 @@ def arm_control_state_callback(channel, msg):
 
 
 def ra_control_callback(channel, msg):
+
     xboxData = Xbox.decode(msg)
 
     motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
