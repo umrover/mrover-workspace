@@ -1,5 +1,4 @@
-#ifndef ROVER_HPP
-#define ROVER_HPP
+#pragma once
 
 #include <lcm/lcm-cpp.hpp>
 #include <queue>
@@ -13,7 +12,7 @@
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
-#include "course_state.hpp"
+#include "courseState.hpp"
 #include "environment.hpp"
 #include "pid.hpp"
 
@@ -75,76 +74,6 @@ enum class DriveStatus {
 // the real rover can perform.
 class Rover {
 public:
-    // This class holds all the status information of the rover.
-    class RoverStatus {
-    public:
-        RoverStatus();
-
-        NavState& currentState();
-
-        AutonState& autonState();
-
-        Odometry& odometry();
-
-        Target& leftTarget();
-
-        Target& rightTarget();
-
-        Target& leftCacheTarget();
-
-        Target& rightCacheTarget();
-
-        unsigned getPathTargets();
-
-        int& getLeftMisses();
-
-        int& getRightMisses();
-
-        int& getLeftHits();
-
-        int& getRightHits();
-
-        RoverStatus& operator=(RoverStatus& newRoverStatus);
-
-    private:
-        // The rover's current navigation state.
-        NavState mCurrentState;
-
-        // The rover's current auton state.
-        AutonState mAutonState{};
-
-        // The rover's current path. The path is initially the same as
-        // the rover's course, however, as waypoints are visited, the
-        // are removed from the path but not the course.
-
-        // The rover's current odometry information.
-        Odometry mOdometry{};
-
-        // The rover's current target information from computer
-        // vision.
-        Target mTargetLeft;
-
-        Target mTargetRight;
-
-        // Cached Target information
-        Target mCTargetLeft;
-
-        Target mCTargetRight;
-
-        // Total targets to search for in the course
-        unsigned mPathTargets{};
-
-        // Count of misses with cache
-        int countLeftMisses = 0;
-
-        int countRightMisses = 0;
-
-        // Count hits for avoiding FPs
-        int countLeftHits = 0;
-
-        int countRightHits = 0;
-    };
-
     Rover(const rapidjson::Document& config, lcm::LCM& lcm_in);
 
     DriveStatus drive(const Odometry& destination);
@@ -159,10 +88,6 @@ public:
 
     void stop();
 
-    bool updateRover(RoverStatus newRoverStatus, std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> course);
-
-    RoverStatus& roverStatus();
-
     PidLoop& distancePid();
 
     PidLoop& bearingPid();
@@ -176,20 +101,11 @@ private:
     /*************************************************************************/
     void publishJoystick(double forwardBack, double leftRight, bool kill);
 
-    bool isEqual(const Obstacle& obstacle1, const Obstacle& obstacle2) const;
-
-    bool isEqual(const Odometry& odometry1, const Odometry& odometry2) const;
-
-    bool isEqual(const Target& target, const Target& target2) const;
-
     bool isTurningAroundObstacle(NavState currentState) const;
 
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
-
-    // The rover's current status.
-    RoverStatus mRoverStatus;
 
     // A reference to the configuration file.
     const rapidjson::Document& mRoverConfig;
@@ -207,6 +123,41 @@ private:
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.
     double mLongMeterInMinutes;
-};
 
-#endif // ROVER_HPP
+    // The rover's current navigation state.
+    NavState mCurrentState;
+
+    // The rover's current auton state.
+    AutonState mAutonState{};
+
+    // The rover's current path. The path is initially the same as
+    // the rover's course, however, as waypoints are visited, the
+    // are removed from the path but not the course.
+
+    // The rover's current odometry information.
+    Odometry mOdometry{};
+
+    // The rover's current target information from computer
+    // vision.
+    Target mTargetLeft;
+
+    Target mTargetRight;
+
+    // Cached Target information
+    Target mCTargetLeft;
+
+    Target mCTargetRight;
+
+    // Total targets to search for in the course
+    unsigned mPathTargets{};
+
+    // Count of misses with cache
+    int mCountLeftMisses = 0;
+
+    int mCountRightMisses = 0;
+
+    // Count hits for avoiding FPs
+    int mCountLeftHits = 0;
+
+    int mCountRightHits = 0;
+};

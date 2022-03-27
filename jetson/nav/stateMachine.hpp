@@ -2,13 +2,14 @@
 
 #include <memory>
 #include <lcm/lcm-cpp.hpp>
+
 #include "rapidjson/document.h"
 #include "rover.hpp"
 #include "search/searchStateMachine.hpp"
 #include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 #include "environment.hpp"
-#include "course_state.hpp"
+#include "courseState.hpp"
 
 using namespace rover_msgs;
 
@@ -27,8 +28,6 @@ public:
 
     void updateRoverStatus(AutonState autonState);
 
-    void updateRoverStatus(const Course& course);
-
     void updateRoverStatus(Odometry odometry);
 
     void updateCompletedPoints();
@@ -36,8 +35,6 @@ public:
     void updateObstacleAngle(double bearing, double rightBearing);
 
     void updateObstacleDistance(double distance);
-
-    void updateObstacleElements(double bearing, double rightBearing, double distance);
 
     void setSearcher(SearchType type, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
@@ -55,8 +52,6 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    bool isRoverReady() const;
-
     void publishNavState() const;
 
     NavState executeOff();
@@ -83,10 +78,7 @@ private:
 
     std::shared_ptr<CourseProgress> mCourseProgress;
 
-    // RoverStatus object for updating the rover's status.
-    Rover::RoverStatus mNewRoverStatus;
-
-    // Lcm object for sending and recieving messages.
+    // Lcm object for sending and receiving messages.
     lcm::LCM& mLcmObject;
 
     // Configuration file for the rover.
@@ -97,9 +89,6 @@ private:
 
     // Number of waypoints completed.
     unsigned mCompletedWaypoints;
-
-    // Indicates if the state changed on a given iteration of run.
-    bool mStateChanged;
 
     // Search pointer to control search states
     std::shared_ptr<SearchStateMachine> mSearchStateMachine;

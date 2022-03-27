@@ -1,4 +1,4 @@
-#include "course_state.hpp"
+#include "courseState.hpp"
 
 void CourseProgress::update(Course const& course) {
     mCourse = course;

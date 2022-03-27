@@ -3,7 +3,7 @@
 #include <lcm/lcm-cpp.hpp>
 #include "stateMachine.hpp"
 #include "environment.hpp"
-#include "course_state.hpp"
+#include "courseState.hpp"
 
 using namespace rover_msgs;
 using namespace std;
@@ -17,7 +17,8 @@ int main() {
 
     auto env = make_shared<Environment>();
     auto courseState = make_shared<CourseProgress>();
-    auto stateMachine = make_shared<StateMachine>(env, courseState, lcmObject);
+    auto rover = make_shared<Rover>();
+    auto stateMachine = make_shared<StateMachine>(rover, env, courseState, lcmObject);
 
     auto autonCallback = [stateMachine](const lcm::ReceiveBuffer* recBuf, const string& channel, const AutonState* autonState) mutable {
         stateMachine->updateRoverStatus(*autonState);
@@ -35,7 +36,7 @@ int main() {
     lcmObject.subscribe("/obstacle", &decltype(obstacleCallback)::operator(), &obstacleCallback);
 
     auto odometryCallback = [stateMachine](const lcm::ReceiveBuffer* recBuf, const string& channel, const Odometry* odometry) mutable {
-
+        rover->update(*odometry);
     };
     lcmObject.subscribe("/odometry", &decltype(odometryCallback)::operator(), &odometryCallback);
 
