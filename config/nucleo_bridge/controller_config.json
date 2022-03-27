@@ -24,13 +24,13 @@
         "channel": 2
     },
     {
-        "name":"GIMBAL_PITCH",
+        "name":"GIMBAL_YAW",
         "type":"HBridge",
         "nucleo": 1,
         "channel": 3
     },
     {
-        "name":"GIMBAL_YAW",
+        "name":"GIMBAL_PITCH",
         "type":"HBridge",
         "nucleo": 2,
         "channel": 3
