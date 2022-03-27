@@ -2,12 +2,12 @@
   <div class="wrap">
     <h3>Encoder Counts</h3>
     <div class="encoders">
-      <div>joint a: {{Math.round((encoderCounts.joint_a + Number.EPSILON) * 10000) / 10000}}</div>
-      <div>joint b: {{Math.round((encoderCounts.joint_b + Number.EPSILON) * 10000) / 10000}}</div>
-      <div>joint c: {{Math.round((encoderCounts.joint_c + Number.EPSILON) * 10000) / 10000}}</div>
-      <div>joint d: {{Math.round((encoderCounts.joint_d + Number.EPSILON) * 10000) / 10000}}</div>
-      <div>joint e: {{Math.round((encoderCounts.joint_e + Number.EPSILON) * 10000) / 10000}}</div>
-      <div>joint f: {{Math.round((encoderCounts.joint_f + Number.EPSILON) * 10000) / 10000}}</div>
+      <div>joint a: {{encoderCounts.joint_a.toFixed(5)}}</div>
+      <div>joint b: {{encoderCounts.joint_b.toFixed(5)}}</div>
+      <div>joint c: {{encoderCounts.joint_c.toFixed(5)}}</div>
+      <div>joint d: {{encoderCounts.joint_d.toFixed(5)}}</div>
+      <div>joint e: {{encoderCounts.joint_e.toFixed(5)}}</div>
+      <div>joint f: {{encoderCounts.joint_f.toFixed(5)}}</div>
     </div>
   </div>
 </template>
