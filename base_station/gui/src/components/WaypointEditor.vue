@@ -246,7 +246,7 @@ export default {
       const waypoints = newRoute.map((waypoint) => {
         const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
         const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
-        return { latLng: L.latLng(lat, lon) };
+        return { latLng: L.latLng(lat, lon), name: waypoint.name };
       });
       this.setRoute(waypoints);
     },
@@ -255,7 +255,7 @@ export default {
       const waypoints = newList.map((waypoint) => {
         const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
         const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
-        return { latLng: L.latLng(lat, lon) };
+        return { latLng: L.latLng(lat, lon), name: waypoint.name };
       });
       this.setWaypointList(waypoints);
     },
