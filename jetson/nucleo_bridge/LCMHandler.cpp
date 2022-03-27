@@ -1,29 +1,31 @@
 #include "LCMHandler.h"
 
-//Initialize the lcm bus and subscribe to relevant channels with message handlers defined below
+// Initialize the lcm bus and subscribe to relevant channels with message handlers defined below
 void LCMHandler::init()
 {
-    //Creation of lcm bus
+    // Creation of lcm bus
     lcm_bus = new lcm::LCM();
     if (!lcm_bus->good())
     {
         printf("LCM Bus not created\n");
         exit(1);
-    } else {
-	printf("LCM Bus created\n");
     }
-    
+    else
+    {
+        printf("LCM Bus created\n");
+    }
+
     internal_object = new InternalHandler();
-    
-    //Subscription to lcm channels 
-    lcm_bus->subscribe("/ra_ik_cmd",            &LCMHandler::InternalHandler::ra_closed_loop_cmd,   internal_object);
-    lcm_bus->subscribe("/sa_ik_cmd",            &LCMHandler::InternalHandler::sa_closed_loop_cmd,   internal_object);
-    lcm_bus->subscribe("/ra_openloop_cmd",      &LCMHandler::InternalHandler::ra_open_loop_cmd,     internal_object);
-    lcm_bus->subscribe("/sa_openloop_cmd",      &LCMHandler::InternalHandler::sa_open_loop_cmd,     internal_object);
-    lcm_bus->subscribe("/mast_gimbal_cmd",      &LCMHandler::InternalHandler::gimbal_cmd,           internal_object);
-    lcm_bus->subscribe("/hand_openloop_cmd",    &LCMHandler::InternalHandler::hand_openloop_cmd,    internal_object);
-    lcm_bus->subscribe("/foot_openloop_cmd",    &LCMHandler::InternalHandler::foot_openloop_cmd,    internal_object);
-    lcm_bus->subscribe("/scoop_limit_switch_enable_cmd",    &LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd,    internal_object);
+
+    // Subscription to lcm channels
+    lcm_bus->subscribe("/ra_ik_cmd", &LCMHandler::InternalHandler::ra_closed_loop_cmd, internal_object);
+    lcm_bus->subscribe("/sa_ik_cmd", &LCMHandler::InternalHandler::sa_closed_loop_cmd, internal_object);
+    lcm_bus->subscribe("/ra_openloop_cmd", &LCMHandler::InternalHandler::ra_open_loop_cmd, internal_object);
+    lcm_bus->subscribe("/sa_openloop_cmd", &LCMHandler::InternalHandler::sa_open_loop_cmd, internal_object);
+    lcm_bus->subscribe("/mast_gimbal_cmd", &LCMHandler::InternalHandler::gimbal_cmd, internal_object);
+    lcm_bus->subscribe("/hand_openloop_cmd", &LCMHandler::InternalHandler::hand_openloop_cmd, internal_object);
+    lcm_bus->subscribe("/foot_openloop_cmd", &LCMHandler::InternalHandler::foot_openloop_cmd, internal_object);
+    lcm_bus->subscribe("/scoop_limit_switch_enable_cmd", &LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd, internal_object);
     /*
     The following functions may be reimplemented when IK is tested
     lcmBus->subscribe("/ra_config_cmd",         &LCMHandler::InternalHandler::ra_config_cmd,        internal_object);
@@ -34,16 +36,16 @@ void LCMHandler::init()
     printf("LCM Bus channels subscribed\n");
 }
 
-//Handles a single incoming lcm message    
+// Handles a single incoming lcm message
 void LCMHandler::handle_incoming()
 {
     lcm_bus->handle();
 }
 
-//Decide whether outgoing messages need to be sent, and if so, send them
+// Decide whether outgoing messages need to be sent, and if so, send them
 void LCMHandler::handle_outgoing()
 {
-    //If the last time arm position messages were outputted was over 200 ms ago, get new data from Controllers to be sent
+    // If the last time arm position messages were outputted was over 200 ms ago, get new data from Controllers to be sent
     std::chrono::duration deadTime = std::chrono::milliseconds(200);
     if (NOW - last_output_time > deadTime)
     {
@@ -57,7 +59,7 @@ void LCMHandler::handle_outgoing()
     }
 }
 
-//The following functions are handlers for the corresponding lcm messages
+// The following functions are handlers for the corresponding lcm messages
 void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg)
 {
     ControllerMap::controllers["RA_A"]->closed_loop(0, msg->joint_a);
@@ -80,12 +82,12 @@ void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition
 
 void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg)
 {
-    ControllerMap::controllers["RA_A"]->open_loop(msg->throttle[0] * -1.0);
-    ControllerMap::controllers["RA_B"]->open_loop(msg->throttle[1] * 1.0);
-    ControllerMap::controllers["RA_C"]->open_loop(msg->throttle[2] * 1.0);
-    ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3] * 1.0);
-    ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4] * 1.0);
-    ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5] * -1.0);
+    ControllerMap::controllers["RA_A"]->open_loop(msg->throttle[0]);
+    ControllerMap::controllers["RA_B"]->open_loop(msg->throttle[1]);
+    ControllerMap::controllers["RA_C"]->open_loop(msg->throttle[2]);
+    ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3]);
+    ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4]);
+    ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
     ra_pos_data();
 }
 
@@ -96,10 +98,10 @@ void LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd(LCM_INPUT, const
 
 void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg)
 {
-    ControllerMap::controllers["SA_A"]->open_loop(msg->throttle[0] * -1.0);
-    ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1] * 1.0);
-    ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2] * 1.0);
-    ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3] * 1.0);
+    ControllerMap::controllers["SA_A"]->open_loop(msg->throttle[0]);
+    ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1]);
+    ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2]);
+    ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3]);
     sa_pos_data();
 }
 
@@ -126,14 +128,14 @@ void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *ms
 
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
 {
-    ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger * 1.0);
-    ControllerMap::controllers["HAND_GRIP"]->open_loop(msg->grip * 1.0);
+    ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger);
+    ControllerMap::controllers["HAND_GRIP"]->open_loop(msg->grip);
 }
 
 void LCMHandler::InternalHandler::gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg)
 {
-    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch[0] * 1.0);
-    ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw[0] * 1.0);
+    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch[0]);
+    ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw[0]);
 }
 
 void LCMHandler::InternalHandler::refreshAngles()
@@ -218,15 +220,15 @@ void LCMHandler::ra_zero_trigger(LCM_INPUT, const RAZeroTrigger *msg)
 {
     ControllerMap::controllers["RA_A"]->zero();
     ControllerMap::controllers["RA_B"]->zero();
- 	ControllerMap::controllers["RA_C"]->zero();
- 	ControllerMap::controllers["RA_D"]->zero();
- 	ControllerMap::controllers["RA_E"]->zero();
- 	ControllerMap::controllers["RA_F"]->zero();
+    ControllerMap::controllers["RA_C"]->zero();
+    ControllerMap::controllers["RA_D"]->zero();
+    ControllerMap::controllers["RA_E"]->zero();
+    ControllerMap::controllers["RA_F"]->zero();
 }
 */
 
 void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
 {
-    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad * 1.0);
-    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop * 1.0);
+    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad);
+    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop);
 }
