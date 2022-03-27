@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="box header">
       <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
-      <h1>ERD/ES Dashboard</h1>
+      <h1>ES Dashboard</h1>
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
@@ -23,20 +23,16 @@
       </div>
     </div>
 
-    <div class="box odom light-bg">
-      <OdometryReading v-bind:odom="odom"/>
-    </div>
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
     </div>
-    <div class="box map light-bg">
-      <RoverMap v-bind:odom="odom"/>
-    </div>
     <div class="box controls light-bg">
       <ArmControls/>
+    </div>
+    <div class="box encoder light-bg">
       <EncoderCounts/>
     </div>
     <div class="box drive light-bg">
@@ -59,9 +55,7 @@
 import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
 import IKControls from './IKControls.vue'
-import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
-import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
@@ -181,7 +175,6 @@ export default {
       },
       // Subscriptions
       [
-        {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
@@ -238,13 +231,11 @@ export default {
   },
 
   components: {
-    RoverMap,
     Cameras,
     CommIndicator,
     ArmControls,
     DriveControls,
     EncoderCounts,
-    OdometryReading,
     IKControls,
     PDBFuse,
     DriveVelDataV
@@ -259,11 +250,11 @@ export default {
     grid-template-columns: 1fr 1.5fr;
     grid-template-rows: 60px auto auto auto auto auto auto;
     grid-template-areas: "header header"
-                         "map cameras"
-                         "map ik-controls"
-                         "ik-gui ik-controls"
-                         "odom controls"
-                         "odom drive"
+                         "ik-gui cameras"
+                         "controls ik-controls"
+                         "encoder ik-controls"
+                         "drive ik-controls"
+                         "pdb drive-motor"
                          "pdb drive-motor";
     font-family: sans-serif;
     height: auto;
@@ -349,17 +340,8 @@ export default {
     visibility: visible;
   }
 
-  .odom {
-    grid-area: odom;
-    font-size: 1em;
-  }
-
   .diags {
     grid-area: diags;
-  }
-
-  .map {
-    grid-area: map;
   }
 
   .ik-controls {
@@ -386,6 +368,10 @@ export default {
 
   .ik-gui {
     grid-area: ik-gui;
+  }
+
+  .encoder {
+    grid-area: encoder;
   }
 
   .new-select {
