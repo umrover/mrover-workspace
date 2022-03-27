@@ -112,6 +112,30 @@ export default {
                 this.setPart();
                 }, 10000);
         },
+
+        back_to_start: function() {
+            if (this.strip == 0) {
+                this.angle0 = serv0_start;
+            }
+            if (this.strip == 1) {
+                this.angle1 = serv1_start;
+            }
+            if (this.strip == 2) {
+                this.angle2 = serv2_start;
+            }
+        },
+
+        userInput: function() {
+            if (this.strip == 0) {
+                this.angle0 = this.angle;
+            }
+            if (this.strip == 1) {
+                this.angle1 = this.angle;
+            }
+            if (this.strip == 2) {
+                this.angle2 = this.angle;
+            }
+        },
     },
     watch: {
         strip: function (val) {
