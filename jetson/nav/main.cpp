@@ -1,3 +1,4 @@
+#include <chrono>
 #include <memory>
 #include <fstream>
 #include <iostream>
@@ -44,7 +45,7 @@ int main() {
     lcm.subscribe("/auton", &decltype(autonCallback)::operator(), &autonCallback);
 
     auto courseCallback = [courseState](const lcm::ReceiveBuffer* recBuf, const string& channel, const Course* course) mutable {
-        courseState->update(*course);
+        courseState->setCourse(*course);
     };
     lcm.subscribe("/course", &decltype(courseCallback)::operator(), &courseCallback);
 
@@ -63,8 +64,12 @@ int main() {
     };
     lcm.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback);
 
+    auto now = std::chrono::system_clock::now();
     while (lcm.handle() == 0) {
         stateMachine->run();
+//        if (std::chrono::system_clock::now() - now > std::chrono::seconds(10)) {
+//            break;
+//        }
     }
     return 0;
 } // main()

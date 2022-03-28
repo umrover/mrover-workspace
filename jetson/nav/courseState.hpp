@@ -15,7 +15,7 @@ private:
     deque<Waypoint> mRemainingWaypoints;
 
 public:
-    void update(Course const& course);
+    void setCourse(Course const& course);
 
     deque<Waypoint> const& getRemainingWaypoints() const;
 
@@ -24,4 +24,6 @@ public:
     void clearProgress();
 
     Course const& getCourse() const;
+
+    int32_t getCompletedWaypointCount() const;
 };

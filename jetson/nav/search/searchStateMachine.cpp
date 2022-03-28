@@ -11,8 +11,8 @@
 #include <iostream>
 
 // Constructs an SearchStateMachine object with mStateMachine, mConfig, and mRover
-SearchStateMachine::SearchStateMachine(weak_ptr<StateMachine> roverStateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
-        : mStateMachine(move(roverStateMachine)), mRover(move(rover)), mRoverConfig(roverConfig) {}
+SearchStateMachine::SearchStateMachine(weak_ptr<StateMachine> sm, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
+        : mStateMachine(move(sm)), mRover(move(rover)), mRoverConfig(roverConfig) {}
 
 // Runs the search state machine through one iteration. This will be called by
 // StateMachine  when NavState is in a search state. This will call the corresponding
@@ -170,7 +170,6 @@ NavState SearchStateMachine::executeDriveToTarget() {
             return NavState::GateSpin;
         }
         mStateMachine.lock()->getCourseState()->completeCurrentWaypoint();
-        mStateMachine.lock()->updateCompletedPoints();
         return NavState::Turn;
     }
     if (driveStatus == DriveStatus::OnCourse) {
@@ -227,25 +226,22 @@ void SearchStateMachine::insertIntermediatePoints() {
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms
 shared_ptr<SearchStateMachine>
-SearchFactory(weak_ptr<StateMachine> stateMachine, SearchType type, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)  //TODO
+SearchFactory(const weak_ptr<StateMachine>& sm, SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig)
 {
     shared_ptr<SearchStateMachine> search = nullptr;
     switch (type) {
         case SearchType::SPIRALOUT:
-            search = make_shared<SpiralOut>(stateMachine, rover, roverConfig);
+            search = make_shared<SpiralOut>(sm, rover, roverConfig);
             break;
-
         case SearchType::LAWNMOWER:
-            search = make_shared<LawnMower>(stateMachine, rover, roverConfig);
+            search = make_shared<LawnMower>(sm, rover, roverConfig);
             break;
-
         case SearchType::SPIRALIN:
-            search = make_shared<SpiralIn>(stateMachine, rover, roverConfig);
+            search = make_shared<SpiralIn>(sm, rover, roverConfig);
             break;
-
         default:
             cerr << "Unknown Search Type. Defaulting to Spiral\n";
-            search = make_shared<SpiralOut>(stateMachine, rover, roverConfig);
+            search = make_shared<SpiralOut>(sm, rover, roverConfig);
             break;
     }
     return search;

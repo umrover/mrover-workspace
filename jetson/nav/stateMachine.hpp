@@ -14,24 +14,22 @@ using namespace rover_msgs;
 
 // This class implements the logic for the state machine for the
 // autonomous navigation of the rover.
-class StateMachine : enable_shared_from_this<StateMachine> {
+class StateMachine : public enable_shared_from_this<StateMachine> {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
     StateMachine(rapidjson::Document& config,
-                 shared_ptr<Rover> rover, shared_ptr<Environment> env, shared_ptr<CourseProgress> courseState,
+                 shared_ptr<Rover> rover, shared_ptr<Environment> env, shared_ptr<CourseProgress> courseProgress,
                  lcm::LCM& lcmObject);
 
     void run();
-
-    void updateCompletedPoints();
 
     void updateObstacleElements(double leftBearing, double rightBearing, double distance);
 
     void updateObstacleDistance(double distance);
 
-    void setSearcher(SearchType type, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
+    void setSearcher(SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);
 
     shared_ptr<Environment> getEnv();
 
@@ -81,9 +79,6 @@ private:
 
     // Number of waypoints in course.
     int32_t mTotalWaypoints = 0;
-
-    // Number of waypoints completed.
-    int32_t mCompletedWaypoints = 0;
 
     // Search pointer to control search states
     shared_ptr<SearchStateMachine> mSearchStateMachine;

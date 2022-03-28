@@ -264,7 +264,6 @@ NavState GateStateMachine::executeGateDriveThrough() {
             return NavState::GateSpin;
         }
         mStateMachine.lock()->getCourseState()->completeCurrentWaypoint();
-        mStateMachine.lock()->updateCompletedPoints();
         return NavState::Turn;
     }
     if (driveStatus == DriveStatus::OnCourse) {

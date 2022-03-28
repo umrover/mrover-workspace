@@ -1,11 +1,9 @@
 #include "stateMachine.hpp"
 
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <cstdlib>
 #include <map>
-#include "rapidjson/istreamwrapper.h"
+#include <cstdlib>
+#include <utility>
+#include <iostream>
 
 #include "rover_msgs/NavStatus.hpp"
 #include "utilities.hpp"
@@ -20,20 +18,17 @@
 // and the lcmObject. Sets mStateChanged to true so that on the first
 // iteration of run the rover is updated.
 StateMachine::StateMachine(
-        rapidjson::Document& config, shared_ptr<Rover> rover, shared_ptr<Environment> env, shared_ptr<CourseProgress> courseState, lcm::LCM& lcmObject
-) : mConfig(config), mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseState)), mLcmObject(lcmObject) {
+        rapidjson::Document& config,
+        shared_ptr<Rover> rover, shared_ptr<Environment> env, shared_ptr<CourseProgress> courseProgress,
+        lcm::LCM& lcmObject
+) : mConfig(config), mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseProgress)), mLcmObject(lcmObject) {
     mSearchStateMachine = SearchFactory(weak_from_this(), SearchType::SPIRALOUT, mRover, mConfig);
     mGateStateMachine = GateFactory(weak_from_this(), mRover, mConfig);
     mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory(weak_from_this(), ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mConfig);
 } // StateMachine()
 
-void StateMachine::setSearcher(SearchType type, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) {
-    assert(mSearchStateMachine);
+void StateMachine::setSearcher(SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig) {
     mSearchStateMachine = SearchFactory(weak_from_this(), type, rover, roverConfig);
-}
-
-void StateMachine::updateCompletedPoints() {
-    mCompletedWaypoints += 1;
 }
 
 // Allows outside objects to set the original obstacle angle
@@ -131,8 +126,7 @@ void StateMachine::run() {
         }
 
         case NavState::Unknown: {
-            cerr << "Entered unknown state.\n";
-            exit(1);
+            throw runtime_error("Entered unknown state.");
         }
     } // switch
 
@@ -148,7 +142,7 @@ void StateMachine::run() {
 void StateMachine::publishNavState() const {
     NavStatus navStatus;
     navStatus.nav_state_name = stringifyNavState();
-    navStatus.completed_wps = mCompletedWaypoints;
+    navStatus.completed_wps = mCourseProgress->getRemainingWaypoints().size();
     navStatus.total_wps = mTotalWaypoints;
     const string& navStatusChannel = mConfig["lcmChannels"]["navStatusChannel"].GetString();
     mLcmObject.publish(navStatusChannel, &navStatus);
@@ -160,13 +154,9 @@ void StateMachine::publishNavState() const {
 // rover is still off.
 NavState StateMachine::executeOff() {
     if (mRover->autonState().is_auton) {
-        mCompletedWaypoints = 0;
-        mTotalWaypoints = mCourseProgress->getRemainingWaypoints().size();
-
-        if (!mTotalWaypoints) {
-            return NavState::Done;
-        }
-        return NavState::Turn;
+        NavState nextState = mCourseProgress->getCourse().num_waypoints ? NavState::Turn : NavState::Done;
+        mCourseProgress->clearProgress();
+        return nextState;
     }
     mRover->stop();
     return NavState::Off;
@@ -219,8 +209,6 @@ NavState StateMachine::executeDrive() {
             return NavState::ChangeSearchAlg;
         }
         mCourseProgress->completeCurrentWaypoint();
-
-        ++mCompletedWaypoints;
         return NavState::Turn;
     }
     if (driveStatus == DriveStatus::OnCourse) {

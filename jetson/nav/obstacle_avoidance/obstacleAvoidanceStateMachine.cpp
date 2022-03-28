@@ -7,9 +7,9 @@
 #include "simpleAvoidance.hpp"
 
 // Constructs an ObstacleAvoidanceStateMachine object with mStateMachine, mConfig, and mRover
-ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine(weak_ptr<StateMachine> stateMachine_, shared_ptr<Rover> rover,
-                                                             const rapidjson::Document& roverConfig)
-        : mStateMachine(move(stateMachine_)), mJustDetectedObstacle(false), mRover(move(rover)), mRoverConfig(roverConfig) {}
+ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine
+        (weak_ptr<StateMachine> sm, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
+        : mStateMachine(move(sm)), mJustDetectedObstacle(false), mRover(move(rover)), mRoverConfig(roverConfig) {}
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns

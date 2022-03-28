@@ -21,7 +21,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    ObstacleAvoidanceStateMachine(weak_ptr<StateMachine> stateMachine_, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
+    ObstacleAvoidanceStateMachine(weak_ptr<StateMachine> sm, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
     virtual ~ObstacleAvoidanceStateMachine() = default;
 
