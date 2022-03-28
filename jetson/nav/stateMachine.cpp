@@ -331,7 +331,16 @@ NavState StateMachine::executeDrive()
                                                                 getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
     }
+
+    if( ( nextWaypoint.search || nextWaypoint.gate ) &&
+        mRover->roverStatus().leftCacheTarget().id == nextWaypoint.id &&
+            distance <= 20.0 )
+    {
+        return NavState::TurnToTarget;
+    }
+
     DriveStatus driveStatus = mRover->drive( nextWaypoint.odom );
+    
     if( driveStatus == DriveStatus::Arrived )
     {
         if( nextWaypoint.search || nextWaypoint.gate )
