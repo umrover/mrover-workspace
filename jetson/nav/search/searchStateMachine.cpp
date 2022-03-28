@@ -54,8 +54,7 @@ NavState SearchStateMachine::executeSearchTurn() {
 
     if (mStateMachine.lock()->getEnv()->getObstacle().distance >= 0
         && mStateMachine.lock()->getCourseState()->getRemainingWaypoints().front().id == mRover->leftCacheTarget().id) {
-        updateTargetDetectionElements(mRover->leftCacheTarget().bearing,
-                                      mRover->odometry().bearing_deg);
+        updateTargetDetectionElements(mRover->leftCacheTarget().bearing, mRover->odometry().bearing_deg);
         return NavState::TurnToTarget;
     }
 
@@ -113,8 +112,7 @@ NavState SearchStateMachine::executeTurnToTarget() {
                      mRover->odometry().bearing_deg)) {
         return NavState::DriveToTarget;
     }
-    updateTargetDetectionElements(mRover->leftCacheTarget().bearing,
-                                  mRover->odometry().bearing_deg);
+    updateTargetDetectionElements(mRover->leftCacheTarget().bearing, mRover->odometry().bearing_deg);
     return NavState::TurnToTarget;
 } // executeTurnToTarget()
 
@@ -155,10 +153,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
         mSearchPoints.clear();
         if (mStateMachine.lock()->getCourseState()->getRemainingWaypoints().front().gate) {
             mStateMachine.lock()->mGateStateMachine->mGateSearchPoints.clear();
-            const double absAngle = mod(
-                    mRover->odometry().bearing_deg + mRover->leftCacheTarget().bearing,
-                    360
-            );
+            const double absAngle = mod(mRover->odometry().bearing_deg + mRover->leftCacheTarget().bearing, 360);
             mStateMachine.lock()->mGateStateMachine->lastKnownRightPost.odom = createOdom(
                     mRover->odometry(),
                     absAngle,

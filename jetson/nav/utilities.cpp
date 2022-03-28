@@ -58,15 +58,15 @@ double calcBearing(const Odometry& start, const Odometry& dest) {
     double destLat = degreeToRadian(dest.latitude_deg, dest.latitude_min);
     double destLon = degreeToRadian(dest.longitude_deg, dest.longitude_min);
 
-    double verticleComponentDist = EARTH_RADIUS * sin(destLat - currentLat);
+    double vertComponentDist = EARTH_RADIUS * sin(destLat - currentLat);
     double noneuclidDist = estimateNoneuclid(start, dest);
 
-    double bearing = acos(verticleComponentDist / noneuclidDist);
+    double bearing = acos(vertComponentDist / noneuclidDist);
     if (currentLon > destLon) {
         bearing = 2 * PI - bearing;
     }
 
-    if (verticleComponentDist < 0.001 && verticleComponentDist > -0.001) {
+    if (vertComponentDist < 0.001 && vertComponentDist > -0.001) {
         if (currentLon < destLon) {
             bearing = PI / 2;
         } else {
