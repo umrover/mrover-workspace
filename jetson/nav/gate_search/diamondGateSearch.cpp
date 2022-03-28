@@ -2,11 +2,10 @@
 #include "utilities.hpp"
 #include "stateMachine.hpp"
 
-#include <iostream>
-#include <cmath>
+#include <utility>
 
-DiamondGateSearch::DiamondGateSearch(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
-        : GateStateMachine(stateMachine, rover, roverConfig) {}
+DiamondGateSearch::DiamondGateSearch(weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig)
+        : GateStateMachine(move(sm), roverConfig) {}
 
 DiamondGateSearch::~DiamondGateSearch() = default;
 

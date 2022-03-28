@@ -9,7 +9,7 @@
 
 #include "stateMachine.hpp"
 #include "environment.hpp"
-#include "courseState.hpp"
+#include "courseProgress.hpp"
 
 using namespace rover_msgs;
 using namespace std;
@@ -35,7 +35,7 @@ int main() {
 
     auto env = make_shared<Environment>();
     auto courseProgress = make_shared<CourseProgress>();
-    auto config = readConfig("nav/config.json");
+    auto config = readConfig("config_nav/config.json");
     auto rover = make_shared<Rover>(config, lcm);
     auto stateMachine = make_shared<StateMachine>(config, rover, env, courseProgress, lcm);
 
@@ -64,12 +64,8 @@ int main() {
     };
     lcm.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback);
 
-    auto now = std::chrono::system_clock::now();
     while (lcm.handle() == 0) {
         stateMachine->run();
-//        if (std::chrono::system_clock::now() - now > std::chrono::seconds(10)) {
-//            break;
-//        }
     }
     return 0;
 } // main()

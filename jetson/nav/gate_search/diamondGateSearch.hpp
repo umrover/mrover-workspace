@@ -1,11 +1,10 @@
-#ifndef DIAMOND_GATE_SEARCH_HPP
-#define DIAMOND_GATE_SEARCH_HPP
+#pragma once
 
 #include "gateStateMachine.hpp"
 
 class DiamondGateSearch : public GateStateMachine {
 public:
-    DiamondGateSearch(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
+    DiamondGateSearch(weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig);
 
     ~DiamondGateSearch() override;
 
@@ -13,5 +12,3 @@ public:
     // of the search.
     void initializeSearch() override;
 };
-
-#endif // DIAMOND_GATE_SEARCH_HPP

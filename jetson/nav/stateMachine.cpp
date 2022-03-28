@@ -1,7 +1,6 @@
 #include "stateMachine.hpp"
 
 #include <map>
-#include <cstdlib>
 #include <utility>
 #include <iostream>
 
@@ -14,7 +13,7 @@
 #include "gate_search/diamondGateSearch.hpp"
 
 // Constructs a StateMachine object with the input lcm object.
-// Reads the configuartion file and constructs a Rover objet with this
+// Reads the configuration file and constructs a Rover objet with this
 // and the lcmObject. Sets mStateChanged to true so that on the first
 // iteration of run the rover is updated.
 StateMachine::StateMachine(
@@ -23,7 +22,7 @@ StateMachine::StateMachine(
         lcm::LCM& lcmObject
 ) : mConfig(config), mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseProgress)), mLcmObject(lcmObject) {
     mSearchStateMachine = SearchFactory(weak_from_this(), SearchType::SPIRALOUT, mRover, mConfig);
-    mGateStateMachine = GateFactory(weak_from_this(), mRover, mConfig);
+    mGateStateMachine = GateFactory(weak_from_this(), mConfig);
     mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory(weak_from_this(), ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mConfig);
 } // StateMachine()
 
@@ -277,10 +276,3 @@ shared_ptr<CourseProgress> StateMachine::getCourseState() {
 shared_ptr<Rover> StateMachine::getRover() {
     return mRover;
 }
-
-// isWaypointReachable
-
-// TODOS:
-// [drive to target] obstacle and target
-// all of code, what to do in cases of both target and obstacle
-// thresholds based on state? waypoint vs target

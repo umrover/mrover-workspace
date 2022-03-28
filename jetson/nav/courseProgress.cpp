@@ -1,4 +1,4 @@
-#include "courseState.hpp"
+#include "courseProgress.hpp"
 
 void CourseProgress::setCourse(Course const& course) {
     if (course.hash != mCourse.hash) {

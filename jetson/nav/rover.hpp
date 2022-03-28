@@ -12,10 +12,11 @@
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
-#include "courseState.hpp"
+#include "courseProgress.hpp"
 #include "environment.hpp"
 #include "pid.hpp"
 
+using namespace std;
 using namespace rover_msgs;
 
 // This class is the representation of the navigation states.

@@ -107,6 +107,9 @@ void Rover::stop() {
 // Calculates the conversion from minutes to meters based on the
 // rover's current latitude.
 double Rover::longMeterInMinutes() const {
+    if (mLongMeterInMinutes <= 0.0) {
+        throw runtime_error("Invalid conversion");
+    }
     return mLongMeterInMinutes;
 }
 

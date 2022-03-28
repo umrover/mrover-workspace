@@ -7,7 +7,7 @@
 #include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 #include "environment.hpp"
-#include "courseState.hpp"
+#include "courseProgress.hpp"
 
 using namespace std;
 using namespace rover_msgs;
@@ -66,6 +66,9 @@ private:
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
+    // Configuration file for the rover.
+    rapidjson::Document& mConfig;
+
     // Rover object to do basic rover operations in the state machine.
     shared_ptr<Rover> mRover;
 
@@ -75,9 +78,6 @@ private:
 
     // Lcm object for sending and receiving messages.
     lcm::LCM& mLcmObject;
-
-    // Configuration file for the rover.
-    rapidjson::Document& mConfig;
 
     // Number of waypoints in course.
     int32_t mTotalWaypoints = 0;

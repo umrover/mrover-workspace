@@ -8,14 +8,15 @@
 #include <utility>
 
 // Constructs a GateStateMachine object with mStateMachine
-GateStateMachine::GateStateMachine(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
-        : mStateMachine(move(stateMachine)), mRoverConfig(roverConfig), mRover(move(rover)) {}
+GateStateMachine::GateStateMachine(weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig)
+        : mStateMachine(move(stateMachine)), mRoverConfig(roverConfig) {}
 
 GateStateMachine::~GateStateMachine() = default;
 
 // Execute loop through gate state machine.
 NavState GateStateMachine::run() {
-    switch (mRover->currentState()) {
+    auto rover = mStateMachine.lock()->getRover();
+    switch (rover->currentState()) {
         case NavState::GateSpin: {
             return executeGateSpin();
         }
@@ -69,14 +70,15 @@ NavState GateStateMachine::run() {
 
 // Perform spin search for a waypoint
 NavState GateStateMachine::executeGateSpin() {
+    auto rover = mStateMachine.lock()->getRover();
     // degrees to turn to before performing a search wait.
     double waitStepSize = mRoverConfig["search"]["searchWaitStepSize"].GetDouble();
     static double nextStop = 0; // to force the rover to wait initially
     static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
 
-    if (mRover->rightCacheTarget().distance >= 0 ||
-        (mRover->leftCacheTarget().distance >= 0 && mRover->leftCacheTarget().id != lastKnownRightPost.id)) {
-        mRover->resetMisses();
+    if (rover->rightCacheTarget().distance >= 0 ||
+        (rover->leftCacheTarget().distance >= 0 && rover->leftCacheTarget().id != lastKnownRightPost.id)) {
+        rover->resetMisses();
         updatePost2Info();
         calcCenterPoint();
         return NavState::GateTurnToCentPoint;
@@ -84,10 +86,10 @@ NavState GateStateMachine::executeGateSpin() {
 
     if (nextStop == 0) {
         // get current angle and set as origAngle
-        mOriginalSpinAngle = mRover->odometry().bearing_deg; //doublecheck
+        mOriginalSpinAngle = rover->odometry().bearing_deg; //doublecheck
         nextStop = mOriginalSpinAngle;
     }
-    if (mRover->turn(nextStop)) {
+    if (rover->turn(nextStop)) {
         if (nextStop - mOriginalSpinAngle >= 360) {
             nextStop = 0;
             return NavState::GateTurn;
@@ -100,18 +102,19 @@ NavState GateStateMachine::executeGateSpin() {
 
 // Wait for predetermined time before performing GateSpin
 NavState GateStateMachine::executeGateSpinWait() {
+    auto rover = mStateMachine.lock()->getRover();
     static bool started = false;
     static time_t startTime;
 
-    if (mRover->rightCacheTarget().distance >= 0 ||
-        (mRover->leftCacheTarget().distance >= 0 && mRover->leftCacheTarget().id != lastKnownRightPost.id)) {
+    if (rover->rightCacheTarget().distance >= 0 ||
+        (rover->leftCacheTarget().distance >= 0 && rover->leftCacheTarget().id != lastKnownRightPost.id)) {
         updatePost2Info();
         calcCenterPoint();
         return NavState::GateTurnToCentPoint;
     }
 
     if (!started) {
-        mRover->stop();
+        rover->stop();
         startTime = time(nullptr);
         started = true;
     }
@@ -125,19 +128,20 @@ NavState GateStateMachine::executeGateSpinWait() {
 
 // Turn to determined waypoint
 NavState GateStateMachine::executeGateTurn() {
+    auto rover = mStateMachine.lock()->getRover();
     if (mGateSearchPoints.empty()) {
         initializeSearch();
     }
 
-    if (mRover->rightCacheTarget().distance >= 0 ||
-        (mRover->leftCacheTarget().distance >= 0 && mRover->leftCacheTarget().id != lastKnownRightPost.id)) {
+    if (rover->rightCacheTarget().distance >= 0 ||
+        (rover->leftCacheTarget().distance >= 0 && rover->leftCacheTarget().id != lastKnownRightPost.id)) {
         updatePost2Info();
         calcCenterPoint();
         return NavState::GateTurnToCentPoint;
     }
 
     Odometry& nextSearchPoint = mGateSearchPoints.front();
-    if (mRover->turn(nextSearchPoint)) {
+    if (rover->turn(nextSearchPoint)) {
         return NavState::GateDrive;
     }
     return NavState::GateTurn;
@@ -145,15 +149,16 @@ NavState GateStateMachine::executeGateTurn() {
 
 // Drive to determined waypoint
 NavState GateStateMachine::executeGateDrive() {
-    if (mRover->rightCacheTarget().distance >= 0 ||
-        (mRover->leftCacheTarget().distance >= 0 && mRover->leftCacheTarget().id != lastKnownRightPost.id)) {
+    auto rover = mStateMachine.lock()->getRover();
+    if (rover->rightCacheTarget().distance >= 0 ||
+        (rover->leftCacheTarget().distance >= 0 && rover->leftCacheTarget().id != lastKnownRightPost.id)) {
         updatePost2Info();
         calcCenterPoint();
         return NavState::GateTurnToCentPoint;
     }
 
     const Odometry& nextSearchPoint = mGateSearchPoints.front();
-    DriveStatus driveStatus = mRover->drive(nextSearchPoint);
+    DriveStatus driveStatus = rover->drive(nextSearchPoint);
 
     if (driveStatus == DriveStatus::Arrived) {
         mGateSearchPoints.pop_front();
@@ -167,7 +172,7 @@ NavState GateStateMachine::executeGateDrive() {
 
 // Turn to center of the two gate posts
 NavState GateStateMachine::executeGateTurnToCentPoint() {
-    if (mRover->turn(centerPoint1)) {
+    if (mStateMachine.lock()->getRover()->turn(centerPoint1)) {
         return NavState::GateDriveToCentPoint;
     }
     return NavState::GateTurnToCentPoint;
@@ -175,7 +180,7 @@ NavState GateStateMachine::executeGateTurnToCentPoint() {
 
 // Drive to the center point defined by the two posts
 NavState GateStateMachine::executeGateDriveToCentPoint() {
-    DriveStatus driveStatus = mRover->drive(centerPoint1);
+    DriveStatus driveStatus = mStateMachine.lock()->getRover()->drive(centerPoint1);
 
     if (driveStatus == DriveStatus::Arrived) {
         return NavState::GateFace;
@@ -188,7 +193,7 @@ NavState GateStateMachine::executeGateDriveToCentPoint() {
 
 // Turn to the face of the gate posts 
 NavState GateStateMachine::executeGateFace() {
-    if (mRover->turn(centerPoint2)) {
+    if (mStateMachine.lock()->getRover()->turn(centerPoint2)) {
         return NavState::GateTurnToFarPost;
     }
     return NavState::GateFace;
@@ -196,18 +201,19 @@ NavState GateStateMachine::executeGateFace() {
 
 // Turn to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateTurnToFarPost() {
-    if (mRover->rightCacheTarget().distance > 0) {
-        if (mRover->leftCacheTarget().distance < mRover->rightCacheTarget().distance) {
-            if (mRover->turn(mRover->rightCacheTarget().bearing + mRover->odometry().bearing_deg)) {
+    auto rover = mStateMachine.lock()->getRover();
+    if (rover->rightCacheTarget().distance > 0) {
+        if (rover->leftCacheTarget().distance < rover->rightCacheTarget().distance) {
+            if (rover->turn(rover->rightCacheTarget().bearing + rover->odometry().bearing_deg)) {
                 return NavState::GateDriveToFarPost;
             }
         } else {
-            if (mRover->turn(mRover->leftCacheTarget().bearing + mRover->odometry().bearing_deg)) {
+            if (rover->turn(rover->leftCacheTarget().bearing + rover->odometry().bearing_deg)) {
                 return NavState::GateDriveToFarPost;
             }
         }
     } else {
-        if (mRover->turn(mRover->leftCacheTarget().bearing + mRover->odometry().bearing_deg)) {
+        if (rover->turn(rover->leftCacheTarget().bearing + rover->odometry().bearing_deg)) {
             return NavState::GateDriveToFarPost;
         }
     }
@@ -216,22 +222,23 @@ NavState GateStateMachine::executeGateTurnToFarPost() {
 
 // Drive to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateDriveToFarPost() {
+    auto rover = mStateMachine.lock()->getRover();
     // Minor adjustment to gate targeting, due to issue of driving through a 
     // post when driving through the wrong direction
     double gateAdjustmentDist = mRoverConfig["gateAdjustment"]["adjustmentDistance"].GetDouble();
 
     // Set to first target, since we should have atleast one in sight/detected
-    double distance = mRover->leftCacheTarget().distance - gateAdjustmentDist;
-    double bearing = mRover->leftCacheTarget().bearing + mRover->odometry().bearing_deg;
+    double distance = rover->leftCacheTarget().distance - gateAdjustmentDist;
+    double bearing = rover->leftCacheTarget().bearing + rover->odometry().bearing_deg;
 
-    if (mRover->rightCacheTarget().distance > 0 &&
-        mRover->leftCacheTarget().distance < mRover->rightCacheTarget().distance) {
+    if (rover->rightCacheTarget().distance > 0 &&
+        rover->leftCacheTarget().distance < rover->rightCacheTarget().distance) {
         // Set our variables to drive to target/post 2, which is farther away
-        distance = mRover->rightCacheTarget().distance - gateAdjustmentDist;
-        bearing = mRover->rightCacheTarget().bearing + mRover->odometry().bearing_deg;
+        distance = rover->rightCacheTarget().distance - gateAdjustmentDist;
+        bearing = rover->rightCacheTarget().bearing + rover->odometry().bearing_deg;
     }
 
-    DriveStatus driveStatus = mRover->drive(distance, bearing, true);
+    DriveStatus driveStatus = rover->drive(distance, bearing, true);
 
     if (driveStatus == DriveStatus::Arrived) {
         return NavState::GateTurnToGateCenter;
@@ -244,7 +251,7 @@ NavState GateStateMachine::executeGateDriveToFarPost() {
 
 // Execute turn back to center point for driving through the gate
 NavState GateStateMachine::executeGateTurnToGateCenter() {
-    if (mRover->turn(centerPoint2)) {
+    if (mStateMachine.lock()->getRover()->turn(centerPoint2)) {
         return NavState::GateDriveThrough;
     }
     return NavState::GateTurnToGateCenter;
@@ -252,7 +259,7 @@ NavState GateStateMachine::executeGateTurnToGateCenter() {
 
 // Drive through gate posts
 NavState GateStateMachine::executeGateDriveThrough() {
-    DriveStatus driveStatus = mRover->drive(centerPoint2);
+    DriveStatus driveStatus = mStateMachine.lock()->getRover()->drive(centerPoint2);
 
     if (driveStatus == DriveStatus::Arrived) {
         if (!isCorrectGateDir) // Check if we drove through the incorrect direction
@@ -274,15 +281,16 @@ NavState GateStateMachine::executeGateDriveThrough() {
 
 // Update stored location and id for second post.
 void GateStateMachine::updatePost2Info() {
-    Odometry const& odometry = mRover->odometry();
-    if (mRover->rightCacheTarget().distance >= 0 && mRover->leftCacheTarget().id == lastKnownRightPost.id) {
-        const double targetAbsAngle = mod(odometry.bearing_deg + mRover->rightCacheTarget().bearing, 360);
-        lastKnownLeftPost.odom = createOdom(odometry, targetAbsAngle, mRover->rightCacheTarget().distance, mRover);
-        lastKnownLeftPost.id = mRover->rightCacheTarget().id;
+    auto rover = mStateMachine.lock()->getRover();
+    Odometry const& odometry = rover->odometry();
+    if (rover->rightCacheTarget().distance >= 0 && rover->leftCacheTarget().id == lastKnownRightPost.id) {
+        const double targetAbsAngle = mod(odometry.bearing_deg + rover->rightCacheTarget().bearing, 360);
+        lastKnownLeftPost.odom = createOdom(odometry, targetAbsAngle, rover->rightCacheTarget().distance, rover);
+        lastKnownLeftPost.id = rover->rightCacheTarget().id;
     } else {
-        const double targetAbsAngle = mod(odometry.bearing_deg + mRover->leftCacheTarget().bearing, 360);
-        lastKnownLeftPost.odom = createOdom(odometry, targetAbsAngle, mRover->leftCacheTarget().distance, mRover);
-        lastKnownLeftPost.id = mRover->leftCacheTarget().id;
+        const double targetAbsAngle = mod(odometry.bearing_deg + rover->leftCacheTarget().bearing, 360);
+        lastKnownLeftPost.odom = createOdom(odometry, targetAbsAngle, rover->leftCacheTarget().distance, rover);
+        lastKnownLeftPost.id = rover->leftCacheTarget().id;
     }
 } // updatePost2Info()
 
@@ -291,7 +299,8 @@ void GateStateMachine::updatePost2Info() {
 // This point should be on the correct side of the gate so that we drive
 // through it in the correct direction.
 void GateStateMachine::calcCenterPoint() {
-    const Odometry& currOdom = mRover->odometry();
+    auto rover = mStateMachine.lock()->getRover();
+    const Odometry& currOdom = rover->odometry();
     const double distFromGate = 3;
     const double gateWidth = mStateMachine.lock()->getCourseState()->getRemainingWaypoints().front().gate_width;
     const double tagToPointAngle = radianToDegree(atan2(distFromGate, gateWidth / 2));
@@ -302,8 +311,8 @@ void GateStateMachine::calcCenterPoint() {
 
     // Assuming that CV works well enough that we don't pass through the gate before
     // finding the second post. Thus, centerPoint1 will always be closer.
-    centerPoint1 = createOdom(lastKnownRightPost.odom, absAngle1, tagToPointDist, mRover);
-    centerPoint2 = createOdom(lastKnownLeftPost.odom, absAngle2, tagToPointDist, mRover);
+    centerPoint1 = createOdom(lastKnownRightPost.odom, absAngle1, tagToPointDist, rover);
+    centerPoint2 = createOdom(lastKnownLeftPost.odom, absAngle2, tagToPointDist, rover);
     const double cp1Dist = estimateNoneuclid(currOdom, centerPoint1);
     const double cp2Dist = estimateNoneuclid(currOdom, centerPoint2);
     if (lastKnownRightPost.id % 2) {
@@ -321,6 +330,6 @@ void GateStateMachine::calcCenterPoint() {
 } // calcCenterPoint()
 
 // Creates an GateStateMachine object
-shared_ptr<GateStateMachine> GateFactory(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) {
-    return make_shared<DiamondGateSearch>(stateMachine, rover, roverConfig);
+shared_ptr<GateStateMachine> GateFactory(weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig) {
+    return make_shared<DiamondGateSearch>(stateMachine, roverConfig);
 } // GateFactory()
