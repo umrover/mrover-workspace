@@ -10,9 +10,9 @@
 class SpiralIn : public SearchStateMachine {
 public:
     SpiralIn(weak_ptr<StateMachine> sm, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
-            : SearchStateMachine(move(sm), move(rover), roverConfig) {}
+            : SearchStateMachine(move(sm), roverConfig) {}
 
     // Initializes the search point multipliers to be the innermost loop
     // of the search.
-    void initializeSearch(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, double pathWidth) override;
+    void initializeSearch(const rapidjson::Document& roverConfig, double pathWidth) override;
 };

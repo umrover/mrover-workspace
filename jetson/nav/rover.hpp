@@ -119,7 +119,7 @@ public:
 
     void setOdometry(Odometry const& odometry);
 
-    void updateTargets(std::shared_ptr<CourseProgress> const& course);
+    void updateTargets(shared_ptr<Environment> const& env, shared_ptr<CourseProgress> const& course);
 
     void setState(NavState state);
 
@@ -171,12 +171,12 @@ private:
     // vision.
     Target mTargetLeft{-1.0, 0.0, 0};
 
-    Target mTargetRight{-1.0, 0.0, 0};;
+    Target mTargetRight{-1.0, 0.0, 0};
 
     // Cached Target information
-    Target mCTargetLeft{-1.0, 0.0, 0};;
+    Target mCTargetLeft{-1.0, 0.0, 0};
 
-    Target mCTargetRight{-1.0, 0.0, 0};;
+    Target mCTargetRight{-1.0, 0.0, 0};
 
     // Count of misses with cache
     int mCountLeftMisses = 0;

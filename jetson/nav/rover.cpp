@@ -139,52 +139,56 @@ bool Rover::isTurningAroundObstacle(NavState currentState) {
     return currentState == NavState::TurnAroundObs || currentState == NavState::SearchTurnAroundObs;
 } // isTurningAroundObstacle()
 
-void Rover::updateTargets(std::shared_ptr<CourseProgress> const& course) {
-    // Cache Left Target if we had detected one
-    if (mTargetLeft.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
-
-        // Associate with single post
-        if (mTargetLeft.id == course->getRemainingWaypoints().front().id) {
-            mCountLeftHits++;
+void Rover::updateTargets(shared_ptr<Environment> const& env, shared_ptr<CourseProgress> const& course) {
+    // TODO: I'm a little skeptical about how this function fits into the architecture.
+    // TODO: It seems like it should be a part of the environment, not the rover.
+    if (mAutonState.is_auton) {
+        mTargetLeft = env->getTargets().targetList[0];
+        mTargetRight = env->getTargets().targetList[1];
+        // Cache Left Target if we had detected one
+        if (mTargetLeft.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+            // Associate with single post
+            if (mTargetLeft.id == course->getRemainingWaypoints().front().id) {
+                mCountLeftHits++;
+            } else {
+                mCountLeftHits = 0;
+            }
+            // Update leftTarget if we have 3 or more consecutive hits
+            if (mCountLeftHits >= 3) {
+                mCTargetLeft = mTargetLeft;
+                mCountLeftMisses = 0;
+            }
+            // Cache Right Target if we had detected one (only can see right if we see the left one, otherwise
+            // results in some undefined behavior)
+            if (mTargetRight.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+                mCTargetRight = mTargetRight;
+                mCountRightMisses = 0;
+            } else {
+                mCountRightMisses++;
+            }
         } else {
+            mCountLeftMisses++;
+            mCountRightMisses++; // need to increment since we don't see both
             mCountLeftHits = 0;
+            mCountRightHits = 0;
         }
 
-        // Update leftTarget if we have 3 or more consecutive hits
-        if (mCountLeftHits >= 3) {
-            mCTargetLeft = mTargetLeft;
+        // Check if we need to reset left cache
+        if (mCountLeftMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
             mCountLeftMisses = 0;
+            mCountLeftHits = 0;
+            // Set to empty target
+            mCTargetLeft = {-1, 0, 0};
         }
-
-        // Cache Right Target if we had detected one (only can see right if we see the left one, otherwise
-        // results in some undefined behavior)
-        if (mTargetRight.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
-            mCTargetRight = mTargetRight;
+        // Check if we need to reset right cache
+        if (mCountRightMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
             mCountRightMisses = 0;
-        } else {
-            mCountRightMisses++;
+            mCountRightHits = 0;
+            // Set to empty target
+            mCTargetRight = {-1, 0, 0};
         }
     } else {
-        mCountLeftMisses++;
-        mCountRightMisses++; // need to increment since we don't see both
-        mCountLeftHits = 0;
-        mCountRightHits = 0;
-    }
-
-    // Check if we need to reset left cache
-    if (mCountLeftMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
-        mCountLeftMisses = 0;
-        mCountLeftHits = 0;
-        // Set to empty target
-        mCTargetLeft = {-1, 0, 0};
-    }
-
-    // Check if we need to reset right cache
-    if (mCountRightMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
-        mCountRightMisses = 0;
-        mCountRightHits = 0;
-        // Set to empty target
-        mCTargetRight = {-1, 0, 0};
+        mLongMeterInMinutes = 60 / (EARTH_CIRCUM * cos(degreeToRadian(mOdometry.latitude_deg, mOdometry.latitude_min)) / 360);
     }
 }
 

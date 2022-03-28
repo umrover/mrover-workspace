@@ -20,7 +20,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    SearchStateMachine(weak_ptr<StateMachine> sm, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
+    SearchStateMachine(weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig);
 
     virtual ~SearchStateMachine() = default;
 
@@ -28,7 +28,7 @@ public:
 
 //    bool targetReachable(shared_ptr<Rover> rover, double distance, double bearing);
 
-    virtual void initializeSearch(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, double pathWidth) = 0; // TODO
+    virtual void initializeSearch(const rapidjson::Document& roverConfig, double pathWidth) = 0; // TODO
 
 protected:
     /*************************************************************************/
@@ -49,9 +49,6 @@ protected:
 
     // Queue of search points.
     deque<Odometry> mSearchPoints;
-
-    // Pointer to rover object
-    shared_ptr<Rover> mRover;
 
 private:
     /*************************************************************************/

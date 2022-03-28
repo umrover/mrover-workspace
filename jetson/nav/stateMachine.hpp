@@ -35,6 +35,8 @@ public:
 
     shared_ptr<CourseProgress> getCourseState();
 
+    shared_ptr<Rover> getRover();
+
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/

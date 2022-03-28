@@ -10,9 +10,9 @@
 class LawnMower : public SearchStateMachine {
 public:
     LawnMower(weak_ptr<StateMachine> stateMachine, shared_ptr<Rover> rover, const rapidjson::Document& config)
-            : SearchStateMachine(move(stateMachine), move(rover), config) {}
+            : SearchStateMachine(move(stateMachine), config) {}
 
     // Initializes the search point multipliers to be the innermost loop
     // of the search.
-    void initializeSearch(shared_ptr<Rover> rover, const rapidjson::Document& config, double pathWidth) override;
+    void initializeSearch(const rapidjson::Document& config, double pathWidth) override;
 };

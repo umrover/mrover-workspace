@@ -7,7 +7,7 @@
 
 // Initializes the search ponit multipliers to be the intermost loop
 // of the search.
-void SpiralIn::initializeSearch(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, const double visionDistance) {
+void SpiralIn::initializeSearch(const rapidjson::Document& roverConfig, double visionDistance) {
     mSearchPoints.clear();
 
     mSearchPointMultipliers.clear();
@@ -22,7 +22,7 @@ void SpiralIn::initializeSearch(shared_ptr<Rover> rover, const rapidjson::Docume
             double totalLatitudeMinutes = nextSearchPoint.latitude_min +
                                           (mSearchPointMultiplier.first * visionDistance * LAT_METER_IN_MINUTES);
             double totalLongitudeMinutes = nextSearchPoint.longitude_min +
-                                           (mSearchPointMultiplier.second * visionDistance * rover->longMeterInMinutes());
+                                           (mSearchPointMultiplier.second * visionDistance * mStateMachine.lock()->getRover()->longMeterInMinutes());
             nextSearchPoint.latitude_deg += totalLatitudeMinutes / 60;
             nextSearchPoint.latitude_min = (totalLatitudeMinutes - (((int) totalLatitudeMinutes) / 60) * 60);
             nextSearchPoint.longitude_deg += totalLongitudeMinutes / 60;

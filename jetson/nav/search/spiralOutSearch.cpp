@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void SpiralOut::initializeSearch(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig, double visionDistance) {
+void SpiralOut::initializeSearch(const rapidjson::Document& roverConfig, double visionDistance) {
     mSearchPoints.clear();
     string const& path = roverConfig["search"]["spiralSearchPoints"].GetString();
     ifstream coordinate_file(path);
@@ -17,9 +17,8 @@ void SpiralOut::initializeSearch(shared_ptr<Rover> rover, const rapidjson::Docum
     float rho, phi;
     while (coordinate_file >> rho >> phi) {
         Odometry currentPoint = mStateMachine.lock()->getCourseState()->getRemainingWaypoints().front().odom;
-        Odometry nextSearchPoint = createOdom(currentPoint, phi, rho, rover);
+        Odometry nextSearchPoint = createOdom(currentPoint, phi, rho, mStateMachine.lock()->getRover());
         mSearchPoints.push_back(nextSearchPoint);
     }
     coordinate_file.close();
-    insertIntermediatePoints();
 } // initializeSearch()
