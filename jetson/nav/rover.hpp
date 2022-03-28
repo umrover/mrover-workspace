@@ -119,6 +119,8 @@ public:
 
     void setOdometry(Odometry const& odometry);
 
+    void updateTargets(std::shared_ptr<CourseProgress> const& course);
+
     void setState(NavState state);
 
     void resetMisses();

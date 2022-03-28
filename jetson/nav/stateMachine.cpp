@@ -48,6 +48,8 @@ void StateMachine::updateObstacleElements(double leftBearing, double rightBearin
 // run if the state has changed or if the rover's status has changed.
 // Will call the corresponding function based on the current state.
 void StateMachine::run() {
+    mRover->updateTargets(mCourseProgress);
+
     publishNavState();
     NavState nextState = NavState::Unknown;
 
@@ -102,7 +104,7 @@ void StateMachine::run() {
         }
 
         case NavState::ChangeSearchAlg: {
-            static double visionDistance = mConfig["computerVision"]["visionDistance"].GetDouble();
+            double visionDistance = mConfig["computerVision"]["visionDistance"].GetDouble();
             setSearcher(SearchType::SPIRALOUT, mRover, mConfig);
 
             mSearchStateMachine->initializeSearch(mRover, mConfig, visionDistance);

@@ -34,18 +34,18 @@ int main() {
     if (!lcm.good()) throw runtime_error("Cannot create LCM");
 
     auto env = make_shared<Environment>();
-    auto courseState = make_shared<CourseProgress>();
+    auto courseProgress = make_shared<CourseProgress>();
     auto config = readConfig("nav/config.json");
     auto rover = make_shared<Rover>(config, lcm);
-    auto stateMachine = make_shared<StateMachine>(config, rover, env, courseState, lcm);
+    auto stateMachine = make_shared<StateMachine>(config, rover, env, courseProgress, lcm);
 
     auto autonCallback = [rover](const lcm::ReceiveBuffer* recBuf, const string& channel, const AutonState* autonState) mutable {
         rover->setAutonState(*autonState);
     };
     lcm.subscribe("/auton", &decltype(autonCallback)::operator(), &autonCallback);
 
-    auto courseCallback = [courseState](const lcm::ReceiveBuffer* recBuf, const string& channel, const Course* course) mutable {
-        courseState->setCourse(*course);
+    auto courseCallback = [courseProgress](const lcm::ReceiveBuffer* recBuf, const string& channel, const Course* course) mutable {
+        courseProgress->setCourse(*course);
     };
     lcm.subscribe("/course", &decltype(courseCallback)::operator(), &courseCallback);
 

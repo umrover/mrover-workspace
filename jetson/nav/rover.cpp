@@ -104,7 +104,6 @@ void Rover::stop() {
     publishJoystick(0, 0, false);
 } // stop()
 
-
 // Calculates the conversion from minutes to meters based on the
 // rover's current latitude.
 double Rover::longMeterInMinutes() const {
@@ -139,6 +138,55 @@ void Rover::publishJoystick(const double forwardBack, const double leftRight, co
 bool Rover::isTurningAroundObstacle(NavState currentState) {
     return currentState == NavState::TurnAroundObs || currentState == NavState::SearchTurnAroundObs;
 } // isTurningAroundObstacle()
+
+void Rover::updateTargets(std::shared_ptr<CourseProgress> const& course) {
+    // Cache Left Target if we had detected one
+    if (mTargetLeft.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+
+        // Associate with single post
+        if (mTargetLeft.id == course->getRemainingWaypoints().front().id) {
+            mCountLeftHits++;
+        } else {
+            mCountLeftHits = 0;
+        }
+
+        // Update leftTarget if we have 3 or more consecutive hits
+        if (mCountLeftHits >= 3) {
+            mCTargetLeft = mTargetLeft;
+            mCountLeftMisses = 0;
+        }
+
+        // Cache Right Target if we had detected one (only can see right if we see the left one, otherwise
+        // results in some undefined behavior)
+        if (mTargetRight.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+            mCTargetRight = mTargetRight;
+            mCountRightMisses = 0;
+        } else {
+            mCountRightMisses++;
+        }
+    } else {
+        mCountLeftMisses++;
+        mCountRightMisses++; // need to increment since we don't see both
+        mCountLeftHits = 0;
+        mCountRightHits = 0;
+    }
+
+    // Check if we need to reset left cache
+    if (mCountLeftMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
+        mCountLeftMisses = 0;
+        mCountLeftHits = 0;
+        // Set to empty target
+        mCTargetLeft = {-1, 0, 0};
+    }
+
+    // Check if we need to reset right cache
+    if (mCountRightMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
+        mCountRightMisses = 0;
+        mCountRightHits = 0;
+        // Set to empty target
+        mCTargetRight = {-1, 0, 0};
+    }
+}
 
 // Gets a reference to the rover's current navigation state.
 NavState const& Rover::currentState() const {

@@ -76,10 +76,9 @@ NavState SearchStateMachine::executeSearchTurn() {
 NavState SearchStateMachine::executeSearchDrive() {
     shared_ptr<StateMachine> sm = mStateMachine.lock();
 
-    if (mRover->leftCacheTarget().distance >= 0 && sm->getCourseState()->getRemainingWaypoints().front().id ==
-                                                   mRover->leftCacheTarget().id) {
-        updateTargetDetectionElements(mRover->leftCacheTarget().bearing,
-                                      mRover->odometry().bearing_deg);
+    if (mRover->leftCacheTarget().distance >= 0
+        && sm->getCourseState()->getRemainingWaypoints().front().id == mRover->leftCacheTarget().id) {
+        updateTargetDetectionElements(mRover->leftCacheTarget().bearing, mRover->odometry().bearing_deg);
         return NavState::TurnToTarget;
     }
 
@@ -226,8 +225,7 @@ void SearchStateMachine::insertIntermediatePoints() {
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms
 shared_ptr<SearchStateMachine>
-SearchFactory(const weak_ptr<StateMachine>& sm, SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig)
-{
+SearchFactory(const weak_ptr<StateMachine>& sm, SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig) {
     shared_ptr<SearchStateMachine> search = nullptr;
     switch (type) {
         case SearchType::SPIRALOUT:
