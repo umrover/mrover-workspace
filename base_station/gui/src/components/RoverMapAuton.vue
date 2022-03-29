@@ -71,9 +71,9 @@ export default {
       playbackEnabled: 'playbackEnabled',
       playbackLength: 'playbackLength',
       playback: 'playback',
-      playbackLat: 'playbackLat',
-      playbackLon: 'playbackLon',
-      playbackBearing: 'playbackBearing',
+      playbackOdomLat: 'playbackOdomLat',
+      playbackOdomLon: 'playbackOdomLon',
+      playbackOdomBearing: 'playbackOdomBearing',
       playbackGpsBearing: 'playbackGpsBearing',
     }),
 
@@ -173,30 +173,30 @@ export default {
       this.playbackSlider = 0
 
       if (val) {
-        this.center = L.latLng(this.playbackLat[0], this.playbackLon[0])
+        this.center = L.latLng(this.playbackOdomLat[0], this.playbackOdomLon[0])
 
-        this.roverMarker.setRotationAngle(this.playbackBearing[0])
-        this.roverMarker.setLatLng(L.latLng(this.playbackLat[0], this.playbackLon[0]))
+        this.roverMarker.setRotationAngle(this.playbackOdomBearing[0])
+        this.roverMarker.setLatLng(L.latLng(this.playbackOdomLat[0], this.playbackOdomLon[0]))
 
         this.tangentMarker.setRotationAngle(this.playbackGpsBearing[0])
-        this.tangentMarker.setLatLng(L.latLng(this.playbackLat[0], this.playbackLon[0]))
+        this.tangentMarker.setLatLng(L.latLng(this.playbackOdomLat[0], this.playbackOdomLon[0]))
       }
     },
 
     playbackSlider: function (val) {
-      this.roverMarker.setRotationAngle(this.playbackBearing[val])
-      this.roverMarker.setLatLng(L.latLng(this.playbackLat[val], this.playbackLon[val]))
+      this.roverMarker.setRotationAngle(this.playbackOdomBearing[val])
+      this.roverMarker.setLatLng(L.latLng(this.playbackOdomLat[val], this.playbackOdomLon[val]))
 
       this.tangentMarker.setRotationAngle(this.playbackGpsBearing[val])
-      this.tangentMarker.setLatLng(L.latLng(this.playbackLat[val], this.playbackLon[val]))
+      this.tangentMarker.setLatLng(L.latLng(this.playbackOdomLat[val], this.playbackOdomLon[val]))
 
       let length_diff = val - this.playbackPath.length
 
       if (length_diff > 0) {
         for (let i = this.playbackPath.length; i < val; i++) {
           this.playbackPath.push(L.latLng(
-            this.playbackLat[i],
-            this.playbackLon[i]
+            this.playbackOdomLat[i],
+            this.playbackOdomLon[i]
           ))
         }
       }

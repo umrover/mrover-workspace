@@ -14,9 +14,9 @@ export default {
   data () {
     return {
       route: [],
-      lat: [],
-      lon: [],
-      bearing: [],
+      odom_lat: [],
+      odom_lon: [],
+      odom_bearing: [],
       gps_bearing: [],
       waypoint_lat: [],
       waypoint_lon: []
@@ -27,9 +27,9 @@ export default {
     ...mapMutations('autonomy', {
       setPlaybackEnabled: 'setPlaybackEnabled',
       setRoute: 'setRoute',
-      setPlaybackLat: 'setPlaybackLat',
-      setPlaybackLon: 'setPlaybackLon',
-      setPlaybackBearing: 'setPlaybackBearing',
+      setPlaybackOdomLat: 'setPlaybackOdomLat',
+      setPlaybackOdomLon: 'setPlaybackOdomLon',
+      setPlaybackOdomBearing: 'setPlaybackOdomBearing',
       setPlaybackGpsBearing: 'setPlaybackGpsBearing'
     }),
 
@@ -93,13 +93,13 @@ export default {
           }
 
           for (let i = 1; i < parsed_data.length - 1; i++) {
-            this.lat.push(
+            this.odom_lat.push(
               parseFloat(parsed_data[i][rover_lat_deg_idx]) + parseFloat(parsed_data[i][rover_lat_min_idx])/60.0
             )
-            this.lon.push(
+            this.odom_lon.push(
               parseFloat(parsed_data[i][rover_lon_deg_idx]) + parseFloat(parsed_data[i][rover_lon_min_idx])/60.0
             )
-            this.bearing.push(
+            this.odom_bearing.push(
               parseFloat(parsed_data[i][rover_bearing_idx])
             )
             this.gps_bearing.push(
@@ -132,18 +132,18 @@ export default {
           }
 
           this.setRoute(this.route)
-          this.setPlaybackLat(this.lat)
-          this.setPlaybackLon(this.lon)
-          this.setPlaybackBearing(this.bearing)
+          this.setPlaybackOdomLat(this.odom_lat)
+          this.setPlaybackOdomLon(this.odom_lon)
+          this.setPlaybackOdomBearing(this.odom_bearing)
           this.setPlaybackGpsBearing(this.gps_bearing)
 
           console.log("SUCCESSFULLY READ DATA!")
           this.setPlaybackEnabled(true)
 
           this.route = []
-          this.lat = []
-          this.lon = []
-          this.bearing = []
+          this.odom_lat = []
+          this.odom_lon = []
+          this.odom_bearing = []
           this.gps_bearing = []
           this.waypoint_lat = []
           this.waypoint_lon = []
