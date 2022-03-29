@@ -125,4 +125,4 @@ There is an issue with mrover-workspace/config/nucleo_bridge/Controller.cpp. Res
 
 ### Notes
 
-To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/umrover/embedded-testbench/tree/motor_nucleo/). A README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.
+To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/umrover/embedded-testbench/tree/motor_nucleo/motor_nucleo). An updated README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.
