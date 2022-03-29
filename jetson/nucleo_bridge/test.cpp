@@ -25,9 +25,11 @@
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
 
 // reductions per motor 
-float cpr[6] = { -28800.0, 1.0, 155040.0, -81600.0, -81600.0, -9072.0 };
+float cpr[6] = { -28800.0, 4096.0, 136800.0, -72000.0, -72000.0, -9072.0 };
 
 int invert[6] = {1, 1, 1, 1, 1, 1};
+
+int max_pwm[6] = {29, 33, 60, 60, 60, 16};
 
 int num_tests_ran = 0;
 
@@ -317,15 +319,8 @@ void testConfigPWM()
     for (auto address : i2c_address)
     {
         // test off
-        int max = 30;
-        if (address < 17)
-        {
-            max = 16;
-        }
-        if (address == 16)
-        {
-            max = 16;
-        }
+	int joint = (address & 0b1) + (((address >> 4) - 1) * 2);
+	int max = max_pwm[joint];
         configPWM(address, max);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -480,11 +475,7 @@ void testOpenPlus()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        float speed = 0.5f;
-        if (address == 16)
-        {
-            speed = 0.25f;
-        }
+        float speed = 1.0f;
 
         for (int i = 0; i < 3; i++) {
             openPlus(address, speed);
@@ -507,35 +498,27 @@ void testOpenPlusWithAbs()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        float speed = 0.5f;
-        if (address == 16)
-        {
-            speed = 0.25f;
-        }
-        if (address == 32 || address == 33)
-        {
-            speed = 1.0f;
-        }
+        float speed = 1.0f;
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             openPlus(address, speed);
             sleep(200);
             absEnc(address);
             sleep(200);
         }
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             openPlus(address, 0.0f);
             sleep(200);
             absEnc(address);
             sleep(200);
         }
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             openPlus(address, -speed);
             sleep(200);
             absEnc(address);
             sleep(200);
         }
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             openPlus(address, 0.0f);
             sleep(200);
             absEnc(address);
