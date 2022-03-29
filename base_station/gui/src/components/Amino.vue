@@ -15,8 +15,7 @@
     <label for="toggle_button" :class="{'active': heaters[0].enabled}" class="toggle__button">
       <span class="toggle__label" >Heater 0 {{heaters[0].message}}</span>
       <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="heaters[0].enabled" v-on:click="sendHeaterCmd(0, false)"></span>
-      <span class="toggle__switch" v-if="!heaters[0].enabled" v-on:click="sendHeaterCmd(0, true)"></span>
+      <span class="toggle__switch" v-on:click="sendHeaterCmd(0, !heaters[0].intended)"></span>
     </label>
     <p v-bind:style="{color: heaters[0].color}">Thermistor 0: {{heaters[0].temp.toFixed(2)}} C°</p>
   </div>
@@ -24,8 +23,7 @@
     <label for="toggle_button" :class="{'active': heaters[1].enabled}" class="toggle__button">
       <span class="toggle__label" >Heater 1 {{heaters[1].message}}</span>
       <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="heaters[1].enabled" v-on:click="sendHeaterCmd(1, false)"></span>
-      <span class="toggle__switch" v-if="!heaters[1].enabled" v-on:click="sendHeaterCmd(1, true)"></span>
+      <span class="toggle__switch" v-on:click="sendHeaterCmd(1, !heaters[1].intended)"></span>
     </label>
     <p v-bind:style="{color: heaters[1].color}">Thermistor 1: {{heaters[1].temp.toFixed(2)}} C°</p>
   </div>
@@ -33,17 +31,15 @@
     <label for="toggle_button" :class="{'active': heaters[2].enabled}" class="toggle__button">
       <span class="toggle__label" >Heater 2 {{heaters[2].message}}</span>
       <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="heaters[2].enabled" v-on:click="sendHeaterCmd(2, false)"></span>
-      <span class="toggle__switch" v-if="!heaters[2].enabled" v-on:click="sendHeaterCmd(2, true)"></span>
+      <span class="toggle__switch" v-on:click="sendHeaterCmd(2, !heaters[2].intended)"></span>
     </label>
     <p v-bind:style="{color: heaters[2].color}">Thermistor 2: {{heaters[2].temp.toFixed(2)}} C°</p>
   </div>
   <div>
-    <label for="toggle_button" :class="{'active': autoShutdown}" class="toggle__button">
+    <label for="toggle_button" :class="{'active': autoShutdownEnabled}" class="toggle__button">
       <span class="toggle__label" >Auto Shutdown {{autoShutdownMessage}}</span>
       <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="autoShutdown" v-on:click="sendAutoShutdownCmd(false)"></span>
-      <span class="toggle__switch" v-if="!autoShutdown" v-on:click="sendAutoShutdownCmd(true)"></span>
+      <span class="toggle__switch" v-on:click="sendAutoShutdownCmd(!autoShutdownIntended)"></span>
     </label>
   </div>
 </div>  
@@ -58,25 +54,29 @@ export default {
       heaters: [
         {
           enabled: false,
+          intended: false,
           message: 'Off',
           temp: 0,
           color: 'grey'
         },
         {
           enabled: false,
+          intended: false,
           message: 'Off',
           temp: 0,
           color: 'grey'
         },
         {
           enabled: false,
+          intended: false,
           message: 'Off',
           temp: 0,
           color: 'grey'
         }
       ],
 
-      autoShutdown: true,
+      autoShutdownEnabled: true,
+      autoShutdownIntended: true,
       autoShutdownMessage: 'On'
     }
   },
@@ -101,6 +101,7 @@ export default {
 
     this.$parent.subscribe('/heater_state_data', (msg) => {
       this.heaters[msg.device].enabled = msg.enabled
+      this.heaters[msg.device].intended = msg.enabled
 
       let enabled = 'Off'
       if (msg.enabled == 1) {
@@ -110,7 +111,8 @@ export default {
     })
 
     this.$parent.subscribe('/heater_auto_shutdown_data', (msg) => {
-      this.autoShutdown = msg.auto_shutdown_enabled
+      this.autoShutdownEnabled = msg.auto_shutdown_enabled
+      this.autoShutdownIntended = msg.auto_shutdown_enabled
 
       let enabled = 'Off'
       if (msg.auto_shutdown_enabled == 1) {
@@ -122,7 +124,19 @@ export default {
 
   methods: {
     sendHeaterCmd: function(id, enabled) {
-      this.heaters[id].message = '...'
+      this.heaters[id].intended = enabled
+
+      if (enabled == this.heaters[id].enabled) {
+        if (enabled) {
+          this.heaters[id].message = 'On'
+        }
+        else {
+          this.heaters[id].message = 'Off'
+        }
+      }
+      else {
+        this.heaters[id].message = '...'
+      }
 
       this.$parent.publish('/heater_cmd', {
         'type': 'Heater',
@@ -132,7 +146,19 @@ export default {
     },
 
     sendAutoShutdownCmd: function(enabled) {
-      this.autoShutdownMessage = '...'
+      this.autoShutdownIntended = enabled
+
+      if (enabled == this.autoShutdownEnabled) {
+        if (enabled) {
+          this.autoShutdownMessage = 'On'
+        }
+        else {
+          this.autoShutdownMessage = 'Off'
+        }
+      }
+      else {
+        this.autoShutdownMessage = '...'
+      }
 
       this.$parent.publish('/heater_auto_shutdown_cmd', {
         'type': 'HeaterAutoShutdown',
