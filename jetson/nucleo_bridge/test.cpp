@@ -29,6 +29,8 @@ float cpr[6] = { -28800.0, 1.0, 155040.0, -81600.0, -81600.0, -9072.0 };
 
 int invert[6] = {1, 1, 1, 1, 1, 1};
 
+int max_pwm[6] = {29, 33, 60, 60, 60, 16};
+
 int num_tests_ran = 0;
 
 std::vector<int> i2c_address;
@@ -317,15 +319,8 @@ void testConfigPWM()
     for (auto address : i2c_address)
     {
         // test off
-        int max = 30;
-        if (address < 17)
-        {
-            max = 16;
-        }
-        if (address == 16)
-        {
-            max = 16;
-        }
+	int joint = (address & 0b1) + (((address >> 4) - 1) * 2);
+	int max = max_pwm[joint];
         configPWM(address, max);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -480,11 +475,11 @@ void testOpenPlus()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        float speed = 0.5f;
-        if (address == 16)
-        {
-            speed = 0.25f;
-        }
+        float speed = 1.0f;
+        //if (address == 16)
+        //{
+        //    speed = 0.25f;
+        //}
 
         for (int i = 0; i < 3; i++) {
             openPlus(address, speed);
