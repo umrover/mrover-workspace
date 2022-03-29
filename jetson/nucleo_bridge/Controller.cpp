@@ -64,17 +64,8 @@ void Controller::make_live()
 //Helper function to convert raw angle to radians. Also checks if new angle is close to old angle <depreciated>
 void Controller::record_angle(int32_t raw_angle)
 {
-    if (name == "RA_B" || name == "SA_B")
-    {
-        float abs_raw_angle = 0;
-        memcpy(&abs_raw_angle, &raw_angle, sizeof(raw_angle));
-        current_angle = abs_raw_angle - M_PI;            
-    }
-    else 
-    {
-        // record quadrature 
-        current_angle = ((raw_angle / quad_cpr) * 2 * M_PI) - M_PI;
-    } 
+    // record quadrature 
+    current_angle = ((raw_angle / quad_cpr) * 2 * M_PI) - M_PI;
 }
 
 //Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use
@@ -120,15 +111,9 @@ void Controller::closed_loop(float torque, float target)
 
         // we read values from 0 - 2pi, teleop sends in -pi to pi
         target += M_PI;
-        if (name == "RA_B" || name == "SA_B")
-        {
-            memcpy(buffer + 4, UINT8_POINTER_T(&target), sizeof(target));
-        }
-        else
-        {
-            int32_t closed_setpoint = static_cast<int32_t>((target / (2.0 * M_PI)) * quad_cpr);
-            memcpy(buffer + 4, UINT8_POINTER_T(&closed_setpoint), sizeof(closed_setpoint));
-        }
+
+        int32_t closed_setpoint = static_cast<int32_t>((target / (2.0 * M_PI)) * quad_cpr);
+        memcpy(buffer + 4, UINT8_POINTER_T(&closed_setpoint), sizeof(closed_setpoint));
 
         transact(CLOSED_PLUS, buffer, UINT8_POINTER_T(&angle));
 
@@ -193,16 +178,8 @@ void Controller::angle()
     try
     {
         int32_t angle;
-        if (name == "RA_B" || name == "SA_B")
-        {
-            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&angle));
-        }
-        else 
-        {
-            transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
-        }
+        transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
         
-        // handles if joint B
         record_angle(angle);
     }
     catch (IOFailure &e)
@@ -221,9 +198,10 @@ void Controller::calibrate_joint()
 
     try
     {
-        if (name == "RA_B" || name == "SA_B")
+        if (name != "RA_B" && name != "SA_B")
         {
             printf("calibration not supported on %s\n", name.c_str());
+            return;
         }
         std::chrono::high_resolution_clock::time_point calibration_start_time = std::chrono::high_resolution_clock::now();
         std::chrono::duration calibration_duration_time = std::chrono::seconds(5);

@@ -4,7 +4,7 @@
 //Helper function to calculate an i2c address based off of nucleo # and channel #
 uint8_t ControllerMap::calculate_i2c_address(uint8_t nucleo, uint8_t channel)
 {
-    return ((nucleo + 1) << 4) | channel;
+    return (nucleo << 4) | channel;
 }
 
 //Helper function to get the path of the config file
