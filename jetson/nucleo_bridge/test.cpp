@@ -25,7 +25,7 @@
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
 
 // reductions per motor 
-float cpr[6] = { -28800.0, 1.0, 155040.0, -81600.0, -81600.0, -9072.0 };
+float cpr[6] = { -28800.0, 4096.0, 136800.0, -72000.0, -72000.0, -9072.0 };
 
 int invert[6] = {1, 1, 1, 1, 1, 1};
 
@@ -476,10 +476,6 @@ void testOpenPlus()
     for (auto address : i2c_address)
     {
         float speed = 1.0f;
-        //if (address == 16)
-        //{
-        //    speed = 0.25f;
-        //}
 
         for (int i = 0; i < 3; i++) {
             openPlus(address, speed);
@@ -502,35 +498,27 @@ void testOpenPlusWithAbs()
     PRINT_TEST_START
     for (auto address : i2c_address)
     {
-        float speed = 0.5f;
-        if (address == 16)
-        {
-            speed = 0.25f;
-        }
-        if (address == 32 || address == 33)
-        {
-            speed = 1.0f;
-        }
+        float speed = 1.0f;
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             openPlus(address, speed);
             sleep(200);
             absEnc(address);
             sleep(200);
         }
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             openPlus(address, 0.0f);
             sleep(200);
             absEnc(address);
             sleep(200);
         }
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             openPlus(address, -speed);
             sleep(200);
             absEnc(address);
             sleep(200);
         }
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             openPlus(address, 0.0f);
             sleep(200);
             absEnc(address);
