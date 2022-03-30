@@ -48,17 +48,15 @@ private:
     	//The following functions are handlers for the corresponding lcm messages
         void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
 
-        void mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
-
         void hand_openloop_cmd(LCM_INPUT, const HandCmd *msg);
 
         void joint_b_calib_data();
 
+        void mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
+
         void ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg);
 
         void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
-
-        void publish_ra_pos_data();
 
         void refresh_quad_angles();
 
@@ -70,11 +68,14 @@ private:
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
 
+        void publish_ra_pos_data();
+
         void publish_sa_pos_data();
+
+        void publish_turn_count();
 
         void scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg);
 
-        void publish_turn_count();
     };
 
     inline static InternalHandler *internal_object = nullptr;

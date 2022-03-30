@@ -72,31 +72,48 @@ void Controller::record_angle(int32_t raw_angle)
 // Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use
 Controller::Controller(std::string name, std::string type) : name(name), hardware(Hardware(type)) {}
 
-// Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
-void Controller::open_loop(float input)
+// Sends a get angle command
+void Controller::calibration_data()
 {
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+
     try
     {
-        make_live();
+        int8_t calib_data;
 
-        if (name == "RA_B" && !calibrated)
-        {
-            printf("open loop failed because RA_B is not yet calibrated");
-            return;
-        }
-        uint8_t buffer[4];
-        float speed = hardware.throttle(input) * inversion;
-        memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
+        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calib_data));
 
-        int32_t raw_angle;
-
-        transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
-
-        record_angle(raw_angle);
+        calibrated = calib_data == 0xF ? true : false;
     }
     catch (IOFailure &e)
     {
-        printf("open loop failed on %s\n", name.c_str());
+        printf("calibration data failed on %s\n", name.c_str());
+    }
+}
+
+// Calibrate joint -- should only be used for joint b
+void Controller::calibrate_joint()
+{
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+
+    try
+    {
+        if (name != "RA_B" && name != "SA_B")
+        {
+            printf("calibration not supported on %s\n", name.c_str());
+            return;
+        }
+        open_loop(0.3);
+    }
+    catch (IOFailure &e)
+    {
+        printf("calibrate joint failed on %s\n", name.c_str());
     }
 }
 
@@ -157,25 +174,6 @@ void Controller::config(float KP, float KI, float KD)
     }
 }
 
-// Sends a zero command
-void Controller::zero()
-{
-    for (int attempts = 0; attempts < 100; ++attempts)
-    {
-        try
-        {
-            make_live();
-
-            int32_t zero = 0;
-            transact(ADJUST, UINT8_POINTER_T(&zero), nullptr);
-        }
-        catch (IOFailure &e)
-        {
-            printf("zero failed on %s\n", name.c_str());
-        }
-    }
-}
-
 // Sends a limit switch enable command
 void Controller::limit_switch_enable(bool enable)
 {
@@ -191,6 +189,34 @@ void Controller::limit_switch_enable(bool enable)
     catch (IOFailure &e)
     {
         printf("limit switch enable failed on %s\n", name.c_str());
+    }
+}
+
+// Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
+void Controller::open_loop(float input)
+{
+    try
+    {
+        make_live();
+
+        if (name == "RA_B" && !calibrated)
+        {
+            printf("open loop failed because RA_B is not yet calibrated");
+            return;
+        }
+        uint8_t buffer[4];
+        float speed = hardware.throttle(input) * inversion;
+        memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
+
+        int32_t raw_angle;
+
+        transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
+
+        record_angle(raw_angle);
+    }
+    catch (IOFailure &e)
+    {
+        printf("open loop failed on %s\n", name.c_str());
     }
 }
 
@@ -212,28 +238,6 @@ void Controller::quad_angle()
     catch (IOFailure &e)
     {
         printf("angle failed on %s\n", name.c_str());
-    }
-}
-
-// Sends a get angle command
-void Controller::calibration_data()
-{
-    if (!ControllerMap::check_if_live(name))
-    {
-        return;
-    }
-
-    try
-    {
-        int8_t calib_data;
-
-        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calib_data));
-
-        calibrated = calib_data == 0xF ? true : false;
-    }
-    catch (IOFailure &e)
-    {
-        printf("calibration data failed on %s\n", name.c_str());
     }
 }
 
@@ -260,25 +264,21 @@ void Controller::turn_count_data()
     }
 }
 
-// Calibrate joint -- should only be used for joint b
-void Controller::calibrate_joint()
+// Sends a zero command
+void Controller::zero()
 {
-    if (!ControllerMap::check_if_live(name))
+    for (int attempts = 0; attempts < 100; ++attempts)
     {
-        return;
-    }
-
-    try
-    {
-        if (name != "RA_B" && name != "SA_B")
+        try
         {
-            printf("calibration not supported on %s\n", name.c_str());
-            return;
+            make_live();
+
+            int32_t zero = 0;
+            transact(ADJUST, UINT8_POINTER_T(&zero), nullptr);
         }
-        open_loop(0.3);
-    }
-    catch (IOFailure &e)
-    {
-        printf("calibrate joint failed on %s\n", name.c_str());
+        catch (IOFailure &e)
+        {
+            printf("zero failed on %s\n", name.c_str());
+        }
     }
 }

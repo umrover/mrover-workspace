@@ -65,12 +65,6 @@ void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *ms
     ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop);
 }
 
-void LCMHandler::InternalHandler::mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg)
-{
-    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch[0]);
-    ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw[0]);
-}
-
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
 {
     ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger);
@@ -84,6 +78,12 @@ void LCMHandler::InternalHandler::joint_b_calib_data()
     lcm_bus->publish("/joint_b_calibration_data", &msg);
 
     last_output_time = NOW;
+}
+
+void LCMHandler::InternalHandler::mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg)
+{
+    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch[0]);
+    ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw[0]);
 }
 
 // The following functions are handlers for the corresponding lcm messages
@@ -107,21 +107,6 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
     ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4]);
     ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
     publish_ra_pos_data();
-}
-
-
-void LCMHandler::InternalHandler::publish_ra_pos_data()
-{
-    RAPosition msg;
-    msg.joint_a = ControllerMap::controllers["RA_A"]->current_angle;
-    msg.joint_b = ControllerMap::controllers["RA_B"]->current_angle;
-    msg.joint_c = ControllerMap::controllers["RA_C"]->current_angle;
-    msg.joint_d = ControllerMap::controllers["RA_D"]->current_angle;
-    msg.joint_e = ControllerMap::controllers["RA_E"]->current_angle;
-    msg.joint_f = ControllerMap::controllers["RA_F"]->current_angle;
-    lcm_bus->publish("/ra_position", &msg);
-
-    last_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::refresh_quad_angles()
@@ -191,6 +176,20 @@ void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *ms
     ControllerMap::controllers["SA_E"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
 }
 */
+
+void LCMHandler::InternalHandler::publish_ra_pos_data()
+{
+    RAPosition msg;
+    msg.joint_a = ControllerMap::controllers["RA_A"]->current_angle;
+    msg.joint_b = ControllerMap::controllers["RA_B"]->current_angle;
+    msg.joint_c = ControllerMap::controllers["RA_C"]->current_angle;
+    msg.joint_d = ControllerMap::controllers["RA_D"]->current_angle;
+    msg.joint_e = ControllerMap::controllers["RA_E"]->current_angle;
+    msg.joint_f = ControllerMap::controllers["RA_F"]->current_angle;
+    lcm_bus->publish("/ra_position", &msg);
+
+    last_output_time = NOW;
+}
 
 void LCMHandler::InternalHandler::publish_sa_pos_data()
 {

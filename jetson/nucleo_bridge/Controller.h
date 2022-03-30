@@ -52,9 +52,6 @@ public:
 
     std::string name;
 
-    // Helper function to convert raw angle to radians. Also checks if new angle is close to old angle
-    void record_angle(int32_t angle);
-
 private:
     Hardware hardware;
 
@@ -64,27 +61,12 @@ private:
     // If this Controller is not live, make it live by configuring the real controller
     void make_live();
 
+    // Helper function to convert raw angle to radians. Also checks if new angle is close to old angle
+    void record_angle(int32_t angle);
+
 public:
     // Initialize the Controller. Need to know which type of hardware to use
     Controller(std::string name, std::string type);
-
-    // Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
-    void open_loop(float input);
-
-    // Sends a closed loop command with target angle in radians and optional precalculated torque in Nm
-    void closed_loop(float torque, float angle);
-
-    // Sends a config command with PID inputs
-    void config(float KP, float KI, float KD);
-
-    // Sends a zero command
-    void zero();
-
-    // Sends a limit switch enable command
-    void limit_switch_enable(bool enable);
-
-    // Sends a get angle command
-    void quad_angle();
 
     // Sends a calibrated command
     void calibration_data();
@@ -92,8 +74,27 @@ public:
     // Calibrate joint -- should only be used for joint b
     void calibrate_joint();
 
+    // Sends a closed loop command with target angle in radians and optional precalculated torque in Nm
+    void closed_loop(float torque, float angle);
+
+    // Sends a config command with PID inputs
+    void config(float KP, float KI, float KD);
+
+    // Sends a limit switch enable command
+    void limit_switch_enable(bool enable);
+
+    // Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
+    void open_loop(float input);
+
+    // Sends a get angle command
+    void quad_angle();
+
     // Get turn count -- should only be used for joint f
     void turn_count_data();
+
+    // Sends a zero command
+    void zero();
+
 };
 
 #endif

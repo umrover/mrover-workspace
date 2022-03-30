@@ -11,7 +11,7 @@
 #define PRINT_TEST_START printf("Running Test #%2d, %s\n", ++num_tests_ran, __FUNCTION__);
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
 
-#define ANGLE_ERROR_DEGREES 10
+#define ANGLE_ERROR_DEGREES 5
 
 int num_tests_ran = 0;
 
