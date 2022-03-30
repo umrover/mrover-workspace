@@ -91,6 +91,9 @@ public:
 
     // Calibrate joint -- should only be used for joint b
     void calibrate_joint();
+
+    // Get turn count -- should only be used for joint f
+    void turn_count_data()
 };
 
 #endif

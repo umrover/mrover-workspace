@@ -52,10 +52,10 @@ void LCMHandler::handle_outgoing()
         internal_object->refreshAngles();
         internal_object->refresh_calib_data();
         // internal_object->refresh_turn_count();
-        internal_object->sa_pos_data();
-        internal_object->ra_pos_data();
+        internal_object->publish_sa_pos_data();
+        internal_object->publish_ra_pos_data();
         internal_object->joint_b_calib_data();
-        // internal_object->turn_count_data();
+        // internal_object->publish_turn_count();
     }
 }
 
@@ -95,7 +95,7 @@ void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition
     ControllerMap::controllers["RA_D"]->closed_loop(0, msg->joint_d);
     ControllerMap::controllers["RA_E"]->closed_loop(0, msg->joint_e);
     ControllerMap::controllers["RA_F"]->closed_loop(0, msg->joint_f);
-    ra_pos_data();
+    publish_ra_pos_data();
 }
 
 void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg)
@@ -106,7 +106,7 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
     ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3]);
     ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4]);
     ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
-    ra_pos_data();
+    publish_ra_pos_data();
 }
 
 
@@ -145,7 +145,7 @@ void LCMHandler::InternalHandler::refresh_calib_data()
 
 void LCMHandler::InternalHandler::refresh_turn_count_data()
 {
-    ControllerMap::controllers["RA_B"]->turn_count_data();
+    ControllerMap::controllers["RA_F"]->turn_count_data();
 }
 
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)
@@ -154,7 +154,7 @@ void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition
     ControllerMap::controllers["SA_B"]->closed_loop(0, msg->joint_b);
     ControllerMap::controllers["SA_C"]->closed_loop(0, msg->joint_c);
     ControllerMap::controllers["SA_E"]->closed_loop(0, msg->joint_e);
-    sa_pos_data();
+    publish_sa_pos_data();
 }
 
 void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg)
@@ -163,7 +163,7 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
     ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1]);
     ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2]);
     ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3]);
-    sa_pos_data();
+    publish_sa_pos_data();
 }
 
 void LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg)
@@ -204,7 +204,7 @@ void LCMHandler::InternalHandler::sa_pos_data()
     last_output_time = NOW;
 }
 
-void LCMHandler::InternalHandler::turn_count_data()
+void LCMHandler::InternalHandler::publish_turn_count()
 {
     WristTurnCount msg;
     msg.turn_count = ControllerMap::controllers["RA_F"]->turn_count;

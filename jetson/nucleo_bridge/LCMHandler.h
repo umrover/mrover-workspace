@@ -58,7 +58,7 @@ private:
 
         void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
 
-        void ra_pos_data();
+        void publish_ra_pos_data();
 
         void refreshAngles();
 
@@ -70,11 +70,11 @@ private:
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
 
-        void sa_pos_data();
+        void publish_sa_pos_data();
 
         void scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg);
 
-        void turn_count_data();
+        void publish_turn_count();
     };
 
     inline static InternalHandler *internal_object = nullptr;
