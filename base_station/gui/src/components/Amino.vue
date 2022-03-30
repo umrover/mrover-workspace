@@ -11,7 +11,11 @@
       <option value="2">Site 2</option>
     </select>
   </div>
-  <div class="box1" v-if="site == 0">
+  <div class="box1" :class="{'active': heaters[site].enabled}">
+    <ToggleButton id="heater_toggle" :labelEnableText="'Heater '+(site)+' '+(heaters[site].message)" :labelDisableText="'Heater '+(site)+' '+(heaters[site].message)" v-on:change="toggleHeater(site)"/>
+    <p v-bind:style="{color: heaters[site].color}">Thermistor {{site}}: {{heaters[site].temp.toFixed(2)}} C°</p>
+  </div>
+  <!-- <div class="box1" v-if="site == 0">
     <label for="toggle_button" :class="{'active': heaters[0].enabled}" class="toggle__button">
       <span class="toggle__label" >Heater 0 {{heaters[0].message}}</span>
       <input type="checkbox" id="toggle_button">
@@ -34,7 +38,7 @@
       <span class="toggle__switch" v-on:click="sendHeaterCmd(2, !heaters[2].intended)"></span>
     </label>
     <p v-bind:style="{color: heaters[2].color}">Thermistor 2: {{heaters[2].temp.toFixed(2)}} C°</p>
-  </div>
+  </div> -->
   <div>
     <label for="toggle_button" :class="{'active': autoShutdownEnabled}" class="toggle__button">
       <span class="toggle__label" >Auto Shutdown {{autoShutdownMessage}}</span>
@@ -46,6 +50,8 @@
 </template>
 
 <script>
+import ToggleButton from './ToggleButton.vue'
+
 export default {
   data () {
     return {
@@ -122,7 +128,19 @@ export default {
     })
   },
 
+  components: {
+    ToggleButton
+  },
+
   methods: {
+    toggleHeater: function(id) {
+      if (this.heaters[id].enabled) {
+        this.sendHeaterCmd(id, false)
+      } else {
+        this.sendHeaterCmd(id, true)
+      }
+    },
+    
     sendHeaterCmd: function(id, enabled) {
       this.heaters[id].intended = enabled
 
