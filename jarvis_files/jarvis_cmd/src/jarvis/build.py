@@ -122,7 +122,7 @@ def build_deps(ctx, no_reqs):
         third_party.ensure_lcm(ctx)
 
     if (no_reqs):
-        print("Skipping pip dependencis")
+        print("Skipping pip dependencies")
     else:
         pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
         pip_hasher.hash_modification_time('pip_deps/')
