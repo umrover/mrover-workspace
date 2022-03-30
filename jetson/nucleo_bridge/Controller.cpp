@@ -105,12 +105,11 @@ void Controller::calibrate_joint()
 
     try
     {
-        // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
-        // if (name != "RA_B" && name != "SA_B")
-        // {
-        //     printf("calibration not supported on %s\n", name.c_str());
-        //     return;
-        // }
+        if (name != "RA_B" && name != "SA_B")
+        {
+            printf("calibration not supported on %s\n", name.c_str());
+            return;
+        }
         open_loop(0.3);
     }
     catch (IOFailure &e)
