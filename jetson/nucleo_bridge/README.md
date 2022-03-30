@@ -27,7 +27,7 @@ I2C.h is responsible for translating communications by virtual Controllers into 
 
 There are no watchdogs in this program currently.
 
-### LCM Channels
+### LCM Channels Publishing/Subscribed To
 #### RA Open Loop \[Subscriber\] "/ra_openloop_cmd"
 Message: [RAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAOpenLoopCmd.lcm) \
 Publisher: jetson/teleop \
@@ -73,6 +73,10 @@ Message: [SAPosData.lcm](https://github.com/umrover/mrover-workspace/blob/master
 Publisher: jetson/nucleo_bridge \
 Subscriber: jetson/kinematics
 
+### Watchdog Timeout Period
+
+The hardware does not have any watchdog time out period.
+
 ### Usage
 
 To build nucleo_bridge use `$./jarvis build jetson/nucleo_bridge/ ` from the mrover-workspace directory.
@@ -93,18 +97,20 @@ To control the RA/SA through closed-loop
 * Ensure base_station/kineval is running on the base station
 * Input commands into the arm control page on the base station GUI
 
+### Off Nominal Behavior Handling
+
+None so far.
+
 ### Common Errors
 
 This routine typically only thows one type of error, when it has issues communicating with the motor nucleos. They will have the form "<command> failed on channel"
 
-
 #### <Command> failed on channel
-The Nucleo that is unresponsive is the first digit of the channel minus 1. For example, if the error message says "activate failed on 10", check Nucleo 0. Typically this is because the wiring on the i2c bus has failed nd needs to be fixed. Even after wiring is fixed or other related issues have been resolved, the Nucleos may stay unresponsive. To reset the Nucleo, press its reset button. If this does not fix nucleo_bridge, you may have to restart nucleo_bridge.
+The Nucleo that is unresponsive is the first digit of the channel. For example, if the error message says "activate failed on 10", check Nucleo 1. Typically this is because the wiring on the i2c bus has failed and needs to be fixed. Even after wiring is fixed or other related issues have been resolved, the Nucleos may stay unresponsive. To reset the Nucleo, press its reset button. If this does not fix nucleo_bridge, you may have to restart nucleo_bridge.
 
 These communication errors can be caused by a failure anywhere on the i2c bus, so it is not unlikely that issues with only one Nucleo will cause the all the Nucleos to fail to communicate properly. 
 
 nucleo_bridge will continue to attempt i2c bus transactions as commands come in from teleop, but currently has no other way to diagnose/remedy an i2c failure.
-
 
 #### "Assertation failed" while initializing a virtual controller
 There is an issue with mrover-workspace/config/nucleo_bridge/Controller.cpp. Resolve the configuration file's issues before running the program.
@@ -116,6 +122,7 @@ There is an issue with mrover-workspace/config/nucleo_bridge/Controller.cpp. Res
 - [ ] LCM message to teleop about joint B being at its limit or not 
 - [ ] Joint B new quadrature encoder functionality
 - [ ] Investigate relative and absolute encoder limits (do they ever go above 360/below 0)  
+
 ### Notes
 
-To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/raytitan/NucleoHAL/tree/master/Core). A README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.
+To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/umrover/embedded-testbench/tree/motor_nucleo/motor_nucleo). An updated README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.
