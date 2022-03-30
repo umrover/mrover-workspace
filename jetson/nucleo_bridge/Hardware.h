@@ -77,7 +77,7 @@ public:
             speed_max = 29;  // 10.44 V, or 24V * 0.44 / 36 %
 	        break;
         case HBridge:
-            speed_max = 95;
+            speed_max = 100;
         case None:
             break;
         }
