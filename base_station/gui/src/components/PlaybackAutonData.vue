@@ -6,35 +6,35 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapMutations } from 'vuex'
+import L from '../leaflet-rotatedmarker.js'
 
 export default {
 
   data () {
     return {
-      playback: {
-        lat: [],
-        lon: [],
-        bearing: [],
-        waypoint_lat: [],
-        waypoint_lon: []
-      }
+      route: [],
+      odom_lat: [],
+      odom_lon: [],
+      odom_bearing: [],
+      gps_bearing: [],
+      waypoint_lat: [],
+      waypoint_lon: []
     }
   },
 
   methods: {
     ...mapMutations('autonomy', {
       setPlaybackEnabled: 'setPlaybackEnabled',
-      setPlaybackLat: 'setPlaybackLat',
-      setPlaybackLon: 'setPlaybackLon',
-      setPlaybackBearing: 'setPlaybackBearing',
-      setPlaybackWaypointLat: 'setPlaybackWaypointLat',
-      setPlaybackWaypointLon: 'setPlaybackWaypointLon',
+      setRoute: 'setRoute',
+      setPlaybackOdomLat: 'setPlaybackOdomLat',
+      setPlaybackOdomLon: 'setPlaybackOdomLon',
+      setPlaybackOdomBearing: 'setPlaybackOdomBearing',
+      setPlaybackGpsBearing: 'setPlaybackGpsBearing'
     }),
 
     upload_log: function() {
       console.log('Uploading file...')
-      console.log(this.playback)
 
       let files = document.getElementById('read_log').files
       if (files && files[0]) {
@@ -58,6 +58,8 @@ export default {
           let rover_lon_min_idx = 0
           let rover_bearing_idx = 0
 
+          let gps_bearing_idx = 0
+
           let waypoint_lat_idx = 0
           let waypoint_lon_idx = 0
 
@@ -78,6 +80,9 @@ export default {
               case 'Odom bearing':
                 rover_bearing_idx = i
                 break
+              case 'GPS Bearing':
+                gps_bearing_idx = i
+                break
               case 'First Waypoint Lat':
                 waypoint_lat_idx = i
                 break
@@ -88,16 +93,18 @@ export default {
           }
 
           for (let i = 1; i < parsed_data.length - 1; i++) {
-            this.playback.lat.push(
+            this.odom_lat.push(
               parseFloat(parsed_data[i][rover_lat_deg_idx]) + parseFloat(parsed_data[i][rover_lat_min_idx])/60.0
             )
-            this.playback.lon.push(
+            this.odom_lon.push(
               parseFloat(parsed_data[i][rover_lon_deg_idx]) + parseFloat(parsed_data[i][rover_lon_min_idx])/60.0
             )
-            this.playback.bearing.push(
+            this.odom_bearing.push(
               parseFloat(parsed_data[i][rover_bearing_idx])
             )
-
+            this.gps_bearing.push(
+              parseFloat(parsed_data[i][gps_bearing_idx])
+            )
 
             let new_waypoint = true
             let waypoint_lat = parseFloat(parsed_data[i][waypoint_lat_idx])
@@ -107,33 +114,39 @@ export default {
               new_waypoint = false
             }
             else {
-              for (let j = 0; j < this.playback.waypoint_lat.length; j++) {
-                if (waypoint_lat == this.playback.waypoint_lat[j] && waypoint_lon == this.playback.waypoint_lon[j]) {
+              for (let j = 0; j < this.waypoint_lat.length; j++) {
+                if (waypoint_lat == this.waypoint_lat[j] && waypoint_lon == this.waypoint_lon[j]) {
                   new_waypoint = false
                 }
               }
             }
 
             if (new_waypoint) {
-              this.playback.waypoint_lat.push(waypoint_lat)
-              this.playback.waypoint_lon.push(waypoint_lon)
+              this.waypoint_lat.push(waypoint_lat)
+              this.waypoint_lon.push(waypoint_lon)
             }
           }
 
-          this.setPlaybackLat(this.playback.lat)
-          this.setPlaybackLon(this.playback.lon)
-          this.setPlaybackBearing(this.playback.bearing)
-          this.setPlaybackWaypointLat(this.playback.waypoint_lat)
-          this.setPlaybackWaypointLon(this.playback.waypoint_lon)
+          for (let i = 0; i < this.waypoint_lat.length; i++) {
+            this.route.push( {latLng: L.latLng(this.waypoint_lat[i], this.waypoint_lon[i])} )
+          }
+
+          this.setRoute(this.route)
+          this.setPlaybackOdomLat(this.odom_lat)
+          this.setPlaybackOdomLon(this.odom_lon)
+          this.setPlaybackOdomBearing(this.odom_bearing)
+          this.setPlaybackGpsBearing(this.gps_bearing)
 
           console.log("SUCCESSFULLY READ DATA!")
           this.setPlaybackEnabled(true)
 
-          this.playback.lat = []
-          this.playback.lon = []
-          this.playback.bearing = []
-          this.playback.waypoint_lat = []
-          this.playback.waypoint_lon = []
+          this.route = []
+          this.odom_lat = []
+          this.odom_lon = []
+          this.odom_bearing = []
+          this.gps_bearing = []
+          this.waypoint_lat = []
+          this.waypoint_lon = []
         }) // end callback
 
         reader.readAsBinaryString(file)

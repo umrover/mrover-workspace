@@ -107,7 +107,7 @@ export default {
         },
 
         TargetList: {
-            type: Object,
+            type: Array,
             required: true
         }
     },
@@ -135,9 +135,6 @@ export default {
         const overflow_amt = 60
 
         window.setInterval(() => {
-            console.log(this.TargetList)
-            console.log(this.TargetList[0])
-            console.log(this.TargetList[1])
             if (this.logging_on == 1) {
                 this.num_logs += 1
 
