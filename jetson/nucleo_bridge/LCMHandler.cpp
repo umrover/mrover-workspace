@@ -110,7 +110,7 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
 }
 
 
-void LCMHandler::InternalHandler::ra_pos_data()
+void LCMHandler::InternalHandler::publish_ra_pos_data()
 {
     RAPosition msg;
     msg.joint_a = ControllerMap::controllers["RA_A"]->current_angle;
@@ -192,7 +192,7 @@ void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *ms
 }
 */
 
-void LCMHandler::InternalHandler::sa_pos_data()
+void LCMHandler::InternalHandler::publish_sa_pos_data()
 {
     SAPosition msg;
     msg.joint_a = ControllerMap::controllers["SA_A"]->current_angle;
