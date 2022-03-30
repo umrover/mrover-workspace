@@ -50,10 +50,11 @@ void Controller::make_live()
 
         ControllerMap::make_live(name);
 
-        if (name == "RA_B" || name == "SA_B")
-        {
-            // calibrate_joint();
-        }
+        // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
+        // if (name == "RA_B" || name == "SA_B")
+        // {
+        //     calibrate_joint();
+        // }
     }
     catch (IOFailure &e)
     {
@@ -86,7 +87,7 @@ void Controller::calibration_data()
 
         transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calib_data));
 
-        calibrated = calib_data == 0xF ? true : false;
+        calibrated = calib_data == 0xF;
     }
     catch (IOFailure &e)
     {
@@ -104,11 +105,12 @@ void Controller::calibrate_joint()
 
     try
     {
-        if (name != "RA_B" && name != "SA_B")
-        {
-            printf("calibration not supported on %s\n", name.c_str());
-            return;
-        }
+        // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
+        // if (name != "RA_B" && name != "SA_B")
+        // {
+        //     printf("calibration not supported on %s\n", name.c_str());
+        //     return;
+        // }
         open_loop(0.3);
     }
     catch (IOFailure &e)
@@ -124,11 +126,12 @@ void Controller::closed_loop(float torque, float target)
     {
         make_live();
 
-        if (name == "RA_B" && !calibrated)
-        {
-            printf("closed_loop failed because RA_B is not yet calibrated");
-            return;
-        }
+        // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
+        // if ((name == "RA_B" || name == "SA_B") && !calibrated)
+        // {
+        //     printf("closed_loop failed because joint B is not yet calibrated");
+        //     return;
+        // }
 
         float feed_forward = 0; // torque * torque_scale;
         uint8_t buffer[32];
@@ -199,11 +202,13 @@ void Controller::open_loop(float input)
     {
         make_live();
 
-        if (name == "RA_B" && !calibrated)
-        {
-            printf("open loop failed because RA_B is not yet calibrated");
-            return;
-        }
+        // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
+        // if ((name == "RA_B" || name == "SA_B") && !calibrated)
+        // {
+        //     printf("closed_loop failed because joint B is not yet calibrated");
+        //     return;
+        // }
+
         uint8_t buffer[4];
         float speed = hardware.throttle(input) * inversion;
         memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
