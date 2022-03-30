@@ -81,7 +81,7 @@ public:
     void zero();
 
     // Sends a limit switch enable command
-    void limit_switch_enable();
+    void limit_switch_enable(bool enable);
 
     // Sends a get angle command
     void angle();
