@@ -3,25 +3,29 @@
         "name":"HAND_FINGER",
         "type":"HBridge",
         "nucleo": 3,
-        "channel": 2
+        "channel": 2,
+        "inversion": 1.0
     },
     {
         "name":"HAND_GRIP",
         "type":"HBridge",
         "nucleo": 2,
-        "channel": 2
+        "channel": 2,
+        "inversion": 1.0
     },
     {
         "name":"FOOT_SCOOP",
         "type":"HBridge",
         "nucleo": 2,
-        "channel": 2
+        "channel": 2,
+        "inversion": 1.0
     },
     {
         "name":"FOOT_SENSOR",
         "type":"HBridge",
         "nucleo": 3,
-        "channel": 2
+        "channel": 2,
+        "inversion": 1.0
     },
     {
         "name":"GIMBAL_YAW",
