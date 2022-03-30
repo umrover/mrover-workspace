@@ -195,7 +195,7 @@ void Controller::limit_switch_enable(bool enable)
 }
 
 // Sends a get angle command
-void Controller::angle()
+void Controller::quad_angle()
 {
     if (!ControllerMap::check_if_live(name))
     {

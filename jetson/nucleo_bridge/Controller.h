@@ -84,7 +84,7 @@ public:
     void limit_switch_enable(bool enable);
 
     // Sends a get angle command
-    void angle();
+    void quad_angle();
 
     // Sends a calibrated command
     void calibration_data();

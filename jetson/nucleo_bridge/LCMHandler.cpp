@@ -49,7 +49,7 @@ void LCMHandler::handle_outgoing()
     std::chrono::duration deadTime = std::chrono::milliseconds(200);
     if (NOW - last_output_time > deadTime)
     {
-        internal_object->refreshAngles();
+        internal_object->refresh_quad_angles();
         internal_object->refresh_calib_data();
         // internal_object->refresh_turn_count();
         internal_object->publish_sa_pos_data();
@@ -124,18 +124,18 @@ void LCMHandler::InternalHandler::ra_pos_data()
     last_output_time = NOW;
 }
 
-void LCMHandler::InternalHandler::refreshAngles()
+void LCMHandler::InternalHandler::refresh_quad_angles()
 {
-    ControllerMap::controllers["RA_A"]->angle();
-    ControllerMap::controllers["RA_B"]->angle();
-    ControllerMap::controllers["RA_C"]->angle();
-    ControllerMap::controllers["RA_D"]->angle();
-    ControllerMap::controllers["RA_E"]->angle();
-    ControllerMap::controllers["RA_F"]->angle();
-    ControllerMap::controllers["SA_A"]->angle();
-    ControllerMap::controllers["SA_B"]->angle();
-    ControllerMap::controllers["SA_C"]->angle();
-    ControllerMap::controllers["SA_E"]->angle();
+    ControllerMap::controllers["RA_A"]->quad_angle();
+    ControllerMap::controllers["RA_B"]->quad_angle();
+    ControllerMap::controllers["RA_C"]->quad_angle();
+    ControllerMap::controllers["RA_D"]->quad_angle();
+    ControllerMap::controllers["RA_E"]->quad_angle();
+    ControllerMap::controllers["RA_F"]->quad_angle();
+    ControllerMap::controllers["SA_A"]->quad_angle();
+    ControllerMap::controllers["SA_B"]->quad_angle();
+    ControllerMap::controllers["SA_C"]->quad_angle();
+    ControllerMap::controllers["SA_E"]->quad_angle();
 }
 
 void LCMHandler::InternalHandler::refresh_calib_data()

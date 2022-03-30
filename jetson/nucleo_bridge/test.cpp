@@ -132,7 +132,7 @@ float quadEnc(std::string name)
 {
     try
     {
-        ControllerMap::controllers[name]->angle();
+        ControllerMap::controllers[name]->quad_angle();
         float rad_angle = ControllerMap::controllers[name]->current_angle;
         float deg_angle = rad_angle / (2 * M_PI) * 360;
         printf("quadEnc %s: Quad in degrees: %f \n", name.c_str(), deg_angle);

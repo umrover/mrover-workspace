@@ -60,7 +60,7 @@ private:
 
         void publish_ra_pos_data();
 
-        void refreshAngles();
+        void refresh_quad_angles();
 
         void refresh_calib_data();
 
