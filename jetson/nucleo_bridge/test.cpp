@@ -4,153 +4,113 @@
 #include "Hardware.h"
 #include "I2C.h"
 
+#include <cmath> // M_PI
+#include <thread>  // std::this_thread::sleep_for(std::chrono::milliseconds(50));
 #include <vector>
-#include <thread>
-
-using namespace std;
-
-# define M_PI           3.14159265358979323846  /* pi */
-
-#define OFF         0x00,   0,  0
-#define ON          0x0F,   0,  0
-#define OPEN        0x10,   2,  0
-#define OPEN_PLUS   0x1F,   4,  4
-#define CLOSED      0x20,   8,  0
-#define CLOSED_PLUS 0x2F,   8,  4
-#define CONFIG_PWM  0x30,   2,  0
-#define CONFIG_K    0x3F,   12, 0 // maybe rename to CONFIG_KPID since its all 3
-#define GET_K       0x5F,   0,  12
-#define QUAD        0x40,   0,  4
-#define ADJUST      0x4F,   4,  0
-#define ABS_ENC     0x50,   0,  4
-#define LIMIT       0x60,   0,  1
-
-#define UINT8_POINTER_T reinterpret_cast<uint8_t *>
 
 #define PRINT_TEST_START printf("Running Test #%2d, %s\n", ++num_tests_ran, __FUNCTION__);
 #define PRINT_TEST_END printf("Finished Test #%2d, %s\n\n", num_tests_ran, __FUNCTION__);
 
-// reductions per motor 
+#define ANGLE_ERROR_DEGREES 10
 
 int num_tests_ran = 0;
 
-std::vector<string> motor_names;
-
-int get_addr(int nucleo, int channel = 0)
-{
-    return (nucleo << 4) | channel;
-}
+std::vector<std::string> motor_names;
 
 void sleep(int ms)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
-void off(string name)
+void off(std::string name)
 {
     try
     {
-        ControllerMap::controllers[name]->transact(OFF, nullptr, nullptr);
-        printf("test off transaction successful on slave %s \n", name.c_str());
+        I2C::transact(ControllerMap::get_i2c_address(name), OFF, nullptr, nullptr);
+        printf("test off successful on %s \n", name.c_str());
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test off failed on slave %s \n", name.c_str());
+        fprintf(stderr, "FAILURE! test off failed on %s \n", name.c_str());
     }
 }
 
-void on(string name)
+void on(std::string name)
 {
     try
     {
-        ControllerMap::controllers[name]->transact(ON, nullptr, nullptr);
-        printf("test on transaction successful on slave %s \n", name.c_str());
+        I2C::transact(ControllerMap::get_i2c_address(name), ON, nullptr, nullptr);
+        printf("test on successful on %s \n", name.c_str());
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test on failed on slave %s \n", name.c_str());
+        fprintf(stderr, "FAILURE! test on failed on %s \n", name.c_str());
     }
 }
 
-void make_live(string name)
-{
-    try
-    {
-        ControllerMap::controllers[name]->make_live();
-        printf("test on transaction successful on slave %s \n", name.c_str());
-    }
-    catch (IOFailure &e)
-    {
-        fprintf(stderr, "test on failed on slave %s \n", name.c_str());
-    }
-}
-
-float openPlus(string name, float speed)
+float openPlus(std::string name, float speed)
 {
     try
     {
         ControllerMap::controllers[name]->open_loop(speed);
         float rad_angle = ControllerMap::controllers[name]->current_angle;
         float deg_angle = rad_angle / (2 * M_PI) * 360;
-        float cpr_val = ControllerMap::controllers[name]->quad_cpr;
-
-        printf("test openPlus transaction successful on slave %s, rad angle: %f, in degrees: %f \n", name.c_str(), rad_angle, deg_angle);
-        return rad_angle;
+        printf("openPlus %s: Quad degrees is %f \n", name.c_str(), deg_angle);
+        return deg_angle;
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test open plus failed on slave %s \n", name.c_str());
+        fprintf(stderr, "FAILURE! openPlus failed on %s \n", name.c_str());
         return 0;
     }
 }
 
-float closedPlus(string name, float angle) // -pi to pi
+float closedPlus(std::string name, float angle)
 {
     try
     {
         ControllerMap::controllers[name]->closed_loop(0, angle);
         float rad_angle = ControllerMap::controllers[name]->current_angle;
-        float deg_angle = rad_angle/ (2 * M_PI) * 360;
-        // TODO: TF is raw angle ????
-        printf("test closed plus transaction successful on slave %s, at angle raw: %i, rad: %f \n", name.c_str(), raw_angle, rad_angle);
-        return rad_angle;
+        float deg_angle = rad_angle / (2 * M_PI) * 360;
+        printf("closedPlus %s: Quad degrees is %f \n", name.c_str(), deg_angle);
+        return deg_angle;
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test closed plus failed on slave %s \n", name.c_str());
+        fprintf(stderr, "FAILURE! closed plus failed on %s \n", name.c_str());
         return 0;
     }
 }
 
-void configPWM(string name, int max_speed)
+void configPWM(std::string name, int max_speed)
 {
     try
     {
         uint8_t buffer[2];
         memcpy(buffer, UINT8_POINTER_T(&(max_speed)), sizeof(max_speed));
         I2C::transact(ControllerMap::get_i2c_address(name), CONFIG_PWM, buffer, nullptr);
-        printf("test config pwm transaction successful on slave %s \n", name.c_str());
+        printf("config pwm transaction successful on %s \n", name.c_str());
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test config pwm failed on slave %s \n", name.c_str());
+        fprintf(stderr, "FAILURE! test config pwm failed on %s \n", name.c_str());
     }
 }
 
-void setKPID(string name, float p, float i, float d)
+void setKPID(std::string name, float p, float i, float d)
 {
     try
     {
         ControllerMap::controllers[name]->config(p, i, d);
-        printf("test set kpid transaction successful on slave %s \n", name.c_str());
+        printf("set kpid transaction successful on %s \n", name.c_str());
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test set kpid failed on slave %s \n", name.c_str());
+        fprintf(stderr, "FAILURE! test set kpid failed on %s \n", name.c_str());
     }
 }
 
-void getKPID(string name)
+void getKPID(std::string name)
 {
     try
     {
@@ -160,56 +120,50 @@ void getKPID(string name)
         memcpy(UINT8_POINTER_T(&p), buffer + 0, sizeof(p));
         memcpy(UINT8_POINTER_T(&i), buffer + 4, sizeof(i));
         memcpy(UINT8_POINTER_T(&d), buffer + 8, sizeof(d));
-        // TODO: is it okay?
-        printf("test get kpid transaction successful on slave %s %d %d %d \n", name.c_str(), p, i, d);
+        printf("get kpid transaction successful on %s \n", name.c_str());
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test get kpid failed on slave %s \n", name.c_str());
+        fprintf(stderr, "FAILURE! get kpid failed on %s \n", name.c_str());
     }
 }
 
-float quadEnc(string name)//check printing 
+float quadEnc(std::string name) 
 {
     try
     {
-        // int32_t raw_angle;
-        // I2C::transact(addr, QUAD, nullptr, UINT8_POINTER_T(&(raw_angle)));
-
-        // int joint = (addr & 0b1) + (((addr >> 4) - 1) * 2); 
-        // float rad_angle = (raw_angle / cpr[joint]) * 2 * M_PI;
         ControllerMap::controllers[name]->angle();
-        float rad_angle=ControllerMap::controllers[name]->current_angle;
-        float quad_cpr = ControllerMap::controllers[name]->quad_cpr;
-       // printf("test quad enc transaction successful on slave %s, raw quad: %i, cpr: % f, in radians: %f \n", name.c_str(), raw_angle, cpr[joint], rad_angle);
-        printf("test quad on slave %s, in radians: %f \n", name.c_str(), rad_angle);
-        return rad_angle;
+        float rad_angle = ControllerMap::controllers[name]->current_angle;
+        float deg_angle = rad_angle / (2 * M_PI) * 360;
+        printf("quadEnc %s: Quad in degrees: %f \n", name.c_str(), deg_angle);
+        return deg_angle;
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test quad transaction failed on slave %s \n", name.c_str());
+        fprintf(stderr, "FAILURE: quad transaction failed on %s \n", name.c_str());
         return 0;
     }
 }
 
 //uint16_t absEnc(int addr)
-float absEnc(string name)
+float absEnc(std::string name)
 {
     try
     {
-        float angle = 0;
-       ControllerMap::controllers[name]->transact(ABS_ENC, nullptr, UINT8_POINTER_T(&angle));
-        printf("test abs on %s: degrees is %f \n", name.c_str(), angle * (180/M_PI));
-        return angle; // in radians 
+        float rad_angle = 0;
+        I2C::transact(ControllerMap::get_i2c_address(name), ABS_ENC, nullptr, UINT8_POINTER_T(&rad_angle));
+        float deg_angle = rad_angle / (2 * M_PI) * 360;
+        printf("test abs %s: Absolute degrees is %f \n", name.c_str(), deg_angle);
+        return deg_angle;
     }
     catch (IOFailure &e)
     {
-        fprintf(stderr, "test abs failed on slave %s \n", name.c_str());
+        fprintf(stderr, "FAILURE! abs failed on %s \n", name.c_str());
         return 0;
     }
 }
 
-void adjust(string name)
+void adjust(std::string name)
 {
     try
     {
@@ -217,16 +171,12 @@ void adjust(string name)
         float quad_angle = quadEnc(name);
         float abs_angle = absEnc(name);
 
-        if (name == "RA_5")
+        if (name == "RA_F")
         {
             abs_angle = M_PI;
         }
 
-        printf("before adjust quadrature value: %f, absolute value: %f on slave %s\n", quad_angle, abs_angle, name.c_str()); 
-
-        // gets absolute angle in quadrature counts
-        // quad_angle = (quad_angle / cpr[joint]) * (2 * M_PI); // counts to radians
-        // abs_angle = static_cast<uint32_t>(abs_angle); // comes out in 'radians'
+        printf("BEFORE adjust %s: Quadrature is %f, absolute is %f, difference is %f \n", name.c_str(), quad_angle, abs_angle, quad_angle - abs_angle); 
 
         int32_t adjusted_quad = (abs_angle / (2 * M_PI)) * ControllerMap::controllers[name]->quad_cpr;;
 
@@ -239,25 +189,26 @@ void adjust(string name)
         // checks values after
         quad_angle = quadEnc(name);
         abs_angle = absEnc(name);
-        if (name == "RA_5")
+
+        if (name == "RA_F")
         {
             abs_angle = M_PI;
         }
 
-        printf("after adjust quadrature value: %f, absolute value: %f on slave %s\n", quad_angle, abs_angle, name.c_str());
+        printf("AFTER adjust %s: Quadrature is %f, absolute is %f, difference is %f \n", name.c_str(), quad_angle, abs_angle, quad_angle - abs_angle); 
 
         if (std::abs(quad_angle - abs_angle) > .2)
         {
-            printf("test adjust transaction numerically failed on slave %s \n\n", name.c_str());
+            printf("FAILED! test adjust transaction numerically failed on %s \n\n", name.c_str());
         }
         else
         {
-            printf("test adjust transaction successful on slave %s \n\n", name.c_str());
+            printf("FAILED! test adjust transaction successful on %s \n\n", name.c_str());
         }
     }
     catch (IOFailure &e)
     {
-        printf("test adjust transaction failed on slave %s \n\n", name.c_str());
+        printf("FAILED! test adjust transaction failed on %s \n\n", name.c_str());
     }    
 }
 
@@ -266,18 +217,6 @@ void adjust(string name)
 // full system test: off --> running --> off
 // good quad value test (i.e we run in and the value changes)
 // test that we dont set over max
-
-void testMakeLive()
-{
-    PRINT_TEST_START
-    for (auto name : motor_names)
-    {
-        // test off
-        make_live(name);
-        sleep(10);
-    }
-    PRINT_TEST_END
-}
 
 void testOff()
 {
@@ -303,36 +242,14 @@ void testOn()
     PRINT_TEST_END
 }
 
-void testConfigPWM()
-{
-    PRINT_TEST_START
-    for (auto name : motor_names)
-    {
-        // test off
-        int max = 30;
-        if (ControllerMap::get_i2c_address(name) < 17)
-        {
-            max = 16;
-        }
-        if (ControllerMap::get_i2c_address(name) == 16)
-        {
-            max = 16;
-        }
-        configPWM(name, max);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    PRINT_TEST_END
-}
-
 void testQuadEnc()
 {
     for (auto name : motor_names)
     {
         // test off
-        uint32_t raw_angle = quadEnc(name);
-        printf("[%s] raw quad angle: %i \n", name.c_str(), raw_angle);
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        float deg_angle = quadEnc(name);
+        printf("[%s] Quad degrees: %i \n", name.c_str(), deg_angle);
+        sleep(50;)
     }
 }
 
@@ -342,8 +259,9 @@ void testAbsEnc()
     for (auto name : motor_names)
     {
         // test off
-        float raw_angle = static_cast<float>(absEnc(name));
-        printf("[%s] raw abs angle: %f \n", name.c_str(), raw_angle);
+        
+        float deg_angle = absEnc(name);
+        printf("[%s] Absolute degrees: %f \n", name.c_str(), deg_angle);
         sleep(10);
     }
     PRINT_TEST_END
@@ -352,23 +270,6 @@ void testAbsEnc()
 void testClosed()
 {
     PRINT_TEST_START
-    // testMakeLive() DOES ALL OF THIS ALREADY
-    // for (auto name : motor_names)
-    // {
-    //     int joint = (ControllerMap::get_i2c_address(name) & 0b1) + (((ControllerMap::get_i2c_address(name) >> 4) - 1) * 2); 
-    //     float p = 0.001; 
-    //     float i  = 0.00;
-    //     float d = 0; 
-
-    //     if (joint == 1)
-    //     {
-    //         p = 1.0;
-    //     }
-
-    //     setKPID(name, p * invert[joint], i * invert[joint], d * invert[joint]);
-    //     printf("joint %i, kp %f, ki, %f \n", joint, p * invert[joint], i * invert[joint] );
-    //     sleep(10);
-    // }
     for (auto name : motor_names)
     {
         int p, i, d;
@@ -389,13 +290,7 @@ void testClosed()
             float target = 0;
 
             for (int i = 0; i < 4; ++i) {
-                if (name == "RA_B" || name == "SA_B")
-                {
-                    angle = absEnc(name);
-                }
-                else {
-                    angle = quadEnc(name);
-                }
+                angle = quadEnc(name);
 
                 target = angle + offset[i];
 
@@ -404,7 +299,6 @@ void testClosed()
                     angle = closedPlus(name, target);
                     sleep(20);
                 }
-                while( name != "RA_B" && name != "SA_B" ? abs(angle - target) > 0.01 : abs(angle - target) > 0.05 );
 
                 printf("arrived at position %i\n", i);
                 sleep(1000);
@@ -442,11 +336,7 @@ void testOpenPlus()
     PRINT_TEST_START
     for (auto name : motor_names)
     {
-        float speed = 0.5f;
-        if (name == "RA_A" || name == "SA_A")
-        {
-            speed = 0.25f;
-        }
+        float speed = 1.0f;
 
         for (int i = 0; i < 3; i++) {
             openPlus(name, speed);
@@ -467,48 +357,61 @@ void testOpenPlus()
 void testOpenPlusWithAbs()
 {
     PRINT_TEST_START
+
+    float quad = 0;
+    float abs = 0;
+
     for (auto name : motor_names)
     {
-        float speed = 0.5f;
-        if (name == "RA_A" || name == "SA_A")
-        {
-            speed = 0.25f;
-        }
-        if (name == "RA_C" || name == "SA_C" || name == "RA_D")
-        {
-            speed = 1.0f;
-        }
+        float speed = 1.0f;
 
-        for (int i = 0; i < 6; i++) {
-            openPlus(name, speed);
+        for (int i = 0; i < 3; i++) {
+            quad = openPlus(name, speed);
             sleep(200);
-            absEnc(name);
+            abs = absEnc(name);
             sleep(200);
+            float difference = quad - abs;
+            if (abs(difference) >= ANGLE_ERROR_DEGREES) 
+            {
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            quad = openPlus(name, 0.0f);
+            sleep(200);
+            abs = absEnc(name);
+            sleep(200);
+            if (abs(difference) >= ANGLE_ERROR_DEGREES) 
+            {
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            quad = openPlus(name, -speed);
+            sleep(200);
+            abs = absEnc(name);
+            sleep(200);
+            if (abs(difference) >= ANGLE_ERROR_DEGREES) 
+            {
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+            }
         }
         for (int i = 0; i < 6; i++) {
-            openPlus(name, 0.0f);
+            quad = openPlus(name, 0.0f);
             sleep(200);
-            absEnc(name);
+            abs = absEnc(name);
             sleep(200);
-        }
-        for (int i = 0; i < 6; i++) {
-            openPlus(name, -speed);
-            sleep(200);
-            absEnc(name);
-            sleep(200);
-        }
-        for (int i = 0; i < 6; i++) {
-            openPlus(name, 0.0f);
-            sleep(200);
-            absEnc(name);
-            sleep(200);
+            if (abs(difference) >= ANGLE_ERROR_DEGREES) 
+            {
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+            }
         }
         std::cout << std::endl;
     }
     PRINT_TEST_END    
 }
 
-void allDevBoardFunctions(string name)
+void allDevBoardFunctions(std::string name)
 {
     PRINT_TEST_START
     printf("turning rib %s off", name.c_str());
@@ -548,7 +451,7 @@ void testAllDevBoardFunctions()
     PRINT_TEST_END
 }
 
-void testMax(string name)
+void testMax(std::string name)
 {
     PRINT_TEST_START
     printf("setting max to 1.0");
@@ -603,9 +506,7 @@ int main()
     printf("Initializing I2C bus\n");
     I2C::init();
 
-    testMakeLive();
     // testOn();
-    // testConfigPWM();
     // testAdjust();
 
     while (1)

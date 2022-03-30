@@ -62,7 +62,7 @@ void Controller::make_live()
     }
 }
 
-// Helper function to convert raw angle to radians. Also checks if new angle is close to old angle <depreciated>
+// Helper function to convert raw angle to radians. Also checks if new angle is close to old angle
 void Controller::record_angle(int32_t raw_angle)
 {
     // record quadrature 
@@ -91,9 +91,6 @@ void Controller::open_loop(float input)
         int32_t raw_angle;
 
         transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
-
-        // handles if joint B
-        // printf("%s quad angle: %i\n", name.c_str(), raw_angle);
 
         record_angle(raw_angle);
     }
@@ -207,10 +204,10 @@ void Controller::angle()
 
     try
     {
-        int32_t angle;
-        transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
+        int32_t raw_angle;
+        transact(QUAD, nullptr, UINT8_POINTER_T(&raw_angle));
         
-        record_angle(angle);
+        record_angle(raw_angle);
     }
     catch (IOFailure &e)
     {
