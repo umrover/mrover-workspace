@@ -93,7 +93,7 @@ public:
     void calibrate_joint();
 
     // Get turn count -- should only be used for joint f
-    void turn_count_data()
+    void turn_count_data();
 };
 
 #endif
