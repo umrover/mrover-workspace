@@ -408,12 +408,11 @@ void testOpenPlusWithAbsWithDelays()
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
         }
-        sleep(5000);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 10; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
             abs = absEnc(name);
-            sleep(200);
+            sleep(1000);
             float difference = quad - abs;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
@@ -431,12 +430,11 @@ void testOpenPlusWithAbsWithDelays()
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
         }
-        sleep(5000);
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 10; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
             abs = absEnc(name);
-            sleep(200);
+            sleep(1000);
             float difference = quad - abs;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
