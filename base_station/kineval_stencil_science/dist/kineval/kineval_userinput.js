@@ -22,6 +22,20 @@ kineval.handleUserInput = function user_input() {
         camera.position.y -= kineval.zoomSpeed*(robot.origin.xyz[1]+0.5-camera.position.y);
         camera.position.z -= kineval.zoomSpeed*(robot.origin.xyz[2]-camera.position.z);
     }
+    
+    if (keyboard.pressed("right")) {
+        camera.position.x += kineval.zoomSpeed;
+    }
+    else if (keyboard.pressed("left")) {
+        camera.position.x -= kineval.zoomSpeed;
+    }
+    else if (keyboard.pressed("up")) {
+        camera.position.y += kineval.zoomSpeed;
+    }
+    else if (keyboard.pressed("down")) {
+        camera.position.y -= kineval.zoomSpeed;
+        console.log(camera.orientation);
+    }
 
     if ( keyboard.pressed("shift+r") ) {
         kineval.params.ik_target.orientation[0] += Math.PI / kineval.targetRotateSpeed;
