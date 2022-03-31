@@ -397,6 +397,7 @@ void testOpenPlusWithAbsWithDelays()
     {
         float speed = 1.0f;
 
+        printf("Moving %s. \n\n", name.c_str());
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, speed);
             sleep(200);
@@ -408,6 +409,7 @@ void testOpenPlusWithAbsWithDelays()
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
         }
+        printf("Stopping %s. \n\n", name.c_str());
         for (int i = 0; i < 10; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
@@ -419,6 +421,7 @@ void testOpenPlusWithAbsWithDelays()
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
         }
+        printf("Moving %s. \n\n", name.c_str());
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, -speed);
             sleep(200);
@@ -430,6 +433,7 @@ void testOpenPlusWithAbsWithDelays()
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
         }
+        printf("Stopping %s. \n\n", name.c_str());
         for (int i = 0; i < 10; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
@@ -550,7 +554,7 @@ int main()
 	    // testQuadEnc();
         // testOpenPlusWithAbs();
         testOpenPlusWithAbsWithDelays();
-        testOpenPlus();
+        // testOpenPlus();
         // testAbsEnc();
         sleep(100);
 
