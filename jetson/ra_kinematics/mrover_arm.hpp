@@ -249,6 +249,8 @@ protected:
     void check_joint_limits(std::vector<double> &angles);
 
     void set_to_closed_loop();
+
+    bool interrupt(ControlState expected_state, std::string action);
 };
 
 class StandardArm : public MRoverArm {

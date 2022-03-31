@@ -205,14 +205,7 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
         return;
     }
 
-    if (control_state != ControlState::WAITING_FOR_TARGET) {
-        std::cout << "IK calculations cancelled\n";
-
-        if (control_state != ControlState::OFF) {
-            std::cout << "UNEXPECTED BEHAVIOR: cancelled IK but did not leave closed-loop! Setting state to off.\n";
-            control_state = ControlState::OFF;
-        }
-
+    if (interrupt(ControlState::WAITING_FOR_TARGET, "IK calculations")) {
         return;
     }
         
@@ -238,8 +231,7 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
             break;
         }
 
-        if (control_state != ControlState::CALCULATING) {
-            std::cout << "IK calculations cancelled\n";
+        if (interrupt(ControlState::CALCULATING, "IK calculations")) {
             return;
         }
 
@@ -277,13 +269,7 @@ void MRoverArm::plan_path(ArmState& hypo_state, const std::vector<double> &goal)
     bool path_found = motion_planner.rrt_connect(hypo_state, goal);
 
     // check if closed-loop was aborted
-    if (control_state != ControlState::CALCULATING) {
-        std::cout << "Path planning interrupted.\n";
-        
-        if (control_state != ControlState::OFF) {
-            std::cout << "UNEXPECTED BEHAVIOR: exited path planning but did not leave closed-loop! Setting state to off.\n";
-            control_state = ControlState::OFF;
-        }
+    if (interrupt(ControlState::CALCULATING, "Path planning")) {
         return;
     }
 
@@ -326,13 +312,7 @@ void MRoverArm::preview(ArmState& hypo_state) {
     }
 
     // If previewing was canceled early
-    if (control_state != ControlState::PREVIEWING) {
-        std::cout << "Preview interrupted.\n";
-
-        if (control_state != ControlState::OFF) {
-            std::cout << "UNEXPECTED BEHAVIOR: exited preview but did not leave closed-loop! Setting state to off.\n";
-            control_state = ControlState::OFF;
-        }
+    if (interrupt(ControlState::PREVIEWING, "Preview")) {
         return;
     }
 
@@ -353,13 +333,7 @@ void MRoverArm::motion_execute_callback(std::string channel, MotionExecute msg) 
     bool execute = (bool) msg.execute;
     std::cout << "Received execute message: " << execute << "\n";
 
-    if (control_state != ControlState::READY_TO_EXECUTE) {
-        std::cout << "Received execute message but not ready to execute!\n";
-
-        if (control_state != ControlState::OFF) {
-            std::cout << "UNEXPECTED BEHAVIOR: canceled execution but did not leave closed-loop! Setting state to off.\n";
-            control_state = ControlState::OFF;
-        }
+    if (interrupt(ControlState::READY_TO_EXECUTE, "Execution")) {
         return;
     }
 
@@ -405,14 +379,8 @@ void MRoverArm::execute_spline() {
                     }
                 }
 
-                if (control_state != ControlState::EXECUTING) {
-                    std::cout << "Motion execution interrupted.\n";
-                    
-                    if (control_state != ControlState::OFF) {
-                        std::cout << "UNEXPECTED BEHAVIOR: canceled execution but did not leave closed-loop! Setting state to off.\n";
-                        control_state = ControlState::OFF;
-                    }
-
+                if (interrupt(ControlState::EXECUTING, "Motion execution")) {
+                    return;
                 }
 
                 control_state = ControlState::WAITING_FOR_TARGET;
@@ -528,15 +496,6 @@ void MRoverArm::zero_position_callback(std::string channel, Signal msg) {
 }
 
 void MRoverArm::arm_adjust_callback(std::string channel, ArmAdjustments msg) {
-    if (control_state == ControlState::OFF) {
-        set_to_closed_loop();
-    }
-
-    if (control_state != ControlState::WAITING_FOR_TARGET) {
-        std::cout << "Received target but not in closed-loop waiting state.\n";
-        return;
-    }
-
     std::vector<double> current_pos = arm_state.get_ef_pos_and_euler_angles();
 
     TargetOrientation target;
@@ -631,6 +590,21 @@ void MRoverArm::set_to_closed_loop() {
     std::cout << "Changed mode to closed-loop.\n";
 
     control_state = ControlState::WAITING_FOR_TARGET;
+}
+
+bool MRoverArm::interrupt(ControlState expected_state, std::string action) {
+    if (control_state != expected_state) {
+        std::cout << action << " interrupted\n";
+
+        if (control_state != ControlState::OFF) {
+            std::cout << "UNEXPECTED BEHAVIOR: " << action << " interrupted but did not leave closed-loop! Setting state to off.\n";
+            control_state = ControlState::OFF;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 StandardArm::StandardArm(json &geom, lcm::LCM &lcm) : MRoverArm(geom, lcm) { }
@@ -728,14 +702,7 @@ void StandardArm::go_to_target_angles(RAPosition msg) {
         return;
     }
 
-    if (control_state != ControlState::WAITING_FOR_TARGET) {
-        std::cout << "IK calculations cancelled\n";
-
-        if (control_state != ControlState::OFF) {
-            std::cout << "UNEXPECTED BEHAVIOR: cancelled IK but did not leave closed-loop! Setting state to off.\n";
-            control_state = ControlState::OFF;
-        }
-
+    if (interrupt(ControlState::WAITING_FOR_TARGET, "IK calculations")) {
         return;
     }
 
@@ -861,14 +828,7 @@ void ScienceArm::go_to_target_angles(SAPosition msg) {
         return;
     }
 
-    if (control_state != ControlState::WAITING_FOR_TARGET) {
-        std::cout << "IK calculations cancelled\n";
-
-        if (control_state != ControlState::OFF) {
-            std::cout << "UNEXPECTED BEHAVIOR: cancelled IK but did not leave closed-loop! Setting state to off.\n";
-            control_state = ControlState::OFF;
-        }
-
+    if (interrupt(ControlState::WAITING_FOR_TARGET, "IK calculations")) {
         return;
     }
 
