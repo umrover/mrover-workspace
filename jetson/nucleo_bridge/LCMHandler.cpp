@@ -50,11 +50,11 @@ void LCMHandler::handle_outgoing()
     if (NOW - last_output_time > deadTime)
     {
         internal_object->refresh_quad_angles();
-        internal_object->refresh_calib_data();
+        // internal_object->refresh_calib_data();
         // internal_object->refresh_turn_count();
         internal_object->publish_sa_pos_data();
         internal_object->publish_ra_pos_data();
-        internal_object->joint_b_calib_data();
+        // internal_object->joint_b_calib_data();
         // internal_object->publish_turn_count();
     }
 }
