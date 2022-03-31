@@ -386,6 +386,66 @@ void testOpenPlusWithAbs()
     PRINT_TEST_END    
 }
 
+void testOpenPlusWithAbs()
+{
+    PRINT_TEST_START
+
+    float quad = 0;
+    float abs = 0;
+
+    for (auto name : motor_names)
+    {
+        float speed = 1.0f;
+
+        for (int i = 0; i < 3; i++) {
+            quad = openPlus(name, speed);
+            sleep(1000);
+            abs = absEnc(name);
+            sleep(200);
+            float difference = quad - abs;
+            if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
+            {
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            quad = openPlus(name, 0.0f);
+            sleep(200);
+            abs = absEnc(name);
+            sleep(200);
+            float difference = quad - abs;
+            if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
+            {
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            quad = openPlus(name, -speed);
+            sleep(1000);
+            abs = absEnc(name);
+            sleep(200);
+            float difference = quad - abs;
+            if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
+            {
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+            }
+        }
+        for (int i = 0; i < 6; i++) {
+            quad = openPlus(name, 0.0f);
+            sleep(200);
+            abs = absEnc(name);
+            sleep(200);
+            float difference = quad - abs;
+            if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
+            {
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+            }
+        }
+        std::cout << std::endl;
+    }
+    PRINT_TEST_END    
+}
+
 void allDevBoardFunctions(std::string name)
 {
     PRINT_TEST_START
@@ -489,6 +549,7 @@ int main()
         // testClosed();
 	    // testQuadEnc();
         // testOpenPlusWithAbs();
+        testOpenPlusWithAbsWithDelays();
         testOpenPlus();
         // testAbsEnc();
         sleep(100);
