@@ -331,7 +331,7 @@ void testOpenPlusWithAbs()
     PRINT_TEST_START
 
     float quad = 0;
-    float abs = 0;
+    float abs_angle = 0;
 
     for (auto name : motor_names)
     {
@@ -340,45 +340,45 @@ void testOpenPlusWithAbs()
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, speed);
             sleep(200);
-            abs = absEnc(name);
+            abs_angle = absEnc(name);
             sleep(200);
-            float difference = quad - abs;
+            float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
             }
         }
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
-            abs = absEnc(name);
+            abs_angle = absEnc(name);
             sleep(200);
-            float difference = quad - abs;
+            float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
             }
         }
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, -speed);
             sleep(200);
-            abs = absEnc(name);
+            abs_angle = absEnc(name);
             sleep(200);
-            float difference = quad - abs;
+            float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
             }
         }
         for (int i = 0; i < 6; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
-            abs = absEnc(name);
+            abs_angle = absEnc(name);
             sleep(200);
-            float difference = quad - abs;
+            float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
             }
         }
         std::cout << std::endl;
@@ -391,7 +391,7 @@ void testOpenPlusWithAbsWithDelays()
     PRINT_TEST_START
 
     float quad = 0;
-    float abs = 0;
+    float abs_angle = 0;
 
     for (auto name : motor_names)
     {
@@ -401,48 +401,48 @@ void testOpenPlusWithAbsWithDelays()
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, speed);
             sleep(200);
-            abs = absEnc(name);
+            abs_angle = absEnc(name);
             sleep(200);
-            float difference = quad - abs;
+            float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
             }
         }
         printf("Stopping %s. \n\n", name.c_str());
         for (int i = 0; i < 10; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
-            abs = absEnc(name);
+            abs_angle = absEnc(name);
             sleep(1000);
-            float difference = quad - abs;
+            float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
             }
         }
         printf("Moving %s. \n\n", name.c_str());
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, -speed);
             sleep(200);
-            abs = absEnc(name);
+            abs_angle = absEnc(name);
             sleep(200);
-            float difference = quad - abs;
+            float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
             }
         }
         printf("Stopping %s. \n\n", name.c_str());
         for (int i = 0; i < 10; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
-            abs = absEnc(name);
+            abs_angle = absEnc(name);
             sleep(1000);
-            float difference = quad - abs;
+            float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
             }
         }
         std::cout << std::endl;
