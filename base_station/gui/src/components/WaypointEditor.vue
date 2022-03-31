@@ -42,7 +42,7 @@
     <div class="col-wrap" style="left: 50%">
       <div class="box datagrid">
         <div class="autonmode">
-          <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event)"/>
+          <Checkbox ref="checkbox" v-bind:name="autonButtonText" v-bind:color="autonButtonColor"  v-on:toggle="toggleAutonMode($event)"/>
         </div>
         <div class="stats">
           <p>
@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import Checkbox from './CheckboxBig.vue'
+import Checkbox from './AutonModeCheckbox.vue'
 import draggable from 'vuedraggable'
 import {convertDMS} from '../utils.js';
 import AutonJoystickReading from './AutonJoystickReading.vue'
@@ -116,7 +116,11 @@ export default {
       },
 
       storedWaypoints: [],
-      route: []
+      route: [],
+
+      autonButtonColor: "red",
+      waitingForNav: false
+
     }
   },
 
@@ -128,6 +132,16 @@ export default {
 
     this.$parent.subscribe('/nav_status', (msg) => {
       this.nav_status = msg
+      if(this.waitingForNav){
+        if(this.nav_status.nav_state_name!="Off" && this.autonEnabled){
+          this.waitingForNav = false
+          this.autonButtonColor = "green"
+        }
+        else if(this.nav_status.nav_state_name=="Off" && !this.autonEnabled){
+          this.waitingForNav = false
+          this.autonButtonColor = "red"
+        }
+      }
     })
 
     interval = window.setInterval(() => {
@@ -230,6 +244,8 @@ export default {
 
     toggleAutonMode: function (val) {
       this.setAutonMode(val)
+      this.autonButtonColor = "yellow"
+      this.waitingForNav = true;
     }
   },
 
@@ -288,7 +304,12 @@ export default {
 
     sec_enabled: function() {
       return this.odom_format == 'DMS';
+    },
+
+    autonButtonText: function() {
+      return (this.autonButtonColor == "yellow") ? "Setting to "+this.autonEnabled : "Autonomy Mode"
     }
+
   },
 
   components: {
