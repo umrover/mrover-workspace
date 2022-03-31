@@ -134,7 +134,7 @@ float absEnc(std::string name)
     {
         float rad_angle = 0;
         I2C::transact(ControllerMap::get_i2c_address(name), ABS_ENC, nullptr, UINT8_POINTER_T(&rad_angle));
-        float deg_angle = rad_angle / (2 * M_PI) * 360;
+        float deg_angle = rad_angle / (2 * M_PI) * 360 - 180;
         printf("test abs %s: Absolute degrees is %f \n", name.c_str(), deg_angle);
         return deg_angle;
     }
@@ -399,7 +399,7 @@ void testOpenPlusWithAbsWithDelays()
 
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, speed);
-            sleep(1000);
+            sleep(200);
             abs = absEnc(name);
             sleep(200);
             float difference = quad - abs;
@@ -408,6 +408,7 @@ void testOpenPlusWithAbsWithDelays()
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
         }
+        sleep(5000);
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
@@ -421,7 +422,7 @@ void testOpenPlusWithAbsWithDelays()
         }
         for (int i = 0; i < 3; i++) {
             quad = openPlus(name, -speed);
-            sleep(1000);
+            sleep(200);
             abs = absEnc(name);
             sleep(200);
             float difference = quad - abs;
@@ -430,6 +431,7 @@ void testOpenPlusWithAbsWithDelays()
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
         }
+        sleep(5000);
         for (int i = 0; i < 6; i++) {
             quad = openPlus(name, 0.0f);
             sleep(200);
