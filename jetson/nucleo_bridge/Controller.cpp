@@ -212,6 +212,23 @@ void Controller::open_loop(float input)
         float speed = hardware.throttle(input) * inversion;
         memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
 
+        if (hardware.type == HBridge)
+        {
+            if (speed == last_speed)
+            {
+                return;
+            }
+            else 
+            {
+                last_speed = speed;
+                int32_t raw_angle;
+                // TODO - when open is supported, change to this
+                // transact(OPEN, buffer, nullptr);
+                transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
+                return;
+            }
+        }
+
         int32_t raw_angle;
 
         transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));

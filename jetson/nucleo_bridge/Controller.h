@@ -14,7 +14,7 @@
 
 #define OFF 0x00, 0, 0
 #define ON 0x0F, 0, 0
-#define OPEN 0x10, 2, 0
+#define OPEN 0x10, 4, 0
 #define OPEN_PLUS 0x1F, 4, 4
 #define CLOSED 0x20, 8, 0
 #define CLOSED_PLUS 0x2F, 8, 4
@@ -49,6 +49,7 @@ public:
     bool calibrated = false;
     int inversion = 1;
     int8_t turn_count = -1;
+    float last_speed = 0;
 
     std::string name;
 
