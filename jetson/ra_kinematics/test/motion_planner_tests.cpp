@@ -211,6 +211,170 @@ TEST(rrt_connect) {
     ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[5], target[5], 0.01);
 }
 
+TEST(rrt_connect_simple_science) {
+
+    // read arm geometry
+    json geom = read_json_from_file(get_mrover_arm_geom(true));
+
+    ASSERT_EQUAL(geom["name"], "mrover_arm");
+
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+    MotionPlanner planner = MotionPlanner(arm, solver);
+
+    // set angles and confirm there are no collisions
+    std::vector<double> set_angles{0, 1, 1, 0};
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));
+    arm.set_joint_angles(set_angles);
+    solver.FK(arm);
+
+    // move target slightly away from starting position
+    std::vector<double> start = arm.get_joint_angles();
+
+    std::vector<double> target;
+    target.resize(4);
+
+    target[0] = start[0] + 0.1;
+    target[1] = start[1] - 0.1;
+    target[2] = start[2] + 0.1;
+    target[3] = start[3] - 0.1;
+
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    std::cout << "entering rrt...\n";
+
+    // run rrt_connect and confirm it found a path
+    ASSERT_TRUE(planner.rrt_connect(arm, target));
+
+    // confirm spline positions
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[1], start[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[2], start[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[3], start[3], 0.01);
+
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target[3], 0.01);
+}
+
+/**
+ * target is the same as starting postition
+ * */
+TEST(anti_motion_planner_science) {
+    // read arm geometry
+    json geom = read_json_from_file(get_mrover_arm_geom(true));
+
+    ASSERT_EQUAL(geom["name"], "mrover_arm");
+
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+    MotionPlanner planner = MotionPlanner(arm, solver);
+
+    // set angles and confirm there are no collisions
+    std::vector<double> set_angles{0, 1, 1, 0};
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));
+    arm.set_joint_angles(set_angles);
+    solver.FK(arm);
+
+    // move target slightly away from starting position
+    std::vector<double> start = arm.get_joint_angles();
+
+    std::vector<double> target;
+    target.resize(4);
+
+    target[0] = start[0];
+    target[1] = start[1];
+    target[2] = start[2];
+    target[3] = start[3];
+
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    // run rrt_connect and confirm it found a path
+    ASSERT_TRUE(planner.rrt_connect(arm, target));
+
+    // confirm spline positions
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[1], start[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[2], start[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[3], start[3], 0.01);
+
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target[3], 0.01);
+}
+
+TEST(rrt_connect_science) {
+    // read arm geometry
+    json geom = read_json_from_file(get_mrover_arm_geom(true));
+
+    ASSERT_EQUAL(geom["name"], "mrover_arm");
+
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+    MotionPlanner planner = MotionPlanner(arm, solver);
+
+    // set angles and confirm there are no collisions
+    std::vector<double> set_angles{1, 0.5, 0, -1};
+    ASSERT_TRUE(solver.is_safe(arm, set_angles));
+    arm.set_joint_angles(set_angles);
+    solver.FK(arm);
+
+    // move target slightly away from starting position
+    std::vector<double> start = arm.get_joint_angles();
+
+    std::vector<double> target;
+    target.resize(4);
+
+    target[0] = start[0] + 0.1;
+    target[1] = start[1] + 0.1;
+    target[2] = start[2] + 0.1;
+    target[3] = start[3] - 0.1;
+
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    // run rrt_connect and confirm it found a path
+    ASSERT_TRUE(planner.rrt_connect(arm, target));
+
+    // confirm spline positions
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[1], start[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[2], start[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[3], start[3], 0.01);
+
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target[3], 0.01);
+    
+    arm.set_joint_angles(target);
+
+    // move target slightly away from starting position
+    start = arm.get_joint_angles();
+
+    target[0] = start[0] - 0.05;
+    target[1] = start[1] - 0.05;
+    target[2] = start[2] - 0.05;
+    target[3] = start[3] + 0.05;
+
+    ASSERT_TRUE(solver.is_safe(arm, target));
+
+    // run rrt_connect and confirm it found a path
+    ASSERT_TRUE(planner.rrt_connect(arm, target));
+
+    // confirm spline positions
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[0], start[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[1], start[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[2], start[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(0)[3], start[3], 0.01);
+
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[0], target[0], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[1], target[1], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[2], target[2], 0.01);
+    ASSERT_ALMOST_EQUAL(planner.get_spline_pos(1)[3], target[3], 0.01);
+}
+
 // Test that motion planning respects the locking of joints
 TEST(test_lock) {
     json geom = read_json_from_file(get_mrover_arm_geom(false));
