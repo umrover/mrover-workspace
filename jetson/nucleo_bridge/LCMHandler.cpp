@@ -61,14 +61,14 @@ void LCMHandler::handle_outgoing()
 
 void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
 {
-    ControllerMap::controllers["FOOT_SCOOP"]->open_loop_send_only(msg->microscope_triad);
-    ControllerMap::controllers["FOOT_SENSOR"]->open_loop_send_only(msg->scoop);
+    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad);
+    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop);
 }
 
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
 {
-    ControllerMap::controllers["HAND_FINGER"]->open_loop_send_only(msg->finger);
-    ControllerMap::controllers["HAND_GRIP"]->open_loop_send_only(msg->grip);
+    ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger);
+    ControllerMap::controllers["HAND_GRIP"]->open_loop(msg->grip);
 }
 
 void LCMHandler::InternalHandler::joint_b_calib_data()
@@ -82,8 +82,8 @@ void LCMHandler::InternalHandler::joint_b_calib_data()
 
 void LCMHandler::InternalHandler::mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg)
 {
-    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop_send_only(msg->pitch[0]);
-    ControllerMap::controllers["GIMBAL_YAW"]->open_loop_send_only(msg->yaw[0]);
+    ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch[0]);
+    ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw[0]);
 }
 
 // The following functions are handlers for the corresponding lcm messages
