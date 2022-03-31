@@ -110,24 +110,6 @@ void setKPID(std::string name, float p, float i, float d)
     }
 }
 
-void getKPID(std::string name)
-{
-    try
-    {
-        uint8_t buffer[12];
-        I2C::transact(ControllerMap::get_i2c_address(name), GET_K, nullptr, buffer);
-        int p, i, d;
-        memcpy(UINT8_POINTER_T(&p), buffer + 0, sizeof(p));
-        memcpy(UINT8_POINTER_T(&i), buffer + 4, sizeof(i));
-        memcpy(UINT8_POINTER_T(&d), buffer + 8, sizeof(d));
-        printf("get kpid transaction successful on %s \n", name.c_str());
-    }
-    catch (IOFailure &e)
-    {
-        fprintf(stderr, "FAILURE! get kpid failed on %s \n", name.c_str());
-    }
-}
-
 float quadEnc(std::string name) 
 {
     try
@@ -248,7 +230,7 @@ void testQuadEnc()
     {
         // test off
         float deg_angle = quadEnc(name);
-        printf("[%s] Quad degrees: %i \n", name.c_str(), deg_angle);
+        printf("[%s] Quad degrees: %f \n", name.c_str(), deg_angle);
         sleep(50;)
     }
 }
@@ -277,7 +259,7 @@ void testClosed()
         i = ControllerMap::controllers[name]->kI;
         d = ControllerMap::controllers[name]->kD;
         setKPID(name, p, i, d);
-        printf("joint %s, kp %f, ki, %f \n", name.c_str(), p, i);
+        printf("joint %s, kp is %i, ki is %i, kd is %i \n", name.c_str(), p, i, d);
         sleep(10);
     }
 
@@ -299,6 +281,7 @@ void testClosed()
                     angle = closedPlus(name, target);
                     sleep(20);
                 }
+                while(std::abs(angle - target) > 0.01);
 
                 printf("arrived at position %i\n", i);
                 sleep(1000);
@@ -318,17 +301,6 @@ void testAdjust()
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     PRINT_TEST_END   
-}
-
-void testSetKPID()
-{
-    PRINT_TEST_START 
-    for (auto name : motor_names)
-    {
-        getKPID(name);
-        sleep(100);
-    }
-    PRINT_TEST_END
 }
 
 void testOpenPlus()
@@ -371,7 +343,7 @@ void testOpenPlusWithAbs()
             abs = absEnc(name);
             sleep(200);
             float difference = quad - abs;
-            if (abs(difference) >= ANGLE_ERROR_DEGREES) 
+            if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
@@ -381,7 +353,8 @@ void testOpenPlusWithAbs()
             sleep(200);
             abs = absEnc(name);
             sleep(200);
-            if (abs(difference) >= ANGLE_ERROR_DEGREES) 
+            float difference = quad - abs;
+            if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
@@ -391,7 +364,8 @@ void testOpenPlusWithAbs()
             sleep(200);
             abs = absEnc(name);
             sleep(200);
-            if (abs(difference) >= ANGLE_ERROR_DEGREES) 
+            float difference = quad - abs;
+            if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
@@ -401,7 +375,8 @@ void testOpenPlusWithAbs()
             sleep(200);
             abs = absEnc(name);
             sleep(200);
-            if (abs(difference) >= ANGLE_ERROR_DEGREES) 
+            float difference = quad - abs;
+            if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
                 printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs, difference);
             }
