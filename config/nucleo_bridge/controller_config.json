@@ -133,7 +133,7 @@
     },
     {
         "name":"RA_F",
-        "type":"Motor6V",
+        "type":"Motor12V",
         "nucleo": 3,
         "channel": 1,
         "quadCPR": -9072.0,
