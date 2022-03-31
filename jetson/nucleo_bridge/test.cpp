@@ -231,7 +231,7 @@ void testQuadEnc()
         // test off
         float deg_angle = quadEnc(name);
         printf("[%s] Quad degrees: %f \n", name.c_str(), deg_angle);
-        sleep(50;)
+        sleep(50);
     }
 }
 
