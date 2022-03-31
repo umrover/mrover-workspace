@@ -386,7 +386,7 @@ void testOpenPlusWithAbs()
     PRINT_TEST_END    
 }
 
-void testOpenPlusWithAbs()
+void testOpenPlusWithAbsWithDelays()
 {
     PRINT_TEST_START
 
