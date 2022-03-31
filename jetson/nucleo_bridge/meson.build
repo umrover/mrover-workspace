@@ -9,7 +9,8 @@ unit_test = get_option('unit_test')
 
 if unit_test
     install_headers('Controller.h', 'ControllerMap.h', 'I2C.h', 'Hardware.h')
-    src = ['main.cpp', 'ControllerMap.cpp', 'I2C.cpp', 'Controller.cpp']
+    src = ['test.cpp', 'ControllerMap.cpp', 'I2C.cpp', 'Controller.cpp']
+
 
     executable('jetson_nucleo_bridge',
             sources: src,
