@@ -53,7 +53,7 @@ float openPlus(std::string name, float speed)
     try
     {
         ControllerMap::controllers[name]->open_loop(speed);
-        float rad_angle = ControllerMap::controllers[name]->current_angle;
+        float rad_angle = ControllerMap::controllers[name]->get_current_angle();
         float deg_angle = rad_angle / (2 * M_PI) * 360;
         printf("openPlus %s: Quad degrees is %f \n", name.c_str(), deg_angle);
         return deg_angle;
@@ -70,7 +70,7 @@ float closedPlus(std::string name, float angle)
     try
     {
         ControllerMap::controllers[name]->closed_loop(0, angle);
-        float rad_angle = ControllerMap::controllers[name]->current_angle;
+        float rad_angle = ControllerMap::controllers[name]->get_current_angle();
         float deg_angle = rad_angle / (2 * M_PI) * 360;
         printf("closedPlus %s: Quad degrees is %f \n", name.c_str(), deg_angle);
         return deg_angle;
@@ -115,7 +115,7 @@ float quadEnc(std::string name)
     try
     {
         ControllerMap::controllers[name]->quad_angle();
-        float rad_angle = ControllerMap::controllers[name]->current_angle;
+        float rad_angle = ControllerMap::controllers[name]->get_current_angle();
         float deg_angle = rad_angle / (2 * M_PI) * 360;
         printf("quadEnc %s: Quad in degrees: %f \n", name.c_str(), deg_angle);
         return deg_angle;
@@ -134,7 +134,7 @@ float absEnc(std::string name)
     {
         float rad_angle = 0;
         I2C::transact(ControllerMap::get_i2c_address(name), ABS_ENC, nullptr, UINT8_POINTER_T(&rad_angle));
-        float deg_angle = rad_angle / (2 * M_PI) * 360 - 180;
+        float deg_angle = rad_angle / (2 * M_PI) * 360;
         printf("test abs %s: Absolute degrees is %f \n", name.c_str(), deg_angle);
         return deg_angle;
     }
