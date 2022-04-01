@@ -284,7 +284,7 @@ void testClosed()
                 while(std::abs(angle - target) > 0.01);
 
                 printf("arrived at position %i\n", i);
-                sleep(1000);
+                sleep(4000);
             }
         }
     }
@@ -414,7 +414,7 @@ void testOpenPlusWithAbsWithDelays()
             quad = openPlus(name, 0.0f);
             sleep(200);
             abs_angle = absEnc(name);
-            sleep(1000);
+            sleep(400);
             float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
@@ -438,7 +438,7 @@ void testOpenPlusWithAbsWithDelays()
             quad = openPlus(name, 0.0f);
             sleep(200);
             abs_angle = absEnc(name);
-            sleep(1000);
+            sleep(400);
             float difference = quad - abs_angle;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
