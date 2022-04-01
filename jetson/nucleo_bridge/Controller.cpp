@@ -67,7 +67,18 @@ void Controller::make_live()
 void Controller::record_angle(int32_t raw_angle)
 {
     // record quadrature 
+    current_angle_m.lock();
     current_angle = ((raw_angle / quad_cpr) * 2 * M_PI) - M_PI;
+    current_angle_m.unlock();
+}
+
+float Controller::get_current_angle()
+{
+    float return_angle = 0.0;
+    current_angle_m.lock();
+    return_angle = current_angle;
+    current_angle_m.unlock();
+    return return_angle;
 }
 
 // Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use

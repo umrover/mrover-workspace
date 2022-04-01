@@ -180,12 +180,12 @@ void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *ms
 void LCMHandler::InternalHandler::publish_ra_pos_data()
 {
     RAPosition msg;
-    msg.joint_a = ControllerMap::controllers["RA_A"]->current_angle;
-    msg.joint_b = ControllerMap::controllers["RA_B"]->current_angle;
-    msg.joint_c = ControllerMap::controllers["RA_C"]->current_angle;
-    msg.joint_d = ControllerMap::controllers["RA_D"]->current_angle;
-    msg.joint_e = ControllerMap::controllers["RA_E"]->current_angle;
-    msg.joint_f = ControllerMap::controllers["RA_F"]->current_angle;
+    msg.joint_a = ControllerMap::controllers["RA_A"]->get_current_angle();
+    msg.joint_b = ControllerMap::controllers["RA_B"]->get_current_angle();
+    msg.joint_c = ControllerMap::controllers["RA_C"]->get_current_angle();
+    msg.joint_d = ControllerMap::controllers["RA_D"]->get_current_angle();
+    msg.joint_e = ControllerMap::controllers["RA_E"]->get_current_angle();
+    msg.joint_f = ControllerMap::controllers["RA_F"]->get_current_angle();
     lcm_bus->publish("/ra_position", &msg);
 
     last_output_time = NOW;
@@ -194,10 +194,10 @@ void LCMHandler::InternalHandler::publish_ra_pos_data()
 void LCMHandler::InternalHandler::publish_sa_pos_data()
 {
     SAPosition msg;
-    msg.joint_a = ControllerMap::controllers["SA_A"]->current_angle;
-    msg.joint_b = ControllerMap::controllers["SA_B"]->current_angle;
-    msg.joint_c = ControllerMap::controllers["SA_C"]->current_angle;
-    msg.joint_e = ControllerMap::controllers["SA_E"]->current_angle;
+    msg.joint_a = ControllerMap::controllers["SA_A"]->get_current_angle();
+    msg.joint_b = ControllerMap::controllers["SA_B"]->get_current_angle();
+    msg.joint_c = ControllerMap::controllers["SA_C"]->get_current_angle();
+    msg.joint_e = ControllerMap::controllers["SA_E"]->get_current_angle();
     lcm_bus->publish("/sa_position", &msg);
 
     last_output_time = NOW;

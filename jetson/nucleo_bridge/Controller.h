@@ -36,6 +36,8 @@ The virtual Controller will not attempt to communicate with its physical control
 (e.g. A virtual RA Controller will never attempt to communicate with its physical RA controller unless an RA-related LCM message is
 sent. This is to prevent multiple virtual Controller objects from trying to contact the same physical Controller object.)
 */
+
+
 class Controller
 {
 public:
@@ -52,6 +54,7 @@ public:
     float last_speed = 0;
 
     std::string name;
+    std::mutex current_angle_m;
 
 private:
     Hardware hardware;
@@ -95,6 +98,9 @@ public:
 
     // Sends a zero command
     void zero();
+
+    // get current angle (safely)
+    float get_current_angle();
 
 };
 
