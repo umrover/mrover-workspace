@@ -284,7 +284,7 @@ void testClosed()
                 while(std::abs(angle - target) > 0.01);
 
                 printf("arrived at position %i\n", i);
-                sleep(4000);
+                sleep(400);
             }
         }
     }
