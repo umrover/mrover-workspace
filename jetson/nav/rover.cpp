@@ -208,6 +208,7 @@ void Rover::drive( const int direction, const double bearing )
     //std::cout << "turning effort: " << turningEffort << std::endl;
     double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
     double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
+    std::cout << "publishing drive command: " << left_vel << " , " << right_vel << std::endl;
     publishAutonDriveCmd(left_vel, right_vel);
 } // drive()
 
@@ -241,6 +242,7 @@ bool Rover::turn( double bearing )
         return true;
     }
     double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, bearing );
+    //std::cout << "cur bearing: " << mRoverStatus.odometry().bearing_deg << " target bearing: " << bearing << " effort: " << turningEffort << std::endl;
     double minTurningEffort = mRoverConfig[ "navThresholds" ][ "minTurningEffort" ].GetDouble() * ( turningEffort < 0 ? -1 : 1 );
     if( isTurningAroundObstacle( mRoverStatus.currentState() ) && fabs( turningEffort ) < minTurningEffort )
     {
@@ -248,6 +250,7 @@ bool Rover::turn( double bearing )
     }
     double left_vel = max(min(1.0, turningEffort), -1.0);
     double right_vel = max(min(1.0, -turningEffort), -1.0);
+    //std::cout << left_vel << ", " << right_vel << std::endl;
     publishAutonDriveCmd(left_vel, right_vel);
     return false;
 } // turn()
@@ -255,7 +258,8 @@ bool Rover::turn( double bearing )
 // Sends a joystick command to stop the rover.
 void Rover::stop()
 {
-    publishAutonDriveCmd(0.0, 0.0);
+    	std::cout << "stopping" << std::endl;
+	publishAutonDriveCmd(0.0, 0.0);
 } // stop()
 
 // Checks if the rover should be updated based on what information in
@@ -282,7 +286,8 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             !isEqual( mRoverStatus.rightTarget(), newRoverStatus.rightTarget()) )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
-            mRoverStatus.odometry() = newRoverStatus.odometry();
+	    std::cout << "updating odom" << std::endl;
+	    mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
 
@@ -295,7 +300,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
                 {
                     mRoverStatus.getLeftHits()++;
                 }
-                else
+else
                 {
                     mRoverStatus.getLeftHits() = 0;
                 }
