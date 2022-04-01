@@ -6,11 +6,10 @@ const state = {
   odomFormat: "DM",
 
   playbackEnabled: false,
-  playbackLat: [],
-  playbackLon: [],
-  playbackBearing: [],
-  playbackWaypointLat: [],
-  playbackWaypointLon: []
+  playbackOdomLat: [],
+  playbackOdomLon: [],
+  playbackOdomBearing: [],
+  playbackGpsBearing: []
 }
 
 // getters
@@ -21,12 +20,11 @@ const getters = {
   odomFormat: state => state.odomFormat,
   playbackEnabled: state => state.playbackEnabled,
   playback: state => state.playback,
-  playbackLat: state => state.playbackLat,
-  playbackLon: state => state.playbackLon,
-  playbackBearing: state => state.playbackBearing,
-  playbackWaypointLat: state => state.playbackWaypointLat,
-  playbackWaypointLon: state => state.playbackWaypointLon,
-  playbackLength: state => state.playbackLat.length
+  playbackOdomLat: state => state.playbackOdomLat,
+  playbackOdomLon: state => state.playbackOdomLon,
+  playbackOdomBearing: state => state.playbackOdomBearing,
+  playbackGpsBearing: state => state.playbackGpsBearing,
+  playbackLength: state => state.playbackOdomLat.length
 }
 
 // mutations
@@ -51,24 +49,20 @@ const mutations = {
     state.playbackEnabled = newPlaybackEnabled
   },
 
-  setPlaybackLat (commit, lat) {
-    state.playbackLat = lat
+  setPlaybackOdomLat (commit, lat) {
+    state.playbackOdomLat = lat
   },
 
-  setPlaybackLon (commit, lon) {
-    state.playbackLon = lon
+  setPlaybackOdomLon (commit, lon) {
+    state.playbackOdomLon = lon
   },
 
-  setPlaybackBearing (commit, bearing) {
-    state.playbackBearing = bearing
+  setPlaybackOdomBearing (commit, bearing) {
+    state.playbackOdomBearing = bearing
   },
 
-  setPlaybackWaypointLat (commit, lat) {
-    state.playbackWaypointLat = lat
-  },
-
-  setPlaybackWaypointLon (commit, lon) {
-    state.playbackWaypointLon = lon
+  setPlaybackGpsBearing (commit, bearing) {
+    state.playbackGpsBearing = bearing
   }
 }
 
