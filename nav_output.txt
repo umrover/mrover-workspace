@@ -1,0 +1,1006 @@
+stopping
+cur bearing: 323.188 target bearing: 462.878 effort: 1
+1, -1
+updating odom
+cur bearing: 322.125 target bearing: 463.148 effort: 1
+1, -1
+updating odom
+cur bearing: 319.5 target bearing: 463.148 effort: 1
+1, -1
+updating odom
+cur bearing: 315.938 target bearing: 463.148 effort: 1
+1, -1
+updating odom
+cur bearing: 311.938 target bearing: 463.148 effort: 1
+1, -1
+updating odom
+cur bearing: 307 target bearing: 463.371 effort: 1
+1, -1
+updating odom
+cur bearing: 302.125 target bearing: 463.371 effort: 1
+1, -1
+updating odom
+cur bearing: 295.812 target bearing: 463.371 effort: 1
+1, -1
+updating odom
+cur bearing: 289 target bearing: 463.371 effort: 1
+1, -1
+updating odom
+cur bearing: 282.75 target bearing: 103.639 effort: 1
+1, -1
+updating odom
+cur bearing: 276.25 target bearing: 103.591 effort: 1
+1, -1
+updating odom
+cur bearing: 270.188 target bearing: 103.639 effort: 1
+1, -1
+updating odom
+cur bearing: 270.188 target bearing: 103.858 effort: 1
+1, -1
+updating odom
+cur bearing: 263.562 target bearing: 103.858 effort: 1
+1, -1
+updating odom
+cur bearing: 257.562 target bearing: 103.907 effort: 1
+1, -1
+updating odom
+cur bearing: 251.25 target bearing: 103.858 effort: 1
+1, -1
+updating odom
+cur bearing: 245.062 target bearing: 103.907 effort: 0.850868
+0.850868, -0.850868
+updating odom
+cur bearing: 238.5 target bearing: 103.858 effort: -0.487515
+-0.487515, 0.487515
+updating odom
+cur bearing: 232.438 target bearing: 103.907 effort: -1
+-1, 1
+updating odom
+cur bearing: 228.312 target bearing: 103.858 effort: -1
+-1, 1
+updating odom
+cur bearing: 229.188 target bearing: 104.075 effort: -1
+-1, 1
+updating odom
+cur bearing: 231.938 target bearing: 104.075 effort: -1
+-1, 1
+updating odom
+cur bearing: 235.562 target bearing: 104.654 effort: -1
+-1, 1
+updating odom
+cur bearing: 235.562 target bearing: 104.764 effort: -1
+-1, 1
+updating odom
+cur bearing: 240.5 target bearing: 105.025 effort: -1
+-1, 1
+updating odom
+cur bearing: 246.5 target bearing: 105.13 effort: -1
+-1, 1
+updating odom
+cur bearing: 252.938 target bearing: 104.821 effort: -1
+-1, 1
+updating odom
+cur bearing: 259.562 target bearing: 105.027 effort: -1
+-1, 1
+updating odom
+cur bearing: 265.562 target bearing: 105.383 effort: -1
+-1, 1
+updating odom
+cur bearing: 272.438 target bearing: 105.331 effort: -1
+-1, 1
+updating odom
+cur bearing: 278.938 target bearing: 105.48 effort: -1
+-1, 1
+updating odom
+cur bearing: 285.188 target bearing: 105.429 effort: -1
+-1, 1
+updating odom
+cur bearing: 291.625 target bearing: 465.378 effort: -1
+-1, 1
+updating odom
+cur bearing: 291.625 target bearing: 465.524 effort: -1
+-1, 1
+updating odom
+cur bearing: 297.188 target bearing: 465.424 effort: -1
+-1, 1
+updating odom
+cur bearing: 302.938 target bearing: 465.374 effort: -1
+-1, 1
+updating odom
+cur bearing: 309.438 target bearing: 465.325 effort: -1
+-1, 1
+updating odom
+cur bearing: 315.938 target bearing: 465.13 effort: -1
+-1, 1
+updating odom
+cur bearing: 322.75 target bearing: 465.034 effort: -1
+-1, 1
+updating odom
+cur bearing: 329.438 target bearing: 465.273 effort: -1
+-1, 1
+updating odom
+cur bearing: 336.562 target bearing: 465.273 effort: -1
+-1, 1
+updating odom
+cur bearing: 343.625 target bearing: 465.56 effort: -1
+-1, 1
+updating odom
+cur bearing: 350.062 target bearing: 465.56 effort: -1
+-1, 1
+updating odom
+cur bearing: 356.75 target bearing: 465.709 effort: -1
+-1, 1
+updating odom
+cur bearing: 3.875 target bearing: 106.139 effort: -1
+-1, 1
+updating odom
+cur bearing: 3.875 target bearing: 106.052 effort: -1
+-1, 1
+updating odom
+cur bearing: 11 target bearing: 106.534 effort: -0.240335
+-0.240335, 0.240335
+updating odom
+cur bearing: 17.1875 target bearing: 106.641 effort: 0.651204
+0.651204, -0.651204
+updating odom
+cur bearing: 23 target bearing: 106.694 effort: 1
+1, -1
+updating odom
+cur bearing: 25.5625 target bearing: 106.748 effort: 1
+1, -1
+updating odom
+cur bearing: 24.0625 target bearing: 107.213 effort: 1
+1, -1
+updating odom
+cur bearing: 20.4375 target bearing: 106.857 effort: 1
+1, -1
+updating odom
+cur bearing: 16.1875 target bearing: 106.943 effort: 1
+1, -1
+updating odom
+cur bearing: 12.4375 target bearing: 107.326 effort: 1
+1, -1
+updating odom
+cur bearing: 7.375 target bearing: 107 effort: 1
+1, -1
+updating odom
+cur bearing: 2.375 target bearing: 107.057 effort: 1
+1, -1
+updating odom
+cur bearing: 2.375 target bearing: 106.266 effort: 1
+1, -1
+updating odom
+cur bearing: 356.25 target bearing: 466.211 effort: 1
+1, -1
+updating odom
+cur bearing: 350 target bearing: 465.805 effort: 1
+1, -1
+updating odom
+cur bearing: 344.062 target bearing: 465.546 effort: 1
+1, -1
+updating odom
+cur bearing: 337.438 target bearing: 464.922 effort: 1
+1, -1
+updating odom
+cur bearing: 331 target bearing: 464.354 effort: 1
+1, -1
+updating odom
+cur bearing: 324.562 target bearing: 464.464 effort: 1
+1, -1
+updating odom
+cur bearing: 318.688 target bearing: 463.95 effort: 1
+1, -1
+updating odom
+cur bearing: 312.5 target bearing: 463.041 effort: 1
+1, -1
+updating odom
+cur bearing: 306.562 target bearing: 462.953 effort: 1
+1, -1
+updating odom
+cur bearing: 300.25 target bearing: 462.91 effort: 1
+1, -1
+updating odom
+cur bearing: 300.25 target bearing: 462.103 effort: 1
+1, -1
+updating odom
+cur bearing: 293.812 target bearing: 461.983 effort: 1
+1, -1
+updating odom
+cur bearing: 287.75 target bearing: 461.652 effort: 1
+1, -1
+updating odom
+cur bearing: 281.562 target bearing: 461.184 effort: 1
+1, -1
+updating odom
+cur bearing: 275.562 target bearing: 101.904 effort: 1
+1, -1
+updating odom
+cur bearing: 269.625 target bearing: 101.943 effort: 1
+1, -1
+updating odom
+cur bearing: 262.75 target bearing: 101.943 effort: 1
+1, -1
+updating odom
+cur bearing: 256.812 target bearing: 101.691 effort: 1
+1, -1
+updating odom
+cur bearing: 250 target bearing: 102.571 effort: 1
+1, -1
+updating odom
+cur bearing: 243.938 target bearing: 101.769 effort: 1
+1, -1
+updating odom
+cur bearing: 237.938 target bearing: 102.824 effort: 1
+1, -1
+updating odom
+cur bearing: 237.938 target bearing: 102.613 effort: 1
+1, -1
+updating odom
+cur bearing: 231.688 target bearing: 102.824 effort: 1
+1, -1
+updating odom
+cur bearing: 225.25 target bearing: 103.12 effort: 1
+1, -1
+updating odom
+cur bearing: 219.438 target bearing: 103.418 effort: 1
+1, -1
+updating odom
+cur bearing: 214.438 target bearing: 103.717 effort: 1
+1, -1
+updating odom
+cur bearing: 208.75 target bearing: 103.924 effort: 1
+1, -1
+updating odom
+cur bearing: 203 target bearing: 104.176 effort: 1
+1, -1
+updating odom
+cur bearing: 196.438 target bearing: 104.38 effort: 1
+1, -1
+updating odom
+cur bearing: 190.625 target bearing: 104.679 effort: 1
+1, -1
+updating odom
+cur bearing: 184.312 target bearing: 104.735 effort: 1
+1, -1
+updating odom
+cur bearing: 178.625 target bearing: 104.535 effort: 1
+1, -1
+updating odom
+cur bearing: 172.188 target bearing: 105.325 effort: 1
+1, -1
+updating odom
+cur bearing: 172.188 target bearing: 105.275 effort: 1
+1, -1
+updating odom
+cur bearing: 166.375 target bearing: 105.518 effort: 1
+1, -1
+updating odom
+cur bearing: 160.875 target bearing: 105.37 effort: 1
+1, -1
+updating odom
+cur bearing: 154 target bearing: 105.651 effort: 1
+1, -1
+updating odom
+cur bearing: 148.375 target bearing: 105.651 effort: 1
+1, -1
+updating odom
+cur bearing: 142.188 target bearing: 105.788 effort: 1
+1, -1
+updating odom
+cur bearing: 136.125 target bearing: 105.457 effort: 1
+1, -1
+updating odom
+cur bearing: 130.375 target bearing: 105.083 effort: 1
+1, -1
+updating odom
+cur bearing: 123.625 target bearing: 105.083 effort: 1
+1, -1
+updating odom
+cur bearing: 118.125 target bearing: 104.805 effort: 1
+1, -1
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+cur bearing: 63.25 target bearing: 100.279 effort: 0.407318
+0.407318, -0.407318
+updating odom
+cur bearing: 60.5 target bearing: 100.094 effort: 0.819937
+0.819937, -0.819937
+updating odom
+cur bearing: 58.0625 target bearing: 100.387 effort: 1
+1, -1
+updating odom
+cur bearing: 55.5625 target bearing: 100.518 effort: 1
+1, -1
+updating odom
+cur bearing: 52.6875 target bearing: 100.743 effort: 1
+1, -1
+updating odom
+cur bearing: 49.75 target bearing: 100.979 effort: 1
+1, -1
+updating odom
+cur bearing: 49.75 target bearing: 101.801 effort: 1
+1, -1
+updating odom
+cur bearing: 46.25 target bearing: 101.801 effort: 1
+1, -1
+updating odom
+cur bearing: 41.5 target bearing: 101.722 effort: 1
+1, -1
+updating odom
+cur bearing: 35.875 target bearing: 101.586 effort: 1
+1, -1
+updating odom
+cur bearing: 29.75 target bearing: 102.162 effort: 1
+1, -1
+updating odom
+cur bearing: 23.875 target bearing: 102.514 effort: 1
+1, -1
+updating odom
+cur bearing: 18.0625 target bearing: 102.636 effort: 1
+1, -1
+updating odom
+cur bearing: 12 target bearing: 102.823 effort: 1
+1, -1
+updating odom
+cur bearing: 6.125 target bearing: 103.463 effort: 1
+1, -1
+updating odom
+cur bearing: 0.5625 target bearing: 103.739 effort: 1
+1, -1
+updating odom
+cur bearing: 353.812 target bearing: 464.273 effort: 1
+1, -1
+updating odom
+cur bearing: 353.812 target bearing: 464.026 effort: 1
+1, -1
+updating odom
+cur bearing: 346.812 target bearing: 465.13 effort: 1
+1, -1
+updating odom
+cur bearing: 340.625 target bearing: 464.966 effort: 1
+1, -1
+updating odom
+cur bearing: 334.625 target bearing: 466.038 effort: 1
+1, -1
+updating odom
+cur bearing: 328.125 target bearing: 465.799 effort: 1
+1, -1
+updating odom
+cur bearing: 321.938 target bearing: 466.487 effort: 1
+1, -1
+updating odom
+cur bearing: 315.688 target bearing: 467.521 effort: 1
+1, -1
+updating odom
+cur bearing: 310.062 target bearing: 467.493 effort: 1
+1, -1
+updating odom
+cur bearing: 304.438 target bearing: 468.459 effort: 1
+1, -1
+updating odom
+cur bearing: 298.562 target bearing: 468.997 effort: 1
+1, -1
+updating odom
+cur bearing: 292.125 target bearing: 470.318 effort: 1
+1, -1
+updating odom
+cur bearing: 286.688 target bearing: 110.558 effort: 1
+1, -1
+updating odom
+cur bearing: 286.688 target bearing: 111.245 effort: 1
+1, -1
+updating odom
+cur bearing: 279.688 target bearing: 112.383 effort: 1
+1, -1
+updating odom
+cur bearing: 272.812 target bearing: 113.095 effort: 1
+1, -1
+updating odom
+cur bearing: 266.5 target bearing: 113.393 effort: 1
+1, -1
+updating odom
+cur bearing: 260.438 target bearing: 114.404 effort: 1
+1, -1
+updating odom
+cur bearing: 254.125 target bearing: 114.553 effort: 1
+1, -1
+updating odom
+cur bearing: 248.5 target bearing: 115.431 effort: 1
+1, -1
+updating odom
+cur bearing: 243.25 target bearing: 116.178 effort: 1
+1, -1
+updating odom
+cur bearing: 236.812 target bearing: 117.309 effort: 1
+1, -1
+updating odom
+cur bearing: 231.5 target bearing: 116.723 effort: 1
+1, -1
+updating odom
+cur bearing: 225.25 target bearing: 116.831 effort: 1
+1, -1
+updating odom
+cur bearing: 225.25 target bearing: 117.732 effort: 1
+1, -1
+updating odom
+cur bearing: 219.125 target bearing: 118.238 effort: 1
+1, -1
+updating odom
+cur bearing: 213.5 target bearing: 118.075 effort: 1
+1, -1
+updating odom
+cur bearing: 208.25 target bearing: 118.075 effort: 1
+1, -1
+updating odom
+cur bearing: 202.312 target bearing: 118.321 effort: 1
+1, -1
+updating odom
+cur bearing: 196.875 target bearing: 119.524 effort: 1
+1, -1
+updating odom
+cur bearing: 190.75 target bearing: 120.31 effort: 1
+1, -1
+updating odom
+cur bearing: 183.375 target bearing: 119.976 effort: 1
+1, -1
+updating odom
+cur bearing: 177.625 target bearing: 119.976 effort: 1
+1, -1
+updating odom
+cur bearing: 172.125 target bearing: 120.249 effort: 1
+1, -1
+updating odom
+cur bearing: 166.875 target bearing: 120.3 effort: 1
+1, -1
+updating odom
+cur bearing: 166.875 target bearing: 119.981 effort: 1
+1, -1
+updating odom
+cur bearing: 159.75 target bearing: 120.14 effort: 0.706796
+0.706796, -0.706796
+updating odom
+cur bearing: 153.5 target bearing: 120.446 effort: 0.378807
+0.378807, -0.378807
+updating odom
+cur bearing: 147.75 target bearing: 120.446 effort: 0.107085
+0.107085, -0.107085
+updating odom
+cur bearing: 144.312 target bearing: 120.999 effort: -0.131737
+-0.131737, 0.131737
+updating odom
+cur bearing: 143.312 target bearing: 120.386 effort: -0.380441
+-0.380441, 0.380441
+updating odom
+cur bearing: 144.062 target bearing: 119.741 effort: -0.634853
+-0.634853, 0.634853
+updating odom
+cur bearing: 145.75 target bearing: 119.449 effort: -0.903047
+-0.903047, 0.903047
+updating odom
+cur bearing: 147.75 target bearing: 119.163 effort: -1
+-1, 1
+updating odom
+cur bearing: 150.188 target bearing: 118.882 effort: -1
+-1, 1
+updating odom
+cur bearing: 153.688 target bearing: 118.606 effort: -1
+-1, 1
+updating odom
+cur bearing: 153.688 target bearing: 118.201 effort: -1
+-1, 1
+updating odom
+cur bearing: 158.625 target bearing: 116.926 effort: -1
+-1, 1
+updating odom
+cur bearing: 164.625 target bearing: 117.732 effort: -1
+-1, 1
+updating odom
+cur bearing: 170.938 target bearing: 117.472 effort: -1
+-1, 1
+updating odom
+cur bearing: 177.062 target bearing: 117.136 effort: -1
+-1, 1
+updating odom
+cur bearing: 183.25 target bearing: 116.634 effort: -1
+-1, 1
+updating odom
+cur bearing: 189.125 target bearing: 115.965 effort: -1
+-1, 1
+updating odom
+cur bearing: 195.75 target bearing: 116.178 effort: -1
+-1, 1
+updating odom
+cur bearing: 202.25 target bearing: 114.935 effort: -1
+-1, 1
+updating odom
+cur bearing: 209.562 target bearing: 115.389 effort: -1
+-1, 1
+updating odom
+cur bearing: 215.938 target bearing: 114.258 effort: -1
+-1, 1
+updating odom
+cur bearing: 215.938 target bearing: 113.804 effort: -1
+-1, 1
+updating odom
+cur bearing: 222.625 target bearing: 114.258 effort: -1
+-1, 1
+updating odom
+cur bearing: 228.312 target bearing: 112.11 effort: -1
+-1, 1
+updating odom
+cur bearing: 234.562 target bearing: 112.796 effort: -1
+-1, 1
+updating odom
+cur bearing: 241 target bearing: 112.454 effort: -1
+-1, 1
+updating odom
+cur bearing: 247.312 target bearing: 112.454 effort: -1
+-1, 1
+updating odom
+cur bearing: 254.25 target bearing: 111.622 effort: -1
+-1, 1
+updating odom
+cur bearing: 260.875 target bearing: 111.27 effort: -1
+-1, 1
+updating odom
+cur bearing: 267.5 target bearing: 111.069 effort: -1
+-1, 1
+updating odom
+cur bearing: 273.688 target bearing: 110.464 effort: -1
+-1, 1
+updating odom
+cur bearing: 280 target bearing: 110.563 effort: -1
+-1, 1
+updating odom
+cur bearing: 280 target bearing: 110.304 effort: -1
+-1, 1
+updating odom
+cur bearing: 286.188 target bearing: 110.206 effort: -1
+-1, 1
+updating odom
+cur bearing: 293 target bearing: 470.206 effort: -1
+-1, 1
+updating odom
+cur bearing: 299.938 target bearing: 470.109 effort: -1
+-1, 1
+updating odom
+cur bearing: 306.25 target bearing: 470.563 effort: -1
+-1, 1
+updating odom
+cur bearing: 312.438 target bearing: 470.402 effort: -1
+-1, 1
+updating odom
+cur bearing: 318.5 target bearing: 470.917 effort: -1
+-1, 1
+updating odom
+cur bearing: 326.25 target bearing: 470.762 effort: -1
+-1, 1
+updating odom
+cur bearing: 332.812 target bearing: 471.018 effort: -1
+-1, 1
+updating odom
+cur bearing: 339.375 target bearing: 471.317 effort: -1
+-1, 1
+updating odom
+cur bearing: 344.5 target bearing: 472.11 effort: -1
+-1, 1
+updating odom
+cur bearing: 344.5 target bearing: 471.562 effort: -1
+-1, 1
+updating odom
+cur bearing: 350.562 target bearing: 472.482 effort: -1
+-1, 1
+updating odom
+cur bearing: 356.812 target bearing: 472.923 effort: -1
+-1, 1
+updating odom
+cur bearing: 3.875 target bearing: 113.818 effort: -1
+-1, 1
+updating odom
+cur bearing: 10.875 target bearing: 113.818 effort: -1
+-1, 1
+updating odom
+cur bearing: 17.125 target bearing: 114.692 effort: -1
+-1, 1
+updating odom
+cur bearing: 23.4375 target bearing: 115.128 effort: -1
+-1, 1
+updating odom
+cur bearing: 30.1875 target bearing: 115.24 effort: -1
+-1, 1
+updating odom
+cur bearing: 36.1875 target bearing: 114.915 effort: -1
+-1, 1
+updating odom
+cur bearing: 42.5625 target bearing: 115.795 effort: -1
+-1, 1
+updating odom
+cur bearing: 49.5625 target bearing: 116.476 effort: -1
+-1, 1
+updating odom
+cur bearing: 57 target bearing: 116.924 effort: -1
+-1, 1
+updating odom
+cur bearing: 63.8125 target bearing: 117.497 effort: -1
+-1, 1
+updating odom
+cur bearing: 69.9375 target bearing: 117.949 effort: -1
+-1, 1
+updating odom
+cur bearing: 75.625 target bearing: 117.949 effort: -1
+-1, 1
+updating odom
+cur bearing: 82.5625 target bearing: 118.008 effort: -0.857662
+-0.857662, 0.857662
+updating odom
+cur bearing: 88.5 target bearing: 118.536 effort: -0.554626
+-0.554626, 0.554626
+updating odom
+cur bearing: 93.375 target bearing: 118.068 effort: -0.312669
+-0.312669, 0.312669
+updating odom
+cur bearing: 98.375 target bearing: 118.47 effort: -0.112222
+-0.112222, 0.112222
+updating odom
+cur bearing: 101.062 target bearing: 117.789 effort: 0.0584454
+0.0584454, -0.0584454
+updating odom
+cur bearing: 101.125 target bearing: 118.402 effort: 0.253323
+0.253323, -0.253323
+updating odom
+cur bearing: 101.125 target bearing: 117.985 effort: 0.416183
+0.416183, -0.416183
+updating odom
+cur bearing: 100.312 target bearing: 117.693 effort: 0.59566
+0.59566, -0.59566
+updating odom
+cur bearing: 99.0625 target bearing: 117.418 effort: 0.782692
+0.782692, -0.782692
+updating odom
+cur bearing: 97.25 target bearing: 117.973 effort: 0.999942
+0.999942, -0.999942
+updating odom
+cur bearing: 95 target bearing: 116.245 effort: 1
+1, -1
+updating odom
+cur bearing: 92.1875 target bearing: 116.145 effort: 1
+1, -1
+updating odom
+cur bearing: 88.375 target bearing: 115.639 effort: 1
+1, -1
+updating odom
+cur bearing: 83.25 target bearing: 115.639 effort: 1
+1, -1
+updating odom
+cur bearing: 77.3125 target bearing: 113.5 effort: 1
+1, -1
+updating odom
+cur bearing: 72.25 target bearing: 113.118 effort: 1
+1, -1
+updating odom
+cur bearing: 66.125 target bearing: 112.854 effort: 1
+1, -1
+updating odom
+cur bearing: 66.125 target bearing: 111.289 effort: 1
+1, -1
+updating odom
+cur bearing: 59.875 target bearing: 111.23 effort: 1
+1, -1
+updating odom
+cur bearing: 53.875 target bearing: 110.06 effort: 1
+1, -1
+updating odom
+cur bearing: 48.5625 target bearing: 108.181 effort: 1
+1, -1
+updating odom
+cur bearing: 42.6875 target bearing: 108.968 effort: 1
+1, -1
+updating odom
+cur bearing: 37.5 target bearing: 107.205 effort: 1
+1, -1
+updating odom
+cur bearing: 32.0625 target bearing: 107.026 effort: 1
+1, -1
+updating odom
+cur bearing: 26.75 target bearing: 107.326 effort: 1
+1, -1
+updating odom
+cur bearing: 20.3125 target bearing: 106.294 effort: 1
+1, -1
+updating odom
+cur bearing: 14.1875 target bearing: 105.666 effort: 1
+1, -1
+updating odom
+cur bearing: 7.125 target bearing: 105.206 effort: 1
+1, -1
+updating odom
+cur bearing: 7.125 target bearing: 105.432 effort: 1
+1, -1
+updating odom
+cur bearing: 1.0625 target bearing: 105.499 effort: 1
+1, -1
+updating odom
+cur bearing: 354.875 target bearing: 464.832 effort: 1
+1, -1
+updating odom
+cur bearing: 349.688 target bearing: 464.698 effort: 1
+1, -1
+updating odom
+cur bearing: 343 target bearing: 464.983 effort: 1
+1, -1
+updating odom
+cur bearing: 336 target bearing: 464.423 effort: 1
+1, -1
+updating odom
+cur bearing: 330.062 target bearing: 464.916 effort: 1
+1, -1
+updating odom
+cur bearing: 324.5 target bearing: 464.698 effort: 1
+1, -1
+updating odom
+cur bearing: 319 target bearing: 464.698 effort: 1
+1, -1
+updating odom
+cur bearing: 313.375 target bearing: 464.559 effort: 1
+1, -1
+updating odom
+cur bearing: 306.375 target bearing: 464.628 effort: 1
+1, -1
+updating odom
+cur bearing: 299.125 target bearing: 464.628 effort: 1
+1, -1
+updating odom
+cur bearing: 292.938 target bearing: 464.337 effort: 1
+1, -1
+updating odom
+cur bearing: 287 target bearing: 464.337 effort: 1
+1, -1
+updating odom
+cur bearing: 281.25 target bearing: 104.475 effort: 1
+1, -1
+updating odom
+cur bearing: 274.812 target bearing: 104.983 effort: 1
+1, -1
+updating odom
+cur bearing: 270.75 target bearing: 104.545 effort: 1
+1, -1
+updating odom
+cur bearing: 264.5 target bearing: 104.983 effort: 1
+1, -1
+updating odom
+cur bearing: 258 target bearing: 104.316 effort: 1
+1, -1
+updating odom
+cur bearing: 252.062 target bearing: 105.349 effort: 1
+1, -1
+updating odom
+cur bearing: 246.25 target bearing: 105.204 effort: 1
+1, -1
+updating odom
+cur bearing: 240.188 target bearing: 106.393 effort: 1
+1, -1
+updating odom
+cur bearing: 235 target bearing: 105.355 effort: 1
+1, -1
+updating odom
+cur bearing: 229 target bearing: 107.298 effort: 1
+1, -1
+updating odom
+cur bearing: 223 target bearing: 105.652 effort: 1
+1, -1
+updating odom
+cur bearing: 216.5 target bearing: 106.393 effort: 1
+1, -1
+updating odom
+cur bearing: 211.562 target bearing: 106.844 effort: 1
+1, -1
+updating odom
+cur bearing: 205 target bearing: 108.123 effort: 1
+1, -1
+updating odom
+cur bearing: 199.625 target bearing: 107.947 effort: 1
+1, -1
+updating odom
+cur bearing: 193.062 target bearing: 108.034 effort: 1
+1, -1
+updating odom
+cur bearing: 186.062 target bearing: 108.949 effort: 1
+1, -1
+updating odom
+cur bearing: 186.062 target bearing: 109.395 effort: 1
+1, -1
+updating odom
+cur bearing: 180.938 target bearing: 109.221 effort: 1
+1, -1
+updating odom
+cur bearing: 175.562 target bearing: 110.206 effort: 1
+1, -1
+updating odom
+cur bearing: 170.188 target bearing: 110.206 effort: 1
+1, -1
+updating odom
+cur bearing: 164.25 target bearing: 111.317 effort: 1
+1, -1
+updating odom
+cur bearing: 158.5 target bearing: 111.519 effort: 1
+1, -1
+updating odom
+cur bearing: 152.875 target bearing: 112.11 effort: 1
+1, -1
+updating odom
+cur bearing: 146.188 target bearing: 112.586 effort: 1
+1, -1
+updating odom
+cur bearing: 140.562 target bearing: 112.509 effort: 1
+1, -1
+updating odom
+cur bearing: 136.312 target bearing: 112.611 effort: 1
+1, -1
+updating odom
+cur bearing: 130 target bearing: 112.611 effort: 1
+1, -1
+updating odom
+cur bearing: 130 target bearing: 112.509 effort: 1
+1, -1
+updating odom
+cur bearing: 123.062 target bearing: 112.66 effort: 1
+1, -1
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+updating odom
+cur bearing: 69.9375 target bearing: 105.553 effort: 0.391775
+0.391775, -0.391775
+updating odom
+cur bearing: 68.5625 target bearing: 105.616 effort: 0.771652
+0.771652, -0.771652
+updating odom
+cur bearing: 66.0625 target bearing: 104.828 effort: 1
+1, -1
+updating odom
+cur bearing: 64.0625 target bearing: 104.585 effort: 1
+1, -1
+updating odom
+cur bearing: 61.8125 target bearing: 104.338 effort: 1
+1, -1
+updating odom
+cur bearing: 57.6875 target bearing: 104.338 effort: 1
+1, -1
+updating odom
+cur bearing: 53.5 target bearing: 104.338 effort: 1
+1, -1
+updating odom
+cur bearing: 48.9375 target bearing: 103.695 effort: 1
+1, -1
+updating odom
+cur bearing: 43.5 target bearing: 103.837 effort: 1
+1, -1
+updating odom
+cur bearing: 43.5 target bearing: 103.437 effort: 1
+1, -1
+updating odom
+cur bearing: 37.625 target bearing: 103.752 effort: 1
+1, -1
+updating odom
+cur bearing: 30.1875 target bearing: 103.664 effort: 1
+1, -1
+updating odom
+cur bearing: 22.8125 target bearing: 103.175 effort: 1
+1, -1
+updating odom
+cur bearing: 17.125 target bearing: 102.697 effort: 1
+1, -1
+updating odom
+cur bearing: 10.875 target bearing: 102.752 effort: 1
+1, -1
+updating odom
+cur bearing: 4.75 target bearing: 102.917 effort: 1
+1, -1
+updating odom
+cur bearing: 359 target bearing: 462.861 effort: 1
+1, -1
+updating odom
+cur bearing: 353.312 target bearing: 463.536 effort: 1
+1, -1
+updating odom
+cur bearing: 347.375 target bearing: 463.656 effort: 1
+1, -1
+updating odom
+cur bearing: 341.25 target bearing: 464.029 effort: 1
+1, -1
+updating odom
+cur bearing: 341.25 target bearing: 464.224 effort: 1
+1, -1
+updating odom
+cur bearing: 335.938 target bearing: 465.272 effort: 1
+1, -1
+updating odom
+cur bearing: 330.125 target bearing: 465.202 effort: 1
+1, -1
+updating odom
+cur bearing: 323.812 target bearing: 465.79 effort: 1
+1, -1
+updating odom
+cur bearing: 317.062 target bearing: 466.023 effort: 1
+1, -1
+updating odom
+cur bearing: 310.25 target bearing: 466.638 effort: 1
+1, -1
+updating odom
+cur bearing: 304.062 target bearing: 466.805 effort: 1
+1, -1
+updating odom
+cur bearing: 298.875 target bearing: 467.623 effort: 1
+1, -1
+updating odom
+cur bearing: 292.562 target bearing: 467.533 effort: 1
+1, -1
+updating odom
+cur bearing: 286.812 target bearing: 108.006 effort: 1
+1, -1
+updating odom
+cur bearing: 280.5 target bearing: 122.914 effort: 1
+1, -1
+updating odom
+cur bearing: 274.25 target bearing: 122.291 effort: 1
+1, -1
+updating odom
+cur bearing: 269.625 target bearing: 121.688 effort: 1
+1, -1
+stopping

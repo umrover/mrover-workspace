@@ -206,8 +206,8 @@ void Rover::drive( const int direction, const double bearing )
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg );
     const double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
     //std::cout << "turning effort: " << turningEffort << std::endl;
-    double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
-    double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
+    double left_vel = min(1.0, max(0.0, 1.0 - turningEffort));
+    double right_vel = min(1.0,  max(0.0, 1.0 + turningEffort));
     std::cout << "publishing drive command: " << left_vel << " , " << right_vel << std::endl;
     publishAutonDriveCmd(left_vel, right_vel);
 } // drive()
@@ -242,7 +242,7 @@ bool Rover::turn( double bearing )
         return true;
     }
     double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, bearing );
-    //std::cout << "cur bearing: " << mRoverStatus.odometry().bearing_deg << " target bearing: " << bearing << " effort: " << turningEffort << std::endl;
+    std::cout << "cur bearing: " << mRoverStatus.odometry().bearing_deg << " target bearing: " << bearing << " effort: " << turningEffort << std::endl;
     double minTurningEffort = mRoverConfig[ "navThresholds" ][ "minTurningEffort" ].GetDouble() * ( turningEffort < 0 ? -1 : 1 );
     if( isTurningAroundObstacle( mRoverStatus.currentState() ) && fabs( turningEffort ) < minTurningEffort )
     {
@@ -250,7 +250,7 @@ bool Rover::turn( double bearing )
     }
     double left_vel = max(min(1.0, turningEffort), -1.0);
     double right_vel = max(min(1.0, -turningEffort), -1.0);
-    //std::cout << left_vel << ", " << right_vel << std::endl;
+    std::cout << left_vel << ", " << right_vel << std::endl;
     publishAutonDriveCmd(left_vel, right_vel);
     return false;
 } // turn()

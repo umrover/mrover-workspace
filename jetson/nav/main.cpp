@@ -53,7 +53,7 @@ public:
         const Odometry* odometry
         )
     {
-	   std::cout << "rec odom update deg: " <<  odometry->bearing_deg << std::endl;
+	  // std::cout << "rec odom update deg: " <<  odometry->bearing_deg << std::endl;
 	    mStateMachine->updateRoverStatus( *odometry );
     }
 
