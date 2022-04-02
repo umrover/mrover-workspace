@@ -351,7 +351,7 @@ class SensorFusion:
 
     def _encoders_stopped(self):
         for velocity in self.encoder_velocities:
-            if velocity > 0:
+            if abs(velocity) > 0:
                 return False
         return True
 
