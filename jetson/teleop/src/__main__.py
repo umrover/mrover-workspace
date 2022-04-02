@@ -172,6 +172,7 @@ def arm_control_state_callback(channel, msg):
 
 
 def ra_control_callback(channel, msg):
+
     xboxData = Xbox.decode(msg)
 
     motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
@@ -273,14 +274,14 @@ def main():
 
     lcm_.subscribe("/auton", drive.auton_enabled_callback)
 
+    lcm_.subscribe('/teleop_reverse_drive', drive.reverse_callback)
     lcm_.subscribe("/drive_control", drive.teleop_drive_callback)
     lcm_.subscribe("/auton_drive_control", drive.auton_drive_callback)
+
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
-    lcm_.subscribe('/gimbal_control', gimbal_control_callback)
     lcm_.subscribe('/arm_control_state', arm_control_state_callback)
-    lcm_.subscribe('/teleop_reverse_drive', drive.reverse_callback)
-    # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
+    lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())
