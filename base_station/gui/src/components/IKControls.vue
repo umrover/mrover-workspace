@@ -168,7 +168,7 @@ export default {
         },
 
         zeroPositionCallback: function() {
-	    console.log("publishing zero position")
+	        console.log("publishing zero position")
             this.$parent.publish('/zero_position', { 'type': 'Signal' });
         },
 

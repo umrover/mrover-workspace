@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters } from 'vuex'
 import Cameras from './Cameras.vue'
 import IKControls from './IKControls.vue'
 import RoverMap from './RoverMap.vue'
@@ -71,8 +71,6 @@ import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
 import DriveVelDataV from './DriveVelDataV.vue' 
 
-let interval;
-
 export default {
   name: 'RATask',
   data () {
@@ -83,8 +81,6 @@ export default {
         pan: 0,
         tilt: 0
       },
-
-      locked_joints: [],
 
       odom: {
         latitude_deg: 38,
@@ -119,33 +115,10 @@ export default {
         console.error("Callback Function is invalid (should take 1 parameter)")
       }
       this.lcm_.subscribe(channel, callbackFn)
-    },
-
-    locked_joints_callback: function(e) {
-      // Process array to convert to lcm message:
-      let msg = { 'type': 'LockJoints' }
-
-      msg['joint_a'] = this.locked_joints.includes('joint_a');
-      msg['joint_b'] = this.locked_joints.includes('joint_b');
-      msg['joint_c'] = this.locked_joints.includes('joint_c');
-      msg['joint_d'] = this.locked_joints.includes('joint_d');
-      msg['joint_e'] = this.locked_joints.includes('joint_e');
-      msg['joint_f'] = this.locked_joints.includes('joint_f');
-
-      // Publish lcm message:
-      this.lcm_.publish('/locked_joints', msg);
-    },
-
-    zero_position_callback: function() {
-      this.lcm_.publish('/zero_position', { 'type': 'Signal' } )
     }
   },
 
   computed: {
-    ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
-    }),
-
     ...mapGetters('controls', {
       controlMode: 'controlMode'
     }),
@@ -177,9 +150,6 @@ export default {
             console.log(msg['message']['message'])
           }
         }
-        // } else if (msg.topic === '/ik_reset') {
-        //   console.log('is this working?')
-        // }
       },
       // Subscriptions
       [

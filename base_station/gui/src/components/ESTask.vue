@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters } from 'vuex'
 import Cameras from './Cameras.vue'
 import IKControls from './IKControls.vue'
 import CommIndicator from './CommIndicator.vue'
@@ -62,8 +62,6 @@ import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
 import DriveVelDataV from './DriveVelDataV.vue' 
-
-let interval;
 
 export default {
   name: 'RATask',
@@ -76,27 +74,10 @@ export default {
         tilt: 0
       },
 
-      locked_joints: [],
-
-      odom: {
-        latitude_deg: 38,
-        latitude_min: 24.38226,
-        longitude_deg: -110,
-        longitude_min: -47.51724,
-        bearing_deg: 0,
-        speed: 0
-      },
-
       connections: {
         websocket: false,
         lcm: false,
-        motors: false,
-        cameras: [false, false, false, false, false, false, false, false]
-      },
-
-      nav_status: {
-        completed_wps: 0,
-        total_wps: 0
+        motors: false
       }
     }
   },
@@ -111,25 +92,6 @@ export default {
         console.error("Callback Function is invalid (should take 1 parameter)")
       }
       this.lcm_.subscribe(channel, callbackFn)
-    },
-
-    locked_joints_callback: function(e) {
-      // Process array to convert to lcm message:
-      let msg = { 'type': 'LockJoints' }
-
-      msg['joint_a'] = this.locked_joints.includes('joint_a');
-      msg['joint_b'] = this.locked_joints.includes('joint_b');
-      msg['joint_c'] = this.locked_joints.includes('joint_c');
-      msg['joint_d'] = this.locked_joints.includes('joint_d');
-      msg['joint_e'] = this.locked_joints.includes('joint_e');
-      msg['joint_f'] = this.locked_joints.includes('joint_f');
-
-      // Publish lcm message:
-      this.lcm_.publish('/locked_joints', msg);
-    },
-
-    zero_position_callback: function() {
-      this.lcm_.publish('/zero_position', { 'type': 'Signal' } )
     }
   },
 
@@ -158,9 +120,7 @@ export default {
       },
       // Subscribed LCM message received
       (msg) => {
-        if (msg.topic === '/odometry') {
-          this.odom = msg.message
-        } else if (msg.topic === '/kill_switch') {
+        if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/debugMessage') {
           if (msg['message']['isError']) {
@@ -169,9 +129,6 @@ export default {
             console.log(msg['message']['message'])
           }
         }
-        // } else if (msg.topic === '/ik_reset') {
-        //   console.log('is this working?')
-        // }
       },
       // Subscriptions
       [
