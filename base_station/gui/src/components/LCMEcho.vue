@@ -103,6 +103,7 @@
           '/sensors': false,
           '/servo_cmd': false,
           '/set_demand': false,
+          '/simulation_mode': false,
           '/spectral_data': false,
           '/spectral_triad_data': false,
           '/target_list': false,
@@ -110,6 +111,7 @@
           '/temperature': false,
           '/tennis_ball': false,
           '/thermistor_data': false,
+          '/use_orientation': false,
           '/zed_gimbal_cmd': false,
           '/zed_gimbal_data': false,
           '/zero_position': false
@@ -175,6 +177,7 @@
           {'topic': '/sensor_switch', 'type': 'SensorSwitch'},
           {'topic': '/servo_cmd', 'type': 'ServoCmd'},
           {'topic': '/set_demand', 'type': 'SetDemand'},
+          {'topic': '/simulation_mode', 'type': 'SimulationMode'},
           {'topic': '/spectral_data', 'type': 'SpectralData'},
           {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
           {'topic': '/target_list', 'type': 'TargetList'},
@@ -182,9 +185,10 @@
           {'topic': '/temperature', 'type': 'Temperature'},
           {'topic': '/tennis_ball', 'type': 'TennisBall'},
           {'topic': '/thermistor_data', 'type': 'ThermistorData'},
+          {'topic': '/use_orientation', 'type': 'UseOrientation'},
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'},
-          {'topic': '/zero_position', 'type': 'ZeroPosition'}
+          {'topic': '/zero_position', 'type': 'Signal'}
         ]
       }
     },
