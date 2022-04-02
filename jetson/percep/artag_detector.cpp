@@ -39,12 +39,12 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig) :
     fsr["MaxCorrectionBits"] >> mCBits;
     fsr["ByteList"] >> bits;
     fsr.release();
-    alvarDict = new cv::aruco::Dictionary(bits, mSize, mCBits);
+    alvarDict = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
 
     // initialize other special parameters that we need to properly detect the URC (Alvar) tags
     alvarParams = new cv::aruco::DetectorParameters();
     alvarParams->markerBorderBits = MARKER_BORDER_BITS;
-    alvarParams->doCornerRefinement = DO_CORNER_REFINEMENT;
+    //alvarParams->doCornerRefinement = DO_CORNER_REFINEMENT;
     alvarParams->polygonalApproxAccuracyRate = POLYGONAL_APPROX_ACCURACY_RATE;
 }
 
