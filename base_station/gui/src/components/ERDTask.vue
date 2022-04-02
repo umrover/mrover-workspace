@@ -94,8 +94,7 @@ export default {
       connections: {
         websocket: false,
         lcm: false,
-        motors: false,
-        cameras: [false, false, false, false, false, false, false, false]
+        motors: false
       },
 
       nav_status: {
@@ -160,7 +159,6 @@ export default {
         {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/ra_position', 'type': 'RAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
-        {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
