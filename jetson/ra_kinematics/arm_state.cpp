@@ -55,7 +55,7 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
 
     // Sort links by link_num, since they may not be in order from the json
     Link_Comp comparator;
-    sort(collision_avoidance_links.begin(), collision_avoidance_links.end(), comparator);
+    std::sort(collision_avoidance_links.begin(), collision_avoidance_links.end(), comparator);
 }
 
 bool ArmState::Link_Comp::operator()(const Avoidance_Link &a, const Avoidance_Link &b) {
