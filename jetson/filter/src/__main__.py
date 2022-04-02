@@ -137,6 +137,11 @@ class SensorFusion:
         self.lcm.subscribe("/nav_status", self._navStatusCallback)
         self.lcm.subscribe("/drive_vel_data", self._driveVelDataCallback)
 
+        #Initializations for magnetometer bearing correction
+        self.last_bearing_correction = time.time()
+        self.bearing_offset = 0
+        self.correction_time_interval_sec = 600
+
         self.encoder_velocities = np.zeros(6)
 
     def _gpsCallback(self, channel, msg):
@@ -289,10 +294,16 @@ class SensorFusion:
 
         @return float/None: bearing (decimal degrees East of North)
         '''
+
+        if time.time() - self.last_bearing_correction > self.correction_time_interval_sec:
+            mag_bearing = np.arctan2(self.imu.mag.mag_y, self.imu.mag.mag_x) * (180 / np.pi) 
+            self.bearing_offset = mag_bearing - (self.imu.bearing.bearing_deg - self.bearing_offset)
+            self.last_bearing_correction = time.time()
+            
         if time.time() - self.imu.last_fresh <= self.config["IMU_fresh_timeout"]:
-            return self.imu.bearing.bearing_deg
+            return self.imu.bearing.bearing_deg + self.bearing_offset
         elif time.time() - self.gps.last_fresh <= self.config["GPS_fresh_timeout"]:
-            return self.gps.bearing.bearing_deg
+            return self.gps.bearing.bearing_deg + self.bearing_offset
         else:
             return None
 
