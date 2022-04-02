@@ -11,7 +11,7 @@ import os
 def launch_dir(ctx, package, ssh, only_run, opts):
     wid = launch_terminal()
     exec_cmd(wid, "export LCM_DEFAULT_URL='udpm://239.255.76.67:7667?ttl=255'", 
-            ssh=ssh, ip=auton_ip, close_terminal = True)
+            ssh=ssh, ip=AUTON_IP, close_terminal = True)
     if package == "percep":
         launch_perception(ssh, only_run, opts)
     elif package == "nav":
@@ -28,38 +28,38 @@ def launch_dir(ctx, package, ssh, only_run, opts):
 # Functions that build and execute auton subteam code
 #
 ########################
-drive_ip = "10.1.0.1"
-auton_ip = "10.1.0.2"
+DRIVE_IP = "10.1.0.1"
+AUTON_IP = "10.1.0.2"
 
 def launch_perception(ssh, only_run, opts=""):
     wid = launch_terminal()
-    build_run_package(wid, 'jetson/percep', ssh=ssh, ip=auton_ip, only_run=only_run)
+    build_run_package(wid, 'jetson/percep', ssh=ssh, ip=AUTON_IP, only_run=only_run)
     new_tab(wid)
-    exec_cmd(wid, "./jarvis exec lcm_tools_echo Obstacle /obstacle", ssh=ssh, ip=auton_ip)
+    exec_cmd(wid, "./jarvis exec lcm_tools_echo Obstacle /obstacle", ssh=ssh, ip=AUTON_IP)
 
 def launch_navigation(ssh, only_run, opts=""):
     wid = launch_terminal()
-    build_run_package(wid, 'jetson/nav', ssh=ssh, ip=auton_ip, only_run=only_run)
+    build_run_package(wid, 'jetson/nav', ssh=ssh, ip=AUTON_IP, only_run=only_run)
 
 def launch_localization(ssh, only_run, opts=""):
     wid = launch_terminal()
-    exec_cmd(wid, 'sudo chmod a+rw /dev/tty*', ssh=ssh, ip=auton_ip, only_run=only_run)
+    exec_cmd(wid, 'sudo chmod a+rw /dev/tty*', ssh=ssh, ip=AUTON_IP)
     time.sleep(1)
     exec_cmd(wid, "mrover")
     new_tab(wid)
-    build_run_package(wid, 'jetson/gps', ssh=ssh, ip=auton_ip, only_run=only_run)
+    build_run_package(wid, 'jetson/gps', ssh=ssh, ip=AUTON_IP, only_run=only_run)
     new_tab(wid)
-    build_run_package(wid, 'jetson/imu_channel', ssh=ssh, ip=auton_ip, only_run=only_run)
+    build_run_package(wid, 'jetson/imu_channel', ssh=ssh, ip=AUTON_IP, only_run=only_run)
     new_tab(wid)
-    build_run_package(wid, 'jetson/filter', ssh=ssh, ip=auton_ip, only_run=only_run)
+    build_run_package(wid, 'jetson/filter', ssh=ssh, ip=AUTON_IP, only_run=only_run)
 
 def launch_odrive(ssh, only_run, opts=""):
     wid = launch_terminal()
-    build_run_package(wid, 'jetson/odrive_bridge', ssh, ip=drive_ip, exec_opts="0", only_run=only_run)
+    build_run_package(wid, 'jetson/odrive_bridge', ssh, ip=DRIVE_IP, exec_opts="0", only_run=only_run)
     new_tab(wid)
-    build_run_package(wid, 'jetson/odrive_bridge', ssh, ip=drive_ip, exec_opts="1", only_run=only_run)
+    build_run_package(wid, 'jetson/odrive_bridge', ssh, ip=DRIVE_IP, exec_opts="1", only_run=only_run)
     new_tab(wid)
-    build_run_package(wid, 'jetson/odrive_bridge', ssh, ip=drive_ip, exec_opts="2", only_run=only_run)
+    build_run_package(wid, 'jetson/odrive_bridge', ssh, ip=DRIVE_IP, exec_opts="2", only_run=only_run)
 
 def launch_auton(ssh, only_run):
     launch_localization(ssh, only_run)
