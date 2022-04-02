@@ -150,8 +150,8 @@ class Drive:
         input = AutonDriveControl.decode(msg)
 
         command = DriveVelCmd()
-        command.left = input.left_percent_velocity
-        command.right = input.right_percent_velocity
+        command.left = input.right_percent_velocity
+        command.right = input.left_percent_velocity
 
         lcm_.publish('/drive_vel_cmd', command.encode())
 
