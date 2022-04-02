@@ -352,7 +352,7 @@ else
             
             return true;
         }
-        return false;
+        return true;
     }
     // Rover currently off.
     else
