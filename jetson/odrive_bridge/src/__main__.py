@@ -304,9 +304,9 @@ def publish_encoder_helper(axis):
     msg.vel_percent = modrive.get_vel_estimate(axis)
     usb_lock.release()
 
-    motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
-                 ("LEFT", 1): 2, ("RIGHT", 1): 3,
-                 ("LEFT", 2): 4, ("RIGHT", 2): 5}
+    motor_map = {("RIGHT", 0): 0, ("LEFT", 0): 1,
+                 ("RIGHT", 1): 2, ("LEFT", 1): 3,
+                 ("RIGHT", 2): 4, ("LEFT", 2): 5}
 
     msg.axis = motor_map[(axis, legal_controller)]
 
@@ -329,7 +329,7 @@ def drive_vel_cmd_callback(channel, msg):
             global left_speed, right_speed
 
             speed_lock.acquire()
-            left_speed, right_speed = -cmd.right, -cmd.left,
+            left_speed, right_speed = -cmd.left, -cmd.right,
             speed_lock.release()
     except Exception as e:
         print("Exception caught as:", e)
