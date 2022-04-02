@@ -39,6 +39,9 @@ def generateSquareSpiral (points, distance):
         new_distance += (i%2)*distance
     return coordinates
 
+def generateSquareSpiralInward (points, distance):
+    return generateSquareSpiral(points, distance)[::-1] 
+
 def showCoords(coordinates):
     x_coords = [i[0] for i in coordinates]
     y_coords = [i[1] for i in coordinates]
@@ -80,6 +83,9 @@ elif search_type == SearchType.square_spiral.value: # SQUARE SPIRAL SEARCH
     number_of_points = int(input("Enter Number of Points: "))
     distance = float(input("Enter Distance Between Points: "))
     coords = generateSquareSpiral(number_of_points, distance) # Currently, we use (13,3) as arguements
+    spiral_in = (input("Do You Want to Spiral In? (y/n)") == 'y')
+    if spiral_in:
+        coords += generateSquareSpiralInward(number_of_points, distance)
 else:
     print ("Not a valid type")
     exit(1)

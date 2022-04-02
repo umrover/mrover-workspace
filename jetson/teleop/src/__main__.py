@@ -1,12 +1,11 @@
 import asyncio
-from hashlib import new
 import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
                         Xbox, Temperature, RAOpenLoopCmd,
                         SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, FootCmd, ArmControlState, ReverseDrive)
+                        Keyboard, FootCmd, ArmControlState)
 
 
 class Toggle:
@@ -34,7 +33,6 @@ class Toggle:
 lcm_ = aiolcm.AsyncLCM()
 prev_killed = False
 kill_motor = False
-auton_reverse = True
 lock = asyncio.Lock()
 front_drill_on = Toggle(False)
 back_drill_on = Toggle(False)
@@ -139,27 +137,15 @@ def drive_control_callback(channel, msg):
 
 
 def autonomous_callback(channel, msg):
-    global auton_reverse
-
     input_data = Joystick.decode(msg)
     drive_command = DriveVelCmd()
 
     joystick_math(drive_command, input_data.forward_back, input_data.left_right)
 
-    if auton_reverse:
-        temp = drive_command.left
-        drive_command.left = drive_command.right
-        drive_command.right = temp
-    else:
-        drive_command.left = -1 * drive_command.left
-        drive_command.right = -1 * drive_command.right
+    drive_command.left = -1 * drive_command.left
+    drive_command.right = -1 * drive_command.right
 
     lcm_.publish('/drive_vel_cmd', drive_command.encode())
-
-
-def auton_reverse_callback(channel, msg):
-    global auton_reverse
-    auton_reverse = ReverseDrive.decode(msg).reverse
 
 
 def send_zero_arm_command():
@@ -183,6 +169,7 @@ def arm_control_state_callback(channel, msg):
 
 
 def ra_control_callback(channel, msg):
+
     xboxData = Xbox.decode(msg)
 
     motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
@@ -281,7 +268,6 @@ def main():
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/drive_control", drive_control_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
-    lcm_.subscribe("/auton_reverse", auton_reverse_callback)
     lcm_.subscribe('/ra_control', ra_control_callback)
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
