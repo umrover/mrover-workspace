@@ -3,11 +3,31 @@
 #include "rover_msgs/TargetList.hpp"
 #include <unistd.h>
 #include <deque>
-#include <iostream>
 
 using namespace cv;
 using namespace std;
 using namespace std::chrono_literals;
+
+class DoubleTrack{
+private:
+    double* ptr;
+    int int_value;
+
+    static constexpr double PRECISION = 100;
+
+public:
+    DoubleTrack(double* ptr) : ptr(ptr), int_value(*ptr * PRECISION) {}
+
+
+    void setup(const std::string& field_name, const std::string& window_name, double max_value) {
+        createTrackbar(field_name, window_name, &int_value, max_value * PRECISION, DoubleTrack::set_double, ptr);
+    }
+
+    static void set_double(int val, void* object) {
+        *(static_cast<double*>(object)) = val / PRECISION;
+    }
+
+};
  
 int main() {
 
@@ -90,7 +110,29 @@ int main() {
     #endif
 
     /* --- AR Tag Debugging --- */
-    bool entering_input = false;
+    #if AR_DETECTION && PERCEPTION_DEBUG
+        namedWindow("ARUCO Debug", WINDOW_AUTOSIZE);
+        createTrackbar("adaptiveThreshWinSizeMin", "ARUCO Debug", &detector.getAlvarParams()->adaptiveThreshWinSizeMin, 50, nullptr);
+        createTrackbar("adaptiveThreshWinSizeMax", "ARUCO Debug", &detector.getAlvarParams() -> adaptiveThreshWinSizeMax, 50, nullptr);
+        createTrackbar("adaptiveThreshWinSizeStep", "ARUCO Debug", &detector.getAlvarParams()->adaptiveThreshWinSizeStep, 30, nullptr);
+        DoubleTrack(&detector.getAlvarParams()->adaptiveThreshConstant).setup("adaptiveThreshConstant", "ARUCO Debug", 20);
+        DoubleTrack(&detector.getAlvarParams()->minMarkerPerimeterRate).setup("minMarkerPerimeterRate", "ARUCO Debug", 1);
+        DoubleTrack(&detector.getAlvarParams()->maxMarkerPerimeterRate).setup("maxMarkerPerimeterRate", "ARUCO Debug", 10);
+        DoubleTrack(&detector.getAlvarParams()->polygonalApproxAccuracyRate).setup("polygonalApproxAccuracyRate", "ARUCO Debug", 1);
+        DoubleTrack(&detector.getAlvarParams()->minCornerDistanceRate).setup("minCornerDistanceRate", "ARUCO Debug", 1);
+        createTrackbar("minDistanceToBorder", "ARUCO Debug", &detector.getAlvarParams()->minDistanceToBorder, 10, nullptr);
+        DoubleTrack(&detector.getAlvarParams()->minMarkerDistanceRate).setup("minMarkerDistanceRate", "ARUCO Debug", 1);
+        createTrackbar("cornerRefinementMethod", "ARUCO Debug", &detector.getAlvarParams()->cornerRefinementMethod, 3, nullptr);
+        createTrackbar("cornerRefinementWinSize", "ARUCO Debug", &detector.getAlvarParams()->cornerRefinementWinSize, 20, nullptr);
+        createTrackbar("cornerRefinementMaxIterations", "ARUCO Debug", &detector.getAlvarParams()->cornerRefinementMaxIterations, 80, nullptr);
+        DoubleTrack(&detector.getAlvarParams()->cornerRefinementMinAccuracy).setup("cornerRefinementMinAccuracy", "ARUCO Debug", 1);
+        createTrackbar("markerBorderBits", "ARUCO Debug", &detector.getAlvarParams()->markerBorderBits, 10, nullptr);
+        createTrackbar("perspectiveRemovePixelPerCell", "ARUCO Debug", &detector.getAlvarParams()->perspectiveRemovePixelPerCell, 10, nullptr);
+        DoubleTrack(&detector.getAlvarParams()->perspectiveRemoveIgnoredMarginPerCell).setup("perspectiveRemoveIgnoredMarginPerCell", "ARUCO Debug", 5);
+        DoubleTrack(&detector.getAlvarParams()->maxErroneousBitsInBorderRate).setup("maxErroneousBitsInBorderRate", "ARUCO Debug", 1);
+        DoubleTrack(&detector.getAlvarParams()->minOtsuStdDev).setup("minOtsuStdDev", "ARUCO Debug", 20);
+        DoubleTrack(&detector.getAlvarParams()->errorCorrectionRate).setup("errorCorrectionRate", "ARUCO Debug", 1);
+    #endif
 
   /* --- Main Processing Stuff --- */
   while (true) {
@@ -133,15 +175,6 @@ int main() {
             detector.updateDetectedTagInfo(arTags, tagPair, depth_img, src);
 
         #if PERCEPTION_DEBUG && AR_DETECTION
-            if (cvWaitKey(1) == 13) entering_input = true;
-            if (entering_input) {
-                cout << "parameterName value\n";
-                string paramStr;
-                string valStr;
-                cin >> paramStr >> valStr;
-                detector.setParam(paramStr, stod(valStr));
-                entering_input = false;
-            }
             imshow("depth", src);
             waitKey(1);  
         #endif
