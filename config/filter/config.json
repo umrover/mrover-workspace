@@ -21,5 +21,7 @@
     "IMU_accel_threshold": 0.5,
 
     "RefCoords": {"lat": 42.2766, "long": -83.7382},
-    "TargetCoords": {"lat": 0.0000, "long": 0.0000}
+    "TargetCoords": {"lat": 0.0000, "long": 0.0000},
+    
+    "Bearing_correction_interval_sec": 600
 }
