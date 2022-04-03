@@ -96,7 +96,7 @@ export default {
   data () {
     return {
       scoopUV: 0,
-      scoopLimit: 0,
+      scoopLimit: 1,
     }
   },
   props: {
