@@ -62,12 +62,9 @@ export default {
             first_waypoint_lat: [],
             first_waypoint_lon: [],
 
-            // Joystick
-            forward_back: [],
-            left_right: [],
-            dampen: [],
-            kill: [],
-            restart: [],
+            // AutonDriveControl
+            left_percent_velocity: [],
+            right_percent_velocity: [],
 
             // TargetList
             bearing0: [],
@@ -101,7 +98,7 @@ export default {
             required: true
         },
 
-        Joystick: {
+        AutonDriveControl: {
             type: Object,
             required: true
         },
@@ -188,11 +185,8 @@ export default {
                     this.first_waypoint_lon.push("(empty course)")
                 }
 
-                this.forward_back.push(this.Joystick.forward_back)
-                this.left_right.push(this.Joystick.left_right)
-                this.dampen.push(this.Joystick.dampen)
-                this.kill.push(this.Joystick.kill)
-                this.restart.push(this.Joystick.restart)
+                this.left_percent_velocity.push(this.AutonDriveControl.left_percent_velocity)
+                this.right_percent_velocity.push(this.AutonDriveControl.right_percent_velocity)
 
                 this.bearing0.push(this.TargetList[0].bearing)
                 this.distance0.push(this.TargetList[0].distance)
@@ -244,11 +238,8 @@ export default {
                     this.first_waypoint_lat.splice(0, overflow_amt)
                     this.first_waypoint_lon.splice(0, overflow_amt)
 
-                    this.forward_back.splice(0, overflow_amt)
-                    this.left_right.splice(0, overflow_amt)
-                    this.dampen.splice(0, overflow_amt)
-                    this.kill.splice(0, overflow_amt)
-                    this.restart.splice(0, overflow_amt)
+                    this.left_percent_velocity.splice(0, overflow_amt)
+                    this.right_percent_velocity.splice(0, overflow_amt)
 
                     this.bearing0.splice(0,overflow_amt)
                     this.distance0.splice(0,overflow_amt)
@@ -263,7 +254,7 @@ export default {
 
     methods: {
         download_log() {
-            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Forward/Back,Left/Right,Dampen,Kill,Restart,Bearing0,Distance0,id0,Bearing1,Distance1,id1\n'
+            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Left Control,Right Control,Bearing0,Distance0,id0,Bearing1,Distance1,id1\n'
 
             for (let i = 0; i < this.num_logs; i++) {
                 csv += this.timestamp[i] + ','
@@ -307,11 +298,8 @@ export default {
                 csv += this.first_waypoint_lat[i] + ','
                 csv += this.first_waypoint_lon[i] + ','
 
-                csv += this.forward_back[i] + ','
-                csv += this.left_right[i] + ','
-                csv += this.dampen[i] + ','
-                csv += this.kill[i] + ','
-                csv += this.restart[i] + ','
+                csv += this.left_percent_velocity[i] + ','
+                csv += this.right_percent_velocity[i] + ','
 
                 csv += this.bearing0[i] + ','
                 csv += this.distance0[i] + ','
@@ -377,11 +365,8 @@ export default {
             this.first_waypoint_lat = []
             this.first_waypoint_lon = []
 
-            this.forward_back = []
-            this.left_right = []
-            this.dampen = []
-            this.kill = []
-            this.restart = []
+            this.left_percent_velocity = []
+            this.right_percent_velocity = []
 
             this.bearing0 = []
             this.distance0 = []

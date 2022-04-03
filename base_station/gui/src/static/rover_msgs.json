@@ -77,6 +77,16 @@
             "laser"
         ]
     ],
+    "AutonDriveControl": [
+        [
+            "double",
+            "left_percent_velocity"
+        ],
+        [
+            "double",
+            "right_percent_velocity"
+        ]
+    ],
     "AutonState": [
         [
             "boolean",
@@ -150,6 +160,16 @@
         ]
     ],
     "DriveMotors": [
+        [
+            "double",
+            "left"
+        ],
+        [
+            "double",
+            "right"
+        ]
+    ],
+    "DriveVelCmd": [
         [
             "double",
             "left"
@@ -369,14 +389,6 @@
         [
             "double",
             "dampen"
-        ],
-        [
-            "boolean",
-            "kill"
-        ],
-        [
-            "boolean",
-            "restart"
         ]
     ],
     "KillSwitch": [
@@ -1013,6 +1025,7 @@
         "ArmControlState",
         "ArmPosition",
         "ArmToggles",
+        "AutonDriveControl",
         "AutonState",
         "Bearing",
         "CameraServos",
@@ -1020,6 +1033,7 @@
         "CurrentDraw",
         "DebugMessage",
         "DriveMotors",
+        "DriveVelCmd",
         "Encoder",
         "ESCThrottle",
         "ESCToggle",
@@ -1047,6 +1061,7 @@
         "PresetAngles",
         "ProximitySensors",
         "RepeaterDrop",
+        "ReverseDrive",
         "RGB",
         "RGBFrame",
         "RGBLED",

@@ -51,7 +51,7 @@
           </p>
         </div>
         <div class="joystick light-bg">
-          <AutonJoystickReading v-bind:Joystick="Joystick"/>
+          <AutonJoystickReading v-bind:AutonDriveControl="AutonDriveControl"/>
         </div>
       </div>
       <div class="box1">
@@ -84,7 +84,7 @@ export default {
       type: Object,
       required: true
     },
-    Joystick: {
+    AutonDriveControl: {
       type: Object,
       required: true
     }

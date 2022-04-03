@@ -1,9 +1,9 @@
 {
 	"bearingPid":
 	{
-		"kP": 0.1,
-		"kI": 0.01,
-		"kD": 0.0055
+		"kP": 0.04,
+		"kI": 0.0,
+		"kD": 0.012
 	},
 
 	"distancePid":
@@ -54,9 +54,8 @@
 	"lcmChannels":
 	{
 		"navStatusChannel": "/nav_status",
-		"repeaterDropInitChannel": "/rr_drop_init",
-		"repeaterDropCompleteChannel": "/rr_drop_complete",
 		"joystickChannel": "/autonomous",
+		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
 		"zedGimbalPosition": "/zed_gimbal_data"
 	},

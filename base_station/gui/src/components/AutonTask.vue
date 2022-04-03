@@ -30,7 +30,7 @@
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
-        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick" v-bind:TargetList="TargetList"/>
+        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:AutonDriveControl="AutonDriveControl" v-bind:TargetList="TargetList"/>
         <PlaybackAutonData/>
      </div>
     </div>
@@ -42,7 +42,7 @@
       <RoverMap v-bind:odom="odom" v-bind:GPS="GPS"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" v-bind:Joystick="Joystick"/>
+      <WaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
     </div>
     <div class="box angles light-bg">
     </div>
@@ -128,12 +128,9 @@ export default {
         {bearing: 0, distance: -1, id: 0}
       ],
 
-      Joystick: {
-        forward_back: 0,
-        left_right: 0.000000001,
-        dampen: 0,
-        kill: false,
-        restart: false
+      AutonDriveControl: {
+        left_percent_velocity: 0,
+        right_percent_velocity: 0
       },
 
       IMU: {
@@ -230,8 +227,8 @@ export default {
           this.IMU = msg.message
         } else if (msg.topic === '/radio') {
           this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
-         }else if (msg.topic === '/autonomous') {
-          this.Joystick = msg.message
+         }else if (msg.topic === '/auton_drive_control') {
+          this.AutonDriveControl = msg.message
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/obstacle') {
@@ -252,7 +249,7 @@ export default {
       [
         {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/sensors', 'type': 'Sensors'},
-        {'topic': '/autonomous', 'type': 'Joystick'},
+        {'topic': '/auton_drive_control', 'type': 'AutonDriveControl'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
