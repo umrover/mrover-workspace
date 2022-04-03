@@ -238,7 +238,8 @@ export default {
         {'topic': '/heater_state_data', 'type': 'Heater'},
         {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'}
         {'topic': '/pdb_data', 'type': 'PDBData'},
-        {'topic': '/fuse_data', 'type': 'FuseData'}
+        {'topic': '/fuse_data', 'type': 'FuseData'},
+        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'}
       ]
     )
 
