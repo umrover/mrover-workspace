@@ -270,10 +270,6 @@ NavState StateMachine::executeOff()
         mCompletedWaypoints = 0;
         mTotalWaypoints = mRover->roverStatus().course().num_waypoints;
 
-        if( !mTotalWaypoints )
-        {
-            return NavState::Done;
-        }
         return NavState::Turn;
     }
     mRover->stop();
@@ -330,7 +326,16 @@ NavState StateMachine::executeDrive()
                                                                 getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
     }
+
+    if( ( nextWaypoint.search || nextWaypoint.gate ) &&
+        mRover->roverStatus().leftCacheTarget().id == nextWaypoint.id &&
+            distance <= mRoverConfig[ "navThresholds" ][ "waypointRadius" ].GetDouble() )
+    {
+        return NavState::TurnToTarget;
+    }
+
     DriveStatus driveStatus = mRover->drive( nextWaypoint.odom );
+    
     if( driveStatus == DriveStatus::Arrived )
     {
         if( nextWaypoint.search || nextWaypoint.gate )
