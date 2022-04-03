@@ -3,5 +3,5 @@ package rover_msgs;
 struct DriveVelData {
         int8_t axis; //0, 2, 4, = front, middle, back right, 1, 3, 5 = front, middle, back left
 	float current_amps; //Amps
-	float vel_percent; //speed in m/s
+	float vel_percent; //percent max speed
 }
