@@ -9,8 +9,6 @@
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/RepeaterDrop.hpp"
-#include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rapidjson/document.h"
@@ -38,8 +36,7 @@ enum class NavState
 
     // Target Found States
     TurnToTarget = 27,
-    TurnedToTargetWait = 28,
-    DriveToTarget = 29,
+    DriveToTarget = 28,
 
     // Obstacle Avoidance States
     TurnAroundObs = 30,
@@ -59,11 +56,6 @@ enum class NavState
     GateTurnToFarPost = 48,
     GateDriveToFarPost = 49,
     GateTurnToGateCenter = 50,
-
-    // Radio Repeater States
-    RadioRepeaterTurn = 60,
-    RadioRepeaterDrive = 61,
-    RepeaterDropWait = 62,
 
     // Unknown State
     Unknown = 255
@@ -97,9 +89,8 @@ public:
             Obstacle obstacleIn,
             Odometry odometryIn,
             Target targetIn,
-            Target target2In,
-            RadioSignalStrength signalIn
-            );
+            Target target2In
+        );
 
         NavState& currentState();
 
@@ -121,13 +112,15 @@ public:
         
         Target& rightCacheTarget();
 
-        RadioSignalStrength& radio();
-
         unsigned getPathTargets();
 
         int& getLeftMisses();
 
         int& getRightMisses();
+
+        int& getLeftHits();
+
+        int& getRightHits();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
@@ -164,9 +157,6 @@ public:
 
         Target mCTargetRight;
 
-        // the rover's current signal strength to the base station
-        RadioSignalStrength mSignal;
-
         // Total targets to seach for in the course
         unsigned mPathTargets;
 
@@ -174,6 +164,11 @@ public:
         int countLeftMisses = 0;
 
         int countRightMisses = 0;
+
+        // Count hits for avoiding FPs
+        int countLeftHits = 0;
+
+        int countRightHits = 0;
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
@@ -194,16 +189,11 @@ public:
 
     RoverStatus& roverStatus();
 
-    PidLoop& distancePid();
-
     PidLoop& bearingPid();
 
     const double longMeterInMinutes() const;
 
-    void updateRepeater( RadioSignalStrength& signal);
-
-    bool isTimeToDropRepeater();
-
+  
 private:
     /*************************************************************************/
     /* Private Member Functions */
@@ -214,7 +204,7 @@ private:
 
     bool isEqual( const Odometry& odometry1, const Odometry& odometry2 ) const;
 
-    bool isEqual( const Target& target1, const Target& target2 ) const;
+    bool isEqual( const Target& target, const Target& target2 ) const;
 
     bool isTurningAroundObstacle( const NavState currentState ) const;
 
@@ -232,14 +222,10 @@ private:
     // communicating with the actual rover and the base station.
     lcm::LCM& mLcmObject;
 
-    // The pid loop for driving.
-    PidLoop mDistancePid;
-
     // The pid loop for turning.
     PidLoop mBearingPid;
 
-    // If it is time to drop a radio repeater
-    bool mTimeToDropRepeater;
+  
 
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.

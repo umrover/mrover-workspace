@@ -30,7 +30,8 @@
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
-        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick"/>
+        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick" v-bind:TargetList="TargetList"/>
+        <PlaybackAutonData/>
      </div>
     </div>
     <div class="box odom light-bg">
@@ -38,7 +39,7 @@
       <ZedGimbalAngles/>
     </div>
     <div class="box map light-bg">
-      <RoverMap v-bind:odom="odom"/>
+      <RoverMap v-bind:odom="odom" v-bind:GPS="GPS"/>
     </div>
     <div class="box waypoints light-bg">
       <WaypointEditor v-bind:odom="odom" v-bind:Joystick="Joystick"/>
@@ -64,6 +65,7 @@ import Obstacle from './Obstacle.vue'
 import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import SaveAutonData from './SaveAutonData.vue'
+import PlaybackAutonData from './PlaybackAutonData.vue'
 import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
 const navBlue = "#4695FF"
@@ -121,10 +123,10 @@ export default {
         distance: 0
       },
 
-      TargetList: {
-        targetList: [{bearing: 0, distance: 0, id: 0},
-        {bearing: 0, distance: 0, id: 0}]
-      },
+      TargetList: [
+        {bearing: 0, distance: -1, id: 0},
+        {bearing: 0, distance: -1, id: 0}
+      ],
 
       Joystick: {
         forward_back: 0,
@@ -147,12 +149,16 @@ export default {
         roll_rad: 0,
         pitch_rad: 0,
         yaw_rad: 0,
+        calibration_sys: 0,
+        calibration_gyro: 0,
+        calibration_accel: 0,
+        calibration_mag: 0,
         bearing_deg: 0
       },
       
       RadioSignalStrength: {
         signal_strength: '0'
-      }
+      },
     }
   },
 
@@ -231,7 +237,7 @@ export default {
         } else if (msg.topic === '/obstacle') {
           this.Obstacle = msg.message
         } else if (msg.topic === '/target_list') {
-          this.TargetList = msg.message
+          this.TargetList = msg.message.targetList
         } else if (msg.topic === '/nav_status') {
           this.nav_status = msg.message
         } else if (msg.topic === '/debugMessage') {
@@ -318,6 +324,7 @@ export default {
     TargetList,
     DriveVelDataH,
     SaveAutonData,
+    PlaybackAutonData,
     ZedGimbalAngles
   }
 }

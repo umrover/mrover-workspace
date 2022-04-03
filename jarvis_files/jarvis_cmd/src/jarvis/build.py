@@ -92,7 +92,7 @@ def build_dir(ctx, d, lint, opts=None):
 
 
 def get_site_cfg():
-    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix', 'jetson']
+    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix', 'nlohmann', 'kluge', 'jetson']
     site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
     site_cfg = configparser.ConfigParser()
     site_cfg['third_party'] = {}
@@ -104,7 +104,7 @@ def get_site_cfg():
             for pkg_name in PACKAGE_NAMES}
 
 
-def build_deps(ctx):
+def build_deps(ctx, no_reqs):
     """
     Build the dependencies. This is hard-coded for now.
     """
@@ -114,28 +114,35 @@ def build_deps(ctx):
         third_party.ensure_phoenix(ctx)
     if site_cfg['rapidjson']:
         third_party.ensure_rapidjson(ctx)
+    if site_cfg['nlohmann']:
+        third_party.ensure_nlohmann(ctx)
+    if site_cfg['kluge']:
+        third_party.ensure_kluge(ctx)
     if site_cfg['lcm']:
         third_party.ensure_lcm(ctx)
 
-    pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
-    pip_hasher.hash_modification_time('pip_deps/')
-    if pip_hasher.has_changed():
-        with ctx.cd(ctx.root):
-            with ctx.inside_product_env():
-                print("Installing pip dependencies...")
-                ctx.run("pip3 install --upgrade pip")
-                ctx.run("pip3 install cython")
-                # Jarvis dependencies
-                ctx.run("pip3 install -r \"{}\"/requirements.txt".format(
-                    ctx.jarvis_root))
-                # Workspace dependencies
-                ctx.run("pip3 install -r pip_deps/requirements.txt")
-                if site_cfg['jetson']:
-                    print("Installing jetson pip dependencies...")
-                    ctx.run("pip3 install -r pip_deps/jetson_requirements.txt")
-        pip_hasher.save()
+    if (no_reqs):
+        print("Skipping pip dependencies")
     else:
-        print("pip dependencies already installed, skipping.")
+        pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
+        pip_hasher.hash_modification_time('pip_deps/')
+        if pip_hasher.has_changed():
+            with ctx.cd(ctx.root):
+                with ctx.inside_product_env():
+                    print("Installing pip dependencies...")
+                    ctx.run("pip3 install --upgrade pip")
+                    ctx.run("pip3 install cython")
+                    # Jarvis dependencies
+                    ctx.run("pip3 install -r \"{}\"/requirements.txt".format(
+                        ctx.jarvis_root))
+                    # Workspace dependencies
+                    ctx.run("pip3 install -r pip_deps/requirements.txt")
+                    if site_cfg['jetson']:
+                        print("Installing jetson pip dependencies...")
+                        ctx.run("pip3 install -r pip_deps/jetson_requirements.txt")
+            pip_hasher.save()
+        else:
+            print("pip dependencies already installed, skipping.")
 
     print("Done.")
 

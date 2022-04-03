@@ -1,7 +1,7 @@
 #include "rover.hpp"
-
 #include "utilities.hpp"
 #include "rover_msgs/Joystick.hpp"
+
 #include <cmath>
 #include <iostream>
 
@@ -77,11 +77,6 @@ Target& Rover::RoverStatus::rightCacheTarget()
     return mCTargetRight;
 } // rightCacheTarget()
 
-RadioSignalStrength& Rover::RoverStatus::radio() 
-{
-    return mSignal;
-} // radio()
-
 unsigned Rover::RoverStatus::getPathTargets()
 {
   return mPathTargets;
@@ -95,6 +90,16 @@ int& Rover::RoverStatus::getLeftMisses()
 int& Rover::RoverStatus::getRightMisses()
 {
     return countRightMisses;
+}
+
+int& Rover::RoverStatus::getLeftHits()
+{
+    return countLeftHits;
+}
+
+int& Rover::RoverStatus::getRightHits()
+{
+    return countRightHits;
 }
 
 // Assignment operator for the rover status object. Does a "deep" copy
@@ -113,7 +118,7 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     {
         auto &wp = mCourse.waypoints[ courseIndex ];
         mPath.push_back( wp );
-        if ( wp.search ) {
+        if ( wp.search || wp.gate ) {
             ++mPathTargets;
         }
     }
@@ -123,7 +128,6 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     mTargetRight = newRoverStatus.rightTarget();
     mCTargetLeft = newRoverStatus.leftCacheTarget();
     mCTargetRight = newRoverStatus.rightCacheTarget();
-    mSignal = newRoverStatus.radio();
     countLeftMisses = newRoverStatus.getLeftMisses();
     countRightMisses = newRoverStatus.getRightMisses();
     return *this;
@@ -134,13 +138,9 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
 Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
     : mRoverConfig( config )
     , mLcmObject( lcmObject )
-    , mDistancePid( config[ "distancePid" ][ "kP" ].GetDouble(),
-                    config[ "distancePid" ][ "kI" ].GetDouble(),
-                    config[ "distancePid" ][ "kD" ].GetDouble() )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
-    , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
 {
 } // Rover()
@@ -275,8 +275,23 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             // Cache Left Target if we had detected one
             if( mRoverStatus.leftTarget().distance != mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() ) 
             {
-                mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
-                mRoverStatus.getLeftMisses() = 0;
+
+                // Associate with single post
+                if( mRoverStatus.leftTarget().id == mRoverStatus.path().front().id )
+                {
+                    mRoverStatus.getLeftHits()++;
+                }
+                else
+                {
+                    mRoverStatus.getLeftHits() = 0;
+                }
+
+                // Update leftTarget if we have 3 or more consecutive hits
+                if( mRoverStatus.getLeftHits() >= 3 )
+                {
+                    mRoverStatus.leftCacheTarget() = mRoverStatus.leftTarget();
+                    mRoverStatus.getLeftMisses() = 0;
+                }
 
                 // Cache Right Target if we had detected one (only can see right if we see the left one, otherwise
                 // results in some undefined behavior)
@@ -294,12 +309,15 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             { 
                 mRoverStatus.getLeftMisses()++;
                 mRoverStatus.getRightMisses()++; // need to increment since we don't see both
+                mRoverStatus.getLeftHits() = 0;
+                mRoverStatus.getRightHits() = 0;
             }
 
             // Check if we need to reset left cache
             if( mRoverStatus.getLeftMisses() > mRoverConfig[ "navThresholds" ][ "cacheMissMax" ].GetDouble() )
             {
                 mRoverStatus.getLeftMisses() = 0;
+                mRoverStatus.getLeftHits() = 0;
                 // Set to empty target
                 mRoverStatus.leftCacheTarget() = {-1, 0, 0};
             }
@@ -308,12 +326,11 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             if( mRoverStatus.getRightMisses() > mRoverConfig[ "navThresholds" ][ "cacheMissMax" ].GetDouble() )
             {
                 mRoverStatus.getRightMisses() = 0;
+                mRoverStatus.getRightHits() = 0;
                 // Set to empty target
                 mRoverStatus.rightCacheTarget() = {-1, 0, 0};
             }
             
-            mRoverStatus.radio() = newRoverStatus.radio();
-            updateRepeater( mRoverStatus.radio() );
             return true;
         }
         return false;
@@ -341,51 +358,11 @@ const double Rover::longMeterInMinutes() const
     return mLongMeterInMinutes;
 }
 
-// Executes the logic starting the clock to time how long it's been
-// since the rover has gotten a strong radio signal. If the signal drops
-// below the signalStrengthCutOff and the timer hasn't started, begin the clock.
-// Otherwise, the signal is good so the timer should be stopped.
-void Rover::updateRepeater( RadioSignalStrength& radioSignal )
-{
-    static bool started = false;
-    static time_t startTime;
-
-    // If we haven't already dropped a repeater, the time hasn't already started
-    // and our signal is below the threshold, start the timer
-    if( !mTimeToDropRepeater &&
-        !started &&
-        radioSignal.signal_strength <=
-        mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble() )
-    {
-        startTime = time( nullptr );
-        started = true;
-    }
-
-    double waitTime = mRoverConfig[ "radioRepeaterThresholds" ][ "lowSignalWaitTime" ].GetDouble();
-    if( started && difftime( time( nullptr ), startTime ) > waitTime )
-    {
-        started = false;
-        mTimeToDropRepeater = true;
-    }
-}
-
-// Returns whether or not enough time has passed to drop a radio repeater.
-bool Rover::isTimeToDropRepeater()
-{
-    return mTimeToDropRepeater;
-}
-
 // Gets the rover's status object.
 Rover::RoverStatus& Rover::roverStatus()
 {
     return mRoverStatus;
 } // roverStatus()
-
-// Gets the rover's driving pid object.
-PidLoop& Rover::distancePid()
-{
-    return mDistancePid;
-} // distancePid()
 
 // Gets the rover's turning pid object.
 PidLoop& Rover::bearingPid()
@@ -438,10 +415,10 @@ bool Rover::isEqual( const Odometry& odometry1, const Odometry& odometry2 ) cons
 
 // Returns true if the two target messages are equal, false
 // otherwise.
-bool Rover::isEqual( const Target& target1, const Target& target2 ) const
+bool Rover::isEqual( const Target& target, const Target& target2 ) const
 {
-    if( target1.distance == target2.distance &&
-        target1.bearing == target2.bearing )
+    if( target.distance == target2.distance &&
+        target.bearing == target2.bearing )
     {
         return true;
     }

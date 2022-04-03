@@ -30,12 +30,13 @@
 		"turningBearing": 10,
 		"drivingBearing": 35,
 		"waypointDistance": 1.25,
-		"targetDistance": 1.0,
+		"targetDistance": 1.5,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20,
 		"obstacleDistanceThreshold": 2.5,
 		"cacheMissMax": 20,
-		"noTargetDist": -1
+		"noTargetDist": -1,
+		"waypointRadius": 20.0
 	},
 
 	"roverMeasurements":
@@ -72,6 +73,7 @@
 		"numSearches": 2,
 		"bailThresh": 20.0,
 		"searchWaitStepSize": 90.0,
-		"searchWaitTime": 1.0
+		"searchWaitTime": 1.0,
+		"spiralSearchPoints": "jetson/nav/search/spiral_search_points.txt"
 	}
 }

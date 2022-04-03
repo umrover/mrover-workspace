@@ -3,98 +3,87 @@ import sys
 import time as t
 import odrive as odv
 import threading
+import fibre
 from rover_msgs import DriveVelCmd, \
     DriveStateData, DriveVelData
 from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, \
-    CONTROL_MODE_VELOCITY_CONTROL, \
-    AXIS_STATE_IDLE
+    CONTROL_MODE_VELOCITY_CONTROL, AXIS_STATE_IDLE
 
 from odrive.utils import dump_errors
+from enum import Enum
 
 
 def main():
-    global lcm_
-    lcm_ = lcm.LCM()
+    global lcm_, modrive, left_speed, right_speed, legal_controller, \
+        vel_msg, state_msg, usb_lock, speed_lock, start_time, watchdog, odrive_bridge
 
-    global modrive
-    global left_speed
-    global right_speed
+    lcm_, left_speed, right_speed, start_time, legal_controller, \
+        vel_msg, state_msg = lcm.LCM(), 0.0, 0.0, t.clock(), int(sys.argv[1]), DriveVelData(), DriveStateData()
 
-    left_speed = 0.0
-    right_speed = 0.0
+    speed_lock = threading.Lock()
+    usb_lock = threading.Lock()
 
-    global legal_controller
-
-    global vel_msg
-    global state_msg
-
-    global lock
-    global speedlock
-
-    global start_time
-    global watchdog
-
-    start_time = t.process_time()
-
-    legal_controller = int(sys.argv[1])
-
-    vel_msg = DriveVelData()
-    state_msg = DriveStateData()
-
-    speedlock = threading.Lock()
-    lock = threading.Lock()
-
-    threading._start_new_thread(lcmThreaderMan, ())
-    global odrive_bridge
+    threading._start_new_thread(lcm_publisher_thread, ())
     odrive_bridge = OdriveBridge()
     # starting state is DisconnectedState()
     # start up sequence is called, disconnected-->disarm-->arm
 
+    # flag for state when we have comms with base_station vs not
+    prev_comms = False
+
     while True:
-        watchdog = t.process_time() - start_time
-        if (watchdog > 1.0):
-            print("loss of comms")
+        watchdog = t.clock() - start_time
+        if watchdog > 1.0:
+            if prev_comms:
+                print("loss of comms")
+                prev_comms = False
 
-            speedlock.acquire()
-
-            left_speed = 0
-            right_speed = 0
-
-            speedlock.release()
+            speed_lock.acquire()
+            left_speed = right_speed = 0
+            speed_lock.release()
+        else:
+            if not prev_comms:
+                prev_comms = True
+                print("regained comms")
 
         try:
             odrive_bridge.update()
         except Exception as e:
-            print("CRASH! Error: ")
-            print(e)
-            lock.acquire()
-            odrive_bridge.on_event("disconnected odrive")
-            lock.release()
+            print("odrive has been unplugged, exception caught as:", e)
+            if usb_lock.locked():
+                usb_lock.release()
+
+            usb_lock.acquire()
+            odrive_bridge.on_event(Event.DISCONNECTED_ODRIVE)
+            usb_lock.release()
 
     exit()
 
 
-def lcmThreaderMan():
-    lcm_1 = lcm.LCM()
-    lcm_1.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
+def lcm_publisher_thread():
+    lcm_pub = lcm.LCM()
+    lcm_pub.subscribe("/drive_vel_cmd", drive_vel_cmd_callback)
     while True:
-        lcm_1.handle()
+        lcm_pub.handle()
         global start_time
         start_time = t.clock()
         try:
             publish_encoder_msg()
-        except NameError:
-            pass
-        except AttributeError:
-            pass
-        except Exception:
-            pass
+        except Exception as e:
+            print("Exception caught as:", e)
+            if usb_lock.locked():
+                usb_lock.release()
 
 
-events = ["disconnected odrive", "disarm cmd", "arm cmd", "odrive error"]
 states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
-# Program states possible - BOOT,  DISARMED, ARMED,   ERROR
-# 							1		 2	      3	       4
+# Program states possible - BOOT,  DISARMED, ARMED, ERROR
+
+
+class Event(Enum):
+    DISCONNECTED_ODRIVE = 1
+    DISARM_CMD = 2
+    ARM_CMD = 3
+    ODRIVE_ERROR = 4
 
 
 class State(object):
@@ -133,14 +122,11 @@ class DisconnectedState(State):
         Handle events that are delegated to the Disconnected State.
         """
         global modrive
-        try:
-            if (event == "arm cmd"):
-                modrive.disarm()
-                modrive.reset_watchdog()
-                modrive.arm()
-                return ArmedState()
-        except Exception as e:  # noqa: F841
-            print("trying to arm")
+        if (event == Event.ARM_CMD):
+            modrive.disarm()
+            modrive.reset_watchdog()
+            modrive.arm()
+            return ArmedState()
 
         return self
 
@@ -151,14 +137,14 @@ class DisarmedState(State):
         Handle events that are delegated to the Disarmed State.
         """
         global modrive
-        if (event == "disconnected odrive"):
+        if (event == Event.DISCONNECTED_ODRIVE):
             return DisconnectedState()
 
-        elif (event == "arm cmd"):
+        elif (event == Event.ARM_CMD):
             modrive.arm()
             return ArmedState()
 
-        elif (event == "odrive error"):
+        elif (event == Event.ODRIVE_ERROR):
             return ErrorState()
 
         return self
@@ -171,22 +157,14 @@ class ArmedState(State):
         """
         global modrive
 
-        if (event == "disarm cmd"):
+        if (event == Event.DISARM_CMD):
             modrive.disarm()
             return DisarmedState()
 
-        elif (event == "disconnected odrive"):
-            global speedlock
-            global left_speed
-            global right_speed
-            speedlock.acquire()
-            left_speed = 0
-            right_speed = 0
-            speedlock.release()
-
+        elif (event == Event.DISCONNECTED_ODRIVE):
             return DisconnectedState()
 
-        elif (event == "odrive error"):
+        elif (event == Event.ODRIVE_ERROR):
             return ErrorState()
 
         return self
@@ -198,13 +176,13 @@ class ErrorState(State):
         Handle events that are delegated to the Error State.
         """
         global modrive
-        dump_errors(modrive.odrive, True)
-
-        if (event == "odrive error"):
+        print(dump_errors(modrive.odrive, True))
+        if (event == Event.ODRIVE_ERROR):
             try:
                 modrive.reboot()  # only runs after initial pairing
-            except Exception as e:  # noqa: F841
-                print('channel error caught')
+            except Exception as e:
+                print('Exception caught as:', e)
+
             return DisconnectedState()
 
         return self
@@ -219,30 +197,28 @@ class OdriveBridge(object):
         """
         global modrive
         self.state = DisconnectedState()  # default is disarmed
-        self.encoder_time = 0
-        self.errors = 0
-        self.left_speed = 0
-        self.right_speed = 0
+        self.left_speed = self.right_speed = 0.0
 
     def connect(self):
-        global modrive
-        global legal_controller
+        global modrive, legal_controller
         print("looking for odrive")
 
         # odrive 0 --> front motors
         # odrive 1 --> middle motors
         # odrive 2 --> back motors
 
-        odrives = ["335D36623539", "335B36563539", "335536553539"]
+        odrives = ["335D36623539", "335B36563539", "2066377F5753"]
+
         id = odrives[legal_controller]
 
         print(id)
         odrive = odv.find_any(serial_number=id)
 
         print("found odrive")
+        usb_lock.acquire()
         modrive = Modrive(odrive)  # arguments = odr
-        modrive.set_current_lim(100)
-        self.encoder_time = t.time()
+        modrive.set_current_lim(modrive.CURRENT_LIM)
+        usb_lock.release()
 
     def on_event(self, event):
         """
@@ -258,70 +234,49 @@ class OdriveBridge(object):
         publish_state_msg(state_msg, odrive_bridge.get_state())
 
     def update(self):
-        try:
-            errors = modrive.check_errors()
-            modrive.watchdog_feed()
-        except Exception:
-            errors = 0
-            lock.acquire()
-            self.on_event("disconnected odrive")
-            lock.release()
-            print("unable to check errors of unplugged odrive")
-
-        if errors:
-            # if (errors == 0x800 or erros == 0x1000):
-
-            lock.acquire()
-            self.on_event("odrive error")
-            lock.release()
-            # first time will set to ErrorState
-            # second time will reboot
-            # because the error flag is still true
-            return
-
         if (str(self.state) == "ArmedState"):
-            modrive.watchdog_feed()
+            try:
+                usb_lock.acquire()
+                errors = modrive.check_errors()
+                modrive.watchdog_feed()
+                usb_lock.release()
 
-            global speedlock
-            global left_speed
-            global right_speed
+            except Exception as e:
+                if usb_lock.locked():
+                    usb_lock.release()
+                errors = 0
+                usb_lock.acquire()
+                self.on_event(Event.DISCONNECTED_ODRIVE)
+                usb_lock.release()
+                print("odrive unplugged, update failed with exception:", e)
 
-            # print("trying to acquire speed lock in update")
-            speedlock.acquire()
-            # print("acquired speed lock in update")
-            self.left_speed = left_speed
-            self.right_speed = right_speed
+            if errors:
+                usb_lock.acquire()
+                self.on_event(Event.ODRIVE_ERROR)
+                usb_lock.release()
+                return
 
-            # print("released speed lock in update")
-            speedlock.release()
+            global speed_lock, left_speed, right_speed
 
+            speed_lock.acquire()
+            self.left_speed, self.right_speed = left_speed, right_speed
+            speed_lock.release()
+
+            usb_lock.acquire()
             modrive.set_vel("LEFT", self.left_speed)
             modrive.set_vel("RIGHT", self.right_speed)
+            usb_lock.release()
 
         elif (str(self.state) == "DisconnectedState"):
             self.connect()
-            lock.acquire()
-            self.on_event("arm cmd")
-            lock.release()
+            usb_lock.acquire()
+            self.on_event(Event.ARM_CMD)
+            usb_lock.release()
 
-        try:
-            errors = modrive.check_errors()
-        except Exception:
-            errors = 0
-            lock.acquire()
-            self.on_event("disconnected odrive")
-            lock.release()
-            print("unable to check errors of unplugged odrive")
-
-        if errors:
-            # if (errors == 0x800 or erros == 0x1000):
-
-            lock.acquire()
-            self.on_event("odrive error")
-            lock.release()
-            # first time will set to ErrorState
-            # second time will reboot
-            # because the error flag is still true
+        elif (str(self.state) == "ErrorState"):
+            usb_lock.acquire()
+            self.on_event(Event.ODRIVE_ERROR)
+            usb_lock.release()
 
     def get_state(self):
         return str(self.state)
@@ -341,11 +296,13 @@ def publish_state_msg(msg, state):
 
 
 def publish_encoder_helper(axis):
-    global modrive
-    global legal_controller
+    global modrive, legal_controller, usb_lock
     msg = DriveVelData()
-    msg.measuredCurrent = modrive.get_iq_measured(axis)
-    msg.estimatedVel = modrive.get_vel_estimate(axis)
+
+    usb_lock.acquire()
+    msg.current_amps = modrive.get_iq_measured(axis)
+    msg.vel_percent = modrive.get_vel_estimate(axis)
+    usb_lock.release()
 
     motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
                  ("LEFT", 1): 2, ("RIGHT", 1): 3,
@@ -365,23 +322,17 @@ def drive_vel_cmd_callback(channel, msg):
     # set the odrive's velocity to the float specified in the message
     # no state change
 
-    global speedlock
-    global odrive_bridge
+    global speed_lock, odrive_bridge
     try:
         cmd = DriveVelCmd.decode(msg)
         if (odrive_bridge.get_state() == "ArmedState"):
-            global left_speed
-            global right_speed
+            global left_speed, right_speed
 
-            # print("trying to acquire speed lock in drive vel callback")
-            speedlock.acquire()
-            # print("speed lock acquired in drive call back")
-
-            left_speed = cmd.left
-            right_speed = cmd.right
-            # print("speed lock released in drive call back")
-            speedlock.release()
-    except NameError:
+            speed_lock.acquire()
+            left_speed, right_speed = cmd.left, cmd.right
+            speed_lock.release()
+    except Exception as e:
+        print("Exception caught as:", e)
         pass
 
 
@@ -390,14 +341,15 @@ if __name__ == "__main__":
 
 
 class Modrive:
-    CURRENT_LIM = 30
+    CURRENT_LIM = 4
+    # scales normalized inputs to max physical speed of rover in turn/s
+    SPEED_MULTIPLIER = 50
 
     def __init__(self, odr):
         self.odrive = odr
-        self.front_axis = self.odrive.axis0
-        self.back_axis = self.odrive.axis1
+        self.left_axis = self.odrive.axis0
+        self.right_axis = self.odrive.axis1
         self.set_current_lim(self.CURRENT_LIM)
-        # TODO fix this such that front and back are right and left
 
     # viable to set initial state to idle?
 
@@ -406,32 +358,14 @@ class Modrive:
             return getattr(self, attr)
         return getattr(self.odrive, attr)
 
-    def reset(self):
-        self._reset(self.front_axis)
-        self._reset(self.back_axis)
-        self.odrive.save_configuration()
-        # the guide says to reboot here...
-
-    def print_debug(self):
-        try:
-            print("Print control mode")
-            print(self.front_axis.controller.config.control_mode)
-            print(self.back_axis.controller.config.control_mode)
-            print("Printing requested state")
-            print(self.front_axis.current_state)
-            print(self.back_axis.current_state)
-        except Exception as e:
-            print("Failed in print_debug. Error:")
-            print(e)
-
     def enable_watchdog(self):
         try:
             print("Enabling watchdog")
-            self.front_axis.config.watchdog_timeout = 0.1
-            self.back_axis.config.watchdog_timeout = 0.1
+            self.left_axis.config.watchdog_timeout = 0.1
+            self.right_axis.config.watchdog_timeout = 0.1
             self.watchdog_feed()
-            self.front_axis.config.enable_watchdog = True
-            self.back_axis.config.enable_watchdog = True
+            self.left_axis.config.enable_watchdog = True
+            self.right_axis.config.enable_watchdog = True
         except Exception as e:
             print("Failed in enable_watchdog. Error:")
             print(e)
@@ -439,34 +373,32 @@ class Modrive:
     def disable_watchdog(self):
         try:
             print("Disabling watchdog")
-            self.front_axis.config.watchdog_timeout = 0
-            self.back_axis.config.watchdog_timeout = 0
-            self.front_axis.config.enable_watchdog = False
-            self.back_axis.config.enable_watchdog = False
-        except Exception as e:
-            print("Failed in disable_watchdog. Error:")
-            print(e)
+            self.left_axis.config.watchdog_timeout = 0
+            self.right_axis.config.watchdog_timeout = 0
+            self.left_axis.config.enable_watchdog = False
+            self.right_axis.config.enable_watchdog = False
+        except fibre.protocol.ChannelBrokenException:
+            print("Failed in disable_watchdog. Unplugged")
 
     def reset_watchdog(self):
         try:
             print("Resetting watchdog")
             self.disable_watchdog()
             # clears errors cleanly
-            self.odrive.clear_errors()
+            self.left_axis.error = self.right_axis.error = 0
             self.enable_watchdog()
-        except Exception as e:
-            print("Failed in disable_watchdog. Error:")
-            print(e)
+        except fibre.protocol.ChannelBrokenException:
+            print("Failed in disable_watchdog. Unplugged")
 
     def watchdog_feed(self):
         try:
-            self.front_axis.watchdog_feed()
-            self.back_axis.watchdog_feed()
-        except Exception as e:
-            print("Failed in watchdog_feed. Error:")
-            print(e)
+            self.left_axis.watchdog_feed()
+            self.right_axis.watchdog_feed()
+        except fibre.protocol.ChannelBrokenException:
+            print("Failed in watchdog_feed. Unplugged")
 
     def disarm(self):
+        self.set_current_lim(self.CURRENT_LIM)
         self.closed_loop_ctrl()
         self.set_velocity_ctrl()
 
@@ -480,12 +412,12 @@ class Modrive:
         self.set_velocity_ctrl()
 
     def set_current_lim(self, lim):
-        self.front_axis.motor.config.current_lim = lim
-        self.back_axis.motor.config.current_lim = lim
+        self.left_axis.motor.config.current_lim = lim
+        self.right_axis.motor.config.current_lim = lim
 
     def _set_control_mode(self, mode):
-        self.front_axis.controller.config.control_mode = mode
-        self.back_axis.controller.config.control_mode = mode
+        self.left_axis.controller.config.control_mode = mode
+        self.right_axis.controller.config.control_mode = mode
 
     def set_velocity_ctrl(self):
         self._set_control_mode(CONTROL_MODE_VELOCITY_CONTROL)
@@ -493,16 +425,15 @@ class Modrive:
     def get_iq_measured(self, axis):
         # measured current [Amps]
         if (axis == "LEFT"):
-            return self.front_axis.motor.current_control.Iq_measured
+            return self.left_axis.motor.current_control.Iq_measured
         elif(axis == "RIGHT"):
-            return self.back_axis.motor.current_control.Iq_measured
+            return self.right_axis.motor.current_control.Iq_measured
 
     def get_vel_estimate(self, axis):
-        # axis = self.odrive[axis_number]
         if (axis == "LEFT"):
-            return self.front_axis.encoder.vel_estimate
+            return self.left_axis.encoder.vel_estimate
         elif(axis == "RIGHT"):
-            return self.back_axis.encoder.vel_estimate
+            return self.right_axis.encoder.vel_estimate
 
     def idle(self):
         self._requested_state(AXIS_STATE_IDLE)
@@ -511,32 +442,17 @@ class Modrive:
         self._requested_state(AXIS_STATE_CLOSED_LOOP_CONTROL)
 
     def _requested_state(self, state):
-        self.back_axis.requested_state = state
-        self.front_axis.requested_state = state
+        self.right_axis.requested_state = state
+        self.left_axis.requested_state = state
 
     def set_vel(self, axis, vel):
-        global legal_controller
         if (axis == "LEFT"):
-            # TEMPORARY FIX FOR ROLLING ROVER SINCE
-            # middle left odrive IS 2x more than the rest bc of the 48V maxon
-            # TODO - fix when this is no longer the case!
-            if (legal_controller == 1):
-                self.front_axis.controller.input_vel = vel * 100
-            else:
-                self.front_axis.controller.input_vel = vel * 50
+            self.left_axis.controller.input_vel = -vel * self.SPEED_MULTIPLIER
         elif axis == "RIGHT":
-            self.back_axis.controller.input_vel = vel * -50
+            self.right_axis.controller.input_vel = vel * self.SPEED_MULTIPLIER
 
     def get_current_state(self):
-        return (self.front_axis.current_state, self.back_axis.current_state)
-
-    def _pre_calibrate(self, m_axis):
-        m_axis.motor.config.pre_calibrated = True
-        m_axis.encoder.config.pre_calibrated = True
+        return (self.left_axis.current_state, self.right_axis.current_state)
 
     def check_errors(self):
-        return self._check_error_on_axis(self.front_axis) + \
-                                self._check_error_on_axis(self.back_axis)
-
-    def _check_error_on_axis(self, axis):
-        return axis.error + axis.encoder.error + axis.controller.error + axis.motor.error
+        return self.left_axis.error + self.right_axis.error

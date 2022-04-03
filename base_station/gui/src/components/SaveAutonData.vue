@@ -1,7 +1,7 @@
 <template>
     <div class="log">
-        <label for="loggin_toggle">{{logging_on ? 'Logging On':'Logging Off'}}</label>
-        <input type="checkbox" v-model="logging_on" id="loggin_toggle">
+        <label for="logging_toggle">{{logging_on ? 'Logging On':'Logging Off'}}</label>
+        <input type="checkbox" v-model="logging_on" id="logging_toggle">
 
         <button v-on:click="download_log()">Save log</button>
     </div>
@@ -41,6 +41,10 @@ export default {
             roll: [],
             pitch: [],
             yaw: [],
+            calib_sys: [],
+            calib_gyro: [],
+            calib_accel: [],
+            calib_mag: [],
             imu_bearing: [],
 
             // GPS
@@ -55,13 +59,24 @@ export default {
             nav_state: [],
             completed_wps: [],
             total_wps: [],
+            first_waypoint_lat: [],
+            first_waypoint_lon: [],
 
             // Joystick
             forward_back: [],
             left_right: [],
             dampen: [],
             kill: [],
-            restart: []
+            restart: [],
+
+            // TargetList
+            bearing0: [],
+            distance0: [],
+            id0: [],
+            bearing1: [],
+            distance1: [],
+            id1: []
+
         }
     },
 
@@ -89,13 +104,19 @@ export default {
         Joystick: {
             type: Object,
             required: true
+        },
+
+        TargetList: {
+            type: Array,
+            required: true
         }
     },
 
     computed: {
         ...mapGetters('autonomy', {
             autonEnabled: 'autonEnabled',
-            odom_format: 'odomFormat'
+            odom_format: 'odomFormat',
+            route: 'route'
         }),
 
         formatted_odom: function() {
@@ -140,7 +161,11 @@ export default {
                 this.mag_z.push(this.IMU.mag_z_uT)
                 this.roll.push(this.IMU.roll_rad)
                 this.pitch.push(this.IMU.pitch_rad)
-                this.pitch.push(this.IMU.yaw_rad)
+                this.yaw.push(this.IMU.yaw_rad)
+                this.calib_sys.push(this.IMU.calibration_sys)
+                this.calib_gyro.push(this.IMU.calibration_gyro)
+                this.calib_accel.push(this.IMU.calibration_accel)
+                this.calib_mag.push(this.IMU.calibration_mag)
                 this.imu_bearing.push(this.IMU.bearing_deg)
 
                 this.gps_lat_deg.push(this.GPS.latitude_deg)
@@ -154,11 +179,27 @@ export default {
                 this.completed_wps.push(this.nav_status.completed_wps)
                 this.total_wps.push(this.nav_status.total_wps)
 
+                if (this.route.length > 0) {
+                    this.first_waypoint_lat.push(this.route[0].latLng.lat)
+                    this.first_waypoint_lon.push(this.route[0].latLng.lng)
+                }
+                else {
+                    this.first_waypoint_lat.push("(empty course)")
+                    this.first_waypoint_lon.push("(empty course)")
+                }
+
                 this.forward_back.push(this.Joystick.forward_back)
                 this.left_right.push(this.Joystick.left_right)
                 this.dampen.push(this.Joystick.dampen)
                 this.kill.push(this.Joystick.kill)
                 this.restart.push(this.Joystick.restart)
+
+                this.bearing0.push(this.TargetList[0].bearing)
+                this.distance0.push(this.TargetList[0].distance)
+                this.id0.push(this.TargetList[0].id)
+                this.bearing1.push(this.TargetList[1].bearing)
+                this.distance1.push(this.TargetList[1].distance)
+                this.id1.push(this.TargetList[1].id)
 
                 if (this.num_logs > (seconds_to_save / update_rate) + overflow_amt) {
                     this.num_logs -= overflow_amt
@@ -184,6 +225,10 @@ export default {
                     this.roll.splice(0, overflow_amt)
                     this.pitch.splice(0, overflow_amt)
                     this.yaw.splice(0, overflow_amt)
+                    this.calib_sys.splice(0, overflow_amt)
+                    this.calib_gyro.splice(0, overflow_amt)
+                    this.calib_accel.splice(0, overflow_amt)
+                    this.calib_mag.splice(0, overflow_amt)
                     this.imu_bearing.splice(0, overflow_amt)
 
                     this.gps_lat_deg.splice(0, overflow_amt)
@@ -196,12 +241,21 @@ export default {
                     this.nav_state.splice(0, overflow_amt)
                     this.completed_wps.splice(0, overflow_amt)
                     this.total_wps.splice(0, overflow_amt)
+                    this.first_waypoint_lat.splice(0, overflow_amt)
+                    this.first_waypoint_lon.splice(0, overflow_amt)
 
                     this.forward_back.splice(0, overflow_amt)
                     this.left_right.splice(0, overflow_amt)
                     this.dampen.splice(0, overflow_amt)
                     this.kill.splice(0, overflow_amt)
                     this.restart.splice(0, overflow_amt)
+
+                    this.bearing0.splice(0,overflow_amt)
+                    this.distance0.splice(0,overflow_amt)
+                    this.id0.splice(0,overflow_amt)
+                    this.bearing1.splice(0,overflow_amt)
+                    this.distance1.splice(0,overflow_amt)
+                    this.id1.splice(0,overflow_amt)
                 }
             }
         }, update_rate * 1000)
@@ -209,7 +263,7 @@ export default {
 
     methods: {
         download_log() {
-            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,Forward/Back,Left/Right,Dampen,Kill,Restart\n'
+            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Forward/Back,Left/Right,Dampen,Kill,Restart,Bearing0,Distance0,id0,Bearing1,Distance1,id1\n'
 
             for (let i = 0; i < this.num_logs; i++) {
                 csv += this.timestamp[i] + ','
@@ -234,6 +288,10 @@ export default {
                 csv += this.roll[i] + ','
                 csv += this.pitch[i] + ','
                 csv += this.yaw[i] + ','
+                csv += this.calib_sys[i] + ','
+                csv += this.calib_gyro[i] + ','
+                csv += this.calib_accel[i] + ','
+                csv += this.calib_mag[i] + ','
                 csv += this.imu_bearing[i] + ','
 
                 csv += this.gps_lat_deg[i] + ','
@@ -246,12 +304,21 @@ export default {
                 csv += this.nav_state[i] + ','
                 csv += this.completed_wps[i] + ','
                 csv += this.total_wps[i] + ','
+                csv += this.first_waypoint_lat[i] + ','
+                csv += this.first_waypoint_lon[i] + ','
 
                 csv += this.forward_back[i] + ','
                 csv += this.left_right[i] + ','
                 csv += this.dampen[i] + ','
                 csv += this.kill[i] + ','
-                csv += this.restart[i]
+                csv += this.restart[i] + ','
+
+                csv += this.bearing0[i] + ','
+                csv += this.distance0[i] + ','
+                csv += this.id0[i] + ','
+                csv += this.bearing1[i] + ','
+                csv += this.distance1[i] + ','
+                csv += this.id1[i]
 
                 csv += '\n'
             }
@@ -291,6 +358,10 @@ export default {
             this.roll = []
             this.pitch = []
             this.yaw = []
+            this.calib_sys = []
+            this.calib_gyro = []
+            this.calib_accel = []
+            this.calib_mag = []
             this.imu_bearing = []
 
             this.gps_lat_deg = []
@@ -303,12 +374,21 @@ export default {
             this.nav_state = []
             this.completed_wps = []
             this.total_wps = []
+            this.first_waypoint_lat = []
+            this.first_waypoint_lon = []
 
             this.forward_back = []
             this.left_right = []
             this.dampen = []
             this.kill = []
             this.restart = []
+
+            this.bearing0 = []
+            this.distance0 = []
+            this.id0 = []
+            this.bearing1 = []
+            this.distance1 = []
+            this.id1 = []
         }
     }
 }

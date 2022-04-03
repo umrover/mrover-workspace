@@ -5,7 +5,7 @@ import numpy as np
 from os import getenv
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import IMUData, GPS, Odometry, NavStatus
+from rover_msgs import IMUData, GPS, Odometry, NavStatus, DriveVelData
 from .inputs import Gps, Imu
 from .linearKalman import LinearKalmanFilter, QDiscreteWhiteNoise
 from .conversions import meters2lat, meters2long, lat2meters, long2meters, \
@@ -135,6 +135,9 @@ class SensorFusion:
         self.lcm.subscribe("/gps", self._gpsCallback)
         self.lcm.subscribe("/imu_data", self._imuCallback)
         self.lcm.subscribe("/nav_status", self._navStatusCallback)
+        self.lcm.subscribe("/drive_vel_data", self._driveVelDataCallback)
+
+        self.encoder_velocities = np.zeros(6)
 
     def _gpsCallback(self, channel, msg):
         new_gps = GPS.decode(msg)
@@ -156,6 +159,10 @@ class SensorFusion:
     def _navStatusCallback(self, channel, msg):
         new_nav_status = NavStatus.decode(msg)
         self.nav_state = new_nav_status.nav_state_name
+
+    def _driveVelDataCallback(self, channel, msg):
+        drive_vel_data = DriveVelData.decode(msg)
+        self.encoder_velocities[drive_vel_data.axis] = drive_vel_data.vel_percent
 
     def _constructFilter(self):
         '''
@@ -342,6 +349,12 @@ class SensorFusion:
         self.filter.P[1, :] = 0.0
         self.filter.P[3, :] = 0.0
 
+    def _encoders_stopped(self):
+        for velocity in self.encoder_velocities:
+            if abs(velocity) > 0:
+                return False
+        return True
+
     async def run(self):
         '''
         Runs main loop for filtering data and publishing state estimates
@@ -353,16 +366,24 @@ class SensorFusion:
 
                 elif self.config["FilterType"] == "Pipe":
                     bearing = self._getFreshBearing()
-                    if bearing is None:
-                        continue
                     pos = self._getFreshPos(decimal=False)
                     vel = self._getFreshVel(bearing)
 
-                    self.state_estimate = StateEstimate(pos["lat_deg"], pos["lat_min"], vel["north"],
-                                                        pos["long_deg"], pos["long_min"], vel["east"],
-                                                        bearing,
-                                                        ref_lat=self.config["RefCoords"]["lat"],
-                                                        ref_long=self.config["RefCoords"]["long"])
+                    # if we aren't receiving fresh data from IMU or GPS, don't send any odometry data
+                    if bearing is None or pos is None or vel is None:
+                        print("data not available")
+                        await asyncio.sleep(self.config["UpdateRate"])
+                        continue
+
+                    # only update the state if the rover is moving or the state estimate is empty
+                    # only checking if lat_deg is None is a sketchy solution,
+                    # but it should work fine for this temporary hack
+                    if not self._encoders_stopped() or self.state_estimate.pos["lat_deg"] is None:
+                        self.state_estimate = StateEstimate(pos["lat_deg"], pos["lat_min"], vel["north"],
+                                                            pos["long_deg"], pos["long_min"], vel["east"],
+                                                            bearing,
+                                                            ref_lat=self.config["RefCoords"]["lat"],
+                                                            ref_long=self.config["RefCoords"]["long"])
 
                 # Simulates a fixed position at the TargetCoords specified in config,
                 # only passes through valid bearing data

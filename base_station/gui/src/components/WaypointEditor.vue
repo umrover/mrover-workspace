@@ -41,14 +41,13 @@
     </div>
     <div class="col-wrap" style="left: 50%">
       <div class="box datagrid">
-        <div class="autonmode" >
-          <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event) "/>
+        <div class="autonmode">
+          <Checkbox ref="checkbox" v-bind:name="autonButtonText" v-bind:color="autonButtonColor"  v-on:toggle="toggleAutonMode($event)"/>
         </div>
         <div class="stats">
           <p>
             Navigation State: {{nav_status.nav_state_name}}<br>
             Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
-            
           </p>
         </div>
         <div class="joystick light-bg">
@@ -66,7 +65,7 @@
 </template>
 
 <script>
-import Checkbox from './CheckboxBig.vue'
+import Checkbox from './AutonModeCheckbox.vue'
 import draggable from 'vuedraggable'
 import {convertDMS} from '../utils.js';
 import AutonJoystickReading from './AutonJoystickReading.vue'
@@ -117,7 +116,11 @@ export default {
       },
 
       storedWaypoints: [],
-      route: []
+      route: [],
+
+      autonButtonColor: "red",
+      waitingForNav: false
+
     }
   },
 
@@ -129,42 +132,51 @@ export default {
 
     this.$parent.subscribe('/nav_status', (msg) => {
       this.nav_status = msg
+      if(this.waitingForNav){
+        if(this.nav_status.nav_state_name!="Off" && this.autonEnabled){
+          this.waitingForNav = false
+          this.autonButtonColor = "green"
+        }
+        else if(this.nav_status.nav_state_name=="Off" && !this.autonEnabled){
+          this.waitingForNav = false
+          this.autonButtonColor = "red"
+        }
+      }
     })
 
     interval = window.setInterval(() => {
 
-        this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.autonEnabled})
+      this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.autonEnabled})
 
-        let course = {
-            num_waypoints: this.route.length,
-            waypoints: _.map(this.route, (waypoint) => {
-              const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
-              const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
-              const latitude_deg = Math.trunc(lat);
-              const longitude_deg = Math.trunc(lon);
+      let course = {
+        num_waypoints: this.route.length,
+        waypoints: _.map(this.route, (waypoint) => {
+          const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
+          const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
+          const latitude_deg = Math.trunc(lat);
+          const longitude_deg = Math.trunc(lon);
 
-              return {
-                  type: "Waypoint",
-                  search: waypoint.search,
-                  gate: waypoint.gate,
-                  gate_width: parseFloat(waypoint.gate_width),
-                  id: parseFloat(waypoint.id),
-                  odom: {
-                      latitude_deg: latitude_deg,
-                      latitude_min: (lat - latitude_deg) * 60,
-                      longitude_deg: longitude_deg,
-                      longitude_min: (lon - longitude_deg) * 60,
-                      bearing_deg: 0,
-                      speed: -1,
-                      type: "Odometry"
-                  },
-              }
-            })
-        };
-        course.hash = fnvPlus.fast1a52(JSON.stringify(course));
-        course.type = 'Course'
-        this.$parent.publish('/course', course)
-
+          return {
+            type: "Waypoint",
+            search: waypoint.search,
+            gate: waypoint.gate,
+            gate_width: parseFloat(waypoint.gate_width),
+            id: parseFloat(waypoint.id),
+            odom: {
+              latitude_deg: latitude_deg,
+              latitude_min: (lat - latitude_deg) * 60,
+              longitude_deg: longitude_deg,
+              longitude_min: (lon - longitude_deg) * 60,
+              bearing_deg: 0,
+              speed: -1,
+              type: "Odometry"
+            },
+          }
+        })
+      };
+      course.hash = fnvPlus.fast1a52(JSON.stringify(course));
+      course.type = 'Course'
+      this.$parent.publish('/course', course)
     }, 100);
   },
 
@@ -232,6 +244,8 @@ export default {
 
     toggleAutonMode: function (val) {
       this.setAutonMode(val)
+      this.autonButtonColor = "yellow"
+      this.waitingForNav = true;
     }
   },
 
@@ -240,7 +254,7 @@ export default {
       const waypoints = newRoute.map((waypoint) => {
         const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
         const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
-        return { latLng: L.latLng(lat, lon) };
+        return { latLng: L.latLng(lat, lon), name: waypoint.name };
       });
       this.setRoute(waypoints);
     },
@@ -249,7 +263,7 @@ export default {
       const waypoints = newList.map((waypoint) => {
         const lat = waypoint.lat.d + waypoint.lat.m/60 + waypoint.lat.s/3600;
         const lon = waypoint.lon.d + waypoint.lon.m/60 + waypoint.lon.s/3600;
-        return { latLng: L.latLng(lat, lon) };
+        return { latLng: L.latLng(lat, lon), name: waypoint.name };
       });
       this.setWaypointList(waypoints);
     },
@@ -290,7 +304,12 @@ export default {
 
     sec_enabled: function() {
       return this.odom_format == 'DMS';
+    },
+
+    autonButtonText: function() {
+      return (this.autonButtonColor == "yellow") ? "Setting to "+this.autonEnabled : "Autonomy Mode"
     }
+
   },
 
   components: {
@@ -357,8 +376,9 @@ export default {
       display: grid;
       grid-gap: 3px;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 0.25fr;
+      grid-template-rows: 1fr 1fr 0.25fr;
       grid-template-areas: "autonmode stats"
+                           "toggle__button stats"
                            "joystick stats";
       font-family: sans-serif;
       min-height: min-content;

@@ -1,8 +1,34 @@
 {
-    "AmmoniaCmd": [
+    "ArmAdjustments": [
         [
-            "double",
-            "speed"
+            "float",
+            "x"
+        ],
+        [
+            "float",
+            "y"
+        ],
+        [
+            "float",
+            "z"
+        ],
+        [
+            "float",
+            "alpha"
+        ],
+        [
+            "float",
+            "beta"
+        ],
+        [
+            "float",
+            "gamma"
+        ]
+    ],
+    "ArmControlState": [
+        [
+            "string",
+            "state"
         ]
     ],
     "ArmPosition": [
@@ -25,6 +51,16 @@
         [
             "double",
             "joint_e"
+        ],
+        [
+            "double",
+            "joint_f"
+        ]
+    ],
+    "ArmPreset": [
+        [
+            "string",
+            "preset"
         ]
     ],
     "ArmToggles": [
@@ -121,30 +157,6 @@
         [
             "double",
             "right"
-        ]
-    ],
-    "DriveStateData": [
-        [
-            "int8_t",
-            "controller"
-        ],
-        [
-            "int8_t",
-            "state"
-        ]
-    ],
-    "DriveVelData": [
-        [
-            "int8_t",
-            "axis"
-        ],
-        [
-            "float",
-            "measuredCurrent"
-        ],
-        [
-            "float",
-            "estimatedVel"
         ]
     ],
     "ESCThrottle": [
@@ -255,46 +267,74 @@
             "new_ack_id"
         ]
     ],
-    "IMU": [
+    "IMUData": [
         [
             "double",
-            "accel_x"
+            "accel_x_g"
         ],
         [
             "double",
-            "accel_y"
+            "accel_y_g"
         ],
         [
             "double",
-            "accel_z"
+            "accel_z_g"
         ],
         [
             "double",
-            "gyro_x"
+            "gyro_x_dps"
         ],
         [
             "double",
-            "gyro_y"
+            "gyro_y_dps"
         ],
         [
             "double",
-            "gyro_z"
+            "gyro_z_dps"
         ],
         [
             "double",
-            "mag_x"
+            "mag_x_uT"
         ],
         [
             "double",
-            "mag_y"
+            "mag_y_uT"
         ],
         [
             "double",
-            "mag_z"
+            "mag_z_uT"
         ],
         [
             "double",
-            "bearing"
+            "roll_rad"
+        ],
+        [
+            "double",
+            "pitch_rad"
+        ],
+        [
+            "double",
+            "yaw_rad"
+        ],
+        [
+            "double",
+            "calibration_sys"
+        ],
+        [
+            "double",
+            "calibration_gyro"
+        ],
+        [
+            "double",
+            "calibration_accel"
+        ],
+        [
+            "double",
+            "calibration_mag"
+        ],
+        [
+            "double",
+            "bearing_deg"
         ]
     ],
     "IkArmControl": [
@@ -351,6 +391,32 @@
             "locked"
         ]
     ],
+    "LockJoints": [
+        [
+            "boolean",
+            "jointa"
+        ],
+        [
+            "boolean",
+            "jointb"
+        ],
+        [
+            "boolean",
+            "jointc"
+        ],
+        [
+            "boolean",
+            "jointd"
+        ],
+        [
+            "boolean",
+            "jointe"
+        ],
+        [
+            "boolean",
+            "jointf"
+        ]
+    ],
     "MicroCam": [
         [
             "string",
@@ -373,20 +439,10 @@
             "enable"
         ]
     ],
-    "MosfetCmd": [
-        [
-            "int8_t",
-            "device"
-        ],
-        [
-            "boolean",
-            "enable"
-        ]
-    ],
     "MotionExecute": [
         [
             "boolean",
-            "preview"
+            "execute"
         ]
     ],
     "NavStatus": [
@@ -537,6 +593,12 @@
         [
             "float",
             "signal_strength"
+        ]
+    ],
+    "ReverseDrive": [
+        [
+            "boolean",
+            "reverse"
         ]
     ],
     "RGB": [
@@ -692,80 +754,6 @@
             "sim_mode"
         ]
     ],
-    "SpectralData": [
-        [
-            "int16_t",
-            "d0_1"    
-        ],
-        [
-            "int16_t",
-            "d0_2"    
-        ],
-        [
-            "int16_t",
-            "d0_3"    
-        ],
-        [
-            "int16_t",
-            "d0_4"    
-        ],
-        [
-            "int16_t",
-            "d0_5"    
-        ],
-        [
-            "int16_t",
-            "d0_6"    
-        ],
-        [
-            "int16_t",
-            "d1_1"    
-        ],
-        [
-            "int16_t",
-            "d1_2"    
-        ],
-        [
-            "int16_t",
-            "d1_3"    
-        ],
-        [
-            "int16_t",
-            "d1_4"    
-        ],
-        [
-            "int16_t",
-            "d1_5"    
-        ],
-        [
-            "int16_t",
-            "d1_6"    
-        ],
-        [
-            "int16_t",
-            "d2_1"    
-        ],
-        [
-            "int16_t",
-            "d2_2"    
-        ],
-        [
-            "int16_t",
-            "d2_3"    
-        ],
-        [
-            "int16_t",
-            "d2_4"    
-        ],
-        [
-            "int16_t",
-            "d2_5"    
-        ],
-        [
-            "int16_t",
-            "d2_6"    
-        ]
-    ],
     "StartTest": [
         [
             "string",
@@ -810,6 +798,36 @@
         [
             "float",
             "f"
+        ]
+    ],
+    "TargetOrientation": [
+        [
+            "float",
+            "x"
+        ],
+        [
+            "float",
+            "y"
+        ],
+        [
+            "float",
+            "z"
+        ],
+        [
+            "float",
+            "alpha"
+        ],
+        [
+            "float",
+            "beta"
+        ],
+        [
+            "float",
+            "gamma"
+        ],
+        [
+            "boolean",
+            "use_orientation"
         ]
     ],
     "TargetPoint": [
@@ -863,20 +881,6 @@
         [
             "boolean",
             "enabled"
-        ]
-    ],
-    "ThermistorData": [
-        [
-            "double",
-            "temp0"
-        ],
-        [
-            "double",
-            "temp1"
-        ],
-        [
-            "double",
-            "temp2"
         ]
     ],
     "Waypoint": [
@@ -973,14 +977,40 @@
             "y"
         ]
     ],
-    "ZedGimbalPosition":[
+    "ZedGimbalPosition": [
         [
             "double",
             "angle"
         ]
     ],
+    "ZeroPosition": [
+        [
+            "double",
+            "joint_a"
+        ],
+        [
+            "double",
+            "joint_b"
+        ],
+        [
+            "double",
+            "joint_c"
+        ],
+        [
+            "double",
+            "joint_d"
+        ],
+        [
+            "double",
+            "joint_e"
+        ],
+        [
+            "double",
+            "joint_f"
+        ]
+    ],
     "message_types": [
-        "AmmoniaCmd",
+        "ArmControlState",
         "ArmPosition",
         "ArmToggles",
         "AutonState",
@@ -998,14 +1028,13 @@
         "Heartbeat",
         "IkArmControl",
         "IkEnabled",
-        "IMU",
+        "IMUData",
         "Joystick",
         "KillSwitch",
         "LockJointE",
         "MicroCam",
         "Microscope",
         "Mosfet",
-        "MosfetCmd",
         "MotionExecute",
         "NavStatus",
         "Obstacle",
@@ -1015,7 +1044,9 @@
         "PIDConstants",
         "PiPicture",
         "PiSettings",
+        "PresetAngles",
         "ProximitySensors",
+        "RepeaterDrop",
         "RGB",
         "RGBFrame",
         "RGBLED",
@@ -1030,7 +1061,7 @@
         "StartTest",
         "TalonConfig",
         "TargetAngles",
-        "TargetList",
+        "TargetOrientation",
         "TargetPoint",
         "Temperature",
         "TennisBall",
@@ -1038,6 +1069,7 @@
         "Waypoint",
         "WheelSpeeds",
         "Xbox",
-        "ZedGimbalPosition"
+        "ZedGimbalPosition",
+        "ZeroPosition"
     ]
 }
