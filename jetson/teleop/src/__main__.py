@@ -136,7 +136,6 @@ def drive_control_callback(channel, msg):
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
-
 def autonomous_callback(channel, msg):
     input_data = Joystick.decode(msg)
     drive_command = DriveVelCmd()
