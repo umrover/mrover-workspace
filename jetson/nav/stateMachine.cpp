@@ -329,7 +329,7 @@ NavState StateMachine::executeDrive()
 
     if( ( nextWaypoint.search || nextWaypoint.gate ) &&
         mRover->roverStatus().leftCacheTarget().id == nextWaypoint.id &&
-            distance <= 20.0 )
+            distance <= mRoverConfig[ "navThresholds" ][ "waypointRadius" ].GetDouble() )
     {
         return NavState::TurnToTarget;
     }
