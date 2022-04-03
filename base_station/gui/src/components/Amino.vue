@@ -11,7 +11,7 @@
       <option value="2">Site 2</option>
     </select>
   </div>
-  <div class="box1" :class="{'active': heaters[site].enabled}">
+  <div class="box1" :class="{'active': heaters[site].active}">
     <ToggleButton id="heater_toggle" :labelEnableText="'Heater '+(site)+' '+(heaters[site].message)" :labelDisableText="'Heater '+(site)+' '+(heaters[site].message)" v-on:change="toggleHeater(site)"/>
     <p v-bind:style="{color: heaters[site].color}">Thermistor {{site}}: {{heaters[site].temp.toFixed(2)}} C°</p>
   </div>
@@ -59,6 +59,7 @@ export default {
 
       heaters: [
         {
+          active: false,
           enabled: false,
           intended: false,
           message: 'Off',
@@ -66,6 +67,7 @@ export default {
           color: 'grey'
         },
         {
+          active: false,
           enabled: false,
           intended: false,
           message: 'Off',
@@ -73,6 +75,7 @@ export default {
           color: 'grey'
         },
         {
+          active: false,
           enabled: false,
           intended: false,
           message: 'Off',
@@ -134,11 +137,8 @@ export default {
 
   methods: {
     toggleHeater: function(id) {
-      if (this.heaters[id].enabled) {
-        this.sendHeaterCmd(id, false)
-      } else {
-        this.sendHeaterCmd(id, true)
-      }
+      this.heaters[id].active = this.heaters[id].enabled;
+      this.sendHeaterCmd(id, !this.heaters[id].intended);
     },
     
     sendHeaterCmd: function(id, enabled) {
