@@ -19,18 +19,8 @@
       <span v-if="UVLED == 0" class="toggle__label" >UV LEDs Off</span>
 
       <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="UVLED == 0" v-on:click="UVLED=1, UVshutdown(true)"></span>
-      <span class="toggle__switch" v-if="UVLED == 1" v-on:click="UVLED=0, UVshutdown(false)"></span>
-    </label>
-  </div>
-  <div class="shutdown">
-    <label for="toggle_button" :class="{'active': shutdown == 1}" class="toggle__button">
-      <span v-if="shutdown == 1" class="toggle__label" >UV Auto shutoff On</span>
-      <span v-if="shutdown == 0" class="toggle__label" >UV Auto shutoff Off</span>
-
-      <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="shutdown == 0" v-on:click="shutdown=1"></span>
-      <span class="toggle__switch" v-if="shutdown == 1" v-on:click="shutdown=0"></span>
+      <span class="toggle__switch" v-if="UVLED == 0" v-on:click="UVLED=1, setPart(mosfetIDs.UVLED, true)"></span>
+      <span class="toggle__switch" v-if="UVLED == 1" v-on:click="UVLED=0, setPart(mosfetIDs.UVLED, false)"></span>
     </label>
   </div>
   <br>
@@ -212,10 +202,6 @@
     vertical-align:top
   }
 
-  .shutdown {
-    padding-top: 5%;
-  }
-
 </style>
 
 <script>
@@ -225,8 +211,7 @@ export default {
   data () {
     return {
       whiteLEDS: 0,
-      UVLED: 0,
-      shutdown: 1
+      UVLED: 0
     }
   },
   props: {
@@ -246,16 +231,6 @@ export default {
         'device': id,
         'enable': enabled
       })
-    },
-
-    UVshutdown: function(status) {
-      this.setPart(this.mosfetIDs.UVLED, status);
-      if (this.shutdown === 1) {
-        setTimeout(() => {
-          this.UVLED = 0;
-          this.setPart(this.mosfetIDs.UVLED, false);
-        }, 120000) //2 minutes
-      }
     }
   },
   components: {

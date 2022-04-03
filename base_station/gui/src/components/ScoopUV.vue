@@ -1,17 +1,26 @@
 <template>
 <div class="wrap">
-    <div>
-      <h3> Scoop UV Bulb </h3>
-    </div>
-    <label for="toggle_button" :class="{'active': scoopUV == 1}" class="toggle__button">
-        <span v-if="scoopUV == 1" class="toggle__label" >Scoop UV On</span>
-        <span v-if="scoopUV == 0" class="toggle__label" >Scoop UV Off</span>
+  <div>
+    <h3> Scoop UV Bulb </h3>
+  </div>
+  <label for="toggle_button" :class="{'active': uvBulb == 1}" class="toggle__button">
+      <span v-if="uvBulb == 1" class="toggle__label" >Scoop UV On</span>
+      <span v-if="uvBulb == 0" class="toggle__label" >Scoop UV Off</span>
 
-        <input type="checkbox" id="toggle_button">
-        <span class="toggle__switch" v-if="scoopUV == 0" v-on:click="scoopUV = 1, setPart(mosfetIDs.uvBulb, true)"></span>
-        <span class="toggle__switch" v-if="scoopUV == 1" v-on:click="scoopUV = 0, setPart(mosfetIDs.uvBulb, false)"></span>
+      <input type="checkbox" id="toggle_button">
+      <span class="toggle__switch" v-if="uvBulb == 0" v-on:click="uvBulb = 1, UVshutdown(true)"></span>
+      <span class="toggle__switch" v-if="uvBulb == 1" v-on:click="uvBulb = 0, UVshutdown(false)"></span>
+  </label>
+  <div class="shutdown">
+    <label for="toggle_button" :class="{'active': shutdown == 1}" class="toggle__button">
+      <span v-if="shutdown == 1" class="toggle__label" >UV Auto shutoff On</span>
+      <span v-if="shutdown == 0" class="toggle__label" >UV Auto shutoff Off</span>
+
+      <input type="checkbox" id="toggle_button">
+      <span class="toggle__switch" v-if="shutdown == 0" v-on:click="shutdown=1"></span>
+      <span class="toggle__switch" v-if="shutdown == 1" v-on:click="shutdown=0"></span>
     </label>
-
+  </div>
 </div>  
 </template>
 
@@ -80,13 +89,19 @@
       background: #FFCB05;
       box-shadow: 0 0 1px #FFCB05;
   }
+
+  .shutdown {
+    padding-top: 5%;
+    padding-bottom: 5%;
+  }
 </style>
 
 <script>
 export default {
   data () {
     return {
-      scoopUV: 0,
+      uvBulb: 0,
+      shutdown: 1
     }
   },
   props: {
@@ -102,6 +117,15 @@ export default {
         'device': id,
         'enable': enabled
       })
+    },
+    UVshutdown: function(status) {
+      this.setPart(this.mosfetIDs.uvBulb, status);
+      if (this.shutdown === 1) {
+        setTimeout(() => {
+          this.uvBulb = 0;
+          this.setPart(this.mosfetIDs.uvBulb, false);
+        }, 120000) //2 minutes
+      }
     }
   }
 }
