@@ -182,7 +182,9 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
     if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() )
     {
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
-        //std::cout << "turning effort TO TARGET: " << turningEffort << std::endl;
+        //When we drive to a target, we want to go as fast as possible so one of the sides is fixed at one and the other is 1 - abs(turningEffort)
+        //if we need to turn clockwise, turning effort will be postive, so left_vel will be 1, and right_vel will be in between 0 and 1
+        //if we need to turng ccw, turning effort will be negative, so right_vel will be 1 and left_vel will be in between 0 and 1
         double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
         double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
         publishAutonDriveCmd(left_vel, right_vel);
@@ -197,14 +199,15 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
 // does not calculate if you have arrive at a specific location and
 // this must be handled outside of this function.
 // The input bearing is an absolute bearing.
+//TODO: I'm 90% sure this function is redundant, we should just remove it
 void Rover::drive( const int direction, const double bearing )
 {
     double destinationBearing = mod( bearing, 360 );
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg );
     const double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
     //std::cout << "turning effort: " << turningEffort << std::endl;
-    double left_vel = min(1.0, max(0.0, 1.0 - turningEffort));
-    double right_vel = min(1.0,  max(0.0, 1.0 + turningEffort));
+    double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
+    double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
     std::cout << "publishing drive command: " << left_vel << " , " << right_vel << std::endl;
     publishAutonDriveCmd(left_vel, right_vel);
 } // drive()
@@ -245,6 +248,7 @@ bool Rover::turn( double bearing )
     {
         turningEffort = minTurningEffort;
     }
+    //to turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
     double left_vel = max(min(1.0, turningEffort), -1.0);
     double right_vel = max(min(1.0, -turningEffort), -1.0);
     std::cout << left_vel << ", " << right_vel << std::endl;
