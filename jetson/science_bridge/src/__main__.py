@@ -221,12 +221,12 @@ class ScienceBridge():
         print("Mosfet Received")
         pass
 
-    def nav_status(self, channel, msg): # TODO - fix make better
+    def nav_status(self, channel, msg):  # TODO - fix make better
         print("Received nav req")
         # Off, Done, Else
 
         struct = NavStatus.decode(msg)
-        message = "$Mosfet,{device},{enable},11111111" # TODO - PROBABLY OUTDATED, WRONG PADDING
+        message = "$Mosfet,{device},{enable},11111111"  # TODO - PROBABLY OUTDATED, WRONG PADDING
         # All Leds are 1 digit so hardcode in padding
 
         # Off = Blue
@@ -240,7 +240,7 @@ class ScienceBridge():
             print("navstatus Done")
             # Flashing by turning on and off for 1 second intervals
             # Maybe change to
-            for i in range(0, 6): # TODO - CHANGE TO RANGE (6)
+            for i in range(0, 6):  # TODO - CHANGE TO RANGE (6)
                 self.ser.write(bytes(message.format(device=1, enable=1), encoding='utf-8'))
                 time.sleep(1)
                 self.ser.write(bytes(message.format(device=1, enable=0), encoding='utf-8'))
@@ -322,9 +322,9 @@ class ScienceBridge():
                      for tag in self.NMEA_HANDLE_MAPPER.keys()}
         while True:
             # Wait for all tags to be seen
-            while (not all(seen_tags.values())): # TODO -
+            while (not all(seen_tags.values())):  # TODO -
                 try:
-                    error_counter = 0 # TODO - DELETE
+                    error_counter = 0  # TODO - DELETE
                     tx = self.ser.readline()
                     msg = str(tx)
                 except Exception as e:
@@ -338,12 +338,12 @@ class ScienceBridge():
                         raise e
                 match_found = False
                 for tag, func in self.NMEA_HANDLE_MAPPER.items():
-                    if tag in msg: # TODO - why do we have tag in msg, func is not even used
+                    if tag in msg:  # TODO - why do we have tag in msg, func is not even used
                         print(msg)
                         match_found = True
                         try:
                             if (tag == "SPECTRAL"):
-                                self.spectral_handler(tx.decode(), spectral) # TODO - why is this tx.decode()
+                                self.spectral_handler(tx.decode(), spectral)  # TODO - why is this tx.decode()
                                 lcm.publish('/spectral_data', spectral.encode())
                             elif (tag == "THERMISTOR"):
                                 self.thermistor_handler(msg, thermistor)
@@ -360,7 +360,7 @@ class ScienceBridge():
                             elif (tag == "AUTOSHUTOFF"):
                                 self.heater_shutoff_handler(msg, heater_auto)
                                 lcm.publish('/heater_auto_shutdown_data', heater_auto.encode())
-                            seen_tags[tag] = True # TODO - move to top so not hidden, or just don't use.
+                            seen_tags[tag] = True  # TODO - move to top so not hidden, or just don't use.
                         except Exception as e:
                             print(e)
                         break
