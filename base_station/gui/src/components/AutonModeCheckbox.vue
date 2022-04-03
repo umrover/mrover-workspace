@@ -1,7 +1,7 @@
 <template>
   <div class="wrap-button">
-    <button v-bind:class="[color]" v-on:click='toggleAndEmit()'>
-      <span class='white-text'>{{name}}: {{active ? '\u2611' : '\u2610'}}</span>
+    <button v-bind:class="[this.color]" v-on:click='toggleAndEmit()'>
+      <span class='white-text'>{{name}}: <br>{{active ? '\u2611' : '\u2610'}}</span>
     </button>
   </div>
 </template>
@@ -18,14 +18,13 @@ export default {
     name: {
       type: String,
       required: true
+    },
+    color: {
+      type: String,
+      required: true
     }
   },
 
-  computed: {
-    color: function () {
-      return this.active ? 'green' : 'red'
-    }
-  },
 
   methods: {
     toggle: function () {
@@ -55,6 +54,10 @@ export default {
 
   .red {
     background-color: red;
+  }
+
+  .yellow {
+    background-color: #FFD700;
   }
 
   .white-text{
