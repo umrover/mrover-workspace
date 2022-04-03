@@ -752,6 +752,12 @@
             "joint_e"
         ]
     ],
+    "ScoopLimitSwitchEnable": [
+        [
+            "boolean",
+            "enable"
+        ]
+    ],
     "SensorPackage": [
         [
             "double",
