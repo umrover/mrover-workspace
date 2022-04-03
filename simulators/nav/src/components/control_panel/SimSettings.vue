@@ -8,36 +8,36 @@
     <div class="sim-settings">
       <div class="row">
         <div class="column1">
-            <div class="field-size first setting">
-              <p>Field Size (m):</p>
-              <NumberInput
-                :val.sync="fieldSizeIn"
-                :min="5"
-                :max="1000"
-              />
-            </div>
-            <div class="odom-format setting">
-              <p>Odom Format:</p>
-              <RadioSelector
-                :options="odomFormatOptions"
-                :selection="odomFormat"
-                @selected="selectOdomFormat"
-              />
-            </div>
-            <div class="setting">
-              <Checkbox
-                :on="simulateLoc"
-                name="Simulate Localization"
-                @clicked="flipSimulateLoc(!simulateLoc)"
-              />
-            </div>
-            <div class="setting">
-              <Checkbox
-                :on="simulatePercep"
-                name="Simulate Perception"
-                @clicked="flipSimulatePercep(!simulatePercep)"
-              />
-            </div>
+          <div class="field-size first setting">
+            <p>Field Size (m):</p>
+            <NumberInput
+              :val.sync="fieldSizeIn"
+              :min="5"
+              :max="1000"
+            />
+          </div>
+          <div class="odom-format setting">
+            <p>Odom Format:</p>
+            <RadioSelector
+              :options="odomFormatOptions"
+              :selection="odomFormat"
+              @selected="selectOdomFormat"
+            />
+          </div>
+          <div class="setting">
+            <Checkbox
+              :on="simulateLoc"
+              name="Simulate Localization"
+              @clicked="flipSimulateLoc(!simulateLoc)"
+            />
+          </div>
+          <div class="setting">
+            <Checkbox
+              :on="simulatePercep"
+              name="Simulate Perception"
+              @clicked="flipSimulatePercep(!simulatePercep)"
+            />
+          </div>
         </div>
         <div class="column2">
           <div class="noise">
