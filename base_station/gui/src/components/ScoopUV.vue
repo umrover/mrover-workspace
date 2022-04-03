@@ -12,6 +12,15 @@
         <span class="toggle__switch" v-if="scoopUV == 1" v-on:click="scoopUV = 0, setPart(mosfetIDs.uvBulb, false)"></span>
     </label>
 
+    <label for="toggle_button" :class="{'active': scoopLimit == 1}" class="toggle__button">
+        <span v-if="scoopLimit == 1" class="toggle__label" >Limit On</span>
+        <span v-if="scoopLimit == 0" class="toggle__label" >Limit Off</span>
+
+        <input type="checkbox" id="toggle_button">
+        <span class="toggle__switch" v-if="scoopLimit == 0" v-on:click="scoopLimit = 1, setLimit(true)"></span>
+        <span class="toggle__switch" v-if="scoopLimit == 1" v-on:click="scoopLimit = 0, setLimit(false)"></span>
+    </label>
+
 </div>  
 </template>
 
@@ -87,19 +96,27 @@ export default {
   data () {
     return {
       scoopUV: 0,
+      scoopLimit: 0,
     }
   },
   props: {
     mosfetIDs: {
       type: Object,
       required: true
-    },
+    }
   },  
   methods: {
     setPart: function(id, enabled) {
       this.$parent.publish("/mosfet_cmd", {
         'type': 'MosfetCmd',
         'device': id,
+        'enable': enabled
+      })
+    },
+
+    setLimit: function(enabled) {
+      this.$parent.publish("/scoop_limit_switch_enable_cmd", {
+        'type': 'ScoopLimitSwitchEnable',
         'enable': enabled
       })
     }
