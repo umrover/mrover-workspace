@@ -81,15 +81,11 @@ public:
 
     DriveStatus drive(double distance, double bearing, bool target = false);
 
-    void drive(int direction, double bearing);
-
     bool turn(Odometry const& destination);
 
     bool turn(double bearing);
 
     void stop();
-
-    PidLoop& distancePid();
 
     PidLoop& bearingPid();
 

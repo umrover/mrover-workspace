@@ -57,23 +57,6 @@ DriveStatus Rover::drive(const double distance, const double bearing, const bool
     return DriveStatus::OffCourse;
 } // drive()
 
-// Sends a joystick command to drive in the given direction and to
-// turn in the direction of bearing. Note that this version of drive
-// does not calculate if you have arrived at a specific location and
-// this must be handled outside this function.
-// The input bearing is an absolute bearing.
-//TODO: I'm 90% sure this function is redundant, we should just remove it
-void Rover::drive(const int direction, const double bearing) {
-    double destinationBearing = mod(bearing, 360);
-    throughZero(destinationBearing, mOdometry.bearing_deg);
-    const double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing);
-    //std::cout << "turning effort: " << turningEffort << std::endl;
-    double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
-    double right_vel = min(1.0, max(0.0, 1.0 - turningEffort));
-    std::cout << "publishing drive command: " << left_vel << " , " << right_vel << std::endl;
-    publishAutonDriveCmd(left_vel, right_vel);
-} // drive()
-
 // Sends a joystick command to turn the rover toward the destination
 // odometry. Returns true if the rover has finished turning, false
 // otherwise.
@@ -98,16 +81,15 @@ bool Rover::turn(double bearing) {
         return true;
     }
     double turningEffort = mBearingPid.update(mOdometry.bearing_deg, bearing);
-    std::cout << "cur bearing: " << mOdometry.bearing_deg << " target bearing: " << bearing << " effort: " << turningEffort
-              << std::endl;
+//    std::cout << "cur bearing: " << mOdometry.bearing_deg << " target bearing: " << bearing << " effort: " << turningEffort << std::endl;
     double minTurningEffort = mRoverConfig["navThresholds"]["minTurningEffort"].GetDouble() * (turningEffort < 0 ? -1 : 1);
     if (isTurningAroundObstacle(mCurrentState) && fabs(turningEffort) < minTurningEffort) {
         turningEffort = minTurningEffort;
     }
     //to turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
-    double left_vel = max(min(1.0, turningEffort), -1.0);
+    double left_vel = max(min(1.0, +turningEffort), -1.0);
     double right_vel = max(min(1.0, -turningEffort), -1.0);
-    std::cout << left_vel << ", " << right_vel << std::endl;
+//    std::cout << left_vel << ", " << right_vel << std::endl;
     publishAutonDriveCmd(left_vel, right_vel);
     return false;
 } // turn()
