@@ -329,7 +329,7 @@ def drive_vel_cmd_callback(channel, msg):
             global left_speed, right_speed
 
             speed_lock.acquire()
-            left_speed, right_speed = cmd.left, cmd.right,
+            left_speed, right_speed = cmd.left, cmd.right
             speed_lock.release()
     except Exception as e:
         print("Exception caught as:", e)
