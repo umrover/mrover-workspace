@@ -270,10 +270,6 @@ NavState StateMachine::executeOff()
         mCompletedWaypoints = 0;
         mTotalWaypoints = mRover->roverStatus().course().num_waypoints;
 
-        if( !mTotalWaypoints )
-        {
-            return NavState::Done;
-        }
         return NavState::Turn;
     }
     mRover->stop();
