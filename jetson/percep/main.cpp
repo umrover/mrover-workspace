@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono_literals;
  
 int main() {
-  
+
  /* --- Reading in Config File --- */
   rapidjson::Document mRoverConfig;
   ifstream configFile;
@@ -46,10 +46,14 @@ int main() {
     lcm::LCM lcm_;
     rover_msgs::TargetList arTagsMessage;
     rover_msgs::Target* arTags = arTagsMessage.targetList;
-    rover_msgs::Obstacle obstacleMessage;
     arTags[0].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
     arTags[1].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
-
+    
+    rover_msgs::Obstacle obstacleMessage;
+    obstacleMessage.bearing = 0;
+    obstacleMessage.rightBearing = 0;
+    obstacleMessage.distance = -1;
+    
     /* --- AR Tag Initializations --- */
     TagDetector detector(mRoverConfig);
     pair<Tag, Tag> tagPair;

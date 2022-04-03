@@ -136,6 +136,19 @@ def drive_control_callback(channel, msg):
         lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
+
+def autonomous_callback(channel, msg):
+    input_data = Joystick.decode(msg)
+    drive_command = DriveVelCmd()
+
+    joystick_math(drive_command, input_data.forward_back, input_data.left_right)
+
+    drive_command.left = -1 * drive_command.left
+    drive_command.right = -1 * drive_command.right
+
+    lcm_.publish('/drive_vel_cmd', drive_command.encode())
+
+
 def send_zero_arm_command():
     openloop_msg = RAOpenLoopCmd()
     openloop_msg.throttle = [0, 0, 0, 0, 0, 0]
@@ -178,19 +191,6 @@ def ra_control_callback(channel, msg):
     hand_msg.grip = xboxData.b - xboxData.x
 
     lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
-
-
-def autonomous_callback(channel, msg):
-    input_data = Joystick.decode(msg)
-    new_motor = DriveVelCmd()
-
-    joystick_math(new_motor, input_data.forward_back, input_data.left_right)
-
-    temp = new_motor.left
-    new_motor.left = new_motor.right
-    new_motor.right = temp
-
-    lcm_.publish('/drive_vel_cmd', new_motor.encode())
 
 
 async def transmit_temperature():

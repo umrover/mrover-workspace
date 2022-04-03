@@ -267,46 +267,74 @@
             "new_ack_id"
         ]
     ],
-    "IMU": [
+    "IMUData": [
         [
             "double",
-            "accel_x"
+            "accel_x_g"
         ],
         [
             "double",
-            "accel_y"
+            "accel_y_g"
         ],
         [
             "double",
-            "accel_z"
+            "accel_z_g"
         ],
         [
             "double",
-            "gyro_x"
+            "gyro_x_dps"
         ],
         [
             "double",
-            "gyro_y"
+            "gyro_y_dps"
         ],
         [
             "double",
-            "gyro_z"
+            "gyro_z_dps"
         ],
         [
             "double",
-            "mag_x"
+            "mag_x_uT"
         ],
         [
             "double",
-            "mag_y"
+            "mag_y_uT"
         ],
         [
             "double",
-            "mag_z"
+            "mag_z_uT"
         ],
         [
             "double",
-            "bearing"
+            "roll_rad"
+        ],
+        [
+            "double",
+            "pitch_rad"
+        ],
+        [
+            "double",
+            "yaw_rad"
+        ],
+        [
+            "double",
+            "calibration_sys"
+        ],
+        [
+            "double",
+            "calibration_gyro"
+        ],
+        [
+            "double",
+            "calibration_accel"
+        ],
+        [
+            "double",
+            "calibration_mag"
+        ],
+        [
+            "double",
+            "bearing_deg"
         ]
     ],
     "IkArmControl": [
@@ -419,13 +447,6 @@
     ],
     "NavStatus": [
         [
-            ""
-        ],
-        [
-            "int8_t",
-            "nav_state"
-        ],
-        [
             "string",
             "nav_state_name"
         ],
@@ -435,19 +456,7 @@
         ],
         [
             "int32_t",
-            "missed_wps"
-        ],
-        [
-            "int32_t",
             "total_wps"
-        ],
-        [
-            "int32_t",
-            "found_tbs"
-        ],
-        [
-            "int32_t",
-            "total_tbs"
         ]
     ],
     "Obstacle": [
@@ -580,7 +589,18 @@
             "depths[numDepths]"
         ]
     ],
-    "RepeaterDrop": [],
+    "RadioSignalStrength": [
+        [
+            "float",
+            "signal_strength"
+        ]
+    ],
+    "ReverseDrive": [
+        [
+            "boolean",
+            "reverse"
+        ]
+    ],
     "RGB": [
         [
             "string",
@@ -1008,7 +1028,7 @@
         "Heartbeat",
         "IkArmControl",
         "IkEnabled",
-        "IMU",
+        "IMUData",
         "Joystick",
         "KillSwitch",
         "LockJointE",

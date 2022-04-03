@@ -17,52 +17,61 @@
       </div>
       <div class="helpscreen"></div>
       <div class="helpimages" style="display: flex; align-items: center; justify-content: space-evenly">
-        <img v-if="controlMode === 'arm'" src="/static/arm.png" alt="Robot Arm" title="Robot Arm Controls" style="width: auto; height: 70%; display: inline-block" />
-        <img v-else-if="controlMode === 'soil_ac'" src="/static/soil_ac.png" alt="Soil Acquisition" title="Soil Acquisition Controls" style="width: auto; height: 70%; display: inline-block" />
         <img src="/static/joystick.png" alt="Joystick" title="Joystick Controls" style="width: auto; height: 70%; display: inline-block" />
       </div>
     </div>
 
-    <div class="box1 data">
-      <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
+    <div class="box1 data" v-bind:style="{backgroundColor: nav_state_color}">
+     <h1>Nav State: {{this.nav_status.nav_state_name}}</h1>
+     <div class="raw-data raw-sensors">
+        <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
+        <RadioSignalStrength v-bind:RadioSignalStrength="RadioSignalStrength"/>
+        <Obstacle v-bind:Obstacle="Obstacle"/>
+        <TargetList v-bind:TargetList="TargetList"/>
+        <DriveControls/>
+        <DriveVelDataH/>
+        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick" v-bind:TargetList="TargetList"/>
+        <PlaybackAutonData/>
+     </div>
     </div>
-    <div class="box2">
-      <div class="box odom light-bg">
-        <OdometryReading v-bind:odom="odom"/>
-      </div>
-      <div class="box Joystick light-bg">
-        <AutonJoystickReading v-bind:Joystick="Joystick"/>
+    <div class="box odom light-bg">
+      <OdometryReading v-bind:odom="odom"/>
+      <ZedGimbalAngles/>
     </div>
-  </div>
-  </div>
     <div class="box map light-bg">
-      <RoverMap v-bind:odom="odom"/>
+      <RoverMap v-bind:odom="odom" v-bind:GPS="GPS"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped"/>
+      <WaypointEditor v-bind:odom="odom" v-bind:Joystick="Joystick"/>
     </div>
-     <div class="box raw_sensors light-bg">
-      <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
+    <div class="box angles light-bg">
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters } from 'vuex'
 import Cameras from './Cameras.vue'
 import RoverMap from './RoverMapAuton.vue'
 import CommIndicator from './CommIndicator.vue'
+import RadioSignalStrength from './RadioSignalStrength.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
-import EncoderCounts from './EncoderCounts.vue'
-import WaypointEditor from './WaypointEditor_Auton.vue'
-import AutonJoystickReading from './AutonJoystickReading.vue'
+import WaypointEditor from './WaypointEditor.vue'
 import RawSensorData from './RawSensorData.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
+import Obstacle from './Obstacle.vue'
+import TargetList from './TargetList.vue'
+import DriveVelDataH from './DriveVelDataH.vue'
+import SaveAutonData from './SaveAutonData.vue'
+import PlaybackAutonData from './PlaybackAutonData.vue'
+import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
-let interval;
+const navBlue = "#4695FF"
+const navGreen = "yellowgreen"
+const navRed = "lightcoral"
+const navGrey = "lightgrey"
 
 export default {
   name: 'AutonTask',
@@ -76,14 +85,13 @@ export default {
       },
 
       odom: {
-        latitude_deg: 38,
-        latitude_min: 24.38226,
-        longitude_deg: -110,
-        longitude_min: -47.51724,
+        latitude_deg: 0,
+        latitude_min: 0,
+        longitude_deg: 0,
+        longitude_min: 0,
         bearing_deg: 0,
         speed: 0
       },
-
 
       connections: {
         websocket: false,
@@ -93,9 +101,12 @@ export default {
       },
 
       nav_status: {
+        nav_state_name: "Off",
         completed_wps: 0,
         total_wps: 0
       },
+      nav_state_color: "red",
+      nav_counter: 0,
 
       GPS: {
         latitude_deg: 38,
@@ -105,27 +116,49 @@ export default {
         bearing_deg: 0,
         speed: 0
       },
+     
+      Obstacle: {
+	      detected: false,
+	      bearing: 0,
+        distance: 0
+      },
+
+      TargetList: [
+        {bearing: 0, distance: -1, id: 0},
+        {bearing: 0, distance: -1, id: 0}
+      ],
 
       Joystick: {
         forward_back: 0,
-        left_right: 0,
+        left_right: 0.000000001,
         dampen: 0,
         kill: false,
         restart: false
       },
 
       IMU: {
-        accel_x: 0,
-        accel_y: 0,
-        accel_z: 0,
-        gyro_x: 0,
-        gyro_y: 0,
-        gyro_z: 0,
-        mag_x: 0,
-        mag_y: 0,
-        mag_z: 0,
-        bearing: 0
-      }
+        accel_x_g: 0,
+        accel_y_g: 0,
+        accel_z_g: 0,
+        gyro_x_dps: 0,
+        gyro_y_dps: 0,
+        gyro_z_dps: 0,
+        mag_x_uT: 0,
+        mag_y_uT: 0,
+        mag_z_uT: 0,
+        roll_rad: 0,
+        pitch_rad: 0,
+        yaw_rad: 0,
+        calibration_sys: 0,
+        calibration_gyro: 0,
+        calibration_accel: 0,
+        calibration_mag: 0,
+        bearing_deg: 0
+      },
+      
+      RadioSignalStrength: {
+        signal_strength: '0'
+      },
     }
   },
 
@@ -143,16 +176,38 @@ export default {
   },
 
   computed: {
-    ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
-    }),
-
     ...mapGetters('controls', {
       controlMode: 'controlMode'
     }),
   },
 
   created: function () {
+    setInterval(() => {
+      if(this.nav_status.nav_state_name == "Off"){
+        this.nav_state_color = navBlue
+      }
+      else if(this.nav_status.nav_state_name == "Done"){
+        if(this.nav_state_color == navBlue || this.nav_state_color == navRed){
+          this.nav_state_color = navGreen
+        }
+        else if(this.nav_counter >= 5 && this.nav_state_color == navGreen){
+          this.nav_state_color = navGrey
+          this.nav_counter = 0
+        }
+        else if(this.nav_counter >= 5 && this.nav_state_color == navGrey){
+          this.nav_state_color = navGreen
+          this.nav_counter = 0
+        }
+      }
+      else{
+        this.nav_state_color = navRed
+      }
+      this.nav_counter = this.nav_counter + 1
+      if(this.nav_counter >= 5){
+        this.nav_count = 0
+      }
+    }, 100);
+
     this.lcm_ = new LCMBridge(
       'ws://localhost:8001',
       // Update WebSocket connection state
@@ -171,14 +226,20 @@ export default {
           this.odom = msg.message
         } else if (msg.topic === '/gps') {
           this.GPS = msg.message
-        } else if (msg.topic === '/imu') {
+        } else if (msg.topic === '/imu_data') {
           this.IMU = msg.message
-        } else if (msg.topic === '/autonomous') {
+        } else if (msg.topic === '/radio') {
+          this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
+         }else if (msg.topic === '/autonomous') {
           this.Joystick = msg.message
-        } else if (msg.topic === '/rr_drop_complete') {
-          this.repeater_dropped = true
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
+        } else if (msg.topic === '/obstacle') {
+          this.Obstacle = msg.message
+        } else if (msg.topic === '/target_list') {
+          this.TargetList = msg.message.targetList
+        } else if (msg.topic === '/nav_status') {
+          this.nav_status = msg.message
         } else if (msg.topic === '/debugMessage') {
           if (msg['message']['isError']) {
             console.error(msg['message']['message'])
@@ -195,12 +256,16 @@ export default {
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
-        {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
-        {'topic': '/imu', 'type': 'IMU'},
-        {'topic': '/rr_drop_complete', 'type': 'RepeaterDrop'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'}
+        {'topic': '/imu_data', 'type': 'IMUData'},
+        {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/obstacle', 'type': 'Obstacle'},
+        {'topic': '/radio', 'type': 'RadioSignalStrength'},
+        {'topic': '/target_list', 'type': 'TargetList'},
+        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
+        {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
       ]
     )
 
@@ -220,7 +285,7 @@ export default {
       'tilt': 5
     }
 
-    interval = window.setInterval(() => {
+    window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 2; i++) {
         const gamepad = gamepads[i]
@@ -251,11 +316,16 @@ export default {
     CommIndicator,
     ArmControls,
     DriveControls,
-    EncoderCounts,
     OdometryReading,
-    AutonJoystickReading,
     RawSensorData,
-    WaypointEditor
+    WaypointEditor,
+    RadioSignalStrength,
+    Obstacle,
+    TargetList,
+    DriveVelDataH,
+    SaveAutonData,
+    PlaybackAutonData,
+    ZedGimbalAngles
   }
 }
 </script>
@@ -264,12 +334,19 @@ export default {
 <style scoped>
   .wrapper {
     display: grid;
+    overflow:hidden;
+    min-height: 98vh;
     grid-gap: 10px;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
-    grid-template-areas: "header header" "map waypoints" "map waypoints" "data waypoints" "raw_sensors waypoints";
+    grid-template-columns: 2fr 1.25fr 0.75fr;
+    grid-template-rows: 50px 2fr 1fr 6vh 24vh;
+    grid-template-areas: "header header header" 
+                         "map waypoints waypoints"
+                         "map waypoints waypoints" 
+                         "data waypoints waypoints" 
+                         "data angles odom";
     font-family: sans-serif;
     height: auto;
+    width: auto;
   }
 
   .box {
@@ -283,7 +360,7 @@ export default {
     background-color: LightGrey;
     padding: 10px;
     border: 1px solid black;
-    display: flex;
+    overflow-y: scroll;
   }
 
   .box2 {
@@ -365,14 +442,15 @@ export default {
   }
 
   .odom {
-    font-size: 1em;
+    /* font-size: 1em;
     height: 41%;
-    display: inline-block;
+    display: inline-block; */
+    grid-area: odom;
   }
 
   .cameras{
-    width: 400px;
-    display: block;
+    width: 97%;
+    height: 85%;
   }
 
   .diags {
@@ -383,6 +461,9 @@ export default {
     grid-area: map;
   }
 
+  .angles{
+    grid-area: angles;
+  }
   .waypoints {
     grid-area: waypoints;
   }
@@ -394,9 +475,8 @@ export default {
     display: inline-block;
   }
 
-  .raw_sensors{
+  .raw-sensors{
     font-size: 1em;
-    height: 100px;
   }
 
   .GPS{
@@ -407,9 +487,8 @@ export default {
     grid-area: imu;
   }
 
-  .radio_repeater {
-    font-size: 1em;
-    height: 100px;
+  .data{
+    grid-area: data;
   }
 
   .controls {

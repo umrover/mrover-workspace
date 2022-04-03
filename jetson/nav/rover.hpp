@@ -30,16 +30,13 @@ enum class NavState
 
     // Search States
     SearchFaceNorth = 20,
-    SearchSpin = 21,
-    SearchSpinWait = 22,
-    SearchTurn = 24,
-    SearchDrive = 25,
-    ChangeSearchAlg = 26,
+    SearchTurn = 21,
+    SearchDrive = 22,
+    ChangeSearchAlg = 23,
 
     // Target Found States
     TurnToTarget = 27,
-    TurnedToTargetWait = 28,
-    DriveToTarget = 29,
+    DriveToTarget = 28,
 
     // Obstacle Avoidance States
     TurnAroundObs = 30,
@@ -55,8 +52,10 @@ enum class NavState
     GateTurnToCentPoint = 44,
     GateDriveToCentPoint = 45,
     GateFace = 46,
-    GateShimmy = 47,
-    GateDriveThrough = 48,
+    GateDriveThrough = 47,
+    GateTurnToFarPost = 48,
+    GateDriveToFarPost = 49,
+    GateTurnToGateCenter = 50,
 
     // Unknown State
     Unknown = 255
@@ -105,11 +104,23 @@ public:
 
         Odometry& odometry();
 
-        Target& target();
+        Target& leftTarget();
 
-        Target& target2();
+        Target& rightTarget();
+
+        Target& leftCacheTarget();
+        
+        Target& rightCacheTarget();
 
         unsigned getPathTargets();
+
+        int& getLeftMisses();
+
+        int& getRightMisses();
+
+        int& getLeftHits();
+
+        int& getRightHits();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
@@ -137,12 +148,27 @@ public:
 
         // The rover's current target information from computer
         // vision.
-        Target mTarget1;
+        Target mTargetLeft;
 
-        Target mTarget2;
+        Target mTargetRight;
+
+        // Cached Target information
+        Target mCTargetLeft;
+
+        Target mCTargetRight;
 
         // Total targets to seach for in the course
         unsigned mPathTargets;
+
+        // Count of misses with cache
+        int countLeftMisses = 0;
+
+        int countRightMisses = 0;
+
+        // Count hits for avoiding FPs
+        int countLeftHits = 0;
+
+        int countRightHits = 0;
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
@@ -151,7 +177,7 @@ public:
 
     DriveStatus drive( const double distance, const double bearing, const bool target = false );
 
-    void drive(const int direction, const double bearing);
+    void drive( const int direction, const double bearing );
 
     bool turn( Odometry& destination );
 
@@ -162,8 +188,6 @@ public:
     bool updateRover( RoverStatus newRoverStatus );
 
     RoverStatus& roverStatus();
-
-    PidLoop& distancePid();
 
     PidLoop& bearingPid();
 
@@ -197,9 +221,6 @@ private:
     // A reference to the lcm object that will be used for
     // communicating with the actual rover and the base station.
     lcm::LCM& mLcmObject;
-
-    // The pid loop for driving.
-    PidLoop mDistancePid;
 
     // The pid loop for turning.
     PidLoop mBearingPid;

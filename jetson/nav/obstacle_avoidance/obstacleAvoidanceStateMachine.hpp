@@ -23,11 +23,11 @@ public:
 
     virtual ~ObstacleAvoidanceStateMachine() {}
 
-    void updateObstacleAngle( double bearing );
+    void updateObstacleAngle( double bearing, double rightBearing );
 
     void updateObstacleDistance( double distance );
 
-    void updateObstacleElements( double bearing, double distance );  
+    void updateObstacleElements( double bearing, double rightBearing, double distance );  
 
     NavState run();
 

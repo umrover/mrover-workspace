@@ -130,10 +130,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
-    }),
-
     ...mapGetters('controls', {
       controlMode: 'controlMode'
     }),
@@ -176,7 +172,9 @@ export default {
         {'topic': '/arm_position', 'type': 'ArmPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'}
+        {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
       ]
     )
 
@@ -241,7 +239,7 @@ export default {
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
-    grid-template-areas: "header header" "map cameras" "map waypoints" "map waypoints" "controls waypoints" "odom waypoints";
+    grid-template-areas: "header header" "map cameras" "map drives" "map drives" "controls drives" "odom drives";
     font-family: sans-serif;
     height: 98vh;
   }

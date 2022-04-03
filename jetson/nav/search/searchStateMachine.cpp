@@ -11,7 +11,7 @@
 #include <cmath>
 
 // Constructs an SearchStateMachine object with roverStateMachine, mRoverConfig, and mRover
-SearchStateMachine::SearchStateMachine(StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig)
+SearchStateMachine::SearchStateMachine( StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig )
     : roverStateMachine( roverStateMachine ) 
     , mRover( rover ) 
     , mRoverConfig( roverConfig ) {}
@@ -24,17 +24,6 @@ NavState SearchStateMachine::run()
 {
     switch ( mRover->roverStatus().currentState() )
     {
-        case NavState::SearchSpin:
-        {
-            return executeSearchSpin();
-        }
-
-        case NavState::SearchSpinWait:
-        case NavState::TurnedToTargetWait:
-        {
-            return executeRoverWait();
-        }
-
         case NavState::SearchTurn:
         {
             return executeSearchTurn();
@@ -63,85 +52,6 @@ NavState SearchStateMachine::run()
     } // switch
 } // run()
 
-// Executes the logic for a search spin. If at a multiple of
-// waitStepSize, the rover will go to SearchSpinWait. If the rover
-// detects the target, it proceeds to the target. If finished with a 360,
-// the rover moves on to the next phase of the search. Else continues
-// to search spin.
-NavState SearchStateMachine::executeSearchSpin()
-{
-    // degrees to turn to before performing a search wait.
-    double waitStepSize = mRoverConfig[ "search" ][ "searchWaitStepSize" ].GetDouble();
-    static double nextStop = 0; // to force the rover to wait initially
-    static double mOriginalSpinAngle = 0; //initialize, is corrected on first call
-
-    if( mRover->roverStatus().target().distance >= 0 )
-    {
-        updateTargetDetectionElements( mRover->roverStatus().target().bearing,
-                                           mRover->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToTarget;
-    }
-    if ( nextStop == 0 )
-    {
-        //get current angle and set as origAngle
-        mOriginalSpinAngle = mRover->roverStatus().odometry().bearing_deg; //doublecheck
-        nextStop = mOriginalSpinAngle;
-    }
-    if( mRover->turn( nextStop ) )
-    {
-        if( nextStop - mOriginalSpinAngle >= 360 )
-        {
-            nextStop = 0;
-            return NavState::SearchTurn;
-        }
-        nextStop += waitStepSize;
-        return NavState::SearchSpinWait;
-    }
-    return NavState::SearchSpin;
-} // executeSearchSpin()
-
-
-// Executes the logic for waiting during a search spin so that CV can
-// look for the target. If the rover detects the target, it proceeds
-// to the target. If the rover is done waiting, it continues the search
-// spin. Else the rover keeps waiting.
-NavState SearchStateMachine::executeRoverWait()
-{
-    static bool started = false;
-    static time_t startTime;
-
-    if( mRover->roverStatus().target().distance >= 0 )
-    {
-        updateTargetDetectionElements( mRover->roverStatus().target().bearing,
-                                       mRover->roverStatus().odometry().bearing_deg );
-        return NavState::TurnToTarget;
-    }
-    if( !started )
-    {
-        mRover->stop();
-        startTime = time( nullptr );
-        started = true;
-    }
-    double waitTime = mRoverConfig[ "search" ][ "searchWaitTime" ].GetDouble();
-    if( difftime( time( nullptr ), startTime ) > waitTime )
-    {
-        started = false;
-        if ( mRover->roverStatus().currentState() == NavState::SearchSpinWait )
-        {
-            return NavState::SearchSpin;
-        }
-        return NavState::SearchTurn;
-    }
-    else
-    {
-        if ( mRover->roverStatus().currentState() == NavState::SearchSpinWait )
-        {
-            return NavState::SearchSpinWait;
-        }
-        return NavState::TurnedToTargetWait;
-    }
-}
-
 // Executes the logic for turning while searching.
 // If no remaining search points, it proceeds to change search algorithms.
 // If the rover detects the target, it proceeds to the target.
@@ -153,12 +63,15 @@ NavState SearchStateMachine::executeSearchTurn()
     {
         return NavState::ChangeSearchAlg;
     }
-    if( mRover->roverStatus().target().distance >= 0 )
+
+    if( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().path().front().id ==
+        mRover->roverStatus().leftCacheTarget().id )
     {
-        updateTargetDetectionElements( mRover->roverStatus().target().bearing,
-                                       mRover->roverStatus().odometry().bearing_deg );
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
+                                           mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
+
     Odometry& nextSearchPoint = mSearchPoints.front();
     if( mRover->turn( nextSearchPoint ) )
     {
@@ -176,16 +89,17 @@ NavState SearchStateMachine::executeSearchTurn()
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
 NavState SearchStateMachine::executeSearchDrive()
 {
-    if( mRover->roverStatus().target().distance >= 0 )
+    if( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().path().front().id ==
+            mRover->roverStatus().leftCacheTarget().id )
     {
-        updateTargetDetectionElements( mRover->roverStatus().target().bearing,
+        updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
                                            mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
     }
 
     if( isObstacleDetected( mRover )  && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
-        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing );
+        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
         roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
@@ -195,7 +109,7 @@ NavState SearchStateMachine::executeSearchDrive()
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.pop_front();
-        return NavState::SearchSpin;
+        return NavState::SearchTurn;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
@@ -211,21 +125,16 @@ NavState SearchStateMachine::executeSearchDrive()
 // Else the rover continues to turn to to the target.
 NavState SearchStateMachine::executeTurnToTarget()
 {
-    if( mRover->roverStatus().target().distance < 0 )
+    if( mRover->roverStatus().leftCacheTarget().distance == mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
-        cerr << "Lost the target. Continuing to turn to last known angle\n";
-        if( mRover->turn( mTargetAngle + mTurnToTargetRoverAngle ) )
-        {
-            return NavState::TurnedToTargetWait;
-        }
-        return NavState::TurnToTarget;
+        return NavState::SearchTurn;
     }
-    if( mRover->turn( mRover->roverStatus().target().bearing +
+    if( mRover->turn( mRover->roverStatus().leftCacheTarget().bearing +
                       mRover->roverStatus().odometry().bearing_deg ) )
     {
         return NavState::DriveToTarget;
     }
-    updateTargetDetectionElements( mRover->roverStatus().target().bearing,
+    updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
                                        mRover->roverStatus().odometry().bearing_deg );
     return NavState::TurnToTarget;
 } // executeTurnToTarget()
@@ -240,24 +149,30 @@ NavState SearchStateMachine::executeTurnToTarget()
 // Else, it turns back to face the target.
 NavState SearchStateMachine::executeDriveToTarget()
 {
-    if( mRover->roverStatus().target().distance < 0 )
+    // Definitely cannot find the target
+    if( mRover->roverStatus().leftCacheTarget().distance == 
+            mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
         cerr << "Lost the target\n";
-        return NavState::SearchTurn; //NavState::SearchSpin
+        return NavState::SearchTurn;
     }
 
+    // Obstacle Detected
     if( isObstacleDetected( mRover ) &&
         !isTargetReachable( mRover, mRoverConfig )  && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
-        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing );
+        roverStateMachine->updateObstacleAngle( mRover->roverStatus().obstacle().bearing, mRover->roverStatus().obstacle().rightBearing );
         roverStateMachine->updateObstacleDistance( mRover->roverStatus().obstacle().distance );
         return NavState::SearchTurnAroundObs;
     }
 
-    DriveStatus driveStatus = mRover->drive( mRover->roverStatus().target().distance,
-                                             mRover->roverStatus().target().bearing +
-                                             mRover->roverStatus().odometry().bearing_deg,
-                                             true );
+    DriveStatus driveStatus;
+    
+    double distance = mRover->roverStatus().leftCacheTarget().distance;
+    double bearing = mRover->roverStatus().leftCacheTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
+
+    driveStatus = mRover->drive( distance, bearing, true );
+
     if( driveStatus == DriveStatus::Arrived )
     {
         mSearchPoints.clear();
@@ -265,13 +180,13 @@ NavState SearchStateMachine::executeDriveToTarget()
         {
             roverStateMachine->mGateStateMachine->mGateSearchPoints.clear();
             const double absAngle = mod(mRover->roverStatus().odometry().bearing_deg +
-                                        mRover->roverStatus().target().bearing,
-                                        360);
-            roverStateMachine->mGateStateMachine->lastKnownPost1.odom = createOdom( mRover->roverStatus().odometry(),
-                                                                                    absAngle,
-                                                                                    mRover->roverStatus().target().distance,
-                                                                                    mRover );
-            roverStateMachine->mGateStateMachine->lastKnownPost1.id = mRover->roverStatus().target().id;
+                                    mRover->roverStatus().leftCacheTarget().bearing,
+                                    360);
+            roverStateMachine->mGateStateMachine->lastKnownRightPost.odom = createOdom( mRover->roverStatus().odometry(),
+                                                                                absAngle,
+                                                                                mRover->roverStatus().leftCacheTarget().distance,
+                                                                                mRover );
+            roverStateMachine->mGateStateMachine->lastKnownRightPost.id = mRover->roverStatus().leftCacheTarget().id;
             return NavState::GateSpin;
         }
         mRover->roverStatus().path().pop_front();
@@ -342,7 +257,7 @@ void SearchStateMachine::insertIntermediatePoints()
 SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig )  //TODO
 {
     SearchStateMachine* search = nullptr;
-    switch (type)
+    switch ( type )
     {
         case SearchType::SPIRALOUT:
             search = new SpiralOut( stateMachine, rover, roverConfig );
