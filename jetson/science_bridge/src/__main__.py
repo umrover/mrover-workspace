@@ -130,7 +130,6 @@ class ScienceBridge():
     def heater_state_handler(self, msg, struct):
         # msg format: <"$HEATER,device,enabled">
         try:
-            print(msg)
             arr = msg.split(",")
             # Send back the heater and the state
             struct.device = int(arr[1])
