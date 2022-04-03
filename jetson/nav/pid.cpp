@@ -1,21 +1,20 @@
 #include "pid.hpp"
 
 PidLoop::PidLoop(double Kp, double Ki, double Kd) :
-    Kp_(Kp),
-    Ki_(Ki),
-    Kd_(Kd),
-    first_(true),
-    accumulated_error_(0.0),
-    last_error_(0.0)
-{
+        Kp_(Kp),
+        Ki_(Ki),
+        Kd_(Kd),
+        first_(true),
+        accumulated_error_(0.0),
+        last_error_(0.0) {
 }
 
 double PidLoop::update(double current, double desired) {
     double err = this->error(current, desired);
     accumulated_error_ += err;
-    double effort = Kp_*err + Ki_*accumulated_error_;
+    double effort = Kp_ * err + Ki_ * accumulated_error_;
     if (!first_) {
-        effort += Kd_*(err - last_error_);
+        effort += Kd_ * (err - last_error_);
     }
     last_error_ = err;
     first_ = false;
