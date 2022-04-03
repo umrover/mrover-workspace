@@ -4,13 +4,10 @@
 #include <utility>
 #include <iostream>
 
-#include "rover_msgs/NavStatus.hpp"
 #include "utilities.hpp"
-#include "search/spiralOutSearch.hpp"
-#include "search/spiralInSearch.hpp"
-#include "search/lawnMowerSearch.hpp"
-#include "obstacle_avoidance/simpleAvoidance.hpp"
+#include "rover_msgs/NavStatus.hpp"
 #include "gate_search/diamondGateSearch.hpp"
+#include "obstacle_avoidance/simpleAvoidance.hpp"
 
 // Constructs a StateMachine object with the input lcm object.
 // Reads the configuration file and constructs a Rover objet with this
@@ -21,7 +18,7 @@ StateMachine::StateMachine(
         shared_ptr<Rover> rover, shared_ptr<Environment> env, shared_ptr<CourseProgress> courseProgress,
         lcm::LCM& lcmObject
 ) : mConfig(config), mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseProgress)), mLcmObject(lcmObject) {
-    mSearchStateMachine = SearchFactory(weak_from_this(), SearchType::SPIRALOUT, mRover, mConfig);
+    mSearchStateMachine = SearchFactory(weak_from_this(), SearchType::FROM_PATH_FILE, mRover, mConfig);
     mGateStateMachine = GateFactory(weak_from_this(), mConfig);
     mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory(weak_from_this(), ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mConfig);
 } // StateMachine()
@@ -104,7 +101,7 @@ void StateMachine::run() {
 
         case NavState::ChangeSearchAlg: {
             double visionDistance = mConfig["computerVision"]["visionDistance"].GetDouble();
-            setSearcher(SearchType::SPIRALOUT, mRover, mConfig);
+            setSearcher(SearchType::FROM_PATH_FILE, mRover, mConfig);
 
             mSearchStateMachine->initializeSearch(mConfig, visionDistance);
             nextState = NavState::SearchTurn;

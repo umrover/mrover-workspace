@@ -1,10 +1,8 @@
 #include "searchStateMachine.hpp"
 
-#include "stateMachine.hpp"
 #include "utilities.hpp"
-#include "spiralOutSearch.hpp"
-#include "spiralInSearch.hpp"
-#include "lawnMowerSearch.hpp"
+#include "stateMachine.hpp"
+#include "searchFromPathFile.hpp"
 
 #include <cmath>
 #include <utility>
@@ -54,8 +52,10 @@ NavState SearchStateMachine::executeSearchTurn() {
         return NavState::ChangeSearchAlg;
     }
 
-    if (sm->getEnv()->getObstacle().distance >= 0
-        && sm->getCourseState()->getRemainingWaypoints().front().id == sm->getRover()->leftCacheTarget().id) {
+    // You may as well just go to the left post always
+    double distance = sm->getRover()->leftCacheTarget().distance;
+    bool isWantedTarget = sm->getCourseState()->getRemainingWaypoints().front().id == sm->getRover()->leftCacheTarget().id;
+    if (distance >= 0 && isWantedTarget) {
         updateTargetDetectionElements(sm->getRover()->leftCacheTarget().bearing, sm->getRover()->odometry().bearing_deg);
         return NavState::TurnToTarget;
     }
@@ -229,18 +229,11 @@ shared_ptr<SearchStateMachine>
 SearchFactory(const weak_ptr<StateMachine>& sm, SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig) {
     shared_ptr<SearchStateMachine> search = nullptr;
     switch (type) {
-        case SearchType::SPIRALOUT:
-            search = make_shared<SpiralOut>(sm, rover, roverConfig);
-            break;
-        case SearchType::LAWNMOWER:
-            search = make_shared<LawnMower>(sm, rover, roverConfig);
-            break;
-        case SearchType::SPIRALIN:
-            search = make_shared<SpiralIn>(sm, rover, roverConfig);
+        case SearchType::FROM_PATH_FILE:
+            search = make_shared<SearchFromPathFile>(sm, roverConfig, "jetson/nav/search/spiral_search_points.txt");
             break;
         default:
             cerr << "Unknown Search Type. Defaulting to Spiral\n";
-            search = make_shared<SpiralOut>(sm, rover, roverConfig);
             break;
     }
     return search;

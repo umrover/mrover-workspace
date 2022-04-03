@@ -1,18 +1,17 @@
-#include "spiralOutSearch.hpp"
-#include "utilities.hpp"
-#include "stateMachine.hpp"
+#include "searchFromPathFile.hpp"
 
 #include <iostream>
 #include <fstream>
 
+#include "stateMachine.hpp"
+
 using namespace std;
 
-void SpiralOut::initializeSearch(const rapidjson::Document& roverConfig, double visionDistance) {
+void SearchFromPathFile::initializeSearch(const rapidjson::Document& roverConfig, double visionDistance) {
     mSearchPoints.clear();
-    string const& path = roverConfig["search"]["spiralSearchPoints"].GetString();
-    ifstream coordinate_file(path);
+    ifstream coordinate_file(mPath);
     if (!coordinate_file) {
-        throw runtime_error("Could not open spiral search points file at: " + path);
+        throw runtime_error("Could not open spiral search points file at: " + mPath);
     }
     float rho, phi;
     while (coordinate_file >> rho >> phi) {

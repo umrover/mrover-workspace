@@ -1,7 +1,7 @@
-#ifndef SEARCH_STATE_MACHINE_HPP
-#define SEARCH_STATE_MACHINE_HPP
+#pragma once
 
 #include <memory>
+
 #include "rover.hpp"
 #include "utilities.hpp"
 
@@ -10,9 +10,7 @@ class StateMachine;
 // This class is the representation of different
 // search algorithms
 enum class SearchType {
-    SPIRALOUT,
-    LAWNMOWER,
-    SPIRALIN
+    FROM_PATH_FILE
 };
 
 class SearchStateMachine {
@@ -88,5 +86,3 @@ private:
 // avoidance algorithms
 shared_ptr<SearchStateMachine>
 SearchFactory(const weak_ptr<StateMachine>& sm, SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);
-
-#endif //SEARCH_STATE_MACHINE_HPP
