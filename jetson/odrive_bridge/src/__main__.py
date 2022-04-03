@@ -347,8 +347,8 @@ class Modrive:
 
     def __init__(self, odr):
         self.odrive = odr
-        self.left_axis = self.odrive.axis0
-        self.right_axis = self.odrive.axis1
+        self.left_axis = self.odrive.axis1
+        self.right_axis = self.odrive.axis0
         self.set_current_lim(self.CURRENT_LIM)
 
     # viable to set initial state to idle?
