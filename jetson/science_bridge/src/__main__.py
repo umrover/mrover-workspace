@@ -156,7 +156,7 @@ class ScienceBridge():
         message = "$Mosfet,{device},{enable},1111111"
 
         # Heater/Nichromes are 5-7 so(assuming 0 index) add 7 to get the appropriate mosfet
-        translated_device = struct.device + 5
+        translated_device = struct.device + 7
         message = message.format(device=translated_device,
                                  enable=int(struct.enabled))
 
