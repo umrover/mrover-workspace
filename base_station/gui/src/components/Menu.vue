@@ -9,9 +9,10 @@
     <div class="pages">
       <fieldset class="tasks row">
         <legend>Tasks</legend>
-        <MenuButton link="#/RATask" name="Robotic Arm Setup" />
-        <MenuButton link="#/SATask" name="Science Setup" />
-        <MenuButton link="#/AutonTask" name="Autonomy Setup" />
+        <MenuButton link="#/ERDTask" name="ERD Mission" />
+        <MenuButton link="#/ESTask" name="ES Mission" />
+        <MenuButton link="#/SATask" name="Science Mission" />
+        <MenuButton link="#/AutonTask" name="Autonomy Mission" />
       </fieldset>
 
       <fieldset class="dev-tools row">
