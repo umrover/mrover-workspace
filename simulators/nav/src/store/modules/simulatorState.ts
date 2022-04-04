@@ -188,6 +188,14 @@ const mutations = {
     simState.simSettings.noiseGPSPercent = newNoisePercent;
   },
 
+  setFalsePosNoisePercent: (simState:SimulatorState, newNoisePercent:number):void => {
+    simState.simSettings.noiseFalsePosPercent = newNoisePercent;
+  },
+
+  setMaxFalsePos: (simState:SimulatorState, newVal:number):void => {
+    simState.simSettings.maxFalsePos = newVal;
+  },
+
   flipEnableLCM: (simState:SimulatorState, onOff:boolean):void => {
     simState.simSettings.enableLCM = onOff;
   },

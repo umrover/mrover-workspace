@@ -11,11 +11,13 @@ import {
 import {
   compassToCanvasRad,
   degToRad,
-  odomToCanvas
+  odomToCanvas,
+  randnBm
 
   // rotatePoint
 } from '../../utils/utils';
-import { ROVER } from '../../utils/constants';
+import { ROVER, Zscores } from '../../utils/constants';
+import { state } from '../../store/modules/simulatorState';
 
 /**************************************************************************************************
  * Constants
@@ -153,6 +155,8 @@ export default class CanvasRover {
     this.drawEbox();
     this.drawWheels();
     this.drawZed();
+
+    this.drawFalsePos();
 
     this.ctx.rotate(-degToRad(this.currOdom.bearing_deg));
     this.ctx.translate(-loc.x, -loc.y);
@@ -314,4 +318,62 @@ export default class CanvasRover {
       { x:  distToWheel.x, y:  distToWheel.y }
     ];
   }
+
+  /* False Positives */
+  private drawFalsePos():void {
+    const max:number = state.simSettings.maxFalsePos;
+    console.log('max: ', max);
+    for (let i = 0; i < max; i += 1) {
+      const num:number = randnBm(0, 1, 1);
+      const thres = getGaussianThres();
+      console.log('rand num: ', num);
+      console.log('thres: ', thres);
+
+      const isFalsePos:boolean = num > thres;
+
+      if (isFalsePos) {
+        console.log('falsePos worked!');
+
+        /* generate r and theta */
+        const r:number = randnBm(0, this.fov.depth, 1);
+        const theta:number = randnBm(0, this.fov.angle, 1);
+        const half:number = this.fov.angle / 2;
+        const diff:number = 90 - half;
+        const angle:number = theta + diff;
+
+        // convert r and theta to rectangular coordinates
+        const xCoord:number = r * Math.cos(angle * Math.PI / 180.0);
+        const yCoord:number = r * Math.sin(angle * Math.PI / 180.0);
+
+        // draw False Positive point directly
+        const dimension = 10;
+        this.ctx.fillStyle = 'red';
+        this.ctx.fillRect(xCoord, yCoord, dimension, dimension);
+      }
+    }
+  }
 } /* CanvasRover */
+
+// COPYING THIS FUNCTION FROM target_detectors.ts => FOR NOW, IMPORT LATER
+// state.simSettings.noisePercent - global
+function getGaussianThres():number {
+  const sd = 0.2;
+  const mu = 0.5;
+  const percentFactor = 100.0;
+  const divisor = 10;
+  const factor = percentFactor / divisor; // 10
+  // check and invert the values of z scores
+  const neg = -1;
+  let indZscore = state.simSettings.noiseFalsePosPercent / factor;
+
+  const half = 5;
+  if (indZscore > half) {
+    indZscore = factor - indZscore;
+    const x = neg * Zscores[indZscore] * sd;
+    return mu + x;
+  }
+  else {
+    const x = Zscores[indZscore] * sd;
+    return mu + x;
+  }
+}

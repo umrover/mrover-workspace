@@ -140,6 +140,12 @@ export default class SimSettings extends Vue {
   private readonly noiseGPSPercent!:number;
 
   @Getter
+  private readonly noiseFalsePosPercent!:number;
+
+  @Getter
+  private readonly maxFalsePos!:number;
+
+  @Getter
   private readonly enableLCM!:boolean;
 
   @Getter
@@ -166,6 +172,12 @@ export default class SimSettings extends Vue {
 
   @Mutation
   private readonly setGPSNoisePercent!:(newNoisePercent:number)=>void;
+
+  @Mutation
+  private readonly setFalsePosNoisePercent!:(newNoisePercent:number)=>void;
+
+  @Mutation
+  private readonly setMaxFalsePos!:(newFalsePosVal:number)=>void;
 
   @Mutation
   private readonly flipEnableLCM!:(onOff:boolean)=>void;
@@ -205,6 +217,18 @@ export default class SimSettings extends Vue {
   }
   private set noiseGPSPercentIn(newNoisePercent:number) {
     this.setGPSNoisePercent(newNoisePercent);
+  }
+  private get noiseFalsePosPercentIn():number {
+    return this.noiseFalsePosPercent;
+  }
+  private set noiseFalsePosPercentIn(newNoisePercent:number) {
+    this.setFalsePosNoisePercent(newNoisePercent);
+  }
+  private get maxFalsePosIn():number {
+    return this.maxFalsePos;
+  }
+  private set maxFalsePosIn(newVal:number) {
+    this.setMaxFalsePos(newVal);
   }
 
   /************************************************************************************************
