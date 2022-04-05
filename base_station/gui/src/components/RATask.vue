@@ -174,11 +174,8 @@ export default {
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
-<<<<<<< HEAD
-        {'topic': '/arm_position', 'type': 'ArmPosition'},
-=======
         {'topic': '/ra_position', 'type': 'RAPosition'},
->>>>>>> [teleop] Science GUI changes and arm changes (#916)
+        {'topic': '/ra_position', 'type': 'RAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
