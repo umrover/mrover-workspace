@@ -47,17 +47,7 @@ enum class NavState {
     SearchDriveAroundObs = 33,
 
     // Gate Search States
-    GateSpin = 40,
-    GateSpinWait = 41,
-    GateTurn = 42,
-    GateDrive = 43,
-    GateTurnToCentPoint = 44,
-    GateDriveToCentPoint = 45,
-    GateFace = 46,
-    GateDriveThrough = 47,
-    GateTurnToFarPost = 48,
-    GateDriveToFarPost = 49,
-    GateTurnToGateCenter = 50,
+    Gate = 40,
 
     // Unknown State
     Unknown = 255

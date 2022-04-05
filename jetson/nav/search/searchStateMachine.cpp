@@ -157,18 +157,18 @@ NavState SearchStateMachine::executeDriveToTarget() {
 
     if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.clear();
-        if (sm->getCourseState()->getRemainingWaypoints().front().gate) {
-            sm->mGateStateMachine->mGateSearchPoints.clear();
-            double absAngle = mod(rover->odometry().bearing_deg + rover->leftCacheTarget().bearing, 360);
-            sm->mGateStateMachine->lastKnownRightPost.odom = createOdom(
-                    rover->odometry(),
-                    absAngle,
-                    rover->leftCacheTarget().distance,
-                    rover
-            );
-            sm->mGateStateMachine->lastKnownRightPost.id = rover->leftCacheTarget().id;
-            return NavState::GateSpin;
-        }
+//        if (sm->getCourseState()->getRemainingWaypoints().front().gate) {
+//            sm->mGateStateMachine->mGateSearchPoints.clear();
+//            double absAngle = mod(rover->odometry().bearing_deg + rover->leftCacheTarget().bearing, 360);
+//            sm->mGateStateMachine->lastKnownRightPost.odom = createOdom(
+//                    rover->odometry(),
+//                    absAngle,
+//                    rover->leftCacheTarget().distance,
+//                    rover
+//            );
+//            sm->mGateStateMachine->lastKnownRightPost.id = rover->leftCacheTarget().id;
+//            return NavState::GateSpin;
+//        }
         sm->getCourseState()->completeCurrentWaypoint();
         return NavState::Turn;
     }

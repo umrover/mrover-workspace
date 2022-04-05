@@ -6,7 +6,7 @@
 
 #include "utilities.hpp"
 #include "rover_msgs/NavStatus.hpp"
-#include "gate_search/diamondGateSearch.hpp"
+#include "gate_search/circleGateSearch.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 
 // Constructs a StateMachine object with the input lcm object.
@@ -112,17 +112,7 @@ void StateMachine::run() {
             break;
         }
 
-        case NavState::GateSpin:
-        case NavState::GateSpinWait:
-        case NavState::GateTurn:
-        case NavState::GateDrive:
-        case NavState::GateTurnToCentPoint:
-        case NavState::GateDriveToCentPoint:
-        case NavState::GateFace:
-        case NavState::GateDriveThrough:
-        case NavState::GateTurnToFarPost:
-        case NavState::GateDriveToFarPost:
-        case NavState::GateTurnToGateCenter: {
+        case NavState::Gate: {
             nextState = mGateStateMachine->run();
             break;
         }
@@ -249,17 +239,7 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::DriveAroundObs,       "Drive Around Obstacle"},
                     {NavState::SearchTurnAroundObs,  "Search Turn Around Obstacle"},
                     {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
-                    {NavState::GateSpin,             "Gate Spin"},
-                    {NavState::GateSpinWait,         "Gate Spin Wait"},
-                    {NavState::GateTurn,             "Gate Turn"},
-                    {NavState::GateDrive,            "Gate Drive"},
-                    {NavState::GateTurnToCentPoint,  "Gate Turn to Center Point"},
-                    {NavState::GateDriveToCentPoint, "Gate Drive to Center Point"},
-                    {NavState::GateFace,             "Gate Face"},
-                    {NavState::GateTurnToFarPost,    "Gate Turn to Far Post"},
-                    {NavState::GateDriveToFarPost,   "Gate Drive to Far Post"},
-                    {NavState::GateTurnToGateCenter, "Gate Turn to Gate Center"},
-                    {NavState::GateDriveThrough,     "Gate Drive Through"},
+                    {NavState::Gate,                 "Gate"},
 
                     {NavState::Unknown,              "Unknown"}
             };
