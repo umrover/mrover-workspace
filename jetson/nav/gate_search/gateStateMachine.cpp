@@ -8,7 +8,7 @@
 #include <utility>
 
 // Constructs a GateStateMachine object with mStateMachine
-GateStateMachine::GateStateMachine(weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig)
+GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig)
         : mStateMachine(move(stateMachine)), mRoverConfig(roverConfig) {}
 
 GateStateMachine::~GateStateMachine() = default;
@@ -62,7 +62,7 @@ NavState GateStateMachine::run() {
         }
 
         default: {
-            cerr << "Entered Unknown NavState in search state machine" << endl;
+            std::cerr << "Entered Unknown NavState in search state machine" << std::endl;
             return NavState::Unknown;
         }
     } // switch
@@ -330,6 +330,6 @@ void GateStateMachine::calcCenterPoint() {
 } // calcCenterPoint()
 
 // Creates an GateStateMachine object
-shared_ptr<GateStateMachine> GateFactory(weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig) {
-    return make_shared<DiamondGateSearch>(stateMachine, roverConfig);
+std::shared_ptr<GateStateMachine> GateFactory(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig) {
+    return std::make_shared<DiamondGateSearch>(stateMachine, roverConfig);
 } // GateFactory()

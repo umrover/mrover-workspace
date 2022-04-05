@@ -18,13 +18,13 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    SearchStateMachine(weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig);
+    SearchStateMachine(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig);
 
     virtual ~SearchStateMachine() = default;
 
     NavState run();
 
-//    bool targetReachable(shared_ptr<Rover> rover, double distance, double bearing);
+//    bool targetReachable(std::shared_ptr<Rover> rover, double distance, double bearing);
 
     virtual void initializeSearch(const rapidjson::Document& roverConfig, double pathWidth) = 0; // TODO
 
@@ -40,13 +40,13 @@ protected:
     /*************************************************************************/
 
     // Pointer to rover State Machine to access member functions
-    weak_ptr<StateMachine> mStateMachine;
+    std::weak_ptr<StateMachine> mStateMachine;
 
     // Vector of search point multipliers used as a base for the search points.
-    vector<pair<short, short>> mSearchPointMultipliers;
+    std::vector<std::pair<short, short>> mSearchPointMultipliers;
 
     // Queue of search points.
-    deque<Odometry> mSearchPoints;
+    std::deque<Odometry> mSearchPoints;
 
 private:
     /*************************************************************************/
@@ -84,5 +84,5 @@ private:
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle
 // avoidance algorithm. This allows for an an ease of transition between obstacle
 // avoidance algorithms
-shared_ptr<SearchStateMachine>
-SearchFactory(const weak_ptr<StateMachine>& sm, SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);
+std::shared_ptr<SearchStateMachine>
+SearchFactory(const std::weak_ptr<StateMachine>& sm, SearchType type, const std::shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);

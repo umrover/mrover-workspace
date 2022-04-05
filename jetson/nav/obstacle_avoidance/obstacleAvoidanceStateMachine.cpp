@@ -8,13 +8,13 @@
 
 // Constructs an ObstacleAvoidanceStateMachine object with mStateMachine, mConfig, and mRover
 ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine
-        (weak_ptr<StateMachine> sm, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
+        (std::weak_ptr<StateMachine> sm, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
         : mStateMachine(move(sm)), mJustDetectedObstacle(false), mRover(move(rover)), mRoverConfig(roverConfig) {}
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
 void ObstacleAvoidanceStateMachine::updateObstacleAngle(double bearing, double rightBearing) {
-    mOriginalObstacleAngle = min(bearing, rightBearing);
+    mOriginalObstacleAngle = std::min(bearing, rightBearing);
 }
 
 // Allows outside objects to set the original obstacle distance
@@ -48,7 +48,7 @@ NavState ObstacleAvoidanceStateMachine::run() {
         }
 
         default: {
-            cerr << "Entered unknown NavState in obstacleAvoidanceStateMachine" << endl;
+            std::cerr << "Entered unknown NavState in obstacleAvoidanceStateMachine" << std::endl;
             return NavState::Unknown;
         }
     } // switch
@@ -64,19 +64,19 @@ bool ObstacleAvoidanceStateMachine::isTargetDetected() {
 
 // The obstacle avoidance factory allows for the creation of obstacle avoidance objects and
 // an ease of transition between obstacle avoidance algorithms
-shared_ptr<ObstacleAvoidanceStateMachine> ObstacleAvoiderFactory(
-        weak_ptr<StateMachine> roverStateMachine, ObstacleAvoidanceAlgorithm algorithm, shared_ptr<Rover> rover,
+std::shared_ptr<ObstacleAvoidanceStateMachine> ObstacleAvoiderFactory(
+        std::weak_ptr<StateMachine> roverStateMachine, ObstacleAvoidanceAlgorithm algorithm, std::shared_ptr<Rover> rover,
         const rapidjson::Document& roverConfig
 ) {
-    shared_ptr<ObstacleAvoidanceStateMachine> avoid = nullptr;
+    std::shared_ptr<ObstacleAvoidanceStateMachine> avoid = nullptr;
     switch (algorithm) {
         case ObstacleAvoidanceAlgorithm::SimpleAvoidance:
-            avoid = make_shared<SimpleAvoidance>(roverStateMachine, rover, roverConfig);
+            avoid = std::make_shared<SimpleAvoidance>(roverStateMachine, rover, roverConfig);
             break;
 
         default:
-            cerr << "Unkown Search Type. Defaulting to original\n";
-            avoid = make_shared<SimpleAvoidance>(roverStateMachine, rover, roverConfig);
+            std::cerr << "Unkown Search Type. Defaulting to original\n";
+            avoid = std::make_shared<SimpleAvoidance>(roverStateMachine, rover, roverConfig);
             break;
     } // switch
     return avoid;

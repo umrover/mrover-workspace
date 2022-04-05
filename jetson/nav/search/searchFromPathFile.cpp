@@ -5,13 +5,13 @@
 
 #include "stateMachine.hpp"
 
-using namespace std;
+
 
 void SearchFromPathFile::initializeSearch(const rapidjson::Document& roverConfig, double visionDistance) {
     mSearchPoints.clear();
-    ifstream coordinate_file(mPath);
+    std::ifstream coordinate_file(mPath);
     if (!coordinate_file) {
-        throw runtime_error("Could not open spiral search points file at: " + mPath);
+        throw std::runtime_error("Could not open spiral search points file at: " + mPath);
     }
     float rho, phi;
     while (coordinate_file >> rho >> phi) {

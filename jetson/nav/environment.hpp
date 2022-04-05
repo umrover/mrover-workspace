@@ -5,7 +5,7 @@
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/TargetList.hpp"
 
-using namespace std;
+
 using namespace rover_msgs;
 
 class Environment {

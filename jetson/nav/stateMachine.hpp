@@ -9,18 +9,18 @@
 #include "environment.hpp"
 #include "courseProgress.hpp"
 
-using namespace std;
+
 using namespace rover_msgs;
 
 // This class implements the logic for the state machine for the
 // autonomous navigation of the rover.
-class StateMachine : public enable_shared_from_this<StateMachine> {
+class StateMachine : public std::enable_shared_from_this<StateMachine> {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
     StateMachine(rapidjson::Document& config,
-                 shared_ptr<Rover> rover, shared_ptr<Environment> env, shared_ptr<CourseProgress> courseProgress,
+                 std::shared_ptr<Rover> rover, std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseProgress,
                  lcm::LCM& lcmObject);
 
     void run();
@@ -29,19 +29,19 @@ public:
 
     void updateObstacleDistance(double distance);
 
-    void setSearcher(SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);
+    void setSearcher(SearchType type, const std::shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);
 
-    shared_ptr<Environment> getEnv();
+    std::shared_ptr<Environment> getEnv();
 
-    shared_ptr<CourseProgress> getCourseState();
+    std::shared_ptr<CourseProgress> getCourseState();
 
-    shared_ptr<Rover> getRover();
+    std::shared_ptr<Rover> getRover();
 
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
     // Gate State Machine instance
-    shared_ptr<GateStateMachine> mGateStateMachine;
+    std::shared_ptr<GateStateMachine> mGateStateMachine;
 
 private:
     /*************************************************************************/
@@ -57,7 +57,7 @@ private:
 
     NavState executeDrive();
 
-    string stringifyNavState() const;
+    std::string stringifyNavState() const;
 
     double getOptimalAvoidanceDistance() const;
 
@@ -70,21 +70,18 @@ private:
     rapidjson::Document& mConfig;
 
     // Rover object to do basic rover operations in the state machine.
-    shared_ptr<Rover> mRover;
+    std::shared_ptr<Rover> mRover;
 
-    shared_ptr<Environment> mEnv;
+    std::shared_ptr<Environment> mEnv;
 
-    shared_ptr<CourseProgress> mCourseProgress;
+    std::shared_ptr<CourseProgress> mCourseProgress;
 
     // Lcm object for sending and receiving messages.
     lcm::LCM& mLcmObject;
 
-    // Number of waypoints in course.
-    int32_t mTotalWaypoints = 0;
-
     // Search pointer to control search states
-    shared_ptr<SearchStateMachine> mSearchStateMachine;
+    std::shared_ptr<SearchStateMachine> mSearchStateMachine;
 
     // Avoidance pointer to control obstacle avoidance states
-    shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
+    std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
 }; // StateMachine

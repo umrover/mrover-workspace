@@ -17,7 +17,7 @@
 #include "environment.hpp"
 #include "pid.hpp"
 
-using namespace std;
+
 using namespace rover_msgs;
 
 // This class is the representation of the navigation states.
@@ -117,7 +117,7 @@ public:
 
     void setOdometry(Odometry const& odometry);
 
-    void updateTargets(shared_ptr<Environment> const& env, shared_ptr<CourseProgress> const& course);
+    void updateTargets(std::shared_ptr<Environment> const& env, std::shared_ptr<CourseProgress> const& course);
 
     void setState(NavState state);
 
@@ -169,8 +169,8 @@ private:
 
     // Cached Target
     // Left means left in the pixel space
-    Target mCTargetLeft{-1.0, 0.0, 0};
-    Target mCTargetRight{-1.0, 0.0, 0};
+    Target mCacheTargetLeft{-1.0, 0.0, 0};
+    Target mCacheTargetRight{-1.0, 0.0, 0};
 
     // Count of misses with cache
     int mCountLeftMisses = 0;

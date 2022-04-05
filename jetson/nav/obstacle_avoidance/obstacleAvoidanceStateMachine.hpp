@@ -4,7 +4,7 @@
 #include "rover.hpp"
 #include "environment.hpp"
 
-using namespace std;
+
 using namespace rover_msgs;
 
 class StateMachine;
@@ -21,7 +21,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    ObstacleAvoidanceStateMachine(weak_ptr<StateMachine> sm, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
+    ObstacleAvoidanceStateMachine(std::weak_ptr<StateMachine> sm, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
     virtual ~ObstacleAvoidanceStateMachine() = default;
 
@@ -35,12 +35,12 @@ public:
 
     bool isTargetDetected();
 
-    virtual Odometry createAvoidancePoint(shared_ptr<Rover> rover, double distance) = 0;
+    virtual Odometry createAvoidancePoint(std::shared_ptr<Rover> rover, double distance) = 0;
 
-    virtual NavState executeTurnAroundObs(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) = 0;
+    virtual NavState executeTurnAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) = 0;
 
     virtual NavState
-    executeDriveAroundObs(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) = 0;
+    executeDriveAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) = 0;
 
 protected:
     /*************************************************************************/
@@ -48,7 +48,7 @@ protected:
     /*************************************************************************/
 
     // Pointer to rover State Machine to access member functions
-    weak_ptr<StateMachine> mStateMachine;
+    std::weak_ptr<StateMachine> mStateMachine;
 
     // Odometry point used when avoiding obstacles.
     Odometry mObstacleAvoidancePoint;
@@ -66,7 +66,7 @@ protected:
     double mLastObstacleAngle;
 
     // Pointer to rover object
-    shared_ptr<Rover> mRover;
+    std::shared_ptr<Rover> mRover;
 
 private:
     /*************************************************************************/
@@ -81,7 +81,7 @@ private:
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle 
 // avoidance algorithm. This allows for an an ease of transition between obstacle 
 // avoidance algorithms
-shared_ptr<ObstacleAvoidanceStateMachine> ObstacleAvoiderFactory(
-        weak_ptr<StateMachine> roverStateMachine, ObstacleAvoidanceAlgorithm algorithm, shared_ptr<Rover> rover,
+std::shared_ptr<ObstacleAvoidanceStateMachine> ObstacleAvoiderFactory(
+        std::weak_ptr<StateMachine> roverStateMachine, ObstacleAvoidanceAlgorithm algorithm, std::shared_ptr<Rover> rover,
         const rapidjson::Document& roverConfig
 );

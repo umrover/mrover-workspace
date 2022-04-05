@@ -7,7 +7,7 @@
 #include "../rover.hpp"
 #include "rover_msgs/Odometry.hpp"
 
-using namespace std;
+
 using namespace rover_msgs;
 
 class StateMachine;
@@ -17,7 +17,7 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    GateStateMachine(weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig);
+    GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig);
 
     virtual ~GateStateMachine();
 
@@ -35,7 +35,7 @@ public:
     Waypoint lastKnownLeftPost;
 
     // Queue of search points
-    deque<Odometry> mGateSearchPoints;
+    std::deque<Odometry> mGateSearchPoints;
 
 protected:
     /*************************************************************************/
@@ -43,7 +43,7 @@ protected:
     /*************************************************************************/
 
     // Pointer to rover State Machine to access member functions
-    weak_ptr<StateMachine> mStateMachine;
+    std::weak_ptr<StateMachine> mStateMachine;
 
 private:
     /*************************************************************************/
@@ -95,7 +95,7 @@ private:
     double gateAdjustmentDist;
 };
 
-shared_ptr<GateStateMachine>
-GateFactory(weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig);
+std::shared_ptr<GateStateMachine>
+GateFactory(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig);
 
 #endif //GATE_STATE_MACHINE_HPP

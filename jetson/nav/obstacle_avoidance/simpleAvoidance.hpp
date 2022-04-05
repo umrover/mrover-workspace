@@ -8,13 +8,13 @@
 // distance from obstacle.
 class SimpleAvoidance : public ObstacleAvoidanceStateMachine {
 public:
-    SimpleAvoidance(weak_ptr<StateMachine> roverStateMachine, shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
+    SimpleAvoidance(std::weak_ptr<StateMachine> roverStateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
     ~SimpleAvoidance() override;
 
-    NavState executeTurnAroundObs(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) override;
+    NavState executeTurnAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) override;
 
-    NavState executeDriveAroundObs(shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) override;
+    NavState executeDriveAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) override;
 
-    Odometry createAvoidancePoint(shared_ptr<Rover> rover, double distance) override;
+    Odometry createAvoidancePoint(std::shared_ptr<Rover> rover, double distance) override;
 };

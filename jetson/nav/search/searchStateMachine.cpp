@@ -9,7 +9,7 @@
 #include <iostream>
 
 // Constructs an SearchStateMachine object with mStateMachine, mConfig, and mRover
-SearchStateMachine::SearchStateMachine(weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig)
+SearchStateMachine::SearchStateMachine(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig)
         : mStateMachine(move(sm)), mRoverConfig(roverConfig) {}
 
 // Runs the search state machine through one iteration. This will be called by
@@ -34,7 +34,7 @@ NavState SearchStateMachine::run() {
         }
 
         default: {
-            cerr << "Entered Unknown NavState in search state machine" << endl;
+            std::cerr << "Entered Unknown NavState in search state machine" << std::endl;
             return NavState::Unknown;
         }
     } // switch
@@ -46,7 +46,7 @@ NavState SearchStateMachine::run() {
 // If the rover finishes turning, it proceeds to driving while searching.
 // Else the rover keeps turning to the next Waypoint.
 NavState SearchStateMachine::executeSearchTurn() {
-    shared_ptr<StateMachine> sm = mStateMachine.lock();
+    std::shared_ptr<StateMachine> sm = mStateMachine.lock();
 
     if (mSearchPoints.empty()) {
         return NavState::ChangeSearchAlg;
@@ -75,8 +75,8 @@ NavState SearchStateMachine::executeSearchTurn() {
 // If the rover is still on course, it keeps driving to the next Waypoint.
 // Else the rover turns to the next Waypoint or turns back to the current Waypoint
 NavState SearchStateMachine::executeSearchDrive() {
-    shared_ptr<StateMachine> sm = mStateMachine.lock();
-    shared_ptr<Rover> rover = sm->getRover();
+    std::shared_ptr<StateMachine> sm = mStateMachine.lock();
+    std::shared_ptr<Rover> rover = sm->getRover();
 
     int16_t frontId = sm->getCourseState()->getRemainingWaypoints().front().id;
     if (rover->leftCacheTarget().distance >= 0 && frontId == rover->leftCacheTarget().id) {
@@ -107,8 +107,8 @@ NavState SearchStateMachine::executeSearchDrive() {
 // give CV time to relocate the target
 // Else the rover continues to turn to to the target.
 NavState SearchStateMachine::executeTurnToTarget() {
-    shared_ptr<StateMachine> sm = mStateMachine.lock();
-    shared_ptr<Rover> rover = sm->getRover();
+    std::shared_ptr<StateMachine> sm = mStateMachine.lock();
+    std::shared_ptr<Rover> rover = sm->getRover();
 
     if (rover->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
         return NavState::SearchTurn;
@@ -129,13 +129,13 @@ NavState SearchStateMachine::executeTurnToTarget() {
 // If the rover is on course, it keeps driving to the target.
 // Else, it turns back to face the target.
 NavState SearchStateMachine::executeDriveToTarget() {
-    shared_ptr<StateMachine> sm = mStateMachine.lock();
-    shared_ptr<Environment> env = sm->getEnv();
-    shared_ptr<Rover> rover = sm->getRover();
+    std::shared_ptr<StateMachine> sm = mStateMachine.lock();
+    std::shared_ptr<Environment> env = sm->getEnv();
+    std::shared_ptr<Rover> rover = sm->getRover();
 
     // Definitely cannot find the target
     if (rover->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
-        cerr << "Lost the target\n";
+        std::cerr << "Lost the target\n";
         return NavState::SearchTurn;
     }
 
@@ -225,15 +225,15 @@ void SearchStateMachine::insertIntermediatePoints() {
 
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms
-shared_ptr<SearchStateMachine>
-SearchFactory(const weak_ptr<StateMachine>& sm, SearchType type, const shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig) {
-    shared_ptr<SearchStateMachine> search = nullptr;
+std::shared_ptr<SearchStateMachine>
+SearchFactory(const std::weak_ptr<StateMachine>& sm, SearchType type, const std::shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig) {
+    std::shared_ptr<SearchStateMachine> search = nullptr;
     switch (type) {
         case SearchType::FROM_PATH_FILE:
-            search = make_shared<SearchFromPathFile>(sm, roverConfig, "jetson/nav/search/spiral_search_points.txt");
+            search = std::make_shared<SearchFromPathFile>(sm, roverConfig, "jetson/nav/search/spiral_search_points.txt");
             break;
         default:
-            cerr << "Unknown Search Type. Defaulting to Spiral\n";
+            std::cerr << "Unknown Search Type. Defaulting to Spiral\n";
             break;
     }
     return search;

@@ -7,7 +7,7 @@
 #include "rover.hpp"
 #include "environment.hpp"
 
-using namespace std;
+
 using namespace rover_msgs;
 
 const int EARTH_RADIUS = 6371000; // meters
@@ -23,7 +23,7 @@ Odometry addMinToDegrees(const Odometry& current, double lat_minutes = 0, double
 
 double estimateNoneuclid(const Odometry& start, const Odometry& dest);
 
-Odometry createOdom(const Odometry& current, double bearing, double distance, const shared_ptr<Rover>& rover);
+Odometry createOdom(const Odometry& current, double bearing, double distance, const std::shared_ptr<Rover>& rover);
 
 double calcBearing(const Odometry& start, const Odometry& dest);
 
@@ -31,14 +31,14 @@ double mod(double degree, int modulus);
 
 void throughZero(double& destinationBearing, double currentBearing);
 
-void clear(deque<Waypoint>& aDeque);
+void clear(std::deque<Waypoint>& aDeque);
 
-bool isTargetReachable(const shared_ptr<Rover>&, const shared_ptr<Environment>& env, const rapidjson::Document& roverConfig);
+bool isTargetReachable(const std::shared_ptr<Rover>&, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig);
 
 bool isLocationReachable(
-        const shared_ptr<Rover>&, const shared_ptr<Environment>&, const rapidjson::Document& roverConfig, double locDist, double distThresh
+        const std::shared_ptr<Rover>&, const std::shared_ptr<Environment>&, const rapidjson::Document& roverConfig, double locDist, double distThresh
 );
 
-bool isObstacleDetected(const shared_ptr<Rover>& rover, const shared_ptr<Environment>& env);
+bool isObstacleDetected(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env);
 
-bool isObstacleInThreshold(const shared_ptr<Rover>& rover, const shared_ptr<Environment>& env, const rapidjson::Document& roverConfig);
+bool isObstacleInThreshold(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig);

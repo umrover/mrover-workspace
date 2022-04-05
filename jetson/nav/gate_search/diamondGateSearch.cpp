@@ -4,7 +4,7 @@
 
 #include <utility>
 
-DiamondGateSearch::DiamondGateSearch(weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig)
+DiamondGateSearch::DiamondGateSearch(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig)
         : GateStateMachine(move(sm), roverConfig) {}
 
 DiamondGateSearch::~DiamondGateSearch() = default;

@@ -4,7 +4,7 @@
 
 class DiamondGateSearch : public GateStateMachine {
 public:
-    DiamondGateSearch(weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig);
+    DiamondGateSearch(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig);
 
     ~DiamondGateSearch() override;
 

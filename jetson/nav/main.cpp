@@ -12,16 +12,16 @@
 #include "courseProgress.hpp"
 
 using namespace rover_msgs;
-using namespace std;
 
-rapidjson::Document readConfig(string const& name) {
-    ifstream configFile;
+
+rapidjson::Document readConfig(std::string const& name) {
+    std::ifstream configFile;
     char* path_cstr = getenv("MROVER_CONFIG");
-    if (!path_cstr) throw runtime_error("MROVER_CONFIG environment variable not set");
-    string path = path_cstr;
+    if (!path_cstr) throw std::runtime_error("MROVER_CONFIG environment variable not set");
+    std::string path = path_cstr;
     path += "/" + name;
     configFile.open(path);
-    if (!configFile) throw runtime_error("Could not open config file at: " + path);
+    if (!configFile) throw std::runtime_error("Could not open config file at: " + path);
     rapidjson::Document document;
     rapidjson::IStreamWrapper isw(configFile);
     document.ParseStream(isw);
@@ -31,35 +31,35 @@ rapidjson::Document readConfig(string const& name) {
 // Runs the autonomous navigation of the rover.
 int main() {
     lcm::LCM lcm;
-    if (!lcm.good()) throw runtime_error("Cannot create LCM");
+    if (!lcm.good()) throw std::runtime_error("Cannot create LCM");
 
-    auto env = make_shared<Environment>();
-    auto courseProgress = make_shared<CourseProgress>();
+    auto env = std::make_shared<Environment>();
+    auto courseProgress = std::make_shared<CourseProgress>();
     auto config = readConfig("config_nav/config.json");
-    auto rover = make_shared<Rover>(config, lcm);
-    auto stateMachine = make_shared<StateMachine>(config, rover, env, courseProgress, lcm);
+    auto rover = std::make_shared<Rover>(config, lcm);
+    auto stateMachine = std::make_shared<StateMachine>(config, rover, env, courseProgress, lcm);
 
-    auto autonCallback = [rover](const lcm::ReceiveBuffer* recBuf, const string& channel, const AutonState* autonState) mutable {
+    auto autonCallback = [rover](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const AutonState* autonState) mutable {
         rover->setAutonState(*autonState);
     };
     lcm.subscribe("/auton", &decltype(autonCallback)::operator(), &autonCallback);
 
-    auto courseCallback = [courseProgress](const lcm::ReceiveBuffer* recBuf, const string& channel, const Course* course) mutable {
+    auto courseCallback = [courseProgress](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const Course* course) mutable {
         courseProgress->setCourse(*course);
     };
     lcm.subscribe("/course", &decltype(courseCallback)::operator(), &courseCallback);
 
-    auto obstacleCallback = [env](const lcm::ReceiveBuffer* recBuf, const string& channel, const Obstacle* obstacle) mutable {
+    auto obstacleCallback = [env](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const Obstacle* obstacle) mutable {
         env->setObstacle(*obstacle);
     };
     lcm.subscribe("/obstacle", &decltype(obstacleCallback)::operator(), &obstacleCallback);
 
-    auto odometryCallback = [rover](const lcm::ReceiveBuffer* recBuf, const string& channel, const Odometry* odometry) mutable {
+    auto odometryCallback = [rover](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const Odometry* odometry) mutable {
         rover->setOdometry(*odometry);
     };
     lcm.subscribe("/odometry", &decltype(odometryCallback)::operator(), &odometryCallback);
 
-    auto targetCallback = [env](const lcm::ReceiveBuffer* recBuf, const string& channel, const TargetList* targetList) mutable {
+    auto targetCallback = [env](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const TargetList* targetList) mutable {
         env->setTargets(*targetList);
     };
     lcm.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback);
