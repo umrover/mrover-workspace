@@ -134,7 +134,7 @@ float absEnc(std::string name)
     {
         float rad_angle = 0;
         I2C::transact(ControllerMap::get_i2c_address(name), ABS_ENC, nullptr, UINT8_POINTER_T(&rad_angle));
-        float deg_angle = rad_angle / (2 * M_PI) * 360;
+        float deg_angle = (rad_angle - M_PI) / (2 * M_PI) * 360;
         printf("test abs %s: Absolute degrees is %f \n", name.c_str(), deg_angle);
         return deg_angle;
     }
