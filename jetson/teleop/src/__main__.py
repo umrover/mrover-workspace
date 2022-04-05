@@ -133,8 +133,9 @@ class Drive:
                 vel_right /= abs(vel_right)
 
         command = DriveVelCmd()
-        command.left = vel_left
-        command.right = vel_right
+        # flips it to account for joystick fwd/bwd being backwards
+        command.left = -vel_left
+        command.right = -vel_right
 
         lcm_.publish('/drive_vel_cmd', command.encode())
 

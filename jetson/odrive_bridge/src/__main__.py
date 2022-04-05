@@ -447,9 +447,9 @@ class Modrive:
 
     def set_vel(self, axis, vel):
         if (axis == "LEFT"):
-            self.left_axis.controller.input_vel = -vel * self.SPEED_MULTIPLIER
+            self.left_axis.controller.input_vel = vel * self.SPEED_MULTIPLIER
         elif axis == "RIGHT":
-            self.right_axis.controller.input_vel = vel * self.SPEED_MULTIPLIER
+            self.right_axis.controller.input_vel = -vel * self.SPEED_MULTIPLIER
 
     def get_current_state(self):
         return (self.left_axis.current_state, self.right_axis.current_state)
