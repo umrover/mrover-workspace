@@ -274,6 +274,16 @@
             "transform_f[4][4]"
         ]
     ],
+    "FuseData": [
+        [
+            "double",
+            "current_amps[12]"
+        ],
+        [
+            "double",
+            "voltage_volts[12]"
+        ]
+    ],
     "GPS": [
         [
             "int32_t",
@@ -543,6 +553,20 @@
         [
             "double",
             "speed"
+        ]
+    ],
+    "PDBFuse": [
+        [
+            "double",
+            "temp_celsius[3]"
+        ],
+        [
+            "double",
+            "current_amps[3]"
+        ],
+        [
+            "double",
+            "voltage_volts[3]"
         ]
     ],
     "PIDConstants": [
@@ -1149,6 +1173,7 @@
         "ESCThrottle",
         "ESCToggle",
         "FKTransform",
+        "FuseData",
         "GPS",
         "Heartbeat",
         "IkArmControl",
@@ -1165,6 +1190,7 @@
         "NavStatus",
         "Obstacle",
         "Odometry",
+        "PDBFuse",
         "PiCamera",
         "PIDConstants",
         "PiPicture",

@@ -50,8 +50,8 @@ robot.links = {
     },
     "c-e": {
         visual : { 
-            origin : { xyz: [0.000,-0.5393*scale_factor_neg,12.9821*scale_factor_neg], rpy:[0,0,0] },
-            //origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
+            // origin : { xyz: [0.000,-0.5393*scale_factor_neg,12.9821*scale_factor_neg], rpy:[0,0,0] },
+            origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
             geometry : { mesh : { filename : "c-e.stl" } },
             material : { color : { rgba : [0.43, 1, 0, 1] } }
             //Green
@@ -59,8 +59,8 @@ robot.links = {
     },
     "hand": {
         visual: { 
-            origin : { xyz: [-2.5166*scale_factor_neg,2.7226*scale_factor_neg,34.3566*scale_factor_neg], rpy:[0,0,0] },
-            //origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
+            // origin : { xyz: [-2.5166*scale_factor_neg,2.7226*scale_factor_neg,34.3566*scale_factor_neg], rpy:[0,0,0] },
+            origin : { xyz: [0.0,0.0,0.0], rpy:[0,0,0] },
             geometry : { mesh : { filename : "hand.stl" } },
             material : { color : { rgba : [1, 0, 1, 1] } }
             //Pink
@@ -105,12 +105,14 @@ robot.joints.joint_b.limit = {lower:-2.0, upper:2.0};
 
 robot.joints.joint_c = {parent:"b-c", child:"c-e"};
 robot.joints.joint_c.origin = {xyz: [0.0,2.2642*scale_factor,9.125*scale_factor], rpy:[0,0,0]};
+// robot.joints.joint_c.origin = {xyz: [0.0,0.0,0.0], rpy:[0,0,0]};
 robot.joints.joint_c.axis = [0.0,1.0,0];   
 robot.joints.joint_c.type = "revolute";
 robot.joints.joint_c.limit = {lower:-2.0, upper:2.0};
 
 robot.joints.joint_e = {parent:"c-e", child:"hand"};
 robot.joints.joint_e.origin = {xyz: [-1.002*scale_factor,0.9991*scale_factor,1.498*scale_factor], rpy:[0,0,0]};
+// robot.joints.joint_e.origin = {xyz: [0,0,0], rpy:[0,0,0]};
 robot.joints.joint_e.axis = [1.0,0.0,0];   
 robot.joints.joint_e.type = "revolute";
 robot.joints.joint_e.limit = {lower:-2.0, upper:2.0};

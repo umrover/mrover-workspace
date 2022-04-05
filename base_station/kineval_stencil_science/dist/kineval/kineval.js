@@ -331,18 +331,18 @@ kineval.animate = function animate() {
 kineval.robotDraw = function drawRobot() {
 
     // robot links
-    for (x in robot.links) {
+    // for (x in robot.links) {
 
-        // KE : properly scope global variable robot_material
-        if (kineval.params.display_wireframe)
-            robot_material.wireframe = true;
-        else
-            robot_material.wireframe = false;
+    //     // KE : properly scope global variable robot_material
+    //     if (kineval.params.display_wireframe)
+    //         robot_material.wireframe = true;
+    //     else
+    //         robot_material.wireframe = false;
 
-        // display links
-        simpleApplyMatrix(robot.links[x].geom, robot.links[x].xform);
-        robot.links[x].geom.visible = true;
-    }
+    //     // display links
+    //     simpleApplyMatrix(robot.links[x].geom, robot.links[x].xform);
+    //     robot.links[x].geom.visible = true;
+    // }
 
     // robot joints
     for (x in robot.joints) {
