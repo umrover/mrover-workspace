@@ -1,10 +1,10 @@
 <template>
   <div class="wrap">
-      <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
-      <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
-      <div class="keyboard">
-        <GimbalControls/>
-      </div>
+    <h3> Arm controls </h3>
+    <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
+    <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
+    <div class="keyboard">
+      <GimbalControls/>
     </div>
   </div>
 </template>

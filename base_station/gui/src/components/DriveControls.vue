@@ -1,5 +1,6 @@
 <template>
   <div class="wrap">
+    <h3> Drive </h3>
     <span>Speed Limiter: {{ dampenDisplay }}%</span>
   </div>
 </template>
@@ -77,7 +78,7 @@ export default {
 <style scoped>
 
 .wrap {
-  display: flex;
+  display: inline-block;
   align-items: center;
 }
 
