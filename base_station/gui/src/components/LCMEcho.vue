@@ -95,6 +95,7 @@
           '/sa_pidconfig_cmd': false,
           '/sa_motors': false,
           '/sa_zero_trigger': false,
+          '/search_points': false,
           '/sensor_switch': false,
           '/sensors': false,
           '/set_demand': false,

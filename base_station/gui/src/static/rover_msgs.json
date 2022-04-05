@@ -661,6 +661,12 @@
             "micro_z"
         ]
     ],
+    "SearchPoints": [
+        [
+            "Odometry",
+            "points"
+        ]
+    ],
     "SensorPackage": [
         [
             "double",
