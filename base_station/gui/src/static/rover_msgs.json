@@ -663,7 +663,11 @@
     ],
     "SearchPoints": [
         [
-            "Odometry",
+            "size_t",
+            "search_pattern_size"
+        ],
+        [
+            "Odometry[]",
             "points"
         ]
     ],
