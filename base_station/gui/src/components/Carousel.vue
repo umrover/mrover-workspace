@@ -5,11 +5,9 @@
     </div>
     <div class="box1">
         <label for="position">Rotate carousel to position:</label>
-        <select v-model="target" name="target" id="target">
-            <option value=0>0</option>
-            <option value=1>1</option>
-            <option value=2>2</option>
-        </select>
+        <button v-on:click="target = 0"> Position 0 </button>
+        <button v-on:click="target = 1"> Position 1 </button>
+        <button v-on:click="target = 2"> Position 2 </button>
         <br>
         <div class="commands">
           <div v-if="closedLoop">
