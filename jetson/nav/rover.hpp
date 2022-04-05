@@ -127,7 +127,7 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    void publishAutonDriveCmd( const double leftVel, const double rightVel);
+    void publishAutonDriveCmd(double leftVel, double rightVel);
 
     static bool isTurningAroundObstacle(NavState currentState);
 

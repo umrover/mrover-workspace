@@ -14,9 +14,9 @@
 // and the lcmObject. Sets mStateChanged to true so that on the first
 // iteration of run the rover is updated.
 StateMachine::StateMachine(
-        rapidjson::Document &config,
+        rapidjson::Document& config,
         std::shared_ptr<Rover> rover, std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseProgress,
-        lcm::LCM &lcmObject
+        lcm::LCM& lcmObject
 ) : mConfig(config), mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseProgress)),
     mLcmObject(lcmObject) {
     mSearchStateMachine = SearchFactory(weak_from_this(), SearchType::FROM_PATH_FILE, mRover, mConfig);
@@ -26,8 +26,8 @@ StateMachine::StateMachine(
                                                             mConfig);
 } // StateMachine()
 
-void StateMachine::setSearcher(SearchType type, const std::shared_ptr<Rover> &rover,
-                               const rapidjson::Document &roverConfig) {
+void StateMachine::setSearcher(SearchType type, const std::shared_ptr<Rover>& rover,
+                               const rapidjson::Document& roverConfig) {
     mSearchStateMachine = SearchFactory(weak_from_this(), type, rover, roverConfig);
 }
 
@@ -146,7 +146,7 @@ void StateMachine::publishNavState() const {
             .completed_wps = static_cast<int32_t>(mCourseProgress->getRemainingWaypoints().size()),
             .total_wps = mCourseProgress->getCourse().num_waypoints
     };
-    const std::string &navStatusChannel = mConfig["lcmChannels"]["navStatusChannel"].GetString();
+    const std::string& navStatusChannel = mConfig["lcmChannels"]["navStatusChannel"].GetString();
     mLcmObject.publish(navStatusChannel, &navStatus);
 } // publishNavState()
 
@@ -179,7 +179,7 @@ NavState StateMachine::executeTurn() {
         return NavState::Done;
     }
 
-    Odometry const &nextPoint = mCourseProgress->getRemainingWaypoints().front().odom;
+    Odometry const& nextPoint = mCourseProgress->getRemainingWaypoints().front().odom;
 //    if (estimateNoneuclid(mRover->odometry(), nextPoint) < mConfig["navThresholds"]["waypointDistance"].GetDouble()
 //        || mRover->turn(nextPoint)) {
     if (mRover->turn(nextPoint)) {
@@ -196,7 +196,7 @@ NavState StateMachine::executeTurn() {
 // detects an obstacle and is within the obstacle distance threshold, 
 // it goes to turn around it. Else the rover keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive() {
-    Waypoint const &nextWaypoint = mCourseProgress->getRemainingWaypoints().front();
+    Waypoint const& nextWaypoint = mCourseProgress->getRemainingWaypoints().front();
     double distance = estimateNoneuclid(mRover->odometry(), nextWaypoint.odom);
 
     if (isObstacleDetected(mRover, getEnv())

@@ -6,7 +6,6 @@
 #include "stateMachine.hpp"
 
 
-
 void SearchFromPathFile::initializeSearch(const rapidjson::Document& roverConfig, double visionDistance) {
     mSearchPoints.clear();
     std::ifstream coordinate_file(mPath);
