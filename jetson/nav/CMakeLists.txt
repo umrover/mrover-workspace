@@ -1,3 +1,5 @@
+# Provided for convenience (syntax highlighting for CLion)
+# Use Meson in production as it is the officially suported build system
 cmake_minimum_required(VERSION 3.8)
 project(navigation)
 set(CMAKE_CXX_STANDARD 14)
