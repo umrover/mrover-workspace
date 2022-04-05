@@ -10,7 +10,7 @@
 </template>
 <script>import Checkbox from './Checkbox.vue'
 import { mapGetters, mapMutations } from 'vuex'
-import {Toggle, quadratic, deadzone, joystick_math} from '../utils.js'
+import {Toggle} from '../utils.js'
 import GimbalControls from './GimbalControls.vue'
 
 let interval;
@@ -68,8 +68,6 @@ export default {
       'forward_back': 1,
       'left_right': 2,
       'dampen': 3,
-      'kill': 4,
-      'restart': 5,
       'pan': 4,
       'tilt': 5
     }
@@ -112,9 +110,7 @@ export default {
               'type': 'Joystick',
               'forward_back': gamepad.axes[JOYSTICK_CONFIG['forward_back']],
               'left_right': gamepad.axes[JOYSTICK_CONFIG['left_right']],
-              'dampen': gamepad.axes[JOYSTICK_CONFIG['dampen']],
-              'kill': gamepad.buttons[JOYSTICK_CONFIG['kill']]['pressed'],
-              'restart': gamepad.buttons[JOYSTICK_CONFIG['restart']]['pressed']
+              'dampen': gamepad.axes[JOYSTICK_CONFIG['dampen']]
             }
             this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']]
 

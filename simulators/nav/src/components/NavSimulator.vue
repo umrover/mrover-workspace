@@ -377,10 +377,10 @@ export default class NavSimulator extends Vue {
 
       /* Subscribed LCM message received */
       (msg) => {
-        if (msg.topic === '/autonomous') {
+        if (msg.topic === '/auton_drive_control') {
           this.setJoystick({
-            forward_back: msg.message.forward_back,
-            left_right: msg.message.left_right
+            forward_back: msg.message.left_percent_velocity,
+            left_right: msg.message.right_percent_velocity
           });
           if (!this.paused) {
             this.applyJoystickCmd();
@@ -431,6 +431,7 @@ export default class NavSimulator extends Vue {
       /* Subscriptions */
       [
         { topic: '/autonomous',     type: 'Joystick' },
+        { topic: '/auton_drive_control',     type: 'AutonDriveControl' },
         { topic: '/nav_status',     type: 'NavStatus' },
         { topic: '/obstacle',       type: 'Obstacle' },
         { topic: '/odometry',       type: 'Odometry' },

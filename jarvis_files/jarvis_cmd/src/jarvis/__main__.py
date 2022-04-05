@@ -32,6 +32,7 @@ def main():
     parser_build.add_argument('-n','--not-projects', nargs='+',
                               help='Don\'t build these projects when building all (-a).')
     parser_build.add_argument('-l', '--no-lint', action='store_false', help='Disable linting.')
+    parser_build.add_argument('-p', '--no-pip-reqs', action='store_true', help="Disable rebuilding pip deps, good when there's no wifi.")
 
     subcommands.add_parser('clean',
                            help='Removes the product env')
@@ -58,7 +59,7 @@ def main():
         ctx = WorkspaceContext(args.root_dir)
 
         if args.subcommand_name == 'build':
-            build_deps(ctx)
+            build_deps(ctx, args.no_pip_reqs)
             if args.all:
                 return build_all(ctx, clean_dir_name(args.dir), args.no_lint, args.build_opts, args.not_projects)
             else:

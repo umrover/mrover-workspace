@@ -138,9 +138,6 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
 Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
     : mRoverConfig( config )
     , mLcmObject( lcmObject )
-    , mDistancePid( config[ "distancePid" ][ "kP" ].GetDouble(),
-                    config[ "distancePid" ][ "kI" ].GetDouble(),
-                    config[ "distancePid" ][ "kD" ].GetDouble() )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
@@ -170,6 +167,9 @@ DriveStatus Rover::drive( const Odometry& destination )
 // on-course or off-course.
 DriveStatus Rover::drive( const double distance, const double bearing, const bool target )
 {
+    //if (target){
+       //std::cout << roverStatus().leftCacheTarget().distance << std::endl;
+   //}
     if( ( !target && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble() ) ||
         ( target && distance < mRoverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble() ) )
     {
@@ -182,7 +182,12 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
     if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() )
     {
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
-        publishJoystick( 1.0, turningEffort, false );
+        //When we drive to a target, we want to go as fast as possible so one of the sides is fixed at one and the other is 1 - abs(turningEffort)
+        //if we need to turn clockwise, turning effort will be postive, so left_vel will be 1, and right_vel will be in between 0 and 1
+        //if we need to turng ccw, turning effort will be negative, so right_vel will be 1 and left_vel will be in between 0 and 1
+        double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
+        double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
+        publishAutonDriveCmd(left_vel, right_vel);
         return DriveStatus::OnCourse;
     }
     cerr << "offcourse\n";
@@ -194,12 +199,17 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
 // does not calculate if you have arrive at a specific location and
 // this must be handled outside of this function.
 // The input bearing is an absolute bearing.
+//TODO: I'm 90% sure this function is redundant, we should just remove it
 void Rover::drive( const int direction, const double bearing )
 {
     double destinationBearing = mod( bearing, 360 );
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg );
     const double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
-    publishJoystick( 1.0, turningEffort, false );
+    //std::cout << "turning effort: " << turningEffort << std::endl;
+    double left_vel = min(1.0, max(0.0, 1.0 + turningEffort));
+    double right_vel = min(1.0,  max(0.0, 1.0 - turningEffort));
+    std::cout << "publishing drive command: " << left_vel << " , " << right_vel << std::endl;
+    publishAutonDriveCmd(left_vel, right_vel);
 } // drive()
 
 // Sends a joystick command to turn the rover toward the destination
@@ -232,19 +242,25 @@ bool Rover::turn( double bearing )
         return true;
     }
     double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, bearing );
+    std::cout << "cur bearing: " << mRoverStatus.odometry().bearing_deg << " target bearing: " << bearing << " effort: " << turningEffort << std::endl;
     double minTurningEffort = mRoverConfig[ "navThresholds" ][ "minTurningEffort" ].GetDouble() * ( turningEffort < 0 ? -1 : 1 );
     if( isTurningAroundObstacle( mRoverStatus.currentState() ) && fabs( turningEffort ) < minTurningEffort )
     {
         turningEffort = minTurningEffort;
     }
-    publishJoystick( 0, turningEffort, false );
+    //to turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
+    double left_vel = max(min(1.0, turningEffort), -1.0);
+    double right_vel = max(min(1.0, -turningEffort), -1.0);
+    std::cout << left_vel << ", " << right_vel << std::endl;
+    publishAutonDriveCmd(left_vel, right_vel);
     return false;
 } // turn()
 
 // Sends a joystick command to stop the rover.
 void Rover::stop()
 {
-    publishJoystick( 0, 0, false );
+    	std::cout << "stopping" << std::endl;
+	publishAutonDriveCmd(0.0, 0.0);
 } // stop()
 
 // Checks if the rover should be updated based on what information in
@@ -271,7 +287,8 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             !isEqual( mRoverStatus.rightTarget(), newRoverStatus.rightTarget()) )
         {
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
-            mRoverStatus.odometry() = newRoverStatus.odometry();
+	    std::cout << "updating odom" << std::endl;
+	    mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.leftTarget() = newRoverStatus.leftTarget();
             mRoverStatus.rightTarget() = newRoverStatus.rightTarget();
 
@@ -284,7 +301,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
                 {
                     mRoverStatus.getLeftHits()++;
                 }
-                else
+else
                 {
                     mRoverStatus.getLeftHits() = 0;
                 }
@@ -336,7 +353,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             
             return true;
         }
-        return false;
+        return true;
     }
     // Rover currently off.
     else
@@ -367,33 +384,21 @@ Rover::RoverStatus& Rover::roverStatus()
     return mRoverStatus;
 } // roverStatus()
 
-// Gets the rover's driving pid object.
-PidLoop& Rover::distancePid()
-{
-    return mDistancePid;
-} // distancePid()
-
 // Gets the rover's turning pid object.
 PidLoop& Rover::bearingPid()
 {
     return mBearingPid;
 } // bearingPid()
 
-// Publishes a joystick command with the given forwardBack and
-// leftRight efforts.
-void Rover::publishJoystick( const double forwardBack, const double leftRight, const bool kill )
+void Rover::publishAutonDriveCmd( const double leftVel, const double rightVel)
 {
-    Joystick joystick;
-    // power limit (0 = 50%, 1 = 0%, -1 = 100% power)
-    joystick.dampen = mRoverConfig[ "joystick" ][ "dampen" ].GetDouble();
-    double drivingPower = mRoverConfig[ "joystick" ][ "drivingPower" ].GetDouble();
-    joystick.forward_back = drivingPower * forwardBack;
-    double bearingPower = mRoverConfig[ "joystick" ][ "bearingPower" ].GetDouble();
-    joystick.left_right = bearingPower * leftRight;
-    joystick.kill = kill;
-    string joystickChannel = mRoverConfig[ "lcmChannels" ][ "joystickChannel" ].GetString();
-    mLcmObject.publish( joystickChannel, &joystick );
-} // publishJoystick()
+    AutonDriveControl driveControl;
+    driveControl.left_percent_velocity = leftVel;
+    driveControl.right_percent_velocity = rightVel;
+    //std::cout << leftVel << " " << rightVel << std::endl;
+    string autonDriveControlChannel = mRoverConfig[ "lcmChannels" ][ "autonDriveControlChannel" ].GetString();
+    mLcmObject.publish( autonDriveControlChannel, &driveControl) ;
+}
 
 // Returns true if the two obstacle messages are equal, false
 // otherwise.

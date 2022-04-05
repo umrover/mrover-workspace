@@ -196,7 +196,6 @@ void StateMachine::run()
         {
             mStateChanged = true;
             mRover->roverStatus().currentState() = nextState;
-            mRover->distancePid().reset();
             mRover->bearingPid().reset();
         }
         cerr << flush;
@@ -271,10 +270,6 @@ NavState StateMachine::executeOff()
         mCompletedWaypoints = 0;
         mTotalWaypoints = mRover->roverStatus().course().num_waypoints;
 
-        if( !mTotalWaypoints )
-        {
-            return NavState::Done;
-        }
         return NavState::Turn;
     }
     mRover->stop();
@@ -297,12 +292,16 @@ NavState StateMachine::executeTurn()
     if( mRover->roverStatus().path().empty() )
     {
         return NavState::Done;
-    }  
+    }
 
-    Odometry& nextPoint = mRover->roverStatus().path().front().odom;
-    if( mRover->turn( nextPoint ) )
+    Waypoint& nextPoint = mRover->roverStatus().path().front();
+
+    // Check if we are reasonable within the waypoint, and if we already are when turning,
+    // go to the next point
+
+    if( estimateNoneuclid( mRover->roverStatus().odometry(), nextPoint.odom ) < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble()
+        || mRover->turn( nextPoint.odom ) )
     {
-       
         return NavState::Drive;
     }
 
@@ -327,7 +326,16 @@ NavState StateMachine::executeDrive()
                                                                 getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
     }
+
+    if( ( nextWaypoint.search || nextWaypoint.gate ) &&
+        mRover->roverStatus().leftCacheTarget().id == nextWaypoint.id &&
+            distance <= mRoverConfig[ "navThresholds" ][ "waypointRadius" ].GetDouble() )
+    {
+        return NavState::TurnToTarget;
+    }
+
     DriveStatus driveStatus = mRover->drive( nextWaypoint.odom );
+    
     if( driveStatus == DriveStatus::Arrived )
     {
         if( nextWaypoint.search || nextWaypoint.gate )

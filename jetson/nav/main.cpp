@@ -53,7 +53,8 @@ public:
         const Odometry* odometry
         )
     {
-        mStateMachine->updateRoverStatus( *odometry );
+	  // std::cout << "rec odom update deg: " <<  odometry->bearing_deg << std::endl;
+	    mStateMachine->updateRoverStatus( *odometry );
     }
 
     // Sends the target lcm message to the state machine.

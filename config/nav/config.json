@@ -1,9 +1,9 @@
 {
 	"bearingPid":
 	{
-		"kP": 0.1,
-		"kI": 0.01,
-		"kD": 0.0055
+		"kP": 0.04,
+		"kI": 0.0,
+		"kD": 0.012
 	},
 
 	"distancePid":
@@ -30,12 +30,13 @@
 		"turningBearing": 10,
 		"drivingBearing": 35,
 		"waypointDistance": 1.25,
-		"targetDistance": 1.0,
+		"targetDistance": 1.5,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20,
 		"obstacleDistanceThreshold": 2.5,
 		"cacheMissMax": 20,
-		"noTargetDist": -1
+		"noTargetDist": -1,
+		"waypointRadius": 20.0
 	},
 
 	"roverMeasurements":
@@ -53,9 +54,8 @@
 	"lcmChannels":
 	{
 		"navStatusChannel": "/nav_status",
-		"repeaterDropInitChannel": "/rr_drop_init",
-		"repeaterDropCompleteChannel": "/rr_drop_complete",
 		"joystickChannel": "/autonomous",
+		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
 		"zedGimbalPosition": "/zed_gimbal_data"
 	},

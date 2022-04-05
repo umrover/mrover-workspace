@@ -92,6 +92,7 @@ NavState SearchStateMachine::executeSearchDrive()
     if( mRover->roverStatus().leftCacheTarget().distance >= 0 && mRover->roverStatus().path().front().id ==
             mRover->roverStatus().leftCacheTarget().id )
     {
+
         updateTargetDetectionElements( mRover->roverStatus().leftCacheTarget().bearing,
                                            mRover->roverStatus().odometry().bearing_deg );
         return NavState::TurnToTarget;
@@ -125,6 +126,7 @@ NavState SearchStateMachine::executeSearchDrive()
 // Else the rover continues to turn to to the target.
 NavState SearchStateMachine::executeTurnToTarget()
 {
+   
     if( mRover->roverStatus().leftCacheTarget().distance == mRoverConfig[ "navThresholds" ][ "noTargetDist" ].GetDouble() )
     {
         return NavState::SearchTurn;

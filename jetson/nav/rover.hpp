@@ -11,6 +11,7 @@
 #include "rover_msgs/Odometry.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
+#include "rover_msgs/AutonDriveControl.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
 
@@ -189,8 +190,6 @@ public:
 
     RoverStatus& roverStatus();
 
-    PidLoop& distancePid();
-
     PidLoop& bearingPid();
 
     const double longMeterInMinutes() const;
@@ -200,7 +199,7 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    void publishJoystick( const double forwardBack, const double leftRight, const bool kill );
+    void publishAutonDriveCmd( const double leftVel, const double rightVel);
 
     bool isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const;
 
@@ -223,9 +222,6 @@ private:
     // A reference to the lcm object that will be used for
     // communicating with the actual rover and the base station.
     lcm::LCM& mLcmObject;
-
-    // The pid loop for driving.
-    PidLoop mDistancePid;
 
     // The pid loop for turning.
     PidLoop mBearingPid;
