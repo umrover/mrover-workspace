@@ -139,7 +139,7 @@ export default {
     send_position: function(position) {
       this.$parent.publish("/arm_preset", {
         'type': 'ArmPreset',
-        'position': position
+        'preset': position
       })
     },
 
