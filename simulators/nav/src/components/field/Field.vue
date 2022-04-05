@@ -182,6 +182,9 @@ export default class Field extends Vue {
   private readonly roverPath!:Odom[];
 
   @Getter
+  private readonly FOVAreaPath!:Path2D;
+
+  @Getter
   private readonly roverPathVisible!:boolean;
 
   @Getter
@@ -192,6 +195,9 @@ export default class Field extends Vue {
 
   @Getter
   private readonly zedGimbalPos!:ZedGimbalPosition;
+
+  @Getter
+  private readonly enableFOVView!:boolean;
 
   /************************************************************************************************
    * Vuex Mutations
@@ -213,6 +219,9 @@ export default class Field extends Vue {
 
   @Mutation
   private readonly pushToRoverPath!:(currLoc:Odom)=>void;
+
+  @Mutation
+  private readonly pushToFOVAreaPath!:(area:Path2D)=>void;
 
   @Mutation
   private readonly pushWaypoint!:(newWaypoint:Waypoint)=>void;
@@ -287,8 +296,9 @@ export default class Field extends Vue {
   /* Object for drawing rover on canvas. */
   private get canvasRover():CanvasRover {
     return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale, this.roverPath,
-                           this.fieldOfViewOptions, this.roverPathVisible, this.pushToRoverPath,
-                           this.zedGimbalPos);
+                           this.FOVAreaPath, this.fieldOfViewOptions, this.roverPathVisible,
+                           this.pushToRoverPath, this.pushToFOVAreaPath, this.zedGimbalPos,
+                           this.enableFOVView);
   }
 
   /* Object for drawing waypoints on canvas. */
@@ -335,7 +345,8 @@ export default class Field extends Vue {
         this.pushArTag({
           id: this.arTagDrawOptions.id,
           odom: clickOdom,
-          orientation: 0
+          orientation: 0,
+          isHidden: false
         });
         break;
       }

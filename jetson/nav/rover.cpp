@@ -1,7 +1,7 @@
 #include "rover.hpp"
-
 #include "utilities.hpp"
 #include "rover_msgs/Joystick.hpp"
+
 #include <cmath>
 #include <iostream>
 
@@ -59,10 +59,6 @@ Target& Rover::RoverStatus::target2() {
     return mTarget2;
 }
 
-RadioSignalStrength& Rover::RoverStatus::radio() {
-    return mSignal;
-}
-
 unsigned Rover::RoverStatus::getPathTargets()
 {
   return mPathTargets;
@@ -92,7 +88,6 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     mOdometry = newRoverStatus.odometry();
     mTarget1 = newRoverStatus.target();
     mTarget2 = newRoverStatus.target2();
-    mSignal = newRoverStatus.radio();
     return *this;
 } // operator=
 
@@ -107,7 +102,6 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
     , mBearingPid( config[ "bearingPid" ][ "kP" ].GetDouble(),
                    config[ "bearingPid" ][ "kI" ].GetDouble(),
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
-    , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
 {
 } // Rover()
@@ -239,8 +233,6 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.target() = newRoverStatus.target();
-            mRoverStatus.radio() = newRoverStatus.radio();
-            updateRepeater(mRoverStatus.radio());
             return true;
         }
 
@@ -268,40 +260,6 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
 const double Rover::longMeterInMinutes() const
 {
     return mLongMeterInMinutes;
-}
-
-// Executes the logic starting the clock to time how long it's been
-// since the rover has gotten a strong radio signal. If the signal drops
-// below the signalStrengthCutOff and the timer hasn't started, begin the clock.
-// Otherwise, the signal is good so the timer should be stopped.
-void Rover::updateRepeater(RadioSignalStrength& radioSignal)
-{
-    static bool started = false;
-    static time_t startTime;
-
-    // If we haven't already dropped a repeater, the time hasn't already started
-    // and our signal is below the threshold, start the timer
-    if( !mTimeToDropRepeater &&
-        !started &&
-        radioSignal.signal_strength <=
-        mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble())
-    {
-        startTime = time( nullptr );
-        started = true;
-    }
-
-    double waitTime = mRoverConfig[ "radioRepeaterThresholds" ][ "lowSignalWaitTime" ].GetDouble();
-    if( started && difftime( time( nullptr ), startTime ) > waitTime )
-    {
-        started = false;
-        mTimeToDropRepeater = true;
-    }
-}
-
-// Returns whether or not enough time has passed to drop a radio repeater.
-bool Rover::isTimeToDropRepeater()
-{
-    return mTimeToDropRepeater;
 }
 
 // Gets the rover's status object.
@@ -367,10 +325,10 @@ bool Rover::isEqual( const Odometry& odometry1, const Odometry& odometry2 ) cons
 
 // Returns true if the two target messages are equal, false
 // otherwise.
-bool Rover::isEqual( const Target& target1, const Target& target2 ) const
+bool Rover::isEqual( const Target& target, const Target& target2 ) const
 {
-    if( target1.distance == target2.distance &&
-        target1.bearing == target2.bearing )
+    if( target.distance == target2.distance &&
+        target.bearing == target2.bearing )
     {
         return true;
     }

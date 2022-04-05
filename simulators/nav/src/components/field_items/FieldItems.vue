@@ -366,6 +366,9 @@ export default class FieldItems extends Vue {
   private readonly roverPath!:Odom[];
 
   @Getter
+  private readonly FOVAreaPath!:Path2D[];
+
+  @Getter
   private readonly waypoints!:Waypoint[];
 
   /************************************************************************************************

@@ -61,17 +61,24 @@ export default class CanvasRover {
   /* rover's path */
   private path!:Odom[];
 
+  /* fov area */
+  private FOVAreaPath!:Path2D;
+
   /* Whether or not to draw the rover's path */
   private pathVisible!:boolean;
 
   /* Function to push a point to the rover's path */
   private pushToPath!:(currLoc:Odom)=>void;
 
+  private pushToFOVAreaPath!:(area:Path2D)=>void;
+
   /* scale of the canvas in pixels/meter */
   private scale!:number;
 
   /* Current position of the ZED Gimbal */
   private zedGimbalPos!:ZedGimbalPosition;
+
+  private enableFOVView!:boolean;
 
   /************************************************************************************************
    * Public Methods
@@ -82,19 +89,25 @@ export default class CanvasRover {
       canvasCent:Odom,
       scale:number, /* pixels/meter */
       path:Odom[],
+      FOVAreaPath:Path2D,
       fov:FieldOfViewOptions,
       pathVisible:boolean,
       pushToPath:(currLoc:Odom)=>void,
-      zedGimbalPos:ZedGimbalPosition
+      pushToFOVAreaPath:(area:Path2D)=>void,
+      zedGimbalPos:ZedGimbalPosition,
+      enableFOVView:boolean
   ) {
     this.currOdom = currOdom;
     this.canvasCent = canvasCent;
     this.scale = scale;
     this.path = path;
+    this.FOVAreaPath = FOVAreaPath;
     this.fov = fov;
     this.pathVisible = pathVisible;
     this.pushToPath = pushToPath;
+    this.pushToFOVAreaPath = pushToFOVAreaPath;
     this.zedGimbalPos = zedGimbalPos;
+    this.enableFOVView = enableFOVView;
 
     this.scaledEdgeOffset = EDGE_OFFSET * this.scale;
     this.scaledEboxLen = EBOX_LEN * this.scale;
@@ -122,6 +135,11 @@ export default class CanvasRover {
 
     const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
 
+    /* Draw FOV */
+    if (this.fov.visible) {
+      this.drawFov(canvas);
+    }
+
     /* Draw path */
     if (this.pathVisible) {
       this.drawPath(canvas);
@@ -135,9 +153,6 @@ export default class CanvasRover {
     this.drawEbox();
     this.drawWheels();
     this.drawZed();
-    if (this.fov.visible) {
-      this.drawFov();
-    }
 
     this.ctx.rotate(-degToRad(this.currOdom.bearing_deg));
     this.ctx.translate(-loc.x, -loc.y);
@@ -162,30 +177,53 @@ export default class CanvasRover {
       x: 0,
       y: ((this.scaledRoverLen - this.scaledEboxLen) / 2) - this.scaledEdgeOffset
     };
+
     const startCorner:Point2D = {
       x: eboxLoc.x - (scaledEboxWdth / 2),
       y: eboxLoc.y - (this.scaledEboxLen / 2)
     };
+
     this.ctx.fillStyle = 'white';
     this.ctx.fillRect(startCorner.x, startCorner.y, scaledEboxWdth, this.scaledEboxLen);
   } /* drawEbox() */
 
   /* Draw the field of view on the canvas. */
-  private drawFov():void {
+  private drawFov(canvas):void {
+    if (this.path.length === 0) {
+      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
     const roverEyeLoc:Point2D = {
-      x: 0,
-      y: -this.scaledRoverLen / 2
+      x: this.scaledRoverLen / 2,
+      y: this.scaledRoverLen / 2
     };
+    const currPos:Point2D = odomToCanvas(this.currOdom, this.canvasCent,
+                                         canvas.height, this.scale);
+    const currRelPos:Point2D = {
+      x: currPos.x + (roverEyeLoc.x * Math.sin(degToRad(this.currOdom.bearing_deg))),
+      y: currPos.y - (roverEyeLoc.y * Math.cos(degToRad(this.currOdom.bearing_deg)))
+    };
+
     this.ctx.strokeStyle = 'black';
+    this.ctx.fillStyle = 'rgba(105, 82, 56, 0.6)';
     this.ctx.lineWidth = 3;
     this.ctx.beginPath();
-    this.ctx.moveTo(roverEyeLoc.x, roverEyeLoc.y);
-    this.ctx.arc(roverEyeLoc.x, roverEyeLoc.y, this.scaledFovDepth,
-                 compassToCanvasRad(degToRad((-this.fov.angle / 2) + this.zedGimbalPos.angle)),
-                 compassToCanvasRad(degToRad((this.fov.angle / 2) + this.zedGimbalPos.angle)),
-                 false);
-    this.ctx.lineTo(roverEyeLoc.x, roverEyeLoc.y);
-    this.ctx.stroke();
+
+    const region = new Path2D();
+    region.moveTo(currRelPos.x, currRelPos.y);
+    region.arc(currRelPos.x, currRelPos.y, this.scaledFovDepth,
+               compassToCanvasRad(degToRad((-this.fov.angle / 2) +
+               this.zedGimbalPos.angle + this.currOdom.bearing_deg)),
+               compassToCanvasRad(degToRad((this.fov.angle / 2) +
+               this.zedGimbalPos.angle + this.currOdom.bearing_deg)), false);
+    region.lineTo(currRelPos.x, currRelPos.y);
+    region.closePath();
+    this.ctx.stroke(region);
+    this.pushToFOVAreaPath(region);
+
+    if (this.enableFOVView) {
+      this.ctx.fill(this.FOVAreaPath);
+    }
   } /* drawFov() */
 
   /* Draw the rover's path. */
