@@ -2,7 +2,7 @@
 - hosts: all
   become: yes
   vars:
-    ubuntu_release: bionic
+    ubuntu_release: focal
     workspace_dir: /home/mrover/mrover-workspace
     user: mrover
     ansible_python_interpreter: /usr/bin/python3

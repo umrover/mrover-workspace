@@ -7,7 +7,8 @@
       - build-essential
       - python3-venv
       - python3-dev
-      - python-virtualenv
+      - python3-virtualenv
+      - python3-virtualenv
       - libglib2.0-dev
       - ninja-build
       - clang

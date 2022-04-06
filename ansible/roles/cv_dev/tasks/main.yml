@@ -19,7 +19,7 @@
 
 - name: "Add nodejs 12node.x ppa for apt repo"
   apt_repository:
-    repo: deb https://deb.nodesource.com/node_12.x bionic main
+    repo: deb https://deb.nodesource.com/node_12.x focal main
     update_cache: yes
 
 - name: "Install nodejs"

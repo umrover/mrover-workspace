@@ -2,7 +2,7 @@
 - hosts: all
   become: yes
   vars:
-      ubuntu_release: bionic
+      ubuntu_release: focal
       ansible_python_interpreter: /usr/bin/python3
   roles:
   - cv_dev

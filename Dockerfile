@@ -18,7 +18,7 @@
 #Travis is configured to download whatever the latest umrover/travis image is, so once your changes are pushed they
 #should be picked up by travis
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # Setup Ansible
 ENV ANSIBLE_VERSION 2.9.4
@@ -58,13 +58,13 @@ WORKDIR /root
 # Install OpenCV
 RUN apt-get install -y libopencv-dev
 
-# Install ZED (also installs CUDA 10.2)
+# Install ZED (also installs CUDA 11)
 RUN echo "==================== Installing ZED SDK ====================" && \
     apt-get install -y lsb-release less udev sudo keyboard-configuration -y && \
-    wget -O ZED_SDK_Linux_Ubuntu18.run https://download.stereolabs.com/zedsdk/3.7/cu102/ubuntu18 && \
-    chmod +x ZED_SDK_Linux_Ubuntu18.run && \
-    ./ZED_SDK_Linux_Ubuntu18.run -- silent && \
-    rm ZED_SDK_Linux_Ubuntu18.run && \
+    wget -O ZED_SDK_Linux_Ubuntu.run https://download.stereolabs.com/zedsdk/3.7/cu115/ubuntu20 && \
+    chmod +x ZED_SDK_Linux_Ubuntu.run && \
+    ./ZED_SDK_Linux_Ubuntu.run -- silent && \
+    rm ZED_SDK_Linux_Ubuntu.run && \
     chmod a+xwr --preserve-root --recursive /usr/local/zed
 
 # GStreamer
