@@ -22,41 +22,16 @@ void sleep(int ms)
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
-void off(std::string name)
+// speed_1 is a float between -1 and 1
+float openPlus(std::string name, float speed_1)
 {
     try
     {
-        I2C::transact(ControllerMap::get_i2c_address(name), OFF, nullptr, nullptr);
-        printf("test off successful on %s \n", name.c_str());
-    }
-    catch (IOFailure &e)
-    {
-        fprintf(stderr, "FAILURE! test off failed on %s \n", name.c_str());
-    }
-}
-
-void on(std::string name)
-{
-    try
-    {
-        I2C::transact(ControllerMap::get_i2c_address(name), ON, nullptr, nullptr);
-        printf("test on successful on %s \n", name.c_str());
-    }
-    catch (IOFailure &e)
-    {
-        fprintf(stderr, "FAILURE! test on failed on %s \n", name.c_str());
-    }
-}
-
-float openPlus(std::string name, float speed)
-{
-    try
-    {
-        ControllerMap::controllers[name]->open_loop(speed);
-        float rad_angle = ControllerMap::controllers[name]->get_current_angle();
-        float deg_angle = rad_angle / (2 * M_PI) * 360;
-        printf("openPlus %s: Quad degrees is %f \n", name.c_str(), deg_angle);
-        return deg_angle;
+        ControllerMap::controllers[name]->open_loop(speed_1);
+        float quad_angle_rad = ControllerMap::controllers[name]->get_current_angle();
+        float quad_angle_deg = quad_angle_rad / (2 * M_PI) * 360;
+        printf("openPlus %s: Quad degrees is %f \n", name.c_str(), quad_angle_deg);
+        return quad_angle_deg;
     }
     catch (IOFailure &e)
     {
@@ -65,37 +40,23 @@ float openPlus(std::string name, float speed)
     }
 }
 
+// target_angle_deg is targeted angle degrees
 float closedPlus(std::string name, float target_angle_deg)
 {
     try
     {
         float target_angle_rad = target_angle_deg * M_PI / 180.0;
         ControllerMap::controllers[name]->closed_loop(0, target_angle_rad);
-        float rad_angle = ControllerMap::controllers[name]->get_current_angle();
-        float deg_angle = rad_angle / (2 * M_PI) * 360;
-        float diff_deg = target_angle_deg - deg_angle;
-        printf("closedPlus %s: Target degrees is %f, quad degrees is %f, diff is %f\n", name.c_str(), deg_angle, target_angle_deg, diff_deg);
-        return deg_angle;
+        float quad_angle_rad = ControllerMap::controllers[name]->get_current_angle();
+        float quad_angle_deg = quad_angle_rad / (2 * M_PI) * 360;
+        float diff_deg = target_angle_deg - quad_angle_deg;
+        printf("closedPlus %s: Target degrees is %f, quad degrees is %f, diff is %f\n", name.c_str(), target_angle_deg, quad_angle_deg, diff_deg);
+        return angle_deg;
     }
     catch (IOFailure &e)
     {
         fprintf(stderr, "FAILURE! closed plus failed on %s \n", name.c_str());
         return 0;
-    }
-}
-
-void configPWM(std::string name, int max_speed)
-{
-    try
-    {
-        uint8_t buffer[2];
-        memcpy(buffer, UINT8_POINTER_T(&(max_speed)), sizeof(max_speed));
-        I2C::transact(ControllerMap::get_i2c_address(name), CONFIG_PWM, buffer, nullptr);
-        printf("config pwm transaction successful on %s \n", name.c_str());
-    }
-    catch (IOFailure &e)
-    {
-        fprintf(stderr, "FAILURE! test config pwm failed on %s \n", name.c_str());
     }
 }
 
@@ -112,15 +73,16 @@ void setKPID(std::string name, float p, float i, float d)
     }
 }
 
+// returns quad angle in degrees
 float quadEnc(std::string name) 
 {
     try
     {
         ControllerMap::controllers[name]->quad_angle();
-        float rad_angle = ControllerMap::controllers[name]->get_current_angle();
-        float deg_angle = rad_angle / (2 * M_PI) * 360;
-        printf("quadEnc %s: Quad in degrees: %f \n", name.c_str(), deg_angle);
-        return deg_angle;
+        float quad_angle_rad = ControllerMap::controllers[name]->get_current_angle();
+        float quad_angle_deg = quad_angle_rad / (2 * M_PI) * 360;
+        printf("quadEnc %s: Quad in degrees: %f \n", name.c_str(), quad_angle_deg);
+        return quad_angle_deg;
     }
     catch (IOFailure &e)
     {
@@ -129,15 +91,16 @@ float quadEnc(std::string name)
     }
 }
 
+// returns abs enc in degrees
 float absEnc(std::string name)
 {
     try
     {
-        float rad_angle = 0;
-        I2C::transact(ControllerMap::get_i2c_address(name), ABS_ENC, nullptr, UINT8_POINTER_T(&rad_angle));
-        float deg_angle = (rad_angle - M_PI) / (2 * M_PI) * 360;
-        printf("test abs %s: Absolute degrees is %f \n", name.c_str(), deg_angle);
-        return deg_angle;
+        float abs_angle_rad = 0;
+        I2C::transact(ControllerMap::get_i2c_address(name), ABS_ENC, nullptr, UINT8_POINTER_T(&abs_angle_rad));
+        float abs_angle_deg = (abs_angle_rad - M_PI) / (2 * M_PI) * 360;
+        printf("test abs %s: Absolute degrees is %f \n", name.c_str(), abs_angle_deg);
+        return abs_angle_deg;
     }
     catch (IOFailure &e)
     {
@@ -146,90 +109,12 @@ float absEnc(std::string name)
     }
 }
 
-void adjust(std::string name)
-{
-    try
-    {
-        float quad_angle = quadEnc(name);
-        float abs_angle = absEnc(name);
-
-        if (name == "RA_F")
-        {
-            abs_angle = M_PI;
-        }
-
-        printf("BEFORE adjust %s: Quadrature is %f, absolute is %f, difference is %f \n", name.c_str(), quad_angle, abs_angle, quad_angle - abs_angle); 
-
-        int32_t adjusted_quad = (abs_angle / (2 * M_PI)) * ControllerMap::controllers[name]->quad_cpr;;
-
-        // adjust transaction 
-        uint8_t buffer[4];
-        memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), sizeof(adjusted_quad));
-        I2C::transact(ControllerMap::get_i2c_address(name), ADJUST, buffer, nullptr);
-
-        // checks values after
-        quad_angle = quadEnc(name);
-        abs_angle = absEnc(name);
-
-        if (name == "RA_F")
-        {
-            abs_angle = M_PI;
-        }
-
-        printf("AFTER adjust %s: Quadrature is %f, absolute is %f, difference is %f \n", name.c_str(), quad_angle, abs_angle, quad_angle - abs_angle); 
-
-        if (std::abs(quad_angle - abs_angle) > .2)
-        {
-            printf("FAILED! test adjust transaction numerically failed on %s \n\n", name.c_str());
-        }
-        else
-        {
-            printf("FAILED! test adjust transaction successful on %s \n\n", name.c_str());
-        }
-    }
-    catch (IOFailure &e)
-    {
-        printf("FAILED! test adjust transaction failed on %s \n\n", name.c_str());
-    }    
-}
-
-//tests
-// test functions for all slaves --> transactions are successful
-// full system test: off --> running --> off
-// good quad value test (i.e we run in and the value changes)
-// test that we dont set over max
-
-void testOff()
-{
-    PRINT_TEST_START
-    for (auto name : motor_names)
-    {
-        // test off
-        off(name);
-        sleep(10);
-    }
-    PRINT_TEST_END
-}
-
-void testOn()
-{
-    PRINT_TEST_START
-    for (auto name : motor_names)
-    {
-        // test off
-        on(name);
-        sleep(10);
-    }
-    PRINT_TEST_END
-}
-
 void testQuadEnc()
 {
     for (auto name : motor_names)
     {
-        // test off
-        float deg_angle = quadEnc(name);
-        printf("[%s] Quad degrees: %f \n", name.c_str(), deg_angle);
+        float quad_angle_deg = quadEnc(name);
+        printf("[%s] Quad degrees: %f \n", name.c_str(), quad_angle_deg);
         sleep(50);
     }
 }
@@ -239,10 +124,8 @@ void testAbsEnc()
     PRINT_TEST_START
     for (auto name : motor_names)
     {
-        // test off
-        
-        float deg_angle = absEnc(name);
-        printf("[%s] Absolute degrees: %f \n", name.c_str(), deg_angle);
+        float abs_angle_deg = absEnc(name);
+        printf("[%s] Absolute degrees: %f \n", name.c_str(), abs_angle_deg);
         sleep(10);
     }
     PRINT_TEST_END
@@ -271,6 +154,8 @@ void testClosed()
             float target_deg = 0;
 
             for (int i = 0; i < 4; ++i) {
+
+                printf("Attempting to head to position %i\n", i);
                 current_angle_deg = quadEnc(name);
 
                 target_deg = current_angle_deg + offset_deg[i];
@@ -282,7 +167,7 @@ void testClosed()
                 }
                 while(std::abs(current_angle_deg - target_deg) > 0.01);
 
-                printf("arrived at position %i\n", i);
+                printf("Arrived at position %i\n", i);
                 sleep(400);
             }
         }
@@ -290,31 +175,19 @@ void testClosed()
     PRINT_TEST_END
 }
 
-void testAdjust()
-{
-    PRINT_TEST_START
-    for (auto name : motor_names)
-    {
-        adjust(name);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    PRINT_TEST_END   
-}
-
 void testOpenPlus()
 {
     PRINT_TEST_START
     for (auto name : motor_names)
     {
-        float speed = 1.0f;
+        float speed_1 = 1.0f;
 
         for (int i = 0; i < 3; i++) {
-            openPlus(name, speed);
+            openPlus(name, speed_1);
             sleep(200);
         }
         for (int i = 0; i < 3; i++) {
-            openPlus(name, -speed);
+            openPlus(name, -speed_1);
             sleep(200);
         }
         for (int i = 0; i < 5; i++) {
@@ -329,55 +202,55 @@ void testOpenPlusWithAbs()
 {
     PRINT_TEST_START
 
-    float quad = 0;
-    float abs_angle = 0;
+    float quad = 0.0f;
+    float abs_angle_deg = 0.0f;
 
     for (auto name : motor_names)
     {
-        float speed = 1.0f;
+        float speed_1 = 1.0f;
 
         for (int i = 0; i < 3; i++) {
-            quad = openPlus(name, speed);
+            quad_angle_deg = openPlus(name, speed_1);
             sleep(200);
-            abs_angle = absEnc(name);
+            abs_angle_deg = absEnc(name);
             sleep(200);
-            float difference = quad - abs_angle;
+            float difference = quad_angle_deg - abs_angle_deg;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad_angle_deg, abs_angle_deg, difference);
             }
         }
         for (int i = 0; i < 3; i++) {
-            quad = openPlus(name, 0.0f);
+            quad_angle_deg = openPlus(name, 0.0f);
             sleep(200);
-            abs_angle = absEnc(name);
+            abs_angle_deg = absEnc(name);
             sleep(200);
-            float difference = quad - abs_angle;
+            float difference = quad_angle_deg - abs_angle_deg;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad_angle_deg, abs_angle_deg, difference);
             }
         }
         for (int i = 0; i < 3; i++) {
-            quad = openPlus(name, -speed);
+            quad_angle_deg = openPlus(name, -speed_1);
             sleep(200);
-            abs_angle = absEnc(name);
+            abs_angle_deg = absEnc(name);
             sleep(200);
-            float difference = quad - abs_angle;
+            float difference = quad_angle_deg - abs_angle_deg;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad_angle_deg, abs_angle_deg, difference);
             }
         }
         for (int i = 0; i < 6; i++) {
-            quad = openPlus(name, 0.0f);
+            quad_angle_deg = openPlus(name, 0.0f);
             sleep(200);
-            abs_angle = absEnc(name);
+            abs_angle_deg = absEnc(name);
             sleep(200);
-            float difference = quad - abs_angle;
+            float difference = quad_angle_deg - abs_angle_deg;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad_angle_deg, abs_angle_deg, difference);
             }
         }
         std::cout << std::endl;
@@ -389,147 +262,64 @@ void testOpenPlusWithAbsWithDelays()
 {
     PRINT_TEST_START
 
-    float quad = 0;
-    float abs_angle = 0;
+    float quad_angle_deg = 0.0f;
+    float abs_angle_deg = 0.0f;
 
     for (auto name : motor_names)
     {
-        float speed = 1.0f;
+        float speed_1 = 1.0f;
 
         printf("Moving %s. \n\n", name.c_str());
         for (int i = 0; i < 3; i++) {
-            quad = openPlus(name, speed);
+            quad_angle_deg = openPlus(name, speed_1);
             sleep(200);
-            abs_angle = absEnc(name);
+            abs_angle_deg = absEnc(name);
             sleep(200);
-            float difference = quad - abs_angle;
+            float difference = quad_angle_deg - abs_angle_deg;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad_angle_deg, abs_angle_deg, difference);
             }
         }
         printf("Stopping %s. \n\n", name.c_str());
         for (int i = 0; i < 10; i++) {
-            quad = openPlus(name, 0.0f);
+            quad_angle_deg = openPlus(name, 0.0f);
             sleep(200);
-            abs_angle = absEnc(name);
+            abs_angle_deg = absEnc(name);
             sleep(400);
-            float difference = quad - abs_angle;
+            float difference = quad_angle_deg - abs_angle_deg;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad_angle_deg, abs_angle_deg, difference);
             }
         }
         printf("Moving %s. \n\n", name.c_str());
         for (int i = 0; i < 3; i++) {
-            quad = openPlus(name, -speed);
+            quad_angle_deg = openPlus(name, -speed_1);
             sleep(200);
-            abs_angle = absEnc(name);
+            abs_angle_deg = absEnc(name);
             sleep(200);
-            float difference = quad - abs_angle;
+            float difference = quad_angle_deg - abs_angle_deg;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad_angle_deg, abs_angle_deg, difference);
             }
         }
         printf("Stopping %s. \n\n", name.c_str());
         for (int i = 0; i < 10; i++) {
-            quad = openPlus(name, 0.0f);
+            quad_angle_deg = openPlus(name, 0.0f);
             sleep(200);
-            abs_angle = absEnc(name);
+            abs_angle_deg = absEnc(name);
             sleep(400);
-            float difference = quad - abs_angle;
+            float difference = quad_angle_deg - abs_angle_deg;
             if (std::abs(difference) >= ANGLE_ERROR_DEGREES) 
             {
-                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad, abs_angle, difference);
+                printf("ANGLE ERROR on %s! Quad is %f, absolute is %f, diff is %f \n\n", name.c_str(), quad_angle_deg, abs_angle_deg, difference);
             }
         }
         std::cout << std::endl;
     }
     PRINT_TEST_END    
-}
-
-void allDevBoardFunctions(std::string name)
-{
-    PRINT_TEST_START
-    printf("turning rib %s off", name.c_str());
-    off(name);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-    printf("turning rib %s on", name.c_str());
-    on(name);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-    printf("setting pwm max to 0.75");
-    configPWM(name, 75);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-    printf("turning setting speed to 0.5");
-    for (int second = 0; second < 5; ++second) {
-        for (int i = 0; i < 5; ++i) {
-            openPlus(name, 0.5);
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        }
-    }
-
-    printf("turning setting speed to 0");
-    openPlus(name, 0.0);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-    printf("turning rib %s off", name.c_str());
-    off(name);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    PRINT_TEST_END
-}
-
-void testAllDevBoardFunctions()
-{
-    PRINT_TEST_START
-    for (auto name : motor_names)
-    {
-        allDevBoardFunctions(name);
-    }
-    PRINT_TEST_END
-}
-
-void testMax(std::string name)
-{
-    PRINT_TEST_START
-    printf("setting max to 1.0");
-    configPWM(name, 100);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-    printf("setting speed to 0.5");
-    openPlus(name, 50);
-    // runs for five seconds
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    printf("setting max to 0.5");
-    configPWM(name, 50);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-    printf("trying to set speed to 0.75 (should not change)");
-    openPlus( name, 75);
-    // runs for five seconds
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    printf("setting speed to 0.0");
-    openPlus(name, 0);
-    // runs for five seconds
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    PRINT_TEST_END
-}
-
-void testOnOff()
-{
-    for (auto name : motor_names)
-    {
-        // sets speed to half speed
-        on(name);
-        sleep(20);
-        off(name);
-        sleep(20);
-    }
 }
 
 int main()
@@ -547,9 +337,6 @@ int main()
     printf("Initializing I2C bus\n");
     I2C::init();
 
-    // testOn();
-    // testAdjust();
-
     while (1)
     {
         // testClosed();
@@ -562,6 +349,5 @@ int main()
 
     }
 
-    testOff();
     return 0;
 }

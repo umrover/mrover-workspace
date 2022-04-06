@@ -34,13 +34,14 @@ void Controller::make_live()
         // not needed for joint F
 
         float abs_raw_angle = 0;
-        if (name != "RA_F")
+
+        if (name == "RA_B" || name == "SA_B" || name == "RA_F")
         {
-            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
+            abs_raw_angle = M_PI;
         }
         else
         {
-            abs_raw_angle = M_PI;
+            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
         }
 
         // get value in quad counts adjust quadrature encoder
