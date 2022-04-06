@@ -129,60 +129,6 @@ bool Rover::isTurningAroundObstacle(NavState currentState) {
     return currentState == NavState::TurnAroundObs || currentState == NavState::SearchTurnAroundObs;
 } // isTurningAroundObstacle()
 
-void Rover::updateTargets(std::shared_ptr<Environment> const& env, std::shared_ptr<CourseProgress> const& course) {
-    // TODO: I'm a little skeptical about how this function fits into the architecture.
-    // TODO: It seems like it should be a part of the environment, not the rover.
-    if (mAutonState.is_auton) {
-        mTargetLeft = env->getTargets().targetList[0];
-        mTargetRight = env->getTargets().targetList[1];
-        // Cache Left Target if we had detected one
-        if (mTargetLeft.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
-            // Associate with single post
-            if (mTargetLeft.id == course->getRemainingWaypoints().front().id) {
-                mCountLeftHits++;
-            } else {
-                mCountLeftHits = 0;
-            }
-            // Update leftTarget if we have 3 or more consecutive hits
-            if (mCountLeftHits >= 3) {
-                mCacheTargetLeft = mTargetLeft;
-                mCountLeftMisses = 0;
-            }
-            // Cache Right Target if we had detected one (only can see right if we see the left one, otherwise
-            // results in some undefined behavior)
-            if (mTargetRight.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
-                mCacheTargetRight = mTargetRight;
-                mCountRightMisses = 0;
-            } else {
-                mCountRightMisses++;
-            }
-        } else {
-            mCountLeftMisses++;
-            mCountRightMisses++; // need to increment since we don't see both
-            mCountLeftHits = 0;
-            mCountRightHits = 0;
-        }
-
-        // Check if we need to reset left cache
-        if (mCountLeftMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
-            mCountLeftMisses = 0;
-            mCountLeftHits = 0;
-            // Set to empty target
-            mCacheTargetLeft = {-1, 0, 0};
-        }
-        // Check if we need to reset right cache
-        if (mCountRightMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
-            mCountRightMisses = 0;
-            mCountRightHits = 0;
-            // Set to empty target
-            mCacheTargetRight = {-1, 0, 0};
-        }
-    } else {
-        double cosine = cos(degreeToRadian(mOdometry.latitude_deg, mOdometry.latitude_min));
-        mLongMeterInMinutes = 60 / (EARTH_CIRCUM * cosine / 360);
-    }
-}
-
 // Gets a reference to the rover's current navigation state.
 NavState const& Rover::currentState() const {
     return mCurrentState;
@@ -198,39 +144,6 @@ Odometry const& Rover::odometry() const {
     return mOdometry;
 } // odometry()
 
-// Gets a reference to the rover's first target's current information.
-Target const& Rover::leftTarget() const {
-    return mTargetLeft;
-} // leftTarget()
-
-Target const& Rover::rightTarget() const {
-    return mTargetRight;
-} // rightTarget()
-
-Target const& Rover::leftCacheTarget() const {
-    return mCacheTargetLeft;
-} // leftCacheTarget()
-
-Target const& Rover::rightCacheTarget() const {
-    return mCacheTargetRight;
-} // rightCacheTarget()
-
-int Rover::getLeftMisses() const {
-    return mCountLeftMisses;
-}
-
-int Rover::getRightMisses() const {
-    return mCountRightMisses;
-}
-
-int Rover::getLeftHits() const {
-    return mCountLeftHits;
-}
-
-int Rover::getRightHits() const {
-    return mCountRightHits;
-}
-
 void Rover::setAutonState(AutonState state) {
     mAutonState = state;
 }
@@ -243,7 +156,6 @@ void Rover::setState(NavState state) {
     mCurrentState = state;
 }
 
-void Rover::resetMisses() {
-    mCountLeftMisses = 0;
-    mCountRightMisses = 0;
+void Rover::setLongMeterInMinutes(double l){
+    mLongMeterInMinutes = l;
 }

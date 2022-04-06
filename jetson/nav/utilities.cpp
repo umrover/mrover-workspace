@@ -98,7 +98,7 @@ void throughZero(double& destinationBearing, const double currentBearing) {
 // If the x component of the distance to obstacle is greater than
 // half the width of the rover the obstacle if reachable
 bool isTargetReachable(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig) {
-    double distToTarget = rover->leftCacheTarget().distance;
+    double distToTarget = env->leftCacheTarget().distance;
     double distThresh = roverConfig["navThresholds"]["targetDistance"].GetDouble();
     return isLocationReachable(rover, env, roverConfig, distToTarget, distThresh);
 } // isTargetReachable()

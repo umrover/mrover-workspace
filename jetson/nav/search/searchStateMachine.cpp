@@ -53,8 +53,8 @@ NavState SearchStateMachine::executeSearchTurn() {
     }
 
     // You may as well just go to the left post always
-    double distance = sm->getRover()->leftCacheTarget().distance;
-    bool isWantedTarget = sm->getCourseState()->getRemainingWaypoints().front().id == sm->getRover()->leftCacheTarget().id;
+    double distance = sm->getEnv()->leftCacheTarget().distance;
+    bool isWantedTarget = sm->getCourseState()->getRemainingWaypoints().front().id == sm->getEnv()->leftCacheTarget().id;
     if (distance >= 0 && isWantedTarget) {
         return NavState::TurnToTarget;
     }
@@ -78,7 +78,7 @@ NavState SearchStateMachine::executeSearchDrive() {
     std::shared_ptr<Rover> rover = sm->getRover();
 
     int16_t frontId = sm->getCourseState()->getRemainingWaypoints().front().id;
-    if (rover->leftCacheTarget().distance >= 0 && frontId == rover->leftCacheTarget().id) {
+    if (sm->getEnv()->leftCacheTarget().distance >= 0 && frontId == sm->getEnv()->leftCacheTarget().id) {
         return NavState::TurnToTarget;
     }
 
@@ -108,10 +108,10 @@ NavState SearchStateMachine::executeTurnToTarget() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Rover> rover = sm->getRover();
 
-    if (rover->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+    if (sm->getEnv()->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
         return NavState::SearchTurn;
     }
-    if (rover->turn(rover->leftCacheTarget().bearing + rover->odometry().bearing_deg)) {
+    if (rover->turn(sm->getEnv()->leftCacheTarget().bearing + rover->odometry().bearing_deg)) {
         return NavState::DriveToTarget;
     }
     return NavState::TurnToTarget;
@@ -131,7 +131,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
     std::shared_ptr<Rover> rover = sm->getRover();
 
     // Definitely cannot find the target
-    if (rover->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+    if (sm->getEnv()->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
         std::cerr << "Lost the target\n";
         return NavState::SearchTurn;
     }
@@ -147,15 +147,16 @@ NavState SearchStateMachine::executeDriveToTarget() {
 
     DriveStatus driveStatus;
 
-    double distance = rover->leftCacheTarget().distance;
-    double bearing = rover->leftCacheTarget().bearing + rover->odometry().bearing_deg;
+    double distance = env->leftCacheTarget().distance;
+    double bearing = env->leftCacheTarget().bearing + rover->odometry().bearing_deg;
 
     driveStatus = rover->drive(distance, bearing, mRoverConfig["navThresholds"]["targetDistance"].GetDouble());
 
     if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.clear();
         Waypoint completed = sm->getCourseState()->completeCurrentWaypoint();
-        return completed.gate ? NavState::BeginGateSearch : NavState::Turn;
+        //TOOD: this is the wrong entry point fix later
+        return completed.gate ? NavState::GateTraverse : NavState::Turn;
     }
     if (driveStatus == DriveStatus::OnCourse) {
         return NavState::DriveToTarget;

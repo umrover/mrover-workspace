@@ -4,9 +4,9 @@
 
 class CircleGateSearch : public GateStateMachine {
 public:
-    CircleGateSearch(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig);
+    // CircleGateSearch(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig);
 
-    ~CircleGateSearch() override;
+    // ~CircleGateSearch() override;
 
-    void initializeSearch() override;
+    // void initializeSearch() override;
 };

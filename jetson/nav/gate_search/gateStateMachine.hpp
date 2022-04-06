@@ -24,11 +24,11 @@ public:
     /*************************************************************************/
     GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig);
 
-    virtual ~GateStateMachine();
+    ~GateStateMachine();
 
     NavState run();
 
-    virtual void initializeSearch() = 0;
+    void updateGateTraversalPath();
 
     /*************************************************************************/
     /* Public Member Variables */
@@ -54,7 +54,7 @@ private:
 
     Filter<double> mLeftDistFilter, mRightDistFilter, mLeftBearingFilter, mRightBearingFilter;
 
-    std::deque<Odometry> mPath;
+    std::vector<Odometry> gateTraversalPath;
 };
 
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);

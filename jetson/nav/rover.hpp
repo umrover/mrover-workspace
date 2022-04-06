@@ -46,9 +46,7 @@ enum class NavState {
     SearchDriveAroundObs = 33,
 
     // Gate Search
-    BeginGateSearch = 40,
-    GateMakePath = 41,
-    GateDrivePath = 42,
+    GateTraverse = 34,
 
     // Unknown State
     Unknown = 255
@@ -88,31 +86,13 @@ public:
 
     Odometry const& odometry() const;
 
-    Target const& leftTarget() const;
-
-    Target const& rightTarget() const;
-
-    Target const& leftCacheTarget() const;
-
-    Target const& rightCacheTarget() const;
-
-    int getLeftMisses() const;
-
-    int getRightMisses() const;
-
-    int getLeftHits() const;
-
-    int getRightHits() const;
-
     void setAutonState(AutonState state);
 
     void setOdometry(Odometry const& odometry);
 
-    void updateTargets(std::shared_ptr<Environment> const& env, std::shared_ptr<CourseProgress> const& course);
-
     void setState(NavState state);
 
-    void resetMisses();
+    void setLongMeterInMinutes(double LongMeterInMinutes);
 
 private:
     /*************************************************************************/

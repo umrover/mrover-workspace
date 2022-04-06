@@ -22,50 +22,55 @@ GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, con
 
 GateStateMachine::~GateStateMachine() = default;
 
+void GateStateMachine::updateGateTraversalPath(){
+    //TODO: update the gatePath vector here with a path to go to
+    std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
+    Odometry leftPost = env->getLeftPostLocation();
+    Odometry rightPost = env->getRightPostLocation();
+}
+
 
 // Execute loop through gate state machine.
 NavState GateStateMachine::run() {
     const std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     auto rover = sm->getRover();
     switch (rover->currentState()) {
-        case NavState::BeginGateSearch: {
-            mLeftDistFilter.reset();
-            mRightDistFilter.reset();
-            mLeftBearingFilter.reset();
-            mRightBearingFilter.reset();
-            mPath.clear();
-            return NavState::GateMakePath;
-        }
-        case NavState::GateMakePath: {
-            std::shared_ptr<Environment> env = sm->getEnv();
-            TargetList targets = env->getTargets();
-            double rawLeftDist = targets.targetList[LEFT_TARGET_IDX].distance;
-            if (rawLeftDist > 0) mLeftDistFilter.push(rawLeftDist);
-            double rawRightDist = targets.targetList[RIGHT_TARGET_IDX].distance;
-            if (rawRightDist > 0) mRightDistFilter.push(rawRightDist);
-            mLeftBearingFilter.push(targets.targetList[LEFT_TARGET_IDX].bearing);
-            mRightBearingFilter.push(targets.targetList[RIGHT_TARGET_IDX].bearing);
-            double leftDist = mLeftDistFilter.get(0.75);
-            double rightDist = mRightDistFilter.get(0.75);
-            double leftBearing = degreeToRadian(mLeftBearingFilter.get(0.75));
-            double rightBearing = degreeToRadian(mRightBearingFilter.get(0.75));
-            if (mLeftDistFilter.full() && mRightDistFilter.full() && mLeftBearingFilter.full() && mRightBearingFilter.full()) {
-                Vector2d p1{leftDist * cos(leftBearing), leftDist * sin(leftBearing)};
-                Vector2d p2{rightDist * cos(rightBearing), rightDist * sin(rightBearing)};
-                Vector2d v = p2 - p1;
-                Vector2d m = p1 + v / 2;
-                double driveDist = v.dot(m) / v.norm() + mRoverConfig["navThresholds"]["waypointDistance"].GetDouble();
-                double currentBearing = rover->odometry().bearing_deg;
-                double perpBearing = currentBearing + radianToDegree(atan2(v.y(), v.x()));
-                Odometry perpOdometry = createOdom(rover->odometry(), perpBearing, driveDist, rover);
-                mPath.push_back(perpOdometry);
-                Odometry throughOdometry = createOdom(perpOdometry, perpBearing - 105.0, 3.0, rover);
-                mPath.push_back(throughOdometry);
-                return NavState::GateDrivePath;
-            } else {
-                rover->stop();
-            }
-            return NavState::GateMakePath;
+        // case NavState::BeginGateSearch: {
+        //     mLeftDistFilter.reset();
+        //     mRightDistFilter.reset();
+        //     mLeftBearingFilter.reset();
+        //     mRightBearingFilter.reset();
+        //     return NavState::GateMakePath;
+        // }
+        case NavState::GateTraverse: {
+            //FOLLOW generated path in here
+            std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
+            // TargetList targets = env->getTargets();
+            // Target leftTarget = env->getLeftCacheTarget();
+            // Target rightTarget = env->getRighCacheTarget();
+            // // mLeftDistFilter.add(targets.targetList[LEFT_TARGET_IDX].distance);
+            // // mRightDistFilter.add(targets.targetList[RIGHT_TARGET_IDX].distance);
+            // // mLeftBearingFilter.add(targets.targetList[LEFT_TARGET_IDX].bearing);
+            // // mRightBearingFilter.add(targets.targetList[RIGHT_TARGET_IDX].bearing);
+            // double leftDist = leftTarget.distance;
+            // double rightDist = rightTarget.distance;
+            // double leftBearing = leftTarget.bearing;
+            // double rightbearing = rightTarget. rightBearing;
+            // if (mLeftDistFilter.get(0.75, leftDist)
+            //     && mRightDistFilter.get(0.75, rightDist)
+            //     && mLeftBearingFilter.get(0.75, leftBearing)
+            //     && mRightBearingFilter.get(0.75, rightBearing)) {
+            //     Vector2d p1{leftDist * cos(leftBearing), leftDist * sin(leftBearing)};
+            //     Vector2d p2{rightDist * cos(rightBearing), rightDist * sin(rightBearing)};
+            //     Vector2d v = p2 - p1;
+            //     Vector2d m = p1 + v / 2;
+            //     double driveDist = v.dot(m) / v.norm();
+            //     double driveBearing = atan2(v.y(), v.x());
+            //     rover->drive(driveDist, driveBearing);
+            // } else {
+            //     rover->stop();
+            // }
+            return NavState::GateTraverse;
         }
         case NavState::GateDrivePath: {
             if (mPath.empty()) {
@@ -90,5 +95,5 @@ NavState GateStateMachine::run() {
 
 // Creates an GateStateMachine object
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig) {
-    return std::make_shared<CircleGateSearch>(sm, roverConfig);
+    return std::make_shared<GateStateMachine>(sm, roverConfig);
 } // GateFactory()
