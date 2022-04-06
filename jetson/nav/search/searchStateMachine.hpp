@@ -1,5 +1,6 @@
-#ifndef SEARCH_STATE_MACHINE_HPP
-#define SEARCH_STATE_MACHINE_HPP
+#pragma once
+
+#include <memory>
 
 #include "rover.hpp"
 #include "utilities.hpp"
@@ -8,11 +9,8 @@ class StateMachine;
 
 // This class is the representation of different
 // search algorithms
-enum class SearchType
-{
-    SPIRALOUT,
-    LAWNMOWER,
-    SPIRALIN
+enum class SearchType {
+    FROM_PATH_FILE
 };
 
 class SearchStateMachine {
@@ -20,15 +18,15 @@ public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    SearchStateMachine( StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig );
+    SearchStateMachine(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig);
 
-    virtual ~SearchStateMachine() {}
+    virtual ~SearchStateMachine() = default;
 
     NavState run();
 
-    bool targetReachable( Rover* rover, double distance, double bearing );
+//    bool targetReachable(std::shared_ptr<Rover> rover, double distance, double bearing);
 
-    virtual void initializeSearch( Rover* rover, const rapidjson::Document& roverConfig, double pathWidth ) = 0; // TODO
+    virtual void initializeSearch(const rapidjson::Document& roverConfig, double pathWidth) = 0; // TODO
 
 protected:
     /*************************************************************************/
@@ -42,16 +40,13 @@ protected:
     /*************************************************************************/
 
     // Pointer to rover State Machine to access member functions
-    StateMachine* roverStateMachine;
+    std::weak_ptr<StateMachine> mStateMachine;
 
     // Vector of search point multipliers used as a base for the search points.
-    vector< pair<short, short> > mSearchPointMultipliers;
+    std::vector<std::pair<short, short>> mSearchPointMultipliers;
 
     // Queue of search points.
-    deque<Odometry> mSearchPoints;
-
-    // Pointer to rover object
-    Rover* mRover;
+    std::deque<Odometry> mSearchPoints;
 
 private:
     /*************************************************************************/
@@ -65,11 +60,11 @@ private:
 
     NavState executeDriveToTarget();
 
-    void updateTargetAngle( double bearing );
+    void updateTargetAngle(double bearing);
 
-    void updateTurnToTargetRoverAngle( double bearing );
+    void updateTurnToTargetRoverAngle(double bearing);
 
-    void updateTargetDetectionElements( double target_bearing, double rover_bearing );
+    void updateTargetDetectionElements(double target_bearing, double rover_bearing);
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -89,6 +84,5 @@ private:
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle
 // avoidance algorithm. This allows for an an ease of transition between obstacle
 // avoidance algorithms
-SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
-
-#endif //SEARCH_STATE_MACHINE_HPP
+std::shared_ptr<SearchStateMachine>
+SearchFactory(const std::weak_ptr<StateMachine>& sm, SearchType type, const std::shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);
