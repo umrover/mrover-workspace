@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
     <!-- Map goes here       -->
-    <l-map ref="map" class="map" :zoom="15" :center="center">
+    <l-map ref="map" class="map" :zoom="15" :center="center" v-on:click="getClickedLatLon($event)">
       <l-control-scale :imperial="false"/>
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="tangent" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="tangentIcon"/>
@@ -26,7 +26,7 @@
 
 <script>
 import { LMap, LTileLayer, LMarker, LPolyline, LPopup, LTooltip, LControlScale } from 'vue2-leaflet'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import L from '../leaflet-rotatedmarker.js'
 
 const MAX_ODOM_COUNT = 1000
@@ -129,6 +129,25 @@ export default {
       required: true
     }
   },
+
+  methods: {
+    getClickedLatLon: function (e) {
+      this.setClickPoint(
+          { 
+            lat: e.latlng.lat,
+            lon: e.latlng.lng
+          }
+        )
+    },
+
+    ...mapMutations('autonomy',{
+      setClickPoint: 'setClickPoint',
+      setWaypointList: 'setWaypointList',
+      setAutonMode: 'setAutonMode',
+      setOdomFormat: 'setOdomFormat'
+    }),
+  },
+
 
   watch: {
     odom: function (val) {

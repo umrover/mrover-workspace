@@ -282,13 +282,25 @@ export default {
         waypoint.lon = convertDMS(waypoint.lon, newOdomFormat);
         return waypoint;
       });
+    },
+
+    clickPoint: function (newClickPoint){
+      this.input.lat.d = newClickPoint.lat
+      this.input.lon.d = newClickPoint.lon
+      this.input.lat.m = 0;
+      this.input.lon.m = 0;
+      this.input.lat.s = 0;
+      this.input.lon.s = 0;
+      this.input.lat = convertDMS(this.input.lat, this.odom_format_in);
+      this.input.lon = convertDMS(this.input.lon, this.odom_format_in);
     }
   },
 
   computed: {
     ...mapGetters('autonomy', {
       autonEnabled: 'autonEnabled',
-      odom_format: 'odomFormat'
+      odom_format: 'odomFormat',
+      clickPoint: "clickPoint"
     }),
 
     formatted_odom: function() {

@@ -4,6 +4,10 @@ const state = {
   waypointList: [],
   autonEnabled: false,
   odomFormat: "DM",
+  clickPoint: {
+    lat: 0,
+    lon: 0
+  },
 
   playbackEnabled: false,
   playbackOdomLat: [],
@@ -18,6 +22,7 @@ const getters = {
   waypointList: state => state.waypointList,
   autonEnabled: state => state.autonEnabled,
   odomFormat: state => state.odomFormat,
+  clickPoint: state => state.clickPoint,
   playbackEnabled: state => state.playbackEnabled,
   playback: state => state.playback,
   playbackOdomLat: state => state.playbackOdomLat,
@@ -43,6 +48,10 @@ const mutations = {
 
   setOdomFormat (commit, newOdomFormat) {
     state.odomFormat = newOdomFormat
+  },
+
+  setClickPoint (commit, newClickPoint) {
+    state.clickPoint = newClickPoint
   },
 
   setPlaybackEnabled (commit, newPlaybackEnabled) {
