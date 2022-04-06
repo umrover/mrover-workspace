@@ -74,7 +74,7 @@ void MRoverArm::set_arm_position(std::vector<double> &angles) {
         for (size_t i = 0; i < arm_state.num_joints(); ++i)  {
             if (i == 1) {
                 arm_state.set_joint_encoder_offset(i,
-                    angles[i] + arm_state.get_joint_limits(i)[1]);
+                    angles[i] + (-1 * arm_state.get_joint_encoder_multiplier(i) * arm_state.get_joint_limits(i)[1]));
             }
             else {
                 arm_state.set_joint_encoder_offset(i, angles[i]);
@@ -266,6 +266,7 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
 }
 
 void MRoverArm::plan_path(ArmState& hypo_state, const std::vector<double> &goal) {
+    std::cout << "Beginning path planning\n";
     bool path_found = motion_planner.rrt_connect(hypo_state, goal);
 
     // check if closed-loop was aborted
@@ -285,6 +286,8 @@ void MRoverArm::plan_path(ArmState& hypo_state, const std::vector<double> &goal)
         
         // send popup message to GUI
         lcm_.publish("/debug_message", &msg);
+
+        std::cout << "Unable to plan path!\n";
     }
 }
 
@@ -444,11 +447,14 @@ void MRoverArm::execute_spline() {
             if (!sim_mode) {
                 // TODO make publish function names more intuitive?
 
+                std::cout << "Sending target:";
                 // Adjust for encoders not being properly zeroed.
                 for (size_t i = 0; i < arm_state.num_joints(); ++i) {
+                    std::cout << " " << target_angles[i];
                     target_angles[i] *= arm_state.get_joint_encoder_multiplier(i);
                     target_angles[i] += arm_state.get_joint_encoder_offset(i);
                 }
+                std::cout << "\n";
 
                 if (arm_state.num_joints() == 6) {
                     publish_config(target_angles, "/ra_ik_cmd");
@@ -574,7 +580,7 @@ void MRoverArm::check_joint_limits(std::vector<double> &angles) {
 
             double offset_angle = angles[i] * arm_state.get_joint_encoder_multiplier(i);
             offset_angle += arm_state.get_joint_encoder_offset(i);
-            std::cout << "Current angle beyond limits, before offset: " << offset_angle << "\n";
+            std::cout << "Current angle beyond limits: " << angles[i] << ", before offset: " << offset_angle << "\n";
         }
     }
 }

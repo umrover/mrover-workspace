@@ -46,7 +46,7 @@ void LCMHandler::handle_incoming()
 void LCMHandler::handle_outgoing()
 {
     // If the last time arm position messages were outputted was over 200 ms ago, get new data from Controllers to be sent
-    std::chrono::duration deadTime = std::chrono::milliseconds(200);
+    std::chrono::duration deadTime = std::chrono::milliseconds(120);
     if (NOW - last_output_time > deadTime)
     {
         // internal_object->refresh_quad_angles();
