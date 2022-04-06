@@ -47,8 +47,8 @@
         "nucleo": 1,
         "channel": 0,
         "quadCPR": -28800.0,
-        "kP": 0.001,
-        "kI": 0.00005,
+        "kP": -0.005,
+        "kI": -0.0,
         "inversion": -1.0
     },
     {
@@ -57,8 +57,8 @@
         "nucleo": 1,
         "channel": 1,
         "quadCPR": 4096.0,
-        "kP": 2.25,
-        "kI": 0.0007,
+        "kP": -1.0,
+        "kI": -0.0,
         "inversion": 1.0
     },
     {
@@ -67,8 +67,8 @@
         "nucleo": 2,
         "channel": 0,
         "quadCPR": 136800.0,
-        "kP": 0.001,
-        "kI": 0.00005,
+        "kP": -0.005,
+        "kI": -0.0,
         "inversion": 1.0
     },
     {
@@ -77,8 +77,8 @@
         "nucleo": 3,
         "channel": 0,
         "quadCPR": -72000.0,
-        "kP": 0.001,
-        "kI": 0.00005,
+        "kP": -0.005,
+        "kI": -0.0,
         "inversion": 1.0
     },
     {
