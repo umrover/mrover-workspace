@@ -10,6 +10,9 @@
 
 using namespace rover_msgs;
 
+const size_t LEFT_TARGET_IDX = 0;
+const size_t RIGHT_TARGET_IDX = 1;
+
 class StateMachine;
 
 class GateStateMachine {
@@ -47,7 +50,7 @@ private:
     /*************************************************************************/
     const rapidjson::Document& mRoverConfig;
 
-    Filter<double> mTargetFilter;
+    Filter<double> mLeftDistFilter, mRightDistFilter, mLeftBearingFilter, mRightBearingFilter;
 };
 
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);

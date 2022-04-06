@@ -86,7 +86,6 @@ void StateMachine::run() {
         }
 
 
-        case NavState::SearchFaceNorth:
         case NavState::SearchTurn:
         case NavState::SearchDrive:
         case NavState::TurnToTarget:
@@ -112,6 +111,7 @@ void StateMachine::run() {
             break;
         }
 
+        case NavState::GatePrepare:
         case NavState::GateMakePath: {
             nextState = mGateStateMachine->run();
             break;
@@ -223,13 +223,12 @@ NavState StateMachine::executeDrive() {
 
 // Gets the string representation of a nav state.
 std::string StateMachine::stringifyNavState() const {
-    static const std::map<NavState, std::string> navStateNames =
+    static const std::unordered_map<NavState, std::string> navStateNames =
             {
                     {NavState::Off,                  "Off"},
                     {NavState::Done,                 "Done"},
                     {NavState::Turn,                 "Turn"},
                     {NavState::Drive,                "Drive"},
-                    {NavState::SearchFaceNorth,      "Search Face North"},
                     {NavState::ChangeSearchAlg,      "Change Search Algorithm"},
                     {NavState::SearchTurn,           "Search Turn"},
                     {NavState::SearchDrive,          "Search Drive"},
@@ -239,6 +238,7 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::DriveAroundObs,       "Drive Around Obstacle"},
                     {NavState::SearchTurnAroundObs,  "Search Turn Around Obstacle"},
                     {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
+                    {NavState::GatePrepare,          "Gate Prepare"},
                     {NavState::GateMakePath,         "Gate Make Path"},
 
                     {NavState::Unknown,              "Unknown"}
@@ -253,8 +253,7 @@ double StateMachine::getOptimalAvoidanceDistance() const {
 } // optimalAvoidanceAngle()
 
 bool StateMachine::isWaypointReachable(double distance) {
-    return isLocationReachable(mRover, mEnv, mConfig, distance,
-                               mConfig["navThresholds"]["waypointDistance"].GetDouble());
+    return isLocationReachable(mRover, mEnv, mConfig, distance, mConfig["navThresholds"]["waypointDistance"].GetDouble());
 }
 
 std::shared_ptr<Environment> StateMachine::getEnv() {

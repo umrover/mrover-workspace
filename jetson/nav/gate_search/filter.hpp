@@ -38,7 +38,7 @@ public:
         std::sort(mSortedValues.begin(), mSortedValues.end());
         auto begin = mSortedValues.begin() + (percentMiddle * size() / 4);
         auto end = mSortedValues.end() - (percentMiddle * size() / 4);
-        out = std::accumulate(begin, end) / (end - begin);
+        out = std::accumulate(begin, end, T{}) / (end - begin);
         return true;
     }
 };
