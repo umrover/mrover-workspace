@@ -3,6 +3,8 @@
 #include <deque>
 #include <memory>
 
+#include <Eigen/Core>
+
 #include "../rover.hpp"
 #include "filter.hpp"
 #include "rover_msgs/Odometry.hpp"

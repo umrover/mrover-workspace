@@ -5,6 +5,7 @@ project(navigation)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(lcm REQUIRED)
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 include(${LCM_USE_FILE})
 include_directories(/usr/local/include/lcm)
 include_directories(/usr/include/rapidjson)
@@ -27,4 +28,4 @@ list(REMOVE_ITEM SOURCE_FILES ${REMOVE_CMAKE})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} lcm_types lcm)
+target_link_libraries(${PROJECT_NAME} lcm_types lcm Eigen3::Eigen)

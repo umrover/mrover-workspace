@@ -8,6 +8,8 @@
 #include "stateMachine.hpp"
 #include "./gate_search/circleGateSearch.hpp"
 
+using Eigen::Vector2d;
+
 // Constructs a GateStateMachine object with mStateMachine
 GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig) :
         mStateMachine(move(stateMachine)),
@@ -25,7 +27,7 @@ GateStateMachine::~GateStateMachine() = default;
 NavState GateStateMachine::run() {
     auto rover = mStateMachine.lock()->getRover();
     switch (rover->currentState()) {
-        case NavState::GatePrepare: {
+        case NavState::BeginGateSearch: {
             mLeftDistFilter.reset();
             mRightDistFilter.reset();
             mLeftBearingFilter.reset();
@@ -44,7 +46,13 @@ NavState GateStateMachine::run() {
                 && mRightDistFilter.get(0.75, rightDist)
                 && mLeftBearingFilter.get(0.75, leftBearing)
                 && mRightBearingFilter.get(0.75, rightBearing)) {
-//                rover->drive();
+                Vector2d p1{leftDist * cos(leftBearing), leftDist * sin(leftBearing)};
+                Vector2d p2{rightDist * cos(rightBearing), rightDist * sin(rightBearing)};
+                Vector2d v = p2 - p1;
+                Vector2d m = p1 + v / 2;
+                double driveDist = v.dot(m) / v.norm();
+                double driveBearing = atan2(v.y(), v.x());
+                rover->drive(driveDist, driveBearing);
             } else {
                 rover->stop();
             }

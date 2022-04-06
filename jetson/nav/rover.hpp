@@ -33,7 +33,7 @@ enum class NavState {
     // Search States
     SearchTurn = 20,
     SearchDrive = 21,
-    ChangeSearchAlg = 24,
+    BeginSearch = 22,
 
     // Target Found States
     TurnToTarget = 27,
@@ -46,7 +46,7 @@ enum class NavState {
     SearchDriveAroundObs = 33,
 
     // Gate Search
-    GatePrepare = 40,
+    BeginGateSearch = 40,
     GateMakePath = 41,
 
     // Unknown State

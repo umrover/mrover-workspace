@@ -11,8 +11,10 @@ std::deque<Waypoint> const& CourseProgress::getRemainingWaypoints() const {
     return mRemainingWaypoints;
 }
 
-void CourseProgress::completeCurrentWaypoint() {
+Waypoint CourseProgress::completeCurrentWaypoint() {
+    Waypoint waypoint = mRemainingWaypoints.front();
     mRemainingWaypoints.pop_front();
+    return waypoint;
 }
 
 void CourseProgress::clearProgress() {

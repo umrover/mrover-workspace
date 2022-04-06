@@ -60,21 +60,11 @@ private:
 
     NavState executeDriveToTarget();
 
-    void updateTargetAngle(double bearing);
-
-    void updateTurnToTargetRoverAngle(double bearing);
-
     void updateTargetDetectionElements(double target_bearing, double rover_bearing);
 
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
-
-    // Last known angle to turn to target.
-    double mTargetAngle;
-
-    // Last known angle of rover from turn to target.
-    double mTurnToTargetRoverAngle;
 
     // Reference to config variables
     const rapidjson::Document& mRoverConfig;

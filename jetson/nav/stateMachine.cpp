@@ -102,7 +102,7 @@ void StateMachine::run() {
             break;
         }
 
-        case NavState::ChangeSearchAlg: {
+        case NavState::BeginSearch: {
             double visionDistance = mConfig["computerVision"]["visionDistance"].GetDouble();
             setSearcher(SearchType::FROM_PATH_FILE, mRover, mConfig);
 
@@ -111,7 +111,7 @@ void StateMachine::run() {
             break;
         }
 
-        case NavState::GatePrepare:
+        case NavState::BeginGateSearch:
         case NavState::GateMakePath: {
             nextState = mGateStateMachine->run();
             break;
@@ -207,8 +207,8 @@ NavState StateMachine::executeDrive() {
     DriveStatus driveStatus = mRover->drive(nextWaypoint.odom);
 
     if (driveStatus == DriveStatus::Arrived) {
-        if (nextWaypoint.search || nextWaypoint.gate) {
-            return NavState::ChangeSearchAlg;
+        if (nextWaypoint.search) {
+            return NavState::BeginSearch;
         }
         mCourseProgress->completeCurrentWaypoint();
         return NavState::Turn;
@@ -229,7 +229,7 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::Done,                 "Done"},
                     {NavState::Turn,                 "Turn"},
                     {NavState::Drive,                "Drive"},
-                    {NavState::ChangeSearchAlg,      "Change Search Algorithm"},
+                    {NavState::BeginSearch,          "Change Search Algorithm"},
                     {NavState::SearchTurn,           "Search Turn"},
                     {NavState::SearchDrive,          "Search Drive"},
                     {NavState::TurnToTarget,         "Turn to Target"},
@@ -238,7 +238,7 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::DriveAroundObs,       "Drive Around Obstacle"},
                     {NavState::SearchTurnAroundObs,  "Search Turn Around Obstacle"},
                     {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
-                    {NavState::GatePrepare,          "Gate Prepare"},
+                    {NavState::BeginGateSearch,      "Gate Prepare"},
                     {NavState::GateMakePath,         "Gate Make Path"},
 
                     {NavState::Unknown,              "Unknown"}

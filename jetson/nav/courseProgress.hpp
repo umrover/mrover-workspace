@@ -19,7 +19,7 @@ public:
 
     std::deque<Waypoint> const& getRemainingWaypoints() const;
 
-    void completeCurrentWaypoint();
+    Waypoint completeCurrentWaypoint();
 
     void clearProgress();
 
