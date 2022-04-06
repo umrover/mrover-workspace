@@ -40,12 +40,12 @@ Subscriber: jetson/nucleo_bridge
 
 #### RA Closed Loop \[Subscriber\] "/ra_ik_cmd"
 Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
-Publisher: jetson/kinematics \
+Publisher: jetson/ra_kinematics \
 Subscriber: jetson/nucleo_bridge
 
 #### SA Closed Loop \[Subscriber\] "/sa_ik_cmd"
 Message: [SAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAPosition.lcm) \
-Publisher: jetson/kinematics \
+Publisher: jetson/ra_kinematics \
 Subscriber: jetson/nucleo_bridge
 
 #### Mast Gimbal Open Loop \[Subscriber\] "/mast_gimbal_cmd"
@@ -59,19 +59,34 @@ Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
 #### Foot Open Loop \[Subscriber\] "/foot_openloop_cmd"
-Message: [FootCmd.lcm](https://github.com/raytitan/mrover-workspace/blob/rnucleo/rover_msgs/FootCmd.lcm) \
+Message: [FootCmd.lcm](https://github.com/umrover/mrover-workspace/blob/rnucleo/rover_msgs/FootCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
 #### RA Pos Data \[Publisher\] "/ra_pos_data"
 Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
 Publisher: jetson/nucleo_bridge \
-Subscriber: jetson/kinematics
+Subscriber: jetson/ra_kinematics + base_station/gui
 
 #### SA Pos Data \[Publisher\] "/sa_pos_data"
 Message: [SAPosData.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAPosData.lcm) \
 Publisher: jetson/nucleo_bridge \
-Subscriber: jetson/kinematics
+Subscriber: jetson/ra_kinematics + base_station/kineval_stencil + base_station/gui
+
+#### Wrist Turn Count \[Publisher\] "/wrist_turn_count"
+Message: [WristTurnCount.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/WristTurnCount.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui + jetson/teleop
+
+#### Joint B Calibration Data \[Publisher\] "/joint_b_calibration_data"
+Message: [JointBCalibration.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/JointBCalibration.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui + jetson/ra_kinematics
+
+#### Scoop Limit Switch Enable Cmd \[Subscriber\] "/scoop_limit_switch_enable_cmd"
+Message: [ScoopLimitSwitchEnable.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ScoopLimitSwitchEnable.lcm) \
+Publisher: base_station/gui \
+Subscriber: jetson/nucleo_bridge
 
 ### Watchdog Timeout Period
 

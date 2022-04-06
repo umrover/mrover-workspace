@@ -65,14 +65,16 @@ float openPlus(std::string name, float speed)
     }
 }
 
-float closedPlus(std::string name, float angle)
+float closedPlus(std::string name, float target_angle_deg)
 {
     try
     {
-        ControllerMap::controllers[name]->closed_loop(0, angle);
+        float target_angle_rad = target_angle_deg * M_PI / 180.0;
+        ControllerMap::controllers[name]->closed_loop(0, target_angle_rad);
         float rad_angle = ControllerMap::controllers[name]->get_current_angle();
         float deg_angle = rad_angle / (2 * M_PI) * 360;
-        printf("closedPlus %s: Quad degrees is %f \n", name.c_str(), deg_angle);
+        float diff_deg = target_angle_deg - deg_angle;
+        printf("closedPlus %s: Target degrees is %f, quad degrees is %f, diff is %f\n", name.c_str(), deg_angle, target_angle_deg, diff_deg);
         return deg_angle;
     }
     catch (IOFailure &e)
@@ -127,7 +129,6 @@ float quadEnc(std::string name)
     }
 }
 
-//uint16_t absEnc(int addr)
 float absEnc(std::string name)
 {
     try
@@ -149,7 +150,6 @@ void adjust(std::string name)
 {
     try
     {
-        // gets initial angles
         float quad_angle = quadEnc(name);
         float abs_angle = absEnc(name);
 
@@ -166,7 +166,6 @@ void adjust(std::string name)
         uint8_t buffer[4];
         memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), sizeof(adjusted_quad));
         I2C::transact(ControllerMap::get_i2c_address(name), ADJUST, buffer, nullptr);
-        //ControllerMap::controllers[name]->zero();
 
         // checks values after
         quad_angle = quadEnc(name);
@@ -254,11 +253,11 @@ void testClosed()
     PRINT_TEST_START
     for (auto name : motor_names)
     {
-        int p, i, d;
+        float p, i, d;
         p = ControllerMap::controllers[name]->kP;
         i = ControllerMap::controllers[name]->kI;
         d = ControllerMap::controllers[name]->kD;
-        setKPID(name, p, i, d);
+        setKPID(name, p, i, d);  // highly optional, but useful as a sanity check
         printf("joint %s, kp is %i, ki is %i, kd is %i \n", name.c_str(), p, i, d);
         sleep(10);
     }
@@ -267,21 +266,21 @@ void testClosed()
     {
         for (auto name : motor_names)
         {
-            float angle = 0;
-            float offset[4] = { 0.15, -0.15, 0.25, -0.25 };
-            float target = 0;
+            float current_angle_deg = 0;
+            float offset_deg[4] = { 10, -10, 10, -10 };
+            float target_deg = 0;
 
             for (int i = 0; i < 4; ++i) {
-                angle = quadEnc(name);
+                current_angle_deg = quadEnc(name);
 
-                target = angle + offset[i];
+                target_deg = current_angle_deg + offset_deg[i];
 
                 do 
                 {
-                    angle = closedPlus(name, target);
+                    current_angle_deg = closedPlus(name, target_deg);
                     sleep(20);
                 }
-                while(std::abs(angle - target) > 0.01);
+                while(std::abs(current_angle_deg - target_deg) > 0.01);
 
                 printf("arrived at position %i\n", i);
                 sleep(400);
@@ -466,9 +465,12 @@ void allDevBoardFunctions(std::string name)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     printf("turning setting speed to 0.5");
-    openPlus(name, 0.5);
-    // runs for five seconds
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    for (int second = 0; second < 5; ++second) {
+        for (int i = 0; i < 5; ++i) {
+            openPlus(name, 0.5);
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }
+    }
 
     printf("turning setting speed to 0");
     openPlus(name, 0.0);
@@ -535,9 +537,9 @@ int main()
     motor_names.push_back("RA_A");
     motor_names.push_back("RA_B");
     motor_names.push_back("RA_C");
-    motor_names.push_back("RA_D");
+    // motor_names.push_back("RA_D");
     motor_names.push_back("RA_E");
-    motor_names.push_back("RA_F");
+    // motor_names.push_back("RA_F");
 
     printf("Initializing virtual controllers\n");
     ControllerMap::init();
