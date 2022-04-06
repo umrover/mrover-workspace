@@ -30,7 +30,6 @@ void Environment::setTargets(TargetList const& targets) {
 }
 
 void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
-    //TODO: update post locations here
     if (rover->autonState().is_auton) {
         // Cache Left Target if we had detected one
         if (mTargetLeft.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
@@ -74,22 +73,24 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
             // Set to empty target
             mCacheTargetRight = {-1, 0, 0};
         }
+
+        bool gate = course->getRemainingWaypoints().front().gate;
+        if (gate){
+            if (leftCacheTarget().id != -1){
+                leftPost = createOdom(rover->odometry(), leftCacheTarget().bearing, leftCacheTarget().distance, rover);
+                hasLeftPost = true;
+            }
+            if (rightCacheTarget().id != -1){
+                rightPost = createOdom(rover->odometry(), rightCacheTarget().bearing, rightCacheTarget().distance, rover);
+                hasRightPost = true;
+            }
+        }
     } else {
         double cosine = cos(degreeToRadian(rover->odometry().latitude_deg, rover->odometry().latitude_min));
         rover->setLongMeterInMinutes( 60 / (EARTH_CIRCUM * cosine / 360) );
     }
 
-    bool gate = false; //TODO: replace this with actual logic
-    if (gate){
-        if (leftCacheTarget().id != -1){
-            leftPost = createOdom(rover->odometry(), leftCacheTarget().bearing, leftCacheTarget().distance, rover);
-            hasLeftPost = true;
-        }
-        if (rightCacheTarget().id != -1){
-            rightPost = createOdom(rover->odometry(), rightCacheTarget().bearing, rightCacheTarget().distance, rover);
-            hasRightPost = true;
-        }
-    }
+    
 }
 
 Target const& Environment::leftCacheTarget() const {

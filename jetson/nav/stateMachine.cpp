@@ -64,6 +64,10 @@ void StateMachine::run() {
         }
         return;
     }
+    if (mEnv->hasGateLocation()){
+        mGateStateMachine->updateGateTraversalPath();
+        nextState = NavState::GateTraverse;
+    }
     switch (mRover->currentState()) {
         case NavState::Off: {
             nextState = executeOff();
