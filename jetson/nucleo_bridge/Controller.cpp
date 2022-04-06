@@ -1,12 +1,12 @@
 #include "Controller.h"
 
-//Wrapper for I2C transact, autofilling the i2c address of the Controller by using ControllerMap::get_i2c_address()
+// Wrapper for I2C transact, autofilling the i2c address of the Controller by using ControllerMap::get_i2c_address()
 void Controller::transact(uint8_t cmd, uint8_t write_num, uint8_t read_num, uint8_t *write_buf, uint8_t *read_buf)
 {
     I2C::transact(ControllerMap::get_i2c_address(name), cmd, write_num, read_num, write_buf, read_buf);
 }
 
-//If this Controller is not live, make it live by configuring the real controller
+// If this Controller is not live, make it live by configuring the real controller
 void Controller::make_live()
 {
     if (ControllerMap::check_if_live(name))
@@ -16,11 +16,11 @@ void Controller::make_live()
 
     try
     {
-        // turn on 
+        // turn on
         transact(ON, nullptr, nullptr);
 
         uint8_t buffer[32];
-        //buffer sends max percentage speed  
+        // buffer sends max percentage speed
         memcpy(buffer, UINT8_POINTER_T(&(hardware.speed_max)), sizeof(hardware.speed_max));
         transact(CONFIG_PWM, buffer, nullptr);
 
@@ -34,25 +34,28 @@ void Controller::make_live()
         // not needed for joint F
 
         float abs_raw_angle = 0;
-        if (name != "RA_F")
-        {
-            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
-        }
-        else 
+
+        if (name == "RA_B" || name == "SA_B" || name == "RA_F")
         {
             abs_raw_angle = M_PI;
         }
+        else
+        {
+            transact(ABS_ENC, nullptr, UINT8_POINTER_T(&(abs_raw_angle)));
+        }
 
-        // get value in quad counts adjust quadrature encoder 
+        // get value in quad counts adjust quadrature encoder
         int32_t adjusted_quad = (abs_raw_angle / (2 * M_PI)) * quad_cpr;
         memcpy(buffer, UINT8_POINTER_T(&(adjusted_quad)), sizeof(adjusted_quad));
-        transact(ADJUST,buffer, nullptr);
+        transact(ADJUST, buffer, nullptr);
 
         ControllerMap::make_live(name);
-        
-        if (name == "RA_B" || name == "SA_B") {
-            // calibrate_joint();
-        }
+
+        // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
+        // if (name == "RA_B" || name == "SA_B")
+        // {
+        //     calibrate_joint();
+        // }
     }
     catch (IOFailure &e)
     {
@@ -61,50 +64,87 @@ void Controller::make_live()
     }
 }
 
-//Helper function to convert raw angle to radians. Also checks if new angle is close to old angle <depreciated>
+// Helper function to convert raw angle to radians. Also checks if new angle is close to old angle
 void Controller::record_angle(int32_t raw_angle)
 {
     // record quadrature 
+    current_angle_m.lock();
     current_angle = ((raw_angle / quad_cpr) * 2 * M_PI) - M_PI;
+    current_angle_m.unlock();
 }
 
-//Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use
-Controller::Controller(std::string name, std::string type) : name(name), hardware(Hardware(type)){}
-
-//Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
-void Controller::open_loop(float input)
+float Controller::get_current_angle()
 {
+    float return_angle = 0.0;
+    current_angle_m.lock();
+    return_angle = current_angle;
+    current_angle_m.unlock();
+    return return_angle;
+}
+
+// Initialize the Controller. Need to know which nucleo and which channel on the nucleo to use
+Controller::Controller(std::string name, std::string type) : name(name), hardware(Hardware(type)) {}
+
+// Sends a get angle command
+void Controller::calibration_data()
+{
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+
     try
     {
-        make_live();
+        int8_t calib_data;
 
-        uint8_t buffer[4];
-        float speed = hardware.throttle(input);
-        memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
-    
-        int32_t raw_angle;
+        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calib_data));
 
-        transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
-
-        // handles if joint B 
-        //printf("%s quad angle: %i\n", name.c_str(), raw_angle);
-
-        record_angle(raw_angle);       
+        calibrated = calib_data == 0xF;
     }
     catch (IOFailure &e)
     {
-        printf("open loop failed on %s\n", name.c_str());
+        printf("calibration data failed on %s\n", name.c_str());
     }
 }
 
-//Sends a closed loop command with target angle in radians and optional precalculated torque in Nm
+// Calibrate joint -- should only be used for joint b
+void Controller::calibrate_joint()
+{
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+
+    try
+    {
+        if (name != "RA_B" && name != "SA_B")
+        {
+            printf("calibration not supported on %s\n", name.c_str());
+            return;
+        }
+        open_loop(0.3);
+    }
+    catch (IOFailure &e)
+    {
+        printf("calibrate joint failed on %s\n", name.c_str());
+    }
+}
+
+// Sends a closed loop command with target angle in radians and optional precalculated torque in Nm
 void Controller::closed_loop(float torque, float target)
 {
     try
     {
         make_live();
 
-        float feed_forward = 0; //torque * torque_scale;
+        // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
+        // if ((name == "RA_B" || name == "SA_B") && !calibrated)
+        // {
+        //     printf("closed_loop failed because joint B is not yet calibrated");
+        //     return;
+        // }
+
+        float feed_forward = 0; // torque * torque_scale;
         uint8_t buffer[32];
         int32_t angle;
         memcpy(buffer, UINT8_POINTER_T(&feed_forward), sizeof(feed_forward));
@@ -126,7 +166,7 @@ void Controller::closed_loop(float torque, float target)
     }
 }
 
-//Sends a config command with PID inputs
+// Sends a config command with PID inputs
 void Controller::config(float KP, float KI, float KD)
 {
     for (int attempts = 0; attempts < 100; ++attempts)
@@ -148,7 +188,116 @@ void Controller::config(float KP, float KI, float KD)
     }
 }
 
-//Sends a zero command
+// Sends a limit switch enable command
+void Controller::limit_switch_enable(bool enable)
+{
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+    try
+    {
+        int8_t limit_enabled = enable ? 0xFF : 0x00;
+        transact(LIMIT_ON, nullptr, UINT8_POINTER_T(&limit_enabled));
+    }
+    catch (IOFailure &e)
+    {
+        printf("limit switch enable failed on %s\n", name.c_str());
+    }
+}
+
+// Handles an open loop command with input [-1.0, 1.0], scaled to PWM limits
+void Controller::open_loop(float input)
+{
+    try
+    {
+        make_live();
+
+        // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
+        // if ((name == "RA_B" || name == "SA_B") && !calibrated)
+        // {
+        //     printf("closed_loop failed because joint B is not yet calibrated");
+        //     return;
+        // }
+
+        uint8_t buffer[4];
+        float speed = hardware.throttle(input) * inversion;
+        memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
+
+        if (hardware.type == HBridge)
+        {
+            if (speed == last_speed)
+            {
+                return;
+            }
+            else 
+            {
+                last_speed = speed;
+                int32_t raw_angle;
+                // TODO - when open is supported, change to this
+                // transact(OPEN, buffer, nullptr);
+                transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
+                return;
+            }
+        }
+
+        int32_t raw_angle;
+
+        transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
+
+        record_angle(raw_angle);
+    }
+    catch (IOFailure &e)
+    {
+        printf("open loop failed on %s\n", name.c_str());
+    }
+}
+
+// Sends a get angle command
+void Controller::quad_angle()
+{
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+
+    try
+    {
+        int32_t raw_angle;
+        transact(QUAD, nullptr, UINT8_POINTER_T(&raw_angle));
+        
+        record_angle(raw_angle);
+    }
+    catch (IOFailure &e)
+    {
+        printf("angle failed on %s\n", name.c_str());
+    }
+}
+
+// Sends a get angle command
+void Controller::turn_count_data()
+{
+
+    if (!ControllerMap::check_if_live(name))
+    {
+        return;
+    }
+
+    try
+    {
+        int8_t turn_count_data;
+
+        transact(TURN_COUNT, nullptr, UINT8_POINTER_T(&turn_count_data));
+
+        turn_count = turn_count_data;
+    }
+    catch (IOFailure &e)
+    {
+        printf("turn count data failed on %s\n", name.c_str());
+    }
+}
+
+// Sends a zero command
 void Controller::zero()
 {
     for (int attempts = 0; attempts < 100; ++attempts)
@@ -164,54 +313,5 @@ void Controller::zero()
         {
             printf("zero failed on %s\n", name.c_str());
         }
-    }
-}
-
-//Sends a get angle command
-void Controller::angle()
-{
-    if (!ControllerMap::check_if_live(name))
-    {
-        return;
-    }
-
-    try
-    {
-        int32_t angle;
-        transact(QUAD, nullptr, UINT8_POINTER_T(&angle));
-        
-        record_angle(angle);
-    }
-    catch (IOFailure &e)
-    {
-        printf("angle failed on %s\n", name.c_str());
-    }
-}
-
-// Calibrate joint -- should only be used for joint b
-void Controller::calibrate_joint()
-{
-    if (!ControllerMap::check_if_live(name))
-    {
-        return;
-    }
-
-    try
-    {
-        if (name != "RA_B" && name != "SA_B")
-        {
-            printf("calibration not supported on %s\n", name.c_str());
-            return;
-        }
-        std::chrono::high_resolution_clock::time_point calibration_start_time = std::chrono::high_resolution_clock::now();
-        std::chrono::duration calibration_duration_time = std::chrono::seconds(5);
-        open_loop(0.5);
-        std::this_thread::sleep_for(calibration_duration_time);
-        open_loop(0);
-        zero();
-    }
-    catch (IOFailure &e)
-    {
-        printf("calibrate joint failed on %s\n", name.c_str());
     }
 }

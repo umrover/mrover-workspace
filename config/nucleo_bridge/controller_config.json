@@ -3,46 +3,53 @@
         "name":"HAND_FINGER",
         "type":"HBridge",
         "nucleo": 3,
-        "channel": 2
+        "channel": 2,
+        "inversion": 1.0
     },
     {
         "name":"HAND_GRIP",
         "type":"HBridge",
         "nucleo": 2,
-        "channel": 2
+        "channel": 2,
+        "inversion": 1.0
     },
     {
         "name":"FOOT_SCOOP",
         "type":"HBridge",
         "nucleo": 2,
-        "channel": 2
+        "channel": 2,
+        "inversion": 1.0
     },
     {
         "name":"FOOT_SENSOR",
         "type":"HBridge",
         "nucleo": 3,
-        "channel": 2
+        "channel": 2,
+        "inversion": 1.0
     },
     {
         "name":"GIMBAL_YAW",
         "type":"HBridge",
         "nucleo": 2,
-        "channel": 3
+        "channel": 3,
+        "inversion": -1.0
     },
     {
         "name":"GIMBAL_PITCH",
         "type":"HBridge",
         "nucleo": 3,
-        "channel": 3
+        "channel": 3,
+        "inversion": -1.0
     },
     {
         "name":"SA_A",
         "type":"Motor29Percent",
         "nucleo": 1,
         "channel": 0,
-        "quadCPR": -28800.0, 
-        "kP": 0.001,
-        "kI": 0.00005
+        "quadCPR": -28800.0,
+        "kP": -0.005,
+        "kI": -0.0,
+        "inversion": -1.0
     },
     {
         "name":"SA_B",
@@ -50,8 +57,9 @@
         "nucleo": 1,
         "channel": 1,
         "quadCPR": 4096.0,
-        "kP": 2.25,
-        "kI": 0.0007
+        "kP": -1.0,
+        "kI": -0.0,
+        "inversion": 1.0
     },
     {
         "name":"SA_C",
@@ -59,8 +67,9 @@
         "nucleo": 2,
         "channel": 0,
         "quadCPR": 136800.0,
-        "kP": 0.001,
-        "kI": 0.00005
+        "kP": -0.005,
+        "kI": -0.0,
+        "inversion": 1.0
     },
     {
         "name":"SA_E",
@@ -68,17 +77,19 @@
         "nucleo": 3,
         "channel": 0,
         "quadCPR": -72000.0,
-        "kP": 0.001,
-        "kI": 0.00005
+        "kP": -0.005,
+        "kI": -0.0,
+        "inversion": 1.0
     },
     {
         "name":"RA_A",
         "type":"Motor29Percent",
         "nucleo": 1,
         "channel": 0,
-        "quadCPR": -28800.0, 
-        "kP": 0.001,
-        "kI": 0.00005
+        "quadCPR": -28800.0,
+        "kP": -0.005,
+        "kI": -0.0,
+        "inversion": -1.0
     },
     {
         "name":"RA_B",
@@ -86,8 +97,9 @@
         "nucleo": 1,
         "channel": 1,
         "quadCPR": 4096.0,
-        "kP": 2.25,
-        "kI": 0.0007
+        "kP": -1.0,
+        "kI": -0.0,
+        "inversion": 1.0
     },
     {
         "name":"RA_C",
@@ -95,8 +107,9 @@
         "nucleo": 2,
         "channel": 0,
         "quadCPR": 136800.0,
-        "kP": 0.001,
-        "kI": 0.00005
+        "kP": -0.005,
+        "kI": -0,
+        "inversion": 1.0
     },
     {
         "name":"RA_D",
@@ -104,8 +117,9 @@
         "nucleo": 2,
         "channel": 1,
         "quadCPR": -72000.0,
-        "kP": 0.001,
-        "kI": 0.00005
+        "kP": -0.005,
+        "kI": -0.0,
+        "inversion": 1.0
     },
     {
         "name":"RA_E",
@@ -113,8 +127,9 @@
         "nucleo": 3,
         "channel": 0,
         "quadCPR": -72000.0,
-        "kP": 0.001,
-        "kI": 0.00005
+        "kP": -0.005,
+        "kI": -0.0,
+        "inversion": 1.0
     },
     {
         "name":"RA_F",
@@ -122,7 +137,8 @@
         "nucleo": 3,
         "channel": 1,
         "quadCPR": -9072.0,
-        "kP": 0.01,
-        "kI": 0.00005
+        "kP": -0.05,
+        "kI": -0.0,
+        "inversion": -1.0
     }
 ]
