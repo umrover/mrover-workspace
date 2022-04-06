@@ -1,24 +1,32 @@
 #include "gateStateMachine.hpp"
 
+#include <utility>
+#include <iostream>
+
 #include "utilities.hpp"
+#include "environment.hpp"
 #include "stateMachine.hpp"
 #include "./gate_search/circleGateSearch.hpp"
-#include <cmath>
-#include <iostream>
-#include <utility>
 
 // Constructs a GateStateMachine object with mStateMachine
-GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig)
-        : mStateMachine(move(stateMachine)), mRoverConfig(roverConfig) {}
+GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig) :
+        mStateMachine(move(stateMachine)),
+        mRoverConfig(roverConfig),
+        mTargetFilter(roverConfig["gate"]["filterSize"].GetInt()) {
+}
 
 GateStateMachine::~GateStateMachine() = default;
+
 
 // Execute loop through gate state machine.
 NavState GateStateMachine::run() {
     auto rover = mStateMachine.lock()->getRover();
     switch (rover->currentState()) {
-        case NavState::Gate: {
-            break;
+        case NavState::GateMakePath: {
+            std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
+            TargetList targets = env->getTargets();
+            rover->drive(0.0, 0.0, true);
+            return NavState::GateMakePath;
         }
         default: {
             std::cerr << "Entered Unknown NavState in search state machine" << std::endl;

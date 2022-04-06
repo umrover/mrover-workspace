@@ -2,7 +2,7 @@
 # Use Meson in production as it is the officially suported build system
 cmake_minimum_required(VERSION 3.8)
 project(navigation)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 find_package(lcm REQUIRED)
 include(${LCM_USE_FILE})
@@ -22,7 +22,7 @@ lcm_add_library(lcm_types CPP ${cpp_headers})
 target_include_directories(lcm_types INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 
 file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB_RECURSE REMOVE_CMAKE "cmake-build-debug/*")
+file(GLOB_RECURSE REMOVE_CMAKE "cmake-build*/*")
 list(REMOVE_ITEM SOURCE_FILES ${REMOVE_CMAKE})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 

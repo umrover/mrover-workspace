@@ -47,7 +47,7 @@ enum class NavState {
     SearchDriveAroundObs = 33,
 
     // Gate Search States
-    Gate = 40,
+    GateMakePath = 40,
 
     // Unknown State
     Unknown = 255

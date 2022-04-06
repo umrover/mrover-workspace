@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "../rover.hpp"
+#include "filter.hpp"
 #include "rover_msgs/Odometry.hpp"
 
 
@@ -40,36 +41,13 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    NavState executeGateSpin();
-
-    NavState executeGateSpinWait();
-
-    NavState executeGateTurn();
-
-    NavState executeGateDrive();
-
-    NavState executeGateTurnToCentPoint();
-
-    NavState executeGateDriveToCentPoint();
-
-    NavState executeGateFace();
-
-    NavState executeGateTurnToFarPost();
-
-    NavState executeGateDriveToFarPost();
-
-    NavState executeGateTurnToGateCenter();;
-
-    NavState executeGateDriveThrough();
-
-    void updatePost2Info();
-
-    void calcCenterPoint();
 
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
     const rapidjson::Document& mRoverConfig;
+
+    Filter<double> mTargetFilter;
 };
 
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);

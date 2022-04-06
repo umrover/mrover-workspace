@@ -112,7 +112,7 @@ void StateMachine::run() {
             break;
         }
 
-        case NavState::Gate: {
+        case NavState::GateMakePath: {
             nextState = mGateStateMachine->run();
             break;
         }
@@ -239,7 +239,7 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::DriveAroundObs,       "Drive Around Obstacle"},
                     {NavState::SearchTurnAroundObs,  "Search Turn Around Obstacle"},
                     {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
-                    {NavState::Gate,                 "Gate"},
+                    {NavState::GateMakePath,         "Gate Make Path"},
 
                     {NavState::Unknown,              "Unknown"}
             };
