@@ -2,6 +2,7 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 #include <lcm/lcm-cpp.hpp>
 
 #include "rapidjson/document.h"
@@ -14,14 +15,17 @@
 using namespace rover_msgs;
 
 
-rapidjson::Document readConfig(std::string const& name) {
+rapidjson::Document readConfig() {
     std::ifstream configFile;
-    char* path_cstr = getenv("MROVER_CONFIG");
-    if (!path_cstr) throw std::runtime_error("MROVER_CONFIG environment variable not set");
-    std::string path = path_cstr;
-    path += "/" + name;
+    char* mrover_config = getenv("MROVER_CONFIG");
+    std::filesystem::path path;
+    if (mrover_config) {
+        path = std::filesystem::path{mrover_config} / "config_nav" / "config.json";
+    } else {
+        path = std::filesystem::current_path() / "config" / "nav" / "config.json";
+    }
     configFile.open(path);
-    if (!configFile) throw std::runtime_error("Could not open config file at: " + path);
+    if (!configFile) throw std::runtime_error("Could not open config file at: " + path.string());
     rapidjson::Document document;
     rapidjson::IStreamWrapper isw(configFile);
     document.ParseStream(isw);
@@ -35,7 +39,7 @@ int main() {
 
     auto env = std::make_shared<Environment>();
     auto courseProgress = std::make_shared<CourseProgress>();
-    auto config = readConfig("config/nav/config.json");
+    auto config = readConfig();
     auto rover = std::make_shared<Rover>(config, lcm);
     auto stateMachine = std::make_shared<StateMachine>(config, rover, env, courseProgress, lcm);
 

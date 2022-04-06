@@ -29,7 +29,9 @@ public:
 
     void updateObstacleDistance(double distance);
 
-    void setSearcher(SearchType type, const std::shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);
+    void setSearcher(SearchType type);
+
+    void setGateSearcher();
 
     std::shared_ptr<Environment> getEnv();
 

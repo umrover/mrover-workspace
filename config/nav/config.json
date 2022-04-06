@@ -74,5 +74,9 @@
 		"searchWaitStepSize": 90.0,
 		"searchWaitTime": 1.0,
 		"spiralSearchPoints": "jetson/nav/search/spiral_search_points.txt"
+	},
+
+	"gate": {
+		"filterSize": 12
 	}
 }

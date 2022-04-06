@@ -3,10 +3,10 @@
 #include <deque>
 #include <memory>
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include "../rover.hpp"
-#include "filter.hpp"
+#include "../filter.hpp"
 #include "rover_msgs/Odometry.hpp"
 
 
@@ -53,6 +53,8 @@ private:
     const rapidjson::Document& mRoverConfig;
 
     Filter<double> mLeftDistFilter, mRightDistFilter, mLeftBearingFilter, mRightBearingFilter;
+
+    std::deque<Odometry> mPath;
 };
 
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);

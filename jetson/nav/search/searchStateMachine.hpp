@@ -60,8 +60,6 @@ private:
 
     NavState executeDriveToTarget();
 
-    void updateTargetDetectionElements(double target_bearing, double rover_bearing);
-
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/

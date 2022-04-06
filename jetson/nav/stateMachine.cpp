@@ -19,16 +19,18 @@ StateMachine::StateMachine(
         lcm::LCM& lcmObject
 ) : mConfig(config), mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseProgress)),
     mLcmObject(lcmObject) {
-    mSearchStateMachine = SearchFactory(weak_from_this(), SearchType::FROM_PATH_FILE, mRover, mConfig);
-    mGateStateMachine = GateFactory(weak_from_this(), mConfig);
+    // TODO: fix, weak_from_this() should not be called in ctor
     mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory(weak_from_this(),
                                                             ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover,
                                                             mConfig);
 } // StateMachine()
 
-void StateMachine::setSearcher(SearchType type, const std::shared_ptr<Rover>& rover,
-                               const rapidjson::Document& roverConfig) {
-    mSearchStateMachine = SearchFactory(weak_from_this(), type, rover, roverConfig);
+void StateMachine::setSearcher(SearchType type) {
+    mSearchStateMachine = SearchFactory(weak_from_this(), type, mRover, mConfig);
+}
+
+void StateMachine::setGateSearcher() {
+    mGateStateMachine = GateFactory(weak_from_this(), mConfig);
 }
 
 // Allows outside objects to set the original obstacle angle
@@ -104,15 +106,20 @@ void StateMachine::run() {
 
         case NavState::BeginSearch: {
             double visionDistance = mConfig["computerVision"]["visionDistance"].GetDouble();
-            setSearcher(SearchType::FROM_PATH_FILE, mRover, mConfig);
+            setSearcher(SearchType::FROM_PATH_FILE);
 
             mSearchStateMachine->initializeSearch(mConfig, visionDistance);
             nextState = NavState::SearchTurn;
             break;
         }
 
-        case NavState::BeginGateSearch:
-        case NavState::GateMakePath: {
+        case NavState::BeginGateSearch: {
+            setGateSearcher();
+            nextState = mGateStateMachine->run();
+            break;
+        }
+        case NavState::GateMakePath:
+        case NavState::GateDrivePath: {
             nextState = mGateStateMachine->run();
             break;
         }
@@ -240,6 +247,7 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
                     {NavState::BeginGateSearch,      "Gate Prepare"},
                     {NavState::GateMakePath,         "Gate Make Path"},
+                    {NavState::GateDrivePath,        "Gate Drive Path"},
 
                     {NavState::Unknown,              "Unknown"}
             };

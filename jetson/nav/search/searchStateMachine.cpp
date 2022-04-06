@@ -103,7 +103,7 @@ NavState SearchStateMachine::executeSearchDrive() {
 // If the rover loses the target, will continue to turn using last known angles.
 // If the rover finishes turning to the target, it goes into waiting state to
 // give CV time to relocate the target
-// Else the rover continues to turn to to the target.
+// Else the rover continues to turn to the target.
 NavState SearchStateMachine::executeTurnToTarget() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Rover> rover = sm->getRover();
@@ -150,7 +150,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
     double distance = rover->leftCacheTarget().distance;
     double bearing = rover->leftCacheTarget().bearing + rover->odometry().bearing_deg;
 
-    driveStatus = rover->drive(distance, bearing, true);
+    driveStatus = rover->drive(distance, bearing, mRoverConfig["navThresholds"]["targetDistance"].GetDouble());
 
     if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.clear();

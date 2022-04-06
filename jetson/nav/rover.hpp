@@ -48,6 +48,7 @@ enum class NavState {
     // Gate Search
     BeginGateSearch = 40,
     GateMakePath = 41,
+    GateDrivePath = 42,
 
     // Unknown State
     Unknown = 255
@@ -69,7 +70,7 @@ public:
 
     DriveStatus drive(const Odometry& destination);
 
-    DriveStatus drive(double distance, double bearing, bool target = false);
+    DriveStatus drive(double distance, double bearing, double threshold);
 
     bool turn(Odometry const& destination);
 

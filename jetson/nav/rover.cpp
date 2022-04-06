@@ -23,7 +23,7 @@ Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
 DriveStatus Rover::drive(const Odometry& destination) {
     double distance = estimateNoneuclid(mOdometry, destination);
     double bearing = calcBearing(mOdometry, destination);
-    return drive(distance, bearing, false);
+    return drive(distance, bearing, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
 } // drive()
 
 // Sends a joystick command to drive forward from the current odometry
@@ -34,29 +34,27 @@ DriveStatus Rover::drive(const Odometry& destination) {
 // determines which distance threshold to use.
 // The return value indicates if the rover has arrived or if it is
 // on-course or off-course.
-DriveStatus Rover::drive(const double distance, const double bearing, const bool target) {
-    if ((!target && distance < mRoverConfig["navThresholds"]["waypointDistance"].GetDouble()) ||
-        (target && distance < mRoverConfig["navThresholds"]["targetDistance"].GetDouble())) {
+DriveStatus Rover::drive(const double distance, const double bearing, const double threshold) {
+    if (distance < threshold) {
         return DriveStatus::Arrived;
     }
 
     double destinationBearing = mod(bearing, 360);
-    throughZero(destinationBearing,
-                mOdometry.bearing_deg); // will go off course if inside if because through zero not calculated
+    throughZero(destinationBearing, mOdometry.bearing_deg); // will go off course if inside if because through zero not calculated
 
     if (fabs(destinationBearing - mOdometry.bearing_deg) <
         mRoverConfig["navThresholds"]["drivingBearing"].GetDouble()) {
         double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing);
-        //When we drive to a target, we want to go as fast as possible so one of the sides is fixed at one and the other is 1 - abs(turningEffort)
-        //if we need to turn clockwise, turning effort will be positive, so left_vel will be 1, and right_vel will be in between 0 and 1
-        //if we need to turn ccw, turning effort will be negative, so right_vel will be 1 and left_vel will be in between 0 and 1
+        // When we drive to a target, we want to go as fast as possible so one of the sides is fixed at one and the other is 1 - abs(turningEffort)
+        // if we need to turn clockwise, turning effort will be positive, so left_vel will be 1, and right_vel will be in between 0 and 1
+        // if we need to turn ccw, turning effort will be negative, so right_vel will be 1 and left_vel will be in between 0 and 1
         // TODO: use std::clamp
         double left_vel = std::min(1.0, std::max(0.0, 1.0 + turningEffort));
         double right_vel = std::min(1.0, std::max(0.0, 1.0 - turningEffort));
         publishAutonDriveCmd(left_vel, right_vel);
         return DriveStatus::OnCourse;
     }
-    std::cerr << "off course\n";
+//    std::cerr << "off course\n";
     return DriveStatus::OffCourse;
 } // drive()
 
