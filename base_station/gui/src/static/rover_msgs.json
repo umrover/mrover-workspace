@@ -831,6 +831,12 @@
             "value"
         ]
     ],
+    "ScoopLimitSwitchEnabled": [
+        [
+            "boolean",
+            "enable"
+        ]
+    ],
     "Signal": [],
     "SimulationMode": [
         [
@@ -1196,6 +1202,7 @@
         "RGBLED",
         "SAMotors",
         "SAPosition",
+        "ScoopLimitSwitchEnabled",
         "SensorPackage",
         "Sensors",
         "SensorSwitch",
