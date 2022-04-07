@@ -27,7 +27,7 @@
       <OdometryReading v-bind:odom="odom"/>
     </div>
     <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
+      <Cameras v-bind:servosData="lastServosMessage"/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
@@ -133,8 +133,7 @@ export default {
       },
       // Update connection states
       (online) => {
-        this.connections.lcm = online[0],
-        this.connections.cameras = online.slice(1)
+        this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
       (msg) => {
@@ -162,7 +161,8 @@ export default {
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/ik_reset', 'type': 'Signal'}
+        {'topic': '/ik_reset', 'type': 'Signal'},
+        {'topic': '/wrist_turn_count', 'type': 'WristTurnCount'}
       ]
     )
 
@@ -182,7 +182,7 @@ export default {
       'tilt': 5
     }
 
-    interval = window.setInterval(() => {
+    window.setInterval(() => {
       const gamepads = navigator.getGamepads()
       for (let i = 0; i < 2; i++) {
         const gamepad = gamepads[i]

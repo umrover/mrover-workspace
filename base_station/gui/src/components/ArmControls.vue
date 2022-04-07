@@ -82,6 +82,10 @@ export default {
       this.$parent.publish('/arm_control_state', armStateMsg)
     })
 
+    this.$parent.subscribe('/wrist_turn_count', (msg) => {
+      this.wristTurnCount = msg.turn_count - 2
+    })
+
     const XBOX_CONFIG = {
       'left_js_x': 0,
       'left_js_y': 1,
@@ -240,13 +244,7 @@ export default {
 
     ...mapMutations('controls', {
       setControlMode: 'setControlMode'
-    }),
-
-    turnCountSet: function() {
-      this.$parent.subscribe('/wrist_turn_count', (msg) => {
-        this.wristTurnCount = msg.turn_count
-      })
-    }
+    })
   },
 
   components: {
