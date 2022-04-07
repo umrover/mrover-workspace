@@ -239,9 +239,9 @@ class ArmControl:
                         (xboxData.right_bumper - xboxData.left_bumper)]
 
         # TODO: test open loop, might have to switch these
-        if (self.wrist_turn_count == -2 and motor_speeds[5] < 0):
+        if (self.wrist_turn_count <= -2 and motor_speeds[5] < 0):
             motor_speeds[5] = 0
-        if (self.wrist_turn_count == 2 and motor_speeds[5] > 0):
+        if (self.wrist_turn_count >= 2 and motor_speeds[5] > 0):
             motor_speeds[5] = 0
 
         openloop_msg = RAOpenLoopCmd()
@@ -256,9 +256,9 @@ class ArmControl:
         lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
     def wrist_turn_count_callback(self, channel, msg):
-        self.wrist_turn_count = WristTurnCount.decode(msg) - 2
+        self.wrist_turn_count = WristTurnCount.decode(msg).turn_count - 2
 
-    def sa_control_callback(channel, msg):
+    def sa_control_callback(self, channel, msg):
         xboxData = Xbox.decode(msg)
 
         saMotorsData = [deadzone(quadratic(xboxData.left_js_x), 0.09),
