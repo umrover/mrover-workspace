@@ -67,8 +67,7 @@ export default {
 
 
   created: function () {
-    this.$parent.subscribe('/sa_position', (msg) => {
-      console.log("Received SAPosition")
+    this.$parent.subscribe('/sa_offset_pos', (msg) => {
       this.SAPosition = msg
     })
 
