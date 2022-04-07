@@ -3,7 +3,9 @@
 #include "environment.hpp"
 #include "utilities.hpp"
 
-Environment::Environment(const rapidjson::Document& config) : mRoverConfig(config) {}
+Environment::Environment(const rapidjson::Document& config) : mRoverConfig(config), leftBearingFilter(config["gate"]["filterSize"].GetInt()),
+                                                             rightBearingFilter(config["gate"]["filterSize"].GetInt()), leftDistanceFilter(config["gate"]["filterSize"].GetInt()),
+                                                             rightDistanceFilter(config["gate"]["filterSize"].GetInt()) {}
 
 void Environment::setObstacle(Obstacle const& obstacle) {
     mObstacle = obstacle;
@@ -13,12 +15,10 @@ Obstacle Environment::getObstacle() {
     return mObstacle;
 }
 
-//TODO: build in filtering
 Target Environment::getLeftTarget() {
     return mTargetLeft;
 }
 
-//TODO: build in filtering
 Target Environment::getRightTarget() {
     return mTargetLeft;
 }
@@ -27,6 +27,28 @@ Target Environment::getRightTarget() {
 void Environment::setTargets(TargetList const& targets) {
     mTargetLeft = targets.targetList[0];
     mTargetRight = targets.targetList[1];
+    if (targets.targetList[0].id == -1){
+        leftBearingFilter.reset();
+        leftDistanceFilter.reset();
+    }
+    else{
+        leftBearingFilter.push(mTargetLeft.bearing);
+        leftDistanceFilter.push(mTargetLeft.distance);
+        mTargetLeft.bearing = leftBearingFilter.get(0.75);
+        mTargetLeft.distance = leftDistanceFilter.get(0.75);
+    }
+
+    if (targets.targetList[1].id == -1){
+        rightBearingFilter.reset();
+        rightDistanceFilter.reset();
+    }
+    else{
+        rightBearingFilter.push(mTargetRight.bearing);
+        rightDistanceFilter.push(mTargetRight.distance);
+        mTargetRight.bearing = rightBearingFilter.get(0.75);
+        mTargetRight.distance = rightDistanceFilter.get(0.75);
+    }
+    
 }
 
 void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {

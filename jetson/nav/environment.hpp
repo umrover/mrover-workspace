@@ -5,6 +5,7 @@
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover.hpp"
+#include "filter.hpp"
 
 
 using namespace rover_msgs;
@@ -31,8 +32,10 @@ private:
     int mCountLeftHits = 0;
     int mCountRightHits = 0;
 
-    // Reference to config variables
+     // Reference to config variables
     const rapidjson::Document& mRoverConfig;
+
+    Filter<double> leftBearingFilter, rightBearingFilter, leftDistanceFilter, rightDistanceFilter;
 
     Odometry leftPost, rightPost;
 
