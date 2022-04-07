@@ -95,11 +95,6 @@
     },
 
     props: {
-      connections: {
-        type: Array,
-        required: true
-      },
-
       servosData: {
         type: Object,
         required: true

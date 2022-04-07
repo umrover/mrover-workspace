@@ -6,6 +6,9 @@
     <div class="keyboard">
       <GimbalControls/>
     </div>
+    <div style="font-color: abs(wristTurnCount) >= 2 ? red : black;">
+      Wrist turn count: {{this.wristTurnCount}}
+    </div>
   </div>
 </template>
 
@@ -24,7 +27,9 @@ export default {
 
       stateInput: {
         state: "off"
-      }
+      },
+
+      wristTurnCount: 0
     }
   },
 
@@ -75,6 +80,10 @@ export default {
       }
 
       this.$parent.publish('/arm_control_state', armStateMsg)
+    })
+
+    this.$parent.subscribe('/wrist_turn_count', (msg) => {
+      this.wristTurnCount = msg.turn_count - 2
     })
 
     const XBOX_CONFIG = {
