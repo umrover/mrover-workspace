@@ -155,17 +155,16 @@ NavState SearchStateMachine::executeDriveToTarget() {
     if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.clear();
         Waypoint completed = sm->getCourseState()->completeCurrentWaypoint();
-        if (completed.gate){
-            //start search for second post
-            double visionDistance = mRoverConfig["computerVision"]["visionDistance"].GetDouble();
-            sm->setSearcher(SearchType::FROM_PATH_FILE_GATE, rover, mRoverConfig);
-            initializeSearch(mRoverConfig, visionDistance);
-            return NavState::SearchTurn;
-        }
-        else{
-            return NavState::Turn;
-        }
-       
+        return completed.gate ? NavState::BeginGateSearch : NavState::Turn;
+//        if (completed.gate){
+//            //start search for second post
+//            double visionDistance = mRoverConfig["computerVision"]["visionDistance"].GetDouble();
+//            sm->setSearcher(SearchType::FROM_PATH_FILE_GATE);
+//            return NavState::SearchTurn;
+//        }
+//        else{
+//            return NavState::Turn;
+//        }
     }
     if (driveStatus == DriveStatus::OnCourse) {
         return NavState::DriveToTarget;
@@ -209,6 +208,7 @@ SearchFactory(const std::weak_ptr<StateMachine>& sm, SearchType type, const std:
             break;
         case SearchType::FROM_PATH_FILE_GATE:
             search = std::make_shared<SearchFromPathFile>(sm, roverConfig, "jetson/nav/search/gate_search_points.txt");
+            break;
         default:
             std::cerr << "Unknown Search Type. Defaulting to Spiral\n";
             break;

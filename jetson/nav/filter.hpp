@@ -15,9 +15,11 @@ private:
     // Index to the current head.
     // Note this is a circular buffer, so this will wrap around when we reach the end of the internal vector.
     size_t mHead{};
+    // After sorting, what proportion in the middle values should we use.
+    double mProportion;
 
 public:
-    explicit Filter(size_t size) : mValues(size), mSortedValues(size) {}
+    Filter(size_t size, double centerProportion) : mValues(size), mProportion(centerProportion), mSortedValues(size) {}
 
     /**
      * Add a value to the filter, overwrites old values if full.
@@ -32,29 +34,28 @@ public:
         mCount = 0;
     }
 
-    size_t size() {
+    [[nodiscard]] size_t size() const {
         return mValues.size();
     }
 
     /***
      * @return If we have enough readings to use the filter
      */
-    bool full() {
+    [[nodiscard]] bool full() const {
         return mCount == size();
     }
 
     /***
-     * @param percentMiddle After sorting, what percent in the middle values should we use.
      * @return Filtered reading if full, or else the most recent reading if we don't have enough readings yet.
      */
-    T get(double percentMiddle) {
+    T get() {
         if (!full()) {
             return mValues[mHead];
         }
         mSortedValues = mValues;
         std::sort(mSortedValues.begin(), mSortedValues.end());
-        auto begin = mSortedValues.begin() + (percentMiddle * size() / 4);
-        auto end = mSortedValues.end() - (percentMiddle * size() / 4);
+        auto begin = mSortedValues.begin() + (mProportion * size() / 4);
+        auto end = mSortedValues.end() - (mProportion * size() / 4);
         return std::accumulate(begin, end, T{}) / (end - begin);
     }
 };

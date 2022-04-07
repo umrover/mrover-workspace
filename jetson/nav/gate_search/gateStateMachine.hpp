@@ -9,11 +9,7 @@
 #include "../filter.hpp"
 #include "rover_msgs/Odometry.hpp"
 
-
 using namespace rover_msgs;
-
-const size_t LEFT_TARGET_IDX = 0;
-const size_t RIGHT_TARGET_IDX = 1;
 
 class StateMachine;
 
@@ -52,9 +48,7 @@ private:
     /*************************************************************************/
     const rapidjson::Document& mRoverConfig;
 
-    Filter<double> mLeftDistFilter, mRightDistFilter, mLeftBearingFilter, mRightBearingFilter;
-
-    std::vector<Odometry> gateTraversalPath;
+    std::deque<Odometry> mPath;
 };
 
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);
