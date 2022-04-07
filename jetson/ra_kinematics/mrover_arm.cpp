@@ -39,12 +39,32 @@ void MRoverArm::arm_position_callback(std::string channel, RAPosition msg) {
                             msg.joint_d, msg.joint_e, msg.joint_f };
 
     set_arm_position(angles);
+
+    RAPosition outgoing_msg;
+
+    outgoing_msg.joint_a = angles[0];
+    outgoing_msg.joint_b = angles[1];
+    outgoing_msg.joint_c = angles[2];
+    outgoing_msg.joint_d = angles[3];
+    outgoing_msg.joint_e = angles[4];
+    outgoing_msg.joint_f = angles[5];
+
+    lcm_.publish("/ra_offset_pos", &outgoing_msg);
 }
 
 void MRoverArm::arm_position_callback(std::string channel, SAPosition msg) {
     std::vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c, msg.joint_e };
 
     set_arm_position(angles);
+
+    SAPosition outgoing_msg;
+
+    outgoing_msg.joint_a = angles[0];
+    outgoing_msg.joint_b = angles[1];
+    outgoing_msg.joint_c = angles[2];
+    outgoing_msg.joint_e = angles[3];
+
+    lcm_.publish("/sa_offset_pos", &outgoing_msg);
 }
 
 void MRoverArm::ra_control_callback(std::string channel, ArmControlState msg) {
