@@ -3,7 +3,7 @@
   become: yes
   gather_facts: False
   vars:
-      ubuntu_release: bionic
+      ubuntu_release: focal
       running_user: mrover
       home_dir: /home/mrover
       workspace_dir: /home/mrover/mrover-workspace

@@ -35,7 +35,7 @@
       - autoconf
       - libtool
       - libglib2.0-dev
-      - libpython3.6-dev
+      - libpython3.8-dev
       - virtualenv
       - git
       - python3-gst-1.0

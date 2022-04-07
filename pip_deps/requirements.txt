@@ -1,7 +1,7 @@
 pyserial==3.4
 websockets==9.1
-pycairo==1.17.0
-pygobject==3.28.2
+pycairo==1.20.1
+pygobject==3.42.0
 pyusb==1.0.2
-Adafruit_BBIO==1.1.1
+Adafruit_BBIO==1.2.0
 smbus-cffi==0.5.1
