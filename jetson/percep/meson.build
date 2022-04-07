@@ -24,7 +24,7 @@ if with_zed
 			# CUDA 
 			'-L/usr/local/cuda/lib64',
 			'-lcuda', '-lnppial', '-lnppisu', '-lnppicc',
-			'-lnppicom', '-lnppidei', '-lnppif', '-lnppig',
+			'-lnppidei', '-lnppif', '-lnppig',
 			'-lnppim', '-lnppist', '-lnppitc', '-lnppc'
 
 		])
@@ -32,7 +32,7 @@ if with_zed
 endif
 
 if obs_detection
-	obs_include_dirs = include_directories('/usr/include/pcl-1.8', '/usr/include/eigen3', '/usr/include/boost', '/usr/include/vtk-6.3', '/usr/include/flann')
+	obs_include_dirs = include_directories('/usr/local/include/pcl-1.11', '/usr/include/eigen3', '/usr/include/boost', '/usr/include/vtk-6.3', '/usr/include/flann')
 	obs = declare_dependency(
 	include_directories : obs_include_dirs,
 	link_args : [

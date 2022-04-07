@@ -56,7 +56,25 @@ ENV ANSIBLE_LIBRARY /ansible/library
 WORKDIR /root
 
 # Install OpenCV
-RUN apt-get install -y libopencv-dev
+# RUN apt-get install -y libopencv-dev
+RUN cd /opt && \
+    wget --no-check-certificate -O opencv-3.2.0.tar.gz https://github.com/opencv/opencv/archive/3.2.0.tar.gz -qO- | tar xz && \
+    wget --no-check-certificate -O opencv_contrib-3.2.0.tar.gz https://github.com/opencv/opencv_contrib/archive/3.2.0.tar.gz -qO- | tar xz && \
+    cd opencv-3.2.0 && \
+    mkdir build && \
+    cd build && \
+    cmake -G Ninja -D WITH_CUDA=OFF -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D OPENCV_EXTRA_MODULES_PATH=/opt/opencv_contrib-3.2.0/modules -D BUILD_opencv_aruco=ON -D BUILD_opencv_bgsegm=OFF \
+    -D BUILD_opencv_bioinspired=OFF -D BUILD_opencv_ccalib=OFF -D BUILD_opencv_cnn_3dobj=OFF -D BUILD_opencv_cvv=OFF \
+    -D BUILD_opencv_datasets=OFF -D BUILD_opencv_dnn_objdetect=OFF -D BUILD_opencv_dnn_superres=OFF \
+    -D BUILD_opencv_dnns_easily_fooled=OFF -D BUILD_opencv_dpm=OFF -D BUILD_opencv_face=OFF -D BUILD_opencv_fuzzy=OFF \
+    -D BUILD_opencv_freetype=OFF -D BUILD_opencv_hdf=OFF -D BUILD_opencv_line_descriptor=OFF -D BUILD_opencv_matlab=OFF \
+    -D BUILD_opencv_optflow=OFF -D BUILD_opencv_ovis=OFF -D BUILD_opencv_plot=OFF -D BUILD_opencv_reg=OFF \
+    -D BUILD_opencv_rgbd=OFF -D BUILD_opencv_saliency=OFF -D BUILD_opencv_sfm=OFF -D BUILD_opencv_stereo=OFF \
+    -D BUILD_opencv_structured_light=OFF -D BUILD_opencv_surface_matching=OFF -D BUILD_opencv_text=OFF \
+    -D BUILD_opencv_tracking=OFF -D BUILD_opencv_xfeatures2d=OFF -D BUILD_opencv_ximgproc=OFF \
+    -D BUILD_opencv_xobjdetect=OFF -D BUILD_opencv_xphoto=OFF /opt/opencv-3.2.0/ && ninja && ninja install && ldconfig && \
+    rm -r /opt/opencv-3.2.0 && rm -r /opt/opencv_contrib-3.2.0
 
 # Install ZED (also installs CUDA 11)
 RUN echo "==================== Installing ZED SDK ====================" && \
