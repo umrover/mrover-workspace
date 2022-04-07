@@ -18,6 +18,7 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     lcm_(lcm),
     sim_mode(true),
     control_state(ControlState::OFF),
+    wrist_turn_count(0),
     motion_planner(arm_state, solver),
     use_orientation(false),
     zero_encoders(false)
@@ -74,7 +75,7 @@ void MRoverArm::set_arm_position(std::vector<double> &angles) {
         for (size_t i = 0; i < arm_state.num_joints(); ++i)  {
             if (i == 1) {
                 arm_state.set_joint_encoder_offset(i,
-                    angles[i] + arm_state.get_joint_limits(i)[1]);
+                    angles[i] + (-1 * arm_state.get_joint_encoder_multiplier(i) * arm_state.get_joint_limits(i)[1]));
             }
             else {
                 arm_state.set_joint_encoder_offset(i, angles[i]);
@@ -170,6 +171,11 @@ void MRoverArm::set_arm_position(std::vector<double> &angles) {
 }
 
 void MRoverArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
+    if(abs(wrist_turn_count) >= 2){
+        std::cout << "Wrist Turn Count Limit Exceeded, IK Request Cancelled\n";
+        return;
+    }
+    
     if (control_state == ControlState::OFF) {
         set_to_closed_loop();
     }
@@ -266,7 +272,35 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
 }
 
 void MRoverArm::plan_path(ArmState& hypo_state, const std::vector<double> &goal) {
+    std::cout << "Beginning path planning\n";
+
+    // save vector of which joints are locked
+    vector<bool> original_locks;
+    original_locks.resize(hypo_state.num_joints());
+    for (size_t j = 0; j < hypo_state.num_joints(); ++j) {
+        original_locks[j] = hypo_state.get_joint_locked(j);
+    }
+
+    // lock joints that don't change between start and target
+    for (size_t i = 0; i < hypo_state.num_joints(); ++i) {
+        if (abs(hypo_state.get_joint_angle(i) - goal[i]) < 0.005) {
+            hypo_state.set_joint_locked(i, true);
+        }
+    }    
+
     bool path_found = motion_planner.rrt_connect(hypo_state, goal);
+
+    // if we don't find a path, try again with original joints locked
+    if (!path_found) {
+
+        std::cout << "Motion planning failed with temporary joint locks. Trying again without locks...\n";
+        // set joint locks back to what they were
+        for (size_t j = 0; j < hypo_state.num_joints(); ++j) {
+            hypo_state.set_joint_locked(j, original_locks[j]);
+        }
+        path_found = motion_planner.rrt_connect(hypo_state, goal);
+    }
+
 
     // check if closed-loop was aborted
     if (interrupt(ControlState::CALCULATING, "Path planning")) {
@@ -285,6 +319,8 @@ void MRoverArm::plan_path(ArmState& hypo_state, const std::vector<double> &goal)
         
         // send popup message to GUI
         lcm_.publish("/debug_message", &msg);
+
+        std::cout << "Unable to plan path!\n";
     }
 }
 
@@ -444,11 +480,14 @@ void MRoverArm::execute_spline() {
             if (!sim_mode) {
                 // TODO make publish function names more intuitive?
 
+                std::cout << "Sending target:";
                 // Adjust for encoders not being properly zeroed.
                 for (size_t i = 0; i < arm_state.num_joints(); ++i) {
+                    std::cout << " " << target_angles[i];
                     target_angles[i] *= arm_state.get_joint_encoder_multiplier(i);
                     target_angles[i] += arm_state.get_joint_encoder_offset(i);
                 }
+                std::cout << "\n";
 
                 if (arm_state.num_joints() == 6) {
                     publish_config(target_angles, "/ra_ik_cmd");
@@ -459,6 +498,11 @@ void MRoverArm::execute_spline() {
             }
             // if in sim_mode, simulate that we have gotten a new current position
             else {
+                std::cout << "Sending target:";
+                for (size_t i = 0; i < arm_state.num_joints(); ++i) {
+                    std::cout << " " << target_angles[i];
+                }
+                std::cout << "\n";
                 arm_state.set_joint_angles(target_angles);
             }
 
@@ -574,7 +618,7 @@ void MRoverArm::check_joint_limits(std::vector<double> &angles) {
 
             double offset_angle = angles[i] * arm_state.get_joint_encoder_multiplier(i);
             offset_angle += arm_state.get_joint_encoder_offset(i);
-            std::cout << "Current angle beyond limits, before offset: " << offset_angle << "\n";
+            std::cout << "Current angle beyond limits: " << angles[i] << ", before offset: " << offset_angle << "\n";
         }
     }
 }
@@ -582,6 +626,10 @@ void MRoverArm::check_joint_limits(std::vector<double> &angles) {
 void MRoverArm::custom_preset_callback(std::string channel, CustomPreset msg) {
     arm_state.set_preset_position(msg.preset);
     std::cout << "adding new preset " << msg.preset << "\n";
+}
+
+void MRoverArm::wrist_turn_count_callback(std::string channel, WristTurnCount msg){
+    wrist_turn_count = msg.turn_count;
 }
 
 void MRoverArm::set_to_closed_loop() {
@@ -766,6 +814,12 @@ void ScienceArm::arm_preset_callback(std::string channel, ArmPreset msg) {
     new_msg.joint_e = angles[3];
 
     go_to_target_angles(new_msg);
+}
+
+void ScienceArm::arm_preset_path_callback(std::string channel, ArmPresetPath msg) {
+    std::vector<std::vector<double>> paths = arm_state.get_htap a eldnahpreset_path(msg.preset);
+
+    // TODO: figure out how to 
 }
 
 void ScienceArm::encoder_angles_sender() {

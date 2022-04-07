@@ -118,6 +118,7 @@ private:
     std::vector<std::string> joint_names;
     std::vector<std::string> link_names;
     std::map<std::string, std::vector<double>> preset_positions;
+    std::map<std::string, std::vector<std::vector<double>>> preset_paths;
 
     std::vector<Joint> joints;
     std::vector<Link> links;
@@ -224,6 +225,8 @@ public:
     bool is_continuous(size_t joint_index);
 
     std::vector<double> get_preset_position(const std::string &pos);
+
+    std::vector<std::vector<double>> get_preset_path(const std::string &path);
 
     void set_preset_position(const std::string &pos);
 };

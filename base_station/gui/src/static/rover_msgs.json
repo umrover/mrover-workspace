@@ -63,6 +63,12 @@
             "preset"
         ]
     ],
+    "ArmPresetPath": [
+        [
+            "string",
+            "preset"
+        ]
+    ],
     "ArmToggles": [
         [
             "boolean",
@@ -1085,6 +1091,12 @@
             "right_back"
         ]
     ],
+    "WristTurnCount": [
+        [
+            "int8_t",
+            "turn_count"
+        ]
+    ],
     "Xbox": [
         [
             "double",
@@ -1222,6 +1234,7 @@
         "TestEnable",
         "Waypoint",
         "WheelSpeeds",
+        "WristTurnCount",
         "Xbox",
         "ZedGimbalPosition"
     ]

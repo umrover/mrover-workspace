@@ -103,12 +103,29 @@ public:
         arm->arm_preset_callback( channel, *arm_preset );
     }
 
+    void pathPresetCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const ArmPresetPath* arm_preset_path)
+        {
+            arm->arm_preset_path_callback( channel, *arm_preset_path );
+        }
+    )
+
     void customPresetCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
         const CustomPreset* custom_preset)
     {
         arm->custom_preset_callback( channel, *custom_preset );
+    }
+
+    void wristTurnCountCallback(
+        const lcm::ReceiveBuffer* receiveBuffer,
+        const std::string& channel,
+        const WristTurnCount* wrist_turn_count)
+    {
+        arm->wristTurnCountCallback( channel, *wrist_turn_count );
     }
 
 private:
@@ -140,6 +157,9 @@ int main() {
         lcmObject.subscribe( "/zero_position", &lcmHandlers::zeroPositionCallback, &handler );
         lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
         lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
+        lcmObject.subscribe( "/arm_preset_path", &lcmHandlers::pathPresetCallback, &handler );
+
+
         lcmObject.subscribe( "/custom_preset", &lcmHandlers::customPresetCallback, &handler );
 
         Signal signal;
@@ -173,6 +193,7 @@ int main() {
         lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
         lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
         lcmObject.subscribe( "/custom_preset", &lcmHandlers::customPresetCallback, &handler );
+        lcmObject.subscribe( "/wrist_turn_count", &lcmHandlers::wristTurnCountCallback, &handler );
 
         Signal signal;
         lcmObject.publish("/ik_reset", &signal);

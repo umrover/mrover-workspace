@@ -97,7 +97,7 @@
         "nucleo": 1,
         "channel": 1,
         "quadCPR": 4096.0,
-        "kP": -1.0,
+        "kP": -0.5,
         "kI": -0.0,
         "inversion": 1.0
     },

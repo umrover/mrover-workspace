@@ -53,6 +53,7 @@
           '/arm_control_state_to_gui': false,
           '/arm_adjustments': false,
           '/arm_preset': false,
+          '/arm_preset_path': false,
           '/arm_toggles_button_data': false,
           '/arm_toggles_toggle_data': false,
           '/auton': false,
@@ -113,6 +114,7 @@
           '/tennis_ball': false,
           '/thermistor_data': false,
           '/use_orientation': false,
+          '/wrist_turn_count': false,
           '/zed_gimbal_cmd': false,
           '/zed_gimbal_data': false,
           '/zero_position': false
@@ -124,6 +126,7 @@
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
           {'topic': '/arm_toggles_toggle_data', 'type': 'ArmToggles'},
           {'topic': '/arm_preset', 'type': 'ArmPreset'},
+          {'topic': '/arm_preset_path', 'type': 'ArmPresetPath'},
           {'topic': '/auton', 'type': 'AutonState'},
           {'topic': '/autonomous', 'type': 'Joystick'},
           {'topic': '/cameras_cmd', 'type': 'Cameras'},
@@ -188,6 +191,7 @@
           {'topic': '/tennis_ball', 'type': 'TennisBall'},
           {'topic': '/thermistor_data', 'type': 'ThermistorData'},
           {'topic': '/use_orientation', 'type': 'UseOrientation'},
+          {'topic': '/wrist_turn_count', 'type': 'WristTurnCount'},
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
           {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'},
           {'topic': '/zero_position', 'type': 'Signal'}

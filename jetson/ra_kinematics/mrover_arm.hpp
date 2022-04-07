@@ -36,6 +36,7 @@
 #include "rover_msgs/ArmPreset.hpp"
 #include "rover_msgs/CustomPreset.hpp"
 #include "rover_msgs/ArmAdjustments.hpp"
+#include "rover_msgs/WristTurnCount.hpp"
 
 using namespace rover_msgs;
  
@@ -49,7 +50,7 @@ static constexpr double D_SPLINE_T = 0.05;
 static constexpr double MAX_SPLINE_T_IT = 0.02;
 
 // in ms, wait time for execute_spline loop
-static constexpr int SPLINE_WAIT_TIME = 50;
+static constexpr int SPLINE_WAIT_TIME = 20;
 
 // Angle in radians to determine when encoders are sending faulty values
 static constexpr double ENCODER_ERROR_THRESHOLD = 0.1;
@@ -88,6 +89,7 @@ protected:
     };
 
     ControlState control_state;
+    int wrist_turn_count;
 
     std::mutex encoder_angles_sender_mtx;
  
@@ -200,6 +202,14 @@ public:
      * @param msg format: string preset
      */
     void custom_preset_callback(std::string channel, CustomPreset msg);
+    
+    /**
+     * Handle request to go to a preset position
+     * 
+     * @param channel expected: "/wrist_turn_count_callback"
+     * @param msg format: int8_t turnCount
+     */
+    void wrist_turn_count_callback(std::string channel, CustomPreset msg);
 
     /**
      * Handle request to lock specific joints
@@ -216,6 +226,14 @@ public:
      * @param msg format: string preset
      */
     virtual void arm_preset_callback(std::string channel, ArmPreset msg) = 0;
+
+    /**
+     * Handle request to go to various positions on a preset path
+     * 
+     * @param channel expected: "/arm_preset_path"
+     * @param msg format: string preset
+     */
+    virtual void arm_preset_path_callback(std::string channel, ArmPresetPath msg) = 0;
 
     /**
      * Update arm_state and call FK() to adjust transforms

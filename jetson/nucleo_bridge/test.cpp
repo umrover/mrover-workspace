@@ -51,7 +51,7 @@ float closedPlus(std::string name, float target_angle_deg)
         float quad_angle_deg = quad_angle_rad / (2 * M_PI) * 360;
         float diff_deg = target_angle_deg - quad_angle_deg;
         printf("closedPlus %s: Target degrees is %f, quad degrees is %f, diff is %f\n", name.c_str(), target_angle_deg, quad_angle_deg, diff_deg);
-        return angle_deg;
+        return quad_angle_deg;
     }
     catch (IOFailure &e)
     {
@@ -141,7 +141,7 @@ void testClosed()
         i = ControllerMap::controllers[name]->kI;
         d = ControllerMap::controllers[name]->kD;
         setKPID(name, p, i, d);  // highly optional, but useful as a sanity check
-        printf("joint %s, kp is %i, ki is %i, kd is %i \n", name.c_str(), p, i, d);
+        printf("joint %s, kp is %f, ki is %f, kd is %f \n", name.c_str(), p, i, d);
         sleep(10);
     }
 
@@ -202,7 +202,7 @@ void testOpenPlusWithAbs()
 {
     PRINT_TEST_START
 
-    float quad = 0.0f;
+    float quad_angle_deg = 0.0f;
     float abs_angle_deg = 0.0f;
 
     for (auto name : motor_names)
