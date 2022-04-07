@@ -63,6 +63,12 @@
             "preset"
         ]
     ],
+    "ArmPresetPath": [
+        [
+            "string",
+            "preset"
+        ]
+    ],
     "ArmToggles": [
         [
             "boolean",

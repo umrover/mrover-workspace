@@ -53,6 +53,19 @@ ArmState::ArmState(json &geom) : ef_pos_world(Vector3d::Zero()), ef_xform(Matrix
         }
     }
 
+    json paths = geom["preset_paths"];
+    for (json::iterator it = paths.begin(); it != paths.end(); ++it) {
+        preset_paths[it.key()] = {};
+        preset_paths[it.key()].resize(it.value().size());
+
+        for (size_t i = 0; i < it.value().size(); ++i) {
+            preset_paths[it.key()][i].resize(num_joints());
+            for (size_t j = 0; j < num_joints(); ++j) {
+                preset_paths[it.key()][i][j] = it.value()[i][j];
+            }
+        }
+    }
+
     // Sort links by link_num, since they may not be in order from the json
     Link_Comp comparator;
     std::sort(collision_avoidance_links.begin(), collision_avoidance_links.end(), comparator);
@@ -320,6 +333,10 @@ bool ArmState::is_continuous(size_t joint_index) {
 
 std::vector<double> ArmState::get_preset_position(const std::string &pos) { 
     return preset_positions.at(pos);
+}
+
+std::vector<std::vector<double>> ArmState::get_preset_path(const std::string &path) { 
+    return preset_paths.at(path);
 }
 
 void ArmState::set_preset_position(const std::string &pos) { 

@@ -21,6 +21,8 @@
       <button v-on:click="send_position('stowed')">Stowed</button>
       <button v-on:click="send_position('scoop')">Scoop</button>
       <button v-on:click="send_position('deposit')">Deposit</button>
+      <button v-on:click="send_position('raman')">Raman</button>
+      <button v-on:click="send_path('stowed_to_scoop')">Stowed to Scoop Path</button>
     </div>
     <label for="toggle_button" :class="{'active': enable_limit_switch == true}" class="toggle__button">
       <span v-if="enable_limit_switch == true" class="toggle__label" >Scoop Limit Switch</span>
@@ -30,6 +32,10 @@
         <span class="toggle__switch" v-if="enable_limit_switch == false" v-on:click="enable_limit_switch=true,toggle_limit_switch_status()"></span>
         <span class="toggle__switch" v-if="enable_limit_switch == true" v-on:click="enable_limit_switch=false,toggle_limit_switch_status()"></span>
     </label>
+    <div class="buttons">
+      <Checkbox ref="sim-mode" v-bind:name="'Sim Mode'" v-on:toggle="updateSimMode($event)"/>
+      <button v-on:click="zeroPositionCallback()">Set Zero Position</button>
+    </div>
   </div>
 </template>
 
@@ -153,6 +159,13 @@ export default {
       })
     },
 
+    send_path: function(preset) {
+      this.$parent.publish("/arm_preset_path", {
+        'type': 'ArmPresetPath',
+        'preset': preset
+      })
+    },
+
     updateControlMode: function (mode, checked) {
 
       if (checked) {
@@ -255,6 +268,19 @@ export default {
         'type': 'ScoopLimitSwitchEnable',
         'enable': this.enable_limit_switch
       });
+    },
+    zeroPositionCallback: function() {
+	        console.log("publishing zero position")
+            this.$parent.publish('/zero_position', { 'type': 'Signal' });
+    },
+    updateSimMode: function(checked) {
+            this.sim_mode = checked
+
+            const simModeMsg = {
+                'type': 'SimulationMode',
+                'sim_mode': checked
+            }
+            this.$parent.publish('/simulation_mode', simModeMsg);
     },
   },
 
