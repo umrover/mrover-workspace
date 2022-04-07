@@ -10,7 +10,8 @@ class StateMachine;
 // This class is the representation of different
 // search algorithms
 enum class SearchType {
-    FROM_PATH_FILE
+    FROM_PATH_FILE = 0, 
+    FROM_PATH_FILE_GATE = 1
 };
 
 class SearchStateMachine {
