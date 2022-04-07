@@ -262,6 +262,7 @@ export default {
       }
       return false
     },
+
     toggle_limit_switch_status: function() {
       console.log("Setting limit switch enabled status: " + this.enable_limit_switch);
       this.$parent.publish("/scoop_limit_switch_enable_cmd", {
@@ -269,18 +270,20 @@ export default {
         'enable': this.enable_limit_switch
       });
     },
-    zeroPositionCallback: function() {
-	        console.log("publishing zero position")
-            this.$parent.publish('/zero_position', { 'type': 'Signal' });
-    },
-    updateSimMode: function(checked) {
-            this.sim_mode = checked
 
-            const simModeMsg = {
-                'type': 'SimulationMode',
-                'sim_mode': checked
-            }
-            this.$parent.publish('/simulation_mode', simModeMsg);
+    zeroPositionCallback: function() {
+	    console.log("publishing zero position")
+      this.$parent.publish('/zero_position', { 'type': 'Signal' });
+    },
+
+    updateSimMode: function(checked) {
+      this.sim_mode = checked
+
+      const simModeMsg = {
+        'type': 'SimulationMode',
+        'sim_mode': checked
+      }
+      this.$parent.publish('/simulation_mode', simModeMsg);
     },
   },
 

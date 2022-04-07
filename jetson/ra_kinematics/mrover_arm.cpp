@@ -499,7 +499,6 @@ void MRoverArm::execute_spline() {
             // if in sim_mode, simulate that we have gotten a new current position
             else {
                 std::cout << "Sending target:";
-                // Adjust for encoders not being properly zeroed.
                 for (size_t i = 0; i < arm_state.num_joints(); ++i) {
                     std::cout << " " << target_angles[i];
                 }
