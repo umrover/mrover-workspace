@@ -21,6 +21,14 @@
       <span class="toggle__switch" v-if="shutdown == 1" v-on:click="shutdown=0, setLimit(false)"></span>
     </label>
   </div>
+    <label for="toggle_button" :class="{'active': scoopLimit == 1}" class="toggle__button">
+        <span v-if="scoopLimit == 1" class="toggle__label" >Limit On</span>
+        <span v-if="scoopLimit == 0" class="toggle__label" >Limit Off</span>
+
+        <input type="checkbox" id="toggle_button">
+        <span class="toggle__switch" v-if="scoopLimit == 0" v-on:click="scoopLimit = 1, setLimit(true)"></span>
+        <span class="toggle__switch" v-if="scoopLimit == 1" v-on:click="scoopLimit = 0, setLimit(false)"></span>
+    </label>
 </div>  
 </template>
 
@@ -132,7 +140,8 @@ export default {
       }
       else {
         clearTimeout(this.timeoutID);
-      },
+      }
+    },
       
     setLimit: function(enabled) {
       this.$parent.publish("/scoop_limit_switch_enable_cmd", {
