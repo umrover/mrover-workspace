@@ -9,9 +9,16 @@ import os
 #
 ########################
 def launch_dir(ctx, package, ssh, only_run, opts):
+    
+    # Set LCM Environment Variables
     wid = launch_terminal()
     exec_cmd(wid, "export LCM_DEFAULT_URL='udpm://239.255.76.67:7667?ttl=255'", 
             ssh=ssh, ip=AUTON_IP, close_terminal = True)
+    wid = launch_terminal()
+    exec_cmd(wid, "export LCM_DEFAULT_URL='udpm://239.255.76.67:7667?ttl=255'", 
+            ssh=ssh, ip=DRIVE_IP, close_terminal = True)
+    
+    # Execute Launch Commands
     if package == "percep":
         launch_perception(ssh, only_run, opts)
     elif package == "nav":
