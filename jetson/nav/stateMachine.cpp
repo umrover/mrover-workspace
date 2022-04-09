@@ -288,3 +288,7 @@ std::shared_ptr<CourseProgress> StateMachine::getCourseState() {
 std::shared_ptr<Rover> StateMachine::getRover() {
     return mRover;
 }
+
+lcm::LCM& StateMachine::getLCM() {
+    return mLcmObject;
+}

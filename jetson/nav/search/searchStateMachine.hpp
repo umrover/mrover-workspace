@@ -66,6 +66,8 @@ private:
 
     void updateTargetDetectionElements(double target_bearing, double rover_bearing);
 
+    void publishSearchPoints();
+
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
