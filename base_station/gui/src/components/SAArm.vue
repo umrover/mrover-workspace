@@ -21,6 +21,20 @@
       <button v-on:click="send_position('stowed')">Stowed</button>
       <button v-on:click="send_position('scoop')">Scoop</button>
       <button v-on:click="send_position('deposit')">Deposit</button>
+      <button v-on:click="send_position('raman')">Raman</button>
+      <button v-on:click="send_path('stowed_to_scoop')">Stowed to Scoop Path</button>
+    </div>
+    <label for="toggle_button" :class="{'active': enable_limit_switch == true}" class="toggle__button">
+      <span v-if="enable_limit_switch == true" class="toggle__label" >Scoop Limit Switch</span>
+      <span v-if="enable_limit_switch == false" class="toggle__label" >Scoop Limit Switch</span>
+
+      <input type="checkbox" id="toggle_button" v-model="checkedValue">
+        <span class="toggle__switch" v-if="enable_limit_switch == false" v-on:click="enable_limit_switch=true,toggle_limit_switch_status()"></span>
+        <span class="toggle__switch" v-if="enable_limit_switch == true" v-on:click="enable_limit_switch=false,toggle_limit_switch_status()"></span>
+    </label>
+    <div class="buttons">
+      <Checkbox ref="sim-mode" v-bind:name="'Sim Mode'" v-on:toggle="updateSimMode($event)"/>
+      <button v-on:click="zeroPositionCallback()">Set Zero Position</button>
     </div>
   </div>
 </template>
@@ -42,7 +56,8 @@ export default {
         joint_c: 0,
         joint_e: 0
       },
-      position: "stowed"
+      position: "stowed",
+      enable_limit_switch: true,
     }
   },
 
@@ -52,8 +67,7 @@ export default {
 
 
   created: function () {
-    this.$parent.subscribe('/sa_position', (msg) => {
-      console.log("Received SAPosition")
+    this.$parent.subscribe('/sa_offset_pos', (msg) => {
       this.SAPosition = msg
     })
 
@@ -123,8 +137,8 @@ export default {
               'x': gamepad.buttons[XBOX_CONFIG['x']]['pressed'],
               'y': gamepad.buttons[XBOX_CONFIG['y']]['pressed']
             }
-            if (this.controlMode !== 'open-loop' && checkXboxInput(xboxData)) {
-              updateControlMode('open-loop', true)
+            if (this.controlMode !== 'open-loop' && this.checkXboxInput(xboxData)) {
+              this.forceOpenLoop()
             }
             if (this.controlMode === 'open-loop') {
               this.$parent.publish('/sa_control', xboxData)
@@ -136,10 +150,18 @@ export default {
   },
 
   methods: {
-    send_position: function(position) {
+    send_position: function(preset) {
+      console.log(preset);
       this.$parent.publish("/arm_preset", {
         'type': 'ArmPreset',
-        'position': position
+        'preset': preset
+      })
+    },
+
+    send_path: function(preset) {
+      this.$parent.publish("/arm_preset_path", {
+        'type': 'ArmPresetPath',
+        'preset': preset
       })
     },
 
@@ -165,57 +187,103 @@ export default {
       this.$parent.publish('/arm_control_state', armStateMsg);
     },
 
+    forceOpenLoop: function () {
+      console.log(this.controlMode)
+
+      if (this.controlMode === 'open-loop') {
+        return
+      }
+
+      if (this.controlMode === 'closed-loop') {
+        this.$refs['closed-loop'].toggle()
+      }
+
+      this.$refs['open-loop'].toggle()
+      this.controlMode = 'open-loop'
+
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': this.controlMode
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+    },
+
     checkXboxInput: function (xboxData) {
-      if (abs(xboxData[left_js_x]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['left_js_x']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[left_js_y]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['left_js_y']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[left_trigger]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['left_trigger']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[right_trigger]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_trigger']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[right_js_x]) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_js_x']) > this.xboxControlEpsilon) {
         return true
       }
-      if (abs(xboxData[right_js_y] - 0) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_js_y']) > this.xboxControlEpsilon) {
         return true
       }
-      if (xboxData[left_bumper] !== 0) {
+      if (xboxData['left_bumper']) {
         return true
       }
-      if (xboxData[right_bumper] !== 0) {
+      if (xboxData['right_bumper']) {
         return true
       }
-      if (xboxData[a] !== 0) {
+      if (xboxData['a']) {
         return true
       }
-      if (xboxData[b] !== 0) {
+      if (xboxData['b']) {
         return true
       }
-      if (xboxData[x] !== 0) {
+      if (xboxData['x']) {
         return true
       }
-      if (xboxData[y] !== 0) {
+      if (xboxData['y']) {
         return true
       }
-      if (xboxData[d_pad_up] !== 0) {
+      if (xboxData['d_pad_up']) {
+        console.log('d')
         return true
       }
-      if (xboxData[d_pad_down] !== 0) {
+      if (xboxData['d_pad_down']) {
         return true
       }
-      if (xboxData[d_pad_right] !== 0) {
+      if (xboxData['d_pad_left']) {
         return true
       }
-      if (xboxData[d_pad_left] !== 0) {
+      if (xboxData['d_pad_right']) {
         return true
       }
       return false
-    }
+    },
+
+    toggle_limit_switch_status: function() {
+      console.log("Setting limit switch enabled status: " + this.enable_limit_switch);
+      this.$parent.publish("/scoop_limit_switch_enable_cmd", {
+        'type': 'ScoopLimitSwitchEnable',
+        'enable': this.enable_limit_switch
+      });
+    },
+
+    zeroPositionCallback: function() {
+	    console.log("publishing zero position")
+      this.$parent.publish('/zero_position', { 'type': 'Signal' });
+    },
+
+    updateSimMode: function(checked) {
+      this.sim_mode = checked
+
+      const simModeMsg = {
+        'type': 'SimulationMode',
+        'sim_mode': checked
+      }
+      this.$parent.publish('/simulation_mode', simModeMsg);
+    },
   },
 
   components: {
@@ -252,6 +320,72 @@ export default {
 .buttons {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+}
+
+.toggle__button {
+  vertical-align: middle;
+  user-select: none;
+  cursor: pointer;
+}
+
+.toggle__button input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+}
+
+.toggle__button .toggle__switch {
+    display:inline-block;
+    height:12px;
+    border-radius:6px;
+    width:40px;
+    background: #BFCBD9;
+    box-shadow: inset 0 0 1px #BFCBD9;
+    position:relative;
+    margin-left: 10px;
+    transition: all .25s;
+}
+
+.toggle__button .toggle__switch::after, 
+.toggle__button .toggle__switch::before {
+    content: "";
+    position: absolute;
+    display: block;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    left: 0;
+    top: -3px;
+    transform: translateX(0);
+    transition: all .25s cubic-bezier(.5, -.6, .5, 1.6);
+}
+
+.toggle__button .toggle__switch::after {
+    background: #4D4D4D;
+    box-shadow: 0 0 1px #666;
+}
+
+.toggle__button .toggle__switch::before {
+    background: #4D4D4D;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+    opacity:0;
+}
+
+.active .toggle__switch {
+  background: #FFEA9B;
+  box-shadow: inset 0 0 1px #FFEA9B;
+}
+
+.active .toggle__switch::after,
+.active .toggle__switch::before{
+    transform:translateX(40px - 18px);
+}
+
+.active .toggle__switch::after {
+    left: 23px;
+    background: #FFCB05;
+    box-shadow: 0 0 1px #FFCB05;
 }
 
 </style>

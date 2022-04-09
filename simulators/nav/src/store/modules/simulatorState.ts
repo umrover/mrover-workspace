@@ -21,7 +21,7 @@ import {
 const BEARING_DIFF_THRESHOLD = 0.1;
 const MINUTE_DIFF_THRESHOLD = 0.00000001;
 
-const state:SimulatorState = {
+export const state:SimulatorState = {
   autonOn: false,
 
   debugOptions: {
@@ -67,10 +67,15 @@ const state:SimulatorState = {
   odomFormat: OdomFormat.DM,
 
   path: [],
+  FOVAreaPath: new Path2D(),
 
   simSettings: {
     simulateLoc: true,
-    simulatePercep: true
+    simulatePercep: true,
+    enableLCM: true,
+    enableFOVView: false,
+    noisePercent: 0,
+    noiseGPSPercent: 0
   },
 
   startLoc: {
@@ -113,11 +118,21 @@ const getters = {
 
   roverPath: (simState:SimulatorState):Odom[] => simState.path,
 
+  FOVAreaPath: (simState:SimulatorState):Path2D => simState.FOVAreaPath,
+
   roverPathVisible: (simState:SimulatorState):boolean => simState.debugOptions.roverPathVisible,
 
   simulateLoc: (simState:SimulatorState):boolean => simState.simSettings.simulateLoc,
 
   simulatePercep: (simState:SimulatorState):boolean => simState.simSettings.simulatePercep,
+
+  noisePercent: (simState:SimulatorState):number => simState.simSettings.noisePercent,
+
+  noiseGPSPercent: (simState:SimulatorState):number => simState.simSettings.noiseGPSPercent,
+
+  enableLCM: (simState:SimulatorState):boolean => simState.simSettings.enableLCM,
+
+  enableFOVView: (simState:SimulatorState):boolean => simState.simSettings.enableFOVView,
 
   startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
@@ -131,6 +146,7 @@ const getters = {
 const mutations = {
   clearRoverPath: (simState:SimulatorState):void => {
     simState.path = [];
+    simState.FOVAreaPath = new Path2D();
   },
 
   flipLcmConnected: (simState:SimulatorState, onOff:boolean):void => {
@@ -157,6 +173,22 @@ const mutations = {
     simState.simSettings.simulatePercep = onOff;
   },
 
+  setNoisePercent: (simState:SimulatorState, newNoisePercent:number):void => {
+    simState.simSettings.noisePercent = newNoisePercent;
+  },
+
+  setGPSNoisePercent: (simState:SimulatorState, newNoisePercent:number):void => {
+    simState.simSettings.noiseGPSPercent = newNoisePercent;
+  },
+
+  flipEnableLCM: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.enableLCM = onOff;
+  },
+
+  flipEnableFOVView: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.enableFOVView = onOff;
+  },
+
   pushToRoverPath: (simState:SimulatorState, currLoc:Odom):void => {
     if (simState.path.length === 0) {
       simState.path.push(JSON.parse(JSON.stringify(currLoc)));
@@ -171,6 +203,10 @@ const mutations = {
         Math.abs(prevLoc.longitude_min - currLoc.longitude_min) > MINUTE_DIFF_THRESHOLD) {
       simState.path.push(JSON.parse(JSON.stringify(currLoc)));
     }
+  },
+
+  pushToFOVAreaPath: (simState:SimulatorState, area:Path2D):void => {
+    simState.FOVAreaPath.addPath(area);
   },
 
   setArTagDrawOptions: (simState:SimulatorState, options:ArTagDrawOptions):void => {
