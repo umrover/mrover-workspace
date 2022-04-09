@@ -37,17 +37,7 @@ NavState GateStateMachine::run() {
         case NavState::GateMakePath: {
             std::shared_ptr<Environment> env = sm->getEnv();
             if (env->areTargetFiltersReady()) {
-                Vector2d p1 = env->getLeftPostRelative();
-                Vector2d p2 = env->getRightPostRelative();
-                Vector2d v = p2 - p1;
-                Vector2d m = p1 + v / 2;
-                double driveDist = v.dot(m) / m.norm() + mConfig["navThresholds"]["waypointDistance"].GetDouble();
-                double currentBearing = rover->odometry().bearing_deg;
-                double perpBearing = currentBearing + radianToDegree(atan2(v.y(), v.x()));
-                Odometry perpOdometry = createOdom(rover->odometry(), perpBearing, driveDist, rover);
-                mPath.push_back(perpOdometry);
-                Odometry throughOdometry = createOdom(perpOdometry, perpBearing - 105.0, 3.0, rover);
-                mPath.push_back(throughOdometry);
+                makeDualSegmentPath(rover, env);
                 return NavState::GateDrivePath;
             } else {
                 rover->stop();
@@ -73,7 +63,22 @@ NavState GateStateMachine::run() {
             return NavState::Unknown;
         }
     } // switch
-} // run
+}
+
+void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env) {
+    Vector2d p1 = env->getLeftPostRelative();
+    Vector2d p2 = env->getRightPostRelative();
+    Vector2d v = p2 - p1;
+    Vector2d m = p1 + v / 2;
+    double driveDist = v.dot(m) / m.norm() + mConfig["navThresholds"]["waypointDistance"].GetDouble();
+    double currentBearing = rover->odometry().bearing_deg;
+    double perpBearing = currentBearing + radianToDegree(atan2(v.y(), v.x()));
+    Odometry perpOdometry = createOdom(rover->odometry(), perpBearing, driveDist, rover);
+    mPath.push_back(perpOdometry);
+    Odometry throughOdometry = createOdom(perpOdometry, perpBearing - 105.0, 3.0, rover);
+    mPath.push_back(throughOdometry);
+}
+// run
 
 // Creates an GateStateMachine object
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig) {

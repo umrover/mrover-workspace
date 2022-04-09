@@ -112,7 +112,7 @@ NavState SearchStateMachine::executeTurnToTarget() {
 
     if (targetWaypoint.gate) {
         Target target{};
-        if (getTargetWithId(targetWaypoint.id, target)) {
+        if (hasTargetWithId(targetWaypoint.id, target)) {
             double targetBearing = target.bearing + rover->odometry().bearing_deg;
             if (rover->turn(targetBearing, sm->getDtSeconds())) {
                 return NavState::DriveToTarget;
@@ -152,7 +152,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
 
     if (targetWaypoint.gate) {
         Target target{};
-        if (getTargetWithId(targetWaypoint.id, target)) {
+        if (hasTargetWithId(targetWaypoint.id, target)) {
             distance = target.distance;
             bearing = target.bearing + rover->odometry().bearing_deg;
         } else {
@@ -182,16 +182,14 @@ NavState SearchStateMachine::executeDriveToTarget() {
     if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.clear();
         Waypoint completed = sm->getCourseState()->completeCurrentWaypoint();
-        return completed.gate ? NavState::BeginGateSearch : NavState::Turn;
-//        if (completed.gate){
-//            //start search for second post
-//            double visionDistance = mConfig["computerVision"]["visionDistance"].GetDouble();
-//            sm->setSearcher(SearchType::FROM_PATH_FILE_GATE);
-//            return NavState::SearchTurn;
-//        }
-//        else{
-//            return NavState::Turn;
-//        }
+//        return completed.gate ? NavState::BeginGateSearch : NavState::Turn;
+        if (completed.gate) {
+            //start search for second post
+            sm->setSearcher(SearchType::FROM_PATH_FILE_GATE);
+            return NavState::SearchTurn;
+        } else {
+            return NavState::Turn;
+        }
     }
     if (driveStatus == DriveStatus::OnCourse) {
         return NavState::DriveToTarget;
@@ -224,15 +222,14 @@ void SearchStateMachine::insertIntermediatePoints() {
     }
 } // insertIntermediatePoints()
 
-bool SearchStateMachine::getTargetWithId(int32_t id, Target& outTarget) {
+bool SearchStateMachine::hasTargetWithId(int32_t id, Target& outTarget) {
     std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
     Target const& leftTarget = env->getLeftTarget();
     Target const& rightTarget = env->getRightTarget();
-    Waypoint waypoint = mStateMachine.lock()->getCourseState()->getRemainingWaypoints().front();
-    if (leftTarget.id == waypoint.id && leftTarget.distance > 0.0) {
+    if (leftTarget.id == id && leftTarget.distance > 0.0) {
         outTarget = leftTarget;
         return true;
-    } else if (rightTarget.id == waypoint.id && rightTarget.distance > 0.0) {
+    } else if (rightTarget.id == id && rightTarget.distance > 0.0) {
         outTarget = rightTarget;
         return true;
     }
