@@ -226,7 +226,7 @@ export default {
         grid-template-columns: auto auto;
         grid-template-rows: 60px auto auto;
         grid-template-areas: "header header" 
-                             "spectralTriad cameras" 
+                             "spectral-triad cameras" 
                              "spectral cameras";
         font-family: sans-serif;
         height: auto;
@@ -324,7 +324,7 @@ export default {
       grid-area: spectral;
     }
 
-    .spectralTriad {
+    .spectral-triad {
         grid-area: spectral-triad;
     }
 

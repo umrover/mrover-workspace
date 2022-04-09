@@ -27,8 +27,8 @@
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
     </div>
-    <div class="box spectral light-bg">
-      <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
+    <div class="box spectral-triad light-bg">
+      <SpectralTriad v-bind:spectral_triad_data="spectral_triad_data"/>
     </div>
     <div class = "box light-bg chlorophyll">
       <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/> 
@@ -64,7 +64,7 @@ import CommIndicator from './CommIndicator.vue'
 import Raman from './Raman.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
-import SpectralData from './SpectralTriad.vue'
+import SpectralTriad from './SpectralTriad.vue'
 import Chlorophyll from './Chlorophyll.vue'
 import StripTest from './StripTest.vue'
 import DriveVelDataV from './DriveVelDataV.vue'
@@ -289,7 +289,7 @@ export default {
     CommIndicator,
     Raman,
     WaypointEditor,
-    SpectralData,
+    SpectralTriad,
     Chlorophyll,
     StripTest,
     DriveVelDataV,
@@ -313,8 +313,8 @@ export default {
         grid-template-areas: "header header header" 
                              "cameras cameras cameras" 
                              "carousel chlorophyll raman" 
-                             "spectral chlorophyll scoopUV" 
-                             "spectral chlorophyll drives"
+                             "spectral-triad chlorophyll scoopUV" 
+                             "spectral-triad chlorophyll drives"
                              "SAArm striptest drives"
                              "SAArm amino drives"
                              "PDBFuse amino drives";
@@ -435,8 +435,8 @@ export default {
       grid-area: cameras;
     }
 
-    .spectral {
-      grid-area: spectral;
+    .spectral-triad {
+      grid-area: spectral-triad;
     }
 
     .controls {

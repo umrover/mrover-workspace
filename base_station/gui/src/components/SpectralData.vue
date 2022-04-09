@@ -56,7 +56,7 @@
         </tbody>
     </table>
   <div class="report">
-    <GenerateReport v-bind:spectral_data="spectral_data"/>
+    <GenerateLogger v-bind:spectral_data="spectral_data"/>
   </div>
 </div>
 </template>
@@ -99,7 +99,7 @@
 </style>
 
 <script>
-import GenerateReport from './GenerateReport.vue';
+import GenerateLogger from './GenerateLogger.vue';
 
 export default {
   props: {
@@ -109,7 +109,7 @@ export default {
     }
   },  
   components: {
-    GenerateReport
+    GenerateLogger
   }
 }
 </script>
