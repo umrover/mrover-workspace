@@ -50,11 +50,11 @@ void LCMHandler::handle_outgoing()
     if (NOW - last_output_time > deadTime)
     {
         // internal_object->refresh_quad_angles();
-        // internal_object->refresh_calib_data();
-        // internal_object->refresh_turn_count();
         internal_object->publish_sa_pos_data();
         internal_object->publish_ra_pos_data();
-        // internal_object->joint_b_calib_data();
+        // internal_object->refresh_calib_data();
+        // internal_object->publish_calib_data();
+        // internal_object->refresh_turn_count();
         // internal_object->publish_turn_count();
     }
 }
@@ -69,15 +69,6 @@ void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *ms
 {
     ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger);
     ControllerMap::controllers["HAND_GRIP"]->open_loop(msg->grip);
-}
-
-void LCMHandler::InternalHandler::joint_b_calib_data()
-{
-    JointBCalibration msg;
-    msg.calibrated = ControllerMap::controllers["RA_B"]->calibrated;
-    lcm_bus->publish("/joint_b_calibration_data", &msg);
-
-    last_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg)
@@ -176,6 +167,15 @@ void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *ms
     ControllerMap::controllers["SA_E"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
 }
 */
+
+void LCMHandler::InternalHandler::publish_calib_data()
+{
+    JointBCalibration msg;
+    msg.calibrated = ControllerMap::controllers["RA_B"]->calibrated;
+    lcm_bus->publish("/joint_b_calibration_data", &msg);
+
+    last_output_time = NOW;
+}
 
 void LCMHandler::InternalHandler::publish_ra_pos_data()
 {

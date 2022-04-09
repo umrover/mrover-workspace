@@ -50,8 +50,6 @@ private:
 
         void hand_openloop_cmd(LCM_INPUT, const HandCmd *msg);
 
-        void joint_b_calib_data();
-
         void mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
 
         void ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg);
@@ -67,6 +65,8 @@ private:
         void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
+
+        void publish_calib_data();
 
         void publish_ra_pos_data();
 
