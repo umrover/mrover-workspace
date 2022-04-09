@@ -1,20 +1,19 @@
 <template>
   <div class="wrap">
     <!-- Map goes here -->
-
-    <l-map ref="map" class="map" :zoom="15" :center="center">
+    <l-map ref="map" class="map" :zoom="15" :center="center" v-on:click="getClickedLatLon($event)">
       <l-control-scale :imperial="false"/>
-      <l-tile-layer :url="url" :attribution="attribution"/>
+      <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in route" :key="waypoint.id">
+      <!-- <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in route" :key="waypoint.id">
         <l-tooltip :content="waypoint.name" />
-      </l-marker>
+      </l-marker> -->
 
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in list" :key="waypoint.id">
+      <!-- <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in list" :key="waypoint.id">
         <l-tooltip :content="waypoint.name" />
-      </l-marker>
-      
-      <l-polyline :lat-lngs="polylinePath" :color="'red'" :dash-array="'5, 5'"/>
+      </l-marker> -->
+
+<!--  <l-polyline :lat-lngs="polylinePath" :color="'red'" :dash-array="'5, 5'"/> -->
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
     </l-map>
 
@@ -74,14 +73,24 @@ export default {
   data () {
     return {
       center: L.latLng(38.406371, -110.791954),
-      url: '/static/map/{z}/{x}/{-y}.png',
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       roverMarker: null,
       waypointIcon: null,
       map: null,
       odomCount: 0,
       locationIcon: null,
-      odomPath: []
+      odomPath: [],
+      findRover: false,
+
+      options: {
+        type: Object,
+        default: () => ({})
+      },
+      tileLayerOptions: {
+        maxNativeZoom: 18,
+        maxZoom: 100
+      }
     }
   },
 
@@ -100,6 +109,12 @@ export default {
       const lat = val.latitude_deg + val.latitude_min / 60
       const lng = val.longitude_deg + val.longitude_min / 60
       const angle = val.bearing_deg
+
+      // Move to rover on first odom message
+      if (!this.findRover) {
+        this.findRover = true
+        this.center = L.latLng(lat, lng)
+      }
 
       // Update the rover marker
       this.roverMarker.setRotationAngle(angle)
