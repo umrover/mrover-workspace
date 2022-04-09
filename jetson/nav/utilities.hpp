@@ -25,6 +25,8 @@ double estimateNoneuclid(const Odometry& start, const Odometry& dest);
 
 Odometry createOdom(const Odometry& current, double absoluteBearing, double distance, const std::shared_ptr<Rover>& rover);
 
+Odometry createOdom(const Odometry& current, Vector2d vec, const std::shared_ptr<Rover>& rover);
+
 double calcBearing(const Odometry& start, const Odometry& dest);
 
 double mod(double degree, int modulus);

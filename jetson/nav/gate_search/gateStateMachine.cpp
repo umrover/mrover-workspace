@@ -38,7 +38,7 @@ NavState GateStateMachine::run() {
         }
         case NavState::GateMakePath: {
             if (env->areTargetFiltersReady()) {
-                makeDualSegmentPath(rover, env);
+                makeSpiderPath(rover, env);
                 return NavState::GateTraverse;
             } else {
                 rover->stop();
@@ -84,7 +84,57 @@ void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, 
     Odometry throughOdometry = createOdom(perpOdometry, rotateBearing, m.norm() + 2.0, rover);
     mPath.push_back(throughOdometry);
 }
-// run
+
+
+void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env) {
+    Vector2d p1 = env->getLeftPostRelative();
+    Vector2d p2 = env->getRightPostRelative();
+    Vector2d center = (p1 + p2) / 2;
+    //TODO make this a constant
+    double approachDistance = 2.0;
+    Vector2d postDir = p2 - p1;
+    Vector2d perp = {-postDir.y(), postDir.x()};
+    perp = perp / perp.norm();
+    Vector2d approachPoints[2] = {(perp * approachDistance) + center,
+                                  (perp * -approachDistance) + center};
+    Vector2d prepPoints[4] = {(2 * approachDistance * perp) + p1,
+                              (2 * approachDistance * perp) + p2,
+                              (-2 * approachDistance * perp) + p1,
+                              (-2 * approachDistance * perp) + p2};
+
+    //TODO: add logic to go to farthest point along the path that doesn't collid with gate
+
+    //find closest prep point
+    double min_norm = -1.0;
+    Vector2d prepPoint;
+    for (int i = 0; i < 4; i++) {
+        double dist = prepPoints[i].norm();
+        if (min_norm == -1.0 || dist < min_norm) {
+            min_norm = dist;
+            prepPoint = prepPoints[i];
+        }
+    }
+
+    //find closest approach point to prep point and set the other one as a victory point (we're through the gate)
+    min_norm = -1.0;
+    Vector2d approachPoint;
+    Vector2d victoryPoint;
+    double distance1 = (approachPoints[0] - prepPoint).norm();
+    double distance2 = (approachPoints[1] - prepPoint).norm();
+    if (distance1 < distance2) {
+        approachPoint = approachPoints[0];
+        victoryPoint = approachPoints[1];
+    } else {
+        approachPoint = approachPoints[1];
+        victoryPoint = approachPoints[0];
+    }
+    Odometry cur = rover->odometry();
+    std::cout << prepPoint.x() << ", " << prepPoint.y() << " , " << approachPoint.x() << " , " << approachPoint.y()) << std::endl;
+    mPath.push_back(createOdom(cur, prepPoint, rover));
+    mPath.push_back(createOdom(cur, approachPoint, rover));
+    mPath.push_back(createOdom(cur, center, rover));
+    mPath.push_back(createOdom(cur, victoryPoint, rover));
+}
 
 // Creates an GateStateMachine object
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig) {

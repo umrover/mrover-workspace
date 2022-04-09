@@ -51,6 +51,8 @@ private:
     std::deque<Odometry> mPath;
 
     void makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env);
+
+    void makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env);
 };
 
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);
