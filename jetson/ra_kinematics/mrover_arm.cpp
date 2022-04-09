@@ -289,10 +289,11 @@ void StandardArm::target_orientation_callback(std::string channel, TargetOrienta
     plan_path(hypo_state, goal);
 }
 
-void MRoverArm::plan_path(ArmState& hypo_state, const std::vector<double> &goal) {
+void MRoverArm::plan_path(ArmState& hypo_state, std::vector<double> &goal) {
     std::cout << "Beginning path planning\n";
 
-    // save vector of which joints are locked
+    // save vector of which joints are locked and the target angles
+    std::vector<double> original_goal = goal;
     std::vector<bool> original_locks;
     original_locks.resize(hypo_state.num_joints());
     for (size_t j = 0; j < hypo_state.num_joints(); ++j) {
@@ -301,8 +302,9 @@ void MRoverArm::plan_path(ArmState& hypo_state, const std::vector<double> &goal)
 
     // lock joints that don't change between start and target
     for (size_t i = 0; i < hypo_state.num_joints(); ++i) {
-        if (abs(hypo_state.get_joint_angle(i) - goal[i]) < 0.005) {
+        if (std::abs(hypo_state.get_joint_angle(i) - goal[i]) < 0.0001) {
             hypo_state.set_joint_locked(i, true);
+            goal[i] = hypo_state.get_joint_angle(i);
         }
     }    
 
@@ -315,6 +317,7 @@ void MRoverArm::plan_path(ArmState& hypo_state, const std::vector<double> &goal)
         // set joint locks back to what they were
         for (size_t j = 0; j < hypo_state.num_joints(); ++j) {
             hypo_state.set_joint_locked(j, original_locks[j]);
+            goal[j] = original_goal[j];
         }
         path_found = motion_planner.rrt_connect(hypo_state, goal);
     }

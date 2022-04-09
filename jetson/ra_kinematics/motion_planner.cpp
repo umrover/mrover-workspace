@@ -184,10 +184,16 @@ MotionPlanner::Node* MotionPlanner::extend(ArmState &robot, Node* tree, const st
 
 MotionPlanner::Node* MotionPlanner::connect(ArmState &robot, Node* tree, const std::vector<double> &a_new) {
     Node* extension;
+    int ct = 0;
 
     do {
         extension = extend(robot, tree, a_new);
-    } while (extension && !vec_almost_equal(extension->config, a_new, VEC_ANGLE_EPSILON));
+        ++ct;
+    } while (extension && !vec_almost_equal(extension->config, a_new, VEC_ANGLE_EPSILON) && ct < 2000);
+
+    if (ct == 2000) {
+        std::cout << "Error: Motion planner connect exceeded 2000 iterations\n";
+    }
 
     return extension;
 }
