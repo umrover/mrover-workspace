@@ -11,6 +11,7 @@
         <legend>Tasks</legend>
         <MenuButton link="#/RATask" name="Robotic Arm Setup" />
         <MenuButton link="#/SATask" name="Science Setup" />
+        <MenuButton link="#/ScienceLoggerTask" name="Science Logger Setup" />
         <MenuButton link="#/AutonTask" name="Autonomy Setup" />
       </fieldset>
 

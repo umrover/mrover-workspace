@@ -6,6 +6,7 @@ import AutonTask from '../components/AutonTask.vue'
 import PidTune from '../components/PidTune.vue'
 import LCMEcho from '../components/LCMEcho.vue'
 import SATask from '../components/SATask.vue'
+import ScienceLoggerTask from '../components/ScienceLoggerTask.vue'
 import ESCTest from '../components/ESCTest.vue'
 import LCMSend from '../components/LCMSend.vue'
 
@@ -37,6 +38,11 @@ export default new Router({
       path: '/SATask',
       name: 'SATask',
       component: SATask
+    },
+    {
+      path: '/ScienceLoggerTask',
+      name: 'ScienceLoggerTask',
+      component: ScienceLoggerTask
     },
     {
       path: '/AutonTask',

@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="box header">
       <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
-      <h1>Science Dashboard</h1>
+      <h1>Science Logger Dashboard</h1>
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
@@ -21,59 +21,25 @@
       </div>
     </div>
 
-    <div class="box raman light-bg">
-      <Raman v-bind:mosfetIDs="mosfetIDs"/>
-    </div>
     <div class="box cameras light-bg">
       <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
     </div>
-    <div class="box spectral light-bg">
-      <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
+    <div class="box spectral-triad light-bg">
+      <SpectralTriad v-bind:spectral_triad_data="spectral_triad_data"/>
     </div>
-    <div class = "box light-bg chlorophyll">
-      <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/> 
-      <GenerateReport v-bind:spectral_data="spectral_data"/>
-    </div>
-    <div class="box striptest light-bg">
-      <StripTest/>
-    </div>
-    <div class="box amino light-bg">
-      <Amino v-bind:mosfetIDs="mosfetIDs"/>
-    </div>
-    <div class="box drives light-bg">
-      <DriveVelDataV/>
-    </div>
-    <div class="box carousel light-bg">
-      <Carousel/>
-    </div>
-    <div class="box scoopUV light-bg">
-      <ScoopUV v-bind:mosfetIDs="mosfetIDs"/>
-    </div>
-    <div class="box SAArm light-bg">
-      <SAArm/>
-    </div>
-    <div class="box PDB light-bg">
-      <PDBFuse/>
+    <div class = "box light-bg spectral">
+      <SpectralData v-bind:spectral_data="spectral_data"/> 
     </div>
   </div>
 </template>
 
 <script>
 import Cameras from './Cameras.vue'
-import CommIndicator from './CommIndicator.vue'
-import Raman from './Raman.vue'
-import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
-import SpectralData from './SpectralTriad.vue'
-import Chlorophyll from './Chlorophyll.vue'
-import StripTest from './StripTest.vue'
-import DriveVelDataV from './DriveVelDataV.vue'
-import Amino from './Amino.vue'
+import SpectralTriad from './SpectralTriad.vue'
+import SpectralData from './SpectralData.vue'
 import GenerateReport from './GenerateReport.vue'
-import Carousel from './Carousel.vue'
-import ScoopUV from './ScoopUV.vue'
-import SAArm from './SAArm.vue'
-import PDBFuse from './PDBFuse.vue'
+import CommIndicator from './CommIndicator.vue'
 
 let interval;
 
@@ -88,14 +54,6 @@ export default {
         tilt: 0
       },
 
-      odom: {
-        latitude_deg: 38,
-        latitude_min: 24.38226,
-        longitude_deg: 110,
-        longitude_min: 47.51724,
-        bearing_deg: 0
-      },
-
       connections: {
         websocket: false,
         lcm: false,
@@ -103,10 +61,6 @@ export default {
         cameras: [false, false, false, false, false, false, false, false]
       },
 
-      nav_status: {
-        completed_wps: 0,
-        total_wps: 0
-      },
       spectral_data: {
           d0_1:0,
           d0_2:0,
@@ -146,21 +100,7 @@ export default {
           d2_4:0,
           d2_5:0,
           d2_6:0
-      },
-      mosfetIDs: {
-        rLed: 0,
-        gLed: 1,
-        bLed: 2,
-        Laser: 3,
-        UVLED: 4,
-        whiteLED: 5,
-        uvBulb: 6,
-        nichWire0: 7,
-        nichWire1: 8,
-        nichWire2: 9,
-        ramanLaser: 10
       }
-
 }
   },
 
@@ -216,30 +156,14 @@ export default {
       },
       // Subscriptions
       [
-        {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/sensors', 'type': 'Sensors'},
-        {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/encoder', 'type': 'Encoder'},
-        {'topic': '/nav_status', 'type': 'NavStatus'},
-        {'topic': '/sa_motors', 'type': 'SAMotors'},
         {'topic': '/test_enable', 'type': 'TestEnable'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/spectral_data', 'type': 'SpectralData'},
-        {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
-        {'topic': '/thermistor_data', 'type': 'ThermistorData'},
-        {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
-        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
-        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/carousel_data', 'type': 'CarouselData'},
-        {'topic': '/sa_position', 'type': 'SAPosition'},
-        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
-        {'topic': '/heater_state_data', 'type': 'Heater'},
-        {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
-        {'topic': '/pdb_data', 'type': 'PDBData'},
-        {'topic': '/fuse_data', 'type': 'FuseData'},
-        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'}
+        {'topic': '/spectral_triad_data', 'type': 'SpectralData'}
       ]
     )
 
@@ -287,18 +211,9 @@ export default {
   components: {
     Cameras,
     CommIndicator,
-    Raman,
-    WaypointEditor,
+    SpectralTriad,
     SpectralData,
-    Chlorophyll,
-    StripTest,
-    DriveVelDataV,
-    Amino,
-    GenerateReport,
-    Carousel,
-    ScoopUV,
-    SAArm,
-    PDBFuse
+    GenerateReport
   }
 }
 </script>
@@ -308,16 +223,11 @@ export default {
     .wrapper {
         display: grid;
         grid-gap: 10px;
-        grid-template-columns: auto auto auto;
-        grid-template-rows: 60px auto auto auto auto auto;
-        grid-template-areas: "header header header" 
-                             "cameras cameras cameras" 
-                             "carousel chlorophyll raman" 
-                             "spectral chlorophyll scoopUV" 
-                             "spectral chlorophyll drives"
-                             "SAArm striptest drives"
-                             "SAArm amino drives"
-                             "PDBFuse amino drives";
+        grid-template-columns: auto auto;
+        grid-template-rows: 60px auto auto;
+        grid-template-areas: "header header" 
+                             "spectralTriad cameras" 
+                             "spectral cameras";
         font-family: sans-serif;
         height: auto;
     }
@@ -402,33 +312,8 @@ export default {
                 visibility: visible;
             }
 
-    .raman {
-        grid-area: raman;
-        font-size: 1em;
-    }
-
-    .amino{
-      grid-area: amino;
-    } 
-
-    .striptest{
-      grid-area: striptest;
-    }
-    
-    .chlorophyll{
-      grid-area: chlorophyll;
-    }
-
     .diags {
         grid-area: diags;
-    }
-
-    .waypoints {
-        grid-area: waypoints;
-    }
-
-    .drives {
-      grid-area: drives;
     }
 
     .cameras {
@@ -439,25 +324,8 @@ export default {
       grid-area: spectral;
     }
 
-    .controls {
-        grid-area: controls;
-        font-size: 1em;
-    }
-
-    .carousel {
-      grid-area: carousel;
-    }
-
-    .scoopUV {
-      grid-area: scoopUV;
-    }
-
-    .SAArm {
-      grid-area: SAArm;
-    }
-
-    .PDBFuse {
-      grid-area: PDBFuse;
+    .spectralTriad {
+        grid-area: spectral-triad;
     }
 
     ul#vitals li {
