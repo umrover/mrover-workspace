@@ -27,15 +27,16 @@ void GateStateMachine::updateGateTraversalPath(){
 
 // Execute loop through gate state machine.
 NavState GateStateMachine::run() {
-    const std::shared_ptr<StateMachine> sm = mStateMachine.lock();
-    auto rover = sm->getRover();
+    std::shared_ptr<StateMachine> sm = mStateMachine.lock();
+    std::shared_ptr<Environment> env = sm->getEnv();
+    std::shared_ptr<Rover> rover = sm->getRover();
+
     switch (rover->currentState()) {
         case NavState::BeginGateSearch: {
             mPath.clear();
             return NavState::GateMakePath;
         }
         case NavState::GateMakePath: {
-            std::shared_ptr<Environment> env = sm->getEnv();
             if (env->areTargetFiltersReady()) {
                 makeDualSegmentPath(rover, env);
                 return NavState::GateTraverse;
@@ -50,8 +51,9 @@ NavState GateStateMachine::run() {
                 return NavState::Done;
             } else {
                 Odometry const& front = mPath.front();
-                if (rover->turn(front, sm->getDtSeconds())) {
-                    DriveStatus status = rover->drive(front, sm->getDtSeconds(), mConfig["navThresholds"]["targetDistance"].GetDouble());
+                double dt = sm->getDtSeconds();
+                if (rover->turn(front, dt)) {
+                    DriveStatus status = rover->drive(front, dt, mConfig["navThresholds"]["targetDistance"].GetDouble());
                     if (status == DriveStatus::Arrived) {
                         mPath.pop_front();
                     }
@@ -77,7 +79,7 @@ void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, 
     Odometry perpOdometry = createOdom(rover->odometry(), perpBearing, driveDist, rover);
     mPath.push_back(perpOdometry);
     Odometry throughOdometry = createOdom(perpOdometry, perpBearing - 105.0, 3.0, rover);
-    mPath.push_back(throughOdometry);
+//    mPath.push_back(throughOdometry);
 }
 // run
 

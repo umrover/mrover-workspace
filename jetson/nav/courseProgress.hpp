@@ -21,6 +21,8 @@ public:
 
     [[nodiscard]] Waypoint const& getNextWaypoint() const;
 
+    [[nodiscard]] Waypoint const& getLastCompletedWaypoint() const;
+
     Waypoint completeCurrentWaypoint();
 
     void clearProgress();

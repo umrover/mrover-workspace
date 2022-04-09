@@ -18,21 +18,8 @@ private:
 
     // The rover's current target information from computer
     // vision.
-    Target mTargetLeft{-1.0, 0.0, 0};
-    Target mTargetRight{-1.0, 0.0, 0};
-
-    // Cached Target
-    // Left means left in the pixel space
-    Target mCacheTargetLeft{-1.0, 0.0, 0};
-    Target mCacheTargetRight{-1.0, 0.0, 0};
-
-    // Count of misses with cache
-    int mCountLeftMisses = 0;
-    int mCountRightMisses = 0;
-
-    // Count hits for avoiding FPs
-    int mCountLeftHits = 0;
-    int mCountRightHits = 0;
+    Target mTargetLeft{-1.0, 0.0, -1};
+    Target mTargetRight{-1.0, 0.0, -1};
 
     // Reference to config variables
     const rapidjson::Document& mConfig;
@@ -63,22 +50,6 @@ public:
     Vector2d getRightPostRelative();
 
     void setTargets(TargetList const& targets);
-
-    Target const& leftTarget() const;
-
-    Target const& rightTarget() const;
-
-    Target const& leftCacheTarget() const;
-
-    Target const& rightCacheTarget() const;
-
-    int getLeftMisses() const;
-
-    int getRightMisses() const;
-
-    int getLeftHits() const;
-
-    int getRightHits() const;
 
     void resetMisses();
 

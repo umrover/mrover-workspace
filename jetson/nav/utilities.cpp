@@ -40,12 +40,12 @@ double estimateNoneuclid(const Odometry& current, const Odometry& dest) {
     return sqrt(diffLat * diffLat + diffLon * diffLon) * EARTH_RADIUS;
 }
 
-// create a new Odometry point at a bearing and distance from a given odometry point
-// Note this uses the absolute bearing not a bearing relative to the rover.
-Odometry createOdom(const Odometry& current, double bearing, const double distance, const std::shared_ptr<Rover>& rover) {
-    bearing = degreeToRadian(bearing);
-    double latChange = distance * cos(bearing) * LAT_METER_IN_MINUTES;
-    double lonChange = distance * sin(bearing) * rover->longMeterInMinutes();
+// create a new Odometry point at a absoluteBearing and distance from a given odometry point
+// Note this uses the absolute absoluteBearing not a absoluteBearing relative to the rover.
+Odometry createOdom(const Odometry& current, double absoluteBearing, double distance, const std::shared_ptr<Rover>& rover) {
+    absoluteBearing = degreeToRadian(absoluteBearing);
+    double latChange = distance * cos(absoluteBearing) * LAT_METER_IN_MINUTES;
+    double lonChange = distance * sin(absoluteBearing) * rover->longMeterInMinutes();
     Odometry newOdom = addMinToDegrees(current, latChange, lonChange);
     return newOdom;
 }
@@ -93,15 +93,6 @@ void throughZero(double& destinationBearing, const double currentBearing) {
         }
     }
 } // throughZero()
-
-// Checks to see if target is reachable before hitting obstacle
-// If the x component of the distance to obstacle is greater than
-// half the width of the rover the obstacle if reachable
-bool isTargetReachable(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig) {
-    double distToTarget = env->leftCacheTarget().distance;
-    double distThresh = roverConfig["navThresholds"]["targetDistance"].GetDouble();
-    return isLocationReachable(rover, env, roverConfig, distToTarget, distThresh);
-} // isTargetReachable()
 
 // Returns true if the rover can reach the input location without hitting the obstacle.
 // ASSUMPTION: There is an obstacle detected.

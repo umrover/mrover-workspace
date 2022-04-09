@@ -23,7 +23,7 @@ Odometry addMinToDegrees(const Odometry& current, double lat_minutes = 0, double
 
 double estimateNoneuclid(const Odometry& start, const Odometry& dest);
 
-Odometry createOdom(const Odometry& current, double bearing, double distance, const std::shared_ptr<Rover>& rover);
+Odometry createOdom(const Odometry& current, double absoluteBearing, double distance, const std::shared_ptr<Rover>& rover);
 
 double calcBearing(const Odometry& start, const Odometry& dest);
 

@@ -34,11 +34,20 @@ NavState SearchStateMachine::executeSearch() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Rover> rover = sm->getRover();
 
-    // You may as well just go to the left post always
-    Target const& leftTarget = sm->getEnv()->leftCacheTarget();
-    bool isWantedTarget = sm->getCourseState()->getNextWaypoint().id == leftTarget.id;
-    if (leftTarget.distance >= 0.0 && isWantedTarget) {
-        return NavState::DriveToTarget;
+    Target const& leftTarget = sm->getEnv()->getLeftTarget();
+    Target const& rightTarget = sm->getEnv()->getLeftTarget();
+    Waypoint const& lastWaypoint = sm->getCourseState()->getLastCompletedWaypoint();
+    bool isGate = lastWaypoint.gate;
+    if (isGate) {
+        if (sm->getEnv()->hasGateLocation()) {
+            return NavState::BeginGateSearch;
+        }
+    } else {
+        // You may as well just go to the left post always
+        bool isWantedTarget = lastWaypoint.id == leftTarget.id;
+        if (leftTarget.distance >= 0.0 && isWantedTarget) {
+            return NavState::DriveToTarget;
+        }
     }
 
     Odometry const& nextSearchPoint = mSearchPoints.front();
@@ -59,8 +68,8 @@ NavState SearchStateMachine::executeDriveToTarget() {
 
     double dt = sm->getDtSeconds();
     Waypoint targetWaypoint = sm->getCourseState()->getNextWaypoint();
-    Target const& leftTarget = env->leftCacheTarget();
-    Target const& rightTarget = env->rightCacheTarget();
+    Target const& leftTarget = env->getLeftTarget();
+    Target const& rightTarget = env->getRightTarget();
     double currentBearing = rover->odometry().bearing_deg;
 
     double distance, bearing;

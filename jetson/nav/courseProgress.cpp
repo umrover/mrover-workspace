@@ -32,3 +32,7 @@ Course const& CourseProgress::getCourse() const {
 int32_t CourseProgress::getCompletedWaypointCount() const {
     return static_cast<int32_t>(mCourse.num_waypoints - mRemainingWaypoints.size());
 }
+
+Waypoint const& CourseProgress::getLastCompletedWaypoint() const {
+    return mCourse.waypoints.at(getCompletedWaypointCount() - 1);
+}

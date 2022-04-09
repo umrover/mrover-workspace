@@ -28,24 +28,24 @@ Target Environment::getRightTarget() {
 
 
 void Environment::setTargets(TargetList const& targets) {
-    mTargetLeft = targets.targetList[0];
-    mTargetRight = targets.targetList[1];
-    if (targets.targetList[0].id == mConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+    Target const& leftTarget = targets.targetList[0];
+    Target const& rightTarget = targets.targetList[1];
+    if (leftTarget.id == mConfig["navThresholds"]["noTargetDist"].GetInt()) {
         mLeftBearingFilter.reset();
         mLeftDistanceFilter.reset();
     } else {
-        mLeftBearingFilter.push(mTargetLeft.bearing);
-        mLeftDistanceFilter.push(mTargetLeft.distance);
+        mLeftBearingFilter.push(leftTarget.bearing);
+        mLeftDistanceFilter.push(leftTarget.distance);
         mTargetLeft.bearing = mLeftBearingFilter.get();
         mTargetLeft.distance = mLeftDistanceFilter.get();
     }
 
-    if (targets.targetList[1].id == mConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+    if (targets.targetList[1].id == mConfig["navThresholds"]["noTargetDist"].GetInt()) {
         mRightBearingFilter.reset();
         mRightDistanceFilter.reset();
     } else {
-        mRightBearingFilter.push(mTargetRight.bearing);
-        mRightDistanceFilter.push(mTargetRight.distance);
+        mRightBearingFilter.push(rightTarget.bearing);
+        mRightDistanceFilter.push(rightTarget.distance);
         mTargetRight.bearing = mRightBearingFilter.get();
         mTargetRight.distance = mRightDistanceFilter.get();
     }
@@ -60,60 +60,14 @@ void Environment::setTargets(TargetList const& targets) {
 
 void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
     if (rover->autonState().is_auton) {
-        // Cache Left Target if we had detected one
-        std::deque<Waypoint> const& waypoints = course->getRemainingWaypoints();
-        if (mTargetLeft.distance != mConfig["navThresholds"]["noTargetDist"].GetDouble()) {
-            // Associate with single post
-            if (mTargetLeft.id == waypoints.front().id) {
-                mCountLeftHits++;
-            } else {
-                mCountLeftHits = 0;
-            }
-            // Update leftTarget if we have 3 or more consecutive hits
-            if (mCountLeftHits >= 3) {
-                mCacheTargetLeft = mTargetLeft;
-                mCountLeftMisses = 0;
-            }
-            // Cache Right Target if we had detected one (only can see right if we see the left one, otherwise
-            // results in some undefined behavior)
-            if (mTargetRight.distance != mConfig["navThresholds"]["noTargetDist"].GetDouble()) {
-                mCacheTargetRight = mTargetRight;
-                mCountRightMisses = 0;
-            } else {
-                mCountRightMisses++;
-            }
+        bool isReady = areTargetFiltersReady();
+        if (isReady) {
+            mLeftPost = createOdom(rover->odometry(), mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
+            mHasLeftPost = true;
+            mRightPost = createOdom(rover->odometry(), mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
+            mHasRightPost = true;
         } else {
-            mCountLeftMisses++;
-            mCountRightMisses++; // need to increment since we don't see both
-            mCountLeftHits = 0;
-            mCountRightHits = 0;
-        }
-
-        // Check if we need to reset left cache
-        if (mCountLeftMisses > mConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
-            mCountLeftMisses = 0;
-            mCountLeftHits = 0;
-            // Set to empty target
-            mCacheTargetLeft = {-1, 0, 0};
-        }
-        // Check if we need to reset right cache
-        if (mCountRightMisses > mConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
-            mCountRightMisses = 0;
-            mCountRightHits = 0;
-            // Set to empty target
-            mCacheTargetRight = {-1, 0, 0};
-        }
-
-        bool gate = !waypoints.empty() && waypoints.front().gate;
-        if (gate) {
-            if (leftCacheTarget().id != -1) {
-                mLeftPost = createOdom(rover->odometry(), leftCacheTarget().bearing, leftCacheTarget().distance, rover);
-                mHasLeftPost = true;
-            }
-            if (rightCacheTarget().id != -1){
-                rightPost = createOdom(rover->odometry(), rightCacheTarget().bearing, rightCacheTarget().distance, rover);
-                hasRightPost = true;
-            }
+            mHasLeftPost = mHasRightPost = false;
         }
     } else {
         double cosine = cos(degreeToRadian(rover->odometry().latitude_deg, rover->odometry().latitude_min));
@@ -123,37 +77,8 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
     
 }
 
-Target const& Environment::leftCacheTarget() const {
-    return mCacheTargetLeft;
-} // leftCacheTarget()
-
-Target const& Environment::rightCacheTarget() const {
-    return mCacheTargetRight;
-} // rightCacheTarget()
-
-int Environment::getLeftMisses() const {
-    return mCountLeftMisses;
-}
-
-int Environment::getRightMisses() const {
-    return mCountRightMisses;
-}
-
-int Environment::getLeftHits() const {
-    return mCountLeftHits;
-}
-
-int Environment::getRightHits() const {
-    return mCountRightHits;
-}
-
-void Environment::resetMisses() {
-    mCountLeftMisses = 0;
-    mCountRightMisses = 0;
-}
-
-bool Environment::hasGateLocation() {
-    return hasLeftPost && hasRightPost;
+bool Environment::hasGateLocation() const {
+    return mHasLeftPost && mHasRightPost;
 }
 
 Odometry Environment::getLeftPostLocation(){
