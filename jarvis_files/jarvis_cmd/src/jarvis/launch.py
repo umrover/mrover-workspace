@@ -113,6 +113,7 @@ def exec_cmd(wid:str, command:str, ssh:bool=False, ip:str="", close_terminal:boo
     focus = gen_focus(wid)
     cmd = "xdotool key type \'" + command + "\'"
     enter = "xdotool key KP_Enter"
+    close = ""
     if close_terminal :
         close = "xdotool key ctrl+d"
 
