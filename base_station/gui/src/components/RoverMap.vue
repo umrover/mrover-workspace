@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
     <!-- Map goes here -->
-    <l-map ref="map" class="map" :zoom="15" :center="center" v-on:click="getClickedLatLon($event)">
+    <l-map ref="map" class="map" :zoom="15" :center="center">
       <l-control-scale :imperial="false"/>
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
