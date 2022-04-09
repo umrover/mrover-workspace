@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct SearchPoints {
+    size_t search_pattern_size;
+    Odometry points[search_pattern_size];
+}

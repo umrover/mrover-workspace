@@ -673,6 +673,16 @@
             "micro_z"
         ]
     ],
+    "SearchPoints": [
+        [
+            "size_t",
+            "search_pattern_size"
+        ],
+        [
+            "Odometry[]",
+            "points"
+        ]
+    ],
     "SensorPackage": [
         [
             "double",
