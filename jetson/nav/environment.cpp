@@ -28,14 +28,14 @@ Target Environment::getRightTarget() {
 
 
 void Environment::setTargets(TargetList const& targets) {
-    Target const& leftTarget = targets.targetList[0];
-    Target const& rightTarget = targets.targetList[1];
-    if (leftTarget.id == mConfig["navThresholds"]["noTargetDist"].GetInt()) {
+    mTargetLeft = targets.targetList[0];
+    mTargetRight = targets.targetList[1];
+    if (mTargetLeft.id == mConfig["navThresholds"]["noTargetDist"].GetInt()) {
         mLeftBearingFilter.reset();
         mLeftDistanceFilter.reset();
     } else {
-        mLeftBearingFilter.push(leftTarget.bearing);
-        mLeftDistanceFilter.push(leftTarget.distance);
+        mLeftBearingFilter.push(mTargetLeft.bearing);
+        mLeftDistanceFilter.push(mTargetLeft.distance);
         mTargetLeft.bearing = mLeftBearingFilter.get();
         mTargetLeft.distance = mLeftDistanceFilter.get();
     }
@@ -44,8 +44,8 @@ void Environment::setTargets(TargetList const& targets) {
         mRightBearingFilter.reset();
         mRightDistanceFilter.reset();
     } else {
-        mRightBearingFilter.push(rightTarget.bearing);
-        mRightDistanceFilter.push(rightTarget.distance);
+        mRightBearingFilter.push(mTargetRight.bearing);
+        mRightDistanceFilter.push(mTargetRight.distance);
         mTargetRight.bearing = mRightBearingFilter.get();
         mTargetRight.distance = mRightDistanceFilter.get();
     }
@@ -101,4 +101,13 @@ Vector2d Environment::getRightPostRelative() {
 
 bool Environment::areTargetFiltersReady() const {
     return mLeftDistanceFilter.full() && mRightDistanceFilter.full() && mLeftBearingFilter.full() && mRightBearingFilter.full();
+}
+
+std::optional<Target> Environment::tryGetTargetWithId(int32_t id) {
+    if (mTargetLeft.id == id && mTargetLeft.distance > 0.0) {
+        return {mTargetLeft};
+    } else if (mTargetRight.id == id && mTargetRight.distance > 0.0) {
+        return {mTargetRight};
+    }
+    return std::nullopt;
 }

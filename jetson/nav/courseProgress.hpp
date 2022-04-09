@@ -19,7 +19,7 @@ public:
 
     [[nodiscard]] std::deque<Waypoint> const& getRemainingWaypoints() const;
 
-    [[nodiscard]] Waypoint const& getNextWaypoint() const;
+    [[nodiscard]] Waypoint const& getCurrentWaypoint() const;
 
     [[nodiscard]] Waypoint const& getLastCompletedWaypoint() const;
 

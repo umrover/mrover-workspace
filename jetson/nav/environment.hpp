@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 
 #include <eigen3/Eigen/Core>
 
@@ -51,11 +52,11 @@ public:
 
     void setTargets(TargetList const& targets);
 
-    void resetMisses();
-
     void updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course);
 
     [[nodiscard]] bool hasGateLocation() const;
 
     [[nodiscard]] bool areTargetFiltersReady() const;
+
+    std::optional<Target> tryGetTargetWithId(int32_t id);
 };

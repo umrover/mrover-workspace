@@ -60,8 +60,6 @@ private:
 
     // Reference to config variables
     const rapidjson::Document& mConfig;
-
-    bool hasTargetWithId(int32_t id, Target& outTarget);
 };
 
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle

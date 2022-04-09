@@ -53,7 +53,7 @@ NavState GateStateMachine::run() {
                 Odometry const& front = mPath.front();
                 double dt = sm->getDtSeconds();
                 if (rover->turn(front, dt)) {
-                    DriveStatus status = rover->drive(front, dt, mConfig["navThresholds"]["targetDistance"].GetDouble());
+                    DriveStatus status = rover->drive(front, dt, mConfig["navThresholds"]["waypointDistance"].GetDouble());
                     if (status == DriveStatus::Arrived) {
                         mPath.pop_front();
                     }
@@ -73,13 +73,16 @@ void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, 
     Vector2d p2 = env->getRightPostRelative();
     Vector2d v = p2 - p1;
     Vector2d m = p1 + v / 2;
-    double driveDist = v.dot(m) / m.norm() + mConfig["navThresholds"]["waypointDistance"].GetDouble();
-    double currentBearing = rover->odometry().bearing_deg;
-    double perpBearing = currentBearing + radianToDegree(atan2(v.y(), v.x()));
-    Odometry perpOdometry = createOdom(rover->odometry(), perpBearing, driveDist, rover);
+    double driveDist = v.dot(m) / m.norm();
+    double deltaBearing = radianToDegree(atan2(v.y(), v.x()));
+    if (driveDist < 0.0) deltaBearing = deltaBearing - 180.0;
+    double perpBearing = rover->odometry().bearing_deg + deltaBearing;
+    double finalDriveDist = fabs(driveDist) + mConfig["navThresholds"]["waypointDistance"].GetDouble();
+    Odometry perpOdometry = createOdom(rover->odometry(), perpBearing, finalDriveDist, rover);
     mPath.push_back(perpOdometry);
-    Odometry throughOdometry = createOdom(perpOdometry, perpBearing - 105.0, 3.0, rover);
-//    mPath.push_back(throughOdometry);
+    double rotateBearing = perpBearing - (driveDist > 0 ? 100.0 : -100);
+    Odometry throughOdometry = createOdom(perpOdometry, rotateBearing, m.norm() + 2.0, rover);
+    mPath.push_back(throughOdometry);
 }
 // run
 

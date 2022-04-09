@@ -11,7 +11,7 @@ Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
         : mConfig(config), mLcmObject(lcmObject),
           mBearingPid(config["bearingPid"]["kP"].GetDouble(),
                       config["bearingPid"]["kI"].GetDouble(),
-                      config["bearingPid"]["kD"].GetDouble()),
+                      config["bearingPid"]["kD"].GetDouble(), 360.0),
           mLongMeterInMinutes(-1) {
 } // Rover(
 
@@ -42,8 +42,7 @@ DriveStatus Rover::drive(double distance, double bearing, double threshold, doub
     double destinationBearing = mod(bearing, 360);
     throughZero(destinationBearing, mOdometry.bearing_deg); // will go off course if inside if because through zero not calculated
 
-    if (fabs(destinationBearing - mOdometry.bearing_deg) <
-        mConfig["navThresholds"]["drivingBearing"].GetDouble()) {
+    if (fabs(destinationBearing - mOdometry.bearing_deg) < mConfig["navThresholds"]["drivingBearing"].GetDouble()) {
         double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing, dt);
         // When we drive to a target, we want to go as fast as possible so one of the sides is fixed at one and the other is 1 - abs(turningEffort)
         // if we need to turn clockwise, turning effort will be positive, so left_vel will be 1, and right_vel will be in between 0 and 1
@@ -72,27 +71,14 @@ bool Rover::turn(Odometry const& destination, double dt) {
 bool Rover::turn(double bearing, double dt) {
     bearing = mod(bearing, 360);
     throughZero(bearing, mOdometry.bearing_deg);
-    double turningBearingThreshold;
-    if (isTurningAroundObstacle(mCurrentState)) {
-        turningBearingThreshold = 0;
-    } else {
-        turningBearingThreshold = mConfig["navThresholds"]["turningBearing"].GetDouble();
-    }
-    if (fabs(bearing - mOdometry.bearing_deg) <= turningBearingThreshold) {
+    if (fabs(bearing - mOdometry.bearing_deg) <= mConfig["navThresholds"]["turningBearing"].GetDouble()) {
         return true;
     }
     double turningEffort = mBearingPid.update(mOdometry.bearing_deg, bearing, dt);
-//    std::cout << "cur bearing: " << mOdometry.bearing_deg << " target bearing: " << bearing << " effort: " << turningEffort << std::endl;
-    double minTurningEffort =
-            mConfig["navThresholds"]["minTurningEffort"].GetDouble() * (turningEffort < 0 ? -1 : 1);
-    if (isTurningAroundObstacle(mCurrentState) && fabs(turningEffort) < minTurningEffort) {
-        turningEffort = minTurningEffort;
-    }
-    //to turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
-    double left_vel = std::max(std::min(1.0, +turningEffort), -1.0);
-    double right_vel = std::max(std::min(1.0, -turningEffort), -1.0);
-//    std::cout << left_vel << ", " << right_vel << std::endl;
-    publishAutonDriveCmd(left_vel, right_vel);
+    // to turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
+    double leftVel = std::max(std::min(1.0, +turningEffort), -1.0);
+    double rightVel = std::max(std::min(1.0, -turningEffort), -1.0);
+    publishAutonDriveCmd(leftVel, rightVel);
     return false;
 } // turn()
 

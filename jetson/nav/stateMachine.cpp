@@ -65,7 +65,6 @@ void StateMachine::run() {
     if (!mRover->autonState().is_auton) {
         nextState = NavState::Off;
         mRover->setState(executeOff()); // turn off immediately
-        mCourseProgress->clearProgress();
         if (nextState != mRover->currentState()) {
             mRover->setState(nextState);
         }
@@ -162,14 +161,13 @@ NavState StateMachine::executeDone() {
 } // executeDone()
 
 NavState StateMachine::executeDrive() {
-    Waypoint const& nextWaypoint = mCourseProgress->getNextWaypoint();
-    Odometry const& nextPoint = nextWaypoint.odom;
+    Waypoint const& currentWaypoint = mCourseProgress->getCurrentWaypoint();
     double dt = getDtSeconds();
-    if (mRover->turn(nextPoint, dt)) {
-        DriveStatus status = mRover->drive(nextPoint, dt, mConfig["navThresholds"]["waypointDistance"].GetDouble());
-        if (status == DriveStatus::Arrived && nextWaypoint.search) {
+    if (mRover->turn(currentWaypoint.odom, dt)) {
+        DriveStatus status = mRover->drive(currentWaypoint.odom, dt, mConfig["navThresholds"]["waypointDistance"].GetDouble());
+        if (status == DriveStatus::Arrived) {
             mCourseProgress->completeCurrentWaypoint();
-            if (nextWaypoint.search) {
+            if (currentWaypoint.search) {
                 return NavState::BeginSearch;
             } else {
                 return NavState::Done;
@@ -217,6 +215,5 @@ std::shared_ptr<Rover> StateMachine::getRover() {
 }
 
 double StateMachine::getDtSeconds() {
-    double dtSeconds = std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
-    return dtSeconds;
+    return std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
 }

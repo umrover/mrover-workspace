@@ -32,15 +32,20 @@ NavState SearchStateMachine::run() {
 
 NavState SearchStateMachine::executeSearch() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
+    std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
 
-    Target const& leftTarget = sm->getEnv()->getLeftTarget();
-    Target const& rightTarget = sm->getEnv()->getLeftTarget();
+    Target const& leftTarget = env->getLeftTarget();
+    Target const& rightTarget = env->getLeftTarget();
     Waypoint const& lastWaypoint = sm->getCourseState()->getLastCompletedWaypoint();
     bool isGate = lastWaypoint.gate;
     if (isGate) {
-        if (sm->getEnv()->hasGateLocation()) {
+        if (env->hasGateLocation()) {
             return NavState::BeginGateSearch;
+        } else {
+            if (leftTarget.id > 0 || rightTarget.id > 0) {
+                return NavState::DriveToTarget;
+            }
         }
     } else {
         // You may as well just go to the left post always
@@ -67,22 +72,35 @@ NavState SearchStateMachine::executeDriveToTarget() {
     std::shared_ptr<Rover> rover = sm->getRover();
 
     double dt = sm->getDtSeconds();
-    Waypoint targetWaypoint = sm->getCourseState()->getNextWaypoint();
+    Waypoint lastWaypoint = sm->getCourseState()->getLastCompletedWaypoint();
     Target const& leftTarget = env->getLeftTarget();
     Target const& rightTarget = env->getRightTarget();
     double currentBearing = rover->odometry().bearing_deg;
 
     double distance, bearing;
-    if (targetWaypoint.gate) {
-        Target target{};
-        if (hasTargetWithId(targetWaypoint.id, target)) {
-            distance = target.distance;
-            bearing = target.bearing + currentBearing;
+    if (lastWaypoint.gate) {
+        if (env->hasGateLocation()) {
+            return NavState::BeginGateSearch;
+        }
+        if (leftTarget.id > 0 && rightTarget.id > 0) {
+            if (leftTarget.distance < rightTarget.distance) {
+                distance = leftTarget.distance;
+                bearing = leftTarget.bearing + currentBearing;
+            } else {
+                distance = rightTarget.distance;
+                bearing = rightTarget.bearing + currentBearing;
+            }
+        } else if (leftTarget.id > 0) {
+            distance = leftTarget.distance;
+            bearing = leftTarget.bearing + currentBearing;
+        } else if (rightTarget.id > 0) {
+            distance = rightTarget.distance;
+            bearing = rightTarget.bearing + currentBearing;
         } else {
             return NavState::Search;
         }
     } else {
-        if (leftTarget.distance >= 0.0) {
+        if (leftTarget.id > 0) {
             distance = leftTarget.distance;
             bearing = leftTarget.bearing + currentBearing;
         } else {
@@ -96,9 +114,8 @@ NavState SearchStateMachine::executeDriveToTarget() {
     if (rover->turn(targetPoint, dt)) {
         DriveStatus driveStatus = rover->drive(targetPoint, dt, mConfig["navThresholds"]["targetDistance"].GetDouble());
         if (driveStatus == DriveStatus::Arrived) {
-            Waypoint completed = sm->getCourseState()->completeCurrentWaypoint();
-            if (completed.gate) {
-                return NavState::Done;
+            if (sm->getCourseState()->getLastCompletedWaypoint().gate) {
+                return NavState::Search;
             } else {
                 return NavState::Done;
             }
@@ -132,20 +149,6 @@ void SearchStateMachine::insertIntermediatePoints() {
 //        }
 //    }
 } // insertIntermediatePoints()
-
-bool SearchStateMachine::hasTargetWithId(int32_t id, Target& outTarget) {
-    std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
-    Target const& leftTarget = env->getLeftTarget();
-    Target const& rightTarget = env->getRightTarget();
-    if (leftTarget.id == id && leftTarget.distance > 0.0) {
-        outTarget = leftTarget;
-        return true;
-    } else if (rightTarget.id == id && rightTarget.distance > 0.0) {
-        outTarget = rightTarget;
-        return true;
-    }
-    return false;
-}
 
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms

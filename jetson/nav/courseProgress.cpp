@@ -1,7 +1,8 @@
 #include "courseProgress.hpp"
 
 void CourseProgress::setCourse(Course const& course) {
-    if (course.hash != mCourse.hash) {
+    bool isDifferent = course.hash != mCourse.hash;
+    if (isDifferent) {
         mCourse = course;
         clearProgress();
     }
@@ -11,7 +12,7 @@ std::deque<Waypoint> const& CourseProgress::getRemainingWaypoints() const {
     return mRemainingWaypoints;
 }
 
-Waypoint const& CourseProgress::getNextWaypoint() const {
+Waypoint const& CourseProgress::getCurrentWaypoint() const {
     return mRemainingWaypoints.front();
 }
 
