@@ -14,6 +14,10 @@
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
       </l-marker>
 
+      <l-marker :lat-lng="searchMarkers" :icon="waypointIcon" v-for="(waypoint,index) in searchPoints" :key="index">
+         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
+      </l-marker>
+
       <l-polyline :lat-lngs="this.playbackEnabled ? polylinePlaybackPath : polylinePath" :color="'red'" :dash-array="'5, 5'"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
       <l-polyline :lat-lngs="playbackPath" :color="'green'"/>
@@ -62,6 +66,9 @@ export default {
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
+    this.$parent.subscribe('/search_points', (msg) => {
+      this.searchPoints=msg.searchPoints;
+    })
   },
 
   computed: {
@@ -103,6 +110,8 @@ export default {
       locationIcon: null,
       tangentIcon: null,
       odomPath: [],
+      searchPoints: [],
+      searchWaypoints: [],
       findRover: false,
 
       playbackPath: [],
@@ -179,6 +188,15 @@ export default {
       }
 
       this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
+    },
+
+    searchPoints: function (newSearch) {
+      const search = newSearch.map((waypoint) => {
+        const lat = waypoint.latitude_deg + waypoint.latitude_min/60;
+        const lon = waypoint.longitude_deg + waypoint.longitude_min/60;
+        return { latLng: L.latLng(lat, lon)};
+      });
+      this.searchMarkers = search;
     },
 
     GPS: function (val) {
