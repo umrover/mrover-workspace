@@ -28,7 +28,7 @@ export default {
   },
 
   created: function () {
-    this.$parent.subscribe('/ra_position', (msg) => {
+    this.$parent.subscribe('/ra_offset_pos', (msg) => {
       this.encoderCounts = msg
     })
   }

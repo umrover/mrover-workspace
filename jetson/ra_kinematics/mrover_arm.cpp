@@ -18,9 +18,7 @@ MRoverArm::MRoverArm(json &geom, lcm::LCM &lcm) :
     lcm_(lcm),
     sim_mode(true),
     control_state(ControlState::OFF),
-    wrist_turn_count(0),
     motion_planner(arm_state, solver),
-    use_orientation(false),
     zero_encoders(false)
 {
     prev_angles.clear();
@@ -41,12 +39,32 @@ void MRoverArm::arm_position_callback(std::string channel, RAPosition msg) {
                             msg.joint_d, msg.joint_e, msg.joint_f };
 
     set_arm_position(angles);
+
+    RAPosition outgoing_msg;
+
+    outgoing_msg.joint_a = angles[0];
+    outgoing_msg.joint_b = angles[1];
+    outgoing_msg.joint_c = angles[2];
+    outgoing_msg.joint_d = angles[3];
+    outgoing_msg.joint_e = angles[4];
+    outgoing_msg.joint_f = angles[5];
+
+    lcm_.publish("/ra_offset_pos", &outgoing_msg);
 }
 
 void MRoverArm::arm_position_callback(std::string channel, SAPosition msg) {
     std::vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c, msg.joint_e };
 
     set_arm_position(angles);
+
+    SAPosition outgoing_msg;
+
+    outgoing_msg.joint_a = angles[0];
+    outgoing_msg.joint_b = angles[1];
+    outgoing_msg.joint_c = angles[2];
+    outgoing_msg.joint_e = angles[3];
+
+    lcm_.publish("/sa_offset_pos", &outgoing_msg);
 }
 
 void MRoverArm::ra_control_callback(std::string channel, ArmControlState msg) {
@@ -170,7 +188,7 @@ void MRoverArm::set_arm_position(std::vector<double> &angles) {
     }
 }
 
-void MRoverArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
+void StandardArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
     if(abs(wrist_turn_count) >= 2){
         std::cout << "Wrist Turn Count Limit Exceeded, IK Request Cancelled\n";
         return;
@@ -275,7 +293,7 @@ void MRoverArm::plan_path(ArmState& hypo_state, const std::vector<double> &goal)
     std::cout << "Beginning path planning\n";
 
     // save vector of which joints are locked
-    vector<bool> original_locks;
+    std::vector<bool> original_locks;
     original_locks.resize(hypo_state.num_joints());
     for (size_t j = 0; j < hypo_state.num_joints(); ++j) {
         original_locks[j] = hypo_state.get_joint_locked(j);
@@ -528,7 +546,7 @@ void MRoverArm::simulation_mode_callback(std::string channel, SimulationMode msg
     std::cout << "Received Simulation Mode value: " << sim_mode << "\n";
 }
 
-void MRoverArm::use_orientation_callback(std::string channel, UseOrientation msg) {
+void StandardArm::use_orientation_callback(std::string channel, UseOrientation msg) {
     use_orientation = msg.use_orientation;
     std::cout << "Received Use Orientation value: " << use_orientation << "\n";
 }
@@ -539,7 +557,7 @@ void MRoverArm::zero_position_callback(std::string channel, Signal msg) {
     zero_encoders = true;
 }
 
-void MRoverArm::arm_adjust_callback(std::string channel, ArmAdjustments msg) {
+void StandardArm::arm_adjust_callback(std::string channel, ArmAdjustments msg) {
     std::vector<double> current_pos = arm_state.get_ef_pos_and_euler_angles();
 
     TargetOrientation target;
@@ -628,7 +646,7 @@ void MRoverArm::custom_preset_callback(std::string channel, CustomPreset msg) {
     std::cout << "adding new preset " << msg.preset << "\n";
 }
 
-void MRoverArm::wrist_turn_count_callback(std::string channel, WristTurnCount msg){
+void StandardArm::wrist_turn_count_callback(std::string channel, WristTurnCount msg){
     wrist_turn_count = msg.turn_count;
 }
 
@@ -657,7 +675,10 @@ bool MRoverArm::interrupt(ControlState expected_state, std::string action) {
     return false;
 }
 
-StandardArm::StandardArm(json &geom, lcm::LCM &lcm) : MRoverArm(geom, lcm) { }
+StandardArm::StandardArm(json &geom, lcm::LCM &lcm) :
+    MRoverArm(geom, lcm),
+    wrist_turn_count(0),
+    use_orientation(false) { }
 
 void StandardArm::lock_joints_callback(std::string channel, LockJoints msg) {
     std::cout << "Running lock_joints_callback:   ";
@@ -817,7 +838,7 @@ void ScienceArm::arm_preset_callback(std::string channel, ArmPreset msg) {
 }
 
 void ScienceArm::arm_preset_path_callback(std::string channel, ArmPresetPath msg) {
-    std::vector<std::vector<double>> paths = arm_state.get_htap a eldnahpreset_path(msg.preset);
+    std::vector<std::vector<double>> paths = arm_state.get_preset_path(msg.preset);
 
     // TODO: figure out how to 
 }

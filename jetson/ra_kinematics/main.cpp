@@ -19,7 +19,10 @@ public:
         const TargetOrientation* m_execute
         )
     {
-        arm->target_orientation_callback( channel, *m_execute );
+        StandardArm*  standard_arm = dynamic_cast<StandardArm*>(arm);
+        if (standard_arm) {
+            standard_arm->target_orientation_callback( channel, *m_execute );
+        }
     }
     
     void motionExecuteCallback(
@@ -68,7 +71,10 @@ public:
         const std::string& channel,
         const UseOrientation* use_orientation)
     {
-        arm->use_orientation_callback( channel, *use_orientation );
+        StandardArm* standard_arm = dynamic_cast<StandardArm*>(arm);
+        if (standard_arm) {
+            standard_arm->use_orientation_callback( channel, *use_orientation );
+        }
     }
 
     void lockJointsCallback(
@@ -92,7 +98,10 @@ public:
         const std::string& channel,
         const ArmAdjustments* arm_adjustments)
     {
-        arm->arm_adjust_callback( channel, *arm_adjustments );
+        StandardArm* standard_arm = dynamic_cast<StandardArm*>(arm);
+        if (standard_arm) {
+            standard_arm->arm_adjust_callback( channel, *arm_adjustments );
+        }
     }
 
     void armPresetCallback(
@@ -107,10 +116,12 @@ public:
         const lcm::ReceiveBuffer* receiveBuffer,
         const std::string& channel,
         const ArmPresetPath* arm_preset_path)
-        {
-            arm->arm_preset_path_callback( channel, *arm_preset_path );
+    {
+        ScienceArm* science_arm = dynamic_cast<ScienceArm*>(arm);
+        if (science_arm) {
+            science_arm->arm_preset_path_callback( channel, *arm_preset_path );
         }
-    )
+    }
 
     void customPresetCallback(
         const lcm::ReceiveBuffer* receiveBuffer,
@@ -125,7 +136,10 @@ public:
         const std::string& channel,
         const WristTurnCount* wrist_turn_count)
     {
-        arm->wristTurnCountCallback( channel, *wrist_turn_count );
+        StandardArm* standard_arm = dynamic_cast<StandardArm*>(arm);
+        if (standard_arm) {
+            standard_arm->wrist_turn_count_callback( channel, *wrist_turn_count );
+        }
     }
 
 private:

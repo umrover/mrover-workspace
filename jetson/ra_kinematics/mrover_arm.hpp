@@ -34,6 +34,7 @@
 #include "rover_msgs/Signal.hpp"
 #include "rover_msgs/UseOrientation.hpp"
 #include "rover_msgs/ArmPreset.hpp"
+#include "rover_msgs/ArmPresetPath.hpp"
 #include "rover_msgs/CustomPreset.hpp"
 #include "rover_msgs/ArmAdjustments.hpp"
 #include "rover_msgs/WristTurnCount.hpp"
@@ -89,14 +90,12 @@ protected:
     };
 
     ControlState control_state;
-    int wrist_turn_count;
 
     std::mutex encoder_angles_sender_mtx;
  
 private:
     MotionPlanner motion_planner;
 
-    bool use_orientation;
     bool zero_encoders;
 
     bool encoder_error;
@@ -146,15 +145,6 @@ public:
     void ra_control_callback(std::string channel, ArmControlState msg);
 
     /**
-     * Handle new target position by calculating angles and plotting path,
-     * then preview path
-     * 
-     * @param channel expected: "/target_orientation" or "/arm_adjustments"
-     * @param msg float x, y, z, alpha, beta, gamma
-     * */
-    void target_orientation_callback(std::string channel, TargetOrientation msg);
-
-    /**
      * Handle request to move arm through previously calculated path, or to cancel
      * 
      * @param channel expected: "/motion_execute"
@@ -171,14 +161,6 @@ public:
     void simulation_mode_callback(std::string channel, SimulationMode msg);
 
     /**
-     * Handle request to move in or out of simulation mode
-     * 
-     * @param channel expected: "/use_orientation"
-     * @param msg format: bool use_orientation
-     */
-    void use_orientation_callback(std::string channel, UseOrientation msg);
-
-    /**
      * Handle request to set current position as the zero position
      * 
      * @param channel expected: "/zero_position"
@@ -187,29 +169,12 @@ public:
     void zero_position_callback(std::string channel, Signal msg);
 
     /**
-     * Calculate new target orientation using current pos and adjustments and
-     * call target_orientation_callback 
-     * 
-     * @param channel expected: "/arm_adjustments"
-     * @param msg float x, y, z, alpha, beta, gamma
-     * */
-    void arm_adjust_callback(std::string channel, ArmAdjustments msg);
-
-    /**
      * Handle request to go to a preset position
      * 
      * @param channel expected: "/custom_preset"
      * @param msg format: string preset
      */
     void custom_preset_callback(std::string channel, CustomPreset msg);
-    
-    /**
-     * Handle request to go to a preset position
-     * 
-     * @param channel expected: "/wrist_turn_count_callback"
-     * @param msg format: int8_t turnCount
-     */
-    void wrist_turn_count_callback(std::string channel, CustomPreset msg);
 
     /**
      * Handle request to lock specific joints
@@ -226,14 +191,6 @@ public:
      * @param msg format: string preset
      */
     virtual void arm_preset_callback(std::string channel, ArmPreset msg) = 0;
-
-    /**
-     * Handle request to go to various positions on a preset path
-     * 
-     * @param channel expected: "/arm_preset_path"
-     * @param msg format: string preset
-     */
-    virtual void arm_preset_path_callback(std::string channel, ArmPresetPath msg) = 0;
 
     /**
      * Update arm_state and call FK() to adjust transforms
@@ -288,6 +245,41 @@ public:
 
     void encoder_angles_sender() override;
 
+    /**
+     * Handle new target position by calculating angles and plotting path,
+     * then preview path
+     * 
+     * @param channel expected: "/target_orientation" or "/arm_adjustments"
+     * @param msg float x, y, z, alpha, beta, gamma
+     * */
+    void target_orientation_callback(std::string channel, TargetOrientation msg);
+
+    /**
+     * Handle request to go to a preset position
+     * 
+     * @param channel expected: "/wrist_turn_count_callback"
+     * @param msg format: int8_t turnCount
+     */
+    void wrist_turn_count_callback(std::string channel, WristTurnCount msg);
+
+    /**
+     * Handle request to move in or out of simulation mode
+     * 
+     * @param channel expected: "/use_orientation"
+     * @param msg format: bool use_orientation
+     */
+    void use_orientation_callback(std::string channel, UseOrientation msg);
+
+    /**
+     * Calculate new target orientation using current pos and adjustments and
+     * call target_orientation_callback 
+     * 
+     * @param channel expected: "/arm_adjustments"
+     * @param msg float x, y, z, alpha, beta, gamma
+     * */
+    void arm_adjust_callback(std::string channel, ArmAdjustments msg);
+
+
 private:
 
     /**
@@ -299,6 +291,9 @@ private:
     void publish_config(const std::vector<double> &config, std::string channel) override;
 
     void send_kill_cmd() override;
+
+    int wrist_turn_count;
+    bool use_orientation;
 };
 
 class ScienceArm : public MRoverArm {
@@ -311,6 +306,14 @@ public:
     void lock_joints_callback(std::string channel, LockJoints msg) override;
 
     void arm_preset_callback(std::string channel, ArmPreset msg) override;
+
+    /**
+     * Handle request to go to various positions on a preset path
+     * 
+     * @param channel expected: "/arm_preset_path"
+     * @param msg format: string preset
+     */
+    void arm_preset_path_callback(std::string channel, ArmPresetPath msg);
 
     void encoder_angles_sender() override;
 
