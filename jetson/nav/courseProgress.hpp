@@ -17,13 +17,15 @@ private:
 public:
     void setCourse(Course const& course);
 
-    std::deque<Waypoint> const& getRemainingWaypoints() const;
+    [[nodiscard]] std::deque<Waypoint> const& getRemainingWaypoints() const;
+
+    [[nodiscard]] Waypoint const& getNextWaypoint() const;
 
     Waypoint completeCurrentWaypoint();
 
     void clearProgress();
 
-    Course const& getCourse() const;
+    [[nodiscard]] Course const& getCourse() const;
 
-    int32_t getCompletedWaypointCount() const;
+    [[nodiscard]] int32_t getCompletedWaypointCount() const;
 };

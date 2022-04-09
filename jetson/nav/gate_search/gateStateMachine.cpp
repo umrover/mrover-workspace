@@ -38,25 +38,26 @@ NavState GateStateMachine::run() {
             std::shared_ptr<Environment> env = sm->getEnv();
             if (env->areTargetFiltersReady()) {
                 makeDualSegmentPath(rover, env);
-                return NavState::GateDrivePath;
+                return NavState::GateTraverse;
             } else {
                 rover->stop();
+                mPath.clear();
             }
             return NavState::GateMakePath;
         }
-        case NavState::GateDrivePath: {
+        case NavState::GateTraverse: {
             if (mPath.empty()) {
                 return NavState::Done;
             } else {
                 Odometry const& front = mPath.front();
                 if (rover->turn(front, sm->getDtSeconds())) {
-                    DriveStatus status = rover->drive(front, sm->getDtSeconds());
+                    DriveStatus status = rover->drive(front, sm->getDtSeconds(), mConfig["navThresholds"]["targetDistance"].GetDouble());
                     if (status == DriveStatus::Arrived) {
                         mPath.pop_front();
                     }
                 }
             }
-            return NavState::GateDrivePath;
+            return NavState::GateTraverse;
         }
         default: {
             std::cerr << "Entered Unknown NavState in search state machine" << std::endl;

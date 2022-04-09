@@ -27,17 +27,13 @@ enum class NavState {
     Off = 0,
     Done = 1,
 
-    // Simple Movement
-    Turn = 10,
-    Drive = 11,
+    DriveWaypoints = 10,
 
     // Search States
-    SearchTurn = 20,
-    SearchDrive = 21,
     BeginSearch = 22,
+    Search = 20,
 
     // Target Found States
-    TurnToTarget = 27,
     DriveToTarget = 28,
 
     // Obstacle Avoidance States
@@ -47,11 +43,12 @@ enum class NavState {
     SearchDriveAroundObs = 33,
 
     // Gate Search
-    GateTraverse = 34,
+    BeginGateSearch = 40,
+    GateMakePath = 41,
+    GateTraverse = 42,
 
     // Unknown State
     Unknown = 255
-
 }; // AutonState
 
 // This class is the representation of the drive status.
@@ -67,7 +64,7 @@ class Rover {
 public:
     Rover(const rapidjson::Document& config, lcm::LCM& lcm_in);
 
-    DriveStatus drive(const Odometry& destination, double dt);
+    DriveStatus drive(const Odometry& destination, double dt, double stopDistance);
 
     DriveStatus drive(double distance, double bearing, double threshold, double dt);
 

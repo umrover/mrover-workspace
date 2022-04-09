@@ -19,61 +19,13 @@ SimpleAvoidance::~SimpleAvoidance() = default;
 // If in search state and target is both detected and reachable, return NavState TurnToTarget.
 // ASSUMPTION: There is no rock that is more than 8 meters (pathWidth * 2) in diameter
 NavState SimpleAvoidance::executeTurnAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) {
-    std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
-    if (isTargetDetected() && isTargetReachable(rover, env, roverConfig)) {
-        return NavState::TurnToTarget;
-    }
-    if (!isObstacleDetected(rover, env)) {
-        double distanceAroundObs = mOriginalObstacleDistance /
-                                   cos(fabs(degreeToRadian(mOriginalObstacleAngle)));
-        mObstacleAvoidancePoint = createAvoidancePoint(rover, distanceAroundObs);
-        if (rover->currentState() == NavState::TurnAroundObs) {
-            return NavState::DriveAroundObs;
-        }
-        mJustDetectedObstacle = false;
-        return NavState::SearchDriveAroundObs;
-    }
-
-    Obstacle const& obstacle = env->getObstacle();
-    double obstacleBearing = (abs(obstacle.bearing) < abs(obstacle.rightBearing)) ? obstacle.bearing : obstacle.rightBearing;
-
-    if (mJustDetectedObstacle &&
-        (obstacleBearing < 0 ? mLastObstacleAngle >= 0 : mLastObstacleAngle < 0)) {
-        obstacleBearing *= -1;
-    }
-
-    double desiredBearing = mod(rover->odometry().bearing_deg + obstacleBearing, 360);
-    mJustDetectedObstacle = true;
-    mLastObstacleAngle = obstacleBearing;
-    rover->turn(desiredBearing, mStateMachine.lock()->getDtSeconds());
-    return rover->currentState();
+    throw std::runtime_error("implement me");
 } // executeTurnAroundObs()
 
 // Drives to dummy waypoint. Once arrived, rover will drive to original waypoint
 // ( original waypoint is the waypoint before obstacle avoidance was triggered )
 NavState SimpleAvoidance::executeDriveAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) {
-    std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
-    if (isObstacleDetected(rover, env) && isObstacleInThreshold(rover, env, roverConfig)) {
-        if (rover->currentState() == NavState::DriveAroundObs) {
-            return NavState::TurnAroundObs;
-        }
-        return NavState::SearchTurnAroundObs;
-    }
-
-    DriveStatus driveStatus = rover->drive(mObstacleAvoidancePoint, mStateMachine.lock()->getDtSeconds());
-    if (driveStatus == DriveStatus::Arrived) {
-        if (rover->currentState() == NavState::DriveAroundObs) {
-            return NavState::Turn;
-        }
-        return NavState::SearchTurn;
-    }
-    if (driveStatus == DriveStatus::OnCourse) {
-        return rover->currentState();
-    }
-    if (rover->currentState() == NavState::DriveAroundObs) {
-        return NavState::TurnAroundObs;
-    }
-    return NavState::SearchTurnAroundObs;
+    throw std::runtime_error("implement me");
 } // executeDriveAroundObs()
 
 // Create the odometry point used to drive around an obstacle

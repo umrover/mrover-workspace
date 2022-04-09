@@ -20,10 +20,10 @@ Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
 // the rover small amounts as "course corrections".
 // The return value indicates if the rover has arrived or if it is
 // on-course or off-course.
-DriveStatus Rover::drive(const Odometry& destination, double dt) {
+DriveStatus Rover::drive(const Odometry& destination, double dt, double stopDistance) {
     double distance = estimateNoneuclid(mOdometry, destination);
     double bearing = calcBearing(mOdometry, destination);
-    return drive(distance, bearing, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt);
+    return drive(distance, bearing, stopDistance, dt);
 } // drive()
 
 // Sends a joystick command to drive forward from the current odometry

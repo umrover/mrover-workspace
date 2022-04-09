@@ -43,9 +43,6 @@ protected:
     // Pointer to rover State Machine to access member functions
     std::weak_ptr<StateMachine> mStateMachine;
 
-    // Vector of search point multipliers used as a base for the search points.
-    std::vector<std::pair<short, short>> mSearchPointMultipliers;
-
     // Queue of search points.
     std::deque<Odometry> mSearchPoints;
 
@@ -53,11 +50,7 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    NavState executeSearchTurn();
-
-    NavState executeSearchDrive();
-
-    NavState executeTurnToTarget();
+    NavState executeSearch();
 
     NavState executeDriveToTarget();
 

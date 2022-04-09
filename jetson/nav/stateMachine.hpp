@@ -61,15 +61,9 @@ private:
 
     NavState executeDone();
 
-    NavState executeTurn();
-
     NavState executeDrive();
 
     std::string stringifyNavState() const;
-
-    double getOptimalAvoidanceDistance() const;
-
-    bool isWaypointReachable(double distance);
 
     /*************************************************************************/
     /* Private Member Variables */
