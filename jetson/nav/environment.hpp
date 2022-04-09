@@ -34,8 +34,8 @@ private:
     int mCountLeftHits = 0;
     int mCountRightHits = 0;
 
-     // Reference to config variables
-    const rapidjson::Document& mRoverConfig;
+    // Reference to config variables
+    const rapidjson::Document& mConfig;
 
     Filter<double> leftBearingFilter, rightBearingFilter, leftDistanceFilter, rightDistanceFilter;
 

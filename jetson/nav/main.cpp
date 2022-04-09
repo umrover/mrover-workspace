@@ -1,10 +1,9 @@
-#include <chrono>
 #include <memory>
 #include <fstream>
 #include <iostream>
 #include <filesystem>
-#include <lcm/lcm-cpp.hpp>
 
+#include <lcm/lcm-cpp.hpp>
 #include "rapidjson/document.h"
 #include "rapidjson/istreamwrapper.h"
 
@@ -12,8 +11,8 @@
 #include "environment.hpp"
 #include "courseProgress.hpp"
 
-using namespace rover_msgs;
 
+using namespace rover_msgs;
 
 rapidjson::Document readConfig() {
     std::ifstream configFile;
@@ -65,11 +64,6 @@ int main() {
     lcm.subscribe("/odometry", &decltype(odometryCallback)::operator(), &odometryCallback);
 
     auto targetCallback = [env](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const TargetList* targetList) mutable {
-        static int64_t recTime;
-        if (recBuf->recv_utime < recTime) {
-            std::cerr << "OLD!" << std::endl;
-        }
-        recTime = recBuf->recv_utime;
         env->setTargets(*targetList);
     };
     lcm.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback);

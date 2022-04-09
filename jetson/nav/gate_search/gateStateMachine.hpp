@@ -46,7 +46,7 @@ private:
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
-    const rapidjson::Document& mRoverConfig;
+    const rapidjson::Document& mConfig;
 
     std::deque<Odometry> mPath;
 };

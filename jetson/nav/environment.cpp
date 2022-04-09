@@ -4,7 +4,7 @@
 #include "utilities.hpp"
 
 Environment::Environment(const rapidjson::Document& config) :
-        mRoverConfig(config),
+        mConfig(config),
         mLeftBearingFilter(config["gate"]["filterSize"].GetInt(), config["gate"]["filterProportion"].GetDouble()),
         mRightBearingFilter(config["gate"]["filterSize"].GetInt(), config["gate"]["filterProportion"].GetDouble()),
         mLeftDistanceFilter(config["gate"]["filterSize"].GetInt(), config["gate"]["filterProportion"].GetDouble()),
@@ -23,14 +23,14 @@ Target Environment::getLeftTarget() {
 }
 
 Target Environment::getRightTarget() {
-    return mTargetLeft;
+    return mTargetRight;
 }
 
 
 void Environment::setTargets(TargetList const& targets) {
     mTargetLeft = targets.targetList[0];
     mTargetRight = targets.targetList[1];
-    if (targets.targetList[0].id == -1) {
+    if (targets.targetList[0].id == mConfig["navThresholds"]["noTargetDist"].GetDouble()) {
         mLeftBearingFilter.reset();
         mLeftDistanceFilter.reset();
     } else {
@@ -40,7 +40,7 @@ void Environment::setTargets(TargetList const& targets) {
         mTargetLeft.distance = mLeftDistanceFilter.get();
     }
 
-    if (targets.targetList[1].id == -1) {
+    if (targets.targetList[1].id == mConfig["navThresholds"]["noTargetDist"].GetDouble()) {
         mRightBearingFilter.reset();
         mRightDistanceFilter.reset();
     } else {
@@ -61,7 +61,7 @@ void Environment::setTargets(TargetList const& targets) {
 void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
     if (rover->autonState().is_auton) {
         // Cache Left Target if we had detected one
-        if (mTargetLeft.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+        if (mTargetLeft.distance != mConfig["navThresholds"]["noTargetDist"].GetDouble()) {
             // Associate with single post
             if (mTargetLeft.id == course->getRemainingWaypoints().front().id) {
                 mCountLeftHits++;
@@ -75,7 +75,7 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
             }
             // Cache Right Target if we had detected one (only can see right if we see the left one, otherwise
             // results in some undefined behavior)
-            if (mTargetRight.distance != mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+            if (mTargetRight.distance != mConfig["navThresholds"]["noTargetDist"].GetDouble()) {
                 mCacheTargetRight = mTargetRight;
                 mCountRightMisses = 0;
             } else {
@@ -89,14 +89,14 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
         }
 
         // Check if we need to reset left cache
-        if (mCountLeftMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
+        if (mCountLeftMisses > mConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
             mCountLeftMisses = 0;
             mCountLeftHits = 0;
             // Set to empty target
             mCacheTargetLeft = {-1, 0, 0};
         }
         // Check if we need to reset right cache
-        if (mCountRightMisses > mRoverConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
+        if (mCountRightMisses > mConfig["navThresholds"]["cacheMissMax"].GetDouble()) {
             mCountRightMisses = 0;
             mCountRightHits = 0;
             // Set to empty target

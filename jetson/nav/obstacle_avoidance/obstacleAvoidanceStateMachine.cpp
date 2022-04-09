@@ -9,7 +9,7 @@
 // Constructs an ObstacleAvoidanceStateMachine object with mStateMachine, mConfig, and mRover
 ObstacleAvoidanceStateMachine::ObstacleAvoidanceStateMachine
         (std::weak_ptr<StateMachine> sm, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig)
-        : mStateMachine(move(sm)), mJustDetectedObstacle(false), mRover(move(rover)), mRoverConfig(roverConfig) {}
+        : mStateMachine(move(sm)), mJustDetectedObstacle(false), mRover(move(rover)), mConfig(roverConfig) {}
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
@@ -37,13 +37,13 @@ NavState ObstacleAvoidanceStateMachine::run() {
     switch (mRover->currentState()) {
         case NavState::TurnAroundObs:
         case NavState::SearchTurnAroundObs: {
-            return executeTurnAroundObs(mRover, mRoverConfig);
+            return executeTurnAroundObs(mRover, mConfig);
         }
 
         case NavState::DriveAroundObs:
         case NavState::SearchDriveAroundObs: {
 
-            return executeDriveAroundObs(mRover, mRoverConfig);
+            return executeDriveAroundObs(mRover, mConfig);
 
         }
 

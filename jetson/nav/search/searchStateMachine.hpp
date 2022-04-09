@@ -66,8 +66,9 @@ private:
     /*************************************************************************/
 
     // Reference to config variables
-    const rapidjson::Document& mRoverConfig;
+    const rapidjson::Document& mConfig;
 
+    bool getTargetWithId(int32_t id, Target& outTarget);
 };
 
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle

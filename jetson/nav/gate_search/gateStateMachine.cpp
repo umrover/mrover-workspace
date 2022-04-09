@@ -13,7 +13,7 @@ using Eigen::Vector2d;
 // Constructs a GateStateMachine object with mStateMachine
 GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig) :
         mStateMachine(move(stateMachine)),
-        mRoverConfig(roverConfig) {
+        mConfig(roverConfig) {
 }
 
 GateStateMachine::~GateStateMachine() = default;
@@ -41,7 +41,7 @@ NavState GateStateMachine::run() {
                 Vector2d p2 = env->getRightPostRelative();
                 Vector2d v = p2 - p1;
                 Vector2d m = p1 + v / 2;
-                double driveDist = v.dot(m) / v.norm() + mRoverConfig["navThresholds"]["waypointDistance"].GetDouble();
+                double driveDist = v.dot(m) / m.norm() + mConfig["navThresholds"]["waypointDistance"].GetDouble();
                 double currentBearing = rover->odometry().bearing_deg;
                 double perpBearing = currentBearing + radianToDegree(atan2(v.y(), v.x()));
                 Odometry perpOdometry = createOdom(rover->odometry(), perpBearing, driveDist, rover);

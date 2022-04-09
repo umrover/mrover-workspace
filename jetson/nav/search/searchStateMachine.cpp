@@ -10,7 +10,7 @@
 
 // Constructs an SearchStateMachine object with mStateMachine, mConfig, and mRover
 SearchStateMachine::SearchStateMachine(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig)
-        : mStateMachine(move(sm)), mRoverConfig(roverConfig) {}
+        : mStateMachine(move(sm)), mConfig(roverConfig) {}
 
 // Runs the search state machine through one iteration. This will be called by
 // StateMachine  when NavState is in a search state. This will call the corresponding
@@ -59,7 +59,7 @@ NavState SearchStateMachine::executeSearchTurn() {
         return NavState::TurnToTarget;
     }
 
-    Odometry& nextSearchPoint = mSearchPoints.front();
+    Odometry const& nextSearchPoint = mSearchPoints.front();
     if (sm->getRover()->turn(nextSearchPoint, sm->getDtSeconds())) {
         return NavState::SearchDrive;
     }
@@ -82,7 +82,7 @@ NavState SearchStateMachine::executeSearchDrive() {
         return NavState::TurnToTarget;
     }
 
-    if (isObstacleDetected(rover, sm->getEnv()) && isObstacleInThreshold(rover, sm->getEnv(), mRoverConfig)) {
+    if (isObstacleDetected(rover, sm->getEnv()) && isObstacleInThreshold(rover, sm->getEnv(), mConfig)) {
         Obstacle obstacle = sm->getEnv()->getObstacle();
         sm->updateObstacleElements(obstacle.bearing, obstacle.rightBearing, obstacle.distance);
         return NavState::SearchTurnAroundObs;
@@ -108,11 +108,27 @@ NavState SearchStateMachine::executeTurnToTarget() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Rover> rover = sm->getRover();
 
-    if (sm->getEnv()->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
-        return NavState::SearchTurn;
-    }
-    if (rover->turn(sm->getEnv()->leftCacheTarget().bearing + rover->odometry().bearing_deg, sm->getDtSeconds())) {
-        return NavState::DriveToTarget;
+    Waypoint targetWaypoint = sm->getCourseState()->getRemainingWaypoints().front();
+
+    if (targetWaypoint.gate) {
+        Target target{};
+        if (getTargetWithId(targetWaypoint.id, target)) {
+            double targetBearing = target.bearing + rover->odometry().bearing_deg;
+            if (rover->turn(targetBearing, sm->getDtSeconds())) {
+                return NavState::DriveToTarget;
+            }
+        } else {
+            return NavState::SearchTurn;
+        }
+    } else {
+        Target const& leftTarget = sm->getEnv()->leftCacheTarget();
+        if (leftTarget.distance == mConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+            return NavState::SearchTurn;
+        }
+        double targetBearing = leftTarget.bearing + rover->odometry().bearing_deg;
+        if (rover->turn(targetBearing, sm->getDtSeconds())) {
+            return NavState::DriveToTarget;
+        }
     }
     return NavState::TurnToTarget;
 } // executeTurnToTarget()
@@ -130,27 +146,38 @@ NavState SearchStateMachine::executeDriveToTarget() {
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
 
-    // Definitely cannot find the target
-    if (env->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
-        std::cerr << "Lost the target\n";
-        return NavState::SearchTurn;
+    Waypoint targetWaypoint = sm->getCourseState()->getRemainingWaypoints().front();
+
+    double distance, bearing;
+
+    if (targetWaypoint.gate) {
+        Target target{};
+        if (getTargetWithId(targetWaypoint.id, target)) {
+            distance = target.distance;
+            bearing = target.bearing + rover->odometry().bearing_deg;
+        } else {
+            return NavState::SearchTurn;
+        }
+    } else {
+        if (env->leftCacheTarget().distance > 0.0) {
+            distance = env->leftCacheTarget().distance;
+            bearing = env->leftCacheTarget().bearing + rover->odometry().bearing_deg;
+        } else {
+            std::cerr << "Lost the target\n";
+            return NavState::SearchTurn;
+        }
     }
 
     // Obstacle Detected
     if (isObstacleDetected(rover, env)
-        && !isTargetReachable(rover, env, mRoverConfig)
-        && isObstacleInThreshold(rover, env, mRoverConfig)) {
+        && !isTargetReachable(rover, env, mConfig)
+        && isObstacleInThreshold(rover, env, mConfig)) {
         Obstacle obstacle = env->getObstacle();
         sm->updateObstacleElements(obstacle.bearing, obstacle.rightBearing, obstacle.distance);
         return NavState::SearchTurnAroundObs;
     }
 
-    DriveStatus driveStatus;
-
-    double distance = env->leftCacheTarget().distance;
-    double bearing = env->leftCacheTarget().bearing + rover->odometry().bearing_deg;
-
-    driveStatus = rover->drive(distance, bearing, mRoverConfig["navThresholds"]["targetDistance"].GetDouble(), sm->getDtSeconds());
+    DriveStatus driveStatus = rover->drive(distance, bearing, mConfig["navThresholds"]["targetDistance"].GetDouble(), sm->getDtSeconds());
 
     if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.clear();
@@ -158,7 +185,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
         return completed.gate ? NavState::BeginGateSearch : NavState::Turn;
 //        if (completed.gate){
 //            //start search for second post
-//            double visionDistance = mRoverConfig["computerVision"]["visionDistance"].GetDouble();
+//            double visionDistance = mConfig["computerVision"]["visionDistance"].GetDouble();
 //            sm->setSearcher(SearchType::FROM_PATH_FILE_GATE);
 //            return NavState::SearchTurn;
 //        }
@@ -175,7 +202,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
 // add intermediate points between the existing search points in a path generated by a search algorithm.
 // The maximum separation between any points in the search point list is determined by the rover's sight distance.
 void SearchStateMachine::insertIntermediatePoints() {
-    double visionDistance = mRoverConfig["computerVision"]["visionDistance"].GetDouble();
+    double visionDistance = mConfig["computerVision"]["visionDistance"].GetDouble();
     const double maxDifference = 2 * visionDistance;
 
     for (int i = 0; i < int(mSearchPoints.size()) - 1; ++i) {
@@ -196,6 +223,21 @@ void SearchStateMachine::insertIntermediatePoints() {
         }
     }
 } // insertIntermediatePoints()
+
+bool SearchStateMachine::getTargetWithId(int32_t id, Target& outTarget) {
+    std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
+    Target const& leftTarget = env->getLeftTarget();
+    Target const& rightTarget = env->getRightTarget();
+    Waypoint waypoint = mStateMachine.lock()->getCourseState()->getRemainingWaypoints().front();
+    if (leftTarget.id == waypoint.id && leftTarget.distance > 0.0) {
+        outTarget = leftTarget;
+        return true;
+    } else if (rightTarget.id == waypoint.id && rightTarget.distance > 0.0) {
+        outTarget = rightTarget;
+        return true;
+    }
+    return false;
+}
 
 // The search factory allows for the creation of search objects and
 // an ease of transition between search algorithms

@@ -9,17 +9,17 @@ class Filter {
 private:
     std::vector<T> mValues;
     std::vector<T> mSortedValues;
+    // After sorting, what proportion in the middle values should we use.
+    double mProportion;
     // How many readings we have.
     // This will be capped at the capacity, since when we add when full we will overwrite the oldest value.
     size_t mCount{};
     // Index to the current head.
     // Note this is a circular buffer, so this will wrap around when we reach the end of the internal vector.
     size_t mHead{};
-    // After sorting, what proportion in the middle values should we use.
-    double mProportion;
 
 public:
-    Filter(size_t size, double centerProportion) : mValues(size), mProportion(centerProportion), mSortedValues(size) {}
+    Filter(size_t size, double centerProportion) : mValues(size), mSortedValues(size), mProportion(centerProportion) {}
 
     /**
      * Add a value to the filter, overwrites old values if full.

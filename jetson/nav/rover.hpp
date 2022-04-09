@@ -108,7 +108,7 @@ private:
     /*************************************************************************/
 
     // A reference to the configuration file.
-    const rapidjson::Document& mRoverConfig;
+    const rapidjson::Document& mConfig;
 
     // A reference to the lcm object that will be used for
     // communicating with the actual rover and the base station.
