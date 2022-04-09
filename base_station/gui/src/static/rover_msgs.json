@@ -675,7 +675,7 @@
     ],
     "SearchPoints": [
         [
-            "size_t",
+            "int32_t",
             "search_pattern_size"
         ],
         [
