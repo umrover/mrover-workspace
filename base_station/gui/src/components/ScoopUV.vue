@@ -101,7 +101,8 @@ export default {
   data () {
     return {
       uvBulb: 0,
-      shutdown: 1
+      shutdown: 1,
+      timeoutID: 1
     }
   },
   props: {
@@ -121,10 +122,14 @@ export default {
     UVshutdown: function(status) {
       this.setPart(this.mosfetIDs.uvBulb, status);
       if (this.shutdown === 1) {
-        setTimeout(() => {
+        clearTimeout(this.timeoutID);
+        this.timeoutID = setTimeout(() => {
           this.uvBulb = 0;
           this.setPart(this.mosfetIDs.uvBulb, false);
         }, 120000) //2 minutes
+      }
+      else {
+        clearTimeout(this.timeoutID);
       }
     }
   }
