@@ -20,10 +20,10 @@ Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
 // the rover small amounts as "course corrections".
 // The return value indicates if the rover has arrived or if it is
 // on-course or off-course.
-DriveStatus Rover::drive(const Odometry& destination) {
+DriveStatus Rover::drive(const Odometry& destination, double dt) {
     double distance = estimateNoneuclid(mOdometry, destination);
     double bearing = calcBearing(mOdometry, destination);
-    return drive(distance, bearing, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
+    return drive(distance, bearing, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble(), dt);
 } // drive()
 
 // Sends a joystick command to drive forward from the current odometry
@@ -34,7 +34,7 @@ DriveStatus Rover::drive(const Odometry& destination) {
 // determines which distance threshold to use.
 // The return value indicates if the rover has arrived or if it is
 // on-course or off-course.
-DriveStatus Rover::drive(const double distance, const double bearing, const double threshold) {
+DriveStatus Rover::drive(double distance, double bearing, double threshold, double dt) {
     if (distance < threshold) {
         return DriveStatus::Arrived;
     }
@@ -44,7 +44,7 @@ DriveStatus Rover::drive(const double distance, const double bearing, const doub
 
     if (fabs(destinationBearing - mOdometry.bearing_deg) <
         mRoverConfig["navThresholds"]["drivingBearing"].GetDouble()) {
-        double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing);
+        double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing, dt);
         // When we drive to a target, we want to go as fast as possible so one of the sides is fixed at one and the other is 1 - abs(turningEffort)
         // if we need to turn clockwise, turning effort will be positive, so left_vel will be 1, and right_vel will be in between 0 and 1
         // if we need to turn ccw, turning effort will be negative, so right_vel will be 1 and left_vel will be in between 0 and 1
@@ -61,15 +61,15 @@ DriveStatus Rover::drive(const double distance, const double bearing, const doub
 // Sends a joystick command to turn the rover toward the destination
 // odometry. Returns true if the rover has finished turning, false
 // otherwise.
-bool Rover::turn(Odometry const& destination) {
+bool Rover::turn(Odometry const& destination, double dt) {
     double bearing = calcBearing(mOdometry, destination);
-    return turn(bearing);
+    return turn(bearing, dt);
 } // turn()
 
 // Sends a joystick command to turn the rover. The bearing is the
 // absolute bearing. Returns true if the rover has finished turning, false
 // otherwise.
-bool Rover::turn(double bearing) {
+bool Rover::turn(double bearing, double dt) {
     bearing = mod(bearing, 360);
     throughZero(bearing, mOdometry.bearing_deg);
     double turningBearingThreshold;
@@ -81,7 +81,7 @@ bool Rover::turn(double bearing) {
     if (fabs(bearing - mOdometry.bearing_deg) <= turningBearingThreshold) {
         return true;
     }
-    double turningEffort = mBearingPid.update(mOdometry.bearing_deg, bearing);
+    double turningEffort = mBearingPid.update(mOdometry.bearing_deg, bearing, dt);
 //    std::cout << "cur bearing: " << mOdometry.bearing_deg << " target bearing: " << bearing << " effort: " << turningEffort << std::endl;
     double minTurningEffort =
             mRoverConfig["navThresholds"]["minTurningEffort"].GetDouble() * (turningEffort < 0 ? -1 : 1);
@@ -156,6 +156,6 @@ void Rover::setState(NavState state) {
     mCurrentState = state;
 }
 
-void Rover::setLongMeterInMinutes(double l){
+void Rover::setLongMeterInMinutes(double l) {
     mLongMeterInMinutes = l;
 }

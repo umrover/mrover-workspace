@@ -59,8 +59,8 @@ NavState GateStateMachine::run() {
                 return NavState::Done;
             } else {
                 Odometry const& front = mPath.front();
-                if (rover->turn(front)) {
-                    DriveStatus status = rover->drive(front);
+                if (rover->turn(front, sm->getDtSeconds())) {
+                    DriveStatus status = rover->drive(front, sm->getDtSeconds());
                     if (status == DriveStatus::Arrived) {
                         mPath.pop_front();
                     }

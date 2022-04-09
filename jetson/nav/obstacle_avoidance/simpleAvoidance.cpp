@@ -45,7 +45,7 @@ NavState SimpleAvoidance::executeTurnAroundObs(std::shared_ptr<Rover> rover, con
     double desiredBearing = mod(rover->odometry().bearing_deg + obstacleBearing, 360);
     mJustDetectedObstacle = true;
     mLastObstacleAngle = obstacleBearing;
-    rover->turn(desiredBearing);
+    rover->turn(desiredBearing, mStateMachine.lock()->getDtSeconds());
     return rover->currentState();
 } // executeTurnAroundObs()
 
@@ -60,7 +60,7 @@ NavState SimpleAvoidance::executeDriveAroundObs(std::shared_ptr<Rover> rover, co
         return NavState::SearchTurnAroundObs;
     }
 
-    DriveStatus driveStatus = rover->drive(mObstacleAvoidancePoint);
+    DriveStatus driveStatus = rover->drive(mObstacleAvoidancePoint, mStateMachine.lock()->getDtSeconds());
     if (driveStatus == DriveStatus::Arrived) {
         if (rover->currentState() == NavState::DriveAroundObs) {
             return NavState::Turn;

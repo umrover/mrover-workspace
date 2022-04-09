@@ -86,5 +86,5 @@ public:
 
     [[nodiscard]] bool hasGateLocation() const;
 
-    bool areTargetFiltersReady() const;
+    [[nodiscard]] bool areTargetFiltersReady() const;
 };

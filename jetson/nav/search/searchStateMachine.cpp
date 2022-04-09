@@ -60,7 +60,7 @@ NavState SearchStateMachine::executeSearchTurn() {
     }
 
     Odometry& nextSearchPoint = mSearchPoints.front();
-    if (sm->getRover()->turn(nextSearchPoint)) {
+    if (sm->getRover()->turn(nextSearchPoint, sm->getDtSeconds())) {
         return NavState::SearchDrive;
     }
     return NavState::SearchTurn;
@@ -87,7 +87,7 @@ NavState SearchStateMachine::executeSearchDrive() {
         sm->updateObstacleElements(obstacle.bearing, obstacle.rightBearing, obstacle.distance);
         return NavState::SearchTurnAroundObs;
     }
-    DriveStatus driveStatus = rover->drive(mSearchPoints.front());
+    DriveStatus driveStatus = rover->drive(mSearchPoints.front(), sm->getDtSeconds());
 
     if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.pop_front();
@@ -111,7 +111,7 @@ NavState SearchStateMachine::executeTurnToTarget() {
     if (sm->getEnv()->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
         return NavState::SearchTurn;
     }
-    if (rover->turn(sm->getEnv()->leftCacheTarget().bearing + rover->odometry().bearing_deg)) {
+    if (rover->turn(sm->getEnv()->leftCacheTarget().bearing + rover->odometry().bearing_deg, sm->getDtSeconds())) {
         return NavState::DriveToTarget;
     }
     return NavState::TurnToTarget;
@@ -131,7 +131,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
     std::shared_ptr<Rover> rover = sm->getRover();
 
     // Definitely cannot find the target
-    if (sm->getEnv()->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
+    if (env->leftCacheTarget().distance == mRoverConfig["navThresholds"]["noTargetDist"].GetDouble()) {
         std::cerr << "Lost the target\n";
         return NavState::SearchTurn;
     }
@@ -150,7 +150,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
     double distance = env->leftCacheTarget().distance;
     double bearing = env->leftCacheTarget().bearing + rover->odometry().bearing_deg;
 
-    driveStatus = rover->drive(distance, bearing, mRoverConfig["navThresholds"]["targetDistance"].GetDouble());
+    driveStatus = rover->drive(distance, bearing, mRoverConfig["navThresholds"]["targetDistance"].GetDouble(), sm->getDtSeconds());
 
     if (driveStatus == DriveStatus::Arrived) {
         mSearchPoints.clear();

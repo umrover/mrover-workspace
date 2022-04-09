@@ -37,7 +37,7 @@ int main() {
     lcm::LCM lcm;
     if (!lcm.good()) throw std::runtime_error("Cannot create LCM");
 
-    
+
     auto courseProgress = std::make_shared<CourseProgress>();
     auto config = readConfig("config/nav/config.json");
     auto env = std::make_shared<Environment>(config);
@@ -65,6 +65,11 @@ int main() {
     lcm.subscribe("/odometry", &decltype(odometryCallback)::operator(), &odometryCallback);
 
     auto targetCallback = [env](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const TargetList* targetList) mutable {
+        static int64_t recTime;
+        if (recBuf->recv_utime < recTime) {
+            std::cerr << "OLD!" << std::endl;
+        }
+        recTime = recBuf->recv_utime;
         env->setTargets(*targetList);
     };
     lcm.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback);

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <lcm/lcm-cpp.hpp>
 #include <queue>
 #include <memory>
+
+#include <lcm/lcm-cpp.hpp>
 
 #include "rover_msgs/AutonState.hpp"
 #include "rover_msgs/Bearing.hpp"
@@ -66,25 +67,25 @@ class Rover {
 public:
     Rover(const rapidjson::Document& config, lcm::LCM& lcm_in);
 
-    DriveStatus drive(const Odometry& destination);
+    DriveStatus drive(const Odometry& destination, double dt);
 
-    DriveStatus drive(double distance, double bearing, double threshold);
+    DriveStatus drive(double distance, double bearing, double threshold, double dt);
 
-    bool turn(Odometry const& destination);
+    bool turn(Odometry const& destination, double dt);
 
-    bool turn(double bearing);
+    bool turn(double bearing, double dt);
 
     void stop();
 
     PidLoop& bearingPid();
 
-    double longMeterInMinutes() const;
+    [[nodiscard]] double longMeterInMinutes() const;
 
-    NavState const& currentState() const;
+    [[nodiscard]] NavState const& currentState() const;
 
-    AutonState const& autonState() const;
+    [[nodiscard]] AutonState const& autonState() const;
 
-    Odometry const& odometry() const;
+    [[nodiscard]] Odometry const& odometry() const;
 
     void setAutonState(AutonState state);
 
@@ -126,12 +127,6 @@ private:
     // The rover's current auton state.
     AutonState mAutonState{};
 
-    // The rover's current path. The path is initially the same as
-    // the rover's course, however, as waypoints are visited, the
-    // are removed from the path but not the course.
-
     // The rover's current odometry information.
     Odometry mOdometry{};
-
-
 };

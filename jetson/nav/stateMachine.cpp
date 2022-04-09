@@ -17,9 +17,11 @@ StateMachine::StateMachine(
         rapidjson::Document& config,
         std::shared_ptr<Rover> rover, std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseProgress,
         lcm::LCM& lcmObject
-) : mConfig(config), mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseProgress)),
-    mLcmObject(lcmObject) {
-    // TODO: fix, weak_from_this() should not be called in ctor
+) : mConfig(config),
+    mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseProgress)), mLcmObject(lcmObject),
+    mTimePoint(std::chrono::high_resolution_clock::now()),
+    mPrevTimePoint(mTimePoint) {
+    // TODO: fix, weak_from_this() should not be called in ctor, will always be null
     mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory(weak_from_this(),
                                                             ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover,
                                                             mConfig);
@@ -51,6 +53,10 @@ void StateMachine::updateObstacleElements(double leftBearing, double rightBearin
 // run if the state has changed or if the rover's status has changed.
 // Will call the corresponding function based on the current state.
 void StateMachine::run() {
+    mPrevTimePoint = mTimePoint;
+    auto now = std::chrono::high_resolution_clock::now();
+    mTimePoint = now;
+
     mEnv->updateTargets(mRover, mCourseProgress);
 
     publishNavState();
@@ -182,7 +188,7 @@ NavState StateMachine::executeTurn() {
     Odometry const& nextPoint = mCourseProgress->getRemainingWaypoints().front().odom;
 //    if (estimateNoneuclid(mRover->odometry(), nextPoint) < mConfig["navThresholds"]["waypointDistance"].GetDouble()
 //        || mRover->turn(nextPoint)) {
-    if (mRover->turn(nextPoint)) {
+    if (mRover->turn(nextPoint, getDtSeconds())) {
         return NavState::Drive;
     }
 
@@ -199,7 +205,7 @@ NavState StateMachine::executeDrive() {
     Waypoint const& nextWaypoint = mCourseProgress->getRemainingWaypoints().front();
     double distance = estimateNoneuclid(mRover->odometry(), nextWaypoint.odom);
 
-    if (isObstacleDetected(mRover, getEnv())
+    if (isObstacleDetected(mRover, mEnv)
         && !isWaypointReachable(distance)
         && isObstacleInThreshold(mRover, getEnv(), mConfig)) {
         mObstacleAvoidanceStateMachine->updateObstacleElements(mEnv->getObstacle().bearing,
@@ -214,7 +220,7 @@ NavState StateMachine::executeDrive() {
 //        return NavState::TurnToTarget;
 //    }
 
-    DriveStatus driveStatus = mRover->drive(nextWaypoint.odom);
+    DriveStatus driveStatus = mRover->drive(nextWaypoint.odom, getDtSeconds());
 
     if (driveStatus == DriveStatus::Arrived) {
         if (nextWaypoint.search) {
@@ -275,4 +281,9 @@ std::shared_ptr<CourseProgress> StateMachine::getCourseState() {
 
 std::shared_ptr<Rover> StateMachine::getRover() {
     return mRover;
+}
+
+double StateMachine::getDtSeconds() {
+    double dtSeconds = std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
+    return dtSeconds;
 }

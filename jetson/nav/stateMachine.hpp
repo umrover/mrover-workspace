@@ -1,16 +1,20 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
+
 #include <lcm/lcm-cpp.hpp>
+
 #include "rover.hpp"
+#include "environment.hpp"
+#include "courseProgress.hpp"
 #include "search/searchStateMachine.hpp"
 #include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
-#include "environment.hpp"
-#include "courseProgress.hpp"
 
 
 using namespace rover_msgs;
+using time_point = std::chrono::high_resolution_clock::time_point;
 
 // This class implements the logic for the state machine for the
 // autonomous navigation of the rover.
@@ -38,6 +42,8 @@ public:
     std::shared_ptr<CourseProgress> getCourseState();
 
     std::shared_ptr<Rover> getRover();
+
+    double getDtSeconds();
 
     /*************************************************************************/
     /* Public Member Variables */
@@ -86,4 +92,6 @@ private:
 
     // Avoidance pointer to control obstacle avoidance states
     std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
+
+    time_point mTimePoint, mPrevTimePoint;
 }; // StateMachine
