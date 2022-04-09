@@ -21,8 +21,6 @@ import ToggleButton from './ToggleButton.vue'
 export default {
   data () {
     return {
-      scoopUV: 0,
-      scoopLimit: 1,
       scoopActive: false,
       scoopLimitActive: true
     }
@@ -41,7 +39,7 @@ export default {
   methods: {
     toggleScoop: function () {
       this.scoopActive = !this.scoopActive
-      this.setPart(this.mosfetIDs.scoopUV, this.scoopActive)
+      this.setPart(this.mosfetIDs.uvBulb, this.scoopActive)
     },
 
     toggleLimit: function () {
