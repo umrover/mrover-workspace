@@ -58,6 +58,7 @@
           '/arm_toggles_toggle_data': false,
           '/auton': false,
           '/autonomous': false,
+          '/cameras_cmd': false,
           '/camera_servos': false,
           '/carousel_cmd': false,
           '/carousel_data': false,
