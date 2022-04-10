@@ -30,6 +30,7 @@ NavState GateStateMachine::run() {
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
 
+    publishGatePath();
     switch (rover->currentState()) {
         case NavState::BeginGateSearch: {
             mPath.clear();
@@ -66,7 +67,6 @@ NavState GateStateMachine::run() {
             return NavState::Unknown;
         }
     } // switch
-    publishGatePath();
 }
 
 void printPoint(Vector2d p) {
