@@ -39,6 +39,7 @@ NavState GateStateMachine::run() {
         case NavState::GateMakePath: {
             if (env->areTargetFiltersReady()) {
                 makeSpiderPath(rover, env);
+//                makeDualSegmentPath(rover, env);
                 return NavState::GateTraverse;
             } else {
                 rover->stop();
@@ -90,7 +91,7 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     Vector2d p1 = env->getLeftPostRelative();
     Vector2d p2 = env->getRightPostRelative();
     Vector2d center = (p1 + p2) / 2;
-    //TODO make this a constant
+    // TODO make this a constant
     double approachDistance = 2.0;
     Vector2d postDir = p2 - p1;
     Vector2d perp = {-postDir.y(), postDir.x()};
@@ -102,20 +103,20 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
                               (-2 * approachDistance * perp) + p1,
                               (-2 * approachDistance * perp) + p2};
 
-    //TODO: add logic to go to farthest point along the path that doesn't collid with gate
+    // TODO: add logic to go to farthest point along the path that doesn't collid with gate
 
-    //find closest prep point
+    // find closest prep point
     double min_norm = -1.0;
     Vector2d prepPoint;
-    for (int i = 0; i < 4; i++) {
-        double dist = prepPoints[i].norm();
+    for (auto& i: prepPoints) {
+        double dist = i.norm();
         if (min_norm == -1.0 || dist < min_norm) {
             min_norm = dist;
-            prepPoint = prepPoints[i];
+            prepPoint = i;
         }
     }
 
-    //find closest approach point to prep point and set the other one as a victory point (we're through the gate)
+    // find the closest approach point to prep point and set the other one as a victory point (we're through the gate)
     min_norm = -1.0;
     Vector2d approachPoint;
     Vector2d victoryPoint;
@@ -129,7 +130,7 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
         victoryPoint = approachPoints[0];
     }
     Odometry cur = rover->odometry();
-    std::cout << prepPoint.x() << ", " << prepPoint.y() << " , " << approachPoint.x() << " , " << approachPoint.y()) << std::endl;
+//    std::cout << prepPoint.x() << ", " << prepPoint.y() << " , " << approachPoint.x() << " , " << approachPoint.y()) << std::endl;
     mPath.push_back(createOdom(cur, prepPoint, rover));
     mPath.push_back(createOdom(cur, approachPoint, rover));
     mPath.push_back(createOdom(cur, center, rover));
