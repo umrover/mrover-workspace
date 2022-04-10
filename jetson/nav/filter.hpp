@@ -60,13 +60,14 @@ public:
      * @return Filtered reading if full, or else the most recent reading if we don't have enough readings yet.
      */
     T get() {
-        if (!full()) {
-            return mValues[mHead];
-        }
-        mSortedValues = mValues;
-        std::sort(mSortedValues.begin(), mSortedValues.end());
-        auto begin = mSortedValues.begin() + (mProportion * size() / 4);
-        auto end = mSortedValues.end() - (mProportion * size() / 4);
-        return std::accumulate(begin, end, T{}) / (end - begin);
+        return mValues[mHead];
+//        if (!full()) {
+//            return mValues[mHead];
+//        }
+//        mSortedValues = mValues;
+//        std::sort(mSortedValues.begin(), mSortedValues.end());
+//        auto begin = mSortedValues.begin() + (mProportion * size() / 4);
+//        auto end = mSortedValues.end() - (mProportion * size() / 4);
+//        return std::accumulate(begin, end, T{}) / (end - begin);
     }
 };

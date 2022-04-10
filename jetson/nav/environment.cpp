@@ -65,30 +65,31 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
     if (rover->autonState().is_auton) {
         bool rightReady = isRightTargetFilterReady();
         bool leftReady = isLeftTargetFilterReady();
+        double currentBearing = rover->odometry().bearing_deg;
         if (rightReady){
-            std::cout << "right ready: " << mTargetRight.id << std::endl;
+//            std::cout << "right ready: " << mTargetRight.id << std::endl;
             if (mTargetRight.id == baseGateID){
-                std::cout << "updated post 1" << std::endl;
-                mPostOne = createOdom(rover->odometry(), mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
+//                std::cout << "updated post 1" << std::endl;
+                mPostOne = createOdom(rover->odometry(), currentBearing + mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
                 hasPostOne = true;
             }
             if (mTargetRight.id == baseGateID + 1){
-                std::cout << "updated post 2" << std::endl;
-                mPostTwo = createOdom(rover->odometry(), mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
+//                std::cout << "updated post 2" << std::endl;
+                mPostTwo = createOdom(rover->odometry(), currentBearing + mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
                 hasPostTwo = true;
             }
         }
         if (leftReady){
-            std::cout << "left ready: " << mTargetLeft.id << std::endl;
-            std::cout << "course waypoint id: " << course->getCurrentWaypoint().id << std::endl;
+//            std::cout << "left ready: " << mTargetLeft.id << std::endl;
+//            std::cout << "course waypoint id: " << course->getCurrentWaypoint().id << std::endl;
             if (mTargetLeft.id == baseGateID){
-                std::cout << "updated post 1" << std::endl;
-                mPostOne = createOdom(rover->odometry(), mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
+//                std::cout << "updated post 1" << std::endl;
+                mPostOne = createOdom(rover->odometry(), currentBearing + mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
                 hasPostOne = true;
             }
             if (mTargetLeft.id == baseGateID + 1){
-                std::cout << "updated post 2" << std::endl;
-                mPostTwo = createOdom(rover->odometry(), mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
+//                std::cout << "updated post 2" << std::endl;
+                mPostTwo = createOdom(rover->odometry(), currentBearing + mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
                 hasPostTwo = true;
             }
         }

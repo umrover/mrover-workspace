@@ -38,11 +38,11 @@ NavState GateStateMachine::run() {
         case NavState::GateMakePath: {
 //            mPath.push_back(createOdom(rover->odometry(), {4.0, 0.0}, rover));
 //            mPath.push_back(createOdom(rover->odometry(), {4.0, 4.0}, rover));
-           // if (env->areTargetFiltersReady()) {
-                makeSpiderPath(rover, env);
+            // if (env->areTargetFiltersReady()) {
+            makeSpiderPath(rover, env);
 //                makeDualSegmentPath(rover, env);
 //                return NavState::GateTraverse;
-           // } else {
+            // } else {
             //    rover->stop();
             //    mPath.clear();
             //}
@@ -50,6 +50,7 @@ NavState GateStateMachine::run() {
         }
         case NavState::GateTraverse: {
             if (mPath.empty()) {
+//                std::exit(1);
                 return NavState::Done;
             } else {
                 Odometry const& front = mPath.front();
@@ -70,7 +71,7 @@ NavState GateStateMachine::run() {
     } // switch
 }
 
-void printPoint(Vector2d p){
+void printPoint(Vector2d p) {
     std::cout << "Vec2D: (" << p.x() << " , " << p.y() << ")" << std::endl;
 }
 
@@ -136,10 +137,14 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     }
     Odometry cur = rover->odometry();
 //    std::cout << prepPoint.x() << ", " << prepPoint.y() << " , " << approachPoint.x() << " , " << approachPoint.y()) << std::endl;
-    mPath.push_back(createOdom(cur, prepPoint, rover));
-    mPath.push_back(createOdom(cur, approachPoint, rover));
+//    mPath.push_back(createOdom(cur, prepPoint, rover));
+    Odometry approachOdom = createOdom(cur, approachPoint, rover);
 //    mPath.push_back(createOdom(cur, center, rover));
-    mPath.push_back(createOdom(cur, victoryPoint, rover));
+    Odometry victoryOdom = createOdom(cur, victoryPoint, rover);
+    approachOdom.bearing_deg = calcBearing(approachOdom, victoryOdom);
+    victoryOdom.bearing_deg = approachOdom.bearing_deg;
+    mPath.push_back(approachOdom);
+    mPath.push_back(victoryOdom);
 
     printPoint(p1);
     printPoint(p2);
