@@ -5,11 +5,11 @@ import numpy as np
 from os import getenv
 from rover_common import aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import IMUData, GPS, Odometry, NavStatus, DriveVelData
+from rover_msgs import IMUData, GPS, Odometry, NavStatus, DriveVelData, TargetBearing
 from .inputs import Gps, Imu
 from .linearKalman import LinearKalmanFilter, QDiscreteWhiteNoise
 from .conversions import meters2lat, meters2long, lat2meters, long2meters, \
-                        decimal2min, min2decimal
+    decimal2min, min2decimal
 
 
 class StateEstimate:
@@ -53,8 +53,10 @@ class StateEstimate:
         @return dict: current position estimate (meters)
         '''
         pos_meters = {}
-        pos_meters["long"] = min2decimal(self.pos["long_deg"], self.pos["long_min"])
-        pos_meters["lat"] = min2decimal(self.pos["lat_deg"], self.pos["lat_min"])
+        pos_meters["long"] = min2decimal(
+            self.pos["long_deg"], self.pos["long_min"])
+        pos_meters["lat"] = min2decimal(
+            self.pos["lat_deg"], self.pos["lat_min"])
         pos_meters["long"] = long2meters(pos_meters["long"], pos_meters["lat"],
                                          ref_long=self.ref_long)
         pos_meters["lat"] = lat2meters(pos_meters["lat"], ref_lat=self.ref_lat)
@@ -78,8 +80,10 @@ class StateEstimate:
         '''
         lat_decimal_deg = meters2lat(lkf_out[0], ref_lat=self.ref_lat)
         self.pos["lat_deg"], self.pos["lat_min"] = decimal2min(lat_decimal_deg)
-        long_decimal_deg = meters2long(lkf_out[2], lat_decimal_deg, ref_long=self.ref_long)
-        self.pos["long_deg"], self.pos["long_min"] = decimal2min(long_decimal_deg)
+        long_decimal_deg = meters2long(
+            lkf_out[2], lat_decimal_deg, ref_long=self.ref_long)
+        self.pos["long_deg"], self.pos["long_min"] = decimal2min(
+            long_decimal_deg)
         self.vel["north"] = np.asscalar(lkf_out[1])
         self.vel["east"] = np.asscalar(lkf_out[3])
 
@@ -120,7 +124,8 @@ class SensorFusion:
             self.config = json.load(config)
 
         self.gps = Gps()
-        self.imu = Imu(self.config["IMU_accel_filter_bias"], self.config["IMU_accel_threshold"])
+        self.imu = Imu(self.config["IMU_accel_filter_bias"],
+                       self.config["IMU_accel_threshold"])
         self.nav_state = None
         self.static_nav_states = {"Off", "Done", "Search Spin Wait", "Turned to Target Wait", "Gate Spin Wait",
                                   "Turn", "Search Turn", "Turn to Target", "Turn Around Obstacle",
@@ -137,9 +142,15 @@ class SensorFusion:
         self.lcm.subscribe("/nav_status", self._navStatusCallback)
         self.lcm.subscribe("/drive_vel_data", self._driveVelDataCallback)
 
-        #Initializations for magnetometer bearing correction
+        # Initializations for magnetometer bearing correction
         self.last_bearing_correction = time.time()
         self.bearing_offset = 0
+
+        # TODO: is this gonna cause bad behavior?
+        self.target_bearing = 0
+        self.prev_target_bearing = 0
+        self.last_target_bearing_fresh = 0
+        self.target_bearing_rate = 0
 
         self.encoder_velocities = np.zeros(6)
 
@@ -167,6 +178,13 @@ class SensorFusion:
     def _driveVelDataCallback(self, channel, msg):
         drive_vel_data = DriveVelData.decode(msg)
         self.encoder_velocities[drive_vel_data.axis] = drive_vel_data.vel_percent
+
+    def _targetBearingCallback(self, channel, msg):
+        targetBearing = TargetBearing.decode(msg)
+        self.prev_target_bearing = self.target_bearing
+        self.target_bearing = targetBearing.target_bearing
+        self.target_bearing_rate = (self.target_bearing - self.prev_target_bearing) / (time.time() - self.last_target_bearing_fresh)
+        self.last_target_bearing_fresh = time.time()
 
     def _constructFilter(self):
         '''
@@ -231,10 +249,12 @@ class SensorFusion:
         vel = None
         accel = self._getFreshAccel(bearing)
 
-        u = np.array([accel["north"], accel["east"]]) if accel is not None else None
+        u = np.array([accel["north"], accel["east"]]
+                     ) if accel is not None else None
         Q = None
         if self.nav_state in self.static_nav_states:
-            Q = QDiscreteWhiteNoise(2, self.config["dt"], self.config["Q_Static"], 2)
+            Q = QDiscreteWhiteNoise(
+                2, self.config["dt"], self.config["Q_Static"], 2)
         self.filter.predict(u=u, Q=Q)
 
         # Zero velocity if in a static nav state
@@ -258,7 +278,8 @@ class SensorFusion:
             else:
                 # If only position is available, zero out the velocity residual
                 vel = self.state_estimate.vel
-                z = np.array([pos_meters["lat"], vel["north"], pos_meters["long"], vel["east"]])
+                z = np.array([pos_meters["lat"], vel["north"],
+                             pos_meters["long"], vel["east"]])
                 # z = np.array([pos_meters["lat"], 0, pos_meters["long"], 0])
                 # H = np.diag([1, 0, 1, 0])
                 H = np.eye(4)
@@ -287,6 +308,24 @@ class SensorFusion:
         self.gps.fresh = False
         self.imu.fresh = False
 
+    def correct_bearing(self):
+        # if time.time() - self.last_bearing_correction > self.config["Bearing_offset_interval_sec"]:
+        #     mag_bearing = np.arctan2(self.imu.mag.mag_y, self.imu.mag.mag_x) * (180 / np.pi)
+        #     self.bearing_offset = mag_bearing - (self.imu.bearing.bearing_deg - self.bearing_offset)
+        #     self.last_bearing_correction = time.time()
+
+        # if rover is in drive state (and has been for at least a few seconds)
+        #   if error between target bearing and current bearing is below a threshold
+        #       if target bearing is changing at a rate above a threshold
+        #          if gps bearing is available (!= 999)
+        #               compute bearing correction from gps bearing
+        if (time.time() - self.last_bearing_correction > self.config["Bearing_offset_interval_sec"] and
+            self.gps.bearing != 999 and 
+            self.nav_state == "Drive" and 
+            abs(self.target_bearing - self.imu.bearing.bearing_deg) < self.config["Bearing_error_threshold"] and 
+            abs(self.target_bearing_rate) < self.config["Bearing_rate_of_change_threshold"]):
+            self.bearing_offset = self.gps.bearing.bearing_deg - (self.imu.bearing.bearing_deg - self.bearing_offset)
+
     def _getFreshBearing(self):
         '''
         Returns a fresh bearing to use. Uses IMU over GPS, returns None if no fresh sensors
@@ -294,11 +333,8 @@ class SensorFusion:
         @return float/None: bearing (decimal degrees East of North)
         '''
 
-        if time.time() - self.last_bearing_correction > self.config["Bearing_offset_interval_sec"]:
-            mag_bearing = np.arctan2(self.imu.mag.mag_y, self.imu.mag.mag_x) * (180 / np.pi) 
-            self.bearing_offset = mag_bearing - (self.imu.bearing.bearing_deg - self.bearing_offset)
-            self.last_bearing_correction = time.time()
-            
+        self.correct_bearing()
+
         if time.time() - self.imu.last_fresh <= self.config["IMU_fresh_timeout"]:
             return self.imu.bearing.bearing_deg + self.bearing_offset
         elif time.time() - self.gps.last_fresh <= self.config["GPS_fresh_timeout"]:
@@ -403,8 +439,10 @@ class SensorFusion:
                         continue
                     decimal_pos = self.config["TargetCoords"]
                     pos = {}
-                    pos["lat_deg"], pos["lat_min"] = decimal2min(decimal_pos["lat"])
-                    pos["long_deg"], pos["long_min"] = decimal2min(decimal_pos["long"])
+                    pos["lat_deg"], pos["lat_min"] = decimal2min(
+                        decimal_pos["lat"])
+                    pos["long_deg"], pos["long_min"] = decimal2min(
+                        decimal_pos["long"])
 
                     self.state_estimate = StateEstimate(pos["lat_deg"], pos["lat_min"], 0.0,
                                                         pos["long_deg"], pos["long_min"], 0.0,

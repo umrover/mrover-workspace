@@ -23,5 +23,7 @@
     "RefCoords": {"lat": 42.2766, "long": -83.7382},
     "TargetCoords": {"lat": 0.0000, "long": 0.0000},
     
-    "Bearing_correction_interval_sec": 600
+    "Bearing_correction_interval_sec": 60,
+    "Bearing_error_threshold": 5,
+    "Bearing_rate_of_change_threshold": 10
 }
