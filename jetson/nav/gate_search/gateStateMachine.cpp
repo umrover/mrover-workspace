@@ -73,8 +73,8 @@ void printPoint(Vector2d p) {
 }
 
 void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env) {
-    Vector2d p1 = env->getPostOneRelative(rover->odometry());
-    Vector2d p2 = env->getPostTwoRelative(rover->odometry());
+    Vector2d p1 = env->getPostOneOffsetInCartesian(rover->odometry());
+    Vector2d p2 = env->getPostTwoOffsetInCartesian(rover->odometry());
     Vector2d v = p2 - p1;
     Vector2d m = p1 + v / 2;
     double driveDist = v.dot(m) / v.norm();
@@ -91,14 +91,13 @@ void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, 
 
 
 void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env) {
-    Vector2d p1 = env->getPostOneRelative(rover->odometry());
-    Vector2d p2 = env->getPostTwoRelative(rover->odometry());
+    Vector2d p1 = env->getPostOneOffsetInCartesian(rover->odometry());
+    Vector2d p2 = env->getPostTwoOffsetInCartesian(rover->odometry());
     Vector2d center = (p1 + p2) / 2;
     // TODO make this a constant
     double approachDistance = 2.0;
-    Vector2d postDir = p2 - p1;
+    Vector2d postDir = (p2 - p1).normalized();
     Vector2d perp = {-postDir.y(), postDir.x()};
-    perp = perp / perp.norm();
     Vector2d approachPoints[2] = {(perp * approachDistance) + center,
                                   (perp * -approachDistance) + center};
     Vector2d prepPoints[4] = {(2 * approachDistance * perp) + p1,
@@ -134,12 +133,10 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     }
     Odometry cur = rover->odometry();
 //    std::cout << prepPoint.x() << ", " << prepPoint.y() << " , " << approachPoint.x() << " , " << approachPoint.y()) << std::endl;
-    mPath.push_back(createOdom(cur, prepPoint, rover));
+    Odometry prepOdom = createOdom(cur, prepPoint, rover);
     Odometry approachOdom = createOdom(cur, approachPoint, rover);
-//    mPath.push_back(createOdom(cur, center, rover));
     Odometry victoryOdom = createOdom(cur, victoryPoint, rover);
-//    approachOdom.bearing_deg = calcBearing(approachOdom, victoryOdom);
-//    victoryOdom.bearing_deg = approachOdom.bearing_deg;
+    mPath.push_back(prepOdom);
     mPath.push_back(approachOdom);
     mPath.push_back(victoryOdom);
 

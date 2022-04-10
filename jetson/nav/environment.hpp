@@ -31,7 +31,7 @@ private:
 
     Odometry mPostOne{}, mPostTwo{};
 
-    bool hasPostOne = false, hasPostTwo = false;
+    bool mHasPostOne = false, mHasPostTwo = false;
 
     int baseGateID;
 
@@ -54,9 +54,9 @@ public:
 
     Odometry getPostTwoLocation();
 
-    Vector2d getPostOneRelative(Odometry cur);
+    Vector2d getPostOneOffsetInCartesian(Odometry cur);
 
-    Vector2d getPostTwoRelative(Odometry cur);
+    Vector2d getPostTwoOffsetInCartesian(Odometry cur);
 
     void setTargets(TargetList const& targets);
 

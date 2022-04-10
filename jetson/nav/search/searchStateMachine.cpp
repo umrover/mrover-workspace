@@ -159,11 +159,11 @@ void SearchStateMachine::insertIntermediatePoints() {
 //    for (int i = 0; i < int(mSearchPoints.size()) - 1; ++i) {
 //        Odometry point1 = mSearchPoints.at(i);
 //        Odometry point2 = mSearchPoints.at(i + 1);
-//        double distance = estimateNoneuclid(point1, point2);
+//        double distance = estimateDistance(point1, point2);
 //        if (distance > maxDifference) {
 //            int numPoints = int(ceil(distance / maxDifference) - 1);
 //            double newDifference = distance / (numPoints + 1);
-//            double bearing = calcBearing(point1, point2);
+//            double bearing = estimateBearing(point1, point2);
 //            for (int j = 0; j < numPoints; ++j) {
 //                Odometry startPoint = mSearchPoints.at(i);
 //                Odometry newOdom = createOdom(startPoint, bearing, newDifference, mStateMachine.lock()->getRover());

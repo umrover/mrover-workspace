@@ -24,8 +24,8 @@ Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
  * @return              Whether we have reached the target
  */
 bool Rover::drive(const Odometry& destination, double stopDistance, double dt) {
-    double distance = estimateNoneuclid(mOdometry, destination);
-    double bearing = calcBearing(mOdometry, destination);
+    double distance = estimateDistance(mOdometry, destination);
+    double bearing = estimateBearing(mOdometry, destination);
     return drive(distance, bearing, stopDistance, dt);
 } // drive()
 
@@ -57,7 +57,7 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
  * @return
  */
 bool Rover::turn(Odometry const& destination, double dt) {
-    double bearing = calcBearing(mOdometry, destination);
+    double bearing = estimateBearing(mOdometry, destination);
     return turn(bearing, dt);
 } // turn()
 

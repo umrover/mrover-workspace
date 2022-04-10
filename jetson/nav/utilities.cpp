@@ -27,9 +27,8 @@ Odometry addMinToDegrees(const Odometry& current, const double lat_minutes, cons
     return newOdom;
 }
 
-// Calculates the non-euclidean distance between the current odometry and the
-// destination odometry.
-double estimateNoneuclid(const Odometry& current, const Odometry& dest) {
+// Estimate approximate distance using euclidean methods
+double estimateDistance(const Odometry& current, const Odometry& dest) {
     double currentLat = degreeToRadian(current.latitude_deg, current.latitude_min);
     double currentLon = degreeToRadian(current.longitude_deg, current.longitude_min);
     double destLat = degreeToRadian(dest.latitude_deg, dest.latitude_min);
@@ -40,7 +39,7 @@ double estimateNoneuclid(const Odometry& current, const Odometry& dest) {
     return sqrt(diffLat * diffLat + diffLon * diffLon) * EARTH_RADIUS;
 }
 
-// create a new Odometry point at a absoluteBearing and distance from a given odometry point
+// Create a new Odometry point at a absoluteBearing and distance from a given odometry point
 // Note this uses the absolute absoluteBearing not a absoluteBearing relative to the rover.
 Odometry createOdom(const Odometry& current, double absoluteBearing, double distance, const std::shared_ptr<Rover>& rover) {
     absoluteBearing = degreeToRadian(absoluteBearing);
@@ -50,27 +49,23 @@ Odometry createOdom(const Odometry& current, double absoluteBearing, double dist
     return newOdom;
 }
 
-// create a new Odometry point a given vector offset from another odometry point
+// Create a new Odometry point a given vector offset from another odometry point
 Odometry createOdom(const Odometry& current, Vector2d vec, const std::shared_ptr<Rover>& rover) {
     double bearing = radianToDegree(atan2(vec.y(), vec.x()));
     double distance = vec.norm();
     return createOdom(current, bearing, distance, rover);
 }
 
-/***
- *
- * @param start
- * @param dest
- * @return
- */
-double calcBearing(const Odometry& start, const Odometry& dest) {
+// Approximate the LHS bearing (clockwise rotation in positive) between two global odometries.
+// The linearization that occurs is implicitly defined relative to the destination.
+double estimateBearing(const Odometry& start, const Odometry& dest) {
     double currentLat = degreeToRadian(start.latitude_deg, start.latitude_min);
     double currentLon = degreeToRadian(start.longitude_deg, start.longitude_min);
     double destLat = degreeToRadian(dest.latitude_deg, dest.latitude_min);
     double destLon = degreeToRadian(dest.longitude_deg, dest.longitude_min);
 
     double vertComponentDist = EARTH_RADIUS * sin(destLat - currentLat);
-    double noneuclidDist = estimateNoneuclid(start, dest);
+    double noneuclidDist = estimateDistance(start, dest);
 
     double bearing = acos(vertComponentDist / noneuclidDist);
     if (currentLon > destLon) {
@@ -85,16 +80,15 @@ double calcBearing(const Odometry& start, const Odometry& dest) {
         }
     }
     return radianToDegree(bearing);
-} // calcBearing()
+} // estimateBearing()
 
-// // Calculates the modulo of degree with the given modulus.
+// Calculates the modulo of degree with the given modulus.
 double mod(const double degree, const int modulus) {
     double mod = fmod(degree, modulus);
     return mod < 0 ? mod + modulus : mod;
 }
 
-// Corrects the destination bearing to account for the ability to turn
-// through zero degrees.
+// Corrects the destination bearing to account for the ability to turn through zero.
 void throughZero(double& destinationBearing, const double currentBearing) {
     if (fabs(currentBearing - destinationBearing) > 180) {
         if (currentBearing < 180) {

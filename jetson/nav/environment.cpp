@@ -28,11 +28,11 @@ Target Environment::getRightTarget() {
     return mTargetRight;
 }
 
-void Environment::setBaseGateID(int b){
+void Environment::setBaseGateID(int b) {
     baseGateID = b;
 }
 
-int Environment::getBaseGateID(){
+int Environment::getBaseGateID() {
     return baseGateID;
 }
 
@@ -66,50 +66,50 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
         bool rightReady = isRightTargetFilterReady();
         bool leftReady = isLeftTargetFilterReady();
         double currentBearing = rover->odometry().bearing_deg;
-        if (rightReady){
+        if (rightReady) {
 //            std::cout << "right ready: " << mTargetRight.id << std::endl;
-            if (mTargetRight.id == baseGateID){
+            if (mTargetRight.id == baseGateID) {
 //                std::cout << "updated post 1" << std::endl;
                 mPostOne = createOdom(rover->odometry(), currentBearing + mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
-                hasPostOne = true;
+                mHasPostOne = true;
             }
-            if (mTargetRight.id == baseGateID + 1){
+            if (mTargetRight.id == baseGateID + 1) {
 //                std::cout << "updated post 2" << std::endl;
                 mPostTwo = createOdom(rover->odometry(), currentBearing + mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
-                hasPostTwo = true;
+                mHasPostTwo = true;
             }
         }
-        if (leftReady){
+        if (leftReady) {
 //            std::cout << "left ready: " << mTargetLeft.id << std::endl;
 //            std::cout << "course waypoint id: " << course->getCurrentWaypoint().id << std::endl;
-            if (mTargetLeft.id == baseGateID){
+            if (mTargetLeft.id == baseGateID) {
 //                std::cout << "updated post 1" << std::endl;
                 mPostOne = createOdom(rover->odometry(), currentBearing + mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
-                hasPostOne = true;
+                mHasPostOne = true;
             }
-            if (mTargetLeft.id == baseGateID + 1){
+            if (mTargetLeft.id == baseGateID + 1) {
 //                std::cout << "updated post 2" << std::endl;
                 mPostTwo = createOdom(rover->odometry(), currentBearing + mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
-                hasPostTwo = true;
+                mHasPostTwo = true;
             }
         }
     } else {
-        hasPostOne = hasPostTwo = false;
+        mHasPostOne = mHasPostTwo = false;
         double cosine = cos(degreeToRadian(rover->odometry().latitude_deg, rover->odometry().latitude_min));
         rover->setLongMeterInMinutes(60 / (EARTH_CIRCUM * cosine / 360));
     }
 }
 
 bool Environment::hasGateLocation() const {
-    return hasPostOne && hasPostTwo;
+    return mHasPostOne && mHasPostTwo;
 }
 
 bool Environment::hasPostOneLocation() const {
-    return hasPostOne;
+    return mHasPostOne;
 }
 
 bool Environment::hasPostTwoLocation() const {
-    return hasPostTwo;
+    return mHasPostTwo;
 }
 
 Odometry Environment::getPostOneLocation() {
@@ -120,15 +120,16 @@ Odometry Environment::getPostTwoLocation() {
     return mPostTwo;
 }
 
-Vector2d Environment::getPostOneRelative(Odometry cur) {
-    double bearing = degreeToRadian(calcBearing(cur, mPostOne));
-    double distance = estimateNoneuclid(cur, mPostOne);
+// Offset of the post in our linearized cartesian space.
+Vector2d Environment::getPostOneOffsetInCartesian(Odometry cur) {
+    double bearing = degreeToRadian(estimateBearing(cur, mPostOne));
+    double distance = estimateDistance(cur, mPostOne);
     return {distance * cos(bearing), distance * sin(bearing)};
 }
 
-Vector2d Environment::getPostTwoRelative(Odometry cur) {
-    double bearing = degreeToRadian(calcBearing(cur, mPostTwo));
-    double distance = estimateNoneuclid(cur, mPostTwo);
+Vector2d Environment::getPostTwoOffsetInCartesian(Odometry cur) {
+    double bearing = degreeToRadian(estimateBearing(cur, mPostTwo));
+    double distance = estimateDistance(cur, mPostTwo);
     return {distance * cos(bearing), distance * sin(bearing)};
 }
 
