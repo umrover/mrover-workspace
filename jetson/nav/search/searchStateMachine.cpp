@@ -16,6 +16,7 @@ SearchStateMachine::SearchStateMachine(std::weak_ptr<StateMachine> sm, const rap
 // StateMachine  when NavState is in a search state. This will call the corresponding
 // function based on the current state and return the next NavState
 NavState SearchStateMachine::run() {
+    publishSearchPoints();
     switch (mStateMachine.lock()->getRover()->currentState()) {
         case NavState::SearchTurn: {
             return executeSearchTurn();
@@ -48,8 +49,6 @@ NavState SearchStateMachine::run() {
 NavState SearchStateMachine::executeSearchTurn() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
 
-    publishSearchPoints();
-
     if (mSearchPoints.empty()) {
         return NavState::ChangeSearchAlg;
     }
@@ -79,8 +78,6 @@ NavState SearchStateMachine::executeSearchTurn() {
 NavState SearchStateMachine::executeSearchDrive() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Rover> rover = sm->getRover();
-
-    publishSearchPoints();
 
     int16_t frontId = sm->getCourseState()->getRemainingWaypoints().front().id;
     if (rover->leftCacheTarget().distance >= 0 && frontId == rover->leftCacheTarget().id) {
