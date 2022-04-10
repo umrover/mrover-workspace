@@ -37,10 +37,12 @@ NavState GateStateMachine::run() {
             return NavState::GateMakePath;
         }
         case NavState::GateMakePath: {
+//            mPath.push_back(createOdom(rover->odometry(), {4.0, 0.0}, rover));
+//            mPath.push_back(createOdom(rover->odometry(), {4.0, 4.0}, rover));
            // if (env->areTargetFiltersReady()) {
                 makeSpiderPath(rover, env);
 //                makeDualSegmentPath(rover, env);
-                return NavState::GateTraverse;
+//                return NavState::GateTraverse;
            // } else {
             //    rover->stop();
             //    mPath.clear();
@@ -110,18 +112,18 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     // TODO: add logic to go to farthest point along the path that doesn't collid with gate
 
     // find closest prep point
-    double min_norm = -1.0;
+    double minNorm = -1.0;
     Vector2d prepPoint;
     for (auto& i: prepPoints) {
         double dist = i.norm();
-        if (min_norm == -1.0 || dist < min_norm) {
-            min_norm = dist;
+        if (minNorm == -1.0 || dist < minNorm) {
+            minNorm = dist;
             prepPoint = i;
         }
     }
 
     // find the closest approach point to prep point and set the other one as a victory point (we're through the gate)
-    min_norm = -1.0;
+    minNorm = -1.0;
     Vector2d approachPoint;
     Vector2d victoryPoint;
     double distance1 = (approachPoints[0] - prepPoint).norm();
@@ -135,10 +137,10 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     }
     Odometry cur = rover->odometry();
 //    std::cout << prepPoint.x() << ", " << prepPoint.y() << " , " << approachPoint.x() << " , " << approachPoint.y()) << std::endl;
-    //mPath.push_back(createOdom(cur, prepPoint, rover));
-    //mPath.push_back(createOdom(cur, approachPoint, rover));
-    mPath.push_back(createOdom(cur, center, rover));
-    //mPath.push_back(createOdom(cur, victoryPoint, rover));
+    mPath.push_back(createOdom(cur, prepPoint, rover));
+    mPath.push_back(createOdom(cur, approachPoint, rover));
+//    mPath.push_back(createOdom(cur, center, rover));
+    mPath.push_back(createOdom(cur, victoryPoint, rover));
 
     printPoint(p1);
     printPoint(p2);

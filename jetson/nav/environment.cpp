@@ -99,6 +99,7 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
             }
         }
     } else {
+        hasPostOne = hasPostTwo = false;
         double cosine = cos(degreeToRadian(rover->odometry().latitude_deg, rover->odometry().latitude_min));
         rover->setLongMeterInMinutes( 60 / (EARTH_CIRCUM * cosine / 360) );
     }
@@ -130,7 +131,6 @@ Vector2d Environment::getPostOneRelative(Odometry cur) {
     double bearing = degreeToRadian(calcBearing(cur, mPostOne));
     double distance = estimateNoneuclid(cur, mPostOne);
     return {distance * cos(bearing), distance * sin(bearing)};
-
 }
 
 Vector2d Environment::getPostTwoRelative(Odometry cur) {

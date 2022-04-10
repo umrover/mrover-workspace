@@ -52,7 +52,7 @@ Odometry createOdom(const Odometry& current, double absoluteBearing, double dist
 
 // create a new Odometry point a given vector offset from another odometry point
 Odometry createOdom(const Odometry& current, Vector2d vec, const std::shared_ptr<Rover>& rover) {
-    double bearing = radianToDegree(atan2(vec.y(), vec.x()));
+    double bearing = current.bearing_deg + radianToDegree(atan2(vec.y(), vec.x()));
     double distance = vec.norm();
     return createOdom(current, bearing, distance, rover);
 }
