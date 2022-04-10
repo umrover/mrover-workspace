@@ -1,5 +1,6 @@
-#include <iostream>
-#include "cmath"
+#include <cmath>
+
+#include "utilities.hpp"
 #include "environment.hpp"
 #include <iostream>
 #include <string>
@@ -58,13 +59,6 @@ void Environment::setTargets(TargetList const& targets) {
         mTargetRight.bearing = mRightBearingFilter.get();
         mTargetRight.distance = mRightDistanceFilter.get();
     }
-    else{
-        rightBearingFilter.push(mTargetRight.bearing);
-        rightDistanceFilter.push(mTargetRight.distance);
-        mTargetRight.bearing = rightBearingFilter.get(0.75);
-        mTargetRight.distance = rightDistanceFilter.get(0.75);
-    }
-    
 }
 
 void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
@@ -101,10 +95,8 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
     } else {
         hasPostOne = hasPostTwo = false;
         double cosine = cos(degreeToRadian(rover->odometry().latitude_deg, rover->odometry().latitude_min));
-        rover->setLongMeterInMinutes( 60 / (EARTH_CIRCUM * cosine / 360) );
+        rover->setLongMeterInMinutes(60 / (EARTH_CIRCUM * cosine / 360));
     }
-
-    
 }
 
 bool Environment::hasGateLocation() const {

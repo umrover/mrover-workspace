@@ -12,7 +12,9 @@
 
 using Eigen::Vector2d;
 using namespace rover_msgs;
+
 class Rover;
+
 class Environment {
 private:
     Obstacle mObstacle{0.0, 0.0, -1.0};
@@ -25,7 +27,7 @@ private:
     // Reference to config variables
     const rapidjson::Document& mConfig;
 
-    Filter<double> leftBearingFilter, rightBearingFilter, leftDistanceFilter, rightDistanceFilter;
+    Filter<double> mLeftBearingFilter, mRightBearingFilter, mLeftDistanceFilter, mRightDistanceFilter;
 
     Odometry mPostOne{}, mPostTwo{};
 
@@ -34,7 +36,7 @@ private:
     int baseGateID;
 
 public:
-    Environment(const rapidjson::Document& config);
+    explicit Environment(const rapidjson::Document& config);
 
     Obstacle getObstacle();
 

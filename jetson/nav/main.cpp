@@ -38,7 +38,7 @@ int main() {
 
 
     auto courseProgress = std::make_shared<CourseProgress>();
-    auto config = readConfig("config/nav/config.json");
+    auto config = readConfig();
     auto env = std::make_shared<Environment>(config);
     auto rover = std::make_shared<Rover>(config, lcm);
     auto stateMachine = std::make_shared<StateMachine>(config, rover, env, courseProgress, lcm);

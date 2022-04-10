@@ -6,7 +6,6 @@
 #include "utilities.hpp"
 #include "environment.hpp"
 #include "stateMachine.hpp"
-#include "./gate_search/circleGateSearch.hpp"
 
 using Eigen::Vector2d;
 
@@ -18,7 +17,7 @@ GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, con
 
 GateStateMachine::~GateStateMachine() = default;
 
-void GateStateMachine::updateGateTraversalPath(){
+void GateStateMachine::updateGateTraversalPath() {
     //TODO: update the gatePath vector here with a path to go to
 //    std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
 //    Odometry leftPost = env->getLeftPostLocation();

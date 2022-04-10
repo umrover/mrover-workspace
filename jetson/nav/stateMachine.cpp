@@ -6,7 +6,6 @@
 
 #include "utilities.hpp"
 #include "rover_msgs/NavStatus.hpp"
-#include "gate_search/circleGateSearch.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 
 // Constructs a StateMachine object with the input lcm object.
@@ -106,7 +105,8 @@ void StateMachine::run() {
             break;
         }
 
-        case NavState::GateTraverse: {
+        case NavState::BeginGateSearch: {
+            setGateSearcher();
             nextState = mGateStateMachine->run();
             break;
         }
