@@ -38,11 +38,10 @@ export default {
   created: function () {
 
     const JOYSTICK_CONFIG = {
+      'left_right': 0,
       'forward_back': 1,
-      'left_right': 2,
+      'twist': 2,
       'dampen': 3,
-      'kill': 4,
-      'restart': 5,
       'pan': 4,
       'tilt': 5
     }
