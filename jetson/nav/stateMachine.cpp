@@ -153,26 +153,27 @@ NavState StateMachine::executeOff() {
     return NavState::Off;
 } // executeOff()
 
-// Executes the logic for the done state. Stops and turns off the
-// rover.
+// Executes the logic for the done state. Stops and turns off the rover.
 NavState StateMachine::executeDone() {
     mRover->stop();
     return NavState::Done;
 } // executeDone()
 
+/**
+ * Drive through the waypoints defined by course progress.
+ * @return Next state
+ */
 NavState StateMachine::executeDrive() {
     Waypoint const& currentWaypoint = mCourseProgress->getCurrentWaypoint();
     mEnv->setBaseGateID(currentWaypoint.id);
     double dt = getDtSeconds();
-    if (mRover->turn(currentWaypoint.odom, dt)) {
-        DriveStatus status = mRover->drive(currentWaypoint.odom, dt, mConfig["navThresholds"]["waypointDistance"].GetDouble());
-        if (status == DriveStatus::Arrived) {
-            mCourseProgress->completeCurrentWaypoint();
-            if (currentWaypoint.search) {
-                return NavState::BeginSearch;
-            } else {
-                return NavState::Done;
-            }
+    if (mRover->drive(currentWaypoint.odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+        mCourseProgress->completeCurrentWaypoint();
+        std::cout << "Completed waypoint" << std::endl;
+        if (currentWaypoint.search) {
+            return NavState::BeginSearch;
+        } else if (mCourseProgress->getRemainingWaypoints().empty()) {
+            return NavState::Done;
         }
     }
     return NavState::DriveWaypoints;

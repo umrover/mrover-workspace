@@ -1,9 +1,9 @@
 {
 	"bearingPid":
 	{
-		"kP": 0.04,
+		"kP": 0.01,
 		"kI": 0.0,
-		"kD": 0.33
+		"kD": 0.0
 	},
 
 	"distancePid":
@@ -29,7 +29,7 @@
 	{
 		"turningBearing": 10,
 		"drivingBearing": 35,
-		"waypointDistance": 1.25,
+		"waypointDistance": 1.0,
 		"targetDistance": 1.5,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20,

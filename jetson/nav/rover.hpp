@@ -64,13 +64,13 @@ class Rover {
 public:
     Rover(const rapidjson::Document& config, lcm::LCM& lcm_in);
 
-    DriveStatus drive(const Odometry& destination, double dt, double stopDistance);
+    bool drive(const Odometry& destination, double stopDistance, double dt);
 
-    DriveStatus drive(double distance, double bearing, double threshold, double dt);
+    bool drive(double distance, double bearing, double threshold, double dt);
 
     bool turn(Odometry const& destination, double dt);
 
-    bool turn(double bearing, double dt);
+    bool turn(double absoluteBearing, double dt);
 
     void stop();
 

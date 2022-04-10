@@ -55,11 +55,8 @@ NavState GateStateMachine::run() {
             } else {
                 Odometry const& front = mPath.front();
                 double dt = sm->getDtSeconds();
-                if (rover->turn(front, dt)) {
-                    DriveStatus status = rover->drive(front, dt, mConfig["navThresholds"]["waypointDistance"].GetDouble());
-                    if (status == DriveStatus::Arrived) {
-                        mPath.pop_front();
-                    }
+                if (rover->drive(front, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+                    mPath.pop_front();
                 }
             }
             return NavState::GateTraverse;
@@ -109,7 +106,7 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
                               (-2 * approachDistance * perp) + p1,
                               (-2 * approachDistance * perp) + p2};
 
-    // TODO: add logic to go to farthest point along the path that doesn't collid with gate
+    // TODO: add logic to go to farthest point along the path that doesn't collide with gate
 
     // find closest prep point
     double minNorm = -1.0;
@@ -137,12 +134,12 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     }
     Odometry cur = rover->odometry();
 //    std::cout << prepPoint.x() << ", " << prepPoint.y() << " , " << approachPoint.x() << " , " << approachPoint.y()) << std::endl;
-//    mPath.push_back(createOdom(cur, prepPoint, rover));
+    mPath.push_back(createOdom(cur, prepPoint, rover));
     Odometry approachOdom = createOdom(cur, approachPoint, rover);
 //    mPath.push_back(createOdom(cur, center, rover));
     Odometry victoryOdom = createOdom(cur, victoryPoint, rover);
-    approachOdom.bearing_deg = calcBearing(approachOdom, victoryOdom);
-    victoryOdom.bearing_deg = approachOdom.bearing_deg;
+//    approachOdom.bearing_deg = calcBearing(approachOdom, victoryOdom);
+//    victoryOdom.bearing_deg = approachOdom.bearing_deg;
     mPath.push_back(approachOdom);
     mPath.push_back(victoryOdom);
 

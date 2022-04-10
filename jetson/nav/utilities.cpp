@@ -57,8 +57,12 @@ Odometry createOdom(const Odometry& current, Vector2d vec, const std::shared_ptr
     return createOdom(current, bearing, distance, rover);
 }
 
-// Calculates the bearing between the current odometry and the
-// destination odometry.
+/***
+ *
+ * @param start
+ * @param dest
+ * @return
+ */
 double calcBearing(const Odometry& start, const Odometry& dest) {
     double currentLat = degreeToRadian(start.latitude_deg, start.latitude_min);
     double currentLon = degreeToRadian(start.longitude_deg, start.longitude_min);

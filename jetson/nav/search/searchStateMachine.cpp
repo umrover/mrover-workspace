@@ -44,8 +44,8 @@ NavState SearchStateMachine::executeSearch() {
             return NavState::BeginGateSearch;
         } else {
             //only drive to the target if we don't have any posts
-            if (!drivenToFirstPost){
-                if (leftTarget.id > 0 || rightTarget.id > 0) {
+            if (!drivenToFirstPost) {
+                if (leftTarget.id >= 0 || rightTarget.id >= 0) {
                     return NavState::DriveToTarget;
                 }
             }
@@ -60,16 +60,13 @@ NavState SearchStateMachine::executeSearch() {
 
     Odometry const& nextSearchPoint = mSearchPoints.front();
     double dt = sm->getDtSeconds();
-    if (drivenToFirstPost){
+    if (drivenToFirstPost) {
         std::cout << mSearchPoints.size() << std::endl;
     }
-    if (rover->turn(nextSearchPoint, dt)) {
-        DriveStatus driveStatus = rover->drive(nextSearchPoint, dt, mConfig["navThresholds"]["waypointDistance"].GetDouble());
-        if (driveStatus == DriveStatus::Arrived) {
-            mSearchPoints.pop_front();
-            if (mSearchPoints.empty()){
-                return NavState::Done;
-            }
+    if (rover->drive(nextSearchPoint, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+        mSearchPoints.pop_front();
+        if (mSearchPoints.empty()) {
+            return NavState::Done;
         }
     }
     return NavState::Search;
@@ -129,10 +126,8 @@ NavState SearchStateMachine::executeDriveToTarget() {
 
     Odometry targetPoint = createOdom(rover->odometry(), bearing, distance, rover);
 
-    if (rover->turn(targetPoint, dt)) {
-        DriveStatus driveStatus = rover->drive(targetPoint, dt, mConfig["navThresholds"]["targetDistance"].GetDouble());
-        if (driveStatus == DriveStatus::Arrived) {
-            if (sm->getCourseState()->getLastCompletedWaypoint().gate) {
+    if (rover->drive(targetPoint, mConfig["navThresholds"]["targetDistance"].GetDouble(), dt)) {
+        if (sm->getCourseState()->getLastCompletedWaypoint().gate) {
 //                //We have to clear the search points and start a diamond search
 //                //put this in some other function
 //                mSearchPoints.clear();
@@ -146,10 +141,9 @@ NavState SearchStateMachine::executeDriveToTarget() {
 //                }
 //                drivenToFirstPost = true;
 //                return NavState::Search;
-                return NavState::Done;
-            } else {
-                return NavState::Done;
-            }
+            return NavState::Done;
+        } else {
+            return NavState::Done;
         }
     }
 
