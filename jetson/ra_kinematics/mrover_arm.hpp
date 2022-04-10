@@ -218,7 +218,7 @@ protected:
 
     virtual void send_kill_cmd() = 0;
 
-    void plan_path(ArmState& hypo_state, std::vector<double> &goal);
+    void plan_path(ArmState& hypo_state, const std::vector<double>& goal);
     
     void preview(ArmState& hypo_state);
 
