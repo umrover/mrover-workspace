@@ -162,6 +162,7 @@ NavState StateMachine::executeDone() {
 
 NavState StateMachine::executeDrive() {
     Waypoint const& currentWaypoint = mCourseProgress->getCurrentWaypoint();
+    mEnv->setBaseGateID(currentWaypoint.id);
     double dt = getDtSeconds();
     if (mRover->turn(currentWaypoint.odom, dt)) {
         DriveStatus status = mRover->drive(currentWaypoint.odom, dt, mConfig["navThresholds"]["waypointDistance"].GetDouble());

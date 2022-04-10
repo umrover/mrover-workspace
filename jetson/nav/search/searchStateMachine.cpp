@@ -43,13 +43,16 @@ NavState SearchStateMachine::executeSearch() {
         if (env->hasGateLocation()) {
             return NavState::BeginGateSearch;
         } else {
-            if (leftTarget.id > 0 || rightTarget.id > 0) {
-                return NavState::DriveToTarget;
+            //only drive to the target if we don't have any posts
+            if (!drivenToFirstPost){
+                if (leftTarget.id > 0 || rightTarget.id > 0) {
+                    return NavState::DriveToTarget;
+                }
             }
         }
     } else {
-        // You may as well just go to the left post always
-        bool isWantedTarget = lastWaypoint.id == leftTarget.id;
+        // Either post works
+        bool isWantedTarget = lastWaypoint.id == leftTarget.id || lastWaypoint.id + 1 == leftTarget.id;
         if (leftTarget.distance >= 0.0 && isWantedTarget) {
             return NavState::DriveToTarget;
         }
@@ -57,10 +60,16 @@ NavState SearchStateMachine::executeSearch() {
 
     Odometry const& nextSearchPoint = mSearchPoints.front();
     double dt = sm->getDtSeconds();
+    if (drivenToFirstPost){
+        std::cout << mSearchPoints.size() << std::endl;
+    }
     if (rover->turn(nextSearchPoint, dt)) {
         DriveStatus driveStatus = rover->drive(nextSearchPoint, dt, mConfig["navThresholds"]["waypointDistance"].GetDouble());
         if (driveStatus == DriveStatus::Arrived) {
             mSearchPoints.pop_front();
+            if (mSearchPoints.size() == 0){
+                return NavState::Done;
+            }
         }
     }
     return NavState::Search;
@@ -82,7 +91,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
         if (env->hasGateLocation()) {
             return NavState::BeginGateSearch;
         }
-        if (leftTarget.id > 0 && rightTarget.id > 0) {
+        if (leftTarget.id >= 0 && rightTarget.id >= 0) {
             if (leftTarget.distance < rightTarget.distance) {
                 distance = leftTarget.distance;
                 bearing = leftTarget.bearing + currentBearing;
@@ -90,13 +99,14 @@ NavState SearchStateMachine::executeDriveToTarget() {
                 distance = rightTarget.distance;
                 bearing = rightTarget.bearing + currentBearing;
             }
-        } else if (leftTarget.id > 0) {
+        } else if (leftTarget.id >= 0) {
             distance = leftTarget.distance;
             bearing = leftTarget.bearing + currentBearing;
-        } else if (rightTarget.id > 0) {
+        } else if (rightTarget.id >= 0) {
             distance = rightTarget.distance;
             bearing = rightTarget.bearing + currentBearing;
         } else {
+            std::cout << "lost target" << std::endl;
             return NavState::Search;
         }
     } else {
@@ -115,6 +125,18 @@ NavState SearchStateMachine::executeDriveToTarget() {
         DriveStatus driveStatus = rover->drive(targetPoint, dt, mConfig["navThresholds"]["targetDistance"].GetDouble());
         if (driveStatus == DriveStatus::Arrived) {
             if (sm->getCourseState()->getLastCompletedWaypoint().gate) {
+                //We have to clear the search points and start a diamond search
+                //put this in some other function
+                mSearchPoints.clear();
+
+                Vector2d deltas[4] = {{0.5, 0.5}, {-0.5, 0.5}, {-0.5, -0.5}, {0.5, -0.5}};
+                double diamondDist = 3;
+                for (int i = 0; i < 4; ++i){
+                    deltas[i] /= deltas[i].norm();
+                    deltas[i] *= diamondDist;
+                    mSearchPoints.push_back(createOdom(rover->odometry(), deltas[i], rover));
+                }
+                drivenToFirstPost = true;
                 return NavState::Search;
             } else {
                 return NavState::Done;

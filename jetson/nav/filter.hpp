@@ -34,6 +34,13 @@ public:
         mCount = 0;
     }
 
+    //if we have values decrease count by 1
+    void decrementCount(){
+        if (mCount > 0){
+            mCount -= 1;
+        }
+    }
+
     [[nodiscard]] size_t size() const {
         return mValues.size();
     }
@@ -41,6 +48,10 @@ public:
     /***
      * @return If we have enough readings to use the filter
      */
+    [[nodiscard]] bool ready() const {
+        return mCount > 0;
+    }
+
     [[nodiscard]] bool full() const {
         return mCount == size();
     }

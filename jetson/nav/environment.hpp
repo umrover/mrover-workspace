@@ -27,9 +27,11 @@ private:
 
     Filter<double> leftBearingFilter, rightBearingFilter, leftDistanceFilter, rightDistanceFilter;
 
-    Odometry leftPost, rightPost;
+    Odometry mPostOne{}, mPostTwo{};
 
-    bool hasLeftPost, hasRightPost;
+    bool hasPostOne = false, hasPostTwo = false;
+
+    int baseGateID;
 
 public:
     Environment(const rapidjson::Document& config);
@@ -38,17 +40,21 @@ public:
 
     void setObstacle(Obstacle const& obstacle);
 
+    void setBaseGateID(int b);
+
+    int getBaseGateID();
+
     Target getLeftTarget();
 
     Target getRightTarget();
 
-    Odometry getLeftPostLocation();
+    Odometry getPostOneLocation();
 
-    Odometry getRightPostLocation();
+    Odometry getPostTwoLocation();
 
-    Vector2d getLeftPostRelative();
+    Vector2d getPostOneRelative(Odometry cur);
 
-    Vector2d getRightPostRelative();
+    Vector2d getPostTwoRelative(Odometry cur);
 
     void setTargets(TargetList const& targets);
 
@@ -56,7 +62,15 @@ public:
 
     [[nodiscard]] bool hasGateLocation() const;
 
+    [[nodiscard]] bool hasPostOneLocation() const;
+
+    [[nodiscard]] bool hasPostTwoLocation() const;
+
     [[nodiscard]] bool areTargetFiltersReady() const;
+
+    [[nodiscard]] bool isLeftTargetFilterReady() const;
+
+    [[nodiscard]] bool isRightTargetFilterReady() const;
 
     std::optional<Target> tryGetTargetWithId(int32_t id);
 };
