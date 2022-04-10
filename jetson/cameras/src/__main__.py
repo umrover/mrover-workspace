@@ -2,7 +2,7 @@ from rover_msgs import Cameras
 import lcm
 
 import sys
-sys.path.insert(0, "/usr/lib/python3.8/dist-packages")
+sys.path.insert(0, "/usr/lib/python3.6/dist-packages")  # 3.6 vs 3.8
 import jetson.utils
 
 __lcm: lcm.LCM
