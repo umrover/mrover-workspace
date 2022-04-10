@@ -262,6 +262,7 @@ export default {
         {'topic': '/target_list', 'type': 'TargetList'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
+        {'topic': '/search_points', 'type': 'SearchPoints'},
         {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
       ]
     )

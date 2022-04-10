@@ -14,8 +14,8 @@
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
       </l-marker>
 
-      <l-marker :lat-lng="searchMarkers" :icon="waypointIcon" v-for="(waypoint,index) in searchPoints" :key="index">
-         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }} </l-tooltip>
+      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint, index) in searchPoints" :key="index">
+         <l-tooltip :options="{ permanent: 'true', direction: 'top'}">Search {{ index }}</l-tooltip>
       </l-marker>
 
       <l-polyline :lat-lngs="this.playbackEnabled ? polylinePlaybackPath : polylinePath" :color="'red'" :dash-array="'5, 5'"/>
@@ -67,7 +67,7 @@ export default {
       popupAnchor: [0, -32]
     })
     this.$parent.subscribe('/search_points', (msg) => {
-      this.searchPoints=msg.searchPoints;
+      this.fillSearchPoints(msg.points)
     })
   },
 
@@ -111,7 +111,6 @@ export default {
       tangentIcon: null,
       odomPath: [],
       searchPoints: [],
-      searchWaypoints: [],
       findRover: false,
 
       playbackPath: [],
@@ -147,6 +146,18 @@ export default {
             lon: e.latlng.lng
           }
         )
+    },
+
+    // getSearchLatLng: function (search_point) {
+    //   L.latLng(search_point.latitude_deg + search_point.latitude_min/60, search_point.longitude_deg + search_point.longitude_min/60)
+    // },
+    
+    fillSearchPoints: function (newSearchList) {
+      this.searchPoints = newSearchList.map((search_point) => {
+        return {
+          latLng: L.latLng(search_point.latitude_deg + search_point.latitude_min/60, search_point.longitude_deg + search_point.longitude_min/60)
+        };
+      });
     },
 
     ...mapMutations('autonomy',{
@@ -188,15 +199,6 @@ export default {
       }
 
       this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
-    },
-
-    searchPoints: function (newSearch) {
-      const search = newSearch.map((waypoint) => {
-        const lat = waypoint.latitude_deg + waypoint.latitude_min/60;
-        const lon = waypoint.longitude_deg + waypoint.longitude_min/60;
-        return { latLng: L.latLng(lat, lon)};
-      });
-      this.searchMarkers = search;
     },
 
     GPS: function (val) {
