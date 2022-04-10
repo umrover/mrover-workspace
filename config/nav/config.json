@@ -57,7 +57,8 @@
 		"joystickChannel": "/autonomous",
 		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
-		"zedGimbalPosition": "/zed_gimbal_data"
+		"zedGimbalPosition": "/zed_gimbal_data",
+		"gatePathChannel": "/gate_path"
 	},
 
 	"radioRepeaterThresholds":

@@ -13,6 +13,7 @@
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rover_msgs/AutonDriveControl.hpp"
+#include "rover_msgs/SearchPoints.hpp"
 #include "rapidjson/document.h"
 #include "courseProgress.hpp"
 #include "environment.hpp"

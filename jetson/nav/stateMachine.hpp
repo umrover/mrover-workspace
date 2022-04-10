@@ -43,6 +43,8 @@ public:
 
     std::shared_ptr<Rover> getRover();
 
+    lcm::LCM& getLCM();
+
     double getDtSeconds();
 
     /*************************************************************************/
