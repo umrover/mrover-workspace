@@ -14,11 +14,12 @@
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
       </l-marker>
 
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint, index) in searchPoints" :key="index">
+      <l-marker :lat-lng="search_point.latLng" :icon="searchPointIcon" v-for="(search_point, index) in searchPoints" :key="index">
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}">Search {{ index }}</l-tooltip>
       </l-marker>
 
       <l-polyline :lat-lngs="this.playbackEnabled ? polylinePlaybackPath : polylinePath" :color="'red'" :dash-array="'5, 5'"/>
+      <l-polyline :lat-lngs="searchPath" :color="'black'" :dash-array="'5, 5'" :fill="false"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
       <l-polyline :lat-lngs="playbackPath" :color="'green'"/>
     </l-map>
@@ -66,6 +67,13 @@ export default {
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
+    this.searchPointIcon = L.icon({
+      iconUrl: '/static/map_marker_search.png',
+      iconSize: [64, 64],
+      iconAnchor: [32, 64],
+      popupAnchor: [0, -32]
+    })
+
     this.$parent.subscribe('/search_points', (msg) => {
       this.fillSearchPoints(msg.points)
     })
@@ -90,6 +98,10 @@ export default {
 
     polylinePath: function () {
       return [this.odomLatLng].concat(this.route.map(waypoint => waypoint.latLng))
+    },
+
+    searchPath: function () {
+      return [this.odomLatLng].concat(this.searchPoints.map(search_point => search_point.latLng))
     },
 
     polylinePlaybackPath: function () {
