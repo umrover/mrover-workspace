@@ -15,7 +15,7 @@
 using namespace Eigen;
 
 static constexpr int MAX_RRT_ITERATIONS = 500;
-static constexpr double VEC_ANGLE_EPSILON = 0.0000001;
+static constexpr double VEC_ANGLE_EPSILON = 0.0002;
 
 /**
  * Use rrt_connect() to map out a path to the target position.

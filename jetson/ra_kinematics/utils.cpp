@@ -203,7 +203,7 @@ bool vec_almost_equal(const std::vector<double>& a, const std::vector<double>& b
         return false;
     }
     for (size_t i = 0; i < a.size(); ++i) {
-        if (abs(a[i] - b[i]) > epsilon) {
+        if (std::abs(a[i] - b[i]) > epsilon) {
             return false;
         }
     }
