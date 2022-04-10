@@ -102,9 +102,9 @@ def drive_control_callback(channel, msg):
         send_drive_kill()
     else:
         new_motor = DriveVelCmd()
-        input_data.forward_back = -quadratic(input_data.forward_back)
+        input_data.forward_back = quadratic(input_data.forward_back)
         magnitude = deadzone(input_data.forward_back, 0.04)
-        theta = deadzone(input_data.left_right, 0.1)
+        theta = -deadzone(input_data.left_right, 0.1)
 
         joystick_math(new_motor, magnitude, theta)
 
