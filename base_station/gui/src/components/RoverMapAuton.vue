@@ -6,11 +6,8 @@
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="tangent" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="tangentIcon"/>
       <l-marker ref="rover" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="locationIcon"/>
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in route" :key="waypoint.id" >
-        <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
-      </l-marker>
 
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in list" :key="waypoint.id">
+      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint, index) in waypointList" :key="index">
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
       </l-marker>
 
@@ -82,7 +79,7 @@ export default {
   computed: {
     ...mapGetters('autonomy', {
       route: 'route',
-      list: 'waypointList',
+      waypointList: 'waypointList',
       playbackEnabled: 'playbackEnabled',
       playbackLength: 'playbackLength',
       playback: 'playback',
@@ -159,10 +156,6 @@ export default {
           }
         )
     },
-
-    // getSearchLatLng: function (search_point) {
-    //   L.latLng(search_point.latitude_deg + search_point.latitude_min/60, search_point.longitude_deg + search_point.longitude_min/60)
-    // },
     
     fillSearchPoints: function (newSearchList) {
       this.searchPoints = newSearchList.map((search_point) => {

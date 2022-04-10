@@ -3,7 +3,7 @@
     <div class="col-wrap" style="left: 0;">
       <div class="box">
         <div class="identification">
-          Name: <input v-model="name" v-on:click="select($event)" size="15">
+          Name: <input v-model="name" size="15">
           ID: <input v-model="id" type="number" max="249" min="-1" step="1">
           Gate Width: <input v-model="gate_width" type="number" max="3" min="2" step="1">
         </div>
@@ -12,15 +12,15 @@
         <input type="radio" v-model="odom_format_in" value="DM" class="checkbox"><font size="2">DM</font>
         <input type="radio" v-model="odom_format_in" value="DMS" class="checkbox"><font size="2">DMS</font><br>
         <div class="wp-input">
-          <p><input v-model.number="input.lat.d" size="13" v-on:click="select($event)">º</p>
-          <p v-if="this.min_enabled"><input v-model.number="input.lat.m" size="13" v-on:click="select($event)">'</p>
-          <p  v-if="this.sec_enabled"><input v-model.number="input.lat.s" size="13" v-on:click="select($event)">"</p>
+          <p><input v-model.number="input.lat.d" size="13">º</p>
+          <p v-if="this.min_enabled"><input v-model.number="input.lat.m" size="13">'</p>
+          <p  v-if="this.sec_enabled"><input v-model.number="input.lat.s" size="13">"</p>
           N
         </div>
         <div class="wp-input">
-          <p><input v-model.number="input.lon.d" size="13" v-on:click="select($event)">º</p>
-          <p v-if="this.min_enabled"><input v-model.number="input.lon.m" size="13" v-on:click="select($event)">'</p>
-          <p  v-if="this.sec_enabled"><input v-model.number="input.lon.s" size="13" v-on:click="select($event)">"</p>
+          <p><input v-model.number="input.lon.d" size="13">º</p>
+          <p v-if="this.min_enabled"><input v-model.number="input.lon.m" size="13">'</p>
+          <p  v-if="this.sec_enabled"><input v-model.number="input.lon.s" size="13">"</p>
           W
         </div>
         <br>
@@ -235,11 +235,6 @@ export default {
 
     clearWaypoint: function () {
       this.storedWaypoints = [];
-    },
-
-    select: function(payload) {
-      console.log(payload.toElement);
-      payload.toElement.select();
     },
 
     toggleAutonMode: function (val) {
