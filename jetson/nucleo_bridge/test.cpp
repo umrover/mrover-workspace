@@ -165,7 +165,7 @@ void testClosed()
                     current_angle_deg = closedPlus(name, target_deg);
                     sleep(20);
                 }
-                while(std::abs(current_angle_deg - target_deg) > 0.01);
+                while(std::abs(current_angle_deg - target_deg) > 0.6);
 
                 printf("Arrived at position %i\n", i);
                 sleep(400);
@@ -327,9 +327,9 @@ int main()
     motor_names.push_back("RA_A");
     motor_names.push_back("RA_B");
     motor_names.push_back("RA_C");
-    // motor_names.push_back("RA_D");
+    motor_names.push_back("RA_D");
     motor_names.push_back("RA_E");
-    // motor_names.push_back("RA_F");
+    motor_names.push_back("RA_F");
 
     printf("Initializing virtual controllers\n");
     ControllerMap::init();
@@ -339,10 +339,10 @@ int main()
 
     while (1)
     {
-        // testClosed();
+        testClosed();
 	    // testQuadEnc();
         // testOpenPlusWithAbs();
-        testOpenPlusWithAbsWithDelays();
+        //testOpenPlusWithAbsWithDelays();
         // testOpenPlus();
         // testAbsEnc();
         sleep(100);
