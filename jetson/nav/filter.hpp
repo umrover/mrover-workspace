@@ -13,7 +13,7 @@ private:
     double mProportion;
     // How many readings we have.
     // This will be capped at the capacity, since when we add when full we will overwrite the oldest value.
-    size_t mCount{};
+    size_t mFilterCount{};
     // Index to the current head.
     // Note this is a circular buffer, so this will wrap around when we reach the end of the internal vector.
     size_t mHead{};
@@ -27,17 +27,17 @@ public:
     void push(T value) {
         mHead = (mHead + 1) % size();
         mValues[mHead] = value;
-        mCount = std::min(mCount + 1, size());
+        mFilterCount = std::min(mFilterCount + 1, size());
     }
 
     void reset() {
-        mCount = 0;
+        mFilterCount = 0;
     }
 
     //if we have values decrease count by 1
-    void decrementCount(){
-        if (mCount > 0){
-            mCount -= 1;
+    void decrementCount() {
+        if (mFilterCount > 0) {
+            mFilterCount -= 1;
         }
     }
 
@@ -45,29 +45,33 @@ public:
         return mValues.size();
     }
 
+    [[nodiscard]] size_t filterCount() const {
+        return mFilterCount;
+    }
+
     /***
      * @return If we have enough readings to use the filter
      */
     [[nodiscard]] bool ready() const {
-        return mCount > 0;
+        return mFilterCount > 0;
     }
 
     [[nodiscard]] bool full() const {
-        return mCount == size();
+        return mFilterCount == size();
     }
 
     /***
      * @return Filtered reading if full, or else the most recent reading if we don't have enough readings yet.
      */
     T get() {
-        return mValues[mHead];
-//        if (!full()) {
-//            return mValues[mHead];
-//        }
-//        mSortedValues = mValues;
-//        std::sort(mSortedValues.begin(), mSortedValues.end());
-//        auto begin = mSortedValues.begin() + (mProportion * size() / 4);
-//        auto end = mSortedValues.end() - (mProportion * size() / 4);
-//        return std::accumulate(begin, end, T{}) / (end - begin);
+//        return mValues[mHead];
+        if (!full()) {
+            return mValues[mHead];
+        }
+        mSortedValues = mValues;
+        std::sort(mSortedValues.begin(), mSortedValues.end());
+        auto begin = mSortedValues.begin() + (mProportion * size() / 4);
+        auto end = mSortedValues.end() - (mProportion * size() / 4);
+        return std::accumulate(begin, end, T{}) / (end - begin);
     }
 };

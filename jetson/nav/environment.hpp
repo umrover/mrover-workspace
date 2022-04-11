@@ -33,7 +33,7 @@ private:
 
     bool mHasPostOne = false, mHasPostTwo = false;
 
-    int baseGateID;
+    int mBaseGateId{};
 
 public:
     explicit Environment(const rapidjson::Document& config);
@@ -42,9 +42,9 @@ public:
 
     void setObstacle(Obstacle const& obstacle);
 
-    void setBaseGateID(int b);
+    void setBaseGateID(int baseGateId);
 
-    int getBaseGateID();
+    int getBaseGateID() const;
 
     Target getLeftTarget();
 
