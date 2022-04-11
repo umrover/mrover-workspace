@@ -304,9 +304,9 @@ def publish_encoder_helper(axis):
     msg.vel_percent = modrive.get_vel_estimate(axis)
     usb_lock.release()
 
-    motor_map = {("RIGHT", 0): 0, ("LEFT", 0): 1,
-                 ("RIGHT", 1): 2, ("LEFT", 1): 3,
-                 ("RIGHT", 2): 4, ("LEFT", 2): 5}
+    motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
+                 ("LEFT", 1): 2, ("RIGHT", 1): 3,
+                 ("LEFT", 2): 4, ("RIGHT", 2): 5}
 
     msg.axis = motor_map[(axis, legal_controller)]
 
@@ -348,8 +348,8 @@ class Modrive:
 
     def __init__(self, odr):
         self.odrive = odr
-        self.left_axis = self.odrive.axis1
-        self.right_axis = self.odrive.axis0
+        self.left_axis = self.odrive.axis0
+        self.right_axis = self.odrive.axis1
         self.set_current_lim(self.CURRENT_LIM)
 
     # viable to set initial state to idle?
@@ -448,9 +448,9 @@ class Modrive:
 
     def set_vel(self, axis, vel):
         if (axis == "LEFT"):
-            self.left_axis.controller.input_vel = vel * self.SPEED_MULTIPLIER
+            self.left_axis.controller.input_vel = -vel * self.SPEED_MULTIPLIER
         elif axis == "RIGHT":
-            self.right_axis.controller.input_vel = -vel * self.SPEED_MULTIPLIER
+            self.right_axis.controller.input_vel = vel * self.SPEED_MULTIPLIER
 
     def get_current_state(self):
         return (self.left_axis.current_state, self.right_axis.current_state)
