@@ -694,8 +694,8 @@
                 "upper": 1.09
             },
             "max_speed": 0.2,
-            "encoder_offset": -1.47,
-            "encoder_multiplier": -1,
+            "encoder_offset": -1.05,
+            "encoder_multiplier": 1,
             "mass_data":{
                 "mass": 0,
                 "com": {
