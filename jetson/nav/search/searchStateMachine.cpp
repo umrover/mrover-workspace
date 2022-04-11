@@ -160,7 +160,7 @@ void SearchStateMachine::publishSearchPoints() {
         .points = arr
     };
 
-    std::string searchPointsChannel = mRoverConfig["lcmChannels"]["searchPointsChannel"].GetString();
+    std::string searchPointsChannel = mConfig["lcmChannels"]["searchPointsChannel"].GetString();
     mStateMachine.lock()->getLCM().publish(searchPointsChannel, &searchPoints);
 
 } // publishSearchPoints()
