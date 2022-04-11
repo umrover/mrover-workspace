@@ -54,6 +54,8 @@ private:
 
     NavState executeDriveToTarget();
 
+    void publishSearchPoints();
+
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
