@@ -1,12 +1,13 @@
-#ifndef GATE_STATE_MACHINE_HPP
-#define GATE_STATE_MACHINE_HPP
+#pragma once
 
 #include <deque>
 #include <memory>
 
-#include "../rover.hpp"
-#include "rover_msgs/Odometry.hpp"
+#include <eigen3/Eigen/Core>
 
+#include "../rover.hpp"
+#include "../filter.hpp"
+#include "rover_msgs/Odometry.hpp"
 
 using namespace rover_msgs;
 
@@ -19,23 +20,15 @@ public:
     /*************************************************************************/
     GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig);
 
-    virtual ~GateStateMachine();
+    ~GateStateMachine();
 
     NavState run();
 
-    virtual void initializeSearch() = 0;
+    void updateGateTraversalPath();
 
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
-    /* saved last known location of first tag of a gate */
-    Waypoint lastKnownRightPost;
-
-    /* saved last known location of second tag of a gate */
-    Waypoint lastKnownLeftPost;
-
-    // Queue of search points
-    std::deque<Odometry> mGateSearchPoints;
 
 protected:
     /*************************************************************************/
@@ -49,53 +42,19 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    NavState executeGateSpin();
 
-    NavState executeGateSpinWait();
-
-    NavState executeGateTurn();
-
-    NavState executeGateDrive();
-
-    NavState executeGateTurnToCentPoint();
-
-    NavState executeGateDriveToCentPoint();
-
-    NavState executeGateFace();
-
-    NavState executeGateTurnToFarPost();
-
-    NavState executeGateDriveToFarPost();
-
-    NavState executeGateTurnToGateCenter();;
-
-    NavState executeGateDriveThrough();
-
-    void updatePost2Info();
-
-    void calcCenterPoint();
+    void publishGatePath();
 
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
+    const rapidjson::Document& mConfig;
 
-    // Reference to config variables
-    const rapidjson::Document& mRoverConfig;
+    std::deque<Odometry> mPath;
 
-    // Points in frnot of center of gate
-    Odometry centerPoint1;
-    Odometry centerPoint2;
+    void makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env);
 
-    // Check if we drove through the correct direction
-    bool isCorrectGateDir;
-
-    // Minor adjustment to gate targeting, due to issue
-    // of driving through a post when driving through the
-    // wrong direction
-    double gateAdjustmentDist;
+    void makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env);
 };
 
-std::shared_ptr<GateStateMachine>
-GateFactory(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig);
-
-#endif //GATE_STATE_MACHINE_HPP
+std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);

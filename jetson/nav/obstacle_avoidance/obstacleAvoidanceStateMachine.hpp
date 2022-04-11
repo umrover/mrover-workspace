@@ -74,7 +74,7 @@ private:
     /*************************************************************************/
 
     // Reference to config variables
-    const rapidjson::Document& mRoverConfig;
+    const rapidjson::Document& mConfig;
 
 };
 
