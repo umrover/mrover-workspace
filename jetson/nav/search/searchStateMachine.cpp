@@ -156,7 +156,7 @@ void SearchStateMachine::publishSearchPoints() {
     // Construct vector from deque
     std::vector<Odometry> arr(mSearchPoints.begin(), mSearchPoints.end());
     SearchPoints searchPoints{
-        .search_pattern_size  = std::static_cast<int32_t>mSearchPoints.size(),
+        .search_pattern_size  = static_cast<int32_t>(mSearchPoints.size()),
         .points = arr
     };
 
