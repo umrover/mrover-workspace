@@ -6,15 +6,17 @@
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="tangent" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="tangentIcon"/>
       <l-marker ref="rover" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="locationIcon"/>
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in route" :key="waypoint.id" >
-        <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
-      </l-marker>
 
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in list" :key="waypoint.id">
+      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint, index) in waypointList" :key="index">
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
       </l-marker>
 
+      <l-marker :lat-lng="search_point.latLng" :icon="searchPointIcon" v-for="(search_point, index) in searchPoints" :key="index">
+         <l-tooltip :options="{ permanent: 'true', direction: 'top'}">Search {{ index }}</l-tooltip>
+      </l-marker>
+
       <l-polyline :lat-lngs="this.playbackEnabled ? polylinePlaybackPath : polylinePath" :color="'red'" :dash-array="'5, 5'"/>
+      <l-polyline :lat-lngs="searchPath" :color="'black'" :dash-array="'5, 5'" :fill="false"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
       <l-polyline :lat-lngs="playbackPath" :color="'green'"/>
     </l-map>
@@ -62,12 +64,22 @@ export default {
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
+    this.searchPointIcon = L.icon({
+      iconUrl: '/static/map_marker_search.png',
+      iconSize: [64, 64],
+      iconAnchor: [32, 64],
+      popupAnchor: [0, -32]
+    })
+
+    this.$parent.subscribe('/search_points', (msg) => {
+      this.fillSearchPoints(msg.points)
+    })
   },
 
   computed: {
     ...mapGetters('autonomy', {
       route: 'route',
-      list: 'waypointList',
+      waypointList: 'waypointList',
       playbackEnabled: 'playbackEnabled',
       playbackLength: 'playbackLength',
       playback: 'playback',
@@ -83,6 +95,10 @@ export default {
 
     polylinePath: function () {
       return [this.odomLatLng].concat(this.route.map(waypoint => waypoint.latLng))
+    },
+
+    searchPath: function () {
+      return [this.odomLatLng].concat(this.searchPoints.map(search_point => search_point.latLng))
     },
 
     polylinePlaybackPath: function () {
@@ -103,6 +119,7 @@ export default {
       locationIcon: null,
       tangentIcon: null,
       odomPath: [],
+      searchPoints: [],
       findRover: false,
 
       playbackPath: [],
@@ -138,6 +155,14 @@ export default {
             lon: e.latlng.lng
           }
         )
+    },
+    
+    fillSearchPoints: function (newSearchList) {
+      this.searchPoints = newSearchList.map((search_point) => {
+        return {
+          latLng: L.latLng(search_point.latitude_deg + search_point.latitude_min/60, search_point.longitude_deg + search_point.longitude_min/60)
+        };
+      });
     },
 
     ...mapMutations('autonomy',{
