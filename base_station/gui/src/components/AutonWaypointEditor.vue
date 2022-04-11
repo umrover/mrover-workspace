@@ -21,7 +21,7 @@
           <p><input v-model.number="input.lon.d" size="13">º</p>
           <p v-if="this.min_enabled"><input v-model.number="input.lon.m" size="13">'</p>
           <p  v-if="this.sec_enabled"><input v-model.number="input.lon.s" size="13">"</p>
-          W
+          E
         </div>
         <br>
         <div style="display:inline-block">

@@ -42,7 +42,7 @@
       <RoverMap v-bind:odom="odom" v-bind:GPS="GPS"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
+      <AutonWaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
     </div>
     <div class="box angles light-bg">
     </div>
@@ -58,7 +58,7 @@ import RadioSignalStrength from './RadioSignalStrength.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
-import WaypointEditor from './WaypointEditor.vue'
+import AutonWaypointEditor from './AutonWaypointEditor.vue'
 import RawSensorData from './RawSensorData.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import Obstacle from './Obstacle.vue'
@@ -316,7 +316,7 @@ export default {
     DriveControls,
     OdometryReading,
     RawSensorData,
-    WaypointEditor,
+    AutonWaypointEditor,
     RadioSignalStrength,
     Obstacle,
     TargetList,
