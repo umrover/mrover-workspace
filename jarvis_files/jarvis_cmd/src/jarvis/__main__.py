@@ -51,8 +51,9 @@ def main():
                                'build system')
     parser_launch.add_argument('-s', '--ssh', action='store_true',
                                help='Specify whether we are ssh\'d in or not')
-                              
-
+    parser_launch.add_argument('-r', '--run', action='store_true',
+                               help='Specify whether packages should be built or just run')
+    
     args = parser.parse_args()
 
     try:
@@ -69,7 +70,7 @@ def main():
         elif args.subcommand_name == 'dep':
             build_deps(ctx)
         elif args.subcommand_name == 'launch':
-            launch_dir(ctx, clean_dir_name(args.sys), args.ssh, args.launch_opts)
+            launch_dir(ctx, clean_dir_name(args.sys), args.ssh, args.run, args.launch_opts)
 
     except UnexpectedExit as e:
         sys.exit(e.result.exited)

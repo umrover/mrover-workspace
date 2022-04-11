@@ -21,11 +21,13 @@ double radianToDegree(double radian);
 
 Odometry addMinToDegrees(const Odometry& current, double lat_minutes = 0, double lon_minutes = 0);
 
-double estimateNoneuclid(const Odometry& start, const Odometry& dest);
+double estimateDistance(const Odometry& current, const Odometry& dest);
 
-Odometry createOdom(const Odometry& current, double bearing, double distance, const std::shared_ptr<Rover>& rover);
+Odometry createOdom(const Odometry& current, double absoluteBearing, double distance, const std::shared_ptr<Rover>& rover);
 
-double calcBearing(const Odometry& start, const Odometry& dest);
+Odometry createOdom(const Odometry& current, Vector2d vec, const std::shared_ptr<Rover>& rover);
+
+double estimateBearing(const Odometry& start, const Odometry& dest);
 
 double mod(double degree, int modulus);
 

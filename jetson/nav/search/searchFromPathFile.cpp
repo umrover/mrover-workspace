@@ -14,7 +14,7 @@ void SearchFromPathFile::initializeSearch(const rapidjson::Document& roverConfig
     }
     float rho, phi;
     while (coordinate_file >> rho >> phi) {
-        Odometry currentPoint = mStateMachine.lock()->getCourseState()->getRemainingWaypoints().front().odom;
+        Odometry currentPoint = mStateMachine.lock()->getRover()->odometry();
         Odometry nextSearchPoint = createOdom(currentPoint, phi, rho, mStateMachine.lock()->getRover());
         mSearchPoints.push_back(nextSearchPoint);
     }

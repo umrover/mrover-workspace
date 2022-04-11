@@ -1,16 +1,23 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
+
 #include <lcm/lcm-cpp.hpp>
+
 #include "rover.hpp"
+#include "environment.hpp"
+#include "courseProgress.hpp"
 #include "search/searchStateMachine.hpp"
 #include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
-#include "environment.hpp"
-#include "courseProgress.hpp"
 
 
 using namespace rover_msgs;
+using namespace std::chrono_literals;
+using time_point = std::chrono::high_resolution_clock::time_point;
+
+static auto const LOOP_DURATION = 0.01s;
 
 // This class implements the logic for the state machine for the
 // autonomous navigation of the rover.
@@ -29,7 +36,9 @@ public:
 
     void updateObstacleDistance(double distance);
 
-    void setSearcher(SearchType type, const std::shared_ptr<Rover>& rover, const rapidjson::Document& roverConfig);
+    void setSearcher(SearchType type);
+
+    void setGateSearcher();
 
     std::shared_ptr<Environment> getEnv();
 
@@ -38,6 +47,8 @@ public:
     std::shared_ptr<Rover> getRover();
 
     lcm::LCM& getLCM();
+
+    double getDtSeconds();
 
     /*************************************************************************/
     /* Public Member Variables */
@@ -55,15 +66,9 @@ private:
 
     NavState executeDone();
 
-    NavState executeTurn();
-
     NavState executeDrive();
 
     std::string stringifyNavState() const;
-
-    double getOptimalAvoidanceDistance() const;
-
-    bool isWaypointReachable(double distance);
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -86,4 +91,6 @@ private:
 
     // Avoidance pointer to control obstacle avoidance states
     std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
+
+    time_point mTimePoint, mPrevTimePoint;
 }; // StateMachine

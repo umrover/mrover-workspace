@@ -10,7 +10,8 @@ class StateMachine;
 // This class is the representation of different
 // search algorithms
 enum class SearchType {
-    FROM_PATH_FILE
+    FROM_PATH_FILE = 0, 
+    FROM_PATH_FILE_GATE = 1
 };
 
 class SearchStateMachine {
@@ -42,9 +43,6 @@ protected:
     // Pointer to rover State Machine to access member functions
     std::weak_ptr<StateMachine> mStateMachine;
 
-    // Vector of search point multipliers used as a base for the search points.
-    std::vector<std::pair<short, short>> mSearchPointMultipliers;
-
     // Queue of search points.
     std::deque<Odometry> mSearchPoints;
 
@@ -52,19 +50,9 @@ private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    NavState executeSearchTurn();
-
-    NavState executeSearchDrive();
-
-    NavState executeTurnToTarget();
+    NavState executeSearch();
 
     NavState executeDriveToTarget();
-
-    void updateTargetAngle(double bearing);
-
-    void updateTurnToTargetRoverAngle(double bearing);
-
-    void updateTargetDetectionElements(double target_bearing, double rover_bearing);
 
     void publishSearchPoints();
 
@@ -72,15 +60,10 @@ private:
     /* Private Member Variables */
     /*************************************************************************/
 
-    // Last known angle to turn to target.
-    double mTargetAngle;
-
-    // Last known angle of rover from turn to target.
-    double mTurnToTargetRoverAngle;
-
     // Reference to config variables
-    const rapidjson::Document& mRoverConfig;
+    const rapidjson::Document& mConfig;
 
+    bool drivenToFirstPost = false;
 };
 
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle

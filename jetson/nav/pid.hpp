@@ -1,24 +1,27 @@
 #pragma once
 
+#include <optional>
+
 class PidLoop {
 public:
-    PidLoop(double Kp, double Ki, double Kd);
+    PidLoop(double p, double i, double d);
 
-    double update(double current, double desired);
+    PidLoop(double p, double i, double d, double maxInputBeforeWrap);
+
+    double update(double current, double desired, double dt);
 
     void reset();
 
 private:
-    double error(double current, double desired);
+    double mP;
+    double mI;
+    double mD;
+    std::optional<double> mMaxInputBeforeWrap;
 
-    double Kp_;
-    double Ki_;
-    double Kd_;
+    const double mMinOut = -1.0;
+    const double mMaxOut = +1.0;
 
-    const double sat_min_out_ = -1.0;
-    const double sat_max_out_ = +1.0;
-
-    bool first_;
-    double accumulated_error_;
-    double last_error_;
+    bool mFirst;
+    double mTotalError;
+    double mLastError;
 };
