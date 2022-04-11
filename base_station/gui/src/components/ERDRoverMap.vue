@@ -5,15 +5,11 @@
       <l-control-scale :imperial="false"/>
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
-      <!-- <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in route" :key="waypoint.id">
-        <l-tooltip :content="waypoint.name" />
-      </l-marker> -->
 
-      <!-- <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint in list" :key="waypoint.id">
-        <l-tooltip :content="waypoint.name" />
-      </l-marker> -->
+      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint, index in waypointList" :key="index">
+        <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
+      </l-marker>
 
-<!--  <l-polyline :lat-lngs="polylinePath" :color="'red'" :dash-array="'5, 5'"/> -->
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
     </l-map>
 
@@ -56,9 +52,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('autonomy', {
-      route: 'route',
-      list: 'waypointList'
+    ...mapGetters('erd', {
+      waypointList: 'waypointList'
     }),
 
     odomLatLng: function () {

@@ -47,6 +47,9 @@
     <div class="box ik-gui light-bg">
       <iframe src="http://localhost:8020/#/" height="300" width="100%" title="IK gui"></iframe>
     </div>
+    <div class="box waypoint-editor light-bg">
+      <ERDWaypointEditor/>
+    </div>
     <div class ="box pdb light-bg">
       <PDBFuse/>
     </div>
@@ -61,7 +64,7 @@
 import { mapGetters } from 'vuex'
 import Cameras from './Cameras.vue'
 import IKControls from './IKControls.vue'
-import RoverMap from './RoverMap.vue'
+import RoverMap from './ERDRoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
@@ -70,6 +73,7 @@ import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
 import DriveVelDataV from './DriveVelDataV.vue' 
+import ERDWaypointEditor from './ERDWaypointEditor.vue'
 
 export default {
   name: 'RATask',
@@ -217,7 +221,8 @@ export default {
     OdometryReading,
     IKControls,
     PDBFuse,
-    DriveVelDataV
+    DriveVelDataV,
+    ERDWaypointEditor
   }
 }
 </script>
@@ -226,14 +231,15 @@ export default {
   .wrapper {
     display: grid;
     grid-gap: 10px;
-    grid-template-columns: 1fr 1.5fr;
-    grid-template-rows: 60px auto auto auto auto auto auto;
+    grid-template-columns: 1fr 1.2fr;
+    grid-template-rows: 60px auto auto auto auto auto auto auto;
     grid-template-areas: "header header"
                          "map cameras"
                          "map ik-controls"
                          "ik-gui ik-controls"
-                         "odom controls"
-                         "drive encoder"
+                         "waypoint-editor controls"
+                         "waypoint-editor encoder"
+                         "odom drive"
                          "pdb drive-motor";
     font-family: sans-serif;
     height: auto;
@@ -344,6 +350,10 @@ export default {
 
   .drive-motor {
     grid-area: drive-motor;
+  }
+
+  .waypoint-editor {
+    grid-area: waypoint-editor
   }
 
   .pdb {
