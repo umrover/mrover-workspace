@@ -1,6 +1,7 @@
 #include "stateMachine.hpp"
 
 #include <map>
+#include <thread>
 #include <utility>
 #include <iostream>
 
@@ -56,76 +57,82 @@ void StateMachine::run() {
     auto now = std::chrono::high_resolution_clock::now();
     mTimePoint = now;
 
+    static long i = 0;
+    if (++i % 256 == 0) {
+        std::cout << "Update rate: " << 1.0 / getDtSeconds() << std::endl;
+    }
+
     mEnv->updateTargets(mRover, mCourseProgress);
 
     publishNavState();
     NavState nextState = NavState::Unknown;
 
-    if (!mRover->autonState().is_auton) {
+    if (mRover->autonState().is_auton) {
+        switch (mRover->currentState()) {
+            case NavState::Off: {
+                nextState = executeOff();
+                break;
+            }
+
+            case NavState::Done: {
+                nextState = executeDone();
+                break;
+            }
+
+            case NavState::DriveWaypoints: {
+                nextState = executeDrive();
+                break;
+            }
+
+            case NavState::Search:
+            case NavState::DriveToTarget: {
+                nextState = mSearchStateMachine->run();
+                break;
+            }
+
+            case NavState::TurnAroundObs:
+            case NavState::SearchTurnAroundObs:
+            case NavState::DriveAroundObs:
+            case NavState::SearchDriveAroundObs: {
+                nextState = mObstacleAvoidanceStateMachine->run();
+                break;
+            }
+
+            case NavState::BeginSearch: {
+                setSearcher(SearchType::FROM_PATH_FILE);
+                nextState = NavState::Search;
+                break;
+            }
+
+            case NavState::BeginGateSearch: {
+                setGateSearcher();
+                nextState = mGateStateMachine->run();
+                break;
+            }
+            case NavState::GateMakePath:
+            case NavState::GateTraverse: {
+                nextState = mGateStateMachine->run();
+                break;
+            }
+
+            case NavState::Unknown: {
+                throw std::runtime_error("Entered unknown state.");
+            }
+        } // switch
+
+        if (nextState != mRover->currentState()) {
+            mRover->setState(nextState);
+            mRover->bearingPid().reset();
+        }
+    } else {
         nextState = NavState::Off;
         mRover->setState(executeOff()); // turn off immediately
         if (nextState != mRover->currentState()) {
             mRover->setState(nextState);
         }
-        return;
     }
-    switch (mRover->currentState()) {
-        case NavState::Off: {
-            nextState = executeOff();
-            break;
-        }
 
-        case NavState::Done: {
-            nextState = executeDone();
-            break;
-        }
-
-        case NavState::DriveWaypoints: {
-            nextState = executeDrive();
-            break;
-        }
-
-        case NavState::Search:
-        case NavState::DriveToTarget: {
-            nextState = mSearchStateMachine->run();
-            break;
-        }
-
-        case NavState::TurnAroundObs:
-        case NavState::SearchTurnAroundObs:
-        case NavState::DriveAroundObs:
-        case NavState::SearchDriveAroundObs: {
-            nextState = mObstacleAvoidanceStateMachine->run();
-            break;
-        }
-
-        case NavState::BeginSearch: {
-            setSearcher(SearchType::FROM_PATH_FILE);
-            nextState = NavState::Search;
-            break;
-        }
-
-        case NavState::BeginGateSearch: {
-            setGateSearcher();
-            nextState = mGateStateMachine->run();
-            break;
-        }
-        case NavState::GateMakePath:
-        case NavState::GateTraverse: {
-            nextState = mGateStateMachine->run();
-            break;
-        }
-
-        case NavState::Unknown: {
-            throw std::runtime_error("Entered unknown state.");
-        }
-    } // switch
-
-    if (nextState != mRover->currentState()) {
-        mRover->setState(nextState);
-        mRover->bearingPid().reset();
-    }
-    std::cerr << std::flush;
+    std::this_thread::sleep_until(mTimePoint + LOOP_DURATION);
 } // run()
 
 // Publishes the current navigation state to the nav status lcm channel.
