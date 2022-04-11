@@ -116,12 +116,12 @@ void LCMHandler::InternalHandler::refresh_quad_angles()
 
 void LCMHandler::InternalHandler::refresh_calib_data()
 {
-    ControllerMap::controllers["RA_B"]->calibration_data();
+    ControllerMap::controllers["RA_B"]->refresh_calibration_data();
 }
 
-void LCMHandler::InternalHandler::refresh_turn_count_data()
+void LCMHandler::InternalHandler::refresh_refresh_turn_count()
 {
-    ControllerMap::controllers["RA_F"]->turn_count_data();
+    ControllerMap::controllers["RA_F"]->refresh_turn_count();
 }
 
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)
@@ -172,7 +172,7 @@ void LCMHandler::InternalHandler::publish_calib_data()
 {
     JointBCalibration msg;
     msg.calibrated = ControllerMap::controllers["RA_B"]->calibrated;
-    lcm_bus->publish("/joint_b_calibration_data", &msg);
+    lcm_bus->publish("/joint_b_refresh_calibration_data", &msg);
 
     last_output_time = NOW;
 }

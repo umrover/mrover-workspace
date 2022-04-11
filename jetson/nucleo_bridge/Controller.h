@@ -73,7 +73,7 @@ public:
     Controller(std::string name, std::string type);
 
     // Sends a calibrated command
-    void calibration_data();
+    void refresh_calibration_data();
 
     // Calibrate joint -- should only be used for joint b
     void calibrate_joint();
@@ -94,7 +94,7 @@ public:
     void quad_angle();
 
     // Get turn count -- should only be used for joint f
-    void turn_count_data();
+    void refresh_turn_count();
 
     // Sends a zero command
     void zero();

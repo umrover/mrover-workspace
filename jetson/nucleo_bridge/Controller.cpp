@@ -52,10 +52,13 @@ void Controller::make_live()
         ControllerMap::make_live(name);
 
         // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
-        // if (name == "RA_B" || name == "SA_B")
-        // {
-        //     calibrate_joint();
-        // }
+        /*
+        if (name == "RA_B" || name == "SA_B")
+        {
+
+            calibrate_joint();
+        }
+        */
     }
     catch (IOFailure &e)
     {
@@ -86,7 +89,7 @@ float Controller::get_current_angle()
 Controller::Controller(std::string name, std::string type) : name(name), hardware(Hardware(type)) {}
 
 // Sends a get angle command
-void Controller::calibration_data()
+void Controller::refresh_calibration_data()
 {
     if (!ControllerMap::check_if_live(name))
     {
@@ -95,11 +98,11 @@ void Controller::calibration_data()
 
     try
     {
-        int8_t calib_data;
+        int8_t raw_calibration_data;
 
-        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calib_data));
+        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&raw_calibration_data));
 
-        calibrated = calib_data == 0xF;
+        calibrated = raw_calibration_data == 0xF;
     }
     catch (IOFailure &e)
     {
@@ -122,7 +125,12 @@ void Controller::calibrate_joint()
             printf("calibration not supported on %s\n", name.c_str());
             return;
         }
-        open_loop(0.3);
+
+        do {
+            refresh_calibration_data();
+            open_loop(0.3);
+        }
+        while (calibrated)
     }
     catch (IOFailure &e)
     {
@@ -138,11 +146,14 @@ void Controller::closed_loop(float torque, float target)
         make_live();
 
         // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
-        // if ((name == "RA_B" || name == "SA_B") && !calibrated)
-        // {
-        //     printf("closed_loop failed because joint B is not yet calibrated");
-        //     return;
-        // }
+        /*
+        refresh_calibration_data();
+        if ((name == "RA_B" || name == "SA_B") && !calibrated)
+        {
+            printf("closed_loop failed because joint B is not yet calibrated");
+            return;
+        }
+        */
 
         float feed_forward = 0; // torque * torque_scale;
         uint8_t buffer[32];
@@ -214,11 +225,14 @@ void Controller::open_loop(float input)
         make_live();
 
         // TODO - UNCOMMENT ONCE LIMIT SWITCHES ARE IMPLEMENTED
-        // if ((name == "RA_B" || name == "SA_B") && !calibrated)
-        // {
-        //     printf("closed_loop failed because joint B is not yet calibrated");
-        //     return;
-        // }
+        /*
+        refresh_calibration_data();
+        if ((name == "RA_B" || name == "SA_B") && !calibrated)
+        {
+            printf("closed_loop failed because joint B is not yet calibrated");
+            return;
+        }
+        */
 
         uint8_t buffer[4];
         float speed = hardware.throttle(input) * inversion;
@@ -234,7 +248,7 @@ void Controller::open_loop(float input)
             {
                 last_speed = speed;
                 int32_t raw_angle;
-                // TODO - when open is supported, change to this
+                // TODO - when OPEN is supported, change to this
                 // transact(OPEN, buffer, nullptr);
                 transact(OPEN_PLUS, buffer, UINT8_POINTER_T(&raw_angle));
                 return;
@@ -275,7 +289,7 @@ void Controller::quad_angle()
 }
 
 // Sends a get angle command
-void Controller::turn_count_data()
+void Controller::refresh_turn_count()
 {
 
     if (!ControllerMap::check_if_live(name))
@@ -285,11 +299,11 @@ void Controller::turn_count_data()
 
     try
     {
-        int8_t turn_count_data;
+        int8_t raw_turn_count;
 
-        transact(TURN_COUNT, nullptr, UINT8_POINTER_T(&turn_count_data));
+        transact(TURN_COUNT, nullptr, UINT8_POINTER_T(&raw_turn_count));
 
-        turn_count = turn_count_data;
+        turn_count = raw_turn_count;
     }
     catch (IOFailure &e)
     {

@@ -78,7 +78,7 @@ Message: [WristTurnCount.lcm](https://github.com/umrover/mrover-workspace/blob/m
 Publisher: jetson/nucleo_bridge \
 Subscriber: base_station/gui + jetson/teleop
 
-#### Joint B Calibration Data \[Publisher\] "/joint_b_calibration_data"
+#### Joint B Calibration Data \[Publisher\] "/joint_b_refresh_calibration_data"
 Message: [JointBCalibration.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/JointBCalibration.lcm) \
 Publisher: jetson/nucleo_bridge \
 Subscriber: base_station/gui + jetson/ra_kinematics
@@ -108,7 +108,7 @@ To control the RA/SA through open-loop
 
 To control the RA/SA through closed-loop
 * Ensure jetson/teleop is running on the same platform
-* Ensure jetson/kinematics is running on the same platform
+* Ensure jetson/ra_kinematics is running on the same platform
 * Ensure base_station/kineval is running on the base station
 * Input commands into the arm control page on the base station GUI
 
