@@ -3,5 +3,5 @@ package rover_msgs;
 struct ProjectedPoints {
     int32_t pattern_size;
     Odometry points[pattern_size];
-    string type;
+    string path_type;
 }

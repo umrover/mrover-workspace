@@ -163,7 +163,7 @@ void GateStateMachine::publishGatePath() {
     ProjectedPoints gatePathPoints{
         .pattern_size  = static_cast<int32_t>(arr.size()),
         .points = arr,
-        .type = "gate"
+        .path_type = "gate"
     };
 
     std::string projectedPointsChannel = mConfig["lcmChannels"]["projectedPointsChannel"].GetString();

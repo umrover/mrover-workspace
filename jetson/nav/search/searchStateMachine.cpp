@@ -158,7 +158,7 @@ void SearchStateMachine::publishSearchPoints() {
     ProjectedPoints searchPoints{
         .pattern_size  = static_cast<int32_t>(arr.size()),
         .points = arr,
-        .type = "search"
+        .path_type = "search"
     };
 
     std::string projectedPointsChannel = mConfig["lcmChannels"]["projectedPointsChannel"].GetString();
