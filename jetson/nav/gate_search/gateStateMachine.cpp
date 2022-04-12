@@ -66,7 +66,7 @@ NavState GateStateMachine::run() {
 }
 
 void printPoint(Vector2d p) {
-    std::cout << "Vec2D: (" << p.x() << " , " << p.y() << ")" << std::endl;
+    std::cout << "(" << p.x() << " , " << p.y() << "),";
 }
 
 void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env) {
@@ -137,12 +137,14 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     mPath.push_back(centerOdom);
     mPath.push_back(victoryOdom);
 
-    // printPoint(p1);
-    // printPoint(p2);
-    // printPoint(prepPoint);
-    // printPoint(approachPoint);
-    // printPoint(center);
-    // printPoint(victoryPoint);
+    std::cout << "points = (";
+    printPoint(p1);
+    printPoint(p2);
+    printPoint(prepPoint);
+    printPoint(approachPoint);
+    printPoint(center);
+    printPoint(victoryPoint);
+    std::cout << ")" << std::endl;
 }
 
 // Creates an GateStateMachine object

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <iostream>
 
 template <typename T>
 class Cache{
@@ -20,8 +20,8 @@ public:
         return mValid;
     }
 
-    void put(bool valid, T reading){
-        if (!mValid){
+    void put(bool currentReadingValid, T reading){
+        if (!currentReadingValid){
             //reset hit counter
             mHitting = false;
             mHits = 0;
@@ -37,7 +37,7 @@ public:
         else{
             //reset miss counter
             mHitting = true;
-            mMisses = 9;
+            mMisses = 0;
             //increment hit counter
             ++mHits;
 

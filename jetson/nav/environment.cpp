@@ -38,8 +38,9 @@ int Environment::getBaseGateID() const {
 void Environment::setTargets(TargetList const& targets) {
     Target const& leftTargetRaw = targets.targetList[0];
     Target const& rightTargetRaw = targets.targetList[1];
-    mTargetLeft.put(leftTargetRaw.distance == -1 || leftTargetRaw.id == -1, leftTargetRaw);
-    mTargetRight.put(rightTargetRaw.distance == -1 || rightTargetRaw.id == -1,rightTargetRaw);
+    //std::cout << (leftTargetRaw.distance == -1 || leftTargetRaw.id == -1) << std::endl;
+    mTargetLeft.put((leftTargetRaw.distance != -1 && leftTargetRaw.id != -1), leftTargetRaw);
+    mTargetRight.put((rightTargetRaw.distance != -1 && rightTargetRaw.id != -1), rightTargetRaw);
 }
 
 void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
