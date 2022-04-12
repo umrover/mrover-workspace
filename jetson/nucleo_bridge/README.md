@@ -109,7 +109,7 @@ To control the RA/SA through open-loop
 To control the RA/SA through closed-loop
 * Ensure jetson/teleop is running on the same platform
 * Ensure jetson/ra_kinematics is running on the same platform
-* Ensure base_station/kineval is running on the base station
+* Ensure base_station/kineval_stencil is running on the base station
 * Input commands into the arm control page on the base station GUI
 
 ### Off Nominal Behavior Handling

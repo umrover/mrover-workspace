@@ -49,9 +49,11 @@ void LCMHandler::handle_outgoing()
     std::chrono::duration deadTime = std::chrono::milliseconds(120);
     if (NOW - last_output_time > deadTime)
     {
+        // TODO - refresh_quad_angles might not be necessary
         // internal_object->refresh_quad_angles();
-        internal_object->publish_sa_pos_data();
         internal_object->publish_ra_pos_data();
+        internal_object->publish_sa_pos_data();
+        // TODO - UNCOMMENT AS SOON AS THESE ARE READY
         // internal_object->refresh_calib_data();
         // internal_object->publish_calib_data();
         // internal_object->refresh_turn_count();

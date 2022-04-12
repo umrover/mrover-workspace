@@ -23,6 +23,9 @@ The ansible scripts rover-base_station_gstreamer.service and rover-base_station_
 
 If the base station ansible scripts are not running, run `python3 base_station/cameras/run.py` instead. 
 
+The user can edit the bitrate and the remote ip and ports by editing the jetson/cameras/src/\_\_main\_\_.py file.
+
+
 ### Setup
 
 Cloned [jetson-utils](https://github.com/dusty-nv/jetson-utils) on the Jetson, made build folder, cd’ed into that and run cmake .. then make. Without the jetson program, you can just run ```./aarch64/bin/video-viewer /dev/video0 rtp://10.0.0.1:5000 --headless``` on the jetson.
