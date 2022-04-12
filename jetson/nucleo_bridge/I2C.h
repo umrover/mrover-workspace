@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <mutex.h>
+#include <mutex>
 
 struct IOFailure : public std::exception {};
 
