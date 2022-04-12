@@ -1,5 +1,5 @@
 [Unit]
-Description=MRover Onboard Cameras
+Description=MRover Jetson Cameras
 
 [Service]
 EnvironmentFile=/etc/default/rover.env

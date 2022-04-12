@@ -267,7 +267,7 @@ def gimbal_control_callback(channel, msg):
 
 
 def main():
-    hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
+    hb = heartbeatlib.JetsonHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/drive_control", drive_control_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)

@@ -1,5 +1,5 @@
 [Unit]
-Description=MRover Onboard Odometry Filter
+Description=MRover Jetson Odometry Filter
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
