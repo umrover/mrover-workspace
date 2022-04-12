@@ -1,9 +1,9 @@
 {
 	"bearingPid":
 	{
-		"kP": 0.04,
+		"kP": 0.01,
 		"kI": 0.0,
-		"kD": 0.012
+		"kD": 0.0
 	},
 
 	"distancePid":
@@ -29,7 +29,7 @@
 	{
 		"turningBearing": 10,
 		"drivingBearing": 35,
-		"waypointDistance": 1.25,
+		"waypointDistance": 1.0,
 		"targetDistance": 1.5,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20,
@@ -57,7 +57,9 @@
 		"joystickChannel": "/autonomous",
 		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
-		"zedGimbalPosition": "/zed_gimbal_data"
+		"zedGimbalPosition": "/zed_gimbal_data",
+		"searchPointsChannel": "/search_points",
+		"gatePathChannel": "/gate_path"
 	},
 
 	"radioRepeaterThresholds":
@@ -74,5 +76,10 @@
 		"searchWaitStepSize": 90.0,
 		"searchWaitTime": 1.0,
 		"spiralSearchPoints": "jetson/nav/search/spiral_search_points.txt"
+	},
+
+	"gate": {
+		"filterSize": 4,
+        "filterProportion": 0.75
 	}
 }

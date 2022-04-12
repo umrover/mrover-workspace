@@ -114,8 +114,8 @@ class Drive:
         # Convert arcade drive to tank drive
         # TODO: possibly flip signs of rotation if necessary
         angular_op = (angular / 2) / (abs(linear) + 0.5)
-        vel_left = linear + angular_op
-        vel_right = linear - angular_op
+        vel_left = linear - angular_op
+        vel_right = linear + angular_op
 
         # Account for reverse
         if self.reverse:
