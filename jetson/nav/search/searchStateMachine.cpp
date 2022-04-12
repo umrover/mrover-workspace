@@ -155,13 +155,14 @@ NavState SearchStateMachine::executeDriveToTarget() {
 void SearchStateMachine::publishSearchPoints() {
     // Construct vector from deque
     std::vector<Odometry> arr(mSearchPoints.begin(), mSearchPoints.end());
-    SearchPoints searchPoints{
-        .search_pattern_size  = static_cast<int32_t>(mSearchPoints.size()),
-        .points = arr
+    ProjectedPoints searchPoints{
+        .pattern_size  = static_cast<int32_t>(arr.size()),
+        .points = arr,
+        .type = "search"
     };
 
-    std::string searchPointsChannel = mConfig["lcmChannels"]["searchPointsChannel"].GetString();
-    mStateMachine.lock()->getLCM().publish(searchPointsChannel, &searchPoints);
+    std::string projectedPointsChannel = mConfig["lcmChannels"]["projectedPointsChannel"].GetString();
+    mStateMachine.lock()->getLCM().publish(projectedPointsChannel, &searchPoints);
 
 } // publishSearchPoints()
 

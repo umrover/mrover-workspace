@@ -160,12 +160,13 @@ std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>&
 void GateStateMachine::publishGatePath() {
     // Construct vector from deque
     std::vector<Odometry> arr(mPath.begin(), mPath.end());
-    SearchPoints gatePathPoints{
-        .search_pattern_size  = (int32_t)arr.size(),
-        .points = arr
+    ProjectedPoints gatePathPoints{
+        .pattern_size  = static_cast<int32_t>(arr.size()),
+        .points = arr,
+        .type = "gate"
     };
 
-    std::string gatePathChannel = mConfig["lcmChannels"]["gatePathChannel"].GetString();
-    mStateMachine.lock()->getLCM().publish(gatePathChannel, &gatePathPoints);
+    std::string projectedPointsChannel = mConfig["lcmChannels"]["projectedPointsChannel"].GetString();
+    mStateMachine.lock()->getLCM().publish(projectedPointsChannel, &gatePathPoints);
 
-} // publishSearchPoints()
+} // publishGatePath()
