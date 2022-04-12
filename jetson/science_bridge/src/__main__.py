@@ -23,10 +23,10 @@ class Auton_state(Enum):
 
 # Mapping of LCM mosfet devices to actual mosfet devices
 class Mosfet_devices(Enum):
-    RED_LED = 3
+    RED_LED = 10
     GREEN_LED = 4
     BLUE_LED = 5
-    RA_LASER = 3
+    RA_LASER = 10
     UV_LED = 4
     WHITE_LED = 5
     UV_BULB = 6
