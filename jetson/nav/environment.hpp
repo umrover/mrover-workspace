@@ -21,13 +21,16 @@ private:
 
     // The rover's current target information from computer
     // vision.
-    Target mTargetLeft{-1.0, 0.0, -1};
-    Target mTargetRight{-1.0, 0.0, -1};
+    Target mTargetLeftRaw{-1.0, 0.0, -1};
+    Target mTargetRightRaw{-1.0, 0.0, -1};
 
     // Reference to config variables
     const rapidjson::Document& mConfig;
 
     Filter<double> mLeftBearingFilter, mRightBearingFilter, mLeftDistanceFilter, mRightDistanceFilter;
+    
+    Cache<Target> mTargetLeft;
+    Cache<Target> mTargetRight;
 
     Odometry mPostOne{}, mPostTwo{};
 
