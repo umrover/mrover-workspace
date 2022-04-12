@@ -7,10 +7,9 @@
 
 Environment::Environment(const rapidjson::Document& config) :
         mConfig(config),
-        mLeftBearingFilter(config["gate"]["filterSize"].GetInt(), config["gate"]["filterProportion"].GetDouble()),
-        mRightBearingFilter(config["gate"]["filterSize"].GetInt(), config["gate"]["filterProportion"].GetDouble()),
-        mLeftDistanceFilter(config["gate"]["filterSize"].GetInt(), config["gate"]["filterProportion"].GetDouble()),
-        mRightDistanceFilter(config["gate"]["filterSize"].GetInt(), config["gate"]["filterProportion"].GetDouble()) {}
+        mTargetLeft(3, 20, {-1, -1, -1}),
+        mTargetRight(3, 20, {-1, -1, -1})
+        {}
 
 void Environment::setObstacle(Obstacle const& obstacle) {
     mObstacle = obstacle;
@@ -21,11 +20,11 @@ Obstacle Environment::getObstacle() {
 }
 
 Target Environment::getLeftTarget() {
-    return mTargetLeft;
+    return mTargetLeft.get();
 }
 
 Target Environment::getRightTarget() {
-    return mTargetRight;
+    return mTargetRight.get();
 }
 
 void Environment::setBaseGateID(int baseGateId) {
@@ -37,73 +36,40 @@ int Environment::getBaseGateID() const {
 }
 
 void Environment::setTargets(TargetList const& targets) {
-    Target const& leftTarget = targets.targetList[0];
-    Target const& rightTarget = targets.targetList[1];
-    if (leftTarget.id < 0 || leftTarget.distance < 0.0) {
-        //std::cout << "no left readings: decrementing" << std::endl;
-        mLeftBearingFilter.decrementCount();
-        mLeftDistanceFilter.decrementCount();
-        if (mLeftBearingFilter.filterCount() == 0) {
-            mTargetLeft.id = -1;
-        }
-    } else {
-        //std::cout << "adding left readings" << std::endl;
-        mLeftBearingFilter.push(leftTarget.bearing);
-        mLeftDistanceFilter.push(leftTarget.distance);
-        mTargetLeft.bearing = mLeftBearingFilter.get();
-        mTargetLeft.distance = mLeftDistanceFilter.get();
-        mTargetLeft.id = leftTarget.id;
-    }
-
-    if (rightTarget.id < 0 || rightTarget.distance < 0.0) {
-        mRightBearingFilter.decrementCount();
-        mRightDistanceFilter.decrementCount();
-        if (mRightBearingFilter.filterCount() == 0) {
-            mTargetRight.id = -1;
-        }
-    } else {
-        //std::cout << "adding right readings" << std::endl;
-        mRightBearingFilter.push(rightTarget.bearing);
-        mRightDistanceFilter.push(rightTarget.distance);
-        mTargetRight.bearing = mRightBearingFilter.get();
-        mTargetRight.distance = mRightDistanceFilter.get();
-        mTargetRight.id = rightTarget.id;
-    }
+    Target const& leftTargetRaw = targets.targetList[0];
+    Target const& rightTargetRaw = targets.targetList[1];
+    mTargetLeft.put(leftTargetRaw.distance == -1 || leftTargetRaw.id == -1, leftTargetRaw);
+    mTargetRight.put(rightTargetRaw.distance == -1 || rightTargetRaw.id == -1,rightTargetRaw);
 }
 
 void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
     mHasNewPostUpdate = false;
     if (rover->autonState().is_auton) {
-        bool rightReady = isRightTargetFilterReady();
-        bool leftReady = isLeftTargetFilterReady();
+        bool rightReady = mTargetRight.isValid();
+        bool leftReady = mTargetLeft.isValid();
+        Target const& leftTarget = mTargetLeft.get();
+        Target const& rightTarget = mTargetRight.get();
         double currentBearing = rover->odometry().bearing_deg;
         if (rightReady) {
-//            std::cout << "right ready: " << mTargetRight.id << std::endl;
-            if (mTargetRight.id == mBaseGateId) {
-//                std::cout << "updated post 1" << std::endl;
-                mPostOne = createOdom(rover->odometry(), currentBearing + mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
+            if (rightTarget.id == mBaseGateId) {
+                mPostOne = createOdom(rover->odometry(), currentBearing + rightTarget.bearing, rightTarget.distance, rover);
                 mHasPostOne = true;
                 mHasNewPostUpdate = true;
             }
-            if (mTargetRight.id == mBaseGateId + 1) {
-//                std::cout << "updated post 2" << std::endl;
-                mPostTwo = createOdom(rover->odometry(), currentBearing + mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
+            if (rightTarget.id == mBaseGateId + 1) {
+                mPostTwo = createOdom(rover->odometry(), currentBearing + rightTarget.bearing, rightTarget.distance, rover);
                 mHasPostTwo = true;
                 mHasNewPostUpdate = true;
             }
         }
         if (leftReady) {
-//            std::cout << "left ready: " << mTargetLeft.id << std::endl;
-//            std::cout << "course waypoint id: " << course->getCurrentWaypoint().id << std::endl;
-            if (mTargetLeft.id == mBaseGateId) {
-//                std::cout << "updated post 1" << std::endl;
-                mPostOne = createOdom(rover->odometry(), currentBearing + mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
+            if (leftTarget.id == mBaseGateId) {
+                mPostOne = createOdom(rover->odometry(), currentBearing + leftTarget.bearing, leftTarget.distance, rover);
                 mHasPostOne = true;
                 mHasNewPostUpdate = true;
             }
-            if (mTargetLeft.id == mBaseGateId + 1) {
-//                std::cout << "updated post 2" << std::endl;
-                mPostTwo = createOdom(rover->odometry(), currentBearing + mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
+            if (leftTarget.id == mBaseGateId + 1) {
+                mPostTwo = createOdom(rover->odometry(), currentBearing + leftTarget.bearing, leftTarget.distance, rover);
                 mHasPostTwo = true;
                 mHasNewPostUpdate = true;
             }
@@ -152,23 +118,11 @@ Vector2d Environment::getPostTwoOffsetInCartesian(Odometry cur) {
     return {distance * cos(bearing), distance * sin(bearing)};
 }
 
-bool Environment::areTargetFiltersReady() const {
-    return mLeftDistanceFilter.ready() && mRightDistanceFilter.ready() && mLeftBearingFilter.ready() && mRightBearingFilter.ready();
-}
-
-bool Environment::isLeftTargetFilterReady() const {
-    return mLeftDistanceFilter.ready() && mLeftBearingFilter.ready();
-}
-
-bool Environment::isRightTargetFilterReady() const {
-    return mRightDistanceFilter.ready() && mRightBearingFilter.ready();
-}
-
 std::optional<Target> Environment::tryGetTargetWithId(int32_t id) {
-    if (mTargetLeft.id == id && mTargetLeft.distance > 0.0) {
-        return {mTargetLeft};
-    } else if (mTargetRight.id == id && mTargetRight.distance > 0.0) {
-        return {mTargetRight};
+    if (mTargetLeft.get().id == id && mTargetLeft.get().distance > 0.0) {
+        return {mTargetLeft.get()};
+    } else if (mTargetRight.get().id == id && mTargetRight.get().distance > 0.0) {
+        return {mTargetRight.get()};
     }
     return std::nullopt;
 }

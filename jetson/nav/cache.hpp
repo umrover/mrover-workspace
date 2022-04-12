@@ -50,12 +50,12 @@ public:
     }
 
 private:
-    T currentReading;
-    T mInvalidDefault;
     int mHits;
     int mMisses;
     int mNeededHits;
     int mNeededMisses;
     bool mHitting = false;
     bool mValid = false;
+    T currentReading;
+    T mInvalidDefault;
 };

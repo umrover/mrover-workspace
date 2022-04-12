@@ -7,6 +7,7 @@
 
 #include "rover.hpp"
 #include "filter.hpp"
+#include "cache.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/TargetList.hpp"
 
@@ -19,15 +20,8 @@ class Environment {
 private:
     Obstacle mObstacle{0.0, 0.0, -1.0};
 
-    // The rover's current target information from computer
-    // vision.
-    Target mTargetLeftRaw{-1.0, 0.0, -1};
-    Target mTargetRightRaw{-1.0, 0.0, -1};
-
     // Reference to config variables
     const rapidjson::Document& mConfig;
-
-    Filter<double> mLeftBearingFilter, mRightBearingFilter, mLeftDistanceFilter, mRightDistanceFilter;
     
     Cache<Target> mTargetLeft;
     Cache<Target> mTargetRight;
@@ -74,12 +68,6 @@ public:
     [[nodiscard]] bool hasPostOneLocation() const;
 
     [[nodiscard]] bool hasPostTwoLocation() const;
-
-    [[nodiscard]] bool areTargetFiltersReady() const;
-
-    [[nodiscard]] bool isLeftTargetFilterReady() const;
-
-    [[nodiscard]] bool isRightTargetFilterReady() const;
 
     std::optional<Target> tryGetTargetWithId(int32_t id);
 };
