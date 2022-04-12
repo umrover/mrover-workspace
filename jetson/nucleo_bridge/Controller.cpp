@@ -130,7 +130,7 @@ void Controller::calibrate_joint()
             refresh_calibration_data();
             open_loop(0.3);
         }
-        while (calibrated)
+        while (!calibrated)
     }
     catch (IOFailure &e)
     {

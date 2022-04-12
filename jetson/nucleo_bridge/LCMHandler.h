@@ -9,6 +9,7 @@
 #include <lcm/lcm-cpp.hpp>
 #include <thread>
 #include <chrono>
+#include <mutex>
 
 #include <rover_msgs/HandCmd.hpp>
 #include <rover_msgs/FootCmd.hpp>
@@ -36,10 +37,13 @@ Outgoing lcm messages are triggered by a clock, which query the functions on the
 class LCMHandler
 {
 private:
-    inline static std::chrono::high_resolution_clock::time_point last_output_time = NOW;
+    inline static std::chrono::high_resolution_clock::time_point last_heartbeat_output_time = NOW;
+    inline static std::chrono::high_resolution_clock::time_point last_calib_data_output_time = NOW;
+    inline static std::chrono::high_resolution_clock::time_point last_turn_count_output_time = NOW;
 
     inline static lcm::LCM *lcm_bus = nullptr;
 
+    std::mutex transaction_m;
     
     //Empty object to pass to lcm subscribe
     class InternalHandler
@@ -89,6 +93,7 @@ public:
 
     //Decide whether outgoing messages need to be sent, and if so, send them
     static void handle_outgoing();
+    
 };
 
 #endif
