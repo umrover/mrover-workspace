@@ -69,7 +69,7 @@ export default {
   methods: {
     publishClosedLoop: function() {
       this.$parent.publish('/carousel_closedloop_cmd', {
-        'type': 'CarouselClosedLoopCmd',
+        'type': 'CarouselPosition',
         'position': Number(this.target)
       })
 

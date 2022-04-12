@@ -148,17 +148,14 @@ export default {
           d2_6:0
       },
       mosfetIDs: {
-        rLed: 0,
-        gLed: 1,
-        bLed: 2,
-        Laser: 3,
-        UVLED: 4,
-        whiteLED: 5,
-        uvBulb: 6,
-        nichWire0: 7,
-        nichWire1: 8,
-        nichWire2: 9,
-        ramanLaser: 10
+        red_led: 0,
+        green_led: 1,
+        blue_led: 2,
+        ra_laser: 3,
+        uv_led: 4,
+        white_led: 5,
+        uv_bulb: 6,
+        raman_laser: 7
       }
 
 }
@@ -231,7 +228,7 @@ export default {
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/carousel_data', 'type': 'CarouselData'},
+        {'topic': '/carousel_data', 'type': 'CarouselPosition'},
         {'topic': '/sa_position', 'type': 'SAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/heater_state_data', 'type': 'Heater'},

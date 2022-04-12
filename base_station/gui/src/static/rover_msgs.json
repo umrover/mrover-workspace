@@ -133,13 +133,7 @@
             "tilt"
         ]
     ],
-    "CarouselClosedLoopCmd": [
-        [
-            "int8_t",
-            "position"
-        ]
-    ],
-    "CarouselData": [
+    "CarouselPosition": [
         [
             "int8_t",
             "position"

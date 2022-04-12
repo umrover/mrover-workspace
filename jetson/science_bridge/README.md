@@ -26,7 +26,7 @@ Format of the UART NMEA command
 Writes an NMEA like message over UART to the Nucleo in order to move the carousel motor to a specific site.
 #### LCM Channels Publishing/Subscribed To
 **Carousel Closed Loop Command [subscriber]** \
-Messages: [CarouselClosedLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselClosedLoopCmd.lcm) "/carousel_closedloop_cmd" \
+Messages: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselPosition.lcm) "/carousel_closedloop_cmd" \
 Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
@@ -39,7 +39,7 @@ Format of the UART NMEA command
 Reads the site the carousel was last in.
 #### LCM Channels Publishing/Subscribed To
 **Carousel Data [publisher]** \
-Messages: [CarouselData.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselData.lcm) "/carousel_data" \
+Messages: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselPosition.lcm) "/carousel_data" \
 Publishers: jetson/science_bridge \
 Subscribers: base_station/gui
 #### UART Message
@@ -178,3 +178,7 @@ Format of the data string
 - [X] Add limit switch code
 - [X] Pass the linter
 - [ ] Code clean up
+- [ ] Move beaglebone stuff into config file
+- [ ] Need better support for Auton LEDs
+- [ ] Create function for padding
+- [ ] Don't need to wait for all tags to be seen
