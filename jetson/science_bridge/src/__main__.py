@@ -33,10 +33,10 @@ class Mosfet_devices(Enum):
     RAMAN_LASER = 10
 
 
-Mosfet_Map = [Mosfet_devices.RED_LED, Mosfet_devices.GREEN_LED, \
-              Mosfet_devices.BLUE_LED, Mosfet_devices.RA_LASER, \
-              Mosfet_devices.UV_LED, Mosfet_devices.WHITE_LED, \
-              Mosfet_devices.UV_BULB, Mosfet_devices.RAMAN_LASER] 
+Mosfet_Map = [Mosfet_devices.RED_LED, Mosfet_devices.GREEN_LED,
+              Mosfet_devices.BLUE_LED, Mosfet_devices.RA_LASER,
+              Mosfet_devices.UV_LED, Mosfet_devices.WHITE_LED,
+              Mosfet_devices.UV_BULB, Mosfet_devices.RAMAN_LASER]
 
 
 # Mapping of Heater devices to actual mosfet devices
