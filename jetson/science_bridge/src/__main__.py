@@ -37,7 +37,7 @@ class ScienceBridge():
         '''
         self.ser = serial.Serial(
             # port='/dev/ttyS4',
-            port='/dev/ttyTHS1',
+            port='/dev/ttyTHS0',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
