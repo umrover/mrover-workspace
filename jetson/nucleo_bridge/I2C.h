@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <mutex.h>
 
 struct IOFailure : public std::exception {};
 
@@ -17,6 +18,7 @@ class I2C
 {
 private:
     inline static int file = -1;
+    inline static std::mutex transact_m;
 
 public:
     //Abstraction for I2C/Hardware related functions

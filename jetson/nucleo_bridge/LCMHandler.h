@@ -9,7 +9,6 @@
 #include <lcm/lcm-cpp.hpp>
 #include <thread>
 #include <chrono>
-#include <mutex>
 
 #include <rover_msgs/HandCmd.hpp>
 #include <rover_msgs/FootCmd.hpp>
@@ -43,8 +42,6 @@ private:
 
     inline static lcm::LCM *lcm_bus = nullptr;
 
-    inline static std::mutex transaction_m;
-    
     //Empty object to pass to lcm subscribe
     class InternalHandler
     {

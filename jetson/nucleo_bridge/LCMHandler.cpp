@@ -51,9 +51,7 @@ void LCMHandler::handle_outgoing()
     // This is used as a heart beat (to make sure that nucleos do not reset)
     if (NOW - last_heartbeat_output_time > heartbeat_dead_time)
     {
-        transaction_m.lock();
         internal_object->refresh_quad_angles();
-        transaction_m.unlock();
 
         internal_object->publish_ra_pos_data();
         internal_object->publish_sa_pos_data();
@@ -66,9 +64,7 @@ void LCMHandler::handle_outgoing()
     // This is used as a heart beat (to make sure that nucleos do not reset)
     if (NOW - last_calib_data_output_time > calib_data_output_dead_time)
     {
-        transaction_m.lock();
         internal_object->refresh_calib_data();
-        transaction_m.unlock();
         last_calib_data_output_time = NOW;
 
         internal_object->publish_calib_data();
@@ -81,9 +77,7 @@ void LCMHandler::handle_outgoing()
     // This is used as a heart beat (to make sure that nucleos do not reset)
     if (NOW - last_turn_count_output_time > turn_count_output_dead_time)
     {
-        transaction_m.lock();
         internal_object->refresh_turn_count();
-        transaction_m.unlock();
         last_turn_count_output_time = NOW;
 
         internal_object->publish_turn_count();
@@ -93,39 +87,31 @@ void LCMHandler::handle_outgoing()
 
 void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
 {
-    transaction_m.lock();
     ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad);
     ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop);
-    transaction_m.unlock();
 }
 
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
 {
-    transaction_m.lock();
     ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger);
     ControllerMap::controllers["HAND_GRIP"]->open_loop(msg->grip);
-    transaction_m.unlock();
 }
 
 void LCMHandler::InternalHandler::mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg)
 {
-    transaction_m.lock();
     ControllerMap::controllers["GIMBAL_PITCH"]->open_loop(msg->pitch[0]);
     ControllerMap::controllers["GIMBAL_YAW"]->open_loop(msg->yaw[0]);
-    transaction_m.unlock();
 }
 
 // The following functions are handlers for the corresponding lcm messages
 void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg)
 {
-    transaction_m.lock();
     ControllerMap::controllers["RA_A"]->closed_loop(0, msg->joint_a);
     ControllerMap::controllers["RA_B"]->closed_loop(0, msg->joint_b);
     ControllerMap::controllers["RA_C"]->closed_loop(0, msg->joint_c);
     ControllerMap::controllers["RA_D"]->closed_loop(0, msg->joint_d);
     ControllerMap::controllers["RA_E"]->closed_loop(0, msg->joint_e);
     ControllerMap::controllers["RA_F"]->closed_loop(0, msg->joint_f);
-    transaction_m.unlock();
     publish_ra_pos_data();
 
     last_heartbeat_output_time = NOW;
@@ -133,14 +119,12 @@ void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition
 
 void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg)
 {
-    transaction_m.lock();
     ControllerMap::controllers["RA_A"]->open_loop(msg->throttle[0]);
     ControllerMap::controllers["RA_B"]->open_loop(msg->throttle[1]);
     ControllerMap::controllers["RA_C"]->open_loop(msg->throttle[2]);
     ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3]);
     ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4]);
     ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
-    transaction_m.unlock();
     last_heartbeat_output_time = NOW;
 
     publish_ra_pos_data();
@@ -148,7 +132,6 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
 
 void LCMHandler::InternalHandler::refresh_quad_angles()
 {
-    transaction_m.lock();
     ControllerMap::controllers["RA_A"]->quad_angle();
     ControllerMap::controllers["RA_B"]->quad_angle();
     ControllerMap::controllers["RA_C"]->quad_angle();
@@ -159,35 +142,28 @@ void LCMHandler::InternalHandler::refresh_quad_angles()
     ControllerMap::controllers["SA_B"]->quad_angle();
     ControllerMap::controllers["SA_C"]->quad_angle();
     ControllerMap::controllers["SA_E"]->quad_angle();
-    transaction_m.unlock();
     last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::refresh_calib_data()
 {
-    transaction_m.lock();
     ControllerMap::controllers["RA_B"]->refresh_calibration_data();
-    transaction_m.unlock();
 
     last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::refresh_turn_count()
 {
-    transaction_m.lock();
     ControllerMap::controllers["RA_F"]->refresh_turn_count();
-    transaction_m.unlock();
     last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)
 {
-    transaction_m.lock();
     ControllerMap::controllers["SA_A"]->closed_loop(0, msg->joint_a);
     ControllerMap::controllers["SA_B"]->closed_loop(0, msg->joint_b);
     ControllerMap::controllers["SA_C"]->closed_loop(0, msg->joint_c);
     ControllerMap::controllers["SA_E"]->closed_loop(0, msg->joint_e);
-    transaction_m.unlock();
     last_heartbeat_output_time = NOW;
 
     publish_sa_pos_data();
@@ -195,12 +171,10 @@ void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition
 
 void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg)
 {
-    transaction_m.lock();
     ControllerMap::controllers["SA_A"]->open_loop(msg->throttle[0]);
     ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1]);
     ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2]);
     ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3]);
-    transaction_m.unlock();
     last_heartbeat_output_time = NOW;
 
     publish_sa_pos_data();
@@ -208,9 +182,7 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
 
 void LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg)
 {
-    transaction_m.lock();
     ControllerMap::controllers["FOOT_SCOOP"]->limit_switch_enable(msg->enable);
-    transaction_m.unlock();
 }
 
 /*
