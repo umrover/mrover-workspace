@@ -43,7 +43,7 @@ private:
 
     inline static lcm::LCM *lcm_bus = nullptr;
 
-    std::mutex transaction_m;
+    inline static std::mutex transaction_m;
     
     //Empty object to pass to lcm subscribe
     class InternalHandler
