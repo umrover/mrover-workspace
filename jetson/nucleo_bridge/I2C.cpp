@@ -16,7 +16,7 @@ void I2C::init()
 //Performs an i2c transaction
 void I2C::transact(uint8_t addr, uint8_t cmd, uint8_t writeNum, uint8_t readNum, uint8_t *writeBuf, uint8_t *readBuf)
 {
-    transact_m.lock();
+    I2C_Lock(transact_m);
     if (file == -1)
     {
         printf("I2C Port never opened");
@@ -49,5 +49,4 @@ void I2C::transact(uint8_t addr, uint8_t cmd, uint8_t writeNum, uint8_t readNum,
     }
 
     memcpy(readBuf, buffer, readNum);
-    transact_m.unlock();
 }
