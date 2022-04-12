@@ -57,6 +57,10 @@ private:
 
         void gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
 
+        void zed_gimbal_cmd(LCM_INPUT, const ZedGimbalPosition *msg);
+
+        void zed_gimbal_data();
+
         void refreshAngles();
 
         void ra_pos_data();
