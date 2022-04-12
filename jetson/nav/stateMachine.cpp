@@ -230,3 +230,16 @@ lcm::LCM& StateMachine::getLCM() {
 double StateMachine::getDtSeconds() {
     return std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
 }
+
+void StateMachine::publishProjectedPoints(std::deque<Odometry> path, std::string pathType) {
+    // Construct vector from deque
+    std::vector<Odometry> arr(path.begin(), path.end());
+    ProjectedPoints projectedPoints{
+        .pattern_size  = static_cast<int32_t>(arr.size()),
+        .points = arr,
+        .path_type = pathType
+    };
+
+    std::string projectedPointsChannel = mConfig["lcmChannels"]["projectedPointsChannel"].GetString();
+    mLcmObject.publish(projectedPointsChannel, &projectedPoints);
+}

@@ -61,12 +61,6 @@
 		"projectedPointsChannel": "/projected_points"
 	},
 
-	"radioRepeaterThresholds":
-	{
-		"signalStrengthCutOff": 30.0,
-		"lowSignalWaitTime": 3
-	},
-
 	"search":
 	{
 		"order": [0, 1],
