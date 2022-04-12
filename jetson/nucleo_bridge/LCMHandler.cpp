@@ -21,7 +21,7 @@ void LCMHandler::init()
     lcm_bus->subscribe("/ra_ik_cmd", &LCMHandler::InternalHandler::ra_closed_loop_cmd, internal_object);
     lcm_bus->subscribe("/sa_ik_cmd", &LCMHandler::InternalHandler::sa_closed_loop_cmd, internal_object);
     lcm_bus->subscribe("/ra_openloop_cmd", &LCMHandler::InternalHandler::ra_open_loop_cmd, internal_object);
-    lcm_bus->subscribe("/sa_openloop_cmd", &LCMHandler::InternalHandler::sa_open_loop_cmd, internal_object);
+    //lcm_bus->subscribe("/sa_openloop_cmd", &LCMHandler::InternalHandler::sa_open_loop_cmd, internal_object);
     lcm_bus->subscribe("/mast_gimbal_cmd", &LCMHandler::InternalHandler::mast_gimbal_cmd, internal_object);
     lcm_bus->subscribe("/hand_openloop_cmd", &LCMHandler::InternalHandler::hand_openloop_cmd, internal_object);
     lcm_bus->subscribe("/foot_openloop_cmd", &LCMHandler::InternalHandler::foot_openloop_cmd, internal_object);
@@ -142,7 +142,7 @@ void LCMHandler::InternalHandler::refresh_quad_angles()
     ControllerMap::controllers["SA_B"]->quad_angle();
     ControllerMap::controllers["SA_C"]->quad_angle();
     ControllerMap::controllers["SA_E"]->quad_angle();
-    last_heartbeat_output_time = NOW;
+    //last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::refresh_calib_data()

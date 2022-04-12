@@ -12,17 +12,6 @@
 #include <unistd.h>
 #include <mutex>
 
-class I2C_Lock {
-public:
-    I2C_Lock(std::mutex &m) : i2c_m(m) {
-        i2c_m.lock();
-    };
-    ~I2C_Lock() {
-        i2c_m.unlock();
-    };
-private:
-    std::mutex &i2c_m;
-};
 
 struct IOFailure : public std::exception {};
 
