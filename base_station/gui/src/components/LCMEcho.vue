@@ -150,7 +150,6 @@
           {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
           {'topic': '/ik_arm_control', 'type': 'IkArmControl'},
           {'topic': '/imu', 'type': 'IMU'},
-          {'topic': '/kill_switch', 'type': 'KillSwitch'},
           {'topic': '/locked_joints', 'type': 'LockJoints'},
           {'topic': '/mast_gimbal_cmd', 'type': 'MastGimbalCmd'},
           {'topic': '/microscope', 'type': 'Microscope'},

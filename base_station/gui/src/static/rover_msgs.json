@@ -453,12 +453,6 @@
             "restart"
         ]
     ],
-    "KillSwitch": [
-        [
-            "boolean",
-            "killed"
-        ]
-    ],
     "LockJointE": [
         [
             "boolean",
@@ -1213,7 +1207,6 @@
         "IkEnabled",
         "IMU",
         "Joystick",
-        "KillSwitch",
         "LockJointE",
         "MicroCam",
         "Microscope",
