@@ -33,6 +33,8 @@ private:
 
     bool mHasPostOne = false, mHasPostTwo = false;
 
+    bool mHasNewPostUpdate = false;
+
     int mBaseGateId{};
 
 public:
@@ -45,6 +47,8 @@ public:
     void setBaseGateID(int baseGateId);
 
     int getBaseGateID() const;
+
+    bool hasNewPostUpdate() const;
 
     Target getLeftTarget();
 

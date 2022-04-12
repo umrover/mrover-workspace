@@ -63,6 +63,10 @@ void StateMachine::run() {
     }
 
     mEnv->updateTargets(mRover, mCourseProgress);
+    
+    if (mEnv->hasNewPostUpdate() && mEnv->hasGateLocation()){
+        mGateStateMachine->updateGateTraversalPath();
+    }
 
     publishNavState();
     NavState nextState = NavState::Unknown;
@@ -109,7 +113,6 @@ void StateMachine::run() {
                 nextState = mGateStateMachine->run();
                 break;
             }
-            case NavState::GateMakePath:
             case NavState::GateTraverse: {
                 nextState = mGateStateMachine->run();
                 break;
@@ -201,8 +204,6 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::SearchTurnAroundObs,  "Search Turn Around Obstacle"},
                     {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
                     {NavState::BeginGateSearch,      "Gate Prepare"},
-                    {NavState::GateMakePath,         "Gate Make Path"},
-                    {NavState::GateTraverse,         "Gate Drive Path"},
                     {NavState::GateTraverse,         "Gate Traverse"},
 
                     {NavState::Unknown,              "Unknown"}

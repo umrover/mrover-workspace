@@ -45,12 +45,16 @@ private:
 
     void publishGatePath();
 
+    Odometry getPointToFollow(Odometry curRoverLocation);
+
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
     const rapidjson::Document& mConfig;
 
     std::deque<Odometry> mPath;
+
+    size_t mPathIndex = 0;
 
     void makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env);
 

@@ -40,13 +40,14 @@ void Environment::setTargets(TargetList const& targets) {
     Target const& leftTarget = targets.targetList[0];
     Target const& rightTarget = targets.targetList[1];
     if (leftTarget.id < 0 || leftTarget.distance < 0.0) {
+        //std::cout << "no left readings: decrementing" << std::endl;
         mLeftBearingFilter.decrementCount();
         mLeftDistanceFilter.decrementCount();
         if (mLeftBearingFilter.filterCount() == 0) {
             mTargetLeft.id = -1;
         }
     } else {
-        std::cout << "adding left readings" << std::endl;
+        //std::cout << "adding left readings" << std::endl;
         mLeftBearingFilter.push(leftTarget.bearing);
         mLeftDistanceFilter.push(leftTarget.distance);
         mTargetLeft.bearing = mLeftBearingFilter.get();
@@ -61,7 +62,7 @@ void Environment::setTargets(TargetList const& targets) {
             mTargetRight.id = -1;
         }
     } else {
-        std::cout << "adding right readings" << std::endl;
+        //std::cout << "adding right readings" << std::endl;
         mRightBearingFilter.push(rightTarget.bearing);
         mRightDistanceFilter.push(rightTarget.distance);
         mTargetRight.bearing = mRightBearingFilter.get();
@@ -71,6 +72,7 @@ void Environment::setTargets(TargetList const& targets) {
 }
 
 void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
+    mHasNewPostUpdate = false;
     if (rover->autonState().is_auton) {
         bool rightReady = isRightTargetFilterReady();
         bool leftReady = isLeftTargetFilterReady();
@@ -81,11 +83,13 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
 //                std::cout << "updated post 1" << std::endl;
                 mPostOne = createOdom(rover->odometry(), currentBearing + mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
                 mHasPostOne = true;
+                mHasNewPostUpdate = true;
             }
             if (mTargetRight.id == mBaseGateId + 1) {
 //                std::cout << "updated post 2" << std::endl;
                 mPostTwo = createOdom(rover->odometry(), currentBearing + mRightBearingFilter.get(), mRightDistanceFilter.get(), rover);
                 mHasPostTwo = true;
+                mHasNewPostUpdate = true;
             }
         }
         if (leftReady) {
@@ -95,11 +99,13 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
 //                std::cout << "updated post 1" << std::endl;
                 mPostOne = createOdom(rover->odometry(), currentBearing + mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
                 mHasPostOne = true;
+                mHasNewPostUpdate = true;
             }
             if (mTargetLeft.id == mBaseGateId + 1) {
 //                std::cout << "updated post 2" << std::endl;
                 mPostTwo = createOdom(rover->odometry(), currentBearing + mLeftBearingFilter.get(), mLeftDistanceFilter.get(), rover);
                 mHasPostTwo = true;
+                mHasNewPostUpdate = true;
             }
         }
     } else {
@@ -107,6 +113,10 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
         double cosine = cos(degreeToRadian(rover->odometry().latitude_deg, rover->odometry().latitude_min));
         rover->setLongMeterInMinutes(60 / (EARTH_CIRCUM * cosine / 360));
     }
+}
+
+bool Environment::hasNewPostUpdate() const {
+    return mHasNewPostUpdate;
 }
 
 bool Environment::hasGateLocation() const {

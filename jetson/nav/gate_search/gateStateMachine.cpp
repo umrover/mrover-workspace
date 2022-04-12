@@ -18,10 +18,18 @@ GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, con
 GateStateMachine::~GateStateMachine() = default;
 
 void GateStateMachine::updateGateTraversalPath() {
-    //TODO: update the gatePath vector here with a path to go to
-//    std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
-//    Odometry leftPost = env->getLeftPostLocation();
-//    Odometry rightPost = env->getRightPostLocation();
+    std::shared_ptr<StateMachine> sm = mStateMachine.lock();
+    std::shared_ptr<Environment> env = sm->getEnv();
+    std::shared_ptr<Rover> rover = sm->getRover();
+    mPath.clear();
+    makeSpiderPath(rover, env);
+}
+
+//gets the point that the rover should follow off the path
+//the farthest along point on the path that doesn't intersect with the gate
+Odometry GateStateMachine::getPointToFollow(Odometry curRoverLocation){
+    //todo: optimize away the prep point
+    return mPath[mPathIndex];
 }
 
 // Execute loop through gate state machine.
@@ -33,31 +41,19 @@ NavState GateStateMachine::run() {
     publishGatePath();
     switch (rover->currentState()) {
         case NavState::BeginGateSearch: {
-            mPath.clear();
-            return NavState::GateMakePath;
-        }
-        case NavState::GateMakePath: {
-//            mPath.push_back(createOdom(rover->odometry(), {4.0, 0.0}, rover));
-//            mPath.push_back(createOdom(rover->odometry(), {4.0, 4.0}, rover));
-            // if (env->areTargetFiltersReady()) {
-            makeSpiderPath(rover, env);
-//                makeDualSegmentPath(rover, env);
-//                return NavState::GateTraverse;
-            // } else {
-            //    rover->stop();
-            //    mPath.clear();
-            //}
-            //return NavState::GateMakePath;
+            mPathIndex = 0;
+            return NavState::GateTraverse;
         }
         case NavState::GateTraverse: {
-            if (mPath.empty()) {
+            if (mPathIndex == mPath.size()) {
 //                std::exit(1);
                 return NavState::Done;
             } else {
-                Odometry const& front = mPath.front();
+                Odometry const& toFollow = getPointToFollow(rover->odometry());
                 double dt = sm->getDtSeconds();
-                if (rover->drive(front, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
-                    mPath.pop_front();
+                if (rover->drive(toFollow, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+                    std::cout << mPathIndex << std::endl;
+                    ++mPathIndex;
                 }
             }
             return NavState::GateTraverse;
@@ -106,8 +102,6 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
                               (-2 * approachDistance * perp) + p1,
                               (-2 * approachDistance * perp) + p2};
 
-    // TODO: add logic to go to farthest point along the path that doesn't collide with gate
-
     // find closest prep point
     double minNorm = -1.0;
     Vector2d prepPoint;
@@ -136,19 +130,19 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
 //    std::cout << prepPoint.x() << ", " << prepPoint.y() << " , " << approachPoint.x() << " , " << approachPoint.y()) << std::endl;
     Odometry prepOdom = createOdom(cur, prepPoint, rover);
     Odometry approachOdom = createOdom(cur, approachPoint, rover);
+    Odometry centerOdom = createOdom(cur, center, rover);
     Odometry victoryOdom = createOdom(cur, victoryPoint, rover);
     mPath.push_back(prepOdom);
     mPath.push_back(approachOdom);
+    mPath.push_back(centerOdom);
     mPath.push_back(victoryOdom);
 
-    printPoint(p1);
-    printPoint(p2);
-    printPoint(prepPoint);
-    printPoint(approachPoint);
-    printPoint(center);
-    printPoint(victoryPoint);
-
-    std::cout << "finished making path" << std::endl;
+    // printPoint(p1);
+    // printPoint(p2);
+    // printPoint(prepPoint);
+    // printPoint(approachPoint);
+    // printPoint(center);
+    // printPoint(victoryPoint);
 }
 
 // Creates an GateStateMachine object

@@ -132,3 +132,9 @@ bool isObstacleDetected(const std::shared_ptr<Rover>& rover, const std::shared_p
 bool isObstacleInThreshold(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig) {
     return env->getObstacle().distance <= roverConfig["navThresholds"]["obstacleDistanceThreshold"].GetDouble();
 } // isObstacleInThreshold()
+
+Vector2d createVectorBetweenOdoms(const Odometry& origin, const Odometry destination){
+    double bearing = radianToDegree(estimateBearing(origin, destination));
+    double distance = estimateDistance(origin, destination);
+    return {cos(bearing) * distance, sin(bearing) * distance};
+}//createVectorBetweenOdoms

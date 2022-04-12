@@ -69,7 +69,7 @@ int main() {
         env->setTargets(*targetList);
     };
     lcm.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback);
-
+    stateMachine->setGateSearcher();
     while (lcm.handle() == 0) {
         stateMachine->run();
     }
