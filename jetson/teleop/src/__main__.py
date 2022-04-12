@@ -166,9 +166,8 @@ class Drive:
 
 def gimbal_control_callback(channel, msg):
     keyboardData = Keyboard.decode(msg)
-    print("mast gimbal call back")
 
-    pitchData = [float(keyboardData.w - keyboardData.s),
+    pitchData = [0.4 * float(keyboardData.w - keyboardData.s),
                  float(keyboardData.i - keyboardData.k)]
 
     yawData = [float(keyboardData.d - keyboardData.a),
@@ -177,8 +176,6 @@ def gimbal_control_callback(channel, msg):
     gimbal_msg = MastGimbalCmd()
     gimbal_msg.pitch = pitchData
     gimbal_msg.yaw = yawData
-
-    print("mast gimbal call back end")
 
     lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
 
