@@ -5,10 +5,10 @@
   </div>
   <div class="box1 select">
     <label for="site">Choose a site:</label>
-    <select v-model = "site" name="site" id="site">
-      <option value="0">Site 0</option>
-      <option value="1">Site 1</option>
-      <option value="2">Site 2</option>
+    <select v-model="site" name="site" id="site">
+      <option value=0>Site 0</option>
+      <option value=1>Site 1</option>
+      <option value=2>Site 2</option>
     </select>
   </div>
   <div class="box1 heaters" :class="{'active': heaters[site].intended}">
@@ -96,7 +96,7 @@ export default {
 
   methods: {
     toggleHeater: function(id) {
-      this.sendHeaterCmd(id, !this.heaters[id].intended);
+      this.sendHeaterCmd(parseInt(id), !this.heaters[id].intended);
     },
     
     sendHeaterCmd: function(id, enabled) {
