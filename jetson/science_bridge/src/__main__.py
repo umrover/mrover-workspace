@@ -20,6 +20,7 @@ class Auton_state(Enum):
     DONE = 1
     OFF = 2
 
+
 # Mapping of LCM mosfet devices to actual mosfet devices
 class Mosfet_devices(Enum):
     RED_LED = 3
@@ -31,10 +32,12 @@ class Mosfet_devices(Enum):
     UV_BULB = 6
     RAMAN_LASER = 10
 
+
 Mosfet_Map = [Mosfet_devices.RED_LED, Mosfet_devices.GREEN_LED, \
               Mosfet_devices.BLUE_LED, Mosfet_devices.RA_LASER, \
               Mosfet_devices.UV_LED, Mosfet_devices.WHITE_LED, \
               Mosfet_devices.UV_BULB, Mosfet_devices.RAMAN_LASER] 
+
 
 # Mapping of Heater devices to actual mosfet devices
 class Heater_devices(Enum):
@@ -42,7 +45,9 @@ class Heater_devices(Enum):
     HEATER_1 = 8
     HEATER_2 = 9
 
+
 Heater_Map = [Heater_devices.HEATER_0, Heater_devices.HEATER_1, Heater_devices.HEATER_2]
+
 
 UART_TRANSMIT_MSG_LEN = 30
 
@@ -98,7 +103,7 @@ class ScienceBridge():
             # There are 3 spectral sensors, each having 6 channels.
             # We read a uint16_t from each channel.
             # The jetson reads byte by byte, so the program combines every two byte of information
-            # into a uint16_t. 
+            # into a uint16_t.
             count = 0
             for var in struct_variables:
                 if (not (count > len(arr))):
@@ -141,7 +146,7 @@ class ScienceBridge():
             # There are 18 channels.
             # We read a uint16_t from each channel.
             # The jetson reads byte by byte, so the program combines every two byte of information
-            # into a uint16_t. 
+            # into a uint16_t.
             count = 0
             for var in struct_variables:
                 if (not (count > len(arr))):
@@ -263,7 +268,7 @@ class ScienceBridge():
         elif struct.nav_state_name == "Done":
             print("navstatus Done")
             # Flashing by turning on and off for 1 second intervals
-            
+
             NUMBER_OF_LED_BLINKS = 6
 
             for i in range(NUMBER_OF_LED_BLINKS):
