@@ -16,7 +16,6 @@ void Controller::make_live()
 
     try
     {
-	printf("MAKE LIVE BEING CALLED on %s\n", name.c_str());
         // turn on
         transact(ON, nullptr, nullptr);
 
