@@ -66,7 +66,7 @@ export default {
           if (this.scoopUVActive && this.shutdownActive) {
             this.scoopUVActive = false
           }
-        }, 2 * 6000) // 2 minutes
+        }, 2 * 60000) // 2 minutes
       }
       else {
         clearTimeout(this.timeoutID)
