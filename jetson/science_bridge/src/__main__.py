@@ -253,8 +253,7 @@ class ScienceBridge():
         # Off, Done, Else
 
         struct = NavStatus.decode(msg)
-        message = "$Mosfet,{device},{enable}"  # TODO - PROBABLY OUTDATED, WRONG PADDING
-        # All Leds are 1 digit so hardcode in padding
+        message = "$Mosfet,{device},{enable}" 
 
         # Off = Blue
         if struct.nav_state_name == "Off":
@@ -271,12 +270,13 @@ class ScienceBridge():
             NUMBER_OF_LED_BLINKS = 6
 
             for i in range(NUMBER_OF_LED_BLINKS):
-                # TODO - VERIFY IF THIS IS ALLOWED IN PYTHON
-                green_on = message.format(device=Mosfet_devices.GREEN_LED, enable=1)
+                green_on = message.format(device=Mosfet_devices.GREEN_LED, 
+                                          enable=1)
                 green_on = self.add_padding(green_on)
                 self.ser.write(bytes(green_on, encoding='utf-8'))
                 time.sleep(1)
-                green_off = message.format(device=Mosfet_devices.GREEN_LED, enable=0)
+                green_off = message.format(device=Mosfet_devices.GREEN_LED, 
+                                           enable=0)
                 green_off = self.add_padding(green_off)
                 self.ser.write(bytes(green_off, encoding='utf-8'))
                 time.sleep(1)
