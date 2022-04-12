@@ -121,7 +121,7 @@ void LCMHandler::InternalHandler::refresh_calib_data()
     ControllerMap::controllers["RA_B"]->refresh_calibration_data();
 }
 
-void LCMHandler::InternalHandler::refresh_refresh_turn_count()
+void LCMHandler::InternalHandler::refresh_turn_count()
 {
     ControllerMap::controllers["RA_F"]->refresh_turn_count();
 }

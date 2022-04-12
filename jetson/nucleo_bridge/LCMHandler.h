@@ -60,7 +60,7 @@ private:
 
         void refresh_calib_data();
 
-        void refresh_refresh_turn_count();
+        void refresh_turn_count();
 
         void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
 
