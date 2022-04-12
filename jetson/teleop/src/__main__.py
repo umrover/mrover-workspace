@@ -1,5 +1,6 @@
 import asyncio
 from math import copysign
+from enum import Enum
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
@@ -218,18 +219,26 @@ async def transmit_drive_status():
 
 
 class ArmControl:
+    class ArmType(Enum):
+        UNKNOWN = 0
+        RA = 1
+        SA = 2
 
     def __init__(self):
         self.arm_control_state = "off"
         self.wrist_turn_count = 0
+        self.arm_type = self.ArmType.UNKNOWN
 
     def arm_control_state_callback(self, channel, msg):
         self.arm_control_state = ArmControlState.decode(msg)
         if (self.arm_control_state != "open-loop"):
-            send_sa_kill()
-            send_ra_kill()
+            if self.arm_type is self.ArmType.RA:
+                send_ra_kill()
+            elif self.arm_type is self.ArmType.SA:
+                send_sa_kill()
 
     def ra_control_callback(self, channel, msg):
+        self.arm_type = self.ArmType.RA
 
         xboxData = Xbox.decode(msg)
 
@@ -261,6 +270,7 @@ class ArmControl:
         self.wrist_turn_count = WristTurnCount.decode(msg).turn_count - 2
 
     def sa_control_callback(self, channel, msg):
+        self.arm_type = self.ArmType.SA
         xboxData = Xbox.decode(msg)
 
         saMotorsData = [deadzone(quadratic(xboxData.left_js_x), 0.09),
