@@ -91,6 +91,11 @@ class ScienceBridge():
         '''
         self.ser.close()
 
+    def add_padding(self, msg):
+        while(len(msg) < UART_TRANSMIT_MSG_LEN):
+            msg += ","
+        return msg
+
     def spectral_handler(self, m, spectral_struct):
         # msg format: <"$SPECTRAL,d0_1,d0_2, .... , d2_6">
         try:
@@ -239,8 +244,7 @@ class ScienceBridge():
         message = message.format(device=translated_device,
                                  enable=int(struct.enable))
         print(message)
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            message += ","
+        message = self.add_padding(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
@@ -307,8 +311,7 @@ class ScienceBridge():
         message = "$Servo,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
         print(message)
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            message += ","
+        message = self.add_padding(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
