@@ -4,14 +4,17 @@
       <h3> Scoop UV Bulb </h3>
     </div>
 
-    <div :class="{'active': scoopActive}">
-      <ToggleButton id="scoop_button" labelEnableText="Scoop UV On" labelDisableText="Scoop UV Off" v-on:change="toggleScoop()"/>
-    </div>
+  <div :class="{'active': scoopActive}">
+    <ToggleButton id="scoop_button" labelEnableText="Scoop UV On" labelDisableText="Scoop UV Off" v-on:change="UVshutdown()"/>
+  </div>
+    
+  <div :class="{'active': shutdownActive}">
+    <ToggleButton id="shutdown" :defaultState="true" labelEnableText="UV Auto shutoff On" labelDisableText="UV Auto shutoff Off" v-on:change="switchShutdown()"/>
+  </div>
 
-    <div :class="{'active': scoopLimitActive}">
-      <ToggleButton id="scoop_limit_switch" :defaultState="true" labelEnableText="Limit Switch On" labelDisableText="Limit Switch Off" v-on:change="toggleLimit()"/>
-    </div>
-
+  <div :class="{'active': scoopLimitActive}">
+    <ToggleButton id="scoop_limit_switch" :defaultState="true" labelEnableText="Scoop Limit Switch On" labelDisableText="Scoop Limit Switch Off" v-on:change="toggleLimit()"/>
+  </div>
 </div>  
 </template>
 
@@ -22,7 +25,9 @@ export default {
   data () {
     return {
       scoopActive: false,
-      scoopLimitActive: true
+      scoopLimitActive: true,
+      shutdownActive: true,
+      timeoutID: true
     }
   },
 
@@ -54,25 +59,15 @@ export default {
         'enable': val
       })
     },
-
-    scoop_limit(val) {
-      this.$parent.publish("/scoop_limit_switch_enable_cmd", {
-        'type': 'ScoopLimitSwitchEnable',
-        'enable': val
-      })
-    }
-  },
-
-  methods: {
-    toggleUVBulb: function() {
-      this.uv_bulb = !this.uv_bulb
-
-      if (this.uv_bulb) {
+    
+    UVshutdown: function() {
+      this.scoopActive = !this.scoopActive
+      this.setPart(this.mosfetIDs.uv_bulb, this.scoopActive);
+      if (this.shutdownActive === true) {
+        clearTimeout(this.timeoutID);
         this.timeoutID = setTimeout(() => {
-          if (this.uv_bulb && this.shutdown) {
-            this.uv_bulb = false
-          }
-        }, 2 * 60000) // 2 minutes
+          this.setPart(this.mosfetIDs.uv_bulb, false);
+        }, 120000) //2 minutes
       }
       else {
         clearTimeout(this.timeoutID)

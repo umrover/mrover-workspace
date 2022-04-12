@@ -99,12 +99,12 @@ export default {
   methods: {
     toggle_whiteLEDS: function () {
       this.whiteLEDS_active = !this.whiteLEDS_active
-      this.setPart(this.mosfetIDs.whiteLED, this.whiteLEDS_active)
+      this.setPart(this.mosfetIDs.white_led, this.whiteLEDS_active)
     },
 
     toggle_UVLED: function () {
       this.UVLED_active = !this.UVLED_active
-      this.setPart(this.mosfetIDs.UVLED, this.UVLED_active)
+      this.setPart(this.mosfetIDs.uv_led, this.UVLED_active)
     },
     
     setPart: function(id, enabled) {

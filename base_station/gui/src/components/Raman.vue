@@ -33,7 +33,7 @@ export default {
     methods: {
       toggleRaman: function () {
         this.ramanActive = !this.ramanActive
-        this.setPart(this.mosfetIDs.ramanLaser, this.ramanActive)
+        this.setPart(this.mosfetIDs.raman_laser, this.ramanActive)
       },
       
       setPart: function(id, enabled) {
