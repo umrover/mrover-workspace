@@ -10,8 +10,46 @@ import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
-    NavStatus, ServoCmd, CarouselData, CarouselClosedLoopCmd, CarouselOpenLoopCmd, \
+    NavStatus, ServoCmd, CarouselPosition, CarouselOpenLoopCmd, \
     Heater, HeaterAutoShutdown
+from enum import Enum
+
+
+class Auton_state(Enum):
+    ELSE = 0
+    DONE = 1
+    OFF = 2
+
+
+# Mapping of LCM mosfet devices to actual mosfet devices
+class Mosfet_devices(Enum):
+    RED_LED = 3
+    GREEN_LED = 4
+    BLUE_LED = 5
+    RA_LASER = 3
+    UV_LED = 4
+    WHITE_LED = 5
+    UV_BULB = 6
+    RAMAN_LASER = 10
+
+
+Mosfet_Map = [Mosfet_devices.RED_LED, Mosfet_devices.GREEN_LED,
+              Mosfet_devices.BLUE_LED, Mosfet_devices.RA_LASER,
+              Mosfet_devices.UV_LED, Mosfet_devices.WHITE_LED,
+              Mosfet_devices.UV_BULB, Mosfet_devices.RAMAN_LASER]
+
+
+# Mapping of Heater devices to actual mosfet devices
+class Heater_devices(Enum):
+    HEATER_0 = 7
+    HEATER_1 = 8
+    HEATER_2 = 9
+
+
+Heater_Map = [Heater_devices.HEATER_0, Heater_devices.HEATER_1, Heater_devices.HEATER_2]
+
+
+UART_TRANSMIT_MSG_LEN = 30
 
 
 class ScienceBridge():
@@ -27,7 +65,7 @@ class ScienceBridge():
             "HEATER": self.heater_state_handler,
             "AUTOSHUTOFF": self.heater_shutoff_handler
         }
-        self.last_openloop_cmd = -100
+        self.last_openloop_cmd = -1
         self.max_error_count = 20
         self.sleep = .01
 
@@ -37,7 +75,8 @@ class ScienceBridge():
         '''
         self.ser = serial.Serial(
             # port='/dev/ttyS4',
-            port='/dev/ttyTHS1',
+            # port='/dev/ttyTHS1',  # used on science nano
+            port='/dev/ttyTHS0',
             baudrate=38400,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -60,9 +99,14 @@ class ScienceBridge():
             struct_variables = ["d0_1", "d0_2", "d0_3", "d0_4", "d0_5", "d0_6",
                                 "d1_1", "d1_2", "d1_3", "d1_4", "d1_5", "d1_6",
                                 "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
-            count = 1
+
+            # There are 3 spectral sensors, each having 6 channels.
+            # We read a uint16_t from each channel.
+            # The jetson reads byte by byte, so the program combines every two byte of information
+            # into a uint16_t.
+            count = 0
             for var in struct_variables:
-                if (not (count >= len(arr))):
+                if (not (count > len(arr))):
                     setattr(spectral_struct, var, 0xFFFF & ((np.uint8(arr[count]) << 8) | (np.uint8(arr[count + 1]))))
                 else:
                     setattr(spectral_struct, var, 0)
@@ -92,14 +136,20 @@ class ScienceBridge():
     def triad_handler(self, m, triad_struct):
         # msg format: <"$TRIAD,d0_1,d0_2, .... , d2_6">
         try:
+
             m.split(',')
             arr = [s.strip().strip('\x00') for s in m.split(',')]
             struct_variables = ["d0_1", "d0_2", "d0_3", "d0_4", "d0_5", "d0_6",
                                 "d1_1", "d1_2", "d1_3", "d1_4", "d1_5", "d1_6",
                                 "d2_1", "d2_2", "d2_3", "d2_4", "d2_5", "d2_6"]
-            count = 1
+
+            # There are 18 channels.
+            # We read a uint16_t from each channel.
+            # The jetson reads byte by byte, so the program combines every two byte of information
+            # into a uint16_t.
+            count = 0
             for var in struct_variables:
-                if (not (count >= len(arr))):
+                if (not (count > len(arr))):
                     pass
                     setattr(triad_struct, var, 0xFFFF & ((np.uint8(arr[count+1]) << 8) | (np.uint8(arr[count]))))
                 else:
@@ -108,10 +158,6 @@ class ScienceBridge():
         except Exception as e:
             print("triad exception:", e)
             pass
-
-        # parse the spectral UART msg
-        # add in relevant error handling
-        # set the struct variables
 
     def txt_handler(self, msg, struct):
         '''
@@ -141,10 +187,7 @@ class ScienceBridge():
         # msg format: <"$auto_shutoff,device,enabled">
         try:
             arr = msg.split(",")
-            enabled = False
-            if (arr[1] == "1"):
-                enabled = True
-            print(enabled)
+            enabled = bool(int(arr[1]))
             struct.auto_shutdown_enabled = enabled
         except Exception as e:
             print(e)
@@ -153,16 +196,17 @@ class ScienceBridge():
         # Upon Receiving a heater on/off command, send a command for the appropriate mosfet
         print("Heater cmd callback")
         struct = Heater.decode(msg)
-        message = "$Mosfet,{device},{enable},1111111"
+        message = "$Mosfet,{device},{enable},"
 
-        # Heater/Nichromes are 5-7 so(assuming 0 index) add 7 to get the appropriate mosfet
-        translated_device = struct.device + 7
+        # Heater/Nichromes mosfet devices 7, 8, and 9, so add 7 to get the appropriate mosfet
+
+        translated_device = Heater_Map[struct.device]
         message = message.format(device=translated_device,
                                  enable=int(struct.enabled))
 
-        while(len(message) < 30):
-            # Add an extra 1 for padding
-            message += "1"
+        while(len(message) < UART_TRANSMIT_MSG_LEN):
+            # Add extra , for padding
+            message += ","
         print(message)
         self.ser.close()
         self.ser.open()
@@ -173,11 +217,11 @@ class ScienceBridge():
     def heater_auto_transmit(self, channel, msg):
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
         struct = HeaterAutoShutdown.decode(msg)
-        message = "$AutoShutoff,{enable},1111"
+        message = "$AutoShutoff,{enable}"
         message = message.format(enable=int(struct.auto_shutdown_enabled))
-        while(len(message) < 30):
-            # Add an extra 1 for padding
-            message += "1"
+        while(len(message) < UART_TRANSMIT_MSG_LEN):
+            # add extra , for padding
+            message += ","
         print(message)
         self.ser.close()
         self.ser.open()
@@ -189,29 +233,13 @@ class ScienceBridge():
         print("Mosfet callback")
         struct = MosfetCmd.decode(msg)
 
-        message = "$Mosfet,{device},{enable},1111111"
-        translated_device = struct.device
-        # Translate individual pins to their respective nucleo pin
-        # Laser and UV LED share pins 1 and 2
-        # const int8_t rLed = 0;
-        # const int8_t gLed = 1;
-        # const int8_t bLed = 2;
-        # const int8_t Laser = 3;
-        # const int8_t UVLED = 4;
-        # const int8_t whiteLED = 5;
-        # const int8_t uvBulb = 6;
-        # const int8_t nichWire0 = 7;
-        # const int8_t nichWire1 = 8;
-        # const int8_t nichWire2 = 9;
-        # const int8_t ramanLaser = 10;
-        # Starts from 0-2 for all the leds
-        # Resets to 1 starting at Laser(3) so offset by 2
-        # if (translated_device > 2):
-        #     translated_device -= 2
+        message = "$Mosfet,{device},{enable}"
+        translated_device = Mosfet_Map[struct.device]
+
         message = message.format(device=translated_device,
                                  enable=int(struct.enable))
         print(message)
-        while(len(message) < 30):
+        while(len(message) < UART_TRANSMIT_MSG_LEN):
             message += ","
         self.ser.close()
         self.ser.open()
@@ -225,39 +253,50 @@ class ScienceBridge():
         # Off, Done, Else
 
         struct = NavStatus.decode(msg)
-        message = "$Mosfet,{device},{enable},11111111"  # TODO - PROBABLY OUTDATED, WRONG PADDING
+        message = "$Mosfet,{device},{enable}"  # TODO - PROBABLY OUTDATED, WRONG PADDING
         # All Leds are 1 digit so hardcode in padding
 
         # Off = Blue
         if struct.nav_state_name == "Off":
             print("navstatus off")
-            offmessage = message.format(device=2, enable=1) + "1"
-            self.ser.write(bytes(offmessage, encoding='utf-8'))
-            prev = 2
+            message.format(device=Mosfet_devices.BLUE_LED, enable=1)
+            while(len(message) < UART_TRANSMIT_MSG_LEN):
+                message += ","
+            self.ser.write(bytes(message, encoding='utf-8'))
+            prev = Auton_state.OFF
         # Done = Flashing green
         elif struct.nav_state_name == "Done":
             print("navstatus Done")
             # Flashing by turning on and off for 1 second intervals
-            # Maybe change to
-            for i in range(0, 6):  # TODO - CHANGE TO RANGE (6)
-                self.ser.write(bytes(message.format(device=1, enable=1), encoding='utf-8'))
+
+            NUMBER_OF_LED_BLINKS = 6
+
+            for i in range(NUMBER_OF_LED_BLINKS):
+                # TODO - VERIFY IF THIS IS ALLOWED IN PYTHON
+                message.format(device=Mosfet_devices.GREEN_LED, enable=1)
+                while(len(message) < UART_TRANSMIT_MSG_LEN):
+                    message += ","
+                self.ser.write(bytes(message, encoding='utf-8'))
                 time.sleep(1)
-                self.ser.write(bytes(message.format(device=1, enable=0), encoding='utf-8'))
+                message.format(device=Mosfet_devices.GREEN_LED, enable=0)
+                while(len(message) < UART_TRANSMIT_MSG_LEN):
+                    message += ","
+                self.ser.write(bytes(message, encoding='utf-8'))
                 time.sleep(1)
-                prev = 1
+                prev = Auton_state.DONE
         # Everytime else = Red
         else:
             print("navstatus else")
-            messageon = message.format(device=0, enable=1)
-            self.ser.write(bytes(messageon, encoding='utf-8'))
-            prev = 0
+            message.format(device=Mosfet_devices.RED_LED, enable=1)
+            self.ser.write(bytes(message, encoding='utf-8'))
+            prev = Auton_state.ELSE
         time.sleep(1)
         # Green should be in a finished state so no need to turn it off
-        if (prev != 2):
-            self.ser.write(bytes(message.format(device=2, enable=0),
+        if (prev != Auton_state.OFF):
+            self.ser.write(bytes(message.format(device=Mosfet_devices.GREEN_LED, enable=0),
                                  encoding='utf-8'))
-        if (prev != 0):
-            self.ser.write(bytes(message.format(device=0, enable=0),
+        if (prev != Auton_state.ELSE):
+            self.ser.write(bytes(message.format(device=Mosfet_devices.RED_LED, enable=0),
                                  encoding='utf-8'))
 
     def servo_transmit(self, channel, msg):
@@ -268,7 +307,7 @@ class ScienceBridge():
         message = "$Servo,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
         print(message)
-        while(len(message) < 30):
+        while(len(message) < UART_TRANSMIT_MSG_LEN):
             message += ","
         self.ser.close()
         self.ser.open()
@@ -286,7 +325,7 @@ class ScienceBridge():
         message = "$OpenCarousel,{throttle}"
         message = message.format(throttle=struct.throttle)
         print(message)
-        while(len(message) < 30):
+        while(len(message) < UART_TRANSMIT_MSG_LEN):
             message += ","
         self.ser.close()
         self.ser.open()
@@ -294,14 +333,14 @@ class ScienceBridge():
             self.ser.write(bytes(message, encoding='utf-8'))
 
     def carousel_closedloop_transmit(self, channel, msg):
-        self.last_openloop_cmd = -100
-        struct = CarouselClosedLoopCmd.decode(msg)
+        self.last_openloop_cmd = -1
+        struct = CarouselPosition.decode(msg)
         print("Received Carousel (CL) Cmd")
         # parse data into expected format
         message = "$Carousel,{position}"
         message = message.format(position=struct.position)
         print(message)
-        while(len(message) < 30):
+        while(len(message) < UART_TRANSMIT_MSG_LEN):
             message += ","
         self.ser.close()
         self.ser.open()
@@ -312,9 +351,9 @@ class ScienceBridge():
         spectral = SpectralData()
         thermistor = ThermistorData()
         triad = SpectralData()
-        carousel = CarouselData()
+        carousel = CarouselPosition()
         heater = Heater()
-        heater_auto = HeaterAutoShutdown()
+        heater_auto_shutdown = HeaterAutoShutdown()
 
         # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True
@@ -357,8 +396,8 @@ class ScienceBridge():
                                 self.heater_state_handler(msg, heater)
                                 lcm.publish('/heater_state_data', heater.encode())
                             elif (tag == "AUTOSHUTOFF"):
-                                self.heater_shutoff_handler(msg, heater_auto)
-                                lcm.publish('/heater_auto_shutdown_data', heater_auto.encode())
+                                self.heater_shutoff_handler(msg, heater_auto_shutdown)
+                                lcm.publish('/heater_auto_shutdown_data', heater_auto_shutdown.encode())
                             seen_tags[tag] = True  # TODO - move to top so not hidden, or just don't use.
                         except Exception as e:
                             print(e)

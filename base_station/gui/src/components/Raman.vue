@@ -42,8 +42,8 @@ export default {
           'device': id,
           'enable': enabled
         })
-      },
-    },
+      }
+    }
 }
 </script>
 

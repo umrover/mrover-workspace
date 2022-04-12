@@ -172,7 +172,6 @@ export default {
         {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
-        {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/ra_position', 'type': 'RAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
