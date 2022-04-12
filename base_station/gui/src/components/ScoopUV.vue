@@ -3,13 +3,13 @@
   <div>
     <h3> Scoop UV Bulb </h3>
   </div>
-  <label for="toggle_button" :class="{'active': uvBulb == 1}" class="toggle__button">
-      <span v-if="uvBulb == 1" class="toggle__label" >Scoop UV On</span>
-      <span v-if="uvBulb == 0" class="toggle__label" >Scoop UV Off</span>
+  <label for="toggle_button" :class="{'active': uv_bulb == 1}" class="toggle__button">
+      <span v-if="uv_bulb == 1" class="toggle__label" >Scoop UV On</span>
+      <span v-if="uv_bulb == 0" class="toggle__label" >Scoop UV Off</span>
 
       <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="uvBulb == 0" v-on:click="uvBulb = 1, UVshutdown(true)"></span>
-      <span class="toggle__switch" v-if="uvBulb == 1" v-on:click="uvBulb = 0, UVshutdown(false)"></span>
+      <span class="toggle__switch" v-if="uv_bulb == 0" v-on:click="uv_bulb = 1, UVshutdown(true)"></span>
+      <span class="toggle__switch" v-if="uv_bulb == 1" v-on:click="uv_bulb = 0, UVshutdown(false)"></span>
   </label>
   <div class="shutdown">
     <label for="toggle_button" :class="{'active': shutdown == 1}" class="toggle__button">
@@ -108,7 +108,7 @@
 export default {
   data () {
     return {
-      uvBulb: 0,
+      uv_bulb: 0,
       shutdown: 1,
       timeoutID: 1,
       scoopLimit: 1
@@ -130,12 +130,12 @@ export default {
     },
     
     UVshutdown: function(status) {
-      this.setPart(this.mosfetIDs.uvBulb, status);
+      this.setPart(this.mosfetIDs.uv_bulb, status);
       if (this.shutdown === 1) {
         clearTimeout(this.timeoutID);
         this.timeoutID = setTimeout(() => {
-          this.uvBulb = 0;
-          this.setPart(this.mosfetIDs.uvBulb, false);
+          this.uv_bulb = 0;
+          this.setPart(this.mosfetIDs.uv_bulb, false);
         }, 120000) //2 minutes
       }
       else {

@@ -223,7 +223,6 @@ export default {
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/autonomous', 'type': 'Joystick'},
         {'topic': '/temperature', 'type': 'Temperature'},
-        {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},

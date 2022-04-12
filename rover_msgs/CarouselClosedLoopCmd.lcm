@@ -1,6 +1,0 @@
-package rover_msgs;
-
-struct CarouselClosedLoopCmd {
-	// 0 is C, 1 is B, 2 is A
-	int8_t position;
-}

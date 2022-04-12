@@ -2,7 +2,7 @@ import asyncio
 import math
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
+from rover_msgs import (Joystick, DriveVelCmd,
                         Xbox, Temperature, RAOpenLoopCmd,
                         SAOpenLoopCmd, MastGimbalCmd, HandCmd,
                         Keyboard, FootCmd, ArmControlState)
@@ -219,17 +219,6 @@ async def transmit_temperature():
         await asyncio.sleep(1)
 
 
-async def transmit_drive_status():
-    global kill_motor
-    while True:
-        new_kill = KillSwitch()
-        new_kill.killed = kill_motor
-        with await lock:
-            lcm_.publish('/kill_switch', new_kill.encode())
-        # print("Published new kill message: {}".format(kill_motor))
-        await asyncio.sleep(1)
-
-
 def sa_control_callback(channel, msg):
     xboxData = Xbox.decode(msg)
 
@@ -267,7 +256,7 @@ def gimbal_control_callback(channel, msg):
 
 
 def main():
-    hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
+    hb = heartbeatlib.JetsonHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
     lcm_.subscribe("/drive_control", drive_control_callback)
     lcm_.subscribe("/autonomous", autonomous_callback)
@@ -278,4 +267,4 @@ def main():
     # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
 
     run_coroutines(hb.loop(), lcm_.loop(),
-                   transmit_temperature(), transmit_drive_status())
+                   transmit_temperature())

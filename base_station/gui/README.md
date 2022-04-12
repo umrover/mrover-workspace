@@ -31,13 +31,6 @@ Subscriptions: SATask.vue, AutonTask.vue, RATask.vue
 Publishers: N/A
 Usage: 
 
-KillSwitch
-"/kill_switch"
-File: KillSwitch.lcm
-Subscritions: SATask.vue, AutonTask.vue, RATask.vue
-Publishers: N/A
-Usage: 
-
 NavStatus
 "/nav_status"
 File: NavStatus.lcm
