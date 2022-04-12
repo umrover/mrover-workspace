@@ -156,6 +156,17 @@ export default {
       if (this.controlMode === 'open-loop') {
         return
       }
+      else {
+        this.setControlMode('off')
+      }
+
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': this.controlMode
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+    },
 
       if (this.controlMode === 'closed-loop') {
         this.$refs['closed-loop'].toggle()

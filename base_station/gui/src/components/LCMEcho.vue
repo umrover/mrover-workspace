@@ -126,6 +126,8 @@
           {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
           {'topic': '/arm_motors', 'type': 'OpenLoopRAMotor'},
           {'topic': '/arm_toggles_button_data', 'type': 'ArmToggles'},
+          {'topic': '/arm_position', 'type': 'ArmPosition'},
+          {'topic': '/arm_preset', 'type': 'ArmPreset'},
           {'topic': '/arm_toggles_toggle_data', 'type': 'ArmToggles'},
           {'topic': '/arm_preset', 'type': 'ArmPreset'},
           {'topic': '/auton', 'type': 'AutonState'},
