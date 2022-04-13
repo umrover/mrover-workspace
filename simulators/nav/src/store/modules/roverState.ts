@@ -98,6 +98,9 @@ const getters = {
 
   obstacleMessage: (roverState:RoverState):ObstacleMessage => roverState.obstacleMessage,
 
+  projectedPointsMessage:
+  (roverState:RoverState):ProjectedPointsMessage => roverState.projectedPointsMessage,
+
   radioStrength: (roverState:RoverState):number => roverState.radioSignalStrength,
 
   targetList: (roverState:RoverState):TargetListMessage => roverState.targetList,

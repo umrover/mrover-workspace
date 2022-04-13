@@ -270,10 +270,11 @@ export interface RoverState {
 export interface SimulationSettings {
   simulateLoc:boolean;
   simulatePercep:boolean;
-  noisePercent:number;
-  noiseGPSPercent:number;
   enableLCM:boolean;
   enableFOVView:boolean;
+  enableProjectedPoints:boolean;
+  noisePercent:number;
+  noiseGPSPercent:number;
 }
 
 
