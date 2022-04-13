@@ -33,10 +33,10 @@ class Mosfet_devices(Enum):
     RAMAN_LASER = 10
 
 
-Mosfet_Map = [Mosfet_devices.RED_LED, Mosfet_devices.GREEN_LED,
-              Mosfet_devices.BLUE_LED, Mosfet_devices.RA_LASER,
-              Mosfet_devices.UV_LED, Mosfet_devices.WHITE_LED,
-              Mosfet_devices.UV_BULB, Mosfet_devices.RAMAN_LASER]
+Mosfet_Map = [Mosfet_devices.RED_LED.value, Mosfet_devices.GREEN_LED.value,
+              Mosfet_devices.BLUE_LED.value, Mosfet_devices.RA_LASER.value,
+              Mosfet_devices.UV_LED.value, Mosfet_devices.WHITE_LED.value,
+              Mosfet_devices.UV_BULB.value, Mosfet_devices.RAMAN_LASER.value]
 
 
 # Mapping of Heater devices to actual mosfet devices
@@ -46,7 +46,7 @@ class Heater_devices(Enum):
     HEATER_2 = 9
 
 
-Heater_Map = [Heater_devices.HEATER_0, Heater_devices.HEATER_1, Heater_devices.HEATER_2]
+Heater_Map = [Heater_devices.HEATER_0.value, Heater_devices.HEATER_1.value, Heater_devices.HEATER_2.value]
 
 
 UART_TRANSMIT_MSG_LEN = 30
@@ -209,9 +209,7 @@ class ScienceBridge():
         message = message.format(device=translated_device,
                                  enable=int(struct.enabled))
 
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            # Add extra , for padding
-            message += ","
+        message = self.add_padding(message)
         print(message)
         self.ser.close()
         self.ser.open()
@@ -224,9 +222,7 @@ class ScienceBridge():
         struct = HeaterAutoShutdown.decode(msg)
         message = "$AutoShutoff,{enable}"
         message = message.format(enable=int(struct.auto_shutdown_enabled))
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            # add extra , for padding
-            message += ","
+        message = self.add_padding(message)
         print(message)
         self.ser.close()
         self.ser.open()
@@ -262,7 +258,7 @@ class ScienceBridge():
         # Off = Blue
         if struct.nav_state_name == "Off":
             print("navstatus off")
-            blue = message.format(device=Mosfet_devices.BLUE_LED, enable=1)
+            blue = message.format(device=Mosfet_devices.BLUE_LED.value, enable=1)
             blue = self.add_padding(blue)
             self.ser.write(bytes(blue, encoding='utf-8'))
             prev = Auton_state.OFF
@@ -274,12 +270,12 @@ class ScienceBridge():
             NUMBER_OF_LED_BLINKS = 6
 
             for i in range(NUMBER_OF_LED_BLINKS):
-                green_on = message.format(device=Mosfet_devices.GREEN_LED,
+                green_on = message.format(device=Mosfet_devices.GREEN_LED.value,
                                           enable=1)
                 green_on = self.add_padding(green_on)
                 self.ser.write(bytes(green_on, encoding='utf-8'))
                 time.sleep(1)
-                green_off = message.format(device=Mosfet_devices.GREEN_LED,
+                green_off = message.format(device=Mosfet_devices.GREEN_LED.value,
                                            enable=0)
                 green_off = self.add_padding(green_off)
                 self.ser.write(bytes(green_off, encoding='utf-8'))
@@ -288,18 +284,18 @@ class ScienceBridge():
         # Everytime else = Red
         else:
             print("navstatus else")
-            red = message.format(device=Mosfet_devices.RED_LED, enable=1)
+            red = message.format(device=Mosfet_devices.RED_LED.value, enable=1)
             red = self.add_padding(red)
             self.ser.write(bytes(red, encoding='utf-8'))
             prev = Auton_state.ELSE
         time.sleep(1)
         # Green should be in a finished state so no need to turn it off
         if (prev != Auton_state.OFF):
-            green_off = message.format(device=Mosfet_devices.GREEN_LED, enable=0)
+            green_off = message.format(device=Mosfet_devices.GREEN_LED.value, enable=0)
             green_off = self.add_padding(green_off)
             self.ser.write(bytes(green_off, encoding='utf-8'))
         if (prev != Auton_state.ELSE):
-            red_off = message.format(device=Mosfet_devices.RED_LED, enable=0)
+            red_off = message.format(device=Mosfet_devices.RED_LED.value, enable=0)
             red_off = self.add_padding(red_off)
             self.ser.write(bytes(red_off, encoding='utf-8'))
 
