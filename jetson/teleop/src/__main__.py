@@ -134,6 +134,9 @@ class ArmControl:
 
     def ra_control_callback(self, channel, msg):
         self.arm_type = self.ArmType.RA
+        
+        if (self.arm_control_state == "calibrating"):
+            return
 
         xboxData = Xbox.decode(msg)
 
@@ -166,6 +169,10 @@ class ArmControl:
 
     def sa_control_callback(self, channel, msg):
         self.arm_type = self.ArmType.SA
+        
+        if (self.arm_control_state == "calibrating")
+            return
+
         xboxData = Xbox.decode(msg)
 
         saMotorsData = [quadratic(deadzone(xboxData.left_js_x, 0.15)),
@@ -184,7 +191,7 @@ class ArmControl:
         lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
     def send_ra_kill(self):
-        if self.arm_type is not self.ArmType.RA:
+        if self.arm_type != self.ArmType.RA:
             return
 
         arm_motor = RAOpenLoopCmd()
@@ -197,7 +204,7 @@ class ArmControl:
         lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
     def send_sa_kill(self):
-        if self.arm_type is not self.ArmType.SA:
+        if self.arm_type != self.ArmType.SA:
             return
 
         sa_motor = SAOpenLoopCmd()
@@ -209,6 +216,25 @@ class ArmControl:
         foot_msg.scoop = 0
         foot_msg.microscope_triad = 0
         lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
+    
+    def joint_b_calibratiion_callback(self, channel, msg):
+        self.arm_control_state = "calibrating"
+
+        if self.arm_type == self.ArmType.RA:
+            raMotorsData = [0, 1, 0, 0, 0, 0]
+            
+            ra_openloop_msg = RAOpenLoopCmd()
+            ra_openloop_msg.throttle = raMotorsData
+
+            lcm_.publish('/ra_openloop_cmd', ra_openloop_msg.encode())
+        
+        elif self.arm_type == self.ArmType.SA:
+            saMotorsData = [0, 1, 0, 0]
+
+            sa_openloop_msg = SAOpenLoopCmd()
+            sa_openloop_msg.throttle = saMotorsData
+            
+            lcm_.publish('/sa_openloop_cmd', sa_openloop_msg.encode())
 
 
 def main():
