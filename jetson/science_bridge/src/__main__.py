@@ -23,10 +23,10 @@ class Auton_state(Enum):
 
 # Mapping of LCM mosfet devices to actual mosfet devices
 class Mosfet_devices(Enum):
-    RED_LED = 3
+    RED_LED = 10
     GREEN_LED = 4
     BLUE_LED = 5
-    RA_LASER = 3
+    RA_LASER = 10
     UV_LED = 4
     WHITE_LED = 5
     UV_BULB = 6
@@ -90,6 +90,11 @@ class ScienceBridge():
         Closes serial connection to nucleo
         '''
         self.ser.close()
+
+    def add_padding(self, msg):
+        while(len(msg) < UART_TRANSMIT_MSG_LEN):
+            msg += ","
+        return msg
 
     def spectral_handler(self, m, spectral_struct):
         # msg format: <"$SPECTRAL,d0_1,d0_2, .... , d2_6">
@@ -239,8 +244,7 @@ class ScienceBridge():
         message = message.format(device=translated_device,
                                  enable=int(struct.enable))
         print(message)
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            message += ","
+        message = self.add_padding(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
@@ -253,16 +257,14 @@ class ScienceBridge():
         # Off, Done, Else
 
         struct = NavStatus.decode(msg)
-        message = "$Mosfet,{device},{enable}"  # TODO - PROBABLY OUTDATED, WRONG PADDING
-        # All Leds are 1 digit so hardcode in padding
+        message = "$Mosfet,{device},{enable}" 
 
         # Off = Blue
         if struct.nav_state_name == "Off":
             print("navstatus off")
-            message.format(device=Mosfet_devices.BLUE_LED, enable=1)
-            while(len(message) < UART_TRANSMIT_MSG_LEN):
-                message += ","
-            self.ser.write(bytes(message, encoding='utf-8'))
+            blue = message.format(device=Mosfet_devices.BLUE_LED, enable=1)
+            blue = self.add_padding(blue)
+            self.ser.write(bytes(blue, encoding='utf-8'))
             prev = Auton_state.OFF
         # Done = Flashing green
         elif struct.nav_state_name == "Done":
@@ -272,32 +274,34 @@ class ScienceBridge():
             NUMBER_OF_LED_BLINKS = 6
 
             for i in range(NUMBER_OF_LED_BLINKS):
-                # TODO - VERIFY IF THIS IS ALLOWED IN PYTHON
-                message.format(device=Mosfet_devices.GREEN_LED, enable=1)
-                while(len(message) < UART_TRANSMIT_MSG_LEN):
-                    message += ","
-                self.ser.write(bytes(message, encoding='utf-8'))
+                green_on = message.format(device=Mosfet_devices.GREEN_LED, 
+                                          enable=1)
+                green_on = self.add_padding(green_on)
+                self.ser.write(bytes(green_on, encoding='utf-8'))
                 time.sleep(1)
-                message.format(device=Mosfet_devices.GREEN_LED, enable=0)
-                while(len(message) < UART_TRANSMIT_MSG_LEN):
-                    message += ","
-                self.ser.write(bytes(message, encoding='utf-8'))
+                green_off = message.format(device=Mosfet_devices.GREEN_LED, 
+                                           enable=0)
+                green_off = self.add_padding(green_off)
+                self.ser.write(bytes(green_off, encoding='utf-8'))
                 time.sleep(1)
                 prev = Auton_state.DONE
         # Everytime else = Red
         else:
             print("navstatus else")
-            message.format(device=Mosfet_devices.RED_LED, enable=1)
-            self.ser.write(bytes(message, encoding='utf-8'))
+            red = message.format(device=Mosfet_devices.RED_LED, enable=1)
+            red = self.add_padding(red)
+            self.ser.write(bytes(red, encoding='utf-8'))
             prev = Auton_state.ELSE
         time.sleep(1)
         # Green should be in a finished state so no need to turn it off
         if (prev != Auton_state.OFF):
-            self.ser.write(bytes(message.format(device=Mosfet_devices.GREEN_LED, enable=0),
-                                 encoding='utf-8'))
+            green_off = message.format(device=Mosfet_devices.GREEN_LED, enable=0)
+            green_off = self.add_padding(green_off)
+            self.ser.write(bytes(green_off, encoding='utf-8'))
         if (prev != Auton_state.ELSE):
-            self.ser.write(bytes(message.format(device=Mosfet_devices.RED_LED, enable=0),
-                                 encoding='utf-8'))
+            red_off = message.format(device=Mosfet_devices.RED_LED, enable=0)
+            red_off = self.add_padding(red_off)
+            self.ser.write(bytes(red_off, encoding='utf-8'))
 
     def servo_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
@@ -307,8 +311,7 @@ class ScienceBridge():
         message = "$Servo,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
         print(message)
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            message += ","
+        message = self.add_padding(message)
         self.ser.close()
         self.ser.open()
         if self.ser.isOpen():
