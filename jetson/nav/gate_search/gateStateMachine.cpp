@@ -30,7 +30,7 @@ NavState GateStateMachine::run() {
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
 
-    publishGatePath();
+    sm->publishProjectedPoints(mPath, "gate");
     switch (rover->currentState()) {
         case NavState::BeginGateSearch: {
             mPath.clear();
@@ -155,17 +155,3 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig) {
     return std::make_shared<GateStateMachine>(sm, roverConfig);
 } // GateFactory()
-
-// Sends search path rover takes when trying to find posts
-void GateStateMachine::publishGatePath() {
-    // Construct vector from deque
-    std::vector<Odometry> arr(mPath.begin(), mPath.end());
-    SearchPoints gatePathPoints{
-        .search_pattern_size  = (int32_t)arr.size(),
-        .points = arr
-    };
-
-    std::string gatePathChannel = mConfig["lcmChannels"]["gatePathChannel"].GetString();
-    mStateMachine.lock()->getLCM().publish(gatePathChannel, &gatePathPoints);
-
-} // publishSearchPoints()

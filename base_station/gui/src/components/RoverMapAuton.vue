@@ -11,12 +11,12 @@
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
       </l-marker>
 
-      <l-marker :lat-lng="search_point.latLng" :icon="searchPointIcon" v-for="(search_point, index) in searchPoints" :key="index">
-         <l-tooltip :options="{ permanent: 'true', direction: 'top'}">Search {{ index }}</l-tooltip>
+      <l-marker :lat-lng="projected_point.latLng" :icon="projectedPointIcon" v-for="(projected_point, index) in projectedPoints" :key="index">
+         <l-tooltip :options="{ permanent: 'true', direction: 'top'}">{{ projectedPointsType }} {{ index }}</l-tooltip>
       </l-marker>
 
       <l-polyline :lat-lngs="this.playbackEnabled ? polylinePlaybackPath : polylinePath" :color="'red'" :dash-array="'5, 5'"/>
-      <l-polyline :lat-lngs="searchPath" :color="'black'" :dash-array="'5, 5'" :fill="false"/>
+      <l-polyline :lat-lngs="projectedPath" :color="'black'" :dash-array="'5, 5'" :fill="false"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
       <l-polyline :lat-lngs="playbackPath" :color="'green'"/>
     </l-map>
@@ -64,15 +64,25 @@ export default {
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
-    this.searchPointIcon = L.icon({
-      iconUrl: '/static/map_marker_search.png',
+    this.projectedPointIcon = L.icon({
+      iconUrl: '/static/map_marker_projected.png',
       iconSize: [64, 64],
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
 
-    this.$parent.subscribe('/search_points', (msg) => {
-      this.fillSearchPoints(msg.points)
+    this.$parent.subscribe('/projected_points', (msg) => {
+      let newProjectedList = msg.points
+      this.projectedPoints = newProjectedList.map((projected_point) => {
+        return {
+          latLng: L.latLng(
+            projected_point.latitude_deg + projected_point.latitude_min/60,
+            projected_point.longitude_deg + projected_point.longitude_min/60
+          )
+        }
+      })
+
+      this.projectedPointsType = msg.path_type
     })
   },
 
@@ -97,8 +107,8 @@ export default {
       return [this.odomLatLng].concat(this.route.map(waypoint => waypoint.latLng))
     },
 
-    searchPath: function () {
-      return [this.odomLatLng].concat(this.searchPoints.map(search_point => search_point.latLng))
+    projectedPath: function () {
+      return [this.odomLatLng].concat(this.projectedPoints.map(projected_point => projected_point.latLng))
     },
 
     polylinePlaybackPath: function () {
@@ -119,7 +129,10 @@ export default {
       locationIcon: null,
       tangentIcon: null,
       odomPath: [],
-      searchPoints: [],
+
+      projectedPoints: [],
+      projectedPointsType: '',
+
       findRover: false,
 
       playbackPath: [],
@@ -155,14 +168,6 @@ export default {
             lon: e.latlng.lng
           }
         )
-    },
-    
-    fillSearchPoints: function (newSearchList) {
-      this.searchPoints = newSearchList.map((search_point) => {
-        return {
-          latLng: L.latLng(search_point.latitude_deg + search_point.latitude_min/60, search_point.longitude_deg + search_point.longitude_min/60)
-        };
-      });
     },
 
     ...mapMutations('autonomy',{

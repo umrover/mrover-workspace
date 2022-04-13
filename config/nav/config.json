@@ -58,14 +58,7 @@
 		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
 		"zedGimbalPosition": "/zed_gimbal_data",
-		"searchPointsChannel": "/search_points",
-		"gatePathChannel": "/gate_path"
-	},
-
-	"radioRepeaterThresholds":
-	{
-		"signalStrengthCutOff": 30.0,
-		"lowSignalWaitTime": 3
+		"projectedPointsChannel": "/projected_points"
 	},
 
 	"search":

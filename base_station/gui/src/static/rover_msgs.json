@@ -673,14 +673,18 @@
             "micro_z"
         ]
     ],
-    "SearchPoints": [
+    "ProjectedPoints": [
         [
             "int32_t",
-            "search_pattern_size"
+            "pattern_size"
         ],
         [
             "Odometry[]",
             "points"
+        ],
+        [
+            "string",
+            "path_type"
         ]
     ],
     "SensorPackage": [

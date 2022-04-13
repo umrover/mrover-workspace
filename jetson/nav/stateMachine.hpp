@@ -50,6 +50,8 @@ public:
 
     double getDtSeconds();
 
+    void publishProjectedPoints(std::deque<Odometry> path, std::string pathType);
+
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
