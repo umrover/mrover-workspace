@@ -14,8 +14,6 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
 
 
 lcm_ = aiolcm.AsyncLCM()
-prev_killed = False
-kill_motor = False
 lock = asyncio.Lock()
 connection = None
 
@@ -131,10 +129,8 @@ class ArmControl:
     def arm_control_state_callback(self, channel, msg):
         self.arm_control_state = ArmControlState.decode(msg)
         if (self.arm_control_state != "open-loop"):
-            if self.arm_type is self.ArmType.RA:
-                self.send_ra_kill()
-            elif self.arm_type is self.ArmType.SA:
-                self.send_sa_kill()
+            self.send_ra_kill()
+            self.send_sa_kill()
 
     def ra_control_callback(self, channel, msg):
         self.arm_type = self.ArmType.RA
@@ -221,15 +217,13 @@ def main():
     drive = Drive(reverse=False)
 
     def connection_state_changed(c, _):
-        global kill_motor, prev_killed, connection
+        global connection
         if c:
             print("Connection established.")
-            kill_motor = prev_killed
             connection = True
         else:
             connection = False
             print("Disconnected.")
-            prev_killed = kill_motor
             drive.send_drive_kill()
             arm.send_ra_kill()
             arm.send_sa_kill()
