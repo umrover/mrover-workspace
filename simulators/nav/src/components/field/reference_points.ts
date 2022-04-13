@@ -2,7 +2,7 @@
    points on the canvas. */
 
 import { odomToCanvas } from '../../utils/utils';
-import { Odom, Point2D, ProjectedPointsMessage} from '../../utils/types';
+import { Odom, Point2D, ProjectedPointsMessage } from '../../utils/types';
 
 /**************************************************************************************************
  * Constants

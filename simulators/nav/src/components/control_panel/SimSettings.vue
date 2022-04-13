@@ -6,8 +6,8 @@
   <fieldset class="box">
     <legend>Settings</legend>
     <div class="sim-settings">
-      <div class="row">
-        <div class="column1">
+      <div class="container">
+        <div class="columnWithBorder">
           <div class="field-size first setting">
             <p>Field Size (m):</p>
             <NumberInput
@@ -39,27 +39,30 @@
             />
           </div>
         </div>
-        <div class="column2">
-          <div class="noise">
-            <p>Perception Noise (%):</p>
-            <NumberInput
-              :val.sync="noisePercentIn"
-              :precision="2"
-              :min="0"
-              :max="100"
-              :step="10"
-            />
+        <div class="columnNoBorder">
+          <div class="container">
+            <div class="columnNoBorder">
+              <p>Perception Noise (%):</p>
+              <NumberInput
+                :val.sync="noisePercentIn"
+                :precision="2"
+                :min="0"
+                :max="100"
+                :step="10"
+              />
+            </div>
+            <div class="columnNoBorder">
+              <p>GPS Noise (%):</p>
+              <NumberInput
+                :val.sync="noiseGPSPercentIn"
+                :precision="2"
+                :min="0"
+                :max="100"
+                :step="5"
+              />
+            </div>
           </div>
-          <div class="noiseGPS">
-            <p>GPS Noise (%):</p>
-            <NumberInput
-              :val.sync="noiseGPSPercentIn"
-              :precision="2"
-              :min="0"
-              :max="100"
-              :step="5"
-            />
-          </div>
+          <p>Projected Points Path Type: {{ path_type }}</p>
           <div class="enableFOVView">
             <Checkbox
               :on="enableFOVView"
@@ -85,7 +88,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { OdomFormat, RadioOption } from '../../utils/types';
+import { OdomFormat, RadioOption, ProjectedPointsMessage } from '../../utils/types';
 import Checkbox from '../common/Checkbox.vue';
 import NumberInput from '../common/NumberInput.vue';
 import RadioSelector from '../common/RadioSelector.vue';
@@ -124,6 +127,9 @@ export default class SimSettings extends Vue {
 
   @Getter
   private readonly enableFOVView!:boolean;
+
+  @Getter
+  private readonly projectedPointsMessage!:ProjectedPointsMessage;
 
   /************************************************************************************************
    * Vuex Mutations
@@ -173,7 +179,6 @@ export default class SimSettings extends Vue {
   private set fieldSizeIn(newFieldSize:number) {
     this.setFieldSize(newFieldSize);
   }
-
   private get noisePercentIn():number {
     return this.noisePercent;
   }
@@ -185,6 +190,10 @@ export default class SimSettings extends Vue {
   }
   private set noiseGPSPercentIn(newNoisePercent:number) {
     this.setGPSNoisePercent(newNoisePercent);
+  }
+
+  private get path_type():string {
+    return this.projectedPointsMessage.path_type;
   }
 
   /************************************************************************************************
@@ -205,16 +214,11 @@ export default class SimSettings extends Vue {
 }
 
 .odom-format p {
-  margin-right: 3px;
+  margin-right: 0px;
 }
 
 p {
   display: inline-block;
-  margin: auto;
-}
-
-.setting {
-  margin-right: 10px;
 }
 
 .setting:last-child {
@@ -226,19 +230,18 @@ p {
   flex-wrap: wrap;
 }
 
-.row {
-  flex-direction: row;
+.container {
+  border: 0px;
   display: flex;
   width: 100%;
 }
-.column1 {
-  flex: 50%;
-  width: 100%;
-  border-right: 1px solid black;
-  margin-right: 10px;
+
+.columnWithBorder {
+  width: 50%;
+  border-right:1px solid black;
 }
-.column2 {
-  width: 100%;
-  flex: 50%;
+
+.columnNoBorder {
+  width: 50%;
 }
 </style>
