@@ -1,5 +1,5 @@
 [Unit]
-Description=MRover Onboard Raman Spectroscope
+Description=MRover Jetson Raman Spectroscope
 
 [Service]
 EnvironmentFile=/etc/default/rover.env

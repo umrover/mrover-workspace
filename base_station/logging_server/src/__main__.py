@@ -91,9 +91,9 @@ def make_science_directories():
     microcam_dir = os.path.join(os.environ['HOME'], 'science-data/MicroCam')
     if not os.path.exists(microcam_dir):
         os.makedirs(microcam_dir)
-    pi_dir = os.path.join(os.environ['HOME'], 'science-data/PiPictures')
-    if not os.path.exists(pi_dir):
-        os.makedirs(pi_dir)
+    pic_dir = os.path.join(os.environ['HOME'], 'science-data/Pictures')
+    if not os.path.exists(pic_dir):
+        os.makedirs(pic_dir)
     raman_dir = os.path.join(os.environ['HOME'], 'science-data/Raman')
     if not os.path.exists(raman_dir):
         os.makedirs(raman_dir)

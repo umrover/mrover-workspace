@@ -1,104 +1,122 @@
 <template>
-<div class="wrap">
-    <div>
-        <h3> Strip Test Controls </h3>
-    </div>
-    <div class="controls">
-        <div class="strip_test">
-            <label for="strip">Perform strip test on strip:</label>
-                <select v-model = "strip" name="strip" id="strip">
-                    <option value=2>A</option>
-                    <option value=1>B</option>
-                    <option value=0>C</option>
+<div class="status wrap" v-bind:style="{backgroundColor: current_background}">
+    <div class="inner_pad">
+        <div>
+            <h3> Strip Test Controls </h3>
+        </div>
+        <div class="controls">
+            <div>
+                <label for="strip">Perform strip test on strip:</label>
+                <select v-model="current_strip" name="strip" id="strip">
+                    <option value=0>0</option>
+                    <option value=1>1</option>
+                    <option value=2>2</option>
                 </select>
-            <div class="commands" v-if="strip == 2">
-                <button v-on:click="stripTestA()"> Start Strip A Test </button>
+                <div class="commands" v-if="!servos[current_strip].has_dipped">
+                    <button v-on:click="stripTest(current_strip)"> start strip {{ current_strip }} test </button>
+                </div>
             </div>
-            <div class="commands" v-if="strip == 1">
-                <button v-on:click="stripTestB()"> Start Strip B Test </button>
-            </div>
-            <div class="commands" v-if="strip == 0">
-                <button v-on:click="stripTestC()"> Start Strip C Test </button>
-            </div>
+        </div>
+        <button v-on:click="back_to_start()">Back to start</button>
+        <br>
+        <div class="input">
+            Angle: <input type='number' v-model.number="custom_angle">
+            <button v-on:click="userInput()">Move to angle</button>
         </div>
     </div>
 </div>
 </template>
 
-
 <script>
-const start = 90;
-const dip = 70;
-const picture = 100;
+const start_position = [80, 100, 100]
+const dip_position = [10, 30, 30]
+
+const undipped = '#A54657'
+const dipping = '#FABC2A'
+const dipped = '#AEF78E'
+const unknown = '#EEEEEE'
 
 export default {
     data () {
         return {
-            strip: 2,
-            angle0: start,
-            angle1: start,
-            angle2: start,
-            start: start,
-            dip: dip,
-            picture: picture
+            current_strip: 0,
+            current_background: undipped,
+
+            custom_angle: 0,
+
+            servos: [
+                {
+                    angle: start_position[0],
+                    has_dipped: false,
+                    color: undipped
+                },
+                {
+                    angle: start_position[1],
+                    has_dipped: false,
+                    color: undipped
+                },
+                {
+                    angle: start_position[2],
+                    has_dipped: false,
+                    color: undipped
+                }
+            ]
         }
     },
+
     methods: {
-        setPart: function() {
+        sendCommand: function() {
             this.$parent.publish("/servo_cmd", {
-            'type': 'ServoCmd',
-            'angle0': this.angle0,
-            'angle1': this.angle1,
-            'angle2': this.angle2
+                'type': 'ServoCmd',
+                'angle0': this.servos[0].angle,
+                'angle1': this.servos[1].angle,
+                'angle2': this.servos[2].angle
             })
         },
 
-        stripTestA: function() {
-            alert("Strip A test started");
-            this.angle2 = this.dip;
-            this.setPart();
+        stripTest: function(id) {
+            if (this.servos[id].has_dipped) {
+                return
+            }
+            this.servos[id].has_dipped = true
+            this.servos[id].angle = dip_position[id]
+            this.servos[id].color = dipping
+            this.current_background = dipping
+
+            this.sendCommand()
+
             setTimeout(() => {
-                alert("Taking strips out");
-                this.angle2 = this.picture;
-                this.setPart();
-                }, 10000);
-            setTimeout(() => {
-                this.angle2 = this.start;
-                this.setPart()
-                alert("Strip test completed");
-                }, 15000);
+                if (this.servos[id].angle === dip_position[id]) {
+                    this.servos[id].angle = start_position[id]
+                    this.servos[id].color = dipped
+                    this.current_background = dipped
+
+                    this.sendCommand()
+                }
+            }, 10000)
         },
 
-        stripTestB: function() {
-            alert("Strip B Test Started");
-            this.angle1 = this.dip;
-            this.setPart();
-            setTimeout(() => {
-                alert("Taking strips out");
-                this.angle1 = this.picture;
-                this.setPart();
-                }, 10000);
-            setTimeout(() => {
-                this.angle1 = this.start;
-                this.setPart();
-                alert("Strip test completed");
-                }, 15000);
+        back_to_start: function() {
+            this.updateCurrentStrip(start_position[this.current_strip], false, undipped)
         },
-        
-        stripTestC: function() {
-            alert("Strip C Test Started");
-            this.angle0 = this.dip;
-            this.setPart();
-            setTimeout(() => {
-                alert("Taking strips out");
-                this.angle0 = this.picture;
-                this.setPart();
-                }, 10000);
-            setTimeout(() => {
-                this.angle0 = this.start;
-                this.setPart();
-                alert("Strip test completed");
-                }, 15000);
+
+        userInput: function() {
+            this.updateCurrentStrip(this.custom_angle, true, unknown)
+        },
+
+        updateCurrentStrip: function(angle, has_dipped, color) {
+            this.servos[this.current_strip].angle = angle
+            this.servos[this.current_strip].has_dipped = has_dipped
+            this.servos[this.current_strip].color = color
+            this.current_background = color
+
+            this.sendCommand()
+        }
+    },
+
+    watch: {
+        current_strip: function(val) {
+            this.current_background = this.servos[val].color
         }
     }
 }
@@ -108,6 +126,17 @@ export default {
     .wrap {
         display: inline-block;
         align-content: center;
+    }
+    .status {
+        border-radius: 5px;
+        border: 1px solid black;
+        display: flex;
+        justify-content: space-around;
+        flex-direction: column;
+    }
+
+    .inner_pad {
+        padding: 10px;
     }
 
     .controls {

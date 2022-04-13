@@ -46,8 +46,9 @@ export default {
         hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);  
         hiddenElement.target = '_blank';  
         
-        //provide the name for the CSV file to be downloaded  
-        hiddenElement.download = 'Report'+ timeString+'.csv';  
+        //provide the name for the CSV file to be downloaded
+        let report_name = prompt("Enter filename:", timeString);  
+        hiddenElement.download = report_name+'.csv';  
         hiddenElement.click();  
     }  
     }

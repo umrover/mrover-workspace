@@ -14,8 +14,6 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
 
 
 lcm_ = aiolcm.AsyncLCM()
-prev_killed = False
-kill_motor = False
 lock = asyncio.Lock()
 connection = None
 
@@ -231,6 +229,7 @@ def main():
             print("Disconnected.")
             prev_killed = kill_motor
             drive.send_drive_kill()
+            # TODO: fix this?
             arm.send_ra_kill()
             arm.send_sa_kill()
 
