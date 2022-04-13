@@ -171,14 +171,8 @@ def send_zero_arm_command():
     lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
 
-<<<<<<< HEAD
 def arm_control_state_callback(channel, msg):
     arm_control_state = ArmControlState.decode(msg)
-=======
-        damp = (input_data.dampen - 1)/(2)
-        new_motor.left *= damp
-        new_motor.right *= damp
->>>>>>> main
 
     if arm_control_state != 'open-loop':
         send_zero_arm_command()
@@ -228,22 +222,6 @@ def ra_control_callback(channel, msg):
     lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
 
-<<<<<<< HEAD
-=======
-def autonomous_callback(channel, msg):
-    input_data = Joystick.decode(msg)
-    new_motor = DriveVelCmd()
-
-    joystick_math(new_motor, input_data.forward_back, input_data.left_right)
-
-    temp = new_motor.left
-    new_motor.left = new_motor.right
-    new_motor.right = temp
-
-    lcm_.publish('/drive_vel_cmd', new_motor.encode())
-
-
->>>>>>> main
 async def transmit_temperature():
     while True:
         new_temps = Temperature()
@@ -331,11 +309,6 @@ def main():
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/arm_control_state', arm_control_state_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
-<<<<<<< HEAD
-=======
-    lcm_.subscribe('/arm_control_state', arm_control_state_callback)
-    # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
->>>>>>> main
 
     run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())

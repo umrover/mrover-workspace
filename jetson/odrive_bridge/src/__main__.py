@@ -344,10 +344,7 @@ class Modrive:
     CURRENT_LIM = 4
     # scales normalized inputs to max physical speed of rover in turn/s
     SPEED_MULTIPLIER = 50
-<<<<<<< HEAD
     TURNS_TO_M_S_MULTIPLIER = 0.02513  # from turns/sec to m/s
-=======
->>>>>>> main
 
     def __init__(self, odr):
         self.odrive = odr
@@ -435,15 +432,9 @@ class Modrive:
 
     def get_vel_estimate(self, axis):
         if (axis == "LEFT"):
-<<<<<<< HEAD
             return self.left_axis.encoder.vel_estimate  # TODO add in * self.TURNS_TO_M_S_MULTIPLIER
         elif(axis == "RIGHT"):
             return self.right_axis.encoder.vel_estimate  # TODO add in * -self.TURNS_TO_M_S_MULTIPLIER
-=======
-            return self.left_axis.encoder.vel_estimate
-        elif(axis == "RIGHT"):
-            return self.right_axis.encoder.vel_estimate
->>>>>>> main
 
     def idle(self):
         self._requested_state(AXIS_STATE_IDLE)
