@@ -29,7 +29,17 @@ The user can edit the bitrate and the remote ip and ports by editing the jetson/
 
 In a docker container, do the equivalent of the following:
 
-Clone [jetson-utils](https://github.com/dusty-nv/jetson-utils) on the Jetson, make build folder, cd into that and run cmake .. then make. Without the jetson program, you can just run ```./aarch64/bin/video-viewer /dev/video0 rtp://10.0.0.1:5000 --headless``` on the jetson.
+Clone [jetson-utils](https://github.com/dusty-nv/jetson-utils) on the Jetson outside of mrover-workspace, make build folder, cd into that and run cmake .. then make. Without the jetson program, you can just run ```./aarch64/bin/video-viewer /dev/video0 rtp://10.0.0.1:5000 --headless``` on the jetson.
+
+```
+git clone https://github.com/dusty-nv/jetson-utils
+cd jetson-utils
+mkdir build
+cd build
+cmake ..
+make
+```
+
 
 Depending on your version of python, you may need to change the CMakeLists.txt inside the jetson-utils/python/ folder and include your version for the PYTHON_BINDING_VERSIONS. In addition to this, you should edit the jetson/cameras/src/\_\_main\_\_.py file and replace "/usr/lib/python3.6/dist-packages" with your version of python.  
 
@@ -43,4 +53,5 @@ Get jetson-utils in travis.
 - [ ] Verify that ansible scripts work on the jetson
 - [ ] Update to new LCM. Currently being worked on in [tabiosg/more_cameras](https://github.com/tabiosg/mrover-workspace/tree/more_cameras)
 - [ ] Map physical ports to video so cameras are known by default. Being worked on in [tabiosg/camera_good](https://github.com/tabiosg/mrover-workspace/tree/camera_good)
-= [ ] Fix up issue with microscope camera
+- [ ] Fix up issue with microscope camera
+- [ ] Camera program freezes if USB is disconnected while streaming
