@@ -109,9 +109,9 @@ class ScienceBridge():
             # We read a uint16_t from each channel.
             # The jetson reads byte by byte, so the program combines every two byte of information
             # into a uint16_t.
-            count = 0
+            count = 1
             for var in struct_variables:
-                if (not (count > len(arr))):
+                if (not (count >= len(arr))):
                     setattr(spectral_struct, var, 0xFFFF & ((np.uint8(arr[count]) << 8) | (np.uint8(arr[count + 1]))))
                 else:
                     setattr(spectral_struct, var, 0)
@@ -152,9 +152,9 @@ class ScienceBridge():
             # We read a uint16_t from each channel.
             # The jetson reads byte by byte, so the program combines every two byte of information
             # into a uint16_t.
-            count = 0
+            count = 1
             for var in struct_variables:
-                if (not (count > len(arr))):
+                if (not (count >= len(arr))):
                     pass
                     setattr(triad_struct, var, 0xFFFF & ((np.uint8(arr[count+1]) << 8) | (np.uint8(arr[count]))))
                 else:
@@ -257,7 +257,7 @@ class ScienceBridge():
         # Off, Done, Else
 
         struct = NavStatus.decode(msg)
-        message = "$Mosfet,{device},{enable}" 
+        message = "$Mosfet,{device},{enable}"
 
         # Off = Blue
         if struct.nav_state_name == "Off":
@@ -274,12 +274,12 @@ class ScienceBridge():
             NUMBER_OF_LED_BLINKS = 6
 
             for i in range(NUMBER_OF_LED_BLINKS):
-                green_on = message.format(device=Mosfet_devices.GREEN_LED, 
+                green_on = message.format(device=Mosfet_devices.GREEN_LED,
                                           enable=1)
                 green_on = self.add_padding(green_on)
                 self.ser.write(bytes(green_on, encoding='utf-8'))
                 time.sleep(1)
-                green_off = message.format(device=Mosfet_devices.GREEN_LED, 
+                green_off = message.format(device=Mosfet_devices.GREEN_LED,
                                            enable=0)
                 green_off = self.add_padding(green_off)
                 self.ser.write(bytes(green_off, encoding='utf-8'))
