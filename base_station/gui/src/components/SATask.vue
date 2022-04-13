@@ -8,7 +8,7 @@
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="cconnections.lcm" name="Driving" /></li>
+          <li><CommIndicator v-bind:connected="connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
