@@ -772,12 +772,6 @@
             "speed"
         ]
     ],
-    "SensorSwitch": [
-        [
-            "boolean",
-            "should_record"
-        ]
-    ],
     "Sensors": [
         [
             "int64_t",
@@ -1220,7 +1214,6 @@
         "SAPosition",
         "SensorPackage",
         "Sensors",
-        "SensorSwitch",
         "Servo",
         "ServoCmd",
         "SetDemand",

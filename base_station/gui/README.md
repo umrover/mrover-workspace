@@ -3,12 +3,6 @@
 ### Base Station GUI LCMs
 
 #### All GUIs:
-Camera 
-"/camera_servos"
-File: CameraServos.lcm
-Subscritions: SATask.vue, AutonTask.vue, RATask.vue
-Publishers: N/A
-Usage: 
 
 DebugMessage
 "/debug_message"
@@ -45,19 +39,6 @@ Subscritions: SATask.vue, AutonTask.vue, RATask.vue
 Publishers: N/A
 Usage: Displays odometry data on GUIs
 
-Sensors
-"/sensors
-File: Sensors.lcm
-Subscritions: SATask.vue, AutonTask.vue, RATask.vue
-Publishers: N/A
-Usage: 
-
-Temperature
-"/temperature
-File: Temperature.lcm
-Subscritions: SATask.vue, AutonTask.vue, RATask.vue
-Publishers: N/A
-Usage: 
 
 #### Science GUI:
 MosfetCmd
@@ -88,3 +69,9 @@ File: Autonomous.lcm
 Subscriptions: 
 Publishers: N/A
 Usage: 
+
+# ToDo
+
+[] Update README with LCMs (see existing PR #985 in umrover/mrover-workspace)
+[] Update Raman Mosfet to be 7 instead of 10
+[] Remove extra white space from Science GUI

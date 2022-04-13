@@ -8,7 +8,6 @@
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="connections.motors && connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
@@ -203,8 +202,6 @@ export default {
           this.Joystick = msg.message
         } else if (msg.topic === '/rr_drop_complete') {
           this.repeater_dropped = true
-        } else if (msg.topic === '/kill_switch') {
-          this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/obstacle') {
           this.Obstacle = msg.message
         } else if (msg.topic === '/target_list') {
@@ -220,10 +217,7 @@ export default {
       // Subscriptions
       [
         {'topic': '/odometry', 'type': 'Odometry'},
-        {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/autonomous', 'type': 'Joystick'},
-        {'topic': '/temperature', 'type': 'Temperature'},
-        {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
@@ -274,8 +268,6 @@ export default {
       servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
       servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
       this.lastServosMessage = servosMessage
-
-      this.lcm_.publish('/camera_servos', servosMessage)
     }, 100)
   },
 

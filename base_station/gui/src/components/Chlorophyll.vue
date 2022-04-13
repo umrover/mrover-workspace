@@ -5,13 +5,13 @@
       <h3> Chlorophyll Data</h3>
     </div>
 
-    <label for="toggle_button" :class="{'active': white_ledS == 1}" class="toggle__button">
-      <span v-if="white_ledS == 1" class="toggle__label" >White LEDs On</span>
-      <span v-if="white_ledS == 0" class="toggle__label" >White LEDs Off</span>
+    <label for="toggle_button" :class="{'active': white_led == 1}" class="toggle__button">
+      <span v-if="white_led == 1" class="toggle__label" >White LEDs On</span>
+      <span v-if="white_led == 0" class="toggle__label" >White LEDs Off</span>
 
       <input type="checkbox" id="toggle_button">
-        <span class="toggle__switch" v-if="white_ledS == 0" v-on:click="white_ledS=1, setPart(mosfetIDs.white_led, true)"></span>
-        <span class="toggle__switch" v-if="white_ledS == 1" v-on:click="white_ledS=0, setPart(mosfetIDs.white_led, false)"></span>
+        <span class="toggle__switch" v-if="white_led == 0" v-on:click="white_led=1, setPart(mosfetIDs.white_led, true)"></span>
+        <span class="toggle__switch" v-if="white_led == 1" v-on:click="white_led=0, setPart(mosfetIDs.white_led, false)"></span>
     </label>
 
     <label for="toggle_button" :class="{'active': uv_led == 1}" class="toggle__button">
@@ -210,7 +210,7 @@ import GenerateReport from './GenerateReport.vue';
 export default {
   data () {
     return {
-      white_ledS: 0,
+      white_led: 0,
       uv_led: 0
     }
   },
