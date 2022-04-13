@@ -3,6 +3,7 @@
       src: "files/{{ item }}.service"
       dest: "/etc/systemd/system/{{ item }}.service"
   with_items:
+      - rover-jetson-cameras
       - rover-jetson-cv
       - rover-jetson-filter
       - rover-jetson-gps
@@ -10,6 +11,7 @@
       - rover-jetson-microscope
       - rover-jetson-nav
       - rover-jetson-raman
+      - rover-jetson-science-bridge
       - rover-jetson-teleop
       - rover-jetson-nucleo-bridge
 
@@ -29,6 +31,7 @@
 - name: Enable services
   systemd: name={{item}} enabled=yes
   with_items:
+      - rover-jetson-cameras.service
       - rover-jetson-cv.service
       - rover-jetson-filter.service
       - rover-jetson-gps.service
@@ -36,5 +39,6 @@
       - rover-jetson-microscope.service
       - rover-jetson-nav.service
       - rover-jetson-raman.service
+      - rover-jetson-science-bridge.service
       - rover-jetson-teleop.service
       - rover-jetson-nucleo-bridge.service

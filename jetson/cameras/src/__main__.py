@@ -81,7 +81,7 @@ def camera_callback(channel, msg):
 def main():
     global __pipelines, __lcm
 
-    __pipelines = [ Pipeline(0), Pipeline(1) ]
+    __pipelines = [Pipeline(0), Pipeline(1)]
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)

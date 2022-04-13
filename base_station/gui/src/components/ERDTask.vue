@@ -8,7 +8,7 @@
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="connections.motors && connections.lcm" name="Driving" /></li>
+          <li><CommIndicator v-bind:connected="connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
@@ -143,8 +143,6 @@ export default {
       (msg) => {
         if (msg.topic === '/odometry') {
           this.odom = msg.message
-        } else if (msg.topic === '/kill_switch') {
-          this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/debugMessage') {
           if (msg['message']['isError']) {
             console.error(msg['message']['message'])
@@ -198,16 +196,6 @@ export default {
           }
         }
       }
-
-      const clamp = function (num, min, max) {
-        return num <= min ? min : num >= max ? max : num
-      }
-
-      servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
-      servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
-      this.lastServosMessage = servosMessage
-
-      this.lcm_.publish('/camera_servos', servosMessage)
     }, 100)
   },
 

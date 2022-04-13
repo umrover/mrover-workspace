@@ -14,13 +14,10 @@
 #include <rover_msgs/FootCmd.hpp>
 #include <rover_msgs/JointBCalibration.hpp>
 #include <rover_msgs/MastGimbalCmd.hpp>
-// #include <rover_msgs/RAConfigCmd.hpp>
 #include <rover_msgs/RAOpenLoopCmd.hpp>
 #include <rover_msgs/RAPosition.hpp>
-// #include <rover_msgs/SAConfigCmd.hpp>
 #include <rover_msgs/SAOpenLoopCmd.hpp>
 #include <rover_msgs/SAPosition.hpp>
-// #include <rover_msgs/SAZeroTrigger.hpp>
 #include <rover_msgs/ScoopLimitSwitchEnable.hpp>
 #include <rover_msgs/WristTurnCount.hpp>
 
