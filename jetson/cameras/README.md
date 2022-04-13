@@ -55,3 +55,4 @@ Get jetson-utils in travis.
 - [ ] Map physical ports to video so cameras are known by default. Being worked on in [tabiosg/camera_good](https://github.com/tabiosg/mrover-workspace/tree/camera_good)
 - [ ] Fix up issue with microscope camera
 - [ ] Camera program freezes if USB is disconnected while streaming
+- [ ] Get camera streams onto the gui
