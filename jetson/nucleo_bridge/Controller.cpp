@@ -236,6 +236,15 @@ void Controller::open_loop(float input)
 
         uint8_t buffer[4];
         float speed = hardware.throttle(input) * inversion;
+
+        // When closing the gripper, we want 0.84 * 12 V = 10 V.
+        // Closing is currently when speed is positive 
+        if (name == "HAND_GRIP")
+        {
+            speed = speed > 0.84 ? 0.84 : speed;
+        }
+
+
         memcpy(buffer, UINT8_POINTER_T(&speed), sizeof(speed));
 
         if (hardware.type == HBridge)
