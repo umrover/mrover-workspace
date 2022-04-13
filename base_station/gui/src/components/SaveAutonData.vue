@@ -317,8 +317,9 @@ export default {
 
             const time = new Date(Date.now())
             const time_string = time.toTimeString().substring(0,17) + ' ' + time.toDateString()
-
-            hiddenElement.download = 'AutonLog-' + time_string + '.csv'
+            
+            let report_name = prompt("Enter filename:", 'AutonLog-' + time_string);
+            hiddenElement.download = report_name + '.csv'
             hiddenElement.click()
 
             // Remove data that was just saved
