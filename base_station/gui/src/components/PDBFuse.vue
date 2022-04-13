@@ -120,53 +120,6 @@
 </div>
 </template>
 
-<style scoped>
-    .wrap {
-        display: inline-block;
-        align-content: center;
-        /* height: 300px; */
-    }
-    .box {
-        border-radius: 5px;
-        padding: 10px;
-        border: 1px solid black;
-        text-align: right;
-        vertical-align: top;
-    }
-    .tableFormat{
-    border-collapse:collapse;
-    border-spacing:0;
-    }
-    .tableFormat td{
-    border-color:black;
-    border-style:solid;
-    border-width:1px;
-    font-size:13px;
-    overflow:hidden;
-    padding:10px 5px;
-    word-break:normal
-    }
-    .tableFormat th{
-    border-color:black;
-    border-style:solid;
-    border-width:1px;
-    font-size:13px;
-    font-weight:normal;
-    overflow:hidden;
-    padding:10px 5px;
-    word-break:normal;
-    }
-    .bold{
-      font-weight: bold;
-      border: 2px solid black;
-    }
-    .tableFormat .tableElement{
-    border-color:inherit;
-    text-align:center;
-    vertical-align:top
-    }
-</style>
-
 <script>
 
 const pdb_temp_limit = 100
@@ -288,3 +241,58 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .tables {
+    display: flex;
+  }
+
+  .wrap {
+      display: inline-block;
+      align-content: center;
+  }
+
+  .box {
+      border-radius: 5px;
+      padding: 10px;
+      border: 1px solid black;
+      text-align: right;
+      vertical-align: top;
+  }
+
+  .tableFormat {
+    border-collapse: collapse;
+    border-spacing: 0;
+    padding: 10px;
+  }
+
+  .tableFormat td {
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 13px;
+    overflow: hidden;
+    padding: 10px 5px;
+    word-break: normal;
+  }
+
+  .tableFormat th {
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 13px;
+    font-weight: normal;
+    overflow: hidden;
+    padding: 10px 5px;
+    word-break: normal;
+  }
+  .bold{
+    font-weight: bold;
+    border: 2px solid black;
+  }
+  .tableFormat .tableElement {
+    border-color: inherit;
+    text-align: center;
+    vertical-align: top
+  }
+</style>

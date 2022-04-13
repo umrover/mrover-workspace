@@ -55,7 +55,8 @@ export default {
         hiddenElement.target = '_blank';  
         
         //provide the name for the CSV file to be downloaded  
-        hiddenElement.download = 'Report'+ timeString+'.csv';  
+        let report_name = prompt("Enter filename:", timeString);  
+        hiddenElement.download = report_name+'.csv';  
         hiddenElement.click();  
     }  
     }

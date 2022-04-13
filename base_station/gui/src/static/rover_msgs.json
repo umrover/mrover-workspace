@@ -95,6 +95,40 @@
             "bearing"
         ]
     ],
+    "Cameras": [
+        [
+            "boolean",
+            "cam1"
+        ],
+        [
+            "boolean",
+            "cam2"
+        ],
+        [
+            "boolean",
+            "cam3"
+        ],
+        [
+            "boolean",
+            "cam4"
+        ],
+        [
+            "boolean",
+            "cam5"
+        ],
+        [
+            "boolean",
+            "cam6"
+        ],
+        [
+            "boolean",
+            "cam7"
+        ],
+        [
+            "boolean",
+            "cam8"
+        ]
+    ],
     "CameraServos": [
         [
             "float",
@@ -105,16 +139,16 @@
             "tilt"
         ]
     ],
-    "CarouselCmd": [
+    "CarouselPosition": [
         [
             "int8_t",
             "position"
         ]
     ],
-    "CarouselData": [
+    "CarouselOpenLoopCmd": [
         [
-            "int8_t",
-            "position"
+            "double",
+            "throttle"
         ]
     ],
     "Course": [
@@ -326,6 +360,22 @@
             "new_ack_id"
         ]
     ],
+    "Heater": [
+        [
+            "int8_t",
+            "device"
+        ],
+        [
+            "boolean",
+            "enabled"
+        ]
+    ],
+    "HeaterAutoShutdown": [
+        [
+            "boolean",
+            "auto_shutdown_enabled"
+        ]
+    ],
     "IMU": [
         [
             "double",
@@ -408,12 +458,6 @@
         [
             "boolean",
             "restart"
-        ]
-    ],
-    "KillSwitch": [
-        [
-            "boolean",
-            "killed"
         ]
     ],
     "LockJointE": [
@@ -575,6 +619,20 @@
             "voltage_volts[3]"
         ]
     ],
+    "PDBData": [
+        [
+            "double",
+            "temp_celsius[3]"
+        ],
+        [
+            "double",
+            "current_amps[3]"
+        ],
+        [
+            "double",
+            "voltage_volts[3]"
+        ]
+    ],
     "PIDConstants": [
         [
             "int8_t",
@@ -595,44 +653,6 @@
         [
             "double",
             "kF"
-        ]
-    ],
-    "PiCamera": [
-        [
-            "int8_t",
-            "active_index_1"
-        ],
-        [
-            "int8_t",
-            "active_index_2"
-        ]
-    ],
-    "PiPicture": [
-        [
-            "int8_t",
-            "index"
-        ]
-    ],
-    "PiSettings": [
-        [
-            "int8_t",
-            "pi_index"
-        ],
-        [
-            "int32_t",
-            "shutter_speed"
-        ],
-        [
-            "boolean",
-            "vflip"
-        ],
-        [
-            "int32_t",
-            "height"
-        ],
-        [
-            "int32_t",
-            "width"
         ]
     ],
     "ProximitySensors": [
@@ -737,6 +757,12 @@
             "joint_e"
         ]
     ],
+    "ScoopLimitSwitchEnable": [
+        [
+            "boolean",
+            "enable"
+        ]
+    ],
     "SensorPackage": [
         [
             "double",
@@ -761,12 +787,6 @@
         [
             "double",
             "speed"
-        ]
-    ],
-    "SensorSwitch": [
-        [
-            "boolean",
-            "should_record"
         ]
     ],
     "Sensors": [
@@ -932,6 +952,12 @@
         [
             "int8_t",
             "site"
+        ]
+    ],    
+    "TakePictureCmd": [
+        [
+            "int8_t",
+            "index"
         ]
     ],
     "TalonConfig": [
@@ -1169,13 +1195,18 @@
             "angle"
         ]
     ],
+    "ZeroPosition": [
+    ],
     "message_types": [
         "ArmControlState",
+        "RAPosition",
         "ArmPreset",
         "ArmToggles",
         "AutonState",
         "Bearing",
+        "Cameras",
         "CameraServos",
+        "CamSettings",
         "Course",
         "CurrentDraw",
         "CustomPreset",
@@ -1188,27 +1219,22 @@
         "FuseData",
         "GPS",
         "Heartbeat",
+        "Heater",
+        "HeaterAutoShutdown",
         "IkArmControl",
         "IkEnabled",
         "IMU",
         "Joystick",
-        "KillSwitch",
         "LockJointE",
         "MicroCam",
         "Microscope",
-        "Mosfet",
         "MosfetCmd",
         "MotionExecute",
         "NavStatus",
         "Obstacle",
         "Odometry",
-        "PDBFuse",
-        "PiCamera",
-        "PIDConstants",
-        "PiPicture",
-        "PiSettings",
-        "ProximitySensors",
         "RAPosition",
+        "PDBData",
         "RGB",
         "RGBFrame",
         "RGBLED",
@@ -1217,13 +1243,13 @@
         "ScoopLimitSwitchEnabled",
         "SensorPackage",
         "Sensors",
-        "SensorSwitch",
         "Servo",
-        "ServoCmd",
+        "ServoCmds",
         "SetDemand",
         "Signal",
         "SimulationMode",
         "StartTest",
+        "TakePictureCmd",
         "TalonConfig",
         "TargetAngles",
         "TargetList",

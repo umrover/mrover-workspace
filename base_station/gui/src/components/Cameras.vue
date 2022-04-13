@@ -1,9 +1,6 @@
 <template>
   <div class="wrap">
     <h3>Cameras</h3>
-    <div class="servos">
-      <span>Servos pan: {{servosData.pan.toFixed(2)}}, Servos tilt: {{servosData.tilt.toFixed(2)}}</span>
-    </div>
     <div>
       <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscopeCam()" ref="micro"/>
     </div>
