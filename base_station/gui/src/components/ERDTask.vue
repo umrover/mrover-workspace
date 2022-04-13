@@ -8,7 +8,6 @@
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
@@ -27,7 +26,7 @@
       <OdometryReading v-bind:odom="odom"/>
     </div>
     <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage"/>
+      <Cameras/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
@@ -81,11 +80,6 @@ export default {
     return {
       lcm_: null,
 
-      lastServosMessage: {
-        pan: 0,
-        tilt: 0
-      },
-
       odom: {
         latitude_deg: 38,
         latitude_min: 24.38226,
@@ -97,8 +91,7 @@ export default {
 
       connections: {
         websocket: false,
-        lcm: false,
-        motors: false
+        lcm: false
       },
 
       nav_status: {
@@ -157,7 +150,6 @@ export default {
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
-        {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/ra_offset_pos', 'type': 'RAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
@@ -167,36 +159,6 @@ export default {
         {'topic': '/wrist_turn_count', 'type': 'WristTurnCount'}
       ]
     )
-
-    const servosMessage = {
-      'type': 'CameraServos',
-      'pan': 0,
-      'tilt': 0
-    }
-
-    const JOYSTICK_CONFIG = {
-      'forward_back': 1,
-      'left_right': 2,
-      'dampen': 3,
-      'kill': 4,
-      'restart': 5,
-      'pan': 4,
-      'tilt': 5
-    }
-
-    window.setInterval(() => {
-      const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 2; i++) {
-        const gamepad = gamepads[i]
-        if (gamepad) {
-          if (gamepad.id.includes('Logitech')) {
-            const servosSpeed = 0.8
-            servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG['pan']] * servosSpeed / 10
-            servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG['tilt']] * servosSpeed / 10
-          }
-        }
-      }
-    }, 100)
   },
 
   components: {

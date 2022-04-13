@@ -129,16 +129,6 @@
             "cam8"
         ]
     ],
-    "CameraServos": [
-        [
-            "float",
-            "pan"
-        ],
-        [
-            "float",
-            "tilt"
-        ]
-    ],
     "CarouselPosition": [
         [
             "int8_t",
@@ -1195,73 +1185,5 @@
             "angle"
         ]
     ],
-    "ZeroPosition": [
-    ],
-    "message_types": [
-        "ArmControlState",
-        "RAPosition",
-        "ArmPreset",
-        "ArmToggles",
-        "AutonState",
-        "Bearing",
-        "Cameras",
-        "CameraServos",
-        "CamSettings",
-        "Course",
-        "CurrentDraw",
-        "CustomPreset",
-        "DebugMessage",
-        "DriveMotors",
-        "Encoder",
-        "ESCThrottle",
-        "ESCToggle",
-        "FKTransform",
-        "FuseData",
-        "GPS",
-        "Heartbeat",
-        "Heater",
-        "HeaterAutoShutdown",
-        "IkArmControl",
-        "IkEnabled",
-        "IMU",
-        "Joystick",
-        "LockJointE",
-        "MicroCam",
-        "Microscope",
-        "MosfetCmd",
-        "MotionExecute",
-        "NavStatus",
-        "Obstacle",
-        "Odometry",
-        "RAPosition",
-        "PDBData",
-        "RGB",
-        "RGBFrame",
-        "RGBLED",
-        "SAMotors",
-        "SAPosition",
-        "ScoopLimitSwitchEnabled",
-        "SensorPackage",
-        "Sensors",
-        "Servo",
-        "ServoCmds",
-        "SetDemand",
-        "Signal",
-        "SimulationMode",
-        "StartTest",
-        "TakePictureCmd",
-        "TalonConfig",
-        "TargetAngles",
-        "TargetList",
-        "TargetOrientation",
-        "TargetPoint",
-        "Temperature",
-        "TennisBall",
-        "TestEnable",
-        "Waypoint",
-        "WheelSpeeds",
-        "WristTurnCount",
-        "Xbox",
-        "ZedGimbalPosition"
-    ]
+    "ZeroPosition": []
 }
