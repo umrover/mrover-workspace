@@ -2,7 +2,7 @@
     {
         "name":"HAND_FINGER",
         "type":"Motor12V",
-        "nucleo": 0,
+        "nucleo": 2,
         "channel": 2
     },
     {
@@ -12,79 +12,49 @@
         "channel": 2
     },
     {
-        "name":"FOOT_CLAW",
+        "name":"FOOT_SCOOP",
         "type":"Motor6V",
-        "nucleo": 2,
-        "channel": 0
+        "nucleo": 1,
+        "channel": 2
     },
     {
         "name":"FOOT_SENSOR",
         "type":"Motor6V",
-        "nucleo": 1,
-        "channel": 1
+        "nucleo": 2,
+        "channel": 2
     },
     {
-        "name":"GIMBAL_PITCH_0",
+        "name":"GIMBAL_PITCH",
         "type":"Motor6V",
         "nucleo": 1,
         "channel": 3
     },
     {
-        "name":"GIMBAL_YAW_0",
+        "name":"GIMBAL_YAW",
         "type":"Motor6V",
-        "nucleo": 0,
-        "channel": 5
-    },
-    {
-        "name":"ZED_GIMBAL_YAW",
-        "type":"Motor12V",
         "nucleo": 2,
-        "channel": 1,
-        "quadCPR": 1.0,
-        "kP": 0.001,
-        "kI":0.00005
+        "channel": 3
     },
     {
         "name":"SA_0",
-        "type":"Motor6V",
-        "nucleo": 0,
-        "channel": 0,
-        "quadCPR": 464.64
-    },
-    {
-        "name":"SA_1",
-        "type":"Motor6V",
-        "nucleo": 0,
-        "channel": 1,
-        "quadCPR": 23945.84
-    },
-    {
-        "name":"SA_2",
-        "type":"Motor6V",
-        "nucleo": 1,
-        "channel": 0,
-        "quadCPR": 23945.84
-    },
-    {
-        "name":"RA_0",
-        "type":"Motor12V",
+        "type":"Motor44Percent",
         "nucleo": 0,
         "channel": 0,
         "quadCPR": -28800.0, 
         "kP": 0.001,
-        "kI":0.00005
+        "kI": 0.00005
     },
     {
-        "name":"RA_1",
+        "name":"SA_1",
         "type":"Motor12V",
         "nucleo": 0,
         "channel": 1,
         "quadCPR": 1.0,
         "kP": 2.25,
-        "kI":0.0007
+        "kI": 0.0007
     },
     {
-        "name":"RA_2",
+        "name":"SA_2",
         "type":"Motor12V",
         "nucleo": 1,
         "channel": 0,
@@ -93,8 +63,44 @@
         "kI": 0.00005
     },
     {
-        "name":"RA_3",
+        "name":"SA_3",
         "type":"Motor12V",
+        "nucleo": 2,
+        "channel": 0,
+        "quadCPR": -81600.0,
+        "kP": 0.001,
+        "kI": 0.00005
+    },
+    {
+        "name":"RA_0",
+        "type":"Motor44Percent",
+        "nucleo": 0,
+        "channel": 0,
+        "quadCPR": -28800.0, 
+        "kP": 0.001,
+        "kI": 0.00005
+    },
+    {
+        "name":"RA_1",
+        "type":"Motor12V",
+        "nucleo": 0,
+        "channel": 1,
+        "quadCPR": 1.0,
+        "kP": 2.25,
+        "kI": 0.0007
+    },
+    {
+        "name":"RA_2",
+        "type":"Motor24V",
+        "nucleo": 1,
+        "channel": 0,
+        "quadCPR": 155040.0,
+        "kP": 0.001,
+        "kI": 0.00005
+    },
+    {
+        "name":"RA_3",
+        "type":"Motor24V",
         "nucleo": 1,
         "channel": 1,
         "quadCPR": -81600.0,
@@ -103,7 +109,7 @@
     },
     {
         "name":"RA_4",
-        "type":"Motor12V",
+        "type":"Motor24V",
         "nucleo": 2,
         "channel": 0,
         "quadCPR": -81600.0,
@@ -116,7 +122,7 @@
         "nucleo": 2,
         "channel": 1,
         "quadCPR": -9072.0,
-        "kP": 0.001,
-        "kI": 0.00
+        "kP": 0.01,
+        "kI": 0.00005
     }
 ]

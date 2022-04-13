@@ -5,6 +5,7 @@
       <div class="keyboard">
         <GimbalControls/>
       </div>
+    </div>
   </div>
 </template>
 
@@ -238,8 +239,17 @@ export default {
 <style scoped>
 
 .wrap {
-  display: flex;
+  display: inline-block;
   align-items: center;
+  justify-items: center;
+}
+.controls {
+  display: flex;
+  align-items:center;
+}
+.header {
+  display:flex;
+  align-items:center;
 }
 
 </style>

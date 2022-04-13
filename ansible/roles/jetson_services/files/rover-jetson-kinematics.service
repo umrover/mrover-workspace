@@ -1,5 +1,5 @@
 [Unit]
-Description=MRover Onboard Kinematics
+Description=MRover Jetson Kinematics
 
 [Service]
 EnvironmentFile=/etc/default/rover.env

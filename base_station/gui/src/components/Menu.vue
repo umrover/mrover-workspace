@@ -10,7 +10,7 @@
       <fieldset class="tasks row">
         <legend>Tasks</legend>
         <MenuButton link="#/RATask" name="Robotic Arm Setup" />
-        <MenuButton link="#/SATask" name="Soil Acquisition Setup" />
+        <MenuButton link="#/SATask" name="Science Setup" />
         <MenuButton link="#/AutonTask" name="Autonomy Setup" />
       </fieldset>
 
@@ -19,7 +19,6 @@
         <MenuButton link="#/LcmEcho" name="LCM Echo" />
         <MenuButton link="#/LcmSend" name="LCM Send" />
         <MenuButton link="#/PidTune" name="PID Tuning" />
-        <MenuButton link="#/EscTest" name="ESC Testing" />
       </fieldset>
     </div>
   </div>

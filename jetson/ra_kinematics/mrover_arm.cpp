@@ -53,7 +53,7 @@ void MRoverArm::ra_control_callback(std::string channel, ArmControlState msg) {
     }
 }
 
-void MRoverArm::arm_position_callback(std::string channel, ArmPosition msg) {
+void MRoverArm::arm_position_callback(std::string channel, RAPosition msg) {
 
     std::vector<double> angles{ msg.joint_a, msg.joint_b, msg.joint_c,
                             msg.joint_d, msg.joint_e, msg.joint_f };
@@ -259,7 +259,7 @@ void MRoverArm::target_orientation_callback(std::string channel, TargetOrientati
     plan_path(hypo_state, goal);
 }
 
-void MRoverArm::go_to_target_angles(ArmPosition msg) {
+void MRoverArm::go_to_target_angles(RAPosition msg) {
     if (control_state != ControlState::WAITING_FOR_TARGET) {
         std::cout << "Received target but not in closed-loop waiting state.\n";
         return;
@@ -418,7 +418,7 @@ void MRoverArm::execute_spline() {
 
                 if (sim_mode) {
                     for (size_t i = 0; i < MAX_NUM_PREV_ANGLES; ++i) {
-                        publish_config(arm_state.get_joint_angles(), "/arm_position");
+                        publish_config(arm_state.get_joint_angles(), "/ra_position");
                     }
                 }
 
@@ -489,7 +489,7 @@ void MRoverArm::execute_spline() {
                     target_angles[i] += arm_state.get_joint_encoder_offset(i);
                 }
 
-                publish_config(target_angles, "/ik_ra_control");
+                publish_config(target_angles, "/ra_ik_cmd");
             }
 
             // if in sim_mode, simulate that we have gotten a new current position
@@ -565,7 +565,7 @@ void MRoverArm::arm_adjust_callback(std::string channel, ArmAdjustments msg) {
 void MRoverArm::arm_preset_callback(std::string channel, ArmPreset msg) {
     std::vector<double> angles = arm_state.get_preset_position(msg.preset);
     
-    ArmPosition new_msg;
+    RAPosition new_msg;
     new_msg.joint_a = angles[0];
     new_msg.joint_b = angles[1];
     new_msg.joint_c = angles[2];
@@ -582,14 +582,14 @@ void MRoverArm::encoder_angles_sender() {
         if (sim_mode) {
             encoder_angles_sender_mtx.lock();
 
-            ArmPosition arm_position;
-            arm_position.joint_a = arm_state.get_joint_angle(0);
-            arm_position.joint_b = arm_state.get_joint_angle(1);
-            arm_position.joint_c = arm_state.get_joint_angle(2);
-            arm_position.joint_d = arm_state.get_joint_angle(3);
-            arm_position.joint_e = arm_state.get_joint_angle(4);
-            arm_position.joint_f = arm_state.get_joint_angle(5);
-            lcm_.publish("/arm_position", &arm_position);
+            RAPosition ra_position;
+            ra_position.joint_a = arm_state.get_joint_angle(0);
+            ra_position.joint_b = arm_state.get_joint_angle(1);
+            ra_position.joint_c = arm_state.get_joint_angle(2);
+            ra_position.joint_d = arm_state.get_joint_angle(3);
+            ra_position.joint_e = arm_state.get_joint_angle(4);
+            ra_position.joint_f = arm_state.get_joint_angle(5);
+            lcm_.publish("/ra_position", &ra_position);
 
             encoder_angles_sender_mtx.unlock();
         }
@@ -599,14 +599,14 @@ void MRoverArm::encoder_angles_sender() {
 }
 
 void MRoverArm::publish_config(const std::vector<double> &config, std::string channel) {
-       ArmPosition arm_position;
-       arm_position.joint_a = config[0];
-       arm_position.joint_b = config[1];
-       arm_position.joint_c = config[2];
-       arm_position.joint_d = config[3];
-       arm_position.joint_e = config[4];
-       arm_position.joint_f = config[5];
-       lcm_.publish(channel, &arm_position); //no matching call to publish should take in const msg type msg
+       RAPosition ra_position;
+       ra_position.joint_a = config[0];
+       ra_position.joint_b = config[1];
+       ra_position.joint_c = config[2];
+       ra_position.joint_d = config[3];
+       ra_position.joint_e = config[4];
+       ra_position.joint_f = config[5];
+       lcm_.publish(channel, &ra_position); //no matching call to publish should take in const msg type msg
 }
 
 void MRoverArm::publish_transforms(const ArmState& arbitrary_state) {

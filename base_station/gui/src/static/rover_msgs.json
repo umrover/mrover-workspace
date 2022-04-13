@@ -1,4 +1,10 @@
 {
+    "ArmControlState": [
+        [
+            "string",
+            "state"
+        ]
+    ],
     "ArmAdjustments": [
         [
             "float",
@@ -25,13 +31,7 @@
             "gamma"
         ]
     ],
-    "ArmControlState": [
-        [
-            "string",
-            "state"
-        ]
-    ],
-    "ArmPosition": [
+    "RAPosition": [
         [
             "double",
             "joint_a"
@@ -89,6 +89,40 @@
             "bearing"
         ]
     ],
+    "Cameras": [
+        [
+            "boolean",
+            "cam1"
+        ],
+        [
+            "boolean",
+            "cam2"
+        ],
+        [
+            "boolean",
+            "cam3"
+        ],
+        [
+            "boolean",
+            "cam4"
+        ],
+        [
+            "boolean",
+            "cam5"
+        ],
+        [
+            "boolean",
+            "cam6"
+        ],
+        [
+            "boolean",
+            "cam7"
+        ],
+        [
+            "boolean",
+            "cam8"
+        ]
+    ],
     "CameraServos": [
         [
             "float",
@@ -97,6 +131,18 @@
         [
             "float",
             "tilt"
+        ]
+    ],
+    "CarouselPosition": [
+        [
+            "int8_t",
+            "position"
+        ]
+    ],
+    "CarouselOpenLoopCmd": [
+        [
+            "double",
+            "throttle"
         ]
     ],
     "Course": [
@@ -157,6 +203,30 @@
         [
             "double",
             "right"
+        ]
+    ],
+    "DriveStateData": [
+        [
+            "int8_t",
+            "controller"
+        ],
+        [
+            "int8_t",
+            "state"
+        ]
+    ],
+    "DriveVelData": [
+        [
+            "int8_t",
+            "axis"
+        ],
+        [
+            "float",
+            "measuredCurrent"
+        ],
+        [
+            "float",
+            "estimatedVel"
         ]
     ],
     "ESCThrottle": [
@@ -231,6 +301,16 @@
             "transform_f[4][4]"
         ]
     ],
+    "FuseData": [
+        [
+            "double",
+            "current_amps[12]"
+        ],
+        [
+            "double",
+            "voltage_volts[12]"
+        ]
+    ],
     "GPS": [
         [
             "int32_t",
@@ -265,6 +345,22 @@
         [
             "int32_t",
             "new_ack_id"
+        ]
+    ],
+    "Heater": [
+        [
+            "int8_t",
+            "device"
+        ],
+        [
+            "boolean",
+            "enabled"
+        ]
+    ],
+    "HeaterAutoShutdown": [
+        [
+            "boolean",
+            "auto_shutdown_enabled"
         ]
     ],
     "IMU": [
@@ -351,12 +447,6 @@
             "restart"
         ]
     ],
-    "KillSwitch": [
-        [
-            "boolean",
-            "killed"
-        ]
-    ],
     "LockJointE": [
         [
             "boolean",
@@ -405,6 +495,16 @@
         [
             "string",
             "id"
+        ],
+        [
+            "boolean",
+            "enable"
+        ]
+    ],
+    "MosfetCmd": [
+        [
+            "int8_t",
+            "device"
         ],
         [
             "boolean",
@@ -502,6 +602,20 @@
             "speed"
         ]
     ],
+    "PDBData": [
+        [
+            "double",
+            "temp_celsius[3]"
+        ],
+        [
+            "double",
+            "current_amps[3]"
+        ],
+        [
+            "double",
+            "voltage_volts[3]"
+        ]
+    ],
     "PIDConstants": [
         [
             "int8_t",
@@ -524,44 +638,6 @@
             "kF"
         ]
     ],
-    "PiCamera": [
-        [
-            "int8_t",
-            "active_index_1"
-        ],
-        [
-            "int8_t",
-            "active_index_2"
-        ]
-    ],
-    "PiPicture": [
-        [
-            "int8_t",
-            "index"
-        ]
-    ],
-    "PiSettings": [
-        [
-            "int8_t",
-            "pi_index"
-        ],
-        [
-            "int32_t",
-            "shutter_speed"
-        ],
-        [
-            "boolean",
-            "vflip"
-        ],
-        [
-            "int32_t",
-            "height"
-        ],
-        [
-            "int32_t",
-            "width"
-        ]
-    ],
     "ProximitySensors": [
         [
             "boolean",
@@ -580,7 +656,12 @@
             "depths[numDepths]"
         ]
     ],
-    "RepeaterDrop": [],
+    "RadioSignalStrength": [
+        [
+            "float",
+            "signal_strength"
+        ]
+    ],
     "RGB": [
         [
             "string",
@@ -641,6 +722,30 @@
             "micro_z"
         ]
     ],
+    "SAPosition": [
+        [
+            "double",
+            "joint_a"
+        ],
+        [
+            "double",
+            "joint_b"
+        ],
+        [
+            "double",
+            "joint_c"
+        ],
+        [
+            "double",
+            "joint_e"
+        ]
+    ],
+    "ScoopLimitSwitchEnable": [
+        [
+            "boolean",
+            "enable"
+        ]
+    ],
     "SensorPackage": [
         [
             "double",
@@ -665,12 +770,6 @@
         [
             "double",
             "speed"
-        ]
-    ],
-    "SensorSwitch": [
-        [
-            "boolean",
-            "should_record"
         ]
     ],
     "Sensors": [
@@ -713,6 +812,20 @@
             "degrees"
         ]
     ],
+    "ServoCmd": [
+        [
+            "double",
+            "angle0"
+        ],
+        [
+            "double",
+            "angle1"
+        ],
+        [
+            "double",
+            "angle2"
+        ]
+    ],
     "SetDemand": [
         [
             "int8_t",
@@ -734,6 +847,80 @@
             "sim_mode"
         ]
     ],
+    "SpectralData": [
+        [
+            "int32_t",
+            "d0_1"    
+        ],
+        [
+            "int32_t",
+            "d0_2"    
+        ],
+        [
+            "int32_t",
+            "d0_3"    
+        ],
+        [
+            "int32_t",
+            "d0_4"    
+        ],
+        [
+            "int32_t",
+            "d0_5"    
+        ],
+        [
+            "int32_t",
+            "d0_6"    
+        ],
+        [
+            "int32_t",
+            "d1_1"    
+        ],
+        [
+            "int32_t",
+            "d1_2"    
+        ],
+        [
+            "int32_t",
+            "d1_3"    
+        ],
+        [
+            "int32_t",
+            "d1_4"    
+        ],
+        [
+            "int32_t",
+            "d1_5"    
+        ],
+        [
+            "int32_t",
+            "d1_6"    
+        ],
+        [
+            "int32_t",
+            "d2_1"    
+        ],
+        [
+            "int32_t",
+            "d2_2"    
+        ],
+        [
+            "int32_t",
+            "d2_3"    
+        ],
+        [
+            "int32_t",
+            "d2_4"    
+        ],
+        [
+            "int32_t",
+            "d2_5"    
+        ],
+        [
+            "int32_t",
+            "d2_6"    
+        ]
+    ],
     "StartTest": [
         [
             "string",
@@ -742,6 +929,12 @@
         [
             "int8_t",
             "site"
+        ]
+    ],    
+    "TakePictureCmd": [
+        [
+            "int8_t",
+            "index"
         ]
     ],
     "TalonConfig": [
@@ -804,10 +997,6 @@
         [
             "float",
             "gamma"
-        ],
-        [
-            "boolean",
-            "use_orientation"
         ]
     ],
     "TargetPoint": [
@@ -861,6 +1050,20 @@
         [
             "boolean",
             "enabled"
+        ]
+    ],
+    "ThermistorData": [
+        [
+            "double",
+            "temp0"
+        ],
+        [
+            "double",
+            "temp1"
+        ],
+        [
+            "double",
+            "temp2"
         ]
     ],
     "Waypoint": [
@@ -964,38 +1167,17 @@
         ]
     ],
     "ZeroPosition": [
-        [
-            "double",
-            "joint_a"
-        ],
-        [
-            "double",
-            "joint_b"
-        ],
-        [
-            "double",
-            "joint_c"
-        ],
-        [
-            "double",
-            "joint_d"
-        ],
-        [
-            "double",
-            "joint_e"
-        ],
-        [
-            "double",
-            "joint_f"
-        ]
     ],
     "message_types": [
         "ArmControlState",
-        "ArmPosition",
+        "RAPosition",
+        "ArmPreset",
         "ArmToggles",
         "AutonState",
         "Bearing",
+        "Cameras",
         "CameraServos",
+        "CamSettings",
         "Course",
         "CurrentDraw",
         "DebugMessage",
@@ -1004,43 +1186,44 @@
         "ESCThrottle",
         "ESCToggle",
         "FKTransform",
+        "FuseData",
         "GPS",
         "Heartbeat",
+        "Heater",
+        "HeaterAutoShutdown",
         "IkArmControl",
         "IkEnabled",
         "IMU",
         "Joystick",
-        "KillSwitch",
         "LockJointE",
         "MicroCam",
         "Microscope",
-        "Mosfet",
+        "MosfetCmd",
         "MotionExecute",
         "NavStatus",
         "Obstacle",
         "Odometry",
         "OpenLoopRAMotor",
-        "PiCamera",
+        "PDBData",
         "PIDConstants",
-        "PiPicture",
-        "PiSettings",
-        "PresetAngles",
         "ProximitySensors",
-        "RepeaterDrop",
         "RGB",
         "RGBFrame",
         "RGBLED",
         "SAMotors",
+        "SAPosition",
         "SensorPackage",
         "Sensors",
-        "SensorSwitch",
         "Servo",
+        "ServoCmd",
         "SetDemand",
         "Signal",
         "SimulationMode",
         "StartTest",
+        "TakePictureCmd",
         "TalonConfig",
         "TargetAngles",
+        "TargetList",
         "TargetOrientation",
         "TargetPoint",
         "Temperature",
