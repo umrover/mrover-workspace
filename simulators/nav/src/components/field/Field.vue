@@ -79,6 +79,7 @@ import {
   ObstacleDrawOptions,
   Odom,
   Point2D,
+  ProjectedPointsMessage,
   Waypoint,
   WaypointDrawOptions,
   ZedGimbalPosition
@@ -171,6 +172,9 @@ export default class Field extends Vue {
 
   @Getter
   private readonly obstacles!:Obstacle[];
+
+  @Getter
+  private readonly projectedPointsMessage!:ProjectedPointsMessage;
 
   @Getter
   private readonly referencePoints!:Odom[];
@@ -285,7 +289,8 @@ export default class Field extends Vue {
 
   /* Object for drawing reference points on canvas. */
   private get canvasReferencePoints():CanvasReferencePoints {
-    return new CanvasReferencePoints(this.referencePoints, this.fieldCenterOdom, this.scale);
+    return new CanvasReferencePoints(this.referencePoints, this.projectedPointsMessage,
+                                     this.fieldCenterOdom, this.scale);
   }
 
   /* Object for drawing radio repeater on canvas. */

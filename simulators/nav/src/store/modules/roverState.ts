@@ -57,7 +57,7 @@ const state:RoverState = {
   projectedPointsMessage: {
     pattern_size: 0,
     points: [],
-    type: 'NA'
+    path_type: 'NA'
   },
 
   radioSignalStrength: 100,
