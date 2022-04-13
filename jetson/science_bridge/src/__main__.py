@@ -26,7 +26,7 @@ class Mosfet_devices(Enum):
     RED_LED = 10
     GREEN_LED = 4
     BLUE_LED = 5
-    RA_LASER = 10
+    RA_LASER = 3
     UV_LED = 4
     WHITE_LED = 5
     UV_BULB = 6
