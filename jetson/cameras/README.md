@@ -43,3 +43,4 @@ Get jetson-utils in travis.
 - [ ] Verify that ansible scripts work on the jetson
 - [ ] Update to new LCM. Currently being worked on in [tabiosg/more_cameras](https://github.com/tabiosg/mrover-workspace/tree/more_cameras)
 - [ ] Map physical ports to video so cameras are known by default. Being worked on in [tabiosg/camera_good](https://github.com/tabiosg/mrover-workspace/tree/camera_good)
+= [ ] Fix up issue with microscope camera
