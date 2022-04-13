@@ -212,7 +212,6 @@ export default {
       // Subscriptions
       [
         {'topic': '/odometry', 'type': 'Odometry'},
-        {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/sa_motors', 'type': 'SAMotors'},
         {'topic': '/test_enable', 'type': 'TestEnable'},
@@ -225,6 +224,7 @@ export default {
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/carousel_data', 'type': 'CarouselPosition'},
         {'topic': '/sa_position', 'type': 'SAPosition'},
+        {'topic': '/sa_offset_pos', 'type': 'SAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/heater_state_data', 'type': 'Heater'},
         {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},

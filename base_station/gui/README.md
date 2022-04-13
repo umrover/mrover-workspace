@@ -74,4 +74,7 @@ Usage:
 
 [] Update README with LCMs (see existing PR #985 in umrover/mrover-workspace)
 [] Update Raman Mosfet to be 7 instead of 10
-[] Remove extra white space from Science GUI
+[] Move all ISH box controls to second science GUI
+[] Make LCM echo alphabetical
+[] Make carousel open loop toggle-able and like gimbal commands
+[] Move gimbal commands out of ArmControls and SAArm and into SATask.vue
