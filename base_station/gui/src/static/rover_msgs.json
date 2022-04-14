@@ -826,6 +826,12 @@
             "f"
         ]
     ],
+    "TargetBearing": [
+        [
+            "double",
+            "target_bearing"
+        ]
+    ],
     "TargetOrientation": [
         [
             "float",
