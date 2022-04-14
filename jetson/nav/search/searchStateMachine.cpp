@@ -45,7 +45,7 @@ NavState SearchStateMachine::executeSearch() {
             return NavState::BeginGateSearch;
         } else {
             //only drive to the target if we don't have any posts
-            if (!drivenToFirstPost) {
+            if (!mDrivenToFirstPost) {
                 if (leftTarget.id >= 0 || rightTarget.id >= 0) {
                     return NavState::DriveToTarget;
                 }
@@ -61,9 +61,9 @@ NavState SearchStateMachine::executeSearch() {
 
     Odometry const& nextSearchPoint = mSearchPoints.front();
     double dt = sm->getDtSeconds();
-    if (drivenToFirstPost) {
-        std::cout << mSearchPoints.size() << std::endl;
-    }
+//    if (mDrivenToFirstPost) {
+//        std::cout << mSearchPoints.size() << std::endl;
+//    }
     if (rover->drive(nextSearchPoint, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
         mSearchPoints.pop_front();
         if (mSearchPoints.empty()) {
@@ -104,7 +104,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
             distance = rightTarget.distance;
             bearing = rightTarget.bearing + currentBearing;
         } else {
-            std::cout << "lost target" << std::endl;
+            std::cout << "Lost target" << std::endl;
             return NavState::Search;
         }
     } else {
@@ -120,7 +120,7 @@ NavState SearchStateMachine::executeDriveToTarget() {
             distance = leftTarget.distance;
             bearing = leftTarget.bearing + currentBearing;
         } else {
-            std::cerr << "Lost the target" << std::endl;
+            std::cerr << "Lost target" << std::endl;
             return NavState::Search;
         }
     }
@@ -129,20 +129,23 @@ NavState SearchStateMachine::executeDriveToTarget() {
 
     if (rover->drive(targetPoint, mConfig["navThresholds"]["targetDistance"].GetDouble(), dt)) {
         if (sm->getCourseState()->getLastCompletedWaypoint().gate) {
-//                //We have to clear the search points and start a diamond search
-//                //put this in some other function
-//                mSearchPoints.clear();
-//
-//                Vector2d deltas[4] = {{0.5, 0.5}, {-0.5, 0.5}, {-0.5, -0.5}, {0.5, -0.5}};
-//                double diamondDist = 3;
-//                for (int i = 0; i < 4; ++i){
-//                    deltas[i] /= deltas[i].norm();
-//                    deltas[i] *= diamondDist;
-//                    mSearchPoints.push_back(createOdom(rover->odometry(), deltas[i], rover));
-//                }
-//                drivenToFirstPost = true;
-//                return NavState::Search;
-            return NavState::Done;
+            //We have to clear the search points and start a diamond search
+            //put this in some other function
+            mSearchPoints.clear();
+
+            Vector2d deltas[4] = {{0.5,  0.5},
+                                  {-0.5, 0.5},
+                                  {-0.5, -0.5},
+                                  {0.5,  -0.5}};
+            double diamondDist = 3;
+            for (auto& delta: deltas) {
+                delta /= delta.norm();
+                delta *= diamondDist;
+                mSearchPoints.push_back(createOdom(rover->odometry(), delta, rover));
+            }
+            mDrivenToFirstPost = true;
+            return NavState::Search;
+//            return NavState::Done;
         } else {
             return NavState::Done;
         }

@@ -19,16 +19,13 @@ GateStateMachine::~GateStateMachine() = default;
 
 void GateStateMachine::updateGateTraversalPath() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
-    std::shared_ptr<Environment> env = sm->getEnv();
-    std::shared_ptr<Rover> rover = sm->getRover();
-    mPath.clear();
-    makeSpiderPath(rover, env);
+    makeSpiderPath(sm->getRover(), sm->getEnv());
     publishGatePath();
 }
 
 //gets the point that the rover should follow off the path
 //the farthest along point on the path that doesn't intersect with the gate
-Odometry GateStateMachine::getPointToFollow(Odometry curRoverLocation){
+Odometry GateStateMachine::getPointToFollow(Odometry curRoverLocation) {
     //todo: optimize away the prep point
     return mPath[mPathIndex];
 }
@@ -43,6 +40,7 @@ NavState GateStateMachine::run() {
     switch (rover->currentState()) {
         case NavState::BeginGateSearch: {
             mPathIndex = 0;
+            updateGateTraversalPath();
             return NavState::GateTraverse;
         }
         case NavState::GateTraverse: {
@@ -53,8 +51,16 @@ NavState GateStateMachine::run() {
                 Odometry const& toFollow = getPointToFollow(rover->odometry());
                 double dt = sm->getDtSeconds();
                 if (rover->drive(toFollow, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
-                    std::cout << mPathIndex << std::endl;
+                    std::cout << "At gate path index: " << mPathIndex << std::endl;
                     ++mPathIndex;
+                }
+            }
+            if (mPathIndex > 0) {
+                // This avoids the situation where you approach the gate
+                // perpendicularly and try to rapidly switch between
+                // approaching either side
+                if (env->hasNewPostUpdate() && env->hasGateLocation()) {
+                    updateGateTraversalPath();
                 }
             }
             return NavState::GateTraverse;
@@ -88,7 +94,7 @@ void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, 
 }
 
 
-void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env) {
+void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment> const& env) {
     Vector2d p1 = env->getPostOneOffsetInCartesian(rover->odometry());
     Vector2d p2 = env->getPostTwoOffsetInCartesian(rover->odometry());
     Vector2d center = (p1 + p2) / 2;
@@ -133,7 +139,11 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     Odometry approachOdom = createOdom(cur, approachPoint, rover);
     Odometry centerOdom = createOdom(cur, center, rover);
     Odometry victoryOdom = createOdom(cur, victoryPoint, rover);
-    mPath.push_back(prepOdom);
+    mPath.clear();
+    // Near 1 if we are parallel to gate finish line
+    double gateAlignment = center.normalized().dot(postDir);
+    if (std::fabs(gateAlignment) > 0.75)
+        mPath.push_back(prepOdom);
     mPath.push_back(approachOdom);
     mPath.push_back(centerOdom);
     mPath.push_back(victoryOdom);
@@ -158,16 +168,13 @@ void GateStateMachine::publishGatePath() {
     // Construct vector from deque
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Environment> env = sm->getEnv();
-    std::vector<Odometry> arr(mPath.begin(), mPath.end());
-    arr.push_back(env->getPostOneLocation());
-    arr.push_back(env->getPostTwoLocation());//
-    ProjectedPoints gatePathPoints{
-        .pattern_size  = (int32_t)arr.size(),
-        .points = arr,
-        .path_type = "gate-path"
-    };
+    mProjectedPoints.points.assign(mPath.begin(), mPath.end());
+    mProjectedPoints.points.push_back(env->getPostOneLocation());
+    mProjectedPoints.points.push_back(env->getPostTwoLocation());
+    mProjectedPoints.pattern_size = static_cast<int32_t>(mProjectedPoints.points.size());
+    mProjectedPoints.path_type = "gate-path";
 
     std::string gatePathChannel = mConfig["lcmChannels"]["gatePathChannel"].GetString();
-    sm->getLCM().publish(gatePathChannel, &gatePathPoints);
+    sm->getLCM().publish(gatePathChannel, &mProjectedPoints);
 
 } // publishSearchPoints()

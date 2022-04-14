@@ -19,12 +19,12 @@ rapidjson::Document readConfig() {
     std::ifstream configFile;
     char* mrover_config = getenv("MROVER_CONFIG");
     //std::string path = std::string(mrover_config) + "/config_nav/config.json";
-   std::filesystem::path path;
-   if (mrover_config) {
-       path = std::filesystem::path{mrover_config} / "config_nav" / "config.json";
-   } else {
-       path = std::filesystem::current_path() / "config" / "nav" / "config.json";
-   }
+    std::filesystem::path path;
+    if (mrover_config) {
+        path = std::filesystem::path{mrover_config} / "config_nav" / "config.json";
+    } else {
+        path = std::filesystem::current_path() / "config" / "nav" / "config.json";
+    }
     configFile.open(path);
     if (!configFile) throw std::runtime_error("Could not open config file at: " + path.string());
     rapidjson::Document document;
@@ -48,29 +48,29 @@ int main() {
     auto autonCallback = [rover](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const AutonState* autonState) mutable {
         rover->setAutonState(*autonState);
     };
-    lcm.subscribe("/auton", &decltype(autonCallback)::operator(), &autonCallback);
+    lcm.subscribe("/auton", &decltype(autonCallback)::operator(), &autonCallback)->setQueueCapacity(3);
 
     auto courseCallback = [courseProgress](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const Course* course) mutable {
         courseProgress->setCourse(*course);
     };
-    lcm.subscribe("/course", &decltype(courseCallback)::operator(), &courseCallback);
+    lcm.subscribe("/course", &decltype(courseCallback)::operator(), &courseCallback)->setQueueCapacity(3);
 
     auto obstacleCallback = [env](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const Obstacle* obstacle) mutable {
         env->setObstacle(*obstacle);
     };
-    lcm.subscribe("/obstacle", &decltype(obstacleCallback)::operator(), &obstacleCallback);
+    lcm.subscribe("/obstacle", &decltype(obstacleCallback)::operator(), &obstacleCallback)->setQueueCapacity(3);
 
     auto odometryCallback = [rover](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const Odometry* odometry) mutable {
         rover->setOdometry(*odometry);
     };
-    lcm.subscribe("/odometry", &decltype(odometryCallback)::operator(), &odometryCallback);
+    lcm.subscribe("/odometry", &decltype(odometryCallback)::operator(), &odometryCallback)->setQueueCapacity(3);
 
     auto targetCallback = [env](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const TargetList* targetList) mutable {
         env->setTargets(*targetList);
     };
-    lcm.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback);
-    stateMachine->setGateSearcher();
-    while (lcm.handle() == 0) {
+    lcm.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback)->setQueueCapacity(3);
+    while (lcm.good()) {
+        while (lcm.handleTimeout(0) > 0) {}
         stateMachine->run();
     }
     return 0;

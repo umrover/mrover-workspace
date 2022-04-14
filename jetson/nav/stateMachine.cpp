@@ -57,16 +57,16 @@ void StateMachine::run() {
     auto now = std::chrono::high_resolution_clock::now();
     mTimePoint = now;
 
-    static long i = 0;
-    if (++i % 256 == 0) {
-        std::cout << "Update rate: " << 1.0 / getDtSeconds() << std::endl;
+    static std::array<double, 256> readings{};
+    static int i = 0;
+    readings[i] = getDtSeconds();
+    if (++i % readings.size() == 0) {
+        double avgDt = std::accumulate(readings.begin(), readings.end(), 0.0) / readings.size();
+        std::cout << "Update rate: " << 1.0 / avgDt << std::endl;
+        i = 0;
     }
 
     mEnv->updateTargets(mRover, mCourseProgress);
-    
-    if (mEnv->hasNewPostUpdate() && mEnv->hasGateLocation()){
-        mGateStateMachine->updateGateTraversalPath();
-    }
 
     publishNavState();
     NavState nextState = NavState::Unknown;
