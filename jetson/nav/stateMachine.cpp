@@ -63,13 +63,10 @@ void StateMachine::run() {
     }
 
     mEnv->updateTargets(mRover, mCourseProgress);
-<<<<<<< HEAD
     
     if (mEnv->hasNewPostUpdate() && mEnv->hasGateLocation()){
         mGateStateMachine->updateGateTraversalPath();
     }
-=======
->>>>>>> 7eab089391ae8331cab008518d7aa1a77b2b721e
 
     publishNavState();
     NavState nextState = NavState::Unknown;
@@ -116,10 +113,6 @@ void StateMachine::run() {
                 nextState = mGateStateMachine->run();
                 break;
             }
-<<<<<<< HEAD
-=======
-            case NavState::GateMakePath:
->>>>>>> 7eab089391ae8331cab008518d7aa1a77b2b721e
             case NavState::GateTraverse: {
                 nextState = mGateStateMachine->run();
                 break;
@@ -211,11 +204,6 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::SearchTurnAroundObs,  "Search Turn Around Obstacle"},
                     {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
                     {NavState::BeginGateSearch,      "Gate Prepare"},
-<<<<<<< HEAD
-=======
-                    {NavState::GateMakePath,         "Gate Make Path"},
-                    {NavState::GateTraverse,         "Gate Drive Path"},
->>>>>>> 7eab089391ae8331cab008518d7aa1a77b2b721e
                     {NavState::GateTraverse,         "Gate Traverse"},
 
                     {NavState::Unknown,              "Unknown"}
@@ -243,19 +231,3 @@ lcm::LCM& StateMachine::getLCM() {
 double StateMachine::getDtSeconds() {
     return std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
 }
-<<<<<<< HEAD
-=======
-
-void StateMachine::publishProjectedPoints(std::deque<Odometry> path, std::string pathType) {
-    // Construct vector from deque
-    std::vector<Odometry> arr(path.begin(), path.end());
-    ProjectedPoints projectedPoints{
-        .pattern_size  = static_cast<int32_t>(arr.size()),
-        .points = arr,
-        .path_type = pathType
-    };
-
-    std::string projectedPointsChannel = mConfig["lcmChannels"]["projectedPointsChannel"].GetString();
-    mLcmObject.publish(projectedPointsChannel, &projectedPoints);
-}
->>>>>>> 7eab089391ae8331cab008518d7aa1a77b2b721e
