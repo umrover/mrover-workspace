@@ -30,6 +30,18 @@ Odometry GateStateMachine::getPointToFollow(Odometry curRoverLocation) {
     return mPath[mPathIndex];
 }
 
+bool GateStateMachine::isAlignedWithGate() {
+    std::shared_ptr<StateMachine> sm = mStateMachine.lock();
+    std::shared_ptr<Environment> env = sm->getEnv();
+    std::shared_ptr<Rover> rover = sm->getRover();
+    Vector2d p1 = env->getPostOneOffsetInCartesian(rover->odometry());
+    Vector2d p2 = env->getPostTwoOffsetInCartesian(rover->odometry());
+    Vector2d center = (p1 + p2) / 2;
+    Vector2d postDir = (p2 - p1).normalized();
+    double gateAlignment = center.normalized().dot(postDir);
+    return std::fabs(gateAlignment) > 0.75;
+}
+
 // Execute loop through gate state machine.
 NavState GateStateMachine::run() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
@@ -39,7 +51,7 @@ NavState GateStateMachine::run() {
     publishGatePath();
     switch (rover->currentState()) {
         case NavState::BeginGateSearch: {
-            mPathIndex = 0;
+            mPathIndex = isAlignedWithGate() ? 1 : 0;
             updateGateTraversalPath();
             return NavState::GateTraverse;
         }
@@ -141,9 +153,7 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     Odometry victoryOdom = createOdom(cur, victoryPoint, rover);
     mPath.clear();
     // Near 1 if we are parallel to gate finish line
-    double gateAlignment = center.normalized().dot(postDir);
-    if (std::fabs(gateAlignment) > 0.75)
-        mPath.push_back(prepOdom);
+    mPath.push_back(prepOdom);
     mPath.push_back(approachOdom);
     mPath.push_back(centerOdom);
     mPath.push_back(victoryOdom);
