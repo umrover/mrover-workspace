@@ -27,6 +27,8 @@ Odometry createOdom(const Odometry& current, double absoluteBearing, double dist
 
 Odometry createOdom(const Odometry& current, Vector2d vec, const std::shared_ptr<Rover>& rover);
 
+Vector2d createVectorBetweenOdoms(const Odometry& origin, const Odometry destination);
+
 double estimateBearing(const Odometry& start, const Odometry& dest);
 
 double mod(double degree, int modulus);
@@ -44,3 +46,7 @@ bool isLocationReachable(
 bool isObstacleDetected(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env);
 
 bool isObstacleInThreshold(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig);
+
+double distanceFromPointToLine();
+
+double doesVectorIntersectCircle();

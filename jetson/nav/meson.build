@@ -1,4 +1,4 @@
-project('nav', 'cpp', default_options : ['cpp_std=gnu++1z'])
+project('nav', 'cpp', default_options : ['cpp_std=gnu++1z', 'buildtype=release'])
 
 liblcm = dependency('lcm')
 

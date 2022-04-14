@@ -9,7 +9,8 @@ import {
   RoverState,
   Speeds,
   TargetListMessage,
-  ZedGimbalPosition
+  ZedGimbalPosition,
+  ProjectedPointsMessage
 } from '../../utils/types';
 
 
@@ -53,6 +54,12 @@ const state:RoverState = {
     bearing: 0
   },
 
+  projectedPointsMessage: {
+    pattern_size: 0,
+    points: [],
+    path_type: 'NA'
+  },
+
   radioSignalStrength: 100,
 
   targetList: [
@@ -90,6 +97,9 @@ const getters = {
   navStatus: (roverState:RoverState):NavStatus => roverState.navStatus,
 
   obstacleMessage: (roverState:RoverState):ObstacleMessage => roverState.obstacleMessage,
+
+  projectedPointsMessage:
+  (roverState:RoverState):ProjectedPointsMessage => roverState.projectedPointsMessage,
 
   radioStrength: (roverState:RoverState):number => roverState.radioSignalStrength,
 
@@ -140,6 +150,11 @@ const mutations = {
 
   setZedGimbalPos: (roverState:RoverState, newZedGimbalPos:ZedGimbalPosition):void => {
     Object.assign(roverState.zedGimbalPos, newZedGimbalPos);
+  },
+
+  setProjectedPointsMessage: (roverState:RoverState,
+      newProjectedPointsMessage:ProjectedPointsMessage):void => {
+    Object.assign(roverState.projectedPointsMessage, newProjectedPointsMessage);
   }
 };
 
