@@ -325,7 +325,10 @@ class SensorFusion:
             self.nav_state == "Drive" and 
             abs(self.target_bearing - self.imu.bearing.bearing_deg) < self.config["Bearing_error_threshold_deg"] and 
             abs(self.target_bearing_rate) < self.config["Bearing_rate_of_change_threshold_dps"]):
+            old_bearing = self.imu.bearing_deg + self.bearing_offset
             self.bearing_offset = self.gps.bearing.bearing_deg - (self.imu.bearing.bearing_deg - self.bearing_offset)
+            new_bearing = self.imu.bearing_deg + self.bearing_offset
+            print(f"bearing corrected from {old_bearing} to {new_bearing}, offset is now {self.bearing_offset}")
 
     def _getFreshBearing(self):
         '''
