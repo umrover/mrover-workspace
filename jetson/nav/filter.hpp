@@ -4,6 +4,13 @@
 #include <numeric>
 #include <algorithm>
 
+/***
+ * A filter that combines multiple readings into one.
+ * A user defined proportion acts as a median filter that gets rids of outliers,
+ * which are then piped into a mean filter that averages out the values.
+ *
+ * @tparam T Reading type
+ */
 template<typename T>
 class Filter {
 private:

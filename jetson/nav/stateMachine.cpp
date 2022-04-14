@@ -42,13 +42,6 @@ void StateMachine::updateObstacleDistance(double distance) {
     mObstacleAvoidanceStateMachine->updateObstacleDistance(distance);
 }
 
-// Allows outside objects to set the original obstacle angle
-// This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleElements(double leftBearing, double rightBearing, double distance) {
-    mObstacleAvoidanceStateMachine->updateObstacleAngle(leftBearing, rightBearing);
-    updateObstacleDistance(distance);
-}
-
 // Runs the state machine through one iteration. The state machine will
 // run if the state has changed or if the rover's status has changed.
 // Will call the corresponding function based on the current state.
@@ -57,6 +50,7 @@ void StateMachine::run() {
     auto now = std::chrono::high_resolution_clock::now();
     mTimePoint = now;
 
+    // Diagnostic info: take average loop time
     static std::array<double, 256> readings{};
     static int i = 0;
     readings[i] = getDtSeconds();
@@ -129,7 +123,7 @@ void StateMachine::run() {
         }
     } else {
         nextState = NavState::Off;
-        mRover->setState(executeOff()); // turn off immediately
+        mRover->setState(executeOff()); // Turn off immediately
         if (nextState != mRover->currentState()) {
             mRover->setState(nextState);
         }
@@ -171,6 +165,7 @@ NavState StateMachine::executeDone() {
 
 /**
  * Drive through the waypoints defined by course progress.
+ *
  * @return Next state
  */
 NavState StateMachine::executeDrive() {

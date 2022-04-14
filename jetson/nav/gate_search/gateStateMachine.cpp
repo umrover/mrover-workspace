@@ -23,10 +23,8 @@ void GateStateMachine::updateGateTraversalPath() {
     publishGatePath();
 }
 
-//gets the point that the rover should follow off the path
-//the farthest along point on the path that doesn't intersect with the gate
+// TODO: still needed?
 Odometry GateStateMachine::getPointToFollow(Odometry curRoverLocation) {
-    //todo: optimize away the prep point
     return mPath[mPathIndex];
 }
 
@@ -42,7 +40,15 @@ bool GateStateMachine::isParallelToGate() {
     return std::fabs(gateAlignment) > 0.75;
 }
 
-// Execute loop through gate state machine.
+/***
+ * Main gate search machine logic:
+ * If we have just began, check how aligned we are with the gate.
+ * This decides what paths to include in our gate path.
+ * If we are traversing the gate, try to go to the next post.
+ * If we are past the prep point try to remake the point from new readings.
+ *
+ * @return Next state
+ */
 NavState GateStateMachine::run() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Environment> env = sm->getEnv();
@@ -51,13 +57,15 @@ NavState GateStateMachine::run() {
     publishGatePath();
     switch (rover->currentState()) {
         case NavState::BeginGateSearch: {
+            // If we are parallel to the gate, we can't simply align a bit then drive through.
+            // We have to navigate around the closest point, so include the prep point,
+            // which is always index zero.
             mPathIndex = isParallelToGate() ? 0 : 1;
             updateGateTraversalPath();
             return NavState::GateTraverse;
         }
         case NavState::GateTraverse: {
             if (mPathIndex == mPath.size()) {
-//                std::exit(1);
                 return NavState::Done;
             } else {
                 Odometry const& toFollow = getPointToFollow(rover->odometry());
@@ -68,9 +76,8 @@ NavState GateStateMachine::run() {
                 }
             }
             if (mPathIndex > 0) {
-                // This avoids the situation where you approach the gate
-                // perpendicularly and try to rapidly switch between
-                // approaching either side
+                // This avoids the situation where you approach the gate parallel
+                // and rapidly try to switch approaching from either side
                 if (env->hasNewPostUpdate() && env->hasGateLocation()) {
                     updateGateTraversalPath();
                 }
@@ -84,9 +91,82 @@ NavState GateStateMachine::run() {
     } // switch
 }
 
-void printPoint(Vector2d p) {
-    std::cout << "(" << p.x() << " , " << p.y() << "),";
-}
+/***
+ * Spider path include four points:
+ * Prep point if we are not aligned.
+ * Line up so we are in front of the gate.
+ * Drive to the center.
+ * Drive past the center to the end.
+ */
+void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment> const& env) {
+    Vector2d p1 = env->getPostOneOffsetInCartesian(rover->odometry());
+    Vector2d p2 = env->getPostTwoOffsetInCartesian(rover->odometry());
+    Vector2d center = (p1 + p2) / 2;
+    // TODO: make this config
+    double approachDistance = 2.0;
+    Vector2d postDir = (p2 - p1).normalized();
+    Vector2d perp = {-postDir.y(), postDir.x()};
+    Vector2d approachPoints[2] = {(perp * approachDistance) + center,
+                                  (perp * -approachDistance) + center};
+    Vector2d prepPoints[4] = {(2 * approachDistance * perp) + p1,
+                              (2 * approachDistance * perp) + p2,
+                              (-2 * approachDistance * perp) + p1,
+                              (-2 * approachDistance * perp) + p2};
+
+    // Find closest prep point
+    double minNorm = -1.0;
+    Vector2d prepPoint;
+    for (auto& i: prepPoints) {
+        double dist = i.norm();
+        if (minNorm == -1.0 || dist < minNorm) {
+            minNorm = dist;
+            prepPoint = i;
+        }
+    }
+
+    // Find the closest approach point to prep point and set the other one as a victory point (we're through the gate)
+    Vector2d approachPoint;
+    Vector2d victoryPoint;
+    double distance1 = (approachPoints[0] - prepPoint).norm();
+    double distance2 = (approachPoints[1] - prepPoint).norm();
+    if (distance1 < distance2) {
+        approachPoint = approachPoints[0];
+        victoryPoint = approachPoints[1];
+    } else {
+        approachPoint = approachPoints[1];
+        victoryPoint = approachPoints[0];
+    }
+    Odometry cur = rover->odometry();
+    Odometry prepOdom = createOdom(cur, prepPoint, rover);
+    Odometry approachOdom = createOdom(cur, approachPoint, rover);
+    Odometry centerOdom = createOdom(cur, center, rover);
+    Odometry victoryOdom = createOdom(cur, victoryPoint, rover);
+    mPath.clear();
+    // Near 1 if we are parallel to gate finish line
+    mPath.push_back(prepOdom);
+    mPath.push_back(approachOdom);
+    mPath.push_back(centerOdom);
+    mPath.push_back(victoryOdom);
+} // makeSpiderPath()
+
+// Creates an GateStateMachine object
+std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig) {
+    return std::make_shared<GateStateMachine>(sm, roverConfig);
+} // GateFactory()
+
+// Sends search path rover takes when trying to find posts
+void GateStateMachine::publishGatePath() {
+    std::shared_ptr<StateMachine> sm = mStateMachine.lock();
+    std::shared_ptr<Environment> env = sm->getEnv();
+    mProjectedPoints.points.assign(mPath.begin(), mPath.end());
+    mProjectedPoints.points.push_back(env->getPostOneLocation());
+    mProjectedPoints.points.push_back(env->getPostTwoLocation());
+    mProjectedPoints.pattern_size = static_cast<int32_t>(mProjectedPoints.points.size());
+    mProjectedPoints.path_type = "gate-path";
+    std::string gatePathChannel = mConfig["lcmChannels"]["gatePathChannel"].GetString();
+    sm->getLCM().publish(gatePathChannel, &mProjectedPoints);
+
+} // publishGatePath()
 
 void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env) {
     Vector2d p1 = env->getPostOneOffsetInCartesian(rover->odometry());
@@ -103,88 +183,4 @@ void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, 
     double rotateBearing = perpBearing - (driveDist > 0 ? 105.0 : -105);
     Odometry throughOdometry = createOdom(perpOdometry, rotateBearing, m.norm() + 2.0, rover);
     mPath.push_back(throughOdometry);
-}
-
-
-void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment> const& env) {
-    Vector2d p1 = env->getPostOneOffsetInCartesian(rover->odometry());
-    Vector2d p2 = env->getPostTwoOffsetInCartesian(rover->odometry());
-    Vector2d center = (p1 + p2) / 2;
-    // TODO make this a constant
-    double approachDistance = 2.0;
-    Vector2d postDir = (p2 - p1).normalized();
-    Vector2d perp = {-postDir.y(), postDir.x()};
-    Vector2d approachPoints[2] = {(perp * approachDistance) + center,
-                                  (perp * -approachDistance) + center};
-    Vector2d prepPoints[4] = {(2 * approachDistance * perp) + p1,
-                              (2 * approachDistance * perp) + p2,
-                              (-2 * approachDistance * perp) + p1,
-                              (-2 * approachDistance * perp) + p2};
-
-    // find closest prep point
-    double minNorm = -1.0;
-    Vector2d prepPoint;
-    for (auto& i: prepPoints) {
-        double dist = i.norm();
-        if (minNorm == -1.0 || dist < minNorm) {
-            minNorm = dist;
-            prepPoint = i;
-        }
-    }
-
-    // find the closest approach point to prep point and set the other one as a victory point (we're through the gate)
-    minNorm = -1.0;
-    Vector2d approachPoint;
-    Vector2d victoryPoint;
-    double distance1 = (approachPoints[0] - prepPoint).norm();
-    double distance2 = (approachPoints[1] - prepPoint).norm();
-    if (distance1 < distance2) {
-        approachPoint = approachPoints[0];
-        victoryPoint = approachPoints[1];
-    } else {
-        approachPoint = approachPoints[1];
-        victoryPoint = approachPoints[0];
-    }
-    Odometry cur = rover->odometry();
-//    std::cout << prepPoint.x() << ", " << prepPoint.y() << " , " << approachPoint.x() << " , " << approachPoint.y()) << std::endl;
-    Odometry prepOdom = createOdom(cur, prepPoint, rover);
-    Odometry approachOdom = createOdom(cur, approachPoint, rover);
-    Odometry centerOdom = createOdom(cur, center, rover);
-    Odometry victoryOdom = createOdom(cur, victoryPoint, rover);
-    mPath.clear();
-    // Near 1 if we are parallel to gate finish line
-    mPath.push_back(prepOdom);
-    mPath.push_back(approachOdom);
-    mPath.push_back(centerOdom);
-    mPath.push_back(victoryOdom);
-
-    // std::cout << "points = (";
-    // printPoint(p1);
-    // printPoint(p2);
-    // printPoint(prepPoint);
-    // printPoint(approachPoint);
-    // printPoint(center);
-    // printPoint(victoryPoint);
-    // std::cout << ")" << std::endl;
-}
-
-// Creates an GateStateMachine object
-std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig) {
-    return std::make_shared<GateStateMachine>(sm, roverConfig);
-} // GateFactory()
-
-// Sends search path rover takes when trying to find posts
-void GateStateMachine::publishGatePath() {
-    // Construct vector from deque
-    std::shared_ptr<StateMachine> sm = mStateMachine.lock();
-    std::shared_ptr<Environment> env = sm->getEnv();
-    mProjectedPoints.points.assign(mPath.begin(), mPath.end());
-    mProjectedPoints.points.push_back(env->getPostOneLocation());
-    mProjectedPoints.points.push_back(env->getPostTwoLocation());
-    mProjectedPoints.pattern_size = static_cast<int32_t>(mProjectedPoints.points.size());
-    mProjectedPoints.path_type = "gate-path";
-
-    std::string gatePathChannel = mConfig["lcmChannels"]["gatePathChannel"].GetString();
-    sm->getLCM().publish(gatePathChannel, &mProjectedPoints);
-
-} // publishSearchPoints()
+} // makeDualSegmentPath()

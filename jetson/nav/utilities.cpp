@@ -99,42 +99,22 @@ void throughZero(double& destinationBearing, const double currentBearing) {
     }
 } // throughZero()
 
-// Returns true if the rover can reach the input location without hitting the obstacle.
-// ASSUMPTION: There is an obstacle detected.
-// ASSUMPTION: The rover is driving straight.
-bool isLocationReachable(
-        const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig,
-        double locDist, double distThresh
-) {
-    Obstacle const& obstacle = env->getObstacle();
-    double distToObs = obstacle.distance;
-    double bearToObs = std::min(obstacle.bearing, obstacle.rightBearing);
-    double bearToObsComplement = 90 - bearToObs;
-    double xComponentOfDistToObs = distToObs * cos(bearToObsComplement);
+Odometry createOdom(double latitude, double longitude) {
+    double latitudeDeg;
+    double longitudeDeg;
+    double latitudeMin = std::modf(latitude, &latitudeDeg);
+    double longitudeMin = std::modf(longitude, &longitudeDeg);
+    latitudeMin *= 60.0;
+    longitudeMin *= 60.0;
+    return Odometry{
+            static_cast<int32_t>(latitudeDeg), latitudeMin,
+            static_cast<int32_t>(longitudeDeg), longitudeMin
+    };
+}
 
-    bool isReachable = false;
+Vector2d getOffsetInCartesian(Odometry current, Odometry target) {
+    double bearing = degreeToRadian(estimateBearing(current, target));
+    double distance = estimateDistance(current, target);
+    return {distance * cos(bearing), distance * sin(bearing)};
+}
 
-    // if location - distThresh is closer than the obstacle, it's reachable
-    isReachable |= distToObs > locDist - distThresh;
-
-    // if obstacle is farther away in "x direction" than rover's width, it's reachable
-    isReachable |= xComponentOfDistToObs > roverConfig["roverMeasurements"]["width"].GetDouble() / 2;
-
-    return isReachable;
-} // isLocationReachable()
-
-// Returns true if an obstacle is detected, false otherwise.
-bool isObstacleDetected(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env) {
-    return env->getObstacle().distance >= 0;
-} // isObstacleDetected()
-
-// Returns true if distance from obstacle is within user-configurable threshold
-bool isObstacleInThreshold(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig) {
-    return env->getObstacle().distance <= roverConfig["navThresholds"]["obstacleDistanceThreshold"].GetDouble();
-} // isObstacleInThreshold()
-
-Vector2d createVectorBetweenOdoms(const Odometry& origin, const Odometry destination){
-    double bearing = radianToDegree(estimateBearing(origin, destination));
-    double distance = estimateDistance(origin, destination);
-    return {cos(bearing) * distance, sin(bearing) * distance};
-}//createVectorBetweenOdoms
