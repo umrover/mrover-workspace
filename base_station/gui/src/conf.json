@@ -1,7 +1,7 @@
 {
 	"cameras":
 	{
-        "-1": "No Camera",
+		"-1": "No Camera",
 		"0": "Camera 0",
 		"1": "Camera 1",
         "2": "Camera 2",
