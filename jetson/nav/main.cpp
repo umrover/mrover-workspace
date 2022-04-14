@@ -26,7 +26,7 @@ rapidjson::Document readConfig() {
 //        path = std::filesystem::current_path() / "config" / "nav" / "config.json";
 //    }
     configFile.open(path);
-    if (!configFile) throw std::runtime_error("Could not open config file at: " + path);
+    if (!configFile) throw std::runtime_error("Could not open config file at: " + path.string());
     rapidjson::Document document;
     rapidjson::IStreamWrapper isw(configFile);
     document.ParseStream(isw);

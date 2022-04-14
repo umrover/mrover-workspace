@@ -2,6 +2,7 @@ import asyncio
 from math import copysign
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
+<<<<<<< HEAD
 from rover_msgs import (Joystick, Xbox, Keyboard,
                         DriveVelCmd, GimbalCmd,
                         AutonState, AutonDriveControl,
@@ -10,6 +11,12 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
                         SAOpenLoopCmd, FootCmd,
                         ArmControlState,
                         ReverseDrive)
+=======
+from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
+                        Xbox, Temperature, RAOpenLoopCmd,
+                        SAOpenLoopCmd, GimbalCmd, HandCmd,
+                        Keyboard, FootCmd, ArmControlState)
+>>>>>>> main
 
 
 class Toggle:
@@ -114,8 +121,8 @@ class Drive:
         # Convert arcade drive to tank drive
         # TODO: possibly flip signs of rotation if necessary
         angular_op = (angular / 2) / (abs(linear) + 0.5)
-        vel_left = linear + angular_op
-        vel_right = linear - angular_op
+        vel_left = linear - angular_op
+        vel_right = linear + angular_op
 
         # Account for reverse
         if self.reverse:
@@ -164,6 +171,32 @@ def send_zero_arm_command():
     lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
 
+<<<<<<< HEAD
+def arm_control_state_callback(channel, msg):
+    arm_control_state = ArmControlState.decode(msg)
+=======
+        damp = (input_data.dampen - 1)/(2)
+        new_motor.left *= damp
+        new_motor.right *= damp
+>>>>>>> main
+
+    if arm_control_state != 'open-loop':
+        send_zero_arm_command()
+
+
+def send_zero_arm_command():
+    openloop_msg = RAOpenLoopCmd()
+    openloop_msg.throttle = [0, 0, 0, 0, 0, 0]
+
+    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+
+    hand_msg = HandCmd()
+    hand_msg.finger = 0
+    hand_msg.grip = 0
+
+    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+
+
 def arm_control_state_callback(channel, msg):
     arm_control_state = ArmControlState.decode(msg)
 
@@ -195,6 +228,22 @@ def ra_control_callback(channel, msg):
     lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
 
+<<<<<<< HEAD
+=======
+def autonomous_callback(channel, msg):
+    input_data = Joystick.decode(msg)
+    new_motor = DriveVelCmd()
+
+    joystick_math(new_motor, input_data.forward_back, input_data.left_right)
+
+    temp = new_motor.left
+    new_motor.left = new_motor.right
+    new_motor.right = temp
+
+    lcm_.publish('/drive_vel_cmd', new_motor.encode())
+
+
+>>>>>>> main
 async def transmit_temperature():
     while True:
         new_temps = Temperature()
@@ -282,6 +331,11 @@ def main():
     lcm_.subscribe('/sa_control', sa_control_callback)
     lcm_.subscribe('/arm_control_state', arm_control_state_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
+<<<<<<< HEAD
+=======
+    lcm_.subscribe('/arm_control_state', arm_control_state_callback)
+    # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
+>>>>>>> main
 
     run_coroutines(hb.loop(), lcm_.loop(),
                    transmit_temperature(), transmit_drive_status())

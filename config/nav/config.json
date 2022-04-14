@@ -1,7 +1,11 @@
 {
 	"bearingPid":
 	{
+<<<<<<< HEAD
 		"kP": 0.05,
+=======
+		"kP": 0.01,
+>>>>>>> 7eab089391ae8331cab008518d7aa1a77b2b721e
 		"kI": 0.0,
 		"kD": 0.0
 	},
@@ -58,6 +62,7 @@
 		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
 		"zedGimbalPosition": "/zed_gimbal_data",
+<<<<<<< HEAD
 		"gatePathChannel": "/gate_path"
 	},
 
@@ -65,6 +70,9 @@
 	{
 		"signalStrengthCutOff": 30.0,
 		"lowSignalWaitTime": 3
+=======
+		"projectedPointsChannel": "/projected_points"
+>>>>>>> 7eab089391ae8331cab008518d7aa1a77b2b721e
 	},
 
 	"search":

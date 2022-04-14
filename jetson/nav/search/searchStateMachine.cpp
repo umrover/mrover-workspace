@@ -16,6 +16,7 @@ SearchStateMachine::SearchStateMachine(std::weak_ptr<StateMachine> sm, const rap
 // StateMachine  when NavState is in a search state. This will call the corresponding
 // function based on the current state and return the next NavState
 NavState SearchStateMachine::run() {
+    mStateMachine.lock()->publishProjectedPoints(mSearchPoints, "search");
     switch (mStateMachine.lock()->getRover()->currentState()) {
         case NavState::Search: {
             return executeSearch();

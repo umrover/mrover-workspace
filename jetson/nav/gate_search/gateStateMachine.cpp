@@ -18,6 +18,7 @@ GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, con
 GateStateMachine::~GateStateMachine() = default;
 
 void GateStateMachine::updateGateTraversalPath() {
+<<<<<<< HEAD
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
@@ -30,6 +31,12 @@ void GateStateMachine::updateGateTraversalPath() {
 Odometry GateStateMachine::getPointToFollow(Odometry curRoverLocation){
     //todo: optimize away the prep point
     return mPath[mPathIndex];
+=======
+    //TODO: update the gatePath vector here with a path to go to
+//    std::shared_ptr<Environment> env = mStateMachine.lock()->getEnv();
+//    Odometry leftPost = env->getLeftPostLocation();
+//    Odometry rightPost = env->getRightPostLocation();
+>>>>>>> 7eab089391ae8331cab008518d7aa1a77b2b721e
 }
 
 // Execute loop through gate state machine.
@@ -38,6 +45,7 @@ NavState GateStateMachine::run() {
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
 
+<<<<<<< HEAD
     publishGatePath();
     switch (rover->currentState()) {
         case NavState::BeginGateSearch: {
@@ -54,6 +62,36 @@ NavState GateStateMachine::run() {
                 if (rover->drive(toFollow, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
                     std::cout << mPathIndex << std::endl;
                     ++mPathIndex;
+=======
+    sm->publishProjectedPoints(mPath, "gate");
+    switch (rover->currentState()) {
+        case NavState::BeginGateSearch: {
+            mPath.clear();
+            return NavState::GateMakePath;
+        }
+        case NavState::GateMakePath: {
+//            mPath.push_back(createOdom(rover->odometry(), {4.0, 0.0}, rover));
+//            mPath.push_back(createOdom(rover->odometry(), {4.0, 4.0}, rover));
+            // if (env->areTargetFiltersReady()) {
+            makeSpiderPath(rover, env);
+//                makeDualSegmentPath(rover, env);
+//                return NavState::GateTraverse;
+            // } else {
+            //    rover->stop();
+            //    mPath.clear();
+            //}
+            //return NavState::GateMakePath;
+        }
+        case NavState::GateTraverse: {
+            if (mPath.empty()) {
+//                std::exit(1);
+                return NavState::Done;
+            } else {
+                Odometry const& front = mPath.front();
+                double dt = sm->getDtSeconds();
+                if (rover->drive(front, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+                    mPath.pop_front();
+>>>>>>> 7eab089391ae8331cab008518d7aa1a77b2b721e
                 }
             }
             return NavState::GateTraverse;
@@ -66,7 +104,11 @@ NavState GateStateMachine::run() {
 }
 
 void printPoint(Vector2d p) {
+<<<<<<< HEAD
     std::cout << "(" << p.x() << " , " << p.y() << "),";
+=======
+    std::cout << "Vec2D: (" << p.x() << " , " << p.y() << ")" << std::endl;
+>>>>>>> 7eab089391ae8331cab008518d7aa1a77b2b721e
 }
 
 void GateStateMachine::makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env) {

@@ -6,15 +6,17 @@
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="tangent" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="tangentIcon"/>
       <l-marker ref="rover" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="locationIcon"/>
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in route" :key="waypoint.id" >
-        <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
-      </l-marker>
 
-      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint,index) in list" :key="waypoint.id">
+      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint, index) in waypointList" :key="index">
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
       </l-marker>
 
+      <l-marker :lat-lng="projected_point.latLng" :icon="projectedPointIcon" v-for="(projected_point, index) in projectedPoints" :key="index">
+         <l-tooltip :options="{ permanent: 'true', direction: 'top'}">{{ projectedPointsType }} {{ index }}</l-tooltip>
+      </l-marker>
+
       <l-polyline :lat-lngs="this.playbackEnabled ? polylinePlaybackPath : polylinePath" :color="'red'" :dash-array="'5, 5'"/>
+      <l-polyline :lat-lngs="projectedPath" :color="'black'" :dash-array="'5, 5'" :fill="false"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
       <l-polyline :lat-lngs="playbackPath" :color="'green'"/>
     </l-map>
@@ -62,12 +64,32 @@ export default {
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
+    this.projectedPointIcon = L.icon({
+      iconUrl: '/static/map_marker_projected.png',
+      iconSize: [64, 64],
+      iconAnchor: [32, 64],
+      popupAnchor: [0, -32]
+    })
+
+    this.$parent.subscribe('/projected_points', (msg) => {
+      let newProjectedList = msg.points
+      this.projectedPoints = newProjectedList.map((projected_point) => {
+        return {
+          latLng: L.latLng(
+            projected_point.latitude_deg + projected_point.latitude_min/60,
+            projected_point.longitude_deg + projected_point.longitude_min/60
+          )
+        }
+      })
+
+      this.projectedPointsType = msg.path_type
+    })
   },
 
   computed: {
     ...mapGetters('autonomy', {
       route: 'route',
-      list: 'waypointList',
+      waypointList: 'waypointList',
       playbackEnabled: 'playbackEnabled',
       playbackLength: 'playbackLength',
       playback: 'playback',
@@ -83,6 +105,10 @@ export default {
 
     polylinePath: function () {
       return [this.odomLatLng].concat(this.route.map(waypoint => waypoint.latLng))
+    },
+
+    projectedPath: function () {
+      return [this.odomLatLng].concat(this.projectedPoints.map(projected_point => projected_point.latLng))
     },
 
     polylinePlaybackPath: function () {
@@ -103,6 +129,10 @@ export default {
       locationIcon: null,
       tangentIcon: null,
       odomPath: [],
+
+      projectedPoints: [],
+      projectedPointsType: '',
+
       findRover: false,
 
       playbackPath: [],
