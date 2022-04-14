@@ -62,11 +62,7 @@ private:
 
     void makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment> const& env);
 
-    bool isAlignedWithGate();
-
-    bool isAlignedWithGate();
-
-    bool isAlignedWithGate();
+    bool isParallelToGate();
 };
 
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);

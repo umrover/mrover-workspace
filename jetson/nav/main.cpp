@@ -2,7 +2,7 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
-//#include <filesystem>
+#include <filesystem>
 
 #include <lcm/lcm-cpp.hpp>
 #include "rapidjson/document.h"
@@ -26,6 +26,7 @@ rapidjson::Document readConfig() {
 //        path = std::filesystem::current_path() / "config" / "nav" / "config.json";
 //    }
     configFile.open(path);
+//    if (!configFile) throw std::runtime_error("Could not open config file at: " + path.string());
     if (!configFile) throw std::runtime_error("Could not open config file at: " + path);
     rapidjson::Document document;
     rapidjson::IStreamWrapper isw(configFile);

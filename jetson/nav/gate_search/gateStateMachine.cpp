@@ -30,7 +30,7 @@ Odometry GateStateMachine::getPointToFollow(Odometry curRoverLocation) {
     return mPath[mPathIndex];
 }
 
-bool GateStateMachine::isAlignedWithGate() {
+bool GateStateMachine::isParallelToGate() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Environment> env = sm->getEnv();
     std::shared_ptr<Rover> rover = sm->getRover();
@@ -51,7 +51,7 @@ NavState GateStateMachine::run() {
     publishGatePath();
     switch (rover->currentState()) {
         case NavState::BeginGateSearch: {
-            mPathIndex = isAlignedWithGate() ? 1 : 0;
+            mPathIndex = isParallelToGate() ? 0 : 1;
             updateGateTraversalPath();
             return NavState::GateTraverse;
         }

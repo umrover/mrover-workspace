@@ -8,6 +8,10 @@
 #include <utility>
 #include <iostream>
 
+#include <eigen3/Eigen/Geometry>
+
+using Eigen::Rotation2Dd;
+
 // Constructs an SearchStateMachine object with mStateMachine, mConfig, and mRover
 SearchStateMachine::SearchStateMachine(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig)
         : mStateMachine(move(sm)), mConfig(roverConfig) {}
@@ -133,15 +137,18 @@ NavState SearchStateMachine::executeDriveToTarget() {
             //put this in some other function
             mSearchPoints.clear();
 
-            Vector2d deltas[4] = {{0.5,  0.5},
-                                  {-0.5, 0.5},
-                                  {-0.5, -0.5},
-                                  {0.5,  -0.5}};
-            double diamondDist = 3;
-            for (auto& delta: deltas) {
-                delta /= delta.norm();
-                delta *= diamondDist;
-                mSearchPoints.push_back(createOdom(rover->odometry(), delta, rover));
+            Vector2d points[4] = {{0.5, 0.5},
+                                  {1.0, 0.0},
+                                  {0.5, -0.5},
+                                  {0.0, 0.0}};
+            double diamondScale = 4;
+            for (auto& p: points) {
+                p *= diamondScale;
+                p = Rotation2Dd{degreeToRadian(currentBearing)} * p;
+                mSearchPoints.push_back(createOdom(rover->odometry(), p, rover));
+
+                ProjectedPoints proj{4, std::vector<Odometry>(mSearchPoints.begin(), mSearchPoints.end()), "gate-path"};
+                sm->getLCM().publish(mConfig["lcmChannels"]["gatePathChannel"].GetString(), &proj);
             }
             mDrivenToFirstPost = true;
             return NavState::Search;
