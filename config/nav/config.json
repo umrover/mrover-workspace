@@ -58,7 +58,8 @@
 		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
 		"zedGimbalPosition": "/zed_gimbal_data",
-		"gatePathChannel": "/projected_points"
+		"gatePathChannel": "/projected_points", 
+		"targetBearingChannel": "/target_bearing"
 	},
 
 	"radioRepeaterThresholds":
