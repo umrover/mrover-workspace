@@ -24,6 +24,6 @@
     "TargetCoords": {"lat": 0.0000, "long": 0.0000},
     
     "Bearing_correction_interval_sec": 60,
-    "Bearing_error_threshold": 5,
-    "Bearing_rate_of_change_threshold": 10
+    "Bearing_error_threshold_deg": 5,
+    "Bearing_rate_of_change_threshold_dps": 10
 }

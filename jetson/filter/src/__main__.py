@@ -141,6 +141,7 @@ class SensorFusion:
         self.lcm.subscribe("/imu_data", self._imuCallback)
         self.lcm.subscribe("/nav_status", self._navStatusCallback)
         self.lcm.subscribe("/drive_vel_data", self._driveVelDataCallback)
+        self.lcm.subscribe("/target_bearing", self._targetBearingCallback)
 
         # Initializations for magnetometer bearing correction
         self.last_bearing_correction = time.time()
@@ -322,8 +323,8 @@ class SensorFusion:
         if (time.time() - self.last_bearing_correction > self.config["Bearing_offset_interval_sec"] and
             self.gps.bearing != 999 and 
             self.nav_state == "Drive" and 
-            abs(self.target_bearing - self.imu.bearing.bearing_deg) < self.config["Bearing_error_threshold"] and 
-            abs(self.target_bearing_rate) < self.config["Bearing_rate_of_change_threshold"]):
+            abs(self.target_bearing - self.imu.bearing.bearing_deg) < self.config["Bearing_error_threshold_deg"] and 
+            abs(self.target_bearing_rate) < self.config["Bearing_rate_of_change_threshold_dps"]):
             self.bearing_offset = self.gps.bearing.bearing_deg - (self.imu.bearing.bearing_deg - self.bearing_offset)
 
     def _getFreshBearing(self):
