@@ -127,9 +127,11 @@ export default {
     created: function() {
  
         // upon closing, ask user if they want to close and then download
-        window.addEventListener('beforeunload', function (e)  {
-            e.preventDefault();
-            e.returnValue = '';
+        window.addEventListener('beforeunload', (e) =>  {
+            if (this.num_logs !== 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
         })
 
         // time between interations in seconds
@@ -262,7 +264,7 @@ export default {
     methods: {
         download_log() {
 
-            if (this.timestamp.length === 0) {
+            if (this.num_logs === 0) {
                 return
             }
 
