@@ -125,11 +125,11 @@ export default {
     },
 
     created: function() {
-
+ 
         // upon closing, ask user if they want to close and then download
-        window.addEventListener('beforeunload', () => {
-            this.preventDefault();
-            download_log();
+        window.addEventListener('beforeunload', function (e)  {
+            e.preventDefault();
+            e.returnValue = '';
         })
 
         // time between interations in seconds
@@ -261,6 +261,11 @@ export default {
 
     methods: {
         download_log() {
+
+            if (this.timestamp.length === 0) {
+                return
+            }
+
             var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Left Control,Right Control,Bearing0,Distance0,id0,Bearing1,Distance1,id1\n'
 
             for (let i = 0; i < this.num_logs; i++) {
