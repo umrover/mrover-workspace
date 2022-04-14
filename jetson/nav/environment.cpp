@@ -7,8 +7,8 @@
 
 Environment::Environment(const rapidjson::Document& config) :
         mConfig(config),
-        mTargetLeft(3, 20, {-1, -1, -1}),
-        mTargetRight(3, 20, {-1, -1, -1})
+        mTargetLeft(3, 1, {-1, -1, -1}),
+        mTargetRight(3, 1, {-1, -1, -1})
         {}
 
 void Environment::setObstacle(Obstacle const& obstacle) {
@@ -53,11 +53,13 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
         double currentBearing = rover->odometry().bearing_deg;
         if (rightReady) {
             if (rightTarget.id == mBaseGateId) {
+                //std::cout << "updating post 1 r" << std::endl;
                 mPostOne = createOdom(rover->odometry(), currentBearing + rightTarget.bearing, rightTarget.distance, rover);
                 mHasPostOne = true;
                 mHasNewPostUpdate = true;
             }
             if (rightTarget.id == mBaseGateId + 1) {
+                //std::cout << "updating post 2 r" << std::endl;
                 mPostTwo = createOdom(rover->odometry(), currentBearing + rightTarget.bearing, rightTarget.distance, rover);
                 mHasPostTwo = true;
                 mHasNewPostUpdate = true;
@@ -65,11 +67,13 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
         }
         if (leftReady) {
             if (leftTarget.id == mBaseGateId) {
+                //std::cout << "updating post 1 l" << std::endl;
                 mPostOne = createOdom(rover->odometry(), currentBearing + leftTarget.bearing, leftTarget.distance, rover);
                 mHasPostOne = true;
                 mHasNewPostUpdate = true;
             }
             if (leftTarget.id == mBaseGateId + 1) {
+                //std::cout << "updating post 2 l" << std::endl;
                 mPostTwo = createOdom(rover->odometry(), currentBearing + leftTarget.bearing, leftTarget.distance, rover);
                 mHasPostTwo = true;
                 mHasNewPostUpdate = true;

@@ -138,14 +138,14 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     mPath.push_back(centerOdom);
     mPath.push_back(victoryOdom);
 
-    std::cout << "points = (";
-    printPoint(p1);
-    printPoint(p2);
-    printPoint(prepPoint);
-    printPoint(approachPoint);
-    printPoint(center);
-    printPoint(victoryPoint);
-    std::cout << ")" << std::endl;
+    // std::cout << "points = (";
+    // printPoint(p1);
+    // printPoint(p2);
+    // printPoint(prepPoint);
+    // printPoint(approachPoint);
+    // printPoint(center);
+    // printPoint(victoryPoint);
+    // std::cout << ")" << std::endl;
 }
 
 // Creates an GateStateMachine object
