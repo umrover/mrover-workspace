@@ -15,6 +15,14 @@
          <l-tooltip :options="{ permanent: 'true', direction: 'top'}">{{ projectedPointsType }} {{ index }}</l-tooltip>
       </l-marker>
 
+      <l-marker :lat-lng="post1.latLng" :icon="post1Icon" v-for="(post1, index) in post1" :key="index">
+         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }}</l-tooltip>
+      </l-marker>
+
+      <l-marker :lat-lng="post2.latLng" :icon="post2Icon" v-for="(post2, index) in post2" :key="index">
+         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }}</l-tooltip>
+      </l-marker>
+
       <l-polyline :lat-lngs="this.playbackEnabled ? polylinePlaybackPath : polylinePath" :color="'red'" :dash-array="'5, 5'"/>
       <l-polyline :lat-lngs="projectedPath" :color="'black'" :dash-array="'5, 5'" :fill="false"/>
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
@@ -70,6 +78,18 @@ export default {
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
+    this.post1Icon = L.icon({
+      iconUrl: '/static/gate_location.png',
+      iconSize: [64, 64],
+      iconAnchor: [32, 64],
+      popupAnchor: [0, -32]
+    })
+    this.post2Icon = L.icon({
+      iconUrl: '/static/gate_location.png',
+      iconSize: [64, 64],
+      iconAnchor: [32, 64],
+      popupAnchor: [0, -32]
+    })
 
     this.$parent.subscribe('/projected_points', (msg) => {
       let newProjectedList = msg.points
@@ -84,6 +104,22 @@ export default {
 
       this.projectedPointsType = msg.path_type
     })
+
+    this.$parent.subscribe('/estimated_gate_location', (msg) => {
+      this.post1 =  { latLng1: 
+        L.latLng(
+            msg.post1.latitude_deg + msg.post1.latitude_min/60,
+            msg.post1.longitude_deg + msg.post1.longitude_min/60
+        )
+      }
+      this.post2 = { latLng2:
+        L.latLng(
+            msg.post2.latitude_deg + msg.post2.latitude_min/60,
+            msg.post2.longitude_deg + msg.post2.longitude_min/60
+        )
+      }
+    })
+
   },
 
   computed: {
@@ -132,6 +168,10 @@ export default {
 
       projectedPoints: [],
       projectedPointsType: '',
+
+      post1: [],
+
+      post2: [],
 
       findRover: false,
 

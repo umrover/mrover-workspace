@@ -225,6 +225,16 @@
             "joint_f"
         ]
     ],
+    "EstimatedGateLocation": [
+        [
+            "Odometry",
+            "post1"
+        ],
+        [
+            "Odometry",
+            "post2"
+        ]
+    ],
     "FKTransform": [
         [
             "double",
@@ -1051,6 +1061,7 @@
         "Encoder",
         "ESCThrottle",
         "ESCToggle",
+        "EstimatedGateLocation",
         "FKTransform",
         "GPS",
         "Heartbeat",
