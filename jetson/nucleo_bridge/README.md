@@ -25,7 +25,7 @@ Outgoing lcm messages are triggered by a clock, which query the functions on the
 
 I2C.h is responsible for translating communications by virtual Controllers into i2c transactions understood by the linux drivers.
 
-There are no watchdogs in this program currently.
+The following watchdog is implemented: If the nucleos do not receive any I2C messages for a given amount of time (currently about 443 ms), then they reset.
 
 ### LCM Channels Publishing/Subscribed To
 #### RA Open Loop \[Subscriber\] "/ra_openloop_cmd"
@@ -90,7 +90,7 @@ Subscriber: jetson/nucleo_bridge
 
 ### Watchdog Timeout Period
 
-The hardware does not have any watchdog time out period.
+See above, but the watchdog timeout period is currently set to 443 ms.
 
 ### Usage
 
@@ -130,13 +130,14 @@ nucleo_bridge will continue to attempt i2c bus transactions as commands come in 
 #### "Assertation failed" while initializing a virtual controller
 There is an issue with mrover-workspace/config/nucleo_bridge/Controller.cpp. Resolve the configuration file's issues before running the program.
 
+#### Encoder values resetting
+If two devices share the same i2c address but their functions are continuously called, then one may see the encoder values changing. This is because when only one device for a specific i2c address can be live at a time and when each device is first made live, it's quadrature encoder value is adjusted to its absolute encoder value.
+
+
 ### ToDo
-- [ ] Add back in closed loop controls 
-- [ ] Add back in limits 
-- [ ] Try electrical fixes to the pinouts/redo them in software if necessary 
-- [ ] LCM message to teleop about joint B being at its limit or not 
-- [ ] Joint B new quadrature encoder functionality
-- [ ] Investigate relative and absolute encoder limits (do they ever go above 360/below 0)  
+- [ ] Test limit switch code
+- [ ] Test joint b calibration code
+- [ ] Test IR encoder
 
 ### Notes
 

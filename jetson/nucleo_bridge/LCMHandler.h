@@ -10,8 +10,8 @@
 #include <thread>
 #include <chrono>
 
-#include <rover_msgs/HandCmd.hpp>
 #include <rover_msgs/FootCmd.hpp>
+#include <rover_msgs/HandCmd.hpp>
 #include <rover_msgs/JointBCalibration.hpp>
 #include <rover_msgs/MastGimbalCmd.hpp>
 #include <rover_msgs/RAOpenLoopCmd.hpp>
@@ -54,7 +54,9 @@ private:
 
         void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
 
-        void refresh_quad_angles();
+        void refresh_ra_quad_angles();
+
+        void refresh_sa_quad_angles();
 
         void refresh_calib_data();
 

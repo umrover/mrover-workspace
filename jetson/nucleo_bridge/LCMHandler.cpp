@@ -26,13 +26,6 @@ void LCMHandler::init()
     lcm_bus->subscribe("/hand_openloop_cmd", &LCMHandler::InternalHandler::hand_openloop_cmd, internal_object);
     lcm_bus->subscribe("/foot_openloop_cmd", &LCMHandler::InternalHandler::foot_openloop_cmd, internal_object);
     lcm_bus->subscribe("/scoop_limit_switch_enable_cmd", &LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd, internal_object);
-    /*
-    The following functions may be reimplemented when IK is tested
-    lcmBus->subscribe("/ra_config_cmd",         &LCMHandler::InternalHandler::ra_config_cmd,        internal_object);
-    lcm_bus.subscribe("/sa_config_cmd",         &LCMHandler::InternalHandler::sa_config_cmd,        internal_object);
-    lcm_bus.subscribe("/ra_zero_trigger",       &LCMHandler::InternalHandler::ra_zero_trigger,      internal_object);
-    lcm_bus.subscribe("/sa_zero_trigger",       &LCMHandler::InternalHandler::sa_zero_trigger,      internal_object);
-    */
     printf("LCM Bus channels subscribed\n");
 }
 
@@ -48,11 +41,9 @@ void LCMHandler::handle_outgoing()
     // If the last time arm position messages were outputted was over 200 ms ago, get new data from Controllers to be sent
     std::chrono::duration heartbeat_dead_time = std::chrono::milliseconds(120);
 
-    // This is used as a heart beat (to make sure that nucleos do not reset)
+    // This is used as a heart beat (to make sure that nucleos do not reset, but honestly that's too difficult)
     if (NOW - last_heartbeat_output_time > heartbeat_dead_time)
     {
-        internal_object->refresh_quad_angles();
-
         internal_object->publish_ra_pos_data();
         internal_object->publish_sa_pos_data();
     }
@@ -130,7 +121,7 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
     publish_ra_pos_data();
 }
 
-void LCMHandler::InternalHandler::refresh_quad_angles()
+void LCMHandler::InternalHandler::refresh_ra_quad_angles()
 {
     ControllerMap::controllers["RA_A"]->quad_angle();
     ControllerMap::controllers["RA_B"]->quad_angle();
@@ -138,6 +129,11 @@ void LCMHandler::InternalHandler::refresh_quad_angles()
     ControllerMap::controllers["RA_D"]->quad_angle();
     ControllerMap::controllers["RA_E"]->quad_angle();
     ControllerMap::controllers["RA_F"]->quad_angle();
+    //last_heartbeat_output_time = NOW;
+}
+
+void LCMHandler::InternalHandler::refresh_sa_quad_angles()
+{
     ControllerMap::controllers["SA_A"]->quad_angle();
     ControllerMap::controllers["SA_B"]->quad_angle();
     ControllerMap::controllers["SA_C"]->quad_angle();
@@ -185,27 +181,6 @@ void LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd(LCM_INPUT, const
     ControllerMap::controllers["FOOT_SCOOP"]->limit_switch_enable(msg->enable);
 }
 
-/*
-The following functions may be reimplemented when IK is tested
-void LCMHandler::InternalHandler::ra_config_cmd(LCM_INPUT, const RAConfigCmd *msg)
-{
-    ControllerMap::controllers["RA_A"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
-    ControllerMap::controllers["RA_B"]->config(msg->Kp[1], msg->Ki[1], msg->Kd[1]);
-    ControllerMap::controllers["RA_C"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
-    ControllerMap::controllers["RA_D"]->config(msg->Kp[3], msg->Ki[3], msg->Kd[3]);
-    ControllerMap::controllers["RA_E"]->config(msg->Kp[4], msg->Ki[4], msg->Kd[4]);
-    ControllerMap::controllers["RA_F"]->config(msg->Kp[5], msg->Ki[5], msg->Kd[5]);
-}
-
-void LCMHandler::InternalHandler::sa_config_cmd(LCM_INPUT, const SAConfigCmd *msg)
-{
-    ControllerMap::controllers["SA_A"]->config(msg->Kp[0], msg->Ki[0], msg->Kd[0]);
-    ControllerMap::controllers["SA_B"]->config(msg->Kp[1], msg->Ki[1], msg->Kd[1]);
-    ControllerMap::controllers["SA_C"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
-    ControllerMap::controllers["SA_E"]->config(msg->Kp[2], msg->Ki[2], msg->Kd[2]);
-}
-*/
-
 void LCMHandler::InternalHandler::publish_calib_data()
 {
     JointBCalibration msg;
@@ -241,24 +216,3 @@ void LCMHandler::InternalHandler::publish_turn_count()
     msg.turn_count = ControllerMap::controllers["RA_F"]->turn_count;
     lcm_bus->publish("/wrist_turn_count", &msg);
 }
-
-/*
-The following functions may be reimplemented when IK is tested
-void LCMHandler::InternalHandler::sa_zero_trigger(LCM_INPUT, const SAZeroTrigger *msg)
-{
-    ControllerMap::controllers["SA_A"]->zero();
-    ControllerMap::controllers["SA_B"]->zero();
-    ControllerMap::controllers["SA_C"]->zero();
-    ControllerMap::controllers["SA_E"]->zero();
-}
-
-void LCMHandler::ra_zero_trigger(LCM_INPUT, const RAZeroTrigger *msg)
-{
-    ControllerMap::controllers["RA_A"]->zero();
-    ControllerMap::controllers["RA_B"]->zero();
-    ControllerMap::controllers["RA_C"]->zero();
-    ControllerMap::controllers["RA_D"]->zero();
-    ControllerMap::controllers["RA_E"]->zero();
-    ControllerMap::controllers["RA_F"]->zero();
-}
-*/
