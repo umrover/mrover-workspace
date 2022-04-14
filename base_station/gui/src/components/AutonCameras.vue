@@ -4,9 +4,9 @@
     <div>
       <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscopeCam()" ref="micro"/>
     </div>
-    <div class="cameraselection">
-      <CameraSelection class="cameraspace1" v-bind:cam_index="cam_index_1" v-on:cam_index="setCamIndex($event, 1)"/>
-      <CameraSelection class="cameraspace2" v-bind:cam_index="cam_index_2" v-on:cam_index="setCamIndex($event, 2)"/>
+    <div>
+      <CameraSelection class="camera-selection" v-bind:cam_index="cam_index_1" v-on:cam_index="setCamIndex($event, 1)"/>
+      <CameraSelection class="camera-selection" v-bind:cam_index="cam_index_2" v-on:cam_index="setCamIndex($event, 2)"/>
     </div>
   </div>
 </template>
@@ -151,10 +151,9 @@
     height: 100%;
   }
 
-  .cameraselection {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas: "cameraspace1 cameraspace2"
+  .camera-selection {
+    margin-top: 10px;
+    margin-bottom: 10px;
   }
 
   .cam_buttons {

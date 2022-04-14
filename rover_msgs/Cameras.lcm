@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct Cameras {
+    int8_t port_0;
+    int8_t port_1;
+}
