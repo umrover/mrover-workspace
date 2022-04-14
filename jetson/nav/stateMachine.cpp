@@ -57,9 +57,13 @@ void StateMachine::run() {
     auto now = std::chrono::high_resolution_clock::now();
     mTimePoint = now;
 
-    static long i = 0;
-    if (++i % 256 == 0) {
-        std::cout << "Update rate: " << 1.0 / getDtSeconds() << std::endl;
+    static std::array<double, 256> readings{};
+    static int i = 0;
+    readings[i] = getDtSeconds();
+    if (++i % readings.size() == 0) {
+        double avgDt = std::accumulate(readings.begin(), readings.end(), 0.0) / readings.size();
+        std::cout << "Update rate: " << 1.0 / avgDt << std::endl;
+        i = 0;
     }
 
     mEnv->updateTargets(mRover, mCourseProgress);
@@ -109,7 +113,6 @@ void StateMachine::run() {
                 nextState = mGateStateMachine->run();
                 break;
             }
-            case NavState::GateMakePath:
             case NavState::GateTraverse: {
                 nextState = mGateStateMachine->run();
                 break;
@@ -201,8 +204,6 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::SearchTurnAroundObs,  "Search Turn Around Obstacle"},
                     {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
                     {NavState::BeginGateSearch,      "Gate Prepare"},
-                    {NavState::GateMakePath,         "Gate Make Path"},
-                    {NavState::GateTraverse,         "Gate Drive Path"},
                     {NavState::GateTraverse,         "Gate Traverse"},
 
                     {NavState::Unknown,              "Unknown"}
@@ -229,17 +230,4 @@ lcm::LCM& StateMachine::getLCM() {
 
 double StateMachine::getDtSeconds() {
     return std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
-}
-
-void StateMachine::publishProjectedPoints(std::deque<Odometry> path, std::string pathType) {
-    // Construct vector from deque
-    std::vector<Odometry> arr(path.begin(), path.end());
-    ProjectedPoints projectedPoints{
-        .pattern_size  = static_cast<int32_t>(arr.size()),
-        .points = arr,
-        .path_type = pathType
-    };
-
-    std::string projectedPointsChannel = mConfig["lcmChannels"]["projectedPointsChannel"].GetString();
-    mLcmObject.publish(projectedPointsChannel, &projectedPoints);
 }

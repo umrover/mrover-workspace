@@ -45,8 +45,7 @@ enum class NavState {
 
     // Gate Search
     BeginGateSearch = 40,
-    GateMakePath = 41,
-    GateTraverse = 42,
+    GateTraverse = 41,
 
     // Unknown State
     Unknown = 255
