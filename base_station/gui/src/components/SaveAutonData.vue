@@ -132,6 +132,15 @@ export default {
     },
 
     created: function() {
+ 
+        // upon closing, ask user if they want to close and then download
+        window.addEventListener('beforeunload', (e) =>  {
+            if (this.num_logs !== 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        })
+
         // time between interations in seconds
         const update_rate = 0.5
 
@@ -323,15 +332,8 @@ export default {
 
                 csv += '\n'
             }
-
-            var hiddenElement = document.createElement('a')
-            hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv)
-            hiddenElement.target = '_blank'
-
-            const time = new Date(Date.now())
-            const time_string = time.toTimeString().substring(0,17) + ' ' + time.toDateString()
-
-            hiddenElement.download = 'AutonLog-' + time_string + '.csv'
+            
+            hiddenElement.download = report_name + '.csv'
             hiddenElement.click()
 
             // Remove data that was just saved

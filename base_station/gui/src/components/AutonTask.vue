@@ -183,6 +183,7 @@ export default {
   },
 
   created: function () {
+
     setInterval(() => {
       if(this.nav_status.nav_state_name == "Off"){
         this.nav_state_color = navBlue
