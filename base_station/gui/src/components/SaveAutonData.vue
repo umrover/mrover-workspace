@@ -125,6 +125,13 @@ export default {
     },
 
     created: function() {
+
+        // upon closing, ask user if they want to close and then download
+        window.addEventListener('beforeunload', () => {
+            this.preventDefault();
+            download_log();
+        })
+
         // time between interations in seconds
         const update_rate = 0.5
 
