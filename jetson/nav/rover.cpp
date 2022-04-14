@@ -1,6 +1,7 @@
 #include "rover.hpp"
 #include "utilities.hpp"
 #include "rover_msgs/Joystick.hpp"
+#include "rover_msgs/TargetBearing.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -33,7 +34,9 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
     if (distance < threshold) {
         return true;
     }
-
+    TargetBearing targetBearingLCM = {bearing};
+    std::string targetBearingChannel = mConfig["lcmChannels"]["targetBearingChannel"].GetString();
+    mLcmObject.publish(targetBearingChannel, &targetBearingLCM);
     if (turn(bearing, dt)) {
         double destinationBearing = mod(bearing, 360);
         double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing, dt);
