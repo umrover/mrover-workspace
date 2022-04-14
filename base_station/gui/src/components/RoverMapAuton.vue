@@ -8,19 +8,18 @@
       <l-marker ref="rover" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="locationIcon"/>
 
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint, index) in waypointList" :key="index">
-         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
+         <l-tooltip :options="{permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
       </l-marker>
 
       <l-marker :lat-lng="projected_point.latLng" :icon="projectedPointIcon" v-for="(projected_point, index) in projectedPoints" :key="index">
-         <l-tooltip :options="{ permanent: 'true', direction: 'top'}">{{ projectedPointsType }} {{ index }}</l-tooltip>
+         <l-tooltip :options="{permanent: 'true', direction: 'top'}">{{ projectedPointsType }} {{ index }}</l-tooltip>
       </l-marker>
 
-      <l-marker :lat-lng="post1.latLng" :icon="post1Icon" v-for="(post1, index) in post1" :key="index">
-         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }}</l-tooltip>
+      <l-marker :lat-lng="post1" :icon="postIcon" v-if="post1">
+         <l-tooltip :options="{permanent: 'true', direction: 'top'}">Post 1</l-tooltip>
       </l-marker>
-
-      <l-marker :lat-lng="post2.latLng" :icon="post2Icon" v-for="(post2, index) in post2" :key="index">
-         <l-tooltip :options="{ permanent: 'true', direction: 'top'}"> {{ index }}</l-tooltip>
+      <l-marker :lat-lng="post2" :icon="postIcon" v-if="post2">
+         <l-tooltip :options="{permanent: 'true', direction: 'top'}">Post 2</l-tooltip>
       </l-marker>
 
       <l-polyline :lat-lngs="this.playbackEnabled ? polylinePlaybackPath : polylinePath" :color="'red'" :dash-array="'5, 5'"/>
@@ -78,13 +77,7 @@ export default {
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
-    this.post1Icon = L.icon({
-      iconUrl: '/static/gate_location.png',
-      iconSize: [64, 64],
-      iconAnchor: [32, 64],
-      popupAnchor: [0, -32]
-    })
-    this.post2Icon = L.icon({
+    this.postIcon = L.icon({
       iconUrl: '/static/gate_location.png',
       iconSize: [64, 64],
       iconAnchor: [32, 64],
@@ -106,18 +99,14 @@ export default {
     })
 
     this.$parent.subscribe('/estimated_gate_location', (msg) => {
-      this.post1 =  { latLng1: 
-        L.latLng(
-            msg.post1.latitude_deg + msg.post1.latitude_min/60,
-            msg.post1.longitude_deg + msg.post1.longitude_min/60
-        )
-      }
-      this.post2 = { latLng2:
-        L.latLng(
-            msg.post2.latitude_deg + msg.post2.latitude_min/60,
-            msg.post2.longitude_deg + msg.post2.longitude_min/60
-        )
-      }
+      this.post1 =  L.latLng(
+        msg.post1.latitude_deg + msg.post1.latitude_min/60,
+        msg.post1.longitude_deg + msg.post1.longitude_min/60
+      )
+      this.post2 = L.latLng(
+        msg.post2.latitude_deg + msg.post2.latitude_min/60,
+        msg.post2.longitude_deg + msg.post2.longitude_min/60
+      )
     })
 
   },
@@ -169,9 +158,8 @@ export default {
       projectedPoints: [],
       projectedPointsType: '',
 
-      post1: [],
-
-      post2: [],
+      post1: null,
+      post2: null,
 
       findRover: false,
 
