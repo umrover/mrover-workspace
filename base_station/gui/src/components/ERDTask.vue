@@ -149,7 +149,6 @@ export default {
         {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
-        {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/ra_offset_pos', 'type': 'RAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},

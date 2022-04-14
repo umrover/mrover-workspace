@@ -21,7 +21,6 @@
 #include "rover_msgs/MotionExecute.hpp"
 #include "rover_msgs/FKTransform.hpp"
 #include "rover_msgs/TargetOrientation.hpp"
-#include "rover_msgs/IkEnabled.hpp"
 #include "rover_msgs/SimulationMode.hpp"
 #include "rover_msgs/IkArmControl.hpp"
 #include "rover_msgs/LockJoints.hpp"

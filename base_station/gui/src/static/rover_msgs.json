@@ -304,6 +304,16 @@
             "transform_f[4][4]"
         ]
     ],
+    "FootCmd": [
+        [
+            "double",
+            "microscope_triad"
+        ],
+        [
+            "double",
+            "scoop"
+        ]
+    ],
     "FuseData": [
         [
             "double",
@@ -348,6 +358,16 @@
         [
             "int32_t",
             "new_ack_id"
+        ]
+    ],
+    "HandCmd": [
+        [
+            "double",
+            "finger"
+        ],
+        [
+            "double",
+            "grip"
         ]
     ],
     "Heater": [
@@ -406,26 +426,6 @@
         [
             "double",
             "bearing"
-        ]
-    ],
-    "IkArmControl": [
-        [
-            "double",
-            "deltaX"
-        ],
-        [
-            "double",
-            "deltaY"
-        ],
-        [
-            "double",
-            "deltaZ"
-        ]
-    ],
-    "IkEnabled": [
-        [
-            "boolean",
-            "enabled"
         ]
     ],
     "Joystick": [
@@ -809,16 +809,6 @@
             "CO2"
         ]
     ],
-    "Servo": [
-        [
-            "string",
-            "id"
-        ],
-        [
-            "double",
-            "degrees"
-        ]
-    ],
     "ServoCmd": [
         [
             "double",
@@ -1038,21 +1028,6 @@
         [
             "int32_t",
             "tboard_temp"
-        ]
-    ],
-    "TennisBall": [
-        [
-            "boolean",
-            "found"
-        ],
-        [
-            "double",
-            "bearing",
-            ""
-        ],
-        [
-            "double",
-            "distance"
         ]
     ],
     "TestEnable": [

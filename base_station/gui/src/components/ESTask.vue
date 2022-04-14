@@ -23,7 +23,7 @@
     </div>
 
     <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage"/>
+      <Cameras/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
@@ -67,11 +67,6 @@ export default {
   data () {
     return {
       lcm_: null,
-
-      lastServosMessage: {
-        pan: 0,
-        tilt: 0
-      },
 
       connections: {
         websocket: false,
@@ -129,7 +124,6 @@ export default {
       [
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
-        {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/ra_offset_pos', 'type': 'RAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
