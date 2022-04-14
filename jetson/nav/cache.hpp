@@ -1,61 +1,55 @@
 #pragma once
+
 #include <iostream>
 
-template <typename T>
-class Cache{
+template<typename T>
+class Cache {
 public:
-    Cache(int neededHits, int neededMisses, T invalidDefault) : 
-        mNeededHits(neededHits), 
-        mNeededMisses(neededMisses), 
-        mInvalidDefault(invalidDefault) {}
+    Cache(int neededHits, int neededMisses, T invalidDefault) :
+            mNeededHits(neededHits),
+            mNeededMisses(neededMisses),
+            mInvalidDefault(invalidDefault) {}
 
-    T get(){
-        if (!mValid){
-            return mInvalidDefault;
-        }
-        return currentReading;
+    T get() const {
+        return mValid ? mCurrentReading : mInvalidDefault;
     }
 
-    bool isValid(){
+    bool isValid() {
         return mValid;
     }
 
-    void put(bool currentReadingValid, T reading){
-        if (!currentReadingValid){
-            //reset hit counter
-            mHitting = false;
-            mHits = 0;
-            //increment miss counter
-            ++mMisses;
-
-            //invalidate reading if it should be invalidated
-            if (mMisses > mNeededMisses){
-                mValid = false;
-                currentReading = mInvalidDefault;
-            }
-        }
-        else{
-            //reset miss counter
-            mHitting = true;
+    void put(bool currentReadingValid, T reading) {
+        if (currentReadingValid) {
+            // reset miss counter
             mMisses = 0;
-            //increment hit counter
+            // increment hit counter
             ++mHits;
 
-            //validate reading if it should be validating
-            if (mHits > mNeededHits){
+            // validate reading if it should be validating
+            if (mHits > mNeededHits) {
                 mValid = true;
-                currentReading = reading;
+                mCurrentReading = reading;
+            }
+        } else {
+            // reset hit counter
+            mHits = 0;
+            // increment miss counter
+            ++mMisses;
+
+            // invalidate reading if it should be invalidated
+            if (mMisses > mNeededMisses) {
+                mValid = false;
+                mCurrentReading = mInvalidDefault;
             }
         }
     }
 
 private:
-    int mHits;
-    int mMisses;
+    int mHits = 0;
+    int mMisses = 0;
     int mNeededHits;
     int mNeededMisses;
-    bool mHitting = false;
     bool mValid = false;
-    T currentReading;
+    T mCurrentReading;
     T mInvalidDefault;
 };

@@ -8,8 +8,7 @@
 Environment::Environment(const rapidjson::Document& config) :
         mConfig(config),
         mTargetLeft(3, 1, {-1, -1, -1}),
-        mTargetRight(3, 1, {-1, -1, -1})
-        {}
+        mTargetRight(3, 1, {-1, -1, -1}) {}
 
 void Environment::setObstacle(Obstacle const& obstacle) {
     mObstacle = obstacle;
