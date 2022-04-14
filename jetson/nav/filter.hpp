@@ -28,6 +28,8 @@ public:
         mHead = (mHead + 1) % size();
         mValues[mHead] = value;
         mFilterCount = std::min(mFilterCount + 1, size());
+        mSortedValues.assign(mValues.begin(), mValues.end());
+        std::sort(mSortedValues.begin(), mSortedValues.end());
     }
 
     void reset() {
@@ -36,9 +38,7 @@ public:
 
     //if we have values decrease count by 1
     void decrementCount() {
-        if (mFilterCount > 0) {
-            mFilterCount -= 1;
-        }
+        mFilterCount = std::max(mFilterCount - 1, size_t{});
     }
 
     [[nodiscard]] size_t size() const {
@@ -63,13 +63,11 @@ public:
     /***
      * @return Filtered reading if full, or else the most recent reading if we don't have enough readings yet.
      */
-    T get() {
+    [[nodiscard]] T get() const {
 //        return mValues[mHead];
         if (!full()) {
             return mValues[mHead];
         }
-        mSortedValues = mValues;
-        std::sort(mSortedValues.begin(), mSortedValues.end());
         auto begin = mSortedValues.begin() + (mProportion * size() / 4);
         auto end = mSortedValues.end() - (mProportion * size() / 4);
         return std::accumulate(begin, end, T{}) / (end - begin);

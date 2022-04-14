@@ -22,13 +22,10 @@ private:
 
     // Reference to config variables
     const rapidjson::Document& mConfig;
-    
-    Cache<Target> mTargetLeft;
-    Cache<Target> mTargetRight;
 
-    Odometry mPostOne{}, mPostTwo{};
+    Cache<Target> mTargetLeft, mTargetRight;
 
-    bool mHasPostOne = false, mHasPostTwo = false;
+    Filter<double> mPostOneLat, mPostOneLong, mPostTwoLat, mPostTwoLong;
 
     bool mHasNewPostUpdate = false;
 
@@ -43,25 +40,23 @@ public:
 
     void setBaseGateID(int baseGateId);
 
-    int getBaseGateID() const;
-
-    bool hasNewPostUpdate() const;
-
-    Target getLeftTarget();
-
-    Target getRightTarget();
-
-    Odometry getPostOneLocation();
-
-    Odometry getPostTwoLocation();
-
-    Vector2d getPostOneOffsetInCartesian(Odometry cur);
-
-    Vector2d getPostTwoOffsetInCartesian(Odometry cur);
-
     void setTargets(TargetList const& targets);
 
     void updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course);
+
+    [[nodiscard]] Target getLeftTarget() const;
+
+    [[nodiscard]] Target getRightTarget() const;
+
+    [[nodiscard]] Odometry getPostOneLocation() const;
+
+    [[nodiscard]] Odometry getPostTwoLocation() const;
+
+    [[nodiscard]] Vector2d getPostOneOffsetInCartesian(Odometry cur) const;
+
+    [[nodiscard]] Vector2d getPostTwoOffsetInCartesian(Odometry cur) const;
+
+    [[nodiscard]] bool hasNewPostUpdate() const;
 
     [[nodiscard]] bool hasGateLocation() const;
 
@@ -69,5 +64,5 @@ public:
 
     [[nodiscard]] bool hasPostTwoLocation() const;
 
-    std::optional<Target> tryGetTargetWithId(int32_t id);
+    [[nodiscard]] std::optional<Target> tryGetTargetWithId(int32_t id) const;
 };
