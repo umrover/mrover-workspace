@@ -22,7 +22,6 @@
 #include "rover_msgs/FKTransform.hpp"
 #include "rover_msgs/TargetOrientation.hpp"
 #include "rover_msgs/SimulationMode.hpp"
-#include "rover_msgs/IkArmControl.hpp"
 #include "rover_msgs/LockJoints.hpp"
 #include "rover_msgs/DebugMessage.hpp"
 #include "rover_msgs/ArmControlState.hpp"

@@ -304,6 +304,7 @@ void MotionPlanner::spline_fitting(const std::vector< std::vector<double> > &pat
     }
     else {
         std::cout << "Error! Path is of size 0.\n";
+        return;
     }
 
     // create evenly distributed range from 0 to 1 with path.size() steps
