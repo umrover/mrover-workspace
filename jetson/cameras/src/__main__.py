@@ -34,6 +34,7 @@ class Pipeline:
 
     def update_device_number(self, index):
         if index != -1:
+            self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS)
             self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
         else:
             self.video_source = None
