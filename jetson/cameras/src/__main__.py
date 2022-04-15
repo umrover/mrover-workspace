@@ -3,7 +3,7 @@ import lcm
 
 import sys
 sys.path.insert(0, "/usr/lib/python3.6/dist-packages")  # 3.6 vs 3.8
-import jetson.utils
+import jetson.utils  # noqa
 
 __lcm: lcm.LCM
 __pipelines = [None] * 2
