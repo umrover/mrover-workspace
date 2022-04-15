@@ -2,19 +2,20 @@ from rover_msgs import Cameras
 import lcm
 
 import sys
-sys.path.insert(0, "/usr/lib/python3.6/dist-packages")
+sys.path.insert(0, "/usr/lib/python3.6/dist-packages")  # 3.6 vs 3.8
 import jetson.utils
 
 __lcm: lcm.LCM
 __pipelines = [None] * 2
 
-ARGUMENTS = ['--headless']
+ARGUMENTS = ['--headless', '--bitrate=2000000']  # Change to desired bitrate e.g. 2000000
+remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001"]
 
 
 class Pipeline:
     def __init__(self, port):
         self.video_source = None
-        self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[port]}", argv=ARGUMENTS)
         self.device_number = -1
         self.port = port
 
@@ -80,7 +81,7 @@ def camera_callback(channel, msg):
 def main():
     global __pipelines, __lcm
 
-    __pipelines = [ Pipeline(0), Pipeline(1) ]
+    __pipelines = [Pipeline(0), Pipeline(1)]
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)
@@ -90,6 +91,7 @@ def main():
         for port_number, pipeline in enumerate(__pipelines):
             if pipeline.is_currently_streaming():
                 if pipeline.is_open():
+                    # This is currently always True
                     pipeline.update()
                 else:
                     stop_pipeline(port_number)

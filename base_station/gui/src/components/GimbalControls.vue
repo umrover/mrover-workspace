@@ -56,3 +56,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .wrap {
+    display: inline-block;
+  }
+</style>

@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Menu from '../components/Menu.vue'
-import RATask from '../components/RATask.vue'
+import ERDTask from '../components/ERDTask.vue'
+import ESTask from '../components/ESTask.vue'
 import AutonTask from '../components/AutonTask.vue'
 import PidTune from '../components/PidTune.vue'
 import LCMEcho from '../components/LCMEcho.vue'
@@ -18,9 +19,14 @@ export default new Router({
       component: Menu
     },
     {
-      path: '/RATask',
-      name: 'RATask',
-      component: RATask
+      path: '/ERDTask',
+      name: 'ERDTask',
+      component: ERDTask
+    },
+    {
+      path: '/ESTask',
+      name: 'ESTask',
+      component: ESTask
     },
     {
       path: '/PidTune',

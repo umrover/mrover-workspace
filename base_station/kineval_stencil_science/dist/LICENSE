@@ -1,0 +1,29 @@
+All components of KinEval are licensed under the Michigan Honor License, as the 3-Clause BSD License modified to include two academic integrity clauses, shown below.
+
+KinEval: The Kinematic Evaluator
+Copyright 2015-2018 Odest Chadwicke Jenkins at the University of Michigan
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+4. Redistributions of source code, if used for credit in an academic program, must retain the following honor pledge, and only append the names all individuals who contributed modifications.
+
+5. Manuscripts and publications using this source code or its binary forms must properly cite the KinEval project and its author(s).
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+---
+
+Honor Pledge 2018 University of Michigan
+
+"I have neither given nor received unauthorized aid on this implementation, nor have I concealed any violations of the Honor Code."
+
+The individuals listed below attest to contributing source code to this implementation in compliance with the above Honor Pledge:
+
+Odest Chadwicke Jenkins
+[STUDENT: add your name here]

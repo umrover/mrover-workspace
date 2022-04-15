@@ -24,7 +24,7 @@
 
     <div class="box1 data">
       <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
+      <Cameras/>
      </div>
      <div class="box light-bg">
         <br/>
@@ -51,6 +51,7 @@
       <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
     </div> -->
   </div>
+
 </template>
 
 <script>
@@ -79,11 +80,6 @@ export default {
     return {
       lcm_: null,
 
-      lastServosMessage: {
-        pan: 0,
-        tilt: 0
-      },
-
       odom: {
         latitude_deg: 38,
         latitude_min: 24.38226,
@@ -95,9 +91,7 @@ export default {
 
       connections: {
         websocket: false,
-        lcm: false,
-        motors: false,
-        cameras: [false, false, false, false, false, false, false, false]
+        lcm: false
       },
 
       nav_status: {
@@ -185,8 +179,7 @@ export default {
       },
       // Update connection states
       (online) => {
-        this.connections.lcm = online[0],
-        this.connections.cameras = online.slice(1)
+        this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
       (msg) => {
@@ -231,44 +224,6 @@ export default {
         {'topic': '/drive_state_data', 'type': 'DriveStateData'}
       ]
     )
-
-    const servosMessage = {
-      'type': 'CameraServos',
-      'pan': 0,
-      'tilt': 0
-    }
-
-    const JOYSTICK_CONFIG = {
-      'forward_back': 1,
-      'left_right': 2,
-      'dampen': 3,
-      'kill': 4,
-      'restart': 5,
-      'pan': 4,
-      'tilt': 5
-    }
-
-    interval = window.setInterval(() => {
-      const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 2; i++) {
-        const gamepad = gamepads[i]
-        if (gamepad) {
-          if (gamepad.id.includes('Logitech')) {
-            const servosSpeed = 0.8
-            servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG['pan']] * servosSpeed / 10
-            servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG['tilt']] * servosSpeed / 10
-          }
-        }
-      }
-
-      const clamp = function (num, min, max) {
-        return num <= min ? min : num >= max ? max : num
-      }
-
-      servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
-      servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
-      this.lastServosMessage = servosMessage
-    }, 100)
   },
 
   components: {
