@@ -171,7 +171,6 @@ class ArmControl:
         saMotorsData = [quadratic(deadzone(xboxData.left_js_x, 0.15)),
                         quadratic(-deadzone(xboxData.left_js_y, 0.15)),
                         quadratic(-deadzone(xboxData.right_js_y, 0.15)),
-                        -deadzone(quadratic(xboxData.right_js_y), 0.09),
                         quadratic(xboxData.right_trigger - xboxData.left_trigger)]
 
         openloop_msg = SAOpenLoopCmd()
