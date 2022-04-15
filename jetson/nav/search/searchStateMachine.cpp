@@ -4,9 +4,12 @@
 #include "stateMachine.hpp"
 #include "searchFromPathFile.hpp"
 
-#include <cmath>
 #include <utility>
 #include <iostream>
+
+#include <eigen3/Eigen/Geometry>
+
+using Eigen::Rotation2Dd;
 
 // Constructs an SearchStateMachine object with mStateMachine, mConfig, and mRover
 SearchStateMachine::SearchStateMachine(std::weak_ptr<StateMachine> sm, const rapidjson::Document& roverConfig)
@@ -38,13 +41,15 @@ NavState SearchStateMachine::executeSearch() {
 
     Target const& leftTarget = env->getLeftTarget();
     Target const& rightTarget = env->getLeftTarget();
+    // TODO: this breaks when we dynamically update course
     Waypoint const& lastWaypoint = sm->getCourseState()->getLastCompletedWaypoint();
     bool isGate = lastWaypoint.gate;
     if (isGate) {
         if (env->hasGateLocation()) {
             return NavState::BeginGateSearch;
         } else {
-            //only drive to the target if we don't have any posts
+            // Only drive to one of the posts if we don't have both locations
+            // This could be the left or right one
             if (!mDrivenToFirstPost) {
                 if (leftTarget.id >= 0 || rightTarget.id >= 0) {
                     return NavState::DriveToTarget;
@@ -54,17 +59,16 @@ NavState SearchStateMachine::executeSearch() {
     } else {
         // Either post works
         bool isWantedTarget = lastWaypoint.id == leftTarget.id || lastWaypoint.id + 1 == leftTarget.id;
-        if (leftTarget.distance >= 0.0 && isWantedTarget) {
+        if (leftTarget.id >= 0 && isWantedTarget) {
             return NavState::DriveToTarget;
         }
     }
 
     Odometry const& nextSearchPoint = mSearchPoints.front();
     double dt = sm->getDtSeconds();
-//    if (mDrivenToFirstPost) {
-//        std::cout << mSearchPoints.size() << std::endl;
-//    }
     if (rover->drive(nextSearchPoint, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+        // We have reached the current search point
+        // Start going to next if we have one, else finish
         mSearchPoints.pop_front();
         if (mSearchPoints.empty()) {
             return NavState::Done;
@@ -86,10 +90,13 @@ NavState SearchStateMachine::executeDriveToTarget() {
 
     double distance, bearing;
     if (lastWaypoint.gate) {
+        // If we have both pots start the gate search, we are done with searching
         if (env->hasGateLocation()) {
             return NavState::BeginGateSearch;
         }
         if (leftTarget.id >= 0 && rightTarget.id >= 0) {
+            // Case: we see both targets but cache is not updated, just drive to closer
+            // TODO: remove? should not be needed
             if (leftTarget.distance < rightTarget.distance) {
                 distance = leftTarget.distance;
                 bearing = leftTarget.bearing + currentBearing;
@@ -98,9 +105,11 @@ NavState SearchStateMachine::executeDriveToTarget() {
                 bearing = rightTarget.bearing + currentBearing;
             }
         } else if (leftTarget.id >= 0) {
+            // Case: Only left is visible, drive there
             distance = leftTarget.distance;
             bearing = leftTarget.bearing + currentBearing;
         } else if (rightTarget.id >= 0) {
+            // Case: Only right is visible, drive there
             distance = rightTarget.distance;
             bearing = rightTarget.bearing + currentBearing;
         } else {
@@ -129,19 +138,27 @@ NavState SearchStateMachine::executeDriveToTarget() {
 
     if (rover->drive(targetPoint, mConfig["navThresholds"]["targetDistance"].GetDouble(), dt)) {
         if (sm->getCourseState()->getLastCompletedWaypoint().gate) {
-            //We have to clear the search points and start a diamond search
-            //put this in some other function
+            // This means we have only seen one gate post,
+            // So clear the search points and start a diamond search
+            // This should hopefully guarantee we find the other one
+            // and thus start the gate traverse state
+            // TODO: put this in some other function
             mSearchPoints.clear();
 
-            Vector2d deltas[4] = {{0.5,  0.5},
-                                  {-0.5, 0.5},
-                                  {-0.5, -0.5},
-                                  {0.5,  -0.5}};
-            double diamondDist = 3;
-            for (auto& delta: deltas) {
-                delta /= delta.norm();
-                delta *= diamondDist;
-                mSearchPoints.push_back(createOdom(rover->odometry(), delta, rover));
+            Vector2d points[4] = {{0.5, 0.5},
+                                  {1.0, 0.0},
+                                  {0.5, -0.5},
+                                  {0.0, 0.0}};
+            double diamondScale = 4;
+            for (auto& p: points) {
+                p *= diamondScale;
+                // Rotate points to be relative to the front of the rover, +x is forward, +y is right
+                p = Rotation2Dd{degreeToRadian(currentBearing)} * p;
+                // Convert to global latitude/longitude and add to search paths
+                mSearchPoints.push_back(createOdom(rover->odometry(), p, rover));
+
+//                ProjectedPoints proj{4, std::vector<Odometry>(mSearchPoints.begin(), mSearchPoints.end()), "gate-path"};
+//                sm->getLCM().publish(mConfig["lcmChannels"]["gatePathChannel"].GetString(), &proj);
             }
             mDrivenToFirstPost = true;
             return NavState::Search;

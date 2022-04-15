@@ -1,6 +1,5 @@
 #include "rover.hpp"
 #include "utilities.hpp"
-#include "rover_msgs/Joystick.hpp"
 #include "rover_msgs/TargetBearing.hpp"
 
 #include <cmath>
@@ -52,19 +51,14 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
     return false;
 } // drive()
 
-
-/***
- *
- * @param destination
- * @param dt
- * @return
- */
+// Turn to a global point
 bool Rover::turn(Odometry const& destination, double dt) {
     double bearing = estimateBearing(mOdometry, destination);
     return turn(bearing, dt);
 } // turn()
 
 
+// Turn to an absolute bearing
 bool Rover::turn(double absoluteBearing, double dt) {
     absoluteBearing = mod(absoluteBearing, 360);
     throughZero(absoluteBearing, mOdometry.bearing_deg);
@@ -72,7 +66,7 @@ bool Rover::turn(double absoluteBearing, double dt) {
         return true;
     }
     double turningEffort = mBearingPid.update(mOdometry.bearing_deg, absoluteBearing, dt);
-    // to turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
+    // To turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
     double leftVel = std::max(std::min(1.0, +turningEffort), -1.0);
     double rightVel = std::max(std::min(1.0, -turningEffort), -1.0);
     publishAutonDriveCmd(leftVel, rightVel);
@@ -80,7 +74,6 @@ bool Rover::turn(double absoluteBearing, double dt) {
 } // turn()
 
 void Rover::stop() {
-//    std::cout << "stopping" << std::endl;
     publishAutonDriveCmd(0.0, 0.0);
 } // stop()
 
@@ -103,14 +96,9 @@ void Rover::publishAutonDriveCmd(const double leftVel, const double rightVel) {
             .left_percent_velocity = leftVel,
             .right_percent_velocity = rightVel
     };
-    //std::cout << leftVel << " " << rightVel << std::endl;
     std::string autonDriveControlChannel = mConfig["lcmChannels"]["autonDriveControlChannel"].GetString();
     mLcmObject.publish(autonDriveControlChannel, &driveControl);
 }
-
-bool Rover::isTurningAroundObstacle(NavState currentState) {
-    return currentState == NavState::TurnAroundObs || currentState == NavState::SearchTurnAroundObs;
-} // isTurningAroundObstacle()
 
 // Gets a reference to the rover's current navigation state.
 NavState const& Rover::currentState() const {

@@ -18,15 +18,16 @@ using namespace rover_msgs;
 rapidjson::Document readConfig() {
     std::ifstream configFile;
     char* mrover_config = getenv("MROVER_CONFIG");
-    //std::string path = std::string(mrover_config) + "/config_nav/config.json";
-    std::filesystem::path path;
-    if (mrover_config) {
-        path = std::filesystem::path{mrover_config} / "config_nav" / "config.json";
-    } else {
-        path = std::filesystem::current_path() / "config" / "nav" / "config.json";
-    }
+    std::string path = std::string(mrover_config) + "/config_nav/config.json";
+//    std::filesystem::path path;
+//    if (mrover_config) {
+//        path = std::filesystem::path{mrover_config} / "config_nav" / "config.json";
+//    } else {
+//        path = std::filesystem::current_path() / "config" / "nav" / "config.json";
+//    }
     configFile.open(path);
-    if (!configFile) throw std::runtime_error("Could not open config file at: " + path.string());
+//    if (!configFile) throw std::runtime_error("Could not open config file at: " + path.string());
+    if (!configFile) throw std::runtime_error("Could not open config file at: " + path);
     rapidjson::Document document;
     rapidjson::IStreamWrapper isw(configFile);
     document.ParseStream(isw);

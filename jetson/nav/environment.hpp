@@ -16,6 +16,11 @@ using namespace rover_msgs;
 
 class Rover;
 
+/***
+ * Environment holds information about the tags and posts.
+ * It holds a cache to filter out invalid readings.
+ * It holds a filter to better estimate the gate positions.
+ */
 class Environment {
 private:
     Obstacle mObstacle{0.0, 0.0, -1.0};
@@ -42,7 +47,7 @@ public:
 
     void setTargets(TargetList const& targets);
 
-    void updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course);
+    void updatePost(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course);
 
     [[nodiscard]] Target getLeftTarget() const;
 

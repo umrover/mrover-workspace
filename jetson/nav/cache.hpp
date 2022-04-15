@@ -2,6 +2,13 @@
 
 #include <iostream>
 
+/***
+ * Readings from the sensor may occasionally have invalid readings.
+ * A cache attempts to resolve this by saving old values for a bit
+ * and also not adding new readings until they show up repeatedly.
+ *
+ * @tparam T Reading type
+ */
 template<typename T>
 class Cache {
 public:
