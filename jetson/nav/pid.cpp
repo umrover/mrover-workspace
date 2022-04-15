@@ -7,10 +7,7 @@
 PidLoop::PidLoop(double p, double i, double d) :
         mP(p),
         mI(i),
-        mD(d),
-        mFirst(true),
-        mTotalError(0.0),
-        mLastError(0.0) {
+        mD(d) {
 }
 
 double PidLoop::error(double current, double desired) const {
@@ -73,5 +70,5 @@ PidLoop& PidLoop::withOutputRange(double minOut, double maxOut) {
 }
 
 bool PidLoop::isOnTarget(double current, double desired) const {
-    return std::fabs(desired - current) < mThreshold;
+    return std::fabs(error(current, desired)) < mThreshold;
 }

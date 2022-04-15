@@ -26,9 +26,9 @@ private:
     // Set this to account for that properly so computations are correct on boundaries.
     std::optional<double> mMaxInputBeforeWrap;
 
-    bool mFirst;
-    double mTotalError;
-    double mLastError;
+    bool mFirst = true;
+    double mTotalError = 0.0;
+    double mLastError = 0.0;
     double mThreshold = 0.0;
     double mMinOut = -1.0;
     double mMaxOut = +1.0;
