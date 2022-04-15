@@ -3,7 +3,7 @@ import lcm
 
 import sys
 sys.path.insert(0, "/usr/lib/python3.6/dist-packages")
-import jetson.utils
+import jetson.utils  # type: ignore
 
 __lcm: lcm.LCM
 __pipelines = [None] * 2
@@ -80,7 +80,7 @@ def camera_callback(channel, msg):
 def main():
     global __pipelines, __lcm
 
-    __pipelines = [ Pipeline(0), Pipeline(1) ]
+    __pipelines = [Pipeline(0), Pipeline(1)]
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)
