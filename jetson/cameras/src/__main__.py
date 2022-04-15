@@ -2,19 +2,20 @@ from rover_msgs import Cameras
 import lcm
 
 import sys
-sys.path.insert(0, "/usr/lib/python3.6/dist-packages")
-import jetson.utils  # type: ignore
+sys.path.insert(0, "/usr/lib/python3.6/dist-packages")  # 3.6 vs 3.8
+import jetson.utils  # noqa
 
 __lcm: lcm.LCM
 __pipelines = [None] * 2
 
-ARGUMENTS = ['--headless']
+ARGUMENTS = ['--headless', '--bitrate=300000', '--width=256', '--height=144']  # Change to desired bitrate e.g. 2000000
+remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001"]
 
 
 class Pipeline:
     def __init__(self, port):
         self.video_source = None
-        self.video_output = jetson.utils.videoOutput(f"rtp://10.0.0.1:500{port}", argv=ARGUMENTS)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[port]}", argv=ARGUMENTS)
         self.device_number = -1
         self.port = port
 
@@ -33,6 +34,7 @@ class Pipeline:
 
     def update_device_number(self, index):
         if index != -1:
+            self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS)
             self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
         else:
             self.video_source = None
@@ -90,6 +92,7 @@ def main():
         for port_number, pipeline in enumerate(__pipelines):
             if pipeline.is_currently_streaming():
                 if pipeline.is_open():
+                    # This is currently always True
                     pipeline.update()
                 else:
                     stop_pipeline(port_number)

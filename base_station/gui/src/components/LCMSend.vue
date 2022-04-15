@@ -171,7 +171,7 @@
           }
         },
         // Subscriptions
-        this.subscriptions
+        []
       )
     },
     components: {

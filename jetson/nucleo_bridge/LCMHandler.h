@@ -10,16 +10,16 @@
 #include <thread>
 #include <chrono>
 
-#include <rover_msgs/RAOpenLoopCmd.hpp>
-#include <rover_msgs/SAOpenLoopCmd.hpp>
-#include <rover_msgs/RAPosition.hpp>
-#include <rover_msgs/SAPosition.hpp>
-#include <rover_msgs/MastGimbalCmd.hpp>
-#include <rover_msgs/HandCmd.hpp>
 #include <rover_msgs/FootCmd.hpp>
-#include <rover_msgs/RAConfigCmd.hpp>
-#include <rover_msgs/SAConfigCmd.hpp>
-#include <rover_msgs/SAZeroTrigger.hpp>
+#include <rover_msgs/HandCmd.hpp>
+#include <rover_msgs/JointBCalibration.hpp>
+#include <rover_msgs/MastGimbalCmd.hpp>
+#include <rover_msgs/RAOpenLoopCmd.hpp>
+#include <rover_msgs/RAPosition.hpp>
+#include <rover_msgs/SAOpenLoopCmd.hpp>
+#include <rover_msgs/SAPosition.hpp>
+#include <rover_msgs/ScoopLimitSwitchEnable.hpp>
+#include <rover_msgs/WristTurnCount.hpp>
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()
@@ -33,35 +33,49 @@ Outgoing lcm messages are triggered by a clock, which query the functions on the
 class LCMHandler
 {
 private:
-    inline static std::chrono::high_resolution_clock::time_point last_output_time = NOW;
+    inline static std::chrono::high_resolution_clock::time_point last_heartbeat_output_time = NOW;
+    inline static std::chrono::high_resolution_clock::time_point last_calib_data_output_time = NOW;
+    inline static std::chrono::high_resolution_clock::time_point last_turn_count_output_time = NOW;
 
     inline static lcm::LCM *lcm_bus = nullptr;
 
-    
     //Empty object to pass to lcm subscribe
     class InternalHandler
     {
     public: 
     	//The following functions are handlers for the corresponding lcm messages
-        void ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg);
-
-        void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
-
-        void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
-
-        void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
+        void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
 
         void hand_openloop_cmd(LCM_INPUT, const HandCmd *msg);
 
-        void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
+        void mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
 
-        void gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
+        void ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg);
 
-        void refreshAngles();
+        void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
 
-        void ra_pos_data();
+        void refresh_ra_quad_angles();
 
-        void sa_pos_data();
+        void refresh_sa_quad_angles();
+
+        void refresh_calib_data();
+
+        void refresh_turn_count();
+
+        void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
+
+        void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
+
+        void publish_calib_data();
+
+        void publish_ra_pos_data();
+
+        void publish_sa_pos_data();
+
+        void publish_turn_count();
+
+        void scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg);
+
     };
 
     inline static InternalHandler *internal_object = nullptr;
@@ -75,6 +89,7 @@ public:
 
     //Decide whether outgoing messages need to be sent, and if so, send them
     static void handle_outgoing();
+    
 };
 
 #endif

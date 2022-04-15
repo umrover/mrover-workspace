@@ -63,6 +63,12 @@
             "preset"
         ]
     ],
+    "ArmPresetPath": [
+        [
+            "string",
+            "preset"
+        ]
+    ],
     "ArmToggles": [
         [
             "boolean",
@@ -123,16 +129,6 @@
             "cam8"
         ]
     ],
-    "CameraServos": [
-        [
-            "float",
-            "pan"
-        ],
-        [
-            "float",
-            "tilt"
-        ]
-    ],
     "CarouselPosition": [
         [
             "int8_t",
@@ -184,6 +180,13 @@
             "double",
             "current_f"
         ]
+    ],
+    "CustomPreset": [
+        [
+            "string",
+            "preset"
+        ]
+
     ],
     "DebugMessage": [
         [
@@ -301,6 +304,16 @@
             "transform_f[4][4]"
         ]
     ],
+    "FootCmd": [
+        [
+            "double",
+            "microscope_triad"
+        ],
+        [
+            "double",
+            "scoop"
+        ]
+    ],
     "FuseData": [
         [
             "double",
@@ -345,6 +358,16 @@
         [
             "int32_t",
             "new_ack_id"
+        ]
+    ],
+    "HandCmd": [
+        [
+            "double",
+            "finger"
+        ],
+        [
+            "double",
+            "grip"
         ]
     ],
     "Heater": [
@@ -403,26 +426,6 @@
         [
             "double",
             "bearing"
-        ]
-    ],
-    "IkArmControl": [
-        [
-            "double",
-            "deltaX"
-        ],
-        [
-            "double",
-            "deltaY"
-        ],
-        [
-            "double",
-            "deltaZ"
-        ]
-    ],
-    "IkEnabled": [
-        [
-            "boolean",
-            "enabled"
         ]
     ],
     "Joystick": [
@@ -592,14 +595,18 @@
             "speed"
         ]
     ],
-    "OpenLoopRAMotor": [
+    "PDBFuse": [
         [
-            "int8_t",
-            "joint_id"
+            "double",
+            "temp_celsius[3]"
         ],
         [
             "double",
-            "speed"
+            "current_amps[3]"
+        ],
+        [
+            "double",
+            "voltage_volts[3]"
         ]
     ],
     "PDBData": [
@@ -802,16 +809,6 @@
             "CO2"
         ]
     ],
-    "Servo": [
-        [
-            "string",
-            "id"
-        ],
-        [
-            "double",
-            "degrees"
-        ]
-    ],
     "ServoCmd": [
         [
             "double",
@@ -838,6 +835,12 @@
         [
             "int16_t",
             "value"
+        ]
+    ],
+    "ScoopLimitSwitchEnabled": [
+        [
+            "boolean",
+            "enable"
         ]
     ],
     "Signal": [],
@@ -1027,21 +1030,6 @@
             "tboard_temp"
         ]
     ],
-    "TennisBall": [
-        [
-            "boolean",
-            "found"
-        ],
-        [
-            "double",
-            "bearing",
-            ""
-        ],
-        [
-            "double",
-            "distance"
-        ]
-    ],
     "TestEnable": [
         [
             "int8_t",
@@ -1092,6 +1080,12 @@
         [
             "double",
             "right_back"
+        ]
+    ],
+    "WristTurnCount": [
+        [
+            "int8_t",
+            "turn_count"
         ]
     ],
     "Xbox": [
@@ -1166,73 +1160,5 @@
             "angle"
         ]
     ],
-    "ZeroPosition": [
-    ],
-    "message_types": [
-        "ArmControlState",
-        "RAPosition",
-        "ArmPreset",
-        "ArmToggles",
-        "AutonState",
-        "Bearing",
-        "Cameras",
-        "CameraServos",
-        "CamSettings",
-        "Course",
-        "CurrentDraw",
-        "DebugMessage",
-        "DriveMotors",
-        "Encoder",
-        "ESCThrottle",
-        "ESCToggle",
-        "FKTransform",
-        "FuseData",
-        "GPS",
-        "Heartbeat",
-        "Heater",
-        "HeaterAutoShutdown",
-        "IkArmControl",
-        "IkEnabled",
-        "IMU",
-        "Joystick",
-        "LockJointE",
-        "MicroCam",
-        "Microscope",
-        "MosfetCmd",
-        "MotionExecute",
-        "NavStatus",
-        "Obstacle",
-        "Odometry",
-        "OpenLoopRAMotor",
-        "PDBData",
-        "PIDConstants",
-        "ProximitySensors",
-        "RGB",
-        "RGBFrame",
-        "RGBLED",
-        "SAMotors",
-        "SAPosition",
-        "SensorPackage",
-        "Sensors",
-        "Servo",
-        "ServoCmd",
-        "SetDemand",
-        "Signal",
-        "SimulationMode",
-        "StartTest",
-        "TakePictureCmd",
-        "TalonConfig",
-        "TargetAngles",
-        "TargetList",
-        "TargetOrientation",
-        "TargetPoint",
-        "Temperature",
-        "TennisBall",
-        "TestEnable",
-        "Waypoint",
-        "WheelSpeeds",
-        "Xbox",
-        "ZedGimbalPosition",
-        "ZeroPosition"
-    ]
+    "ZeroPosition": []
 }

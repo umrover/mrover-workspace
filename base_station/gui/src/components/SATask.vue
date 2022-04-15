@@ -8,7 +8,6 @@
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
@@ -25,7 +24,7 @@
       <Raman v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
+      <Cameras/>
     </div>
     <div class="box spectral light-bg">
       <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
@@ -40,7 +39,10 @@
     <div class="box amino light-bg">
       <Amino v-bind:mosfetIDs="mosfetIDs"/>
     </div>
-    <div class="box drives light-bg">
+    <div class="box drivecontrols light-bg">
+      <DriveControls/>
+    </div>
+    <div class="box drivedata light-bg">
       <DriveVelDataV/>
     </div>
     <div class="box carousel light-bg">
@@ -61,6 +63,7 @@
 <script>
 import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
+import DriveControls from './DriveControls.vue'
 import Raman from './Raman.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
@@ -83,11 +86,6 @@ export default {
     return {
       lcm_: null,
 
-      lastServosMessage: {
-        pan: 0,
-        tilt: 0
-      },
-
       odom: {
         latitude_deg: 38,
         latitude_min: 24.38226,
@@ -98,9 +96,7 @@ export default {
 
       connections: {
         websocket: false,
-        lcm: false,
-        motors: false,
-        cameras: [false, false, false, false, false, false, false, false]
+        lcm: false
       },
 
       nav_status: {
@@ -188,8 +184,7 @@ export default {
       },
       // Update connection states
       (online) => {
-        this.connections.lcm = online[0],
-        this.connections.cameras = online.slice(1)
+        this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
       (msg) => {
@@ -213,7 +208,6 @@ export default {
       [
         {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
-        {'topic': '/sa_motors', 'type': 'SAMotors'},
         {'topic': '/test_enable', 'type': 'TestEnable'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/spectral_data', 'type': 'SpectralData'},
@@ -233,41 +227,12 @@ export default {
         {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'}
       ]
     )
-
-    const servosMessage = {
-      'type': 'CameraServos',
-      'pan': 0,
-      'tilt': 0
-    }
-
-    const JOYSTICK_CONFIG = {
-      'forward_back': 1,
-      'left_right': 2,
-      'dampen': 3,
-      'kill': 4,
-      'restart': 5,
-      'pan': 4,
-      'tilt': 5
-    }
-
-    interval = window.setInterval(() => {
-      const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 2; i++) {
-        const gamepad = gamepads[i]
-        if (gamepad) {
-          if (gamepad.id.includes('Logitech')) {
-            const servosSpeed = 0.8
-            servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG['pan']] * servosSpeed / 10
-            servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG['tilt']] * servosSpeed / 10
-          }
-        }
-      }
-    }, 100)
   },
 
   components: {
     Cameras,
     CommIndicator,
+    DriveControls,
     Raman,
     WaypointEditor,
     SpectralData,
@@ -290,15 +255,15 @@ export default {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: auto auto auto;
-        grid-template-rows: 60px auto auto auto auto auto;
+        grid-template-rows: 60px auto auto auto auto auto auto auto;
         grid-template-areas: "header header header" 
                              "cameras cameras cameras" 
                              "carousel chlorophyll raman" 
                              "spectral chlorophyll scoopUV" 
-                             "spectral chlorophyll drives"
-                             "SAArm striptest drives"
-                             "SAArm amino drives"
-                             "PDBFuse amino drives";
+                             "spectral chlorophyll drivecontrol" 
+                             "SAArm striptest drivedata" 
+                             "PDBFuse amino drivedata" 
+                             "PDBFuse amino drivedata";
         font-family: sans-serif;
         height: auto;
     }

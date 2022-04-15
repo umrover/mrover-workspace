@@ -1,29 +1,12 @@
 <template>
   <div class="wrap">
-    <div class="box header">
-      <h3>Cameras</h3>
-      <div class="spacer"></div>
-      <div class="comms">
-        <ul id="vitals">
-          <li v-for="connection, i in connections" :key="i"><CommIndicator v-bind:connected="connection" v-bind:name="'Cam'+(i)"/></li>
-        </ul>
-        </div>
-    </div>
-
-    <div class="servos">
-      <span>Servos pan: {{servosData.pan.toFixed(2)}}, Servos tilt: {{servosData.tilt.toFixed(2)}}</span>
-    </div>
-
+    <h3>Cameras</h3>
     <div>
       <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscopeCam()" ref="micro"/>
     </div>
-
     <div class="cameraselection">
-      <Checkbox v-bind:name="'Dual Stream'" v-on:toggle="toggleDualStream()" ref="dualstream"/>
-      <!-- For formatting... -->
-      <div></div>
       <CameraSelection class="cameraspace1" v-bind:cam_index="cam_index_1" v-on:cam_index="setCamIndex($event, 1)"/>
-      <CameraSelection class="cameraspace2" v-show="dual_stream" v-bind:cam_index="cam_index_2" v-on:cam_index="setCamIndex($event, 2)"/>
+      <CameraSelection class="cameraspace2" v-bind:cam_index="cam_index_2" v-on:cam_index="setCamIndex($event, 2)"/>
     </div>
   </div>
 </template>
@@ -108,18 +91,6 @@
       }, 250)
     },
 
-    props: {
-      connections: {
-        type: Array,
-        required: true
-      },
-
-      servosData: {
-        type: Object,
-        required: true
-      }
-    },
-
     methods: {
       setCamIndex: function (new_index, stream) {
         if (stream === 1 && (new_index !== this.cam_index_2 || new_index === -1)) {
@@ -174,8 +145,8 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
-    grid-template-rows: 60px 20px;
-    grid-template-areas: "header" "servos";
+    grid-template-rows: 60px;
+    grid-template-areas: "header";
     font-family: sans-serif;
     height: 100%;
   }
@@ -200,11 +171,6 @@
   img {
     border: none;
     border-radius: 0px;
-  }
-
-  .servos {
-    grid-area: servos;
-    margin: auto;
   }
 
   .header {
