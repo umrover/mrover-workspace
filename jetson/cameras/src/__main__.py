@@ -8,7 +8,7 @@ import jetson.utils
 __lcm: lcm.LCM
 __pipelines = [None] * 2
 
-ARGUMENTS = ['--headless', '--bitrate=2000000']  # Change to desired bitrate e.g. 2000000
+ARGUMENTS = ['--headless', '--bitrate=300000', '--width=256', '--height=144']  # Change to desired bitrate e.g. 2000000
 remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001"]
 
 
