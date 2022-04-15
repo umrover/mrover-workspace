@@ -2,8 +2,6 @@
 
 #include "utilities.hpp"
 #include "environment.hpp"
-#include <iostream>
-#include <string>
 
 Environment::Environment(const rapidjson::Document& config) :
         mConfig(config),
@@ -14,35 +12,22 @@ Environment::Environment(const rapidjson::Document& config) :
         mPostTwoLat(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
         mPostTwoLong(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()) {}
 
-void Environment::setObstacle(Obstacle const& obstacle) {
-    mObstacle = obstacle;
-}
-
-Obstacle Environment::getObstacle() {
-    return mObstacle;
-}
-
-Target Environment::getLeftTarget() const {
-    return mTargetLeft.get();
-}
-
-Target Environment::getRightTarget() const {
-    return mTargetRight.get();
-}
-
-void Environment::setBaseGateID(int baseGateId) {
-    mBaseGateId = baseGateId;
-}
-
+/***
+ * @param targets New target data from perception to update our filters.
+ */
 void Environment::setTargets(TargetList const& targets) {
     Target const& leftTargetRaw = targets.targetList[0];
     Target const& rightTargetRaw = targets.targetList[1];
-    //std::cout << (leftTargetRaw.distance == -1 || leftTargetRaw.id == -1) << std::endl;
     mTargetLeft.put((leftTargetRaw.distance != -1 && leftTargetRaw.id != -1), leftTargetRaw);
     mTargetRight.put((rightTargetRaw.distance != -1 && rightTargetRaw.id != -1), rightTargetRaw);
 }
 
-void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
+/***
+ * Update our estimate for where the post is with our current filtered values.
+ * This takes care of matching left/right targets in camera screen space to their actual IDs.
+ * We have to convert from degrees and minutes to just degrees since that is how @c Odometry was designed.
+ */
+void Environment::updatePost(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
     mHasNewPostUpdate = false;
     if (rover->autonState().is_auton) {
         bool isRightValid = mTargetRight.isValid();
@@ -82,9 +67,30 @@ void Environment::updateTargets(std::shared_ptr<Rover> const& rover, std::shared
         mPostOneLong.reset();
         mPostTwoLat.reset();
         mPostTwoLong.reset();
+        // TODO: move outside of this function
         double cosine = cos(degreeToRadian(rover->odometry().latitude_deg, rover->odometry().latitude_min));
         rover->setLongMeterInMinutes(60 / (EARTH_CIRCUM * cosine / 360));
     }
+}
+
+void Environment::setObstacle(Obstacle const& obstacle) {
+    mObstacle = obstacle;
+}
+
+Obstacle Environment::getObstacle() {
+    return mObstacle;
+}
+
+Target Environment::getLeftTarget() const {
+    return mTargetLeft.get();
+}
+
+Target Environment::getRightTarget() const {
+    return mTargetRight.get();
+}
+
+void Environment::setBaseGateID(int baseGateId) {
+    mBaseGateId = baseGateId;
 }
 
 bool Environment::hasNewPostUpdate() const {
@@ -118,7 +124,6 @@ Vector2d Environment::getPostOneOffsetInCartesian(Odometry cur) const {
 
 Vector2d Environment::getPostTwoOffsetInCartesian(Odometry cur) const {
     return getOffsetInCartesian(cur, getPostTwoLocation());
-
 }
 
 std::optional<Target> Environment::tryGetTargetWithId(int32_t id) const {

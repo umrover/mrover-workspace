@@ -51,13 +51,6 @@ enum class NavState {
     Unknown = 255
 }; // AutonState
 
-// This class is the representation of the drive status.
-enum class DriveStatus {
-    Arrived,
-    OnCourse,
-    OffCourse
-}; // DriveStatus
-
 // This class creates a Rover object which can perform operations that
 // the real rover can perform.
 class Rover {
@@ -97,8 +90,6 @@ private:
     /* Private Member Functions */
     /*************************************************************************/
     void publishAutonDriveCmd(double leftVel, double rightVel);
-
-    static bool isTurningAroundObstacle(NavState currentState);
 
     /*************************************************************************/
     /* Private Member Variables */

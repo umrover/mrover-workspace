@@ -100,10 +100,6 @@ void Rover::publishAutonDriveCmd(const double leftVel, const double rightVel) {
     mLcmObject.publish(autonDriveControlChannel, &driveControl);
 }
 
-bool Rover::isTurningAroundObstacle(NavState currentState) {
-    return currentState == NavState::TurnAroundObs || currentState == NavState::SearchTurnAroundObs;
-} // isTurningAroundObstacle()
-
 // Gets a reference to the rover's current navigation state.
 NavState const& Rover::currentState() const {
     return mCurrentState;

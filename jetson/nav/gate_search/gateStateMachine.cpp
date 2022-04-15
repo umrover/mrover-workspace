@@ -28,15 +28,21 @@ Odometry GateStateMachine::getPointToFollow(Odometry curRoverLocation) {
     return mPath[mPathIndex];
 }
 
+/***
+ * @return Whether we are "parallel" to the gate,
+ * which in this case means we are approaching the gate from the side.
+ * If this value is false it means we can drive straight through the gate
+ * since we are head on.
+ */
 bool GateStateMachine::isParallelToGate() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
-    std::shared_ptr<Environment> env = sm->getEnv();
-    std::shared_ptr<Rover> rover = sm->getRover();
-    Vector2d p1 = env->getPostOneOffsetInCartesian(rover->odometry());
-    Vector2d p2 = env->getPostTwoOffsetInCartesian(rover->odometry());
+    Vector2d p1 = sm->getEnv()->getPostOneOffsetInCartesian(sm->getRover()->odometry());
+    Vector2d p2 = sm->getEnv()->getPostTwoOffsetInCartesian(sm->getRover()->odometry());
     Vector2d center = (p1 + p2) / 2;
-    Vector2d postDir = (p2 - p1).normalized();
-    double gateAlignment = center.normalized().dot(postDir);
+    Vector2d postDir = p2 - p1;
+    center.normalize();
+    postDir.normalize();
+    double gateAlignment = center.dot(postDir);
     return std::fabs(gateAlignment) > 0.75;
 }
 

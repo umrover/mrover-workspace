@@ -47,7 +47,7 @@ public:
 
     void setTargets(TargetList const& targets);
 
-    void updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course);
+    void updatePost(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course);
 
     [[nodiscard]] Target getLeftTarget() const;
 

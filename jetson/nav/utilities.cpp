@@ -39,8 +39,12 @@ double estimateDistance(const Odometry& current, const Odometry& dest) {
     return sqrt(diffLat * diffLat + diffLon * diffLon) * EARTH_RADIUS;
 }
 
-// Create a new Odometry point at a absoluteBearing and distance from a given odometry point
-// Note this uses the absolute absoluteBearing not a absoluteBearing relative to the rover.
+/***
+ * @param current           Current position
+ * @param absoluteBearing   Absolute bearing (relative to North) in degrees
+ * @param distance          Distance in meters
+ * @return                  New odometry point in given bearing direction and distance away
+ */
 Odometry createOdom(const Odometry& current, double absoluteBearing, double distance, const std::shared_ptr<Rover>& rover) {
     absoluteBearing = degreeToRadian(absoluteBearing);
     double latChange = distance * cos(absoluteBearing) * LAT_METER_IN_MINUTES;
@@ -49,10 +53,14 @@ Odometry createOdom(const Odometry& current, double absoluteBearing, double dist
     return newOdom;
 }
 
-// Create a new Odometry point a given vector offset from another odometry point
-Odometry createOdom(const Odometry& current, Vector2d vec, const std::shared_ptr<Rover>& rover) {
-    double bearing = radianToDegree(atan2(vec.y(), vec.x()));
-    double distance = vec.norm();
+/***
+ * @param current   Current position
+ * @param offset    Relative offset from the given position, (+1, 0) is North
+ * @return          New odometry offset by given vector
+ */
+Odometry createOdom(const Odometry& current, Vector2d offset, const std::shared_ptr<Rover>& rover) {
+    double bearing = radianToDegree(atan2(offset.y(), offset.x()));
+    double distance = offset.norm();
     return createOdom(current, bearing, distance, rover);
 }
 
@@ -83,7 +91,7 @@ double estimateBearing(const Odometry& start, const Odometry& dest) {
 } // estimateBearing()
 
 // Calculates the modulo of degree with the given modulus.
-double mod(const double degree, const int modulus) {
+double mod(double degree, int modulus) {
     double mod = fmod(degree, modulus);
     return mod < 0 ? mod + modulus : mod;
 }
@@ -112,6 +120,11 @@ Odometry createOdom(double latitude, double longitude) {
     };
 }
 
+/***
+ * @param current   From position
+ * @param target    To position
+ * @return          Vector offset in space where (+1, 0) is North
+ */
 Vector2d getOffsetInCartesian(Odometry current, Odometry target) {
     double bearing = degreeToRadian(estimateBearing(current, target));
     double distance = estimateDistance(current, target);

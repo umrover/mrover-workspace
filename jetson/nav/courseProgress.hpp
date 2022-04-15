@@ -7,7 +7,7 @@
 using namespace rover_msgs;
 
 /**
- * @brief Represents the state of us traversing a course.
+ * @brief Represents the state of the rover traversing a course.
  */
 class CourseProgress {
 private:

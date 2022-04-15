@@ -27,21 +27,6 @@ StateMachine::StateMachine(
                                                             mConfig);
 } // StateMachine()
 
-void StateMachine::setSearcher(SearchType type) {
-    mSearchStateMachine = SearchFactory(weak_from_this(), type, mRover, mConfig);
-    mSearchStateMachine->initializeSearch(mConfig, mConfig["computerVision"]["visionDistance"].GetDouble());
-}
-
-void StateMachine::setGateSearcher() {
-    mGateStateMachine = GateFactory(weak_from_this(), mConfig);
-}
-
-// Allows outside objects to set the original obstacle angle
-// This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleDistance(double distance) {
-    mObstacleAvoidanceStateMachine->updateObstacleDistance(distance);
-}
-
 // Runs the state machine through one iteration. The state machine will
 // run if the state has changed or if the rover's status has changed.
 // Will call the corresponding function based on the current state.
@@ -60,7 +45,7 @@ void StateMachine::run() {
         i = 0;
     }
 
-    mEnv->updateTargets(mRover, mCourseProgress);
+    mEnv->updatePost(mRover, mCourseProgress);
 
     publishNavState();
     NavState nextState = NavState::Unknown;
@@ -206,6 +191,21 @@ std::string StateMachine::stringifyNavState() const {
 
     return navStateNames.at(mRover->currentState());
 } // stringifyNavState()
+
+void StateMachine::setSearcher(SearchType type) {
+    mSearchStateMachine = SearchFactory(weak_from_this(), type, mRover, mConfig);
+    mSearchStateMachine->initializeSearch(mConfig, mConfig["computerVision"]["visionDistance"].GetDouble());
+}
+
+void StateMachine::setGateSearcher() {
+    mGateStateMachine = GateFactory(weak_from_this(), mConfig);
+}
+
+// Allows outside objects to set the original obstacle angle
+// This will allow the variable to be set before the rover turns
+void StateMachine::updateObstacleDistance(double distance) {
+    mObstacleAvoidanceStateMachine->updateObstacleDistance(distance);
+}
 
 std::shared_ptr<Environment> StateMachine::getEnv() {
     return mEnv;

@@ -13,9 +13,9 @@ public:
     void reset();
 
 private:
-    double mP;
-    double mI;
-    double mD;
+    double mP, mI, mD;
+    // Some inputs, such as angles, are cyclic in nature.
+    // Set this to account for that properly so computations are correct on boundaries.
     std::optional<double> mMaxInputBeforeWrap;
 
     const double mMinOut = -1.0;

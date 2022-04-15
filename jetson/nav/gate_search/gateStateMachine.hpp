@@ -47,12 +47,12 @@ private:
 
     Odometry getPointToFollow(Odometry curRoverLocation);
 
-    ProjectedPoints mProjectedPoints{};
-
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
     const rapidjson::Document& mConfig;
+
+    ProjectedPoints mProjectedPoints{};
 
     std::deque<Odometry> mPath;
 
