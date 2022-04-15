@@ -9,9 +9,11 @@
 // object with which to use for communications.
 Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
         : mConfig(config), mLcmObject(lcmObject),
-          mBearingPid(config["bearingPid"]["kP"].GetDouble(),
-                      config["bearingPid"]["kI"].GetDouble(),
-                      config["bearingPid"]["kD"].GetDouble(), 360.0),
+          mBearingPid(PidLoop(config["bearingPid"]["kP"].GetDouble(),
+                              config["bearingPid"]["kI"].GetDouble(),
+                              config["bearingPid"]["kD"].GetDouble())
+                              .withMaxInput(360.0)
+                              .withThreshold(mConfig["navThresholds"]["turningBearing"].GetDouble())),
           mLongMeterInMinutes(-1) {
 } // Rover(
 
@@ -34,7 +36,7 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
         return true;
     }
     TargetBearing targetBearingLCM = {bearing};
-    std::string targetBearingChannel = mConfig["lcmChannels"]["targetBearingChannel"].GetString();
+    std::string const& targetBearingChannel = mConfig["lcmChannels"]["targetBearingChannel"].GetString();
     mLcmObject.publish(targetBearingChannel, &targetBearingLCM);
     if (turn(bearing, dt)) {
         double destinationBearing = mod(bearing, 360);
@@ -43,6 +45,8 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
         // if we need to turn clockwise, turning effort will be positive, so leftVel will be 1, and rightVel will be in between 0 and 1
         // if we need to turn ccw, turning effort will be negative, so rightVel will be 1 and leftVel will be in between 0 and 1
         // TODO: use std::clamp
+//        double leftVel = std::clamp(1.0 + turningEffort, 0.0, 1.0);
+//        double rightVel = std::clamp(1.0 - turningEffort, 0.0, 1.0);
         double leftVel = std::min(1.0, std::max(0.0, 1.0 + turningEffort));
         double rightVel = std::min(1.0, std::max(0.0, 1.0 - turningEffort));
         publishAutonDriveCmd(leftVel, rightVel);
@@ -60,9 +64,7 @@ bool Rover::turn(Odometry const& destination, double dt) {
 
 // Turn to an absolute bearing
 bool Rover::turn(double absoluteBearing, double dt) {
-    absoluteBearing = mod(absoluteBearing, 360);
-    throughZero(absoluteBearing, mOdometry.bearing_deg);
-    if (fabs(absoluteBearing - mOdometry.bearing_deg) <= mConfig["navThresholds"]["turningBearing"].GetDouble()) {
+    if (mBearingPid.isOnTarget(mOdometry.bearing_deg, absoluteBearing)) {
         return true;
     }
     double turningEffort = mBearingPid.update(mOdometry.bearing_deg, absoluteBearing, dt);
