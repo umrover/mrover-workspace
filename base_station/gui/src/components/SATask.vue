@@ -39,7 +39,10 @@
     <div class="box amino light-bg">
       <Amino v-bind:mosfetIDs="mosfetIDs"/>
     </div>
-    <div class="box drives light-bg">
+    <div class="box drivecontrols light-bg">
+      <DriveControls/>
+    </div>
+    <div class="box drivedata light-bg">
       <DriveVelDataV/>
     </div>
     <div class="box carousel light-bg">
@@ -60,6 +63,7 @@
 <script>
 import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
+import DriveControls from './DriveControls.vue'
 import Raman from './Raman.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
@@ -228,6 +232,7 @@ export default {
   components: {
     Cameras,
     CommIndicator,
+    DriveControls,
     Raman,
     WaypointEditor,
     SpectralData,
@@ -250,15 +255,15 @@ export default {
         display: grid;
         grid-gap: 10px;
         grid-template-columns: auto auto auto;
-        grid-template-rows: 60px auto auto auto auto auto;
+        grid-template-rows: 60px auto auto auto auto auto auto auto;
         grid-template-areas: "header header header" 
                              "cameras cameras cameras" 
                              "carousel chlorophyll raman" 
                              "spectral chlorophyll scoopUV" 
-                             "spectral chlorophyll drives"
-                             "SAArm striptest drives"
-                             "SAArm amino drives"
-                             "PDBFuse amino drives";
+                             "spectral chlorophyll drivecontrol" 
+                             "SAArm striptest drivedata" 
+                             "PDBFuse amino drivedata" 
+                             "PDBFuse amino drivedata";
         font-family: sans-serif;
         height: auto;
     }
