@@ -189,11 +189,6 @@ void MRoverArm::set_arm_position(std::vector<double> &angles) {
 }
 
 void StandardArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
-    if(abs(wrist_turn_count) >= 2){
-        std::cout << "Wrist Turn Count Limit Exceeded, IK Request Cancelled\n";
-        return;
-    }
-    
     if (control_state == ControlState::OFF) {
         set_to_closed_loop();
     }
@@ -648,10 +643,6 @@ void MRoverArm::custom_preset_callback(std::string channel, CustomPreset msg) {
     std::cout << "adding new preset " << msg.preset << "\n";
 }
 
-void StandardArm::wrist_turn_count_callback(std::string channel, WristTurnCount msg){
-    wrist_turn_count = msg.turn_count;
-}
-
 void MRoverArm::set_to_closed_loop() {
     ArmControlState new_state;
     new_state.state = "closed-loop";
@@ -679,7 +670,6 @@ bool MRoverArm::interrupt(ControlState expected_state, std::string action) {
 
 StandardArm::StandardArm(json &geom, lcm::LCM &lcm) :
     MRoverArm(geom, lcm),
-    wrist_turn_count(0),
     use_orientation(false) { }
 
 void StandardArm::lock_joints_callback(std::string channel, LockJoints msg) {

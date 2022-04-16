@@ -37,9 +37,6 @@
     <div class="box drive light-bg">
       <DriveControls/>
     </div>
-    <div class="box ik-gui light-bg">
-      <iframe src="http://localhost:8020/#/" height="300" width="100%" title="IK gui"></iframe>
-    </div>
     <div class ="box pdb light-bg">
       <PDBFuse/>
     </div>
@@ -129,8 +126,7 @@ export default {
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/ik_reset', 'type': 'Signal'},
-        {'topic': '/wrist_turn_count', 'type': 'WristTurnCount'}
+        {'topic': '/ik_reset', 'type': 'Signal'}
       ]
     )
   },
@@ -155,8 +151,7 @@ export default {
     grid-template-columns: 1fr 1.5fr;
     grid-template-rows: 60px auto auto auto auto auto auto;
     grid-template-areas: "header header"
-                         "ik-gui cameras"
-                         "controls ik-controls"
+                         "controls cameras"
                          "encoder ik-controls"
                          "drive ik-controls"
                          "pdb drive-motor"
@@ -269,10 +264,6 @@ export default {
 
   .drive {
     grid-area: drive;
-  }
-
-  .ik-gui {
-    grid-area: ik-gui;
   }
 
   .encoder {
