@@ -335,7 +335,7 @@ std::vector<double> ArmState::get_preset_position(const std::string &pos) {
     auto it = preset_positions.find(pos);
 
     if (it == preset_positions.end()) {
-        std::cout << "Error: Invalid preset:\t" << pos << "\n";
+        std::cout << "Error: Invalid preset position:\t" << pos << "\n";
         return std::vector<double>();
     }
     else {
