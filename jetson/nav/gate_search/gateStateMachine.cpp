@@ -109,7 +109,7 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     Vector2d p2 = env->getPostTwoOffsetInCartesian(rover->odometry());
     Vector2d center = (p1 + p2) / 2;
     // TODO: make this config
-    double approachDistance = 2.0;
+    double approachDistance = 3.0;
     Vector2d postDir = (p2 - p1).normalized();
     Vector2d perp = {-postDir.y(), postDir.x()};
     Vector2d approachPoints[2] = {(perp * approachDistance) + center,
