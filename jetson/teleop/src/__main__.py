@@ -134,9 +134,6 @@ class ArmControl:
 
     def ra_control_callback(self, channel, msg):
         self.arm_type = self.ArmType.RA
-        
-        if (self.arm_control_state == "calibrating"):
-            return
 
         xboxData = Xbox.decode(msg)
 
@@ -169,9 +166,6 @@ class ArmControl:
 
     def sa_control_callback(self, channel, msg):
         self.arm_type = self.ArmType.SA
-        
-        if (self.arm_control_state == "calibrating")
-            return
 
         xboxData = Xbox.decode(msg)
 
@@ -219,10 +213,11 @@ class ArmControl:
     
     def joint_b_calibration_callback(self, channel, msg):
         if msg.calibrated:
-            self.arm_control_state = 'off'
             return
-        
-        self.arm_control_state = 'calibrating'
+
+        arm_control_state_msg = ArmControlState()
+        arm_control_state_msg.state = 'off'
+        lcm_.publish('/arm_control_state', arm_control_state_msg.encode())
 
         if self.arm_type == self.ArmType.RA:
             raMotorsData = [0, 1, 0, 0, 0, 0]
@@ -270,8 +265,6 @@ def main():
     lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
     lcm_.subscribe('/wrist_turn_count', arm.wrist_turn_count_callback)
     lcm_.subscribe('/joint_b_calibration_data', arm.joint_b_calibration_callback)
-
-    lcm_.subscribe("/autonomous", autonomous_callback)      #TODO: wut
 
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
