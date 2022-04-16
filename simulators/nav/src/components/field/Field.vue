@@ -295,10 +295,10 @@ export default class Field extends Vue {
 
   /* Object for drawing rover on canvas. */
   private get canvasRover():CanvasRover {
-    return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale, this.roverPath,
-                           this.FOVAreaPath, this.fieldOfViewOptions, this.roverPathVisible,
-                           this.pushToRoverPath, this.pushToFOVAreaPath, this.zedGimbalPos,
-                           this.enableFOVView);
+    return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale,
+                           this.roverPath, this.FOVAreaPath, this.fieldOfViewOptions,
+                           this.roverPathVisible, this.pushToRoverPath, this.pushToFOVAreaPath,
+                           this.zedGimbalPos, this.enableFOVView);
   }
 
   /* Object for drawing waypoints on canvas. */

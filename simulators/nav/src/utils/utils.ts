@@ -366,7 +366,7 @@ function degToRad2D(coords:Point2D):Point2D {
 
 /* Convert from meters (origin is middle of canvas) to pixels (origin is
    top-left of canvas). */
-function metersToCanvas(
+export function metersToCanvas(
     point:Point2D /* meters */,
     canvasSize:number /* pixels */,
     scale:number /* pixels/meter */

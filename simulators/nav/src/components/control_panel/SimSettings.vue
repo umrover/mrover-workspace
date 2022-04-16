@@ -74,10 +74,9 @@
             <p>Max # of False Positives:</p>
             <NumberInput
               :val.sync="maxFalsePosIn"
-              :precision="2"
               :min="0"
-              :max="100"
-              :step="5"
+              :max="10"
+              :step="1"
             />
           </div>
           <div class="enableFOVView">

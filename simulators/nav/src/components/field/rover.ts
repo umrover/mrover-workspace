@@ -13,8 +13,6 @@ import {
   degToRad,
   odomToCanvas,
   randnBm
-
-  // rotatePoint
 } from '../../utils/utils';
 import { ROVER, Zscores } from '../../utils/constants';
 import { state } from '../../store/modules/simulatorState';
@@ -80,6 +78,7 @@ export default class CanvasRover {
   /* Current position of the ZED Gimbal */
   private zedGimbalPos!:ZedGimbalPosition;
 
+  /* Enable the FOV visualization tool */
   private enableFOVView!:boolean;
 
   /************************************************************************************************
@@ -156,7 +155,7 @@ export default class CanvasRover {
     this.drawWheels();
     this.drawZed();
 
-    this.drawFalsePos();
+    this.drawFalsePos(canvas);
 
     this.ctx.rotate(-degToRad(this.currOdom.bearing_deg));
     this.ctx.translate(-loc.x, -loc.y);
@@ -320,20 +319,17 @@ export default class CanvasRover {
   }
 
   /* False Positives */
-  private drawFalsePos():void {
+  private drawFalsePos(canvas:HTMLCanvasElement):void {
     const max:number = state.simSettings.maxFalsePos;
-    console.log('max: ', max);
+
+    // for each false positive, generate and display on canvas
     for (let i = 0; i < max; i += 1) {
       const num:number = randnBm(0, 1, 1);
       const thres = getGaussianThres();
-      console.log('rand num: ', num);
-      console.log('thres: ', thres);
 
-      const isFalsePos:boolean = num > thres;
+      const isFalsePos:boolean = num < thres;
 
       if (isFalsePos) {
-        console.log('falsePos worked!');
-
         /* generate r and theta */
         const r:number = randnBm(0, this.fov.depth, 1);
         const theta:number = randnBm(0, this.fov.angle, 1);
@@ -341,14 +337,17 @@ export default class CanvasRover {
         const diff:number = 90 - half;
         const angle:number = theta + diff;
 
-        // convert r and theta to rectangular coordinates
-        const xCoord:number = r * Math.cos(angle * Math.PI / 180.0);
-        const yCoord:number = r * Math.sin(angle * Math.PI / 180.0);
+        // convert r and theta to rectangular coordinates in meters
+        const xCoordMeters:number = r * Math.cos(angle * Math.PI / 180.0);
+        const yCoordmeters:number = r * Math.sin(angle * Math.PI / 180.0);
+
+        this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        const pCanvas:Point2D = { x: xCoordMeters * this.scale, y: yCoordmeters * this.scale };
 
         // draw False Positive point directly
         const dimension = 10;
         this.ctx.fillStyle = 'red';
-        this.ctx.fillRect(xCoord, yCoord, dimension, dimension);
+        this.ctx.fillRect(pCanvas.x, -pCanvas.y, dimension, dimension);
       }
     }
   }
