@@ -120,4 +120,3 @@ Vector2d getOffsetInCartesian(Odometry current, Odometry target) {
     double distance = estimateDistance(current, target);
     return {distance * cos(bearing), distance * sin(bearing)};
 } // getOffsetInCartesian
-
