@@ -5,6 +5,7 @@
       <l-control-scale :imperial="false"/>
       <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="tangent" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="tangentIcon"/>
+      <l-marker ref="target_bearing" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="targetBearingIcon"/>
       <l-marker ref="rover" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="locationIcon"/>
 
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint, index) in waypointList" :key="index">
@@ -50,13 +51,18 @@ export default {
   created: function () {
     this.locationIcon = L.icon({
       iconUrl: '/static/location_marker_icon.png',
-      iconSize: [64, 64],
-      iconAnchor: [32, 32]
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
     })
     this.tangentIcon = L.icon({
       iconUrl: '/static/gps_tangent_icon.png',
       iconSize: [44, 80],
       iconAnchor: [22, 60]
+    })
+    this.targetBearingIcon = L.icon({
+      iconUrl: '/static/gps_tangent_icon.png',
+      iconSize: [30, 56],
+      iconAnchor: [15, 42]
     })
     this.waypointIcon = L.icon({
       iconUrl: '/static/map_marker.png',
@@ -97,6 +103,7 @@ export default {
       playbackOdomLon: 'playbackOdomLon',
       playbackOdomBearing: 'playbackOdomBearing',
       playbackGpsBearing: 'playbackGpsBearing',
+      playbackTargetBearing: 'playbackTargetBearing'
     }),
 
     odomLatLng: function () {
@@ -122,13 +129,17 @@ export default {
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       roverMarker: null,
-      tangentMarker: null,
       waypointIcon: null,
       map: null,
       odomCount: 0,
       locationIcon: null,
-      tangentIcon: null,
       odomPath: [],
+
+      tangentMarker: null,
+      tangentIcon: null,
+
+      targetBearingMarker: null,
+      targetBearingIcon: null,
 
       projectedPoints: [],
       projectedPointsType: '',
@@ -155,6 +166,10 @@ export default {
       required: true
     },
     GPS: {
+      type: Object,
+      required: true
+    },
+    TargetBearing: {
       type: Object,
       required: true
     }
@@ -187,17 +202,20 @@ export default {
       const lng = val.longitude_deg + val.longitude_min / 60
       const angle = val.bearing_deg
 
+      const latLng = L.latLng(lat, lng)
+
       // Move to rover on first odom message
       if (!this.findRover) {
         this.findRover = true
-        this.center = L.latLng(lat, lng)
+        this.center = latLng
       }
       
       // Update the rover marker
       this.roverMarker.setRotationAngle(angle)
 
-      this.roverMarker.setLatLng(L.latLng(lat, lng))
-      this.tangentMarker.setLatLng(L.latLng(lat, lng))
+      this.roverMarker.setLatLng(latLng)
+      this.tangentMarker.setLatLng(latLng)
+      this.targetBearingMarker.setLatLng(latLng)
 
       // Update the rover path
       this.odomCount++
@@ -205,15 +223,18 @@ export default {
         if (this.odomCount > MAX_ODOM_COUNT * DRAW_FREQUENCY) {
           this.odomPath.splice(0, 1)
         }
-        this.odomPath.push(L.latLng(lat, lng))
+        this.odomPath.push(latLng)
       }
 
-      this.odomPath[this.odomPath.length - 1] = L.latLng(lat, lng)
+      this.odomPath[this.odomPath.length - 1] = latLng
     },
 
     GPS: function (val) {
-      const angle = val.bearing_deg
-      this.tangentMarker.setRotationAngle(angle)
+      this.tangentMarker.setRotationAngle(val.bearing_deg)
+    },
+
+    TargetBearing: function (val) {
+      this.targetBearingMarker.setRotationAngle(val.target_bearing)
     },
     
     playbackEnabled: function(val) {
@@ -222,22 +243,31 @@ export default {
       this.playbackSlider = 0
 
       if (val) {
-        this.center = L.latLng(this.playbackOdomLat[0], this.playbackOdomLon[0])
+        const latLng = L.latLng(this.playbackOdomLat[0], this.playbackOdomLon[0])
+        this.center = latLng
 
         this.roverMarker.setRotationAngle(this.playbackOdomBearing[0])
-        this.roverMarker.setLatLng(L.latLng(this.playbackOdomLat[0], this.playbackOdomLon[0]))
+        this.roverMarker.setLatLng(latLng)
 
         this.tangentMarker.setRotationAngle(this.playbackGpsBearing[0])
-        this.tangentMarker.setLatLng(L.latLng(this.playbackOdomLat[0], this.playbackOdomLon[0]))
+        this.tangentMarker.setLatLng(latLng)
+
+        this.targetBearingMarker.setRotationAngle(this.playbackTargetBearing[0])
+        this.targetBearingMarker.setLatLng(latLng)
       }
     },
 
     playbackSlider: function (val) {
+      const latLng = L.latLng(this.playbackOdomLat[val], this.playbackOdomLon[val])
+
       this.roverMarker.setRotationAngle(this.playbackOdomBearing[val])
-      this.roverMarker.setLatLng(L.latLng(this.playbackOdomLat[val], this.playbackOdomLon[val]))
+      this.roverMarker.setLatLng(latLng)
 
       this.tangentMarker.setRotationAngle(this.playbackGpsBearing[val])
-      this.tangentMarker.setLatLng(L.latLng(this.playbackOdomLat[val], this.playbackOdomLon[val]))
+      this.tangentMarker.setLatLng(latLng)
+
+      this.targetBearingMarker.setRotationAngle(this.playbackTargetBearing[val])
+      this.targetBearingMarker.setLatLng(latLng)
 
       let length_diff = val - this.playbackPath.length
 
@@ -260,6 +290,7 @@ export default {
       this.map = this.$refs.map.mapObject
       this.roverMarker = this.$refs.rover.mapObject
       this.tangentMarker = this.$refs.tangent.mapObject
+      this.targetBearingMarker = this.$refs.target_bearing.mapObject
     })
   }
 }
