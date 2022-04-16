@@ -217,8 +217,12 @@ class ArmControl:
         foot_msg.microscope_triad = 0
         lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
     
-    def joint_b_calibratiion_callback(self, channel, msg):
-        self.arm_control_state = "calibrating"
+    def joint_b_calibration_callback(self, channel, msg):
+        if msg.calibrated:
+            self.arm_control_state = 'off'
+            return
+        
+        self.arm_control_state = 'calibrating'
 
         if self.arm_type == self.ArmType.RA:
             raMotorsData = [0, 1, 0, 0, 0, 0]
@@ -263,8 +267,12 @@ def main():
 
     lcm_.subscribe('/ra_control', arm.ra_control_callback)
     lcm_.subscribe('/sa_control', arm.sa_control_callback)
-    lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
+    lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
     lcm_.subscribe('/wrist_turn_count', arm.wrist_turn_count_callback)
+    lcm_.subscribe('/joint_b_calibration_data', arm.joint_b_calibration_callback)
+
+    lcm_.subscribe("/autonomous", autonomous_callback)      #TODO: wut
+
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
     run_coroutines(hb.loop(), lcm_.loop())
