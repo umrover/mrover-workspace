@@ -6,7 +6,7 @@
     <div class="keyboard">
       <GimbalControls/>
     </div>
-    <div v-if='!this.joint_b_is_calibrated'>
+    <div class="calibrating" v-if='!this.joint_b_is_calibrated'>
       Calibrating Joint B...
     </div>
     <div style="font-color: abs(wristTurnCount) >= 2 ? red : black;">
@@ -277,6 +277,10 @@ export default {
 .header {
   display:flex;
   align-items:center;
+}
+.calibrating {
+  font-weight: bold;
+  color: red;
 }
 
 </style>

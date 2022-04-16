@@ -10,7 +10,7 @@
         <GimbalControls/>
       </div>
     </div>
-    <div v-if='!this.joint_b_is_calibrated'>
+    <div class="calibrating" v-if='!this.joint_b_is_calibrated'>
       Calibrating Joint B...
     </div>
     <div class="joints">
@@ -386,6 +386,12 @@ export default {
     left: 23px;
     background: #FFCB05;
     box-shadow: 0 0 1px #FFCB05;
+}
+
+.calibrating {
+  font-weight: bold;
+  color: red;
+  margin-bottom: 10px;
 }
 
 </style>
