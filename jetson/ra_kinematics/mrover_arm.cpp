@@ -656,7 +656,7 @@ void MRoverArm::set_to_closed_loop() {
     ArmControlState new_state;
     new_state.state = "closed-loop";
 
-    lcm_.publish("/arm_control_state_to_gui", &new_state);
+    lcm_.publish("/arm_control_state", &new_state);
     std::cout << "Changed mode to closed-loop.\n";
 
     control_state = ControlState::WAITING_FOR_TARGET;

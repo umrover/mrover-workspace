@@ -51,7 +51,6 @@
         viewing: {
           '/arm_adjustments': false,
           '/arm_control_state': false,
-          '/arm_control_state_to_gui': false,
           '/arm_preset': false,
           '/arm_preset_path': false,
           '/auton': false,
@@ -116,7 +115,7 @@
         subscriptions: [
           {'topic': '/arm_adjusments', 'type': 'ArmAdjustments'},
           {'topic': '/arm_control_state', 'type': 'ArmControlState'},
-          {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
+          {'topic': '/arm_control_state', 'type': 'ArmControlState'},
           {'topic': '/arm_preset', 'type': 'ArmPreset'},
           {'topic': '/arm_preset_path', 'type': 'ArmPresetPath'},
           {'topic': '/auton', 'type': 'AutonState'},

@@ -10,7 +10,7 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
                         ArmControlState, WristTurnCount,
-                        ReverseDrive)
+                        ReverseDrive, JointBCalibration)
 
 
 lcm_ = aiolcm.AsyncLCM()
@@ -169,8 +169,8 @@ class ArmControl:
 
     def sa_control_callback(self, channel, msg):
         if (self.arm_control_state != "open-loop"):
-            return 
-            
+            return
+
         self.arm_type = self.ArmType.SA
 
         xboxData = Xbox.decode(msg)
@@ -216,9 +216,9 @@ class ArmControl:
         foot_msg.scoop = 0
         foot_msg.microscope_triad = 0
         lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
-    
+
     def joint_b_calibration_callback(self, channel, msg):
-        if msg.calibrated:
+        if JointBCalibration.decode(msg).calibrated:
             return
 
         arm_control_state_msg = ArmControlState()
@@ -227,18 +227,18 @@ class ArmControl:
 
         if self.arm_type == self.ArmType.RA:
             raMotorsData = [0, 1, 0, 0, 0, 0]
-            
+
             ra_openloop_msg = RAOpenLoopCmd()
             ra_openloop_msg.throttle = raMotorsData
 
             lcm_.publish('/ra_openloop_cmd', ra_openloop_msg.encode())
-        
+
         elif self.arm_type == self.ArmType.SA:
             saMotorsData = [0, 1, 0, 0]
 
             sa_openloop_msg = SAOpenLoopCmd()
             sa_openloop_msg.throttle = saMotorsData
-            
+
             lcm_.publish('/sa_openloop_cmd', sa_openloop_msg.encode())
 
 

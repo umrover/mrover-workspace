@@ -125,7 +125,7 @@ export default {
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/ra_offset_pos', 'type': 'RAPosition'},
-        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
+        {'topic': '/arm_control_state', 'type': 'ArmControlState'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},

@@ -68,7 +68,7 @@ export default {
     })
 
     // Subscribe to requests to change state from IK backend
-    this.$parent.subscribe('/arm_control_state_to_gui', (msg) => {
+    this.$parent.subscribe('/arm_control_state', (msg) => {
       console.log('received new state: ' + msg.state)
       var new_state = msg.state
       // If new state matches current state
