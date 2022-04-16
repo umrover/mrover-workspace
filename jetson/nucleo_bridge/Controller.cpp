@@ -297,29 +297,6 @@ void Controller::quad_angle()
     }
 }
 
-// Sends a get angle command
-void Controller::refresh_turn_count()
-{
-
-    if (!ControllerMap::check_if_live(name))
-    {
-        return;
-    }
-
-    try
-    {
-        int8_t raw_turn_count;
-
-        transact(TURN_COUNT, nullptr, UINT8_POINTER_T(&raw_turn_count));
-
-        turn_count = raw_turn_count;
-    }
-    catch (IOFailure &e)
-    {
-        printf("turn count data failed on %s\n", name.c_str());
-    }
-}
-
 // Sends a zero command
 void Controller::zero()
 {
