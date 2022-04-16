@@ -184,7 +184,9 @@ class SensorFusion:
         targetBearing = TargetBearing.decode(msg)
         self.prev_target_bearing = self.target_bearing
         self.target_bearing = targetBearing.target_bearing
-        self.target_bearing_rate = (self.target_bearing - self.prev_target_bearing) / (time.time() - self.last_target_bearing_fresh)
+
+        target_diff = self.target_bearing - self.prev_target_bearing
+        self.target_bearing_rate = target_diff / (time.time() - self.last_target_bearing_fresh)
         self.last_target_bearing_fresh = time.time()
 
     def _constructFilter(self):
@@ -310,25 +312,28 @@ class SensorFusion:
         self.imu.fresh = False
 
     def correct_bearing(self):
-        # if time.time() - self.last_bearing_correction > self.config["Bearing_offset_interval_sec"]:
-        #     mag_bearing = np.arctan2(self.imu.mag.mag_y, self.imu.mag.mag_x) * (180 / np.pi)
-        #     self.bearing_offset = mag_bearing - (self.imu.bearing.bearing_deg - self.bearing_offset)
-        #     self.last_bearing_correction = time.time()
+        gps_bearing = self.gps.bearing.bearing_deg
+        imu_bearing = self.imu.bearing.bearing_deg
 
         # if rover is in drive state (and has been for at least a few seconds)
         #   if error between target bearing and current bearing is below a threshold
         #       if target bearing is changing at a rate above a threshold
         #          if gps bearing is available (!= 999)
         #               compute bearing correction from gps bearing
-        if (time.time() - self.last_bearing_correction > self.config["Bearing_offset_interval_sec"] and
-            self.gps.bearing != 999 and 
-            self.nav_state == "Drive" and 
-            abs(self.target_bearing - self.imu.bearing.bearing_deg) < self.config["Bearing_error_threshold_deg"] and 
-            abs(self.target_bearing_rate) < self.config["Bearing_rate_of_change_threshold_dps"]):
-            old_bearing = self.imu.bearing_deg + self.bearing_offset
-            self.bearing_offset = self.gps.bearing.bearing_deg - (self.imu.bearing.bearing_deg - self.bearing_offset)
-            new_bearing = self.imu.bearing_deg + self.bearing_offset
-            print(f"bearing corrected from {old_bearing} to {new_bearing}, offset is now {self.bearing_offset}")
+        if time.time() - self.last_bearing_correction > self.config["Bearing_offset_interval_sec"]:
+            print("time passed")
+            if gps_bearing != 999:
+                print("valid gps bearing")
+                if self.nav_state == "Drive":
+                    print("drive state")
+                    if abs(self.target_bearing - imu_bearing) < self.config["Bearing_error_threshold_deg"]:
+                        print("bearing error is low")
+                        if abs(self.target_bearing_rate) < self.config["Bearing_rate_of_change_threshold_dps"]:
+                            print("bearing rate of change is high")
+                            old_bearing = imu_bearing + self.bearing_offset
+                            self.bearing_offset = gps_bearing - (imu_bearing - self.bearing_offset)
+                            new_bearing = imu_bearing + self.bearing_offset
+                            print(f"bearing corrected from {old_bearing} to {new_bearing}, offset is now {self.bearing_offset}")
 
     def _getFreshBearing(self):
         '''
