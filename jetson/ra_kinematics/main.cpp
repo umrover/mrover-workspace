@@ -131,17 +131,6 @@ public:
         arm->custom_preset_callback( channel, *custom_preset );
     }
 
-    void wristTurnCountCallback(
-        const lcm::ReceiveBuffer* receiveBuffer,
-        const std::string& channel,
-        const WristTurnCount* wrist_turn_count)
-    {
-        StandardArm* standard_arm = dynamic_cast<StandardArm*>(arm);
-        if (standard_arm) {
-            standard_arm->wrist_turn_count_callback( channel, *wrist_turn_count );
-        }
-    }
-
 private:
     MRoverArm* arm;
 };
@@ -207,7 +196,6 @@ int main() {
         lcmObject.subscribe( "/arm_adjustments", &lcmHandlers::armAdjustCallback, &handler );
         lcmObject.subscribe( "/arm_preset", &lcmHandlers::armPresetCallback, &handler );
         lcmObject.subscribe( "/custom_preset", &lcmHandlers::customPresetCallback, &handler );
-        lcmObject.subscribe( "/wrist_turn_count", &lcmHandlers::wristTurnCountCallback, &handler );
 
         Signal signal;
         lcmObject.publish("/ik_reset", &signal);
