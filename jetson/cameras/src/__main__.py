@@ -3,7 +3,7 @@ import lcm
 
 import sys
 sys.path.insert(0, "/usr/lib/python3.6/dist-packages")  # 3.6 vs 3.8
-import jetson.utils
+import jetson.utils  # noqa
 
 __lcm: lcm.LCM
 __pipelines = [None] * 2
@@ -34,6 +34,7 @@ class Pipeline:
 
     def update_device_number(self, index):
         if index != -1:
+            self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS)
             self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
         else:
             self.video_source = None
