@@ -1,86 +1,21 @@
 import asyncio
 from math import copysign
+from enum import Enum
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-<<<<<<< HEAD
 from rover_msgs import (Joystick, Xbox, Keyboard,
-                        DriveVelCmd, GimbalCmd,
+                        DriveVelCmd, MastGimbalCmd,
                         AutonState, AutonDriveControl,
-                        KillSwitch, Temperature,
+
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
-                        ArmControlState,
+                        ArmControlState, WristTurnCount,
                         ReverseDrive)
-=======
-from rover_msgs import (Joystick, DriveVelCmd, KillSwitch,
-                        Xbox, Temperature, RAOpenLoopCmd,
-                        SAOpenLoopCmd, GimbalCmd, HandCmd,
-                        Keyboard, FootCmd, ArmControlState)
->>>>>>> main
-
-
-class Toggle:
-
-    def __init__(self, toggle):
-        self.toggle = toggle
-        self.previous = False
-        self.input = False
-        self.last_input = False
-
-    def new_reading(self, reading):
-        self.input = reading
-        if self.input and not self.last_input:
-            # just pushed
-            self.last_input = True
-            self.toggle = not self.toggle
-        elif not self.input and self.last_input:
-            # just released
-            self.last_input = False
-
-        self.previous = reading
-        return self.toggle
 
 
 lcm_ = aiolcm.AsyncLCM()
-prev_killed = False
-kill_motor = False
 lock = asyncio.Lock()
-front_drill_on = Toggle(False)
-back_drill_on = Toggle(False)
-
-
-def send_drive_kill():
-    drive_motor = DriveVelCmd()
-    drive_motor.left = 0.0
-    drive_motor.right = 0.0
-
-    lcm_.publish('/drive_vel_cmd', drive_motor.encode())
-
-
-def send_arm_kill():
-    arm_motor = RAOpenLoopCmd()
-    arm_motor.throttle = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    lcm_.publish('/ra_openloop_cmd', arm_motor.encode())
-
-
-def send_sa_kill():
-    sa_motor = SAOpenLoopCmd()
-    sa_motor.throttle = [0.0, 0.0, 0.0]
-
-    lcm_.publish('/sa_openloop_cmd', sa_motor.encode())
-
-
-def connection_state_changed(c, _):
-    global kill_motor, prev_killed
-    if c:
-        print("Connection established.")
-        kill_motor = prev_killed
-    else:
-        print("Disconnected.")
-        prev_killed = kill_motor
-        send_drive_kill()
-        send_arm_kill()
-        send_sa_kill()
+connection = None
 
 
 def quadratic(val):
@@ -119,7 +54,6 @@ class Drive:
         angular = deadzone(input.left_right, 0.1) * input.dampen
 
         # Convert arcade drive to tank drive
-        # TODO: possibly flip signs of rotation if necessary
         angular_op = (angular / 2) / (abs(linear) + 0.5)
         vel_left = linear - angular_op
         vel_right = linear + angular_op
@@ -157,185 +91,156 @@ class Drive:
 
         lcm_.publish('/drive_vel_cmd', command.encode())
 
+    def send_drive_kill(self):
+        drive_motor = DriveVelCmd()
+        drive_motor.left = 0.0
+        drive_motor.right = 0.0
 
-def send_zero_arm_command():
-    openloop_msg = RAOpenLoopCmd()
-    openloop_msg.throttle = [0, 0, 0, 0, 0, 0]
-
-    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
-
-    hand_msg = HandCmd()
-    hand_msg.finger = 0
-    hand_msg.grip = 0
-
-    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
-
-
-<<<<<<< HEAD
-def arm_control_state_callback(channel, msg):
-    arm_control_state = ArmControlState.decode(msg)
-=======
-        damp = (input_data.dampen - 1)/(2)
-        new_motor.left *= damp
-        new_motor.right *= damp
->>>>>>> main
-
-    if arm_control_state != 'open-loop':
-        send_zero_arm_command()
-
-
-def send_zero_arm_command():
-    openloop_msg = RAOpenLoopCmd()
-    openloop_msg.throttle = [0, 0, 0, 0, 0, 0]
-
-    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
-
-    hand_msg = HandCmd()
-    hand_msg.finger = 0
-    hand_msg.grip = 0
-
-    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
-
-
-def arm_control_state_callback(channel, msg):
-    arm_control_state = ArmControlState.decode(msg)
-
-    if arm_control_state != 'open-loop':
-        send_zero_arm_command()
-
-
-def ra_control_callback(channel, msg):
-
-    xboxData = Xbox.decode(msg)
-
-    motor_speeds = [-deadzone(quadratic(xboxData.left_js_x), 0.09)/4.0,
-                    -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    deadzone(quadratic(xboxData.right_js_y), 0.09),
-                    deadzone(quadratic(xboxData.right_js_x), 0.09),
-                    quadratic(xboxData.right_trigger -
-                              xboxData.left_trigger),
-                    (xboxData.right_bumper - xboxData.left_bumper)]
-
-    openloop_msg = RAOpenLoopCmd()
-    openloop_msg.throttle = motor_speeds
-
-    lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
-
-    hand_msg = HandCmd()
-    hand_msg.finger = xboxData.y - xboxData.a
-    hand_msg.grip = xboxData.b - xboxData.x
-
-    lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
-
-
-<<<<<<< HEAD
-=======
-def autonomous_callback(channel, msg):
-    input_data = Joystick.decode(msg)
-    new_motor = DriveVelCmd()
-
-    joystick_math(new_motor, input_data.forward_back, input_data.left_right)
-
-    temp = new_motor.left
-    new_motor.left = new_motor.right
-    new_motor.right = temp
-
-    lcm_.publish('/drive_vel_cmd', new_motor.encode())
-
-
->>>>>>> main
-async def transmit_temperature():
-    while True:
-        new_temps = Temperature()
-
-        try:
-            with open("/sys/class/hwmon/hwmon0/temp1_input", "r") as bcpu_file:
-                new_temps.bcpu_temp = int(bcpu_file.read())
-            with open("/sys/class/hwmon/hwmon2/temp1_input", "r") as gpu_file:
-                new_temps.gpu_temp = int(gpu_file.read())
-            with open("/sys/class/hwmon/hwmon4/temp1_input", "r") \
-                    as tboard_file:
-                new_temps.tboard_temp = int(tboard_file.read())
-        except FileNotFoundError:
-            print("Temperature files not found")
-            return
-
-        with await lock:
-            lcm_.publish('/temperature', new_temps.encode())
-
-        # print("Published new tempertues")
-        # print("bcpu temp: {} gpu temp: {} tboard temp: {} ".format(
-        #     new_temps.bcpu_temp/1000, new_temps.gpu_temp/1000,
-        #     new_temps.tboard_temp/1000))
-        await asyncio.sleep(1)
-
-
-async def transmit_drive_status():
-    global kill_motor
-    while True:
-        new_kill = KillSwitch()
-        new_kill.killed = kill_motor
-        with await lock:
-            lcm_.publish('/kill_switch', new_kill.encode())
-        # print("Published new kill message: {}".format(kill_motor))
-        await asyncio.sleep(1)
-
-
-def sa_control_callback(channel, msg):
-    xboxData = Xbox.decode(msg)
-
-    saMotorsData = [deadzone(quadratic(xboxData.left_js_x), 0.09),
-                    -deadzone(quadratic(xboxData.left_js_y), 0.09),
-                    -deadzone(quadratic(xboxData.right_js_y), 0.09)]
-
-    openloop_msg = SAOpenLoopCmd()
-    openloop_msg.throttle = saMotorsData
-
-    lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
-
-    foot_msg = FootCmd()
-    foot_msg.claw = xboxData.a - xboxData.y
-    foot_msg.sensor = 0.5 * (xboxData.left_bumper - xboxData.right_bumper)
-    lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
+        lcm_.publish('/drive_vel_cmd', drive_motor.encode())
 
 
 def gimbal_control_callback(channel, msg):
     keyboardData = Keyboard.decode(msg)
 
-    pitchData = [keyboardData.s - keyboardData.w,
-                 keyboardData.i - keyboardData.k]
+    pitchData = [0.4 * float(keyboardData.w - keyboardData.s),
+                 float(keyboardData.i - keyboardData.k)]
 
-    yawData = [keyboardData.a - keyboardData.d,
-               keyboardData.j - keyboardData.l]
+    yawData = [float(keyboardData.d - keyboardData.a),
+               float(keyboardData.l - keyboardData.j)]
 
-    gimbal_msg = GimbalCmd()
+    gimbal_msg = MastGimbalCmd()
     gimbal_msg.pitch = pitchData
     gimbal_msg.yaw = yawData
 
-    lcm_.publish('/gimbal_openloop_cmd', gimbal_msg.encode())
+    lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
+
+
+class ArmControl:
+    class ArmType(Enum):
+        UNKNOWN = 0
+        RA = 1
+        SA = 2
+
+    def __init__(self):
+        self.arm_control_state = "off"
+        self.wrist_turn_count = 0
+        self.arm_type = self.ArmType.UNKNOWN
+
+    def arm_control_state_callback(self, channel, msg):
+        self.arm_control_state = ArmControlState.decode(msg)
+        if (self.arm_control_state != "open-loop"):
+            self.send_ra_kill()
+            self.send_sa_kill()
+
+    def ra_control_callback(self, channel, msg):
+        self.arm_type = self.ArmType.RA
+
+        xboxData = Xbox.decode(msg)
+
+        motor_speeds = [quadratic(deadzone(xboxData.left_js_x, 0.15)),
+                        quadratic(-deadzone(xboxData.left_js_y, 0.15)),
+                        quadratic(-deadzone(xboxData.right_js_y, 0.15)),
+                        quadratic(deadzone(xboxData.right_js_x, 0.15)),
+                        quadratic(xboxData.right_trigger - xboxData.left_trigger),
+                        (xboxData.right_bumper - xboxData.left_bumper)]
+
+        # TODO: test open loop, might have to switch these
+        if (self.wrist_turn_count <= -2 and motor_speeds[5] < 0):
+            motor_speeds[5] = 0
+        if (self.wrist_turn_count >= 2 and motor_speeds[5] > 0):
+            motor_speeds[5] = 0
+
+        openloop_msg = RAOpenLoopCmd()
+        openloop_msg.throttle = motor_speeds
+
+        lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+
+        hand_msg = HandCmd()
+        hand_msg.finger = xboxData.y - xboxData.a
+        hand_msg.grip = xboxData.b - xboxData.x
+
+        lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+
+    def wrist_turn_count_callback(self, channel, msg):
+        self.wrist_turn_count = WristTurnCount.decode(msg).turn_count - 2
+
+    def sa_control_callback(self, channel, msg):
+        self.arm_type = self.ArmType.SA
+        xboxData = Xbox.decode(msg)
+
+        saMotorsData = [quadratic(deadzone(xboxData.left_js_x, 0.15)),
+                        quadratic(-deadzone(xboxData.left_js_y, 0.15)),
+                        quadratic(-deadzone(xboxData.right_js_y, 0.15)),
+                        -deadzone(quadratic(xboxData.right_js_y), 0.09),
+                        quadratic(xboxData.right_trigger - xboxData.left_trigger)]
+
+        openloop_msg = SAOpenLoopCmd()
+        openloop_msg.throttle = saMotorsData
+
+        lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
+
+        foot_msg = FootCmd()
+        foot_msg.scoop = xboxData.a - xboxData.y
+        foot_msg.microscope_triad = -(xboxData.left_bumper - xboxData.right_bumper)
+        lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
+
+    def send_ra_kill(self):
+        if self.arm_type is not self.ArmType.RA:
+            return
+
+        arm_motor = RAOpenLoopCmd()
+        arm_motor.throttle = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        lcm_.publish('/ra_openloop_cmd', arm_motor.encode())
+
+        hand_msg = HandCmd()
+        hand_msg.finger = 0
+        hand_msg.grip = 0
+        lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+
+    def send_sa_kill(self):
+        if self.arm_type is not self.ArmType.SA:
+            return
+
+        sa_motor = SAOpenLoopCmd()
+        sa_motor.throttle = [0.0, 0.0, 0.0, 0.0]
+
+        lcm_.publish('/sa_openloop_cmd', sa_motor.encode())
+
+        foot_msg = FootCmd()
+        foot_msg.scoop = 0
+        foot_msg.microscope_triad = 0
+        lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
 
 def main():
-    hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, 0)
-    # look LCMSubscription.queue_capacity if messages are discarded
-
+    arm = ArmControl()
     drive = Drive(reverse=False)
 
-    lcm_.subscribe("/auton", drive.auton_enabled_callback)
+    def connection_state_changed(c, _):
+        global connection
+        if c:
+            print("Connection established.")
+            connection = True
+        else:
+            connection = False
+            print("Disconnected.")
+            drive.send_drive_kill()
+            arm.send_ra_kill()
+            arm.send_sa_kill()
 
+    hb = heartbeatlib.JetsonHeartbeater(connection_state_changed, 0)
+    # look LCMSubscription.queue_capacity if messages are discarded
+
+    lcm_.subscribe("/auton", drive.auton_enabled_callback)
     lcm_.subscribe('/teleop_reverse_drive', drive.reverse_callback)
     lcm_.subscribe("/drive_control", drive.teleop_drive_callback)
     lcm_.subscribe("/auton_drive_control", drive.auton_drive_callback)
 
-    lcm_.subscribe('/ra_control', ra_control_callback)
-    lcm_.subscribe('/sa_control', sa_control_callback)
-    lcm_.subscribe('/arm_control_state', arm_control_state_callback)
+    lcm_.subscribe('/ra_control', arm.ra_control_callback)
+    lcm_.subscribe('/sa_control', arm.sa_control_callback)
+    lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
+    lcm_.subscribe('/wrist_turn_count', arm.wrist_turn_count_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
-<<<<<<< HEAD
-=======
-    lcm_.subscribe('/arm_control_state', arm_control_state_callback)
-    # lcm_.subscribe('/arm_toggles_button_data', arm_toggles_button_callback)
->>>>>>> main
 
-    run_coroutines(hb.loop(), lcm_.loop(),
-                   transmit_temperature(), transmit_drive_status())
+    run_coroutines(hb.loop(), lcm_.loop())
+    

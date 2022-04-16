@@ -1,7 +1,7 @@
 {
 	"bearingPid":
 	{
-		"kP": 0.01,
+		"kP": 0.05,
 		"kI": 0.0,
 		"kD": 0.0
 	},
@@ -58,6 +58,14 @@
 		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
 		"zedGimbalPosition": "/zed_gimbal_data",
+		"gatePathChannel": "/projected_points", 
+		"targetBearingChannel": "/target_bearing"
+	},
+
+	"radioRepeaterThresholds":
+	{
+		"signalStrengthCutOff": 30.0,
+		"lowSignalWaitTime": 3,
 		"projectedPointsChannel": "/projected_points"
 	},
 
