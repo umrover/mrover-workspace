@@ -8,8 +8,7 @@
       <span v-if="uv_bulb == 0" class="toggle__label" >Scoop UV Off</span>
 
       <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="uv_bulb == 0" v-on:click="uv_bulb = 1, UVshutdown(true)"></span>
-      <span class="toggle__switch" v-if="uv_bulb == 1" v-on:click="uv_bulb = 0, UVshutdown(false)"></span>
+      <span class="toggle__switch" v-on:click="toggleUVBulb()"></span>
   </label>
   <div class="shutdown">
     <label for="toggle_button" :class="{'active': shutdown == 1}" class="toggle__button">
@@ -17,17 +16,15 @@
       <span v-if="shutdown == 0" class="toggle__label" >UV Auto shutoff Off</span>
       
       <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="shutdown == 0" v-on:click="shutdown=1, setLimit(true)"></span>
-      <span class="toggle__switch" v-if="shutdown == 1" v-on:click="shutdown=0, setLimit(false)"></span>
+      <span class="toggle__switch" v-on:click="toggleShutdown()"></span>
     </label>
   </div>
-    <label for="toggle_button" :class="{'active': scoopLimit == 1}" class="toggle__button">
-        <span v-if="scoopLimit == 1" class="toggle__label" >Limit On</span>
-        <span v-if="scoopLimit == 0" class="toggle__label" >Limit Off</span>
+    <label for="toggle_button" :class="{'active': scoop_limit == 1}" class="toggle__button">
+        <span v-if="scoop_limit == 1" class="toggle__label" >Limit On</span>
+        <span v-if="scoop_limit == 0" class="toggle__label" >Limit Off</span>
 
         <input type="checkbox" id="toggle_button">
-        <span class="toggle__switch" v-if="scoopLimit == 0" v-on:click="scoopLimit = 1, setLimit(true)"></span>
-        <span class="toggle__switch" v-if="scoopLimit == 1" v-on:click="scoopLimit = 0, setLimit(false)"></span>
+        <span class="toggle__switch" v-on:click="toggleLimit()"></span>
     </label>
 </div>  
 </template>
@@ -111,7 +108,7 @@ export default {
       uv_bulb: 0,
       shutdown: 1,
       timeoutID: 1,
-      scoopLimit: 1
+      scoop_limit: 1
     }
   },
   props: {
@@ -119,35 +116,47 @@ export default {
       type: Object,
       required: true
     }
-  },  
-  methods: {
-    setPart: function(id, enabled) {
+  },
+
+  watch: {
+    uv_bulb(val) {
       this.$parent.publish("/mosfet_cmd", {
         'type': 'MosfetCmd',
-        'device': id,
-        'enable': enabled
+        'device': this.mosfetIDs.uv_bulb,
+        'enable': val
       })
     },
-    
-    UVshutdown: function(status) {
-      this.setPart(this.mosfetIDs.uv_bulb, status);
-      if (this.shutdown === 1) {
-        clearTimeout(this.timeoutID);
-        this.timeoutID = setTimeout(() => {
-          this.uv_bulb = 0;
-          this.setPart(this.mosfetIDs.uv_bulb, false);
-        }, 120000) //2 minutes
-      }
-      else {
-        clearTimeout(this.timeoutID);
-      }
-    },
-      
-    setLimit: function(enabled) {
+
+    scoop_limit(val) {
       this.$parent.publish("/scoop_limit_switch_enable_cmd", {
         'type': 'ScoopLimitSwitchEnable',
-        'enable': enabled
+        'enable': val
       })
+    }
+  },
+
+  methods: {
+    toggleUVBulb: function() {
+      this.uv_bulb = !this.uv_bulb
+
+      if (this.uv_bulb) {
+        this.timeoutID = setTimeout(() => {
+          if (this.uv_bulb && this.shutdown) {
+            this.uv_bulb = false
+          }
+        }, 2 * 60000) // 2 minutes
+      }
+      else {
+        clearTimeout(this.timeoutID)
+      }
+    },
+    
+    toggleShutdown: function() {
+      this.shutdown = !this.shutdown
+    },
+      
+    toggleLimit: function() {
+      this.scoop_limit = !this.scoop_limit
     }
   }
 }
