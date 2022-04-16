@@ -332,11 +332,27 @@ bool ArmState::is_continuous(size_t joint_index) {
 }
 
 std::vector<double> ArmState::get_preset_position(const std::string &pos) { 
-    return preset_positions.at(pos);
+    auto it = preset_positions.find(pos);
+
+    if (it == preset_positions.end()) {
+        std::cout << "Error: Invalid preset:\t" << pos << "\n";
+        return std::vector<double>();
+    }
+    else {
+        return *it;
+    }
 }
 
 std::vector<std::vector<double>> ArmState::get_preset_path(const std::string &path) { 
-    return preset_paths.at(path);
+    auto it = preset_paths.find(path);
+
+    if (it == preset_paths.end(path)) {
+        std::cout << "Error: Invalid preset path:\t" << path << "\n";
+        return std::vector<std::vector<double>>();
+    }
+    else {
+        return *it;
+    }
 }
 
 void ArmState::set_preset_position(const std::string &pos) { 
