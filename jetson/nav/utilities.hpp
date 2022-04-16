@@ -29,9 +29,7 @@ Odometry createOdom(const Odometry& current, Vector2d offset, const std::shared_
 
 double estimateBearing(const Odometry& start, const Odometry& dest);
 
-double mod(double degree, int modulus);
-
-void throughZero(double& destinationBearing, double currentBearing);
+double mod(double value, double modulus);
 
 bool isObstacleInThreshold(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig);
 

@@ -1,9 +1,9 @@
 #include "stateMachine.hpp"
 
-#include <map>
 #include <thread>
 #include <utility>
 #include <iostream>
+#include <unordered_map>
 
 #include "utilities.hpp"
 #include "rover_msgs/NavStatus.hpp"
