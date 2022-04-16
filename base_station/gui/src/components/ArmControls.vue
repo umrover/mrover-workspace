@@ -6,6 +6,9 @@
     <div class="keyboard">
       <GimbalControls/>
     </div>
+    <div v-if='!this.joint_b_is_calibrated'>
+      Calibrating Joint B...
+    </div>
     <div style="font-color: abs(wristTurnCount) >= 2 ? red : black;">
       Wrist turn count: {{this.wristTurnCount}}
     </div>
@@ -28,6 +31,8 @@ export default {
       stateInput: {
         state: "off"
       },
+
+      joint_b_is_calibrated: true,
 
       wristTurnCount: 0
     }
@@ -84,6 +89,10 @@ export default {
 
     this.$parent.subscribe('/wrist_turn_count', (msg) => {
       this.wristTurnCount = msg.turn_count - 2
+    })
+
+    this.$parent.subscribe('/joint_b_calibration_data', (msg) => {
+      this.joint_b_is_calibrated = msg.calibrated
     })
 
     const XBOX_CONFIG = {

@@ -428,6 +428,12 @@
             "bearing"
         ]
     ],
+    "JointBCalibration": [
+        [
+            "boolean",
+            "calibrated"
+        ]
+    ],
     "Joystick": [
         [
             "double",

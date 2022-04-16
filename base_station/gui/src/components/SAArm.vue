@@ -10,6 +10,9 @@
         <GimbalControls/>
       </div>
     </div>
+    <div v-if='!this.joint_b_is_calibrated'>
+      Calibrating Joint B...
+    </div>
     <div class="joints">
         <div>joint a: {{SAPosition.joint_a}}</div>
         <div>joint b: {{SAPosition.joint_b}}</div>
@@ -50,6 +53,7 @@ export default {
       },
       position: "stowed",
       enable_limit_switch: true,
+      joint_b_is_calibrated: true
     }
   },
 
@@ -82,6 +86,10 @@ export default {
       else {
         this.controlMode = 'off'
       }
+    })
+
+    this.$parent.subscribe('/joint_b_calibration_data', (msg) => {
+      this.joint_b_is_calibrated = msg.calibrated
     })
   
     const XBOX_CONFIG = {

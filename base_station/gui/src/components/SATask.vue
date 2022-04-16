@@ -224,7 +224,8 @@ export default {
         {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
         {'topic': '/pdb_data', 'type': 'PDBData'},
         {'topic': '/fuse_data', 'type': 'FuseData'},
-        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'}
+        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'},
+        {'topic': '/joint_b_calibration_data', 'type': 'JointBCalibration'}
       ]
     )
   },

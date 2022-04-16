@@ -130,7 +130,8 @@ export default {
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/ik_reset', 'type': 'Signal'},
-        {'topic': '/wrist_turn_count', 'type': 'WristTurnCount'}
+        {'topic': '/wrist_turn_count', 'type': 'WristTurnCount'},
+        {'topic': '/joint_b_calibration_data', 'type': 'JointBCalibration'}
       ]
     )
   },
