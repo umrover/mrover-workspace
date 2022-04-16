@@ -323,9 +323,9 @@ export default class CanvasRover {
     const max:number = state.simSettings.maxFalsePos;
 
     // for each false positive, generate and display on canvas
+    const thres = getGaussianThres();
     for (let i = 0; i < max; i += 1) {
       const num:number = randnBm(0, 1, 1);
-      const thres = getGaussianThres();
 
       const isFalsePos:boolean = num < thres;
 
