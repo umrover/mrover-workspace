@@ -4,12 +4,11 @@ from enum import Enum
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
-                        DriveVelCmd, MastGimbalCmd,
+                        DriveVelCmd,
                         AutonState, AutonDriveControl,
-
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
-                        ArmControlState, WristTurnCount,
+                        ArmControlState,
                         ReverseDrive)
 
 
@@ -99,22 +98,6 @@ class Drive:
         lcm_.publish('/drive_vel_cmd', drive_motor.encode())
 
 
-def gimbal_control_callback(channel, msg):
-    keyboardData = Keyboard.decode(msg)
-
-    pitchData = [0.4 * float(keyboardData.w - keyboardData.s),
-                 float(keyboardData.i - keyboardData.k)]
-
-    yawData = [float(keyboardData.d - keyboardData.a),
-               float(keyboardData.l - keyboardData.j)]
-
-    gimbal_msg = MastGimbalCmd()
-    gimbal_msg.pitch = pitchData
-    gimbal_msg.yaw = yawData
-
-    lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
-
-
 class ArmControl:
     class ArmType(Enum):
         UNKNOWN = 0
@@ -123,7 +106,6 @@ class ArmControl:
 
     def __init__(self):
         self.arm_control_state = "off"
-        self.wrist_turn_count = 0
         self.arm_type = self.ArmType.UNKNOWN
 
     def arm_control_state_callback(self, channel, msg):
@@ -144,12 +126,6 @@ class ArmControl:
                         quadratic(xboxData.right_trigger - xboxData.left_trigger),
                         (xboxData.right_bumper - xboxData.left_bumper)]
 
-        # TODO: test open loop, might have to switch these
-        if (self.wrist_turn_count <= -2 and motor_speeds[5] < 0):
-            motor_speeds[5] = 0
-        if (self.wrist_turn_count >= 2 and motor_speeds[5] > 0):
-            motor_speeds[5] = 0
-
         openloop_msg = RAOpenLoopCmd()
         openloop_msg.throttle = motor_speeds
 
@@ -160,9 +136,6 @@ class ArmControl:
         hand_msg.grip = xboxData.b - xboxData.x
 
         lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
-
-    def wrist_turn_count_callback(self, channel, msg):
-        self.wrist_turn_count = WristTurnCount.decode(msg).turn_count - 2
 
     def sa_control_callback(self, channel, msg):
         self.arm_type = self.ArmType.SA
@@ -239,8 +212,6 @@ def main():
     lcm_.subscribe('/ra_control', arm.ra_control_callback)
     lcm_.subscribe('/sa_control', arm.sa_control_callback)
     lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
-    lcm_.subscribe('/wrist_turn_count', arm.wrist_turn_count_callback)
-    lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
     run_coroutines(hb.loop(), lcm_.loop())
     
