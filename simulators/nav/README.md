@@ -22,6 +22,15 @@ In order to run the simulator you need to build and run `simulators/nav`. In ord
 
 As a reminder, you can build a program by running the command `./jarvis build <service name>` (e.g. `./jarvis build simulator/nav`) and you can run a program by running the command `./jarvis exec <service name>` (e.g. `./jarvis exec simulator/nav`). Note that you may be able to use `jarvis` instead of `./jarvis` on your local machine.
 
+#### Running runsim
+runsim is a bash script that can build required systems and run the 2d simulator. You can run the script with the command `bash runsim` directly in your shell (no need to vagrant up/ssh). Note: running `bash runsim -a` first will run `vagrant up`, `vagrant ssh`, and build and execute nav, lcm, and sim with jarvis. Later on, you can just exit vagrant and run `bash runsim` which will only run `vagrant ssh` and build nav, lcm, and sim. There are also options to specifically build + run a single package.
+Usage: bash runsim [a|l|n|s]
+        a) # (first time only) vagrant up + vagrant ssh + build nav, lcm, and sim
+        l) # vagrant ssh + build lcm only
+        n) # vagrant ssh + build nav only
+        s) # vagrant ssh + build sim only
+        default) # vagrant ssh + build nav, lcm, and sim
+
 ---
 
 <!------------------------------- Code Overview ------------------------------>
