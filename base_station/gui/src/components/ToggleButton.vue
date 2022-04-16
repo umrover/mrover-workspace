@@ -1,58 +1,41 @@
 <template>
-    <label :for="id + '_button'" :class="{'active': isActive}" class="toggle__button">
-        <span v-if="isActive" class="toggle__label">{{ enableText }}</span>
-        <span v-if="! isActive" class="toggle__label">{{ disabledText }}</span>
+    <label :for="id + '_button'" :class="{'active': currentState}" class="toggle__button">
+        <span v-if="currentState" class="toggle__label">{{ labelEnableText }}</span>
+        <span v-if="! currentState" class="toggle__label">{{ labelDisableText }}</span>
 
-        <input type="checkbox" :disabled="disabled" :id="id + '_button'" v-model="checkedValue">
+        <input type="checkbox" :id="id + '_button'" v-model="checkedValue">
         <span class="toggle__switch"></span>
     </label>
 </template>
 
 <script>
-    export default {
+export default {
+    data() {
+        return {
+            currentState: this.currentState
+        }
+    },
+
     props: {
-        disabled: {
-            type: Boolean,
-            default: false
-        },
         labelEnableText: {
             type: String,
-            default: 'On'
+            required: true
         },
-        
         labelDisableText: {
             type: String,
-            default: 'Off'
+            required: true
         },
         id: {
             type: String,
             default: 'primary'
         }, 
-        defaultState: {
+        currentState: {
             type: Boolean,
-            default: false
+            required: true
         }
     },
-    data() {
-        return {
-            currentState: this.defaultState
-        }
-    },
-    watch: {
-        defaultState: function defaultState() {
-            this.currentState = Boolean(this.defaultState)
-        }
-    },
+
     computed: {
-        isActive() {
-            return this.currentState;
-        },
-        enableText() {
-            return this.labelEnableText;
-        },
-        disabledText() {
-            return this.labelDisableText;
-        },
         checkedValue: {
             get() {
                 return this.currentState;

@@ -2,8 +2,8 @@
   <div class="odom-wrap">
     <h3> Raman laser </h3>
     <div class="sacontrols buttons">
-      <div :class="{'active': ramanActive}">
-        <ToggleButton id="raman_button" labelEnableText="Raman Laser On" labelDisableText="Raman Laser Off" v-on:change="toggleRaman()"/>
+      <div>
+        <ToggleButton id="raman" v-bind:currentState="ramanActive" labelEnableText="Raman Laser On" labelDisableText="Raman Laser Off" v-on:change="toggleRaman()"/>
       </div>
     </div>
   </div>

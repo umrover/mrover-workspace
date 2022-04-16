@@ -5,12 +5,12 @@
       <h3> Chlorophyll Data</h3>
     </div>
     <div class="toggles">
-      <div :class="{'active': whiteLEDS_active}">
-        <ToggleButton id="whiteLEDS_button" labelEnableText="White LEDs On" labelDisableText="White LEDs Off" v-on:change="toggle_whiteLEDS()"/>
+      <div>
+        <ToggleButton id="whiteLEDS_button" v-bind:currentState="whiteLEDS_active" labelEnableText="White LEDs On" labelDisableText="White LEDs Off" v-on:change="toggle_whiteLEDS()"/>
       </div>
 
-      <div :class="{'active': UVLED_active}">
-        <ToggleButton id="UVLED_button" labelEnableText="UV LEDs On" labelDisableText="UV LEDs Off" v-on:change="toggle_UVLED()"/>
+      <div>
+        <ToggleButton id="UVLED_button" v-bind:currentState="UVLED_active" labelEnableText="UV LEDs On" labelDisableText="UV LEDs Off" v-on:change="toggle_UVLED()"/>
       </div>
     </div>
   </div>

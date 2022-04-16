@@ -11,15 +11,15 @@
       <option value=2>Site 2</option>
     </select>
   </div>
-  <div class="box1 heaters" :class="{'active': heaters[site].intended}">
-    <ToggleButton id="heater_toggle" :labelEnableText="'Heater '+(site)+' Intended'" :labelDisableText="'Heater '+(site)+' Intended'" v-on:change="toggleHeater(site)"/>
+  <div class="box1 heaters">
+    <ToggleButton id="heater" v-bind:currentState="heaters[site].intended" :labelEnableText="'Heater '+(site)+' Intended'" :labelDisableText="'Heater '+(site)+' Intended'" v-on:change="toggleHeater(site)"/>
     <p v-bind:style="{color: heaters[site].color}">Thermistor {{site}}: {{heaters[site].temp.toFixed(2)}} C°</p>
   </div>
   <div class="comms heaterStatus">
     <CommIndicator v-bind:connected="heaters[site].enabled" v-bind:name="'Heater '+(site)+' Status'"/>
   </div>
-  <div class="box1 shutdown" :class="{'active': autoShutdownIntended}">
-    <ToggleButton id="autoshutdown_toggle" :defaultState="true" :labelEnableText="'Auto Shutdown Intended'" :labelDisableText="'Auto Shutdown Intended'" v-on:change="sendAutoShutdownCmd(!autoShutdownIntended)"/>
+  <div class="box1 shutdown">
+    <ToggleButton id="autoshutdown" v-bind:currentState="autoShutdownIntended" :labelEnableText="'Auto Shutdown Intended'" :labelDisableText="'Auto Shutdown Intended'" v-on:change="sendAutoShutdownCmd(!autoShutdownIntended)"/>
   </div>
   <div class="comms shutdownStatus">
     <CommIndicator v-bind:connected="autoShutdownEnabled" v-bind:name="'Auto Shutdown Status'"/>
