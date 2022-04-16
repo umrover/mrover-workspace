@@ -133,6 +133,9 @@ class ArmControl:
             self.send_sa_kill()
 
     def ra_control_callback(self, channel, msg):
+        if (self.arm_control_state != "open-loop"):
+            return
+
         self.arm_type = self.ArmType.RA
 
         xboxData = Xbox.decode(msg)
@@ -165,6 +168,9 @@ class ArmControl:
         self.wrist_turn_count = WristTurnCount.decode(msg).turn_count - 2
 
     def sa_control_callback(self, channel, msg):
+        if (self.arm_control_state != "open-loop"):
+            return 
+            
         self.arm_type = self.ArmType.SA
 
         xboxData = Xbox.decode(msg)
