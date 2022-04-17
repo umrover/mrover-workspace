@@ -10,12 +10,6 @@
 
 <script>
 export default {
-    data() {
-        return {
-            currentState: this.currentState
-        }
-    },
-
     props: {
         labelEnableText: {
             type: String,
@@ -41,7 +35,6 @@ export default {
                 return this.currentState;
             },
             set(newValue) {
-                this.currentState = newValue;
                 this.$emit('change', newValue);
             }
         }
