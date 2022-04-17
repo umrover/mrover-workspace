@@ -339,19 +339,19 @@ std::vector<double> ArmState::get_preset_position(const std::string &pos) {
         return std::vector<double>();
     }
     else {
-        return *it;
+        return it->second;
     }
 }
 
 std::vector<std::vector<double>> ArmState::get_preset_path(const std::string &path) { 
     auto it = preset_paths.find(path);
 
-    if (it == preset_paths.end(path)) {
+    if (it == preset_paths.end()) {
         std::cout << "Error: Invalid preset path:\t" << path << "\n";
         return std::vector<std::vector<double>>();
     }
     else {
-        return *it;
+        return it->second;
     }
 }
 
