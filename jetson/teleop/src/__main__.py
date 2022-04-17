@@ -3,7 +3,7 @@ from math import copysign
 from enum import Enum
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import (Joystick, Xbox, Keyboard,
+from rover_msgs import (Joystick, Xbox,
                         DriveVelCmd,
                         AutonState, AutonDriveControl,
                         RAOpenLoopCmd, HandCmd,
@@ -214,4 +214,3 @@ def main():
     lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
 
     run_coroutines(hb.loop(), lcm_.loop())
-    
