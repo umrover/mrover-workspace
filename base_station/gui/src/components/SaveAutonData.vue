@@ -273,7 +273,19 @@ export default {
     },
 
     methods: {
-        download_log() {
+        download_log() {   
+            if (this.num_logs === 0) {
+                return
+            }
+
+            const time = new Date(Date.now())
+            const time_string = time.toTimeString().substring(0,17) + ' ' + time.toDateString()
+
+            let report_name = prompt("Enter filename:", 'AutonLog-' + time_string);
+            if (!report_name || report_name == null) {
+                return
+            }
+
             var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Target Bearing,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Left Control,Right Control,Bearing0,Distance0,id0,Bearing1,Distance1,id1\n'
 
             for (let i = 0; i < this.num_logs; i++) {
@@ -332,8 +344,16 @@ export default {
 
                 csv += '\n'
             }
-            
-            hiddenElement.download = report_name + '.csv'
+
+            var hiddenElement = document.createElement('a')
+            hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv)
+            hiddenElement.target = '_blank'
+
+            if (report_name.length < 4 || report_name.substring(report_name.length - 4) != '.csv') {
+                report_name = report_name + '.csv'
+            }
+
+            hiddenElement.download = report_name
             hiddenElement.click()
 
             // Remove data that was just saved
