@@ -259,17 +259,37 @@ class ScienceBridge():
 
         self.previous_auton_msg = struct.nav_state_name
 
+        if struct.nav_state_name == "Off":
+            prev = Auton_state.OFF
+        elif struct.nav_state_name == "Done":
+            prev = Auton_state.DONE
+        else:
+            prev = Auton_state.ELSE
+
+        if (prev != Auton_state.OFF):  # off is blue
+            blue_off = message.format(device=Mosfet_devices.BLUE_LED.value, enable=0)
+            blue_off = self.add_padding(blue_off)
+            self.ser.write(bytes(blue_off, encoding='utf-8'))
+        if (prev != Auton_state.ELSE):  # else is red
+            red_off = message.format(device=Mosfet_devices.RED_LED.value, enable=0)
+            red_off = self.add_padding(red_off)
+            self.ser.write(bytes(red_off, encoding='utf-8'))
+        if (prev != Auton_state.DONE):  # else is red
+            green_off = message.format(device=Mosfet_devices.GREEN_LED.value, enable=0)
+            green_off = self.add_padding(green_off)
+            self.ser.write(bytes(green_off, encoding='utf-8'))
+
+
         message = "$Mosfet,{device},{enable}"
 
         # Off = Blue
-        if struct.nav_state_name == "Off":
+        if prev == Auton_state.OFF:
             print("navstatus off")
             blue = message.format(device=Mosfet_devices.BLUE_LED.value, enable=1)
             blue = self.add_padding(blue)
             self.ser.write(bytes(blue, encoding='utf-8'))
-            prev = Auton_state.OFF
         # Done = Flashing green
-        elif struct.nav_state_name == "Done":
+        elif prev == Auton_state.DONE:
             print("navstatus Done")
             # Flashing by turning on and off for 1 second intervals
 
@@ -286,28 +306,15 @@ class ScienceBridge():
                 green_off = self.add_padding(green_off)
                 self.ser.write(bytes(green_off, encoding='utf-8'))
                 time.sleep(1)
-                prev = Auton_state.DONE
         # Everytime else = Red
         else:
             print("navstatus else")
             red = message.format(device=Mosfet_devices.RED_LED.value, enable=1)
             red = self.add_padding(red)
             self.ser.write(bytes(red, encoding='utf-8'))
-            prev = Auton_state.ELSE
         time.sleep(1)
         # Green should be in a finished state so no need to turn it off
-        if (prev != Auton_state.OFF):  # off is blue
-            blue_off = message.format(device=Mosfet_devices.BLUE_LED.value, enable=0)
-            blue_off = self.add_padding(blue_off)
-            self.ser.write(bytes(blue_off, encoding='utf-8'))
-        if (prev != Auton_state.ELSE):  # else is red
-            red_off = message.format(device=Mosfet_devices.RED_LED.value, enable=0)
-            red_off = self.add_padding(red_off)
-            self.ser.write(bytes(red_off, encoding='utf-8'))
-        if (prev != Auton_state.DONE):  # else is red
-            green_off = message.format(device=Mosfet_devices.GREEN_LED.value, enable=0)
-            green_off = self.add_padding(green_off)
-            self.ser.write(bytes(green_off, encoding='utf-8'))
+
 
     def servo_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
