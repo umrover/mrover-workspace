@@ -53,7 +53,7 @@ class Heartbeater:
         self.lcm_.publish(self.where, ret_msg.encode())
 
 
-class OnboardHeartbeater(Heartbeater):
+class JetsonHeartbeater(Heartbeater):
     def __init__(self, callback, index):
         super().__init__("/heartbeat/rover{}".format(index),
                          "/heartbeat/bs{}".format(index), callback, index)
