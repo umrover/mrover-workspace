@@ -687,6 +687,11 @@ void StandardArm::lock_joints_callback(std::string channel, LockJoints msg) {
 
 void StandardArm::arm_preset_callback(std::string channel, ArmPreset msg) {
     std::vector<double> angles = arm_state.get_preset_position(msg.preset);
+
+    // invalid preset
+    if (angles.size() == 0) {
+        return;
+    }
     
     RAPosition new_msg;
     new_msg.joint_a = angles[0];
@@ -820,6 +825,11 @@ void ScienceArm::lock_joints_callback(std::string channel, LockJoints msg) {
 void ScienceArm::arm_preset_callback(std::string channel, ArmPreset msg) {
     std::vector<double> angles = arm_state.get_preset_position(msg.preset);
     
+    // invalid preset
+    if (angles.size() == 0) {
+        return;
+    }
+    
     SAPosition new_msg;
     new_msg.joint_a = angles[0];
     new_msg.joint_b = angles[1];
@@ -831,6 +841,11 @@ void ScienceArm::arm_preset_callback(std::string channel, ArmPreset msg) {
 
 void ScienceArm::arm_preset_path_callback(std::string channel, ArmPresetPath msg) {
     std::vector<std::vector<double>> paths = arm_state.get_preset_path(msg.preset);
+
+    // invalid preset
+    if (paths.size() == 0) {
+        return;
+    }
 
     // TODO: figure out how to 
 }
