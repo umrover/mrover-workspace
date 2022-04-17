@@ -70,8 +70,8 @@ int main() {
         env->setTargets(*targetList);
     };
     lcm.subscribe("/target_list", &decltype(targetCallback)::operator(), &targetCallback)->setQueueCapacity(3);
-    while (lcm.good()) {
-        while (lcm.handleTimeout(0) > 0) {}
+    while (lcm.handle() == 0) {
+        //while (lcm.handleTimeout(0) > 0) {}
         stateMachine->run();
     }
     return 0;
