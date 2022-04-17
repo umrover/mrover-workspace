@@ -68,6 +68,7 @@ class ScienceBridge():
         self.last_openloop_cmd = -1
         self.max_error_count = 20
         self.sleep = .01
+        self.previous_auton_msg = "Default"
 
     def __enter__(self):
         '''
@@ -249,10 +250,15 @@ class ScienceBridge():
         pass
 
     def nav_status(self, channel, msg):  # TODO - fix make better
-        print("Received nav req")
         # Off, Done, Else
-
         struct = NavStatus.decode(msg)
+
+        if self.previous_auton_msg == struct.nav_state_name:
+            return
+        print("Received new nav req")
+
+        self.previous_auton_msg = struct.nav_state_name
+
         message = "$Mosfet,{device},{enable}"
 
         # Off = Blue
@@ -290,11 +296,11 @@ class ScienceBridge():
             prev = Auton_state.ELSE
         time.sleep(1)
         # Green should be in a finished state so no need to turn it off
-        if (prev != Auton_state.OFF):
-            green_off = message.format(device=Mosfet_devices.GREEN_LED.value, enable=0)
-            green_off = self.add_padding(green_off)
-            self.ser.write(bytes(green_off, encoding='utf-8'))
-        if (prev != Auton_state.ELSE):
+        if (prev != Auton_state.OFF):  # off is blue
+            blue_off = message.format(device=Mosfet_devices.BLUE_LED.value, enable=0)
+            blue_off = self.add_padding(blue_off)
+            self.ser.write(bytes(blue_off, encoding='utf-8'))
+        if (prev != Auton_state.ELSE):  # else is red
             red_off = message.format(device=Mosfet_devices.RED_LED.value, enable=0)
             red_off = self.add_padding(red_off)
             self.ser.write(bytes(red_off, encoding='utf-8'))
