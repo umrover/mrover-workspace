@@ -5,8 +5,8 @@
 
 Environment::Environment(const rapidjson::Document& config) :
         mConfig(config),
-        mTargetLeft(3, 1, {-1, -1, -1}),
-        mTargetRight(3, 1, {-1, -1, -1}),
+        mTargetLeft(3, mConfig["navThresholds"]["cacheMissMax"].GetInt(), {-1, -1, -1}),
+        mTargetRight(3, mConfig["navThresholds"]["cacheMissMax"].GetInt(), {-1, -1, -1}),
         mPostOneLat(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
         mPostOneLong(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
         mPostTwoLat(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
