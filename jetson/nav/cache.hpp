@@ -25,6 +25,13 @@ public:
         return mValid;
     }
 
+    void reset(){
+        mCurrentReading = mInvalidDefault;
+        mValid = false;
+        mHits = 0;
+        mMisses = 0;
+    }
+
     void put(bool currentReadingValid, T reading) {
         if (currentReadingValid) {
             // reset miss counter
