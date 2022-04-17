@@ -67,6 +67,8 @@ void Environment::updatePost(std::shared_ptr<Rover> const& rover, std::shared_pt
         mPostOneLong.reset();
         mPostTwoLat.reset();
         mPostTwoLong.reset();
+        mTargetLeft.reset();
+        mTargetRight.reset();
         // TODO: move outside of this function
         double cosine = cos(degreeToRadian(rover->odometry().latitude_deg, rover->odometry().latitude_min));
         rover->setLongMeterInMinutes(60 / (EARTH_CIRCUM * cosine / 360));
