@@ -270,7 +270,7 @@ export default {
         {'topic': '/target_list', 'type': 'TargetList'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/projected_points', 'type': 'TargetBearing'},
+        {'topic': '/projected_points', 'type': 'ProjectedPoints'},
         {'topic': '/target_bearing', 'type': 'TargetBearing'},
         {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
       ]
