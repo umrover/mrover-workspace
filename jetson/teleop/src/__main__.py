@@ -219,6 +219,8 @@ class ArmControl:
 
     def joint_b_calibration_callback(self, channel, msg):
         if JointBCalibration.decode(msg).calibrated:
+            self.send_ra_kill()
+            self.send_sa_kill()
             return
 
         arm_control_state_msg = ArmControlState()
