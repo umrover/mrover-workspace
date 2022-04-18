@@ -199,7 +199,7 @@ async def connection_monitor():
 def main():
     global index
     index = int(sys.argv[1])
-    hb = heartbeatlib.OnboardHeartbeater(connection_state_changed, index)
+    hb = heartbeatlib.JetsonHeartbeater(connection_state_changed, index)
     Gst.init(None)
 
     read_settings()

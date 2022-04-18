@@ -35,4 +35,4 @@
       - rover-jetson-microscope.service
       - rover-jetson-nav.service
       - rover-jetson-raman.service
-      - rover-jetson-teleop.service
+      # did not enable jetson teleop, explicitly do so if not using a nano

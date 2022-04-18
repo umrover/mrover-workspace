@@ -301,7 +301,7 @@ def publish_encoder_helper(axis):
 
     usb_lock.acquire()
     msg.current_amps = modrive.get_iq_measured(axis)
-    msg.vel_percent = modrive.get_vel_estimate(axis)
+    msg.vel_m_s = modrive.get_vel_estimate(axis)
     usb_lock.release()
 
     motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
@@ -344,7 +344,7 @@ class Modrive:
     CURRENT_LIM = 4
     # scales normalized inputs to max physical speed of rover in turn/s
     SPEED_MULTIPLIER = 50
-    TURNS_TO_M_S_MULTIPLIER = 0.02513  # from turns/sec to m/s
+    TURNS_TO_M_S_MULTIPLIER = 0.02513  # from turns/sec to m/s (for 2022 rover)
 
     def __init__(self, odr):
         self.odrive = odr
@@ -432,9 +432,9 @@ class Modrive:
 
     def get_vel_estimate(self, axis):
         if (axis == "LEFT"):
-            return self.left_axis.encoder.vel_estimate  # TODO add in * self.TURNS_TO_M_S_MULTIPLIER
+            return self.left_axis.encoder.vel_estimate  * self.TURNS_TO_M_S_MULTIPLIER
         elif(axis == "RIGHT"):
-            return self.right_axis.encoder.vel_estimate  # TODO add in * -self.TURNS_TO_M_S_MULTIPLIER
+            return self.right_axis.encoder.vel_estimate  * -self.TURNS_TO_M_S_MULTIPLIER
 
     def idle(self):
         self._requested_state(AXIS_STATE_IDLE)

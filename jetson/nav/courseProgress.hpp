@@ -7,7 +7,7 @@
 using namespace rover_msgs;
 
 /**
- * @brief Represents the state of us traversing a course.
+ * @brief Represents the state of the rover traversing a course.
  */
 class CourseProgress {
 private:
@@ -17,15 +17,15 @@ private:
 public:
     void setCourse(Course const& course);
 
+    Waypoint completeCurrentWaypoint();
+
+    void clearProgress();
+
     [[nodiscard]] std::deque<Waypoint> const& getRemainingWaypoints() const;
 
     [[nodiscard]] Waypoint const& getCurrentWaypoint() const;
 
     [[nodiscard]] Waypoint const& getLastCompletedWaypoint() const;
-
-    Waypoint completeCurrentWaypoint();
-
-    void clearProgress();
 
     [[nodiscard]] Course const& getCourse() const;
 

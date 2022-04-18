@@ -1,9 +1,9 @@
 #include "stateMachine.hpp"
 
-#include <map>
 #include <thread>
 #include <utility>
 #include <iostream>
+#include <unordered_map>
 
 #include "utilities.hpp"
 #include "rover_msgs/NavStatus.hpp"
@@ -27,28 +27,6 @@ StateMachine::StateMachine(
                                                             mConfig);
 } // StateMachine()
 
-void StateMachine::setSearcher(SearchType type) {
-    mSearchStateMachine = SearchFactory(weak_from_this(), type, mRover, mConfig);
-    mSearchStateMachine->initializeSearch(mConfig, mConfig["computerVision"]["visionDistance"].GetDouble());
-}
-
-void StateMachine::setGateSearcher() {
-    mGateStateMachine = GateFactory(weak_from_this(), mConfig);
-}
-
-// Allows outside objects to set the original obstacle angle
-// This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleDistance(double distance) {
-    mObstacleAvoidanceStateMachine->updateObstacleDistance(distance);
-}
-
-// Allows outside objects to set the original obstacle angle
-// This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleElements(double leftBearing, double rightBearing, double distance) {
-    mObstacleAvoidanceStateMachine->updateObstacleAngle(leftBearing, rightBearing);
-    updateObstacleDistance(distance);
-}
-
 // Runs the state machine through one iteration. The state machine will
 // run if the state has changed or if the rover's status has changed.
 // Will call the corresponding function based on the current state.
@@ -57,12 +35,17 @@ void StateMachine::run() {
     auto now = std::chrono::high_resolution_clock::now();
     mTimePoint = now;
 
-    static long i = 0;
-    if (++i % 256 == 0) {
-        std::cout << "Update rate: " << 1.0 / getDtSeconds() << std::endl;
+    // Diagnostic info: take average loop time
+    static std::array<double, 256> readings{};
+    static int i = 0;
+    readings[i] = getDtSeconds();
+    if (++i % readings.size() == 0) {
+        double avgDt = std::accumulate(readings.begin(), readings.end(), 0.0) / readings.size();
+        std::cout << "Update rate: " << 1.0 / avgDt << std::endl;
+        i = 0;
     }
 
-    mEnv->updateTargets(mRover, mCourseProgress);
+    mEnv->updatePost(mRover, mCourseProgress);
 
     publishNavState();
     NavState nextState = NavState::Unknown;
@@ -109,7 +92,6 @@ void StateMachine::run() {
                 nextState = mGateStateMachine->run();
                 break;
             }
-            case NavState::GateMakePath:
             case NavState::GateTraverse: {
                 nextState = mGateStateMachine->run();
                 break;
@@ -126,7 +108,7 @@ void StateMachine::run() {
         }
     } else {
         nextState = NavState::Off;
-        mRover->setState(executeOff()); // turn off immediately
+        mRover->setState(executeOff()); // Turn off immediately
         if (nextState != mRover->currentState()) {
             mRover->setState(nextState);
         }
@@ -168,6 +150,7 @@ NavState StateMachine::executeDone() {
 
 /**
  * Drive through the waypoints defined by course progress.
+ *
  * @return Next state
  */
 NavState StateMachine::executeDrive() {
@@ -201,8 +184,6 @@ std::string StateMachine::stringifyNavState() const {
                     {NavState::SearchTurnAroundObs,  "Search Turn Around Obstacle"},
                     {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
                     {NavState::BeginGateSearch,      "Gate Prepare"},
-                    {NavState::GateMakePath,         "Gate Make Path"},
-                    {NavState::GateTraverse,         "Gate Drive Path"},
                     {NavState::GateTraverse,         "Gate Traverse"},
 
                     {NavState::Unknown,              "Unknown"}
@@ -210,6 +191,21 @@ std::string StateMachine::stringifyNavState() const {
 
     return navStateNames.at(mRover->currentState());
 } // stringifyNavState()
+
+void StateMachine::setSearcher(SearchType type) {
+    mSearchStateMachine = SearchFactory(weak_from_this(), type, mRover, mConfig);
+    mSearchStateMachine->initializeSearch(mConfig, mConfig["computerVision"]["visionDistance"].GetDouble());
+}
+
+void StateMachine::setGateSearcher() {
+    mGateStateMachine = GateFactory(weak_from_this(), mConfig);
+}
+
+// Allows outside objects to set the original obstacle angle
+// This will allow the variable to be set before the rover turns
+void StateMachine::updateObstacleDistance(double distance) {
+    mObstacleAvoidanceStateMachine->updateObstacleDistance(distance);
+}
 
 std::shared_ptr<Environment> StateMachine::getEnv() {
     return mEnv;

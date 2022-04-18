@@ -30,7 +30,7 @@
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
-        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:AutonDriveControl="AutonDriveControl" v-bind:TargetList="TargetList"/>
+        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:TargetBearing="TargetBearing" v-bind:nav_status="nav_status" v-bind:AutonDriveControl="AutonDriveControl" v-bind:TargetList="TargetList"/>
         <PlaybackAutonData/>
      </div>
     </div>
@@ -39,7 +39,7 @@
       <ZedGimbalAngles/>
     </div>
     <div class="box map light-bg">
-      <RoverMap v-bind:odom="odom" v-bind:GPS="GPS"/>
+      <RoverMap v-bind:odom="odom" v-bind:GPS="GPS" v-bind:TargetBearing="TargetBearing"/>
     </div>
     <div class="box waypoints light-bg">
       <AutonWaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
@@ -116,6 +116,10 @@ export default {
         bearing_deg: 0,
         speed: 0
       },
+
+      TargetBearing: {
+        target_bearing: 0
+      },
      
       Obstacle: {
 	      detected: false,
@@ -179,6 +183,7 @@ export default {
   },
 
   created: function () {
+
     setInterval(() => {
       if(this.nav_status.nav_state_name == "Off"){
         this.nav_state_color = navBlue
@@ -223,6 +228,8 @@ export default {
           this.odom = msg.message
         } else if (msg.topic === '/gps') {
           this.GPS = msg.message
+        } else if (msg.topic === '/target_bearing') {
+          this.TargetBearing = msg.message
         } else if (msg.topic === '/imu_data') {
           this.IMU = msg.message
         } else if (msg.topic === '/radio') {
@@ -253,6 +260,7 @@ export default {
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
+        {'topic': '/estimated_gate_location', 'type': 'EstimatedGateLocation'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu_data', 'type': 'IMUData'},
@@ -262,7 +270,8 @@ export default {
         {'topic': '/target_list', 'type': 'TargetList'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/search_points', 'type': 'SearchPoints'},
+        {'topic': '/projected_points', 'type': 'ProjectedPoints'},
+        {'topic': '/target_bearing', 'type': 'TargetBearing'},
         {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
       ]
     )

@@ -225,6 +225,16 @@
             "joint_f"
         ]
     ],
+    "EstimatedGateLocation": [
+        [
+            "Odometry",
+            "post1"
+        ],
+        [
+            "Odometry",
+            "post2"
+        ]
+    ],
     "FKTransform": [
         [
             "double",
@@ -673,14 +683,18 @@
             "micro_z"
         ]
     ],
-    "SearchPoints": [
+    "ProjectedPoints": [
         [
             "int32_t",
-            "search_pattern_size"
+            "pattern_size"
         ],
         [
             "Odometry[]",
             "points"
+        ],
+        [
+            "string",
+            "path_type"
         ]
     ],
     "SensorPackage": [
@@ -820,6 +834,12 @@
         [
             "float",
             "f"
+        ]
+    ],
+    "TargetBearing": [
+        [
+            "double",
+            "target_bearing"
         ]
     ],
     "TargetOrientation": [
@@ -1047,6 +1067,7 @@
         "Encoder",
         "ESCThrottle",
         "ESCToggle",
+        "EstimatedGateLocation",
         "FKTransform",
         "GPS",
         "Heartbeat",

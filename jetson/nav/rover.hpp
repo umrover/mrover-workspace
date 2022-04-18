@@ -13,7 +13,7 @@
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rover_msgs/AutonDriveControl.hpp"
-#include "rover_msgs/SearchPoints.hpp"
+#include "rover_msgs/ProjectedPoints.hpp"
 #include "rapidjson/document.h"
 #include "courseProgress.hpp"
 #include "environment.hpp"
@@ -45,19 +45,11 @@ enum class NavState {
 
     // Gate Search
     BeginGateSearch = 40,
-    GateMakePath = 41,
-    GateTraverse = 42,
+    GateTraverse = 41,
 
     // Unknown State
     Unknown = 255
 }; // AutonState
-
-// This class is the representation of the drive status.
-enum class DriveStatus {
-    Arrived,
-    OnCourse,
-    OffCourse
-}; // DriveStatus
 
 // This class creates a Rover object which can perform operations that
 // the real rover can perform.
@@ -98,8 +90,6 @@ private:
     /* Private Member Functions */
     /*************************************************************************/
     void publishAutonDriveCmd(double leftVel, double rightVel);
-
-    static bool isTurningAroundObstacle(NavState currentState);
 
     /*************************************************************************/
     /* Private Member Variables */

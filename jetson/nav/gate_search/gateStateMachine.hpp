@@ -45,16 +45,24 @@ private:
 
     void publishGatePath();
 
+    Odometry getPointToFollow(Odometry curRoverLocation);
+
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
     const rapidjson::Document& mConfig;
 
+    ProjectedPoints mProjectedPoints{};
+
     std::deque<Odometry> mPath;
+
+    size_t mPathIndex = 0;
 
     void makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env);
 
-    void makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env);
+    void makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment> const& env);
+
+    bool isParallelToGate();
 };
 
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);
