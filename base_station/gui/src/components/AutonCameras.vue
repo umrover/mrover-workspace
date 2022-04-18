@@ -5,8 +5,7 @@
       <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscopeCam()" ref="micro"/>
     </div>
     <div>
-      <CameraSelection class="camera-selection" v-bind:cam_index="cam_index_1" v-on:cam_index="setCamIndex($event, 1)"/>
-      <CameraSelection class="camera-selection" v-bind:cam_index="cam_index_2" v-on:cam_index="setCamIndex($event, 2)"/>
+      <CameraSelection class="camera-selection" v-bind:cam_index="cam_index" v-on:cam_index="setCamIndex($event)"/>
     </div>
   </div>
 </template>
@@ -22,8 +21,7 @@
     data() {
       return {
         dual_stream: false,
-        cam_index_1: -1,
-        cam_index_2: -1,
+        cam_index: -1,
         microscope_cam: false
       }
     },
@@ -61,7 +59,7 @@
         }
 
         if(e.keyCode>=49 && e.keyCode<=54)  //keys 1 to 6
-          this.cam_index_1 = e.keyCode-48
+          this.cam_index = e.keyCode-48
       })
 
       // Change cam index based on joystick button
@@ -72,17 +70,17 @@
           if (gamepad) {
             if (gamepad.id.includes('Logitech')) {
               if (gamepad.buttons[JOYSTICK_CONFIG['down_left_button']]['pressed']) {
-                this.cam_index_1 = CAMERA_NUM['down_left_button']
+                this.cam_index = CAMERA_NUM['down_left_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['up_left_button']]['pressed']) {
-                this.cam_index_1 = CAMERA_NUM['up_left_button']
+                this.cam_index = CAMERA_NUM['up_left_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['down_middle_button']]['pressed']) {
-                this.cam_index_1 = CAMERA_NUM['down_middle_button']
+                this.cam_index = CAMERA_NUM['down_middle_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['up_middle_button']]['pressed']) {
-                this.cam_index_1 = CAMERA_NUM['up_middle_button']
+                this.cam_index = CAMERA_NUM['up_middle_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['down_right_button']]['pressed']) {
-                this.cam_index_1 = CAMERA_NUM['down_right_button']
+                this.cam_index = CAMERA_NUM['down_right_button']
               } else if (gamepad.buttons[JOYSTICK_CONFIG['up_right_button']]['pressed']) {
-                this.cam_index_1 = CAMERA_NUM['up_right_button']
+                this.cam_index = CAMERA_NUM['up_right_button']
               }
             }
           }
@@ -92,21 +90,8 @@
     },
 
     methods: {
-      setCamIndex: function (new_index, stream) {
-        if (stream === 1 && (new_index !== this.cam_index_2 || new_index === -1)) {
-          this.cam_index_1 = new_index
-        } 
-        else if (stream === 2 && (new_index !== this.cam_index_1 || new_index === -1)) {
-          this.cam_index_2 = new_index
-        }
-      },
-
-      toggleDualStream: function () {
-        this.dual_stream = !this.dual_stream
-        if (!this.dual_stream) {
-          this.cams[this.cam_index_2] = false
-          this.cam_index_2 = -1
-        }
+      setCamIndex: function (new_index) {
+        this.cam_index = new_index
       },
 
       toggleMicroscopeCam: function () {
@@ -116,18 +101,14 @@
       sendCameras: function() {
         this.$parent.publish("/cameras_cmd", {
           'type': 'Cameras',
-          'port_0': this.cam_index_1,
-          'port_1': this.cam_index_2,
+          'port_0': this.cam_index,
+          'port_1': -1,
         })
       }
     },
 
     watch: {
-      cam_index_1() {
-        this.sendCameras()
-      },
-
-      cam_index_2() {
+      cam_index() {
         this.sendCameras()
       }
     },
