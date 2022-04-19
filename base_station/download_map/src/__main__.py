@@ -13,7 +13,6 @@ def main():
         exit(0)
     f = open("base_station/download_map/src/keys.json", "r")
     keys = json.load(f)
-    print(keys)
     s3 = boto3.client('s3', aws_access_key_id=keys["accessKey"],
                       aws_secret_access_key=keys["secretKey"])
     print("Downloading map...")
