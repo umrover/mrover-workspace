@@ -2,9 +2,6 @@
   <div class="wrap">
     <h3>Cameras</h3>
     <div>
-      <Checkbox v-bind:name="'Microscope'" v-on:toggle="toggleMicroscopeCam()" ref="micro"/>
-    </div>
-    <div>
       <CameraSelection class="camera-selection" v-bind:cam_index="cam_index" v-on:cam_index="setCamIndex($event)"/>
     </div>
   </div>
@@ -20,9 +17,7 @@
   export default {
     data() {
       return {
-        dual_stream: false,
-        cam_index: -1,
-        microscope_cam: false
+        cam_index: -1
       }
     },
 
@@ -85,17 +80,12 @@
             }
           }
         }
-        this.$parent.publish('/microscope', {type: "Microscope", streaming: this.microscope_cam === true})
       }, 250)
     },
 
     methods: {
       setCamIndex: function (new_index) {
         this.cam_index = new_index
-      },
-
-      toggleMicroscopeCam: function () {
-        this.microscope_cam = !this.microscope_cam
       },
 
       sendCameras: function() {
@@ -126,7 +116,7 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
-    grid-template-rows: 60px 20px;
+    grid-template-rows: 30px 20px;
     grid-template-areas: "header" "servos";
     font-family: sans-serif;
     height: 100%;
@@ -187,5 +177,10 @@
   ul#vitals li {
     display: inline;
     padding: 0px 10px 0px 0px;
+  }
+
+  h3 {
+    margin-top: 10px;
+    margin-bottom: 0;
   }
 </style>
