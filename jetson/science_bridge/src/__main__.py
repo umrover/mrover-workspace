@@ -272,7 +272,7 @@ class ScienceBridge():
             red_off = message.format(device=Mosfet_devices.RED_LED.value, enable=0)
             red_off = self.add_padding(red_off)
             self.ser.write(bytes(red_off, encoding='utf-8'))
-        if (prev != Auton_state.DONE):  # else is red
+        if (prev != Auton_state.DONE):  # done is green
             green_off = message.format(device=Mosfet_devices.GREEN_LED.value, enable=0)
             green_off = self.add_padding(green_off)
             self.ser.write(bytes(green_off, encoding='utf-8'))
