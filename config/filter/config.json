@@ -25,5 +25,7 @@
     
     "Bearing_correction_interval_sec": 60,
     "Bearing_error_threshold_deg": 5,
-    "Bearing_rate_of_change_threshold_dps": 10
+    "Bearing_rate_of_change_threshold_dps": 10,
+
+    "Drive_vel_diff_percent": 0.1
 }

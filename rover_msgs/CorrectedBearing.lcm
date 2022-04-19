@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct CorrectedBearing {
+    double corrected_bearing;
+}
+
