@@ -3,7 +3,7 @@
     <div class="col-wrap" style="left: 0;">
       <div class="box">
         <div class="identification">
-          Name: <input v-model="name" v-on:click="select($event)" size="15">
+          Name: <input v-model="name" size="15">
           ID: <input v-model="id" type="number" max="249" min="-1" step="1">
           Gate Width: <input v-model="gate_width" type="number" max="3" min="2" step="1">
         </div>
@@ -12,16 +12,16 @@
         <input type="radio" v-model="odom_format_in" value="DM" class="checkbox"><font size="2">DM</font>
         <input type="radio" v-model="odom_format_in" value="DMS" class="checkbox"><font size="2">DMS</font><br>
         <div class="wp-input">
-          <p><input v-model.number="input.lat.d" size="13" v-on:click="select($event)">º</p>
-          <p v-if="this.min_enabled"><input v-model.number="input.lat.m" size="13" v-on:click="select($event)">'</p>
-          <p  v-if="this.sec_enabled"><input v-model.number="input.lat.s" size="13" v-on:click="select($event)">"</p>
+          <p><input v-model.number="input.lat.d" size="13">º</p>
+          <p v-if="this.min_enabled"><input v-model.number="input.lat.m" size="13">'</p>
+          <p  v-if="this.sec_enabled"><input v-model.number="input.lat.s" size="13">"</p>
           N
         </div>
         <div class="wp-input">
-          <p><input v-model.number="input.lon.d" size="13" v-on:click="select($event)">º</p>
-          <p v-if="this.min_enabled"><input v-model.number="input.lon.m" size="13" v-on:click="select($event)">'</p>
-          <p  v-if="this.sec_enabled"><input v-model.number="input.lon.s" size="13" v-on:click="select($event)">"</p>
-          W
+          <p><input v-model.number="input.lon.d" size="13">º</p>
+          <p v-if="this.min_enabled"><input v-model.number="input.lon.m" size="13">'</p>
+          <p  v-if="this.sec_enabled"><input v-model.number="input.lon.s" size="13">"</p>
+          E
         </div>
         <br>
         <div style="display:inline-block">
@@ -42,7 +42,7 @@
     <div class="col-wrap" style="left: 50%">
       <div class="box datagrid">
         <div class="autonmode">
-          <Checkbox ref="checkbox" v-bind:name="'Autonomy Mode'" v-on:toggle="toggleAutonMode($event)"/>
+          <Checkbox ref="checkbox" v-bind:name="autonButtonText" v-bind:color="autonButtonColor"  v-on:toggle="toggleAutonMode($event)"/>
         </div>
         <div class="stats">
           <p>
@@ -51,7 +51,7 @@
           </p>
         </div>
         <div class="joystick light-bg">
-          <AutonJoystickReading v-bind:Joystick="Joystick"/>
+          <AutonJoystickReading v-bind:AutonDriveControl="AutonDriveControl"/>
         </div>
       </div>
       <div class="box1">
@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import Checkbox from './CheckboxBig.vue'
+import Checkbox from './AutonModeCheckbox.vue'
 import draggable from 'vuedraggable'
 import {convertDMS} from '../utils.js';
 import AutonJoystickReading from './AutonJoystickReading.vue'
@@ -84,7 +84,7 @@ export default {
       type: Object,
       required: true
     },
-    Joystick: {
+    AutonDriveControl: {
       type: Object,
       required: true
     }
@@ -116,7 +116,11 @@ export default {
       },
 
       storedWaypoints: [],
-      route: []
+      route: [],
+
+      autonButtonColor: "red",
+      waitingForNav: false
+
     }
   },
 
@@ -128,6 +132,16 @@ export default {
 
     this.$parent.subscribe('/nav_status', (msg) => {
       this.nav_status = msg
+      if(this.waitingForNav){
+        if(this.nav_status.nav_state_name!="Off" && this.autonEnabled){
+          this.waitingForNav = false
+          this.autonButtonColor = "green"
+        }
+        else if(this.nav_status.nav_state_name=="Off" && !this.autonEnabled){
+          this.waitingForNav = false
+          this.autonButtonColor = "red"
+        }
+      }
     })
 
     interval = window.setInterval(() => {
@@ -223,13 +237,10 @@ export default {
       this.storedWaypoints = [];
     },
 
-    select: function(payload) {
-      console.log(payload.toElement);
-      payload.toElement.select();
-    },
-
     toggleAutonMode: function (val) {
       this.setAutonMode(val)
+      this.autonButtonColor = "yellow"
+      this.waitingForNav = true;
     }
   },
 
@@ -266,13 +277,25 @@ export default {
         waypoint.lon = convertDMS(waypoint.lon, newOdomFormat);
         return waypoint;
       });
+    },
+
+    clickPoint: function (newClickPoint){
+      this.input.lat.d = newClickPoint.lat
+      this.input.lon.d = newClickPoint.lon
+      this.input.lat.m = 0;
+      this.input.lon.m = 0;
+      this.input.lat.s = 0;
+      this.input.lon.s = 0;
+      this.input.lat = convertDMS(this.input.lat, this.odom_format_in);
+      this.input.lon = convertDMS(this.input.lon, this.odom_format_in);
     }
   },
 
   computed: {
     ...mapGetters('autonomy', {
       autonEnabled: 'autonEnabled',
-      odom_format: 'odomFormat'
+      odom_format: 'odomFormat',
+      clickPoint: "clickPoint"
     }),
 
     formatted_odom: function() {
@@ -288,7 +311,12 @@ export default {
 
     sec_enabled: function() {
       return this.odom_format == 'DMS';
+    },
+
+    autonButtonText: function() {
+      return (this.autonButtonColor == "yellow") ? "Setting to "+this.autonEnabled : "Autonomy Mode"
     }
+
   },
 
   components: {

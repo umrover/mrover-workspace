@@ -77,6 +77,16 @@
             "laser"
         ]
     ],
+    "AutonDriveControl": [
+        [
+            "double",
+            "left_percent_velocity"
+        ],
+        [
+            "double",
+            "right_percent_velocity"
+        ]
+    ],
     "AutonState": [
         [
             "boolean",
@@ -159,6 +169,16 @@
             "right"
         ]
     ],
+    "DriveVelCmd": [
+        [
+            "double",
+            "left"
+        ],
+        [
+            "double",
+            "right"
+        ]
+    ],
     "ESCThrottle": [
         [
             "string",
@@ -203,6 +223,16 @@
         [
             "int32_t",
             "joint_f"
+        ]
+    ],
+    "EstimatedGateLocation": [
+        [
+            "Odometry",
+            "post1"
+        ],
+        [
+            "Odometry",
+            "post2"
         ]
     ],
     "FKTransform": [
@@ -369,14 +399,6 @@
         [
             "double",
             "dampen"
-        ],
-        [
-            "boolean",
-            "kill"
-        ],
-        [
-            "boolean",
-            "restart"
         ]
     ],
     "KillSwitch": [
@@ -661,6 +683,20 @@
             "micro_z"
         ]
     ],
+    "ProjectedPoints": [
+        [
+            "int32_t",
+            "pattern_size"
+        ],
+        [
+            "Odometry[]",
+            "points"
+        ],
+        [
+            "string",
+            "path_type"
+        ]
+    ],
     "SensorPackage": [
         [
             "double",
@@ -798,6 +834,12 @@
         [
             "float",
             "f"
+        ]
+    ],
+    "TargetBearing": [
+        [
+            "double",
+            "target_bearing"
         ]
     ],
     "TargetOrientation": [
@@ -1013,6 +1055,7 @@
         "ArmControlState",
         "ArmPosition",
         "ArmToggles",
+        "AutonDriveControl",
         "AutonState",
         "Bearing",
         "CameraServos",
@@ -1020,9 +1063,11 @@
         "CurrentDraw",
         "DebugMessage",
         "DriveMotors",
+        "DriveVelCmd",
         "Encoder",
         "ESCThrottle",
         "ESCToggle",
+        "EstimatedGateLocation",
         "FKTransform",
         "GPS",
         "Heartbeat",
@@ -1047,6 +1092,7 @@
         "PresetAngles",
         "ProximitySensors",
         "RepeaterDrop",
+        "ReverseDrive",
         "RGB",
         "RGBFrame",
         "RGBLED",

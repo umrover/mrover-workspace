@@ -30,7 +30,7 @@
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
-        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:nav_status="nav_status" v-bind:Joystick="Joystick" v-bind:TargetList="TargetList"/>
+        <SaveAutonData v-bind:odom="odom" v-bind:IMU="IMU" v-bind:GPS="GPS" v-bind:TargetBearing="TargetBearing" v-bind:nav_status="nav_status" v-bind:AutonDriveControl="AutonDriveControl" v-bind:TargetList="TargetList"/>
         <PlaybackAutonData/>
      </div>
     </div>
@@ -39,10 +39,10 @@
       <ZedGimbalAngles/>
     </div>
     <div class="box map light-bg">
-      <RoverMap v-bind:odom="odom" v-bind:GPS="GPS"/>
+      <RoverMap v-bind:odom="odom" v-bind:GPS="GPS" v-bind:TargetBearing="TargetBearing"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" v-bind:Joystick="Joystick"/>
+      <AutonWaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
     </div>
     <div class="box angles light-bg">
     </div>
@@ -58,7 +58,7 @@ import RadioSignalStrength from './RadioSignalStrength.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
-import WaypointEditor from './WaypointEditor.vue'
+import AutonWaypointEditor from './AutonWaypointEditor.vue'
 import RawSensorData from './RawSensorData.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import Obstacle from './Obstacle.vue'
@@ -116,6 +116,10 @@ export default {
         bearing_deg: 0,
         speed: 0
       },
+
+      TargetBearing: {
+        target_bearing: 0
+      },
      
       Obstacle: {
 	      detected: false,
@@ -128,12 +132,9 @@ export default {
         {bearing: 0, distance: -1, id: 0}
       ],
 
-      Joystick: {
-        forward_back: 0,
-        left_right: 0.000000001,
-        dampen: 0,
-        kill: false,
-        restart: false
+      AutonDriveControl: {
+        left_percent_velocity: 0,
+        right_percent_velocity: 0
       },
 
       IMU: {
@@ -182,6 +183,7 @@ export default {
   },
 
   created: function () {
+
     setInterval(() => {
       if(this.nav_status.nav_state_name == "Off"){
         this.nav_state_color = navBlue
@@ -226,12 +228,14 @@ export default {
           this.odom = msg.message
         } else if (msg.topic === '/gps') {
           this.GPS = msg.message
+        } else if (msg.topic === '/target_bearing') {
+          this.TargetBearing = msg.message
         } else if (msg.topic === '/imu_data') {
           this.IMU = msg.message
         } else if (msg.topic === '/radio') {
           this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
-         }else if (msg.topic === '/autonomous') {
-          this.Joystick = msg.message
+         }else if (msg.topic === '/auton_drive_control') {
+          this.AutonDriveControl = msg.message
         } else if (msg.topic === '/kill_switch') {
           this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/obstacle') {
@@ -252,10 +256,11 @@ export default {
       [
         {'topic': '/odometry', 'type': 'Odometry'},
         {'topic': '/sensors', 'type': 'Sensors'},
-        {'topic': '/autonomous', 'type': 'Joystick'},
+        {'topic': '/auton_drive_control', 'type': 'AutonDriveControl'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
         {'topic': '/camera_servos', 'type': 'CameraServos'},
+        {'topic': '/estimated_gate_location', 'type': 'EstimatedGateLocation'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu_data', 'type': 'IMUData'},
@@ -265,6 +270,8 @@ export default {
         {'topic': '/target_list', 'type': 'TargetList'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
+        {'topic': '/projected_points', 'type': 'ProjectedPoints'},
+        {'topic': '/target_bearing', 'type': 'TargetBearing'},
         {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
       ]
     )
@@ -318,7 +325,7 @@ export default {
     DriveControls,
     OdometryReading,
     RawSensorData,
-    WaypointEditor,
+    AutonWaypointEditor,
     RadioSignalStrength,
     Obstacle,
     TargetList,

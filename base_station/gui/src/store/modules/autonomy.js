@@ -4,12 +4,17 @@ const state = {
   waypointList: [],
   autonEnabled: false,
   odomFormat: "DM",
+  clickPoint: {
+    lat: 0,
+    lon: 0
+  },
 
   playbackEnabled: false,
   playbackOdomLat: [],
   playbackOdomLon: [],
   playbackOdomBearing: [],
-  playbackGpsBearing: []
+  playbackGpsBearing: [],
+  playbackTargetBearing: []
 }
 
 // getters
@@ -18,12 +23,14 @@ const getters = {
   waypointList: state => state.waypointList,
   autonEnabled: state => state.autonEnabled,
   odomFormat: state => state.odomFormat,
+  clickPoint: state => state.clickPoint,
   playbackEnabled: state => state.playbackEnabled,
   playback: state => state.playback,
   playbackOdomLat: state => state.playbackOdomLat,
   playbackOdomLon: state => state.playbackOdomLon,
   playbackOdomBearing: state => state.playbackOdomBearing,
   playbackGpsBearing: state => state.playbackGpsBearing,
+  playbackTargetBearing: state => state.playbackTargetBearing,
   playbackLength: state => state.playbackOdomLat.length
 }
 
@@ -45,6 +52,10 @@ const mutations = {
     state.odomFormat = newOdomFormat
   },
 
+  setClickPoint (commit, newClickPoint) {
+    state.clickPoint = newClickPoint
+  },
+
   setPlaybackEnabled (commit, newPlaybackEnabled) {
     state.playbackEnabled = newPlaybackEnabled
   },
@@ -63,6 +74,10 @@ const mutations = {
 
   setPlaybackGpsBearing (commit, bearing) {
     state.playbackGpsBearing = bearing
+  },
+
+  setPlaybackTargetBearing (commit, bearing) {
+    state.playbackTargetBearing = bearing
   }
 }
 

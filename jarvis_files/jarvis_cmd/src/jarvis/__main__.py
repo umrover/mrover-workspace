@@ -32,6 +32,7 @@ def main():
     parser_build.add_argument('-n','--not-projects', nargs='+',
                               help='Don\'t build these projects when building all (-a).')
     parser_build.add_argument('-l', '--no-lint', action='store_false', help='Disable linting.')
+    parser_build.add_argument('-p', '--no-pip-reqs', action='store_true', help="Disable rebuilding pip deps, good when there's no wifi.")
 
     subcommands.add_parser('clean',
                            help='Removes the product env')
@@ -50,15 +51,16 @@ def main():
                                'build system')
     parser_launch.add_argument('-s', '--ssh', action='store_true',
                                help='Specify whether we are ssh\'d in or not')
-                              
-
+    parser_launch.add_argument('-r', '--run', action='store_true',
+                               help='Specify whether packages should be built or just run')
+    
     args = parser.parse_args()
 
     try:
         ctx = WorkspaceContext(args.root_dir)
 
         if args.subcommand_name == 'build':
-            build_deps(ctx)
+            build_deps(ctx, args.no_pip_reqs)
             if args.all:
                 return build_all(ctx, clean_dir_name(args.dir), args.no_lint, args.build_opts, args.not_projects)
             else:
@@ -68,7 +70,7 @@ def main():
         elif args.subcommand_name == 'dep':
             build_deps(ctx)
         elif args.subcommand_name == 'launch':
-            launch_dir(ctx, clean_dir_name(args.sys), args.ssh, args.launch_opts)
+            launch_dir(ctx, clean_dir_name(args.sys), args.ssh, args.run, args.launch_opts)
 
     except UnexpectedExit as e:
         sys.exit(e.result.exited)
