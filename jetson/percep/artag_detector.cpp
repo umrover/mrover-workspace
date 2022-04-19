@@ -8,10 +8,9 @@ void onMouse(int event, int x, int y, int flags, void* userdata) {
     if (event == EVENT_LBUTTONUP) {
         Vec3b p = HSV.at<Vec3b>(y, x);
         float d = DEPTH.at<float>(y, x);
-        printf(
-                "Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, "
-                "depth is %.2f meters \n",
-                y, x, p.val[0], p.val[1], p.val[2], d);
+        printf("Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, "
+               "depth is %.2f meters \n",
+               y, x, p.val[0], p.val[1], p.val[2], d);
     }
 }
 
@@ -21,7 +20,7 @@ TagDetector::TagDetector(const rapidjson::Document& mRoverConfig) :
 //Populate Constants from Config File
         BUFFER_ITERATIONS{mRoverConfig["ar_tag"]["buffer_iterations"].GetInt()},
         MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["marker_border_bits"].GetInt()},
-        DO_CORNER_REFINEMENT{!!mRoverConfig["alvar_params"]["do_corner_refinement"].GetInt()},
+        DO_CORNER_REFINEMENT{mRoverConfig["alvar_params"]["do_corner_refinement"].GetBool()},
         POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonal_approx_accuracy_rate"].GetDouble()},
         MM_PER_M{mRoverConfig["mm_per_m"].GetInt()},
         DEFAULT_TAG_VAL{mRoverConfig["ar_tag"]["default_tag_val"].GetInt()} {
@@ -91,7 +90,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //
 
     // create Tag objects for the detected tags and return them
     pair<Tag, Tag> discoveredTags;
-    if (ids.size() == 0) {
+    if (ids.empty()) {
         // no tags found, return invalid objects with tag set to -1
         discoveredTags.first.id = DEFAULT_TAG_VAL;
         discoveredTags.first.loc = Point2f();
@@ -118,7 +117,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //
             discoveredTags.second = t0;
         }
     } else {  // detected >=3 tags
-        // return leftmost and rightsmost detected tags to account for potentially seeing 2 of each tag on a post
+        // return leftmost and rightmost detected tags to account for potentially seeing 2 of each tag on a post
         Tag t0, t1;
         t0.id = ids[0];
         t0.loc = getAverageTagCoordinateFromCorners(corners[0]);
@@ -135,47 +134,51 @@ pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //
     return discoveredTags;
 }
 
-double TagDetector::getAngle(float xPixel, float wPixel) {
-    double fieldofView = 110 * PI / 180;
-    return atan((xPixel - wPixel / 2) / (wPixel / 2) * tan(fieldofView / 2)) * 180.0 / PI;
-}
-
-void TagDetector::updateDetectedTagInfo(rover_msgs::Target* arTags, pair<Tag, Tag>& tagPair, Mat& depth_img, Mat& src) {
+void TagDetector::updateDetectedTagInfo(rover_msgs::Target* arTags, pair<Tag, Tag>& tagPair, Mat& depth_img, Mat& xyz_img, Mat& src) const {
     struct tagPairs {
-        vector<int> id;
-        vector<int> locx;
-        vector<int> locy;
-        vector<int> buffer;
+        vector<int> ids;
+        vector<int> x_pixels;
+        vector<int> y_pixels;
+        vector<int> buf_counts;
     };
     tagPairs tags;
 
-    tags.id.push_back(tagPair.first.id);
-    tags.locx.push_back(tagPair.first.loc.x);
-    tags.locy.push_back(tagPair.first.loc.y);
-    tags.id.push_back(tagPair.second.id);
-    tags.locx.push_back(tagPair.second.loc.x);
-    tags.locy.push_back(tagPair.second.loc.y);
-    tags.buffer.push_back(0);
-    tags.buffer.push_back(0);
+    tags.ids.push_back(tagPair.first.id);
+    tags.x_pixels.push_back(static_cast<int>(tagPair.first.loc.x));
+    tags.y_pixels.push_back(static_cast<int>(tagPair.first.loc.y));
+    tags.ids.push_back(tagPair.second.id);
+    tags.x_pixels.push_back(static_cast<int>(tagPair.second.loc.x));
+    tags.y_pixels.push_back(static_cast<int>(tagPair.second.loc.y));
+    tags.buf_counts.push_back(0);
+    tags.buf_counts.push_back(0);
 
     for (size_t i = 0; i < 2; i++) {
-        if (tags.id[i] == DEFAULT_TAG_VAL) { //no tag found
-            if (tags.buffer[i] <= BUFFER_ITERATIONS) { //send buffered tag until tag is found
-                ++tags.buffer[i];
-            } else { //if still no tag found, set all stats to -1
+        if (tags.ids[i] == DEFAULT_TAG_VAL) { // no tag found
+            if (tags.buf_counts[i] <= BUFFER_ITERATIONS) { // send buffered tag until tag is found
+                ++tags.buf_counts[i];
+            } else { // if still no tag found, set all stats to -1
                 arTags[i].distance = DEFAULT_TAG_VAL;
                 arTags[i].bearing = DEFAULT_TAG_VAL;
                 arTags[i].id = DEFAULT_TAG_VAL;
             }
-        } else { //tag found
-            if (!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))) {
-                float depth = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
-                arTags[i].distance = depth;
+        } else { // tag found
+            int y_pixel = tags.y_pixels.at(i);
+            int x_pixel = tags.x_pixels.at(i);
+            float x, y, z;
+            {
+                auto xyz = xyz_img.at<Vec4f>(y_pixel, x_pixel);
+                x = xyz[0];
+                y = xyz[1];
+                z = xyz[2];
             }
-            arTags[i].bearing = getAngle((int) tags.locx.at(i), src.cols);
-            arTags[i].id = tags.id.at(i);
-            tags.buffer[i] = 0;
+            auto raw_depth = depth_img.at<float>(y_pixel, x_pixel);
+            if (!isnan(raw_depth)) {
+                arTags[i].distance = sqrt(x * x + y * y + z * z) * static_cast<float>(MM_PER_M);
+            }
+            // +z is forward, +x is right, all relative to camera
+            arTags[i].bearing = atan2(x, z);
+            arTags[i].id = tags.ids.at(i);
+            tags.buf_counts[i] = 0;
         }
     }
 }
-

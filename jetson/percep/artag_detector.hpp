@@ -17,7 +17,7 @@ private:
     Ptr<cv::aruco::Dictionary> alvarDict;
     Ptr<cv::aruco::DetectorParameters> alvarParams;
     std::vector<int> ids;
-    std::vector<std::vector<cv::Point2f> > corners;
+    std::vector<std::vector<cv::Point2f>> corners;
     cv::Mat rgb;
 
 public:
@@ -30,7 +30,7 @@ public:
     int DEFAULT_TAG_VAL;
 
     //constructor loads alvar dictionary data from file that defines tag bit configurations
-    TagDetector(const rapidjson::Document& mRoverConfig);
+    explicit TagDetector(const rapidjson::Document& mRoverConfig);
 
     //takes detected AR tag and finds center coordinate for use with ZED                                                                 
     Point2f getAverageTagCoordinateFromCorners(const vector<Point2f>& corners);
@@ -38,10 +38,6 @@ public:
     //detects AR tags in a given Mat
     pair<Tag, Tag> findARTags(Mat& src, Mat& depth_src, Mat& rgb);
 
-    //finds the angle from center given pixel coordinates              
-    double getAngle(float xPixel, float wPixel);
-
-    //if AR tag found, updates distance, bearing, and id                              
-    void updateDetectedTagInfo(rover_msgs::Target* arTags, pair<Tag, Tag>& tagPair, Mat& depth_img, Mat& src);
-
+    //if AR tag found, updates distance, bearing, and id
+    void updateDetectedTagInfo(rover_msgs::Target* arTags, pair<Tag, Tag>& tagPair, Mat& depth_img, Mat& xyz_img, Mat& src) const;
 };
