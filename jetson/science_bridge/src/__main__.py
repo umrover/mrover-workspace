@@ -26,7 +26,7 @@ class Mosfet_devices(Enum):
     RED_LED = 10
     GREEN_LED = 4
     BLUE_LED = 5
-    RA_LASER = 3
+    RA_LASER = 10
     UV_LED = 4
     WHITE_LED = 5
     UV_BULB = 6
@@ -203,8 +203,6 @@ class ScienceBridge():
         print("Heater cmd callback")
         struct = Heater.decode(msg)
         message = "$Mosfet,{device},{enable},"
-
-        # Heater/Nichromes mosfet devices 7, 8, and 9, so add 7 to get the appropriate mosfet
 
         translated_device = Heater_Map[struct.device]
         message = message.format(device=translated_device,
