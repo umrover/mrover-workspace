@@ -1,12 +1,21 @@
 import boto3
 import os
 import zipfile
-
-s3 = boto3.client('s3', aws_access_key_id="AKIAQNYJPFWU5SAZ4T5K",
-                  aws_secret_access_key="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")
+import json
 
 
 def main():
+    if not os.path.exists("base_station/download_map/src/keys.json"):
+        out = {"accessKey": "", "secretKey": ""}
+        f = open("base_station/download_map/src/keys.json", "w")
+        json.dump(out, f, indent=4)
+        print("Access Keys not found, input keys into keys.json")
+        exit(0)
+    f = open("base_station/download_map/src/keys.json", "r")
+    keys = json.load(f)
+    print(keys)
+    s3 = boto3.client('s3', aws_access_key_id=keys["accessKey"],
+                      aws_secret_access_key=keys["secretKey"])
     print("Downloading map...")
     s3.download_file("rover-map", "map.zip", "base_station/gui/src/static/map.zip")
     print("Map Download Complete, Unzipping...")
