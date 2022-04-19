@@ -148,7 +148,7 @@ class SensorFusion:
         self.last_bearing_correction = time.time()
         self.bearing_offset = 0
 
-        # TODO: is this gonna cause bad behavior?
+        # TODO: are these inits going to cause incorrect behavior?
         self.target_bearing = 0
         self.prev_target_bearing = 0
         self.last_target_bearing_fresh = 0

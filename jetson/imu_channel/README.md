@@ -62,7 +62,7 @@ You can see the calibration status of each onboard sensor via the LCM data. `cal
 
 Now just detach the BNO055 from its mount and wave it around in the air. Watch [this video](https://www.youtube.com/watch?v=Bw0WuAyGsnY) on what patterns to move it in for optimal results. You'll know you're done when all four calibration status variables read 3. 
 
-Be aware that the accelerometer can be very tricky to calibrate, sometimes taking upwards of 10 minutes to get the calibration status to 3. It's also worth noting that the magnetometer calibration status often drops to a 2 or a 1 after a while.
+Be aware that the accelerometer can be very tricky to calibrate, sometimes taking upwards of 10 minutes to get the calibration status to 3. For fastest calibration, follow the pattern in the video *very* slowly, rotating between angles slowly and holding the IMU still at those angles for around 10 seconds each.  It's also worth noting that the magnetometer calibration status often drops to a lower value (we've seen anywhere from 2 to 0) after running it for a while.
 
 The BNO055 should now be ready to go and outputting good data, so you can run whatever other programs need to use it.
 
