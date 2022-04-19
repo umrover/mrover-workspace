@@ -4,27 +4,27 @@ static Mat HSV;
 static Mat DEPTH;
 
 /* For debug use: print the HSV values at mouseclick locations */
-void onMouse(int event, int x, int y, int flags, void *userdata) {
+void onMouse(int event, int x, int y, int flags, void* userdata) {
     if (event == EVENT_LBUTTONUP) {
         Vec3b p = HSV.at<Vec3b>(y, x);
         float d = DEPTH.at<float>(y, x);
         printf(
-            "Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, "
-            "depth is %.2f meters \n",
-            y, x, p.val[0], p.val[1], p.val[2], d);
+                "Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, "
+                "depth is %.2f meters \n",
+                y, x, p.val[0], p.val[1], p.val[2], d);
     }
 }
 
 //initializes detector object with pre-generated dictionary of tags 
-TagDetector::TagDetector(const rapidjson::Document &mRoverConfig) :  
+TagDetector::TagDetector(const rapidjson::Document& mRoverConfig) :
 
-   //Populate Constants from Config File
-   BUFFER_ITERATIONS{mRoverConfig["ar_tag"]["buffer_iterations"].GetInt()},
-   MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["marker_border_bits"].GetInt()},
-   DO_CORNER_REFINEMENT{!!mRoverConfig["alvar_params"]["do_corner_refinement"].GetInt()},
-   POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonal_approx_accuracy_rate"].GetDouble()},
-   MM_PER_M{mRoverConfig["mm_per_m"].GetInt()},
-   DEFAULT_TAG_VAL{mRoverConfig["ar_tag"]["default_tag_val"].GetInt()} {
+//Populate Constants from Config File
+        BUFFER_ITERATIONS{mRoverConfig["ar_tag"]["buffer_iterations"].GetInt()},
+        MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["marker_border_bits"].GetInt()},
+        DO_CORNER_REFINEMENT{!!mRoverConfig["alvar_params"]["do_corner_refinement"].GetInt()},
+        POLYGONAL_APPROX_ACCURACY_RATE{mRoverConfig["alvar_params"]["polygonal_approx_accuracy_rate"].GetDouble()},
+        MM_PER_M{mRoverConfig["mm_per_m"].GetInt()},
+        DEFAULT_TAG_VAL{mRoverConfig["ar_tag"]["default_tag_val"].GetInt()} {
 
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
@@ -48,12 +48,12 @@ TagDetector::TagDetector(const rapidjson::Document &mRoverConfig) :
     alvarParams->polygonalApproxAccuracyRate = POLYGONAL_APPROX_ACCURACY_RATE;
 }
 
-Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &corners) {  //gets coordinate of center of tag
+Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f>& corners) {  //gets coordinate of center of tag
     // RETURN:
     // Point2f object containing the average location of the 4 corners
     // of the passed-in tag
     Point2f avgCoord;
-    for (auto &corner : corners) {
+    for (auto& corner: corners) {
         avgCoord.x += corner.x;
         avgCoord.y += corner.y;
     }
@@ -62,7 +62,7 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f> &c
     return avgCoord;
 }
 
-pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
+pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
     // RETURN:
     // pair of target objects- each object has an x and y for the center,
     // and the tag ID number return them such that the "leftmost" (x
@@ -74,11 +74,11 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
 
     // Find tags
     cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
-    #if AR_RECORD
+#if AR_RECORD
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);
-    #endif
-    
-    #if PERCEPTION_DEBUG
+#endif
+
+#if PERCEPTION_DEBUG
     // Draw detected tags
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);
     cv::imshow("AR Tags", rgb);
@@ -87,7 +87,7 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     DEPTH = depth_src;
     cvtColor(rgb, HSV, COLOR_RGB2HSV);
     setMouseCallback("Obstacle", onMouse);
-    #endif
+#endif
 
     // create Tag objects for the detected tags and return them
     pair<Tag, Tag> discoveredTags;
@@ -135,18 +135,18 @@ pair<Tag, Tag> TagDetector::findARTags(Mat &src, Mat &depth_src, Mat &rgb) {  //
     return discoveredTags;
 }
 
-double TagDetector::getAngle(float xPixel, float wPixel){
-    double fieldofView = 110 * PI/180;
-    return atan((xPixel - wPixel/2)/(wPixel/2)* tan(fieldofView/2))* 180.0 /PI;
+double TagDetector::getAngle(float xPixel, float wPixel) {
+    double fieldofView = 110 * PI / 180;
+    return atan((xPixel - wPixel / 2) / (wPixel / 2) * tan(fieldofView / 2)) * 180.0 / PI;
 }
 
-void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Tag> &tagPair, Mat &depth_img, Mat &src){
+void TagDetector::updateDetectedTagInfo(rover_msgs::Target* arTags, pair<Tag, Tag>& tagPair, Mat& depth_img, Mat& src) {
     struct tagPairs {
         vector<int> id;
         vector<int> locx;
         vector<int> locy;
         vector<int> buffer;
-    }; 
+    };
     tagPairs tags;
 
     tags.id.push_back(tagPair.first.id);
@@ -158,23 +158,24 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target *arTags, pair<Tag, Ta
     tags.buffer.push_back(0);
     tags.buffer.push_back(0);
 
-  for (uint i=0; i<2; i++) {
-    if(tags.id[i] == DEFAULT_TAG_VAL){ //no tag found
-        if(tags.buffer[i] <= BUFFER_ITERATIONS){ //send buffered tag until tag is found
-            ++tags.buffer[i];
-        } else { //if still no tag found, set all stats to -1
-            arTags[i].distance = DEFAULT_TAG_VAL;
-            arTags[i].bearing = DEFAULT_TAG_VAL;
-            arTags[i].id = DEFAULT_TAG_VAL;
+    for (size_t i = 0; i < 2; i++) {
+        if (tags.id[i] == DEFAULT_TAG_VAL) { //no tag found
+            if (tags.buffer[i] <= BUFFER_ITERATIONS) { //send buffered tag until tag is found
+                ++tags.buffer[i];
+            } else { //if still no tag found, set all stats to -1
+                arTags[i].distance = DEFAULT_TAG_VAL;
+                arTags[i].bearing = DEFAULT_TAG_VAL;
+                arTags[i].id = DEFAULT_TAG_VAL;
+            }
+        } else { //tag found
+            if (!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))) {
+                float depth = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
+                arTags[i].distance = depth;
+            }
+            arTags[i].bearing = getAngle((int) tags.locx.at(i), src.cols);
+            arTags[i].id = tags.id.at(i);
+            tags.buffer[i] = 0;
         }
-     } else { //tag found
-    if(!isnan(depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)))) {
-        arTags[i].distance = depth_img.at<float>(tags.locy.at(i), tags.locx.at(i)) / MM_PER_M;
     }
-        arTags[i].bearing = getAngle((int)tags.locx.at(i), src.cols);
-        arTags[i].id = tags.id.at(i);
-        tags.buffer[i] = 0;
-   }
-  }
 }
 
