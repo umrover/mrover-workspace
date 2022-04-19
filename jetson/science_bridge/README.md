@@ -180,5 +180,5 @@ Format of the data string
 - [ ] Code clean up
 - [ ] Move beaglebone stuff into config file
 - [ ] Need better support for Auton LEDs
-- [ ] Create function for padding
+- [X] Create function for padding
 - [ ] Don't need to wait for all tags to be seen
