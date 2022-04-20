@@ -277,7 +277,7 @@ void Controller::open_loop(float input)
 }
 
 // Sends a get angle command
-void Controller::quad_angle()
+void Controller::refresh_quad_angle()
 {
     if (!ControllerMap::check_if_live(name))
     {

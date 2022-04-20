@@ -89,7 +89,7 @@ public:
     void open_loop(float input);
 
     // Sends a get angle command
-    void quad_angle();
+    void refresh_quad_angle();
 
     // Sends a zero command
     void zero();

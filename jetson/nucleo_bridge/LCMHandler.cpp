@@ -45,7 +45,9 @@ void LCMHandler::handle_outgoing()
     // This is used as a heart beat (to make sure that nucleos do not reset, but honestly that's too difficult)
     if (NOW - last_heartbeat_output_time > heartbeat_dead_time)
     {
+        internal_object->refresh_ra_quad_angles();
         internal_object->publish_ra_pos_data();
+        internal_object->refresh_sa_quad_angles();
         internal_object->publish_sa_pos_data();
     }
 
@@ -116,22 +118,22 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
 
 void LCMHandler::InternalHandler::refresh_ra_quad_angles()
 {
-    ControllerMap::controllers["RA_A"]->quad_angle();
-    ControllerMap::controllers["RA_B"]->quad_angle();
-    ControllerMap::controllers["RA_C"]->quad_angle();
-    ControllerMap::controllers["RA_D"]->quad_angle();
-    ControllerMap::controllers["RA_E"]->quad_angle();
-    ControllerMap::controllers["RA_F"]->quad_angle();
-    //last_heartbeat_output_time = NOW;
+    ControllerMap::controllers["RA_A"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_B"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_C"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_D"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_E"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_F"]->refresh_quad_angle();
+    last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::refresh_sa_quad_angles()
 {
-    ControllerMap::controllers["SA_A"]->quad_angle();
-    ControllerMap::controllers["SA_B"]->quad_angle();
-    ControllerMap::controllers["SA_C"]->quad_angle();
-    ControllerMap::controllers["SA_E"]->quad_angle();
-    //last_heartbeat_output_time = NOW;
+    ControllerMap::controllers["SA_A"]->refresh_quad_angle();
+    ControllerMap::controllers["SA_B"]->refresh_quad_angle();
+    ControllerMap::controllers["SA_C"]->refresh_quad_angle();
+    ControllerMap::controllers["SA_E"]->refresh_quad_angle();
+    last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::refresh_calib_data()
