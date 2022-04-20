@@ -59,7 +59,6 @@ void LCMHandler::handle_outgoing()
     if (NOW - last_calib_data_output_time > calib_data_output_dead_time)
     {
         internal_object->refresh_calib_data();
-        last_calib_data_output_time = NOW;
 
         internal_object->publish_calib_data();
     }
@@ -99,8 +98,6 @@ void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition
     ControllerMap::controllers["RA_E"]->closed_loop(0, msg->joint_e);
     ControllerMap::controllers["RA_F"]->closed_loop(0, msg->joint_f);
     publish_ra_pos_data();
-
-    last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg)
@@ -111,7 +108,6 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
     ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3]);
     ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4]);
     ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
-    last_heartbeat_output_time = NOW;
 
     publish_ra_pos_data();
 }
@@ -124,7 +120,6 @@ void LCMHandler::InternalHandler::refresh_ra_quad_angles()
     ControllerMap::controllers["RA_D"]->refresh_quad_angle();
     ControllerMap::controllers["RA_E"]->refresh_quad_angle();
     ControllerMap::controllers["RA_F"]->refresh_quad_angle();
-    last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::refresh_sa_quad_angles()
@@ -133,14 +128,11 @@ void LCMHandler::InternalHandler::refresh_sa_quad_angles()
     ControllerMap::controllers["SA_B"]->refresh_quad_angle();
     ControllerMap::controllers["SA_C"]->refresh_quad_angle();
     ControllerMap::controllers["SA_E"]->refresh_quad_angle();
-    last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::refresh_calib_data()
 {
     ControllerMap::controllers["RA_B"]->refresh_calibration_data();
-
-    last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)
@@ -149,7 +141,6 @@ void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition
     ControllerMap::controllers["SA_B"]->closed_loop(0, msg->joint_b);
     ControllerMap::controllers["SA_C"]->closed_loop(0, msg->joint_c);
     ControllerMap::controllers["SA_E"]->closed_loop(0, msg->joint_e);
-    last_heartbeat_output_time = NOW;
 
     publish_sa_pos_data();
 }
@@ -160,7 +151,6 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
     ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1]);
     ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2]);
     ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3]);
-    last_heartbeat_output_time = NOW;
 
     publish_sa_pos_data();
 }
@@ -175,6 +165,7 @@ void LCMHandler::InternalHandler::publish_calib_data()
     JointBCalibration msg;
     msg.calibrated = ControllerMap::controllers["RA_B"]->calibrated;
     lcm_bus->publish("/joint_b_refresh_calibration_data", &msg);
+    last_calib_data_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::publish_ra_pos_data()
@@ -187,6 +178,7 @@ void LCMHandler::InternalHandler::publish_ra_pos_data()
     msg.joint_e = ControllerMap::controllers["RA_E"]->get_current_angle();
     msg.joint_f = ControllerMap::controllers["RA_F"]->get_current_angle();
     lcm_bus->publish("/ra_position", &msg);
+    last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::publish_sa_pos_data()
@@ -197,4 +189,5 @@ void LCMHandler::InternalHandler::publish_sa_pos_data()
     msg.joint_c = ControllerMap::controllers["SA_C"]->get_current_angle();
     msg.joint_e = ControllerMap::controllers["SA_E"]->get_current_angle();
     lcm_bus->publish("/sa_position", &msg);
+    last_heartbeat_output_time = NOW;
 }
