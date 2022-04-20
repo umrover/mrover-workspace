@@ -258,18 +258,15 @@ class ScienceBridge():
 
         message = "$Mosfet,{device},{enable}"
 
-        if self.previous_auton_msg == "Off":
-            blue_off = message.format(device=Mosfet_devices.BLUE_LED.value, enable=0)
-            blue_off = self.add_padding(blue_off)
-            self.ser.write(bytes(blue_off, encoding='utf-8'))
-        elif self.previous_auton_msg == "Done":
-            red_off = message.format(device=Mosfet_devices.RED_LED.value, enable=0)
-            red_off = self.add_padding(red_off)
-            self.ser.write(bytes(red_off, encoding='utf-8'))
-        else:
-            green_off = message.format(device=Mosfet_devices.GREEN_LED.value, enable=0)
-            green_off = self.add_padding(green_off)
-            self.ser.write(bytes(green_off, encoding='utf-8'))
+        blue_off = message.format(device=Mosfet_devices.BLUE_LED.value, enable=0)
+        blue_off = self.add_padding(blue_off)
+        self.ser.write(bytes(blue_off, encoding='utf-8'))
+        red_off = message.format(device=Mosfet_devices.RED_LED.value, enable=0)
+        red_off = self.add_padding(red_off)
+        self.ser.write(bytes(red_off, encoding='utf-8'))
+        green_off = message.format(device=Mosfet_devices.GREEN_LED.value, enable=0)
+        green_off = self.add_padding(green_off)
+        self.ser.write(bytes(green_off, encoding='utf-8'))
 
         self.previous_auton_msg = struct.nav_state_name
 
