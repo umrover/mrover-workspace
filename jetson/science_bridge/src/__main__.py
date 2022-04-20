@@ -310,7 +310,6 @@ class ScienceBridge():
         time.sleep(1)
         # Green should be in a finished state so no need to turn it off
 
-
     def servo_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo
         struct = ServoCmd.decode(msg)
