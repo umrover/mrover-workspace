@@ -71,8 +71,8 @@ void LCMHandler::InternalHandler::carousel_openloop_cmd(LCM_INPUT, const Carouse
 
 void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
 {
-    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad);
-    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop);
+    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->microscope_triad);
+    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->scoop);
 }
 
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
