@@ -135,9 +135,11 @@ If two devices share the same i2c address but their functions are continuously c
 
 
 ### ToDo
-- [ ] Test limit switch code
-- [ ] Test joint b calibration code
-- [ ] Test IR encoder
+- [x] Test limit switch code for science arm
+- [ ] Test limit switch code for standard robotic arm
+- [X] Test joint b calibration code
+- [ ] Investigate encoder issues
+- [ ] Create new shield next year and make sure correct pins are traced
 
 ### Notes
 

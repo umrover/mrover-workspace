@@ -279,13 +279,13 @@ class ScienceBridge():
 
         # Off = Blue
         if prev == Auton_state.OFF:
-            print("navstatus off")
+            print("navstatus off - blue")
             blue = message.format(device=Mosfet_devices.BLUE_LED.value, enable=1)
             blue = self.add_padding(blue)
             self.ser.write(bytes(blue, encoding='utf-8'))
         # Done = Flashing green
         elif prev == Auton_state.DONE:
-            print("navstatus Done")
+            print("navstatus done - green blink")
             # Flashing by turning on and off for 1 second intervals
 
             NUMBER_OF_LED_BLINKS = 6
@@ -303,7 +303,7 @@ class ScienceBridge():
                 time.sleep(1)
         # Everytime else = Red
         else:
-            print("navstatus else")
+            print("navstatus else - red")
             red = message.format(device=Mosfet_devices.RED_LED.value, enable=1)
             red = self.add_padding(red)
             self.ser.write(bytes(red, encoding='utf-8'))
