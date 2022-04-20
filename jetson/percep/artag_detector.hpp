@@ -39,5 +39,5 @@ public:
     pair<Tag, Tag> findARTags(Mat& src, Mat& depth_src, Mat& rgb);
 
     //if AR tag found, updates distance, bearing, and id
-    void updateDetectedTagInfo(rover_msgs::Target* outArTags, pair<Tag, Tag> const& tagPair, Mat const& depth_img, Mat const& xyz_img) const;
+    void updateDetectedTagInfo(rover_msgs::Target* outTags, pair<Tag, Tag> const& tagPair, Mat const& depth_img, Mat const& xyz_img) const;
 };

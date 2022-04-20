@@ -140,20 +140,20 @@ pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //
 }
 
 /***
- * Calculate value of final messages to broadcast: distance and bearing to targets.
+ * Calculate values of final messages to broadcast: AR tag distances and bearings relative to the rover.
  * We know the pixel positions of the AR tags, use those to retrieve the XYZ values from the point cloud.
  * Note: Output is not filtered whatsoever, do not expect consistent readings.
  *
- * @param outArTags     LCM network message to fill, used mainly by navigation
+ * @param outTags       LCM network message to fill, used mainly by navigation
  * @param tagPair       AR tag pixel positions and IDs
  * @param depth_img     TODO needed?
  * @param xyz_img       Point cloud XYZ data calculated from rectifying both images.
  */
-void TagDetector::updateDetectedTagInfo(rover_msgs::Target* outArTags, pair<Tag, Tag> const& tagPair, Mat const& depth_img, Mat const& xyz_img) const {
+void TagDetector::updateDetectedTagInfo(rover_msgs::Target* outTags, pair<Tag, Tag> const& tagPair, Mat const& depth_img, Mat const& xyz_img) const {
     array<Tag, 2> tags{tagPair.first, tagPair.second};
     for (size_t i = 0; i < 2; ++i) {
         Tag const& tag = tags[i];
-        rover_msgs::Target& outArTag = outArTags[i];
+        rover_msgs::Target& outArTag = outTags[i];
         if (tag.id == DEFAULT_TAG_VAL) {
             // no tag found
             outArTag.distance = DEFAULT_TAG_VAL;
