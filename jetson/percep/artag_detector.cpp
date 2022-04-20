@@ -14,10 +14,8 @@ void onMouse(int event, int x, int y, int flags, void* userdata) {
     }
 }
 
-//initializes detector object with pre-generated dictionary of tags 
+// initializes detector object with pre-generated dictionary of tags
 TagDetector::TagDetector(const rapidjson::Document& mRoverConfig) :
-
-//Populate Constants from Config File
         BUFFER_ITERATIONS{mRoverConfig["ar_tag"]["buffer_iterations"].GetInt()},
         MARKER_BORDER_BITS{mRoverConfig["alvar_params"]["marker_border_bits"].GetInt()},
         DO_CORNER_REFINEMENT{mRoverConfig["alvar_params"]["do_corner_refinement"].GetBool()},
@@ -32,54 +30,62 @@ TagDetector::TagDetector(const rapidjson::Document& mRoverConfig) :
     }
 
     // read dictionary from file
-    int mSize, mCBits;
+    int size, correctionBits;
     cv::Mat bits;
-    fsr["MarkerSize"] >> mSize;
-    fsr["MaxCorrectionBits"] >> mCBits;
+    fsr["MarkerSize"] >> size;
+    fsr["MaxCorrectionBits"] >> correctionBits;
     fsr["ByteList"] >> bits;
     fsr.release();
-    alvarDict = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
+    mAlvarDict = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
 
     // initialize other special parameters that we need to properly detect the URC (Alvar) tags
-    alvarParams = new cv::aruco::DetectorParameters();
-    alvarParams->markerBorderBits = MARKER_BORDER_BITS;
+    mAlvarParams = new cv::aruco::DetectorParameters();
+    mAlvarParams->markerBorderBits = MARKER_BORDER_BITS;
     //alvarParams->doCornerRefinement = DO_CORNER_REFINEMENT;
-    alvarParams->polygonalApproxAccuracyRate = POLYGONAL_APPROX_ACCURACY_RATE;
+    mAlvarParams->polygonalApproxAccuracyRate = POLYGONAL_APPROX_ACCURACY_RATE;
 }
 
+/***
+ * Given the four corners of an AR tag, calculate the center.
+ *
+ * @param corners Corners in camera pixel space of AR tag.
+ * @return        AR tag center in camera pixel space.
+ */
 Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f>& corners) {  //gets coordinate of center of tag
-    // RETURN:
-    // Point2f object containing the average location of the 4 corners
-    // of the passed-in tag
     Point2f avgCoord;
     for (auto& corner: corners) {
         avgCoord.x += corner.x;
         avgCoord.y += corner.y;
     }
-    avgCoord.x /= corners.size();
-    avgCoord.y /= corners.size();
+    avgCoord.x /= static_cast<float>(corners.size());
+    avgCoord.y /= static_cast<float>(corners.size());
     return avgCoord;
 }
 
+/***
+ * Try and detect AR tag markers from a camera frame.
+ *
+ * @param src       Raw camera RGBA data.
+ * @param depth_src Camera depth information, this is the z component of the vector representing the pixel in 3D space.
+ * @param rgb       Camera RGB data.
+ * @return          Pair of target objects, each object has an ID and pixel x and y position for the center of the tag.
+ *                  The leftmost tag is always the first item in the pair,
+ */
 pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
-    // RETURN:
-    // pair of target objects- each object has an x and y for the center,
-    // and the tag ID number return them such that the "leftmost" (x
-    // coordinate) tag is at index 0
     cvtColor(src, rgb, COLOR_RGBA2RGB);
     // clear ids and corners vectors for each detection
-    ids.clear();
-    corners.clear();
+    mIds.clear();
+    mCorners.clear();
 
-    // Find tags
-    cv::aruco::detectMarkers(rgb, alvarDict, corners, ids, alvarParams);
+    // find tags
+    cv::aruco::detectMarkers(rgb, mAlvarDict, mCorners, mIds, mAlvarParams);
 #if AR_RECORD
     cv::aruco::drawDetectedMarkers(rgb, corners, ids);
 #endif
 
 #if PERCEPTION_DEBUG
     // Draw detected tags
-    cv::aruco::drawDetectedMarkers(rgb, corners, ids);
+    cv::aruco::drawDetectedMarkers(rgb, mCorners, mIds);
     cv::imshow("AR Tags", rgb);
 
     // on click debugging for color
@@ -90,25 +96,23 @@ pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //
 
     // create Tag objects for the detected tags and return them
     pair<Tag, Tag> discoveredTags;
-    if (ids.empty()) {
+    if (mIds.empty()) {
         // no tags found, return invalid objects with tag set to -1
         discoveredTags.first.id = DEFAULT_TAG_VAL;
-        discoveredTags.first.loc = Point2f();
         discoveredTags.second.id = DEFAULT_TAG_VAL;
-        discoveredTags.second.loc = Point2f();
-
-    } else if (ids.size() == 1) {  // exactly one tag found
-        discoveredTags.first.id = ids[0];
-        discoveredTags.first.loc = getAverageTagCoordinateFromCorners(corners[0]);
+    } else if (mIds.size() == 1) {
+        // exactly one tag found
+        discoveredTags.first.id = mIds[0];
+        discoveredTags.first.loc = getAverageTagCoordinateFromCorners(mCorners[0]);
         // set second tag to invalid object with tag as -1
         discoveredTags.second.id = DEFAULT_TAG_VAL;
-        discoveredTags.second.loc = Point2f();
-    } else if (ids.size() == 2) {  // exactly two tags found
+    } else if (mIds.size() == 2) {
+        // exactly two tags found
         Tag t0, t1;
-        t0.id = ids[0];
-        t0.loc = getAverageTagCoordinateFromCorners(corners[0]);
-        t1.id = ids[1];
-        t1.loc = getAverageTagCoordinateFromCorners(corners[1]);
+        t0.id = mIds[0];
+        t0.loc = getAverageTagCoordinateFromCorners(mCorners[0]);
+        t1.id = mIds[1];
+        t1.loc = getAverageTagCoordinateFromCorners(mCorners[1]);
         if (t0.loc.x < t1.loc.x) {  //if tag 0 is left of tag 1, put t0 first
             discoveredTags.first = t0;
             discoveredTags.second = t1;
@@ -116,13 +120,14 @@ pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //
             discoveredTags.first = t1;
             discoveredTags.second = t0;
         }
-    } else {  // detected >=3 tags
+    } else {
+        // detected >=3 tags
         // return leftmost and rightmost detected tags to account for potentially seeing 2 of each tag on a post
         Tag t0, t1;
-        t0.id = ids[0];
-        t0.loc = getAverageTagCoordinateFromCorners(corners[0]);
-        t1.id = ids[ids.size() - 1];
-        t1.loc = getAverageTagCoordinateFromCorners(corners[ids.size() - 1]);
+        t0.id = mIds[0];
+        t0.loc = getAverageTagCoordinateFromCorners(mCorners[0]);
+        t1.id = mIds[mIds.size() - 1];
+        t1.loc = getAverageTagCoordinateFromCorners(mCorners[mIds.size() - 1]);
         if (t0.loc.x < t1.loc.x) {  //if tag 0 is left of tag 1, put t0 first
             discoveredTags.first = t0;
             discoveredTags.second = t1;
@@ -134,51 +139,50 @@ pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //
     return discoveredTags;
 }
 
-void TagDetector::updateDetectedTagInfo(rover_msgs::Target* arTags, pair<Tag, Tag>& tagPair, Mat& depth_img, Mat& xyz_img, Mat& src) const {
-    struct tagPairs {
-        vector<int> ids;
-        vector<int> x_pixels;
-        vector<int> y_pixels;
-        vector<int> buf_counts;
-    };
-    tagPairs tags;
-
-    tags.ids.push_back(tagPair.first.id);
-    tags.x_pixels.push_back(static_cast<int>(tagPair.first.loc.x));
-    tags.y_pixels.push_back(static_cast<int>(tagPair.first.loc.y));
-    tags.ids.push_back(tagPair.second.id);
-    tags.x_pixels.push_back(static_cast<int>(tagPair.second.loc.x));
-    tags.y_pixels.push_back(static_cast<int>(tagPair.second.loc.y));
-    tags.buf_counts.push_back(0);
-    tags.buf_counts.push_back(0);
-
-    for (size_t i = 0; i < 2; i++) {
-        if (tags.ids[i] == DEFAULT_TAG_VAL) { // no tag found
-            if (tags.buf_counts[i] <= BUFFER_ITERATIONS) { // send buffered tag until tag is found
-                ++tags.buf_counts[i];
-            } else { // if still no tag found, set all stats to -1
-                arTags[i].distance = DEFAULT_TAG_VAL;
-                arTags[i].bearing = DEFAULT_TAG_VAL;
-                arTags[i].id = DEFAULT_TAG_VAL;
-            }
-        } else { // tag found
-            int y_pixel = tags.y_pixels.at(i);
-            int x_pixel = tags.x_pixels.at(i);
+/***
+ * Calculate value of final messages to broadcast: distance and bearing to targets.
+ * We know the pixel positions of the AR tags, use those to retrieve the XYZ values from the point cloud.
+ * Note: Output is not filtered whatsoever, do not expect consistent readings.
+ *
+ * @param outArTags     LCM network message to fill, used mainly by navigation
+ * @param tagPair       AR tag pixel positions and IDs
+ * @param depth_img     TODO needed?
+ * @param xyz_img       Point cloud XYZ data calculated from rectifying both images.
+ */
+void TagDetector::updateDetectedTagInfo(rover_msgs::Target* outArTags, pair<Tag, Tag> const& tagPair, Mat const& depth_img, Mat const& xyz_img) const {
+    array<Tag, 2> tags{tagPair.first, tagPair.second};
+    for (size_t i = 0; i < 2; ++i) {
+        Tag const& tag = tags[i];
+        rover_msgs::Target& outArTag = outArTags[i];
+        if (tag.id == DEFAULT_TAG_VAL) {
+            // no tag found
+            outArTag.distance = DEFAULT_TAG_VAL;
+            outArTag.bearing = DEFAULT_TAG_VAL;
+            outArTag.id = DEFAULT_TAG_VAL;
+        } else {
+            // tag found
+            int xPixel = static_cast<int>(lround(tag.loc.x));
+            int yPixel = static_cast<int>(lround(tag.loc.y));
+            // +z is forward, +x is right, all in millimeters and relative to camera
             float x, y, z;
             {
-                auto xyz = xyz_img.at<Vec4f>(y_pixel, x_pixel);
+                auto xyz = xyz_img.at<Vec4f>(yPixel, xPixel);
                 x = xyz[0];
                 y = xyz[1];
                 z = xyz[2];
             }
-            auto raw_depth = depth_img.at<float>(y_pixel, x_pixel);
-            if (!isnan(raw_depth)) {
-                arTags[i].distance = sqrt(x * x + y * y + z * z) * static_cast<float>(MM_PER_M);
+            // ensure we have valid values to work with
+            if (isnan(x) || isnan(y) || isnan(z)) {
+                // put no tag found since we cannot find out any information
+                outArTag.distance = DEFAULT_TAG_VAL;
+                outArTag.bearing = DEFAULT_TAG_VAL;
+                outArTag.id = DEFAULT_TAG_VAL;
+            } else {
+                // use Euclidean method to calculate distance, convert to meters
+                outArTag.distance = sqrt(x * x + y * y + z * z) * static_cast<float>(MM_PER_M);
+                outArTag.bearing = atan2(x, z) * 180.0 / PI;
+                outArTag.id = tag.id;
             }
-            // +z is forward, +x is right, all relative to camera
-            arTags[i].bearing = atan2(x, z);
-            arTags[i].id = tags.ids.at(i);
-            tags.buf_counts[i] = 0;
         }
     }
 }

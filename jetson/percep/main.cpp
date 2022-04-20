@@ -127,7 +127,7 @@ int main() {
         cam.record_ar(rgb);
 #endif
 
-        detector.updateDetectedTagInfo(arTags, tagPair, depth_img, xyz_img, src);
+        detector.updateDetectedTagInfo(arTags, tagPair, depth_img, xyz_img);
 
 #if PERCEPTION_DEBUG && AR_DETECTION
         imshow("depth", src);
