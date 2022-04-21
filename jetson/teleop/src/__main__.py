@@ -6,7 +6,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
                         DriveVelCmd, MastGimbalCmd,
                         AutonState, AutonDriveControl,
-
+                        GUICameras,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
                         ArmControlState, WristTurnCount,
@@ -114,6 +114,23 @@ def gimbal_control_callback(channel, msg):
 
     lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
 
+class Camera:
+    def __init__():
+        self.ish_cameras = [-1,-1]
+        self.cameras = [-1,-1]
+
+    def update_ish_cameras(self, channel, msg):
+        ish_message = GUICameras.decode(msg)
+        self.ish_cameras = [ish_msg.port_0, ish_msg.port_1]
+
+    def update_other_cameras(self, channel, msg):
+        other_message = GUICameras.decode(msg)
+        self.cameras = [other_msg.port_0, other_msg.port_1]
+
+    def send_camera_cmd():
+        camera_msg = Cameras()
+
+
 
 class ArmControl:
     class ArmType(Enum):
@@ -214,6 +231,7 @@ class ArmControl:
 def main():
     arm = ArmControl()
     drive = Drive(reverse=False)
+    camera = Camera()
 
     def connection_state_changed(c, _):
         global connection
@@ -240,5 +258,9 @@ def main():
     lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
     lcm_.subscribe('/wrist_turn_count', arm.wrist_turn_count_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
+
+    # Subscribe to updated GUI camera channels
+    lcm_.subscribe('/cameras_control_ish', camera.update_ish_cameras)
+    lcm_.subscribe('/cameras_control', camera.update_other_cameras)
 
     run_coroutines(hb.loop(), lcm_.loop())

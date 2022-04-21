@@ -7,6 +7,7 @@ import AutonTask from '../components/AutonTask.vue'
 import PidTune from '../components/PidTune.vue'
 import LCMEcho from '../components/LCMEcho.vue'
 import SATask from '../components/SATask.vue'
+import ISHTask from '../components/ISHTask.vue'
 import LCMSend from '../components/LCMSend.vue'
 
 Vue.use(Router)
@@ -42,6 +43,11 @@ export default new Router({
       path: '/SATask',
       name: 'SATask',
       component: SATask
+    },
+    {
+      path: '/ISHTask',
+      name: 'ISHTask',
+      component: ISHTask
     },
     {
       path: '/AutonTask',

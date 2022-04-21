@@ -50,13 +50,6 @@
       window.clearInterval(interval);
     },
 
-    props: {
-      cameraChannel: {
-        type: String,
-        required: true
-      }
-    },
-
     created: function () {
       const JOYSTICK_CONFIG = {
         'down_left_button': 6,
@@ -139,7 +132,7 @@
       },
 
       sendCameras: function() {
-        this.$parent.publish("/cameras_cmd", {
+        this.$parent.publish("/cameras_control_ish", {
           'type': 'Cameras',
           'port_0': this.cam_index_1,
           'port_1': this.cam_index_2,

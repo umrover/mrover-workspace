@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="box header">
       <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
-      <h1>Sample Acquisition Dashboard</h1>
+      <h1>ISH Dashboard</h1>
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
@@ -12,23 +12,27 @@
       </div>
     </div>
 
+    <div class="box raman light-bg">
+      <Raman v-bind:mosfetIDs="mosfetIDs"/>
+    </div>
     <div class="box cameras light-bg">
       <Cameras/>
     </div>
-    <div class="box drivecontrols light-bg">
-      <DriveControls/>
+    <div class="box spectralTriad light-bg">
+      <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
     </div>
-    <div class="box drivedata light-bg">
-      <DriveVelDataH/>
+    <div class = "box light-bg chlorophyll">
+      <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/> 
+      <GenerateReport v-bind:spectral_data="spectral_data"/>
     </div>
-    <div class="box scoopUV light-bg">
-      <ScoopUV v-bind:mosfetIDs="mosfetIDs"/>
+    <div class="box striptest light-bg">
+      <StripTest/>
     </div>
-    <div class="box SAArm light-bg">
-      <SAArm/>
+    <div class="box amino light-bg">
+      <Amino v-bind:mosfetIDs="mosfetIDs"/>
     </div>
-    <div class="box PDBFuse light-bg">
-      <PDBFuse/>
+    <div class="box carousel light-bg">
+      <Carousel/>
     </div>
   </div>
 </template>
@@ -36,12 +40,14 @@
 <script>
 import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
-import DriveControls from './DriveControls.vue'
+import Raman from './Raman.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
-import DriveVelDataH from './DriveVelDataH.vue'
-import ScoopUV from './ScoopUV.vue'
-import SAArm from './SAArm.vue'
-import PDBFuse from './PDBFuse.vue'
+import SpectralData from './SpectralData.vue'
+import Chlorophyll from './Chlorophyll.vue'
+import StripTest from './StripTest.vue'
+import Amino from './Amino.vue'
+import GenerateReport from './GenerateReport.vue'
+import Carousel from './Carousel.vue'
 
 let interval;
 
@@ -56,6 +62,46 @@ export default {
         lcm: false
       },
 
+      spectral_data: {
+          d0_1:0,
+          d0_2:0,
+          d0_3:0,
+          d0_4:0,
+          d0_5:0,
+          d0_6:0,
+          d1_1:0,
+          d1_2:0,
+          d1_3:0,
+          d1_4:0,
+          d1_5:0,
+          d1_6:0,
+          d2_1:0,
+          d2_2:0,
+          d2_3:0,
+          d2_4:0,
+          d2_5:0,
+          d2_6:0
+      },
+      spectral_triad_data: {
+          d0_1:0,
+          d0_2:0,
+          d0_3:0,
+          d0_4:0,
+          d0_5:0,
+          d0_6:0,
+          d1_1:0,
+          d1_2:0,
+          d1_3:0,
+          d1_4:0,
+          d1_5:0,
+          d1_6:0,
+          d2_1:0,
+          d2_2:0,
+          d2_3:0,
+          d2_4:0,
+          d2_5:0,
+          d2_6:0
+      },
       mosfetIDs: {
         red_led: 0,
         green_led: 1,
@@ -101,7 +147,13 @@ export default {
       },
       // Subscribed LCM message received
       (msg) => {
-        if (msg.topic === '/debugMessage') {
+        if (msg.topic ==='/spectral_data'){
+          this.spectral_data = msg.message
+        } else if (msg.topic ==='/spectral_triad_data'){
+          this.spectral_triad_data = msg.message
+        } else if (msg.topic ==='/thermistor_data'){
+          this.thermistor_data = msg.message
+        } else if (msg.topic === '/debugMessage') {
           if (msg['message']['isError']) {
             console.error(msg['message']['message'])
           } else {
@@ -113,15 +165,13 @@ export default {
       [
         {'topic': '/test_enable', 'type': 'TestEnable'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/spectral_data', 'type': 'SpectralData'},
+        {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
+        {'topic': '/thermistor_data', 'type': 'ThermistorData'},
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
-        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
-        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/sa_position', 'type': 'SAPosition'},
-        {'topic': '/sa_offset_pos', 'type': 'SAPosition'},
-        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
-        {'topic': '/pdb_data', 'type': 'PDBData'},
-        {'topic': '/fuse_data', 'type': 'FuseData'},
-        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'}
+        {'topic': '/carousel_data', 'type': 'CarouselPosition'},
+        {'topic': '/heater_state_data', 'type': 'Heater'},
+        {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
       ]
     )
   },
@@ -129,11 +179,13 @@ export default {
   components: {
     Cameras,
     CommIndicator,
-    DriveControls,
-    DriveVelDataH,
-    ScoopUV,
-    SAArm,
-    PDBFuse
+    Raman,
+    SpectralData,
+    Chlorophyll,
+    StripTest,
+    Amino,
+    GenerateReport,
+    Carousel
   }
 }
 </script>
@@ -143,13 +195,12 @@ export default {
     .wrapper {
         display: grid;
         grid-gap: 10px;
-        grid-template-columns: auto auto;
-        grid-template-rows: 60px auto auto auto auto;
-        grid-template-areas: "header header" 
-                             "cameras drivecontrols" 
-                             "cameras scoopUV" 
-                             "SAArm PDBFuse"
-                             "drivedata PDBFuse";
+        grid-template-columns: auto auto auto;
+        grid-template-rows: 60px auto auto auto;
+        grid-template-areas: "header header header" 
+                             "cameras cameras carousel" 
+                             "chlorophyll raman amino"
+                             "chlorophyll striptest spectralTriad";
         font-family: sans-serif;
         height: auto;
     }
@@ -174,6 +225,7 @@ export default {
         display: flex;
         align-items: center;
     }
+    
         .header h1 {
             margin-left: 5px;
         }
@@ -189,28 +241,33 @@ export default {
             margin-bottom: 2px;
         }
 
-    .drivedata {
-      grid-area: drivedata;
+    .raman {
+        grid-area: raman;
+        font-size: 1em;
+    }
+
+    .amino{
+      grid-area: amino;
+    } 
+
+    .striptest{
+      grid-area: striptest;
+    }
+    
+    .chlorophyll{
+      grid-area: chlorophyll;
     }
 
     .cameras {
       grid-area: cameras;
     }
 
-    .drivecontrols {
-      grid-area: drivecontrols;
+    .spectralTriad {
+      grid-area: spectralTriad;
     }
 
-    .scoopUV {
-      grid-area: scoopUV;
-    }
-
-    .SAArm {
-      grid-area: SAArm;
-    }
-
-    .PDBFuse {
-      grid-area: PDBFuse;
+    .carousel {
+      grid-area: carousel;
     }
 
     ul#vitals li {
