@@ -8,7 +8,6 @@
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="connections.motors && connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
@@ -47,6 +46,7 @@
     <div class="box angles light-bg">
     </div>
   </div>
+
 </template>
 
 <script>
@@ -79,11 +79,6 @@ export default {
     return {
       lcm_: null,
 
-      lastServosMessage: {
-        pan: 0,
-        tilt: 0
-      },
-
       odom: {
         latitude_deg: 0,
         latitude_min: 0,
@@ -95,9 +90,7 @@ export default {
 
       connections: {
         websocket: false,
-        lcm: false,
-        motors: false,
-        cameras: [false, false, false, false, false, false, false, false]
+        lcm: false
       },
 
       nav_status: {
@@ -115,6 +108,17 @@ export default {
         longitude_min: -47.51724,
         bearing_deg: 0,
         speed: 0
+      },
+     
+      Obstacle: {
+	      detected: false,
+	      bearing: 0,
+        distance: 0
+      },
+
+      TargetList: {
+        targetList: [{bearing: 0, distance: 0, id: 0},
+        {bearing: 0, distance: 0, id: 0}]
       },
 
       TargetBearing: {
@@ -157,9 +161,6 @@ export default {
         bearing_deg: 0
       },
       
-      RadioSignalStrength: {
-        signal_strength: '0'
-      },
     }
   },
 
@@ -219,8 +220,7 @@ export default {
       },
       // Update connection states
       (online) => {
-        this.connections.lcm = online[0],
-        this.connections.cameras = online.slice(1)
+        this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
       (msg) => {
@@ -269,52 +269,9 @@ export default {
         {'topic': '/radio', 'type': 'RadioSignalStrength'},
         {'topic': '/target_list', 'type': 'TargetList'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
-        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/projected_points', 'type': 'ProjectedPoints'},
-        {'topic': '/target_bearing', 'type': 'TargetBearing'},
-        {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
       ]
     )
-
-    const servosMessage = {
-      'type': 'CameraServos',
-      'pan': 0,
-      'tilt': 0
-    }
-
-    const JOYSTICK_CONFIG = {
-      'forward_back': 1,
-      'left_right': 2,
-      'dampen': 3,
-      'kill': 4,
-      'restart': 5,
-      'pan': 4,
-      'tilt': 5
-    }
-
-    window.setInterval(() => {
-      const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 2; i++) {
-        const gamepad = gamepads[i]
-        if (gamepad) {
-          if (gamepad.id.includes('Logitech')) {
-            const servosSpeed = 0.8
-            servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG['pan']] * servosSpeed / 10
-            servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG['tilt']] * servosSpeed / 10
-          }
-        }
-      }
-
-      const clamp = function (num, min, max) {
-        return num <= min ? min : num >= max ? max : num
-      }
-
-      servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
-      servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
-      this.lastServosMessage = servosMessage
-
-      this.lcm_.publish('/camera_servos', servosMessage)
-    }, 100)
   },
 
   components: {

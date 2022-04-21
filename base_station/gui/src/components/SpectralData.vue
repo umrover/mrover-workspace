@@ -1,7 +1,7 @@
 <template>
 <div>
     <div>
-        <h4> Spectral Data </h4>
+        <h3> End Effector Spectral Triad Data </h3>
     </div>
   <table class="tableFormat" style="undefined;table-layout: fixed; width: 434px">
   <colgroup>
@@ -28,49 +28,41 @@
   <tbody>
     <tr>
       <td class = "tableElement">Spec 0</td>
-      <td class = "tableElement">{{spectral_data.d0_1}}</td>
-      <td class = "tableElement">{{spectral_data.d0_2}}</td>
-      <td class = "tableElement">{{spectral_data.d0_3}}</td>
-      <td class = "tableElement">{{spectral_data.d0_4}}</td>
-      <td class = "tableElement">{{spectral_data.d0_5}}</td>
-      <td class = "tableElement">{{spectral_data.d0_6}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d0_1}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d0_2}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d0_3}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d0_4}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d0_5}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d0_6}}</td>
     </tr>
     <tr>
       <td class = "tableElement">Spec 1</td>
-      <td class = "tableElement">{{spectral_data.d1_1}}</td>
-      <td class = "tableElement">{{spectral_data.d1_2}}</td>
-      <td class = "tableElement">{{spectral_data.d1_3}}</td>
-      <td class = "tableElement">{{spectral_data.d1_4}}</td>
-      <td class = "tableElement">{{spectral_data.d1_5}}</td>
-      <td class = "tableElement">{{spectral_data.d1_6}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d1_1}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d1_2}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d1_3}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d1_4}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d1_5}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d1_6}}</td>
     </tr>
     <tr>
       <td class = "tableElement">Spec 2</td>
-      <td class = "tableElement">{{spectral_data.d2_1}}</td>
-      <td class = "tableElement">{{spectral_data.d2_2}}</td>
-      <td class = "tableElement">{{spectral_data.d2_3}}</td>
-      <td class = "tableElement">{{spectral_data.d2_4}}</td>
-      <td class = "tableElement">{{spectral_data.d2_5}}</td>
-      <td class = "tableElement">{{spectral_data.d2_6}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d2_1}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d2_2}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d2_3}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d2_4}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d2_5}}</td>
+      <td class = "tableElement">{{spectral_triad_data.d2_6}}</td>
     </tr>
   </tbody>
   </table>
+  <br>
+  <div class="report">
+    <GenerateTriadReport v-bind:spectral_triad_data="spectral_triad_data"/>
+  </div>
 </div>
 </template>
 
 <style scoped>
-  .wrap {
-    display: inline-block;
-    align-content: center;
-    /* height: 300px; */
-  }
-  .box {
-    /*border-radius: 5px;
-    padding: 10px;*/
-    border: 1px solid black;
-    text-align: right;
-    vertical-align: top;
-  }
   .tableFormat{
     border-collapse:collapse;
     border-spacing:0;
@@ -99,15 +91,27 @@
     text-align:center;
     vertical-align:top
   }
+
+  .report {
+    height: 7vh;
+    align-items: center;
+  }
 </style>
 
 <script>
+import GenerateTriadReport from './GenerateTriadReport.vue';
+
 export default {
   props: {
-    spectral_data: {
+    spectral_triad_data: {
       type: Object,
       required: true
-    },
+    }
+  },
+
+  components: {
+    GenerateTriadReport
   }
+
 }
 </script>
