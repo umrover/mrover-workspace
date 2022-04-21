@@ -7,6 +7,7 @@
 
 #include "rover.hpp"
 #include "filter.hpp"
+#include "cache.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/TargetList.hpp"
 
@@ -15,25 +16,25 @@ using namespace rover_msgs;
 
 class Rover;
 
+/***
+ * Environment holds information about the tags and posts.
+ * It holds a cache to filter out invalid readings.
+ * It holds a filter to better estimate the gate positions.
+ */
 class Environment {
 private:
     Obstacle mObstacle{0.0, 0.0, -1.0};
 
-    // The rover's current target information from computer
-    // vision.
-    Target mTargetLeft{-1.0, 0.0, -1};
-    Target mTargetRight{-1.0, 0.0, -1};
-
     // Reference to config variables
     const rapidjson::Document& mConfig;
 
-    Filter<double> mLeftBearingFilter, mRightBearingFilter, mLeftDistanceFilter, mRightDistanceFilter;
+    Cache<Target> mTargetLeft, mTargetRight;
 
-    Odometry mPostOne{}, mPostTwo{};
+    Filter<double> mPostOneLat, mPostOneLong, mPostTwoLat, mPostTwoLong;
 
-    bool mHasPostOne = false, mHasPostTwo = false;
+    bool mHasNewPostUpdate = false;
 
-    int baseGateID;
+    int mBaseGateId{};
 
 public:
     explicit Environment(const rapidjson::Document& config);
@@ -42,25 +43,25 @@ public:
 
     void setObstacle(Obstacle const& obstacle);
 
-    void setBaseGateID(int b);
-
-    int getBaseGateID();
-
-    Target getLeftTarget();
-
-    Target getRightTarget();
-
-    Odometry getPostOneLocation();
-
-    Odometry getPostTwoLocation();
-
-    Vector2d getPostOneOffsetInCartesian(Odometry cur);
-
-    Vector2d getPostTwoOffsetInCartesian(Odometry cur);
+    void setBaseGateID(int baseGateId);
 
     void setTargets(TargetList const& targets);
 
-    void updateTargets(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course);
+    void updatePost(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course);
+
+    [[nodiscard]] Target getLeftTarget() const;
+
+    [[nodiscard]] Target getRightTarget() const;
+
+    [[nodiscard]] Odometry getPostOneLocation() const;
+
+    [[nodiscard]] Odometry getPostTwoLocation() const;
+
+    [[nodiscard]] Vector2d getPostOneOffsetInCartesian(Odometry cur) const;
+
+    [[nodiscard]] Vector2d getPostTwoOffsetInCartesian(Odometry cur) const;
+
+    [[nodiscard]] bool hasNewPostUpdate() const;
 
     [[nodiscard]] bool hasGateLocation() const;
 
@@ -68,11 +69,5 @@ public:
 
     [[nodiscard]] bool hasPostTwoLocation() const;
 
-    [[nodiscard]] bool areTargetFiltersReady() const;
-
-    [[nodiscard]] bool isLeftTargetFilterReady() const;
-
-    [[nodiscard]] bool isRightTargetFilterReady() const;
-
-    std::optional<Target> tryGetTargetWithId(int32_t id);
+    [[nodiscard]] std::optional<Target> tryGetTargetWithId(int32_t id) const;
 };

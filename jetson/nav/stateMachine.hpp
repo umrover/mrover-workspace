@@ -32,8 +32,6 @@ public:
 
     void run();
 
-    void updateObstacleElements(double leftBearing, double rightBearing, double distance);
-
     void updateObstacleDistance(double distance);
 
     void setSearcher(SearchType type);
@@ -49,8 +47,6 @@ public:
     lcm::LCM& getLCM();
 
     double getDtSeconds();
-
-    void publishProjectedPoints(std::deque<Odometry> path, std::string pathType);
 
     /*************************************************************************/
     /* Public Member Variables */

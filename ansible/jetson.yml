@@ -12,3 +12,11 @@
   - jetson_dev
   - jetson_networks
   - jetson_services
+  tasks:
+  - name: Give {{ running_user }} all port permissions
+    shell: | 
+            usermod -a -G tty {{ running_user }} 
+            usermod -a -G dialout {{ running_user }}
+            systemctl disable nvgetty.service
+  - name: Reboot
+    command: reboot

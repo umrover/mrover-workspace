@@ -1,0 +1,70 @@
+THREE.TetheredControls = function( object, targetObj, domElement ) {
+	
+	var self = this;
+	
+	THREE.OrbitControls.call(this, object, domElement);
+	
+	// need to do this since OrbitControls hard-codes methods into constructor... ugh
+	this._super_update = this.update;
+	this._super_rotateLeft = this.rotateLeft;
+	this._super_rotateUp = this.rotateUp;
+	this._super_panLeft = this.panLeft;
+	this._super_panUp = this.panUp;
+	this._super_dollyIn = this.dollyIn;
+	this._super_dollyOut = this.dollyOut;
+	
+	this.targetObj = targetObj;
+	this.target = targetObj.position;
+	this.leash = new THREE.Vector3();
+	
+	this.updateTether();
+	
+	/* Method overrides */
+	var doUpdateTether = false;
+	
+	this.update = function() {
+		this.tetherTo();
+		this._super_update();
+		
+		if(doUpdateTether) {
+			this.updateTether();
+			doUpdateTether = false;
+		}
+	};
+	this.rotateLeft = function( angle ) {
+		doUpdateTether = true;
+		this._super_rotateLeft( angle );
+	};
+	this.rotateUp = function( angle ) {
+		doUpdateTether = true;
+		this._super_rotateUp( angle );
+	};
+	this.panLeft = function( dist ) {
+		doUpdateTether = true;
+		this._super_panLeft( dist );
+	};
+	this.panUp = function( dist ) {
+		doUpdateTether = true;
+		this._super_panUp( dist );
+	};
+	this.dollyIn = function( dollyScale ) {
+		doUpdateTether = true;
+		this._super_dollyIn( dollyScale );
+	};
+	this.dollyOut = function( dollyScale ) {
+		doUpdateTether = true;
+		this._super_dollyOut( dollyScale );
+	};
+	
+};
+
+// inherit all functions.
+THREE.TetheredControls.prototype = Object.create( THREE.OrbitControls.prototype );
+
+THREE.TetheredControls.prototype.tetherTo = function() {
+	this.object.position.copy( this.leash.clone().add( this.target ) );
+};
+
+THREE.TetheredControls.prototype.updateTether = function() {
+	this.leash.copy( this.object.position.clone().sub( this.target ) );
+};

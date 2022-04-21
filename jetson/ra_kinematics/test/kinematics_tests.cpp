@@ -58,7 +58,7 @@ bool vec3dAlmostEqual(Vector3d a, Vector3d b, double epsilon) {
 
 TEST(kinematics_initialization) {
     std::cout << std::setprecision(8);
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false)); // Using RA, not SA 
     ArmState arm = ArmState(geom);
     KinematicsSolver solver();
 }
@@ -66,7 +66,7 @@ TEST(kinematics_initialization) {
 TEST(fk_test) {
     std::cout << std::setprecision(8);
     // Create the arm to be tested on:
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -140,7 +140,7 @@ TEST(fk_test) {
     Vector3d joint_c(-0.0584,     0.33986104,  0.52210772);
     Vector3d joint_d(-0.102723,   0.31556032,  0.57520578);
     Vector3d joint_e(-0.0443284,  0.13792929,  0.96333666);
-    Vector3d joint_f(-0.0236782,  0.0953546,   1.1250297);
+    Vector3d joint_f(-0.02299899,  0.069306726,   1.1132747);
     
     ASSERT_TRUE(vec3dAlmostEqual(joint_a, arm.get_joint_pos_world(0), epsilon));
     ASSERT_TRUE(vec3dAlmostEqual(joint_b, arm.get_joint_pos_world(1), epsilon));
@@ -151,9 +151,23 @@ TEST(fk_test) {
     // FK working , yay!!!
 }
 
+TEST(is_safe_test) {
+    // Create the arm to be tested on:
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
+    ArmState arm = ArmState(geom);
+    KinematicsSolver solver = KinematicsSolver();
+
+    std::string presets_file = "/vagrant/base_station/kineval_stencil/dist/mrover_arm_presets.json";
+
+    json presets = read_json_from_file(presets_file);
+    for (json::iterator it = presets.begin(); it != presets.end(); it++) {
+        ASSERT_TRUE(solver.is_safe(arm, it.value()));
+    }
+}
+
 TEST(ik_test1) {
-    // std::cout << std::setprecision(8);
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    // cout << setprecision(8);
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
     // Create target point vector:
@@ -179,17 +193,16 @@ TEST(ik_test1) {
 
 TEST(ik_test2) {
     std::cout << std::setprecision(9);
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
     // Create target point vector:
     Vector6d target;
-    target << 0.242980428, -0.0244739898, 0.117660569, -0.426478891, 0.839306191, -1.09910019;
-    //solver.FK(arm);
+    target << 0.26, -0.38, 0.55, 0.3876, 1.209, -0.857;
 
     bool success = false;
-    for (size_t i = 0; i < 10; ++i) {
+    for (size_t i = 0; i < 50; ++i) {
         if (solver.IK(arm, target, true, false).second) {
             success = true;
             break;
@@ -200,18 +213,16 @@ TEST(ik_test2) {
 }
 
 TEST(ik_test3) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
     // Create target point vector:
     Vector6d target;
-    //target << 0.242980428, -0.0244739898, 0.117660569, -0.426478891, 0.839306191, -1.09910019;
     target << 0.542980428, 0.1244739898, 0.017660569, -0.426478891, 0.839306191, -1.09910019;
-    //solver.FK(arm);
 
     bool success = false;
-    for (size_t i = 0; i < 10; ++i) {
+    for (size_t i = 0; i < 50; ++i) {
         if (solver.IK(arm, target, true, false).second) {
             success = true;
             break;
@@ -222,7 +233,7 @@ TEST(ik_test3) {
 }
 
 TEST(ik_test4) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -230,10 +241,9 @@ TEST(ik_test4) {
     Vector6d target;
     target << 0.016696540990824446, -0.303096070950721, -0.21998941217186194,
             -2.35009466480546, 0.4985607719497288, -2.8692554925434313;
-    //solver.FK(arm);
 
     bool success = false;
-    for (size_t i = 0; i < 10; ++i) {
+    for (size_t i = 0; i < 50; ++i) {
         if (solver.IK(arm, target, true, false).second) {
             success = true;
             break;
@@ -243,23 +253,23 @@ TEST(ik_test4) {
     ASSERT_TRUE(success);
 }
 
-TEST(ik_test_short) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+TEST(ik_test5) {
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
-    arm.set_joint_angles({0, 1, -1, 0, 0, 0});
+    arm.set_joint_angles({0, 1, 0.5, 0, 0, 0});
     solver.FK(arm);
     std::cout << "ef_pos after FK:\n";
     std::cout << arm.get_ef_pos_world() << "\n";
 
     // Create target point vector:
     Vector6d target;
-    target << 0, 0.95, 0.35, 0.0, 0.0, 0.0;
+    target << -0.18, 0, 0.79, 0.3876, 1.209, -0.857;
 
     bool success = false;
-    for (size_t i = 0; i < 1; ++i) {
-        if (solver.IK(arm, target, false, false).second) {
+    for (size_t i = 0; i < 50; ++i) {
+        if (solver.IK(arm, target, true, false).second) {
             success = true;
             break;
         } 
@@ -269,7 +279,7 @@ TEST(ik_test_short) {
 }
 
 TEST(ik_local_min) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -282,7 +292,7 @@ TEST(ik_local_min) {
     Vector6d target;
     target << 38, 400, 14, 0.0, 0.0, 0.0;
 
-    solver.IK(arm, target, false, false);
+    solver.IK(arm, target, true, false);
 
     std::cout << "num iterations: " << solver.get_num_iterations() << "\n";
     ASSERT_FALSE(solver.get_num_iterations() > 500);
@@ -290,36 +300,31 @@ TEST(ik_local_min) {
 
 // Test that IK respects the locking of joints
 TEST(ik_test_lock) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
-    // Starting angles.
     std::vector<double> start = {0, 1, -1, 0, 0, 0};
-
-    // Angles to find a target position.
-    std::vector<double> target = {0.1, 0.9, -1.1, 0.1, -0.1, 0};
-
-    ASSERT_TRUE(solver.is_safe(arm, start));
-    ASSERT_TRUE(solver.is_safe(arm, target));
-
-    // Generate the target position.
-    arm.set_joint_angles(target);
+    arm.set_joint_angles(start);
     solver.FK(arm);
-
-    Vector6d target_pos;
-    target_pos.head(3) = arm.get_ef_pos_world();
-    target_pos.tail(3) = arm.get_ef_ang_world();
+    ASSERT_TRUE(solver.is_safe(arm, start));
 
     // Lock joint c
     arm.set_joint_locked(2, true);
 
-    // Reset arm to starting position.
-    arm.set_joint_angles(start);
-    solver.FK(arm);
+    // Create target point vectpr:
+    Vector6d target_pos;
+    target_pos << -0.66, 0.38, 0.61, 0.3876, 1.209, -0.857;
 
     // Run IK
-    std::pair<Vector6d, bool> result = solver.IK(arm, target_pos, false, false);
+    std::pair<std::vector<double>, bool> result;
+
+    for (size_t i = 0; i < 50; ++i) {
+        result = solver.IK(arm, target_pos, true, false);
+        if (result.second) {
+            break;
+        }
+    }
 
     // Check that joint c did not move from the start position.
     ASSERT_ALMOST_EQUAL(-1, result.first[2], 0.0000001);
@@ -328,9 +333,8 @@ TEST(ik_test_lock) {
     ASSERT_TRUE(result.second);
 }
 
-// Test that IK respects the locking of joints
 TEST(ik_test_orientation_experiment) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
     ArmState arm = ArmState(geom);
     KinematicsSolver solver = KinematicsSolver();
 
@@ -356,7 +360,7 @@ TEST(ik_test_orientation_experiment) {
     solver.FK(arm);
 
     // Run IK
-    std::pair<Vector6d, bool> result = solver.IK(arm, target_pos, false, true);
+    std::pair<std::vector<double>, bool> result = solver.IK(arm, target_pos, false, true);
 
     // Check that IK found a solution.
     ASSERT_TRUE(result.second);

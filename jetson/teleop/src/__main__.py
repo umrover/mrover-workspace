@@ -9,7 +9,7 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
 
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
-                        ArmControlState, WristTurnCount,
+                        ArmControlState,
                         ReverseDrive)
 
 
@@ -123,7 +123,6 @@ class ArmControl:
 
     def __init__(self):
         self.arm_control_state = "off"
-        self.wrist_turn_count = 0
         self.arm_type = self.ArmType.UNKNOWN
 
     def arm_control_state_callback(self, channel, msg):
@@ -144,12 +143,6 @@ class ArmControl:
                         quadratic(xboxData.right_trigger - xboxData.left_trigger),
                         (xboxData.right_bumper - xboxData.left_bumper)]
 
-        # TODO: test open loop, might have to switch these
-        if (self.wrist_turn_count <= -2 and motor_speeds[5] < 0):
-            motor_speeds[5] = 0
-        if (self.wrist_turn_count >= 2 and motor_speeds[5] > 0):
-            motor_speeds[5] = 0
-
         openloop_msg = RAOpenLoopCmd()
         openloop_msg.throttle = motor_speeds
 
@@ -161,9 +154,6 @@ class ArmControl:
 
         lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
-    def wrist_turn_count_callback(self, channel, msg):
-        self.wrist_turn_count = WristTurnCount.decode(msg).turn_count - 2
-
     def sa_control_callback(self, channel, msg):
         self.arm_type = self.ArmType.SA
         xboxData = Xbox.decode(msg)
@@ -171,7 +161,6 @@ class ArmControl:
         saMotorsData = [quadratic(deadzone(xboxData.left_js_x, 0.15)),
                         quadratic(-deadzone(xboxData.left_js_y, 0.15)),
                         quadratic(-deadzone(xboxData.right_js_y, 0.15)),
-                        -deadzone(quadratic(xboxData.right_js_y), 0.09),
                         quadratic(xboxData.right_trigger - xboxData.left_trigger)]
 
         openloop_msg = SAOpenLoopCmd()
@@ -211,6 +200,9 @@ class ArmControl:
         foot_msg.microscope_triad = 0
         lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
+    lcm_.subscribe('/ra_control', arm.ra_control_callback)
+    lcm_.subscribe('/sa_control', arm.sa_control_callback)
+    lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
 
 def main():
     arm = ArmControl()
@@ -238,9 +230,7 @@ def main():
 
     lcm_.subscribe('/ra_control', arm.ra_control_callback)
     lcm_.subscribe('/sa_control', arm.sa_control_callback)
-    lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
-    lcm_.subscribe('/wrist_turn_count', arm.wrist_turn_count_callback)
+    lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
     run_coroutines(hb.loop(), lcm_.loop())
-    

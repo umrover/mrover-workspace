@@ -162,7 +162,7 @@ class SensorFusion:
 
     def _driveVelDataCallback(self, channel, msg):
         drive_vel_data = DriveVelData.decode(msg)
-        self.encoder_velocities[drive_vel_data.axis] = drive_vel_data.vel_percent
+        self.encoder_velocities[drive_vel_data.axis] = drive_vel_data.vel_m_s
 
     def _constructFilter(self):
         '''

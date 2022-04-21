@@ -145,8 +145,8 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
-    grid-template-rows: 60px 20px;
-    grid-template-areas: "header" "servos";
+    grid-template-rows: 60px;
+    grid-template-areas: "header";
     font-family: sans-serif;
     height: 100%;
   }
@@ -171,11 +171,6 @@
   img {
     border: none;
     border-radius: 0px;
-  }
-
-  .servos {
-    grid-area: servos;
-    margin: auto;
   }
 
   .header {
