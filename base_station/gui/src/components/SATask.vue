@@ -8,7 +8,7 @@
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="connections.motors && connections.lcm" name="Driving" /></li>
+          <li><CommIndicator v-bind:connected="connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
@@ -148,17 +148,14 @@ export default {
           d2_6:0
       },
       mosfetIDs: {
-        rLed: 0,
-        gLed: 1,
-        bLed: 2,
-        Laser: 3,
-        UVLED: 4,
-        whiteLED: 5,
-        uvBulb: 6,
-        nichWire0: 7,
-        nichWire1: 8,
-        nichWire2: 9,
-        ramanLaser: 10
+        red_led: 0,
+        green_led: 1,
+        blue_led: 2,
+        ra_laser: 3,
+        uv_led: 4,
+        white_led: 5,
+        uv_bulb: 6,
+        raman_laser: 7
       }
 
 }
@@ -204,8 +201,6 @@ export default {
           this.spectral_triad_data = msg.message
         } else if (msg.topic ==='/thermistor_data'){
           this.thermistor_data = msg.message
-        } else if (msg.topic === '/kill_switch') {
-          this.connections.motors = !msg.message.killed
         } else if (msg.topic === '/debugMessage') {
           if (msg['message']['isError']) {
             console.error(msg['message']['message'])
@@ -217,11 +212,6 @@ export default {
       // Subscriptions
       [
         {'topic': '/odometry', 'type': 'Odometry'},
-        {'topic': '/sensors', 'type': 'Sensors'},
-        {'topic': '/temperature', 'type': 'Temperature'},
-        {'topic': '/kill_switch', 'type': 'KillSwitch'},
-        {'topic': '/camera_servos', 'type': 'CameraServos'},
-        {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/sa_motors', 'type': 'SAMotors'},
         {'topic': '/test_enable', 'type': 'TestEnable'},
@@ -232,8 +222,9 @@ export default {
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/carousel_data', 'type': 'CarouselData'},
+        {'topic': '/carousel_data', 'type': 'CarouselPosition'},
         {'topic': '/sa_position', 'type': 'SAPosition'},
+        {'topic': '/sa_offset_pos', 'type': 'SAPosition'},
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/heater_state_data', 'type': 'Heater'},
         {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
@@ -271,16 +262,6 @@ export default {
           }
         }
       }
-
-      const clamp = function (num, min, max) {
-        return num <= min ? min : num >= max ? max : num
-      }
-
-      servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
-      servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
-      this.lastServosMessage = servosMessage
-
-      this.lcm_.publish('/camera_servos', servosMessage)
     }, 100)
   },
 

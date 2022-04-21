@@ -20,7 +20,6 @@
         <MenuButton link="#/LcmEcho" name="LCM Echo" />
         <MenuButton link="#/LcmSend" name="LCM Send" />
         <MenuButton link="#/PidTune" name="PID Tuning" />
-        <MenuButton link="#/EscTest" name="ESC Testing" />
       </fieldset>
     </div>
   </div>

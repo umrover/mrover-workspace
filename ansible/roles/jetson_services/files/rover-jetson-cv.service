@@ -1,5 +1,5 @@
 [Unit]
-Description=MRover Onboard Computer Vision
+Description=MRover Jetson Computer Vision
 
 [Service]
 EnvironmentFile=/etc/default/rover.env

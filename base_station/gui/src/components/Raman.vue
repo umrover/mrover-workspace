@@ -2,13 +2,13 @@
   <div class="odom-wrap">
     <h3> Raman laser </h3>
     <div class="sacontrols buttons">
-      <label for="toggle_button" :class="{'active': ramanLaser == 1}" class="toggle__button">
-        <span v-if="ramanLaser == 1" class="toggle__label" >Raman Laser On</span>
-        <span v-if="ramanLaser == 0" class="toggle__label" >Raman Laser Off</span>
+      <label for="toggle_button" :class="{'active': raman_laser == 1}" class="toggle__button">
+        <span v-if="raman_laser == 1" class="toggle__label" >Raman Laser On</span>
+        <span v-if="raman_laser == 0" class="toggle__label" >Raman Laser Off</span>
 
         <input type="checkbox" id="toggle_button">
-          <span class="toggle__switch" v-if="ramanLaser == 0" v-on:click="ramanLaser=1, setPart(mosfetIDs.ramanLaser, true)"></span>
-          <span class="toggle__switch" v-if="ramanLaser == 1" v-on:click="ramanLaser=0, setPart(mosfetIDs.ramanLaser, false)"></span>
+          <span class="toggle__switch" v-if="raman_laser == 0" v-on:click="raman_laser=1, setPart(mosfetIDs.raman_laser, true)"></span>
+          <span class="toggle__switch" v-if="raman_laser == 1" v-on:click="raman_laser=0, setPart(mosfetIDs.raman_laser, false)"></span>
       </label>
     </div>
   </div>
@@ -19,7 +19,7 @@
 export default {
   data () {
     return {
-      ramanLaser: 0
+      raman_laser: 0
     }
   },
   props: {
@@ -37,22 +37,22 @@ export default {
           'enable': enabled
         })
       },
-      // sendCollect: function (ramanLaser) {
+      // sendCollect: function (raman_laser) {
       //   this.$parent.publish("/mosfet_cmd", {
       //   'type': 'MosfetCmd',
-      //   'device': ramanLaser,
+      //   'device': raman_laser,
       //   'enable': true
       // })
       // // delete obj and disabled, do publish inside set timeout
       //   let obj = this.$refs["raman"]
       //   obj.disabled = true
-      //   setTimeout(this.pubHelper, 2000, ramanLaser);
+      //   setTimeout(this.pubHelper, 2000, raman_laser);
       // },
-      // pubHelper: function (ramanLaser){
+      // pubHelper: function (raman_laser){
       //   this.$refs["raman"].disabled = false;
       //   this.$parent.publish("/mosfet_cmd", {
       //       'type': 'MosfetCmd',
-      //       'device': ramanLaser,
+      //       'device': raman_laser,
       //       'enable': false
       //     })
       // }

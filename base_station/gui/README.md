@@ -3,12 +3,6 @@
 ### Base Station GUI LCMs
 
 #### All GUIs:
-Camera 
-"/camera_servos"
-File: CameraServos.lcm
-Subscritions: SATask.vue, AutonTask.vue, RATask.vue
-Publishers: N/A
-Usage: 
 
 DebugMessage
 "/debug_message"
@@ -31,13 +25,6 @@ Subscriptions: SATask.vue, AutonTask.vue, RATask.vue
 Publishers: N/A
 Usage: 
 
-KillSwitch
-"/kill_switch"
-File: KillSwitch.lcm
-Subscritions: SATask.vue, AutonTask.vue, RATask.vue
-Publishers: N/A
-Usage: 
-
 NavStatus
 "/nav_status"
 File: NavStatus.lcm
@@ -52,19 +39,6 @@ Subscritions: SATask.vue, AutonTask.vue, RATask.vue
 Publishers: N/A
 Usage: Displays odometry data on GUIs
 
-Sensors
-"/sensors
-File: Sensors.lcm
-Subscritions: SATask.vue, AutonTask.vue, RATask.vue
-Publishers: N/A
-Usage: 
-
-Temperature
-"/temperature
-File: Temperature.lcm
-Subscritions: SATask.vue, AutonTask.vue, RATask.vue
-Publishers: N/A
-Usage: 
 
 #### Science GUI:
 MosfetCmd
@@ -95,3 +69,12 @@ File: Autonomous.lcm
 Subscriptions: 
 Publishers: N/A
 Usage: 
+
+# ToDo
+
+[] Update README with LCMs (see existing PR #985 in umrover/mrover-workspace)
+[] Update Raman Mosfet to be 7 instead of 10
+[] Move all ISH box controls to second science GUI
+[] Make LCM echo alphabetical
+[] Make carousel open loop toggle-able and like gimbal commands
+[] Move gimbal commands out of ArmControls and SAArm and into SATask.vue

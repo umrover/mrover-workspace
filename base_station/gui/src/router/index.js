@@ -50,11 +50,6 @@ export default new Router({
       component: AutonTask
     },
     {
-      path: '/ESCTest',
-      name: 'ESCTest',
-      component: ESCTest
-    },
-    {
       path: '/LCMSend',
       name: 'LCMSend',
       component: LCMSend

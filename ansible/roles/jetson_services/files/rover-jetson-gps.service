@@ -1,5 +1,5 @@
 [Unit]
-Description=MRover Onboard GPS Interface
+Description=MRover Jetson GPS Interface
 
 [Service]
 EnvironmentFile=/etc/default/rover.env

@@ -133,13 +133,7 @@
             "tilt"
         ]
     ],
-    "CarouselClosedLoopCmd": [
-        [
-            "int8_t",
-            "position"
-        ]
-    ],
-    "CarouselData": [
+    "CarouselPosition": [
         [
             "int8_t",
             "position"
@@ -451,12 +445,6 @@
         [
             "boolean",
             "restart"
-        ]
-    ],
-    "KillSwitch": [
-        [
-            "boolean",
-            "killed"
         ]
     ],
     "LockJointE": [
@@ -782,12 +770,6 @@
         [
             "double",
             "speed"
-        ]
-    ],
-    "SensorSwitch": [
-        [
-            "boolean",
-            "should_record"
         ]
     ],
     "Sensors": [
@@ -1213,7 +1195,6 @@
         "IkEnabled",
         "IMU",
         "Joystick",
-        "KillSwitch",
         "LockJointE",
         "MicroCam",
         "Microscope",
@@ -1233,7 +1214,6 @@
         "SAPosition",
         "SensorPackage",
         "Sensors",
-        "SensorSwitch",
         "Servo",
         "ServoCmd",
         "SetDemand",
