@@ -54,8 +54,6 @@ private:
 
     NavState executeDriveToTarget();
 
-    void publishSearchPoints();
-
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
@@ -63,7 +61,7 @@ private:
     // Reference to config variables
     const rapidjson::Document& mConfig;
 
-    bool drivenToFirstPost = false;
+    bool mDrivenToFirstPost = false;
 };
 
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle

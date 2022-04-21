@@ -57,7 +57,7 @@ def launch_localization(ssh, only_run, opts=""):
     new_tab(wid)
     build_run_package(wid, 'jetson/gps', ssh=ssh, ip=AUTON_IP, only_run=only_run)
     new_tab(wid)
-    build_run_package(wid, 'jetson/imu_channel', ssh=ssh, ip=AUTON_IP, only_run=only_run)
+    build_run_package(wid, 'jetson/imu', ssh=ssh, ip=AUTON_IP, only_run=only_run)
     new_tab(wid)
     build_run_package(wid, 'jetson/filter', ssh=ssh, ip=AUTON_IP, only_run=only_run)
 

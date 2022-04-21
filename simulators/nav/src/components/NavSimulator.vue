@@ -64,7 +64,8 @@ import {
   TargetListMessage,
   Waypoint,
   ZedGimbalPosition,
-  Point2D
+  Point2D,
+  ProjectedPointsMessage
 } from '../utils/types';
 import ControlPanel from './control_panel/ControlPanel.vue';
 import Field from './field/Field.vue';
@@ -197,6 +198,11 @@ export default class NavSimulator extends Vue {
 
   @Mutation
   private readonly setObstacleMessage!:(newObstacle:ObstacleMessage)=>void;
+
+  @Mutation
+  private readonly setProjectedPointsMessage!:(
+    newProjectedPointsMessage:ProjectedPointsMessage
+  )=>void;
 
   @Mutation
   private readonly setRadioStrength!:(strength:number)=>void;
@@ -426,6 +432,9 @@ export default class NavSimulator extends Vue {
             console.log(msg.message.message);
           }
         }
+        else if (msg.topic === '/projected_points') {
+          this.setProjectedPointsMessage(msg.message);
+        }
       },
 
       /* Subscriptions */
@@ -438,7 +447,8 @@ export default class NavSimulator extends Vue {
         { topic: '/rr_drop_init',   type: 'RepeaterDropInit' },
         { topic: '/target_list',    type: 'TargetList' },
         { topic: '/zed_gimbal_cmd', type: 'ZedGimbalPosition' },
-        { topic: '/debugMessage',   type: 'DebugMessage' }
+        { topic: '/debugMessage',   type: 'DebugMessage' },
+        { topic: '/projected_points', type: 'ProjectedPoints' }
       ]
     );
 

@@ -1,6 +1,6 @@
 #include "rover.hpp"
 #include "utilities.hpp"
-#include "rover_msgs/Joystick.hpp"
+#include "rover_msgs/TargetBearing.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -9,9 +9,11 @@
 // object with which to use for communications.
 Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
         : mConfig(config), mLcmObject(lcmObject),
-          mBearingPid(config["bearingPid"]["kP"].GetDouble(),
-                      config["bearingPid"]["kI"].GetDouble(),
-                      config["bearingPid"]["kD"].GetDouble(), 360.0),
+          mBearingPid(PidLoop(config["bearingPid"]["kP"].GetDouble(),
+                              config["bearingPid"]["kI"].GetDouble(),
+                              config["bearingPid"]["kD"].GetDouble())
+                              .withMaxInput(360.0)
+                              .withThreshold(mConfig["navThresholds"]["turningBearing"].GetDouble())),
           mLongMeterInMinutes(-1) {
 } // Rover(
 
@@ -33,7 +35,9 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
     if (distance < threshold) {
         return true;
     }
-
+    TargetBearing targetBearingLCM = {bearing};
+    std::string const& targetBearingChannel = mConfig["lcmChannels"]["targetBearingChannel"].GetString();
+    mLcmObject.publish(targetBearingChannel, &targetBearingLCM);
     if (turn(bearing, dt)) {
         double destinationBearing = mod(bearing, 360);
         double turningEffort = mBearingPid.update(mOdometry.bearing_deg, destinationBearing, dt);
@@ -41,6 +45,8 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
         // if we need to turn clockwise, turning effort will be positive, so leftVel will be 1, and rightVel will be in between 0 and 1
         // if we need to turn ccw, turning effort will be negative, so rightVel will be 1 and leftVel will be in between 0 and 1
         // TODO: use std::clamp
+//        double leftVel = std::clamp(1.0 + turningEffort, 0.0, 1.0);
+//        double rightVel = std::clamp(1.0 - turningEffort, 0.0, 1.0);
         double leftVel = std::min(1.0, std::max(0.0, 1.0 + turningEffort));
         double rightVel = std::min(1.0, std::max(0.0, 1.0 - turningEffort));
         publishAutonDriveCmd(leftVel, rightVel);
@@ -49,27 +55,20 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
     return false;
 } // drive()
 
-
-/***
- *
- * @param destination
- * @param dt
- * @return
- */
+// Turn to a global point
 bool Rover::turn(Odometry const& destination, double dt) {
     double bearing = estimateBearing(mOdometry, destination);
     return turn(bearing, dt);
 } // turn()
 
 
+// Turn to an absolute bearing
 bool Rover::turn(double absoluteBearing, double dt) {
-    absoluteBearing = mod(absoluteBearing, 360);
-    throughZero(absoluteBearing, mOdometry.bearing_deg);
-    if (fabs(absoluteBearing - mOdometry.bearing_deg) <= mConfig["navThresholds"]["turningBearing"].GetDouble()) {
+    if (mBearingPid.isOnTarget(mOdometry.bearing_deg, absoluteBearing)) {
         return true;
     }
     double turningEffort = mBearingPid.update(mOdometry.bearing_deg, absoluteBearing, dt);
-    // to turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
+    // To turn in place we apply +turningEffort, -turningEffort on either side and make sure they're both within [-1, 1]
     double leftVel = std::max(std::min(1.0, +turningEffort), -1.0);
     double rightVel = std::max(std::min(1.0, -turningEffort), -1.0);
     publishAutonDriveCmd(leftVel, rightVel);
@@ -77,7 +76,6 @@ bool Rover::turn(double absoluteBearing, double dt) {
 } // turn()
 
 void Rover::stop() {
-//    std::cout << "stopping" << std::endl;
     publishAutonDriveCmd(0.0, 0.0);
 } // stop()
 
@@ -100,14 +98,9 @@ void Rover::publishAutonDriveCmd(const double leftVel, const double rightVel) {
             .left_percent_velocity = leftVel,
             .right_percent_velocity = rightVel
     };
-    //std::cout << leftVel << " " << rightVel << std::endl;
     std::string autonDriveControlChannel = mConfig["lcmChannels"]["autonDriveControlChannel"].GetString();
     mLcmObject.publish(autonDriveControlChannel, &driveControl);
 }
-
-bool Rover::isTurningAroundObstacle(NavState currentState) {
-    return currentState == NavState::TurnAroundObs || currentState == NavState::SearchTurnAroundObs;
-} // isTurningAroundObstacle()
 
 // Gets a reference to the rover's current navigation state.
 NavState const& Rover::currentState() const {

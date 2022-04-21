@@ -10,7 +10,7 @@ double degreeToRadian(const double degree, const double minute) {
 // Converts the input radians to degrees.
 double radianToDegree(const double radian) {
     return radian * 180 / PI;
-}
+} // radianToDegree
 
 // create a new odom with coordinates offset from current odom by a certain lat and lon change
 Odometry addMinToDegrees(const Odometry& current, const double lat_minutes, const double lon_minutes) {
@@ -25,7 +25,7 @@ Odometry addMinToDegrees(const Odometry& current, const double lat_minutes, cons
     newOdom.longitude_deg += static_cast<int32_t>(total_lon_min) / 60;
 
     return newOdom;
-}
+} // addMinToDegrees
 
 // Estimate approximate distance using euclidean methods
 double estimateDistance(const Odometry& current, const Odometry& dest) {
@@ -37,24 +37,32 @@ double estimateDistance(const Odometry& current, const Odometry& dest) {
     double diffLat = (destLat - currentLat);
     double diffLon = (destLon - currentLon) * cos((currentLat + destLat) / 2);
     return sqrt(diffLat * diffLat + diffLon * diffLon) * EARTH_RADIUS;
-}
+} // estimateDistance
 
-// Create a new Odometry point at a absoluteBearing and distance from a given odometry point
-// Note this uses the absolute absoluteBearing not a absoluteBearing relative to the rover.
+/***
+ * @param current           Current position
+ * @param absoluteBearing   Absolute bearing (relative to North) in degrees
+ * @param distance          Distance in meters
+ * @return                  New odometry point in given bearing direction and distance away
+ */
 Odometry createOdom(const Odometry& current, double absoluteBearing, double distance, const std::shared_ptr<Rover>& rover) {
     absoluteBearing = degreeToRadian(absoluteBearing);
     double latChange = distance * cos(absoluteBearing) * LAT_METER_IN_MINUTES;
     double lonChange = distance * sin(absoluteBearing) * rover->longMeterInMinutes();
     Odometry newOdom = addMinToDegrees(current, latChange, lonChange);
     return newOdom;
-}
+} // createOdom
 
-// Create a new Odometry point a given vector offset from another odometry point
-Odometry createOdom(const Odometry& current, Vector2d vec, const std::shared_ptr<Rover>& rover) {
-    double bearing = radianToDegree(atan2(vec.y(), vec.x()));
-    double distance = vec.norm();
+/***
+ * @param current   Current position
+ * @param offset    Relative offset from the given position, (+1, 0) is North
+ * @return          New odometry offset by given vector
+ */
+Odometry createOdom(const Odometry& current, Vector2d offset, const std::shared_ptr<Rover>& rover) {
+    double bearing = radianToDegree(atan2(offset.y(), offset.x()));
+    double distance = offset.norm();
     return createOdom(current, bearing, distance, rover);
-}
+} // createOdom
 
 // Approximate the LHS bearing (clockwise rotation in positive) between two global odometries.
 // The linearization that occurs is implicitly defined relative to the destination.
@@ -80,55 +88,35 @@ double estimateBearing(const Odometry& start, const Odometry& dest) {
         }
     }
     return radianToDegree(bearing);
-} // estimateBearing()
+} // estimateBearing
 
-// Calculates the modulo of degree with the given modulus.
-double mod(const double degree, const int modulus) {
-    double mod = fmod(degree, modulus);
+// Calculates the modulo of value with the given modulus.
+// This handles the case where value is negatively properly.
+double mod(double value, double modulus) {
+    double mod = fmod(value, modulus);
     return mod < 0 ? mod + modulus : mod;
-}
+} // mod()
 
-// Corrects the destination bearing to account for the ability to turn through zero.
-void throughZero(double& destinationBearing, const double currentBearing) {
-    if (fabs(currentBearing - destinationBearing) > 180) {
-        if (currentBearing < 180) {
-            destinationBearing -= 360;
-        } else {
-            destinationBearing += 360;
-        }
-    }
-} // throughZero()
+Odometry createOdom(double latitude, double longitude) {
+    double latitudeDeg;
+    double longitudeDeg;
+    double latitudeMin = std::modf(latitude, &latitudeDeg);
+    double longitudeMin = std::modf(longitude, &longitudeDeg);
+    latitudeMin *= 60.0;
+    longitudeMin *= 60.0;
+    return Odometry{
+            static_cast<int32_t>(latitudeDeg), latitudeMin,
+            static_cast<int32_t>(longitudeDeg), longitudeMin
+    };
+} // createOdom
 
-// Returns true if the rover can reach the input location without hitting the obstacle.
-// ASSUMPTION: There is an obstacle detected.
-// ASSUMPTION: The rover is driving straight.
-bool isLocationReachable(
-        const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig,
-        double locDist, double distThresh
-) {
-    Obstacle const& obstacle = env->getObstacle();
-    double distToObs = obstacle.distance;
-    double bearToObs = std::min(obstacle.bearing, obstacle.rightBearing);
-    double bearToObsComplement = 90 - bearToObs;
-    double xComponentOfDistToObs = distToObs * cos(bearToObsComplement);
-
-    bool isReachable = false;
-
-    // if location - distThresh is closer than the obstacle, it's reachable
-    isReachable |= distToObs > locDist - distThresh;
-
-    // if obstacle is farther away in "x direction" than rover's width, it's reachable
-    isReachable |= xComponentOfDistToObs > roverConfig["roverMeasurements"]["width"].GetDouble() / 2;
-
-    return isReachable;
-} // isLocationReachable()
-
-// Returns true if an obstacle is detected, false otherwise.
-bool isObstacleDetected(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env) {
-    return env->getObstacle().distance >= 0;
-} // isObstacleDetected()
-
-// Returns true if distance from obstacle is within user-configurable threshold
-bool isObstacleInThreshold(const std::shared_ptr<Rover>& rover, const std::shared_ptr<Environment>& env, const rapidjson::Document& roverConfig) {
-    return env->getObstacle().distance <= roverConfig["navThresholds"]["obstacleDistanceThreshold"].GetDouble();
-} // isObstacleInThreshold()
+/***
+ * @param current   From position
+ * @param target    To position
+ * @return          Vector offset in space where (+1, 0) is North
+ */
+Vector2d getOffsetInCartesian(Odometry current, Odometry target) {
+    double bearing = degreeToRadian(estimateBearing(current, target));
+    double distance = estimateDistance(current, target);
+    return {distance * cos(bearing), distance * sin(bearing)};
+} // getOffsetInCartesian

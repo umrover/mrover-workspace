@@ -13,7 +13,8 @@ const state = {
   playbackOdomLat: [],
   playbackOdomLon: [],
   playbackOdomBearing: [],
-  playbackGpsBearing: []
+  playbackGpsBearing: [],
+  playbackTargetBearing: []
 }
 
 // getters
@@ -29,6 +30,7 @@ const getters = {
   playbackOdomLon: state => state.playbackOdomLon,
   playbackOdomBearing: state => state.playbackOdomBearing,
   playbackGpsBearing: state => state.playbackGpsBearing,
+  playbackTargetBearing: state => state.playbackTargetBearing,
   playbackLength: state => state.playbackOdomLat.length
 }
 
@@ -72,6 +74,10 @@ const mutations = {
 
   setPlaybackGpsBearing (commit, bearing) {
     state.playbackGpsBearing = bearing
+  },
+
+  setPlaybackTargetBearing (commit, bearing) {
+    state.playbackTargetBearing = bearing
   }
 }
 

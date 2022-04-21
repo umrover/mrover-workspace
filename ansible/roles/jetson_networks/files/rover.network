@@ -2,7 +2,7 @@
 Name=eth0
 
 [Network]
-Address=10.1.0.1/8
+Address=10.1.0.2/8
 LLDP=0
 
 [Route]

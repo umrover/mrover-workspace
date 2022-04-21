@@ -18,6 +18,7 @@ export default {
       odom_lon: [],
       odom_bearing: [],
       gps_bearing: [],
+      target_bearing: [],
       waypoint_lat: [],
       waypoint_lon: []
     }
@@ -30,7 +31,8 @@ export default {
       setPlaybackOdomLat: 'setPlaybackOdomLat',
       setPlaybackOdomLon: 'setPlaybackOdomLon',
       setPlaybackOdomBearing: 'setPlaybackOdomBearing',
-      setPlaybackGpsBearing: 'setPlaybackGpsBearing'
+      setPlaybackGpsBearing: 'setPlaybackGpsBearing',
+      setPlaybackTargetBearing: 'setPlaybackTargetBearing'
     }),
 
     upload_log: function() {
@@ -60,6 +62,8 @@ export default {
 
           let gps_bearing_idx = 0
 
+          let target_bearing_idx = 0
+
           let waypoint_lat_idx = 0
           let waypoint_lon_idx = 0
 
@@ -83,6 +87,9 @@ export default {
               case 'GPS Bearing':
                 gps_bearing_idx = i
                 break
+              case 'Target Bearing':
+                target_bearing_idx = i
+                break
               case 'First Waypoint Lat':
                 waypoint_lat_idx = i
                 break
@@ -104,6 +111,9 @@ export default {
             )
             this.gps_bearing.push(
               parseFloat(parsed_data[i][gps_bearing_idx])
+            )
+            this.target_bearing.push(
+              parseFloat(parsed_data[i][target_bearing_idx])
             )
 
             let new_waypoint = true
@@ -136,6 +146,7 @@ export default {
           this.setPlaybackOdomLon(this.odom_lon)
           this.setPlaybackOdomBearing(this.odom_bearing)
           this.setPlaybackGpsBearing(this.gps_bearing)
+          this.setPlaybackTargetBearing(this.target_bearing)
 
           console.log("SUCCESSFULLY READ DATA!")
           this.setPlaybackEnabled(true)
@@ -145,6 +156,7 @@ export default {
           this.odom_lon = []
           this.odom_bearing = []
           this.gps_bearing = []
+          this.target_bearing = []
           this.waypoint_lat = []
           this.waypoint_lon = []
         }) // end callback

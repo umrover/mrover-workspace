@@ -32,8 +32,6 @@ public:
 
     void run();
 
-    void updateObstacleElements(double leftBearing, double rightBearing, double distance);
-
     void updateObstacleDistance(double distance);
 
     void setSearcher(SearchType type);
