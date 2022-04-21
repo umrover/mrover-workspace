@@ -277,7 +277,7 @@ export default {
 
       this.calibrationTimer = setTimeout(() => {
         this.abortCalibration()
-      }, 10000)
+      }, 20000)
     },
 
     abortCalibration: function() {
