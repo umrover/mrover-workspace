@@ -2,7 +2,7 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
-#include <filesystem>
+// #include <filesystem> does not compile with ubuntu18
 
 #include <lcm/lcm-cpp.hpp>
 #include "rapidjson/document.h"

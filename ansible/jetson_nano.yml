@@ -10,13 +10,11 @@
       ansible_python_interpreter: /usr/bin/python3
   roles:
   - jetson_dev
-  - jetson_networks
-  - jetson_services
+  - jetson_nano_networks
+  - jetson_nano_services
   tasks:
-  - name: Give {{ running_user }} all port permissions
+  - name: Add odrive udev rules
     shell: | 
-            usermod -a -G tty {{ running_user }} 
-            usermod -a -G dialout {{ running_user }}
-            systemctl disable nvgetty.service
-  - name: Reboot
-    command: reboot
+            sed 'N a SUBSYSTEM=="usb", ATTR{idVendor}=="1209", ATTR{idProduct}=="0d[0-9][0-9]", MODE="0666"' /etc/udev/rules.d/91-odrive.rules
+            udevadm control --reload-rules
+            udevadm trigger
