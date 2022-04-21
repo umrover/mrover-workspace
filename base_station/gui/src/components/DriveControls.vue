@@ -43,7 +43,8 @@ export default {
     },
 
     ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
+      autonEnabled: 'autonEnabled',
+      teleopEnabled: 'teleopEnabled'
     }),
   },
 
@@ -64,7 +65,7 @@ export default {
 
     const updateRate = 0.05;
     interval = window.setInterval(() => {
-      if (!this.autonEnabled) {
+      if (!this.autonEnabled && this.teleopEnabled) {
         const gamepads = navigator.getGamepads()
         for (let i = 0; i < 4; i++) {
           const gamepad = gamepads[i]

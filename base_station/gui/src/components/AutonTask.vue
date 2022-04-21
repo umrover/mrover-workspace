@@ -98,8 +98,7 @@ export default {
         completed_wps: 0,
         total_wps: 0
       },
-      nav_state_color: "red",
-      nav_counter: 0,
+      navBlink: false,
 
       GPS: {
         latitude_deg: 38,
@@ -167,37 +166,35 @@ export default {
   },
 
   computed: {
-    ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
+    ...mapGetters('controls', {
+      controlMode: 'controlMode',
+      autonEnabled: 'autonEnabled',
+      teleopEnabled: 'teleopEnabled'
     }),
+
+    nav_state_color: function() {
+      if(this.teleopEnabled){
+        return navBlue
+      }
+      else if(this.autonEnabled){
+        if(this.nav_status.nav_state_name == "Done" && this.navBlink){
+          return navGreen
+        }
+        else if(this.nav_status.nav_state_name == "Done" && !this.navBlink){
+          return navGrey
+        }
+        else{
+          return navRed
+        }
+      }
+      return navRed
+    },
   },
 
   created: function () {
 
     setInterval(() => {
-      if(this.nav_status.nav_state_name == "Off"){
-        this.nav_state_color = navBlue
-      }
-      else if(this.nav_status.nav_state_name == "Done"){
-        if(this.nav_state_color == navBlue || this.nav_state_color == navRed){
-          this.nav_state_color = navGreen
-        }
-        else if(this.nav_counter >= 5 && this.nav_state_color == navGreen){
-          this.nav_state_color = navGrey
-          this.nav_counter = 0
-        }
-        else if(this.nav_counter >= 5 && this.nav_state_color == navGrey){
-          this.nav_state_color = navGreen
-          this.nav_counter = 0
-        }
-      }
-      else{
-        this.nav_state_color = navRed
-      }
-      this.nav_counter = this.nav_counter + 1
-      if(this.nav_counter >= 5){
-        this.nav_count = 0
-      }
+      this.navBlink = !this.navBlink
     }, 100);
 
     this.lcm_ = new LCMBridge(
