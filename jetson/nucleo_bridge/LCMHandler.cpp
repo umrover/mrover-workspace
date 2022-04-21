@@ -20,7 +20,7 @@ void LCMHandler::init()
     // Subscription to lcm channels
     lcm_bus->subscribe("/ra_ik_cmd", &LCMHandler::InternalHandler::ra_closed_loop_cmd, internal_object);
     lcm_bus->subscribe("/sa_ik_cmd", &LCMHandler::InternalHandler::sa_closed_loop_cmd, internal_object);
-    lcm_bus->subscribe("/carousel_openloop_cmd", &LCMHandler::InternalHandler::carousel_closed_loop_cmd, internal_object);
+    lcm_bus->subscribe("/carousel_openloop_cmd", &LCMHandler::InternalHandler::carousel_openloop_cmd, internal_object);
     lcm_bus->subscribe("/ra_openloop_cmd", &LCMHandler::InternalHandler::ra_open_loop_cmd, internal_object);
     lcm_bus->subscribe("/sa_openloop_cmd", &LCMHandler::InternalHandler::sa_open_loop_cmd, internal_object);
     lcm_bus->subscribe("/mast_gimbal_cmd", &LCMHandler::InternalHandler::mast_gimbal_cmd, internal_object);
