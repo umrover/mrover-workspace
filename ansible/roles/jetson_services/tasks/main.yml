@@ -3,6 +3,7 @@
       src: "files/{{ item }}.service"
       dest: "/etc/systemd/system/{{ item }}.service"
   with_items:
+      - rover-jetson-cameras
       - rover-jetson-cv
       - rover-jetson-filter
       - rover-jetson-gps
@@ -10,7 +11,9 @@
       - rover-jetson-microscope
       - rover-jetson-nav
       - rover-jetson-raman
+      - rover-jetson-science-bridge
       - rover-jetson-teleop
+      - rover-jetson-nucleo-bridge
 
 - name: Copy environment variable definitions
   copy:
@@ -28,11 +31,13 @@
 - name: Enable services
   systemd: name={{item}} enabled=yes
   with_items:
-      - rover-jetson-cv.service
+      - rover-jetson-cameras.service
       - rover-jetson-filter.service
       - rover-jetson-gps.service
       - rover-jetson-kinematics.service
       - rover-jetson-microscope.service
       - rover-jetson-nav.service
       - rover-jetson-raman.service
-      # did not enable jetson teleop, explicitly do so if not using a nano
+      - rover-jetson-science-bridge.service
+      - rover-jetson-teleop.service
+      - rover-jetson-nucleo-bridge.service

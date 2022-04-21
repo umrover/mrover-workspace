@@ -35,25 +35,25 @@
       <td class = "tableElement">Left</td>
       <td class = "tableElement">0</td>
       <td class = "tableElement">{{drive_vel_data.frontLeft.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity}} counts/sec</td>
+      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity}} m/sec</td>
       <td class = "tableElement">2</td>
       <td class = "tableElement">{{drive_vel_data.middleLeft.current}} amps</td>
       <td class = "tableElement">{{drive_vel_data.middleLeft.velocity}} counts/sec</td>
       <td class = "tableElement">4</td>
       <td class = "tableElement">{{drive_vel_data.backLeft.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.backLeft.velocity}} counts/sec</td>
+      <td class = "tableElement">{{drive_vel_data.backLeft.velocity}} m/sec</td>
     </tr>
     <tr>
       <td class = "tableElement">Right</td>
       <td class = "tableElement">1</td>
       <td class = "tableElement">{{drive_vel_data.frontRight.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.frontRight.velocity}} counts/sec</td>
+      <td class = "tableElement">{{drive_vel_data.frontRight.velocity}} m/sec</td>
       <td class = "tableElement">3</td>
       <td class = "tableElement">{{drive_vel_data.middleRight.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.middleRight.velocity}} counts/sec</td>
+      <td class = "tableElement">{{drive_vel_data.middleRight.velocity}} m/sec</td>
       <td class = "tableElement">5</td>
       <td class = "tableElement">{{drive_vel_data.backRight.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.backRight.velocity}} counts/sec</td>
+      <td class = "tableElement">{{drive_vel_data.backRight.velocity}} m/sec</td>
     </tr>
   </tbody>
   </table>

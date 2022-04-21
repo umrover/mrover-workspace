@@ -1,4 +1,5 @@
-project('ra_kinematics', 'cpp', default_options : ['cpp_std=c++1z'])
+project('ra_kinematics', 'cpp', default_options : ['cpp_std=gnu++1z', 'buildtype=release'])
+# project('ra_kinematics', 'cpp', default_options : ['cpp_std=c++1z'])
 
 liblcm = dependency('lcm')
 
