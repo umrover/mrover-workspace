@@ -115,7 +115,6 @@
         subscriptions: [
           {'topic': '/arm_adjusments', 'type': 'ArmAdjustments'},
           {'topic': '/arm_control_state', 'type': 'ArmControlState'},
-          {'topic': '/arm_control_state', 'type': 'ArmControlState'},
           {'topic': '/arm_preset', 'type': 'ArmPreset'},
           {'topic': '/arm_preset_path', 'type': 'ArmPresetPath'},
           {'topic': '/auton', 'type': 'AutonState'},

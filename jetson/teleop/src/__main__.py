@@ -218,14 +218,8 @@ class ArmControl:
         lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
     def joint_b_calibration_callback(self, channel, msg):
-        if JointBCalibration.decode(msg).calibrated:
-            self.send_ra_kill()
-            self.send_sa_kill()
+        if JointBCalibration.decode(msg).calibrated or self.arm_control_state != 'calibrating':
             return
-
-        arm_control_state_msg = ArmControlState()
-        arm_control_state_msg.state = 'off'
-        lcm_.publish('/arm_control_state', arm_control_state_msg.encode())
 
         if self.arm_type == self.ArmType.RA:
             raMotorsData = [0, 1, 0, 0, 0, 0]

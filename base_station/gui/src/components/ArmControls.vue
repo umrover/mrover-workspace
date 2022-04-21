@@ -1,13 +1,20 @@
 <template>
   <div class="wrap">
     <h3> Arm controls </h3>
-    <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
-    <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
+    <div class="controls">
+      <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
+      <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
+    </div>
     <div class="keyboard">
       <GimbalControls/>
     </div>
-    <div class="calibrating" v-if='!this.joint_b_is_calibrated'>
+    <div class="joint-b-calibration" v-if='!this.jointBIsCalibrated && this.controlMode !== "calibrating"'>
+      Joint B not calibrated!
+      <button v-on:click="startCalibration()">Calibrate</button>
+    </div>
+    <div class="joint-b-calibration" v-if='!this.jointBIsCalibrated && this.controlMode === "calibrating"'>
       Calibrating Joint B...
+      <button v-on:click="abortCalibration()">Abort</button>
     </div>
     <div style="font-color: abs(wristTurnCount) >= 2 ? red : black;">
       Wrist turn count: {{this.wristTurnCount}}
@@ -32,7 +39,8 @@ export default {
         state: "off"
       },
 
-      joint_b_is_calibrated: true,
+      jointBIsCalibrated: true,
+      calibrationTimer: -1,
 
       wristTurnCount: 0
     }
@@ -70,12 +78,9 @@ export default {
 
       if (new_state === 'closed-loop' || new_state === 'open-loop') {
         this.$refs[new_state].toggle()
-        this.setControlMode(new_state)
       }
-      else {
-        this.setControlMode('off')
-      }
-
+      
+      this.setControlMode(new_state)
     })
 
     this.$parent.subscribe('/ik_reset', (msg) => {
@@ -92,7 +97,18 @@ export default {
     })
 
     this.$parent.subscribe('/joint_b_calibration_data', (msg) => {
-      this.joint_b_is_calibrated = msg.calibrated
+      if (msg.calibrated && !this.jointBIsCalibrated) {
+        clearTimeout(this.calibrationTimer)
+
+        const armStateMsg = {
+          'type': 'ArmControlState',
+          'state': 'off'
+        }
+
+        this.$parent.publish('/arm_control_state', armStateMsg)
+      }
+
+      this.jointBIsCalibrated = msg.calibrated
     })
 
     const XBOX_CONFIG = {
@@ -251,6 +267,30 @@ export default {
       return false
     },
 
+    startCalibration: function() {
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': 'calibrating'
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+
+      this.calibrationTimer = setTimeout(() => {
+        this.abortCalibration()
+      }, 10000)
+    },
+
+    abortCalibration: function() {
+      clearTimeout(this.calibrationTimer)
+      
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': 'off'
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+    },
+
     ...mapMutations('controls', {
       setControlMode: 'setControlMode'
     })
@@ -269,6 +309,7 @@ export default {
   display: inline-block;
   align-items: center;
   justify-items: center;
+  width: 100%;
 }
 .controls {
   display: flex;
@@ -278,7 +319,10 @@ export default {
   display:flex;
   align-items:center;
 }
-.calibrating {
+.joint-b-calibration {
+  display: flex;
+  gap: 10px;
+  width: 250px;
   font-weight: bold;
   color: red;
 }
