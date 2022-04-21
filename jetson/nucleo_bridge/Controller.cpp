@@ -102,7 +102,7 @@ void Controller::refresh_calibration_data()
 
         transact(CALIBRATED, nullptr, UINT8_POINTER_T(&raw_calibration_data));
 
-        calibrated = raw_calibration_data == 0xF;
+        calibrated = raw_calibration_data != 0;
     }
     catch (IOFailure &e)
     {

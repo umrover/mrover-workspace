@@ -52,17 +52,13 @@ void LCMHandler::handle_outgoing()
     }
 
 
-    // TODO - UNCOMMENT AS SOON AS JOINT B LIMIT SWITCH / CALIBRATION IS READY
-    /*
     std::chrono::duration calib_data_output_dead_time = std::chrono::milliseconds(1000);
     // This is used as a heart beat (to make sure that nucleos do not reset)
     if (NOW - last_calib_data_output_time > calib_data_output_dead_time)
     {
         internal_object->refresh_calib_data();
-
         internal_object->publish_calib_data();
     }
-    */
 }
 void LCMHandler::InternalHandler::carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg)
 {
@@ -133,6 +129,7 @@ void LCMHandler::InternalHandler::refresh_sa_quad_angles()
 void LCMHandler::InternalHandler::refresh_calib_data()
 {
     ControllerMap::controllers["RA_B"]->refresh_calibration_data();
+    ControllerMap::controllers["SA_B"]->refresh_calibration_data();
 }
 
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)
@@ -164,6 +161,7 @@ void LCMHandler::InternalHandler::publish_calib_data()
 {
     JointBCalibration msg;
     msg.calibrated = ControllerMap::controllers["RA_B"]->calibrated;
+    msg.calibrated |= ControllerMap::controllers["SA_B"]->calibrated;
     lcm_bus->publish("/joint_b_refresh_calibration_data", &msg);
     last_calib_data_output_time = NOW;
 }
