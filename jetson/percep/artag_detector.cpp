@@ -72,7 +72,7 @@ cv::Point2f TagDetector::getAverageTagCoordinateFromCorners(const std::vector<cv
  *                  The leftmost tag is always the first item in the pair,
  */
 std::pair<Tag, Tag> TagDetector::findARTags(cv::Mat& src, cv::Mat& depth_src, cv::Mat& rgb) {
-    cvtColor(src, rgb, cv::COLOR_RGBA2RGB);
+    cv::cvtColor(src, rgb, cv::COLOR_RGBA2RGB);
     // clear ids and corners vectors for each detection
     mIds.clear();
     mCorners.clear();
@@ -90,7 +90,7 @@ std::pair<Tag, Tag> TagDetector::findARTags(cv::Mat& src, cv::Mat& depth_src, cv
 
     // on click debugging for color
     DEPTH = depth_src;
-    cvtColor(rgb, HSV, cv::COLOR_RGB2HSV);
+    cv::cvtColor(rgb, HSV, cv::COLOR_RGB2HSV);
     cv::setMouseCallback("Obstacle", onMouse);
 #endif
 
@@ -164,8 +164,8 @@ void TagDetector::updateDetectedTagInfo(
             outArTag.id = DEFAULT_TAG_VAL;
         } else {
             // tag found
-            int xPixel = static_cast<int>(lround(tag.loc.x));
-            int yPixel = static_cast<int>(lround(tag.loc.y));
+            int xPixel = static_cast<int>(std::lround(tag.loc.x));
+            int yPixel = static_cast<int>(std::lround(tag.loc.y));
             // +z is forward, +x is right, all in millimeters and relative to camera
             float x, y, z;
             {
@@ -175,15 +175,15 @@ void TagDetector::updateDetectedTagInfo(
                 z = xyz[2];
             }
             // ensure we have valid values to work with
-            if (isnan(x) || isnan(y) || isnan(z)) {
+            if (std::isnan(x) || std::isnan(y) || std::isnan(z)) {
                 // put no tag found since we cannot find out any information
                 outArTag.distance = DEFAULT_TAG_VAL;
                 outArTag.bearing = DEFAULT_TAG_VAL;
                 outArTag.id = DEFAULT_TAG_VAL;
             } else {
                 // use Euclidean method to calculate distance, convert to meters
-                outArTag.distance = sqrt(x * x + y * y + z * z) * static_cast<float>(MM_PER_M);
-                outArTag.bearing = atan2(x, z) * 180.0 / PI;
+                outArTag.distance = std::sqrt(x * x + y * y + z * z) * static_cast<float>(MM_PER_M);
+                outArTag.bearing = std::atan2(x, z) * 180.0 / PI;
                 outArTag.id = tag.id;
             }
         }
