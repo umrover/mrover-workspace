@@ -149,6 +149,6 @@
         "quadCPR": -9072.0,
         "kP": 0.05,
         "kI": -0.0,
-        "inversion": -1.0
+        "inversion": 1.0
     }
 ]
