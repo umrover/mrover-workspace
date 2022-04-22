@@ -45,7 +45,7 @@ int main()
     printf("Initialization Done. Looping. Reduced output for program speed.\n");
     std::thread outThread(&outgoing);
     std::thread inThread(&incoming);
-
+ 
     outThread.join();
     inThread.join();
 
