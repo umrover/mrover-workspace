@@ -102,7 +102,9 @@ void Controller::refresh_calibration_data()
 
         transact(CALIBRATED, nullptr, UINT8_POINTER_T(&raw_calibration_data));
 
-        calibrated = raw_calibration_data != 0;
+        // raw_calibration_data is either 0xFF or 0x00.
+        // 0xFF means it is calibrated, 0x00 means not calibrated.
+        calibrated = raw_calibration_data != NOT_CALIBRATED_BOOL;
     }
     catch (IOFailure &e)
     {

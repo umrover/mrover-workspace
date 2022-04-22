@@ -46,18 +46,15 @@ void LCMHandler::handle_outgoing()
     if (NOW - last_heartbeat_output_time > heartbeat_dead_time)
     {
         internal_object->refresh_ra_quad_angles();
-        internal_object->publish_ra_pos_data();
         internal_object->refresh_sa_quad_angles();
-        internal_object->publish_sa_pos_data();
     }
 
 
     std::chrono::duration calib_data_output_dead_time = std::chrono::milliseconds(1000);
-    // This is used as a heart beat (to make sure that nucleos do not reset)
-    if (NOW - last_calib_data_output_time > calib_data_output_dead_time)
+    // Refresh and post joint b calibration data every second
+    if (NOW - last_calib_data_output_time > calib_data_output_dead_time)1
     {
         internal_object->refresh_calib_data();
-        internal_object->publish_calib_data();
     }
 }
 void LCMHandler::InternalHandler::carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg)
@@ -116,6 +113,8 @@ void LCMHandler::InternalHandler::refresh_ra_quad_angles()
     ControllerMap::controllers["RA_D"]->refresh_quad_angle();
     ControllerMap::controllers["RA_E"]->refresh_quad_angle();
     ControllerMap::controllers["RA_F"]->refresh_quad_angle();
+
+    publish_ra_pos_data();
 }
 
 void LCMHandler::InternalHandler::refresh_sa_quad_angles()
@@ -124,12 +123,16 @@ void LCMHandler::InternalHandler::refresh_sa_quad_angles()
     ControllerMap::controllers["SA_B"]->refresh_quad_angle();
     ControllerMap::controllers["SA_C"]->refresh_quad_angle();
     ControllerMap::controllers["SA_E"]->refresh_quad_angle();
+
+    publish_sa_pos_data();
 }
 
 void LCMHandler::InternalHandler::refresh_calib_data()
 {
     ControllerMap::controllers["RA_B"]->refresh_calibration_data();
     ControllerMap::controllers["SA_B"]->refresh_calibration_data();
+
+    publish_calib_data();
 }
 
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)

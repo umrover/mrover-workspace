@@ -140,6 +140,7 @@ If two devices share the same i2c address but their functions are continuously c
 - [X] Test joint b calibration code
 - [ ] Investigate encoder issues
 - [ ] Create new shield next year and make sure correct pins are traced
+- [ ] Add LCM tests to test.cpp
 
 ### Notes
 

@@ -16,7 +16,7 @@ from enum import Enum
 
 
 class Auton_state(Enum):
-    ELSE = 0
+    ON = 0
     DONE = 1
     OFF = 2
 
@@ -26,7 +26,7 @@ class Mosfet_devices(Enum):
     RED_LED = 10
     GREEN_LED = 4
     BLUE_LED = 5
-    RA_LASER = 10
+    RA_LASER = 1
     UV_LED = 4
     WHITE_LED = 5
     UV_BULB = 6
@@ -96,6 +96,18 @@ class ScienceBridge():
         while(len(msg) < UART_TRANSMIT_MSG_LEN):
             msg += ","
         return msg
+
+    def uart_send(self, message):
+        message = self.add_padding(message)
+        print(message)
+        self.ser.close()
+        self.ser.open()
+        if self.ser.isOpen():
+            self.ser.write(bytes(message, encoding='utf-8'))
+
+    def format_mosfet_message(self, device, enable):
+        mosfet_message = "$Mosfet,{dev},{en},"
+        return mosfet_message.format(dev=device, en=enable)
 
     def spectral_handler(self, m, spectral_struct):
         # msg format: <"$SPECTRAL,d0_1,d0_2, .... , d2_6">
@@ -202,111 +214,77 @@ class ScienceBridge():
         # Upon Receiving a heater on/off command, send a command for the appropriate mosfet
         print("Heater cmd callback")
         struct = Heater.decode(msg)
-        message = "$Mosfet,{device},{enable},"
 
         translated_device = Heater_Map[struct.device]
-        message = message.format(device=translated_device,
-                                 enable=int(struct.enabled))
-
-        message = self.add_padding(message)
-        print(message)
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
-        pass
+        message = format_mosfet_message(translated_device, int(struct.enabled))
+        uart_send(message)
 
     def heater_auto_transmit(self, channel, msg):
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
         struct = HeaterAutoShutdown.decode(msg)
         message = "$AutoShutoff,{enable}"
         message = message.format(enable=int(struct.auto_shutdown_enabled))
-        message = self.add_padding(message)
-        print(message)
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
-        pass
+        uart_send(message)
 
     def mosfet_transmit(self, channel, msg):
         print("Mosfet callback")
         struct = MosfetCmd.decode(msg)
 
-        message = "$Mosfet,{device},{enable}"
         translated_device = Mosfet_Map[struct.device]
-
-        message = message.format(device=translated_device,
-                                 enable=int(struct.enable))
-        print(message)
-        message = self.add_padding(message)
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
+        message = format_mosfet_message(translated_device, int(struct.enable))
+        uart_send(message)
         print("Mosfet Received")
         pass
 
     def nav_status(self, channel, msg):  # TODO - fix make better
-        # Off, Done, Else
+        # Off, Done, On
         struct = NavStatus.decode(msg)
 
         if self.previous_auton_msg == struct.nav_state_name:
             return
 
-        print("Received new nav req")
+        print("Received new nav req: " + struct.nav_state_name)
 
-        message = "$Mosfet,{device},{enable}"
-
-        blue_off = message.format(device=Mosfet_devices.BLUE_LED.value, enable=0)
-        blue_off = self.add_padding(blue_off)
-        self.ser.write(bytes(blue_off, encoding='utf-8'))
-        red_off = message.format(device=Mosfet_devices.RED_LED.value, enable=0)
-        red_off = self.add_padding(red_off)
-        self.ser.write(bytes(red_off, encoding='utf-8'))
-        green_off = message.format(device=Mosfet_devices.GREEN_LED.value, enable=0)
-        green_off = self.add_padding(green_off)
-        self.ser.write(bytes(green_off, encoding='utf-8'))
+        blue_off = format_mosfet_message(Mosfet_devices.BLUE_LED.value, 0)
+        uart_send(blue_off)
+        red_off = format_mosfet_message(Mosfet_devices.RED_LED.value, 0)
+        uart_send(red_off)
+        green_off = format_mosfet_message(Mosfet_devices.GREEN_LED.value, 0)
+        uart_send(green_off)
 
         self.previous_auton_msg = struct.nav_state_name
 
         if struct.nav_state_name == "Off":
-            prev = Auton_state.OFF
+            prev_state = Auton_state.OFF
         elif struct.nav_state_name == "Done":
-            prev = Auton_state.DONE
+            prev_state = Auton_state.DONE
         else:
-            prev = Auton_state.ELSE
+            prev_state = Auton_state.ON
 
         # Off = Blue
-        if prev == Auton_state.OFF:
+        if prev_state == Auton_state.OFF:
             print("navstatus off - blue")
-            blue = message.format(device=Mosfet_devices.BLUE_LED.value, enable=1)
-            blue = self.add_padding(blue)
-            self.ser.write(bytes(blue, encoding='utf-8'))
+            blue = format_mosfet_message(Mosfet_devices.BLUE_LED.value, 1)
+            uart_send(blue)
         # Done = Flashing green
-        elif prev == Auton_state.DONE:
+        elif prev_state == Auton_state.DONE:
             print("navstatus done - green blink")
             # Flashing by turning on and off for 1 second intervals
 
             NUMBER_OF_LED_BLINKS = 6
 
             for i in range(NUMBER_OF_LED_BLINKS):
-                green_on = message.format(device=Mosfet_devices.GREEN_LED.value,
-                                          enable=1)
-                green_on = self.add_padding(green_on)
-                self.ser.write(bytes(green_on, encoding='utf-8'))
+                green_on = format_mosfet_message(Mosfet_devices.GREEN_LED.value, 1)
+                uart_send(green_on)
                 time.sleep(1)
-                green_off = message.format(device=Mosfet_devices.GREEN_LED.value,
-                                           enable=0)
-                green_off = self.add_padding(green_off)
-                self.ser.write(bytes(green_off, encoding='utf-8'))
+                green_off = format_mosfet_message(Mosfet_devices.GREEN_LED.value, 0)
+                uart_send(green_off)
                 time.sleep(1)
-        # Everytime else = Red
-        else:
-            print("navstatus else - red")
-            red = message.format(device=Mosfet_devices.RED_LED.value, enable=1)
-            red = self.add_padding(red)
-            self.ser.write(bytes(red, encoding='utf-8'))
+        # Everytime on = Red
+        elif prev_state == Auton_state.ON:
+            print("navstatus on - red")
+            red = format_mosfet_message(Mosfet_devices.RED_LED.value, 0)
+            uart_send(red)
         time.sleep(1)
         # Green should be in a finished state so no need to turn it off
 
@@ -317,12 +295,7 @@ class ScienceBridge():
         # parse data into expected format
         message = "$Servo,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
-        print(message)
-        message = self.add_padding(message)
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
+        uart_send(message)
 
     def carousel_openloop_transmit(self, channel, msg):
         struct = CarouselOpenLoopCmd.decode(msg)
@@ -334,13 +307,7 @@ class ScienceBridge():
         # parse data into expected format
         message = "$OpenCarousel,{throttle}"
         message = message.format(throttle=struct.throttle)
-        print(message)
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            message += ","
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
+        uart_send(message)
 
     def carousel_closedloop_transmit(self, channel, msg):
         self.last_openloop_cmd = -1
@@ -349,13 +316,7 @@ class ScienceBridge():
         # parse data into expected format
         message = "$Carousel,{position}"
         message = message.format(position=struct.position)
-        print(message)
-        while(len(message) < UART_TRANSMIT_MSG_LEN):
-            message += ","
-        self.ser.close()
-        self.ser.open()
-        if self.ser.isOpen():
-            self.ser.write(bytes(message, encoding='utf-8'))
+        uart_send(message)
 
     async def receive(self, lcm):
         spectral = SpectralData()

@@ -179,6 +179,6 @@ Format of the data string
 - [X] Pass the linter
 - [ ] Code clean up
 - [ ] Move beaglebone stuff into config file
-- [ ] Need better support for Auton LEDs
+- [ ] Need better support for Auton LEDs - move it to nucleos
 - [X] Create function for padding
 - [ ] Don't need to wait for all tags to be seen
