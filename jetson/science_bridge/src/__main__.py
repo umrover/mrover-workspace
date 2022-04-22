@@ -216,23 +216,23 @@ class ScienceBridge():
         struct = Heater.decode(msg)
 
         translated_device = Heater_Map[struct.device]
-        message = format_mosfet_message(translated_device, int(struct.enabled))
-        uart_send(message)
+        message = self.format_mosfet_message(translated_device, int(struct.enabled))
+        self.uart_send(message)
 
     def heater_auto_transmit(self, channel, msg):
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
         struct = HeaterAutoShutdown.decode(msg)
         message = "$AutoShutoff,{enable}"
         message = message.format(enable=int(struct.auto_shutdown_enabled))
-        uart_send(message)
+        self.uart_send(message)
 
     def mosfet_transmit(self, channel, msg):
         print("Mosfet callback")
         struct = MosfetCmd.decode(msg)
 
         translated_device = Mosfet_Map[struct.device]
-        message = format_mosfet_message(translated_device, int(struct.enable))
-        uart_send(message)
+        message = self.format_mosfet_message(translated_device, int(struct.enable))
+        self.uart_send(message)
         print("Mosfet Received")
         pass
 
@@ -245,12 +245,12 @@ class ScienceBridge():
 
         print("Received new nav req: " + struct.nav_state_name)
 
-        blue_off = format_mosfet_message(Mosfet_devices.BLUE_LED.value, 0)
-        uart_send(blue_off)
-        red_off = format_mosfet_message(Mosfet_devices.RED_LED.value, 0)
-        uart_send(red_off)
-        green_off = format_mosfet_message(Mosfet_devices.GREEN_LED.value, 0)
-        uart_send(green_off)
+        blue_off = self.format_mosfet_message(Mosfet_devices.BLUE_LED.value, 0)
+        self.uart_send(blue_off)
+        red_off = self.format_mosfet_message(Mosfet_devices.RED_LED.value, 0)
+        self.uart_send(red_off)
+        green_off = self.format_mosfet_message(Mosfet_devices.GREEN_LED.value, 0)
+        self.uart_send(green_off)
 
         self.previous_auton_msg = struct.nav_state_name
 
@@ -264,8 +264,8 @@ class ScienceBridge():
         # Off = Blue
         if prev_state == Auton_state.OFF:
             print("navstatus off - blue")
-            blue = format_mosfet_message(Mosfet_devices.BLUE_LED.value, 1)
-            uart_send(blue)
+            blue = self.format_mosfet_message(Mosfet_devices.BLUE_LED.value, 1)
+            self.uart_send(blue)
         # Done = Flashing green
         elif prev_state == Auton_state.DONE:
             print("navstatus done - green blink")
@@ -274,17 +274,17 @@ class ScienceBridge():
             NUMBER_OF_LED_BLINKS = 6
 
             for i in range(NUMBER_OF_LED_BLINKS):
-                green_on = format_mosfet_message(Mosfet_devices.GREEN_LED.value, 1)
-                uart_send(green_on)
+                green_on = self.format_mosfet_message(Mosfet_devices.GREEN_LED.value, 1)
+                self.uart_send(green_on)
                 time.sleep(1)
-                green_off = format_mosfet_message(Mosfet_devices.GREEN_LED.value, 0)
-                uart_send(green_off)
+                green_off = self.format_mosfet_message(Mosfet_devices.GREEN_LED.value, 0)
+                self.uart_send(green_off)
                 time.sleep(1)
         # Everytime on = Red
         elif prev_state == Auton_state.ON:
             print("navstatus on - red")
-            red = format_mosfet_message(Mosfet_devices.RED_LED.value, 0)
-            uart_send(red)
+            red = self.format_mosfet_message(Mosfet_devices.RED_LED.value, 0)
+            self.uart_send(red)
         time.sleep(1)
         # Green should be in a finished state so no need to turn it off
 
@@ -295,7 +295,7 @@ class ScienceBridge():
         # parse data into expected format
         message = "$Servo,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
-        uart_send(message)
+        self.uart_send(message)
 
     def carousel_openloop_transmit(self, channel, msg):
         struct = CarouselOpenLoopCmd.decode(msg)
@@ -307,7 +307,7 @@ class ScienceBridge():
         # parse data into expected format
         message = "$OpenCarousel,{throttle}"
         message = message.format(throttle=struct.throttle)
-        uart_send(message)
+        self.uart_send(message)
 
     def carousel_closedloop_transmit(self, channel, msg):
         self.last_openloop_cmd = -1
@@ -316,7 +316,7 @@ class ScienceBridge():
         # parse data into expected format
         message = "$Carousel,{position}"
         message = message.format(position=struct.position)
-        uart_send(message)
+        self.uart_send(message)
 
     async def receive(self, lcm):
         spectral = SpectralData()
