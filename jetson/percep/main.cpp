@@ -1,23 +1,19 @@
+#include <deque>
+
 #include "perception.hpp"
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
-#include <unistd.h>
-#include <deque>
-
-using namespace cv;
-using namespace std;
-using namespace std::chrono_literals;
 
 int main() {
 
     /* --- Reading in Config File --- */
     rapidjson::Document mRoverConfig;
-    ifstream configFile;
-    string configPath = getenv("MROVER_CONFIG");
+    std::ifstream configFile;
+    std::string configPath = getenv("MROVER_CONFIG");
     configPath += "/config_percep/config.json";
     configFile.open(configPath);
-    string config = "";
-    string setting;
+    std::string config;
+    std::string setting;
     while (configFile >> setting) {
         config += setting;
     }
@@ -30,12 +26,12 @@ int main() {
     cam.grab();
 
 #if PERCEPTION_DEBUG
-    namedWindow("depth", 2);
+    cv::namedWindow("depth", 2);
 #endif
 
 #if AR_DETECTION
-    Mat rgb;
-    Mat src = cam.image();
+    cv::Mat rgb;
+    cv::Mat src = cam.image();
 #endif
 
 #if WRITE_CURR_FRAME_TO_DISK && AR_DETECTION && OBSTACLE_DETECTION
@@ -44,19 +40,19 @@ int main() {
 
     /* -- LCM Messages Initializations -- */
     lcm::LCM lcm_;
-    rover_msgs::TargetList arTagsMessage;
+    rover_msgs::TargetList arTagsMessage{};
     rover_msgs::Target* arTags = arTagsMessage.targetList;
     arTags[0].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
     arTags[1].distance = mRoverConfig["ar_tag"]["default_tag_val"].GetInt();
 
-    rover_msgs::Obstacle obstacleMessage;
+    rover_msgs::Obstacle obstacleMessage{};
     obstacleMessage.bearing = 0;
     obstacleMessage.rightBearing = 0;
     obstacleMessage.distance = -1;
 
     /* --- AR Tag Initializations --- */
     TagDetector detector(mRoverConfig);
-    pair<Tag, Tag> tagPair;
+    std::pair<Tag, Tag> tagPair;
 
     /* --- Point Cloud Initializations --- */
 #if OBSTACLE_DETECTION
@@ -79,9 +75,9 @@ int main() {
 
     /* --- AR Recording Initializations and Implementation--- */
 
-    time_t now = time(0);
+    time_t now = time(nullptr);
     char* ltm = ctime(&now);
-    string timeStamp(ltm);
+    std::string timeStamp(ltm);
 
 #if AR_RECORD
     //initializing ar tag videostream object
@@ -95,10 +91,10 @@ int main() {
 
 #if AR_DETECTION
         //Grab initial images from cameras
-        Mat rgb;
-        Mat src = cam.image();
-        Mat depth_img = cam.depth();
-        Mat xyz_img = cam.xyz();
+        cv::Mat rgb;
+        cv::Mat src = cam.image();
+        cv::Mat depth_img = cam.depth();
+        cv::Mat xyz_img = cam.xyz();
 #endif
 
 #if OBSTACLE_DETECTION
@@ -131,7 +127,7 @@ int main() {
 
 #if PERCEPTION_DEBUG && AR_DETECTION
         imshow("depth", src);
-        waitKey(1);
+        cv::waitKey(1);
 #endif
 
 #endif

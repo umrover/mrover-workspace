@@ -1,12 +1,12 @@
 #include "perception.hpp"
 
-static Mat HSV;
-static Mat DEPTH;
+static cv::Mat HSV;
+static cv::Mat DEPTH;
 
 /* For debug use: print the HSV values at mouseclick locations */
 void onMouse(int event, int x, int y, int flags, void* userdata) {
-    if (event == EVENT_LBUTTONUP) {
-        Vec3b p = HSV.at<Vec3b>(y, x);
+    if (event == cv::EVENT_LBUTTONUP) {
+        auto p = HSV.at<cv::Vec3b>(y, x);
         float d = DEPTH.at<float>(y, x);
         printf("Get mouse click at (%d, %d), HSV value is H: %d, S: %d, V:%d, "
                "depth is %.2f meters \n",
@@ -26,7 +26,7 @@ TagDetector::TagDetector(const rapidjson::Document& mRoverConfig) :
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
         std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
-        throw Exception();
+        throw cv::Exception();
     }
 
     // read dictionary from file
@@ -51,8 +51,8 @@ TagDetector::TagDetector(const rapidjson::Document& mRoverConfig) :
  * @param corners Corners in camera pixel space of AR tag.
  * @return        AR tag center in camera pixel space.
  */
-Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f>& corners) {  //gets coordinate of center of tag
-    Point2f avgCoord;
+cv::Point2f TagDetector::getAverageTagCoordinateFromCorners(const std::vector<cv::Point2f>& corners) {  //gets coordinate of center of tag
+    cv::Point2f avgCoord;
     for (auto& corner: corners) {
         avgCoord.x += corner.x;
         avgCoord.y += corner.y;
@@ -71,8 +71,8 @@ Point2f TagDetector::getAverageTagCoordinateFromCorners(const vector<Point2f>& c
  * @return          Pair of target objects, each object has an ID and pixel x and y position for the center of the tag.
  *                  The leftmost tag is always the first item in the pair,
  */
-pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //detects AR tags in source Mat and outputs Tag objects for use in LCM
-    cvtColor(src, rgb, COLOR_RGBA2RGB);
+std::pair<Tag, Tag> TagDetector::findARTags(cv::Mat& src, cv::Mat& depth_src, cv::Mat& rgb) {
+    cvtColor(src, rgb, cv::COLOR_RGBA2RGB);
     // clear ids and corners vectors for each detection
     mIds.clear();
     mCorners.clear();
@@ -90,12 +90,12 @@ pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //
 
     // on click debugging for color
     DEPTH = depth_src;
-    cvtColor(rgb, HSV, COLOR_RGB2HSV);
-    setMouseCallback("Obstacle", onMouse);
+    cvtColor(rgb, HSV, cv::COLOR_RGB2HSV);
+    cv::setMouseCallback("Obstacle", onMouse);
 #endif
 
     // create Tag objects for the detected tags and return them
-    pair<Tag, Tag> discoveredTags;
+    std::pair<Tag, Tag> discoveredTags;
     if (mIds.empty()) {
         // no tags found, return invalid objects with tag set to -1
         discoveredTags.first.id = DEFAULT_TAG_VAL;
@@ -149,8 +149,11 @@ pair<Tag, Tag> TagDetector::findARTags(Mat& src, Mat& depth_src, Mat& rgb) {  //
  * @param depth_img     TODO needed?
  * @param xyz_img       Point cloud XYZ data calculated from rectifying both images.
  */
-void TagDetector::updateDetectedTagInfo(rover_msgs::Target* outTags, pair<Tag, Tag> const& tagPair, Mat const& depth_img, Mat const& xyz_img) const {
-    array<Tag, 2> tags{tagPair.first, tagPair.second};
+void TagDetector::updateDetectedTagInfo(
+        rover_msgs::Target* outTags, std::pair<Tag, Tag> const& tagPair,
+        cv::Mat const& depth_img, cv::Mat const& xyz_img
+) const {
+    std::array<Tag, 2> tags{tagPair.first, tagPair.second};
     for (size_t i = 0; i < 2; ++i) {
         Tag const& tag = tags[i];
         rover_msgs::Target& outArTag = outTags[i];
@@ -166,7 +169,7 @@ void TagDetector::updateDetectedTagInfo(rover_msgs::Target* outTags, pair<Tag, T
             // +z is forward, +x is right, all in millimeters and relative to camera
             float x, y, z;
             {
-                auto xyz = xyz_img.at<Vec4f>(yPixel, xPixel);
+                auto xyz = xyz_img.at<cv::Vec4f>(yPixel, xPixel);
                 x = xyz[0];
                 y = xyz[1];
                 z = xyz[2];

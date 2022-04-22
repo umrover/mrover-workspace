@@ -1,21 +1,19 @@
 #pragma once
 
 #include <vector>
+
 #include "perception.hpp"
 #include "rover_msgs/Target.hpp"
 
-using namespace std;
-using namespace cv;
-
 struct Tag {
-    Point2f loc;
+    cv::Point2f loc;
     int id;
 };
 
 class TagDetector {
 private:
-    Ptr<cv::aruco::Dictionary> mAlvarDict;
-    Ptr<cv::aruco::DetectorParameters> mAlvarParams;
+    cv::Ptr<cv::aruco::Dictionary> mAlvarDict;
+    cv::Ptr<cv::aruco::DetectorParameters> mAlvarParams;
     std::vector<int> mIds;
     std::vector<std::vector<cv::Point2f>> mCorners;
     cv::Mat mRgb;
@@ -33,11 +31,11 @@ public:
     explicit TagDetector(const rapidjson::Document& mRoverConfig);
 
     //takes detected AR tag and finds center coordinate for use with ZED                                                                 
-    static Point2f getAverageTagCoordinateFromCorners(const vector<Point2f>& corners);
+    static cv::Point2f getAverageTagCoordinateFromCorners(const std::vector<cv::Point2f>& corners);
 
     //detects AR tags in a given Mat
-    pair<Tag, Tag> findARTags(Mat& src, Mat& depth_src, Mat& rgb);
+    std::pair<Tag, Tag> findARTags(cv::Mat& src, cv::Mat& depth_src, cv::Mat& rgb);
 
     //if AR tag found, updates distance, bearing, and id
-    void updateDetectedTagInfo(rover_msgs::Target* outTags, pair<Tag, Tag> const& tagPair, Mat const& depth_img, Mat const& xyz_img) const;
+    void updateDetectedTagInfo(rover_msgs::Target* outTags, std::pair<Tag, Tag> const& tagPair, cv::Mat const& depth_img, cv::Mat const& xyz_img) const;
 };
