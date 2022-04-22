@@ -52,7 +52,7 @@ void LCMHandler::handle_outgoing()
 
     std::chrono::duration calib_data_output_dead_time = std::chrono::milliseconds(1000);
     // Refresh and post joint b calibration data every second
-    if (NOW - last_calib_data_output_time > calib_data_output_dead_time)1
+    if (NOW - last_calib_data_output_time > calib_data_output_dead_time)
     {
         internal_object->refresh_calib_data();
     }
