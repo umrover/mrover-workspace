@@ -288,10 +288,10 @@ int main()
 
     while (1)
     {
-        testClosed();
+        // testClosed();
 	    // testQuadEnc();
         // testOpenPlusWithAbs();
-        //testOpenPlusWithAbsWithDelays();
+        testOpenPlusWithAbsWithDelays();
         // testOpenPlus();
         // testAbsEnc();
         sleep(100);
