@@ -1,7 +1,0 @@
-package rover_msgs;
-
-struct IkArmControl {
-	double deltaX;
-	double deltaY;
-	double deltaZ;
-}

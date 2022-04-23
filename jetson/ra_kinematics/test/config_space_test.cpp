@@ -24,7 +24,7 @@ private:
 public:
 
     void write_valid_configs(ArmState &arm, KinematicsSolver &solver, std::string filename) {
-        ofstream file(filename);
+        std::ofstream file(filename);
 
         num_valid_points = 0;
 
@@ -48,7 +48,7 @@ public:
                 pos.head(3) = arm.get_ef_pos_world();
                 pos.tail(3) = arm.get_ef_ang_world();
 
-                for (size_t i = 0; i < 6; ++i) {
+                for (size_t i = 0; i < arm.num_joints(); ++i) {
                     file << pos[i] << ",";
                 }
                 file << "\n";
@@ -70,12 +70,12 @@ public:
 
         Vector6d target_pos;
 
-        while (getline(file, line)) {
-            stringstream ss(line);
+        while (std::getline(file, line)) {
+            std::stringstream ss(line);
 
             size_t i = 0;
             
-            while (getline(ss, cell, ',')) {
+            while (std::getline(ss, cell, ',')) {
                 target_pos[i] = atof(cell.c_str());
 
                 if (i == 5) {
@@ -84,7 +84,7 @@ public:
                 ++i;
             }
 
-            std::pair<Vector6d, bool> ik_solution;
+            std::pair<std::vector<double>, bool> ik_solution;
 
             // attempt to find ik_solution, starting at up to 25 random positions
             for(int i = 0; i < 25; ++i) {
@@ -112,7 +112,7 @@ public:
 };
 
 TEST(config_space) {
-    json geom = read_json_from_file(get_mrover_arm_geom());
+    json geom = read_json_from_file(get_mrover_arm_geom(false));
 
     ArmState arm(geom);
     KinematicsSolver solver;
