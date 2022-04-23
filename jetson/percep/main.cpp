@@ -130,6 +130,14 @@ int main() {
         DoubleTrack(&detector.getAlvarParams()->maxErroneousBitsInBorderRate).setup("maxErroneousBitsInBorderRate", "ARUCO Debug", 1);
         DoubleTrack(&detector.getAlvarParams()->minOtsuStdDev).setup("minOtsuStdDev", "ARUCO Debug", 20);
         DoubleTrack(&detector.getAlvarParams()->errorCorrectionRate).setup("errorCorrectionRate", "ARUCO Debug", 1);
+
+        std::string const gstLaunch = "appsrc ! video/x-raw, format=BGR !"
+                                    "queue ! videoconvert ! x264enc tune=zerolatency bitrate=1000000 speed-preset=superfast !"
+                                    "rtph264pay ! udpsink host=127.0.0.1 port=5000";
+
+        cv::Size streamSize(1280, 720);
+        cv::VideoWriter writer(gstLaunch, 0, 30, streamSize);
+        cv::Mat send(streamSize, CV_8UC3);
     #endif
 
     /* --- Main Processing Stuff --- */
@@ -143,6 +151,7 @@ int main() {
         cv::Mat src = cam.image();
         cv::Mat depth_img = cam.depth();
         cv::Mat xyz_img = cam.xyz();
+
 #endif
 
 #if OBSTACLE_DETECTION
@@ -169,6 +178,11 @@ int main() {
         tagPair = detector.findARTags(src, depth_img, rgb);
 #if AR_RECORD
         cam.record_ar(rgb);
+#endif
+#if PERCEPTION_DEBUG
+        cv::Mat bgr;
+        cv::cvtColor(src, bgr, cv::COLOR_RGBA2BGR);
+        writer.write(bgr);
 #endif
 
         detector.updateDetectedTagInfo(arTags, tagPair, depth_img, xyz_img);
