@@ -10,7 +10,11 @@ Environment::Environment(const rapidjson::Document& config) :
         mPostOneLat(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
         mPostOneLong(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
         mPostTwoLat(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
-        mPostTwoLong(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()) {}
+        mPostTwoLong(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+        mLeftTargetBearing(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+        mLeftTargetDistance(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+        mRightTargetBearing(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()),
+        mRightTargetDistance(mConfig["gate"]["filterSize"].GetInt(), mConfig["gate"]["filterProportion"].GetDouble()) {}
 
 /***
  * @param targets New target data from perception to update our filters.
@@ -20,6 +24,16 @@ void Environment::setTargets(TargetList const& targets) {
     Target const& rightTargetRaw = targets.targetList[1];
     mTargetLeft.put((leftTargetRaw.distance != -1 && leftTargetRaw.id != -1), leftTargetRaw);
     mTargetRight.put((rightTargetRaw.distance != -1 && rightTargetRaw.id != -1), rightTargetRaw);
+
+    if (mTargetLeft.isValid()){
+        mLeftTargetBearing.push(mTargetLeft.get().bearing);
+        mLeftTargetDistance.push(mTargetLeft.get().distance);
+    }
+    if (mTargetRight.isValid()){
+        mRightTargetBearing.push(mTargetRight.get().bearing);
+        mRightTargetDistance.push(mTargetRight.get().distance);
+    }
+    
 }
 
 /***
@@ -84,11 +98,11 @@ Obstacle Environment::getObstacle() {
 }
 
 Target Environment::getLeftTarget() const {
-    return mTargetLeft.get();
+    return {mLeftTargetDistance.get(), mLeftTargetBearing.get(), mTargetLeft.get().id};//mTargetLeft.get();
 }
 
 Target Environment::getRightTarget() const {
-    return mTargetRight.get();
+    return {mRightTargetDistance.get(), mRightTargetBearing.get(), mTargetRight.get().id};//mTargetRight.get();
 }
 
 void Environment::setBaseGateID(int baseGateId) {

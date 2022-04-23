@@ -32,6 +32,8 @@ private:
 
     Filter<double> mPostOneLat, mPostOneLong, mPostTwoLat, mPostTwoLong;
 
+    Filter<double> mLeftTargetBearing, mLeftTargetDistance, mRightTargetBearing, mRightTargetDistance;
+
     bool mHasNewPostUpdate = false;
 
     int mBaseGateId{};
