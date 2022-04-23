@@ -86,7 +86,7 @@ std::pair<Tag, Tag> TagDetector::findARTags(cv::Mat& src, cv::Mat& depth_src, cv
 #if PERCEPTION_DEBUG
     // Draw detected tags
     cv::aruco::drawDetectedMarkers(rgb, mCorners, mIds);
-    cv::imshow("AR Tags", rgb);
+//    cv::imshow("AR Tags", rgb);
 
     // Replicating the last threshold step in opencv_contrib
     int scale = (mAlvarParams->adaptiveThreshWinSizeMax % 2 == 0) ? mAlvarParams->adaptiveThreshWinSizeMax + 1 : mAlvarParams->adaptiveThreshWinSizeMax;
