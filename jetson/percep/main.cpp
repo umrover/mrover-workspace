@@ -135,7 +135,7 @@ int main() {
                                     "queue ! videoconvert ! x264enc tune=zerolatency bitrate=1000000 speed-preset=superfast !"
                                     "rtph264pay ! udpsink host=127.0.0.1 port=5000";
 
-        cv::Size streamSize(1280, 720);
+        cv::Size streamSize(640, 360);
         cv::VideoWriter writer(gstLaunch, 0, 30, streamSize);
         cv::Mat send(streamSize, CV_8UC3);
     #endif
@@ -180,9 +180,10 @@ int main() {
         cam.record_ar(rgb);
 #endif
 #if PERCEPTION_DEBUG
-        cv::Mat bgr;
-        cv::cvtColor(src, bgr, cv::COLOR_RGBA2BGR);
-        writer.write(bgr);
+        cv::Mat bgr, sendMat;
+        cv::cvtColor(rgb, bgr, cv::COLOR_RGB2BGR);
+        cv::resize(bgr, sendMat, cv::Size{640, 360});
+        writer.write(sendMat);
 #endif
 
         detector.updateDetectedTagInfo(arTags, tagPair, depth_img, xyz_img);
