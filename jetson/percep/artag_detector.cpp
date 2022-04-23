@@ -25,8 +25,8 @@ TagDetector::TagDetector(const rapidjson::Document& mRoverConfig) :
 
     cv::FileStorage fsr("jetson/percep/alvar_dict.yml", cv::FileStorage::READ);
     if (!fsr.isOpened()) {  //throw error if dictionary file does not exist
-        std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main\n";
-        throw cv::Exception();
+        std::cerr << "ERR: \"alvar_dict.yml\" does not exist! Create it before running main" << std::endl;
+        throw std::runtime_error("Dictionary does not exist");
     }
 
     // read dictionary from file
@@ -182,7 +182,8 @@ void TagDetector::updateDetectedTagInfo(
                 outArTag.id = DEFAULT_TAG_VAL;
             } else {
                 // use Euclidean method to calculate distance, convert to meters
-                outArTag.distance = std::sqrt(x * x + y * y + z * z) * static_cast<float>(MM_PER_M);
+                const float MM_TO_M = 0.001f;
+                outArTag.distance = std::sqrt(x * x + y * y + z * z) * MM_TO_M;
                 outArTag.bearing = std::atan2(x, z) * 180.0 / PI;
                 outArTag.id = tag.id;
             }

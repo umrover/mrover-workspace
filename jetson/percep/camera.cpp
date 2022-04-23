@@ -7,12 +7,7 @@
 
 #if ZED_SDK_PRESENT
 
-#pragma GCC diagnostic ignored "-Wreorder" //Turns off warning checking for sl lib files
-
 #include <sl/Camera.hpp>
-#include <cassert>
-
-#pragma GCC diagnostic pop
 
 //Class created to implement all Camera class' functions
 //Abstracts away details of using Stereolab's camera interface
@@ -62,17 +57,19 @@ Camera::Impl::Impl(const rapidjson::Document& config) : THRESHOLD_CONFIDENCE(con
     init_params.camera_fps = 15;
     // TODO change this below?
 
-    assert(this->zed_.open() == sl::ERROR_CODE::SUCCESS);
-
-    //Parameters for Positional Tracking
+    // Parameters for Positional Tracking
     init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
-    //this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
+    // this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
 
     this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
 
-#if PERCEPTION_DEBUG
-    std::cout << "ZED init success\n";
-#endif
+    sl::ERROR_CODE openCode = this->zed_.open();
+    if (openCode == sl::ERROR_CODE::SUCCESS) {
+        std::cout << "ZED init success" << std::endl;
+    } else {
+        std::cerr << "ZED init failure: " << openCode << std::endl;
+        throw std::runtime_error("ZED init fail");
+    }
 
     this->runtime_params_.sensing_mode = sl::SENSING_MODE::STANDARD;
 
@@ -105,10 +102,13 @@ cv::Mat const& Camera::Impl::depth() {
 
 cv::Mat const& Camera::Impl::xyz() {
     this->zed_.retrieveMeasure(xyz_zed_, sl::MEASURE::XYZ, sl::MEM::CPU, image_size_);
+//    sl::float4 point3D;
+//    xyz_zed_.getValue(200, 200, &point3D);
+//    std::cout << point3D.x << ", " << point3D.y << ", " << point3D.z << std::endl;
     return xyz_;
 }
 
-//This function convert an RGBA color packed into a packed RGBA PCL compatible format
+// This function convert an RGBA color packed into a packed RGBA PCL compatible format
 inline float convertColor(float colorIn) {
     uint32_t color_uint = *(uint32_t*) &colorIn;
     auto* color_uchar = (unsigned char*) &color_uint;

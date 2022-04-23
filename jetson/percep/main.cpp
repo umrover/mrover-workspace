@@ -1,5 +1,7 @@
 #include <deque>
 
+#include "rapidjson/istreamwrapper.h"
+
 #include "perception.hpp"
 #include "rover_msgs/Target.hpp"
 #include "rover_msgs/TargetList.hpp"
@@ -9,25 +11,24 @@ int main() {
     /* --- Reading in Config File --- */
     rapidjson::Document mRoverConfig;
     std::ifstream configFile;
-    std::string configPath = getenv("MROVER_CONFIG");
-    configPath += "/config_percep/config.json";
+    bool isJarvis = getenv("MROVER_CONFIG");
+    std::string configPath = isJarvis
+                             ? std::string{getenv("MROVER_CONFIG")} + "/config_percep/config.json"
+                             : std::string{get_current_dir_name()} + "/config/percep/config.json";
+
     configFile.open(configPath);
-    std::string config;
-    std::string setting;
-    while (configFile >> setting) {
-        config += setting;
+    if (configFile) {
+        rapidjson::IStreamWrapper isw(configFile);
+        mRoverConfig.ParseStream(isw);
+        configFile.close();
+    } else {
+        throw std::runtime_error("Failed to open config file at: " + configPath);
     }
-    configFile.close();
-    mRoverConfig.Parse(config.c_str());
 
     /* --- Camera Initializations --- */
     Camera cam(mRoverConfig);
     int iterations = 0;
     cam.grab();
-
-#if PERCEPTION_DEBUG
-    cv::namedWindow("depth", 2);
-#endif
 
 #if AR_DETECTION
     cv::Mat rgb;
@@ -126,7 +127,7 @@ int main() {
         detector.updateDetectedTagInfo(arTags, tagPair, depth_img, xyz_img);
 
 #if PERCEPTION_DEBUG && AR_DETECTION
-        imshow("depth", src);
+//        cv::imshow("depth", depth_img);
         cv::waitKey(1);
 #endif
 
