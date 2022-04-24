@@ -1244,7 +1244,6 @@
         "AutonDriveControl",
         "AutonState",
         "Bearing",
-        "CameraServos",
         "Course",
         "CurrentDraw",
         "DebugMessage",
