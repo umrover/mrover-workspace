@@ -77,11 +77,6 @@ export default {
     return {
       lcm_: null,
 
-      lastServosMessage: {
-        pan: 0,
-        tilt: 0
-      },
-
       odom: {
         latitude_deg: 0,
         latitude_min: 0,
@@ -289,15 +284,6 @@ export default {
         }
       }
 
-      const clamp = function (num, min, max) {
-        return num <= min ? min : num >= max ? max : num
-      }
-
-      servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
-      servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
-      this.lastServosMessage = servosMessage
-
-      this.lcm_.publish('/camera_servos', servosMessage)
     }, 100)
   },
 
