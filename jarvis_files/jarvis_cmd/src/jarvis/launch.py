@@ -146,4 +146,3 @@ def exec_ssh(wid:str, ip:str):
 ########################
 def gen_focus(wid:str):
     return "xdotool windowfocus " + wid
-    
