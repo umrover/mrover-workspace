@@ -25,7 +25,6 @@
      <h1>Nav State: {{this.nav_status.nav_state_name}}</h1>
      <div class="raw-data raw-sensors">
         <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
-        <RadioSignalStrength v-bind:RadioSignalStrength="RadioSignalStrength"/>
         <Obstacle v-bind:Obstacle="Obstacle"/>
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
@@ -54,7 +53,6 @@ import { mapGetters } from 'vuex'
 import Cameras from './Cameras.vue'
 import RoverMap from './RoverMapAuton.vue'
 import CommIndicator from './CommIndicator.vue'
-import RadioSignalStrength from './RadioSignalStrength.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
@@ -97,7 +95,6 @@ export default {
         websocket: false,
         lcm: false,
         motors: false,
-        cameras: [false, false, false, false, false, false, false, false]
       },
 
       nav_status: {
@@ -157,9 +154,6 @@ export default {
         bearing_deg: 0
       },
       
-      RadioSignalStrength: {
-        signal_strength: '0'
-      },
     }
   },
 
@@ -232,8 +226,6 @@ export default {
           this.TargetBearing = msg.message
         } else if (msg.topic === '/imu_data') {
           this.IMU = msg.message
-        } else if (msg.topic === '/radio') {
-          this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
          }else if (msg.topic === '/auton_drive_control') {
           this.AutonDriveControl = msg.message
         } else if (msg.topic === '/kill_switch') {
@@ -259,14 +251,12 @@ export default {
         {'topic': '/auton_drive_control', 'type': 'AutonDriveControl'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
-        {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/estimated_gate_location', 'type': 'EstimatedGateLocation'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu_data', 'type': 'IMUData'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/obstacle', 'type': 'Obstacle'},
-        {'topic': '/radio', 'type': 'RadioSignalStrength'},
         {'topic': '/target_list', 'type': 'TargetList'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
@@ -275,12 +265,6 @@ export default {
         {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
       ]
     )
-
-    const servosMessage = {
-      'type': 'CameraServos',
-      'pan': 0,
-      'tilt': 0
-    }
 
     const JOYSTICK_CONFIG = {
       'forward_back': 1,
@@ -326,7 +310,6 @@ export default {
     OdometryReading,
     RawSensorData,
     AutonWaypointEditor,
-    RadioSignalStrength,
     Obstacle,
     TargetList,
     DriveVelDataH,
