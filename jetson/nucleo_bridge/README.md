@@ -141,6 +141,11 @@ If two devices share the same i2c address but their functions are continuously c
 - [ ] Investigate encoder issues
 - [ ] Create new shield next year and make sure correct pins are traced
 - [ ] Add LCM tests to test.cpp
+- [ ] Zero-index after URC + CIRC (after Rosie)
+- [ ] Verify wrist encoder CPR
+- [ ] Perhaps custom nucleos (to replace the current 3 nucleos taking up so much space)
+- [ ] Create zero lcm with teleop for carousel motor
+- [ ] Create closed loop for carousel motor
 
 ### Notes
 

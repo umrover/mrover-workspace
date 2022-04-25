@@ -182,3 +182,4 @@ Format of the data string
 - [ ] Need better support for Auton LEDs - move it to nucleos
 - [X] Create function for padding
 - [ ] Don't need to wait for all tags to be seen
+- [ ] Change to all caps for msgs from jetson to nucleo (make sure to change nucleo end too)
