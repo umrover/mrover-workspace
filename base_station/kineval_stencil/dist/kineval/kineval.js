@@ -902,3 +902,48 @@ kineval.loadJSFile = function loadJSFile(filename,kineval_object) {
         console.warn("kineval: JS file loaded, object type "+kineval_object+" not recognized");
 
 }
+
+function loadJSON(callback) {
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+
+    // open json preset file
+    xobj.open('GET', './mrover_arm_presets.json', true);
+
+    // once file is loaded
+    xobj.onreadystatechange = function () {
+        if (xobj.readyState == 4 && xobj.status == "200") {
+            console.log('Loaded presets json');
+            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+            callback(xobj.responseText);
+        }
+        else {
+            console.log('Could not load presets json');
+        }
+    };
+    xobj.send(null);  
+}
+
+// create menu for presets
+function presets_init(gui) {
+
+    // pass callback to loadJSON to be called when it gets data from json file
+    loadJSON(function(response) {
+        // Parse JSON string into object
+        actual_JSON = JSON.parse(response);
+        console.log("presets json =" + JSON.stringify(actual_JSON));
+
+        var size = Object.keys(actual_JSON).length;
+        var presetToggles = { };
+        for(i = 0; i < size; i++) {
+            presetToggles[Object.keys(actual_JSON)[i]] = false;
+            gui.add(presetToggles, Object.keys(actual_JSON)[i]);
+        }
+
+        var submit = new presetAngles();
+        submit.presetToggles = presetToggles;
+        submit.actual_JSON = actual_JSON;
+        submit.size = size;
+        gui.add(submit, "submit");
+    });
+}

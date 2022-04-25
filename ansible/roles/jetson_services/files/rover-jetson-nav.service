@@ -1,5 +1,5 @@
 [Unit]
-Description=MRover Onboard Navigation
+Description=MRover Jetson Navigation
 Requires=rover-jetson-teleop.service
 After=rover-jetson-teleop.service
 

@@ -25,9 +25,9 @@ Outgoing lcm messages are triggered by a clock, which query the functions on the
 
 I2C.h is responsible for translating communications by virtual Controllers into i2c transactions understood by the linux drivers.
 
-There are no watchdogs in this program currently.
+The following watchdog is implemented: If the nucleos do not receive any I2C messages for a given amount of time (currently about 443 ms), then they reset.
 
-### LCM Channels
+### LCM Channels Publishing/Subscribed To
 #### RA Open Loop \[Subscriber\] "/ra_openloop_cmd"
 Message: [RAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAOpenLoopCmd.lcm) \
 Publisher: jetson/teleop \
@@ -38,18 +38,18 @@ Message: [SAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/ma
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### RA Closed Loop \[Subscriber\] "/ik_ra_control"
-Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
-Publisher: jetson/kinematics \
+#### RA Closed Loop \[Subscriber\] "/ra_ik_cmd"
+Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
+Publisher: jetson/ra_kinematics \
 Subscriber: jetson/nucleo_bridge
 
-#### SA Closed Loop \[Subscriber\] "/sa_closedloop_cmd"
-Message: [SAClosedLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAClosedLoopCmd.lcm) \
-Publisher: jetson/kinematics \
+#### SA Closed Loop \[Subscriber\] "/sa_ik_cmd"
+Message: [SAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAPosition.lcm) \
+Publisher: jetson/ra_kinematics \
 Subscriber: jetson/nucleo_bridge
 
-#### Gimbal Open Loop \[Subscriber\] "/gimbal_openloop_cmd"
-Message: [GimbalCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/GimbalCmd.lcm) \
+#### Mast Gimbal Open Loop \[Subscriber\] "/mast_gimbal_cmd"
+Message: [MastGimbalCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/MastGimbalCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
@@ -59,19 +59,38 @@ Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
 #### Foot Open Loop \[Subscriber\] "/foot_openloop_cmd"
-Message: [FootCmd.lcm](https://github.com/raytitan/mrover-workspace/blob/rnucleo/rover_msgs/FootCmd.lcm) \
+Message: [FootCmd.lcm](https://github.com/umrover/mrover-workspace/blob/rnucleo/rover_msgs/FootCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### RA Pos Data \[Publisher\] "/arm_posiiton"
-Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
+#### RA Pos Data \[Publisher\] "/ra_pos_data"
+Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
 Publisher: jetson/nucleo_bridge \
-Subscriber: jetson/kinematics
+Subscriber: jetson/ra_kinematics + base_station/gui
 
 #### SA Pos Data \[Publisher\] "/sa_pos_data"
 Message: [SAPosData.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAPosData.lcm) \
 Publisher: jetson/nucleo_bridge \
-Subscriber: jetson/kinematics
+Subscriber: jetson/ra_kinematics + base_station/kineval_stencil + base_station/gui
+
+#### Wrist Turn Count \[Publisher\] "/wrist_turn_count"
+Message: [WristTurnCount.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/WristTurnCount.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui + jetson/teleop
+
+#### Joint B Calibration Data \[Publisher\] "/joint_b_refresh_calibration_data"
+Message: [JointBCalibration.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/JointBCalibration.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui + jetson/ra_kinematics
+
+#### Scoop Limit Switch Enable Cmd \[Subscriber\] "/scoop_limit_switch_enable_cmd"
+Message: [ScoopLimitSwitchEnable.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ScoopLimitSwitchEnable.lcm) \
+Publisher: base_station/gui \
+Subscriber: jetson/nucleo_bridge
+
+### Watchdog Timeout Period
+
+See above, but the watchdog timeout period is currently set to 443 ms.
 
 ### Usage
 
@@ -89,33 +108,37 @@ To control the RA/SA through open-loop
 
 To control the RA/SA through closed-loop
 * Ensure jetson/teleop is running on the same platform
-* Ensure jetson/kinematics is running on the same platform
-* Ensure base_station/kineval is running on the base station
+* Ensure jetson/ra_kinematics is running on the same platform
+* Ensure base_station/kineval_stencil is running on the base station
 * Input commands into the arm control page on the base station GUI
+
+### Off Nominal Behavior Handling
+
+None so far.
 
 ### Common Errors
 
 This routine typically only thows one type of error, when it has issues communicating with the motor nucleos. They will have the form "<command> failed on channel"
 
-
 #### <Command> failed on channel
-The Nucleo that is unresponsive is the first digit of the channel minus 1. For example, if the error message says "activate failed on 10", check Nucleo 0. Typically this is because the wiring on the i2c bus has failed nd needs to be fixed. Even after wiring is fixed or other related issues have been resolved, the Nucleos may stay unresponsive. To reset the Nucleo, press its reset button. If this does not fix nucleo_bridge, you may have to restart nucleo_bridge.
+The Nucleo that is unresponsive is the first digit of the channel. For example, if the error message says "activate failed on 10", check Nucleo 1. Typically this is because the wiring on the i2c bus has failed and needs to be fixed. Even after wiring is fixed or other related issues have been resolved, the Nucleos may stay unresponsive. To reset the Nucleo, press its reset button. If this does not fix nucleo_bridge, you may have to restart nucleo_bridge.
 
 These communication errors can be caused by a failure anywhere on the i2c bus, so it is not unlikely that issues with only one Nucleo will cause the all the Nucleos to fail to communicate properly. 
 
 nucleo_bridge will continue to attempt i2c bus transactions as commands come in from teleop, but currently has no other way to diagnose/remedy an i2c failure.
 
-
 #### "Assertation failed" while initializing a virtual controller
 There is an issue with mrover-workspace/config/nucleo_bridge/Controller.cpp. Resolve the configuration file's issues before running the program.
 
+#### Encoder values resetting
+If two devices share the same i2c address but their functions are continuously called, then one may see the encoder values changing. This is because when only one device for a specific i2c address can be live at a time and when each device is first made live, it's quadrature encoder value is adjusted to its absolute encoder value.
+
+
 ### ToDo
-- [ ] Add back in closed loop controls 
-- [ ] Add back in limits 
-- [ ] Try electrical fixes to the pinouts/redo them in software if necessary 
-- [ ] LCM message to teleop about joint B being at its limit or not 
-- [ ] Absolute encoder functionality (potentially will not be implemented) 
-- [ ] Investigate relative and absolute encoder limits (do they ever go above 360/below 0?)  
+- [ ] Test limit switch code
+- [ ] Test joint b calibration code
+- [ ] Test IR encoder
+
 ### Notes
 
-To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/raytitan/NucleoHAL/tree/master/Core). A README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.
+To reference the firmware that is loaded onto the Nucleos, [see this] (https://github.com/umrover/embedded-testbench/tree/motor_nucleo/motor_nucleo). An updated README for the firmware is coming soon, which will point out details such as watchdog timers and common issues.

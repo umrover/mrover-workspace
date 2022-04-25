@@ -1,7 +1,0 @@
-package rover_msgs;
-
-struct ArmToggles {
-	boolean solenoid;
-	boolean electromagnet;
-	boolean laser;
-}

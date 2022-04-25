@@ -53,8 +53,8 @@ To test the package, run `$ make tests ` from the ra_kinematics directory. To te
 
 ### LCM Publications ###
 
-#### Arm Position \[Publisher\] "/arm_position" ####
-Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
+#### RA Arm Position \[Publisher\] "/arm_position" ####
+Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
 Publisher: jetson/ra_kinematics \
 Subscriber: jetson/ra_kinematics
 
@@ -65,8 +65,8 @@ Message: [DebugMessage.lcm](https://github.com/umrover/mrover-workspace/blob/mas
 Publisher: jetson/ra_kinematics \
 Subscriber: base_station/kineval_stencil
 
-#### RA Closed Loop \[Publisher\] "/ik_ra_control" ####
-Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
+#### RA Closed Loop \[Publisher\] "/ra_ik_cmd" ####
+Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
 Publisher: jetson/ra_kinematics \
 Subscriber: jetson/nucleo_bridge
 
@@ -77,8 +77,8 @@ Subscriber: base_station/kineval_stencil
 
 ### LCM Subscriptions ###
 
-#### Arm Position \[Subscriber\] "/arm_position" ####
-Message: [ArmPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ArmPosition.lcm) \
+#### RAPosition \[Subscriber\] "/arm_position" ####
+Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
 Publisher: jetson/nucleo_bridge \
 Subscriber: jetson/ra_kinematics
 
