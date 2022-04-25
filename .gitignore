@@ -12,6 +12,8 @@ build/
 *.dat
 output.log
 base_station/gui/src/static/map
+base_station/gui/src/static/map.zip
+base_station/download_map/src/keys.json
 /core.*
 jetson/test**
 beaglebone/test**
