@@ -43,7 +43,8 @@
     <div class="box waypoints light-bg">
       <AutonWaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
     </div>
-    <div class="box angles light-bg">
+    <div class="box cameras light-bg">
+      <AutonCameras v-if="!this.autonEnabled" />
     </div>
   </div>
 
@@ -52,6 +53,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import Cameras from './Cameras.vue'
+import AutonCameras from './AutonCameras.vue'
 import RoverMap from './RoverMapAuton.vue'
 import CommIndicator from './CommIndicator.vue'
 import RadioSignalStrength from './RadioSignalStrength.vue'
@@ -178,8 +180,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('controls', {
-      controlMode: 'controlMode'
+    ...mapGetters('autonomy', {
+      autonEnabled: 'autonEnabled'
     }),
   },
 
@@ -277,6 +279,7 @@ export default {
   components: {
     RoverMap,
     Cameras,
+    AutonCameras,
     CommIndicator,
     ArmControls,
     DriveControls,
@@ -412,9 +415,8 @@ export default {
     grid-area: odom;
   }
 
-  .cameras{
-    width: 97%;
-    height: 85%;
+  .cameras {
+    overflow: auto;
   }
 
   .diags {
