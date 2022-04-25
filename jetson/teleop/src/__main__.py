@@ -126,7 +126,7 @@ class ArmControl:
         self.arm_type = self.ArmType.UNKNOWN
 
     def arm_control_state_callback(self, channel, msg):
-        self.arm_control_state = ArmControlState.decode(msg)
+        self.arm_control_state = ArmControlState.decode(msg).state
         if (self.arm_control_state != "open-loop"):
             self.send_ra_kill()
             self.send_sa_kill()
