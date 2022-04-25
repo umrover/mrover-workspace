@@ -1205,12 +1205,6 @@
             "y"
         ]
     ],
-    "ZedGimbalPosition": [
-        [
-            "double",
-            "angle"
-        ]
-    ],
     "ZeroPosition": [
         [
             "double",
@@ -1300,7 +1294,6 @@
         "Waypoint",
         "WheelSpeeds",
         "Xbox",
-        "ZedGimbalPosition",
         "ZeroPosition"
     ]
 }

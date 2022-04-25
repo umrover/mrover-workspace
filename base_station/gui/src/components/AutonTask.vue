@@ -37,7 +37,6 @@
     </div>
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
-      <ZedGimbalAngles/>
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom" v-bind:GPS="GPS" v-bind:TargetBearing="TargetBearing"/>
@@ -66,7 +65,6 @@ import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import SaveAutonData from './SaveAutonData.vue'
 import PlaybackAutonData from './PlaybackAutonData.vue'
-import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
 const navBlue = "#4695FF"
 const navGreen = "yellowgreen"
@@ -256,8 +254,7 @@ export default {
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/projected_points', 'type': 'ProjectedPoints'},
-        {'topic': '/target_bearing', 'type': 'TargetBearing'},
-        {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
+        {'topic': '/target_bearing', 'type': 'TargetBearing'}
       ]
     )
   },
@@ -275,8 +272,7 @@ export default {
     TargetList,
     DriveVelDataH,
     SaveAutonData,
-    PlaybackAutonData,
-    ZedGimbalAngles
+    PlaybackAutonData
   }
 }
 </script>

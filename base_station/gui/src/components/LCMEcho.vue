@@ -112,8 +112,6 @@
           '/target_orientation': false,
           '/thermistor_data': false,
           '/use_orientation': false,
-          '/zed_gimbal_cmd': false,
-          '/zed_gimbal_data': false,
           '/zero_position': false
         },
         subscriptions: [
@@ -177,8 +175,6 @@
           {'topic': '/target_orientation', 'type': 'TargetOrientation'},
           {'topic': '/thermistor_data', 'type': 'ThermistorData'},
           {'topic': '/use_orientation', 'type': 'UseOrientation'},
-          {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
-          {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'},
           {'topic': '/zero_position', 'type': 'Signal'}
         ]
       }
