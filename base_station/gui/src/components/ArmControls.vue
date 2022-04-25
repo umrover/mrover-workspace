@@ -24,9 +24,7 @@ export default {
 
       stateInput: {
         state: "off"
-      },
-
-      wristTurnCount: 0
+      }
     }
   },
 
