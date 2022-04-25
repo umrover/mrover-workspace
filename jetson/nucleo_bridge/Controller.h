@@ -25,7 +25,6 @@
 #define ABS_ENC 0x50, 0, 4
 #define LIMIT 0x60, 0, 1
 #define CALIBRATED 0x6F, 0, 1
-#define TURN_COUNT 0x70, 0, 1
 #define LIMIT_ON 0x7F, 1, 0
 #define UINT8_POINTER_T reinterpret_cast<uint8_t *>
 
@@ -50,7 +49,6 @@ public:
     float kD = 0.0;
     bool calibrated = false;
     int inversion = 1;
-    int8_t turn_count = -1;
     float last_speed = 0;
 
     std::string name;
@@ -92,9 +90,6 @@ public:
 
     // Sends a get angle command
     void quad_angle();
-
-    // Get turn count -- should only be used for joint f
-    void refresh_turn_count();
 
     // Sends a zero command
     void zero();
