@@ -8,7 +8,6 @@
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="connections.motors && connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
@@ -25,27 +24,34 @@
 
     <div class="box1 data">
       <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
-    </div>
-    <div class="box2">
-      <div class="box odom light-bg">
+      <Cameras/>
+     </div>
+     <div class="box light-bg">
+        <br/>
+        <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU" v-bind:TargetList="TargetList" v-bind:Obstacle="Obstacle" v-bind:RadioSignalStrength="RadioSignalStrength"/>
+        <RadioSignalStrength v-bind:RadioSignalStrength="RadioSignalStrength"/>
+        <Obstacle v-bind:Obstacle="Obstacle"/>
+        <TargetList v-bind:TargetList="TargetList"/>
+        <DriveVelDataH/>
+     </div>
+
+    <!--div class="box2">
+      < <div class="box odom light-bg">
         <OdometryReading v-bind:odom="odom"/>
-      </div>
-      <div class="box Joystick light-bg">
-        <AutonJoystickReading v-bind:Joystick="Joystick"/>
+      </div> >
+  </div-->
     </div>
-  </div>
-  </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom"/>
     </div>
     <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped"/>
+      <WaypointEditor v-bind:odom="odom" v-bind:repeater_dropped="repeater_dropped" v-bind:Joystick="Joystick"/>
     </div>
-     <div class="box raw_sensors light-bg">
+     <!-- <div class="box raw_sensors light-bg">
       <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
-    </div>
+    </div> -->
   </div>
+
 </template>
 
 <script>
@@ -53,14 +59,18 @@ import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
 import RoverMap from './RoverMapAuton.vue'
 import CommIndicator from './CommIndicator.vue'
-import OdometryReading from './OdometryReading.vue'
+import RadioSignalStrength from './RadioSignalStrength.vue'
+// import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import EncoderCounts from './EncoderCounts.vue'
 import WaypointEditor from './WaypointEditor_Auton.vue'
-import AutonJoystickReading from './AutonJoystickReading.vue'
+// import AutonJoystickReading from './AutonJoystickReading.vue'
 import RawSensorData from './RawSensorData.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
+import Obstacle from './Obstacle.vue'
+import TargetList from './TargetList.vue'
+import DriveVelDataH from './DriveVelDataH.vue'
 
 let interval;
 
@@ -69,11 +79,6 @@ export default {
   data () {
     return {
       lcm_: null,
-
-      lastServosMessage: {
-        pan: 0,
-        tilt: 0
-      },
 
       odom: {
         latitude_deg: 38,
@@ -84,12 +89,9 @@ export default {
         speed: 0
       },
 
-
       connections: {
         websocket: false,
-        lcm: false,
-        motors: false,
-        cameras: [false, false, false, false, false, false, false, false]
+        lcm: false
       },
 
       nav_status: {
@@ -104,6 +106,17 @@ export default {
         longitude_min: -47.51724,
         bearing_deg: 0,
         speed: 0
+      },
+     
+      Obstacle: {
+	      detected: false,
+	      bearing: 0,
+        distance: 0
+      },
+
+      TargetList: {
+        targetList: [{bearing: 0, distance: 0, id: 0},
+        {bearing: 0, distance: 0, id: 0}]
       },
 
       Joystick: {
@@ -125,6 +138,10 @@ export default {
         mag_y: 0,
         mag_z: 0,
         bearing: 0
+      },
+      
+      RadioSignalStrength: {
+        signal_strength: '0'
       }
     }
   },
@@ -162,8 +179,7 @@ export default {
       },
       // Update connection states
       (online) => {
-        this.connections.lcm = online[0],
-        this.connections.cameras = online.slice(1)
+        this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
       (msg) => {
@@ -173,12 +189,16 @@ export default {
           this.GPS = msg.message
         } else if (msg.topic === '/imu') {
           this.IMU = msg.message
-        } else if (msg.topic === '/autonomous') {
+        } else if (msg.topic === '/radio') {
+          this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
+         }else if (msg.topic === '/autonomous') {
           this.Joystick = msg.message
         } else if (msg.topic === '/rr_drop_complete') {
           this.repeater_dropped = true
-        } else if (msg.topic === '/kill_switch') {
-          this.connections.motors = !msg.message.killed
+        } else if (msg.topic === '/obstacle') {
+          this.Obstacle = msg.message
+        } else if (msg.topic === '/target_list') {
+          this.TargetList = msg.message
         } else if (msg.topic === '/debugMessage') {
           if (msg['message']['isError']) {
             console.error(msg['message']['message'])
@@ -190,59 +210,20 @@ export default {
       // Subscriptions
       [
         {'topic': '/odometry', 'type': 'Odometry'},
-        {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/autonomous', 'type': 'Joystick'},
-        {'topic': '/temperature', 'type': 'Temperature'},
-        {'topic': '/kill_switch', 'type': 'KillSwitch'},
-        {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu', 'type': 'IMU'},
-        {'topic': '/rr_drop_complete', 'type': 'RepeaterDrop'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'}
+        {'topic': '/rr_drop_complete', 'type': 'RepeaterDropComplete'},
+        {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/obstacle', 'type': 'Obstacle'},
+        {'topic': '/radio', 'type': 'RadioSignalStrength'},
+        {'topic': '/target_list', 'type': 'TargetList'},
+        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
       ]
     )
-
-    const servosMessage = {
-      'type': 'CameraServos',
-      'pan': 0,
-      'tilt': 0
-    }
-
-    const JOYSTICK_CONFIG = {
-      'forward_back': 1,
-      'left_right': 2,
-      'dampen': 3,
-      'kill': 4,
-      'restart': 5,
-      'pan': 4,
-      'tilt': 5
-    }
-
-    interval = window.setInterval(() => {
-      const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 2; i++) {
-        const gamepad = gamepads[i]
-        if (gamepad) {
-          if (gamepad.id.includes('Logitech')) {
-            const servosSpeed = 0.8
-            servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG['pan']] * servosSpeed / 10
-            servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG['tilt']] * servosSpeed / 10
-          }
-        }
-      }
-
-      const clamp = function (num, min, max) {
-        return num <= min ? min : num >= max ? max : num
-      }
-
-      servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
-      servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
-      this.lastServosMessage = servosMessage
-
-      this.lcm_.publish('/camera_servos', servosMessage)
-    }, 100)
   },
 
   components: {
@@ -252,10 +233,14 @@ export default {
     ArmControls,
     DriveControls,
     EncoderCounts,
-    OdometryReading,
-    AutonJoystickReading,
+    // OdometryReading,
+    // AutonJoystickReading,
     RawSensorData,
-    WaypointEditor
+    WaypointEditor,
+    RadioSignalStrength,
+    Obstacle,
+    TargetList,
+    DriveVelDataH
   }
 }
 </script>
@@ -264,10 +249,15 @@ export default {
 <style scoped>
   .wrapper {
     display: grid;
+    overflow:hidden;
+    min-height: 98vh;
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
-    grid-template-areas: "header header" "map waypoints" "map waypoints" "data waypoints" "raw_sensors waypoints";
+    grid-template-rows: 50px 2fr 1fr 30vh;
+    grid-template-areas: "header header" 
+                         "map waypoints"
+                         "map waypoints" 
+                         "data waypoints";
     font-family: sans-serif;
     height: auto;
   }
@@ -283,7 +273,7 @@ export default {
     background-color: LightGrey;
     padding: 10px;
     border: 1px solid black;
-    display: flex;
+    overflow-y: scroll;
   }
 
   .box2 {
@@ -371,8 +361,8 @@ export default {
   }
 
   .cameras{
-    width: 400px;
-    display: block;
+    width: 97%;
+    height: 85%;
   }
 
   .diags {
