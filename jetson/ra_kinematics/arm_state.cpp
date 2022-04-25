@@ -358,11 +358,3 @@ std::vector<std::vector<double>> ArmState::get_preset_path(const std::string &pa
 void ArmState::set_preset_position(const std::string &pos) { 
     preset_positions[pos] = get_joint_angles(); 
 }
-
-std::vector<std::vector<double>> ArmState::get_preset_path(const std::string &path) { 
-    return preset_paths.at(path);
-}
-
-void ArmState::set_preset_position(const std::string &pos) { 
-    preset_positions[pos] = get_joint_angles(); 
-}
