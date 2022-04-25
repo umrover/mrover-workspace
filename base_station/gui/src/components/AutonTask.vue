@@ -166,8 +166,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('controls', {
-      controlMode: 'controlMode',
+    ...mapGetters('autonomy', {
       autonEnabled: 'autonEnabled',
       teleopEnabled: 'teleopEnabled'
     }),
@@ -195,7 +194,7 @@ export default {
 
     setInterval(() => {
       this.navBlink = !this.navBlink
-    }, 100);
+    }, 500);
 
     this.lcm_ = new LCMBridge(
       'ws://localhost:8001',

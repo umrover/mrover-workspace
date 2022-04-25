@@ -54,7 +54,7 @@
           '/arm_control_state_to_gui': false,
           '/arm_preset': false,
           '/arm_preset_path': false,
-          '/auton': false,
+          '/auton_en': false,
           '/autonomous': false,
           '/auton_drive_control': false,
           '/auton_reverse': false,
@@ -110,6 +110,7 @@
           '/spectral_triad_data': false,
           '/target_list': false,
           '/target_orientation': false,
+          '/teleop_en': false,
           '/thermistor_data': false,
           '/use_orientation': false,
           '/zero_position': false
@@ -173,6 +174,7 @@
           {'topic': '/target_bearing', 'type': 'TargetBearing'},
           {'topic': '/target_list', 'type': 'TargetList'},
           {'topic': '/target_orientation', 'type': 'TargetOrientation'},
+          {'topic': '/teleop_en', 'type': 'Enable'},
           {'topic': '/thermistor_data', 'type': 'ThermistorData'},
           {'topic': '/use_orientation', 'type': 'UseOrientation'},
           {'topic': '/zero_position', 'type': 'Signal'}
