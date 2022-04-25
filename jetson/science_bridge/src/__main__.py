@@ -109,6 +109,7 @@ class ScienceBridge():
         mosfet_message = "$Mosfet,{dev},{en},"
         return mosfet_message.format(dev=device, en=enable)
 
+
     def spectral_handler(self, m, spectral_struct):
         # msg format: <"$SPECTRAL,d0_1,d0_2, .... , d2_6">
         try:
