@@ -35,7 +35,6 @@
 #include "rover_msgs/ArmPresetPath.hpp"
 #include "rover_msgs/CustomPreset.hpp"
 #include "rover_msgs/ArmAdjustments.hpp"
-#include "rover_msgs/WristTurnCount.hpp"
 
 using namespace rover_msgs;
  

@@ -189,14 +189,6 @@ void MRoverArm::set_arm_position(std::vector<double> &angles) {
 }
 
 void StandardArm::target_orientation_callback(std::string channel, TargetOrientation msg) {
-<<<<<<< HEAD
-    if(abs(wrist_turn_count) >= 2){
-        std::cout << "Wrist Turn Count Limit Exceeded, IK Request Cancelled\n";
-        return;
-    }
-    
-=======
->>>>>>> upstream/main
     if (control_state == ControlState::OFF) {
         set_to_closed_loop();
     }

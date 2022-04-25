@@ -16,9 +16,6 @@
       Calibrating Joint B...
       <button v-on:click="abortCalibration()">Abort</button>
     </div>
-    <div style="font-color: abs(wristTurnCount) >= 2 ? red : black;">
-      Wrist turn count: {{this.wristTurnCount}}
-    </div>
   </div>
 </template>
 
@@ -40,9 +37,7 @@ export default {
       },
 
       jointBIsCalibrated: true,
-      calibrationTimer: -1,
-
-      wristTurnCount: 0
+      calibrationTimer: -1
     }
   },
 
@@ -90,10 +85,6 @@ export default {
       }
 
       this.$parent.publish('/arm_control_state', armStateMsg)
-    })
-
-    this.$parent.subscribe('/wrist_turn_count', (msg) => {
-      this.wristTurnCount = msg.turn_count - 2
     })
 
     this.$parent.subscribe('/joint_b_calibration_data', (msg) => {

@@ -151,8 +151,7 @@ export default {
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/ik_reset', 'type': 'Signal'},
-        {'topic': '/wrist_turn_count', 'type': 'WristTurnCount'},
+        {'topic': '/ik_reset', 'type': 'Signal'}
         {'topic': '/joint_b_calibration_data', 'type': 'JointBCalibration'}
       ]
     )

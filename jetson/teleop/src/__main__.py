@@ -9,7 +9,7 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
 
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
-                        ArmControlState, ReverseDrive, 
+                        ArmControlState, ReverseDrive,
                         JointBCalibration)
 
 
@@ -123,7 +123,6 @@ class ArmControl:
 
     def __init__(self):
         self.arm_control_state = "off"
-        self.wrist_turn_count = 0
         self.arm_type = self.ArmType.UNKNOWN
 
     def arm_control_state_callback(self, channel, msg):
@@ -146,12 +145,6 @@ class ArmControl:
                         quadratic(deadzone(xboxData.right_js_x, 0.15)),
                         quadratic(xboxData.right_trigger - xboxData.left_trigger),
                         (xboxData.right_bumper - xboxData.left_bumper)]
-
-        # TODO: test open loop, might have to switch these
-        if (self.wrist_turn_count <= -2 and motor_speeds[5] < 0):
-            motor_speeds[5] = 0
-        if (self.wrist_turn_count >= 2 and motor_speeds[5] > 0):
-            motor_speeds[5] = 0
 
         openloop_msg = RAOpenLoopCmd()
         openloop_msg.throttle = motor_speeds

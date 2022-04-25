@@ -73,11 +73,6 @@ Message: [SAPosData.lcm](https://github.com/umrover/mrover-workspace/blob/master
 Publisher: jetson/nucleo_bridge \
 Subscriber: jetson/ra_kinematics + base_station/kineval_stencil + base_station/gui
 
-#### Wrist Turn Count \[Publisher\] "/wrist_turn_count"
-Message: [WristTurnCount.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/WristTurnCount.lcm) \
-Publisher: jetson/nucleo_bridge \
-Subscriber: base_station/gui + jetson/teleop
-
 #### Joint B Calibration Data \[Publisher\] "/joint_b_refresh_calibration_data"
 Message: [JointBCalibration.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/JointBCalibration.lcm) \
 Publisher: jetson/nucleo_bridge \

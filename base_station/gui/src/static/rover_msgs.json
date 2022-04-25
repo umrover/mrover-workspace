@@ -1088,12 +1088,6 @@
             "right_back"
         ]
     ],
-    "WristTurnCount": [
-        [
-            "int8_t",
-            "turn_count"
-        ]
-    ],
     "Xbox": [
         [
             "double",
