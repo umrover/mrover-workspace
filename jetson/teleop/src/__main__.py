@@ -9,8 +9,8 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
 
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
-                        ArmControlState, WristTurnCount,
-                        ReverseDrive, JointBCalibration)
+                        ArmControlState, ReverseDrive, 
+                        JointBCalibration)
 
 
 lcm_ = aiolcm.AsyncLCM()
@@ -164,9 +164,6 @@ class ArmControl:
 
         lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
 
-    def wrist_turn_count_callback(self, channel, msg):
-        self.wrist_turn_count = WristTurnCount.decode(msg).turn_count - 2
-
     def sa_control_callback(self, channel, msg):
         if (self.arm_control_state != "open-loop"):
             return
@@ -265,7 +262,6 @@ def main():
     lcm_.subscribe('/ra_control', arm.ra_control_callback)
     lcm_.subscribe('/sa_control', arm.sa_control_callback)
     lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
-    lcm_.subscribe('/wrist_turn_count', arm.wrist_turn_count_callback)
     lcm_.subscribe('/joint_b_calibration_data', arm.joint_b_calibration_callback)
 
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)

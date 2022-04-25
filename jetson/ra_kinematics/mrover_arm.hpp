@@ -253,14 +253,6 @@ public:
     void target_orientation_callback(std::string channel, TargetOrientation msg);
 
     /**
-     * Handle request to go to a preset position
-     * 
-     * @param channel expected: "/wrist_turn_count_callback"
-     * @param msg format: int8_t turnCount
-     */
-    void wrist_turn_count_callback(std::string channel, WristTurnCount msg);
-
-    /**
      * Handle request to move in or out of simulation mode
      * 
      * @param channel expected: "/use_orientation"
@@ -290,7 +282,6 @@ private:
 
     void send_kill_cmd() override;
 
-    int wrist_turn_count;
     bool use_orientation;
 };
 

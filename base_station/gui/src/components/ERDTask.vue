@@ -43,9 +43,6 @@
     <div class="box drive light-bg">
       <DriveControls/>
     </div>
-    <div class="box ik-gui light-bg">
-      <iframe src="http://localhost:8020/#/" height="300" width="100%" title="IK gui"></iframe>
-    </div>
     <div class="box waypoint-editor light-bg">
       <ERDWaypointEditor/>
     </div>
@@ -186,9 +183,8 @@ export default {
     grid-template-areas: "header header"
                          "map cameras"
                          "map ik-controls"
-                         "ik-gui ik-controls"
-                         "waypoint-editor controls"
-                         "waypoint-editor encoder"
+                         "waypoint-editor ik-controls"
+                         "encoder controls"
                          "odom drive"
                          "pdb drive-motor";
     font-family: sans-serif;
@@ -312,10 +308,6 @@ export default {
 
   .drive {
     grid-area: drive;
-  }
-
-  .ik-gui {
-    grid-area: ik-gui;
   }
 
   .new-select {

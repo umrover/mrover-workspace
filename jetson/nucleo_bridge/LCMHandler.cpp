@@ -20,6 +20,7 @@ void LCMHandler::init()
     // Subscription to lcm channels
     lcm_bus->subscribe("/ra_ik_cmd", &LCMHandler::InternalHandler::ra_closed_loop_cmd, internal_object);
     lcm_bus->subscribe("/sa_ik_cmd", &LCMHandler::InternalHandler::sa_closed_loop_cmd, internal_object);
+    lcm_bus->subscribe("/carousel_openloop_cmd", &LCMHandler::InternalHandler::carousel_openloop_cmd, internal_object);
     lcm_bus->subscribe("/ra_openloop_cmd", &LCMHandler::InternalHandler::ra_open_loop_cmd, internal_object);
     lcm_bus->subscribe("/sa_openloop_cmd", &LCMHandler::InternalHandler::sa_open_loop_cmd, internal_object);
     lcm_bus->subscribe("/mast_gimbal_cmd", &LCMHandler::InternalHandler::mast_gimbal_cmd, internal_object);
@@ -61,20 +62,12 @@ void LCMHandler::handle_outgoing()
         internal_object->publish_calib_data();
     }
     */
-
-    // TODO - UNCOMMENT AS SOON AS TURN COUNT IS READY
-    /*
-    std::chrono::duration turn_count_output_dead_time = std::chrono::milliseconds(1000);
-    // This is used as a heart beat (to make sure that nucleos do not reset)
-    if (NOW - last_turn_count_output_time > turn_count_output_dead_time)
-    {
-        internal_object->refresh_turn_count();
-        last_turn_count_output_time = NOW;
-
-        internal_object->publish_turn_count();
-    }
-    */
 }
+void LCMHandler::InternalHandler::carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg)
+{
+    ControllerMap::controllers["CAROUSEL_MOTOR"]->open_loop(msg->throttle);
+}
+
 
 void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
 {
@@ -148,12 +141,6 @@ void LCMHandler::InternalHandler::refresh_calib_data()
     last_heartbeat_output_time = NOW;
 }
 
-void LCMHandler::InternalHandler::refresh_turn_count()
-{
-    ControllerMap::controllers["RA_F"]->refresh_turn_count();
-    last_heartbeat_output_time = NOW;
-}
-
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)
 {
     ControllerMap::controllers["SA_A"]->closed_loop(0, msg->joint_a);
@@ -208,11 +195,4 @@ void LCMHandler::InternalHandler::publish_sa_pos_data()
     msg.joint_c = ControllerMap::controllers["SA_C"]->get_current_angle();
     msg.joint_e = ControllerMap::controllers["SA_E"]->get_current_angle();
     lcm_bus->publish("/sa_position", &msg);
-}
-
-void LCMHandler::InternalHandler::publish_turn_count()
-{
-    WristTurnCount msg;
-    msg.turn_count = ControllerMap::controllers["RA_F"]->turn_count;
-    lcm_bus->publish("/wrist_turn_count", &msg);
 }
