@@ -1,0 +1,47 @@
+#!/bin/bash
+NC='\033[0m' # No Color
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+nav_flag=true
+lcm_flag=true
+sim_flag=true
+
+usage() { echo "Usage: bash $0 [a|l|n|s]" && grep " .)\ #" $0; exit 0; }
+
+while getopts 'ahlns' flag
+do
+    case "${flag}" in
+        a) # (first time only) vagrant ssh + vagrant up + build nav, lcm, and sim
+            vagrant up;;
+        l) # vagrant ssh + build lcm only
+            nav_flag=false; sim_flag=false;;
+        n) # vagrant ssh + build nav only
+            lcm_flag=false; sim_flag=false;;
+        s) # vagrant ssh + build sim only
+            nav_flag=false; lcm_flag=false;;
+        h | *) usage
+        exit 0;;
+    esac
+done
+
+build_jarvis() {
+    if $nav_flag && $lcm_flag  && $sim_flag;
+    then
+        printf "${CYAN}Building nav + lcm + sim\n${NC}"
+        vagrant ssh -c './jarvis build jetson/nav && ./jarvis build lcm_bridge/server && ./jarvis build simulators/nav && (jarvis exec jetson/nav & jarvis exec lcm_bridge/server & jarvis exec simulators/nav); /bin/bash'
+    elif $nav_flag;
+    then
+        printf "${CYAN}Building nav\n${NC}"
+        vagrant ssh -c './jarvis build jetson/nav && ./jarvis exec jetson/nav; /bin/bash'
+    elif $lcm_flag;
+    then
+        printf "${CYAN}Building lcm\n${NC}"
+        vagrant ssh -c './jarvis build lcm_bridge/server && ./jarvis exec lcm_bridge/server; /bin/bash'
+    elif $sim_flag;
+    then
+        printf "${CYAN}Building sim\n${NC}"
+        vagrant ssh -c './jarvis build simulators/nav && ./jarvis exec simulators/nav; /bin/bash'
+    fi
+}
+
+build_jarvis
