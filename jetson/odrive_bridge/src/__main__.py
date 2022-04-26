@@ -48,8 +48,7 @@ def main():
 
         try:
             odrive_bridge.update()
-        except Exception as e:
-            print("odrive has been unplugged, exception caught as:", e)
+        except Exception:
             if usb_lock.locked():
                 usb_lock.release()
 
@@ -69,8 +68,7 @@ def lcm_publisher_thread():
         start_time = t.clock()
         try:
             publish_encoder_msg()
-        except Exception as e:
-            print("Exception caught as:", e)
+        except Exception:
             if usb_lock.locked():
                 usb_lock.release()
 
@@ -180,8 +178,8 @@ class ErrorState(State):
         if (event == Event.ODRIVE_ERROR):
             try:
                 modrive.reboot()  # only runs after initial pairing
-            except Exception as e:
-                print('Exception caught as:', e)
+            except Exception:
+                pass
 
             return DisconnectedState()
 
@@ -241,14 +239,13 @@ class OdriveBridge(object):
                 modrive.watchdog_feed()
                 usb_lock.release()
 
-            except Exception as e:
+            except Exception:
                 if usb_lock.locked():
                     usb_lock.release()
                 errors = 0
                 usb_lock.acquire()
                 self.on_event(Event.DISCONNECTED_ODRIVE)
                 usb_lock.release()
-                print("odrive unplugged, update failed with exception:", e)
 
             if errors:
                 usb_lock.acquire()
@@ -331,8 +328,7 @@ def drive_vel_cmd_callback(channel, msg):
             speed_lock.acquire()
             left_speed, right_speed = cmd.left, cmd.right
             speed_lock.release()
-    except Exception as e:
-        print("Exception caught as:", e)
+    except Exception:
         pass
 
 
@@ -368,7 +364,6 @@ class Modrive:
             self.left_axis.config.enable_watchdog = True
             self.right_axis.config.enable_watchdog = True
         except Exception as e:
-            print("Failed in enable_watchdog. Error:")
             print(e)
 
     def disable_watchdog(self):
@@ -432,9 +427,9 @@ class Modrive:
 
     def get_vel_estimate(self, axis):
         if (axis == "LEFT"):
-            return self.left_axis.encoder.vel_estimate  * self.TURNS_TO_M_S_MULTIPLIER
+            return self.left_axis.encoder.vel_estimate * self.TURNS_TO_M_S_MULTIPLIER
         elif(axis == "RIGHT"):
-            return self.right_axis.encoder.vel_estimate  * -self.TURNS_TO_M_S_MULTIPLIER
+            return self.right_axis.encoder.vel_estimate * -self.TURNS_TO_M_S_MULTIPLIER
 
     def idle(self):
         self._requested_state(AXIS_STATE_IDLE)

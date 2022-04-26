@@ -24,8 +24,10 @@
      <h1>Nav State: {{this.nav_status.nav_state_name}}</h1>
      <div class="raw-data raw-sensors">
         <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
-        <RadioSignalStrength v-bind:RadioSignalStrength="RadioSignalStrength"/>
+        <br>
+        <br>
         <Obstacle v-bind:Obstacle="Obstacle"/>
+        <br>
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
@@ -35,7 +37,6 @@
     </div>
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
-      <ZedGimbalAngles/>
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom" v-bind:GPS="GPS" v-bind:TargetBearing="TargetBearing"/>
@@ -47,16 +48,13 @@
       <AutonCameras v-if="!this.autonEnabled" />
     </div>
   </div>
-
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import Cameras from './Cameras.vue'
+import RoverMap from './AutonRoverMap.vue'
 import AutonCameras from './AutonCameras.vue'
-import RoverMap from './RoverMapAuton.vue'
 import CommIndicator from './CommIndicator.vue'
-import RadioSignalStrength from './RadioSignalStrength.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
@@ -68,7 +66,6 @@ import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import SaveAutonData from './SaveAutonData.vue'
 import PlaybackAutonData from './PlaybackAutonData.vue'
-import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
 const navBlue = "#4695FF"
 const navGreen = "yellowgreen"
@@ -110,17 +107,6 @@ export default {
         longitude_min: -47.51724,
         bearing_deg: 0,
         speed: 0
-      },
-     
-      Obstacle: {
-	      detected: false,
-	      bearing: 0,
-        distance: 0
-      },
-
-      TargetList: {
-        targetList: [{bearing: 0, distance: 0, id: 0},
-        {bearing: 0, distance: 0, id: 0}]
       },
 
       TargetBearing: {
@@ -234,8 +220,6 @@ export default {
           this.TargetBearing = msg.message
         } else if (msg.topic === '/imu_data') {
           this.IMU = msg.message
-        } else if (msg.topic === '/radio') {
-          this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
          }else if (msg.topic === '/auton_drive_control') {
           this.AutonDriveControl = msg.message
         } else if (msg.topic === '/kill_switch') {
@@ -261,24 +245,23 @@ export default {
         {'topic': '/auton_drive_control', 'type': 'AutonDriveControl'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
-        {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/estimated_gate_location', 'type': 'EstimatedGateLocation'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu_data', 'type': 'IMUData'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/obstacle', 'type': 'Obstacle'},
-        {'topic': '/radio', 'type': 'RadioSignalStrength'},
         {'topic': '/target_list', 'type': 'TargetList'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
-        {'topic': '/drive_state_data', 'type': 'DriveStateData'}
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
+        {'topic': '/projected_points', 'type': 'ProjectedPoints'},
+        {'topic': '/target_bearing', 'type': 'TargetBearing'}
       ]
     )
   },
 
   components: {
     RoverMap,
-    Cameras,
     AutonCameras,
     CommIndicator,
     ArmControls,
@@ -286,13 +269,11 @@ export default {
     OdometryReading,
     RawSensorData,
     AutonWaypointEditor,
-    RadioSignalStrength,
     Obstacle,
     TargetList,
     DriveVelDataH,
     SaveAutonData,
-    PlaybackAutonData,
-    ZedGimbalAngles
+    PlaybackAutonData
   }
 }
 </script>

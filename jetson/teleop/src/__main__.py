@@ -200,9 +200,6 @@ class ArmControl:
         foot_msg.microscope_triad = 0
         lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
-    lcm_.subscribe('/ra_control', arm.ra_control_callback)
-    lcm_.subscribe('/sa_control', arm.sa_control_callback)
-    lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
 
 def main():
     arm = ArmControl()

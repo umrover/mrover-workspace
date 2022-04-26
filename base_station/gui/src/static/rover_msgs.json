@@ -1205,12 +1205,6 @@
             "y"
         ]
     ],
-    "ZedGimbalPosition": [
-        [
-            "double",
-            "angle"
-        ]
-    ],
     "ZeroPosition": [
         [
             "double",
@@ -1244,7 +1238,6 @@
         "AutonDriveControl",
         "AutonState",
         "Bearing",
-        "CameraServos",
         "Course",
         "CurrentDraw",
         "DebugMessage",
@@ -1301,7 +1294,6 @@
         "Waypoint",
         "WheelSpeeds",
         "Xbox",
-        "ZedGimbalPosition",
         "ZeroPosition"
     ]
 }
