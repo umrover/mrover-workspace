@@ -117,23 +117,35 @@ def gimbal_control_callback(channel, msg):
 
 class Camera:
     def __init__(self):
-        self.ish_cameras = [-1, -1]
         self.cameras = [-1, -1]
+        self.ish_cameras = [-1, -1]
+
+    def update_cameras(self, channel, msg):
+        message = GUICameras.decode(msg)
+
+        if message.port_0 == -1 or message.port_0 not in self.ish_cameras:
+            self.cameras[0] = message.port_0
+        if message.port_1 == -1 or message.port_1 not in self.ish_cameras:
+            self.cameras[1] = message.port_1
+
+        self.send_camera_cmd()
 
     def update_ish_cameras(self, channel, msg):
-        ish_message = GUICameras.decode(msg)
-        self.ish_cameras = [ish_message.port_0, ish_message.port_1]
+        message = GUICameras.decode(msg)
 
-    def update_other_cameras(self, channel, msg):
-        other_message = GUICameras.decode(msg)
-        self.cameras = [other_message.port_0, other_message.port_1]
+        if message.port_0 == -1 or message.port_0 not in self.cameras:
+            self.ish_cameras[0] = message.port_0
+        if message.port_1 == -1 or message.port_1 not in self.cameras:
+            self.ish_cameras[1] = message.port_1
+
+        self.send_camera_cmd()
 
     def send_camera_cmd(self):
         camera_msg = Cameras()
-        camera_msg.port_0 = self.cameras.port_0
-        camera_msg.port_1 = self.cameras.port_1
-        camera_msg.port_2 = self.ish_cameras.port_0
-        camera_msg.port_3 = self.ish_cameras.port_1
+        camera_msg.port_0 = self.cameras[0]
+        camera_msg.port_1 = self.cameras[1]
+        camera_msg.port_2 = self.ish_cameras[0]
+        camera_msg.port_3 = self.ish_cameras[1]
 
         lcm_.publish('/cameras_cmd', camera_msg.encode())
 
@@ -267,6 +279,6 @@ def main():
 
     # Subscribe to updated GUI camera channels
     lcm_.subscribe('/cameras_control_ish', camera.update_ish_cameras)
-    lcm_.subscribe('/cameras_control', camera.update_other_cameras)
+    lcm_.subscribe('/cameras_control', camera.update_cameras)
 
     run_coroutines(hb.loop(), lcm_.loop())

@@ -139,8 +139,8 @@
       },
 
       sendCameras: function() {
-        this.$parent.publish("/cameras_cmd", {
-          'type': 'Cameras',
+        this.$parent.publish("/cameras_control", {
+          'type': 'GUICameras',
           'port_0': this.cam_index_1,
           'port_1': this.cam_index_2,
         })

@@ -133,7 +133,7 @@
 
       sendCameras: function() {
         this.$parent.publish("/cameras_control_ish", {
-          'type': 'Cameras',
+          'type': 'GUICameras',
           'port_0': this.cam_index_1,
           'port_1': this.cam_index_2,
         })

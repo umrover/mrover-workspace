@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import Cameras from './Cameras.vue'
+import Cameras from './CamerasISH.vue'
 import CommIndicator from './CommIndicator.vue'
 import Raman from './Raman.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
