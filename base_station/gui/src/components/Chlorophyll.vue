@@ -4,24 +4,15 @@
     <div>
       <h3> Chlorophyll Data</h3>
     </div>
+    <div class="toggles">
+      <div>
+        <ToggleButton id="whiteLEDS_button" v-bind:currentState="whiteLEDS_active" labelEnableText="White LEDs On" labelDisableText="White LEDs Off" v-on:change="toggle_whiteLEDS()"/>
+      </div>
 
-    <label for="toggle_button" :class="{'active': white_led == 1}" class="toggle__button">
-      <span v-if="white_led == 1" class="toggle__label" >White LEDs On</span>
-      <span v-if="white_led == 0" class="toggle__label" >White LEDs Off</span>
-
-      <input type="checkbox" id="toggle_button">
-        <span class="toggle__switch" v-if="white_led == 0" v-on:click="white_led=1, setPart(mosfetIDs.white_led, true)"></span>
-        <span class="toggle__switch" v-if="white_led == 1" v-on:click="white_led=0, setPart(mosfetIDs.white_led, false)"></span>
-    </label>
-
-    <label for="toggle_button" :class="{'active': uv_led == 1}" class="toggle__button">
-      <span v-if="uv_led == 1" class="toggle__label" >UV LEDs On</span>
-      <span v-if="uv_led == 0" class="toggle__label" >UV LEDs Off</span>
-
-      <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-if="uv_led == 0" v-on:click="uv_led=1, setPart(mosfetIDs.uv_led, true)"></span>
-      <span class="toggle__switch" v-if="uv_led == 1" v-on:click="uv_led=0, setPart(mosfetIDs.uv_led, false)"></span>
-    </label>
+      <div>
+        <ToggleButton id="UVLED_button" v-bind:currentState="UVLED_active" labelEnableText="UV LEDs On" labelDisableText="UV LEDs Off" v-on:change="toggle_UVLED()"/>
+      </div>
+    </div>
   </div>
   <br>
   <div class="wrap-table">
@@ -84,6 +75,53 @@
 </div>
 </template>
 
+<script>
+import GenerateReport from './GenerateReport.vue';
+import ToggleButton from './ToggleButton.vue';
+
+export default {
+  data () {
+    return {
+      whiteLEDS_active: false,
+      UVLED_active: false
+    }
+  },
+  props: {
+    mosfetIDs: {
+      type: Object,
+      required: true
+    },
+    spectral_data: {
+      type: Object,
+      required: true
+    }
+  },  
+  methods: {
+    toggle_whiteLEDS: function () {
+      this.whiteLEDS_active = !this.whiteLEDS_active
+      this.setPart(this.mosfetIDs.white_led, this.whiteLEDS_active)
+    },
+
+    toggle_UVLED: function () {
+      this.UVLED_active = !this.UVLED_active
+      this.setPart(this.mosfetIDs.uv_led, this.UVLED_active)
+    },
+    
+    setPart: function(id, enabled) {
+      this.$parent.publish("/mosfet_cmd", {
+        'type': 'MosfetCmd',
+        'device': id,
+        'enable': enabled
+      })
+    }
+  },
+  components: {
+    GenerateReport,
+    ToggleButton
+  }
+}
+</script>
+
 <style scoped>
   .buttons {
     display: inline-block;
@@ -102,72 +140,6 @@
     height: 5vh;
     align-items: center;
     padding-top: 3vh;
-  }
-
-  .toggle__button {
-    vertical-align: middle;
-    user-select: none;
-    cursor: pointer;
-  }
-
-  .toggle__button input[type="checkbox"] {
-      opacity: 0;
-      position: absolute;
-      width: 1px;
-      height: 1px;
-  }
-
-  .toggle__button .toggle__switch {
-      display:inline-block;
-      height:12px;
-      border-radius:6px;
-      width:40px;
-      background: #BFCBD9;
-      box-shadow: inset 0 0 1px #BFCBD9;
-      position:relative;
-      margin-left: 10px;
-      transition: all .25s;
-  }
-
-  .toggle__button .toggle__switch::after, 
-  .toggle__button .toggle__switch::before {
-      content: "";
-      position: absolute;
-      display: block;
-      height: 18px;
-      width: 18px;
-      border-radius: 50%;
-      left: 0;
-      top: -3px;
-      transform: translateX(0);
-      transition: all .25s cubic-bezier(.5, -.6, .5, 1.6);
-  }
-
-  .toggle__button .toggle__switch::after {
-      background: #4D4D4D;
-      box-shadow: 0 0 1px #666;
-  }
-
-  .toggle__button .toggle__switch::before {
-      background: #4D4D4D;
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
-      opacity:0;
-  }
-
-  .active .toggle__switch {
-    background: #FFEA9B;
-    box-shadow: inset 0 0 1px #FFEA9B;
-  }
-
-  .active .toggle__switch::after,
-  .active .toggle__switch::before{
-      transform:translateX(40px - 18px);
-  }
-
-  .active .toggle__switch::after {
-      left: 23px;
-      background: #FFCB05;
-      box-shadow: 0 0 1px #FFCB05;
   }
 
   .tableFormat{
@@ -202,39 +174,9 @@
     vertical-align:top
   }
 
+  .toggles {
+    display: flex;
+  }
+
 </style>
 
-<script>
-import GenerateReport from './GenerateReport.vue';
-
-export default {
-  data () {
-    return {
-      white_led: 0,
-      uv_led: 0
-    }
-  },
-  props: {
-    mosfetIDs: {
-      type: Object,
-      required: true
-    },
-    spectral_data: {
-      type: Object,
-      required: true
-    }
-  },  
-  methods: {
-    setPart: function(id, enabled) {
-      this.$parent.publish("/mosfet_cmd", {
-        'type': 'MosfetCmd',
-        'device': id,
-        'enable': enabled
-      })
-    }
-  },
-  components: {
-    GenerateReport
-  }
-}
-</script>
