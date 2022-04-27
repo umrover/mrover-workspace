@@ -1,6 +1,6 @@
 package rover_msgs;
 
 struct GUICameras {
-    int port_0;
-    int port_1;
+    int32_t port_0;
+    int32_t port_1;
 }

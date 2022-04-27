@@ -6,7 +6,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
                         DriveVelCmd, MastGimbalCmd,
                         AutonState, AutonDriveControl,
-                        GUICameras,
+                        GUICameras, Cameras,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
                         ArmControlState, WristTurnCount,
@@ -114,22 +114,28 @@ def gimbal_control_callback(channel, msg):
 
     lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
 
+
 class Camera:
-    def __init__():
-        self.ish_cameras = [-1,-1]
-        self.cameras = [-1,-1]
+    def __init__(self):
+        self.ish_cameras = [-1, -1]
+        self.cameras = [-1, -1]
 
     def update_ish_cameras(self, channel, msg):
         ish_message = GUICameras.decode(msg)
-        self.ish_cameras = [ish_msg.port_0, ish_msg.port_1]
+        self.ish_cameras = [ish_message.port_0, ish_message.port_1]
 
     def update_other_cameras(self, channel, msg):
         other_message = GUICameras.decode(msg)
-        self.cameras = [other_msg.port_0, other_msg.port_1]
+        self.cameras = [other_message.port_0, other_message.port_1]
 
-    def send_camera_cmd():
+    def send_camera_cmd(self):
         camera_msg = Cameras()
+        camera_msg.port_0 = self.cameras.port_0
+        camera_msg.port_1 = self.cameras.port_1
+        camera_msg.port_2 = self.ish_cameras.port_0
+        camera_msg.port_3 = self.ish_cameras.port_1
 
+        lcm_.publish('/cameras_cmd', camera_msg.encode())
 
 
 class ArmControl:
