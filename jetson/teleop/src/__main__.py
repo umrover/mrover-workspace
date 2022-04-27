@@ -227,7 +227,6 @@ def main():
     lcm_.subscribe('/ra_control', arm.ra_control_callback)
     lcm_.subscribe('/sa_control', arm.sa_control_callback)
     lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
-
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
     run_coroutines(hb.loop(), lcm_.loop())
