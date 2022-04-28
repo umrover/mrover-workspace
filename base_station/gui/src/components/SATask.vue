@@ -367,26 +367,6 @@ export default {
         grid-area: diags;
     }
 
-    .cameras {
-      grid-area: cameras;
-    }
-
-    .spectral {
-      grid-area: spectral;
-    }
-
-    .drives {
-      grid-area: drives;
-    }
-
-    .cameras {
-      grid-area: cameras;
-    }
-
-    .spectral {
-      grid-area: spectral;
-    }
-
     .drives {
       grid-area: drives;
     }
