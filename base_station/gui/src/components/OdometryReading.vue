@@ -11,7 +11,11 @@
       <p>{{formatted_odom.lon.d}}º</p>
       <p v-if="this.min_enabled">{{formatted_odom.lon.m}}'</p>
       <p  v-if="this.sec_enabled">{{formatted_odom.lon.s}}"</p>
+<<<<<<< HEAD
       E
+=======
+      W
+>>>>>>> main
       <br/>
       <p>Bearing: {{odom.bearing_deg.toFixed(2)}}º</p>
     </div>

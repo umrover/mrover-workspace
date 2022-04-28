@@ -65,6 +65,7 @@ import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
 import DriveControls from './DriveControls.vue'
 import Raman from './Raman.vue'
+import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import SpectralData from './SpectralData.vue'
 import Chlorophyll from './Chlorophyll.vue'
@@ -233,6 +234,7 @@ export default {
     CommIndicator,
     DriveControls,
     Raman,
+    WaypointEditor,
     SpectralData,
     Chlorophyll,
     StripTest,
@@ -365,6 +367,14 @@ export default {
 
     .diags {
         grid-area: diags;
+    }
+
+    .cameras {
+      grid-area: cameras;
+    }
+
+    .spectral {
+      grid-area: spectral;
     }
 
     .drives {

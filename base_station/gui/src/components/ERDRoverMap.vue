@@ -154,6 +154,7 @@ export default {
 }
 
 .wrap {
+<<<<<<< HEAD
   align-items: center;
   height: 100%;
   display: grid;
@@ -181,5 +182,10 @@ export default {
 
 .online{
   float:right;
+=======
+  display: flex;
+  align-items: center;
+  height: 100%;
+>>>>>>> main
 }
 </style>

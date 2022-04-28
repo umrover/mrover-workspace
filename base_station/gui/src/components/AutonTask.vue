@@ -48,6 +48,7 @@
       <AutonCameras v-if="!this.autonEnabled" />
     </div>
   </div>
+
 </template>
 
 <script>
@@ -55,7 +56,8 @@ import { mapGetters } from 'vuex'
 import RoverMap from './AutonRoverMap.vue'
 import AutonCameras from './AutonCameras.vue'
 import CommIndicator from './CommIndicator.vue'
-import OdometryReading from './OdometryReading.vue'
+import RadioSignalStrength from './RadioSignalStrength.vue'
+// import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
 import AutonWaypointEditor from './AutonWaypointEditor.vue'
@@ -107,6 +109,17 @@ export default {
         longitude_min: -47.51724,
         bearing_deg: 0,
         speed: 0
+      },
+     
+      Obstacle: {
+	      detected: false,
+	      bearing: 0,
+        distance: 0
+      },
+
+      TargetList: {
+        targetList: [{bearing: 0, distance: 0, id: 0},
+        {bearing: 0, distance: 0, id: 0}]
       },
 
       TargetBearing: {
