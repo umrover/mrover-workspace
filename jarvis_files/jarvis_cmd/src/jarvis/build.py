@@ -133,10 +133,13 @@ def build_deps(ctx):
                 ctx.run("pip3 install -r \"{}\"/requirements.txt".format(
                     ctx.jarvis_root))
                 # Workspace dependencies
-                ctx.run("pip3 install -r pip_deps/requirements.txt")
-                if site_cfg['jetson']:
-                    print("Installing jetson pip dependencies...")
-                    ctx.run("pip3 install -r pip_deps/jetson_requirements.txt")
+                if site_cfg['beaglebone']:
+                    ctx.run("pip3 install -r pip_deps/beaglebone_requirements.txt")
+                else:
+                    ctx.run("pip3 install -r pip_deps/requirements.txt")
+                    if site_cfg['jetson']:
+                        print("Installing jetson pip dependencies...")
+                        ctx.run("pip3 install -r pip_deps/jetson_requirements.txt")
         pip_hasher.save()
     else:
         print("pip dependencies already installed, skipping.")
