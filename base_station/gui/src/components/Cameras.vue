@@ -143,8 +143,7 @@
 
         this.$parent.publish(this.channel, {
           'type': 'GUICameras',
-          'port_0': ports[0],
-          'port_1': ports[1],
+          'port': ports,
         })
       },
 
