@@ -1,51 +1,36 @@
 <template>
 <div class="wrap">
-  <div>
+  <div class="title">
     <h3>Amino Test Controls</h3>
   </div>
-  <div class="box1">
+  <div class="box1 select">
     <label for="site">Choose a site:</label>
-    <select v-model = "site" name="site" id="site">
-      <option value="0">Site 0</option>
-      <option value="1">Site 1</option>
-      <option value="2">Site 2</option>
+    <select v-model="site" name="site" id="site">
+      <option value=0>Site 0</option>
+      <option value=1>Site 1</option>
+      <option value=2>Site 2</option>
     </select>
   </div>
-  <div class="box1" v-if="site == 0">
-    <label for="toggle_button" :class="{'active': heaters[0].enabled}" class="toggle__button">
-      <span class="toggle__label" >Heater 0 {{heaters[0].message}}</span>
-      <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-on:click="sendHeaterCmd(0, !heaters[0].intended)"></span>
-    </label>
-    <p v-bind:style="{color: heaters[0].color}">Thermistor 0: {{heaters[0].temp.toFixed(2)}} C°</p>
+  <div class="box1 heaters">
+    <ToggleButton id="heater" v-bind:currentState="heaters[site].intended" :labelEnableText="'Heater '+(site)+' Intended'" :labelDisableText="'Heater '+(site)+' Intended'" v-on:change="toggleHeater(site)"/>
+    <p v-bind:style="{color: heaters[site].color}">Thermistor {{site}}: {{heaters[site].temp.toFixed(2)}} C°</p>
   </div>
-  <div class="box1" v-if="site == 1">
-    <label for="toggle_button" :class="{'active': heaters[1].enabled}" class="toggle__button">
-      <span class="toggle__label" >Heater 1 {{heaters[1].message}}</span>
-      <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-on:click="sendHeaterCmd(1, !heaters[1].intended)"></span>
-    </label>
-    <p v-bind:style="{color: heaters[1].color}">Thermistor 1: {{heaters[1].temp.toFixed(2)}} C°</p>
+  <div class="comms heaterStatus">
+    <CommIndicator v-bind:connected="heaters[site].enabled" v-bind:name="'Heater '+(site)+' Status'"/>
   </div>
-  <div class="box1" v-if="site == 2">
-    <label for="toggle_button" :class="{'active': heaters[2].enabled}" class="toggle__button">
-      <span class="toggle__label" >Heater 2 {{heaters[2].message}}</span>
-      <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-on:click="sendHeaterCmd(2, !heaters[2].intended)"></span>
-    </label>
-    <p v-bind:style="{color: heaters[2].color}">Thermistor 2: {{heaters[2].temp.toFixed(2)}} C°</p>
+  <div class="box1 shutdown">
+    <ToggleButton id="autoshutdown" v-bind:currentState="autoShutdownIntended" :labelEnableText="'Auto Shutdown Intended'" :labelDisableText="'Auto Shutdown Intended'" v-on:change="sendAutoShutdownCmd(!autoShutdownIntended)"/>
   </div>
-  <div>
-    <label for="toggle_button" :class="{'active': autoShutdownEnabled}" class="toggle__button">
-      <span class="toggle__label" >Auto Shutdown {{autoShutdownMessage}}</span>
-      <input type="checkbox" id="toggle_button">
-      <span class="toggle__switch" v-on:click="sendAutoShutdownCmd(!autoShutdownIntended)"></span>
-    </label>
+  <div class="comms shutdownStatus">
+    <CommIndicator v-bind:connected="autoShutdownEnabled" v-bind:name="'Auto Shutdown Status'"/>
   </div>
 </div>  
 </template>
 
 <script>
+import ToggleButton from './ToggleButton.vue'
+import CommIndicator from './CommIndicator.vue'
+
 export default {
   data () {
     return {
@@ -55,29 +40,25 @@ export default {
         {
           enabled: false,
           intended: false,
-          message: 'Off',
           temp: 0,
           color: 'grey'
         },
         {
           enabled: false,
           intended: false,
-          message: 'Off',
           temp: 0,
           color: 'grey'
         },
         {
           enabled: false,
           intended: false,
-          message: 'Off',
           temp: 0,
           color: 'grey'
         }
       ],
 
       autoShutdownEnabled: true,
-      autoShutdownIntended: true,
-      autoShutdownMessage: 'On'
+      autoShutdownIntended: true
     }
   },
 
@@ -101,42 +82,25 @@ export default {
 
     this.$parent.subscribe('/heater_state_data', (msg) => {
       this.heaters[msg.device].enabled = msg.enabled
-      this.heaters[msg.device].intended = msg.enabled
-
-      let enabled = 'Off'
-      if (msg.enabled == 1) {
-        enabled = 'On'
-      }
-      this.heaters[msg.device].message = enabled
     })
 
     this.$parent.subscribe('/heater_auto_shutdown_data', (msg) => {
       this.autoShutdownEnabled = msg.auto_shutdown_enabled
-      this.autoShutdownIntended = msg.auto_shutdown_enabled
-
-      let enabled = 'Off'
-      if (msg.auto_shutdown_enabled == 1) {
-        enabled = 'On'
-      }
-      this.autoShutdownMessage = enabled
     })
   },
 
+  components: {
+    ToggleButton,
+    CommIndicator
+  },
+
   methods: {
+    toggleHeater: function(id) {
+      this.sendHeaterCmd(parseInt(id), !this.heaters[id].intended);
+    },
+    
     sendHeaterCmd: function(id, enabled) {
       this.heaters[id].intended = enabled
-
-      if (enabled == this.heaters[id].enabled) {
-        if (enabled) {
-          this.heaters[id].message = 'On'
-        }
-        else {
-          this.heaters[id].message = 'Off'
-        }
-      }
-      else {
-        this.heaters[id].message = '...'
-      }
 
       this.$parent.publish('/heater_cmd', {
         'type': 'Heater',
@@ -171,73 +135,49 @@ export default {
 
 <style scoped>
   .wrap {
-    display: inline-block;
-    vertical-align: top;
-    align-content: left;
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:  "title ."
+                          "select select"
+                          "heaters heaterStatus"
+                          "shutdown shutdownStatus";
+    height: auto;
   }
+  .title {
+    grid-area: title;
+    text-align: left;
+  }
+  .select {
+    grid-area: select;
+  }
+  .heaters {
+    grid-area: heaters;
+  }
+  .heaterStatus {
+    grid-area: heaterStatus;
+  }
+  .shutdown {
+    grid-area: shutdown;
+  }
+  .shutdownStatus {
+    grid-area: shutdownStatus;
+  }
+
   .box1 {
     text-align: left;
     vertical-align: top;
     display: inline-block;
   }
+  .comms {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-  .toggle__button {
-      vertical-align: middle;
-      user-select: none;
-      cursor: pointer;
-  }
-  .toggle__button input[type="checkbox"] {
-      opacity: 0;
-      position: absolute;
-      width: 1px;
-      height: 1px;
-  }
-  .toggle__button .toggle__switch {
-      display:inline-block;
-      height:12px;
-      border-radius:6px;
-      width:40px;
-      background: #BFCBD9;
-      box-shadow: inset 0 0 1px #BFCBD9;
-      position:relative;
-      margin-left: 10px;
-      transition: all .25s;
-  }
-
-  .toggle__button .toggle__switch::after, 
-  .toggle__button .toggle__switch::before {
-      content: "";
-      position: absolute;
-      display: block;
-      height: 18px;
-      width: 18px;
-      border-radius: 50%;
-      left: 0;
-      top: -3px;
-      transform: translateX(0);
-      transition: all .25s cubic-bezier(.5, -.6, .5, 1.6);
-  }
-
-  .toggle__button .toggle__switch::after {
-      background: #4D4D4D;
-      box-shadow: 0 0 1px #666;
-  }
-  .toggle__button .toggle__switch::before {
-      background: #4D4D4D;
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
-      opacity:0;
-  }
-  .active .toggle__switch {
-    background: #FFEA9B;
-    box-shadow: inset 0 0 1px #FFEA9B;
-  }
-  .active .toggle__switch::after,
-  .active .toggle__switch::before{
-      transform:translateX(40px - 18px);
-  }
-  .active .toggle__switch::after {
-      left: 23px;
-      background: #FFCB05;
-      box-shadow: 0 0 1px #FFCB05;
-  }
+        .comms * {
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
 </style>
