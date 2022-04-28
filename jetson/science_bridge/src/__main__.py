@@ -106,7 +106,7 @@ class ScienceBridge():
             self.ser.write(bytes(message, encoding='utf-8'))
 
     def format_mosfet_message(self, device, enable):
-        mosfet_message = "$Mosfet,{dev},{en},"
+        mosfet_message = "$MOSFET,{dev},{en},"
         return mosfet_message.format(dev=device, en=enable)
 
 
@@ -203,7 +203,7 @@ class ScienceBridge():
             print(e)
 
     def heater_shutoff_handler(self, msg, struct):
-        # msg format: <"$auto_shutoff,device,enabled">
+        # msg format: <"$AUTOSHUTOFF,device,enabled">
         try:
             arr = msg.split(",")
             enabled = bool(int(arr[1]))
@@ -223,7 +223,7 @@ class ScienceBridge():
     def heater_auto_transmit(self, channel, msg):
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
         struct = HeaterAutoShutdown.decode(msg)
-        message = "$AutoShutoff,{enable}"
+        message = "$AUTOSHUTOFF,{enable}"
         message = message.format(enable=int(struct.auto_shutdown_enabled))
         self.uart_send(message)
 
@@ -294,7 +294,7 @@ class ScienceBridge():
         struct = ServoCmd.decode(msg)
         print("Received Servo Cmd")
         # parse data into expected format
-        message = "$Servo,{angle0},{angle1},{angle2}"
+        message = "$SERVO,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
         self.uart_send(message)
 
@@ -306,7 +306,7 @@ class ScienceBridge():
         print("Received Carousel (OL) Cmd")
         self.last_openloop_cmd = struct.throttle
         # parse data into expected format
-        message = "$OpenCarousel,{throttle}"
+        message = "$OPENCAROUSEL,{throttle}"
         message = message.format(throttle=struct.throttle)
         self.uart_send(message)
 
@@ -315,7 +315,7 @@ class ScienceBridge():
         struct = CarouselPosition.decode(msg)
         print("Received Carousel (CL) Cmd")
         # parse data into expected format
-        message = "$Carousel,{position}"
+        message = "$CAROUSEL,{position}"
         message = message.format(position=struct.position)
         self.uart_send(message)
 

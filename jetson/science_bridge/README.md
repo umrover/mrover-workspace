@@ -18,7 +18,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$OpenCarousel,<throttle>,<extra padding>`
+- `$OPENCAROUSEL,<throttle>,<extra padding>`
 - String is 30 characters long
 - The throttle is between -1 and 1
 
@@ -31,7 +31,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$Carousel,<site>,<extra padding>`
+- `$CAROUSEL,<site>,<extra padding>`
 - String is 30 characters long
 - The site is either 0, 1, or 2
 
@@ -100,7 +100,7 @@ Subscribers: jetson/science_bridge
 
 #### UART Message
 Format of the UART NMEA command
-- `$Mosfet,<device>,<enable>,<extra padding>`
+- `$MOSFET,<device>,<enable>,<extra padding>`
 - String is 30 characters long
 - The device represents the mosfet device being activated (0 to 11)
 
@@ -113,7 +113,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$Servo,<angle0>,<angle1>,<angle2>,<extra padding>`
+- `$SERVO,<angle0>,<angle1>,<angle2>,<extra padding>`
 - String is 30 characters long
 - The angles are in degrees
 
@@ -127,7 +127,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$Mosfet,<device>,<enable>,<extra padding>`
+- `$MOSFET,<device>,<enable>,<extra padding>`
 - String is 30 characters long
 - The device represents the mosfet device being activated
 - Heaters are mosfet devices 5, 6, and 7
@@ -155,7 +155,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$AutoShutoff,<enable>,<extra padding>`
+- `$AUTOSHUTOFF,<enable>,<extra padding>`
 - String is 30 characters long
 - The enable represents whether or not auto shutoff should be enabled or not
 
