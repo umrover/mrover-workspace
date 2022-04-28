@@ -9,8 +9,7 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
                         GUICameras, Cameras,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
-                        ArmControlState, WristTurnCount,
-                        ReverseDrive)
+                        ArmControlState, ReverseDrive)
 
 
 lcm_ = aiolcm.AsyncLCM()
@@ -158,7 +157,6 @@ class ArmControl:
 
     def __init__(self):
         self.arm_control_state = "off"
-        self.wrist_turn_count = 0
         self.arm_type = self.ArmType.UNKNOWN
 
     def arm_control_state_callback(self, channel, msg):
@@ -179,12 +177,6 @@ class ArmControl:
                         quadratic(xboxData.right_trigger - xboxData.left_trigger),
                         (xboxData.right_bumper - xboxData.left_bumper)]
 
-        # TODO: test open loop, might have to switch these
-        if (self.wrist_turn_count <= -2 and motor_speeds[5] < 0):
-            motor_speeds[5] = 0
-        if (self.wrist_turn_count >= 2 and motor_speeds[5] > 0):
-            motor_speeds[5] = 0
-
         openloop_msg = RAOpenLoopCmd()
         openloop_msg.throttle = motor_speeds
 
@@ -195,9 +187,6 @@ class ArmControl:
         hand_msg.grip = xboxData.b - xboxData.x
 
         lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
-
-    def wrist_turn_count_callback(self, channel, msg):
-        self.wrist_turn_count = WristTurnCount.decode(msg).turn_count - 2
 
     def sa_control_callback(self, channel, msg):
         self.arm_type = self.ArmType.SA
@@ -273,8 +262,7 @@ def main():
 
     lcm_.subscribe('/ra_control', arm.ra_control_callback)
     lcm_.subscribe('/sa_control', arm.sa_control_callback)
-    lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
-    lcm_.subscribe('/wrist_turn_count', arm.wrist_turn_count_callback)
+    lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
     # Subscribe to updated GUI camera channels

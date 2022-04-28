@@ -5,21 +5,24 @@
 #include "Hardware.h"
 
 #include <unordered_map>
+#include <cmath>
 #include <string>
 #include <lcm/lcm-cpp.hpp>
 #include <thread>
 #include <chrono>
 
+#include <rover_msgs/CarouselOpenLoopCmd.hpp>
+#include <rover_msgs/CarouselPosition.hpp>
 #include <rover_msgs/FootCmd.hpp>
 #include <rover_msgs/HandCmd.hpp>
-#include <rover_msgs/JointBCalibration.hpp>
+#include <rover_msgs/Calibrate.hpp>
 #include <rover_msgs/MastGimbalCmd.hpp>
 #include <rover_msgs/RAOpenLoopCmd.hpp>
 #include <rover_msgs/RAPosition.hpp>
 #include <rover_msgs/SAOpenLoopCmd.hpp>
 #include <rover_msgs/SAPosition.hpp>
 #include <rover_msgs/ScoopLimitSwitchEnable.hpp>
-#include <rover_msgs/WristTurnCount.hpp>
+#include <rover_msgs/Signal.hpp>
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()
@@ -35,7 +38,6 @@ class LCMHandler
 private:
     inline static std::chrono::high_resolution_clock::time_point last_heartbeat_output_time = NOW;
     inline static std::chrono::high_resolution_clock::time_point last_calib_data_output_time = NOW;
-    inline static std::chrono::high_resolution_clock::time_point last_turn_count_output_time = NOW;
 
     inline static lcm::LCM *lcm_bus = nullptr;
 
@@ -44,6 +46,12 @@ private:
     {
     public: 
     	//The following functions are handlers for the corresponding lcm messages
+        void carousel_closedloop_cmd(LCM_INPUT, const CarouselPosition *msg);
+
+        void carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
+
+        void carousel_zero_cmd(LCM_INPUT, const Signal *msg);
+
         void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
 
         void hand_openloop_cmd(LCM_INPUT, const HandCmd *msg);
@@ -54,25 +62,33 @@ private:
 
         void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
 
+        void refresh_carousel_calib_data();
+
+        void refresh_carousel_quad_angles();
+
+        void refresh_ra_calib_data();
+
         void refresh_ra_quad_angles();
 
+        void refresh_sa_calib_data();
+
         void refresh_sa_quad_angles();
-
-        void refresh_calib_data();
-
-        void refresh_turn_count();
 
         void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
 
-        void publish_calib_data();
+        void publish_carousel_calib_data();
+
+        void publish_carousel_pos_data();
+
+        void publish_ra_calib_data();
 
         void publish_ra_pos_data();
 
-        void publish_sa_pos_data();
+        void publish_sa_calib_data();
 
-        void publish_turn_count();
+        void publish_sa_pos_data();
 
         void scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg);
 

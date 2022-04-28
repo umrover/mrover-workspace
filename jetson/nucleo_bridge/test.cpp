@@ -78,7 +78,7 @@ float quadEnc(std::string name)
 {
     try
     {
-        ControllerMap::controllers[name]->quad_angle();
+        ControllerMap::controllers[name]->refresh_quad_angle();
         float quad_angle_rad = ControllerMap::controllers[name]->get_current_angle();
         float quad_angle_deg = quad_angle_rad / (2 * M_PI) * 360;
         printf("quadEnc %s: Quad in degrees: %f \n", name.c_str(), quad_angle_deg);
@@ -185,7 +185,7 @@ void testOpenPlus()
         std::vector<float> speeds = {speed_unit, -speed_unit, 0.0f};
         std::vector<int> iterations = {3, 3, 5};
 
-        for (int j = 0; j < speeds.size(); ++j) 
+        for (size_t j = 0; j < speeds.size(); ++j) 
         {
             for (int i = 0; i < iterations[j]; i++) 
             {
@@ -209,7 +209,7 @@ void testOpenPlusWithAbs()
     {
         std::vector<float> speeds = {speed_unit, 0.0f, -speed_unit, 0.0f};
 
-        for (int j = 0; j < speeds.size(); ++j) 
+        for (size_t j = 0; j < speeds.size(); ++j) 
         {
             for (int i = 0; i < 3; i++) 
             {
@@ -242,7 +242,7 @@ void testOpenPlusWithAbsWithDelays()
 
         std::vector<float> speeds = {speed_unit, 0.0f, -speed_unit, 0.0f};
         std::vector<int> iterations = {3, 10, 3, 10};
-        for (int j = 0; j < speeds.size(); ++j) 
+        for (size_t j = 0; j < speeds.size(); ++j) 
         {
             if (speeds[j] == 0.0f) 
             {
@@ -288,10 +288,10 @@ int main()
 
     while (1)
     {
-        testClosed();
+        // testClosed();
 	    // testQuadEnc();
         // testOpenPlusWithAbs();
-        //testOpenPlusWithAbsWithDelays();
+        testOpenPlusWithAbsWithDelays();
         // testOpenPlus();
         // testAbsEnc();
         sleep(100);

@@ -95,6 +95,12 @@
             "bearing"
         ]
     ],
+    "Calibrate": [
+        [
+            "boolean",
+            "calibrated"
+        ]
+    ],
     "Cameras": [
         [
             "boolean",
@@ -669,6 +675,12 @@
             "signal_strength"
         ]
     ],
+    "ReverseDrive": [
+        [
+            "boolean",
+            "reverse"
+        ]
+    ],
     "RGB": [
         [
             "string",
@@ -1080,12 +1092,6 @@
         [
             "double",
             "right_back"
-        ]
-    ],
-    "WristTurnCount": [
-        [
-            "int8_t",
-            "turn_count"
         ]
     ],
     "Xbox": [

@@ -27,6 +27,7 @@ I2C.h is responsible for translating communications by virtual Controllers into 
 
 The following watchdog is implemented: If the nucleos do not receive any I2C messages for a given amount of time (currently about 443 ms), then they reset.
 
+
 ### LCM Channels Publishing/Subscribed To
 #### RA Open Loop \[Subscriber\] "/ra_openloop_cmd"
 Message: [RAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAOpenLoopCmd.lcm) \
@@ -38,6 +39,11 @@ Message: [SAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/ma
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
+#### Carousel Open Loop \[Subscriber\] "/carousel_openloop_cmd"
+Message: [CarouselOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/CarouselOpenLoopCmd.lcm) \
+Publisher: base_station/gui \
+Subscriber: jetson/nucleo_bridge
+
 #### RA Closed Loop \[Subscriber\] "/ra_ik_cmd"
 Message: [RAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAPosition.lcm) \
 Publisher: jetson/ra_kinematics \
@@ -46,6 +52,11 @@ Subscriber: jetson/nucleo_bridge
 #### SA Closed Loop \[Subscriber\] "/sa_ik_cmd"
 Message: [SAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAPosition.lcm) \
 Publisher: jetson/ra_kinematics \
+Subscriber: jetson/nucleo_bridge
+
+#### Carousel Closed Loop \[Subscriber\] "/carousel_closedloop_cmd"
+Message: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/CarouselPosition.lcm) \
+Publisher: base_station/gui \
 Subscriber: jetson/nucleo_bridge
 
 #### Mast Gimbal Open Loop \[Subscriber\] "/mast_gimbal_cmd"
@@ -73,18 +84,38 @@ Message: [SAPosData.lcm](https://github.com/umrover/mrover-workspace/blob/master
 Publisher: jetson/nucleo_bridge \
 Subscriber: jetson/ra_kinematics + base_station/kineval_stencil + base_station/gui
 
+#### Carousel Pos Data \[Publisher\] "/carousel_pos_data"
+Message: [CarouselData.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/CarouselData.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui
+
 #### Wrist Turn Count \[Publisher\] "/wrist_turn_count"
 Message: [WristTurnCount.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/WristTurnCount.lcm) \
 Publisher: jetson/nucleo_bridge \
 Subscriber: base_station/gui + jetson/teleop
 
-#### Joint B Calibration Data \[Publisher\] "/joint_b_refresh_calibration_data"
-Message: [JointBCalibration.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/JointBCalibration.lcm) \
+#### Carousel Calibration Data \[Publisher\] "/carousel_calib_data"
+Message: [Calibrate.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Calibrate.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui
+
+#### RA Joint B Calibration Data \[Publisher\] "/ra_b_calib_data"
+Message: [Calibrate.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Calibrate.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui + jetson/ra_kinematics
+
+#### SA Joint B Calibration Data \[Publisher\] "/sa_b_calib_data"
+Message: [Calibrate.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Calibrate.lcm) \
 Publisher: jetson/nucleo_bridge \
 Subscriber: base_station/gui + jetson/ra_kinematics
 
 #### Scoop Limit Switch Enable Cmd \[Subscriber\] "/scoop_limit_switch_enable_cmd"
 Message: [ScoopLimitSwitchEnable.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ScoopLimitSwitchEnable.lcm) \
+Publisher: base_station/gui \
+Subscriber: jetson/nucleo_bridge
+
+#### Zero Carousel Cmd \[Subscriber\] "/carousel_zero_cmd"
+Message: [Signal.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Signal.lcm) \
 Publisher: base_station/gui \
 Subscriber: jetson/nucleo_bridge
 
@@ -135,9 +166,17 @@ If two devices share the same i2c address but their functions are continuously c
 
 
 ### ToDo
-- [ ] Test limit switch code
-- [ ] Test joint b calibration code
-- [ ] Test IR encoder
+- [x] Test limit switch code for science arm
+- [ ] Test limit switch code for standard robotic arm
+- [X] Test joint b calibration code
+- [ ] Investigate encoder issues
+- [ ] Create new shield next year and make sure correct pins are traced
+- [ ] Add LCM tests to test.cpp
+- [ ] Zero-index after URC + CIRC (after Rosie)
+- [ ] Verify wrist encoder CPR
+- [ ] Perhaps custom nucleos (to replace the current 3 nucleos taking up so much space)
+- [X] Create zero lcm with teleop for carousel motor
+- [X] Create closed loop for carousel motor
 
 ### Notes
 

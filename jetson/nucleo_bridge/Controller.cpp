@@ -98,11 +98,13 @@ void Controller::refresh_calibration_data()
 
     try
     {
-        int8_t raw_calibration_data;
+        uint8_t calibration_state;
 
-        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&raw_calibration_data));
+        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calibration_state));
 
-        calibrated = raw_calibration_data == 0xF;
+        // calibration_state is either 0xFF or 0x00.
+        // 0xFF means it is calibrated, 0x00 means not calibrated.
+        calibrated = calibration_state == CALIBRATED_BOOL;
     }
     catch (IOFailure &e)
     {
@@ -277,7 +279,7 @@ void Controller::open_loop(float input)
 }
 
 // Sends a get angle command
-void Controller::quad_angle()
+void Controller::refresh_quad_angle()
 {
     if (!ControllerMap::check_if_live(name))
     {
@@ -297,44 +299,18 @@ void Controller::quad_angle()
     }
 }
 
-// Sends a get angle command
-void Controller::refresh_turn_count()
-{
-
-    if (!ControllerMap::check_if_live(name))
-    {
-        return;
-    }
-
-    try
-    {
-        int8_t raw_turn_count;
-
-        transact(TURN_COUNT, nullptr, UINT8_POINTER_T(&raw_turn_count));
-
-        turn_count = raw_turn_count;
-    }
-    catch (IOFailure &e)
-    {
-        printf("turn count data failed on %s\n", name.c_str());
-    }
-}
-
 // Sends a zero command
 void Controller::zero()
 {
-    for (int attempts = 0; attempts < 100; ++attempts)
+    try
     {
-        try
-        {
-            make_live();
+        make_live();
 
-            int32_t zero = 0;
-            transact(ADJUST, UINT8_POINTER_T(&zero), nullptr);
-        }
-        catch (IOFailure &e)
-        {
-            printf("zero failed on %s\n", name.c_str());
-        }
+        int32_t zero = 0;
+        transact(ADJUST, UINT8_POINTER_T(&zero), nullptr);
+    }
+    catch (IOFailure &e)
+    {
+        printf("zero failed on %s\n", name.c_str());
     }
 }
