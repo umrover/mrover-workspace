@@ -144,7 +144,7 @@
           {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
           {'topic': '/heater_cmd', 'type': 'Heater'},
           {'topic': '/heater_state_data', 'type': 'Heater'},
-          {'topic': '/imu_data', 'type': 'IMU'},
+          {'topic': '/imu_data', 'type': 'IMUData'},
           {'topic': '/locked_joints', 'type': 'LockJoints'},
           {'topic': '/mast_gimbal_cmd', 'type': 'MastGimbalCmd'},
           {'topic': '/microscope', 'type': 'Microscope'},

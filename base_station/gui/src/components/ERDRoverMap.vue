@@ -152,34 +152,9 @@ export default {
   height: 100%;
   width: 100%;
 }
-
 .wrap {
+  display: flex;
   align-items: center;
   height: 100%;
-  display: grid;
-  overflow:hidden;
-  min-height: 100%;
-  grid-gap: 3px;
-  grid-template-columns: 1fr;
-  grid-template-rows: 94% 6%;
-  grid-template-areas:"map" 
-                      "controls";
-}
-
-.controls {
-  grid-area: "controls";
-  display: inline;
-}
-
-.controls label{
-  font-size: 12px;
-}
-
-.controls div{
-  display: inline-block;
-}
-
-.online{
-  float:right;
 }
 </style>

@@ -48,6 +48,7 @@
       <AutonCameras v-if="!this.autonEnabled" />
     </div>
   </div>
+
 </template>
 
 <script>
@@ -108,15 +109,15 @@ export default {
         bearing_deg: 0,
         speed: 0
       },
-
-      TargetBearing: {
-        target_bearing: 0
-      },
      
       Obstacle: {
 	      detected: false,
 	      bearing: 0,
         distance: 0
+      },
+
+      TargetBearing: {
+        target_bearing: 0
       },
 
       TargetList: [
