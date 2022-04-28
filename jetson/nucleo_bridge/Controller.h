@@ -28,6 +28,8 @@
 #define LIMIT_ON 0x7F, 1, 0
 #define UINT8_POINTER_T reinterpret_cast<uint8_t *>
 
+#define CALIBRATED_BOOL 0xFF
+
 /*
 Virtual Controllers store information about various controller-specific parameters (such as encoder cpr)
 The virtual Controller class also has functions representing the possible transactions that can be had with the physical controller.
@@ -89,7 +91,7 @@ public:
     void open_loop(float input);
 
     // Sends a get angle command
-    void quad_angle();
+    void refresh_quad_angle();
 
     // Sends a zero command
     void zero();

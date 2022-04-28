@@ -95,6 +95,12 @@
             "bearing"
         ]
     ],
+    "Calibrate": [
+        [
+            "boolean",
+            "calibrated"
+        ]
+    ],
     "Cameras": [
         [
             "boolean",

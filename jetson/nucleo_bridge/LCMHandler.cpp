@@ -18,14 +18,16 @@ void LCMHandler::init()
     internal_object = new InternalHandler();
 
     // Subscription to lcm channels
-    lcm_bus->subscribe("/ra_ik_cmd", &LCMHandler::InternalHandler::ra_closed_loop_cmd, internal_object);
-    lcm_bus->subscribe("/sa_ik_cmd", &LCMHandler::InternalHandler::sa_closed_loop_cmd, internal_object);
+    lcm_bus->subscribe("/carousel_closedloop_cmd", &LCMHandler::InternalHandler::carousel_closedloop_cmd, internal_object);
     lcm_bus->subscribe("/carousel_openloop_cmd", &LCMHandler::InternalHandler::carousel_openloop_cmd, internal_object);
-    lcm_bus->subscribe("/ra_openloop_cmd", &LCMHandler::InternalHandler::ra_open_loop_cmd, internal_object);
-    lcm_bus->subscribe("/sa_openloop_cmd", &LCMHandler::InternalHandler::sa_open_loop_cmd, internal_object);
-    lcm_bus->subscribe("/mast_gimbal_cmd", &LCMHandler::InternalHandler::mast_gimbal_cmd, internal_object);
-    lcm_bus->subscribe("/hand_openloop_cmd", &LCMHandler::InternalHandler::hand_openloop_cmd, internal_object);
+    lcm_bus->subscribe("/carousel_zero_cmd", &LCMHandler::InternalHandler::carousel_zero_cmd, internal_object);
     lcm_bus->subscribe("/foot_openloop_cmd", &LCMHandler::InternalHandler::foot_openloop_cmd, internal_object);
+    lcm_bus->subscribe("/hand_openloop_cmd", &LCMHandler::InternalHandler::hand_openloop_cmd, internal_object);
+    lcm_bus->subscribe("/mast_gimbal_cmd", &LCMHandler::InternalHandler::mast_gimbal_cmd, internal_object);
+    lcm_bus->subscribe("/ra_ik_cmd", &LCMHandler::InternalHandler::ra_closed_loop_cmd, internal_object);
+    lcm_bus->subscribe("/ra_openloop_cmd", &LCMHandler::InternalHandler::ra_open_loop_cmd, internal_object);
+    lcm_bus->subscribe("/sa_ik_cmd", &LCMHandler::InternalHandler::sa_closed_loop_cmd, internal_object);
+    lcm_bus->subscribe("/sa_openloop_cmd", &LCMHandler::InternalHandler::sa_open_loop_cmd, internal_object);
     lcm_bus->subscribe("/scoop_limit_switch_enable_cmd", &LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd, internal_object);
     printf("LCM Bus channels subscribed\n");
 }
@@ -45,34 +47,41 @@ void LCMHandler::handle_outgoing()
     // This is used as a heart beat (to make sure that nucleos do not reset, but honestly that's too difficult)
     if (NOW - last_heartbeat_output_time > heartbeat_dead_time)
     {
-        internal_object->publish_ra_pos_data();
-        internal_object->publish_sa_pos_data();
+        internal_object->refresh_ra_quad_angles();
+        internal_object->refresh_sa_quad_angles();
+        internal_object->refresh_carousel_quad_angles();
     }
 
 
-    // TODO - UNCOMMENT AS SOON AS JOINT B LIMIT SWITCH / CALIBRATION IS READY
-    /*
     std::chrono::duration calib_data_output_dead_time = std::chrono::milliseconds(1000);
-    // This is used as a heart beat (to make sure that nucleos do not reset)
+    // Refresh and post joint b calibration data every second
     if (NOW - last_calib_data_output_time > calib_data_output_dead_time)
     {
-        internal_object->refresh_calib_data();
-        last_calib_data_output_time = NOW;
-
-        internal_object->publish_calib_data();
+        internal_object->refresh_carousel_calib_data();
+        internal_object->refresh_ra_calib_data();
+        internal_object->refresh_sa_calib_data();
     }
-    */
 }
+
+void LCMHandler::InternalHandler::carousel_closedloop_cmd(LCM_INPUT, const CarouselPosition *msg)
+{
+    ControllerMap::controllers["CAROUSEL_MOTOR"]->closed_loop(0, msg->position);
+}
+
 void LCMHandler::InternalHandler::carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg)
 {
     ControllerMap::controllers["CAROUSEL_MOTOR"]->open_loop(msg->throttle);
 }
 
+void LCMHandler::InternalHandler::carousel_zero_cmd(LCM_INPUT, const Signal *msg)
+{
+    ControllerMap::controllers["CAROUSEL_MOTOR"]->zero();
+}
 
 void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
 {
-    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad);
-    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop);
+    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->microscope_triad);
+    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->scoop);
 }
 
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
@@ -97,8 +106,6 @@ void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition
     ControllerMap::controllers["RA_E"]->closed_loop(0, msg->joint_e);
     ControllerMap::controllers["RA_F"]->closed_loop(0, msg->joint_f);
     publish_ra_pos_data();
-
-    last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg)
@@ -109,36 +116,55 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
     ControllerMap::controllers["RA_D"]->open_loop(msg->throttle[3]);
     ControllerMap::controllers["RA_E"]->open_loop(msg->throttle[4]);
     ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
-    last_heartbeat_output_time = NOW;
 
     publish_ra_pos_data();
 }
 
+void LCMHandler::InternalHandler::refresh_carousel_calib_data()
+{
+    ControllerMap::controllers["CAROUSEL_MOTOR"]->refresh_calibration_data();
+    publish_carousel_calib_data();
+}
+
+void LCMHandler::InternalHandler::refresh_carousel_quad_angles()
+{
+    ControllerMap::controllers["CAROUSEL_MOTOR"]->refresh_quad_angle();
+    publish_carousel_pos_data();
+}
+
+void LCMHandler::InternalHandler::refresh_ra_calib_data()
+{
+    ControllerMap::controllers["RA_B"]->refresh_calibration_data();
+    publish_ra_calib_data();
+}
+
 void LCMHandler::InternalHandler::refresh_ra_quad_angles()
 {
-    ControllerMap::controllers["RA_A"]->quad_angle();
-    ControllerMap::controllers["RA_B"]->quad_angle();
-    ControllerMap::controllers["RA_C"]->quad_angle();
-    ControllerMap::controllers["RA_D"]->quad_angle();
-    ControllerMap::controllers["RA_E"]->quad_angle();
-    ControllerMap::controllers["RA_F"]->quad_angle();
-    //last_heartbeat_output_time = NOW;
+    ControllerMap::controllers["RA_A"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_B"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_C"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_D"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_E"]->refresh_quad_angle();
+    ControllerMap::controllers["RA_F"]->refresh_quad_angle();
+
+    publish_ra_pos_data();
+}
+
+
+void LCMHandler::InternalHandler::refresh_sa_calib_data()
+{
+    ControllerMap::controllers["SA_B"]->refresh_calibration_data();
+    publish_sa_calib_data();
 }
 
 void LCMHandler::InternalHandler::refresh_sa_quad_angles()
 {
-    ControllerMap::controllers["SA_A"]->quad_angle();
-    ControllerMap::controllers["SA_B"]->quad_angle();
-    ControllerMap::controllers["SA_C"]->quad_angle();
-    ControllerMap::controllers["SA_E"]->quad_angle();
-    //last_heartbeat_output_time = NOW;
-}
+    ControllerMap::controllers["SA_A"]->refresh_quad_angle();
+    ControllerMap::controllers["SA_B"]->refresh_quad_angle();
+    ControllerMap::controllers["SA_C"]->refresh_quad_angle();
+    ControllerMap::controllers["SA_E"]->refresh_quad_angle();
 
-void LCMHandler::InternalHandler::refresh_calib_data()
-{
-    ControllerMap::controllers["RA_B"]->refresh_calibration_data();
-
-    last_heartbeat_output_time = NOW;
+    publish_sa_pos_data();
 }
 
 void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg)
@@ -147,7 +173,6 @@ void LCMHandler::InternalHandler::sa_closed_loop_cmd(LCM_INPUT, const SAPosition
     ControllerMap::controllers["SA_B"]->closed_loop(0, msg->joint_b);
     ControllerMap::controllers["SA_C"]->closed_loop(0, msg->joint_c);
     ControllerMap::controllers["SA_E"]->closed_loop(0, msg->joint_e);
-    last_heartbeat_output_time = NOW;
 
     publish_sa_pos_data();
 }
@@ -158,7 +183,6 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
     ControllerMap::controllers["SA_B"]->open_loop(msg->throttle[1]);
     ControllerMap::controllers["SA_C"]->open_loop(msg->throttle[2]);
     ControllerMap::controllers["SA_E"]->open_loop(msg->throttle[3]);
-    last_heartbeat_output_time = NOW;
 
     publish_sa_pos_data();
 }
@@ -168,11 +192,29 @@ void LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd(LCM_INPUT, const
     ControllerMap::controllers["FOOT_SCOOP"]->limit_switch_enable(msg->enable);
 }
 
-void LCMHandler::InternalHandler::publish_calib_data()
+void LCMHandler::InternalHandler::publish_carousel_calib_data()
 {
-    JointBCalibration msg;
+    Calibrate msg;
+    msg.calibrated = ControllerMap::controllers["CAROUSEL_MOTOR"]->calibrated;
+    lcm_bus->publish("/carousel_calib_data", &msg);
+    last_calib_data_output_time = NOW;
+}
+
+void LCMHandler::InternalHandler::publish_carousel_pos_data()
+{
+    CarouselPosition msg;
+    float carousel_angle = ControllerMap::controllers["CAROUSEL_MOTOR"]->get_current_angle();
+    msg.position = carousel_angle;
+    lcm_bus->publish("/carousel_pos_data", &msg);
+    last_calib_data_output_time = NOW;
+}
+
+void LCMHandler::InternalHandler::publish_ra_calib_data()
+{
+    Calibrate msg;
     msg.calibrated = ControllerMap::controllers["RA_B"]->calibrated;
-    lcm_bus->publish("/joint_b_refresh_calibration_data", &msg);
+    lcm_bus->publish("/ra_b_calib_data", &msg);
+    last_calib_data_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::publish_ra_pos_data()
@@ -185,6 +227,15 @@ void LCMHandler::InternalHandler::publish_ra_pos_data()
     msg.joint_e = ControllerMap::controllers["RA_E"]->get_current_angle();
     msg.joint_f = ControllerMap::controllers["RA_F"]->get_current_angle();
     lcm_bus->publish("/ra_position", &msg);
+    last_heartbeat_output_time = NOW;
+}
+
+void LCMHandler::InternalHandler::publish_sa_calib_data()
+{
+    Calibrate msg;
+    msg.calibrated = ControllerMap::controllers["SA_B"]->calibrated;
+    lcm_bus->publish("/sa_b_calib_data", &msg);
+    last_calib_data_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::publish_sa_pos_data()
@@ -195,4 +246,5 @@ void LCMHandler::InternalHandler::publish_sa_pos_data()
     msg.joint_c = ControllerMap::controllers["SA_C"]->get_current_angle();
     msg.joint_e = ControllerMap::controllers["SA_E"]->get_current_angle();
     lcm_bus->publish("/sa_position", &msg);
+    last_heartbeat_output_time = NOW;
 }
