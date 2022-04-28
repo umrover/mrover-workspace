@@ -16,7 +16,7 @@
       <Raman v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box cameras light-bg">
-      <Cameras/>
+      <Cameras v-bind:numCams="2" v-bind:channel="'/cameras_control_ish'"/>
     </div>
     <div class="box spectralTriad light-bg">
       <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import Cameras from './CamerasISH.vue'
+import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
 import Raman from './Raman.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'

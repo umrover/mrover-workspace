@@ -13,7 +13,7 @@
     </div>
 
     <div class="box cameras light-bg">
-      <Cameras/>
+      <Cameras v-bind:numCams="2" v-bind:channel="'/cameras_control'"/>
     </div>
     <div class="box drivecontrols light-bg">
       <DriveControls/>
