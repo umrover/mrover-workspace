@@ -1,5 +1,5 @@
 package rover_msgs;
 
-struct JointBCalibration {
-	boolean calibrated;
+struct Calibrate {
+	boolean calibrated; //for joint B
 }

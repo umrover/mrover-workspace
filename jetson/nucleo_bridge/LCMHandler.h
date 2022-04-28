@@ -50,7 +50,7 @@ private:
 
         void carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
 
-        void carousel_zero_cmd(LCM_INPUT, const Zero *msg)
+        void carousel_zero_cmd(LCM_INPUT, const Zero *msg);
 
         void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
 

@@ -64,7 +64,7 @@ void LCMHandler::handle_outgoing()
 
 void LCMHandler::InternalHandler::carousel_closedloop_cmd(LCM_INPUT, const CarouselPosition *msg)
 {
-    ControllerMap::controllers["CAROUSEL_MOTOR"]->closed_loop(msg->position);
+    ControllerMap::controllers["CAROUSEL_MOTOR"]->closed_loop(0, msg->position);
 }
 
 void LCMHandler::InternalHandler::carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg)
@@ -189,6 +189,7 @@ void LCMHandler::InternalHandler::publish_carousel_pos_data()
 {
     CarouselPosition msg;
     float carousel_angle = ControllerMap::controllers["CAROUSEL_MOTOR"]->get_current_angle();
+    msg.position = carousel_angle;
     lcm_bus->publish("/carousel_pos_data", &msg);
     last_calib_data_output_time = NOW;
 }
