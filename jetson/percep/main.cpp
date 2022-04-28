@@ -66,10 +66,10 @@ int main() {
 
     /* --- Outlier Detection --- */
     int numChecks = 3;
-    deque <bool> outliers;
+    std::deque <bool> outliers;
     outliers.resize(numChecks, true); //initializes outliers vector
-    deque <bool> checkTrue(numChecks, true); //true deque to check our outliers deque against
-    deque <bool> checkFalse(numChecks, false); //false deque to check our outliers deque against
+    std::deque <bool> checkTrue(numChecks, true); //true std::deque to check our outliers std::deque against
+    std::deque <bool> checkFalse(numChecks, false); //false std::deque to check our outliers std::deque against
     obstacle_return lastObstacle;
 
 #endif
