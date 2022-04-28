@@ -94,6 +94,11 @@ Message: [WristTurnCount.lcm](https://github.com/umrover/mrover-workspace/blob/m
 Publisher: jetson/nucleo_bridge \
 Subscriber: base_station/gui + jetson/teleop
 
+#### Carousel Calibration Data \[Publisher\] "/carousel_calib_data"
+Message: [Calibrate.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Calibrate.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui
+
 #### RA Joint B Calibration Data \[Publisher\] "/ra_b_calib_data"
 Message: [Calibrate.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Calibrate.lcm) \
 Publisher: jetson/nucleo_bridge \
@@ -110,7 +115,7 @@ Publisher: base_station/gui \
 Subscriber: jetson/nucleo_bridge
 
 #### Zero Carousel Cmd \[Subscriber\] "/carousel_zero_cmd"
-Message: [Zero.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Zero.lcm) \
+Message: [Signal.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Signal.lcm) \
 Publisher: base_station/gui \
 Subscriber: jetson/nucleo_bridge
 
@@ -170,8 +175,8 @@ If two devices share the same i2c address but their functions are continuously c
 - [ ] Zero-index after URC + CIRC (after Rosie)
 - [ ] Verify wrist encoder CPR
 - [ ] Perhaps custom nucleos (to replace the current 3 nucleos taking up so much space)
-- [ ] Create zero lcm with teleop for carousel motor
-- [ ] Create closed loop for carousel motor
+- [X] Create zero lcm with teleop for carousel motor
+- [X] Create closed loop for carousel motor
 
 ### Notes
 

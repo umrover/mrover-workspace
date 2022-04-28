@@ -57,6 +57,7 @@ void LCMHandler::handle_outgoing()
     // Refresh and post joint b calibration data every second
     if (NOW - last_calib_data_output_time > calib_data_output_dead_time)
     {
+        internal_object->refresh_carousel_calib_data();
         internal_object->refresh_ra_calib_data();
         internal_object->refresh_sa_calib_data();
     }
@@ -72,7 +73,7 @@ void LCMHandler::InternalHandler::carousel_openloop_cmd(LCM_INPUT, const Carouse
     ControllerMap::controllers["CAROUSEL_MOTOR"]->open_loop(msg->throttle);
 }
 
-void LCMHandler::InternalHandler::carousel_zero_cmd(LCM_INPUT, const Zero *msg)
+void LCMHandler::InternalHandler::carousel_zero_cmd(LCM_INPUT, const Signal *msg)
 {
     ControllerMap::controllers["CAROUSEL_MOTOR"]->zero();
 }
@@ -117,6 +118,12 @@ void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCm
     ControllerMap::controllers["RA_F"]->open_loop(msg->throttle[5]);
 
     publish_ra_pos_data();
+}
+
+void LCMHandler::InternalHandler::refresh_carousel_calib_data()
+{
+    ControllerMap::controllers["CAROUSEL_MOTOR"]->refresh_calibration_data();
+    publish_carousel_calib_data();
 }
 
 void LCMHandler::InternalHandler::refresh_carousel_quad_angles()
@@ -183,6 +190,14 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
 void LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg)
 {
     ControllerMap::controllers["FOOT_SCOOP"]->limit_switch_enable(msg->enable);
+}
+
+void LCMHandler::InternalHandler::publish_carousel_calib_data()
+{
+    Calibrate msg;
+    msg.calibrated = ControllerMap::controllers["CAROUSEL_MOTOR"]->calibrated;
+    lcm_bus->publish("/carousel_calib_data", &msg);
+    last_calib_data_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::publish_carousel_pos_data()

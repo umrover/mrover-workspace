@@ -18,6 +18,7 @@ class Auton_state(Enum):
     ON = 0
     DONE = 1
     OFF = 2
+    NONE = 3
 
 
 # Mapping of LCM mosfet devices to actual mosfet devices
@@ -234,48 +235,21 @@ class ScienceBridge():
 
         print("Received new nav req: " + struct.nav_state_name)
 
-        blue_off = self.format_mosfet_message(Mosfet_devices.BLUE_LED.value, 0)
-        self.uart_send(blue_off)
-        red_off = self.format_mosfet_message(Mosfet_devices.RED_LED.value, 0)
-        self.uart_send(red_off)
-        green_off = self.format_mosfet_message(Mosfet_devices.GREEN_LED.value, 0)
-        self.uart_send(green_off)
-
         self.previous_auton_msg = struct.nav_state_name
 
         if struct.nav_state_name == "Off":
+            print("navstatus off - blue")
             prev_state = Auton_state.OFF
         elif struct.nav_state_name == "Done":
+            print("navstatus done - green blink")
             prev_state = Auton_state.DONE
         else:
-            prev_state = Auton_state.ON
-
-        # Off = Blue
-        if prev_state == Auton_state.OFF:
-            print("navstatus off - blue")
-            blue = self.format_mosfet_message(Mosfet_devices.BLUE_LED.value, 1)
-            self.uart_send(blue)
-        # Done = Flashing green
-        elif prev_state == Auton_state.DONE:
-            print("navstatus done - green blink")
-            # Flashing by turning on and off for 1 second intervals
-
-            NUMBER_OF_LED_BLINKS = 6
-
-            for i in range(NUMBER_OF_LED_BLINKS):
-                green_on = self.format_mosfet_message(Mosfet_devices.GREEN_LED.value, 1)
-                self.uart_send(green_on)
-                time.sleep(1)
-                green_off = self.format_mosfet_message(Mosfet_devices.GREEN_LED.value, 0)
-                self.uart_send(green_off)
-                time.sleep(1)
-        # Everytime on = Red
-        elif prev_state == Auton_state.ON:
             print("navstatus on - red")
-            red = self.format_mosfet_message(Mosfet_devices.RED_LED.value, 0)
-            self.uart_send(red)
-        time.sleep(1)
-        # Green should be in a finished state so no need to turn it off
+            prev_state = Auton_state.ON
+        
+        led_message = "$LED,{led_color}"
+        led_message = led_message.format(led_color=prev_state.value)
+        self.uart_send(led_message)
 
     def servo_transmit(self, channel, msg):
         # get cmd lcm and send to nucleo

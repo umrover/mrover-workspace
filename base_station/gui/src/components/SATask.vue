@@ -216,6 +216,7 @@ export default {
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
+        {'topic': '/carousel_calib_data', 'type': 'Calibrate'},
         {'topic': '/carousel_pos_data', 'type': 'CarouselPosition'},
         {'topic': '/sa_position', 'type': 'SAPosition'},
         {'topic': '/sa_offset_pos', 'type': 'SAPosition'},

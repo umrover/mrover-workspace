@@ -22,7 +22,7 @@
 #include <rover_msgs/SAOpenLoopCmd.hpp>
 #include <rover_msgs/SAPosition.hpp>
 #include <rover_msgs/ScoopLimitSwitchEnable.hpp>
-#include <rover_msgs/Zero.hpp>
+#include <rover_msgs/Signal.hpp>
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()
@@ -50,7 +50,7 @@ private:
 
         void carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
 
-        void carousel_zero_cmd(LCM_INPUT, const Zero *msg);
+        void carousel_zero_cmd(LCM_INPUT, const Signal *msg);
 
         void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
 
@@ -62,9 +62,11 @@ private:
 
         void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
 
-        void refresh_ra_calib_data();
+        void refresh_carousel_calib_data();
 
         void refresh_carousel_quad_angles();
+
+        void refresh_ra_calib_data();
 
         void refresh_ra_quad_angles();
 
@@ -75,6 +77,8 @@ private:
         void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
+
+        void publish_carousel_calib_data();
 
         void publish_carousel_pos_data();
 
