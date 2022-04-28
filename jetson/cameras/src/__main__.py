@@ -50,7 +50,7 @@ def start_pipeline(index, port):
 
     try:
         __pipelines[port].update_device_number(index)
-        print(f"Playing camera {index} __pipelines on port 500{port}.")
+        print(f"Playing camera {index} __pipelines on {remote_ip[port]}.")
     except Exception:
         pass
 
@@ -58,7 +58,7 @@ def start_pipeline(index, port):
 def stop_pipeline(port):
     global __pipelines
 
-    print(f"Stopping camera {__pipelines[port].device_number} on port 500{port}.")
+    print(f"Stopping camera {__pipelines[port].device_number} on {remote_ip[port]}.")
     __pipelines[port].update_device_number(-1)
 
 
@@ -83,7 +83,7 @@ def camera_callback(channel, msg):
 def main():
     global __pipelines, __lcm
 
-    __pipelines = [Pipeline(0), Pipeline(1)]
+    __pipelines = [Pipeline(0), Pipeline(1), Pipeline(2), Pipeline(3)]
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)
@@ -97,7 +97,7 @@ def main():
                     pipeline.update()
                 else:
                     stop_pipeline(port_number)
-                    print(f'Closing {port_number} becuase it stopped streaming!')
+                    print(f'Closing stream on {remote_ip[port_number]} becuase it stopped streaming!')
 
 
 if __name__ == "__main__":
