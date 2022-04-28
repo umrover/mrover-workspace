@@ -9,8 +9,7 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
 
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
-                        ArmControlState,
-                        ReverseDrive)
+                        ArmControlState, ReverseDrive)
 
 
 lcm_ = aiolcm.AsyncLCM()
