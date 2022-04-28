@@ -1,26 +1,10 @@
 [Unit]
-<<<<<<< HEAD
 Description=MRover Jetson Science Bridge
-=======
-<<<<<<< HEAD:ansible/roles/jetson_nano_services/files/rover-jetson-odrive-back.service
-Description=MRover Drive
-=======
-Description=MRover Jetson Science Bridge
->>>>>>> main:ansible/roles/jetson_services/files/rover-jetson-science-bridge.service
->>>>>>> main
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-<<<<<<< HEAD
 ExecStart={{ workspace_dir }}/jarvis exec jetson_science_bridge
-=======
-<<<<<<< HEAD:ansible/roles/jetson_nano_services/files/rover-jetson-odrive-back.service
-ExecStart={{ workspace_dir }}/jarvis exec jetson_odrive_bridge 2
-=======
-ExecStart={{ workspace_dir }}/jarvis exec jetson_science_bridge
->>>>>>> main:ansible/roles/jetson_services/files/rover-jetson-science-bridge.service
->>>>>>> main
 Restart=always
 RestartSec=10
 
