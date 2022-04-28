@@ -146,7 +146,7 @@
         "type":"Motor12V",
         "nucleo": 3,
         "channel": 1,
-        "quadCPR": 1024.0,
+        "quadCPR": -2048.0,
         "kP": 0.05,
         "kI": 0.0,
         "inversion": 1.0
