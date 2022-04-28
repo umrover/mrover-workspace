@@ -67,7 +67,7 @@ def camera_callback(channel, msg):
 
     camera_cmd = Cameras.decode(msg)
 
-    port_devices = cameras_cmd.port
+    port_devices = camera_cmd.port
 
     for port_number, requested_port_device in enumerate(port_devices):
         if __pipelines[port_number].is_device_number() == requested_port_device:
