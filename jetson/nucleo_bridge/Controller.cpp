@@ -98,13 +98,13 @@ void Controller::refresh_calibration_data()
 
     try
     {
-        int8_t raw_calibration_data;
+        uint8_t calibration_state;
 
-        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&raw_calibration_data));
+        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calibration_state));
 
-        // raw_calibration_data is either 0xFF or 0x00.
+        // calibration_state is either 0xFF or 0x00.
         // 0xFF means it is calibrated, 0x00 means not calibrated.
-        calibrated = raw_calibration_data != NOT_CALIBRATED_BOOL;
+        calibrated = calibration_state == CALIBRATED_BOOL;
     }
     catch (IOFailure &e)
     {
@@ -302,18 +302,15 @@ void Controller::refresh_quad_angle()
 // Sends a zero command
 void Controller::zero()
 {
-    for (int attempts = 0; attempts < 100; ++attempts)
+    try
     {
-        try
-        {
-            make_live();
+        make_live();
 
-            int32_t zero = 0;
-            transact(ADJUST, UINT8_POINTER_T(&zero), nullptr);
-        }
-        catch (IOFailure &e)
-        {
-            printf("zero failed on %s\n", name.c_str());
-        }
+        int32_t zero = 0;
+        transact(ADJUST, UINT8_POINTER_T(&zero), nullptr);
+    }
+    catch (IOFailure &e)
+    {
+        printf("zero failed on %s\n", name.c_str());
     }
 }

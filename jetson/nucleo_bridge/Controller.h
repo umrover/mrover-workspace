@@ -28,7 +28,7 @@
 #define LIMIT_ON 0x7F, 1, 0
 #define UINT8_POINTER_T reinterpret_cast<uint8_t *>
 
-#define NOT_CALIBRATED_BOOL 0
+#define CALIBRATED_BOOL 0xFF
 
 /*
 Virtual Controllers store information about various controller-specific parameters (such as encoder cpr)

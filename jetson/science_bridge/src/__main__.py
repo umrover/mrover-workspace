@@ -10,8 +10,7 @@ import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
-    NavStatus, ServoCmd, CarouselPosition, CarouselOpenLoopCmd, \
-    Heater, HeaterAutoShutdown
+    NavStatus, ServoCmd, Heater, HeaterAutoShutdown
 from enum import Enum
 
 
@@ -61,11 +60,9 @@ class ScienceBridge():
             "THERMISTOR": self.thermistor_handler,
             "TRIAD": self.triad_handler,
             "TXT": self.txt_handler,
-            "CAROUSEL": self.carousel_handler,
             "HEATER": self.heater_state_handler,
             "AUTOSHUTOFF": self.heater_shutoff_handler
         }
-        self.last_openloop_cmd = -1
         self.max_error_count = 20
         self.sleep = .01
         self.previous_auton_msg = "Default"
@@ -106,8 +103,9 @@ class ScienceBridge():
             self.ser.write(bytes(message, encoding='utf-8'))
 
     def format_mosfet_message(self, device, enable):
-        mosfet_message = "$Mosfet,{dev},{en},"
+        mosfet_message = "$MOSFET,{dev},{en},"
         return mosfet_message.format(dev=device, en=enable)
+
 
     def spectral_handler(self, m, spectral_struct):
         # msg format: <"$SPECTRAL,d0_1,d0_2, .... , d2_6">
@@ -183,14 +181,6 @@ class ScienceBridge():
         '''
         print(msg)
 
-    def carousel_handler(self, msg, carousel_struct):
-        # msg format: <"$CAROUSEL,position>
-        try:
-            arr = msg.split(",")
-            carousel_struct.position = np.int8(arr[1])
-        except Exception as e:
-            print(e)
-
     def heater_state_handler(self, msg, struct):
         # msg format: <"$HEATER,device,enabled">
         try:
@@ -202,7 +192,7 @@ class ScienceBridge():
             print(e)
 
     def heater_shutoff_handler(self, msg, struct):
-        # msg format: <"$auto_shutoff,device,enabled">
+        # msg format: <"$AUTOSHUTOFF,device,enabled">
         try:
             arr = msg.split(",")
             enabled = bool(int(arr[1]))
@@ -222,7 +212,7 @@ class ScienceBridge():
     def heater_auto_transmit(self, channel, msg):
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
         struct = HeaterAutoShutdown.decode(msg)
-        message = "$AutoShutoff,{enable}"
+        message = "$AUTOSHUTOFF,{enable}"
         message = message.format(enable=int(struct.auto_shutdown_enabled))
         self.uart_send(message)
 
@@ -293,36 +283,14 @@ class ScienceBridge():
         struct = ServoCmd.decode(msg)
         print("Received Servo Cmd")
         # parse data into expected format
-        message = "$Servo,{angle0},{angle1},{angle2}"
+        message = "$SERVO,{angle0},{angle1},{angle2}"
         message = message.format(angle0=struct.angle0, angle1=struct.angle1, angle2=struct.angle2)
-        self.uart_send(message)
-
-    def carousel_openloop_transmit(self, channel, msg):
-        struct = CarouselOpenLoopCmd.decode(msg)
-
-        if (self.last_openloop_cmd == struct.throttle):
-            return
-        print("Received Carousel (OL) Cmd")
-        self.last_openloop_cmd = struct.throttle
-        # parse data into expected format
-        message = "$OpenCarousel,{throttle}"
-        message = message.format(throttle=struct.throttle)
-        self.uart_send(message)
-
-    def carousel_closedloop_transmit(self, channel, msg):
-        self.last_openloop_cmd = -1
-        struct = CarouselPosition.decode(msg)
-        print("Received Carousel (CL) Cmd")
-        # parse data into expected format
-        message = "$Carousel,{position}"
-        message = message.format(position=struct.position)
         self.uart_send(message)
 
     async def receive(self, lcm):
         spectral = SpectralData()
         thermistor = ThermistorData()
         triad = SpectralData()
-        carousel = CarouselPosition()
         heater = Heater()
         heater_auto_shutdown = HeaterAutoShutdown()
 
@@ -360,9 +328,6 @@ class ScienceBridge():
                             elif (tag == "TRIAD"):
                                 self.triad_handler(msg, triad)
                                 lcm.publish('/spectral_triad_data', triad.encode())
-                            elif (tag == "CAROUSEL"):
-                                self.carousel_handler(msg, carousel)
-                                lcm.publish('/carousel_data', carousel.encode())
                             elif (tag == "HEATER"):
                                 self.heater_state_handler(msg, heater)
                                 lcm.publish('/heater_state_data', heater.encode())
@@ -389,8 +354,6 @@ def main():
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
         _lcm.subscribe("/nav_status", bridge.nav_status)
         _lcm.subscribe("/servo_cmd", bridge.servo_transmit)
-        _lcm.subscribe("/carousel_openloop_cmd", bridge.carousel_openloop_transmit)
-        _lcm.subscribe("/carousel_closedloop_cmd", bridge.carousel_closedloop_transmit)
         _lcm.subscribe("/heater_cmd", bridge.heater_transmit)
         _lcm.subscribe("/heater_auto_shutdown_cmd", bridge.heater_auto_transmit)
         print("properly started")

@@ -18,7 +18,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$OpenCarousel,<throttle>,<extra padding>`
+- `$OPENCAROUSEL,<throttle>,<extra padding>`
 - String is 30 characters long
 - The throttle is between -1 and 1
 
@@ -31,7 +31,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$Carousel,<site>,<extra padding>`
+- `$CAROUSEL,<site>,<extra padding>`
 - String is 30 characters long
 - The site is either 0, 1, or 2
 
@@ -39,7 +39,7 @@ Format of the UART NMEA command
 Reads the site the carousel was last in.
 #### LCM Channels Publishing/Subscribed To
 **Carousel Data [publisher]** \
-Messages: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselPosition.lcm) "/carousel_data" \
+Messages: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselPosition.lcm) "/carousel_pos_data" \
 Publishers: jetson/science_bridge \
 Subscribers: base_station/gui
 #### UART Message
@@ -100,7 +100,7 @@ Subscribers: jetson/science_bridge
 
 #### UART Message
 Format of the UART NMEA command
-- `$Mosfet,<device>,<enable>,<extra padding>`
+- `$MOSFET,<device>,<enable>,<extra padding>`
 - String is 30 characters long
 - The device represents the mosfet device being activated (0 to 11)
 
@@ -113,7 +113,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$Servo,<angle0>,<angle1>,<angle2>,<extra padding>`
+- `$SERVO,<angle0>,<angle1>,<angle2>,<extra padding>`
 - String is 30 characters long
 - The angles are in degrees
 
@@ -127,7 +127,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$Mosfet,<device>,<enable>,<extra padding>`
+- `$MOSFET,<device>,<enable>,<extra padding>`
 - String is 30 characters long
 - The device represents the mosfet device being activated
 - Heaters are mosfet devices 5, 6, and 7
@@ -155,7 +155,7 @@ Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 #### UART Message
 Format of the UART NMEA command
-- `$AutoShutoff,<enable>,<extra padding>`
+- `$AUTOSHUTOFF,<enable>,<extra padding>`
 - String is 30 characters long
 - The enable represents whether or not auto shutoff should be enabled or not
 
@@ -182,3 +182,4 @@ Format of the data string
 - [ ] Need better support for Auton LEDs - move it to nucleos
 - [X] Create function for padding
 - [ ] Don't need to wait for all tags to be seen
+- [ ] Change to all caps for msgs from jetson to nucleo (make sure to change nucleo end too)
