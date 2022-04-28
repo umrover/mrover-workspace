@@ -1,14 +1,8 @@
 <template>
 <div class = "main-content">
-<<<<<<< HEAD
  <h4>Auton Commands</h4>
   <div class="joystick-wrap">
     <span>Left: {{AutonDriveControl.left_percent_velocity.toFixed(3)}}<br>Right: {{AutonDriveControl.right_percent_velocity.toFixed(3)}}</span>
-=======
- <h3>Joystick Reading</h3>
-  <div class="joystick-wrap">
-    <span>forward_back: {{Joystick.forward_back}}<br>left_right: {{Joystick.left_right}}<br>dampen: {{Joystick.dampen}}</span>
->>>>>>> main
   </div>
 </div>
 </template>

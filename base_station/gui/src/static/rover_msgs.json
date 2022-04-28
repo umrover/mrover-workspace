@@ -486,7 +486,6 @@
             "bearing_deg"
         ]
     ],
-<<<<<<< HEAD
     "Joystick": [
         [
             "double",
@@ -501,8 +500,6 @@
             "dampen"
         ]
     ],
-=======
->>>>>>> main
     "LockJointE": [
         [
             "boolean",

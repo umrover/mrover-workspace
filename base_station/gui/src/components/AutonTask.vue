@@ -116,19 +116,8 @@ export default {
         distance: 0
       },
 
-      TargetList: {
-        targetList: [{bearing: 0, distance: 0, id: 0},
-        {bearing: 0, distance: 0, id: 0}]
-      },
-
       TargetBearing: {
         target_bearing: 0
-      },
-     
-      Obstacle: {
-	      detected: false,
-	      bearing: 0,
-        distance: 0
       },
 
       TargetList: [
