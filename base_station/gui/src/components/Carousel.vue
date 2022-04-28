@@ -46,7 +46,7 @@ export default {
   },
 
   created: function () {
-    this.$parent.subscribe('/carousel_data', (msg) => {
+    this.$parent.subscribe('/carousel_pos_data', (msg) => {
       this.position = msg.position
 
       if (this.closedLoop) {

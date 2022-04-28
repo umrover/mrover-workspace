@@ -39,7 +39,7 @@ Format of the UART NMEA command
 Reads the site the carousel was last in.
 #### LCM Channels Publishing/Subscribed To
 **Carousel Data [publisher]** \
-Messages: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselPosition.lcm) "/carousel_data" \
+Messages: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/CarouselPosition.lcm) "/carousel_pos_data" \
 Publishers: jetson/science_bridge \
 Subscribers: base_station/gui
 #### UART Message

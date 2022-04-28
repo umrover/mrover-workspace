@@ -302,18 +302,15 @@ void Controller::refresh_quad_angle()
 // Sends a zero command
 void Controller::zero()
 {
-    for (int attempts = 0; attempts < 100; ++attempts)
+    try
     {
-        try
-        {
-            make_live();
+        make_live();
 
-            int32_t zero = 0;
-            transact(ADJUST, UINT8_POINTER_T(&zero), nullptr);
-        }
-        catch (IOFailure &e)
-        {
-            printf("zero failed on %s\n", name.c_str());
-        }
+        int32_t zero = 0;
+        transact(ADJUST, UINT8_POINTER_T(&zero), nullptr);
+    }
+    catch (IOFailure &e)
+    {
+        printf("zero failed on %s\n", name.c_str());
     }
 }
