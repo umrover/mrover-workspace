@@ -8,8 +8,8 @@ import jetson.utils  # noqa
 __lcm: lcm.LCM
 __pipelines = [None] * 2
 
-ARGUMENTS_MEDIUM = ['--headless', '--bitrate=300000', '--width=256', '--height=144']  # Change to desired bitrate e.g. 2000000
-ARGUMENTS_HIGH = ['--headless', '--bitrate=300000', '--width=1080', '--height=720']  # Change to desired bitrate e.g. 2000000
+ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
+ARGUMENTS_MEDIUM = ['--headless', '--bitrate=300000', '--width=1280', '--height=720']
 remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
 
 
