@@ -185,7 +185,7 @@ void testOpenPlus()
         std::vector<float> speeds = {speed_unit, -speed_unit, 0.0f};
         std::vector<int> iterations = {3, 3, 5};
 
-        for (int j = 0; j < speeds.size(); ++j) 
+        for (size_t j = 0; j < speeds.size(); ++j) 
         {
             for (int i = 0; i < iterations[j]; i++) 
             {
@@ -209,7 +209,7 @@ void testOpenPlusWithAbs()
     {
         std::vector<float> speeds = {speed_unit, 0.0f, -speed_unit, 0.0f};
 
-        for (int j = 0; j < speeds.size(); ++j) 
+        for (size_t j = 0; j < speeds.size(); ++j) 
         {
             for (int i = 0; i < 3; i++) 
             {
@@ -242,7 +242,7 @@ void testOpenPlusWithAbsWithDelays()
 
         std::vector<float> speeds = {speed_unit, 0.0f, -speed_unit, 0.0f};
         std::vector<int> iterations = {3, 10, 3, 10};
-        for (int j = 0; j < speeds.size(); ++j) 
+        for (size_t j = 0; j < speeds.size(); ++j) 
         {
             if (speeds[j] == 0.0f) 
             {
