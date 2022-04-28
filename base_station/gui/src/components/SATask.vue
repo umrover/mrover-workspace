@@ -387,6 +387,18 @@ export default {
       grid-area: spectral;
     }
 
+    .drives {
+      grid-area: drives;
+    }
+
+    .cameras {
+      grid-area: cameras;
+    }
+
+    .spectral {
+      grid-area: spectral;
+    }
+
     .controls {
         grid-area: controls;
         font-size: 1em;
