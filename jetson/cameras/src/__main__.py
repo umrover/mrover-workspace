@@ -18,7 +18,7 @@ def initialize_video_sources():
     global video_sources
     for index, video_source in enumerate(video_sources):
         try:
-            video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_MEDIUM)
+            video_sources[index] = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_MEDIUM)
         except Exception:
             pass
 
@@ -46,7 +46,7 @@ class Pipeline:
     def update_device_number(self, index):
         if index != -1:
             self.video_source = video_sources[index]
-            if self.video_source != None:
+            if self.video_source is not None:
                 self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_MEDIUM)
         else:
             self.video_source = None
@@ -98,7 +98,7 @@ def main():
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)
-    
+
     while True:
         while __lcm.handle_timeout(0):
             pass
