@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct WristTurnCount {
+    int8_t turn_count;
+}

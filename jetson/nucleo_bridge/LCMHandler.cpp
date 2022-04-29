@@ -108,7 +108,7 @@ void LCMHandler::InternalHandler::ra_closed_loop_cmd(LCM_INPUT, const RAPosition
     publish_ra_pos_data();
 }
 
-void LCMHandler::InternalHandler::ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg)
+void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
 {
     ControllerMap::controllers["RA_A"]->open_loop(msg->throttle[0]);
     ControllerMap::controllers["RA_B"]->open_loop(msg->throttle[1]);

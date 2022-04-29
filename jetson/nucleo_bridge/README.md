@@ -27,7 +27,6 @@ I2C.h is responsible for translating communications by virtual Controllers into 
 
 The following watchdog is implemented: If the nucleos do not receive any I2C messages for a given amount of time (currently about 443 ms), then they reset.
 
-
 ### LCM Channels Publishing/Subscribed To
 #### RA Open Loop \[Subscriber\] "/ra_openloop_cmd"
 Message: [RAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAOpenLoopCmd.lcm) \
