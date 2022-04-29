@@ -39,6 +39,7 @@ private:
 
             rot_axis << joint_geom["axis"][0], joint_geom["axis"][1], joint_geom["axis"][2];
 
+            // TODO check with RA whether joint limits are correct
             joint_limits.push_back(joint_geom["limit"]["lower"]);
             joint_limits.push_back(joint_geom["limit"]["upper"]);
 
@@ -117,6 +118,7 @@ private:
     std::vector<std::string> joint_names;
     std::vector<std::string> link_names;
     std::map<std::string, std::vector<double>> preset_positions;
+    std::map<std::string, std::vector<std::vector<double>>> preset_paths;
 
     std::vector<Joint> joints;
     std::vector<Link> links;
@@ -190,7 +192,7 @@ public:
 
     bool obstacle_free();
 
-    int num_joints() const;
+    size_t num_joints() const;
 
     std::string get_child_link(size_t joint_index) const;
 
@@ -223,6 +225,10 @@ public:
     bool is_continuous(size_t joint_index);
 
     std::vector<double> get_preset_position(const std::string &pos);
+
+    std::vector<std::vector<double>> get_preset_path(const std::string &path);
+
+    void set_preset_position(const std::string &pos);
 };
 
 #endif

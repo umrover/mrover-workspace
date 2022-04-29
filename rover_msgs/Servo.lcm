@@ -1,6 +1,0 @@
-package rover_msgs;
-
-struct Servo {
-    string id;
-    double degrees;
-}
