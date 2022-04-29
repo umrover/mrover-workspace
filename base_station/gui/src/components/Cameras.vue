@@ -64,64 +64,6 @@
       }
     },
 
-    created: function () {
-      // const JOYSTICK_CONFIG = {
-      //   'down_left_button': 6,
-      //   'up_left_button': 7,
-      //   'down_middle_button': 8,
-      //   'up_middle_button': 9,
-      //   'down_right_button': 10,
-      //   'up_right_button': 11
-      // }
-
-      // const CAMERA_NUM = {
-      //   'down_left_button': 1,
-      //   'up_left_button': 2,
-      //   'down_middle_button': 3,
-      //   'up_middle_button': 4,
-      //   'down_right_button': 5,
-      //   'up_right_button': 6
-      // }
-
-      // window.addEventListener('keydown', (e) => {
-      //   const activeElement = document.activeElement;
-      //   const inputs = ['input', 'select', 'textarea'];
-
-      //   //Prevent camera change if inside text area
-      //   if (activeElement && inputs.indexOf(activeElement.tagName.toLowerCase()) !== -1) {
-      //       return;
-      //   }
-
-      //   if(e.keyCode>=49 && e.keyCode<=54)  //keys 1 to 6
-      //     this.cam_index_1 = e.keyCode-48
-      // })
-
-      // // Change cam index based on joystick button
-      // interval = window.setInterval(() => {
-      //   const gamepads = navigator.getGamepads()
-      //   for (let i = 0; i < 2; i++) {
-      //     const gamepad = gamepads[i]
-      //     if (gamepad) {
-      //       if (gamepad.id.includes('Logitech')) {
-      //         if (gamepad.buttons[JOYSTICK_CONFIG['down_left_button']]['pressed']) {
-      //           this.cam_index_1 = CAMERA_NUM['down_left_button']
-      //         } else if (gamepad.buttons[JOYSTICK_CONFIG['up_left_button']]['pressed']) {
-      //           this.cam_index_1 = CAMERA_NUM['up_left_button']
-      //         } else if (gamepad.buttons[JOYSTICK_CONFIG['down_middle_button']]['pressed']) {
-      //           this.cam_index_1 = CAMERA_NUM['down_middle_button']
-      //         } else if (gamepad.buttons[JOYSTICK_CONFIG['up_middle_button']]['pressed']) {
-      //           this.cam_index_1 = CAMERA_NUM['up_middle_button']
-      //         } else if (gamepad.buttons[JOYSTICK_CONFIG['down_right_button']]['pressed']) {
-      //           this.cam_index_1 = CAMERA_NUM['down_right_button']
-      //         } else if (gamepad.buttons[JOYSTICK_CONFIG['up_right_button']]['pressed']) {
-      //           this.cam_index_1 = CAMERA_NUM['up_right_button']
-      //         }
-      //       }
-      //     }
-      //   }
-      // }, 250)
-    },
-
     methods: {
       setCamIndex: function (index) {
         this.camsEnabled.splice(index, 1, !this.camsEnabled[index])
@@ -143,8 +85,7 @@
 
         this.$parent.publish(this.channel, {
           'type': 'GUICameras',
-          'port_0': ports[0],
-          'port_1': ports[1],
+          'port': ports,
         })
       },
 

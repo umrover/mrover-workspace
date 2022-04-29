@@ -8,14 +8,15 @@ import jetson.utils  # noqa
 __lcm: lcm.LCM
 __pipelines = [None] * 2
 
-ARGUMENTS = ['--headless', '--bitrate=300000', '--width=256', '--height=144']  # Change to desired bitrate e.g. 2000000
-remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001"]
+ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
+ARGUMENTS_MEDIUM = ['--headless', '--bitrate=300000', '--width=1280', '--height=720']
+remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
 
 
 class Pipeline:
     def __init__(self, port):
         self.video_source = None
-        self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[port]}", argv=ARGUMENTS)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[port]}", argv=ARGUMENTS_MEDIUM)
         self.device_number = -1
         self.port = port
 
@@ -34,8 +35,8 @@ class Pipeline:
 
     def update_device_number(self, index):
         if index != -1:
-            self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS)
-            self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS)
+            self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_MEDIUM)
+            self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_MEDIUM)
         else:
             self.video_source = None
         self.device_number = index
@@ -49,7 +50,7 @@ def start_pipeline(index, port):
 
     try:
         __pipelines[port].update_device_number(index)
-        print(f"Playing camera {index} __pipelines on port 500{port}.")
+        print(f"Playing camera {index} __pipelines on {remote_ip[port]}.")
     except Exception:
         pass
 
@@ -57,7 +58,7 @@ def start_pipeline(index, port):
 def stop_pipeline(port):
     global __pipelines
 
-    print(f"Stopping camera {__pipelines[port].device_number} on port 500{port}.")
+    print(f"Stopping camera {__pipelines[port].device_number} on {remote_ip[port]}.")
     __pipelines[port].update_device_number(-1)
 
 
@@ -66,7 +67,7 @@ def camera_callback(channel, msg):
 
     camera_cmd = Cameras.decode(msg)
 
-    port_devices = [camera_cmd.port_0, camera_cmd.port_1]
+    port_devices = camera_cmd.port
 
     for port_number, requested_port_device in enumerate(port_devices):
         if __pipelines[port_number].is_device_number() == requested_port_device:
@@ -82,7 +83,7 @@ def camera_callback(channel, msg):
 def main():
     global __pipelines, __lcm
 
-    __pipelines = [Pipeline(0), Pipeline(1)]
+    __pipelines = [Pipeline(0), Pipeline(1), Pipeline(2), Pipeline(3)]
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)
@@ -96,7 +97,7 @@ def main():
                     pipeline.update()
                 else:
                     stop_pipeline(port_number)
-                    print(f'Closing {port_number} becuase it stopped streaming!')
+                    print(f'Closing stream on {remote_ip[port_number]} becuase it stopped streaming!')
 
 
 if __name__ == "__main__":

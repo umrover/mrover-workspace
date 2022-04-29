@@ -122,29 +122,29 @@ class Camera:
     def update_cameras(self, channel, msg):
         message = GUICameras.decode(msg)
 
-        if message.port_0 == -1 or message.port_0 not in self.ish_cameras:
-            self.cameras[0] = message.port_0
-        if message.port_1 == -1 or message.port_1 not in self.ish_cameras:
-            self.cameras[1] = message.port_1
+        if message.port[0] == -1 or message.port[0] not in self.ish_cameras:
+            self.cameras[0] = message.port[0]
+        if message.port[1] == -1 or message.port[1] not in self.ish_cameras:
+            self.cameras[1] = message.port[1]
 
         self.send_camera_cmd()
 
     def update_ish_cameras(self, channel, msg):
         message = GUICameras.decode(msg)
 
-        if message.port_0 == -1 or message.port_0 not in self.cameras:
-            self.ish_cameras[0] = message.port_0
-        if message.port_1 == -1 or message.port_1 not in self.cameras:
-            self.ish_cameras[1] = message.port_1
+        if message.port[0] == -1 or message.port[0] not in self.cameras:
+            self.ish_cameras[0] = message.port[0]
+        if message.port[1] == -1 or message.port[1] not in self.cameras:
+            self.ish_cameras[1] = message.port[1]
 
         self.send_camera_cmd()
 
     def send_camera_cmd(self):
         camera_msg = Cameras()
-        camera_msg.port_0 = self.cameras[0]
-        camera_msg.port_1 = self.cameras[1]
-        camera_msg.port_2 = self.ish_cameras[0]
-        camera_msg.port_3 = self.ish_cameras[1]
+        camera_msg.port[0] = self.cameras[0]
+        camera_msg.port[1] = self.cameras[1]
+        camera_msg.port[2] = self.ish_cameras[0]
+        camera_msg.port[3] = self.ish_cameras[1]
 
         lcm_.publish('/cameras_cmd', camera_msg.encode())
 

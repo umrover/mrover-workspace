@@ -1,8 +1,5 @@
 package rover_msgs;
 
 struct Cameras {
-    int32_t port_0;
-    int32_t port_1;
-    int32_t port_2;
-    int32_t port_3;
+    int32_t port[4];
 }
