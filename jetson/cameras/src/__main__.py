@@ -48,6 +48,8 @@ class Pipeline:
             self.video_source = video_sources[index]
             if self.video_source is not None:
                 self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_MEDIUM)
+            else:
+                self.device_number = -1
         else:
             self.video_source = None
         self.device_number = index
