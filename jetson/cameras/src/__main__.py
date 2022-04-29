@@ -44,6 +44,7 @@ class Pipeline:
         return self.port
 
     def update_device_number(self, index):
+        self.device_number = index
         if index != -1:
             self.video_source = video_sources[index]
             if self.video_source is not None:
@@ -52,7 +53,6 @@ class Pipeline:
                 self.device_number = -1
         else:
             self.video_source = None
-        self.device_number = index
 
     def is_currently_streaming(self):
         return self.device_number != -1
