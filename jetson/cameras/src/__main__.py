@@ -6,11 +6,21 @@ sys.path.insert(0, "/usr/lib/python3.6/dist-packages")  # 3.6 vs 3.8
 import jetson.utils  # noqa
 
 __lcm: lcm.LCM
-__pipelines = [None] * 2
+__pipelines = [None] * 4
 
 ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
 ARGUMENTS_MEDIUM = ['--headless', '--bitrate=300000', '--width=1280', '--height=720']
 remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
+video_sources = [None] * 10
+
+
+def initialize_video_sources():
+    global video_sources
+    for index, video_source in enumerate(video_sources):
+        try:
+            video_sources[index] = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_MEDIUM)
+        except Exception:
+            pass
 
 
 class Pipeline:
@@ -34,12 +44,15 @@ class Pipeline:
         return self.port
 
     def update_device_number(self, index):
+        self.device_number = index
         if index != -1:
-            self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_MEDIUM)
-            self.video_source = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_MEDIUM)
+            self.video_source = video_sources[index]
+            if self.video_source is not None:
+                self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_MEDIUM)
+            else:
+                self.device_number = -1
         else:
             self.video_source = None
-        self.device_number = index
 
     def is_currently_streaming(self):
         return self.device_number != -1
@@ -47,7 +60,6 @@ class Pipeline:
 
 def start_pipeline(index, port):
     global __pipelines
-
     try:
         __pipelines[port].update_device_number(index)
         print(f"Playing camera {index} __pipelines on {remote_ip[port]}.")
@@ -83,10 +95,12 @@ def camera_callback(channel, msg):
 def main():
     global __pipelines, __lcm
 
+    initialize_video_sources()
     __pipelines = [Pipeline(0), Pipeline(1), Pipeline(2), Pipeline(3)]
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)
+
     while True:
         while __lcm.handle_timeout(0):
             pass
