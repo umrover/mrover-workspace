@@ -31,9 +31,6 @@
     <div class="box controls light-bg">
       <ArmControls/>
     </div>
-    <div class="box encoder light-bg">
-      <EncoderCounts/>
-    </div>
     <div class="box drive light-bg">
       <DriveControls/>
     </div>
@@ -54,7 +51,6 @@ import IKControls from './IKControls.vue'
 import CommIndicator from './CommIndicator.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
-import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
 import DriveVelDataV from './DriveVelDataV.vue' 
@@ -136,7 +132,6 @@ export default {
     CommIndicator,
     ArmControls,
     DriveControls,
-    EncoderCounts,
     IKControls,
     PDBFuse,
     DriveVelDataV
@@ -149,12 +144,11 @@ export default {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1.5fr;
-    grid-template-rows: 60px auto auto auto auto auto auto;
+    grid-template-rows: 60px auto auto auto auto;
     grid-template-areas: "header header"
                          "controls cameras"
-                         "encoder ik-controls"
                          "drive ik-controls"
-                         "pdb drive-motor"
+                         "pdb ik-controls"
                          "pdb drive-motor";
     font-family: sans-serif;
     height: auto;
@@ -264,10 +258,6 @@ export default {
 
   .drive {
     grid-area: drive;
-  }
-
-  .encoder {
-    grid-area: encoder;
   }
 
   .new-select {

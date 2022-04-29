@@ -37,9 +37,6 @@
     <div class="box controls light-bg">
       <ArmControls/>
     </div>
-    <div class="box encoder light-bg">
-      <EncoderCounts/>
-    </div>
     <div class="box drive light-bg">
       <DriveControls/>
     </div>
@@ -65,7 +62,6 @@ import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
-import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
 import DriveVelDataV from './DriveVelDataV.vue' 
@@ -162,7 +158,6 @@ export default {
     CommIndicator,
     ArmControls,
     DriveControls,
-    EncoderCounts,
     OdometryReading,
     IKControls,
     PDBFuse,
@@ -177,12 +172,12 @@ export default {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1.2fr;
-    grid-template-rows: 60px auto auto auto auto auto auto auto;
+    grid-template-rows: 60px 250px 150px auto auto auto auto;
     grid-template-areas: "header header"
                          "map cameras"
                          "map ik-controls"
                          "waypoint-editor ik-controls"
-                         "encoder controls"
+                         "waypoint-editor controls"
                          "odom drive"
                          "pdb drive-motor";
     font-family: sans-serif;
