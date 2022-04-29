@@ -3,7 +3,7 @@
     <!-- Map goes here -->
     <l-map ref="map" class="map" :zoom="15" :center="center">
       <l-control-scale :imperial="false"/>
-      <l-tile-layer :url="this.online ? this.onlineUrl : this.offlineUrl" :attribution="attribution"/>
+      <l-tile-layer :url="this.online ? this.onlineUrl : this.offlineUrl" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
 
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint, index in waypointList" :key="index">
