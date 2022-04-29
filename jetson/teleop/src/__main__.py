@@ -126,7 +126,7 @@ class Camera:
         if message.port[0] == -1 or message.port[0] not in self.ish_cameras:
             self.cameras[0] = message.port[0]
         if message.port[1] == -1 or message.port[1] not in self.ish_cameras:
-            self.cameras[1] = message.port_1
+            self.cameras[1] = message.port[1]
 
         self.send_camera_cmd()
 
