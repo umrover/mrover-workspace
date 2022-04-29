@@ -171,7 +171,10 @@
           {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
           {'topic': '/target_list', 'type': 'TargetList'},
           {'topic': '/target_orientation', 'type': 'TargetOrientation'},
+<<<<<<< HEAD
           {'topic': '/teleop_reverse_drive', 'type': 'ReverseDrive'},
+=======
+>>>>>>> main
           {'topic': '/thermistor_data', 'type': 'ThermistorData'},
           {'topic': '/use_orientation', 'type': 'UseOrientation'},
           {'topic': '/zed_gimbal_cmd', 'type': 'ZedGimbalPosition'},
