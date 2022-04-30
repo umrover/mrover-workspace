@@ -88,19 +88,12 @@ export default {
       this.$parent.publish('/arm_control_state', armStateMsg)
     })
 
-    this.$parent.subscribe('/joint_b_calibration_data', (msg) => {
-      if (msg.calibrated && !this.jointBIsCalibrated) {
-        clearTimeout(this.calibrationTimer)
+    this.$parent.subscribe('/ra_b_calib_data', (msg) => {
+      this.updateCalibrationStatus(msg)
+    })
 
-        const armStateMsg = {
-          'type': 'ArmControlState',
-          'state': 'off'
-        }
-
-        this.$parent.publish('/arm_control_state', armStateMsg)
-      }
-
-      this.jointBIsCalibrated = msg.calibrated
+    this.$parent.subscribe('/sa_b_calib_data', (msg) => {
+      this.updateCalibrationStatus(msg)
     })
 
     this.$parent.subscribe('/ik_reset', (msg) => {
@@ -266,6 +259,21 @@ export default {
         return true
       }
       return false
+    },
+
+    updateCalibrationStatus: function(msg) {
+      if (msg.calibrated && !this.jointBIsCalibrated) {
+        clearTimeout(this.calibrationTimer)
+
+        const armStateMsg = {
+          'type': 'ArmControlState',
+          'state': 'off'
+        }
+
+        this.$parent.publish('/arm_control_state', armStateMsg)
+      }
+
+      this.jointBIsCalibrated = msg.calibrated
     },
 
     startCalibration: function() {

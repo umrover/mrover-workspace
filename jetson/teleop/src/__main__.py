@@ -10,7 +10,7 @@ from rover_msgs import (Joystick, Xbox, Keyboard,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
                         ArmControlState, ReverseDrive,
-                        JointBCalibration)
+                        Calibrate)
 
 
 lcm_ = aiolcm.AsyncLCM()
@@ -207,25 +207,23 @@ class ArmControl:
         foot_msg.microscope_triad = 0
         lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
 
-    def joint_b_calibration_callback(self, channel, msg):
-        if JointBCalibration.decode(msg).calibrated or self.arm_control_state != 'calibrating':
+    def ra_calibration_callback(self, channel, msg):
+        if Calibrate.decode(msg).calibrated or self.arm_control_state != 'calibrating':
             return
 
-        if self.arm_type == self.ArmType.RA:
-            raMotorsData = [0, 1, 0, 0, 0, 0]
+        ra_openloop_msg = RAOpenLoopCmd()
+        ra_openloop_msg.throttle = [0, 1, 0, 0, 0, 0]
 
-            ra_openloop_msg = RAOpenLoopCmd()
-            ra_openloop_msg.throttle = raMotorsData
+        lcm_.publish('/ra_openloop_cmd', ra_openloop_msg.encode())
 
-            lcm_.publish('/ra_openloop_cmd', ra_openloop_msg.encode())
+    def sa_calibration_callback(self, channel, msg):
+        if Calibrate.decode(msg).calibrated or self.arm_control_state != 'calibrating':
+            return
 
-        elif self.arm_type == self.ArmType.SA:
-            saMotorsData = [0, 1, 0, 0]
+        sa_openloop_msg = SAOpenLoopCmd()
+        sa_openloop_msg.throttle = [0, 1, 0, 0]
 
-            sa_openloop_msg = SAOpenLoopCmd()
-            sa_openloop_msg.throttle = saMotorsData
-
-            lcm_.publish('/sa_openloop_cmd', sa_openloop_msg.encode())
+        lcm_.publish('/sa_openloop_cmd', sa_openloop_msg.encode())
 
 
 def main():
@@ -255,7 +253,8 @@ def main():
     lcm_.subscribe('/ra_control', arm.ra_control_callback)
     lcm_.subscribe('/sa_control', arm.sa_control_callback)
     lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
-    lcm_.subscribe('/joint_b_calibration_data', arm.joint_b_calibration_callback)
+    lcm_.subscribe('/ra_b_calib_data', arm.ra_calibration_callback)
+    lcm_.subscribe('/sa_b_calib_data', arm.sa_calibration_callback)
 
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 

@@ -91,19 +91,12 @@ export default {
       this.controlMode = new_state
     })
 
-    this.$parent.subscribe('/joint_b_calibration_data', (msg) => {
-      if (msg.calibrated && !this.jointBIsCalibrated) {
-        clearTimeout(this.calibrationTimer)
+    this.$parent.subscribe('/ra_b_calib_data', (msg) => {
+      this.updateCalibrationStatus(msg)
+    })
 
-        const armStateMsg = {
-          'type': 'ArmControlState',
-          'state': 'off'
-        }
-
-        this.$parent.publish('/arm_control_state', armStateMsg)
-      }
-
-      this.jointBIsCalibrated = msg.calibrated
+    this.$parent.subscribe('/sa_b_calib_data', (msg) => {
+      this.updateCalibrationStatus(msg)
     })
   
     const XBOX_CONFIG = {
@@ -177,6 +170,21 @@ export default {
         'type': 'ArmPresetPath',
         'preset': preset
       })
+    },
+
+    updateCalibrationStatus: function(msg) {
+      if (msg.calibrated && !this.jointBIsCalibrated) {
+        clearTimeout(this.calibrationTimer)
+
+        const armStateMsg = {
+          'type': 'ArmControlState',
+          'state': 'off'
+        }
+
+        this.$parent.publish('/arm_control_state', armStateMsg)
+      }
+
+      this.jointBIsCalibrated = msg.calibrated
     },
 
     updateControlMode: function (mode, checked) {

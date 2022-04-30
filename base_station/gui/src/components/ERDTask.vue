@@ -148,7 +148,8 @@ export default {
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/ik_reset', 'type': 'Signal'},
-        {'topic': '/joint_b_calibration_data', 'type': 'JointBCalibration'}
+        {'topic': '/ra_b_calib_data', 'type': 'Calibrate'},
+        {'topic': '/sa_b_calib_data', 'type': 'Calibrate'}
       ]
     )
   },

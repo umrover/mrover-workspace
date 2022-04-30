@@ -434,7 +434,7 @@
             "bearing"
         ]
     ],
-    "JointBCalibration": [
+    "Calibrate": [
         [
             "boolean",
             "calibrated"

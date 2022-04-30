@@ -226,7 +226,8 @@ export default {
         {'topic': '/pdb_data', 'type': 'PDBData'},
         {'topic': '/fuse_data', 'type': 'FuseData'},
         {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'},
-        {'topic': '/joint_b_calibration_data', 'type': 'JointBCalibration'}
+        {'topic': '/ra_b_calib_data', 'type': 'Calibrate'},
+        {'topic': '/sa_b_calib_data', 'type': 'Calibrate'}
       ]
     )
   },
