@@ -6,7 +6,6 @@ import serial
 import asyncio
 # import Adafruit_BBIO.UART as UART  # for beaglebone use only
 import numpy as np
-import time
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
@@ -246,7 +245,8 @@ class ScienceBridge():
         else:
             print("navstatus on - red")
             prev_state = Auton_state.ON
-        
+
+
         led_message = "$LED,{led_color}"
         led_message = led_message.format(led_color=prev_state.value)
         self.uart_send(led_message)
