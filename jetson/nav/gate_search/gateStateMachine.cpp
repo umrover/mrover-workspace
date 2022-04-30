@@ -81,9 +81,9 @@ NavState GateStateMachine::run() {
                     ++mPathIndex;
                 }
             }
-            if (mPathIndex > 0) {
-                // This avoids the situation where you approach the gate parallel
-                // and rapidly try to switch approaching from either side
+            // This check avoids the situation where you approach the gate parallel
+            // and rapidly try to switch approaching from either side
+            if (mPathIndex > 1) {
                 if (env->hasNewPostUpdate() && env->hasGateLocation()) {
                     updateGateTraversalPath();
                 }

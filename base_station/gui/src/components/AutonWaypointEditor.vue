@@ -69,7 +69,7 @@ import Checkbox from './AutonModeCheckbox.vue'
 import draggable from 'vuedraggable'
 import {convertDMS} from '../utils.js';
 import AutonJoystickReading from './AutonJoystickReading.vue'
-import WaypointItem from './WaypointItem.vue'
+import WaypointItem from './AutonWaypointItem.vue'
 import {mapMutations, mapGetters} from 'vuex'
 import _ from 'lodash';
 import fnvPlus from 'fnv-plus';

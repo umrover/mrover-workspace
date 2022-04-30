@@ -17,7 +17,7 @@ void KinematicsSolver::FK(ArmState &robot_state) {
 
     // TODO: Edit name of base ("chassis-a") as necessary:
     robot_state.set_link_transform(0, Matrix4d::Identity());
-    for (size_t i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < robot_state.num_joints(); ++i) {
         Matrix4d rot_theta = get_joint_xform(robot_state, i, robot_state.get_joint_angle(i));
 
         // Set up transformation matrix based on position of joint with respect to previous joint.
@@ -126,7 +126,7 @@ Matrix4d KinematicsSolver::apply_joint_xform(const ArmState& robot_state, size_t
     return parent_mat * T;
 }
 
-std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d& target_point, bool set_random_angles, bool use_euler_angles) {
+std::pair<std::vector<double>, bool> KinematicsSolver::IK(ArmState &robot_state, const Vector6d& target_point, bool set_random_angles, bool use_euler_angles) {
     // Print inital joint angles:
     std::vector<double> init_joint_angs = robot_state.get_joint_angles();
 
@@ -239,15 +239,15 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
             std::cout << "FAILURE --- broke out of loop in " << num_iterations << " iterations --- dist: " << dist << "\t";
             std::cout << "angle dist: " << angle_dist << "\n";
 
-            Vector6d joint_angles;
-            for (int i = 0; i < 6; ++i) {
-                joint_angles(i) = robot_state.get_joint_angle(i);
+            std::vector<double> joint_angles;
+            for (size_t i = 0; i < robot_state.num_joints(); ++i) {
+                joint_angles.push_back(robot_state.get_joint_angle(i));
             }
 
             // restore previous robot_state angles
             recover_from_backup(robot_state);
 
-            return std::pair<Vector6d, bool> (joint_angles, false);
+            return std::pair<std::vector<double>, bool> (joint_angles, false);
         }
 
         // d_ef is the vector we want the end effector to move in this step
@@ -322,7 +322,7 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
         std::cout << "UNSAFE IK solution!\n";
 
         recover_from_backup(robot_state);
-        return std::pair<Vector6d, bool> (vecTo6d(angles_vec), false);
+        return std::pair<std::vector<double>, bool> (angles_vec, false);
     }
 
     std::cout << "SUCCESS in " << num_iterations << " iterations --- dist: " << dist << "\t";
@@ -330,18 +330,18 @@ std::pair<Vector6d, bool> KinematicsSolver::IK(ArmState &robot_state, const Vect
 
     // restore robot_state to previous values
     recover_from_backup(robot_state);
-    return std::pair<Vector6d, bool> (vecTo6d(angles_vec), true);
+    return std::pair<std::vector<double>, bool> (angles_vec, true);
 }
 
 void KinematicsSolver::IK_step(ArmState& robot_state, const Vector6d& d_ef, bool use_euler_angles) {
     Vector3d ef_pos_world = robot_state.get_ef_pos_world();
     Vector3d ef_euler_world = robot_state.get_ef_ang_world();
 
-    MatrixXd jacobian(6, 6);
+    MatrixXd jacobian(6, robot_state.num_joints());
     jacobian.setZero();
 
     // 6-D matrix
-    for (size_t i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < robot_state.num_joints(); ++i) {
 
         // calculate vector from joint i to end effector
         Vector3d joint_pos_world = robot_state.get_link_point_world(i+1);
@@ -463,7 +463,7 @@ bool KinematicsSolver::is_safe(ArmState &robot_state) {
 }
 
 bool KinematicsSolver::limit_check(ArmState &robot_state, const std::vector<double> &angles) {
-    for (size_t i = 0; i < 6; ++i) {
+    for (size_t i = 0; i < robot_state.num_joints(); ++i) {
         std::vector<double> limits = robot_state.get_joint_limits(i);
         
         // if any angle is outside of bounds

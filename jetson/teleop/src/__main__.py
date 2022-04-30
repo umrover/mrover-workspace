@@ -3,9 +3,10 @@ from math import copysign
 from enum import Enum
 from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
-from rover_msgs import (Joystick, Xbox,
-                        DriveVelCmd,
+from rover_msgs import (Joystick, Xbox, Keyboard,
+                        DriveVelCmd, MastGimbalCmd,
                         AutonState, AutonDriveControl,
+
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
                         ArmControlState,
@@ -98,6 +99,22 @@ class Drive:
         lcm_.publish('/drive_vel_cmd', drive_motor.encode())
 
 
+def gimbal_control_callback(channel, msg):
+    keyboardData = Keyboard.decode(msg)
+
+    pitchData = [0.4 * float(keyboardData.w - keyboardData.s),
+                 float(keyboardData.i - keyboardData.k)]
+
+    yawData = [float(keyboardData.d - keyboardData.a),
+               float(keyboardData.l - keyboardData.j)]
+
+    gimbal_msg = MastGimbalCmd()
+    gimbal_msg.pitch = pitchData
+    gimbal_msg.yaw = yawData
+
+    lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
+
+
 class ArmControl:
     class ArmType(Enum):
         UNKNOWN = 0
@@ -144,7 +161,6 @@ class ArmControl:
         saMotorsData = [quadratic(deadzone(xboxData.left_js_x, 0.15)),
                         quadratic(-deadzone(xboxData.left_js_y, 0.15)),
                         quadratic(-deadzone(xboxData.right_js_y, 0.15)),
-                        -deadzone(quadratic(xboxData.right_js_y), 0.09),
                         quadratic(xboxData.right_trigger - xboxData.left_trigger)]
 
         openloop_msg = SAOpenLoopCmd()
@@ -211,6 +227,7 @@ def main():
 
     lcm_.subscribe('/ra_control', arm.ra_control_callback)
     lcm_.subscribe('/sa_control', arm.sa_control_callback)
-    lcm_.subscribe('/arm_state', arm.arm_control_state_callback)
+    lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
+    lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
     run_coroutines(hb.loop(), lcm_.loop())

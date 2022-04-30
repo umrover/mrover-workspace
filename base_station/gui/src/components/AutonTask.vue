@@ -8,7 +8,6 @@
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="connections.motors && connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
@@ -25,8 +24,10 @@
      <h1>Nav State: {{this.nav_status.nav_state_name}}</h1>
      <div class="raw-data raw-sensors">
         <RawSensorData v-bind:GPS="GPS" v-bind:IMU="IMU"/>
-        <RadioSignalStrength v-bind:RadioSignalStrength="RadioSignalStrength"/>
+        <br>
+        <br>
         <Obstacle v-bind:Obstacle="Obstacle"/>
+        <br>
         <TargetList v-bind:TargetList="TargetList"/>
         <DriveControls/>
         <DriveVelDataH/>
@@ -36,7 +37,6 @@
     </div>
     <div class="box odom light-bg">
       <OdometryReading v-bind:odom="odom"/>
-      <ZedGimbalAngles/>
     </div>
     <div class="box map light-bg">
       <RoverMap v-bind:odom="odom" v-bind:GPS="GPS" v-bind:TargetBearing="TargetBearing"/>
@@ -44,17 +44,18 @@
     <div class="box waypoints light-bg">
       <AutonWaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
     </div>
-    <div class="box angles light-bg">
+    <div class="box cameras light-bg">
+      <AutonCameras v-if="!this.autonEnabled" />
     </div>
   </div>
+
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import Cameras from './Cameras.vue'
-import RoverMap from './RoverMapAuton.vue'
+import RoverMap from './AutonRoverMap.vue'
+import AutonCameras from './AutonCameras.vue'
 import CommIndicator from './CommIndicator.vue'
-import RadioSignalStrength from './RadioSignalStrength.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
@@ -66,7 +67,6 @@ import TargetList from './TargetList.vue'
 import DriveVelDataH from './DriveVelDataH.vue'
 import SaveAutonData from './SaveAutonData.vue'
 import PlaybackAutonData from './PlaybackAutonData.vue'
-import ZedGimbalAngles from './ZedGimbalAngles.vue'
 
 const navBlue = "#4695FF"
 const navGreen = "yellowgreen"
@@ -79,11 +79,6 @@ export default {
     return {
       lcm_: null,
 
-      lastServosMessage: {
-        pan: 0,
-        tilt: 0
-      },
-
       odom: {
         latitude_deg: 0,
         latitude_min: 0,
@@ -95,9 +90,7 @@ export default {
 
       connections: {
         websocket: false,
-        lcm: false,
-        motors: false,
-        cameras: [false, false, false, false, false, false, false, false]
+        lcm: false
       },
 
       nav_status: {
@@ -116,15 +109,15 @@ export default {
         bearing_deg: 0,
         speed: 0
       },
-
-      TargetBearing: {
-        target_bearing: 0
-      },
      
       Obstacle: {
 	      detected: false,
 	      bearing: 0,
         distance: 0
+      },
+
+      TargetBearing: {
+        target_bearing: 0
       },
 
       TargetList: [
@@ -157,9 +150,6 @@ export default {
         bearing_deg: 0
       },
       
-      RadioSignalStrength: {
-        signal_strength: '0'
-      },
     }
   },
 
@@ -177,8 +167,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('controls', {
-      controlMode: 'controlMode'
+    ...mapGetters('autonomy', {
+      autonEnabled: 'autonEnabled'
     }),
   },
 
@@ -219,8 +209,7 @@ export default {
       },
       // Update connection states
       (online) => {
-        this.connections.lcm = online[0],
-        this.connections.cameras = online.slice(1)
+        this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
       (msg) => {
@@ -232,8 +221,6 @@ export default {
           this.TargetBearing = msg.message
         } else if (msg.topic === '/imu_data') {
           this.IMU = msg.message
-        } else if (msg.topic === '/radio') {
-          this.RadioSignalStrength.signal_strength = msg.message.signal_strength.toFixed(1)
          }else if (msg.topic === '/auton_drive_control') {
           this.AutonDriveControl = msg.message
         } else if (msg.topic === '/kill_switch') {
@@ -259,80 +246,35 @@ export default {
         {'topic': '/auton_drive_control', 'type': 'AutonDriveControl'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/kill_switch', 'type': 'KillSwitch'},
-        {'topic': '/camera_servos', 'type': 'CameraServos'},
         {'topic': '/estimated_gate_location', 'type': 'EstimatedGateLocation'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
         {'topic': '/gps', 'type': 'GPS'},
         {'topic': '/imu_data', 'type': 'IMUData'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/obstacle', 'type': 'Obstacle'},
-        {'topic': '/radio', 'type': 'RadioSignalStrength'},
         {'topic': '/target_list', 'type': 'TargetList'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/projected_points', 'type': 'ProjectedPoints'},
-        {'topic': '/target_bearing', 'type': 'TargetBearing'},
-        {'topic': '/zed_gimbal_data', 'type': 'ZedGimbalPosition'}
+        {'topic': '/target_bearing', 'type': 'TargetBearing'}
       ]
     )
-
-    const servosMessage = {
-      'type': 'CameraServos',
-      'pan': 0,
-      'tilt': 0
-    }
-
-    const JOYSTICK_CONFIG = {
-      'forward_back': 1,
-      'left_right': 2,
-      'dampen': 3,
-      'kill': 4,
-      'restart': 5,
-      'pan': 4,
-      'tilt': 5
-    }
-
-    window.setInterval(() => {
-      const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 2; i++) {
-        const gamepad = gamepads[i]
-        if (gamepad) {
-          if (gamepad.id.includes('Logitech')) {
-            const servosSpeed = 0.8
-            servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG['pan']] * servosSpeed / 10
-            servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG['tilt']] * servosSpeed / 10
-          }
-        }
-      }
-
-      const clamp = function (num, min, max) {
-        return num <= min ? min : num >= max ? max : num
-      }
-
-      servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
-      servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
-      this.lastServosMessage = servosMessage
-
-      this.lcm_.publish('/camera_servos', servosMessage)
-    }, 100)
   },
 
   components: {
     RoverMap,
-    Cameras,
+    AutonCameras,
     CommIndicator,
     ArmControls,
     DriveControls,
     OdometryReading,
     RawSensorData,
     AutonWaypointEditor,
-    RadioSignalStrength,
     Obstacle,
     TargetList,
     DriveVelDataH,
     SaveAutonData,
-    PlaybackAutonData,
-    ZedGimbalAngles
+    PlaybackAutonData
   }
 }
 </script>
@@ -455,9 +397,8 @@ export default {
     grid-area: odom;
   }
 
-  .cameras{
-    width: 97%;
-    height: 85%;
+  .cameras {
+    overflow: auto;
   }
 
   .diags {

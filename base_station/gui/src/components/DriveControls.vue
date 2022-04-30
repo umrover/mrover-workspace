@@ -1,5 +1,6 @@
 <template>
   <div class="wrap">
+    <h3> Drive </h3>
     <span>Speed Limiter: {{ dampenDisplay }}%</span>
     <Checkbox ref="reverse" v-bind:name="'Reverse'" v-on:toggle="updateReverse($event)"/>
   </div>
@@ -72,7 +73,6 @@ export default {
               // Make dampen 1 when slider is pushed forward, 0 when pulled back
               // Raw value is -1 to 1
               this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']] * -0.5 + 0.5
-
               // -1 multiplier to make turning left a positive value
               let rotation = -1 * (gamepad.axes[JOYSTICK_CONFIG['left_right']] + gamepad.axes[JOYSTICK_CONFIG['twist']])
               if (rotation > 1) {
@@ -81,7 +81,6 @@ export default {
               else if (rotation < -1) {
                 rotation = -1
               }
-
               const joystickData = {
                 'type': 'Joystick',
                 // forward on joystick is -1, so invert
@@ -89,7 +88,6 @@ export default {
                 'left_right': rotation,
                 'dampen': this.dampen
               }
-
               this.$parent.publish('/drive_control', joystickData)
             }
           }
@@ -103,7 +101,7 @@ export default {
 <style scoped>
 
 .wrap {
-  display: flex;
+  display: inline-block;
   align-items: center;
 }
 
