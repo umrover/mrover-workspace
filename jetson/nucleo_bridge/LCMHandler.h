@@ -13,14 +13,11 @@
 
 #include <rover_msgs/CarouselOpenLoopCmd.hpp>
 <<<<<<< HEAD
-=======
-<<<<<<< HEAD
 #include <rover_msgs/CarouselPosition.hpp>
 #include <rover_msgs/FootCmd.hpp>
 #include <rover_msgs/HandCmd.hpp>
 #include <rover_msgs/Calibrate.hpp>
 =======
->>>>>>> upstream/travis-free
 #include <rover_msgs/FootCmd.hpp>
 #include <rover_msgs/HandCmd.hpp>
 #include <rover_msgs/JointBCalibration.hpp>
@@ -32,12 +29,9 @@
 #include <rover_msgs/SAPosition.hpp>
 #include <rover_msgs/ScoopLimitSwitchEnable.hpp>
 <<<<<<< HEAD
-=======
-<<<<<<< HEAD
 #include <rover_msgs/Signal.hpp>
 =======
 >>>>>>> main
->>>>>>> upstream/travis-free
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()
@@ -62,8 +56,6 @@ private:
     public: 
     	//The following functions are handlers for the corresponding lcm messages
 <<<<<<< HEAD
-=======
-<<<<<<< HEAD
         void carousel_closedloop_cmd(LCM_INPUT, const CarouselPosition *msg);
 
         void carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
@@ -77,7 +69,6 @@ private:
         void mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
 
 =======
->>>>>>> upstream/travis-free
         void carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
 
         void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
@@ -98,8 +89,6 @@ private:
 
         void refresh_ra_calib_data();
 
-<<<<<<< HEAD
-=======
         void refresh_ra_quad_angles();
 
         void refresh_sa_calib_data();
@@ -126,7 +115,6 @@ private:
 
         void refresh_calib_data();
 
->>>>>>> upstream/travis-free
         void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);

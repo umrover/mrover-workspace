@@ -18,11 +18,6 @@ void LCMHandler::init()
     internal_object = new InternalHandler();
 
     // Subscription to lcm channels
-<<<<<<< HEAD
-    lcm_bus->subscribe("/ra_ik_cmd", &LCMHandler::InternalHandler::ra_closed_loop_cmd, internal_object);
-    lcm_bus->subscribe("/sa_ik_cmd", &LCMHandler::InternalHandler::sa_closed_loop_cmd, internal_object);
-    lcm_bus->subscribe("/carousel_openloop_cmd", &LCMHandler::InternalHandler::carousel_openloop_cmd, internal_object);
-=======
     lcm_bus->subscribe("/carousel_closedloop_cmd", &LCMHandler::InternalHandler::carousel_closedloop_cmd, internal_object);
     lcm_bus->subscribe("/carousel_openloop_cmd", &LCMHandler::InternalHandler::carousel_openloop_cmd, internal_object);
     lcm_bus->subscribe("/carousel_zero_cmd", &LCMHandler::InternalHandler::carousel_zero_cmd, internal_object);
@@ -30,7 +25,6 @@ void LCMHandler::init()
     lcm_bus->subscribe("/hand_openloop_cmd", &LCMHandler::InternalHandler::hand_openloop_cmd, internal_object);
     lcm_bus->subscribe("/mast_gimbal_cmd", &LCMHandler::InternalHandler::mast_gimbal_cmd, internal_object);
     lcm_bus->subscribe("/ra_ik_cmd", &LCMHandler::InternalHandler::ra_closed_loop_cmd, internal_object);
->>>>>>> upstream/travis-free
     lcm_bus->subscribe("/ra_openloop_cmd", &LCMHandler::InternalHandler::ra_open_loop_cmd, internal_object);
     lcm_bus->subscribe("/sa_ik_cmd", &LCMHandler::InternalHandler::sa_closed_loop_cmd, internal_object);
     lcm_bus->subscribe("/sa_openloop_cmd", &LCMHandler::InternalHandler::sa_open_loop_cmd, internal_object);
@@ -59,21 +53,6 @@ void LCMHandler::handle_outgoing()
     }
 
 
-<<<<<<< HEAD
-    // TODO - UNCOMMENT AS SOON AS JOINT B LIMIT SWITCH / CALIBRATION IS READY
-    /*
-    std::chrono::duration calib_data_output_dead_time = std::chrono::milliseconds(1000);
-    // This is used as a heart beat (to make sure that nucleos do not reset)
-    if (NOW - last_calib_data_output_time > calib_data_output_dead_time)
-    {
-        internal_object->refresh_calib_data();
-        last_calib_data_output_time = NOW;
-
-        internal_object->publish_calib_data();
-    }
-    */
-}
-=======
     std::chrono::duration calib_data_output_dead_time = std::chrono::milliseconds(1000);
     // Refresh and post joint b calibration data every second
     if (NOW - last_calib_data_output_time > calib_data_output_dead_time)
@@ -89,19 +68,11 @@ void LCMHandler::InternalHandler::carousel_closedloop_cmd(LCM_INPUT, const Carou
     ControllerMap::controllers["CAROUSEL_MOTOR"]->closed_loop(0, msg->position);
 }
 
->>>>>>> upstream/travis-free
 void LCMHandler::InternalHandler::carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg)
 {
     ControllerMap::controllers["CAROUSEL_MOTOR"]->open_loop(msg->throttle);
 }
 
-<<<<<<< HEAD
-
-void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *msg)
-{
-    ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->microscope_triad);
-    ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->scoop);
-=======
 void LCMHandler::InternalHandler::carousel_zero_cmd(LCM_INPUT, const Signal *msg)
 {
     ControllerMap::controllers["CAROUSEL_MOTOR"]->zero();
@@ -111,15 +82,12 @@ void LCMHandler::InternalHandler::foot_openloop_cmd(LCM_INPUT, const FootCmd *ms
 {
     ControllerMap::controllers["FOOT_SENSOR"]->open_loop(msg->microscope_triad);
     ControllerMap::controllers["FOOT_SCOOP"]->open_loop(msg->scoop);
->>>>>>> upstream/travis-free
 }
 
 void LCMHandler::InternalHandler::hand_openloop_cmd(LCM_INPUT, const HandCmd *msg)
 {
     ControllerMap::controllers["HAND_FINGER"]->open_loop(msg->finger);
     ControllerMap::controllers["HAND_GRIP"]->open_loop(msg->grip);
-<<<<<<< HEAD
-=======
 }
 
 void LCMHandler::InternalHandler::mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg)
@@ -168,7 +136,6 @@ void LCMHandler::InternalHandler::refresh_ra_calib_data()
 {
     ControllerMap::controllers["RA_B"]->refresh_calibration_data();
     publish_ra_calib_data();
->>>>>>> upstream/travis-free
 }
 
 void LCMHandler::InternalHandler::refresh_ra_quad_angles()
@@ -263,8 +230,6 @@ void LCMHandler::InternalHandler::publish_ra_pos_data()
     last_heartbeat_output_time = NOW;
 }
 
-<<<<<<< HEAD
-=======
 void LCMHandler::InternalHandler::publish_sa_calib_data()
 {
     Calibrate msg;
@@ -273,7 +238,6 @@ void LCMHandler::InternalHandler::publish_sa_calib_data()
     last_calib_data_output_time = NOW;
 }
 
->>>>>>> upstream/travis-free
 void LCMHandler::InternalHandler::publish_sa_pos_data()
 {
     SAPosition msg;
@@ -282,8 +246,5 @@ void LCMHandler::InternalHandler::publish_sa_pos_data()
     msg.joint_c = ControllerMap::controllers["SA_C"]->get_current_angle();
     msg.joint_e = ControllerMap::controllers["SA_E"]->get_current_angle();
     lcm_bus->publish("/sa_position", &msg);
-<<<<<<< HEAD
-=======
     last_heartbeat_output_time = NOW;
->>>>>>> upstream/travis-free
 }

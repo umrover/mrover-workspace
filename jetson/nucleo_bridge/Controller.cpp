@@ -100,11 +100,7 @@ void Controller::refresh_calibration_data()
     {
         uint8_t calibration_state;
 
-<<<<<<< HEAD
-        transact(CALIBRATED, nullptr, UINT8_POINTER_T(&raw_calibration_data));
-=======
         transact(CALIBRATED, nullptr, UINT8_POINTER_T(&calibration_state));
->>>>>>> upstream/travis-free
 
         // calibration_state is either 0xFF or 0x00.
         // 0xFF means it is calibrated, 0x00 means not calibrated.
