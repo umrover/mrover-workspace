@@ -252,7 +252,7 @@ class BearingComponent(SensorComponent):
         if hasattr(new_bearing_sensor, "bearing"):
             self.bearing_deg = new_bearing_sensor.bearing
         elif hasattr(new_bearing_sensor, "bearing_deg"):
-            if new_bearing_sensor.bearing_deg != 999.:
+            if new_bearing_sensor.bearing_deg != 999:
                 self.bearing_deg = new_bearing_sensor.bearing_deg
         else:
             raise AttributeError("No bearing attributes found")

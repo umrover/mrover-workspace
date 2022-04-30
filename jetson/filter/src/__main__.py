@@ -8,8 +8,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import IMUData, GPS, Odometry, NavStatus, DriveVelData, TargetBearing, CorrectedBearing, DriveVelCmd
 from .inputs import Gps, Imu
 from .linearKalman import LinearKalmanFilter, QDiscreteWhiteNoise
-from .conversions import meters2lat, meters2long, lat2meters, long2meters, \
-    decimal2min, min2decimal
+from .conversions import meters2lat, meters2long, lat2meters, long2meters, decimal2min, min2decimal
 
 
 class StateEstimate:
@@ -148,11 +147,10 @@ class SensorFusion:
         self.last_bearing_correction = time.time()
         self.bearing_offset = 0
 
-        # TODO: are these inits going to cause incorrect behavior?
-        self.target_bearing = 0
-        self.prev_target_bearing = 0
-        self.last_target_bearing_fresh = 0
-        self.target_bearing_rate = 0
+        self.target_bearing = None
+        self.prev_target_bearing = None
+        self.last_target_bearing_fresh = None
+        self.target_bearing_rate = None
 
         self.encoder_velocities = np.zeros(6)
 
@@ -194,10 +192,10 @@ class SensorFusion:
         self.prev_target_bearing = self.target_bearing
         self.target_bearing = targetBearing.target_bearing
 
-        target_diff = self.target_bearing - self.prev_target_bearing
-        self.target_bearing_rate = target_diff / \
-            (time.time() - self.last_target_bearing_fresh)
-        self.last_target_bearing_fresh = time.time()
+        if self.prev_target_bearing is not None:
+            target_diff = self.target_bearing - self.prev_target_bearing
+            self.target_bearing_rate = target_diff / (time.time() - self.last_target_bearing_fresh)
+            self.last_target_bearing_fresh = time.time()
 
     def _constructFilter(self):
         '''
@@ -328,7 +326,7 @@ class SensorFusion:
         if time.time() - self.last_bearing_correction > self.config["Bearing_offset_interval_sec"]:
             print("timeout passed")
 
-            if gps_bearing != 999:
+            if gps_bearing is not None and gps_bearing != 999:
                 print("valid gps bearing")
 
                 if self.nav_state == "Drive":
@@ -337,16 +335,21 @@ class SensorFusion:
                     if abs(self.drive_v_left - self.drive_v_right) < self.config["Drive_vel_diff_percent"]:
                         print("driving straight")
 
+                        # this effectively checks for self.target_bearing and self.prev_target_bearing being None
+                        if self.target_bearing_rate is None:
+                            return
+
                         if abs(self.target_bearing - imu_bearing) < self.config["Bearing_error_threshold_deg"]:
                             print("bearing error is low")
 
-                            # if abs(self.target_bearing_rate) < self.config["Bearing_rate_of_change_threshold_dps"]:
+                            # if abs(self.target_bearing_rate) > self.config["Bearing_rate_of_change_threshold_dps"]:
                             #     print("bearing rate of change is high")
 
-                            old_bearing = imu_bearing + self.bearing_offset
-                            self.bearing_offset = gps_bearing - \
-                                (imu_bearing - self.bearing_offset)
-                            new_bearing = imu_bearing + self.bearing_offset
+                            old_bearing = (
+                                imu_bearing + self.bearing_offset) % 360
+                            self.bearing_offset = gps_bearing - imu_bearing
+                            new_bearing = (
+                                imu_bearing + self.bearing_offset) % 360
                             print(f"bearing corrected from {old_bearing} to {new_bearing}",
                                   "offset is now {self.bearing_offset}")
 
@@ -359,10 +362,11 @@ class SensorFusion:
 
         self.correct_bearing()
 
+        # TODO: add bearing correction here once tested
         if time.time() - self.imu.last_fresh <= self.config["IMU_fresh_timeout"]:
-            return self.imu.bearing.bearing_deg  # + self.bearing_offset
+            return self.imu.bearing.bearing_deg
         elif time.time() - self.gps.last_fresh <= self.config["GPS_fresh_timeout"]:
-            return self.gps.bearing.bearing_deg  # + self.bearing_offset
+            return self.gps.bearing.bearing_deg
         else:
             return None
 
@@ -477,7 +481,7 @@ class SensorFusion:
                 odom = self.state_estimate.asOdom()
                 self.lcm.publish('/odometry', odom.encode())
 
-                corrected_bearing = bearing + self.bearing_offset
+                corrected_bearing = (bearing + self.bearing_offset) % 360
                 corrected_bearing_struct = CorrectedBearing()
                 corrected_bearing_struct.corrected_bearing = corrected_bearing
                 self.lcm.publish("/corrected_bearing",
