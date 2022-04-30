@@ -46,6 +46,7 @@ private:
     {
     public: 
     	//The following functions are handlers for the corresponding lcm messages
+
         void carousel_closedloop_cmd(LCM_INPUT, const CarouselPosition *msg);
 
         void carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
@@ -78,6 +79,8 @@ private:
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
 
+        void scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg);
+
         void publish_carousel_calib_data();
 
         void publish_carousel_pos_data();
@@ -89,8 +92,6 @@ private:
         void publish_sa_calib_data();
 
         void publish_sa_pos_data();
-
-        void scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg);
 
     };
 
