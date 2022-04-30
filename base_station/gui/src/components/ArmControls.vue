@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import EncoderCounts from './EncoderCounts.vue'
 import Checkbox from './Checkbox.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
@@ -297,6 +298,7 @@ export default {
   },
 
   components: {
+    EncoderCounts,
     Checkbox,
     GimbalControls
   }

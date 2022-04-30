@@ -95,6 +95,12 @@
             "bearing"
         ]
     ],
+    "Calibrate": [
+        [
+            "boolean",
+            "calibrated"
+        ]
+    ],
     "Cameras": [
         [
             "boolean",
@@ -673,6 +679,12 @@
         [
             "float",
             "signal_strength"
+        ]
+    ],
+    "ReverseDrive": [
+        [
+            "boolean",
+            "reverse"
         ]
     ],
     "RGB": [
