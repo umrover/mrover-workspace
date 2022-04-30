@@ -10,6 +10,8 @@ __pipelines = [None] * 4
 
 ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
 ARGUMENTS_MEDIUM = ['--headless', '--bitrate=300000', '--width=1280', '--height=720']
+# 10.0.0.1 represents the ip of the main base station laptop
+# 10.0.0.2 represents the ip of the secondary science laptop
 remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
 video_sources = [None] * 10
 
