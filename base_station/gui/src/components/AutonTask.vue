@@ -99,6 +99,7 @@ export default {
         total_wps: 0
       },
       navBlink: false,
+      greenHook: false,
 
       GPS: {
         latitude_deg: 38,
@@ -188,6 +189,30 @@ export default {
       }
       return navRed
     },
+  },
+
+  watch: {
+    nav_state_color: function(color){
+      let ledMsg = {
+        type: 'AutonLed',
+        color: 'Null'
+      }
+      if(color == navBlue){
+        ledMsg.color = 'Blue'
+        this.greenHook = false
+      }
+      else if(color == navRed){
+        ledMsg.color = 'Red'
+        this.greenHook = false
+      }
+      else if(color == navGreen && !this.greenHook){
+        ledMsg.color = 'Green'
+        this.greenHook = true //Accounting for the blinking between navGrey and navGreen
+      }
+      if(!this.greenHook || ledMsg.color == 'Green'){
+        this.publish('/auton_led',ledMsg)
+      }
+    }
   },
 
   created: function () {

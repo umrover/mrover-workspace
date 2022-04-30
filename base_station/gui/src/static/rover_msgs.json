@@ -93,6 +93,12 @@
             "right_percent_velocity"
         ]
     ],
+    "AutonLed": [
+        [
+            "string",
+            "color"
+        ]
+    ],
     "Bearing": [
         [
             "double",
