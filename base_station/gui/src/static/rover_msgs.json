@@ -434,12 +434,6 @@
             "bearing"
         ]
     ],
-    "Calibrate": [
-        [
-            "boolean",
-            "calibrated"
-        ]
-    ],
     "Joystick": [
         [
             "double",
