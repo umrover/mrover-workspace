@@ -92,7 +92,7 @@ def build_dir(ctx, d, lint, opts=None):
 
 
 def get_site_cfg():
-    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix', 'nlohmann', 'kluge', 'jetson']
+    PACKAGE_NAMES = ['lcm', 'rapidjson', 'phoenix', 'nlohmann', 'kluge', 'jetson', 'beaglebone']
     site_cfg_path = os.path.join(os.environ['HOME'], 'mrover.site')
     site_cfg = configparser.ConfigParser()
     site_cfg['third_party'] = {}
