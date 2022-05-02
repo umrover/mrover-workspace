@@ -1,9 +1,6 @@
 package rover_msgs;
 
 struct DriveStateData {
-    const int8_t ODRIVE_FRONT_WHEELS = 0;
-    const int8_t ODRIVE_MIDDLE_WHEELS = 1;
-    const int8_t ODRIVE_BACK_WHEELS = 2;
-    int8_t odrive_index;
-    string state; // Disconnected, Disarmed, Armed, Error
+    int8_t odrive_index;  // 0 is front, 1 is middle, 2 is back
+    string state;  // Disconnected, Disarmed, Armed, Error
 }
