@@ -144,9 +144,9 @@ export default {
           backRight:{current: 0, velocity: 0}
         },
         drive_state_data: {
-          frontState: "Disconnected_State",
-          middleState: "Disconnected_State",
-          rightState: "Disconnected_State"
+          frontState: "Disconnected",
+          middleState: "Disconnected",
+          rightState: "Disconnected"
         }
       }
     },
