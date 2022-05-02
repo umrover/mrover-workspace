@@ -5,5 +5,5 @@ struct DriveStateData {
     const int8_t ODRIVE_MIDDLE_WHEELS = 1;
     const int8_t ODRIVE_BACK_WHEELS = 2;
 	int8_t odrive_index;
-    string state; // Disconnected_State, Disarmed_State, Armed_State, Error_State
+    string state; // Disconnected, Disarmed, Armed, Error
 }
