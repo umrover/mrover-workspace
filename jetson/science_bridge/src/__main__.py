@@ -246,7 +246,7 @@ class ScienceBridge():
         self.previous_led_state = requested_state
 
         led_message = "$LED,{led_color}"
-        led_message = led_message.format(led_color=previous_led_state.value)
+        led_message = led_message.format(led_color=self.previous_led_state.value)
         self.uart_send(led_message)
 
     def servo_transmit(self, channel, msg):
