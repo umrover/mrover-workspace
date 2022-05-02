@@ -325,7 +325,7 @@ def drive_vel_cmd_callback(channel, msg):
     global speed_lock, odrive_bridge
     try:
         cmd = DriveVelCmd.decode(msg)
-        if (odrive_bridge.get_state() == "Armed_State"):
+        if (odrive_bridge.get_state_string() == "Armed_State"):
             global left_speed, right_speed
 
             speed_lock.acquire()
