@@ -184,45 +184,14 @@ export default {
         }
       })
       this.$parent.subscribe('/drive_state_data', (msg) => {
-        if(msg.controller == 0){
-          if(msg.state == 0){
-            this.drive_state_data.leftState = "Boot";
-          }
-          if(msg.state == 1){
-            this.drive_state_data.leftState = "Disarmed";
-          }
-          if(msg.state == 2){
-            this.drive_state_data.leftState = "Armed";
-          }
-          if(msg.state == 3){
-            this.drive_state_data.leftState = "Calibrating";
-          }
-          if(msg.state == 4){
-            this.drive_state_data.leftState = "Error";
-          }
-          if(msg.state == 5){
-            this.drive_state_data.leftState = "Exit";
-          }
+        if(msg.odrive_index == 0){
+          this.drive_state_data.frontState = msg.state;
         }
-        if(msg.controller == 1){
-          if(msg.state == 0){
-            this.drive_state_data.rightState = "Boot";
-          }
-          if(msg.state == 1){
-            this.drive_state_data.rightState = "Disarmed";
-          }
-          if(msg.state == 2){
-            this.drive_state_data.rightState = "Armed";
-          }
-          if(msg.state == 3){
-            this.drive_state_data.rightState = "Calibrating";
-          }
-          if(msg.state == 4){
-            this.drive_state_data.rightState = "Error";
-          }
-          if(msg.state == 5){
-            this.drive_state_data.rightState = "Exit";
-          }
+        if(msg.odrive_index == 1){
+          this.drive_state_data.middleState = msg.state;
+        }
+        if(msg.odrive_index == 2){
+          this.drive_state_data.backState = msg.state;
         }
       })
     }
