@@ -241,7 +241,7 @@ class ScienceBridge():
         if self.previous_led_state == requested_state:
             return
 
-        print("Received new auton led request: " + requested_state)
+        print("Received new auton led request: " + struct.color)
 
         self.previous_led_state = requested_state
 
