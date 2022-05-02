@@ -146,7 +146,7 @@ export default {
         drive_state_data: {
           frontState: "Disconnected",
           middleState: "Disconnected",
-          rightState: "Disconnected"
+          backState: "Disconnected"
         }
       }
     },
