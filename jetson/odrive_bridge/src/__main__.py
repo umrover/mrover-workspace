@@ -289,7 +289,7 @@ call backs
 
 def publish_state_msg(msg, state_string):
     global odrive_controller_index
-    msg.state = state_string[:len(state_string) - len("_State")]
+    msg.state = state_string
     msg.odrive_index = odrive_controller_index
     lcm_.publish("/drive_state_data", msg.encode())
     print("changed state to " + state_string)
