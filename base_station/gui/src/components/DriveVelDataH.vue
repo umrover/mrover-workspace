@@ -77,7 +77,7 @@
           <tr>
               <td class = "tableElement">{{drive_state_data.frontState}}</td>
               <td class = "tableElement">{{drive_state_data.middleState}}</td>
-              <td class = "tableElement">{{drive_state_data.rightState}}</td>
+              <td class = "tableElement">{{drive_state_data.backState}}</td>
           </tr>
       </tbody>
   </table>
