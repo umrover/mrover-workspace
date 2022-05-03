@@ -8,70 +8,86 @@ import os
 # Function that parses launch command
 #
 ########################
-def launch_dir(ctx, package, ssh, opts):
+def launch_dir(ctx, package, ssh, only_run, opts):
+    
+    # Set LCM Environment Variables
+    wid = launch_terminal()
+    exec_cmd(wid, "export LCM_DEFAULT_URL='udpm://239.255.76.67:7667?ttl=255'", 
+            ssh=ssh, ip=AUTON_IP, close_terminal = True)
+    if ssh :
+        wid = launch_terminal()
+        exec_cmd(wid, "export LCM_DEFAULT_URL='udpm://239.255.76.67:7667?ttl=255'", 
+                ssh=ssh, ip=DRIVE_IP, close_terminal = True)
+    
+    # Execute Launch Commands
     if package == "percep":
-        launch_perception(ssh, opts)
-    if package == "nav":
-        launch_navigation(ssh, opts)
-    if package == "loc":
-        launch_localization(ssh, opts)
-    if package == "auton":
-        launch_auton(ssh)
-    if package == "odrive":
-        launch_odrive(ssh)
+        launch_perception(ssh, only_run, opts)
+    elif package == "nav":
+        launch_navigation(ssh, only_run, opts)
+    elif package == "loc":
+        launch_localization(ssh, only_run, opts)
+    elif package == "auton":
+        launch_auton(ssh, only_run)
+    elif package == "odrive":
+        launch_odrive(ssh, only_run)
 
 #########################
 #
 # Functions that build and execute auton subteam code
 #
 ########################
-drive_ip = "10.1.0.1"
-auton_ip = "10.1.0.2"
+DRIVE_IP = "10.1.0.1"
+AUTON_IP = "10.1.0.2"
 
-def launch_perception(ssh, opts=""):
+def launch_perception(ssh, only_run, opts=""):
     wid = launch_terminal()
-    build_and_run_package(wid, 'jetson/percep', ssh=ssh, ip=auton_ip)
+    build_run_package(wid, 'jetson/percep', ssh=ssh, ip=AUTON_IP, only_run=only_run)
     new_tab(wid)
-    exec_cmd(wid, "./jarvis exec lcm_tools_echo Obstacle /obstacle", ssh=ssh, ip=auton_ip)
+    exec_cmd(wid, "./jarvis exec lcm_tools_echo Obstacle /obstacle", ssh=ssh, ip=AUTON_IP)
 
-def launch_navigation(ssh, opts=""):
+def launch_navigation(ssh, only_run, opts=""):
     wid = launch_terminal()
-    build_and_run_package(wid, 'jetson/nav', ssh=ssh, ip=auton_ip)
+    build_run_package(wid, 'jetson/nav', ssh=ssh, ip=AUTON_IP, only_run=only_run)
 
-def launch_localization(ssh, opts=""):
+def launch_localization(ssh, only_run, opts=""):
     wid = launch_terminal()
-    exec_cmd(wid, "./jarvis build jetson/gps; sudo ./jarvis exec jetson/gps", ssh=ssh, ip=auton_ip)
-    # unable to enter sudo password because have no idea when the build will end
+    exec_cmd(wid, 'sudo chmod a+rw /dev/tty*', ssh=ssh, ip=AUTON_IP)
+    time.sleep(1)
+    exec_cmd(wid, "mrover")
     new_tab(wid)
-    build_and_run_package(wid, 'jetson/filter', ssh=ssh, ip=auton_ip)
+    build_run_package(wid, 'jetson/gps', ssh=ssh, ip=AUTON_IP, only_run=only_run)
+    new_tab(wid)
+    build_run_package(wid, 'jetson/imu', ssh=ssh, ip=AUTON_IP, only_run=only_run)
+    new_tab(wid)
+    build_run_package(wid, 'jetson/filter', ssh=ssh, ip=AUTON_IP, only_run=only_run)
 
-def launch_odrive(ssh, opts=""):
+def launch_odrive(ssh, only_run, opts=""):
     wid = launch_terminal()
-    build_and_run_package(wid, 'jetson/odrive_bridge', ssh, ip=drive_ip, exec_opts="0")
+    build_run_package(wid, 'jetson/odrive_bridge', ssh, ip=DRIVE_IP, exec_opts="0", only_run=only_run)
     new_tab(wid)
-    build_and_run_package(wid, 'jetson/odrive_bridge', ssh, ip=drive_ip, exec_opts="1")
+    build_run_package(wid, 'jetson/odrive_bridge', ssh, ip=DRIVE_IP, exec_opts="1", only_run=only_run)
     new_tab(wid)
-    build_and_run_package(wid, 'jetson/odrive_bridge', ssh, ip=drive_ip, exec_opts="2")
+    build_run_package(wid, 'jetson/odrive_bridge', ssh, ip=DRIVE_IP, exec_opts="2", only_run=only_run)
 
-def launch_auton(ssh):
-    launch_localization(ssh)
-    launch_navigation(ssh)
-    launch_perception(ssh)
+def launch_auton(ssh, only_run):
+    launch_localization(ssh, only_run)
+    launch_navigation(ssh, only_run)
+    launch_perception(ssh, only_run)
 
 #########################
 #
 # Functions for interacting with the terminal
 #
 ########################
-def build_and_run_package(wid:str, package:str, ssh:str="", ip:str="", build_opts:str="", exec_opts:str=""):
-    jetson_percep = 'jetson/percep'
-    
-    build = "./jarvis build " + package + " " + build_opts
-    exec = "./jarvis exec " + package + " " + exec_opts
+def build_run_package(wid:str, package:str, ssh:str="", ip:str="", build_opts:str="", exec_opts:str="", only_run:bool=False):
+    cmd_build = "./jarvis build " + package + " " + build_opts + "; "
+    if only_run :
+        cmd_build = ""
+    cmd_exec = "./jarvis exec " + package + " " + exec_opts
 
     # Combine build and exec command into one, that way
     # the build finishes before the exec
-    exec_cmd(wid, build + "; " + exec, ssh, ip)
+    exec_cmd(wid, cmd_build + cmd_exec, ssh, ip)
 
 def launch_terminal() -> str:
     # Construct a Fifo (Named Pipe) if it doesn't exist 
@@ -91,15 +107,18 @@ def launch_terminal() -> str:
     os.remove(path)
     return str(int(wid))
 
-def exec_cmd(wid:str, command:str, ssh:bool=False, ip:str=""):
+def exec_cmd(wid:str, command:str, ssh:bool=False, ip:str="", close_terminal:bool=False):
     if ssh :
         exec_ssh(wid, ip)
 
     focus = gen_focus(wid)
     cmd = "xdotool key type \'" + command + "\'"
     enter = "xdotool key KP_Enter"
-  
-    commands = focus + "; " + cmd + "; " + enter
+    close = ""
+    if close_terminal :
+        close = "xdotool key ctrl+d"
+
+    commands = focus + "; " + cmd + "; " + enter + "; " + close
 
     proc = subprocess.Popen('/bin/bash', stdin=subprocess.PIPE, shell=True)
     proc.communicate(commands.encode('utf-8'))

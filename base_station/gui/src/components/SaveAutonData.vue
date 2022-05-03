@@ -55,6 +55,8 @@ export default {
             gps_bearing: [],
             gps_speed: [],
 
+            target_bearing: [],
+
             // nav_state
             nav_state: [],
             completed_wps: [],
@@ -62,12 +64,9 @@ export default {
             first_waypoint_lat: [],
             first_waypoint_lon: [],
 
-            // Joystick
-            forward_back: [],
-            left_right: [],
-            dampen: [],
-            kill: [],
-            restart: [],
+            // AutonDriveControl
+            left_percent_velocity: [],
+            right_percent_velocity: [],
 
             // TargetList
             bearing0: [],
@@ -96,12 +95,17 @@ export default {
             required: true
         },
 
+        TargetBearing: {
+            type: Object,
+            required: true
+        },
+
         nav_status: {
             type: Object,
             required: true
         },
 
-        Joystick: {
+        AutonDriveControl: {
             type: Object,
             required: true
         },
@@ -128,6 +132,15 @@ export default {
     },
 
     created: function() {
+ 
+        // upon closing, ask user if they want to close and then download
+        window.addEventListener('beforeunload', (e) =>  {
+            if (this.num_logs !== 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        })
+
         // time between interations in seconds
         const update_rate = 0.5
 
@@ -175,6 +188,8 @@ export default {
                 this.gps_bearing.push(this.GPS.bearing_deg)
                 this.gps_speed.push(this.GPS.speed)
 
+                this.target_bearing.push(this.TargetBearing.target_bearing)
+
                 this.nav_state.push(this.nav_status.nav_state_name)
                 this.completed_wps.push(this.nav_status.completed_wps)
                 this.total_wps.push(this.nav_status.total_wps)
@@ -188,11 +203,8 @@ export default {
                     this.first_waypoint_lon.push("(empty course)")
                 }
 
-                this.forward_back.push(this.Joystick.forward_back)
-                this.left_right.push(this.Joystick.left_right)
-                this.dampen.push(this.Joystick.dampen)
-                this.kill.push(this.Joystick.kill)
-                this.restart.push(this.Joystick.restart)
+                this.left_percent_velocity.push(this.AutonDriveControl.left_percent_velocity)
+                this.right_percent_velocity.push(this.AutonDriveControl.right_percent_velocity)
 
                 this.bearing0.push(this.TargetList[0].bearing)
                 this.distance0.push(this.TargetList[0].distance)
@@ -238,17 +250,16 @@ export default {
                     this.gps_bearing.splice(0, overflow_amt)
                     this.gps_speed.splice(0, overflow_amt)
 
+                    this.target_bearing.splice(0, overflow_amt)
+
                     this.nav_state.splice(0, overflow_amt)
                     this.completed_wps.splice(0, overflow_amt)
                     this.total_wps.splice(0, overflow_amt)
                     this.first_waypoint_lat.splice(0, overflow_amt)
                     this.first_waypoint_lon.splice(0, overflow_amt)
 
-                    this.forward_back.splice(0, overflow_amt)
-                    this.left_right.splice(0, overflow_amt)
-                    this.dampen.splice(0, overflow_amt)
-                    this.kill.splice(0, overflow_amt)
-                    this.restart.splice(0, overflow_amt)
+                    this.left_percent_velocity.splice(0, overflow_amt)
+                    this.right_percent_velocity.splice(0, overflow_amt)
 
                     this.bearing0.splice(0,overflow_amt)
                     this.distance0.splice(0,overflow_amt)
@@ -262,8 +273,20 @@ export default {
     },
 
     methods: {
-        download_log() {
-            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Forward/Back,Left/Right,Dampen,Kill,Restart,Bearing0,Distance0,id0,Bearing1,Distance1,id1\n'
+        download_log() {   
+            if (this.num_logs === 0) {
+                return
+            }
+
+            const time = new Date(Date.now())
+            const time_string = time.toTimeString().substring(0,17) + ' ' + time.toDateString()
+
+            let report_name = prompt("Enter filename:", 'AutonLog-' + time_string);
+            if (!report_name || report_name == null) {
+                return
+            }
+
+            var csv = 'Timestamp,Auton Enabled,Odom Degrees Lat,Odom Minutes Lat,Odom Degrees Lon,Odom Minutes Lon,Odom bearing,Odom speed,Accel X,Accel Y,Accel Z,Gyro X,Gyro Y,Gyro Z,Mag X,Mag Y,Mag Z,Roll,Pitch,Yaw,Calibration Sys,Calibration Gyro,Calibration Accel,Calibration Mag,IMU Bearing,GPS Degrees Lat,GPS Minutes Lat,GPS Degrees Lon,GPS Minutes Lon,GPS Bearing,GPS Speed,Target Bearing,Nav State,Waypoints Completed,Total Waypoints,First Waypoint Lat,First Waypoint Lon,Left Control,Right Control,Bearing0,Distance0,id0,Bearing1,Distance1,id1\n'
 
             for (let i = 0; i < this.num_logs; i++) {
                 csv += this.timestamp[i] + ','
@@ -301,17 +324,16 @@ export default {
                 csv += this.gps_bearing[i] + ','
                 csv += this.gps_speed[i] + ','
 
+                csv += this.target_bearing[i] + ','
+
                 csv += this.nav_state[i] + ','
                 csv += this.completed_wps[i] + ','
                 csv += this.total_wps[i] + ','
                 csv += this.first_waypoint_lat[i] + ','
                 csv += this.first_waypoint_lon[i] + ','
 
-                csv += this.forward_back[i] + ','
-                csv += this.left_right[i] + ','
-                csv += this.dampen[i] + ','
-                csv += this.kill[i] + ','
-                csv += this.restart[i] + ','
+                csv += this.left_percent_velocity[i] + ','
+                csv += this.right_percent_velocity[i] + ','
 
                 csv += this.bearing0[i] + ','
                 csv += this.distance0[i] + ','
@@ -327,10 +349,11 @@ export default {
             hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv)
             hiddenElement.target = '_blank'
 
-            const time = new Date(Date.now())
-            const time_string = time.toTimeString().substring(0,17) + ' ' + time.toDateString()
+            if (report_name.length < 4 || report_name.substring(report_name.length - 4) != '.csv') {
+                report_name = report_name + '.csv'
+            }
 
-            hiddenElement.download = 'AutonLog-' + time_string + '.csv'
+            hiddenElement.download = report_name
             hiddenElement.click()
 
             // Remove data that was just saved
@@ -371,17 +394,16 @@ export default {
             this.gps_bearing = []
             this.gps_speed = []
 
+            this.target_bearing = []
+
             this.nav_state = []
             this.completed_wps = []
             this.total_wps = []
             this.first_waypoint_lat = []
             this.first_waypoint_lon = []
 
-            this.forward_back = []
-            this.left_right = []
-            this.dampen = []
-            this.kill = []
-            this.restart = []
+            this.left_percent_velocity = []
+            this.right_percent_velocity = []
 
             this.bearing0 = []
             this.distance0 = []

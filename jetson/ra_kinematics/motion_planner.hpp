@@ -15,6 +15,7 @@
 using namespace Eigen;
 
 static constexpr int MAX_RRT_ITERATIONS = 500;
+static constexpr double VEC_ANGLE_EPSILON = 0.0002;
 
 /**
  * Use rrt_connect() to map out a path to the target position.
@@ -28,14 +29,14 @@ private:
     class Node {
         friend class MotionPlanner;
     private:
-        Vector6d config;
+        std::vector<double> config;
         
         Node* parent;
         std::vector<Node*> children;
         double cost;
 
     public:
-        Node(Vector6d config_in) : config(config_in), parent(nullptr), cost(0) { }
+        Node(std::vector<double> config_in) : config(config_in), parent(nullptr), cost(0) { }
     }; // Node class
 
     KinematicsSolver solver;
@@ -70,7 +71,7 @@ public:
      * 
      * @return true if a path was found
      * */
-    bool rrt_connect(ArmState &robot, const Vector6d &target_angles);
+    bool rrt_connect(ArmState &robot, const std::vector<double> &target_angles);
 
     /**
      * @param spline_t a time between 0 and 1
@@ -92,7 +93,7 @@ private:
     /**
      * Generate a random config based on the joint limits
      * */
-    Vector6d sample(Vector6d start, const ArmState &robot);
+    std::vector<double> sample(std::vector<double> start, const ArmState &robot);
 
     /**
      * @param tree_root the root of the RRT tree
@@ -100,7 +101,7 @@ private:
      * 
      * @return nearest node in tree to a given random node in config space
      * */
-    Node* nearest(Node* tree_root, const Vector6d &rand);
+    Node* nearest(Node* tree_root, const std::vector<double> &rand);
 
     /**
      * @param start an RRT node that has been found to be near end
@@ -108,18 +109,18 @@ private:
      * 
      * @return a set of angles branching from start towards end without violating step_limits
      * */
-    Vector6d steer(Node* start, const Vector6d &end);
+    std::vector<double> steer(Node* start, const std::vector<double> &end);
 
-    std::vector<Vector6d> backtrace_path(Node* end, Node* root);
+    std::vector< std::vector<double> > backtrace_path(Node* end, Node* root);
 
     void delete_tree(Node* twig);
     void delete_tree_helper(Node* root);
 
-    Node* extend(ArmState &robot, Node* tree, const Vector6d &z_rand);
+    Node* extend(ArmState &robot, Node* tree, const std::vector<double> &z_rand);
 
-    Node* connect(ArmState &robot, Node* tree, const Vector6d &a_new);
+    Node* connect(ArmState &robot, Node* tree, const std::vector<double> &a_new);
 
-    void spline_fitting(const std::vector<Vector6d> &path);
+    void spline_fitting(const std::vector< std::vector<double> > &path);
 
 };
 

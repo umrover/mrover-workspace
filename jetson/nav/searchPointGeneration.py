@@ -93,7 +93,12 @@ show_coords = input("Do you want to display the search coordinates? (y/n)")
 if show_coords == 'y':
     showCoords(coords)
 
-with open('jetson/nav/search/spiral_search_points.txt', 'w') as f:
+custom_name = input("Enter filename (n for default):")
+name = 'spiral_search_points.txt'
+if custom_name != 'n':
+    name = custom_name
+
+with open('jetson/nav/search/'+name, 'w') as f:
     # print (len(coords), file=f)
     for x,y in coords:
         polar_coord = cart2pol(x,y)

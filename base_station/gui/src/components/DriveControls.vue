@@ -1,6 +1,8 @@
 <template>
   <div class="wrap">
+    <h3> Drive </h3>
     <span>Speed Limiter: {{ dampenDisplay }}%</span>
+    <Checkbox ref="reverse" v-bind:name="'Reverse'" v-on:toggle="updateReverse($event)"/>
   </div>
 </template>
 
@@ -15,14 +17,29 @@ let interval;
 export default {
   data () {
     return {
-      dampen: 0
+      dampen: 1.0,
+      reverse: false
     }
+  },
+
+  methods: {
+    updateReverse: function(checked) {
+      const reverseMsg = {
+        'type': 'ReverseDrive',
+        'reverse': checked
+      }
+      this.$parent.publish('/teleop_reverse_drive', reverseMsg);
+    }
+  },
+
+  components: {
+    Checkbox
   },
 
   computed: {
 
-    dampenDisplay: function () {
-      return (this.dampen * -50 + 50).toFixed(2)
+    dampenDisplay: function() {
+      return (this.dampen * 100).toFixed(2);
     },
 
     ...mapGetters('autonomy', {
@@ -37,11 +54,10 @@ export default {
   created: function () {
 
     const JOYSTICK_CONFIG = {
+      'left_right': 0,
       'forward_back': 1,
-      'left_right': 2,
+      'twist': 2,
       'dampen': 3,
-      'kill': 4,
-      'restart': 5,
       'pan': 4,
       'tilt': 5
     }
@@ -54,16 +70,24 @@ export default {
           const gamepad = gamepads[i]
           if (gamepad) {
             if (gamepad.id.includes('Logitech')) {
+              // Make dampen 1 when slider is pushed forward, 0 when pulled back
+              // Raw value is -1 to 1
+              this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']] * -0.5 + 0.5
+              // -1 multiplier to make turning left a positive value
+              let rotation = -1 * (gamepad.axes[JOYSTICK_CONFIG['left_right']] + gamepad.axes[JOYSTICK_CONFIG['twist']])
+              if (rotation > 1) {
+                rotation = 1
+              }
+              else if (rotation < -1) {
+                rotation = -1
+              }
               const joystickData = {
                 'type': 'Joystick',
-                'forward_back': gamepad.axes[JOYSTICK_CONFIG['forward_back']],
-                'left_right': gamepad.axes[JOYSTICK_CONFIG['left_right']],
-                'dampen': gamepad.axes[JOYSTICK_CONFIG['dampen']],
-                'kill': gamepad.buttons[JOYSTICK_CONFIG['kill']]['pressed'],
-                'restart': gamepad.buttons[JOYSTICK_CONFIG['restart']]['pressed']
+                // forward on joystick is -1, so invert
+                'forward_back': -1 * gamepad.axes[JOYSTICK_CONFIG['forward_back']],
+                'left_right': rotation,
+                'dampen': this.dampen
               }
-              this.dampen = gamepad.axes[JOYSTICK_CONFIG['dampen']]
-
               this.$parent.publish('/drive_control', joystickData)
             }
           }
@@ -77,7 +101,7 @@ export default {
 <style scoped>
 
 .wrap {
-  display: flex;
+  display: inline-block;
   align-items: center;
 }
 

@@ -1,0 +1,6 @@
+package rover_msgs;
+
+struct Heater {
+    int8_t device;
+    boolean enabled;
+}
