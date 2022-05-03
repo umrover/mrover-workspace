@@ -1,0 +1,722 @@
+{
+    "name": "mrover_arm",
+    "origin": {
+        "xyz": [
+            0,
+            0,
+            0
+        ],
+        "rpy": [
+            0,
+            0,
+            0
+        ]
+    },
+    "presets": {
+        "move_a": [
+            0.5,
+            1.09,
+            0.0,
+            0.0
+        ],
+        "move_b": [
+            0.0,
+            0.6,
+            0.0,
+            0.0
+        ],
+        "move_c": [
+            0.0,
+            1.09,
+            0.5,
+            0.0
+        ],
+        "move_e": [
+            0.0,
+            1.09,
+            0.0,
+            0.5
+        ],
+        "stowed": [
+            0.0,
+            1.09,
+            -2.03,
+            -1.22
+        ],
+        "scoop": [
+            0.0,
+            0.33,
+            -1.22,
+            -0.65
+        ],
+        "deposit": [
+            1.43,
+            1.09,
+            -1.6,
+            -1.2
+        ],
+        "raman": [
+            1.035,
+            0.986,
+            -1.52,
+            -1.21
+        ],
+        "intermediate": [
+            0.58,
+            1.05,
+            -0.16,
+            -0.47
+        ]
+    },
+    "preset_paths": {
+        "stowed_to_scoop": [
+            [
+                0.0,
+                1.0,
+                -2.36,
+                0.0
+            ],
+            [
+                0.0,
+                0.5,
+                -2.0,
+                -1.64
+            ]
+        ]
+    },
+    "base": "chassis-a",
+    "links": {
+        "chassis-a": {
+            "visual": {
+                "origin": {
+                    "joint_origin": 0,
+                    "xyz": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rpy": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "geometry": {
+                    "mesh": {
+                        "filename": "chassis-a.stl"
+                    }
+                },
+                "material": {
+                    "color": {
+                        "rgba": [
+                            0.356,
+                            0.361,
+                            0.376,
+                            1
+                        ]
+                    }
+                }
+            },
+            "collisions": [
+                
+            ],
+            "link_shapes": {
+                "shape_1": {
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": 0,
+                        "y1": 0,
+                        "z1": -0.03175
+                    },
+                    "point_2": {
+                        "x2": 0,
+                        "y2": 0,
+                        "z2": -0.09525
+                    },
+                    "radius": 0.09525,
+                    "link_num": 0
+                },
+                "shape_2": {
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": -0.0926267,
+                        "y1": 0.0929399,
+                        "z1": -0.0175615
+                    },
+                    "point_2": {
+                        "x2": -0.0926267,
+                        "y2": 0.0929399,
+                        "z2": -0.0683615
+                    },
+                    "radius": 0.04445,
+                    "link_num": 1
+                }
+            },
+            "mass_data" : {
+                "mass": 0.46,
+                "com": {
+                    "x": 0.0189901,
+                    "y": 0.0174,
+                    "z": -0.0474154
+                }
+            }
+        },
+        "a-b": {
+            "visual": {
+                "origin": {
+                    "joint_origin": 0,
+                    "xyz": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rpy": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "geometry": {
+                    "mesh": {
+                        "filename": "a-b.stl"
+                    }
+                },
+                "material": {
+                    "color": {
+                        "rgba": [
+                            0.356,
+                            0.361,
+                            0.376,
+                            1
+                        ]
+                    }
+                }
+            },
+            "collisions": [
+                
+            ],
+            "link_shapes":
+             {
+                "shape_1":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": 0,
+                        "y1": -0.0428625,
+                        "z1": 0.01397
+                    },
+                    "point_2": {
+                        "x2": 0,
+                        "y2": -0.0428625,
+                        "z2": 0.14097
+                    },
+                    "radius": 0.0381,
+                    "link_num": 2
+                },
+                "shape_2":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": 0,
+                        "y1": -0.04191,
+                        "z1": 0.024765
+                    },
+                    "point_2": {
+                        "x2": 0,
+                        "y2": 0.03429,
+                        "z2": 0.024765
+                    },
+                    "radius": 0.04445,
+                    "link_num": 3
+                }
+            },
+            "mass_data":{
+                "mass": 0.353802,
+                "com": {
+                    "x": 0.0004141,
+                    "y": -0.0162243,
+                    "z": 0.0452425
+                }
+            }
+        },
+        "b-c": {
+            "visual": {
+                "origin": {
+                    "joint_origin": 1,
+                    "xyz": [
+                        0,
+                        0.03429,
+                        0.02858
+                    ],
+                    "rpy": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "geometry": {
+                    "mesh": {
+                        "filename": "b-c.stl"
+                    }
+                },
+                "material": {
+                    "color": {
+                        "rgba": [
+                            0.356,
+                            0.361,
+                            0.376,
+                            1
+                        ]
+                    }
+                }
+            },
+            "collisions": [
+                
+            ],
+            "link_shapes": {
+                "shape_1": {
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": 0,
+                        "y1": 0.0115486,
+                        "z1": 0.009525
+                    },
+                    "point_2": {
+                        "x2": 0,
+                        "y2": 0.5195486,
+                        "z2": 0.009525
+                    },
+                    "radius": 0.03175,
+                    "link_num": 4
+                },
+                "shape_2": {
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": 0.0075305,
+                        "y1": 0.5803892,
+                        "z1": 0.009525
+                    },
+                    "point_2": {
+                        "x2": -0.0178695,
+                        "y2": 0.5803892,
+                        "z2": 0.009525
+                    },
+                    "radius": 0.05715,
+                    "link_num": 5
+                },
+                "shape_3": {
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": 0.0453838,
+                        "y1": 0.5803892,
+                        "z1": 0.002525
+                    },
+                    "point_2": {
+                        "x2": 0.1025338,
+                        "y2": 0.5803892,
+                        "z2": 0.002525
+                    },
+                    "radius": 0.01905,
+                    "link_num": 6
+                }
+            },
+            "mass_data":{
+                "mass": 1.48,
+                "com": {
+                    "x": 0.0039156,
+                    "y": 0.3109823,
+                    "z": 0.0647561
+                }
+            }
+        },
+        "c-e": {
+            "visual": {
+                "origin": {
+                    "joint_origin": 2,
+                    "xyz": [
+                        -0.05840,
+                        0.58039,
+                        0.009525
+                    ],
+                    "rpy": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "geometry": {
+                    "mesh": {
+                        "filename": "c-e.stl"
+                    }
+                },
+                "material": {
+                    "color": {
+                        "rgba": [
+                            0.356,
+                            0.361,
+                            0.376,
+                            1
+                        ]
+                    }
+                }
+            },
+            "collisions": [
+                
+            ],
+            "link_shapes": {
+                "shape_1":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": -0.044323,
+                        "y1": -0.007112,
+                        "z1": 0
+                    },
+                    "point_2": {
+                        "x2": -0.044323,
+                        "y2": 0.018288,
+                        "z2": 0
+                    },
+                    "radius": 0.05715,
+                    "link_num": 7
+                },
+                "shape_2":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": -0.044323,
+                        "y1": -0.1038038,
+                        "z1": 0.007
+                    },
+                    "point_2": {
+                        "x2": -0.044323,
+                        "y2": -0.0466538,
+                        "z2": 0.007
+                    },
+                    "radius": 0.01905,
+                    "link_num": 8
+                }
+            },
+            "mass_data":{
+                "mass": 0,
+                "com": {
+                    "x": -0.0222849,
+                    "y": 0.2506623,
+                    "z": 0.0108216
+                }
+            }
+        },
+        "hand": {
+            "visual": {
+                "origin": {
+                    "joint_origin": 5,
+                    "xyz": [
+                        0.0206502,
+                        0.1647444,
+                        -0.028575
+                    ],
+                    "rpy": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "geometry": {
+                    "mesh": {
+                        "filename": "hand.stl"
+                    }
+                },
+                "material": {
+                    "color": {
+                        "rgba": [
+                            0.356,
+                            0.361,
+                            0.376,
+                            1
+                        ]
+                    }
+                },
+                "mass_data":{
+                    "mass": 1.08,
+                    "com": {
+                        "x": -0.0165324,
+                        "y": 0.0202142,
+                        "z": 0.0201581
+                    }
+                }
+            },
+            "collisions": [],
+            "link_shapes": {
+                "shape_1":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": -0.0634048,
+                        "y1": 0.02159,
+                        "z1": 0
+                    },
+                    "point_2": {
+                        "x2": 0.0572452,
+                        "y2": 0.02159,
+                        "z2": 0
+                    },
+                    "radius": 0.0381,
+                    "link_num": 13
+                },
+                "shape_2":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": 0.065932,
+                        "y1": -0.0348963,
+                        "z1": 0
+                    },
+                    "point_2": {
+                        "x2": 0.065932,
+                        "y2": 0.0095537,
+                        "z2": 0
+                    },
+                    "radius": 0.01905,
+                    "link_num": 14
+                },
+                "shape_3":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": -0.0772048,
+                        "y1": 0.1257519,
+                        "z1": 0
+                    },
+                    "point_2": {
+                        "x2": -0.0772048,
+                        "y2": 0.0178019,
+                        "z2": 0
+                    },
+                    "radius": 0.02159,
+                    "link_num": 15
+                },
+                "shape_4":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": 0.0385762,
+                        "y1": 0.1226122,
+                        "z1": 0
+                    },
+                    "point_2": {
+                        "x2": 0.0385762,
+                        "y2": 0.0146622,
+                        "z2": 0
+                    },
+                    "radius": 0.02159,
+                    "link_num": 16
+                },
+                "shape_5":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": -0.081364,
+                        "y1": 0.0539311,
+                        "z1": -0.031942
+                    },
+                    "point_2": {
+                        "x2": -0.081364,
+                        "y2": 0.0539331,
+                        "z2": 0.031558
+                    },
+                    "radius": 0.01905,
+                    "link_num": 17
+                },
+                "shape_6":{
+                    "type": "capsule",
+                    "point_1": {
+                        "x1": 0.0339407,
+                        "y1": 0.0019812,
+                        "z1": 0.00889
+                    },
+                    "point_2": {
+                        "x2": 0.0339407,
+                        "y2": 0.0019812,
+                        "z2": 0.25019
+                    },
+                    "radius": 0.0254,
+                    "link_num": 18
+                }
+            }
+        }
+    },
+    "joints": {
+        "joint_a": {
+            "parent": "chassis-a",
+            "child": "a-b",
+            "origin": {
+                "xyz": [
+                    0,
+                    0,
+                    0
+                ],
+                "rpy": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "axis": [
+                0,
+                0,
+                1
+            ],
+            "type": "continuous",
+            "limit": {
+                "lower": -3.14,
+                "upper": 3.14
+            },
+            "max_speed": 0.8,
+            "encoder_offset": -0.147,
+            "encoder_multiplier": 1,
+            "mass_data":{
+                "mass": 0.69,
+                "com": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                }
+            }
+        },
+        "joint_b": {
+            "parent": "a-b",
+            "child": "b-c",
+            "origin": {
+                "xyz": [
+                    0,
+                    0.03429,
+                    0.028575
+                ],
+                "rpy": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "axis": [
+                1,
+                0,
+                0
+            ],
+            "type": "revolute",
+            "limit": {
+                "lower": 0.035,
+                "upper": 1.09
+            },
+            "max_speed": 0.2,
+            "encoder_offset": -1.05,
+            "encoder_multiplier": 1,
+            "mass_data":{
+                "mass": 0,
+                "com": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                }
+            }
+        },
+        "joint_c": {
+            "parent": "b-c",
+            "child": "c-e",
+            "origin": {
+                "xyz": [
+                    -0.05840,
+                    0.580,
+                    0.009525
+                ],
+                "rpy": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "axis": [
+                1,
+                0,
+                0
+            ],
+            "type": "revolute",
+            "limit": {
+                "lower": -3.01,
+                "upper": 2.73
+            },
+            "max_speed": 0.3,
+            "encoder_offset": 1.47,
+            "encoder_multiplier": 1,
+            "mass_data":{
+                "mass": 1.11,
+                "com": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                }
+            }
+        },
+        "joint_e": {
+            "parent": "c-e",
+            "child": "hand",
+            "origin": {
+                "xyz": [
+                    0.03458851,
+                    0.298,
+                    0.0
+                ],
+                "rpy": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "axis": [
+                0,
+                1,
+                0
+            ],
+            "type": "revolute",
+            "limit": {
+                "lower": -3.14,
+                "upper": 3.14
+            },
+            "max_speed": 0.52,
+            "encoder_offset": 1.93,
+            "encoder_multiplier": -1,
+            "mass_data":{
+                "mass": 0,
+                "com": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                }
+            }
+        } 
+    },
+    "endeffector": {
+        "frame": "joint_e",
+        "origin": {
+            "xyz": [
+                -0.0238135,
+                0.913,
+                0.0381
+            ]
+        },
+        "position": [
+            [
+                0
+            ],
+            [
+                0
+            ],
+            [
+                0
+            ],
+            [
+                1
+            ]
+        ],
+        "mass_data":{
+            "mass": 0.69,
+            "com": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            }
+        }
+    },
+    "links_geom_imported": true
+}

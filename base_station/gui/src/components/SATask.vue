@@ -2,13 +2,12 @@
   <div class="wrapper">
     <div class="box header">
       <img src="/static/mrover.png" alt="MRover" title="MRover" width="48" height="48" />
-      <h1>SA Dashboard</h1>
+      <h1>Science Dashboard</h1>
       <div class="spacer"></div>
       <div class="comms">
         <ul id="vitals">
           <li><CommIndicator v-bind:connected="connections.websocket" name="Web Socket" /></li>
           <li><CommIndicator v-bind:connected="connections.lcm" name="Rover Connection Status" /></li>
-          <li><CommIndicator v-bind:connected="connections.motors && connections.lcm" name="Driving" /></li>
         </ul>
       </div>
       <div class="spacer"></div>
@@ -17,43 +16,67 @@
       </div>
       <div class="helpscreen"></div>
       <div class="helpimages" style="display: flex; align-items: center; justify-content: space-evenly">
-        <img v-if="controlMode === 'arm'" src="/static/arm.png" alt="Robot Arm" title="Robot Arm Controls" style="width: auto; height: 70%; display: inline-block" />
-        <img v-else-if="controlMode === 'soil_ac'" src="/static/soil_ac.png" alt="Soil Acquisition" title="Soil Acquisition Controls" style="width: auto; height: 70%; display: inline-block" />
         <img src="/static/joystick.png" alt="Joystick" title="Joystick Controls" style="width: auto; height: 70%; display: inline-block" />
       </div>
     </div>
 
-    <div class="box odom light-bg">
-      <OdometryReading v-bind:odom="odom"/>
+    <div class="box raman light-bg">
+      <Raman v-bind:mosfetIDs="mosfetIDs"/>
     </div>
     <div class="box cameras light-bg">
-      <Cameras v-bind:servosData="lastServosMessage" v-bind:connections="connections.cameras"/>
+      <Cameras/>
     </div>
-    <div class="box map light-bg">
-      <RoverMap v-bind:odom="odom"/>
+    <div class="box spectral light-bg">
+      <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
     </div>
-    <div class="box sa_testing light-bg">
-      <SATestingControls/>
+    <div class = "box light-bg chlorophyll">
+      <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/> 
+      <GenerateReport v-bind:spectral_data="spectral_data"/>
     </div>
-    <div class="box waypoints light-bg">
-      <WaypointEditor v-bind:odom="odom" />
+    <div class="box striptest light-bg">
+      <StripTest/>
     </div>
-    <div class="box sa_controls light-bg">
-      <SAControls/>
+    <div class="box amino light-bg">
+      <Amino v-bind:mosfetIDs="mosfetIDs"/>
+    </div>
+    <div class="box drivecontrols light-bg">
+      <DriveControls/>
+    </div>
+    <div class="box drivedata light-bg">
+      <DriveVelDataV/>
+    </div>
+    <div class="box carousel light-bg">
+      <Carousel/>
+    </div>
+    <div class="box scoopUV light-bg">
+      <ScoopUV v-bind:mosfetIDs="mosfetIDs"/>
+    </div>
+    <div class="box SAArm light-bg">
+      <SAArm/>
+    </div>
+    <div class="box PDB light-bg">
+      <PDBFuse/>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
 import Cameras from './Cameras.vue'
-import RoverMap from './RoverMap.vue'
 import CommIndicator from './CommIndicator.vue'
-import OdometryReading from './OdometryReading.vue'
+import DriveControls from './DriveControls.vue'
+import Raman from './Raman.vue'
 import WaypointEditor from './WaypointEditor.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
-import SAControls from './SAControls.vue'
-import SATestingControls from './SATestingControls.vue'
+import SpectralData from './SpectralData.vue'
+import Chlorophyll from './Chlorophyll.vue'
+import StripTest from './StripTest.vue'
+import DriveVelDataV from './DriveVelDataV.vue'
+import Amino from './Amino.vue'
+import GenerateReport from './GenerateReport.vue'
+import Carousel from './Carousel.vue'
+import ScoopUV from './ScoopUV.vue'
+import SAArm from './SAArm.vue'
+import PDBFuse from './PDBFuse.vue'
 
 let interval;
 
@@ -62,11 +85,6 @@ export default {
   data () {
     return {
       lcm_: null,
-
-      lastServosMessage: {
-        pan: 0,
-        tilt: 0
-      },
 
       odom: {
         latitude_deg: 38,
@@ -78,16 +96,65 @@ export default {
 
       connections: {
         websocket: false,
-        lcm: false,
-        motors: false,
-        cameras: [false, false, false, false, false, false, false, false]
+        lcm: false
       },
 
       nav_status: {
         completed_wps: 0,
         total_wps: 0
+      },
+      spectral_data: {
+          d0_1:0,
+          d0_2:0,
+          d0_3:0,
+          d0_4:0,
+          d0_5:0,
+          d0_6:0,
+          d1_1:0,
+          d1_2:0,
+          d1_3:0,
+          d1_4:0,
+          d1_5:0,
+          d1_6:0,
+          d2_1:0,
+          d2_2:0,
+          d2_3:0,
+          d2_4:0,
+          d2_5:0,
+          d2_6:0
+      },
+      spectral_triad_data: {
+          d0_1:0,
+          d0_2:0,
+          d0_3:0,
+          d0_4:0,
+          d0_5:0,
+          d0_6:0,
+          d1_1:0,
+          d1_2:0,
+          d1_3:0,
+          d1_4:0,
+          d1_5:0,
+          d1_6:0,
+          d2_1:0,
+          d2_2:0,
+          d2_3:0,
+          d2_4:0,
+          d2_5:0,
+          d2_6:0
+      },
+      mosfetIDs: {
+        red_led: 0,
+        green_led: 1,
+        blue_led: 2,
+        ra_laser: 3,
+        uv_led: 4,
+        white_led: 5,
+        uv_bulb: 6,
+        raman_laser: 7
       }
-    }
+
+}
   },
 
   methods: {
@@ -101,16 +168,6 @@ export default {
       }
       this.lcm_.subscribe(channel, callbackFn)
     }
-  },
-
-  computed: {
-    ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
-    }),
-
-    ...mapGetters('controls', {
-      controlMode: 'controlMode'
-    }),
   },
 
   beforeDestroy: function () {
@@ -127,15 +184,18 @@ export default {
       },
       // Update connection states
       (online) => {
-        this.connections.lcm = online[0],
-        this.connections.cameras = online.slice(1)
+        this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
       (msg) => {
         if (msg.topic === '/odometry') {
           this.odom = msg.message
-        } else if (msg.topic === '/kill_switch') {
-          this.connections.motors = !msg.message.killed
+        } else if (msg.topic ==='/spectral_data'){
+          this.spectral_data = msg.message
+        } else if (msg.topic ==='/spectral_triad_data'){
+          this.spectral_triad_data = msg.message
+        } else if (msg.topic ==='/thermistor_data'){
+          this.thermistor_data = msg.message
         } else if (msg.topic === '/debugMessage') {
           if (msg['message']['isError']) {
             console.error(msg['message']['message'])
@@ -147,80 +207,65 @@ export default {
       // Subscriptions
       [
         {'topic': '/odometry', 'type': 'Odometry'},
-        {'topic': '/sensors', 'type': 'Sensors'},
-        {'topic': '/temperature', 'type': 'Temperature'},
-        {'topic': '/kill_switch', 'type': 'KillSwitch'},
-        {'topic': '/camera_servos', 'type': 'CameraServos'},
-        {'topic': '/encoder', 'type': 'Encoder'},
         {'topic': '/nav_status', 'type': 'NavStatus'},
-        {'topic': '/sa_motors', 'type': 'SAMotors'},
         {'topic': '/test_enable', 'type': 'TestEnable'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'}
+        {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/spectral_data', 'type': 'SpectralData'},
+        {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
+        {'topic': '/thermistor_data', 'type': 'ThermistorData'},
+        {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
+        {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
+        {'topic': '/drive_state_data', 'type': 'DriveStateData'},
+        {'topic': '/carousel_data', 'type': 'CarouselPosition'},
+        {'topic': '/sa_position', 'type': 'SAPosition'},
+        {'topic': '/sa_offset_pos', 'type': 'SAPosition'},
+        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
+        {'topic': '/heater_state_data', 'type': 'Heater'},
+        {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
+        {'topic': '/pdb_data', 'type': 'PDBData'},
+        {'topic': '/fuse_data', 'type': 'FuseData'},
+        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'}
       ]
     )
-
-    const servosMessage = {
-      'type': 'CameraServos',
-      'pan': 0,
-      'tilt': 0
-    }
-
-    const JOYSTICK_CONFIG = {
-      'forward_back': 1,
-      'left_right': 2,
-      'dampen': 3,
-      'kill': 4,
-      'restart': 5,
-      'pan': 4,
-      'tilt': 5
-    }
-
-    interval = window.setInterval(() => {
-      const gamepads = navigator.getGamepads()
-      for (let i = 0; i < 2; i++) {
-        const gamepad = gamepads[i]
-        if (gamepad) {
-          if (gamepad.id.includes('Logitech')) {
-            const servosSpeed = 0.8
-            servosMessage['pan'] += gamepad.axes[JOYSTICK_CONFIG['pan']] * servosSpeed / 10
-            servosMessage['tilt'] += -gamepad.axes[JOYSTICK_CONFIG['tilt']] * servosSpeed / 10
-          }
-        }
-      }
-
-      const clamp = function (num, min, max) {
-        return num <= min ? min : num >= max ? max : num
-      }
-
-      servosMessage['pan'] = clamp(servosMessage['pan'], -1, 1)
-      servosMessage['tilt'] = clamp(servosMessage['tilt'], -1, 1)
-      this.lastServosMessage = servosMessage
-
-      this.lcm_.publish('/camera_servos', servosMessage)
-    }, 100)
   },
 
   components: {
-    RoverMap,
     Cameras,
     CommIndicator,
-    OdometryReading,
+    DriveControls,
+    Raman,
     WaypointEditor,
-    SAControls,
-    SATestingControls
+    SpectralData,
+    Chlorophyll,
+    StripTest,
+    DriveVelDataV,
+    Amino,
+    GenerateReport,
+    Carousel,
+    ScoopUV,
+    SAArm,
+    PDBFuse
   }
-}</script>
+}
+</script>
 
 <style scoped>
 
     .wrapper {
         display: grid;
         grid-gap: 10px;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 60px 3fr 1fr 2fr 70px 60px;
-        grid-template-areas: "header header" "map cameras" "map sa_testing" "map waypoints" "controls waypoints" "odom waypoints";
+        grid-template-columns: auto auto auto;
+        grid-template-rows: 60px auto auto auto auto auto auto auto;
+        grid-template-areas: "header header header" 
+                             "cameras cameras cameras" 
+                             "carousel chlorophyll raman" 
+                             "spectral chlorophyll scoopUV" 
+                             "spectral chlorophyll drivecontrol" 
+                             "SAArm striptest drivedata" 
+                             "PDBFuse amino drivedata" 
+                             "PDBFuse amino drivedata";
         font-family: sans-serif;
-        height: 98vh;
+        height: auto;
     }
 
     .box {
@@ -243,7 +288,7 @@ export default {
         display: flex;
         align-items: center;
     }
-
+    
         .header h1 {
             margin-left: 5px;
         }
@@ -303,26 +348,62 @@ export default {
                 visibility: visible;
             }
 
-    .odom {
-        grid-area: odom;
+    .raman {
+        grid-area: raman;
         font-size: 1em;
+    }
+
+    .amino{
+      grid-area: amino;
+    } 
+
+    .striptest{
+      grid-area: striptest;
+    }
+    
+    .chlorophyll{
+      grid-area: chlorophyll;
     }
 
     .diags {
         grid-area: diags;
     }
 
-    .map {
-        grid-area: map;
-    }
-
     .waypoints {
         grid-area: waypoints;
+    }
+
+    .drives {
+      grid-area: drives;
+    }
+
+    .cameras {
+      grid-area: cameras;
+    }
+
+    .spectral {
+      grid-area: spectral;
     }
 
     .controls {
         grid-area: controls;
         font-size: 1em;
+    }
+
+    .carousel {
+      grid-area: carousel;
+    }
+
+    .scoopUV {
+      grid-area: scoopUV;
+    }
+
+    .SAArm {
+      grid-area: SAArm;
+    }
+
+    .PDBFuse {
+      grid-area: PDBFuse;
     }
 
     ul#vitals li {

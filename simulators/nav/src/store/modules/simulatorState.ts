@@ -74,6 +74,7 @@ export const state:SimulatorState = {
     simulatePercep: true,
     enableLCM: true,
     enableFOVView: false,
+    enableProjectedPoints: false,
     noisePercent: 0,
     noiseGPSPercent: 0,
     noiseFalsePosPercent: 0,
@@ -141,6 +142,9 @@ const getters = {
 
   enableFOVView: (simState:SimulatorState):boolean => simState.simSettings.enableFOVView,
 
+  enableProjectedPoints:
+  (simState:SimulatorState):boolean => simState.simSettings.enableProjectedPoints,
+
   startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
   takeStep: (simState:SimulatorState):boolean => simState.debugOptions.takeStep,
@@ -202,6 +206,10 @@ const mutations = {
 
   flipEnableFOVView: (simState:SimulatorState, onOff:boolean):void => {
     simState.simSettings.enableFOVView = onOff;
+  },
+
+  flipProjectedPoints: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.enableProjectedPoints = onOff;
   },
 
   pushToRoverPath: (simState:SimulatorState, currLoc:Odom):void => {

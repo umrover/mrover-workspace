@@ -1,10 +1,11 @@
 <template>
   <div class="wrap">
-      <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
-      <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
-      <div class="keyboard">
-        <GimbalControls/>
-      </div>
+    <h3> Arm controls </h3>
+    <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
+    <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
+    <div class="keyboard">
+      <GimbalControls/>
+    </div>
   </div>
 </template>
 
@@ -65,6 +66,15 @@ export default {
         this.setControlMode('off')
       }
 
+    })
+
+    this.$parent.subscribe('/ik_reset', (msg) => {
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': this.controlMode
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
     })
 
     const XBOX_CONFIG = {
@@ -187,7 +197,7 @@ export default {
       if (Math.abs(xboxData['right_js_x']) > this.xboxControlEpsilon) {
         return true
       }
-      if (Math.abs(xboxData['right_js_y'] - 0) > this.xboxControlEpsilon) {
+      if (Math.abs(xboxData['right_js_y']) > this.xboxControlEpsilon) {
         return true
       }
       if (xboxData['left_bumper']) {
@@ -238,8 +248,17 @@ export default {
 <style scoped>
 
 .wrap {
-  display: flex;
+  display: inline-block;
   align-items: center;
+  justify-items: center;
+}
+.controls {
+  display: flex;
+  align-items:center;
+}
+.header {
+  display:flex;
+  align-items:center;
 }
 
 </style>

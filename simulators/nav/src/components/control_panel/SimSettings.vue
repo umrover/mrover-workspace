@@ -6,78 +6,73 @@
   <fieldset class="box">
     <legend>Settings</legend>
     <div class="sim-settings">
-      <div class="row">
-        <div class="column1">
-            <div class="field-size first setting">
-              <p>Field Size (m):</p>
-              <NumberInput
-                :val.sync="fieldSizeIn"
-                :min="5"
-                :max="1000"
-              />
-            </div>
-            <div class="odom-format setting">
-              <p>Odom Format:</p>
-              <RadioSelector
-                :options="odomFormatOptions"
-                :selection="odomFormat"
-                @selected="selectOdomFormat"
-              />
-            </div>
-            <div class="setting">
-              <Checkbox
-                :on="simulateLoc"
-                name="Simulate Localization"
-                @clicked="flipSimulateLoc(!simulateLoc)"
-              />
-            </div>
-            <div class="setting">
-              <Checkbox
-                :on="simulatePercep"
-                name="Simulate Perception"
-                @clicked="flipSimulatePercep(!simulatePercep)"
-              />
-            </div>
+      <div class="container">
+        <div class="columnLeftWithBorder">
+          <div class="field-size first setting">
+            <p>Field Size (m):</p>
+            <NumberInput
+              :val.sync="fieldSizeIn"
+              :min="5"
+              :max="1000"
+            />
+          </div>
+          <div class="odom-format setting">
+            <p>Odom Format:</p>
+            <RadioSelector
+              :options="odomFormatOptions"
+              :selection="odomFormat"
+              @selected="selectOdomFormat"
+            />
+          </div>
+          <div class="setting">
+            <Checkbox
+              :on="simulateLoc"
+              name="Simulate Localization"
+              @clicked="flipSimulateLoc(!simulateLoc)"
+            />
+          </div>
+          <div class="setting">
+            <Checkbox
+              :on="simulatePercep"
+              name="Simulate Perception"
+              @clicked="flipSimulatePercep(!simulatePercep)"
+            />
+          </div>
         </div>
-        <div class="column2">
-          <div class="noise">
-            <p>Perception Noise (%):</p>
-            <NumberInput
-              :val.sync="noisePercentIn"
-              :precision="2"
-              :min="0"
-              :max="100"
-              :step="10"
-            />
+        <div class="columnRight">
+          <div class="container">
+            <div class="columnLeft">
+              <p>Perception Noise (%):</p>
+              <NumberInput
+                :val.sync="noisePercentIn"
+                :precision="2"
+                :min="0"
+                :max="100"
+                :step="10"
+              />
+            </div>
+            <div class="columnRight">
+              <p>GPS Noise (%):</p>
+              <NumberInput
+                :val.sync="noiseGPSPercentIn"
+                :precision="2"
+                :min="0"
+                :max="100"
+                :step="5"
+              />
+            </div>
           </div>
-          <div class="noiseGPS">
-            <p>GPS Noise (%):</p>
-            <NumberInput
-              :val.sync="noiseGPSPercentIn"
-              :precision="2"
-              :min="0"
-              :max="100"
-              :step="5"
-            />
-          </div>
-          <div class="noiseFalsePos">
-            <p>False Positives Noise (%):</p>
-            <NumberInput
-              :val.sync="noiseFalsePosPercentIn"
-              :precision="2"
-              :min="0"
-              :max="100"
-              :step="5"
-            />
-          </div>
-          <div class="maxFalsePos">
-            <p>Max # of False Positives:</p>
-            <NumberInput
-              :val.sync="maxFalsePosIn"
-              :min="0"
-              :max="10"
-              :step="1"
-            />
+          <div class="container">
+            <div class="columnLeft">
+              <p>Projected Points Path Type: {{ path_type }}</p>
+            </div>
+            <div class="columnRight">
+              <Checkbox
+                :on="enableProjectedPoints"
+                name="On/Off"
+                @clicked="flipProjectedPoints(!enableProjectedPoints)"
+              />
+            </div>
           </div>
           <div class="enableFOVView">
             <Checkbox
@@ -104,7 +99,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Getter, Mutation } from 'vuex-class';
-import { OdomFormat, RadioOption } from '../../utils/types';
+import { OdomFormat, RadioOption, ProjectedPointsMessage } from '../../utils/types';
 import Checkbox from '../common/Checkbox.vue';
 import NumberInput from '../common/NumberInput.vue';
 import RadioSelector from '../common/RadioSelector.vue';
@@ -150,6 +145,12 @@ export default class SimSettings extends Vue {
   @Getter
   private readonly enableFOVView!:boolean;
 
+  @Getter
+  private readonly projectedPointsMessage!:ProjectedPointsMessage;
+
+  @Getter
+  private readonly enableProjectedPoints!:boolean;
+
   /************************************************************************************************
    * Vuex Mutations
    ************************************************************************************************/
@@ -182,6 +183,9 @@ export default class SimSettings extends Vue {
   private readonly flipEnableLCM!:(onOff:boolean)=>void;
 
   @Mutation
+  private readonly flipProjectedPoints!:(onOff:boolean)=>void;
+
+  @Mutation
   private readonly flipEnableFOVView!:(onOff:boolean)=>void;
 
   /************************************************************************************************
@@ -204,7 +208,6 @@ export default class SimSettings extends Vue {
   private set fieldSizeIn(newFieldSize:number) {
     this.setFieldSize(newFieldSize);
   }
-
   private get noisePercentIn():number {
     return this.noisePercent;
   }
@@ -230,6 +233,10 @@ export default class SimSettings extends Vue {
     this.setMaxFalsePos(newVal);
   }
 
+  private get path_type():string {
+    return this.projectedPointsMessage.path_type;
+  }
+
   /************************************************************************************************
    * Private Methods
    ************************************************************************************************/
@@ -248,16 +255,11 @@ export default class SimSettings extends Vue {
 }
 
 .odom-format p {
-  margin-right: 3px;
+  margin-right: 0px;
 }
 
 p {
   display: inline-block;
-  margin: auto;
-}
-
-.setting {
-  margin-right: 10px;
 }
 
 .setting:last-child {
@@ -269,19 +271,22 @@ p {
   flex-wrap: wrap;
 }
 
-.row {
-  flex-direction: row;
+.container {
+  border: 0px;
   display: flex;
   width: 100%;
 }
-.column1 {
-  flex: 50%;
-  width: 100%;
-  border-right: 1px solid black;
-  margin-right: 10px;
+
+.columnLeft {
+  width: 50%;
 }
-.column2 {
-  width: 100%;
-  flex: 50%;
+
+.columnRight {
+  width: 50%;
+}
+
+.columnLeftWithBorder{
+  width: 50%;
+  border-right:1px solid black;
 }
 </style>
