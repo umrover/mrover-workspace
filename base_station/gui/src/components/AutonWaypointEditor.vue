@@ -149,8 +149,8 @@ export default {
 
     interval = window.setInterval(() => {
 
-      this.$parent.publish('/auton_en', {type: 'Enable', enabled: this.autonEnabled})
-      this.$parent.publish('/teleop_en', {type: 'Enable', enabled: this.teleopEnabled})
+      this.$parent.publish('/auton_enabled', {type: 'Enable', enabled: this.autonEnabled})
+      this.$parent.publish('/teleop_enabled', {type: 'Enable', enabled: this.teleopEnabled})
 
       let course = {
         num_waypoints: this.route.length,
