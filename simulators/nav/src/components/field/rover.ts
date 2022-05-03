@@ -330,6 +330,8 @@ export default class CanvasRover {
       const isFalsePos:boolean = num < thres;
 
       if (isFalsePos) {
+        console.log('is false pos!');
+
         /* generate r and theta */
         const r:number = randnBm(0, this.fov.depth, 1);
         const theta:number = randnBm(0, this.fov.angle, 1);
