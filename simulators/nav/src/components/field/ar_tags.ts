@@ -40,7 +40,7 @@ const ARROW_OFFSET_Y = 10;
 const VISUAL_SIDE_LEN = 50;
 
 /* Post visual (triangle around drawn post) dimensions in pixels */
-const SMALLSIDE = 25;
+// const SMALLSIDE = 25;
 
 /* Class for drawing ar tags (and gates) on the field canvas. */
 export default class CanvasArTags {
@@ -290,7 +290,7 @@ export default class CanvasArTags {
         // draw False Positive point directly
 
         this.ctx.fillStyle = 'red';
-        const dimension:number = 25;
+        const dimension = 25;
         this.ctx.fillRect(pCanvas.x, -pCanvas.y, dimension, dimension);
 
         const randnInd = randnInt(0, this.arTags.length - 1);
