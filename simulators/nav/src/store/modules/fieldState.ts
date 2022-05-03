@@ -98,6 +98,10 @@ const mutations = {
     fieldState.arTags.push(newArTag);
   },
 
+  pushFalseArTag: (fieldState:FieldState, newArTag:ArTag):void => {
+    fieldState.falseArTags.push(newArTag);
+  },
+
   pushGate: (fieldState:FieldState, newGate:Gate):void => {
     fieldState.gates.push(newGate);
   },

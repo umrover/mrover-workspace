@@ -11,7 +11,7 @@ import {
 import {
   compassToCanvasRad,
   degToRad,
-  odomToCanvas,
+  odomToCanvas
 } from '../../utils/utils';
 import { ROVER } from '../../utils/constants';
 
@@ -85,17 +85,17 @@ export default class CanvasRover {
    ************************************************************************************************/
   /* Initialize CanvasRover instance by calculating scaled dimensions. */
   constructor(
-    canvasCent:Odom,
-    currOdom:Odom,
-    enableFOVView:boolean,
-    FOVAreaPath:Path2D,
-    fov:FieldOfViewOptions,
-    path:Odom[],
-    pathVisible:boolean,
-    pushToFOVAreaPath:(area:Path2D)=>void,
-    pushToPath:(currLoc:Odom)=>void,
-    scale:number, /* pixels/meter */
-    zedGimbalPos:ZedGimbalPosition
+      canvasCent:Odom,
+      currOdom:Odom,
+      enableFOVView:boolean,
+      FOVAreaPath:Path2D,
+      fov:FieldOfViewOptions,
+      path:Odom[],
+      pathVisible:boolean,
+      pushToFOVAreaPath:(area:Path2D)=>void,
+      pushToPath:(currLoc:Odom)=>void,
+      scale:number, /* pixels/meter */
+      zedGimbalPos:ZedGimbalPosition
   ) {
     this.currOdom = currOdom;
     this.canvasCent = canvasCent;

@@ -14,6 +14,7 @@ import {
   degToRad,
   odomToCanvas,
   randnBm,
+  randnInt,
   getGaussianThres
 } from '../../utils/utils';
 import { state } from '../../store/modules/simulatorState';
@@ -38,6 +39,9 @@ const ARROW_OFFSET_Y = 10;
 /* Post visual (triangle around drawn post) dimensions in pixels */
 const VISUAL_SIDE_LEN = 50;
 
+/* Post visual (triangle around drawn post) dimensions in pixels */
+const SMALLSIDE = 25;
+
 /* Class for drawing ar tags (and gates) on the field canvas. */
 export default class CanvasArTags {
   /************************************************************************************************
@@ -48,6 +52,12 @@ export default class CanvasArTags {
 
   /* Gate directionality arrow dimensions in pixels */
   private readonly arrowHeadWdth:number = ARROW_HEAD_LEN * Math.tan(degToRad(ARROW_HEAD_ANGLE));
+
+  /* list of all ar tags on field */
+  private arTags!:ArTag[];
+
+  /* list of all ar tags on field */
+  private falseArTags!:ArTag[];
 
   /* GPS point of the center of the canvas */
   private canvasCent!:Odom;
@@ -64,6 +74,9 @@ export default class CanvasArTags {
   /* list of all gates on the field */
   private gates!:Gate[];
 
+  /* Function to push an area to the rover's FOV converage */
+  private setFalseArTag!:(newArTags:ArTag[])=>void;
+
   /* scale of the canvas in pixels/meter */
   private scale!:number;
 
@@ -75,20 +88,25 @@ export default class CanvasArTags {
    ************************************************************************************************/
   /* Initialize CanvasArTags instance by calculating scaled dimensions. */
   constructor(
-    canvasCent:Odom,
-    currOdom:Odom,
-    fov:FieldOfViewOptions,
-    gates:Gate[],
-    posts:ArTag[],
-    scale:number /* pixels/meter */
+      arTags:ArTag[],
+      canvasCent:Odom,
+      currOdom:Odom,
+      fov:FieldOfViewOptions,
+      gates:Gate[],
+      posts:ArTag[],
+      setFalseArTag:(newArTags:ArTag[])=>void,
+      scale:number /* pixels/meter */
   ) {
+    this.arTags = arTags;
     this.canvasCent = canvasCent;
     this.currOdom = currOdom;
     this.fov = fov;
     this.gates = gates;
     this.posts = posts;
+    this.setFalseArTag = setFalseArTag;
     this.scale = scale;
     this.scaledPostSideLen = this.scale * POST.sideLen;
+    this.falseArTags = [];
   } /* constructor() */
 
   /* Draw all ar tags on the canvas. */
@@ -129,12 +147,15 @@ export default class CanvasArTags {
       this.ctx.translate(-loc.x, -loc.y);
     });
 
+    this.ctx.save();
+
     /* Translate canvas to rover's position */
     const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
     this.ctx.translate(loc.x, loc.y);
     this.ctx.rotate(degToRad(this.currOdom.bearing_deg));
 
     this.drawFalsePos(canvas);
+    this.ctx.restore();
   } /* drawArTags() */
 
   /************************************************************************************************
@@ -252,8 +273,6 @@ export default class CanvasArTags {
       const isFalsePos:boolean = num < thres;
 
       if (isFalsePos) {
-        console.log('is false pos!');
-
         /* generate r and theta */
         const r:number = randnBm(0, this.fov.depth, 1);
         const theta:number = randnBm(0, this.fov.angle, 1);
@@ -269,10 +288,19 @@ export default class CanvasArTags {
         const pCanvas:Point2D = { x: xCoordMeters * this.scale, y: yCoordmeters * this.scale };
 
         // draw False Positive point directly
-        const dimension = 10;
+
         this.ctx.fillStyle = 'red';
+        const dimension:number = 25;
         this.ctx.fillRect(pCanvas.x, -pCanvas.y, dimension, dimension);
+
+        const randnInd = randnInt(0, this.arTags.length - 1);
+        const newFalseArTag:ArTag = { ...this.arTags[randnInd] };
+
+        // push to falseArtags
+        this.falseArTags.push(newFalseArTag);
       }
     }
+
+    this.setFalseArTag(this.falseArTags);
   }
 } /* CanvasArTags */

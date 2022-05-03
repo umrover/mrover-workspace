@@ -517,3 +517,17 @@ export function randnBm(min, max, skew):number {
   }
   return num;
 }
+
+export function randnInt(min, max):number { // min and max included
+  const num = Math.floor(Math.random());
+  const factor = max - min + 1;
+  const basicRandInt = num * factor;
+  return Math.floor(basicRandInt + min);
+}
+
+export function randnDouble(min, max):number { // min and max included
+  const num = Math.floor(Math.random());
+  const factor = max - min + 1;
+  const basicRandInt = num * factor;
+  return basicRandInt +  min;
+}

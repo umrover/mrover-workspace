@@ -41,6 +41,9 @@ export default class Perception extends Vue {
   private readonly currOdom!:Odom;
 
   @Getter
+  private readonly falseArTags!:ArTag[];
+
+  @Getter
   private readonly fieldCenterOdom!:Odom;
 
   @Getter
@@ -266,7 +269,7 @@ export default class Perception extends Vue {
     this.computeVisibleObstacles();
 
     this.targetDetector = new TargetDetector(this.currOdom, this.zedGimbalPos, this.arTags,
-                                             this.gates, this.fieldOfViewOptions,
+                                             this.falseArTags, this.gates, this.fieldOfViewOptions,
                                              this.fieldCenterOdom);
     this.computeVisibleTargets();
   } /* created() */

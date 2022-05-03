@@ -237,6 +237,9 @@ export default class Field extends Vue {
   private readonly setArTag!:(newArTags:ArTag[])=>void;
 
   @Mutation
+  private readonly setFalseArTag!:(newArTags:ArTag[])=>void;
+
+  @Mutation
   private readonly setCurrOdom!:(newOdom:Odom)=>void;
 
   @Mutation
@@ -282,7 +285,9 @@ export default class Field extends Vue {
    ************************************************************************************************/
   /* Object for drawing ar tags on canvas */
   private get canvasArTags():CanvasArTags {
-    return new CanvasArTags(this.fieldCenterOdom, this.currOdom, this.fieldOfViewOptions, this.gates, this.arTags, this.scale);
+    return new CanvasArTags(this.arTags, this.fieldCenterOdom, this.currOdom,
+                            this.fieldOfViewOptions, this.gates, this.arTags,
+                            this.setFalseArTag, this.scale);
   }
 
   /* Object for drawing obstacles on canvas. */
