@@ -18,7 +18,8 @@ import {
   compassModDeg,
   degToRad,
   radToDeg,
-  randnBm
+  randnBm,
+  getGaussianThres
 } from '../../utils/utils';
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
 import {
@@ -28,29 +29,6 @@ import {
   Zscores
 } from '../../utils/constants';
 import { state } from '../../store/modules/simulatorState';
-
-// state.simSettings.noisePercent - global
-function getGaussianThres():number {
-  const sd = 0.2;
-  const mu = 0.5;
-  const percentFactor = 100.0;
-  const divisor = 10;
-  const factor = percentFactor / divisor; // 10
-  // check and invert the values of z scores
-  const neg = -1;
-  let indZscore = state.simSettings.noisePercent / factor;
-
-  const half = 5;
-  if (indZscore > half) {
-    indZscore = factor - indZscore;
-    const x = neg * Zscores[indZscore] * sd;
-    return mu + x;
-  }
-  else {
-    const x = Zscores[indZscore] * sd;
-    return mu + x;
-  }
-}
 
 /* Class that performs target dectection calculations. */
 export default class TargetDetector {
@@ -221,7 +199,7 @@ export default class TargetDetector {
 
     /* Special Case: guassian noise */
     const num:number = randnBm(0, 1, 1);
-    const thres = getGaussianThres();
+    const thres = getGaussianThres(state.simSettings.noisePercent);
 
     if (num < thres) {
       post.isHidden = true;

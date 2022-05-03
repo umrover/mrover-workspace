@@ -12,7 +12,8 @@ import {
   compassToCanvasRad,
   degToRad,
   odomToCanvas,
-  randnBm
+  randnBm,
+  getGaussianThres
 } from '../../utils/utils';
 import { ROVER, Zscores } from '../../utils/constants';
 import { state } from '../../store/modules/simulatorState';
@@ -323,7 +324,7 @@ export default class CanvasRover {
     const max:number = state.simSettings.maxFalsePos;
 
     // for each false positive, generate and display on canvas
-    const thres = getGaussianThres();
+    const thres = getGaussianThres(state.simSettings.noiseFalsePosPercent);
     for (let i = 0; i < max; i += 1) {
       const num:number = randnBm(0, 1, 1);
 
@@ -354,27 +355,3 @@ export default class CanvasRover {
     }
   }
 } /* CanvasRover */
-
-// COPYING THIS FUNCTION FROM target_detectors.ts => FOR NOW, IMPORT LATER
-// state.simSettings.noisePercent - global
-function getGaussianThres():number {
-  const sd = 0.2;
-  const mu = 0.5;
-  const percentFactor = 100.0;
-  const divisor = 10;
-  const factor = percentFactor / divisor; // 10
-  // check and invert the values of z scores
-  const neg = -1;
-  let indZscore = state.simSettings.noiseFalsePosPercent / factor;
-
-  const half = 5;
-  if (indZscore > half) {
-    indZscore = factor - indZscore;
-    const x = neg * Zscores[indZscore] * sd;
-    return mu + x;
-  }
-  else {
-    const x = Zscores[indZscore] * sd;
-    return mu + x;
-  }
-}
