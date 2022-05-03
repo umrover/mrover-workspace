@@ -275,6 +275,8 @@ export interface SimulationSettings {
   enableProjectedPoints:boolean;
   noisePercent:number;
   noiseGPSPercent:number;
+  noiseFalsePosPercent:number;
+  maxFalsePos:number;
 }
 
 
