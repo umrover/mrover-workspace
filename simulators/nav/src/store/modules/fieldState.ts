@@ -22,6 +22,7 @@ const state:FieldState = {
     bearing_deg: 0,
     speed: -1
   },
+  falseArTags: [],
   gates: [],
   obstacles: [],
   referencePoints: [],
@@ -35,6 +36,8 @@ const getters = {
   arTags: (fieldState:FieldState):ArTag[] => fieldState.arTags,
 
   canvasHeight: (fieldState:FieldState):number => fieldState.canvasHeight,
+
+  falseArTags: (fieldState:FieldState):ArTag[] => fieldState.falseArTags,
 
   fieldCenterOdom: (fieldState:FieldState):Odom => fieldState.centerOdom,
 
@@ -135,6 +138,10 @@ const mutations = {
     fieldState.arTags = newArTags;
   },
 
+  setFalseArTag: (fieldState:FieldState, newArTags:ArTag[]):void => {
+    fieldState.falseArTags = newArTags;
+  },
+
   setFieldCenter: (fieldState:FieldState, newFieldCenter:Odom):void => {
     Object.assign(fieldState.centerOdom, newFieldCenter);
   },
@@ -145,6 +152,7 @@ const mutations = {
 
   setFieldState: (fieldState:FieldState, newState:FieldState):void => {
     fieldState.arTags = newState.arTags;
+    fieldState.falseArTags = newState.falseArTags;
     Object.assign(fieldState.centerOdom, newState.centerOdom);
     fieldState.gates = newState.gates;
     fieldState.obstacles = newState.obstacles;

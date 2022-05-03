@@ -377,6 +377,7 @@ export function getGaussianThres(percent:number):number {
   const percentFactor = 100.0;
   const divisor = 10;
   const factor = percentFactor / divisor; // 10
+
   // check and invert the values of z scores
   const neg = -1;
   let indZscore = percent / factor;

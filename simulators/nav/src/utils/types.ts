@@ -66,6 +66,7 @@ export interface FieldState {
   arTags:ArTag[];
   canvasHeight:number; /* pixels */
   centerOdom:Odom;
+  falseArTags:ArTag[];
   gates:Gate[];
   obstacles:Obstacle[];
   referencePoints:Odom[];
