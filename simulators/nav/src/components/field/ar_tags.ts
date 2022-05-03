@@ -6,13 +6,17 @@ import {
   ArTag,
   Gate,
   Odom,
-  Point2D
+  Point2D,
+  FieldOfViewOptions
 } from '../../utils/types';
 import {
   compassModDeg,
   degToRad,
-  odomToCanvas
+  odomToCanvas,
+  randnBm,
+  getGaussianThres
 } from '../../utils/utils';
+import { state } from '../../store/modules/simulatorState';
 
 /**************************************************************************************************
  * Constants
@@ -48,8 +52,14 @@ export default class CanvasArTags {
   /* GPS point of the center of the canvas */
   private canvasCent!:Odom;
 
+  /* Location of the rover */
+  private currOdom!:Odom;
+
   /* Canvas context */
   private ctx!:CanvasRenderingContext2D;
+
+  /* Field of view options */
+  private fov!:FieldOfViewOptions;
 
   /* list of all gates on the field */
   private gates!:Gate[];
@@ -65,14 +75,18 @@ export default class CanvasArTags {
    ************************************************************************************************/
   /* Initialize CanvasArTags instance by calculating scaled dimensions. */
   constructor(
-      posts:ArTag[],
-      gates:Gate[],
-      canvasCent:Odom,
-      scale:number /* pixels/meter */
+    canvasCent:Odom,
+    currOdom:Odom,
+    fov:FieldOfViewOptions,
+    gates:Gate[],
+    posts:ArTag[],
+    scale:number /* pixels/meter */
   ) {
-    this.posts = posts;
-    this.gates = gates;
     this.canvasCent = canvasCent;
+    this.currOdom = currOdom;
+    this.fov = fov;
+    this.gates = gates;
+    this.posts = posts;
     this.scale = scale;
     this.scaledPostSideLen = this.scale * POST.sideLen;
   } /* constructor() */
@@ -114,6 +128,13 @@ export default class CanvasArTags {
       this.ctx.rotate(-degToRad(gate.orientation));
       this.ctx.translate(-loc.x, -loc.y);
     });
+
+    /* Translate canvas to rover's position */
+    const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
+    this.ctx.translate(loc.x, loc.y);
+    this.ctx.rotate(degToRad(this.currOdom.bearing_deg));
+
+    this.drawFalsePos(canvas);
   } /* drawArTags() */
 
   /************************************************************************************************
@@ -219,4 +240,39 @@ export default class CanvasArTags {
       this.ctx.stroke();
     }
   } /* drawTriangle() */
+
+  /* False Positives */
+  private drawFalsePos(canvas:HTMLCanvasElement):void {
+    const max:number = state.simSettings.maxFalsePos;
+
+    // for each false positive, generate and display on canvas
+    const thres = getGaussianThres(state.simSettings.noiseFalsePosPercent);
+    for (let i = 0; i < max; i += 1) {
+      const num:number = randnBm(0, 1, 1);
+      const isFalsePos:boolean = num < thres;
+
+      if (isFalsePos) {
+        console.log('is false pos!');
+
+        /* generate r and theta */
+        const r:number = randnBm(0, this.fov.depth, 1);
+        const theta:number = randnBm(0, this.fov.angle, 1);
+        const half:number = this.fov.angle / 2;
+        const diff:number = 90 - half;
+        const angle:number = theta + diff;
+
+        // convert r and theta to rectangular coordinates in meters
+        const xCoordMeters:number = r * Math.cos(angle * Math.PI / 180.0);
+        const yCoordmeters:number = r * Math.sin(angle * Math.PI / 180.0);
+
+        this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        const pCanvas:Point2D = { x: xCoordMeters * this.scale, y: yCoordmeters * this.scale };
+
+        // draw False Positive point directly
+        const dimension = 10;
+        this.ctx.fillStyle = 'red';
+        this.ctx.fillRect(pCanvas.x, -pCanvas.y, dimension, dimension);
+      }
+    }
+  }
 } /* CanvasArTags */

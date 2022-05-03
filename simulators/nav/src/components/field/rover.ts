@@ -12,11 +12,8 @@ import {
   compassToCanvasRad,
   degToRad,
   odomToCanvas,
-  randnBm,
-  getGaussianThres
 } from '../../utils/utils';
-import { ROVER, Zscores } from '../../utils/constants';
-import { state } from '../../store/modules/simulatorState';
+import { ROVER } from '../../utils/constants';
 
 /**************************************************************************************************
  * Constants
@@ -56,6 +53,9 @@ export default class CanvasRover {
   /* Canvas context */
   private ctx!:CanvasRenderingContext2D;
 
+  /* Enable the FOV visualization tool */
+  private enableFOVView!:boolean;
+
   /* Field of view options */
   private fov!:FieldOfViewOptions;
 
@@ -68,10 +68,11 @@ export default class CanvasRover {
   /* Whether or not to draw the rover's path */
   private pathVisible!:boolean;
 
+  /* Function to push an area to the rover's FOV converage */
+  private pushToFOVAreaPath!:(area:Path2D)=>void;
+
   /* Function to push a point to the rover's path */
   private pushToPath!:(currLoc:Odom)=>void;
-
-  private pushToFOVAreaPath!:(area:Path2D)=>void;
 
   /* scale of the canvas in pixels/meter */
   private scale!:number;
@@ -79,25 +80,22 @@ export default class CanvasRover {
   /* Current position of the ZED Gimbal */
   private zedGimbalPos!:ZedGimbalPosition;
 
-  /* Enable the FOV visualization tool */
-  private enableFOVView!:boolean;
-
   /************************************************************************************************
    * Public Methods
    ************************************************************************************************/
   /* Initialize CanvasRover instance by calculating scaled dimensions. */
   constructor(
-      currOdom:Odom,
-      canvasCent:Odom,
-      scale:number, /* pixels/meter */
-      path:Odom[],
-      FOVAreaPath:Path2D,
-      fov:FieldOfViewOptions,
-      pathVisible:boolean,
-      pushToPath:(currLoc:Odom)=>void,
-      pushToFOVAreaPath:(area:Path2D)=>void,
-      zedGimbalPos:ZedGimbalPosition,
-      enableFOVView:boolean
+    canvasCent:Odom,
+    currOdom:Odom,
+    enableFOVView:boolean,
+    FOVAreaPath:Path2D,
+    fov:FieldOfViewOptions,
+    path:Odom[],
+    pathVisible:boolean,
+    pushToFOVAreaPath:(area:Path2D)=>void,
+    pushToPath:(currLoc:Odom)=>void,
+    scale:number, /* pixels/meter */
+    zedGimbalPos:ZedGimbalPosition
   ) {
     this.currOdom = currOdom;
     this.canvasCent = canvasCent;
@@ -135,8 +133,6 @@ export default class CanvasRover {
     /* get canvas context */
     this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-    const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
-
     /* Draw FOV */
     if (this.fov.visible) {
       this.drawFov(canvas);
@@ -147,16 +143,16 @@ export default class CanvasRover {
       this.drawPath(canvas);
     }
 
-    /* Draw rover */
+    /* Translate canvas to rover's position */
+    const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
     this.ctx.translate(loc.x, loc.y);
     this.ctx.rotate(degToRad(this.currOdom.bearing_deg));
 
+    /* Draw rover */
     this.drawBody();
     this.drawEbox();
     this.drawWheels();
     this.drawZed();
-
-    this.drawFalsePos(canvas);
 
     this.ctx.rotate(-degToRad(this.currOdom.bearing_deg));
     this.ctx.translate(-loc.x, -loc.y);
@@ -317,41 +313,5 @@ export default class CanvasRover {
       { x:  distToWheel.x, y: -distToWheel.y },
       { x:  distToWheel.x, y:  distToWheel.y }
     ];
-  }
-
-  /* False Positives */
-  private drawFalsePos(canvas:HTMLCanvasElement):void {
-    const max:number = state.simSettings.maxFalsePos;
-
-    // for each false positive, generate and display on canvas
-    const thres = getGaussianThres(state.simSettings.noiseFalsePosPercent);
-    for (let i = 0; i < max; i += 1) {
-      const num:number = randnBm(0, 1, 1);
-
-      const isFalsePos:boolean = num < thres;
-
-      if (isFalsePos) {
-        console.log('is false pos!');
-
-        /* generate r and theta */
-        const r:number = randnBm(0, this.fov.depth, 1);
-        const theta:number = randnBm(0, this.fov.angle, 1);
-        const half:number = this.fov.angle / 2;
-        const diff:number = 90 - half;
-        const angle:number = theta + diff;
-
-        // convert r and theta to rectangular coordinates in meters
-        const xCoordMeters:number = r * Math.cos(angle * Math.PI / 180.0);
-        const yCoordmeters:number = r * Math.sin(angle * Math.PI / 180.0);
-
-        this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-        const pCanvas:Point2D = { x: xCoordMeters * this.scale, y: yCoordmeters * this.scale };
-
-        // draw False Positive point directly
-        const dimension = 10;
-        this.ctx.fillStyle = 'red';
-        this.ctx.fillRect(pCanvas.x, -pCanvas.y, dimension, dimension);
-      }
-    }
   }
 } /* CanvasRover */

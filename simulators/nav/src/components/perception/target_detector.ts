@@ -25,8 +25,7 @@ import { Interval, OpenIntervalHeap } from './open_interval_heap';
 import {
   PERCEPTION,
   POST,
-  ROVER,
-  Zscores
+  ROVER
 } from '../../utils/constants';
 import { state } from '../../store/modules/simulatorState';
 
