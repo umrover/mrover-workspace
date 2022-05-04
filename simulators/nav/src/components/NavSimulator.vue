@@ -383,10 +383,10 @@ export default class NavSimulator extends Vue {
 
       /* Subscribed LCM message received */
       (msg) => {
-        if (msg.topic === '/auton_drive_control') {
+        if (msg.topic === '/autonomous') {
           this.setJoystick({
-            forward_back: msg.message.left_percent_velocity,
-            left_right: msg.message.right_percent_velocity
+            forward_back: msg.message.forward_back,
+            left_right: msg.message.left_right
           });
           if (!this.paused) {
             this.applyJoystickCmd();
