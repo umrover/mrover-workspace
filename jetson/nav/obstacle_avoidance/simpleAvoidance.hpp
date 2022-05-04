@@ -1,25 +1,20 @@
-#ifndef SIMPLE_AVOIDANCE_HPP
-#define SIMPLE_AVOIDANCE_HPP
+#pragma once
 
+#include "environment.hpp"
 #include "obstacleAvoidanceStateMachine.hpp"
 
 // This class implements the logic for the simple obstacle avoidance algorithm.
 // If an obstacle is seen, create an avoidance point using trigonometry with the angle turned and
 // distance from obstacle.
-class SimpleAvoidance : public ObstacleAvoidanceStateMachine
-{
+class SimpleAvoidance : public ObstacleAvoidanceStateMachine {
 public:
-    SimpleAvoidance( StateMachine* roverStateMachine, Rover* rover, const rapidjson::Document& roverConfig );
+    SimpleAvoidance(std::weak_ptr<StateMachine> roverStateMachine, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
-    ~SimpleAvoidance();
+    ~SimpleAvoidance() override;
 
-    NavState executeTurnAroundObs( Rover* rover, const rapidjson::Document& roverConfig );
+    NavState executeTurnAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) override;
 
+    NavState executeDriveAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) override;
 
-    NavState executeDriveAroundObs( Rover* rover, const rapidjson::Document& roverConfig );
-
-
-    Odometry createAvoidancePoint( Rover* rover, const double distance );
+    Odometry createAvoidancePoint(std::shared_ptr<Rover> rover, double distance) override;
 };
-
-#endif //SIMPLE_AVOIDANCE_HPP
