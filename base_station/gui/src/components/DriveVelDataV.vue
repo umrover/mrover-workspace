@@ -29,8 +29,8 @@
     </tr>
     <tr>
       <td class = "tableElement">Velocity</td>
-      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity.toFixed(2)}} m/sec</td>
-      <td class = "tableElement">{{drive_vel_data.frontRight.velocity.toFixed(2)}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.frontRight.velocity}} m/sec</td>
     </tr>
     <tr class="bold">
       <td class = "tableElement">Middle</td>
@@ -44,8 +44,8 @@
     </tr>
     <tr>
       <td class = "tableElement">Velocity</td>
-      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity.toFixed(2)}} m/sec</td>
-      <td class = "tableElement">{{drive_vel_data.middleRight.velocity.toFixed(2)}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.middleRight.velocity}} m/sec</td>
     </tr>
     <tr class="bold">
       <td class = "tableElement">Back</td>
@@ -59,8 +59,8 @@
     </tr>
     <tr>
       <td class = "tableElement">Velocity</td>
-      <td class = "tableElement">{{drive_vel_data.backLeft.velocity.toFixed(2)}} m/sec</td>
-      <td class = "tableElement">{{drive_vel_data.backRight.velocity.toFixed(2)}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.backLeft.velocity}} m/sec</td>
+      <td class = "tableElement">{{drive_vel_data.backRight.velocity}} m/sec</td>
     </tr>
   </tbody>
   </table>

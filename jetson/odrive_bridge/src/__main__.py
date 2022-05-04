@@ -304,10 +304,8 @@ def publish_encoder_helper(axis):
     msg = DriveVelData()
 
     usb_lock.acquire()
-
-    direction_multiplier = -1
-    msg.current_amps = modrive.get_iq_measured(axis) * direction_multiplier
-    msg.vel_m_s = modrive.get_vel_estimate(axis) * direction_multiplier
+    msg.current_amps = modrive.get_iq_measured(axis)
+    msg.vel_m_s = modrive.get_vel_estimate(axis)
     usb_lock.release()
 
     motor_map = {(Axis.LEFT, 0): 0, (Axis.RIGHT, 0): 1,
@@ -435,9 +433,9 @@ class Modrive:
             return self.right_axis.motor.current_control.Iq_measured
 
     def get_vel_estimate(self, axis):
-        if (axis == Axis.LEFT):
+        if (axis == "LEFT"):
             return self.left_axis.encoder.vel_estimate * self.TURNS_TO_M_S_MULTIPLIER
-        elif (axis == Axis.RIGHT):
+        elif(axis == "RIGHT"):
             return self.right_axis.encoder.vel_estimate * -self.TURNS_TO_M_S_MULTIPLIER
 
     def idle(self):

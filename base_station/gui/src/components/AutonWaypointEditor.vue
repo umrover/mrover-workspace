@@ -119,7 +119,7 @@ export default {
       route: [],
 
       autonButtonColor: "red",
-      waitingForNav: false,
+      waitingForNav: false
 
     }
   },
@@ -307,7 +307,6 @@ export default {
   computed: {
     ...mapGetters('autonomy', {
       autonEnabled: 'autonEnabled',
-      highlightedWaypoint: 'highlightedWaypoint',
       odom_format: 'odomFormat',
       clickPoint: "clickPoint"
     }),
