@@ -252,7 +252,7 @@ export default class Perception extends Vue {
     }
 
     /* Recompute targetList LCM */
-    const targetList:TargetListMessage = this.targetDetector.computeTargetList();
+    const targetList:TargetListMessage = this.targetDetector.computeTargetList(this.falseArTags);
     this.setTargetList(targetList);
   } /* computeVisibleTargets() */
 
@@ -269,7 +269,7 @@ export default class Perception extends Vue {
     this.computeVisibleObstacles();
 
     this.targetDetector = new TargetDetector(this.currOdom, this.zedGimbalPos, this.arTags,
-                                             this.falseArTags, this.gates, this.fieldOfViewOptions,
+                                             this.gates, this.fieldOfViewOptions,
                                              this.fieldCenterOdom);
     this.computeVisibleTargets();
   } /* created() */

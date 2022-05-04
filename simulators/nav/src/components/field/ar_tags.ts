@@ -14,7 +14,8 @@ import {
   degToRad,
   odomToCanvas,
   randnBm,
-  getGaussianThres
+  getGaussianThres,
+  canvasToOdom
 } from '../../utils/utils';
 import { state } from '../../store/modules/simulatorState';
 
@@ -298,6 +299,7 @@ export default class CanvasArTags {
         const randIdx = Math.floor(Math.random() * this.arTags.length);
 
         const newFalseArTag:ArTag = { ...this.arTags[randIdx] };
+        newFalseArTag.odom = canvasToOdom(pCanvas, this.fieldSize, this.scale, this.canvasCent);
         this.falseArTags.push(newFalseArTag);
 
         // draw False Positive point directly

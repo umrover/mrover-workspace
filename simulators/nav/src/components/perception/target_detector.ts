@@ -40,9 +40,6 @@ export default class TargetDetector {
   /* Current rover GPS location */
   private currOdom!:Odom;
 
-  /* list of all ar tags on field */
-  private falseArTags!:ArTag[];
-
   /* GPS point of the center of the canvas */
   private fieldCenterOdom!:Odom;
 
@@ -72,7 +69,6 @@ export default class TargetDetector {
       currOdom:Odom,
       zedGimbalPos:ZedGimbalPosition,
       arTags:ArTag[],
-      falseArTags:ArTag[],
       gates:Gate[],
       fov:FieldOfViewOptions,
       fieldCenterOdom:Odom
@@ -80,7 +76,6 @@ export default class TargetDetector {
     this.currOdom = currOdom;
     this.zedGimbalPos = zedGimbalPos;
     this.arTags = arTags;
-    this.falseArTags = falseArTags;
     this.gates = gates;
     this.fov = fov;
     this.fieldCenterOdom = fieldCenterOdom;
@@ -90,9 +85,13 @@ export default class TargetDetector {
   } /* constructor() */
 
   /* Calculate the TargetList LCM message. */
-  computeTargetList():TargetListMessage {
+  computeTargetList(falseArTags:ArTag[]):TargetListMessage {
     /* Step 1: filter out targets not in field of view */
     this.visiblePosts = this.posts.filter((post, i) => this.isPostVisible(post, i));
+    const visibleFalsePosts:ArTag[] = falseArTags.filter((post, i) => this.isPostVisible(post, i));
+    this.visiblePosts.concat(visibleFalsePosts);
+    console.log('falseArTags len: ', falseArTags.length);
+    console.log('posts len: ', this.visiblePosts.length);
 
     /* Step 2: Sort visible posts from left to right */
     this.visiblePosts.sort((post1:ArTag, post2:ArTag) => arTagCompare(this.zedOdom, post1, post2));
@@ -167,7 +166,7 @@ export default class TargetDetector {
    ************************************************************************************************/
   /* Get the list of posts from the lists of ar tags and gates. */
   private getPosts():void {
-    this.posts = Object.assign([], this.arTags, this.falseArTags);
+    this.posts = Object.assign([], this.arTags);
     this.gates.forEach((gate) => {
       const rightPostLoc:Odom = calcRelativeOdom(gate.odom,
                                                  gate.orientation,
