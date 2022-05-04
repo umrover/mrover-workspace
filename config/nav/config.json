@@ -1,9 +1,9 @@
 {
 	"bearingPid":
 	{
-		"kP": 0.1,
-		"kI": 0.01,
-		"kD": 0.0055
+		"kP": 0.05,
+		"kI": 0.0,
+		"kD": 0.0
 	},
 
 	"distancePid":
@@ -11,6 +11,11 @@
 		"kP": 0.2,
 		"kI": 0,
 		"kD": 0
+	},
+
+	"gateAdjustment":
+	{
+		"adjustmentDistance": 0.3
 	},
 
 	"joystick":
@@ -22,13 +27,17 @@
 
 	"navThresholds":
 	{
-		"turningBearing": 20,
-		"drivingBearing": 50,
-		"waypointDistance": 2.0,
-		"targetDistance": 1.0,
+		"turningBearing": 10,
+		"drivingBearing": 35,
+		"waypointDistance": 1.0,
+		"targetDistance": 1.5,
 		"minTurningEffort": 0.25,
 		"gateCenteredAngleDiff": 20,
-		"obstacleDistanceThreshold": 2.5
+		"obstacleDistanceThreshold": 2.5,
+		"cacheMissMax": 20,
+		"cacheHitMax":3,
+		"noTargetDist": -1,
+		"waypointRadius": 20.0
 	},
 
 	"roverMeasurements":
@@ -46,25 +55,33 @@
 	"lcmChannels":
 	{
 		"navStatusChannel": "/nav_status",
-		"repeaterDropInitChannel": "/rr_drop_init",
-		"repeaterDropCompleteChannel": "/rr_drop_complete",
 		"joystickChannel": "/autonomous",
+		"autonDriveControlChannel": "/auton_drive_control",
 		"zedGimbalCommand": "/zed_gimbal_cmd",
-		"zedGimbalPosition": "/zed_gimbal_data"
+		"zedGimbalPosition": "/zed_gimbal_data",
+		"gatePathChannel": "/projected_points", 
+		"targetBearingChannel": "/target_bearing"
 	},
 
 	"radioRepeaterThresholds":
 	{
 		"signalStrengthCutOff": 30.0,
-		"lowSignalWaitTime": 3
+		"lowSignalWaitTime": 3,
+		"projectedPointsChannel": "/projected_points"
 	},
 
 	"search":
 	{
 		"order": [0, 1],
 		"numSearches": 2,
-		"bailThresh": 10.0,
+		"bailThresh": 20.0,
 		"searchWaitStepSize": 90.0,
-		"searchWaitTime": 1.0
+		"searchWaitTime": 1.0,
+		"spiralSearchPoints": "jetson/nav/search/spiral_search_points.txt"
+	},
+
+	"gate": {
+		"filterSize": 8,
+        "filterProportion": 0.75
 	}
 }

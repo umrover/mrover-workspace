@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
     <div>
-    <p>/Obstacle Data: Detected: {{this.Obstacle.detected}} &nbsp;Bearing: {{this.Obstacle.bearing}} &nbsp;Distance: {{this.Obstacle.distance}}</p>
+    <p>Obstacle Data: Detected: {{this.Obstacle.detected}} &nbsp;Bearing: {{this.Obstacle.bearing}} &nbsp;Distance: {{this.Obstacle.distance}}</p>
     </div>
   </div>
 </template>

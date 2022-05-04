@@ -1,90 +1,68 @@
-#ifndef GATE_STATE_MACHINE_HPP
-#define GATE_STATE_MACHINE_HPP
+#pragma once
 
 #include <deque>
+#include <memory>
+
+#include <eigen3/Eigen/Core>
 
 #include "../rover.hpp"
+#include "../filter.hpp"
 #include "rover_msgs/Odometry.hpp"
-// #include "../gate_search/gateStateMachine.hpp"
+
+using namespace rover_msgs;
 
 class StateMachine;
 
-class GateStateMachine
-{
+class GateStateMachine {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    GateStateMachine( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig );
+    GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig);
 
-    virtual ~GateStateMachine();
+    ~GateStateMachine();
 
     NavState run();
 
-    virtual void initializeSearch() = 0;
+    void updateGateTraversalPath();
 
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
-    /* saved last known location of first tag of a gate */
-    Waypoint lastKnownPost1;
-
-    /* saved last known location of second tag of a gate */
-    Waypoint lastKnownPost2;
-
-    // Queue of search points
-    deque<Odometry> mGateSearchPoints;
-
-private:
-    /*************************************************************************/
-    /* Private Member Functions */
-    /*************************************************************************/
-    NavState executeGateSpin();
-
-    NavState executeGateSpinWait();
-
-    NavState executeGateTurn();
-
-    NavState executeGateDrive();
-
-    NavState executeGateTurnToCentPoint();
-
-    NavState executeGateDriveToCentPoint();
-
-    NavState executeGateFace();
-
-    NavState executeGateShimmy();
-
-    NavState executeGateDriveThrough();
-
-    void updatePost2Info();
-
-    void calcCenterPoint();
-
-    /*************************************************************************/
-    /* Private Member Variables */
-    /*************************************************************************/
-    // Pointer to rover State Machine to access member functions
-    StateMachine* mRoverStateMachine;
-
-    // Reference to config variables
-    const rapidjson::Document& mRoverConfig;
-
-    // Points in frnot of center of gate
-    Odometry centerPoint1;
-    Odometry centerPoint2;
-
-    //
-    bool CP1ToCP2CorrectDir;
 
 protected:
     /*************************************************************************/
     /* Protected Member Variables */
     /*************************************************************************/
-    // Pointer to rover object
-    Rover* mRover;
+
+    // Pointer to rover State Machine to access member functions
+    std::weak_ptr<StateMachine> mStateMachine;
+
+private:
+    /*************************************************************************/
+    /* Private Member Functions */
+    /*************************************************************************/
+
+    void publishGatePath();
+
+    Odometry getPointToFollow(Odometry curRoverLocation);
+
+    /*************************************************************************/
+    /* Private Member Variables */
+    /*************************************************************************/
+    const rapidjson::Document& mConfig;
+
+    ProjectedPoints mProjectedPoints{};
+
+    std::deque<Odometry> mPath;
+
+    size_t mPathIndex = 0;
+
+    void makeDualSegmentPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment>& env);
+
+    void makeSpiderPath(std::shared_ptr<Rover> const& rover, std::shared_ptr<Environment> const& env);
+
+    bool isParallelToGate();
 };
 
-GateStateMachine* GateFactory( StateMachine* stateMachine, Rover* rover, const rapidjson::Document& roverConfig );
-
-#endif //GATE_STATE_MACHINE_HPP
+std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig);

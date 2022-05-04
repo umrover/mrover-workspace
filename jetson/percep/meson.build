@@ -1,4 +1,4 @@
-project('jetson_percep', 'cpp', default_options : ['cpp_std=c++14'])
+project('jetson_percep', 'cpp', default_options : ['cpp_std=c++14', 'buildtype=release'])
 
 opencv = dependency('opencv')
 lcm = dependency('lcm')
