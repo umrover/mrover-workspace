@@ -63,7 +63,7 @@
             </div>
           </div>
           <div class="noiseFalsePos">
-            <p>False Positives Noise (%):</p>
+            <p> False Positives Noise (%):</p>
             <NumberInput
               :val.sync="noiseFalsePosPercentIn"
               :precision="2"
@@ -73,7 +73,7 @@
             />
           </div>
           <div class="maxFalsePos">
-            <p>Max # of False Positives:</p>
+            <p> Max # of False Positives:</p>
             <NumberInput
               :val.sync="maxFalsePosIn"
               :min="0"

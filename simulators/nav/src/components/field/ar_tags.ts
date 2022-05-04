@@ -14,7 +14,6 @@ import {
   degToRad,
   odomToCanvas,
   randnBm,
-  randnInt,
   getGaussianThres
 } from '../../utils/utils';
 import { state } from '../../store/modules/simulatorState';
@@ -40,7 +39,7 @@ const ARROW_OFFSET_Y = 10;
 const VISUAL_SIDE_LEN = 50;
 
 /* Post visual (triangle around drawn post) dimensions in pixels */
-// const SMALLSIDE = 25;
+const SMALLSIDELEN = 25;
 
 /* Class for drawing ar tags (and gates) on the field canvas. */
 export default class CanvasArTags {
@@ -71,6 +70,9 @@ export default class CanvasArTags {
   /* Field of view options */
   private fov!:FieldOfViewOptions;
 
+  /* Field of view options */
+  private fieldSize!:number;
+
   /* list of all gates on the field */
   private gates!:Gate[];
 
@@ -92,6 +94,7 @@ export default class CanvasArTags {
       canvasCent:Odom,
       currOdom:Odom,
       fov:FieldOfViewOptions,
+      fieldSize:number,
       gates:Gate[],
       posts:ArTag[],
       setFalseArTag:(newArTags:ArTag[])=>void,
@@ -101,6 +104,7 @@ export default class CanvasArTags {
     this.canvasCent = canvasCent;
     this.currOdom = currOdom;
     this.fov = fov;
+    this.fieldSize = fieldSize;
     this.gates = gates;
     this.posts = posts;
     this.setFalseArTag = setFalseArTag;
@@ -129,10 +133,10 @@ export default class CanvasArTags {
       const loc:Point2D = odomToCanvas(post.odom, this.canvasCent, canvas.height, this.scale);
       this.ctx.translate(loc.x, loc.y);
       if (post.isHidden === true) {
-        this.drawPost(String(i), post.id, 0, '#d2b48c');
+        this.drawPost(String(i), post.id, 0, VISUAL_SIDE_LEN, '#d2b48c', true);
       }
       else {
-        this.drawPost(String(i), post.id, 0, '#bffcc6');
+        this.drawPost(String(i), post.id, 0, VISUAL_SIDE_LEN, '#bffcc6', true);
       }
       this.ctx.translate(-loc.x, -loc.y);
     });
@@ -170,13 +174,13 @@ export default class CanvasArTags {
     /* Draw left gate post. */
     this.ctx.translate(0, gateWidthPx / 2);
     this.ctx.rotate(degToRad(-90));
-    this.drawPost('', gate.leftId, gate.orientation - 90, '#ff9');
+    this.drawPost('', gate.leftId, gate.orientation - 90, VISUAL_SIDE_LEN, '#ff9', true);
     this.ctx.rotate(degToRad(90));
 
     /* Draw right gate post. */
     this.ctx.translate(0, -gateWidthPx);
     this.ctx.rotate(degToRad(-90));
-    this.drawPost('', gate.rightId, gate.orientation - 90, '#9df');
+    this.drawPost('', gate.rightId, gate.orientation - 90, VISUAL_SIDE_LEN, '#9df', true);
     this.ctx.rotate(degToRad(90));
     this.ctx.translate(0, gateWidthPx / 2);
 
@@ -217,10 +221,11 @@ export default class CanvasArTags {
     }
   } /* drawGate() */
 
-  /* Draw a single post (i.e. gate post or ar tag) on the canvas at the given angle (in degrees). */
-  private drawPost(label:string, id:number, angle:number, color:string):void {
+  /* Draw a single post (i.e. gate post or ar tag) on the canvas at the given angle (in degrees) */
+  private drawPost(label:string, id:number, angle:number, triSideLen:number, color:string,
+      showID:boolean):void {
     /* Draw visual triangle so tag is visable even when zoomed out */
-    this.drawTriangle(VISUAL_SIDE_LEN, color, false);
+    this.drawTriangle(triSideLen, color, false);
 
     /* Draw actual sized triangle */
     this.drawTriangle(this.scaledPostSideLen, color);
@@ -229,17 +234,19 @@ export default class CanvasArTags {
     this.ctx.rotate(degToRad(-angle));
     this.ctx.textAlign = 'left';
     this.ctx.textBaseline = 'bottom';
-    const sideLen:number = Math.max(this.scaledPostSideLen, VISUAL_SIDE_LEN);
+    const sideLen:number = Math.max(this.scaledPostSideLen, triSideLen);
     const offsetX:number = sideLen * Math.cos(degToRad(POST_INNER_ANGLE));
     this.ctx.fillStyle = 'black';
     this.ctx.fillText(label, offsetX, 0);
 
     /* Annotate tag id */
-    this.ctx.textAlign = 'center';
-    this.ctx.textBaseline = 'top';
-    const offsetY:number = sideLen * Math.sin(degToRad(POST_INNER_ANGLE)) * 1;
-    this.ctx.fillText(`ID: ${id}`, 0, offsetY);
-    this.ctx.rotate(degToRad(angle));
+    if (showID) {
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'top';
+      const offsetY:number = sideLen * Math.sin(degToRad(POST_INNER_ANGLE)) * 1;
+      this.ctx.fillText(`ID: ${id}`, 0, offsetY);
+      this.ctx.rotate(degToRad(angle));
+    }
   } /* drawPost() */
 
   /* Draw a triangle on the canvas with a side lenght of sideLen pixels. */
@@ -264,7 +271,7 @@ export default class CanvasArTags {
 
   /* False Positives */
   private drawFalsePos(canvas:HTMLCanvasElement):void {
-    const max:number = state.simSettings.maxFalsePos;
+    const max:number = Math.min(state.simSettings.maxFalsePos, this.arTags.length);
 
     // for each false positive, generate and display on canvas
     const thres = getGaussianThres(state.simSettings.noiseFalsePosPercent);
@@ -287,17 +294,18 @@ export default class CanvasArTags {
         this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
         const pCanvas:Point2D = { x: xCoordMeters * this.scale, y: yCoordmeters * this.scale };
 
-        // draw False Positive point directly
+        // pick a random ar tag and push it to falseArTags
+        const randIdx = Math.floor(Math.random() * this.arTags.length);
 
-        this.ctx.fillStyle = 'red';
-        const dimension = 25;
-        this.ctx.fillRect(pCanvas.x, -pCanvas.y, dimension, dimension);
-
-        const randnInd = randnInt(0, this.arTags.length - 1);
-        const newFalseArTag:ArTag = { ...this.arTags[randnInd] };
-
-        // push to falseArtags
+        const newFalseArTag:ArTag = { ...this.arTags[randIdx] };
         this.falseArTags.push(newFalseArTag);
+
+        // draw False Positive point directly
+        this.ctx.translate(pCanvas.x, -pCanvas.y);
+        this.drawPost(String(newFalseArTag.id), newFalseArTag.id, 0, SMALLSIDELEN, 'red', false);
+        this.ctx.translate(-pCanvas.x, pCanvas.y);
+
+        // this.ctx.fillRect(pCanvas.x, -pCanvas.y, SMALLSIDELEN, SMALLSIDELEN);
       }
     }
 

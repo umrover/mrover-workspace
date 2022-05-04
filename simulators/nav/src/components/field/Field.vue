@@ -286,7 +286,7 @@ export default class Field extends Vue {
   /* Object for drawing ar tags on canvas */
   private get canvasArTags():CanvasArTags {
     return new CanvasArTags(this.arTags, this.fieldCenterOdom, this.currOdom,
-                            this.fieldOfViewOptions, this.gates, this.arTags,
+                            this.fieldOfViewOptions, this.fieldSize, this.gates, this.arTags,
                             this.setFalseArTag, this.scale);
   }
 
