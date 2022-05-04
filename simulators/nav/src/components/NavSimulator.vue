@@ -440,7 +440,6 @@ export default class NavSimulator extends Vue {
       /* Subscriptions */
       [
         { topic: '/autonomous',     type: 'Joystick' },
-        { topic: '/auton_drive_control',     type: 'AutonDriveControl' },
         { topic: '/nav_status',     type: 'NavStatus' },
         { topic: '/obstacle',       type: 'Obstacle' },
         { topic: '/odometry',       type: 'Odometry' },
