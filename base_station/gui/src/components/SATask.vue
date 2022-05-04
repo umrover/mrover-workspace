@@ -37,6 +37,10 @@
 import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
 import DriveControls from './DriveControls.vue'
+<<<<<<< HEAD
+=======
+import Raman from './Raman.vue'
+>>>>>>> [teleop, nav, percep, loc, sim] auton integration (#962)
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import DriveVelDataH from './DriveVelDataH.vue'
 import ScoopUV from './ScoopUV.vue'

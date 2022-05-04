@@ -133,8 +133,8 @@ int main() {
         DoubleTrack(&detector.getAlvarParams()->errorCorrectionRate).setup("errorCorrectionRate", "ARUCO Debug", 1);
     #endif
 
-  /* --- Main Processing Stuff --- */
-  while (true) {
+    /* --- Main Processing Stuff --- */
+    while (true) {
         //Check to see if we were able to grab the frame
         if (!cam.grab()) break;
 
