@@ -68,7 +68,7 @@ def main():
         elif args.subcommand_name == 'clean':
             clean(ctx)
         elif args.subcommand_name == 'dep':
-            build_deps(ctx, True)
+            build_deps(ctx, False)
         elif args.subcommand_name == 'launch':
             launch_dir(ctx, clean_dir_name(args.sys), args.ssh, args.run, args.launch_opts)
 
