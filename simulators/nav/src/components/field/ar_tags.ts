@@ -1,7 +1,7 @@
 /* This file contains the CanvasArTags class for drawing ar tags and gates on
    the canvas. */
 
-import { POST } from '../../utils/constants';
+import { POST, ROVER } from '../../utils/constants';
 import {
   ArTag,
   Gate,
@@ -39,8 +39,10 @@ const ARROW_OFFSET_Y = 10;
 /* Post visual (triangle around drawn post) dimensions in pixels */
 const VISUAL_SIDE_LEN = 50;
 
-/* Post visual (triangle around drawn post) dimensions in pixels */
+/* False Post visual (triangle around drawn post) dimensions in pixels */
 const SMALLSIDELEN = 25;
+
+const HALFROVERWIDTH = ROVER.width / 2;
 
 /* Class for drawing ar tags (and gates) on the field canvas. */
 export default class CanvasArTags {
@@ -278,15 +280,16 @@ export default class CanvasArTags {
         /* generate r and theta */
         const r:number = Math.random() * this.fov.depth;
         const theta:number = Math.random() * this.fov.angle;
-        const half:number = this.fov.angle / 2;
-        const diff:number = 90 - half;
+        const half:number = this.fov.angle / 2.0;
+        const diff:number = 90.0 - half;
         const angle:number = theta + diff;
 
         // convert r and theta to rectangular coordinates in meters
         const xCoordMeters:number = r * Math.cos(degToRad(angle));
-        const yCoordmeters:number = r * Math.sin(degToRad(angle));
+        const yCoordMetersHelper:number = r * Math.sin(degToRad(angle));
+        const yCoordMeters:number = yCoordMetersHelper + HALFROVERWIDTH;
 
-        const pCanvas:Point2D = { x: xCoordMeters * this.scale, y: yCoordmeters * this.scale };
+        const pCanvas:Point2D = { x: xCoordMeters * this.scale, y: yCoordMeters * this.scale };
 
         // pick a random ar tag and push it to falseArTags
         const randIdx = Math.floor(Math.random() * this.arTags.length);
@@ -303,7 +306,8 @@ export default class CanvasArTags {
 
         // newFalseArTag.odom = canvasToOdom(pCanvas, this.fieldSize, this.scale, this.canvasCent);
         this.falseArTags.push(newFalseArTag);
-        console.log('r: ', r, 'theta: ', theta);
+        console.log('x: ', pCanvas.x, 'y: ', pCanvas.y, 'sideLen: ', this.scaledPostSideLen);
+        console.log('r: ', r, 'theta: ', theta, 'angle: ', angle);
 
         // draw False Positive point directly
         this.ctx.translate(pCanvas.x, -pCanvas.y);
@@ -312,11 +316,6 @@ export default class CanvasArTags {
       }
     }
     this.ctx.restore();
-    this.ctx.fillStyle = 'green';
-    const newp = odomToCanvas(this.falseArTags[0].odom, this.canvasCent, canvas.height, this.scale);
-    this.ctx.fillRect(newp.x, newp.y, SMALLSIDELEN + SMALLSIDELEN, SMALLSIDELEN + SMALLSIDELEN);
-    const x = 100;
-    this.ctx.fillRect(loc.x, loc.y, x, x);
     this.setFalseArTag(this.falseArTags);
   }
 } /* CanvasArTags */

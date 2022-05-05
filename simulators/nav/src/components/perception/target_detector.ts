@@ -89,7 +89,7 @@ export default class TargetDetector {
     /* Step 1: filter out targets not in field of view */
     this.visiblePosts = this.posts.filter((post, i) => this.isPostVisible(post, i));
     const visibleFalsePosts:ArTag[] = falseArTags.filter((post, i) => this.isPostVisible(post, i));
-    this.visiblePosts.push( ...visibleFalsePosts );
+    this.visiblePosts.push(...visibleFalsePosts);
     console.log('falseArTags len: ', falseArTags.length);
     console.log('visiblePosts len: ', this.visiblePosts.length);
     console.log('visibleFalsePosts len: ', visibleFalsePosts.length);
