@@ -134,6 +134,11 @@ void LCMHandler::InternalHandler::refresh_carousel_quad_angles()
 
 void LCMHandler::InternalHandler::refresh_ra_calib_data()
 {
+    if (ControllerMap::check_if_live("RA_B"))
+    {
+        return;
+    }
+
     ControllerMap::controllers["RA_B"]->refresh_calibration_data();
     publish_ra_calib_data();
 }
@@ -153,6 +158,11 @@ void LCMHandler::InternalHandler::refresh_ra_quad_angles()
 
 void LCMHandler::InternalHandler::refresh_sa_calib_data()
 {
+    if (ControllerMap::check_if_live("SA_B"))
+    {
+        return;
+    }
+
     ControllerMap::controllers["SA_B"]->refresh_calibration_data();
     publish_sa_calib_data();
 }
