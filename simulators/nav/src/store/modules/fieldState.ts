@@ -144,6 +144,8 @@ const mutations = {
 
   setFalseArTag: (fieldState:FieldState, newArTags:ArTag[]):void => {
     fieldState.falseArTags = newArTags;
+
+    // newArTags.forEach((val) => fieldState.falseArTags.push({ ...val }));
   },
 
   setFieldCenter: (fieldState:FieldState, newFieldCenter:Odom):void => {

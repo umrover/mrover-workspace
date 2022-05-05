@@ -89,9 +89,11 @@ export default class TargetDetector {
     /* Step 1: filter out targets not in field of view */
     this.visiblePosts = this.posts.filter((post, i) => this.isPostVisible(post, i));
     const visibleFalsePosts:ArTag[] = falseArTags.filter((post, i) => this.isPostVisible(post, i));
-    this.visiblePosts.concat(visibleFalsePosts);
+    this.visiblePosts.push( ...visibleFalsePosts );
     console.log('falseArTags len: ', falseArTags.length);
-    console.log('posts len: ', this.visiblePosts.length);
+    console.log('visiblePosts len: ', this.visiblePosts.length);
+    console.log('visibleFalsePosts len: ', visibleFalsePosts.length);
+    console.log('lat: ', falseArTags[0].odom.latitude_min, 'long: ', falseArTags[0].odom.longitude_min);
 
     /* Step 2: Sort visible posts from left to right */
     this.visiblePosts.sort((post1:ArTag, post2:ArTag) => arTagCompare(this.zedOdom, post1, post2));

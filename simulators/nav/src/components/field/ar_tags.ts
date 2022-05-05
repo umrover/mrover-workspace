@@ -15,7 +15,7 @@ import {
   odomToCanvas,
   randnBm,
   getGaussianThres,
-  canvasToOdom
+  calcRelativeOdom
 } from '../../utils/utils';
 import { state } from '../../store/modules/simulatorState';
 
@@ -71,9 +71,6 @@ export default class CanvasArTags {
   /* Field of view options */
   private fov!:FieldOfViewOptions;
 
-  /* Field of view options */
-  private fieldSize!:number;
-
   /* list of all gates on the field */
   private gates!:Gate[];
 
@@ -95,7 +92,6 @@ export default class CanvasArTags {
       canvasCent:Odom,
       currOdom:Odom,
       fov:FieldOfViewOptions,
-      fieldSize:number,
       gates:Gate[],
       posts:ArTag[],
       setFalseArTag:(newArTags:ArTag[])=>void,
@@ -105,7 +101,6 @@ export default class CanvasArTags {
     this.canvasCent = canvasCent;
     this.currOdom = currOdom;
     this.fov = fov;
-    this.fieldSize = fieldSize;
     this.gates = gates;
     this.posts = posts;
     this.setFalseArTag = setFalseArTag;
@@ -152,15 +147,7 @@ export default class CanvasArTags {
       this.ctx.translate(-loc.x, -loc.y);
     });
 
-    this.ctx.save();
-
-    /* Translate canvas to rover's position */
-    const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
-    this.ctx.translate(loc.x, loc.y);
-    this.ctx.rotate(degToRad(this.currOdom.bearing_deg));
-
     this.drawFalsePos(canvas);
-    this.ctx.restore();
   } /* drawArTags() */
 
   /************************************************************************************************
@@ -273,6 +260,13 @@ export default class CanvasArTags {
   /* False Positives */
   private drawFalsePos(canvas:HTMLCanvasElement):void {
     const max:number = Math.min(state.simSettings.maxFalsePos, this.arTags.length);
+    this.falseArTags = [];
+
+    /* Translate canvas to rover's position */
+    this.ctx.save();
+    const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
+    this.ctx.translate(loc.x, loc.y);
+    this.ctx.rotate(degToRad(this.currOdom.bearing_deg));
 
     // for each false positive, generate and display on canvas
     const thres = getGaussianThres(state.simSettings.noiseFalsePosPercent);
@@ -282,35 +276,47 @@ export default class CanvasArTags {
 
       if (isFalsePos) {
         /* generate r and theta */
-        const r:number = randnBm(0, this.fov.depth, 1);
-        const theta:number = randnBm(0, this.fov.angle, 1);
+        const r:number = Math.random() * this.fov.depth;
+        const theta:number = Math.random() * this.fov.angle;
         const half:number = this.fov.angle / 2;
         const diff:number = 90 - half;
         const angle:number = theta + diff;
 
         // convert r and theta to rectangular coordinates in meters
-        const xCoordMeters:number = r * Math.cos(angle * Math.PI / 180.0);
-        const yCoordmeters:number = r * Math.sin(angle * Math.PI / 180.0);
+        const xCoordMeters:number = r * Math.cos(degToRad(angle));
+        const yCoordmeters:number = r * Math.sin(degToRad(angle));
 
-        this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
         const pCanvas:Point2D = { x: xCoordMeters * this.scale, y: yCoordmeters * this.scale };
 
         // pick a random ar tag and push it to falseArTags
         const randIdx = Math.floor(Math.random() * this.arTags.length);
 
-        const newFalseArTag:ArTag = { ...this.arTags[randIdx] };
-        newFalseArTag.odom = canvasToOdom(pCanvas, this.fieldSize, this.scale, this.canvasCent);
+        // const newFalseArTag:ArTag = { ...this.arTags[randIdx] };
+        const newOdom = calcRelativeOdom(this.currOdom, this.currOdom.bearing_deg + half - theta,
+                                         r, this.canvasCent);
+        const newFalseArTag:ArTag = {
+          id: this.arTags[randIdx].id,
+          odom: newOdom,
+          isHidden: false,
+          orientation: this.arTags[randIdx].orientation
+        };
+
+        // newFalseArTag.odom = canvasToOdom(pCanvas, this.fieldSize, this.scale, this.canvasCent);
         this.falseArTags.push(newFalseArTag);
+        console.log('r: ', r, 'theta: ', theta);
 
         // draw False Positive point directly
         this.ctx.translate(pCanvas.x, -pCanvas.y);
         this.drawPost(String(newFalseArTag.id), newFalseArTag.id, 0, SMALLSIDELEN, 'red', false);
         this.ctx.translate(-pCanvas.x, pCanvas.y);
-
-        // this.ctx.fillRect(pCanvas.x, -pCanvas.y, SMALLSIDELEN, SMALLSIDELEN);
       }
     }
-
+    this.ctx.restore();
+    this.ctx.fillStyle = 'green';
+    const newp = odomToCanvas(this.falseArTags[0].odom, this.canvasCent, canvas.height, this.scale);
+    this.ctx.fillRect(newp.x, newp.y, SMALLSIDELEN + SMALLSIDELEN, SMALLSIDELEN + SMALLSIDELEN);
+    const x = 100;
+    this.ctx.fillRect(loc.x, loc.y, x, x);
     this.setFalseArTag(this.falseArTags);
   }
 } /* CanvasArTags */
