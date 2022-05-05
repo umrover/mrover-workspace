@@ -149,13 +149,13 @@ class ArmControl:
         openloop_msg = RAOpenLoopCmd()
         openloop_msg.throttle = motor_speeds
 
-        lcm_.publish('/ra_openloop_cmd', openloop_msg.encode())
+        lcm_.publish('/ra_open_loop_cmd', openloop_msg.encode())
 
         hand_msg = HandCmd()
         hand_msg.finger = xboxData.y - xboxData.a
         hand_msg.grip = xboxData.b - xboxData.x
 
-        lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+        lcm_.publish('/hand_open_loop_cmd', hand_msg.encode())
 
     def sa_control_callback(self, channel, msg):
         if (self.arm_control_state != "open-loop"):
@@ -173,12 +173,12 @@ class ArmControl:
         openloop_msg = SAOpenLoopCmd()
         openloop_msg.throttle = saMotorsData
 
-        lcm_.publish('/sa_openloop_cmd', openloop_msg.encode())
+        lcm_.publish('/sa_open_loop_cmd', openloop_msg.encode())
 
         foot_msg = FootCmd()
         foot_msg.scoop = xboxData.a - xboxData.y
         foot_msg.microscope_triad = -(xboxData.left_bumper - xboxData.right_bumper)
-        lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
+        lcm_.publish('/foot_open_loop_cmd', foot_msg.encode())
 
     def send_ra_kill(self):
         if self.arm_type != self.ArmType.RA:
@@ -186,12 +186,12 @@ class ArmControl:
 
         arm_motor = RAOpenLoopCmd()
         arm_motor.throttle = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        lcm_.publish('/ra_openloop_cmd', arm_motor.encode())
+        lcm_.publish('/ra_open_loop_cmd', arm_motor.encode())
 
         hand_msg = HandCmd()
         hand_msg.finger = 0
         hand_msg.grip = 0
-        lcm_.publish('/hand_openloop_cmd', hand_msg.encode())
+        lcm_.publish('/hand_open_loop_cmd', hand_msg.encode())
 
     def send_sa_kill(self):
         if self.arm_type != self.ArmType.SA:
@@ -200,12 +200,12 @@ class ArmControl:
         sa_motor = SAOpenLoopCmd()
         sa_motor.throttle = [0.0, 0.0, 0.0, 0.0]
 
-        lcm_.publish('/sa_openloop_cmd', sa_motor.encode())
+        lcm_.publish('/sa_open_loop_cmd', sa_motor.encode())
 
         foot_msg = FootCmd()
         foot_msg.scoop = 0
         foot_msg.microscope_triad = 0
-        lcm_.publish('/foot_openloop_cmd', foot_msg.encode())
+        lcm_.publish('/foot_open_loop_cmd', foot_msg.encode())
 
     def ra_calibration_callback(self, channel, msg):
         if Calibrate.decode(msg).calibrated or self.arm_control_state != 'calibrating':
@@ -214,7 +214,7 @@ class ArmControl:
         ra_openloop_msg = RAOpenLoopCmd()
         ra_openloop_msg.throttle = [0, 1, 0, 0, 0, 0]
 
-        lcm_.publish('/ra_openloop_cmd', ra_openloop_msg.encode())
+        lcm_.publish('/ra_open_loop_cmd', ra_openloop_msg.encode())
 
     def sa_calibration_callback(self, channel, msg):
         if Calibrate.decode(msg).calibrated or self.arm_control_state != 'calibrating':
@@ -223,7 +223,7 @@ class ArmControl:
         sa_openloop_msg = SAOpenLoopCmd()
         sa_openloop_msg.throttle = [0, 1, 0, 0]
 
-        lcm_.publish('/sa_openloop_cmd', sa_openloop_msg.encode())
+        lcm_.publish('/sa_open_loop_cmd', sa_openloop_msg.encode())
 
 
 def main():

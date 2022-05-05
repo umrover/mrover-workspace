@@ -84,7 +84,7 @@ export default {
 
     window.setInterval(() => {
       if (!this.closedLoop) {
-        this.$parent.publish('/carousel_openloop_cmd', {
+        this.$parent.publish('/carousel_open_loop_cmd', {
           'type': 'CarouselOpenLoopCmd',
           'throttle': this.openLoopSpeed
         })
@@ -100,7 +100,7 @@ export default {
 
   methods: {
     publishClosedLoop: function() {
-      this.$parent.publish('/carousel_closedloop_cmd', {
+      this.$parent.publish('/carousel_closed_loop_cmd', {
         'type': 'CarouselPosition',
         'position': sitePositions[this.targetSite]
       })
