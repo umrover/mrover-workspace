@@ -216,7 +216,7 @@ void LCMHandler::InternalHandler::publish_carousel_pos_data()
     float carousel_angle = ControllerMap::controllers["CAROUSEL_MOTOR"]->get_current_angle();
     msg.position = carousel_angle;
     lcm_bus->publish("/carousel_pos_data", &msg);
-    last_calib_data_output_time = NOW;
+    last_heartbeat_output_time = NOW;
 }
 
 void LCMHandler::InternalHandler::publish_ra_calib_data()
