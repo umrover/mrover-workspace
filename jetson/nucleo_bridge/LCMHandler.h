@@ -62,19 +62,31 @@ private:
 
         void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
 
+        void refresh_carousel_calib_data();
+
+        void refresh_carousel_quad_angles();
+
+        void refresh_ra_calib_data();
+
         void refresh_ra_quad_angles();
 
-        void refresh_sa_quad_angles();
+        void refresh_sa_calib_data();
 
-        void refresh_calib_data();
+        void refresh_sa_quad_angles();
 
         void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
 
-        void publish_calib_data();
+        void publish_carousel_calib_data();
+
+        void publish_carousel_pos_data();
+
+        void publish_ra_calib_data();
 
         void publish_ra_pos_data();
+
+        void publish_sa_calib_data();
 
         void publish_sa_pos_data();
 
