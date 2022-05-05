@@ -303,11 +303,7 @@ export default class CanvasArTags {
           isHidden: false,
           orientation: this.arTags[randIdx].orientation
         };
-
-        // newFalseArTag.odom = canvasToOdom(pCanvas, this.fieldSize, this.scale, this.canvasCent);
         this.falseArTags.push(newFalseArTag);
-        console.log('x: ', pCanvas.x, 'y: ', pCanvas.y, 'sideLen: ', this.scaledPostSideLen);
-        console.log('r: ', r, 'theta: ', theta, 'angle: ', angle);
 
         // draw False Positive point directly
         this.ctx.translate(pCanvas.x, -pCanvas.y);

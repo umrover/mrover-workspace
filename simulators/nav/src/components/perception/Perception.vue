@@ -216,7 +216,6 @@ export default class Perception extends Vue {
     /* Recompute targetList LCM */
     this.targetDetector.updateZedGimbalPos(this.zedGimbalPos);
     this.computeVisibleTargets();
-    console.log('here');
   }
 
   /************************************************************************************************
