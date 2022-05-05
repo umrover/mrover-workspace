@@ -12,26 +12,17 @@
 #include <chrono>
 
 #include <rover_msgs/CarouselOpenLoopCmd.hpp>
-<<<<<<< HEAD
 #include <rover_msgs/CarouselPosition.hpp>
 #include <rover_msgs/FootCmd.hpp>
 #include <rover_msgs/HandCmd.hpp>
 #include <rover_msgs/Calibrate.hpp>
-=======
-#include <rover_msgs/FootCmd.hpp>
-#include <rover_msgs/HandCmd.hpp>
-#include <rover_msgs/JointBCalibration.hpp>
->>>>>>> main
 #include <rover_msgs/MastGimbalCmd.hpp>
 #include <rover_msgs/RAOpenLoopCmd.hpp>
 #include <rover_msgs/RAPosition.hpp>
 #include <rover_msgs/SAOpenLoopCmd.hpp>
 #include <rover_msgs/SAPosition.hpp>
 #include <rover_msgs/ScoopLimitSwitchEnable.hpp>
-<<<<<<< HEAD
 #include <rover_msgs/Signal.hpp>
-=======
->>>>>>> main
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
 #define NOW std::chrono::high_resolution_clock::now()
@@ -55,7 +46,6 @@ private:
     {
     public: 
     	//The following functions are handlers for the corresponding lcm messages
-<<<<<<< HEAD
         void carousel_closedloop_cmd(LCM_INPUT, const CarouselPosition *msg);
 
         void carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
@@ -68,47 +58,10 @@ private:
 
         void mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
 
-=======
-        void carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
-
-        void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
-
-        void hand_openloop_cmd(LCM_INPUT, const HandCmd *msg);
-
-        void mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
-
->>>>>>> main
         void ra_closed_loop_cmd(LCM_INPUT, const RAPosition *msg);
 
         void ra_open_loop_cmd(LCM_INPUT, const RAOpenLoopCmd *msg);
 
-<<<<<<< HEAD
-        void refresh_carousel_calib_data();
-
-        void refresh_carousel_quad_angles();
-
-        void refresh_ra_calib_data();
-
-        void refresh_ra_quad_angles();
-
-        void refresh_sa_calib_data();
-
-        void refresh_sa_quad_angles();
-
-        void sa_closed_loop_cmd(LCM_INPUT, const SAPosition *msg);
-
-        void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
-
-        void publish_carousel_calib_data();
-
-        void publish_carousel_pos_data();
-
-        void publish_ra_calib_data();
-
-        void publish_ra_pos_data();
-
-        void publish_sa_calib_data();
-=======
         void refresh_ra_quad_angles();
 
         void refresh_sa_quad_angles();
@@ -122,7 +75,6 @@ private:
         void publish_calib_data();
 
         void publish_ra_pos_data();
->>>>>>> main
 
         void publish_sa_pos_data();
 
