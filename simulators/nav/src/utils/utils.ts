@@ -1,6 +1,6 @@
 /* This file contains utility functions used throughout the application. */
 
-import { ZED } from './constants';
+import { ZED, Zscores } from './constants';
 import {
   ArTag,
   Joystick,
@@ -369,9 +369,35 @@ function degToRad2D(coords:Point2D):Point2D {
 } /* degToRad2D() */
 
 
+/* get the threshold to determine what the gaussian random number lies on a bell curve
+   given a percentage */
+export function getGaussianThres(percent:number):number {
+  const sd = 0.2;
+  const mu = 0.5;
+  const percentFactor = 100.0;
+  const divisor = 10;
+  const factor = percentFactor / divisor; // 10
+
+  // check and invert the values of z scores
+  const neg = -1;
+  let indZscore = percent / factor;
+
+  const half = 5;
+  if (indZscore > half) {
+    indZscore = factor - indZscore;
+    const x = neg * Zscores[indZscore] * sd;
+    return mu + x;
+  }
+  else {
+    const x = Zscores[indZscore] * sd;
+    return mu + x;
+  }
+}
+
+
 /* Convert from meters (origin is middle of canvas) to pixels (origin is
    top-left of canvas). */
-function metersToCanvas(
+export function metersToCanvas(
     point:Point2D /* meters */,
     canvasSize:number /* pixels */,
     scale:number /* pixels/meter */
@@ -490,4 +516,18 @@ export function randnBm(min, max, skew):number {
     num += min;
   }
   return num;
+}
+
+export function randnInt(min, max):number { // min and max included
+  const num = Math.floor(Math.random());
+  const factor = max - min + 1;
+  const basicRandInt = num * factor;
+  return Math.floor(basicRandInt + min);
+}
+
+export function randnDouble(min, max):number { // min and max included
+  const num = Math.floor(Math.random());
+  const factor = max - min + 1;
+  const basicRandInt = num * factor;
+  return basicRandInt +  min;
 }

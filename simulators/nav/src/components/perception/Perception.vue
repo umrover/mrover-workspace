@@ -41,6 +41,9 @@ export default class Perception extends Vue {
   private readonly currOdom!:Odom;
 
   @Getter
+  private readonly falseArTags!:ArTag[];
+
+  @Getter
   private readonly fieldCenterOdom!:Odom;
 
   @Getter
@@ -249,7 +252,7 @@ export default class Perception extends Vue {
     }
 
     /* Recompute targetList LCM */
-    const targetList:TargetListMessage = this.targetDetector.computeTargetList();
+    const targetList:TargetListMessage = this.targetDetector.computeTargetList(this.falseArTags);
     this.setTargetList(targetList);
   } /* computeVisibleTargets() */
 

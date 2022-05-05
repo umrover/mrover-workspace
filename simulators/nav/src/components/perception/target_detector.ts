@@ -18,39 +18,16 @@ import {
   compassModDeg,
   degToRad,
   radToDeg,
-  randnBm
+  randnBm,
+  getGaussianThres
 } from '../../utils/utils';
 import { Interval, OpenIntervalHeap } from './open_interval_heap';
 import {
   PERCEPTION,
   POST,
-  ROVER,
-  Zscores
+  ROVER
 } from '../../utils/constants';
 import { state } from '../../store/modules/simulatorState';
-
-// state.simSettings.noisePercent - global
-function getGaussianThres():number {
-  const sd = 0.2;
-  const mu = 0.5;
-  const percentFactor = 100.0;
-  const divisor = 10;
-  const factor = percentFactor / divisor; // 10
-  // check and invert the values of z scores
-  const neg = -1;
-  let indZscore = state.simSettings.noisePercent / factor;
-
-  const half = 5;
-  if (indZscore > half) {
-    indZscore = factor - indZscore;
-    const x = neg * Zscores[indZscore] * sd;
-    return mu + x;
-  }
-  else {
-    const x = Zscores[indZscore] * sd;
-    return mu + x;
-  }
-}
 
 /* Class that performs target dectection calculations. */
 export default class TargetDetector {
@@ -108,9 +85,15 @@ export default class TargetDetector {
   } /* constructor() */
 
   /* Calculate the TargetList LCM message. */
-  computeTargetList():TargetListMessage {
+  computeTargetList(falseArTags:ArTag[]):TargetListMessage {
     /* Step 1: filter out targets not in field of view */
     this.visiblePosts = this.posts.filter((post, i) => this.isPostVisible(post, i));
+    const visibleFalsePosts:ArTag[] = falseArTags.filter((post, i) => this.isPostVisible(post, i));
+    this.visiblePosts.push(...visibleFalsePosts);
+    console.log('falseArTags len: ', falseArTags.length);
+    console.log('visiblePosts len: ', this.visiblePosts.length);
+    console.log('visibleFalsePosts len: ', visibleFalsePosts.length);
+    console.log('lat: ', falseArTags[0].odom.latitude_min, 'long: ', falseArTags[0].odom.longitude_min);
 
     /* Step 2: Sort visible posts from left to right */
     this.visiblePosts.sort((post1:ArTag, post2:ArTag) => arTagCompare(this.zedOdom, post1, post2));
@@ -221,7 +204,7 @@ export default class TargetDetector {
 
     /* Special Case: guassian noise */
     const num:number = randnBm(0, 1, 1);
-    const thres = getGaussianThres();
+    const thres = getGaussianThres(state.simSettings.noisePercent);
 
     if (num < thres) {
       post.isHidden = true;

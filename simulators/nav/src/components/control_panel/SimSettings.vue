@@ -62,6 +62,25 @@
               />
             </div>
           </div>
+          <div class="noiseFalsePos">
+            <p> False Positives Noise (%):</p>
+            <NumberInput
+              :val.sync="noiseFalsePosPercentIn"
+              :precision="2"
+              :min="0"
+              :max="100"
+              :step="5"
+            />
+          </div>
+          <div class="maxFalsePos">
+            <p> Max # of False Positives:</p>
+            <NumberInput
+              :val.sync="maxFalsePosIn"
+              :min="0"
+              :max="10"
+              :step="1"
+            />
+          </div>
           <div class="container">
             <div class="columnLeft">
               <p>Projected Points Path Type: {{ path_type }}</p>
@@ -134,6 +153,12 @@ export default class SimSettings extends Vue {
   private readonly noiseGPSPercent!:number;
 
   @Getter
+  private readonly noiseFalsePosPercent!:number;
+
+  @Getter
+  private readonly maxFalsePos!:number;
+
+  @Getter
   private readonly enableLCM!:boolean;
 
   @Getter
@@ -166,6 +191,12 @@ export default class SimSettings extends Vue {
 
   @Mutation
   private readonly setGPSNoisePercent!:(newNoisePercent:number)=>void;
+
+  @Mutation
+  private readonly setFalsePosNoisePercent!:(newNoisePercent:number)=>void;
+
+  @Mutation
+  private readonly setMaxFalsePos!:(newFalsePosVal:number)=>void;
 
   @Mutation
   private readonly flipEnableLCM!:(onOff:boolean)=>void;
@@ -207,6 +238,22 @@ export default class SimSettings extends Vue {
   }
   private set noiseGPSPercentIn(newNoisePercent:number) {
     this.setGPSNoisePercent(newNoisePercent);
+  }
+  private get noiseFalsePosPercentIn():number {
+    return this.noiseFalsePosPercent;
+  }
+  private set noiseFalsePosPercentIn(newNoisePercent:number) {
+    this.setFalsePosNoisePercent(newNoisePercent);
+  }
+  private get maxFalsePosIn():number {
+    return this.maxFalsePos;
+  }
+  private set maxFalsePosIn(newVal:number) {
+    this.setMaxFalsePos(newVal);
+  }
+
+  private get path_type():string {
+    return this.projectedPointsMessage.path_type;
   }
 
   private get path_type():string {
