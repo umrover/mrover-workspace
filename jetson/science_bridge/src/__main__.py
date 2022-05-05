@@ -246,7 +246,6 @@ class ScienceBridge():
             print("navstatus on - red")
             prev_state = Auton_state.ON
 
-
         led_message = "$LED,{led_color}"
         led_message = led_message.format(led_color=prev_state.value)
         self.uart_send(led_message)

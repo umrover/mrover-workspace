@@ -14,10 +14,10 @@ from enum import Enum
 
 
 def main():
-    global lcm_, modrive, left_speed, right_speed, legal_controller, \
+    global lcm_, modrive, left_speed, right_speed, odrive_controller_index, \
         vel_msg, state_msg, usb_lock, speed_lock, start_time, watchdog, odrive_bridge
 
-    lcm_, left_speed, right_speed, start_time, legal_controller, \
+    lcm_, left_speed, right_speed, start_time, odrive_controller_index, \
         vel_msg, state_msg = lcm.LCM(), 0.0, 0.0, t.clock(), int(sys.argv[1]), DriveVelData(), DriveStateData()
 
     speed_lock = threading.Lock()
@@ -54,7 +54,7 @@ def main():
                 usb_lock.release()
 
             usb_lock.acquire()
-            odrive_bridge.on_event(Event.DISCONNECTED_ODRIVE)
+            odrive_bridge.bridge_on_event(OdriveEvent.DISCONNECTED_ODRIVE)
             usb_lock.release()
 
     exit()
@@ -76,10 +76,10 @@ def lcm_publisher_thread():
 
 
 states = ["DisconnectedState", "DisarmedState", "ArmedState", "ErrorState"]
-# Program states possible - BOOT,  DISARMED, ARMED, ERROR
+# Program states possible - DISCONNECTED,  DISARMED, ARMED, ERROR
 
 
-class Event(Enum):
+class OdriveEvent(Enum):
     DISCONNECTED_ODRIVE = 1
     DISARM_CMD = 2
     ARM_CMD = 3
@@ -122,7 +122,7 @@ class DisconnectedState(State):
         Handle events that are delegated to the Disconnected State.
         """
         global modrive
-        if (event == Event.ARM_CMD):
+        if (event == OdriveEvent.ARM_CMD):
             modrive.disarm()
             modrive.reset_watchdog()
             modrive.arm()
@@ -137,14 +137,14 @@ class DisarmedState(State):
         Handle events that are delegated to the Disarmed State.
         """
         global modrive
-        if (event == Event.DISCONNECTED_ODRIVE):
+        if (event == OdriveEvent.DISCONNECTED_ODRIVE):
             return DisconnectedState()
 
-        elif (event == Event.ARM_CMD):
+        elif (event == OdriveEvent.ARM_CMD):
             modrive.arm()
             return ArmedState()
 
-        elif (event == Event.ODRIVE_ERROR):
+        elif (event == OdriveEvent.ODRIVE_ERROR):
             return ErrorState()
 
         return self
@@ -157,14 +157,14 @@ class ArmedState(State):
         """
         global modrive
 
-        if (event == Event.DISARM_CMD):
+        if (event == OdriveEvent.DISARM_CMD):
             modrive.disarm()
             return DisarmedState()
 
-        elif (event == Event.DISCONNECTED_ODRIVE):
+        elif (event == OdriveEvent.DISCONNECTED_ODRIVE):
             return DisconnectedState()
 
-        elif (event == Event.ODRIVE_ERROR):
+        elif (event == OdriveEvent.ODRIVE_ERROR):
             return ErrorState()
 
         return self
@@ -177,7 +177,7 @@ class ErrorState(State):
         """
         global modrive
         print(dump_errors(modrive.odrive, True))
-        if (event == Event.ODRIVE_ERROR):
+        if (event == OdriveEvent.ODRIVE_ERROR):
             try:
                 modrive.reboot()  # only runs after initial pairing
             except Exception as e:
@@ -200,7 +200,7 @@ class OdriveBridge(object):
         self.left_speed = self.right_speed = 0.0
 
     def connect(self):
-        global modrive, legal_controller
+        global modrive, odrive_controller_index
         print("looking for odrive")
 
         # odrive 0 --> front motors
@@ -209,7 +209,7 @@ class OdriveBridge(object):
 
         odrives = ["335D36623539", "335B36563539", "2066377F5753"]
 
-        id = odrives[legal_controller]
+        id = odrives[odrive_controller_index]
 
         print(id)
         odrive = odv.find_any(serial_number=id)
@@ -220,7 +220,7 @@ class OdriveBridge(object):
         modrive.set_current_lim(modrive.CURRENT_LIM)
         usb_lock.release()
 
-    def on_event(self, event):
+    def bridge_on_event(self, event):
         """
         Incoming events are
         delegated to the given states which then handle the event.
@@ -228,10 +228,10 @@ class OdriveBridge(object):
         The events we can send are disarm cmd, arm cmd, and calibrating cmd.
         """
 
-        print("on event called, event:", event)
+        print("on event called, odrive event:", event)
 
         self.state = self.state.on_event(event)
-        publish_state_msg(state_msg, odrive_bridge.get_state())
+        publish_state_msg(state_msg, odrive_bridge.get_state_string())
 
     def update(self):
         if (str(self.state) == "ArmedState"):
@@ -246,13 +246,13 @@ class OdriveBridge(object):
                     usb_lock.release()
                 errors = 0
                 usb_lock.acquire()
-                self.on_event(Event.DISCONNECTED_ODRIVE)
+                self.bridge_on_event(OdriveEvent.DISCONNECTED_ODRIVE)
                 usb_lock.release()
                 print("odrive unplugged, update failed with exception:", e)
 
             if errors:
                 usb_lock.acquire()
-                self.on_event(Event.ODRIVE_ERROR)
+                self.bridge_on_event(OdriveEvent.ODRIVE_ERROR)
                 usb_lock.release()
                 return
 
@@ -270,15 +270,15 @@ class OdriveBridge(object):
         elif (str(self.state) == "DisconnectedState"):
             self.connect()
             usb_lock.acquire()
-            self.on_event(Event.ARM_CMD)
+            self.bridge_on_event(OdriveEvent.ARM_CMD)
             usb_lock.release()
 
         elif (str(self.state) == "ErrorState"):
             usb_lock.acquire()
-            self.on_event(Event.ODRIVE_ERROR)
+            self.bridge_on_event(OdriveEvent.ODRIVE_ERROR)
             usb_lock.release()
 
-    def get_state(self):
+    def get_state_string(self):
         return str(self.state)
 
 
@@ -287,16 +287,19 @@ call backs
 """
 
 
-def publish_state_msg(msg, state):
-    global legal_controller
-    msg.state = states.index(state)
-    msg.controller = legal_controller
+def publish_state_msg(msg, state_string):
+    global odrive_controller_index
+    # Shortens the state string which is of the form "[insert_odrive_state]State"
+    # e.g. state_string is ErrorState, so short_state_string is Error
+    short_state_string = state_string[:len(state_string) - len("State")]
+    msg.state = short_state_string
+    msg.odrive_index = odrive_controller_index
     lcm_.publish("/drive_state_data", msg.encode())
-    print("changed state to " + state)
+    print("changed state to " + state_string)
 
 
 def publish_encoder_helper(axis):
-    global modrive, legal_controller, usb_lock
+    global modrive, odrive_controller_index, usb_lock
     msg = DriveVelData()
 
     usb_lock.acquire()
@@ -308,7 +311,7 @@ def publish_encoder_helper(axis):
                  ("LEFT", 1): 2, ("RIGHT", 1): 3,
                  ("LEFT", 2): 4, ("RIGHT", 2): 5}
 
-    msg.axis = motor_map[(axis, legal_controller)]
+    msg.axis = motor_map[(axis, odrive_controller_index)]
 
     lcm_.publish("/drive_vel_data", msg.encode())
 
@@ -325,7 +328,7 @@ def drive_vel_cmd_callback(channel, msg):
     global speed_lock, odrive_bridge
     try:
         cmd = DriveVelCmd.decode(msg)
-        if (odrive_bridge.get_state() == "ArmedState"):
+        if (odrive_bridge.get_state_string() == "ArmedState"):
             global left_speed, right_speed
 
             speed_lock.acquire()
