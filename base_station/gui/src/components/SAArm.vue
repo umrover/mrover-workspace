@@ -57,7 +57,7 @@ export default {
       position: "stowed",
       enable_limit_switch: true,
       
-      jointBIsCalibrated: true,
+      jointBIsCalibrated: false,
       calibrationTimer: -1
     }
   },

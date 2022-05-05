@@ -37,7 +37,7 @@ export default {
         state: "off"
       },
 
-      jointBIsCalibrated: true,
+      jointBIsCalibrated: false,
       calibrationTimer: -1
     }
   },
