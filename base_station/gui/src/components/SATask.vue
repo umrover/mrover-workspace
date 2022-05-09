@@ -123,7 +123,9 @@ export default {
         {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
         {'topic': '/pdb_data', 'type': 'PDBData'},
         {'topic': '/fuse_data', 'type': 'FuseData'},
-        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'}
+        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'},
+        {'topic': '/ra_b_calib_data', 'type': 'Calibrate'},
+        {'topic': '/sa_b_calib_data', 'type': 'Calibrate'}
       ]
     )
   },

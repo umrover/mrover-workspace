@@ -27,19 +27,18 @@ I2C.h is responsible for translating communications by virtual Controllers into 
 
 The following watchdog is implemented: If the nucleos do not receive any I2C messages for a given amount of time (currently about 443 ms), then they reset.
 
-
 ### LCM Channels Publishing/Subscribed To
-#### RA Open Loop \[Subscriber\] "/ra_openloop_cmd"
+#### RA Open Loop \[Subscriber\] "/ra_open_loop_cmd"
 Message: [RAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAOpenLoopCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### SA Open Loop \[Subscriber\] "/sa_openloop_cmd"
+#### SA Open Loop \[Subscriber\] "/sa_open_loop_cmd"
 Message: [SAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAOpenLoopCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### Carousel Open Loop \[Subscriber\] "/carousel_openloop_cmd"
+#### Carousel Open Loop \[Subscriber\] "/carousel_open_loop_cmd"
 Message: [CarouselOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/CarouselOpenLoopCmd.lcm) \
 Publisher: base_station/gui \
 Subscriber: jetson/nucleo_bridge
@@ -54,7 +53,7 @@ Message: [SAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/maste
 Publisher: jetson/ra_kinematics \
 Subscriber: jetson/nucleo_bridge
 
-#### Carousel Closed Loop \[Subscriber\] "/carousel_closedloop_cmd"
+#### Carousel Closed Loop \[Subscriber\] "/carousel_closed_loop_cmd"
 Message: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/CarouselPosition.lcm) \
 Publisher: base_station/gui \
 Subscriber: jetson/nucleo_bridge
@@ -64,12 +63,12 @@ Message: [MastGimbalCmd.lcm](https://github.com/umrover/mrover-workspace/blob/ma
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### Hand Open Loop \[Subscriber\] "/hand_openloop_cmd"
+#### Hand Open Loop \[Subscriber\] "/hand_open_loop_cmd"
 Message: [HandCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/HandCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### Foot Open Loop \[Subscriber\] "/foot_openloop_cmd"
+#### Foot Open Loop \[Subscriber\] "/foot_open_loop_cmd"
 Message: [FootCmd.lcm](https://github.com/umrover/mrover-workspace/blob/rnucleo/rover_msgs/FootCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge

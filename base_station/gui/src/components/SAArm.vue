@@ -1,14 +1,20 @@
 <template>
   <div class="wrap">
-    <div class="header">
-      <h3> Arm Controls </h3>
-    </div>
+    <h3> Arm Controls </h3>
     <div class="controls">
       <Checkbox ref="open-loop" v-bind:name="'Open Loop'" v-on:toggle="updateControlMode('open-loop', $event)"/>
       <Checkbox ref="closed-loop" v-bind:name="'Closed Loop'" v-on:toggle="updateControlMode('closed-loop', $event)"/>
-      <div class="keyboard">
-        <GimbalControls/>
-      </div>
+    </div>
+    <div class="keyboard">
+      <GimbalControls/>
+    </div>
+    <div class="joint-b-calibration" v-if='!this.jointBIsCalibrated && this.controlMode !== "calibrating"'>
+      Joint B not calibrated!
+      <button v-on:click="startCalibration()">Calibrate</button>
+    </div>
+    <div class="joint-b-calibration" v-if='!this.jointBIsCalibrated && this.controlMode === "calibrating"'>
+      Calibrating Joint B...
+      <button v-on:click="abortCalibration()">Abort</button>
     </div>
     <div class="joints">
         <div>joint a: {{SAPosition.joint_a}}</div>
@@ -50,6 +56,9 @@ export default {
       },
       position: "stowed",
       enable_limit_switch: true,
+      
+      jointBIsCalibrated: false,
+      calibrationTimer: -1
     }
   },
 
@@ -64,7 +73,7 @@ export default {
     })
 
     // Subscribe to requests to change state from IK backend
-    this.$parent.subscribe('/arm_control_state_to_gui', (msg) => {
+    this.$parent.subscribe('/arm_control_state', (msg) => {
       console.log('received new state: ' + msg.state)
       var new_state = msg.state
       // If new state matches current state
@@ -77,11 +86,17 @@ export default {
       }
       if (new_state === 'closed-loop' || new_state === 'open-loop') {
         this.$refs[new_state].toggle()
-        this.controlMode = new_state
       }
-      else {
-        this.controlMode = 'off'
-      }
+      
+      this.controlMode = new_state
+    })
+
+    this.$parent.subscribe('/ra_b_calib_data', (msg) => {
+      this.updateCalibrationStatus(msg)
+    })
+
+    this.$parent.subscribe('/sa_b_calib_data', (msg) => {
+      this.updateCalibrationStatus(msg)
     })
   
     const XBOX_CONFIG = {
@@ -155,6 +170,21 @@ export default {
         'type': 'ArmPresetPath',
         'preset': preset
       })
+    },
+
+    updateCalibrationStatus: function(msg) {
+      if (msg.calibrated && !this.jointBIsCalibrated) {
+        clearTimeout(this.calibrationTimer)
+
+        const armStateMsg = {
+          'type': 'ArmControlState',
+          'state': 'off'
+        }
+
+        this.$parent.publish('/arm_control_state', armStateMsg)
+      }
+
+      this.jointBIsCalibrated = msg.calibrated
     },
 
     updateControlMode: function (mode, checked) {
@@ -276,6 +306,30 @@ export default {
       }
       this.$parent.publish('/simulation_mode', simModeMsg);
     },
+
+    startCalibration: function() {
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': 'calibrating'
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+
+      this.calibrationTimer = setTimeout(() => {
+        this.abortCalibration()
+      }, 20000)
+    },
+
+    abortCalibration: function() {
+      clearTimeout(this.calibrationTimer)
+      
+      const armStateMsg = {
+        'type': 'ArmControlState',
+        'state': 'off'
+      }
+
+      this.$parent.publish('/arm_control_state', armStateMsg)
+    },
   },
 
   components: {
@@ -291,11 +345,11 @@ export default {
   display: inline-block;
   align-items: center;
   justify-items: center;
+  width: 100%;
 }
 .controls {
   display: flex;
   align-items:center;
-  padding-bottom: 2vh;
 }
 .header {
   display:flex;
@@ -312,6 +366,15 @@ export default {
 .buttons {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+}
+
+.joint-b-calibration {
+  display: flex;
+  gap: 10px;
+  width: 250px;
+  font-weight: bold;
+  color: red;
+  padding-bottom: 2vh;
 }
 
 </style>

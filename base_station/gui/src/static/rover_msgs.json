@@ -217,10 +217,10 @@
     "DriveStateData": [
         [
             "int8_t",
-            "controller"
+            "odrive_index"
         ],
         [
-            "int8_t",
+            "string",
             "state"
         ]
     ],
