@@ -124,6 +124,7 @@ def build_deps(ctx, no_reqs):
     if (no_reqs):
         print("Skipping pip dependencies")
     else:
+        # Saves entire pip_deps hash to file called external_requirements
         pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
         pip_hasher.hash_modification_time('pip_deps/')
         if pip_hasher.has_changed():
