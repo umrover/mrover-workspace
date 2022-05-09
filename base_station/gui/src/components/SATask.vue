@@ -220,12 +220,14 @@ export default {
         {'topic': '/carousel_pos_data', 'type': 'CarouselPosition'},
         {'topic': '/sa_position', 'type': 'SAPosition'},
         {'topic': '/sa_offset_pos', 'type': 'SAPosition'},
-        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
+        {'topic': '/arm_control_state', 'type': 'ArmControlState'},
         {'topic': '/heater_state_data', 'type': 'Heater'},
         {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
         {'topic': '/pdb_data', 'type': 'PDBData'},
         {'topic': '/fuse_data', 'type': 'FuseData'},
-        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'}
+        {'topic': '/scoop_limit_switch_enable_cmd', 'type': 'ScoopLimitSwitchEnable'},
+        {'topic': '/ra_b_calib_data', 'type': 'Calibrate'},
+        {'topic': '/sa_b_calib_data', 'type': 'Calibrate'}
       ]
     )
   },

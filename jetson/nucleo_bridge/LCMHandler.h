@@ -47,15 +47,15 @@ private:
     public: 
     	//The following functions are handlers for the corresponding lcm messages
 
-        void carousel_closedloop_cmd(LCM_INPUT, const CarouselPosition *msg);
+        void carousel_closed_loop_cmd(LCM_INPUT, const CarouselPosition *msg);
 
-        void carousel_openloop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
+        void carousel_open_loop_cmd(LCM_INPUT, const CarouselOpenLoopCmd *msg);
 
         void carousel_zero_cmd(LCM_INPUT, const Signal *msg);
 
-        void foot_openloop_cmd(LCM_INPUT, const FootCmd *msg);
+        void foot_open_loop_cmd(LCM_INPUT, const FootCmd *msg);
 
-        void hand_openloop_cmd(LCM_INPUT, const HandCmd *msg);
+        void hand_open_loop_cmd(LCM_INPUT, const HandCmd *msg);
 
         void mast_gimbal_cmd(LCM_INPUT, const MastGimbalCmd *msg);
 
