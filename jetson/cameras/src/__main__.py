@@ -9,7 +9,6 @@ __lcm: lcm.LCM
 __pipelines = [None] * 4
 
 ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
-ARGUMENTS_MEDIUM = ['--headless', '--bitrate=300000', '--width=1280', '--height=720']
 # 10.0.0.1 represents the ip of the main base station laptop
 # 10.0.0.2 represents the ip of the secondary science laptop
 remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
@@ -20,7 +19,7 @@ def initialize_video_sources():
     global video_sources
     for index, video_source in enumerate(video_sources):
         try:
-            video_sources[index] = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_MEDIUM)
+            video_sources[index] = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_LOW)
         except Exception:
             pass
 
@@ -28,7 +27,7 @@ def initialize_video_sources():
 class Pipeline:
     def __init__(self, port):
         self.video_source = None
-        self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[port]}", argv=ARGUMENTS_MEDIUM)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[port]}", argv=ARGUMENTS_LOW)
         self.device_number = -1
         self.port = port
 
@@ -50,7 +49,7 @@ class Pipeline:
         if index != -1:
             self.video_source = video_sources[index]
             if self.video_source is not None:
-                self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_MEDIUM)
+                self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_LOW)
             else:
                 self.device_number = -1
         else:
