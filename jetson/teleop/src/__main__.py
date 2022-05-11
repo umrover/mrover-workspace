@@ -123,9 +123,15 @@ class Camera:
     def update_cameras(self, channel, msg):
         message = GUICameras.decode(msg)
 
-        if message.port[0] == -1 or message.port[0] not in self.ish_cameras:
+        # If a camera is streamed to opposite port already
+        if message.port[0] == self.cameras[1]:
+            self.cameras[0] = message.port[1]
+        elif message.port[1] == self.cameras[0]:
+            self.cameras[1] = message.port[0]
+
+        # Otherwise, route normally
+        else:
             self.cameras[0] = message.port[0]
-        if message.port[1] == -1 or message.port[1] not in self.ish_cameras:
             self.cameras[1] = message.port[1]
 
         self.send_camera_cmd()
@@ -133,9 +139,15 @@ class Camera:
     def update_ish_cameras(self, channel, msg):
         message = GUICameras.decode(msg)
 
-        if message.port[0] == -1 or message.port[0] not in self.cameras:
+        # If a camera is streamed to opposite port already
+        if message.port[0] == self.ish_cameras[1]:
+            self.ish_cameras[0] = message.port[1]
+        elif message.port[1] == self.ish_cameras[0]:
+            self.ish_cameras[1] = message.port[0]
+
+        # Otherwise, route normally
+        else:
             self.ish_cameras[0] = message.port[0]
-        if message.port[1] == -1 or message.port[1] not in self.cameras:
             self.ish_cameras[1] = message.port[1]
 
         self.send_camera_cmd()
