@@ -18,12 +18,8 @@
     <div class="box cameras light-bg">
       <Cameras v-bind:numCams="2" v-bind:channel="'/cameras_control_ish'"/>
     </div>
-    <div class="box spectralTriad light-bg">
-      <SpectralData v-bind:spectral_triad_data="spectral_triad_data"/>
-    </div>
     <div class = "box light-bg chlorophyll">
-      <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/> 
-      <GenerateReport v-bind:spectral_data="spectral_data"/>
+      <Chlorophyll v-bind:mosfetIDs="mosfetIDs" v-bind:spectral_data="spectral_data"/>
     </div>
     <div class="box striptest light-bg">
       <StripTest/>
@@ -42,11 +38,9 @@ import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
 import Raman from './Raman.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
-import SpectralData from './SpectralData.vue'
 import Chlorophyll from './Chlorophyll.vue'
 import StripTest from './StripTest.vue'
 import Amino from './Amino.vue'
-import GenerateReport from './GenerateReport.vue'
 import Carousel from './Carousel.vue'
 
 let interval;
@@ -63,26 +57,6 @@ export default {
       },
 
       spectral_data: {
-          d0_1:0,
-          d0_2:0,
-          d0_3:0,
-          d0_4:0,
-          d0_5:0,
-          d0_6:0,
-          d1_1:0,
-          d1_2:0,
-          d1_3:0,
-          d1_4:0,
-          d1_5:0,
-          d1_6:0,
-          d2_1:0,
-          d2_2:0,
-          d2_3:0,
-          d2_4:0,
-          d2_5:0,
-          d2_6:0
-      },
-      spectral_triad_data: {
           d0_1:0,
           d0_2:0,
           d0_3:0,
@@ -149,8 +123,6 @@ export default {
       (msg) => {
         if (msg.topic ==='/spectral_data'){
           this.spectral_data = msg.message
-        } else if (msg.topic ==='/spectral_triad_data'){
-          this.spectral_triad_data = msg.message
         } else if (msg.topic ==='/thermistor_data'){
           this.thermistor_data = msg.message
         } else if (msg.topic === '/debugMessage') {
@@ -166,7 +138,6 @@ export default {
         {'topic': '/test_enable', 'type': 'TestEnable'},
         {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/spectral_data', 'type': 'SpectralData'},
-        {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
         {'topic': '/thermistor_data', 'type': 'ThermistorData'},
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
         {'topic': '/carousel_data', 'type': 'CarouselPosition'},
@@ -180,11 +151,9 @@ export default {
     Cameras,
     CommIndicator,
     Raman,
-    SpectralData,
     Chlorophyll,
     StripTest,
     Amino,
-    GenerateReport,
     Carousel
   }
 }
@@ -195,12 +164,12 @@ export default {
     .wrapper {
         display: grid;
         grid-gap: 10px;
-        grid-template-columns: auto auto auto;
+        grid-template-columns: auto auto auto auto;
         grid-template-rows: 60px auto auto auto;
-        grid-template-areas: "header header header" 
-                             "cameras cameras carousel" 
-                             "chlorophyll raman amino"
-                             "chlorophyll striptest spectralTriad";
+        grid-template-areas: "header header header header" 
+                             "cameras cameras cameras raman"
+                             "chlorophyll chlorophyll carousel carousel"
+                             "amino amino striptest striptest";
         font-family: sans-serif;
         height: auto;
     }
@@ -260,10 +229,6 @@ export default {
 
     .cameras {
       grid-area: cameras;
-    }
-
-    .spectralTriad {
-      grid-area: spectralTriad;
     }
 
     .carousel {
