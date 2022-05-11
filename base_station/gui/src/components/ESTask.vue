@@ -104,22 +104,13 @@ export default {
         this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
-      (msg) => {
-        if (msg.topic === '/debugMessage') {
-          if (msg['message']['isError']) {
-            console.error(msg['message']['message'])
-          } else {
-            console.log(msg['message']['message'])
-          }
-        }
-      },
+      (msg) => { },
       // Subscriptions
       [
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/ra_offset_pos', 'type': 'RAPosition'},
         {'topic': '/arm_control_state', 'type': 'ArmControlState'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/ik_reset', 'type': 'Signal'},

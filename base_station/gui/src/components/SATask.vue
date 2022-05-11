@@ -99,19 +99,10 @@ export default {
         this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
-      (msg) => {
-        if (msg.topic === '/debugMessage') {
-          if (msg['message']['isError']) {
-            console.error(msg['message']['message'])
-          } else {
-            console.log(msg['message']['message'])
-          }
-        }
-      },
+      (msg) => { },
       // Subscriptions
       [
         {'topic': '/test_enable', 'type': 'TestEnable'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
         {'topic': '/sa_position', 'type': 'SAPosition'},

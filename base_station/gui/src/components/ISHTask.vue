@@ -125,18 +125,11 @@ export default {
           this.spectral_data = msg.message
         } else if (msg.topic ==='/thermistor_data'){
           this.thermistor_data = msg.message
-        } else if (msg.topic === '/debugMessage') {
-          if (msg['message']['isError']) {
-            console.error(msg['message']['message'])
-          } else {
-            console.log(msg['message']['message'])
-          }
         }
       },
       // Subscriptions
       [
         {'topic': '/test_enable', 'type': 'TestEnable'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'},
         {'topic': '/spectral_data', 'type': 'SpectralData'},
         {'topic': '/thermistor_data', 'type': 'ThermistorData'},
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
