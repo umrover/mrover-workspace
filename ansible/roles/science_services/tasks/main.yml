@@ -3,12 +3,25 @@
     src: "files/{{ item }}"
     dest: "/etc/systemd/system/{{ item }}"
   with_items:
-    - rover-science_logging_server.service
+    - rover-lcm-bridge-server.service
+    - rover-science-gstreamer.service
+    - rover-science-gstreamer-2.service
+    - rover-science-gstreamer.timer
+    - rover-science-gstreamer-2.timer
+    - rover-science-gui.service
+    - rover-science-raman.service
 
 - name: Copy environment variable definitions
   copy:
     src: files/rover.env
     dest: /etc/default/rover.env
+
+- name: Permanently export LCM DEFAULT URL
+  shell : |
+    touch ~/.bashrc
+    echo LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" >> ~/.bashrc
+    source ~/.bashrc
+
 
 - name: Reload systemd
   systemd: daemon_reload=yes
@@ -16,4 +29,10 @@
 - name: Enable services and timers
   systemd: name={{item}} enabled=yes
   with_items:
-    - rover-science_logging_server.service
+    - rover-lcm-bridge-server.service
+    - rover-science-gstreamer.service
+    - rover-science-gstreamer-2.service
+    - rover-science-gstreamer.timer
+    - rover-science-gstreamer-2.timer
+    - rover-science-gui.service
+    - rover-science-raman.service
