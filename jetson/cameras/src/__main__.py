@@ -84,9 +84,8 @@ def device_is_not_being_used_by_other_pipelines(excluded_pipeline, device_number
     for pipeline_number, pipeline in enumerate(__pipelines):
         if pipeline_number == excluded_pipeline:
             continue
-        if pipeline.get_device_number() != device_number:
-            continue
-        return False
+        if pipeline.get_device_number() == device_number:
+            return False
     return True
 
 
