@@ -71,7 +71,8 @@
       </tr>
     </tbody>
     </table>
-  </div>  
+  </div>
+  <GenerateReport v-bind:spectral_data="spectral_data"/>
 </div>
 </template>
 
@@ -132,8 +133,8 @@ export default {
   .wrap-table {
     display: inline-block;
     align-content: center;
-    height: 40vh;
-    padding-top: 5vh;
+    height: max-content;
+    padding-bottom: 5px;
   }
 
   .report {

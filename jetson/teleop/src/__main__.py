@@ -6,7 +6,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
                         DriveVelCmd, MastGimbalCmd,
                         AutonState, AutonDriveControl,
-
+                        GUICameras, Cameras,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
                         ArmControlState, ReverseDrive,
@@ -113,6 +113,53 @@ def gimbal_control_callback(channel, msg):
     gimbal_msg.yaw = yawData
 
     lcm_.publish('/mast_gimbal_cmd', gimbal_msg.encode())
+
+
+class Camera:
+    def __init__(self):
+        self.cameras = [-1, -1]
+        self.ish_cameras = [-1, -1]
+
+    def update_cameras(self, channel, msg):
+        message = GUICameras.decode(msg)
+
+        # If a camera is streamed to opposite port already
+        if message.port[0] == self.cameras[1]:
+            self.cameras[0] = message.port[1]
+        elif message.port[1] == self.cameras[0]:
+            self.cameras[1] = message.port[0]
+
+        # Otherwise, route normally
+        else:
+            self.cameras[0] = message.port[0]
+            self.cameras[1] = message.port[1]
+
+        self.send_camera_cmd()
+
+    def update_ish_cameras(self, channel, msg):
+        message = GUICameras.decode(msg)
+
+        # If a camera is streamed to opposite port already
+        if message.port[0] == self.ish_cameras[1]:
+            self.ish_cameras[0] = message.port[1]
+        elif message.port[1] == self.ish_cameras[0]:
+            self.ish_cameras[1] = message.port[0]
+
+        # Otherwise, route normally
+        else:
+            self.ish_cameras[0] = message.port[0]
+            self.ish_cameras[1] = message.port[1]
+
+        self.send_camera_cmd()
+
+    def send_camera_cmd(self):
+        camera_msg = Cameras()
+        camera_msg.port[0] = self.cameras[0]
+        camera_msg.port[1] = self.cameras[1]
+        camera_msg.port[2] = self.ish_cameras[0]
+        camera_msg.port[3] = self.ish_cameras[1]
+
+        lcm_.publish('/cameras_cmd', camera_msg.encode())
 
 
 class ArmControl:
@@ -229,6 +276,7 @@ class ArmControl:
 def main():
     arm = ArmControl()
     drive = Drive(reverse=False)
+    camera = Camera()
 
     def connection_state_changed(c, _):
         global connection
@@ -257,5 +305,9 @@ def main():
     lcm_.subscribe('/sa_b_calib_data', arm.sa_calibration_callback)
 
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
+
+    # Subscribe to updated GUI camera channels
+    lcm_.subscribe('/cameras_control_ish', camera.update_ish_cameras)
+    lcm_.subscribe('/cameras_control', camera.update_cameras)
 
     run_coroutines(hb.loop(), lcm_.loop())

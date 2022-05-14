@@ -1,24 +1,19 @@
 <template>
 <div class="status wrap" v-bind:style="{backgroundColor: current_background}">
-    <div class="inner_pad">
-        <div>
-            <h3> Strip Test Controls </h3>
-        </div>
-        <div class="controls">
-            <div>
-                <label for="strip">Perform strip test on strip:</label>
-                <select v-model="current_strip" name="strip" id="strip">
-                    <option value=0>0</option>
-                    <option value=1>1</option>
-                    <option value=2>2</option>
-                </select>
-                <div class="commands" v-if="!servos[current_strip].has_dipped">
-                    <button v-on:click="stripTest(current_strip)"> start strip {{ current_strip }} test </button>
-                </div>
-            </div>
+    <div>
+        <h3> Strip Test Controls </h3>
+    </div>
+    <div class="controls">
+        <label for="strip">Perform strip test on strip:</label>
+        <select v-model="current_strip" name="strip" id="strip">
+            <option value=0>0</option>
+            <option value=1>1</option>
+            <option value=2>2</option>
+        </select>
+        <div class="commands" v-if="!servos[current_strip].has_dipped">
+            <button v-on:click="stripTest(current_strip)"> start strip {{ current_strip }} test </button>
         </div>
         <button v-on:click="back_to_start()">Back to start</button>
-        <br>
         <div class="input">
             Angle: <input type='number' v-model.number="custom_angle">
             <button v-on:click="userInput()">Move to angle</button>
@@ -125,28 +120,22 @@ export default {
 <style scoped>
     .wrap {
         display: inline-block;
-        align-content: center;
-    }
-    .status {
-        border-radius: 5px;
-        border: 1px solid black;
-        display: flex;
-        justify-content: space-around;
-        flex-direction: column;
-    }
-
-    .inner_pad {
-        padding: 10px;
     }
 
     .controls {
         display: inline-block;
         vertical-align: top;
         align-content: left;
+        padding: 4%;
     }
 
     .commands{
         text-align: left;
         display: inline-block;
+        padding: 4%;
+    }
+
+    .input {
+        padding-bottom: 4%;
     }
 </style>
