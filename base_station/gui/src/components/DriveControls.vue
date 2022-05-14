@@ -2,6 +2,7 @@
   <div class="wrap">
     <h3> Drive </h3>
     <span>Speed Limiter: {{ dampenDisplay }}%</span>
+    <Checkbox ref="reverse" v-bind:name="'Reverse'" v-on:toggle="updateReverse($event)"/>
   </div>
 </template>
 
@@ -16,14 +17,29 @@ let interval;
 export default {
   data () {
     return {
-      dampen: 0
+      dampen: 1.0,
+      reverse: false
     }
+  },
+
+  methods: {
+    updateReverse: function(checked) {
+      const reverseMsg = {
+        'type': 'ReverseDrive',
+        'reverse': checked
+      }
+      this.$parent.publish('/teleop_reverse_drive', reverseMsg);
+    }
+  },
+
+  components: {
+    Checkbox
   },
 
   computed: {
 
-    dampenDisplay: function () {
-      return (this.dampen * -50 + 50).toFixed(2)
+    dampenDisplay: function() {
+      return (this.dampen * 100).toFixed(2);
     },
 
     ...mapGetters('autonomy', {

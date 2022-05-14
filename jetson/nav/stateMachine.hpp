@@ -1,117 +1,94 @@
-#ifndef STATE_MACHINE_HPP
-#define STATE_MACHINE_HPP
+#pragma once
+
+#include <memory>
+#include <chrono>
 
 #include <lcm/lcm-cpp.hpp>
-#include "rapidjson/document.h"
+
 #include "rover.hpp"
+#include "environment.hpp"
+#include "courseProgress.hpp"
 #include "search/searchStateMachine.hpp"
 #include "gate_search/gateStateMachine.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 
-using namespace std;
+
 using namespace rover_msgs;
+using namespace std::chrono_literals;
+using time_point = std::chrono::high_resolution_clock::time_point;
+
+static auto const LOOP_DURATION = 0.01s;
 
 // This class implements the logic for the state machine for the
 // autonomous navigation of the rover.
-class StateMachine
-{
+class StateMachine : public std::enable_shared_from_this<StateMachine> {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    StateMachine( lcm::LCM& lcmObject );
+    StateMachine(rapidjson::Document& config,
+                 std::shared_ptr<Rover> rover, std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseProgress,
+                 lcm::LCM& lcmObject);
 
-    ~StateMachine();
+    void run();
 
-    void run( );
+    void updateObstacleDistance(double distance);
 
-    void updateRoverStatus( AutonState autonState );
+    void setSearcher(SearchType type);
 
-    void updateRoverStatus( Bearing bearing );
+    void setGateSearcher();
 
-    void updateRoverStatus( Course course );
+    std::shared_ptr<Environment> getEnv();
 
-    void updateRoverStatus( Obstacle obstacle );
+    std::shared_ptr<CourseProgress> getCourseState();
 
-    void updateRoverStatus( Odometry odometry );
+    std::shared_ptr<Rover> getRover();
 
-    void updateRoverStatus( TargetList targetList );
-    void updateCompletedPoints( );
+    lcm::LCM& getLCM();
 
-    void updateObstacleAngle( double bearing );
-
-    void updateObstacleDistance( double distance );
-
-    void updateObstacleElements( double bearing, double distance );
-
-    void setSearcher(SearchType type, Rover* rover, const rapidjson::Document& roverConfig );
+    double getDtSeconds();
 
     /*************************************************************************/
     /* Public Member Variables */
     /*************************************************************************/
     // Gate State Machine instance
-    GateStateMachine* mGateStateMachine;
+    std::shared_ptr<GateStateMachine> mGateStateMachine;
 
 private:
     /*************************************************************************/
     /* Private Member Functions */
     /*************************************************************************/
-    bool isRoverReady() const;
-
     void publishNavState() const;
 
     NavState executeOff();
 
     NavState executeDone();
 
-    NavState executeTurn();
-
     NavState executeDrive();
 
-    NavState executeSearch();
-
-    void initializeSearch();
-
-    bool addFourPointsToSearch();
-
-    string stringifyNavState() const;
-
-    double getOptimalAvoidanceAngle() const;
-
-    double getOptimalAvoidanceDistance() const;
-
-    bool isWaypointReachable( double distance );
+    std::string stringifyNavState() const;
 
     /*************************************************************************/
     /* Private Member Variables */
     /*************************************************************************/
+    // Configuration file for the rover.
+    rapidjson::Document& mConfig;
+
     // Rover object to do basic rover operations in the state machine.
-    Rover* mRover;
+    std::shared_ptr<Rover> mRover;
 
-    // RoverStatus object for updating the rover's status.
-    Rover::RoverStatus mNewRoverStatus;
+    std::shared_ptr<Environment> mEnv;
 
-    // Lcm object for sending and recieving messages.
+    std::shared_ptr<CourseProgress> mCourseProgress;
+
+    // Lcm object for sending and receiving messages.
     lcm::LCM& mLcmObject;
 
-    // Configuration file for the rover.
-    rapidjson::Document mRoverConfig;
-
-    // Number of waypoints in course.
-    unsigned mTotalWaypoints;
-
-    // Number of waypoints completed.
-    unsigned mCompletedWaypoints; 
-
-    // Indicates if the state changed on a given iteration of run.
-    bool mStateChanged;
-
     // Search pointer to control search states
-    SearchStateMachine* mSearchStateMachine;
+    std::shared_ptr<SearchStateMachine> mSearchStateMachine;
 
     // Avoidance pointer to control obstacle avoidance states
-    ObstacleAvoidanceStateMachine* mObstacleAvoidanceStateMachine;
+    std::shared_ptr<ObstacleAvoidanceStateMachine> mObstacleAvoidanceStateMachine;
 
+    time_point mTimePoint, mPrevTimePoint;
 }; // StateMachine
-
-#endif // STATE_MACHINE_HPP

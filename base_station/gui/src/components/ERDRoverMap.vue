@@ -3,7 +3,7 @@
     <!-- Map goes here -->
     <l-map ref="map" class="map" :zoom="15" :center="center">
       <l-control-scale :imperial="false"/>
-      <l-tile-layer :url="url" :attribution="attribution" :options="tileLayerOptions"/>
+      <l-tile-layer :url="this.online ? this.onlineUrl : this.offlineUrl" :attribution="attribution" :options="tileLayerOptions"/>
       <l-marker ref="rover" :lat-lng="odomLatLng" :icon="locationIcon"/>
 
       <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="waypoint, index in waypointList" :key="index">
@@ -12,6 +12,11 @@
 
       <l-polyline :lat-lngs="odomPath" :color="'blue'"/>
     </l-map>
+    <div class="controls">
+      <div class="online">
+        <label><input type="checkbox" v-model="online" />Online</label>
+      </div> 
+    </div>
 
   </div>
 </template>
@@ -23,6 +28,8 @@ import L from '../leaflet-rotatedmarker.js'
 
 const MAX_ODOM_COUNT = 1000
 const DRAW_FREQUENCY = 10
+const onlineUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+const offlineUrl = '/static/map/{z}/{x}/{y}.png'
 
 export default {
   name: 'RoverMap',
@@ -68,8 +75,10 @@ export default {
   data () {
     return {
       center: L.latLng(38.406371, -110.791954),
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      online: true,
+      onlineUrl: onlineUrl,
+      offlineUrl: offlineUrl,
       roverMarker: null,
       waypointIcon: null,
       map: null,
@@ -143,7 +152,6 @@ export default {
   height: 100%;
   width: 100%;
 }
-
 .wrap {
   display: flex;
   align-items: center;
