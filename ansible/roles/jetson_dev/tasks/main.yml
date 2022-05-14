@@ -22,4 +22,6 @@
       - libgirepository1.0-dev
       - gfortran
       - libeigen3-dev
+      - socat
+
     state: present
