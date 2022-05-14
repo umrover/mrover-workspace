@@ -15,15 +15,6 @@ remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
 video_sources = [None] * 10
 
 
-def initialize_video_sources():
-    global video_sources
-    for index, video_source in enumerate(video_sources):
-        try:
-            video_sources[index] = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_LOW)
-        except Exception:
-            pass
-
-
 class Pipeline:
     def __init__(self, port):
         self.video_source = None
@@ -38,7 +29,7 @@ class Pipeline:
     def is_open(self):
         return True
 
-    def is_device_number(self):
+    def get_device_number(self):
         return self.device_number
 
     def port(self):
@@ -51,6 +42,7 @@ class Pipeline:
             if self.video_source is not None:
                 self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_LOW)
             else:
+                print(f"Unable to play camera {index} on {remote_ip[self.port]}.")
                 self.device_number = -1
         else:
             self.video_source = None
@@ -63,40 +55,52 @@ def start_pipeline(index, port):
     global __pipelines
     try:
         __pipelines[port].update_device_number(index)
-        print(f"Playing camera {index} __pipelines on {remote_ip[port]}.")
+        print(f"Playing camera {index} on {remote_ip[port]}.")
     except Exception:
         pass
 
 
-def stop_pipeline(port):
+def stop_all_pipelines():
     global __pipelines
 
-    print(f"Stopping camera {__pipelines[port].device_number} on {remote_ip[port]}.")
-    __pipelines[port].update_device_number(-1)
+    print(f'Stopping all pipelines.')
+
+    for port_number, pipeline in enumerate(__pipelines):
+        pipeline_device_number = pipeline.get_device_number()
+        if pipeline_device_number == -1:
+            continue
+        video_sources[pipeline_device_number] = None
+        __pipelines[port_number].update_device_number(-1)
+
+
+def create_video_source(index):
+    if index == -1:
+        return
+    if video_sources[index] is not None:
+        return
+    try:
+        video_sources[index] = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_LOW)
+    except Exception:
+        pass
 
 
 def camera_callback(channel, msg):
     global __pipelines
+
+    stop_all_pipelines()
 
     camera_cmd = Cameras.decode(msg)
 
     port_devices = camera_cmd.port
 
     for port_number, requested_port_device in enumerate(port_devices):
-        if __pipelines[port_number].is_device_number() == requested_port_device:
-            continue
-        if requested_port_device == -1:
-            stop_pipeline(port_number)
-        else:
-            if __pipelines[port_number].is_currently_streaming():
-                stop_pipeline(port_number)
-            start_pipeline(requested_port_device, port_number)
+        create_video_source(requested_port_device)
+        start_pipeline(requested_port_device, port_number)
 
 
 def main():
     global __pipelines, __lcm
 
-    initialize_video_sources()
     __pipelines = [Pipeline(0), Pipeline(1), Pipeline(2), Pipeline(3)]
 
     __lcm = lcm.LCM()
@@ -107,12 +111,7 @@ def main():
             pass
         for port_number, pipeline in enumerate(__pipelines):
             if pipeline.is_currently_streaming():
-                if pipeline.is_open():
-                    # This is currently always True
-                    pipeline.update()
-                else:
-                    stop_pipeline(port_number)
-                    print(f'Closing stream on {remote_ip[port_number]} becuase it stopped streaming!')
+                pipeline.update()
 
 
 if __name__ == "__main__":
