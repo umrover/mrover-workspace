@@ -60,20 +60,13 @@ def start_pipeline(index, port):
         pass
 
 
-def stop_all_pipelines():
-    global __pipelines
-
-    print(f'Stopping all pipelines.')
-
-    for port_number, pipeline in enumerate(__pipelines):
-        pipeline_device_number = pipeline.get_device_number()
-        if pipeline_device_number == -1:
-            continue
-        video_sources[pipeline_device_number] = None
-        __pipelines[port_number].update_device_number(-1)
+def close_video_source(index):
+    global video_sources
+    video_sources[index] = None
 
 
 def create_video_source(index):
+    global video_sources
     if index == -1:
         return
     if video_sources[index] is not None:
@@ -84,16 +77,36 @@ def create_video_source(index):
         pass
 
 
+def device_is_not_being_used_by_other_pipelines(excluded_pipeline, device_number):
+    # This function checks whether excluded_pipeline is the only pipeline streaming device device_number
+    global __pipelines
+    # check if any of the other pipelines are using the current device
+    for pipeline_number, pipeline in enumerate(__pipelines):
+        if pipeline_number == excluded_pipeline:
+            continue
+        if pipeline.get_device_number() != device_number:
+            continue
+        return False
+    return True
+
+
 def camera_callback(channel, msg):
     global __pipelines
-
-    stop_all_pipelines()
 
     camera_cmd = Cameras.decode(msg)
 
     port_devices = camera_cmd.port
 
     for port_number, requested_port_device in enumerate(port_devices):
+        current_device_number = __pipelines[port_number].get_device_number()
+
+        if current_device_number == requested_port_device:
+            continue
+
+        # check if we need to close current video source or not
+        if device_is_not_being_used_by_other_pipelines(port_number, current_device_number):
+            close_video_source(current_device_number)
+
         create_video_source(requested_port_device)
         start_pipeline(requested_port_device, port_number)
 
