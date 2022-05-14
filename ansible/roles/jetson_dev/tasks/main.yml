@@ -25,3 +25,11 @@
       - socat
 
     state: present
+
+- name: Permanently export LCM DEFAULT URL
+  shell : |
+    touch /home/{{ running_user }}/.bashrc
+    echo LCM_DEFAULT_URL="udpm://239.255.76.67:7667?ttl=255" >> /home/{{ running_user }}/.bashrc
+    source /home/{{ running_user }}/.bashrc 
+  args:
+    executable: /bin/bash

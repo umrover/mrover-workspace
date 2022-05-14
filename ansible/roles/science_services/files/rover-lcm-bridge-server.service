@@ -2,7 +2,7 @@
 Description=MRover LCM Bridge Server
 
 [Service]
-User={{ user }}
+User={{ running_user }}
 EnvironmentFile=/etc/default/rover.env
 ExecStart={{ workspace_dir }}/jarvis exec lcm_bridge_server
 Restart=always
