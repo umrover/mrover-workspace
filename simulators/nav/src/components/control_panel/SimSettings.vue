@@ -62,6 +62,25 @@
               />
             </div>
           </div>
+          <div class="noiseFalsePos">
+            <p> False Positives Noise (%):</p>
+            <NumberInput
+              :val.sync="noiseFalsePosPercentIn"
+              :precision="2"
+              :min="0"
+              :max="100"
+              :step="5"
+            />
+          </div>
+          <div class="maxFalsePos">
+            <p> Max # of False Positives:</p>
+            <NumberInput
+              :val.sync="maxFalsePosIn"
+              :min="0"
+              :max="10"
+              :step="1"
+            />
+          </div>
           <div class="container">
             <div class="columnLeft">
               <p>Projected Points Path Type: {{ path_type }}</p>
@@ -236,10 +255,6 @@ export default class SimSettings extends Vue {
     return this.projectedPointsMessage.path_type;
   }
 
-
-  private get path_type():string {
-    return this.projectedPointsMessage.path_type;
-  }
 
   /************************************************************************************************
    * Private Methods
