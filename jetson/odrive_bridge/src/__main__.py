@@ -83,6 +83,7 @@ class OdriveEvent(Enum):
     ARM_CMD = 3
     ODRIVE_ERROR = 4
 
+
 class Axis(Enum):
     LEFT = 0
     RIGHT = 1
