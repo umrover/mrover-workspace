@@ -1,4 +1,4 @@
-- name: Install CV packages
+- name: Install percep packages
   apt: 
     name:
       - libjansson-dev
@@ -9,6 +9,7 @@
       - build-essential
       - yarn
       - mercurial
+      - libpcl-dev
     state: present
 
 # Install nodejs 12

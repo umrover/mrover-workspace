@@ -4,7 +4,7 @@ Description=MRover Jetson Odometry Filter
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec jetson_filter
+ExecStart={{ workspace_dir }}/jarvis exec jetson/filter
 Restart=always
 RestartSec=10
 
