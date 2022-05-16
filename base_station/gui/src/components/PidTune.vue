@@ -255,18 +255,11 @@
             this.$refs.pidChart.renderPIDChart();
             // chart.update(); and update demand
 
-          } else if (msg.topic === '/debugMessage') {
-            if (msg['message']['isError']) {
-              console.error(msg['message']['message'])
-            } else {
-              console.log(msg['message']['message'])
-            }
           }
         },
         // Subscriptions
         [
-          {'topic': '/encoder', 'type': 'Encoder'},
-          {'topic': '/debugMessage', 'type': 'DebugMessage'}
+          {'topic': '/encoder', 'type': 'Encoder'}
         ]
       )
     },

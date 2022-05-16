@@ -23,7 +23,7 @@
     </div>
 
     <div class="box cameras light-bg">
-      <Cameras/>
+      <Cameras v-bind:numCams="2" v-bind:channel="'/cameras_control'"/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
@@ -104,25 +104,18 @@ export default {
         this.connections.lcm = online[0]
       },
       // Subscribed LCM message received
-      (msg) => {
-        if (msg.topic === '/debugMessage') {
-          if (msg['message']['isError']) {
-            console.error(msg['message']['message'])
-          } else {
-            console.log(msg['message']['message'])
-          }
-        }
-      },
+      (msg) => { },
       // Subscriptions
       [
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/ra_offset_pos', 'type': 'RAPosition'},
-        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/arm_control_state', 'type': 'ArmControlState'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/ik_reset', 'type': 'Signal'}
+        {'topic': '/ik_reset', 'type': 'Signal'},
+        {'topic': '/ra_b_calib_data', 'type': 'Calibrate'},
+        {'topic': '/sa_b_calib_data', 'type': 'Calibrate'}
       ]
     )
   },
