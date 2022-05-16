@@ -48,8 +48,7 @@ def main():
 
         try:
             odrive_bridge.update()
-        except Exception as e:
-            print("odrive has been unplugged, exception caught as:", e)
+        except Exception:
             if usb_lock.locked():
                 usb_lock.release()
 
@@ -69,8 +68,7 @@ def lcm_publisher_thread():
         start_time = t.clock()
         try:
             publish_encoder_msg()
-        except Exception as e:
-            print("Exception caught as:", e)
+        except Exception:
             if usb_lock.locked():
                 usb_lock.release()
 
@@ -180,8 +178,8 @@ class ErrorState(State):
         if (event == OdriveEvent.ODRIVE_ERROR):
             try:
                 modrive.reboot()  # only runs after initial pairing
-            except Exception as e:
-                print('Exception caught as:', e)
+            except Exception:
+                pass
 
             return DisconnectedState()
 
@@ -241,14 +239,13 @@ class OdriveBridge(object):
                 modrive.watchdog_feed()
                 usb_lock.release()
 
-            except Exception as e:
+            except Exception:
                 if usb_lock.locked():
                     usb_lock.release()
                 errors = 0
                 usb_lock.acquire()
                 self.bridge_on_event(OdriveEvent.DISCONNECTED_ODRIVE)
                 usb_lock.release()
-                print("odrive unplugged, update failed with exception:", e)
 
             if errors:
                 usb_lock.acquire()
@@ -304,7 +301,7 @@ def publish_encoder_helper(axis):
 
     usb_lock.acquire()
     msg.current_amps = modrive.get_iq_measured(axis)
-    msg.vel_percent = modrive.get_vel_estimate(axis)
+    msg.vel_m_s = modrive.get_vel_estimate(axis)
     usb_lock.release()
 
     motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
@@ -334,8 +331,7 @@ def drive_vel_cmd_callback(channel, msg):
             speed_lock.acquire()
             left_speed, right_speed = cmd.left, cmd.right
             speed_lock.release()
-    except Exception as e:
-        print("Exception caught as:", e)
+    except Exception:
         pass
 
 
@@ -347,6 +343,7 @@ class Modrive:
     CURRENT_LIM = 4
     # scales normalized inputs to max physical speed of rover in turn/s
     SPEED_MULTIPLIER = 50
+    TURNS_TO_M_S_MULTIPLIER = 0.02513  # from turns/sec to m/s (for 2022 rover)
 
     def __init__(self, odr):
         self.odrive = odr
@@ -370,7 +367,6 @@ class Modrive:
             self.left_axis.config.enable_watchdog = True
             self.right_axis.config.enable_watchdog = True
         except Exception as e:
-            print("Failed in enable_watchdog. Error:")
             print(e)
 
     def disable_watchdog(self):
@@ -434,9 +430,9 @@ class Modrive:
 
     def get_vel_estimate(self, axis):
         if (axis == "LEFT"):
-            return self.left_axis.encoder.vel_estimate
+            return self.left_axis.encoder.vel_estimate * self.TURNS_TO_M_S_MULTIPLIER
         elif(axis == "RIGHT"):
-            return self.right_axis.encoder.vel_estimate
+            return self.right_axis.encoder.vel_estimate * -self.TURNS_TO_M_S_MULTIPLIER
 
     def idle(self):
         self._requested_state(AXIS_STATE_IDLE)
