@@ -175,11 +175,7 @@
           {'topic': '/set_demand', 'type': 'SetDemand'},
           {'topic': '/simulation_mode', 'type': 'SimulationMode'},
           {'topic': '/spectral_data', 'type': 'SpectralData'},
-<<<<<<< HEAD
-=======
-          {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
           {'topic': '/target_bearing', 'type': 'TargetBearing'},
->>>>>>> main
           {'topic': '/target_list', 'type': 'TargetList'},
           {'topic': '/target_orientation', 'type': 'TargetOrientation'},
           {'topic': '/teleop_reverse_drive', 'type': 'ReverseDrive'},
