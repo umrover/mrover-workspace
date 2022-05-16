@@ -83,6 +83,10 @@ class OdriveEvent(Enum):
     ARM_CMD = 3
     ODRIVE_ERROR = 4
 
+class Axis(Enum):
+    LEFT = 0
+    RIGHT = 1
+
 
 class State(object):
     """
@@ -260,8 +264,8 @@ class OdriveBridge(object):
             speed_lock.release()
 
             usb_lock.acquire()
-            modrive.set_vel("LEFT", self.left_speed)
-            modrive.set_vel("RIGHT", self.right_speed)
+            modrive.set_vel(Axis.LEFT, self.left_speed)
+            modrive.set_vel(Axis.RIGHT, self.right_speed)
             usb_lock.release()
 
         elif (str(self.state) == "DisconnectedState"):
@@ -288,8 +292,7 @@ def publish_state_msg(msg, state_string):
     global odrive_controller_index
     # Shortens the state string which is of the form "[insert_odrive_state]State"
     # e.g. state_string is ErrorState, so short_state_string is Error
-    short_state_string = state_string[:len(state_string) - len("State")]
-    msg.state = short_state_string
+    msg.state = state_string[:len(state_string) - len("State")]
     msg.odrive_index = odrive_controller_index
     lcm_.publish("/drive_state_data", msg.encode())
     print("changed state to " + state_string)
@@ -304,9 +307,9 @@ def publish_encoder_helper(axis):
     msg.vel_m_s = modrive.get_vel_estimate(axis)
     usb_lock.release()
 
-    motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
-                 ("LEFT", 1): 2, ("RIGHT", 1): 3,
-                 ("LEFT", 2): 4, ("RIGHT", 2): 5}
+    motor_map = {(Axis.LEFT, 0): 0, (Axis.RIGHT, 0): 1,
+                 (Axis.LEFT, 1): 2, (Axis.RIGHT, 1): 3,
+                 (Axis.LEFT, 2): 4, (Axis.RIGHT, 2): 5}
 
     msg.axis = motor_map[(axis, odrive_controller_index)]
 
@@ -314,8 +317,8 @@ def publish_encoder_helper(axis):
 
 
 def publish_encoder_msg():
-    publish_encoder_helper("LEFT")
-    publish_encoder_helper("RIGHT")
+    publish_encoder_helper(Axis.LEFT)
+    publish_encoder_helper(Axis.RIGHT)
 
 
 def drive_vel_cmd_callback(channel, msg):
@@ -401,8 +404,8 @@ class Modrive:
         self.closed_loop_ctrl()
         self.set_velocity_ctrl()
 
-        self.set_vel("LEFT", 0)
-        self.set_vel("RIGHT", 0)
+        self.set_vel(Axis.LEFT, 0)
+        self.set_vel(Axis.RIGHT, 0)
 
         self.idle()
 
@@ -423,15 +426,15 @@ class Modrive:
 
     def get_iq_measured(self, axis):
         # measured current [Amps]
-        if (axis == "LEFT"):
+        if (axis == Axis.LEFT):
             return self.left_axis.motor.current_control.Iq_measured
-        elif(axis == "RIGHT"):
+        elif(axis == Axis.RIGHT):
             return self.right_axis.motor.current_control.Iq_measured
 
     def get_vel_estimate(self, axis):
-        if (axis == "LEFT"):
+        if (axis == Axis.LEFT):
             return self.left_axis.encoder.vel_estimate * self.TURNS_TO_M_S_MULTIPLIER
-        elif(axis == "RIGHT"):
+        elif (axis == Axis.RIGHT):
             return self.right_axis.encoder.vel_estimate * -self.TURNS_TO_M_S_MULTIPLIER
 
     def idle(self):
@@ -445,9 +448,9 @@ class Modrive:
         self.left_axis.requested_state = state
 
     def set_vel(self, axis, vel):
-        if (axis == "LEFT"):
+        if (axis == Axis.LEFT):
             self.left_axis.controller.input_vel = -vel * self.SPEED_MULTIPLIER
-        elif axis == "RIGHT":
+        elif (axis == Axis.RIGHT):
             self.right_axis.controller.input_vel = vel * self.SPEED_MULTIPLIER
 
     def get_current_state(self):
