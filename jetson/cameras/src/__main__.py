@@ -23,8 +23,15 @@ class Pipeline:
         self.port = port
 
     def update(self):
-        image = self.video_source.Capture()
-        self.video_output.Render(image)
+        try:
+            image = self.video_source.Capture()
+            self.video_output.Render(image)
+        except Exception:
+            print(f"Failed to capture from camera {index} on {remote_ip[self.port]}. Stopping stream.")
+            failed_device_number = self.device_number
+            self.device_number = -1
+            if device_is_not_being_used_by_other_pipelines(self.port, failed_device_number):
+                close_video_source(failed_device_number)
 
     def is_open(self):
         return True
