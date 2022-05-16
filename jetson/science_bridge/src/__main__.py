@@ -65,7 +65,6 @@ class ScienceBridge():
         }
         self.max_error_count = 20
         self.sleep = .01
-        self.previous_led_state = LED_state.NONE
 
     def __enter__(self):
         '''
@@ -233,26 +232,18 @@ class ScienceBridge():
 
         if struct.color == "Red":
             requested_state = LED_state.RED
+            print("Received new auton led request: Turning RED")
         elif struct.color == "Green":
             requested_state = LED_state.GREEN
+            print("Received new auton led request: Blinking GREEN")
         elif struct.color == "Blue":
             requested_state = LED_state.BLUE
-
-        if self.previous_led_state == requested_state:
-            return
-
-        self.previous_led_state = requested_state
-        if requested_state == LED_state.RED:
-            print("Received new auton led request: Turning RED")
-        elif requested_state == LED_state.GREEN:
-            print("Received new auton led request: Blinking GREEN")
-        elif requested_state == LED_state.BLUE:
             print("Received new auton led request: Turning BLUE")
-        elif requested_state == LED_state.NONE:
-            print("Received new auton led request: Turning OFF all colors")
+        else:
+            print("Received invalid/Off auton led request: Turning OFF all colors")
 
         led_message = "$LED,{led_color}"
-        led_message = led_message.format(led_color=self.previous_led_state.value)
+        led_message = led_message.format(led_color=requested_state.value)
         self.uart_send(led_message)
 
     def servo_transmit(self, channel, msg):
