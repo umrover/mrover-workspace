@@ -35,7 +35,7 @@ def deadzone(magnitude, threshold):
 class Drive:
     def __init__(self, reverse: bool):
         self.auton_enabled = False
-        self.teleop_enabled = False
+        self.teleop_enabled = True
         self.reverse = reverse
 
     def reverse_callback(self, channel, msg):

@@ -4,7 +4,7 @@ Description=MRover Drive Service %I
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec jetson_odrive_bridge %i
+ExecStart={{ workspace_dir }}/jarvis exec jetson_odrive_bridge ${%i}
 Restart=always
 RestartSec=10
 
