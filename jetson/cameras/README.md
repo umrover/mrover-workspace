@@ -5,7 +5,7 @@ Code to control the USB Cameras
 For the 2022 Mars Rover there are 8 USB cameras. This is the program \
 responsible for handling LCM messages received from the base station. \
 
-The LCM currently takes two integers representing the device number that the user wants on each of the ports, where the streams can be accessed at 10.0.0.1:5000 and 10.0.0.1:5001. -1 means no device, and 0-7 represent what the jetson recognizes at /dev/video0 to /dev/video7. The program does not crash if the video device does not exist.
+The LCM currently takes two integers representing the device number that the user wants on each of the ports, where the streams can be accessed at 10.0.0.1:5000 and 10.0.0.1:5001. Extra streams can also be accessed at 10.0.0.2:5000 and 10.0.0.2:5001 during the science mission, accessible on a the other science laptop. -1 means no device, and 0-7 represent what the jetson recognizes at /dev/video0 to /dev/video7. The program does not crash if the video device does not exist.
 
 The program relies on jetson-utils to operate. Its python functions are called in order to get feed from the camera and render them to a stream. Two pipelines (two streams) are constantly capturing images and rendering them to the output. 
 
@@ -44,15 +44,17 @@ make
 Depending on your version of python, you may need to change the CMakeLists.txt inside the jetson-utils/python/ folder and include your version for the PYTHON_BINDING_VERSIONS. In addition to this, you should edit the jetson/cameras/src/\_\_main\_\_.py file and replace "/usr/lib/python3.6/dist-packages" with your version of python.  
 
 ### Issues
+Depending on which Jetson you use, you may not be able to stream as many cameras as you'd like at the same time. We use the Jetson Xavier NX, which can only stream up to 4 cameras via USB at a time.
+
 Still need to figure out a way to get camera streams onto the gui.
 
 Get jetson-utils in travis.
 
 ### ToDo 
 
-- [ ] Verify that ansible scripts work on the jetson
-- [ ] Update to new LCM. Currently being worked on in [tabiosg/more_cameras](https://github.com/tabiosg/mrover-workspace/tree/more_cameras)
-- [ ] Map physical ports to video so cameras are known by default. Being worked on in [tabiosg/camera_good](https://github.com/tabiosg/mrover-workspace/tree/camera_good)
-- [ ] Fix up issue with microscope camera
+- [X] Verify that ansible scripts work on the jetson
+- [ ] Map physical ports to video so cameras are known by default
+- [X] Fix up issue with microscope camera
 - [ ] Camera program freezes if USB is disconnected while streaming
-- [ ] Get camera streams onto the gui
+- [ ] Low priority - Get camera streams onto the gui
+- [ ] Look into 4 camera streams during other missions (prob change LCM w/ Teleop) + ansible scripts

@@ -65,6 +65,7 @@ class ScienceBridge():
         }
         self.max_error_count = 20
         self.sleep = .01
+        self.previous_auton_msg = "Default"
 
         self.led_map = {
             "Red" : LED_state.RED,
