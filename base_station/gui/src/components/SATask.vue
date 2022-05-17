@@ -37,10 +37,6 @@
 import Cameras from './Cameras.vue'
 import CommIndicator from './CommIndicator.vue'
 import DriveControls from './DriveControls.vue'
-<<<<<<< HEAD
-import Raman from './Raman.vue'
-=======
->>>>>>> travis-free
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import DriveVelDataH from './DriveVelDataH.vue'
 import ScoopUV from './ScoopUV.vue'
@@ -184,74 +180,8 @@ export default {
             margin-bottom: 2px;
         }
 
-<<<<<<< HEAD
-    .helpscreen {
-        z-index: 1000000000;
-        display: block;
-        visibility: hidden;
-        background-color: black;
-        opacity: 0.8;
-        position: absolute;
-        left: 0px;
-        top: 0px;
-        width: 100%;
-        height: 100%;
-    }
-
-    .helpimages {
-        z-index: 1000000001;
-        visibility: hidden;
-        position: absolute;
-        left: 5%;
-        top: 5%;
-        width: 90%;
-        height: 90%;
-    }
-
-    .help {
-        z-index: 1000000002;
-        display: flex;
-        float: right;
-        opacity: 0.8;
-        cursor: auto;
-    }
-
-        .help:hover {
-            opacity: 1.0;
-            cursor: pointer;
-        }
-
-            .help:hover ~ .helpscreen, .help:hover ~ .helpimages {
-                visibility: visible;
-            }
-
-    .raman {
-        grid-area: raman;
-        font-size: 1em;
-    }
-
-    .amino{
-      grid-area: amino;
-    } 
-
-    .striptest{
-      grid-area: striptest;
-    }
-    
-    .chlorophyll{
-      grid-area: chlorophyll;
-    }
-
-    .diags {
-        grid-area: diags;
-    }
-
-    .drives {
-      grid-area: drives;
-=======
     .drivedata {
       grid-area: drivedata;
->>>>>>> travis-free
     }
 
     .cameras {
