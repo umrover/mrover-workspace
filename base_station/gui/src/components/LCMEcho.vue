@@ -178,7 +178,6 @@
           {'topic': '/set_demand', 'type': 'SetDemand'},
           {'topic': '/simulation_mode', 'type': 'SimulationMode'},
           {'topic': '/spectral_data', 'type': 'SpectralData'},
-          {'topic': '/spectral_triad_data', 'type': 'SpectralData'},
           {'topic': '/target_bearing', 'type': 'TargetBearing'},
           {'topic': '/target_list', 'type': 'TargetList'},
           {'topic': '/target_orientation', 'type': 'TargetOrientation'},
