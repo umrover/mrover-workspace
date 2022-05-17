@@ -2,7 +2,6 @@
 Writes, reads and parses NMEA like messages from the onboard
 science nucleo to operate the science boxes and get relevant data
 '''
-import re
 import serial
 import asyncio
 # import Adafruit_BBIO.UART as UART  # for beaglebone use only
