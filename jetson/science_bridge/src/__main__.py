@@ -234,7 +234,7 @@ class ScienceBridge():
     def auton_led(self, channel, msg):  # TODO - fix make better
         # Off, Done, On
         struct = AutonLed.decode(msg)
-        try: 
+        try:
             requested_state = self.led_map[struct.color]
             print("Received new auton led request: Turning " + str(struct.color))
         except KeyError:
