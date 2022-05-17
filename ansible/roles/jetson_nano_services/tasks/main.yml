@@ -17,5 +17,7 @@
 - name: Enable services
   systemd: name={{item}} enabled=yes
   with_items:
-      - rover-jetson-odrive@
-      - rover-jetson-teleop
+      - rover-jetson-odrive@front.service
+      - rover-jetson-odrive@middle.service
+      - rover-jetson-odrive@back.service
+      - rover-jetson-teleop.service
