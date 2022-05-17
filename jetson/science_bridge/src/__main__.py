@@ -68,9 +68,9 @@ class ScienceBridge():
         self.previous_auton_msg = "Default"
 
         self.led_map = {
-            "Red" : LED_state.RED,
-            "Blue" : LED_state.BLUE,
-            "Green" : LED_state.GREEN
+            "Red": LED_state.RED,
+            "Blue": LED_state.BLUE,
+            "Green": LED_state.GREEN
         }
 
     def __enter__(self):
