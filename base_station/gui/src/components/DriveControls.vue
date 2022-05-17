@@ -34,10 +34,24 @@ export default {
     }
   },
 
+  methods: {
+    updateReverse: function(checked) {
+      const reverseMsg = {
+        'type': 'ReverseDrive',
+        'reverse': checked
+      }
+      this.$parent.publish('/teleop_reverse_drive', reverseMsg);
+    }
+  },
+
+  components: {
+    Checkbox
+  },
+
   computed: {
 
-    dampenDisplay: function () {
-      return (this.dampen * -50 + 50).toFixed(2)
+    dampenDisplay: function() {
+      return (this.dampen * 100).toFixed(2);
     },
 
     ...mapGetters('autonomy', {

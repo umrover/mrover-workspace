@@ -48,8 +48,7 @@ def main():
 
         try:
             odrive_bridge.update()
-        except Exception as e:
-            print("odrive has been unplugged, exception caught as:", e)
+        except Exception:
             if usb_lock.locked():
                 usb_lock.release()
 
@@ -69,8 +68,7 @@ def lcm_publisher_thread():
         start_time = t.clock()
         try:
             publish_encoder_msg()
-        except Exception as e:
-            print("Exception caught as:", e)
+        except Exception:
             if usb_lock.locked():
                 usb_lock.release()
 
@@ -84,6 +82,11 @@ class OdriveEvent(Enum):
     DISARM_CMD = 2
     ARM_CMD = 3
     ODRIVE_ERROR = 4
+
+
+class Axis(Enum):
+    LEFT = 0
+    RIGHT = 1
 
 
 class State(object):
@@ -180,8 +183,8 @@ class ErrorState(State):
         if (event == OdriveEvent.ODRIVE_ERROR):
             try:
                 modrive.reboot()  # only runs after initial pairing
-            except Exception as e:
-                print('Exception caught as:', e)
+            except Exception:
+                pass
 
             return DisconnectedState()
 
@@ -241,14 +244,13 @@ class OdriveBridge(object):
                 modrive.watchdog_feed()
                 usb_lock.release()
 
-            except Exception as e:
+            except Exception:
                 if usb_lock.locked():
                     usb_lock.release()
                 errors = 0
                 usb_lock.acquire()
                 self.bridge_on_event(OdriveEvent.DISCONNECTED_ODRIVE)
                 usb_lock.release()
-                print("odrive unplugged, update failed with exception:", e)
 
             if errors:
                 usb_lock.acquire()
@@ -263,8 +265,8 @@ class OdriveBridge(object):
             speed_lock.release()
 
             usb_lock.acquire()
-            modrive.set_vel("LEFT", self.left_speed)
-            modrive.set_vel("RIGHT", self.right_speed)
+            modrive.set_vel(Axis.LEFT, self.left_speed)
+            modrive.set_vel(Axis.RIGHT, self.right_speed)
             usb_lock.release()
 
         elif (str(self.state) == "DisconnectedState"):
@@ -291,8 +293,7 @@ def publish_state_msg(msg, state_string):
     global odrive_controller_index
     # Shortens the state string which is of the form "[insert_odrive_state]State"
     # e.g. state_string is ErrorState, so short_state_string is Error
-    short_state_string = state_string[:len(state_string) - len("State")]
-    msg.state = short_state_string
+    msg.state = state_string[:len(state_string) - len("State")]
     msg.odrive_index = odrive_controller_index
     lcm_.publish("/drive_state_data", msg.encode())
     print("changed state to " + state_string)
@@ -304,12 +305,12 @@ def publish_encoder_helper(axis):
 
     usb_lock.acquire()
     msg.current_amps = modrive.get_iq_measured(axis)
-    msg.vel_percent = modrive.get_vel_estimate(axis)
+    msg.vel_m_s = modrive.get_vel_estimate(axis)
     usb_lock.release()
 
-    motor_map = {("LEFT", 0): 0, ("RIGHT", 0): 1,
-                 ("LEFT", 1): 2, ("RIGHT", 1): 3,
-                 ("LEFT", 2): 4, ("RIGHT", 2): 5}
+    motor_map = {(Axis.LEFT, 0): 0, (Axis.RIGHT, 0): 1,
+                 (Axis.LEFT, 1): 2, (Axis.RIGHT, 1): 3,
+                 (Axis.LEFT, 2): 4, (Axis.RIGHT, 2): 5}
 
     msg.axis = motor_map[(axis, odrive_controller_index)]
 
@@ -317,8 +318,8 @@ def publish_encoder_helper(axis):
 
 
 def publish_encoder_msg():
-    publish_encoder_helper("LEFT")
-    publish_encoder_helper("RIGHT")
+    publish_encoder_helper(Axis.LEFT)
+    publish_encoder_helper(Axis.RIGHT)
 
 
 def drive_vel_cmd_callback(channel, msg):
@@ -334,8 +335,7 @@ def drive_vel_cmd_callback(channel, msg):
             speed_lock.acquire()
             left_speed, right_speed = cmd.left, cmd.right
             speed_lock.release()
-    except Exception as e:
-        print("Exception caught as:", e)
+    except Exception:
         pass
 
 
@@ -347,6 +347,7 @@ class Modrive:
     CURRENT_LIM = 4
     # scales normalized inputs to max physical speed of rover in turn/s
     SPEED_MULTIPLIER = 50
+    TURNS_TO_M_S_MULTIPLIER = 0.02513  # from turns/sec to m/s (for 2022 rover)
 
     def __init__(self, odr):
         self.odrive = odr
@@ -370,7 +371,6 @@ class Modrive:
             self.left_axis.config.enable_watchdog = True
             self.right_axis.config.enable_watchdog = True
         except Exception as e:
-            print("Failed in enable_watchdog. Error:")
             print(e)
 
     def disable_watchdog(self):
@@ -405,8 +405,8 @@ class Modrive:
         self.closed_loop_ctrl()
         self.set_velocity_ctrl()
 
-        self.set_vel("LEFT", 0)
-        self.set_vel("RIGHT", 0)
+        self.set_vel(Axis.LEFT, 0)
+        self.set_vel(Axis.RIGHT, 0)
 
         self.idle()
 
@@ -427,16 +427,16 @@ class Modrive:
 
     def get_iq_measured(self, axis):
         # measured current [Amps]
-        if (axis == "LEFT"):
+        if (axis == Axis.LEFT):
             return self.left_axis.motor.current_control.Iq_measured
-        elif(axis == "RIGHT"):
+        elif(axis == Axis.RIGHT):
             return self.right_axis.motor.current_control.Iq_measured
 
     def get_vel_estimate(self, axis):
-        if (axis == "LEFT"):
-            return self.left_axis.encoder.vel_estimate
-        elif(axis == "RIGHT"):
-            return self.right_axis.encoder.vel_estimate
+        if (axis == Axis.LEFT):
+            return self.left_axis.encoder.vel_estimate * self.TURNS_TO_M_S_MULTIPLIER
+        elif (axis == Axis.RIGHT):
+            return self.right_axis.encoder.vel_estimate * -self.TURNS_TO_M_S_MULTIPLIER
 
     def idle(self):
         self._requested_state(AXIS_STATE_IDLE)
@@ -449,9 +449,9 @@ class Modrive:
         self.left_axis.requested_state = state
 
     def set_vel(self, axis, vel):
-        if (axis == "LEFT"):
+        if (axis == Axis.LEFT):
             self.left_axis.controller.input_vel = -vel * self.SPEED_MULTIPLIER
-        elif axis == "RIGHT":
+        elif (axis == Axis.RIGHT):
             self.right_axis.controller.input_vel = vel * self.SPEED_MULTIPLIER
 
     def get_current_state(self):

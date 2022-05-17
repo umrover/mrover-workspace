@@ -21,6 +21,7 @@
       - libcairo2-dev
       - libgirepository1.0-dev
       - gfortran
+      - xdotool
       - libeigen3-dev
       - socat
 

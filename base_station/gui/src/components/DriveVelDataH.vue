@@ -35,25 +35,25 @@
       <td class = "tableElement">Left</td>
       <td class = "tableElement">0</td>
       <td class = "tableElement">{{drive_vel_data.frontLeft.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity*60}} rpm</td>
+      <td class = "tableElement">{{drive_vel_data.frontLeft.velocity}} m/sec</td>
       <td class = "tableElement">2</td>
       <td class = "tableElement">{{drive_vel_data.middleLeft.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity*60}} rpm</td>
+      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity}} m/sec</td>
       <td class = "tableElement">4</td>
       <td class = "tableElement">{{drive_vel_data.backLeft.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.backLeft.velocity*60}} rpm</td>
+      <td class = "tableElement">{{drive_vel_data.backLeft.velocity}} m/sec</td>
     </tr>
     <tr>
       <td class = "tableElement">Right</td>
       <td class = "tableElement">1</td>
       <td class = "tableElement">{{drive_vel_data.frontRight.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.frontRight.velocity*60}} rpm</td>
+      <td class = "tableElement">{{drive_vel_data.frontRight.velocity}} m/sec</td>
       <td class = "tableElement">3</td>
       <td class = "tableElement">{{drive_vel_data.middleRight.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.middleRight.velocity*60}} rpm</td>
+      <td class = "tableElement">{{drive_vel_data.middleRight.velocity}} m/sec</td>
       <td class = "tableElement">5</td>
       <td class = "tableElement">{{drive_vel_data.backRight.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.backRight.velocity*60}} rpm</td>
+      <td class = "tableElement">{{drive_vel_data.backRight.velocity}} m/sec</td>
     </tr>
   </tbody>
   </table>
@@ -153,28 +153,28 @@ export default {
     created: function(){
       this.$parent.subscribe('/drive_vel_data', (msg) => {
         if(msg.axis == 0){
-          this.drive_vel_data.frontLeft.current = msg.measuredCurrent;
-          this.drive_vel_data.frontLeft.velocity = msg.estimatedVel;
+          this.drive_vel_data.frontLeft.current = msg.current_amps;
+          this.drive_vel_data.frontLeft.velocity = msg.vel_m_s;
         }
         if(msg.axis == 1){
-          this.drive_vel_data.frontRight.current = msg.measuredCurrent;
-          this.drive_vel_data.frontRight.velocity = msg.estimatedVel;
+          this.drive_vel_data.frontRight.current = msg.current_amps;
+          this.drive_vel_data.frontRight.velocity = msg.vel_m_s;
         }
         if(msg.axis == 2){
-          this.drive_vel_data.middleLeft.current = msg.measuredCurrent;
-          this.drive_vel_data.middleLeft.velocity = msg.estimatedVel;
+          this.drive_vel_data.middleLeft.current = msg.current_amps;
+          this.drive_vel_data.middleLeft.velocity = msg.vel_m_s;
         }
         if(msg.axis == 3){
-          this.drive_vel_data.middleRight.current = msg.measuredCurrent;
-          this.drive_vel_data.middleRight.velocity = msg.estimatedVel;
+          this.drive_vel_data.middleRight.current = msg.current_amps;
+          this.drive_vel_data.middleRight.velocity = msg.vel_m_s;
         }
         if(msg.axis == 4){
-          this.drive_vel_data.backLeft.current = msg.measuredCurrent;
-          this.drive_vel_data.backLeft.velocity = msg.estimatedVel;
+          this.drive_vel_data.backLeft.current = msg.current_amps;
+          this.drive_vel_data.backLeft.velocity = msg.vel_m_s;
         }
         if(msg.axis == 5){
-          this.drive_vel_data.backRight.current = msg.measuredCurrent;
-          this.drive_vel_data.backRight.velocity = msg.estimatedVel;
+          this.drive_vel_data.backRight.current = msg.current_amps;
+          this.drive_vel_data.backRight.velocity = msg.vel_m_s;
         }
       })
       this.$parent.subscribe('/drive_state_data', (msg) => {

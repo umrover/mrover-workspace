@@ -1,53 +1,54 @@
-#ifndef OBSTACLE_AVOIDANCE_STATE_MACHINE_HPP
-#define OBSTACLE_AVOIDANCE_STATE_MACHINE_HPP
+#pragma once
 
+#include <memory>
 #include "rover.hpp"
+#include "environment.hpp"
+
+
+using namespace rover_msgs;
 
 class StateMachine;
 
 // This class is the representation of different 
 // obstacle avoidance algorithms
-enum class ObstacleAvoidanceAlgorithm
-{
+enum class ObstacleAvoidanceAlgorithm {
     SimpleAvoidance
 };
 
 // This class is the base class for the logic of the obstacle avoidance state machine 
-class ObstacleAvoidanceStateMachine 
-{
+class ObstacleAvoidanceStateMachine {
 public:
     /*************************************************************************/
     /* Public Member Functions */
     /*************************************************************************/
-    ObstacleAvoidanceStateMachine( StateMachine* stateMachine_, Rover* rover, const rapidjson::Document& roverConfig );
+    ObstacleAvoidanceStateMachine(std::weak_ptr<StateMachine> sm, std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig);
 
-    virtual ~ObstacleAvoidanceStateMachine() {}
+    virtual ~ObstacleAvoidanceStateMachine() = default;
 
-    void updateObstacleAngle( double bearing );
+    void updateObstacleAngle(double bearing, double rightBearing);
 
-    void updateObstacleDistance( double distance );
+    void updateObstacleDistance(double distance);
 
-    void updateObstacleElements( double bearing, double distance );  
+    void updateObstacleElements(double bearing, double rightBearing, double distance);
 
     NavState run();
 
     bool isTargetDetected();
 
-    virtual Odometry createAvoidancePoint( Rover* rover, const double distance ) = 0;
+    virtual Odometry createAvoidancePoint(std::shared_ptr<Rover> rover, double distance) = 0;
 
-    virtual NavState executeTurnAroundObs( Rover* rover, const rapidjson::Document& roverConfig ) = 0;
+    virtual NavState executeTurnAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) = 0;
 
-
-    virtual NavState executeDriveAroundObs( Rover* rover, const rapidjson::Document& roverConfig ) = 0;
-
+    virtual NavState
+    executeDriveAroundObs(std::shared_ptr<Rover> rover, const rapidjson::Document& roverConfig) = 0;
 
 protected:
     /*************************************************************************/
     /* Protected Member Variables */
     /*************************************************************************/
-    
+
     // Pointer to rover State Machine to access member functions
-    StateMachine* roverStateMachine;
+    std::weak_ptr<StateMachine> mStateMachine;
 
     // Odometry point used when avoiding obstacles.
     Odometry mObstacleAvoidancePoint;
@@ -65,7 +66,7 @@ protected:
     double mLastObstacleAngle;
 
     // Pointer to rover object
-    Rover* mRover;
+    std::shared_ptr<Rover> mRover;
 
 private:
     /*************************************************************************/
@@ -73,14 +74,14 @@ private:
     /*************************************************************************/
 
     // Reference to config variables
-    const rapidjson::Document& mRoverConfig;
+    const rapidjson::Document& mConfig;
 
 };
 
 // Creates an ObstacleAvoidanceStateMachine object based on the inputted obstacle 
 // avoidance algorithm. This allows for an an ease of transition between obstacle 
 // avoidance algorithms
-ObstacleAvoidanceStateMachine* ObstacleAvoiderFactory( StateMachine* roverStateMachine,
-                                                       ObstacleAvoidanceAlgorithm algorithm, Rover* rover, const rapidjson::Document& roverConfig );
-
-#endif //OBSTACLE_AVOIDANCE_STATE_MACHINE_HPP
+std::shared_ptr<ObstacleAvoidanceStateMachine> ObstacleAvoiderFactory(
+        std::weak_ptr<StateMachine> roverStateMachine, ObstacleAvoidanceAlgorithm algorithm, std::shared_ptr<Rover> rover,
+        const rapidjson::Document& roverConfig
+);
