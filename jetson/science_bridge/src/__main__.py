@@ -2,6 +2,7 @@
 Writes, reads and parses NMEA like messages from the onboard
 science nucleo to operate the science boxes and get relevant data
 '''
+import re
 import serial
 import asyncio
 # import Adafruit_BBIO.UART as UART  # for beaglebone use only
@@ -65,6 +66,12 @@ class ScienceBridge():
         }
         self.max_error_count = 20
         self.sleep = .01
+
+        self.led_map = {
+            "Red" : LED_state.RED,
+            "Blue" : LED_state.BLUE,
+            "Green" : LED_state.GREEN
+        }
 
     def __enter__(self):
         '''
@@ -227,23 +234,14 @@ class ScienceBridge():
     def auton_led(self, channel, msg):  # TODO - fix make better
         # Off, Done, On
         struct = AutonLed.decode(msg)
-
-        requested_state = LED_state.NONE
-
-        if struct.color == "Red":
-            requested_state = LED_state.RED
-            print("Received new auton led request: Turning RED")
-        elif struct.color == "Green":
-            requested_state = LED_state.GREEN
-            print("Received new auton led request: Blinking GREEN")
-        elif struct.color == "Blue":
-            requested_state = LED_state.BLUE
-            print("Received new auton led request: Turning BLUE")
-        else:
+        try: 
+            requested_state = self.led_map[struct.color]
+            print("Received new auton led request: Turning " + str(struct.color))
+        except KeyError:
+            requested_state = LED_state.NONE
             print("Received invalid/Off auton led request: Turning OFF all colors")
 
-        led_message = "$LED,{led_color}"
-        led_message = led_message.format(led_color=requested_state.value)
+        led_message = "$LED,{led_color}".format(led_color=requested_state.value)
         self.uart_send(led_message)
 
     def servo_transmit(self, channel, msg):
