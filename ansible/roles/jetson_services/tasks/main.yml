@@ -31,7 +31,6 @@
   systemd: name={{item}} enabled=yes
   with_items:
       - rover-jetson-cameras.service
-      - rover-jetson-cv.service
       - rover-jetson-filter.service
       - rover-jetson-gps.service
       - rover-jetson-kinematics.service

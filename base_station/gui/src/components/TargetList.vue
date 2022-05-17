@@ -2,9 +2,9 @@
   <div class="wrap">
     <div>
     <p>Target 1:
-        Bearing: {{this.TargetList.targetList[0].bearing}} &nbsp;Distance: {{this.TargetList.targetList[0].distance}}&nbsp; id: {{this.TargetList.targetList[0].id}}<br/>
+        Bearing: {{this.TargetList[0].bearing}} &nbsp;Distance: {{this.TargetList[0].distance}}&nbsp; id: {{this.TargetList[0].id}}<br/>
         Target 2:
-        Bearing: {{this.TargetList.targetList[1].bearing}}&nbsp; Distance: {{this.TargetList.targetList[1].distance}}&nbsp; id: {{this.TargetList.targetList[1].id}}</p>
+        Bearing: {{this.TargetList[1].bearing}}&nbsp; Distance: {{this.TargetList[1].distance}}&nbsp; id: {{this.TargetList[1].id}}</p>
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@
 export default {
   props: {
     TargetList: {
-      type: Object,
+      type: Array,
       required: true
     },
 
