@@ -119,6 +119,9 @@ def mission_callback(channel, msg):
     else:
         current_ips = ips_one_laptop
     for pipeline_number, pipeline in enumerate(__pipelines):
+        # only skip if 0 or 1 because it's the same either way
+        if pipeline_number == 0 or pipeline_number == 1:
+            continue
         pipeline.update_video_output()
 
 
