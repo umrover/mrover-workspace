@@ -1,6 +1,6 @@
 package rover_msgs;
 
 struct Cameras {
-    int8_t port_0;
-    int8_t port_1;
+    // 4 since the Jetson Xavier NX can only stream up to 4 cameras via usb at a time
+    int32_t port[4];
 }

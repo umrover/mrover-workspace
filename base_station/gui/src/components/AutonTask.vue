@@ -45,7 +45,7 @@
       <AutonWaypointEditor v-bind:odom="odom" v-bind:AutonDriveControl="AutonDriveControl"/>
     </div>
     <div class="box cameras light-bg">
-      <AutonCameras v-if="!this.autonEnabled" />
+      <AutonCameras v-bind:numCams="2" v-bind:channel="'/cameras_control'"/>
     </div>
   </div>
 
@@ -98,8 +98,8 @@ export default {
         completed_wps: 0,
         total_wps: 0
       },
-      nav_state_color: "red",
-      nav_counter: 0,
+      navBlink: false,
+      greenHook: false,
 
       GPS: {
         latitude_deg: 38,
@@ -168,37 +168,58 @@ export default {
 
   computed: {
     ...mapGetters('autonomy', {
-      autonEnabled: 'autonEnabled'
+      autonEnabled: 'autonEnabled',
+      teleopEnabled: 'teleopEnabled'
     }),
+
+    nav_state_color: function() {
+      if(this.teleopEnabled){
+        return navBlue
+      }
+      else if(this.autonEnabled){
+        if(this.nav_status.nav_state_name == "Done" && this.navBlink){
+          return navGreen
+        }
+        else if(this.nav_status.nav_state_name == "Done" && !this.navBlink){
+          return navGrey
+        }
+        else{
+          return navRed
+        }
+      }
+      return navRed
+    },
+  },
+
+  watch: {
+    nav_state_color: function(color){
+      let ledMsg = {
+        type: 'AutonLed',
+        color: 'Null'
+      }
+      if(color == navBlue){
+        ledMsg.color = 'Blue'
+        this.greenHook = false
+      }
+      else if(color == navRed){
+        ledMsg.color = 'Red'
+        this.greenHook = false
+      }
+      else if(color == navGreen && !this.greenHook){
+        ledMsg.color = 'Green'
+        this.greenHook = true //Accounting for the blinking between navGrey and navGreen
+      }
+      if(!this.greenHook || ledMsg.color == 'Green'){
+        this.publish('/auton_led',ledMsg)
+      }
+    }
   },
 
   created: function () {
 
     setInterval(() => {
-      if(this.nav_status.nav_state_name == "Off"){
-        this.nav_state_color = navBlue
-      }
-      else if(this.nav_status.nav_state_name == "Done"){
-        if(this.nav_state_color == navBlue || this.nav_state_color == navRed){
-          this.nav_state_color = navGreen
-        }
-        else if(this.nav_counter >= 5 && this.nav_state_color == navGreen){
-          this.nav_state_color = navGrey
-          this.nav_counter = 0
-        }
-        else if(this.nav_counter >= 5 && this.nav_state_color == navGrey){
-          this.nav_state_color = navGreen
-          this.nav_counter = 0
-        }
-      }
-      else{
-        this.nav_state_color = navRed
-      }
-      this.nav_counter = this.nav_counter + 1
-      if(this.nav_counter >= 5){
-        this.nav_count = 0
-      }
-    }, 100);
+      this.navBlink = !this.navBlink
+    }, 500);
 
     this.lcm_ = new LCMBridge(
       'ws://localhost:8001',

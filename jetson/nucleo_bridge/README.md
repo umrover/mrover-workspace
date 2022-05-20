@@ -28,14 +28,19 @@ I2C.h is responsible for translating communications by virtual Controllers into 
 The following watchdog is implemented: If the nucleos do not receive any I2C messages for a given amount of time (currently about 443 ms), then they reset.
 
 ### LCM Channels Publishing/Subscribed To
-#### RA Open Loop \[Subscriber\] "/ra_openloop_cmd"
+#### RA Open Loop \[Subscriber\] "/ra_open_loop_cmd"
 Message: [RAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/RAOpenLoopCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### SA Open Loop \[Subscriber\] "/sa_openloop_cmd"
+#### SA Open Loop \[Subscriber\] "/sa_open_loop_cmd"
 Message: [SAOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/SAOpenLoopCmd.lcm) \
 Publisher: jetson/teleop \
+Subscriber: jetson/nucleo_bridge
+
+#### Carousel Open Loop \[Subscriber\] "/carousel_open_loop_cmd"
+Message: [CarouselOpenLoopCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/CarouselOpenLoopCmd.lcm) \
+Publisher: base_station/gui \
 Subscriber: jetson/nucleo_bridge
 
 #### RA Closed Loop \[Subscriber\] "/ra_ik_cmd"
@@ -48,17 +53,22 @@ Message: [SAPosition.lcm](https://github.com/umrover/mrover-workspace/blob/maste
 Publisher: jetson/ra_kinematics \
 Subscriber: jetson/nucleo_bridge
 
+#### Carousel Closed Loop \[Subscriber\] "/carousel_closed_loop_cmd"
+Message: [CarouselPosition.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/CarouselPosition.lcm) \
+Publisher: base_station/gui \
+Subscriber: jetson/nucleo_bridge
+
 #### Mast Gimbal Open Loop \[Subscriber\] "/mast_gimbal_cmd"
 Message: [MastGimbalCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/MastGimbalCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### Hand Open Loop \[Subscriber\] "/hand_openloop_cmd"
+#### Hand Open Loop \[Subscriber\] "/hand_open_loop_cmd"
 Message: [HandCmd.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/HandCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
 
-#### Foot Open Loop \[Subscriber\] "/foot_openloop_cmd"
+#### Foot Open Loop \[Subscriber\] "/foot_open_loop_cmd"
 Message: [FootCmd.lcm](https://github.com/umrover/mrover-workspace/blob/rnucleo/rover_msgs/FootCmd.lcm) \
 Publisher: jetson/teleop \
 Subscriber: jetson/nucleo_bridge
@@ -73,18 +83,38 @@ Message: [SAPosData.lcm](https://github.com/umrover/mrover-workspace/blob/master
 Publisher: jetson/nucleo_bridge \
 Subscriber: jetson/ra_kinematics + base_station/kineval_stencil + base_station/gui
 
+#### Carousel Pos Data \[Publisher\] "/carousel_pos_data"
+Message: [CarouselData.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/CarouselData.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui
+
 #### Wrist Turn Count \[Publisher\] "/wrist_turn_count"
 Message: [WristTurnCount.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/WristTurnCount.lcm) \
 Publisher: jetson/nucleo_bridge \
 Subscriber: base_station/gui + jetson/teleop
 
-#### Joint B Calibration Data \[Publisher\] "/joint_b_refresh_calibration_data"
-Message: [JointBCalibration.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/JointBCalibration.lcm) \
+#### Carousel Calibration Data \[Publisher\] "/carousel_calib_data"
+Message: [Calibrate.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Calibrate.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui
+
+#### RA Joint B Calibration Data \[Publisher\] "/ra_b_calib_data"
+Message: [Calibrate.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Calibrate.lcm) \
+Publisher: jetson/nucleo_bridge \
+Subscriber: base_station/gui + jetson/ra_kinematics
+
+#### SA Joint B Calibration Data \[Publisher\] "/sa_b_calib_data"
+Message: [Calibrate.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Calibrate.lcm) \
 Publisher: jetson/nucleo_bridge \
 Subscriber: base_station/gui + jetson/ra_kinematics
 
 #### Scoop Limit Switch Enable Cmd \[Subscriber\] "/scoop_limit_switch_enable_cmd"
 Message: [ScoopLimitSwitchEnable.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ScoopLimitSwitchEnable.lcm) \
+Publisher: base_station/gui \
+Subscriber: jetson/nucleo_bridge
+
+#### Zero Carousel Cmd \[Subscriber\] "/carousel_zero_cmd"
+Message: [Signal.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Signal.lcm) \
 Publisher: base_station/gui \
 Subscriber: jetson/nucleo_bridge
 
@@ -135,9 +165,17 @@ If two devices share the same i2c address but their functions are continuously c
 
 
 ### ToDo
-- [ ] Test limit switch code
-- [ ] Test joint b calibration code
-- [ ] Test IR encoder
+- [x] Test limit switch code for science arm
+- [ ] Test limit switch code for standard robotic arm
+- [X] Test joint b calibration code
+- [ ] Investigate encoder issues
+- [ ] Create new shield next year and make sure correct pins are traced
+- [ ] Add LCM tests to test.cpp
+- [ ] Zero-index after URC + CIRC (after Rosie)
+- [ ] Verify wrist encoder CPR
+- [ ] Perhaps custom nucleos (to replace the current 3 nucleos taking up so much space)
+- [X] Create zero lcm with teleop for carousel motor
+- [X] Create closed loop for carousel motor
 
 ### Notes
 

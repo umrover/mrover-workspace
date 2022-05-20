@@ -43,7 +43,7 @@ void Environment::setTargets(TargetList const& targets) {
  */
 void Environment::updatePost(std::shared_ptr<Rover> const& rover, std::shared_ptr<CourseProgress> const& course) {
     mHasNewPostUpdate = false;
-    if (rover->autonState().is_auton) {
+    if (rover->autonState().enabled) {
         bool isRightValid = mTargetRight.isValid();
         bool isLeftValid = mTargetLeft.isValid();
         Target const& leftTarget = mTargetLeft.get();

@@ -26,7 +26,7 @@
       <OdometryReading v-bind:odom="odom"/>
     </div>
     <div class="box cameras light-bg">
-      <Cameras/>
+      <Cameras v-bind:numCams="2" v-bind:channel="'/cameras_control'"/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
@@ -36,9 +36,6 @@
     </div>
     <div class="box controls light-bg">
       <ArmControls/>
-    </div>
-    <div class="box encoder light-bg">
-      <EncoderCounts/>
     </div>
     <div class="box drive light-bg">
       <DriveControls/>
@@ -65,7 +62,6 @@ import CommIndicator from './CommIndicator.vue'
 import OdometryReading from './OdometryReading.vue'
 import ArmControls from './ArmControls.vue'
 import DriveControls from './DriveControls.vue'
-import EncoderCounts from './EncoderCounts.vue'
 import LCMBridge from 'lcm_bridge_client/dist/bridge.js'
 import PDBFuse from './PDBFuse.vue'
 import DriveVelDataV from './DriveVelDataV.vue' 
@@ -133,12 +129,6 @@ export default {
       (msg) => {
         if (msg.topic === '/odometry') {
           this.odom = msg.message
-        } else if (msg.topic === '/debugMessage') {
-          if (msg['message']['isError']) {
-            console.error(msg['message']['message'])
-          } else {
-            console.log(msg['message']['message'])
-          }
         }
       },
       // Subscriptions
@@ -147,11 +137,12 @@ export default {
         {'topic': '/sensors', 'type': 'Sensors'},
         {'topic': '/temperature', 'type': 'Temperature'},
         {'topic': '/ra_offset_pos', 'type': 'RAPosition'},
-        {'topic': '/arm_control_state_to_gui', 'type': 'ArmControlState'},
-        {'topic': '/debugMessage', 'type': 'DebugMessage'},
+        {'topic': '/arm_control_state', 'type': 'ArmControlState'},
         {'topic': '/drive_vel_data', 'type': 'DriveVelData'},
         {'topic': '/drive_state_data', 'type': 'DriveStateData'},
-        {'topic': '/ik_reset', 'type': 'Signal'}
+        {'topic': '/ik_reset', 'type': 'Signal'},
+        {'topic': '/ra_b_calib_data', 'type': 'Calibrate'},
+        {'topic': '/sa_b_calib_data', 'type': 'Calibrate'}
       ]
     )
   },
@@ -162,7 +153,6 @@ export default {
     CommIndicator,
     ArmControls,
     DriveControls,
-    EncoderCounts,
     OdometryReading,
     IKControls,
     PDBFuse,
@@ -177,12 +167,12 @@ export default {
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1.2fr;
-    grid-template-rows: 60px auto auto auto auto auto auto auto;
+    grid-template-rows: 60px 250px 150px auto auto auto auto;
     grid-template-areas: "header header"
                          "map cameras"
                          "map ik-controls"
                          "waypoint-editor ik-controls"
-                         "encoder controls"
+                         "waypoint-editor controls"
                          "odom drive"
                          "pdb drive-motor";
     font-family: sans-serif;

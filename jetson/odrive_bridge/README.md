@@ -228,6 +228,7 @@ As of right now we are unsure whether or not we are using odrives for the 2021 R
 - [x] Implement watchdog timer
 - [x] Add Off Nominal Behavior Section
 - [x] Make functional for 2021
+- [ ] Move odrive IDs into config
 
 
 ### Notes

@@ -37,5 +37,4 @@
       - rover-jetson-nav.service
       - rover-jetson-raman.service
       - rover-jetson-science-bridge.service
-      - rover-jetson-teleop.service
       - rover-jetson-nucleo-bridge.service
