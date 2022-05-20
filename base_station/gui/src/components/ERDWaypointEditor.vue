@@ -183,7 +183,7 @@ export default {
     border: 1px solid black;
     overflow: scroll;
     min-height: min-content;
-    max-height: 63%;
+    max-height: 500px;
   }
 
   .all-waypoints{

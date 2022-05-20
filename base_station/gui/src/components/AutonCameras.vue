@@ -1,8 +1,13 @@
 <template>
   <div class="wrap">
     <h3>Cameras</h3>
-    <div>
-      <CameraSelection class="camera-selection" v-bind:cam_index="cam_index" v-on:cam_index="setCamIndex($event)"/>
+    <div class="input">
+      Camera name: <input type='message' v-model ='cameraName'>
+      Camera number: <input type='Number' min="0" max="9" v-model ='cameraIdx'>
+      <button v-on:click="addCameraName()">Change name</button>
+    </div>
+    <div class="cameraselection">
+      <CameraSelection class="cameraspace1" v-bind:camsEnabled="camsEnabled" v-bind:names="names" v-bind:numCams="numCams" v-on:cam_index="setCamIndex($event)"/>
     </div>
   </div>
 </template>
@@ -17,7 +22,30 @@
   export default {
     data() {
       return {
-        cam_index: -1
+        camsEnabled: [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+        ],
+        names: [
+          "Camera 0",
+          "Camera 1",
+          "Camera 2",
+          "Camera 3",
+          "Camera 4",
+          "Camera 5",
+          "Camera 6",
+          "Camera 7",
+          "Camera 8"
+        ],
+        cameraIdx: 1,
+        cameraName: ""
       }
     },
 
@@ -25,87 +53,50 @@
       window.clearInterval(interval);
     },
 
-    created: function () {
-      const JOYSTICK_CONFIG = {
-        'down_left_button': 6,
-        'up_left_button': 7,
-        'down_middle_button': 8,
-        'up_middle_button': 9,
-        'down_right_button': 10,
-        'up_right_button': 11
+    props: {
+      numCams: {
+        type: Number,
+        required: true
+      },
+      channel: {
+        type: String,
+        required: true
       }
-
-      const CAMERA_NUM = {
-        'down_left_button': 1,
-        'up_left_button': 2,
-        'down_middle_button': 3,
-        'up_middle_button': 4,
-        'down_right_button': 5,
-        'up_right_button': 6
-      }
-
-      window.addEventListener('keydown', (e) => {
-        const activeElement = document.activeElement;
-        const inputs = ['input', 'select', 'textarea'];
-
-        //Prevent camera change if inside text area
-        if (activeElement && inputs.indexOf(activeElement.tagName.toLowerCase()) !== -1) {
-            return;
-        }
-
-        if(e.keyCode>=49 && e.keyCode<=54)  //keys 1 to 6
-          this.cam_index = e.keyCode-48
-      })
-
-      // Change cam index based on joystick button
-      interval = window.setInterval(() => {
-        const gamepads = navigator.getGamepads()
-        for (let i = 0; i < 2; i++) {
-          const gamepad = gamepads[i]
-          if (gamepad) {
-            if (gamepad.id.includes('Logitech')) {
-              if (gamepad.buttons[JOYSTICK_CONFIG['down_left_button']]['pressed']) {
-                this.cam_index = CAMERA_NUM['down_left_button']
-              } else if (gamepad.buttons[JOYSTICK_CONFIG['up_left_button']]['pressed']) {
-                this.cam_index = CAMERA_NUM['up_left_button']
-              } else if (gamepad.buttons[JOYSTICK_CONFIG['down_middle_button']]['pressed']) {
-                this.cam_index = CAMERA_NUM['down_middle_button']
-              } else if (gamepad.buttons[JOYSTICK_CONFIG['up_middle_button']]['pressed']) {
-                this.cam_index = CAMERA_NUM['up_middle_button']
-              } else if (gamepad.buttons[JOYSTICK_CONFIG['down_right_button']]['pressed']) {
-                this.cam_index = CAMERA_NUM['down_right_button']
-              } else if (gamepad.buttons[JOYSTICK_CONFIG['up_right_button']]['pressed']) {
-                this.cam_index = CAMERA_NUM['up_right_button']
-              }
-            }
-          }
-        }
-      }, 250)
     },
 
     methods: {
-      setCamIndex: function (new_index) {
-        this.cam_index = new_index
+      setCamIndex: function (index) {
+        this.camsEnabled.splice(index, 1, !this.camsEnabled[index])
+        this.sendCameras();
       },
 
       sendCameras: function() {
-        this.$parent.publish("/cameras_cmd", {
-          'type': 'Cameras',
-          'port_0': this.cam_index,
-          'port_1': -1,
-        })
-      }
-    },
+        let ports = []
 
-    watch: {
-      cam_index() {
-        this.sendCameras()
+        for (let i = 0; i < this.camsEnabled.length; i++) {
+          if (this.camsEnabled[i]) {
+            ports.push(i)
+          }
+        }
+
+        for (let i = ports.length; i < this.numCams; i++) {
+          ports.push(-1)
+        }
+
+        this.$parent.publish(this.channel, {
+          'type': 'GUICameras',
+          'port': ports,
+        })
+      },
+
+      addCameraName: function() {
+        this.names.splice(this.cameraIdx, 1, this.cameraName)
       }
     },
 
     components: {
-      CommIndicator,
       CameraSelection,
+      CommIndicator,
       Checkbox
     }
   }
@@ -116,15 +107,16 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr;
-    grid-template-rows: 30px 20px;
-    grid-template-areas: "header" "servos";
+    grid-template-rows: 60px;
+    grid-template-areas: "header";
     font-family: sans-serif;
     height: 100%;
   }
 
-  .camera-selection {
-    margin-top: 10px;
-    margin-bottom: 10px;
+  .cameraselection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "cameraspace1"
   }
 
   .cam_buttons {
