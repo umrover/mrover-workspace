@@ -1,5 +1,5 @@
 [Unit]
-Description=MRover Onboard Teleop
+Description=MRover Jetson Teleop
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
