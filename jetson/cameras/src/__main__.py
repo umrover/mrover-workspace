@@ -11,7 +11,7 @@ __pipelines = [None] * 4
 ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
 # 10.0.0.1 represents the ip of the main base station laptop
 # 10.0.0.2 represents the ip of the secondary science laptop
-ips_one_laptop = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5002", "10.0.0.2:5003"]
+ips_one_laptop = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
 ips_two_laptops = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
 
 using_two_laptops = False
