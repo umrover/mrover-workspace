@@ -1,5 +1,5 @@
 package rover_msgs;
 
 struct Mission {
-	string mission_name;  // Auton, ERD, ES, or Science
+	string name;  // Auton, ERD, ES, or Science
 }
