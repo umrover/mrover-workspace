@@ -64,7 +64,8 @@ import {
   TargetListMessage,
   Waypoint,
   ZedGimbalPosition,
-  Point2D
+  Point2D,
+  ProjectedPointsMessage
 } from '../utils/types';
 import ControlPanel from './control_panel/ControlPanel.vue';
 import Field from './field/Field.vue';
@@ -197,6 +198,11 @@ export default class NavSimulator extends Vue {
 
   @Mutation
   private readonly setObstacleMessage!:(newObstacle:ObstacleMessage)=>void;
+
+  @Mutation
+  private readonly setProjectedPointsMessage!:(
+    newProjectedPointsMessage:ProjectedPointsMessage
+  )=>void;
 
   @Mutation
   private readonly setRadioStrength!:(strength:number)=>void;
@@ -377,10 +383,10 @@ export default class NavSimulator extends Vue {
 
       /* Subscribed LCM message received */
       (msg) => {
-        if (msg.topic === '/autonomous') {
+        if (msg.topic === '/auton_drive_control') {
           this.setJoystick({
-            forward_back: msg.message.forward_back,
-            left_right: msg.message.left_right
+            forward_back: msg.message.left_percent_velocity,
+            left_right: msg.message.right_percent_velocity
           });
           if (!this.paused) {
             this.applyJoystickCmd();
@@ -426,18 +432,23 @@ export default class NavSimulator extends Vue {
             console.log(msg.message.message);
           }
         }
+        else if (msg.topic === '/projected_points') {
+          this.setProjectedPointsMessage(msg.message);
+        }
       },
 
       /* Subscriptions */
       [
         { topic: '/autonomous',     type: 'Joystick' },
+        { topic: '/auton_drive_control',     type: 'AutonDriveControl' },
         { topic: '/nav_status',     type: 'NavStatus' },
         { topic: '/obstacle',       type: 'Obstacle' },
         { topic: '/odometry',       type: 'Odometry' },
         { topic: '/rr_drop_init',   type: 'RepeaterDropInit' },
         { topic: '/target_list',    type: 'TargetList' },
         { topic: '/zed_gimbal_cmd', type: 'ZedGimbalPosition' },
-        { topic: '/debugMessage',   type: 'DebugMessage' }
+        { topic: '/debugMessage',   type: 'DebugMessage' },
+        { topic: '/projected_points', type: 'ProjectedPoints' }
       ]
     );
 

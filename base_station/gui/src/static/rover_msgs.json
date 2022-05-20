@@ -83,6 +83,16 @@
             "laser"
         ]
     ],
+    "AutonDriveControl": [
+        [
+            "double",
+            "left_percent_velocity"
+        ],
+        [
+            "double",
+            "right_percent_velocity"
+        ]
+    ],
     "AutonState": [
         [
             "boolean",
@@ -214,6 +224,16 @@
             "right"
         ]
     ],
+    "DriveVelCmd": [
+        [
+            "double",
+            "left"
+        ],
+        [
+            "double",
+            "right"
+        ]
+    ],
     "DriveStateData": [
         [
             "int8_t",
@@ -231,11 +251,11 @@
         ],
         [
             "float",
-            "measuredCurrent"
+            "current_amps"
         ],
         [
             "float",
-            "estimatedVel"
+            "vel_m_s"
         ]
     ],
     "ESCThrottle": [
@@ -282,6 +302,16 @@
         [
             "int32_t",
             "joint_f"
+        ]
+    ],
+    "EstimatedGateLocation": [
+        [
+            "Odometry",
+            "post1"
+        ],
+        [
+            "Odometry",
+            "post2"
         ]
     ],
     "FKTransform": [
@@ -392,46 +422,74 @@
             "auto_shutdown_enabled"
         ]
     ],
-    "IMU": [
+    "IMUData": [
         [
             "double",
-            "accel_x"
+            "accel_x_g"
         ],
         [
             "double",
-            "accel_y"
+            "accel_y_g"
         ],
         [
             "double",
-            "accel_z"
+            "accel_z_g"
         ],
         [
             "double",
-            "gyro_x"
+            "gyro_x_dps"
         ],
         [
             "double",
-            "gyro_y"
+            "gyro_y_dps"
         ],
         [
             "double",
-            "gyro_z"
+            "gyro_z_dps"
         ],
         [
             "double",
-            "mag_x"
+            "mag_x_uT"
         ],
         [
             "double",
-            "mag_y"
+            "mag_y_uT"
         ],
         [
             "double",
-            "mag_z"
+            "mag_z_uT"
         ],
         [
             "double",
-            "bearing"
+            "roll_rad"
+        ],
+        [
+            "double",
+            "pitch_rad"
+        ],
+        [
+            "double",
+            "yaw_rad"
+        ],
+        [
+            "double",
+            "calibration_sys"
+        ],
+        [
+            "double",
+            "calibration_gyro"
+        ],
+        [
+            "double",
+            "calibration_accel"
+        ],
+        [
+            "double",
+            "calibration_mag"
+        ],
+        [
+            "double",
+            "bearing_deg"
         ]
     ],
     "Joystick": [
@@ -446,14 +504,6 @@
         [
             "double",
             "dampen"
-        ],
-        [
-            "boolean",
-            "kill"
-        ],
-        [
-            "boolean",
-            "restart"
         ]
     ],
     "LockJointE": [
@@ -528,13 +578,6 @@
     ],
     "NavStatus": [
         [
-            ""
-        ],
-        [
-            "int8_t",
-            "nav_state"
-        ],
-        [
             "string",
             "nav_state_name"
         ],
@@ -544,19 +587,7 @@
         ],
         [
             "int32_t",
-            "missed_wps"
-        ],
-        [
-            "int32_t",
             "total_wps"
-        ],
-        [
-            "int32_t",
-            "found_tbs"
-        ],
-        [
-            "int32_t",
-            "total_tbs"
         ]
     ],
     "Obstacle": [
@@ -739,6 +770,20 @@
         [
             "double",
             "micro_z"
+        ]
+    ],
+    "ProjectedPoints": [
+        [
+            "int32_t",
+            "pattern_size"
+        ],
+        [
+            "Odometry[]",
+            "points"
+        ],
+        [
+            "string",
+            "path_type"
         ]
     ],
     "SAPosition": [
@@ -988,6 +1033,12 @@
             "f"
         ]
     ],
+    "TargetBearing": [
+        [
+            "double",
+            "target_bearing"
+        ]
+    ],
     "TargetOrientation": [
         [
             "float",
@@ -1160,11 +1211,30 @@
             "y"
         ]
     ],
-    "ZedGimbalPosition": [
+    "ZeroPosition": [
         [
             "double",
-            "angle"
+            "joint_a"
+        ],
+        [
+            "double",
+            "joint_b"
+        ],
+        [
+            "double",
+            "joint_c"
+        ],
+        [
+            "double",
+            "joint_d"
+        ],
+        [
+            "double",
+            "joint_e"
+        ],
+        [
+            "double",
+            "joint_f"
         ]
-    ],
-    "ZeroPosition": []
+    ]
 }

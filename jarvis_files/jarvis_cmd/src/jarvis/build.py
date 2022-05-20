@@ -122,25 +122,9 @@ def build_deps(ctx, no_reqs):
         third_party.ensure_lcm(ctx)
 
     if (no_reqs):
-        print("Skipping pip dependencis")
-    pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
-    pip_hasher.hash_modification_time('pip_deps/')
-    if pip_hasher.has_changed():
-        with ctx.cd(ctx.root):
-            with ctx.inside_product_env():
-                print("Installing pip dependencies...")
-                ctx.run("pip3 install --upgrade pip")
-                ctx.run("pip3 install cython")
-                # Jarvis dependencies
-                ctx.run("pip3 install -r \"{}\"/requirements.txt".format(
-                    ctx.jarvis_root))
-                # Workspace dependencies
-                ctx.run("pip3 install -r pip_deps/requirements.txt")
-                if site_cfg['jetson']:
-                    print("Installing jetson pip dependencies...")
-                    ctx.run("pip3 install -r pip_deps/jetson_requirements.txt")
-        pip_hasher.save()
+        print("Skipping pip dependencies")
     else:
+        # Saves entire pip_deps hash to file called external_requirements
         pip_hasher = Hasher(ctx.hash_store, 'external_requirements')
         pip_hasher.hash_modification_time('pip_deps/')
         if pip_hasher.has_changed():

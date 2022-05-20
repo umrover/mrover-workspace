@@ -59,8 +59,8 @@
 
     "alvar_params":
     {
-        "marker_border_bits": 2,
-        "do_corner_refinement": 0,
+        "marker_border_bits": 1,
+        "do_corner_refinement": false,
         "polygonal_approx_accuracy_rate": 0.08
 
     }

@@ -2,17 +2,13 @@
 #include "perception.hpp"
 
 #if OBSTACLE_DETECTION
-    #include <pcl/common/common_headers.h>
+#include <pcl/common/common_headers.h>
 #endif
 
 #if ZED_SDK_PRESENT
 
-#pragma GCC diagnostic ignored "-Wreorder" //Turns off warning checking for sl lib files
-
 #include <sl/Camera.hpp>
-#include <cassert>
 
-#pragma GCC diagnostic pop
 //Class created to implement all Camera class' functions
 //Abstracts away details of using Stereolab's camera interface
 //so we can just use a simple custom one
@@ -20,94 +16,111 @@
 //but can use sample images for testing
 class Camera::Impl {
 public:
-    Impl(const rapidjson::Document &config);
-    ~Impl();
-	bool grab();
+    explicit Impl(const rapidjson::Document& config);
 
-	cv::Mat image();
-	cv::Mat depth();
-    
+    ~Impl();
+
+    bool grab();
+
+    cv::Mat const& image();
+
+    cv::Mat const& depth();
+
+    cv::Mat const& xyz();
+
     //constants
     int THRESHOLD_CONFIDENCE;
 
-    #if OBSTACLE_DETECTION
+#if OBSTACLE_DETECTION
     void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
-    #endif
-  
+#endif
+
 private:
-	sl::RuntimeParameters runtime_params_;
-	sl::Resolution image_size_;
-	sl::Camera zed_;
+    sl::RuntimeParameters runtime_params_;
+    sl::Resolution image_size_;
+    sl::Camera zed_;
 
-	sl::Mat image_zed_;
-	sl::Mat depth_zed_;
+    sl::Mat image_zed_;
+    sl::Mat depth_zed_;
+    sl::Mat xyz_zed_;
 
-	cv::Mat image_;
-	cv::Mat depth_;
+    cv::Mat image_;
+    cv::Mat depth_;
+    cv::Mat xyz_;
 };
 
-Camera::Impl::Impl(const rapidjson::Document &config) : THRESHOLD_CONFIDENCE(config["camera"]["threshold_confidence"].GetDouble()) {
-	sl::InitParameters init_params;
-	init_params.camera_resolution = sl::RESOLUTION::HD720; // default: 720p
-	init_params.depth_mode = sl::DEPTH_MODE::PERFORMANCE;
-	init_params.coordinate_units = sl::UNIT::METER;
-	init_params.camera_fps = 15;
-	// TODO change this below?
+Camera::Impl::Impl(const rapidjson::Document& config) : THRESHOLD_CONFIDENCE(config["camera"]["threshold_confidence"].GetInt()) {
+    sl::InitParameters init_params;
+    init_params.camera_resolution = sl::RESOLUTION::HD720; // default: 720p
+    init_params.depth_mode = sl::DEPTH_MODE::PERFORMANCE;
+    init_params.coordinate_units = sl::UNIT::METER;
+    init_params.camera_fps = 15;
+    // TODO change this below?
 
-	assert(this->zed_.open() == sl::ERROR_CODE::SUCCESS);
-  
-    //Parameters for Positional Tracking
+    // Parameters for Positional Tracking
     init_params.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // Use a right-handed Y-up coordinate system
-    this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
+    // this->zed_.setCameraSettings(sl::VIDEO_SETTINGS::BRIGHTNESS, 1);
 
-	this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
-	
-    #if PERCEPTION_DEBUG
-        std::cout<<"ZED init success\n";
-    #endif
+    this->runtime_params_.confidence_threshold = THRESHOLD_CONFIDENCE;
+
+    sl::ERROR_CODE openCode = this->zed_.open();
+    if (openCode == sl::ERROR_CODE::SUCCESS) {
+        std::cout << "ZED init success" << std::endl;
+    } else {
+        std::cerr << "ZED init failure: " << openCode << std::endl;
+        throw std::runtime_error("ZED init fail");
+    }
 
     this->runtime_params_.sensing_mode = sl::SENSING_MODE::STANDARD;
 
-	this->image_size_ = this->zed_.getCameraInformation().camera_resolution;
-	this->image_zed_.alloc(this->image_size_.width, this->image_size_.height,
-						   sl::MAT_TYPE::U8_C4);
-	this->image_ = cv::Mat(
-		this->image_size_.height, this->image_size_.width, CV_8UC4,
-		this->image_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
-	this->depth_zed_.alloc(this->image_size_.width, this->image_size_.height,
-		                   sl::MAT_TYPE::F32_C1);
-	this->depth_ = cv::Mat(
-		this->image_size_.height, this->image_size_.width, CV_32FC1,
-		this->depth_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
+    this->image_size_ = this->zed_.getCameraInformation().camera_configuration.resolution;
+    this->image_zed_.alloc(this->image_size_.width, this->image_size_.height, sl::MAT_TYPE::U8_C4);
+    this->image_ = cv::Mat(this->image_size_.height, this->image_size_.width, CV_8UC4,
+                           this->image_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
+    this->depth_zed_.alloc(this->image_size_.width, this->image_size_.height, sl::MAT_TYPE::F32_C1);
+    this->depth_ = cv::Mat(this->image_size_.height, this->image_size_.width, CV_32FC1,
+                           this->depth_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
+    // F32_C4 tuple format: (x, y, z, unused), assuming unused is due to memory alignment
+    this->xyz_zed_.alloc(this->image_size_.width, this->image_size_.height, sl::MAT_TYPE::F32_C4);
+    this->xyz_ = cv::Mat(this->image_size_.height, this->image_size_.width, CV_32FC4,
+                         this->xyz_zed_.getPtr<sl::uchar1>(sl::MEM::CPU));
 }
 
 bool Camera::Impl::grab() {
     return this->zed_.grab() == sl::ERROR_CODE::SUCCESS;
 }
 
-cv::Mat Camera::Impl::image() {
-	this->zed_.retrieveImage(this->image_zed_, sl::VIEW::LEFT, sl::MEM::CPU,
-							 this->image_size_);
-	return this->image_;
+cv::Mat const& Camera::Impl::image() {
+    this->zed_.retrieveImage(this->image_zed_, sl::VIEW::LEFT, sl::MEM::CPU, this->image_size_);
+    return this->image_;
 }
 
-cv::Mat Camera::Impl::depth() {
-    this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE::DEPTH,  sl::MEM::CPU,  this->image_size_);
-	return this->depth_;
+cv::Mat const& Camera::Impl::depth() {
+    this->zed_.retrieveMeasure(this->depth_zed_, sl::MEASURE::DEPTH, sl::MEM::CPU, this->image_size_);
+    return this->depth_;
 }
 
-//This function convert a RGBA color packed into a packed RGBA PCL compatible format
+cv::Mat const& Camera::Impl::xyz() {
+    this->zed_.retrieveMeasure(xyz_zed_, sl::MEASURE::XYZ, sl::MEM::CPU, image_size_);
+//    sl::float4 point3D;
+//    xyz_zed_.getValue(200, 200, &point3D);
+//    std::cout << point3D.x << ", " << point3D.y << ", " << point3D.z << std::endl;
+    return xyz_;
+}
+
+// This function convert an RGBA color packed into a packed RGBA PCL compatible format
 inline float convertColor(float colorIn) {
-    uint32_t color_uint = *(uint32_t *) & colorIn;
-    unsigned char *color_uchar = (unsigned char *) &color_uint;
+    uint32_t color_uint = *(uint32_t*) &colorIn;
+    auto* color_uchar = (unsigned char*) &color_uint;
     color_uint = ((uint32_t) color_uchar[0] << 16 | (uint32_t) color_uchar[1] << 8 | (uint32_t) color_uchar[2]);
-    return *reinterpret_cast<float *> (&color_uint);
+    return *reinterpret_cast<float*> (&color_uint);
 }
 
 Camera::Impl::~Impl() {
     this->depth_zed_.free(sl::MEM::CPU);
     this->image_zed_.free(sl::MEM::CPU);
-	this->zed_.close();
+    this->xyz_zed_.free(sl::MEM::CPU);
+    this->zed_.close();
 }
 
 #if OBSTACLE_DETECTION
@@ -150,16 +163,16 @@ public:
     ~Impl();
     bool grab();
 
-    #if AR_DETECTION
+#if AR_DETECTION
     cv::Mat image();
     cv::Mat depth();
-    #endif
+#endif
 
-    #if OBSTACLE_DETECTION
+#if OBSTACLE_DETECTION
     void dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
     void pcl_write(const cv::String &filename, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud);
 
-    #endif
+#endif
 
     void disk_record_init();
     void write_curr_frame_to_disk(cv::Mat rgb, cv::Mat depth, int counter);
@@ -187,10 +200,10 @@ Camera::Impl::~Impl() {
 }
 
 Camera::Impl::Impl(const rapidjson::Document &config) {
-  
+
     std::cout<<"Please input the folder path (there should be a rgb and depth existing in this folder): ";
     std::cin>>path;
-    #if AR_DETECTION
+#if AR_DETECTION
     rgb_path = path + "/rgb";
     depth_path = path + "/depth";
     rgb_dir = opendir(rgb_path.c_str() );
@@ -199,34 +212,34 @@ Camera::Impl::Impl(const rapidjson::Document &config) {
         return;
     }
 
-    #endif  
+#endif
 
-    #if OBSTACLE_DETECTION
+#if OBSTACLE_DETECTION
     pcd_path = path + "/pcl";
     pcd_dir = opendir(pcd_path.c_str() );
     if(NULL==pcd_dir) {
-        std::cerr<<"Input folder not exist\n";   
+        std::cerr<<"Input folder not exist\n";
         return;
   }
-  #endif
-  
+#endif
+
 
     // get the vector of image names, jpg/png for rgb files, .exr for depth files
     // we only read the rgb folder, and assume that the depth folder's images have the same name
     struct dirent *dp = NULL;
-    #if AR_DETECTION
-  
+#if AR_DETECTION
+
     std::unordered_set<std::string> img_tails({".exr", ".jpg"}); // for rgb
-    #if PERCEPTION_DEBUG
+#if PERCEPTION_DEBUG
         std::cout<<"Read image names\n";
-    #endif
+#endif
     do {
         errno = 0;
         if ((dp = readdir(rgb_dir)) != NULL) {
         std::string file_name(dp->d_name);
-        #if PERCEPTION_DEBUG
+#if PERCEPTION_DEBUG
             std::cout<<"file_name is "<<file_name<<std::endl;
-        #endif
+#endif
         if (file_name.size() < 5) continue; // the lengh of the tail str is at least 4
         std::string tail = file_name.substr(file_name.size()-4, 4);
         std::string head = file_name.substr(0, file_name.size()-4);
@@ -236,12 +249,12 @@ Camera::Impl::Impl(const rapidjson::Document &config) {
         }
     } while  (dp != NULL);
     std::sort(img_names.begin(), img_names.end());
-    #if PERCEPTION_DEBUG
+#if PERCEPTION_DEBUG
         std::cout<<"Read image names complete\n";
-    #endif
+#endif
     idx_curr_img = 0;
 
-    #endif
+#endif
 
 #if OBSTACLE_DETECTION
     dp = NULL;
@@ -249,29 +262,29 @@ Camera::Impl::Impl(const rapidjson::Document &config) {
 #if PERCEPTION_DEBUG
     std::cout<<"Read PCL image names\n";
 #endif
-  
+
 do{
     if ((dp = readdir(pcd_dir)) != NULL) {
         std::string file_name(dp->d_name);
-        #if PERCEPTION_DEBUG
+#if PERCEPTION_DEBUG
             std::cout<<"file_name is "<<file_name<<std::endl;
-        #endif
-      
+#endif
+
         // the lengh of the tail str is at least 4
         if (file_name.size() < 5) continue;
 
         pcd_names.push_back(file_name);
-      
+
     }
 
 } while (dp != NULL);
 
     std::sort(pcd_names.begin(), pcd_names.end());
-    #if PERCEPTION_DEBUG
+#if PERCEPTION_DEBUG
         std::cout<<"Read .pcd image names complete\n";
-    #endif
+#endif
     idx_curr_pcd_img = 0;
-    
+
 #endif
 }
 
@@ -279,21 +292,21 @@ bool Camera::Impl::grab() {
 
     bool end = true;
 
-    #if AR_DETECTION
+#if AR_DETECTION
     idx_curr_img++;
     if (idx_curr_img >= img_names.size()) {
         std::cout<<"Ran out of images\n";
         end = false;
     }
-    #endif
+#endif
 
-    #if OBSTACLE_DETECTION
+#if OBSTACLE_DETECTION
     idx_curr_pcd_img++;
     if (idx_curr_pcd_img >= pcd_names.size()-2) {
         std::cout<<"Ran out of images\n";
-        end = false;  
+        end = false;
     }
-    #endif
+#endif
     if(!end){
         exit(1);
     }
@@ -303,10 +316,10 @@ bool Camera::Impl::grab() {
 #if AR_DETECTION
 cv::Mat Camera::Impl::image() {
     std::string full_path = rgb_path + std::string("/") + (img_names[idx_curr_img]);
-    #if PERCEPTION_DEBUG
+#if PERCEPTION_DEBUG
         cout << img_names[idx_curr_img] << "\n";
         cout << full_path << "\n";
-    #endif
+#endif
     cv::Mat img = cv::imread(full_path.c_str(), CV_LOAD_IMAGE_COLOR);
     if (!img.data){
         std::cerr<<"Load image "<<full_path<< " error\n";
@@ -318,9 +331,9 @@ cv::Mat Camera::Impl::depth() {
     std::string rgb_name = img_names[idx_curr_img];
     std::string full_path = depth_path + std::string("/") +
                             rgb_name.substr(0, rgb_name.size()-4) + std::string(".exr");
-    #if PERCEPTION_DEBUG
+#if PERCEPTION_DEBUG
         std::cout<<full_path<<std::endl;
-    #endif
+#endif
     cv::Mat img = cv::imread(full_path.c_str(), cv::IMREAD_ANYCOLOR | cv::IMREAD_ANYDEPTH);
     if (!img.data){
         std::cerr<<"Load image "<<full_path<< " error\n";
@@ -382,26 +395,32 @@ void Camera::Impl::dataCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point
 
 #endif
 
-Camera::Camera(const rapidjson::Document &config) : 
-    impl_{new Camera::Impl(config)}, rgb_foldername{""}, depth_foldername{""}, pcl_foldername{""} , mRoverConfig( config ),
-            FRAME_WRITE_INTERVAL{mRoverConfig["camera"]["frame_write_interval"].GetInt()} {}
+Camera::Camera(const rapidjson::Document& config) :
+        impl_{new Camera::Impl(config)}, mRoverConfig(config),
+        FRAME_WRITE_INTERVAL{mRoverConfig["camera"]["frame_write_interval"].GetInt()} {}
 
 Camera::~Camera() {
-	delete this->impl_;
+    delete this->impl_;
 }
 
 bool Camera::grab() {
-	return this->impl_->grab();
+    return this->impl_->grab();
 }
 
 #if AR_DETECTION
-cv::Mat Camera::image() {
-	return this->impl_->image();
+
+cv::Mat const& Camera::image() {
+    return this->impl_->image();
 }
 
-cv::Mat Camera::depth() {
-	return this->impl_->depth();
+cv::Mat const& Camera::depth() {
+    return this->impl_->depth();
 }
+
+cv::Mat const& Camera::xyz() {
+    return this->impl_->xyz();
+}
+
 #endif
 
 #if OBSTACLE_DETECTION
@@ -433,9 +452,9 @@ void Camera::disk_record_init() {
 
 //Writes point cloud data to data folder specified in build tag 
 void pcl_write(const cv::String &filename, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &p_pcl_point_cloud){
-    #if PERCEPTION_DEBUG
+#if PERCEPTION_DEBUG
         std::cout << "name of path is: " << filename << endl;
-    #endif
+#endif
     try{ pcl::io::savePCDFileASCII (filename, *p_pcl_point_cloud); }
     catch (pcl::IOException &e){
         cout << e.what();

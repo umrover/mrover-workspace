@@ -1,0 +1,25 @@
+- name: Copy systemd service files
+  template:
+      src: "files/{{ item }}.service"
+      dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+      - rover-jetson-odrive-front
+      - rover-jetson-odrive-middle
+      - rover-jetson-odrive-back
+      - rover-jetson-teleop
+
+- name: Copy environment variable definitions
+  copy:
+      src: files/rover.env
+      dest: /etc/default/rover.env
+
+- name: Reload systemd
+  systemd: daemon_reload=yes
+
+- name: Enable services
+  systemd: name={{item}} enabled=yes
+  with_items:
+      - rover-jetson-odrive-front
+      - rover-jetson-odrive-middle
+      - rover-jetson-odrive-back
+      - rover-jetson-teleop

@@ -52,6 +52,8 @@ module.exports = {
         "longitude_min",
         "nav_state_name",
         "num_waypoints",
+        "path_type",
+        "pattern_size",
         "signal_strength",
         "total_wps"
        ]
@@ -228,6 +230,8 @@ module.exports = {
         "longitude_min",
         "nav_state_name",
         "num_waypoints",
+        "path_type",
+        "pattern_size",
         "signal_strength",
         "total_wps"
        ]

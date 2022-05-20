@@ -39,12 +39,17 @@ export function applyJoystickCmdUtil(
     deltaTime:number, /* seconds */
     currSpeed:Speeds
 ):Odom {
+  const TURNING_RADIUS = 0.5;
+  const two = 2;
+  const left_right = (command.forward_back - command.left_right) / TURNING_RADIUS;
+  const forward_back = (command.forward_back + command.left_right) / two;
+
   /* Find change in bearing */
-  const deltaBear:number = deltaTime * currSpeed.turn * command.left_right;
+  const deltaBear:number = deltaTime * currSpeed.turn * left_right;
   const deltaBearRad:number = Math.abs(degToRad(deltaBear));
 
   /* Find distance travelled */
-  const dist:number = deltaTime * currSpeed.drive * command.forward_back;
+  const dist:number = deltaTime * currSpeed.drive * forward_back;
 
   /* The path we drive forms an arc segment of a circle where our start and
      end locations are on the edge of the circle. delta_bearing is the arc

@@ -66,6 +66,11 @@ This contains what is currently our only implementation of obstacle avoidance be
 Similar to the `gate_search/` folder, this folder for search logic contains a `searchStateMachine` object and files to define the waypoints for different types of searches. First we follow a square spiral outwards with points generated in spiralOutSearch.cpp, then if the search completes and the target is not found, we will move onto trying the lawnmower search and the spiral in search.
 
 
+#### `searchPointGeneration.py`
+This script is used to generate search patterns relative to the start point of the rover. The results are then written into `search/spiral_search_points.txt` as pairs of polar coordinates. The pairs are each "distance bearing". The reasoning for using polar coordinates is to use our pre-made utility function that generates points.
+
+To use this script, you can simply run it and choose what you want it to do according to the prompts that you recieve. The first prompt is for the search type, and the rest are for the parameters. For testing, we currently use square spiral search with the parameters (13, 3).
+
 ---
 
 <!----------------------------- Vars and Utils ----------------------------->

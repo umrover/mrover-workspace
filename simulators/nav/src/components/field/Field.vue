@@ -79,6 +79,7 @@ import {
   ObstacleDrawOptions,
   Odom,
   Point2D,
+  ProjectedPointsMessage,
   Waypoint,
   WaypointDrawOptions,
   ZedGimbalPosition
@@ -173,6 +174,9 @@ export default class Field extends Vue {
   private readonly obstacles!:Obstacle[];
 
   @Getter
+  private readonly projectedPointsMessage!:ProjectedPointsMessage;
+
+  @Getter
   private readonly referencePoints!:Odom[];
 
   @Getter
@@ -204,6 +208,9 @@ export default class Field extends Vue {
    ************************************************************************************************/
   @Mutation
   private readonly clearRoverPath!:()=>void;
+
+  @Mutation
+  private readonly clearFOVAreaPath!:()=>void;
 
   @Mutation
   private readonly pushArTag!:(newArTag:ArTag)=>void;
@@ -285,7 +292,8 @@ export default class Field extends Vue {
 
   /* Object for drawing reference points on canvas. */
   private get canvasReferencePoints():CanvasReferencePoints {
-    return new CanvasReferencePoints(this.referencePoints, this.fieldCenterOdom, this.scale);
+    return new CanvasReferencePoints(this.referencePoints, this.projectedPointsMessage,
+                                     this.fieldCenterOdom, this.scale);
   }
 
   /* Object for drawing radio repeater on canvas. */
@@ -420,6 +428,8 @@ export default class Field extends Vue {
     if (!this.autonOn) {
       this.setCurrOdom(newCurrOdom);
       this.clearRoverPath();
+
+      // this.clearFOVAreaPath();
     }
   } /* moveRover() */
 
@@ -429,6 +439,8 @@ export default class Field extends Vue {
       this.setStartLoc(newStartLoc);
       this.setCurrOdom(newStartLoc);
       this.clearRoverPath();
+
+      // this.clearFOVAreaPath();
     }
   } /* moveStartLoc() */
 

@@ -83,7 +83,7 @@ void PCL::DownsampleVoxelFilter() {
 //Colors all points in this plane blue or
 //removes points completely from point cloud
 //Source: https://rb.gy/zx6ojh
-void PCL::RANSACSegmentation(string type) {
+void PCL::RANSACSegmentation(std::string type) {
     #if PERCEPTION_DEBUG
         pcl::ScopeTime t("RANSACSegmentation");
     #endif
@@ -323,7 +323,7 @@ void PCL::FindClearPath(const std::vector<std::vector<int>> &interest_points) {
         double centerDistance = distance, leftDistance, rightDistance;
 
         //Initialize base cases outside of scope
-        vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
+        std::vector<int> centerObstacles = {obstacles.at(0), obstacles.at(1)};
 
         //Find clear left path, set left bearing
         leftBearing = getAngleOffCenter(10, 0, interest_points, obstacles);
@@ -467,11 +467,11 @@ void PCL::updateViewer(bool is_original) {
 }
 /* --- Create Visualizer --- */
 //Creates a point cloud visualizer
-shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
+std::shared_ptr<pcl::visualization::PCLVisualizer> PCL::createRGBVisualizer() {
     // Open 3D viewer and add point cloud
 
     //Creates visualizer with window if PERCEPTION_DEBUG is true, and mutes output otherwise
-    shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer", PERCEPTION_DEBUG));
+    std::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("PCL ZED 3D Viewer", PERCEPTION_DEBUG));
 
     viewer->setBackgroundColor(0.12, 0.12, 0.12);
     pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(pt_cloud_ptr);
@@ -498,7 +498,7 @@ void PCL::pcl_obstacle_detection() {
     RANSACSegmentation("remove");
     std::vector<pcl::PointIndices> cluster_indices;
     CPUEuclidianClusterExtraction(cluster_indices);
-    std::vector<std::vector<int>> interest_points(cluster_indices.size(), vector<int> (6));
+    std::vector<std::vector<int>> interest_points(cluster_indices.size(), std::vector<int> (6));
     FindInterestPoints(cluster_indices, interest_points);
     FindClearPath(interest_points); 
 }

@@ -1,38 +1,74 @@
 #include "pid.hpp"
 
-PidLoop::PidLoop(double Kp, double Ki, double Kd) :
-    Kp_(Kp),
-    Ki_(Ki),
-    Kd_(Kd),
-    first_(true),
-    accumulated_error_(0.0),
-    last_error_(0.0)
-{
+#include "utilities.hpp"
+
+#include <cmath>
+
+PidLoop::PidLoop(double p, double i, double d) :
+        mP(p),
+        mI(i),
+        mD(d) {
 }
 
-double PidLoop::update(double current, double desired) {
-    double err = this->error(current, desired);
-    accumulated_error_ += err;
-    double effort = Kp_*err + Ki_*accumulated_error_;
-    if (!first_) {
-        effort += Kd_*(err - last_error_);
+double PidLoop::error(double current, double desired) const {
+    if (mMaxInputBeforeWrap) {
+        double maxInput = mMaxInputBeforeWrap.value();
+        current = mod(current, maxInput);
+        desired = mod(desired, maxInput);
+        double error = desired - current;
+        if (std::fabs(error) > maxInput / 2) {
+            if (error > 0) error -= maxInput;
+            else error += maxInput;
+        }
+        return error;
+    } else {
+        return desired - current;
     }
-    last_error_ = err;
-    first_ = false;
+}
 
-    if (effort < sat_min_out_) effort = sat_min_out_;
-    if (effort > sat_max_out_) effort = sat_max_out_;
+double PidLoop::update(double current, double desired, double dt) {
+    if (dt < 1e-6) {
+        dt = 1e-6;
+    }
+
+    double error = this->error(current, desired);
+
+    mTotalError += error * dt;
+    double effort = mP * error + mI * mTotalError;
+    if (!mFirst) {
+        effort += mD * (error - mLastError) / dt;
+    }
+    mLastError = error;
+    mFirst = false;
+
+    if (effort < mMinOut) effort = mMinOut;
+    if (effort > mMaxOut) effort = mMaxOut;
 
     return effort;
 }
 
 void PidLoop::reset() {
-    first_ = true;
-    accumulated_error_ = 0.0;
-    last_error_ = 0.0;
+    mFirst = true;
+    mTotalError = 0.0;
+    mLastError = 0.0;
 }
 
-double PidLoop::error(double current, double desired) {
-    // TODO add support for modular PID here
-    return desired - current;
+PidLoop& PidLoop::withThreshold(double threshold) {
+    mThreshold = threshold;
+    return *this;
+}
+
+PidLoop& PidLoop::withMaxInput(double maxInputBeforeWrap) {
+    mMaxInputBeforeWrap = maxInputBeforeWrap;
+    return *this;
+}
+
+PidLoop& PidLoop::withOutputRange(double minOut, double maxOut) {
+    mMinOut = minOut;
+    mMaxOut = maxOut;
+    return *this;
+}
+
+bool PidLoop::isOnTarget(double current, double desired) const {
+    return std::fabs(error(current, desired)) < mThreshold;
 }

@@ -2,7 +2,8 @@
    points on the canvas. */
 
 import { odomToCanvas } from '../../utils/utils';
-import { Odom, Point2D } from '../../utils/types';
+import { Odom, Point2D, ProjectedPointsMessage } from '../../utils/types';
+import { state } from '../../store/modules/simulatorState';
 
 /**************************************************************************************************
  * Constants
@@ -27,16 +28,21 @@ export default class CanvasReferencePoints {
   /* list of all reference points on the field */
   private referencePoints:Odom[];
 
+  /* list of all projected points on the field */
+  private projectedPoints:Odom[];
+
   /************************************************************************************************
    * Public Methods
    ************************************************************************************************/
   /* Initialize CanvasWaypoints instance. */
   constructor(
       referencePoints:Odom[],
+      projectedPointsMessage:ProjectedPointsMessage,
       canvasCent:Odom,
       scale:number /* pixels/meter */
   ) {
     this.referencePoints = referencePoints;
+    this.projectedPoints = projectedPointsMessage.points;
     this.canvasCent = canvasCent;
     this.scale = scale;
   }
@@ -65,6 +71,16 @@ export default class CanvasReferencePoints {
       this.drawReferencePoint(String(i));
       this.ctx.translate(-loc.x, -loc.y);
     });
+
+    /* draw waypoints */
+    if (state.simSettings.enableProjectedPoints) {
+      this.projectedPoints.forEach((pt, i) => {
+        const loc:Point2D = odomToCanvas(pt, this.canvasCent, canvas.height, this.scale);
+        this.ctx.translate(loc.x, loc.y);
+        this.drawReferencePoint(String(i));
+        this.ctx.translate(-loc.x, -loc.y);
+      });
+    }
   } /* drawReferencePoints() */
 
   /************************************************************************************************

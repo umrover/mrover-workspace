@@ -1,154 +1,74 @@
 #include "stateMachine.hpp"
 
-#include <fstream>
+#include <thread>
+#include <utility>
 #include <iostream>
-#include <string>
-#include <sstream>
-#include <cmath>
-#include <cstdlib>
-#include <map>
+#include <unordered_map>
 
-#include "rover_msgs/NavStatus.hpp"
 #include "utilities.hpp"
-#include "search/spiralOutSearch.hpp"
-#include "search/spiralInSearch.hpp"
-#include "search/lawnMowerSearch.hpp"
+#include "rover_msgs/NavStatus.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
-#include "gate_search/diamondGateSearch.hpp"
 
 // Constructs a StateMachine object with the input lcm object.
-// Reads the configuartion file and constructs a Rover objet with this
+// Reads the configuration file and constructs a Rover objet with this
 // and the lcmObject. Sets mStateChanged to true so that on the first
 // iteration of run the rover is updated.
-StateMachine::StateMachine( lcm::LCM& lcmObject )
-    : mRover( nullptr )
-    , mLcmObject( lcmObject )
-    , mTotalWaypoints( 0 )
-    , mCompletedWaypoints( 0 )
-    , mStateChanged( true )
-{
-    ifstream configFile;
-    string configPath = getenv("MROVER_CONFIG");
-    configPath += "/config_nav/config.json";
-    configFile.open( configPath );
-    string config = "";
-    string setting;
-    while( configFile >> setting )
-    {
-        config += setting;
-    }
-    configFile.close();
-    mRoverConfig.Parse( config.c_str() );
-    mRover = new Rover( mRoverConfig, lcmObject );
-    mSearchStateMachine = SearchFactory( this, SearchType::SPIRALOUT, mRover, mRoverConfig );
-    mGateStateMachine = GateFactory( this, mRover, mRoverConfig );
-    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory( this, ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover, mRoverConfig );
+StateMachine::StateMachine(
+        rapidjson::Document& config,
+        std::shared_ptr<Rover> rover, std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseProgress,
+        lcm::LCM& lcmObject
+) : mConfig(config),
+    mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseProgress)), mLcmObject(lcmObject),
+    mTimePoint(std::chrono::high_resolution_clock::now()),
+    mPrevTimePoint(mTimePoint) {
+    // TODO: fix, weak_from_this() should not be called in ctor, will always be null
+    mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory(weak_from_this(),
+                                                            ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover,
+                                                            mConfig);
 } // StateMachine()
-
-// Destructs the StateMachine object. Deallocates memory for the Rover
-// object.
-StateMachine::~StateMachine( )
-{
-    delete mRover;
-}
-
-void StateMachine::setSearcher( SearchType type, Rover* rover, const rapidjson::Document& roverConfig )
-{
-    assert( mSearchStateMachine );
-    delete mSearchStateMachine;
-    mSearchStateMachine = SearchFactory( this, type, rover, roverConfig );
-}
-
-void StateMachine::updateCompletedPoints( )
-{
-    mCompletedWaypoints += 1;
-    return;
-}
-
-// Allows outside objects to set the original obstacle angle
-// This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleAngle( double bearing )
-{
-    mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing );
-}
-
-// Allows outside objects to set the original obstacle angle
-// This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleDistance( double distance )
-{
-    mObstacleAvoidanceStateMachine->updateObstacleDistance( distance );
-}
-
-// Allows outside objects to set the original obstacle angle
-// This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleElements( double bearing, double distance )
-{
-    updateObstacleAngle( bearing );
-    updateObstacleDistance( distance );
-}
 
 // Runs the state machine through one iteration. The state machine will
 // run if the state has changed or if the rover's status has changed.
 // Will call the corresponding function based on the current state.
-void StateMachine::run()
-{
-    publishNavState();
-    if( isRoverReady() )
-    {
-        mStateChanged = false;
-        NavState nextState = NavState::Unknown;
+void StateMachine::run() {
+    mPrevTimePoint = mTimePoint;
+    auto now = std::chrono::high_resolution_clock::now();
+    mTimePoint = now;
 
-        if( !mRover->roverStatus().autonState().is_auton )
-        {
-            nextState = NavState::Off;
-            mRover->roverStatus().currentState() = executeOff(); // turn off immediately
-            clear( mRover->roverStatus().path() );
-            if( nextState != mRover->roverStatus().currentState() )
-            {
-                mRover->roverStatus().currentState() = nextState;
-                mStateChanged = true;
-            }
-            return;
-        }
-        switch( mRover->roverStatus().currentState() )
-        {
-            case NavState::Off:
-            {
+    // Diagnostic info: take average loop time
+    static std::array<double, 256> readings{};
+    static int i = 0;
+    readings[i] = getDtSeconds();
+    if (++i % readings.size() == 0) {
+        double avgDt = std::accumulate(readings.begin(), readings.end(), 0.0) / readings.size();
+        std::cout << "Update rate: " << 1.0 / avgDt << std::endl;
+        i = 0;
+    }
+
+    mEnv->updatePost(mRover, mCourseProgress);
+
+    publishNavState();
+    NavState nextState = NavState::Unknown;
+
+    if (mRover->autonState().is_auton) {
+        switch (mRover->currentState()) {
+            case NavState::Off: {
                 nextState = executeOff();
                 break;
             }
 
-            case NavState::Done:
-            {
+            case NavState::Done: {
                 nextState = executeDone();
                 break;
             }
 
-          
-            case NavState::Turn:
-            {
-                nextState = executeTurn();
-                break;
-            }
-
-          
-            case NavState::Drive:
-            {
+            case NavState::DriveWaypoints: {
                 nextState = executeDrive();
                 break;
             }
 
-           
-
-            case NavState::SearchFaceNorth:
-            case NavState::SearchSpin:
-            case NavState::SearchSpinWait:
-            case NavState::SearchTurn:
-            case NavState::SearchDrive:
-            case NavState::TurnToTarget:
-            case NavState::TurnedToTargetWait:
-            case NavState::DriveToTarget:
-            {
+            case NavState::Search:
+            case NavState::DriveToTarget: {
                 nextState = mSearchStateMachine->run();
                 break;
             }
@@ -156,286 +76,153 @@ void StateMachine::run()
             case NavState::TurnAroundObs:
             case NavState::SearchTurnAroundObs:
             case NavState::DriveAroundObs:
-            case NavState::SearchDriveAroundObs:
-            {
+            case NavState::SearchDriveAroundObs: {
                 nextState = mObstacleAvoidanceStateMachine->run();
                 break;
             }
 
-            case NavState::ChangeSearchAlg:
-            {
-                static int searchFails = 0;
-                static double visionDistance = mRoverConfig[ "computerVision" ][ "visionDistance" ].GetDouble();
-
-                switch( mRoverConfig[ "search" ][ "order" ][ searchFails % mRoverConfig[ "search" ][ "numSearches" ].GetInt() ].GetInt() )
-                {
-                    case 0:
-                    {
-                        setSearcher(SearchType::SPIRALOUT, mRover, mRoverConfig);
-                        break;
-                    }
-                    case 1:
-                    {
-                        setSearcher(SearchType::LAWNMOWER, mRover, mRoverConfig);
-                        break;
-                    }
-                    case 2:
-                    {
-                        setSearcher(SearchType::SPIRALIN, mRover, mRoverConfig);
-                        break;
-                    }
-                    default:
-                    {
-                        setSearcher(SearchType::SPIRALOUT, mRover, mRoverConfig);
-                        break;
-                    }
-                }
-                mSearchStateMachine->initializeSearch( mRover, mRoverConfig, visionDistance );
-                if( searchFails % 2 == 1 && visionDistance > 0.5 )
-                {
-                    visionDistance *= 0.5;
-                }
-                searchFails += 1;
-                nextState = NavState::SearchTurn;
+            case NavState::BeginSearch: {
+                setSearcher(SearchType::FROM_PATH_FILE);
+                nextState = NavState::Search;
                 break;
             }
 
-            case NavState::GateSpin:
-            case NavState::GateSpinWait:
-            case NavState::GateTurn:
-            case NavState::GateDrive:
-            case NavState::GateTurnToCentPoint:
-            case NavState::GateDriveToCentPoint:
-            case NavState::GateFace:
-            case NavState::GateShimmy:
-            case NavState::GateDriveThrough:
-            {
+            case NavState::BeginGateSearch: {
+                setGateSearcher();
+                nextState = mGateStateMachine->run();
+                break;
+            }
+            case NavState::GateTraverse: {
                 nextState = mGateStateMachine->run();
                 break;
             }
 
-            case NavState::Unknown:
-            {
-                cerr << "Entered unknown state.\n";
-                exit(1);
+            case NavState::Unknown: {
+                throw std::runtime_error("Entered unknown state.");
             }
         } // switch
 
-        if( nextState != mRover->roverStatus().currentState() )
-        {
-            mStateChanged = true;
-            mRover->roverStatus().currentState() = nextState;
-            mRover->distancePid().reset();
+        if (nextState != mRover->currentState()) {
+            mRover->setState(nextState);
             mRover->bearingPid().reset();
         }
-        cerr << flush;
-    } // if
+    } else {
+        nextState = NavState::Off;
+        mRover->setState(executeOff()); // Turn off immediately
+        if (nextState != mRover->currentState()) {
+            mRover->setState(nextState);
+        }
+    }
+
+    std::this_thread::sleep_until(mTimePoint + LOOP_DURATION);
 } // run()
 
-// Updates the auton state (on/off) of the rover's status.
-void StateMachine::updateRoverStatus( AutonState autonState )
-{
-    mNewRoverStatus.autonState() = autonState;
-} // updateRoverStatus( AutonState )
-
-// Updates the course of the rover's status if it has changed.
-void StateMachine::updateRoverStatus( Course course )
-{
-    if( mNewRoverStatus.course().hash != course.hash )
-    {
-        mNewRoverStatus.course() = course;
-    }
-} // updateRoverStatus( Course )
-
-// Updates the obstacle information of the rover's status.
-void StateMachine::updateRoverStatus( Obstacle obstacle )
-{
-    mNewRoverStatus.obstacle() = obstacle;
-} // updateRoverStatus( Obstacle )
-
-// Updates the odometry information of the rover's status.
-void StateMachine::updateRoverStatus( Odometry odometry )
-{
-    mNewRoverStatus.odometry() = odometry;
-} // updateRoverStatus( Odometry )
-
-// Updates the target information of the rover's status.
-void StateMachine::updateRoverStatus( TargetList targetList )
-{
-    Target target = targetList.targetList[0];
-    Target target2 = targetList.targetList[1];
-    mNewRoverStatus.target() = target;
-    mNewRoverStatus.target2() = target2;
-} // updateRoverStatus( Target )
-
-// Return true if we want to execute a loop in the state machine, false
-// otherwise.
-bool StateMachine::isRoverReady() const
-{
-    return mStateChanged || // internal data has changed
-           mRover->updateRover( mNewRoverStatus ) || // external data has changed
-           mRover->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
-           mRover->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
-           mRover->roverStatus().currentState() == NavState::GateSpinWait;
-
-} // isRoverReady()
-
 // Publishes the current navigation state to the nav status lcm channel.
-void StateMachine::publishNavState() const
-{
-    NavStatus navStatus;
-    navStatus.nav_state_name = stringifyNavState();
-    navStatus.completed_wps = mCompletedWaypoints;
-    navStatus.total_wps = mTotalWaypoints;
-    const string& navStatusChannel = mRoverConfig[ "lcmChannels" ][ "navStatusChannel" ].GetString();
-    mLcmObject.publish( navStatusChannel, &navStatus );
+void StateMachine::publishNavState() const {
+    NavStatus navStatus{
+            .nav_state_name = stringifyNavState(),
+            .completed_wps = static_cast<int32_t>(mCourseProgress->getRemainingWaypoints().size()),
+            .total_wps = mCourseProgress->getCourse().num_waypoints
+    };
+    const std::string& navStatusChannel = mConfig["lcmChannels"]["navStatusChannel"].GetString();
+    mLcmObject.publish(navStatusChannel, &navStatus);
 } // publishNavState()
 
 // Executes the logic for off. If the rover is turned on, it updates
 // the roverStatus. If the course is empty, the rover is done  with
-// the course otherwise it will turn to the first waypoing. Else the
+// the course otherwise it will turn to the first waypoint. Else the
 // rover is still off.
-NavState StateMachine::executeOff()
-{
-    if( mRover->roverStatus().autonState().is_auton )
-    {
-        mCompletedWaypoints = 0;
-        mTotalWaypoints = mRover->roverStatus().course().num_waypoints;
-
-        if( !mTotalWaypoints )
-        {
-            return NavState::Done;
-        }
-        return NavState::Turn;
+NavState StateMachine::executeOff() {
+    if (mRover->autonState().is_auton) {
+        NavState nextState = mCourseProgress->getCourse().num_waypoints ? NavState::DriveWaypoints : NavState::Done;
+        mCourseProgress->clearProgress();
+        return nextState;
     }
     mRover->stop();
     return NavState::Off;
 } // executeOff()
 
-// Executes the logic for the done state. Stops and turns off the
-// rover.
-NavState StateMachine::executeDone()
-{
+// Executes the logic for the done state. Stops and turns off the rover.
+NavState StateMachine::executeDone() {
     mRover->stop();
     return NavState::Done;
 } // executeDone()
 
-// Executes the logic for the turning. If the rover is turned off, it
-// proceeds to Off. If the rover finishes turning, it drives to the
-// next Waypoint. Else the rover keeps turning to the Waypoint.
-NavState StateMachine::executeTurn()
-{
-    if( mRover->roverStatus().path().empty() )
-    {
-        return NavState::Done;
-    }  
-
-    Odometry& nextPoint = mRover->roverStatus().path().front().odom;
-    if( mRover->turn( nextPoint ) )
-    {
-       
-        return NavState::Drive;
-    }
-
-    return NavState::Turn;
-} // executeTurn()
-
-// Executes the logic for driving. If the rover is turned off, it
-// proceeds to Off. If the rover finishes driving, it either starts
-// searching for a target (dependent the search parameter of
-// the Waypoint) or it turns to the next Waypoint. If the rover
-// detects an obstacle and is within the obstacle distance threshold, 
-// it goes to turn around it. Else the rover keeps driving to the next Waypoint.
-NavState StateMachine::executeDrive()
-{
-    const Waypoint& nextWaypoint = mRover->roverStatus().path().front();
-    double distance = estimateNoneuclid( mRover->roverStatus().odometry(), nextWaypoint.odom );
-
-    if( isObstacleDetected( mRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( mRover, mRoverConfig ) )
-    {
-        mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
-                                                                getOptimalAvoidanceDistance() );
-        return NavState::TurnAroundObs;
-    }
-    DriveStatus driveStatus = mRover->drive( nextWaypoint.odom );
-    if( driveStatus == DriveStatus::Arrived )
-    {
-        if( nextWaypoint.search )
-        {
-            return NavState::SearchSpin;
+/**
+ * Drive through the waypoints defined by course progress.
+ *
+ * @return Next state
+ */
+NavState StateMachine::executeDrive() {
+    Waypoint const& currentWaypoint = mCourseProgress->getCurrentWaypoint();
+    mEnv->setBaseGateID(currentWaypoint.id);
+    double dt = getDtSeconds();
+    if (mRover->drive(currentWaypoint.odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
+        mCourseProgress->completeCurrentWaypoint();
+        std::cout << "Completed waypoint" << std::endl;
+        if (currentWaypoint.search) {
+            return NavState::BeginSearch;
+        } else if (mCourseProgress->getRemainingWaypoints().empty()) {
+            return NavState::Done;
         }
-        mRover->roverStatus().path().pop_front();
-       
-        ++mCompletedWaypoints;
-        return NavState::Turn;
     }
-    if( driveStatus == DriveStatus::OnCourse )
-    {
-       
-        return NavState::Drive;
-    }
-    
-    return NavState::Turn;
+    return NavState::DriveWaypoints;
 } // executeDrive()
 
 // Gets the string representation of a nav state.
-string StateMachine::stringifyNavState() const
-{
-    static const map<NavState, std::string> navStateNames =
-        {
-            { NavState::Off, "Off" },
-            { NavState::Done, "Done" },
-            { NavState::Turn, "Turn" },
-            { NavState::Drive, "Drive" },
-            { NavState::SearchFaceNorth, "Search Face North" },
-            { NavState::SearchSpin, "Search Spin" },
-            { NavState::SearchSpinWait, "Search Spin Wait" },
-            { NavState::ChangeSearchAlg, "Change Search Algorithm" },
-            { NavState::SearchTurn, "Search Turn" },
-            { NavState::SearchDrive, "Search Drive" },
-            { NavState::TurnToTarget, "Turn to Target" },
-            { NavState::TurnedToTargetWait, "Turned to Target Wait" },
-            { NavState::DriveToTarget, "Drive to Target" },
-            { NavState::TurnAroundObs, "Turn Around Obstacle"},
-            { NavState::DriveAroundObs, "Drive Around Obstacle" },
-            { NavState::SearchTurnAroundObs, "Search Turn Around Obstacle" },
-            { NavState::SearchDriveAroundObs, "Search Drive Around Obstacle" },
-            { NavState::GateSpin, "Gate Spin" },
-            { NavState::GateSpinWait, "Gate Spin Wait" },
-            { NavState::GateTurn, "Gate Turn" },
-            { NavState::GateDrive, "Gate Drive" },
-            { NavState::GateTurnToCentPoint, "Gate Turn to Center Point" },
-            { NavState::GateDriveToCentPoint, "Gate Drive to Center Point" },
-            { NavState::GateFace, "Gate Face" },
-            { NavState::GateShimmy, "Gate Shimmy" },
-            { NavState::GateDriveThrough, "Gate Drive Through" },
-         
-            { NavState::Unknown, "Unknown" }
-        };
+std::string StateMachine::stringifyNavState() const {
+    static const std::unordered_map<NavState, std::string> navStateNames =
+            {
+                    {NavState::Off,                  "Off"},
+                    {NavState::Done,                 "Done"},
+                    {NavState::DriveWaypoints,       "Drive Waypoints"},
+                    {NavState::BeginSearch,          "Change Search Algorithm"},
+                    {NavState::Search,               "Search"},
+                    {NavState::DriveToTarget,        "Drive to Target"},
+                    {NavState::TurnAroundObs,        "Turn Around Obstacle"},
+                    {NavState::DriveAroundObs,       "Drive Around Obstacle"},
+                    {NavState::SearchTurnAroundObs,  "Search Turn Around Obstacle"},
+                    {NavState::SearchDriveAroundObs, "Search Drive Around Obstacle"},
+                    {NavState::BeginGateSearch,      "Gate Prepare"},
+                    {NavState::GateTraverse,         "Gate Traverse"},
 
-    return navStateNames.at( mRover->roverStatus().currentState() );
+                    {NavState::Unknown,              "Unknown"}
+            };
+
+    return navStateNames.at(mRover->currentState());
 } // stringifyNavState()
 
-// Returns the optimal angle to avoid the detected obstacle.
-double StateMachine::getOptimalAvoidanceAngle() const
-{
-    return mRover->roverStatus().obstacle().bearing;
-} // optimalAvoidanceAngle()
+void StateMachine::setSearcher(SearchType type) {
+    mSearchStateMachine = SearchFactory(weak_from_this(), type, mRover, mConfig);
+    mSearchStateMachine->initializeSearch(mConfig, mConfig["computerVision"]["visionDistance"].GetDouble());
+}
 
-// Returns the optimal angle to avoid the detected obstacle.
-double StateMachine::getOptimalAvoidanceDistance() const
-{
-    return mRover->roverStatus().obstacle().distance + mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble();
-} // optimalAvoidanceAngle()
+void StateMachine::setGateSearcher() {
+    mGateStateMachine = GateFactory(weak_from_this(), mConfig);
+}
 
-bool StateMachine::isWaypointReachable( double distance )
-{
-    return isLocationReachable( mRover, mRoverConfig, distance, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
-} // isWaypointReachable
+// Allows outside objects to set the original obstacle angle
+// This will allow the variable to be set before the rover turns
+void StateMachine::updateObstacleDistance(double distance) {
+    mObstacleAvoidanceStateMachine->updateObstacleDistance(distance);
+}
 
+std::shared_ptr<Environment> StateMachine::getEnv() {
+    return mEnv;
+}
 
+std::shared_ptr<CourseProgress> StateMachine::getCourseState() {
+    return mCourseProgress;
+}
 
-// TODOS:
-// [drive to target] obstacle and target
-// all of code, what to do in cases of both target and obstacle
-// thresholds based on state? waypoint vs target
+std::shared_ptr<Rover> StateMachine::getRover() {
+    return mRover;
+}
+
+lcm::LCM& StateMachine::getLCM() {
+    return mLcmObject;
+}
+
+double StateMachine::getDtSeconds() {
+    return std::chrono::duration<double>(mTimePoint - mPrevTimePoint).count();
+}

@@ -49,8 +49,8 @@ public:
 
 class PCL {
     public:
-        shared_ptr<pcl::visualization::PCLVisualizer> viewer;
-        shared_ptr<pcl::visualization::PCLVisualizer> viewer_original;
+        std::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
+        std::shared_ptr<pcl::visualization::PCLVisualizer> viewer_original;
 
         //Constants
         int MAX_FIELD_OF_VIEW_ANGLE;
@@ -101,7 +101,7 @@ class PCL {
         void DownsampleVoxelFilter();
         
         //Finds the ground plane
-        void RANSACSegmentation(string type);
+        void RANSACSegmentation(std::string type);
         
         //Clusters nearby points into large obstacles
         void CPUEuclidianClusterExtraction(std::vector<pcl::PointIndices> &cluster_indices);
@@ -132,7 +132,7 @@ class PCL {
         void updateViewer(bool is_original);
         
         //Creates a point cloud visualizer
-        shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer();
+        std::shared_ptr<pcl::visualization::PCLVisualizer> createRGBVisualizer();
 
         //Cleares and resizes cloud for new data
         void update();

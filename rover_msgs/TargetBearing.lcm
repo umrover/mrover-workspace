@@ -1,0 +1,5 @@
+package rover_msgs;
+
+struct TargetBearing {
+    double target_bearing;
+}
