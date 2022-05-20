@@ -11,33 +11,33 @@ __pipelines = [None] * 4
 ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
 # 10.0.0.1 represents the ip of the main base station laptop
 # 10.0.0.2 represents the ip of the secondary science laptop
-remote_ips_one_laptop = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5002", "10.0.0.2:5003"]
-remote_ips_two_laptops = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
+ips_one_laptop = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5002", "10.0.0.2:5003"]
+ips_two_laptops = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
 
 using_two_laptops = False
-current_remote_ips = remote_ips_one_laptop
+current_ips = ips_one_laptop
 
 video_sources = [None] * 10
 
 
 class Pipeline:
     def __init__(self, port):
-        global current_remote_ips
+        global current_ips
         self.video_source = None
-        self.video_output = jetson.utils.videoOutput(f"rtp://{current_remote_ips[port]}", argv=ARGUMENTS_LOW)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[port]}", argv=ARGUMENTS_LOW)
         self.device_number = -1
         self.port = port
 
     def update_video_output(self):
-        global current_remote_ips
-        self.video_output = jetson.utils.videoOutput(f"rtp://{current_remote_ips[port]}", argv=ARGUMENTS_LOW)
+        global current_ips
+        self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[self.port]}", argv=ARGUMENTS_LOW)
 
     def capture_and_render_image(self):
         try:
             image = self.video_source.Capture()
             self.video_output.Render(image)
         except Exception:
-            print(f"Failed to capture from camera {self.device_number} on {current_remote_ips[self.port]}. Stopping stream.")
+            print(f"Camera capture {self.device_number} on {current_ips[self.port]} failed. Stopping stream.")
             failed_device_number = self.device_number
             self.device_number = -1
             if device_is_not_being_used_by_other_pipelines(self.port, failed_device_number):
@@ -57,9 +57,9 @@ class Pipeline:
         if index != -1:
             self.video_source = video_sources[index]
             if self.video_source is not None:
-                self.video_output = jetson.utils.videoOutput(f"rtp://{current_remote_ips[self.port]}", argv=ARGUMENTS_LOW)
+                self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[self.port]}", argv=ARGUMENTS_LOW)
             else:
-                print(f"Unable to play camera {index} on {current_remote_ips[self.port]}.")
+                print(f"Unable to play camera {index} on {current_ips[self.port]}.")
                 self.device_number = -1
         else:
             self.video_source = None
@@ -72,7 +72,7 @@ def start_pipeline(index, port):
     global __pipelines
     try:
         __pipelines[port].update_device_number(index)
-        print(f"Playing camera {index} on {current_remote_ips[port]}.")
+        print(f"Playing camera {index} on {current_ips[port]}.")
     except Exception:
         pass
 
@@ -107,7 +107,7 @@ def device_is_not_being_used_by_other_pipelines(excluded_pipeline, device_number
 
 
 def mission_callback(channel, msg):
-    global __pipelines
+    global __pipelines, using_two_laptops, current_ips
     mission_name = Mission.decode(msg).name
     # science is currently the only mission that uses two laptops
     using_two_laptops_request = mission_name == "Science"
@@ -115,9 +115,9 @@ def mission_callback(channel, msg):
         return
     using_two_laptops = using_two_laptops_request
     if using_two_laptops:
-        current_remote_ips = remote_ips_two_laptops
+        current_ips = ips_two_laptops
     else:
-        current_remote_ips = remote_ips_one_laptop
+        current_ips = ips_one_laptop
     for pipeline_number, pipeline in enumerate(__pipelines):
         pipeline.update_video_output()
 
