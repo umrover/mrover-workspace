@@ -6,7 +6,7 @@ from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
                         DriveVelCmd, MastGimbalCmd,
                         AutonState, AutonDriveControl,
-                        GUICameras, Cameras,
+                        GUICameras, Cameras, Mission,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
                         ArmControlState, ReverseDrive,
@@ -151,6 +151,7 @@ class Camera:
             self.ish_cameras[1] = message.port[1]
 
         self.send_camera_cmd()
+        self.send_mission_name("Science")
 
     def send_camera_cmd(self):
         camera_msg = Cameras()
@@ -160,6 +161,11 @@ class Camera:
         camera_msg.port[3] = self.ish_cameras[1]
 
         lcm_.publish('/cameras_cmd', camera_msg.encode())
+
+    def send_mission_name(self, name):
+        mission_msg = Mission()
+        mission_msg.name = name
+        lcm_.publish('/cameras_mission', mission_msg.encode())
 
 
 class ArmControl:

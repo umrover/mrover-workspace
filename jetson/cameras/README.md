@@ -14,8 +14,13 @@ run.py is an extra file that can be used to test streaming through the terminal 
 
 #### LCM Channels Publishing/Subscribed To 
 **Cameras Command [subscriber]** \
-Messages: [ Cameras.lcm ](https://github.com/amszuch/mrover-workspace/blob/cameras/rover_msgs/Cameras.lcm) “/cameras_cmd” \
-Publishers: base_station/gui \
+Messages: [ Cameras.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Cameras.lcm) “/cameras_cmd” \
+Publishers: jetson/teleop \
+Subscribers: jetson/cameras
+
+**Mission [subscriber]** \
+Messages: [ Mission.lcm ](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Mission.lcm) “/cameras_mission \
+Publishers: jetson/teleop \
 Subscribers: jetson/cameras
 
 ### Usage 

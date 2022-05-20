@@ -1,4 +1,4 @@
-from rover_msgs import Cameras
+from rover_msgs import Cameras, Mission
 import lcm
 
 import sys
@@ -11,23 +11,33 @@ __pipelines = [None] * 4
 ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
 # 10.0.0.1 represents the ip of the main base station laptop
 # 10.0.0.2 represents the ip of the secondary science laptop
-remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
+remote_ips_one_laptop = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5002", "10.0.0.2:5003"]
+remote_ips_two_laptops = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
+
+using_two_laptops = False
+current_remote_ips = remote_ips_one_laptop
+
 video_sources = [None] * 10
 
 
 class Pipeline:
     def __init__(self, port):
+        global current_remote_ips
         self.video_source = None
-        self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[port]}", argv=ARGUMENTS_LOW)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{current_remote_ips[port]}", argv=ARGUMENTS_LOW)
         self.device_number = -1
         self.port = port
 
-    def update(self):
+    def update_video_output(self):
+        global current_remote_ips
+        self.video_output = jetson.utils.videoOutput(f"rtp://{current_remote_ips[port]}", argv=ARGUMENTS_LOW)
+
+    def capture_and_render_image(self):
         try:
             image = self.video_source.Capture()
             self.video_output.Render(image)
         except Exception:
-            print(f"Failed to capture from camera {self.device_number} on {remote_ip[self.port]}. Stopping stream.")
+            print(f"Failed to capture from camera {self.device_number} on {current_remote_ips[self.port]}. Stopping stream.")
             failed_device_number = self.device_number
             self.device_number = -1
             if device_is_not_being_used_by_other_pipelines(self.port, failed_device_number):
@@ -47,9 +57,9 @@ class Pipeline:
         if index != -1:
             self.video_source = video_sources[index]
             if self.video_source is not None:
-                self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_LOW)
+                self.video_output = jetson.utils.videoOutput(f"rtp://{current_remote_ips[self.port]}", argv=ARGUMENTS_LOW)
             else:
-                print(f"Unable to play camera {index} on {remote_ip[self.port]}.")
+                print(f"Unable to play camera {index} on {current_remote_ips[self.port]}.")
                 self.device_number = -1
         else:
             self.video_source = None
@@ -62,7 +72,7 @@ def start_pipeline(index, port):
     global __pipelines
     try:
         __pipelines[port].update_device_number(index)
-        print(f"Playing camera {index} on {remote_ip[port]}.")
+        print(f"Playing camera {index} on {current_remote_ips[port]}.")
     except Exception:
         pass
 
@@ -96,12 +106,26 @@ def device_is_not_being_used_by_other_pipelines(excluded_pipeline, device_number
     return True
 
 
+def mission_callback(channel, msg):
+    global __pipelines
+    mission_name = Mission.decode(msg).name
+    # science is currently the only mission that uses two laptops
+    using_two_laptops_request = mission_name == "Science"
+    if using_two_laptops_request == using_two_laptops:
+        return
+    using_two_laptops = using_two_laptops_request
+    if using_two_laptops:
+        current_remote_ips = remote_ips_two_laptops
+    else:
+        current_remote_ips = remote_ips_one_laptop
+    for pipeline_number, pipeline in enumerate(__pipelines):
+        pipeline.update_video_output()
+
+
 def camera_callback(channel, msg):
     global __pipelines
 
-    camera_cmd = Cameras.decode(msg)
-
-    port_devices = camera_cmd.port
+    port_devices = Cameras.decode(msg).port
 
     for port_number, requested_port_device in enumerate(port_devices):
         current_device_number = __pipelines[port_number].get_device_number()
@@ -124,13 +148,14 @@ def main():
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)
+    __lcm.subscribe("/cameras_mission", mission_callback)
 
     while True:
         while __lcm.handle_timeout(0):
             pass
         for port_number, pipeline in enumerate(__pipelines):
             if pipeline.is_currently_streaming():
-                pipeline.update()
+                pipeline.capture_and_render_image()
 
 
 if __name__ == "__main__":
