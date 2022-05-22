@@ -37,7 +37,21 @@ def generateSquareSpiral (points, distance):
     for i in range(0,points):
         coordinates.append( (coordinates[-1][0]+new_distance*directions[i%4][0], coordinates[-1][1]+new_distance*directions[i%4][1]) )
         new_distance += (i%2)*distance
-    return coordinates
+    #divide up each segment into intermediate segments
+    intermediate_len = 6
+    new_coordinates = []
+    for i in range(0, len(coordinates) - 1):
+        new_coordinates.append(coordinates[i])
+        p1, p2 = np.array(coordinates[i]), np.array(coordinates[i+1])
+        direction = (p2 - p1) / np.linalg.norm((p2 - p1))
+        cur = p1
+        while np.linalg.norm((p2 - cur)) > intermediate_len:
+            new_point = cur + (direction * intermediate_len)
+            new_coordinates.append((new_point[0], new_point[1]))
+            cur = new_point
+
+    new_coordinates.append(coordinates[-1])
+    return new_coordinates
 
 def generateSquareSpiralInward (points, distance):
     return generateSquareSpiral(points, distance)[::-1] 
@@ -98,7 +112,7 @@ name = 'spiral_search_points.txt'
 if custom_name != 'n':
     name = custom_name
 
-with open('jetson/nav/search/'+name, 'w') as f:
+with open('search/'+name, 'w') as f:
     # print (len(coords), file=f)
     for x,y in coords:
         polar_coord = cart2pol(x,y)

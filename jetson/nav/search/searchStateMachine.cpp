@@ -203,7 +203,7 @@ SearchFactory(const std::weak_ptr<StateMachine>& sm, SearchType type, const std:
     std::shared_ptr<SearchStateMachine> search = nullptr;
     switch (type) {
         case SearchType::FROM_PATH_FILE:
-            search = std::make_shared<SearchFromPathFile>(sm, roverConfig, "jetson/nav/search/spiral_search_points.txt");
+            search = std::make_shared<SearchFromPathFile>(sm, roverConfig, "jetson/nav/search/spiral_search_points_6m.txt");
             break;
         case SearchType::FROM_PATH_FILE_GATE:
             search = std::make_shared<SearchFromPathFile>(sm, roverConfig, "jetson/nav/search/gate_search_points.txt");
