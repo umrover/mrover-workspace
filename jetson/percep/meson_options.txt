@@ -1,6 +1,6 @@
 option('ar_detection', type: 'boolean', value : true)
 option('ar_record', type: 'boolean', value : false)
-option('obs_detection', type: 'boolean', value: true)
+option('obs_detection', type: 'boolean', value: false)
 option('obs_record', type: 'boolean', value : false)
 option('with_zed', type: 'boolean', value : true)
 option('perception_debug', type: 'boolean', value: true)

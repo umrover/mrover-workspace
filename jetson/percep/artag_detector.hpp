@@ -31,6 +31,9 @@ public:
     explicit TagDetector(const rapidjson::Document& mRoverConfig);
 
     //takes detected AR tag and finds center coordinate for use with ZED                                                                 
+
+    Ptr<cv::aruco::DetectorParameters> getAlvarParams();
+
     static cv::Point2f getAverageTagCoordinateFromCorners(const std::vector<cv::Point2f>& corners);
 
     //detects AR tags in a given Mat

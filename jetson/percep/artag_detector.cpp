@@ -88,6 +88,12 @@ std::pair<Tag, Tag> TagDetector::findARTags(cv::Mat& src, cv::Mat& depth_src, cv
     cv::aruco::drawDetectedMarkers(rgb, mCorners, mIds);
     cv::imshow("AR Tags", rgb);
 
+    // Replicating the last threshold step in opencv_contrib
+    int scale = (mAlvarParams->adaptiveThreshWinSizeMax % 2 == 0) ? mAlvarParams->adaptiveThreshWinSizeMax + 1 : mAlvarParams->adaptiveThreshWinSizeMax;
+    cv::Mat thresholded;
+    cv:;adaptiveThreshold(rgb, thresholded, cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY_INV, scale, mAlvarParams->adaptiveThreshConstant);
+    cv::imshow("Thresholded Mat", thresholded);
+
     // on click debugging for color
     DEPTH = depth_src;
     cv::cvtColor(rgb, HSV, cv::COLOR_RGB2HSV);
@@ -189,4 +195,9 @@ void TagDetector::updateDetectedTagInfo(
             }
         }
     }
+}
+
+
+Ptr<cv::aruco::DetectorParameters> TagDetector::getAlvarParams() {
+    return mAlvarParams;
 }
