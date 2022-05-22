@@ -38,7 +38,7 @@ def generateSquareSpiral (points, distance):
         coordinates.append( (coordinates[-1][0]+new_distance*directions[i%4][0], coordinates[-1][1]+new_distance*directions[i%4][1]) )
         new_distance += (i%2)*distance
     #divide up each segment into intermediate segments
-    intermediate_len = 3
+    intermediate_len = 6
     new_coordinates = []
     for i in range(0, len(coordinates) - 1):
         new_coordinates.append(coordinates[i])
@@ -112,7 +112,7 @@ name = 'spiral_search_points.txt'
 if custom_name != 'n':
     name = custom_name
 
-with open(name, 'w') as f:
+with open('search/'+name, 'w') as f:
     # print (len(coords), file=f)
     for x,y in coords:
         polar_coord = cart2pol(x,y)
