@@ -40,7 +40,7 @@ NavState SearchStateMachine::executeSearch() {
     std::shared_ptr<Rover> rover = sm->getRover();
 
     Target const& leftTarget = env->getLeftTarget();
-    Target const& rightTarget = env->getLeftTarget();
+    Target const& rightTarget = env->getRightTarget();
     // TODO: this breaks when we dynamically update course
     Waypoint const& lastWaypoint = sm->getCourseState()->getLastCompletedWaypoint();
     bool isGate = lastWaypoint.gate;
@@ -49,16 +49,15 @@ NavState SearchStateMachine::executeSearch() {
             return NavState::BeginGateSearch;
         } else {
             // Only drive to one of the posts if we don't have both locations
-            // This could be the left or right one
             if (!mDrivenToFirstPost) {
-                if (leftTarget.id >= 0 || rightTarget.id >= 0) {
+                if (leftTarget.id == lastWaypoint.id || leftTarget.id == lastWaypoint.id + 1) {
                     return NavState::DriveToTarget;
                 }
             }
         }
     } else {
-        // Either post works
-        bool isWantedTarget = lastWaypoint.id == leftTarget.id || lastWaypoint.id + 1 == leftTarget.id;
+        // Either target works
+        bool isWantedTarget = lastWaypoint.id == leftTarget.id || lastWaypoint.id == rightTarget.id;
         if (leftTarget.id >= 0 && isWantedTarget) {
             return NavState::DriveToTarget;
         }

@@ -156,6 +156,7 @@ NavState StateMachine::executeDone() {
 NavState StateMachine::executeDrive() {
     Waypoint const& currentWaypoint = mCourseProgress->getCurrentWaypoint();
     mEnv->setBaseGateID(currentWaypoint.id);
+    mEnv->setShouldLookForGate(currentWaypoint.gate);
     double dt = getDtSeconds();
     if (mRover->drive(currentWaypoint.odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
         mCourseProgress->completeCurrentWaypoint();
