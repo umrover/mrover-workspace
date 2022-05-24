@@ -79,6 +79,7 @@ import {
   ObstacleDrawOptions,
   Odom,
   Point2D,
+  ProjectedPointsMessage,
   Waypoint,
   WaypointDrawOptions,
   ZedGimbalPosition
@@ -173,6 +174,9 @@ export default class Field extends Vue {
   private readonly obstacles!:Obstacle[];
 
   @Getter
+  private readonly projectedPointsMessage!:ProjectedPointsMessage;
+
+  @Getter
   private readonly referencePoints!:Odom[];
 
   @Getter
@@ -206,6 +210,9 @@ export default class Field extends Vue {
   private readonly clearRoverPath!:()=>void;
 
   @Mutation
+  private readonly clearFOVAreaPath!:()=>void;
+
+  @Mutation
   private readonly pushArTag!:(newArTag:ArTag)=>void;
 
   @Mutation
@@ -228,6 +235,9 @@ export default class Field extends Vue {
 
   @Mutation
   private readonly setArTag!:(newArTags:ArTag[])=>void;
+
+  @Mutation
+  private readonly setFalseArTag!:(newArTags:ArTag[])=>void;
 
   @Mutation
   private readonly setCurrOdom!:(newOdom:Odom)=>void;
@@ -275,7 +285,9 @@ export default class Field extends Vue {
    ************************************************************************************************/
   /* Object for drawing ar tags on canvas */
   private get canvasArTags():CanvasArTags {
-    return new CanvasArTags(this.arTags, this.gates, this.fieldCenterOdom, this.scale);
+    return new CanvasArTags(this.arTags, this.fieldCenterOdom, this.currOdom,
+                            this.fieldOfViewOptions, this.gates, this.arTags,
+                            this.setFalseArTag, this.scale);
   }
 
   /* Object for drawing obstacles on canvas. */
@@ -285,7 +297,8 @@ export default class Field extends Vue {
 
   /* Object for drawing reference points on canvas. */
   private get canvasReferencePoints():CanvasReferencePoints {
-    return new CanvasReferencePoints(this.referencePoints, this.fieldCenterOdom, this.scale);
+    return new CanvasReferencePoints(this.referencePoints, this.projectedPointsMessage,
+                                     this.fieldCenterOdom, this.scale);
   }
 
   /* Object for drawing radio repeater on canvas. */
@@ -295,10 +308,10 @@ export default class Field extends Vue {
 
   /* Object for drawing rover on canvas. */
   private get canvasRover():CanvasRover {
-    return new CanvasRover(this.currOdom, this.fieldCenterOdom, this.scale, this.roverPath,
-                           this.FOVAreaPath, this.fieldOfViewOptions, this.roverPathVisible,
-                           this.pushToRoverPath, this.pushToFOVAreaPath, this.zedGimbalPos,
-                           this.enableFOVView);
+    return new CanvasRover(this.fieldCenterOdom, this.currOdom, this.enableFOVView,
+                           this.FOVAreaPath, this.fieldOfViewOptions, this.roverPath,
+                           this.roverPathVisible, this.pushToFOVAreaPath, this.pushToRoverPath,
+                           this.scale, this.zedGimbalPos);
   }
 
   /* Object for drawing waypoints on canvas. */
@@ -420,6 +433,8 @@ export default class Field extends Vue {
     if (!this.autonOn) {
       this.setCurrOdom(newCurrOdom);
       this.clearRoverPath();
+
+      // this.clearFOVAreaPath();
     }
   } /* moveRover() */
 
@@ -429,6 +444,8 @@ export default class Field extends Vue {
       this.setStartLoc(newStartLoc);
       this.setCurrOdom(newStartLoc);
       this.clearRoverPath();
+
+      // this.clearFOVAreaPath();
     }
   } /* moveStartLoc() */
 

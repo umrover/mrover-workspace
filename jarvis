@@ -61,13 +61,24 @@ if [ "$1" = "exec" ]; then
         export MROVER_CONFIG="${PRODUCT_ENV}/config"
         shift
 
+        gdb=false
+        if [[ $@ == *"-gdb"* ]]; then
+            gdb=true
+        fi
+
         # Convert project file path to executable name
         remove_trail=${1%/}
-        arg_no_slash=${remove_trail//"/"/"_"}
+        arg_no_slash=${remove_trail/"/"/"_"} # substitute / for _
         clean_args=${@/$1/$arg_no_slash}
+        clean_args=${clean_args/"-gdb"/""} # remove -gdb if necessary
 
-        exec env LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu"\
-         $clean_args
+        if [ $gdb = true ]; then
+            export LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu"
+            gdb $clean_args
+        else
+            exec env LD_LIBRARY_PATH="${PRODUCT_ENV}/lib:${PRODUCT_ENV}/lib/x86_64-linux-gnu"\
+            $clean_args
+        fi
     else
         echo "You must build something in order to be able to exec a command."
     fi

@@ -1,23 +1,35 @@
 #pragma once
 
+#include <optional>
+
 class PidLoop {
-    public:
-        PidLoop(double Kp, double Ki, double Kd);
+public:
+    PidLoop(double p, double i, double d);
 
-        double update(double current, double desired);
-        void reset();
+    double update(double current, double desired, double dt);
 
-    private:
-        double error(double current, double desired);
+    void reset();
 
-        double Kp_;
-        double Ki_;
-        double Kd_;
+    PidLoop& withMaxInput(double maxInputBeforeWrap);
 
-        const double sat_min_out_ = -1.0;
-        const double sat_max_out_ = +1.0;
+    PidLoop& withThreshold(double threshold);
 
-        bool first_;
-        double accumulated_error_;
-        double last_error_;
+    PidLoop& withOutputRange(double minOut, double maxOut);
+
+    [[nodiscard]] double error(double current, double desired) const;
+
+    [[nodiscard]] bool isOnTarget(double current, double desired) const;
+
+private:
+    double mP, mI, mD;
+    // Some inputs, such as angles, are cyclic in nature.
+    // Set this to account for that properly so computations are correct on boundaries.
+    std::optional<double> mMaxInputBeforeWrap;
+
+    bool mFirst = true;
+    double mTotalError = 0.0;
+    double mLastError = 0.0;
+    double mThreshold = 0.0;
+    double mMinOut = -1.0;
+    double mMaxOut = +1.0;
 };

@@ -4,6 +4,4 @@ struct Joystick {
     double forward_back;
     double left_right;
     double dampen;
-    boolean kill;
-    boolean restart;
 }
