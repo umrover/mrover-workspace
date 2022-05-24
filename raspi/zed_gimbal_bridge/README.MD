@@ -34,7 +34,12 @@ To command it to go specific angles, one can use `LCM_DEFAULT_URL="udpm://239.25
 
 ### Common Errors
 
-None known so far
+When first integrating the zed gimbal motor with the moteus controller, there were issues with wobbling and jittering. There is a thread on the MJBots discord server called "2022-01-22 new motor configuration" that goes over some of these problems and its solutions. The following will summarize a few of these errors.
+
+For the 2022 zed gimbal motor controller, voltage_mode_control had to be set to 1 (changing it from current mode control to voltage mode control) because our motor had a range of currents of 0-1A while the moteus sense resistors were trying to sense currents between 0-100A.
+
+Also, the moteus should be setup so that its PID values are tuned. The simplest way to do this is through tview. One way is to forward the gui onto the computer (one can use VcXsrv or Xming). Otherwise, the easiest way is to connect the raspberry pi to a monitor with an HDMI cable.
+
 
 ### Notes
 
