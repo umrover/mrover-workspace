@@ -34,7 +34,7 @@ video_sources = [None] * 10
 class Pipeline:
     def __init__(self, port):
         global mission_ips, current_mission
-        current_ips = mission_ips[current_mission.value]
+        self.current_ips = mission_ips[current_mission.value]
         self.video_source = None
         self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[port]}", argv=ARGUMENTS_LOW)
         self.device_number = -1
@@ -42,7 +42,7 @@ class Pipeline:
 
     def update_video_output(self):
         global mission_ips, current_mission
-        current_ips = mission_ips[current_mission.value]
+        self.current_ips = mission_ips[current_mission.value]
         self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[self.port]}", argv=ARGUMENTS_LOW)
 
     def capture_and_render_image(self):
@@ -50,9 +50,7 @@ class Pipeline:
             image = self.video_source.Capture()
             self.video_output.Render(image)
         except Exception:
-            global mission_ips, current_mission
-            current_ips = mission_ips[current_mission.value]
-            print(f"Camera capture {self.device_number} on {current_ips[self.port]} failed. Stopping stream.")
+            print(f"Camera capture {self.device_number} on {self.current_ips[self.port]} failed. Stopping stream.")
             failed_device_number = self.device_number
             self.device_number = -1
             if device_is_not_being_used_by_other_pipelines(self.port, failed_device_number):
@@ -68,15 +66,13 @@ class Pipeline:
         return self.port
 
     def update_device_number(self, index):
-        global mission_ips, current_mission
-        current_ips = mission_ips[current_mission.value]
         self.device_number = index
         if index != -1:
             self.video_source = video_sources[index]
             if self.video_source is not None:
-                self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[self.port]}", argv=ARGUMENTS_LOW)
+                self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[self.port]}", argv=ARGUMENTS_LOW)
             else:
-                print(f"Unable to play camera {index} on {current_ips[self.port]}.")
+                print(f"Unable to play camera {index} on {self.current_ips[self.port]}.")
                 self.device_number = -1
         else:
             self.video_source = None
@@ -89,7 +85,7 @@ def start_pipeline(index, port):
     global __pipelines
     try:
         __pipelines[port].update_device_number(index)
-        print(f"Playing camera {index} on {current_ips[port]}.")
+        print(f"Playing camera {index} on {self.current_ips[port]}.")
     except Exception:
         pass
 
@@ -124,7 +120,7 @@ def device_is_not_being_used_by_other_pipelines(excluded_pipeline, device_number
 
 
 def mission_callback(channel, msg):
-    global __pipelines, mission_ips, current_mission
+    global __pipelines, current_mission
     mission_name = Mission.decode(msg).name
     # science is currently the only mission that uses two laptops
 
