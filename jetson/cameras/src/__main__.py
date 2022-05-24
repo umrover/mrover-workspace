@@ -4,6 +4,7 @@ import lcm
 import sys
 sys.path.insert(0, "/usr/lib/python3.6/dist-packages")  # 3.6 vs 3.8
 import jetson.utils  # noqa
+from enum import Enum
 
 __lcm: lcm.LCM
 __pipelines = [None] * 4
@@ -11,25 +12,37 @@ __pipelines = [None] * 4
 ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
 # 10.0.0.1 represents the ip of the main base station laptop
 # 10.0.0.2 represents the ip of the secondary science laptop
-ips_one_laptop = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
-ips_two_laptops = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
+auton_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
+erd_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
+es_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
+science_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
 
-using_two_laptops = False
-current_ips = ips_one_laptop
+
+class Mission(Enum):
+    AUTON = 0
+    ERD = 1
+    ES = 2
+    SCIENCE = 3
+
+
+mission_ips = [auton_ips, erd_ips, es_ips, science_ips]
+current_mission = Mission.SCIENCE
 
 video_sources = [None] * 10
 
 
 class Pipeline:
     def __init__(self, port):
-        global current_ips
+        global mission_ips, current_mission
+        current_ips = mission_ips[current_mission]
         self.video_source = None
         self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[port]}", argv=ARGUMENTS_LOW)
         self.device_number = -1
         self.port = port
 
     def update_video_output(self):
-        global current_ips
+        global mission_ips, current_mission
+        current_ips = mission_ips[current_mission]
         self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[self.port]}", argv=ARGUMENTS_LOW)
 
     def capture_and_render_image(self):
@@ -37,6 +50,8 @@ class Pipeline:
             image = self.video_source.Capture()
             self.video_output.Render(image)
         except Exception:
+            global mission_ips, current_mission
+            current_ips = mission_ips[current_mission]
             print(f"Camera capture {self.device_number} on {current_ips[self.port]} failed. Stopping stream.")
             failed_device_number = self.device_number
             self.device_number = -1
@@ -107,17 +122,23 @@ def device_is_not_being_used_by_other_pipelines(excluded_pipeline, device_number
 
 
 def mission_callback(channel, msg):
-    global __pipelines, using_two_laptops, current_ips
+    global __pipelines, mission_ips, current_mission
     mission_name = Mission.decode(msg).name
     # science is currently the only mission that uses two laptops
-    using_two_laptops_request = mission_name == "Science"
-    if using_two_laptops_request == using_two_laptops:
+
+    current_mission_request = Mission.ERD  # Assume ERD by default
+    if mission_name == "Auton":
+        current_mission = Mission.AUTON
+    else if mission_name == "ERD":
+        current_mission = Mission.ERD
+    else if mission_name == "ES":
+        current_mission = Mission.ES
+    else if mission_name == "Science":
+        current_mission = Mission.SCIENCE
+    if current_mission_request == current_mission:
         return
-    using_two_laptops = using_two_laptops_request
-    if using_two_laptops:
-        current_ips = ips_two_laptops
-    else:
-        current_ips = ips_one_laptop
+    current_mission = current_mission_request
+
     for pipeline_number, pipeline in enumerate(__pipelines):
         # only skip if 0 or 1 because it's the same either way
         if pipeline_number == 0 or pipeline_number == 1:
