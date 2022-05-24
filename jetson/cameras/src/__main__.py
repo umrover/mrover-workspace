@@ -36,14 +36,14 @@ class Pipeline:
         global mission_ips, current_mission
         self.current_ips = mission_ips[current_mission.value]
         self.video_source = None
-        self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[port]}", argv=ARGUMENTS_LOW)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[port]}", argv=ARGUMENTS_LOW)
         self.device_number = -1
         self.port = port
 
     def update_video_output(self):
         global mission_ips, current_mission
         self.current_ips = mission_ips[current_mission.value]
-        self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[self.port]}", argv=ARGUMENTS_LOW)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[self.port]}", argv=ARGUMENTS_LOW)
 
     def capture_and_render_image(self):
         try:
@@ -82,10 +82,11 @@ class Pipeline:
 
 
 def start_pipeline(index, port):
-    global __pipelines
+    global __pipelines, mission_ips, current_mission
     try:
         __pipelines[port].update_device_number(index)
-        print(f"Playing camera {index} on {self.current_ips[port]}.")
+        current_ips = mission_ips[current_mission.value]
+        print(f"Playing camera {index} on {current_ips[port]}.")
     except Exception:
         pass
 
