@@ -37,8 +37,8 @@ class Pipeline:
             image = self.video_source.Capture()
             self.video_output.Render(image)
         except Exception:
-            print(f"Camera capture {self.device_number} on {current_ips[self.port]} failed. Stopping stream.")
             failed_device_number = self.device_number
+            print(f"Camera capture {failed_device_number} on {current_ips[self.port]} failed. Stopping stream.")
             self.device_number = -1
             if device_is_not_being_used_by_other_pipelines(self.port, failed_device_number):
                 close_video_source(failed_device_number)
