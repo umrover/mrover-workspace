@@ -1,6 +1,6 @@
 /* This file contains utility functions used throughout the application. */
 
-import { ZED } from './constants';
+import { ZED, Zscores } from './constants';
 import {
   ArTag,
   Joystick,
@@ -39,12 +39,17 @@ export function applyJoystickCmdUtil(
     deltaTime:number, /* seconds */
     currSpeed:Speeds
 ):Odom {
+  const TURNING_RADIUS = 0.5;
+  const two = 2;
+  const left_right = (command.forward_back - command.left_right) / TURNING_RADIUS;
+  const forward_back = (command.forward_back + command.left_right) / two;
+
   /* Find change in bearing */
-  const deltaBear:number = deltaTime * currSpeed.turn * command.left_right;
+  const deltaBear:number = deltaTime * currSpeed.turn * left_right;
   const deltaBearRad:number = Math.abs(degToRad(deltaBear));
 
   /* Find distance travelled */
-  const dist:number = deltaTime * currSpeed.drive * command.forward_back;
+  const dist:number = deltaTime * currSpeed.drive * forward_back;
 
   /* The path we drive forms an arc segment of a circle where our start and
      end locations are on the edge of the circle. delta_bearing is the arc
@@ -364,9 +369,35 @@ function degToRad2D(coords:Point2D):Point2D {
 } /* degToRad2D() */
 
 
+/* get the threshold to determine what the gaussian random number lies on a bell curve
+   given a percentage */
+export function getGaussianThres(percent:number):number {
+  const sd = 0.2;
+  const mu = 0.5;
+  const percentFactor = 100.0;
+  const divisor = 10;
+  const factor = percentFactor / divisor; // 10
+
+  // check and invert the values of z scores
+  const neg = -1;
+  let indZscore = percent / factor;
+
+  const half = 5;
+  if (indZscore > half) {
+    indZscore = factor - indZscore;
+    const x = neg * Zscores[indZscore] * sd;
+    return mu + x;
+  }
+  else {
+    const x = Zscores[indZscore] * sd;
+    return mu + x;
+  }
+}
+
+
 /* Convert from meters (origin is middle of canvas) to pixels (origin is
    top-left of canvas). */
-function metersToCanvas(
+export function metersToCanvas(
     point:Point2D /* meters */,
     canvasSize:number /* pixels */,
     scale:number /* pixels/meter */

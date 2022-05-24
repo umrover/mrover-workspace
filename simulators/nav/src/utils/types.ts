@@ -66,6 +66,7 @@ export interface FieldState {
   arTags:ArTag[];
   canvasHeight:number; /* pixels */
   centerOdom:Odom;
+  falseArTags:ArTag[];
   gates:Gate[];
   obstacles:Obstacle[];
   referencePoints:Odom[];
@@ -201,6 +202,13 @@ export interface PostConstants {
 }
 
 
+export interface ProjectedPointsMessage {
+  pattern_size:number;
+  points:Odom[];
+  path_type:string;
+}
+
+
 /* Templated interface representing an option in a RadioSelector component. */
 export interface RadioOption<T> {
   value:T;
@@ -250,6 +258,7 @@ export interface RoverState {
   joystick:Joystick;
   navStatus:NavStatus;
   obstacleMessage:ObstacleMessage;
+  projectedPointsMessage:ProjectedPointsMessage;
   radioSignalStrength:number;
   targetList:TargetListMessage;
   zedGimbalCmd:ZedGimbalPosition; /* Desired position of the ZED gimbal. */
@@ -262,10 +271,13 @@ export interface RoverState {
 export interface SimulationSettings {
   simulateLoc:boolean;
   simulatePercep:boolean;
-  noisePercent:number;
-  noiseGPSPercent:number;
   enableLCM:boolean;
   enableFOVView:boolean;
+  enableProjectedPoints:boolean;
+  noisePercent:number;
+  noiseGPSPercent:number;
+  noiseFalsePosPercent:number;
+  maxFalsePos:number;
 }
 
 

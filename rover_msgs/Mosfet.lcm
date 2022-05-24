@@ -1,6 +1,0 @@
-package rover_msgs;
-
-struct Mosfet {
-	string id;
-	boolean enable;
-}

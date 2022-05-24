@@ -1,0 +1,11 @@
+package rover_msgs;
+
+struct FuseData {
+    // Each array:
+    //   Cytron_<0-5>: 0-5
+    //   Nichrome_wire_<0-2>: 6-8;
+    //   Hbridge_<0-1>: 9-10+
+
+    double current_amps[12];
+    double voltage_volts[12];    
+}

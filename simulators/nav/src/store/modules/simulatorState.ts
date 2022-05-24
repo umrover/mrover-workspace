@@ -74,8 +74,11 @@ export const state:SimulatorState = {
     simulatePercep: true,
     enableLCM: true,
     enableFOVView: false,
+    enableProjectedPoints: false,
     noisePercent: 0,
-    noiseGPSPercent: 0
+    noiseGPSPercent: 0,
+    noiseFalsePosPercent: 0,
+    maxFalsePos: 0
   },
 
   startLoc: {
@@ -130,9 +133,17 @@ const getters = {
 
   noiseGPSPercent: (simState:SimulatorState):number => simState.simSettings.noiseGPSPercent,
 
+  noiseFalsePosPercent: (simState:SimulatorState):number => simState.simSettings.
+      noiseFalsePosPercent,
+
+  maxFalsePos: (simState:SimulatorState):number => simState.simSettings.maxFalsePos,
+
   enableLCM: (simState:SimulatorState):boolean => simState.simSettings.enableLCM,
 
   enableFOVView: (simState:SimulatorState):boolean => simState.simSettings.enableFOVView,
+
+  enableProjectedPoints:
+  (simState:SimulatorState):boolean => simState.simSettings.enableProjectedPoints,
 
   startLoc: (simState:SimulatorState):Odom => simState.startLoc,
 
@@ -181,12 +192,24 @@ const mutations = {
     simState.simSettings.noiseGPSPercent = newNoisePercent;
   },
 
+  setFalsePosNoisePercent: (simState:SimulatorState, newNoisePercent:number):void => {
+    simState.simSettings.noiseFalsePosPercent = newNoisePercent;
+  },
+
+  setMaxFalsePos: (simState:SimulatorState, newVal:number):void => {
+    simState.simSettings.maxFalsePos = newVal;
+  },
+
   flipEnableLCM: (simState:SimulatorState, onOff:boolean):void => {
     simState.simSettings.enableLCM = onOff;
   },
 
   flipEnableFOVView: (simState:SimulatorState, onOff:boolean):void => {
     simState.simSettings.enableFOVView = onOff;
+  },
+
+  flipProjectedPoints: (simState:SimulatorState, onOff:boolean):void => {
+    simState.simSettings.enableProjectedPoints = onOff;
   },
 
   pushToRoverPath: (simState:SimulatorState, currLoc:Odom):void => {

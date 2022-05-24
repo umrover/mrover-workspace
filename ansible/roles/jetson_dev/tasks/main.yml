@@ -7,7 +7,7 @@
       - build-essential
       - python3-venv
       - python3-dev
-      - python-virtualenv
+      - python3
       - libglib2.0-dev
       - ninja-build
       - clang
@@ -21,5 +21,6 @@
       - libcairo2-dev
       - libgirepository1.0-dev
       - gfortran
+      - xdotool
       - libeigen3-dev
     state: present

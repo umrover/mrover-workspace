@@ -150,7 +150,7 @@ class Bridge:
                 self.conn_state_pusher(websocket, path),
                 self.lcm_bridge(connection, path)
             )
-        except websockets.exceptions.ConnectionClosed as e:
+        except websockets.exceptions.ConnectionClosed:
             connection = None
             for i in range(len(self.socket_connections)):
                 if self.socket_connections[i].websocket == websocket:
@@ -177,7 +177,6 @@ class Bridge:
         while True:
             if self.home_page_connection is None:
                 js = Joystick()
-                js.kill = True
                 js.forward_back = 0
                 js.left_right = 0
                 self.lcm_.publish("/drive_control", js.encode())
