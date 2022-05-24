@@ -18,7 +18,7 @@ es_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
 science_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
 
 
-class Mission(Enum):
+class Mission_names(Enum):
     AUTON = 0
     ERD = 1
     ES = 2
@@ -26,7 +26,7 @@ class Mission(Enum):
 
 
 mission_ips = [auton_ips, erd_ips, es_ips, science_ips]
-current_mission = Mission.SCIENCE
+current_mission = Mission_names.SCIENCE
 
 video_sources = [None] * 10
 
@@ -34,7 +34,7 @@ video_sources = [None] * 10
 class Pipeline:
     def __init__(self, port):
         global mission_ips, current_mission
-        current_ips = mission_ips[current_mission]
+        current_ips = mission_ips[current_mission.value]
         self.video_source = None
         self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[port]}", argv=ARGUMENTS_LOW)
         self.device_number = -1
@@ -42,7 +42,7 @@ class Pipeline:
 
     def update_video_output(self):
         global mission_ips, current_mission
-        current_ips = mission_ips[current_mission]
+        current_ips = mission_ips[current_mission.value]
         self.video_output = jetson.utils.videoOutput(f"rtp://{current_ips[self.port]}", argv=ARGUMENTS_LOW)
 
     def capture_and_render_image(self):
@@ -51,7 +51,7 @@ class Pipeline:
             self.video_output.Render(image)
         except Exception:
             global mission_ips, current_mission
-            current_ips = mission_ips[current_mission]
+            current_ips = mission_ips[current_mission.value]
             print(f"Camera capture {self.device_number} on {current_ips[self.port]} failed. Stopping stream.")
             failed_device_number = self.device_number
             self.device_number = -1
@@ -68,6 +68,8 @@ class Pipeline:
         return self.port
 
     def update_device_number(self, index):
+        global mission_ips, current_mission
+        current_ips = mission_ips[current_mission.value]
         self.device_number = index
         if index != -1:
             self.video_source = video_sources[index]
@@ -126,15 +128,15 @@ def mission_callback(channel, msg):
     mission_name = Mission.decode(msg).name
     # science is currently the only mission that uses two laptops
 
-    current_mission_request = Mission.ERD  # Assume ERD by default
+    current_mission_request = Mission_names.ERD  # Assume ERD by default
     if mission_name == "Auton":
-        current_mission = Mission.AUTON
+        current_mission = Mission_names.AUTON
     elif mission_name == "ERD":
-        current_mission = Mission.ERD
+        current_mission = Mission_names.ERD
     elif mission_name == "ES":
-        current_mission = Mission.ES
+        current_mission = Mission_names.ES
     elif mission_name == "Science":
-        current_mission = Mission.SCIENCE
+        current_mission = Mission_names.SCIENCE
     if current_mission_request == current_mission:
         return
     current_mission = current_mission_request
