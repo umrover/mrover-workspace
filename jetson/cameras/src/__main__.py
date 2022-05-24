@@ -1,10 +1,10 @@
 from rover_msgs import Cameras, Mission
 import lcm
+from enum import Enum
 
 import sys
 sys.path.insert(0, "/usr/lib/python3.6/dist-packages")  # 3.6 vs 3.8
 import jetson.utils  # noqa
-from enum import Enum
 
 __lcm: lcm.LCM
 __pipelines = [None] * 4
@@ -129,11 +129,11 @@ def mission_callback(channel, msg):
     current_mission_request = Mission.ERD  # Assume ERD by default
     if mission_name == "Auton":
         current_mission = Mission.AUTON
-    else if mission_name == "ERD":
+    elif mission_name == "ERD":
         current_mission = Mission.ERD
-    else if mission_name == "ES":
+    elif mission_name == "ES":
         current_mission = Mission.ES
-    else if mission_name == "Science":
+    elif mission_name == "Science":
         current_mission = Mission.SCIENCE
     if current_mission_request == current_mission:
         return
