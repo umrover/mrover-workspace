@@ -127,20 +127,11 @@ class Camera:
 
         if self.mission == 'Science':
             num_to_update = 2
-            incoming = incoming[0:2]
         else:
             num_to_update = 4
 
         for i in range(num_to_update):
-            if self.cameras[i] not in incoming:
-                self.cameras[i] = -1
-            else:
-                incoming.pop(incoming.index(self.cameras[i]))
-
-        for i in range(num_to_update):
-            if self.cameras[i] == -1:
-                self.cameras[i] = incoming[0]
-                incoming.pop(0)
+            self.cameras[i] = incoming[i]
 
         self.send_camera_cmd()
 
