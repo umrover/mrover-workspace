@@ -75,7 +75,7 @@
       },
 
       sendCameras: function() {
-        this.$parent.pusblish('/cameras_cmd', {
+        this.$parent.publish('/cameras_mission', {
           'type': 'Mission',
           'name': this.mission
         })
