@@ -22,8 +22,8 @@
 
 - name: Install udev rules
   copy:
-      src: files/rover.rules
-      dest: /etc/udev/rules.d/10-rover.rules
+      src: files/99-usb-serial.rules
+      dest: /etc/udev/rules.d/99-usb-serial.rules
 
 - name: Reload systemd
   systemd: daemon_reload=yes
