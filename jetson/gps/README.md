@@ -83,4 +83,4 @@ If /dev/gps doesn't exist & the gps is plugged, or we get a new gps, check out [
 
 
 ### ToDo
-[] finish this readme (localization)
+[ ] finish this readme (localization)
