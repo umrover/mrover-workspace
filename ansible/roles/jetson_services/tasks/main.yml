@@ -10,7 +10,6 @@
       - rover-jetson-auton-nav
       - rover-jetson-cameras
       - rover-jetson-kinematics
-      - rover-jetson-nav
       - rover-jetson-raman
       - rover-jetson-science-bridge
       - rover-jetson-teleop
