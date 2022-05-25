@@ -162,7 +162,7 @@ export default class ObstacleDetector {
   //     }
   //   });
   //   const intervalHeap:OpenIntervalHeap = new OpenIntervalHeap(-this.fov.angle / 2,
-  //                                                              this.fov.angle / 2, closedIntervals);
+  //   this.fov.angle / 2, closedIntervals);
 
   //   /* Step 5: Pick biggest interval that rover can fit through */
   //   /* path width = rover width + 0.25 meters on each side */
