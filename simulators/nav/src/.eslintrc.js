@@ -7,6 +7,9 @@ module.exports = {
     sourceType: 'module',
     ecmaVersion: 2020,
   },
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "settings": {
     "import/resolver": {
       "node": {
@@ -41,6 +44,7 @@ module.exports = {
     "camelcase": ["error", {
       "allow": [
         "bearing_deg",
+        "bottom_left_coordinate_meters",
         "completed_wps",
         "forward_back",
         "gate_width",
@@ -54,7 +58,9 @@ module.exports = {
         "num_waypoints",
         "path_type",
         "pattern_size",
+        "obstacle_list",
         "signal_strength",
+        "top_right_coordinate_meters",
         "total_wps"
        ]
     }],
@@ -132,7 +138,7 @@ module.exports = {
     "no-multi-spaces": "off",
     "no-multiple-empty-lines": ["error", { "max": 2 }],
     "no-new": "error",
-    "no-param-reassign": "error",
+    "no-param-reassign": 0,
     "no-redeclare": "error",
     "no-return-assign": "error",
     "no-shadow": "error",
@@ -219,6 +225,7 @@ module.exports = {
     "@typescript-eslint/camelcase": ["error", {
       "allow": [
         "bearing_deg",
+        "bottom_left_coordinate_meters",
         "completed_wps",
         "forward_back",
         "gate_width",
@@ -232,7 +239,9 @@ module.exports = {
         "num_waypoints",
         "path_type",
         "pattern_size",
+        "obstacle_list",
         "signal_strength",
+        "top_right_coordinate_meters",
         "total_wps"
        ]
     }],
@@ -245,7 +254,7 @@ module.exports = {
     {
       "files": ["store/modules/*State.ts"],
       "rules": {
-        "no-param-reassign": "off"
+        "no-param-reassign": 0
       }
     },
     {
