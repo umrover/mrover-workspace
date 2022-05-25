@@ -201,7 +201,6 @@ export default {
     },
 
     findWaypoint: function (payload) {
-      console.log(payload)
       if(payload.index === this.highlightedWaypoint){
         this.setHighlightedWaypoint(-1)
       }
