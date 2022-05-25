@@ -59,7 +59,7 @@ As of URC 2022, the imu program is a systmed service call rover-jetson-auton-imu
 We access the imu at the port /dev/imu, to see the data coming in stop the imu program/service and type: \
 ```sudo picocom -b 115200 /dev/imu``` \
 Data should be coming through. \
-If /dev/imu doesn't exist & the arduino nano is plugged, or we get a new imu, check out [this link](https://github.com/umrover/mrover-workspace/blob/auton-integration/ansible/README.md#usb-dev-rules) for now to update that. 
+If /dev/imu doesn't exist & the arduino nano is plugged, or we get a new imu, check out [this link](https://github.com/umrover/mrover-workspace/blob/auton-integration/ansible/README.md#usb-dev-rules) for how to update that. 
 
 
 
