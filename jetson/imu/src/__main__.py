@@ -6,7 +6,7 @@ from rover_msgs import IMUData
 
 def main():
     lcm_ = lcm.LCM()
-    ser = serial.Serial('/dev/ttyACM0', 115200)
+    ser = serial.Serial('/dev/imu', 115200)
     attempts = 0
 
     while (1):
