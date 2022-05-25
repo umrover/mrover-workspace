@@ -57,7 +57,7 @@ void Environment::updatePost(std::shared_ptr<Rover> const& rover, std::shared_pt
                 mPostOneLong.push(postOdom.longitude_deg + postOdom.longitude_min / 60.0);
                 mHasNewPostUpdate = true;
             }
-            if (rightTarget.id == mBaseGateId + 1 && mShouldLookForGate) {
+            if (rightTarget.id == mBaseGateId + 1 && mLookForGate) {
                 mPostTwoLat.push(postOdom.latitude_deg + postOdom.latitude_min / 60.0);
                 mPostTwoLong.push(postOdom.longitude_deg + postOdom.longitude_min / 60.0);
                 mHasNewPostUpdate = true;
@@ -70,7 +70,7 @@ void Environment::updatePost(std::shared_ptr<Rover> const& rover, std::shared_pt
                 mPostOneLong.push(postOdom.longitude_deg + postOdom.longitude_min / 60.0);
                 mHasNewPostUpdate = true;
             }
-            if (leftTarget.id == mBaseGateId + 1 && mShouldLookForGate) {
+            if (leftTarget.id == mBaseGateId + 1 && mLookForGate) {
                 mPostTwoLat.push(postOdom.latitude_deg + postOdom.latitude_min / 60.0);
                 mPostTwoLong.push(postOdom.longitude_deg + postOdom.longitude_min / 60.0);
                 mHasNewPostUpdate = true;
@@ -126,7 +126,7 @@ bool Environment::hasPostTwoLocation() const {
 }
 
 void Environment::setShouldLookForGate(bool gate){
-    mShouldLookForGate = gate;
+    mLookForGate = gate;
 }
 
 Odometry Environment::getPostOneLocation() const {

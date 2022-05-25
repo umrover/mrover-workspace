@@ -36,7 +36,7 @@ private:
 
     bool mHasNewPostUpdate = false;
 
-    bool mShouldLookForGate = false;
+    bool mLookForGate = false;
 
     int mBaseGateId{};
 
