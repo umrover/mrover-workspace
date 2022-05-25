@@ -23,7 +23,10 @@ const getters = {
   route: state => state.route,
   waypointList: state => state.waypointList,
   autonEnabled: state => state.autonEnabled,
+<<<<<<< HEAD
   teleopEnabled: state => state.teleopEnabled,
+=======
+>>>>>>> [teleop, nav, percep, loc, sim] auton integration (#962)
   odomFormat: state => state.odomFormat,
   clickPoint: state => state.clickPoint,
   playbackEnabled: state => state.playbackEnabled,

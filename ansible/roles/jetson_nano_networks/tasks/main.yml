@@ -17,6 +17,14 @@
       state: started
       enabled: yes
 
+<<<<<<< HEAD
+=======
+- name: Copy service file
+  copy:
+      src: files/can.service
+      dest: /etc/systemd/system/can.service
+
+>>>>>>> [teleop, nav, percep, loc, sim] auton integration (#962)
 - name: Reload systemd
   systemd: 
       daemon_reload: yes
