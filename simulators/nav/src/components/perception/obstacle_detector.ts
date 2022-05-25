@@ -113,6 +113,138 @@ export default class ObstacleDetector {
     return obsMsg;
   } /* computeObsMsg() */
 
+  /* Calculate the Obstacle LCM message --- OLD OBSTACLE INTERFACE
+     Left it here for reference */
+  // computeObsMsg():ObstacleMessage {
+  //   let obsMsg:ObstacleMessage|null = null;
+
+  //   /* Step 1: filter out obstacles not in field of view */
+  //   this.visibleObstacles = this.obstacles.filter((obs) => this.isObsVisible(obs));
+
+  //   /* Step 2: find distance to closest obstacle in path (-1 if no obstacles) */
+  //   this.findClosestObs();
+
+  //   /* Step 3: Check if our current path clear */
+  //   obsMsg = this.isPathClear(this.zedOdom.bearing_deg);
+  //   if (obsMsg !== null) {
+  //     obsMsg.distance = -1;
+  //     return obsMsg;
+  //   }
+
+  //   /* Step 4: find open intervals */
+  //   const closedIntervals:Interval[] = [];
+  //   this.visibleObstacles.forEach((obs) => {
+  //     /* [meters, radians from north] */
+  //     const [dist, bear]:[number, number] = calcDistAndBear(this.zedOdom, obs.odom);
+
+  //     /* relative angle from rover to obstacle in degrees */
+  //     const relBear:number = calcRelativeBearing(this.zedOdom.bearing_deg, radToDeg(bear));
+
+  //     /* angle formed by center of obstacle, rover, and edge of obstacle in
+  //        degrees (equates to solving an SSS triangle). This uses law of signs to
+  //        find the angles of the triangle: cos(A) = (b^2 + c^2 - a^2) / 2bc.
+  //        Note that since this will form an isosceles triangle, c = b.
+  //        A visual of this can be viewed on the team google drive:
+  //        https://drive.google.com/open?id=12x-ImdIOt_TJqijZ7b8_DF2l7Spkxc7y */
+  //     const numerator:number = (2 * (dist ** 2)) - ((obs.size / 2) ** 2);
+  //     const denominator:number = 2 * (dist ** 2);
+  //     if (denominator !== 0) {
+  //       /* Bound ratio by -1 and 1 so that acos doesn't return NaN. This could
+  //          happen if we are on top of the obstacle. */
+  //       const ratio:number = Math.max(-1, Math.min(1, numerator / denominator));
+  //       const deltaBear:number = radToDeg(Math.abs(Math.acos(ratio)));
+  //       closedIntervals.push([relBear - deltaBear, relBear + deltaBear]);
+  //     }
+  //     else {
+  //       /* If distance to obstacle is 0, it would cover our entire field of
+  //          view. */
+  //       closedIntervals.push([-this.fov.angle / 2, this.fov.angle / 2]);
+  //     }
+  //   });
+  //   const intervalHeap:OpenIntervalHeap = new OpenIntervalHeap(-this.fov.angle / 2,
+  //                                                              this.fov.angle / 2, closedIntervals);
+
+  //   /* Step 5: Pick biggest interval that rover can fit through */
+  //   /* path width = rover width + 0.25 meters on each side */
+  //   const pathWdth = ROVER.width + (2 * OBS_PAD); /* meters */
+
+  //   /* degrees */
+  //   const minIntervalSize:number = 2 * radToDeg(Math.asin(pathWdth / 2 / this.fov.depth));
+
+  //   let openInterval:Interval|null = intervalHeap.getNextOpenInterval();
+  //   while (openInterval !== null) {
+  //     /* If the interval is too small for the rover, then all remaining intervals are as well. */
+  //     if (openInterval[1] - openInterval[0] < minIntervalSize) {
+  //       break;
+  //     }
+
+  //     /* Step 5b: Search through sub-intervals of size minIntervalSize within openInterval. */
+  //     /* If interval is to the right, search sub-intervals left to right */
+  //     if ((openInterval[0] + openInterval[1]) / 2 > 0) {
+  //       for (let start:number = openInterval[0]; /* relative degrees */
+  //         start <= openInterval[1] - minIntervalSize;
+  //         start += 1) {
+  //         const end:number = start + minIntervalSize; /* relative degrees */
+  //         const angle = start + (end / 2); /* relative degrees */
+  //         obsMsg = this.isPathClear(compassModDeg(this.zedOdom.bearing_deg + angle));
+  //         if (obsMsg !== null) {
+  //           return obsMsg;
+  //         }
+  //       }
+  //     }
+
+  //     /* If interval is to the left, search sub-intervals right to left */
+  //     else {
+  //       for (let end:number = openInterval[1]; /* relative degrees */
+  //         end >= openInterval[0] + minIntervalSize;
+  //         end -= 1) {
+  //         const start:number = end - minIntervalSize; /* relative degrees */
+  //         const angle = start + (end / 2); /* relative degrees */
+  //         obsMsg = this.isPathClear(compassModDeg(this.zedOdom.bearing_deg + angle));
+  //         if (obsMsg !== null) {
+  //           return obsMsg;
+  //         }
+  //       }
+  //     }
+
+  //     /* Go to next open interval. */
+  //     openInterval = intervalHeap.getNextOpenInterval();
+  //   }
+
+  //   /* Step 6: If no intervals work, pick left or right edge of field of view */
+  //   let angle!:number;
+
+  //   /* If left side has more open, go left of fov */
+  //   if (intervalHeap.minOccupied > 0) {
+  //     angle = intervalHeap.minOccupied - (minIntervalSize / 2);
+  //   }
+
+  //   /* If right side has more open, go right of fov */
+  //   else if (intervalHeap.maxOccupied < 0) {
+  //     angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
+  //   }
+
+  //   /* If right side has more open, go right of fov */
+  //   else if (Math.abs(intervalHeap.minOccupied) > intervalHeap.maxOccupied) {
+  //     angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
+  //   }
+
+  //   /* If left side has more open, go left of fov */
+  //   else if (Math.abs(intervalHeap.minOccupied) < intervalHeap.maxOccupied) {
+  //     angle = intervalHeap.minOccupied - (minIntervalSize / 2);
+  //   }
+
+  //   /* If both sides equally occupied, randomly go right of fov */
+  //   else {
+  //     angle = intervalHeap.maxOccupied + (minIntervalSize / 2);
+  //   }
+
+  //   return {
+  //     distance: this.obsDist,
+  //     bearing: angle
+  //   };
+  // } /* computeObsMsg() */
+
   /* Update canvas height on change. */
   updateCanvasHeight(newCanvasHeight:number /* pixels */):void {
     this.canvasHeight = newCanvasHeight;
