@@ -1,11 +1,11 @@
 [Unit]
-Description=MRover Jetson Odometry Filter
-After=rover-jetson-auton-imu.service
+Description=MRover Jetson IMU
+After=rover-jetson-auton-gps.service
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec jetson/filter
+ExecStart={{ workspace_dir }}/jarvis exec jetson/imu
 Restart=always
 RestartSec=10
 
