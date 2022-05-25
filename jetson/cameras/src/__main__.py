@@ -18,7 +18,7 @@ es_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
 science_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
 
 
-class Mission_names(Enum):
+class MissionNames(Enum):
     AUTON = 0
     ERD = 1
     ES = 2
@@ -26,7 +26,7 @@ class Mission_names(Enum):
 
 
 mission_ips = [auton_ips, erd_ips, es_ips, science_ips]
-current_mission = Mission_names.SCIENCE
+current_mission = MissionNames.SCIENCE
 
 video_sources = [None] * 10
 
@@ -125,15 +125,15 @@ def mission_callback(channel, msg):
     mission_name = Mission.decode(msg).name
     # science is currently the only mission that uses two laptops
 
-    current_mission_request = Mission_names.ERD  # Assume ERD by default
+    current_mission_request = MissionNames.ERD  # Assume ERD by default
     if mission_name == "Auton":
-        current_mission = Mission_names.AUTON
+        current_mission = MissionNames.AUTON
     elif mission_name == "ERD":
-        current_mission = Mission_names.ERD
+        current_mission = MissionNames.ERD
     elif mission_name == "ES":
-        current_mission = Mission_names.ES
+        current_mission = MissionNames.ES
     elif mission_name == "Science":
-        current_mission = Mission_names.SCIENCE
+        current_mission = MissionNames.SCIENCE
     if current_mission_request == current_mission:
         return
     current_mission = current_mission_request
