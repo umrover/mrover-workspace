@@ -10,10 +10,10 @@
       - rover-jetson-auton-nav
       - rover-jetson-cameras
       - rover-jetson-kinematics
+      - rover-jetson-nucleo-bridge
       - rover-jetson-raman
       - rover-jetson-science-bridge
       - rover-jetson-teleop
-      - rover-jetson-nucleo-bridge
 
 - name: Copy environment variable definitions
   copy:
@@ -36,6 +36,6 @@
       - rover-jetson-auton-imu.service
       - rover-jetson-cameras.service
       - rover-jetson-kinematics.service
+      - rover-jetson-nucleo-bridge.service
       - rover-jetson-raman.service
       - rover-jetson-science-bridge.service
-      - rover-jetson-nucleo-bridge.service
