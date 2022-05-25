@@ -136,7 +136,7 @@ class Camera:
                 self.cameras[i] = -1
             else:
                 incoming.pop(incoming.index(self.cameras[i]))
-        
+
         for i in range(num_to_update):
             if self.cameras[i] == -1:
                 self.cameras[i] = incoming[0]
