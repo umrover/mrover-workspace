@@ -51,7 +51,7 @@ def generateSquareSpiral (points, distance):
             cur = new_point
 
     new_coordinates.append(coordinates[-1])
-    return new_coordinates
+    return coordinates
 
 def generateSquareSpiralInward (points, distance):
     return generateSquareSpiral(points, distance)[::-1] 
