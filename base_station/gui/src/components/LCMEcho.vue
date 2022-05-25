@@ -56,10 +56,7 @@
           '/auton_enabled': false,
           '/autonomous': false,
           '/auton_drive_control': false,
-<<<<<<< HEAD
           '/auton_led': false,
-=======
->>>>>>> [teleop, nav, percep, loc, sim] auton integration (#962)
           '/auton_reverse': false,
           '/cameras_cmd': false,
           '/carousel_calib_data': false,

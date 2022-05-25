@@ -84,19 +84,6 @@
         ]
     ],
     "AutonDriveControl": [
-<<<<<<< HEAD
-=======
-        [
-            "double",
-            "left_percent_velocity"
-        ],
-        [
-            "double",
-            "right_percent_velocity"
-        ]
-    ],
-    "AutonState": [
->>>>>>> [teleop, nav, percep, loc, sim] auton integration (#962)
         [
             "double",
             "left_percent_velocity"
@@ -1239,7 +1226,6 @@
             "double",
             "joint_b"
         ],
-<<<<<<< HEAD
         [
             "double",
             "joint_c"
@@ -1250,18 +1236,6 @@
         ],
         [
             "double",
-=======
-        [
-            "double",
-            "joint_c"
-        ],
-        [
-            "double",
-            "joint_d"
-        ],
-        [
-            "double",
->>>>>>> [teleop, nav, percep, loc, sim] auton integration (#962)
             "joint_e"
         ],
         [
