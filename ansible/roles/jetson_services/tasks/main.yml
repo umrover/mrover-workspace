@@ -7,6 +7,7 @@
       - rover-jetson-auton-gps
       - rover-jetson-auton-imu
       - rover-jetson-auton-percep
+      - rover-jetson-auton-nav
       - rover-jetson-cameras
       - rover-jetson-kinematics
       - rover-jetson-nav
@@ -35,10 +36,7 @@
       - rover-jetson-auton-gps.service
       - rover-jetson-auton-imu.service
       - rover-jetson-cameras.service
-      - rover-jetson-filter.service
-      - rover-jetson-gps.service
       - rover-jetson-kinematics.service
-      - rover-jetson-nav.service
       - rover-jetson-raman.service
       - rover-jetson-science-bridge.service
       - rover-jetson-nucleo-bridge.service
