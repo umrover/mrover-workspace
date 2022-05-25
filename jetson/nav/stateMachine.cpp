@@ -169,7 +169,7 @@ NavState StateMachine::executeDrive() {
     }
     double distanceToWaypoint = estimateDistance(currentWaypoint.odom, mRover->odometry());
     //TODO: refactor magic number (20 is maximum distance waypoint will be from target though)
-    if (mEnv->hasPostOneLocation() && distanceToWaypoint <= 20.0){
+    if (mEnv->hasPostOneLocation() && distanceToWaypoint <= mConfig["navThresholds"]["waypointRadius"].GetDouble()) {
         mCourseProgress->completeCurrentWaypoint();
         return NavState::BeginSearch;
     }
