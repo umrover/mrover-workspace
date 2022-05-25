@@ -181,11 +181,22 @@ The terminal should now display that you are in mrover@mrover-jetson  \
   If an `ENCODER_HALL_ERROR` shows up only the first time, you are good to try calibration again. If no errors show up at all,
   or if the error persists, re-check your wiring. </font>
 
+#### Unexplained USB failures
+For running on the jetson nano, if you are getting usb suspend errors, \
+```sudo vi /boot/extlinux/extlinux.conf``` \
+At the end of APPEND add ```usbcore.autosuspend=-1``` \
+With a space between the end of APPEND and the start of 'usbcore..' \
+Then reboot. \
+Upon reboot check ```cat /proc/cmdline``` to verify the change was put into place
+** this does not work on the xavier due to linux boot reasons **
+
+Also make sure nothing else is on the usb bus (including the wifi chip)
+
 #### USB Forwarding on VM 
 <font size="4">  Make sure the odrive is connected via USB and type \
 `$ lsusb` . From list find the idVendor, idProduct, and MODE of the odrive. It will be listed under the info for the InterBiometrics 
 device. \
-`$ sudo vi /etc/udev/rules.d/50-myusb.rules` \
+`$ sudo vi /etc/udev/rules.d/99-usb-serial.rules` \
 `$ SUBSYSTEMS=="usb", ATTRS{idVendor}=="[__idVendor__]", ATTRS{idProduct}=="[__idProduct__]", GROUP="mrover", MODE="[__MODE__]" ` \
  Restart the VM. </font>
  
