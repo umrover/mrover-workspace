@@ -117,55 +117,61 @@ def gimbal_control_callback(channel, msg):
 
 class Camera:
     def __init__(self):
-        self.cameras = [-1, -1]
-        self.ish_cameras = [-1, -1]
+        self.cameras = [-1, -1, -1, -1]
+
+        self.mission = ""
 
     def update_cameras(self, channel, msg):
         message = GUICameras.decode(msg)
+        incoming = message.port
 
-        # If a camera is streamed to opposite port already
-        if message.port[0] == self.cameras[1]:
-            self.cameras[0] = message.port[1]
-        elif message.port[1] == self.cameras[0]:
-            self.cameras[1] = message.port[0]
-
-        # Otherwise, route normally
+        if self.mission == 'Science':
+            num_to_update = 2
+            incoming = incoming[0:2]
         else:
-            self.cameras[0] = message.port[0]
-            self.cameras[1] = message.port[1]
+            num_to_update = 4
+
+        for i in range(num_to_update):
+            if self.cameras[i] not in incoming:
+                self.cameras[i] = -1
+            else:
+                incoming.pop(incoming.index(self.cameras[i]))
+        
+        for i in range(num_to_update):
+            if self.cameras[i] == -1:
+                self.cameras[i] = incoming[0]
+                incoming.pop(0)
 
         self.send_camera_cmd()
 
     def update_ish_cameras(self, channel, msg):
+        if self.mission != 'Science':
+            return
+
         message = GUICameras.decode(msg)
 
         # If a camera is streamed to opposite port already
-        if message.port[0] == self.ish_cameras[1]:
-            self.ish_cameras[0] = message.port[1]
-        elif message.port[1] == self.ish_cameras[0]:
-            self.ish_cameras[1] = message.port[0]
+        if message.port[0] == self.cameras[3]:
+            self.cameras[2] = message.port[1]
+        elif message.port[1] == self.cameras[2]:
+            self.cameras[3] = message.port[0]
 
         # Otherwise, route normally
         else:
-            self.ish_cameras[0] = message.port[0]
-            self.ish_cameras[1] = message.port[1]
+            self.cameras[2] = message.port[0]
+            self.cameras[3] = message.port[1]
 
         self.send_camera_cmd()
-        self.send_mission_name("Science")
 
     def send_camera_cmd(self):
         camera_msg = Cameras()
-        camera_msg.port[0] = self.cameras[0]
-        camera_msg.port[1] = self.cameras[1]
-        camera_msg.port[2] = self.ish_cameras[0]
-        camera_msg.port[3] = self.ish_cameras[1]
+        camera_msg.port = self.cameras
 
         lcm_.publish('/cameras_cmd', camera_msg.encode())
 
-    def send_mission_name(self, name):
-        mission_msg = Mission()
-        mission_msg.name = name
-        lcm_.publish('/cameras_mission', mission_msg.encode())
+    def update_mission(self, channel, msg):
+        message = Mission.decode(msg)
+        self.mission = message.name
 
 
 class ArmControl:
@@ -315,5 +321,6 @@ def main():
     # Subscribe to updated GUI camera channels
     lcm_.subscribe('/cameras_control_ish', camera.update_ish_cameras)
     lcm_.subscribe('/cameras_control', camera.update_cameras)
+    lcm_.subscribe('/cameras_mission', camera.update_mission)
 
     run_coroutines(hb.loop(), lcm_.loop())

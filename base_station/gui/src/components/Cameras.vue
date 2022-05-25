@@ -58,6 +58,10 @@
         type: Number,
         required: true
       },
+      mission: {
+        type: String,
+        required: true
+      },
       channel: {
         type: String,
         required: true
@@ -71,15 +75,21 @@
       },
 
       sendCameras: function() {
+        this.$parent.pusblish('/cameras_cmd', {
+          'type': 'Mission',
+          'name': this.mission
+        })
+
         let ports = []
 
-        for (let i = 0; i < this.camsEnabled.length; i++) {
+        for (let i = 0; i < this.camsEnabled.length && ports.length < this.numCams; i++) {
           if (this.camsEnabled[i]) {
             ports.push(i)
           }
         }
 
-        for (let i = ports.length; i < this.numCams; i++) {
+        // The condition (i < 4) must match the length of port in GUICameras.
+        for (let i = ports.length; i < 4; i++) {
           ports.push(-1)
         }
 

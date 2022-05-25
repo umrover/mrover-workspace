@@ -23,7 +23,7 @@
     </div>
 
     <div class="box cameras light-bg">
-      <Cameras v-bind:numCams="2" v-bind:channel="'/cameras_control'"/>
+      <Cameras v-bind:numCams="4" v-bind:mission="ES" v-bind:channel="'/cameras_control'"/>
     </div>
     <div class="box ik-controls light-bg">
       <IKControls/>
