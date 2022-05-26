@@ -32,7 +32,7 @@ public:
 
     //takes detected AR tag and finds center coordinate for use with ZED                                                                 
 
-    cv::Ptr<cv::aruco::DetectborParameters> getAlvarParams();
+    cv::Ptr<cv::aruco::DetectorParameters> getAlvarParams();
 
     static cv::Point2f getAverageTagCoordinateFromCorners(const std::vector<cv::Point2f>& corners);
 
