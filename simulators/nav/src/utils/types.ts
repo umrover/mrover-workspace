@@ -66,6 +66,7 @@ export interface FieldState {
   arTags:ArTag[];
   canvasHeight:number; /* pixels */
   centerOdom:Odom;
+  falseArTags:ArTag[];
   gates:Gate[];
   obstacles:Obstacle[];
   referencePoints:Odom[];
@@ -275,6 +276,8 @@ export interface SimulationSettings {
   enableProjectedPoints:boolean;
   noisePercent:number;
   noiseGPSPercent:number;
+  noiseFalsePosPercent:number;
+  maxFalsePos:number;
 }
 
 

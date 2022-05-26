@@ -3,9 +3,7 @@
       src: "files/{{ item }}.service"
       dest: "/etc/systemd/system/{{ item }}.service"
   with_items:
-      - rover-jetson-odrive-front
-      - rover-jetson-odrive-middle
-      - rover-jetson-odrive-back
+      - rover-jetson-odrive@
       - rover-jetson-teleop
 
 - name: Copy environment variable definitions
@@ -19,7 +17,7 @@
 - name: Enable services
   systemd: name={{item}} enabled=yes
   with_items:
-      - rover-jetson-odrive-front
-      - rover-jetson-odrive-middle
-      - rover-jetson-odrive-back
+      - rover-jetson-odrive@front
+      - rover-jetson-odrive@middle
+      - rover-jetson-odrive@back
       - rover-jetson-teleop
