@@ -93,16 +93,22 @@
             "right_percent_velocity"
         ]
     ],
-    "AutonState": [
+    "AutonLed": [
         [
-            "boolean",
-            "is_auton"
+            "string",
+            "color"
         ]
     ],
     "Bearing": [
         [
             "double",
             "bearing"
+        ]
+    ],
+    "Calibrate": [
+        [
+            "boolean",
+            "calibrated"
         ]
     ],
     "Cameras": [
@@ -196,7 +202,7 @@
             "string",
             "preset"
         ]
-
+        
     ],
     "DebugMessage": [
         [
@@ -231,10 +237,10 @@
     "DriveStateData": [
         [
             "int8_t",
-            "controller"
+            "odrive_index"
         ],
         [
-            "int8_t",
+            "string",
             "state"
         ]
     ],
@@ -270,6 +276,12 @@
         [
             "boolean",
             "enable"
+        ]
+    ],
+    "Enable": [
+        [
+            "boolean",
+            "enabled"
         ]
     ],
     "Encoder": [

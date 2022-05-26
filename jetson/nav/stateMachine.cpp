@@ -50,7 +50,7 @@ void StateMachine::run() {
     publishNavState();
     NavState nextState = NavState::Unknown;
 
-    if (mRover->autonState().is_auton) {
+    if (mRover->autonState().enabled) {
         switch (mRover->currentState()) {
             case NavState::Off: {
                 nextState = executeOff();
@@ -133,7 +133,7 @@ void StateMachine::publishNavState() const {
 // the course otherwise it will turn to the first waypoint. Else the
 // rover is still off.
 NavState StateMachine::executeOff() {
-    if (mRover->autonState().is_auton) {
+    if (mRover->autonState().enabled) {
         NavState nextState = mCourseProgress->getCourse().num_waypoints ? NavState::DriveWaypoints : NavState::Done;
         mCourseProgress->clearProgress();
         return nextState;
@@ -156,6 +156,7 @@ NavState StateMachine::executeDone() {
 NavState StateMachine::executeDrive() {
     Waypoint const& currentWaypoint = mCourseProgress->getCurrentWaypoint();
     mEnv->setBaseGateID(currentWaypoint.id);
+    mEnv->setShouldLookForGate(currentWaypoint.gate);
     double dt = getDtSeconds();
     if (mRover->drive(currentWaypoint.odom, mConfig["navThresholds"]["waypointDistance"].GetDouble(), dt)) {
         mCourseProgress->completeCurrentWaypoint();
@@ -165,6 +166,11 @@ NavState StateMachine::executeDrive() {
         } else if (mCourseProgress->getRemainingWaypoints().empty()) {
             return NavState::Done;
         }
+    }
+    double distanceToWaypoint = estimateDistance(currentWaypoint.odom, mRover->odometry());
+    if (mEnv->hasPostOneLocation() && distanceToWaypoint <= mConfig["navThresholds"]["waypointRadius"].GetDouble()) {
+        mCourseProgress->completeCurrentWaypoint();
+        return NavState::BeginSearch;
     }
     return NavState::DriveWaypoints;
 } // executeDrive()

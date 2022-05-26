@@ -1,5 +1,5 @@
 package rover_msgs;
 
 struct CarouselPosition {
-	int8_t position;
+	double position;
 }

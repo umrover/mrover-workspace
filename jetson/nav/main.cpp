@@ -46,10 +46,10 @@ int main() {
     auto rover = std::make_shared<Rover>(config, lcm);
     auto stateMachine = std::make_shared<StateMachine>(config, rover, env, courseProgress, lcm);
 
-    auto autonCallback = [rover](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const AutonState* autonState) mutable {
+    auto autonCallback = [rover](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const Enable* autonState) mutable {
         rover->setAutonState(*autonState);
     };
-    lcm.subscribe("/auton", &decltype(autonCallback)::operator(), &autonCallback)->setQueueCapacity(3);
+    lcm.subscribe("/auton_enabled", &decltype(autonCallback)::operator(), &autonCallback)->setQueueCapacity(3);
 
     auto courseCallback = [courseProgress](const lcm::ReceiveBuffer* recBuf, const std::string& channel, const Course* course) mutable {
         courseProgress->setCourse(*course);
