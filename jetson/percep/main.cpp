@@ -110,7 +110,7 @@ int main() {
 
     /* --- AR Tag Debugging --- */
     #if AR_DETECTION && PERCEPTION_DEBUG
-        cv::namedWindow("ARUCO Debug", WINDOW_AUTOSIZE);
+        cv::namedWindow("ARUCO Debug", cv::WINDOW_AUTOSIZE);
         cv::createTrackbar("adaptiveThreshWinSizeMin", "ARUCO Debug", &detector.getAlvarParams()->adaptiveThreshWinSizeMin, 50, nullptr);
         cv::createTrackbar("adaptiveThreshWinSizeMax", "ARUCO Debug", &detector.getAlvarParams() -> adaptiveThreshWinSizeMax, 50, nullptr);
         cv::createTrackbar("adaptiveThreshWinSizeStep", "ARUCO Debug", &detector.getAlvarParams()->adaptiveThreshWinSizeStep, 30, nullptr);
@@ -121,7 +121,6 @@ int main() {
         DoubleTrack(&detector.getAlvarParams()->minCornerDistanceRate).setup("minCornerDistanceRate", "ARUCO Debug", 1);
         cv::createTrackbar("minDistanceToBorder", "ARUCO Debug", &detector.getAlvarParams()->minDistanceToBorder, 10, nullptr);
         DoubleTrack(&detector.getAlvarParams()->minMarkerDistanceRate).setup("minMarkerDistanceRate", "ARUCO Debug", 1);
-        cv::createTrackbar("cornerRefinementMethod", "ARUCO Debug", &detector.getAlvarParams()->cornerRefinementMethod, 3, nullptr);
         cv::createTrackbar("cornerRefinementWinSize", "ARUCO Debug", &detector.getAlvarParams()->cornerRefinementWinSize, 20, nullptr);
         cv::createTrackbar("cornerRefinementMaxIterations", "ARUCO Debug", &detector.getAlvarParams()->cornerRefinementMaxIterations, 80, nullptr);
         DoubleTrack(&detector.getAlvarParams()->cornerRefinementMinAccuracy).setup("cornerRefinementMinAccuracy", "ARUCO Debug", 1);
