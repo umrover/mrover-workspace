@@ -2,7 +2,7 @@
     "onboard":
     {
         "baudrate": 115200,
-        "filename": "/dev/ttyACM0",
+        "filename": "/dev/gps",
         "max_error_count": 5,
         "sleep": 0.1
     },

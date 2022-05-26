@@ -38,7 +38,7 @@
       <td class = "tableElement">{{drive_vel_data.frontLeft.velocity}} m/sec</td>
       <td class = "tableElement">2</td>
       <td class = "tableElement">{{drive_vel_data.middleLeft.current}} amps</td>
-      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity}} counts/sec</td>
+      <td class = "tableElement">{{drive_vel_data.middleLeft.velocity}} m/sec</td>
       <td class = "tableElement">4</td>
       <td class = "tableElement">{{drive_vel_data.backLeft.current}} amps</td>
       <td class = "tableElement">{{drive_vel_data.backLeft.velocity}} m/sec</td>

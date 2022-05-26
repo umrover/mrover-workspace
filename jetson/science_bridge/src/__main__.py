@@ -9,14 +9,14 @@ import numpy as np
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
-    NavStatus, ServoCmd, Heater, HeaterAutoShutdown
+    AutonLed, ServoCmd, Heater, HeaterAutoShutdown
 from enum import Enum
 
 
-class Auton_state(Enum):
-    ON = 0
-    DONE = 1
-    OFF = 2
+class LED_state(Enum):
+    RED = 0
+    GREEN = 1
+    BLUE = 2
     NONE = 3
 
 
@@ -66,6 +66,12 @@ class ScienceBridge():
         self.max_error_count = 20
         self.sleep = .01
         self.previous_auton_msg = "Default"
+
+        self.led_map = {
+            "Red": LED_state.RED,
+            "Blue": LED_state.BLUE,
+            "Green": LED_state.GREEN
+        }
 
     def __enter__(self):
         '''
@@ -225,29 +231,17 @@ class ScienceBridge():
         print("Mosfet Received")
         pass
 
-    def nav_status(self, channel, msg):  # TODO - fix make better
+    def auton_led(self, channel, msg):  # TODO - fix make better
         # Off, Done, On
-        struct = NavStatus.decode(msg)
+        struct = AutonLed.decode(msg)
+        try:
+            requested_state = self.led_map[struct.color]
+            print("Received new auton led request: Turning " + str(struct.color))
+        except KeyError:
+            requested_state = LED_state.NONE
+            print("Received invalid/Off auton led request: Turning OFF all colors")
 
-        if self.previous_auton_msg == struct.nav_state_name:
-            return
-
-        print("Received new nav req: " + struct.nav_state_name)
-
-        self.previous_auton_msg = struct.nav_state_name
-
-        if struct.nav_state_name == "Off":
-            print("navstatus off - blue")
-            prev_state = Auton_state.OFF
-        elif struct.nav_state_name == "Done":
-            print("navstatus done - green blink")
-            prev_state = Auton_state.DONE
-        else:
-            print("navstatus on - red")
-            prev_state = Auton_state.ON
-
-        led_message = "$LED,{led_color}"
-        led_message = led_message.format(led_color=prev_state.value)
+        led_message = "$LED,{led_color}".format(led_color=requested_state.value)
         self.uart_send(led_message)
 
     def servo_transmit(self, channel, msg):
@@ -324,7 +318,7 @@ def main():
     with ScienceBridge() as bridge:
         _lcm = aiolcm.AsyncLCM()
         _lcm.subscribe("/mosfet_cmd", bridge.mosfet_transmit)
-        _lcm.subscribe("/nav_status", bridge.nav_status)
+        _lcm.subscribe("/auton_led", bridge.auton_led)
         _lcm.subscribe("/servo_cmd", bridge.servo_transmit)
         _lcm.subscribe("/heater_cmd", bridge.heater_transmit)
         _lcm.subscribe("/heater_auto_shutdown_cmd", bridge.heater_auto_transmit)

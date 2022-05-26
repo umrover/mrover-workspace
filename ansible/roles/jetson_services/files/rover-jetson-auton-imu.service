@@ -1,10 +1,11 @@
 [Unit]
-Description=MRover Drive
+Description=MRover Jetson IMU
+After=rover-jetson-auton-gps.service
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec jetson_odrive_bridge 0
+ExecStart={{ workspace_dir }}/jarvis exec jetson/imu
 Restart=always
 RestartSec=10
 

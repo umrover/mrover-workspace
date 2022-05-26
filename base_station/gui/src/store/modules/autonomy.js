@@ -4,6 +4,7 @@ const state = {
   waypointList: [],
   highlightedWaypoint: -1,
   autonEnabled: false,
+  teleopEnabled: false,
   odomFormat: "DM",
   clickPoint: {
     lat: 0,
@@ -24,6 +25,7 @@ const getters = {
   waypointList: state => state.waypointList,
   highlightedWaypoint: state => state.highlightedWaypoint,
   autonEnabled: state => state.autonEnabled,
+  teleopEnabled: state => state.teleopEnabled,
   odomFormat: state => state.odomFormat,
   clickPoint: state => state.clickPoint,
   playbackEnabled: state => state.playbackEnabled,
@@ -44,6 +46,10 @@ const mutations = {
 
   setAutonMode (commit, newAutonEnabled) {
     state.autonEnabled = newAutonEnabled
+  },
+
+  setTeleopMode (commit, newTeleopEnabled) {
+    state.teleopEnabled = newTeleopEnabled
   },
 
   setWaypointList (commit, newList) {

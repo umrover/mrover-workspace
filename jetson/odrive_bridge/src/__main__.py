@@ -433,9 +433,9 @@ class Modrive:
             return self.right_axis.motor.current_control.Iq_measured
 
     def get_vel_estimate(self, axis):
-        if (axis == "LEFT"):
+        if (axis == Axis.LEFT):
             return self.left_axis.encoder.vel_estimate * self.TURNS_TO_M_S_MULTIPLIER
-        elif(axis == "RIGHT"):
+        elif (axis == Axis.RIGHT):
             return self.right_axis.encoder.vel_estimate * -self.TURNS_TO_M_S_MULTIPLIER
 
     def idle(self):
