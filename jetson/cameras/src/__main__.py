@@ -1,5 +1,6 @@
-from rover_msgs import Cameras
+from rover_msgs import Cameras, Mission
 import lcm
+from enum import Enum
 
 import sys
 sys.path.insert(0, "/usr/lib/python3.6/dist-packages")  # 3.6 vs 3.8
@@ -11,20 +12,49 @@ __pipelines = [None] * 4
 ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
 # 10.0.0.1 represents the ip of the main base station laptop
 # 10.0.0.2 represents the ip of the secondary science laptop
-remote_ip = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
+auton_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
+erd_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
+es_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
+science_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.2:5000", "10.0.0.2:5001"]
+
+
+class MissionNames(Enum):
+    AUTON = 0
+    ERD = 1
+    ES = 2
+    SCIENCE = 3
+
+
+mission_ips = [auton_ips, erd_ips, es_ips, science_ips]
+current_mission = MissionNames.SCIENCE
+
 video_sources = [None] * 10
 
 
 class Pipeline:
     def __init__(self, port):
+        global mission_ips, current_mission
+        self.current_ips = mission_ips[current_mission.value]
         self.video_source = None
-        self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[port]}", argv=ARGUMENTS_LOW)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[port]}", argv=ARGUMENTS_LOW)
         self.device_number = -1
         self.port = port
 
-    def update(self):
-        image = self.video_source.Capture()
-        self.video_output.Render(image)
+    def update_video_output(self):
+        global mission_ips, current_mission
+        self.current_ips = mission_ips[current_mission.value]
+        self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[self.port]}", argv=ARGUMENTS_LOW)
+
+    def capture_and_render_image(self):
+        try:
+            image = self.video_source.Capture()
+            self.video_output.Render(image)
+        except Exception:
+            print(f"Camera capture {self.device_number} on {self.current_ips[self.port]} failed. Stopping stream.")
+            failed_device_number = self.device_number
+            self.device_number = -1
+            if device_is_not_being_used_by_other_pipelines(self.port, failed_device_number):
+                close_video_source(failed_device_number)
 
     def is_open(self):
         return True
@@ -40,9 +70,9 @@ class Pipeline:
         if index != -1:
             self.video_source = video_sources[index]
             if self.video_source is not None:
-                self.video_output = jetson.utils.videoOutput(f"rtp://{remote_ip[self.port]}", argv=ARGUMENTS_LOW)
+                self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[self.port]}", argv=ARGUMENTS_LOW)
             else:
-                print(f"Unable to play camera {index} on {remote_ip[self.port]}.")
+                print(f"Unable to play camera {index} on {self.current_ips[self.port]}.")
                 self.device_number = -1
         else:
             self.video_source = None
@@ -52,10 +82,11 @@ class Pipeline:
 
 
 def start_pipeline(index, port):
-    global __pipelines
+    global __pipelines, mission_ips, current_mission
     try:
         __pipelines[port].update_device_number(index)
-        print(f"Playing camera {index} on {remote_ip[port]}.")
+        current_ips = mission_ips[current_mission.value]
+        print(f"Playing camera {index} on {current_ips[port]}.")
     except Exception:
         pass
 
@@ -89,12 +120,35 @@ def device_is_not_being_used_by_other_pipelines(excluded_pipeline, device_number
     return True
 
 
+def mission_callback(channel, msg):
+    global __pipelines, current_mission
+    mission_name = Mission.decode(msg).name
+    # science is currently the only mission that uses two laptops
+
+    current_mission_request = MissionNames.ERD  # Assume ERD by default
+    if mission_name == "Auton":
+        current_mission = MissionNames.AUTON
+    elif mission_name == "ERD":
+        current_mission = MissionNames.ERD
+    elif mission_name == "ES":
+        current_mission = MissionNames.ES
+    elif mission_name == "Science":
+        current_mission = MissionNames.SCIENCE
+    if current_mission_request == current_mission:
+        return
+    current_mission = current_mission_request
+
+    for pipeline_number, pipeline in enumerate(__pipelines):
+        # only skip if 0 or 1 because it's the same either way
+        if pipeline_number == 0 or pipeline_number == 1:
+            continue
+        pipeline.update_video_output()
+
+
 def camera_callback(channel, msg):
     global __pipelines
 
-    camera_cmd = Cameras.decode(msg)
-
-    port_devices = camera_cmd.port
+    port_devices = Cameras.decode(msg).port
 
     for port_number, requested_port_device in enumerate(port_devices):
         current_device_number = __pipelines[port_number].get_device_number()
@@ -117,13 +171,14 @@ def main():
 
     __lcm = lcm.LCM()
     __lcm.subscribe("/cameras_cmd", camera_callback)
+    __lcm.subscribe("/cameras_mission", mission_callback)
 
     while True:
         while __lcm.handle_timeout(0):
             pass
         for port_number, pipeline in enumerate(__pipelines):
             if pipeline.is_currently_streaming():
-                pipeline.update()
+                pipeline.capture_and_render_image()
 
 
 if __name__ == "__main__":

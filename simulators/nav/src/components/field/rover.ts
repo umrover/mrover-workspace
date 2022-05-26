@@ -12,8 +12,6 @@ import {
   compassToCanvasRad,
   degToRad,
   odomToCanvas
-
-  // rotatePoint
 } from '../../utils/utils';
 import { ROVER } from '../../utils/constants';
 
@@ -55,6 +53,9 @@ export default class CanvasRover {
   /* Canvas context */
   private ctx!:CanvasRenderingContext2D;
 
+  /* Enable the FOV visualization tool */
+  private enableFOVView!:boolean;
+
   /* Field of view options */
   private fov!:FieldOfViewOptions;
 
@@ -67,10 +68,11 @@ export default class CanvasRover {
   /* Whether or not to draw the rover's path */
   private pathVisible!:boolean;
 
+  /* Function to push an area to the rover's FOV converage */
+  private pushToFOVAreaPath!:(area:Path2D)=>void;
+
   /* Function to push a point to the rover's path */
   private pushToPath!:(currLoc:Odom)=>void;
-
-  private pushToFOVAreaPath!:(area:Path2D)=>void;
 
   /* scale of the canvas in pixels/meter */
   private scale!:number;
@@ -78,24 +80,22 @@ export default class CanvasRover {
   /* Current position of the ZED Gimbal */
   private zedGimbalPos!:ZedGimbalPosition;
 
-  private enableFOVView!:boolean;
-
   /************************************************************************************************
    * Public Methods
    ************************************************************************************************/
   /* Initialize CanvasRover instance by calculating scaled dimensions. */
   constructor(
-      currOdom:Odom,
       canvasCent:Odom,
-      scale:number, /* pixels/meter */
-      path:Odom[],
+      currOdom:Odom,
+      enableFOVView:boolean,
       FOVAreaPath:Path2D,
       fov:FieldOfViewOptions,
+      path:Odom[],
       pathVisible:boolean,
-      pushToPath:(currLoc:Odom)=>void,
       pushToFOVAreaPath:(area:Path2D)=>void,
-      zedGimbalPos:ZedGimbalPosition,
-      enableFOVView:boolean
+      pushToPath:(currLoc:Odom)=>void,
+      scale:number, /* pixels/meter */
+      zedGimbalPos:ZedGimbalPosition
   ) {
     this.currOdom = currOdom;
     this.canvasCent = canvasCent;
@@ -133,8 +133,6 @@ export default class CanvasRover {
     /* get canvas context */
     this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-    const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
-
     /* Draw FOV */
     if (this.fov.visible) {
       this.drawFov(canvas);
@@ -145,10 +143,12 @@ export default class CanvasRover {
       this.drawPath(canvas);
     }
 
-    /* Draw rover */
+    /* Translate canvas to rover's position */
+    const loc:Point2D = odomToCanvas(this.currOdom, this.canvasCent, canvas.height, this.scale);
     this.ctx.translate(loc.x, loc.y);
     this.ctx.rotate(degToRad(this.currOdom.bearing_deg));
 
+    /* Draw rover */
     this.drawBody();
     this.drawEbox();
     this.drawWheels();
