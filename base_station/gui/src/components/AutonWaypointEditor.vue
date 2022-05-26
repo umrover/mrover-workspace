@@ -35,7 +35,7 @@
           <button v-on:click="clearWaypoint">Clear Waypoints</button>
         </div>
         <draggable v-model="storedWaypoints" class="dragArea" draggable=".item'">
-          <WaypointItem v-for="waypoint, i in storedWaypoints" :key="i" v-bind:waypoint="waypoint" v-bind:list="0" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
+          <WaypointItem v-for="waypoint, i in storedWaypoints" :key="i" v-bind:waypoint="waypoint" v-bind:list="0" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)" v-on:find="findWaypoint($event)"/>
         </draggable>
       </div>
     </div>
@@ -57,7 +57,7 @@
       <div class="box1">
         <h4 class="waypoint-headers">Current Course</h4>
         <draggable v-model="route" class="dragArea" draggable=".item'">
-          <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-bind:name="name" v-bind:id="id" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)"/>
+          <WaypointItem v-for="waypoint, i in route" :key="i" v-bind:waypoint="waypoint" v-bind:list="1" v-bind:index="i" v-bind:name="name" v-bind:id="id" v-on:delete="deleteItem($event)" v-on:toggleSearch="toggleSearch($event)" v-on:toggleGate="toggleGate($event)" v-on:add="addItem($event)" v-on:find="findWaypoint($event)"/>
         </draggable>
       </div>
     </div>
@@ -119,7 +119,7 @@ export default {
       route: [],
 
       autonButtonColor: "red",
-      waitingForNav: false
+      waitingForNav: false,
 
     }
   },
@@ -184,15 +184,28 @@ export default {
     ...mapMutations('autonomy',{
       setRoute: 'setRoute',
       setWaypointList: 'setWaypointList',
+      setHighlightedWaypoint: 'setHighlightedWaypoint',
       setAutonMode: 'setAutonMode',
       setOdomFormat: 'setOdomFormat'
     }),
 
     deleteItem: function (payload) {
+      if(this.highlightedWaypoint == payload.index){
+        this.setHighlightedWaypoint(-1)
+      }
       if(payload.list === 0) {
         this.storedWaypoints.splice(payload.index, 1)
       } else if(payload.list === 1) {
         this.route.splice(payload.index, 1)
+      }
+    },
+
+    findWaypoint: function (payload) {
+      if(payload.index === this.highlightedWaypoint){
+        this.setHighlightedWaypoint(-1)
+      }
+      else{
+        this.setHighlightedWaypoint(payload.index)
       }
     },
 
@@ -294,6 +307,7 @@ export default {
   computed: {
     ...mapGetters('autonomy', {
       autonEnabled: 'autonEnabled',
+      highlightedWaypoint: 'highlightedWaypoint',
       odom_format: 'odomFormat',
       clickPoint: "clickPoint"
     }),
