@@ -53,6 +53,15 @@ If the arduino is connected correctly, IMU data should be printing to the termin
 
 You should see a stream of `IMUData` structs being printed to the terminal, try wiggling the BNO055 and make sure you see some of the IMU data values changing on the terminal.
 
+As of URC 2022, the imu program is a systmed service call rover-jetson-auton-imu.service you can start and stop. It automatically start up on boot after the GPS service. 
+
+## USB Issues
+We access the imu at the port /dev/imu, to see the data coming in stop the imu program/service and type: \
+```sudo picocom -b 115200 /dev/imu``` \
+Data should be coming through. \
+If /dev/imu doesn't exist & the arduino nano is plugged, or we get a new imu, check out [this link](https://github.com/umrover/mrover-workspace/blob/auton-integration/ansible/README.md#usb-dev-rules) for how to update that. 
+
+
 
 ## Calibrating the BNO055
 

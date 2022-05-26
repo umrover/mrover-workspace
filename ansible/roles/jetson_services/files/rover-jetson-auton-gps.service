@@ -1,10 +1,10 @@
 [Unit]
-Description=MRover Jetson GPS Interface
+Description=MRover Jetson GPS
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec jetson_gps
+ExecStart={{ workspace_dir }}/jarvis exec jetson/gps
 Restart=always
 RestartSec=10
 

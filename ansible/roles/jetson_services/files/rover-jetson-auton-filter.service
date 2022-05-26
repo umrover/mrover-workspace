@@ -1,10 +1,11 @@
 [Unit]
-Description=MRover Drive
+Description=MRover Jetson Odometry Filter
+After=rover-jetson-auton-imu.service
 
 [Service]
 EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
-ExecStart={{ workspace_dir }}/jarvis exec jetson_odrive_bridge 2
+ExecStart={{ workspace_dir }}/jarvis exec jetson/filter
 Restart=always
 RestartSec=10
 

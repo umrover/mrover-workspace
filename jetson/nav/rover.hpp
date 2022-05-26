@@ -5,7 +5,7 @@
 
 #include <lcm/lcm-cpp.hpp>
 
-#include "rover_msgs/AutonState.hpp"
+#include "rover_msgs/Enable.hpp"
 #include "rover_msgs/Bearing.hpp"
 #include "rover_msgs/Course.hpp"
 #include "rover_msgs/Obstacle.hpp"
@@ -73,11 +73,11 @@ public:
 
     [[nodiscard]] NavState const& currentState() const;
 
-    [[nodiscard]] AutonState const& autonState() const;
+    [[nodiscard]] Enable const& autonState() const;
 
     [[nodiscard]] Odometry const& odometry() const;
 
-    void setAutonState(AutonState state);
+    void setAutonState(Enable state);
 
     void setOdometry(Odometry const& odometry);
 
@@ -113,7 +113,7 @@ private:
     NavState mCurrentState{NavState::Off};
 
     // The rover's current auton state.
-    AutonState mAutonState{};
+    Enable mAutonState{};
 
     // The rover's current odometry information.
     Odometry mOdometry{};
