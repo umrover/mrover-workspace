@@ -88,7 +88,12 @@ correct ID.
 
 ## Gate Search
 
+[`gateStateMachine.cpp`](./gate_search/gateStateMachine.cpp)
+
 Sub state machine for gate search and traversal.
+Checking the source code is highly recommended as this has the most vector arithmetic.
+Basically we first line up with the gate, so we can cleanly drive straight through it.
+Sometimes this involves an extra step if both gate posts are in front of us (worst case).
 
 ---
 
