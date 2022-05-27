@@ -173,7 +173,7 @@ class ArmControl:
         SA = 2
 
     def __init__(self):
-        self.arm_control_state = "off"
+        self.arm_control_state = "open-loop"
         self.arm_type = self.ArmType.UNKNOWN
         self.speed_multiplier = 1
 
