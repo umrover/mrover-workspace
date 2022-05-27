@@ -175,7 +175,7 @@ class ArmControl:
     def __init__(self):
         self.arm_control_state = "open-loop"
         self.arm_type = self.ArmType.UNKNOWN
-        self.speed_multiplier = 1
+        self.slow_mode = False
 
     def arm_control_state_callback(self, channel, msg):
         self.arm_control_state = ArmControlState.decode(msg).state
@@ -198,7 +198,12 @@ class ArmControl:
                         quadratic(xboxData.right_trigger - xboxData.left_trigger),
                         (xboxData.right_bumper - xboxData.left_bumper)]
 
-        motor_speeds = [element * self.speed_multiplier for element in motor_speeds]
+        if self.slow_mode:
+            # slow down joints a, c, e, and f
+            motor_speeds[0] *= 0.5
+            motor_speeds[3] *= 0.5
+            motor_speeds[4] *= 0.5
+            motor_speeds[5] *= 0.5
 
         openloop_msg = RAOpenLoopCmd()
         openloop_msg.throttle = motor_speeds
@@ -223,8 +228,6 @@ class ArmControl:
                         quadratic(-deadzone(xboxData.left_js_y, 0.15)),
                         quadratic(-deadzone(xboxData.right_js_y, 0.15)),
                         quadratic(xboxData.right_trigger - xboxData.left_trigger)]
-
-        saMotorsData = [element * self.speed_multiplier for element in saMotorsData]
 
         openloop_msg = SAOpenLoopCmd()
         openloop_msg.throttle = saMotorsData
@@ -282,11 +285,7 @@ class ArmControl:
         lcm_.publish('/sa_open_loop_cmd', sa_openloop_msg.encode())
 
     def arm_slow_mode_callback(self, channel, msg):
-        slow_mode_request = Enable.decode(msg).enabled
-        if slow_mode_request:
-            self.speed_multiplier = 0.5
-        else:
-            self.speed_multiplier = 1
+        self.slow_mode = Enable.decode(msg).enabled
 
 
 def main():
