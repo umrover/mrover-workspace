@@ -2,17 +2,17 @@
 #include <iostream> // remove
 #include <cmath>
 
-// Coverts the input degree (and optional minute) to radians.
+/** @brief Coverts the input degree (and optional minute) to radians */
 double degreeToRadian(const double degree, const double minute) {
     return (PI / 180) * (degree + minute / 60);
 } // degreeToRadian
 
-// Converts the input radians to degrees.
+/** @brief Converts the input radians to degrees */
 double radianToDegree(const double radian) {
     return radian * 180 / PI;
 } // radianToDegree
 
-// create a new odom with coordinates offset from current odom by a certain lat and lon change
+/** @brief create a new odom with coordinates offset from current odom by a certain lat and lon change */
 Odometry addMinToDegrees(const Odometry& current, const double lat_minutes, const double lon_minutes) {
     Odometry newOdom = current;
     double total_lat_min = current.latitude_min + lat_minutes;
@@ -27,7 +27,7 @@ Odometry addMinToDegrees(const Odometry& current, const double lat_minutes, cons
     return newOdom;
 } // addMinToDegrees
 
-// Estimate approximate distance using euclidean methods
+/** @brief Estimate approximate distance using euclidean methods */
 double estimateDistance(const Odometry& current, const Odometry& dest) {
     double currentLat = degreeToRadian(current.latitude_deg, current.latitude_min);
     double currentLon = degreeToRadian(current.longitude_deg, current.longitude_min);
@@ -64,8 +64,10 @@ Odometry createOdom(const Odometry& current, Vector2d offset, const std::shared_
     return createOdom(current, bearing, distance, rover);
 } // createOdom
 
-// Approximate the LHS bearing (clockwise rotation in positive) between two global odometries.
-// The linearization that occurs is implicitly defined relative to the destination.
+/**
+ * Approximate the LHS bearing (clockwise rotation in positive) between two global odometries.
+ * The linearization that occurs is implicitly defined relative to the destination.
+ */
 double estimateBearing(const Odometry& start, const Odometry& dest) {
     double currentLat = degreeToRadian(start.latitude_deg, start.latitude_min);
     double currentLon = degreeToRadian(start.longitude_deg, start.longitude_min);
@@ -90,8 +92,10 @@ double estimateBearing(const Odometry& start, const Odometry& dest) {
     return radianToDegree(bearing);
 } // estimateBearing
 
-// Calculates the modulo of value with the given modulus.
-// This handles the case where value is negatively properly.
+/**
+ * Calculates the modulo of value with the given modulus.
+ * This handles the case where value is negatively properly.
+ */
 double mod(double value, double modulus) {
     double mod = fmod(value, modulus);
     return mod < 0 ? mod + modulus : mod;

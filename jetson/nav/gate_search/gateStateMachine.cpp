@@ -9,7 +9,6 @@
 
 using Eigen::Vector2d;
 
-// Constructs a GateStateMachine object with mStateMachine
 GateStateMachine::GateStateMachine(std::weak_ptr<StateMachine> stateMachine, const rapidjson::Document& roverConfig) :
         mStateMachine(move(stateMachine)),
         mConfig(roverConfig) {
@@ -155,12 +154,11 @@ void GateStateMachine::makeSpiderPath(std::shared_ptr<Rover> const& rover, std::
     mPath.push_back(victoryOdom);
 } // makeSpiderPath()
 
-// Creates an GateStateMachine object
 std::shared_ptr<GateStateMachine> GateFactory(const std::weak_ptr<StateMachine>& sm, const rapidjson::Document& roverConfig) {
     return std::make_shared<GateStateMachine>(sm, roverConfig);
 } // GateFactory()
 
-// Sends search path rover takes when trying to find posts
+/** @brief Sends search path rover takes when trying to find posts */
 void GateStateMachine::publishGatePath() {
     std::shared_ptr<StateMachine> sm = mStateMachine.lock();
     std::shared_ptr<Environment> env = sm->getEnv();

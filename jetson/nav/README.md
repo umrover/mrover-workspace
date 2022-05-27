@@ -53,6 +53,7 @@ Note that the actual state variable is held by the rover class.
 
 Information about the rover and functionality for controlling the drivetrain.
 Contains the current state, odometry (position + rotation), the PID controllers for bearing (turning) and distance.
+Has behavior for driving to a waypoint which handles turning and driving to within a threshold.
 
 ### [`environment.cpp`](./environment.cpp)
 
@@ -71,7 +72,15 @@ Often times we do not have the targets in view, so this makes them persistent in
 
 ## Search
 
-Handles state machine logic for driving to a single post/tag.
+[`searchStateMachine.cpp`](./search/searchStateMachine.cpp)
+[`searchFromPathFile.cpp`](./search/searchFromPathFile.cpp)
+
+Sub state machines for driving to a single post/tag.
+First we need to find the tag by driving in a spiral.
+The spiral is pre-generated and loaded from a file.
+The idea is that eventually we will spot the tag, then transition to the other sub state machine.
+Now we can handle the logic of discerning which of the left/right tag (in screen space) from the environment is the
+correct ID.
 
 ---
 
@@ -79,7 +88,7 @@ Handles state machine logic for driving to a single post/tag.
 
 ## Gate Search
 
-Write me!
+Sub state machine for gate search and traversal.
 
 ---
 
