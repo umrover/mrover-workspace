@@ -28,7 +28,7 @@ build_jarvis() {
     if $nav_flag && $lcm_flag  && $sim_flag;
     then
         printf "${CYAN}Building nav + lcm + sim\n${NC}"
-        vagrant ssh -c './jarvis build jetson/nav && ./jarvis build lcm_bridge/server && ./jarvis build simulators/nav && (jarvis exec jetson/nav & jarvis exec lcm_bridge/server & jarvis exec simulators/nav); /bin/bash'
+        vagrant ssh -c './jarvis build jetson/nav && ./jarvis build lcm_bridge/server && ./jarvis build simulators/nav && (./jarvis exec jetson/nav & ./jarvis exec lcm_bridge/server & ./jarvis exec simulators/nav); /bin/bash'
     elif $nav_flag;
     then
         printf "${CYAN}Building nav\n${NC}"

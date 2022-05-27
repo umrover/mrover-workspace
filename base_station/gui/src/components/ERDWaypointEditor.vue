@@ -31,7 +31,7 @@
         <button v-on:click="clearWaypoint">Clear Waypoints</button>
       </div>
       <draggable v-model="storedWaypoints" class="dragArea" draggable=".item'">
-        <WaypointItem v-for="waypoint, i in storedWaypoints" :key="i" v-bind:waypoint="waypoint" v-bind:index="i" v-on:delete="deleteItem($event)"/>
+        <WaypointItem v-for="waypoint, i in storedWaypoints" :key="i" v-bind:waypoint="waypoint" v-bind:index="i" v-on:delete="deleteItem($event)" v-on:find="findWaypoint($event)"/>
       </draggable>
     </div>
   </div>
@@ -74,10 +74,14 @@ export default {
   methods: {
     ...mapMutations('erd',{
       setWaypointList: 'setWaypointList',
+      setHighlightedWaypoint: 'setHighlightedWaypoint',
       setOdomFormat: 'setOdomFormat'
     }),
 
     deleteItem: function (payload) {
+      if(this.highlightedWaypoint == payload.index){
+        this.setHighlightedWaypoint(-1)
+      }
       this.storedWaypoints.splice(payload.index, 1)
     },
 
@@ -87,6 +91,15 @@ export default {
         lat: (coord.lat.d + coord.lat.m/60 + coord.lat.s/3600),
         lon: (coord.lon.d + coord.lon.m/60 + coord.lon.s/3600)
       });
+    },
+
+    findWaypoint: function (payload) {
+      if(payload.index === this.highlightedWaypoint){
+        this.setHighlightedWaypoint(-1)
+      }
+      else{
+        this.setHighlightedWaypoint(payload.index)
+      }
     },
 
     clearWaypoint: function () {
@@ -128,6 +141,7 @@ export default {
   computed: {
     ...mapGetters('erd', {
       odom_format: 'odomFormat',
+      highlightedWaypoint: 'highlightedWaypoint',
       clickPoint: "clickPoint"
     }),
 
