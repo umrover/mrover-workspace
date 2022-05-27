@@ -281,7 +281,7 @@ class ArmControl:
 
         lcm_.publish('/sa_open_loop_cmd', sa_openloop_msg.encode())
 
-    def arm_slow_mode(self, channel, msg):
+    def arm_slow_mode_callback(self, channel, msg):
         slow_mode_request = Enable.decode(msg).enabled
         if slow_mode_request:
             self.speed_multiplier = 0.25
