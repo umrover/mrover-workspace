@@ -9,10 +9,6 @@
 #include "rover_msgs/NavStatus.hpp"
 #include "obstacle_avoidance/simpleAvoidance.hpp"
 
-// Constructs a StateMachine object with the input lcm object.
-// Reads the configuration file and constructs a Rover objet with this
-// and the lcmObject. Sets mStateChanged to true so that on the first
-// iteration of run the rover is updated.
 StateMachine::StateMachine(
         rapidjson::Document& config,
         std::shared_ptr<Rover> rover, std::shared_ptr<Environment> env, std::shared_ptr<CourseProgress> courseProgress,
@@ -21,21 +17,24 @@ StateMachine::StateMachine(
     mRover(move(rover)), mEnv(move(env)), mCourseProgress(move(courseProgress)), mLcmObject(lcmObject),
     mTimePoint(std::chrono::high_resolution_clock::now()),
     mPrevTimePoint(mTimePoint) {
-    // TODO: fix, weak_from_this() should not be called in ctor, will always be null
+    // TODO weak_from_this() should not be called in ctor, will always be null. Fine at the moment since obstacle detection is not used
     mObstacleAvoidanceStateMachine = ObstacleAvoiderFactory(weak_from_this(),
                                                             ObstacleAvoidanceAlgorithm::SimpleAvoidance, mRover,
                                                             mConfig);
 } // StateMachine()
 
-// Runs the state machine through one iteration. The state machine will
-// run if the state has changed or if the rover's status has changed.
-// Will call the corresponding function based on the current state.
+/**
+ * Run a single iteration of the top level state machine.
+ * Executes the correct function or sub state machine based on the current state machine to calculate the next state.
+ * In this way the state machine can be seen as a tree, with search and gate search being subtrees.
+ */
 void StateMachine::run() {
     mPrevTimePoint = mTimePoint;
     auto now = std::chrono::high_resolution_clock::now();
     mTimePoint = now;
 
     // Diagnostic info: take average loop time
+    // TODO move static to instance variable. Fine at the moment since we don't have multiple instances of the state machine
     static std::array<double, 256> readings{};
     static int i = 0;
     readings[i] = getDtSeconds();
@@ -102,6 +101,7 @@ void StateMachine::run() {
             }
         } // switch
 
+        // Avoid old PID values from previous states
         if (nextState != mRover->currentState()) {
             mRover->setState(nextState);
             mRover->turningBearingPid().reset();
@@ -109,16 +109,19 @@ void StateMachine::run() {
         }
     } else {
         nextState = NavState::Off;
-        mRover->setState(executeOff()); // Turn off immediately
+        mRover->setState(executeOff());
         if (nextState != mRover->currentState()) {
             mRover->setState(nextState);
         }
     }
 
+    // TODO no longer needed after switching to waiting for LCM messages?
     std::this_thread::sleep_until(mTimePoint + LOOP_DURATION);
 } // run()
 
-// Publishes the current navigation state to the nav status lcm channel.
+/***
+ * @brief Publishes the current navigation state to the nav status lcm channel.
+ */
 void StateMachine::publishNavState() const {
     NavStatus navStatus{
             .nav_state_name = stringifyNavState(),
@@ -129,10 +132,6 @@ void StateMachine::publishNavState() const {
     mLcmObject.publish(navStatusChannel, &navStatus);
 } // publishNavState()
 
-// Executes the logic for off. If the rover is turned on, it updates
-// the roverStatus. If the course is empty, the rover is done  with
-// the course otherwise it will turn to the first waypoint. Else the
-// rover is still off.
 NavState StateMachine::executeOff() {
     if (mRover->autonState().enabled) {
         NavState nextState = mCourseProgress->getCourse().num_waypoints ? NavState::DriveWaypoints : NavState::Done;
@@ -143,7 +142,6 @@ NavState StateMachine::executeOff() {
     return NavState::Off;
 } // executeOff()
 
-// Executes the logic for the done state. Stops and turns off the rover.
 NavState StateMachine::executeDone() {
     mRover->stop();
     return NavState::Done;
@@ -177,7 +175,6 @@ NavState StateMachine::executeDrive() {
     return NavState::DriveWaypoints;
 } // executeDrive()
 
-// Gets the string representation of a nav state.
 std::string StateMachine::stringifyNavState() const {
     static const std::unordered_map<NavState, std::string> navStateNames =
             {
@@ -207,12 +204,6 @@ void StateMachine::setSearcher(SearchType type) {
 
 void StateMachine::setGateSearcher() {
     mGateStateMachine = GateFactory(weak_from_this(), mConfig);
-}
-
-// Allows outside objects to set the original obstacle angle
-// This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleDistance(double distance) {
-    mObstacleAvoidanceStateMachine->updateObstacleDistance(distance);
 }
 
 std::shared_ptr<Environment> StateMachine::getEnv() {

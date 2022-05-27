@@ -5,8 +5,6 @@
 #include <cmath>
 #include <iostream>
 
-// Constructs a rover object with the given configuration file and lcm
-// object with which to use for communications.
 Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
         : mConfig(config), mLcmObject(lcmObject),
           mTurningBearingPid(PidLoop(config["bearingPid"]["kP"].GetDouble(),
@@ -24,7 +22,7 @@ Rover::Rover(const rapidjson::Document& config, lcm::LCM& lcmObject)
           mDriving(false),
           mBackingUp(false),
           mNeedToSetTurnStart(true) {
-} // Rover(
+} // Rover()
 
 /***
  * Drive to the global position defined by destination, turning if necessary.
@@ -118,14 +116,13 @@ bool Rover::drive(double distance, double bearing, double threshold, double dt) 
     return false;
 } // drive()
 
-// Turn to a global point
+/** @brief Turn to a global point */
 bool Rover::turn(Odometry const& destination, double dt) {
     double bearing = estimateBearing(mOdometry, destination);
     return turn(bearing, dt);
 } // turn()
 
-
-// Turn to an absolute bearing
+/** @brief Turn to an absolute bearing */
 bool Rover::turn(double absoluteBearing, double dt) {
     if (mTurningBearingPid.isOnTarget(mOdometry.bearing_deg, absoluteBearing)) {
         return true;
@@ -146,8 +143,7 @@ void Rover::stop() {
     publishAutonDriveCmd(0.0, 0.0);
 } // stop()
 
-// Calculates the conversion from minutes to meters based on the
-// rover's current latitude.
+/** @brief Calculates the conversion from minutes to meters based on the rover's current latitude */
 double Rover::longMeterInMinutes() const {
     if (mLongMeterInMinutes <= 0.0) {
         throw std::runtime_error("Invalid conversion");
@@ -158,6 +154,11 @@ double Rover::longMeterInMinutes() const {
 // Gets the rover's turning pid object.
 PidLoop& Rover::turningBearingPid() {
     return mTurningBearingPid;
+}
+
+/** @return Rover's turning PID controller */
+PidLoop& Rover::bearingPid() {
+    return mBearingPid;
 } // bearingPid()
 
 // Gets the rover's turning pid while driving object
@@ -174,17 +175,14 @@ void Rover::publishAutonDriveCmd(const double leftVel, const double rightVel) {
     mLcmObject.publish(autonDriveControlChannel, &driveControl);
 }
 
-// Gets a reference to the rover's current navigation state.
 NavState const& Rover::currentState() const {
     return mCurrentState;
 } // currentState()
 
-// Gets a reference to the rover's current auton state.
 Enable const& Rover::autonState() const {
     return mAutonState;
 } // autonState()
 
-// Gets a reference to the rover's current odometry information.
 Odometry const& Rover::odometry() const {
     return mOdometry;
 } // odometry()

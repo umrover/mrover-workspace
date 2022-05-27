@@ -17,10 +17,8 @@ using namespace rover_msgs;
 using namespace std::chrono_literals;
 using time_point = std::chrono::high_resolution_clock::time_point;
 
-static auto const LOOP_DURATION = 0.01s;
+constexpr auto LOOP_DURATION = 0.01s;
 
-// This class implements the logic for the state machine for the
-// autonomous navigation of the rover.
 class StateMachine : public std::enable_shared_from_this<StateMachine> {
 public:
     /*************************************************************************/
@@ -31,8 +29,6 @@ public:
                  lcm::LCM& lcmObject);
 
     void run();
-
-    void updateObstacleDistance(double distance);
 
     void setSearcher(SearchType type);
 

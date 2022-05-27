@@ -25,7 +25,6 @@
 #define NOW std::chrono::high_resolution_clock::now()
 using namespace rover_msgs;
 
-// This class is the representation of the navigation states.
 enum class NavState {
     // Base States
     Off = 0,
@@ -54,8 +53,6 @@ enum class NavState {
     Unknown = 255
 }; // AutonState
 
-// This class creates a Rover object which can perform operations that
-// the real rover can perform.
 class Rover {
 public:
     Rover(const rapidjson::Document& config, lcm::LCM& lcm_in);
@@ -100,30 +97,28 @@ private:
     /* Private Member Variables */
     /*************************************************************************/
 
-    // A reference to the configuration file.
     const rapidjson::Document& mConfig;
 
-    // A reference to the lcm object that will be used for
-    // communicating with the actual rover and the base station.
+    // Interface for communicating messages to and from the base station
     lcm::LCM& mLcmObject;
 
+<<<<<<< HEAD
     // The pid loop for turning.
     PidLoop mTurningBearingPid;
 
     // The pid loop for turning while driving
     PidLoop mDriveBearingPid;
+=======
+    PidLoop mBearingPid;
+>>>>>>> c243a36a (Start documenting navigation better. removing some commented out code and dead code. added clang format)
 
-    // The conversion factor from arcminutes to meters. This is based
-    // on the rover's current latitude.
+    // The conversion factor from arcminutes to meters. This is based n the rover's current latitude.
     double mLongMeterInMinutes;
 
-    // The rover's current navigation state.
     NavState mCurrentState{NavState::Off};
 
-    // The rover's current auton state.
     Enable mAutonState{};
 
-    // The rover's current odometry information.
     Odometry mOdometry{};
 
     bool mTurning, mDriving, mBackingUp, mNeedToSetTurnStart;
