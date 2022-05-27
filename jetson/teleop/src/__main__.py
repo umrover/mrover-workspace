@@ -201,7 +201,7 @@ class ArmControl:
         if self.slow_mode:
             # slow down joints a, c, e, and f
             motor_speeds[0] *= 0.5
-            motor_speeds[3] *= 0.5
+            motor_speeds[2] *= 0.5
             motor_speeds[4] *= 0.5
             motor_speeds[5] *= 0.5
 
