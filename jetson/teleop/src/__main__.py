@@ -175,6 +175,7 @@ class ArmControl:
     def __init__(self):
         self.arm_control_state = "off"
         self.arm_type = self.ArmType.UNKNOWN
+        self.speed_multiplier = 1
 
     def arm_control_state_callback(self, channel, msg):
         self.arm_control_state = ArmControlState.decode(msg).state
@@ -196,6 +197,8 @@ class ArmControl:
                         quadratic(deadzone(xboxData.right_js_x, 0.15)),
                         quadratic(xboxData.right_trigger - xboxData.left_trigger),
                         (xboxData.right_bumper - xboxData.left_bumper)]
+
+        motor_speeds = [element * self.speed_multiplier for element in motor_speeds]
 
         openloop_msg = RAOpenLoopCmd()
         openloop_msg.throttle = motor_speeds
@@ -220,6 +223,8 @@ class ArmControl:
                         quadratic(-deadzone(xboxData.left_js_y, 0.15)),
                         quadratic(-deadzone(xboxData.right_js_y, 0.15)),
                         quadratic(xboxData.right_trigger - xboxData.left_trigger)]
+
+        saMotorsData = [element * self.speed_multiplier for element in saMotorsData]
 
         openloop_msg = SAOpenLoopCmd()
         openloop_msg.throttle = saMotorsData
@@ -276,6 +281,13 @@ class ArmControl:
 
         lcm_.publish('/sa_open_loop_cmd', sa_openloop_msg.encode())
 
+    def arm_slow_mode(self, channel, msg):
+        slow_mode_request = Enable.decode(msg).enabled
+        if slow_mode_request:
+            self.speed_multiplier = 0.25
+        else:
+            self.speed_multiplier = 1
+
 
 def main():
     arm = ArmControl()
@@ -308,6 +320,7 @@ def main():
     lcm_.subscribe('/arm_control_state', arm.arm_control_state_callback)
     lcm_.subscribe('/ra_b_calib_data', arm.ra_calibration_callback)
     lcm_.subscribe('/sa_b_calib_data', arm.sa_calibration_callback)
+    lcm_.subscribe('/arm_slow_mode', arm.arm_slow_mode_callback)
 
     lcm_.subscribe('/gimbal_control', gimbal_control_callback)
 
