@@ -42,17 +42,36 @@ The rover class, environment class (physical surroundings), course progress, and
 These are passed to the state machine construction.
 Then the state machine is run every time we receive a new LCM message from the network.
 
-#### `stateMachine.cpp`
+#### [`stateMachine.cpp`](./stateMachine.cpp)
 
 Main state machine logic, defines how states transition to one another.
 Waypoint traversal logic is implemented here since it is simple.
 For search (single tag) and gate search states, sub state machines are invoked to keep code properly encapsulated.
 Note that the actual state variable is held by the rover class.
 
-#### `rover.cpp`
+#### [`rover.cpp`](./rover.cpp)
 
 Information about the rover and functionality for controlling the drivetrain.
 Contains the current state, odometry (position + rotation), the PID controllers for bearing (turning) and distance.
+
+### [`environment.cpp`](./environment.cpp)
+
+Holds processed information about the physical surroundings.
+Raw and unreliable data is received from perception and passed through several caches and filters.
+The caches ensure that briefly missing data or briefly seeing false positives does not have a large effect on the
+overall state.
+The filters combine multiple readings into a more accurate one via chopping out extreme values and then taking the
+average of the remaining.
+Gate location is calculated as global positioning by combing camera and odometry information.
+Often times we do not have the targets in view, so this makes them persistent in space.
+
+---
+
+<!----------------------------- Search ----------------------------->
+
+## Search
+
+Handles state machine logic for driving to a single post/tag.
 
 ---
 
@@ -69,14 +88,6 @@ Write me!
 ## Obstacle Avoidance
 
 Not yet implemented.
-
----
-
-<!----------------------------- Search ----------------------------->
-
-## Search
-
-Write me!
 
 ---
 

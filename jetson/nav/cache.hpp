@@ -25,7 +25,7 @@ public:
         return mValid;
     }
 
-    void reset(){
+    void reset() {
         mCurrentReading = mInvalidDefault;
         mValid = false;
         mHits = 0;
