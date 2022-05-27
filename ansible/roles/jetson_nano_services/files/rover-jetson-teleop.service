@@ -2,6 +2,7 @@
 Description=MRover Jetson Teleop
 
 [Service]
+EnvironmentFile=/etc/default/rover.env
 User={{ running_user }}
 ExecStart={{ workspace_dir }}/jarvis exec jetson_teleop
 Restart=always
