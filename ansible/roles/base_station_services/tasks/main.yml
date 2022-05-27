@@ -15,13 +15,11 @@
     - rover-base_station_gstreamer_3.service
     - rover-base_station_gstreamer_4.service
     - rover-lcm_bridge_server.service
-    - rover-base_station_microscope.service
     - rover-base_station_kineval.service
     - rover-base_station_gstreamer.timer
     - rover-base_station_gstreamer_2.timer
     - rover-base_station_gstreamer_3.timer
     - rover-base_station_gstreamer_4.timer
-    - rover-base_station_microscope.timer
 
 - name: Copy environment variable definitions
   copy:
@@ -40,10 +38,8 @@
     - rover-base_station_gstreamer_3.service
     - rover-base_station_gstreamer_4.service
     - rover-lcm_bridge_server.service
-    - rover-base_station_microscope.service
     - rover-base_station_kineval.service
     - rover-base_station_gstreamer.timer
     - rover-base_station_gstreamer_2.timer
     - rover-base_station_gstreamer_3.timer
     - rover-base_station_gstreamer_4.timer
-    - rover-base_station_microscope.timer
