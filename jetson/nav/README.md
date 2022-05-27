@@ -7,15 +7,13 @@
 [Gate Search (`gate_search/`)](#gate-search) \
 [Obstacle Avoidance (`obstacle_avoidance/`)](#obstacle-avoidance) \
 [Search (`search/`)](#search) \
-[Variables and Utilities](#variables-and-utilities)
+[Utilities](#utilities)
 
 **Created:** Ana Warner, Oct 3, 2021 \
 **Updated:** Zachary Goldston, December 7, 2021 \
 **Updated:** Quintin Dwight, May 26, 2022
 
 ---
-
-<!----------------------------- Project Overview ----------------------------->
 
 ## Project Overview
 
@@ -30,11 +28,9 @@ algorithm will start.
 
 ---
 
-<!----------------------------- Top-Level Code ----------------------------->
-
 ## Top Level Code
 
-#### `main.cpp`
+#### [`main.cpp`](./main.cpp)
 
 Contains the `main()` entrypoint. Here [LCM](https://github.com/lcm-proj/lcm) callbacks are set up to receive commands
 and status from the base station.
@@ -68,11 +64,10 @@ Often times we do not have the targets in view, so this makes them persistent in
 
 ---
 
-<!----------------------------- Search ----------------------------->
-
 ## Search
 
 #### [`searchStateMachine.cpp`](./search/searchStateMachine.cpp)
+
 #### [`searchFromPathFile.cpp`](./search/searchFromPathFile.cpp)
 
 Sub state machines for driving to a single post/tag.
@@ -83,8 +78,6 @@ Now we can handle the logic of discerning which of the left/right tag (in screen
 correct ID.
 
 ---
-
-<!----------------------------- Gate Search ----------------------------->
 
 ## Gate Search
 
@@ -97,11 +90,18 @@ Sometimes this involves an extra step if both gate posts are in front of us (wor
 
 ---
 
-<!----------------------------- Obstacle Avoidance ----------------------------->
-
 ## Obstacle Avoidance
 
 Not yet implemented.
+
+---
+
+## Utilities
+
+[`utilities.cpp`](./utilities.cpp) Misc. math, conversions between GPS and cartesian coordinates \
+[`filter.cpp`](./filter.hpp) Generic median + mean filter, useful for combining multiple readings into a more accurate
+one \
+[`cache.cpp`](./cache.hpp) Generic storage resilient to brief readings misses and false positives
 
 ---
 
@@ -110,8 +110,6 @@ Not yet implemented.
 ![image](https://user-images.githubusercontent.com/20666629/170621044-2055089d-cba9-4164-8472-e669dfc1ee66.png)
 
 ---
-
-<!----------------------------- LCMs ----------------------------->
 
 ## LCM Channels Publishing/Subscribed To
 
@@ -163,8 +161,6 @@ Publishers: jetson/nav
 
 ---
 
-<!----------------------------- Simulator Usage ----------------------------->
-
 ## Simulator Usage
 
 To run the Navigation Simulator, you will need to open at least 3 terminals from the `mrover-workspace` directory (at
@@ -196,8 +192,6 @@ command `./jarvis exec lcm_tools/echo TYPE_NAME CHANNEL` to echo the specified L
 our LCM section and ICDs on the Drive)
 
 ---
-
-<!----------------------------- Rover Testing ----------------------------->
 
 ## Rover Testing (in-person)
 
