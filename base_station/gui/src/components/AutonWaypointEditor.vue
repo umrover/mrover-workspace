@@ -41,12 +41,14 @@
     </div>
     <div class="col-wrap" style="left: 50%">
       <div class="box datagrid">
-        <div class="autonmode">
-          <Checkbox ref="checkbox" v-bind:name="autonButtonText" v-bind:color="autonButtonColor"  v-on:toggle="toggleAutonMode($event)"/>
+        <div class="auton-check">
+          <AutonModeCheckbox ref="autonCheckbox" v-bind:name="autonButtonText" v-bind:color="autonButtonColor"  v-on:toggle="toggleAutonMode($event)"/>
+        </div>
+        <div class="teleop-check">
+          <Checkbox ref="teleopCheckbox" v-bind:name="'Teleop Enabled'" v-on:toggle="toggleTeleopMode($event)"/>
         </div>
         <div class="stats">
           <p>
-            Navigation State: {{nav_status.nav_state_name}}<br>
             Waypoints Traveled: {{nav_status.completed_wps}}/{{nav_status.total_wps}}<br>
           </p>
         </div>
@@ -65,7 +67,8 @@
 </template>
 
 <script>
-import Checkbox from './AutonModeCheckbox.vue'
+import AutonModeCheckbox from './AutonModeCheckbox.vue'
+import Checkbox from './Checkbox.vue'
 import draggable from 'vuedraggable'
 import {convertDMS} from '../utils.js';
 import AutonJoystickReading from './AutonJoystickReading.vue'
@@ -119,7 +122,7 @@ export default {
       route: [],
 
       autonButtonColor: "red",
-      waitingForNav: false,
+      waitingForNav: false
 
     }
   },
@@ -146,7 +149,8 @@ export default {
 
     interval = window.setInterval(() => {
 
-      this.$parent.publish('/auton', {type: 'AutonState', is_auton: this.autonEnabled})
+      this.$parent.publish('/auton_enabled', {type: 'Enable', enabled: this.autonEnabled})
+      this.$parent.publish('/teleop_enabled', {type: 'Enable', enabled: this.teleopEnabled})
 
       let course = {
         num_waypoints: this.route.length,
@@ -186,6 +190,7 @@ export default {
       setWaypointList: 'setWaypointList',
       setHighlightedWaypoint: 'setHighlightedWaypoint',
       setAutonMode: 'setAutonMode',
+      setTeleopMode: 'setTeleopMode',
       setOdomFormat: 'setOdomFormat'
     }),
 
@@ -254,6 +259,11 @@ export default {
       this.setAutonMode(val)
       this.autonButtonColor = "yellow"
       this.waitingForNav = true;
+    },
+
+    toggleTeleopMode: function (val) {
+      console.log(val)
+      this.setTeleopMode(val)
     }
   },
 
@@ -307,7 +317,7 @@ export default {
   computed: {
     ...mapGetters('autonomy', {
       autonEnabled: 'autonEnabled',
-      highlightedWaypoint: 'highlightedWaypoint',
+      teleopEnabled: 'teleopEnabled',
       odom_format: 'odomFormat',
       clickPoint: "clickPoint"
     }),
@@ -336,6 +346,7 @@ export default {
   components: {
     draggable,
     WaypointItem,
+    AutonModeCheckbox,
     Checkbox,
     AutonJoystickReading
   }
@@ -395,12 +406,11 @@ export default {
 
   .datagrid {
       display: grid;
-      grid-gap: 3px;
+      grid-gap: 2px;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr 0.25fr;
-      grid-template-areas: "autonmode stats"
-                           "toggle__button stats"
-                           "joystick stats";
+      grid-template-rows: 1fr 0.25fr;
+      grid-template-areas: "auton-check stats"
+                           "teleop-check joystick";
       font-family: sans-serif;
       min-height: min-content;
   }
@@ -415,15 +425,23 @@ export default {
     height: 20px;
   }
 
-  .autonmode{
+  .auton-check{
     align-content: center;
+    grid-area: auton-check;
+  }
+
+  .teleop-check{
+    align-content: center;
+    grid-area: teleop-check;
   }
 
   .stats{
+    margin-top: -10px;
     grid-area: stats;
   }
   
   .joystick{
+    margin-top: -20px;
     grid-area: joystick;
   }
   

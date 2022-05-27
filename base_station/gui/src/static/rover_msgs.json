@@ -93,10 +93,10 @@
             "right_percent_velocity"
         ]
     ],
-    "AutonState": [
+    "AutonLed": [
         [
-            "boolean",
-            "is_auton"
+            "string",
+            "color"
         ]
     ],
     "Bearing": [
@@ -202,7 +202,7 @@
             "string",
             "preset"
         ]
-
+        
     ],
     "DebugMessage": [
         [
@@ -276,6 +276,12 @@
         [
             "boolean",
             "enable"
+        ]
+    ],
+    "Enable": [
+        [
+            "boolean",
+            "enabled"
         ]
     ],
     "Encoder": [

@@ -8,18 +8,9 @@
       <l-marker ref="target_bearing" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="targetBearingIcon"/>
       <l-marker ref="rover" :lat-lng="this.playbackEnabled ? this.playbackPath[this.playbackPath.length-1] : odomLatLng" :icon="locationIcon"/>
 
-      <div v-for="(waypoint, index) in waypointList" :key="index">
-        <div v-if="index===highlightedWaypoint">
-          <l-marker :lat-lng="waypoint.latLng" :icon="highlightedWaypointIcon">
-             <l-tooltip :options="{permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
-          </l-marker>
-        </div>
-        <div v-else>
-          <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon">
-             <l-tooltip :options="{permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
-          </l-marker>
-        </div>
-      </div>
+      <l-marker :lat-lng="waypoint.latLng" :icon="waypointIcon" v-for="(waypoint, index) in waypointList" :key="index">
+         <l-tooltip :options="{permanent: 'true', direction: 'top'}"> {{ waypoint.name }}, {{ index }} </l-tooltip>
+      </l-marker>
 
       <l-marker :lat-lng="projected_point.latLng" :icon="projectedPointIcon" v-for="(projected_point, index) in projectedPoints" :key="index">
          <l-tooltip :options="{permanent: 'true', direction: 'top'}">{{ projectedPointsType }} {{ index }}</l-tooltip>
@@ -93,12 +84,6 @@ export default {
       iconAnchor: [32, 64],
       popupAnchor: [0, -32]
     })
-    this.highlightedWaypointIcon = L.icon({
-      iconUrl: '/static/map_marker_highlighted.png',
-      iconSize: [64, 64],
-      iconAnchor: [32, 64],
-      popupAnchor: [0, -32]
-    })
     this.projectedPointIcon = L.icon({
       iconUrl: '/static/map_marker_projected.png',
       iconSize: [64, 64],
@@ -143,7 +128,6 @@ export default {
     ...mapGetters('autonomy', {
       route: 'route',
       waypointList: 'waypointList',
-      highlightedWaypoint: "highlightedWaypoint",
       playbackEnabled: 'playbackEnabled',
       playbackLength: 'playbackLength',
       playback: 'playback',
@@ -180,7 +164,6 @@ export default {
       offlineUrl: offlineUrl,
       roverMarker: null,
       waypointIcon: null,
-      highlightedWaypointIcon:null,
       map: null,
       odomCount: 0,
       locationIcon: null,

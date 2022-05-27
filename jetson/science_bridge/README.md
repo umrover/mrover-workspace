@@ -54,16 +54,16 @@ Messages: [MosfetCmd.lcm](https://github.com/umrover/mrover-workspace/blob/main/
 Publishers: base_station/gui \
 Subscribers: jetson/science_bridge
 
-**Nav Status [subscriber]** \
-Messages: [NavStatus.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/NavStatus.lcm) "/nav_status" \
-Publishers: jetson/nav \
+**Auton LED Cmd [subscriber]** \
+Messages: [AutonLed.lcm](https://github.com/umrover/mrover-workspace/blob/main/rover_msgs/AutonLed.lcm) "/auton_led" \
+Publishers: jetson/teleop \
 Subscribers: jetson/science_bridge
 
 #### UART Message
 Format of the UART NMEA command
-- `$MOSFET,<device>,<enable>,<extra padding>`
+- `$LED,<led_state>,<extra padding>`
 - String is 30 characters long
-- The device represents the mosfet device being activated (0 to 11)
+- led_state can be 0 for red, 1 for blue, 2 for blinking green (blink 6 times in 12 seconds), and 3 for no colors
 
 ### Servo Cmd
 Writes NMEA like messages over UART to the Nucleo in order to move servo to specific angles (in degrees). 
