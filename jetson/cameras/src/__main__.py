@@ -29,10 +29,10 @@ class MissionNames(Enum):
 
 
 mission_map = {
-    "AUTON": [MissionNames.AUTON, auton_ips, ARGUMENTS_360],
-    "ERD": [MissionNames.ERD, erd_ips, ARGUMENTS_360],
+    "AUTON": [MissionNames.AUTON, auton_ips, ARGUMENTS_144],
+    "ERD": [MissionNames.ERD, erd_ips, ARGUMENTS_144],
     "ES": [MissionNames.ES, es_ips, ARGUMENTS_720],
-    "SCIENCE": [MissionNames.SCIENCE, science_ips, ARGUMENTS_360]
+    "SCIENCE": [MissionNames.SCIENCE, science_ips, ARGUMENTS_144]
 }
 
 # default to science
