@@ -55,7 +55,7 @@ Information about the rover and functionality for controlling the drivetrain.
 Contains the current state, odometry (position + rotation), the PID controllers for bearing (turning) and distance.
 Has behavior for driving to a waypoint which handles turning and driving to within a threshold.
 
-### [`environment.cpp`](./environment.cpp)
+#### [`environment.cpp`](./environment.cpp)
 
 Holds processed information about the physical surroundings.
 Raw and unreliable data is received from perception and passed through several caches and filters.
@@ -72,8 +72,8 @@ Often times we do not have the targets in view, so this makes them persistent in
 
 ## Search
 
-[`searchStateMachine.cpp`](./search/searchStateMachine.cpp)
-[`searchFromPathFile.cpp`](./search/searchFromPathFile.cpp)
+#### [`searchStateMachine.cpp`](./search/searchStateMachine.cpp)
+#### [`searchFromPathFile.cpp`](./search/searchFromPathFile.cpp)
 
 Sub state machines for driving to a single post/tag.
 First we need to find the tag by driving in a spiral.
@@ -102,6 +102,12 @@ Sometimes this involves an extra step if both gate posts are in front of us (wor
 ## Obstacle Avoidance
 
 Not yet implemented.
+
+---
+
+## State Diagram
+
+![image](https://user-images.githubusercontent.com/20666629/170621044-2055089d-cba9-4164-8472-e669dfc1ee66.png)
 
 ---
 
@@ -169,24 +175,24 @@ show anything until the last set of commands are run.
 
 ### Terminal 1 (`jetson/nav` code)
 
-Run the command `$./jarvis build jetson/nav`, this command will compile all the navigation directory code. If it
-compiles successful, no errors will be returned. Then, run `$./jarvis exec jetson/nav` to start the navigation code.
+Run the command `./jarvis build jetson/nav`, this command will compile all the navigation directory code. If it
+compiles successful, no errors will be returned. Then, run `./jarvis exec jetson/nav` to start the navigation code.
 
 ### Terminal 2 (LCMs)
 
-Run the command `$./jarvis build lcm_bridge/server`, this command will build the LCM messages. If it compiles
-successful, no errors will be returned. Then, run `$./jarvis exec lcm_bridge/server` to run the LCM messages.
+Run the command `./jarvis build lcm_bridge/server`, this command will build the LCM messages. If it compiles
+successful, no errors will be returned. Then, run `./jarvis exec lcm_bridge/server` to run the LCM messages.
 
 ### Terminal 3 (Navigation Simulator)
 
-Run the command `$./jarvis build simulators/nav`, this command will build the Navigation Simulator. If it compiles
-successful, no errors will be returned. Then, run `$./jarvis exec simulators/nav` to run the Simulator.
+Run the command `./jarvis build simulators/nav`, this command will build the Navigation Simulator. If it compiles
+successful, no errors will be returned. Then, run `./jarvis exec simulators/nav` to run the Simulator.
 
 If desired, you can run a fourth terminal for debugging purposes via LCM messages. To do so, make sure you have another
 terminal, and starting in the `mrover-workspace` directory, run `vagrant ssh`. Once we are ssh'ed into the virtual
-machine, run `$./jarvis build lcm_tools/echo` to build the echo tool for LCMs. This will return the messages that are
+machine, run `./jarvis build lcm_tools/echo` to build the echo tool for LCMs. This will return the messages that are
 being communicated between publishers and subscribers. To run, enter the
-command `$./jarvis exec lcm_tools/echo TYPE_NAME CHANNEL` to echo the specified LCM and channel. (These are described in
+command `./jarvis exec lcm_tools/echo TYPE_NAME CHANNEL` to echo the specified LCM and channel. (These are described in
 our LCM section and ICDs on the Drive)
 
 ---
@@ -195,8 +201,8 @@ our LCM section and ICDs on the Drive)
 
 ## Rover Testing (in-person)
 
-To run the rover at testing, all that needs to be executing is `$./jarvis build jetson/nav`
-and `$./jarvis exec jetson/nav` to run our code. This should be done AFTER the Perception and GPS executables and
+To run the rover at testing, all that needs to be executing is `./jarvis build jetson/nav`
+and `./jarvis exec jetson/nav` to run our code. This should be done AFTER the Perception and GPS executables and
 necessary programs are running. To start, use the Base Station GUI to create waypoints via dropping. (dropping will
 place a waypoint at the current GPS location of the rover) Additionally, the GUI has an option to create a waypoint by
 directly inputting the GPS information Then, drag the newly created waypoint to the course. Repeat this process until
