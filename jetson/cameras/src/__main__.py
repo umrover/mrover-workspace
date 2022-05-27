@@ -9,7 +9,8 @@ import jetson.utils  # noqa
 __lcm: lcm.LCM
 __pipelines = [None] * 4
 
-ARGUMENTS_LOW = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
+ARGUMENTS_160 = ['--headless', '--bitrate=300000', '--width=256', '--height=144']
+ARGUMENTS_360 = ['--headless', '--bitrate=800000', '--width=480', '--height=360']
 # 10.0.0.1 represents the ip of the main base station laptop
 # 10.0.0.2 represents the ip of the secondary science laptop
 auton_ips = ["10.0.0.1:5000", "10.0.0.1:5001", "10.0.0.1:5002", "10.0.0.1:5003"]
@@ -36,14 +37,14 @@ class Pipeline:
         global mission_ips, current_mission
         self.current_ips = mission_ips[current_mission.value]
         self.video_source = None
-        self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[port]}", argv=ARGUMENTS_LOW)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[port]}", argv=ARGUMENTS_360)
         self.device_number = -1
         self.port = port
 
     def update_video_output(self):
         global mission_ips, current_mission
         self.current_ips = mission_ips[current_mission.value]
-        self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[self.port]}", argv=ARGUMENTS_LOW)
+        self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[self.port]}", argv=ARGUMENTS_360)
 
     def capture_and_render_image(self):
         try:
@@ -70,7 +71,7 @@ class Pipeline:
         if index != -1:
             self.video_source = video_sources[index]
             if self.video_source is not None:
-                self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[self.port]}", argv=ARGUMENTS_LOW)
+                self.video_output = jetson.utils.videoOutput(f"rtp://{self.current_ips[self.port]}", argv=ARGUMENTS_360)
             else:
                 print(f"Unable to play camera {index} on {self.current_ips[self.port]}.")
                 self.device_number = -1
@@ -103,7 +104,7 @@ def create_video_source(index):
     if video_sources[index] is not None:
         return
     try:
-        video_sources[index] = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_LOW)
+        video_sources[index] = jetson.utils.videoSource(f"/dev/video{index}", argv=ARGUMENTS_360)
     except Exception:
         pass
 
