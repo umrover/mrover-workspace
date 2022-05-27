@@ -125,8 +125,8 @@ export default {
       }
 
       this.$parent.publish('/heater_auto_shutdown_cmd', {
-        'type': 'HeaterAutoShutdown',
-        'auto_shutdown_enabled': enabled
+        'type': 'Enable',
+        'enabled': enabled
       })
     }
   }

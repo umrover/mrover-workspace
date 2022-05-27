@@ -9,7 +9,7 @@ import numpy as np
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
-    AutonLed, ServoCmd, Heater, HeaterAutoShutdown
+    AutonLed, ServoCmd, Heater, Enable
 from enum import Enum
 
 
@@ -201,7 +201,7 @@ class ScienceBridge():
         try:
             arr = msg.split(",")
             enabled = bool(int(arr[1]))
-            struct.auto_shutdown_enabled = enabled
+            struct.enabled = enabled
         except Exception as e:
             print(e)
 
@@ -216,9 +216,9 @@ class ScienceBridge():
 
     def heater_auto_transmit(self, channel, msg):
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
-        struct = HeaterAutoShutdown.decode(msg)
+        struct = Enable.decode(msg)
         message = "$AUTOSHUTOFF,{enable}"
-        message = message.format(enable=int(struct.auto_shutdown_enabled))
+        message = message.format(enable=int(struct.enabled))
         self.uart_send(message)
 
     def mosfet_transmit(self, channel, msg):
@@ -258,7 +258,7 @@ class ScienceBridge():
         thermistor = ThermistorData()
         triad = SpectralData()
         heater = Heater()
-        heater_auto_shutdown = HeaterAutoShutdown()
+        heater_auto_shutdown = Enable()
 
         # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True

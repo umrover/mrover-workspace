@@ -197,9 +197,9 @@ void LCMHandler::InternalHandler::sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCm
     publish_sa_pos_data();
 }
 
-void LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg)
+void LCMHandler::InternalHandler::scoop_limit_switch_enable_cmd(LCM_INPUT, const Enable *msg)
 {
-    ControllerMap::controllers["FOOT_SCOOP"]->limit_switch_enable(msg->enable);
+    ControllerMap::controllers["FOOT_SCOOP"]->limit_switch_enable(msg->enabled);
 }
 
 void LCMHandler::InternalHandler::publish_carousel_calib_data()

@@ -135,7 +135,7 @@ export default {
         {'topic': '/mosfet_cmd', 'type': 'MosfetCmd'},
         {'topic': '/carousel_data', 'type': 'CarouselPosition'},
         {'topic': '/heater_state_data', 'type': 'Heater'},
-        {'topic': '/heater_auto_shutdown_data', 'type': 'HeaterAutoShutdown'},
+        {'topic': '/heater_auto_shutdown_data', 'type': 'Enable'},
       ]
     )
   },

@@ -109,7 +109,7 @@ Publisher: jetson/nucleo_bridge \
 Subscriber: base_station/gui + jetson/ra_kinematics
 
 #### Scoop Limit Switch Enable Cmd \[Subscriber\] "/scoop_limit_switch_enable_cmd"
-Message: [ScoopLimitSwitchEnable.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/ScoopLimitSwitchEnable.lcm) \
+Message: [Enable.lcm](https://github.com/umrover/mrover-workspace/blob/master/rover_msgs/Enable.lcm) \
 Publisher: base_station/gui \
 Subscriber: jetson/nucleo_bridge
 

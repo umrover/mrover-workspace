@@ -13,6 +13,7 @@
 
 #include <rover_msgs/CarouselOpenLoopCmd.hpp>
 #include <rover_msgs/CarouselPosition.hpp>
+#include <rover_msgs/Enable.hpp>
 #include <rover_msgs/FootCmd.hpp>
 #include <rover_msgs/HandCmd.hpp>
 #include <rover_msgs/Calibrate.hpp>
@@ -21,7 +22,6 @@
 #include <rover_msgs/RAPosition.hpp>
 #include <rover_msgs/SAOpenLoopCmd.hpp>
 #include <rover_msgs/SAPosition.hpp>
-#include <rover_msgs/ScoopLimitSwitchEnable.hpp>
 #include <rover_msgs/Signal.hpp>
 
 #define LCM_INPUT const lcm::ReceiveBuffer *receiveBuffer, const std::string &channel
@@ -79,7 +79,7 @@ private:
 
         void sa_open_loop_cmd(LCM_INPUT, const SAOpenLoopCmd *msg);
 
-        void scoop_limit_switch_enable_cmd(LCM_INPUT, const ScoopLimitSwitchEnable *msg);
+        void scoop_limit_switch_enable_cmd(LCM_INPUT, const Enable *msg);
 
         void publish_carousel_calib_data();
 
