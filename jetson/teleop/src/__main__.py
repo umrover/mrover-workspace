@@ -284,7 +284,7 @@ class ArmControl:
     def arm_slow_mode_callback(self, channel, msg):
         slow_mode_request = Enable.decode(msg).enabled
         if slow_mode_request:
-            self.speed_multiplier = 0.25
+            self.speed_multiplier = 0.5
         else:
             self.speed_multiplier = 1
 
