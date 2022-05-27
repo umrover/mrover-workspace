@@ -1,0 +1,7 @@
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="0058", ATTRS{serial}=="D55363D951514C4B39202020FF013E1C", SYMLINK+="imu"
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a9", SYMLINK+="gps"
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2b03", ATTRS{idProduct}=="f582", ATTRS{iProduct}=="ZED", SYMLINK+="zed"
+
+SUBSYSTEM=="usb", ATTRS{idVendor}=="a16f", ATTRS{idProduct}=="0304", SYMLINK+="microscope"

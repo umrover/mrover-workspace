@@ -108,7 +108,7 @@ NavState const& Rover::currentState() const {
 } // currentState()
 
 // Gets a reference to the rover's current auton state.
-AutonState const& Rover::autonState() const {
+Enable const& Rover::autonState() const {
     return mAutonState;
 } // autonState()
 
@@ -117,7 +117,7 @@ Odometry const& Rover::odometry() const {
     return mOdometry;
 } // odometry()
 
-void Rover::setAutonState(AutonState state) {
+void Rover::setAutonState(Enable state) {
     mAutonState = state;
 }
 

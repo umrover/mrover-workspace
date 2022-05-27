@@ -74,7 +74,6 @@
 	{
 		"order": [0, 1],
 		"numSearches": 2,
-		"bailThresh": 20.0,
 		"searchWaitStepSize": 90.0,
 		"searchWaitTime": 1.0,
 		"spiralSearchPoints": "jetson/nav/search/spiral_search_points.txt"
