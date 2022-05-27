@@ -63,12 +63,26 @@ Publishers: N/A
 Usage: Used to read in values for thermistor temperatures
 
 #### Auton GUI:
-Autonomous
-"/autonomous"
-File: Autonomous.lcm
-Subscriptions: 
-Publishers: N/A
-Usage: 
+AutonEnabled
+"/auton_enabled"
+File: Enable.lcm
+Subscriptions: N/A
+Publishers: AutonWaypointEditor.vue
+Usage: Sends whether autonomous navigation is enabled or not based on the checkbox on the Auton GUI
+
+TeleopEnabled
+"/teleop_enabled"
+File: Enable.lcm
+Subscriptions: N/A
+Publishers: AutonWaypointEditor.vue
+Usage: Sends whether teleoperation is enabled or not based on the checkbox on the Auton GUI
+
+AutonLed
+"/auton_led"
+File: AutonLed.lcm
+Subscriptions: N/A
+Publishers: AutonTask.vue
+Usage: Sends what color the navigation state LED should be in order to match the color of the nav state box on the Auton GUI
 
 # ToDo
 

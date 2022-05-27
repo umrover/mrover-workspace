@@ -5,7 +5,7 @@ from rover_common import heartbeatlib, aiolcm
 from rover_common.aiohelper import run_coroutines
 from rover_msgs import (Joystick, Xbox, Keyboard,
                         DriveVelCmd, MastGimbalCmd,
-                        AutonState, AutonDriveControl,
+                        Enable, AutonDriveControl,
                         GUICameras, Cameras, Mission,
                         RAOpenLoopCmd, HandCmd,
                         SAOpenLoopCmd, FootCmd,
@@ -35,16 +35,20 @@ def deadzone(magnitude, threshold):
 class Drive:
     def __init__(self, reverse: bool):
         self.auton_enabled = False
+        self.teleop_enabled = True
         self.reverse = reverse
 
     def reverse_callback(self, channel, msg):
         self.reverse = ReverseDrive.decode(msg).reverse
 
     def auton_enabled_callback(self, channel, msg):
-        self.auton_enabled = AutonState.decode(msg).is_auton
+        self.auton_enabled = Enable.decode(msg).enabled
+
+    def teleop_enabled_callback(self, channel, msg):
+        self.teleop_enabled = Enable.decode(msg).enabled
 
     def teleop_drive_callback(self, channel, msg):
-        if self.auton_enabled:
+        if self.auton_enabled or not self.teleop_enabled:
             return
 
         input = Joystick.decode(msg)
@@ -86,8 +90,8 @@ class Drive:
         input = AutonDriveControl.decode(msg)
 
         command = DriveVelCmd()
-        command.left = input.right_percent_velocity
-        command.right = input.left_percent_velocity
+        command.left = input.left_percent_velocity
+        command.right = input.right_percent_velocity
 
         lcm_.publish('/drive_vel_cmd', command.encode())
 
@@ -296,7 +300,8 @@ def main():
     hb = heartbeatlib.JetsonHeartbeater(connection_state_changed, 0)
     # look LCMSubscription.queue_capacity if messages are discarded
 
-    lcm_.subscribe("/auton", drive.auton_enabled_callback)
+    lcm_.subscribe("/auton_enabled", drive.auton_enabled_callback)
+    lcm_.subscribe("/teleop_enabled", drive.teleop_enabled_callback)
     lcm_.subscribe('/teleop_reverse_drive', drive.reverse_callback)
     lcm_.subscribe("/drive_control", drive.teleop_drive_callback)
     lcm_.subscribe("/auton_drive_control", drive.auton_drive_callback)
