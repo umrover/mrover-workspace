@@ -79,7 +79,7 @@ has a separate _How To Set Up An Odrive_ section because this process is quite l
 We access the imu at the port /dev/gps, to see the data coming in stop the gps program/service and type: \
 ```sudo picocom -b 115200 /dev/gps``` \
 Data should be coming through. \
-If /dev/gps doesn't exist & the gps is plugged, or we get a new gps, check out [this link](https://github.com/umrover/mrover-workspace/blob/auton-integration/ansible/README.md#usb-dev-rules) for how to update that. 
+If /dev/gps doesn't exist & the gps is plugged, or we get a new gps, check out [this link](https://github.com/umrover/mrover-workspace/blob/main/ansible/README.md#usb-dev-rules) for how to update that. 
 
 
 ### ToDo

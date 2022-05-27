@@ -1,5 +1,6 @@
 [Unit]
 Description=MRover LCM Bridge Server
+>>>>>>> travis-free:ansible/roles/science_services/files/rover-lcm-bridge-server.service
 
 [Service]
 User={{ running_user }}
