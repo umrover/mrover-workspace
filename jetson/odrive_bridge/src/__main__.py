@@ -302,10 +302,11 @@ def publish_state_msg(msg, state_string):
 def publish_encoder_helper(axis):
     global modrive, odrive_controller_index, usb_lock
     msg = DriveVelData()
+    direction_multiplier = -1
 
     usb_lock.acquire()
-    msg.current_amps = modrive.get_iq_measured(axis)
-    msg.vel_m_s = modrive.get_vel_estimate(axis)
+    msg.current_amps = modrive.get_iq_measured(axis) * direction_multiplier
+    msg.vel_m_s = modrive.get_vel_estimate(axis) * direction_multiplier
     usb_lock.release()
 
     motor_map = {(Axis.LEFT, 0): 0, (Axis.RIGHT, 0): 1,

@@ -9,11 +9,11 @@ import numpy as np
 from rover_common.aiohelper import run_coroutines
 from rover_common import aiolcm
 from rover_msgs import ThermistorData, MosfetCmd, SpectralData, \
-    AutonLed, ServoCmd, Heater, HeaterAutoShutdown
+    AutonLed, ServoCmd, Heater, Enable
 from enum import Enum
 
 
-class LED_state(Enum):
+class LEDState(Enum):
     RED = 0
     GREEN = 1
     BLUE = 2
@@ -68,9 +68,9 @@ class ScienceBridge():
         self.previous_auton_msg = "Default"
 
         self.led_map = {
-            "Red": LED_state.RED,
-            "Blue": LED_state.BLUE,
-            "Green": LED_state.GREEN
+            "Red": LEDState.RED,
+            "Blue": LEDState.BLUE,
+            "Green": LEDState.GREEN
         }
 
     def __enter__(self):
@@ -201,7 +201,7 @@ class ScienceBridge():
         try:
             arr = msg.split(",")
             enabled = bool(int(arr[1]))
-            struct.auto_shutdown_enabled = enabled
+            struct.enabled = enabled
         except Exception as e:
             print(e)
 
@@ -216,9 +216,9 @@ class ScienceBridge():
 
     def heater_auto_transmit(self, channel, msg):
         # Send the nucleo a message telling if auto shutoff for heaters is off or on
-        struct = HeaterAutoShutdown.decode(msg)
+        struct = Enable.decode(msg)
         message = "$AUTOSHUTOFF,{enable}"
-        message = message.format(enable=int(struct.auto_shutdown_enabled))
+        message = message.format(enable=int(struct.enabled))
         self.uart_send(message)
 
     def mosfet_transmit(self, channel, msg):
@@ -238,7 +238,7 @@ class ScienceBridge():
             requested_state = self.led_map[struct.color]
             print("Received new auton led request: Turning " + str(struct.color))
         except KeyError:
-            requested_state = LED_state.NONE
+            requested_state = LEDState.NONE
             print("Received invalid/Off auton led request: Turning OFF all colors")
 
         led_message = "$LED,{led_color}".format(led_color=requested_state.value)
@@ -258,7 +258,7 @@ class ScienceBridge():
         thermistor = ThermistorData()
         triad = SpectralData()
         heater = Heater()
-        heater_auto_shutdown = HeaterAutoShutdown()
+        heater_auto_shutdown = Enable()
 
         # Mark TXT as always seen because they are not necessary
         seen_tags = {tag: False if not tag == 'TXT' else True

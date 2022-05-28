@@ -287,8 +287,8 @@ export default {
     toggle_limit_switch_status: function() {
       console.log("Setting limit switch enabled status: " + this.enable_limit_switch);
       this.$parent.publish("/scoop_limit_switch_enable_cmd", {
-        'type': 'ScoopLimitSwitchEnable',
-        'enable': this.enable_limit_switch
+        'type': 'Enable',
+        'enabled': this.enable_limit_switch
       });
     },
 
